@@ -3,14 +3,14 @@
  *
  * 전략: "레이아웃은 결정적, 카피/이미지는 생성" —
  *  - 레이아웃/테마: design-candidates.ts + site-templates.ts (mock과 동일한 결정적 절반)
- *  - 카피: GLM (실패 시 템플릿 기본 카피로 강등 — 온보딩이 죽지 않게)
+ *  - 카피: Claude(Anthropic) (실패 시 템플릿 기본 카피로 강등 — 온보딩이 죽지 않게)
  *  - 이미지: Gemini(Nano Banana) → Supabase Storage 공개 URL
  *  - 영상: Veo 3.1 스텁 — 명확한 에러 (편집 요청 라우트가 502 + 자동 환불 처리)
  */
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
-import { generateGlmText, GLM_COPYWRITER_SYSTEM } from '@/lib/ai/glm-text';
+import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import type { AiService } from '../types';
 import { buildCandidateBlueprints } from '../design-candidates';
@@ -29,7 +29,7 @@ async function generateSectionCopy(survey: SurveyInput): Promise<SectionCopy | u
     `"ctaTitle": "마무리 초대 문구"}`;
 
   try {
-    const raw = await generateGlmText({ prompt, system: GLM_COPYWRITER_SYSTEM, temperature: 0.6 });
+    const raw = await generateClaudeText({ prompt, system: CLAUDE_COPYWRITER_SYSTEM });
     const start = raw.indexOf('{');
     const end = raw.lastIndexOf('}');
     if (start < 0 || end <= start) return undefined;
@@ -121,7 +121,7 @@ export class SupabaseAiService implements AiService {
       `요청: ${input.prompt}`,
       '결과 문구만 출력해줘.',
     ].filter(Boolean);
-    return generateGlmText({ prompt: parts.join('\n\n') });
+    return generateClaudeText({ prompt: parts.join('\n\n') });
   }
 
   async generateImage(input: { prompt: string }): Promise<{ url: string }> {

@@ -62,4 +62,4 @@ cd web && npx tsc --noEmit   # 타입 체크
 
 ## 기술 스택
 
-Next.js 16.2(App Router, `web/`) · TypeScript · Tailwind v4 · Supabase(Auth: 카카오/구글, DB+RLS) · Zustand+zundo(에디터 상태/undo) · TanStack Query · react-hook-form+zod · framer-motion · lucide-react. 결제: 토스페이먼츠(mock 우선). AI: 이미지 Nano Banana(Gemini), 텍스트 GLM, 영상 Veo 3.1 — 전부 `lib/ai/` 어댑터 뒤에.
+Next.js 16.2(App Router, `web/`) · TypeScript · Tailwind v4 · Supabase(Auth: 카카오/구글, DB+RLS) · Zustand+zundo(에디터 상태/undo) · TanStack Query · react-hook-form+zod · framer-motion · lucide-react. 결제: 토스페이먼츠(mock 우선). AI: 이미지 Nano Banana(Gemini), 텍스트/카피 Claude(Anthropic, `@anthropic-ai/sdk`, 기본 `claude-opus-4-8`·`CLAUDE_MODEL`로 교체), 영상 Veo 3.1 — 전부 `lib/ai/` 어댑터 뒤에.

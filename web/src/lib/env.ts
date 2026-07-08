@@ -17,6 +17,9 @@ export const env = {
   /** 서버 전용 — 클라이언트 번들에 노출 금지 */
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
+  /** 카피/텍스트 생성 — Claude(Anthropic). GLM에서 전환됨 */
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
+  /** (레거시) GLM 키 — 현재 미사용, 실연동은 anthropicApiKey 사용 */
   glmApiKey: process.env.GLM_API_KEY ?? '',
   cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN ?? '',
   cloudflareZoneId: process.env.CLOUDFLARE_ZONE_ID ?? '',
