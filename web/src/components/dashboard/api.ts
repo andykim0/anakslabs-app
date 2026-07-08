@@ -159,6 +159,25 @@ export async function publishSite(siteId: string): Promise<PublishResult> {
   return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`);
 }
 
+// ---------- 정적 HTML 백업 (§5) ----------
+
+export interface ExportStatusResult {
+  status: 'none' | 'processing' | 'ready' | 'failed';
+  downloadUrl: string | null;
+  requestedAt?: string | null;
+  warnings?: string[];
+}
+
+/** 백업 생성 (동기 — 완료 후 다운로드 URL 반환) */
+export async function createExport(siteId: string): Promise<ExportStatusResult> {
+  return post<ExportStatusResult>(`/api/sites/${encodeURIComponent(siteId)}/export`);
+}
+
+/** 백업 상태 조회 */
+export async function getExport(siteId: string): Promise<ExportStatusResult> {
+  return request<ExportStatusResult>(`/api/sites/${encodeURIComponent(siteId)}/export`);
+}
+
 // ---------- 크레딧 ----------
 
 export interface CreditsSnapshot {

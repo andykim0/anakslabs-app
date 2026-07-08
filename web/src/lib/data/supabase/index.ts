@@ -24,6 +24,6 @@ export function createSupabaseServices(): DataServices {
     payments: new SupabasePaymentsService(clients),
     domains: new SupabaseDomainService(sites),
     ai: new SupabaseAiService(),
-    exports: new SupabaseExportService(),
+    exports: new SupabaseExportService(sites),
   };
 }

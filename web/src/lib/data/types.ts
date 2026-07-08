@@ -207,21 +207,17 @@ export interface AiService {
 }
 
 // ---------- 정적 HTML Export (§5) ----------
-
-export interface ExportResult {
-  /** zip 저장 경로 (실모드: Storage object path, mock: 데이터 URI/임시 식별자) */
-  objectPath: string;
-  /** 다운로드 불가하거나 수집 실패한 자산 경고 (zip 생성은 성공) */
-  warnings: string[];
-}
+//
+// 렌더링(react-dom/server)은 export route 핸들러가 lib/export로 직접 수행하고,
+// 이 서비스는 "생성된 zip 버퍼 저장 + sites.export_* 갱신 + 다운로드 URL 발급"만 담당한다.
+// (getDataServices()는 테넌트 페이지도 import하므로 react-dom/server를 데이터 그래프에 넣지 않는다.)
 
 export interface ExportService {
-  /**
-   * 발행본(site_config)을 정적 번들(index.html + assets/ + privacy/terms)로 생성해 저장.
-   * sites.export_status를 processing→ready/failed로 갱신. 미발행 사이트는 에러.
-   */
-  exportSite(siteId: string): Promise<ExportResult>;
-  /** 저장 경로 → 다운로드 URL (실모드: signed URL EXPORT_SIGNED_URL_DAYS일 / mock: 즉시 접근 경로) */
+  /** 생성된 zip 버퍼를 보관하고 sites.export_status='ready'/export_url 갱신 후 저장 경로 반환 */
+  saveExport(input: { siteId: string; buffer: Buffer; filename: string }): Promise<{ objectPath: string }>;
+  /** export 실패 표시 (렌더/압축 실패 시 route가 호출) */
+  markFailed(siteId: string): Promise<void>;
+  /** 저장 경로 → 다운로드 URL (실모드: signed URL EXPORT_SIGNED_URL_DAYS일 / mock: 스트리밍 라우트 경로) */
   getDownloadUrl(objectPath: string): Promise<string>;
 }
 

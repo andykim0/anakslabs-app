@@ -315,6 +315,7 @@ export function buildSeed(): MockStore {
     paymentKeys,
     domainStates: new Map(),
     cfHostnameCount: 7, // 관리자 인프라 모니터 데모용
+    exportBlobs: new Map(),
     counters: { id: 0, text: 0, image: 0 },
   };
 }

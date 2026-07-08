@@ -48,6 +48,8 @@ export interface MockStore {
   domainStates: Map<string, MockDomainState>;
   /** Cloudflare custom hostname 총수 (시드 7) */
   cfHostnameCount: number;
+  /** [§5] mock export zip 보관 — object path → { 버퍼, 다운로드 파일명 } */
+  exportBlobs: Map<string, { buffer: Buffer; filename: string }>;
   counters: { id: number; text: number; image: number };
 }
 

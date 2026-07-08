@@ -9,15 +9,18 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  Download,
   ExternalLink,
   Globe,
   Monitor,
+  Package,
   PencilRuler,
   Rocket,
   Smartphone,
 } from 'lucide-react';
 import type { Site } from '@/lib/types/domain';
-import { ApiError, getSite, listEditRequests, publishSite } from './api';
+import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
+import { ApiError, createExport, getSite, listEditRequests, publishSite } from './api';
 import { DomainSection } from './domain-connect';
 import { SitePreview } from './site-preview';
 import { useToast } from './toast';
@@ -113,6 +116,73 @@ function PreviewCard({ site }: { site: Site }) {
             description="에디터에서 사이트를 편집하면 이곳에서 미리 볼 수 있어요."
           />
         )}
+      </div>
+    </Card>
+  );
+}
+
+// ---------- 정적 HTML 백업 (§5) ----------
+
+function BackupCard({ site }: { site: Site }) {
+  const { toast } = useToast();
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(
+    site.exportStatus === 'ready' && site.exportUrl ? `/api/sites/${site.id}/export/download` : null,
+  );
+
+  const mutation = useMutation({
+    mutationFn: () => createExport(site.id),
+    onSuccess: (result) => {
+      setDownloadUrl(result.downloadUrl);
+      const warned = result.warnings && result.warnings.length > 0;
+      toast(
+        warned ? 'info' : 'success',
+        warned
+          ? `백업 생성 완료 — 일부 자산 경고 ${result.warnings!.length}건 (원본 링크 유지)`
+          : '백업이 준비되었습니다. 아래에서 내려받으세요.',
+      );
+    },
+    onError: (err) => {
+      toast('error', err instanceof Error ? err.message : '백업 생성에 실패했습니다.');
+    },
+  });
+
+  return (
+    <Card className="mt-6">
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-neutral-300">
+          <Package className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-neutral-200">HTML 백업 (이관·다운로드)</h2>
+          <p className="mt-1 text-xs leading-5 text-neutral-500">
+            발행본을 정적 HTML 번들(zip)로 내려받아 어떤 웹호스팅에서도 직접 운영할 수 있습니다.
+            데스크톱·모바일 레이아웃과 이미지·폰트가 포함됩니다. {DYNAMIC_FEATURE_NOTICE}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="secondary"
+              onClick={() => mutation.mutate()}
+              loading={mutation.isPending}
+              disabled={!site.siteConfig}
+              title={site.siteConfig ? undefined : '발행 후 백업할 수 있습니다'}
+            >
+              <Package className="h-4 w-4" />
+              {downloadUrl ? '백업 다시 생성' : 'HTML 백업 생성'}
+            </Button>
+            {downloadUrl ? (
+              <a
+                href={downloadUrl}
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#4a3a22] bg-[#151310] px-4 text-sm text-[#d9b878] transition-colors hover:border-[#c8a96a]"
+              >
+                <Download className="h-4 w-4" />
+                zip 다운로드
+              </a>
+            ) : null}
+          </div>
+          {!site.siteConfig ? (
+            <p className="mt-2 text-[11px] text-neutral-600">발행하면 백업을 만들 수 있습니다.</p>
+          ) : null}
+        </div>
       </div>
     </Card>
   );
@@ -297,6 +367,8 @@ export function SiteDetail({ siteId }: { siteId: string }) {
       </div>
 
       <PreviewCard site={site} />
+
+      {isPublished ? <BackupCard site={site} /> : null}
 
       <DomainSection site={site} />
 
