@@ -1,27 +1,19 @@
 /**
  * POST /api/admin/qa/[id]/approve — QA 승인 → 적용 (status='applied', appliedAt 기록).
- * body: { apply: true }
+ * 응답: { ok: true } (components/admin/api.ts 계약). 바디는 사용하지 않는다.
  */
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
-import { apiError, parseBody, withApiHandler } from '../../../../_lib/http';
+import { apiError, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
 
 type Ctx = { params: Promise<{ id: string }> };
 
-const bodySchema = z.object({
-  apply: z.literal(true),
-});
-
-export const POST = withApiHandler<Ctx>(async (request, { params }) => {
+export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
   const { id } = await params;
-  const body = await parseBody(request, bodySchema);
-  if (!body.ok) return body.res;
-
   const { editRequests } = getDataServices();
   const editRequest = await editRequests.getById(id);
   if (!editRequest) {
@@ -39,7 +31,6 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     status: 'applied',
     appliedAt: new Date().toISOString(),
   });
-  const updated = await editRequests.getById(id);
 
-  return NextResponse.json({ editRequest: updated });
+  return NextResponse.json({ ok: true });
 });

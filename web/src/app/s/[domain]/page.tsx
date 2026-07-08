@@ -2,8 +2,8 @@
  * 멀티테넌트 사이트 서빙 — proxy가 테넌트 호스트를 /s/[domain]으로 rewrite.
  * 발행본(siteConfig)만 서빙. 앱 chrome 없이 순수 사이트만 렌더.
  *
- * 데모: http://localhost:3000/s/harodam.anakslabs.com
- *      http://harodam.localhost:3000 (proxy의 .localhost 매핑)
+ * 데모: http://localhost:3000/s/hwarodam.anakslabs.com
+ *      http://hwarodam.localhost:3000 (proxy의 .localhost 매핑)
  */
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';

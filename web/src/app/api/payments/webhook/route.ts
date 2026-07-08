@@ -4,8 +4,18 @@
  * 멱등성: payments.handleWebhook이 providerPaymentKey 기준으로 보장(중복 = 크레딧 1회만 지급).
  * 라우트도 중복 웹훅에 200을 재응답해 PG 재시도 루프를 끊는다.
  *
+ * 보안 (감사 반영):
+ *  - 내부 포맷은 mock 모드 전용. 실모드에서는 절대 처리하지 않는다
+ *    (무인증 요청으로 임의 clientId에 크레딧 지급이 가능한 벡터였음).
+ *  - 실모드 토스 웹훅은 본문(status/totalAmount)을 신뢰하지 않고, TOSS_SECRET_KEY로
+ *    토스 결제조회 API(GET /v1/payments/{paymentKey})를 호출해 status=DONE·orderId·totalAmount를
+ *    재검증한 뒤에만 지급한다. 검증 실패 시 4xx 거부.
+ *  - 지급량은 orderId 파싱값(공격자 통제 가능)만으로 결정하지 않는다:
+ *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액 정확 일치, bf_ 주문은 티어 최소 계약가
+ *    이상인지 검증. 불일치 = 지급 거부(수동 확인 로그).
+ *
  * 지원 페이로드:
- *  1) 내부 포맷 (mock 모드/시뮬레이터): { providerPaymentKey, clientId, type, amount, tier?, creditsGranted? }
+ *  1) 내부 포맷 (mock 모드 전용): { providerPaymentKey, clientId, type, amount, tier?, creditsGranted? }
  *  2) 토스 포맷: { eventType: 'PAYMENT_STATUS_CHANGED', data: { paymentKey, orderId, status, totalAmount } }
  *     - status === 'DONE' 만 처리, 그 외는 200 + ignored.
  *     - orderId 인코딩 규약 (구매 라우트와 공유):
@@ -16,7 +26,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { PaymentType, Tier } from '@/lib/types/domain';
+import { CREDIT_PACKS, PRICE_RANGES } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
+import { env, isMockMode } from '@/lib/env';
 import { apiError, withApiHandler } from '../../_lib/http';
 
 const internalPayloadSchema = z.object({
@@ -65,6 +77,83 @@ function parseOrderId(orderId: string): ParsedOrder | null {
   return null;
 }
 
+/**
+ * 서버 가격표 기준 금액 검증 — orderId는 공격자가 통제 가능하므로
+ * 파싱 결과만으로 지급하지 않고 실결제 금액과 대조한다.
+ * 반환: 문제 없으면 null, 문제 있으면 거부 사유.
+ */
+function validateOrderAmount(order: ParsedOrder, totalAmount: number): string | null {
+  if (order.type === 'credit_pack') {
+    const pack = CREDIT_PACKS.find((p) => p.credits === order.creditsGranted);
+    if (!pack) {
+      return `존재하지 않는 크레딧 팩 (credits=${order.creditsGranted})`;
+    }
+    if (totalAmount !== pack.priceKrw) {
+      return `크레딧 팩 결제 금액 불일치 (팩 정가 ${pack.priceKrw}원, 실결제 ${totalAmount}원)`;
+    }
+  }
+  if (order.type === 'build_fee' && order.tier) {
+    const [minPrice] = PRICE_RANGES.buildFee[order.tier];
+    if (totalAmount < minPrice) {
+      return `빌드비 결제 금액이 ${order.tier} 최소 계약가(${minPrice}원) 미만 (실결제 ${totalAmount}원)`;
+    }
+  }
+  return null;
+}
+
+const TOSS_API_BASE = 'https://api.tosspayments.com';
+
+interface TossPaymentLookup {
+  status?: string;
+  orderId?: string;
+  totalAmount?: number;
+}
+
+/**
+ * 실모드 웹훅 검증 — 웹훅 본문을 신뢰하지 않고 토스 결제조회 API로
+ * status=DONE / orderId / totalAmount 를 재검증한다.
+ */
+async function verifyWithToss(
+  paymentKey: string,
+  orderId: string,
+  totalAmount: number,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  if (!env.tossSecretKey) {
+    return { ok: false, reason: 'TOSS_SECRET_KEY 미설정 — 웹훅 검증 불가' };
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${TOSS_API_BASE}/v1/payments/${encodeURIComponent(paymentKey)}`, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${env.tossSecretKey}:`).toString('base64')}`,
+      },
+      cache: 'no-store',
+    });
+  } catch {
+    return { ok: false, reason: '토스 결제조회 API 호출 실패' };
+  }
+
+  if (!res.ok) {
+    return { ok: false, reason: `토스 결제조회 실패 (HTTP ${res.status}) — 존재하지 않는 paymentKey 가능성` };
+  }
+
+  const payment = (await res.json().catch(() => null)) as TossPaymentLookup | null;
+  if (!payment) {
+    return { ok: false, reason: '토스 결제조회 응답 파싱 실패' };
+  }
+  if (payment.status !== 'DONE') {
+    return { ok: false, reason: `토스 결제 상태 불일치 (조회 결과: ${payment.status})` };
+  }
+  if (payment.orderId !== orderId) {
+    return { ok: false, reason: 'orderId 불일치 (웹훅 본문 ≠ 토스 조회 결과)' };
+  }
+  if (payment.totalAmount !== totalAmount) {
+    return { ok: false, reason: 'totalAmount 불일치 (웹훅 본문 ≠ 토스 조회 결과)' };
+  }
+  return { ok: true };
+}
+
 export const POST = withApiHandler(async (request) => {
   let raw: unknown;
   try {
@@ -73,13 +162,13 @@ export const POST = withApiHandler(async (request) => {
     return apiError(400, 'INVALID_JSON', '웹훅 본문이 올바른 JSON 형식이 아닙니다.');
   }
 
-  const { payments } = getDataServices();
-
-  // 1) 내부 포맷 (mock 모드에선 이 포맷 그대로 수신)
-  const internal = internalPayloadSchema.safeParse(raw);
-  if (internal.success) {
-    const result = await payments.handleWebhook(internal.data);
-    return NextResponse.json({ received: true, ...result });
+  // 1) 내부 포맷 — mock 모드 전용 (실모드에서 처리하면 무인증 크레딧 발급 벡터가 된다)
+  if (isMockMode()) {
+    const internal = internalPayloadSchema.safeParse(raw);
+    if (internal.success) {
+      const result = await getDataServices().payments.handleWebhook(internal.data);
+      return NextResponse.json({ received: true, ...result });
+    }
   }
 
   // 2) 토스 웹훅 포맷
@@ -98,7 +187,27 @@ export const POST = withApiHandler(async (request) => {
       return NextResponse.json({ received: true, ignored: true, reason: 'unknown_order_format' });
     }
 
-    const result = await payments.handleWebhook({
+    // 서버 가격표 대조 — orderId 변조로 소액 결제에 대량 크레딧/티어 승격 지급 차단
+    const amountError = validateOrderAmount(order, totalAmount);
+    if (amountError) {
+      console.error(
+        `[payments/webhook] 금액 검증 실패 — 수동 확인 필요. orderId=${orderId}, paymentKey=${paymentKey}: ${amountError}`,
+      );
+      return apiError(400, 'AMOUNT_MISMATCH', `결제 금액 검증에 실패했습니다. (${amountError})`);
+    }
+
+    // 실모드 — 토스 결제조회 API로 재검증 (웹훅 본문의 status/totalAmount 신뢰 금지)
+    if (!isMockMode()) {
+      const verified = await verifyWithToss(paymentKey, orderId, totalAmount);
+      if (!verified.ok) {
+        console.error(
+          `[payments/webhook] 토스 검증 실패 — orderId=${orderId}, paymentKey=${paymentKey}: ${verified.reason}`,
+        );
+        return apiError(401, 'WEBHOOK_VERIFICATION_FAILED', '결제 검증에 실패했습니다.');
+      }
+    }
+
+    const result = await getDataServices().payments.handleWebhook({
       providerPaymentKey: paymentKey,
       clientId: order.clientId,
       type: order.type,

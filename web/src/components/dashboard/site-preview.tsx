@@ -4,8 +4,9 @@
  * 렌더러 팀의 SiteRenderer를 대시보드에서 축소 미리보기로 감싸는 래퍼.
  * - 내부 캔버스를 DESIGN_WIDTH(데스크톱) / 390px(모바일) 폭으로 렌더한 뒤
  *   컨테이너 폭에 맞춰 transform: scale 로 축소한다.
- * - SiteRenderer props 가정: { config: SiteConfig } (컨테이너 폭 기준 렌더).
- *   시그니처가 다르면 이 파일 한 곳만 수정하면 된다.
+ *   (SiteRenderer는 container-type:inline-size + cqw 스케일이므로
+ *    내부 폭만 고정해주면 그 폭 기준으로 정확히 비례 렌더된다)
+ * - 확정 계약: SiteRenderer({ config, mode?: 'desktop'|'mobile'|'auto' })
  */
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ImageOff } from 'lucide-react';
@@ -92,7 +93,8 @@ export function SitePreview({
           }}
         >
           <PreviewErrorBoundary>
-            <SiteRenderer config={config} />
+            {/* mode 고정: 'auto'는 뷰포트 브레이크포인트 기준 전환이라 미리보기 프레임과 어긋난다 */}
+            <SiteRenderer config={config} mode={mode} />
           </PreviewErrorBoundary>
         </div>
       </div>

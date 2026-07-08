@@ -51,6 +51,7 @@ export const POST = withApiHandler(async (request) => {
   }
 
   const balance = await credits.getBalance(clientId);
-  // 참고: 원장 계약(grant/consume)에 memo 필드가 없어 memo는 응답으로만 반환된다 (openIssue 보고됨)
-  return NextResponse.json({ ok: true, clientId, amount, memo, balance: balance.balance });
+  // 참고: 원장 계약(grant/consume)에 memo 필드가 없어 memo는 기록되지 않는다 (openIssue 보고됨)
+  // 응답: components/admin/api.ts 의 AdjustCreditsResult 계약과 1:1
+  return NextResponse.json({ ok: true, newBalance: balance.balance });
 });

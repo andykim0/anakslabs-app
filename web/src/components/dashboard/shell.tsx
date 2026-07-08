@@ -15,18 +15,33 @@ const NAV_ITEMS = [
     label: '내 사이트',
     icon: LayoutDashboard,
     isActive: (path: string) =>
-      path === '/dashboard' || path.startsWith('/sites') || path.startsWith('/onboarding'),
+      path === '/dashboard' || path.startsWith('/dashboard/sites') || path.startsWith('/onboarding'),
   },
-  { href: '/credits', label: '크레딧', icon: Coins, isActive: (path: string) => path.startsWith('/credits') },
-  { href: '/billing', label: '결제·구독', icon: CreditCard, isActive: (path: string) => path.startsWith('/billing') },
-  { href: '/settings', label: '설정', icon: Settings, isActive: (path: string) => path.startsWith('/settings') },
+  {
+    href: '/dashboard/credits',
+    label: '크레딧',
+    icon: Coins,
+    isActive: (path: string) => path.startsWith('/dashboard/credits'),
+  },
+  {
+    href: '/dashboard/billing',
+    label: '결제·구독',
+    icon: CreditCard,
+    isActive: (path: string) => path.startsWith('/dashboard/billing'),
+  },
+  {
+    href: '/dashboard/settings',
+    label: '설정',
+    icon: Settings,
+    isActive: (path: string) => path.startsWith('/dashboard/settings'),
+  },
 ];
 
 function CreditBadge() {
   const { data, isPending, isError } = useQuery({ queryKey: ['credits'], queryFn: getCredits });
   return (
     <Link
-      href="/credits"
+      href="/dashboard/credits"
       className="flex h-8 items-center gap-1.5 rounded-full border border-[#4a3a22] bg-[#2a2117] px-3 text-xs font-semibold text-[#d9b878] transition-colors hover:border-[#6a5432]"
       title="크레딧 잔액"
     >

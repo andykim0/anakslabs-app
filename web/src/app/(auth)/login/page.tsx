@@ -72,8 +72,9 @@ export default function LoginPage() {
     setError(null);
     setPendingRole(role);
     try {
-      await mockLogin(role);
-      router.push(role === 'admin' ? '/admin' : '/dashboard');
+      // 계약: POST /api/auth/mock-login { as } → { ok, clientId, redirect }
+      const result = await mockLogin(role);
+      router.push(result.redirect || '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
       setPendingRole(null);

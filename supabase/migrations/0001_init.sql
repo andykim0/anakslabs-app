@@ -246,11 +246,16 @@ $$;
 -- ---------------------------------------------------------------------------
 -- expire_client_credits: 단일 고객의 만료 지난 지급 lot 잔여분을 'expired'로 상쇄
 --
--- lot별 잔여 재구성 방식(차감 행은 단순 음수 기록):
---   lot 유효용량 = lot.amount - (해당 lot을 reference_id로 갖는 expired 상쇄 합)
---   총 소진량(만료 상쇄 제외)을 lot들에 FIFO(expires_at asc nulls last, created_at asc) 배분
---   잔여 = 유효용량 - 배분량. 만료 지난 lot의 잔여 > 0 이면 -잔여 'expired' 행 삽입.
--- 멱등: expired 행이 lot 용량을 직접 줄이므로 재실행 시 잔여 0 → no-op.
+-- lot별 잔여 재구성 = 원장 시간순 리플레이 (mock MockCreditsService와 동일 정책):
+--   원장을 created_at 순으로 순회하며
+--     * 양수 행           → lot 생성 (잔여 = amount)
+--     * 'expired' 음수 행 → reference_id가 가리키는 lot 잔여에서 직접 차감
+--     * 그 외 음수 행(소진) → "그 시점에 존재하는" lot에만 FIFO(expires_at asc nulls last) 배분
+--   → 소진이 발생 이후에 생긴 lot으로 소급 귀속되지 않는다.
+--     (전체 소진량을 모든 lot에 일괄 배분하면, 소진 뒤에 지급된 단만료 lot에 과거 소진이
+--      귀속되어 이미 소진된 크레딧이 '부활'하는 버그 — 감사 지적 사항)
+--   만료 지난 lot의 잔여 > 0 이면 -잔여 'expired' 행 삽입.
+-- 멱등: expired 행이 리플레이에서 lot 잔여를 직접 줄이므로 재실행 시 잔여 0 → no-op.
 -- ---------------------------------------------------------------------------
 create or replace function public.expire_client_credits(
   p_client_id uuid,
@@ -262,53 +267,72 @@ security definer
 set search_path = public, pg_temp
 as $$
 declare
-  v_count     integer := 0;
-  v_consumed  numeric;
-  v_lot       record;
-  v_capacity  numeric;
-  v_alloc     numeric;
-  v_remaining numeric;
+  v_count integer := 0;
+  v_row   record;
+  v_lot   record;
+  v_need  numeric;
+  v_alloc numeric;
 begin
   perform lock_credit_balance(p_client_id);
 
-  -- 만료 상쇄를 제외한 총 소진량 (편집 차감 등 모든 음수 행)
-  select coalesce(-sum(amount), 0)
-  into v_consumed
-  from credit_ledger
-  where client_id = p_client_id
-    and amount < 0
-    and reason <> 'expired';
+  -- 리플레이용 임시 lot 테이블 (같은 트랜잭션 내 재호출 대비 truncate)
+  create temp table if not exists _anaks_lot_replay (
+    seq        bigint generated always as identity,
+    lot_id     uuid,
+    expires_at timestamptz,
+    remaining  numeric
+  ) on commit drop;
+  truncate _anaks_lot_replay;
 
-  -- 지급 lot 전체를 FIFO 순서로 순회하며 소진량 배분
-  for v_lot in
-    select l.id,
-           l.amount,
-           l.expires_at,
-           coalesce((
-             select -sum(e.amount)
-             from credit_ledger e
-             where e.reason = 'expired' and e.reference_id = l.id
-           ), 0) as expired_offset
-    from credit_ledger l
-    where l.client_id = p_client_id
-      and l.amount > 0
-    order by l.expires_at asc nulls last, l.created_at asc, l.id asc
+  for v_row in
+    select id, amount, reason, reference_id, expires_at
+    from credit_ledger
+    where client_id = p_client_id
+    order by created_at asc, id asc
   loop
-    v_capacity  := v_lot.amount - v_lot.expired_offset;
-    v_alloc     := least(v_capacity, v_consumed);
-    v_consumed  := v_consumed - v_alloc;
-    v_remaining := v_capacity - v_alloc;
-
-    if v_lot.expires_at is not null and v_lot.expires_at <= p_now and v_remaining > 0 then
-      insert into credit_ledger (client_id, amount, reason, reference_id)
-      values (p_client_id, -v_remaining, 'expired', v_lot.id);
-
-      update credit_balances
-      set balance = balance - v_remaining, updated_at = now()
-      where client_id = p_client_id;
-
-      v_count := v_count + 1;
+    if v_row.amount > 0 then
+      -- 지급 lot 생성
+      insert into _anaks_lot_replay (lot_id, expires_at, remaining)
+      values (v_row.id, v_row.expires_at, v_row.amount);
+    elsif v_row.reason = 'expired' then
+      -- 만료 상쇄 — 대상 lot 잔여에서 직접 차감 (v_row.amount는 음수)
+      update _anaks_lot_replay
+      set remaining = greatest(0, remaining + v_row.amount)
+      where lot_id = v_row.reference_id;
+    else
+      -- 소진 — 이 시점까지 생성된 lot에만 FIFO(만료 임박 순) 배분
+      v_need := -v_row.amount;
+      for v_lot in
+        select seq, remaining
+        from _anaks_lot_replay
+        where remaining > 0
+        order by expires_at asc nulls last, seq asc
+      loop
+        exit when v_need <= 0;
+        v_alloc := least(v_lot.remaining, v_need);
+        update _anaks_lot_replay set remaining = remaining - v_alloc where seq = v_lot.seq;
+        v_need := v_need - v_alloc;
+      end loop;
     end if;
+  end loop;
+
+  -- 만료 지난 lot의 잔여분 상쇄
+  for v_lot in
+    select lot_id, remaining
+    from _anaks_lot_replay
+    where remaining > 0
+      and expires_at is not null
+      and expires_at <= p_now
+    order by seq asc
+  loop
+    insert into credit_ledger (client_id, amount, reason, reference_id)
+    values (p_client_id, -v_lot.remaining, 'expired', v_lot.lot_id);
+
+    update credit_balances
+    set balance = balance - v_lot.remaining, updated_at = now()
+    where client_id = p_client_id;
+
+    v_count := v_count + 1;
   end loop;
 
   return v_count;

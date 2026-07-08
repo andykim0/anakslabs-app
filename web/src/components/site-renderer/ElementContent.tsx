@@ -19,6 +19,7 @@ import type {
   TextElement,
   VideoElement,
 } from '@/lib/types/site';
+import { safeHref, safeMediaSrc } from '@/lib/safe-url';
 import { cqw, mobileFontSize } from './scale';
 
 export type RenderVariant = 'canvas' | 'stack';
@@ -97,7 +98,8 @@ function ImageContent({
     // 고객 콘텐츠 이미지는 next/image 대신 plain <img> (규약)
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={el.src}
+      // 스킴 화이트리스트 (javascript:/data:text 등 차단) — zod 검증과 별개의 렌더 방어선
+      src={safeMediaSrc(el.src)}
       alt={el.alt ?? ''}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
@@ -168,7 +170,8 @@ function ButtonContent({ el, theme, variant }: { el: ButtonElement; theme: SiteT
         };
 
   return (
-    <a href={el.href} className="anaks-btn" data-variant={s.variant} style={{ ...base, ...variants[s.variant], ...sizing }}>
+    // safeHref: javascript: 등 위험 스킴은 링크 비활성 (저장형 XSS 렌더 방어선)
+    <a href={safeHref(el.href)} className="anaks-btn" data-variant={s.variant} style={{ ...base, ...variants[s.variant], ...sizing }}>
       {el.label}
     </a>
   );
@@ -234,8 +237,9 @@ function VideoContent({ el, variant, eager }: { el: VideoElement; variant: Rende
   const radius = s.borderRadius ?? 0;
   return (
     <video
-      src={el.src}
-      poster={el.poster}
+      // 스킴 화이트리스트 — zod 검증과 별개의 렌더 방어선
+      src={safeMediaSrc(el.src)}
+      poster={safeMediaSrc(el.poster)}
       // 모바일 자동재생 정책: muted + playsInline 필수
       muted={s.muted ?? true}
       autoPlay={s.autoplay ?? true}

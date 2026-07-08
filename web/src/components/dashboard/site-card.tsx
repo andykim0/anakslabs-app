@@ -27,7 +27,7 @@ export function SiteCard({ site }: { site: Site }) {
   const config = site.draftConfig ?? site.siteConfig;
   return (
     <div className="group overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/60 transition-colors hover:border-neutral-600">
-      <Link href={`/sites/${site.id}`} className="block">
+      <Link href={`/dashboard/sites/${site.id}`} className="block">
         <div className="pointer-events-none h-40 overflow-hidden border-b border-neutral-800 bg-neutral-900">
           {config ? <SitePreview config={config} maxHeight={160} /> : <ThumbnailPlaceholder site={site} />}
         </div>
@@ -35,7 +35,7 @@ export function SiteCard({ site }: { site: Site }) {
       <div className="p-4">
         <div className="flex items-center justify-between gap-2">
           <Link
-            href={`/sites/${site.id}`}
+            href={`/dashboard/sites/${site.id}`}
             className="truncate text-sm font-semibold text-neutral-100 hover:text-white"
           >
             {site.name}
@@ -63,13 +63,13 @@ export function SiteCard({ site }: { site: Site }) {
           <span className="text-[11px] text-neutral-600">생성 {formatDate(site.createdAt)}</span>
           <div className="flex gap-2">
             <Link
-              href={`/sites/${site.id}`}
+              href={`/dashboard/sites/${site.id}`}
               className="rounded-md border border-neutral-700 px-2.5 py-1 text-[11px] text-neutral-300 transition-colors hover:border-neutral-500"
             >
               상세
             </Link>
             <Link
-              href={`/sites/${site.id}/editor`}
+              href={`/dashboard/sites/${site.id}/editor`}
               className="rounded-md bg-[#c8a96a] px-2.5 py-1 text-[11px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
             >
               에디터

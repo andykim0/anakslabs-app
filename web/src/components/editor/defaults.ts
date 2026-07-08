@@ -110,7 +110,8 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         kind,
         z,
         frame: { x: 400, y: 80, w: 640, h: 360 },
-        src: '',
+        // 주의: draftConfig zod 검증이 src min(1)을 요구 — 빈 문자열이면 자동저장이 400으로 실패한다.
+        src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
         style: { objectFit: 'cover', borderRadius: theme.radius ?? 8, muted: true, loop: true, autoplay: false },
       };
   }

@@ -3,6 +3,20 @@
  * 계약 타입(@/lib/types/site, @/lib/types/domain)과 1:1 정합 유지 — 계약 변경 시 여기도 갱신.
  */
 import { z } from 'zod';
+import { isSafeHref, isSafeMediaSrc } from '@/lib/safe-url';
+
+// ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
+
+/** 버튼 링크: http(s)://, mailto:, tel:, #앵커, /상대경로, 빈 값만 허용 (javascript: 등 차단) */
+const safeHrefSchema = z
+  .string()
+  .refine(isSafeHref, '링크는 http(s)://, mailto:, tel:, #앵커, /경로 형식만 사용할 수 있습니다.');
+
+/** 미디어 src: http(s)://, /상대경로, data:image·data:video, blob: 만 허용 */
+const safeMediaSrcSchema = z
+  .string()
+  .min(1)
+  .refine(isSafeMediaSrc, '이미지/영상 주소는 http(s):// 또는 / 경로 형식만 사용할 수 있습니다.');
 
 // ---------- 사이트 테마 ----------
 
@@ -62,7 +76,7 @@ const textElementSchema = z.object({
 const imageElementSchema = z.object({
   ...elementBaseShape,
   kind: z.literal('image'),
-  src: z.string().min(1),
+  src: safeMediaSrcSchema,
   alt: z.string().optional(),
   style: z.object({
     objectFit: z.enum(['cover', 'contain']).optional(),
@@ -75,7 +89,7 @@ const buttonElementSchema = z.object({
   ...elementBaseShape,
   kind: z.literal('button'),
   label: z.string(),
-  href: z.string(),
+  href: safeHrefSchema,
   style: z.object({
     variant: z.enum(['solid', 'outline', 'ghost']),
     color: z.string().optional(),
@@ -109,8 +123,8 @@ const dividerElementSchema = z.object({
 const videoElementSchema = z.object({
   ...elementBaseShape,
   kind: z.literal('video'),
-  src: z.string().min(1),
-  poster: z.string().optional(),
+  src: safeMediaSrcSchema,
+  poster: safeMediaSrcSchema.optional(),
   style: z.object({
     objectFit: z.enum(['cover', 'contain']).optional(),
     borderRadius: z.number().optional(),
@@ -149,7 +163,7 @@ const sectionBackgroundSchema = z.object({
   gradient: z.string().optional(),
   image: z
     .object({
-      src: z.string().min(1),
+      src: safeMediaSrcSchema,
       overlayColor: z.string().optional(),
       overlayOpacity: z.number().min(0).max(1).optional(),
     })

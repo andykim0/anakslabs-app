@@ -1,9 +1,11 @@
 /**
- * GET /api/admin/overview — 운영 현황 (고객/사이트/크레딧 유통량/커스텀 호스트네임).
- * 호스트네임 수가 CF_HOSTNAME_ALERT_THRESHOLD 이상이면 alert=true (무료 100개 임박 알림).
+ * GET /api/admin/overview — 운영 현황 요약 (관리자 전용).
+ * 응답: components/admin/api.ts 의 AdminOverview 계약과 1:1.
+ *  - credits.granted  = 전체 원장 양수 행 합계
+ *  - credits.consumed = 전체 원장 음수 행 절대값 합계 (소모+만료 포함)
+ *  - credits.circulating = granted - consumed (유통량 정의)
  */
 import { NextResponse } from 'next/server';
-import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
@@ -12,26 +14,31 @@ export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
-  const { clients, sites, credits, domains } = getDataServices();
-  const [clientList, siteList, hostnameCount] = await Promise.all([
+  const { clients, sites, credits, editRequests, domains } = getDataServices();
+  const [clientList, siteList, qaQueue, customHostnameCount] = await Promise.all([
     clients.listAll(),
     sites.listAll(),
+    editRequests.listQaQueue(),
     domains.countHostnames(),
   ]);
 
-  const balances = await Promise.all(clientList.map((c) => credits.getBalance(c.id)));
-  const creditsInCirculation = balances.reduce((sum, b) => sum + b.balance, 0);
+  const ledgers = await Promise.all(clientList.map((c) => credits.getLedger(c.id)));
+  let granted = 0;
+  let consumed = 0;
+  for (const entry of ledgers.flat()) {
+    if (entry.amount > 0) granted += entry.amount;
+    else consumed += Math.abs(entry.amount);
+  }
 
   return NextResponse.json({
-    clients: clientList.length,
-    sites: siteList.length,
-    liveSites: siteList.filter((s) => s.status === 'live').length,
-    creditsInCirculation,
-    hostnames: {
-      count: hostnameCount,
-      limit: CF_FREE_HOSTNAME_LIMIT,
-      alertThreshold: CF_HOSTNAME_ALERT_THRESHOLD,
-      alert: hostnameCount >= CF_HOSTNAME_ALERT_THRESHOLD,
+    clients: {
+      total: clientList.length,
+      basic: clientList.filter((c) => c.tier === 'basic').length,
+      premium: clientList.filter((c) => c.tier === 'premium').length,
     },
+    liveSites: siteList.filter((s) => s.status === 'live').length,
+    credits: { granted, consumed, circulating: granted - consumed },
+    qaPending: qaQueue.length,
+    customHostnameCount,
   });
 });

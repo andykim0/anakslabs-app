@@ -49,6 +49,8 @@ export interface EditorState {
   /** 인라인 텍스트 편집 중인 요소 */
   editingElementId: string | null;
   zoom: ZoomMode;
+  /** 캔버스가 측정한 'fit' 배율 — 툴바 줌 표시/증감 기준 (히스토리 비추적) */
+  fitScale: number;
   mobilePreview: boolean;
   dirty: boolean;
   saveStatus: SaveStatus;
@@ -63,6 +65,7 @@ export interface EditorState {
   clearSelection: () => void;
   setEditingElement: (elementId: string | null) => void;
   setZoom: (zoom: ZoomMode) => void;
+  setFitScale: (scale: number) => void;
   setMobilePreview: (on: boolean) => void;
   setGuides: (guides: SnapGuides | null) => void;
   setSaveStatus: (status: SaveStatus) => void;
@@ -154,6 +157,7 @@ export const useEditorStore = create<EditorState>()(
       selectedElementId: null,
       editingElementId: null,
       zoom: 'fit' as ZoomMode,
+      fitScale: 1,
       mobilePreview: false,
       dirty: false,
       saveStatus: 'idle' as SaveStatus,
@@ -174,6 +178,7 @@ export const useEditorStore = create<EditorState>()(
         set({ selectedSectionId: null, selectedElementId: null, editingElementId: null }),
       setEditingElement: (elementId) => set({ editingElementId: elementId }),
       setZoom: (zoom) => set({ zoom }),
+      setFitScale: (scale) => set({ fitScale: scale }),
       setMobilePreview: (on) =>
         set({ mobilePreview: on, editingElementId: null, guides: null }),
       setGuides: (guides) => set({ guides }),
@@ -452,4 +457,23 @@ export function initializeEditor(siteId: string, config: SiteConfig) {
     aiIntent: null,
   });
   useEditorStore.temporal.getState().clear();
+}
+
+/**
+ * undo/redo — zundo는 partialize된 { config }만 복원하므로,
+ * 복원 후 dirty를 수동 마킹해 자동저장이 다시 돌게 한다.
+ * (이 setState는 config 참조가 그대로라 equality 가드에 걸려 히스토리에 안 쌓인다)
+ */
+export function undoEditor() {
+  const t = useEditorStore.temporal.getState();
+  if (t.pastStates.length === 0) return;
+  t.undo();
+  useEditorStore.setState({ dirty: true, editingElementId: null, guides: null });
+}
+
+export function redoEditor() {
+  const t = useEditorStore.temporal.getState();
+  if (t.futureStates.length === 0) return;
+  t.redo();
+  useEditorStore.setState({ dirty: true, editingElementId: null, guides: null });
 }

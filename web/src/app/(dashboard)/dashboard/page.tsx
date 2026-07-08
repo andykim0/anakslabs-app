@@ -61,7 +61,7 @@ export default async function DashboardHomePage() {
             <p className="text-xl font-semibold text-neutral-50">{sites.length}개</p>
           </div>
         </Card>
-        <Link href="/credits" className="block">
+        <Link href="/dashboard/credits" className="block">
           <Card className="flex items-center gap-4 transition-colors hover:border-[#4a3a22]">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2a2117] text-[#d9b878]">
               <Coins className="h-5 w-5" />
@@ -121,7 +121,7 @@ export default async function DashboardHomePage() {
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-300">최근 편집 요청</h2>
-          <Link href="/credits" className="text-xs text-neutral-500 transition-colors hover:text-[#c8a96a]">
+          <Link href="/dashboard/credits" className="text-xs text-neutral-500 transition-colors hover:text-[#c8a96a]">
             편집 요청하기 →
           </Link>
         </div>

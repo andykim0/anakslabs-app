@@ -26,7 +26,7 @@ const hero: Section = {
   height: 900,
   background: {
     color: PALETTE.background,
-    image: { src: '/mock/hero-harodam.svg', overlayColor: '#0b0906', overlayOpacity: 0.45 },
+    image: { src: '/mock/hero-hwarodam.svg', overlayColor: '#0b0906', overlayOpacity: 0.45 },
   },
   elements: [
     {
@@ -114,7 +114,7 @@ const about: Section = {
       kind: 'image',
       frame: { x: 124, y: 128, w: 520, h: 420 },
       z: 2,
-      src: '/mock/interior-harodam.svg',
+      src: '/mock/interior-hwarodam.svg',
       alt: '화로담 내부 — 화로가 놓인 카운터석',
       style: { objectFit: 'cover', borderRadius: 0 },
     },
@@ -410,7 +410,7 @@ const contact: Section = {
   ],
 };
 
-export const HARODAM_SITE_CONFIG: SiteConfig = {
+export const HWARODAM_SITE_CONFIG: SiteConfig = {
   version: 1,
   theme: {
     fonts: {
@@ -425,7 +425,7 @@ export const HARODAM_SITE_CONFIG: SiteConfig = {
   meta: {
     title: '화로담 — 숯불 한식 다이닝, 성수',
     description: '여섯 가지 요리, 하나의 불. 참숯의 온도로 계절을 요리하는 성수동 한식 다이닝.',
-    ogImage: '/mock/hero-harodam.svg',
+    ogImage: '/mock/hero-hwarodam.svg',
   },
   sections: [hero, about, menuSection(), testimonials, contact],
 };

@@ -25,7 +25,7 @@
 |---|---|
 | DB 스키마/RLS/함수 | `supabase/` |
 | 데이터 계층·서비스·API | `web/src/lib/data/`, `web/src/lib/services/`, `web/src/lib/ai/`, `web/src/app/api/` |
-| 캔버스 에디터 | `web/src/components/editor/`, `web/src/app/(dashboard)/sites/[siteId]/editor/`, `web/src/stores/` |
+| 캔버스 에디터 | `web/src/components/editor/`, `web/src/app/(dashboard)/dashboard/sites/[siteId]/editor/`, `web/src/stores/` |
 | 고객 대시보드/온보딩 | `web/src/app/(dashboard)/`(에디터 페이지 제외), `web/src/app/(auth)/`, `web/src/components/dashboard/` |
 | 멀티테넌트 렌더러 | `web/src/proxy.ts`, `web/src/app/s/`, `web/src/components/site-renderer/` |
 | 관리자 콘솔 | `web/src/app/(admin)/`, `web/src/components/admin/` |

@@ -33,7 +33,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 로컬 데모: harodam.localhost → harodam.ROOT_DOMAIN 테넌트로 취급
+  // 로컬 데모: hwarodam.localhost → hwarodam.ROOT_DOMAIN 테넌트로 취급
   let tenantHost = hostname;
   if (hostname.endsWith('.localhost')) {
     const label = hostname.slice(0, -'.localhost'.length);
@@ -51,7 +51,7 @@ export const config = {
   matcher: [
     /*
      * 제외: /api, Next 내부(_next/*), 파일 확장자가 있는 정적 자산, 메타 파일.
-     * `/s/…` 직접 접근(데모: localhost:3000/s/harodam.anakslabs.com)은
+     * `/s/…` 직접 접근(데모: localhost:3000/s/hwarodam.anakslabs.com)은
      * 경로에 점(.)이 포함되어 있어 자연스럽게 매처에서 빠진다.
      */
     '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)',

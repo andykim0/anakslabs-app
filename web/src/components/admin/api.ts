@@ -3,7 +3,7 @@
  *
  * [통합 계약] 아래 타입/엔드포인트는 backend(app/api/ 소유 영역)가 구현해야 하는 응답 형태다.
  * 모든 /api/admin/* 라우트는 isAdmin() 가드 필수(비관리자 → 401/403),
- * 실패 응답은 JSON `{ error: string }` 규약을 따른다.
+ * 실패 응답은 API 표준 포맷 JSON `{ error: { code, message, ...extra } }` 를 따른다.
  *
  *  - GET   /api/admin/overview                → AdminOverview
  *  - GET   /api/admin/clients                 → AdminClientRow[]
@@ -109,8 +109,10 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   if (!res.ok) {
     let message = `요청에 실패했습니다 (HTTP ${res.status})`;
     try {
-      const body = (await res.json()) as { error?: string };
-      if (body?.error) message = body.error;
+      // API 표준 에러 포맷: { error: { code, message, ...extra } }
+      const body = (await res.json()) as { error?: { message?: string } | string };
+      if (typeof body?.error === 'string') message = body.error;
+      else if (body?.error?.message) message = body.error.message;
     } catch {
       // JSON이 아닌 에러 응답 — 기본 메시지 유지
     }
