@@ -94,7 +94,8 @@ export function SitePreview({
         >
           <PreviewErrorBoundary>
             {/* mode 고정: 'auto'는 뷰포트 브레이크포인트 기준 전환이라 미리보기 프레임과 어긋난다 */}
-            <SiteRenderer config={config} mode={mode} />
+            {/* interactive=false: 미리보기는 비대화형 — 버튼이 <a>면 상위 카드 Link(<a>)와 앵커 중첩이 된다 */}
+            <SiteRenderer config={config} mode={mode} interactive={false} />
           </PreviewErrorBoundary>
         </div>
       </div>

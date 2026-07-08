@@ -12,6 +12,8 @@ interface SectionStackProps {
   section: Section;
   theme: SiteTheme;
   isFirst?: boolean;
+  /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
+  interactive?: boolean;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -42,7 +44,7 @@ function itemStyle(el: CanvasElement): CSSProperties {
   }
 }
 
-export function SectionStack({ section, theme, isFirst }: SectionStackProps) {
+export function SectionStack({ section, theme, isFirst, interactive = true }: SectionStackProps) {
   const bg = section.background;
   const elements = section.elements.filter(stackable).sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x);
 
@@ -98,7 +100,7 @@ export function SectionStack({ section, theme, isFirst }: SectionStackProps) {
       >
         {elements.map((el) => (
           <div key={el.id} style={itemStyle(el)}>
-            <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} />
+            <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} />
           </div>
         ))}
       </div>

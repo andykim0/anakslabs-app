@@ -30,6 +30,12 @@ interface ElementContentProps {
   variant: RenderVariant;
   /** 첫 화면(히어로) 이미지 LCP 최적화 — lazy 로딩 해제 */
   eager?: boolean;
+  /**
+   * false면 버튼을 링크(<a>)가 아닌 비대화형(<span>)으로 렌더한다.
+   * 미리보기 썸네일은 상위가 <a>(대시보드 카드 Link)라, 내부 버튼이 <a>이면
+   * 앵커 중첩 → 하이드레이션 에러가 난다. 실서빙(/s/[domain])은 기본 true.
+   */
+  interactive?: boolean;
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -37,14 +43,14 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
-export function ElementContent({ element, theme, variant, eager }: ElementContentProps) {
+export function ElementContent({ element, theme, variant, eager, interactive = true }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
       return <TextContent el={element} theme={theme} variant={variant} />;
     case 'image':
       return <ImageContent el={element} theme={theme} variant={variant} eager={eager} />;
     case 'button':
-      return <ButtonContent el={element} theme={theme} variant={variant} />;
+      return <ButtonContent el={element} theme={theme} variant={variant} interactive={interactive} />;
     case 'shape':
       return <ShapeContent el={element} theme={theme} variant={variant} />;
     case 'divider':
@@ -118,7 +124,17 @@ function ImageContent({
 
 // ---------- button ----------
 
-function ButtonContent({ el, theme, variant }: { el: ButtonElement; theme: SiteTheme; variant: RenderVariant }) {
+function ButtonContent({
+  el,
+  theme,
+  variant,
+  interactive,
+}: {
+  el: ButtonElement;
+  theme: SiteTheme;
+  variant: RenderVariant;
+  interactive: boolean;
+}) {
   const s = el.style;
   const color = s.color ?? theme.palette.primary;
   const radius = s.borderRadius ?? theme.radius ?? 8;
@@ -169,9 +185,20 @@ function ButtonContent({ el, theme, variant }: { el: ButtonElement; theme: SiteT
           borderRadius: `${radius}px`,
         };
 
+  const style = { ...base, ...variants[s.variant], ...sizing };
+
+  // 비대화형(미리보기): 상위 <a> 안에 앵커를 중첩시키지 않도록 <span>으로 렌더
+  if (!interactive) {
+    return (
+      <span className="anaks-btn" data-variant={s.variant} style={style}>
+        {el.label}
+      </span>
+    );
+  }
+
   return (
     // safeHref: javascript: 등 위험 스킴은 링크 비활성 (저장형 XSS 렌더 방어선)
-    <a href={safeHref(el.href)} className="anaks-btn" data-variant={s.variant} style={{ ...base, ...variants[s.variant], ...sizing }}>
+    <a href={safeHref(el.href)} className="anaks-btn" data-variant={s.variant} style={style}>
       {el.label}
     </a>
   );

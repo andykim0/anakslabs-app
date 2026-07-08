@@ -12,9 +12,11 @@ interface SectionCanvasProps {
   theme: SiteTheme;
   /** 첫 섹션(히어로)이면 이미지 eager 로딩 */
   isFirst?: boolean;
+  /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
+  interactive?: boolean;
 }
 
-export function SectionCanvas({ section, theme, isFirst }: SectionCanvasProps) {
+export function SectionCanvas({ section, theme, isFirst, interactive = true }: SectionCanvasProps) {
   const bg = section.background;
   // z 오름차순 정렬 — zIndex와 DOM 순서를 일치시켜 페인트 순서 결정적으로
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -72,7 +74,7 @@ export function SectionCanvas({ section, theme, isFirst }: SectionCanvasProps) {
             transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
           }}
         >
-          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} />
+          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} />
         </div>
       ))}
     </section>

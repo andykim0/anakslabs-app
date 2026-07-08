@@ -44,7 +44,20 @@ function scopeCustomCss(customCss: string | undefined): string {
   return `\n.anaks-site {\n${customCss.replace(/<\//g, '')}\n}`;
 }
 
-export function SiteRenderer({ config, mode = 'auto' }: { config: SiteConfig; mode?: SiteRendererMode }) {
+export function SiteRenderer({
+  config,
+  mode = 'auto',
+  interactive = true,
+}: {
+  config: SiteConfig;
+  mode?: SiteRendererMode;
+  /**
+   * false면 버튼을 링크가 아닌 비대화형(<span>)으로 렌더한다.
+   * 대시보드 미리보기(SitePreview)처럼 상위가 이미 <a>인 맥락에서
+   * 앵커 중첩(하이드레이션 에러)을 막는다. 실서빙은 기본 true.
+   */
+  interactive?: boolean;
+}) {
   const { theme } = config;
   const sections = config.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
@@ -77,14 +90,14 @@ export function SiteRenderer({ config, mode = 'auto' }: { config: SiteConfig; mo
         {showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
             {sections.map((section, i) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} />
             ))}
           </div>
         )}
         {showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
             {sections.map((section, i) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} />
+              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} />
             ))}
           </div>
         )}
