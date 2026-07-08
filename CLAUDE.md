@@ -48,6 +48,17 @@
 - 크레딧 단가·초기지급·만료일은 `lib/credits/constants.ts`와 SQL(handle_* 함수, edit_requests 정책)에 이중 존재 — 변경 시 반드시 마이그레이션 동반.
 - `sites.domain`은 소문자 정규화 저장/조회. 데모 라이브 도메인: `hwarodam.anakslabs.com`.
 
+## v2 애드온 불변식 (스펙 개정 v2 — `docs/SPEC-V2-DESIGN.md` 구현본)
+
+- **Export 렌더링**: App Router는 `react-dom/server`(node) import 금지 → `react-dom/server.edge` 사용. 렌더는 route/`lib/export`(run-export)만 수행하고, `DataServices.exports`(saveExport/markFailed/getDownloadUrl)는 저장 전담 — `getDataServices()` 그래프(테넌트 페이지 포함)에 react-dom/server가 새어들면 빌드 에러.
+- **법적 요소는 SiteConfig 불변**: 사업자정보 푸터(`LegalFooter`)·privacy/terms는 `SiteConfig`에 넣지 않는다. 서빙(`/s/[domain]`)·Export 시점에 `clients.business_info`로 렌더. 법무 문서는 **고정 템플릿**(`lib/legal/templates.ts`) — AI 생성 금지(환각 리스크).
+- **발행 게이트**: `clients.business_info` 없으면 발행 409 `BUSINESS_INFO_REQUIRED`. (시드 데모 클라이언트는 businessInfo 보유 — 발행 데모 보존)
+- **§3 안전장치**: 온보딩 무료 재생성 1회(`sites.free_regens_used`, 성공 후 증가 — AI 실패 시 미소진). 최초 발행 7일 내 첫 편집 1건 무료(`is_initial_revision`, 원장 미기록, video 제외, rejected는 카운트 제외).
+- **§2 QA 자동화 기본 OFF**: `qa_automation_rules.enabled` 기본 false = 기존 플로우 100% 동일(회귀 없음). enabled면 AI 성공 후 `applied` 직행 + `auto_approved`(QA 큐 제외). video는 자동화 영구 제외.
+- **업로드 SVG sanitize 필수**: `/api/uploads`는 5MB·png/jpg/webp/svg. SVG는 저장 전 `sanitizeSvg`(스크립트/이벤트핸들러/위험스킴 제거) — 저장형 XSS 방어.
+- **크레딧 법적 성격**: 약관상 "편집 용역 이용권"(현금성 충전금 아님). 환불정책은 `REFUND_POLICY` 상수(결제7일내미발행 100% / 발행14일내 50% / 이후 불가). 고지 문구 단일 소스 `lib/legal/notices.ts`.
+- **0002 마이그레이션**: 신규 컬럼/함수(`admin_refund_payment`·`credit_lot_remaining`)·`qa_approval_stats` 뷰·storage 버킷(`exports` 비공개/`client-assets` 공개). sites 보호컬럼 가드에 `export_*`/`free_regens_used` 추가, edit_requests insert RLS에 `is_initial_revision=false && auto_approved=false` 강제.
+
 ## 크레딧 규칙 요약
 
 초기 지급: Basic +1 / Premium +3 (build_fee 결제 웹훅에서 자동). 소모: 텍스트 1 / 이미지 1 / 영상 3(Premium 전용, Basic은 업셀) / 구조변경 2. 팩: 1개 15,000원 / 5개 65,000원 / 10개 120,000원.
