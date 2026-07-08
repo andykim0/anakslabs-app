@@ -8,7 +8,9 @@ import 'server-only';
 import type { Site } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { slugifySiteName } from '@/lib/data/slug';
+import { privacyPolicy, termsOfService } from '@/lib/legal/templates';
 import { buildExportZip, type BuildExportOptions } from './exporter';
+import { renderLegalDocHtml, renderLegalFooterHtml } from './legal-html';
 
 export interface RunExportResult {
   objectPath: string;
@@ -17,10 +19,26 @@ export interface RunExportResult {
 
 /** 발행본 Site → zip 생성 → 저장. sites.export_status 전이(processing→ready/failed) 포함. */
 export async function runSiteExport(site: Site, opts?: BuildExportOptions): Promise<RunExportResult> {
-  const { exports, sites } = getDataServices();
+  const { exports, sites, clients } = getDataServices();
   await sites.updateExport(site.id, { status: 'processing', requestedAt: new Date().toISOString() });
   try {
-    const { buffer, warnings } = await buildExportZip(site, opts);
+    // [§6] 사업자정보가 있으면 법적 푸터 + privacy/terms를 번들에 포함
+    const legalOpts: BuildExportOptions = { ...opts };
+    if (site.siteConfig) {
+      const client = await clients.getById(site.clientId);
+      const info = client?.businessInfo ?? null;
+      if (info) {
+        const theme = site.siteConfig.theme;
+        const title = site.siteConfig.meta.title;
+        legalOpts.legalFooterHtml = renderLegalFooterHtml(info, theme);
+        legalOpts.legalPages = {
+          privacyHtml: renderLegalDocHtml(privacyPolicy(info), theme, info, title),
+          termsHtml: renderLegalDocHtml(termsOfService(info), theme, info, title),
+        };
+      }
+    }
+
+    const { buffer, warnings } = await buildExportZip(site, legalOpts);
     const filename = `${slugifySiteName(site.name) || 'site'}-backup.zip`;
     const { objectPath } = await exports.saveExport({ siteId: site.id, buffer, filename });
     return { objectPath, warnings };

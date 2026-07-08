@@ -2,15 +2,25 @@
 
 /**
  * 온보딩 3단계 — 선택한 디자인 후보 + 설문으로 SiteConfig 초안 생성.
- * POST /api/onboarding/generate → { siteId } → 에디터 CTA (2차 가공으로 연결).
+ * 최초: POST /api/onboarding/generate (사이트 생성).
+ * [§3] 재생성(무료 1회): POST /api/onboarding/regenerate — 같은 사이트 draft 교체.
  */
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, LayoutDashboard, PencilRuler, PartyPopper } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  LayoutDashboard,
+  PencilRuler,
+  PartyPopper,
+  RefreshCw,
+  SlidersHorizontal,
+} from 'lucide-react';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import { generateSite } from '../api';
+import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
+import { generateSite, regenerateSite } from '../api';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 
@@ -24,27 +34,41 @@ const LOADING_MESSAGES = [
 export function GenerateStep({
   survey,
   candidate,
+  existingSiteId,
+  freeRegensUsed,
+  onResult,
   onBack,
+  onPickAnother,
+  onEditSurvey,
 }: {
   survey: SurveyInput;
   candidate: DesignCandidate;
+  /** null=최초 생성 / 값 있으면 해당 사이트 재생성 */
+  existingSiteId: string | null;
+  freeRegensUsed: number;
+  onResult: (siteId: string, freeRegensUsed: number) => void;
   onBack: () => void;
+  onPickAnother: () => void;
+  onEditSurvey: () => void;
 }) {
   const queryClient = useQueryClient();
   const startedRef = useRef(false);
 
   const mutation = useMutation({
-    mutationFn: generateSite,
-    onSuccess: () => {
-      // 사이트 목록/대시보드 요약이 즉시 새 사이트를 반영하도록
+    mutationFn: () =>
+      existingSiteId
+        ? regenerateSite({ siteId: existingSiteId, survey, candidate })
+        : generateSite({ survey, candidate }),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
+      onResult(data.siteId, data.freeRegensUsed);
     },
   });
 
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
-    mutation.mutate({ survey, candidate });
+    mutation.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -56,10 +80,8 @@ export function GenerateStep({
     return (
       <div className="space-y-4">
         <ErrorState
-          message={
-            mutation.error instanceof Error ? mutation.error.message : '사이트 생성에 실패했습니다.'
-          }
-          onRetry={() => mutation.mutate({ survey, candidate })}
+          message={mutation.error instanceof Error ? mutation.error.message : '사이트 생성에 실패했습니다.'}
+          onRetry={() => mutation.mutate()}
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
@@ -70,6 +92,9 @@ export function GenerateStep({
   }
 
   const siteId = mutation.data.siteId;
+  const usedNow = mutation.data.freeRegensUsed;
+  const regenLeft = Math.max(0, FREE_REGEN_LIMIT - usedNow);
+  const canRegen = regenLeft > 0;
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
@@ -91,6 +116,7 @@ export function GenerateStep({
           <Badge>섹션 {survey.sections.length}개</Badge>
           <Badge>초안 저장됨</Badge>
         </div>
+
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/dashboard/sites/${siteId}/editor`}
@@ -108,6 +134,33 @@ export function GenerateStep({
             사이트 상세 보기
           </Link>
         </div>
+
+        {/* [§3] 무료 재생성 안내 */}
+        <div className="mt-3 w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+          {canRegen ? (
+            <>
+              <p className="text-xs font-medium text-neutral-300">
+                마음에 안 드세요? 무료로 다시 생성할 수 있어요 (남은 무료 {regenLeft}회)
+              </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                <Button variant="secondary" onClick={onPickAnother}>
+                  <RefreshCw className="h-4 w-4" />
+                  다른 디자인으로 다시
+                </Button>
+                <Button variant="ghost" onClick={onEditSurvey}>
+                  <SlidersHorizontal className="h-4 w-4" />
+                  설문 수정하기
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-xs leading-5 text-neutral-500">
+              무료 재생성({FREE_REGEN_LIMIT}회)을 모두 사용했어요. 이제 캔버스 에디터에서 직접 다듬거나
+              편집 크레딧으로 수정할 수 있습니다.
+            </p>
+          )}
+        </div>
+
         <p className="text-xs text-neutral-600">
           발행 전까지는 초안 상태예요. 발행하면 서브도메인이 즉시 라이브됩니다.
         </p>

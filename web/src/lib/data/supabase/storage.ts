@@ -49,3 +49,22 @@ export async function uploadAiAsset(input: {
 
   return svc.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
+
+/** [§7] 고객 업로드 자산(로고 등) → 공개 버킷(client-assets) 업로드 → 공개 URL */
+export async function uploadClientAsset(input: {
+  bytes: Buffer;
+  mimeType: string;
+  ext: string;
+  /** 경로 프리픽스 (예: 'logos') */
+  prefix: string;
+}): Promise<string> {
+  const svc = getServiceRoleClient();
+  const bucket = 'client-assets';
+  const path = `${input.prefix}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${input.ext}`;
+  const { error } = await svc.storage.from(bucket).upload(path, input.bytes, {
+    contentType: input.mimeType,
+    upsert: false,
+  });
+  if (error) throw new Error(`client-assets 업로드 실패 (${path}): ${error.message}`);
+  return svc.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}

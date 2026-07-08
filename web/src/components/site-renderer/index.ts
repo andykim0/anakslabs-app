@@ -3,6 +3,7 @@
  * 사용 예: <SiteRenderer config={site.siteConfig} mode="desktop" />
  */
 export { SiteRenderer, type SiteRendererMode } from './SiteRenderer';
+export { LegalFooter } from './LegalFooter';
 export { SuspendedNotice } from './SuspendedNotice';
 export { ElementContent, type RenderVariant } from './ElementContent';
 export { SectionCanvas } from './SectionCanvas';

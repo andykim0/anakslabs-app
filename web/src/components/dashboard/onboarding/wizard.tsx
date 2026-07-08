@@ -17,6 +17,9 @@ export function OnboardingWizard({ defaultBusinessName }: { defaultBusinessName?
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
   const [candidate, setCandidate] = useState<DesignCandidate | null>(null);
+  // [§3] 재생성: 최초 생성으로 만들어진 사이트 id + 무료 재생성 사용 횟수
+  const [siteId, setSiteId] = useState<string | null>(null);
+  const [freeRegensUsed, setFreeRegensUsed] = useState(0);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -85,7 +88,19 @@ export function OnboardingWizard({ defaultBusinessName }: { defaultBusinessName?
       ) : null}
 
       {step === 3 && survey && candidate ? (
-        <GenerateStep survey={survey} candidate={candidate} onBack={() => setStep(2)} />
+        <GenerateStep
+          survey={survey}
+          candidate={candidate}
+          existingSiteId={siteId}
+          freeRegensUsed={freeRegensUsed}
+          onResult={(id, used) => {
+            setSiteId(id);
+            setFreeRegensUsed(used);
+          }}
+          onBack={() => setStep(2)}
+          onPickAnother={() => setStep(2)}
+          onEditSurvey={() => setStep(1)}
+        />
       ) : null}
     </div>
   );

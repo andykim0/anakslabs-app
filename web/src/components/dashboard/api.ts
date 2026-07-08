@@ -18,6 +18,7 @@
  *   GET  /api/payments → {payments}
  */
 import type {
+  BusinessInfo,
   CreditLedgerEntry,
   CustomDomainStatus,
   DesignCandidate,
@@ -221,6 +222,8 @@ export async function listEditRequests(siteId?: string): Promise<EditRequest[]> 
 export interface CreateEditRequestResult {
   editRequest: EditRequest;
   balance: number;
+  /** [§3] 최초 발행 후 7일 무료 수정권으로 처리됨 (크레딧 미차감) */
+  isInitialRevision?: boolean;
 }
 
 export async function createEditRequest(input: {
@@ -238,6 +241,53 @@ export async function createEditRequest(input: {
 export async function listPayments(): Promise<Payment[]> {
   const data = await request<{ payments: Payment[] }>('/api/payments');
   return data.payments ?? [];
+}
+
+// ---------- 업로드 (§7) ----------
+
+/** 로고/이미지 업로드 (multipart) → 저장 URL. SVG는 서버에서 sanitize됨. */
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  let res: Response;
+  try {
+    res = await fetch('/api/uploads', { method: 'POST', body: form });
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.');
+  }
+  let body: unknown = null;
+  try {
+    body = await res.json();
+  } catch {
+    // 빈 응답 허용
+  }
+  if (!res.ok) {
+    const err =
+      body && typeof body === 'object' && 'error' in body
+        ? ((body as { error: Record<string, unknown> }).error ?? {})
+        : {};
+    const code = typeof err.code === 'string' ? err.code : 'UPLOAD_FAILED';
+    const message = typeof err.message === 'string' ? err.message : '업로드에 실패했습니다.';
+    throw new ApiError(res.status, code, message);
+  }
+  const url = (body as { url?: string }).url;
+  if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
+  return url;
+}
+
+// ---------- 사업자 정보 (§6) ----------
+
+export async function getBusinessInfo(): Promise<BusinessInfo | null> {
+  const data = await request<{ businessInfo: BusinessInfo | null }>('/api/me/business-info');
+  return data.businessInfo ?? null;
+}
+
+export async function updateBusinessInfo(info: BusinessInfo): Promise<BusinessInfo> {
+  const data = await request<{ businessInfo: BusinessInfo }>('/api/me/business-info', {
+    method: 'PATCH',
+    body: JSON.stringify(info),
+  });
+  return data.businessInfo;
 }
 
 // ---------- 커스텀 도메인 ----------
@@ -278,11 +328,29 @@ export async function generateCandidates(survey: SurveyInput): Promise<DesignCan
 export async function generateSite(input: {
   survey: SurveyInput;
   candidate: DesignCandidate;
-}): Promise<{ siteId: string; site?: Site }> {
+}): Promise<{ siteId: string; site?: Site; freeRegensUsed: number }> {
   const data = await post<{ siteId?: string; site?: Site }>('/api/onboarding/generate', input);
   const siteId = data.siteId ?? data.site?.id;
   if (!siteId) {
     throw new ApiError(500, 'INVALID_RESPONSE', '사이트 생성 응답을 해석하지 못했습니다.');
   }
-  return { siteId, site: data.site };
+  return { siteId, site: data.site, freeRegensUsed: 0 };
+}
+
+/** [§3] 온보딩 무료 재생성 (사이트당 1회) — 같은 사이트의 draft를 교체 */
+export async function regenerateSite(input: {
+  siteId: string;
+  survey: SurveyInput;
+  candidate: DesignCandidate;
+}): Promise<{ siteId: string; site?: Site; freeRegensUsed: number; freeRegenLimit: number }> {
+  const data = await post<{ siteId: string; site?: Site; freeRegensUsed?: number; freeRegenLimit?: number }>(
+    '/api/onboarding/regenerate',
+    input,
+  );
+  return {
+    siteId: data.siteId,
+    site: data.site,
+    freeRegensUsed: typeof data.freeRegensUsed === 'number' ? data.freeRegensUsed : 1,
+    freeRegenLimit: typeof data.freeRegenLimit === 'number' ? data.freeRegenLimit : 1,
+  };
 }

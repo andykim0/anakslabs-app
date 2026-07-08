@@ -1,12 +1,15 @@
 'use client';
 
-import { useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, ImagePlus, X } from 'lucide-react';
+import { ArrowRight, ImagePlus, Loader2, X } from 'lucide-react';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
+import { recommendSections } from '@/lib/ai/design-knowledge';
+import { uploadImage } from '../api';
+import { useToast } from '../toast';
 import { Button, Card, cn } from '../ui';
 
 // ---------- 스키마 ----------
@@ -24,12 +27,19 @@ const SECTION_VALUES = [
 
 const surveySchema = z.object({
   businessName: z.string().min(1, '상호명을 입력해주세요.').max(60, '상호명은 60자 이내로 입력해주세요.'),
+  tagline: z.string().max(80, '태그라인은 80자 이내로 입력해주세요.').optional(),
+  conceptMode: z.enum(['real', 'fictional']).optional(),
+  logoUrl: z.string().optional(),
   industry: z.string().min(1, '업종을 선택하거나 입력해주세요.'),
   purpose: z.string().min(1, '사이트의 목적을 선택하거나 입력해주세요.'),
   tone: z.string().min(1, '원하는 분위기를 선택하거나 입력해주세요.'),
   colorPreference: z.string().min(1, '선호 컬러를 선택하거나 입력해주세요.'),
   referenceImageUrls: z.array(z.string()).max(6, '레퍼런스 이미지는 최대 6장까지 선택할 수 있습니다.'),
   sections: z.array(z.enum(SECTION_VALUES)).min(1, '섹션을 1개 이상 선택해주세요.'),
+  contentMode: z.enum(['ai', 'provided']).optional(),
+  providedContent: z.string().max(5000, '제공 내용은 5000자 이내로 입력해주세요.').optional(),
+  reservationMode: z.enum(['external_link', 'cta']).optional(),
+  reservationUrl: z.string().max(500).optional(),
   extraNotes: z.string().max(500, '추가 요청사항은 500자 이내로 입력해주세요.').optional(),
 });
 
@@ -141,15 +151,26 @@ export function SurveyStep({
         }
       : {
           businessName: defaultBusinessName ? `${defaultBusinessName}의 브랜드` : '',
+          tagline: '',
+          conceptMode: 'real',
+          logoUrl: '',
           industry: '',
           purpose: '',
           tone: '',
           colorPreference: '',
           referenceImageUrls: [],
           sections: DEFAULT_SECTIONS,
+          contentMode: 'ai',
+          providedContent: '',
+          reservationMode: undefined,
+          reservationUrl: '',
           extraNotes: '',
         },
   });
+
+  const { toast } = useToast();
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   const industry = watch('industry');
   const purpose = watch('purpose');
@@ -157,6 +178,16 @@ export function SurveyStep({
   const colorPreference = watch('colorPreference');
   const referenceImageUrls = watch('referenceImageUrls');
   const sections = watch('sections');
+  const conceptMode = watch('conceptMode');
+  const contentMode = watch('contentMode');
+  const reservationMode = watch('reservationMode');
+  const logoUrl = watch('logoUrl');
+
+  // [§7] 업종/목적 기반 추천 섹션 (design-knowledge 랜딩 패턴)
+  const recommended = useMemo<Set<string>>(
+    () => new Set(recommendSections(industry ?? '', purpose ?? '')),
+    [industry, purpose],
+  );
 
   const setField = (name: keyof SurveyForm, value: string) =>
     setValue(name, value, { shouldValidate: true });
@@ -182,10 +213,32 @@ export function SurveyStep({
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleLogo = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setValue('logoUrl', url, { shouldValidate: true });
+      toast('success', '로고를 업로드했어요. 히어로 섹션에 반영됩니다.');
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '로고 업로드에 실패했습니다.');
+    } finally {
+      setLogoUploading(false);
+      if (logoInputRef.current) logoInputRef.current.value = '';
+    }
+  };
+
+  const clean = (v?: string) => (v && v.trim() ? v.trim() : undefined);
+
   const onSubmit = handleSubmit((values) => {
     onComplete({
       ...values,
-      extraNotes: values.extraNotes?.trim() ? values.extraNotes.trim() : undefined,
+      tagline: clean(values.tagline),
+      logoUrl: clean(values.logoUrl),
+      providedContent: values.contentMode === 'provided' ? clean(values.providedContent) : undefined,
+      reservationUrl: values.reservationMode === 'external_link' ? clean(values.reservationUrl) : undefined,
+      extraNotes: clean(values.extraNotes),
     });
   });
 
@@ -203,6 +256,82 @@ export function SurveyStep({
         <div>
           <FieldLabel error={errors.businessName?.message}>상호명</FieldLabel>
           <input {...register('businessName')} placeholder="예: 소소한 화로" className={inputClass} />
+        </div>
+
+        {/* 태그라인 */}
+        <div>
+          <FieldLabel error={errors.tagline?.message}>
+            태그라인 <span className="font-normal text-neutral-500">(선택)</span>
+          </FieldLabel>
+          <input {...register('tagline')} placeholder="예: 여섯 가지 요리, 하나의 불" className={inputClass} />
+        </div>
+
+        {/* 컨셉 모드 */}
+        <div>
+          <FieldLabel>컨셉</FieldLabel>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {(
+              [
+                ['real', '실제 매장 정보로', '입력한 정보를 그대로 반영'],
+                ['fictional', '가상 컨셉으로', 'AI가 그럴듯하게 창작'],
+              ] as const
+            ).map(([val, label, hint]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setValue('conceptMode', val, { shouldValidate: true })}
+                className={cn(
+                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                  conceptMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+                )}
+              >
+                <span className={cn('block text-xs font-medium', conceptMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
+                  {label}
+                </span>
+                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 로고 업로드 */}
+        <div>
+          <FieldLabel>
+            로고 / 브랜드 자산 <span className="font-normal text-neutral-500">(선택 · 없으면 텍스트 로고)</span>
+          </FieldLabel>
+          <div className="flex items-center gap-3">
+            {logoUrl ? (
+              // 고객 콘텐츠 이미지는 plain img 규약
+              <span className="relative">
+                <img src={logoUrl} alt="업로드한 로고" className="h-14 w-14 rounded-lg border border-neutral-700 bg-neutral-900 object-contain p-1" />
+                <button
+                  type="button"
+                  onClick={() => setValue('logoUrl', '', { shouldValidate: true })}
+                  aria-label="로고 제거"
+                  className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-neutral-200 transition-colors hover:bg-red-800"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </span>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={logoUploading}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-700 px-3 py-2 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-50"
+            >
+              {logoUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+              {logoUrl ? '로고 교체' : '로고 업로드'}
+            </button>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              className="hidden"
+              onChange={(e) => handleLogo(e.target.files)}
+            />
+          </div>
+          <p className="mt-1.5 text-[11px] text-neutral-600">PNG·JPG·WEBP·SVG, 5MB 이하. SVG는 안전하게 정리 후 저장됩니다.</p>
         </div>
 
         {/* 업종 */}
@@ -363,22 +492,38 @@ export function SurveyStep({
         {/* 섹션 구성 */}
         <div>
           <FieldLabel error={errors.sections?.message}>섹션 구성</FieldLabel>
-          <p className="mb-2 text-xs text-neutral-500">추천 구성 5개가 기본 선택되어 있어요. 자유롭게 조정하세요.</p>
+          <p className="mb-2 text-xs text-neutral-500">
+            {industry ? (
+              <>
+                입력하신 업종에 맞춰 <span className="text-[#d9b878]">추천</span> 섹션을 표시했어요. 자유롭게 조정하세요.
+              </>
+            ) : (
+              '추천 구성이 기본 선택되어 있어요. 자유롭게 조정하세요.'
+            )}
+          </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {SECTION_OPTIONS.map((opt) => {
               const selected = sections.includes(opt.value);
+              const isRec = recommended.has(opt.value);
               return (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => toggleSection(opt.value)}
                   className={cn(
-                    'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                    'relative rounded-lg border px-3 py-2.5 text-left transition-colors',
                     selected
                       ? 'border-[#c8a96a] bg-[#2a2117]'
-                      : 'border-neutral-700 hover:border-neutral-500',
+                      : isRec
+                        ? 'border-[#4a3a22] hover:border-[#c8a96a]'
+                        : 'border-neutral-700 hover:border-neutral-500',
                   )}
                 >
+                  {isRec && !selected ? (
+                    <span className="absolute top-1.5 right-1.5 rounded-full bg-[#4a3a22] px-1.5 py-0.5 text-[9px] font-medium text-[#d9b878]">
+                      추천
+                    </span>
+                  ) : null}
                   <span className={cn('block text-xs font-medium', selected ? 'text-[#d9b878]' : 'text-neutral-300')}>
                     {opt.label}
                   </span>
@@ -387,6 +532,79 @@ export function SurveyStep({
               );
             })}
           </div>
+        </div>
+
+        {/* 예약 방식 (연락처/CTA 계열과 연계) */}
+        <div>
+          <FieldLabel>예약 처리 <span className="font-normal text-neutral-500">(선택)</span></FieldLabel>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {(
+              [
+                ['external_link', '네이버예약·캐치테이블 링크', '외부 예약 링크로 연결'],
+                ['cta', '단순 예약 문의 CTA', '전화·문의 버튼만'],
+              ] as const
+            ).map(([val, label, hint]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() =>
+                  setValue('reservationMode', reservationMode === val ? undefined : val, { shouldValidate: true })
+                }
+                className={cn(
+                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                  reservationMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+                )}
+              >
+                <span className={cn('block text-xs font-medium', reservationMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
+                  {label}
+                </span>
+                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
+              </button>
+            ))}
+          </div>
+          {reservationMode === 'external_link' ? (
+            <input
+              {...register('reservationUrl')}
+              placeholder="예: https://booking.naver.com/…"
+              className={cn(inputClass, 'mt-2')}
+            />
+          ) : null}
+        </div>
+
+        {/* 콘텐츠 소스 */}
+        <div>
+          <FieldLabel>콘텐츠 소스</FieldLabel>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {(
+              [
+                ['ai', 'AI가 채워주세요', '그럴듯한 카피·메뉴 자동 생성 (나중에 교체)'],
+                ['provided', '실제 내용은 내가 제공', '플레이스홀더 최소화'],
+              ] as const
+            ).map(([val, label, hint]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setValue('contentMode', val, { shouldValidate: true })}
+                className={cn(
+                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                  contentMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+                )}
+              >
+                <span className={cn('block text-xs font-medium', contentMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
+                  {label}
+                </span>
+                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
+              </button>
+            ))}
+          </div>
+          {contentMode === 'provided' ? (
+            <textarea
+              {...register('providedContent')}
+              rows={4}
+              placeholder="실제 소개 문구, 메뉴, 가격 등을 자유롭게 붙여넣어 주세요. AI가 창작하지 않고 이 내용을 다듬어 사용합니다."
+              className={cn(inputClass, 'mt-2 resize-none')}
+            />
+          ) : null}
         </div>
 
         {/* 추가 요청 */}

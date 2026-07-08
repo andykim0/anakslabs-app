@@ -338,6 +338,29 @@ export function findPattern(sections: SectionType[]): LandingPattern {
   return best;
 }
 
+/**
+ * [§7] 업종 텍스트 → 추천 섹션 (랜딩 패턴 keywords 매칭).
+ * 설문 UI에서 업종 입력 시 추천 섹션을 하이라이트하는 데 사용 (클라이언트 번들 가능).
+ * 매칭이 없으면 첫 패턴(기본형) 섹션을 반환.
+ */
+export function recommendSections(industry: string, purpose = ''): SectionType[] {
+  const q = `${industry ?? ''} ${purpose ?? ''}`.toLowerCase();
+  if (!q.trim()) return LANDING_PATTERNS[0].sections;
+  let best = LANDING_PATTERNS[0];
+  let bestScore = 0;
+  for (const p of LANDING_PATTERNS) {
+    let score = 0;
+    for (const kw of p.keywords) {
+      if (kw && q.includes(kw.toLowerCase())) score += 1;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = p;
+    }
+  }
+  return best.sections;
+}
+
 // ---------- 4. 데이터 무결성 검증 ----------
 
 const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;

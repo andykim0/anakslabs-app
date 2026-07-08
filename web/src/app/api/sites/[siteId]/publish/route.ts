@@ -21,6 +21,15 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
     return apiError(409, 'NO_DRAFT', '발행할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
   }
 
+  // [§6] 발행 게이트 — 사업자 정보(전자상거래법 표시 의무)가 없으면 발행 불가
+  if (!client.businessInfo) {
+    return apiError(
+      409,
+      'BUSINESS_INFO_REQUIRED',
+      '발행하려면 사업자 정보(상호·대표자·사업자등록번호·주소·연락처)가 필요합니다. 설정에서 입력해 주세요.',
+    );
+  }
+
   const published = await getDataServices().sites.publish(siteId);
   return NextResponse.json({
     site: published,

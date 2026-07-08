@@ -84,8 +84,10 @@ async function refineCandidateTexts(
 
   const prompt =
     `다음 설문과 디자인 후보 ${blueprints.length}안을 검토하고, 각 안의 label/description/heroImagePrompt 를 이 가게에 맞게 다듬어줘.\n\n` +
-    `[설문]\n상호: ${survey.businessName}\n업종: ${survey.industry}\n목적: ${survey.purpose}\n` +
-    `톤: ${survey.tone}\n선호 컬러: ${survey.colorPreference}\n추가 요청: ${survey.extraNotes ?? '없음'}\n\n` +
+    `[설문]\n상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n선호 컬러: ${survey.colorPreference}\n` +
+    `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    `추가 요청: ${survey.extraNotes ?? '없음'}\n\n` +
     `[디자인 후보]\n${briefLines}\n\n` +
     `[규칙]\n` +
     `- 세 안은 고객이 고를 서로 다른 '유효한 해석'이다. 어떤 안도 깎아내리거나 다른 안과 비교하지 마라 — ` +
@@ -155,10 +157,15 @@ async function generateSectionCopy(
   blueprint: CandidateBlueprint,
 ): Promise<SectionCopy | undefined> {
   const style = blueprint.brief.style;
+  const provided = survey.contentMode === 'provided' && survey.providedContent?.trim();
   const prompt =
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
-    `상호: ${survey.businessName}\n업종: ${survey.industry}\n목적: ${survey.purpose}\n` +
-    `톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    (provided
+      ? `\n[고객 제공 원문 — 창작 금지, 아래 내용을 다듬어서만 사용하고 없는 사실을 지어내지 마라]\n${survey.providedContent!.trim().slice(0, 3000)}\n\n`
+      : '') +
     `선택된 디자인 방향: ${style.name} (무드: ${[...style.paletteMood, ...style.fontMood].join(', ')})\n` +
     `카피의 결이 이 디자인 방향과 어긋나지 않게 써줘.\n\n` +
     `반드시 아래 키만 가진 JSON 객체 하나만 출력:\n` +

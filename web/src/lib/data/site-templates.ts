@@ -129,31 +129,36 @@ function buildHero(ctx: Ctx): Section {
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
   const title = copy.heroTitle ?? toneHeadline(survey.tone, survey.businessName);
-  const sub = copy.heroSub ?? `${survey.businessName} · ${survey.industry}`;
+  // [§7] 태그라인이 있으면 히어로 서브카피로 사용
+  const sub = copy.heroSub ?? survey.tagline ?? `${survey.businessName} · ${survey.industry}`;
   const kicker = copy.heroKicker ?? survey.purpose;
+  // [§7] 예약: 외부 링크 모드면 첫 CTA를 예약 링크로 연결
+  const hasResvLink = survey.reservationMode === 'external_link' && !!survey.reservationUrl;
+  const ctaLabel = hasResvLink ? '예약하기' : '문의하기';
+  const ctaHref = hasResvLink ? survey.reservationUrl! : '#sec-contact';
 
-  return {
-    id: 'sec-hero',
-    type: 'hero',
-    name: SECTION_NAMES.hero,
-    height: 820,
-    background: {
-      color: theme.palette.background,
-      image: {
-        src: opts.heroImageUrl,
-        overlayColor: theme.palette.background,
-        overlayOpacity: ctx.dark ? 0.5 : 0.25,
-      },
+  const elements: Section['elements'] = [];
+  // [§7] 로고 업로드 시 히어로 좌상단에 배치
+  if (survey.logoUrl) {
+    elements.push({
+      id: nextId(ctx, 'el-hero-logo'),
+      kind: 'image',
+      frame: { x: 116, y: 150, w: 140, h: 64 },
+      z: 5,
+      src: survey.logoUrl,
+      alt: `${survey.businessName} 로고`,
+      style: { objectFit: 'contain' },
+    });
+  }
+  elements.push(
+    {
+      id: nextId(ctx, 'el-hero-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 250, w: 560, h: 24 },
+      z: 2,
+      text: kicker,
+      style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
     },
-    elements: [
-      {
-        id: nextId(ctx, 'el-hero-kicker'),
-        kind: 'text',
-        frame: { x: 122, y: 250, w: 560, h: 24 },
-        z: 2,
-        text: kicker,
-        style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
-      },
       {
         id: nextId(ctx, 'el-hero-title'),
         kind: 'text',
@@ -175,8 +180,8 @@ function buildHero(ctx: Ctx): Section {
         kind: 'button',
         frame: { x: 122, y: 648, w: 172, h: 54 },
         z: 4,
-        label: '문의하기',
-        href: '#sec-contact',
+        label: ctaLabel,
+        href: ctaHref,
         style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 15, borderRadius: theme.radius ?? 4 },
       },
       {
@@ -188,7 +193,22 @@ function buildHero(ctx: Ctx): Section {
         href: '#sec-about',
         style: { variant: 'outline', color: theme.palette.text, textColor: theme.palette.text, fontSize: 15, borderRadius: theme.radius ?? 4 },
       },
-    ],
+  );
+
+  return {
+    id: 'sec-hero',
+    type: 'hero',
+    name: SECTION_NAMES.hero,
+    height: 820,
+    background: {
+      color: theme.palette.background,
+      image: {
+        src: opts.heroImageUrl,
+        overlayColor: theme.palette.background,
+        overlayOpacity: ctx.dark ? 0.5 : 0.25,
+      },
+    },
+    elements,
   };
 }
 

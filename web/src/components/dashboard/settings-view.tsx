@@ -6,9 +6,10 @@
  */
 import { useState } from 'react';
 import { ArrowUpRight, LogOut, Mail, Sparkles, User } from 'lucide-react';
-import type { AuthProvider, Tier } from '@/lib/types/domain';
+import type { AuthProvider, BusinessInfo, Tier } from '@/lib/types/domain';
 import { PRICE_RANGES } from '@/lib/credits/constants';
 import { logout } from './api';
+import { BusinessInfoForm } from './business-info-form';
 import { Button, Card, formatDate, PageHeader, TierBadge } from './ui';
 
 const AUTH_PROVIDER_LABELS: Record<AuthProvider, string> = {
@@ -45,12 +46,14 @@ export function SettingsView({
   authProvider,
   tier,
   createdAt,
+  businessInfo,
 }: {
   name: string;
   email: string;
   authProvider: AuthProvider;
   tier: Tier;
   createdAt: string;
+  businessInfo: BusinessInfo | null;
 }) {
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -104,6 +107,9 @@ export function SettingsView({
           가입일 {formatDate(createdAt)} · 프로필 변경이 필요하면 hello@anakslabs.com 으로 문의해 주세요.
         </p>
       </Card>
+
+      {/* [§6] 사업자 정보 */}
+      <BusinessInfoForm initial={businessInfo} />
 
       {/* 요금제 */}
       <Card className="mt-5">

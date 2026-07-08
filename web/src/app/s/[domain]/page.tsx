@@ -9,7 +9,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { getDataServices } from '@/lib/data';
-import { SiteRenderer, SuspendedNotice } from '@/components/site-renderer';
+import { LegalFooter, SiteRenderer, SuspendedNotice } from '@/components/site-renderer';
 
 // 발행 즉시 반영되어야 하므로 항상 요청 시 렌더 (캐싱 최적화는 ISR 도입 시)
 export const dynamic = 'force-dynamic';
@@ -65,5 +65,14 @@ export default async function TenantSitePage({ params }: Props) {
     return <SuspendedNotice siteName={site.name} />;
   }
 
-  return <SiteRenderer config={site.siteConfig} mode="auto" />;
+  // [§6] 발행 사이트 최하단에 사업자정보 법적 푸터 자동 삽입 (client.business_info 기반)
+  const client = await getDataServices().clients.getById(site.clientId);
+  const businessInfo = client?.businessInfo ?? null;
+
+  return (
+    <>
+      <SiteRenderer config={site.siteConfig} mode="auto" />
+      {businessInfo ? <LegalFooter info={businessInfo} theme={site.siteConfig.theme} /> : null}
+    </>
+  );
 }
