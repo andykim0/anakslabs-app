@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import { PRICE_RANGES } from '@/lib/credits/constants';
+import { HOSTING_ONLY_FOOTNOTE } from '@/lib/legal/notices';
 
 export const metadata: Metadata = {
   title: '아낙스랩스 — AI가 만드는 프리미엄 웹사이트',
@@ -195,6 +196,9 @@ export default function LandingPage() {
         </div>
         <p className="mt-6 text-center text-xs text-neutral-600">
           편집 크레딧: 텍스트 1 · 이미지 1 · 영상 3(Premium) · 구조 변경 2 — 팩 구매 1개 15,000원부터
+        </p>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-[11px] leading-5 text-neutral-700">
+          {HOSTING_ONLY_FOOTNOTE}
         </p>
       </section>
 
