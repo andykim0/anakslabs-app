@@ -63,3 +63,5 @@ cd web && npx tsc --noEmit   # 타입 체크
 ## 기술 스택
 
 Next.js 16.2(App Router, `web/`) · TypeScript · Tailwind v4 · Supabase(Auth: 카카오/구글, DB+RLS) · Zustand+zundo(에디터 상태/undo) · TanStack Query · react-hook-form+zod · framer-motion · lucide-react. 결제: 토스페이먼츠(mock 우선). AI: 이미지 Nano Banana(Gemini), 텍스트/카피 Claude(Anthropic, `@anthropic-ai/sdk`, 기본 `claude-opus-4-8`·`CLAUDE_MODEL`로 교체), 영상 Veo 3.1 — 전부 `lib/ai/` 어댑터 뒤에.
+
+**디자인 지능 상시 내장**: `lib/ai/design-knowledge.ts`(+`-data.ts`) — frontend-design(Apache-2.0)·ui-ux-pro-max(MIT) 스킬에서 큐레이션한 팔레트 30·폰트페어 18(한글 폴백 체인)·스타일 13·랜딩 패턴 9 + `DESIGN_PRINCIPLES_PROMPT`. 1차 가공(`design-candidates.ts`→mock/실모드 공용)이 항상 사용: 후보 3안은 `selectDesignBriefs`로 결정적 선택(3d_render ≥1·다크/라이트 혼합·중복 금지), 테마 hex는 결정적(`buildThemeFromBrief` — LLM이 색을 만들지 않음), Claude는 라벨/설명/이미지 프롬프트만 다듬음(실패 시 결정적 폴백). 데이터 변경 시 `validateDesignKnowledge()`가 dev에서 무결성 검사.

@@ -1,14 +1,21 @@
 /**
  * 설문 → 디자인 후보 3안 블루프린트 (1차 가공의 결정적 절반).
  *
- * - mock AiService: mockHeroUrl(정적 SVG)을 그대로 heroImageUrl로 사용
- * - supabase AiService: heroImagePrompt로 Gemini 히어로 이미지를 생성해 교체
+ * design-knowledge(디자인 지식 큐레이션)의 selectDesignBriefs 로 3안을 뽑는다:
+ *  - 다양성 보장: 최소 1안 3d_render, 다크/라이트 혼합, 스타일·팔레트·폰트 안끼리 중복 없음
+ *  - 결정적: 같은 설문 = 같은 3안 (Math.random 없음) — mock/supabase 양쪽 공유
  *
- * 팔레트/폰트는 설문의 tone·colorPreference를 반영하되 3안이 서로 뚜렷이 다르게
- * (photo 다크 / 3d_render / photo 라이트) 구성한다 — SPEC 부록 C 8원칙 준수.
+ * 소비처별 사용:
+ *  - mock AiService: mockHeroUrl(정적 SVG)을 그대로 heroImageUrl 로 사용
+ *  - supabase AiService: heroImagePrompt(또는 Claude가 다듬은 프롬프트)로 Gemini 히어로 생성
  */
-import type { CandidateStyle, SurveyInput } from '@/lib/types/domain';
-import type { SiteTheme } from '@/lib/types/site';
+import type { CandidateStyle, DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import type { SectionType, SiteTheme } from '@/lib/types/site';
+import {
+  selectDesignBriefs,
+  buildThemeFromBrief,
+  type DesignBrief,
+} from '@/lib/ai/design-knowledge';
 
 export interface CandidateBlueprint {
   id: string;
@@ -16,193 +23,150 @@ export interface CandidateBlueprint {
   style: CandidateStyle;
   description: string;
   theme: SiteTheme;
-  /** 실모드: Gemini 히어로 이미지 생성 프롬프트 */
+  /** 실모드: Gemini 히어로 이미지 생성 프롬프트 (결정적 기본값 — Claude가 다듬을 수 있음) */
   heroImagePrompt: string;
-  /** mock 모드: 정적 히어로 자산 */
+  /** mock 모드: 정적 히어로 프리뷰 자산 (실모드에서는 생성 실패 시 폴백) */
   mockHeroUrl: string;
+  /** 히어로 이미지 프롬프트에 붙이는 영어 스타일 조각 (brief.style.heroImageFragment) */
+  heroImageFragment: string;
+  /** 섹션 보조 이미지 프롬프트에 붙이는 영어 스타일 조각 */
+  sectionImageFragment: string;
+  /** 이 안을 만든 디자인 브리프 원본 (스타일·팔레트·폰트·랜딩 패턴) */
+  brief: DesignBrief;
 }
 
-// ---------- 색 유틸 ----------
+// ---------- 설문 전처리 ----------
 
-function normalizeHex(hex: string): string | null {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  if (m) return `#${m[1].toLowerCase()}`;
-  const m3 = /^#?([0-9a-f]{3})$/i.exec(hex.trim());
-  if (m3) {
-    const [r, g, b] = m3[1].toLowerCase();
-    return `#${r}${r}${g}${g}${b}${b}`;
+/**
+ * colorPreference 에 hex 가 들어오면 색 이름 어휘로 변환해 덧붙인다.
+ * design-knowledge 의 팔레트 매칭은 키워드 부분일치라 hex 원문으로는 매칭이 안 되기 때문.
+ * 결정적 — 같은 hex 는 항상 같은 어휘.
+ */
+export function hexColorWords(colorPreference: string): string {
+  const m = /#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/.exec(colorPreference);
+  if (!m) return '';
+  let hex = m[1].toLowerCase();
+  if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+  const n = parseInt(hex, 16);
+  const r = ((n >> 16) & 0xff) / 255;
+  const g = ((n >> 8) & 0xff) / 255;
+  const b = (n & 0xff) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = 60 * (((g - b) / d + 6) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
   }
-  return null;
+
+  // 어휘는 CURATED_PALETTES.mood 의 색 이름과 겹치도록 선택
+  if (s < 0.12) return l < 0.22 ? '블랙 다크' : l > 0.85 ? '화이트 미니멀' : '그레이 모노크롬';
+  if (h < 15 || h >= 345) return l < 0.35 ? '버건디 레드' : '레드';
+  if (h < 32) return l < 0.45 ? '브라운 테라코타' : '오렌지 테라코타';
+  if (h < 65) return l < 0.65 ? '골드 앰버' : '옐로 골드';
+  if (h < 150) return l < 0.3 ? '다크 그린' : '그린';
+  if (h < 200) return '틸 민트';
+  if (h < 250) return l < 0.35 ? '네이비 블루' : '블루 스카이';
+  if (h < 290) return '퍼플 라벤더';
+  return '핑크 로맨틱';
 }
 
-function hexToRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff];
+/**
+ * 온보딩 설문 UI 의 기본 섹션 구성과 동일한지 검사.
+ * (components/dashboard/onboarding/survey-step.tsx 의 DEFAULT_SECTIONS 와 정합 유지)
+ * 비어 있거나 기본값 그대로면 사용자가 섹션을 고르지 않은 것으로 보고 랜딩 패턴으로 보강한다.
+ */
+const DEFAULT_SURVEY_SECTIONS: SectionType[] = ['hero', 'about', 'menu', 'gallery', 'contact'];
+
+export function isDefaultSectionSelection(sections: SectionType[] | undefined): boolean {
+  if (!sections || sections.length === 0) return true;
+  if (sections.length !== DEFAULT_SURVEY_SECTIONS.length) return false;
+  return DEFAULT_SURVEY_SECTIONS.every((s, i) => sections[i] === s);
 }
 
-function rgbToHex(r: number, g: number, b: number): string {
-  const c = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
-  return `#${((c(r) << 16) | (c(g) << 8) | c(b)).toString(16).padStart(6, '0')}`;
-}
-
-function luminance(hex: string): number {
-  const [r, g, b] = hexToRgb(hex);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-/** a→b 방향으로 t(0~1)만큼 혼합 */
-function mixHex(a: string, b: string, t: number): string {
-  const [ar, ag, ab] = hexToRgb(a);
-  const [br, bg, bb] = hexToRgb(b);
-  return rgbToHex(ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t);
-}
-
-const lighten = (hex: string, t: number) => mixHex(hex, '#ffffff', t);
-const darken = (hex: string, t: number) => mixHex(hex, '#000000', t);
-
-// ---------- 설문 해석 ----------
-
-/** colorPreference 자유 텍스트 → 브랜드 대표색 hex */
-export function parseBrandColor(colorPreference: string): string {
-  const hexMatch = /#[0-9a-f]{6}|#[0-9a-f]{3}/i.exec(colorPreference);
-  if (hexMatch) {
-    const normalized = normalizeHex(hexMatch[0]);
-    if (normalized) return normalized;
-  }
-  const t = colorPreference.toLowerCase();
-  const table: Array<[RegExp, string]> = [
-    [/버건디|와인|자주/, '#7a2e35'],
-    [/빨강|레드|적색/, '#a03428'],
-    [/주황|오렌지|테라코타/, '#c0703c'],
-    [/앰버|골드|금색|황금/, '#b08d57'],
-    [/노랑|옐로|머스터드/, '#c9a227'],
-    [/민트|초록|그린|올리브/, '#2f7d6d'],
-    [/청록|틸|터콰이즈/, '#22757a'],
-    [/네이비|남색/, '#2e4159'],
-    [/파랑|블루|하늘/, '#3c5f7d'],
-    [/보라|퍼플|바이올렛|라벤더/, '#6b5a8e'],
-    [/핑크|분홍|로즈/, '#b0607a'],
-    [/갈색|브라운|카멜|베이지/, '#8a6a4c'],
-    [/차콜|검정|블랙|먹색/, '#3a362f'],
-    [/은색|실버|그레이|회색/, '#6e6e72'],
-  ];
-  for (const [re, hex] of table) {
-    if (re.test(t)) return hex;
-  }
-  return '#b08d57'; // 기본: 절제된 앰버 골드
-}
-
-/** 다크 배경 위에서 primary가 묻히지 않게 보정 */
-function primaryOnDark(brand: string): string {
-  const lum = luminance(brand);
-  if (lum < 90) return lighten(brand, 0.45);
-  if (lum < 130) return lighten(brand, 0.2);
-  return brand;
-}
-
-/** 라이트 배경 위에서 primary가 날아가지 않게 보정 */
-function primaryOnLight(brand: string): string {
-  const lum = luminance(brand);
-  if (lum > 170) return darken(brand, 0.4);
-  if (lum > 130) return darken(brand, 0.2);
-  return brand;
-}
-
-function isLightTone(tone: string): boolean {
-  return /친근|밝|깔끔|미니멀|산뜻|캐주얼|따뜻|편안/.test(tone);
+/** 브리프 선택용 설문 전처리 — hex→색이름 보강 + 기본 섹션이면 텍스트 기반 패턴 폴백 유도 */
+function surveyForBriefs(survey: SurveyInput): SurveyInput {
+  const colorWords = hexColorWords(survey.colorPreference);
+  return {
+    ...survey,
+    colorPreference: colorWords
+      ? `${survey.colorPreference} ${colorWords}`
+      : survey.colorPreference,
+    // sections 를 비우면 selectDesignBriefs 가 설문 텍스트 키워드로 패턴을 고른다
+    sections: isDefaultSectionSelection(survey.sections) ? [] : survey.sections,
+  };
 }
 
 // ---------- 블루프린트 빌더 ----------
 
+/** 스타일·팔레트에 맞는 mock 히어로 프리뷰 자산 (public/mock) */
+function mockHeroFor(brief: DesignBrief): string {
+  if (brief.style.candidateStyle === '3d_render') return '/mock/candidate-3d.svg';
+  return brief.palette.dark ? '/mock/candidate-dark.svg' : '/mock/candidate-light.svg';
+}
+
+/** 결정적 히어로 이미지 프롬프트 — 업종 맥락 + 스타일 조각 + 팔레트 힌트 */
+function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief): string {
+  const palette = brief.palette.palette;
+  return (
+    `Website hero image for a Korean small business. ` +
+    `Business: ${survey.businessName} (${survey.industry}). Purpose: ${survey.purpose}. ` +
+    `Style: ${brief.style.heroImageFragment}. ` +
+    `Color mood: background near ${palette.background}, key accent ${palette.primary}. ` +
+    `Generous negative space for a headline, no text, no words, no logos, no watermark. 16:10.`
+  );
+}
+
 export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprint[] {
-  const brand = parseBrandColor(survey.colorPreference);
-  const biz = survey.businessName;
-  const scene = `${survey.industry}, ${survey.purpose}`;
+  const briefs = selectDesignBriefs(surveyForBriefs(survey));
+  return briefs.map((brief) => ({
+    id: `cand-${brief.style.id}`,
+    label: brief.label,
+    style: brief.style.candidateStyle,
+    description: brief.description,
+    theme: buildThemeFromBrief(brief),
+    heroImagePrompt: buildHeroPrompt(survey, brief),
+    mockHeroUrl: mockHeroFor(brief),
+    heroImageFragment: brief.style.heroImageFragment,
+    sectionImageFragment: brief.style.sectionImageFragment,
+    brief,
+  }));
+}
 
-  const darkPhoto: CandidateBlueprint = {
-    id: 'cand-photo-dark',
-    label: '무광의 밤 — 딥 다크',
-    style: 'photo',
-    description: `어두운 배경 위에 ${biz}의 대표색을 절제해서 얹은 방향. 사진의 질감과 여백으로 무게감을 만듭니다.`,
-    theme: {
-      fonts: {
-        heading: "'Song Myung', 'Noto Serif KR', serif",
-        body: "'IBM Plex Sans KR', 'Apple SD Gothic Neo', sans-serif",
-        googleFonts: ['Song Myung', 'IBM Plex Sans KR'],
-      },
-      palette: {
-        background: '#14110d',
-        surface: '#1e1a15',
-        text: '#efe8db',
-        muted: '#94897a',
-        primary: primaryOnDark(brand),
-        accent: mixHex(brand, '#7a2e2e', 0.45),
-      },
-      radius: 2,
-      customCss: `::selection{background:${primaryOnDark(brand)};color:#14110d}`,
-    },
-    heroImagePrompt:
-      `Moody dark editorial hero photograph for a Korean small business website. Business: ${biz}. Context: ${scene}. ` +
-      `Dominant color ${brand}, deep charcoal shadows, cinematic side lighting, generous negative space on the left for headline text, no words, no logos. 16:10.`,
-    mockHeroUrl: '/mock/candidate-dark.svg',
-  };
+// ---------- 후보 → 블루프린트 역참조 (2차 단계에서 재사용) ----------
 
-  const render3d: CandidateBlueprint = {
-    id: 'cand-3d-render',
-    label: '소프트 클레이 — 3D 렌더',
-    style: '3d_render',
-    description: `${biz}의 오브제를 부드러운 3D 렌더로 재해석한 방향. 파스텔 볼륨감으로 친근하지만 값싸 보이지 않게.`,
-    theme: {
-      fonts: {
-        heading: "'Hahmlet', 'Noto Serif KR', serif",
-        body: "'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif",
-        googleFonts: ['Hahmlet', 'Noto Sans KR'],
-      },
-      palette: {
-        background: '#efe9e0',
-        surface: '#faf7f2',
-        text: '#26211b',
-        muted: '#8d8378',
-        primary: primaryOnLight(darken(brand, 0.08)),
-        accent: mixHex(brand, '#d98e63', 0.5),
-      },
-      radius: 16,
-    },
-    heroImagePrompt:
-      `Soft 3D clay render hero image for a Korean small business website. Business: ${biz}. Context: ${scene}. ` +
-      `Rounded matte 3D objects representing the business, warm beige studio backdrop, subtle ${brand} accents, soft global illumination, isometric-ish composition, no text. 16:10.`,
-    mockHeroUrl: '/mock/candidate-3d.svg',
-  };
+/**
+ * 이미 발급된 후보(선택 단계에서 클라이언트가 돌려준 DesignCandidate)에 해당하는
+ * 블루프린트를 설문으로 재도출한다. buildCandidateBlueprints 는 결정적이므로
+ * 같은 설문이면 같은 3안이 나온다 — id 일치 우선, 없으면 style 일치, 최후엔 첫 안.
+ */
+export function matchBlueprintForCandidate(
+  survey: SurveyInput,
+  candidate: Pick<DesignCandidate, 'id' | 'style'>,
+): CandidateBlueprint {
+  const blueprints = buildCandidateBlueprints(survey);
+  return (
+    blueprints.find((bp) => bp.id === candidate.id) ??
+    blueprints.find((bp) => bp.style === candidate.style) ??
+    blueprints[0]
+  );
+}
 
-  const lightPhoto: CandidateBlueprint = {
-    id: 'cand-photo-light',
-    label: '화이트 스페이스 — 라이트 미니멀',
-    style: 'photo',
-    description: `밝은 여백 위에 ${biz}의 색 하나만 남긴 방향. 덜어낼수록 오래가는 미니멀 구성입니다.`,
-    theme: {
-      fonts: {
-        heading: "'Gowun Batang', 'Noto Serif KR', serif",
-        body: "'Pretendard', 'Noto Sans KR', sans-serif",
-        googleFonts: ['Gowun Batang', 'Noto Sans KR'],
-      },
-      palette: {
-        background: '#f8f7f4',
-        surface: '#ffffff',
-        text: '#1c1b18',
-        muted: '#8a877e',
-        primary: primaryOnLight(brand),
-        accent: mixHex(brand, '#e4a11b', 0.4),
-      },
-      radius: 10,
-    },
-    heroImagePrompt:
-      `Bright minimal editorial hero photograph for a Korean small business website. Business: ${biz}. Context: ${scene}. ` +
-      `Airy natural daylight, off-white background, one ${brand} accent element, lots of clean negative space for headline text, no words. 16:10.`,
-    mockHeroUrl: '/mock/candidate-light.svg',
-  };
-
-  // 톤이 밝은 계열이면 라이트 안을 첫 번째로 — 항상 photo/3d_render/photo 구성 유지
-  return isLightTone(survey.tone)
-    ? [lightPhoto, render3d, darkPhoto]
-    : [darkPhoto, render3d, lightPhoto];
+/**
+ * SiteConfig 생성에 쓸 섹션 계획.
+ * 설문 섹션이 비어 있거나 온보딩 기본값 그대로면 브리프의 랜딩 패턴으로 보강하고,
+ * 사용자가 직접 고른 구성이면 그대로 존중한다.
+ */
+export function resolveSectionPlan(
+  survey: SurveyInput,
+  blueprint: CandidateBlueprint,
+): SectionType[] {
+  return isDefaultSectionSelection(survey.sections)
+    ? [...blueprint.brief.pattern.sections]
+    : survey.sections;
 }

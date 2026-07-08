@@ -6,7 +6,11 @@
 import type { AiService } from '../types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
-import { buildCandidateBlueprints } from '../design-candidates';
+import {
+  buildCandidateBlueprints,
+  matchBlueprintForCandidate,
+  resolveSectionPlan,
+} from '../design-candidates';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { getMockStore } from './store';
 
@@ -77,6 +81,7 @@ function pickCopyPool(hint: string): string[] {
 export class MockAiService implements AiService {
   async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
     await simulateLatency(1300);
+    // 디자인 지식 기반 결정적 3안 (최소 1안 3d_render · 다크/라이트 혼합 · 안끼리 중복 없음)
     return buildCandidateBlueprints(survey).map((bp) => ({
       id: bp.id,
       label: bp.label,
@@ -89,8 +94,14 @@ export class MockAiService implements AiService {
 
   async generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig> {
     await simulateLatency(1500);
-    // 설문의 sections 배열 순서 그대로 섹션 구성 (한국어 카피는 템플릿의 톤 반영 기본값)
-    return buildSiteConfigFromSurvey(survey, candidate, {
+    // 설문의 sections 순서를 존중하되, 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
+    // (한국어 카피는 템플릿의 톤 반영 기본값)
+    const blueprint = matchBlueprintForCandidate(survey, candidate);
+    const effectiveSurvey: SurveyInput = {
+      ...survey,
+      sections: resolveSectionPlan(survey, blueprint),
+    };
+    return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
       imagePool: [...MOCK_IMAGE_POOL],
     });
