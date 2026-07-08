@@ -1,0 +1,52 @@
+# Supabase 로컬 개발 설정 — `npx supabase start` 진입점
+# 참고: supabase/README.md
+
+project_id = "anakslabs"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+# ----------------------------------------------------------------------------
+# 소셜 로그인 (로컬 테스트 시 주석 해제 후 supabase/.env 에 키 주입)
+# 프로덕션은 Supabase 대시보드 Authentication > Providers 에서 설정.
+# ----------------------------------------------------------------------------
+
+# [auth.external.kakao]
+# enabled = true
+# client_id = "env(SUPABASE_AUTH_EXTERNAL_KAKAO_CLIENT_ID)"
+# secret = "env(SUPABASE_AUTH_EXTERNAL_KAKAO_SECRET)"
+# redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
+
+# [auth.external.google]
+# enabled = true
+# client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+# secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+# redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"

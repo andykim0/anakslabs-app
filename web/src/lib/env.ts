@@ -21,6 +21,8 @@ export const env = {
   cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN ?? '',
   cloudflareZoneId: process.env.CLOUDFLARE_ZONE_ID ?? '',
   tossSecretKey: process.env.TOSS_SECRET_KEY ?? '',
+  /** 토스 결제창(클라이언트) 키 — 공개 가능 */
+  tossClientKey: process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '',
   /** 크론 라우트 보호용 시크릿 */
   cronSecret: process.env.CRON_SECRET ?? '',
 } as const;

@@ -27,7 +27,7 @@
 | 데이터 계층·서비스·API | `web/src/lib/data/`, `web/src/lib/services/`, `web/src/lib/ai/`, `web/src/app/api/` |
 | 캔버스 에디터 | `web/src/components/editor/`, `web/src/app/(dashboard)/sites/[siteId]/editor/`, `web/src/stores/` |
 | 고객 대시보드/온보딩 | `web/src/app/(dashboard)/`(에디터 페이지 제외), `web/src/app/(auth)/`, `web/src/components/dashboard/` |
-| 멀티테넌트 렌더러 | `web/src/middleware.ts`, `web/src/app/s/`, `web/src/components/site-renderer/` |
+| 멀티테넌트 렌더러 | `web/src/proxy.ts`, `web/src/app/s/`, `web/src/components/site-renderer/` |
 | 관리자 콘솔 | `web/src/app/(admin)/`, `web/src/components/admin/` |
 | 계약(타입/인터페이스/상수) | `web/src/lib/types/`, `web/src/lib/data/types.ts`, `web/src/lib/credits/constants.ts`, `web/src/lib/env.ts` — **Architect(메인 세션) 소유, 에이전트 수정 금지. 변경 필요 시 보고만.** |
 
@@ -43,6 +43,10 @@
 - 모든 테넌트 테이블 RLS: `client_id = auth.uid()` 기반. 관리자는 service role.
 - Basic 티어가 영상 편집 요청 시: 차감 전에 업셀 안내(크레딧 3개 소모 vs Premium 업그레이드) 노출.
 - 캔버스 좌표계: 디자인 폭 1440 고정(`DESIGN_WIDTH`). 에디터와 렌더러가 동일 상수 공유.
+- Next.js는 **16.2.10** — `middleware.ts` 컨벤션 금지(deprecated, `proxy.ts`와 공존 시 빌드 에러). 호스트 라우팅은 `web/src/proxy.ts`만.
+- mock 세션 계약: 쿠키 `anaks_mock_session`(httpOnly), 값 = mock client id `demo-premium`|`demo-basic`|`admin`. 정의는 `web/src/app/api/_lib/guards.ts`(MOCK_SESSION_COOKIE), auth 서비스가 동일 이름/값을 읽음.
+- 크레딧 단가·초기지급·만료일은 `lib/credits/constants.ts`와 SQL(handle_* 함수, edit_requests 정책)에 이중 존재 — 변경 시 반드시 마이그레이션 동반.
+- `sites.domain`은 소문자 정규화 저장/조회. 데모 라이브 도메인: `hwarodam.anakslabs.com`.
 
 ## 크레딧 규칙 요약
 
@@ -58,4 +62,4 @@ cd web && npx tsc --noEmit   # 타입 체크
 
 ## 기술 스택
 
-Next.js 15(App Router, `web/`) · TypeScript · Tailwind v4 · Supabase(Auth: 카카오/구글, DB+RLS) · Zustand+zundo(에디터 상태/undo) · TanStack Query · react-hook-form+zod · framer-motion · lucide-react. 결제: 토스페이먼츠(mock 우선). AI: 이미지 Nano Banana(Gemini), 텍스트 GLM, 영상 Veo 3.1 — 전부 `lib/ai/` 어댑터 뒤에.
+Next.js 16.2(App Router, `web/`) · TypeScript · Tailwind v4 · Supabase(Auth: 카카오/구글, DB+RLS) · Zustand+zundo(에디터 상태/undo) · TanStack Query · react-hook-form+zod · framer-motion · lucide-react. 결제: 토스페이먼츠(mock 우선). AI: 이미지 Nano Banana(Gemini), 텍스트 GLM, 영상 Veo 3.1 — 전부 `lib/ai/` 어댑터 뒤에.

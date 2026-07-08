@@ -1,0 +1,87 @@
+/**
+ * Mock 모드 인메모리 스토어 — globalThis 싱글턴(dev HMR에도 유지).
+ * 크레딧 원장(ledger)이 잔액의 source of truth이며, lots는 만료 FIFO 소진을 위한
+ * 지급 lot별 잔여량 추적(실 DB의 SQL 함수가 하는 일을 인메모리로 재현).
+ */
+import type {
+  Client,
+  CreditLedgerEntry,
+  CustomDomainState,
+  DnsRecordInstruction,
+  EditRequest,
+  Payment,
+  Site,
+} from '@/lib/types/domain';
+import { buildSeed } from './seed';
+
+/** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
+export interface MockLot {
+  entryId: string;
+  clientId: string;
+  remaining: number;
+  expiresAt: string | null;
+}
+
+export interface MockDomainState {
+  siteId: string;
+  hostname: string;
+  state: CustomDomainState;
+  /** checkStatus 호출 횟수 — 데모 체감용 전이(1회: verifying, 2회~: active) */
+  checkCount: number;
+  records: DnsRecordInstruction[];
+  sslStatus?: string;
+}
+
+export interface MockStore {
+  clients: Map<string, Client>;
+  sites: Map<string, Site>;
+  /** 크레딧 원장 — append only */
+  ledger: CreditLedgerEntry[];
+  lots: MockLot[];
+  /** grant idempotencyKey dedup */
+  grantKeys: Set<string>;
+  editRequests: Map<string, EditRequest>;
+  payments: Map<string, Payment>;
+  /** providerPaymentKey → payment.id (웹훅 멱등) */
+  paymentKeys: Map<string, string>;
+  /** siteId → 커스텀 도메인 검증 상태 */
+  domainStates: Map<string, MockDomainState>;
+  /** Cloudflare custom hostname 총수 (시드 7) */
+  cfHostnameCount: number;
+  counters: { id: number; text: number; image: number };
+}
+
+export function newId(store: MockStore, prefix: string): string {
+  store.counters.id += 1;
+  return `${prefix}-${store.counters.id.toString(36).padStart(4, '0')}`;
+}
+
+export function nowIso(): string {
+  return new Date().toISOString();
+}
+
+export function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString();
+}
+
+export function daysFromIso(baseIso: string, days: number): string {
+  return new Date(new Date(baseIso).getTime() + days * 86_400_000).toISOString();
+}
+
+const GLOBAL_KEY = '__anaksMockStore__' as const;
+
+type GlobalWithStore = typeof globalThis & { [GLOBAL_KEY]?: MockStore };
+
+export function getMockStore(): MockStore {
+  const g = globalThis as GlobalWithStore;
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = buildSeed();
+  }
+  return g[GLOBAL_KEY];
+}
+
+/** 테스트/데모 리셋용 — 다음 접근 시 시드부터 다시 생성 */
+export function resetMockStore(): void {
+  const g = globalThis as GlobalWithStore;
+  delete g[GLOBAL_KEY];
+}
