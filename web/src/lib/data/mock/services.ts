@@ -5,12 +5,14 @@
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import type {
+  BusinessInfo,
   Client,
   ClientStatus,
   CustomDomainStatus,
   EditRequest,
   EditStatus,
   EditType,
+  ExportStatus,
   Payment,
   PaymentType,
   Site,
@@ -28,6 +30,7 @@ import type {
 import { slugifySiteName } from '../slug';
 import { MockAiService } from './ai';
 import { MockCreditsService } from './credits';
+import { MockExportService } from './exports';
 import { getMockStore, newId, nowIso } from './store';
 
 // ---------- 고객 ----------
@@ -72,6 +75,18 @@ class MockClientsRepo implements ClientsRepo {
     const client = getMockStore().clients.get(id);
     if (!client) throw new Error(`clients.updateStatus: 고객이 없습니다 (${id})`);
     client.status = status;
+  }
+
+  async updateBusinessInfo(id: string, info: BusinessInfo): Promise<void> {
+    const client = getMockStore().clients.get(id);
+    if (!client) throw new Error(`clients.updateBusinessInfo: 고객이 없습니다 (${id})`);
+    client.businessInfo = structuredClone(info);
+  }
+
+  async setCancelRequested(id: string, at: string | null): Promise<void> {
+    const client = getMockStore().clients.get(id);
+    if (!client) throw new Error(`clients.setCancelRequested: 고객이 없습니다 (${id})`);
+    client.cancelRequestedAt = at;
   }
 
   async listAll(): Promise<Client[]> {
@@ -128,6 +143,10 @@ class MockSitesRepo implements SitesRepo {
       draftConfig: structuredClone(input.draftConfig),
       publishedAt: null,
       createdAt: nowIso(),
+      freeRegensUsed: 0,
+      exportStatus: 'none',
+      exportRequestedAt: null,
+      exportUrl: null,
     };
     store.sites.set(site.id, site);
     return structuredClone(site);
@@ -184,6 +203,23 @@ class MockSitesRepo implements SitesRepo {
     if (input.cloudflareHostnameId !== undefined) site.cloudflareHostnameId = input.cloudflareHostnameId;
     if (input.status !== undefined) site.status = input.status;
   }
+
+  async incrementFreeRegens(siteId: string): Promise<void> {
+    const site = getMockStore().sites.get(siteId);
+    if (!site) throw new Error(`sites.incrementFreeRegens: 사이트가 없습니다 (${siteId})`);
+    site.freeRegensUsed = (site.freeRegensUsed ?? 0) + 1;
+  }
+
+  async updateExport(
+    siteId: string,
+    input: { status: ExportStatus; url?: string | null; requestedAt?: string | null },
+  ): Promise<void> {
+    const site = getMockStore().sites.get(siteId);
+    if (!site) throw new Error(`sites.updateExport: 사이트가 없습니다 (${siteId})`);
+    site.exportStatus = input.status;
+    if (input.url !== undefined) site.exportUrl = input.url;
+    if (input.requestedAt !== undefined) site.exportRequestedAt = input.requestedAt;
+  }
 }
 
 // ---------- 편집 요청 ----------
@@ -195,6 +231,8 @@ class MockEditRequestsRepo implements EditRequestsRepo {
     type: EditType;
     creditCost: number;
     requestedContent: string;
+    isInitialRevision?: boolean;
+    autoApproved?: boolean;
   }): Promise<EditRequest> {
     const store = getMockStore();
     const editRequest: EditRequest = {
@@ -208,6 +246,10 @@ class MockEditRequestsRepo implements EditRequestsRepo {
       aiOutput: null,
       createdAt: nowIso(),
       appliedAt: null,
+      isInitialRevision: input.isInitialRevision ?? false,
+      autoApproved: input.autoApproved ?? false,
+      reviewedAt: null,
+      qaNote: null,
     };
     store.editRequests.set(editRequest.id, editRequest);
     return structuredClone(editRequest);
@@ -234,13 +276,21 @@ class MockEditRequestsRepo implements EditRequestsRepo {
 
   async update(
     id: string,
-    patch: Partial<{ status: EditStatus; aiOutput: unknown; appliedAt: string | null }>,
+    patch: Partial<{
+      status: EditStatus;
+      aiOutput: unknown;
+      appliedAt: string | null;
+      reviewedAt: string | null;
+      qaNote: string | null;
+    }>,
   ): Promise<void> {
     const editRequest = getMockStore().editRequests.get(id);
     if (!editRequest) throw new Error(`editRequests.update: 편집 요청이 없습니다 (${id})`);
     if ('status' in patch && patch.status !== undefined) editRequest.status = patch.status;
     if ('aiOutput' in patch) editRequest.aiOutput = structuredClone(patch.aiOutput) ?? null;
     if ('appliedAt' in patch) editRequest.appliedAt = patch.appliedAt ?? null;
+    if ('reviewedAt' in patch) editRequest.reviewedAt = patch.reviewedAt ?? null;
+    if ('qaNote' in patch) editRequest.qaNote = patch.qaNote ?? null;
   }
 }
 
@@ -326,6 +376,36 @@ class MockPaymentsService implements PaymentsService {
     return [...getMockStore().payments.values()]
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
       .map((p) => structuredClone(p));
+  }
+
+  async getById(id: string): Promise<Payment | null> {
+    const p = getMockStore().payments.get(id);
+    return p ? structuredClone(p) : null;
+  }
+
+  async refund(input: {
+    paymentId: string;
+    amount: number;
+  }): Promise<{ ok: boolean; alreadyRefunded: boolean }> {
+    const store = getMockStore();
+    const payment = store.payments.get(input.paymentId);
+    if (!payment) throw new Error(`payments.refund: 결제가 없습니다 (${input.paymentId})`);
+    if (input.amount < 0) throw new Error('payments.refund: amount는 0 이상이어야 합니다');
+    if (payment.refundedAt) return { ok: true, alreadyRefunded: true };
+
+    // TODO(실모드): PG 환불 API 호출 후 성공 시 아래 기록/회수 실행.
+    payment.refundedAt = nowIso();
+    payment.refundAmount = input.amount;
+
+    // build_fee 환불: 초기 지급 크레딧 미사용분 회수
+    if (payment.type === 'build_fee') {
+      await this.credits.clawbackGrant({
+        clientId: payment.clientId,
+        referenceId: payment.id,
+        grantReason: 'initial_grant',
+      });
+    }
+    return { ok: true, alreadyRefunded: false };
   }
 }
 
@@ -424,5 +504,6 @@ export function createMockServices(): DataServices {
     payments: new MockPaymentsService(credits),
     domains: new MockDomainService(sites),
     ai: new MockAiService(),
+    exports: new MockExportService(),
   };
 }

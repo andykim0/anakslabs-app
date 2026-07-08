@@ -11,11 +11,13 @@
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import type {
+  BusinessInfo,
   Client,
   ClientStatus,
   EditRequest,
   EditStatus,
   EditType,
+  ExportStatus,
   Payment,
   PaymentType,
   Site,
@@ -90,6 +92,18 @@ export class SupabaseClientsRepo implements ClientsRepo {
     const svc = getServiceRoleClient();
     const { error } = await svc.from('clients').update({ status }).eq('id', id);
     if (error) throw new Error(`clients.status 갱신 실패: ${error.message}`);
+  }
+
+  async updateBusinessInfo(id: string, info: BusinessInfo): Promise<void> {
+    const svc = getServiceRoleClient();
+    const { error } = await svc.from('clients').update({ business_info: info }).eq('id', id);
+    if (error) throw new Error(`clients.business_info 갱신 실패: ${error.message}`);
+  }
+
+  async setCancelRequested(id: string, at: string | null): Promise<void> {
+    const svc = getServiceRoleClient();
+    const { error } = await svc.from('clients').update({ cancel_requested_at: at }).eq('id', id);
+    if (error) throw new Error(`clients.cancel_requested_at 갱신 실패: ${error.message}`);
   }
 
   async listAll(): Promise<Client[]> {
@@ -233,6 +247,32 @@ export class SupabaseSitesRepo implements SitesRepo {
     const { error } = await svc.from('sites').update(patch).eq('id', siteId);
     if (error) throw new Error(`sites 도메인 정보 갱신 실패: ${error.message}`);
   }
+
+  async incrementFreeRegens(siteId: string): Promise<void> {
+    const svc = getServiceRoleClient();
+    // 원자적 증가: 현재값 조회 후 +1 (동시 재생성은 온보딩 단일 세션이라 경합 낮음)
+    const { data, error: readErr } = await svc
+      .from('sites')
+      .select('free_regens_used')
+      .eq('id', siteId)
+      .single();
+    if (readErr) throw new Error(`sites.free_regens_used 조회 실패: ${readErr.message}`);
+    const next = Number((data as { free_regens_used: number | null }).free_regens_used ?? 0) + 1;
+    const { error } = await svc.from('sites').update({ free_regens_used: next }).eq('id', siteId);
+    if (error) throw new Error(`sites.free_regens_used 갱신 실패: ${error.message}`);
+  }
+
+  async updateExport(
+    siteId: string,
+    input: { status: ExportStatus; url?: string | null; requestedAt?: string | null },
+  ): Promise<void> {
+    const svc = getServiceRoleClient();
+    const patch: Record<string, unknown> = { export_status: input.status };
+    if (input.url !== undefined) patch.export_url = input.url;
+    if (input.requestedAt !== undefined) patch.export_requested_at = input.requestedAt;
+    const { error } = await svc.from('sites').update(patch).eq('id', siteId);
+    if (error) throw new Error(`sites export 상태 갱신 실패: ${error.message}`);
+  }
 }
 
 // ---------- 편집 요청 ----------
@@ -244,6 +284,8 @@ export class SupabaseEditRequestsRepo implements EditRequestsRepo {
     type: EditType;
     creditCost: number;
     requestedContent: string;
+    isInitialRevision?: boolean;
+    autoApproved?: boolean;
   }): Promise<EditRequest> {
     const svc = getServiceRoleClient();
     const { data, error } = await svc
@@ -255,6 +297,8 @@ export class SupabaseEditRequestsRepo implements EditRequestsRepo {
         credit_cost: input.creditCost,
         status: 'pending',
         requested_content: input.requestedContent,
+        is_initial_revision: input.isInitialRevision ?? false,
+        auto_approved: input.autoApproved ?? false,
       })
       .select('*')
       .single();
@@ -293,13 +337,21 @@ export class SupabaseEditRequestsRepo implements EditRequestsRepo {
 
   async update(
     id: string,
-    patch: Partial<{ status: EditStatus; aiOutput: unknown; appliedAt: string | null }>,
+    patch: Partial<{
+      status: EditStatus;
+      aiOutput: unknown;
+      appliedAt: string | null;
+      reviewedAt: string | null;
+      qaNote: string | null;
+    }>,
   ): Promise<void> {
     const svc = getServiceRoleClient();
     const row: Record<string, unknown> = {};
     if ('status' in patch && patch.status !== undefined) row.status = patch.status;
     if ('aiOutput' in patch) row.ai_output = patch.aiOutput ?? null;
     if ('appliedAt' in patch) row.applied_at = patch.appliedAt ?? null;
+    if ('reviewedAt' in patch) row.reviewed_at = patch.reviewedAt ?? null;
+    if ('qaNote' in patch) row.qa_note = patch.qaNote ?? null;
     if (Object.keys(row).length === 0) return;
 
     const { error } = await svc.from('edit_requests').update(row).eq('id', id);
@@ -403,5 +455,27 @@ export class SupabasePaymentsService implements PaymentsService {
       .order('created_at', { ascending: false });
     if (error) throw new Error(`payments 전체 목록 실패: ${error.message}`);
     return ((data ?? []) as PaymentRow[]).map(rowToPayment);
+  }
+
+  async getById(id: string): Promise<Payment | null> {
+    const svc = getServiceRoleClient();
+    const { data, error } = await svc.from('payments').select('*').eq('id', id).maybeSingle();
+    if (error) throw new Error(`payments 조회 실패: ${error.message}`);
+    return data ? rowToPayment(data as PaymentRow) : null;
+  }
+
+  async refund(input: {
+    paymentId: string;
+    amount: number;
+  }): Promise<{ ok: boolean; alreadyRefunded: boolean }> {
+    const svc = getServiceRoleClient();
+    // TODO(실모드): PG 환불 API(토스) 호출 후 성공 시 아래 원장 정합 함수 실행.
+    const { data, error } = await svc.rpc('admin_refund_payment', {
+      p_payment_id: input.paymentId,
+      p_amount: input.amount,
+    });
+    if (error) throw new Error(`admin_refund_payment 실패: ${error.message}`);
+    const result = (data ?? {}) as { ok?: boolean; already_refunded?: boolean };
+    return { ok: !!result.ok, alreadyRefunded: !!result.already_refunded };
   }
 }

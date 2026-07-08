@@ -195,6 +195,17 @@ export const siteConfigSchema = z.object({
 
 // ---------- 온보딩 (설문 / 디자인 후보) ----------
 
+/** [§6] 사업자 정보 — 전자상거래법 표시 의무 항목 */
+export const businessInfoSchema = z.object({
+  legalName: z.string().min(1, '상호(법인명)를 입력해 주세요.').max(100),
+  representative: z.string().min(1, '대표자명을 입력해 주세요.').max(60),
+  bizRegNo: z.string().min(1, '사업자등록번호를 입력해 주세요.').max(40),
+  address: z.string().min(1, '사업장 주소를 입력해 주세요.').max(300),
+  phone: z.string().min(1, '연락처 전화를 입력해 주세요.').max(40),
+  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(120),
+  ecommerceRegNo: z.string().max(60).optional(),
+});
+
 export const surveySchema = z.object({
   businessName: z.string().min(1, '상호명을 입력해 주세요.').max(100),
   purpose: z.string().min(1, '사이트 목적을 입력해 주세요.').max(500),
@@ -204,6 +215,15 @@ export const surveySchema = z.object({
   referenceImageUrls: z.array(z.string()).max(10).default([]),
   sections: z.array(sectionTypeSchema).min(1, '섹션을 1개 이상 선택해 주세요.'),
   extraNotes: z.string().max(2000).optional(),
+  // ---- [§7] 확장 (전부 optional — 하위호환) ----
+  tagline: z.string().max(200).optional(),
+  conceptMode: z.enum(['real', 'fictional']).optional(),
+  logoUrl: safeMediaSrcSchema.optional(),
+  contentMode: z.enum(['ai', 'provided']).optional(),
+  providedContent: z.string().max(5000).optional(),
+  reservationMode: z.enum(['external_link', 'cta']).optional(),
+  reservationUrl: safeHrefSchema.optional(),
+  businessInfo: businessInfoSchema.optional(),
 });
 
 export const designCandidateSchema = z.object({

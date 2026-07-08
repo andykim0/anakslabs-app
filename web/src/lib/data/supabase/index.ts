@@ -5,6 +5,7 @@ import type { DataServices } from '../types';
 import { SupabaseAiService } from './ai';
 import { SupabaseCreditsService } from './credits';
 import { SupabaseDomainService } from './domains';
+import { SupabaseExportService } from './exports';
 import {
   SupabaseClientsRepo,
   SupabaseEditRequestsRepo,
@@ -23,5 +24,6 @@ export function createSupabaseServices(): DataServices {
     payments: new SupabasePaymentsService(clients),
     domains: new SupabaseDomainService(sites),
     ai: new SupabaseAiService(),
+    exports: new SupabaseExportService(),
   };
 }
