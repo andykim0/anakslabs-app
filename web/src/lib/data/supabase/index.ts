@@ -6,6 +6,7 @@ import { SupabaseAiService } from './ai';
 import { SupabaseCreditsService } from './credits';
 import { SupabaseDomainService } from './domains';
 import { SupabaseExportService } from './exports';
+import { SupabaseQaRulesService } from './qa';
 import {
   SupabaseClientsRepo,
   SupabaseEditRequestsRepo,
@@ -25,5 +26,6 @@ export function createSupabaseServices(): DataServices {
     domains: new SupabaseDomainService(sites),
     ai: new SupabaseAiService(),
     exports: new SupabaseExportService(sites),
+    qa: new SupabaseQaRulesService(),
   };
 }

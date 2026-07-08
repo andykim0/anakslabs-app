@@ -23,6 +23,7 @@ import type {
   ClientStatus,
   CreditLedgerEntry,
   EditRequest,
+  EditType,
   Payment,
   Site,
   SiteStatus,
@@ -119,6 +120,34 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
     throw new Error(message);
   }
   return (await res.json()) as T;
+}
+
+// ---------- QA 자동화 (§2) ----------
+
+export interface QaRuleDto {
+  editType: EditType;
+  enabled: boolean;
+  approvalThreshold: number;
+  minSamples: number;
+  sampleAuditRate: number;
+}
+
+export interface QaStatDto {
+  editType: EditType;
+  sampleSize: number;
+  approvedCount: number;
+  approvalRate: number;
+}
+
+export function getQaStats(): Promise<{ rules: QaRuleDto[]; stats: QaStatDto[] }> {
+  return fetchJson<{ rules: QaRuleDto[]; stats: QaStatDto[] }>('/api/admin/qa-stats');
+}
+
+export function setQaRule(editType: EditType, enabled: boolean): Promise<{ ok: boolean; rules: QaRuleDto[] }> {
+  return fetchJson<{ ok: boolean; rules: QaRuleDto[] }>('/api/admin/qa-rules', {
+    method: 'POST',
+    body: JSON.stringify({ editType, enabled }),
+  });
 }
 
 // ---------- 엔드포인트 함수 ----------

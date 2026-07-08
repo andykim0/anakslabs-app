@@ -31,6 +31,7 @@ import { slugifySiteName } from '../slug';
 import { MockAiService } from './ai';
 import { MockCreditsService } from './credits';
 import { MockExportService } from './exports';
+import { MockQaRulesService } from './qa';
 import { getMockStore, newId, nowIso } from './store';
 
 // ---------- 고객 ----------
@@ -505,5 +506,6 @@ export function createMockServices(): DataServices {
     domains: new MockDomainService(sites),
     ai: new MockAiService(),
     exports: new MockExportService(),
+    qa: new MockQaRulesService(),
   };
 }

@@ -136,6 +136,30 @@ export interface EditRequest {
   qaNote?: string | null;
 }
 
+// ---------- [§2] QA 자동화 ----------
+
+export interface QaAutomationRule {
+  editType: EditType;
+  /** 자동 승인 활성화 (기본 false — 관리자가 명시 토글). video는 항상 false 권장 */
+  enabled: boolean;
+  /** 자동화 권장 임계 승인률 (기본 0.98) */
+  approvalThreshold: number;
+  /** 임계 판단 최소 표본 수 (기본 30) */
+  minSamples: number;
+  /** 자동 승인 건 중 표본 감사 비율 (기본 0.10) */
+  sampleAuditRate: number;
+}
+
+export interface QaApprovalStat {
+  editType: EditType;
+  /** 최근 50건 중 집계 표본 수 */
+  sampleSize: number;
+  /** 무수정 승인(applied) 건수 */
+  approvedCount: number;
+  /** 승인률 (0~1) */
+  approvalRate: number;
+}
+
 // ---------- 결제 ----------
 
 export type PaymentType = 'build_fee' | 'maintenance_subscription' | 'credit_pack';

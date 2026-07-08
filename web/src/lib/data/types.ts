@@ -27,6 +27,8 @@ import type {
   ExportStatus,
   Payment,
   PaymentType,
+  QaApprovalStat,
+  QaAutomationRule,
   Site,
   SurveyInput,
   Tier,
@@ -206,6 +208,18 @@ export interface AiService {
   generateVideo(input: { prompt: string }): Promise<{ url: string; poster?: string }>;
 }
 
+// ---------- [§2] QA 자동화 ----------
+
+export interface QaRulesService {
+  /** 유형별 규칙 (mock: 인메모리 / 실모드: qa_automation_rules) */
+  listRules(): Promise<QaAutomationRule[]>;
+  getRule(editType: EditType): Promise<QaAutomationRule | null>;
+  /** 관리자 토글 (service_role) */
+  setEnabled(editType: EditType, enabled: boolean): Promise<void>;
+  /** 유형별 최근 50건 승인률 (실모드: qa_approval_stats 뷰) */
+  approvalStats(): Promise<QaApprovalStat[]>;
+}
+
 // ---------- 정적 HTML Export (§5) ----------
 //
 // 렌더링(react-dom/server)은 export route 핸들러가 lib/export로 직접 수행하고,
@@ -232,4 +246,5 @@ export interface DataServices {
   domains: DomainService;
   ai: AiService;
   exports: ExportService;
+  qa: QaRulesService;
 }

@@ -12,7 +12,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { CreditReason, EditType } from '@/lib/types/domain';
-import { CREDIT_COSTS, FREE_INITIAL_REVISION_DAYS } from '@/lib/credits/constants';
+import { CREDIT_COSTS, FREE_INITIAL_REVISION_DAYS, QA_AUTOMATABLE_TYPES } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
@@ -60,7 +60,11 @@ export const POST = withApiHandler(async (request) => {
     );
   }
 
-  const { credits, editRequests, ai } = getDataServices();
+  const { credits, editRequests, ai, qa } = getDataServices();
+
+  // [§2] QA 자동화: 유형별 규칙이 enabled면 무수정 자동 승인(applied 직행). video는 항상 제외.
+  const qaRule = QA_AUTOMATABLE_TYPES.includes(type) ? await qa.getRule(type) : null;
+  const autoApprove = !!qaRule?.enabled;
 
   // [§3] 최초 발행 후 7일 무료 수정권 1회 판정:
   //  ① 이 사이트의 편집 요청이 0건  ② published_at 존재 && now < +7일  ③ video 아님(원가 사유)
@@ -82,6 +86,7 @@ export const POST = withApiHandler(async (request) => {
     creditCost: isInitialRevision ? 0 : creditCost,
     requestedContent,
     isInitialRevision,
+    autoApproved: autoApprove,
   });
 
   let balance: number;
@@ -146,11 +151,23 @@ export const POST = withApiHandler(async (request) => {
     );
   }
 
-  await editRequests.update(editRequest.id, { aiOutput, status: 'qa_review' });
+  if (autoApprove) {
+    // [§2] 자동 승인 — QA 큐를 건너 applied 직행. sampleAuditRate 확률로 감사 플래그(qa_note='audit').
+    const audit = Math.random() < (qaRule?.sampleAuditRate ?? 0);
+    await editRequests.update(editRequest.id, {
+      aiOutput,
+      status: 'applied',
+      appliedAt: new Date().toISOString(),
+      reviewedAt: new Date().toISOString(),
+      qaNote: audit ? 'audit' : null,
+    });
+  } else {
+    await editRequests.update(editRequest.id, { aiOutput, status: 'qa_review' });
+  }
   const updated = await editRequests.getById(editRequest.id);
 
   return NextResponse.json(
-    { editRequest: updated ?? editRequest, balance, isInitialRevision },
+    { editRequest: updated ?? editRequest, balance, isInitialRevision, autoApproved: autoApprove },
     { status: 201 },
   );
 });

@@ -41,6 +41,23 @@ export const CREDIT_PACKS: CreditPack[] = [
 /** 유지보수 구독 결제 실패 후 suspended 전 유예기간(일) */
 export const SUSPENSION_GRACE_DAYS = 7;
 
+// ---------- [§2] QA 자동화 ----------
+
+/** 유형별 QA 자동화 기본 파라미터 (SQL qa_automation_rules 기본값과 동기) */
+export const QA_AUTOMATION_DEFAULTS = {
+  /** 자동화 권장 임계 승인률 */
+  approvalThreshold: 0.98,
+  /** 임계 판단 최소 표본 수 */
+  minSamples: 30,
+  /** 자동 승인 건 표본 감사 비율 */
+  sampleAuditRate: 0.1,
+  /** 승인률 집계 최근 창 크기 */
+  recentWindow: 50,
+} as const;
+
+/** 자동화 대상 유형 (video는 원가 사유로 항상 제외 — 사람 QA 유지) */
+export const QA_AUTOMATABLE_TYPES: EditType[] = ['text', 'image', 'structure'];
+
 // ---------- [§3] 최초 결과물 안전장치 ----------
 
 /** 온보딩 무료 재생성 한도 (사이트당) */

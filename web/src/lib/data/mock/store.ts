@@ -9,7 +9,9 @@ import type {
   CustomDomainState,
   DnsRecordInstruction,
   EditRequest,
+  EditType,
   Payment,
+  QaAutomationRule,
   Site,
 } from '@/lib/types/domain';
 import { buildSeed } from './seed';
@@ -50,6 +52,8 @@ export interface MockStore {
   cfHostnameCount: number;
   /** [§5] mock export zip 보관 — object path → { 버퍼, 다운로드 파일명 } */
   exportBlobs: Map<string, { buffer: Buffer; filename: string }>;
+  /** [§2] QA 자동화 규칙 (유형별) */
+  qaRules: Map<EditType, QaAutomationRule>;
   counters: { id: number; text: number; image: number };
 }
 
