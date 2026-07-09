@@ -16,7 +16,6 @@ export default async function SettingsPage() {
       authProvider={client.authProvider}
       tier={client.tier}
       createdAt={client.createdAt}
-      businessInfo={client.businessInfo ?? null}
     />
   );
 }

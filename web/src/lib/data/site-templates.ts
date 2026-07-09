@@ -81,6 +81,9 @@ const SECTION_NAMES: Record<SectionType, string> = {
   contact: '연락처',
   cta: 'CTA',
   custom: '커스텀',
+  team: '구성원',
+  cases: '실적·사례',
+  faq: '자주 묻는 질문',
 };
 
 interface Ctx {
@@ -674,6 +677,193 @@ function buildCustom(ctx: Ctx): Section {
   };
 }
 
+function buildTeam(ctx: Ctx): Section {
+  const { theme } = ctx;
+  const members = [
+    { name: '대표', title: '대표·총괄', career: ['해당 분야 경력 다년', '핵심 프로젝트 리드'] },
+    { name: '전문가', title: '수석·전문위원', career: ['현장 실무 전문성', '주요 성과 다수'] },
+    { name: '담당자', title: '책임·매니저', career: ['고객 응대·운영 총괄', '세심한 실행력'] },
+  ];
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-team-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '사람',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, '구성원 소개', 142),
+  ];
+  members.forEach((m, i) => {
+    const x = 120 + i * 420;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-team-img'),
+        kind: 'image',
+        frame: { x, y: 268, w: 360, h: 320 },
+        z: 2,
+        src: nextImage(ctx),
+        alt: m.name,
+        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+      },
+      {
+        id: nextId(ctx, 'el-team-name'),
+        kind: 'text',
+        frame: { x, y: 610, w: 360, h: 30 },
+        z: 2,
+        text: m.name,
+        style: { fontSize: 21, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-team-title'),
+        kind: 'text',
+        frame: { x, y: 646, w: 360, h: 24 },
+        z: 2,
+        text: m.title,
+        style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-team-career'),
+        kind: 'text',
+        frame: { x, y: 676, w: 360, h: 48 },
+        z: 2,
+        text: m.career.join('\n'),
+        style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
+      },
+    );
+  });
+  return {
+    id: 'sec-team',
+    type: 'team',
+    name: SECTION_NAMES.team,
+    height: 780,
+    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
+    elements,
+  };
+}
+
+function buildCases(ctx: Ctx): Section {
+  const { theme, survey } = ctx;
+  const items = [
+    { title: '대표 사례', metric: '98%', desc: `${survey.industry}에서 검증된 결과.` },
+    { title: '주요 실적', metric: '120+', desc: '누적 수행 프로젝트·고객사.' },
+    { title: '성과 지표', metric: '3배', desc: '핵심 지표 개선 폭.' },
+  ];
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-case-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '증거',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, '실적·사례', 142),
+  ];
+  items.forEach((item, i) => {
+    const x = 120 + i * 420;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-case-card'),
+        kind: 'shape',
+        frame: { x, y: 268, w: 360, h: 280 },
+        z: 1,
+        shape: 'rect',
+        style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
+      },
+      {
+        id: nextId(ctx, 'el-case-title'),
+        kind: 'text',
+        frame: { x: x + 36, y: 308, w: 288, h: 30 },
+        z: 2,
+        text: item.title,
+        style: { fontSize: 18, fontWeight: 500, fontFamily: 'body', color: ctx.softText, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-case-metric'),
+        kind: 'text',
+        frame: { x: x + 36, y: 348, w: 288, h: 60 },
+        z: 2,
+        text: item.metric,
+        style: { fontSize: 48, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-case-desc'),
+        kind: 'text',
+        frame: { x: x + 36, y: 428, w: 288, h: 80 },
+        z: 2,
+        text: item.desc,
+        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
+      },
+    );
+  });
+  return {
+    id: 'sec-cases',
+    type: 'cases',
+    name: SECTION_NAMES.cases,
+    height: 660,
+    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
+    elements,
+  };
+}
+
+function buildFaq(ctx: Ctx): Section {
+  const { theme } = ctx;
+  const items = [
+    { q: '이용 방법이 어떻게 되나요?', a: '문의 주시면 상황에 맞춰 안내해 드립니다.' },
+    { q: '예약·상담은 어떻게 하나요?', a: '전화 또는 문의 폼으로 편하게 연락 주세요.' },
+    { q: '운영 시간이 궁금해요.', a: '기본 운영 시간 내 상담·방문이 가능합니다.' },
+  ];
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-faq-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '안내',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, '자주 묻는 질문', 142),
+  ];
+  items.forEach((item, i) => {
+    const y = 260 + i * 150;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-faq-q'),
+        kind: 'text',
+        frame: { x: 120, y, w: 1200, h: 36 },
+        z: 2,
+        text: `Q. ${item.q}`,
+        style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-faq-a'),
+        kind: 'text',
+        frame: { x: 120, y: y + 44, w: 1200, h: 56 },
+        z: 2,
+        text: item.a,
+        style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
+      },
+      {
+        id: nextId(ctx, 'el-faq-div'),
+        kind: 'divider',
+        frame: { x: 120, y: y + 116, w: 1200, h: 1 },
+        z: 1,
+        style: { color: theme.palette.muted, thickness: 1 },
+      },
+    );
+  });
+  return {
+    id: 'sec-faq',
+    type: 'faq',
+    name: SECTION_NAMES.faq,
+    height: 260 + items.length * 150 + 40,
+    background: { color: theme.palette.background },
+    elements,
+  };
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -685,6 +875,9 @@ const BUILDERS: Record<SectionType, (ctx: Ctx) => Section> = {
   contact: buildContact,
   cta: buildCta,
   custom: buildCustom,
+  team: buildTeam,
+  cases: buildCases,
+  faq: buildFaq,
 };
 
 /**
@@ -709,7 +902,7 @@ export function buildSiteConfigFromSurvey(
     imgSeq: 0,
   };
 
-  const wanted: SectionType[] = [...survey.sections];
+  const wanted: SectionType[] = survey.sectionPlan.map((i) => i.type);
   if (!wanted.includes('hero')) wanted.unshift('hero');
   if (!wanted.includes('contact')) wanted.push('contact');
 

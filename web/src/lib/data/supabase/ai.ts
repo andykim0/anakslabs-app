@@ -11,7 +11,7 @@
  *  - 영상: Veo 3.1 스텁 — 명확한 에러 (편집 요청 라우트가 502 + 자동 환불 처리)
  */
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
@@ -252,10 +252,19 @@ export class SupabaseAiService implements AiService {
     const imagePool = generated.filter((url): url is string => url !== null);
     if (imagePool.length === 0) imagePool.push(candidate.heroImageUrl);
 
-    // 섹션 구성이 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
+    // 섹션 구성이 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강 (기존 항목 재사용)
+    const resolvedTypes = resolveSectionPlan(survey, blueprint);
     const effectiveSurvey: SurveyInput = {
       ...survey,
-      sections: resolveSectionPlan(survey, blueprint),
+      sectionPlan: resolvedTypes.map(
+        (type) =>
+          survey.sectionPlan.find((item) => item.type === type) ?? {
+            type,
+            name: type,
+            brief: '',
+            source: 'ai' as const,
+          },
+      ),
     };
 
     return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
@@ -287,4 +296,29 @@ export class SupabaseAiService implements AiService {
     // 미연동 — 명확한 에러를 던지면 편집 요청 라우트가 502 + 크레딧 자동 환불로 처리
     return generateVeoVideo(input);
   }
+
+  async suggestCustomSection(input: {
+    name: string;
+    description?: string;
+    survey: SurveyInput;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    // [Phase 2] Claude 호출로 대체 예정 — 현재는 결정적 키워드 매핑 폴백 (mock과 동일 규칙)
+    const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
+    return {
+      mappedType,
+      name: input.name,
+      copySeed: input.description?.trim() || input.name,
+    };
+  }
+}
+
+/** [v3 Phase 2] 커스텀 섹션 이름/설명 → known SectionType 결정적 매핑 (mock·실모드 공용 규칙) */
+function mapCustomSectionType(text: string): SectionType {
+  if (/후기|리뷰/.test(text)) return 'testimonials';
+  if (/지도|위치|오시는/.test(text)) return 'contact';
+  if (/가격|요금/.test(text)) return 'pricing';
+  if (/팀|직원|강사/.test(text)) return 'team';
+  if (/실적|사례|프로젝트/.test(text)) return 'cases';
+  if (/질문|안내/.test(text)) return 'faq';
+  return 'custom';
 }

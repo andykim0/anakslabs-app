@@ -18,7 +18,6 @@
  *   GET  /api/payments → {payments}
  */
 import type {
-  BusinessInfo,
   CreditLedgerEntry,
   CustomDomainStatus,
   DesignCandidate,
@@ -273,21 +272,6 @@ export async function uploadImage(file: File): Promise<string> {
   const url = (body as { url?: string }).url;
   if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
   return url;
-}
-
-// ---------- 사업자 정보 (§6) ----------
-
-export async function getBusinessInfo(): Promise<BusinessInfo | null> {
-  const data = await request<{ businessInfo: BusinessInfo | null }>('/api/me/business-info');
-  return data.businessInfo ?? null;
-}
-
-export async function updateBusinessInfo(info: BusinessInfo): Promise<BusinessInfo> {
-  const data = await request<{ businessInfo: BusinessInfo }>('/api/me/business-info', {
-    method: 'PATCH',
-    body: JSON.stringify(info),
-  });
-  return data.businessInfo;
 }
 
 // ---------- 커스텀 도메인 ----------

@@ -11,7 +11,6 @@
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import type {
-  BusinessInfo,
   Client,
   ClientStatus,
   EditRequest,
@@ -92,12 +91,6 @@ export class SupabaseClientsRepo implements ClientsRepo {
     const svc = getServiceRoleClient();
     const { error } = await svc.from('clients').update({ status }).eq('id', id);
     if (error) throw new Error(`clients.status 갱신 실패: ${error.message}`);
-  }
-
-  async updateBusinessInfo(id: string, info: BusinessInfo): Promise<void> {
-    const svc = getServiceRoleClient();
-    const { error } = await svc.from('clients').update({ business_info: info }).eq('id', id);
-    if (error) throw new Error(`clients.business_info 갱신 실패: ${error.message}`);
   }
 
   async setCancelRequested(id: string, at: string | null): Promise<void> {

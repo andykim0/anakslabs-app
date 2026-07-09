@@ -5,7 +5,6 @@
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import type {
-  BusinessInfo,
   Client,
   ClientStatus,
   CustomDomainStatus,
@@ -31,7 +30,9 @@ import { slugifySiteName } from '../slug';
 import { MockAiService } from './ai';
 import { MockCreditsService } from './credits';
 import { MockExportService } from './exports';
+import { MockFormSubmissionsRepo } from './forms';
 import { MockQaRulesService } from './qa';
+import { MockScansRepo } from './scans';
 import { getMockStore, newId, nowIso } from './store';
 
 // ---------- 고객 ----------
@@ -76,12 +77,6 @@ class MockClientsRepo implements ClientsRepo {
     const client = getMockStore().clients.get(id);
     if (!client) throw new Error(`clients.updateStatus: 고객이 없습니다 (${id})`);
     client.status = status;
-  }
-
-  async updateBusinessInfo(id: string, info: BusinessInfo): Promise<void> {
-    const client = getMockStore().clients.get(id);
-    if (!client) throw new Error(`clients.updateBusinessInfo: 고객이 없습니다 (${id})`);
-    client.businessInfo = structuredClone(info);
   }
 
   async setCancelRequested(id: string, at: string | null): Promise<void> {
@@ -507,5 +502,7 @@ export function createMockServices(): DataServices {
     ai: new MockAiService(),
     exports: new MockExportService(),
     qa: new MockQaRulesService(),
+    scans: new MockScansRepo(),
+    formSubmissions: new MockFormSubmissionsRepo(),
   };
 }

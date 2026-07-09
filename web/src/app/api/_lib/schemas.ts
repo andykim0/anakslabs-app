@@ -134,6 +134,51 @@ const videoElementSchema = z.object({
   }),
 });
 
+// [v3 Phase 0.1] 부가기능 요소 3종
+const snsKindSchema = z.enum(['instagram', 'kakao_channel', 'naver_blog', 'youtube', 'x', 'custom']);
+
+/** 지도 embed는 허용 도메인 화이트리스트만 (저장형 XSS 방어 — Phase 3.3에서 safe-url로 중앙화) */
+const MAP_EMBED_HOSTS = ['map.naver.com', 'map.kakao.com', 'www.google.com/maps'];
+const mapEmbedUrlSchema = z
+  .string()
+  .refine(
+    (u) => /^https:\/\//i.test(u) && MAP_EMBED_HOSTS.some((h) => u.toLowerCase().includes(h)),
+    '허용된 지도(네이버/카카오/구글) embed URL만 사용할 수 있습니다.',
+  );
+
+const formElementSchema = z.object({
+  ...elementBaseShape,
+  kind: z.literal('form'),
+  formType: z.literal('contact'),
+  fields: z.array(z.enum(['name', 'phone', 'email', 'message'])).min(1),
+  submitLabel: z.string().min(1),
+  style: z.object({
+    variant: z.enum(['card', 'plain']),
+    color: z.string().optional(),
+    borderRadius: z.number().optional(),
+  }),
+});
+
+const mapElementSchema = z.object({
+  ...elementBaseShape,
+  kind: z.literal('map'),
+  embedUrl: mapEmbedUrlSchema,
+  style: z.object({ borderRadius: z.number().optional() }),
+});
+
+const socialLinksElementSchema = z.object({
+  ...elementBaseShape,
+  kind: z.literal('socialLinks'),
+  links: z
+    .array(z.object({ kind: snsKindSchema, url: safeHrefSchema, label: z.string().optional() }))
+    .min(1),
+  style: z.object({
+    direction: z.enum(['row', 'column']),
+    size: z.number().optional(),
+    color: z.string().optional(),
+  }),
+});
+
 const canvasElementSchema = z.discriminatedUnion('kind', [
   textElementSchema,
   imageElementSchema,
@@ -141,6 +186,9 @@ const canvasElementSchema = z.discriminatedUnion('kind', [
   shapeElementSchema,
   dividerElementSchema,
   videoElementSchema,
+  formElementSchema,
+  mapElementSchema,
+  socialLinksElementSchema,
 ]);
 
 // ---------- 섹션 / 사이트 설정 ----------
@@ -156,6 +204,10 @@ export const sectionTypeSchema = z.enum([
   'contact',
   'cta',
   'custom',
+  // [v3]
+  'team',
+  'cases',
+  'faq',
 ]);
 
 const sectionBackgroundSchema = z.object({
@@ -186,36 +238,66 @@ const siteMetaSchema = z.object({
   ogImage: z.string().optional(),
 });
 
+/** [v3] 사업자 정보 — SiteConfig.businessInfo (사이트 단위, 전자상거래법 표시 의무) */
+export const businessInfoSchema = z.object({
+  businessName: z.string().min(1, '상호를 입력해 주세요.').max(100),
+  ownerName: z.string().min(1, '대표자명을 입력해 주세요.').max(60),
+  businessNumber: z.string().min(1, '사업자등록번호를 입력해 주세요.').max(40),
+  address: z.string().min(1, '사업장 주소를 입력해 주세요.').max(300),
+  phone: z.string().min(1, '연락처 전화를 입력해 주세요.').max(40),
+  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(120).optional(),
+  mailOrderNumber: z.string().max(60).optional(),
+});
+
 export const siteConfigSchema = z.object({
   version: z.literal(1),
   theme: siteThemeSchema,
   meta: siteMetaSchema,
   sections: z.array(sectionSchema),
+  businessInfo: businessInfoSchema.optional(),
 });
 
 // ---------- 온보딩 (설문 / 디자인 후보) ----------
 
-/** [§6] 사업자 정보 — 전자상거래법 표시 의무 항목 */
-export const businessInfoSchema = z.object({
-  legalName: z.string().min(1, '상호(법인명)를 입력해 주세요.').max(100),
-  representative: z.string().min(1, '대표자명을 입력해 주세요.').max(60),
-  bizRegNo: z.string().min(1, '사업자등록번호를 입력해 주세요.').max(40),
-  address: z.string().min(1, '사업장 주소를 입력해 주세요.').max(300),
-  phone: z.string().min(1, '연락처 전화를 입력해 주세요.').max(40),
-  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(120),
-  ecommerceRegNo: z.string().max(60).optional(),
+/** [v3 Phase 0.5] 섹션 계획 항목 */
+export const sectionPlanItemSchema = z.object({
+  type: sectionTypeSchema,
+  name: z.string().min(1, '섹션 이름을 입력해 주세요.').max(30),
+  brief: z.string().max(200).default(''),
+  variant: z
+    .string()
+    .regex(/^[a-z_]+:[a-z_]+$/, "variant는 'type:subtype' 형식이어야 합니다.")
+    .optional(),
+  required: z.boolean().optional(),
+  source: z.enum(['template', 'user', 'ai']),
 });
 
 export const surveySchema = z.object({
   businessName: z.string().min(1, '상호명을 입력해 주세요.').max(100),
+  purposeId: z.enum([
+    'local_store',
+    'booking_service',
+    'ecommerce',
+    'edu_membership',
+    'company_brand',
+    'portfolio',
+    'blog_media',
+    'community',
+    'event',
+    'one_page',
+  ]),
   purpose: z.string().min(1, '사이트 목적을 입력해 주세요.').max(500),
   industry: z.string().min(1, '업종을 입력해 주세요.').max(100),
   tone: z.string().min(1, '원하는 톤을 입력해 주세요.').max(200),
   colorPreference: z.string().min(1, '선호 컬러를 입력해 주세요.').max(200),
   referenceImageUrls: z.array(z.string()).max(10).default([]),
-  sections: z.array(sectionTypeSchema).min(1, '섹션을 1개 이상 선택해 주세요.'),
+  sectionPlan: z
+    .array(sectionPlanItemSchema)
+    .min(1, '섹션을 1개 이상 구성해 주세요.')
+    .refine((plan) => plan.some((s) => s.type === 'hero'), '히어로 섹션은 필수입니다.'),
+  templateId: z.string().min(1),
   extraNotes: z.string().max(2000).optional(),
-  // ---- [§7] 확장 (전부 optional — 하위호환) ----
+  // ---- [§7] additive (v3와 충돌 없음, 유지) ----
   tagline: z.string().max(200).optional(),
   conceptMode: z.enum(['real', 'fictional']).optional(),
   logoUrl: safeMediaSrcSchema.optional(),
@@ -223,7 +305,6 @@ export const surveySchema = z.object({
   providedContent: z.string().max(5000).optional(),
   reservationMode: z.enum(['external_link', 'cta']).optional(),
   reservationUrl: safeHrefSchema.optional(),
-  businessInfo: businessInfoSchema.optional(),
 });
 
 export const designCandidateSchema = z.object({

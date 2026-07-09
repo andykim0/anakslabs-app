@@ -13,7 +13,6 @@
  *  - 클라이언트 컴포넌트는 app/api/* 를 fetch (TanStack Query 권장)
  */
 import type {
-  BusinessInfo,
   Client,
   ClientStatus,
   CreditBalance,
@@ -33,7 +32,7 @@ import type {
   SurveyInput,
   Tier,
 } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SectionType, SiteConfig } from '@/lib/types/site';
 
 // ---------- 클라이언트(고객) ----------
 
@@ -49,8 +48,7 @@ export interface ClientsRepo {
   }): Promise<Client>;
   updateTier(id: string, tier: Tier): Promise<void>;
   updateStatus(id: string, status: ClientStatus): Promise<void>;
-  /** [§6] 사업자 정보 저장/갱신 (발행 게이트·법적 푸터 소스) */
-  updateBusinessInfo(id: string, info: BusinessInfo): Promise<void>;
+  // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동 → saveDraft/publish 경유. updateBusinessInfo 제거.
   /** [§5] 구독 해지 요청 시각 기록 (null이면 해지 취소) */
   setCancelRequested(id: string, at: string | null): Promise<void>;
   /** 관리자 전용 */
@@ -206,6 +204,55 @@ export interface AiService {
   generateImage(input: { prompt: string }): Promise<{ url: string }>;
   /** 영상 생성 (Veo 3.1) — Premium 전용 기능 */
   generateVideo(input: { prompt: string }): Promise<{ url: string; poster?: string }>;
+  /** [v3 Phase 2] 커스텀 섹션 이름/설명 → 섹션 계획(known type 매핑 or custom + 카피 시드) */
+  suggestCustomSection(input: {
+    name: string;
+    description?: string;
+    survey: SurveyInput;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }>;
+}
+
+// ---------- [v3 Phase 6] SEO/AEO/GEO 진단 스캔 ----------
+
+export interface ScanIssue {
+  code: string;
+  severity: 'critical' | 'warn' | 'info';
+  label: string;
+  detail: string;
+  pillar: 'seo' | 'aeo' | 'geo';
+}
+
+export interface ScanResult {
+  id: string;
+  url: string;
+  /** 각 0~100 */
+  scores: { seo: number; aeo: number; geo: number; total: number };
+  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  issues: ScanIssue[];
+  /** 익명 스캔은 null, 가입 후 claim */
+  clientId: string | null;
+  createdAt: string;
+}
+
+export interface ScansRepo {
+  create(input: Omit<ScanResult, 'id' | 'createdAt'>): Promise<ScanResult>;
+  getById(id: string): Promise<ScanResult | null>;
+  /** 가입 후 귀속 */
+  claim(scanId: string, clientId: string): Promise<void>;
+}
+
+// ---------- [v3 Phase 3] 테넌트 사이트 문의 폼 수신 ----------
+
+export interface FormSubmission {
+  id: string;
+  siteId: string;
+  payload: Record<string, string>;
+  createdAt: string;
+}
+
+export interface FormSubmissionsRepo {
+  create(input: { siteId: string; clientId: string; payload: Record<string, string> }): Promise<void>;
+  listBySite(siteId: string): Promise<FormSubmission[]>;
 }
 
 // ---------- [§2] QA 자동화 ----------
@@ -247,4 +294,8 @@ export interface DataServices {
   ai: AiService;
   exports: ExportService;
   qa: QaRulesService;
+  /** [v3 Phase 6] SEO/AEO/GEO 진단 스캔 저장 */
+  scans: ScansRepo;
+  /** [v3 Phase 3] 문의 폼 수신 */
+  formSubmissions: FormSubmissionsRepo;
 }

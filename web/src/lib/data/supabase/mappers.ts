@@ -4,7 +4,6 @@
  */
 import type {
   AuthProvider,
-  BusinessInfo,
   Client,
   ClientStatus,
   CreditBalance,
@@ -31,7 +30,6 @@ export interface ClientRow {
   tier: string;
   status: string;
   created_at: string;
-  business_info?: unknown;
   cancel_requested_at?: string | null;
 }
 
@@ -44,7 +42,6 @@ export function rowToClient(row: ClientRow): Client {
     tier: row.tier as Tier,
     status: row.status as ClientStatus,
     createdAt: row.created_at,
-    businessInfo: (row.business_info as BusinessInfo | null | undefined) ?? null,
     cancelRequestedAt: row.cancel_requested_at ?? null,
   };
 }

@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight, ImagePlus, Loader2, X } from 'lucide-react';
-import type { SurveyInput } from '@/lib/types/domain';
+import type { SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
 import { recommendSections } from '@/lib/ai/design-knowledge';
+import { planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { uploadImage } from '../api';
 import { useToast } from '../toast';
 import { Button, Card, cn } from '../ui';
@@ -72,6 +73,24 @@ const SECTION_OPTIONS: { value: SectionType & (typeof SECTION_VALUES)[number]; l
 ];
 
 const DEFAULT_SECTIONS: (typeof SECTION_VALUES)[number][] = ['hero', 'about', 'menu', 'gallery', 'contact'];
+
+/**
+ * [v3 green] 업종·목적 자유텍스트 → SitePurposeId 휴리스틱 매핑.
+ * Full 2단 택소노미 UI는 Phase1.3에서 재작성. 매칭 실패 시 'local_store' 기본.
+ */
+function derivePurposeId(industry: string, purpose: string): SitePurposeId {
+  const t = `${industry} ${purpose}`.toLowerCase();
+  if (/쇼핑|판매|상품|커머스|스토어|이커머스/.test(t)) return 'ecommerce';
+  if (/교육|학원|강의|멤버십|클래스|수강/.test(t)) return 'edu_membership';
+  if (/포트폴리오|이력|작업물|레주메/.test(t)) return 'portfolio';
+  if (/예약|병원|의원|치과|뷰티|살롱|피트니스|시술|상담/.test(t)) return 'booking_service';
+  if (/블로그|미디어|매체|뉴스/.test(t)) return 'blog_media';
+  if (/커뮤니티|모임|동호회/.test(t)) return 'community';
+  if (/이벤트|행사|컨퍼런스|세미나/.test(t)) return 'event';
+  if (/원페이지|링크인바이오|링크\s*허브/.test(t)) return 'one_page';
+  if (/회사|브랜드|기업|법인|서비스\s*소개/.test(t)) return 'company_brand';
+  return 'local_store';
+}
 
 const SAMPLE_REFS: { url: string; label: string }[] = [
   { url: '/mock/refs/dark-luxury.svg', label: '다크 럭셔리' },
@@ -145,9 +164,11 @@ export function SurveyStep({
     defaultValues: initialValues
       ? {
           ...initialValues,
-          sections: initialValues.sections.filter((s): s is (typeof SECTION_VALUES)[number] =>
-            (SECTION_VALUES as readonly string[]).includes(s),
-          ),
+          sections: initialValues.sectionPlan
+            .map((i) => i.type)
+            .filter((s): s is (typeof SECTION_VALUES)[number] =>
+              (SECTION_VALUES as readonly string[]).includes(s),
+            ),
         }
       : {
           businessName: defaultBusinessName ? `${defaultBusinessName}의 브랜드` : '',
@@ -232,8 +253,14 @@ export function SurveyStep({
   const clean = (v?: string) => (v && v.trim() ? v.trim() : undefined);
 
   const onSubmit = handleSubmit((values) => {
+    // [v3] 목적 택소노미 + 템플릿에서 sectionPlan/templateId 도출 (green 최소 적응)
+    const purposeId = derivePurposeId(values.industry, values.purpose);
+    const template = resolveTemplate(purposeId, values.industry);
     onComplete({
       ...values,
+      purposeId,
+      sectionPlan: planFromTemplate(template),
+      templateId: template.id,
       tagline: clean(values.tagline),
       logoUrl: clean(values.logoUrl),
       providedContent: values.contentMode === 'provided' ? clean(values.providedContent) : undefined,

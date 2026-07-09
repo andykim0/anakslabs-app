@@ -243,10 +243,9 @@ export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[
   ].join('|');
 
   const styles = pickDiverseStyles(rankStyles(text, seed), n);
+  const planTypes = survey.sectionPlan.map((i) => i.type);
   const pattern =
-    survey.sections && survey.sections.length > 0
-      ? findPattern(survey.sections)
-      : matchPatternByText(text);
+    planTypes.length > 0 ? findPattern(planTypes) : matchPatternByText(text);
 
   // 안별 팔레트·폰트 선택 (중복 금지)
   const usedPalettes = new Set<string>();

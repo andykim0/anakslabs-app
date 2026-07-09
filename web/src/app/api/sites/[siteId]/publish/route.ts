@@ -22,7 +22,7 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   }
 
   // [§6] 발행 게이트 — 사업자 정보(전자상거래법 표시 의무)가 없으면 발행 불가
-  if (!client.businessInfo) {
+  if (!site.draftConfig.businessInfo) {
     return apiError(
       409,
       'BUSINESS_INFO_REQUIRED',

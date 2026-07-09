@@ -5,7 +5,7 @@
  */
 import type { AiService } from '../types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SectionType, SiteConfig } from '@/lib/types/site';
 import {
   buildCandidateBlueprints,
   matchBlueprintForCandidate,
@@ -78,6 +78,17 @@ function pickCopyPool(hint: string): string[] {
   return DEFAULT_COPY_LINES;
 }
 
+/** [v3 Phase 2] 커스텀 섹션 이름/설명 → known SectionType 결정적 매핑 (mock·실모드 폴백 공용 규칙) */
+function mapCustomSectionType(text: string): SectionType {
+  if (/후기|리뷰/.test(text)) return 'testimonials';
+  if (/지도|위치|오시는/.test(text)) return 'contact';
+  if (/가격|요금/.test(text)) return 'pricing';
+  if (/팀|직원|강사/.test(text)) return 'team';
+  if (/실적|사례|프로젝트/.test(text)) return 'cases';
+  if (/질문|안내/.test(text)) return 'faq';
+  return 'custom';
+}
+
 export class MockAiService implements AiService {
   async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
     await simulateLatency(1300);
@@ -97,9 +108,19 @@ export class MockAiService implements AiService {
     // 설문의 sections 순서를 존중하되, 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
     // (한국어 카피는 템플릿의 톤 반영 기본값)
     const blueprint = matchBlueprintForCandidate(survey, candidate);
+    // 설문 sectionPlan이 비었거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강 (기존 항목은 재사용)
+    const resolvedTypes = resolveSectionPlan(survey, blueprint);
     const effectiveSurvey: SurveyInput = {
       ...survey,
-      sections: resolveSectionPlan(survey, blueprint),
+      sectionPlan: resolvedTypes.map(
+        (type) =>
+          survey.sectionPlan.find((item) => item.type === type) ?? {
+            type,
+            name: type,
+            brief: '',
+            source: 'ai' as const,
+          },
+      ),
     };
     return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
@@ -133,5 +154,19 @@ export class MockAiService implements AiService {
   async generateVideo(_input: { prompt: string }): Promise<{ url: string; poster?: string }> {
     await simulateLatency(1800);
     return { url: '/mock/clip-ember.mp4', poster: '/mock/video-poster.svg' };
+  }
+
+  async suggestCustomSection(input: {
+    name: string;
+    description?: string;
+    survey: SurveyInput;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    await simulateLatency(500);
+    const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
+    return {
+      mappedType,
+      name: input.name,
+      copySeed: input.description?.trim() || input.name,
+    };
   }
 }

@@ -9,27 +9,8 @@ export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
 export type ClientStatus = 'active' | 'paused' | 'cancelled';
 
-/**
- * [§6] 전자상거래법·정보통신망법상 표시 의무 사업자 정보.
- * 발행 시 필수. 사이트 최하단 법적 푸터·개인정보처리방침 페이지에 변수 치환된다.
- * 고객당 1사업자 가정(사이트별 상이 케이스는 v3).
- */
-export interface BusinessInfo {
-  /** 상호(법인명) */
-  legalName: string;
-  /** 대표자명 */
-  representative: string;
-  /** 사업자등록번호 */
-  bizRegNo: string;
-  /** 사업장 주소 */
-  address: string;
-  /** 연락처 전화 */
-  phone: string;
-  /** 연락처 이메일 */
-  email: string;
-  /** 통신판매업 신고번호 (해당 시) */
-  ecommerceRegNo?: string;
-}
+// [v3 통일] 사업자 정보(BusinessInfo)는 clients가 아니라 SiteConfig.businessInfo(사이트 단위)에 둔다.
+// 정의는 lib/types/site.ts. v2의 clients.business_info는 이 계약으로 통일됨.
 
 export interface Client {
   id: string; // = auth.users.id
@@ -39,8 +20,6 @@ export interface Client {
   tier: Tier;
   status: ClientStatus;
   createdAt: string; // ISO
-  /** [§6] 법적 필수요소 자동 삽입용 사업자 정보 (미입력 시 발행 게이트) */
-  businessInfo?: BusinessInfo | null;
   /** [§5] 구독 해지 요청 시각 — export 자동 트리거 근거 */
   cancelRequestedAt?: string | null;
 }
@@ -182,7 +161,10 @@ export interface Payment {
 
 // ---------- 온보딩 (설문 → 1차 가공) ----------
 
-import type { SectionType, SiteTheme } from './site';
+import type { SectionType, SiteTheme, SnsKind } from './site';
+
+// [v3] SnsKind는 site.ts 정의를 도메인에서도 재노출 (요소·부가기능 공용)
+export type { SnsKind } from './site';
 
 /** [§7] 예약 섹션 선택 시 처리 방식 */
 export type ReservationMode = 'external_link' | 'cta';
@@ -191,20 +173,59 @@ export type ContentMode = 'ai' | 'provided';
 /** [§7] 컨셉 모드 — 실제 매장 정보 vs AI 가상 창작 */
 export type ConceptMode = 'real' | 'fictional';
 
+/** [v3 Phase 0.2] 사이트 목적 택소노미 (10종) */
+export type SitePurposeId =
+  | 'local_store' // 1. 음식점·로컬 매장
+  | 'booking_service' // 2. 예약·서비스업
+  | 'ecommerce' // 3. 쇼핑몰
+  | 'edu_membership' // 4. 교육·멤버십
+  | 'company_brand' // 5. 회사·브랜드
+  | 'portfolio' // 6. 포트폴리오
+  | 'blog_media' // 7. 블로그·미디어
+  | 'community' // 8. 커뮤니티
+  | 'event' // 9. 이벤트
+  | 'one_page'; // 10. 원페이지·링크인바이오
+
+/** [v3 Phase 0.2] 섹션 계획 항목 — 템플릿/사용자/AI가 만드는 단위 */
+export interface SectionPlanItem {
+  type: SectionType;
+  /** 표시명 — 에디터 SectionListPanel·렌더 name 으로 그대로 감. 예: '업무·사업 분야' */
+  name: string;
+  /** 이 섹션에 담을 내용 지시문 — 빌더·AI 카피 생성이 소비. 예: '제공 서비스 영역. 법인에서 제일 중요' */
+  brief: string;
+  /** 빌더 분기 힌트. 예: 'about:greeting' | 'menu:services' | 'contact:map' | 'contact:form' */
+  variant?: string;
+  /** 해제 불가 (hero 등) */
+  required?: boolean;
+  source: 'template' | 'user' | 'ai';
+}
+
+/** [v3 Phase 0.2] 부가기능 선택 (온보딩 4단계) */
+export interface ExtraFeatureSelection {
+  contactForm?: { targetSection: SectionType };
+  mapEmbed?: { embedUrl: string; targetSection: SectionType };
+  snsLinks?: { kind: SnsKind; url: string; label?: string }[];
+}
+
 export interface SurveyInput {
   businessName: string;
-  /** 사이트 목적 (예: 예약 유도, 브랜드 소개) */
+  /** [v3] 목적 택소노미 id (추가 축) */
+  purposeId: SitePurposeId;
+  /** 택소노미 라벨 그대로 저장 (AI 프롬프트·표시용) — 예: '예약·서비스업'. 하위 파이프라인 유지용 */
   purpose: string;
+  /** 업종 — 택소노미 칩 또는 자유 입력 */
   industry: string;
   /** 톤 (예: 고급스러운, 미니멀, 친근한) */
   tone: string;
   /** 선호 컬러 — 자유 텍스트 또는 hex */
   colorPreference: string;
   referenceImageUrls: string[];
-  /** 원하는 섹션 구성 */
-  sections: SectionType[];
+  /** [v3] 기존 sections: SectionType[] 를 대체하는 섹션 계획표 */
+  sectionPlan: SectionPlanItem[];
+  /** [v3] 적용된 템플릿 (변경 감지·재적용용) */
+  templateId: string;
   extraNotes?: string;
-  // ---- [§7] 서베이 확장 (전부 optional — 기존 mock/시드/테스트 무파손) ----
+  // ---- [§7] 서베이 확장 (전부 optional — v3와 충돌 없는 additive 필드, 유지) ----
   /** 태그라인/슬로건 */
   tagline?: string;
   /** 'real'(기본): 실제 매장 정보 / 'fictional': AI가 그럴듯하게 창작 */
@@ -219,8 +240,7 @@ export interface SurveyInput {
   reservationMode?: ReservationMode;
   /** reservationMode='external_link' 시 네이버예약/캐치테이블 등 URL */
   reservationUrl?: string;
-  /** [§6] 설문 마지막 스텝의 사업자 정보 (저장 시 clients로) */
-  businessInfo?: BusinessInfo;
+  // (v2의 SurveyInput.businessInfo는 제거 — 사업자정보는 SiteConfig.businessInfo로 통일)
 }
 
 export type CandidateStyle = 'photo' | '3d_render' | 'illustration';

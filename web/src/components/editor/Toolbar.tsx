@@ -10,8 +10,10 @@ import {
   ArrowLeft,
   Check,
   Film,
+  FormInput,
   Image as ImageIcon,
   Loader2,
+  Map as MapIcon,
   Maximize,
   Minus,
   Monitor,
@@ -19,6 +21,7 @@ import {
   Plus,
   Redo2,
   Rocket,
+  Share2,
   Smartphone,
   Square,
   Type,
@@ -40,6 +43,9 @@ const ELEMENT_ICONS: Record<ElementKind, React.ReactNode> = {
   shape: <Square className="h-3.5 w-3.5" />,
   divider: <Minus className="h-3.5 w-3.5" />,
   video: <Film className="h-3.5 w-3.5" />,
+  form: <FormInput className="h-3.5 w-3.5" />,
+  map: <MapIcon className="h-3.5 w-3.5" />,
+  socialLinks: <Share2 className="h-3.5 w-3.5" />,
 };
 
 const ELEMENT_KINDS = Object.keys(ELEMENT_KIND_LABELS) as ElementKind[];

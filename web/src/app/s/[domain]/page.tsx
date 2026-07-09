@@ -65,9 +65,8 @@ export default async function TenantSitePage({ params }: Props) {
     return <SuspendedNotice siteName={site.name} />;
   }
 
-  // [§6] 발행 사이트 최하단에 사업자정보 법적 푸터 자동 삽입 (client.business_info 기반)
-  const client = await getDataServices().clients.getById(site.clientId);
-  const businessInfo = client?.businessInfo ?? null;
+  // [§6] 발행 사이트 최하단에 사업자정보 법적 푸터 자동 삽입 (site.siteConfig.businessInfo 기반)
+  const businessInfo = site.siteConfig.businessInfo ?? null;
 
   return (
     <>

@@ -5,8 +5,7 @@
  *
  * 순수 서버 컴포넌트 — 서빙(React)과 Export(renderToStaticMarkup) 양쪽에서 동일 출력.
  */
-import type { BusinessInfo } from '@/lib/types/domain';
-import type { SiteTheme } from '@/lib/types/site';
+import type { BusinessInfo, SiteTheme } from '@/lib/types/site';
 
 export function LegalFooter({
   info,
@@ -21,13 +20,13 @@ export function LegalFooter({
   termsHref?: string;
 }) {
   const items = [
-    `상호 ${info.legalName}`,
-    `대표 ${info.representative}`,
-    `사업자등록번호 ${info.bizRegNo}`,
-    info.ecommerceRegNo ? `통신판매업신고 ${info.ecommerceRegNo}` : null,
+    `상호 ${info.businessName}`,
+    `대표 ${info.ownerName}`,
+    `사업자등록번호 ${info.businessNumber}`,
+    info.mailOrderNumber ? `통신판매업신고 ${info.mailOrderNumber}` : null,
     `주소 ${info.address}`,
     `전화 ${info.phone}`,
-    `이메일 ${info.email}`,
+    info.email ? `이메일 ${info.email}` : null,
   ].filter((x): x is string => Boolean(x));
 
   return (

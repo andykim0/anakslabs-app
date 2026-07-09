@@ -97,8 +97,10 @@ function surveyForBriefs(survey: SurveyInput): SurveyInput {
     colorPreference: colorWords
       ? `${survey.colorPreference} ${colorWords}`
       : survey.colorPreference,
-    // sections 를 비우면 selectDesignBriefs 가 설문 텍스트 키워드로 패턴을 고른다
-    sections: isDefaultSectionSelection(survey.sections) ? [] : survey.sections,
+    // sectionPlan 을 비우면 selectDesignBriefs 가 설문 텍스트 키워드로 패턴을 고른다
+    sectionPlan: isDefaultSectionSelection(survey.sectionPlan.map((i) => i.type))
+      ? []
+      : survey.sectionPlan,
   };
 }
 
@@ -166,7 +168,8 @@ export function resolveSectionPlan(
   survey: SurveyInput,
   blueprint: CandidateBlueprint,
 ): SectionType[] {
-  return isDefaultSectionSelection(survey.sections)
+  const planTypes = survey.sectionPlan.map((i) => i.type);
+  return isDefaultSectionSelection(planTypes)
     ? [...blueprint.brief.pattern.sections]
-    : survey.sections;
+    : planTypes;
 }

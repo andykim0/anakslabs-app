@@ -5,7 +5,7 @@
  *
  * ⚠️ 실제 문안은 시행 전 변호사 검토 필요.
  */
-import type { BusinessInfo } from '@/lib/types/domain';
+import type { BusinessInfo } from '@/lib/types/site';
 
 export interface LegalSection {
   heading: string;
@@ -21,13 +21,13 @@ export interface LegalDocument {
 
 function contactLine(info: BusinessInfo): string {
   const parts = [
-    `상호: ${info.legalName}`,
-    `대표자: ${info.representative}`,
-    `사업자등록번호: ${info.bizRegNo}`,
-    info.ecommerceRegNo ? `통신판매업 신고번호: ${info.ecommerceRegNo}` : null,
+    `상호: ${info.businessName}`,
+    `대표자: ${info.ownerName}`,
+    `사업자등록번호: ${info.businessNumber}`,
+    info.mailOrderNumber ? `통신판매업 신고번호: ${info.mailOrderNumber}` : null,
     `주소: ${info.address}`,
     `연락처: ${info.phone}`,
-    `이메일: ${info.email}`,
+    info.email ? `이메일: ${info.email}` : null,
   ].filter(Boolean);
   return parts.join(' / ');
 }
@@ -49,7 +49,7 @@ export function privacyPolicy(
       {
         heading: '1. 개인정보의 수집 항목 및 방법',
         body: [
-          `${info.legalName}(이하 "사업자")는 다음의 개인정보를 수집할 수 있습니다: ${items}.`,
+          `${info.businessName}(이하 "사업자")는 다음의 개인정보를 수집할 수 있습니다: ${items}.`,
           '개인정보는 이용자가 문의·예약 등 서비스 이용 과정에서 자발적으로 제공하는 경우에 한해 수집됩니다.',
         ],
       },
@@ -80,8 +80,8 @@ export function privacyPolicy(
       {
         heading: '6. 개인정보 보호책임자',
         body: [
-          `개인정보 보호책임자: ${info.representative}`,
-          `문의: ${info.phone} / ${info.email}`,
+          `개인정보 보호책임자: ${info.ownerName}`,
+          `문의: ${info.phone}${info.email ? ` / ${info.email}` : ''}`,
           contactLine(info),
         ],
       },
@@ -98,7 +98,7 @@ export function termsOfService(info: BusinessInfo): LegalDocument {
       {
         heading: '제1조 (목적)',
         body: [
-          `본 약관은 ${info.legalName}(이하 "사업자")가 제공하는 웹사이트 및 서비스의 이용조건과 절차, 이용자와 사업자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.`,
+          `본 약관은 ${info.businessName}(이하 "사업자")가 제공하는 웹사이트 및 서비스의 이용조건과 절차, 이용자와 사업자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.`,
         ],
       },
       {

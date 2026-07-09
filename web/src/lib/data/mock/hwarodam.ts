@@ -428,4 +428,13 @@ export const HWARODAM_SITE_CONFIG: SiteConfig = {
     ogImage: '/mock/hero-hwarodam.svg',
   },
   sections: [hero, about, menuSection(), testimonials, contact],
+  // [v3 통일] 발행 게이트 통과용 데모 사업자 정보 (법적 푸터·법무 페이지 소스, 사이트 단위)
+  businessInfo: {
+    businessName: '화로담',
+    ownerName: '김대표',
+    businessNumber: '123-45-67890',
+    address: '서울특별시 마포구 화로길 12, 1층',
+    phone: '02-123-4567',
+    email: 'kim@hwarodam.kr',
+  },
 };

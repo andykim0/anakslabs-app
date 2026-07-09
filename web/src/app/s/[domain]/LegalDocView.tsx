@@ -3,8 +3,7 @@
  * 테마 팔레트를 상속해 사이트와 이질감 없이 표시. 순수 서버 컴포넌트.
  */
 import type { LegalDocument } from '@/lib/legal/templates';
-import type { BusinessInfo } from '@/lib/types/domain';
-import type { SiteTheme } from '@/lib/types/site';
+import type { BusinessInfo, SiteTheme } from '@/lib/types/site';
 import { LegalFooter } from '@/components/site-renderer';
 
 export function LegalDocView({

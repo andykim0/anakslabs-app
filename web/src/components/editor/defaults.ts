@@ -27,6 +27,9 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   contact: '문의',
   cta: 'CTA',
   custom: '커스텀',
+  team: '구성원',
+  cases: '실적·사례',
+  faq: '자주 묻는 질문',
 };
 
 export const ELEMENT_KIND_LABELS: Record<ElementKind, string> = {
@@ -36,6 +39,9 @@ export const ELEMENT_KIND_LABELS: Record<ElementKind, string> = {
   shape: '도형',
   divider: '구분선',
   video: '영상',
+  form: '문의 폼',
+  map: '지도',
+  socialLinks: 'SNS 링크',
 };
 
 const SECTION_DEFAULT_HEIGHT: Partial<Record<SectionType, number>> = {
@@ -113,6 +119,38 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         // 주의: draftConfig zod 검증이 src min(1)을 요구 — 빈 문자열이면 자동저장이 400으로 실패한다.
         src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
         style: { objectFit: 'cover', borderRadius: theme.radius ?? 8, muted: true, loop: true, autoplay: false },
+      };
+    case 'form':
+      return {
+        id,
+        kind,
+        z,
+        frame: { x: 520, y: 80, w: 400, h: 360 },
+        formType: 'contact',
+        fields: ['name', 'phone', 'message'],
+        submitLabel: '문의 보내기',
+        style: { variant: 'card', borderRadius: theme.radius ?? 8 },
+      };
+    case 'map':
+      return {
+        id,
+        kind,
+        z,
+        frame: { x: 420, y: 80, w: 600, h: 360 },
+        embedUrl: '',
+        style: { borderRadius: theme.radius ?? 8 },
+      };
+    case 'socialLinks':
+      return {
+        id,
+        kind,
+        z,
+        frame: { x: 570, y: 120, w: 300, h: 56 },
+        links: [
+          { kind: 'instagram', url: '' },
+          { kind: 'kakao_channel', url: '' },
+        ],
+        style: { direction: 'row', size: 40 },
       };
   }
 }

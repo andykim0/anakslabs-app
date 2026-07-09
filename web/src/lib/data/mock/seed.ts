@@ -51,15 +51,7 @@ export function buildSeed(): MockStore {
         tier: 'premium',
         status: 'active',
         createdAt: daysAgoIso(30),
-        // [§6] 발행 게이트 통과용 데모 사업자 정보 (법적 푸터·법무 페이지 소스)
-        businessInfo: {
-          legalName: '화로담',
-          representative: '김대표',
-          bizRegNo: '123-45-67890',
-          address: '서울특별시 마포구 화로길 12, 1층',
-          phone: '02-123-4567',
-          email: 'kim@hwarodam.kr',
-        },
+        // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동 → HWARODAM_SITE_CONFIG.businessInfo
       },
     ],
     [
@@ -72,14 +64,7 @@ export function buildSeed(): MockStore {
         tier: 'basic',
         status: 'active',
         createdAt: daysAgoIso(10),
-        businessInfo: {
-          legalName: '민트세탁소',
-          representative: '박사장',
-          bizRegNo: '210-98-76543',
-          address: '서울특별시 성동구 청소로 8',
-          phone: '02-765-4321',
-          email: 'park@mintwash.kr',
-        },
+        // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동
       },
     ],
   ]);
@@ -346,6 +331,8 @@ export function buildSeed(): MockStore {
         },
       ]),
     ),
+    scans: new Map(),
+    formSubmissions: new Map(),
     counters: { id: 0, text: 0, image: 0 },
   };
 }

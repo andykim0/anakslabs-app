@@ -113,7 +113,7 @@ export function GenerateStep({
         </div>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Badge tone="gold">{candidate.label}</Badge>
-          <Badge>섹션 {survey.sections.length}개</Badge>
+          <Badge>섹션 {survey.sectionPlan.length}개</Badge>
           <Badge>초안 저장됨</Badge>
         </div>
 

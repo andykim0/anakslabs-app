@@ -21,8 +21,7 @@ const loadTenant = cache(async (rawDomain: string) => {
   if (!domain) return null;
   const site = await getDataServices().sites.getByDomain(domain);
   if (!site?.siteConfig) return null;
-  const client = await getDataServices().clients.getById(site.clientId);
-  return { site, businessInfo: client?.businessInfo ?? null };
+  return { site, businessInfo: site.siteConfig.businessInfo ?? null };
 });
 
 interface Props {

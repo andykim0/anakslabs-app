@@ -7,8 +7,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server.edge';
 import { LegalFooter } from '@/components/site-renderer';
 import type { LegalDocument } from '@/lib/legal/templates';
-import type { BusinessInfo } from '@/lib/types/domain';
-import type { SiteTheme } from '@/lib/types/site';
+import type { BusinessInfo, SiteTheme } from '@/lib/types/site';
 
 const EXPORT_PRIVACY_HREF = 'privacy.html';
 const EXPORT_TERMS_HREF = 'terms.html';
