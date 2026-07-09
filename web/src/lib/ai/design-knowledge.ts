@@ -243,7 +243,8 @@ export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[
   ].join('|');
 
   const styles = pickDiverseStyles(rankStyles(text, seed), n);
-  const planTypes = survey.sectionPlan.map((i) => i.type);
+  // [v3] 신규 섹션 타입은 랜딩 패턴 데이터에 없으므로, findPattern 전에 유사 타입으로 축약한다.
+  const planTypes = survey.sectionPlan.map((i) => collapseForPattern(i.type));
   const pattern =
     planTypes.length > 0 ? findPattern(planTypes) : matchPatternByText(text);
 
@@ -316,6 +317,17 @@ export function buildThemeFromBrief(brief: DesignBrief): SiteTheme {
     palette: { ...brief.palette.palette },
     radius: RADIUS_BY_STYLE[brief.style.id] ?? 8,
   };
+}
+
+/**
+ * [v3] 랜딩 패턴 데이터에 없는 신규 섹션 타입을 유사 타입으로 축약한다 (LANDING_PATTERNS 데이터는 무수정).
+ * team→about, cases→gallery, faq→features. 나머지는 그대로.
+ */
+export function collapseForPattern(type: SectionType): SectionType {
+  if (type === 'team') return 'about';
+  if (type === 'cases') return 'gallery';
+  if (type === 'faq') return 'features';
+  return type;
 }
 
 /** 설문의 섹션 구성과 가장 가까운 랜딩 패턴 (공유 섹션 가중 − 양쪽 잉여 감점, 동점이면 앞선 패턴) */

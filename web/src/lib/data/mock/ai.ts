@@ -6,11 +6,7 @@
 import type { AiService } from '../types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
-import {
-  buildCandidateBlueprints,
-  matchBlueprintForCandidate,
-  resolveSectionPlan,
-} from '../design-candidates';
+import { buildCandidateBlueprints } from '../design-candidates';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { getMockStore } from './store';
 
@@ -105,24 +101,9 @@ export class MockAiService implements AiService {
 
   async generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig> {
     await simulateLatency(1500);
-    // 설문의 sections 순서를 존중하되, 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
-    // (한국어 카피는 템플릿의 톤 반영 기본값)
-    const blueprint = matchBlueprintForCandidate(survey, candidate);
-    // 설문 sectionPlan이 비었거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강 (기존 항목은 재사용)
-    const resolvedTypes = resolveSectionPlan(survey, blueprint);
-    const effectiveSurvey: SurveyInput = {
-      ...survey,
-      sectionPlan: resolvedTypes.map(
-        (type) =>
-          survey.sectionPlan.find((item) => item.type === type) ?? {
-            type,
-            name: type,
-            brief: '',
-            source: 'ai' as const,
-          },
-      ),
-    };
-    return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
+    // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
+    // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
+    return buildSiteConfigFromSurvey(survey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
       imagePool: [...MOCK_IMAGE_POOL],
     });

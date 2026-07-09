@@ -20,7 +20,6 @@ import type { AiService } from '../types';
 import {
   buildCandidateBlueprints,
   matchBlueprintForCandidate,
-  resolveSectionPlan,
   type CandidateBlueprint,
 } from '../design-candidates';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
@@ -158,11 +157,18 @@ async function generateSectionCopy(
 ): Promise<SectionCopy | undefined> {
   const style = blueprint.brief.style;
   const provided = survey.contentMode === 'provided' && survey.providedContent?.trim();
+  // [v3] 섹션 계획표(name+brief)를 프롬프트에 넣어 카피가 각 섹션의 의도를 반영하게 한다.
+  const planLines = survey.sectionPlan
+    .map((s) => `- ${s.name}${s.brief ? `: ${s.brief}` : ''}`)
+    .join('\n');
   const prompt =
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
     `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
     `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    (planLines
+      ? `\n[이 사이트의 섹션 구성 — 각 섹션의 의도를 카피에 반영]\n${planLines}\n`
+      : '') +
     (provided
       ? `\n[고객 제공 원문 — 창작 금지, 아래 내용을 다듬어서만 사용하고 없는 사실을 지어내지 마라]\n${survey.providedContent!.trim().slice(0, 3000)}\n\n`
       : '') +
@@ -252,22 +258,8 @@ export class SupabaseAiService implements AiService {
     const imagePool = generated.filter((url): url is string => url !== null);
     if (imagePool.length === 0) imagePool.push(candidate.heroImageUrl);
 
-    // 섹션 구성이 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강 (기존 항목 재사용)
-    const resolvedTypes = resolveSectionPlan(survey, blueprint);
-    const effectiveSurvey: SurveyInput = {
-      ...survey,
-      sectionPlan: resolvedTypes.map(
-        (type) =>
-          survey.sectionPlan.find((item) => item.type === type) ?? {
-            type,
-            name: type,
-            brief: '',
-            source: 'ai' as const,
-          },
-      ),
-    };
-
-    return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
+    // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
+    return buildSiteConfigFromSurvey(survey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
       imagePool,
       copy,
