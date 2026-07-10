@@ -43,18 +43,64 @@ function isPublicIPv4(ip: string): boolean {
   return true;
 }
 
-/** IPv6 주소가 공인 대역인지 (v4-mapped는 v4 규칙 재적용) */
-function isPublicIPv6(ip: string): boolean {
-  const lower = ip.toLowerCase();
-  // v4-mapped (::ffff:1.2.3.4)
-  const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-  if (mapped) return isPublicIPv4(mapped[1]);
-  if (lower === '::' || lower === '::1') return false; // 미지정/루프백
-  if (lower.startsWith('fe8') || lower.startsWith('fe9') || lower.startsWith('fea') || lower.startsWith('feb')) {
-    return false; // 링크로컬 fe80::/10
+/**
+ * IPv6 주소를 8개 16비트 그룹으로 완전 전개 (파싱 실패 시 null).
+ * `::` 압축과 끝자리 점10진(v4-mapped 점표기)을 모두 처리한다.
+ */
+function expandIPv6(ip: string): number[] | null {
+  let s = ip.toLowerCase().split('%')[0]; // zone id 제거
+  // 끝자리 점10진 IPv4(::ffff:1.2.3.4)를 16진 두 그룹으로 환산
+  const dotted = s.match(/^(.*:)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (dotted) {
+    const v4 = dotted[2].split('.').map(Number);
+    if (v4.some((n) => Number.isNaN(n) || n < 0 || n > 255)) return null;
+    const hi = ((v4[0] << 8) | v4[1]).toString(16);
+    const lo = ((v4[2] << 8) | v4[3]).toString(16);
+    s = `${dotted[1]}${hi}:${lo}`;
   }
-  if (lower.startsWith('fc') || lower.startsWith('fd')) return false; // ULA fc00::/7
-  if (lower.startsWith('ff')) return false; // 멀티캐스트
+  const halves = s.split('::');
+  if (halves.length > 2) return null;
+  const head = halves[0] ? halves[0].split(':') : [];
+  const tail = halves.length === 2 && halves[1] ? halves[1].split(':') : [];
+  let groups: string[];
+  if (halves.length === 2) {
+    const missing = 8 - head.length - tail.length;
+    if (missing < 0) return null;
+    groups = [...head, ...Array(missing).fill('0'), ...tail];
+  } else {
+    groups = head;
+  }
+  if (groups.length !== 8) return null;
+  const nums = groups.map((g) => (g === '' ? 0 : parseInt(g, 16)));
+  if (nums.some((n) => Number.isNaN(n) || n < 0 || n > 0xffff)) return null;
+  return nums;
+}
+
+function ipv4FromHextets(hi: number, lo: number): string {
+  return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+}
+
+/**
+ * IPv6 주소가 공인 대역인지.
+ *  - v4-mapped(::ffff:0:0/96): 임베디드 IPv4에 isPublicIPv4 재적용 (점표기·16진압축 모두)
+ *  - v4-compatible(::/96, ::·::1 포함)·NAT64(64:ff9b::/96): 전부 거부
+ *  - 루프백/링크로컬/ULA/멀티캐스트: 거부
+ * 파싱 실패도 거부(fail-closed).
+ */
+function isPublicIPv6(ip: string): boolean {
+  const g = expandIPv6(ip);
+  if (!g) return false;
+  const zeroHi = g[0] === 0 && g[1] === 0 && g[2] === 0 && g[3] === 0 && g[4] === 0;
+  // v4-mapped ::ffff:x.x.x.x
+  if (zeroHi && g[5] === 0xffff) return isPublicIPv4(ipv4FromHextets(g[6], g[7]));
+  // v4-compatible ::x.x.x.x (::/96) — 폐기된 표기, 전부 거부 (::·::1 포함)
+  if (zeroHi && g[5] === 0) return false;
+  // NAT64 64:ff9b::/96 — 전부 거부
+  if (g[0] === 0x0064 && g[1] === 0xff9b && g[2] === 0 && g[3] === 0 && g[4] === 0 && g[5] === 0) return false;
+  const first = g[0];
+  if (first >= 0xfe80 && first <= 0xfebf) return false; // 링크로컬 fe80::/10
+  if (first >= 0xfc00 && first <= 0xfdff) return false; // ULA fc00::/7
+  if (first >= 0xff00) return false; // 멀티캐스트 ff00::/8
   return true;
 }
 
