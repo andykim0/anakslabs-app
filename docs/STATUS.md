@@ -1,6 +1,6 @@
 # STATUS — 프로젝트 현황 스냅샷
 
-> 최종 갱신: 2026-07-08 · 브랜치 `main` · MVP 스캐폴드 완성, `MOCK_MODE=1` 데모 가능.
+> 최종 갱신: 2026-07-10 · 브랜치 `main` · v2+v3 전체 머지(551af3c) · `MOCK_MODE=1` 데모 + 로컬 실 DB 모드 스모크 통과.
 
 ## 한 줄 요약
 
@@ -44,7 +44,7 @@
 ## 남은 작업
 
 **실연동** (→ [SETUP.md](SETUP.md)):
-- [ ] Supabase 로컬/클라우드 실키 스모크 ⭐ **다음 단계로 선택됨**
+- [x] Supabase **로컬** 실 DB 스모크 통과 (`scripts/smoke-realdb.sh`) — 실 DB 모드 service_role DML 권한 누락 버그 발견·수정(`0006`). 클라우드 실키 스모크는 남음.
 - [ ] 카카오/구글 OAuth 앱 등록 + 실 로그인 검증
 - [ ] Gemini/GLM 실키로 생성 품질 확인
 - [ ] Veo 3.1 실구현 (현재 스텁 → 502+자동환불로 안전)
@@ -53,7 +53,7 @@
 
 **품질/후속:**
 - [ ] 에디터 포인터 인터랙션 브라우저 수동 QA (드래그/리사이즈/스냅/인라인 편집)
-- [ ] `supabase/seed.sql`의 화로담 config를 mock 품질(`HWARODAM_SITE_CONFIG`)로 동기화
+- [ ] `supabase/seed.sql`의 화로담 **섹션 구조**를 mock 품질(`HWARODAM_SITE_CONFIG`)로 동기화 (businessInfo는 `0006` 커밋에서 주입 완료 — 발행 게이트 통과. 인라인 섹션 JSON 전체 동기화만 남음)
 - [ ] 감사 minor 잔여(회전 요소 리사이즈 축 보정, 에디터↔렌더러 오버플로우 WYSIWYG, ColorField 검증 등)
 - [ ] 에디터 모바일 프리뷰(CanvasStage)도 비대화형 전환 검토 (현재 앵커 미중첩이라 에러는 없음)
 

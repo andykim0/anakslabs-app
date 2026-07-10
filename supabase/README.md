@@ -7,9 +7,16 @@
 
 | 파일 | 내용 |
 |---|---|
-| `migrations/0001_init.sql` | 테이블 6종 + 인덱스 + RLS + 권한 + 크레딧/결제 SQL 함수 |
-| `seed.sql` | 데모 데이터 (화로담=premium 라이브 사이트, 민트세탁소=basic 온보딩 중) |
+| `migrations/0001_init.sql` | 코어 테이블 6종(clients·sites·edit_requests·credit_ledger·credit_balances·payments) + 인덱스 + RLS + 권한 + 크레딧/결제 SQL 함수 |
+| `migrations/0002_spec_v2.sql` | v2 애드온: export 컬럼·`admin_refund_payment`·`credit_lot_remaining`·`qa_approval_stats` 뷰·storage 버킷(exports/client-assets)·sites 보호컬럼/edit_requests RLS 강화 |
+| `migrations/0003_form_submissions.sql` | 테넌트 문의 폼 수신 테이블(RLS: 소유 client SELECT만, INSERT는 service_role) |
+| `migrations/0004_business_info_migrate.sql` | v2 `clients.business_info` → 사이트 `site_config/draft_config.businessInfo` 이관(idempotent, 컬럼은 deprecated 유지) |
+| `migrations/0005_scans.sql` | SEO/AEO/GEO 진단 결과 테이블(익명 client_id null 허용, 가입 후 claim) |
+| `migrations/0006_service_role_grants.sql` | **앱 테이블 6종에 service_role DML 명시 부여** — 0001/0003/0005가 anon/authenticated 회수만 하고 기본권한에 의존해 실 DB 모드에서 permission denied로 통짜 차단되던 버그 해소. 금전 테이블은 함수 경유 불변식 유지 위해 의도적 제외 |
+| `seed.sql` | 데모 데이터 (화로담=premium 라이브 사이트+businessInfo, 민트세탁소=basic 온보딩 중) |
 | `config.toml` | 로컬 Supabase 스택 설정 (`npx supabase start` 진입점) |
+
+> 마이그레이션은 번호 순 누적 적용된다. `npx supabase db reset`이 `0001→0006` + `seed.sql`을 한 번에 재적용한다.
 
 ## 로컬 실행
 
@@ -96,6 +103,19 @@ npx supabase db push        # migrations만 적용 (seed 미적용)
 - **Vercel Cron**(권장): 매일 `/api/cron/expire-credits` 호출(`CRON_SECRET` 검증) →
   서버에서 `rpc('expire_credits')`.
 - **pg_cron**: `select cron.schedule('expire-credits', '0 1 * * *', $$select public.expire_credits()$$);`
+
+## 권한 모델 (service_role 단일 서버 접근)
+
+앱 데이터 계층은 **service_role 단일 서버 클라이언트**로만 DB에 접근한다
+(`web/src/lib/data/supabase/client.ts` — 브라우저에서 PostgREST로 직결하는 경로 없음).
+따라서 실 DB 모드에서 앱이 동작하려면 서버가 쓰는 앱 테이블에 service_role DML이 있어야 한다:
+
+- **anon** — 앱 테이블 접근 없음(전부 회수). 공개 진단 스캔·문의 폼 수신도 서버 라우트(service_role) 경유.
+- **authenticated** — RLS로 **자기 `client_id` 행만** SELECT(+`sites`/`edit_requests`는 제한적 쓰기). RLS는 2차 방어선일 뿐, 정상 경로는 서버.
+- **service_role** — RLS 우회(BYPASSRLS) + 앱 테이블 6종(clients·sites·edit_requests·form_submissions·scans·qa_automation_rules)에 DML 부여(`0006`). **단, 세 금전 테이블(credit_ledger·credit_balances·payments)은 service_role조차 직접 쓰기 불가 — security definer 함수 경유만**(아래 크레딧 규약).
+
+> `0006` 이전에는 service_role DML을 Supabase 플랫폼 기본 권한에 의존해서, 로컬 CLI 등
+> 기본권한이 다른 환경에서 `permission denied for table sites` 류로 실 DB 모드가 통짜로 막혔다.
 
 ## RLS 요약
 

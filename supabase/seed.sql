@@ -509,3 +509,30 @@ select public.consume_credits(
 -- e3 반려 → 환불 (+1, 멱등)
 select public.refund_credits(
   '11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333');
+
+-- ============================================================================
+-- [v3] 화로담 사업자정보(businessInfo) 주입 — 실 DB 데모의 발행 게이트 통과용.
+-- 인라인 site_config JSON은 v2 시절 손작성이라 businessInfo가 없다(발행 시 409).
+-- 여기서 발행본·초안 양쪽에 idempotent하게 채워 데모 재발행을 복원한다.
+-- (섹션 구조 전체를 mock 품질로 올리는 동기화는 별도 폴리시 항목.)
+-- 값은 web/src/lib/data/mock/hwarodam.ts 의 HWARODAM_SITE_CONFIG.businessInfo 와 일치.
+-- ============================================================================
+update public.sites
+set
+  site_config  = jsonb_set(site_config,  '{businessInfo}', '{
+    "businessName": "화로담",
+    "ownerName": "김대표",
+    "businessNumber": "123-45-67890",
+    "address": "서울특별시 마포구 화로길 12, 1층",
+    "phone": "02-123-4567",
+    "email": "kim@hwarodam.kr"
+  }'::jsonb),
+  draft_config = jsonb_set(draft_config, '{businessInfo}', '{
+    "businessName": "화로담",
+    "ownerName": "김대표",
+    "businessNumber": "123-45-67890",
+    "address": "서울특별시 마포구 화로길 12, 1층",
+    "phone": "02-123-4567",
+    "email": "kim@hwarodam.kr"
+  }'::jsonb)
+where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';

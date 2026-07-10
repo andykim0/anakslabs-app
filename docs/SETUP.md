@@ -57,7 +57,7 @@ CRON_SECRET=dev-secret                  # /api/cron/* Bearer 검증
 ```bash
 # 저장소 루트에서
 npx supabase start          # 로컬 스택 기동 (초회는 이미지 pull로 수 분)
-npx supabase db reset       # migrations/0001_init.sql + seed.sql 적용
+npx supabase db reset       # migrations 0001~0006 + seed.sql 일괄 적용
 npx supabase status         # API URL / anon key / service_role key 출력
 ```
 
@@ -77,6 +77,7 @@ cd web && npm run dev
 **확인**: Studio(http://127.0.0.1:54323)에서 테이블 확인. `/dashboard`가 실 DB의 시드(화로담·민트세탁소)를 읽으면 성공.
 
 - 스키마/RPC/RLS 세부·크레딧 함수 규약은 [supabase/README.md](../supabase/README.md).
+- **권한 모델**: 모든 서버 DB 접근은 **service_role 단일 클라이언트**로만(브라우저→PostgREST 직결 없음). `anon`은 앱 테이블 접근 없음, `authenticated`는 RLS로 자기 행만, 서버는 `service_role`(RLS 우회). 앱 테이블 DML은 `0006`에서 명시 부여됐고, **금전 테이블(credit_ledger·credit_balances·payments)은 service_role조차 직접 쓰기 불가 — 함수 경유만**. (이 grant가 없으면 실 DB 모드가 permission denied로 막힌다.)
 - 스키마 변경 때마다 `npx supabase db reset` 재실행.
 - ⚠️ **시드의 데모 유저 2명은 소셜 로그인 불가한 데이터 전용 계정**입니다. 실 로그인은 단계 2 필요.
 - ⚠️ 로컬에서 `MOCK_MODE=0`이면 로그인 페이지의 "데모 버튼"은 사라지고 카카오/구글 버튼만 남습니다 — 단계 2 없이는 로그인이 안 됩니다. 로그인 없이 DB만 보려면 Studio를 쓰세요.
