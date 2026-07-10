@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ScanSearch } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput } from '@/lib/types/domain';
 import type { ExtrasOptionsDto } from '../api';
 import { cn } from '../ui';
@@ -9,6 +10,13 @@ import { CandidateStep } from './candidate-step';
 import { ExtrasStep } from './extras-step';
 import { GenerateStep } from './generate-step';
 
+export interface ScanContext {
+  url: string;
+  total: number;
+  issueCount: number;
+  notes: string;
+}
+
 const STEPS = [
   { no: 1, label: '설문' },
   { no: 2, label: '디자인 선택' },
@@ -16,7 +24,13 @@ const STEPS = [
   { no: 4, label: '생성' },
 ] as const;
 
-export function OnboardingWizard({ defaultBusinessName }: { defaultBusinessName?: string }) {
+export function OnboardingWizard({
+  defaultBusinessName,
+  scanContext,
+}: {
+  defaultBusinessName?: string;
+  scanContext?: ScanContext;
+}) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
   const [candidate, setCandidate] = useState<DesignCandidate | null>(null);
@@ -29,6 +43,16 @@ export function OnboardingWizard({ defaultBusinessName }: { defaultBusinessName?
 
   return (
     <div className="mx-auto max-w-3xl">
+      {/* [v3 Phase 7] 스캔 프리필 컨텍스트 — 왜 이 사이트를 다시 짓는지 상기 */}
+      {scanContext && step === 1 ? (
+        <div className="mb-6 rounded-xl border border-[#4a3a22] bg-[#151310] px-4 py-3">
+          <p className="flex items-start gap-2 text-sm leading-6 text-neutral-300">
+            <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-[#d9b878]" />
+            <span>{scanContext.notes || `이전 진단 ${scanContext.total}점 · 문제 ${scanContext.issueCount}개`} 새 사이트는 이 문제들을 해결한 100점 기반으로 시작합니다.</span>
+          </p>
+        </div>
+      ) : null}
+
       {/* 진행 표시 */}
       <div className="mb-8">
         <div className="flex items-center">

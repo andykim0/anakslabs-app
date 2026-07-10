@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowRight, Coins, FileEdit, Globe, Plus } from 'lucide-react';
 import { getCurrentClient } from '@/lib/services/auth';
+import { getRecentScan } from '@/lib/services/recent-scan';
 import { getDataServices } from '@/lib/data';
+import { ScanBanner } from '@/components/dashboard/ScanBanner';
 import { SiteCard } from '@/components/dashboard/site-card';
 import {
   Card,
@@ -21,10 +23,11 @@ export default async function DashboardHomePage() {
   if (!client) redirect('/login');
 
   const services = getDataServices();
-  const [sites, balance, editRequests] = await Promise.all([
+  const [sites, balance, editRequests, recentScan] = await Promise.all([
     services.sites.listByClient(client.id),
     services.credits.getBalance(client.id),
     services.editRequests.listByClient(client.id),
+    getRecentScan(),
   ]);
 
   const inProgressCount = editRequests.filter((r) =>
@@ -49,6 +52,13 @@ export default async function DashboardHomePage() {
           </Link>
         }
       />
+
+      {/* [v3 Phase 7] 스캔→재생성 전환 배너 */}
+      {recentScan ? (
+        <ScanBanner
+          scan={{ url: recentScan.url, total: recentScan.scores.total, issueCount: recentScan.issues.length }}
+        />
+      ) : null}
 
       {/* 요약 카드 */}
       <div className="grid gap-4 sm:grid-cols-3">

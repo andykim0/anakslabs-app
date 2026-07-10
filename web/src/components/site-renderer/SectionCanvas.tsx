@@ -34,7 +34,7 @@ export function SectionCanvas({ section, theme, isFirst, interactive = true, sit
 
   return (
     // id: 버튼 앵커(#sec-…) 타깃. auto 모드에서 stack과 중복되지 않도록 canvas에만 부여
-    <section id={section.id} data-section-type={section.type} style={sectionStyle}>
+    <section id={section.id} data-section-type={section.type} aria-label={section.name} style={sectionStyle}>
       {bg.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img

@@ -9,6 +9,7 @@ import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { withApiHandler } from '../../_lib/http';
 import { createSupabaseRouteClient } from '../../_lib/supabase';
+import { claimPendingScan } from '../../_lib/scan-claim';
 
 function resolveAuthProvider(provider: unknown): AuthProvider {
   return provider === 'kakao' || provider === 'google' ? provider : 'email';
@@ -52,5 +53,8 @@ export const GET = withApiHandler(async (request) => {
     authProvider: resolveAuthProvider(user.app_metadata?.provider),
   });
 
-  return NextResponse.redirect(new URL(nextPath, origin));
+  const res = NextResponse.redirect(new URL(nextPath, origin));
+  // [v3 Phase 7] 로그인 전 익명 스캔이 있으면 이 client에 귀속
+  await claimPendingScan(request, res, user.id);
+  return res;
 });

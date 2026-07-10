@@ -410,6 +410,73 @@ const contact: Section = {
   ],
 };
 
+// [v3 Phase 7] 자주 묻는 질문 — AEO 질문형 헤딩·FAQPage JSON-LD 소스
+const faq: Section = {
+  id: 'sec-faq',
+  type: 'faq',
+  name: '자주 묻는 질문',
+  height: 620,
+  background: { color: '#100e0b' },
+  elements: [
+    {
+      id: 'faq-title',
+      kind: 'text',
+      frame: { x: 122, y: 96, w: 600, h: 52 },
+      z: 2,
+      text: '자주 묻는 질문',
+      style: { fontSize: 40, fontWeight: 400, fontFamily: 'heading', color: PALETTE.text, align: 'left' },
+    },
+    {
+      id: 'faq-q1',
+      kind: 'text',
+      frame: { x: 122, y: 190, w: 900, h: 32 },
+      z: 2,
+      text: '예약은 어떻게 하나요?',
+      style: { fontSize: 20, fontWeight: 600, fontFamily: 'body', color: PALETTE.text, align: 'left' },
+    },
+    {
+      id: 'faq-a1',
+      kind: 'text',
+      frame: { x: 122, y: 226, w: 900, h: 48 },
+      z: 2,
+      text: '전화(02-123-4567) 또는 네이버 예약으로 하실 수 있습니다. 주말 저녁은 예약을 권장드립니다.',
+      style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: PALETTE.muted, align: 'left', lineHeight: 1.7 },
+    },
+    {
+      id: 'faq-q2',
+      kind: 'text',
+      frame: { x: 122, y: 300, w: 900, h: 32 },
+      z: 2,
+      text: '영업시간과 휴무일이 어떻게 되나요?',
+      style: { fontSize: 20, fontWeight: 600, fontFamily: 'body', color: PALETTE.text, align: 'left' },
+    },
+    {
+      id: 'faq-a2',
+      kind: 'text',
+      frame: { x: 122, y: 336, w: 900, h: 48 },
+      z: 2,
+      text: '평일·주말 오후 5시부터 밤 11시까지 운영하며, 매주 월요일은 휴무입니다.',
+      style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: PALETTE.muted, align: 'left', lineHeight: 1.7 },
+    },
+    {
+      id: 'faq-q3',
+      kind: 'text',
+      frame: { x: 122, y: 410, w: 900, h: 32 },
+      z: 2,
+      text: '주차가 가능한가요?',
+      style: { fontSize: 20, fontWeight: 600, fontFamily: 'body', color: PALETTE.text, align: 'left' },
+    },
+    {
+      id: 'faq-a3',
+      kind: 'text',
+      frame: { x: 122, y: 446, w: 900, h: 48 },
+      z: 2,
+      text: '건물 지하 주차장을 2시간 무료로 이용하실 수 있으며, 발렛 주차도 제공합니다.',
+      style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: PALETTE.muted, align: 'left', lineHeight: 1.7 },
+    },
+  ],
+};
+
 export const HWARODAM_SITE_CONFIG: SiteConfig = {
   version: 1,
   theme: {
@@ -427,7 +494,7 @@ export const HWARODAM_SITE_CONFIG: SiteConfig = {
     description: '여섯 가지 요리, 하나의 불. 참숯의 온도로 계절을 요리하는 성수동 한식 다이닝.',
     ogImage: '/mock/hero-hwarodam.svg',
   },
-  sections: [hero, about, menuSection(), testimonials, contact],
+  sections: [hero, about, menuSection(), testimonials, faq, contact],
   // [v3 통일] 발행 게이트 통과용 데모 사업자 정보 (법적 푸터·법무 페이지 소스, 사이트 단위)
   businessInfo: {
     businessName: '화로담',

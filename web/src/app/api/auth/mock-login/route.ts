@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { MOCK_CLIENT_IDS, MOCK_SESSION_COOKIE } from '../../_lib/guards';
+import { claimPendingScan } from '../../_lib/scan-claim';
 
 const bodySchema = z.object({
   as: z.enum(['premium', 'basic', 'admin']),
@@ -32,5 +33,7 @@ export const POST = withApiHandler(async (request) => {
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7일
   });
+  // [v3 Phase 7] 로그인 직전 익명 스캔이 있으면 이 client에 귀속
+  await claimPendingScan(request, res, clientId);
   return res;
 });

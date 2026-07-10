@@ -27,11 +27,14 @@ export const GEO_RULES: ScanRule[] = [
     severity: 'warn',
     weight: 10,
     label: '마크업 대비 본문 비율이 낮습니다',
-    detail: '코드 대비 실제 텍스트가 5% 미만이라 AI가 핵심 내용을 찾는 데 불리한 구조입니다.',
+    detail: '코드 대비 실제 텍스트가 적어 AI가 핵심 내용을 찾는 데 불리한 구조입니다.',
     failed: (ctx) => {
       if (ctx.rawHtml.length === 0) return true;
-      const ratio = ctx.visibleText.length / ctx.rawHtml.length;
-      return ratio < 0.05 && ctx.visibleText.replace(/\s+/g, '').length >= 200;
+      const visLen = ctx.visibleText.length;
+      if (visLen < 200) return false; // geo_no_text가 담당
+      // 스타일 바이트가 많아 비율이 낮아도, 본문 자체가 충분(≥1200자)하면 리치 콘텐츠로 본다.
+      const ratio = visLen / ctx.rawHtml.length;
+      return ratio < 0.05 && visLen < 1200;
     },
   },
   {
