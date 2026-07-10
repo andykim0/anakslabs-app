@@ -13,18 +13,23 @@
  */
 import { memo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Film, ImageIcon } from 'lucide-react';
+import { AtSign, BookOpen, Camera, Film, ImageIcon, Link2, MapPin, MessageCircle, Play } from 'lucide-react';
 import type {
   ButtonElement,
   CanvasElement,
   DividerElement,
+  FormElement,
   Frame,
   ImageElement,
+  MapElement,
   ShapeElement,
   SiteTheme,
+  SnsKind,
+  SocialLinksElement,
   TextElement,
   VideoElement,
 } from '@/lib/types/site';
+import { safeMapEmbedUrl } from '@/lib/safe-url';
 import { useEditorStore } from '@/stores/editor';
 import {
   clampFrameToSection,
@@ -333,9 +338,155 @@ function ElementBody({
       return <DividerBody el={element} theme={theme} scale={scale} />;
     case 'video':
       return <VideoBody el={element} scale={scale} />;
+    case 'form':
+      return <FormBody el={element} theme={theme} scale={scale} />;
+    case 'map':
+      return <MapBody el={element} theme={theme} scale={scale} />;
+    case 'socialLinks':
+      return <SocialLinksBody el={element} theme={theme} scale={scale} />;
     default:
       return null;
   }
+}
+
+// ---------- [v3 Phase 3] 부가기능 3종 — 에디터 프리뷰(비대화형 lookalike) ----------
+
+const FORM_FIELD_LABELS: Record<FormElement['fields'][number], string> = {
+  name: '이름',
+  phone: '연락처',
+  email: '이메일',
+  message: '문의 내용',
+};
+
+function FormBody({ el, theme, scale }: { el: FormElement; theme: SiteTheme; scale: number }) {
+  const s = el.style;
+  const radius = (s.borderRadius ?? theme.radius ?? 8) * scale;
+  const accent = s.color ?? theme.palette.primary;
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10 * scale,
+        padding: s.variant === 'card' ? 20 * scale : 0,
+        backgroundColor: s.variant === 'card' ? theme.palette.surface : 'transparent',
+        borderRadius: s.variant === 'card' ? radius : undefined,
+        fontFamily: theme.fonts.body,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+      }}
+    >
+      {el.fields.map((f) => (
+        <div
+          key={f}
+          style={{
+            padding: `${10 * scale}px ${13 * scale}px`,
+            fontSize: 14 * scale,
+            color: theme.palette.muted,
+            backgroundColor: theme.palette.background,
+            border: `1px solid ${theme.palette.muted}55`,
+            borderRadius: Math.min(radius, 12 * scale),
+            flex: f === 'message' ? 1 : undefined,
+            minHeight: f === 'message' ? 48 * scale : undefined,
+          }}
+        >
+          {FORM_FIELD_LABELS[f]}
+        </div>
+      ))}
+      <div
+        style={{
+          padding: `${11 * scale}px ${16 * scale}px`,
+          textAlign: 'center',
+          fontSize: 14 * scale,
+          fontWeight: 600,
+          color: theme.palette.background,
+          backgroundColor: accent,
+          borderRadius: Math.min(radius, 12 * scale),
+        }}
+      >
+        {el.submitLabel || '문의 보내기'}
+      </div>
+    </div>
+  );
+}
+
+function MapBody({ el, theme, scale }: { el: MapElement; theme: SiteTheme; scale: number }) {
+  const radius = (el.style.borderRadius ?? theme.radius ?? 8) * scale;
+  const valid = Boolean(safeMapEmbedUrl(el.embedUrl));
+  let host = '';
+  try {
+    host = el.embedUrl ? new URL(el.embedUrl).hostname : '';
+  } catch {
+    host = '';
+  }
+  return (
+    <div
+      className="flex h-full w-full flex-col items-center justify-center gap-1.5"
+      style={{
+        backgroundColor: theme.palette.surface,
+        color: theme.palette.muted,
+        border: `1px dashed ${theme.palette.muted}66`,
+        borderRadius: radius,
+        fontFamily: theme.fonts.body,
+      }}
+    >
+      <MapPin style={{ width: 20 * scale, height: 20 * scale }} />
+      <span style={{ fontSize: 12 * scale }}>
+        {valid ? `지도 — ${host} (발행 시 표시)` : el.embedUrl ? '허용되지 않은 지도 URL' : '지도 URL을 입력하세요'}
+      </span>
+    </div>
+  );
+}
+
+const SNS_ICONS: Record<SnsKind, typeof Camera> = {
+  instagram: Camera,
+  kakao_channel: MessageCircle,
+  naver_blog: BookOpen,
+  youtube: Play,
+  x: AtSign,
+  custom: Link2,
+};
+
+function SocialLinksBody({ el, theme, scale }: { el: SocialLinksElement; theme: SiteTheme; scale: number }) {
+  const size = (el.style.size ?? 40) * scale;
+  const color = el.style.color ?? theme.palette.text;
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: el.style.direction === 'column' ? 'column' : 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12 * scale,
+      }}
+    >
+      {el.links.map((link, i) => {
+        const Icon = SNS_ICONS[link.kind] ?? Link2;
+        return (
+          <span
+            key={i}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: size,
+              height: size,
+              color,
+              border: `1px solid ${color}44`,
+              borderRadius: '50%',
+              opacity: link.url ? 1 : 0.4,
+            }}
+          >
+            <Icon style={{ width: size * 0.55, height: size * 0.55 }} />
+          </span>
+        );
+      })}
+    </div>
+  );
 }
 
 function TextBody({ el, theme, scale }: { el: TextElement; theme: SiteTheme; scale: number }) {

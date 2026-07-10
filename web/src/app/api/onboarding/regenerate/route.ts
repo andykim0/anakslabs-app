@@ -12,14 +12,23 @@ import { z } from 'zod';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
+import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
-import { designCandidateSchema, surveySchema } from '../../_lib/schemas';
+import {
+  designCandidateSchema,
+  extraFeatureSelectionSchema,
+  extrasOptionsSchema,
+  surveySchema,
+} from '../../_lib/schemas';
 
 const bodySchema = z.object({
   siteId: z.string().min(1),
   survey: surveySchema,
   candidate: designCandidateSchema,
+  // [v3 Phase 3] 재생성 시에도 부가기능 유지 가능
+  extras: extraFeatureSelectionSchema.optional(),
+  extrasOptions: extrasOptionsSchema.optional(),
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -47,7 +56,8 @@ export const POST = withApiHandler(async (request) => {
 
   const { ai, sites } = getDataServices();
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
-  const draftConfig = await ai.generateSiteConfig(survey, candidate);
+  const generated = await ai.generateSiteConfig(survey, candidate);
+  const draftConfig = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

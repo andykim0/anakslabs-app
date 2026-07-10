@@ -1369,6 +1369,21 @@ export function buildSiteConfigFromSurvey(
     return section;
   });
 
+  // [v3 Phase 3] 앵커 재해소 — contact가 variant id(sec-contact-map/-form)로 갈라져
+  // 'sec-contact'가 없으면, 빌더가 만든 '#sec-contact' href를 첫 contact 섹션 id로 교체.
+  if (!usedIds.has('sec-contact')) {
+    const firstContact = sections.find((s) => s.type === 'contact');
+    if (firstContact) {
+      for (const section of sections) {
+        for (const el of section.elements) {
+          if (el.kind === 'button' && el.href === '#sec-contact') {
+            el.href = `#${firstContact.id}`;
+          }
+        }
+      }
+    }
+  }
+
   return {
     version: 1,
     theme,

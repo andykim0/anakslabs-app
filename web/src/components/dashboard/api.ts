@@ -23,6 +23,7 @@ import type {
   DesignCandidate,
   EditRequest,
   EditType,
+  ExtraFeatureSelection,
   Payment,
   Site,
   SurveyInput,
@@ -179,6 +180,23 @@ export async function getExport(siteId: string): Promise<ExportStatusResult> {
   return request<ExportStatusResult>(`/api/sites/${encodeURIComponent(siteId)}/export`);
 }
 
+// ---------- 문의함 (§Phase3) ----------
+
+export interface FormSubmissionDto {
+  id: string;
+  siteId: string;
+  payload: Record<string, string>;
+  createdAt: string;
+}
+
+/** [v3 Phase 3] 사이트 문의함 목록 (소유자 전용) */
+export async function listFormSubmissions(siteId: string): Promise<FormSubmissionDto[]> {
+  const data = await request<{ submissions: FormSubmissionDto[] }>(
+    `/api/sites/${encodeURIComponent(siteId)}/forms`,
+  );
+  return data.submissions ?? [];
+}
+
 // ---------- 크레딧 ----------
 
 export interface CreditsSnapshot {
@@ -304,7 +322,7 @@ export async function getDomainStatus(siteId: string): Promise<CustomDomainStatu
 export async function suggestSection(input: {
   name: string;
   description?: string;
-  survey: { businessName: string; industry: string; purpose: string; tone: string; colorPreference: string };
+  context: { businessName: string; industry: string; purpose: string; tone?: string };
 }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
   return post<{ mappedType: SectionType; name: string; copySeed: string }>(
     '/api/onboarding/suggest-section',
@@ -322,9 +340,17 @@ export async function generateCandidates(survey: SurveyInput): Promise<DesignCan
   return data.candidates;
 }
 
+/** [v3 Phase 3] 부가기능 표시 옵션 (SNS 묶음/버튼, 폼 필드) */
+export interface ExtrasOptionsDto {
+  snsStyle?: 'bar' | 'buttons';
+  formFields?: ('name' | 'phone' | 'email' | 'message')[];
+}
+
 export async function generateSite(input: {
   survey: SurveyInput;
   candidate: DesignCandidate;
+  extras?: ExtraFeatureSelection;
+  extrasOptions?: ExtrasOptionsDto;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number }> {
   const data = await post<{ siteId?: string; site?: Site }>('/api/onboarding/generate', input);
   const siteId = data.siteId ?? data.site?.id;
@@ -339,6 +365,8 @@ export async function regenerateSite(input: {
   siteId: string;
   survey: SurveyInput;
   candidate: DesignCandidate;
+  extras?: ExtraFeatureSelection;
+  extrasOptions?: ExtrasOptionsDto;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number; freeRegenLimit: number }> {
   const data = await post<{ siteId: string; site?: Site; freeRegensUsed?: number; freeRegenLimit?: number }>(
     '/api/onboarding/regenerate',

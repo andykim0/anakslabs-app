@@ -1,0 +1,359 @@
+'use client';
+
+/**
+ * [v3 Phase 3] 온보딩 3단계 — 부가기능: 문의 폼 · 지도 · SNS 링크.
+ * 1차 가공(후보 선택) 직후, 생성 전에 물어 생성 시 요소를 함께 배치한다(재생성 불필요).
+ *
+ * - 목적의 recommendedFeatures는 pre-check.
+ * - 배치 드롭다운은 sectionPlan에서 채움 — contact:form/contact:map 행이 있으면 자동 연결.
+ * - SNS는 "묶음 바(socialLinks)" vs "개별 버튼(ButtonElement)" 선택.
+ * - 전부 선택사항 — "건너뛰기" 명시 버튼.
+ */
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight, FormInput, Map as MapIcon, Plus, Share2, X } from 'lucide-react';
+import type { ExtraFeatureSelection, SectionPlanItem, SnsKind, SurveyInput } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
+import { findPurpose } from '@/lib/data/purpose-taxonomy';
+import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
+import type { ExtrasOptionsDto } from '../api';
+import { Button, Card, cn } from '../ui';
+
+type FormFieldKey = 'name' | 'phone' | 'email' | 'message';
+
+const FORM_FIELD_OPTIONS: { value: FormFieldKey; label: string }[] = [
+  { value: 'name', label: '이름' },
+  { value: 'phone', label: '연락처' },
+  { value: 'email', label: '이메일' },
+  { value: 'message', label: '문의 내용' },
+];
+
+const SNS_KIND_OPTIONS: { value: SnsKind; label: string }[] = [
+  { value: 'instagram', label: '인스타그램' },
+  { value: 'kakao_channel', label: '카카오 채널' },
+  { value: 'naver_blog', label: '네이버 블로그' },
+  { value: 'youtube', label: '유튜브' },
+  { value: 'x', label: 'X (트위터)' },
+  { value: 'custom', label: '기타 링크' },
+];
+
+interface SnsRow {
+  kind: SnsKind;
+  url: string;
+  label?: string;
+}
+
+/** 계획표에서 배치 후보 도출 — variant가 form/map인 contact 행이 있으면 자동 연결 대상 */
+function planTargets(plan: SectionPlanItem[]): { label: string; type: SectionType; variant?: string }[] {
+  return plan.map((item, i) => ({
+    label: `${i + 1}. ${item.name}`,
+    type: item.type,
+    variant: item.variant,
+  }));
+}
+
+const inputClass =
+  'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none transition-colors focus:border-[#c8a96a]';
+
+function FeatureCard({
+  icon,
+  title,
+  desc,
+  enabled,
+  onToggle,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  enabled: boolean;
+  onToggle: () => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className={cn('rounded-xl border p-4 transition-colors', enabled ? 'border-[#c8a96a] bg-[#1a1712]' : 'border-neutral-800')}>
+      <button type="button" onClick={onToggle} className="flex w-full items-start gap-3 text-left">
+        <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', enabled ? 'bg-[#2a2117] text-[#d9b878]' : 'bg-neutral-800 text-neutral-400')}>
+          {icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className={cn('block text-sm font-semibold', enabled ? 'text-[#d9b878]' : 'text-neutral-200')}>{title}</span>
+          <span className="mt-0.5 block text-xs leading-5 text-neutral-500">{desc}</span>
+        </span>
+        <span
+          role="switch"
+          aria-checked={enabled}
+          className={cn('relative mt-1 h-5 w-9 shrink-0 rounded-full transition-colors', enabled ? 'bg-[#c8a96a]' : 'bg-neutral-700')}
+        >
+          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-neutral-950 transition-transform', enabled ? 'translate-x-4' : 'translate-x-0.5')} />
+        </span>
+      </button>
+      {enabled && children ? <div className="mt-4 space-y-3 border-t border-neutral-800 pt-4">{children}</div> : null}
+    </div>
+  );
+}
+
+export function ExtrasStep({
+  survey,
+  onBack,
+  onComplete,
+}: {
+  survey: SurveyInput;
+  onBack: () => void;
+  onComplete: (extras: ExtraFeatureSelection | undefined, options: ExtrasOptionsDto | undefined) => void;
+}) {
+  const purpose = findPurpose(survey.purposeId);
+  const recommended = new Set(purpose?.recommendedFeatures ?? []);
+  const targets = planTargets(survey.sectionPlan);
+
+  const formRow = targets.find((t) => t.variant === 'contact:form');
+  const mapRow = targets.find((t) => t.variant === 'contact:map');
+
+  // 문의 폼
+  const [formOn, setFormOn] = useState(recommended.has('contactForm'));
+  const [formFields, setFormFields] = useState<FormFieldKey[]>(['name', 'phone', 'message']);
+  const [formTarget, setFormTarget] = useState<SectionType>(formRow?.type ?? 'contact');
+
+  // 지도
+  const [mapOn, setMapOn] = useState(recommended.has('mapEmbed'));
+  const [mapUrl, setMapUrl] = useState('');
+  const [mapTarget, setMapTarget] = useState<SectionType>(mapRow?.type ?? 'contact');
+  const mapInvalid = mapUrl.trim() !== '' && !isSafeMapEmbedUrl(mapUrl.trim());
+
+  // SNS
+  const [snsOn, setSnsOn] = useState(recommended.has('snsLinks'));
+  const [snsRows, setSnsRows] = useState<SnsRow[]>([{ kind: 'instagram', url: '' }]);
+  const [snsStyle, setSnsStyle] = useState<'bar' | 'buttons'>('bar');
+
+  const [error, setError] = useState('');
+
+  const toggleFormField = (f: FormFieldKey) => {
+    setFormFields((prev) => {
+      const has = prev.includes(f);
+      const next = has ? prev.filter((x) => x !== f) : [...prev, f];
+      if (next.length === 0) return prev; // 최소 1개
+      return FORM_FIELD_OPTIONS.map((o) => o.value).filter((v) => next.includes(v));
+    });
+  };
+
+  const submit = () => {
+    setError('');
+    const extras: ExtraFeatureSelection = {};
+    const options: ExtrasOptionsDto = {};
+
+    if (formOn) {
+      extras.contactForm = { targetSection: formTarget };
+      options.formFields = formFields;
+    }
+    if (mapOn) {
+      const url = mapUrl.trim();
+      if (!url || !isSafeMapEmbedUrl(url)) {
+        setError('지도 URL을 확인해 주세요 — 네이버/카카오/구글 지도 embed 주소만 사용할 수 있어요.');
+        return;
+      }
+      extras.mapEmbed = { embedUrl: url, targetSection: mapTarget };
+    }
+    if (snsOn) {
+      const valid = snsRows.filter((r) => isHttpsUrl(r.url.trim()));
+      if (valid.length === 0) {
+        setError('SNS 링크를 1개 이상 입력해 주세요 (https:// 주소).');
+        return;
+      }
+      extras.snsLinks = valid.map((r) => ({ kind: r.kind, url: r.url.trim(), label: r.label?.trim() || undefined }));
+      options.snsStyle = snsStyle;
+    }
+
+    const any = extras.contactForm || extras.mapEmbed || extras.snsLinks;
+    onComplete(any ? extras : undefined, any ? options : undefined);
+  };
+
+  const targetSelect = (value: SectionType, onChange: (t: SectionType) => void, auto?: { label: string }) => (
+    <div>
+      <span className="mb-1 block text-[11px] text-neutral-500">넣을 섹션</span>
+      {auto ? (
+        <p className="rounded-lg border border-[#4a3a22] bg-[#2a2117] px-3 py-2 text-xs text-[#d9b878]">
+          계획한 &ldquo;{auto.label.replace(/^\d+\.\s*/, '')}&rdquo; 섹션에 자동으로 들어가요.
+        </p>
+      ) : (
+        <select value={value} onChange={(e) => onChange(e.target.value as SectionType)} className={cn(inputClass, 'h-10 py-0')}>
+          {targets.map((t, i) => (
+            <option key={i} value={t.type}>
+              {t.label}
+            </option>
+          ))}
+          <option value="contact">+ 새 문의 섹션 추가</option>
+        </select>
+      )}
+    </div>
+  );
+
+  return (
+    <Card className="space-y-5 p-6">
+      <div>
+        <h2 className="text-lg font-semibold text-neutral-50">부가기능을 골라주세요</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          전부 선택사항이에요. {purpose ? `${purpose.label}에 추천하는 기능은 미리 켜뒀어요.` : ''} 생성 후 에디터에서도 추가·수정할 수 있어요.
+        </p>
+      </div>
+
+      {/* 문의 폼 */}
+      <FeatureCard
+        icon={<FormInput className="h-4.5 w-4.5" />}
+        title="문의 폼"
+        desc="방문자가 남긴 문의가 대시보드 문의함으로 들어와요."
+        enabled={formOn}
+        onToggle={() => setFormOn((v) => !v)}
+      >
+        <div>
+          <span className="mb-1.5 block text-[11px] text-neutral-500">받을 필드</span>
+          <div className="flex flex-wrap gap-2">
+            {FORM_FIELD_OPTIONS.map((o) => {
+              const on = formFields.includes(o.value);
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => toggleFormField(o.value)}
+                  className={cn(
+                    'rounded-full border px-3 py-1.5 text-xs transition-colors',
+                    on ? 'border-[#c8a96a] bg-[#2a2117] font-medium text-[#d9b878]' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500',
+                  )}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {targetSelect(formTarget, setFormTarget, formRow ? { label: formRow.label } : undefined)}
+      </FeatureCard>
+
+      {/* 지도 */}
+      <FeatureCard
+        icon={<MapIcon className="h-4.5 w-4.5" />}
+        title="지도 임베드"
+        desc="네이버·카카오·구글 지도를 오시는 길 섹션에 넣어요."
+        enabled={mapOn}
+        onToggle={() => setMapOn((v) => !v)}
+      >
+        <div>
+          <span className="mb-1 block text-[11px] text-neutral-500">지도 embed URL</span>
+          <input
+            value={mapUrl}
+            onChange={(e) => setMapUrl(e.target.value)}
+            placeholder="https://map.naver.com/… / https://map.kakao.com/… / 구글 /maps/embed"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[11px] leading-4 text-neutral-600">
+            네이버/카카오 지도에서 &ldquo;공유 → URL 복사&rdquo;, 구글 지도는 &ldquo;공유 → 지도 퍼가기&rdquo;의 iframe src 주소를 붙여넣으세요.
+          </p>
+          {mapInvalid ? (
+            <p className="mt-1 text-[11px] text-red-300">
+              허용되지 않은 주소예요. map.naver.com · map.kakao.com · www.google.com/maps/embed 만 가능합니다.
+            </p>
+          ) : null}
+          {mapUrl.trim() && !mapInvalid ? (
+            <p className="mt-1 text-[11px] text-emerald-400">사용할 수 있는 지도 주소예요.</p>
+          ) : null}
+        </div>
+        {targetSelect(mapTarget, setMapTarget, mapRow ? { label: mapRow.label } : undefined)}
+      </FeatureCard>
+
+      {/* SNS 링크 */}
+      <FeatureCard
+        icon={<Share2 className="h-4.5 w-4.5" />}
+        title="SNS · 카카오 채널 링크"
+        desc="인스타그램·카카오 채널 등으로 연결되는 링크를 넣어요."
+        enabled={snsOn}
+        onToggle={() => setSnsOn((v) => !v)}
+      >
+        {snsRows.map((row, i) => {
+          const bad = row.url.trim() !== '' && !isHttpsUrl(row.url.trim());
+          return (
+            <div key={i} className="flex items-start gap-2">
+              <select
+                value={row.kind}
+                onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, kind: e.target.value as SnsKind } : r)))}
+                className={cn(inputClass, 'h-10 w-36 shrink-0 py-0')}
+              >
+                {SNS_KIND_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <div className="min-w-0 flex-1">
+                <input
+                  value={row.url}
+                  onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, url: e.target.value } : r)))}
+                  placeholder="https://instagram.com/…"
+                  className={inputClass}
+                />
+                {bad ? <p className="mt-1 text-[11px] text-red-300">https:// 주소만 사용할 수 있어요.</p> : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSnsRows((rows) => (rows.length > 1 ? rows.filter((_, j) => j !== i) : rows))}
+                disabled={snsRows.length <= 1}
+                aria-label="링크 삭제"
+                className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-red-950/50 hover:text-red-300 disabled:opacity-30"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setSnsRows((rows) => (rows.length < 8 ? [...rows, { kind: 'custom', url: '' }] : rows))}
+          disabled={snsRows.length >= 8}
+          className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-700 px-3 py-2 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-40"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          링크 추가
+        </button>
+        <div>
+          <span className="mb-1.5 block text-[11px] text-neutral-500">표시 방식</span>
+          <div className="grid grid-cols-2 gap-2">
+            {(
+              [
+                ['bar', '묶음 바', '아이콘을 한 줄로 묶어 표시'],
+                ['buttons', '개별 버튼', '버튼으로 만들어 자유롭게 이동·수정'],
+              ] as const
+            ).map(([val, label, hint]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setSnsStyle(val)}
+                className={cn(
+                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                  snsStyle === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+                )}
+              >
+                <span className={cn('block text-xs font-medium', snsStyle === val ? 'text-[#d9b878]' : 'text-neutral-300')}>{label}</span>
+                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </FeatureCard>
+
+      {error ? <p className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2.5 text-xs text-red-300">{error}</p> : null}
+
+      <div className="flex items-center justify-between border-t border-neutral-800 pt-5">
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4" />
+          디자인 선택
+        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" onClick={() => onComplete(undefined, undefined)}>
+            건너뛰기
+          </Button>
+          <Button size="lg" onClick={submit}>
+            이대로 생성하기
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}

@@ -208,8 +208,20 @@ export interface AiService {
   suggestCustomSection(input: {
     name: string;
     description?: string;
-    survey: SurveyInput;
+    context: SuggestSectionContext;
   }): Promise<{ mappedType: SectionType; name: string; copySeed: string }>;
+}
+
+/**
+ * [v3 Phase 3, 5-b 승인] suggestCustomSection 맥락 — 설문 전체(SurveyInput)가 아니라
+ * 판정에 실제로 쓰이는 필드만. 설문 작성 중(계획표 편집 시점) 호출되므로
+ * sectionPlan/templateId 등 미확정 필드를 요구하지 않는다.
+ */
+export interface SuggestSectionContext {
+  businessName: string;
+  industry: string;
+  purpose: string;
+  tone?: string;
 }
 
 // ---------- [v3 Phase 6] SEO/AEO/GEO 진단 스캔 ----------

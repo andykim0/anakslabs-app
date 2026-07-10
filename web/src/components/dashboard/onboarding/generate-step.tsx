@@ -18,9 +18,9 @@ import {
   RefreshCw,
   SlidersHorizontal,
 } from 'lucide-react';
-import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, ExtraFeatureSelection, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
-import { generateSite, regenerateSite } from '../api';
+import { generateSite, regenerateSite, type ExtrasOptionsDto } from '../api';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 
@@ -34,6 +34,8 @@ const LOADING_MESSAGES = [
 export function GenerateStep({
   survey,
   candidate,
+  extras,
+  extrasOptions,
   existingSiteId,
   freeRegensUsed,
   onResult,
@@ -43,6 +45,9 @@ export function GenerateStep({
 }: {
   survey: SurveyInput;
   candidate: DesignCandidate;
+  /** [v3 Phase 3] 부가기능 선택 (건너뛰면 undefined) */
+  extras?: ExtraFeatureSelection;
+  extrasOptions?: ExtrasOptionsDto;
   /** null=최초 생성 / 값 있으면 해당 사이트 재생성 */
   existingSiteId: string | null;
   freeRegensUsed: number;
@@ -57,8 +62,8 @@ export function GenerateStep({
   const mutation = useMutation({
     mutationFn: () =>
       existingSiteId
-        ? regenerateSite({ siteId: existingSiteId, survey, candidate })
-        : generateSite({ survey, candidate }),
+        ? regenerateSite({ siteId: existingSiteId, survey, candidate, extras, extrasOptions })
+        : generateSite({ survey, candidate, extras, extrasOptions }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       onResult(data.siteId, data.freeRegensUsed);

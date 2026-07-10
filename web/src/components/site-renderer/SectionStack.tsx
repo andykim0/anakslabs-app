@@ -14,6 +14,8 @@ interface SectionStackProps {
   isFirst?: boolean;
   /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
   interactive?: boolean;
+  /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
+  siteId?: string;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -39,12 +41,19 @@ function itemStyle(el: CanvasElement): CSSProperties {
     case 'divider':
     case 'shape':
       return { ...base, width: '56%', height: '16px' };
+    // [v3 Phase 3] 지도는 스택에서 고정 높이 240px
+    case 'map':
+      return { ...base, width: '100%', height: '240px' };
+    case 'socialLinks':
+      return { ...base, width: '100%', minHeight: `${el.style.size ?? 40}px` };
+    case 'form':
+      return { ...base, width: '100%' };
     default:
       return { ...base, width: '100%' };
   }
 }
 
-export function SectionStack({ section, theme, isFirst, interactive = true }: SectionStackProps) {
+export function SectionStack({ section, theme, isFirst, interactive = true, siteId }: SectionStackProps) {
   const bg = section.background;
   const elements = section.elements.filter(stackable).sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x);
 
@@ -100,7 +109,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true }: Se
       >
         {elements.map((el) => (
           <div key={el.id} style={itemStyle(el)}>
-            <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} />
+            <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} />
           </div>
         ))}
       </div>

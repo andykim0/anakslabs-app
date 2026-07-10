@@ -16,12 +16,13 @@ import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
-import type { AiService } from '../types';
+import type { AiService, SuggestSectionContext } from '../types';
 import {
   buildCandidateBlueprints,
   matchBlueprintForCandidate,
   type CandidateBlueprint,
 } from '../design-candidates';
+import { KNOWN_SECTION_TYPES, mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { uploadAiAsset } from './storage';
 
@@ -292,7 +293,7 @@ export class SupabaseAiService implements AiService {
   async suggestCustomSection(input: {
     name: string;
     description?: string;
-    survey: SurveyInput;
+    context: SuggestSectionContext;
   }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
     // 실모드: Claude가 known 타입/custom 판정 + 방문자용 카피 방향 생성. 실패 시 결정적 폴백.
     const fallback = () => ({
@@ -305,7 +306,8 @@ export class SupabaseAiService implements AiService {
         prompt:
           `고객이 웹사이트에 추가하고 싶어하는 섹션 요청을 분석해줘.\n` +
           `요청: "${input.name}"${input.description ? `\n설명: ${input.description}` : ''}\n` +
-          `사업장: ${input.survey.businessName} (${input.survey.industry})\n\n` +
+          `사업장: ${input.context.businessName} (${input.context.industry}) · 목적: ${input.context.purpose}` +
+          `${input.context.tone ? ` · 톤: ${input.context.tone}` : ''}\n\n` +
           `이 요청이 아래 표준 섹션 타입 중 하나로 표현 가능하면 그 타입을, 아니면 "custom"으로 판정하고, ` +
           `이 섹션에 들어갈 카피 방향을 방문자용 한 문장으로 만들어줘(지시문 말고 실제 카피 톤).\n` +
           `표준 타입: about(소개/스토리), features(특징/서비스), menu(메뉴/상품/커리큘럼), gallery(사진/작업), ` +
@@ -328,18 +330,3 @@ export class SupabaseAiService implements AiService {
   }
 }
 
-const KNOWN_SECTION_TYPES: SectionType[] = [
-  'hero', 'about', 'features', 'menu', 'gallery', 'testimonials',
-  'pricing', 'contact', 'cta', 'custom', 'team', 'cases', 'faq',
-];
-
-/** [v3 Phase 2] 커스텀 섹션 이름/설명 → known SectionType 결정적 매핑 (mock·실모드 공용 규칙) */
-function mapCustomSectionType(text: string): SectionType {
-  if (/후기|리뷰/.test(text)) return 'testimonials';
-  if (/지도|위치|오시는/.test(text)) return 'contact';
-  if (/가격|요금/.test(text)) return 'pricing';
-  if (/팀|직원|강사/.test(text)) return 'team';
-  if (/실적|사례|프로젝트/.test(text)) return 'cases';
-  if (/질문|안내/.test(text)) return 'faq';
-  return 'custom';
-}

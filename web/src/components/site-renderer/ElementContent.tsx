@@ -9,17 +9,23 @@
  * SiteRenderer가 주입하는 베이스 CSS(.anaks-btn 등)로 처리.
  */
 import type { CSSProperties } from 'react';
+// lucide 최신은 브랜드 아이콘(Instagram 등)을 제공하지 않음 — 일반 아이콘으로 은유
+import { AtSign, BookOpen, Camera, Link2, MapPin, MessageCircle, Play } from 'lucide-react';
 import type {
   ButtonElement,
   CanvasElement,
   DividerElement,
   ImageElement,
+  MapElement,
   ShapeElement,
   SiteTheme,
+  SnsKind,
+  SocialLinksElement,
   TextElement,
   VideoElement,
 } from '@/lib/types/site';
-import { safeHref, safeMediaSrc } from '@/lib/safe-url';
+import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
+import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 
 export type RenderVariant = 'canvas' | 'stack';
@@ -36,6 +42,8 @@ interface ElementContentProps {
    * 앵커 중첩 → 하이드레이션 에러가 난다. 실서빙(/s/[domain])은 기본 true.
    */
   interactive?: boolean;
+  /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙(/s/[domain])에서만 전달. 없으면 폼 비활성 */
+  siteId?: string;
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -43,7 +51,7 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
-export function ElementContent({ element, theme, variant, eager, interactive = true }: ElementContentProps) {
+export function ElementContent({ element, theme, variant, eager, interactive = true, siteId }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
       return <TextContent el={element} theme={theme} variant={variant} />;
@@ -57,6 +65,14 @@ export function ElementContent({ element, theme, variant, eager, interactive = t
       return <DividerContent el={element} theme={theme} variant={variant} />;
     case 'video':
       return <VideoContent el={element} variant={variant} eager={eager} />;
+    case 'form':
+      return (
+        <ContactForm el={element} theme={theme} siteId={siteId} interactive={interactive} compact={variant === 'stack'} />
+      );
+    case 'map':
+      return <MapContent el={element} theme={theme} variant={variant} interactive={interactive} />;
+    case 'socialLinks':
+      return <SocialLinksContent el={element} theme={theme} variant={variant} interactive={interactive} />;
     default:
       return null;
   }
@@ -253,6 +269,143 @@ function DividerContent({ el, theme, variant }: { el: DividerElement; theme: Sit
           backgroundColor: el.style.color ?? theme.palette.muted,
         }}
       />
+    </div>
+  );
+}
+
+// ---------- video ----------
+
+// ---------- map ----------
+
+function MapContent({
+  el,
+  theme,
+  variant,
+  interactive,
+}: {
+  el: MapElement;
+  theme: SiteTheme;
+  variant: RenderVariant;
+  interactive: boolean;
+}) {
+  const radius = el.style.borderRadius ?? theme.radius ?? 8;
+  // 화이트리스트 재검증 — zod(저장)와 별개의 렌더 방어선
+  const src = safeMapEmbedUrl(el.embedUrl);
+
+  if (!src || !interactive) {
+    // URL 미지정/화이트리스트 밖/미리보기: 지도 플레이스홀더
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          backgroundColor: theme.palette.surface,
+          color: theme.palette.muted,
+          border: `1px dashed ${theme.palette.muted}66`,
+          borderRadius: len(radius, variant),
+          fontFamily: theme.fonts.body,
+          fontSize: variant === 'canvas' ? cqw(13) : '13px',
+        }}
+      >
+        <MapPin style={{ width: 20, height: 20 }} aria-hidden />
+        <span>{src ? '지도' : '지도 (URL을 입력하면 표시됩니다)'}</span>
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      src={src}
+      title="지도"
+      loading="lazy"
+      // 지도 임베드 구동에 필요한 최소 권한만 (top-navigation/forms/popups-escape 차단)
+      sandbox="allow-scripts allow-same-origin allow-popups"
+      referrerPolicy="no-referrer-when-downgrade"
+      style={{
+        display: 'block',
+        width: '100%',
+        height: '100%',
+        border: 'none',
+        borderRadius: len(radius, variant),
+        backgroundColor: theme.palette.surface,
+      }}
+    />
+  );
+}
+
+// ---------- socialLinks ----------
+
+const SNS_META: Record<SnsKind, { label: string; Icon: typeof Camera }> = {
+  instagram: { label: '인스타그램', Icon: Camera },
+  kakao_channel: { label: '카카오 채널', Icon: MessageCircle },
+  naver_blog: { label: '네이버 블로그', Icon: BookOpen },
+  youtube: { label: '유튜브', Icon: Play },
+  x: { label: 'X', Icon: AtSign },
+  custom: { label: '링크', Icon: Link2 },
+};
+
+function SocialLinksContent({
+  el,
+  theme,
+  variant,
+  interactive,
+}: {
+  el: SocialLinksElement;
+  theme: SiteTheme;
+  variant: RenderVariant;
+  interactive: boolean;
+}) {
+  const size = el.style.size ?? 40;
+  const color = el.style.color ?? theme.palette.text;
+  const iconPx = variant === 'canvas' ? cqw(size * 0.55) : `${Math.round(size * 0.55)}px`;
+  const boxPx = variant === 'canvas' ? cqw(size) : `${size}px`;
+
+  const wrap: CSSProperties = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: el.style.direction === 'column' ? 'column' : 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: variant === 'canvas' ? cqw(14) : '14px',
+  };
+
+  const itemStyle: CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: boxPx,
+    height: boxPx,
+    color,
+    border: `1px solid ${color}44`,
+    borderRadius: '50%',
+    textDecoration: 'none',
+  };
+
+  return (
+    <div style={wrap}>
+      {el.links.map((link, i) => {
+        const meta = SNS_META[link.kind] ?? SNS_META.custom;
+        const Icon = meta.Icon;
+        const label = link.label || meta.label;
+        // https 강제 재검증 (zod와 별개의 렌더 방어선)
+        const href = interactive && link.url && isHttpsUrl(link.url) ? link.url : undefined;
+        const inner = <Icon style={{ width: iconPx, height: iconPx }} aria-hidden />;
+        return href ? (
+          <a key={i} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} style={itemStyle}>
+            {inner}
+          </a>
+        ) : (
+          <span key={i} aria-label={label} title={label} style={{ ...itemStyle, opacity: link.url ? 1 : 0.4 }}>
+            {inner}
+          </span>
+        );
+      })}
     </div>
   );
 }

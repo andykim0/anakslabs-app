@@ -3,10 +3,11 @@
  * 산출 SiteConfig/DesignCandidate는 계약 타입과 필드 단위로 정확히 일치해야 한다
  * (API가 zod로 검증 — 여분 필드 금지).
  */
-import type { AiService } from '../types';
+import type { AiService, SuggestSectionContext } from '../types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { buildCandidateBlueprints } from '../design-candidates';
+import { mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { getMockStore } from './store';
 
@@ -74,17 +75,6 @@ function pickCopyPool(hint: string): string[] {
   return DEFAULT_COPY_LINES;
 }
 
-/** [v3 Phase 2] 커스텀 섹션 이름/설명 → known SectionType 결정적 매핑 (mock·실모드 폴백 공용 규칙) */
-function mapCustomSectionType(text: string): SectionType {
-  if (/후기|리뷰/.test(text)) return 'testimonials';
-  if (/지도|위치|오시는/.test(text)) return 'contact';
-  if (/가격|요금/.test(text)) return 'pricing';
-  if (/팀|직원|강사/.test(text)) return 'team';
-  if (/실적|사례|프로젝트/.test(text)) return 'cases';
-  if (/질문|안내/.test(text)) return 'faq';
-  return 'custom';
-}
-
 export class MockAiService implements AiService {
   async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
     await simulateLatency(1300);
@@ -140,9 +130,10 @@ export class MockAiService implements AiService {
   async suggestCustomSection(input: {
     name: string;
     description?: string;
-    survey: SurveyInput;
+    context: SuggestSectionContext;
   }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
     await simulateLatency(500);
+    void input.context; // mock은 결정적 키워드 매핑만 사용 (context는 실모드 Claude 프롬프트용)
     const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
     return {
       mappedType,

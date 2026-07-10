@@ -311,12 +311,11 @@ export function SurveyStep({
     try {
       const res = await suggestSection({
         name,
-        survey: {
+        context: {
           businessName: watch('businessName') ?? '',
           industry: watch('industry') ?? '',
           purpose: selectedPurpose?.label ?? '',
-          tone: watch('tone') ?? '',
-          colorPreference: watch('colorPreference') ?? '',
+          tone: watch('tone') || undefined,
         },
       });
       // 중복 방지: 같은 type + (variant 없음) 이 이미 있으면 그 행 하이라이트

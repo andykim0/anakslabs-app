@@ -3,7 +3,7 @@
  * 계약 타입(@/lib/types/site, @/lib/types/domain)과 1:1 정합 유지 — 계약 변경 시 여기도 갱신.
  */
 import { z } from 'zod';
-import { isSafeHref, isSafeMediaSrc } from '@/lib/safe-url';
+import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -137,14 +137,19 @@ const videoElementSchema = z.object({
 // [v3 Phase 0.1] 부가기능 요소 3종
 const snsKindSchema = z.enum(['instagram', 'kakao_channel', 'naver_blog', 'youtube', 'x', 'custom']);
 
-/** 지도 embed는 허용 도메인 화이트리스트만 (저장형 XSS 방어 — Phase 3.3에서 safe-url로 중앙화) */
-const MAP_EMBED_HOSTS = ['map.naver.com', 'map.kakao.com', 'www.google.com/maps'];
+/**
+ * 지도 embed URL — safe-url의 화이트리스트(hostname 정확 일치)로 검증.
+ * 에디터에서 URL 입력 전 상태를 위해 빈 문자열 허용(렌더러가 플레이스홀더 표시).
+ */
 const mapEmbedUrlSchema = z
   .string()
   .refine(
-    (u) => /^https:\/\//i.test(u) && MAP_EMBED_HOSTS.some((h) => u.toLowerCase().includes(h)),
-    '허용된 지도(네이버/카카오/구글) embed URL만 사용할 수 있습니다.',
+    (u) => u === '' || isSafeMapEmbedUrl(u),
+    '네이버/카카오/구글 지도 embed URL만 사용할 수 있습니다. (map.naver.com · map.kakao.com · www.google.com/maps/embed)',
   );
+
+/** SNS 링크 — https 강제 */
+const snsUrlSchema = z.string().refine(isHttpsUrl, 'SNS 링크는 https:// 주소여야 합니다.');
 
 const formElementSchema = z.object({
   ...elementBaseShape,
@@ -170,7 +175,14 @@ const socialLinksElementSchema = z.object({
   ...elementBaseShape,
   kind: z.literal('socialLinks'),
   links: z
-    .array(z.object({ kind: snsKindSchema, url: safeHrefSchema, label: z.string().optional() }))
+    .array(
+      z.object({
+        // 에디터에서 URL 입력 전 상태 허용(렌더러가 빈 링크는 비활성 렌더)
+        kind: snsKindSchema,
+        url: z.union([z.literal(''), snsUrlSchema]),
+        label: z.string().max(30).optional(),
+      }),
+    )
     .min(1),
   style: z.object({
     direction: z.enum(['row', 'column']),
@@ -305,6 +317,38 @@ export const surveySchema = z.object({
   providedContent: z.string().max(5000).optional(),
   reservationMode: z.enum(['external_link', 'cta']).optional(),
   reservationUrl: safeHrefSchema.optional(),
+});
+
+/** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */
+export const extraFeatureSelectionSchema = z.object({
+  contactForm: z.object({ targetSection: sectionTypeSchema }).optional(),
+  mapEmbed: z
+    .object({
+      embedUrl: z
+        .string()
+        .refine(isSafeMapEmbedUrl, '네이버/카카오/구글 지도 embed URL만 사용할 수 있습니다.'),
+      targetSection: sectionTypeSchema,
+    })
+    .optional(),
+  snsLinks: z
+    .array(
+      z.object({
+        kind: snsKindSchema,
+        url: z.string().refine(isHttpsUrl, 'SNS 링크는 https:// 주소여야 합니다.'),
+        label: z.string().max(30).optional(),
+      }),
+    )
+    .min(1)
+    .max(8)
+    .optional(),
+});
+
+/** [v3 Phase 3] 부가기능 표시 옵션 (계약 밖 프레젠테이션 선택 — API 계층 전용) */
+export const extrasOptionsSchema = z.object({
+  /** SNS: 묶음 바(socialLinks 요소) vs 개별 버튼(ButtonElement) */
+  snsStyle: z.enum(['bar', 'buttons']).optional(),
+  /** 문의 폼에 받을 필드 */
+  formFields: z.array(z.enum(['name', 'phone', 'email', 'message'])).min(1).optional(),
 });
 
 export const designCandidateSchema = z.object({

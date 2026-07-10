@@ -70,7 +70,7 @@ export default async function TenantSitePage({ params }: Props) {
 
   return (
     <>
-      <SiteRenderer config={site.siteConfig} mode="auto" />
+      <SiteRenderer config={site.siteConfig} mode="auto" siteId={site.id} />
       {businessInfo ? <LegalFooter info={businessInfo} theme={site.siteConfig.theme} /> : null}
     </>
   );

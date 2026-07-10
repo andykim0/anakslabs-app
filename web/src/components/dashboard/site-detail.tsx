@@ -12,6 +12,7 @@ import {
   Download,
   ExternalLink,
   Globe,
+  Inbox,
   Monitor,
   Package,
   PencilRuler,
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react';
 import type { Site } from '@/lib/types/domain';
 import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
-import { ApiError, createExport, getSite, listEditRequests, publishSite } from './api';
+import { ApiError, createExport, getSite, listEditRequests, listFormSubmissions, publishSite } from './api';
 import { DomainSection } from './domain-connect';
 import { SitePreview } from './site-preview';
 import { useToast } from './toast';
@@ -185,6 +186,71 @@ function BackupCard({ site }: { site: Site }) {
         </div>
       </div>
     </Card>
+  );
+}
+
+// ---------- [v3 Phase 3] 문의함 ----------
+
+const SUBMISSION_FIELD_LABELS: Record<string, string> = {
+  name: '이름',
+  phone: '연락처',
+  email: '이메일',
+  message: '문의 내용',
+};
+
+function FormInbox({ siteId }: { siteId: string }) {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ['form-submissions', siteId],
+    queryFn: () => listFormSubmissions(siteId),
+  });
+
+  return (
+    <section className="mt-8">
+      <div className="mb-3 flex items-center gap-2">
+        <Inbox className="h-4 w-4 text-neutral-400" />
+        <h2 className="text-sm font-semibold text-neutral-300">문의함</h2>
+        {data && data.length > 0 ? (
+          <span className="rounded-full bg-[#2a2117] px-2 py-0.5 text-[11px] font-medium text-[#d9b878]">
+            {data.length}
+          </span>
+        ) : null}
+      </div>
+      {isPending ? (
+        <Skeleton className="h-16" />
+      ) : isError ? (
+        <ErrorState message="문의함을 불러오지 못했습니다." onRetry={() => refetch()} />
+      ) : data.length === 0 ? (
+        <EmptyState
+          title="아직 접수된 문의가 없습니다"
+          description="사이트에 문의 폼을 넣으면 방문자의 문의가 이곳에 쌓여요."
+        />
+      ) : (
+        <Card className="p-0">
+          <ul className="divide-y divide-neutral-800">
+            {data.map((sub) => (
+              <li key={sub.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-sm">
+                    {(['name', 'phone', 'email'] as const)
+                      .filter((k) => sub.payload[k])
+                      .map((k) => (
+                        <span key={k} className="text-neutral-200">
+                          <span className="mr-1 text-[11px] text-neutral-500">{SUBMISSION_FIELD_LABELS[k]}</span>
+                          {sub.payload[k]}
+                        </span>
+                      ))}
+                  </div>
+                  <span className="text-[11px] text-neutral-600">{formatDateTime(sub.createdAt)}</span>
+                </div>
+                {sub.payload.message ? (
+                  <p className="mt-1 text-xs leading-5 whitespace-pre-wrap text-neutral-400">{sub.payload.message}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+    </section>
   );
 }
 
@@ -371,6 +437,8 @@ export function SiteDetail({ siteId }: { siteId: string }) {
       {isPublished ? <BackupCard site={site} /> : null}
 
       <DomainSection site={site} />
+
+      <FormInbox siteId={siteId} />
 
       <EditHistory siteId={siteId} />
     </div>
