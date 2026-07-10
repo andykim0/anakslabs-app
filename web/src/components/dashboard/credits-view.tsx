@@ -5,10 +5,12 @@
  * 잔액 + 만료 임박 안내 · 팩 구매 · 편집 요청 제출 · 원장 테이블.
  * 원장(credit_ledger)이 잔액의 원본이므로 화면도 원장을 그대로 보여준다.
  */
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Clock3, Coins, ShoppingCart } from 'lucide-react';
 import type { CreditLedgerEntry, Tier } from '@/lib/types/domain';
-import { CREDIT_PACKS } from '@/lib/credits/constants';
+import { CREDIT_PACKS, CREDIT_PURCHASE_COOLING_OFF_DAYS } from '@/lib/credits/constants';
+import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
 import { getCredits, purchaseCreditPack } from './api';
 import { EditRequestForm } from './edit-request-form';
 import { useToast } from './toast';
@@ -78,6 +80,8 @@ function BalanceCard() {
 function PackGrid() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  // [§8] 결제 직전 동의 — 미체크 시 결제 진행 불가
+  const [consented, setConsented] = useState(false);
 
   const mutation = useMutation({
     mutationFn: purchaseCreditPack,
@@ -122,7 +126,7 @@ function PackGrid() {
                 className="mt-4"
                 variant={recommended ? 'primary' : 'secondary'}
                 loading={mutation.isPending && mutation.variables === pack.credits}
-                disabled={mutation.isPending}
+                disabled={mutation.isPending || !consented}
                 onClick={() => mutation.mutate(pack.credits)}
               >
                 <ShoppingCart className="h-4 w-4" />
@@ -132,8 +136,20 @@ function PackGrid() {
           );
         })}
       </div>
+      <label className="mt-4 flex items-start gap-2.5 rounded-lg border border-neutral-800 bg-neutral-900/40 px-3.5 py-3 text-[11px] leading-5 text-neutral-400">
+        <input
+          type="checkbox"
+          checked={consented}
+          onChange={(e) => setConsented(e.target.checked)}
+          className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#c8a96a]"
+        />
+        <span>
+          결제 전 안내에 동의합니다. 구매 크레딧은 구매 후 {CREDIT_PURCHASE_COOLING_OFF_DAYS}일 이내 미사용 시
+          청약철회(전액 환불)가 가능하며 이후 365일 후 만료됩니다. {DYNAMIC_FEATURE_NOTICE}
+        </span>
+      </label>
       <p className="mt-2 text-[11px] text-neutral-600">
-        구매 크레딧은 365일 후 만료됩니다. 텍스트 1 · 이미지 1 · 영상 3(Premium) · 구조 변경 2개 기준.
+        편집 크레딧 소모: 텍스트 1 · 이미지 1 · 영상 3(Premium) · 구조 변경 2개 기준.
       </p>
     </section>
   );

@@ -12,7 +12,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { CreditReason, EditType } from '@/lib/types/domain';
-import { CREDIT_COSTS } from '@/lib/credits/constants';
+import { CREDIT_COSTS, FREE_INITIAL_REVISION_DAYS, QA_AUTOMATABLE_TYPES } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
@@ -60,31 +60,57 @@ export const POST = withApiHandler(async (request) => {
     );
   }
 
-  const { credits, editRequests, ai } = getDataServices();
+  const { credits, editRequests, ai, qa } = getDataServices();
+
+  // [§2] QA 자동화: 유형별 규칙이 enabled면 무수정 자동 승인(applied 직행). video는 항상 제외.
+  const qaRule = QA_AUTOMATABLE_TYPES.includes(type) ? await qa.getRule(type) : null;
+  const autoApprove = !!qaRule?.enabled;
+
+  // [§3] 최초 발행 후 7일 무료 수정권 1회 판정:
+  //  ① 이 사이트의 편집 요청이 0건  ② published_at 존재 && now < +7일  ③ video 아님(원가 사유)
+  //  → 크레딧 차감·원장 기록 없이 처리 (isInitialRevision=true).
+  const now = Date.now();
+  const publishedAtMs = site.publishedAt ? new Date(site.publishedAt).getTime() : null;
+  const withinFreeWindow =
+    publishedAtMs !== null && now < publishedAtMs + FREE_INITIAL_REVISION_DAYS * 86_400_000;
+  // rejected(AI 실패 등)는 카운트 제외 — 실패한 무료 수정권은 소진되지 않는다(재시도 허용).
+  const priorForSite = (await editRequests.listByClient(client.id)).filter(
+    (er) => er.siteId === siteId && er.status !== 'rejected',
+  );
+  const isInitialRevision = type !== 'video' && withinFreeWindow && priorForSite.length === 0;
 
   const editRequest = await editRequests.create({
     clientId: client.id,
     siteId,
     type,
-    creditCost,
+    creditCost: isInitialRevision ? 0 : creditCost,
     requestedContent,
+    isInitialRevision,
+    autoApproved: autoApprove,
   });
 
-  // 원자적 차감 — 부족 시 어떤 원장 기록도 남지 않는다 (서비스 계약)
-  const consumed = await credits.consume({
-    clientId: client.id,
-    amount: creditCost,
-    reason: EDIT_REASONS[type],
-    referenceId: editRequest.id,
-  });
-  if (!consumed.ok) {
-    await editRequests.update(editRequest.id, { status: 'rejected' });
-    return apiError(
-      409,
-      'INSUFFICIENT_CREDITS',
-      `크레딧이 부족합니다. (필요 ${creditCost}개 / 보유 ${consumed.balance}개)`,
-      { balance: consumed.balance, required: creditCost },
-    );
+  let balance: number;
+  if (isInitialRevision) {
+    // 무료 — 원장 미기록(실변동 없음, 불변식 유지)
+    balance = (await credits.getBalance(client.id)).balance;
+  } else {
+    // 원자적 차감 — 부족 시 어떤 원장 기록도 남지 않는다 (서비스 계약)
+    const consumed = await credits.consume({
+      clientId: client.id,
+      amount: creditCost,
+      reason: EDIT_REASONS[type],
+      referenceId: editRequest.id,
+    });
+    if (!consumed.ok) {
+      await editRequests.update(editRequest.id, { status: 'rejected' });
+      return apiError(
+        409,
+        'INSUFFICIENT_CREDITS',
+        `크레딧이 부족합니다. (필요 ${creditCost}개 / 보유 ${consumed.balance}개)`,
+        { balance: consumed.balance, required: creditCost },
+      );
+    }
+    balance = consumed.newBalance;
   }
 
   await editRequests.update(editRequest.id, { status: 'ai_processing' });
@@ -111,21 +137,37 @@ export const POST = withApiHandler(async (request) => {
     }
   } catch (err) {
     console.error('[edit-requests] AI 생성 실패:', err);
-    // 산출물 없이 과금되지 않도록 환불 후 반려 처리
-    await credits.refund({ clientId: client.id, referenceId: editRequest.id });
+    // 산출물 없이 과금되지 않도록 환불(무료 수정권은 차감이 없어 no-op) 후 반려 처리
+    if (!isInitialRevision) {
+      await credits.refund({ clientId: client.id, referenceId: editRequest.id });
+    }
     await editRequests.update(editRequest.id, { status: 'rejected' });
     return apiError(
       502,
       'AI_GENERATION_FAILED',
-      'AI 생성에 실패했습니다. 사용된 크레딧은 환불되었습니다. 잠시 후 다시 시도해 주세요.',
+      isInitialRevision
+        ? 'AI 생성에 실패했습니다. 무료 수정권은 소진되지 않았습니다. 잠시 후 다시 시도해 주세요.'
+        : 'AI 생성에 실패했습니다. 사용된 크레딧은 환불되었습니다. 잠시 후 다시 시도해 주세요.',
     );
   }
 
-  await editRequests.update(editRequest.id, { aiOutput, status: 'qa_review' });
+  if (autoApprove) {
+    // [§2] 자동 승인 — QA 큐를 건너 applied 직행. sampleAuditRate 확률로 감사 플래그(qa_note='audit').
+    const audit = Math.random() < (qaRule?.sampleAuditRate ?? 0);
+    await editRequests.update(editRequest.id, {
+      aiOutput,
+      status: 'applied',
+      appliedAt: new Date().toISOString(),
+      reviewedAt: new Date().toISOString(),
+      qaNote: audit ? 'audit' : null,
+    });
+  } else {
+    await editRequests.update(editRequest.id, { aiOutput, status: 'qa_review' });
+  }
   const updated = await editRequests.getById(editRequest.id);
 
   return NextResponse.json(
-    { editRequest: updated ?? editRequest, balance: consumed.newBalance },
+    { editRequest: updated ?? editRequest, balance, isInitialRevision, autoApproved: autoApprove },
     { status: 201 },
   );
 });

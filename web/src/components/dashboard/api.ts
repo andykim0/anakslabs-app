@@ -23,10 +23,12 @@ import type {
   DesignCandidate,
   EditRequest,
   EditType,
+  ExtraFeatureSelection,
   Payment,
   Site,
   SurveyInput,
 } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
 
 // ---------- 에러 ----------
 
@@ -156,7 +158,46 @@ export interface PublishResult {
 }
 
 export async function publishSite(siteId: string): Promise<PublishResult> {
-  return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`);
+  // [v3 Phase 4] 발행 확인 모달을 거친 뒤에만 호출 — 서버가 이 필드를 요구(400)
+  return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
+    businessInfoConfirmed: true,
+  });
+}
+
+// ---------- 정적 HTML 백업 (§5) ----------
+
+export interface ExportStatusResult {
+  status: 'none' | 'processing' | 'ready' | 'failed';
+  downloadUrl: string | null;
+  requestedAt?: string | null;
+  warnings?: string[];
+}
+
+/** 백업 생성 (동기 — 완료 후 다운로드 URL 반환) */
+export async function createExport(siteId: string): Promise<ExportStatusResult> {
+  return post<ExportStatusResult>(`/api/sites/${encodeURIComponent(siteId)}/export`);
+}
+
+/** 백업 상태 조회 */
+export async function getExport(siteId: string): Promise<ExportStatusResult> {
+  return request<ExportStatusResult>(`/api/sites/${encodeURIComponent(siteId)}/export`);
+}
+
+// ---------- 문의함 (§Phase3) ----------
+
+export interface FormSubmissionDto {
+  id: string;
+  siteId: string;
+  payload: Record<string, string>;
+  createdAt: string;
+}
+
+/** [v3 Phase 3] 사이트 문의함 목록 (소유자 전용) */
+export async function listFormSubmissions(siteId: string): Promise<FormSubmissionDto[]> {
+  const data = await request<{ submissions: FormSubmissionDto[] }>(
+    `/api/sites/${encodeURIComponent(siteId)}/forms`,
+  );
+  return data.submissions ?? [];
 }
 
 // ---------- 크레딧 ----------
@@ -202,6 +243,8 @@ export async function listEditRequests(siteId?: string): Promise<EditRequest[]> 
 export interface CreateEditRequestResult {
   editRequest: EditRequest;
   balance: number;
+  /** [§3] 최초 발행 후 7일 무료 수정권으로 처리됨 (크레딧 미차감) */
+  isInitialRevision?: boolean;
 }
 
 export async function createEditRequest(input: {
@@ -219,6 +262,38 @@ export async function createEditRequest(input: {
 export async function listPayments(): Promise<Payment[]> {
   const data = await request<{ payments: Payment[] }>('/api/payments');
   return data.payments ?? [];
+}
+
+// ---------- 업로드 (§7) ----------
+
+/** 로고/이미지 업로드 (multipart) → 저장 URL. SVG는 서버에서 sanitize됨. */
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  let res: Response;
+  try {
+    res = await fetch('/api/uploads', { method: 'POST', body: form });
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.');
+  }
+  let body: unknown = null;
+  try {
+    body = await res.json();
+  } catch {
+    // 빈 응답 허용
+  }
+  if (!res.ok) {
+    const err =
+      body && typeof body === 'object' && 'error' in body
+        ? ((body as { error: Record<string, unknown> }).error ?? {})
+        : {};
+    const code = typeof err.code === 'string' ? err.code : 'UPLOAD_FAILED';
+    const message = typeof err.message === 'string' ? err.message : '업로드에 실패했습니다.';
+    throw new ApiError(res.status, code, message);
+  }
+  const url = (body as { url?: string }).url;
+  if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
+  return url;
 }
 
 // ---------- 커스텀 도메인 ----------
@@ -246,6 +321,18 @@ export async function getDomainStatus(siteId: string): Promise<CustomDomainStatu
 
 // ---------- 온보딩 ----------
 
+/** [v3 Phase 2] 커스텀 섹션 요청 → 섹션 계획 항목 (mock 결정적 / 실모드 Claude) */
+export async function suggestSection(input: {
+  name: string;
+  description?: string;
+  context: { businessName: string; industry: string; purpose: string; tone?: string };
+}): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+  return post<{ mappedType: SectionType; name: string; copySeed: string }>(
+    '/api/onboarding/suggest-section',
+    input,
+  );
+}
+
 export async function generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
   const data = await post<{ candidates: DesignCandidate[] }>('/api/onboarding/candidates', {
     survey,
@@ -256,14 +343,42 @@ export async function generateCandidates(survey: SurveyInput): Promise<DesignCan
   return data.candidates;
 }
 
+/** [v3 Phase 3] 부가기능 표시 옵션 (SNS 묶음/버튼, 폼 필드) */
+export interface ExtrasOptionsDto {
+  snsStyle?: 'bar' | 'buttons';
+  formFields?: ('name' | 'phone' | 'email' | 'message')[];
+}
+
 export async function generateSite(input: {
   survey: SurveyInput;
   candidate: DesignCandidate;
-}): Promise<{ siteId: string; site?: Site }> {
+  extras?: ExtraFeatureSelection;
+  extrasOptions?: ExtrasOptionsDto;
+}): Promise<{ siteId: string; site?: Site; freeRegensUsed: number }> {
   const data = await post<{ siteId?: string; site?: Site }>('/api/onboarding/generate', input);
   const siteId = data.siteId ?? data.site?.id;
   if (!siteId) {
     throw new ApiError(500, 'INVALID_RESPONSE', '사이트 생성 응답을 해석하지 못했습니다.');
   }
-  return { siteId, site: data.site };
+  return { siteId, site: data.site, freeRegensUsed: 0 };
+}
+
+/** [§3] 온보딩 무료 재생성 (사이트당 1회) — 같은 사이트의 draft를 교체 */
+export async function regenerateSite(input: {
+  siteId: string;
+  survey: SurveyInput;
+  candidate: DesignCandidate;
+  extras?: ExtraFeatureSelection;
+  extrasOptions?: ExtrasOptionsDto;
+}): Promise<{ siteId: string; site?: Site; freeRegensUsed: number; freeRegenLimit: number }> {
+  const data = await post<{ siteId: string; site?: Site; freeRegensUsed?: number; freeRegenLimit?: number }>(
+    '/api/onboarding/regenerate',
+    input,
+  );
+  return {
+    siteId: data.siteId,
+    site: data.site,
+    freeRegensUsed: typeof data.freeRegensUsed === 'number' ? data.freeRegensUsed : 1,
+    freeRegenLimit: typeof data.freeRegenLimit === 'number' ? data.freeRegenLimit : 1,
+  };
 }

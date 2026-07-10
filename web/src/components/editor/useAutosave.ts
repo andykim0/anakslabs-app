@@ -33,14 +33,17 @@ export function useAutosave(siteId: string): AutosaveHandle {
           const state = useEditorStore.getState();
           if (!state.dirty) return true;
           const config = state.config;
+          const businessInfo = state.businessInfo;
           state.setSaveStatus('saving');
-          await saveDraftRequest(siteId, config);
-          if (useEditorStore.getState().config === config) {
+          // [v3 Phase 4] businessInfo는 undo 비추적 필드 — 저장 시 draftConfig로 합성
+          await saveDraftRequest(siteId, businessInfo ? { ...config, businessInfo } : config);
+          const after = useEditorStore.getState();
+          if (after.config === config && after.businessInfo === businessInfo) {
             // saved 처리(dirty=false, lastSavedAt 갱신)
-            useEditorStore.getState().setSaveStatus('saved');
+            after.setSaveStatus('saved');
             return true;
           }
-          // config가 그 사이 바뀜 → 루프 계속
+          // config/businessInfo가 그 사이 바뀜 → 루프 계속
         }
       } catch (err) {
         console.error('[editor] 자동저장 실패:', err);
@@ -61,16 +64,17 @@ export function useAutosave(siteId: string): AutosaveHandle {
   }, [siteId]);
 
   const config = useEditorStore((s) => s.config);
+  const businessInfo = useEditorStore((s) => s.businessInfo);
   const dirty = useEditorStore((s) => s.dirty);
 
-  // 디바운스 스케줄링
+  // 디바운스 스케줄링 (businessInfo 변경도 저장 트리거)
   useEffect(() => {
     if (!dirty) return;
     const t = setTimeout(() => {
       void runSave();
     }, DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [config, dirty, runSave]);
+  }, [config, businessInfo, dirty, runSave]);
 
   // 저장 안 된 변경이 있으면 이탈 경고
   useEffect(() => {

@@ -93,7 +93,9 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
       reset({ siteId: result.editRequest.siteId, type: 'text', requestedContent: '' });
       toast(
         'success',
-        `편집 요청이 접수됐어요 — 크레딧 ${result.editRequest.creditCost}개 차감 (잔액 ${result.balance}개)`,
+        result.isInitialRevision
+          ? `편집 요청이 접수됐어요 — 최초 무료 수정권으로 처리(크레딧 차감 없음, 잔액 ${result.balance}개)`
+          : `편집 요청이 접수됐어요 — 크레딧 ${result.editRequest.creditCost}개 차감 (잔액 ${result.balance}개)`,
       );
     },
     onError: (err, variables) => {
@@ -208,6 +210,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                 className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
               />
             </div>
+
+            <p className="rounded-lg bg-neutral-800/40 px-3 py-2 text-[11px] leading-5 text-neutral-500">
+              최초 발행 후 7일 이내 첫 편집 1건은 무료입니다 (영상 제외). 무료 대상이면 제출 시 크레딧이
+              차감되지 않습니다.
+            </p>
 
             <div className="flex items-center justify-between border-t border-neutral-800 pt-4">
               <span className="inline-flex items-center gap-1.5 text-xs text-neutral-400">

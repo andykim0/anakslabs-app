@@ -13,6 +13,7 @@
  *  - 편집 요청 3건: applied(text) / qa_review(image) / rejected(image, 환불됨)
  */
 import type { Client, CreditLedgerEntry, EditRequest, Payment, Site } from '@/lib/types/domain';
+import { QA_AUTOMATION_DEFAULTS } from '@/lib/credits/constants';
 import { daysAgoIso, daysFromIso, type MockStore } from './store';
 import { HWARODAM_SITE_CONFIG } from './hwarodam';
 import { MINTWASH_DRAFT_CONFIG } from './mintwash';
@@ -50,6 +51,7 @@ export function buildSeed(): MockStore {
         tier: 'premium',
         status: 'active',
         createdAt: daysAgoIso(30),
+        // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동 → HWARODAM_SITE_CONFIG.businessInfo
       },
     ],
     [
@@ -62,6 +64,7 @@ export function buildSeed(): MockStore {
         tier: 'basic',
         status: 'active',
         createdAt: daysAgoIso(10),
+        // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동
       },
     ],
   ]);
@@ -315,6 +318,21 @@ export function buildSeed(): MockStore {
     paymentKeys,
     domainStates: new Map(),
     cfHostnameCount: 7, // 관리자 인프라 모니터 데모용
+    exportBlobs: new Map(),
+    qaRules: new Map(
+      (['text', 'image', 'video', 'structure'] as const).map((editType) => [
+        editType,
+        {
+          editType,
+          enabled: false, // 기본 OFF — 회귀 없음 (관리자 명시 토글로만 활성화)
+          approvalThreshold: QA_AUTOMATION_DEFAULTS.approvalThreshold,
+          minSamples: QA_AUTOMATION_DEFAULTS.minSamples,
+          sampleAuditRate: QA_AUTOMATION_DEFAULTS.sampleAuditRate,
+        },
+      ]),
+    ),
+    scans: new Map(),
+    formSubmissions: new Map(),
     counters: { id: 0, text: 0, image: 0 },
   };
 }

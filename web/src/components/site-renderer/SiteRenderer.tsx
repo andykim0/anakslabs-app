@@ -48,6 +48,7 @@ export function SiteRenderer({
   config,
   mode = 'auto',
   interactive = true,
+  siteId,
 }: {
   config: SiteConfig;
   mode?: SiteRendererMode;
@@ -57,6 +58,8 @@ export function SiteRenderer({
    * 앵커 중첩(하이드레이션 에러)을 막는다. 실서빙은 기본 true.
    */
   interactive?: boolean;
+  /** [v3 Phase 3] 문의 폼 제출 대상 사이트 — 실서빙(/s/[domain])에서만 전달 */
+  siteId?: string;
 }) {
   const { theme } = config;
   const sections = config.sections.filter((s) => !s.hidden);
@@ -90,14 +93,14 @@ export function SiteRenderer({
         {showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
             {sections.map((section, i) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} siteId={siteId} />
             ))}
           </div>
         )}
         {showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
             {sections.map((section, i) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} />
+              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} siteId={siteId} />
             ))}
           </div>
         )}

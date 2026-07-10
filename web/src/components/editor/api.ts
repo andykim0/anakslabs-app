@@ -92,7 +92,12 @@ export async function saveDraftRequest(
 }
 
 export async function publishSiteRequest(siteId: string): Promise<{ site: Site; url: string | null }> {
-  return request(`/api/sites/${encodeURIComponent(siteId)}/publish`, { method: 'POST' });
+  // [v3 Phase 4] 발행 다이얼로그 1단계(사업자 정보 확인)를 거쳤음을 서버에 명시 —
+  // 이 필드 없이 API를 직접 호출하면 400 (클라 우회 방지)
+  return request(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
+    method: 'POST',
+    body: JSON.stringify({ businessInfoConfirmed: true }),
+  });
 }
 
 // ---------- 편집 요청 (AI) ----------

@@ -1,18 +1,27 @@
 /**
  * POST /api/onboarding/generate — 선택된 후보 + 설문 → SiteConfig 초안 생성 → 사이트(draft) 생성.
- * body: { survey: SurveyInput, candidate: DesignCandidate } → { siteId }
+ * body: { survey, candidate, extras?, extrasOptions? } → { siteId }
+ * [v3 Phase 3] extras(문의 폼·지도·SNS)는 생성 직후 applyExtraFeatures로 대상 섹션에 주입.
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
+import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
-import { designCandidateSchema, surveySchema } from '../../_lib/schemas';
+import {
+  designCandidateSchema,
+  extraFeatureSelectionSchema,
+  extrasOptionsSchema,
+  surveySchema,
+} from '../../_lib/schemas';
 
 const bodySchema = z.object({
   survey: surveySchema,
   candidate: designCandidateSchema,
+  extras: extraFeatureSelectionSchema.optional(),
+  extrasOptions: extrasOptionsSchema.optional(),
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -26,7 +35,8 @@ export const POST = withApiHandler(async (request) => {
   const candidate: DesignCandidate = body.data.candidate;
 
   const { ai, sites } = getDataServices();
-  const draftConfig = await ai.generateSiteConfig(survey, candidate);
+  const generated = await ai.generateSiteConfig(survey, candidate);
+  const draftConfig = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   const site = await sites.create({
     clientId: client.id,
     name: survey.businessName,

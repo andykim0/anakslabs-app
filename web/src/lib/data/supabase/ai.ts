@@ -11,18 +11,18 @@
  *  - 영상: Veo 3.1 스텁 — 명확한 에러 (편집 요청 라우트가 502 + 자동 환불 처리)
  */
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
-import type { AiService } from '../types';
+import type { AiService, SuggestSectionContext } from '../types';
 import {
   buildCandidateBlueprints,
   matchBlueprintForCandidate,
-  resolveSectionPlan,
   type CandidateBlueprint,
 } from '../design-candidates';
+import { KNOWN_SECTION_TYPES, mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { uploadAiAsset } from './storage';
 
@@ -84,8 +84,10 @@ async function refineCandidateTexts(
 
   const prompt =
     `다음 설문과 디자인 후보 ${blueprints.length}안을 검토하고, 각 안의 label/description/heroImagePrompt 를 이 가게에 맞게 다듬어줘.\n\n` +
-    `[설문]\n상호: ${survey.businessName}\n업종: ${survey.industry}\n목적: ${survey.purpose}\n` +
-    `톤: ${survey.tone}\n선호 컬러: ${survey.colorPreference}\n추가 요청: ${survey.extraNotes ?? '없음'}\n\n` +
+    `[설문]\n상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n선호 컬러: ${survey.colorPreference}\n` +
+    `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    `추가 요청: ${survey.extraNotes ?? '없음'}\n\n` +
     `[디자인 후보]\n${briefLines}\n\n` +
     `[규칙]\n` +
     `- 세 안은 고객이 고를 서로 다른 '유효한 해석'이다. 어떤 안도 깎아내리거나 다른 안과 비교하지 마라 — ` +
@@ -155,10 +157,22 @@ async function generateSectionCopy(
   blueprint: CandidateBlueprint,
 ): Promise<SectionCopy | undefined> {
   const style = blueprint.brief.style;
+  const provided = survey.contentMode === 'provided' && survey.providedContent?.trim();
+  // [v3] 섹션 계획표(name+brief)를 프롬프트에 넣어 카피가 각 섹션의 의도를 반영하게 한다.
+  const planLines = survey.sectionPlan
+    .map((s) => `- ${s.name}${s.brief ? `: ${s.brief}` : ''}`)
+    .join('\n');
   const prompt =
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
-    `상호: ${survey.businessName}\n업종: ${survey.industry}\n목적: ${survey.purpose}\n` +
-    `톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    (planLines
+      ? `\n[이 사이트의 섹션 구성 — 각 섹션의 의도를 카피에 반영]\n${planLines}\n`
+      : '') +
+    (provided
+      ? `\n[고객 제공 원문 — 창작 금지, 아래 내용을 다듬어서만 사용하고 없는 사실을 지어내지 마라]\n${survey.providedContent!.trim().slice(0, 3000)}\n\n`
+      : '') +
     `선택된 디자인 방향: ${style.name} (무드: ${[...style.paletteMood, ...style.fontMood].join(', ')})\n` +
     `카피의 결이 이 디자인 방향과 어긋나지 않게 써줘.\n\n` +
     `반드시 아래 키만 가진 JSON 객체 하나만 출력:\n` +
@@ -245,13 +259,8 @@ export class SupabaseAiService implements AiService {
     const imagePool = generated.filter((url): url is string => url !== null);
     if (imagePool.length === 0) imagePool.push(candidate.heroImageUrl);
 
-    // 섹션 구성이 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
-    const effectiveSurvey: SurveyInput = {
-      ...survey,
-      sections: resolveSectionPlan(survey, blueprint),
-    };
-
-    return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
+    // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
+    return buildSiteConfigFromSurvey(survey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
       imagePool,
       copy,
@@ -280,4 +289,44 @@ export class SupabaseAiService implements AiService {
     // 미연동 — 명확한 에러를 던지면 편집 요청 라우트가 502 + 크레딧 자동 환불로 처리
     return generateVeoVideo(input);
   }
+
+  async suggestCustomSection(input: {
+    name: string;
+    description?: string;
+    context: SuggestSectionContext;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    // 실모드: Claude가 known 타입/custom 판정 + 방문자용 카피 방향 생성. 실패 시 결정적 폴백.
+    const fallback = () => ({
+      mappedType: mapCustomSectionType(`${input.name} ${input.description ?? ''}`),
+      name: input.name,
+      copySeed: input.description?.trim() || input.name,
+    });
+    try {
+      const raw = await generateClaudeText({
+        prompt:
+          `고객이 웹사이트에 추가하고 싶어하는 섹션 요청을 분석해줘.\n` +
+          `요청: "${input.name}"${input.description ? `\n설명: ${input.description}` : ''}\n` +
+          `사업장: ${input.context.businessName} (${input.context.industry}) · 목적: ${input.context.purpose}` +
+          `${input.context.tone ? ` · 톤: ${input.context.tone}` : ''}\n\n` +
+          `이 요청이 아래 표준 섹션 타입 중 하나로 표현 가능하면 그 타입을, 아니면 "custom"으로 판정하고, ` +
+          `이 섹션에 들어갈 카피 방향을 방문자용 한 문장으로 만들어줘(지시문 말고 실제 카피 톤).\n` +
+          `표준 타입: about(소개/스토리), features(특징/서비스), menu(메뉴/상품/커리큘럼), gallery(사진/작업), ` +
+          `testimonials(후기/리뷰), pricing(가격/요금), contact(연락처/오시는길), cta(행동유도), team(구성원/전문가), ` +
+          `cases(실적/사례/프로젝트), faq(자주 묻는 질문/안내).\n` +
+          `JSON 하나만 출력: {"mappedType":"...","copySeed":"방문자용 한 문장"}`,
+        system: '너는 웹사이트 정보구조 설계자다. 반드시 요청된 JSON 하나만 출력한다 — 설명·코드펜스 금지.',
+        maxTokens: 300,
+      });
+      const parsed = parseJsonObject(raw);
+      const mt = cleanString(parsed?.mappedType, 20);
+      const seed = cleanString(parsed?.copySeed, 300);
+      if (mt && KNOWN_SECTION_TYPES.includes(mt as SectionType)) {
+        return { mappedType: mt as SectionType, name: input.name, copySeed: seed || fallback().copySeed };
+      }
+    } catch (err) {
+      console.warn('[ai] suggestCustomSection Claude 실패 — 결정적 폴백:', err);
+    }
+    return fallback();
+  }
 }
+

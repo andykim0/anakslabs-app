@@ -18,6 +18,7 @@ import { SectionListPanel } from './SectionListPanel';
 import { CanvasStage } from './CanvasStage';
 import { Inspector } from './Inspector';
 import { AiPanel } from './AiPanel';
+import { PrePublishDialog } from './PrePublishDialog';
 import { PublishDialog, type PublishResult } from './PublishDialog';
 import { useAutosave } from './useAutosave';
 import { useEditorHotkeys } from './useEditorHotkeys';
@@ -58,8 +59,17 @@ export function EditorShell({ siteId, siteName, initialConfig }: EditorShellProp
 
   const [publishing, setPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
+  // [v3 Phase 4] 발행 전 2단계 확인 다이얼로그 (사업자 정보 확인 → 발행 확인)
+  const [prePublishOpen, setPrePublishOpen] = useState(false);
 
-  const handlePublish = async () => {
+  // 툴바 발행 버튼 → 즉시 발행이 아니라 확인 다이얼로그부터
+  const handlePublishClick = () => {
+    if (publishing) return;
+    setPrePublishOpen(true);
+  };
+
+  // 다이얼로그 2단계 완료 → 실제 발행 (businessInfoConfirmed는 editor api가 body에 동봉)
+  const handlePublishConfirmed = async () => {
     if (publishing) return;
     setPublishing(true);
     try {
@@ -69,6 +79,7 @@ export function EditorShell({ siteId, siteName, initialConfig }: EditorShellProp
         return;
       }
       const result = await publishSiteRequest(siteId);
+      setPrePublishOpen(false);
       setPublishResult(result);
     } catch (err) {
       if (err instanceof EditorApiError) toast('error', err.message);
@@ -82,7 +93,7 @@ export function EditorShell({ siteId, siteName, initialConfig }: EditorShellProp
     <div className="fixed inset-0 z-50 flex flex-col bg-neutral-950 text-neutral-100">
       <Toolbar
         siteName={siteName}
-        onPublish={() => void handlePublish()}
+        onPublish={handlePublishClick}
         publishing={publishing}
         onExit={() => void autosave.flush()}
       />
@@ -107,6 +118,12 @@ export function EditorShell({ siteId, siteName, initialConfig }: EditorShellProp
         </aside>
       </div>
 
+      <PrePublishDialog
+        open={prePublishOpen}
+        publishing={publishing}
+        onClose={() => setPrePublishOpen(false)}
+        onConfirmed={() => void handlePublishConfirmed()}
+      />
       <PublishDialog result={publishResult} onClose={() => setPublishResult(null)} />
     </div>
   );

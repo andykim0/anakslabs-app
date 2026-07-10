@@ -243,10 +243,10 @@ export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[
   ].join('|');
 
   const styles = pickDiverseStyles(rankStyles(text, seed), n);
+  // [v3] 신규 섹션 타입은 랜딩 패턴 데이터에 없으므로, findPattern 전에 유사 타입으로 축약한다.
+  const planTypes = survey.sectionPlan.map((i) => collapseForPattern(i.type));
   const pattern =
-    survey.sections && survey.sections.length > 0
-      ? findPattern(survey.sections)
-      : matchPatternByText(text);
+    planTypes.length > 0 ? findPattern(planTypes) : matchPatternByText(text);
 
   // 안별 팔레트·폰트 선택 (중복 금지)
   const usedPalettes = new Set<string>();
@@ -319,6 +319,17 @@ export function buildThemeFromBrief(brief: DesignBrief): SiteTheme {
   };
 }
 
+/**
+ * [v3] 랜딩 패턴 데이터에 없는 신규 섹션 타입을 유사 타입으로 축약한다 (LANDING_PATTERNS 데이터는 무수정).
+ * team→about, cases→gallery, faq→features. 나머지는 그대로.
+ */
+export function collapseForPattern(type: SectionType): SectionType {
+  if (type === 'team') return 'about';
+  if (type === 'cases') return 'gallery';
+  if (type === 'faq') return 'features';
+  return type;
+}
+
 /** 설문의 섹션 구성과 가장 가까운 랜딩 패턴 (공유 섹션 가중 − 양쪽 잉여 감점, 동점이면 앞선 패턴) */
 export function findPattern(sections: SectionType[]): LandingPattern {
   if (!sections || sections.length === 0) return LANDING_PATTERNS[0];
@@ -336,6 +347,29 @@ export function findPattern(sections: SectionType[]): LandingPattern {
     }
   }
   return best;
+}
+
+/**
+ * [§7] 업종 텍스트 → 추천 섹션 (랜딩 패턴 keywords 매칭).
+ * 설문 UI에서 업종 입력 시 추천 섹션을 하이라이트하는 데 사용 (클라이언트 번들 가능).
+ * 매칭이 없으면 첫 패턴(기본형) 섹션을 반환.
+ */
+export function recommendSections(industry: string, purpose = ''): SectionType[] {
+  const q = `${industry ?? ''} ${purpose ?? ''}`.toLowerCase();
+  if (!q.trim()) return LANDING_PATTERNS[0].sections;
+  let best = LANDING_PATTERNS[0];
+  let bestScore = 0;
+  for (const p of LANDING_PATTERNS) {
+    let score = 0;
+    for (const kw of p.keywords) {
+      if (kw && q.includes(kw.toLowerCase())) score += 1;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = p;
+    }
+  }
+  return best.sections;
 }
 
 // ---------- 4. 데이터 무결성 검증 ----------

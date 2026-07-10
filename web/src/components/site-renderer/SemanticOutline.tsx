@@ -1,0 +1,94 @@
+/**
+ * [v3 Phase 7] 시맨틱 아웃라인 — 자유배치 캔버스(절대좌표 <p> 나열)만으로는
+ * 검색엔진·답변엔진·AI가 문서 구조(제목 계층·질문·목록)를 읽기 어렵다.
+ * 화면에는 보이지 않지만(스크린리더/크롤러는 읽는) 구조화된 개요를 함께 렌더한다:
+ *  - <h1> 사이트 제목 1개
+ *  - 섹션마다 <h2> + 본문 요약, menu는 <ul>, faq는 <h3>질문?</h3><p>답</p>
+ * 순수 서버 컴포넌트 — 서빙/Export 동일 출력. 기존 캔버스 렌더러는 건드리지 않는다.
+ */
+import type { Section, SiteConfig } from '@/lib/types/site';
+
+const SR_ONLY: React.CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
+
+function texts(section: Section): string[] {
+  return section.elements
+    .filter((el) => el.kind === 'text')
+    .slice()
+    .sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x)
+    .map((el) => (el.kind === 'text' ? el.text.trim() : ''))
+    .filter(Boolean);
+}
+
+function SectionOutline({ section }: { section: Section }) {
+  const body = texts(section);
+  // 섹션명 = h2 (첫 텍스트가 섹션명과 겹치면 중복 노출은 무방)
+  if (section.type === 'faq') {
+    const items: React.ReactNode[] = [];
+    for (let i = 0; i < body.length; i++) {
+      if (/[?？]\s*$/.test(body[i])) {
+        items.push(<h3 key={`q-${i}`}>{body[i]}</h3>);
+        if (body[i + 1] && !/[?？]\s*$/.test(body[i + 1])) {
+          items.push(<p key={`a-${i}`}>{body[i + 1]}</p>);
+          i++;
+        }
+      } else {
+        items.push(<p key={`p-${i}`}>{body[i]}</p>);
+      }
+    }
+    return (
+      <section aria-label={section.name}>
+        <h2>{section.name}</h2>
+        {items}
+      </section>
+    );
+  }
+
+  if (section.type === 'menu' && body.length > 0) {
+    return (
+      <section aria-label={section.name}>
+        <h2>{section.name}</h2>
+        <ul>
+          {body.map((t, i) => (
+            <li key={i}>{t}</li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+
+  return (
+    <section aria-label={section.name}>
+      <h2>{section.name}</h2>
+      {body.map((t, i) => (
+        <p key={i}>{t}</p>
+      ))}
+    </section>
+  );
+}
+
+export function SemanticOutline({ config }: { config: SiteConfig }) {
+  const info = config.businessInfo;
+  const title = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
+  // 숨김이 아닌 섹션만
+  const sections = config.sections.filter((s) => !s.hidden);
+
+  return (
+    <div style={SR_ONLY} aria-hidden={false}>
+      <h1>{title}</h1>
+      {config.meta.description ? <p>{config.meta.description}</p> : null}
+      {sections.map((s) => (
+        <SectionOutline key={s.id} section={s} />
+      ))}
+    </div>
+  );
+}

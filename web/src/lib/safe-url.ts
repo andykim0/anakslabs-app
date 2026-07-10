@@ -53,3 +53,38 @@ export function safeMediaSrc(url: string | undefined): string | undefined {
   if (url === undefined) return undefined;
   return isSafeMediaSrc(url) ? url : undefined;
 }
+
+/**
+ * [v3 Phase 3] 지도 embed URL 화이트리스트 — iframe src로 임의 도메인이 저장되면
+ * 피싱/클릭재킹 벡터가 되므로 지도 서비스 도메인만 허용한다.
+ * 저장 시점(zod)과 렌더 시점(MapContent) 양쪽에서 동일 규칙 검증.
+ * 주의: 부분 문자열 매칭이 아니라 URL 파싱 후 hostname 정확 일치(+구글은 /maps/embed 경로).
+ */
+export function isSafeMapEmbedUrl(url: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(url.trim());
+  } catch {
+    return false;
+  }
+  if (u.protocol !== 'https:') return false;
+  const host = u.hostname.toLowerCase();
+  if (host === 'map.naver.com' || host === 'map.kakao.com') return true;
+  if (host === 'www.google.com' && u.pathname.startsWith('/maps/embed')) return true;
+  return false;
+}
+
+/** 렌더 방어 — 화이트리스트 밖 지도 URL은 undefined(플레이스홀더 렌더) */
+export function safeMapEmbedUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  return isSafeMapEmbedUrl(url) ? url : undefined;
+}
+
+/** [v3 Phase 3] SNS 링크는 https 강제 (스킴 화이트리스트보다 좁게) */
+export function isHttpsUrl(url: string): boolean {
+  try {
+    return new URL(url.trim()).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}

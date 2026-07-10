@@ -9,9 +9,12 @@ import type {
   CustomDomainState,
   DnsRecordInstruction,
   EditRequest,
+  EditType,
   Payment,
+  QaAutomationRule,
   Site,
 } from '@/lib/types/domain';
+import type { FormSubmission, ScanResult } from '../types';
 import { buildSeed } from './seed';
 
 /** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
@@ -48,6 +51,14 @@ export interface MockStore {
   domainStates: Map<string, MockDomainState>;
   /** Cloudflare custom hostname 총수 (시드 7) */
   cfHostnameCount: number;
+  /** [§5] mock export zip 보관 — object path → { 버퍼, 다운로드 파일명 } */
+  exportBlobs: Map<string, { buffer: Buffer; filename: string }>;
+  /** [§2] QA 자동화 규칙 (유형별) */
+  qaRules: Map<EditType, QaAutomationRule>;
+  /** [v3 Phase 6] SEO/AEO/GEO 진단 스캔 — scanId → 결과 */
+  scans: Map<string, ScanResult>;
+  /** [v3 Phase 3] 테넌트 사이트 문의 폼 수신 — submissionId → 제출 */
+  formSubmissions: Map<string, FormSubmission>;
   counters: { id: number; text: number; image: number };
 }
 

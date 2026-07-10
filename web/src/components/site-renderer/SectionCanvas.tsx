@@ -14,9 +14,11 @@ interface SectionCanvasProps {
   isFirst?: boolean;
   /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
   interactive?: boolean;
+  /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
+  siteId?: string;
 }
 
-export function SectionCanvas({ section, theme, isFirst, interactive = true }: SectionCanvasProps) {
+export function SectionCanvas({ section, theme, isFirst, interactive = true, siteId }: SectionCanvasProps) {
   const bg = section.background;
   // z 오름차순 정렬 — zIndex와 DOM 순서를 일치시켜 페인트 순서 결정적으로
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -31,7 +33,8 @@ export function SectionCanvas({ section, theme, isFirst, interactive = true }: S
   };
 
   return (
-    <section data-section-type={section.type} style={sectionStyle}>
+    // id: 버튼 앵커(#sec-…) 타깃. auto 모드에서 stack과 중복되지 않도록 canvas에만 부여
+    <section id={section.id} data-section-type={section.type} aria-label={section.name} style={sectionStyle}>
       {bg.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -74,7 +77,7 @@ export function SectionCanvas({ section, theme, isFirst, interactive = true }: S
             transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
           }}
         >
-          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} />
+          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} />
         </div>
       ))}
     </section>

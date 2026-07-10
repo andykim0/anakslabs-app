@@ -182,6 +182,45 @@ export class MockCreditsService implements CreditsService {
     });
   }
 
+  /**
+   * [§3] 환불 시 특정 지급(referenceId)으로 생성된 lot의 미사용 잔여를
+   * admin_adjust 음수 원장으로 회수. 회수액 반환 (SQL admin_refund_payment와 동일 의미).
+   */
+  async clawbackGrant(input: {
+    clientId: string;
+    referenceId: string;
+    grantReason: CreditReason;
+  }): Promise<number> {
+    const store = getMockStore();
+    const grantEntries = store.ledger.filter(
+      (e) =>
+        e.clientId === input.clientId &&
+        e.referenceId === input.referenceId &&
+        e.amount > 0 &&
+        e.reason === input.grantReason,
+    );
+    let clawed = 0;
+    for (const g of grantEntries) {
+      const lot = store.lots.find((l) => l.entryId === g.id);
+      if (lot && lot.remaining > 0) {
+        clawed += lot.remaining;
+        lot.remaining = 0;
+      }
+    }
+    if (clawed > 0) {
+      store.ledger.push({
+        id: newId(store, 'led'),
+        clientId: input.clientId,
+        amount: -clawed,
+        reason: 'admin_adjust',
+        referenceId: input.referenceId,
+        expiresAt: null,
+        createdAt: nowIso(),
+      });
+    }
+    return clawed;
+  }
+
   async expireDue(now?: Date): Promise<number> {
     const store = getMockStore();
     const at = now ?? new Date();

@@ -5,6 +5,10 @@ import type { DataServices } from '../types';
 import { SupabaseAiService } from './ai';
 import { SupabaseCreditsService } from './credits';
 import { SupabaseDomainService } from './domains';
+import { SupabaseExportService } from './exports';
+import { SupabaseFormSubmissionsRepo } from './forms';
+import { SupabaseQaRulesService } from './qa';
+import { SupabaseScansRepo } from './scans';
 import {
   SupabaseClientsRepo,
   SupabaseEditRequestsRepo,
@@ -23,5 +27,9 @@ export function createSupabaseServices(): DataServices {
     payments: new SupabasePaymentsService(clients),
     domains: new SupabaseDomainService(sites),
     ai: new SupabaseAiService(),
+    exports: new SupabaseExportService(sites),
+    qa: new SupabaseQaRulesService(),
+    scans: new SupabaseScansRepo(),
+    formSubmissions: new SupabaseFormSubmissionsRepo(),
   };
 }

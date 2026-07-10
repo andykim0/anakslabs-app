@@ -40,7 +40,20 @@ export interface Frame {
   h: number;
 }
 
-export type ElementKind = 'text' | 'image' | 'button' | 'shape' | 'divider' | 'video';
+export type ElementKind =
+  | 'text'
+  | 'image'
+  | 'button'
+  | 'shape'
+  | 'divider'
+  | 'video'
+  // [v3 Phase 0.1] 부가기능 요소 3종
+  | 'form'
+  | 'map'
+  | 'socialLinks';
+
+/** [v3] SNS·채널 종류 — SocialLinksElement가 소비 (domain.ts에서 re-export) */
+export type SnsKind = 'instagram' | 'kakao_channel' | 'naver_blog' | 'youtube' | 'x' | 'custom';
 
 interface ElementBase {
   id: string;
@@ -132,13 +145,41 @@ export interface VideoElement extends ElementBase {
   };
 }
 
+/** [v3 Phase 0.1] 문의 폼 — 테넌트 사이트 수신 폼 (POST /api/forms/[siteId]) */
+export interface FormElement extends ElementBase {
+  kind: 'form';
+  formType: 'contact';
+  fields: ('name' | 'phone' | 'email' | 'message')[];
+  /** 기본 '문의 보내기' */
+  submitLabel: string;
+  style: { variant: 'card' | 'plain'; color?: string; borderRadius?: number };
+}
+
+/** [v3 Phase 0.1] 지도 임베드 — embedUrl은 화이트리스트 도메인만 (safe-url 확장) */
+export interface MapElement extends ElementBase {
+  kind: 'map';
+  /** 네이버/카카오/구글 지도 embed URL */
+  embedUrl: string;
+  style: { borderRadius?: number };
+}
+
+/** [v3 Phase 0.1] SNS·채널 링크 묶음 바 */
+export interface SocialLinksElement extends ElementBase {
+  kind: 'socialLinks';
+  links: { kind: SnsKind; url: string; label?: string }[];
+  style: { direction: 'row' | 'column'; size?: number; color?: string };
+}
+
 export type CanvasElement =
   | TextElement
   | ImageElement
   | ButtonElement
   | ShapeElement
   | DividerElement
-  | VideoElement;
+  | VideoElement
+  | FormElement
+  | MapElement
+  | SocialLinksElement;
 
 export type SectionType =
   | 'hero'
@@ -150,7 +191,11 @@ export type SectionType =
   | 'pricing'
   | 'contact'
   | 'cta'
-  | 'custom';
+  | 'custom'
+  // [v3 Phase 0.1] 구성원 소개 / 실적·사례 / FAQ (나머지 뉘앙스는 variant로 처리)
+  | 'team'
+  | 'cases'
+  | 'faq';
 
 export interface SectionBackground {
   color?: string;
@@ -182,11 +227,40 @@ export interface SiteMeta {
   ogImage?: string;
 }
 
+/**
+ * [v3 Phase 0.1] 사업자 정보 — 캔버스 요소가 아니라 사이트 레벨 구조화 데이터.
+ * 법적 표기는 자유배치로 지워지면 안 되고 JSON-LD(Phase 7) 원천으로도 재사용하므로
+ * 렌더러가 항상 맨 아래 고정 푸터로 렌더한다. 캔버스 undo/redo 대상 제외(에디터 별도 폼).
+ * (v2의 clients.business_info 및 domain.ts BusinessInfo는 이 계약으로 통일 — 사이트 단위)
+ *
+ * [v3 Phase 4 승인] isPersonal: 사업자가 아닌 개인 운영 사이트 — 상호/사업자번호/주소 생략.
+ * 사업자 경로(isPersonal !== true)의 필수 강제는 zod(businessInfoSchema superRefine)가 담당.
+ */
+export interface BusinessInfo {
+  /** 개인(비사업자) 운영 사이트 — 상호·사업자번호·주소 생략 가능 */
+  isPersonal?: boolean;
+  /** 상호 — 사업자면 필수(zod 강제) */
+  businessName?: string;
+  /** 대표자/운영자명 — 항상 필수 */
+  ownerName: string;
+  /** 사업자등록번호 (000-00-00000) — 사업자면 필수(zod 강제) */
+  businessNumber?: string;
+  /** 사업장 주소 — 사업자면 필수(zod 강제) */
+  address?: string;
+  /** 연락처 전화 — 항상 필수 */
+  phone: string;
+  email?: string;
+  /** 통신판매업 신고번호 (쇼핑몰 purpose일 때 노출) */
+  mailOrderNumber?: string;
+}
+
 export interface SiteConfig {
   version: 1;
   theme: SiteTheme;
   meta: SiteMeta;
   sections: Section[];
+  /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */
+  businessInfo?: BusinessInfo;
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */

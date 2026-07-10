@@ -13,6 +13,7 @@ import type {
   EditRequest,
   EditStatus,
   EditType,
+  ExportStatus,
   Payment,
   PaymentType,
   Site,
@@ -29,6 +30,7 @@ export interface ClientRow {
   tier: string;
   status: string;
   created_at: string;
+  cancel_requested_at?: string | null;
 }
 
 export function rowToClient(row: ClientRow): Client {
@@ -40,6 +42,7 @@ export function rowToClient(row: ClientRow): Client {
     tier: row.tier as Tier,
     status: row.status as ClientStatus,
     createdAt: row.created_at,
+    cancelRequestedAt: row.cancel_requested_at ?? null,
   };
 }
 
@@ -56,6 +59,10 @@ export interface SiteRow {
   draft_config: unknown;
   published_at: string | null;
   created_at: string;
+  free_regens_used?: number | null;
+  export_status?: string | null;
+  export_requested_at?: string | null;
+  export_url?: string | null;
 }
 
 export function rowToSite(row: SiteRow): Site {
@@ -72,6 +79,10 @@ export function rowToSite(row: SiteRow): Site {
     draftConfig: (row.draft_config as SiteConfig | null) ?? null,
     publishedAt: row.published_at,
     createdAt: row.created_at,
+    freeRegensUsed: row.free_regens_used ?? 0,
+    exportStatus: (row.export_status as ExportStatus | null | undefined) ?? 'none',
+    exportRequestedAt: row.export_requested_at ?? null,
+    exportUrl: row.export_url ?? null,
   };
 }
 
@@ -122,6 +133,10 @@ export interface EditRequestRow {
   ai_output: unknown;
   created_at: string;
   applied_at: string | null;
+  is_initial_revision?: boolean | null;
+  auto_approved?: boolean | null;
+  reviewed_at?: string | null;
+  qa_note?: string | null;
 }
 
 export function rowToEditRequest(row: EditRequestRow): EditRequest {
@@ -136,6 +151,10 @@ export function rowToEditRequest(row: EditRequestRow): EditRequest {
     aiOutput: row.ai_output ?? null,
     createdAt: row.created_at,
     appliedAt: row.applied_at,
+    isInitialRevision: row.is_initial_revision ?? false,
+    autoApproved: row.auto_approved ?? false,
+    reviewedAt: row.reviewed_at ?? null,
+    qaNote: row.qa_note ?? null,
   };
 }
 
@@ -147,6 +166,8 @@ export interface PaymentRow {
   credits_granted: number | string;
   provider_payment_key: string | null;
   created_at: string;
+  refunded_at?: string | null;
+  refund_amount?: number | string | null;
 }
 
 export function rowToPayment(row: PaymentRow): Payment {
@@ -158,5 +179,7 @@ export function rowToPayment(row: PaymentRow): Payment {
     creditsGranted: Number(row.credits_granted),
     providerPaymentKey: row.provider_payment_key,
     createdAt: row.created_at,
+    refundedAt: row.refunded_at ?? null,
+    refundAmount: row.refund_amount === null || row.refund_amount === undefined ? null : Number(row.refund_amount),
   };
 }

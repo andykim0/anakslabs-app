@@ -3,14 +3,11 @@
  * 산출 SiteConfig/DesignCandidate는 계약 타입과 필드 단위로 정확히 일치해야 한다
  * (API가 zod로 검증 — 여분 필드 금지).
  */
-import type { AiService } from '../types';
+import type { AiService, SuggestSectionContext } from '../types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
-import {
-  buildCandidateBlueprints,
-  matchBlueprintForCandidate,
-  resolveSectionPlan,
-} from '../design-candidates';
+import type { SectionType, SiteConfig } from '@/lib/types/site';
+import { buildCandidateBlueprints } from '../design-candidates';
+import { mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { getMockStore } from './store';
 
@@ -94,14 +91,9 @@ export class MockAiService implements AiService {
 
   async generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig> {
     await simulateLatency(1500);
-    // 설문의 sections 순서를 존중하되, 비어 있거나 온보딩 기본값이면 브리프의 랜딩 패턴으로 보강
-    // (한국어 카피는 템플릿의 톤 반영 기본값)
-    const blueprint = matchBlueprintForCandidate(survey, candidate);
-    const effectiveSurvey: SurveyInput = {
-      ...survey,
-      sections: resolveSectionPlan(survey, blueprint),
-    };
-    return buildSiteConfigFromSurvey(effectiveSurvey, candidate, {
+    // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
+    // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
+    return buildSiteConfigFromSurvey(survey, candidate, {
       heroImageUrl: candidate.heroImageUrl,
       imagePool: [...MOCK_IMAGE_POOL],
     });
@@ -133,5 +125,20 @@ export class MockAiService implements AiService {
   async generateVideo(_input: { prompt: string }): Promise<{ url: string; poster?: string }> {
     await simulateLatency(1800);
     return { url: '/mock/clip-ember.mp4', poster: '/mock/video-poster.svg' };
+  }
+
+  async suggestCustomSection(input: {
+    name: string;
+    description?: string;
+    context: SuggestSectionContext;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    await simulateLatency(500);
+    void input.context; // mock은 결정적 키워드 매핑만 사용 (context는 실모드 Claude 프롬프트용)
+    const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
+    return {
+      mappedType,
+      name: input.name,
+      copySeed: input.description?.trim() || input.name,
+    };
   }
 }

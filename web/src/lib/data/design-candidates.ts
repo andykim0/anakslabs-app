@@ -9,13 +9,19 @@
  *  - mock AiService: mockHeroUrl(정적 SVG)을 그대로 heroImageUrl 로 사용
  *  - supabase AiService: heroImagePrompt(또는 Claude가 다듬은 프롬프트)로 Gemini 히어로 생성
  */
-import type { CandidateStyle, DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import type { SectionType, SiteTheme } from '@/lib/types/site';
+import type {
+  CandidateStyle,
+  DesignCandidate,
+  SectionPlanItem,
+  SurveyInput,
+} from '@/lib/types/domain';
+import type { SiteTheme } from '@/lib/types/site';
 import {
   selectDesignBriefs,
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
+import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
 export interface CandidateBlueprint {
   id: string;
@@ -77,19 +83,30 @@ export function hexColorWords(colorPreference: string): string {
 }
 
 /**
- * 온보딩 설문 UI 의 기본 섹션 구성과 동일한지 검사.
- * (components/dashboard/onboarding/survey-step.tsx 의 DEFAULT_SECTIONS 와 정합 유지)
- * 비어 있거나 기본값 그대로면 사용자가 섹션을 고르지 않은 것으로 보고 랜딩 패턴으로 보강한다.
+ * [v3] 섹션 계획이 templateId 원본에서 손대지 않은 상태인지 검사.
+ * templateId 로 SITE_TEMPLATES 를 찾아 planFromTemplate 과 비교해,
+ * source 가 전부 'template' 이고 (type, name, variant, 순서)가 원본과 동일하면 true.
+ * true(미수정)일 때만 브리프의 랜딩 패턴으로 보강한다 (사용자가 직접 고른 구성은 존중).
+ * 비어 있으면 true(텍스트 기반 패턴 폴백), templateId 를 못 찾으면 false(계획 존중).
  */
-const DEFAULT_SURVEY_SECTIONS: SectionType[] = ['hero', 'about', 'menu', 'gallery', 'contact'];
-
-export function isDefaultSectionSelection(sections: SectionType[] | undefined): boolean {
-  if (!sections || sections.length === 0) return true;
-  if (sections.length !== DEFAULT_SURVEY_SECTIONS.length) return false;
-  return DEFAULT_SURVEY_SECTIONS.every((s, i) => sections[i] === s);
+export function isTemplateUntouched(plan: SectionPlanItem[], templateId: string): boolean {
+  if (!plan || plan.length === 0) return true;
+  const tpl = SITE_TEMPLATES.find((t) => t.id === templateId);
+  if (!tpl) return false;
+  const original = planFromTemplate(tpl);
+  if (plan.length !== original.length) return false;
+  return plan.every((item, i) => {
+    const o = original[i];
+    return (
+      item.source === 'template' &&
+      o.type === item.type &&
+      o.name === item.name &&
+      (o.variant ?? undefined) === (item.variant ?? undefined)
+    );
+  });
 }
 
-/** 브리프 선택용 설문 전처리 — hex→색이름 보강 + 기본 섹션이면 텍스트 기반 패턴 폴백 유도 */
+/** 브리프 선택용 설문 전처리 — hex→색이름 보강 + 템플릿 미수정이면 텍스트 기반 패턴 폴백 유도 */
 function surveyForBriefs(survey: SurveyInput): SurveyInput {
   const colorWords = hexColorWords(survey.colorPreference);
   return {
@@ -97,8 +114,10 @@ function surveyForBriefs(survey: SurveyInput): SurveyInput {
     colorPreference: colorWords
       ? `${survey.colorPreference} ${colorWords}`
       : survey.colorPreference,
-    // sections 를 비우면 selectDesignBriefs 가 설문 텍스트 키워드로 패턴을 고른다
-    sections: isDefaultSectionSelection(survey.sections) ? [] : survey.sections,
+    // sectionPlan 을 비우면 selectDesignBriefs 가 설문 텍스트 키워드로 패턴을 고른다
+    sectionPlan: isTemplateUntouched(survey.sectionPlan, survey.templateId)
+      ? []
+      : survey.sectionPlan,
   };
 }
 
@@ -155,18 +174,4 @@ export function matchBlueprintForCandidate(
     blueprints.find((bp) => bp.style === candidate.style) ??
     blueprints[0]
   );
-}
-
-/**
- * SiteConfig 생성에 쓸 섹션 계획.
- * 설문 섹션이 비어 있거나 온보딩 기본값 그대로면 브리프의 랜딩 패턴으로 보강하고,
- * 사용자가 직접 고른 구성이면 그대로 존중한다.
- */
-export function resolveSectionPlan(
-  survey: SurveyInput,
-  blueprint: CandidateBlueprint,
-): SectionType[] {
-  return isDefaultSectionSelection(survey.sections)
-    ? [...blueprint.brief.pattern.sections]
-    : survey.sections;
 }

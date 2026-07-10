@@ -24,15 +24,20 @@ import type {
   ButtonElement,
   CanvasElement,
   DividerElement,
+  FormElement,
   ImageElement,
+  MapElement,
   Section,
   ShapeElement,
   SiteTheme,
+  SnsKind,
+  SocialLinksElement,
   TextElement,
   VideoElement,
 } from '@/lib/types/site';
 import type { EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
+import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 import { findElementLocation, useEditorStore } from '@/stores/editor';
 import { cn } from '@/components/dashboard/ui';
 import { clampFrameToSection, MIN_H, MIN_W } from './snap';
@@ -167,6 +172,9 @@ function ElementInspector({
       {element.kind === 'shape' ? <ShapeFields el={element} /> : null}
       {element.kind === 'divider' ? <DividerFields el={element} /> : null}
       {element.kind === 'video' ? <VideoFields el={element} /> : null}
+      {element.kind === 'form' ? <FormFields el={element} /> : null}
+      {element.kind === 'map' ? <MapFields el={element} /> : null}
+      {element.kind === 'socialLinks' ? <SocialLinksFields el={element} /> : null}
 
       {/* 공통 속성 */}
       <FieldGroup title="위치 · 크기">
@@ -409,6 +417,160 @@ function VideoFields({ el }: { el: VideoElement }) {
       <ToggleField label="자동 재생" value={s.autoplay ?? false} onCommit={(v) => store().updateElementStyle(el.id, { autoplay: v })} />
       <ToggleField label="반복 재생" value={s.loop ?? true} onCommit={(v) => store().updateElementStyle(el.id, { loop: v })} />
       <ToggleField label="음소거" value={s.muted ?? true} onCommit={(v) => store().updateElementStyle(el.id, { muted: v })} />
+    </FieldGroup>
+  );
+}
+
+// ----- [v3 Phase 3] 문의 폼 -----
+
+const FORM_FIELD_OPTIONS: { value: FormElement['fields'][number]; label: string }[] = [
+  { value: 'name', label: '이름' },
+  { value: 'phone', label: '연락처' },
+  { value: 'email', label: '이메일' },
+  { value: 'message', label: '문의 내용' },
+];
+
+function FormFields({ el }: { el: FormElement }) {
+  const store = useEditorStore.getState;
+  const s = el.style;
+  const toggleField = (f: FormElement['fields'][number]) => {
+    const has = el.fields.includes(f);
+    const next = has ? el.fields.filter((x) => x !== f) : [...el.fields, f];
+    if (next.length === 0) return; // 최소 1개 유지 (zod min(1))
+    // 순서는 옵션 정의 순으로 정규화
+    const ordered = FORM_FIELD_OPTIONS.map((o) => o.value).filter((v) => next.includes(v));
+    store().updateElement(el.id, { fields: ordered });
+  };
+  return (
+    <FieldGroup title="문의 폼">
+      <div className="space-y-1.5">
+        <span className="block text-[11px] text-neutral-500">받을 필드 (최소 1개)</span>
+        {FORM_FIELD_OPTIONS.map((o) => (
+          <ToggleField
+            key={o.value}
+            label={o.label}
+            value={el.fields.includes(o.value)}
+            onCommit={() => toggleField(o.value)}
+          />
+        ))}
+      </div>
+      <TextField label="버튼 라벨" value={el.submitLabel} onCommit={(v) => store().updateElement(el.id, { submitLabel: v || '문의 보내기' })} />
+      <SegmentedField
+        label="스타일"
+        value={s.variant}
+        options={[
+          { value: 'card' as const, label: '카드' },
+          { value: 'plain' as const, label: '투명' },
+        ]}
+        onCommit={(v) => store().updateElementStyle(el.id, { variant: v })}
+      />
+      <ColorField label="버튼 색" value={s.color} clearable clearLabel="테마 포인트색" onCommit={(v) => store().updateElementStyle(el.id, { color: v })} />
+      <NumberField label="둥글기" value={s.borderRadius ?? 8} min={0} max={40} onCommit={(v) => store().updateElementStyle(el.id, { borderRadius: v })} />
+      <p className="text-[11px] leading-4 text-neutral-600">
+        제출된 문의는 대시보드 사이트 상세의 문의함에 쌓입니다.
+      </p>
+    </FieldGroup>
+  );
+}
+
+// ----- [v3 Phase 3] 지도 -----
+
+function MapFields({ el }: { el: MapElement }) {
+  const store = useEditorStore.getState;
+  const invalid = el.embedUrl !== '' && !isSafeMapEmbedUrl(el.embedUrl);
+  return (
+    <FieldGroup title="지도">
+      <TextField
+        label="지도 embed URL"
+        value={el.embedUrl}
+        placeholder="https://map.naver.com/… 또는 구글 /maps/embed"
+        hint="네이버/카카오 지도 공유 → 링크 복사, 구글 지도 공유 → 지도 퍼가기 URL"
+        onCommit={(v) => store().updateElement(el.id, { embedUrl: v.trim() })}
+      />
+      {invalid ? (
+        <p className="rounded-md border border-red-900 bg-red-950/40 px-2.5 py-2 text-[11px] leading-4 text-red-300">
+          허용되지 않은 주소예요. map.naver.com · map.kakao.com · www.google.com/maps/embed 만 사용할 수
+          있습니다. (저장 시에도 거부됩니다)
+        </p>
+      ) : null}
+      <NumberField label="둥글기" value={el.style.borderRadius ?? 8} min={0} max={40} onCommit={(v) => store().updateElementStyle(el.id, { borderRadius: v })} />
+    </FieldGroup>
+  );
+}
+
+// ----- [v3 Phase 3] SNS 링크 -----
+
+const SNS_KIND_OPTIONS: { value: SnsKind; label: string }[] = [
+  { value: 'instagram', label: '인스타그램' },
+  { value: 'kakao_channel', label: '카카오 채널' },
+  { value: 'naver_blog', label: '네이버 블로그' },
+  { value: 'youtube', label: '유튜브' },
+  { value: 'x', label: 'X (트위터)' },
+  { value: 'custom', label: '기타 링크' },
+];
+
+function SocialLinksFields({ el }: { el: SocialLinksElement }) {
+  const store = useEditorStore.getState;
+  const commitLinks = (links: SocialLinksElement['links']) => {
+    if (links.length === 0) return; // zod min(1)
+    store().updateElement(el.id, { links });
+  };
+  return (
+    <FieldGroup title="SNS 링크">
+      {el.links.map((link, i) => {
+        const badUrl = link.url !== '' && !isHttpsUrl(link.url);
+        return (
+          <div key={i} className="space-y-1.5 rounded-lg border border-neutral-800 p-2">
+            <div className="flex items-center gap-1.5">
+              <div className="flex-1">
+                <SelectField
+                  label={`링크 ${i + 1}`}
+                  value={link.kind}
+                  options={SNS_KIND_OPTIONS}
+                  onCommit={(v) => commitLinks(el.links.map((l, j) => (j === i ? { ...l, kind: v as SnsKind } : l)))}
+                />
+              </div>
+              <button
+                type="button"
+                title="링크 삭제"
+                disabled={el.links.length <= 1}
+                onClick={() => commitLinks(el.links.filter((_, j) => j !== i))}
+                className="mt-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-neutral-700 text-neutral-400 transition-colors hover:border-red-900 hover:bg-red-950/50 hover:text-red-300 disabled:opacity-30"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <TextField
+              label="URL (https)"
+              value={link.url}
+              placeholder="https://instagram.com/…"
+              onCommit={(v) => commitLinks(el.links.map((l, j) => (j === i ? { ...l, url: v.trim() } : l)))}
+            />
+            {badUrl ? <p className="text-[11px] text-red-300">https:// 주소만 사용할 수 있어요.</p> : null}
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        disabled={el.links.length >= 8}
+        onClick={() => commitLinks([...el.links, { kind: 'custom', url: '' }])}
+        className="h-8 w-full rounded-md border border-dashed border-neutral-700 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-40"
+      >
+        + 링크 추가
+      </button>
+      <SegmentedField
+        label="배치"
+        value={el.style.direction}
+        options={[
+          { value: 'row' as const, label: '가로' },
+          { value: 'column' as const, label: '세로' },
+        ]}
+        onCommit={(v) => store().updateElementStyle(el.id, { direction: v })}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField label="아이콘 크기" value={el.style.size ?? 40} min={24} max={96} onCommit={(v) => store().updateElementStyle(el.id, { size: v })} />
+      </div>
+      <ColorField label="아이콘 색" value={el.style.color} clearable onCommit={(v) => store().updateElementStyle(el.id, { color: v })} />
     </FieldGroup>
   );
 }
