@@ -2,11 +2,16 @@
 
 /**
  * 좌측 섹션 리스트 — 선택/순서변경/복제/숨김/삭제/추가.
+ * [v3 Phase 4] 하단에 "사업자 정보" 진입 — 모달 폼으로 draftConfig.businessInfo 편집.
  */
-import { ChevronDown, ChevronUp, Copy, Eye, EyeOff, Layers, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Building2, ChevronDown, ChevronUp, Copy, Eye, EyeOff, Layers, Plus, Trash2 } from 'lucide-react';
 import type { SectionType } from '@/lib/types/site';
 import { useEditorStore } from '@/stores/editor';
+import { Modal } from '@/components/dashboard/modal';
+import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
+import { BusinessInfoForm } from './BusinessInfoForm';
 import { SECTION_TYPE_LABELS } from './defaults';
 import { DropMenu } from './DropMenu';
 
@@ -15,6 +20,9 @@ const SECTION_TYPES = Object.keys(SECTION_TYPE_LABELS) as SectionType[];
 export function SectionListPanel() {
   const sections = useEditorStore((s) => s.config.sections);
   const selectedSectionId = useEditorStore((s) => s.selectedSectionId);
+  const businessInfo = useEditorStore((s) => s.businessInfo);
+  const [bizModalOpen, setBizModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const selectAndScroll = (sectionId: string) => {
     useEditorStore.getState().selectSection(sectionId);
@@ -125,7 +133,7 @@ export function SectionListPanel() {
         })}
       </div>
 
-      <div className="border-t border-neutral-800 p-2">
+      <div className="space-y-2 border-t border-neutral-800 p-2">
         <DropMenu
           className="w-full"
           menuClassName="bottom-full top-auto mb-1 w-full"
@@ -148,7 +156,43 @@ export function SectionListPanel() {
             },
           }))}
         />
+
+        {/* [v3 Phase 4] 사업자 정보 — 발행 시 법적 푸터로 자동 표기 */}
+        <button
+          type="button"
+          onClick={() => setBizModalOpen(true)}
+          className={cn(
+            'flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border text-xs font-medium transition-colors',
+            businessInfo
+              ? 'border-neutral-700 text-neutral-200 hover:border-neutral-500 hover:bg-neutral-900'
+              : 'border-[#4a3a22] bg-[#2a2117]/60 text-[#d9b878] hover:border-[#6a5432]',
+          )}
+        >
+          <Building2 className="h-3.5 w-3.5" />
+          사업자 정보 {businessInfo ? '' : '(발행 전 필수)'}
+        </button>
       </div>
+
+      <Modal open={bizModalOpen} onClose={() => setBizModalOpen(false)} title="사업자 정보" className="max-w-lg">
+        <BusinessInfoForm
+          initial={businessInfo}
+          submitLabel="저장"
+          onSave={(info) => {
+            useEditorStore.getState().setBusinessInfo(info);
+            setBizModalOpen(false);
+            toast('success', '사업자 정보를 저장했어요. 발행 시 사이트 하단에 자동 표기됩니다.');
+          }}
+          extraActions={
+            <button
+              type="button"
+              onClick={() => setBizModalOpen(false)}
+              className="inline-flex h-9 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-300 transition-colors hover:border-neutral-500"
+            >
+              취소
+            </button>
+          }
+        />
+      </Modal>
     </aside>
   );
 }

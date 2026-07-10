@@ -23,6 +23,7 @@ import type { Site } from '@/lib/types/domain';
 import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
 import { ApiError, createExport, getSite, listEditRequests, listFormSubmissions, publishSite } from './api';
 import { DomainSection } from './domain-connect';
+import { Modal } from './modal';
 import { SitePreview } from './site-preview';
 import { useToast } from './toast';
 import {
@@ -328,6 +329,9 @@ function DetailSkeleton() {
 export function SiteDetail({ siteId }: { siteId: string }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  // [v3 Phase 4] 발행 전 사업자 정보 확인 모달
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const [bizConfirmed, setBizConfirmed] = useState(false);
 
   const siteQuery = useQuery({
     queryKey: ['site', siteId],
@@ -338,6 +342,7 @@ export function SiteDetail({ siteId }: { siteId: string }) {
   const publishMutation = useMutation({
     mutationFn: () => publishSite(siteId),
     onSuccess: (result) => {
+      setPublishConfirmOpen(false);
       queryClient.invalidateQueries({ queryKey: ['site', siteId] });
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       toast(
@@ -402,7 +407,10 @@ export function SiteDetail({ siteId }: { siteId: string }) {
               에디터 열기
             </Link>
             <Button
-              onClick={() => publishMutation.mutate()}
+              onClick={() => {
+                setBizConfirmed(false);
+                setPublishConfirmOpen(true);
+              }}
               loading={publishMutation.isPending}
               disabled={!site.draftConfig}
               title={site.draftConfig ? undefined : '발행할 초안이 없습니다'}
@@ -441,6 +449,85 @@ export function SiteDetail({ siteId }: { siteId: string }) {
       <FormInbox siteId={siteId} />
 
       <EditHistory siteId={siteId} />
+
+      {/* [v3 Phase 4] 발행 전 사업자 정보 확인 (서버가 businessInfoConfirmed를 요구) */}
+      <Modal
+        open={publishConfirmOpen}
+        onClose={() => setPublishConfirmOpen(false)}
+        title="발행 전 확인 — 사업자 정보"
+        footer={
+          site.draftConfig?.businessInfo ? (
+            <>
+              <Button variant="ghost" onClick={() => setPublishConfirmOpen(false)}>
+                취소
+              </Button>
+              <Button
+                disabled={!bizConfirmed}
+                loading={publishMutation.isPending}
+                onClick={() => publishMutation.mutate()}
+              >
+                <Rocket className="h-4 w-4" />
+                발행하기
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => setPublishConfirmOpen(false)}>
+                닫기
+              </Button>
+              <Link
+                href={`/dashboard/sites/${siteId}/editor`}
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+              >
+                <PencilRuler className="h-4 w-4" />
+                에디터에서 입력하기
+              </Link>
+            </>
+          )
+        }
+      >
+        {site.draftConfig?.businessInfo ? (
+          <div className="space-y-3">
+            <div className="space-y-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-3.5 py-3 text-sm">
+              {site.draftConfig.businessInfo.isPersonal ? (
+                <p className="text-[11px] font-medium text-[#d9b878]">개인 운영 사이트</p>
+              ) : null}
+              {(
+                [
+                  ['상호', site.draftConfig.businessInfo.businessName],
+                  [site.draftConfig.businessInfo.isPersonal ? '운영자' : '대표자', site.draftConfig.businessInfo.ownerName],
+                  ['사업자등록번호', site.draftConfig.businessInfo.businessNumber],
+                  ['주소', site.draftConfig.businessInfo.address],
+                  ['전화', site.draftConfig.businessInfo.phone],
+                ] as const
+              )
+                .filter(([, v]) => v)
+                .map(([label, v]) => (
+                  <div key={label} className="flex gap-3">
+                    <span className="w-28 shrink-0 text-[11px] leading-5 text-neutral-500">{label}</span>
+                    <span className="min-w-0 flex-1 text-neutral-200">{v}</span>
+                  </div>
+                ))}
+            </div>
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-neutral-700 px-3.5 py-3">
+              <input
+                type="checkbox"
+                checked={bizConfirmed}
+                onChange={(e) => setBizConfirmed(e.target.checked)}
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#c8a96a]"
+              />
+              <span className="text-xs leading-5 text-neutral-300">
+                위 정보가 정확한지 확인했습니다. 발행된 사이트 최하단에 법적 표기로 게시됩니다.
+              </span>
+            </label>
+          </div>
+        ) : (
+          <p className="text-sm leading-6 text-neutral-300">
+            발행하려면 사업자(또는 운영자) 정보가 필요해요. 에디터 좌측 하단의{' '}
+            <span className="text-[#d9b878]">사업자 정보</span>에서 입력한 뒤 발행해 주세요.
+          </p>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -1,7 +1,10 @@
 /**
- * [§6] 사업자정보 법적 푸터 — 모든 발행 사이트 최하단에 자동 렌더.
- * SiteConfig에 포함하지 않고(계약 불변), 서빙/Export 시점에 clients.business_info로 렌더한다.
- * 고객이 끌 수 없음(전자상거래법·정보통신망법 표시 의무). 테마 팔레트 상속.
+ * [v3] 사업자정보 법적 푸터 — 모든 발행 사이트 최하단에 자동 렌더.
+ * 소스는 SiteConfig.businessInfo(사이트 단위 계약, lib/types/site.ts) — 서빙(/s/[domain])은
+ * site.siteConfig.businessInfo, Export는 동일 값을 legal-html이 전달한다.
+ * 캔버스 요소가 아니므로 자유배치로 지워질 수 없고, 고객이 끌 수 없다
+ * (전자상거래법·정보통신망법 표시 의무). 테마 팔레트 상속.
+ * isPersonal(개인 운영)이면 상호/사업자번호/주소 없이 운영자·연락처만 표기.
  *
  * 순수 서버 컴포넌트 — 서빙(React)과 Export(renderToStaticMarkup) 양쪽에서 동일 출력.
  */
@@ -20,11 +23,11 @@ export function LegalFooter({
   termsHref?: string;
 }) {
   const items = [
-    `상호 ${info.businessName}`,
-    `대표 ${info.ownerName}`,
-    `사업자등록번호 ${info.businessNumber}`,
+    info.businessName ? `상호 ${info.businessName}` : null,
+    `${info.isPersonal ? '운영자' : '대표'} ${info.ownerName}`,
+    info.businessNumber ? `사업자등록번호 ${info.businessNumber}` : null,
     info.mailOrderNumber ? `통신판매업신고 ${info.mailOrderNumber}` : null,
-    `주소 ${info.address}`,
+    info.address ? `주소 ${info.address}` : null,
     `전화 ${info.phone}`,
     info.email ? `이메일 ${info.email}` : null,
   ].filter((x): x is string => Boolean(x));

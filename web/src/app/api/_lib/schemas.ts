@@ -250,16 +250,51 @@ const siteMetaSchema = z.object({
   ogImage: z.string().optional(),
 });
 
-/** [v3] 사업자 정보 — SiteConfig.businessInfo (사이트 단위, 전자상거래법 표시 의무) */
-export const businessInfoSchema = z.object({
-  businessName: z.string().min(1, '상호를 입력해 주세요.').max(100),
-  ownerName: z.string().min(1, '대표자명을 입력해 주세요.').max(60),
-  businessNumber: z.string().min(1, '사업자등록번호를 입력해 주세요.').max(40),
-  address: z.string().min(1, '사업장 주소를 입력해 주세요.').max(300),
-  phone: z.string().min(1, '연락처 전화를 입력해 주세요.').max(40),
-  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(120).optional(),
-  mailOrderNumber: z.string().max(60).optional(),
-});
+/** 사업자등록번호 000-00-00000 */
+export const BIZ_NUMBER_RE = /^\d{3}-\d{2}-\d{5}$/;
+/** 전화번호 — 숫자/하이픈/공백/괄호/+ 조합 8자 이상 */
+const PHONE_RE = /^[+()0-9\-\s]{8,20}$/;
+
+/**
+ * [v3] 사업자 정보 — SiteConfig.businessInfo (사이트 단위, 전자상거래법 표시 의무).
+ * [Phase 4 승인] isPersonal=true(개인 운영)면 상호/사업자번호/주소 생략 —
+ * 사업자 경로에는 superRefine으로 필수·포맷을 그대로 강제한다.
+ */
+export const businessInfoSchema = z
+  .object({
+    isPersonal: z.boolean().optional(),
+    businessName: z.string().max(100).optional(),
+    ownerName: z.string().min(1, '대표자/운영자명을 입력해 주세요.').max(60),
+    businessNumber: z.string().max(40).optional(),
+    address: z.string().max(300).optional(),
+    phone: z
+      .string()
+      .min(1, '연락처 전화를 입력해 주세요.')
+      .max(40)
+      .refine((v) => PHONE_RE.test(v.trim()), '올바른 전화번호 형식이 아닙니다.'),
+    // ''(폼 미입력)은 미지정으로 취급 — RHF가 같은 스키마를 쓰므로 여기서 정규화
+    email: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().email('올바른 이메일 형식이 아닙니다.').max(120).optional(),
+    ),
+    mailOrderNumber: z.string().max(60).optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.isPersonal === true) return; // 개인: 운영자명·연락처만
+    if (!v.businessName?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['businessName'], message: '상호를 입력해 주세요.' });
+    }
+    if (!v.businessNumber || !BIZ_NUMBER_RE.test(v.businessNumber.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['businessNumber'],
+        message: '사업자등록번호는 000-00-00000 형식이어야 합니다.',
+      });
+    }
+    if (!v.address?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address'], message: '사업장 주소를 입력해 주세요.' });
+    }
+  });
 
 export const siteConfigSchema = z.object({
   version: z.literal(1),

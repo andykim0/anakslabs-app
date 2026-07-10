@@ -158,7 +158,10 @@ export interface PublishResult {
 }
 
 export async function publishSite(siteId: string): Promise<PublishResult> {
-  return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`);
+  // [v3 Phase 4] 발행 확인 모달을 거친 뒤에만 호출 — 서버가 이 필드를 요구(400)
+  return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
+    businessInfoConfirmed: true,
+  });
 }
 
 // ---------- 정적 HTML 백업 (§5) ----------

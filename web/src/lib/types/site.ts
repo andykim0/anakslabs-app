@@ -232,17 +232,22 @@ export interface SiteMeta {
  * 법적 표기는 자유배치로 지워지면 안 되고 JSON-LD(Phase 7) 원천으로도 재사용하므로
  * 렌더러가 항상 맨 아래 고정 푸터로 렌더한다. 캔버스 undo/redo 대상 제외(에디터 별도 폼).
  * (v2의 clients.business_info 및 domain.ts BusinessInfo는 이 계약으로 통일 — 사이트 단위)
+ *
+ * [v3 Phase 4 승인] isPersonal: 사업자가 아닌 개인 운영 사이트 — 상호/사업자번호/주소 생략.
+ * 사업자 경로(isPersonal !== true)의 필수 강제는 zod(businessInfoSchema superRefine)가 담당.
  */
 export interface BusinessInfo {
-  /** 상호 */
-  businessName: string;
-  /** 대표자명 */
+  /** 개인(비사업자) 운영 사이트 — 상호·사업자번호·주소 생략 가능 */
+  isPersonal?: boolean;
+  /** 상호 — 사업자면 필수(zod 강제) */
+  businessName?: string;
+  /** 대표자/운영자명 — 항상 필수 */
   ownerName: string;
-  /** 사업자등록번호 (000-00-00000) */
-  businessNumber: string;
-  /** 사업장 주소 */
-  address: string;
-  /** 연락처 전화 */
+  /** 사업자등록번호 (000-00-00000) — 사업자면 필수(zod 강제) */
+  businessNumber?: string;
+  /** 사업장 주소 — 사업자면 필수(zod 강제) */
+  address?: string;
+  /** 연락처 전화 — 항상 필수 */
   phone: string;
   email?: string;
   /** 통신판매업 신고번호 (쇼핑몰 purpose일 때 노출) */

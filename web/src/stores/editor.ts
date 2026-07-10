@@ -8,6 +8,7 @@
 import { create } from 'zustand';
 import { temporal } from 'zundo';
 import type {
+  BusinessInfo,
   CanvasElement,
   ElementKind,
   Frame,
@@ -44,6 +45,12 @@ interface ThemePatch {
 export interface EditorState {
   siteId: string;
   config: SiteConfig;
+  /**
+   * [v3 Phase 4] 사업자 정보 — config 밖 별도 필드로 관리해 zundo 히스토리에서 제외한다
+   * (partialize가 { config }만 추적 → undo/redo가 businessInfo를 되돌리지 않음).
+   * 자동저장이 draftConfig로 합성해 전송.
+   */
+  businessInfo: BusinessInfo | null;
   selectedSectionId: string | null;
   selectedElementId: string | null;
   /** 인라인 텍스트 편집 중인 요소 */
@@ -91,6 +98,9 @@ export interface EditorState {
   // ----- 테마/메타 -----
   updateTheme: (patch: ThemePatch) => void;
   updateMeta: (patch: Partial<SiteMeta>) => void;
+
+  // ----- [v3 Phase 4] 사업자 정보 (undo 비추적) -----
+  setBusinessInfo: (info: BusinessInfo | null) => void;
 }
 
 type TrackedState = { config: SiteConfig };
@@ -153,6 +163,7 @@ export const useEditorStore = create<EditorState>()(
     (set) => ({
       siteId: '',
       config: emptySiteConfig(''),
+      businessInfo: null,
       selectedSectionId: null,
       selectedElementId: null,
       editingElementId: null,
@@ -416,6 +427,11 @@ export const useEditorStore = create<EditorState>()(
           config: { ...state.config, meta: { ...state.config.meta, ...patch } },
           dirty: true,
         })),
+
+      // ----- [v3 Phase 4] 사업자 정보 -----
+      // config를 건드리지 않으므로 zundo equality(past.config === current.config)에 걸려
+      // 히스토리에 쌓이지 않는다 — undo/redo가 businessInfo를 되돌리지 않음.
+      setBusinessInfo: (info) => set({ businessInfo: info, dirty: true }),
     }),
     {
       partialize: (state): TrackedState => ({ config: state.config }),
@@ -442,10 +458,13 @@ export const useEditorStore = create<EditorState>()(
 
 /** 페이지 진입 시 1회 초기화 — 히스토리도 함께 리셋 */
 export function initializeEditor(siteId: string, config: SiteConfig) {
+  // [v3 Phase 4] businessInfo는 undo 비추적 필드로 분리 (config에는 남기지 않는다)
+  const { businessInfo, ...rest } = config;
   useEditorStore.setState({
     siteId,
-    config,
-    selectedSectionId: config.sections[0]?.id ?? null,
+    config: rest,
+    businessInfo: businessInfo ?? null,
+    selectedSectionId: rest.sections[0]?.id ?? null,
     selectedElementId: null,
     editingElementId: null,
     zoom: 'fit',

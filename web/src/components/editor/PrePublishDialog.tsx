@@ -1,0 +1,163 @@
+'use client';
+
+/**
+ * [v3 Phase 4] 발행 전 2단계 다이얼로그.
+ *  1단계 — 사업자 정보 확인: 입력값 요약(미입력이면 인라인 폼 즉시 입력),
+ *          "위 정보가 정확한지 확인했습니다" 체크 필수. 개인 사이트 토글은 폼 안에.
+ *  2단계 — 발행 확인: 초안이 라이브로 반영됨을 안내하고 발행 실행.
+ * 서버도 publish body의 businessInfoConfirmed:true를 요구한다(클라 우회 방지).
+ */
+import { useEffect, useState } from 'react';
+import { CheckCircle2, Pencil, Rocket } from 'lucide-react';
+import type { BusinessInfo } from '@/lib/types/site';
+import { useEditorStore } from '@/stores/editor';
+import { Modal } from '@/components/dashboard/modal';
+import { Button, cn } from '@/components/dashboard/ui';
+import { BusinessInfoForm } from './BusinessInfoForm';
+
+function SummaryRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-3 text-sm">
+      <span className="w-28 shrink-0 text-[11px] leading-5 text-neutral-500">{label}</span>
+      <span className="min-w-0 flex-1 text-neutral-200">{value}</span>
+    </div>
+  );
+}
+
+function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
+  return (
+    <div className="space-y-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-3.5 py-3">
+      {info.isPersonal ? (
+        <p className="text-[11px] font-medium text-[#d9b878]">개인 운영 사이트</p>
+      ) : null}
+      <SummaryRow label="상호" value={info.businessName} />
+      <SummaryRow label={info.isPersonal ? '운영자' : '대표자'} value={info.ownerName} />
+      <SummaryRow label="사업자등록번호" value={info.businessNumber} />
+      <SummaryRow label="주소" value={info.address} />
+      <SummaryRow label="전화" value={info.phone} />
+      <SummaryRow label="이메일" value={info.email} />
+      <SummaryRow label="통신판매업 신고" value={info.mailOrderNumber} />
+    </div>
+  );
+}
+
+export function PrePublishDialog({
+  open,
+  publishing,
+  onClose,
+  onConfirmed,
+}: {
+  open: boolean;
+  publishing: boolean;
+  onClose: () => void;
+  /** 1단계 확인 + 2단계 발행 클릭 완료 — 실제 발행 요청 실행 */
+  onConfirmed: () => void;
+}) {
+  const businessInfo = useEditorStore((s) => s.businessInfo);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [editing, setEditing] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  // 열릴 때마다 초기화 — 미입력이면 바로 인라인 폼
+  useEffect(() => {
+    if (open) {
+      setStep(1);
+      setEditing(!useEditorStore.getState().businessInfo);
+      setConfirmed(false);
+    }
+  }, [open]);
+
+  const title = step === 1 ? '발행 전 확인 (1/2) — 사업자 정보' : '발행 (2/2)';
+
+  return (
+    <Modal open={open} onClose={onClose} title={title} className="max-w-lg">
+      {step === 1 ? (
+        editing || !businessInfo ? (
+          <div className="space-y-3">
+            <p className="text-xs leading-5 text-neutral-400">
+              발행하려면 사이트에 표기할 {businessInfo ? '' : '사업자(또는 운영자) '}정보가 필요해요.
+            </p>
+            <BusinessInfoForm
+              initial={businessInfo}
+              submitLabel="저장하고 계속"
+              onSave={(info) => {
+                useEditorStore.getState().setBusinessInfo(info);
+                setEditing(false);
+                setConfirmed(false);
+              }}
+              extraActions={
+                businessInfo ? (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(false)}
+                    className="inline-flex h-9 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-300 transition-colors hover:border-neutral-500"
+                  >
+                    취소
+                  </button>
+                ) : null
+              }
+            />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <BusinessInfoSummary info={businessInfo} />
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-1.5 text-xs text-neutral-400 transition-colors hover:text-[#c8a96a]"
+            >
+              <Pencil className="h-3 w-3" />
+              정보 수정하기
+            </button>
+            <label
+              className={cn(
+                'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3.5 py-3 transition-colors',
+                confirmed ? 'border-[#c8a96a] bg-[#2a2117]/60' : 'border-neutral-700',
+              )}
+            >
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#c8a96a]"
+              />
+              <span className="text-xs leading-5 text-neutral-300">
+                위 {businessInfo.isPersonal ? '운영자' : '사업자'} 정보가 정확한지 확인했습니다. 발행된 사이트
+                최하단에 법적 표기로 게시됩니다.
+              </span>
+            </label>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" onClick={onClose}>
+                취소
+              </Button>
+              <Button disabled={!confirmed} onClick={() => setStep(2)}>
+                다음
+              </Button>
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="space-y-4">
+          <p className="flex items-center gap-2 text-sm text-neutral-200">
+            <CheckCircle2 className="h-4 w-4 text-[#d9b878]" />
+            사업자 정보 확인 완료
+          </p>
+          <p className="text-xs leading-5 text-neutral-400">
+            지금 발행하면 편집 중인 초안이 라이브 사이트로 반영됩니다. 서브도메인은 즉시 접속 가능하며,
+            이후에도 언제든 다시 편집하고 재발행할 수 있어요.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setStep(1)}>
+              이전
+            </Button>
+            <Button loading={publishing} onClick={onConfirmed}>
+              <Rocket className="h-4 w-4" />
+              발행하기
+            </Button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
