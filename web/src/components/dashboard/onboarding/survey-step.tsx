@@ -4,11 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, ChevronDown, ChevronUp, ImagePlus, Loader2, Lock, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, ImagePlus, Loader2, Lock, Sparkles, X } from 'lucide-react';
 import type { SectionPlanItem, SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
 import { SITE_TEMPLATES, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
-import { uploadImage } from '../api';
+import { suggestSection, uploadImage } from '../api';
 import { useToast } from '../toast';
 import { Button, Card, cn } from '../ui';
 
@@ -242,6 +242,10 @@ export function SurveyStep({
   const [pendingTemplate, setPendingTemplate] = useState<ReturnType<typeof resolveTemplate> | null>(null);
   // "지금 구성 유지"로 확인 완료한 템플릿 id — 재프롬프트 억제
   const ackRef = useRef<string>(templateId);
+  // [v3 Phase 2] AI 섹션 개입
+  const [aiInput, setAiInput] = useState('');
+  const [suggesting, setSuggesting] = useState(false);
+  const [highlightKey, setHighlightKey] = useState<string | null>(null);
 
   // 목적·업종 변경 시 템플릿 재적용 (미수정이면 조용히, 수정했으면 확인 다이얼로그)
   useEffect(() => {
@@ -287,6 +291,58 @@ export function SurveyStep({
       rows.map((r) => (r.key === key && !r.item.required ? { ...r, enabled: !r.enabled } : r)),
     );
     setPlanTouched(true);
+  };
+
+  const removeRow = (key: string) => {
+    setPlanRows((rows) => rows.filter((r) => r.key !== key));
+    setPlanTouched(true);
+  };
+
+  const flashRow = (key: string) => {
+    setHighlightKey(key);
+    window.setTimeout(() => setHighlightKey((k) => (k === key ? null : k)), 2000);
+  };
+
+  // [v3 Phase 2] "찾는 섹션이 없나요?" → AI 판정 → 계획표에 source:'ai' 행 삽입 (중복이면 하이라이트)
+  const handleSuggest = async () => {
+    const name = aiInput.trim();
+    if (!name || suggesting) return;
+    setSuggesting(true);
+    try {
+      const res = await suggestSection({
+        name,
+        survey: {
+          businessName: watch('businessName') ?? '',
+          industry: watch('industry') ?? '',
+          purpose: selectedPurpose?.label ?? '',
+          tone: watch('tone') ?? '',
+          colorPreference: watch('colorPreference') ?? '',
+        },
+      });
+      // 중복 방지: 같은 type + (variant 없음) 이 이미 있으면 그 행 하이라이트
+      const dup = planRows.find((r) => r.item.type === res.mappedType && !r.item.variant);
+      if (dup) {
+        flashRow(dup.key);
+        toast('info', `이미 "${dup.item.name}" 섹션이 있어요. 그 섹션을 활용하세요.`);
+      } else {
+        const key = nextRowKey();
+        const item: SectionPlanItem = {
+          type: res.mappedType,
+          name: res.name,
+          brief: res.copySeed,
+          source: 'ai',
+        };
+        setPlanRows((rows) => [...rows, { key, item, enabled: true }]);
+        setPlanTouched(true);
+        flashRow(key);
+        toast('success', `"${res.name}" 섹션을 추가했어요.`);
+      }
+      setAiInput('');
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '섹션 제안에 실패했습니다.');
+    } finally {
+      setSuggesting(false);
+    }
   };
 
   const selectedPurpose = purposeId ? findPurpose(purposeId) : undefined;
@@ -719,13 +775,21 @@ export function SurveyStep({
                   <div
                     key={row.key}
                     className={cn(
-                      'flex items-center gap-3 border-b border-neutral-800 px-3 py-2.5 last:border-b-0',
+                      'flex items-center gap-3 border-b border-neutral-800 px-3 py-2.5 transition-colors last:border-b-0',
                       row.enabled ? '' : 'opacity-45',
+                      row.key === highlightKey && 'bg-[#2a2117] ring-1 ring-inset ring-[#c8a96a]',
                     )}
                   >
                     <span className="w-5 shrink-0 text-center text-xs font-medium text-neutral-500">{idx + 1}</span>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm text-neutral-100">{row.item.name}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-sm text-neutral-100">{row.item.name}</span>
+                        {row.item.source === 'ai' ? (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#2a2117] px-1.5 py-0.5 text-[9px] font-medium text-[#d9b878]">
+                            <Sparkles className="h-2.5 w-2.5" />AI 추가
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="truncate text-[11px] text-neutral-500">{row.item.brief}</div>
                     </div>
                     <div className="flex shrink-0 items-center gap-0.5">
@@ -747,6 +811,16 @@ export function SurveyStep({
                       >
                         <ChevronDown className="h-3.5 w-3.5" />
                       </button>
+                      {row.item.source === 'ai' ? (
+                        <button
+                          type="button"
+                          onClick={() => removeRow(row.key)}
+                          aria-label={`${row.item.name} 삭제`}
+                          className="flex h-6 w-6 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-red-950/50 hover:text-red-300"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
                     </div>
                     {row.item.required ? (
                       <span
@@ -782,6 +856,32 @@ export function SurveyStep({
                   <span className="w-5 shrink-0" />
                   <div className="min-w-0 flex-1 text-sm text-neutral-400">푸터 — 사업자 정보(자동)</div>
                   <Lock className="h-3.5 w-3.5 shrink-0 text-neutral-600" />
+                </div>
+              </div>
+
+              {/* [v3 Phase 2] AI 섹션 개입 */}
+              <div className="mt-2.5">
+                <label className="mb-1.5 block text-[11px] text-neutral-500">
+                  찾는 섹션이 없나요? 원하는 걸 적으면 AI가 알맞은 위치에 추가해요.
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        void handleSuggest();
+                      }
+                    }}
+                    placeholder="예: 수강 후기 영상 모음, 오시는 길 상세, 브랜드 연혁"
+                    maxLength={60}
+                    className={cn(inputClass, 'flex-1')}
+                  />
+                  <Button type="button" variant="secondary" onClick={() => void handleSuggest()} loading={suggesting} disabled={!aiInput.trim()}>
+                    <Sparkles className="h-4 w-4" />
+                    추가
+                  </Button>
                 </div>
               </div>
             </>

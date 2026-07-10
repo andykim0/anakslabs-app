@@ -148,6 +148,26 @@ function headingOf(item: SectionPlanItem, fallback: string): string {
   return n ? n : fallback;
 }
 
+/**
+ * [v3 Phase 2] brief(생성 지시문)를 방문자용 부제목으로 정리한다 (mock — 실모드는 Claude가 카피화).
+ * "…섹션", "제일 중요", "실질 전환 지점", "신뢰의 핵심 증거" 같은 내부 메타 지시 절을 걷어내고
+ * 설명 성격의 절만 남긴다. 남는 게 없으면 빈 문자열(부제 생략).
+ */
+const BRIEF_META_HINTS = [
+  '섹션', '가장 중요', '제일 중요', '핵심 증거', '전환 지점', '겸용',
+  '필수', '기본 해제', '금지', '리드', '사람이 곧 상품', '신뢰의 핵심',
+];
+function briefToSubtitle(brief?: string): string {
+  const raw = brief?.trim();
+  if (!raw) return '';
+  const clauses = raw
+    .split(/[.·\n]|—| — /)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  const visitor = clauses.filter((c) => !BRIEF_META_HINTS.some((h) => c.includes(h)));
+  return (visitor.length ? visitor : clauses.slice(0, 1)).slice(0, 2).join(', ');
+}
+
 /** brief(내용 지시문)를 섹션 제목 아래 안내 문구로 노출하는 서브타이틀 요소 */
 function subtitleEl(ctx: Ctx, text: string, y = 186): CanvasElement {
   return {
@@ -404,7 +424,7 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '경력·이력'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim(), 214));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub, 214)); }
   rows.forEach((row, i) => {
     const y = 268 + i * 92;
     elements.push(
@@ -461,7 +481,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '세 가지 원칙'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim()));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   items.forEach((it, i) => {
     const x = 120 + i * 420;
     elements.push(
@@ -663,7 +683,7 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '둘러보기'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim()));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   frames.forEach((f) => {
     elements.push({
       id: nextId(ctx, 'el-gal-img'),
@@ -740,7 +760,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '가격'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim()));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   plans.forEach((plan, i) => {
     const x = 120 + i * 620;
     elements.push(
@@ -811,7 +831,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
 function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
-  const brief = item.brief?.trim();
+  const brief = briefToSubtitle(item.brief);
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-cta-title'),
@@ -984,7 +1004,7 @@ function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
 /** contact:form — 제목 + brief 설명 + 문의하기 버튼 (실 FormElement 는 Phase3 주입) */
 function buildContactForm(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
-  const desc = item.brief?.trim() || '아래 버튼으로 편하게 문의를 남겨주세요. 확인 후 빠르게 연락드리겠습니다.';
+  const desc = briefToSubtitle(item.brief) || '아래 버튼으로 편하게 문의를 남겨주세요. 확인 후 빠르게 연락드리겠습니다.';
   return {
     id: 'sec-contact',
     type: 'contact',
@@ -1040,7 +1060,7 @@ function buildContactMini(ctx: Ctx, item: SectionPlanItem): Section {
 
 function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
-  const brief = item.brief?.trim();
+  const brief = briefToSubtitle(item.brief);
   return {
     id: `sec-custom-${ctx.seq}`,
     type: 'custom',
@@ -1086,7 +1106,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '구성원 소개'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim()));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   members.forEach((m) => {
     const x = 120 + members.indexOf(m) * 420;
     elements.push(
@@ -1153,7 +1173,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '실적·사례'), 142),
   ];
-  if (item.brief?.trim()) elements.push(subtitleEl(ctx, item.brief.trim()));
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   items.forEach((it, i) => {
     const x = 120 + i * 420;
     elements.push(
@@ -1208,7 +1228,8 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
     { q: '예약·상담은 어떻게 하나요?', a: '전화 또는 문의 폼으로 편하게 연락 주세요.' },
     { q: '운영 시간이 궁금해요.', a: '기본 운영 시간 내 상담·방문이 가능합니다.' },
   ];
-  const hasSub = Boolean(item.brief?.trim());
+  const subText = briefToSubtitle(item.brief);
+  const hasSub = Boolean(subText);
   const listTop = hasSub ? 300 : 260;
   const elements: CanvasElement[] = [
     {
@@ -1221,7 +1242,7 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '자주 묻는 질문'), 142),
   ];
-  if (hasSub) elements.push(subtitleEl(ctx, item.brief!.trim()));
+  if (hasSub) elements.push(subtitleEl(ctx, subText));
   items.forEach((it, i) => {
     const y = listTop + i * 150;
     elements.push(

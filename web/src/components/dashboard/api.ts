@@ -27,6 +27,7 @@ import type {
   Site,
   SurveyInput,
 } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
 
 // ---------- 에러 ----------
 
@@ -298,6 +299,18 @@ export async function getDomainStatus(siteId: string): Promise<CustomDomainStatu
 }
 
 // ---------- 온보딩 ----------
+
+/** [v3 Phase 2] 커스텀 섹션 요청 → 섹션 계획 항목 (mock 결정적 / 실모드 Claude) */
+export async function suggestSection(input: {
+  name: string;
+  description?: string;
+  survey: { businessName: string; industry: string; purpose: string; tone: string; colorPreference: string };
+}): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+  return post<{ mappedType: SectionType; name: string; copySeed: string }>(
+    '/api/onboarding/suggest-section',
+    input,
+  );
+}
 
 export async function generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
   const data = await post<{ candidates: DesignCandidate[] }>('/api/onboarding/candidates', {

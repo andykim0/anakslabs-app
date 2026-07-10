@@ -294,15 +294,44 @@ export class SupabaseAiService implements AiService {
     description?: string;
     survey: SurveyInput;
   }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
-    // [Phase 2] Claude 호출로 대체 예정 — 현재는 결정적 키워드 매핑 폴백 (mock과 동일 규칙)
-    const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
-    return {
-      mappedType,
+    // 실모드: Claude가 known 타입/custom 판정 + 방문자용 카피 방향 생성. 실패 시 결정적 폴백.
+    const fallback = () => ({
+      mappedType: mapCustomSectionType(`${input.name} ${input.description ?? ''}`),
       name: input.name,
       copySeed: input.description?.trim() || input.name,
-    };
+    });
+    try {
+      const raw = await generateClaudeText({
+        prompt:
+          `고객이 웹사이트에 추가하고 싶어하는 섹션 요청을 분석해줘.\n` +
+          `요청: "${input.name}"${input.description ? `\n설명: ${input.description}` : ''}\n` +
+          `사업장: ${input.survey.businessName} (${input.survey.industry})\n\n` +
+          `이 요청이 아래 표준 섹션 타입 중 하나로 표현 가능하면 그 타입을, 아니면 "custom"으로 판정하고, ` +
+          `이 섹션에 들어갈 카피 방향을 방문자용 한 문장으로 만들어줘(지시문 말고 실제 카피 톤).\n` +
+          `표준 타입: about(소개/스토리), features(특징/서비스), menu(메뉴/상품/커리큘럼), gallery(사진/작업), ` +
+          `testimonials(후기/리뷰), pricing(가격/요금), contact(연락처/오시는길), cta(행동유도), team(구성원/전문가), ` +
+          `cases(실적/사례/프로젝트), faq(자주 묻는 질문/안내).\n` +
+          `JSON 하나만 출력: {"mappedType":"...","copySeed":"방문자용 한 문장"}`,
+        system: '너는 웹사이트 정보구조 설계자다. 반드시 요청된 JSON 하나만 출력한다 — 설명·코드펜스 금지.',
+        maxTokens: 300,
+      });
+      const parsed = parseJsonObject(raw);
+      const mt = cleanString(parsed?.mappedType, 20);
+      const seed = cleanString(parsed?.copySeed, 300);
+      if (mt && KNOWN_SECTION_TYPES.includes(mt as SectionType)) {
+        return { mappedType: mt as SectionType, name: input.name, copySeed: seed || fallback().copySeed };
+      }
+    } catch (err) {
+      console.warn('[ai] suggestCustomSection Claude 실패 — 결정적 폴백:', err);
+    }
+    return fallback();
   }
 }
+
+const KNOWN_SECTION_TYPES: SectionType[] = [
+  'hero', 'about', 'features', 'menu', 'gallery', 'testimonials',
+  'pricing', 'contact', 'cta', 'custom', 'team', 'cases', 'faq',
+];
 
 /** [v3 Phase 2] 커스텀 섹션 이름/설명 → known SectionType 결정적 매핑 (mock·실모드 공용 규칙) */
 function mapCustomSectionType(text: string): SectionType {

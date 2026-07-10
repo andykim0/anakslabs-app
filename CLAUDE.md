@@ -51,8 +51,8 @@
 ## v2 애드온 불변식 (스펙 개정 v2 — `docs/SPEC-V2-DESIGN.md` 구현본)
 
 - **Export 렌더링**: App Router는 `react-dom/server`(node) import 금지 → `react-dom/server.edge` 사용. 렌더는 route/`lib/export`(run-export)만 수행하고, `DataServices.exports`(saveExport/markFailed/getDownloadUrl)는 저장 전담 — `getDataServices()` 그래프(테넌트 페이지 포함)에 react-dom/server가 새어들면 빌드 에러.
-- **법적 요소는 SiteConfig 불변**: 사업자정보 푸터(`LegalFooter`)·privacy/terms는 `SiteConfig`에 넣지 않는다. 서빙(`/s/[domain]`)·Export 시점에 `clients.business_info`로 렌더. 법무 문서는 **고정 템플릿**(`lib/legal/templates.ts`) — AI 생성 금지(환각 리스크).
-- **발행 게이트**: `clients.business_info` 없으면 발행 409 `BUSINESS_INFO_REQUIRED`. (시드 데모 클라이언트는 businessInfo 보유 — 발행 데모 보존)
+- **법적 요소 = SiteConfig.businessInfo (사이트 단위, v3 통일)**: 사업자정보(`BusinessInfo`, 정의는 `lib/types/site.ts` — businessName/ownerName/businessNumber/address/phone/email?/mailOrderNumber?)는 `SiteConfig.businessInfo`에 둔다. 서빙(`/s/[domain]`)·Export 시점에 `site.siteConfig.businessInfo`로 `LegalFooter`·privacy/terms 렌더. 법무 문서는 **고정 템플릿**(`lib/legal/templates.ts`) — AI 생성 금지(환각 리스크). (v2의 `clients.business_info`·`Client.businessInfo`·설정 폼·`/api/me/business-info`는 이 계약으로 통일되어 제거됨)
+- **발행 게이트**: 발행 시 `site.draftConfig.businessInfo` 없으면 409 `BUSINESS_INFO_REQUIRED`. 사업자정보 입력 UI는 **v3 Phase 4**에서 에디터 모달로 재구축 예정. 시드 데모 사이트는 `site_config`에 businessInfo 보유(발행 데모 보존).
 - **§3 안전장치**: 온보딩 무료 재생성 1회(`sites.free_regens_used`, 성공 후 증가 — AI 실패 시 미소진). 최초 발행 7일 내 첫 편집 1건 무료(`is_initial_revision`, 원장 미기록, video 제외, rejected는 카운트 제외).
 - **§2 QA 자동화 기본 OFF**: `qa_automation_rules.enabled` 기본 false = 기존 플로우 100% 동일(회귀 없음). enabled면 AI 성공 후 `applied` 직행 + `auto_approved`(QA 큐 제외). video는 자동화 영구 제외.
 - **업로드 SVG sanitize 필수**: `/api/uploads`는 5MB·png/jpg/webp/svg. SVG는 저장 전 `sanitizeSvg`(스크립트/이벤트핸들러/위험스킴 제거) — 저장형 XSS 방어.
