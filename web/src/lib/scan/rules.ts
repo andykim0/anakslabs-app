@@ -1,0 +1,58 @@
+/**
+ * [v3 Phase 6] 스캔 규칙 공용 타입 — 결정적 규칙 기반, LLM 불사용.
+ *
+ * 카피 원칙: 라벨/설명은 전부 "상태 서술"만 — 순위·노출 보장 표현("1등", "상위 노출" 등) 금지.
+ * 라벨 사전이 코드 상수(checks/*.ts의 RULES 배열)라 리뷰에서 grep 가능하다.
+ */
+import type { HTMLElement as ParsedElement } from 'node-html-parser';
+import type { ScanIssue } from '@/lib/data/types';
+
+export interface RuleContext {
+  /** node-html-parser 루트 */
+  root: ParsedElement;
+  rawHtml: string;
+  /** script/style 제거 후 보이는 텍스트 */
+  visibleText: string;
+  url: URL;
+  ttfbMs: number;
+  robotsTxtOk: boolean;
+  sitemapOk: boolean;
+  llmsTxtOk: boolean;
+}
+
+export interface ScanRule {
+  code: string;
+  pillar: ScanIssue['pillar'];
+  severity: ScanIssue['severity'];
+  /** 실패 시 해당 축 점수에서 차감 */
+  weight: number;
+  label: string;
+  detail: string;
+  /** true = 문제 있음(이슈 생성) */
+  failed: (ctx: RuleContext) => boolean;
+}
+
+/** 규칙 목록 실행 → 실패한 규칙을 이슈로 */
+export function runRules(rules: ScanRule[], ctx: RuleContext): { issues: ScanIssue[]; deducted: number } {
+  const issues: ScanIssue[] = [];
+  let deducted = 0;
+  for (const rule of rules) {
+    let bad = false;
+    try {
+      bad = rule.failed(ctx);
+    } catch {
+      bad = false; // 규칙 자체 오류는 스캔을 막지 않는다
+    }
+    if (bad) {
+      issues.push({
+        code: rule.code,
+        severity: rule.severity,
+        label: rule.label,
+        detail: rule.detail,
+        pillar: rule.pillar,
+      });
+      deducted += rule.weight;
+    }
+  }
+  return { issues, deducted };
+}

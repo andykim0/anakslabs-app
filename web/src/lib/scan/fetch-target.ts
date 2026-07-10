@@ -1,0 +1,133 @@
+/**
+ * [v3 Phase 6] 스캔 대상 fetch — URL 정규화 + SSRF 방어 + 제한된 다운로드.
+ *  - 전체 5s 타임아웃, 본문 1MB 캡(스트림 절단), redirect 최대 3회
+ *  - redirect 각 hop마다 assertPublicHttpUrl 재검증 (사설망 우회 차단)
+ *  - TTFB(응답 헤더 도착까지) 측정 — SEO 응답속도 등급용
+ */
+import 'server-only';
+import { assertPublicHttpUrl, ScanError } from './ssrf';
+
+const TIMEOUT_MS = 5_000;
+const MAX_BYTES = 1_000_000; // 1MB
+const MAX_REDIRECTS = 3;
+const UA = 'Mozilla/5.0 (compatible; AnaksScan/1.0; +https://anakslabs.com)';
+
+export interface FetchedTarget {
+  /** redirect 추적 후 최종 URL */
+  finalUrl: URL;
+  status: number;
+  html: string;
+  /** 응답 헤더 도착까지 ms */
+  ttfbMs: number;
+  /** 본문이 1MB 캡으로 잘렸는지 */
+  truncated: boolean;
+}
+
+/** 입력 정규화: 스킴 없으면 https:// 부여, 해시 제거, 공백 정리 */
+export function normalizeScanUrl(input: string): string {
+  let raw = input.trim();
+  if (!raw) throw new ScanError('INVALID_URL', '진단할 주소를 입력해 주세요.');
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) raw = `https://${raw}`;
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new ScanError('INVALID_URL', '올바른 URL 형식이 아닙니다.');
+  }
+  url.hash = '';
+  return url.toString();
+}
+
+/** 본문을 1MB 캡까지 읽기 (초과 시 절단) */
+async function readCapped(res: Response, signal: AbortSignal): Promise<{ text: string; truncated: boolean }> {
+  const reader = res.body?.getReader();
+  if (!reader) return { text: '', truncated: false };
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  let truncated = false;
+  for (;;) {
+    if (signal.aborted) throw new ScanError('TIMEOUT', '응답이 너무 느립니다 (5초 초과).');
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      received += value.byteLength;
+      if (received > MAX_BYTES) {
+        chunks.push(value.slice(0, value.byteLength - (received - MAX_BYTES)));
+        truncated = true;
+        await reader.cancel().catch(() => undefined);
+        break;
+      }
+      chunks.push(value);
+    }
+  }
+  const merged = new Uint8Array(chunks.reduce((n, c) => n + c.byteLength, 0));
+  let off = 0;
+  for (const c of chunks) {
+    merged.set(c, off);
+    off += c.byteLength;
+  }
+  return { text: new TextDecoder('utf-8', { fatal: false }).decode(merged), truncated };
+}
+
+/** 대상 HTML 문서 fetch (SSRF hop 재검증 포함) */
+export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const started = Date.now();
+
+  try {
+    let current = await assertPublicHttpUrl(rawUrl);
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+      let res: Response;
+      try {
+        res = await fetch(current.toString(), {
+          redirect: 'manual',
+          signal: controller.signal,
+          headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml,*/*;q=0.8' },
+        });
+      } catch (err) {
+        if (controller.signal.aborted) throw new ScanError('TIMEOUT', '응답이 너무 느립니다 (5초 초과).');
+        throw new ScanError('FETCH_FAILED', `사이트에 접속할 수 없습니다. (${err instanceof Error ? err.message : '연결 실패'})`);
+      }
+
+      // redirect — 다음 hop도 SSRF 재검증
+      if (res.status >= 300 && res.status < 400) {
+        const loc = res.headers.get('location');
+        await res.body?.cancel().catch(() => undefined);
+        if (!loc) throw new ScanError('FETCH_FAILED', '잘못된 리다이렉트 응답입니다.');
+        if (hop === MAX_REDIRECTS) throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다 (3회 초과).');
+        current = await assertPublicHttpUrl(new URL(loc, current).toString());
+        continue;
+      }
+
+      const ttfbMs = Date.now() - started;
+      const { text, truncated } = await readCapped(res, controller.signal);
+      return { finalUrl: current, status: res.status, html: text, ttfbMs, truncated };
+    }
+    throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다.');
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * 보조 리소스(robots.txt/sitemap.xml/llms.txt) 존재 확인 — 최종 URL origin 기준.
+ * 실패/타임아웃은 '없음'으로 취급 (스캔을 막지 않는다).
+ */
+export async function probeExists(origin: string, path: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3_000);
+  try {
+    const res = await fetch(`${origin}${path}`, {
+      redirect: 'manual',
+      signal: controller.signal,
+      headers: { 'user-agent': UA },
+    });
+    await res.body?.cancel().catch(() => undefined);
+    return res.status >= 200 && res.status < 300;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
