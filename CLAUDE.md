@@ -73,7 +73,10 @@
 cd web && npm run dev        # MOCK_MODE=1 기본 — 키 없이 전체 데모
 cd web && npm run build      # 프로덕션 빌드 (통합 검증 기준)
 cd web && npx tsc --noEmit   # 타입 체크
+cd web && npm test           # 불변식 테스트 (node:test + tsx)
 ```
+
+테스트 러너는 node:test + tsx. 새 불변식 테스트는 `__tests__/*.test.ts` 규약을 따르고 `npm test`에 포함되어야 한다.
 
 ## 기술 스택
 
