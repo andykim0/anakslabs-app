@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Eye, Plus, Smartphone } from 'lucide-react';
 import { DESIGN_WIDTH } from '@/lib/types/site';
 import { useEditorStore, activeSections} from '@/stores/editor';
-import { SiteRenderer } from '@/components/site-renderer';
+import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 import { SectionView } from './SectionView';
 import { ThemeFonts } from './ThemeFonts';
 
@@ -108,6 +108,8 @@ export function CanvasStage() {
             className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-neutral-700 bg-black shadow-2xl"
             onClickCapture={handlePreviewClickCapture}
           >
+            {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
+            <TenantHeader config={config} currentSlug={previewPageSlug} />
             <SiteRenderer config={config} mode="mobile" pageSlug={previewPageSlug} />
           </div>
         </div>
@@ -124,6 +126,8 @@ export function CanvasStage() {
           <PreviewPageSwitcher />
         </div>
         <div className="mx-auto max-w-[1440px] shadow-2xl">
+          {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
+          <TenantHeader config={config} currentSlug={previewPageSlug} />
           <SiteRenderer config={config} mode="desktop" pageSlug={previewPageSlug} />
         </div>
       </div>

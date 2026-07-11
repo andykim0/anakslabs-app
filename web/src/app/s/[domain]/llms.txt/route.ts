@@ -3,7 +3,6 @@
  * proxy가 {host}/llms.txt → /s/{host}/llms.txt 로 rewrite.
  */
 import { getDataServices } from '@/lib/data';
-import { allSections } from '@/lib/types/site';
 
 type Ctx = { params: Promise<{ domain: string }> };
 
@@ -25,17 +24,30 @@ export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
 
   const lines = [`# ${name}`, ''];
   if (config.meta.description) lines.push(`> ${config.meta.description}`, '');
-  lines.push('## 구성');
-  for (const s of allSections(config).filter((sec) => !sec.hidden)) {
-    lines.push(`- ${s.name}`);
+
+  // [v4 Phase 3] 페이지 단위 구성 — 각 페이지 제목·URL·섹션 목록
+  lines.push('## 페이지');
+  for (const page of config.pages) {
+    const url = page.slug === '' ? base : `${base}/${page.slug}`;
+    lines.push('', `### ${page.title} (${url})`);
+    for (const s of page.sections.filter((sec) => !sec.hidden)) {
+      lines.push(`- ${s.name}`);
+    }
   }
+
   if (info) {
     lines.push('', '## 연락처');
     if (info.phone) lines.push(`- 전화: ${info.phone}`);
     if (info.address) lines.push(`- 주소: ${info.address}`);
     if (info.email) lines.push(`- 이메일: ${info.email}`);
   }
-  lines.push('', `## 링크`, `- 홈: ${base}`);
+
+  // [v4 Phase 3] 전체 페이지 링크
+  lines.push('', `## 링크`);
+  for (const page of config.pages) {
+    const url = page.slug === '' ? base : `${base}/${page.slug}`;
+    lines.push(`- ${page.title}: ${url}`);
+  }
 
   return new Response(lines.join('\n') + '\n', {
     headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },

@@ -1,6 +1,6 @@
 /**
- * [v3 Phase 7] 테넌트별 sitemap.xml — 발행 사이트 URL 목록.
- * MVP: 단일 페이지 사이트이므로 루트 + privacy/terms.
+ * [v4 Phase 3] 테넌트별 sitemap.xml — 발행 사이트의 전체 페이지 + privacy/terms.
+ * config.pages 각각을 URL로 (홈 slug='' → 루트, 그 외 → /{slug}).
  * proxy가 {host}/sitemap.xml → /s/{host}/sitemap.xml 로 rewrite.
  */
 import { getDataServices } from '@/lib/data';
@@ -24,7 +24,10 @@ export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
 
   const base = `https://${host}`;
   const lastmod = (site.publishedAt ?? site.createdAt ?? '').slice(0, 10);
-  const urls = ['', '/privacy', '/terms'].map((path) => {
+  // 발행본의 모든 페이지(홈 slug='' → 루트) + 법적 고정 페이지
+  const pagePaths = site.siteConfig.pages.map((p) => (p.slug === '' ? '' : `/${p.slug}`));
+  const paths = [...pagePaths, '/privacy', '/terms'];
+  const urls = paths.map((path) => {
     const loc = xmlEscape(`${base}${path}`);
     return `  <url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}<changefreq>weekly</changefreq></url>`;
   });

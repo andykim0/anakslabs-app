@@ -14,7 +14,8 @@ import { createElement } from 'react';
 // renderToStaticMarkup은 동기·환경중립이라 Node 런타임 라우트에서도 동작.
 import { renderToStaticMarkup } from 'react-dom/server.edge';
 import type { SiteConfig } from '@/lib/types/site';
-import { SiteRenderer } from '@/components/site-renderer';
+import { findPage } from '@/lib/types/site';
+import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 
 /** 렌더러 auto 모드 반응형 전환 + 최소 리셋 (Tailwind 없이 동작) */
 const BASE_DOC_CSS = [
@@ -39,6 +40,14 @@ function escapeAttr(s: string): string {
 
 export interface RenderDocumentOptions {
   config: SiteConfig;
+  /** [v4] 렌더할 페이지 slug (기본 '' = 홈). 없는 slug면 홈으로 폴백 */
+  pageSlug?: string;
+  /**
+   * [v4] 헤더 내비 링크 href 매핑 — 정적 번들은 파일 간 상대 링크가 필요.
+   * 예) (slug) => slug === '' ? './index.html' : `./${slug}.html`
+   * 없으면 헤더 미렌더(단일 페이지 export 하위호환).
+   */
+  navHrefForSlug?: (slug: string) => string;
   /** 셀프호스트 @font-face CSS. 있으면 <head>에 인라인 + 본문 CDN 폰트 링크 제거 */
   fontFaceCss?: string;
   /** <head>에 추가할 원시 HTML (예: 셀프호스트 자산 preload) */
@@ -52,8 +61,25 @@ export interface RenderDocumentOptions {
 /** 발행본 SiteConfig → `<!doctype html>` 완전 문서 문자열 */
 export function renderStaticDocument(opts: RenderDocumentOptions): string {
   const { config } = opts;
+  const pageSlug = opts.pageSlug ?? '';
+  const page = findPage(config, pageSlug);
+  const isHome = pageSlug === '';
+
+  // [v4] 자동 헤더 내비 (파일 간 상대 링크). 표시 조건은 TenantHeader 내부 판단.
+  const header = opts.navHrefForSlug
+    ? renderToStaticMarkup(
+        createElement(TenantHeader, {
+          config,
+          currentSlug: pageSlug,
+          hrefForSlug: opts.navHrefForSlug,
+        }),
+      )
+    : '';
+
+  // animate:false — 정적 번들은 JS가 없어 등장 애니메이션이 무의미하고, Reveal은 클라이언트
+  // 컴포넌트라 renderToStaticMarkup(서버)에서 호출 불가. SSR 출력은 항상 가시(opacity 0 없음).
   let body = renderToStaticMarkup(
-    createElement(SiteRenderer, { config, mode: 'auto', interactive: true }),
+    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: false, pageSlug }),
   );
 
   if (opts.fontFaceCss) {
@@ -62,12 +88,14 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   }
 
   const meta = config.meta;
+  // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
+  const docTitle = isHome || !page ? meta.title : `${page.title} · ${meta.title}`;
   const head = [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escapeHtml(meta.title)}</title>`,
+    `<title>${escapeHtml(docTitle)}</title>`,
     meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
-    `<meta property="og:title" content="${escapeAttr(meta.title)}">`,
+    `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
     meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
     meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',
     `<style>${BASE_DOC_CSS}</style>`,
@@ -83,7 +111,7 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
 ${head}
 </head>
 <body>
-${body}
+${header}${body}
 ${opts.bodyAppendHtml ?? ''}
 </body>
 </html>

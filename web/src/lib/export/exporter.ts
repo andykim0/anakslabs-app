@@ -49,16 +49,24 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
     for (const [k, v] of fonts.fontAssets) fontAssets.set(k, v);
   }
 
-  // 3. index.html 렌더
-  const html = renderStaticDocument({
-    config: collected.config,
-    fontFaceCss: fontFaceCss || undefined,
-    bodyAppendHtml: opts.legalFooterHtml,
-  });
+  // 3. [v4] 페이지별 HTML 렌더 — 홈=index.html, 그 외={slug}.html.
+  //    헤더 내비는 파일 간 상대 링크(홈 ./index.html)로 재작성.
+  const navHrefForSlug = (slug: string) => (slug === '' ? './index.html' : `./${slug}.html`);
+  const pages = collected.config.pages;
+  const pageFiles: { name: string; html: string }[] = pages.map((page) => ({
+    name: page.slug === '' ? 'index.html' : `${page.slug}.html`,
+    html: renderStaticDocument({
+      config: collected.config,
+      pageSlug: page.slug,
+      navHrefForSlug,
+      fontFaceCss: fontFaceCss || undefined,
+      bodyAppendHtml: opts.legalFooterHtml,
+    }),
+  }));
 
   // 4. 파일 맵 구성
   const files = new Map<string, Buffer | string>();
-  files.set('index.html', html);
+  for (const pf of pageFiles) files.set(pf.name, pf.html);
   for (const [rel, buf] of collected.assets) files.set(rel, buf);
   for (const [rel, buf] of fontAssets) files.set(rel, buf);
   if (opts.legalPages?.privacyHtml) files.set('privacy.html', opts.legalPages.privacyHtml);

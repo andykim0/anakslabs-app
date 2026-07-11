@@ -71,6 +71,17 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string): JsonLdNode[] {
     url: siteUrl,
   });
 
+  // [v4 Phase 3] 내비 노출 페이지 ≥2면 사이트 내비 구조 노출 (헤더 조건과 동일)
+  const navPages = config.pages.filter((p) => p.showInNav !== false);
+  if (siteUrl && config.nav?.enabled !== false && navPages.length >= 2) {
+    nodes.push({
+      '@context': 'https://schema.org',
+      '@type': 'SiteNavigationElement',
+      name: navPages.map((p) => p.navLabel ?? p.title),
+      url: navPages.map((p) => (p.slug === '' ? siteUrl : `${siteUrl}/${p.slug}`)),
+    });
+  }
+
   const faqSection = allSections(config).find((s) => s.type === 'faq');
   if (faqSection) {
     const pairs = extractFaq(faqSection).filter((p) => p.a);

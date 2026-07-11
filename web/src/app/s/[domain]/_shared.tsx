@@ -9,7 +9,7 @@ import { cache } from 'react';
 import type { Site } from '@/lib/types/domain';
 import { findPage } from '@/lib/types/site';
 import { getDataServices } from '@/lib/data';
-import { LegalFooter, SemanticOutline, SiteRenderer, SuspendedNotice } from '@/components/site-renderer';
+import { LegalFooter, SemanticOutline, SiteRenderer, SuspendedNotice, TenantHeader } from '@/components/site-renderer';
 import { buildJsonLd } from '@/lib/seo/jsonld';
 
 /** generateMetadata + page 중복 조회 방지 (요청 단위 dedupe) */
@@ -86,6 +86,8 @@ export function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug: strin
         // 신뢰된 서버 생성 값 (사용자 입력은 businessInfo 문자열 필드뿐 — JSON 인코딩으로 이스케이프)
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* [v4 Phase 3] 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 미표시) */}
+      <TenantHeader config={config} currentSlug={pageSlug} />
       <main>
         {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조 */}
         <SemanticOutline config={config} pageSlug={pageSlug} />
