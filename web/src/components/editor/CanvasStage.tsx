@@ -21,7 +21,7 @@ const STAGE_PADDING = 48;
 export const MIN_ZOOM = 0.5;
 export const MAX_ZOOM = 1.5;
 
-/** 프리뷰에서 링크 클릭 처리 — 에디터를 떠나지 않게 외부는 새 탭, 경로는 차단, #앵커는 통과 */
+/** 프리뷰에서 링크 클릭 처리 — 외부는 새 탭, 내부 '/{slug}'는 프리뷰 페이지 전환, #앵커는 통과 */
 function handlePreviewClickCapture(e: React.MouseEvent) {
   const anchor = (e.target as HTMLElement).closest('a');
   if (!anchor) return;
@@ -29,17 +29,42 @@ function handlePreviewClickCapture(e: React.MouseEvent) {
   if (/^https?:\/\//i.test(href)) {
     e.preventDefault();
     window.open(href, '_blank', 'noopener,noreferrer');
-  } else if (href.startsWith('/')) {
-    // 발행 도메인 기준 상대 경로 — 프리뷰(대시보드 오리진)에선 이동하지 않음
+  } else if (href.startsWith('/') && !href.startsWith('//')) {
+    // [v4] 발행 도메인 기준 내부 경로 — 프리뷰에선 해당 slug 페이지로 전환 (있을 때만)
     e.preventDefault();
+    const slug = href === '/' ? '' : href.slice(1).split(/[?#]/)[0];
+    const state = useEditorStore.getState();
+    if (state.config.pages.some((p) => p.slug === slug)) state.setPreviewPage(slug);
   }
   // '#앵커'는 기본 동작 = 프리뷰 안에서 해당 섹션으로 스크롤, mailto:/tel:도 통과
+}
+
+/** 프리뷰 페이지 전환 드롭다운 (Phase 3 TenantHeader 전 임시 스위처) */
+function PreviewPageSwitcher() {
+  const pages = useEditorStore((s) => s.config.pages);
+  const previewPageSlug = useEditorStore((s) => s.previewPageSlug);
+  if (pages.length < 2) return null;
+  return (
+    <select
+      value={previewPageSlug}
+      onChange={(e) => useEditorStore.getState().setPreviewPage(e.target.value)}
+      className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 outline-none focus:border-[#c8a96a]"
+    >
+      {pages.map((p) => (
+        <option key={p.id} value={p.slug}>
+          {p.title}
+          {p.slug === '' ? ' (홈)' : ` · /${p.slug}`}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 export function CanvasStage() {
   const config = useEditorStore((s) => s.config);
   const zoom = useEditorStore((s) => s.zoom);
   const preview = useEditorStore((s) => s.preview);
+  const previewPageSlug = useEditorStore((s) => s.previewPageSlug);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(0.6);
@@ -71,15 +96,16 @@ export function CanvasStage() {
     return (
       <div className="flex min-w-0 flex-1 items-start justify-center overflow-auto bg-[#111] py-8">
         <div className="flex flex-col items-center gap-3">
-          <p className="flex items-center gap-1.5 text-xs text-neutral-400">
+          <div className="flex items-center gap-2 text-xs text-neutral-400">
             <Smartphone className="h-3.5 w-3.5" />
-            모바일 미리보기 — 요소가 y좌표 순으로 자동 스택됩니다
-          </p>
+            모바일 미리보기
+            <PreviewPageSwitcher />
+          </div>
           <div
             className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-neutral-700 bg-black shadow-2xl"
             onClickCapture={handlePreviewClickCapture}
           >
-            <SiteRenderer config={config} mode="mobile" />
+            <SiteRenderer config={config} mode="mobile" pageSlug={previewPageSlug} />
           </div>
         </div>
       </div>
@@ -89,12 +115,13 @@ export function CanvasStage() {
   if (preview === 'desktop') {
     return (
       <div className="min-w-0 flex-1 overflow-y-auto bg-[#111]" onClickCapture={handlePreviewClickCapture}>
-        <p className="flex items-center justify-center gap-1.5 py-2.5 text-xs text-neutral-400">
+        <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-neutral-400">
           <Eye className="h-3.5 w-3.5" />
-          미리보기 — 발행본과 동일하게 등장 애니메이션·버튼이 동작합니다 (외부 링크는 새 탭)
-        </p>
+          미리보기 — 등장 애니메이션·버튼 동작 (외부 링크는 새 탭)
+          <PreviewPageSwitcher />
+        </div>
         <div className="mx-auto max-w-[1440px] shadow-2xl">
-          <SiteRenderer config={config} mode="desktop" />
+          <SiteRenderer config={config} mode="desktop" pageSlug={previewPageSlug} />
         </div>
       </div>
     );

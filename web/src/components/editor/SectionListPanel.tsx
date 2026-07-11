@@ -12,6 +12,7 @@ import { Modal } from '@/components/dashboard/modal';
 import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
 import { BusinessInfoForm } from './BusinessInfoForm';
+import { PageListPanel } from './PageListPanel';
 import { SECTION_TYPE_LABELS } from './defaults';
 import { DropMenu } from './DropMenu';
 
@@ -34,6 +35,8 @@ export function SectionListPanel() {
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-neutral-800 bg-neutral-950">
+      {/* [v4 Phase 2] 페이지 목록 (선택 페이지 = 편집 스코프) */}
+      <PageListPanel />
       <div className="flex items-center gap-2 border-b border-neutral-800 px-4 py-3">
         <Layers className="h-3.5 w-3.5 text-neutral-500" />
         <span className="text-xs font-semibold text-neutral-300">섹션</span>

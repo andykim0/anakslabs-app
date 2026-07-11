@@ -17,9 +17,10 @@ import type {
   SectionType,
   SiteConfig,
   SiteMeta,
+  SitePage,
   SiteTheme,
 } from '@/lib/types/site';
-import { emptySiteConfig } from '@/lib/types/site';
+import { emptySiteConfig, isValidPageSlug } from '@/lib/types/site';
 import type { EditType } from '@/lib/types/domain';
 import { createDefaultElement, createDefaultSection, uid } from '@/components/editor/defaults';
 import { clampFrameToSection } from '@/components/editor/snap';
@@ -53,6 +54,10 @@ export interface EditorState {
    * 자동저장이 draftConfig로 합성해 전송.
    */
   businessInfo: BusinessInfo | null;
+  /** [v4 Phase 2] 편집 중인 페이지 id — 요소/섹션 액션이 이 페이지 스코프로 동작 */
+  selectedPageId: string;
+  /** [v4 Phase 2] 프리뷰 중 페이지 slug — 내비/링크 클릭으로 전환 (편집 스코프와 별개) */
+  previewPageSlug: string;
   selectedSectionId: string | null;
   selectedElementId: string | null;
   /** 인라인 텍스트 편집 중인 요소 */
@@ -99,6 +104,20 @@ export interface EditorState {
   duplicateSection: (sectionId: string) => string | null;
   moveSection: (sectionId: string, dir: -1 | 1) => void;
 
+  // ----- [v4 Phase 2] 페이지 -----
+  selectPage: (pageId: string) => void;
+  addPage: (title: string) => string;
+  renamePage: (pageId: string, title: string) => void;
+  /** slug 정규화(소문자)+검증(유효/예약/유니크) 통과 시에만 적용, 아니면 no-op */
+  setPageSlug: (pageId: string, slug: string) => void;
+  reorderPage: (pageId: string, dir: -1 | 1) => void;
+  /** 홈(slug '') 삭제 금지, 최소 1페이지 유지 */
+  deletePage: (pageId: string) => void;
+  duplicatePage: (pageId: string) => string | null;
+  setPageNav: (pageId: string, patch: { showInNav?: boolean; navLabel?: string }) => void;
+  /** 프리뷰 페이지 전환 (프리뷰 모드 내 내비/링크 클릭) */
+  setPreviewPage: (slug: string) => void;
+
   // ----- 테마/메타 -----
   updateTheme: (patch: ThemePatch) => void;
   updateMeta: (patch: Partial<SiteMeta>) => void;
@@ -115,10 +134,11 @@ const HISTORY_LIMIT = 100;
 
 // ---------- 순수 헬퍼 ----------
 
-/** [v4 Phase 1] 편집 대상 페이지 인덱스 — 홈(pages[0]) 고정. Phase 2에서 selectedPageId로 대체. */
+/** [v4 Phase 2] 편집 대상 페이지 인덱스 — 스토어의 selectedPageId 기준(없으면 홈/0). */
 export function activePageIndex(config: SiteConfig): number {
-  void config;
-  return 0;
+  const selectedId = useEditorStore.getState().selectedPageId;
+  const idx = config.pages.findIndex((p) => p.id === selectedId);
+  return idx >= 0 ? idx : 0;
 }
 /** 편집 대상 페이지의 섹션 배열 (에디터 컴포넌트가 공유 — 선택 페이지 단일 소스) */
 export function activeSections(config: SiteConfig): Section[] {
@@ -128,6 +148,27 @@ export function activeSections(config: SiteConfig): Section[] {
 function withActiveSections(config: SiteConfig, sections: Section[]): SiteConfig {
   const idx = activePageIndex(config);
   return { ...config, pages: config.pages.map((p, i) => (i === idx ? { ...p, sections } : p)) };
+}
+
+/** [v4 Phase 2] 제목 → slug 후보 (ASCII 소문자/숫자/하이픈; 한글 등은 제거돼 빈 문자열 가능) */
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+}
+/** [v4 Phase 2] pages 내 유니크·유효 slug 보장 (빈/예약/충돌이면 page 또는 base-N 폴백) */
+function uniquePageSlug(pages: SitePage[], base: string, excludeId?: string): string {
+  const taken = new Set(pages.filter((p) => p.id !== excludeId).map((p) => p.slug));
+  const root = base && base !== '' && isValidPageSlug(base) ? base : 'page';
+  let candidate = root;
+  let n = 2;
+  while (taken.has(candidate) || !isValidPageSlug(candidate) || candidate === '') {
+    candidate = `${root}-${n++}`;
+  }
+  return candidate;
 }
 
 export function findElementLocation(
@@ -183,6 +224,8 @@ export const useEditorStore = create<EditorState>()(
       siteId: '',
       config: emptySiteConfig(''),
       businessInfo: null,
+      selectedPageId: 'home',
+      previewPageSlug: '',
       selectedSectionId: null,
       selectedElementId: null,
       editingElementId: null,
@@ -210,7 +253,11 @@ export const useEditorStore = create<EditorState>()(
       setZoom: (zoom) => set({ zoom }),
       setFitScale: (scale) => set({ fitScale: scale }),
       setPreview: (mode) =>
-        set({ preview: mode, editingElementId: null, guides: null }),
+        set((state) => {
+          // [v4 Phase 2] 프리뷰 시작 시 편집 중이던 페이지로
+          const page = state.config.pages.find((p) => p.id === state.selectedPageId);
+          return { preview: mode, previewPageSlug: page?.slug ?? '', editingElementId: null, guides: null };
+        }),
       setGuides: (guides) => set({ guides }),
       setSaveStatus: (status) =>
         set(status === 'saved' ? { saveStatus: status, lastSavedAt: Date.now(), dirty: false } : { saveStatus: status }),
@@ -447,6 +494,134 @@ export const useEditorStore = create<EditorState>()(
           return { config: withActiveSections(state.config, sections), dirty: true };
         }),
 
+      // ----- [v4 Phase 2] 페이지 -----
+      selectPage: (pageId) =>
+        set((state) => {
+          if (!state.config.pages.some((p) => p.id === pageId)) return state;
+          return { selectedPageId: pageId, selectedSectionId: null, selectedElementId: null, editingElementId: null };
+        }),
+
+      addPage: (title) => {
+        const newId = uid();
+        set((state) => {
+          const t = title.trim() || '새 페이지';
+          const slug = uniquePageSlug(state.config.pages, slugify(t));
+          const page: SitePage = { id: newId, title: t, slug, sections: [] };
+          return {
+            config: { ...state.config, pages: [...state.config.pages, page] },
+            dirty: true,
+            selectedPageId: newId,
+            selectedSectionId: null,
+            selectedElementId: null,
+            editingElementId: null,
+          };
+        });
+        return newId;
+      },
+
+      renamePage: (pageId, title) =>
+        set((state) => {
+          const t = title.trim();
+          if (!t) return state;
+          return {
+            config: { ...state.config, pages: state.config.pages.map((p) => (p.id === pageId ? { ...p, title: t } : p)) },
+            dirty: true,
+          };
+        }),
+
+      setPageSlug: (pageId, slug) =>
+        set((state) => {
+          const target = state.config.pages.find((p) => p.id === pageId);
+          if (!target || target.slug === '') return state; // 홈 slug('')는 불변
+          const normalized = slug.trim().toLowerCase();
+          if (normalized === '' || !isValidPageSlug(normalized)) return state; // 홈 외엔 빈 slug 불가
+          if (state.config.pages.some((p) => p.id !== pageId && p.slug === normalized)) return state; // 중복
+          return {
+            config: { ...state.config, pages: state.config.pages.map((p) => (p.id === pageId ? { ...p, slug: normalized } : p)) },
+            dirty: true,
+          };
+        }),
+
+      reorderPage: (pageId, dir) =>
+        set((state) => {
+          const pages = state.config.pages;
+          const idx = pages.findIndex((p) => p.id === pageId);
+          const to = idx + dir;
+          if (idx < 0 || to < 0 || to >= pages.length) return state;
+          const next = pages.slice();
+          const [item] = next.splice(idx, 1);
+          next.splice(to, 0, item);
+          return { config: { ...state.config, pages: next }, dirty: true };
+        }),
+
+      deletePage: (pageId) =>
+        set((state) => {
+          const pages = state.config.pages;
+          const target = pages.find((p) => p.id === pageId);
+          if (!target || target.slug === '' || pages.length <= 1) return state; // 홈/최소1 보호
+          const idx = pages.findIndex((p) => p.id === pageId);
+          const next = pages.filter((p) => p.id !== pageId);
+          const wasSelected = state.selectedPageId === pageId;
+          const neighbor = next[Math.min(idx, next.length - 1)] ?? next[0];
+          return {
+            config: { ...state.config, pages: next },
+            dirty: true,
+            selectedPageId: wasSelected ? neighbor.id : state.selectedPageId,
+            selectedSectionId: null,
+            selectedElementId: null,
+            editingElementId: null,
+          };
+        }),
+
+      duplicatePage: (pageId) => {
+        let newId: string | null = null;
+        set((state) => {
+          const pages = state.config.pages;
+          const idx = pages.findIndex((p) => p.id === pageId);
+          if (idx < 0) return state;
+          const original = pages[idx];
+          const copy = structuredClone(original) as SitePage;
+          copy.id = uid();
+          copy.title = `${original.title} 복사본`;
+          copy.slug = uniquePageSlug(pages, original.slug || slugify(copy.title));
+          copy.sections = copy.sections.map((s) => ({
+            ...s,
+            id: uid(),
+            elements: s.elements.map((e) => ({ ...e, id: uid() })),
+          }));
+          newId = copy.id;
+          const next = pages.slice();
+          next.splice(idx + 1, 0, copy);
+          return {
+            config: { ...state.config, pages: next },
+            dirty: true,
+            selectedPageId: copy.id,
+            selectedSectionId: null,
+            selectedElementId: null,
+          };
+        });
+        return newId;
+      },
+
+      setPageNav: (pageId, patch) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            pages: state.config.pages.map((p) =>
+              p.id === pageId
+                ? {
+                    ...p,
+                    ...('showInNav' in patch ? { showInNav: patch.showInNav } : {}),
+                    ...('navLabel' in patch ? { navLabel: patch.navLabel } : {}),
+                  }
+                : p,
+            ),
+          },
+          dirty: true,
+        })),
+
+      setPreviewPage: (slug) => set({ previewPageSlug: slug }),
+
       // ----- 테마/메타 -----
       updateTheme: (patch) =>
         set((state) => {
@@ -499,11 +674,15 @@ export const useEditorStore = create<EditorState>()(
 export function initializeEditor(siteId: string, config: SiteConfig) {
   // [v3 Phase 4] businessInfo는 undo 비추적 필드로 분리 (config에는 남기지 않는다)
   const { businessInfo, ...rest } = config;
+  // [v4 Phase 2] 진입 시 홈 페이지 선택
+  const home = rest.pages.find((p) => p.slug === '') ?? rest.pages[0];
   useEditorStore.setState({
     siteId,
     config: rest,
     businessInfo: businessInfo ?? null,
-    selectedSectionId: rest.pages[0]?.sections[0]?.id ?? null,
+    selectedPageId: home?.id ?? 'home',
+    previewPageSlug: '',
+    selectedSectionId: home?.sections[0]?.id ?? null,
     selectedElementId: null,
     editingElementId: null,
     zoom: 'fit',
