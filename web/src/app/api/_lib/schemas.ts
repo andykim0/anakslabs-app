@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
 import { isValidPageSlug } from '@/lib/types/site';
+import { MOTION_PRESETS } from '@/lib/motion/presets';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -316,6 +317,12 @@ const sitePageSchema = z.object({
 });
 
 /** [v4] SiteConfig v2 — 페이지>섹션 2계층. 쓰기 API는 v2만 수용(클라는 항상 정규화본 로드). */
+/** [motion-system] presetId는 MOTION_PRESETS 키만, intensity는 계약 enum. 플랜 강등은 sanitizeMotion 담당 */
+export const motionSchema = z.object({
+  presetId: z.enum(Object.keys(MOTION_PRESETS) as [string, ...string[]]),
+  intensity: z.enum(['off', 'subtle', 'normal']),
+});
+
 export const siteConfigSchema = z
   .object({
     version: z.literal(2),
@@ -324,6 +331,7 @@ export const siteConfigSchema = z
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
     businessInfo: businessInfoSchema.optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),
+    motion: motionSchema.optional(),
   })
   .superRefine((cfg, ctx) => {
     // slug 유효성 (''=홈 또는 ^[a-z0-9-]{1,40}$·비예약)

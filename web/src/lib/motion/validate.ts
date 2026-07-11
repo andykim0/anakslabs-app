@@ -3,8 +3,9 @@
  * 순수 함수·원본 불변. 모든 교정은 changes[]에 한국어로 남겨 로깅·고객 안내에 쓴다.
  */
 import type { MotionIntensity, MotionTier, SiteConfig } from '@/lib/types/site';
+import type { SitePurposeId } from '@/lib/types/domain';
 import { MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
-import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, type PresetId } from './presets';
+import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, resolvePresetForIndustry, type PresetId } from './presets';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 
@@ -89,4 +90,28 @@ export function sanitizeMotion(
   }
 
   return { config: { ...config, motion: { presetId, intensity } }, changes };
+}
+
+/**
+ * [생성 파이프라인 방벽] LLM 출력의 motion 값은 전부 무시하고 업종 매핑 프리셋으로 덮어쓴 뒤
+ * 다시 sanitize(이중 방벽). 생성·재생성 라우트가 저장 직전 호출한다. intensity는 'normal' 고정
+ * (생성 시점엔 사용자 강도 선택이 없다 — 이후 에디터에서 조절).
+ */
+export function applyGeneratedMotion(
+  config: SiteConfig,
+  purpose: SitePurposeId,
+  tier: MotionTier,
+): SiteConfig {
+  const presetId = resolvePresetForIndustry(purpose, tier);
+  return sanitizeMotion({ ...config, motion: { presetId, intensity: 'normal' } }, tier).config;
+}
+
+/**
+ * [읽기 마이그레이션] motion 없는(또는 미등록 프리셋) 기존 SiteConfig에 기본값 주입.
+ * 데이터 계층 read 경계(mappers/seed)에서 호출. 레거시 config엔 업종 정보가 없으므로
+ * 안전한 최저 기준(basic 기본 프리셋)을 주입 — 업종별 매핑은 생성 시점(applyGeneratedMotion)이 담당.
+ */
+export function ensureMotion(config: SiteConfig): SiteConfig {
+  if (config.motion && isPresetId(config.motion.presetId)) return config;
+  return { ...config, motion: { presetId: DEFAULT_PRESET.basic, intensity: 'normal' } };
 }

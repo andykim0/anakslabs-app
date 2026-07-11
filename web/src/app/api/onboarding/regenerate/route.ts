@@ -13,6 +13,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
@@ -57,7 +58,9 @@ export const POST = withApiHandler(async (request) => {
   const { ai, sites } = getDataServices();
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
   const generated = await ai.generateSiteConfig(survey, candidate);
-  const draftConfig = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
+  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier);
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

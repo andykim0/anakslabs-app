@@ -9,6 +9,7 @@ import { getDataServices } from '@/lib/data';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import { siteConfigSchema } from '../../_lib/schemas';
+import { sanitizeMotion } from '@/lib/motion/validate';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -38,6 +39,12 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const body = await parseBody(request, patchSchema);
   if (!body.ok) return body.res;
 
-  await getDataServices().sites.saveDraft(siteId, body.data.draftConfig as SiteConfig);
-  return NextResponse.json({ ok: true, savedAt: new Date().toISOString() });
+  // [motion-system] 플랜 기준 모션 새니타이즈 — 위반은 403이 아니라 자동 강등 + changes 안내.
+  const { config: sanitized, changes } = sanitizeMotion(body.data.draftConfig as SiteConfig, client.tier);
+  await getDataServices().sites.saveDraft(siteId, sanitized);
+  return NextResponse.json({
+    ok: true,
+    savedAt: new Date().toISOString(),
+    ...(changes.length ? { motionChanges: changes } : {}),
+  });
 });

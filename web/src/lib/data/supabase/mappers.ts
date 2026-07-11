@@ -22,11 +22,12 @@ import type {
 } from '@/lib/types/domain';
 import type { SiteConfig, SiteConfigV1 } from '@/lib/types/site';
 import { normalizeSiteConfig } from '@/lib/types/site';
+import { ensureMotion } from '@/lib/motion/validate';
 
-/** [v4] jsonb site_config → v2 정규화 (v1이면 홈 페이지 1개로 승격). null 유지. */
+/** [v4] jsonb site_config → v2 정규화 (v1이면 홈 페이지 1개로 승격) + motion 기본값 주입. null 유지. */
 function normalizeConfigCol(raw: unknown): SiteConfig | null {
   if (raw == null) return null;
-  return normalizeSiteConfig(raw as SiteConfigV1 | SiteConfig);
+  return ensureMotion(normalizeSiteConfig(raw as SiteConfigV1 | SiteConfig));
 }
 
 export interface ClientRow {
