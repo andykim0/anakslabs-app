@@ -50,6 +50,25 @@ export async function uploadAiAsset(input: {
   return svc.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
+/** [Veo] 생성 영상 바이트 → ai-assets 공개 버킷 업로드 → 공개 URL */
+export async function uploadAiVideo(input: {
+  bytes: Buffer;
+  mimeType: string;
+  /** 경로 프리픽스 (예: 'videos') */
+  prefix: string;
+}): Promise<string> {
+  await ensureBucket();
+  const svc = getServiceRoleClient();
+  const ext = input.mimeType.includes('webm') ? 'webm' : 'mp4';
+  const path = `${input.prefix}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  const { error } = await svc.storage.from(BUCKET).upload(path, input.bytes, {
+    contentType: input.mimeType,
+    upsert: false,
+  });
+  if (error) throw new Error(`Storage 영상 업로드 실패 (${path}): ${error.message}`);
+  return svc.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
 /** [§7] 고객 업로드 자산(로고 등) → 공개 버킷(client-assets) 업로드 → 공개 URL */
 export async function uploadClientAsset(input: {
   bytes: Buffer;
