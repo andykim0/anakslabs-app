@@ -15,6 +15,7 @@ import {
 } from '@/lib/legal/notices';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
+import { PreviewVideo } from '@/components/marketing/PreviewVideo';
 
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
@@ -148,6 +149,8 @@ export default function PricingPage() {
             <span className="absolute -top-3 right-6 rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
               추천
             </span>
+            {/* [video] Premium 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 (모바일=poster) */}
+            <PreviewVideo mode="hover" className="mb-5 rounded-lg border border-[#E4D9BF]" />
             <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">Premium</h2>
             <p className="mt-4 text-3xl font-semibold text-[#17181C]">
               {man(buildFee.premium[0])}

@@ -103,24 +103,10 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* 스크롤 모션 쇼케이스 (실제 Reveal 시스템) — Premium 전용 */}
+      {/* Premium 데모 — 시네마틱 영상 + 스크롤 모션 (MotionShowcase가 자체 헤딩 보유) */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="text-center">
-            <span className="inline-flex items-center rounded-full border border-[#E4D9BF] bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
-              Premium 전용
-            </span>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#17181C] sm:text-3xl">
-              스크롤에 반응하는 등장 모션
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#5C6068]">
-              아래 카드가 실제 데모입니다 — 이 페이지가 쓰는 등장 애니메이션은 발행 사이트의 것과 동일한 시스템입니다.
-              Premium 사이트에서 활성화되며, Basic은 비활성(업그레이드 시 즉시 켜짐).
-            </p>
-          </div>
-          <div className="mt-12">
-            <MotionShowcase />
-          </div>
+          <MotionShowcase />
         </div>
       </section>
 

@@ -1,31 +1,44 @@
-'use client';
-
 /**
- * [마케팅] 스크롤 등장 모션 쇼케이스 — 테넌트 사이트가 쓰는 실제 Reveal 시스템을
- * 그대로 재사용한다("우리 사이트가 곧 데모"). Reveal 자체는 게이팅되지 않으므로
- * (게이팅은 테넌트 서빙의 SiteRenderer 호출부) 마케팅 데모로 직접 쓸 수 있다.
+ * [마케팅] Premium 데모 섹션 — 2컬럼(텍스트 / 시네마틱 영상 목업).
+ * 왼쪽: PREMIUM 아이브로우 + 카피 + /pricing 링크. 오른쪽: BrowserFrame 안 지연로드 영상 + 'Premium 전용' 뱃지.
+ * 영상은 뷰포트 진입 시에만 로드·재생(PreviewVideo mode="inview"). 섹션은 FadeIn 등장(once).
  */
-import type { Entrance } from '@/lib/types/site';
-import { Reveal } from '@/components/site-renderer/Reveal';
-
-const BLOCKS: { effect: Entrance['effect']; title: string; body: string }[] = [
-  { effect: 'fade-up', title: '아래에서 부드럽게', body: '스크롤이 닿으면 요소가 살며시 떠오릅니다.' },
-  { effect: 'slide-left', title: '옆에서 미끄러지듯', body: '방향을 준 등장으로 시선을 자연스럽게 이끕니다.' },
-  { effect: 'zoom-in', title: '살짝 확대되며', body: '핵심 요소를 강조하는 확대 등장.' },
-];
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { Eyebrow } from '@/components/marketing/Eyebrow';
+import { FadeIn } from '@/components/motion/FadeIn';
+import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
+import { PreviewVideo } from '@/components/marketing/PreviewVideo';
 
 export function MotionShowcase() {
   return (
-    <div className="grid gap-6 md:grid-cols-3">
-      {BLOCKS.map((b, i) => (
-        <Reveal key={i} entrance={{ effect: b.effect, duration: 700, delay: i * 120 }}>
-          <div className="h-full rounded-2xl border border-[#E8E6E0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-            <span className="text-xs font-semibold tracking-widest text-[#856A26]">MOTION</span>
-            <h3 className="mt-3 text-base font-semibold text-[#17181C]">{b.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">{b.body}</p>
-          </div>
-        </Reveal>
-      ))}
+    <div className="grid items-center gap-10 md:grid-cols-2">
+      <FadeIn>
+        <Eyebrow>PREMIUM</Eyebrow>
+        <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#17181C] sm:text-3xl">
+          스크롤이 곧 연출이 되는 사이트
+        </h2>
+        <p className="mt-4 text-sm leading-7 text-[#5C6068]">
+          Premium 플랜은 AI가 생성한 시네마틱 영상과 스크롤 모션으로 사이트를 살아있게 만듭니다.
+        </p>
+        <Link
+          href="/pricing"
+          className="group mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#856A26] transition-colors hover:text-[#17181C]"
+        >
+          Premium 자세히 보기
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </FadeIn>
+      <FadeIn delay={0.08}>
+        <div className="relative">
+          <BrowserFrame url="premium.anakslabs.com">
+            <PreviewVideo mode="inview" className="rounded-lg" />
+          </BrowserFrame>
+          <span className="absolute -top-2 right-4 z-10 rounded-full bg-[#9A7B33]/10 px-2.5 py-1 text-[11px] font-semibold text-[#9A7B33] ring-1 ring-[#9A7B33]/20">
+            Premium 전용
+          </span>
+        </div>
+      </FadeIn>
     </div>
   );
 }

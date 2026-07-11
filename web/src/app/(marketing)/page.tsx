@@ -6,7 +6,8 @@ import { LandingScanner } from '@/components/landing/LandingScanner';
 import { ScannerCta } from '@/components/marketing/ui';
 import { Eyebrow } from '@/components/marketing/Eyebrow';
 import { TrustStrip } from '@/components/marketing/TrustStrip';
-import { Aurora } from '@/components/motion/Aurora';
+import { HeroVideo } from '@/components/marketing/HeroVideo';
+import { ScrollCue } from '@/components/marketing/ScrollCue';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { ReportMockup } from '@/components/marketing/mockups/ReportMockup';
@@ -39,16 +40,19 @@ const PREMIUM_FEATURES = ['Basic의 모든 기능', '영상 · 스크롤 등장 
 export default function MarketingHome() {
   return (
     <>
-      {/* 1) 진단기 히어로 (승격) — Aurora 배경 + LandingScanner(h1) + 리포트 목업 + 신뢰 지표 */}
+      {/* 1) 진단기 히어로 (승격) — 시네마틱 영상 배경 + LandingScanner(h1) + 리포트 목업 + 신뢰 지표 */}
       <div className="relative overflow-hidden">
-        <Aurora />
-        <LandingScanner />
-        <div className="mx-auto -mt-2 max-w-md px-6">
-          <ReportMockup className="mx-auto" />
+        <HeroVideo />
+        <div className="relative z-10">
+          <LandingScanner />
+          <div className="mx-auto -mt-2 max-w-md px-6">
+            <ReportMockup className="mx-auto" />
+          </div>
+          <div className="mx-auto max-w-5xl px-6 pt-12 pb-10">
+            <TrustStrip />
+          </div>
         </div>
-        <div className="mx-auto max-w-5xl px-6 pt-12 pb-6">
-          <TrustStrip />
-        </div>
+        <ScrollCue />
       </div>
 
       {/* 2) 구 히어로 카피 — h2로 강등, CTA 없음 */}
