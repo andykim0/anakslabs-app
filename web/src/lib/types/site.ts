@@ -297,6 +297,12 @@ export interface SitePage {
   navLabel?: string;
 }
 
+/** [motion-system] 요금제 티어 — 모션 기법 접근 범위 결정 (registry가 기법별 tier 보유) */
+export type MotionTier = 'basic' | 'premium';
+
+/** [motion-system] 사이트 모션 강도 — 계약 필드(프리셋과 별개로 항상 조절 가능, "off"는 전 프리셋 허용) */
+export type MotionIntensity = 'off' | 'subtle' | 'normal';
+
 /**
  * [v4] SiteConfig v2 — 페이지>섹션 2계층.
  * (v1: version:1 + sections 는 SiteConfigV1 — 데이터 계층 read 경계에서 normalizeSiteConfig로
@@ -311,6 +317,13 @@ export interface SiteConfig {
   businessInfo?: BusinessInfo;
   /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */
   nav?: { enabled?: boolean };
+  /**
+   * [motion-system] 사이트 모션 프리셋 + 강도. presetId 는 MOTION_PRESETS(lib/motion/presets.ts)
+   * 키만 유효하며 서버(sanitizeMotion·zod)에서 검증된다 — 계약이 데이터 모듈을 역참조하지
+   * 않도록 여기선 string 으로 둔다. optional: 기존(v4 이전) config 호환 — 데이터 계층 read
+   * 시점(mappers/normalize)에서 업종 매핑 기본값 주입.
+   */
+  motion?: { presetId: string; intensity: MotionIntensity };
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */
