@@ -1,6 +1,6 @@
 /**
  * [마케팅] 공유 프리미티브 — CTA 버튼·섹션 헤딩 (라이트 테마).
- * 진단기(#scanner)로 수렴하는 CTA 규약: 메인 href="#scanner", 서브 "/#scanner".
+ * 진단기(#hero-scanner)로 수렴하는 CTA 규약: 메인 href="#hero-scanner", 서브 "/#hero-scanner".
  * CTA는 잉크색(#17181C) 배경 + 흰 텍스트 (골드 배경 버튼 금지 — 고급스러움 원칙).
  */
 import Link from 'next/link';

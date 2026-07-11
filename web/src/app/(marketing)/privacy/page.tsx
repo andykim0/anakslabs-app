@@ -14,7 +14,7 @@ export const metadata: Metadata = {
  */
 export default function PrivacyPage() {
   return (
-    <section className="mx-auto max-w-3xl px-6 py-20">
+    <section className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-2xl font-semibold tracking-tight text-[#17181C]">개인정보처리방침</h1>
       <p className="mt-3 text-xs text-[#5C6068]">
         아래는 요약이며, 정식 방침 전문은 법률 검토 후 게시됩니다. 관련 문의는{' '}

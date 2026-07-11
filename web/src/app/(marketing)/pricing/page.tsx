@@ -92,7 +92,7 @@ export default function PricingPage() {
       />
 
       {/* 헤더 */}
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-12 text-center">
+      <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           홈페이지 제작 비용
         </h1>
@@ -285,7 +285,7 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-24 text-center">
         <p className="text-sm text-[#5C6068]">먼저 내 가게가 지금 어떤 상태인지 무료로 확인해 보세요.</p>
         <div className="mt-6 flex justify-center">
-          <ScannerCta href="/#scanner">무료 진단받기</ScannerCta>
+          <ScannerCta href="/#hero-scanner">무료 진단받기</ScannerCta>
         </div>
       </section>
     </>

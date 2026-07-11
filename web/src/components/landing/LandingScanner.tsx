@@ -8,9 +8,9 @@
  * 카피 원칙: 수치는 실제 스캔 값 바인딩만(하드코딩 예시 금지),
  * 순위·노출 보장 표현 금지 — 상태 서술("검색·AI가 읽을 수 있는 100점 기반").
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
 
@@ -20,6 +20,9 @@ const SCAN_MESSAGES = [
   '답변 엔진(FAQ·요약) 신호를 확인하는 중…',
   'AI가 인용할 수 있는지 검사하는 중…',
 ];
+
+/** 입력창 예시 로테이션 (3초 fade, 입력 시작 시 정지) */
+const PLACEHOLDERS = ['예: mysite.co.kr', '예: 우리가게.com', '예: cafe-dodum.kr'];
 
 async function requestScan(url: string): Promise<ScanResult> {
   const res = await fetch('/api/scan', {
@@ -185,6 +188,19 @@ export function LandingScanner() {
   const [msgIdx, setMsgIdx] = useState(0);
   const [scan, setScan] = useState<ScanResult | null>(null);
   const [error, setError] = useState('');
+  const reduce = useReducedMotion() ?? false;
+  const [phIdx, setPhIdx] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  // 하이드레이션 후에만 로테이션 오버레이 사용 — SSR/no-JS는 native placeholder(가시)로 LCP 보호
+  useEffect(() => setMounted(true), []);
+  const rotatePh = mounted && !reduce && !url;
+
+  // 예시 placeholder 로테이션 — 입력 시작(url 존재)·reduced-motion 시 정지
+  useEffect(() => {
+    if (!rotatePh) return;
+    const id = window.setInterval(() => setPhIdx((i) => (i + 1) % PLACEHOLDERS.length), 3000);
+    return () => window.clearInterval(id);
+  }, [rotatePh]);
 
   const startScan = async () => {
     const target = url.trim();
@@ -207,16 +223,16 @@ export function LandingScanner() {
   };
 
   return (
-    <section className="mx-auto max-w-5xl px-6 pt-16 pb-20 text-center md:pt-24">
+    <section id="hero-scanner" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-16 pb-10 text-center md:pt-24">
       <p className="mb-5 text-xs font-medium tracking-[0.2em] text-[#856A26] uppercase">
         무료 SEO · AEO · GEO 진단
       </p>
-      {/* [light] 메인 h1은 (marketing)/page.tsx 히어로 1개 — 여기선 h2로 강등(스타일 동일) */}
-      <h2 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-[#17181C] md:text-5xl md:leading-[1.15]">
+      {/* [visual] 진단기가 히어로로 승격 — 이 h1이 메인 유일 h1 */}
+      <h1 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-[#17181C] md:text-5xl md:leading-[1.15]">
         내 사이트, 검색과 AI가
         <br />
         읽을 수 있을까요?
-      </h2>
+      </h1>
       <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#5C6068]">
         주소만 넣으면 30초 안에 진단합니다 — 네이버·구글 검색(SEO), 답변 발췌(AEO),
         ChatGPT·Perplexity 인용(GEO) 관점으로.
@@ -224,21 +240,49 @@ export function LandingScanner() {
 
       {/* URL 입력 */}
       <div className="mx-auto mt-8 flex max-w-xl gap-2">
-        <input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') void startScan();
-          }}
-          placeholder="예: mysite.co.kr"
-          className="h-13 min-w-0 flex-1 rounded-xl border border-[#E8E6E0] bg-white px-4 text-sm text-[#17181C] outline-none transition-colors placeholder:text-[#696E76] focus:border-[#9A7B33]"
-        />
+        <div className="relative min-w-0 flex-1">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void startScan();
+            }}
+            placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
+            className="h-13 w-full rounded-xl border border-[#E8E6E0] bg-white px-4 text-sm text-[#17181C] outline-none transition-colors placeholder:text-[#696E76] focus:border-[#9A7B33]"
+          />
+          {/* 예시 로테이션 오버레이 (fade) — 마운트 후·입력 없을 때만 (SSR은 native placeholder) */}
+          {rotatePh ? (
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={phIdx}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-[#696E76]"
+              >
+                {PLACEHOLDERS[phIdx]}
+              </motion.span>
+            </AnimatePresence>
+          ) : null}
+        </div>
         <button
           type="button"
           onClick={() => void startScan()}
           disabled={scanning || !url.trim()}
-          className="inline-flex h-13 shrink-0 items-center gap-2 rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="relative inline-flex h-13 shrink-0 items-center gap-2 overflow-hidden rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
+          {/* 골드 shine — 5초 주기, 입력 중·reduced-motion이면 정지 (§6.6) */}
+          {!reduce && !url && !scanning ? (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 -inset-x-2 -skew-x-12"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(214,178,94,0.35), transparent)' }}
+              initial={{ x: '-160%' }}
+              animate={{ x: ['-160%', '260%'] }}
+              transition={{ duration: 1.1, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
+            />
+          ) : null}
           {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanSearch className="h-4 w-4" />}
           무료로 진단하기
         </button>

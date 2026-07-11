@@ -66,7 +66,7 @@ export default function FaqPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQ)) }}
       />
 
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-10 text-center">
+      <section className="mx-auto max-w-5xl px-6 pt-16 pb-10 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           자주 묻는 질문
         </h1>

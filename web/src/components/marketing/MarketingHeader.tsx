@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const NAV = [
   { href: '/features', label: '기능' },
@@ -17,8 +18,13 @@ const NAV = [
 export function MarketingHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  // 히어로(진단기)가 화면 밖으로 스크롤되면 헤더에 "무료 진단" 버튼 fade-in (§2)
+  const [heroPassed, setHeroPassed] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      setHeroPassed(window.scrollY > 480);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -56,12 +62,31 @@ export function MarketingHeader() {
           ))}
         </nav>
 
-        <Link
-          href="/login"
-          className="ml-auto rounded-lg border border-[#D9D6CE] px-4 py-2 text-sm text-[#17181C] transition-colors hover:border-[#17181C]"
-        >
-          로그인
-        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          <AnimatePresence>
+            {heroPassed ? (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.25 }}
+              >
+                <Link
+                  href="/#hero-scanner"
+                  className="rounded-lg bg-[#17181C] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+                >
+                  무료 진단
+                </Link>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+          <Link
+            href="/login"
+            className="rounded-lg border border-[#D9D6CE] px-4 py-2 text-sm text-[#17181C] transition-colors hover:border-[#17181C]"
+          >
+            로그인
+          </Link>
+        </div>
       </div>
     </header>
   );

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CASES, caseIndustries } from '@/lib/marketing/cases';
 import { CaseCard } from '@/components/marketing/CaseCard';
 import { ScannerCta } from '@/components/marketing/ui';
+import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
 
 export const metadata: Metadata = {
   title: '고객사례 — 업종별 홈페이지 제작 사례',
@@ -15,11 +16,14 @@ export default function CasesPage() {
   const industries = caseIndustries();
   return (
     <>
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-10 text-center">
+      <section className="mx-auto max-w-5xl px-6 pt-16 pb-10 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">고객사례</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
           업종별로 어떤 구조의 사이트가 만들어지는지 살펴보세요. 현재는 데모 사례로 구성돼 있습니다.
         </p>
+        <div className="mt-10 flex justify-center">
+          <SiteExampleMockup />
+        </div>
       </section>
 
       {/* 업종 필터 (링크형 — 업종별 페이지로 이동) */}
@@ -57,7 +61,7 @@ export default function CasesPage() {
           내 업종은 어떻게 나올까요?
         </h2>
         <div className="mt-8 flex justify-center">
-          <ScannerCta href="/#scanner">무료 진단으로 시작</ScannerCta>
+          <ScannerCta href="/#hero-scanner">무료 진단으로 시작</ScannerCta>
         </div>
       </section>
     </>

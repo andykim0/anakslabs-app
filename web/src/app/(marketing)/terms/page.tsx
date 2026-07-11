@@ -20,7 +20,7 @@ export const metadata: Metadata = {
  */
 export default function TermsPage() {
   return (
-    <section className="mx-auto max-w-3xl px-6 py-20">
+    <section className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-2xl font-semibold tracking-tight text-[#17181C]">이용약관</h1>
       <p className="mt-3 text-xs text-[#5C6068]">
         아래는 핵심 고지 요약입니다. 정식 약관 전문은 법률 검토 후 게시되며, 그 전까지의 문의는{' '}

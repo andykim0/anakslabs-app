@@ -2,6 +2,30 @@ import type { Metadata } from 'next';
 import { Bot, Gauge, Lock, MessageSquareQuote, Search, ShieldCheck } from 'lucide-react';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { MotionShowcase } from '@/components/marketing/MotionShowcase';
+import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
+import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
+import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
+
+/** 단계별 목업 (없는 단계는 스크린샷 placeholder 슬롯 유지) */
+function StepVisual({ no }: { no: string }) {
+  if (no === '02')
+    return (
+      <div className="flex min-h-[172px] items-center justify-center">
+        <SiteExampleMockup />
+      </div>
+    );
+  if (no === '03')
+    return (
+      <BrowserFrame url="editor.anakslabs.com">
+        <EditorMockup />
+      </BrowserFrame>
+    );
+  return (
+    <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-dashed border-[#E8E6E0] bg-[#F6F5F1] text-xs text-[#696E76]">
+      화면 스크린샷 예정
+    </div>
+  );
+}
 
 export const metadata: Metadata = {
   title: '기능 — 검색·AI가 읽는 사이트를 만드는 방법',
@@ -46,7 +70,7 @@ export default function FeaturesPage() {
   return (
     <>
       {/* 헤더 */}
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-12 text-center">
+      <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           검색·AI가 읽는 사이트,
           <br className="sm:hidden" /> 이렇게 만듭니다
@@ -70,9 +94,9 @@ export default function FeaturesPage() {
                 <h3 className="mt-2 text-lg font-semibold text-[#17181C]">{s.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#5C6068]">{s.body}</p>
               </div>
-              {/* 스크린샷 placeholder 슬롯 — 실제 이미지는 /public/marketing/ 에 추가 예정 */}
-              <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-dashed border-[#E8E6E0] bg-[#F6F5F1] text-xs text-[#696E76]">
-                화면 스크린샷 예정
+              {/* 단계별 목업(02·03) 또는 스크린샷 placeholder 슬롯 */}
+              <div className={i % 2 === 1 ? 'md:order-1' : ''}>
+                <StepVisual no={s.no} />
               </div>
             </div>
           ))}
@@ -81,7 +105,7 @@ export default function FeaturesPage() {
 
       {/* 스크롤 모션 쇼케이스 (실제 Reveal 시스템) — Premium 전용 */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
-        <div className="mx-auto max-w-5xl px-6 py-20">
+        <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="text-center">
             <span className="inline-flex items-center rounded-full border border-[#E4D9BF] bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
               Premium 전용
@@ -101,7 +125,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* AEO/GEO 엔진 (실제 구현 사실만) */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
+      <section className="mx-auto max-w-5xl px-6 py-16">
         <SectionHeading
           title="검색을 넘어, AI에게 물어보는 시대"
           subtitle="세 관점 모두에서 “읽을 수 있는 상태”로 발행합니다. 아래는 실제로 구현된 기능입니다."
@@ -124,7 +148,7 @@ export default function FeaturesPage() {
 
       {/* 호스팅·보안·속도 */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
-        <div className="mx-auto max-w-5xl px-6 py-20">
+        <div className="mx-auto max-w-5xl px-6 py-16">
           <SectionHeading title="호스팅 · 보안 · 속도" />
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {INFRA.map((f) => (
@@ -141,12 +165,12 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-5xl px-6 py-24 text-center">
+      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
         <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">
           내 사이트는 지금 몇 점일까요?
         </h2>
         <div className="mt-8 flex justify-center">
-          <ScannerCta href="/#scanner">무료로 진단받기</ScannerCta>
+          <ScannerCta href="/#hero-scanner">무료로 진단받기</ScannerCta>
         </div>
       </section>
     </>

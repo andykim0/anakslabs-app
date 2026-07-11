@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-3xl px-6 pt-20 pb-12">
+      <section className="mx-auto max-w-3xl px-6 pt-16 pb-12">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           왜 아낙스랩스를 만들었나
         </h1>
@@ -47,10 +47,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-24 text-center">
+      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
         <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">함께 시작해볼까요?</h2>
         <div className="mt-8 flex justify-center">
-          <ScannerCta href="/#scanner">내 가게 무료 진단받기</ScannerCta>
+          <ScannerCta href="/#hero-scanner">내 가게 무료 진단받기</ScannerCta>
         </div>
       </section>
     </>

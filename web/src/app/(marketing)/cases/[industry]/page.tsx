@@ -34,7 +34,7 @@ export default async function CaseIndustryPage({ params }: Props) {
 
   return (
     <>
-      <section className="mx-auto max-w-5xl px-6 pt-20 pb-10">
+      <section className="mx-auto max-w-5xl px-6 pt-16 pb-10">
         <Link
           href="/cases"
           className="inline-flex items-center gap-1.5 text-xs text-[#5C6068] transition-colors hover:text-[#5C6068]"
@@ -57,12 +57,12 @@ export default async function CaseIndustryPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-24 text-center">
+      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
         <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">
           {label} 사이트, 무료 진단부터
         </h2>
         <div className="mt-8 flex justify-center">
-          <ScannerCta href="/#scanner">내 가게 무료 진단받기</ScannerCta>
+          <ScannerCta href="/#hero-scanner">내 가게 무료 진단받기</ScannerCta>
         </div>
       </section>
     </>
