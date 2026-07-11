@@ -26,6 +26,10 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
 
   const initialConfig = site.draftConfig ?? site.siteConfig ?? emptySiteConfig(site.name || '새 사이트');
 
+  // [gating] 소유자 tier — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰). 조회 실패 시 fail-closed(basic).
+  const owner = await getDataServices().clients.getById(site.clientId);
+  const tier = owner?.tier ?? 'basic';
+
   // key: 사이트가 바뀌면 에디터 인스턴스를 새로 마운트해 스토어를 재초기화
-  return <EditorShell key={site.id} siteId={site.id} siteName={site.name} initialConfig={initialConfig} />;
+  return <EditorShell key={site.id} siteId={site.id} siteName={site.name} initialConfig={initialConfig} tier={tier} />;
 }

@@ -68,6 +68,8 @@ export function CanvasStage() {
   const zoom = useEditorStore((s) => s.zoom);
   const preview = useEditorStore((s) => s.preview);
   const previewPageSlug = useEditorStore((s) => s.previewPageSlug);
+  // [gating] 등장 애니메이션은 Premium 전용 — 프리뷰도 서빙과 동일하게 게이팅
+  const animate = useEditorStore((s) => s.tier) === 'premium';
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(0.6);
@@ -110,7 +112,7 @@ export function CanvasStage() {
           >
             {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
             <TenantHeader config={config} currentSlug={previewPageSlug} />
-            <SiteRenderer config={config} mode="mobile" pageSlug={previewPageSlug} />
+            <SiteRenderer config={config} mode="mobile" pageSlug={previewPageSlug} animate={animate} />
           </div>
         </div>
       </div>
@@ -128,7 +130,7 @@ export function CanvasStage() {
         <div className="mx-auto max-w-[1440px] shadow-2xl">
           {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
           <TenantHeader config={config} currentSlug={previewPageSlug} />
-          <SiteRenderer config={config} mode="desktop" pageSlug={previewPageSlug} />
+          <SiteRenderer config={config} mode="desktop" pageSlug={previewPageSlug} animate={animate} />
         </div>
       </div>
     );

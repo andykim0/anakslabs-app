@@ -21,7 +21,7 @@ import type {
   SiteTheme,
 } from '@/lib/types/site';
 import { emptySiteConfig, isValidPageSlug } from '@/lib/types/site';
-import type { EditType } from '@/lib/types/domain';
+import type { EditType, Tier } from '@/lib/types/domain';
 import { createDefaultElement, createDefaultSection, uid } from '@/components/editor/defaults';
 import { clampFrameToSection } from '@/components/editor/snap';
 
@@ -54,6 +54,12 @@ export interface EditorState {
    * 자동저장이 draftConfig로 합성해 전송.
    */
   businessInfo: BusinessInfo | null;
+  /**
+   * [gating] 소유자 요금제 tier — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰 animate).
+   * businessInfo처럼 config 밖 필드라 undo/redo 히스토리에서 제외(partialize { config }).
+   * initializeEditor에서 명시 전달 — 기본값 'basic'(fail-closed).
+   */
+  tier: Tier;
   /** [v4 Phase 2] 편집 중인 페이지 id — 요소/섹션 액션이 이 페이지 스코프로 동작 */
   selectedPageId: string;
   /** [v4 Phase 2] 프리뷰 중 페이지 slug — 내비/링크 클릭으로 전환 (편집 스코프와 별개) */
@@ -225,6 +231,7 @@ export const useEditorStore = create<EditorState>()(
       siteId: '',
       config: emptySiteConfig(''),
       businessInfo: null,
+      tier: 'basic' as Tier,
       selectedPageId: 'home',
       previewPageSlug: '',
       selectedSectionId: null,
@@ -672,7 +679,7 @@ export const useEditorStore = create<EditorState>()(
 );
 
 /** 페이지 진입 시 1회 초기화 — 히스토리도 함께 리셋 */
-export function initializeEditor(siteId: string, config: SiteConfig) {
+export function initializeEditor(siteId: string, config: SiteConfig, tier: Tier) {
   // [v3 Phase 4] businessInfo는 undo 비추적 필드로 분리 (config에는 남기지 않는다)
   const { businessInfo, ...rest } = config;
   // [v4 Phase 2] 진입 시 홈 페이지 선택
@@ -681,6 +688,7 @@ export function initializeEditor(siteId: string, config: SiteConfig) {
     siteId,
     config: rest,
     businessInfo: businessInfo ?? null,
+    tier,
     selectedPageId: home?.id ?? 'home',
     previewPageSlug: '',
     selectedSectionId: home?.sections[0]?.id ?? null,

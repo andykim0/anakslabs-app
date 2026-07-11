@@ -63,6 +63,7 @@ export function Reveal({ entrance, children }: { entrance: Entrance; children: R
   return (
     <div
       ref={ref}
+      data-anaks-reveal=""
       style={{
         width: '100%',
         height: '100%',

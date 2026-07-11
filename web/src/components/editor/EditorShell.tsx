@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Palette, Wand2 } from 'lucide-react';
 import type { SiteConfig } from '@/lib/types/site';
+import type { Tier } from '@/lib/types/domain';
 import { initializeEditor, useEditorStore } from '@/stores/editor';
 import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
@@ -27,17 +28,19 @@ interface EditorShellProps {
   siteId: string;
   siteName: string;
   initialConfig: SiteConfig;
+  /** [gating] 소유자 요금제 — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰) */
+  tier: Tier;
 }
 
 type RightTab = 'design' | 'ai';
 
-export function EditorShell({ siteId, siteName, initialConfig }: EditorShellProps) {
+export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShellProps) {
   const { toast } = useToast();
 
   // 첫 렌더 전에 스토어 초기화 — 페이지가 key={siteId}로 마운트하므로 인스턴스당 1회.
   // (effect로 하면 빈 config가 한 프레임 노출됨. StrictMode 이중 호출에도 멱등)
   useState(() => {
-    initializeEditor(siteId, initialConfig);
+    initializeEditor(siteId, initialConfig, tier);
     return siteId;
   });
 

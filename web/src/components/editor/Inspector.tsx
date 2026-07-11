@@ -17,6 +17,7 @@ import {
   ChevronsUp,
   ChevronUp,
   Copy,
+  Lock,
   Sparkles,
   Trash2,
 } from 'lucide-react';
@@ -132,6 +133,8 @@ function ElementInspector({
   theme: SiteTheme;
 }) {
   const store = useEditorStore.getState;
+  // [gating] 등장 애니메이션은 Premium 전용 — Basic이면 FieldGroup을 잠금 카드로 대체
+  const isPremium = useEditorStore((s) => s.tier) === 'premium';
 
   const commitFrame = (patch: Partial<CanvasElement['frame']>) => {
     const next = { ...element.frame, ...patch };
@@ -219,45 +222,49 @@ function ElementInspector({
         </div>
       </FieldGroup>
 
-      <FieldGroup title="등장 애니메이션">
-        <SelectField<'auto' | EntranceEffect>
-          label="효과 (미리보기 모드에서 재생 확인)"
-          value={element.entrance?.effect ?? 'auto'}
-          options={[
-            { value: 'auto', label: '자동 (기본 연출 — 아래→위 순차)' },
-            { value: 'none', label: '없음' },
-            { value: 'fade', label: '페이드' },
-            { value: 'fade-up', label: '아래→위' },
-            { value: 'fade-down', label: '위→아래' },
-            { value: 'slide-left', label: '왼쪽에서' },
-            { value: 'slide-right', label: '오른쪽에서' },
-            { value: 'zoom-in', label: '확대 등장' },
-          ]}
-          onCommit={(v) =>
-            store().updateElement(element.id, {
-              entrance: v === 'auto' ? undefined : { ...element.entrance, effect: v },
-            })
-          }
-        />
-        {element.entrance && element.entrance.effect !== 'none' ? (
-          <div className="grid grid-cols-2 gap-2">
-            <NumberField
-              label="시간 (ms)"
-              value={element.entrance.duration ?? 700}
-              min={0}
-              max={5000}
-              onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, duration: v } })}
-            />
-            <NumberField
-              label="지연 (ms)"
-              value={element.entrance.delay ?? 0}
-              min={0}
-              max={5000}
-              onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, delay: v } })}
-            />
-          </div>
-        ) : null}
-      </FieldGroup>
+      {isPremium ? (
+        <FieldGroup title="등장 애니메이션">
+          <SelectField<'auto' | EntranceEffect>
+            label="효과 (미리보기 모드에서 재생 확인)"
+            value={element.entrance?.effect ?? 'auto'}
+            options={[
+              { value: 'auto', label: '자동 (기본 연출 — 아래→위 순차)' },
+              { value: 'none', label: '없음' },
+              { value: 'fade', label: '페이드' },
+              { value: 'fade-up', label: '아래→위' },
+              { value: 'fade-down', label: '위→아래' },
+              { value: 'slide-left', label: '왼쪽에서' },
+              { value: 'slide-right', label: '오른쪽에서' },
+              { value: 'zoom-in', label: '확대 등장' },
+            ]}
+            onCommit={(v) =>
+              store().updateElement(element.id, {
+                entrance: v === 'auto' ? undefined : { ...element.entrance, effect: v },
+              })
+            }
+          />
+          {element.entrance && element.entrance.effect !== 'none' ? (
+            <div className="grid grid-cols-2 gap-2">
+              <NumberField
+                label="시간 (ms)"
+                value={element.entrance.duration ?? 700}
+                min={0}
+                max={5000}
+                onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, duration: v } })}
+              />
+              <NumberField
+                label="지연 (ms)"
+                value={element.entrance.delay ?? 0}
+                min={0}
+                max={5000}
+                onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, delay: v } })}
+              />
+            </div>
+          ) : null}
+        </FieldGroup>
+      ) : (
+        <EntranceLockCard />
+      )}
 
       <FieldGroup title="표시">
         <ToggleField
@@ -271,6 +278,29 @@ function ElementInspector({
           onCommit={(v) => store().updateElement(element.id, { hiddenOnMobile: v || undefined })}
         />
       </FieldGroup>
+    </div>
+  );
+}
+
+/** [gating] Basic 요금제 — 등장 애니메이션 FieldGroup 대신 노출하는 업셀 잠금 카드 */
+function EntranceLockCard() {
+  return (
+    <div className="border-t border-neutral-800 px-4 py-3">
+      <div className="rounded-lg border border-[#4a3a22] bg-[#2a2117]/50 p-3.5">
+        <div className="mb-1.5 flex items-center gap-1.5">
+          <Lock className="h-3.5 w-3.5 text-[#d9b878]" />
+          <span className="text-xs font-semibold text-[#d9b878]">등장 애니메이션</span>
+        </div>
+        <p className="text-[11px] leading-5 text-neutral-400">
+          등장 애니메이션은 Premium 전용입니다. 업그레이드하면 스크롤 시 요소가 부드럽게 나타나는 연출을 사용할 수 있어요.
+        </p>
+        <a
+          href="/dashboard/billing"
+          className="mt-2.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-[#c8a96a] px-3 text-[11px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+        >
+          <Sparkles className="h-3 w-3" /> Premium으로 업그레이드
+        </a>
+      </div>
     </div>
   );
 }
