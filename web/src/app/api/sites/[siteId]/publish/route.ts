@@ -8,6 +8,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getDataServices } from '@/lib/data';
 import { apiError, withApiHandler } from '../../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../../_lib/guards';
+import { checkPublish } from '@/lib/publish/preflight';
+import { preflightScan } from '@/lib/scan/preflight';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -48,9 +50,31 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
+  // [quality-system] 발행 전 자가 검증. ② 모션·팔레트 무결성 = 하드 게이트, ① 자가 진단·③ 모바일 = 경고+QA.
+  let scanInput: { total: number; grade: string } | undefined;
+  try {
+    const s = preflightScan(site.draftConfig);
+    scanInput = { total: s.scores.total, grade: s.grade };
+  } catch {
+    // 렌더/스캔 실패는 발행을 막지 않는다(하드 게이트만 강제)
+  }
+  const preflight = checkPublish(site.draftConfig, client.tier, scanInput ? { scan: scanInput } : undefined);
+  if (!preflight.ok) {
+    return apiError(409, 'PUBLISH_QUALITY_BLOCKED', preflight.blockers.join(' '), {
+      blockers: preflight.blockers,
+    });
+  }
+
   const published = await getDataServices().sites.publish(siteId);
   return NextResponse.json({
     site: published,
     url: published.domain ? `https://${published.domain}` : null,
+    // PrePublishDialog 표시용 데이터 (UI 개편은 범위 외). needsQa=true면 관리자 QA 필요.
+    preflight: {
+      warnings: preflight.warnings,
+      needsQa: preflight.needsQa,
+      scan: preflight.scan,
+      qaChecklist: preflight.qaChecklist,
+    },
   });
 });
