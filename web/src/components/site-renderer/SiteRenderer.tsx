@@ -48,6 +48,7 @@ export function SiteRenderer({
   config,
   mode = 'auto',
   interactive = true,
+  animate,
   siteId,
 }: {
   config: SiteConfig;
@@ -58,9 +59,15 @@ export function SiteRenderer({
    * 앵커 중첩(하이드레이션 에러)을 막는다. 실서빙은 기본 true.
    */
   interactive?: boolean;
+  /**
+   * 등장 애니메이션(Reveal) 여부. 미지정 시 interactive를 따른다 —
+   * 정적 썸네일(비대화형)은 움직이지 않고, 실서빙/프리뷰는 재생.
+   */
+  animate?: boolean;
   /** [v3 Phase 3] 문의 폼 제출 대상 사이트 — 실서빙(/s/[domain])에서만 전달 */
   siteId?: string;
 }) {
+  const shouldAnimate = animate ?? interactive;
   const { theme } = config;
   const sections = config.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
@@ -93,14 +100,14 @@ export function SiteRenderer({
         {showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
             {sections.map((section, i) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} siteId={siteId} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} animate={shouldAnimate} siteId={siteId} />
             ))}
           </div>
         )}
         {showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
             {sections.map((section, i) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} siteId={siteId} />
+              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} animate={shouldAnimate} siteId={siteId} />
             ))}
           </div>
         )}

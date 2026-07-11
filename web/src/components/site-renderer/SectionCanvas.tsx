@@ -6,6 +6,8 @@ import type { CSSProperties } from 'react';
 import type { Section, SiteTheme } from '@/lib/types/site';
 import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
+import { defaultEntrance } from './entrance';
+import { Reveal } from './Reveal';
 
 interface SectionCanvasProps {
   section: Section;
@@ -14,14 +16,22 @@ interface SectionCanvasProps {
   isFirst?: boolean;
   /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
   interactive?: boolean;
+  /** false면 등장 애니메이션 생략 (대시보드 썸네일 등 정적 미리보기) */
+  animate?: boolean;
   /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
   siteId?: string;
 }
 
-export function SectionCanvas({ section, theme, isFirst, interactive = true, siteId }: SectionCanvasProps) {
+export function SectionCanvas({ section, theme, isFirst, interactive = true, animate = true, siteId }: SectionCanvasProps) {
   const bg = section.background;
   // z 오름차순 정렬 — zIndex와 DOM 순서를 일치시켜 페인트 순서 결정적으로
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
+  // 기본 연출의 순차 지연 기준: 섹션 내 y순서(위→아래)
+  const yRank = new Map(
+    [...section.elements]
+      .sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x)
+      .map((el, i) => [el.id, i]),
+  );
 
   const sectionStyle: CSSProperties = {
     position: 'relative',
@@ -63,23 +73,29 @@ export function SectionCanvas({ section, theme, isFirst, interactive = true, sit
           }}
         />
       )}
-      {elements.map((el) => (
-        <div
-          key={el.id}
-          style={{
-            position: 'absolute',
-            left: cqw(el.frame.x),
-            top: cqw(el.frame.y),
-            width: cqw(el.frame.w),
-            height: cqw(el.frame.h),
-            zIndex: el.z,
-            opacity: el.opacity,
-            transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
-          }}
-        >
+      {elements.map((el) => {
+        const entrance = el.entrance ?? defaultEntrance(yRank.get(el.id) ?? 0);
+        const content = (
           <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} />
-        </div>
-      ))}
+        );
+        return (
+          <div
+            key={el.id}
+            style={{
+              position: 'absolute',
+              left: cqw(el.frame.x),
+              top: cqw(el.frame.y),
+              width: cqw(el.frame.w),
+              height: cqw(el.frame.h),
+              zIndex: el.z,
+              opacity: el.opacity,
+              transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+            }}
+          >
+            {animate && entrance.effect !== 'none' ? <Reveal entrance={entrance}>{content}</Reveal> : content}
+          </div>
+        );
+      })}
     </section>
   );
 }

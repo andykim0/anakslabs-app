@@ -27,6 +27,8 @@ import { clampFrameToSection } from '@/components/editor/snap';
 export type ZoomMode = 'fit' | number;
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export type ZOrderOp = 'front' | 'back' | 'forward' | 'backward';
+/** off = 편집 캔버스, desktop/mobile = SiteRenderer 실사 미리보기(애니메이션·버튼 동작) */
+export type PreviewMode = 'off' | 'desktop' | 'mobile';
 
 /** 스냅 가이드라인 (섹션 로컬 좌표, 디자인 px) */
 export interface SnapGuides {
@@ -58,7 +60,7 @@ export interface EditorState {
   zoom: ZoomMode;
   /** 캔버스가 측정한 'fit' 배율 — 툴바 줌 표시/증감 기준 (히스토리 비추적) */
   fitScale: number;
-  mobilePreview: boolean;
+  preview: PreviewMode;
   dirty: boolean;
   saveStatus: SaveStatus;
   lastSavedAt: number | null;
@@ -73,7 +75,7 @@ export interface EditorState {
   setEditingElement: (elementId: string | null) => void;
   setZoom: (zoom: ZoomMode) => void;
   setFitScale: (scale: number) => void;
-  setMobilePreview: (on: boolean) => void;
+  setPreview: (mode: PreviewMode) => void;
   setGuides: (guides: SnapGuides | null) => void;
   setSaveStatus: (status: SaveStatus) => void;
   setAiIntent: (intent: EditType | null) => void;
@@ -83,6 +85,8 @@ export interface EditorState {
   updateElement: (elementId: string, patch: Partial<CanvasElement>) => void;
   updateElementStyle: (elementId: string, stylePatch: Record<string, unknown>) => void;
   updateElementFrame: (elementId: string, frame: Frame) => void;
+  /** 연속 캔버스에서 섹션 경계를 넘어 드롭 — 요소를 다른 섹션으로 재소속 (frame은 대상 섹션 로컬 좌표) */
+  moveElementToSection: (elementId: string, targetSectionId: string, frame: Frame) => void;
   deleteElement: (elementId: string) => void;
   duplicateElement: (elementId: string) => string | null;
   reorderElement: (elementId: string, op: ZOrderOp) => void;
@@ -169,7 +173,7 @@ export const useEditorStore = create<EditorState>()(
       editingElementId: null,
       zoom: 'fit' as ZoomMode,
       fitScale: 1,
-      mobilePreview: false,
+      preview: 'off' as PreviewMode,
       dirty: false,
       saveStatus: 'idle' as SaveStatus,
       lastSavedAt: null,
@@ -190,8 +194,8 @@ export const useEditorStore = create<EditorState>()(
       setEditingElement: (elementId) => set({ editingElementId: elementId }),
       setZoom: (zoom) => set({ zoom }),
       setFitScale: (scale) => set({ fitScale: scale }),
-      setMobilePreview: (on) =>
-        set({ mobilePreview: on, editingElementId: null, guides: null }),
+      setPreview: (mode) =>
+        set({ preview: mode, editingElementId: null, guides: null }),
       setGuides: (guides) => set({ guides }),
       setSaveStatus: (status) =>
         set(status === 'saved' ? { saveStatus: status, lastSavedAt: Date.now(), dirty: false } : { saveStatus: status }),
@@ -248,6 +252,26 @@ export const useEditorStore = create<EditorState>()(
           });
           if (next === state.config) return state;
           return { config: next, dirty: true };
+        }),
+
+      moveElementToSection: (elementId, targetSectionId, frame) =>
+        set((state) => {
+          const src = state.config.sections.find((s) => s.elements.some((e) => e.id === elementId));
+          const dst = state.config.sections.find((s) => s.id === targetSectionId);
+          if (!src || !dst || src.id === dst.id) return state;
+          const el = src.elements.find((e) => e.id === elementId)!;
+          const moved = { ...el, frame: roundFrame(frame), z: maxZ(dst) + 1 };
+          const sections = state.config.sections.map((s) => {
+            if (s.id === src.id) return { ...s, elements: s.elements.filter((e) => e.id !== elementId) };
+            if (s.id === dst.id) return { ...s, elements: [...s.elements, moved] };
+            return s;
+          });
+          return {
+            config: { ...state.config, sections },
+            dirty: true,
+            selectedSectionId: targetSectionId,
+            selectedElementId: elementId,
+          };
         }),
 
       deleteElement: (elementId) =>
@@ -468,7 +492,7 @@ export function initializeEditor(siteId: string, config: SiteConfig) {
     selectedElementId: null,
     editingElementId: null,
     zoom: 'fit',
-    mobilePreview: false,
+    preview: 'off',
     dirty: false,
     saveStatus: 'idle',
     lastSavedAt: null,

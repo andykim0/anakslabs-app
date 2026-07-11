@@ -44,29 +44,15 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
   };
 
   return (
-    <div style={{ width }} className={cn(section.hidden && 'opacity-45')}>
-      {/* 헤더 (비스케일 UI) */}
-      <button
-        type="button"
-        onClick={() => useEditorStore.getState().selectSection(section.id)}
-        className={cn(
-          'mb-1.5 flex items-center gap-2 rounded px-1.5 py-0.5 text-[11px] transition-colors',
-          sectionSelected ? 'text-[#d9b878]' : 'text-neutral-500 hover:text-neutral-300',
-        )}
-      >
-        <span className="font-semibold">{section.name}</span>
-        <span className="text-neutral-600">{SECTION_TYPE_LABELS[section.type]}</span>
-        <span className="text-neutral-600 tabular-nums">{Math.round(section.height)}px</span>
-        {section.hidden ? <EyeOff className="h-3 w-3" /> : null}
-      </button>
-
-      {/* 섹션 바디 */}
-      <div
-        id={`sec-${section.id}`}
-        className="relative"
-        style={{ width, height }}
-        onPointerDown={handleBodyPointerDown}
-      >
+    // 연속 캔버스: 섹션은 실제 사이트처럼 간격 없이 이어 붙는다 — 슬라이드식 분할 UI 금지.
+    // 구조(이름/순서/높이) 조작은 좌측 SectionListPanel·인스펙터가 담당하고,
+    // 캔버스에는 호버/선택 시에만 경계·이름 오버레이를 띄운다.
+    <div
+      id={`sec-${section.id}`}
+      className={cn('group/section relative', section.hidden && 'opacity-45')}
+      style={{ width, height }}
+      onPointerDown={handleBodyPointerDown}
+    >
         {/* 배경 레이어 (클립) */}
         <div className="absolute inset-0 overflow-hidden" style={bgStyle}>
           {bg.image ? (
@@ -115,27 +101,40 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
           </div>
         ) : null}
 
-        {/* 스냅 가이드 */}
-        <GuideOverlay sectionId={section.id} scale={scale} />
+      {/* 스냅 가이드 */}
+      <GuideOverlay sectionId={section.id} scale={scale} />
 
-        {/* 섹션 선택/기본 테두리 */}
-        <div
-          className={cn(
-            'pointer-events-none absolute -inset-px border',
-            sectionSelected ? 'border-[#c8a96a]' : 'border-neutral-800',
-          )}
-        />
-        {section.hidden ? (
-          <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 rounded bg-neutral-900/90 px-2 py-1 text-[10px] text-neutral-300">
-            <EyeOff className="h-3 w-3" /> 발행 시 숨김
-          </div>
-        ) : null}
-        {section.elements.some((e) => e.locked) ? (
-          <div className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-1 rounded bg-neutral-900/70 px-1.5 py-0.5 text-[10px] text-neutral-500">
-            <Lock className="h-2.5 w-2.5" /> 잠긴 요소 포함
-          </div>
-        ) : null}
+      {/* 경계 오버레이 — 호버/선택 시에만 (연속 페이지 위에 얇게) */}
+      <div
+        className={cn(
+          'pointer-events-none absolute -inset-px z-[997] border transition-opacity',
+          sectionSelected
+            ? 'border-[#c8a96a] opacity-100'
+            : 'border-sky-500/35 opacity-0 group-hover/section:opacity-100',
+        )}
+      />
+      {/* 섹션 이름 칩 — 호버/선택 시에만 */}
+      <div
+        className={cn(
+          'pointer-events-none absolute top-1.5 left-1.5 z-[998] flex items-center gap-1.5 rounded bg-neutral-900/90 px-1.5 py-0.5 text-[10px] transition-opacity',
+          sectionSelected ? 'text-[#d9b878] opacity-100' : 'text-neutral-300 opacity-0 group-hover/section:opacity-100',
+        )}
+      >
+        <span className="font-semibold">{section.name}</span>
+        <span className="text-neutral-500">{SECTION_TYPE_LABELS[section.type]}</span>
+        <span className="text-neutral-500 tabular-nums">{Math.round(section.height)}px</span>
+        {section.hidden ? <EyeOff className="h-3 w-3" /> : null}
       </div>
+      {section.hidden ? (
+        <div className="pointer-events-none absolute top-2 right-2 z-[998] flex items-center gap-1 rounded bg-neutral-900/90 px-2 py-1 text-[10px] text-neutral-300">
+          <EyeOff className="h-3 w-3" /> 발행 시 숨김
+        </div>
+      ) : null}
+      {section.elements.some((e) => e.locked) ? (
+        <div className="pointer-events-none absolute right-2 bottom-2 z-[998] flex items-center gap-1 rounded bg-neutral-900/70 px-1.5 py-0.5 text-[10px] text-neutral-500">
+          <Lock className="h-2.5 w-2.5" /> 잠긴 요소 포함
+        </div>
+      ) : null}
     </div>
   );
 });

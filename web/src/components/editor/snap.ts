@@ -43,6 +43,20 @@ export function clampFrameToSection(frame: Frame, sectionHeight: number): Frame 
   return { ...frame, x, y };
 }
 
+/**
+ * 연속 캔버스 드래그용 — y를 섹션이 아니라 페이지(전체 섹션 스택) 범위로만 클램프.
+ * frame.y는 드래그 시작 섹션의 로컬 좌표, sectionTop은 그 섹션의 페이지 내 오프셋.
+ * 섹션 경계는 자유 통과하고, 드롭 시점에 중심점 기준으로 소속 섹션을 재계산한다.
+ */
+export function clampFrameToPage(frame: Frame, sectionTop: number, pageHeight: number): Frame {
+  const x = Math.min(Math.max(frame.x, -frame.w + KEEP_INSIDE), DESIGN_WIDTH - KEEP_INSIDE);
+  const globalY = sectionTop + frame.y;
+  const maxGlobalY = Math.max(0, pageHeight - frame.h);
+  const y = Math.min(Math.max(globalY, 0), maxGlobalY) - sectionTop;
+  if (x === frame.x && y === frame.y) return frame;
+  return { ...frame, x, y };
+}
+
 export interface SnapMoveResult {
   x: number;
   y: number;

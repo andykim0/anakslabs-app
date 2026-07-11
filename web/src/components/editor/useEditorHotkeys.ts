@@ -65,7 +65,7 @@ export function useEditorHotkeys(onSave: () => void) {
         return;
       }
 
-      if (state.mobilePreview) return;
+      if (state.preview !== 'off') return;
 
       if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedElementId) {
         e.preventDefault();

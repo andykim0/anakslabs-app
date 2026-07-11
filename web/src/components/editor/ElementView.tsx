@@ -32,6 +32,7 @@ import type {
 import { safeMapEmbedUrl } from '@/lib/safe-url';
 import { useEditorStore } from '@/stores/editor';
 import {
+  clampFrameToPage,
   clampFrameToSection,
   collectSnapTargets,
   resizeFrame,
@@ -50,6 +51,9 @@ interface GestureState {
   frame0: Frame;
   targets: SnapTargets;
   moved: boolean;
+  /** 연속 캔버스 기하 — 시작 섹션의 페이지 내 오프셋 / 전체 페이지 높이 */
+  sectionTop: number;
+  pageHeight: number;
 }
 
 const HANDLES: { dir: HandleDir; style: CSSProperties; cursor: string }[] = [
@@ -101,6 +105,14 @@ export const ElementView = memo(function ElementView({
   };
 
   const beginGesture = (e: React.PointerEvent, mode: 'move' | 'resize', handle?: HandleDir) => {
+    // 연속 캔버스 기하: 시작 섹션의 페이지 오프셋 + 전체 높이 (경계 통과 클램프/재소속 판정용)
+    const sections = useEditorStore.getState().config.sections;
+    let sectionTop = 0;
+    let pageHeight = 0;
+    for (const s of sections) {
+      if (s.id === sectionId) sectionTop = pageHeight;
+      pageHeight += s.height;
+    }
     gestureRef.current = {
       mode,
       handle,
@@ -109,6 +121,8 @@ export const ElementView = memo(function ElementView({
       frame0: element.frame,
       targets: collectTargets(),
       moved: false,
+      sectionTop,
+      pageHeight,
     };
     rootRef.current?.setPointerCapture(e.pointerId);
   };
@@ -135,7 +149,8 @@ export const ElementView = memo(function ElementView({
     if (g.mode === 'move') {
       const candidate: Frame = { ...g.frame0, x: g.frame0.x + dx, y: g.frame0.y + dy };
       const snapped = snapMoveFrame(candidate, g.targets);
-      const clamped = clampFrameToSection({ ...candidate, x: snapped.x, y: snapped.y }, sectionHeight);
+      // 섹션이 아니라 페이지 범위로만 클램프 — 경계를 넘어 다른 섹션 위로 드래그 가능
+      const clamped = clampFrameToPage({ ...candidate, x: snapped.x, y: snapped.y }, g.sectionTop, g.pageHeight);
       setPreview(clamped);
       store.setGuides({ sectionId, v: snapped.guidesV, h: snapped.guidesH });
     } else {
@@ -161,7 +176,32 @@ export const ElementView = memo(function ElementView({
     const store = useEditorStore.getState();
     store.setGuides(null);
     if (g.moved && previewRef.current) {
-      store.updateElementFrame(element.id, previewRef.current);
+      const f = previewRef.current;
+      if (g.mode === 'move') {
+        // 드롭 위치의 중심 y(페이지 좌표)가 속한 섹션으로 재소속 — 연속 캔버스의 핵심
+        const sections = store.config.sections;
+        const centerY = g.sectionTop + f.y + f.h / 2;
+        let top = 0;
+        let target = sections[sections.length - 1];
+        let targetTop = g.pageHeight - (target?.height ?? 0);
+        for (const s of sections) {
+          if (centerY < top + s.height) {
+            target = s;
+            targetTop = top;
+            break;
+          }
+          top += s.height;
+        }
+        if (target && target.id !== sectionId) {
+          const local = clampFrameToSection({ ...f, y: g.sectionTop + f.y - targetTop }, target.height);
+          store.moveElementToSection(element.id, target.id, local);
+        } else {
+          // 같은 섹션 내 드롭 — 발행 렌더가 섹션 단위로 클립하므로 안쪽으로 정착
+          store.updateElementFrame(element.id, clampFrameToSection(f, sectionHeight));
+        }
+      } else {
+        store.updateElementFrame(element.id, f);
+      }
     }
     setPreview(null);
   };
@@ -172,21 +212,22 @@ export const ElementView = memo(function ElementView({
     useEditorStore.getState().setEditingElement(element.id);
   };
 
+  const gestureActive = previewFrame !== null;
+
   const rootStyle: CSSProperties = {
     position: 'absolute',
     left: frame.x * scale,
     top: frame.y * scale,
     width: frame.w * scale,
     height: frame.h * scale,
-    zIndex: element.z,
+    // 제스처 중엔 최상위 — 연속 캔버스에서 섹션 경계를 넘을 때 다음 섹션에 가려지지 않게
+    zIndex: gestureActive ? 9999 : element.z,
     opacity: element.opacity,
     transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
     cursor: locked ? 'default' : 'move',
     touchAction: 'none',
     userSelect: 'none',
   };
-
-  const gestureActive = previewFrame !== null;
 
   return (
     <div

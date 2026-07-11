@@ -47,6 +47,13 @@ const frameSchema = z.object({
   h: z.number(),
 });
 
+/** 등장 애니메이션 — 계약 Entrance(lib/types/site)와 1:1 */
+const entranceSchema = z.object({
+  effect: z.enum(['none', 'fade', 'fade-up', 'fade-down', 'slide-left', 'slide-right', 'zoom-in']),
+  duration: z.number().min(0).max(5000).optional(),
+  delay: z.number().min(0).max(5000).optional(),
+});
+
 const elementBaseShape = {
   id: z.string().min(1),
   frame: frameSchema,
@@ -55,6 +62,7 @@ const elementBaseShape = {
   opacity: z.number().min(0).max(1).optional(),
   locked: z.boolean().optional(),
   hiddenOnMobile: z.boolean().optional(),
+  entrance: entranceSchema.optional(),
 };
 
 const textElementSchema = z.object({

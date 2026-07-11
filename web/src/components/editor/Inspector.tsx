@@ -24,6 +24,7 @@ import type {
   ButtonElement,
   CanvasElement,
   DividerElement,
+  EntranceEffect,
   FormElement,
   ImageElement,
   MapElement,
@@ -216,6 +217,46 @@ function ElementInspector({
             <ChevronsDown className="h-3.5 w-3.5" />
           </SmallIconButton>
         </div>
+      </FieldGroup>
+
+      <FieldGroup title="등장 애니메이션">
+        <SelectField<'auto' | EntranceEffect>
+          label="효과 (미리보기 모드에서 재생 확인)"
+          value={element.entrance?.effect ?? 'auto'}
+          options={[
+            { value: 'auto', label: '자동 (기본 연출 — 아래→위 순차)' },
+            { value: 'none', label: '없음' },
+            { value: 'fade', label: '페이드' },
+            { value: 'fade-up', label: '아래→위' },
+            { value: 'fade-down', label: '위→아래' },
+            { value: 'slide-left', label: '왼쪽에서' },
+            { value: 'slide-right', label: '오른쪽에서' },
+            { value: 'zoom-in', label: '확대 등장' },
+          ]}
+          onCommit={(v) =>
+            store().updateElement(element.id, {
+              entrance: v === 'auto' ? undefined : { ...element.entrance, effect: v },
+            })
+          }
+        />
+        {element.entrance && element.entrance.effect !== 'none' ? (
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label="시간 (ms)"
+              value={element.entrance.duration ?? 700}
+              min={0}
+              max={5000}
+              onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, duration: v } })}
+            />
+            <NumberField
+              label="지연 (ms)"
+              value={element.entrance.delay ?? 0}
+              min={0}
+              max={5000}
+              onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, delay: v } })}
+            />
+          </div>
+        ) : null}
       </FieldGroup>
 
       <FieldGroup title="표시">

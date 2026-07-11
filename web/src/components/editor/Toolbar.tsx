@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 상단 툴바 — 나가기/저장상태 · undo/redo · 요소 추가 · 줌 · 데스크톱/모바일 토글 · 발행.
+ * 상단 툴바 — 나가기/저장상태 · undo/redo · 요소 추가 · 줌 · 편집/미리보기/모바일 토글 · 발행.
  */
 import Link from 'next/link';
 import { useStore } from 'zustand';
@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Check,
+  Eye,
   Film,
   FormInput,
   Image as ImageIcon,
@@ -127,7 +128,8 @@ export function Toolbar({
 }) {
   const zoom = useEditorStore((s) => s.zoom);
   const fitScale = useEditorStore((s) => s.fitScale);
-  const mobilePreview = useEditorStore((s) => s.mobilePreview);
+  const preview = useEditorStore((s) => s.preview);
+  const previewing = preview !== 'off';
   const canUndo = useStore(useEditorStore.temporal, (s) => s.pastStates.length > 0);
   const canRedo = useStore(useEditorStore.temporal, (s) => s.futureStates.length > 0);
 
@@ -178,7 +180,7 @@ export function Toolbar({
           trigger={
             <button
               type="button"
-              disabled={mobilePreview}
+              disabled={previewing}
               className="flex h-8 items-center gap-1.5 rounded-lg border border-neutral-700 px-2.5 text-xs font-medium text-neutral-200 transition-colors hover:border-neutral-500 hover:bg-neutral-900 disabled:opacity-40"
             >
               <Plus className="h-3.5 w-3.5" /> 요소 추가
@@ -194,46 +196,57 @@ export function Toolbar({
 
         <div className="mx-1.5 h-4 w-px bg-neutral-800" />
 
-        <ToolButton title="축소" onClick={() => stepZoom(-1)} disabled={mobilePreview}>
+        <ToolButton title="축소" onClick={() => stepZoom(-1)} disabled={previewing}>
           <ZoomOut className="h-4 w-4" />
         </ToolButton>
         <span className="w-11 text-center text-[11px] tabular-nums text-neutral-400">
           {Math.round(effectiveScale * 100)}%
         </span>
-        <ToolButton title="확대" onClick={() => stepZoom(1)} disabled={mobilePreview}>
+        <ToolButton title="확대" onClick={() => stepZoom(1)} disabled={previewing}>
           <ZoomIn className="h-4 w-4" />
         </ToolButton>
         <ToolButton
           title="화면에 맞춤"
           active={zoom === 'fit'}
           onClick={() => useEditorStore.getState().setZoom('fit')}
-          disabled={mobilePreview}
+          disabled={previewing}
         >
           <Maximize className="h-3.5 w-3.5" />
         </ToolButton>
 
         <div className="mx-1.5 h-4 w-px bg-neutral-800" />
 
-        {/* 미리보기: 데스크톱(편집) / 모바일(자동 스택) */}
+        {/* 편집 / 미리보기(발행본 동일: 애니메이션·버튼 동작) / 모바일(자동 스택) */}
         <div className="flex rounded-lg border border-neutral-700 p-0.5">
           <button
             type="button"
-            title="데스크톱 (편집)"
-            onClick={() => useEditorStore.getState().setMobilePreview(false)}
+            title="편집 캔버스"
+            onClick={() => useEditorStore.getState().setPreview('off')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
-              !mobilePreview ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+              preview === 'off' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
             )}
           >
             <Monitor className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
-            title="모바일 미리보기 (y좌표 순 자동 스택)"
-            onClick={() => useEditorStore.getState().setMobilePreview(true)}
+            title="미리보기 — 등장 애니메이션·버튼이 발행본과 동일하게 동작"
+            onClick={() => useEditorStore.getState().setPreview('desktop')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
-              mobilePreview ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+              preview === 'desktop' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+            )}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            title="모바일 미리보기 (y좌표 순 자동 스택)"
+            onClick={() => useEditorStore.getState().setPreview('mobile')}
+            className={cn(
+              'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
+              preview === 'mobile' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
             )}
           >
             <Smartphone className="h-3.5 w-3.5" />

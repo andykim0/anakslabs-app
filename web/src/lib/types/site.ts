@@ -40,6 +40,30 @@ export interface Frame {
   h: number;
 }
 
+/** 등장 애니메이션 효과 (뷰포트 진입 시 1회 재생) */
+export type EntranceEffect =
+  | 'none'
+  | 'fade'
+  | 'fade-up'
+  | 'fade-down'
+  | 'slide-left'
+  | 'slide-right'
+  | 'zoom-in';
+
+/**
+ * 요소 등장 애니메이션. 미지정이면 렌더러가 기본 연출(fade-up + 섹션 내 y순서
+ * 순차 지연)을 적용하고, effect 'none'을 명시하면 해당 요소는 끈다.
+ * SSR/정적 Export 마크업은 항상 보이는 상태 — JS 하이드레이션 후에만 재생
+ * (site-renderer/Reveal.tsx).
+ */
+export interface Entrance {
+  effect: EntranceEffect;
+  /** 재생 시간 ms (기본 700) */
+  duration?: number;
+  /** 시작 지연 ms (기본: 섹션 내 순차 지연) */
+  delay?: number;
+}
+
 export type ElementKind =
   | 'text'
   | 'image'
@@ -69,6 +93,8 @@ interface ElementBase {
   locked?: boolean;
   /** 모바일 자동 스택에서 제외 */
   hiddenOnMobile?: boolean;
+  /** 등장 애니메이션 — 미지정 = 렌더러 기본 연출, 'none' = 끔 */
+  entrance?: Entrance;
 }
 
 export interface TextElement extends ElementBase {
