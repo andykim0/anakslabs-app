@@ -20,7 +20,14 @@ import type {
   SiteStatus,
   Tier,
 } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SiteConfig, SiteConfigV1 } from '@/lib/types/site';
+import { normalizeSiteConfig } from '@/lib/types/site';
+
+/** [v4] jsonb site_config → v2 정규화 (v1이면 홈 페이지 1개로 승격). null 유지. */
+function normalizeConfigCol(raw: unknown): SiteConfig | null {
+  if (raw == null) return null;
+  return normalizeSiteConfig(raw as SiteConfigV1 | SiteConfig);
+}
 
 export interface ClientRow {
   id: string;
@@ -75,8 +82,9 @@ export function rowToSite(row: SiteRow): Site {
     dnsVerified: row.dns_verified,
     cloudflareHostnameId: row.cloudflare_hostname_id,
     status: row.status as SiteStatus,
-    siteConfig: (row.site_config as SiteConfig | null) ?? null,
-    draftConfig: (row.draft_config as SiteConfig | null) ?? null,
+    // [v4] read 경계 단일 정규화 — 앱 코드는 v2만 본다 (v1 저장분도 여기서 승격)
+    siteConfig: normalizeConfigCol(row.site_config),
+    draftConfig: normalizeConfigCol(row.draft_config),
     publishedAt: row.published_at,
     createdAt: row.created_at,
     freeRegensUsed: row.free_regens_used ?? 0,

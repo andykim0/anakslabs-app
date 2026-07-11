@@ -31,7 +31,7 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import type { ElementKind } from '@/lib/types/site';
-import { redoEditor, undoEditor, useEditorStore } from '@/stores/editor';
+import { redoEditor, undoEditor, useEditorStore, activeSections} from '@/stores/editor';
 import { cn } from '@/components/dashboard/ui';
 import { ELEMENT_KIND_LABELS } from './defaults';
 import { DropMenu } from './DropMenu';
@@ -143,8 +143,8 @@ export function Toolbar({
   const addElement = (kind: ElementKind) => {
     const store = useEditorStore.getState();
     let sectionId = store.selectedSectionId;
-    if (!sectionId || !store.config.sections.some((s) => s.id === sectionId)) {
-      sectionId = store.config.sections[0]?.id ?? store.addSection('custom');
+    if (!sectionId || !activeSections(store.config).some((s) => s.id === sectionId)) {
+      sectionId = activeSections(store.config)[0]?.id ?? store.addSection('custom');
     }
     useEditorStore.getState().addElement(sectionId, kind);
   };

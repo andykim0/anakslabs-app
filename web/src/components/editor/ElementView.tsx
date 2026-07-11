@@ -30,7 +30,7 @@ import type {
   VideoElement,
 } from '@/lib/types/site';
 import { safeMapEmbedUrl } from '@/lib/safe-url';
-import { useEditorStore } from '@/stores/editor';
+import { useEditorStore, activeSections} from '@/stores/editor';
 import {
   clampFrameToPage,
   clampFrameToSection,
@@ -100,13 +100,13 @@ export const ElementView = memo(function ElementView({
   };
 
   const collectTargets = (): SnapTargets => {
-    const section = useEditorStore.getState().config.sections.find((s) => s.id === sectionId);
+    const section = activeSections(useEditorStore.getState().config).find((s) => s.id === sectionId);
     return section ? collectSnapTargets(section, element.id) : { v: [], h: [] };
   };
 
   const beginGesture = (e: React.PointerEvent, mode: 'move' | 'resize', handle?: HandleDir) => {
     // 연속 캔버스 기하: 시작 섹션의 페이지 오프셋 + 전체 높이 (경계 통과 클램프/재소속 판정용)
-    const sections = useEditorStore.getState().config.sections;
+    const sections = activeSections(useEditorStore.getState().config);
     let sectionTop = 0;
     let pageHeight = 0;
     for (const s of sections) {
@@ -179,7 +179,7 @@ export const ElementView = memo(function ElementView({
       const f = previewRef.current;
       if (g.mode === 'move') {
         // 드롭 위치의 중심 y(페이지 좌표)가 속한 섹션으로 재소속 — 연속 캔버스의 핵심
-        const sections = store.config.sections;
+        const sections = activeSections(store.config);
         const centerY = g.sectionTop + f.y + f.h / 2;
         let top = 0;
         let target = sections[sections.length - 1];

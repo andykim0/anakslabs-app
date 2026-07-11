@@ -5,7 +5,7 @@
  * 절제된 5색 팔레트, 크기 대비 위계, 절제된 카피("여섯 가지 요리, 하나의 불").
  * 모든 좌표는 DESIGN_WIDTH(1440) 기준.
  */
-import type { SiteConfig, Section } from '@/lib/types/site';
+import type { SiteConfigV1, Section } from '@/lib/types/site';
 
 const PALETTE = {
   background: '#12100d',
@@ -477,7 +477,7 @@ const faq: Section = {
   ],
 };
 
-export const HWARODAM_SITE_CONFIG: SiteConfig = {
+export const HWARODAM_SITE_CONFIG: SiteConfigV1 = {
   version: 1,
   theme: {
     fonts: {

@@ -3,6 +3,7 @@
  * proxy가 {host}/llms.txt → /s/{host}/llms.txt 로 rewrite.
  */
 import { getDataServices } from '@/lib/data';
+import { allSections } from '@/lib/types/site';
 
 type Ctx = { params: Promise<{ domain: string }> };
 
@@ -25,7 +26,7 @@ export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
   const lines = [`# ${name}`, ''];
   if (config.meta.description) lines.push(`> ${config.meta.description}`, '');
   lines.push('## 구성');
-  for (const s of config.sections.filter((sec) => !sec.hidden)) {
+  for (const s of allSections(config).filter((sec) => !sec.hidden)) {
     lines.push(`- ${s.name}`);
   }
   if (info) {

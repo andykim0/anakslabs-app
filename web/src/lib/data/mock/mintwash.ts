@@ -3,9 +3,9 @@
  * supabase/seed.sql의 draft_config jsonb와 필드 단위 일치.
  * (이미지 자산만 오프라인 데모를 위해 로컬 /mock 자산으로 대체)
  */
-import type { SiteConfig } from '@/lib/types/site';
+import type { SiteConfigV1 } from '@/lib/types/site';
 
-export const MINTWASH_DRAFT_CONFIG: SiteConfig = {
+export const MINTWASH_DRAFT_CONFIG: SiteConfigV1 = {
   version: 1,
   theme: {
     fonts: {

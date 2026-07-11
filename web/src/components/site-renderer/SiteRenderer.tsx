@@ -13,6 +13,7 @@
  *    (hidden md:block / md:hidden) — <768px에서는 y순 세로 스택 재배치.
  */
 import type { SiteConfig } from '@/lib/types/site';
+import { findPage, homePage } from '@/lib/types/site';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from './fonts';
 import { SectionCanvas } from './SectionCanvas';
 import { SectionStack } from './SectionStack';
@@ -50,9 +51,12 @@ export function SiteRenderer({
   interactive = true,
   animate,
   siteId,
+  pageSlug = '',
 }: {
   config: SiteConfig;
   mode?: SiteRendererMode;
+  /** [v4] 렌더할 페이지 slug (''=홈). 호출부가 존재를 사전 확인(서빙은 notFound) */
+  pageSlug?: string;
   /**
    * false면 버튼을 링크가 아닌 비대화형(<span>)으로 렌더한다.
    * 대시보드 미리보기(SitePreview)처럼 상위가 이미 <a>인 맥락에서
@@ -69,7 +73,9 @@ export function SiteRenderer({
 }) {
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
-  const sections = config.sections.filter((s) => !s.hidden);
+  // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
+  const page = findPage(config, pageSlug) ?? homePage(config);
+  const sections = page.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
   const css = BASE_CSS + scopeCustomCss(theme.customCss);
 

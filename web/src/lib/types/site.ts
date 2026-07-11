@@ -280,19 +280,43 @@ export interface BusinessInfo {
   mailOrderNumber?: string;
 }
 
+/**
+ * [v4] 사이트의 한 페이지 — 자유배치 캔버스 섹션들의 수직 스택.
+ * 페이지 1개면 기존(단일 페이지) 동작과 동일. header 내비는 페이지 목록에서 자동 생성.
+ */
+export interface SitePage {
+  id: string;
+  /** 에디터/내비 표시명 (예: '홈', '회사소개') */
+  title: string;
+  /** URL 경로 조각. ''(빈 문자열) = 홈. 규칙: /^[a-z0-9-]{1,40}$/ 또는 '' */
+  slug: string;
+  sections: Section[];
+  /** header 내비 노출 (기본 true) */
+  showInNav?: boolean;
+  /** 내비 표시명 오버라이드 (기본 title) */
+  navLabel?: string;
+}
+
+/**
+ * [v4] SiteConfig v2 — 페이지>섹션 2계층.
+ * (v1: version:1 + sections 는 SiteConfigV1 — 데이터 계층 read 경계에서 normalizeSiteConfig로
+ *  v2 승격한다. 데이터 계층 밖의 앱 코드는 항상 v2만 본다.)
+ */
 export interface SiteConfig {
-  version: 1;
+  version: 2;
   theme: SiteTheme;
   meta: SiteMeta;
-  sections: Section[];
+  pages: SitePage[];
   /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */
   businessInfo?: BusinessInfo;
+  /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */
+  nav?: { enabled?: boolean };
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */
 export function emptySiteConfig(title: string): SiteConfig {
   return {
-    version: 1,
+    version: 2,
     theme: {
       fonts: { heading: "'Noto Serif KR', serif", body: "'Pretendard', sans-serif", googleFonts: ['Noto Serif KR'] },
       palette: {
@@ -306,6 +330,67 @@ export function emptySiteConfig(title: string): SiteConfig {
       radius: 8,
     },
     meta: { title },
-    sections: [],
+    pages: [{ id: 'home', title: '홈', slug: '', sections: [] }],
   };
+}
+
+/** [v4 legacy] v1 config (version:1 + sections) — normalizeSiteConfig 입력으로만 존재 */
+export interface SiteConfigV1 {
+  version: 1;
+  theme: SiteTheme;
+  meta: SiteMeta;
+  sections: Section[];
+  businessInfo?: BusinessInfo;
+}
+
+/**
+ * [v4] v1 → v2 무손실·결정적 정규화. 데이터 계층 read 경계(supabase rowToSite / mock 시드 주입)에서
+ * 단일 적용 — 데이터 계층 밖의 앱 코드는 항상 v2만 본다. DB 일괄 마이그레이션은 하지 않는다.
+ */
+export function normalizeSiteConfig(raw: SiteConfigV1 | SiteConfig): SiteConfig {
+  if ((raw as SiteConfig).version === 2 && Array.isArray((raw as SiteConfig).pages)) {
+    return raw as SiteConfig;
+  }
+  const v1 = raw as SiteConfigV1;
+  return {
+    version: 2,
+    theme: v1.theme,
+    meta: v1.meta,
+    pages: [{ id: 'home', title: '홈', slug: '', sections: v1.sections ?? [] }],
+    ...(v1.businessInfo ? { businessInfo: v1.businessInfo } : {}),
+  };
+}
+
+/** [v4] slug로 페이지 찾기 ('' = 홈) */
+export function findPage(config: SiteConfig, slug: string): SitePage | undefined {
+  return config.pages.find((p) => p.slug === slug);
+}
+
+/** [v4] 홈 페이지 — 항상 존재(slug '', 없으면 첫 페이지) */
+export function homePage(config: SiteConfig): SitePage {
+  return config.pages.find((p) => p.slug === '') ?? config.pages[0];
+}
+
+/** [v4] 전 페이지 섹션 평탄화 (export·collect-assets 등 전체 스캔용) */
+export function allSections(config: SiteConfig): Section[] {
+  return config.pages.flatMap((p) => p.sections);
+}
+
+/** [v4] 예약 슬러그 — 페이지 slug로 쓸 수 없음 (테넌트 라우트/앱 경로 충돌 방지) */
+export const RESERVED_PAGE_SLUGS = [
+  'privacy',
+  'terms',
+  'robots.txt',
+  'sitemap.xml',
+  'llms.txt',
+  'api',
+  's',
+  'dashboard',
+] as const;
+
+/** [v4] 페이지 slug 유효성 (''=홈, 또는 ^[a-z0-9-]{1,40}$ 이고 비예약) */
+export function isValidPageSlug(slug: string): boolean {
+  if (slug === '') return true;
+  if (!/^[a-z0-9-]{1,40}$/.test(slug)) return false;
+  return !(RESERVED_PAGE_SLUGS as readonly string[]).includes(slug);
 }

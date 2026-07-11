@@ -18,6 +18,7 @@ import type {
   SiteConfig,
   SocialLinksElement,
 } from '@/lib/types/site';
+import { homePage } from '@/lib/types/site';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 
 export interface ExtrasOptions {
@@ -54,7 +55,7 @@ function maxZ(section: Section): number {
  * prefer와 일치하는 것을 우선, 없으면 그 type의 마지막 섹션.
  */
 function findTarget(config: SiteConfig, type: SectionType, prefer?: 'form' | 'map'): Section | undefined {
-  const candidates = config.sections.filter((s) => s.type === type);
+  const candidates = homePage(config).sections.filter((s) => s.type === type);
   if (candidates.length === 0) return undefined;
   if (prefer) {
     const preferred = candidates.find((s) => s.id.includes(prefer));
@@ -69,7 +70,7 @@ function ensureContactSection(config: SiteConfig): Section {
   if (existing) return existing;
 
   const theme = config.theme;
-  const usedIds = new Set(config.sections.map((s) => s.id));
+  const usedIds = new Set(homePage(config).sections.map((s) => s.id));
   let id = 'sec-contact';
   let n = 2;
   while (usedIds.has(id)) id = `sec-contact-${n++}`;
@@ -91,7 +92,7 @@ function ensureContactSection(config: SiteConfig): Section {
       },
     ],
   };
-  config.sections.push(section);
+  homePage(config).sections.push(section);
   return section;
 }
 
@@ -148,8 +149,9 @@ export function applyExtraFeatures(
   // SNS — contact류 마지막 섹션(없으면 마지막 섹션)에 배치
   const validSns = (extras.snsLinks ?? []).filter((l) => isHttpsUrl(l.url));
   if (validSns.length > 0) {
+    const homeSections = homePage(config).sections;
     const target =
-      findTarget(config, 'contact') ?? config.sections[config.sections.length - 1] ?? ensureContactSection(config);
+      findTarget(config, 'contact') ?? homeSections[homeSections.length - 1] ?? ensureContactSection(config);
     if (opts.snsStyle === 'buttons') {
       // 개별 버튼 — 에디터에서 자유 이동·URL 수정 가능
       const w = 220;

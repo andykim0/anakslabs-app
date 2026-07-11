@@ -10,6 +10,7 @@
  * (purposeId를 정밀 반영한 Event/Product 세분화는 계약에 purposeId 저장이 선행돼야 함 — 보고 참조)
  */
 import type { Section, SiteConfig } from '@/lib/types/site';
+import { allSections } from '@/lib/types/site';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -43,7 +44,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string): JsonLdNode[] {
   const info = config.businessInfo;
   const name = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
 
-  const hasMenu = config.sections.some((s) => s.type === 'menu');
+  const hasMenu = allSections(config).some((s) => s.type === 'menu');
   const orgType = hasMenu ? 'LocalBusiness' : 'Organization';
 
   const org: JsonLdNode = {
@@ -70,7 +71,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string): JsonLdNode[] {
     url: siteUrl,
   });
 
-  const faqSection = config.sections.find((s) => s.type === 'faq');
+  const faqSection = allSections(config).find((s) => s.type === 'faq');
   if (faqSection) {
     const pairs = extractFaq(faqSection).filter((p) => p.a);
     if (pairs.length > 0) {

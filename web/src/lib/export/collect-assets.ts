@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { SiteConfig } from '@/lib/types/site';
+import { allSections } from '@/lib/types/site';
 import { isSafeMediaSrc } from '@/lib/safe-url';
 
 export interface CollectedAssets {
@@ -111,7 +112,7 @@ export async function collectAndRewriteAssets(input: SiteConfig): Promise<Collec
   const warnings: string[] = [];
   const cache = new Map<string, string>();
 
-  for (const section of config.sections) {
+  for (const section of allSections(config)) {
     const bgImage = section.background?.image;
     if (bgImage?.src) {
       const rel = await fetchAsset(bgImage.src, cache, assets, warnings);

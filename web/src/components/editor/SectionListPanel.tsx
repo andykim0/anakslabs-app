@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Building2, ChevronDown, ChevronUp, Copy, Eye, EyeOff, Layers, Plus, Trash2 } from 'lucide-react';
 import type { SectionType } from '@/lib/types/site';
-import { useEditorStore } from '@/stores/editor';
+import { useEditorStore, activeSections} from '@/stores/editor';
 import { Modal } from '@/components/dashboard/modal';
 import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
@@ -18,7 +18,7 @@ import { DropMenu } from './DropMenu';
 const SECTION_TYPES = Object.keys(SECTION_TYPE_LABELS) as SectionType[];
 
 export function SectionListPanel() {
-  const sections = useEditorStore((s) => s.config.sections);
+  const sections = useEditorStore((s) => activeSections(s.config));
   const selectedSectionId = useEditorStore((s) => s.selectedSectionId);
   const businessInfo = useEditorStore((s) => s.businessInfo);
   const [bizModalOpen, setBizModalOpen] = useState(false);

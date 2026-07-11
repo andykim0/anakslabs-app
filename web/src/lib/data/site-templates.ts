@@ -18,8 +18,10 @@ import type {
   Section,
   SectionType,
   SiteConfig,
+  SiteConfigV1,
   SiteTheme,
 } from '@/lib/types/site';
+import { normalizeSiteConfig } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 
 /** 섹션별 카피 오버라이드 — 실 AI(Claude)가 채우거나, mock이 결정적으로 채운다 */
@@ -1384,7 +1386,8 @@ export function buildSiteConfigFromSurvey(
     }
   }
 
-  return {
+  // [v4 Phase 1] v1 산출물을 normalizeSiteConfig로 v2 승격(홈 페이지 1개). 페이지 구성은 Phase 4.
+  const v1: SiteConfigV1 = {
     version: 1,
     theme,
     meta: {
@@ -1394,6 +1397,7 @@ export function buildSiteConfigFromSurvey(
     },
     sections,
   };
+  return normalizeSiteConfig(v1);
 }
 
 /** a→b 방향으로 t만큼 혼합한 hex 색 (부드러운 본문색 산출용) */

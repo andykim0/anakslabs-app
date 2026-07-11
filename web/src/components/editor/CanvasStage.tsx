@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Eye, Plus, Smartphone } from 'lucide-react';
 import { DESIGN_WIDTH } from '@/lib/types/site';
-import { useEditorStore } from '@/stores/editor';
+import { useEditorStore, activeSections} from '@/stores/editor';
 import { SiteRenderer } from '@/components/site-renderer';
 import { SectionView } from './SectionView';
 import { ThemeFonts } from './ThemeFonts';
@@ -114,15 +114,15 @@ export function CanvasStage() {
         style={{ padding: STAGE_PADDING }}
       >
         {/* 연속 페이지 시트 — 섹션이 간격 없이 이어 붙는 실제 사이트 모습 그대로 */}
-        {config.sections.length > 0 ? (
+        {activeSections(config).length > 0 ? (
           <div className="shadow-2xl ring-1 ring-neutral-800" style={{ width: DESIGN_WIDTH * scale }}>
-            {config.sections.map((section) => (
+            {activeSections(config).map((section) => (
               <SectionView key={section.id} section={section} theme={config.theme} scale={scale} />
             ))}
           </div>
         ) : null}
 
-        {config.sections.length === 0 ? (
+        {activeSections(config).length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-900/40 px-14 py-16 text-center">
             <p className="text-sm font-medium text-neutral-300">아직 섹션이 없습니다</p>
             <p className="text-xs text-neutral-500">히어로 섹션부터 시작해 보세요.</p>

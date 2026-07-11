@@ -4,6 +4,7 @@
  */
 import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
+import { isValidPageSlug } from '@/lib/types/site';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -304,13 +305,59 @@ export const businessInfoSchema = z
     }
   });
 
-export const siteConfigSchema = z.object({
-  version: z.literal(1),
-  theme: siteThemeSchema,
-  meta: siteMetaSchema,
+/** [v4] 페이지 (title/slug/sections + 내비 옵션) */
+const sitePageSchema = z.object({
+  id: z.string().min(1).max(64),
+  title: z.string().min(1, '페이지 이름을 입력해 주세요.').max(60),
+  slug: z.string().max(40),
   sections: z.array(sectionSchema),
-  businessInfo: businessInfoSchema.optional(),
+  showInNav: z.boolean().optional(),
+  navLabel: z.string().max(60).optional(),
 });
+
+/** [v4] SiteConfig v2 — 페이지>섹션 2계층. 쓰기 API는 v2만 수용(클라는 항상 정규화본 로드). */
+export const siteConfigSchema = z
+  .object({
+    version: z.literal(2),
+    theme: siteThemeSchema,
+    meta: siteMetaSchema,
+    pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
+    businessInfo: businessInfoSchema.optional(),
+    nav: z.object({ enabled: z.boolean().optional() }).optional(),
+  })
+  .superRefine((cfg, ctx) => {
+    // slug 유효성 (''=홈 또는 ^[a-z0-9-]{1,40}$·비예약)
+    cfg.pages.forEach((p, i) => {
+      if (!isValidPageSlug(p.slug)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['pages', i, 'slug'],
+          message: `페이지 주소가 올바르지 않습니다: "${p.slug}" (영소문자·숫자·하이픈 1~40자, 예약어 불가).`,
+        });
+      }
+    });
+    // 홈(slug '') 정확히 1개
+    const homeCount = cfg.pages.filter((p) => p.slug === '').length;
+    if (homeCount !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['pages'],
+        message: `홈 페이지(주소 비움)는 정확히 1개여야 합니다 (현재 ${homeCount}개).`,
+      });
+    }
+    // slug 유니크
+    const seen = new Set<string>();
+    cfg.pages.forEach((p, i) => {
+      if (seen.has(p.slug)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['pages', i, 'slug'],
+          message: `페이지 주소가 중복됩니다: "${p.slug || '(홈)'}".`,
+        });
+      }
+      seen.add(p.slug);
+    });
+  });
 
 // ---------- 온보딩 (설문 / 디자인 후보) ----------
 

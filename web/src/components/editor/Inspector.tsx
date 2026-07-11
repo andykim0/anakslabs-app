@@ -39,7 +39,7 @@ import type {
 import type { EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
-import { findElementLocation, useEditorStore } from '@/stores/editor';
+import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
 import { cn } from '@/components/dashboard/ui';
 import { clampFrameToSection, MIN_H, MIN_W } from './snap';
 import { ELEMENT_KIND_LABELS, SECTION_TYPE_LABELS } from './defaults';
@@ -66,7 +66,7 @@ export function Inspector() {
     return <ElementInspector element={loc.element} section={loc.section} theme={config.theme} />;
   }
 
-  const section = config.sections.find((s) => s.id === selectedSectionId) ?? null;
+  const section = activeSections(config).find((s) => s.id === selectedSectionId) ?? null;
   if (section) {
     return <SectionInspector section={section} theme={config.theme} />;
   }
@@ -622,7 +622,7 @@ type BgMode = 'color' | 'gradient' | 'image';
 
 function SectionInspector({ section, theme }: { section: Section; theme: SiteTheme }) {
   const store = useEditorStore.getState;
-  const sections = useEditorStore((s) => s.config.sections);
+  const sections = useEditorStore((s) => activeSections(s.config));
   const idx = sections.findIndex((s) => s.id === section.id);
   const bg = section.background;
   const mode: BgMode = bg.image ? 'image' : bg.gradient ? 'gradient' : 'color';

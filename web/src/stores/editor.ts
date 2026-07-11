@@ -115,12 +115,27 @@ const HISTORY_LIMIT = 100;
 
 // ---------- 순수 헬퍼 ----------
 
+/** [v4 Phase 1] 편집 대상 페이지 인덱스 — 홈(pages[0]) 고정. Phase 2에서 selectedPageId로 대체. */
+export function activePageIndex(config: SiteConfig): number {
+  void config;
+  return 0;
+}
+/** 편집 대상 페이지의 섹션 배열 (에디터 컴포넌트가 공유 — 선택 페이지 단일 소스) */
+export function activeSections(config: SiteConfig): Section[] {
+  return config.pages[activePageIndex(config)]?.sections ?? [];
+}
+/** 편집 대상 페이지의 섹션을 교체한 새 config (다른 페이지 참조 유지) */
+function withActiveSections(config: SiteConfig, sections: Section[]): SiteConfig {
+  const idx = activePageIndex(config);
+  return { ...config, pages: config.pages.map((p, i) => (i === idx ? { ...p, sections } : p)) };
+}
+
 export function findElementLocation(
   config: SiteConfig,
   elementId: string | null,
 ): { section: Section; element: CanvasElement } | null {
   if (!elementId) return null;
-  for (const section of config.sections) {
+  for (const section of activeSections(config)) {
     const element = section.elements.find((e) => e.id === elementId);
     if (element) return { section, element };
   }
@@ -133,7 +148,7 @@ function mapElement(
   fn: (el: CanvasElement, section: Section) => CanvasElement,
 ): SiteConfig {
   let changed = false;
-  const sections = config.sections.map((section) => {
+  const sections = activeSections(config).map((section) => {
     const idx = section.elements.findIndex((e) => e.id === elementId);
     if (idx < 0) return section;
     const el = section.elements[idx];
@@ -144,7 +159,7 @@ function mapElement(
     elements[idx] = updated;
     return { ...section, elements };
   });
-  return changed ? { ...config, sections } : config;
+  return changed ? withActiveSections(config, sections) : config;
 }
 
 function maxZ(section: Section): number {
@@ -205,16 +220,16 @@ export const useEditorStore = create<EditorState>()(
       addElement: (sectionId, kind) => {
         let newId: string | null = null;
         set((state) => {
-          const sIdx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const sIdx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           if (sIdx < 0) return state;
-          const section = state.config.sections[sIdx];
+          const section = activeSections(state.config)[sIdx];
           const el = createDefaultElement(kind, state.config.theme, maxZ(section) + 1);
           const newEl = { ...el, frame: clampFrameToSection(el.frame, section.height) };
           newId = newEl.id;
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           sections[sIdx] = { ...section, elements: [...section.elements, newEl] };
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: sectionId,
             selectedElementId: newEl.id,
@@ -256,18 +271,18 @@ export const useEditorStore = create<EditorState>()(
 
       moveElementToSection: (elementId, targetSectionId, frame) =>
         set((state) => {
-          const src = state.config.sections.find((s) => s.elements.some((e) => e.id === elementId));
-          const dst = state.config.sections.find((s) => s.id === targetSectionId);
+          const src = activeSections(state.config).find((s) => s.elements.some((e) => e.id === elementId));
+          const dst = activeSections(state.config).find((s) => s.id === targetSectionId);
           if (!src || !dst || src.id === dst.id) return state;
           const el = src.elements.find((e) => e.id === elementId)!;
           const moved = { ...el, frame: roundFrame(frame), z: maxZ(dst) + 1 };
-          const sections = state.config.sections.map((s) => {
+          const sections = activeSections(state.config).map((s) => {
             if (s.id === src.id) return { ...s, elements: s.elements.filter((e) => e.id !== elementId) };
             if (s.id === dst.id) return { ...s, elements: [...s.elements, moved] };
             return s;
           });
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: targetSectionId,
             selectedElementId: elementId,
@@ -277,14 +292,14 @@ export const useEditorStore = create<EditorState>()(
       deleteElement: (elementId) =>
         set((state) => {
           let found = false;
-          const sections = state.config.sections.map((section) => {
+          const sections = activeSections(state.config).map((section) => {
             if (!section.elements.some((e) => e.id === elementId)) return section;
             found = true;
             return { ...section, elements: section.elements.filter((e) => e.id !== elementId) };
           });
           if (!found) return state;
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedElementId: state.selectedElementId === elementId ? null : state.selectedElementId,
             editingElementId: state.editingElementId === elementId ? null : state.editingElementId,
@@ -305,11 +320,11 @@ export const useEditorStore = create<EditorState>()(
             section.height,
           );
           newId = copy.id;
-          const sections = state.config.sections.map((s) =>
+          const sections = activeSections(state.config).map((s) =>
             s.id === section.id ? { ...s, elements: [...s.elements, copy] } : s,
           );
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: section.id,
             selectedElementId: copy.id,
@@ -321,9 +336,9 @@ export const useEditorStore = create<EditorState>()(
 
       reorderElement: (elementId, op) =>
         set((state) => {
-          const sIdx = state.config.sections.findIndex((s) => s.elements.some((e) => e.id === elementId));
+          const sIdx = activeSections(state.config).findIndex((s) => s.elements.some((e) => e.id === elementId));
           if (sIdx < 0) return state;
-          const section = state.config.sections[sIdx];
+          const section = activeSections(state.config)[sIdx];
           const sorted = [...section.elements].sort((a, b) => a.z - b.z);
           const idx = sorted.findIndex((e) => e.id === elementId);
           const to =
@@ -339,22 +354,22 @@ export const useEditorStore = create<EditorState>()(
             const z = zById.get(e.id) ?? e.z;
             return e.z === z ? e : { ...e, z };
           });
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           sections[sIdx] = { ...section, elements };
-          return { config: { ...state.config, sections }, dirty: true };
+          return { config: withActiveSections(state.config, sections), dirty: true };
         }),
 
       // ----- 섹션 -----
       addSection: (type, afterSectionId) => {
         const section = createDefaultSection(type);
         set((state) => {
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           const anchor = afterSectionId ?? state.selectedSectionId;
           const idx = anchor ? sections.findIndex((s) => s.id === anchor) : -1;
           if (idx >= 0) sections.splice(idx + 1, 0, section);
           else sections.push(section);
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: section.id,
             selectedElementId: null,
@@ -366,31 +381,31 @@ export const useEditorStore = create<EditorState>()(
 
       updateSection: (sectionId, patch) =>
         set((state) => {
-          const idx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const idx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           if (idx < 0) return state;
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           sections[idx] = { ...sections[idx], ...patch };
-          return { config: { ...state.config, sections }, dirty: true };
+          return { config: withActiveSections(state.config, sections), dirty: true };
         }),
 
       updateSectionBackground: (sectionId, background) =>
         set((state) => {
-          const idx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const idx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           if (idx < 0) return state;
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           sections[idx] = { ...sections[idx], background };
-          return { config: { ...state.config, sections }, dirty: true };
+          return { config: withActiveSections(state.config, sections), dirty: true };
         }),
 
       deleteSection: (sectionId) =>
         set((state) => {
-          const idx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const idx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           if (idx < 0) return state;
-          const sections = state.config.sections.filter((s) => s.id !== sectionId);
+          const sections = activeSections(state.config).filter((s) => s.id !== sectionId);
           const wasSelected = state.selectedSectionId === sectionId;
           const neighbor = sections[Math.min(idx, sections.length - 1)] ?? null;
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: wasSelected ? (neighbor?.id ?? null) : state.selectedSectionId,
             selectedElementId: wasSelected ? null : state.selectedElementId,
@@ -401,18 +416,18 @@ export const useEditorStore = create<EditorState>()(
       duplicateSection: (sectionId) => {
         let newId: string | null = null;
         set((state) => {
-          const idx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const idx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           if (idx < 0) return state;
-          const original = state.config.sections[idx];
+          const original = activeSections(state.config)[idx];
           const copy = structuredClone(original) as Section;
           copy.id = uid();
           copy.name = `${original.name} 복사본`;
           copy.elements = copy.elements.map((e) => ({ ...e, id: uid() }));
           newId = copy.id;
-          const sections = state.config.sections.slice();
+          const sections = activeSections(state.config).slice();
           sections.splice(idx + 1, 0, copy);
           return {
-            config: { ...state.config, sections },
+            config: withActiveSections(state.config, sections),
             dirty: true,
             selectedSectionId: copy.id,
             selectedElementId: null,
@@ -423,13 +438,13 @@ export const useEditorStore = create<EditorState>()(
 
       moveSection: (sectionId, dir) =>
         set((state) => {
-          const idx = state.config.sections.findIndex((s) => s.id === sectionId);
+          const idx = activeSections(state.config).findIndex((s) => s.id === sectionId);
           const to = idx + dir;
-          if (idx < 0 || to < 0 || to >= state.config.sections.length) return state;
-          const sections = state.config.sections.slice();
+          if (idx < 0 || to < 0 || to >= activeSections(state.config).length) return state;
+          const sections = activeSections(state.config).slice();
           const [item] = sections.splice(idx, 1);
           sections.splice(to, 0, item);
-          return { config: { ...state.config, sections }, dirty: true };
+          return { config: withActiveSections(state.config, sections), dirty: true };
         }),
 
       // ----- 테마/메타 -----
@@ -488,7 +503,7 @@ export function initializeEditor(siteId: string, config: SiteConfig) {
     siteId,
     config: rest,
     businessInfo: businessInfo ?? null,
-    selectedSectionId: rest.sections[0]?.id ?? null,
+    selectedSectionId: rest.pages[0]?.sections[0]?.id ?? null,
     selectedElementId: null,
     editingElementId: null,
     zoom: 'fit',

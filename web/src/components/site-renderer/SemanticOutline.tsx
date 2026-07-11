@@ -7,6 +7,7 @@
  * 순수 서버 컴포넌트 — 서빙/Export 동일 출력. 기존 캔버스 렌더러는 건드리지 않는다.
  */
 import type { Section, SiteConfig } from '@/lib/types/site';
+import { findPage, homePage } from '@/lib/types/site';
 
 const SR_ONLY: React.CSSProperties = {
   position: 'absolute',
@@ -76,16 +77,20 @@ function SectionOutline({ section }: { section: Section }) {
   );
 }
 
-export function SemanticOutline({ config }: { config: SiteConfig }) {
+export function SemanticOutline({ config, pageSlug = '' }: { config: SiteConfig; pageSlug?: string }) {
   const info = config.businessInfo;
-  const title = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
-  // 숨김이 아닌 섹션만
-  const sections = config.sections.filter((s) => !s.hidden);
+  // [v4] 선택 페이지 스코프 — 홈은 <h1>=사이트 제목, 서브페이지는 <h1>=페이지 title
+  const page = findPage(config, pageSlug) ?? homePage(config);
+  const isHome = page.slug === '';
+  const title = isHome
+    ? info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트'
+    : page.title;
+  const sections = page.sections.filter((s) => !s.hidden);
 
   return (
     <div style={SR_ONLY} aria-hidden={false}>
       <h1>{title}</h1>
-      {config.meta.description ? <p>{config.meta.description}</p> : null}
+      {isHome && config.meta.description ? <p>{config.meta.description}</p> : null}
       {sections.map((s) => (
         <SectionOutline key={s.id} section={s} />
       ))}

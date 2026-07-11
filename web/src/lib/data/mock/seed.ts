@@ -15,6 +15,7 @@
 import type { Client, CreditLedgerEntry, EditRequest, Payment, Site } from '@/lib/types/domain';
 import { QA_AUTOMATION_DEFAULTS } from '@/lib/credits/constants';
 import { daysAgoIso, daysFromIso, type MockStore } from './store';
+import { normalizeSiteConfig } from '@/lib/types/site';
 import { HWARODAM_SITE_CONFIG } from './hwarodam';
 import { MINTWASH_DRAFT_CONFIG } from './mintwash';
 
@@ -82,9 +83,10 @@ export function buildSeed(): MockStore {
         dnsVerified: false,
         cloudflareHostnameId: null,
         status: 'live',
-        siteConfig: structuredClone(HWARODAM_SITE_CONFIG),
+        // [v4] 시드 주입 지점 정규화 — 저장소엔 v2만 존재 (리터럴은 v1 그대로 유지)
+        siteConfig: normalizeSiteConfig(structuredClone(HWARODAM_SITE_CONFIG)),
         // 발행본과 동일한 초안으로 시작 (에디터 재진입 기준) — seed.sql과 동일
-        draftConfig: structuredClone(HWARODAM_SITE_CONFIG),
+        draftConfig: normalizeSiteConfig(structuredClone(HWARODAM_SITE_CONFIG)),
         publishedAt: daysAgoIso(20),
         createdAt: daysAgoIso(28),
       },
@@ -101,7 +103,7 @@ export function buildSeed(): MockStore {
         cloudflareHostnameId: null,
         status: 'draft',
         siteConfig: null,
-        draftConfig: structuredClone(MINTWASH_DRAFT_CONFIG),
+        draftConfig: normalizeSiteConfig(structuredClone(MINTWASH_DRAFT_CONFIG)),
         publishedAt: null,
         createdAt: daysAgoIso(5),
       },

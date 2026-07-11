@@ -17,7 +17,7 @@ import { Coins, Loader2, Sparkles, Wand2 } from 'lucide-react';
 import type { EditRequest, EditType } from '@/lib/types/domain';
 import type { CanvasElement } from '@/lib/types/site';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
-import { findElementLocation, useEditorStore } from '@/stores/editor';
+import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
 import { Modal } from '@/components/dashboard/modal';
 import { useToast } from '@/components/dashboard/toast';
 import { Button, cn } from '@/components/dashboard/ui';
@@ -43,10 +43,10 @@ function applyAiOutputToCanvas(editRequest: EditRequest): boolean {
 
   const ensureSectionId = (): string => {
     const s = store();
-    if (s.selectedSectionId && s.config.sections.some((sec) => sec.id === s.selectedSectionId)) {
+    if (s.selectedSectionId && activeSections(s.config).some((sec) => sec.id === s.selectedSectionId)) {
       return s.selectedSectionId;
     }
-    return s.config.sections[0]?.id ?? s.addSection('custom');
+    return activeSections(s.config)[0]?.id ?? s.addSection('custom');
   };
 
   const applyToSelectedOrNew = (
