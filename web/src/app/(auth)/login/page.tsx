@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { ShieldCheck, Sparkles, UserCog } from 'lucide-react';
-import { env, isMockMode } from '@/lib/env';
+import { env, isEmailLoginPublic, isMockMode } from '@/lib/env';
 import { mockLogin, type MockRole } from '@/components/dashboard/api';
 import { Spinner } from '@/components/dashboard/ui';
 
@@ -67,6 +67,11 @@ export default function LoginPage() {
   const [pendingRole, setPendingRole] = useState<MockRole | null>(null);
   const [oauthPending, setOauthPending] = useState<'kakao' | 'google' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // [임시·삭제가능] 이메일 로그인(OAuth 우회 테스트 경로) — NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 게이트
+  const emailLoginOn = isEmailLoginPublic();
+  const [emailMode, setEmailMode] = useState<'signin' | 'signup'>('signin');
+  const [emailForm, setEmailForm] = useState({ email: '', password: '' });
+  const [emailPending, setEmailPending] = useState(false);
 
   const handleMockLogin = async (role: MockRole) => {
     setError(null);
@@ -94,6 +99,34 @@ export default function LoginPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : '소셜 로그인에 실패했습니다.');
       setOauthPending(null);
+    }
+  };
+
+  // [임시·삭제가능] 이메일 signup/signin → 세션 쿠키 세팅 → /dashboard
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setEmailPending(true);
+    try {
+      const res = await fetch('/api/auth/email-login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...emailForm, mode: emailMode }),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; redirect?: string; message?: string; error?: { message?: string } }
+        | null;
+      if (!res.ok) throw new Error(data?.error?.message ?? '이메일 로그인에 실패했습니다.');
+      // 세션 미생성(이메일 확인 필요 등)이면 리다이렉트 대신 안내만
+      if (data?.ok && data?.redirect) {
+        router.push(data.redirect);
+      } else {
+        setError(data?.message ?? '가입 확인이 필요합니다. 이메일을 확인해 주세요.');
+        setEmailPending(false);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '이메일 로그인에 실패했습니다.');
+      setEmailPending(false);
     }
   };
 
@@ -157,6 +190,49 @@ export default function LoginPage() {
               </>
             )}
           </div>
+
+          {/* [임시·삭제가능] 이메일 로그인 폼 — 실모드 + NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 일 때만 */}
+          {!mock && emailLoginOn ? (
+            <form onSubmit={handleEmailLogin} className="mt-4 space-y-2.5 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+              <p className="text-[11px] text-neutral-500">
+                이메일 로그인 <span className="text-neutral-600">(임시 테스트 경로)</span>
+              </p>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={emailForm.email}
+                onChange={(ev) => setEmailForm((f) => ({ ...f, email: ev.target.value }))}
+                placeholder="이메일"
+                className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
+              />
+              <input
+                type="password"
+                required
+                minLength={6}
+                autoComplete={emailMode === 'signup' ? 'new-password' : 'current-password'}
+                value={emailForm.password}
+                onChange={(ev) => setEmailForm((f) => ({ ...f, password: ev.target.value }))}
+                placeholder="비밀번호 (6자 이상)"
+                className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
+              />
+              <button
+                type="submit"
+                disabled={emailPending}
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#c8a96a] text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {emailPending ? <Spinner className="text-neutral-950" /> : null}
+                {emailMode === 'signup' ? '가입하고 시작' : '이메일로 로그인'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEmailMode((m) => (m === 'signin' ? 'signup' : 'signin'))}
+                className="w-full text-center text-[11px] text-neutral-500 transition-colors hover:text-[#c8a96a]"
+              >
+                {emailMode === 'signin' ? '계정이 없나요? 가입하기' : '이미 계정이 있나요? 로그인'}
+              </button>
+            </form>
+          ) : null}
 
           {error ? (
             <p className="mt-4 rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-center text-xs text-red-300">

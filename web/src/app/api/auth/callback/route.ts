@@ -1,19 +1,13 @@
 /**
  * GET /api/auth/callback — Supabase OAuth 콜백 (카카오/구글).
- * code → 세션 교환 → clients.upsertFromAuth → /dashboard 리다이렉트.
+ * code → 세션 교환 → completePostLogin(clients 보장 + 스캔 귀속) → /dashboard 리다이렉트.
  * mock 모드에선 OAuth가 없으므로 바로 /dashboard 로 보낸다 (데모 로그인은 /api/auth/mock-login).
  */
 import { NextResponse } from 'next/server';
-import type { AuthProvider } from '@/lib/types/domain';
-import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { withApiHandler } from '../../_lib/http';
 import { createSupabaseRouteClient } from '../../_lib/supabase';
-import { claimPendingScan } from '../../_lib/scan-claim';
-
-function resolveAuthProvider(provider: unknown): AuthProvider {
-  return provider === 'kakao' || provider === 'google' ? provider : 'email';
-}
+import { completePostLogin } from '../../_lib/post-login';
 
 export const GET = withApiHandler(async (request) => {
   const { origin, searchParams } = request.nextUrl;
@@ -37,24 +31,8 @@ export const GET = withApiHandler(async (request) => {
     return NextResponse.redirect(new URL('/login?error=auth_failed', origin));
   }
 
-  const user = data.user;
-  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const name =
-    (typeof meta.name === 'string' && meta.name) ||
-    (typeof meta.full_name === 'string' && meta.full_name) ||
-    user.email?.split('@')[0] ||
-    '고객';
-
-  // 소셜 로그인 직후 clients row 보장 (없으면 생성)
-  await getDataServices().clients.upsertFromAuth({
-    id: user.id,
-    name,
-    email: user.email ?? '',
-    authProvider: resolveAuthProvider(user.app_metadata?.provider),
-  });
-
   const res = NextResponse.redirect(new URL(nextPath, origin));
-  // [v3 Phase 7] 로그인 전 익명 스캔이 있으면 이 client에 귀속
-  await claimPendingScan(request, res, user.id);
+  // 소셜 로그인 직후 clients row 보장 + 로그인 전 익명 스캔 귀속 (공용 헬퍼 — 이메일 로그인과 공유)
+  await completePostLogin(request, res, data.user);
   return res;
 });

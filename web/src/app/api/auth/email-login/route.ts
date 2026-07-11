@@ -1,0 +1,88 @@
+/**
+ * [임시·테스트 전용] POST /api/auth/email-login — OAuth 우회 이메일 로그인.
+ * body: { email, password, mode: 'signin'|'signup' } → 세션 쿠키 세팅 → { ok, redirect }.
+ *
+ * ⚠️ 게이팅: 서버 ALLOW_EMAIL_LOGIN=1 일 때만 활성(아니면 404). 프로덕션 auth 모델
+ *    (OAuth=가입)을 침범하지 않기 위한 임시 경로 — 카카오/구글 심사 대기 중 테스트용.
+ * 세션 성립 후 completePostLogin(clients 보장 + 스캔 귀속)을 OAuth 콜백과 공유한다.
+ */
+import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
+import { isEmailLoginEnabled, isMockMode } from '@/lib/env';
+import { apiError, parseBody, withApiHandler } from '../../_lib/http';
+import { createSupabaseRouteClient } from '../../_lib/supabase';
+import { completePostLogin } from '../../_lib/post-login';
+
+// 남용 방어: IP 분당 10회 (임시 경로지만 brute-force 완화 — /api/scan·/api/forms 와 동일 패턴)
+const RL_LIMIT = 10;
+const RL_WINDOW_MS = 60_000;
+const RL_KEY = '__anaksEmailLoginRateLimit__' as const;
+type GlobalWithRl = typeof globalThis & { [RL_KEY]?: Map<string, number[]> };
+function rateLimited(ip: string): boolean {
+  const g = globalThis as GlobalWithRl;
+  const buckets = (g[RL_KEY] ??= new Map<string, number[]>());
+  const now = Date.now();
+  const hits = (buckets.get(ip) ?? []).filter((t) => now - t < RL_WINDOW_MS);
+  if (hits.length >= RL_LIMIT) {
+    buckets.set(ip, hits);
+    return true;
+  }
+  hits.push(now);
+  buckets.set(ip, hits);
+  return false;
+}
+
+const bodySchema = z.object({
+  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(200),
+  password: z.string().min(6, '비밀번호는 6자 이상이어야 합니다.').max(200),
+  mode: z.enum(['signin', 'signup']),
+});
+
+export const POST = withApiHandler(async (request: NextRequest) => {
+  // 게이트: 비활성 시 존재 자체를 숨긴다(404)
+  if (!isEmailLoginEnabled()) {
+    return apiError(404, 'NOT_FOUND', '요청한 리소스를 찾을 수 없습니다.');
+  }
+  // 이메일 로그인은 실제 Supabase Auth가 필요 — mock 모드에선 불가
+  if (isMockMode()) {
+    return apiError(400, 'REAL_MODE_ONLY', '이메일 로그인은 실 DB 모드에서만 사용할 수 있습니다.');
+  }
+  const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
+  if (rateLimited(ip)) {
+    return apiError(429, 'RATE_LIMITED', '요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.');
+  }
+
+  const body = await parseBody(request, bodySchema);
+  if (!body.ok) return body.res;
+  const { email, password, mode } = body.data;
+
+  const supabase = await createSupabaseRouteClient();
+  const result =
+    mode === 'signup'
+      ? await supabase.auth.signUp({ email, password })
+      : await supabase.auth.signInWithPassword({ email, password });
+
+  // 실패: 원시 Supabase 메시지는 클라이언트에 노출하지 않는다(이메일 열거 방지) — 서버 로그로만.
+  if (result.error || !result.data.user) {
+    if (result.error) console.warn(`[email-login] ${mode} 실패:`, result.error.message);
+    const msg =
+      mode === 'signup'
+        ? '가입에 실패했습니다. 입력값을 확인해 주세요.'
+        : '로그인에 실패했습니다. 이메일/비밀번호를 확인해 주세요.';
+    return apiError(401, 'AUTH_FAILED', msg);
+  }
+
+  // signUp 은 user 생성과 session 생성이 분리될 수 있다(이메일 확인 필요 설정 / 중복 이메일 난독화).
+  // session 이 없으면 로그인 미완료 — clients row/스캔 귀속을 만들지 말고 안내만 반환(고아 row·오귀속 방지).
+  if (!result.data.session) {
+    return NextResponse.json({
+      ok: false,
+      message: '가입이 접수됐어요. 이메일로 보내드린 확인 링크를 눌러 인증을 완료해 주세요.',
+    });
+  }
+
+  const res = NextResponse.json({ ok: true, redirect: '/dashboard' });
+  // 세션 성립 후에만: clients row 보장 + 로그인 전 익명 스캔 귀속 (OAuth 콜백과 동일 공용 헬퍼)
+  await completePostLogin(request, res, result.data.user);
+  return res;
+});
