@@ -18,7 +18,7 @@ import type {
   SiteConfig,
   SocialLinksElement,
 } from '@/lib/types/site';
-import { homePage } from '@/lib/types/site';
+import { allSections, findPage } from '@/lib/types/site';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 
 export interface ExtrasOptions {
@@ -53,9 +53,17 @@ function maxZ(section: Section): number {
 /**
  * 대상 섹션 선택: 같은 type이 여러 개면 id 접미(form/map 등 variant 유래)가
  * prefer와 일치하는 것을 우선, 없으면 그 type의 마지막 섹션.
+ * [v4 Phase 4] pageSlug 지정 시 해당 페이지 내에서만, 없으면 전 페이지에서 탐색.
  */
-function findTarget(config: SiteConfig, type: SectionType, prefer?: 'form' | 'map'): Section | undefined {
-  const candidates = homePage(config).sections.filter((s) => s.type === type);
+function findTarget(
+  config: SiteConfig,
+  type: SectionType,
+  prefer?: 'form' | 'map',
+  pageSlug?: string,
+): Section | undefined {
+  const scope =
+    pageSlug !== undefined ? findPage(config, pageSlug)?.sections ?? [] : allSections(config);
+  const candidates = scope.filter((s) => s.type === type);
   if (candidates.length === 0) return undefined;
   if (prefer) {
     const preferred = candidates.find((s) => s.id.includes(prefer));
@@ -64,13 +72,16 @@ function findTarget(config: SiteConfig, type: SectionType, prefer?: 'form' | 'ma
   return candidates[candidates.length - 1];
 }
 
-/** contact 섹션이 아예 없을 때 최소 문의 섹션을 만들어 맨 뒤(footer 앞)에 추가 */
+/**
+ * contact 섹션이 아예 없을 때 최소 문의 섹션을 만들어 추가.
+ * [v4 Phase 4] 'contact' 페이지가 있으면 거기, 없으면 마지막 페이지 뒤(footer 앞)에 추가.
+ */
 function ensureContactSection(config: SiteConfig): Section {
   const existing = findTarget(config, 'contact');
   if (existing) return existing;
 
   const theme = config.theme;
-  const usedIds = new Set(homePage(config).sections.map((s) => s.id));
+  const usedIds = new Set(allSections(config).map((s) => s.id));
   let id = 'sec-contact';
   let n = 2;
   while (usedIds.has(id)) id = `sec-contact-${n++}`;
@@ -92,7 +103,9 @@ function ensureContactSection(config: SiteConfig): Section {
       },
     ],
   };
-  homePage(config).sections.push(section);
+  const targetPage =
+    config.pages.find((p) => p.slug === 'contact') ?? config.pages[config.pages.length - 1];
+  targetPage.sections.push(section);
   return section;
 }
 
@@ -114,7 +127,8 @@ export function applyExtraFeatures(
   // 지도 — contact:map 섹션 우선
   if (extras.mapEmbed && isSafeMapEmbedUrl(extras.mapEmbed.embedUrl)) {
     const target =
-      findTarget(config, extras.mapEmbed.targetSection, 'map') ?? ensureContactSection(config);
+      findTarget(config, extras.mapEmbed.targetSection, 'map', extras.mapEmbed.targetPageSlug) ??
+      ensureContactSection(config);
     const el: MapElement = {
       id: `el-extra-map-${target.id}`,
       kind: 'map',
@@ -129,7 +143,8 @@ export function applyExtraFeatures(
   // 문의 폼 — contact:form 섹션 우선
   if (extras.contactForm) {
     const target =
-      findTarget(config, extras.contactForm.targetSection, 'form') ?? ensureContactSection(config);
+      findTarget(config, extras.contactForm.targetSection, 'form', extras.contactForm.targetPageSlug) ??
+      ensureContactSection(config);
     const fields: FormElement['fields'] =
       opts.formFields && opts.formFields.length > 0 ? opts.formFields : ['name', 'phone', 'message'];
     const height = 96 + fields.length * 76 + (fields.includes('message') ? 60 : 0);
@@ -149,9 +164,9 @@ export function applyExtraFeatures(
   // SNS — contact류 마지막 섹션(없으면 마지막 섹션)에 배치
   const validSns = (extras.snsLinks ?? []).filter((l) => isHttpsUrl(l.url));
   if (validSns.length > 0) {
-    const homeSections = homePage(config).sections;
+    const allSecs = allSections(config);
     const target =
-      findTarget(config, 'contact') ?? homeSections[homeSections.length - 1] ?? ensureContactSection(config);
+      findTarget(config, 'contact') ?? allSecs[allSecs.length - 1] ?? ensureContactSection(config);
     if (opts.snsStyle === 'buttons') {
       // 개별 버튼 — 에디터에서 자유 이동·URL 수정 가능
       const w = 220;

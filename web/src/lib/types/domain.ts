@@ -198,12 +198,36 @@ export interface SectionPlanItem {
   /** 해제 불가 (hero 등) */
   required?: boolean;
   source: 'template' | 'user' | 'ai';
+  /**
+   * [v4 Phase 4] 이 섹션이 속한 페이지 slug (''=홈). 미지정이면 홈.
+   * 템플릿(planFromTemplate)이 페이지 분할 결과로 찍고, buildSiteConfigFromSurvey가
+   * 이 값으로 섹션을 페이지별로 묶어 v2 pages 를 만든다.
+   */
+  pageSlug?: string;
 }
 
-/** [v3 Phase 0.2] 부가기능 선택 (온보딩 4단계) */
+/**
+ * [v4 Phase 4] 페이지 계획 항목 — 온보딩 생성 시 페이지 순서·제목·내비 메타.
+ * SectionPlanItem.pageSlug 와 slug 로 연결. 홈은 slug ''.
+ */
+export interface PagePlanItem {
+  /** 페이지 slug (''=홈, 그 외 소문자-하이픈) */
+  slug: string;
+  /** 페이지 제목 (내비 라벨 기본값) */
+  title: string;
+  /** 내비 표시 라벨 (없으면 title) */
+  navLabel?: string;
+  /** 내비 노출 (기본 true) */
+  showInNav?: boolean;
+}
+
+/**
+ * [v3 Phase 0.2] 부가기능 선택 (온보딩 4단계)
+ * [v4 Phase 4] targetPageSlug: 대상 섹션을 특정 페이지에서 찾도록 한정 (없으면 전 페이지 탐색).
+ */
 export interface ExtraFeatureSelection {
-  contactForm?: { targetSection: SectionType };
-  mapEmbed?: { embedUrl: string; targetSection: SectionType };
+  contactForm?: { targetSection: SectionType; targetPageSlug?: string };
+  mapEmbed?: { embedUrl: string; targetSection: SectionType; targetPageSlug?: string };
   snsLinks?: { kind: SnsKind; url: string; label?: string }[];
 }
 
@@ -222,6 +246,11 @@ export interface SurveyInput {
   referenceImageUrls: string[];
   /** [v3] 기존 sections: SectionType[] 를 대체하는 섹션 계획표 */
   sectionPlan: SectionPlanItem[];
+  /**
+   * [v4 Phase 4] 페이지 구성 메타(순서·제목·내비). 없으면 sectionPlan.pageSlug 로 유추
+   * (기본 slug→title 맵). 둘 다 없으면 단일 홈 페이지 — v3 이하와 동일(무회귀).
+   */
+  pagePlan?: PagePlanItem[];
   /** [v3] 적용된 템플릿 (변경 감지·재적용용) */
   templateId: string;
   extraNotes?: string;

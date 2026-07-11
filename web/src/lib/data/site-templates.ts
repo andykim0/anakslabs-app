@@ -18,11 +18,13 @@ import type {
   Section,
   SectionType,
   SiteConfig,
-  SiteConfigV1,
+  SitePage,
   SiteTheme,
 } from '@/lib/types/site';
-import { normalizeSiteConfig } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
+
+/** [v4 Phase 4] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
+const DEFAULT_PAGE_TITLES: Record<string, string> = { '': '홈', about: '소개', contact: '문의' };
 
 /** 섹션별 카피 오버라이드 — 실 AI(Claude)가 채우거나, mock이 결정적으로 채운다 */
 export interface SectionCopy {
@@ -1325,13 +1327,24 @@ export function buildSiteConfigFromSurvey(
     imgSeq: 0,
   };
 
-  // 1) 계획표 확보 + hero/contact 최소 요건 합성
-  const plan: SectionPlanItem[] = [...survey.sectionPlan];
+  // 1) 계획표 확보 + hero/contact 최소 요건 합성 (pageSlug 보존)
+  const plan: SectionPlanItem[] = survey.sectionPlan.map((it) => ({ ...it }));
   if (!plan.some((i) => i.type === 'hero')) {
-    plan.unshift({ type: 'hero', name: SECTION_NAMES.hero, brief: '', required: true, source: 'ai' });
+    // 히어로는 항상 홈
+    plan.unshift({ type: 'hero', name: SECTION_NAMES.hero, brief: '', required: true, source: 'ai', pageSlug: '' });
   }
   if (!plan.some((i) => i.type === 'contact')) {
-    plan.push({ type: 'contact', name: SECTION_NAMES.contact, brief: '', source: 'ai' });
+    // contact 페이지가 계획에 선언돼 있으면 거기, 아니면 홈
+    const hasContactPage =
+      (survey.pagePlan ?? []).some((p) => p.slug === 'contact') ||
+      plan.some((i) => (i.pageSlug ?? '') === 'contact');
+    plan.push({
+      type: 'contact',
+      name: SECTION_NAMES.contact,
+      brief: '',
+      source: 'ai',
+      pageSlug: hasContactPage ? 'contact' : '',
+    });
   }
 
   // 2) 동일 (type, variant) 중복 제거 (custom 제외)
@@ -1344,12 +1357,12 @@ export function buildSiteConfigFromSurvey(
     return true;
   });
 
-  // 3) type 별 등장 횟수 → id 접미 결정
+  // 3) type 별 등장 횟수 → id 접미 결정 (id 는 사이트 전역 유일 — 앵커 안정성)
   const typeCounts = new Map<SectionType, number>();
   for (const it of deduped) typeCounts.set(it.type, (typeCounts.get(it.type) ?? 0) + 1);
 
   const usedIds = new Set<string>();
-  const sections: Section[] = deduped.map((item) => {
+  const built: { section: Section; pageSlug: string }[] = deduped.map((item) => {
     const section = BUILDERS[item.type](ctx, item);
     section.name = item.name?.trim() || SECTION_NAMES[item.type];
 
@@ -1368,15 +1381,15 @@ export function buildSiteConfigFromSurvey(
     }
     usedIds.add(uniqueId);
     section.id = uniqueId;
-    return section;
+    return { section, pageSlug: item.pageSlug ?? '' };
   });
 
   // [v3 Phase 3] 앵커 재해소 — contact가 variant id(sec-contact-map/-form)로 갈라져
   // 'sec-contact'가 없으면, 빌더가 만든 '#sec-contact' href를 첫 contact 섹션 id로 교체.
   if (!usedIds.has('sec-contact')) {
-    const firstContact = sections.find((s) => s.type === 'contact');
+    const firstContact = built.find((b) => b.section.type === 'contact')?.section;
     if (firstContact) {
-      for (const section of sections) {
+      for (const { section } of built) {
         for (const el of section.elements) {
           if (el.kind === 'button' && el.href === '#sec-contact') {
             el.href = `#${firstContact.id}`;
@@ -1386,18 +1399,65 @@ export function buildSiteConfigFromSurvey(
     }
   }
 
-  // [v4 Phase 1] v1 산출물을 normalizeSiteConfig로 v2 승격(홈 페이지 1개). 페이지 구성은 Phase 4.
-  const v1: SiteConfigV1 = {
-    version: 1,
+  // 4) [v4 Phase 4] pageSlug 로 섹션을 페이지별로 묶어 v2 pages 구성
+  //    페이지 순서: 홈('') 먼저 → pagePlan 순 → 섹션 첫등장 순. 섹션 없는 페이지 제외.
+  const slugOrder: string[] = [];
+  const pushSlug = (s: string) => {
+    if (!slugOrder.includes(s)) slugOrder.push(s);
+  };
+  pushSlug('');
+  for (const p of survey.pagePlan ?? []) pushSlug(p.slug);
+  for (const b of built) pushSlug(b.pageSlug);
+
+  const metaOf = (slug: string): { title: string; navLabel?: string; showInNav?: boolean } => {
+    const fromPlan = survey.pagePlan?.find((p) => p.slug === slug);
+    if (fromPlan) return { title: fromPlan.title, navLabel: fromPlan.navLabel, showInNav: fromPlan.showInNav };
+    return { title: DEFAULT_PAGE_TITLES[slug] ?? (slug || '홈') };
+  };
+
+  const pages: SitePage[] = slugOrder
+    .map((slug) => ({ slug, sections: built.filter((b) => b.pageSlug === slug).map((b) => b.section) }))
+    .filter((p) => p.sections.length > 0)
+    .map(({ slug, sections }) => {
+      const m = metaOf(slug);
+      return {
+        id: slug === '' ? 'home' : slug,
+        title: m.title,
+        slug,
+        sections,
+        ...(m.navLabel ? { navLabel: m.navLabel } : {}),
+        ...(m.showInNav === false ? { showInNav: false } : {}),
+      };
+    });
+
+  // 5) [v4 Phase 4] 페이지 간 앵커 재작성 — 다른 페이지 섹션을 가리키는 '#id'는
+  //    '/{slug}#id'(홈은 '/#id')로 바꿔 페이지 이동 후 스크롤되게 한다.
+  const idToSlug = new Map<string, string>();
+  for (const p of pages) for (const s of p.sections) idToSlug.set(s.id, p.slug);
+  for (const p of pages) {
+    for (const s of p.sections) {
+      for (const el of s.elements) {
+        if (el.kind === 'button' && el.href && el.href.startsWith('#')) {
+          const targetId = el.href.slice(1);
+          const targetSlug = idToSlug.get(targetId);
+          if (targetSlug !== undefined && targetSlug !== p.slug) {
+            el.href = `${targetSlug === '' ? '/' : `/${targetSlug}`}#${targetId}`;
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    version: 2,
     theme,
     meta: {
       title: `${survey.businessName} — ${survey.industry}`,
       description: `${survey.businessName} · ${survey.purpose}`,
       ogImage: opts.heroImageUrl,
     },
-    sections,
+    pages,
   };
-  return normalizeSiteConfig(v1);
 }
 
 /** a→b 방향으로 t만큼 혼합한 hex 색 (부드러운 본문색 산출용) */

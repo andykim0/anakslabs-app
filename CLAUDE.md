@@ -6,10 +6,12 @@
 
 ## 확정된 아키텍처 결정 (변경 금지 — 변경은 사용자 승인 필요)
 
-1. **하이브리드 사이트 모델**: 고객 사이트 = `sites.site_config`(jsonb) 하나로 표현.
-   - `theme`(사이트별 AI 생성 폰트/팔레트/커스텀 CSS) + `sections[]`(수직 스택).
-   - 각 섹션 내부는 **자유배치 캔버스**: 요소들이 `frame {x,y,w,h}` 절대좌표(디자인 폭 1440px 기준)로 배치.
-   - 렌더링: 뷰포트 폭에 비례 스케일. 모바일(<768px): 요소를 y좌표 순으로 자동 스택(MVP).
+1. **하이브리드 사이트 모델 (v4: 페이지>섹션 2계층)**: 고객 사이트 = `sites.site_config`(jsonb) 하나로 표현.
+   - `SiteConfig{ version:2, theme, meta, pages[], nav?, businessInfo? }`. `theme`(사이트별 AI 생성 폰트/팔레트/커스텀 CSS) + **`pages[]`**(각 페이지 = `SitePage{ id,title,slug,sections[],showInNav?,navLabel? }`, 홈 slug=`''`).
+   - 각 페이지 = `sections[]`(수직 스택). 각 섹션 내부는 **자유배치 캔버스**: 요소들이 `frame {x,y,w,h}` 절대좌표(디자인 폭 1440px 기준)로 배치.
+   - **헤더 내비 자동 생성**: 내비 노출 페이지(`showInNav!==false`) ≥2 & `nav.enabled!==false`면 `TenantHeader`가 페이지 목록에서 헤더 내비를 렌더(단일 페이지는 미표시=무회귀). 페이지 간 링크는 `/{slug}`(홈 `/`), Export는 상대 파일명(`./{slug}.html`).
+   - v1 config(`sections[]` 평면)는 읽기 경계에서 `normalizeSiteConfig`로 무손실 v2 승격(홈 페이지 1개). 데이터 계층 read 지점에서만 정규화.
+   - 렌더링: 뷰포트 폭에 비례 스케일. 모바일(<768px): 요소를 y좌표 순으로 자동 스택(MVP). 서브페이지 서빙: `/s/[domain]/[...path]`(단일 세그먼트 slug), SEO(sitemap/llms.txt/jsonld)는 전 페이지 반영.
 2. **PPT식 자유배치 에디터**: 드래그 이동, 8핸들 리사이즈, 스냅 가이드, z-order, 인스펙터, undo/redo(zundo), 초안 자동저장 → 발행(publish) 분리.
 3. **멀티테넌트 서빙**: `xxx.anakslabs.com` → middleware가 호스트 파싱 → `/s/[domain]` rewrite → 발행된 site_config SSR 렌더. 커스텀 도메인은 Cloudflare for SaaS Custom Hostnames.
 4. **멀티테넌트 DB**: Supabase 단일 프로젝트, 모든 테이블 `client_id` 격리 + RLS. 잔액은 `credit_ledger`가 원본(source of truth), `credit_balances`는 캐시.
@@ -17,7 +19,9 @@
 
 ## 온보딩 플로우 (로그인 후 고객 경험 — 순서 고정)
 
-설문(레퍼런스 이미지·색·톤·목적·섹션 구성) → **1차 가공**(AI 디자인 후보 3안 — 테마+히어로 비주얼, 3D 렌더 스타일 포함 — 중 1개 선택) → **2차 가공**(PPT식 캔버스 편집) → 확정 → 호스팅(서브도메인 즉시 라이브)
+설문(레퍼런스 이미지·색·톤·목적·섹션 구성) → **1차 가공**(AI 디자인 후보 3안 — 테마+히어로 비주얼, 3D 렌더 스타일 포함 — 중 1개 선택) → **2차 가공**(PPT식 캔버스 편집, 페이지별) → 확정 → 호스팅(서브도메인 즉시 라이브)
+
+**v4 페이지 구성(page>section 2계층)**: 템플릿(`SITE_TEMPLATES`)이 목적×업종 → 페이지 분할을 결정. `templatePages`가 홈/소개/문의 3계층으로 결정적 분할(홈=hero+판매/콘텐츠, 소개=`about`/`team`, 문의=`contact`; `singlePage` 템플릿[원페이지·이력서]은 단일 홈, 소개/문의 콘텐츠가 없으면 단일 홈 폴백). `planFromTemplate`이 각 `SectionPlanItem.pageSlug`를 찍어 설문에 실리고, `buildSiteConfigFromSurvey`가 pageSlug로 섹션을 묶어 **v2 pages를 직접 생성** + 페이지 간 앵커(`#sec-x`)를 `/{slug}#sec-x`로 재작성. 커스텀 섹션(suggest-section)·부가기능(extras-inject)은 `targetPageSlug`로 대상 페이지 지정 가능(미지정 시 전 페이지 탐색). 사업자정보(businessInfo)는 v3 Phase 4 에디터 모달로 입력(발행 게이트).
 
 ## 디렉토리 소유권 (병렬 작업 시 자기 영역만 수정)
 

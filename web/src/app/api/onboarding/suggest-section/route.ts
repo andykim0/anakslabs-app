@@ -19,6 +19,8 @@ const bodySchema = z.object({
     purpose: z.string().max(200).default(''),
     tone: z.string().max(200).optional(),
   }),
+  // [v4 Phase 4] 새 섹션을 붙일 대상 페이지 slug (''=홈). 결과 pageSlug 로 에코
+  targetPageSlug: z.string().max(40).optional(),
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -27,8 +29,13 @@ export const POST = withApiHandler(async (request) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { name, description, context } = body.data;
+  const { name, description, context, targetPageSlug } = body.data;
 
-  const result = await getDataServices().ai.suggestCustomSection({ name, description, context });
+  const result = await getDataServices().ai.suggestCustomSection({
+    name,
+    description,
+    context,
+    targetPageSlug,
+  });
   return NextResponse.json(result);
 });

@@ -8,7 +8,8 @@
  * 업종별 구성 추가는 코드 수정 없이 SITE_TEMPLATES 데이터 추가만으로 가능.
  * 계약 파일(Architect 소유) — 데이터 추가는 리뷰 대상.
  */
-import type { SectionPlanItem, SitePurposeId } from '@/lib/types/domain';
+import type { PagePlanItem, SectionPlanItem, SitePurposeId } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
 
 export interface SiteTemplateDef {
   /** 'company_brand.default' | 'company_brand.professional_firm' */
@@ -18,11 +19,16 @@ export interface SiteTemplateDef {
   label: string;
   /** 업종 문자열 부분일치 키워드. 없으면 목적 기본 템플릿 */
   industryMatch?: string[];
-  sections: Omit<SectionPlanItem, 'source'>[];
+  sections: Omit<SectionPlanItem, 'source' | 'pageSlug'>[];
+  /**
+   * [v4 Phase 4] true면 페이지 분할 없이 단일 홈(원페이지·이력서 등 스크롤형).
+   * 기본(false/미지정)이면 templatePages 가 홈/소개/문의 3계층으로 결정적 분할.
+   */
+  singlePage?: boolean;
 }
 
-/** 편의: 계획 항목 리터럴 (source 제외) */
-type S = Omit<SectionPlanItem, 'source'>;
+/** 편의: 계획 항목 리터럴 (source·pageSlug 제외) */
+type S = Omit<SectionPlanItem, 'source' | 'pageSlug'>;
 const hero = (name: string, brief: string): S => ({ type: 'hero', name, brief, required: true });
 
 export const SITE_TEMPLATES: SiteTemplateDef[] = [
@@ -160,6 +166,7 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
     id: 'one_page.default',
     purposeId: 'one_page',
     label: '원페이지·링크인바이오',
+    singlePage: true,
     sections: [
       hero('프로필', '사진·이름·한 줄 소개'),
       { type: 'cta', name: '링크 허브', brief: '주요 링크 버튼 목록 (socialLinks 요소 중심)', variant: 'cta:links' },
@@ -239,6 +246,7 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
     purposeId: 'portfolio',
     label: '이력서·CV',
     industryMatch: ['이력서', 'CV'],
+    singlePage: true,
     sections: [
       hero('프로필', '이름·직군·한 줄 정체성'),
       { type: 'about', name: '경력·이력', brief: '학력·경력·수상·스킬', variant: 'about:resume' },
@@ -263,9 +271,61 @@ export function resolveTemplate(purposeId: SitePurposeId, industry: string): Sit
   return def;
 }
 
-/** 템플릿 → 초기 sectionPlan (source:'template' 스탬프) */
+// ---------- [v4 Phase 4] 페이지 분할 (홈/소개/문의) ----------
+
+export interface TemplatePageInfo {
+  slug: string;
+  title: string;
+  navLabel?: string;
+  showInNav?: boolean;
+  sections: S[];
+}
+
+/** 소개 페이지로 가는 섹션 타입 (회사/사람 이야기) */
+const ABOUT_PAGE_TYPES = new Set<SectionType>(['about', 'team']);
+/** 문의 페이지로 가는 섹션 타입 */
+const CONTACT_PAGE_TYPES = new Set<SectionType>(['contact']);
+
+/**
+ * 템플릿 → 페이지 구성(결정적). singlePage면 단일 홈.
+ * 그 외: 홈=hero+판매/콘텐츠 섹션 · 소개='about','team' · 문의='contact'.
+ * 소개/문의가 모두 비면 단일 홈으로 폴백. 페이지 내 순서는 원 템플릿 순서 유지.
+ */
+export function templatePages(t: SiteTemplateDef): TemplatePageInfo[] {
+  if (t.singlePage) return [{ slug: '', title: '홈', sections: t.sections }];
+
+  const home: S[] = [];
+  const about: S[] = [];
+  const contact: S[] = [];
+  for (const s of t.sections) {
+    if (ABOUT_PAGE_TYPES.has(s.type)) about.push(s);
+    else if (CONTACT_PAGE_TYPES.has(s.type)) contact.push(s);
+    else home.push(s);
+  }
+  if (about.length === 0 && contact.length === 0) {
+    return [{ slug: '', title: '홈', sections: t.sections }];
+  }
+  const pages: TemplatePageInfo[] = [{ slug: '', title: '홈', sections: home }];
+  if (about.length) pages.push({ slug: 'about', title: '소개', navLabel: '소개', sections: about });
+  if (contact.length) pages.push({ slug: 'contact', title: '문의', navLabel: '문의', sections: contact });
+  return pages;
+}
+
+/** 템플릿 → 초기 sectionPlan (source:'template' + pageSlug 스탬프, 홈→소개→문의 순) */
 export function planFromTemplate(t: SiteTemplateDef): SectionPlanItem[] {
-  return t.sections.map((s) => ({ ...s, source: 'template' as const }));
+  return templatePages(t).flatMap((p) =>
+    p.sections.map((s) => ({ ...s, source: 'template' as const, pageSlug: p.slug })),
+  );
+}
+
+/** 템플릿 → 페이지 계획 메타(순서·제목·내비) */
+export function pagePlanFromTemplate(t: SiteTemplateDef): PagePlanItem[] {
+  return templatePages(t).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    ...(p.navLabel ? { navLabel: p.navLabel } : {}),
+    ...(p.showInNav === false ? { showInNav: false } : {}),
+  }));
 }
 
 /** dev 무결성 검사 — id 중복 / 각 목적 .default 존재 / hero 첫 항목·required / industryMatch 겹침 */
@@ -296,6 +356,12 @@ export function validateSiteTemplates(): string[] {
     if (!t.purposeId.startsWith(t.id.split('.')[0])) {
       problems.push(`${t.id}: id 접두사와 purposeId 불일치`);
     }
+    // [v4 Phase 4] 페이지 분할 무결성 — 첫 페이지는 홈(slug ''), 홈 첫 섹션은 hero, slug 유일
+    const pages = templatePages(t);
+    if (pages[0]?.slug !== '') problems.push(`${t.id}: 첫 페이지는 홈(slug '')이어야 합니다`);
+    if (pages[0]?.sections[0]?.type !== 'hero') problems.push(`${t.id}: 홈 첫 섹션은 hero여야 합니다`);
+    const slugs = pages.map((p) => p.slug);
+    if (new Set(slugs).size !== slugs.length) problems.push(`${t.id}: 페이지 slug 중복`);
   }
   for (const p of purposes) {
     if (!SITE_TEMPLATES.some((t) => t.id === `${p}.default`)) {

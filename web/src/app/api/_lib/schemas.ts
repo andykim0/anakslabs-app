@@ -372,6 +372,16 @@ export const sectionPlanItemSchema = z.object({
     .optional(),
   required: z.boolean().optional(),
   source: z.enum(['template', 'user', 'ai']),
+  // [v4 Phase 4] 이 섹션이 속한 페이지 slug (''=홈)
+  pageSlug: z.string().max(40).optional(),
+});
+
+/** [v4 Phase 4] 페이지 계획 항목 */
+export const pagePlanItemSchema = z.object({
+  slug: z.string().max(40),
+  title: z.string().min(1).max(40),
+  navLabel: z.string().max(40).optional(),
+  showInNav: z.boolean().optional(),
 });
 
 export const surveySchema = z.object({
@@ -397,6 +407,8 @@ export const surveySchema = z.object({
     .array(sectionPlanItemSchema)
     .min(1, '섹션을 1개 이상 구성해 주세요.')
     .refine((plan) => plan.some((s) => s.type === 'hero'), '히어로 섹션은 필수입니다.'),
+  // [v4 Phase 4] 페이지 구성 메타 (없으면 sectionPlan.pageSlug 로 유추)
+  pagePlan: z.array(pagePlanItemSchema).max(20).optional(),
   templateId: z.string().min(1),
   extraNotes: z.string().max(2000).optional(),
   // ---- [§7] additive (v3와 충돌 없음, 유지) ----
@@ -411,13 +423,16 @@ export const surveySchema = z.object({
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */
 export const extraFeatureSelectionSchema = z.object({
-  contactForm: z.object({ targetSection: sectionTypeSchema }).optional(),
+  contactForm: z
+    .object({ targetSection: sectionTypeSchema, targetPageSlug: z.string().max(40).optional() })
+    .optional(),
   mapEmbed: z
     .object({
       embedUrl: z
         .string()
         .refine(isSafeMapEmbedUrl, '네이버/카카오/구글 지도 embed URL만 사용할 수 있습니다.'),
       targetSection: sectionTypeSchema,
+      targetPageSlug: z.string().max(40).optional(),
     })
     .optional(),
   snsLinks: z

@@ -294,12 +294,16 @@ export class SupabaseAiService implements AiService {
     name: string;
     description?: string;
     context: SuggestSectionContext;
-  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    targetPageSlug?: string;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string; pageSlug?: string }> {
     // 실모드: Claude가 known 타입/custom 판정 + 방문자용 카피 방향 생성. 실패 시 결정적 폴백.
+    // [v4 Phase 4] 요청 대상 페이지를 결과 pageSlug 로 에코 (판정과 무관 — UI 배치용)
+    const pageEcho = input.targetPageSlug !== undefined ? { pageSlug: input.targetPageSlug } : {};
     const fallback = () => ({
       mappedType: mapCustomSectionType(`${input.name} ${input.description ?? ''}`),
       name: input.name,
       copySeed: input.description?.trim() || input.name,
+      ...pageEcho,
     });
     try {
       const raw = await generateClaudeText({
@@ -321,7 +325,7 @@ export class SupabaseAiService implements AiService {
       const mt = cleanString(parsed?.mappedType, 20);
       const seed = cleanString(parsed?.copySeed, 300);
       if (mt && KNOWN_SECTION_TYPES.includes(mt as SectionType)) {
-        return { mappedType: mt as SectionType, name: input.name, copySeed: seed || fallback().copySeed };
+        return { mappedType: mt as SectionType, name: input.name, copySeed: seed || fallback().copySeed, ...pageEcho };
       }
     } catch (err) {
       console.warn('[ai] suggestCustomSection Claude 실패 — 결정적 폴백:', err);

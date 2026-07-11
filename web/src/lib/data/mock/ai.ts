@@ -131,7 +131,8 @@ export class MockAiService implements AiService {
     name: string;
     description?: string;
     context: SuggestSectionContext;
-  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }> {
+    targetPageSlug?: string;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string; pageSlug?: string }> {
     await simulateLatency(500);
     void input.context; // mock은 결정적 키워드 매핑만 사용 (context는 실모드 Claude 프롬프트용)
     const mappedType = mapCustomSectionType(`${input.name} ${input.description ?? ''}`);
@@ -139,6 +140,8 @@ export class MockAiService implements AiService {
       mappedType,
       name: input.name,
       copySeed: input.description?.trim() || input.name,
+      // [v4 Phase 4] 요청한 대상 페이지를 그대로 에코 (UI가 새 섹션 pageSlug 로 사용)
+      ...(input.targetPageSlug !== undefined ? { pageSlug: input.targetPageSlug } : {}),
     };
   }
 }

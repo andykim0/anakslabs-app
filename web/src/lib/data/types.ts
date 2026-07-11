@@ -209,7 +209,9 @@ export interface AiService {
     name: string;
     description?: string;
     context: SuggestSectionContext;
-  }): Promise<{ mappedType: SectionType; name: string; copySeed: string }>;
+    /** [v4 Phase 4] 이 섹션을 붙일 대상 페이지 slug (''=홈). 결과 pageSlug 로 에코 */
+    targetPageSlug?: string;
+  }): Promise<{ mappedType: SectionType; name: string; copySeed: string; pageSlug?: string }>;
 }
 
 /**
