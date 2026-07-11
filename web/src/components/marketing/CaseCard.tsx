@@ -1,38 +1,38 @@
 /**
- * [마케팅] 고객사례 카드. §7: isDemo면 "데모 사례" 배지, 성과 숫자는 metrics가 있을 때만.
+ * [마케팅] 고객사례 카드 (라이트). §7: isDemo면 "데모 사례" 배지, 성과 숫자는 metrics 있을 때만.
  */
 import { ArrowUpRight } from 'lucide-react';
 import type { Case } from '@/lib/marketing/cases';
 
 export function CaseCard({ item }: { item: Case }) {
   return (
-    <article className="flex flex-col rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
+    <article className="flex h-full flex-col rounded-2xl border border-[#E8E6E0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-center gap-2">
-        <span className="rounded-md bg-[#2a2117] px-2 py-0.5 text-[11px] font-medium text-[#d9b878]">
+        <span className="rounded-md bg-[#F3ECD8] px-2 py-0.5 text-[11px] font-medium text-[#7A5E1E]">
           {item.industryLabel}
         </span>
         {item.isDemo ? (
-          <span className="rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] font-medium text-neutral-400">
+          <span className="rounded-md border border-[#E8E6E0] px-2 py-0.5 text-[11px] font-medium text-[#5C6068]">
             데모 사례
           </span>
         ) : null}
       </div>
 
-      <h3 className="mt-4 text-base font-semibold text-neutral-100">{item.businessName}</h3>
-      <p className="mt-2 text-sm leading-6 text-neutral-400">{item.summary}</p>
+      <h3 className="mt-4 text-base font-semibold text-[#17181C]">{item.businessName}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#5C6068]">{item.summary}</p>
 
       {item.before || item.after ? (
         <dl className="mt-4 space-y-2 text-xs leading-5">
           {item.before ? (
             <div>
-              <dt className="inline font-semibold text-neutral-500">전 · </dt>
-              <dd className="inline text-neutral-500">{item.before}</dd>
+              <dt className="inline font-semibold text-[#696E76]">전 · </dt>
+              <dd className="inline text-[#5C6068]">{item.before}</dd>
             </div>
           ) : null}
           {item.after ? (
             <div>
-              <dt className="inline font-semibold text-[#c8a96a]">후 · </dt>
-              <dd className="inline text-neutral-300">{item.after}</dd>
+              <dt className="inline font-semibold text-[#856A26]">후 · </dt>
+              <dd className="inline text-[#17181C]">{item.after}</dd>
             </div>
           ) : null}
         </dl>
@@ -42,16 +42,16 @@ export function CaseCard({ item }: { item: Case }) {
       {item.metrics && item.metrics.length > 0 ? (
         <div className="mt-4 grid grid-cols-2 gap-3">
           {item.metrics.map((m) => (
-            <div key={m.label} className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-3">
-              <p className="text-lg font-semibold text-[#c8a96a] tabular-nums">{m.value}</p>
-              <p className="text-[11px] text-neutral-500">{m.label}</p>
+            <div key={m.label} className="rounded-lg border border-[#E8E6E0] bg-[#F6F5F1] p-3">
+              <p className="text-lg font-semibold text-[#856A26] tabular-nums">{m.value}</p>
+              <p className="text-[11px] text-[#5C6068]">{m.label}</p>
             </div>
           ))}
         </div>
       ) : null}
 
       {item.ownerQuote ? (
-        <p className="mt-4 border-l-2 border-neutral-800 pl-3 text-xs leading-5 text-neutral-500 italic">
+        <p className="mt-4 border-l-2 border-[#E8E6E0] pl-3 text-xs leading-5 text-[#5C6068] italic">
           “{item.ownerQuote}”
         </p>
       ) : null}
@@ -61,10 +61,10 @@ export function CaseCard({ item }: { item: Case }) {
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-5 inline-flex items-center gap-1 text-xs font-medium text-[#c8a96a] transition-colors hover:text-[#d9bc82]"
+          className="group mt-5 inline-flex items-center gap-1 text-xs font-medium text-[#856A26] transition-colors hover:text-[#17181C]"
         >
           사이트 보기
-          <ArrowUpRight className="h-3.5 w-3.5" />
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </a>
       ) : null}
     </article>

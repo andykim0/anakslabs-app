@@ -93,10 +93,10 @@ export default function PricingPage() {
 
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-20 pb-12 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-50 sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           홈페이지 제작 비용
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-neutral-400">
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
           1회 제작비 + 월 유지보수 + 필요할 때만 쓰는 편집 크레딧. 어떤 돈이 언제 왜 나가는지 전부 공개합니다.
         </p>
       </section>
@@ -104,24 +104,24 @@ export default function PricingPage() {
       {/* 비용 구조 다이어그램 */}
       <section className="mx-auto max-w-5xl px-6 pb-16">
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#c8a96a]">1회</p>
-            <h3 className="mt-2 text-base font-semibold text-neutral-100">제작비</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">
+          <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+            <p className="text-xs font-semibold tracking-widest text-[#856A26]">1회</p>
+            <h3 className="mt-2 text-base font-semibold text-[#17181C]">제작비</h3>
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               사이트를 처음 설계·생성하고 발행하는 비용. 결제 시 초기 편집 크레딧이 자동 지급됩니다.
             </p>
           </div>
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#c8a96a]">매월</p>
-            <h3 className="mt-2 text-base font-semibold text-neutral-100">유지보수 구독</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">
+          <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+            <p className="text-xs font-semibold tracking-widest text-[#856A26]">매월</p>
+            <h3 className="mt-2 text-base font-semibold text-[#17181C]">유지보수 구독</h3>
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               호스팅·SSL·백업·운영을 이어가는 구독. 사이트가 살아있는 동안 매달 나갑니다.
             </p>
           </div>
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#c8a96a]">필요할 때만</p>
-            <h3 className="mt-2 text-base font-semibold text-neutral-100">편집 크레딧</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">
+          <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+            <p className="text-xs font-semibold tracking-widest text-[#856A26]">필요할 때만</p>
+            <h3 className="mt-2 text-base font-semibold text-[#17181C]">편집 크레딧</h3>
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               수정이 필요할 때만 크레딧을 소모합니다. 안 쓰면 나가지 않습니다.
             </p>
           </div>
@@ -131,37 +131,37 @@ export default function PricingPage() {
       {/* 요금제 2종 */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
         <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
-          <div className="flex flex-col rounded-2xl border border-neutral-800 bg-neutral-900/40 p-7">
-            <h2 className="text-sm font-semibold tracking-widest text-neutral-400 uppercase">Basic</h2>
-            <p className="mt-4 text-3xl font-semibold text-neutral-50">
+          <div className="flex flex-col rounded-2xl border border-[#E8E6E0] bg-white p-7">
+            <h2 className="text-sm font-semibold tracking-widest text-[#5C6068] uppercase">Basic</h2>
+            <p className="mt-4 text-3xl font-semibold text-[#17181C]">
               {man(buildFee.basic[0])}
-              <span className="text-base font-normal text-neutral-500"> ~ {man(buildFee.basic[1])}</span>
+              <span className="text-base font-normal text-[#5C6068]"> ~ {man(buildFee.basic[1])}</span>
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-[#5C6068]">
               + 월 {won(maintenanceMonthly.basic[0])}~{won(maintenanceMonthly.basic[1])}원 유지보수
             </p>
-            <p className="mt-4 text-sm leading-6 text-neutral-400">
+            <p className="mt-4 text-sm leading-6 text-[#5C6068]">
               이미지 중심의 정적 사이트. 검색·AI 기본 세팅 포함, 초기 크레딧 {INITIAL_GRANT.basic}개.
             </p>
           </div>
-          <div className="relative flex flex-col rounded-2xl border border-[#4a3a22] bg-[#151310] p-7">
-            <span className="absolute -top-3 right-6 rounded-full bg-[#c8a96a] px-3 py-1 text-[11px] font-semibold text-neutral-950">
+          <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
+            <span className="absolute -top-3 right-6 rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
               추천
             </span>
-            <h2 className="text-sm font-semibold tracking-widest text-[#c8a96a] uppercase">Premium</h2>
-            <p className="mt-4 text-3xl font-semibold text-neutral-50">
+            <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">Premium</h2>
+            <p className="mt-4 text-3xl font-semibold text-[#17181C]">
               {man(buildFee.premium[0])}
-              <span className="text-base font-normal text-neutral-500"> ~ {man(buildFee.premium[1])}</span>
+              <span className="text-base font-normal text-[#5C6068]"> ~ {man(buildFee.premium[1])}</span>
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-[#5C6068]">
               + 월 {won(maintenanceMonthly.premium[0])}~{won(maintenanceMonthly.premium[1])}원 유지보수
             </p>
-            <p className="mt-4 text-sm leading-6 text-neutral-400">
+            <p className="mt-4 text-sm leading-6 text-[#5C6068]">
               영상·스크롤 모션·폼 등 동적 기능. 초기 크레딧 {INITIAL_GRANT.premium}개, 커스텀 도메인·우선 지원.
             </p>
           </div>
         </div>
-        <p className="mt-4 text-center text-[11px] text-neutral-600">
+        <p className="mt-4 text-center text-[11px] text-[#696E76]">
           제작비·구독료는 업종·규모에 따라 위 범위 내에서 책정됩니다.
         </p>
       </section>
@@ -172,18 +172,18 @@ export default function PricingPage() {
         <div className="mx-auto mt-10 max-w-3xl overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="border-b border-neutral-800 text-left">
-                <th className="py-3 pr-4 font-medium text-neutral-400">기능</th>
-                <th className="w-24 py-3 text-center font-semibold text-neutral-300">Basic</th>
-                <th className="w-24 py-3 text-center font-semibold text-[#c8a96a]">Premium</th>
+              <tr className="border-b border-[#E8E6E0] text-left">
+                <th className="py-3 pr-4 font-medium text-[#5C6068]">기능</th>
+                <th className="w-24 py-3 text-center font-semibold text-[#5C6068]">Basic</th>
+                <th className="w-24 py-3 text-center font-semibold text-[#856A26]">Premium</th>
               </tr>
             </thead>
             <tbody>
               {COMPARE.map((row) => (
-                <tr key={row.label} className="border-b border-neutral-900">
-                  <td className="py-3 pr-4 text-neutral-300">
+                <tr key={row.label} className="border-b border-[#E8E6E0]">
+                  <td className="py-3 pr-4 text-[#5C6068]">
                     {row.label}
-                    {row.note ? <span className="ml-2 text-[11px] text-neutral-600">· {row.note}</span> : null}
+                    {row.note ? <span className="ml-2 text-[11px] text-[#696E76]">· {row.note}</span> : null}
                   </td>
                   <td className="py-3 text-center">{cell(row.basic)}</td>
                   <td className="py-3 text-center">{cell(row.premium, true)}</td>
@@ -195,36 +195,36 @@ export default function PricingPage() {
       </section>
 
       {/* 편집 크레딧 정책 (상수 렌더) */}
-      <section className="border-t border-neutral-900 bg-[#0d0d0e]">
+      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <SectionHeading
             title="편집 크레딧"
             subtitle="사이트를 고칠 때만 쓰는 이용권입니다. 수정 유형별 소모량이 정해져 있습니다."
           />
           <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-              <h3 className="text-sm font-semibold text-neutral-100">유형별 소모</h3>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-400">
+            <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+              <h3 className="text-sm font-semibold text-[#17181C]">유형별 소모</h3>
+              <ul className="mt-4 space-y-2 text-sm text-[#5C6068]">
                 <li>텍스트 수정 — {CREDIT_COSTS.text}개</li>
                 <li>이미지 교체·생성 — {CREDIT_COSTS.image}개</li>
                 <li>구조 변경 — {CREDIT_COSTS.structure}개</li>
-                <li>영상(Veo) 편집 — {CREDIT_COSTS.video}개 <span className="text-neutral-600">(Premium)</span></li>
+                <li>영상(Veo) 편집 — {CREDIT_COSTS.video}개 <span className="text-[#696E76]">(Premium)</span></li>
               </ul>
-              <p className="mt-4 text-xs leading-5 text-neutral-600">
+              <p className="mt-4 text-xs leading-5 text-[#696E76]">
                 최초 발행 후 첫 편집 1건과 온보딩 무료 재생성 {FREE_REGEN_LIMIT}회는 크레딧이 소모되지 않습니다.
               </p>
             </div>
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-              <h3 className="text-sm font-semibold text-neutral-100">크레딧 팩</h3>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-400">
+            <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+              <h3 className="text-sm font-semibold text-[#17181C]">크레딧 팩</h3>
+              <ul className="mt-4 space-y-2 text-sm text-[#5C6068]">
                 {CREDIT_PACKS.map((p) => (
                   <li key={p.credits} className="flex items-baseline justify-between">
                     <span>{p.label}</span>
-                    <span className="tabular-nums text-neutral-200">{won(p.priceKrw)}원</span>
+                    <span className="tabular-nums text-[#17181C]">{won(p.priceKrw)}원</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-xs leading-5 text-neutral-600">
+              <p className="mt-4 text-xs leading-5 text-[#696E76]">
                 초기 지급 크레딧은 {CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일간
                 유효합니다.
               </p>
@@ -237,38 +237,38 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl px-6 py-16">
         <SectionHeading title="왜 이 방식이 더 합리적일까요" />
         <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <p className="text-xs font-semibold tracking-widest text-neutral-500">일반 제작 에이전시</p>
-            <p className="mt-3 text-2xl font-semibold text-neutral-300">평균 430만원<sup className="ml-1 text-xs text-neutral-600">1</sup></p>
-            <p className="mt-2 text-sm leading-6 text-neutral-500">
+          <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+            <p className="text-xs font-semibold tracking-widest text-[#5C6068]">일반 제작 에이전시</p>
+            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">평균 430만원<sup className="ml-1 text-xs text-[#696E76]">1</sup></p>
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               외주 디자인·개발 1회 비용. 수정마다 추가 견적, 검색·AI 최적화는 별도인 경우가 많습니다.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#4a3a22] bg-[#151310] p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#c8a96a]">아낙스랩스</p>
-            <p className="mt-3 text-2xl font-semibold text-neutral-50">
+          <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
+            <p className="text-xs font-semibold tracking-widest text-[#856A26]">아낙스랩스</p>
+            <p className="mt-3 text-2xl font-semibold text-[#17181C]">
               {man(PRICE_RANGES.buildFee.basic[0])}부터
             </p>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               제작비 + 월 구독. SEO·AEO·GEO 기본 세팅 포함, 수정은 크레딧으로 필요한 만큼만.
             </p>
           </div>
         </div>
-        <p className="mx-auto mt-4 max-w-3xl text-[11px] leading-5 text-neutral-700">
+        <p className="mx-auto mt-4 max-w-3xl text-[11px] leading-5 text-[#696E76]">
           1) 자체 조사 기준의 참고 수치입니다. 실제 견적은 업체·범위에 따라 달라집니다.
         </p>
       </section>
 
       {/* 해지·소유권·환불 */}
-      <section className="border-t border-neutral-900 bg-[#0d0d0e]">
+      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-3xl px-6 py-16">
-          <h2 className="text-center text-xl font-semibold tracking-tight text-neutral-100">
+          <h2 className="text-center text-xl font-semibold tracking-tight text-[#17181C]">
             해지·소유권·환불
           </h2>
-          <div className="mt-8 space-y-4 text-sm leading-6 text-neutral-400">
+          <div className="mt-8 space-y-4 text-sm leading-6 text-[#5C6068]">
             <p>{OWNERSHIP_SUMMARY}</p>
             <p>{REFUND_NOTICE}</p>
-            <p className="text-[12px] leading-5 text-neutral-600">{HOSTING_ONLY_FOOTNOTE}</p>
+            <p className="text-[12px] leading-5 text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
           </div>
         </div>
       </section>
@@ -283,7 +283,7 @@ export default function PricingPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-6 pb-24 text-center">
-        <p className="text-sm text-neutral-400">먼저 내 가게가 지금 어떤 상태인지 무료로 확인해 보세요.</p>
+        <p className="text-sm text-[#5C6068]">먼저 내 가게가 지금 어떤 상태인지 무료로 확인해 보세요.</p>
         <div className="mt-6 flex justify-center">
           <ScannerCta href="/#scanner">무료 진단받기</ScannerCta>
         </div>
@@ -294,7 +294,7 @@ export default function PricingPage() {
 
 function cell(value: boolean | string, gold = false) {
   if (value === true)
-    return <Check className={`mx-auto h-4 w-4 ${gold ? 'text-[#c8a96a]' : 'text-neutral-400'}`} />;
-  if (value === false) return <Minus className="mx-auto h-4 w-4 text-neutral-700" />;
-  return <span className="text-xs text-neutral-400">{value}</span>;
+    return <Check className={`mx-auto h-4 w-4 ${gold ? 'text-[#856A26]' : 'text-[#5C6068]'}`} />;
+  if (value === false) return <Minus className="mx-auto h-4 w-4 text-[#696E76]" />;
+  return <span className="text-xs text-[#5C6068]">{value}</span>;
 }

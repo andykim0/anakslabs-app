@@ -21,26 +21,26 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-20">
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-50">이용약관</h1>
-      <p className="mt-3 text-xs text-neutral-500">
+      <h1 className="text-2xl font-semibold tracking-tight text-[#17181C]">이용약관</h1>
+      <p className="mt-3 text-xs text-[#5C6068]">
         아래는 핵심 고지 요약입니다. 정식 약관 전문은 법률 검토 후 게시되며, 그 전까지의 문의는{' '}
-        <a href={`mailto:${COMPANY_EMAIL}`} className="text-neutral-300 hover:text-white">{COMPANY_EMAIL}</a>{' '}
+        <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#5C6068] hover:text-[#17181C]">{COMPANY_EMAIL}</a>{' '}
         로 받습니다.
       </p>
 
-      <div className="mt-10 space-y-8 text-sm leading-7 text-neutral-400">
+      <div className="mt-10 space-y-8 text-sm leading-7 text-[#5C6068]">
         <div>
-          <h2 className="text-sm font-semibold text-neutral-200">소유권</h2>
+          <h2 className="text-sm font-semibold text-[#17181C]">소유권</h2>
           <p className="mt-2">{OWNERSHIP_SUMMARY}</p>
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-neutral-200">환불</h2>
+          <h2 className="text-sm font-semibold text-[#17181C]">환불</h2>
           <p className="mt-2">{REFUND_NOTICE}</p>
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-neutral-200">정적 산출물(HTML 백업) 고지</h2>
+          <h2 className="text-sm font-semibold text-[#17181C]">정적 산출물(HTML 백업) 고지</h2>
           <p className="mt-2">{DYNAMIC_FEATURE_NOTICE}</p>
-          <p className="mt-2 text-xs text-neutral-600">{HOSTING_ONLY_FOOTNOTE}</p>
+          <p className="mt-2 text-xs text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
         </div>
       </div>
     </section>

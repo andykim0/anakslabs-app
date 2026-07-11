@@ -13,10 +13,10 @@ export default function AboutPage() {
   return (
     <>
       <section className="mx-auto max-w-3xl px-6 pt-20 pb-12">
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-50 sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           왜 아낙스랩스를 만들었나
         </h1>
-        <div className="mt-8 space-y-5 text-sm leading-7 text-neutral-400">
+        <div className="mt-8 space-y-5 text-sm leading-7 text-[#5C6068]">
           <p>
             좋은 가게가 검색에서 사라지는 걸 자주 봤습니다. 음식도 실력도 훌륭한데, 사이트가 없거나 있어도
             검색엔진이 읽을 수 없는 구조라 &ldquo;근처 맛집&rdquo;에 끼지 못했습니다. 이제는 사람들이 AI에게까지
@@ -33,22 +33,22 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-900 bg-[#0d0d0e]">
+      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-3xl px-6 py-16">
-          <h2 className="text-lg font-semibold text-neutral-100">우리가 지키려는 것</h2>
-          <ul className="mt-6 space-y-3 text-sm leading-6 text-neutral-400">
+          <h2 className="text-lg font-semibold text-[#17181C]">우리가 지키려는 것</h2>
+          <ul className="mt-6 space-y-3 text-sm leading-6 text-[#5C6068]">
             <li>· 예쁜 사이트가 아니라, 검색·AI가 읽을 수 있게 태어난 사이트.</li>
             <li>· 숨은 비용 없는 투명한 가격 — 안 쓰는 기능에 매달 돈이 나가지 않게.</li>
             <li>· 과장하지 않기 — 보장할 수 없는 순위·성과를 약속하지 않습니다.</li>
           </ul>
-          <p className="mt-8 text-xs text-neutral-600">
-            문의: <a href={`mailto:${COMPANY_EMAIL}`} className="text-neutral-400 hover:text-neutral-200">{COMPANY_EMAIL}</a>
+          <p className="mt-8 text-xs text-[#696E76]">
+            문의: <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#5C6068] hover:text-[#17181C]">{COMPANY_EMAIL}</a>
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-24 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-50">함께 시작해볼까요?</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">함께 시작해볼까요?</h2>
         <div className="mt-8 flex justify-center">
           <ScannerCta href="/#scanner">내 가게 무료 진단받기</ScannerCta>
         </div>

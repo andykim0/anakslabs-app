@@ -47,11 +47,11 @@ export default function FeaturesPage() {
     <>
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-20 pb-12 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-50 sm:text-4xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           검색·AI가 읽는 사이트,
           <br className="sm:hidden" /> 이렇게 만듭니다
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-neutral-400">
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
           예쁜 화면을 넘어, 처음부터 검색엔진과 생성형 AI가 읽을 수 있는 구조로 짓습니다.
         </p>
       </section>
@@ -63,15 +63,15 @@ export default function FeaturesPage() {
           {STEPS.map((s, i) => (
             <div
               key={s.no}
-              className="grid items-center gap-5 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 md:grid-cols-2"
+              className="grid items-center gap-5 rounded-2xl border border-[#E8E6E0] bg-white p-6 md:grid-cols-2"
             >
               <div className={i % 2 === 1 ? 'md:order-2' : ''}>
-                <p className="text-xs font-semibold tracking-widest text-[#c8a96a]">STEP {s.no}</p>
-                <h3 className="mt-2 text-lg font-semibold text-neutral-100">{s.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-400">{s.body}</p>
+                <p className="text-xs font-semibold tracking-widest text-[#856A26]">STEP {s.no}</p>
+                <h3 className="mt-2 text-lg font-semibold text-[#17181C]">{s.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#5C6068]">{s.body}</p>
               </div>
               {/* 스크린샷 placeholder 슬롯 — 실제 이미지는 /public/marketing/ 에 추가 예정 */}
-              <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-dashed border-neutral-800 bg-neutral-950/60 text-xs text-neutral-700">
+              <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-dashed border-[#E8E6E0] bg-[#F6F5F1] text-xs text-[#696E76]">
                 화면 스크린샷 예정
               </div>
             </div>
@@ -80,16 +80,16 @@ export default function FeaturesPage() {
       </section>
 
       {/* 스크롤 모션 쇼케이스 (실제 Reveal 시스템) — Premium 전용 */}
-      <section className="border-t border-neutral-900 bg-[#0d0d0e]">
+      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="text-center">
-            <span className="inline-flex items-center rounded-full border border-[#4a3a22] bg-[#2a2117]/60 px-3 py-1 text-[11px] font-semibold text-[#d9b878]">
+            <span className="inline-flex items-center rounded-full border border-[#E4D9BF] bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
               Premium 전용
             </span>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#17181C] sm:text-3xl">
               스크롤에 반응하는 등장 모션
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-neutral-400">
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#5C6068]">
               아래 카드가 실제 데모입니다 — 이 페이지가 쓰는 등장 애니메이션은 발행 사이트의 것과 동일한 시스템입니다.
               Premium 사이트에서 활성화되며, Basic은 비활성(업그레이드 시 즉시 켜짐).
             </p>
@@ -108,32 +108,32 @@ export default function FeaturesPage() {
         />
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {ENGINE.map((p) => (
-            <div key={p.name} className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2a2117] text-[#d9b878]">
+            <div key={p.name} className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
                 {p.icon}
               </span>
-              <h3 className="mt-4 text-base font-semibold text-neutral-100">{p.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-neutral-400">{p.body}</p>
+              <h3 className="mt-4 text-base font-semibold text-[#17181C]">{p.name}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#5C6068]">{p.body}</p>
             </div>
           ))}
         </div>
-        <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-5 text-neutral-600">
+        <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-5 text-[#696E76]">
           제공: 페이지별 제목·설명 · JSON-LD 구조화 데이터 · 시맨틱 아웃라인 · llms.txt · 페이지별 sitemap.
         </p>
       </section>
 
       {/* 호스팅·보안·속도 */}
-      <section className="border-t border-neutral-900 bg-[#0d0d0e]">
+      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <SectionHeading title="호스팅 · 보안 · 속도" />
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {INFRA.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2a2117] text-[#d9b878]">
+              <div key={f.title} className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
                   {f.icon}
                 </span>
-                <h3 className="mt-4 text-base font-semibold text-neutral-100">{f.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-400">{f.body}</p>
+                <h3 className="mt-4 text-base font-semibold text-[#17181C]">{f.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#5C6068]">{f.body}</p>
               </div>
             ))}
           </div>
@@ -142,7 +142,7 @@ export default function FeaturesPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-6 py-24 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-50">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">
           내 사이트는 지금 몇 점일까요?
         </h2>
         <div className="mt-8 flex justify-center">

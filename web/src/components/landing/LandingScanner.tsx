@@ -46,24 +46,25 @@ const PILLAR_META: { key: 'seo' | 'aeo' | 'geo'; name: string; sub: string }[] =
   { key: 'geo', name: 'GEO', sub: 'ChatGPT · Perplexity 인용' },
 ];
 
+// 라이트 배경(#FDFDFB) 위 대비 보정 — 시맨틱(양호/경고/불량) 유지. 대형 점수 숫자 3:1 이상.
 function scoreColor(score: number): string {
-  if (score >= 75) return '#4ade80';
-  if (score >= 50) return '#facc15';
-  return '#f87171';
+  if (score >= 75) return '#16a34a';
+  if (score >= 50) return '#b45309';
+  return '#dc2626';
 }
 
 function Gauge({ name, sub, score }: { name: string; sub: string; score: number }) {
   const color = scoreColor(score);
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+    <div className="rounded-xl border border-[#E8E6E0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-baseline justify-between">
-        <span className="text-sm font-semibold text-neutral-100">{name}</span>
+        <span className="text-sm font-semibold text-[#17181C]">{name}</span>
         <span className="text-2xl font-semibold tabular-nums" style={{ color }}>
           {score}
         </span>
       </div>
-      <p className="mt-0.5 text-[11px] text-neutral-500">{sub}</p>
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
+      <p className="mt-0.5 text-[11px] text-[#5C6068]">{sub}</p>
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#EDEBE4]">
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: color }}
@@ -79,27 +80,27 @@ function Gauge({ name, sub, score }: { name: string; sub: string; score: number 
 // ---------- 이슈 목록 ----------
 
 const SEVERITY_META: Record<ScanIssue['severity'], { icon: React.ReactNode; tone: string }> = {
-  critical: { icon: <XCircle className="h-3.5 w-3.5" />, tone: 'text-red-400' },
-  warn: { icon: <TriangleAlert className="h-3.5 w-3.5" />, tone: 'text-amber-300' },
-  info: { icon: <Info className="h-3.5 w-3.5" />, tone: 'text-sky-300' },
+  critical: { icon: <XCircle className="h-3.5 w-3.5" />, tone: 'text-red-600' },
+  warn: { icon: <TriangleAlert className="h-3.5 w-3.5" />, tone: 'text-amber-600' },
+  info: { icon: <Info className="h-3.5 w-3.5" />, tone: 'text-sky-600' },
 };
 
 function IssueList({ issues }: { issues: ScanIssue[] }) {
   const [open, setOpen] = useState(false);
   const shown = open ? issues : issues.slice(0, 4);
   return (
-    <div className="rounded-xl border border-neutral-800">
-      <ul className="divide-y divide-neutral-800/70">
+    <div className="rounded-xl border border-[#E8E6E0] bg-white">
+      <ul className="divide-y divide-[#EDEBE4]">
         {shown.map((issue) => (
           <li key={issue.code} className="px-4 py-3">
             <div className="flex items-center gap-2">
               <span className={SEVERITY_META[issue.severity].tone}>{SEVERITY_META[issue.severity].icon}</span>
-              <span className="text-sm text-neutral-200">{issue.label}</span>
-              <span className="ml-auto shrink-0 rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-500">
+              <span className="text-sm text-[#17181C]">{issue.label}</span>
+              <span className="ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#5C6068]">
                 {issue.pillar}
               </span>
             </div>
-            <p className="mt-1 pl-5.5 text-xs leading-5 text-neutral-500">{issue.detail}</p>
+            <p className="mt-1 pl-5.5 text-xs leading-5 text-[#5C6068]">{issue.detail}</p>
           </li>
         ))}
       </ul>
@@ -107,7 +108,7 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-9 w-full items-center justify-center gap-1 border-t border-neutral-800 text-xs text-neutral-400 transition-colors hover:text-neutral-200"
+          className="flex h-9 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-xs text-[#5C6068] transition-colors hover:text-[#17181C]"
         >
           {open ? '접기' : `문제 ${issues.length - 4}개 더 보기`}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -130,11 +131,11 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate font-mono text-xs text-neutral-500">{scan.url}</p>
-          <p className="mt-1 text-sm text-neutral-300">
+          <p className="truncate font-mono text-xs text-[#5C6068]">{scan.url}</p>
+          <p className="mt-1 text-sm text-[#5C6068]">
             종합 <span className="text-3xl font-semibold tabular-nums" style={{ color: scoreColor(scan.scores.total) }}>{scan.scores.total}</span>
-            <span className="text-neutral-500">/100</span>
-            <span className="ml-2 rounded-md border border-neutral-700 px-2 py-0.5 text-sm font-semibold text-neutral-200">
+            <span className="text-[#696E76]">/100</span>
+            <span className="ml-2 rounded-md border border-[#E8E6E0] px-2 py-0.5 text-sm font-semibold text-[#17181C]">
               {scan.grade} 등급
             </span>
           </p>
@@ -154,22 +155,22 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
       ) : null}
 
       {/* 효과 요약 — 실제 스캔 값 바인딩 */}
-      <div className="mt-5 rounded-2xl border border-[#4a3a22] bg-[#151310] p-6">
-        <p className="text-sm leading-7 text-neutral-200">
-          지금 <span className="font-semibold text-[#d9b878]">{scan.scores.total}점</span> —{' '}
+      <div className="mt-5 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
+        <p className="text-sm leading-7 text-[#17181C]">
+          지금 <span className="font-semibold text-[#856A26]">{scan.scores.total}점</span> —{' '}
           {scan.scores.total < 60
             ? '검색도 AI도 제대로 못 읽는 사이트입니다.'
             : '기본기는 있지만 비어 있는 신호가 남아 있습니다.'}{' '}
-          아낙스랩스로 다시 지으면 위 <span className="font-semibold text-[#d9b878]">{issueCount}개 문제가 0</span>이
-          되고, 검색·AI가 읽을 수 있는 <span className="font-semibold text-[#d9b878]">100점 기반</span>으로
+          아낙스랩스로 다시 지으면 위 <span className="font-semibold text-[#856A26]">{issueCount}개 문제가 0</span>이
+          되고, 검색·AI가 읽을 수 있는 <span className="font-semibold text-[#856A26]">100점 기반</span>으로
           시작합니다.
         </p>
         <Link
           href="/login"
-          className="mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#c8a96a] px-6 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+          className="group mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)]"
         >
           내 사이트 다시 만들기
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
     </motion.div>
@@ -207,15 +208,16 @@ export function LandingScanner() {
 
   return (
     <section className="mx-auto max-w-5xl px-6 pt-16 pb-20 text-center md:pt-24">
-      <p className="mb-5 text-xs font-medium tracking-[0.2em] text-[#c8a96a] uppercase">
+      <p className="mb-5 text-xs font-medium tracking-[0.2em] text-[#856A26] uppercase">
         무료 SEO · AEO · GEO 진단
       </p>
-      <h1 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-neutral-50 md:text-5xl md:leading-[1.15]">
+      {/* [light] 메인 h1은 (marketing)/page.tsx 히어로 1개 — 여기선 h2로 강등(스타일 동일) */}
+      <h2 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-[#17181C] md:text-5xl md:leading-[1.15]">
         내 사이트, 검색과 AI가
         <br />
         읽을 수 있을까요?
-      </h1>
-      <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-neutral-400">
+      </h2>
+      <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#5C6068]">
         주소만 넣으면 30초 안에 진단합니다 — 네이버·구글 검색(SEO), 답변 발췌(AEO),
         ChatGPT·Perplexity 인용(GEO) 관점으로.
       </p>
@@ -229,19 +231,19 @@ export function LandingScanner() {
             if (e.key === 'Enter') void startScan();
           }}
           placeholder="예: mysite.co.kr"
-          className="h-13 min-w-0 flex-1 rounded-xl border border-neutral-700 bg-neutral-900 px-4 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
+          className="h-13 min-w-0 flex-1 rounded-xl border border-[#E8E6E0] bg-white px-4 text-sm text-[#17181C] outline-none transition-colors placeholder:text-[#696E76] focus:border-[#9A7B33]"
         />
         <button
           type="button"
           onClick={() => void startScan()}
           disabled={scanning || !url.trim()}
-          className="inline-flex h-13 shrink-0 items-center gap-2 rounded-xl bg-[#c8a96a] px-6 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-13 shrink-0 items-center gap-2 rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanSearch className="h-4 w-4" />}
           무료로 진단하기
         </button>
       </div>
-      <p className="mt-2.5 text-[11px] text-neutral-600">가입 없이 바로. 결과는 30일간 다시 볼 수 있어요.</p>
+      <p className="mt-2.5 text-[11px] text-[#5C6068]">가입 없이 바로. 결과는 30일간 다시 볼 수 있어요.</p>
 
       {/* 진행 애니메이션 */}
       <AnimatePresence>
@@ -252,18 +254,18 @@ export function LandingScanner() {
             exit={{ opacity: 0, height: 0 }}
             className="mx-auto mt-8 max-w-md overflow-hidden"
           >
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 px-5 py-6">
+            <div className="rounded-xl border border-[#E8E6E0] bg-white px-5 py-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               <motion.p
                 key={msgIdx}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-neutral-300"
+                className="text-sm text-[#5C6068]"
               >
                 {SCAN_MESSAGES[msgIdx]}
               </motion.p>
-              <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-neutral-800">
+              <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-[#EDEBE4]">
                 <motion.div
-                  className="h-full w-1/3 rounded-full bg-[#c8a96a]"
+                  className="h-full w-1/3 rounded-full bg-[#9A7B33]"
                   animate={{ x: ['-100%', '300%'] }}
                   transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
                 />
@@ -274,7 +276,7 @@ export function LandingScanner() {
       </AnimatePresence>
 
       {error ? (
-        <p className="mx-auto mt-6 max-w-md rounded-lg border border-red-900 bg-red-950/40 px-4 py-3 text-xs text-red-300">
+        <p className="mx-auto mt-6 max-w-md rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
           {error}
         </p>
       ) : null}

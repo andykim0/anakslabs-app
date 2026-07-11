@@ -37,14 +37,14 @@ export default async function CaseIndustryPage({ params }: Props) {
       <section className="mx-auto max-w-5xl px-6 pt-20 pb-10">
         <Link
           href="/cases"
-          className="inline-flex items-center gap-1.5 text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+          className="inline-flex items-center gap-1.5 text-xs text-[#5C6068] transition-colors hover:text-[#5C6068]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> 전체 사례
         </Link>
-        <h1 className="mt-5 text-3xl font-semibold tracking-tight text-neutral-50 sm:text-4xl">
+        <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
           {label} 홈페이지 제작 사례
         </h1>
-        <p className="mt-4 max-w-xl text-sm leading-6 text-neutral-400">
+        <p className="mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
           {label} 업종에 맞춘 페이지 구성과 개편 전후입니다. 현재는 데모 사례로 구성돼 있습니다.
         </p>
       </section>
@@ -58,7 +58,7 @@ export default async function CaseIndustryPage({ params }: Props) {
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-24 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-50">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">
           {label} 사이트, 무료 진단부터
         </h2>
         <div className="mt-8 flex justify-center">

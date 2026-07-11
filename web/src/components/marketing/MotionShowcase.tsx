@@ -19,10 +19,10 @@ export function MotionShowcase() {
     <div className="grid gap-6 md:grid-cols-3">
       {BLOCKS.map((b, i) => (
         <Reveal key={i} entrance={{ effect: b.effect, duration: 700, delay: i * 120 }}>
-          <div className="h-full rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6">
-            <span className="text-xs font-semibold tracking-widest text-[#c8a96a]">MOTION</span>
-            <h3 className="mt-3 text-base font-semibold text-neutral-100">{b.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">{b.body}</p>
+          <div className="h-full rounded-2xl border border-[#E8E6E0] bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <span className="text-xs font-semibold tracking-widest text-[#856A26]">MOTION</span>
+            <h3 className="mt-3 text-base font-semibold text-[#17181C]">{b.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-[#5C6068]">{b.body}</p>
           </div>
         </Reveal>
       ))}
