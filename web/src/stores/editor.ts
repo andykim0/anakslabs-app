@@ -166,7 +166,8 @@ function uniquePageSlug(pages: SitePage[], base: string, excludeId?: string): st
   let candidate = root;
   let n = 2;
   while (taken.has(candidate) || !isValidPageSlug(candidate) || candidate === '') {
-    candidate = `${root}-${n++}`;
+    // 접미사를 붙일 때 총 길이 40 초과 방지 (root 절단) — 무한루프 방지
+    candidate = `${root.slice(0, Math.max(1, 40 - String(n).length - 1))}-${n++}`;
   }
   return candidate;
 }

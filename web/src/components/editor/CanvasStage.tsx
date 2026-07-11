@@ -62,6 +62,9 @@ function PreviewPageSwitcher() {
 
 export function CanvasStage() {
   const config = useEditorStore((s) => s.config);
+  // [fix] 선택 페이지 전환(selectedPageId만 변경, config 불변) 시에도 리렌더되도록 셀렉터 결과를 구독.
+  // activeSections는 selectedPageId 기준 → 페이지 전환 시 다른 참조 반환 → 편집 캔버스 갱신.
+  const sections = useEditorStore((s) => activeSections(s.config));
   const zoom = useEditorStore((s) => s.zoom);
   const preview = useEditorStore((s) => s.preview);
   const previewPageSlug = useEditorStore((s) => s.previewPageSlug);
@@ -141,15 +144,15 @@ export function CanvasStage() {
         style={{ padding: STAGE_PADDING }}
       >
         {/* 연속 페이지 시트 — 섹션이 간격 없이 이어 붙는 실제 사이트 모습 그대로 */}
-        {activeSections(config).length > 0 ? (
+        {sections.length > 0 ? (
           <div className="shadow-2xl ring-1 ring-neutral-800" style={{ width: DESIGN_WIDTH * scale }}>
-            {activeSections(config).map((section) => (
+            {sections.map((section) => (
               <SectionView key={section.id} section={section} theme={config.theme} scale={scale} />
             ))}
           </div>
         ) : null}
 
-        {activeSections(config).length === 0 ? (
+        {sections.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-900/40 px-14 py-16 text-center">
             <p className="text-sm font-medium text-neutral-300">아직 섹션이 없습니다</p>
             <p className="text-xs text-neutral-500">히어로 섹션부터 시작해 보세요.</p>
