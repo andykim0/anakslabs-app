@@ -7,6 +7,7 @@ import type { SurveyInput } from '@/lib/types/domain';
 import { REFERENCE_SAMPLES, styleIdsForSamples } from '@/lib/design/reference-samples';
 import { STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
 import { selectDesignBriefs } from '@/lib/ai/design-knowledge';
+import { derivePalette, contrastRatio } from '@/lib/design/quality-standards';
 
 const STYLE_IDS = new Set(STYLE_DIRECTIONS.map((s) => s.id));
 
@@ -24,6 +25,21 @@ describe('REFERENCE_SAMPLES 무결성', () => {
   test('styleIdsForSamples — 선택 id → styleId, 미지 id는 드롭', () => {
     const ids = styleIdsForSamples(['ref-dark-luxury', 'ref-flat-kids', 'nope']);
     assert.deepEqual(ids, ['dark-luxury', 'flat-friendly-illust']);
+  });
+
+  test('[v4 #2b] 12종 paletteSeed 전부 유효 hex + derivePalette 6토큰(AA) 산출', () => {
+    for (const s of REFERENCE_SAMPLES) {
+      assert.ok(s.paletteSeed, `${s.id} paletteSeed 없음`);
+      assert.match(s.paletteSeed.primary, /^#[0-9a-f]{6}$/i, `${s.id} primary`);
+      if (s.paletteSeed.secondary) assert.match(s.paletteSeed.secondary, /^#[0-9a-f]{6}$/i, `${s.id} secondary`);
+      for (const dark of [false, true]) {
+        const p = derivePalette(s.paletteSeed.primary, s.paletteSeed.secondary, { dark });
+        for (const k of ['background', 'surface', 'text', 'muted', 'primary', 'accent'] as const) {
+          assert.match(p[k], /^#[0-9a-f]{6}$/i, `${s.id}/${dark} ${k}`);
+        }
+        assert.ok(contrastRatio(p.text, p.background) >= 4.5, `${s.id}/${dark} 본문 AA`);
+      }
+    }
   });
 });
 

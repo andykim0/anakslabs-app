@@ -456,6 +456,21 @@ export const surveySchema = z.object({
   providedContent: z.string().max(5000).optional(),
   reservationMode: z.enum(['external_link', 'cta']).optional(),
   reservationUrl: safeHrefSchema.optional(),
+  // ---- [v4] 설문 v4 additive ----
+  // 기존 온라인 채널 — URL 가져오기 원천 (최대 3, http(s)만)
+  existingPresence: z
+    .array(
+      z.object({
+        kind: z.enum(['website', 'instagram', 'naver_place', 'other']),
+        url: z.string().max(500).refine((u) => /^https?:\/\//i.test(u), 'http(s):// 주소여야 합니다.'),
+      }),
+    )
+    .max(3)
+    .optional(),
+  // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
+  siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'purchase', 'trust']).optional(),
+  // 자랑거리 1~3개 (항목당 40자) — 생성 프롬프트·차별화 섹션 소스
+  highlights: z.array(z.string().min(1).max(40)).max(3).optional(),
 });
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */
