@@ -17,27 +17,43 @@ import { buildScores } from './score';
 import type { ScanCore } from './index';
 
 export function preflightScan(config: SiteConfig): ScanCore {
-  const html = renderStaticDocument({ config });
-  const root = parse(html);
-  const clone = parse(root.toString());
-  for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
-  const visibleText = clone.text.replace(/\s+/g, ' ').trim();
+  // [F1] 전 페이지 순회 — 각 페이지를 렌더·규칙 적용 후 축별 '최악 페이지'의 차감을 채택(thin 서브페이지도
+  //      발행 게이트에 반영) + 이슈는 code 기준 합집합. 단일 페이지 사이트는 홈 1장 = 기존과 동일(무회귀).
+  const worst = { seo: 0, aeo: 0, geo: 0 };
+  const issues: ScanIssue[] = [];
+  const seenCodes = new Set<string>();
 
-  const ctx: RuleContext = {
-    root,
-    rawHtml: html,
-    visibleText,
-    url: new URL('https://preview.anakslabs.local/'),
-    ttfbMs: 0,
-    robotsTxtOk: true,
-    sitemapOk: true,
-    llmsTxtOk: true,
-  };
+  for (const page of config.pages) {
+    const html = renderStaticDocument({ config, pageSlug: page.slug });
+    const root = parse(html);
+    const clone = parse(root.toString());
+    for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
+    const visibleText = clone.text.replace(/\s+/g, ' ').trim();
 
-  const seo = runRules(SEO_RULES, ctx);
-  const aeo = runRules(AEO_RULES, ctx);
-  const geo = runRules(GEO_RULES, ctx);
-  const issues: ScanIssue[] = [...seo.issues, ...aeo.issues, ...geo.issues];
-  const { scores, grade } = buildScores({ seo: seo.deducted, aeo: aeo.deducted, geo: geo.deducted });
-  return { url: ctx.url.toString(), scores, grade, issues };
+    const ctx: RuleContext = {
+      root,
+      rawHtml: html,
+      visibleText,
+      url: new URL(`https://preview.anakslabs.local/${page.slug}`),
+      ttfbMs: 0,
+      robotsTxtOk: true,
+      sitemapOk: true,
+      llmsTxtOk: true,
+    };
+
+    const seo = runRules(SEO_RULES, ctx);
+    const aeo = runRules(AEO_RULES, ctx);
+    const geo = runRules(GEO_RULES, ctx);
+    worst.seo = Math.max(worst.seo, seo.deducted);
+    worst.aeo = Math.max(worst.aeo, aeo.deducted);
+    worst.geo = Math.max(worst.geo, geo.deducted);
+    for (const iss of [...seo.issues, ...aeo.issues, ...geo.issues]) {
+      if (seenCodes.has(iss.code)) continue;
+      seenCodes.add(iss.code);
+      issues.push(iss);
+    }
+  }
+
+  const { scores, grade } = buildScores(worst);
+  return { url: 'https://preview.anakslabs.local/', scores, grade, issues };
 }

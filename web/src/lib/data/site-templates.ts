@@ -23,8 +23,21 @@ import type {
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 
-/** [v4 Phase 4] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
-const DEFAULT_PAGE_TITLES: Record<string, string> = { '': '홈', about: '소개', contact: '문의' };
+/** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
+const DEFAULT_PAGE_TITLES: Record<string, string> = {
+  '': '홈',
+  about: '소개',
+  team: '팀',
+  services: '서비스',
+  menu: '메뉴',
+  gallery: '갤러리',
+  reviews: '후기',
+  pricing: '요금',
+  work: '실적',
+  guide: '이용안내',
+  contact: '문의',
+  more: '더보기',
+};
 
 /** 섹션별 카피 오버라이드 — 실 AI(Claude)가 채우거나, mock이 결정적으로 채운다 */
 export interface SectionCopy {
@@ -1285,6 +1298,94 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/** [F1] 승격 페이지 slug → 홈 티저 카드 안내 문구 (결정적, 폴백은 제목 기반) */
+const TEASER_BLURB: Record<string, string> = {
+  about: '우리가 어떤 곳인지 이야기합니다.',
+  menu: '무엇을 준비하는지 살펴보세요.',
+  gallery: '공간과 작업을 사진으로 담았습니다.',
+  services: '제공하는 서비스를 안내합니다.',
+  team: '함께하는 사람들을 소개합니다.',
+  reviews: '직접 경험한 이야기들.',
+  pricing: '요금과 구성을 확인하세요.',
+  work: '지금까지의 실적과 사례.',
+  guide: '이용에 필요한 안내를 모았습니다.',
+  contact: '문의와 찾아오시는 길.',
+  more: '더 많은 이야기.',
+};
+
+/**
+ * [F1] 홈 티저 — 승격된 콘텐츠 페이지마다 요약 카드 + 링크(홈 티저 원칙).
+ * 홈에서 사이트 전체를 한눈에 보고 각 페이지로 진입할 수 있게 한다.
+ * 링크 href = '/{slug}'(테넌트 절대경로) — 서빙·프리뷰(F2b)·Export가 각자 재해소.
+ */
+function buildHomeTeaser(
+  ctx: Ctx,
+  entries: { title: string; slug: string }[],
+): Section {
+  const { theme } = ctx;
+  const cards = entries.slice(0, 6); // 홈 티저는 최대 6장(내비 상한과 정합)
+  const rows = Math.ceil(cards.length / 3);
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-teaser-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '둘러보기',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, '이곳을 소개합니다', 142),
+  ];
+  cards.forEach((entry, i) => {
+    const x = 120 + (i % 3) * 420;
+    const y = 268 + Math.floor(i / 3) * 300;
+    const blurb = TEASER_BLURB[entry.slug] ?? `${entry.title} 페이지로 이동합니다.`;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-teaser-card'),
+        kind: 'shape',
+        frame: { x, y, w: 360, h: 260 },
+        z: 1,
+        shape: 'rect',
+        style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
+      },
+      {
+        id: nextId(ctx, 'el-teaser-title'),
+        kind: 'text',
+        frame: { x: x + 36, y: y + 40, w: 288, h: 34 },
+        z: 2,
+        text: entry.title,
+        style: { fontSize: 24, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-teaser-desc'),
+        kind: 'text',
+        frame: { x: x + 36, y: y + 92, w: 288, h: 72 },
+        z: 2,
+        text: blurb,
+        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
+      },
+      {
+        id: nextId(ctx, 'el-teaser-link'),
+        kind: 'button',
+        frame: { x: x + 36, y: y + 190, w: 150, h: 42 },
+        z: 3,
+        label: '자세히 보기',
+        href: `/${entry.slug}`,
+        style: { variant: 'outline', color: theme.palette.primary, textColor: theme.palette.primary, fontSize: 14, borderRadius: theme.radius ?? 4 },
+      },
+    );
+  });
+  return {
+    id: 'sec-home-teaser',
+    type: 'custom',
+    name: '둘러보기',
+    height: 268 + rows * 300 + 40,
+    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
+    elements,
+  };
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx, item: SectionPlanItem) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -1429,6 +1530,19 @@ export function buildSiteConfigFromSurvey(
         ...(m.showInNav === false ? { showInNav: false } : {}),
       };
     });
+
+  // 4.5) [F1] 홈 티저 주입 — 승격된 콘텐츠 페이지가 있으면 홈에 요약 카드+링크(홈 티저 원칙).
+  //      singlePage(콘텐츠 페이지 0개)면 미주입 = 무회귀.
+  const homePg = pages.find((p) => p.slug === '');
+  const contentPgs = pages.filter((p) => p.slug !== '' && p.showInNav !== false);
+  if (homePg && contentPgs.length > 0) {
+    const teaser = buildHomeTeaser(
+      ctx,
+      contentPgs.map((p) => ({ title: p.navLabel ?? p.title, slug: p.slug })),
+    );
+    const heroIdx = homePg.sections.findIndex((s) => s.type === 'hero');
+    homePg.sections.splice(heroIdx >= 0 ? heroIdx + 1 : 0, 0, teaser);
+  }
 
   // 5) [v4 Phase 4] 페이지 간 앵커 재작성 — 다른 페이지 섹션을 가리키는 '#id'는
   //    '/{slug}#id'(홈은 '/#id')로 바꿔 페이지 이동 후 스크롤되게 한다.

@@ -10,6 +10,7 @@
  */
 import type { PagePlanItem, SectionPlanItem, SitePurposeId } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
+import { isValidPageSlug } from '@/lib/types/site';
 
 export interface SiteTemplateDef {
   /** 'company_brand.default' | 'company_brand.professional_firm' */
@@ -22,9 +23,29 @@ export interface SiteTemplateDef {
   sections: Omit<SectionPlanItem, 'source' | 'pageSlug'>[];
   /**
    * [v4 Phase 4] true면 페이지 분할 없이 단일 홈(원페이지·이력서 등 스크롤형).
-   * 기본(false/미지정)이면 templatePages 가 홈/소개/문의 3계층으로 결정적 분할.
+   * 기본(false/미지정)이면 templatePages 가 **콘텐츠 섹션 kind당 1페이지(1:1)** 로 분할.
    */
   singlePage?: boolean;
+  /**
+   * [F1] 페이지 묶음 오버라이드(선택). 미지정이면 기본 1:1 분할.
+   * 콘텐츠 섹션을 목적에 맞춰 특정 페이지로 묶고 싶을 때 명시(예: menu+gallery를 '메뉴' 한 장).
+   * 미배정 콘텐츠 섹션은 1:1 폴백. 구조 섹션(hero/cta)은 항상 홈.
+   */
+  pageLayout?: PageLayoutItem[];
+}
+
+/**
+ * [F1] 페이지 묶음 선언 — 콘텐츠 섹션 type(들)을 한 페이지로 모은다.
+ * slug ''(홈)이면 구조 섹션에 더해 명시 type 도 홈에 유지.
+ */
+export interface PageLayoutItem {
+  /** 페이지 slug (''=홈, 그 외 소문자-하이픈 1세그먼트·비예약) */
+  slug: string;
+  title: string;
+  navLabel?: string;
+  showInNav?: boolean;
+  /** 이 페이지로 모을 콘텐츠 섹션 type(들) */
+  sectionTypes: SectionType[];
 }
 
 /** 편의: 계획 항목 리터럴 (source·pageSlug 제외) */
@@ -271,7 +292,7 @@ export function resolveTemplate(purposeId: SitePurposeId, industry: string): Sit
   return def;
 }
 
-// ---------- [v4 Phase 4] 페이지 분할 (홈/소개/문의) ----------
+// ---------- [F1] 구조/콘텐츠 섹션 분류 + 페이지 분할 (콘텐츠 kind당 1페이지) ----------
 
 export interface TemplatePageInfo {
   slug: string;
@@ -281,33 +302,122 @@ export interface TemplatePageInfo {
   sections: S[];
 }
 
-/** 소개 페이지로 가는 섹션 타입 (회사/사람 이야기) */
-const ABOUT_PAGE_TYPES = new Set<SectionType>(['about', 'team']);
-/** 문의 페이지로 가는 섹션 타입 */
-const CONTACT_PAGE_TYPES = new Set<SectionType>(['contact']);
+/**
+ * 구조 섹션 — 홈 전용, 서브페이지로 승격하지 않는다.
+ * hero(대문)·cta(전환 스트립)는 '페이지'가 아니라 홈을 이루는 구성 요소.
+ * 콘텐츠 섹션(여집합)은 기본적으로 각자 자기 페이지로 승격(1:1)된다.
+ * ⚠ 새 SectionType 추가 시 반드시 구조/콘텐츠 중 하나로 귀속 — 콘텐츠면 CONTENT_PAGE_SLUG에
+ *   slug를 등록해야 하고, 누락하면 validateSiteTemplates·불변식 테스트가 깨진다.
+ */
+export const STRUCTURE_SECTION_TYPES: ReadonlySet<SectionType> = new Set<SectionType>(['hero', 'cta']);
+
+/** 콘텐츠 섹션 여부 (구조 섹션의 여집합 = 페이지 승격 대상) */
+export function isContentSection(type: SectionType): boolean {
+  return !STRUCTURE_SECTION_TYPES.has(type);
+}
+
+/**
+ * 콘텐츠 섹션 type → 승격 페이지 slug (같은 slug는 한 페이지로 묶임 — 예: contact:map + contact:form).
+ * 홈 slug '' 및 RESERVED_PAGE_SLUGS와 충돌하지 않는 소문자-하이픈 1세그먼트여야 한다.
+ */
+const CONTENT_PAGE_SLUG: Record<SectionType, string> = {
+  hero: '',
+  cta: '', // 구조 섹션 — 미사용(방어적 항목)
+  about: 'about',
+  team: 'team',
+  features: 'services',
+  menu: 'menu',
+  gallery: 'gallery',
+  testimonials: 'reviews',
+  pricing: 'pricing',
+  cases: 'work',
+  faq: 'guide',
+  contact: 'contact',
+  custom: 'more',
+};
+
+/** 승격 페이지 slug → 기본 제목/내비 라벨 (pageLayout·pagePlan 미지정 시 폴백) */
+const CONTENT_PAGE_TITLE: Record<string, string> = {
+  about: '소개',
+  team: '팀',
+  services: '서비스',
+  menu: '메뉴',
+  gallery: '갤러리',
+  reviews: '후기',
+  pricing: '요금',
+  work: '실적',
+  guide: '이용안내',
+  contact: '문의',
+  more: '더보기',
+};
+
+/** [F1 테스트 지원] 콘텐츠 섹션 type의 승격 slug (분류 상수 노출) */
+export function contentPageSlug(type: SectionType): string {
+  return CONTENT_PAGE_SLUG[type] || 'more';
+}
 
 /**
  * 템플릿 → 페이지 구성(결정적). singlePage면 단일 홈.
- * 그 외: 홈=hero+판매/콘텐츠 섹션 · 소개='about','team' · 문의='contact'.
- * 소개/문의가 모두 비면 단일 홈으로 폴백. 페이지 내 순서는 원 템플릿 순서 유지.
+ * 그 외 기본 규칙: 홈=구조 섹션(hero/cta), **콘텐츠 섹션은 kind당 자기 페이지(1:1)**.
+ * 같은 slug로 매핑되는 콘텐츠(예: contact:map+contact:form)는 한 페이지로 묶인다.
+ * pageLayout이 선언되면 그 묶음을 우선 적용하고, 미배정 콘텐츠는 1:1 폴백.
+ * 페이지 내 섹션 순서·페이지 등장 순서는 원 템플릿 순서를 따른다. 홈은 항상 첫 페이지(slug '').
  */
 export function templatePages(t: SiteTemplateDef): TemplatePageInfo[] {
   if (t.singlePage) return [{ slug: '', title: '홈', sections: t.sections }];
 
-  const home: S[] = [];
-  const about: S[] = [];
-  const contact: S[] = [];
-  for (const s of t.sections) {
-    if (ABOUT_PAGE_TYPES.has(s.type)) about.push(s);
-    else if (CONTACT_PAGE_TYPES.has(s.type)) contact.push(s);
-    else home.push(s);
+  const structure = t.sections.filter((s) => STRUCTURE_SECTION_TYPES.has(s.type));
+  const content = t.sections.filter((s) => isContentSection(s.type));
+  // 콘텐츠 섹션이 없으면 단일 홈(무회귀)
+  if (content.length === 0) return [{ slug: '', title: '홈', sections: t.sections }];
+
+  const home: TemplatePageInfo = { slug: '', title: '홈', sections: [...structure] };
+  const pages: TemplatePageInfo[] = [home];
+  const ensurePage = (
+    slug: string,
+    title: string,
+    navLabel?: string,
+    showInNav?: boolean,
+  ): TemplatePageInfo => {
+    let p = pages.find((x) => x.slug === slug);
+    if (!p) {
+      p = {
+        slug,
+        title,
+        sections: [],
+        ...(navLabel ? { navLabel } : {}),
+        ...(showInNav === false ? { showInNav: false } : {}),
+      };
+      pages.push(p);
+    }
+    return p;
+  };
+
+  const assigned = new Set<S>();
+
+  // (A) pageLayout 명시 — 선언 순서대로 배분
+  if (t.pageLayout?.length) {
+    for (const layout of t.pageLayout) {
+      const secs = content.filter((s) => layout.sectionTypes.includes(s.type) && !assigned.has(s));
+      if (secs.length === 0) continue;
+      secs.forEach((s) => assigned.add(s));
+      if (layout.slug === '') {
+        home.sections.push(...secs);
+        continue;
+      }
+      ensurePage(layout.slug, layout.title, layout.navLabel, layout.showInNav).sections.push(...secs);
+    }
   }
-  if (about.length === 0 && contact.length === 0) {
-    return [{ slug: '', title: '홈', sections: t.sections }];
+
+  // (B) 기본 1:1 — 미배정 콘텐츠는 type→slug로 각자 페이지(같은 slug는 묶임)
+  for (const s of content) {
+    if (assigned.has(s)) continue;
+    const slug = contentPageSlug(s.type);
+    const title = CONTENT_PAGE_TITLE[slug] ?? s.name;
+    ensurePage(slug, title).sections.push(s);
+    assigned.add(s);
   }
-  const pages: TemplatePageInfo[] = [{ slug: '', title: '홈', sections: home }];
-  if (about.length) pages.push({ slug: 'about', title: '소개', navLabel: '소개', sections: about });
-  if (contact.length) pages.push({ slug: 'contact', title: '문의', navLabel: '문의', sections: contact });
+
   return pages;
 }
 
@@ -362,6 +472,21 @@ export function validateSiteTemplates(): string[] {
     if (pages[0]?.sections[0]?.type !== 'hero') problems.push(`${t.id}: 홈 첫 섹션은 hero여야 합니다`);
     const slugs = pages.map((p) => p.slug);
     if (new Set(slugs).size !== slugs.length) problems.push(`${t.id}: 페이지 slug 중복`);
+    // [F1] 승격 페이지 slug는 유효(비예약·소문자하이픈)해야 하고, 구조 섹션은 홈에만 존재
+    for (const p of pages) {
+      if (p.slug !== '' && !isValidPageSlug(p.slug)) {
+        problems.push(`${t.id}: 승격 페이지 slug '${p.slug}' 가 유효하지 않습니다(예약어/형식)`);
+      }
+      if (p.slug !== '' && p.sections.some((s) => STRUCTURE_SECTION_TYPES.has(s.type))) {
+        problems.push(`${t.id}: 구조 섹션(hero/cta)이 서브페이지 '${p.slug}'에 있습니다`);
+      }
+    }
+    // [F1] 콘텐츠 섹션은 전부 승격 slug가 등록돼 있어야 함(분류 완전성)
+    for (const s of t.sections) {
+      if (isContentSection(s.type) && !CONTENT_PAGE_SLUG[s.type]) {
+        problems.push(`${t.id}: 콘텐츠 섹션 type '${s.type}'의 CONTENT_PAGE_SLUG 미등록`);
+      }
+    }
   }
   for (const p of purposes) {
     if (!SITE_TEMPLATES.some((t) => t.id === `${p}.default`)) {

@@ -8,7 +8,7 @@ import { ArrowRight, ChevronDown, ChevronUp, ImagePlus, Loader2, Lock, Sparkles,
 import type { CandidateStyle, SectionPlanItem, SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
 import { defaultImageStyle, IMAGE_STYLE_OPTIONS } from '@/lib/onboarding/image-style';
-import { SITE_TEMPLATES, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
+import { SITE_TEMPLATES, pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { suggestSection, uploadImage } from '../api';
 import { useToast } from '../toast';
 import { Button, Card, cn } from '../ui';
@@ -431,6 +431,8 @@ export function SurveyStep({
     const purposeDef = findPurpose(pid);
     // 활성화된 행만, 현재 순서대로 sectionPlan 구성 (source 유지)
     const sectionPlan = planRows.filter((r) => r.enabled).map((r) => r.item);
+    // [F1] 페이지 메타(제목·내비) — 템플릿 페이지 분할에서 파생(빈 페이지는 생성 시 제외)
+    const pagePlan = pagePlanFromTemplate(resolveTemplate(pid, values.industry));
     onComplete({
       purposeId: pid,
       purpose: purposeDef?.label ?? pid,
@@ -441,6 +443,7 @@ export function SurveyStep({
       imageStyle: values.imageStyle ?? defaultImageStyle(values.industry),
       referenceImageUrls: values.referenceImageUrls,
       sectionPlan,
+      pagePlan,
       templateId,
       tagline: clean(values.tagline),
       conceptMode: values.conceptMode,
