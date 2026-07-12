@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# one-off brand asset generation output (회사 사이트 에셋 — SaaS 저장소 자산 아님)
+scripts/out/
