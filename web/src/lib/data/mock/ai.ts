@@ -122,8 +122,14 @@ export class MockAiService implements AiService {
     return { url };
   }
 
-  async generateVideo(_input: { prompt: string }): Promise<{ url: string; poster?: string }> {
+  async generateVideo(input: {
+    prompt: string;
+    image?: { base64: string; mimeType: string };
+    model?: string;
+  }): Promise<{ url: string; poster?: string }> {
+    void input;
     await simulateLatency(1800);
+    // [motion 4단계] mock: 실호출 없음. image-to-video면 첫 프레임=입력 이미지지만 mock은 고정 클립.
     return { url: '/mock/clip-ember.mp4', poster: '/mock/video-poster.svg' };
   }
 

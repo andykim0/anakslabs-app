@@ -59,7 +59,13 @@ function veoError(stage: string, status: number, detail: string): Error {
   return new Error(`VEO_API_ERROR: ${stage} (HTTP ${status}) ${d}`);
 }
 
-export async function generateVeoVideo(input: { prompt: string }): Promise<{ url: string; poster?: string }> {
+export async function generateVeoVideo(input: {
+  prompt: string;
+  /** [motion 4단계] image-to-video 입력 — 주면 이 이미지가 첫 프레임(=poster). 별도 추출 불필요(ffmpeg 회피) */
+  image?: { base64: string; mimeType: string };
+  /** 모델 override (fast/표준). 미지정 시 VEO_MODEL env → DEFAULT_MODEL */
+  model?: string;
+}): Promise<{ url: string; poster?: string }> {
   const key = env.geminiApiKey;
   if (!key) {
     throw new Error(
@@ -67,16 +73,20 @@ export async function generateVeoVideo(input: { prompt: string }): Promise<{ url
         'mock 데모는 NEXT_PUBLIC_MOCK_MODE=1 을 사용하세요.',
     );
   }
-  const model = process.env.VEO_MODEL || DEFAULT_MODEL;
+  const model = input.model || process.env.VEO_MODEL || DEFAULT_MODEL;
   const durationSeconds = Number(process.env.VEO_DURATION_SECONDS) || 8;
   const authHeaders = { 'x-goog-api-key': key } as const;
 
-  // 1) 생성 시작
+  // 1) 생성 시작 (image 있으면 image-to-video)
+  const instance: Record<string, unknown> = { prompt: input.prompt };
+  if (input.image) {
+    instance.image = { bytesBase64Encoded: input.image.base64, mimeType: input.image.mimeType };
+  }
   const startRes = await fetch(`${GEMINI_API_BASE}/models/${model}:predictLongRunning`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...authHeaders },
     body: JSON.stringify({
-      instances: [{ prompt: input.prompt }],
+      instances: [instance],
       parameters: { aspectRatio: '16:9', durationSeconds },
     }),
     cache: 'no-store',

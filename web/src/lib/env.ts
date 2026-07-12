@@ -25,6 +25,22 @@ export function isEmailLoginPublic(): boolean {
 /** 고객 사이트 기본 루트 도메인 */
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'anakslabs.com';
 
+/**
+ * [motion 4단계] Veo 영상 생성 비용 가드 (회당 실돈 $0.8~$3.2). 3중 가드:
+ *  (a) 킬스위치 videoGenEnabled — 기본 OFF. 이걸 켜지 않으면 어떤 실호출도 발생하지 않는다.
+ *  (b) 사이트당 상한 videoGenMaxPerSite — 온보딩 시안 재롤 남용 방지.
+ *  (c) 일일 전역 상한 videoGenDailyCap — 사고성 폭주 상한.
+ * mock 모드에선 가드가 동작하되 실호출은 없다(mock 어댑터).
+ */
+export function videoGenConfig(): { enabled: boolean; maxPerSite: number; dailyCap: number } {
+  return {
+    /** VIDEO_GEN_ENABLED=1 이어야 실호출 허용. 기본 false */
+    enabled: process.env.VIDEO_GEN_ENABLED === '1',
+    maxPerSite: Number(process.env.VIDEO_GEN_MAX_PER_SITE) || 6,
+    dailyCap: Number(process.env.VIDEO_GEN_DAILY_CAP) || 20,
+  };
+}
+
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',

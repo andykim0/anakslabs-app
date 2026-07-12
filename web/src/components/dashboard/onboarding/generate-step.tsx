@@ -18,11 +18,12 @@ import {
   RefreshCw,
   SlidersHorizontal,
 } from 'lucide-react';
-import type { DesignCandidate, ExtraFeatureSelection, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { generateSite, regenerateSite, type ExtrasOptionsDto } from '../api';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
+import { HeroVideoStudio } from './hero-video-studio';
 
 const LOADING_MESSAGES = [
   '선택하신 방향으로 사이트 구조를 설계하고 있습니다…',
@@ -38,6 +39,7 @@ export function GenerateStep({
   extrasOptions,
   existingSiteId,
   freeRegensUsed,
+  tier = 'basic',
   onResult,
   onBack,
   onPickAnother,
@@ -51,6 +53,8 @@ export function GenerateStep({
   /** null=최초 생성 / 값 있으면 해당 사이트 재생성 */
   existingSiteId: string | null;
   freeRegensUsed: number;
+  /** [motion 4단계] 소유자 티어 — Premium이면 AI 영상 히어로 스튜디오 노출 */
+  tier?: Tier;
   onResult: (siteId: string, freeRegensUsed: number) => void;
   onBack: () => void;
   onPickAnother: () => void;
@@ -165,6 +169,11 @@ export function GenerateStep({
             </p>
           )}
         </div>
+
+        {/* [motion 4단계] Premium — AI 영상 히어로 스튜디오 (선택) */}
+        {tier === 'premium' ? (
+          <HeroVideoStudio siteId={siteId} businessName={survey.businessName} industry={survey.industry} />
+        ) : null}
 
         <p className="text-xs text-neutral-600">
           발행 전까지는 초안 상태예요. 발행하면 서브도메인이 즉시 라이브됩니다.

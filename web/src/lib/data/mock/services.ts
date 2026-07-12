@@ -33,6 +33,7 @@ import { MockExportService } from './exports';
 import { MockFormSubmissionsRepo } from './forms';
 import { MockQaRulesService } from './qa';
 import { MockScansRepo } from './scans';
+import { MockVideoGenRepo } from './video-gen';
 import { getMockStore, newId, nowIso } from './store';
 
 // ---------- 고객 ----------
@@ -504,5 +505,6 @@ export function createMockServices(): DataServices {
     qa: new MockQaRulesService(),
     scans: new MockScansRepo(),
     formSubmissions: new MockFormSubmissionsRepo(),
+    videoGen: new MockVideoGenRepo(),
   };
 }

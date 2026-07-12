@@ -17,6 +17,7 @@ export default async function OnboardingPage() {
   return (
     <OnboardingWizard
       defaultBusinessName={guessed || client.name}
+      tier={client.tier}
       scanContext={
         scan
           ? { url: scan.url, total: scan.scores.total, issueCount: scan.issues.length, notes: summarizeIssues(scan) }

@@ -270,8 +270,12 @@ export class SupabaseAiService implements AiService {
     return { url };
   }
 
-  async generateVideo(input: { prompt: string }): Promise<{ url: string; poster?: string }> {
-    // 미연동 — 명확한 에러를 던지면 편집 요청 라우트가 502 + 크레딧 자동 환불로 처리
+  async generateVideo(input: {
+    prompt: string;
+    image?: { base64: string; mimeType: string };
+    model?: string;
+  }): Promise<{ url: string; poster?: string }> {
+    // 실패 시 명확한 에러 → 편집 요청 라우트가 502 + 크레딧 자동 환불로 처리
     return generateVeoVideo(input);
   }
 

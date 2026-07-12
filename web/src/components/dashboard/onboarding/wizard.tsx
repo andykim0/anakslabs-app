@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ScanSearch } from 'lucide-react';
-import type { DesignCandidate, ExtraFeatureSelection, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import type { ExtrasOptionsDto } from '../api';
 import { cn } from '../ui';
 import { SurveyStep } from './survey-step';
@@ -27,9 +27,12 @@ const STEPS = [
 export function OnboardingWizard({
   defaultBusinessName,
   scanContext,
+  tier = 'basic',
 }: {
   defaultBusinessName?: string;
   scanContext?: ScanContext;
+  /** [motion 4단계] 소유자 티어 — Premium이면 성공화면에 AI 영상 히어로 스튜디오 노출 */
+  tier?: Tier;
 }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
@@ -137,6 +140,7 @@ export function OnboardingWizard({
           extrasOptions={extrasOptions}
           existingSiteId={siteId}
           freeRegensUsed={freeRegensUsed}
+          tier={tier}
           onResult={(id, used) => {
             setSiteId(id);
             setFreeRegensUsed(used);

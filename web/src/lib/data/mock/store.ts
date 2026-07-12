@@ -59,6 +59,8 @@ export interface MockStore {
   scans: Map<string, ScanResult>;
   /** [v3 Phase 3] 테넌트 사이트 문의 폼 수신 — submissionId → 제출 */
   formSubmissions: Map<string, FormSubmission>;
+  /** [motion 4단계] 영상 생성 로그 (비용 가드 카운트 + 프롬프트 튜닝). optional=lazy init(시드 무변경) */
+  videoGenLog?: { siteId: string; tier: string; model: string; stage: string; prompt?: string; detail?: string; at: number }[];
   counters: { id: number; text: number; image: number };
 }
 

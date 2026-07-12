@@ -9,6 +9,7 @@ import { SupabaseExportService } from './exports';
 import { SupabaseFormSubmissionsRepo } from './forms';
 import { SupabaseQaRulesService } from './qa';
 import { SupabaseScansRepo } from './scans';
+import { SupabaseVideoGenRepo } from './video-gen';
 import {
   SupabaseClientsRepo,
   SupabaseEditRequestsRepo,
@@ -31,5 +32,6 @@ export function createSupabaseServices(): DataServices {
     qa: new SupabaseQaRulesService(),
     scans: new SupabaseScansRepo(),
     formSubmissions: new SupabaseFormSubmissionsRepo(),
+    videoGen: new SupabaseVideoGenRepo(),
   };
 }

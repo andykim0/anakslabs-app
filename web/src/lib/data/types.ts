@@ -202,8 +202,15 @@ export interface AiService {
   generateText(input: { prompt: string; currentText?: string; tone?: string }): Promise<string>;
   /** 이미지 생성 (Nano Banana) */
   generateImage(input: { prompt: string }): Promise<{ url: string }>;
-  /** 영상 생성 (Veo 3.1) — Premium 전용 기능 */
-  generateVideo(input: { prompt: string }): Promise<{ url: string; poster?: string }>;
+  /**
+   * 영상 생성 (Veo 3.1) — Premium 전용 기능.
+   * [motion 4단계] image 주면 image-to-video(poster=시작 프레임=그 이미지). model로 fast/표준 전환.
+   */
+  generateVideo(input: {
+    prompt: string;
+    image?: { base64: string; mimeType: string };
+    model?: string;
+  }): Promise<{ url: string; poster?: string }>;
   /** [v3 Phase 2] 커스텀 섹션 이름/설명 → 섹션 계획(known type 매핑 or custom + 카피 시드) */
   suggestCustomSection(input: {
     name: string;
@@ -296,6 +303,33 @@ export interface ExportService {
   getDownloadUrl(objectPath: string): Promise<string>;
 }
 
+// ---------- [motion 4단계] 영상 생성 로그 + 비용 가드 카운터 ----------
+
+/** 영상 생성 시도 로그 1건 (원가 발생 시점 기록 + 사이트/일일 상한 카운트 소스) */
+export interface VideoGenLogInput {
+  siteId: string;
+  tier: Tier;
+  /** 사용 모델 id (fast/표준) */
+  model: string;
+  /** draft=온보딩 시안 / final=고화질 재생성 / select=고객이 시안 선택(원가 없음, 카운트 제외) */
+  stage: 'draft' | 'final' | 'select';
+  prompt?: string;
+  /** 선택된 영상 URL 등 부가 정보 */
+  detail?: string;
+}
+
+/**
+ * 영상 생성 로그·카운터 — 비용 가드(사이트당·일일 상한)의 진실 소스 + 프롬프트 튜닝 데이터.
+ * count*는 실제 원가 발생분(stage draft/final)만 센다(select 제외).
+ */
+export interface VideoGenRepo {
+  record(input: VideoGenLogInput): Promise<void>;
+  /** 사이트당 누적 생성 수 (VIDEO_GEN_MAX_PER_SITE 비교) */
+  countBySite(siteId: string): Promise<number>;
+  /** 오늘(UTC) 전역 생성 수 (VIDEO_GEN_DAILY_CAP 비교) */
+  countToday(): Promise<number>;
+}
+
 // ---------- 팩토리 ----------
 
 export interface DataServices {
@@ -312,4 +346,6 @@ export interface DataServices {
   scans: ScansRepo;
   /** [v3 Phase 3] 문의 폼 수신 */
   formSubmissions: FormSubmissionsRepo;
+  /** [motion 4단계] 영상 생성 로그 + 비용 가드 카운터 */
+  videoGen: VideoGenRepo;
 }
