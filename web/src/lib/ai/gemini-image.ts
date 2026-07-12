@@ -7,6 +7,7 @@
  */
 import 'server-only';
 import { env } from '@/lib/env';
+import { geminiImageBody, type GeminiAspectRatio } from './gemini-image-request';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 /** Nano Banana — $0.039/장 (SPEC 2장) */
@@ -26,6 +27,8 @@ interface GeminiInlinePart {
 export async function generateGeminiImage(input: {
   prompt: string;
   model?: string;
+  /** 출력 비율 — 프롬프트 문자열은 무시되므로 이 값이 실제 비율을 강제(미지정 시 모델 기본=정사각) */
+  aspectRatio?: GeminiAspectRatio;
 }): Promise<GeminiImageResult> {
   if (!env.geminiApiKey) {
     throw new Error(
@@ -40,12 +43,7 @@ export async function generateGeminiImage(input: {
       'content-type': 'application/json',
       'x-goog-api-key': env.geminiApiKey,
     },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: input.prompt }] }],
-      generationConfig: {
-        responseModalities: ['IMAGE'],
-      },
-    }),
+    body: JSON.stringify(geminiImageBody({ prompt: input.prompt, aspectRatio: input.aspectRatio })),
     cache: 'no-store',
   });
 

@@ -13,6 +13,7 @@
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
+import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
@@ -50,8 +51,9 @@ function cleanString(value: unknown, maxLength: number): string | undefined {
   return trimmed.length > 0 ? trimmed.slice(0, maxLength) : undefined;
 }
 
-async function generateImageUrl(prompt: string, prefix: string): Promise<string> {
-  const image = await generateGeminiImage({ prompt });
+async function generateImageUrl(prompt: string, prefix: string, aspectRatio?: GeminiAspectRatio): Promise<string> {
+  // aspectRatio는 프롬프트 문자열이 아니라 imageConfig로 강제된다(문자열 비율은 무시됨이 실증).
+  const image = await generateGeminiImage({ prompt, aspectRatio });
   return uploadAiAsset({ base64: image.base64, mimeType: image.mimeType, prefix });
 }
 
@@ -204,7 +206,7 @@ export class SupabaseAiService implements AiService {
         const heroPrompt = povImagePrompt(bp, survey, 'hero section', text?.heroImagePrompt);
         let heroImageUrl = bp.mockHeroUrl; // 생성 실패 시 스타일 프리뷰 자산으로 강등
         try {
-          heroImageUrl = await generateImageUrl(heroPrompt, 'candidates');
+          heroImageUrl = await generateImageUrl(heroPrompt, 'candidates', '16:9'); // 히어로 = 와이드
         } catch (err) {
           console.warn(`[ai] 후보(${bp.id}) 히어로 이미지 생성 실패 — 프리뷰 자산 사용:`, err);
         }
@@ -234,7 +236,7 @@ export class SupabaseAiService implements AiService {
     const generated = await Promise.all(
       poolPrompts.map(async (prompt) => {
         try {
-          return await generateImageUrl(prompt, 'sections');
+          return await generateImageUrl(prompt, 'sections', '4:3'); // 섹션 보조 이미지
         } catch (err) {
           console.warn('[ai] 섹션 이미지 생성 실패 — 히어로 이미지로 대체:', err);
           return null;

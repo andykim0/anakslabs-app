@@ -273,6 +273,8 @@ export function hasStockImageDomain(url: string): boolean {
 /**
  * gemini-image 프롬프트 조립 — POV 무드 + 업종 + (선택)팔레트/렌더방식에서만 조립(자유 서술 금지).
  * POV=무드, candidateStyle=렌더 방식(직교 조합).
+ * [주의] 말미 "16:10"은 예술적 힌트일 뿐 — gemini-2.5-flash-image는 프롬프트 문자열 비율을 무시함이
+ * 실증됨(정사각 출력). 실제 출력 비율은 generateGeminiImage의 aspectRatio(imageConfig)가 강제한다.
  */
 export function buildImagePrompt(
   povId: PovId,
