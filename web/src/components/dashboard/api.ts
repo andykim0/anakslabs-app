@@ -354,6 +354,8 @@ export async function generateSite(input: {
   candidate: DesignCandidate;
   extras?: ExtraFeatureSelection;
   extrasOptions?: ExtrasOptionsDto;
+  /** [멱등] 중복 generate가 사이트를 2개 만들지 않도록 서버가 이 키로 dedup */
+  idempotencyKey?: string;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number }> {
   const data = await post<{ siteId?: string; site?: Site }>('/api/onboarding/generate', input);
   const siteId = data.siteId ?? data.site?.id;
@@ -370,6 +372,8 @@ export async function regenerateSite(input: {
   candidate: DesignCandidate;
   extras?: ExtraFeatureSelection;
   extrasOptions?: ExtrasOptionsDto;
+  /** [멱등] 중복 재생성 요청 dedup용 (선택) */
+  idempotencyKey?: string;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number; freeRegenLimit: number }> {
   const data = await post<{ siteId: string; site?: Site; freeRegensUsed?: number; freeRegenLimit?: number }>(
     '/api/onboarding/regenerate',

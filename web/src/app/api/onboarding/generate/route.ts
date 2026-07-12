@@ -23,7 +23,17 @@ const bodySchema = z.object({
   candidate: designCandidateSchema,
   extras: extraFeatureSelectionSchema.optional(),
   extrasOptions: extrasOptionsSchema.optional(),
+  // [멱등] 같은 온보딩 시도의 중복 generate가 사이트를 2개 만들지 않도록 dedup 키(클라 생성)
+  idempotencyKey: z.string().min(1).max(100).optional(),
 });
+
+/**
+ * [멱등] 최근 생성 dedup — `${clientId}:${idempotencyKey}` → {siteId, at}. 프로세스 인메모리(짧은 TTL).
+ * StrictMode 이중 발화는 클라 in-flight dedup이 주로 막고, 이건 순차 중복(탭 재시도 등) 백스톱.
+ * (완전 동시 요청까지 막으려면 DB 유니크 제약이 필요 — 백로그.)
+ */
+const recentGenerations = new Map<string, { siteId: string; at: number }>();
+const GEN_IDEM_TTL_MS = 60_000;
 
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
@@ -36,6 +46,19 @@ export const POST = withApiHandler(async (request) => {
   const candidate: DesignCandidate = body.data.candidate;
 
   const { ai, sites } = getDataServices();
+
+  // [멱등] 같은 키로 최근 생성된 사이트가 있으면 그대로 반환(2번째 create·AI 생성 비용 방지).
+  const idemK = body.data.idempotencyKey ? `${client.id}:${body.data.idempotencyKey}` : null;
+  if (idemK) {
+    const prev = recentGenerations.get(idemK);
+    if (prev && Date.now() - prev.at < GEN_IDEM_TTL_MS) {
+      const existing = await sites.getById(prev.siteId);
+      if (existing && existing.clientId === client.id) {
+        return NextResponse.json({ siteId: existing.id, site: existing, deduped: true }, { status: 200 });
+      }
+    }
+  }
+
   const generated = await ai.generateSiteConfig(survey, candidate);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋으로 덮어쓴 뒤 이중 방벽 sanitize
@@ -45,6 +68,8 @@ export const POST = withApiHandler(async (request) => {
     name: survey.businessName,
     draftConfig,
   });
+
+  if (idemK) recentGenerations.set(idemK, { siteId: site.id, at: Date.now() });
 
   return NextResponse.json({ siteId: site.id, site }, { status: 201 });
 });

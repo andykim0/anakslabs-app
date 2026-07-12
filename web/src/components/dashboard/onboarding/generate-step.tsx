@@ -6,7 +6,7 @@
  * [§3] 재생성(무료 1회): POST /api/onboarding/regenerate — 같은 사이트 draft 교체.
  */
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
@@ -21,6 +21,7 @@ import {
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { generateSite, regenerateSite, type ExtrasOptionsDto } from '../api';
+import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { HeroVideoStudio } from './hero-video-studio';
@@ -61,22 +62,27 @@ export function GenerateStep({
   onEditSurvey: () => void;
 }) {
   const queryClient = useQueryClient();
-  const startedRef = useRef(false);
+  // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}`;
+  const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({
     mutationFn: () =>
-      existingSiteId
-        ? regenerateSite({ siteId: existingSiteId, survey, candidate, extras, extrasOptions })
-        : generateSite({ survey, candidate, extras, extrasOptions }),
+      sharedGenerate(intent, () =>
+        existingSiteId
+          ? regenerateSite({ siteId: existingSiteId, survey, candidate, extras, extrasOptions, idempotencyKey })
+          : generateSite({ survey, candidate, extras, extrasOptions, idempotencyKey }),
+      ),
+    // useMutation은 기본 재시도 없음 → 실패 시 즉시 에러 표면화(무한 스피너 없음).
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       onResult(data.siteId, data.freeRegensUsed);
     },
   });
 
+  // ref 가드 없이 매 마운트에서 발화 — 실제 요청은 sharedGenerate(모듈)가 1회로 dedup하고,
+  // 라이브 마운트의 mutation도 공유 프로미스로 resolve되어 전환된다(idle 무한 스피너 불가).
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
     mutation.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
