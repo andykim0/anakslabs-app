@@ -18,6 +18,7 @@
 import 'server-only';
 import { env } from '@/lib/env';
 import { uploadAiVideo } from '@/lib/data/supabase/storage';
+import { veoRequestBody, type VeoResolution } from './veo-request';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 /** 실행 시점 최신 id로 교체 가능 — VEO_MODEL env 오버라이드 */
@@ -65,6 +66,8 @@ export interface VeoInput {
   image?: { base64: string; mimeType: string };
   /** 모델 override (fast/표준). 미지정 시 VEO_MODEL env → DEFAULT_MODEL */
   model?: string;
+  /** 출력 해상도 — parameters.resolution. 미지정 시 720p(테넌트 기본, 원가 불변) */
+  resolution?: VeoResolution;
 }
 
 /**
@@ -83,18 +86,13 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
   const durationSeconds = Number(process.env.VEO_DURATION_SECONDS) || 8;
   const authHeaders = { 'x-goog-api-key': key } as const;
 
-  // 1) 생성 시작 (image 있으면 image-to-video)
-  const instance: Record<string, unknown> = { prompt: input.prompt };
-  if (input.image) {
-    instance.image = { bytesBase64Encoded: input.image.base64, mimeType: input.image.mimeType };
-  }
+  // 1) 생성 시작 (image 있으면 image-to-video). aspectRatio·resolution은 parameters로 강제.
   const startRes = await fetch(`${GEMINI_API_BASE}/models/${model}:predictLongRunning`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...authHeaders },
-    body: JSON.stringify({
-      instances: [instance],
-      parameters: { aspectRatio: '16:9', durationSeconds },
-    }),
+    body: JSON.stringify(
+      veoRequestBody({ prompt: input.prompt, image: input.image, durationSeconds, resolution: input.resolution }),
+    ),
     cache: 'no-store',
   });
   if (!startRes.ok) {
