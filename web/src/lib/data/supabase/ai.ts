@@ -16,6 +16,7 @@ import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
+import { povImagePrompt } from '@/lib/ai/image-prompt';
 import type { AiService, SuggestSectionContext } from '../types';
 import {
   buildCandidateBlueprints,
@@ -128,22 +129,6 @@ async function refineCandidateTexts(
   return refined;
 }
 
-/**
- * Claude 가 돌려준 히어로 프롬프트 검증/보정.
- * 너무 짧으면 결정적 프롬프트로 강등, 스타일 조각·no-text 지시가 빠졌으면 덧붙인다.
- */
-function finalizeHeroPrompt(refined: string | undefined, bp: CandidateBlueprint): string {
-  if (!refined || refined.length < 40) return bp.heroImagePrompt;
-  let prompt = refined;
-  const fragmentAnchor = bp.heroImageFragment.split(',')[0].trim().toLowerCase();
-  if (fragmentAnchor && !prompt.toLowerCase().includes(fragmentAnchor)) {
-    prompt = `${prompt.trim()} Style: ${bp.heroImageFragment}.`;
-  }
-  if (!/no text|no words/i.test(prompt)) {
-    prompt = `${prompt.trim()} No text, no words, no logos, no watermark.`;
-  }
-  return prompt;
-}
 
 // ---------- 2차 가공: 섹션 카피 ----------
 
@@ -215,7 +200,8 @@ export class SupabaseAiService implements AiService {
     return Promise.all(
       blueprints.map(async (bp) => {
         const text = refined.get(bp.id);
-        const heroPrompt = finalizeHeroPrompt(text?.heroImagePrompt, bp);
+        // [V2] POV 골격 + 매장 장면. 이 히어로 이미지가 곧 video-hero의 poster 후보(Veo 시작 프레임)로 보존된다.
+        const heroPrompt = povImagePrompt(bp, survey, 'hero section', text?.heroImagePrompt);
         let heroImageUrl = bp.mockHeroUrl; // 생성 실패 시 스타일 프리뷰 자산으로 강등
         try {
           heroImageUrl = await generateImageUrl(heroPrompt, 'candidates');
@@ -240,11 +226,10 @@ export class SupabaseAiService implements AiService {
     const blueprint = matchBlueprintForCandidate(survey, candidate);
     const copy = await generateSectionCopy(survey, blueprint);
 
-    // 섹션용 보조 이미지 2장 — 선택된 스타일의 섹션 조각 반영, 실패분은 제외하고 히어로로 대체
-    const fragment = blueprint.sectionImageFragment;
+    // 섹션용 보조 이미지 2장 — [V2] POV 골격(buildImagePrompt) 기반, 실패분은 제외하고 히어로로 대체
     const poolPrompts = [
-      `Interior/workspace detail image for ${survey.businessName} (${survey.industry}). ${fragment}, ${survey.tone} mood, no text. 4:3.`,
-      `Signature product/service closeup for ${survey.businessName} (${survey.industry}). ${fragment}, ${survey.tone} mood, no text. 4:3.`,
+      povImagePrompt(blueprint, survey, 'interior/workspace detail'),
+      povImagePrompt(blueprint, survey, 'signature product/service closeup'),
     ];
     const generated = await Promise.all(
       poolPrompts.map(async (prompt) => {
