@@ -9,6 +9,8 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { absorbUrlsInContent } from '@/lib/import/absorb-content';
+import { isMockMode } from '@/lib/env';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import {
@@ -57,6 +59,11 @@ export const POST = withApiHandler(async (request) => {
         return NextResponse.json({ siteId: existing.id, site: existing, deduped: true }, { status: 200 });
       }
     }
+  }
+
+  // [v4 #3e] providedContent 내 URL 텍스트 흡수 (실모드만 — mock은 providedContent 미소비)
+  if (!isMockMode() && survey.providedContent) {
+    survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
 
   const generated = await ai.generateSiteConfig(survey, candidate);

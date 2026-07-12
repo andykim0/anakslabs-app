@@ -14,6 +14,8 @@ import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { absorbUrlsInContent } from '@/lib/import/absorb-content';
+import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
@@ -56,6 +58,10 @@ export const POST = withApiHandler(async (request) => {
   }
 
   const { ai, sites } = getDataServices();
+  // [v4 #3e] providedContent 내 URL 텍스트 흡수 (실모드만)
+  if (!isMockMode() && survey.providedContent) {
+    survey.providedContent = await absorbUrlsInContent(survey.providedContent);
+  }
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
   const generated = await ai.generateSiteConfig(survey, candidate);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});

@@ -1,0 +1,304 @@
+/**
+ * [v4 #3a] 범용 URL 추출기 — 고객의 기존 홈페이지/블로그에서 텍스트·이미지 후보를 가져온다.
+ *
+ * 보안(SSRF 방어)이 핵심: http/https만, 사설·루프백·링크로컬 IP 거부(리터럴 + DNS resolve 결과),
+ * 리다이렉트 매 hop 재검사(최대 3), 타임아웃 8초, 응답 2MB 상한, content-type text/html만.
+ *
+ * 순수 로직은 fetch/DNS 주입으로 네트워크 없이 테스트 가능(extractFromUrl opts).
+ */
+import { parse } from 'node-html-parser';
+
+export interface ExtractResult {
+  title?: string;
+  description?: string;
+  headings: string[];
+  text: string;
+  imageUrls: string[];
+}
+
+export type ImportErrorCode =
+  | 'INVALID_URL'
+  | 'BLOCKED_SCHEME'
+  | 'BLOCKED_HOST'
+  | 'DNS_FAIL'
+  | 'TOO_MANY_REDIRECTS'
+  | 'FETCH_FAILED'
+  | 'NOT_HTML'
+  | 'NOT_IMAGE'
+  | 'TOO_LARGE';
+
+export class ImportError extends Error {
+  constructor(public code: ImportErrorCode, message: string) {
+    super(message);
+    this.name = 'ImportError';
+  }
+}
+
+// ---------- SSRF 가드 (순수 함수 — 직접 테스트) ----------
+
+/** IPv4 리터럴이 사설·루프백·링크로컬·CGNAT·멀티캐스트 등 차단 대상인가 */
+export function isBlockedIpv4(ip: string): boolean {
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(ip);
+  if (!m) return false;
+  const o = m.slice(1).map(Number);
+  if (o.some((x) => x > 255)) return true; // 형식 오류 → 안전측 차단
+  const [a, b] = o;
+  if (a === 0) return true; // 0.0.0.0/8
+  if (a === 10) return true; // 10/8 사설
+  if (a === 127) return true; // 127/8 루프백
+  if (a === 169 && b === 254) return true; // 169.254/16 링크로컬
+  if (a === 172 && b >= 16 && b <= 31) return true; // 172.16/12 사설
+  if (a === 192 && b === 168) return true; // 192.168/16 사설
+  if (a === 100 && b >= 64 && b <= 127) return true; // 100.64/10 CGNAT
+  if (a >= 224) return true; // 224+ 멀티캐스트/예약
+  return false;
+}
+
+/** IPv6 리터럴이 루프백/미지정/유니크로컬(fc00::/7)/링크로컬(fe80::/10)인가 */
+export function isBlockedIpv6(ip: string): boolean {
+  const s = ip.toLowerCase().replace(/^\[|\]$/g, '');
+  if (s === '::1' || s === '::') return true;
+  const mapped = /^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.exec(s);
+  if (mapped) return isBlockedIpv4(mapped[1]);
+  const head = s.split(':')[0];
+  if (/^f[cd]/.test(head)) return true; // fc00::/7
+  if (/^fe[89ab]/.test(head)) return true; // fe80::/10
+  return false;
+}
+
+export function isBlockedIp(ip: string): boolean {
+  return ip.includes(':') ? isBlockedIpv6(ip) : isBlockedIpv4(ip);
+}
+
+function isIpLiteral(host: string): boolean {
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(':');
+}
+
+export type LookupFn = (hostname: string) => Promise<{ address: string }[]>;
+
+async function defaultLookup(hostname: string): Promise<{ address: string }[]> {
+  const dns = await import('node:dns');
+  const all = await dns.promises.lookup(hostname, { all: true });
+  return all.map((a) => ({ address: a.address }));
+}
+
+/** URL이 fetch 허용 대상인지 검사 — 위반 시 ImportError throw. IP 리터럴/DNS resolve 결과 모두 검사. */
+export async function assertUrlAllowed(rawUrl: string, lookupFn: LookupFn = defaultLookup): Promise<URL> {
+  let u: URL;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    throw new ImportError('INVALID_URL', '올바른 주소가 아닙니다.');
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    throw new ImportError('BLOCKED_SCHEME', 'http/https 주소만 가져올 수 있어요.');
+  }
+  const host = u.hostname.replace(/^\[|\]$/g, '');
+  if (isIpLiteral(host)) {
+    if (isBlockedIp(host)) throw new ImportError('BLOCKED_HOST', '접근할 수 없는 주소입니다.');
+    return u;
+  }
+  let addrs: { address: string }[];
+  try {
+    addrs = await lookupFn(host);
+  } catch {
+    throw new ImportError('DNS_FAIL', '주소를 찾을 수 없습니다.');
+  }
+  if (!addrs.length) throw new ImportError('DNS_FAIL', '주소를 찾을 수 없습니다.');
+  for (const a of addrs) {
+    if (isBlockedIp(a.address)) throw new ImportError('BLOCKED_HOST', '접근할 수 없는 주소입니다.');
+  }
+  return u;
+}
+
+// ---------- HTML 파싱 (순수) ----------
+
+const ICON_HINT = /(icon|logo|sprite|favicon|avatar|pixel|1x1|tracking|spacer|blank)/i;
+
+/** 이미지가 콘텐츠 사진인지 (아이콘·로고·트래커·svg 제외) */
+function isContentImage(src: string): boolean {
+  if (!src) return false;
+  if (/^data:/i.test(src)) return false;
+  if (/\.svg(\?|$)/i.test(src)) return false;
+  if (ICON_HINT.test(src)) return false;
+  return true;
+}
+
+export function parseHtml(html: string, finalUrl: string): ExtractResult {
+  const root = parse(html);
+  const metaContent = (sel: string): string | undefined => {
+    const el = root.querySelector(sel);
+    const v = el?.getAttribute('content')?.trim();
+    return v || undefined;
+  };
+
+  const title =
+    metaContent('meta[property="og:title"]') ||
+    root.querySelector('title')?.text.trim() ||
+    undefined;
+  const description =
+    metaContent('meta[property="og:description"]') || metaContent('meta[name="description"]') || undefined;
+
+  const headings = root
+    .querySelectorAll('h1, h2, h3')
+    .map((h) => h.text.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .slice(0, 30);
+
+  // 가시 텍스트: 스크립트·스타일·노스크립트·템플릿 제거 후
+  const clone = parse(root.toString());
+  for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
+  const text = clone.text.replace(/\s+/g, ' ').trim().slice(0, 8000);
+
+  // 이미지: og:image 우선 + <img src> 절대경로화, 아이콘·트래커·svg 제외, 최대 12
+  const abs = (src: string): string | null => {
+    try {
+      return new URL(src, finalUrl).toString();
+    } catch {
+      return null;
+    }
+  };
+  const urls: string[] = [];
+  const push = (src?: string | null) => {
+    if (!src) return;
+    const a = abs(src.trim());
+    if (a && isContentImage(a) && !urls.includes(a)) urls.push(a);
+  };
+  push(metaContent('meta[property="og:image"]'));
+  for (const img of root.querySelectorAll('img')) {
+    if (urls.length >= 12) break;
+    push(img.getAttribute('src') || img.getAttribute('data-src'));
+  }
+
+  return { title, description, headings, text, imageUrls: urls.slice(0, 12) };
+}
+
+// ---------- 추출 (fetch + 리다이렉트 SSRF 재검사) ----------
+
+const UA = 'Mozilla/5.0 (compatible; AnaksLabsBot/1.0; +https://anakslabs.com)';
+
+export interface ExtractOpts {
+  fetchFn?: typeof fetch;
+  lookupFn?: LookupFn;
+  maxRedirects?: number;
+  timeoutMs?: number;
+  maxBytes?: number;
+}
+
+async function readLimited(res: Response, maxBytes: number): Promise<string> {
+  const body = res.body as ReadableStream<Uint8Array> | null;
+  if (!body) {
+    const t = await res.text();
+    if (t.length > maxBytes) throw new ImportError('TOO_LARGE', '페이지가 너무 큽니다.');
+    return t;
+  }
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new ImportError('TOO_LARGE', '페이지가 너무 큽니다.');
+      }
+      chunks.push(value);
+    }
+  }
+  return new TextDecoder().decode(concat(chunks));
+}
+
+function concat(chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((n, c) => n + c.byteLength, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) {
+    out.set(c, off);
+    off += c.byteLength;
+  }
+  return out;
+}
+
+/**
+ * SSRF 가드 + 리다이렉트 매 hop 재검사 + 타임아웃 하에 fetch. body 미소비 Response 반환.
+ * (extractFromUrl·ingestExternalImage 공용 — 리다이렉트 우회 SSRF를 둘 다 막는다)
+ */
+export async function safeFetch(
+  rawUrl: string,
+  opts: { fetchFn?: typeof fetch; lookupFn?: LookupFn; maxRedirects?: number; timeoutMs?: number; accept?: string } = {},
+): Promise<{ res: Response; finalUrl: string }> {
+  const fetchFn = opts.fetchFn ?? fetch;
+  const lookupFn = opts.lookupFn ?? defaultLookup;
+  const maxRedirects = opts.maxRedirects ?? 3;
+  const timeoutMs = opts.timeoutMs ?? 8000;
+  const accept = opts.accept ?? 'text/html,application/xhtml+xml';
+
+  let url = rawUrl;
+  for (let hop = 0; hop <= maxRedirects; hop += 1) {
+    await assertUrlAllowed(url, lookupFn); // 매 hop 재검사 (DNS rebinding·리다이렉트 우회 방어)
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    let res: Response;
+    try {
+      res = await fetchFn(url, { redirect: 'manual', signal: ctrl.signal, headers: { 'user-agent': UA, accept } });
+    } catch {
+      throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
+    } finally {
+      clearTimeout(timer);
+    }
+    if (res.status >= 300 && res.status < 400) {
+      const loc = res.headers.get('location');
+      if (!loc) throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
+      if (hop === maxRedirects) throw new ImportError('TOO_MANY_REDIRECTS', '이동이 너무 많아요.');
+      try {
+        url = new URL(loc, url).toString();
+      } catch {
+        throw new ImportError('INVALID_URL', '올바른 주소가 아닙니다.');
+      }
+      continue;
+    }
+    if (!res.ok) throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
+    return { res, finalUrl: url };
+  }
+  throw new ImportError('TOO_MANY_REDIRECTS', '이동이 너무 많아요.');
+}
+
+/** URL 1개 → 추출 결과. SSRF 가드·리다이렉트 재검사·크기/타입/타임아웃 제한 적용. */
+export async function extractFromUrl(rawUrl: string, opts: ExtractOpts = {}): Promise<ExtractResult> {
+  const maxBytes = opts.maxBytes ?? 2 * 1024 * 1024;
+  const { res, finalUrl } = await safeFetch(rawUrl, opts);
+  const ct = res.headers.get('content-type') ?? '';
+  if (!/text\/html|application\/xhtml/i.test(ct)) {
+    throw new ImportError('NOT_HTML', 'HTML 페이지만 가져올 수 있어요.');
+  }
+  const html = await readLimited(res, maxBytes);
+  return parseHtml(html, finalUrl);
+}
+
+/** [이미지 인입용] Response body를 maxBytes까지 읽어 바이트로 (스트리밍 상한). */
+export async function readLimitedBytes(res: Response, maxBytes: number): Promise<Uint8Array> {
+  const body = res.body as ReadableStream<Uint8Array> | null;
+  if (!body) {
+    const buf = new Uint8Array(await res.arrayBuffer());
+    if (buf.byteLength > maxBytes) throw new ImportError('TOO_LARGE', '파일이 너무 큽니다.');
+    return buf;
+  }
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new ImportError('TOO_LARGE', '파일이 너무 큽니다.');
+      }
+      chunks.push(value);
+    }
+  }
+  return concat(chunks);
+}
