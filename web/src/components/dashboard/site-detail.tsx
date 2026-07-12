@@ -45,6 +45,7 @@ import {
 
 function PreviewCard({ site }: { site: Site }) {
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
+  const { toast } = useToast();
   const [source, setSource] = useState<'draft' | 'published'>(site.draftConfig ? 'draft' : 'published');
 
   const hasBoth = Boolean(site.draftConfig && site.siteConfig);
@@ -110,7 +111,14 @@ function PreviewCard({ site }: { site: Site }) {
       <div className="bg-neutral-950 p-4">
         {config ? (
           <div className={cn('mx-auto overflow-hidden rounded-lg border border-neutral-800', mode === 'mobile' && 'max-w-[300px]')}>
-            <SitePreview config={config} mode={mode} maxHeight={560} scroll />
+            <SitePreview
+              config={config}
+              mode={mode}
+              maxHeight={560}
+              scroll
+              interactive
+              onFormSubmit={() => toast('info', '발행 후 실제 사이트에서 문의가 전송됩니다.')}
+            />
           </div>
         ) : (
           <EmptyState

@@ -1,12 +1,13 @@
 /**
  * 모바일 섹션 렌더 — 축소가 아니라 "재배치".
- * hiddenOnMobile 제외, y좌표(동률이면 x) 순으로 세로 스택.
+ * hiddenOnMobile 제외, stackOrder로 카드 단위(시각적 클러스터)를 보존해 세로 스택([F2a]).
  * 텍스트 중앙 정렬 보정, 이미지/영상 풀폭(원본 비율 유지), 버튼 탭 타깃 확보.
  * 순수 장식용 shape(rect/ellipse)는 스택에서 의미가 없어 제외 — line은 구분선으로 유지.
  */
 import type { CSSProperties } from 'react';
 import type { CanvasElement, Section, SiteTheme } from '@/lib/types/site';
 import { ElementContent } from './ElementContent';
+import { stackOrder } from './stack-order';
 import { motionFor, revealDelayFor, parseStatParts, type MotionPlan } from '@/lib/motion/apply';
 
 interface SectionStackProps {
@@ -58,7 +59,8 @@ function itemStyle(el: CanvasElement): CSSProperties {
 
 export function SectionStack({ section, theme, isFirst, interactive = true, plan, siteId }: SectionStackProps) {
   const bg = section.background;
-  const elements = section.elements.filter(stackable).sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x);
+  // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
+  const elements = stackOrder(section.elements.filter(stackable));
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
   // [motion 3단계] 모바일: video-hero는 poster 정적(영상 미로드 — 대역폭·자동재생 정책). 없으면 배경 이미지.
   const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;

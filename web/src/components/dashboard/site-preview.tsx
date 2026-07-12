@@ -8,13 +8,15 @@
  *    내부 폭만 고정해주면 그 폭 기준으로 정확히 비례 렌더된다)
  * - 확정 계약: SiteRenderer({ config, mode?: 'desktop'|'mobile'|'auto' })
  */
-import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Component, useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
 import { ImageOff } from 'lucide-react';
 import { DESIGN_WIDTH, type SiteConfig } from '@/lib/types/site';
-import { SiteRenderer } from '@/components/site-renderer';
+import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 import { cn } from './ui';
 
 const MOBILE_PREVIEW_WIDTH = 390;
+/** [F2b] 대화형 프리뷰에서 폼 입력을 활성화하기 위한 sentinel siteId — 실제 제출은 캡처에서 가로채므로 fetch 안 됨 */
+const PREVIEW_SITE_ID = '__preview__';
 
 class PreviewErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -42,6 +44,8 @@ export function SitePreview({
   maxHeight,
   scroll = false,
   className,
+  interactive = false,
+  onFormSubmit,
 }: {
   config: SiteConfig;
   mode?: 'desktop' | 'mobile';
@@ -49,13 +53,54 @@ export function SitePreview({
   maxHeight?: number;
   scroll?: boolean;
   className?: string;
+  /**
+   * [F2b] 대화형 프리뷰 — 내부 링크(페이지 전환·앵커)·CTA·외부 링크(새 탭)·tel/mailto 동작 +
+   * 멀티페이지 헤더 내비. 기본 false(썸네일). site-card 썸네일은 카드 <a> 안이라 반드시 false
+   * (버튼이 <a>면 앵커 중첩 하이드레이션 에러) — site-detail 큰 프리뷰에서만 opt-in.
+   */
+  interactive?: boolean;
+  /** [F2b] 대화형 프리뷰에서 폼 제출 시 호출(실제 전송 대신 안내 토스트 등) */
+  onFormSubmit?: () => void;
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
   const [displayHeight, setDisplayHeight] = useState(0);
+  // [F2b] 대화형 프리뷰의 현재 페이지 slug (내부 링크·헤더 내비로 전환)
+  const [previewSlug, setPreviewSlug] = useState('');
 
   const innerWidth = mode === 'mobile' ? MOBILE_PREVIEW_WIDTH : DESIGN_WIDTH;
+
+  // 설정이 바뀌면 홈으로 리셋(삭제된 페이지에 머무르지 않도록)
+  useEffect(() => {
+    setPreviewSlug((s) => (config.pages.some((p) => p.slug === s) ? s : ''));
+  }, [config]);
+
+  // [F2b] 링크 클릭 가로채기 — 참조 구현(CanvasStage.handlePreviewClickCapture)과 동일 규칙
+  const handleClickCapture = (e: MouseEvent) => {
+    if (!interactive) return;
+    const anchor = (e.target as HTMLElement).closest('a');
+    if (!anchor) return;
+    const href = anchor.getAttribute('href') ?? '';
+    if (/^https?:\/\//i.test(href)) {
+      e.preventDefault();
+      window.open(href, '_blank', 'noopener,noreferrer');
+    } else if (href.startsWith('/') && !href.startsWith('//')) {
+      // 발행 도메인 기준 내부 경로 — 해당 slug 페이지로 전환(있을 때만)
+      e.preventDefault();
+      const slug = href === '/' ? '' : href.slice(1).split(/[?#]/)[0];
+      if (config.pages.some((p) => p.slug === slug)) setPreviewSlug(slug);
+    }
+    // '#앵커'는 기본 동작(섹션 스크롤), mailto:/tel:도 통과
+  };
+
+  // [F2b] 폼 제출 가로채기 — 실제 전송 대신 안내(발행 후 동작). 캡처+stopPropagation으로 ContactForm fetch 차단
+  const handleSubmitCapture = (e: FormEvent) => {
+    if (!interactive) return;
+    e.preventDefault();
+    e.stopPropagation();
+    onFormSubmit?.();
+  };
 
   useEffect(() => {
     const measure = () => {
@@ -91,11 +136,23 @@ export function SitePreview({
             transformOrigin: 'top left',
             opacity: scale > 0 ? 1 : 0,
           }}
+          onClickCapture={interactive ? handleClickCapture : undefined}
+          onSubmitCapture={interactive ? handleSubmitCapture : undefined}
         >
           <PreviewErrorBoundary>
             {/* mode 고정: 'auto'는 뷰포트 브레이크포인트 기준 전환이라 미리보기 프레임과 어긋난다 */}
-            {/* interactive=false: 미리보기는 비대화형 — 버튼이 <a>면 상위 카드 Link(<a>)와 앵커 중첩이 된다 */}
-            <SiteRenderer config={config} mode={mode} interactive={false} />
+            {/* [F2b] interactive=false(기본): 썸네일 — 버튼이 <a>면 상위 카드 Link(<a>)와 앵커 중첩.
+                 interactive=true: 헤더 내비 + 페이지 전환. animate=false 필수(interactive만 주면 모션 방출),
+                 siteId sentinel로 폼 입력 활성화(제출은 캡처에서 가로챔). */}
+            {interactive && <TenantHeader config={config} currentSlug={previewSlug} />}
+            <SiteRenderer
+              config={config}
+              mode={mode}
+              pageSlug={interactive ? previewSlug : undefined}
+              interactive={interactive}
+              animate={interactive ? false : undefined}
+              siteId={interactive ? PREVIEW_SITE_ID : undefined}
+            />
           </PreviewErrorBoundary>
         </div>
       </div>
