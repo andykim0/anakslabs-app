@@ -51,6 +51,7 @@
 - mock 세션 계약: 쿠키 `anaks_mock_session`(httpOnly), 값 = mock client id `demo-premium`|`demo-basic`|`admin`. 정의는 `web/src/app/api/_lib/guards.ts`(MOCK_SESSION_COOKIE), auth 서비스가 동일 이름/값을 읽음.
 - 크레딧 단가·초기지급·만료일은 `lib/credits/constants.ts`와 SQL(handle_* 함수, edit_requests 정책)에 이중 존재 — 변경 시 반드시 마이그레이션 동반.
 - `sites.domain`은 소문자 정규화 저장/조회. 데모 라이브 도메인: `hwarodam.anakslabs.com`.
+- **AI 영상 생성(Veo)은 회당 실돈**: 모든 생성 경로가 `assertVideoGenAllowed`(3중 가드) 통과 필수 — 킬스위치 `VIDEO_GEN_ENABLED`(기본 off·mock은 우회)·사이트당 `VIDEO_GEN_MAX_PER_SITE`(6)·일일 `VIDEO_GEN_DAILY_CAP`(20). 실호출은 `lib/ai/video-pipeline.ts`만, 실패 시 ken-burns 폴백 유지. `video_gen_log`가 카운트·로그 진실 소스.
 
 ## v2 애드온 불변식 (스펙 개정 v2 — `docs/SPEC-V2-DESIGN.md` 구현본)
 

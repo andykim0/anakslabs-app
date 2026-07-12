@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
   CheckCircle2,
+  ClipboardCheck,
   ExternalLink,
   Inbox,
   Loader2,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { EditType } from '@/lib/types/domain';
+import { qaAuditChecklist } from '@/lib/design/quality-standards';
 import { approveQaRequest, getQaQueue, rejectQaRequest, type AdminQaItem } from './api';
 import { EDIT_STATUS_LABELS, EDIT_TYPE_LABELS, formatDateTime, formatNumber } from './format';
 import {
@@ -86,6 +88,26 @@ function normalizeAiOutput(type: EditType, aiOutput: unknown): QaPreview {
 
 // ---------- QA 큐 ----------
 
+/** [motion 1단계 이월분] 검수 기준 참조 — qaAuditChecklist()(quality-standards) 직접 렌더. 규칙 파일과 단일 소스. */
+function QaAuditReference() {
+  const items = qaAuditChecklist();
+  return (
+    <details className="mb-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
+      <summary className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-700">
+        <ClipboardCheck size={14} className="text-slate-400" aria-hidden />
+        검수 기준 체크리스트 ({items.length}) — $200 vs $10,000를 가르는 요소
+      </summary>
+      <ul className="mt-2.5 space-y-1.5">
+        {items.map((it) => (
+          <li key={it.id} className="text-[11px] leading-5 text-slate-500">
+            <span className="font-medium text-slate-700">{it.title}</span> — {it.description}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 type ProcessedState = 'applied' | 'rejected';
 
 export function QaQueue() {
@@ -138,6 +160,9 @@ export function QaQueue() {
           </button>
         }
       />
+
+      {/* [motion 1단계 이월분] 검수 기준 = quality-standards의 qa-audit 8요소 파생 (규칙 파일과 단일 소스) */}
+      <QaAuditReference />
 
       {isPending ? (
         <LoadingBlock label="QA 큐를 불러오는 중…" />
