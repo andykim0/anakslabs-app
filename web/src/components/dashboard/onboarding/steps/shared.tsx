@@ -11,6 +11,7 @@ import { Check } from 'lucide-react';
 import type { CandidateStyle, SiteGoalId, SurveyInput } from '@/lib/types/domain';
 import { REFERENCE_SAMPLES } from '@/lib/design/reference-samples';
 import { normalizeTone } from '@/lib/onboarding/tone';
+import { regionOf } from '@/lib/onboarding/region';
 import { cn } from '../../ui';
 
 // ---------- 폼 스키마 (RHF 전용 — 내부 필드 포함. 서버 계약은 호스트 onComplete에서 조립) ----------
@@ -30,6 +31,8 @@ export const surveyFormSchema = z.object({
   existingPresence: z.array(z.object({ kind: z.enum(PRESENCE_KINDS), url: z.string() })).max(3),
   providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
   storePhotoUrls: z.array(z.string()).max(12),
+  /** [v4.5] 로고 URL(선택). 없으면 상호명 글자 로고 폴백 */
+  logoUrl: z.string().optional(),
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
   /** [UI 전용] 고른 무드 샘플 id (최대 2, 첫 번째 = 팔레트 시드) */
   moodIds: z.array(z.string()).max(2),
@@ -89,6 +92,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       existingPresence: [],
       providedContent: '',
       storePhotoUrls: [],
+      logoUrl: '',
       imageStyle: undefined,
       moodIds: [],
       colorOverride: '',
@@ -113,12 +117,13 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
   return {
     purposeId: initial.purposeId,
     businessName: initial.businessName,
-    region: '',
+    region: regionOf(initial) ?? '',
     tagline: initial.tagline ?? '',
     industry: initial.industry,
     existingPresence: (initial.existingPresence ?? []).map((p) => ({ kind: p.kind, url: p.url })),
     providedContent: initial.providedContent ?? '',
     storePhotoUrls: initial.storePhotoUrls ?? [],
+    logoUrl: initial.logoUrl ?? '',
     imageStyle: initial.imageStyle,
     moodIds,
     colorOverride,
@@ -128,6 +133,46 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     tone: normalizeTone(initial.tone),
     extraNotes: initial.extraNotes ?? '',
   };
+}
+
+/**
+ * [v4.5] 로고 래스터(png/jpeg/webp)의 네 모서리가 모두 흰색근접(각 채널 > 240·알파 > 250)이면
+ * true(흰 배경 감지). SVG/비래스터는 대상 제외. 순수 클라이언트 UX 경고 — 발행 차단 아님.
+ */
+export async function detectWhiteBg(file: File): Promise<boolean> {
+  if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) return false;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const w = bitmap.width;
+    const h = bitmap.height;
+    if (!w || !h) {
+      bitmap.close();
+      return false;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return false;
+    }
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const corners: [number, number][] = [
+      [0, 0],
+      [w - 1, 0],
+      [0, h - 1],
+      [w - 1, h - 1],
+    ];
+    for (const [x, y] of corners) {
+      const [r, g, b, a] = ctx.getImageData(x, y, 1, 1).data;
+      if (!(r > 240 && g > 240 && b > 240 && a > 250)) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // ---------- 이미지 스타일 샘플 파일 매핑 ----------

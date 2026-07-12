@@ -44,8 +44,8 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
   return (
     <div className="w-full max-w-md text-left">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-200">이제 이런 걸 다듬어보세요</h3>
-        <span className="text-xs text-neutral-500">
+        <h3 className="text-sm font-semibold text-ob-ink">이제 이런 걸 다듬어보세요</h3>
+        <span className="text-xs text-ob-muted">
           {completed}/{steps.length} 완료
         </span>
       </div>
@@ -57,7 +57,7 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
               key={step.id}
               className={cn(
                 'flex items-start gap-3 rounded-xl border p-3',
-                isDone ? 'border-[#3a4a3a] bg-[#16201a]' : 'border-neutral-800 bg-neutral-900/40',
+                isDone ? 'border-ob-success/40 bg-ob-success/10' : 'border-ob-border bg-ob-bg',
               )}
             >
               <button
@@ -67,21 +67,21 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
                 className={cn(
                   'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
                   isDone
-                    ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
-                    : 'border-neutral-600 text-transparent hover:border-neutral-400',
+                    ? 'border-ob-success bg-ob-success/20 text-ob-success'
+                    : 'border-ob-border text-transparent hover:border-ob-muted',
                 )}
               >
                 <Check className="h-3.5 w-3.5" />
               </button>
               <div className="min-w-0 flex-1">
-                <p className={cn('text-xs font-medium', isDone ? 'text-neutral-500 line-through' : 'text-neutral-100')}>
+                <p className={cn('text-xs font-medium', isDone ? 'text-ob-muted line-through' : 'text-ob-ink')}>
                   {step.title}
                 </p>
-                <p className="mt-0.5 text-[11px] leading-4 text-neutral-500">{step.description}</p>
+                <p className="mt-0.5 text-[11px] leading-4 text-ob-muted">{step.description}</p>
               </div>
               <Link
                 href={`/dashboard/sites/${siteId}/editor?focus=${step.focus}`}
-                className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-700 px-2.5 py-1 text-[11px] text-neutral-200 transition-colors hover:border-[#c8a96a] hover:text-[#d9b878]"
+                className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-lg border border-ob-border px-2.5 py-1 text-[11px] text-ob-ink transition-colors hover:border-ob-accent-strong hover:text-ob-accent-strong"
               >
                 열기 <ArrowRight className="h-3 w-3" />
               </Link>

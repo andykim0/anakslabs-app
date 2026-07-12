@@ -48,9 +48,9 @@ export function OnboardingWizard({
     <div className="mx-auto max-w-3xl">
       {/* [v3 Phase 7] 스캔 프리필 컨텍스트 — 왜 이 사이트를 다시 짓는지 상기 */}
       {scanContext && step === 1 ? (
-        <div className="mb-6 rounded-xl border border-[#4a3a22] bg-[#151310] px-4 py-3">
-          <p className="flex items-start gap-2 text-sm leading-6 text-neutral-300">
-            <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-[#d9b878]" />
+        <div className="mb-6 rounded-xl border border-ob-border bg-ob-accent-soft px-4 py-3">
+          <p className="flex items-start gap-2 text-sm leading-6 text-ob-ink">
+            <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-ob-accent-strong" />
             <span>{scanContext.notes || `이전 진단 ${scanContext.total}점 · 문제 ${scanContext.issueCount}개`} 새 사이트는 이 문제들을 해결한 100점 기반으로 시작합니다.</span>
           </p>
         </div>
@@ -68,7 +68,7 @@ export function OnboardingWizard({
                   <span
                     className={cn(
                       'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors',
-                      done || active ? 'bg-[#c8a96a] text-neutral-950' : 'bg-neutral-800 text-neutral-500',
+                      done || active ? 'bg-ob-accent text-ob-ink' : 'bg-ob-border text-ob-muted',
                     )}
                   >
                     {s.no}
@@ -76,7 +76,7 @@ export function OnboardingWizard({
                   <span
                     className={cn(
                       'text-xs whitespace-nowrap',
-                      active ? 'font-semibold text-neutral-100' : 'text-neutral-500',
+                      active ? 'font-semibold text-ob-ink' : 'text-ob-muted',
                     )}
                   >
                     {s.label}
@@ -86,7 +86,7 @@ export function OnboardingWizard({
                   <div
                     className={cn(
                       'mx-3 h-px flex-1 transition-colors',
-                      step > s.no ? 'bg-[#c8a96a]' : 'bg-neutral-800',
+                      step > s.no ? 'bg-ob-accent-strong' : 'bg-ob-border',
                     )}
                   />
                 ) : null}

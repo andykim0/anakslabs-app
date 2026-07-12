@@ -12,6 +12,7 @@
  */
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
+import { regionOf } from '@/lib/onboarding/region';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
@@ -156,6 +157,7 @@ async function generateSectionCopy(
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
     `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
     `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${toneText(survey.tone)}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `${regionOf(survey) ? `지역: ${regionOf(survey)}\n` : ''}` +
     `${survey.siteGoal ? `방문자에게 바라는 행동: ${survey.siteGoal}\n` : ''}` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
     (survey.highlights?.length

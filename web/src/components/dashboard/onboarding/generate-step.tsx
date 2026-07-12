@@ -114,16 +114,16 @@ export function GenerateStep({
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-      <Card className="flex flex-col items-center gap-5 py-14 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#2a2117] text-[#d9b878]">
+      <Card className="flex flex-col items-center gap-5 border-ob-border bg-ob-surface py-14 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ob-accent-soft text-ob-accent-strong">
           <PartyPopper className="h-7 w-7" />
         </span>
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-neutral-50">
+          <h2 className="text-xl font-semibold tracking-tight text-ob-ink">
             {survey.businessName} 사이트 초안이 완성됐어요
           </h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-400">
-            선택하신 <span className="text-neutral-200">{candidate.label}</span> 방향으로 섹션과
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ob-muted">
+            선택하신 <span className="text-ob-ink">{candidate.label}</span> 방향으로 섹션과
             카피를 구성했습니다. 이제 캔버스에서 PPT처럼 자유롭게 다듬고, 준비되면 발행하세요.
           </p>
         </div>
@@ -136,7 +136,7 @@ export function GenerateStep({
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/dashboard/sites/${siteId}/editor`}
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#c8a96a] px-6 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-ob-accent px-6 text-sm font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
           >
             <PencilRuler className="h-4 w-4" />
             에디터에서 다듬기
@@ -144,7 +144,7 @@ export function GenerateStep({
           </Link>
           <Link
             href={`/dashboard/sites/${siteId}`}
-            className="inline-flex h-12 items-center gap-2 rounded-xl border border-neutral-700 px-6 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
+            className="inline-flex h-12 items-center gap-2 rounded-xl border border-ob-border px-6 text-sm text-ob-ink transition-colors hover:border-ob-muted"
           >
             <LayoutDashboard className="h-4 w-4" />
             사이트 상세 보기
@@ -155,10 +155,10 @@ export function GenerateStep({
         <NextStepsChecklist siteId={siteId} survey={survey} />
 
         {/* [§3] 무료 재생성 안내 */}
-        <div className="mt-3 w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">
+        <div className="mt-3 w-full max-w-md rounded-xl border border-ob-border bg-ob-bg p-4">
           {canRegen ? (
             <>
-              <p className="text-xs font-medium text-neutral-300">
+              <p className="text-xs font-medium text-ob-ink">
                 마음에 안 드세요? 무료로 다시 생성할 수 있어요 (남은 무료 {regenLeft}회)
               </p>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -173,7 +173,7 @@ export function GenerateStep({
               </div>
             </>
           ) : (
-            <p className="text-xs leading-5 text-neutral-500">
+            <p className="text-xs leading-5 text-ob-muted">
               무료 재생성({FREE_REGEN_LIMIT}회)을 모두 사용했어요. 이제 캔버스 에디터에서 직접 다듬거나
               편집 크레딧으로 수정할 수 있습니다.
             </p>
@@ -185,7 +185,7 @@ export function GenerateStep({
           <HeroVideoStudio siteId={siteId} businessName={survey.businessName} industry={survey.industry} />
         ) : null}
 
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-ob-muted">
           발행 전까지는 초안 상태예요. 발행하면 서브도메인이 즉시 라이브됩니다.
         </p>
       </Card>

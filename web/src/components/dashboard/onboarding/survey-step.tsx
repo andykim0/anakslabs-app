@@ -117,9 +117,6 @@ export function SurveyStep({
       const t = (s ?? '').trim();
       return t ? t : undefined;
     };
-    const region = clean(values.region);
-    const notes = clean(values.extraNotes);
-    const extraNotes = region ? (notes ? `[지역] ${region}\n${notes}` : `[지역] ${region}`) : notes;
     const highlights = (values.highlights ?? []).map((h) => h.trim()).filter(Boolean).slice(0, 3);
     const presence = values.existingPresence ?? [];
 
@@ -133,17 +130,19 @@ export function SurveyStep({
       secondaryColor,
       imageStyle: (values.imageStyle as CandidateStyle | undefined) ?? defaultImageStyle(values.industry),
       storePhotoUrls: values.storePhotoUrls.length ? values.storePhotoUrls : undefined,
+      logoUrl: clean(values.logoUrl),
       referenceImageUrls: [], // [v4] 수집 중단 — 항상 빈 배열
       referenceStyleIds: values.moodIds.length ? styleIdsForSamples(values.moodIds) : undefined,
       existingPresence: presence.length ? presence : undefined,
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
+      region: clean(values.region),
       sectionPlan: planFromTemplate(template),
       pagePlan: pagePlanFromTemplate(template),
       templateId: template.id,
       tagline: clean(values.tagline),
       providedContent: clean(values.providedContent),
-      extraNotes,
+      extraNotes: clean(values.extraNotes),
     });
   });
 

@@ -29,26 +29,26 @@ export function LoadingScreen({ messages }: { messages: string[] }) {
   }, [messages.length]);
 
   return (
-    <Card className="flex flex-col items-center justify-center gap-5 py-20">
+    <Card className="flex flex-col items-center justify-center gap-5 border-ob-border bg-ob-surface py-20">
       <div className="relative flex h-14 w-14 items-center justify-center">
         <motion.span
-          className="absolute inset-0 rounded-full border-2 border-[#c8a96a]/30 border-t-[#c8a96a]"
+          className="absolute inset-0 rounded-full border-2 border-ob-accent/30 border-t-ob-accent-strong"
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1.1, ease: 'linear' }}
         />
-        <Sparkles className="h-6 w-6 text-[#c8a96a]" />
+        <Sparkles className="h-6 w-6 text-ob-accent-strong" />
       </div>
       <motion.p
         key={index}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-sm text-neutral-300"
+        className="text-sm text-ob-muted"
       >
         {messages[index]}
       </motion.p>
-      <div className="h-1 w-48 overflow-hidden rounded-full bg-neutral-800">
+      <div className="h-1 w-48 overflow-hidden rounded-full bg-ob-border">
         <motion.div
-          className="h-full w-1/3 rounded-full bg-[#c8a96a]"
+          className="h-full w-1/3 rounded-full bg-ob-accent-strong"
           animate={{ x: ['-100%', '300%'] }}
           transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
         />
@@ -82,11 +82,11 @@ function CandidateCard({
       className={cn(
         'group overflow-hidden rounded-xl border text-left transition-all',
         selected
-          ? 'border-[#c8a96a] ring-1 ring-[#c8a96a]/50'
-          : 'border-neutral-800 hover:border-neutral-600',
+          ? 'border-ob-accent-strong ring-1 ring-ob-accent'
+          : 'border-ob-border hover:border-ob-muted',
       )}
     >
-      <div className="relative h-36 overflow-hidden bg-neutral-900">
+      <div className="relative h-36 overflow-hidden bg-ob-bg">
         {imgFailed ? (
           <div
             className="h-full w-full"
@@ -106,26 +106,26 @@ function CandidateCard({
           <Badge tone={candidate.style === '3d_render' ? 'gold' : 'neutral'}>{STYLE_LABELS[candidate.style]}</Badge>
         </span>
         {selected ? (
-          <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c8a96a] text-xs font-bold text-neutral-950">
+          <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
             ✓
           </span>
         ) : null}
       </div>
-      <div className="bg-neutral-900/60 p-4">
-        <p className="text-sm font-semibold text-neutral-100">{candidate.label}</p>
-        <p className="mt-1 line-clamp-2 text-xs leading-5 text-neutral-500">{candidate.description}</p>
+      <div className="bg-ob-surface p-4">
+        <p className="text-sm font-semibold text-ob-ink">{candidate.label}</p>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-ob-muted">{candidate.description}</p>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex gap-1">
             {swatches.map((c, i) => (
               <span
                 key={`${c}-${i}`}
-                className="h-4 w-4 rounded-full border border-neutral-950"
+                className="h-4 w-4 rounded-full border border-ob-border"
                 style={{ backgroundColor: c }}
                 title={c}
               />
             ))}
           </div>
-          <span className="truncate pl-2 text-[10px] text-neutral-500">
+          <span className="truncate pl-2 text-[10px] text-ob-muted">
             {firstFontName(candidate.theme.fonts.heading)}
           </span>
         </div>
@@ -193,8 +193,8 @@ export function CandidateStep({
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-neutral-50">디자인 방향을 골라주세요</h2>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h2 className="text-lg font-semibold text-ob-ink">디자인 방향을 골라주세요</h2>
+        <p className="mt-1 text-sm text-ob-muted">
           설문을 바탕으로 AI가 제안한 3가지 방향입니다. 선택 후에도 캔버스에서 자유롭게 다듬을 수 있어요.
         </p>
       </div>

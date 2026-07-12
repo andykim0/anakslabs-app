@@ -24,6 +24,7 @@ import type {
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
 import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
+import { regionOf } from '@/lib/onboarding/region';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -1566,12 +1567,18 @@ export function buildSiteConfigFromSurvey(
     }
   }
 
+  // [v4.5] 지역(1급 필드 ∪ 레거시 [지역] extraNotes) → SEO 메타 결합(지역 검색 = 제품 핵심 약속)
+  const region = regionOf(survey);
   return {
     version: 2,
     theme,
     meta: {
-      title: `${survey.businessName} — ${survey.industry}`,
-      description: `${survey.businessName} · ${survey.purpose}`,
+      title: region
+        ? `${survey.businessName} — ${survey.industry} · ${region}`
+        : `${survey.businessName} — ${survey.industry}`,
+      description: region
+        ? `${region} ${survey.businessName} · ${survey.purpose}`
+        : `${survey.businessName} · ${survey.purpose}`,
       ogImage: opts.heroImageUrl,
     },
     pages,

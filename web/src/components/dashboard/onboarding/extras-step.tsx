@@ -53,7 +53,7 @@ function planTargets(plan: SectionPlanItem[]): { label: string; type: SectionTyp
 }
 
 const inputClass =
-  'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none transition-colors focus:border-[#c8a96a]';
+  'w-full rounded-lg border border-ob-border bg-ob-surface px-3.5 py-2.5 text-sm text-ob-ink placeholder:text-ob-muted outline-none transition-colors focus:border-ob-accent-strong';
 
 function FeatureCard({
   icon,
@@ -71,24 +71,24 @@ function FeatureCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={cn('rounded-xl border p-4 transition-colors', enabled ? 'border-[#c8a96a] bg-[#1a1712]' : 'border-neutral-800')}>
+    <div className={cn('rounded-xl border p-4 transition-colors', enabled ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}>
       <button type="button" onClick={onToggle} className="flex w-full items-start gap-3 text-left">
-        <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', enabled ? 'bg-[#2a2117] text-[#d9b878]' : 'bg-neutral-800 text-neutral-400')}>
+        <span className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', enabled ? 'bg-ob-surface text-ob-accent-strong' : 'bg-ob-bg text-ob-muted')}>
           {icon}
         </span>
         <span className="min-w-0 flex-1">
-          <span className={cn('block text-sm font-semibold', enabled ? 'text-[#d9b878]' : 'text-neutral-200')}>{title}</span>
-          <span className="mt-0.5 block text-xs leading-5 text-neutral-500">{desc}</span>
+          <span className={cn('block text-sm font-semibold', enabled ? 'text-ob-accent-strong' : 'text-ob-ink')}>{title}</span>
+          <span className="mt-0.5 block text-xs leading-5 text-ob-muted">{desc}</span>
         </span>
         <span
           role="switch"
           aria-checked={enabled}
-          className={cn('relative mt-1 h-5 w-9 shrink-0 rounded-full transition-colors', enabled ? 'bg-[#c8a96a]' : 'bg-neutral-700')}
+          className={cn('relative mt-1 h-5 w-9 shrink-0 rounded-full transition-colors', enabled ? 'bg-ob-accent' : 'bg-ob-border')}
         >
-          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-neutral-950 transition-transform', enabled ? 'translate-x-4' : 'translate-x-0.5')} />
+          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-ob-ink transition-transform', enabled ? 'translate-x-4' : 'translate-x-0.5')} />
         </span>
       </button>
-      {enabled && children ? <div className="mt-4 space-y-3 border-t border-neutral-800 pt-4">{children}</div> : null}
+      {enabled && children ? <div className="mt-4 space-y-3 border-t border-ob-border pt-4">{children}</div> : null}
     </div>
   );
 }
@@ -172,9 +172,9 @@ export function ExtrasStep({
 
   const targetSelect = (value: SectionType, onChange: (t: SectionType) => void, auto?: { label: string }) => (
     <div>
-      <span className="mb-1 block text-[11px] text-neutral-500">넣을 섹션</span>
+      <span className="mb-1 block text-[11px] text-ob-muted">넣을 섹션</span>
       {auto ? (
-        <p className="rounded-lg border border-[#4a3a22] bg-[#2a2117] px-3 py-2 text-xs text-[#d9b878]">
+        <p className="rounded-lg border border-ob-border bg-ob-accent-soft px-3 py-2 text-xs text-ob-accent-strong">
           계획한 &ldquo;{auto.label.replace(/^\d+\.\s*/, '')}&rdquo; 섹션에 자동으로 들어가요.
         </p>
       ) : (
@@ -191,10 +191,10 @@ export function ExtrasStep({
   );
 
   return (
-    <Card className="space-y-5 p-6">
+    <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
       <div>
-        <h2 className="text-lg font-semibold text-neutral-50">부가기능을 골라주세요</h2>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h2 className="text-lg font-semibold text-ob-ink">부가기능을 골라주세요</h2>
+        <p className="mt-1 text-sm text-ob-muted">
           전부 선택사항이에요. {purpose ? `${purpose.label}에 추천하는 기능은 미리 켜뒀어요.` : ''} 생성 후 에디터에서도 추가·수정할 수 있어요.
         </p>
       </div>
@@ -208,7 +208,7 @@ export function ExtrasStep({
         onToggle={() => setFormOn((v) => !v)}
       >
         <div>
-          <span className="mb-1.5 block text-[11px] text-neutral-500">받을 필드</span>
+          <span className="mb-1.5 block text-[11px] text-ob-muted">받을 필드</span>
           <div className="flex flex-wrap gap-2">
             {FORM_FIELD_OPTIONS.map((o) => {
               const on = formFields.includes(o.value);
@@ -219,7 +219,7 @@ export function ExtrasStep({
                   onClick={() => toggleFormField(o.value)}
                   className={cn(
                     'rounded-full border px-3 py-1.5 text-xs transition-colors',
-                    on ? 'border-[#c8a96a] bg-[#2a2117] font-medium text-[#d9b878]' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500',
+                    on ? 'border-ob-accent-strong bg-ob-accent-soft font-medium text-ob-accent-strong' : 'border-ob-border text-ob-muted hover:border-ob-muted',
                   )}
                 >
                   {o.label}
@@ -240,23 +240,23 @@ export function ExtrasStep({
         onToggle={() => setMapOn((v) => !v)}
       >
         <div>
-          <span className="mb-1 block text-[11px] text-neutral-500">지도 embed URL</span>
+          <span className="mb-1 block text-[11px] text-ob-muted">지도 embed URL</span>
           <input
             value={mapUrl}
             onChange={(e) => setMapUrl(e.target.value)}
             placeholder="https://map.naver.com/… / https://map.kakao.com/… / 구글 /maps/embed"
             className={inputClass}
           />
-          <p className="mt-1 text-[11px] leading-4 text-neutral-600">
+          <p className="mt-1 text-[11px] leading-4 text-ob-muted">
             네이버/카카오 지도에서 &ldquo;공유 → URL 복사&rdquo;, 구글 지도는 &ldquo;공유 → 지도 퍼가기&rdquo;의 iframe src 주소를 붙여넣으세요.
           </p>
           {mapInvalid ? (
-            <p className="mt-1 text-[11px] text-red-300">
+            <p className="mt-1 text-[11px] text-ob-danger">
               허용되지 않은 주소예요. map.naver.com · map.kakao.com · www.google.com/maps/embed 만 가능합니다.
             </p>
           ) : null}
           {mapUrl.trim() && !mapInvalid ? (
-            <p className="mt-1 text-[11px] text-emerald-400">사용할 수 있는 지도 주소예요.</p>
+            <p className="mt-1 text-[11px] text-ob-success">사용할 수 있는 지도 주소예요.</p>
           ) : null}
         </div>
         {targetSelect(mapTarget, setMapTarget, mapRow ? { label: mapRow.label } : undefined)}
@@ -290,7 +290,7 @@ export function ExtrasStep({
               <div className="min-w-0 flex-1">
                 {withBase ? (
                   <div className="flex items-stretch">
-                    <span className="flex items-center whitespace-nowrap rounded-l-md border border-r-0 border-neutral-700 bg-neutral-800/60 px-2 text-[11px] text-neutral-500">
+                    <span className="flex items-center whitespace-nowrap rounded-l-md border border-r-0 border-ob-border bg-ob-bg px-2 text-[11px] text-ob-muted">
                       {hasHandleBase(row.kind) ? SNS_BASES[row.kind] : null}
                     </span>
                     <input
@@ -308,14 +308,14 @@ export function ExtrasStep({
                     className={inputClass}
                   />
                 )}
-                {bad ? <p className="mt-1 text-[11px] text-red-300">https:// 주소를 입력해 주세요.</p> : null}
+                {bad ? <p className="mt-1 text-[11px] text-ob-danger">https:// 주소를 입력해 주세요.</p> : null}
               </div>
               <button
                 type="button"
                 onClick={() => setSnsRows((rows) => (rows.length > 1 ? rows.filter((_, j) => j !== i) : rows))}
                 disabled={snsRows.length <= 1}
                 aria-label="링크 삭제"
-                className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-red-950/50 hover:text-red-300 disabled:opacity-30"
+                className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded text-ob-muted transition-colors hover:bg-ob-danger/10 hover:text-ob-danger disabled:opacity-30"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -326,13 +326,13 @@ export function ExtrasStep({
           type="button"
           onClick={() => setSnsRows((rows) => (rows.length < 8 ? [...rows, { kind: 'custom', url: '' }] : rows))}
           disabled={snsRows.length >= 8}
-          className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-700 px-3 py-2 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-40"
+          className="inline-flex items-center gap-1 rounded-lg border border-dashed border-ob-border px-3 py-2 text-xs text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
           링크 추가
         </button>
         <div>
-          <span className="mb-1.5 block text-[11px] text-neutral-500">표시 방식</span>
+          <span className="mb-1.5 block text-[11px] text-ob-muted">표시 방식</span>
           <div className="grid grid-cols-2 gap-2">
             {(
               [
@@ -346,20 +346,20 @@ export function ExtrasStep({
                 onClick={() => setSnsStyle(val)}
                 className={cn(
                   'rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  snsStyle === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+                  snsStyle === val ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border hover:border-ob-muted',
                 )}
               >
-                <span className={cn('block text-xs font-medium', snsStyle === val ? 'text-[#d9b878]' : 'text-neutral-300')}>{label}</span>
-                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
+                <span className={cn('block text-xs font-medium', snsStyle === val ? 'text-ob-accent-strong' : 'text-ob-ink')}>{label}</span>
+                <span className="mt-0.5 block text-[10px] text-ob-muted">{hint}</span>
               </button>
             ))}
           </div>
         </div>
       </FeatureCard>
 
-      {error ? <p className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2.5 text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="rounded-lg border border-ob-danger/40 bg-ob-danger/10 px-3 py-2.5 text-xs text-ob-danger">{error}</p> : null}
 
-      <div className="flex items-center justify-between border-t border-neutral-800 pt-5">
+      <div className="flex items-center justify-between border-t border-ob-border pt-5">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
           디자인 선택

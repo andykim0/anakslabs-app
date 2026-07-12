@@ -250,6 +250,12 @@ export interface SurveyInput {
   /** 업종 — 택소노미 칩 또는 자유 입력 */
   industry: string;
   /**
+   * [v4.5] 지역(선택) — 예: '서울 연희동'. 지역 검색은 제품 핵심 약속이라 1급 필드.
+   * 생성 프롬프트 지역 컨텍스트 + SEO 메타(title/description)·JSON-LD addressLocality에 배선.
+   * (기존 extraNotes의 '[지역] …' 프리텍스트는 read 시 normalizeRegion으로 흡수)
+   */
+  region?: string;
+  /**
    * [F3 #5] 톤 — 최대 2개(무드가 흐려지지 않도록 절제). 예: ['차분한','모던'].
    * 소비 지점(빌더·AI 프롬프트)은 toneText(lib/onboarding/tone)로 문자열화한다.
    * (기존 string 데이터는 read 시 [string]으로 정규화 — toneText가 둘 다 수용)
