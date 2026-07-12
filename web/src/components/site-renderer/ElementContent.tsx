@@ -44,6 +44,8 @@ interface ElementContentProps {
   interactive?: boolean;
   /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙(/s/[domain])에서만 전달. 없으면 폼 비활성 */
   siteId?: string;
+  /** [motion-system 2단계] 통계 텍스트 count-up 대상이면 목표/접두/접미 — 텍스트 노드에 data-m 부착 */
+  countup?: { to: number; prefix: string; suffix: string };
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -51,10 +53,10 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
-export function ElementContent({ element, theme, variant, eager, interactive = true, siteId }: ElementContentProps) {
+export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
-      return <TextContent el={element} theme={theme} variant={variant} />;
+      return <TextContent el={element} theme={theme} variant={variant} countup={countup} />;
     case 'image':
       return <ImageContent el={element} theme={theme} variant={variant} eager={eager} />;
     case 'button':
@@ -80,7 +82,17 @@ export function ElementContent({ element, theme, variant, eager, interactive = t
 
 // ---------- text ----------
 
-function TextContent({ el, theme, variant }: { el: TextElement; theme: SiteTheme; variant: RenderVariant }) {
+function TextContent({
+  el,
+  theme,
+  variant,
+  countup,
+}: {
+  el: TextElement;
+  theme: SiteTheme;
+  variant: RenderVariant;
+  countup?: { to: number; prefix: string; suffix: string };
+}) {
   const s = el.style;
   const style: CSSProperties = {
     margin: 0,
@@ -98,7 +110,15 @@ function TextContent({ el, theme, variant }: { el: TextElement; theme: SiteTheme
     wordBreak: 'keep-all', // 한국어 어절 단위 줄바꿈
     overflowWrap: 'break-word',
   };
-  return <p style={style}>{el.text}</p>;
+  // count-up 대상이면 텍스트 노드에 data-m 부착 (런타임이 textContent를 0→목표로 카운트, 스타일 보존)
+  const m = countup
+    ? { 'data-m': 'countup', 'data-m-to': String(countup.to), 'data-m-prefix': countup.prefix, 'data-m-suffix': countup.suffix }
+    : {};
+  return (
+    <p style={style} {...m}>
+      {el.text}
+    </p>
+  );
 }
 
 // ---------- image ----------

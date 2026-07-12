@@ -6,7 +6,7 @@
  */
 import type { Metadata } from 'next';
 import { cache } from 'react';
-import type { Site, Tier } from '@/lib/types/domain';
+import type { Site } from '@/lib/types/domain';
 import { findPage } from '@/lib/types/site';
 import { getDataServices } from '@/lib/data';
 import { LegalFooter, SemanticOutline, SiteRenderer, SuspendedNotice, TenantHeader } from '@/components/site-renderer';
@@ -22,19 +22,6 @@ export const getSiteByDomain = cache(async (rawDomain: string): Promise<Site | n
   }
   if (!domain) return null;
   return getDataServices().sites.getByDomain(domain);
-});
-
-/**
- * [gating] 사이트 소유자의 요금제 tier — 등장 애니메이션 게이팅 단일 소스.
- * 요청 단위 dedupe(cache). 조회 실패 시 null → 호출부가 fail-closed(애니메이션 끔).
- */
-export const getClientTier = cache(async (clientId: string): Promise<Tier | null> => {
-  try {
-    const client = await getDataServices().clients.getById(clientId);
-    return client?.tier ?? null;
-  } catch {
-    return null;
-  }
 });
 
 /** 테넌트 라이브 URL (canonical/JSON-LD 원천) */
@@ -91,10 +78,9 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
   const businessInfo = config.businessInfo ?? null;
   const jsonLd = buildJsonLd(config, siteUrlOf(site.domain));
 
-  // [gating] 등장 애니메이션은 Premium 전용. 소유자 tier 조회 실패 시 fail-closed(끔).
-  // entrance 데이터는 유지 — animate=false는 Reveal 래핑만 생략(업그레이드 즉시 부활).
-  const tier = await getClientTier(site.clientId);
-  const animate = tier === 'premium';
+  // [motion-system 2단계] 모션 유무·종류의 단일 소스는 config.motion.presetId(프리셋 계획)다.
+  // Stage-1의 tier 게이팅(animate=tier==='premium')은 제거 — 티어 적정성은 sanitizeMotion이
+  // 저장/발행 단계에서 이미 보장한다. 실서빙은 항상 모션 레이어를 방출(animate 미지정=interactive=true).
 
   return (
     <>
@@ -109,7 +95,7 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
       <main>
         {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조 */}
         <SemanticOutline config={config} pageSlug={pageSlug} />
-        <SiteRenderer config={config} mode="auto" siteId={site.id} pageSlug={pageSlug} animate={animate} />
+        <SiteRenderer config={config} mode="auto" siteId={site.id} pageSlug={pageSlug} />
       </main>
       {businessInfo ? <LegalFooter info={businessInfo} theme={config.theme} /> : null}
     </>

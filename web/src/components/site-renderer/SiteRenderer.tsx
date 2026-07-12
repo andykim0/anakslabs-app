@@ -12,8 +12,11 @@
  *  - 'auto'(기본): 두 레이아웃을 모두 렌더하고 Tailwind 브레이크포인트로 전환
  *    (hidden md:block / md:hidden) — <768px에서는 y순 세로 스택 재배치.
  */
+import type { CSSProperties } from 'react';
 import type { SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
+import { resolveMotionPlan, intensityFactors } from '@/lib/motion/apply';
+import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from './fonts';
 import { SectionCanvas } from './SectionCanvas';
 import { SectionStack } from './SectionStack';
@@ -64,8 +67,10 @@ export function SiteRenderer({
    */
   interactive?: boolean;
   /**
-   * 등장 애니메이션(Reveal) 여부. 미지정 시 interactive를 따른다 —
-   * 정적 썸네일(비대화형)은 움직이지 않고, 실서빙/프리뷰는 재생.
+   * [motion-system 2단계] 모션 레이어 방출 여부(재정의). true면 config.motion.presetId 기준
+   * data-m 속성 + MOTION_CSS + 바닐라 런타임을 방출한다. 미지정 시 interactive를 따른다.
+   * false = 비실사이트 컨텍스트(에디터 프리뷰·대시보드 썸네일 등) → 모션 미방출(정적).
+   * (Stage-1의 tier 게이팅은 제거 — 모션 유무·종류의 단일 소스는 프리셋 계획이다.)
    */
   animate?: boolean;
   /** [v3 Phase 3] 문의 폼 제출 대상 사이트 — 실서빙(/s/[domain])에서만 전달 */
@@ -77,7 +82,25 @@ export function SiteRenderer({
   const page = findPage(config, pageSlug) ?? homePage(config);
   const sections = page.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
-  const css = BASE_CSS + scopeCustomCss(theme.customCss);
+
+  // [motion-system 2단계] 프리셋 계획 (모션 방출 시에만). intensity off면 계획이 비어 실질 미방출.
+  const plan = shouldAnimate ? resolveMotionPlan(config) : undefined;
+  const motionActive = !!plan && plan.intensity !== 'off' && (plan.kenBurnsSections.size > 0 || plan.elementMotion.size > 0);
+  const css = BASE_CSS + scopeCustomCss(theme.customCss) + (motionActive ? MOTION_CSS : '');
+
+  const rootStyle: CSSProperties = {
+    containerType: 'inline-size',
+    width: '100%',
+    minHeight: '100dvh',
+    backgroundColor: theme.palette.background,
+    color: theme.palette.text,
+    fontFamily: theme.fonts.body,
+  };
+  if (motionActive && plan) {
+    const f = intensityFactors(plan.intensity);
+    (rootStyle as Record<string, string | number>)['--m-amp'] = f.amp;
+    (rootStyle as Record<string, string | number>)['--m-dur-scale'] = f.durScale;
+  }
 
   const showDesktop = mode === 'desktop' || mode === 'auto';
   const showMobile = mode === 'mobile' || mode === 'auto';
@@ -92,32 +115,25 @@ export function SiteRenderer({
       ))}
       {needsPretendard(theme) && <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />}
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div
-        className="anaks-site"
-        style={{
-          containerType: 'inline-size',
-          width: '100%',
-          minHeight: '100dvh',
-          backgroundColor: theme.palette.background,
-          color: theme.palette.text,
-          fontFamily: theme.fonts.body,
-        }}
-      >
+      <div className="anaks-site" style={rootStyle}>
         {showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
             {sections.map((section, i) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} animate={shouldAnimate} siteId={siteId} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
         {showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
             {sections.map((section, i) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} animate={shouldAnimate} siteId={siteId} />
+              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
       </div>
+      {/* [motion-system 2단계] 의존성 0 바닐라 런타임 — SSR HTML·정적 내보내기 파싱 시 실행.
+          에디터 프리뷰(client)는 animate=false라 미방출. React가 실행 안 하지만 SSR HTML은 브라우저가 파싱 시 실행. */}
+      {motionActive && <script dangerouslySetInnerHTML={{ __html: MOTION_RUNTIME }} />}
     </>
   );
 }

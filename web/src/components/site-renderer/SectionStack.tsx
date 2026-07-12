@@ -7,8 +7,7 @@
 import type { CSSProperties } from 'react';
 import type { CanvasElement, Section, SiteTheme } from '@/lib/types/site';
 import { ElementContent } from './ElementContent';
-import { defaultEntrance } from './entrance';
-import { Reveal } from './Reveal';
+import { motionFor, revealDelayFor, parseStatParts, type MotionPlan } from '@/lib/motion/apply';
 
 interface SectionStackProps {
   section: Section;
@@ -16,8 +15,8 @@ interface SectionStackProps {
   isFirst?: boolean;
   /** false면 버튼을 비대화형으로 (미리보기 앵커 중첩 방지) */
   interactive?: boolean;
-  /** false면 등장 애니메이션 생략 (대시보드 썸네일 등 정적 미리보기) */
-  animate?: boolean;
+  /** [motion-system 2단계] 모션 계획 — 없으면 모션 미방출(프리뷰/썸네일) */
+  plan?: MotionPlan;
   /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
   siteId?: string;
 }
@@ -57,9 +56,10 @@ function itemStyle(el: CanvasElement): CSSProperties {
   }
 }
 
-export function SectionStack({ section, theme, isFirst, interactive = true, animate = true, siteId }: SectionStackProps) {
+export function SectionStack({ section, theme, isFirst, interactive = true, plan, siteId }: SectionStackProps) {
   const bg = section.background;
   const elements = section.elements.filter(stackable).sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x);
+  const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
 
   if (elements.length === 0 && !bg.image) return null;
 
@@ -84,6 +84,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, anim
           aria-hidden
           loading={isFirst ? 'eager' : 'lazy'}
           decoding="async"
+          {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       )}
@@ -111,15 +112,19 @@ export function SectionStack({ section, theme, isFirst, interactive = true, anim
           gap: '20px',
         }}
       >
-        {elements.map((el, i) => {
-          // 스택은 이미 y순 정렬 — 인덱스가 곧 순차 지연 rank
-          const entrance = el.entrance ?? defaultEntrance(i);
-          const content = (
-            <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} />
-          );
+        {elements.map((el) => {
+          const m = plan ? motionFor(plan, section.id, el.id) : undefined;
+          const countup = m === 'countup' && el.kind === 'text' ? parseStatParts(el.text) ?? undefined : undefined;
+          const dataM = m === 'reveal' || m === 'mask' ? m : undefined;
+          const delay = m === 'reveal' && plan ? revealDelayFor(plan, section.id, el.id) : undefined;
           return (
-            <div key={el.id} style={itemStyle(el)}>
-              {animate && entrance.effect !== 'none' ? <Reveal entrance={entrance}>{content}</Reveal> : content}
+            <div
+              key={el.id}
+              {...(dataM ? { 'data-m': dataM } : {})}
+              {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
+              style={itemStyle(el)}
+            >
+              <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} />
             </div>
           );
         })}

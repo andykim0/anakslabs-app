@@ -76,10 +76,11 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
       )
     : '';
 
-  // animate:false — 정적 번들은 JS가 없어 등장 애니메이션이 무의미하고, Reveal은 클라이언트
-  // 컴포넌트라 renderToStaticMarkup(서버)에서 호출 불가. SSR 출력은 항상 가시(opacity 0 없음).
+  // [motion-system 2단계] animate:true — 모션은 이제 data-m 속성 + CSS + 인라인 바닐라 런타임(<script>)로
+  // 방출된다(Reveal 클라이언트 컴포넌트 제거). renderToStaticMarkup으로 직렬화되어 내보낸 HTML 단독으로
+  // (파일서버만) 동작한다. SSR/no-JS 출력은 여전히 가시(런타임이 초기화 시점에만 숨김 부여).
   let body = renderToStaticMarkup(
-    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: false, pageSlug }),
+    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: true, pageSlug }),
   );
 
   if (opts.fontFaceCss) {
