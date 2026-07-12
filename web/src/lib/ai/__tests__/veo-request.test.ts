@@ -7,13 +7,13 @@ import assert from 'node:assert/strict';
 import { veoRequestBody } from '@/lib/ai/veo-request';
 
 describe('veoRequestBody — parameters 배선', () => {
-  test('resolution 1080p → parameters.resolution=1080p', () => {
-    const b = veoRequestBody({ prompt: 'x', durationSeconds: 8, resolution: '1080p' });
+  test('resolution 미지정 → 1080p 기본 (테넌트 전면 1080p 전환)', () => {
+    const b = veoRequestBody({ prompt: 'x', durationSeconds: 8 });
     assert.equal(b.parameters.resolution, '1080p');
   });
 
-  test('resolution 미지정 → 720p 기본 (테넌트 원가 불변)', () => {
-    const b = veoRequestBody({ prompt: 'x', durationSeconds: 8 });
+  test('resolution 720p 명시 → parameters.resolution=720p (옵션 강등)', () => {
+    const b = veoRequestBody({ prompt: 'x', durationSeconds: 8, resolution: '720p' });
     assert.equal(b.parameters.resolution, '720p');
   });
 

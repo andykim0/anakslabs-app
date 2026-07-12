@@ -16,7 +16,7 @@ export interface VeoRequestBody {
   parameters: { aspectRatio: string; durationSeconds: number; resolution: VeoResolution };
 }
 
-/** predictLongRunning 바디. resolution 미지정 시 720p(테넌트 기본 — 원가 불변). */
+/** predictLongRunning 바디. resolution 미지정 시 1080p(테넌트 전면 1080p 전환 — 720p는 명시 옵션). */
 export function veoRequestBody(input: {
   prompt: string;
   image?: { base64: string; mimeType: string };
@@ -33,7 +33,7 @@ export function veoRequestBody(input: {
     parameters: {
       aspectRatio: input.aspectRatio ?? '16:9',
       durationSeconds: input.durationSeconds,
-      resolution: input.resolution ?? '720p',
+      resolution: input.resolution ?? '1080p',
     },
   };
 }

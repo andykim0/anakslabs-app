@@ -66,7 +66,11 @@ export interface VeoInput {
   image?: { base64: string; mimeType: string };
   /** 모델 override (fast/표준). 미지정 시 VEO_MODEL env → DEFAULT_MODEL */
   model?: string;
-  /** 출력 해상도 — parameters.resolution. 미지정 시 720p(테넌트 기본, 원가 불변) */
+  /**
+   * 출력 해상도 — parameters.resolution. 미지정 시 1080p(테넌트 전면 1080p 전환; 720p는 명시 옵션 강등).
+   * 원가(fast 8s): 720p≈$0.80 / 1080p≈$0.96/회. 온보딩 fast 시안 2안 = $1.92/사이트.
+   * 표준 재생성(고화질) = $3.20/회 (1080p 동일가).
+   */
   resolution?: VeoResolution;
 }
 

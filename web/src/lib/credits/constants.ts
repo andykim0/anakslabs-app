@@ -6,10 +6,10 @@ import type { EditType, Tier, CreditReason } from '@/lib/types/domain';
 
 /**
  * 편집 유형별 크레딧 소모량.
- * [motion 4단계] 히어로 영상 유닛 이코노믹스: video=3크레딧(≈₩36k). 원가 = Veo 표준 1회 ≈₩4.3k($3.2).
+ * [motion 4단계] 히어로 영상 유닛 이코노믹스(전면 1080p): video=3크레딧(≈₩36k). 원가 = Veo 표준 1회 ≈₩4.4k($3.2, 1080p 동일가).
  * 마진율은 재생성 남용·재시도 실패분(원가는 생성 시점 발생, 미적용해도 차감) 흡수용.
- * 온보딩 초기 히어로 영상 = Premium 제작비 포함(무료, fast 시안 — VIDEO_GEN_MAX_PER_SITE 내 재롤 무료).
- * 에디터 "영상 재생성(3크레딧)" = 표준 모델 고화질. 크레딧 내는 고객엔 최고 화질이 기본(fast/표준 선택 미노출).
+ * 온보딩 초기 히어로 영상 = Premium 제작비 포함(무료, fast 1080p 시안 2안 ≈$1.92/사이트 — VIDEO_GEN_MAX_PER_SITE 내 재롤 무료).
+ * 에디터 "영상 재생성(3크레딧)" = 표준 모델 1080p 고화질. 크레딧 내는 고객엔 최고 화질이 기본(fast/표준 선택 미노출).
  */
 export const CREDIT_COSTS: Record<EditType, number> = {
   text: 1,
