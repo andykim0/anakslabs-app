@@ -129,6 +129,11 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
   };
   if (intensity === 'off') return plan; // 강도 off → 빈 계획
 
+  // [Q7] 고객 히어로 선택 오버라이드('움직임 고르기') — sanitizeMotion이 이미 검증(미등록·티어 초과 제거).
+  // 'none' = 히어로 모션 최소(끔), 미설정 = 프리셋 기본 히어로.
+  const heroOverride = safe.motion!.heroTechnique;
+  const heroTech: string | null = heroOverride === 'none' ? null : (heroOverride ?? preset.hero);
+
   const accents = new Set<string>(preset.accents);
 
   for (const page of config.pages) {
@@ -138,11 +143,11 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
 
     // ---------- 히어로 (LCP 보호) ----------
     // video-hero: 배경 영상 + poster 존재 시에만. 아니면 ken-burns 폴백(배경 이미지 존재 시).
-    if (preset.hero === 'video-hero') {
+    if (heroTech === 'video-hero') {
       const v = hero.background.video;
       if (v?.src && v.poster) plan.videoHeroSections.add(hero.id);
       else if (hero.background.image) plan.kenBurnsSections.add(hero.id); // 폴백
-    } else if (preset.hero === 'ken-burns' && hero.background.image) {
+    } else if (heroTech === 'ken-burns' && hero.background.image) {
       plan.kenBurnsSections.add(hero.id);
     }
     // split-text: 히어로 헤드라인 단어 등장 (signature — 히어로 예외 허용)
@@ -178,7 +183,7 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
     }
 
     // ---------- mask-reveal: 비히어로 이미지(페이지 상한) ----------
-    if (accents.has('mask-reveal') || preset.hero === 'mask-reveal') {
+    if (accents.has('mask-reveal') || heroTech === 'mask-reveal') {
       let used = 0;
       const cap = MOTION_TECHNIQUES['mask-reveal'].maxPerPage;
       for (const section of rest) {

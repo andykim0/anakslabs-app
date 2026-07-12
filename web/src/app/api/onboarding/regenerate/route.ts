@@ -22,6 +22,7 @@ import {
   designCandidateSchema,
   extraFeatureSelectionSchema,
   extrasOptionsSchema,
+  motionChoiceSchema,
   surveySchema,
 } from '../../_lib/schemas';
 
@@ -32,6 +33,8 @@ const bodySchema = z.object({
   // [v3 Phase 3] 재생성 시에도 부가기능 유지 가능
   extras: extraFeatureSelectionSchema.optional(),
   extrasOptions: extrasOptionsSchema.optional(),
+  // [Q7] 재생성에도 움직임 선택 유지
+  motionChoice: motionChoiceSchema.optional(),
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -66,7 +69,7 @@ export const POST = withApiHandler(async (request) => {
   const generated = await ai.generateSiteConfig(survey, candidate);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
-  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier);
+  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier, body.data.motionChoice);
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

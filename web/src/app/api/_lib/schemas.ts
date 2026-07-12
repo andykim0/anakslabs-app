@@ -332,6 +332,16 @@ const sitePageSchema = z.object({
 export const motionSchema = z.object({
   presetId: z.enum(Object.keys(MOTION_PRESETS) as [string, ...string[]]),
   intensity: z.enum(['off', 'subtle', 'normal']),
+  // [Q7] 히어로 선택('none' 포함)·영상 컨셉 — 형식만 검사(등록·티어 검증은 sanitizeMotion 이중 방벽)
+  heroTechnique: z.string().max(40).optional(),
+  videoConceptId: z.string().max(40).optional(),
+});
+
+/** [Q7] 온보딩 '움직임 고르기' 선택 — generate/regenerate body. 실검증은 sanitizeMotion */
+export const motionChoiceSchema = z.object({
+  heroTechnique: z.string().max(40).optional(),
+  intensity: z.enum(['subtle', 'normal']).optional(),
+  videoConceptId: z.string().max(40).optional(),
 });
 
 export const siteConfigSchema = z

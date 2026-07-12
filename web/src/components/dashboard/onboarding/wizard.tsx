@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { ScanSearch } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
-import type { ExtrasOptionsDto } from '../api';
+import type { ExtrasOptionsDto, MotionChoiceDto } from '../api';
 import { cn } from '../ui';
 import { SurveyStep } from './survey-step';
+import { MotionChoiceStep } from './motion-choice-step';
 import { CandidateStep } from './candidate-step';
 import { ExtrasStep } from './extras-step';
 import { GenerateStep } from './generate-step';
@@ -19,9 +20,10 @@ export interface ScanContext {
 
 const STEPS = [
   { no: 1, label: '설문' },
-  { no: 2, label: '디자인 선택' },
-  { no: 3, label: '부가기능' },
-  { no: 4, label: '생성' },
+  { no: 2, label: '움직임' },
+  { no: 3, label: '디자인 선택' },
+  { no: 4, label: '부가기능' },
+  { no: 5, label: '생성' },
 ] as const;
 
 export function OnboardingWizard({
@@ -34,8 +36,10 @@ export function OnboardingWizard({
   /** [motion 4단계] 소유자 티어 — Premium이면 성공화면에 AI 영상 히어로 스튜디오 노출 */
   tier?: Tier;
 }) {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
+  // [Q7] 움직임 고르기 선택 (설문 직후 · 디자인 선택 전)
+  const [motionChoice, setMotionChoice] = useState<MotionChoiceDto | undefined>(undefined);
   const [candidate, setCandidate] = useState<DesignCandidate | null>(null);
   // [v3 Phase 3] 부가기능 선택 (건너뛰면 undefined)
   const [extras, setExtras] = useState<ExtraFeatureSelection | undefined>(undefined);
@@ -110,34 +114,48 @@ export function OnboardingWizard({
       ) : null}
 
       {step === 2 && survey ? (
-        <CandidateStep
-          survey={survey}
+        <MotionChoiceStep
+          tier={tier}
+          purposeId={survey.purposeId}
+          initial={motionChoice}
           onBack={() => setStep(1)}
-          onSelect={(selected) => {
-            setCandidate(selected);
+          onComplete={(choice) => {
+            setMotionChoice(choice);
             setStep(3);
           }}
         />
       ) : null}
 
-      {step === 3 && survey && candidate ? (
-        <ExtrasStep
+      {step === 3 && survey ? (
+        <CandidateStep
           survey={survey}
           onBack={() => setStep(2)}
-          onComplete={(sel, opts) => {
-            setExtras(sel);
-            setExtrasOptions(opts);
+          onSelect={(selected) => {
+            setCandidate(selected);
             setStep(4);
           }}
         />
       ) : null}
 
       {step === 4 && survey && candidate ? (
+        <ExtrasStep
+          survey={survey}
+          onBack={() => setStep(3)}
+          onComplete={(sel, opts) => {
+            setExtras(sel);
+            setExtrasOptions(opts);
+            setStep(5);
+          }}
+        />
+      ) : null}
+
+      {step === 5 && survey && candidate ? (
         <GenerateStep
           survey={survey}
           candidate={candidate}
           extras={extras}
           extrasOptions={extrasOptions}
+          motionChoice={motionChoice}
           existingSiteId={siteId}
           freeRegensUsed={freeRegensUsed}
           tier={tier}
@@ -145,8 +163,8 @@ export function OnboardingWizard({
             setSiteId(id);
             setFreeRegensUsed(used);
           }}
-          onBack={() => setStep(3)}
-          onPickAnother={() => setStep(2)}
+          onBack={() => setStep(4)}
+          onPickAnother={() => setStep(3)}
           onEditSurvey={() => setStep(1)}
         />
       ) : null}

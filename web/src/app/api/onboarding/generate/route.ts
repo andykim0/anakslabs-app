@@ -17,6 +17,7 @@ import {
   designCandidateSchema,
   extraFeatureSelectionSchema,
   extrasOptionsSchema,
+  motionChoiceSchema,
   surveySchema,
 } from '../../_lib/schemas';
 
@@ -25,6 +26,8 @@ const bodySchema = z.object({
   candidate: designCandidateSchema,
   extras: extraFeatureSelectionSchema.optional(),
   extrasOptions: extrasOptionsSchema.optional(),
+  // [Q7] 온보딩 '움직임 고르기' 선택 — 프리셋 주입 후 병합·sanitize
+  motionChoice: motionChoiceSchema.optional(),
   // [멱등] 같은 온보딩 시도의 중복 generate가 사이트를 2개 만들지 않도록 dedup 키(클라 생성)
   idempotencyKey: z.string().min(1).max(100).optional(),
 });
@@ -68,8 +71,8 @@ export const POST = withApiHandler(async (request) => {
 
   const generated = await ai.generateSiteConfig(survey, candidate);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
-  // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋으로 덮어쓴 뒤 이중 방벽 sanitize
-  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier);
+  // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 주입 → [Q7] 사용자 선택 병합 → sanitize
+  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier, body.data.motionChoice);
   const site = await sites.create({
     clientId: client.id,
     name: survey.businessName,

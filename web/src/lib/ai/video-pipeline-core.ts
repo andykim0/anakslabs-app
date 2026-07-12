@@ -4,6 +4,7 @@
  */
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { isDarkColor } from '@/lib/design/quality-standards';
+import { findVideoConcept } from '@/lib/motion/video-concepts';
 
 /** fast=온보딩 시안(저렴), 표준=고화질 재생성(에디터, 크레딧). env로 모델 id 오버라이드. */
 export const FAST_MODEL = process.env.VEO_FAST_MODEL || 'veo-3.1-fast-generate-preview';
@@ -51,7 +52,8 @@ export interface HeroVideoContext {
 
 /**
  * 사이트 config(+선택 힌트)에서 영상 생성 맥락 도출. heroImageUrl은 히어로 배경 이미지(poster 후보).
- * povMood: 힌트 우선, 없으면 팔레트 명암으로 결정적 폴백. subject: 힌트 우선, 없으면 사이트 제목.
+ * povMood: 힌트 우선 → [Q7] 고객이 고른 영상 컨셉(motion.videoConceptId)의 promptSeed →
+ * 팔레트 명암 결정적 폴백. subject: 힌트 우선, 없으면 사이트 제목.
  * 히어로 배경 이미지가 없으면 null(image-to-video·poster 불가 → 호출부가 ken-burns 폴백 유지).
  */
 export function heroVideoContext(config: SiteConfig, hint?: { povMood?: string; subject?: string }): HeroVideoContext | null {
@@ -60,6 +62,7 @@ export function heroVideoContext(config: SiteConfig, hint?: { povMood?: string; 
   if (!heroImageUrl) return null;
   const povMood =
     hint?.povMood ??
+    findVideoConcept(config.motion?.videoConceptId)?.promptSeed ??
     (isDarkColor(config.theme.palette.background)
       ? 'Dark cinematic mood, deep shadows with a warm accent light'
       : 'Bright, airy editorial mood with soft natural light');

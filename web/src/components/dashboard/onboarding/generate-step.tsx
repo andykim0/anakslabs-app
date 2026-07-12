@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
-import { generateSite, regenerateSite, type ExtrasOptionsDto } from '../api';
+import { generateSite, regenerateSite, type ExtrasOptionsDto, type MotionChoiceDto } from '../api';
 import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
@@ -39,6 +39,7 @@ export function GenerateStep({
   candidate,
   extras,
   extrasOptions,
+  motionChoice,
   existingSiteId,
   freeRegensUsed,
   tier = 'basic',
@@ -52,6 +53,8 @@ export function GenerateStep({
   /** [v3 Phase 3] 부가기능 선택 (건너뛰면 undefined) */
   extras?: ExtraFeatureSelection;
   extrasOptions?: ExtrasOptionsDto;
+  /** [Q7] 움직임 고르기 선택 (서버 sanitize가 티어 초과를 강등) */
+  motionChoice?: MotionChoiceDto;
   /** null=최초 생성 / 값 있으면 해당 사이트 재생성 */
   existingSiteId: string | null;
   freeRegensUsed: number;
@@ -64,15 +67,16 @@ export function GenerateStep({
 }) {
   const queryClient = useQueryClient();
   // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
-  const intent = `${existingSiteId ?? 'new'}::${candidate.id}`;
+  // [Q7] 모션 시그니처 포함 — 모션만 바꿔 재생성해도 dedup 캐시에 걸리지 않게.
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}`;
   const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({
     mutationFn: () =>
       sharedGenerate(intent, () =>
         existingSiteId
-          ? regenerateSite({ siteId: existingSiteId, survey, candidate, extras, extrasOptions, idempotencyKey })
-          : generateSite({ survey, candidate, extras, extrasOptions, idempotencyKey }),
+          ? regenerateSite({ siteId: existingSiteId, survey, candidate, extras, extrasOptions, motionChoice, idempotencyKey })
+          : generateSite({ survey, candidate, extras, extrasOptions, motionChoice, idempotencyKey }),
       ),
     // useMutation은 기본 재시도 없음 → 실패 시 즉시 에러 표면화(무한 스피너 없음).
     onSuccess: (data) => {

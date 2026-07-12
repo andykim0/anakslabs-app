@@ -349,11 +349,20 @@ export interface ExtrasOptionsDto {
   formFields?: ('name' | 'phone' | 'email' | 'message')[];
 }
 
+/** [Q7] 온보딩 "움직임 고르기" 선택 — 서버 sanitize가 미등록·티어 초과를 강등하므로 그대로 전달 */
+export interface MotionChoiceDto {
+  heroTechnique?: string;
+  intensity?: 'subtle' | 'normal';
+  videoConceptId?: string;
+}
+
 export async function generateSite(input: {
   survey: SurveyInput;
   candidate: DesignCandidate;
   extras?: ExtraFeatureSelection;
   extrasOptions?: ExtrasOptionsDto;
+  /** [Q7] 움직임 고르기 선택 */
+  motionChoice?: MotionChoiceDto;
   /** [멱등] 중복 generate가 사이트를 2개 만들지 않도록 서버가 이 키로 dedup */
   idempotencyKey?: string;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number }> {
@@ -372,6 +381,8 @@ export async function regenerateSite(input: {
   candidate: DesignCandidate;
   extras?: ExtraFeatureSelection;
   extrasOptions?: ExtrasOptionsDto;
+  /** [Q7] 움직임 고르기 선택 */
+  motionChoice?: MotionChoiceDto;
   /** [멱등] 중복 재생성 요청 dedup용 (선택) */
   idempotencyKey?: string;
 }): Promise<{ siteId: string; site?: Site; freeRegensUsed: number; freeRegenLimit: number }> {

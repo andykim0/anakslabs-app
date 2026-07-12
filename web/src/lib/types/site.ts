@@ -336,8 +336,14 @@ export interface SiteConfig {
    * 키만 유효하며 서버(sanitizeMotion·zod)에서 검증된다 — 계약이 데이터 모듈을 역참조하지
    * 않도록 여기선 string 으로 둔다. optional: 기존(v4 이전) config 호환 — 데이터 계층 read
    * 시점(mappers/normalize)에서 업종 매핑 기본값 주입.
+   *
+   * [Q7] heroTechnique: 고객이 온보딩 '움직임 고르기'에서 고른 히어로 기법 오버라이드
+   * ('none'=히어로 움직임 최소). HERO_MOTION_CHOICES(lib/motion/hero-choice.ts) id만 유효 —
+   * 미등록·티어 초과는 sanitizeMotion이 강등(changes[]). 미설정 = 프리셋 기본 히어로.
+   * videoConceptId: Premium video-hero 선택 시 고른 영상 컨셉(VIDEO_CONCEPTS id) —
+   * Veo 프롬프트 빌더(heroVideoContext)가 promptSeed로 소비. 이 필드는 생성 트리거가 아니다.
    */
-  motion?: { presetId: string; intensity: MotionIntensity };
+  motion?: { presetId: string; intensity: MotionIntensity; heroTechnique?: string; videoConceptId?: string };
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */
