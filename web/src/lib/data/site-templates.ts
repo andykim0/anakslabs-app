@@ -226,10 +226,9 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용
   const sub = copy.heroSub ?? survey.tagline ?? `${survey.businessName} · ${survey.industry}`;
   const kicker = copy.heroKicker ?? survey.purpose;
-  // [§7] 예약: 외부 링크 모드면 첫 CTA를 예약 링크로 연결
-  const hasResvLink = survey.reservationMode === 'external_link' && !!survey.reservationUrl;
-  const ctaLabel = hasResvLink ? '예약하기' : '문의하기';
-  const ctaHref = hasResvLink ? survey.reservationUrl! : '#sec-contact';
+  // [F4] 예약 링크는 발행 후 에디터에서 추가(설정) — 히어로 CTA는 기본 문의로. (설문에서 예약 필드 제거)
+  const ctaLabel = '문의하기';
+  const ctaHref = '#sec-contact';
 
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치

@@ -25,6 +25,7 @@ import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { HeroVideoStudio } from './hero-video-studio';
+import { NextStepsChecklist } from './next-steps-checklist';
 
 const LOADING_MESSAGES = [
   '선택하신 방향으로 사이트 구조를 설계하고 있습니다…',
@@ -149,6 +150,9 @@ export function GenerateStep({
             사이트 상세 보기
           </Link>
         </div>
+
+        {/* [F4] 프로그레시브 온보딩 — 생성 후 다듬을 것들을 액션 카드로 안내(에디터 딥링크) */}
+        <NextStepsChecklist siteId={siteId} survey={survey} />
 
         {/* [§3] 무료 재생성 안내 */}
         <div className="mt-3 w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900/40 p-4">

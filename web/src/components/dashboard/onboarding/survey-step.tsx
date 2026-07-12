@@ -36,10 +36,8 @@ const surveySchema = z.object({
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
   storePhotoUrls: z.array(z.string()).max(12, '가게 사진은 최대 12장까지 올릴 수 있어요.').optional(),
   referenceImageUrls: z.array(z.string()).max(6, '레퍼런스 이미지는 최대 6장까지 선택할 수 있습니다.'),
-  contentMode: z.enum(['ai', 'provided']).optional(),
+  // [F4] 콘텐츠 원문은 생성 품질의 원료라 유지(항상 선택 입력). contentMode 토글·예약은 제거(발행 후 설정).
   providedContent: z.string().max(5000, '제공 내용은 5000자 이내로 입력해주세요.').optional(),
-  reservationMode: z.enum(['external_link', 'cta']).optional(),
-  reservationUrl: z.string().max(500).optional(),
   extraNotes: z.string().max(500, '추가 요청사항은 500자 이내로 입력해주세요.').optional(),
 });
 
@@ -294,10 +292,7 @@ export function SurveyStep({
           imageStyle: initialValues.imageStyle,
           storePhotoUrls: initialValues.storePhotoUrls ?? [],
           referenceImageUrls: initialValues.referenceImageUrls,
-          contentMode: initialValues.contentMode ?? 'ai',
           providedContent: initialValues.providedContent ?? '',
-          reservationMode: initialValues.reservationMode,
-          reservationUrl: initialValues.reservationUrl ?? '',
           extraNotes: initialValues.extraNotes ?? '',
         }
       : {
@@ -312,10 +307,7 @@ export function SurveyStep({
           imageStyle: undefined,
           storePhotoUrls: [],
           referenceImageUrls: [],
-          contentMode: 'ai',
           providedContent: '',
-          reservationMode: undefined,
-          reservationUrl: '',
           extraNotes: '',
         },
   });
@@ -333,8 +325,6 @@ export function SurveyStep({
   }, [industry, setValue]);
   const referenceImageUrls = watch('referenceImageUrls');
   const storePhotoUrls = watch('storePhotoUrls') ?? [];
-  const contentMode = watch('contentMode');
-  const reservationMode = watch('reservationMode');
   const logoUrl = watch('logoUrl');
 
   // ----- 섹션 계획표 상태 -----
@@ -567,10 +557,7 @@ export function SurveyStep({
       templateId,
       tagline: clean(values.tagline),
       logoUrl: clean(values.logoUrl),
-      contentMode: values.contentMode,
-      providedContent: values.contentMode === 'provided' ? clean(values.providedContent) : undefined,
-      reservationMode: values.reservationMode,
-      reservationUrl: values.reservationMode === 'external_link' ? clean(values.reservationUrl) : undefined,
+      providedContent: clean(values.providedContent),
       extraNotes: clean(values.extraNotes),
     });
   });
@@ -952,71 +939,19 @@ export function SurveyStep({
           </div>
         </div>
 
-        {/* 예약 방식 */}
+        {/* [F4] 콘텐츠 원문(선택) — 생성 품질의 '원료'라 설문에 유지. 예약 링크 등 '설정'은 발행 후 체크리스트로 이동 */}
         <div>
-          <FieldLabel>예약 처리 <span className="font-normal text-neutral-500">(선택)</span></FieldLabel>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {(
-              [
-                ['external_link', '외부 예약 링크', '네이버예약·캐치테이블 등으로 연결'],
-                ['cta', '단순 예약 문의 CTA', '전화·문의 버튼만'],
-              ] as const
-            ).map(([val, label, hint]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setValue('reservationMode', reservationMode === val ? undefined : val, { shouldValidate: true })}
-                className={cn(
-                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  reservationMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
-                )}
-              >
-                <span className={cn('block text-xs font-medium', reservationMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
-                  {label}
-                </span>
-                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
-              </button>
-            ))}
-          </div>
-          {reservationMode === 'external_link' ? (
-            <input {...register('reservationUrl')} placeholder="예: https://booking.naver.com/…" className={cn(inputClass, 'mt-2')} />
-          ) : null}
-        </div>
-
-        {/* 콘텐츠 소스 */}
-        <div>
-          <FieldLabel>콘텐츠 소스</FieldLabel>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {(
-              [
-                ['ai', 'AI가 채워주세요', '그럴듯한 카피 자동 생성 (나중에 교체)'],
-                ['provided', '실제 내용은 내가 제공', '플레이스홀더 최소화'],
-              ] as const
-            ).map(([val, label, hint]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setValue('contentMode', val, { shouldValidate: true })}
-                className={cn(
-                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  contentMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
-                )}
-              >
-                <span className={cn('block text-xs font-medium', contentMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
-                  {label}
-                </span>
-                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
-              </button>
-            ))}
-          </div>
-          {contentMode === 'provided' ? (
-            <textarea
-              {...register('providedContent')}
-              rows={4}
-              placeholder="실제 소개 문구, 서비스, 가격 등을 자유롭게 붙여넣어 주세요. AI가 창작하지 않고 이 내용을 다듬어 사용합니다."
-              className={cn(inputClass, 'mt-2 resize-none')}
-            />
-          ) : null}
+          <FieldLabel>실제 소개·메뉴 원문 <span className="font-normal text-neutral-500">(선택)</span></FieldLabel>
+          <p className="mb-2 text-xs text-neutral-500">
+            이미 준비된 소개 문구·메뉴·가격이 있으면 붙여넣어 주세요. AI가 창작하지 않고 이 내용을 다듬어 씁니다.
+            없으면 비워두셔도 돼요 — AI가 초안을 채우고 나중에 교체할 수 있어요.
+          </p>
+          <textarea
+            {...register('providedContent')}
+            rows={4}
+            placeholder="실제 소개 문구, 대표 메뉴·서비스, 가격 등을 자유롭게 붙여넣어 주세요."
+            className={cn(inputClass, 'resize-none')}
+          />
         </div>
 
         {/* ⑤ 섹션 계획표 */}

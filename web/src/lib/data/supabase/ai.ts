@@ -146,7 +146,8 @@ async function generateSectionCopy(
   blueprint: CandidateBlueprint,
 ): Promise<SectionCopy | undefined> {
   const style = blueprint.brief.style;
-  const provided = survey.contentMode === 'provided' && survey.providedContent?.trim();
+  // [F4] contentMode 토글 제거 — providedContent가 있으면(원료) 항상 다듬어 사용
+  const provided = survey.providedContent?.trim();
   // [v3] 섹션 계획표(name+brief)를 프롬프트에 넣어 카피가 각 섹션의 의도를 반영하게 한다.
   const planLines = survey.sectionPlan
     .map((s) => `- ${s.name}${s.brief ? `: ${s.brief}` : ''}`)
