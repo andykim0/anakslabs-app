@@ -26,6 +26,7 @@ import { toneText } from '@/lib/onboarding/tone';
 import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
+import { teaserSummary } from './teaser-summary';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -1326,13 +1327,18 @@ const TEASER_BLURB: Record<string, string> = {
  * 홈에서 사이트 전체를 한눈에 보고 각 페이지로 진입할 수 있게 한다.
  * 링크 href = '/{slug}'(테넌트 절대경로) — 서빙·프리뷰(F2b)·Export가 각자 재해소.
  */
-function buildHomeTeaser(
-  ctx: Ctx,
-  entries: { title: string; slug: string }[],
-): Section {
+/** [Q2] 티저 카드 = 실제 콘텐츠 요약(blurb) + 대상 페이지 대표 이미지(thumb, 참조 — 재사용 상한 제외) */
+interface TeaserEntry {
+  title: string;
+  slug: string;
+  blurb?: string;
+  thumb?: string;
+}
+function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
   const { theme } = ctx;
   const cards = entries.slice(0, 6); // 홈 티저는 최대 6장(내비 상한과 정합)
   const rows = Math.ceil(cards.length / 3);
+  const ROW_GAP = 340;
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-teaser-kicker'),
@@ -1346,37 +1352,52 @@ function buildHomeTeaser(
   ];
   cards.forEach((entry, i) => {
     const x = 120 + (i % 3) * 420;
-    const y = 268 + Math.floor(i / 3) * 300;
-    const blurb = TEASER_BLURB[entry.slug] ?? `${entry.title} 페이지로 이동합니다.`;
+    const y = 268 + Math.floor(i / 3) * ROW_GAP;
+    const blurb = entry.blurb || TEASER_BLURB[entry.slug] || `${entry.title} 페이지로 이동합니다.`;
+    // 카드 배경
+    elements.push({
+      id: nextId(ctx, 'el-teaser-card'),
+      kind: 'shape',
+      frame: { x, y, w: 360, h: 300 },
+      z: 1,
+      shape: 'rect',
+      style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
+    });
+    // 대상 페이지 대표 이미지(있으면 상단 밴드)
+    let textTop = y + 36;
+    if (entry.thumb) {
+      elements.push({
+        id: nextId(ctx, 'el-teaser-thumb'),
+        kind: 'image',
+        frame: { x, y, w: 360, h: 150 },
+        z: 2,
+        src: entry.thumb,
+        alt: entry.title,
+        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+      });
+      textTop = y + 168;
+    }
     elements.push(
-      {
-        id: nextId(ctx, 'el-teaser-card'),
-        kind: 'shape',
-        frame: { x, y, w: 360, h: 260 },
-        z: 1,
-        shape: 'rect',
-        style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
-      },
       {
         id: nextId(ctx, 'el-teaser-title'),
         kind: 'text',
-        frame: { x: x + 36, y: y + 40, w: 288, h: 34 },
-        z: 2,
+        frame: { x: x + 28, y: textTop, w: 304, h: 32 },
+        z: 3,
         text: entry.title,
-        style: { fontSize: 24, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+        style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
       },
       {
         id: nextId(ctx, 'el-teaser-desc'),
         kind: 'text',
-        frame: { x: x + 36, y: y + 92, w: 288, h: 72 },
-        z: 2,
+        frame: { x: x + 28, y: textTop + 38, w: 304, h: 44 },
+        z: 3,
         text: blurb,
-        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
+        style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.6 },
       },
       {
         id: nextId(ctx, 'el-teaser-link'),
         kind: 'button',
-        frame: { x: x + 36, y: y + 190, w: 150, h: 42 },
+        frame: { x: x + 28, y: y + 250, w: 150, h: 40 },
         z: 3,
         label: '자세히 보기',
         href: `/${entry.slug}`,
@@ -1388,7 +1409,7 @@ function buildHomeTeaser(
     id: 'sec-home-teaser',
     type: 'custom',
     name: '둘러보기',
-    height: 268 + rows * 300 + 40,
+    height: 268 + rows * ROW_GAP + 40,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements,
   };
@@ -1539,14 +1560,29 @@ export function buildSiteConfigFromSurvey(
       };
     });
 
-  // 4.5) [F1] 홈 티저 주입 — 승격된 콘텐츠 페이지가 있으면 홈에 요약 카드+링크(홈 티저 원칙).
+  // 4.5) [F1/Q2] 홈 티저 주입 — 승격된 콘텐츠 페이지마다 홈에 실콘텐츠 요약+대표 이미지+링크.
   //      singlePage(콘텐츠 페이지 0개)면 미주입 = 무회귀.
   const homePg = pages.find((p) => p.slug === '');
   const contentPgs = pages.filter((p) => p.slug !== '' && p.showInNav !== false);
   if (homePg && contentPgs.length > 0) {
+    const firstImageSrc = (p: SitePage): string | undefined => {
+      for (const s of p.sections) {
+        const img = s.elements.find((el) => el.kind === 'image' && !!el.src);
+        if (img && img.kind === 'image') return img.src;
+      }
+      return undefined;
+    };
+    const imageCount = (p: SitePage): number =>
+      p.sections.reduce((n, s) => n + s.elements.filter((el) => el.kind === 'image').length, 0);
     const teaser = buildHomeTeaser(
       ctx,
-      contentPgs.map((p) => ({ title: p.navLabel ?? p.title, slug: p.slug })),
+      contentPgs.map((p) => ({
+        title: p.navLabel ?? p.title,
+        slug: p.slug,
+        // [Q2] 대상 페이지 데이터에서 실요약(providedContent 파싱·이미지 수). 없으면 buildHomeTeaser가 폴백.
+        blurb: teaserSummary({ slug: p.slug, providedContent: survey.providedContent, imageCount: imageCount(p) }),
+        thumb: firstImageSrc(p), // 대상 페이지 이미지 참조(Q4 재사용 상한 예외)
+      })),
     );
     const heroIdx = homePg.sections.findIndex((s) => s.type === 'hero');
     homePg.sections.splice(heroIdx >= 0 ? heroIdx + 1 : 0, 0, teaser);
