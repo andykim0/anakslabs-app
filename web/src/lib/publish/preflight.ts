@@ -13,6 +13,7 @@ import { allSections } from '@/lib/types/site';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { classifyVideoBytes } from '@/lib/motion/asset-limits';
 import { validatePalette, qaAuditChecklist } from '@/lib/design/quality-standards';
+import { scrimPassesAA } from '@/lib/design/scrim';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
 
@@ -64,6 +65,20 @@ export function checkPublish(
     const sz = classifyVideoBytes(s.background.video?.bytes);
     if (sz.blocker) blockers.push(`섹션 '${s.name}': ${sz.blocker}`);
     else if (sz.warning) warnings.push(`섹션 '${s.name}': ${sz.warning}`);
+    // [Q1] 이미지 배경 위 텍스트 스크림 대비 — 최악 배경에서 AA 미보장이면 차단(카피 가독 보장)
+    const img = s.background.image;
+    if (img?.overlayColor) {
+      for (const el of s.elements) {
+        if (el.kind !== 'text') continue;
+        const color = el.style.color ?? config.theme.palette.text;
+        if (!scrimPassesAA(img.overlayColor, img.overlayOpacity ?? 0.45, color)) {
+          blockers.push(
+            `섹션 '${s.name}'의 텍스트가 배경 이미지 위에서 대비(AA)에 못 미칩니다 — 스크림을 진하게 하거나 글자색을 바꿔주세요.`,
+          );
+          break;
+        }
+      }
+    }
   }
 
   // ① 자가 SEO/AEO/GEO 진단 (라우트가 주입) — 기준 미달이면 발행 허용 + 경고

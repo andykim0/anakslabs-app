@@ -8,6 +8,7 @@ import type { CSSProperties } from 'react';
 import type { CanvasElement, Section, SiteTheme } from '@/lib/types/site';
 import { ElementContent } from './ElementContent';
 import { stackOrder } from './stack-order';
+import { resolveScrim } from '@/lib/design/scrim';
 import { motionFor, revealDelayFor, parseStatParts, type MotionPlan } from '@/lib/motion/apply';
 
 interface SectionStackProps {
@@ -65,6 +66,13 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
   // [motion 3단계] 모바일: video-hero는 poster 정적(영상 미로드 — 대역폭·자동재생 정책). 없으면 배경 이미지.
   const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;
   const bgImgSrc = videoHero ? bg.video!.poster! : bg.image?.src;
+  // [Q1] overlayColor 없으면 팔레트 기반 기본 스크림(레거시 보호) + 이미지 배경 텍스트 미세 그림자
+  const imgScrim = bg.image
+    ? bg.image.overlayColor
+      ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
+      : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
+    : null;
+  const imgTextShadow = imgScrim ? `0 1px 2px ${imgScrim.overlayColor}` : undefined;
 
   if (elements.length === 0 && !bgImgSrc) return null;
 
@@ -93,14 +101,14 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       )}
-      {bg.image?.overlayColor && (
+      {imgScrim && (
         <div
           aria-hidden
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundColor: bg.image.overlayColor,
-            opacity: bg.image.overlayOpacity ?? 0.45,
+            backgroundColor: imgScrim.overlayColor,
+            opacity: imgScrim.overlayOpacity,
           }}
         />
       )}
@@ -129,7 +137,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
               key={el.id}
               {...(dataM ? { 'data-m': dataM } : {})}
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
-              style={itemStyle(el)}
+              style={el.kind === 'text' && imgTextShadow ? { ...itemStyle(el), textShadow: imgTextShadow } : itemStyle(el)}
             >
               <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} hoverVideo={hoverVideo} />
             </div>

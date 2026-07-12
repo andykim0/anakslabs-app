@@ -13,6 +13,7 @@ import type { Section, SiteTheme } from '@/lib/types/site';
 import { safeMediaSrc } from '@/lib/safe-url';
 import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
+import { resolveScrim } from '@/lib/design/scrim';
 import { motionFor, revealDelayFor, parseStatParts, parallaxDepthFor, isSplitText, type MotionPlan } from '@/lib/motion/apply';
 
 interface SectionCanvasProps {
@@ -50,6 +51,15 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
   const stacking = plan?.stackingSections.has(section.id) ?? false;
   const spotlight = plan?.spotlightSections.has(section.id) ?? false;
   const sectionDataM = spotlight ? 'spotlight' : parallax ? 'parallax' : stacking ? 'stacking' : undefined;
+
+  // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
+  const imgScrim = bg.image
+    ? bg.image.overlayColor
+      ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
+      : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
+    : null;
+  // 이미지 배경 위 텍스트 가독 보강 — 스크림과 같은 계열 미세 그림자(가는 서체 보호)
+  const imgTextShadow = imgScrim ? `0 1px 2px ${imgScrim.overlayColor}` : undefined;
 
   // stacking: y 상위 STACK_MAX개를 카드로 (reveal 대신 stackcard로 오버라이드)
   const stackCardIds = stacking
@@ -102,8 +112,8 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
           />
         )
       )}
-      {bg.image?.overlayColor && (
-        <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: bg.image.overlayColor, opacity: bg.image.overlayOpacity ?? 0.45 }} />
+      {imgScrim && (
+        <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: imgScrim.overlayColor, opacity: imgScrim.overlayOpacity }} />
       )}
       {elements.map((el) => {
         const m = plan ? motionFor(plan, section.id, el.id) : undefined;
@@ -133,6 +143,7 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
               zIndex: el.z, // spotlight ::before(z:0)는 DOM 순서상 요소보다 먼저 → 요소가 위
               opacity: el.opacity,
               transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+              textShadow: el.kind === 'text' ? imgTextShadow : undefined,
             }}
           >
             <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} splitText={splitText} hoverVideo={hoverVideo} />

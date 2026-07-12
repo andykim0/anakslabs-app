@@ -25,6 +25,7 @@ import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/
 import { toneText } from '@/lib/onboarding/tone';
 import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
+import { resolveScrim } from '@/lib/design/scrim';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -223,6 +224,8 @@ function footerEl(ctx: Ctx, y = 560): CanvasElement {
 
 function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   const { theme, survey, opts } = ctx;
+  // [Q1] 히어로는 이미지 배경 위 텍스트 — 최악 배경 가정 스크림으로 AA 보장(고정 opacity 폐기).
+  const scrim = resolveScrim(theme.palette);
   const copy = opts.copy ?? {};
   const title = copy.heroTitle ?? toneHeadline(toneText(survey.tone), survey.businessName);
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용
@@ -252,7 +255,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       frame: { x: 122, y: 250, w: 560, h: 24 },
       z: 2,
       text: kicker,
-      style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'left', letterSpacing: 4 },
     },
     {
       id: nextId(ctx, 'el-hero-title'),
@@ -260,7 +263,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       frame: { x: 116, y: 300, w: 880, h: 220 },
       z: 3,
       text: title,
-      style: { fontSize: 76, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.3, letterSpacing: -0.5 },
+      style: { fontSize: 76, fontWeight: 400, fontFamily: 'heading', color: scrim.textColor, align: 'left', lineHeight: 1.3, letterSpacing: -0.5 },
     },
     {
       id: nextId(ctx, 'el-hero-sub'),
@@ -268,7 +271,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       frame: { x: 122, y: 546, w: 560, h: 56 },
       z: 3,
       text: sub,
-      style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.8 },
+      style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: scrim.textColor, align: 'left', lineHeight: 1.8 },
     },
     {
       id: nextId(ctx, 'el-hero-cta'),
@@ -286,7 +289,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       z: 4,
       label: '더 알아보기',
       href: '#sec-about',
-      style: { variant: 'outline', color: theme.palette.text, textColor: theme.palette.text, fontSize: 15, borderRadius: theme.radius ?? 4 },
+      style: { variant: 'outline', color: scrim.textColor, textColor: scrim.textColor, fontSize: 15, borderRadius: theme.radius ?? 4 },
     },
   );
 
@@ -299,8 +302,8 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       color: theme.palette.background,
       image: {
         src: opts.heroImageUrl,
-        overlayColor: theme.palette.background,
-        overlayOpacity: ctx.dark ? 0.5 : 0.25,
+        overlayColor: scrim.overlayColor,
+        overlayOpacity: scrim.overlayOpacity,
       },
     },
     elements,
