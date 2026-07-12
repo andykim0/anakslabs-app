@@ -239,11 +239,28 @@ export interface SurveyInput {
   purpose: string;
   /** 업종 — 택소노미 칩 또는 자유 입력 */
   industry: string;
-  /** 톤 (예: 고급스러운, 미니멀, 친근한) */
-  tone: string;
-  /** 선호 컬러 — 자유 텍스트 또는 hex */
+  /**
+   * [F3 #5] 톤 — 최대 2개(무드가 흐려지지 않도록 절제). 예: ['차분한','모던'].
+   * 소비 지점(빌더·AI 프롬프트)은 toneText(lib/onboarding/tone)로 문자열화한다.
+   * (기존 string 데이터는 read 시 [string]으로 정규화 — toneText가 둘 다 수용)
+   */
+  tone: string[];
+  /** [F3 #6] 선호 메인 컬러 — 스와치 hex 또는 자유 텍스트. derivePalette의 primary 시드 */
   colorPreference: string;
+  /** [F3 #6] 보조 컬러(선택) — hex. 없으면 메인에서 파생 */
+  secondaryColor?: string;
+  /** 무드 참고 이미지 URL(업로드) — TODO: 생성 프롬프트 힌트로 배선(현재 미소비) */
   referenceImageUrls: string[];
+  /**
+   * [F3 #2a] 실제 가게/메뉴 사진 URL(업로드, 최대 12). 생성 시 히어로·갤러리·메뉴에
+   * 우선 사용(실사 > AI)하고 부족분만 AI 생성. 슬롯이 있는 한 최소 1회 이상 사용.
+   */
+  storePhotoUrls?: string[];
+  /**
+   * [F3 #7] 고객이 무드보드에서 고른 레퍼런스 샘플의 스타일 id(REFERENCE_SAMPLES.styleId).
+   * selectDesignBriefs가 후보 스타일 선택에 가중치로 사용(imageStyle 고정 > 샘플 가중 > POV 비중복).
+   */
+  referenceStyleIds?: string[];
   /** [v3] 기존 sections: SectionType[] 를 대체하는 섹션 계획표 */
   sectionPlan: SectionPlanItem[];
   /**

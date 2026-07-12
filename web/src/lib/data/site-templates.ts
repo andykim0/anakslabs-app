@@ -22,6 +22,7 @@ import type {
   SiteTheme,
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
+import { toneText } from '@/lib/onboarding/tone';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -221,7 +222,7 @@ function footerEl(ctx: Ctx, y = 560): CanvasElement {
 function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
-  const title = copy.heroTitle ?? toneHeadline(survey.tone, survey.businessName);
+  const title = copy.heroTitle ?? toneHeadline(toneText(survey.tone), survey.businessName);
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용
   const sub = copy.heroSub ?? survey.tagline ?? `${survey.businessName} · ${survey.industry}`;
   const kicker = copy.heroKicker ?? survey.purpose;
@@ -349,7 +350,7 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 760, y: 340, w: 520, h: 140 },
         z: 2,
-        text: copy.aboutBody ?? toneBody(survey.tone, survey.industry),
+        text: copy.aboutBody ?? toneBody(toneText(survey.tone), survey.industry),
         style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.9 },
       },
       {

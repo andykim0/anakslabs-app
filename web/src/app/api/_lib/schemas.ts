@@ -425,9 +425,19 @@ export const surveySchema = z.object({
   ]),
   purpose: z.string().min(1, '사이트 목적을 입력해 주세요.').max(500),
   industry: z.string().min(1, '업종을 입력해 주세요.').max(100),
-  tone: z.string().min(1, '원하는 톤을 입력해 주세요.').max(200),
+  // [F3 #5] 톤 최대 2개 배열. 레거시 string 은 [string]으로 정규화(read-time 마이그레이션)
+  tone: z.preprocess(
+    (v) => (typeof v === 'string' ? (v.trim() ? [v.trim()] : []) : v),
+    z.array(z.string().min(1).max(40)).min(1, '원하는 톤을 1개 이상 골라 주세요.').max(2, '톤은 최대 2개까지 선택할 수 있어요.'),
+  ),
   colorPreference: z.string().min(1, '선호 컬러를 입력해 주세요.').max(200),
+  // [F3 #6] 보조 컬러(선택)
+  secondaryColor: z.string().max(200).optional(),
   referenceImageUrls: z.array(z.string()).max(10).default([]),
+  // [F3 #2a] 실제 가게 사진(업로드) — 최대 12, 안전 미디어 소스만
+  storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
+  // [F3 #7] 무드보드에서 고른 레퍼런스 샘플 스타일 id
+  referenceStyleIds: z.array(z.string().max(40)).max(12).optional(),
   sectionPlan: z
     .array(sectionPlanItemSchema)
     .min(1, '섹션을 1개 이상 구성해 주세요.')

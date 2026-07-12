@@ -14,7 +14,7 @@ const KNOWN = ['hero','about','features','menu','gallery','testimonials','pricin
 
 const survey: SurveyInput = {
   businessName: '스모크살롱', purposeId: 'booking_service', purpose: '예약·서비스업',
-  industry: '미용실', tone: '모던', colorPreference: '차콜', referenceImageUrls: [],
+  industry: '미용실', tone: ['모던'], colorPreference: '차콜', referenceImageUrls: [],
   sectionPlan: [{ type: 'hero', name: '히어로', brief: '', required: true, source: 'template' }],
   templateId: 'booking_service.default',
 };

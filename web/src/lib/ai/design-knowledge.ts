@@ -23,6 +23,7 @@ import {
   type LandingPattern,
 } from './design-knowledge-data';
 import { povForStyle } from '@/lib/design/quality-standards';
+import { toneText } from '@/lib/onboarding/tone';
 
 // 데이터·타입 재노출 — 소비자는 이 모듈 하나만 import 하면 된다.
 export {
@@ -76,7 +77,7 @@ function surveyToText(survey: SurveyInput): string {
     survey.businessName,
     survey.purpose,
     survey.industry,
-    survey.tone,
+    toneText(survey.tone),
     survey.colorPreference,
     survey.extraNotes ?? '',
   ]
@@ -119,13 +120,21 @@ function jitter(seed: string, id: string): number {
   return (hashString(`${seed}::${id}`) % 97) / 1000;
 }
 
-function rankStyles(text: string, seed: string): Array<{ st: StyleDirection; score: number }> {
+/** [F3 #7] 무드보드에서 고른 레퍼런스 샘플의 스타일에 주는 가중치(키워드 1매치=3보다 크게 → 후보로 부상) */
+const REFERENCE_STYLE_WEIGHT = 5;
+
+function rankStyles(
+  text: string,
+  seed: string,
+  weightStyleIds?: ReadonlySet<string>,
+): Array<{ st: StyleDirection; score: number }> {
   return STYLE_DIRECTIONS.map((st) => ({
     st,
     score:
       keywordScore(text, st.keywords) * 3 +
       keywordScore(text, st.bestFor) * 2 -
       keywordScore(text, st.avoid) * 4 +
+      (weightStyleIds?.has(st.id) ? REFERENCE_STYLE_WEIGHT : 0) +
       jitter(seed, st.id),
   })).sort((a, b) => b.score - a.score);
 }
@@ -216,7 +225,7 @@ function briefDescription(
   palette: CuratedPalette,
   fonts: FontPairing,
 ): string {
-  const tone = survey.tone?.trim();
+  const tone = toneText(survey.tone).trim();
   const lead = tone
     ? `'${tone}' 요청을 ${style.name} 방향으로 풀었습니다.`
     : `${style.name} 방향의 제안입니다.`;
@@ -237,12 +246,15 @@ export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[
   const seed = [
     survey.businessName,
     survey.industry,
-    survey.tone,
+    toneText(survey.tone),
     survey.purpose,
     survey.colorPreference,
   ].join('|');
 
-  const styles = pickDiverseStyles(rankStyles(text, seed), n);
+  // [F3 #7] 고객이 무드보드에서 고른 레퍼런스 샘플의 스타일에 가중치 → 후보 방향에 실제 반영
+  //  (우선순위: imageStyle 고정[design-candidates 오버라이드] > 샘플 가중 > POV 비중복[pickDiverseStyles])
+  const weightStyleIds = new Set(survey.referenceStyleIds ?? []);
+  const styles = pickDiverseStyles(rankStyles(text, seed, weightStyleIds), n);
   // [v3] 신규 섹션 타입은 랜딩 패턴 데이터에 없으므로, findPattern 전에 유사 타입으로 축약한다.
   const planTypes = survey.sectionPlan.map((i) => collapseForPattern(i.type));
   const pattern =

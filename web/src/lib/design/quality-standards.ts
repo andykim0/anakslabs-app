@@ -69,8 +69,11 @@ export const QUALITY_STANDARDS: QualityStandard[] = [
     title: '의도가 담긴 이미지',
     description:
       '의도가 담긴 이미지 — 흔한 Unsplash 사진이 아닌 커스텀 촬영, 아트 디렉션에 맞는 생성 이미지, 혹은 엄선된 큐레이션.',
+    // [F3 #2a] 이미지 소스 우선순위: 사용자 실사(storePhotoUrls) > AI 생성 > 큐레이션.
+    // 고객이 올린 실제 사진은 슬롯이 있는 한 반드시 1회 이상 사용하고 부족분만 AI로 채운다.
+    // 구현: src/lib/data/image-pool.ts (buildImagePool) — mock/supabase AiService가 소비.
     enforcement: ['generation-data', 'validator', 'qa-audit'],
-    implementedBy: ['src/lib/design/quality-standards.ts', 'src/lib/ai/gemini-image.ts'],
+    implementedBy: ['src/lib/design/quality-standards.ts', 'src/lib/ai/gemini-image.ts', 'src/lib/data/image-pool.ts'],
   },
   {
     id: 'whispered-motion',
@@ -335,6 +338,80 @@ export function describeColor(hex: string): string {
   const light = l < 0.24 ? 'deep' : l < 0.42 ? 'dark' : l < 0.66 ? 'rich' : l < 0.82 ? 'soft' : 'pale';
   const vivid = s > 0.62 ? 'vivid ' : '';
   return `${light} ${vivid}${hueName(h)}`.replace(/\s+/g, ' ').trim();
+}
+
+/** HSL(h:0-360, s:0-1, l:0-1) → #rrggbb */
+function hslToHex(h: number, s: number, l: number): string {
+  const hh = ((h % 360) + 360) % 360;
+  const ss = Math.max(0, Math.min(1, s));
+  const ll = Math.max(0, Math.min(1, l));
+  const c = (1 - Math.abs(2 * ll - 1)) * ss;
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
+  const m = ll - c / 2;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (hh < 60) [r, g, b] = [c, x, 0];
+  else if (hh < 120) [r, g, b] = [x, c, 0];
+  else if (hh < 180) [r, g, b] = [0, c, x];
+  else if (hh < 240) [r, g, b] = [0, x, c];
+  else if (hh < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+  const to = (v: number) =>
+    Math.round((v + m) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  return `#${to(r)}${to(g)}${to(b)}`;
+}
+
+export interface DerivedPalette {
+  background: string;
+  surface: string;
+  text: string;
+  muted: string;
+  primary: string;
+  accent: string;
+}
+
+/**
+ * [F3 #6] 메인 1색(+보조 1색) → 6토큰 팔레트 파생(결정적).
+ * 고객이 색을 '고르면' 시스템이 규칙에 맞는 팔레트를 만든다(LLM 색 생성 아님).
+ * - primary = 메인색 그대로. accent = 보조색(있으면) 또는 메인의 명도 시프트 변형.
+ * - background/surface/text/muted = 메인 hue를 아주 옅게 머금은 중립(다크/라이트).
+ * - 말미에 본문 text/background 대비 AA(4.5:1)를 보장하도록 text 명도를 극단화(발행 게이트 통과).
+ * 5색 절제(브랜드3+중립2)는 SiteTheme 6토큰 고정계약이 구조적으로 강제.
+ */
+export function derivePalette(primary: string, secondary?: string, opts?: { dark?: boolean }): DerivedPalette {
+  const p = hexToHsl(primary) ?? { h: 220, s: 0.5, l: 0.5 };
+  const dark = opts?.dark ?? false;
+  const accent =
+    secondary && hexToHsl(secondary)
+      ? secondary
+      : hslToHex(p.h, Math.min(1, p.s * 0.9), dark ? Math.min(0.72, p.l + 0.12) : Math.max(0.24, p.l - 0.12));
+  const hue = p.h;
+  let background: string;
+  let surface: string;
+  let text: string;
+  let muted: string;
+  if (dark) {
+    background = hslToHex(hue, 0.06, 0.08);
+    surface = hslToHex(hue, 0.06, 0.14);
+    text = hslToHex(hue, 0.04, 0.95);
+    muted = hslToHex(hue, 0.05, 0.62);
+  } else {
+    background = hslToHex(hue, 0.05, 0.985);
+    surface = hslToHex(hue, 0.05, 0.955);
+    text = hslToHex(hue, 0.08, 0.14);
+    muted = hslToHex(hue, 0.06, 0.44);
+  }
+  // AA 보정 — 본문 대비 4.5:1 보장 (미달 시 text 명도를 배경 반대 방향으로 극단화)
+  let guard = 0;
+  while (contrastRatio(text, background) < 4.5 && guard < 10) {
+    const th = hexToHsl(text) ?? { h: hue, s: 0.05, l: dark ? 0.95 : 0.14 };
+    text = hslToHex(th.h, th.s, dark ? Math.min(1, th.l + 0.05) : Math.max(0, th.l - 0.05));
+    guard += 1;
+  }
+  return { background, surface, text, muted, primary, accent };
 }
 
 /**

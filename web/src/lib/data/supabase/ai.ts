@@ -11,6 +11,7 @@
  *  - 영상: Veo 3.1 스텁 — 명확한 에러 (편집 요청 라우트가 502 + 자동 환불 처리)
  */
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import { toneText } from '@/lib/onboarding/tone';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
@@ -25,6 +26,7 @@ import {
   type CandidateBlueprint,
 } from '../design-candidates';
 import { KNOWN_SECTION_TYPES, mapCustomSectionType } from '../section-suggest';
+import { buildImagePool, shouldSkipAiPool } from '../image-pool';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { uploadAiAsset } from './storage';
 
@@ -88,7 +90,7 @@ async function refineCandidateTexts(
   const prompt =
     `다음 설문과 디자인 후보 ${blueprints.length}안을 검토하고, 각 안의 label/description/heroImagePrompt 를 이 가게에 맞게 다듬어줘.\n\n` +
     `[설문]\n상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
-    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n선호 컬러: ${survey.colorPreference}\n` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${toneText(survey.tone)}\n선호 컬러: ${survey.colorPreference}\n` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
     `추가 요청: ${survey.extraNotes ?? '없음'}\n\n` +
     `[디자인 후보]\n${briefLines}\n\n` +
@@ -152,7 +154,7 @@ async function generateSectionCopy(
   const prompt =
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
     `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
-    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${survey.tone}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${toneText(survey.tone)}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
     (planLines
       ? `\n[이 사이트의 섹션 구성 — 각 섹션의 의도를 카피에 반영]\n${planLines}\n`
@@ -228,27 +230,37 @@ export class SupabaseAiService implements AiService {
     const blueprint = matchBlueprintForCandidate(survey, candidate);
     const copy = await generateSectionCopy(survey, blueprint);
 
-    // 섹션용 보조 이미지 2장 — [V2] POV 골격(buildImagePrompt) 기반, 실패분은 제외하고 히어로로 대체
-    const poolPrompts = [
-      povImagePrompt(blueprint, survey, 'interior/workspace detail'),
-      povImagePrompt(blueprint, survey, 'signature product/service closeup'),
-    ];
-    const generated = await Promise.all(
-      poolPrompts.map(async (prompt) => {
-        try {
-          return await generateImageUrl(prompt, 'sections', '4:3'); // 섹션 보조 이미지
-        } catch (err) {
-          console.warn('[ai] 섹션 이미지 생성 실패 — 히어로 이미지로 대체:', err);
-          return null;
-        }
-      }),
-    );
-    const imagePool = generated.filter((url): url is string => url !== null);
-    if (imagePool.length === 0) imagePool.push(candidate.heroImageUrl);
+    // [F3 #2a] 사용자 실사가 충분하면 Gemini 섹션 이미지 생성을 건너뛴다(실비용 절감).
+    let aiImages: string[] = [];
+    if (!shouldSkipAiPool(survey.storePhotoUrls)) {
+      // 섹션용 보조 이미지 2장 — [V2] POV 골격(buildImagePrompt) 기반, 실패분은 제외
+      const poolPrompts = [
+        povImagePrompt(blueprint, survey, 'interior/workspace detail'),
+        povImagePrompt(blueprint, survey, 'signature product/service closeup'),
+      ];
+      const generated = await Promise.all(
+        poolPrompts.map(async (prompt) => {
+          try {
+            return await generateImageUrl(prompt, 'sections', '4:3'); // 섹션 보조 이미지
+          } catch (err) {
+            console.warn('[ai] 섹션 이미지 생성 실패 — 히어로 이미지로 대체:', err);
+            return null;
+          }
+        }),
+      );
+      aiImages = generated.filter((url): url is string => url !== null);
+    }
+
+    // [F3 #2a] 실사 우선 → 부족분만 AI 이미지로 충전
+    const { heroImageUrl, imagePool } = buildImagePool({
+      storePhotos: survey.storePhotoUrls,
+      aiImages,
+      heroFallback: candidate.heroImageUrl,
+    });
 
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     return buildSiteConfigFromSurvey(survey, candidate, {
-      heroImageUrl: candidate.heroImageUrl,
+      heroImageUrl,
       imagePool,
       copy,
     });

@@ -29,6 +29,26 @@ export class EditorApiError extends Error {
   }
 }
 
+/**
+ * [F3 #4] 에디터에서 이미지 파일 업로드 → 저장 URL (로고·이미지 요소를 파일로 교체).
+ * /api/uploads 공용(5MB·png/jpg/webp/svg, SVG는 서버에서 sanitize). FormData라 JSON request 헬퍼 우회.
+ */
+export async function uploadEditorImage(file: File): Promise<string> {
+  const body = new FormData();
+  body.append('file', file);
+  let res: Response;
+  try {
+    res = await fetch('/api/uploads', { method: 'POST', body });
+  } catch {
+    throw new EditorApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.', {});
+  }
+  const data = (await res.json().catch(() => null)) as { url?: string; error?: { message?: string } } | null;
+  if (!res.ok || !data?.url) {
+    throw new EditorApiError(res.status, 'UPLOAD_FAILED', data?.error?.message ?? '이미지 업로드에 실패했어요.', {});
+  }
+  return data.url;
+}
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   let res: Response;
   try {

@@ -6,6 +6,7 @@
  *  - 섹션 선택: 이름/유형/높이/배경(색·그라디언트·이미지+오버레이)/숨김
  *  - 미선택: 테마(팔레트 6색 / 폰트 큐레이션 셀렉트 / radius / 사이트 제목)
  */
+import { useRef, useState } from 'react';
 import {
   AlertTriangle,
   AlignCenter,
@@ -22,6 +23,7 @@ import {
   Lock,
   Sparkles,
   Trash2,
+  Upload,
 } from 'lucide-react';
 import type {
   ButtonElement,
@@ -48,6 +50,7 @@ import { contrastRatio } from '@/lib/design/quality-standards';
 import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
 import { cn } from '@/components/dashboard/ui';
 import { clampFrameToSection, MIN_H, MIN_W } from './snap';
+import { uploadEditorImage } from './api';
 import { ELEMENT_KIND_LABELS, SECTION_TYPE_LABELS } from './defaults';
 import { computeGoogleFonts, FONT_OPTIONS, matchFontOption } from './fonts';
 import {
@@ -92,6 +95,47 @@ function AiGenerateButton({ type, label }: { type: EditType; label: string }) {
       <Sparkles className="h-3.5 w-3.5" />
       {label} ({CREDIT_COSTS[type]}크레딧)
     </button>
+  );
+}
+
+/** [F3 #4] 파일에서 이미지 교체 — 로고·이미지 요소 공용. 업로드 후 src 커밋 */
+function ImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          setBusy(true);
+          setErr(null);
+          try {
+            onUploaded(await uploadEditorImage(file));
+          } catch (ex) {
+            setErr(ex instanceof Error ? ex.message : '업로드 실패');
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-neutral-700 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-500 hover:bg-neutral-800 disabled:opacity-40"
+      >
+        <Upload className="h-3.5 w-3.5" />
+        {busy ? '업로드 중…' : '파일에서 교체'}
+      </button>
+      {err ? <p className="mt-1 text-[11px] text-red-400">{err}</p> : null}
+    </div>
   );
 }
 
@@ -308,6 +352,7 @@ function ImageFields({ el }: { el: ImageElement }) {
         hint="URL을 붙여넣거나 아래 AI 생성을 이용하세요."
         onCommit={(v) => store().updateElement(el.id, { src: v })}
       />
+      <ImageUploadButton onUploaded={(url) => store().updateElement(el.id, { src: url })} />
       <AiGenerateButton type="image" label="AI로 이미지 생성" />
       <TextField label="대체 텍스트 (alt)" value={el.alt ?? ''} onCommit={(v) => store().updateElement(el.id, { alt: v || undefined })} />
       <SegmentedField

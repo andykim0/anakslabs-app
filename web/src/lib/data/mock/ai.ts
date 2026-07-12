@@ -4,6 +4,7 @@
  * (API가 zod로 검증 — 여분 필드 금지).
  */
 import type { AiService, SuggestSectionContext } from '../types';
+import { buildImagePool } from '../image-pool';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { buildCandidateBlueprints } from '../design-candidates';
@@ -93,10 +94,13 @@ export class MockAiService implements AiService {
     await simulateLatency(1500);
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
-    return buildSiteConfigFromSurvey(survey, candidate, {
-      heroImageUrl: candidate.heroImageUrl,
-      imagePool: [...MOCK_IMAGE_POOL],
+    // [F3 #2a] 사용자 실사 우선 → 부족분만 mock 큐레이션 이미지로 충전
+    const { heroImageUrl, imagePool } = buildImagePool({
+      storePhotos: survey.storePhotoUrls,
+      aiImages: [...MOCK_IMAGE_POOL],
+      heroFallback: candidate.heroImageUrl,
     });
+    return buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl, imagePool });
   }
 
   async generateText(input: { prompt: string; currentText?: string; tone?: string }): Promise<string> {

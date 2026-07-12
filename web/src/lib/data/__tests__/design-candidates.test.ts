@@ -13,7 +13,7 @@ function survey(over: Partial<SurveyInput> = {}): SurveyInput {
     purposeId: 'local_store',
     purpose: '음식점·로컬 매장',
     industry: '카페·베이커리',
-    tone: '친근한',
+    tone: ['친근한'],
     colorPreference: '아이보리 & 에스프레소',
     referenceImageUrls: [],
     sectionPlan: [{ type: 'hero', name: '히어로', brief: '', required: true, source: 'template' }],

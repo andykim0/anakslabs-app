@@ -21,6 +21,7 @@ import {
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
+import { derivePalette } from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
@@ -130,6 +131,28 @@ function mockHeroFor(brief: DesignBrief): string {
   return brief.palette.dark ? '/mock/candidate-dark.svg' : '/mock/candidate-light.svg';
 }
 
+/** colorPreference/secondaryColor에서 #rrggbb 추출(3자리 축약 확장). 없으면 null */
+function extractHex(s: string | undefined | null): string | null {
+  if (!s) return null;
+  const m = /#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/.exec(s);
+  if (!m) return null;
+  const hex = m[1].toLowerCase();
+  return `#${hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex}`;
+}
+
+/**
+ * [F3 #6] 브리프 팔레트 → 테마. 고객이 구체 메인 hex(+보조)를 주면 파생 팔레트를 주입한다
+ * (색은 고객이 '고르고' 시스템이 규칙[AA·5색 절제]에 맞게 6토큰을 파생 — LLM 색 생성 아님).
+ * 다크/라이트 무드는 브리프를 따라 3안 혼합을 유지. hex가 없으면 큐레이션 팔레트 그대로.
+ */
+function themeForBrief(survey: SurveyInput, brief: DesignBrief): SiteTheme {
+  const base = buildThemeFromBrief(brief);
+  const primary = extractHex(survey.colorPreference);
+  if (!primary) return base;
+  const secondary = extractHex(survey.secondaryColor) ?? undefined;
+  return { ...base, palette: derivePalette(primary, secondary, { dark: brief.palette.dark }) };
+}
+
 /** 결정적 히어로 이미지 프롬프트 — 업종 맥락 + 스타일 조각 + 팔레트 힌트 */
 function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief): string {
   const palette = brief.palette.palette;
@@ -155,7 +178,7 @@ export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprin
       label: brief.label,
       style: imageStyle, // 후보 표시 스타일 = 고정 imageStyle
       description: brief.description,
-      theme: buildThemeFromBrief(brief),
+      theme: themeForBrief(survey, brief),
       heroImagePrompt: buildHeroPrompt(survey, styled),
       mockHeroUrl: mockHeroFor(styled),
       heroImageFragment: brief.style.heroImageFragment,

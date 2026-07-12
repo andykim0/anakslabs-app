@@ -8,6 +8,7 @@
 import type { SurveyInput } from '@/lib/types/domain';
 import type { CandidateBlueprint } from '@/lib/data/design-candidates';
 import { buildImagePrompt, povForStyle } from '@/lib/design/quality-standards';
+import { toneText } from '@/lib/onboarding/tone';
 
 /**
  * POV 골격 + 매장 장면. 매장 장면은 Claude 다듬기 결과(있고 충분히 길면) 우선, 아니면 설문 결정적.
@@ -28,5 +29,5 @@ export function povImagePrompt(
     refinedScene && refinedScene.trim().length >= 40
       ? refinedScene.trim()
       : [survey.businessName, survey.tagline].filter(Boolean).join(' — ').trim();
-  return scene ? `Scene: ${scene} (${survey.tone}).\n${povBase}` : povBase;
+  return scene ? `Scene: ${scene} (${toneText(survey.tone)}).\n${povBase}` : povBase;
 }

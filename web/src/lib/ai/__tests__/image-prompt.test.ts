@@ -18,7 +18,7 @@ const survey = {
   industry: '파인다이닝',
   businessName: '화로담',
   tagline: '참숯 다이닝',
-  tone: '고요하고 묵직한',
+  tone: ['고요하고 묵직한'],
 } as unknown as SurveyInput;
 
 describe('povImagePrompt — POV 아트디렉션', () => {

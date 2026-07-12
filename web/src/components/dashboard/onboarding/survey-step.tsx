@@ -8,6 +8,8 @@ import { ArrowRight, ChevronDown, ChevronUp, ImagePlus, Loader2, Lock, Sparkles,
 import type { CandidateStyle, SectionPlanItem, SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
 import { defaultImageStyle, IMAGE_STYLE_OPTIONS } from '@/lib/onboarding/image-style';
+import { normalizeTone } from '@/lib/onboarding/tone';
+import { REFERENCE_SAMPLES, styleIdsForSamples } from '@/lib/design/reference-samples';
 import { SITE_TEMPLATES, pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { suggestSection, uploadImage } from '../api';
 import { useToast } from '../toast';
@@ -23,12 +25,16 @@ const surveySchema = z.object({
   }),
   businessName: z.string().min(1, '상호명을 입력해주세요.').max(60, '상호명은 60자 이내로 입력해주세요.'),
   tagline: z.string().max(80, '태그라인은 80자 이내로 입력해주세요.').optional(),
-  conceptMode: z.enum(['real', 'fictional']).optional(),
   logoUrl: z.string().optional(),
   industry: z.string().min(1, '업종을 선택하거나 입력해주세요.'),
-  tone: z.string().min(1, '원하는 분위기를 선택하거나 입력해주세요.'),
-  colorPreference: z.string().min(1, '선호 컬러를 선택하거나 입력해주세요.'),
+  tone: z
+    .array(z.string())
+    .min(1, '분위기를 1개 이상 골라주세요')
+    .max(2, '분위기는 최대 2개까지 선택할 수 있어요'),
+  colorPreference: z.string().min(1, '메인 컬러를 골라주세요.'),
+  secondaryColor: z.string().optional(),
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
+  storePhotoUrls: z.array(z.string()).max(12, '가게 사진은 최대 12장까지 올릴 수 있어요.').optional(),
   referenceImageUrls: z.array(z.string()).max(6, '레퍼런스 이미지는 최대 6장까지 선택할 수 있습니다.'),
   contentMode: z.enum(['ai', 'provided']).optional(),
   providedContent: z.string().max(5000, '제공 내용은 5000자 이내로 입력해주세요.').optional(),
@@ -53,6 +59,67 @@ const GROUP_ORDER: { group: PurposeGroup; label: string; hint: string }[] = [
 const SPECIAL_PURPOSE_IDS: SitePurposeId[] = ['event', 'one_page'];
 
 const TONE_CHIPS = ['고급스러운', '미니멀', '친근한', '대담한', '차분한', '러스틱', '모던'];
+
+/** [F3 #6] 메인/보조 컬러 스와치 — 대표 브랜드 색 팔레트(단일 선택). */
+const BRAND_COLORS: { name: string; hex: string }[] = [
+  { name: '네이비', hex: '#1f2a44' },
+  { name: '에스프레소', hex: '#4b3621' },
+  { name: '딥그린', hex: '#1f4d3a' },
+  { name: '버건디', hex: '#6d2231' },
+  { name: '차콜', hex: '#2b2b2b' },
+  { name: '테라코타', hex: '#c05a3a' },
+  { name: '머스타드', hex: '#c99a2e' },
+  { name: '세이지', hex: '#6b7a4f' },
+  { name: '코발트', hex: '#2d63f0' },
+  { name: '틸', hex: '#157a72' },
+  { name: '라벤더', hex: '#6f6bd6' },
+  { name: '로즈', hex: '#c25b7a' },
+  { name: '블랙', hex: '#111111' },
+  { name: '아이보리', hex: '#ece6d8' },
+  { name: '코랄', hex: '#ef6f53' },
+  { name: '슬레이트', hex: '#445068' },
+];
+
+/**
+ * [F3 #4] 로고 래스터(png/jpeg/webp)의 네 모서리가 모두 흰색근접(각 채널 > 240)이고
+ * 불투명(알파 > 250)이면 true(흰 배경 감지). SVG/비래스터는 픽셀 샘플 불가라 대상 제외(false).
+ * 순수 클라이언트 UX 경고용 — 발행 차단 아님.
+ */
+async function detectWhiteBg(file: File): Promise<boolean> {
+  if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) return false;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const w = bitmap.width;
+    const h = bitmap.height;
+    if (!w || !h) {
+      bitmap.close();
+      return false;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return false;
+    }
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const corners: [number, number][] = [
+      [0, 0],
+      [w - 1, 0],
+      [0, h - 1],
+      [w - 1, h - 1],
+    ];
+    for (const [x, y] of corners) {
+      const [r, g, b, a] = ctx.getImageData(x, y, 1, 1).data;
+      if (!(r > 240 && g > 240 && b > 240 && a > 250)) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /** 이미지 스타일 미니 예시 썸네일 (인라인 SVG — 외부 에셋 없음) */
 function StyleThumb({ style }: { style: CandidateStyle }) {
@@ -86,24 +153,6 @@ function StyleThumb({ style }: { style: CandidateStyle }) {
     </svg>
   );
 }
-
-const COLOR_PRESETS: { label: string; colors: [string, string] }[] = [
-  { label: '딥 차콜 & 골드', colors: ['#0f0e0c', '#b08d57'] },
-  { label: '아이보리 & 에스프레소', colors: ['#f5f1e8', '#2b2118'] },
-  { label: '포레스트 그린', colors: ['#1f3a2e', '#d8cfc0'] },
-  { label: '미드나잇 네이비', colors: ['#10243e', '#c8d4e3'] },
-  { label: '테라코타 & 샌드', colors: ['#b1502e', '#e8dcc8'] },
-  { label: '모노크롬', colors: ['#111111', '#f2f2f2'] },
-];
-
-const SAMPLE_REFS: { url: string; label: string }[] = [
-  { url: '/mock/refs/dark-luxury.svg', label: '다크 럭셔리' },
-  { url: '/mock/refs/ivory-editorial.svg', label: '아이보리 에디토리얼' },
-  { url: '/mock/refs/forest-organic.svg', label: '포레스트 오가닉' },
-  { url: '/mock/refs/3d-gradient.svg', label: '3D 그라디언트' },
-  { url: '/mock/refs/bold-contrast.svg', label: '볼드 콘트라스트' },
-  { url: '/mock/refs/pastel-soft.svg', label: '파스텔 소프트' },
-];
 
 // ---------- 섹션 계획표 로컬 상태 ----------
 
@@ -194,6 +243,12 @@ function PurposeCard({
 const inputClass =
   'w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none transition-colors focus:border-[#c8a96a]';
 
+const swatchClass = (selected: boolean) =>
+  cn(
+    'aspect-square rounded-lg border-2 transition-transform',
+    selected ? 'scale-105 border-[#c8a96a]' : 'border-neutral-800 hover:border-neutral-600',
+  );
+
 // ---------- 본체 ----------
 
 export function SurveyStep({
@@ -207,8 +262,16 @@ export function SurveyStep({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const storePhotoInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [logoUploading, setLogoUploading] = useState(false);
+  const [logoWhiteBg, setLogoWhiteBg] = useState(false);
+  const [storePhotoUploading, setStorePhotoUploading] = useState(false);
+
+  // [F3 #7] 무드보드 선택(styleId 매핑 대상) — referenceImageUrls와 별개 로컬 상태
+  const [selectedSampleIds, setSelectedSampleIds] = useState<string[]>(() =>
+    REFERENCE_SAMPLES.filter((s) => (initialValues?.referenceStyleIds ?? []).includes(s.styleId)).map((s) => s.id),
+  );
 
   const {
     register,
@@ -223,12 +286,13 @@ export function SurveyStep({
           purposeId: initialValues.purposeId,
           businessName: initialValues.businessName,
           tagline: initialValues.tagline ?? '',
-          conceptMode: initialValues.conceptMode ?? 'real',
           logoUrl: initialValues.logoUrl ?? '',
           industry: initialValues.industry,
-          tone: initialValues.tone,
+          tone: normalizeTone(initialValues.tone),
           colorPreference: initialValues.colorPreference,
+          secondaryColor: initialValues.secondaryColor ?? '',
           imageStyle: initialValues.imageStyle,
+          storePhotoUrls: initialValues.storePhotoUrls ?? [],
           referenceImageUrls: initialValues.referenceImageUrls,
           contentMode: initialValues.contentMode ?? 'ai',
           providedContent: initialValues.providedContent ?? '',
@@ -240,12 +304,13 @@ export function SurveyStep({
           purposeId: undefined,
           businessName: '',
           tagline: '',
-          conceptMode: 'real',
           logoUrl: '',
           industry: '',
-          tone: '',
+          tone: [],
           colorPreference: '',
+          secondaryColor: '',
           imageStyle: undefined,
+          storePhotoUrls: [],
           referenceImageUrls: [],
           contentMode: 'ai',
           providedContent: '',
@@ -259,6 +324,7 @@ export function SurveyStep({
   const industry = watch('industry');
   const tone = watch('tone');
   const colorPreference = watch('colorPreference');
+  const secondaryColor = watch('secondaryColor');
   const imageStyle = watch('imageStyle');
   // 업종 기반 기본 이미지 스타일을 사전 선택 (사용자가 직접 고르기 전까지 업종 변경에 따라 갱신)
   const imageStyleTouched = useRef<boolean>(Boolean(initialValues?.imageStyle));
@@ -266,7 +332,7 @@ export function SurveyStep({
     if (!imageStyleTouched.current) setValue('imageStyle', defaultImageStyle(industry));
   }, [industry, setValue]);
   const referenceImageUrls = watch('referenceImageUrls');
-  const conceptMode = watch('conceptMode');
+  const storePhotoUrls = watch('storePhotoUrls') ?? [];
   const contentMode = watch('contentMode');
   const reservationMode = watch('reservationMode');
   const logoUrl = watch('logoUrl');
@@ -358,7 +424,7 @@ export function SurveyStep({
           businessName: watch('businessName') ?? '',
           industry: watch('industry') ?? '',
           purpose: selectedPurpose?.label ?? '',
-          tone: watch('tone') || undefined,
+          tone: (watch('tone') ?? []).join(', ') || undefined,
         },
       });
       // 중복 방지: 같은 type + (variant 없음) 이 이미 있으면 그 행 하이라이트
@@ -393,6 +459,22 @@ export function SurveyStep({
 
   const setField = (name: keyof SurveyForm, value: string) => setValue(name, value, { shouldValidate: true });
 
+  // [F3 #5] 톤 다중 토글 (최대 2)
+  const toggleTone = (chip: string) => {
+    const cur = watch('tone') ?? [];
+    if (cur.includes(chip)) {
+      setValue('tone', cur.filter((t) => t !== chip), { shouldValidate: true });
+    } else if (cur.length >= 2) {
+      toast('info', '분위기는 최대 2개까지 선택할 수 있어요.');
+    } else {
+      setValue('tone', [...cur, chip], { shouldValidate: true });
+    }
+  };
+
+  // [F3 #7] 무드보드 다중 토글
+  const toggleSample = (id: string) =>
+    setSelectedSampleIds((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : [...cur, id]));
+
   const toggleReference = (url: string) => {
     const next = referenceImageUrls.includes(url)
       ? referenceImageUrls.filter((u) => u !== url)
@@ -412,16 +494,51 @@ export function SurveyStep({
     const file = files?.[0];
     if (!file) return;
     setLogoUploading(true);
+    setLogoWhiteBg(false);
     try {
       const url = await uploadImage(file);
       setValue('logoUrl', url, { shouldValidate: true });
       toast('success', '로고를 업로드했어요. 히어로 섹션에 반영됩니다.');
+      // [F3 #4] 흰 배경 감지 (래스터만, 순수 UX 경고)
+      void detectWhiteBg(file).then((white) => setLogoWhiteBg(white)).catch(() => {});
     } catch (err) {
       toast('error', err instanceof Error ? err.message : '로고 업로드에 실패했습니다.');
     } finally {
       setLogoUploading(false);
       if (logoInputRef.current) logoInputRef.current.value = '';
     }
+  };
+
+  // [F3 #2a] 가게·메뉴 사진 다중 업로드 (로고와 동일 uploadImage 패턴)
+  const handleStorePhotos = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const current = watch('storePhotoUrls') ?? [];
+    const remaining = 12 - current.length;
+    if (remaining <= 0) {
+      toast('info', '가게 사진은 최대 12장까지 올릴 수 있어요.');
+      if (storePhotoInputRef.current) storePhotoInputRef.current.value = '';
+      return;
+    }
+    const picked = Array.from(files).slice(0, remaining);
+    setStorePhotoUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const f of picked) {
+        uploaded.push(await uploadImage(f));
+      }
+      setValue('storePhotoUrls', [...current, ...uploaded].slice(0, 12), { shouldValidate: true });
+      if (uploaded.length) toast('success', `사진 ${uploaded.length}장을 올렸어요.`);
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '사진 업로드에 실패했습니다.');
+    } finally {
+      setStorePhotoUploading(false);
+      if (storePhotoInputRef.current) storePhotoInputRef.current.value = '';
+    }
+  };
+
+  const removeStorePhoto = (url: string) => {
+    const current = watch('storePhotoUrls') ?? [];
+    setValue('storePhotoUrls', current.filter((u) => u !== url), { shouldValidate: true });
   };
 
   const clean = (v?: string) => (v && v.trim() ? v.trim() : undefined);
@@ -440,13 +557,15 @@ export function SurveyStep({
       industry: values.industry,
       tone: values.tone,
       colorPreference: values.colorPreference,
+      secondaryColor: clean(values.secondaryColor),
       imageStyle: values.imageStyle ?? defaultImageStyle(values.industry),
+      storePhotoUrls: values.storePhotoUrls && values.storePhotoUrls.length ? values.storePhotoUrls : undefined,
       referenceImageUrls: values.referenceImageUrls,
+      referenceStyleIds: selectedSampleIds.length ? styleIdsForSamples(selectedSampleIds) : undefined,
       sectionPlan,
       pagePlan,
       templateId,
       tagline: clean(values.tagline),
-      conceptMode: values.conceptMode,
       logoUrl: clean(values.logoUrl),
       contentMode: values.contentMode,
       providedContent: values.contentMode === 'provided' ? clean(values.providedContent) : undefined,
@@ -554,34 +673,6 @@ export function SurveyStep({
           <input {...register('tagline')} placeholder="예: 매일의 균형을 만드는 시간" className={inputClass} />
         </div>
 
-        {/* 컨셉 모드 */}
-        <div>
-          <FieldLabel>컨셉</FieldLabel>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {(
-              [
-                ['real', '실제 정보로', '입력한 정보를 그대로 반영'],
-                ['fictional', '가상 컨셉으로', 'AI가 그럴듯하게 창작'],
-              ] as const
-            ).map(([val, label, hint]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setValue('conceptMode', val, { shouldValidate: true })}
-                className={cn(
-                  'rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  conceptMode === val ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
-                )}
-              >
-                <span className={cn('block text-xs font-medium', conceptMode === val ? 'text-[#d9b878]' : 'text-neutral-300')}>
-                  {label}
-                </span>
-                <span className="mt-0.5 block text-[10px] text-neutral-500">{hint}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* 로고 업로드 */}
         <div>
           <FieldLabel>
@@ -593,7 +684,10 @@ export function SurveyStep({
                 <img src={logoUrl} alt="업로드한 로고" className="h-14 w-14 rounded-lg border border-neutral-700 bg-neutral-900 object-contain p-1" />
                 <button
                   type="button"
-                  onClick={() => setValue('logoUrl', '', { shouldValidate: true })}
+                  onClick={() => {
+                    setValue('logoUrl', '', { shouldValidate: true });
+                    setLogoWhiteBg(false);
+                  }}
                   aria-label="로고 제거"
                   className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-neutral-200 transition-colors hover:bg-red-800"
                 >
@@ -618,52 +712,87 @@ export function SurveyStep({
               onChange={(e) => handleLogo(e.target.files)}
             />
           </div>
-          <p className="mt-1.5 text-[11px] text-neutral-600">PNG·JPG·WEBP·SVG, 5MB 이하. SVG는 안전하게 정리 후 저장됩니다.</p>
+          <p className="mt-1.5 text-[11px] text-neutral-600">
+            PNG·JPG·WEBP·SVG, 5MB 이하. 배경이 투명한 PNG를 권장합니다. SVG는 안전하게 정리 후 저장됩니다.
+          </p>
+          {logoWhiteBg ? (
+            <p className="mt-1.5 text-[11px] text-amber-400">흰 배경이 감지됐어요 — 투명 PNG로 올리면 더 깔끔해요.</p>
+          ) : null}
         </div>
 
-        {/* ④ 톤 */}
+        {/* ④ 톤 (최대 2개) */}
         <div>
-          <FieldLabel error={errors.tone?.message}>원하는 분위기(톤)</FieldLabel>
-          <div className="mb-2 flex flex-wrap gap-2">
+          <FieldLabel error={errors.tone?.message as string | undefined}>
+            원하는 분위기(톤) <span className="font-normal text-neutral-500">(최대 2개)</span>
+          </FieldLabel>
+          <div className="flex flex-wrap gap-2">
             {TONE_CHIPS.map((chip) => (
-              <Chip key={chip} selected={tone === chip} onClick={() => setField('tone', chip)}>
+              <Chip key={chip} selected={(tone ?? []).includes(chip)} onClick={() => toggleTone(chip)}>
                 {chip}
               </Chip>
             ))}
           </div>
-          <input {...register('tone')} placeholder="직접 입력 (예: 고급스럽지만 부담스럽지 않게)" className={inputClass} />
         </div>
 
-        {/* 컬러 */}
-        <div>
-          <FieldLabel error={errors.colorPreference?.message}>선호 컬러</FieldLabel>
-          <div className="mb-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {COLOR_PRESETS.map((preset) => {
-              const value = `${preset.label} (${preset.colors[0]}, ${preset.colors[1]})`;
-              const selected = colorPreference === value;
-              return (
+        {/* 컬러 (F3 #6) */}
+        <div className="space-y-4">
+          {/* ① 메인 컬러 */}
+          <div>
+            <FieldLabel error={errors.colorPreference?.message}>메인 컬러를 골라주세요</FieldLabel>
+            <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
+              {BRAND_COLORS.map((c) => (
                 <button
-                  key={preset.label}
+                  key={c.hex}
                   type="button"
-                  onClick={() => setField('colorPreference', value)}
-                  className={cn(
-                    'flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-colors',
-                    selected
-                      ? 'border-[#c8a96a] bg-[#2a2117] text-[#d9b878]'
-                      : 'border-neutral-700 text-neutral-400 hover:border-neutral-500',
-                  )}
-                >
-                  <span className="flex shrink-0 -space-x-1">
-                    {preset.colors.map((c) => (
-                      <span key={c} className="h-4 w-4 rounded-full border border-neutral-950" style={{ backgroundColor: c }} />
-                    ))}
-                  </span>
-                  {preset.label}
-                </button>
-              );
-            })}
+                  title={`${c.name} (${c.hex})`}
+                  aria-label={c.name}
+                  onClick={() => setField('colorPreference', c.hex)}
+                  className={swatchClass(colorPreference === c.hex)}
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))}
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-[11px] text-neutral-500">목록에 없으면 직접 고르기</span>
+              <input
+                type="color"
+                aria-label="메인 컬러 직접 선택"
+                value={/^#[0-9a-fA-F]{6}$/.test(colorPreference) ? colorPreference : '#1f2a44'}
+                onChange={(e) => setField('colorPreference', e.target.value)}
+                className="h-7 w-10 cursor-pointer rounded border border-neutral-700 bg-neutral-900"
+              />
+              {colorPreference ? <span className="text-[11px] text-neutral-400">{colorPreference}</span> : null}
+            </div>
           </div>
-          <input {...register('colorPreference')} placeholder="직접 입력 (예: 버건디 + 크림, #7a2e2e)" className={inputClass} />
+
+          {/* ② 보조 컬러 (선택) */}
+          <div>
+            <FieldLabel>
+              보조 컬러 <span className="font-normal text-neutral-500">(선택)</span>
+            </FieldLabel>
+            <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
+              {BRAND_COLORS.map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  title={`${c.name} (${c.hex})`}
+                  aria-label={c.name}
+                  onClick={() => setValue('secondaryColor', c.hex, { shouldValidate: true })}
+                  className={swatchClass(secondaryColor === c.hex)}
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))}
+            </div>
+            {secondaryColor ? (
+              <button
+                type="button"
+                onClick={() => setValue('secondaryColor', '', { shouldValidate: true })}
+                className="mt-2 text-[11px] text-neutral-500 underline transition-colors hover:text-neutral-300"
+              >
+                보조 컬러 비우기
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {/* 이미지 스타일 */}
@@ -707,35 +836,77 @@ export function SurveyStep({
           </div>
         </div>
 
-        {/* 레퍼런스 이미지 */}
+        {/* 가게·메뉴 사진 (F3 #2a) */}
         <div>
-          <FieldLabel error={errors.referenceImageUrls?.message}>
-            레퍼런스 이미지 <span className="font-normal text-neutral-500">(선택 · 최대 6장)</span>
+          <FieldLabel error={errors.storePhotoUrls?.message}>
+            가게·메뉴 사진이 있으면 올려주세요 <span className="font-normal text-neutral-500">(선택 · 최대 12장)</span>
           </FieldLabel>
           <p className="mb-2 text-xs text-neutral-500">
-            마음에 드는 무드의 샘플을 고르거나, 참고할 이미지를 직접 올려주세요.
+            실제 사진이 있으면 사이트 신뢰도가 크게 올라갑니다. 직접 촬영했거나 사용 권한이 있는 사진만 올려주세요.
           </p>
-          <div className="grid grid-cols-3 gap-2">
-            {SAMPLE_REFS.map((sample) => {
-              const selected = referenceImageUrls.includes(sample.url);
+          <div className="flex flex-wrap items-center gap-2">
+            {storePhotoUrls.map((url) => (
+              <span key={url} className="relative">
+                <img src={url} alt="가게 사진" className="h-16 w-20 rounded-md border border-neutral-700 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeStorePhoto(url)}
+                  aria-label="사진 제거"
+                  className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-neutral-200 transition-colors hover:bg-red-800"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={() => storePhotoInputRef.current?.click()}
+              disabled={storePhotoUploading || storePhotoUrls.length >= 12}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-700 px-3 py-2 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {storePhotoUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+              사진 업로드
+            </button>
+            <input
+              ref={storePhotoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              className="hidden"
+              onChange={(e) => handleStorePhotos(e.target.files)}
+            />
+          </div>
+          <p className="mt-1.5 text-[11px] text-neutral-600">최대 12장 · 5MB 이하 · PNG·JPG·WEBP</p>
+        </div>
+
+        {/* 무드보드 레퍼런스 (F3 #7) */}
+        <div>
+          <FieldLabel>
+            마음에 드는 느낌을 골라주세요 <span className="font-normal text-neutral-500">(복수 선택 가능)</span>
+          </FieldLabel>
+          <p className="mb-2 text-xs text-neutral-500">고른 느낌이 디자인 후보 스타일 선택에 반영돼요.</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {REFERENCE_SAMPLES.map((sample) => {
+              const selected = selectedSampleIds.includes(sample.id);
               return (
                 <button
-                  key={sample.url}
+                  key={sample.id}
                   type="button"
-                  onClick={() => toggleReference(sample.url)}
+                  onClick={() => toggleSample(sample.id)}
                   className={cn(
-                    'group relative overflow-hidden rounded-lg border transition-colors',
-                    selected ? 'border-[#c8a96a]' : 'border-neutral-800 hover:border-neutral-600',
+                    'group relative flex flex-col overflow-hidden rounded-lg border text-left transition-colors',
+                    selected ? 'border-[#c8a96a] ring-1 ring-[#c8a96a]/50' : 'border-neutral-800 hover:border-neutral-600',
                   )}
                 >
-                  <img src={sample.url} alt={sample.label} className="aspect-[4/3] w-full object-cover" />
                   <span
-                    className={cn(
-                      'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 pt-4 pb-1.5 text-left text-[11px]',
-                      selected ? 'text-[#d9b878]' : 'text-neutral-300',
-                    )}
-                  >
-                    {sample.label}
+                    className="h-14 w-full"
+                    style={{ backgroundImage: `linear-gradient(135deg, ${sample.swatch[0]}, ${sample.swatch[1]})` }}
+                  />
+                  <span className="p-2">
+                    <span className={cn('block text-xs font-semibold', selected ? 'text-[#d9b878]' : 'text-neutral-200')}>
+                      {sample.label}
+                    </span>
+                    <span className="mt-0.5 block text-[10px] leading-4 text-neutral-500">{sample.description}</span>
                   </span>
                   {selected ? (
                     <span className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#c8a96a] text-[10px] font-bold text-neutral-950">
@@ -746,7 +917,15 @@ export function SurveyStep({
               );
             })}
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+        </div>
+
+        {/* 레퍼런스 이미지 업로드 (기존 유지 — referenceImageUrls) */}
+        <div>
+          <FieldLabel error={errors.referenceImageUrls?.message}>
+            레퍼런스 이미지 <span className="font-normal text-neutral-500">(선택 · 최대 6장)</span>
+          </FieldLabel>
+          <p className="mb-2 text-xs text-neutral-500">참고할 이미지가 있으면 직접 올려주세요.</p>
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -757,21 +936,19 @@ export function SurveyStep({
               이미지 업로드
             </button>
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
-            {referenceImageUrls
-              .filter((url) => !SAMPLE_REFS.some((s) => s.url === url))
-              .map((url) => (
-                <span key={url} className="relative">
-                  <img src={url} alt="업로드한 레퍼런스" className="h-12 w-16 rounded-md border border-neutral-700 object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => toggleReference(url)}
-                    aria-label="레퍼런스 제거"
-                    className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-neutral-200 transition-colors hover:bg-red-800"
-                  >
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                </span>
-              ))}
+            {referenceImageUrls.map((url) => (
+              <span key={url} className="relative">
+                <img src={url} alt="업로드한 레퍼런스" className="h-12 w-16 rounded-md border border-neutral-700 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => toggleReference(url)}
+                  aria-label="레퍼런스 제거"
+                  className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-neutral-200 transition-colors hover:bg-red-800"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </span>
+            ))}
           </div>
         </div>
 

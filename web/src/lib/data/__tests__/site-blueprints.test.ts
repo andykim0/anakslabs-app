@@ -154,7 +154,7 @@ describe('buildSiteConfigFromSurvey — 홈 티저(홈 티저 원칙)', () => {
       purposeId,
       purpose: '테스트',
       industry,
-      tone: '친근한',
+      tone: ['친근한'],
       colorPreference: '아이보리 & 에스프레소',
       referenceImageUrls: [],
       sectionPlan: planFromTemplate(t),
