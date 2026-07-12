@@ -15,6 +15,7 @@ import type { ExtraFeatureSelection, SectionPlanItem, SnsKind, SurveyInput } fro
 import type { SectionType } from '@/lib/types/site';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
+import { SNS_BASES, hasHandleBase, snsUrlFromHandle } from '@/lib/onboarding/sns';
 import type { ExtrasOptionsDto } from '../api';
 import { Button, Card, cn } from '../ui';
 
@@ -153,12 +154,15 @@ export function ExtrasStep({
       extras.mapEmbed = { embedUrl: url, targetSection: mapTarget };
     }
     if (snsOn) {
-      const valid = snsRows.filter((r) => isHttpsUrl(r.url.trim()));
+      // [v4 #6c] 핸들/풀URL 어느 쪽이든 snsUrlFromHandle로 정규화(계약=풀URL 저장 불변).
+      const valid = snsRows
+        .map((r) => ({ kind: r.kind, url: snsUrlFromHandle(r.kind, r.url.trim()), label: r.label }))
+        .filter((r) => r.url.trim() !== '' && isHttpsUrl(r.url));
       if (valid.length === 0) {
-        setError('SNS 링크를 1개 이상 입력해 주세요 (https:// 주소).');
+        setError('SNS 아이디나 링크를 1개 이상 입력해 주세요.');
         return;
       }
-      extras.snsLinks = valid.map((r) => ({ kind: r.kind, url: r.url.trim(), label: r.label?.trim() || undefined }));
+      extras.snsLinks = valid.map((r) => ({ kind: r.kind, url: r.url, label: r.label?.trim() || undefined }));
       options.snsStyle = snsStyle;
     }
 
@@ -267,7 +271,9 @@ export function ExtrasStep({
         onToggle={() => setSnsOn((v) => !v)}
       >
         {snsRows.map((row, i) => {
-          const bad = row.url.trim() !== '' && !isHttpsUrl(row.url.trim());
+          // [v4 #6c] 베이스가 있는 채널은 아이디만 받고(프리픽스 표시), 기타 링크만 풀 URL 검사
+          const withBase = hasHandleBase(row.kind);
+          const bad = !withBase && row.url.trim() !== '' && !isHttpsUrl(row.url.trim());
           return (
             <div key={i} className="flex items-start gap-2">
               <select
@@ -282,13 +288,27 @@ export function ExtrasStep({
                 ))}
               </select>
               <div className="min-w-0 flex-1">
-                <input
-                  value={row.url}
-                  onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, url: e.target.value } : r)))}
-                  placeholder="https://instagram.com/…"
-                  className={inputClass}
-                />
-                {bad ? <p className="mt-1 text-[11px] text-red-300">https:// 주소만 사용할 수 있어요.</p> : null}
+                {withBase ? (
+                  <div className="flex items-stretch">
+                    <span className="flex items-center whitespace-nowrap rounded-l-md border border-r-0 border-neutral-700 bg-neutral-800/60 px-2 text-[11px] text-neutral-500">
+                      {hasHandleBase(row.kind) ? SNS_BASES[row.kind] : null}
+                    </span>
+                    <input
+                      value={row.url}
+                      onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, url: e.target.value } : r)))}
+                      placeholder="아이디만 입력 (예: mycafe)"
+                      className={cn(inputClass, 'rounded-l-none')}
+                    />
+                  </div>
+                ) : (
+                  <input
+                    value={row.url}
+                    onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, url: e.target.value } : r)))}
+                    placeholder="https://…"
+                    className={inputClass}
+                  />
+                )}
+                {bad ? <p className="mt-1 text-[11px] text-red-300">https:// 주소를 입력해 주세요.</p> : null}
               </div>
               <button
                 type="button"

@@ -12,6 +12,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/*
+ * [v4 #6a] 온보딩(및 향후 대시보드) 라이트 테마 토큰 — 우리가 파는 품질의 데모.
+ * 온보딩 화면(/onboarding)만 이 토큰을 사용(bg-ob-*, text-ob-*, border-ob-*, rounded-ob).
+ * 대시보드 나머지 페이지의 다크 하드코딩 치환은 다음 배치(범위 밖).
+ */
+@theme {
+  --color-ob-bg: #f7f7f5;
+  --color-ob-surface: #ffffff;
+  --color-ob-ink: #1a1d26;
+  --color-ob-muted: #5b6472;
+  --color-ob-border: #e6e8ec;
+  --color-ob-accent: #c8a96a;
+  --color-ob-accent-strong: #a98844;
+  --color-ob-accent-soft: #f3ecdd;
+  --color-ob-success: #2e7d5b;
+  --color-ob-danger: #c0392b;
+  --radius-ob: 0.75rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
