@@ -7,11 +7,13 @@
  *  - 미선택: 테마(팔레트 6색 / 폰트 큐레이션 셀렉트 / radius / 사이트 제목)
  */
 import {
+  AlertTriangle,
   AlignCenter,
   AlignLeft,
   AlignRight,
   ArrowDown,
   ArrowUp,
+  Check,
   ChevronDown,
   ChevronsDown,
   ChevronsUp,
@@ -25,10 +27,10 @@ import type {
   ButtonElement,
   CanvasElement,
   DividerElement,
-  EntranceEffect,
   FormElement,
   ImageElement,
   MapElement,
+  MotionIntensity,
   Section,
   ShapeElement,
   SiteTheme,
@@ -40,6 +42,9 @@ import type {
 import type { EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
+import { MOTION_PRESETS, type PresetId } from '@/lib/motion/presets';
+import { MOTION_TECHNIQUES } from '@/lib/motion/registry';
+import { contrastRatio } from '@/lib/design/quality-standards';
 import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
 import { cn } from '@/components/dashboard/ui';
 import { clampFrameToSection, MIN_H, MIN_W } from './snap';
@@ -133,8 +138,6 @@ function ElementInspector({
   theme: SiteTheme;
 }) {
   const store = useEditorStore.getState;
-  // [gating] 등장 애니메이션은 Premium 전용 — Basic이면 FieldGroup을 잠금 카드로 대체
-  const isPremium = useEditorStore((s) => s.tier) === 'premium';
 
   const commitFrame = (patch: Partial<CanvasElement['frame']>) => {
     const next = { ...element.frame, ...patch };
@@ -222,49 +225,8 @@ function ElementInspector({
         </div>
       </FieldGroup>
 
-      {isPremium ? (
-        <FieldGroup title="등장 애니메이션">
-          <SelectField<'auto' | EntranceEffect>
-            label="효과 (미리보기 모드에서 재생 확인)"
-            value={element.entrance?.effect ?? 'auto'}
-            options={[
-              { value: 'auto', label: '자동 (기본 연출 — 아래→위 순차)' },
-              { value: 'none', label: '없음' },
-              { value: 'fade', label: '페이드' },
-              { value: 'fade-up', label: '아래→위' },
-              { value: 'fade-down', label: '위→아래' },
-              { value: 'slide-left', label: '왼쪽에서' },
-              { value: 'slide-right', label: '오른쪽에서' },
-              { value: 'zoom-in', label: '확대 등장' },
-            ]}
-            onCommit={(v) =>
-              store().updateElement(element.id, {
-                entrance: v === 'auto' ? undefined : { ...element.entrance, effect: v },
-              })
-            }
-          />
-          {element.entrance && element.entrance.effect !== 'none' ? (
-            <div className="grid grid-cols-2 gap-2">
-              <NumberField
-                label="시간 (ms)"
-                value={element.entrance.duration ?? 700}
-                min={0}
-                max={5000}
-                onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, duration: v } })}
-              />
-              <NumberField
-                label="지연 (ms)"
-                value={element.entrance.delay ?? 0}
-                min={0}
-                max={5000}
-                onCommit={(v) => store().updateElement(element.id, { entrance: { ...element.entrance!, delay: v } })}
-              />
-            </div>
-          ) : null}
-        </FieldGroup>
-      ) : (
-        <EntranceLockCard />
-      )}
+      {/* [motion 3단계] 요소별 등장 애니메이션 UI 제거 — 모션은 사이트 레벨 프리셋(테마 패널의 모션 섹션)이
+          단일 소스다. 구 element.entrance는 렌더러가 더 이상 읽지 않는다(2단계에서 Reveal 흡수·삭제). */}
 
       <FieldGroup title="표시">
         <ToggleField
@@ -278,29 +240,6 @@ function ElementInspector({
           onCommit={(v) => store().updateElement(element.id, { hiddenOnMobile: v || undefined })}
         />
       </FieldGroup>
-    </div>
-  );
-}
-
-/** [gating] Basic 요금제 — 등장 애니메이션 FieldGroup 대신 노출하는 업셀 잠금 카드 */
-function EntranceLockCard() {
-  return (
-    <div className="border-t border-neutral-800 px-4 py-3">
-      <div className="rounded-lg border border-[#4a3a22] bg-[#2a2117]/50 p-3.5">
-        <div className="mb-1.5 flex items-center gap-1.5">
-          <Lock className="h-3.5 w-3.5 text-[#d9b878]" />
-          <span className="text-xs font-semibold text-[#d9b878]">등장 애니메이션</span>
-        </div>
-        <p className="text-[11px] leading-5 text-neutral-400">
-          등장 애니메이션은 Premium 전용입니다. 업그레이드하면 스크롤 시 요소가 부드럽게 나타나는 연출을 사용할 수 있어요.
-        </p>
-        <a
-          href="/dashboard/billing"
-          className="mt-2.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-[#c8a96a] px-3 text-[11px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
-        >
-          <Sparkles className="h-3 w-3" /> Premium으로 업그레이드
-        </a>
-      </div>
     </div>
   );
 }
@@ -709,6 +648,15 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
           onCommit={(v) => store().updateSection(section.id, { type: v })}
         />
         <NumberField label="높이 (px)" value={section.height} min={160} max={4000} step={10} onCommit={(v) => store().updateSection(section.id, { height: v })} />
+        <SelectField
+          label="레이아웃"
+          value={section.layout ?? 'canvas'}
+          options={[
+            { value: 'canvas' as const, label: '캔버스 (자유 배치)' },
+            { value: 'marquee' as const, label: '흐름 띠 (로고·메뉴 가로 흐름)' },
+          ]}
+          onCommit={(v) => store().updateSection(section.id, { layout: v === 'canvas' ? undefined : v })}
+        />
         <ToggleField label="숨김 (발행 시 제외)" value={section.hidden ?? false} onCommit={(v) => store().updateSection(section.id, { hidden: v || undefined })} />
       </FieldGroup>
 
@@ -809,6 +757,126 @@ const PALETTE_LABELS: { key: keyof SiteTheme['palette']; label: string }[] = [
   { key: 'accent', label: '강조' },
 ];
 
+// ----- [motion 3단계] 사이트 모션 프리셋 피커 + 강도 -----
+
+const INTENSITY_LABELS: Record<MotionIntensity, string> = { off: '끔', subtle: '은은하게', normal: '기본' };
+const PRESET_LABELS: Record<PresetId, string> = {
+  'cafe-basic': '카페·공방',
+  'academy-basic': '학원·교육',
+  'office-basic': '기업·오피스',
+  'clinic-premium': '클리닉',
+  'dining-premium': '파인다이닝',
+  'beauty-premium': '뷰티·웰니스',
+};
+
+/** 프리셋이 쓰는 기법 role 요약 (registry role 앞부분 — 규칙 파일 단일 소스) */
+function presetTechniqueSummary(pid: PresetId): string {
+  const p = MOTION_PRESETS[pid];
+  return [p.hero, ...p.accents].map((id) => MOTION_TECHNIQUES[id].role.split(' — ')[0]).join(' · ');
+}
+
+function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean; onSelect: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'w-full rounded-lg border px-3 py-2 text-left transition-colors',
+        active ? 'border-[#c8a96a] bg-[#2a2117]/60' : 'border-neutral-700 hover:border-neutral-500',
+      )}
+    >
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs font-semibold text-neutral-100">{PRESET_LABELS[pid]}</span>
+        {active ? <Check className="ml-auto h-3.5 w-3.5 text-[#c8a96a]" /> : null}
+      </div>
+      <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">{presetTechniqueSummary(pid)}</p>
+    </button>
+  );
+}
+
+/** Basic 계정에 Premium 프리셋을 숨기지 않고 잠금 카드로 — 기법 나열 + 업셀(서버도 어차피 강등) */
+function PresetLockCard({ pid }: { pid: PresetId }) {
+  return (
+    <div className="w-full rounded-lg border border-[#4a3a22] bg-[#2a2117]/40 px-3 py-2">
+      <div className="flex items-center gap-1.5">
+        <Lock className="h-3 w-3 text-[#d9b878]" />
+        <span className="text-xs font-semibold text-[#d9b878]">{PRESET_LABELS[pid]}</span>
+        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-[#d9b878]/70">Premium</span>
+      </div>
+      <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">{presetTechniqueSummary(pid)}</p>
+      <a
+        href="/dashboard/billing"
+        className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#c8a96a] px-2.5 text-[10px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+      >
+        <Sparkles className="h-3 w-3" /> Premium으로 업그레이드
+      </a>
+    </div>
+  );
+}
+
+function MotionPanel() {
+  const motion = useEditorStore((s) => s.config.motion);
+  const tier = useEditorStore((s) => s.tier);
+  const store = useEditorStore.getState;
+  const current = motion?.presetId ?? 'cafe-basic';
+  const intensity = motion?.intensity ?? 'normal';
+  const presetIds = Object.keys(MOTION_PRESETS) as PresetId[];
+  return (
+    <FieldGroup title="모션">
+      <p className="text-[11px] leading-4 text-neutral-500">
+        사이트 전체 모션 — 프리셋 1개 + 강도만 고릅니다. 선택한 프리셋·강도는 발행하면 사이트에 적용됩니다.
+      </p>
+      <div>
+        <span className="mb-1 block text-[11px] text-neutral-400">강도</span>
+        <div className="flex gap-1">
+          {(['off', 'subtle', 'normal'] as MotionIntensity[]).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => store().setMotionIntensity(v)}
+              className={cn(
+                'h-7 flex-1 rounded-md border text-[11px] transition-colors',
+                intensity === v ? 'border-[#c8a96a] bg-[#2a2117]/60 text-[#e6cf9a]' : 'border-neutral-700 text-neutral-300 hover:border-neutral-500',
+              )}
+            >
+              {INTENSITY_LABELS[v]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="grid gap-1.5">
+        {presetIds.map((pid) => {
+          const locked = MOTION_PRESETS[pid].tier === 'premium' && tier === 'basic';
+          return locked ? (
+            <PresetLockCard key={pid} pid={pid} />
+          ) : (
+            <PresetCard key={pid} pid={pid} active={pid === current} onSelect={() => store().setMotionPreset(pid)} />
+          );
+        })}
+      </div>
+    </FieldGroup>
+  );
+}
+
+/** [motion 3단계 재해석] 테마 편집 경고 — 대비/동일폰트. 편집=경고(저장 허용), 발행=차단(preflight). 단일 소스(contrastRatio·4.5). */
+function ThemeWarnings({ theme }: { theme: SiteTheme }) {
+  const warnings: string[] = [];
+  const ratio = contrastRatio(theme.palette.text, theme.palette.background);
+  if (ratio < 4.5) warnings.push(`본문 대비 ${ratio.toFixed(2)}:1 — WCAG AA(4.5:1) 미달입니다. 발행 시 차단되니 배경/본문 색을 조정하세요.`);
+  if (theme.fonts.heading === theme.fonts.body) warnings.push('제목과 본문에 같은 폰트를 쓰고 있습니다 — 디스플레이체와 본문체를 짝지어 위계를 만드세요.');
+  if (!warnings.length) return null;
+  return (
+    <div className="px-4 pt-1">
+      {warnings.map((w, i) => (
+        <div key={i} className="mb-1.5 flex gap-1.5 rounded-md border border-amber-900/60 bg-amber-950/30 px-2.5 py-2">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+          <p className="text-[11px] leading-4 text-amber-200/90">{w}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
   const store = useEditorStore.getState;
 
@@ -849,6 +917,10 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
           />
         ))}
       </FieldGroup>
+
+      <ThemeWarnings theme={theme} />
+
+      <MotionPanel />
 
       <FieldGroup title="타이포그래피">
         <SelectField label="제목 폰트" value={fontValue(theme.fonts.heading)} options={fontOptions(theme.fonts.heading)} onCommit={(v) => setFont('heading', v)} />

@@ -12,6 +12,7 @@ import type {
   CanvasElement,
   ElementKind,
   Frame,
+  MotionIntensity,
   Section,
   SectionBackground,
   SectionType,
@@ -127,6 +128,11 @@ export interface EditorState {
   // ----- 테마/메타 -----
   updateTheme: (patch: ThemePatch) => void;
   updateMeta: (patch: Partial<SiteMeta>) => void;
+
+  // ----- [motion 3단계] 사이트 모션 프리셋/강도 (config.motion — undo 추적) -----
+  /** 프리셋 교체 (같은 tier 내에서만 UI가 호출; 서버 sanitizeMotion이 최종 강제) */
+  setMotionPreset: (presetId: string) => void;
+  setMotionIntensity: (intensity: MotionIntensity) => void;
 
   // ----- [v3 Phase 4] 사업자 정보 (undo 비추적) -----
   setBusinessInfo: (info: BusinessInfo | null) => void;
@@ -647,6 +653,21 @@ export const useEditorStore = create<EditorState>()(
       updateMeta: (patch) =>
         set((state) => ({
           config: { ...state.config, meta: { ...state.config.meta, ...patch } },
+          dirty: true,
+        })),
+
+      // ----- [motion 3단계] 모션 프리셋/강도 -----
+      setMotionPreset: (presetId) =>
+        set((state) => ({
+          config: { ...state.config, motion: { presetId, intensity: state.config.motion?.intensity ?? 'normal' } },
+          dirty: true,
+        })),
+      setMotionIntensity: (intensity) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            motion: { presetId: state.config.motion?.presetId ?? 'cafe-basic', intensity },
+          },
           dirty: true,
         })),
 
