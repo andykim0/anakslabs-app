@@ -27,7 +27,8 @@ import {
   type CandidateBlueprint,
 } from '../design-candidates';
 import { KNOWN_SECTION_TYPES, mapCustomSectionType } from '../section-suggest';
-import { buildImagePool, shouldSkipAiPool } from '../image-pool';
+import { aiFillCount, buildImagePool, shouldSkipAiPool } from '../image-pool';
+import { imageFillMaxPerSite } from '@/lib/env';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { uploadAiAsset } from './storage';
 
@@ -237,26 +238,30 @@ export class SupabaseAiService implements AiService {
     const blueprint = matchBlueprintForCandidate(survey, candidate);
     const copy = await generateSectionCopy(survey, blueprint);
 
-    // [F3 #2a] 사용자 실사가 충분하면 Gemini 섹션 이미지 생성을 건너뛴다(실비용 절감).
+    // [Q4] 부족분(추정 슬롯 − 실사)만 AI 보충 생성. 비용 가드 IMAGE_FILL_MAX_PER_SITE(기본 8, 0=킬스위치).
+    //      실사가 슬롯을 덮으면 shouldSkipAiPool로 전량 스킵(실비용 절감).
     let aiImages: string[] = [];
-    if (!shouldSkipAiPool(survey.storePhotoUrls)) {
-      // 섹션용 보조 이미지 2장 — [V2] POV 골격(buildImagePrompt) 기반, 실패분은 제외
-      const poolPrompts = [
-        povImagePrompt(blueprint, survey, 'interior/workspace detail'),
-        povImagePrompt(blueprint, survey, 'signature product/service closeup'),
-      ];
+    const fillMax = imageFillMaxPerSite();
+    const fillCount = shouldSkipAiPool(survey.storePhotoUrls)
+      ? 0
+      : aiFillCount({ sectionPlan: survey.sectionPlan, storePhotos: survey.storePhotoUrls, fillMax });
+    if (fillCount > 0) {
+      // 섹션마다 다른 장면 프롬프트로 unique 생성 — 재사용 상한 하에 서로 다른 이미지가 슬롯을 채운다.
+      const SCENES = ['interior/workspace detail', 'signature product/service closeup', 'ambient wide shot', 'materials/tools flatlay', 'people/hands in action', 'exterior/entrance', 'texture/pattern macro', 'seasonal/mood moment'];
+      const scenes = Array.from({ length: fillCount }, (_, i) => SCENES[i % SCENES.length]);
       const generated = await Promise.all(
-        poolPrompts.map(async (prompt) => {
+        scenes.map(async (scene) => {
           try {
-            return await generateImageUrl(prompt, 'sections', '4:3'); // 섹션 보조 이미지
+            return await generateImageUrl(povImagePrompt(blueprint, survey, scene), 'sections', '4:3');
           } catch (err) {
-            console.warn('[ai] 섹션 이미지 생성 실패 — 히어로 이미지로 대체:', err);
+            console.warn('[ai] 섹션 이미지 생성 실패 — 스킵:', err);
             return null;
           }
         }),
       );
       aiImages = generated.filter((url): url is string => url !== null);
     }
+    console.info(`[image-pool] 실사 ${survey.storePhotoUrls?.length ?? 0}장 + AI 보충 ${aiImages.length}/${fillCount}장 (fillMax ${fillMax})`);
 
     // [F3 #2a] 실사 우선 → 부족분만 AI 이미지로 충전
     const { heroImageUrl, imagePool } = buildImagePool({

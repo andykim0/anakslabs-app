@@ -45,3 +45,29 @@ export function buildImagePool(input: {
 export function shouldSkipAiPool(storePhotos: string[] | undefined, threshold = 2): boolean {
   return (storePhotos?.filter(Boolean).length ?? 0) >= threshold;
 }
+
+/** [Q4] 섹션 타입별 이미지 슬롯 대략치 (히어로 배경은 별도라 0) */
+const IMAGES_PER_TYPE: Partial<Record<string, number>> = {
+  gallery: 4,
+  team: 3,
+  about: 1,
+  menu: 2,
+  cases: 1,
+};
+
+/**
+ * [Q4] sectionPlan으로 필요한 이미지 슬롯 수를 추정 — AI 부족분 생성량 계산용(정확치 아닌 상한 추정).
+ */
+export function estimateImageSlots(sectionPlan: { type: string }[]): number {
+  return sectionPlan.reduce((n, s) => n + (IMAGES_PER_TYPE[s.type] ?? 0), 0);
+}
+
+/** [Q4] 부족분 AI 생성량 = clamp(추정 슬롯 − 실사, 0, fillMax). 재사용 상한 하에 슬롯을 unique로 채운다. */
+export function aiFillCount(input: {
+  sectionPlan: { type: string }[];
+  storePhotos?: string[];
+  fillMax: number;
+}): number {
+  const need = estimateImageSlots(input.sectionPlan) - (input.storePhotos?.filter(Boolean).length ?? 0);
+  return Math.max(0, Math.min(input.fillMax, need));
+}

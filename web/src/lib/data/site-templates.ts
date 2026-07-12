@@ -123,6 +123,10 @@ interface Ctx {
   softText: string;
   seq: number;
   imgSeq: number;
+  /** [Q4] 이미 배정한 이미지 src (히어로 포함) — 사이트 전체 1슬롯 상한 */
+  usedImages: Set<string>;
+  /** [Q4] 풀 소진으로 재사용한 횟수 (로그·경고용) */
+  imageReuse: number;
 }
 
 function nextId(ctx: Ctx, prefix: string): string {
@@ -130,10 +134,20 @@ function nextId(ctx: Ctx, prefix: string): string {
   return `${prefix}-${ctx.seq}`;
 }
 
+/**
+ * [Q4] 이미지 슬롯 배정 — 같은 src를 사이트 전체에서 1회만(돌려쓰기 금지). 아직 안 쓴 풀 이미지를
+ * 우선 배정하고, 풀이 소진됐을 때만 순환(imageReuse 카운트↑). 히어로 배경은 별도(opts.heroImageUrl).
+ */
 function nextImage(ctx: Ctx): string {
   const pool = ctx.opts.imagePool.length > 0 ? ctx.opts.imagePool : [ctx.opts.heroImageUrl];
+  const unused = pool.find((src) => !ctx.usedImages.has(src));
+  if (unused) {
+    ctx.usedImages.add(unused);
+    return unused;
+  }
   const url = pool[ctx.imgSeq % pool.length];
   ctx.imgSeq += 1;
+  ctx.imageReuse += 1;
   return url;
 }
 
@@ -1497,6 +1511,9 @@ export function buildSiteConfigFromSurvey(
     softText: dark ? mixToward(theme.palette.text, theme.palette.muted, 0.35) : theme.palette.muted,
     seq: 0,
     imgSeq: 0,
+    // [Q4] 히어로 배경 src를 선점 처리 — 다른 섹션이 히어로 이미지를 재사용하지 않도록
+    usedImages: new Set(opts.heroImageUrl ? [opts.heroImageUrl] : []),
+    imageReuse: 0,
   };
 
   // 1) 계획표 확보 + hero/contact 최소 요건 합성 (pageSlug 보존)

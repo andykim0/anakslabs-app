@@ -41,6 +41,14 @@ export function videoGenConfig(): { enabled: boolean; maxPerSite: number; dailyC
   };
 }
 
+/** [Q4] 사이트당 부족분 이미지 AI 보충 생성 상한 (비용 가드). 0이면 보충 안 함(킬스위치). 기본 8 */
+export function imageFillMaxPerSite(): number {
+  const raw = process.env.IMAGE_FILL_MAX_PER_SITE;
+  if (raw === undefined || raw === '') return 8;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 8;
+}
+
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
