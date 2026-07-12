@@ -16,6 +16,7 @@ import {
   Monitor,
   Package,
   PencilRuler,
+  Play,
   Rocket,
   Smartphone,
 } from 'lucide-react';
@@ -47,6 +48,8 @@ function PreviewCard({ site }: { site: Site }) {
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
   const { toast } = useToast();
   const [source, setSource] = useState<'draft' | 'published'>(site.draftConfig ? 'draft' : 'published');
+  // [Q6] 모션 미리보기 — 발행 전 reveal/ken-burns 실동작 확인 (기본 끔 = 정적)
+  const [motionOn, setMotionOn] = useState(false);
 
   const hasBoth = Boolean(site.draftConfig && site.siteConfig);
   const config = source === 'draft' ? (site.draftConfig ?? site.siteConfig) : (site.siteConfig ?? site.draftConfig);
@@ -83,6 +86,21 @@ function PreviewCard({ site }: { site: Site }) {
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setMotionOn((v) => !v)}
+          aria-pressed={motionOn}
+          className={cn(
+            'flex h-7 items-center gap-1 rounded-lg border px-2 text-[11px] transition-colors',
+            motionOn
+              ? 'border-[#c8a96a] bg-[#2a2117] font-medium text-[#d9b878]'
+              : 'border-neutral-700 text-neutral-500 hover:text-neutral-300',
+          )}
+        >
+          <Play className="h-3 w-3" />
+          모션
+        </button>
         <div className="flex overflow-hidden rounded-lg border border-neutral-700">
           <button
             type="button"
@@ -107,6 +125,7 @@ function PreviewCard({ site }: { site: Site }) {
             <Smartphone className="h-3.5 w-3.5" />
           </button>
         </div>
+        </div>
       </div>
       <div className="bg-neutral-950 p-4">
         {config ? (
@@ -117,6 +136,7 @@ function PreviewCard({ site }: { site: Site }) {
               maxHeight={560}
               scroll
               interactive
+              motion={motionOn}
               onFormSubmit={() => toast('info', '발행 후 실제 사이트에서 문의가 전송됩니다.')}
             />
           </div>

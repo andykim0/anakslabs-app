@@ -46,6 +46,7 @@ export function SitePreview({
   className,
   interactive = false,
   onFormSubmit,
+  motion = false,
 }: {
   config: SiteConfig;
   mode?: 'desktop' | 'mobile';
@@ -61,6 +62,11 @@ export function SitePreview({
   interactive?: boolean;
   /** [F2b] 대화형 프리뷰에서 폼 제출 시 호출(실제 전송 대신 안내 토스트 등) */
   onFormSubmit?: () => void;
+  /**
+   * [Q6] 모션 미리보기 — true면 발행본과 동일하게 data-m+모션 CSS+런타임을 방출해
+   * reveal/ken-burns 등이 실제로 재생된다(기본 false=정적 썸네일).
+   */
+  motion?: boolean;
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -142,15 +148,17 @@ export function SitePreview({
           <PreviewErrorBoundary>
             {/* mode 고정: 'auto'는 뷰포트 브레이크포인트 기준 전환이라 미리보기 프레임과 어긋난다 */}
             {/* [F2b] interactive=false(기본): 썸네일 — 버튼이 <a>면 상위 카드 Link(<a>)와 앵커 중첩.
-                 interactive=true: 헤더 내비 + 페이지 전환. animate=false 필수(interactive만 주면 모션 방출),
+                 interactive=true: 헤더 내비 + 페이지 전환. 기본 animate=false(정적)이고,
+                 [Q6] motion=true일 때만 발행본과 동일한 모션(data-m+CSS+런타임)을 방출·재생.
                  siteId sentinel로 폼 입력 활성화(제출은 캡처에서 가로챔). */}
             {interactive && <TenantHeader config={config} currentSlug={previewSlug} />}
             <SiteRenderer
+              key={motion ? 'motion-on' : 'motion-off'} // [Q6] 토글 시 리마운트 → 런타임 재실행(처음부터 재생)
               config={config}
               mode={mode}
               pageSlug={interactive ? previewSlug : undefined}
               interactive={interactive}
-              animate={interactive ? false : undefined}
+              animate={motion ? true : interactive ? false : undefined}
               siteId={interactive ? PREVIEW_SITE_ID : undefined}
             />
           </PreviewErrorBoundary>

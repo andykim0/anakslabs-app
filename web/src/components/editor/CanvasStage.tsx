@@ -10,7 +10,7 @@
  *    재생 + 버튼(#앵커 스크롤·외부 링크는 새 탭) 동작.
  */
 import { useEffect, useRef, useState } from 'react';
-import { Eye, Plus, Smartphone } from 'lucide-react';
+import { Eye, Play, Plus, Smartphone } from 'lucide-react';
 import { DESIGN_WIDTH } from '@/lib/types/site';
 import { useEditorStore, activeSections} from '@/stores/editor';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
@@ -37,6 +37,29 @@ function handlePreviewClickCapture(e: React.MouseEvent) {
     if (state.config.pages.some((p) => p.slug === slug)) state.setPreviewPage(slug);
   }
   // '#앵커'는 기본 동작 = 프리뷰 안에서 해당 섹션으로 스크롤, mailto:/tel:도 통과
+}
+
+/**
+ * [Q6] 프리뷰 모션 토글 — 프리뷰는 기본 정적(animate=false, LCP·편집 집중)이지만,
+ * 발행 전에 reveal/ken-burns 등 실제 움직임을 확인할 수 있게 opt-in으로 켠다.
+ * (모션 미체감 ⑥의 원인 = 프리뷰 전 구간 미방출 — 버그가 아닌 UX 갭이라 토글로 해소)
+ */
+function MotionToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={on}
+      className={
+        on
+          ? 'inline-flex items-center gap-1 rounded-md border border-[#c8a96a] bg-[#2a2117] px-2 py-1 text-xs font-medium text-[#d9b878]'
+          : 'inline-flex items-center gap-1 rounded-md border border-neutral-700 px-2 py-1 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200'
+      }
+    >
+      <Play className="h-3 w-3" />
+      모션 {on ? '켬' : '끔'}
+    </button>
+  );
 }
 
 /** 프리뷰 페이지 전환 드롭다운 (Phase 3 TenantHeader 전 임시 스위처) */
@@ -71,6 +94,8 @@ export function CanvasStage() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(0.6);
+  // [Q6] 프리뷰 모션 토글 — 기본 끔(정적). 켜면 SiteRenderer가 data-m+CSS+런타임 방출, key 리마운트로 재생
+  const [motionOn, setMotionOn] = useState(false);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -103,6 +128,7 @@ export function CanvasStage() {
             <Smartphone className="h-3.5 w-3.5" />
             모바일 미리보기
             <PreviewPageSwitcher />
+            <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
           </div>
           <div
             className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-neutral-700 bg-black shadow-2xl"
@@ -110,7 +136,8 @@ export function CanvasStage() {
           >
             {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
             <TenantHeader config={config} currentSlug={previewPageSlug} />
-            <SiteRenderer config={config} mode="mobile" pageSlug={previewPageSlug} animate={false} />
+            {/* [Q6] key 리마운트 — 토글 시 런타임 재실행으로 모션 처음부터 재생 */}
+            <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="mobile" pageSlug={previewPageSlug} animate={motionOn} />
           </div>
         </div>
       </div>
@@ -122,13 +149,15 @@ export function CanvasStage() {
       <div className="min-w-0 flex-1 overflow-y-auto bg-[#111]" onClickCapture={handlePreviewClickCapture}>
         <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-neutral-400">
           <Eye className="h-3.5 w-3.5" />
-          미리보기 — 등장 애니메이션·버튼 동작 (외부 링크는 새 탭)
+          미리보기 — 버튼 동작 (외부 링크는 새 탭) · 모션 토글로 실제 움직임 확인
           <PreviewPageSwitcher />
+          <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
         </div>
         <div className="mx-auto max-w-[1440px] shadow-2xl">
           {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
           <TenantHeader config={config} currentSlug={previewPageSlug} />
-          <SiteRenderer config={config} mode="desktop" pageSlug={previewPageSlug} animate={false} />
+          {/* [Q6] key 리마운트 — 토글 시 런타임 재실행으로 모션 처음부터 재생 */}
+          <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="desktop" pageSlug={previewPageSlug} animate={motionOn} />
         </div>
       </div>
     );
