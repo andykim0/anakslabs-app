@@ -22,6 +22,7 @@ import {
   type StyleDirection,
   type LandingPattern,
 } from './design-knowledge-data';
+import { povForStyle } from '@/lib/design/quality-standards';
 
 // 데이터·타입 재노출 — 소비자는 이 모듈 하나만 import 하면 된다.
 export {
@@ -160,34 +161,33 @@ function rankFonts(
 }
 
 /**
- * 다양성 보장 스타일 선택:
+ * 다양성 보장 스타일 선택 — [온보딩] 차별화 축은 POV(무드).
+ * 이미지 렌더 스타일(candidateStyle)은 고객이 imageStyle로 고정하므로(design-candidates에서 오버라이드),
+ * 3안은 "같은 스타일 × 서로 다른 무드(POV)"가 되도록 POV가 겹치지 않게 고른다.
  * 1) 최고점 1개
- * 2) 첫 안과 candidateStyle 이 다르면서 실제 키워드 매칭이 있는(score ≥ 1) 것 중 최고점.
- *    임계값이 없으면 브리프와 무관한 방향이 '다양성' 명목으로 끼어든다 (지터 최대 0.096 < 1).
- *    없으면 점수순 차선.
- * 3) 이후 슬롯: 아직 3d_render 가 없으면 3d_render 최고점을 강제, 그다음은 점수순
+ * 2) 이후 슬롯: 아직 안 쓴 POV 중 키워드 매칭(score ≥ 1) 최고점 → 없으면 안 쓴 POV 점수순 → 그래도 없으면 점수순 차선.
+ *    (지터 최대 0.096 < 1 임계값으로 무관한 방향이 '다양성' 명목으로 끼어들지 않게)
  */
 function pickDiverseStyles(
   ranked: Array<{ st: StyleDirection; score: number }>,
   count: number,
 ): StyleDirection[] {
   const chosen: StyleDirection[] = [];
+  const usedPovs = new Set<string>();
   const take = (pred: (r: { st: StyleDirection; score: number }) => boolean): boolean => {
     const found = ranked.find((r) => !chosen.some((c) => c.id === r.st.id) && pred(r));
-    if (found) chosen.push(found.st);
+    if (found) {
+      chosen.push(found.st);
+      usedPovs.add(povForStyle(found.st.id));
+    }
     return Boolean(found);
   };
 
-  take(() => true);
-  if (chosen.length < count && chosen.length > 0) {
-    if (!take((r) => r.st.candidateStyle !== chosen[0].candidateStyle && r.score >= 1)) {
-      take(() => true);
-    }
-  }
+  take(() => true); // 슬롯 1: 최고점
   while (chosen.length < count) {
-    const need3d = !chosen.some((c) => c.candidateStyle === '3d_render');
-    if (need3d && take((r) => r.st.candidateStyle === '3d_render')) continue;
-    if (!take(() => true)) break; // 후보 소진
+    if (take((r) => !usedPovs.has(povForStyle(r.st.id)) && r.score >= 1)) continue; // 다른 POV + 매칭
+    if (take((r) => !usedPovs.has(povForStyle(r.st.id)))) continue; // 다른 POV (점수 무관)
+    if (!take(() => true)) break; // POV 소진 → 점수순 차선 (후보 소진 시 종료)
   }
   return chosen;
 }
@@ -227,9 +227,9 @@ function briefDescription(
 
 /**
  * 설문 → 서로 확실히 다른 디자인 브리프 count개 (기본 3안). 결정적 — 같은 설문이면 같은 결과.
- * 보장 규칙(count ≥ 3 기준): ① 최소 1안은 candidateStyle '3d_render'
+ * 보장 규칙(count ≥ 3 기준): ① 안끼리 POV(무드)가 겹치지 않게(차별화 축) — 렌더 스타일은 imageStyle로 고정됨
  * ② 3안이 전부 다크이거나 전부 라이트가 되지 않게 마지막 안의 팔레트를 반대 무드로 교체
- * ③ 스타일·팔레트·폰트는 안끼리 중복되지 않음.
+ * ③ 팔레트·폰트는 안끼리 중복되지 않음.
  */
 export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[] {
   const n = Math.max(1, Math.min(count, STYLE_DIRECTIONS.length));

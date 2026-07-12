@@ -434,6 +434,8 @@ export const surveySchema = z.object({
   tagline: z.string().max(200).optional(),
   conceptMode: z.enum(['real', 'fictional']).optional(),
   logoUrl: safeMediaSrcSchema.optional(),
+  // [온보딩] 이미지 렌더 스타일(고객 선택 축). 미설정 시 서버가 업종 기본값 폴백
+  imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
   contentMode: z.enum(['ai', 'provided']).optional(),
   providedContent: z.string().max(5000).optional(),
   reservationMode: z.enum(['external_link', 'cta']).optional(),

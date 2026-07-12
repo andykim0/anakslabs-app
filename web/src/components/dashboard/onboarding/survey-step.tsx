@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight, ChevronDown, ChevronUp, ImagePlus, Loader2, Lock, Sparkles, X } from 'lucide-react';
-import type { SectionPlanItem, SitePurposeId, SurveyInput } from '@/lib/types/domain';
+import type { CandidateStyle, SectionPlanItem, SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
+import { defaultImageStyle, IMAGE_STYLE_OPTIONS } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { suggestSection, uploadImage } from '../api';
 import { useToast } from '../toast';
@@ -27,6 +28,7 @@ const surveySchema = z.object({
   industry: z.string().min(1, '업종을 선택하거나 입력해주세요.'),
   tone: z.string().min(1, '원하는 분위기를 선택하거나 입력해주세요.'),
   colorPreference: z.string().min(1, '선호 컬러를 선택하거나 입력해주세요.'),
+  imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
   referenceImageUrls: z.array(z.string()).max(6, '레퍼런스 이미지는 최대 6장까지 선택할 수 있습니다.'),
   contentMode: z.enum(['ai', 'provided']).optional(),
   providedContent: z.string().max(5000, '제공 내용은 5000자 이내로 입력해주세요.').optional(),
@@ -51,6 +53,39 @@ const GROUP_ORDER: { group: PurposeGroup; label: string; hint: string }[] = [
 const SPECIAL_PURPOSE_IDS: SitePurposeId[] = ['event', 'one_page'];
 
 const TONE_CHIPS = ['고급스러운', '미니멀', '친근한', '대담한', '차분한', '러스틱', '모던'];
+
+/** 이미지 스타일 미니 예시 썸네일 (인라인 SVG — 외부 에셋 없음) */
+function StyleThumb({ style }: { style: CandidateStyle }) {
+  const common = 'h-full w-full';
+  if (style === '3d_render') {
+    return (
+      <svg viewBox="0 0 64 40" className={common} aria-hidden>
+        <rect width="64" height="40" fill="#eceef4" />
+        <path d="M32 8 48 17 32 26 16 17Z" fill="#a9b6d6" />
+        <path d="M16 17 32 26 32 39 16 30Z" fill="#7f8fbd" />
+        <path d="M48 17 32 26 32 39 48 30Z" fill="#5f6fa3" />
+      </svg>
+    );
+  }
+  if (style === 'illustration') {
+    return (
+      <svg viewBox="0 0 64 40" className={common} aria-hidden>
+        <rect width="64" height="40" fill="#fbf1e2" />
+        <circle cx="22" cy="21" r="9" fill="#e8a06a" />
+        <path d="M38 31 48 12 58 31Z" fill="#7fae86" />
+        <rect x="29" y="25" width="11" height="6" rx="1" fill="#d98b8b" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 64 40" className={common} aria-hidden>
+      <rect width="64" height="40" fill="#dbe6f0" />
+      <circle cx="47" cy="12" r="6" fill="#f3c979" />
+      <path d="M0 40 18 24 30 31 46 18 64 33 64 40Z" fill="#8ea7c4" />
+      <path d="M0 40 24 30 40 36 64 27 64 40Z" fill="#6f8bab" />
+    </svg>
+  );
+}
 
 const COLOR_PRESETS: { label: string; colors: [string, string] }[] = [
   { label: '딥 차콜 & 골드', colors: ['#0f0e0c', '#b08d57'] },
@@ -193,6 +228,7 @@ export function SurveyStep({
           industry: initialValues.industry,
           tone: initialValues.tone,
           colorPreference: initialValues.colorPreference,
+          imageStyle: initialValues.imageStyle,
           referenceImageUrls: initialValues.referenceImageUrls,
           contentMode: initialValues.contentMode ?? 'ai',
           providedContent: initialValues.providedContent ?? '',
@@ -209,6 +245,7 @@ export function SurveyStep({
           industry: '',
           tone: '',
           colorPreference: '',
+          imageStyle: undefined,
           referenceImageUrls: [],
           contentMode: 'ai',
           providedContent: '',
@@ -222,6 +259,12 @@ export function SurveyStep({
   const industry = watch('industry');
   const tone = watch('tone');
   const colorPreference = watch('colorPreference');
+  const imageStyle = watch('imageStyle');
+  // 업종 기반 기본 이미지 스타일을 사전 선택 (사용자가 직접 고르기 전까지 업종 변경에 따라 갱신)
+  const imageStyleTouched = useRef<boolean>(Boolean(initialValues?.imageStyle));
+  useEffect(() => {
+    if (!imageStyleTouched.current) setValue('imageStyle', defaultImageStyle(industry));
+  }, [industry, setValue]);
   const referenceImageUrls = watch('referenceImageUrls');
   const conceptMode = watch('conceptMode');
   const contentMode = watch('contentMode');
@@ -395,6 +438,7 @@ export function SurveyStep({
       industry: values.industry,
       tone: values.tone,
       colorPreference: values.colorPreference,
+      imageStyle: values.imageStyle ?? defaultImageStyle(values.industry),
       referenceImageUrls: values.referenceImageUrls,
       sectionPlan,
       templateId,
@@ -617,6 +661,47 @@ export function SurveyStep({
             })}
           </div>
           <input {...register('colorPreference')} placeholder="직접 입력 (예: 버건디 + 크림, #7a2e2e)" className={inputClass} />
+        </div>
+
+        {/* 이미지 스타일 */}
+        <div>
+          <FieldLabel>사이트 이미지를 어떤 느낌으로 만들까요?</FieldLabel>
+          <p className="mb-2 text-xs text-neutral-500">
+            선택한 스타일로 후보 3안이 모두 만들어지고, 각 안은 서로 다른 무드로 제안돼요.
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {IMAGE_STYLE_OPTIONS.map((opt) => {
+              const recommended = opt.id === defaultImageStyle(industry);
+              const selected = (imageStyle ?? defaultImageStyle(industry)) === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    imageStyleTouched.current = true;
+                    setField('imageStyle', opt.id);
+                  }}
+                  className={cn(
+                    'flex flex-col overflow-hidden rounded-lg border text-left transition-colors',
+                    selected ? 'border-[#c8a96a] ring-1 ring-[#c8a96a]/50' : 'border-neutral-700 hover:border-neutral-500',
+                  )}
+                >
+                  <div className="relative aspect-[8/5] w-full bg-neutral-900">
+                    <StyleThumb style={opt.id} />
+                    {recommended ? (
+                      <span className="absolute top-1.5 left-1.5 rounded-full bg-[#c8a96a] px-1.5 py-0.5 text-[9px] font-semibold text-neutral-950">
+                        추천
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="p-2.5">
+                    <p className={cn('text-xs font-semibold', selected ? 'text-[#d9b878]' : 'text-neutral-200')}>{opt.label}</p>
+                    <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">{opt.description}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 레퍼런스 이미지 */}

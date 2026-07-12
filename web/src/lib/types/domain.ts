@@ -261,6 +261,11 @@ export interface SurveyInput {
   conceptMode?: ConceptMode;
   /** 로고/브랜드 자산 URL (업로드 결과). 없으면 텍스트 로고타입 */
   logoUrl?: string;
+  /**
+   * [온보딩] 사이트 이미지 렌더 스타일 — 고객 선택 축. 미설정 시 업종 기본값으로 폴백
+   * (defaultImageStyle). 후보 3안은 이 스타일로 고정되고 POV(무드)로만 차별화된다.
+   */
+  imageStyle?: CandidateStyle;
   /** 'ai'(기본): AI 카피 창작 / 'provided': 고객 제공 원문 다듬기만 */
   contentMode?: ContentMode;
   /** contentMode='provided' 시 고객이 제공한 원문 */

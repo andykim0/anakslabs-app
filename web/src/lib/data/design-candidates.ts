@@ -21,6 +21,7 @@ import {
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
+import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
 export interface CandidateBlueprint {
@@ -142,19 +143,26 @@ function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief): string {
 }
 
 export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprint[] {
+  // [온보딩] 이미지 스타일은 고객 선택 축 — 3안 전부 이 스타일로 고정하고 차별화는 POV(무드)로만.
+  // 미설정 시 업종 기본값 폴백(기존 데이터 호환). 렌더 스타일은 candidateStyle이 결정(buildImagePrompt·mock).
+  const imageStyle = resolveImageStyle({ imageStyle: survey.imageStyle, industry: survey.industry });
   const briefs = selectDesignBriefs(surveyForBriefs(survey));
-  return briefs.map((brief) => ({
-    id: `cand-${brief.style.id}`,
-    label: brief.label,
-    style: brief.style.candidateStyle,
-    description: brief.description,
-    theme: buildThemeFromBrief(brief),
-    heroImagePrompt: buildHeroPrompt(survey, brief),
-    mockHeroUrl: mockHeroFor(brief),
-    heroImageFragment: brief.style.heroImageFragment,
-    sectionImageFragment: brief.style.sectionImageFragment,
-    brief,
-  }));
+  return briefs.map((brief) => {
+    // 공유 StyleDirection을 변형하지 않도록 candidateStyle만 imageStyle로 덮은 복사본을 만든다.
+    const styled: DesignBrief = { ...brief, style: { ...brief.style, candidateStyle: imageStyle } };
+    return {
+      id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
+      label: brief.label,
+      style: imageStyle, // 후보 표시 스타일 = 고정 imageStyle
+      description: brief.description,
+      theme: buildThemeFromBrief(brief),
+      heroImagePrompt: buildHeroPrompt(survey, styled),
+      mockHeroUrl: mockHeroFor(styled),
+      heroImageFragment: brief.style.heroImageFragment,
+      sectionImageFragment: brief.style.sectionImageFragment,
+      brief: styled,
+    };
+  });
 }
 
 // ---------- 후보 → 블루프린트 역참조 (2차 단계에서 재사용) ----------

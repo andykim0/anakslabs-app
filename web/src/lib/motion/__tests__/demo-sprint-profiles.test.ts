@@ -7,9 +7,10 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emptySiteConfig, type MotionTier, type SiteConfig } from '@/lib/types/site';
-import type { SitePurposeId } from '@/lib/types/domain';
+import type { CandidateStyle, SitePurposeId } from '@/lib/types/domain';
 import { resolvePresetForIndustry, MOTION_PRESETS } from '@/lib/motion/presets';
 import { sanitizeMotion } from '@/lib/motion/validate';
+import { defaultImageStyle } from '@/lib/onboarding/image-style';
 
 interface Profile {
   n: number;
@@ -19,15 +20,17 @@ interface Profile {
   preset: string;
   hero: string;
   accents: string[];
+  industry: string;
+  imageStyle: CandidateStyle; // 업종 기본값(설문 미설정 시 폴백)
 }
 
 // docs/demo-sprint-profiles.md 표와 1:1 (변경 시 문서·표 동시 갱신)
 const PROFILES: Profile[] = [
-  { n: 1, name: '소소한자리(카페)', purposeId: 'local_store', tier: 'basic', preset: 'cafe-basic', hero: 'ken-burns', accents: ['marquee'] },
-  { n: 2, name: '한걸음수학(학원)', purposeId: 'edu_membership', tier: 'basic', preset: 'academy-basic', hero: 'ken-burns', accents: ['count-up'] },
-  { n: 3, name: '온화 다이닝(파인다이닝)', purposeId: 'local_store', tier: 'premium', preset: 'dining-premium', hero: 'video-hero', accents: ['spotlight', 'split-text'] },
-  { n: 4, name: '결 뷰티라운지(뷰티)', purposeId: 'booking_service', tier: 'premium', preset: 'beauty-premium', hero: 'video-hero', accents: ['parallax', 'hover-video'] },
-  { n: 5, name: '법무법인 다림(법률)', purposeId: 'company_brand', tier: 'premium', preset: 'clinic-premium', hero: 'video-hero', accents: ['count-up', 'stacking-cards'] },
+  { n: 1, name: '소소한자리(카페)', purposeId: 'local_store', tier: 'basic', preset: 'cafe-basic', hero: 'ken-burns', accents: ['marquee'], industry: '카페·베이커리', imageStyle: 'photo' },
+  { n: 2, name: '한걸음수학(학원)', purposeId: 'edu_membership', tier: 'basic', preset: 'academy-basic', hero: 'ken-burns', accents: ['count-up'], industry: '학원·교육 (중등 수학 전문)', imageStyle: 'photo' },
+  { n: 3, name: '온화 다이닝(파인다이닝)', purposeId: 'local_store', tier: 'premium', preset: 'dining-premium', hero: 'video-hero', accents: ['spotlight', 'split-text'], industry: '레스토랑 (한식 파인다이닝, 코스 전문)', imageStyle: 'photo' },
+  { n: 4, name: '결 뷰티라운지(뷰티)', purposeId: 'booking_service', tier: 'premium', preset: 'beauty-premium', hero: 'video-hero', accents: ['parallax', 'hover-video'], industry: '미용실·네일샵', imageStyle: 'photo' },
+  { n: 5, name: '법무법인 다림(법률)', purposeId: 'company_brand', tier: 'premium', preset: 'clinic-premium', hero: 'video-hero', accents: ['count-up', 'stacking-cards'], industry: '법률사무소 (이혼·상속 전문)', imageStyle: 'photo' },
 ];
 
 describe('데모 스프린트 프로필 → 프리셋/모션 기대표 (docs/demo-sprint-profiles.md)', () => {
@@ -53,4 +56,11 @@ describe('데모 스프린트 프로필 → 프리셋/모션 기대표 (docs/dem
     covered.add('office-basic'); // §6 다운그레이드
     assert.equal(covered.size, Object.keys(MOTION_PRESETS).length, '6개 프리셋 전부 커버해야');
   });
+
+  // [imageStyle 축] 데모 5종 업종 → 기본 이미지 스타일 폴백(설문 미설정 시). 전부 실사(photo).
+  for (const p of PROFILES) {
+    test(`#${p.n} ${p.name} — 업종 "${p.industry}" → imageStyle=${p.imageStyle}`, () => {
+      assert.equal(defaultImageStyle(p.industry), p.imageStyle, '업종 기본 imageStyle 드리프트');
+    });
+  }
 });
