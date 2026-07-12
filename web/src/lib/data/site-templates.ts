@@ -26,6 +26,8 @@ import { toneText } from '@/lib/onboarding/tone';
 import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
+import { findPov, type PovKit } from '@/lib/design/quality-standards';
+import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import { teaserSummary } from './teaser-summary';
 import { parseAddress, parseBusinessHours, parseMenuItems } from './content-parse';
 
@@ -127,6 +129,8 @@ interface Ctx {
   usedImages: Set<string>;
   /** [Q4] 풀 소진으로 재사용한 횟수 (로그·경고용) */
   imageReuse: number;
+  /** [Q5] POV 개성 키트 — 가격 타이포·구분선·이미지 라운딩·인용 스타일(생성 시 POV가 결정) */
+  kit: PovKit;
 }
 
 function nextId(ctx: Ctx, prefix: string): string {
@@ -347,7 +351,7 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
         z: 2,
         src: nextImage(ctx),
         alt: `${survey.businessName} 소개 이미지`,
-        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       },
       {
         id: nextId(ctx, 'el-about-kicker'),
@@ -405,7 +409,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
         z: 2,
         src: nextImage(ctx),
         alt: `${survey.businessName} 대표`,
-        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       },
       {
         id: nextId(ctx, 'el-greet-kicker'),
@@ -487,7 +491,7 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'divider',
         frame: { x: 120, y: y + 62, w: 1200, h: 1 },
         z: 1,
-        style: { color: theme.palette.muted, thickness: 1 },
+        style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
       },
     );
   });
@@ -678,7 +682,7 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
           frame: { x: 820, y: y - 2, w: 500, h: 36 },
           z: 2,
           text: `${mi.price}원`,
-          style: { fontSize: 26, fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
+          style: { fontSize: Math.round(26 * ctx.kit.priceScale), fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
         });
       }
       elements.push({
@@ -686,7 +690,7 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'divider',
         frame: { x: 120, y: y + 52, w: 1200, h: 1 },
         z: 1,
-        style: { color: theme.palette.muted, thickness: 1 },
+        style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
       });
     });
     return {
@@ -707,7 +711,7 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
       z: 2,
       src: nextImage(ctx),
       alt: card.name,
-      style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+      style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
     });
     elements.push({
       id: nextId(ctx, 'el-menu-name'),
@@ -774,7 +778,7 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
       z: 2,
       src: nextImage(ctx),
       alt: '갤러리 이미지',
-      style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+      style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
     });
   });
   return {
@@ -811,7 +815,7 @@ function buildTestimonials(ctx: Ctx, _item: SectionPlanItem): Section {
         frame: { x: 282, y: 170, w: 900, h: 120 },
         z: 2,
         text: `한 번 다녀가면 알게 됩니다.\n${survey.businessName}가 왜 조용히 오래가는지.`,
-        style: { fontSize: 30, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.6 },
+        style: { fontSize: 30, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.6, ...(ctx.kit.quoteItalic ? { italic: true } : {}) },
       },
       {
         id: nextId(ctx, 'el-quote-attr'),
@@ -1199,7 +1203,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
         z: 2,
         src: nextImage(ctx),
         alt: m.name,
-        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       },
       {
         id: nextId(ctx, 'el-team-name'),
@@ -1349,7 +1353,7 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'divider',
         frame: { x: 120, y: y + 116, w: 1200, h: 1 },
         z: 1,
-        style: { color: theme.palette.muted, thickness: 1 },
+        style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
       },
     );
   });
@@ -1429,7 +1433,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
         z: 2,
         src: entry.thumb,
         alt: entry.title,
-        style: { objectFit: 'cover', borderRadius: theme.radius ?? 4 },
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       });
       textTop = y + 168;
     }
@@ -1503,6 +1507,8 @@ export function buildSiteConfigFromSurvey(
 ): SiteConfig {
   const theme = candidate.theme;
   const dark = isDark(theme);
+  // [Q5] 선택 후보의 POV → 개성 키트(리듬·타이포·라운딩). 미지 id는 povForStyle 폴백(결정적)
+  const povId = povForCandidateId(candidate.id);
   const ctx: Ctx = {
     theme,
     survey,
@@ -1514,6 +1520,7 @@ export function buildSiteConfigFromSurvey(
     // [Q4] 히어로 배경 src를 선점 처리 — 다른 섹션이 히어로 이미지를 재사용하지 않도록
     usedImages: new Set(opts.heroImageUrl ? [opts.heroImageUrl] : []),
     imageReuse: 0,
+    kit: findPov(povId).kit,
   };
 
   // 1) 계획표 확보 + hero/contact 최소 요건 합성 (pageSlug 보존)
@@ -1646,6 +1653,10 @@ export function buildSiteConfigFromSurvey(
     const heroIdx = homePg.sections.findIndex((s) => s.type === 'hero');
     homePg.sections.splice(heroIdx >= 0 ? heroIdx + 1 : 0, 0, teaser);
   }
+
+  // 4.7) [Q5] 배경 리듬 + 악센트 밴드 — POV 키트가 페이지의 배경 시퀀스를 결정(흰 배경 연속 해소).
+  //      홈은 밴드 필수(one_page 목적 제외), 미디어 배경(hero)은 미개입(Q1 스크림 담당).
+  applyRhythmToPages(pages, povId, theme.palette, { skipBand: survey.purposeId === 'one_page' });
 
   // 5) [v4 Phase 4] 페이지 간 앵커 재작성 — 다른 페이지 섹션을 가리키는 '#id'는
   //    '/{slug}#id'(홈은 '/#id')로 바꿔 페이지 이동 후 스크롤되게 한다.

@@ -11,6 +11,7 @@
  * 유도. ③ CandidateStyle(photo|3d_render|illustration)은 POV와 직교(렌더 방식) — buildImagePrompt 파라미터로만 사용.
  */
 import type { CandidateStyle } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
 import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
 
 export type EnforcementMode = 'hard-code' | 'generation-data' | 'validator' | 'qa-audit';
@@ -106,6 +107,27 @@ export const QUALITY_STANDARDS: QualityStandard[] = [
 
 export type PovId = 'editorial' | 'dark-luxury' | 'warm-artisan' | 'swiss-minimal' | 'soft-organic' | 'bold-brutalist';
 
+/**
+ * [Q5] POV 개성 키트 — 생성 시 POV가 결정하는 장식·리듬 축(LLM 선택 아님).
+ * 소비: section-rhythm(배경 리듬·악센트 밴드), site-templates 빌더(가격 타이포·구분선·이미지 라운딩·인용).
+ */
+export interface PovKit {
+  /** 배경 리듬 사이클 — 'background'/'surface' 교대 패턴. 사이클 내 최대 런 2(3연속 금지 보장) */
+  rhythm: readonly ('background' | 'surface')[];
+  /** 악센트 밴드 색 원천 — 'primary'=팔레트 primary 밴드, 'dark'=배경 반전(팔레트 text 토큰) 밴드 */
+  bandSource: 'primary' | 'dark';
+  /** 밴드 우선 배치 섹션 타입(앞선 것 우선). 매칭 없으면 중후반 섹션 폴백 */
+  bandPreference: readonly SectionType[];
+  /** 구분선 두께(px) */
+  dividerThickness: number;
+  /** 메뉴 가격 타이포 배율(1 = 기본) — 오버사이즈 가격은 POV가 결정 */
+  priceScale: number;
+  /** 이미지 요소 라운딩(px) — 카드·버튼은 theme.radius 유지, 이미지만 POV 개성 */
+  imageRadius: number;
+  /** 인용(후기) 본문 이탤릭 여부 */
+  quoteItalic: boolean;
+}
+
 export interface DesignPov {
   id: PovId;
   mood: string;
@@ -115,6 +137,8 @@ export interface DesignPov {
   avoid: string[];
   /** 허용 폰트 페어링 — 기존 FONT_PAIRINGS id만(신규 레지스트리 금지) */
   allowedPairings: string[];
+  /** [Q5] 개성 키트 — 배경 리듬·장식 축 */
+  kit: PovKit;
 }
 
 export const DESIGN_POVS: DesignPov[] = [
@@ -124,6 +148,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['갤러리', '스튜디오', '브랜드', '출판·미디어', '헤리티지'],
     avoid: ['형광색', '과한 그림자', '스톡 사진 남발'],
     allowedPairings: ['hahmlet-editorial', 'playfair-classic', 'garamond-counsel', 'bodoni-mode'],
+    kit: {
+      rhythm: ['background', 'surface'],
+      bandSource: 'dark',
+      bandPreference: ['cta', 'testimonials', 'about'],
+      dividerThickness: 1,
+      priceScale: 1,
+      imageRadius: 2,
+      quoteItalic: true,
+    },
   },
   {
     id: 'dark-luxury',
@@ -131,6 +164,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['파인다이닝', '호텔', '주얼리', '프리미엄 서비스'],
     avoid: ['밝은 파스텔', '만화체', '무지개 팔레트'],
     allowedPairings: ['cormorant-luxe', 'cinzel-estate', 'bodoni-mode', 'playfair-classic'],
+    kit: {
+      rhythm: ['background', 'background', 'surface'],
+      bandSource: 'primary',
+      bandPreference: ['cta', 'testimonials', 'menu'],
+      dividerThickness: 1,
+      priceScale: 1.15,
+      imageRadius: 4,
+      quoteItalic: true,
+    },
   },
   {
     id: 'warm-artisan',
@@ -138,6 +180,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['카페', '베이커리', '공방', '리테일'],
     avoid: ['차가운 형광 그라데이션', '기계적 대칭'],
     allowedPairings: ['gowun-batang-literary', 'lora-wellness', 'caveat-handmade', 'abril-retro'],
+    kit: {
+      rhythm: ['background', 'surface'],
+      bandSource: 'primary',
+      bandPreference: ['cta', 'testimonials', 'about'],
+      dividerThickness: 2,
+      priceScale: 1.1,
+      imageRadius: 14,
+      quoteItalic: false,
+    },
   },
   {
     id: 'swiss-minimal',
@@ -145,6 +196,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['회사·브랜드', '테크', '컨설팅', '포트폴리오'],
     avoid: ['장식체', '질감 오버레이', '과한 색'],
     allowedPairings: ['space-grotesk-tech', 'outfit-geometric', 'ibm-plex-trust'],
+    kit: {
+      rhythm: ['background', 'background', 'surface'],
+      bandSource: 'dark',
+      bandPreference: ['cta', 'cases', 'pricing'],
+      dividerThickness: 2,
+      priceScale: 1,
+      imageRadius: 0,
+      quoteItalic: false,
+    },
   },
   {
     id: 'soft-organic',
@@ -152,6 +212,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['웰니스', '뷰티', '요가·필라테스', '식물·플라워'],
     avoid: ['날카로운 각', '고대비 네온', '브루탈 타입'],
     allowedPairings: ['lora-wellness', 'gowun-batang-literary', 'fredoka-playful'],
+    kit: {
+      rhythm: ['background', 'surface', 'surface'],
+      bandSource: 'primary',
+      bandPreference: ['cta', 'testimonials', 'faq'],
+      dividerThickness: 1,
+      priceScale: 1.05,
+      imageRadius: 24,
+      quoteItalic: false,
+    },
   },
   {
     id: 'bold-brutalist',
@@ -159,6 +228,15 @@ export const DESIGN_POVS: DesignPov[] = [
     bestFor: ['피트니스', '이벤트', '스트리트 브랜드', '스포츠'],
     avoid: ['섬세한 세리프', '파스텔', '옅은 대비'],
     allowedPairings: ['bebas-impact', 'syne-avantgarde', 'barlow-athletic', 'space-grotesk-tech'],
+    kit: {
+      rhythm: ['background', 'surface'],
+      bandSource: 'dark',
+      bandPreference: ['cta', 'cases', 'testimonials'],
+      dividerThickness: 4,
+      priceScale: 1.3,
+      imageRadius: 0,
+      quoteItalic: false,
+    },
   },
 ];
 
