@@ -237,8 +237,10 @@ export interface SectionBackground {
    * [motion 3단계] video-hero 배경 영상 소스. 렌더러는 플랜이 video-hero인 히어로에만 방출한다.
    * poster는 운영상 필수 — 없으면 렌더러가 ken-burns로 폴백(빈 화면 리스크 원천 차단).
    * (폴백 체인: video 없음 → ken-burns / src 有·poster 無 → ken-burns / 로드실패 → poster / 모바일·reduced-motion → poster)
+   * [motion 4단계] bytes: 원본 파일 크기(있으면). 발행 게이트(preflight)가 VIDEO_TARGET/HARD_MAX와 대조.
+   * 현재 미설정(후처리 파이프라인 도입 시 측정값 기록 → 게이트 활성).
    */
-  video?: { src: string; poster?: string };
+  video?: { src: string; poster?: string; bytes?: number };
 }
 
 export interface Section {

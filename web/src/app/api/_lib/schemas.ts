@@ -247,6 +247,8 @@ const sectionBackgroundSchema = z.object({
     .object({
       src: safeMediaSrcSchema,
       poster: safeMediaSrcSchema.optional(),
+      // [motion 4단계] 원본 파일 크기(bytes) — 발행 게이트 대조용. 후처리 파이프라인이 기록
+      bytes: z.number().int().positive().optional(),
     })
     .optional(),
 });

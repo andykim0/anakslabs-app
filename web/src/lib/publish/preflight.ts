@@ -11,6 +11,7 @@
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { allSections } from '@/lib/types/site';
 import { sanitizeMotion } from '@/lib/motion/validate';
+import { classifyVideoBytes } from '@/lib/motion/asset-limits';
 import { validatePalette, qaAuditChecklist } from '@/lib/design/quality-standards';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
@@ -59,6 +60,10 @@ export function checkPublish(
     if (s.background.video?.src && !s.background.video.poster) {
       warnings.push(`섹션 '${s.name}'의 배경 영상에 poster가 없습니다 — video-hero가 ken-burns로 폴백됩니다.`);
     }
+    // [motion 4단계] 배경 영상 원본 크기 게이트 (bytes 기록 시 활성 — 후처리 파이프라인 도입 후)
+    const sz = classifyVideoBytes(s.background.video?.bytes);
+    if (sz.blocker) blockers.push(`섹션 '${s.name}': ${sz.blocker}`);
+    else if (sz.warning) warnings.push(`섹션 '${s.name}': ${sz.warning}`);
   }
 
   // ① 자가 SEO/AEO/GEO 진단 (라우트가 주입) — 기준 미달이면 발행 허용 + 경고
