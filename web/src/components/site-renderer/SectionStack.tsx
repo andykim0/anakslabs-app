@@ -60,8 +60,11 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
   const bg = section.background;
   const elements = section.elements.filter(stackable).sort((a, b) => a.frame.y - b.frame.y || a.frame.x - b.frame.x);
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
+  // [motion 3단계] 모바일: video-hero는 poster 정적(영상 미로드 — 대역폭·자동재생 정책). 없으면 배경 이미지.
+  const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;
+  const bgImgSrc = videoHero ? bg.video!.poster! : bg.image?.src;
 
-  if (elements.length === 0 && !bg.image) return null;
+  if (elements.length === 0 && !bgImgSrc) return null;
 
   return (
     <section
@@ -76,10 +79,10 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
         minHeight: elements.length === 0 ? '52vw' : undefined,
       }}
     >
-      {bg.image && (
+      {bgImgSrc && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={bg.image.src}
+          src={bgImgSrc}
           alt=""
           aria-hidden
           loading={isFirst ? 'eager' : 'lazy'}
@@ -115,6 +118,8 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
         {elements.map((el) => {
           const m = plan ? motionFor(plan, section.id, el.id) : undefined;
           const countup = m === 'countup' && el.kind === 'text' ? parseStatParts(el.text) ?? undefined : undefined;
+          // 모바일 hover-video: hover 불가 → autoplay 끄고 poster 정적 유지(대역폭 절약)
+          const hoverVideo = m === 'hovervideo';
           const dataM = m === 'reveal' || m === 'mask' ? m : undefined;
           const delay = m === 'reveal' && plan ? revealDelayFor(plan, section.id, el.id) : undefined;
           return (
@@ -124,7 +129,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
               style={itemStyle(el)}
             >
-              <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} />
+              <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} hoverVideo={hoverVideo} />
             </div>
           );
         })}

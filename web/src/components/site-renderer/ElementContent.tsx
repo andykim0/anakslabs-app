@@ -46,6 +46,10 @@ interface ElementContentProps {
   siteId?: string;
   /** [motion-system 2단계] 통계 텍스트 count-up 대상이면 목표/접두/접미 — 텍스트 노드에 data-m 부착 */
   countup?: { to: number; prefix: string; suffix: string };
+  /** [motion 3단계] split-text 대상(히어로 헤드라인) — 텍스트를 단어 span으로 분할, aria-label로 원문 보존 */
+  splitText?: boolean;
+  /** [motion 3단계] hover-video 대상(썸네일) — autoplay 끄고 hover 재생(preload none) */
+  hoverVideo?: boolean;
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -53,10 +57,10 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
-export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup }: ElementContentProps) {
+export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup, splitText, hoverVideo }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
-      return <TextContent el={element} theme={theme} variant={variant} countup={countup} />;
+      return <TextContent el={element} theme={theme} variant={variant} countup={countup} splitText={splitText} />;
     case 'image':
       return <ImageContent el={element} theme={theme} variant={variant} eager={eager} />;
     case 'button':
@@ -66,7 +70,7 @@ export function ElementContent({ element, theme, variant, eager, interactive = t
     case 'divider':
       return <DividerContent el={element} theme={theme} variant={variant} />;
     case 'video':
-      return <VideoContent el={element} variant={variant} eager={eager} />;
+      return <VideoContent el={element} variant={variant} eager={eager} hoverVideo={hoverVideo} />;
     case 'form':
       return (
         <ContactForm el={element} theme={theme} siteId={siteId} interactive={interactive} compact={variant === 'stack'} />
@@ -87,11 +91,13 @@ function TextContent({
   theme,
   variant,
   countup,
+  splitText,
 }: {
   el: TextElement;
   theme: SiteTheme;
   variant: RenderVariant;
   countup?: { to: number; prefix: string; suffix: string };
+  splitText?: boolean;
 }) {
   const s = el.style;
   const style: CSSProperties = {
@@ -110,6 +116,22 @@ function TextContent({
     wordBreak: 'keep-all', // 한국어 어절 단위 줄바꿈
     overflowWrap: 'break-word',
   };
+
+  // [motion 3단계] split-text: 단어 단위 span 분할(렌더 시점 마크업 — 런타임 DOM 재작성 없음).
+  // 원문은 aria-label로 보존, 각 단어는 aria-hidden. 데스크톱 캔버스에서만(모바일 스택은 정적).
+  if (splitText && variant === 'canvas' && el.text.trim()) {
+    const tokens = el.text.match(/\S+\s*/g) ?? [el.text];
+    return (
+      <p style={style} aria-label={el.text}>
+        {tokens.map((tok, i) => (
+          <span key={i} data-m="splitword" data-m-delay={String(i * 60)} aria-hidden>
+            {tok}
+          </span>
+        ))}
+      </p>
+    );
+  }
+
   // count-up 대상이면 텍스트 노드에 data-m 부착 (런타임이 textContent를 0→목표로 카운트, 스타일 보존)
   const m = countup
     ? { 'data-m': 'countup', 'data-m-to': String(countup.to), 'data-m-prefix': countup.prefix, 'data-m-suffix': countup.suffix }
@@ -432,9 +454,11 @@ function SocialLinksContent({
 
 // ---------- video ----------
 
-function VideoContent({ el, variant, eager }: { el: VideoElement; variant: RenderVariant; eager?: boolean }) {
+function VideoContent({ el, variant, eager, hoverVideo }: { el: VideoElement; variant: RenderVariant; eager?: boolean; hoverVideo?: boolean }) {
   const s = el.style;
   const radius = s.borderRadius ?? 0;
+  // [motion 3단계] hover-video: autoplay 끄고 preload none — 런타임이 hover 시 재생(데스크톱만). poster가 정지 화면.
+  const m = hoverVideo ? { 'data-m': 'hovervideo' } : {};
   return (
     <video
       // 스킴 화이트리스트 — zod 검증과 별개의 렌더 방어선
@@ -442,10 +466,11 @@ function VideoContent({ el, variant, eager }: { el: VideoElement; variant: Rende
       poster={safeMediaSrc(el.poster)}
       // 모바일 자동재생 정책: muted + playsInline 필수
       muted={s.muted ?? true}
-      autoPlay={s.autoplay ?? true}
+      autoPlay={hoverVideo ? false : (s.autoplay ?? true)}
       loop={s.loop ?? true}
       playsInline
-      preload={eager ? 'auto' : 'metadata'}
+      preload={hoverVideo ? 'none' : eager ? 'auto' : 'metadata'}
+      {...m}
       style={{
         display: 'block',
         width: '100%',

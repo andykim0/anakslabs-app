@@ -13,9 +13,9 @@
  *    (hidden md:block / md:hidden) — <768px에서는 y순 세로 스택 재배치.
  */
 import type { CSSProperties } from 'react';
-import type { SiteConfig } from '@/lib/types/site';
+import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
-import { resolveMotionPlan, intensityFactors } from '@/lib/motion/apply';
+import { resolveMotionPlan, intensityFactors, planIsActive } from '@/lib/motion/apply';
 import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from './fonts';
 import { SectionCanvas } from './SectionCanvas';
@@ -53,6 +53,7 @@ export function SiteRenderer({
   mode = 'auto',
   interactive = true,
   animate,
+  tier,
   siteId,
   pageSlug = '',
 }: {
@@ -60,6 +61,12 @@ export function SiteRenderer({
   mode?: SiteRendererMode;
   /** [v4] 렌더할 페이지 slug (''=홈). 호출부가 존재를 사전 확인(서빙은 notFound) */
   pageSlug?: string;
+  /**
+   * [motion 3단계 — 이월부채: 렌더시점 티어 방어] 소유자 티어. 주면 resolveMotionPlan이
+   * sanitizeMotion으로 프리셋을 강등(저장/발행 방벽 우회·DB 오염 대비, defense-in-depth).
+   * 서빙(/s)·내보내기가 전달. 미지정 시 저장 방벽이 보장한 프리셋 신뢰.
+   */
+  tier?: MotionTier;
   /**
    * false면 버튼을 링크가 아닌 비대화형(<span>)으로 렌더한다.
    * 대시보드 미리보기(SitePreview)처럼 상위가 이미 <a>인 맥락에서
@@ -83,9 +90,10 @@ export function SiteRenderer({
   const sections = page.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
 
-  // [motion-system 2단계] 프리셋 계획 (모션 방출 시에만). intensity off면 계획이 비어 실질 미방출.
-  const plan = shouldAnimate ? resolveMotionPlan(config) : undefined;
-  const motionActive = !!plan && plan.intensity !== 'off' && (plan.kenBurnsSections.size > 0 || plan.elementMotion.size > 0);
+  // [motion-system 2·3단계] 프리셋 계획 (모션 방출 시에만). intensity off면 계획이 비어 실질 미방출.
+  // tier 주면 sanitizeMotion 강등(defense-in-depth). planIsActive가 Basic 4종+Premium 7종 전부 커버.
+  const plan = shouldAnimate ? resolveMotionPlan(config, tier ? { tier } : undefined) : undefined;
+  const motionActive = !!plan && planIsActive(plan);
   const css = BASE_CSS + scopeCustomCss(theme.customCss) + (motionActive ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {

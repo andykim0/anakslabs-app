@@ -7,6 +7,7 @@
  */
 import 'server-only';
 import type { Site } from '@/lib/types/domain';
+import type { MotionTier } from '@/lib/types/site';
 import { collectAndRewriteAssets } from './collect-assets';
 import { renderStaticDocument } from './render-static';
 import { selfHostFonts } from './self-host-fonts';
@@ -19,6 +20,8 @@ export interface BuildExportOptions {
   legalFooterHtml?: string;
   /** [§6] privacy.html / terms.html 본문 (없으면 미포함) */
   legalPages?: { privacyHtml?: string; termsHtml?: string };
+  /** [motion 3단계] 소유자 티어 — 모션 티어 방어(defense-in-depth). 상위 서비스가 client.tier 전달 */
+  tier?: MotionTier;
 }
 
 export interface BuildExportResult {
@@ -61,6 +64,7 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
       navHrefForSlug,
       fontFaceCss: fontFaceCss || undefined,
       bodyAppendHtml: opts.legalFooterHtml,
+      tier: opts.tier,
     }),
   }));
 

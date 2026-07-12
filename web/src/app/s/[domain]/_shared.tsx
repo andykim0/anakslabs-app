@@ -30,6 +30,14 @@ export function siteUrlOf(domain: string | null): string {
 }
 
 /**
+ * [motion 3단계 — 렌더시점 티어 방어] 소유자 티어(요청 단위 dedupe). 발행 게이트가 이미 프리셋을
+ * 강등하지만, DB 오염·저장 방벽 우회 대비로 렌더 진입점에서 sanitizeMotion 강등을 한 번 더 건다.
+ */
+const getOwnerTier = cache(async (clientId: string) => {
+  return (await getDataServices().clients.getById(clientId))?.tier;
+});
+
+/**
  * 페이지 단위 메타데이터. pageSlug=''(홈)은 사이트 제목, 서브페이지는 "페이지명 · 사이트명".
  * site가 없거나 해당 페이지가 없으면 색인 제외.
  */
@@ -81,6 +89,8 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
   // [motion-system 2단계] 모션 유무·종류의 단일 소스는 config.motion.presetId(프리셋 계획)다.
   // Stage-1의 tier 게이팅(animate=tier==='premium')은 제거 — 티어 적정성은 sanitizeMotion이
   // 저장/발행 단계에서 이미 보장한다. 실서빙은 항상 모션 레이어를 방출(animate 미지정=interactive=true).
+  // [3단계] 티어는 게이트가 아니라 방어용 — resolveMotionPlan이 sanitizeMotion 강등에만 사용(defense-in-depth).
+  const tier = await getOwnerTier(site.clientId);
 
   return (
     <>
@@ -95,7 +105,7 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
       <main>
         {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조 */}
         <SemanticOutline config={config} pageSlug={pageSlug} />
-        <SiteRenderer config={config} mode="auto" siteId={site.id} pageSlug={pageSlug} />
+        <SiteRenderer config={config} mode="auto" siteId={site.id} pageSlug={pageSlug} tier={tier} />
       </main>
       {businessInfo ? <LegalFooter info={businessInfo} theme={config.theme} /> : null}
     </>

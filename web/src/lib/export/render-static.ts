@@ -13,7 +13,7 @@ import { createElement } from 'react';
 // App Router는 `react-dom/server`(node) 직접 import를 금지 → edge 빌드 사용.
 // renderToStaticMarkup은 동기·환경중립이라 Node 런타임 라우트에서도 동작.
 import { renderToStaticMarkup } from 'react-dom/server.edge';
-import type { SiteConfig } from '@/lib/types/site';
+import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { findPage } from '@/lib/types/site';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 
@@ -56,6 +56,8 @@ export interface RenderDocumentOptions {
   bodyAppendHtml?: string;
   /** 언어 속성 (기본 ko) */
   lang?: string;
+  /** [motion 3단계] 소유자 티어 — resolveMotionPlan 티어 방어(defense-in-depth). 라우트가 client.tier 전달 */
+  tier?: MotionTier;
 }
 
 /** 발행본 SiteConfig → `<!doctype html>` 완전 문서 문자열 */
@@ -80,7 +82,7 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   // 방출된다(Reveal 클라이언트 컴포넌트 제거). renderToStaticMarkup으로 직렬화되어 내보낸 HTML 단독으로
   // (파일서버만) 동작한다. SSR/no-JS 출력은 여전히 가시(런타임이 초기화 시점에만 숨김 부여).
   let body = renderToStaticMarkup(
-    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: true, pageSlug }),
+    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: true, pageSlug, tier: opts.tier }),
   );
 
   if (opts.fontFaceCss) {

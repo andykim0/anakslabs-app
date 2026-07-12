@@ -19,11 +19,14 @@ export interface RunExportResult {
 
 /** 발행본 Site → zip 생성 → 저장. sites.export_status 전이(processing→ready/failed) 포함. */
 export async function runSiteExport(site: Site, opts?: BuildExportOptions): Promise<RunExportResult> {
-  const { exports, sites } = getDataServices();
+  const { exports, sites, clients } = getDataServices();
   await sites.updateExport(site.id, { status: 'processing', requestedAt: new Date().toISOString() });
   try {
     // [§6] 사업자정보가 있으면 법적 푸터 + privacy/terms를 번들에 포함
     const legalOpts: BuildExportOptions = { ...opts };
+    // [motion 3단계] 모션 티어 방어(defense-in-depth) — 소유자 티어로 프리셋 강등 후 렌더
+    const owner = await clients.getById(site.clientId);
+    if (owner) legalOpts.tier = owner.tier;
     if (site.siteConfig) {
       const info = site.siteConfig.businessInfo ?? null;
       if (info) {

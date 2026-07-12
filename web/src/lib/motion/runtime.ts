@@ -22,9 +22,41 @@ export const MOTION_CSS = `
 /* ken-burns: 배경 이미지 슬로우 줌 (콘텐츠 안 가림). 뷰포트 밖은 런타임이 play-state 정지 */
 .anaks-site [data-m="kenburns"] { animation: anaks-kenburns calc(22s * var(--m-dur-scale)) ease-in-out infinite alternate; transform-origin: 50% 50%; will-change: transform; }
 @keyframes anaks-kenburns { from { transform: scale(1); } to { transform: scale(calc(1 + 0.08 * var(--m-amp))); } }
+/* ---------- [3단계] Premium ---------- */
+/* video-hero: 배경 영상. 기본 opacity 0 → 재생 성공 시에만 노출(런타임). no-JS·reduced-motion·로드실패면
+   0 유지 → 뒤의 poster <img>가 그대로 보임(빈 화면 리스크 원천 차단). */
+.anaks-site [data-m="videohero"] { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity calc(700ms * var(--m-dur-scale)) ease; }
+/* split-text: 히어로 헤드라인 단어 등장 (reveal와 동일 hide/show, 인라인 블록) */
+.anaks-site [data-m="splitword"] { display: inline-block; white-space: pre; }
+.anaks-site [data-m="splitword"].m-hide { opacity: 0; transform: translateY(calc(18px * var(--m-amp))); }
+.anaks-site [data-m="splitword"].m-show { opacity: 1; transform: none;
+  transition: opacity calc(520ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1),
+              transform calc(520ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1); }
+/* parallax: 레이어 translateY는 런타임이 인라인 transform으로 (GPU 힌트만 CSS) */
+.anaks-site [data-m="parallax"] [data-m-depth] { will-change: transform; }
+/* spotlight: 커서 추적 빛 (다크 섹션 한정 — 계획 단계에서 강제). 커서 좌표는 런타임 --mx/--my */
+.anaks-site [data-m="spotlight"] { position: relative; }
+.anaks-site [data-m="spotlight"]::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(40cqw circle at calc(var(--mx, 0.5) * 100%) calc(var(--my, 0.5) * 100%),
+    rgba(255,255,255, calc(0.12 * var(--m-amp))), transparent 60%); }
+/* stacking-cards: 카드가 scale+rise로 제자리에 안착(절대 캔버스 모델 내 정직 구현 — 진짜 pin-sticky는
+   흐름 레이아웃 프리미티브 필요, 4단계 이월). reveal와 동일 hide/show IO 사용. */
+.anaks-site [data-m="stacking"] { position: relative; }
+.anaks-site [data-m="stackcard"].m-hide { opacity: 0; transform: translateY(calc(40px * var(--m-amp))) scale(0.96); }
+.anaks-site [data-m="stackcard"].m-show { opacity: 1; transform: none;
+  transition: opacity calc(680ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1),
+              transform calc(680ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1); }
+/* marquee: 흐름 띠 (트랙 복제로 심리스 루프, 복제는 aria-hidden). 뷰포트 밖은 런타임이 정지 */
+.anaks-site .anaks-mq { overflow: hidden; width: 100%; }
+.anaks-site .anaks-mq-track { display: flex; width: max-content; align-items: center; }
+.anaks-site [data-m="marquee"] .anaks-mq-track { animation: anaks-marquee calc(32s * var(--m-dur-scale)) linear infinite; will-change: transform; }
+@keyframes anaks-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
   .anaks-site [data-m] { animation: none !important; transition: none !important; }
-  .anaks-site [data-m="reveal"].m-hide, .anaks-site [data-m="mask"].m-hide { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .anaks-site [data-m="marquee"] .anaks-mq-track { animation: none !important; }
+  .anaks-site [data-m="reveal"].m-hide, .anaks-site [data-m="mask"].m-hide,
+  .anaks-site [data-m="splitword"].m-hide, .anaks-site [data-m="stackcard"].m-hide { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .anaks-site [data-m="spotlight"]::before { display: none !important; }
 }
 `;
 
@@ -42,8 +74,8 @@ export const MOTION_RUNTIME = `(function(){
     var q = function(s){ return Array.prototype.slice.call(document.querySelectorAll('.anaks-site '+s)); };
     var root = document.querySelector('.anaks-site');
     var amp0 = root ? (parseFloat(getComputedStyle(root).getPropertyValue('--m-amp'))||1) : 1;
-    /* reveal + mask + split-text 단어: 초기화 시점에 숨김 부여 후 진입 시 표시 */
-    var reveals = q('[data-m="reveal"]').concat(q('[data-m="mask"]')).concat(q('[data-m="splitword"]'));
+    /* reveal + mask + split-text 단어 + stacking 카드: 초기화 시점에 숨김 부여 후 진입 시 표시 */
+    var reveals = q('[data-m="reveal"]').concat(q('[data-m="mask"]')).concat(q('[data-m="splitword"]')).concat(q('[data-m="stackcard"]'));
     reveals.forEach(function(el){ el.classList.add('m-hide'); });
     var io = new IntersectionObserver(function(es){
       es.forEach(function(e){ if(!e.isIntersecting) return; var el=e.target; io.unobserve(el);
@@ -70,7 +102,8 @@ export const MOTION_RUNTIME = `(function(){
     /* ---- video 모듈: video-hero 배경 영상 IO 재생/정지. 로드 실패→poster(요소 숨김). ---- */
     q('video[data-m="videohero"]').forEach(function(v){
       v.muted = true; v.defaultMuted = true; v.setAttribute('playsinline','');
-      v.addEventListener('error', function(){ v.style.opacity='0'; }); /* poster는 하위 <img>가 렌더 */
+      v.addEventListener('playing', function(){ v.style.opacity='1'; }); /* 재생 시작해야 노출 */
+      v.addEventListener('error', function(){ v.style.opacity='0'; });   /* 실패 → poster <img> 유지 */
       var pio = new IntersectionObserver(function(es){ es.forEach(function(e){
         if(e.isIntersecting){ var p=v.play&&v.play(); if(p&&p.catch)p.catch(function(){}); }
         else if(v.pause) v.pause();

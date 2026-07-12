@@ -48,12 +48,16 @@ export function checkPublish(
   });
   if (!pv.ok) blockers.push(`색상 대비 문제: ${pv.error}`);
 
-  // ③ 모바일 — 영상 요소 poster 폴백 (모바일/저속·자동재생 실패 시 빈 화면 방지)
+  // ③ 모바일 — 영상 poster 폴백 (모바일/저속·자동재생 실패 시 빈 화면 방지)
   for (const s of allSections(config)) {
     for (const el of s.elements) {
       if (el.kind === 'video' && !el.poster) {
         warnings.push(`영상 요소(${el.id})에 poster 폴백이 없습니다 — 모바일·저속에서 빈 화면이 될 수 있습니다.`);
       }
+    }
+    // [motion 3단계] video-hero 배경 영상도 poster 필수 — 없으면 렌더러가 ken-burns 폴백하지만 경고로 고지
+    if (s.background.video?.src && !s.background.video.poster) {
+      warnings.push(`섹션 '${s.name}'의 배경 영상에 poster가 없습니다 — video-hero가 ken-burns로 폴백됩니다.`);
     }
   }
 
