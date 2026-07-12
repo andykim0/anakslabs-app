@@ -7,6 +7,8 @@
  */
 import { NextResponse } from 'next/server';
 import { getDataServices } from '@/lib/data';
+import { videoGenConfig } from '@/lib/env';
+import { MOTION_TECHNIQUES } from '@/lib/motion/registry';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
 
@@ -14,11 +16,13 @@ export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
-  const { clients, sites, domains } = getDataServices();
-  const [clientList, siteList, hostnameCount] = await Promise.all([
+  const { clients, sites, domains, videoGen } = getDataServices();
+  const [clientList, siteList, hostnameCount, vgTotal, vgToday] = await Promise.all([
     clients.listAll(),
     sites.listAll(),
     domains.countHostnames(),
+    videoGen.countAll(),
+    videoGen.countToday(),
   ]);
 
   const clientNames = new Map(clientList.map((c) => [c.id, c.name]));
@@ -35,5 +39,16 @@ export const GET = withApiHandler(async () => {
       sslStatus: site.dnsVerified ? 'active' : 'pending_validation',
     }));
 
-  return NextResponse.json({ hostnameCount, hostnames });
+  // [motion 4단계] 영상 생성 원가 대조 — 누적/오늘 생성 수 + registry 예산가(costKrwPerSite) + 가드 상한
+  const vgCfg = videoGenConfig();
+  const videoGenStats = {
+    total: vgTotal,
+    today: vgToday,
+    enabled: vgCfg.enabled,
+    dailyCap: vgCfg.dailyCap,
+    maxPerSite: vgCfg.maxPerSite,
+    budgetKrwPerSite: MOTION_TECHNIQUES['video-hero'].costKrwPerSite ?? 0,
+  };
+
+  return NextResponse.json({ hostnameCount, hostnames, videoGen: videoGenStats });
 });

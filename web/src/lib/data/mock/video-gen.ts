@@ -28,4 +28,8 @@ export class MockVideoGenRepo implements VideoGenRepo {
     const since = startOfTodayUtcMs();
     return this.log().filter((e) => e.stage !== 'select' && e.at >= since).length;
   }
+
+  async countAll(): Promise<number> {
+    return this.log().filter((e) => e.stage !== 'select').length;
+  }
 }

@@ -98,6 +98,15 @@ export interface AdminHostnameRow {
 export interface AdminInfraStatus {
   hostnameCount: number;
   hostnames: AdminHostnameRow[];
+  /** [motion 4단계] 영상 생성 원가 대조 — 누적/오늘 생성 수 + 예산가·가드 상한 */
+  videoGen?: {
+    total: number;
+    today: number;
+    enabled: boolean;
+    dailyCap: number;
+    maxPerSite: number;
+    budgetKrwPerSite: number;
+  };
 }
 
 // ---------- fetch 헬퍼 ----------

@@ -328,6 +328,8 @@ export interface VideoGenRepo {
   countBySite(siteId: string): Promise<number>;
   /** 오늘(UTC) 전역 생성 수 (VIDEO_GEN_DAILY_CAP 비교) */
   countToday(): Promise<number>;
+  /** 전역 누적 생성 수 (관리자 원가 대조용) */
+  countAll(): Promise<number>;
 }
 
 // ---------- 팩토리 ----------

@@ -43,4 +43,14 @@ export class SupabaseVideoGenRepo implements VideoGenRepo {
     if (error) throw new Error(`video_gen_log 일일 카운트 실패: ${error.message}`);
     return count ?? 0;
   }
+
+  async countAll(): Promise<number> {
+    const svc = getServiceRoleClient();
+    const { count, error } = await svc
+      .from('video_gen_log')
+      .select('id', { count: 'exact', head: true })
+      .neq('stage', 'select');
+    if (error) throw new Error(`video_gen_log 전체 카운트 실패: ${error.message}`);
+    return count ?? 0;
+  }
 }

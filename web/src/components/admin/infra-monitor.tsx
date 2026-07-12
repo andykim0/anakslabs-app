@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Cloud, Database, ExternalLink, Globe, TriangleAlert } from 'lucide-react';
+import { Clapperboard, Cloud, Database, ExternalLink, Globe, TriangleAlert } from 'lucide-react';
 import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credits/constants';
 import { getInfra } from './api';
 import { SITE_STATUS_LABELS, formatNumber } from './format';
@@ -108,6 +108,40 @@ export function InfraMonitor() {
             </div>
           </div>
         </Card>
+
+        {/* [motion 4단계] AI 영상 생성 — Veo 원가 대조 (registry 예산가 vs 실호출 로그) */}
+        {data?.videoGen ? (
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+                <Clapperboard size={15} className="text-slate-400" aria-hidden />
+                AI 영상 (Veo)
+              </p>
+              <Badge tone={data.videoGen.enabled ? 'amber' : 'neutral'}>
+                {data.videoGen.enabled ? '실호출 ON' : '킬스위치 OFF'}
+              </Badge>
+            </div>
+            <p className="mt-1 text-[10px] text-slate-400">
+              예산 ₩{formatNumber(data.videoGen.budgetKrwPerSite)}/사이트 · 원가 표준 1회 ≈₩4,300
+            </p>
+            <div className="mt-3 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">누적 생성</span>
+                <span className="font-medium tabular-nums text-slate-800">{formatNumber(data.videoGen.total)}회</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">오늘</span>
+                <span className="font-medium tabular-nums text-slate-800">
+                  {formatNumber(data.videoGen.today)} / {formatNumber(data.videoGen.dailyCap)}회
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">사이트당 상한</span>
+                <span className="font-medium tabular-nums text-slate-800">{formatNumber(data.videoGen.maxPerSite)}회</span>
+              </div>
+            </div>
+          </Card>
+        ) : null}
 
         {/* Supabase */}
         <Card className="p-4">
