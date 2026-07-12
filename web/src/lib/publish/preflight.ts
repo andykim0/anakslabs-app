@@ -8,14 +8,20 @@
  *  ③ 모바일: 영상 요소 poster 폴백 없음 → warnings
  *  ① 자가 진단 점수 < 기준 → warnings (발행 허용 + QA 필요)
  */
-import type { MotionTier, SiteConfig } from '@/lib/types/site';
+import type { MotionTier, SectionType, SiteConfig } from '@/lib/types/site';
 import { allSections } from '@/lib/types/site';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { classifyVideoBytes } from '@/lib/motion/asset-limits';
 import { validatePalette, qaAuditChecklist } from '@/lib/design/quality-standards';
 import { scrimPassesAA } from '@/lib/design/scrim';
+import { isThinSection } from '@/lib/design/section-density';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
+
+/** [Q3] 내용이 실려야 할(빈약하면 경고) 콘텐츠 섹션 타입 — hero/cta/contact/custom은 제외(정당한 컴팩트) */
+const DENSE_SECTION_TYPES = new Set<SectionType>([
+  'about', 'features', 'menu', 'gallery', 'testimonials', 'pricing', 'team', 'cases', 'faq',
+]);
 
 export interface PublishPreflight {
   /** blockers 없음 = 발행 가능 */
@@ -78,6 +84,10 @@ export function checkPublish(
           break;
         }
       }
+    }
+    // [Q3] 섹션 밀도 — 내용이 실려야 할 콘텐츠 섹션이 빈약하면 경고("PPT 1장" 방지)
+    if (DENSE_SECTION_TYPES.has(s.type) && isThinSection(s)) {
+      warnings.push(`섹션 '${s.name}'의 내용이 빈약합니다 — 실제 정보(메뉴·안내 등)를 더 채우면 좋아요.`);
     }
   }
 

@@ -27,6 +27,7 @@ import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
 import { teaserSummary } from './teaser-summary';
+import { parseAddress, parseBusinessHours, parseMenuItems } from './content-parse';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -642,6 +643,47 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, cfg.titleFallback), 142),
   ];
+  // [Q3] 고객 원문에 메뉴 항목이 있으면 전부 이름+큰 가격 타이포 리스트로(하드코딩 더미 대체 — "7개 주면 7개")
+  const parsedMenu = parseMenuItems(survey.providedContent);
+  if (parsedMenu.length >= 2) {
+    const rows = parsedMenu.slice(0, 14);
+    rows.forEach((mi, i) => {
+      const y = 236 + i * 72;
+      elements.push({
+        id: nextId(ctx, 'el-menu-name'),
+        kind: 'text',
+        frame: { x: 120, y, w: 640, h: 34 },
+        z: 2,
+        text: mi.name,
+        style: { fontSize: 22, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      });
+      if (mi.price) {
+        elements.push({
+          id: nextId(ctx, 'el-menu-price'),
+          kind: 'text',
+          frame: { x: 820, y: y - 2, w: 500, h: 36 },
+          z: 2,
+          text: `${mi.price}원`,
+          style: { fontSize: 26, fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
+        });
+      }
+      elements.push({
+        id: nextId(ctx, 'el-menu-div'),
+        kind: 'divider',
+        frame: { x: 120, y: y + 52, w: 1200, h: 1 },
+        z: 1,
+        style: { color: theme.palette.muted, thickness: 1 },
+      });
+    });
+    return {
+      id: 'sec-menu',
+      type: 'menu',
+      name: SECTION_NAMES.menu,
+      height: 236 + rows.length * 72 + 40,
+      background: { color: theme.palette.background },
+      elements,
+    };
+  }
   cfg.cards.forEach((card, i) => {
     const x = 120 + i * 420;
     elements.push({
@@ -911,8 +953,8 @@ function buildContact(ctx: Ctx, item: SectionPlanItem): Section {
 function buildContactDefault(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
   const rows = [
-    { label: '주소', value: '주소를 입력해주세요' },
-    { label: '영업시간', value: '영업시간을 입력해주세요' },
+    { label: '주소', value: parseAddress(survey.providedContent) ?? '주소를 입력해주세요' },
+    { label: '영업시간', value: parseBusinessHours(survey.providedContent) ?? '영업시간을 입력해주세요' },
     { label: '연락처', value: '연락처를 입력해주세요' },
   ];
   const elements: CanvasElement[] = [titleEl(ctx, headingOf(item, '연락처'), 120, 40)];
@@ -962,7 +1004,7 @@ function buildContactDefault(ctx: Ctx, item: SectionPlanItem): Section {
 
 /** contact:map — 지도 자리표시 + 주소·전화 텍스트 (실 MapElement 는 Phase3 주입) */
 function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
-  const { theme } = ctx;
+  const { theme, survey } = ctx;
   const rows = [
     { label: '주소', value: '주소를 입력해주세요' },
     { label: '연락처', value: '연락처를 입력해주세요' },
