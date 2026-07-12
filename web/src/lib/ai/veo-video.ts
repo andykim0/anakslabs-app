@@ -59,13 +59,19 @@ function veoError(stage: string, status: number, detail: string): Error {
   return new Error(`VEO_API_ERROR: ${stage} (HTTP ${status}) ${d}`);
 }
 
-export async function generateVeoVideo(input: {
+export interface VeoInput {
   prompt: string;
   /** [motion 4단계] image-to-video 입력 — 주면 이 이미지가 첫 프레임(=poster). 별도 추출 불필요(ffmpeg 회피) */
   image?: { base64: string; mimeType: string };
   /** 모델 override (fast/표준). 미지정 시 VEO_MODEL env → DEFAULT_MODEL */
   model?: string;
-}): Promise<{ url: string; poster?: string }> {
+}
+
+/**
+ * Veo 생성 → 원본 바이트(업로드 없음). SaaS 스토리지에 올리지 않는 소비처(예: 회사 브랜드 에셋)용.
+ * 테넌트 경로는 generateVeoVideo(바이트 + Storage 업로드)를 쓴다.
+ */
+export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: Buffer; mimeType: string }> {
   const key = env.geminiApiKey;
   if (!key) {
     throw new Error(
@@ -139,7 +145,12 @@ export async function generateVeoVideo(input: {
   const mimeType = ct.includes('video') ? ct : 'video/mp4';
   const bytes = Buffer.from(await dlRes.arrayBuffer());
   if (bytes.byteLength === 0) throw new Error('VEO_EMPTY_DOWNLOAD: 다운로드된 영상이 비어 있습니다.');
+  return { bytes, mimeType };
+}
 
+/** 테넌트 경로: Veo 생성 → Supabase Storage 업로드 → 공개 URL. */
+export async function generateVeoVideo(input: VeoInput): Promise<{ url: string; poster?: string }> {
+  const { bytes, mimeType } = await generateVeoVideoBytes(input);
   const url = await uploadAiVideo({ bytes, mimeType, prefix: 'videos' });
-  return { url }; // poster 는 v1 생략 (ffmpeg 미도입)
+  return { url }; // poster 는 파이프라인이 입력 이미지로 세팅 (ffmpeg 미도입)
 }
