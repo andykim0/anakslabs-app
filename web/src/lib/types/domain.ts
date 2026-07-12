@@ -173,6 +173,16 @@ export type ContentMode = 'ai' | 'provided';
 /** [§7] 컨셉 모드 — 실제 매장 정보 vs AI 가상 창작 */
 export type ConceptMode = 'real' | 'fictional';
 
+/** [v4] 기존 온라인 채널 — URL 가져오기 원천 */
+export type PresenceKind = 'website' | 'instagram' | 'naver_place' | 'other';
+export interface ExistingPresence {
+  kind: PresenceKind;
+  url: string;
+}
+
+/** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */
+export type SiteGoalId = 'call' | 'reserve' | 'directions' | 'kakao_inquiry' | 'purchase' | 'trust';
+
 /** [v3 Phase 0.2] 사이트 목적 택소노미 (10종) */
 export type SitePurposeId =
   | 'local_store' // 1. 음식점·로컬 매장
@@ -249,8 +259,17 @@ export interface SurveyInput {
   colorPreference: string;
   /** [F3 #6] 보조 컬러(선택) — hex. 없으면 메인에서 파생 */
   secondaryColor?: string;
-  /** 무드 참고 이미지 URL(업로드) — TODO: 생성 프롬프트 힌트로 배선(현재 미소비) */
+  /**
+   * @deprecated [v4] 미소비 입력 — UI 수집 중단, read 시 무시. 하위호환(기존 저장 데이터)을 위해
+   * 필드 자체는 유지하나 새 코드에서 참조 금지. onSubmit은 항상 [] 전송.
+   */
   referenceImageUrls: string[];
+  /** [v4] 기존 온라인 채널(홈페이지·인스타·네이버 플레이스) — URL 가져오기 원천. 최대 3 */
+  existingPresence?: ExistingPresence[];
+  /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA 문구·섹션 강조에 배선 */
+  siteGoal?: SiteGoalId;
+  /** [v4] 자랑거리 1~3개 — 생성 프롬프트(창작 금지, 이 표현 살릴 것)·차별화 섹션 소스 */
+  highlights?: string[];
   /**
    * [F3 #2a] 실제 가게/메뉴 사진 URL(업로드, 최대 12). 생성 시 히어로·갤러리·메뉴에
    * 우선 사용(실사 > AI)하고 부족분만 AI 생성. 슬롯이 있는 한 최소 1회 이상 사용.
