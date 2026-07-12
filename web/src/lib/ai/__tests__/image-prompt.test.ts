@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { CandidateBlueprint } from '@/lib/data/design-candidates';
 import { povImagePrompt } from '@/lib/ai/image-prompt';
+import { buildImagePrompt, describeColor } from '@/lib/design/quality-standards';
 
 const bp = {
   brief: { style: { id: 'dark-luxury', candidateStyle: 'photo', name: '다크 럭셔리' } },
@@ -21,14 +22,13 @@ const survey = {
 } as unknown as SurveyInput;
 
 describe('povImagePrompt — POV 아트디렉션', () => {
-  test('업종·POV mood·팔레트 hex·no-text 포함', () => {
+  test('업종·POV mood·색상 기술어(hex 아님)·no-text 포함', () => {
     const p = povImagePrompt(bp, survey, 'hero section');
     assert.match(p, /파인다이닝/, '업종 없음');
     assert.match(p, /다크 럭셔리/, 'POV mood 없음'); // dark-luxury POV mood
-    assert.match(p, /#b08d57/, '팔레트 primary hex 없음');
-    assert.match(p, /#0f0e0c/, '팔레트 background hex 없음');
+    assert.match(p, /accent tone .+background tone/, '색상 기술어(accent/background tone) 없음');
+    assert.doesNotMatch(p, /#/, 'hex 문자(#)가 남아 표면 각인 위험');
     assert.match(p, /no text|no words/i, 'no-text 지시 없음');
-    assert.match(p, /16:10/, '비율 지시 없음');
   });
 
   test('매장 장면 블렌드 — refinedScene(충분히 길면) 우선', () => {
@@ -48,5 +48,27 @@ describe('povImagePrompt — POV 아트디렉션', () => {
     const p = povImagePrompt(bp, survey, 'hero section', 'short');
     assert.doesNotMatch(p, /Scene: short/);
     assert.match(p, /화로담/);
+  });
+});
+
+describe('describeColor + buildImagePrompt 불변식 — hex 미포함(표면 각인 방지)', () => {
+  test('describeColor: 대표 색 → 이름', () => {
+    assert.equal(describeColor('#141A3A'), 'deep navy');
+    assert.equal(describeColor('#2D63F0'), 'vivid cobalt blue');
+    assert.equal(describeColor('#F6F7F9'), 'cool white');
+    assert.doesNotMatch(describeColor('#b08d57'), /#/); // 어떤 입력이든 산출에 '#' 없음
+  });
+
+  test('buildImagePrompt 산출 문자열에 # 문자 미포함 (불변식)', () => {
+    const cases = [
+      { p: '#141A3A', b: '#F6F7F9' },
+      { p: '#b08d57', b: '#0f0e0c' },
+      { p: '#2D63F0', b: '#EDF0F5' },
+    ];
+    for (const c of cases) {
+      const out = buildImagePrompt('dark-luxury', '파인다이닝', 'hero', { palettePrimary: c.p, background: c.b });
+      assert.doesNotMatch(out, /#/, `hex 잔존: ${c.p}/${c.b}`);
+      assert.match(out, /Color mood: accent tone /);
+    }
   });
 });

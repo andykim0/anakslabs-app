@@ -270,6 +270,73 @@ export function hasStockImageDomain(url: string): boolean {
   return /(?:unsplash|pexels|pixabay)\.com/i.test(url);
 }
 
+/** hex → HSL (h:0-360, s:0-1, l:0-1). 유효하지 않으면 null */
+function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  const r = ((n >> 16) & 0xff) / 255;
+  const g = ((n >> 8) & 0xff) / 255;
+  const b = (n & 0xff) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  let h = 0;
+  let s = 0;
+  if (d > 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h, s, l };
+}
+
+function hueName(h: number): string {
+  if (h < 15 || h >= 345) return 'red';
+  if (h < 45) return 'orange';
+  if (h < 70) return 'amber';
+  if (h < 95) return 'chartreuse';
+  if (h < 150) return 'green';
+  if (h < 185) return 'teal';
+  if (h < 205) return 'cyan';
+  if (h < 285) return 'indigo';
+  if (h < 320) return 'violet';
+  return 'magenta';
+}
+
+/**
+ * hex → 색상 기술어 (프롬프트용). 이미지 모델이 hex 문자열("#141A3A")을 표면에 텍스트로 각인하므로
+ * 색 이름으로 치환한다(실증된 아티팩트 원인 제거). 간단한 hue/lightness 분류.
+ * 예: #141A3A→"deep navy", #2D63F0→"vivid cobalt blue", #F6F7F9→"cool white".
+ */
+export function describeColor(hex: string): string {
+  const hsl = hexToHsl(hex);
+  if (!hsl) return 'neutral tone';
+  const { h, s, l } = hsl;
+  // 극단 명도 = near-white/near-black (근백색은 미세 채도가 남아도 흰색으로 — 파랑 분기 오분류 방지)
+  if (l > 0.9 && s < 0.35) return 'cool white';
+  if (l < 0.06) return 'near-black';
+  // 저채도 = 중성(명도로 이름)
+  if (s < 0.12) {
+    if (l > 0.68) return 'light cool gray';
+    if (l > 0.4) return 'slate gray';
+    if (l > 0.16) return 'charcoal';
+    return 'near-black';
+  }
+  // 파랑 계열(브랜드 핵심) 세분화
+  if (h >= 205 && h < 255) {
+    if (l < 0.24) return 'deep navy';
+    if (l < 0.42) return 'dark blue';
+    return s > 0.55 ? 'vivid cobalt blue' : 'cool blue';
+  }
+  const light = l < 0.24 ? 'deep' : l < 0.42 ? 'dark' : l < 0.66 ? 'rich' : l < 0.82 ? 'soft' : 'pale';
+  const vivid = s > 0.62 ? 'vivid ' : '';
+  return `${light} ${vivid}${hueName(h)}`.replace(/\s+/g, ' ').trim();
+}
+
 /**
  * gemini-image 프롬프트 조립 — POV 무드 + 업종 + (선택)팔레트/렌더방식에서만 조립(자유 서술 금지).
  * POV=무드, candidateStyle=렌더 방식(직교 조합).
@@ -289,8 +356,9 @@ export function buildImagePrompt(
       : opts?.candidateStyle === 'illustration'
         ? 'editorial illustration'
         : 'photographic, art-directed';
+  // hex는 이미지 표면에 텍스트로 각인되므로 색 이름(describeColor)으로 치환 — 산출 프롬프트에 '#' 미포함(불변식).
   const color = opts?.palettePrimary
-    ? ` Color mood: accent near ${opts.palettePrimary}${opts.background ? `, background near ${opts.background}` : ''}.`
+    ? ` Color mood: accent tone ${describeColor(opts.palettePrimary)}${opts.background ? `, background tone ${describeColor(opts.background)}` : ''}.`
     : '';
   return (
     `${section} image for a Korean small business (${industry}). ` +
