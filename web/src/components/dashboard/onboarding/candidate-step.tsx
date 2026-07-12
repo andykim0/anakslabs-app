@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RefreshCw, Sparkles } from 'lucide-react';
 import type { CandidateStyle, DesignCandidate, SurveyInput } from '@/lib/types/domain';
@@ -144,30 +144,40 @@ export function CandidateStep({
   onSelect: (candidate: DesignCandidate) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const startedRef = useRef(false);
 
-  const mutation = useMutation({
-    mutationFn: generateCandidates,
-    onSuccess: () => setSelectedId(null),
+  // 후보 생성은 "마운트 시 1회 fetch" — useMutation을 useEffect에서 쏘는 안티패턴 대신 useQuery로:
+  //  · dedup: 같은 survey면 in-flight/캐시를 공유 → StrictMode 이중 마운트(개발)에도 요청 1회(이중 과금 방지)
+  //  · 캐시: 재마운트/뒤로가기 시 즉시 후보 표시(무한 스피너·재요청 없음)
+  //  · 자동 refetch 전면 차단(창 포커스·재연결·재마운트) → 의도치 않은 재생성=재과금 방지
+  //  · retry:false → 실패 즉시 에러 표면화(무한 스피너·재시도 폭주 금지)
+  const { data, isFetching, isError, error, refetch } = useQuery({
+    queryKey: ['onboarding', 'candidates', survey],
+    queryFn: () => generateCandidates(survey),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    mutation.mutate(survey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 명시적 재생성(재과금) — 사용자 액션에서만. refetch는 staleTime을 무시하고 새 후보를 받아온다.
+  const regenerate = () => {
+    setSelectedId(null);
+    void refetch();
+  };
 
-  if (mutation.isPending || (!mutation.data && !mutation.isError)) {
+  // fetch 중(최초 또는 재생성)이면 분석 스피너. 성공/에러로 끝나면 반드시 벗어난다(idle 무한 스피너 불가).
+  if (isFetching) {
     return <LoadingScreen messages={LOADING_MESSAGES} />;
   }
 
-  if (mutation.isError) {
+  if (isError) {
     return (
       <div className="space-y-4">
         <ErrorState
-          message={mutation.error instanceof Error ? mutation.error.message : '디자인 후보 생성에 실패했습니다.'}
-          onRetry={() => mutation.mutate(survey)}
+          message={error instanceof Error ? error.message : '디자인 후보 생성에 실패했습니다.'}
+          onRetry={() => void refetch()}
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
@@ -177,7 +187,7 @@ export function CandidateStep({
     );
   }
 
-  const candidates = mutation.data ?? [];
+  const candidates = data ?? [];
   const selected = candidates.find((c) => c.id === selectedId) ?? null;
 
   return (
@@ -201,7 +211,7 @@ export function CandidateStep({
             <ArrowLeft className="h-4 w-4" />
             설문 수정
           </Button>
-          <Button variant="secondary" onClick={() => mutation.mutate(survey)}>
+          <Button variant="secondary" onClick={regenerate}>
             <RefreshCw className="h-4 w-4" />
             다시 추천받기
           </Button>
