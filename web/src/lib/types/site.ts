@@ -233,6 +233,12 @@ export interface SectionBackground {
     /** 0~1 */
     overlayOpacity?: number;
   };
+  /**
+   * [motion 3단계] video-hero 배경 영상 소스. 렌더러는 플랜이 video-hero인 히어로에만 방출한다.
+   * poster는 운영상 필수 — 없으면 렌더러가 ken-burns로 폴백(빈 화면 리스크 원천 차단).
+   * (폴백 체인: video 없음 → ken-burns / src 有·poster 無 → ken-burns / 로드실패 → poster / 모바일·reduced-motion → poster)
+   */
+  video?: { src: string; poster?: string };
 }
 
 export interface Section {
@@ -244,6 +250,12 @@ export interface Section {
   height: number;
   background: SectionBackground;
   elements: CanvasElement[];
+  /**
+   * [motion 3단계] 렌더 레이아웃. 'marquee'면 요소의 frame(x/y)을 삭제·변경하지 않고 렌더 시점에만
+   * 무시하여 x좌표 오름차순 흐름 띠로 나열(비파괴 — 'canvas' 복귀 시 원배치 복원). 기본 'canvas'.
+   * 실제 흐름 동작은 프리셋에 marquee 포함 AND 이 필드 'marquee'일 때만 resolveMotionPlan이 방출.
+   */
+  layout?: 'canvas' | 'marquee';
   hidden?: boolean;
 }
 

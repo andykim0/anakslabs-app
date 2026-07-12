@@ -41,6 +41,9 @@ export const QUALITY_STANDARDS: QualityStandard[] = [
       '기능하는 타이포그래피 — Inter나 Roboto가 아닌, 디스플레이체와 본문체를 짝지어 사용하고 크기와 굵기로 위계를 만든다.',
     enforcement: ['hard-code', 'validator'],
     implementedBy: ['src/lib/design/quality-standards.ts', 'src/components/editor/fonts.ts'],
+    // [motion 3단계 재해석] validateFontPairing(pairingId)은 생성 경로 전용 — SiteTheme엔 pairingId
+    // 필드가 없다. 에디터는 FONT_OPTIONS(components/editor/fonts.ts) 큐레이션 리스트로 자유 조합을
+    // 구조적으로 차단하고, ThemeInspector가 "heading==body(디스플레이/본문 미분리)" 경고로 등가 강제한다.
   },
   {
     id: 'color-restraint',
@@ -49,6 +52,9 @@ export const QUALITY_STANDARDS: QualityStandard[] = [
       '절제된 색상 시스템 — 3~5가지 색상만 일관되게 사용. 무지개색이 아니라 절제를 통해 프리미엄을 표현한다.',
     enforcement: ['hard-code', 'validator'],
     implementedBy: ['src/lib/design/quality-standards.ts'],
+    // [motion 3단계 재해석] validatePalette의 "≤5색"은 SiteTheme의 6슬롯 팔레트 토큰 계약이
+    // 구조적으로 대체한다(자유 색 추가 불가). 발행 게이트(preflight)는 5토큰+본문 AA(4.5:1)를 검사하고,
+    // 에디터는 동일 함수(contrastRatio·임계 4.5)로 편집시점 경고를 표면화한다(편집=경고, 발행=차단).
   },
   {
     id: 'hierarchy',
@@ -209,7 +215,8 @@ export function validateFontPairing(pairingId: string): boolean {
 
 // ---------- 색상 검증 ----------
 
-function relLuminance(hex: string): number {
+/** WCAG 상대 휘도 (0~1). 유효하지 않은 hex는 0(가장 어두움). */
+export function relLuminance(hex: string): number {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return 0;
   const n = parseInt(m[1], 16);
@@ -218,6 +225,14 @@ function relLuminance(hex: string): number {
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+}
+
+/**
+ * [motion 3단계] 다크 배경 판정 — spotlight(커서 추적 빛)는 다크 무드 섹션에만 방출(darkSectionOnly).
+ * 임계 0.15 ≈ #6b6b6b보다 어두우면 다크. resolveMotionPlan이 이 함수로 대상 섹션을 거른다.
+ */
+export function isDarkColor(hex: string, threshold = 0.15): boolean {
+  return relLuminance(hex) < threshold;
 }
 
 /** WCAG 대비비 (1~21). 흰-검 = 21 */

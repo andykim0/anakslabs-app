@@ -242,6 +242,13 @@ const sectionBackgroundSchema = z.object({
       overlayOpacity: z.number().min(0).max(1).optional(),
     })
     .optional(),
+  // [motion 3단계] video-hero 배경 영상 (src/poster는 safeMediaSrc 화이트리스트)
+  video: z
+    .object({
+      src: safeMediaSrcSchema,
+      poster: safeMediaSrcSchema.optional(),
+    })
+    .optional(),
 });
 
 const sectionSchema = z.object({
@@ -251,6 +258,8 @@ const sectionSchema = z.object({
   height: z.number().positive(),
   background: sectionBackgroundSchema,
   elements: z.array(canvasElementSchema),
+  // [motion 3단계] 렌더 레이아웃 (marquee 흐름 띠). 미지정 = 'canvas'
+  layout: z.enum(['canvas', 'marquee']).optional(),
   hidden: z.boolean().optional(),
 });
 
