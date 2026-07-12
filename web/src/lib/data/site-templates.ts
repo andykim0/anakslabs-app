@@ -23,6 +23,7 @@ import type {
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
+import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -226,8 +227,8 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용
   const sub = copy.heroSub ?? survey.tagline ?? `${survey.businessName} · ${survey.industry}`;
   const kicker = copy.heroKicker ?? survey.purpose;
-  // [F4] 예약 링크는 발행 후 에디터에서 추가(설정) — 히어로 CTA는 기본 문의로. (설문에서 예약 필드 제거)
-  const ctaLabel = '문의하기';
+  // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
+  const ctaLabel = ctaLabelForGoal(survey.siteGoal) ?? '문의하기';
   const ctaHref = '#sec-contact';
 
   const elements: Section['elements'] = [];
@@ -482,11 +483,14 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
 
 function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
-  const items = [
-    { title: '기본', desc: `${survey.industry}의 기본을 매일 같은 수준으로.` },
-    { title: '재료', desc: '좋은 재료는 그대로, 손은 덜 대고.' },
-    { title: '사람', desc: '처음 오신 분도 늘 오신 분처럼.' },
-  ];
+  // [v4] 고객이 적은 자랑거리(highlights)가 있으면 강점 섹션 소스로 그대로 사용(창작 대체)
+  const items = survey.highlights?.length
+    ? survey.highlights.slice(0, 3).map((h) => ({ title: h, desc: '' }))
+    : [
+        { title: '기본', desc: `${survey.industry}의 기본을 매일 같은 수준으로.` },
+        { title: '재료', desc: '좋은 재료는 그대로, 손은 덜 대고.' },
+        { title: '사람', desc: '처음 오신 분도 늘 오신 분처럼.' },
+      ];
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-feat-kicker'),

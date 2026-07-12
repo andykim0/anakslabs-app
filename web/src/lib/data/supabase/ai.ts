@@ -156,7 +156,11 @@ async function generateSectionCopy(
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
     `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
     `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${toneText(survey.tone)}\n추가 요청: ${survey.extraNotes ?? '없음'}\n` +
+    `${survey.siteGoal ? `방문자에게 바라는 행동: ${survey.siteGoal}\n` : ''}` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
+    (survey.highlights?.length
+      ? `\n[이 가게의 실제 자랑거리 — 창작 금지, 이 표현을 살려 강조]\n${survey.highlights.map((h) => `- ${h}`).join('\n')}\n`
+      : '') +
     (planLines
       ? `\n[이 사이트의 섹션 구성 — 각 섹션의 의도를 카피에 반영]\n${planLines}\n`
       : '') +
