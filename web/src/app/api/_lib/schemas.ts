@@ -339,6 +339,8 @@ export const motionSchema = z.object({
   // [Q7] 히어로 선택('none' 포함)·영상 컨셉 — 형식만 검사(등록·티어 검증은 sanitizeMotion 이중 방벽)
   heroTechnique: z.string().max(40).optional(),
   videoConceptId: z.string().max(40).optional(),
+  // [U1] 영상 애드온 요청 표식 — 편집 저장 시 스트립 방지(sanitizeMotion이 강등 견디고 보존)
+  videoRequested: z.boolean().optional(),
 });
 
 /** [Q7] 온보딩 '움직임 고르기' 선택 — generate/regenerate body. 실검증은 sanitizeMotion */

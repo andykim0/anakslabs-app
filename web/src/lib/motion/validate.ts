@@ -116,6 +116,9 @@ export function sanitizeMotion(
     }
   }
 
+  // [U1] videoRequested 표식은 능력 게이팅과 무관한 '요청 의도' — 강등(④⑤)을 견디고 그대로 보존한다.
+  const videoRequested = config.motion?.videoRequested;
+
   return {
     config: {
       ...config,
@@ -124,6 +127,7 @@ export function sanitizeMotion(
         intensity,
         ...(heroTechnique !== undefined ? { heroTechnique } : {}),
         ...(videoConceptId !== undefined ? { videoConceptId } : {}),
+        ...(videoRequested ? { videoRequested: true } : {}),
       },
     },
     changes,

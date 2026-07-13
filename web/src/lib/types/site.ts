@@ -355,8 +355,12 @@ export interface SiteConfig {
    * 미등록·티어 초과는 sanitizeMotion이 강등(changes[]). 미설정 = 프리셋 기본 히어로.
    * videoConceptId: Premium video-hero 선택 시 고른 영상 컨셉(VIDEO_CONCEPTS id) —
    * Veo 프롬프트 빌더(heroVideoContext)가 promptSeed로 소비. 이 필드는 생성 트리거가 아니다.
+   *
+   * [U1] videoRequested: 온보딩에서 영상 애드온을 고른 표식(생성 트리거 아님). 애드온 미보유(basic)
+   * 라도 sanitizeMotion 강등을 견디고 남아, 관리자가 애드온 판매·부여 대상을 식별한다. 실제 Veo는
+   * 애드온 보유(assertVideoGenAllowed) 후에만 실행되고, 그전엔 정적 히어로로 폴백된다.
    */
-  motion?: { presetId: string; intensity: MotionIntensity; heroTechnique?: string; videoConceptId?: string };
+  motion?: { presetId: string; intensity: MotionIntensity; heroTechnique?: string; videoConceptId?: string; videoRequested?: boolean };
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */

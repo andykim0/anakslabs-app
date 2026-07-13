@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { CreditReason, EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS, FREE_INITIAL_REVISION_DAYS, QA_AUTOMATABLE_TYPES } from '@/lib/credits/constants';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
@@ -44,17 +45,17 @@ export const POST = withApiHandler(async (request) => {
 
   const creditCost = CREDIT_COSTS[type];
 
-  // 불변식: Basic 티어의 영상 편집 요청은 차감 전에 업셀 안내를 먼저 노출한다.
-  if (client.tier === 'basic' && type === 'video' && !confirmUpsell) {
+  // 불변식: 영상 애드온 미보유 시 영상 편집 요청은 차감 전에 업셀 안내를 먼저 노출한다.
+  if (!hasVideoAddon(client.tier) && type === 'video' && !confirmUpsell) {
     return apiError(
       402,
       'UPSELL_REQUIRED',
-      `영상 편집은 Premium 전용 기능입니다. 크레딧 ${creditCost}개를 사용해 1회 진행하시거나, Premium 업그레이드를 이용해 주세요.`,
+      `영상 편집은 영상 애드온 기능입니다. 크레딧 ${creditCost}개를 사용해 1회 진행하시거나, 영상 애드온을 추가해 주세요.`,
       {
         creditCost,
         options: [
           { action: 'confirm_upsell', label: `크레딧 ${creditCost}개 사용하고 진행` },
-          { action: 'upgrade_premium', label: 'Premium 업그레이드 상담' },
+          { action: 'upgrade_premium', label: '영상 애드온 상담' },
         ],
       },
     );

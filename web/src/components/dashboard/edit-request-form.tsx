@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Clapperboard, Coins, ImagePlus, LayoutList, Send, Type } from 'lucide-react';
 import type { EditType, Tier } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 import {
   createEditRequest,
   insufficientInfo,
@@ -168,7 +169,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 {TYPE_META.map((meta) => {
                   const selected = selectedType === meta.value;
-                  const isVideoOnBasic = meta.value === 'video' && tier === 'basic';
+                  const isVideoOnBasic = meta.value === 'video' && !hasVideoAddon(tier);
                   return (
                     <button
                       key={meta.value}
