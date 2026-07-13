@@ -9,12 +9,12 @@
  * 잔액 부족은 409 INSUFFICIENT_CREDITS(error.balance/required) 모달.
  */
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Clapperboard, Coins, ImagePlus, LayoutList, Send, Type } from 'lucide-react';
+import { Clapperboard, Coins, ImagePlus, Info, LayoutList, Send, Type } from 'lucide-react';
 import type { EditType, Tier } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
 import { hasVideoAddon } from '@/lib/services/entitlements';
@@ -49,6 +49,60 @@ const TYPE_META: { value: EditType; icon: React.ReactNode; hint: string }[] = [
   { value: 'structure', icon: <LayoutList className="h-4 w-4" />, hint: '섹션 추가·재배치' },
 ];
 
+/**
+ * 유형별 구조화 빠른선택 칩 — 다중 선택, 선택된 라벨이 "[라벨] [라벨] " 프리픽스로
+ * requestedContent 앞에 결정적으로 조립된다(순서는 항상 이 배열 순서, 클릭 순서 무관).
+ * freeform=true("직접 설명")는 사용자가 자유텍스트로 쓰겠다는 의사표시일 뿐 — "[직접 설명]"
+ * 자체는 AI 프롬프트에 정보가 없어 조립 프리픽스에서 제외하고, 클릭 시 자유텍스트란에 포커스만 이동한다.
+ */
+interface QuickChip {
+  key: string;
+  label: string;
+  freeform?: boolean;
+}
+
+export const TYPE_QUICK_CHIPS: Record<EditType, QuickChip[]> = {
+  text: [
+    { key: 'friendly', label: '더 친근하게' },
+    { key: 'professional', label: '더 전문적으로' },
+    { key: 'shorter', label: '더 짧게' },
+    { key: 'detailed', label: '더 자세히' },
+    { key: 'explain', label: '직접 설명', freeform: true },
+  ],
+  image: [
+    { key: 'mood', label: '다른 분위기' },
+    { key: 'brighter', label: '더 밝게' },
+    { key: 'calmer', label: '더 차분하게' },
+    { key: 'brand-color', label: '브랜드 색으로' },
+    { key: 'regenerate', label: '다시 생성(크레딧)' },
+  ],
+  video: [
+    { key: 'mood', label: '다른 분위기' },
+    { key: 'shorter', label: '더 짧게' },
+    { key: 'explain', label: '직접 설명', freeform: true },
+  ],
+  structure: [
+    { key: 'add-section', label: '섹션 추가' },
+    { key: 'remove-section', label: '섹션 빼기' },
+    { key: 'reorder', label: '순서 바꾸기' },
+    { key: 'spacing', label: '간격 넓게' },
+  ],
+};
+
+/** "별로예요"처럼 모호한 자유텍스트 감지 — 강제 아님, 인라인 되물음 노출용 */
+export const VAGUE_TEXT_PATTERN = /별로|이상|싫/;
+
+/** 칩 라벨 + 자유텍스트를 requestedContent로 결정적 조립 (칩 배열 순서 고정, freeform 칩은 프리픽스 제외) */
+export function assembleRequestedContent(chips: QuickChip[], selectedKeys: Set<string>, extraText: string): string {
+  const prefix = chips
+    .filter((chip) => !chip.freeform && selectedKeys.has(chip.key))
+    .map((chip) => `[${chip.label}]`)
+    .join(' ');
+  const extra = extraText.trim();
+  if (prefix && extra) return `${prefix} ${extra}`;
+  return prefix || extra;
+}
+
 interface UpsellState {
   message: string;
   creditCost: number;
@@ -67,6 +121,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
   const queryClient = useQueryClient();
   const [upsell, setUpsell] = useState<UpsellState | null>(null);
   const [insufficient, setInsufficient] = useState<InsufficientState | null>(null);
+  // 구조화 빠른선택 상태 — 타입별 칩 key. RHF 계약(requestedContent)은 그대로 두고
+  // 이 로컬 상태 + 자유텍스트를 조립해 setValue로 밀어넣는다(계약 무변경, additive 레이어).
+  const [selectedChipKeys, setSelectedChipKeys] = useState<Set<string>>(new Set());
+  const [extraText, setExtraText] = useState('');
+  const extraTextRef = useRef<HTMLTextAreaElement>(null);
 
   const sitesQuery = useQuery({ queryKey: ['sites'], queryFn: listSites });
 
@@ -85,12 +144,51 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
   const selectedType = watch('type');
   const cost = CREDIT_COSTS[selectedType];
 
+  const chipsForType = TYPE_QUICK_CHIPS[selectedType];
+  const structuredSelectedCount = chipsForType.filter(
+    (chip) => !chip.freeform && selectedChipKeys.has(chip.key),
+  ).length;
+  const freeformSelected = chipsForType.some((chip) => chip.freeform && selectedChipKeys.has(chip.key));
+  const extraTrim = extraText.trim();
+  // 모호 입력 되물음: 구조화 칩(및 "직접 설명" 의사표시) 없이 자유텍스트만 짧거나 모호할 때만 — 제출은 막지 않음
+  const isVagueInput =
+    structuredSelectedCount === 0 &&
+    !freeformSelected &&
+    extraTrim.length > 0 &&
+    (extraTrim.length < 8 || VAGUE_TEXT_PATTERN.test(extraTrim));
+
+  const assembledRequestedContent = useMemo(
+    () => assembleRequestedContent(chipsForType, selectedChipKeys, extraText),
+    [chipsForType, selectedChipKeys, extraText],
+  );
+
+  // requestedContent는 RHF 계약(zod min(5)/max(4000))을 그대로 쓰되, 화면에는 노출하지 않고
+  // 칩+자유텍스트 조립 결과를 실시간으로 채워넣는다 — 서버는 여전히 requestedContent 하나만 받는다.
+  useEffect(() => {
+    setValue('requestedContent', assembledRequestedContent, { shouldValidate: false });
+  }, [assembledRequestedContent, setValue]);
+
+  function toggleChip(chip: QuickChip) {
+    setSelectedChipKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(chip.key)) {
+        next.delete(chip.key);
+      } else {
+        next.add(chip.key);
+      }
+      return next;
+    });
+    if (chip.freeform) extraTextRef.current?.focus();
+  }
+
   const mutation = useMutation({
     mutationFn: createEditRequest,
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['credits'] });
       queryClient.invalidateQueries({ queryKey: ['edit-requests'] });
       setUpsell(null);
+      setSelectedChipKeys(new Set());
+      setExtraText('');
       reset({ siteId: result.editRequest.siteId, type: 'text', requestedContent: '' });
       toast(
         'success',
@@ -174,7 +272,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                     <button
                       key={meta.value}
                       type="button"
-                      onClick={() => setValue('type', meta.value, { shouldValidate: true })}
+                      onClick={() => {
+                        setValue('type', meta.value, { shouldValidate: true });
+                        // 칩 라벨은 타입별로 다르므로 타입 전환 시 선택 초기화(자유텍스트는 유지)
+                        setSelectedChipKeys(new Set());
+                      }}
                       className={cn(
                         'flex flex-col gap-1 rounded-lg border px-3 py-2.5 text-left transition-colors',
                         selected ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
@@ -196,7 +298,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
               </div>
             </div>
 
-            {/* 내용 */}
+            {/* 내용 — 구조화 빠른선택(우선) + 자유텍스트(보조) */}
             <div>
               <div className="mb-2 flex items-baseline justify-between">
                 <span className="text-sm font-medium text-neutral-200">요청 내용</span>
@@ -204,12 +306,50 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                   <span className="text-xs text-red-400">{errors.requestedContent.message}</span>
                 ) : null}
               </div>
+
+              {/* 구조화 빠른선택 칩 — 다중 선택, 선택 시 requestedContent 프리픽스로 결정적 조립 */}
+              <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="구조화 빠른선택">
+                {chipsForType.map((chip) => {
+                  const selected = selectedChipKeys.has(chip.key);
+                  return (
+                    <button
+                      key={chip.key}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => toggleChip(chip)}
+                      className={cn(
+                        'rounded-full border px-3 py-1.5 text-xs transition-colors',
+                        selected
+                          ? 'border-[#c8a96a] bg-[#2a2117] text-[#d9b878]'
+                          : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200',
+                      )}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
+              </div>
+
               <textarea
-                {...register('requestedContent')}
+                ref={extraTextRef}
+                value={extraText}
+                onChange={(e) => setExtraText(e.target.value)}
                 rows={3}
                 placeholder="예: 히어로 문구를 '여섯 가지 요리, 하나의 불'로 바꿔주세요"
+                aria-label="덧붙일 말 (선택)"
                 className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
               />
+              <p className="mt-1.5 text-[11px] text-neutral-500">
+                위 빠른선택으로 구체화하면 정확해요. 덧붙일 말은 선택이에요.
+              </p>
+
+              {/* 모호 입력 되물음 — 제출을 막지 않는 부드러운 인라인 안내 */}
+              {isVagueInput ? (
+                <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-[#2a2117]/60 px-3 py-2 text-[11px] leading-5 text-[#d9b878]">
+                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  조금만 더 알려주시면 정확해요 — 색? 배치? 글? 위에서 골라주셔도 돼요.
+                </p>
+              ) : null}
             </div>
 
             <p className="rounded-lg bg-neutral-800/40 px-3 py-2 text-[11px] leading-5 text-neutral-500">
