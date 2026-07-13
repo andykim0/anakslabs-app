@@ -8,6 +8,9 @@
 import type { SiteConfig } from '@/lib/types/site';
 import { buildJsonLd } from './jsonld';
 
+// [제품 확정] 목적별 schema.org 타입 매핑 — 구조화 데이터 단일 소스로 재노출(jsonld.ts 정의).
+export { PURPOSE_SCHEMA_MAP, schemaSpecFor, type PurposeSchemaSpec } from './jsonld';
+
 /** 테넌트 라이브 URL (canonical/JSON-LD 원천). domain 없으면 '' — 소비자가 생략 처리 */
 export function siteUrlOf(domain: string | null | undefined): string {
   return domain ? `https://${domain}` : '';

@@ -11,6 +11,7 @@
  */
 import type { Section, SiteConfig } from '@/lib/types/site';
 import { allSections } from '@/lib/types/site';
+import type { LivePurposeId } from '@/lib/types/domain';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -39,13 +40,42 @@ export function extractFaq(section: Section): { q: string; a: string }[] {
   return pairs;
 }
 
+/**
+ * [제품 확정 — SEO/AEO 해자] 목적별 schema.org @type 매핑.
+ * "목적이 구조화 데이터 타입을 결정한다" — 소개형 6종(LivePurposeId)만.
+ * orgType: 주 노드 @type(배열이면 다중 타입). extra: 추가 노드(Service/Course/CreativeWork).
+ * profilePage: 원페이지는 ProfilePage로 감싸고 mainEntity=Person.
+ */
+export interface PurposeSchemaSpec {
+  orgType: string | readonly string[];
+  extra?: readonly ('Service' | 'Course' | 'CreativeWork')[];
+  profilePage?: boolean;
+}
+export const PURPOSE_SCHEMA_MAP = {
+  local_store: { orgType: 'LocalBusiness' },
+  booking_service: { orgType: 'LocalBusiness', extra: ['Service'] },
+  company_brand: { orgType: 'Organization' },
+  portfolio: { orgType: 'Person', extra: ['CreativeWork'] },
+  edu_membership: { orgType: ['LocalBusiness', 'EducationalOrganization'], extra: ['Course'] },
+  one_page: { orgType: 'Person', profilePage: true },
+} as const satisfies Record<LivePurposeId, PurposeSchemaSpec>;
+
+/** meta.purposeId → 스펙 (deprecated/미설정이면 undefined → 휴리스틱 폴백) */
+export function schemaSpecFor(purposeId: string | undefined): PurposeSchemaSpec | undefined {
+  if (!purposeId) return undefined;
+  return (PURPOSE_SCHEMA_MAP as Record<string, PurposeSchemaSpec>)[purposeId];
+}
+
 export function buildJsonLd(config: SiteConfig, siteUrl: string): JsonLdNode[] {
   const nodes: JsonLdNode[] = [];
   const info = config.businessInfo;
   const name = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
 
+  // [해자] 목적(meta.purposeId)이 @type을 결정. 레거시(미설정)면 섹션 휴리스틱으로 폴백(무회귀).
+  const spec = schemaSpecFor(config.meta.purposeId);
   const hasMenu = allSections(config).some((s) => s.type === 'menu');
-  const orgType = hasMenu ? 'LocalBusiness' : 'Organization';
+  const orgType = spec?.orgType ?? (hasMenu ? 'LocalBusiness' : 'Organization');
+  const region = config.meta.region?.trim();
 
   const org: JsonLdNode = {
     '@context': 'https://schema.org',
@@ -55,14 +85,34 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string): JsonLdNode[] {
   };
   if (config.meta.description) org.description = config.meta.description;
   if (config.meta.ogImage) org.image = config.meta.ogImage;
+  // [해자] 지역 → areaServed + address.addressLocality (지역 검색 반영)
+  if (region) org.areaServed = region;
+  if (info || region) {
+    const address: JsonLdNode = { '@type': 'PostalAddress', addressCountry: 'KR' };
+    if (info?.address) address.streetAddress = info.address;
+    if (region) address.addressLocality = region;
+    org.address = address;
+  }
   if (info) {
     if (info.phone) org.telephone = info.phone;
     if (info.email) org.email = info.email;
-    if (info.address) {
-      org.address = { '@type': 'PostalAddress', streetAddress: info.address, addressCountry: 'KR' };
-    }
   }
   nodes.push(org);
+
+  // 목적별 부가 노드
+  const orgRef: JsonLdNode = { '@type': Array.isArray(orgType) ? orgType[0] : orgType, name };
+  for (const kind of spec?.extra ?? []) {
+    if (kind === 'Service') {
+      nodes.push({ '@context': 'https://schema.org', '@type': 'Service', name: `${name} 서비스`, provider: orgRef, ...(region ? { areaServed: region } : {}) });
+    } else if (kind === 'Course') {
+      nodes.push({ '@context': 'https://schema.org', '@type': 'Course', name: `${name} 커리큘럼`, provider: orgRef });
+    } else if (kind === 'CreativeWork') {
+      nodes.push({ '@context': 'https://schema.org', '@type': 'CreativeWork', name: `${name} 작업`, creator: orgRef });
+    }
+  }
+  if (spec?.profilePage) {
+    nodes.push({ '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: orgRef });
+  }
 
   nodes.push({
     '@context': 'https://schema.org',

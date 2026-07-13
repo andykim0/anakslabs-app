@@ -2109,6 +2109,9 @@ export function buildSiteConfigFromSurvey(
         ? `${region} ${survey.businessName} · ${survey.purpose}`
         : `${survey.businessName} · ${survey.purpose}`,
       ogImage: opts.heroImageUrl,
+      // [제품 확정] 목적·지역을 구조화 필드로 저장 → 서빙 시 JSON-LD @type/지역 결정(SEO/AEO 해자)
+      purposeId: survey.purposeId,
+      ...(region ? { region } : {}),
     },
     pages,
   };
