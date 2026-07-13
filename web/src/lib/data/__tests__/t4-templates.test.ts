@@ -8,6 +8,7 @@ import { emptySiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
 import { teaserSummary } from '@/lib/data/teaser-summary';
+import { parseEventDate } from '@/lib/data/content-parse';
 
 const candidate: DesignCandidate = {
   id: 'cand-warm-cozy', label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg',
@@ -183,5 +184,60 @@ describe('T4-D 콘텐츠 — 글 카드·구독/가입 CTA', () => {
     const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
     const btn = cta.elements.find((el) => el.kind === 'button')!;
     assert.ok(btn.kind === 'button' && btn.label === '문의하기');
+  });
+});
+
+describe('T4-E 특수 — 이벤트 날짜 강조·링크 허브', () => {
+  test('event + 원문 행사일 → 히어로에 정적 날짜 강조 텍스트(el-hero-date)', () => {
+    const cfg = buildSiteConfigFromSurvey(
+      surveyFor('event', '컨퍼런스', { providedContent: '행사일: 2026년 8월 15일 · 코엑스 그랜드볼룸' }),
+      candidate, opts,
+    );
+    const hero = cfg.pages[0].sections.find((s) => s.type === 'hero')!;
+    const date = hero.elements.find((el) => el.id.includes('hero-date'))!;
+    assert.ok(date && date.kind === 'text' && date.text === '2026년 8월 15일');
+    assert.ok(date.kind === 'text' && date.style.fontSize === 22);
+    // 날짜는 킥커 아래·타이틀 위
+    const kicker = hero.elements.find((el) => el.id.includes('hero-kicker'))!;
+    const title = hero.elements.find((el) => el.id.includes('hero-title'))!;
+    assert.ok(date.frame.y > kicker.frame.y && date.frame.y < title.frame.y);
+  });
+
+  test('event라도 원문에 날짜 없으면 미주입 + 비event는 날짜 있어도 미주입(무회귀)', () => {
+    const noDate = buildSiteConfigFromSurvey(surveyFor('event', '컨퍼런스'), candidate, opts);
+    assert.ok(!noDate.pages[0].sections[0].elements.some((el) => el.id.includes('hero-date')));
+    const cafe = buildSiteConfigFromSurvey(
+      surveyFor('local_store', '카페', { providedContent: '2026년 8월 15일 오픈' }),
+      candidate, opts,
+    );
+    assert.ok(!cafe.pages[0].sections[0].elements.some((el) => el.id.includes('hero-date')));
+  });
+
+  test('parseEventDate — 숫자 표기도 YYYY년 M월 D일로 정규화, 무효는 undefined', () => {
+    assert.equal(parseEventDate('일시: 2026-08-15 10:00'), '2026년 8월 15일');
+    assert.equal(parseEventDate('2026.8.15 개막'), '2026년 8월 15일');
+    assert.equal(parseEventDate('2026년 13월 40일'), undefined);
+    assert.equal(parseEventDate('날짜 없음'), undefined);
+  });
+
+  test('one_page 링크 허브 → 세로 버튼 3개(720 중앙·outline) 전부 href 유효', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('one_page', '크리에이터'), candidate, opts);
+    const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
+    const btns = cta.elements.filter((el) => el.kind === 'button');
+    assert.equal(btns.length, 3);
+    assert.deepEqual(
+      btns.map((b) => (b.kind === 'button' ? b.label : '')),
+      ['전화하기', '문의 남기기', '오시는 길'],
+    );
+    const secIds = new Set(cfg.pages.flatMap((p) => p.sections).map((s) => s.id));
+    for (const b of btns) {
+      assert.ok(b.kind === 'button' && b.style.variant === 'outline');
+      assert.ok(b.frame.x === 360 && b.frame.w === 720, '풀폭 720 중앙 아님');
+      const m = b.kind === 'button' ? /^(?:\/[a-z0-9-]*)?#(.+)$/.exec(b.href) : null;
+      assert.ok(m && secIds.has(m[1]), `앵커 타깃 미존재: ${b.kind === 'button' ? b.href : ''}`);
+    }
+    // 세로 스택(겹침 없음)
+    const ys = btns.map((b) => b.frame.y).sort((a, b2) => a - b2);
+    assert.ok(ys[1] >= ys[0] + 56 && ys[2] >= ys[1] + 56);
   });
 });

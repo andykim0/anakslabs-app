@@ -13,6 +13,7 @@
  *
  * 모든 좌표는 DESIGN_WIDTH(1440) 기준. 콘텐츠 마진 x=120, 콘텐츠 폭 1200.
  */
+// TODO(백로그): D-day 라이브 카운트다운 — 행사일 계약 필드 + 런타임 모듈 필요(M-batch 이후)
 import type {
   CanvasElement,
   Section,
@@ -25,11 +26,11 @@ import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/
 import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
-import { resolveScrim } from '@/lib/design/scrim';
+import { resolveScrim, scrimPassesAA } from '@/lib/design/scrim';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import { teaserSummary } from './teaser-summary';
-import { parseAddress, parseBusinessHours, parseMenuItems } from './content-parse';
+import { parseAddress, parseBusinessHours, parseEventDate, parseMenuItems } from './content-parse';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -262,6 +263,11 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   );
   const ctaHref = ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
 
+  // [T4-E] 이벤트 목적 + 원문에 행사일 → 킥커 아래 정적 날짜 강조(라이브 카운트다운은 백로그).
+  //        primary가 스크림 위 AA 미달이면 scrim.textColor 폴백(발행 게이트 무차단 보장).
+  const eventDate = survey.purposeId === 'event' ? parseEventDate(survey.providedContent) : undefined;
+  const dy = eventDate ? 44 : 0; // 날짜가 끼면 타이틀 이하를 아래로 밀어 겹침 방지
+
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치
   if (survey.logoUrl) {
@@ -275,19 +281,32 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       style: { objectFit: 'contain' },
     });
   }
-  elements.push(
-    {
-      id: nextId(ctx, 'el-hero-kicker'),
+  elements.push({
+    id: nextId(ctx, 'el-hero-kicker'),
+    kind: 'text',
+    frame: { x: 122, y: 250, w: 560, h: 24 },
+    z: 2,
+    text: kicker,
+    style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'left', letterSpacing: 4 },
+  });
+  if (eventDate) {
+    const dateColor = scrimPassesAA(scrim.overlayColor, scrim.overlayOpacity, theme.palette.primary)
+      ? theme.palette.primary
+      : scrim.textColor;
+    elements.push({
+      id: nextId(ctx, 'el-hero-date'),
       kind: 'text',
-      frame: { x: 122, y: 250, w: 560, h: 24 },
-      z: 2,
-      text: kicker,
-      style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'left', letterSpacing: 4 },
-    },
+      frame: { x: 122, y: 288, w: 560, h: 32 },
+      z: 3,
+      text: eventDate,
+      style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: dateColor, align: 'left', letterSpacing: 1 },
+    });
+  }
+  elements.push(
     {
       id: nextId(ctx, 'el-hero-title'),
       kind: 'text',
-      frame: { x: 116, y: 300, w: 880, h: 220 },
+      frame: { x: 116, y: 300 + dy, w: 880, h: 220 },
       z: 3,
       text: title,
       style: { fontSize: 76, fontWeight: 400, fontFamily: 'heading', color: scrim.textColor, align: 'left', lineHeight: 1.3, letterSpacing: -0.5 },
@@ -295,7 +314,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-sub'),
       kind: 'text',
-      frame: { x: 122, y: 546, w: 560, h: 56 },
+      frame: { x: 122, y: 546 + dy, w: 560, h: 56 },
       z: 3,
       text: sub,
       style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: scrim.textColor, align: 'left', lineHeight: 1.8 },
@@ -303,7 +322,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta'),
       kind: 'button',
-      frame: { x: 122, y: 648, w: 172, h: 54 },
+      frame: { x: 122, y: 648 + dy, w: 172, h: 54 },
       z: 4,
       label: ctaLabel,
       href: ctaHref,
@@ -312,7 +331,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta2'),
       kind: 'button',
-      frame: { x: 310, y: 648, w: 172, h: 54 },
+      frame: { x: 310, y: 648 + dy, w: 172, h: 54 },
       z: 4,
       label: '더 알아보기',
       href: '#sec-about',
@@ -1150,12 +1169,58 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/**
+ * [T4-E] cta:links — 원페이지·링크인바이오 링크 허브. 세로 풀폭(720 중앙, x 360) 버튼 3개
+ * (전화하기/문의 남기기/오시는 길) 전부 outline·contact 폴백(무배선 0) — 외부 링크는
+ * 에디터에서 교체. SNS 버튼은 extras(snsLinks)가 주입하므로 여기서 만들지 않는다.
+ * 모바일 우선: 단일 컬럼 세로 스택이라 모바일 자동 스택에서도 순서 그대로.
+ */
+function buildCtaLinks(ctx: Ctx, item: SectionPlanItem): Section {
+  const { theme } = ctx;
+  const LINKS = ['전화하기', '문의 남기기', '오시는 길'];
+  const TOP = 180; // 첫 버튼 y
+  const PITCH = 72; // 버튼(56) + 간격(16)
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-links-title'),
+      kind: 'text',
+      frame: { x: 360, y: 100, w: 720, h: 50 },
+      z: 2,
+      text: headingOf(item, '링크'),
+      style: { fontSize: 32, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'center', lineHeight: 1.35 },
+    },
+  ];
+  LINKS.forEach((label, i) => {
+    elements.push({
+      id: nextId(ctx, 'el-links-btn'),
+      kind: 'button',
+      frame: { x: 360, y: TOP + i * PITCH, w: 720, h: 56 },
+      z: 3,
+      label,
+      href: '#sec-contact',
+      style: { variant: 'outline', color: theme.palette.primary, textColor: theme.palette.primary, fontSize: 16, borderRadius: theme.radius ?? 4 },
+    });
+  });
+  return {
+    id: 'sec-cta',
+    type: 'cta',
+    name: SECTION_NAMES.cta,
+    height: TOP + LINKS.length * PITCH + 60,
+    background: {
+      gradient: `linear-gradient(135deg, ${theme.palette.surface} 0%, ${theme.palette.background} 100%)`,
+    },
+    elements,
+  };
+}
+
 function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
+  const suf = variantSuffix(item.variant);
+  // [T4-E] 원페이지 링크 허브는 전용 레이아웃
+  if (suf === 'links') return buildCtaLinks(ctx, item);
   // [T4-D] 구독/가입 변형 — 라벨·부제만 프리셋(레이아웃 공유). href는 contact 폴백 유지
   //        (외부 뉴스레터·카페·밴드 링크는 에디터에서 교체 — 무배선 0).
-  const suf = variantSuffix(item.variant);
   const preset =
     suf === 'subscribe'
       ? { label: '구독하기', sub: '뉴스레터·채널 소식 받기' }
