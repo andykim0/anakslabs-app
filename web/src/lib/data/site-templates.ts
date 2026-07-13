@@ -30,6 +30,7 @@ import { resolveScrim } from '@/lib/design/scrim';
 import { pickButtonTextColor } from '@/lib/design/button-contrast';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
+import type { HeroVariant } from './skeletons';
 import { teaserSummary } from './teaser-summary';
 import { parseAddress, parseBusinessHours, parseMenuItems, resolveContentItems } from './content-parse';
 
@@ -64,6 +65,8 @@ export interface BuildOptions {
   /** 섹션 이미지에 순환 사용할 자산 URL 풀 */
   imagePool: string[];
   copy?: SectionCopy;
+  /** [R2] 히어로 형태(뼈대) — 미지정=fullbleed(기존, 무회귀). centered/split은 정렬·앵커만 다름 */
+  heroVariant?: HeroVariant;
 }
 
 /** hex 색상의 밝기(0~255). 팔레트가 다크/라이트인지 판단용 */
@@ -412,6 +415,9 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     },
   );
 
+  // [R2] 뼈대 히어로 형태 적용 — 좌(fullbleed)/중앙(centered)/우앵커(split). 이미지 배경·스크림 공통.
+  applyHeroVariant(elements, opts.heroVariant ?? 'fullbleed', chips.length);
+
   return {
     id: 'sec-hero',
     type: 'hero',
@@ -427,6 +433,49 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     },
     elements,
   };
+}
+
+/**
+ * [R2] 히어로 형태 후처리 — 텍스트 정렬·수평 위치만 조정(이미지 배경·스크림·수직 위치 불변 = AA 안전).
+ * fullbleed=좌(무변경) · centered=중앙 정렬+수평 중앙 · split=우측 앵커(우정렬). 로고는 고정.
+ */
+function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant, chipCount: number): void {
+  if (variant === 'fullbleed') return;
+  const RIGHT_MARGIN = 120;
+  const centerX = (w: number) => Math.round((1440 - w) / 2);
+  const rightX = (w: number) => 1440 - w - RIGHT_MARGIN;
+  for (const el of elements) {
+    if (el.id.includes('hero-logo')) continue;
+    if (el.kind === 'text' && !el.id.includes('chip-label')) {
+      if (variant === 'centered') {
+        el.frame.x = 120;
+        el.frame.w = 1200;
+        el.style.align = 'center';
+      } else {
+        el.frame.x = rightX(el.frame.w);
+        el.style.align = 'right';
+      }
+    }
+  }
+  // 칩 행(shape+label 쌍) — 그룹 중앙/우측 정렬
+  const chipW = 156;
+  const gap = 12;
+  const rowW = chipCount > 0 ? chipCount * chipW + (chipCount - 1) * gap : 0;
+  const rowStart = variant === 'centered' ? centerX(rowW) : rightX(rowW);
+  let ci = 0;
+  for (const el of elements) {
+    if (el.id.includes('hero-chip')) {
+      el.frame.x = rowStart + Math.floor(ci / 2) * (chipW + gap);
+      ci += 1;
+    }
+  }
+  // CTA 쌍 — 그룹 정렬(각각 독립 중앙 정렬 시 겹침 방지)
+  const pairW = 172 + 16 + 172;
+  const pairStart = variant === 'centered' ? centerX(pairW) : rightX(pairW);
+  const cta = elements.find((e) => e.id.includes('hero-cta') && !e.id.includes('cta2'));
+  const cta2 = elements.find((e) => e.id.includes('hero-cta2'));
+  if (cta) cta.frame.x = pairStart;
+  if (cta2) cta2.frame.x = pairStart + 188;
 }
 
 function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {

@@ -30,6 +30,7 @@ import { KNOWN_SECTION_TYPES, mapCustomSectionType } from '../section-suggest';
 import { aiFillCount, buildImagePool, shouldSkipAiPool } from '../image-pool';
 import { imageFillMaxPerSite } from '@/lib/env';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
+import { skeletonForCandidate } from '../skeletons';
 import { uploadAiAsset } from './storage';
 
 // ---------- 공통 유틸 ----------
@@ -271,10 +272,13 @@ export class SupabaseAiService implements AiService {
     });
 
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
+    // [R2] 후보별 뼈대(히어로 형태) — 3안이 서로 다른 골격을 받도록 후보 id로 결정적 매핑
+    const heroVariant = skeletonForCandidate(survey.purposeId, candidate.id).heroVariant;
     return buildSiteConfigFromSurvey(survey, candidate, {
       heroImageUrl,
       imagePool,
       copy,
+      heroVariant,
     });
   }
 
