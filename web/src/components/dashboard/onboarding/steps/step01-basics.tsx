@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
+import { capabilityOf } from '@/lib/onboarding/purpose-capabilities';
 import type { SitePurposeId } from '@/lib/types/domain';
 import { cn } from '../../ui';
 import { Chip, Field, SelectCard, StepIntro, obInput, type SurveyForm } from './shared';
@@ -68,7 +69,7 @@ export function Step01Basics() {
                         {def.label}
                       </span>
                       <span className="mt-1.5 text-xs leading-relaxed text-ob-muted">
-                        {def.features.slice(0, 3).join(' · ')}
+                        {capabilityOf(def.id).features.slice(0, 3).join(' · ')}
                       </span>
                     </SelectCard>
                   ))}
@@ -99,7 +100,7 @@ export function Step01Basics() {
                     {def.label}
                   </span>
                   <span className="mt-1.5 text-xs leading-relaxed text-ob-muted">
-                    {def.features.slice(0, 3).join(' · ')}
+                    {capabilityOf(def.id).features.slice(0, 3).join(' · ')}
                   </span>
                 </SelectCard>
               ))}
