@@ -8,12 +8,13 @@
  * 서버도 publish body의 businessInfoConfirmed:true를 요구한다(클라 우회 방지).
  */
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Pencil, Rocket } from 'lucide-react';
+import { CheckCircle2, Pencil, Rocket, ArrowLeft } from 'lucide-react';
 import type { BusinessInfo } from '@/lib/types/site';
 import { useEditorStore } from '@/stores/editor';
 import { Modal } from '@/components/dashboard/modal';
 import { Button, cn } from '@/components/dashboard/ui';
 import { BusinessInfoForm } from './BusinessInfoForm';
+import { PublishDiagnostics, type FixAnchor } from './PublishDiagnostics';
 
 function SummaryRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
@@ -44,35 +45,62 @@ function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
 
 export function PrePublishDialog({
   open,
+  siteId,
   publishing,
   onClose,
   onConfirmed,
 }: {
   open: boolean;
+  /** [G4] 발행 전 진단 조회 대상 */
+  siteId: string;
   publishing: boolean;
   onClose: () => void;
-  /** 1단계 확인 + 2단계 발행 클릭 완료 — 실제 발행 요청 실행 */
+  /** 발행 클릭 완료 — 실제 발행 요청 실행 */
   onConfirmed: () => void;
 }) {
   const businessInfo = useEditorStore((s) => s.businessInfo);
-  const [step, setStep] = useState<1 | 2>(1);
+  // [G4] 3단계: 0=진단 → 1=사업자정보 → 2=발행
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [editing, setEditing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
-  // 열릴 때마다 초기화 — 미입력이면 바로 인라인 폼
+  // 열릴 때마다 초기화 — 진단부터. (사업자정보 미입력이면 그 단계에서 인라인 폼)
   useEffect(() => {
     if (open) {
-      setStep(1);
+      setStep(0);
       setEditing(!useEditorStore.getState().businessInfo);
       setConfirmed(false);
     }
   }, [open]);
 
-  const title = step === 1 ? '발행 전 확인 (1/2) — 사업자 정보' : '발행 (2/2)';
+  // [G4] 개선 항목 '채우기' — 사업자정보는 그 단계로, 나머지는 다이얼로그 닫고 에디터에서 편집
+  const handleFix = (anchor: FixAnchor) => {
+    if (anchor === 'editor:business-info') {
+      setStep(1);
+      setEditing(true);
+    } else {
+      onClose();
+    }
+  };
+
+  const title = step === 0 ? '발행 전 진단 (1/3)' : step === 1 ? '사업자 정보 확인 (2/3)' : '발행 (3/3)';
 
   return (
     <Modal open={open} onClose={onClose} title={title} className="max-w-lg">
-      {step === 1 ? (
+      {step === 0 ? (
+        <div className="space-y-4">
+          <PublishDiagnostics siteId={siteId} onFix={handleFix} />
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="ghost" onClick={onClose}>
+              먼저 보완하기
+            </Button>
+            <Button onClick={() => setStep(1)}>
+              계속
+              <Rocket className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : step === 1 ? (
         editing || !businessInfo ? (
           <div className="space-y-3">
             <p className="text-xs leading-5 text-neutral-400">

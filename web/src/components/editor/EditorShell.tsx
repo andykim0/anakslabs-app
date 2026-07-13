@@ -72,6 +72,8 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
   // 툴바 발행 버튼 → 즉시 발행이 아니라 확인 다이얼로그부터
   const handlePublishClick = () => {
     if (publishing) return;
+    // [G4] 진단이 최신 draft를 보도록 먼저 flush 후 다이얼로그 오픈(진단→사업자정보→발행)
+    void autosave.flush();
     setPrePublishOpen(true);
   };
 
@@ -128,6 +130,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
 
       <PrePublishDialog
         open={prePublishOpen}
+        siteId={siteId}
         publishing={publishing}
         onClose={() => setPrePublishOpen(false)}
         onConfirmed={() => void handlePublishConfirmed()}

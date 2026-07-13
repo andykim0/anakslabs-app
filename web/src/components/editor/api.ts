@@ -120,6 +120,36 @@ export async function publishSiteRequest(siteId: string): Promise<{ site: Site; 
   });
 }
 
+// ---------- [G4] 발행 전 진단 ----------
+
+export interface ScanIssueGuidance {
+  title: string;
+  action: string;
+  effect: string;
+  anchor: 'editor:content' | 'editor:business-info' | 'editor:meta' | 'editor:images' | 'system';
+}
+export interface PreflightIssue {
+  code: string;
+  pillar: 'seo' | 'aeo' | 'geo';
+  severity: 'critical' | 'warn' | 'info';
+  label: string;
+  detail: string;
+  guidance: ScanIssueGuidance | null;
+}
+export interface PreflightResult {
+  scan: { scores: { seo: number; aeo: number; geo: number; total: number }; grade: string; issues: PreflightIssue[] };
+  ok: boolean;
+  blockers: string[];
+  warnings: string[];
+  needsQa: boolean;
+  businessInfoMissing: boolean;
+}
+
+/** [G4] 발행하지 않고 진단만 조회(발행 전 가이드 화면용) */
+export async function fetchPreflight(siteId: string): Promise<PreflightResult> {
+  return request(`/api/sites/${encodeURIComponent(siteId)}/preflight`, { method: 'POST' });
+}
+
 // ---------- 편집 요청 (AI) ----------
 
 export interface CreateEditRequestInput {
