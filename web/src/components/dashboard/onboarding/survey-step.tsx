@@ -15,7 +15,8 @@ import { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
-import type { CandidateStyle, SiteGoalId, SitePurposeId, SurveyInput } from '@/lib/types/domain';
+import type { CandidateStyle, LivePurposeId, SiteGoalId, SitePurposeId, SurveyInput } from '@/lib/types/domain';
+import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { defaultImageStyle } from '@/lib/onboarding/image-style';
 import { styleIdsForSamples } from '@/lib/design/reference-samples';
@@ -89,6 +90,14 @@ export function SurveyStep({
     if (required.length) {
       const ok = await trigger(required);
       if (!ok) return;
+    }
+    if (step === 3) {
+      const pid = ((getValues('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
+      const items = (getValues('contentItems') ?? []).filter((i) => i.name?.trim());
+      if (!contentGateStatus(pid, items.length).ok) {
+        toast('info', `${requirementOf(pid).itemLabel} 항목을 1개 이상 입력해 주세요.`);
+        return;
+      }
     }
     if (step === 6) {
       const { colorPreference } = deriveColors(getValues());
