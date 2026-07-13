@@ -129,6 +129,7 @@ export function OnboardingWizard({
       {step === 3 && survey ? (
         <CandidateStep
           survey={survey}
+          heroTechnique={motionChoice?.heroTechnique}
           onBack={() => setStep(2)}
           onSelect={(selected) => {
             setCandidate(selected);

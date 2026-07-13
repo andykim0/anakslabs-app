@@ -62,18 +62,39 @@ function firstFontName(fontFamily: string): string {
   return first.replaceAll("'", '').replaceAll('"', '').trim();
 }
 
+/** [G1] 후보 히어로 이미지에 선택한 heroTechnique을 CSS로 체감시키는 클래스(로컬 keyframes). */
+const HERO_MOTION_CLASS: Record<string, string> = {
+  'ken-burns': 'cand-hero-kenburns',
+  'mask-reveal': 'cand-hero-mask',
+  'video-hero': 'cand-hero-pan',
+};
+
+const CANDIDATE_MOTION_CSS = `
+.cand-hero-kenburns { animation: cand-kb 7s ease-in-out infinite alternate; transform-origin: 50% 50%; }
+@keyframes cand-kb { from { transform: scale(1); } to { transform: scale(1.08); } }
+.cand-hero-pan { animation: cand-pan 8s ease-in-out infinite alternate; transform-origin: 50% 50%; }
+@keyframes cand-pan { from { transform: scale(1.05) translateX(-2%); } to { transform: scale(1.05) translateX(2%); } }
+.cand-hero-mask { animation: cand-mask 3s ease-in-out infinite; }
+@keyframes cand-mask { 0% { clip-path: inset(0 100% 0 0); } 45%,100% { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .cand-hero-kenburns, .cand-hero-pan, .cand-hero-mask { animation: none !important; clip-path: none !important; transform: none !important; }
+}`;
+
 function CandidateCard({
   candidate,
   selected,
+  heroTechnique,
   onSelect,
 }: {
   candidate: DesignCandidate;
   selected: boolean;
+  heroTechnique?: string;
   onSelect: () => void;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const { palette } = candidate.theme;
   const swatches = [palette.background, palette.surface, palette.primary, palette.accent, palette.text];
+  const motionClass = heroTechnique ? HERO_MOTION_CLASS[heroTechnique] : undefined;
 
   return (
     <button
@@ -98,7 +119,7 @@ function CandidateCard({
           <img
             src={candidate.heroImageUrl}
             alt={candidate.label}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className={cn('h-full w-full object-cover', motionClass ?? 'transition-transform duration-300 group-hover:scale-[1.03]')}
             onError={() => setImgFailed(true)}
           />
         )}
@@ -136,10 +157,13 @@ function CandidateCard({
 
 export function CandidateStep({
   survey,
+  heroTechnique,
   onBack,
   onSelect,
 }: {
   survey: SurveyInput;
+  /** [G1] '움직임 고르기'에서 고른 히어로 기법 — 후보 히어로 이미지에서 체감시켜 선택→확인 루프를 닫는다 */
+  heroTechnique?: string;
   onBack: () => void;
   onSelect: (candidate: DesignCandidate) => void;
 }) {
@@ -192,6 +216,10 @@ export function CandidateStep({
 
   return (
     <div>
+      {/* [G1] 후보 히어로 이미지에 선택한 움직임을 CSS로 재생(비용 0, reduced-motion 존중) */}
+      {heroTechnique && HERO_MOTION_CLASS[heroTechnique] ? (
+        <style dangerouslySetInnerHTML={{ __html: CANDIDATE_MOTION_CSS }} />
+      ) : null}
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-ob-ink">디자인 방향을 골라주세요</h2>
         <p className="mt-1 text-sm text-ob-muted">
@@ -201,7 +229,13 @@ export function CandidateStep({
 
       <div className="grid gap-4 sm:grid-cols-3">
         {candidates.map((c) => (
-          <CandidateCard key={c.id} candidate={c} selected={c.id === selectedId} onSelect={() => setSelectedId(c.id)} />
+          <CandidateCard
+            key={c.id}
+            candidate={c}
+            selected={c.id === selectedId}
+            heroTechnique={heroTechnique}
+            onSelect={() => setSelectedId(c.id)}
+          />
         ))}
       </div>
 

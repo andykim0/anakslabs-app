@@ -14,6 +14,7 @@ import { Eye, Play, Plus, Smartphone } from 'lucide-react';
 import { DESIGN_WIDTH } from '@/lib/types/site';
 import { useEditorStore, activeSections} from '@/stores/editor';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
+import { usePreviewMotion } from '@/components/site-renderer/use-preview-motion';
 import { SectionView } from './SectionView';
 import { ThemeFonts } from './ThemeFonts';
 
@@ -94,8 +95,10 @@ export function CanvasStage() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState(0.6);
-  // [Q6] 프리뷰 모션 토글 — 기본 끔(정적). 켜면 SiteRenderer가 data-m+CSS+런타임 방출, key 리마운트로 재생
-  const [motionOn, setMotionOn] = useState(false);
+  // [G1] 프리뷰 모션 토글 — 기본 켬(발행 전 선택한 움직임을 무조건 보이게). 토글은 '끄기' 용도.
+  const [motionOn, setMotionOn] = useState(true);
+  // [G1] 클라 프리뷰에서 런타임 실제 실행(SiteRenderer의 <script>는 CSR 미실행 보완) — reveal/mask 재생
+  usePreviewMotion(motionOn, `${config.pages.length}:${previewPageSlug}:${motionOn}`);
 
   useEffect(() => {
     const el = scrollRef.current;

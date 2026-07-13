@@ -48,8 +48,8 @@ function PreviewCard({ site }: { site: Site }) {
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
   const { toast } = useToast();
   const [source, setSource] = useState<'draft' | 'published'>(site.draftConfig ? 'draft' : 'published');
-  // [Q6] 모션 미리보기 — 발행 전 reveal/ken-burns 실동작 확인 (기본 끔 = 정적)
-  const [motionOn, setMotionOn] = useState(false);
+  // [G1] 모션 미리보기 — 발행 전 reveal/ken-burns 실동작을 기본 재생(토글은 '끄기' 용도)
+  const [motionOn, setMotionOn] = useState(true);
 
   const hasBoth = Boolean(site.draftConfig && site.siteConfig);
   const config = source === 'draft' ? (site.draftConfig ?? site.siteConfig) : (site.siteConfig ?? site.draftConfig);

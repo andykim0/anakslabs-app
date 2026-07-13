@@ -12,6 +12,7 @@ import { Component, useEffect, useRef, useState, type FormEvent, type MouseEvent
 import { ImageOff } from 'lucide-react';
 import { DESIGN_WIDTH, type SiteConfig } from '@/lib/types/site';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
+import { usePreviewMotion } from '@/components/site-renderer/use-preview-motion';
 import { cn } from './ui';
 
 const MOBILE_PREVIEW_WIDTH = 390;
@@ -76,6 +77,9 @@ export function SitePreview({
   const [previewSlug, setPreviewSlug] = useState('');
 
   const innerWidth = mode === 'mobile' ? MOBILE_PREVIEW_WIDTH : DESIGN_WIDTH;
+
+  // [G1] motion=true 프리뷰에서 런타임 실제 실행(SiteRenderer <script> CSR 미실행 보완)
+  usePreviewMotion(motion, `${config.pages.length}:${previewSlug}:${motion}`);
 
   // 설정이 바뀌면 홈으로 리셋(삭제된 페이지에 머무르지 않도록)
   useEffect(() => {
