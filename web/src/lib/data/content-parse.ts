@@ -4,10 +4,32 @@
  * 순수 함수 — node:test로 직접 검증.
  */
 
+import type { ContentItem } from '@/lib/types/domain';
+
 export interface MenuItem {
   name: string;
   /** '4,500' 등 숫자 문자열(원 제외). 가격 없으면 undefined */
   price?: string;
+}
+
+/**
+ * [G3] 생성 1급 콘텐츠 소스 — 구조화 항목(contentItems)이 있으면 그것을(자유 원문 파싱보다 우선),
+ * 없으면 providedContent를 parseMenuItems로 파싱. 빈 name 항목은 제외.
+ */
+export function resolveContentItems(
+  contentItems: ContentItem[] | undefined,
+  providedContent: string | undefined,
+): ContentItem[] {
+  const structured = (contentItems ?? []).filter((i) => i.name?.trim());
+  if (structured.length > 0) {
+    return structured.map((i) => ({
+      name: i.name.trim(),
+      price: i.price?.trim() || undefined,
+      description: i.description?.trim() || undefined,
+      photoUrl: i.photoUrl?.trim() || undefined,
+    }));
+  }
+  return parseMenuItems(providedContent).map((m) => ({ name: m.name, price: m.price }));
 }
 
 /** '[메뉴]' 같은 대괄호 머리말 블록 추출 (없으면 전체 텍스트) */

@@ -2,7 +2,8 @@
  * [Q2] 홈 티저 카드 요약 — 정적 필러 대신 대상 페이지의 실제 데이터에서 결정적으로 요약한다.
  * providedContent 파싱(메뉴·영업시간·주소·소개) + 페이지 이미지 수를 사용. LLM 미호출(원가 0).
  */
-import { parseAddress, parseBusinessHours, parseIntroSentence, parseMenuItems } from './content-parse';
+import type { ContentItem } from '@/lib/types/domain';
+import { parseAddress, parseBusinessHours, parseIntroSentence, resolveContentItems } from './content-parse';
 
 /** [T4-B] 원문에서 keywords 중 하나를 언급한 첫 문장(maxLen자 절단). 블록 헤더([후기] 등) 라인은 제외 */
 function firstSentenceMentioning(
@@ -24,14 +25,16 @@ function firstSentenceMentioning(
 export function teaserSummary(input: {
   slug: string;
   providedContent?: string;
+  contentItems?: ContentItem[];
   imageCount?: number;
 }): string | undefined {
-  const { slug, providedContent, imageCount } = input;
+  const { slug, providedContent, contentItems, imageCount } = input;
   switch (slug) {
     case 'menu':
     case 'pricing':
     case 'services': {
-      const items = parseMenuItems(providedContent);
+      // [G3] 구조화 항목(1급) 우선
+      const items = resolveContentItems(contentItems, providedContent);
       if (items.length === 0) return undefined;
       const head = items
         .slice(0, 3)

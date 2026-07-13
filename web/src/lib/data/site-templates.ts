@@ -31,7 +31,7 @@ import { pickButtonTextColor } from '@/lib/design/button-contrast';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import { teaserSummary } from './teaser-summary';
-import { parseAddress, parseBusinessHours, parseMenuItems } from './content-parse';
+import { parseAddress, parseBusinessHours, parseMenuItems, resolveContentItems } from './content-parse';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -676,9 +676,9 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, cfg.titleFallback), 142),
   ];
-  // [Q3] 고객 원문에 메뉴 항목이 있으면 전부 이름+큰 가격 타이포 리스트로(하드코딩 더미 대체 — "7개 주면 7개")
-  const parsedMenu = parseMenuItems(survey.providedContent);
-  if (parsedMenu.length >= 2) {
+  // [G3] 구조화 콘텐츠 항목(1급) 우선, 없으면 원문 파싱 — 전부 이름+큰 가격 타이포 리스트로("N개 주면 N개")
+  const parsedMenu = resolveContentItems(survey.contentItems, survey.providedContent);
+  if (parsedMenu.length >= 1) {
     const rows = parsedMenu.slice(0, 14);
     rows.forEach((mi, i) => {
       const y = 236 + i * 72;
@@ -1867,7 +1867,7 @@ export function buildSiteConfigFromSurvey(
         title: p.navLabel ?? p.title,
         slug: p.slug,
         // [Q2] 대상 페이지 데이터에서 실요약(providedContent 파싱·이미지 수). 없으면 buildHomeTeaser가 폴백.
-        blurb: teaserSummary({ slug: p.slug, providedContent: survey.providedContent, imageCount: imageCount(p) }),
+        blurb: teaserSummary({ slug: p.slug, providedContent: survey.providedContent, contentItems: survey.contentItems, imageCount: imageCount(p) }),
         thumb: firstImageSrc(p), // 대상 페이지 이미지 참조(Q4 재사용 상한 예외)
       })),
     );
