@@ -14,6 +14,7 @@ import { sanitizeMotion } from '@/lib/motion/validate';
 import { classifyVideoBytes } from '@/lib/motion/asset-limits';
 import { validatePalette, qaAuditChecklist } from '@/lib/design/quality-standards';
 import { scrimPassesAA } from '@/lib/design/scrim';
+import { solidButtonPassesAA } from '@/lib/design/button-contrast';
 import { isThinSection } from '@/lib/design/section-density';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
@@ -88,6 +89,18 @@ export function checkPublish(
     // [Q3] 섹션 밀도 — 내용이 실려야 할 콘텐츠 섹션이 빈약하면 경고("PPT 1장" 방지)
     if (DENSE_SECTION_TYPES.has(s.type) && isThinSection(s)) {
       warnings.push(`섹션 '${s.name}'의 내용이 빈약합니다 — 실제 정보(메뉴·안내 등)를 더 채우면 좋아요.`);
+    }
+    // [G2] 솔리드 CTA 버튼 대비 — 버튼 배경 vs 글자가 AA 미달이면 차단(다크 팔레트 CTA 투명 방지)
+    for (const el of s.elements) {
+      if (el.kind !== 'button' || el.style.variant !== 'solid') continue;
+      const fill = el.style.color ?? config.theme.palette.primary;
+      const textColor = el.style.textColor ?? config.theme.palette.background;
+      if (!solidButtonPassesAA(fill, textColor)) {
+        blockers.push(
+          `섹션 '${s.name}'의 버튼('${el.label}')이 글자와 배경 대비(AA)에 못 미칩니다 — 버튼 글자색을 바꿔주세요.`,
+        );
+        break;
+      }
     }
   }
 

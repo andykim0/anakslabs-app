@@ -25,6 +25,7 @@ import type {
   VideoElement,
 } from '@/lib/types/site';
 import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
+import { resolveSolidButton } from '@/lib/design/button-contrast';
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 
@@ -197,6 +198,9 @@ function ButtonContent({
   const color = s.color ?? theme.palette.primary;
   const radius = s.borderRadius ?? theme.radius ?? 8;
   const fontSize = s.fontSize ?? 16;
+  // [G2] 솔리드 버튼 글자색 방어선 — 지정색(또는 기본 background)이 fill과 AA 미달이면 자동 교정
+  //      (레거시/편집 config 보호. 신규 생성물은 이미 pickButtonTextColor로 안전).
+  const solidTextColor = resolveSolidButton(color, s.textColor, theme.palette).textColor;
 
   const base: CSSProperties = {
     display: 'inline-flex',
@@ -212,7 +216,7 @@ function ButtonContent({
   const variants: Record<ButtonElement['style']['variant'], CSSProperties> = {
     solid: {
       backgroundColor: color,
-      color: s.textColor ?? theme.palette.background,
+      color: solidTextColor,
       border: 'none',
     },
     outline: {

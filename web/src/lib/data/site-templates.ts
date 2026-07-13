@@ -27,6 +27,7 @@ import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
+import { pickButtonTextColor } from '@/lib/design/button-contrast';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import { teaserSummary } from './teaser-summary';
@@ -308,7 +309,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       z: 4,
       label: ctaLabel,
       href: ctaHref,
-      style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 15, borderRadius: theme.radius ?? 4 },
+      style: { variant: 'solid', color: theme.palette.primary, textColor: pickButtonTextColor(theme.palette.primary, theme.palette), fontSize: 15, borderRadius: theme.radius ?? 4 },
     },
     {
       id: nextId(ctx, 'el-hero-cta2'),
@@ -968,7 +969,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
         style: {
           variant: i === 1 ? 'solid' : 'outline',
           color: theme.palette.primary,
-          textColor: i === 1 ? (ctx.dark ? theme.palette.background : '#ffffff') : theme.palette.primary,
+          textColor: i === 1 ? pickButtonTextColor(theme.palette.primary, theme.palette) : theme.palette.primary,
           fontSize: 14,
           borderRadius: theme.radius ?? 4,
         },
@@ -1063,7 +1064,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
     z: 3,
     label: '문의하기',
     href: '#sec-contact',
-    style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 15, borderRadius: theme.radius ?? 4 },
+    style: { variant: 'solid', color: theme.palette.primary, textColor: pickButtonTextColor(theme.palette.primary, theme.palette), fontSize: 15, borderRadius: theme.radius ?? 4 },
   });
   return {
     id: 'sec-cta',
@@ -1232,7 +1233,7 @@ function buildContactForm(ctx: Ctx, item: SectionPlanItem): Section {
         z: 3,
         label: '문의하기',
         href: '#sec-contact',
-        style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 16, borderRadius: theme.radius ?? 4 },
+        style: { variant: 'solid', color: theme.palette.primary, textColor: pickButtonTextColor(theme.palette.primary, theme.palette), fontSize: 16, borderRadius: theme.radius ?? 4 },
       },
     ],
   };
