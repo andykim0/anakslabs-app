@@ -26,6 +26,7 @@ import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { HeroVideoStudio } from './hero-video-studio';
 import { NextStepsChecklist } from './next-steps-checklist';
+import { PageEnrichmentCards } from './page-enrichment-cards';
 
 const LOADING_MESSAGES = [
   '선택하신 방향으로 사이트 구조를 설계하고 있습니다…',
@@ -157,6 +158,9 @@ export function GenerateStep({
 
         {/* [F4] 프로그레시브 온보딩 — 생성 후 다듬을 것들을 액션 카드로 안내(에디터 딥링크) */}
         <NextStepsChecklist siteId={siteId} survey={survey} />
+
+        {/* [D3] 페이지별 보강 — 생성본에서 비어 보이는 페이지를 감지해 채우기 코칭(에디터 딥링크) */}
+        <PageEnrichmentCards siteId={siteId} />
 
         {/* [§3] 무료 재생성 안내 */}
         <div className="mt-3 w-full max-w-md rounded-xl border border-ob-border bg-ob-bg p-4">
