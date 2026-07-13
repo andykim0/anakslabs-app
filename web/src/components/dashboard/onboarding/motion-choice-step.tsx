@@ -131,6 +131,9 @@ export function MotionChoiceStep({
   const choices = ALL_HERO_CHOICES;
   const ownsAddon = hasVideoAddon(tier);
   const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
+  // [H3] 두 묶음으로 분리 — ① 기본 움직임(무료 스크롤 효과) vs ② 영상 배경(AI 영상 애드온)
+  const basicChoices = choices.filter((c) => c.id !== 'video-hero');
+  const videoChoice = choices.find((c) => c.id === 'video-hero');
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
 
   const [hero, setHero] = useState<string>(() =>
@@ -155,6 +158,51 @@ export function MotionChoiceStep({
     });
   };
 
+  // [H3] 선택 카드 렌더 — 기본/영상 두 묶음이 공유. 영상 카드는 데모에 '영상 예시' 라벨(스크롤 효과와 구분).
+  const renderHeroChoice = (choice: (typeof ALL_HERO_CHOICES)[number]) => {
+    const selected = hero === choice.id;
+    const isVideo = choice.id === 'video-hero';
+    return (
+      <button
+        key={choice.id}
+        type="button"
+        onClick={() => setHero(choice.id)}
+        aria-pressed={selected}
+        className={cn(
+          'overflow-hidden rounded-ob border bg-ob-surface text-left transition-all',
+          selected ? 'border-ob-accent-strong ring-1 ring-ob-accent' : 'border-ob-border hover:border-ob-muted',
+        )}
+      >
+        <div className="relative h-24 overflow-hidden">
+          <MotionDemo id={choice.id} />
+          {isVideo ? (
+            <span className="absolute bottom-2 left-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+              영상 예시
+            </span>
+          ) : null}
+          {selected ? (
+            <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
+              ✓
+            </span>
+          ) : null}
+        </div>
+        <div className="p-4">
+          <div className="flex items-center justify-between gap-2">
+            <p className={cn('text-sm font-semibold', selected ? 'text-ob-accent-strong' : 'text-ob-ink')}>
+              {choice.label}
+            </p>
+            {isVideo ? (
+              <span className="shrink-0 rounded-full border border-ob-accent bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">
+                {ownsAddon ? '애드온 포함' : addonPrice}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1 text-xs leading-5 text-ob-muted">{choice.description}</p>
+        </div>
+      </button>
+    );
+  };
+
   return (
     <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
       <style>{DEMO_CSS}</style>
@@ -164,52 +212,35 @@ export function MotionChoiceStep({
         <p className="mt-1 text-sm text-ob-muted">이 선택은 사이트의 첫인상(메인 화면 움직임)에 쓰여요.</p>
       </div>
 
-      {/* 히어로 움직임 선택 — 카드 안에서 실제 움직임이 반복 재생 */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {choices.map((choice) => {
-          const selected = hero === choice.id;
-          return (
-            <button
-              key={choice.id}
-              type="button"
-              onClick={() => setHero(choice.id)}
-              aria-pressed={selected}
-              className={cn(
-                'overflow-hidden rounded-ob border bg-ob-surface text-left transition-all',
-                selected
-                  ? 'border-ob-accent-strong ring-1 ring-ob-accent'
-                  : 'border-ob-border hover:border-ob-muted',
-              )}
-            >
-              <div className="relative h-24 overflow-hidden">
-                <MotionDemo id={choice.id} />
-                {selected ? (
-                  <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
-                    ✓
-                  </span>
-                ) : null}
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className={cn('text-sm font-semibold', selected ? 'text-ob-accent-strong' : 'text-ob-ink')}>
-                    {choice.label}
-                  </p>
-                  {choice.id === 'video-hero' ? (
-                    <span className="shrink-0 rounded-full border border-ob-accent bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">
-                      {ownsAddon ? '애드온 포함' : `영상 애드온 ${addonPrice}`}
-                    </span>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-xs leading-5 text-ob-muted">
-                  {choice.id === 'video-hero' && !ownsAddon
-                    ? '원하실 때만 — 결제 후 제작에 반영돼요. 지금은 방향만 골라두면 됩니다.'
-                    : choice.description}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+      {/* [H3] ① 기본 움직임(무료 포함) — 스크롤 CSS 효과. 카드 안에서 실제 움직임이 반복 재생 */}
+      <div className="space-y-2.5">
+        <div>
+          <h3 className="text-sm font-semibold text-ob-ink">
+            기본 움직임 <span className="font-normal text-ob-muted">· 무료 포함</span>
+          </h3>
+          <p className="text-xs leading-5 text-ob-muted">스크롤할 때 사진·글이 부드럽게 나타나는 효과예요.</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {basicChoices.map((choice) => renderHeroChoice(choice))}
+        </div>
       </div>
+
+      {/* [H3] ② 영상 배경(애드온) — 사진 대신 짧은 AI 영상(Veo). 스크롤 효과와 다른 실제 영상 */}
+      {videoChoice ? (
+        <div className="space-y-2.5 border-t border-ob-border pt-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold text-ob-ink">영상 배경</h3>
+            <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">
+              {ownsAddon ? '애드온 포함' : `애드온 ${addonPrice}`}
+            </span>
+          </div>
+          <p className="text-xs leading-5 text-ob-muted">
+            사진 대신 짧은 <span className="font-semibold text-ob-ink">AI 영상</span>이 배경으로 흐릅니다(Veo로 제작).
+            스크롤 효과가 아니라 실제로 움직이는 영상이에요.{ownsAddon ? '' : ' 원하실 때만 — 결제 후 제작에 반영돼요.'}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">{renderHeroChoice(videoChoice)}</div>
+        </div>
+      ) : null}
 
       {/* 움직임 세기 */}
       <div>
