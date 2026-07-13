@@ -19,6 +19,7 @@ import {
   recordHeroVideoSelection,
   type HeroVideoResult,
 } from '@/lib/ai/video-pipeline';
+import { industryDescriptor } from '@/lib/design/quality-standards';
 
 export const maxDuration = 300; // Veo 폴링 대비 (Vercel Pro 상한)
 
@@ -54,7 +55,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const count = body.data.count ?? 2;
 
   const ctx = heroVideoContext(config, {
-    subject: [body.data.businessName, body.data.industry].filter(Boolean).join(', ') || undefined,
+    // [T2] 상호(한글)는 영상에 각인 위험 — 업종 영어 디스크립터만 피사체로 전달
+    subject: body.data.industry ? industryDescriptor(body.data.industry) : undefined,
   });
   if (!ctx) return apiError(409, 'NO_HERO_IMAGE', '히어로 배경 이미지가 없어 영상을 만들 수 없습니다.');
 

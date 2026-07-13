@@ -38,13 +38,17 @@ describe('videoGuardError — 비용 가드 3종 + tier', () => {
 
 describe('buildMotionPrompt — 고정 골격 + POV mood + 소재', () => {
   test('mood·subject·루프·no-text 포함, 자유서술 없음', () => {
-    const p = buildMotionPrompt('Dark cinematic mood', '화로담, 파인다이닝');
+    const p = buildMotionPrompt('Dark cinematic mood', 'fine dining restaurant');
     assert.match(p, /Dark cinematic mood/);
-    assert.match(p, /화로담, 파인다이닝/);
+    assert.match(p, /fine dining restaurant/);
     assert.match(p, /seamless loop/);
     assert.match(p, /no cuts/);
     assert.match(p, /6-8 seconds/);
-    assert.match(p, /No text/);
+    assert.match(p, /no text/i);
+    // [T2] 한글 subject는 스크럽 후 영어 폴백 — 최종 프롬프트에 한글·빈 Subject 없음
+    const k = buildMotionPrompt('Dark cinematic mood', '화로담, 파인다이닝');
+    assert.doesNotMatch(k, /[가-힣]/);
+    assert.match(k, /Subject: the signature scene of the business/);
   });
 });
 

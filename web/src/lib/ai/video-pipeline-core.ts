@@ -3,7 +3,7 @@
  * 비용 가드 판정·모션 프롬프트 조립·컨텍스트 도출·config 적용. 실호출/DB/저장은 video-pipeline.ts.
  */
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
-import { isDarkColor } from '@/lib/design/quality-standards';
+import { NO_TEXT_DIRECTIVE, isDarkColor, stripHangul } from '@/lib/design/quality-standards';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
 
 /** fast=온보딩 시안(저렴), 표준=고화질 재생성(에디터, 크레딧). env로 모델 id 오버라이드. */
@@ -37,10 +37,14 @@ export function videoGuardError(
 
 /** 모션 프롬프트 — 자유 서술 금지. 고정 골격에 POV mood + 업종 소재만 삽입(루프·컷없음·6~8초 고정). */
 export function buildMotionPrompt(povMood: string, subject: string): string {
+  // [T2] 영상 모델도 (특히 한글) 문자 렌더 불가 — 한글 제거 안전망 + 문자 전면 금지 지시 부착.
+  const tidy = (v: string) => stripHangul(v).replace(/^[\s,.\u2013\u2014-]+|[\s,.\u2013\u2014-]+$/g, '');
+  const mood = tidy(povMood) || 'calm cinematic mood, soft natural light';
+  const subj = tidy(subject) || 'the signature scene of the business';
   return (
-    `${povMood}. Subject: ${subject}. ` +
+    `${mood}. Subject: ${subj}. ` +
     `Slow cinematic motion, subtle movement, returns near the starting framing, seamless loop, ` +
-    `no cuts, no camera shake, 6-8 seconds. No text, no words, no logos, no watermark.`
+    `no cuts, no camera shake, 6-8 seconds. ${NO_TEXT_DIRECTIVE}.`
   );
 }
 

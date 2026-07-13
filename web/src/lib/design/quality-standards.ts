@@ -131,6 +131,8 @@ export interface PovKit {
 export interface DesignPov {
   id: PovId;
   mood: string;
+  /** [T2] 이미지·영상 프롬프트용 영어 무드(한글 각인 방지 — 프롬프트엔 이것만 사용) */
+  promptMood: string;
   /** 어울리는 업종 */
   bestFor: string[];
   /** 금지 표현 */
@@ -145,6 +147,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'editorial',
     mood: '잡지 에디토리얼 — 큰 세리프 헤드라인, 넉넉한 여백, 그리드 위 절제된 리듬',
+    promptMood: 'refined editorial magazine composition, large serif headline space, generous whitespace, restrained grid rhythm',
     bestFor: ['갤러리', '스튜디오', '브랜드', '출판·미디어', '헤리티지'],
     avoid: ['형광색', '과한 그림자', '스톡 사진 남발'],
     allowedPairings: ['hahmlet-editorial', 'playfair-classic', 'garamond-counsel', 'bodoni-mode'],
@@ -161,6 +164,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'dark-luxury',
     mood: '다크 럭셔리 — 어두운 배경에 금빛 포인트, 고요하고 묵직한 고급감',
+    promptMood: 'dark luxury mood, deep shadows with a warm gold accent light, quiet and weighty premium feel',
     bestFor: ['파인다이닝', '호텔', '주얼리', '프리미엄 서비스'],
     avoid: ['밝은 파스텔', '만화체', '무지개 팔레트'],
     allowedPairings: ['cormorant-luxe', 'cinzel-estate', 'bodoni-mode', 'playfair-classic'],
@@ -177,6 +181,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'warm-artisan',
     mood: '따뜻한 아티산 — 손맛 있는 질감, 크림·테라코타 톤, 아날로그 감성',
+    promptMood: 'warm artisan feel, handcrafted textures, cream and terracotta tones, analog warmth',
     bestFor: ['카페', '베이커리', '공방', '리테일'],
     avoid: ['차가운 형광 그라데이션', '기계적 대칭'],
     allowedPairings: ['gowun-batang-literary', 'lora-wellness', 'caveat-handmade', 'abril-retro'],
@@ -193,6 +198,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'swiss-minimal',
     mood: '스위스 미니멀 — 기하학 산스, 강한 그리드, 여백과 정렬로 말하는 정제미',
+    promptMood: 'swiss minimal precision, geometric sans order, strong grid, calm negative space',
     bestFor: ['회사·브랜드', '테크', '컨설팅', '포트폴리오'],
     avoid: ['장식체', '질감 오버레이', '과한 색'],
     allowedPairings: ['space-grotesk-tech', 'outfit-geometric', 'ibm-plex-trust'],
@@ -209,6 +215,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'soft-organic',
     mood: '소프트 오가닉 — 둥근 형태, 부드러운 그림자, 자연·웰니스 톤',
+    promptMood: 'soft organic forms, rounded shapes, gentle shadows, natural wellness tones',
     bestFor: ['웰니스', '뷰티', '요가·필라테스', '식물·플라워'],
     avoid: ['날카로운 각', '고대비 네온', '브루탈 타입'],
     allowedPairings: ['lora-wellness', 'gowun-batang-literary', 'fredoka-playful'],
@@ -225,6 +232,7 @@ export const DESIGN_POVS: DesignPov[] = [
   {
     id: 'bold-brutalist',
     mood: '볼드 브루탈리즘 — 굵은 임팩트 타입, 강한 대비, 원색 블록의 에너지',
+    promptMood: 'bold brutalist energy, heavy impact type space, strong contrast, saturated color blocks',
     bestFor: ['피트니스', '이벤트', '스트리트 브랜드', '스포츠'],
     avoid: ['섬세한 세리프', '파스텔', '옅은 대비'],
     allowedPairings: ['bebas-impact', 'syne-avantgarde', 'barlow-athletic', 'space-grotesk-tech'],
@@ -349,6 +357,55 @@ export function validatePalette(
 /** 스톡 이미지 도메인 차단 (커스텀/생성 이미지 원칙) */
 export function hasStockImageDomain(url: string): boolean {
   return /(?:unsplash|pexels|pixabay)\.com/i.test(url);
+}
+
+/**
+ * [T2] 문자 렌더 전면 금지 지시 — 이미지 모델은 (특히 한글) 타이포를 그리지 못한다("나의쇼볭말" 아티팩트).
+ * 글자가 필요한 디자인은 이미지에 굽지 않고 HTML 오버레이로 얹는다(시스템 원칙).
+ * 모든 이미지·영상 프롬프트 빌더가 자동 부착(호출부가 잊을 수 없게).
+ */
+export const NO_TEXT_DIRECTIVE =
+  'no text, no letters, no words, no typography, no signage, no logos, no watermarks';
+
+/**
+ * [T2] 프롬프트에서 한글(음절·자모)을 제거하는 최종 안전망 — 빌더가 영어로 조립하지만
+ * Claude가 다듬은 장면(refinedScene) 등 외부 유입 텍스트에 한글이 섞여도 각인 위험을 차단.
+ * 빈 괄호·중복 공백 등 제거 후 잔여물을 정리한다.
+ */
+export function stripHangul(s: string): string {
+  return s
+    .replace(/[가-힣ㄱ-ㅎㅏ-ㅣ]+/g, ' ')
+    .replace(/\(\s*\)/g, ' ')
+    .replace(/\s*—\s*(?=[.,)]|$)/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([.,)])/g, '$1')
+    .trim();
+}
+
+/** [T2] 업종(한글 자유 텍스트) → 영어 피사체 디스크립터 (describeColor 패턴 — 키워드 매핑, 결정적) */
+const INDUSTRY_DESCRIPTORS: { re: RegExp; en: string }[] = [
+  { re: /카페|커피|베이커리|빵|디저트/, en: 'cozy cafe and bakery' },
+  { re: /파인다이닝|오마카세|레스토랑|한식|식당|음식|주점|바\b/, en: 'restaurant dining' },
+  { re: /미용|헤어|네일|뷰티|피부|에스테틱|왁싱/, en: 'beauty salon' },
+  { re: /병원|의원|치과|한의원|클리닉/, en: 'medical clinic' },
+  { re: /법무|법률|변호|회계|세무|노무|특허/, en: 'professional law and consulting office' },
+  { re: /학원|교육|수학|영어|과외|클래스|강의/, en: 'education academy' },
+  { re: /피트니스|헬스|요가|필라테스|짐\b|운동/, en: 'fitness studio' },
+  { re: /꽃|플라워|식물|가드닝/, en: 'flower and plant shop' },
+  { re: /테크|스타트업|앱|소프트|플랫폼|saas|ai|아이티|개발/i, en: 'tech product studio' },
+  { re: /키즈|아동|유아|어린이|장난감/, en: 'kids studio' },
+  { re: /공방|수공예|핸드메이드|도자|가죽|목공/, en: 'craft workshop' },
+  { re: /패션|의류|옷|편집숍|쇼핑|스토어|리테일|브랜드/, en: 'retail brand' },
+  { re: /사진|스튜디오|촬영/, en: 'photography studio' },
+  { re: /세탁|청소|수리|생활/, en: 'local service shop' },
+  { re: /호텔|숙박|펜션|게스트/, en: 'boutique stay' },
+];
+export function industryDescriptor(industry: string | undefined): string {
+  const s = (industry ?? '').toLowerCase();
+  for (const { re, en } of INDUSTRY_DESCRIPTORS) {
+    if (re.test(s)) return en;
+  }
+  return 'local business';
 }
 
 /** hex → HSL (h:0-360, s:0-1, l:0-1). 유효하지 않으면 null */
@@ -515,10 +572,11 @@ export function buildImagePrompt(
   const color = opts?.palettePrimary
     ? ` Color mood: accent tone ${describeColor(opts.palettePrimary)}${opts.background ? `, background tone ${describeColor(opts.background)}` : ''}.`
     : '';
-  return (
-    `${section} image for a Korean small business (${industry}). ` +
-    `Design point-of-view: ${pov.mood}. Render: ${render}.${color} ` +
-    `Generous negative space, no text, no words, no logos, no watermark, no stock photography. 16:10.`
+  // [T2] 업종은 영어 디스크립터로, 무드는 promptMood(영어)로 — 최종 문자열에 한글 0(불변식).
+  return stripHangul(
+    `${section} image for a Korean small business (${industryDescriptor(industry)}). ` +
+      `Design point-of-view: ${pov.promptMood}. Render: ${render}.${color} ` +
+      `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography. 16:10.`,
   );
 }
 

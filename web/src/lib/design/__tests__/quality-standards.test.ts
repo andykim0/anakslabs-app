@@ -15,6 +15,7 @@ import {
   validatePalette,
   contrastRatio,
   buildImagePrompt,
+  industryDescriptor,
   hasStockImageDomain,
   qaAuditChecklist,
   FONT_SCALE,
@@ -96,8 +97,10 @@ describe('이미지 프롬프트', () => {
     for (const pov of DESIGN_POVS) {
       for (const ind of industries) {
         const p = buildImagePrompt(pov.id as PovId, ind, 'hero');
-        assert.ok(p.length > 20 && p.includes(ind), `${pov.id}/${ind}: 빈 프롬프트`);
+        // [T2] 업종은 한글 원문이 아니라 영어 디스크립터로 반영(한글 각인 차단)
+        assert.ok(p.length > 20 && p.includes(industryDescriptor(ind)), `${pov.id}/${ind}: 빈 프롬프트`);
         assert.ok(/no stock photography/i.test(p), '스톡 금지 문구 누락');
+        assert.doesNotMatch(p, /[가-힣]/, `${pov.id}/${ind}: 한글 잔존`);
       }
     }
   });

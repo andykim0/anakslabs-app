@@ -21,7 +21,7 @@ import {
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
-import { derivePalette } from '@/lib/design/quality-standards';
+import { NO_TEXT_DIRECTIVE, derivePalette, describeColor, industryDescriptor, stripHangul } from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
@@ -153,15 +153,17 @@ function themeForBrief(survey: SurveyInput, brief: DesignBrief): SiteTheme {
   return { ...base, palette: derivePalette(primary, secondary, { dark: brief.palette.dark }) };
 }
 
-/** 결정적 히어로 이미지 프롬프트 — 업종 맥락 + 스타일 조각 + 팔레트 힌트 */
+/**
+ * 결정적 히어로 이미지 프롬프트 — 업종 맥락(영어 디스크립터) + 스타일 조각 + 팔레트 힌트(색 이름).
+ * [T2] 상호·목적 등 한글 주입 금지(각인 아티팩트) + raw hex 금지(describeColor) + NO_TEXT_DIRECTIVE.
+ */
 function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief): string {
   const palette = brief.palette.palette;
-  return (
-    `Website hero image for a Korean small business. ` +
-    `Business: ${survey.businessName} (${survey.industry}). Purpose: ${survey.purpose}. ` +
-    `Style: ${brief.style.heroImageFragment}. ` +
-    `Color mood: background near ${palette.background}, key accent ${palette.primary}. ` +
-    `Generous negative space for a headline, no text, no words, no logos, no watermark. 16:10.`
+  return stripHangul(
+    `Website hero image for a Korean small business (${industryDescriptor(survey.industry)}). ` +
+      `Style: ${brief.style.heroImageFragment}. ` +
+      `Color mood: background tone ${describeColor(palette.background)}, key accent ${describeColor(palette.primary)}. ` +
+      `Generous negative space for a headline, ${NO_TEXT_DIRECTIVE}. 16:10.`,
   );
 }
 

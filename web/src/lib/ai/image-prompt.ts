@@ -4,15 +4,20 @@
  * 표준#1(generation-data) 이행: 색·렌더방식·무드는 DESIGN_POVS/팔레트가 결정하고 LLM은 색을
  * 만들지 않는다(자유 서술 금지). buildImagePrompt(POV 골격) + 매장 장면 한 줄 블렌드.
  * 히어로 이미지 산출물은 video-hero의 poster(Veo 시작 프레임)로 보존된다.
+ *
+ * [T2] 이미지 모델은 (특히 한글) 타이포를 그리지 못한다 — 상호·태그라인·톤 등 한글 주입을 전면
+ * 제거하고 업종은 영어 디스크립터(industryDescriptor)로만. 최종 문자열은 stripHangul 안전망 통과
+ * (Claude가 다듬은 refinedScene에 한글이 섞여도 각인 위험 차단). 글자가 필요한 디자인은 이미지에
+ * 굽지 않고 HTML 오버레이로 얹는다(시스템 원칙).
  */
 import type { SurveyInput } from '@/lib/types/domain';
 import type { CandidateBlueprint } from '@/lib/data/design-candidates';
-import { buildImagePrompt, povForStyle } from '@/lib/design/quality-standards';
-import { toneText } from '@/lib/onboarding/tone';
+import { buildImagePrompt, industryDescriptor, povForStyle, stripHangul } from '@/lib/design/quality-standards';
 
 /**
- * POV 골격 + 매장 장면. 매장 장면은 Claude 다듬기 결과(있고 충분히 길면) 우선, 아니면 설문 결정적.
- * buildImagePrompt가 no-text·negative-space·비율을 강제하므로 자유 서술이 끼어들 여지가 없다.
+ * POV 골격 + 매장 장면. 매장 장면은 Claude 다듬기 결과(있고 충분히 길면) 우선, 아니면
+ * 업종 디스크립터 기반 결정적 폴백(영어). buildImagePrompt가 NO_TEXT_DIRECTIVE·negative-space·
+ * 비율을 강제하므로 자유 서술이 끼어들 여지가 없다.
  */
 export function povImagePrompt(
   bp: CandidateBlueprint,
@@ -28,6 +33,6 @@ export function povImagePrompt(
   const scene =
     refinedScene && refinedScene.trim().length >= 40
       ? refinedScene.trim()
-      : [survey.businessName, survey.tagline].filter(Boolean).join(' — ').trim();
-  return scene ? `Scene: ${scene} (${toneText(survey.tone)}).\n${povBase}` : povBase;
+      : `signature scene of a ${industryDescriptor(survey.industry)}`;
+  return stripHangul(`Scene: ${scene}.\n${povBase}`);
 }
