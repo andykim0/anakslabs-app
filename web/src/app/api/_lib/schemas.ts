@@ -483,8 +483,6 @@ export const surveySchema = z.object({
   highlights: z.array(z.string().min(1).max(40)).max(3).optional(),
   // [v4.5] 지역 — SEO 메타·생성 프롬프트에 배선
   region: z.string().max(60).optional(),
-  // [T4] 쇼핑몰 외부 판매 채널 링크 — 구매 버튼 연결(전역)
-  salesChannelUrl: safeHrefSchema.optional(),
 });
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */

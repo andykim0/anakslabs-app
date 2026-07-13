@@ -1,11 +1,13 @@
 /**
- * [T5] 목적 10종 생성 스모크 — 각 목적 최소 시드로 생성해 공통 기준을 한 번에 고정:
- * pagePlan 유효 / 밀도 통과 / 모션 프리셋 매핑 / 무배선 버튼 0 / 이미지 프롬프트 불변식(T2) / 발행 blocker 0.
+ * [T5 · 제품 확정] 소개형 목적 6종 생성 스모크 — 각 목적 최소 시드로 공통 기준을 한 번에 고정:
+ * pagePlan 유효 / 밀도 통과 / 모션 프리셋 매핑 / 무배선 버튼 0 / 이미지 프롬프트 불변식(T2) /
+ * JSON-LD @type = PURPOSE_SCHEMA_MAP 일치 (목적이 구조화 데이터 타입을 결정 = SEO/AEO 해자).
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { DesignCandidate, SitePurposeId, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, LivePurposeId, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig, isValidPageSlug } from '@/lib/types/site';
+import { LIVE_PURPOSE_IDS } from '@/lib/data/purpose-taxonomy';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
 import { buildCandidateBlueprints } from '@/lib/data/design-candidates';
@@ -14,9 +16,9 @@ import { resolvePresetForIndustry, isPresetId } from '@/lib/motion/presets';
 import { isThinSection } from '@/lib/design/section-density';
 import { checkPublish } from '@/lib/publish/preflight';
 import { NO_TEXT_DIRECTIVE } from '@/lib/design/quality-standards';
+import { PURPOSE_SCHEMA_MAP, buildJsonLd } from '@/lib/seo/jsonld';
 
 const HANGUL = /[가-힣ㄱ-ㅎㅏ-ㅣ]/;
-/** 내용이 실려야 하는 타입(preflight DENSE와 동일 기준) */
 const DENSE = new Set(['about', 'features', 'menu', 'gallery', 'testimonials', 'pricing', 'team', 'cases', 'faq']);
 
 const CONTENT = `[소개]
@@ -27,21 +29,16 @@ const CONTENT = `[소개]
 
 [영업 정보]
 화–일 10:00–20:00 (월 휴무)
-서울 마포구 성미산로 12
-행사일: 2026년 8월 15일`;
+서울 마포구 성미산로 12`;
 
-const SEEDS: { purposeId: SitePurposeId; industry: string }[] = [
-  { purposeId: 'local_store', industry: '카페·베이커리' },
-  { purposeId: 'booking_service', industry: '미용실·네일샵' },
-  { purposeId: 'ecommerce', industry: '패션 브랜드' },
-  { purposeId: 'edu_membership', industry: '수학 학원' },
-  { purposeId: 'company_brand', industry: '컨설팅' },
-  { purposeId: 'portfolio', industry: '디자인 스튜디오' },
-  { purposeId: 'blog_media', industry: '온라인 매거진' },
-  { purposeId: 'community', industry: '러닝 크루' },
-  { purposeId: 'event', industry: '컨퍼런스' },
-  { purposeId: 'one_page', industry: '링크 모음' },
-];
+const SEEDS: Record<LivePurposeId, string> = {
+  local_store: '카페·베이커리',
+  booking_service: '미용실·네일샵',
+  company_brand: '컨설팅',
+  portfolio: '디자인 스튜디오',
+  edu_membership: '입시학원',
+  one_page: '링크 모음',
+};
 
 const candidate: DesignCandidate = {
   id: 'cand-warm-cozy', label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg',
@@ -49,38 +46,41 @@ const candidate: DesignCandidate = {
 };
 const opts = { heroImageUrl: '/mock/h.svg', imagePool: Array.from({ length: 14 }, (_, i) => `/mock/p${i}.svg`) };
 
-function seedSurvey(purposeId: SitePurposeId, industry: string): SurveyInput {
+function seedSurvey(purposeId: LivePurposeId, industry: string): SurveyInput {
   const t = resolveTemplate(purposeId, industry);
   return {
     businessName: '스모크', purposeId, purpose: '테스트', industry, tone: ['모던'],
-    colorPreference: '#c98a5e', referenceImageUrls: [], providedContent: CONTENT,
+    colorPreference: '#c98a5e', referenceImageUrls: [], providedContent: CONTENT, region: '서울 마포',
     sectionPlan: planFromTemplate(t), pagePlan: pagePlanFromTemplate(t), templateId: t.id,
   } as SurveyInput;
 }
+function typeSet(node: { '@type': string | string[] }): Set<string> {
+  return new Set(Array.isArray(node['@type']) ? node['@type'] : [node['@type']]);
+}
 
-describe('T5 — 목적 10종 생성 스모크', () => {
-  for (const { purposeId, industry } of SEEDS) {
-    test(`${purposeId} (${industry})`, () => {
-      const survey = seedSurvey(purposeId, industry);
+describe('T5 — 소개형 목적 6종 생성 스모크', () => {
+  test('LIVE_PURPOSE_IDS = 6종', () => {
+    assert.equal(LIVE_PURPOSE_IDS.length, 6);
+  });
+
+  for (const purposeId of LIVE_PURPOSE_IDS) {
+    test(`${purposeId} (${SEEDS[purposeId]})`, () => {
+      const survey = seedSurvey(purposeId, SEEDS[purposeId]);
       const cfg = applyGeneratedMotion(buildSiteConfigFromSurvey(survey, candidate, opts), purposeId, 'basic');
 
-      // ① pagePlan 유효 — 홈 존재·slug 규칙·빈 페이지 없음
       assert.equal(cfg.pages[0].slug, '', '첫 페이지는 홈');
       for (const p of cfg.pages) {
         assert.ok(isValidPageSlug(p.slug), `slug '${p.slug}' 무효`);
         assert.ok(p.sections.length >= 1, `${p.slug} 빈 페이지`);
       }
 
-      // ② 밀도 — 내용형 섹션에 "제목+한 줄+버튼" 빈약 0
       for (const s of cfg.pages.flatMap((p) => p.sections)) {
-        if (DENSE.has(s.type)) assert.ok(!isThinSection(s), `${s.id} 빈약(밀도 미달)`);
+        if (DENSE.has(s.type)) assert.ok(!isThinSection(s), `${s.id} 빈약`);
       }
 
-      // ③ 모션 프리셋 매핑
       assert.ok(isPresetId(resolvePresetForIndustry(purposeId, 'basic')));
       assert.ok(cfg.motion && isPresetId(cfg.motion.presetId), '모션 프리셋 미주입');
 
-      // ④ 무배선 버튼 0 + 앵커 타깃 실존
       const secIds = new Set(cfg.pages.flatMap((p) => p.sections).map((s) => s.id));
       for (const s of cfg.pages.flatMap((p) => p.sections)) {
         for (const el of s.elements) {
@@ -91,16 +91,19 @@ describe('T5 — 목적 10종 생성 스모크', () => {
         }
       }
 
-      // ⑤ 이미지 프롬프트 불변식(T2)
       for (const bp of buildCandidateBlueprints(survey)) {
         assert.ok(bp.heroImagePrompt.includes(NO_TEXT_DIRECTIVE));
         assert.doesNotMatch(bp.heroImagePrompt, HANGUL);
         assert.doesNotMatch(bp.heroImagePrompt, /#/);
       }
 
-      // ⑥ 발행 게이트 — blocker 0 (경고는 허용)
-      const r = checkPublish(cfg, 'basic');
-      assert.deepEqual(r.blockers, [], `${purposeId}: ${r.blockers.join(' / ')}`);
+      const nodes = buildJsonLd(cfg, 'https://x.anakslabs.com') as { '@type': string | string[] }[];
+      const spec = PURPOSE_SCHEMA_MAP[purposeId];
+      const wantOrg = Array.isArray(spec.orgType) ? spec.orgType : [spec.orgType];
+      for (const t of wantOrg) assert.ok(typeSet(nodes[0]).has(t), `${purposeId}: 주 노드 @type에 ${t} 없음`);
+      assert.equal(cfg.meta.purposeId, purposeId, 'meta.purposeId 미주입');
+
+      assert.deepEqual(checkPublish(cfg, 'basic').blockers, []);
     });
   }
 });

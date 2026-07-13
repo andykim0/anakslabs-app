@@ -26,11 +26,11 @@ import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/
 import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
-import { resolveScrim, scrimPassesAA } from '@/lib/design/scrim';
+import { resolveScrim } from '@/lib/design/scrim';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import { teaserSummary } from './teaser-summary';
-import { parseAddress, parseBusinessHours, parseEventDate, parseMenuItems } from './content-parse';
+import { parseAddress, parseBusinessHours, parseMenuItems } from './content-parse';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -263,11 +263,6 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   );
   const ctaHref = ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
 
-  // [T4-E] 이벤트 목적 + 원문에 행사일 → 킥커 아래 정적 날짜 강조(라이브 카운트다운은 백로그).
-  //        primary가 스크림 위 AA 미달이면 scrim.textColor 폴백(발행 게이트 무차단 보장).
-  const eventDate = survey.purposeId === 'event' ? parseEventDate(survey.providedContent) : undefined;
-  const dy = eventDate ? 44 : 0; // 날짜가 끼면 타이틀 이하를 아래로 밀어 겹침 방지
-
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치
   if (survey.logoUrl) {
@@ -289,24 +284,11 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     text: kicker,
     style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'left', letterSpacing: 4 },
   });
-  if (eventDate) {
-    const dateColor = scrimPassesAA(scrim.overlayColor, scrim.overlayOpacity, theme.palette.primary)
-      ? theme.palette.primary
-      : scrim.textColor;
-    elements.push({
-      id: nextId(ctx, 'el-hero-date'),
-      kind: 'text',
-      frame: { x: 122, y: 288, w: 560, h: 32 },
-      z: 3,
-      text: eventDate,
-      style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: dateColor, align: 'left', letterSpacing: 1 },
-    });
-  }
   elements.push(
     {
       id: nextId(ctx, 'el-hero-title'),
       kind: 'text',
-      frame: { x: 116, y: 300 + dy, w: 880, h: 220 },
+      frame: { x: 116, y: 300, w: 880, h: 220 },
       z: 3,
       text: title,
       style: { fontSize: 76, fontWeight: 400, fontFamily: 'heading', color: scrim.textColor, align: 'left', lineHeight: 1.3, letterSpacing: -0.5 },
@@ -314,7 +296,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-sub'),
       kind: 'text',
-      frame: { x: 122, y: 546 + dy, w: 560, h: 56 },
+      frame: { x: 122, y: 546, w: 560, h: 56 },
       z: 3,
       text: sub,
       style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: scrim.textColor, align: 'left', lineHeight: 1.8 },
@@ -322,7 +304,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta'),
       kind: 'button',
-      frame: { x: 122, y: 648 + dy, w: 172, h: 54 },
+      frame: { x: 122, y: 648, w: 172, h: 54 },
       z: 4,
       label: ctaLabel,
       href: ctaHref,
@@ -331,7 +313,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta2'),
       kind: 'button',
-      frame: { x: 310, y: 648 + dy, w: 172, h: 54 },
+      frame: { x: 310, y: 648, w: 172, h: 54 },
       z: 4,
       label: '더 알아보기',
       // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
@@ -783,91 +765,6 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
 }
 
 /**
- * [T4-A] 상품 진열 그리드 — gallery:products. providedContent의 '이름 가격' 파서(content-parse)
- * 재사용으로 실제 상품을 채우고(없으면 결정적 더미 3종), 카드마다 구매 버튼:
- * salesChannelUrl(외부 판매 링크) 있으면 '구매하기'→그 링크, 없으면 '구매 문의'→contact 폴백
- * (무배선 버튼 0 불변식 유지 — 자체 장바구니·결제는 M-batch).
- */
-function buildProductGrid(ctx: Ctx, item: SectionPlanItem): Section {
-  const { theme, survey } = ctx;
-  const parsed = parseMenuItems(survey.providedContent);
-  const products = (parsed.length >= 2
-    ? parsed.slice(0, 8)
-    : [
-        { name: '시그니처 제품', price: undefined },
-        { name: '베스트셀러', price: undefined },
-        { name: '신상품', price: undefined },
-      ]) as { name: string; price?: string }[];
-  const buyHref = survey.salesChannelUrl?.trim() || '#sec-contact';
-  const buyLabel = survey.salesChannelUrl?.trim() ? '구매하기' : '구매 문의';
-
-  const elements: CanvasElement[] = [
-    {
-      id: nextId(ctx, 'el-prod-kicker'),
-      kind: 'text',
-      frame: { x: 122, y: 100, w: 320, h: 22 },
-      z: 2,
-      text: '제품',
-      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
-    },
-    titleEl(ctx, headingOf(item, '베스트·신상품'), 142),
-  ];
-  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
-  const CARD_H = 470;
-  products.forEach((prod, i) => {
-    const x = 120 + (i % 3) * 420;
-    const y = 250 + Math.floor(i / 3) * (CARD_H + 40);
-    elements.push(
-      {
-        id: nextId(ctx, 'el-prod-img'),
-        kind: 'image',
-        frame: { x, y, w: 360, h: 280 },
-        z: 2,
-        src: nextImage(ctx),
-        alt: prod.name,
-        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
-      },
-      {
-        id: nextId(ctx, 'el-prod-name'),
-        kind: 'text',
-        frame: { x, y: y + 296, w: 360, h: 28 },
-        z: 2,
-        text: prod.name,
-        style: { fontSize: 19, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
-      },
-    );
-    if (prod.price) {
-      elements.push({
-        id: nextId(ctx, 'el-prod-price'),
-        kind: 'text',
-        frame: { x, y: y + 330, w: 360, h: 30 },
-        z: 2,
-        text: `${prod.price}원`,
-        style: { fontSize: Math.round(22 * ctx.kit.priceScale), fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
-      });
-    }
-    elements.push({
-      id: nextId(ctx, 'el-prod-buy'),
-      kind: 'button',
-      frame: { x, y: y + 372, w: 150, h: 44 },
-      z: 3,
-      label: buyLabel,
-      href: buyHref,
-      style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 14, borderRadius: theme.radius ?? 4 },
-    });
-  });
-  const rows = Math.ceil(products.length / 3);
-  return {
-    id: 'sec-gallery',
-    type: 'gallery',
-    name: item.name?.trim() || '베스트·신상품',
-    height: 250 + rows * (CARD_H + 40) + 20,
-    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
-    elements,
-  };
-}
-
-/**
  * [T4-C] gallery:works — 작업 그리드 6장(3열×2행) + 이미지 하단 캡션('작업 01'~'작업 06', 결정적).
  * 캡션이 이미지와 분리된 텍스트 요소라 에디터에서 실작업명으로 바로 교체 가능.
  */
@@ -922,96 +819,9 @@ function buildWorksGrid(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
-/**
- * [T4-D] gallery:posts — 글 카드 3장(이미지 밴드+제목+1줄 발췌+'읽기' outline 버튼).
- * 글 발행은 에디터에서 페이지 추가로 — 자체 CMS는 roadmap(T3 '자체 글 발행(CMS, 준비 중)' 정합).
- * '읽기'는 about(만드는 사람)으로 폴백 배선(무배선 0) — 실글 링크는 에디터에서 교체.
- */
-function buildPostsGrid(ctx: Ctx, item: SectionPlanItem): Section {
-  const { theme } = ctx;
-  const posts = [
-    { title: '첫 번째 글', excerpt: '대표 글의 첫 문장을 발췌해 보여주는 자리입니다.' },
-    { title: '두 번째 글', excerpt: '에디터에서 제목과 발췌를 실제 글로 바꿔주세요.' },
-    { title: '세 번째 글', excerpt: '새 글은 페이지 추가로 발행할 수 있어요.' },
-  ];
-  const TOP = 260;
-  const CARD_H = 400;
-  const elements: CanvasElement[] = [
-    {
-      id: nextId(ctx, 'el-post-kicker'),
-      kind: 'text',
-      frame: { x: 122, y: 100, w: 320, h: 22 },
-      z: 2,
-      text: '콘텐츠',
-      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
-    },
-    titleEl(ctx, headingOf(item, '최신 글'), 142),
-  ];
-  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
-  posts.forEach((post, i) => {
-    const x = 120 + i * 420;
-    elements.push(
-      {
-        id: nextId(ctx, 'el-post-card'),
-        kind: 'shape',
-        frame: { x, y: TOP, w: 360, h: CARD_H },
-        z: 1,
-        shape: 'rect',
-        style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
-      },
-      {
-        id: nextId(ctx, 'el-post-img'),
-        kind: 'image',
-        frame: { x, y: TOP, w: 360, h: 170 },
-        z: 2,
-        src: nextImage(ctx),
-        alt: post.title,
-        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
-      },
-      {
-        id: nextId(ctx, 'el-post-title'),
-        kind: 'text',
-        frame: { x: x + 28, y: TOP + 190, w: 304, h: 30 },
-        z: 3,
-        text: post.title,
-        style: { fontSize: 20, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
-      },
-      {
-        id: nextId(ctx, 'el-post-excerpt'),
-        kind: 'text',
-        frame: { x: x + 28, y: TOP + 228, w: 304, h: 48 },
-        z: 3,
-        text: post.excerpt,
-        style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.6 },
-      },
-      {
-        id: nextId(ctx, 'el-post-read'),
-        kind: 'button',
-        frame: { x: x + 28, y: TOP + 312, w: 110, h: 40 },
-        z: 3,
-        label: '읽기',
-        href: '#sec-about',
-        style: { variant: 'outline', color: theme.palette.primary, textColor: theme.palette.primary, fontSize: 14, borderRadius: theme.radius ?? 4 },
-      },
-    );
-  });
-  return {
-    id: 'sec-gallery',
-    type: 'gallery',
-    name: SECTION_NAMES.gallery,
-    height: TOP + CARD_H + 60,
-    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
-    elements,
-  };
-}
-
 function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
-  // [T4-A] 쇼핑몰 상품 진열은 전용 그리드로 분기(variant 'gallery:products')
-  if (variantSuffix(item.variant) === 'products') return buildProductGrid(ctx, item);
   // [T4-C] 포트폴리오 작업 그리드(variant 'gallery:works')
   if (variantSuffix(item.variant) === 'works') return buildWorksGrid(ctx, item);
-  // [T4-D] 블로그·미디어 글 카드(variant 'gallery:posts')
-  if (variantSuffix(item.variant) === 'posts') return buildPostsGrid(ctx, item);
   const { theme } = ctx;
   const frames = [
     { x: 120, y: 260, w: 560, h: 440 },
@@ -1225,15 +1035,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
   const suf = variantSuffix(item.variant);
   // [T4-E] 원페이지 링크 허브는 전용 레이아웃
   if (suf === 'links') return buildCtaLinks(ctx, item);
-  // [T4-D] 구독/가입 변형 — 라벨·부제만 프리셋(레이아웃 공유). href는 contact 폴백 유지
-  //        (외부 뉴스레터·카페·밴드 링크는 에디터에서 교체 — 무배선 0).
-  const preset =
-    suf === 'subscribe'
-      ? { label: '구독하기', sub: '뉴스레터·채널 소식 받기' }
-      : suf === 'join'
-        ? { label: '가입 안내 보기', sub: '카페·밴드에서 함께해요' }
-        : undefined;
-  const brief = preset?.sub ?? briefToSubtitle(item.brief);
+  const brief = briefToSubtitle(item.brief);
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-cta-title'),
@@ -1259,7 +1061,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
     kind: 'button',
     frame: { x: 634, y: 236, w: 172, h: 54 },
     z: 3,
-    label: preset?.label ?? '문의하기',
+    label: '문의하기',
     href: '#sec-contact',
     style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 15, borderRadius: theme.radius ?? 4 },
   });
@@ -1490,11 +1292,9 @@ function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
-/** [T4-B] team variant 라벨 — 목적별 호칭(연사/의료진/전문가)으로 킥커·제목 폴백 분기 */
+/** [T4-B] team variant 라벨 — 목적별 호칭(의료진/전문가)으로 킥커·제목 폴백 분기 */
 function teamLabels(suf: string | undefined): { kicker: string; titleFallback: string } {
   switch (suf) {
-    case 'speakers':
-      return { kicker: '연사', titleFallback: '연사·출연진' };
     case 'doctors':
       return { kicker: '의료진', titleFallback: '의료진 소개' };
     case 'experts':

@@ -8,7 +8,6 @@ import { emptySiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
 import { teaserSummary } from '@/lib/data/teaser-summary';
-import { parseEventDate } from '@/lib/data/content-parse';
 
 const candidate: DesignCandidate = {
   id: 'cand-warm-cozy', label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg',
@@ -25,61 +24,12 @@ function surveyFor(purposeId: SurveyInput['purposeId'], industry: string, over: 
   } as SurveyInput;
 }
 
-describe('T4-A 쇼핑몰 — 상품 진열 그리드', () => {
-  const PRODUCTS = `[상품]\n린넨 셔츠 49,000 / 코튼 팬츠 59,000 / 울 니트 89,000 / 캔버스 백 39,000`;
-
-  test('원문 상품 파싱 → 카드(이미지·이름·가격·구매 버튼) 전부', () => {
-    const cfg = buildSiteConfigFromSurvey(
-      surveyFor('ecommerce', '패션 브랜드', { providedContent: PRODUCTS, salesChannelUrl: 'https://smartstore.naver.com/test' }),
-      candidate, opts,
-    );
-    const grid = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'gallery')!;
-    const names = grid.elements.filter((el) => el.id.includes('prod-name'));
-    const buys = grid.elements.filter((el) => el.id.includes('prod-buy'));
-    assert.equal(names.length, 4, '상품 4종 전부');
-    assert.equal(buys.length, 4);
-    for (const b of buys) {
-      assert.ok(b.kind === 'button' && b.label === '구매하기' && b.href === 'https://smartstore.naver.com/test');
-    }
-    assert.ok(JSON.stringify(grid).includes('49,000원'));
-  });
-
-  test('판매 링크 미설정 → 구매 문의(contact 폴백) — 무배선 0', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('ecommerce', '패션', { providedContent: PRODUCTS }), candidate, opts);
-    const grid = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'gallery')!;
-    const buy = grid.elements.find((el) => el.id.includes('prod-buy'))!;
-    assert.ok(buy.kind === 'button' && buy.label === '구매 문의');
-    assert.ok(buy.href.includes('#sec-contact'), buy.kind === 'button' ? buy.href : '');
-  });
-
-  test('상품 원문 없으면 결정적 더미 3종(빈 그리드 방지)', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('ecommerce', '패션'), candidate, opts);
-    const grid = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'gallery')!;
-    assert.equal(grid.elements.filter((el) => el.id.includes('prod-name')).length, 3);
-  });
-});
-
 describe('T4-B 손님받기 — 티저·구성원 어댑터', () => {
   test('병원(booking_service.clinic) → team 킥커 의료진', () => {
     const cfg = buildSiteConfigFromSurvey(surveyFor('booking_service', '병원'), candidate, opts);
     const team = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'team')!;
     const kicker = team.elements.find((el) => el.id.includes('team-kicker'))!;
     assert.ok(kicker.kind === 'text' && kicker.text === '의료진');
-  });
-
-  test('이벤트 연사(team:speakers) → 킥커 연사·제목 폴백 연사·출연진', () => {
-    const cfg = buildSiteConfigFromSurvey(
-      surveyFor('event', '컨퍼런스', {
-        sectionPlan: planFromTemplate(resolveTemplate('event', '컨퍼런스')).map((it) =>
-          it.type === 'team' ? { ...it, name: '' } : it,
-        ),
-      }),
-      candidate, opts,
-    );
-    const team = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'team')!;
-    const kicker = team.elements.find((el) => el.id.includes('team-kicker'))!;
-    assert.ok(kicker.kind === 'text' && kicker.text === '연사');
-    assert.ok(team.elements.some((el) => el.kind === 'text' && el.text === '연사·출연진'));
   });
 
   test("teaser 'work' — 이미지 수 기반 요약, 0이면 undefined(폴백 문구)", () => {
@@ -142,84 +92,7 @@ describe('T4-C 알리기 — 케이스 스터디·작업 그리드', () => {
   });
 });
 
-describe('T4-D 콘텐츠 — 글 카드·구독/가입 CTA', () => {
-  const blog = buildSiteConfigFromSurvey(surveyFor('blog_media', '뉴스레터'), candidate, opts);
-  const blogSecs = blog.pages.flatMap((p) => p.sections);
-
-  test('gallery:posts → 글 카드 3장(이미지 밴드·제목·발췌) + 읽기 버튼 배선', () => {
-    const posts = blogSecs.find((s) => s.type === 'gallery')!;
-    const titles = posts.elements.filter((el) => el.id.includes('post-title'));
-    const excerpts = posts.elements.filter((el) => el.id.includes('post-excerpt'));
-    const imgs = posts.elements.filter((el) => el.id.includes('post-img'));
-    const reads = posts.elements.filter((el) => el.id.includes('post-read'));
-    assert.equal(titles.length, 3);
-    assert.equal(excerpts.length, 3);
-    assert.equal(imgs.length, 3);
-    assert.equal(reads.length, 3);
-    for (const b of reads) {
-      assert.ok(b.kind === 'button' && b.label === '읽기' && b.style.variant === 'outline');
-      assert.ok(b.kind === 'button' && b.href.includes('#sec-about'), b.kind === 'button' ? b.href : '');
-    }
-  });
-
-  test('cta:subscribe → 라벨 구독하기 + 부제 뉴스레터·채널 소식 받기 (href contact 유지)', () => {
-    const cta = blogSecs.find((s) => s.type === 'cta')!;
-    const btn = cta.elements.find((el) => el.kind === 'button')!;
-    assert.ok(btn.kind === 'button' && btn.label === '구독하기');
-    assert.ok(btn.kind === 'button' && btn.href.includes('#sec-contact'));
-    assert.ok(JSON.stringify(cta).includes('뉴스레터·채널 소식 받기'));
-  });
-
-  test('cta:join(community) → 라벨 가입 안내 보기 + 부제 카페·밴드 (href contact 유지)', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('community', '독서 모임'), candidate, opts);
-    const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
-    const btn = cta.elements.find((el) => el.kind === 'button')!;
-    assert.ok(btn.kind === 'button' && btn.label === '가입 안내 보기');
-    assert.ok(btn.kind === 'button' && btn.href.includes('#sec-contact'));
-    assert.ok(JSON.stringify(cta).includes('카페·밴드에서 함께해요'));
-  });
-
-  test('무변형 cta(ecommerce)는 문의하기 유지(무회귀)', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('ecommerce', '패션'), candidate, opts);
-    const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
-    const btn = cta.elements.find((el) => el.kind === 'button')!;
-    assert.ok(btn.kind === 'button' && btn.label === '문의하기');
-  });
-});
-
-describe('T4-E 특수 — 이벤트 날짜 강조·링크 허브', () => {
-  test('event + 원문 행사일 → 히어로에 정적 날짜 강조 텍스트(el-hero-date)', () => {
-    const cfg = buildSiteConfigFromSurvey(
-      surveyFor('event', '컨퍼런스', { providedContent: '행사일: 2026년 8월 15일 · 코엑스 그랜드볼룸' }),
-      candidate, opts,
-    );
-    const hero = cfg.pages[0].sections.find((s) => s.type === 'hero')!;
-    const date = hero.elements.find((el) => el.id.includes('hero-date'))!;
-    assert.ok(date && date.kind === 'text' && date.text === '2026년 8월 15일');
-    assert.ok(date.kind === 'text' && date.style.fontSize === 22);
-    // 날짜는 킥커 아래·타이틀 위
-    const kicker = hero.elements.find((el) => el.id.includes('hero-kicker'))!;
-    const title = hero.elements.find((el) => el.id.includes('hero-title'))!;
-    assert.ok(date.frame.y > kicker.frame.y && date.frame.y < title.frame.y);
-  });
-
-  test('event라도 원문에 날짜 없으면 미주입 + 비event는 날짜 있어도 미주입(무회귀)', () => {
-    const noDate = buildSiteConfigFromSurvey(surveyFor('event', '컨퍼런스'), candidate, opts);
-    assert.ok(!noDate.pages[0].sections[0].elements.some((el) => el.id.includes('hero-date')));
-    const cafe = buildSiteConfigFromSurvey(
-      surveyFor('local_store', '카페', { providedContent: '2026년 8월 15일 오픈' }),
-      candidate, opts,
-    );
-    assert.ok(!cafe.pages[0].sections[0].elements.some((el) => el.id.includes('hero-date')));
-  });
-
-  test('parseEventDate — 숫자 표기도 YYYY년 M월 D일로 정규화, 무효는 undefined', () => {
-    assert.equal(parseEventDate('일시: 2026-08-15 10:00'), '2026년 8월 15일');
-    assert.equal(parseEventDate('2026.8.15 개막'), '2026년 8월 15일');
-    assert.equal(parseEventDate('2026년 13월 40일'), undefined);
-    assert.equal(parseEventDate('날짜 없음'), undefined);
-  });
-
+describe('T4-E 특수 — 링크 허브', () => {
   test('one_page 링크 허브 → 세로 버튼 3개(720 중앙·outline) 전부 href 유효', () => {
     const cfg = buildSiteConfigFromSurvey(surveyFor('one_page', '크리에이터'), candidate, opts);
     const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;

@@ -83,21 +83,6 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
       { type: 'contact', name: '예약·상담 문의', brief: '이름/연락처/희망일시/내용 폼 — 실질 전환 지점', variant: 'contact:form' },
     ],
   },
-  // 3. 쇼핑몰
-  {
-    id: 'ecommerce.default',
-    purposeId: 'ecommerce',
-    label: '쇼핑몰',
-    sections: [
-      hero('히어로', '브랜드·대표 상품 비주얼·구매 CTA'),
-      { type: 'gallery', name: '베스트·신상품', brief: '상품 카드 진열(이미지·이름·가격)', variant: 'gallery:products' },
-      { type: 'about', name: '브랜드 스토리', brief: '만드는 사람·원칙. 신뢰' },
-      { type: 'features', name: '이런 점이 다릅니다', brief: '소재/제조/구성 등 구매 결정 포인트 3~4개' },
-      { type: 'testimonials', name: '구매 후기', brief: '리뷰·별점' },
-      { type: 'faq', name: '배송·교환·환불', brief: '배송 기간·교환/환불 규정 (법적 필수 안내 겸용)', variant: 'faq:commerce' },
-      { type: 'cta', name: '구매 안내', brief: '스토어/주문 채널로 연결' },
-    ],
-  },
   // 4. 교육·멤버십
   {
     id: 'edu_membership.default',
@@ -139,47 +124,6 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
       { type: 'cases', name: '프로젝트 상세', brief: '케이스스터디: 문제→작업→결과', variant: 'cases:projects' },
       { type: 'about', name: '경력·이력', brief: '학력·경력·수상·스킬', variant: 'about:resume' },
       { type: 'contact', name: '의뢰·연락', brief: '의뢰 내용/예산/일정 폼 + SNS', variant: 'contact:form' },
-    ],
-  },
-  // 7. 블로그·미디어
-  {
-    id: 'blog_media.default',
-    purposeId: 'blog_media',
-    label: '블로그·미디어',
-    sections: [
-      hero('히어로', '매체 정체성 한 줄·구독 CTA'),
-      { type: 'gallery', name: '최신·추천 콘텐츠', brief: '글/영상 카드', variant: 'gallery:posts' },
-      { type: 'features', name: '카테고리', brief: '다루는 주제 소개', variant: 'features:categories' },
-      { type: 'about', name: '만드는 사람', brief: '필진/운영자 소개' },
-      { type: 'cta', name: '구독', brief: '뉴스레터/채널 구독 유도', variant: 'cta:subscribe' },
-    ],
-  },
-  // 8. 커뮤니티
-  {
-    id: 'community.default',
-    purposeId: 'community',
-    label: '커뮤니티',
-    sections: [
-      hero('히어로', '어떤 사람들의 모임인지·가입 CTA'),
-      { type: 'about', name: '소개·운영 원칙', brief: '목적·규칙·모더레이션 방침' },
-      { type: 'features', name: '활동·모임', brief: '정기 모임·이벤트·게시판 소개', variant: 'features:activities' },
-      { type: 'testimonials', name: '멤버 이야기', brief: '멤버 후기' },
-      { type: 'faq', name: '가입 안내', brief: '가입 조건·등급·포인트', variant: 'faq:join' },
-      { type: 'cta', name: '가입하기', brief: '가입 채널 연결', variant: 'cta:join' },
-    ],
-  },
-  // 9. 이벤트
-  {
-    id: 'event.default',
-    purposeId: 'event',
-    label: '이벤트',
-    sections: [
-      hero('히어로', '행사명·일시·장소·신청 CTA (D-day 강조)'),
-      { type: 'about', name: '행사 소개', brief: '무엇을 위한 자리인지' },
-      { type: 'menu', name: '프로그램·일정', brief: '시간표·세션 구성', variant: 'menu:schedule' },
-      { type: 'team', name: '연사·출연진', brief: '프로필·소속·주제', variant: 'team:speakers' },
-      { type: 'contact', name: '장소·오시는 길', brief: '지도·교통·주차', variant: 'contact:map' },
-      { type: 'contact', name: '참가 신청', brief: 'RSVP: 이름/연락처/인원', variant: 'contact:form' },
     ],
   },
   // 10. 원페이지·링크인바이오
@@ -245,22 +189,6 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
       { type: 'contact', name: '오시는 길', brief: '지도·주소·대표전화', variant: 'contact:map' },
     ],
   },
-  // 디지털 상품
-  {
-    id: 'ecommerce.digital',
-    purposeId: 'ecommerce',
-    label: '디지털 상품',
-    industryMatch: ['디지털 상품', '폰트', '템플릿', '이북'],
-    sections: [
-      hero('히어로', '브랜드·대표 상품 비주얼·구매/다운로드 CTA'),
-      { type: 'gallery', name: '베스트·신상품', brief: '상품 카드 진열(이미지·이름·가격)', variant: 'gallery:products' },
-      { type: 'about', name: '브랜드 스토리', brief: '만드는 사람·원칙' },
-      { type: 'features', name: '이런 점이 다릅니다', brief: '구성·활용·호환 등 구매 결정 포인트' },
-      { type: 'testimonials', name: '구매 후기', brief: '리뷰·별점' },
-      { type: 'faq', name: '라이선스·다운로드 안내', brief: '이용 범위·재판매·다운로드 방법·환불 규정', variant: 'faq:license' },
-      { type: 'cta', name: '구매 안내', brief: '스토어/주문 채널로 연결' },
-    ],
-  },
   // 이력서·CV
   {
     id: 'portfolio.resume',
@@ -287,8 +215,12 @@ export function resolveTemplate(purposeId: SitePurposeId, industry: string): Sit
       t.industryMatch.some((kw) => q.includes(kw.toLowerCase())),
   );
   if (override) return override;
-  const def = SITE_TEMPLATES.find((t) => t.id === `${purposeId}.default`);
-  if (!def) throw new Error(`resolveTemplate: ${purposeId}.default 템플릿이 없습니다`);
+  // 폴백: 목적 .default가 없으면(제거된 레거시 목적의 재생성) 중립 소개형(company_brand.default),
+  // 그것도 없으면 첫 템플릿. throw 금지 — 레거시 draft 재생성이 크래시하지 않게.
+  const def =
+    SITE_TEMPLATES.find((t) => t.id === `${purposeId}.default`) ??
+    SITE_TEMPLATES.find((t) => t.id === 'company_brand.default') ??
+    SITE_TEMPLATES[0];
   return def;
 }
 
@@ -445,13 +377,9 @@ export function validateSiteTemplates(): string[] {
   const purposes: SitePurposeId[] = [
     'local_store',
     'booking_service',
-    'ecommerce',
     'edu_membership',
     'company_brand',
     'portfolio',
-    'blog_media',
-    'community',
-    'event',
     'one_page',
   ];
 

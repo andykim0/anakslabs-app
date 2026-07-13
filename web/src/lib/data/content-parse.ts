@@ -71,24 +71,6 @@ export function parseAddress(providedContent: string | undefined): string | unde
   return m ? m[1].trim().slice(0, 60) : undefined;
 }
 
-const EVENT_DATE_RE =
-  /(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일|(\d{4})\s*[.\-]\s*(\d{1,2})\s*[.\-]\s*(\d{1,2})/;
-
-/**
- * [T4-E] 행사일 추출 — 'YYYY년 M월 D일' 또는 'YYYY.M.D'/'YYYY-MM-DD' 첫 매치를
- * 'YYYY년 M월 D일'로 정규화해 반환. 유효 범위(월 1~12·일 1~31) 밖이면 undefined.
- */
-export function parseEventDate(providedContent: string | undefined): string | undefined {
-  if (!providedContent) return undefined;
-  const m = EVENT_DATE_RE.exec(providedContent);
-  if (!m) return undefined;
-  const [y, mo, d] = m[1] !== undefined ? [m[1], m[2], m[3]] : [m[4], m[5], m[6]];
-  const month = Number(mo);
-  const day = Number(d);
-  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
-  return `${y}년 ${month}월 ${day}일`;
-}
-
 /** 소개 첫 문장(최대 maxLen자, 문장부호에서 절단) */
 export function parseIntroSentence(providedContent: string | undefined, maxLen = 40): string | undefined {
   if (!providedContent) return undefined;

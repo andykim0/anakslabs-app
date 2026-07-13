@@ -137,11 +137,6 @@ export function SurveyStep({
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),
-      salesChannelUrl: (() => {
-        const v = clean(values.salesChannelUrl);
-        if (!v) return undefined;
-        return /^https?:\/\//i.test(v) ? v : `https://${v}`;
-      })(),
       sectionPlan: planFromTemplate(template),
       pagePlan: pagePlanFromTemplate(template),
       templateId: template.id,
