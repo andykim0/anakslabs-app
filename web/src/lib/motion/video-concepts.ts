@@ -35,26 +35,6 @@ export const VIDEO_CONCEPTS = {
       promptSeed: 'exterior storefront scene with soft passing light, gentle time-lapse feel, warm dusk tones',
     },
   ],
-  sell: [
-    {
-      id: 'product-closeup',
-      label: '제품 클로즈업',
-      description: '제품의 결·소재가 돋보이는 느낌',
-      promptSeed: 'slow rotating close-up of the product, studio lighting, premium material texture',
-    },
-    {
-      id: 'unboxing-detail',
-      label: '손끝의 디테일',
-      description: '포장을 열고 매만지는 손 — 갖고 싶어지는 순간',
-      promptSeed: 'hands gently unboxing and touching the product, soft natural light, intimate framing',
-    },
-    {
-      id: 'lifestyle-cut',
-      label: '일상 속 한 컷',
-      description: '제품이 쓰이는 실제 장면 — 생활에 스며드는 느낌',
-      promptSeed: 'lifestyle scene of the product in everyday use, candid framing, airy daylight mood',
-    },
-  ],
   promote: [
     {
       id: 'people-at-work',
@@ -73,26 +53,6 @@ export const VIDEO_CONCEPTS = {
       label: '도시의 흐름',
       description: '도시와 사람의 움직임 — 스케일이 느껴져요',
       promptSeed: 'city skyline and flowing crowds, gentle time-lapse feel, blue hour tones',
-    },
-  ],
-  content: [
-    {
-      id: 'learning-moment',
-      label: '배움의 순간',
-      description: '몰입한 얼굴과 필기하는 손 — 성장의 장면',
-      promptSeed: 'students immersed in learning, notebooks and soft window light, calm cinematic mood',
-    },
-    {
-      id: 'hands-craft',
-      label: '손끝의 기록',
-      description: '만들고 쓰는 손의 클로즈업 — 정성이 보여요',
-      promptSeed: 'close-up of hands writing or crafting, warm desk lamp light, shallow depth of field',
-    },
-    {
-      id: 'community-space',
-      label: '함께하는 공간',
-      description: '모여 앉은 사람들의 온기 — 소속감이 전해져요',
-      promptSeed: 'people gathered in a cozy shared space, warm tones, gentle handheld cinematic feel',
     },
   ],
 } as const satisfies Record<PurposeGroup, readonly VideoConcept[]>;

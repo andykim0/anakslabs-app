@@ -58,11 +58,11 @@ describe('HERO_MOTION_CHOICES 레지스트리', () => {
 });
 
 describe('VIDEO_CONCEPTS 레지스트리', () => {
-  test("4그룹×3컨셉, id 전역 유일, promptSeed에 '#' 없음(각인 아티팩트 방지)", () => {
+  test("소개형 2그룹×3컨셉, id 전역 유일, promptSeed에 '#' 없음(각인 아티팩트 방지)", () => {
     const all = Object.values(VIDEO_CONCEPTS).flat();
-    assert.equal(all.length, 12);
-    assert.equal(new Set(all.map((c) => c.id)).size, 12, 'id 중복');
-    for (const group of ['sell', 'serve', 'promote', 'content'] as const) {
+    assert.equal(all.length, 6);
+    assert.equal(new Set(all.map((c) => c.id)).size, 6, 'id 중복');
+    for (const group of ['serve', 'promote'] as const) {
       assert.equal(videoConceptsForGroup(group).length, 3, group);
     }
     for (const c of all) {

@@ -1,7 +1,7 @@
 /**
  * [v4] 사이트 목표 레지스트리 (rules as code) — "방문자가 뭘 해주면 성공인가요?"
  * 목표 1개가 주 CTA 문구(ctaLabel)와 섹션 강조 순서(sectionEmphasis)를 결정한다.
- * 목적 그룹(PurposeGroup)에 따라 노출 목표를 필터링(goalsForGroup) — purchase는 'sell'만 등.
+ * 목적 그룹(PurposeGroup: 손님 받기/알리기)에 따라 노출 목표를 필터링(goalsForGroup).
  */
 import type { PurposeGroup } from '@/lib/data/purpose-taxonomy';
 import type { SiteGoalId } from '@/lib/types/domain';
@@ -25,42 +25,35 @@ export const SITE_GOALS = {
     label: '전화가 오면 좋겠어요',
     ctaLabel: '전화 문의',
     description: '방문자가 바로 전화를 걸도록 안내해요',
-    applicableGroups: ['serve', 'sell', 'promote', 'content'],
+    applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
   },
   reserve: {
     label: '예약을 받고 싶어요',
     ctaLabel: '예약하기',
     description: '방문·시술·자리를 미리 예약받아요',
-    applicableGroups: ['serve', 'content'],
+    applicableGroups: ['serve'],
     sectionEmphasis: ['contact', 'menu', 'hero'],
   },
   directions: {
     label: '찾아오게 하고 싶어요',
     ctaLabel: '오시는 길',
     description: '지도를 보고 매장으로 찾아오게 해요',
-    applicableGroups: ['serve', 'sell', 'promote'],
+    applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
   },
   kakao_inquiry: {
     label: '카톡으로 문의받고 싶어요',
     ctaLabel: '카카오톡 문의',
     description: '편한 카카오톡 채널로 상담을 받아요',
-    applicableGroups: ['serve', 'sell', 'promote', 'content'],
+    applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
-  },
-  purchase: {
-    label: '바로 구매하게 하고 싶어요',
-    ctaLabel: '구매하기',
-    description: '상품을 바로 사거나 주문하게 해요',
-    applicableGroups: ['sell'],
-    sectionEmphasis: ['pricing', 'gallery', 'cta'],
   },
   trust: {
     label: '믿음을 주고 싶어요',
     ctaLabel: '상담 문의',
     description: '실적·후기로 신뢰를 먼저 쌓아요',
-    applicableGroups: ['serve', 'sell', 'promote', 'content'],
+    applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['cases', 'testimonials', 'team', 'about'],
   },
 } as const satisfies Record<SiteGoalId, SiteGoalDef>;

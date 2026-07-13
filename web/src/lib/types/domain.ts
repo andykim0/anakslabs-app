@@ -181,7 +181,7 @@ export interface ExistingPresence {
 }
 
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */
-export type SiteGoalId = 'call' | 'reserve' | 'directions' | 'kakao_inquiry' | 'purchase' | 'trust';
+export type SiteGoalId = 'call' | 'reserve' | 'directions' | 'kakao_inquiry' | 'trust';
 
 /**
  * [v3 Phase 0.2] 사이트 목적 택소노미.

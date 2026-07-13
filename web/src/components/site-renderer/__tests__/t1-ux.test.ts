@@ -56,7 +56,7 @@ describe('T1-4 앵커·CTA 전수 배선', () => {
   test('무배선 버튼 0 — 모든 버튼 href 유효 + 앵커 타깃 실존', () => {
     for (const [pid, industry, goal] of [
       ['local_store', '카페', 'directions'],
-      ['portfolio', '디자인 스튜디오', 'purchase'],
+      ['booking_service', '미용실', 'reserve'],
       ['company_brand', '컨설팅', 'trust'],
     ] as const) {
       const cfg = buildSiteConfigFromSurvey(surveyFor(pid, industry, { siteGoal: goal }), candidate, opts);
@@ -74,12 +74,13 @@ describe('T1-4 앵커·CTA 전수 배선', () => {
     }
   });
 
-  test('purchase 목표 → 히어로 CTA가 진열 섹션(#sec-gallery)로', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('portfolio', '디자인 스튜디오', { siteGoal: 'purchase' }), candidate, opts);
+  test('trust 목표 → 히어로 CTA가 실적/후기(#sec-cases 등)로 배선', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('company_brand', '컨설팅', { siteGoal: 'trust' }), candidate, opts);
     const hero = cfg.pages[0].sections.find((s) => s.type === 'hero')!;
     const cta = hero.elements.find((el) => el.kind === 'button' && el.id.includes('hero-cta') && !el.id.includes('cta2'));
     assert.ok(cta && cta.kind === 'button');
-    assert.equal(cta!.label, '구매하기');
-    assert.ok(cta!.href.includes('#sec-gallery'), `href=${cta!.href}`);
+    assert.equal(cta!.label, '상담 문의');
+    // trust sectionEmphasis(cases/testimonials/team/about) 중 계획에 있는 첫 섹션 또는 contact 폴백 — 무배선 아님
+    assert.ok(cta!.href.startsWith('#') || cta!.href.includes('#'), `href=${cta!.href}`);
   });
 });

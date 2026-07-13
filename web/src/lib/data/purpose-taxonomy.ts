@@ -9,8 +9,8 @@
  */
 import type { LivePurposeId, SitePurposeId } from '@/lib/types/domain';
 
-export type PurposeGroup = 'sell' | 'serve' | 'promote' | 'content';
-export type PurposeGroupLabel = '팔기' | '손님 받기' | '알리기' | '콘텐츠·멤버십';
+export type PurposeGroup = 'serve' | 'promote';
+export type PurposeGroupLabel = '손님 받기' | '알리기';
 export type RecommendedFeature = 'contactForm' | 'mapEmbed' | 'snsLinks';
 
 export interface PurposeDef {
@@ -19,8 +19,6 @@ export interface PurposeDef {
   /** 첫 화면 4묶음 레이어 */
   group: PurposeGroup;
   groupLabel: PurposeGroupLabel;
-  /** 카드에 표시할 핵심 기능 요약 */
-  features: string[];
   /** 업종 칩 */
   industries: string[];
   /** 부가기능 기본 추천 (Phase 3에서 pre-check) */
@@ -33,7 +31,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '음식점·로컬 매장',
     group: 'serve',
     groupLabel: '손님 받기',
-    features: ['메뉴판·영업정보(시간/휴무)', '지도', '예약 또는 전화', '주문/배달앱 링크'],
     industries: [
       '고깃집·바베큐',
       '한식·백반',
@@ -54,7 +51,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '예약·서비스업',
     group: 'serve',
     groupLabel: '손님 받기',
-    features: ['예약 캘린더·타임슬롯', '시술/서비스 메뉴', '직원 지정', '예약금/노쇼·자동 리마인더'],
     industries: [
       '미용실·바버샵',
       '네일·왁싱·속눈썹',
@@ -77,7 +73,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '학원·교육',
     group: 'serve',
     groupLabel: '손님 받기',
-    features: ['커리큘럼·수업 소개', '수강 안내(가격·일정)', '후기·상담 신청'],
     industries: [
       '입시·보습학원',
       '어학원·외국어',
@@ -95,7 +90,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '회사·브랜드',
     group: 'promote',
     groupLabel: '알리기',
-    features: ['회사/서비스/제품 소개', '문의/견적 폼', '채용', 'SEO'],
     industries: [
       '스타트업·IT/SaaS',
       '제조·B2B',
@@ -113,7 +107,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '포트폴리오',
     group: 'promote',
     groupLabel: '알리기',
-    features: ['작업 갤러리', '프로젝트 상세·케이스스터디', '이력', '의뢰 폼'],
     industries: [
       '그래픽·UXUI 디자이너',
       '일러스트레이터',
@@ -132,7 +125,6 @@ export const PURPOSES: PurposeDef[] = [
     label: '원페이지·링크인바이오',
     group: 'promote',
     groupLabel: '알리기',
-    features: ['초간단 1페이지', '링크 허브', '프로필'],
     industries: ['인플루언서·크리에이터', '소상공인 간이 홈', '명함형 프로필', '개인 링크 모음'],
     recommendedFeatures: ['snsLinks'],
   },

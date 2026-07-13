@@ -1,5 +1,5 @@
 /**
- * [v4 #2a] SITE_GOALS 레지스트리 + goalsForGroup 필터.
+ * [v4 · 제품 확정] SITE_GOALS 레지스트리 + goalsForGroup 필터. 소개형 5목표 / 2그룹(serve·promote).
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,13 +12,12 @@ const ALL_GOALS: Record<SiteGoalId, true> = {
   reserve: true,
   directions: true,
   kakao_inquiry: true,
-  purchase: true,
   trust: true,
 };
-const GROUPS: PurposeGroup[] = ['sell', 'serve', 'promote', 'content'];
+const GROUPS: PurposeGroup[] = ['serve', 'promote'];
 
-describe('SITE_GOALS', () => {
-  test('6개 목표 전부 label·ctaLabel·description·applicableGroups·sectionEmphasis 보유', () => {
+describe('SITE_GOALS (소개형)', () => {
+  test('5개 목표 전부 label·ctaLabel·description·applicableGroups·sectionEmphasis 보유', () => {
     const ids = Object.keys(SITE_GOALS) as SiteGoalId[];
     assert.deepEqual([...ids].sort(), (Object.keys(ALL_GOALS) as SiteGoalId[]).sort());
     for (const id of ids) {
@@ -26,13 +25,13 @@ describe('SITE_GOALS', () => {
       assert.ok(g.label && g.ctaLabel && g.description, `${id} 문구`);
       assert.ok(g.applicableGroups.length >= 1, `${id} applicableGroups`);
       assert.ok(g.sectionEmphasis.length >= 1, `${id} sectionEmphasis`);
+      // 제거된 dead 그룹(sell/content)을 참조하지 않음
+      for (const grp of g.applicableGroups) assert.ok(GROUPS.includes(grp), `${id}: dead 그룹 '${grp}'`);
     }
   });
 
-  test('purchase는 sell 그룹에서만 노출', () => {
-    assert.deepEqual([...SITE_GOALS.purchase.applicableGroups], ['sell']);
-    assert.ok(!goalsForGroup('serve').some((x) => x.id === 'purchase'));
-    assert.ok(goalsForGroup('sell').some((x) => x.id === 'purchase'));
+  test("'바로 구매' 목표(purchase)는 제거됨 — 소개형은 판매 약속 안 함", () => {
+    assert.ok(!('purchase' in SITE_GOALS));
   });
 
   test('모든 그룹이 최소 1개 목표를 가짐 (선택 과부하/공백 방지)', () => {

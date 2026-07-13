@@ -421,16 +421,13 @@ export const pagePlanItemSchema = z.object({
 
 export const surveySchema = z.object({
   businessName: z.string().min(1, '상호명을 입력해 주세요.').max(100),
+  // [제품 확정] 신규 설문 제출은 소개형 6종만 — deprecated 4종은 신규 생성 차단(레거시 저장 config는 별도 스키마).
   purposeId: z.enum([
     'local_store',
     'booking_service',
-    'ecommerce',
     'edu_membership',
     'company_brand',
     'portfolio',
-    'blog_media',
-    'community',
-    'event',
     'one_page',
   ]),
   purpose: z.string().min(1, '사이트 목적을 입력해 주세요.').max(500),
@@ -478,7 +475,7 @@ export const surveySchema = z.object({
     .max(3)
     .optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
-  siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'purchase', 'trust']).optional(),
+  siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'trust']).optional(),
   // 자랑거리 1~3개 (항목당 40자) — 생성 프롬프트·차별화 섹션 소스
   highlights: z.array(z.string().min(1).max(40)).max(3).optional(),
   // [v4.5] 지역 — SEO 메타·생성 프롬프트에 배선
