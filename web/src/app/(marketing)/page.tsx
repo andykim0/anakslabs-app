@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Bot, Check, FileWarning, Search } from 'lucide-react';
 import { INITIAL_GRANT, PRICE_RANGES } from '@/lib/credits/constants';
+import { VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import { LandingScanner } from '@/components/landing/LandingScanner';
 import { ScannerCta } from '@/components/marketing/ui';
 import { Eyebrow } from '@/components/marketing/Eyebrow';
@@ -30,8 +31,7 @@ const PROBLEMS = [
   { icon: <FileWarning className="h-5 w-5" />, title: '있어도 없는 것', body: '홈페이지가 있어도 구조가 비면 검색엔진엔 존재하지 않는 것과 같습니다.' },
 ];
 
-const BASIC_FEATURES = ['이미지 중심 정적 사이트', '서브도메인 + SSL', 'AI 디자인 3안 + 캔버스 에디터', '다중 페이지 + 자동 헤더 내비', 'SEO·AEO·GEO 기본 세팅', `편집 크레딧 ${INITIAL_GRANT.basic}개`];
-const PREMIUM_FEATURES = ['Basic의 모든 기능', '영상 · 스크롤 등장 모션', '폼 · 예약 등 동적 기능', '커스텀 도메인 연결', `편집 크레딧 ${INITIAL_GRANT.premium}개`, '우선 지원'];
+const CORE_FEATURES = ['이미지 중심 정적 사이트', '서브도메인 + SSL', 'AI 디자인 3안 + 캔버스 에디터', '다중 페이지 + 자동 헤더 내비', 'SEO·AEO·GEO 기본 세팅', `편집 크레딧 ${INITIAL_GRANT.basic}개`];
 
 /**
  * [마케팅] 메인 — 진단기 히어로 → 가치 → 문제(3열) → 목업 지그재그 → 가격 → 최종 CTA.
@@ -144,45 +144,40 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* 6) 가격 요약 — 체크리스트 포함 */}
+      {/* 6) 가격 요약 — 단일 제품 + 영상 애드온 */}
       <section className="mx-auto max-w-5xl px-6 py-16">
         <FadeIn>
           <h2 className="text-center text-2xl font-semibold tracking-tight text-[#17181C]">제작비 1회 + 월 유지보수</h2>
-          <p className="mt-2 text-center text-sm text-[#5C6068]">숨은 비용 없음. 두 요금제. (표시가는 부가세 별도)</p>
+          <p className="mt-2 text-center text-sm text-[#5C6068]">숨은 비용 없음. 단일 제품. (표시가는 부가세 별도)</p>
         </FadeIn>
-        <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-10 max-w-md">
           <FadeIn delay={0} className="h-full">
-            <div className="h-full rounded-2xl border border-[#E8E6E0] bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-200 hover:-translate-y-1">
-              <h3 className="text-sm font-semibold tracking-widest text-[#5C6068] uppercase">Basic</h3>
-              <p className="mt-4 text-3xl font-semibold text-[#17181C]">
-                {man(PRICE_RANGES.buildFee.basic[0])}
-                <span className="text-base font-normal text-[#696E76]">부터</span>
-              </p>
-              <ul className="mt-5 space-y-2.5">
-                {BASIC_FEATURES.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-[#5C6068]">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.08} className="h-full">
             <div className="h-full rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-200 hover:-translate-y-1">
-              <h3 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">Premium</h3>
-              <p className="mt-4 text-3xl font-semibold text-[#17181C]">
-                {man(PRICE_RANGES.buildFee.premium[0])}
-                <span className="text-base font-normal text-[#696E76]">부터</span>
+              <h3 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">
+                홈페이지 제작 + 호스팅
+              </h3>
+              <p className="mt-4 flex flex-wrap items-baseline gap-x-2">
+                <span className="text-base font-normal text-[#696E76] line-through">
+                  {man(PRICE_RANGES.buildFee.basic[1])}
+                </span>
+                <span className="text-3xl font-semibold text-[#17181C]">
+                  {man(PRICE_RANGES.buildFee.basic[0])}
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-[#5C6068]">
+                + 월 {man(PRICE_RANGES.maintenanceMonthly.basic[1])} 관리
               </p>
               <ul className="mt-5 space-y-2.5">
-                {PREMIUM_FEATURES.map((f) => (
+                {CORE_FEATURES.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-[#5C6068]">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
                     {f}
                   </li>
                 ))}
               </ul>
+              <p className="mt-5 rounded-xl bg-white px-4 py-3 text-xs leading-5 text-[#5C6068]">
+                AI 영상 히어로·시네마틱 영상은 원할 때만 추가하는 애드온입니다 — +{man(VIDEO_ADDON_PRICE_KRW)}.
+              </p>
             </div>
           </FadeIn>
         </div>

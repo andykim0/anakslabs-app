@@ -28,7 +28,7 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '발행 후 수정은 어떻게 하나요?',
-    a: `캔버스 에디터에서 직접 고칩니다. 수정 유형별로 편집 크레딧을 소모합니다 — 텍스트 ${CREDIT_COSTS.text}, 이미지 ${CREDIT_COSTS.image}, 구조 변경 ${CREDIT_COSTS.structure}, 영상 ${CREDIT_COSTS.video}(Premium). 최초 발행 후 첫 편집 1건은 무료입니다.`,
+    a: `캔버스 에디터에서 직접 고칩니다. 수정 유형별로 편집 크레딧을 소모합니다 — 텍스트 ${CREDIT_COSTS.text}, 이미지 ${CREDIT_COSTS.image}, 구조 변경 ${CREDIT_COSTS.structure}, 영상 ${CREDIT_COSTS.video}(영상 애드온). 최초 발행 후 첫 편집 1건은 무료입니다.`,
     plain: `캔버스에서 직접 수정하며 유형별 크레딧을 소모합니다(텍스트 ${CREDIT_COSTS.text}·이미지 ${CREDIT_COSTS.image}·구조 ${CREDIT_COSTS.structure}·영상 ${CREDIT_COSTS.video}). 최초 편집 1건 무료.`,
   },
   {
@@ -38,8 +38,8 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '스크롤 모션은 실제 영상인가요?',
-    a: `아닙니다. 스크롤에 반응하는 CSS 기반 등장 애니메이션으로, 실사 영상이 아닙니다(Premium에서 활성화). 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
-    plain: `스크롤 모션은 CSS 등장 애니메이션이며 실사 영상이 아닙니다(Premium). ${DYNAMIC_FEATURE_NOTICE}`,
+    a: `아닙니다. 스크롤에 반응하는 CSS 기반 등장 애니메이션으로, 기본 제품에 포함되며 실사 영상이 아닙니다. AI가 만드는 실사 영상 히어로·시네마틱 영상은 별도 유료 애드온입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
+    plain: `스크롤 모션은 기본 포함된 CSS 등장 애니메이션이며 실사 영상이 아닙니다. 실사 영상은 별도 애드온입니다. ${DYNAMIC_FEATURE_NOTICE}`,
   },
   {
     q: '환불이 되나요?',
@@ -48,8 +48,8 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '제 도메인을 연결할 수 있나요?',
-    a: '기본으로 xxx.anakslabs.com 서브도메인과 SSL이 제공됩니다. Premium에서는 보유하신 커스텀 도메인 연결을 지원합니다.',
-    plain: '기본 서브도메인+SSL 제공, Premium은 커스텀 도메인 연결을 지원합니다.',
+    a: '기본으로 xxx.anakslabs.com 서브도메인과 SSL이 제공됩니다. 보유하신 커스텀 도메인 연결도 지원합니다.',
+    plain: '기본 서브도메인+SSL 제공, 커스텀 도메인 연결도 지원합니다.',
   },
   {
     q: '검색·AI 노출을 보장하나요?',

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Check, Minus } from 'lucide-react';
+import { Check } from 'lucide-react';
 import {
   CREDIT_COSTS,
   CREDIT_EXPIRY_DAYS,
@@ -8,6 +8,7 @@ import {
   INITIAL_GRANT,
   PRICE_RANGES,
 } from '@/lib/credits/constants';
+import { VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import {
   HOSTING_ONLY_FOOTNOTE,
   OWNERSHIP_SUMMARY,
@@ -20,7 +21,7 @@ import { PreviewVideo } from '@/components/marketing/PreviewVideo';
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
   description:
-    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월 유지보수 + 편집 크레딧. Basic·Premium 요금제 비교, 크레딧 단가·팩 가격, 환불 규정까지.',
+    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월 유지보수 + 편집 크레딧. 단일 제품에 AI 영상 히어로는 유료 애드온, 크레딧 단가·팩 가격, 환불 규정까지.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -29,18 +30,16 @@ function man(krw: number): string {
 }
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-/** 티어 비교 행 — Basic/Premium 값 (true=✓, false=✗, string=텍스트) */
-const COMPARE: { label: string; basic: boolean | string; premium: boolean | string; note?: string }[] = [
-  { label: '서브도메인 + SSL (xxx.anakslabs.com)', basic: true, premium: true },
-  { label: 'AI 디자인 3안 + 캔버스 에디터', basic: true, premium: true },
-  { label: '다중 페이지(홈·소개·문의) + 자동 헤더 내비', basic: true, premium: true },
-  { label: 'SEO·AEO·GEO 기본 세팅(JSON-LD·시맨틱·사업자정보)', basic: true, premium: true },
-  { label: '초기 편집 크레딧', basic: `${INITIAL_GRANT.basic}개`, premium: `${INITIAL_GRANT.premium}개` },
-  { label: '등장 애니메이션(스크롤 모션)', basic: false, premium: true, note: 'Premium 전용' },
-  { label: '영상(Veo) 편집', basic: false, premium: true, note: `크레딧 ${CREDIT_COSTS.video}개 소모` },
-  { label: '폼·예약 등 동적 기능', basic: false, premium: true, note: '당사 호스팅에서 작동' },
-  { label: '커스텀 도메인 연결', basic: '서브도메인만', premium: true },
-  { label: '우선 지원', basic: false, premium: true },
+/** 기본 포함 기능 — 단일 제품이라 전부 ✓ (영상은 별도 애드온 그룹으로 분리) */
+const INCLUDED_FEATURES: string[] = [
+  '서브도메인 + SSL (xxx.anakslabs.com)',
+  'AI 디자인 3안 + 캔버스 에디터',
+  '다중 페이지(홈·소개·문의) + 자동 헤더 내비',
+  'SEO·AEO·GEO 기본 세팅(JSON-LD·시맨틱·사업자정보)',
+  `초기 편집 크레딧 ${INITIAL_GRANT.basic}개`,
+  '등장 애니메이션(스크롤 모션)',
+  '폼·예약 등 동적 기능(당사 호스팅에서 작동)',
+  '커스텀 도메인 연결',
 ];
 
 const PRICING_FAQ: FaqItem[] = [
@@ -52,14 +51,13 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: '편집 크레딧은 어떻게 쓰이나요?',
-    a: `수정 유형별로 크레딧을 소모합니다 — 텍스트 ${CREDIT_COSTS.text}개, 이미지 ${CREDIT_COSTS.image}개, 구조 변경 ${CREDIT_COSTS.structure}개, 영상 ${CREDIT_COSTS.video}개(Premium). 최초 발행 후 첫 편집 1건과 온보딩 재생성 ${FREE_REGEN_LIMIT}회는 무료입니다.`,
-    plain: `수정 유형별로 크레딧을 소모합니다: 텍스트 ${CREDIT_COSTS.text}, 이미지 ${CREDIT_COSTS.image}, 구조 변경 ${CREDIT_COSTS.structure}, 영상 ${CREDIT_COSTS.video}(Premium). 최초 편집 1건과 재생성 ${FREE_REGEN_LIMIT}회 무료.`,
+    a: `수정 유형별로 크레딧을 소모합니다 — 텍스트 ${CREDIT_COSTS.text}개, 이미지 ${CREDIT_COSTS.image}개, 구조 변경 ${CREDIT_COSTS.structure}개, 영상 ${CREDIT_COSTS.video}개(영상 애드온). 최초 발행 후 첫 편집 1건과 온보딩 재생성 ${FREE_REGEN_LIMIT}회는 무료입니다.`,
+    plain: `수정 유형별로 크레딧을 소모합니다: 텍스트 ${CREDIT_COSTS.text}, 이미지 ${CREDIT_COSTS.image}, 구조 변경 ${CREDIT_COSTS.structure}, 영상 ${CREDIT_COSTS.video}(영상 애드온). 최초 편집 1건과 재생성 ${FREE_REGEN_LIMIT}회 무료.`,
   },
   {
-    q: 'Basic과 Premium의 가장 큰 차이는요?',
-    a: 'Premium은 영상·스크롤 등장 애니메이션·폼/예약 같은 동적 기능이 열리고 초기 크레딧이 더 많습니다. Basic은 이미지 중심의 정적 사이트로, 검색·AI 최적화 기본 세팅은 두 요금제 모두 동일하게 들어갑니다.',
-    plain:
-      'Premium은 영상·스크롤 애니메이션·폼/예약 등 동적 기능과 더 많은 초기 크레딧을 제공합니다. SEO·AEO·GEO 기본 세팅은 두 요금제 동일합니다.',
+    q: '영상 애드온은 무엇인가요?',
+    a: `기본 제품에 AI 디자인 3안, 캔버스 에디터, 다중 페이지, SEO·AEO·GEO 세팅이 전부 포함됩니다. AI가 만드는 영상 히어로·시네마틱 영상만 원하는 분에 한해 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온으로 추가합니다. 편집 시 영상 수정은 크레딧 ${CREDIT_COSTS.video}개를 소모합니다.`,
+    plain: `기본 제품에 디자인·에디터·다중 페이지·SEO 세팅이 전부 포함됩니다. AI 영상 히어로·시네마틱 영상만 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온입니다.`,
   },
   {
     q: '연간 결제 할인이 있나요?',
@@ -129,38 +127,41 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 요금제 2종 */}
+      {/* 단일 제품 카드 + 영상 애드온 */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
-        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
-          <div className="flex flex-col rounded-2xl border border-[#E8E6E0] bg-white p-7">
-            <h2 className="text-sm font-semibold tracking-widest text-[#5C6068] uppercase">Basic</h2>
-            <p className="mt-4 text-3xl font-semibold text-[#17181C]">
-              {man(buildFee.basic[0])}
-              <span className="text-base font-normal text-[#5C6068]"> ~ {man(buildFee.basic[1])}</span>
-            </p>
-            <p className="mt-1 text-xs text-[#5C6068]">
-              + 월 {won(maintenanceMonthly.basic[0])}~{won(maintenanceMonthly.basic[1])}원 유지보수
-            </p>
-            <p className="mt-4 text-sm leading-6 text-[#5C6068]">
-              이미지 중심의 정적 사이트. 검색·AI 기본 세팅 포함, 초기 크레딧 {INITIAL_GRANT.basic}개.
-            </p>
-          </div>
+        <div className="mx-auto max-w-xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
-            <span className="absolute -top-3 right-6 rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
-              추천
-            </span>
-            {/* [video] Premium 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 (모바일=poster) */}
-            <PreviewVideo mode="hover" className="mb-5 rounded-lg border border-[#E4D9BF]" />
-            <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">Premium</h2>
-            <p className="mt-4 text-3xl font-semibold text-[#17181C]">
-              {man(buildFee.premium[0])}
-              <span className="text-base font-normal text-[#5C6068]"> ~ {man(buildFee.premium[1])}</span>
+            <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">
+              홈페이지 제작 + 호스팅
+            </h2>
+            <p className="mt-4 flex flex-wrap items-baseline gap-x-2">
+              <span className="text-base font-normal text-[#696E76] line-through">{man(buildFee.basic[1])}</span>
+              <span className="text-3xl font-semibold text-[#17181C]">{man(buildFee.basic[0])}</span>
+              <span className="rounded-full bg-[#F3ECD8] px-2 py-0.5 text-[11px] font-semibold text-[#7A5E1E]">
+                런칭 특가
+              </span>
             </p>
             <p className="mt-1 text-xs text-[#5C6068]">
-              + 월 {won(maintenanceMonthly.premium[0])}~{won(maintenanceMonthly.premium[1])}원 유지보수
+              + 월 {man(maintenanceMonthly.basic[1])} 관리 · VAT 별도
             </p>
             <p className="mt-4 text-sm leading-6 text-[#5C6068]">
-              영상·스크롤 모션·폼 등 동적 기능. 초기 크레딧 {INITIAL_GRANT.premium}개, 커스텀 도메인·우선 지원.
+              이미지 중심의 정적 사이트, AI 디자인 3안 + 캔버스 에디터, 다중 페이지 + 자동 헤더 내비,
+              SEO·AEO·GEO 기본 세팅, 초기 편집 크레딧 {INITIAL_GRANT.basic}개까지 전부 포함됩니다.
+            </p>
+
+            <div className="mt-6 rounded-xl border border-[#E4D9BF] bg-white p-5">
+              {/* [video] 영상 애드온 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 (모바일=poster) */}
+              <PreviewVideo mode="hover" className="mb-4 rounded-lg border border-[#E4D9BF]" />
+              <p className="text-sm font-semibold text-[#17181C]">
+                영상 추가 +{man(VIDEO_ADDON_PRICE_KRW)}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-[#5C6068]">
+                AI 영상 히어로·시네마틱 영상을 원하면 애드온으로 추가합니다. 원할 때만 더하면 됩니다.
+              </p>
+            </div>
+
+            <p className="mt-4 text-center text-[11px] text-[#696E76]">
+              영상까지 포함한 프리미엄 제작 {man(PRICE_RANGES.buildFee.premium[0])}부터
             </p>
           </div>
         </div>
@@ -169,31 +170,27 @@ export default function PricingPage() {
         </p>
       </section>
 
-      {/* 티어 비교표 */}
+      {/* 기본 포함 기능 체크리스트 */}
       <section className="mx-auto max-w-5xl px-6 py-16">
-        <SectionHeading title="Basic · Premium 기능 비교" />
-        <div className="mx-auto mt-10 max-w-3xl overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-[#E8E6E0] text-left">
-                <th className="py-3 pr-4 font-medium text-[#5C6068]">기능</th>
-                <th className="w-24 py-3 text-center font-semibold text-[#5C6068]">Basic</th>
-                <th className="w-24 py-3 text-center font-semibold text-[#856A26]">Premium</th>
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARE.map((row) => (
-                <tr key={row.label} className="border-b border-[#E8E6E0]">
-                  <td className="py-3 pr-4 text-[#5C6068]">
-                    {row.label}
-                    {row.note ? <span className="ml-2 text-[11px] text-[#696E76]">· {row.note}</span> : null}
-                  </td>
-                  <td className="py-3 text-center">{cell(row.basic)}</td>
-                  <td className="py-3 text-center">{cell(row.premium, true)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <SectionHeading title="기본 포함 기능" subtitle="요금제 구분 없이 모든 사이트에 기본으로 들어갑니다." />
+        <div className="mx-auto mt-10 max-w-3xl">
+          <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {INCLUDED_FEATURES.map((f) => (
+              <li key={f} className="flex items-start gap-2 text-sm text-[#5C6068]">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
+                {f}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
+            <span className="rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
+              영상 애드온 · +{man(VIDEO_ADDON_PRICE_KRW)}
+            </span>
+            <p className="mt-3 text-sm leading-6 text-[#5C6068]">
+              AI 영상 히어로·시네마틱 영상 편집은 기본 제품에 포함되지 않는 별도 애드온입니다. 편집 시
+              크레딧 {CREDIT_COSTS.video}개를 소모합니다.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -211,7 +208,7 @@ export default function PricingPage() {
                 <li>텍스트 수정 — {CREDIT_COSTS.text}개</li>
                 <li>이미지 교체·생성 — {CREDIT_COSTS.image}개</li>
                 <li>구조 변경 — {CREDIT_COSTS.structure}개</li>
-                <li>영상(Veo) 편집 — {CREDIT_COSTS.video}개 <span className="text-[#696E76]">(Premium)</span></li>
+                <li>영상(Veo) 편집 — {CREDIT_COSTS.video}개 <span className="text-[#696E76]">(영상 애드온)</span></li>
               </ul>
               <p className="mt-4 text-xs leading-5 text-[#696E76]">
                 최초 발행 후 첫 편집 1건과 온보딩 무료 재생성 {FREE_REGEN_LIMIT}회는 크레딧이 소모되지 않습니다.
@@ -293,11 +290,4 @@ export default function PricingPage() {
       </section>
     </>
   );
-}
-
-function cell(value: boolean | string, gold = false) {
-  if (value === true)
-    return <Check className={`mx-auto h-4 w-4 ${gold ? 'text-[#856A26]' : 'text-[#5C6068]'}`} />;
-  if (value === false) return <Minus className="mx-auto h-4 w-4 text-[#696E76]" />;
-  return <span className="text-xs text-[#5C6068]">{value}</span>;
 }
