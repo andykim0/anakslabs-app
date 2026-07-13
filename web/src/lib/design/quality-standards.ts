@@ -409,7 +409,8 @@ export function industryDescriptor(industry: string | undefined): string {
 }
 
 /** hex → HSL (h:0-360, s:0-1, l:0-1). 유효하지 않으면 null */
-function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
+/** [I3] hex(#rrggbb) → HSL(h 0-360, s·l 0-1). 무효면 null. 채도 기반 대표색 추출에 재사용(export) */
+export function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return null;
   const n = parseInt(m[1], 16);
