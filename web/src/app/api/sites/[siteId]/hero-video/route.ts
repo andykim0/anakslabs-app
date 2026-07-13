@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../../_lib/guards';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 import { videoGenConfig } from '@/lib/env';
 import {
   applyHeroVideoToConfig,
@@ -43,7 +44,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const { siteId } = await params;
   const client = await getAuthedClient();
   if (!client) return unauthorized();
-  if (client.tier !== 'premium') return apiError(403, 'VIDEO_GEN_TIER', 'AI 영상 히어로는 Premium 전용입니다.');
+  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'AI 영상 히어로는 영상 애드온이 필요합니다. 애드온을 추가해 주세요.');
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();

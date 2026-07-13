@@ -19,8 +19,8 @@ describe('videoGuardError — 비용 가드 3종 + tier', () => {
   test('킬스위치 off → 차단', () => {
     assert.match(videoGuardError({ ...ON, enabled: false }, 'premium', 0, 0)!, /VIDEO_GEN_DISABLED/);
   });
-  test('basic tier → 차단', () => {
-    assert.match(videoGuardError(ON, 'basic', 0, 0)!, /VIDEO_GEN_TIER/);
+  test('영상 애드온 미보유(basic) → 차단', () => {
+    assert.match(videoGuardError(ON, 'basic', 0, 0)!, /VIDEO_GEN_ADDON/);
   });
   test('사이트당 상한 도달 → 차단', () => {
     assert.match(videoGuardError(ON, 'premium', 6, 0)!, /VIDEO_GEN_SITE_CAP/);

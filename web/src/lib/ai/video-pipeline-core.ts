@@ -5,6 +5,7 @@
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { NO_TEXT_DIRECTIVE, isDarkColor, stripHangul } from '@/lib/design/quality-standards';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 
 /** fast=온보딩 시안(저렴), 표준=고화질 재생성(에디터, 크레딧). env로 모델 id 오버라이드. */
 export const FAST_MODEL = process.env.VEO_FAST_MODEL || 'veo-3.1-fast-generate-preview';
@@ -19,8 +20,9 @@ export interface VideoGuardConfig {
 }
 
 /**
- * 비용 가드 3종 + tier 판정 (순수). 위반 시 에러 메시지(코드 프리픽스), 통과 시 null.
- *  (a) 킬스위치  (b) Premium tier  (c) 사이트당 상한  (d) 일일 전역 상한.
+ * 비용 가드 3종 + 영상 애드온 판정 (순수). 위반 시 에러 메시지(코드 프리픽스), 통과 시 null.
+ *  (a) 킬스위치  (b) 영상 애드온 보유(=tier premium)  (c) 사이트당 상한  (d) 일일 전역 상한.
+ * [U3] 애드온 미보유 사이트는 여기서 서버 강제 차단 — 클라 표식(videoRequested)만으론 Veo 미호출.
  */
 export function videoGuardError(
   cfg: VideoGuardConfig,
@@ -29,7 +31,7 @@ export function videoGuardError(
   countToday: number,
 ): string | null {
   if (!cfg.enabled) return 'VIDEO_GEN_DISABLED: 영상 생성이 비활성화되어 있습니다 (VIDEO_GEN_ENABLED=1 필요).';
-  if (tier !== 'premium') return 'VIDEO_GEN_TIER: AI 영상 히어로는 Premium 전용입니다.';
+  if (!hasVideoAddon(tier)) return 'VIDEO_GEN_ADDON: AI 영상 히어로는 영상 애드온이 필요합니다.';
   if (countBySite >= cfg.maxPerSite) return `VIDEO_GEN_SITE_CAP: 이 사이트의 영상 생성 상한(${cfg.maxPerSite}회)에 도달했습니다.`;
   if (countToday >= cfg.dailyCap) return `VIDEO_GEN_DAILY_CAP: 오늘 영상 생성 상한(${cfg.dailyCap}회)에 도달했습니다.`;
   return null;

@@ -19,6 +19,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { generateSite, regenerateSite, type ExtrasOptionsDto, type MotionChoiceDto } from '../api';
 import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
@@ -188,8 +189,9 @@ export function GenerateStep({
           )}
         </div>
 
-        {/* [motion 4단계] Premium — AI 영상 히어로 스튜디오 (선택) */}
-        {tier === 'premium' ? (
+        {/* [U3] 영상 애드온 보유 시 — AI 영상 히어로 스튜디오 (선택). 미보유는 정적 히어로로 발행되고,
+             video-hero를 골랐다면 videoRequested 표식이 남아 애드온 부여 후 생성할 수 있다. */}
+        {hasVideoAddon(tier) ? (
           <HeroVideoStudio siteId={siteId} businessName={survey.businessName} industry={survey.industry} />
         ) : null}
 
