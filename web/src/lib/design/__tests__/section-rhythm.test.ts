@@ -1,5 +1,8 @@
 /**
- * [Q5] 배경 리듬 + POV 개성 키트 — 3연속 금지·홈 악센트 밴드 필수·밴드 텍스트 AA·다크밴드 판정.
+ * [Q5→D2] 배경 리듬 + POV 개성 키트.
+ * D2 통일 불변식: 히어로 직후 연속-배경 리드 + 강조 밴드는 드라마틱 POV(bandOnHome)만 → 일반 업종
+ * 라이트 연속. (Q5의 '동일 배경 3연속 금지'는 통일 우선으로 재정의 — neutral(bg/surface)은 연속 허용,
+ * 배경 전환은 '의도된 밴드 ≤1'만. AA는 항상 유지.)
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -23,14 +26,15 @@ const LIGHT = derivePalette('#c98a5e', '#f7ede2', { dark: false });
 const DARK = derivePalette('#b08d57', '#1a1712', { dark: true });
 
 describe('PovKit — 레지스트리 완전성', () => {
-  test('6개 POV 전부 kit 보유 + 사이클 최대 런 ≤ 2(3연속 금지 보장)', () => {
+  test('6개 POV 전부 kit 보유 + bandOnHome(boolean) + 사이클 최대 런 ≤ 2', () => {
     assert.equal(DESIGN_POVS.length, 6);
     for (const pov of DESIGN_POVS) {
       const k = pov.kit;
       assert.ok(k, `${pov.id} kit 없음`);
+      assert.equal(typeof k.bandOnHome, 'boolean', `${pov.id} bandOnHome 누락`);
       assert.ok(k.rhythm.length >= 2 && k.bandPreference.length >= 1, pov.id);
       assert.ok(k.priceScale >= 1 && k.imageRadius >= 0 && k.dividerThickness >= 1, pov.id);
-      // 사이클을 3바퀴 돌려 최대 런 검사
+      // rhythm 사이클 자체는 여전히 최대 런 ≤2 (패턴 정의 무결성)
       const seq = Array.from({ length: k.rhythm.length * 3 }, (_, i) => k.rhythm[i % k.rhythm.length]);
       let run = 1;
       for (let i = 1; i < seq.length; i += 1) {
@@ -39,6 +43,10 @@ describe('PovKit — 레지스트리 완전성', () => {
       }
     }
   });
+  test('드라마틱 POV(다크럭셔리·볼드브루탈)만 bandOnHome=true, 일반 업종 POV는 false', () => {
+    const on = DESIGN_POVS.filter((p) => p.kit.bandOnHome).map((p) => p.id).sort();
+    assert.deepEqual(on, ['bold-brutalist', 'dark-luxury']);
+  });
   test('13개 STYLE_DIRECTIONS 전부 povForStyle→kit 도달', () => {
     for (const st of STYLE_DIRECTIONS) {
       assert.ok(findPov(povForStyle(st.id)).kit, st.id);
@@ -46,11 +54,11 @@ describe('PovKit — 레지스트리 완전성', () => {
   });
 });
 
-describe('planPageRhythm — 리듬 불변식', () => {
+describe('planPageRhythm — 통일 불변식', () => {
   const SEQS: { type: SectionType; hasMedia: boolean }[][] = [
     // 홈(멀티페이지): hero(media) + teaser + cta
     [{ type: 'hero', hasMedia: true }, { type: 'custom', hasMedia: false }, { type: 'cta', hasMedia: false }],
-    // 싱글 페이지(이력서·원페이지류): 섹션 다수
+    // 섹션 다수
     [
       { type: 'hero', hasMedia: true },
       { type: 'about', hasMedia: false },
@@ -63,41 +71,42 @@ describe('planPageRhythm — 리듬 불변식', () => {
     ],
   ];
 
-  test('13 스타일 × 라이트/다크 × 대표 시퀀스: 3연속 금지 + 밴드 ≥1 + 밴드 텍스트 AA', () => {
+  test('13 스타일 × 라이트/다크: 히어로 직후 연속-배경 + neutral만(비밴드) + 밴드는 bandOnHome일 때만·AA', () => {
     for (const st of STYLE_DIRECTIONS) {
       const kit = findPov(povForStyle(st.id)).kit;
       for (const palette of [LIGHT, DARK]) {
+        const neutrals = new Set([palette.background.toLowerCase(), palette.surface.toLowerCase()]);
         for (const seq of SEQS) {
-          const specs = planPageRhythm(seq, kit, palette, { requireBand: true });
-          // 3연속 금지 (media=null은 런을 끊음)
-          let run = 1;
-          for (let i = 1; i < specs.length; i += 1) {
-            const a = specs[i - 1]?.color;
-            const b = specs[i]?.color;
-            run = a && b && a === b ? run + 1 : 1;
-            assert.ok(run <= 2, `${st.id}: 3연속 배경 (${specs.map((s) => s?.color ?? 'media').join(',')})`);
+          const specs = planPageRhythm(seq, kit, palette, { requireBand: kit.bandOnHome });
+          const eligible = specs.filter((s): s is NonNullable<typeof s> => !!s);
+          // 히어로 직후 첫 자격섹션 = background (연속 흐름)
+          assert.equal(eligible[0].color.toLowerCase(), palette.background.toLowerCase(), `${st.id}: 리드 배경 아님`);
+          // 비밴드 섹션은 전부 neutral(background/surface)
+          for (const s of eligible) {
+            if (!s.band) assert.ok(neutrals.has(s.color.toLowerCase()), `${st.id}: 비밴드 비-neutral ${s.color}`);
           }
-          // 악센트 밴드 ≥ 1 + 밴드 텍스트 AA
-          const bands = specs.filter((s) => s?.band);
-          assert.ok(bands.length >= 1, `${st.id}: 밴드 없음`);
+          // 밴드는 bandOnHome POV에서만 존재하고 ≤1개, 존재 시 AA
+          const bands = eligible.filter((s) => s.band);
+          if (kit.bandOnHome) assert.ok(bands.length >= 1 && bands.length <= 1, `${st.id}: 밴드 수 ${bands.length}`);
+          else assert.equal(bands.length, 0, `${st.id}: 일반 POV에 밴드 존재`);
           for (const b of bands) {
-            assert.ok(contrastRatio(b!.textColor, b!.color) >= 4.5, `${st.id}: 밴드 텍스트 AA 미달`);
-            assert.ok(contrastRatio(b!.softTextColor, b!.color) >= 4.5, `${st.id}: 밴드 보조 텍스트 AA 미달`);
+            assert.ok(contrastRatio(b.textColor, b.color) >= 4.5, `${st.id}: 밴드 텍스트 AA 미달`);
+            assert.ok(contrastRatio(b.softTextColor, b.color) >= 4.5, `${st.id}: 밴드 보조 텍스트 AA 미달`);
           }
         }
       }
     }
   });
 
-  test('requireBand=false(서브페이지)면 밴드 없음', () => {
-    const kit = DESIGN_POVS[0].kit;
+  test('requireBand=false면 밴드 없음(서브페이지·일반 POV 홈)', () => {
+    const kit = findPov('warm-artisan').kit;
     const specs = planPageRhythm(SEQS[1], kit, LIGHT, { requireBand: false });
     assert.ok(specs.every((s) => !s?.band));
   });
 
   test('다크 밴드(라이트 테마)는 isDarkColor 판정 통과 — spotlight darkSectionOnly 대상', () => {
-    const swiss = findPov('swiss-minimal').kit; // bandSource 'dark'
-    assert.ok(isDarkColor(bandColorOf(swiss, LIGHT)), `band=${bandColorOf(swiss, LIGHT)}`);
+    const brut = findPov('bold-brutalist').kit; // bandSource 'dark' + bandOnHome
+    assert.ok(isDarkColor(bandColorOf(brut, LIGHT)), `band=${bandColorOf(brut, LIGHT)}`);
   });
 
   test('pickTextOn — 어떤 배경이든 AA 확보(#fff/#000 최후 폴백)', () => {
@@ -108,15 +117,10 @@ describe('planPageRhythm — 리듬 불변식', () => {
 });
 
 describe('buildSiteConfigFromSurvey — 리듬 통합', () => {
-  const candidate: DesignCandidate = {
-    id: 'cand-warm-cozy',
-    label: 'x',
-    style: 'photo',
-    heroImageUrl: '/mock/h.svg',
-    theme: emptySiteConfig('t').theme,
-    description: '',
-  };
   const opts = { heroImageUrl: '/mock/h.svg', imagePool: ['/mock/a.svg', '/mock/b.svg'] };
+  function candFor(id: string): DesignCandidate {
+    return { id, label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg', theme: emptySiteConfig('t').theme, description: '' };
+  }
   function surveyFor(purposeId: SurveyInput['purposeId'], industry: string): SurveyInput {
     const t = resolveTemplate(purposeId, industry);
     return {
@@ -133,15 +137,15 @@ describe('buildSiteConfigFromSurvey — 리듬 통합', () => {
     } as SurveyInput;
   }
 
-  test('홈에 악센트 밴드 ≥1 + 밴드 텍스트 전부 AA + 히어로(스크림) 미개입', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('local_store', '카페'), candidate, opts);
+  test('드라마틱 POV(dark-luxury) 홈은 강조 밴드 ≥1 + 밴드 텍스트 전부 AA', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('local_store', '파인다이닝'), candFor('cand-dark-luxury'), opts);
     const palette = cfg.theme.palette;
     const home = cfg.pages.find((p) => p.slug === '')!;
     const bandColors = new Set([palette.primary.toLowerCase(), palette.text.toLowerCase()]);
     const bands = home.sections.filter(
       (s) => !s.background.image && s.background.color && bandColors.has(s.background.color.toLowerCase()),
     );
-    assert.ok(bands.length >= 1, `홈 밴드 없음: ${home.sections.map((s) => s.background.color ?? 'media').join(',')}`);
+    assert.ok(bands.length >= 1, `드라마틱 홈 밴드 없음: ${home.sections.map((s) => s.background.color ?? 'media').join(',')}`);
     for (const band of bands) {
       const bg = band.background.color!;
       for (const el of band.elements) {
@@ -150,33 +154,57 @@ describe('buildSiteConfigFromSurvey — 리듬 통합', () => {
         assert.ok(contrastRatio(c, bg) >= 4.5, `밴드 텍스트 AA 미달: ${el.id} ${c} on ${bg}`);
       }
     }
+  });
+
+  test('일반 업종 POV(warm-artisan/카페) 홈은 라이트 연속 — 다크·강조 밴드 없음 + 히어로 스크림 유지', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('local_store', '카페'), candFor('cand-warm-cozy'), opts);
+    const palette = cfg.theme.palette;
+    const home = cfg.pages.find((p) => p.slug === '')!;
+    const bandColors = new Set([palette.primary.toLowerCase(), palette.text.toLowerCase()]);
+    const neutrals = new Set([palette.background.toLowerCase(), palette.surface.toLowerCase()]);
+    for (const s of home.sections) {
+      if (s.background.image || s.background.video || s.background.gradient) continue;
+      const c = (s.background.color ?? '').toLowerCase();
+      assert.ok(!bandColors.has(c), `일반 홈에 밴드 색: ${s.id} ${c}`);
+      assert.ok(neutrals.has(c), `일반 홈 비-neutral 배경: ${s.id} ${c}`);
+    }
     // 히어로는 리듬 미개입 — Q1 스크림 유지
     const hero = home.sections.find((s) => s.type === 'hero')!;
     assert.ok(hero.background.image?.overlayColor, '히어로 스크림 소실');
   });
 
+  test('홈 히어로 직후 첫 비-미디어 섹션 = background(연속 흐름)', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('local_store', '카페'), candFor('cand-warm-cozy'), opts);
+    const palette = cfg.theme.palette;
+    const home = cfg.pages.find((p) => p.slug === '')!;
+    const firstNeutral = home.sections.find(
+      (s) => !(s.background.image || s.background.video || s.background.gradient) && s.type !== 'hero',
+    );
+    assert.ok(firstNeutral, '자격섹션 없음');
+    assert.equal((firstNeutral!.background.color ?? '').toLowerCase(), palette.background.toLowerCase());
+  });
+
   test('one_page 목적은 밴드 스킵(배경은 background/surface만)', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('one_page', '링크 모음'), candidate, opts);
+    const cfg = buildSiteConfigFromSurvey(surveyFor('one_page', '링크 모음'), candFor('cand-warm-cozy'), opts);
     const palette = cfg.theme.palette;
     const neutrals = new Set([palette.background.toLowerCase(), palette.surface.toLowerCase()]);
     for (const p of cfg.pages) {
       for (const s of p.sections) {
-        if (s.background.image || s.background.video || s.background.gradient) continue; // 미디어·그라디언트 = 리듬 미개입
+        if (s.background.image || s.background.video || s.background.gradient) continue;
         assert.ok(neutrals.has((s.background.color ?? '').toLowerCase()), `one_page 밴드 발견: ${s.id} ${s.background.color}`);
       }
     }
   });
 
-  test('전 페이지 3연속 동일 배경 없음', () => {
-    const cfg = buildSiteConfigFromSurvey(surveyFor('portfolio', '이력서'), candidate, opts);
+  test('페이지당 강조 밴드 ≤1 (통일 — 여러 배경 전환 없음)', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('portfolio', '이력서'), candFor('cand-dark-luxury'), opts);
+    const palette = cfg.theme.palette;
+    const bandColors = new Set([palette.primary.toLowerCase(), palette.text.toLowerCase()]);
     for (const p of cfg.pages) {
-      let run = 1;
-      for (let i = 1; i < p.sections.length; i += 1) {
-        const a = p.sections[i - 1].background.image ? undefined : p.sections[i - 1].background.color;
-        const b = p.sections[i].background.image ? undefined : p.sections[i].background.color;
-        run = a && b && a === b ? run + 1 : 1;
-        assert.ok(run <= 2, `${p.slug}: 3연속 배경`);
-      }
+      const bands = p.sections.filter(
+        (s) => !s.background.image && s.background.color && bandColors.has(s.background.color.toLowerCase()),
+      );
+      assert.ok(bands.length <= 1, `${p.slug}: 밴드 ${bands.length}개(>1)`);
     }
   });
 });

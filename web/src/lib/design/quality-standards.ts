@@ -116,6 +116,12 @@ export interface PovKit {
   rhythm: readonly ('background' | 'surface')[];
   /** 악센트 밴드 색 원천 — 'primary'=팔레트 primary 밴드, 'dark'=배경 반전(팔레트 text 토큰) 밴드 */
   bandSource: 'primary' | 'dark';
+  /**
+   * [D2] 홈에 강조 밴드를 방출할지 — 드라마틱 POV(다크 럭셔리·볼드 브루탈리즘)만 true.
+   * 일반 업종 POV(에디토리얼·아티산·스위스·소프트)는 false = 라이트 연속(밴드 없음, 카드·여백·구분선으로
+   * 섹션 구분). 강한 다크 밴드가 히어로를 'PPT 슬라이드처럼' 조각내는 역효과를 제거한다(②).
+   */
+  bandOnHome: boolean;
   /** 밴드 우선 배치 섹션 타입(앞선 것 우선). 매칭 없으면 중후반 섹션 폴백 */
   bandPreference: readonly SectionType[];
   /** 구분선 두께(px) */
@@ -154,6 +160,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'surface'],
       bandSource: 'dark',
+      bandOnHome: false,
       bandPreference: ['cta', 'testimonials', 'about'],
       dividerThickness: 1,
       priceScale: 1,
@@ -171,6 +178,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'background', 'surface'],
       bandSource: 'primary',
+      bandOnHome: true,
       bandPreference: ['cta', 'testimonials', 'menu'],
       dividerThickness: 1,
       priceScale: 1.15,
@@ -188,6 +196,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'surface'],
       bandSource: 'primary',
+      bandOnHome: false,
       bandPreference: ['cta', 'testimonials', 'about'],
       dividerThickness: 2,
       priceScale: 1.1,
@@ -205,6 +214,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'background', 'surface'],
       bandSource: 'dark',
+      bandOnHome: false,
       bandPreference: ['cta', 'cases', 'pricing'],
       dividerThickness: 2,
       priceScale: 1,
@@ -222,6 +232,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'surface', 'surface'],
       bandSource: 'primary',
+      bandOnHome: false,
       bandPreference: ['cta', 'testimonials', 'faq'],
       dividerThickness: 1,
       priceScale: 1.05,
@@ -239,6 +250,7 @@ export const DESIGN_POVS: DesignPov[] = [
     kit: {
       rhythm: ['background', 'surface'],
       bandSource: 'dark',
+      bandOnHome: true,
       bandPreference: ['cta', 'cases', 'testimonials'],
       dividerThickness: 4,
       priceScale: 1.3,

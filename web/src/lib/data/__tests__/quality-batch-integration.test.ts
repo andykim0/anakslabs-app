@@ -107,27 +107,21 @@ describe('Q-batch 통합 — 소소한자리 시드', () => {
     assert.ok(!srcs.includes('/mock/hero.svg'), '히어로 src 재사용');
   });
 
-  test('⑤ 배경 리듬 — 홈 악센트 밴드 ≥1 + 밴드 텍스트 AA + 3연속 없음', () => {
+  test('⑤ 배경 리듬(D2 통일) — 일반 업종(warm-artisan) 라이트 연속·밴드 없음 + 히어로 직후 연속-배경', () => {
     const bandColors = new Set([palette.primary.toLowerCase(), palette.text.toLowerCase()]);
-    const bands = home.sections.filter(
-      (s) => !s.background.image && !s.background.gradient && bandColors.has((s.background.color ?? '').toLowerCase()),
-    );
-    assert.ok(bands.length >= 1, '홈 밴드 없음');
-    for (const b of bands) {
-      for (const el of b.elements) {
-        if (el.kind !== 'text') continue;
-        assert.ok(contrastRatio(el.style.color ?? palette.text, b.background.color!) >= 4.5, `${el.id} AA`);
-      }
+    const neutrals = new Set([palette.background.toLowerCase(), palette.surface.toLowerCase()]);
+    // 소소한자리(카페)=warm-artisan → 강조/다크 밴드 없음, 전 비-미디어 섹션 neutral
+    for (const s of home.sections) {
+      if (s.background.image || s.background.video || s.background.gradient) continue;
+      const c = (s.background.color ?? '').toLowerCase();
+      assert.ok(!bandColors.has(c), `일반 홈에 밴드 색: ${s.id} ${c}`);
+      assert.ok(neutrals.has(c), `일반 홈 비-neutral: ${s.id} ${c}`);
     }
-    for (const p of cfg.pages) {
-      let run = 1;
-      for (let i = 1; i < p.sections.length; i += 1) {
-        const a = p.sections[i - 1].background.image ? undefined : p.sections[i - 1].background.color;
-        const c = p.sections[i].background.image ? undefined : p.sections[i].background.color;
-        run = a && c && a === c ? run + 1 : 1;
-        assert.ok(run <= 2, `${p.slug} 3연속 배경`);
-      }
-    }
+    // 히어로 직후 첫 비-미디어 섹션 = background(연속 흐름)
+    const firstNeutral = home.sections.find(
+      (s) => !(s.background.image || s.background.video || s.background.gradient) && s.type !== 'hero',
+    )!;
+    assert.equal((firstNeutral.background.color ?? '').toLowerCase(), palette.background.toLowerCase(), '히어로 직후 연속-배경 아님');
   });
 
   test('⑥ 모션 — cafe-basic 프리셋 + 히어로 ken-burns + 티저 reveal 스태거', () => {

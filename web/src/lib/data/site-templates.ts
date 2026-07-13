@@ -103,6 +103,64 @@ function toneBody(tone: string, industry: string): string {
   return `유행을 따르기보다 오래 남는 쪽을 택했습니다.\n${industry}에 필요한 것을, 필요한 만큼.\n그것이 우리가 일하는 방식입니다.`;
 }
 
+/**
+ * [D2] 히어로 서브카피 폴백 — 태그라인/AI카피가 없을 때 '상호 · 업종' 한 줄 대신 톤 기반 2문장.
+ * 입력(상호·업종) 범위 내 결정적 확장 — 없는 사실(시간·수치·고객반응)은 만들지 않는다.
+ */
+function toneHeroSub(tone: string, industry: string, businessName: string): string {
+  const t = tone.toLowerCase();
+  if (/고급|럭셔리|프리미엄|우아/.test(t))
+    return `${businessName}가 ${industry}에서 지켜온 기준을 소개합니다. 필요한 것에만 정성을 들입니다.`;
+  if (/미니멀|심플|단정|절제/.test(t))
+    return `${industry}에서 꼭 필요한 것만 남겼습니다. ${businessName}가 담백하게 안내해 드립니다.`;
+  if (/친근|따뜻|편안|다정/.test(t))
+    return `${businessName}가 ${industry}에서 매일 지키는 것들을 모았습니다. 편하게 둘러보세요.`;
+  if (/활기|에너지|생동|즐거/.test(t))
+    return `${businessName}가 ${industry}에서 하는 일을 한눈에. 지금 바로 살펴보세요.`;
+  return `${businessName}가 ${industry}에서 어떻게 일하는지 담았습니다. 천천히 둘러보세요.`;
+}
+
+/**
+ * [D2] 히어로 핵심 포인트 칩 — 자랑거리(highlights)가 있으면 그대로 최대 3개, 없으면 사실(업종·지역·목적)만.
+ * 지어내지 않는다 — 제공되지 않은 값은 칩으로 만들지 않는다.
+ */
+function heroChips(survey: SurveyInput): string[] {
+  const hi = survey.highlights?.map((h) => h.trim()).filter(Boolean) ?? [];
+  if (hi.length) return hi.slice(0, 3);
+  const facts = [survey.industry, survey.region, survey.purpose].map((v) => (v ?? '').trim()).filter(Boolean);
+  return Array.from(new Set(facts)).slice(0, 3);
+}
+
+/**
+ * [D2] 자랑거리(highlights) 카드의 본문 프레이밍 — 자랑거리 제목을 '가치'로 서술(2문장).
+ * 새 사실(시간·수치·고객반응)을 만들지 않고, 그것이 우리가 지키는 원칙이라는 틀만 결정적으로 부여한다.
+ * index로 변주해 3카드가 반복되지 않게 한다.
+ */
+/**
+ * [D2] 소개 값-포인트(3개) — 자랑거리(highlights)가 있으면 사실 그대로, 없으면 톤 기반 짧은 원칙.
+ * 지어낸 수치/이력 아님 — 업종·자랑거리 범위의 가치 서술.
+ */
+function aboutPoints(survey: SurveyInput): string[] {
+  const hi = survey.highlights?.map((h) => h.trim()).filter(Boolean) ?? [];
+  if (hi.length) return hi.slice(0, 3);
+  const t = toneText(survey.tone).toLowerCase();
+  if (/고급|럭셔리|프리미엄|우아/.test(t)) return ['한결같은 기준', '필요한 것에만 정성', '오래가는 신뢰'];
+  if (/미니멀|심플|단정|절제/.test(t)) return ['군더더기 없이', '본질에 집중', '정돈된 경험'];
+  if (/친근|따뜻|편안|다정/.test(t)) return ['편안한 응대', '한결같은 태도', '동네와 함께'];
+  return ['기본에 충실', '정직한 태도', '오래가는 관계'];
+}
+
+function highlightFrame(i: number, survey: SurveyInput): string {
+  const biz = survey.businessName;
+  const ind = survey.industry;
+  const variants = [
+    `${biz}가 ${ind}에서 가장 신경 쓰는 부분입니다. 매일의 태도로 지켜갑니다.`,
+    `말보다 결과로 보여드리려 합니다. ${ind}에서 오래 남는 방식을 택했습니다.`,
+    `작은 차이가 오래 남는다고 믿습니다. ${biz}가 놓치지 않는 기준입니다.`,
+  ];
+  return variants[i % variants.length];
+}
+
 const SECTION_NAMES: Record<SectionType, string> = {
   hero: '히어로',
   about: '소개',
@@ -250,9 +308,11 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   const scrim = resolveScrim(theme.palette);
   const copy = opts.copy ?? {};
   const title = copy.heroTitle ?? toneHeadline(toneText(survey.tone), survey.businessName);
-  // [§7] 태그라인이 있으면 히어로 서브카피로 사용
-  const sub = copy.heroSub ?? survey.tagline ?? `${survey.businessName} · ${survey.industry}`;
+  // [§7] 태그라인이 있으면 히어로 서브카피로 사용. [D2] 없으면 톤 기반 2문장(‘상호·업종’ 한 줄 탈피).
+  const sub = copy.heroSub ?? survey.tagline ?? toneHeroSub(toneText(survey.tone), survey.industry, survey.businessName);
   const kicker = copy.heroKicker ?? survey.purpose;
+  // [D2] 핵심 포인트 칩 — 자랑거리 우선, 없으면 사실(업종·지역·목적). 히어로 밀도·뷰포트 높이감.
+  const chips = heroChips(survey);
   // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
   const ctaLabel = ctaLabelForGoal(survey.siteGoal) ?? '문의하기';
   // [T1] CTA 타깃 = 목표의 강조 섹션(sectionEmphasis) 중 계획에 '단일 존재'하는 첫 타입
@@ -297,15 +357,39 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-sub'),
       kind: 'text',
-      frame: { x: 122, y: 546, w: 560, h: 56 },
+      frame: { x: 122, y: 540, w: 620, h: 60 },
       z: 3,
       text: sub,
       style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: scrim.textColor, align: 'left', lineHeight: 1.8 },
     },
+  );
+  // [D2] 핵심 포인트 칩 — 아웃라인 필(스크림 텍스트색 보더), 최대 3개. 사실만(heroChips는 지어내지 않음).
+  chips.forEach((chip, i) => {
+    const cx = 122 + i * 168;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-hero-chip'),
+        kind: 'shape',
+        frame: { x: cx, y: 612, w: 156, h: 34 },
+        z: 3,
+        shape: 'rect',
+        style: { borderColor: scrim.textColor, borderWidth: 1, borderRadius: 17 },
+      },
+      {
+        id: nextId(ctx, 'el-hero-chip-label'),
+        kind: 'text',
+        frame: { x: cx, y: 620, w: 156, h: 20 },
+        z: 4,
+        text: chip,
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'center' },
+      },
+    );
+  });
+  elements.push(
     {
       id: nextId(ctx, 'el-hero-cta'),
       kind: 'button',
-      frame: { x: 122, y: 648, w: 172, h: 54 },
+      frame: { x: 122, y: 674, w: 172, h: 54 },
       z: 4,
       label: ctaLabel,
       href: ctaHref,
@@ -314,7 +398,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta2'),
       kind: 'button',
-      frame: { x: 310, y: 648, w: 172, h: 54 },
+      frame: { x: 310, y: 674, w: 172, h: 54 },
       z: 4,
       label: '더 알아보기',
       // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
@@ -352,54 +436,77 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
 
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-about-img'),
+      kind: 'image',
+      frame: { x: 120, y: 120, w: 520, h: 400 },
+      z: 2,
+      src: nextImage(ctx),
+      alt: `${survey.businessName} 소개 이미지`,
+      style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+    },
+    {
+      id: nextId(ctx, 'el-about-kicker'),
+      kind: 'text',
+      frame: { x: 760, y: 158, w: 320, h: 22 },
+      z: 2,
+      text: '소개',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    {
+      id: nextId(ctx, 'el-about-title'),
+      kind: 'text',
+      frame: { x: 756, y: 200, w: 540, h: 120 },
+      z: 2,
+      text: copy.aboutTitle ?? headingOf(item, `${survey.businessName}의 약속`),
+      style: { fontSize: 40, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.4 },
+    },
+    {
+      id: nextId(ctx, 'el-about-body'),
+      kind: 'text',
+      frame: { x: 760, y: 336, w: 520, h: 150 },
+      z: 2,
+      text: copy.aboutBody ?? toneBody(toneText(survey.tone), survey.industry),
+      style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.9 },
+    },
+    {
+      id: nextId(ctx, 'el-about-divider'),
+      kind: 'divider',
+      frame: { x: 760, y: 500, w: 72, h: 2 },
+      z: 2,
+      style: { color: theme.palette.accent, thickness: 2 },
+    },
+  ];
+  // [D2] 소개 값-포인트 — 자랑거리 우선(사실), 없으면 톤 기반 원칙. about 밀도 상향(얇은 소개 탈피).
+  aboutPoints(survey).forEach((pt, i) => {
+    const y = 532 + i * 40;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-about-dot'),
+        kind: 'shape',
+        frame: { x: 760, y: y + 4, w: 8, h: 8 },
+        z: 2,
+        shape: 'ellipse',
+        style: { fill: theme.palette.primary },
+      },
+      {
+        id: nextId(ctx, 'el-about-point'),
+        kind: 'text',
+        frame: { x: 782, y, w: 500, h: 26 },
+        z: 2,
+        text: pt,
+        style: { fontSize: 15, fontWeight: 500, fontFamily: 'body', color: theme.palette.text, align: 'left' },
+      },
+    );
+  });
   return {
     id: 'sec-about',
     type: 'about',
     name: SECTION_NAMES.about,
-    height: 640,
+    height: 700,
     background: { color: theme.palette.background },
-    elements: [
-      {
-        id: nextId(ctx, 'el-about-img'),
-        kind: 'image',
-        frame: { x: 120, y: 120, w: 520, h: 400 },
-        z: 2,
-        src: nextImage(ctx),
-        alt: `${survey.businessName} 소개 이미지`,
-        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
-      },
-      {
-        id: nextId(ctx, 'el-about-kicker'),
-        kind: 'text',
-        frame: { x: 760, y: 158, w: 320, h: 22 },
-        z: 2,
-        text: '소개',
-        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
-      },
-      {
-        id: nextId(ctx, 'el-about-title'),
-        kind: 'text',
-        frame: { x: 756, y: 200, w: 540, h: 120 },
-        z: 2,
-        text: copy.aboutTitle ?? headingOf(item, `${survey.businessName}의 약속`),
-        style: { fontSize: 40, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.4 },
-      },
-      {
-        id: nextId(ctx, 'el-about-body'),
-        kind: 'text',
-        frame: { x: 760, y: 340, w: 520, h: 140 },
-        z: 2,
-        text: copy.aboutBody ?? toneBody(toneText(survey.tone), survey.industry),
-        style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.9 },
-      },
-      {
-        id: nextId(ctx, 'el-about-divider'),
-        kind: 'divider',
-        frame: { x: 760, y: 508, w: 72, h: 2 },
-        z: 2,
-        style: { color: theme.palette.accent, thickness: 2 },
-      },
-    ],
+    elements,
   };
 }
 
@@ -524,11 +631,11 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
   // [v4] 고객이 적은 자랑거리(highlights)가 있으면 강점 섹션 소스로 그대로 사용(창작 대체)
   const items = survey.highlights?.length
-    ? survey.highlights.slice(0, 3).map((h) => ({ title: h, desc: '' }))
+    ? survey.highlights.slice(0, 3).map((h, i) => ({ title: h, desc: highlightFrame(i, survey) }))
     : [
-        { title: '기본', desc: `${survey.industry}의 기본을 매일 같은 수준으로.` },
-        { title: '재료', desc: '좋은 재료는 그대로, 손은 덜 대고.' },
-        { title: '사람', desc: '처음 오신 분도 늘 오신 분처럼.' },
+        { title: '기본', desc: `${survey.industry}의 기본을 매일 같은 수준으로 지킵니다. 눈에 안 보이는 곳까지 신경 씁니다.` },
+        { title: '재료', desc: '좋은 재료는 그대로 살리고, 손은 덜 댑니다. 과하지 않게, 필요한 만큼만.' },
+        { title: '사람', desc: '처음 오신 분도 늘 오신 분처럼 맞이합니다. 결국 사람이 남긴다고 믿습니다.' },
       ];
   const elements: CanvasElement[] = [
     {
@@ -865,39 +972,70 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
 
 function buildTestimonials(ctx: Ctx, _item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
+  const sectionBg = ctx.dark ? theme.palette.background : theme.palette.surface;
+  const cardFill = sectionBg.toLowerCase() === theme.palette.surface.toLowerCase() ? theme.palette.background : theme.palette.surface;
+  // [D2] 단일 인용 → 3카드 그리드. 제네릭 플레이스홀더(가짜 이름·수치 없음, 발행 후 실제 후기로 교체).
+  const quotes = [
+    { body: `한 번 다녀가면 알게 됩니다.\n${survey.businessName}가 왜 조용히 오래가는지.`, attr: '— 단골 고객' },
+    { body: '필요한 걸 정확히 아는 곳이에요.\n설명이 친절해서 믿음이 갔습니다.', attr: '— 방문 고객' },
+    { body: '다시 찾게 되는 이유가 있어요.\n기본을 지키는 태도가 느껴집니다.', attr: '— 재방문 고객' },
+  ];
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-tm-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 96, w: 320, h: 22 },
+      z: 2,
+      text: '고객의 이야기',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, '다녀간 분들의 후기', 138),
+  ];
+  quotes.forEach((q, i) => {
+    const x = 120 + i * 420;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-tm-card'),
+        kind: 'shape',
+        frame: { x, y: 268, w: 380, h: 240 },
+        z: 1,
+        shape: 'rect',
+        style: { fill: cardFill, borderRadius: theme.radius ?? 4 },
+      },
+      {
+        id: nextId(ctx, 'el-tm-mark'),
+        kind: 'text',
+        frame: { x: x + 32, y: 288, w: 80, h: 70 },
+        z: 2,
+        opacity: 0.3,
+        text: '“',
+        style: { fontSize: 72, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left', lineHeight: 1 },
+      },
+      {
+        id: nextId(ctx, 'el-tm-body'),
+        kind: 'text',
+        frame: { x: x + 32, y: 356, w: 316, h: 84 },
+        z: 2,
+        text: q.body,
+        style: { fontSize: 17, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.7, ...(ctx.kit.quoteItalic ? { italic: true } : {}) },
+      },
+      {
+        id: nextId(ctx, 'el-tm-attr'),
+        kind: 'text',
+        frame: { x: x + 32, y: 456, w: 316, h: 22 },
+        z: 2,
+        text: q.attr,
+        style: { fontSize: 13, fontWeight: 400, fontFamily: 'body', color: theme.palette.muted, align: 'left', letterSpacing: 1 },
+      },
+    );
+  });
   return {
     id: 'sec-testimonials',
     type: 'testimonials',
     name: SECTION_NAMES.testimonials,
-    height: 520,
-    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
-    elements: [
-      {
-        id: nextId(ctx, 'el-quote-mark'),
-        kind: 'text',
-        frame: { x: 148, y: 88, w: 150, h: 150 },
-        z: 1,
-        opacity: 0.3,
-        text: '“',
-        style: { fontSize: 140, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left', lineHeight: 1 },
-      },
-      {
-        id: nextId(ctx, 'el-quote-body'),
-        kind: 'text',
-        frame: { x: 282, y: 170, w: 900, h: 120 },
-        z: 2,
-        text: `한 번 다녀가면 알게 됩니다.\n${survey.businessName}가 왜 조용히 오래가는지.`,
-        style: { fontSize: 30, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.6, ...(ctx.kit.quoteItalic ? { italic: true } : {}) },
-      },
-      {
-        id: nextId(ctx, 'el-quote-attr'),
-        kind: 'text',
-        frame: { x: 286, y: 322, w: 420, h: 24 },
-        z: 2,
-        text: '— 단골 고객의 후기',
-        style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: theme.palette.muted, align: 'left', letterSpacing: 1 },
-      },
-    ],
+    height: 600,
+    background: { color: sectionBg },
+    elements,
   };
 }
 

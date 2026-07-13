@@ -60,8 +60,15 @@ export function bandColorOf(kit: PovKit, palette: SiteTheme['palette']): string 
 }
 
 /**
+ * [D2] 히어로 직후 연속-배경 리드 — 첫 N개 자격섹션은 palette.background로 통일해 '한 페이지'로 흐르게
+ * 한다(색 전환 없음). 그 뒤부터 POV rhythm의 은은한 surface 틴트가 등장. 강한 배경 조각(②) 제거.
+ */
+const LEAD_CONTINUOUS = 2;
+
+/**
  * 페이지 섹션 시퀀스 → 배경 스펙 배열 (미디어 배경·hero는 null = 미개입).
  * requireBand면 밴드 1개를 bandPreference 우선(없으면 중후반 폴백)으로 배치.
+ * [D2] 히어로 직후 LEAD_CONTINUOUS개 자격섹션은 background 고정(연속 흐름) → 이후 rhythm 적용.
  */
 export function planPageRhythm(
   sections: readonly SectionMeta[],
@@ -72,14 +79,22 @@ export function planPageRhythm(
   const specs: (SectionBgSpec | null)[] = [];
   const eligibleIdx: number[] = [];
   let cycle = 0;
+  let lead = 0;
   for (let i = 0; i < sections.length; i += 1) {
     const s = sections[i];
     if (s.hasMedia || s.type === 'hero') {
       specs.push(null);
       continue;
     }
-    const token = kit.rhythm[cycle % kit.rhythm.length];
-    cycle += 1;
+    let token: 'background' | 'surface';
+    if (lead < LEAD_CONTINUOUS) {
+      // 히어로 직후 연속-배경 — rhythm 사이클 미소비(통일 우선)
+      token = 'background';
+      lead += 1;
+    } else {
+      token = kit.rhythm[cycle % kit.rhythm.length];
+      cycle += 1;
+    }
     eligibleIdx.push(i);
     specs.push({ color: palette[token], band: false, textColor: palette.text, softTextColor: palette.muted });
   }
@@ -160,7 +175,8 @@ export function applyRhythmToPages(
       type: s.type,
       hasMedia: !!(s.background.image || s.background.video || s.background.gradient),
     }));
-    const specs = planPageRhythm(metas, kit, palette, { requireBand: isHome && !opts.skipBand });
+    // [D2] 강조 밴드는 드라마틱 POV(kit.bandOnHome)의 홈에서만 — 일반 업종은 라이트 연속(밴드 없음)
+    const specs = planPageRhythm(metas, kit, palette, { requireBand: isHome && !opts.skipBand && kit.bandOnHome });
     page.sections.forEach((section, i) => {
       const spec = specs[i];
       if (!spec) return;
