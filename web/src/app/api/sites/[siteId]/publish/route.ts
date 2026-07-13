@@ -10,6 +10,7 @@ import { apiError, withApiHandler } from '../../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../../_lib/guards';
 import { checkPublish } from '@/lib/publish/preflight';
 import { preflightScan } from '@/lib/scan/preflight';
+import { siteUrlOf } from '@/lib/seo/structured-data';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -53,7 +54,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   // [quality-system] 발행 전 자가 검증. ② 모션·팔레트 무결성 = 하드 게이트, ① 자가 진단·③ 모바일 = 경고+QA.
   let scanInput: { total: number; grade: string } | undefined;
   try {
-    const s = preflightScan(site.draftConfig);
+    const s = preflightScan(site.draftConfig, { siteUrl: siteUrlOf(site.domain) || undefined });
     scanInput = { total: s.scores.total, grade: s.grade };
   } catch {
     // 렌더/스캔 실패는 발행을 막지 않는다(하드 게이트만 강제)

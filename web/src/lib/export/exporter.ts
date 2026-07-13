@@ -10,6 +10,7 @@ import type { Site } from '@/lib/types/domain';
 import type { MotionTier } from '@/lib/types/site';
 import { collectAndRewriteAssets } from './collect-assets';
 import { renderStaticDocument } from './render-static';
+import { siteUrlOf } from '@/lib/seo/structured-data';
 import { selfHostFonts } from './self-host-fonts';
 import { zipFiles } from './zip';
 
@@ -61,6 +62,8 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
     html: renderStaticDocument({
       config: collected.config,
       pageSlug: page.slug,
+      // [S-batch] canonical·JSON-LD — 정적 발행물도 라이브 URL 기준 서빙 레이어 포함
+      siteUrl: siteUrlOf(site.domain) || undefined,
       navHrefForSlug,
       fontFaceCss: fontFaceCss || undefined,
       bodyAppendHtml: opts.legalFooterHtml,

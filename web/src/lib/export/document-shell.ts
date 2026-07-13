@@ -1,0 +1,86 @@
+/**
+ * [S-batch] 정적 발행 문서 셸 — <head>(title/description/OG/canonical/JSON-LD) + <html> 래핑.
+ * render-static(server-only·react-dom 직렬화)에서 순수 조립부만 분리 — node:test로 직접 검증.
+ * 서빙 레이어(canonical·JSON-LD)는 lib/seo/structured-data 단일 소스를 소비해 /s와 동일.
+ */
+import type { SiteConfig } from '@/lib/types/site';
+import { findPage } from '@/lib/types/site';
+import { canonicalUrlFor, jsonLdScriptContent } from '@/lib/seo/structured-data';
+
+/** 렌더러 auto 모드 반응형 전환 + 최소 리셋 (Tailwind 없이 동작) */
+const BASE_DOC_CSS = [
+  '*{margin:0;padding:0;box-sizing:border-box}',
+  'html{-webkit-text-size-adjust:100%}',
+  'body{min-height:100dvh}',
+  'img,video{max-width:100%}',
+  '.hidden{display:none}',
+  '@media(min-width:768px){.md\\:block{display:block}.md\\:hidden{display:none}}',
+].join('');
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escapeAttr(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+export interface DocumentShellInput {
+  config: SiteConfig;
+  pageSlug: string;
+  /** 자동 헤더 내비 HTML (미사용 시 '') */
+  headerHtml: string;
+  /** SiteRenderer 직렬화 본문 */
+  bodyHtml: string;
+  /**
+   * [S-batch] 사이트 라이브 URL(예: https://xxx.anakslabs.com) — 있으면 canonical + JSON-LD 방출.
+   * 미상이면 둘 다 생략(오프라인 zip 하위호환).
+   */
+  siteUrl?: string;
+  fontFaceCss?: string;
+  headExtraHtml?: string;
+  bodyAppendHtml?: string;
+  lang?: string;
+}
+
+/** 완전한 <!doctype html> 문서 문자열 조립 (순수) */
+export function buildDocumentShell(input: DocumentShellInput): string {
+  const { config, pageSlug } = input;
+  const page = findPage(config, pageSlug);
+  const isHome = pageSlug === '';
+  const meta = config.meta;
+  // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
+  const docTitle = isHome || !page ? meta.title : `${page.title} · ${meta.title}`;
+
+  // [S-batch] 서빙 레이어 — canonical + JSON-LD (단일 소스, siteUrl 없으면 생략)
+  const canonical = input.siteUrl ? canonicalUrlFor(input.siteUrl, pageSlug) : null;
+  const jsonLd = input.siteUrl ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, '')) : null;
+
+  const head = [
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    `<title>${escapeHtml(docTitle)}</title>`,
+    meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
+    canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
+    `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
+    meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
+    meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',
+    jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : '',
+    `<style>${BASE_DOC_CSS}</style>`,
+    input.fontFaceCss ? `<style>${input.fontFaceCss}</style>` : '',
+    input.headExtraHtml ?? '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="${input.lang ?? 'ko'}">
+<head>
+${head}
+</head>
+<body>
+${input.headerHtml}${input.bodyHtml}
+${input.bodyAppendHtml ?? ''}
+</body>
+</html>
+`;
+}

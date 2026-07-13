@@ -1,0 +1,70 @@
+/**
+ * [S-batch] 정적 발행 문서 셸 — canonical + JSON-LD(단일 소스) 방출.
+ * (renderStaticDocument는 server-only — 문서 조립부(buildDocumentShell)를 직접 검증.
+ *  본문 직렬화는 static-motion-smoke가 SiteRenderer 미러로 커버.)
+ */
+import { describe, test } from 'node:test';
+import assert from 'node:assert/strict';
+import type { SiteConfig } from '@/lib/types/site';
+import { emptySiteConfig } from '@/lib/types/site';
+import { buildDocumentShell } from '@/lib/export/document-shell';
+import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
+
+function cfg(): SiteConfig {
+  const c = emptySiteConfig('소소한자리');
+  c.meta = { title: '소소한자리 — 카페 · 서울 연희동', description: '서울 연희동 소소한자리 · 음식점' };
+  c.pages = [
+    { id: 'home', title: '홈', slug: '', sections: [{ id: 'sec-hero', type: 'hero', name: '히어로', height: 800, background: {}, elements: [] }] },
+    { id: 'menu', title: '메뉴', slug: 'menu', sections: [{ id: 'sec-menu', type: 'menu', name: '메뉴', height: 600, background: {}, elements: [] }] },
+  ];
+  return c;
+}
+const SITE_URL = 'https://soso.anakslabs.com';
+
+function shell(pageSlug: string, siteUrl?: string): string {
+  return buildDocumentShell({ config: cfg(), pageSlug, headerHtml: '', bodyHtml: '<div class="anaks-site"></div>', siteUrl });
+}
+
+describe('structured-data 단일 소스', () => {
+  test('siteUrlOf / canonicalUrlFor — 홈·서브·미상·트레일링 슬래시', () => {
+    assert.equal(siteUrlOf('soso.anakslabs.com'), SITE_URL);
+    assert.equal(siteUrlOf(null), '');
+    assert.equal(canonicalUrlFor(SITE_URL, ''), SITE_URL);
+    assert.equal(canonicalUrlFor(`${SITE_URL}/`, 'menu'), `${SITE_URL}/menu`);
+    assert.equal(canonicalUrlFor('', 'menu'), null);
+  });
+  test("jsonLdScriptContent — '<' 이스케이프(스크립트 탈출 차단) + JSON 동치", () => {
+    const c = cfg();
+    c.meta.description = '</script><b>주입';
+    const s = jsonLdScriptContent(c, SITE_URL);
+    assert.ok(!s.includes('</script>'), '스크립트 탈출 문자열 잔존');
+    const parsed = JSON.parse(s) as { description?: string }[];
+    assert.ok(parsed.some((n) => n.description === '</script><b>주입'), '이스케이프 후 JSON 의미 보존');
+  });
+});
+
+describe('buildDocumentShell — 서빙 레이어 방출', () => {
+  test('canonical — 홈·서브페이지 URL 정확', () => {
+    assert.ok(shell('', SITE_URL).includes(`<link rel="canonical" href="${SITE_URL}">`));
+    assert.ok(shell('menu', SITE_URL).includes(`<link rel="canonical" href="${SITE_URL}/menu">`));
+  });
+  test('ld+json 존재 + JSON 파싱 가능 + @type 적합(LocalBusiness·WebSite)', () => {
+    const html = shell('', SITE_URL);
+    const m = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html);
+    assert.ok(m, 'ld+json 스크립트 없음');
+    const nodes = JSON.parse(m![1]) as { '@type': string }[];
+    const types = nodes.map((n) => n['@type']);
+    assert.ok(types.includes('LocalBusiness'), `menu 섹션 보유 → LocalBusiness (실제: ${types.join(',')})`);
+    assert.ok(types.includes('WebSite'));
+  });
+  test('meta description + title 규칙(서브="페이지명 · 사이트명") 유지', () => {
+    const html = shell('menu', SITE_URL);
+    assert.ok(html.includes('name="description"'));
+    assert.ok(html.includes('<title>메뉴 · 소소한자리 — 카페 · 서울 연희동</title>'));
+  });
+  test('siteUrl 미상이면 canonical·ld+json 생략(오프라인 zip 하위호환)', () => {
+    const html = shell('');
+    assert.ok(!html.includes('rel="canonical"'));
+    assert.ok(!html.includes('ld+json'));
+  });
+});
