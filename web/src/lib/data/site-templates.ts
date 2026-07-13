@@ -334,7 +334,13 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       frame: { x: 310, y: 648 + dy, w: 172, h: 54 },
       z: 4,
       label: '더 알아보기',
-      href: '#sec-about',
+      // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
+      href: (() => {
+        const aboutish = (['about', 'features', 'menu', 'gallery'] as SectionType[]).find(
+          (t) => survey.sectionPlan.filter((i) => i.type === t).length === 1,
+        );
+        return aboutish ? `#sec-${aboutish}` : '#sec-contact';
+      })(),
       style: { variant: 'outline', color: scrim.textColor, textColor: scrim.textColor, fontSize: 15, borderRadius: theme.radius ?? 4 },
     },
   );
