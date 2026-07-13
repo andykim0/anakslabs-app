@@ -49,6 +49,19 @@ export function imageFillMaxPerSite(): number {
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 8;
 }
 
+/**
+ * [G3c] 메뉴판 OCR 비용 가드. enabled=MENU_OCR_ENABLED(기본 on, 저비용) — mock은 우회.
+ * maxPerClient=MENU_OCR_MAX_PER_SITE(온보딩엔 siteId 없어 클라이언트당 상한으로 미러, 기본 5).
+ */
+export function menuOcrConfig(): { enabled: boolean; maxPerClient: number } {
+  const rawMax = process.env.MENU_OCR_MAX_PER_SITE;
+  const max = rawMax !== undefined && rawMax !== '' && Number.isFinite(Number(rawMax)) ? Math.floor(Number(rawMax)) : 5;
+  return {
+    enabled: process.env.MENU_OCR_ENABLED !== '0', // 기본 on(저비용), '0'이면 킬스위치
+    maxPerClient: Math.max(0, max),
+  };
+}
+
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',

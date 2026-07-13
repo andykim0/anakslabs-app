@@ -18,6 +18,7 @@
  *   GET  /api/payments → {payments}
  */
 import type {
+  ContentItem,
   CreditLedgerEntry,
   CustomDomainStatus,
   DesignCandidate,
@@ -294,6 +295,12 @@ export async function uploadImage(file: File): Promise<string> {
   const url = (body as { url?: string }).url;
   if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
   return url;
+}
+
+/** [G3c] 메뉴판 사진 URL → 추출 항목({name, price}). 실패/0건이면 빈 배열(호출부가 직접 입력 안내). */
+export async function extractMenuFromImage(imageUrl: string): Promise<ContentItem[]> {
+  const data = await post<{ items?: ContentItem[] }>('/api/onboarding/menu-ocr', { imageUrl });
+  return data.items ?? [];
 }
 
 // ---------- 커스텀 도메인 ----------
