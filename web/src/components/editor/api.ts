@@ -136,6 +136,13 @@ export interface PreflightIssue {
   detail: string;
   guidance: ScanIssueGuidance | null;
 }
+export interface ImprovementCompare {
+  resolved: string[];
+  remaining: string[];
+  beforeTotal: number;
+  afterTotal: number;
+  sourceUrl: string;
+}
 export interface PreflightResult {
   scan: { scores: { seo: number; aeo: number; geo: number; total: number }; grade: string; issues: PreflightIssue[] };
   ok: boolean;
@@ -143,6 +150,8 @@ export interface PreflightResult {
   warnings: string[];
   needsQa: boolean;
   businessInfoMissing: boolean;
+  /** [I4] 개선 모드 전후 대조 (진단 원본 있을 때만) */
+  improvement: ImprovementCompare | null;
 }
 
 /** [G4] 발행하지 않고 진단만 조회(발행 전 가이드 화면용) */

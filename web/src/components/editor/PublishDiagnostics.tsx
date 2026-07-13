@@ -52,7 +52,7 @@ export function PublishDiagnostics({
     );
   }
 
-  const { scan } = data;
+  const { scan, improvement } = data;
   const passed = scan.scores.total >= PASS_THRESHOLD;
   // 고객이 조치할 수 있는(자동 처리 아닌) 항목만, 감점 큰 순(preflightScan 정렬) 상위 노출
   const actionable = scan.issues.filter((i) => i.guidance && i.guidance.anchor !== 'system').slice(0, 5);
@@ -60,6 +60,20 @@ export function PublishDiagnostics({
 
   return (
     <div className="space-y-4">
+      {/* [I4] 개선 모드 — 진단에서 찾은 문제를 이렇게 고쳤어요 (실제 사라진 이슈만) */}
+      {improvement && improvement.resolved.length > 0 ? (
+        <div className="rounded-lg border border-emerald-900/60 bg-emerald-950/25 px-3.5 py-3">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-300">
+            <Sparkles className="h-4 w-4" />
+            진단에서 찾은 문제 {improvement.resolved.length + improvement.remaining.length}개 중 {improvement.resolved.length}개를 고쳤어요
+          </p>
+          <p className="mt-1 text-xs text-neutral-400">
+            진단 점수 <span className="tabular-nums text-neutral-300">{improvement.beforeTotal}</span> → 지금{' '}
+            <span className="tabular-nums text-emerald-400">{improvement.afterTotal}</span>점.
+            {improvement.remaining.length > 0 ? ` 남은 ${improvement.remaining.length}개는 아래에서 채우면 더 올라가요.` : ' 남은 문제도 거의 없어요.'}
+          </p>
+        </div>
+      ) : null}
       <div>
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm font-semibold text-neutral-100">검색 노출 점수</p>
