@@ -5,8 +5,9 @@
  * (async/hook 없음)라 그대로 직렬화 가능. 렌더 결과에는 폰트 <link>·BASE_CSS <style>·
  * `.anaks-site` div가 포함된다(SiteRenderer.tsx 참고).
  *
- * 정적 문서는 Tailwind를 로드하지 않으므로 렌더러가 auto 모드 전환에 쓰는 2클래스
- * (`hidden`/`md:block`/`md:hidden`)만 미니 CSS로 인라인한다. Tailwind 전체는 불필요.
+ * [S-batch] 문서 셸(head 조립: title/description/OG/canonical/JSON-LD)은 순수 모듈
+ * lib/export/document-shell.ts로 분리 — node:test 검증 대상. canonical·JSON-LD는
+ * lib/seo/structured-data 단일 소스로 /s 서빙과 동일하다(siteUrl 옵션 제공 시 방출).
  */
 import 'server-only';
 import { createElement } from 'react';
@@ -14,29 +15,12 @@ import { createElement } from 'react';
 // renderToStaticMarkup은 동기·환경중립이라 Node 런타임 라우트에서도 동작.
 import { renderToStaticMarkup } from 'react-dom/server.edge';
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
-import { findPage } from '@/lib/types/site';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
-
-/** 렌더러 auto 모드 반응형 전환 + 최소 리셋 (Tailwind 없이 동작) */
-const BASE_DOC_CSS = [
-  '*{margin:0;padding:0;box-sizing:border-box}',
-  'html{-webkit-text-size-adjust:100%}',
-  'body{min-height:100dvh}',
-  'img,video{max-width:100%}',
-  '.hidden{display:none}',
-  '@media(min-width:768px){.md\\:block{display:block}.md\\:hidden{display:none}}',
-].join('');
+import { buildDocumentShell } from './document-shell';
 
 /** CDN 폰트 <link>(구글폰트/제이에스딜리버 Pretendard)와 preconnect 제거 — 셀프호스트 시 */
 const CDN_FONT_LINK_RE =
   /<link\b[^>]*(?:fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net\/gh\/orioncactus\/pretendard)[^>]*>/gi;
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-function escapeAttr(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 
 export interface RenderDocumentOptions {
   config: SiteConfig;
@@ -48,6 +32,11 @@ export interface RenderDocumentOptions {
    * 없으면 헤더 미렌더(단일 페이지 export 하위호환).
    */
   navHrefForSlug?: (slug: string) => string;
+  /**
+   * [S-batch] 사이트 라이브 URL — 있으면 canonical + JSON-LD를 문서에 방출(/s와 단일 소스).
+   * 미상이면 생략(오프라인 zip 하위호환).
+   */
+  siteUrl?: string;
   /** 셀프호스트 @font-face CSS. 있으면 <head>에 인라인 + 본문 CDN 폰트 링크 제거 */
   fontFaceCss?: string;
   /** <head>에 추가할 원시 HTML (예: 셀프호스트 자산 preload) */
@@ -64,8 +53,6 @@ export interface RenderDocumentOptions {
 export function renderStaticDocument(opts: RenderDocumentOptions): string {
   const { config } = opts;
   const pageSlug = opts.pageSlug ?? '';
-  const page = findPage(config, pageSlug);
-  const isHome = pageSlug === '';
 
   // [v4] 자동 헤더 내비 (파일 간 상대 링크). 표시 조건은 TenantHeader 내부 판단.
   const header = opts.navHrefForSlug
@@ -90,33 +77,15 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
     body = body.replace(CDN_FONT_LINK_RE, '');
   }
 
-  const meta = config.meta;
-  // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
-  const docTitle = isHome || !page ? meta.title : `${page.title} · ${meta.title}`;
-  const head = [
-    '<meta charset="utf-8">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escapeHtml(docTitle)}</title>`,
-    meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
-    `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
-    meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
-    meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',
-    `<style>${BASE_DOC_CSS}</style>`,
-    opts.fontFaceCss ? `<style>${opts.fontFaceCss}</style>` : '',
-    opts.headExtraHtml ?? '',
-  ]
-    .filter(Boolean)
-    .join('\n');
-
-  return `<!doctype html>
-<html lang="${opts.lang ?? 'ko'}">
-<head>
-${head}
-</head>
-<body>
-${header}${body}
-${opts.bodyAppendHtml ?? ''}
-</body>
-</html>
-`;
+  return buildDocumentShell({
+    config,
+    pageSlug,
+    headerHtml: header,
+    bodyHtml: body,
+    siteUrl: opts.siteUrl,
+    fontFaceCss: opts.fontFaceCss,
+    headExtraHtml: opts.headExtraHtml,
+    bodyAppendHtml: opts.bodyAppendHtml,
+    lang: opts.lang,
+  });
 }

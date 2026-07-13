@@ -16,15 +16,18 @@ import { GEO_RULES } from './checks/geo';
 import { buildScores } from './score';
 import type { ScanCore } from './index';
 
-export function preflightScan(config: SiteConfig): ScanCore {
+export function preflightScan(config: SiteConfig, opts?: { siteUrl?: string }): ScanCore {
   // [F1] 전 페이지 순회 — 각 페이지를 렌더·규칙 적용 후 축별 '최악 페이지'의 차감을 채택(thin 서브페이지도
   //      발행 게이트에 반영) + 이슈는 code 기준 합집합. 단일 페이지 사이트는 홈 1장 = 기존과 동일(무회귀).
+  // [S-batch] siteUrl(발행 라우트가 site.domain 전달)로 서빙 레이어(canonical·JSON-LD)까지 포함해
+  //      실서빙과 같은 문서를 채점(정직한 채점). 미전달 시 preview.local 기준 — 레이어는 동일하게 방출.
+  const siteUrl = (opts?.siteUrl ?? 'https://preview.anakslabs.local').replace(/\/+$/, '');
   const worst = { seo: 0, aeo: 0, geo: 0 };
   const issues: ScanIssue[] = [];
   const seenCodes = new Set<string>();
 
   for (const page of config.pages) {
-    const html = renderStaticDocument({ config, pageSlug: page.slug });
+    const html = renderStaticDocument({ config, pageSlug: page.slug, siteUrl });
     const root = parse(html);
     const clone = parse(root.toString());
     for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
@@ -34,7 +37,7 @@ export function preflightScan(config: SiteConfig): ScanCore {
       root,
       rawHtml: html,
       visibleText,
-      url: new URL(`https://preview.anakslabs.local/${page.slug}`),
+      url: new URL(page.slug === '' ? siteUrl : `${siteUrl}/${page.slug}`),
       ttfbMs: 0,
       robotsTxtOk: true,
       sitemapOk: true,
@@ -55,5 +58,5 @@ export function preflightScan(config: SiteConfig): ScanCore {
   }
 
   const { scores, grade } = buildScores(worst);
-  return { url: 'https://preview.anakslabs.local/', scores, grade, issues };
+  return { url: siteUrl, scores, grade, issues };
 }
