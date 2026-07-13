@@ -480,6 +480,18 @@ export const surveySchema = z.object({
   highlights: z.array(z.string().min(1).max(40)).max(3).optional(),
   // [v4.5] 지역 — SEO 메타·생성 프롬프트에 배선
   region: z.string().max(60).optional(),
+  // [G3] 구조화 콘텐츠 항목 — 생성 1급 소스(자유 원문보다 우선)
+  contentItems: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(80),
+        price: z.string().max(30).optional(),
+        description: z.string().max(200).optional(),
+        photoUrl: z.string().max(2000).optional(),
+      }),
+    )
+    .max(40)
+    .optional(),
 });
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */

@@ -137,6 +137,14 @@ export function SurveyStep({
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),
+      contentItems: (values.contentItems ?? [])
+        .map((it) => ({
+          name: it.name.trim(),
+          price: it.price?.trim() || undefined,
+          description: it.description?.trim() || undefined,
+          photoUrl: it.photoUrl?.trim() || undefined,
+        }))
+        .filter((it) => it.name.length > 0),
       sectionPlan: planFromTemplate(template),
       pagePlan: pagePlanFromTemplate(template),
       templateId: template.id,

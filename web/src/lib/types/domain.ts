@@ -183,6 +183,17 @@ export interface ExistingPresence {
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */
 export type SiteGoalId = 'call' | 'reserve' | 'directions' | 'kakao_inquiry' | 'trust';
 
+/** [G3] 구조화 콘텐츠 항목 — 이름 필수, 나머지 선택. 메뉴·시술·수업·서비스·작업·링크에 공용 */
+export interface ContentItem {
+  name: string;
+  /** 가격 문자열('4,500' 등, 원 제외) 또는 자유(선택) */
+  price?: string;
+  /** 한 줄 설명(선택) */
+  description?: string;
+  /** 항목 사진 URL(선택) */
+  photoUrl?: string;
+}
+
 /**
  * [v3 Phase 0.2] 사이트 목적 택소노미.
  * [제품 확정 — 홈페이지 최적화 AI] 소개형 6종만 설문에서 선택 가능(LivePurposeId).
@@ -327,6 +338,12 @@ export interface SurveyInput {
   contentMode?: ContentMode;
   /** contentMode='provided' 시 고객이 제공한 원문 */
   providedContent?: string;
+  /**
+   * [G3] 목적별 구조화 콘텐츠 항목(메뉴·시술·수업·서비스·작업 등) — 생성·밀도(Q3)·티저(Q2)의
+   * 1급 소스로 자유 원문(providedContent 파싱)보다 우선한다. 빈 name 항목은 무시.
+   * 콘텐츠 없는 "껍데기" 방지를 위해 목적별 최소 개수(content-requirements)를 게이트한다.
+   */
+  contentItems?: ContentItem[];
   /** 예약 섹션 선택 시 방식 */
   reservationMode?: ReservationMode;
   /** reservationMode='external_link' 시 네이버예약/캐치테이블 등 URL */
