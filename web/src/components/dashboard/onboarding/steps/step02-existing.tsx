@@ -51,6 +51,8 @@ export function Step02Existing() {
   const { setImportedBadge } = useSurveyUx();
 
   const presence = watch('existingPresence') ?? [];
+  const purposeId = watch('purposeId');
+  const salesUrl = watch('salesChannelUrl') ?? '';
 
   // 로컬 입력 (form.existingPresence 역추출로 초기화)
   const init = useRef(false);
@@ -239,6 +241,20 @@ export function Step02Existing() {
               className={obInput}
             />
           </Field>
+
+          {purposeId === 'ecommerce' ? (
+            <Field
+              label={<span>판매 채널 링크 <span className="font-normal text-ob-muted">(선택)</span></span>}
+              hint="스마트스토어·카페24·카카오톡 주문 링크를 붙여넣으면 사이트의 '구매하기' 버튼이 그리로 연결돼요."
+            >
+              <input
+                value={salesUrl}
+                onChange={(e) => setValue('salesChannelUrl', e.target.value, { shouldValidate: false })}
+                placeholder="https://smartstore.naver.com/..."
+                className={obInput}
+              />
+            </Field>
+          ) : null}
 
           <div className="rounded-ob border border-ob-border bg-ob-bg p-4">
             <label className="flex items-start gap-2.5 text-[15px] text-ob-ink">

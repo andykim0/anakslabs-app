@@ -33,6 +33,8 @@ export const surveyFormSchema = z.object({
   storePhotoUrls: z.array(z.string()).max(12),
   /** [v4.5] 로고 URL(선택). 없으면 상호명 글자 로고 폴백 */
   logoUrl: z.string().optional(),
+  /** [T4] 쇼핑몰 외부 판매 채널 링크(스마트스토어 등) — 구매 버튼 연결 */
+  salesChannelUrl: z.string().max(500).optional(),
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
   /** [UI 전용] 고른 무드 샘플 id (최대 2, 첫 번째 = 팔레트 시드) */
   moodIds: z.array(z.string()).max(2),
@@ -93,6 +95,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       providedContent: '',
       storePhotoUrls: [],
       logoUrl: '',
+      salesChannelUrl: '',
       imageStyle: undefined,
       moodIds: [],
       colorOverride: '',
@@ -124,6 +127,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     providedContent: initial.providedContent ?? '',
     storePhotoUrls: initial.storePhotoUrls ?? [],
     logoUrl: initial.logoUrl ?? '',
+    salesChannelUrl: initial.salesChannelUrl ?? '',
     imageStyle: initial.imageStyle,
     moodIds,
     colorOverride,

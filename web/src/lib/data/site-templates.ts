@@ -757,7 +757,94 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/**
+ * [T4-A] 상품 진열 그리드 — gallery:products. providedContent의 '이름 가격' 파서(content-parse)
+ * 재사용으로 실제 상품을 채우고(없으면 결정적 더미 3종), 카드마다 구매 버튼:
+ * salesChannelUrl(외부 판매 링크) 있으면 '구매하기'→그 링크, 없으면 '구매 문의'→contact 폴백
+ * (무배선 버튼 0 불변식 유지 — 자체 장바구니·결제는 M-batch).
+ */
+function buildProductGrid(ctx: Ctx, item: SectionPlanItem): Section {
+  const { theme, survey } = ctx;
+  const parsed = parseMenuItems(survey.providedContent);
+  const products = (parsed.length >= 2
+    ? parsed.slice(0, 8)
+    : [
+        { name: '시그니처 제품', price: undefined },
+        { name: '베스트셀러', price: undefined },
+        { name: '신상품', price: undefined },
+      ]) as { name: string; price?: string }[];
+  const buyHref = survey.salesChannelUrl?.trim() || '#sec-contact';
+  const buyLabel = survey.salesChannelUrl?.trim() ? '구매하기' : '구매 문의';
+
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-prod-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '제품',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, headingOf(item, '베스트·신상품'), 142),
+  ];
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
+  const CARD_H = 470;
+  products.forEach((prod, i) => {
+    const x = 120 + (i % 3) * 420;
+    const y = 250 + Math.floor(i / 3) * (CARD_H + 40);
+    elements.push(
+      {
+        id: nextId(ctx, 'el-prod-img'),
+        kind: 'image',
+        frame: { x, y, w: 360, h: 280 },
+        z: 2,
+        src: nextImage(ctx),
+        alt: prod.name,
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+      },
+      {
+        id: nextId(ctx, 'el-prod-name'),
+        kind: 'text',
+        frame: { x, y: y + 296, w: 360, h: 28 },
+        z: 2,
+        text: prod.name,
+        style: { fontSize: 19, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      },
+    );
+    if (prod.price) {
+      elements.push({
+        id: nextId(ctx, 'el-prod-price'),
+        kind: 'text',
+        frame: { x, y: y + 330, w: 360, h: 30 },
+        z: 2,
+        text: `${prod.price}원`,
+        style: { fontSize: Math.round(22 * ctx.kit.priceScale), fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
+      });
+    }
+    elements.push({
+      id: nextId(ctx, 'el-prod-buy'),
+      kind: 'button',
+      frame: { x, y: y + 372, w: 150, h: 44 },
+      z: 3,
+      label: buyLabel,
+      href: buyHref,
+      style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 14, borderRadius: theme.radius ?? 4 },
+    });
+  });
+  const rows = Math.ceil(products.length / 3);
+  return {
+    id: 'sec-gallery',
+    type: 'gallery',
+    name: item.name?.trim() || '베스트·신상품',
+    height: 250 + rows * (CARD_H + 40) + 20,
+    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
+    elements,
+  };
+}
+
 function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
+  // [T4-A] 쇼핑몰 상품 진열은 전용 그리드로 분기(variant 'gallery:products')
+  if (variantSuffix(item.variant) === 'products') return buildProductGrid(ctx, item);
   const { theme } = ctx;
   const frames = [
     { x: 120, y: 260, w: 560, h: 440 },
