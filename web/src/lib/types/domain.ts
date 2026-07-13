@@ -344,6 +344,16 @@ export interface SurveyInput {
    * 콘텐츠 없는 "껍데기" 방지를 위해 목적별 최소 개수(content-requirements)를 게이트한다.
    */
   contentItems?: ContentItem[];
+  /**
+   * [I1] 개선 모드 — 'improve'면 기존 사이트 진단(sourceUrl/sourceScanId)을 기반으로 재생성.
+   * 기본 'fresh'(빈 온보딩). 개선 모드는 sourceUrl 콘텐츠를 자동 가져와 프리필하고, 진단 문제를
+   * 재생성으로 교정한다(없는 정보는 지어내지 않음 — 콘텐츠 게이트는 그대로).
+   */
+  mode?: 'fresh' | 'improve';
+  /** [I1] 개선 대상 기존 사이트 URL */
+  sourceUrl?: string;
+  /** [I1] 진단 컨텍스트 — scans.getById로 전 점수·이슈 되읽기(전후 대조). SiteConfig.meta에도 전달 */
+  sourceScanId?: string;
   /** 예약 섹션 선택 시 방식 */
   reservationMode?: ReservationMode;
   /** reservationMode='external_link' 시 네이버예약/캐치테이블 등 URL */

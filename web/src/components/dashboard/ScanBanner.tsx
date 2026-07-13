@@ -15,7 +15,8 @@ export interface RecentScanSummary {
   issueCount: number;
 }
 
-export function ScanBanner({ scan, ctaHref = '/onboarding' }: { scan: RecentScanSummary; ctaHref?: string }) {
+// [I1] 기본 진입 = 개선 모드(진단 컨텍스트 유지). scanId는 쿠키(anaks_recent_scan) 연속이라 쿼리에 안 실음.
+export function ScanBanner({ scan, ctaHref = '/onboarding?mode=improve' }: { scan: RecentScanSummary; ctaHref?: string }) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 

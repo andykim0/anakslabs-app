@@ -273,6 +273,11 @@ export interface SiteMeta {
   purposeId?: string;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */
   region?: string;
+  /**
+   * [I1] 개선 모드로 만든 사이트의 진단 원본 scan id — 발행 전 진단 화면이 scans.getById로
+   * 전(원본 사이트) 점수를 되읽어 "찾은 문제를 이렇게 고쳤어요" 전후 대조에 쓴다. fresh는 미설정.
+   */
+  sourceScanId?: string;
 }
 
 /**

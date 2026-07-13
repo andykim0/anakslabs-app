@@ -11,7 +11,7 @@
  * sectionPlan/pagePlan/templateId는 목적·업종 → resolveTemplate → planFromTemplate/
  * pagePlanFromTemplate 로 결정적 파생(별도 편집 스텝 없음). referenceImageUrls는 수집 중단 → 항상 [].
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
@@ -61,10 +61,13 @@ function scrollToTop() {
 export function SurveyStep({
   defaultBusinessName,
   initialValues,
+  improveSeed,
   onComplete,
 }: {
   defaultBusinessName?: string;
   initialValues: SurveyInput | null;
+  /** [I1] 개선 모드 시드 — 폼에 mode/sourceUrl/sourceScanId 프리필(핸드오프). 미지정=fresh */
+  improveSeed?: { url: string; scanId: string };
   onComplete: (values: SurveyInput) => void;
 }) {
   const { toast } = useToast();
@@ -78,7 +81,15 @@ export function SurveyStep({
       [initialValues, defaultBusinessName],
     ),
   });
-  const { trigger, getValues, handleSubmit } = methods;
+  const { trigger, getValues, handleSubmit, setValue } = methods;
+
+  // [I1] 개선 모드 진입 시 폼에 진단 컨텍스트 프리필 → onComplete가 SurveyInput.mode/source*로 전달
+  useEffect(() => {
+    if (!improveSeed) return;
+    setValue('mode', 'improve');
+    setValue('sourceUrl', improveSeed.url);
+    setValue('sourceScanId', improveSeed.scanId);
+  }, [improveSeed, setValue]);
 
   const goTo = (target: number) => {
     setStep(Math.min(TOTAL_STEPS, Math.max(1, target)));
@@ -146,6 +157,9 @@ export function SurveyStep({
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),
+      mode: values.mode === 'improve' ? 'improve' : undefined,
+      sourceUrl: clean(values.sourceUrl),
+      sourceScanId: clean(values.sourceScanId),
       contentItems: (values.contentItems ?? [])
         .map((it) => ({
           name: it.name.trim(),

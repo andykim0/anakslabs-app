@@ -18,6 +18,14 @@ export interface ScanContext {
   notes: string;
 }
 
+/** [I1] 개선 모드 진입 컨텍스트 — 있으면 개선 흐름(가져오기·자동추론·그대로 옵션). I2에서 분기 소비. */
+export interface ImproveContext {
+  url: string;
+  scanId: string;
+  total: number;
+  issueCount: number;
+}
+
 const STEPS = [
   { no: 1, label: '설문' },
   { no: 2, label: '움직임' },
@@ -29,10 +37,13 @@ const STEPS = [
 export function OnboardingWizard({
   defaultBusinessName,
   scanContext,
+  improve,
   tier = 'basic',
 }: {
   defaultBusinessName?: string;
   scanContext?: ScanContext;
+  /** [I1] 개선 모드 컨텍스트 — 있으면 개선 흐름(I2). 미지정 = fresh(기존 8스텝 무회귀) */
+  improve?: ImproveContext;
   /** [motion 4단계] 소유자 티어 — Premium이면 성공화면에 AI 영상 히어로 스튜디오 노출 */
   tier?: Tier;
 }) {
@@ -104,6 +115,7 @@ export function OnboardingWizard({
         <SurveyStep
           defaultBusinessName={defaultBusinessName}
           initialValues={survey}
+          improveSeed={improve ? { url: improve.url, scanId: improve.scanId } : undefined}
           onComplete={(values) => {
             setSurvey(values);
             // 설문이 바뀌었을 수 있으므로 이전 선택 초기화

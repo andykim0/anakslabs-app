@@ -1913,6 +1913,8 @@ export function buildSiteConfigFromSurvey(
       // [제품 확정] 목적·지역을 구조화 필드로 저장 → 서빙 시 JSON-LD @type/지역 결정(SEO/AEO 해자)
       purposeId: survey.purposeId,
       ...(region ? { region } : {}),
+      // [I1] 개선 모드 진단 원본 — 발행 전 진단 화면 전후 대조(scans.getById)에 사용
+      ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),
     },
     pages,
   };

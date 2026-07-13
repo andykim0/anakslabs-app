@@ -269,6 +269,10 @@ const siteMetaSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   ogImage: z.string().optional(),
+  // [제품 확정/I1] 목적·지역·진단원본 — JSON-LD @type·지역·전후 대조에 쓰이므로 저장 시 보존(strip 방지)
+  purposeId: z.string().max(40).optional(),
+  region: z.string().max(60).optional(),
+  sourceScanId: z.string().max(100).optional(),
 });
 
 /** 사업자등록번호 000-00-00000 */
@@ -480,6 +484,10 @@ export const surveySchema = z.object({
   highlights: z.array(z.string().min(1).max(40)).max(3).optional(),
   // [v4.5] 지역 — SEO 메타·생성 프롬프트에 배선
   region: z.string().max(60).optional(),
+  // [I1] 개선 모드 핸드오프
+  mode: z.enum(['fresh', 'improve']).optional(),
+  sourceUrl: z.string().max(500).optional(),
+  sourceScanId: z.string().max(100).optional(),
   // [G3] 구조화 콘텐츠 항목 — 생성 1급 소스(자유 원문보다 우선)
   contentItems: z
     .array(

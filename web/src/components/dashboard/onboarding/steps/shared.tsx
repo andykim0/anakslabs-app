@@ -33,6 +33,10 @@ export const surveyFormSchema = z.object({
   storePhotoUrls: z.array(z.string()).max(12),
   /** [v4.5] 로고 URL(선택). 없으면 상호명 글자 로고 폴백 */
   logoUrl: z.string().optional(),
+  /** [I1] 개선 모드 — 진단 기반 재생성. 기본 'fresh' */
+  mode: z.enum(['fresh', 'improve']),
+  sourceUrl: z.string(),
+  sourceScanId: z.string(),
   /** [G3] 구조화 콘텐츠 항목 (메뉴·시술·수업·서비스·작업) — 생성 1급 소스 */
   contentItems: z.array(
     z.object({
@@ -102,6 +106,9 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       providedContent: '',
       storePhotoUrls: [],
       logoUrl: '',
+      mode: 'fresh',
+      sourceUrl: '',
+      sourceScanId: '',
       contentItems: [],
       imageStyle: undefined,
       moodIds: [],
@@ -134,6 +141,9 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     providedContent: initial.providedContent ?? '',
     storePhotoUrls: initial.storePhotoUrls ?? [],
     logoUrl: initial.logoUrl ?? '',
+    mode: initial.mode ?? 'fresh',
+    sourceUrl: initial.sourceUrl ?? '',
+    sourceScanId: initial.sourceScanId ?? '',
     contentItems: initial.contentItems ?? [],
     imageStyle: initial.imageStyle,
     moodIds,
