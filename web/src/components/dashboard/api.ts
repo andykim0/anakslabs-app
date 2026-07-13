@@ -303,6 +303,24 @@ export async function extractMenuFromImage(imageUrl: string): Promise<ContentIte
   return data.items ?? [];
 }
 
+// ---------- [I2] 개선 모드 가져오기 ----------
+
+export interface ImproveExtractResult {
+  title: string;
+  description: string;
+  text: string;
+  headings: string[];
+  imageUrls: string[];
+  contentItems: ContentItem[];
+  /** 추출 대표 팔레트 시드 — 저채도/실패면 null(뉴트럴 폴백) */
+  paletteSeed: { primary: string; secondary?: string } | null;
+}
+
+/** [I2] sourceUrl 1회 가져오기 → 콘텐츠 + 대표 팔레트 시드 */
+export async function improveExtract(url: string): Promise<ImproveExtractResult> {
+  return post<ImproveExtractResult>('/api/onboarding/improve-extract', { url });
+}
+
 // ---------- 커스텀 도메인 ----------
 
 export async function requestCustomDomain(

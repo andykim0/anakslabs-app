@@ -6,6 +6,7 @@ import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '
 import type { ExtrasOptionsDto, MotionChoiceDto } from '../api';
 import { cn } from '../ui';
 import { SurveyStep } from './survey-step';
+import { ImproveStep } from './improve-step';
 import { MotionChoiceStep } from './motion-choice-step';
 import { CandidateStep } from './candidate-step';
 import { ExtrasStep } from './extras-step';
@@ -61,8 +62,8 @@ export function OnboardingWizard({
 
   return (
     <div className="mx-auto max-w-3xl">
-      {/* [v3 Phase 7] 스캔 프리필 컨텍스트 — 왜 이 사이트를 다시 짓는지 상기 */}
-      {scanContext && step === 1 ? (
+      {/* [v3 Phase 7] 스캔 프리필 컨텍스트 — 왜 이 사이트를 다시 짓는지 상기. 개선 모드는 ImproveStep이 자체 배너를 가지므로 제외(중복 방지) */}
+      {scanContext && step === 1 && !improve ? (
         <div className="mb-6 rounded-xl border border-ob-border bg-ob-accent-soft px-4 py-3">
           <p className="flex items-start gap-2 text-sm leading-6 text-ob-ink">
             <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-ob-accent-strong" />
@@ -94,7 +95,7 @@ export function OnboardingWizard({
                       active ? 'font-semibold text-ob-ink' : 'text-ob-muted',
                     )}
                   >
-                    {s.label}
+                    {improve && s.no === 1 ? '가져오기' : s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 ? (
@@ -112,17 +113,30 @@ export function OnboardingWizard({
       </div>
 
       {step === 1 ? (
-        <SurveyStep
-          defaultBusinessName={defaultBusinessName}
-          initialValues={survey}
-          improveSeed={improve ? { url: improve.url, scanId: improve.scanId } : undefined}
-          onComplete={(values) => {
-            setSurvey(values);
-            // 설문이 바뀌었을 수 있으므로 이전 선택 초기화
-            setCandidate(null);
-            setStep(2);
-          }}
-        />
+        improve ? (
+          // [I2] 개선 모드 — SurveyStep 대신 짧은 흐름(가져오기·확인·색). 이후 step2~5는 fresh와 동일 재사용.
+          <ImproveStep
+            improve={improve}
+            defaultBusinessName={defaultBusinessName}
+            onComplete={(values) => {
+              setSurvey(values);
+              setCandidate(null);
+              setStep(2);
+            }}
+          />
+        ) : (
+          <SurveyStep
+            defaultBusinessName={defaultBusinessName}
+            initialValues={survey}
+            improveSeed={undefined}
+            onComplete={(values) => {
+              setSurvey(values);
+              // 설문이 바뀌었을 수 있으므로 이전 선택 초기화
+              setCandidate(null);
+              setStep(2);
+            }}
+          />
+        )
       ) : null}
 
       {step === 2 && survey ? (
