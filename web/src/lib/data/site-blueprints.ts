@@ -354,20 +354,35 @@ export function templatePages(t: SiteTemplateDef): TemplatePageInfo[] {
 }
 
 /** 템플릿 → 초기 sectionPlan (source:'template' + pageSlug 스탬프, 홈→소개→문의 순) */
+/**
+ * [A2] 콘텐츠 우선순위 결정 — 핵심(hero·소개·연락 + 삭제잠금 required)은 must, 나머지는 nice.
+ * 템플릿이 priority를 명시했으면 존중(오버라이드). required(삭제잠금)와 별개 축.
+ */
+const MUST_SECTION_TYPES: ReadonlySet<SectionType> = new Set(['hero', 'about', 'contact']);
+export function resolveSectionPriority(s: { type: SectionType; required?: boolean; priority?: 'must' | 'nice' }): 'must' | 'nice' {
+  if (s.priority) return s.priority;
+  return s.required || MUST_SECTION_TYPES.has(s.type) ? 'must' : 'nice';
+}
+
 export function planFromTemplate(t: SiteTemplateDef): SectionPlanItem[] {
   return templatePages(t).flatMap((p) =>
-    p.sections.map((s) => ({ ...s, source: 'template' as const, pageSlug: p.slug })),
+    p.sections.map((s) => ({ ...s, priority: resolveSectionPriority(s), source: 'template' as const, pageSlug: p.slug })),
   );
 }
 
-/** 템플릿 → 페이지 계획 메타(순서·제목·내비) */
+/** 템플릿 → 페이지 계획 메타(순서·제목·내비·[A2]우선순위) */
 export function pagePlanFromTemplate(t: SiteTemplateDef): PagePlanItem[] {
-  return templatePages(t).map((p) => ({
-    slug: p.slug,
-    title: p.title,
-    ...(p.navLabel ? { navLabel: p.navLabel } : {}),
-    ...(p.showInNav === false ? { showInNav: false } : {}),
-  }));
+  return templatePages(t).map((p) => {
+    // 페이지 우선순위: 홈(slug='')이거나 must 섹션을 포함하면 must
+    const hasMust = p.slug === '' || p.sections.some((s) => resolveSectionPriority(s) === 'must');
+    return {
+      slug: p.slug,
+      title: p.title,
+      ...(p.navLabel ? { navLabel: p.navLabel } : {}),
+      ...(p.showInNav === false ? { showInNav: false } : {}),
+      priority: hasMust ? ('must' as const) : ('nice' as const),
+    };
+  });
 }
 
 /** dev 무결성 검사 — id 중복 / 각 목적 .default 존재 / hero 첫 항목·required / industryMatch 겹침 */

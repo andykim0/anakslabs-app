@@ -16,6 +16,7 @@ import { validatePalette, qaAuditChecklist } from '@/lib/design/quality-standard
 import { scrimPassesAA } from '@/lib/design/scrim';
 import { solidButtonPassesAA } from '@/lib/design/button-contrast';
 import { isThinSection } from '@/lib/design/section-density';
+import { resolveSectionPriority } from '@/lib/data/site-blueprints';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
 
@@ -87,8 +88,14 @@ export function checkPublish(
       }
     }
     // [Q3] 섹션 밀도 — 내용이 실려야 할 콘텐츠 섹션이 빈약하면 경고("PPT 1장" 방지)
+    // [A2] 필수(must) 섹션이 비면 우선(강조) 경고 — 있으면-좋음(nice)은 부드럽게.
     if (DENSE_SECTION_TYPES.has(s.type) && isThinSection(s)) {
-      warnings.push(`섹션 '${s.name}'의 내용이 빈약합니다 — 실제 정보(메뉴·안내 등)를 더 채우면 좋아요.`);
+      const must = resolveSectionPriority({ type: s.type }) === 'must';
+      warnings.push(
+        must
+          ? `필수 섹션 '${s.name}'의 내용이 비어 있어요 — 발행 전에 실제 정보를 꼭 채워주세요.`
+          : `섹션 '${s.name}'의 내용이 빈약합니다 — 실제 정보(메뉴·안내 등)를 더 채우면 좋아요.`,
+      );
     }
     // [G2] 솔리드 CTA 버튼 대비 — 버튼 배경 vs 글자가 AA 미달이면 차단(다크 팔레트 CTA 투명 방지)
     for (const el of s.elements) {

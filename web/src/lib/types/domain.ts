@@ -233,6 +233,11 @@ export interface SectionPlanItem {
   variant?: string;
   /** 해제 불가 (hero 등) */
   required?: boolean;
+  /**
+   * [A2] 콘텐츠 우선순위 — required(삭제잠금)와 별개 축. 'must'=핵심(생성·밀도 우선 충실화, 발행진단 우선
+   * 경고), 'nice'=있으면-좋음(얇아도 허용). 미지정=nice 취급(현행 무회귀).
+   */
+  priority?: 'must' | 'nice';
   source: 'template' | 'user' | 'ai';
   /**
    * [v4 Phase 4] 이 섹션이 속한 페이지 slug (''=홈). 미지정이면 홈.
@@ -255,6 +260,8 @@ export interface PagePlanItem {
   navLabel?: string;
   /** 내비 노출 (기본 true) */
   showInNav?: boolean;
+  /** [A2] 페이지 우선순위 — 'must'=핵심 페이지(발행진단 우선 경고), 'nice'=선택. 미지정=nice(무회귀). */
+  priority?: 'must' | 'nice';
 }
 
 /**
