@@ -489,7 +489,7 @@ export function describeColor(hex: string): string {
 }
 
 /** HSL(h:0-360, s:0-1, l:0-1) → #rrggbb */
-function hslToHex(h: number, s: number, l: number): string {
+export function hslToHex(h: number, s: number, l: number): string {
   const hh = ((h % 360) + 360) % 360;
   const ss = Math.max(0, Math.min(1, s));
   const ll = Math.max(0, Math.min(1, l));

@@ -13,7 +13,7 @@
  * 순수 함수 — node:test로 직접 검증. 소비: buildSiteConfigFromSurvey(생성 마지막 패스).
  */
 import type { Section, SectionType, SitePage, SiteTheme } from '@/lib/types/site';
-import { contrastRatio, findPov, povForStyle, type PovId, type PovKit } from './quality-standards';
+import { contrastRatio, findPov, hexToHsl, hslToHex, isDarkColor, povForStyle, type PovId, type PovKit } from './quality-standards';
 
 const AA = 4.5;
 
@@ -54,9 +54,25 @@ interface SectionMeta {
   hasMedia: boolean;
 }
 
-/** 밴드 색 — 'primary'=팔레트 primary, 'dark'=배경 반전(최대 대비 토큰 = text) */
+/** [H2] 섹션 배경 밴드 채도 상한 — 초과하면 쨍한 원색 풀블리드가 되므로 금지(틴트/다크로 강등) */
+export const BAND_SAT_MAX = 0.16;
+
+/**
+ * [H2] 밴드 색 — 섹션 배경용 '안전색'. 브랜드 원색(풀 채도 primary)을 섹션 배경으로 쓰지 않는다
+ * (쨍한 파랑·빨강 플러드 방지). 레퍼런스처럼 흰/뉴트럴 위주 + 은은한 강조:
+ *  - 라이트 팔레트: 브랜드 hue의 저채도·고명도 틴트(원색 아님, surface보다 살짝 진한 정도).
+ *  - 다크 팔레트(다크 럭셔리류, 원래 어두운 배경): 저채도 다크 밴드(브랜드 hue 유지).
+ * 원색은 버튼·소형 강조(G2·applyBandStyle)에만. bandSource는 다크 팔레트의 뉘앙스로만 남고,
+ * 라이트에선 항상 틴트(bandSource 무관 — 플러드 금지). 채도는 항상 BAND_SAT_MAX 이하.
+ */
 export function bandColorOf(kit: PovKit, palette: SiteTheme['palette']): string {
-  return kit.bandSource === 'primary' ? palette.primary : palette.text;
+  const hue = hexToHsl(palette.primary)?.h ?? hexToHsl(palette.text)?.h ?? 0;
+  if (isDarkColor(palette.background)) {
+    // 다크 팔레트: 저채도 다크 밴드(surface보다 약간 밝은 명도로 구분)
+    return hslToHex(hue, BAND_SAT_MAX, 0.2);
+  }
+  // 라이트 팔레트: 브랜드 hue 저채도·고명도 틴트 — 쨍한 원색 금지
+  return hslToHex(hue, 0.1, 0.93);
 }
 
 /**

@@ -13,12 +13,13 @@ import {
   DESIGN_POVS,
   contrastRatio,
   derivePalette,
+  hexToHsl,
   isDarkColor,
   povForStyle,
   findPov,
 } from '@/lib/design/quality-standards';
 import { STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
-import { bandColorOf, pickTextOn, planPageRhythm } from '@/lib/design/section-rhythm';
+import { BAND_SAT_MAX, bandColorOf, pickTextOn, planPageRhythm } from '@/lib/design/section-rhythm';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
 
@@ -104,9 +105,16 @@ describe('planPageRhythm — 통일 불변식', () => {
     assert.ok(specs.every((s) => !s?.band));
   });
 
-  test('다크 밴드(라이트 테마)는 isDarkColor 판정 통과 — spotlight darkSectionOnly 대상', () => {
-    const brut = findPov('bold-brutalist').kit; // bandSource 'dark' + bandOnHome
-    assert.ok(isDarkColor(bandColorOf(brut, LIGHT)), `band=${bandColorOf(brut, LIGHT)}`);
+  test('[H2] 밴드 안전색 — 라이트=저채도 틴트(쨍한 원색 아님) · 다크 팔레트=다크 밴드(spotlight 대상)', () => {
+    const kit = findPov('dark-luxury').kit;
+    // 라이트 팔레트: 브랜드색 원색 플러드 금지 — 채도 상한 이하 + 다크 아님(틴트)
+    const lightBand = bandColorOf(kit, LIGHT);
+    assert.ok(hexToHsl(lightBand)!.s <= BAND_SAT_MAX, `라이트 밴드 채도 초과(원색): ${lightBand}`);
+    assert.ok(!isDarkColor(lightBand), `라이트 밴드가 다크 플러드: ${lightBand}`);
+    // 다크 팔레트(다크 럭셔리류): 다크 밴드 허용 — isDarkColor 통과(spotlight darkSectionOnly)
+    const darkBand = bandColorOf(kit, DARK);
+    assert.ok(isDarkColor(darkBand), `다크 팔레트 밴드가 다크 아님: ${darkBand}`);
+    assert.ok(hexToHsl(darkBand)!.s <= BAND_SAT_MAX, `다크 밴드 채도 초과: ${darkBand}`);
   });
 
   test('pickTextOn — 어떤 배경이든 AA 확보(#fff/#000 최후 폴백)', () => {
@@ -137,17 +145,20 @@ describe('buildSiteConfigFromSurvey — 리듬 통합', () => {
     } as SurveyInput;
   }
 
-  test('드라마틱 POV(dark-luxury) 홈은 강조 밴드 ≥1 + 밴드 텍스트 전부 AA', () => {
+  test('드라마틱 POV(dark-luxury) 홈은 강조 밴드 ≥1 + [H2] 채도 안전(원색 아님) + 밴드 텍스트 AA', () => {
     const cfg = buildSiteConfigFromSurvey(surveyFor('local_store', '파인다이닝'), candFor('cand-dark-luxury'), opts);
     const palette = cfg.theme.palette;
     const home = cfg.pages.find((p) => p.slug === '')!;
-    const bandColors = new Set([palette.primary.toLowerCase(), palette.text.toLowerCase()]);
+    const neutrals = new Set([palette.background.toLowerCase(), palette.surface.toLowerCase()]);
+    // 밴드 = 비-미디어 섹션 중 배경이 neutral(bg/surface)이 아닌 것(계산된 안전 밴드색)
     const bands = home.sections.filter(
-      (s) => !s.background.image && s.background.color && bandColors.has(s.background.color.toLowerCase()),
+      (s) => !s.background.image && !s.background.video && !s.background.gradient && s.background.color && !neutrals.has(s.background.color.toLowerCase()),
     );
     assert.ok(bands.length >= 1, `드라마틱 홈 밴드 없음: ${home.sections.map((s) => s.background.color ?? 'media').join(',')}`);
     for (const band of bands) {
       const bg = band.background.color!;
+      // [H2] 쨍한 원색 풀블리드 금지 — 밴드 배경 채도 ≤ 상한
+      assert.ok(hexToHsl(bg)!.s <= BAND_SAT_MAX, `밴드 원색 플러드(채도 초과): ${bg}`);
       for (const el of band.elements) {
         if (el.kind !== 'text') continue;
         const c = el.style.color ?? palette.text;
