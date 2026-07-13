@@ -117,11 +117,14 @@ function ToolButton({
 
 export function Toolbar({
   siteName,
+  exitHref,
   onPublish,
   publishing,
   onExit,
 }: {
   siteName: string;
+  /** [T1] 나가기 목적지 — 진입 경로(?from=) 우선, 폴백은 사이트 상세(딥링크 진입 대비) */
+  exitHref: string;
   onPublish: () => void;
   publishing: boolean;
   onExit: () => void;
@@ -154,7 +157,7 @@ export function Toolbar({
       {/* 좌: 나가기 + 사이트명 + 저장상태 */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Link
-          href="/dashboard"
+          href={exitHref}
           onClick={onExit}
           className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
         >

@@ -78,6 +78,10 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
 
   return (
     <section
+      // [T1] 모바일 앵커 타깃 — id는 데스크톱 레이아웃(SectionCanvas)이 보유(중복 id 방지).
+      // auto 모드에서 hidden 데스크톱 섹션이 앵커를 선점하는 문제는 SiteRenderer의 앵커 런타임이
+      // data-anchor 중 '보이는' 요소로 스크롤해 해소.
+      data-anchor={section.id}
       data-section-type={section.type}
       style={{
         position: 'relative',

@@ -27,7 +27,10 @@ export function TenantHeader({
   if (!enabled) return null;
 
   const theme = config.theme;
-  const siteName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
+  // [T1] 브랜드 라벨 = 상호만 — meta.title의 '— 업종 · 지역' 부제는 헤더에서 제거(모바일 잘림 원인).
+  //      상호는 truncate(ellipsis)로 내비/햄버거 공간을 절대 침범하지 않는다.
+  const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
+  const siteName = rawName.split('—')[0].trim() || rawName;
   const linkFor = (slug: string) => (hrefForSlug ? hrefForSlug(slug) : slug === '' ? '/' : `/${slug}`);
   const labelOf = (p: SitePage) => p.navLabel ?? p.title;
 
@@ -105,13 +108,18 @@ export function TenantHeader({
             textDecoration: 'none',
             marginRight: 'auto',
             whiteSpace: 'nowrap',
+            // [T1] 긴 상호가 내비·햄버거를 밀어내지 않게 — 잘림은 말줄임으로
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            minWidth: 0,
+            flex: '0 1 auto',
           }}
         >
           {siteName}
         </a>
 
         {/* 데스크톱 내비 (md+) — 인라인 최대 6개 + 초과분 '더보기' 드롭다운 */}
-        <nav className="hidden md:flex" style={{ gap: 20, alignItems: 'center' }}>
+        <nav className="hidden md:flex" style={{ gap: 20, alignItems: 'center', flexShrink: 0 }}>
           {inline.map((p) => (
             <a
               key={p.id}
@@ -142,7 +150,7 @@ export function TenantHeader({
         </nav>
 
         {/* 모바일 햄버거 (<md) — 전체 페이지 드롭다운 */}
-        <details className="md:hidden" style={{ position: 'relative' }}>
+        <details className="md:hidden" style={{ position: 'relative', flexShrink: 0 }}>
           <summary aria-label="메뉴 열기" style={{ ...summaryStyle, fontSize: 22, lineHeight: 1, color: theme.palette.text }}>
             ☰
           </summary>

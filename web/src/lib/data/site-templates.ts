@@ -23,7 +23,7 @@ import type {
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
-import { ctaLabelForGoal } from '@/lib/onboarding/site-goal';
+import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
@@ -253,7 +253,14 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   const kicker = copy.heroKicker ?? survey.purpose;
   // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
   const ctaLabel = ctaLabelForGoal(survey.siteGoal) ?? '문의하기';
-  const ctaHref = '#sec-contact';
+  // [T1] CTA 타깃 = 목표의 강조 섹션(sectionEmphasis) 중 계획에 '단일 존재'하는 첫 타입
+  //      (purchase→상품 진열, trust→실적 등). contact이거나 매칭 없으면 기본 '#sec-contact'
+  //      (variant 분화 시 앵커 재해소 패스가 첫 contact id로 교체 — 무배선 버튼 0 보장).
+  const goalDef = survey.siteGoal ? SITE_GOALS[survey.siteGoal] : undefined;
+  const ctaTarget = goalDef?.sectionEmphasis.find(
+    (t) => t !== 'hero' && (t === 'contact' || survey.sectionPlan.filter((i) => i.type === t).length === 1),
+  );
+  const ctaHref = ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
 
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치

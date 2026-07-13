@@ -93,8 +93,8 @@ function PackGrid() {
           `크레딧 ${result.credits ?? packCredits}개 충전 완료 (${formatKrw(result.amount ?? 0)}) — 잔액 ${result.balance ?? '-'}개`,
         );
       } else {
-        // 실모드: 토스 결제창 파라미터 반환 — 결제 승인 후 웹훅으로 지급
-        toast('info', '결제창으로 이동합니다. 결제 완료 후 크레딧이 지급됩니다.');
+        // [T1] 실모드 — PG(토스) 연동 전이라 결제창이 없다. 죽은 안내 대신 준비 중 + 문의 유도.
+        toast('info', '카드 결제는 준비 중이에요. 지금은 문의 주시면 충전을 도와드릴게요 (support@anakslabs.com).');
       }
     },
     onError: (err) => {
@@ -126,8 +126,16 @@ function PackGrid() {
                 className="mt-4"
                 variant={recommended ? 'primary' : 'secondary'}
                 loading={mutation.isPending && mutation.variables === pack.credits}
-                disabled={mutation.isPending || !consented}
-                onClick={() => mutation.mutate(pack.credits)}
+                disabled={mutation.isPending}
+                onClick={() => {
+                  // [T1] 동의 미체크 = 무설명 disabled(버튼 미동작 체감) 대신 명확한 안내
+                  if (!consented) {
+                    toast('info', '아래 결제 안내에 먼저 동의해 주세요.');
+                    document.querySelector('#purchase-consent')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                  }
+                  mutation.mutate(pack.credits);
+                }}
               >
                 <ShoppingCart className="h-4 w-4" />
                 구매하기
@@ -136,7 +144,7 @@ function PackGrid() {
           );
         })}
       </div>
-      <label className="mt-4 flex items-start gap-2.5 rounded-lg border border-neutral-800 bg-neutral-900/40 px-3.5 py-3 text-[11px] leading-5 text-neutral-400">
+      <label id="purchase-consent" className="mt-4 flex items-start gap-2.5 rounded-lg border border-neutral-800 bg-neutral-900/40 px-3.5 py-3 text-[11px] leading-5 text-neutral-400">
         <input
           type="checkbox"
           checked={consented}

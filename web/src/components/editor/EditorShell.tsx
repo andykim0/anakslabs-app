@@ -7,6 +7,7 @@
  * 자동저장(2s 디바운스)·단축키·발행 플로우를 이 컴포넌트가 소유한다.
  */
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Palette, Wand2 } from 'lucide-react';
 import type { SiteConfig } from '@/lib/types/site';
 import type { Tier } from '@/lib/types/domain';
@@ -45,6 +46,9 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
   });
 
   const autosave = useAutosave(siteId);
+  // [T1] 나가기 목적지 — ?from=(대시보드 내부 경로만 신뢰) 우선, 폴백은 사이트 상세(딥링크 진입 대비)
+  const fromParam = useSearchParams().get('from');
+  const exitHref = fromParam && fromParam.startsWith('/dashboard') ? fromParam : '/dashboard/sites/' + siteId;
   useEditorHotkeys(() => void autosave.flush());
 
   // 인스펙터의 "AI로 생성" 클릭(aiIntent) → AI 탭으로 전환 (렌더 중 상태 조정 패턴)
@@ -96,6 +100,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
     <div className="fixed inset-0 z-50 flex flex-col bg-neutral-950 text-neutral-100">
       <Toolbar
         siteName={siteName}
+        exitHref={exitHref}
         onPublish={handlePublishClick}
         publishing={publishing}
         onExit={() => void autosave.flush()}
