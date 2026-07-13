@@ -4,6 +4,22 @@
  */
 import { parseAddress, parseBusinessHours, parseIntroSentence, parseMenuItems } from './content-parse';
 
+/** [T4-B] 원문에서 keywords 중 하나를 언급한 첫 문장(maxLen자 절단). 블록 헤더([후기] 등) 라인은 제외 */
+function firstSentenceMentioning(
+  providedContent: string | undefined,
+  keywords: string[],
+  maxLen = 40,
+): string | undefined {
+  if (!providedContent) return undefined;
+  const sentences = providedContent
+    .split(/\n|(?<=[.!?。])\s/)
+    .map((s) => s.trim())
+    .filter((s) => s && !/^\[/.test(s));
+  const hit = sentences.find((s) => keywords.some((k) => s.includes(k)));
+  if (!hit) return undefined;
+  return hit.length > maxLen ? `${hit.slice(0, maxLen)}…` : hit;
+}
+
 /** 승격 페이지 slug + 원문 + 이미지 수 → 실콘텐츠 요약(없으면 undefined → 호출부가 폴백) */
 export function teaserSummary(input: {
   slug: string;
@@ -34,6 +50,12 @@ export function teaserSummary(input: {
     }
     case 'about':
       return parseIntroSentence(providedContent);
+    case 'reviews':
+      // [T4-B] 후기 페이지 — 원문에서 '후기'/'만족'을 언급한 첫 문장(실데이터 없으면 폴백 문구)
+      return firstSentenceMentioning(providedContent, ['후기', '만족']);
+    case 'work':
+      // [T4-B] 실적 페이지 — 원문 파싱이 불가하니 대상 페이지 이미지 수 기반(0이면 폴백 문구)
+      return imageCount && imageCount > 0 ? `작업·프로젝트 ${imageCount}건` : undefined;
     default:
       return undefined;
   }

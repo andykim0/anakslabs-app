@@ -7,6 +7,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
+import { teaserSummary } from '@/lib/data/teaser-summary';
 
 const candidate: DesignCandidate = {
   id: 'cand-warm-cozy', label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg',
@@ -54,5 +55,45 @@ describe('T4-A 쇼핑몰 — 상품 진열 그리드', () => {
     const cfg = buildSiteConfigFromSurvey(surveyFor('ecommerce', '패션'), candidate, opts);
     const grid = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'gallery')!;
     assert.equal(grid.elements.filter((el) => el.id.includes('prod-name')).length, 3);
+  });
+});
+
+describe('T4-B 손님받기 — 티저·구성원 어댑터', () => {
+  test('병원(booking_service.clinic) → team 킥커 의료진', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('booking_service', '병원'), candidate, opts);
+    const team = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'team')!;
+    const kicker = team.elements.find((el) => el.id.includes('team-kicker'))!;
+    assert.ok(kicker.kind === 'text' && kicker.text === '의료진');
+  });
+
+  test('이벤트 연사(team:speakers) → 킥커 연사·제목 폴백 연사·출연진', () => {
+    const cfg = buildSiteConfigFromSurvey(
+      surveyFor('event', '컨퍼런스', {
+        sectionPlan: planFromTemplate(resolveTemplate('event', '컨퍼런스')).map((it) =>
+          it.type === 'team' ? { ...it, name: '' } : it,
+        ),
+      }),
+      candidate, opts,
+    );
+    const team = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'team')!;
+    const kicker = team.elements.find((el) => el.id.includes('team-kicker'))!;
+    assert.ok(kicker.kind === 'text' && kicker.text === '연사');
+    assert.ok(team.elements.some((el) => el.kind === 'text' && el.text === '연사·출연진'));
+  });
+
+  test("teaser 'work' — 이미지 수 기반 요약, 0이면 undefined(폴백 문구)", () => {
+    assert.equal(teaserSummary({ slug: 'work', imageCount: 6 }), '작업·프로젝트 6건');
+    assert.equal(teaserSummary({ slug: 'work', imageCount: 0 }), undefined);
+    assert.equal(teaserSummary({ slug: 'work' }), undefined);
+  });
+
+  test("teaser 'reviews' — 후기/만족 언급 첫 문장(40자 절단), 없으면 undefined", () => {
+    assert.equal(
+      teaserSummary({ slug: 'reviews', providedContent: '[후기]\n손님들 만족도가 높아요. 재방문이 많습니다.' }),
+      '손님들 만족도가 높아요.',
+    );
+    const long = `후기 ${'아주 '.repeat(20)}좋았어요`;
+    assert.equal(teaserSummary({ slug: 'reviews', providedContent: long })!.length, 41); // 40자 + …
+    assert.equal(teaserSummary({ slug: 'reviews', providedContent: '주소는 서울입니다' }), undefined);
   });
 });

@@ -1268,8 +1268,23 @@ function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/** [T4-B] team variant 라벨 — 목적별 호칭(연사/의료진/전문가)으로 킥커·제목 폴백 분기 */
+function teamLabels(suf: string | undefined): { kicker: string; titleFallback: string } {
+  switch (suf) {
+    case 'speakers':
+      return { kicker: '연사', titleFallback: '연사·출연진' };
+    case 'doctors':
+      return { kicker: '의료진', titleFallback: '의료진 소개' };
+    case 'experts':
+      return { kicker: '전문가', titleFallback: '구성원·전문가 소개' };
+    default:
+      return { kicker: '사람', titleFallback: '구성원 소개' };
+  }
+}
+
 function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
+  const labels = teamLabels(variantSuffix(item.variant));
   const members = [
     { name: '대표', title: '대표·총괄', career: ['해당 분야 경력 다년', '핵심 프로젝트 리드'] },
     { name: '전문가', title: '수석·전문위원', career: ['현장 실무 전문성', '주요 성과 다수'] },
@@ -1281,10 +1296,10 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '사람',
+      text: labels.kicker,
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '구성원 소개'), 142),
+    titleEl(ctx, headingOf(item, labels.titleFallback), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   members.forEach((m) => {
