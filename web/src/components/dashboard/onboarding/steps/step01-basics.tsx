@@ -5,20 +5,23 @@
  */
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { PURPOSES, findPurpose, type PurposeGroup } from '@/lib/data/purpose-taxonomy';
+import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { capabilityOf } from '@/lib/onboarding/purpose-capabilities';
-import type { SitePurposeId } from '@/lib/types/domain';
+import type { LivePurposeId, SitePurposeId } from '@/lib/types/domain';
 import { cn } from '../../ui';
 import { Chip, Field, SelectCard, StepIntro, obInput, type SurveyForm } from './shared';
 
-const GROUP_ORDER: { group: PurposeGroup; label: string; hint: string }[] = [
-  { group: 'sell', label: '팔기', hint: '상품·서비스를 판매' },
-  { group: 'serve', label: '손님 받기', hint: '예약·방문·문의를 받기' },
-  { group: 'promote', label: '알리기', hint: '회사·작업·행사를 소개' },
-  { group: 'content', label: '콘텐츠·멤버십', hint: '콘텐츠 발행·회원 운영' },
+// [제품 확정] 소개형 6종만 노출 — 3그룹(손님 받기 / 알리기 / 초간단)으로 단순화.
+// taxonomy.group에 의존하지 않고 명시 목록으로 구성(제거 4종은 애초에 목록에 없음).
+const DISPLAY_GROUPS: { label: string; hint: string; ids: LivePurposeId[] }[] = [
+  { label: '손님 받기', hint: '방문·문의·상담을 받는 곳', ids: ['local_store', 'booking_service', 'edu_membership'] },
+  { label: '알리기', hint: '회사·작업을 소개하는 곳', ids: ['company_brand', 'portfolio'] },
 ];
-
-const SPECIAL_PURPOSE_IDS: SitePurposeId[] = ['event', 'one_page'];
+const SPECIAL_GROUP: { label: string; hint: string; ids: LivePurposeId[] } = {
+  label: '초간단',
+  hint: '프로필·링크를 한 페이지에',
+  ids: ['one_page'],
+};
 
 export function Step01Basics() {
   const { watch, setValue, register, formState } = useFormContext<SurveyForm>();
@@ -28,12 +31,6 @@ export function Step01Basics() {
 
   const selectedPurpose = purposeId ? findPurpose(purposeId) : undefined;
   const industryChips = useMemo(() => selectedPurpose?.industries ?? [], [selectedPurpose]);
-
-  const grouped = GROUP_ORDER.map((g) => ({
-    ...g,
-    items: PURPOSES.filter((p) => p.group === g.group && !SPECIAL_PURPOSE_IDS.includes(p.id)),
-  }));
-  const special = PURPOSES.filter((p) => SPECIAL_PURPOSE_IDS.includes(p.id));
 
   const pickPurpose = (id: SitePurposeId) => setValue('purposeId', id, { shouldValidate: true });
 
@@ -45,65 +42,52 @@ export function Step01Basics() {
 
       <Field label="어떤 사이트인가요?" error={errors.purposeId?.message as string | undefined}>
         <div className="space-y-5">
-          {grouped.map((g) =>
-            g.items.length === 0 ? null : (
-              <div key={g.group}>
-                <div className="mb-2 flex items-baseline gap-2">
-                  <span className="text-[13px] font-semibold text-ob-ink">{g.label}</span>
-                  <span className="text-xs text-ob-muted">{g.hint}</span>
-                </div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {g.items.map((def) => (
-                    <SelectCard
-                      key={def.id}
-                      selected={purposeId === def.id}
-                      onClick={() => pickPurpose(def.id)}
-                      ariaLabel={def.label}
-                    >
-                      <span
-                        className={cn(
-                          'text-sm font-semibold',
-                          purposeId === def.id ? 'text-ob-accent-strong' : 'text-ob-ink',
-                        )}
-                      >
+          {DISPLAY_GROUPS.map((g) => (
+            <div key={g.label}>
+              <div className="mb-2 flex items-baseline gap-2">
+                <span className="text-[13px] font-semibold text-ob-ink">{g.label}</span>
+                <span className="text-xs text-ob-muted">{g.hint}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {g.ids.map((id) => {
+                  const def = findPurpose(id);
+                  if (!def) return null;
+                  return (
+                    <SelectCard key={id} selected={purposeId === id} onClick={() => pickPurpose(id)} ariaLabel={def.label}>
+                      <span className={cn('text-sm font-semibold', purposeId === id ? 'text-ob-accent-strong' : 'text-ob-ink')}>
                         {def.label}
                       </span>
                       <span className="mt-1.5 text-xs leading-relaxed text-ob-muted">
-                        {capabilityOf(def.id).features.slice(0, 3).join(' · ')}
+                        {capabilityOf(id).features.slice(0, 3).join(' · ')}
                       </span>
                     </SelectCard>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            ),
-          )}
+            </div>
+          ))}
 
           <div>
             <div className="mb-2 flex items-center gap-3">
-              <span className="text-xs font-medium text-ob-muted">특수 목적</span>
+              <span className="text-xs font-medium text-ob-muted">{SPECIAL_GROUP.label}</span>
+              <span className="text-xs text-ob-muted">{SPECIAL_GROUP.hint}</span>
               <span className="h-px flex-1 bg-ob-border" />
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {special.map((def) => (
-                <SelectCard
-                  key={def.id}
-                  selected={purposeId === def.id}
-                  onClick={() => pickPurpose(def.id)}
-                  ariaLabel={def.label}
-                >
-                  <span
-                    className={cn(
-                      'text-sm font-semibold',
-                      purposeId === def.id ? 'text-ob-accent-strong' : 'text-ob-ink',
-                    )}
-                  >
-                    {def.label}
-                  </span>
-                  <span className="mt-1.5 text-xs leading-relaxed text-ob-muted">
-                    {capabilityOf(def.id).features.slice(0, 3).join(' · ')}
-                  </span>
-                </SelectCard>
-              ))}
+              {SPECIAL_GROUP.ids.map((id) => {
+                const def = findPurpose(id);
+                if (!def) return null;
+                return (
+                  <SelectCard key={id} selected={purposeId === id} onClick={() => pickPurpose(id)} ariaLabel={def.label}>
+                    <span className={cn('text-sm font-semibold', purposeId === id ? 'text-ob-accent-strong' : 'text-ob-ink')}>
+                      {def.label}
+                    </span>
+                    <span className="mt-1.5 text-xs leading-relaxed text-ob-muted">
+                      {capabilityOf(id).features.slice(0, 3).join(' · ')}
+                    </span>
+                  </SelectCard>
+                );
+              })}
             </div>
           </div>
         </div>

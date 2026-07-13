@@ -37,16 +37,13 @@ export const DEFAULT_PRESET: Record<MotionTier, PresetId> = {
  * 업종(SitePurposeId) → tier별 프리셋. 6개 프리셋을 10개 목적에 결정적으로 배정.
  * 매핑에 없거나 미래에 추가된 목적은 DEFAULT_PRESET 로 폴백 → 전 업종 커버(테스트 보장).
  */
-const PURPOSE_PRESET: Record<SitePurposeId, Record<MotionTier, PresetId>> = {
+// [제품 확정] 소개형 6종만. deprecated 목적(레거시 draft 재생성)은 DEFAULT_PRESET로 폴백(Partial).
+const PURPOSE_PRESET: Partial<Record<SitePurposeId, Record<MotionTier, PresetId>>> = {
   local_store: { basic: 'cafe-basic', premium: 'dining-premium' },
   booking_service: { basic: 'office-basic', premium: 'beauty-premium' },
-  ecommerce: { basic: 'cafe-basic', premium: 'beauty-premium' },
   edu_membership: { basic: 'academy-basic', premium: 'clinic-premium' },
   company_brand: { basic: 'office-basic', premium: 'clinic-premium' },
   portfolio: { basic: 'office-basic', premium: 'dining-premium' },
-  blog_media: { basic: 'office-basic', premium: 'clinic-premium' },
-  community: { basic: 'cafe-basic', premium: 'clinic-premium' },
-  event: { basic: 'cafe-basic', premium: 'dining-premium' },
   one_page: { basic: 'office-basic', premium: 'clinic-premium' },
 };
 

@@ -7,7 +7,7 @@
  *
  * 순수 데이터 모듈 — server-only 아님(클라이언트 번들 가능).
  */
-import type { SitePurposeId } from '@/lib/types/domain';
+import type { LivePurposeId, SitePurposeId } from '@/lib/types/domain';
 
 export type PurposeGroup = 'sell' | 'serve' | 'promote' | 'content';
 export type PurposeGroupLabel = '팔기' | '손님 받기' | '알리기' | '콘텐츠·멤버십';
@@ -72,43 +72,23 @@ export const PURPOSES: PurposeDef[] = [
     recommendedFeatures: ['contactForm', 'mapEmbed'],
   },
   {
-    id: 'ecommerce',
-    label: '쇼핑몰',
-    group: 'sell',
-    groupLabel: '팔기',
-    features: ['상품 진열·장바구니·결제', '주문/배송(실물) 또는 다운로드/라이선스(디지털)', '재고'],
-    industries: [
-      '패션·의류',
-      '뷰티·화장품',
-      '식품·건강기능식품',
-      '가구·리빙',
-      '디지털·가전',
-      '핸드메이드·공예',
-      '반려동물 용품',
-      '농수산물 산지직송',
-      '취미·굿즈',
-      '디지털 상품(폰트·템플릿·이북)',
-      '구독박스',
-    ],
-    recommendedFeatures: ['contactForm', 'snsLinks'],
-  },
-  {
+    // [제품 확정] '교육·멤버십' → '학원·교육' 소개형 개명. 멤버십/게이팅/수강관리 제거. id는 레거시 호환 유지.
     id: 'edu_membership',
-    label: '교육·멤버십',
-    group: 'content',
-    groupLabel: '콘텐츠·멤버십',
-    features: ['콘텐츠 게이팅', '수강/진도 관리', '회원 등급', '정기결제(구독)'],
+    label: '학원·교육',
+    group: 'serve',
+    groupLabel: '손님 받기',
+    features: ['커리큘럼·수업 소개', '수강 안내(가격·일정)', '후기·상담 신청'],
     industries: [
-      '온라인 강의·클래스',
-      '학원·교습소·과외',
-      '유료 뉴스레터',
-      '크리에이터 멤버십',
-      '코칭·컨설팅 프로그램',
+      '입시·보습학원',
+      '어학원·외국어',
+      '예체능 학원(음악·미술·무용)',
+      '코딩·IT 교육',
       '자격증·시험대비',
-      '종교·단체 멤버십',
-      '팬 멤버십',
+      '과외·교습소',
+      '평생교육·문화센터',
+      '유아·아동 교육',
     ],
-    recommendedFeatures: ['contactForm', 'snsLinks'],
+    recommendedFeatures: ['contactForm', 'mapEmbed'],
   },
   {
     id: 'company_brand',
@@ -148,56 +128,6 @@ export const PURPOSES: PurposeDef[] = [
     recommendedFeatures: ['contactForm', 'snsLinks'],
   },
   {
-    id: 'blog_media',
-    label: '블로그·미디어',
-    group: 'content',
-    groupLabel: '콘텐츠·멤버십',
-    features: ['글/영상 발행', '카테고리/태그', '구독·댓글·검색', '수익화'],
-    industries: [
-      '개인 블로그',
-      '매거진·웹진',
-      '지역/뉴스 미디어',
-      '리뷰·큐레이션',
-      '여행·맛집',
-      '테크·산업 뉴스레터형',
-      '브랜드 저널(콘텐츠 마케팅)',
-    ],
-    recommendedFeatures: ['snsLinks'],
-  },
-  {
-    id: 'community',
-    label: '커뮤니티',
-    group: 'content',
-    groupLabel: '콘텐츠·멤버십',
-    features: ['회원 가입', '게시판/포럼·모임', '등급/포인트', '모더레이션'],
-    industries: [
-      '취미·동호회',
-      '스터디·모임',
-      '지역/아파트 커뮤니티',
-      '팬덤',
-      '전문가/직무 네트워크',
-      '브랜드 팬 커뮤니티',
-    ],
-    recommendedFeatures: ['snsLinks', 'contactForm'],
-  },
-  {
-    id: 'event',
-    label: '이벤트',
-    group: 'promote',
-    groupLabel: '알리기',
-    features: ['행사 소개', '일정/카운트다운', 'RSVP/신청 폼·티켓', '참가자 관리'],
-    industries: [
-      '세미나·컨퍼런스',
-      '웨딩·돌잔치',
-      '팝업스토어·전시',
-      '공연·페스티벌',
-      '채용설명회',
-      '클래스/워크숍 모집',
-      '크라우드펀딩 랜딩',
-    ],
-    recommendedFeatures: ['contactForm', 'mapEmbed'],
-  },
-  {
     id: 'one_page',
     label: '원페이지·링크인바이오',
     group: 'promote',
@@ -207,6 +137,19 @@ export const PURPOSES: PurposeDef[] = [
     recommendedFeatures: ['snsLinks'],
   },
 ];
+
+/**
+ * [제품 확정] 설문에서 선택 가능한 소개형 목적 6종 (deprecated 4종 제외). PURPOSES에서 파생 —
+ * PURPOSES가 곧 6종이지만, 타입 안전한 완전성 강제(Record<LivePurposeId>)를 위해 명시 배열도 노출.
+ */
+export const LIVE_PURPOSE_IDS = [
+  'local_store',
+  'booking_service',
+  'company_brand',
+  'portfolio',
+  'edu_membership',
+  'one_page',
+] as const satisfies readonly LivePurposeId[];
 
 /** id로 목적 정의 조회 */
 export function findPurpose(id: SitePurposeId): PurposeDef | undefined {

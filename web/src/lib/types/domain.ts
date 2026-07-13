@@ -183,18 +183,33 @@ export interface ExistingPresence {
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */
 export type SiteGoalId = 'call' | 'reserve' | 'directions' | 'kakao_inquiry' | 'purchase' | 'trust';
 
-/** [v3 Phase 0.2] 사이트 목적 택소노미 (10종) */
+/**
+ * [v3 Phase 0.2] 사이트 목적 택소노미.
+ * [제품 확정 — 홈페이지 최적화 AI] 소개형 6종만 설문에서 선택 가능(LivePurposeId).
+ * ecommerce/blog_media/community/event는 제거됐으나 유니온에는 @deprecated로 남긴다 —
+ * 레거시 draft가 깨지지 않고 열리기만 하면 됨(마이그레이션 불필요, 신규 생성 불가).
+ */
 export type SitePurposeId =
   | 'local_store' // 1. 음식점·로컬 매장
   | 'booking_service' // 2. 예약·서비스업
-  | 'ecommerce' // 3. 쇼핑몰
-  | 'edu_membership' // 4. 교육·멤버십
-  | 'company_brand' // 5. 회사·브랜드
-  | 'portfolio' // 6. 포트폴리오
-  | 'blog_media' // 7. 블로그·미디어
-  | 'community' // 8. 커뮤니티
-  | 'event' // 9. 이벤트
-  | 'one_page'; // 10. 원페이지·링크인바이오
+  /** @deprecated 제거된 목적 — 신규 생성 불가, 레거시 draft 호환 위해 유니온 유지 */
+  | 'ecommerce' // (제거) 쇼핑몰
+  | 'edu_membership' // 3. 학원·교육
+  | 'company_brand' // 4. 회사·브랜드
+  | 'portfolio' // 5. 포트폴리오
+  /** @deprecated 제거된 목적 — 신규 생성 불가 */
+  | 'blog_media' // (제거) 블로그·미디어
+  /** @deprecated 제거된 목적 — 신규 생성 불가 */
+  | 'community' // (제거) 커뮤니티
+  /** @deprecated 제거된 목적 — 신규 생성 불가 */
+  | 'event' // (제거) 이벤트
+  | 'one_page'; // 6. 원페이지·링크인바이오
+
+/**
+ * [제품 확정] 설문에서 선택 가능한 소개형 목적 6종 — capabilities·schema-map·smoke가 이 타입으로
+ * 완전성(6종 전부)을 강제한다. deprecated 4종은 제외.
+ */
+export type LivePurposeId = Exclude<SitePurposeId, 'ecommerce' | 'blog_media' | 'community' | 'event'>;
 
 /** [v3 Phase 0.2] 섹션 계획 항목 — 템플릿/사용자/AI가 만드는 단위 */
 export interface SectionPlanItem {
