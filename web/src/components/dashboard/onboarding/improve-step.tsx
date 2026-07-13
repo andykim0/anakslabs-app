@@ -10,7 +10,7 @@
  * 로컬 흐름(localStep 1~3): 1) 불러오는 중/요약  2) 확인(목적·업종·지역·콘텐츠)  3) 색·분위기.
  * RHF를 쓰지 않고 로컬 useState로만 관리한다(짧은 흐름).
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ImageIcon, ListChecks, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
 import type { ContentItem, LivePurposeId, SiteGoalId, SurveyInput } from '@/lib/types/domain';
 import { LIVE_PURPOSE_IDS, findPurpose } from '@/lib/data/purpose-taxonomy';
@@ -55,7 +55,7 @@ function hostOf(url: string): string {
 }
 
 /** 가져온 텍스트에서 목적 추론 (spec 키워드 규칙) */
-function inferPurpose(r: ImproveExtractResult): LivePurposeId {
+export function inferPurpose(r: ImproveExtractResult): LivePurposeId {
   const hay = `${r.title ?? ''} ${r.description ?? ''} ${r.text ?? ''}`;
   if (/메뉴|카페|음식/.test(hay)) return 'local_store';
   if (/시술|미용|예약/.test(hay)) return 'booking_service';
@@ -65,7 +65,7 @@ function inferPurpose(r: ImproveExtractResult): LivePurposeId {
 }
 
 /** 본문에서 '시/구/동' 패턴 첫 매칭 → 지역 기본값(없으면 '') */
-function inferRegion(text: string): string {
+export function inferRegion(text: string): string {
   const m = /([가-힣]{2,}(?:시|구|동))/.exec(text ?? '');
   return m ? m[1] : '';
 }
@@ -94,6 +94,8 @@ export function ImproveStep({
   const [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading');
   const [extract, setExtract] = useState<ImproveExtractResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  // [H1] "다시 시도" 트리거 — 증가 시 import effect 재실행
+  const [retryKey, setRetryKey] = useState(0);
 
   // ── 로컬 스텝 ──
   const [localStep, setLocalStep] = useState<1 | 2 | 3>(1);
@@ -111,16 +113,22 @@ export function ImproveStep({
   const [refine, setRefine] = useState(false);
   const [tone, setTone] = useState<string[]>([]);
 
-  // ── 가져오기 1회 실행 ──
-  const startedRef = useRef(false);
+  // ── 가져오기 실행 ──
+  // [H1] StrictMode 안전: startedRef(1회 가드) 제거 — 이중 마운트 시 mount2가 실제 fetch를 수행해
+  // 상태를 채운다(dev 이중 fetch는 무해, rate limit 5/분). cancelled는 '그 effect 인스턴스'만 무시.
+  // + 12초 상한 타임아웃(서버 8초와 별개 UX 안전망) → 에러 상태 + "다시 시도" 버튼. retryKey로 재시도.
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
     let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (cancelled) return;
+      setErrorMsg('불러오기가 오래 걸려요. 다시 시도하거나 직접 입력으로 시작해 주세요.');
+      setPhase('error');
+    }, 12000);
     (async () => {
       try {
         const result = await improveExtract(improve.url);
         if (cancelled) return;
+        clearTimeout(timeout);
         setExtract(result);
         setPurposeId(inferPurpose(result));
         setIndustry((result.title ?? '').trim() || host);
@@ -130,14 +138,23 @@ export function ImproveStep({
         setPhase('ready');
       } catch (err) {
         if (cancelled) return;
+        clearTimeout(timeout);
         setErrorMsg(err instanceof Error ? err.message : '기존 사이트를 불러오지 못했어요.');
         setPhase('error');
       }
     })();
     return () => {
       cancelled = true;
+      clearTimeout(timeout);
     };
-  }, [improve.url, host]);
+  }, [improve.url, host, retryKey]);
+
+  // [H1] 재시도 — 이벤트 핸들러에서 loading 리셋 후 effect 재실행 트리거
+  const retryImport = () => {
+    setErrorMsg('');
+    setPhase('loading');
+    setRetryKey((k) => k + 1);
+  };
 
   // ── 파생 게이트 ──
   const req = requirementOf(purposeId);
@@ -305,16 +322,26 @@ export function ImproveStep({
                   {errorMsg}
                 </div>
                 <p className="text-[14px] leading-relaxed text-ob-muted">
-                  자동으로 가져오지 못했어요. 직접 몇 가지만 입력해서 시작할 수 있어요.
+                  자동으로 가져오지 못했어요. 다시 시도하거나, 직접 몇 가지만 입력해서 시작할 수 있어요.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setLocalStep(2)}
-                  className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
-                >
-                  직접 입력으로 시작
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                <div className="flex flex-wrap gap-2.5">
+                  <button
+                    type="button"
+                    onClick={retryImport}
+                    className="inline-flex h-12 items-center gap-2 rounded-ob border border-ob-border bg-ob-surface px-5 text-[15px] font-medium text-ob-ink transition-colors hover:border-ob-accent-strong hover:text-ob-accent-strong"
+                  >
+                    <Loader2 className="h-4 w-4" />
+                    다시 시도
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLocalStep(2)}
+                    className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+                  >
+                    직접 입력으로 시작
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
