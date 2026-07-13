@@ -205,7 +205,7 @@ export function CandidateStep({
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          설문으로 돌아가기
+          이전
         </Button>
       </div>
     );
@@ -243,7 +243,7 @@ export function CandidateStep({
         <div className="flex gap-2">
           <Button variant="ghost" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
-            설문 수정
+            이전
           </Button>
           <Button variant="secondary" onClick={regenerate}>
             <RefreshCw className="h-4 w-4" />

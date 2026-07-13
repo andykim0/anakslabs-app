@@ -27,12 +27,13 @@ export interface ImproveContext {
   issueCount: number;
 }
 
+// [A4] 승인 프레이밍 — 각 단계는 '확인하고 넘어가는' 게이트. 라벨을 승인 축으로.
 const STEPS = [
-  { no: 1, label: '설문' },
+  { no: 1, label: '내용' },
   { no: 2, label: '움직임' },
-  { no: 3, label: '디자인 선택' },
+  { no: 3, label: '디자인 방향' },
   { no: 4, label: '부가기능' },
-  { no: 5, label: '생성' },
+  { no: 5, label: '구성·생성' },
 ] as const;
 
 export function OnboardingWizard({
@@ -72,8 +73,11 @@ export function OnboardingWizard({
         </div>
       ) : null}
 
-      {/* 진행 표시 */}
+      {/* [A4] 진행 표시 + 승인 프레이밍 — 각 단계는 확인하고 넘어가는 게이트(기본 1클릭 통과, 언제든 이전) */}
       <div className="mb-8">
+        <p className="mb-2 text-center text-[11px] text-ob-muted">
+          {step}/5 단계 · 확인하고 넘어가면 돼요 — 마음에 안 들면 언제든 이전으로
+        </p>
         <div className="flex items-center">
           {STEPS.map((s, i) => {
             const done = step > s.no;
