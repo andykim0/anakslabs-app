@@ -7,9 +7,9 @@
  * 이 항목에서 결정적으로 나오고 AI는 그 안에서 고객 콘텐츠만 채운다. 무드보드 12는 이 갤러리의
  * 큐레이션 서브셋으로 흡수(레거시 referenceStyleId/paletteSeed 경로 유지 — R5에서 배선).
  */
-import type { LivePurposeId } from '@/lib/types/domain';
+import type { LivePurposeId, SitePurposeId } from '@/lib/types/domain';
 import { LIVE_PURPOSE_IDS } from '@/lib/data/purpose-taxonomy';
-import { skeletonsForPurpose } from '@/lib/data/skeletons';
+import { skeletonsForPurpose, skeletonById, skeletonForCandidate, type HeroVariant } from '@/lib/data/skeletons';
 import { PALETTE_LIBRARY, palettesForIndustry, type PaletteLibraryEntry } from '@/lib/design/palette-library';
 import { resolvePresetForIndustry } from '@/lib/motion/presets';
 
@@ -103,9 +103,40 @@ export function galleryById(id: string): ReferenceDesign | undefined {
   return REFERENCE_GALLERY.find((d) => d.id === id);
 }
 
+/**
+ * [R5] 생성 시 히어로 형태 결정 — 갤러리 선택(referenceDesignId)이 있으면 그 뼈대로 고정("고른 게 곧 나온다"),
+ * 없으면 후보별 결정적 폴백(무회귀). 팔레트는 colorPreference 경로가 별도로 흐른다.
+ */
+export function heroVariantForSurvey(
+  referenceDesignId: string | undefined,
+  purpose: SitePurposeId,
+  candidateId: string,
+): HeroVariant {
+  const selected = referenceDesignId ? galleryById(referenceDesignId) : undefined;
+  const skel = selected ? skeletonById(selected.skeletonId) : undefined;
+  return (skel ?? skeletonForCandidate(purpose, candidateId)).heroVariant;
+}
+
 /** 목적별 갤러리(업종 추천 정렬은 이미 pickPalettes에 반영). R5 선택 UI 기본 목록. */
 export function galleryForPurpose(purpose: LivePurposeId): ReferenceDesign[] {
   return REFERENCE_GALLERY.filter((d) => d.purpose === purpose);
+}
+
+/**
+ * [R5] 갤러리 선택 → 설문 색 입력(colorPreference/secondaryColor) + 선택 id. 팔레트는 이 경로로 흐르고
+ * (deriveColors/themeForBrief와 동일), 뼈대는 referenceDesignId로 생성이 조회한다. 미선택이면 미적용.
+ */
+export function surveyInputsForDesign(design: ReferenceDesign): {
+  colorPreference: string;
+  secondaryColor?: string;
+  referenceDesignId: string;
+} {
+  const pal = PALETTE_LIBRARY.find((p) => p.id === design.paletteId)!;
+  return {
+    colorPreference: pal.seed.primary,
+    ...(pal.seed.secondary ? { secondaryColor: pal.seed.secondary } : {}),
+    referenceDesignId: design.id,
+  };
 }
 
 /** 갤러리 항목 → 결정적 생성 파라미터(R5가 소비). 팔레트 시드는 derivePalette 경로로. */

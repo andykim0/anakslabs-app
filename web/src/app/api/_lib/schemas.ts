@@ -451,6 +451,8 @@ export const surveySchema = z.object({
   storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
   // [F3 #7] 무드보드에서 고른 레퍼런스 샘플 스타일 id
   referenceStyleIds: z.array(z.string().max(40)).max(12).optional(),
+  // [R5] 레퍼런스 갤러리에서 고른 디자인 id — 뼈대(히어로 형태) 고정
+  referenceDesignId: z.string().max(80).optional(),
   sectionPlan: z
     .array(sectionPlanItemSchema)
     .min(1, '섹션을 1개 이상 구성해 주세요.')

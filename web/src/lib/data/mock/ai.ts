@@ -10,7 +10,7 @@ import type { SectionType, SiteConfig } from '@/lib/types/site';
 import { buildCandidateBlueprints } from '../design-candidates';
 import { mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey } from '../site-templates';
-import { skeletonForCandidate } from '../skeletons';
+import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
 import { getMockStore } from './store';
 
 /** 생성 이미지 순환 풀 — public/mock 로컬 자산 */
@@ -101,8 +101,8 @@ export class MockAiService implements AiService {
       aiImages: [...MOCK_IMAGE_POOL],
       heroFallback: candidate.heroImageUrl,
     });
-    // [R2] 후보별 뼈대(히어로 형태) — 3안이 서로 다른 골격을 받도록 후보 id로 결정적 매핑
-    const heroVariant = skeletonForCandidate(survey.purposeId, candidate.id).heroVariant;
+    // [R2/R5] 히어로 형태 — 갤러리 선택(referenceDesignId) 우선, 없으면 후보별 결정적 폴백
+    const heroVariant = heroVariantForSurvey(survey.referenceDesignId, survey.purposeId, candidate.id);
     return buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl, imagePool, heroVariant });
   }
 

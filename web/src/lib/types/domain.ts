@@ -312,6 +312,12 @@ export interface SurveyInput {
    * selectDesignBriefs가 후보 스타일 선택에 가중치로 사용(imageStyle 고정 > 샘플 가중 > POV 비중복).
    */
   referenceStyleIds?: string[];
+  /**
+   * [R5] 고객이 레퍼런스 갤러리에서 고른 디자인 id(REFERENCE_GALLERY.id). 있으면 뼈대(히어로 형태)를
+   * 그 항목으로 고정하고, 팔레트는 colorPreference(항목 paletteSeed 파생)로 흐른다. 미선택이면 기존
+   * 무드보드/업종 폴백(무회귀).
+   */
+  referenceDesignId?: string;
   /** [v3] 기존 sections: SectionType[] 를 대체하는 섹션 계획표 */
   sectionPlan: SectionPlanItem[];
   /**

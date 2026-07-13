@@ -53,6 +53,8 @@ export const surveyFormSchema = z.object({
   colorOverride: z.string(),
   /** [UI 전용] 보조색 직접 지정(hex). 없으면 시드에서 파생 */
   secondaryColor: z.string(),
+  /** [R5] 레퍼런스 갤러리에서 고른 디자인 id(REFERENCE_GALLERY.id). SurveyInput.referenceDesignId로 그대로 전달 */
+  referenceDesignId: z.string().optional(),
   siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'purchase', 'trust']).optional(),
   highlights: z.array(z.string().max(40)).max(3),
   tone: z
@@ -114,6 +116,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       moodIds: [],
       colorOverride: '',
       secondaryColor: '',
+      referenceDesignId: undefined,
       siteGoal: undefined,
       highlights: [],
       tone: [],
@@ -149,6 +152,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     moodIds,
     colorOverride,
     secondaryColor: initial.secondaryColor ?? '',
+    referenceDesignId: initial.referenceDesignId,
     siteGoal: initial.siteGoal as SiteGoalId | undefined,
     highlights: initial.highlights ?? [],
     tone: normalizeTone(initial.tone),

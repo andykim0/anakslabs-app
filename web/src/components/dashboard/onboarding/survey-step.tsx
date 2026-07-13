@@ -153,6 +153,7 @@ export function SurveyStep({
       logoUrl: clean(values.logoUrl),
       referenceImageUrls: [], // [v4] 수집 중단 — 항상 빈 배열
       referenceStyleIds: values.moodIds.length ? styleIdsForSamples(values.moodIds) : undefined,
+      referenceDesignId: clean(values.referenceDesignId),
       existingPresence: presence.length ? presence : undefined,
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
