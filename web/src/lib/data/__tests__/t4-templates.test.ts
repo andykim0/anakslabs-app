@@ -140,3 +140,48 @@ describe('T4-C 알리기 — 케이스 스터디·작업 그리드', () => {
     assert.ok(!cases.elements.some((el) => el.id.includes('proj-name')));
   });
 });
+
+describe('T4-D 콘텐츠 — 글 카드·구독/가입 CTA', () => {
+  const blog = buildSiteConfigFromSurvey(surveyFor('blog_media', '뉴스레터'), candidate, opts);
+  const blogSecs = blog.pages.flatMap((p) => p.sections);
+
+  test('gallery:posts → 글 카드 3장(이미지 밴드·제목·발췌) + 읽기 버튼 배선', () => {
+    const posts = blogSecs.find((s) => s.type === 'gallery')!;
+    const titles = posts.elements.filter((el) => el.id.includes('post-title'));
+    const excerpts = posts.elements.filter((el) => el.id.includes('post-excerpt'));
+    const imgs = posts.elements.filter((el) => el.id.includes('post-img'));
+    const reads = posts.elements.filter((el) => el.id.includes('post-read'));
+    assert.equal(titles.length, 3);
+    assert.equal(excerpts.length, 3);
+    assert.equal(imgs.length, 3);
+    assert.equal(reads.length, 3);
+    for (const b of reads) {
+      assert.ok(b.kind === 'button' && b.label === '읽기' && b.style.variant === 'outline');
+      assert.ok(b.kind === 'button' && b.href.includes('#sec-about'), b.kind === 'button' ? b.href : '');
+    }
+  });
+
+  test('cta:subscribe → 라벨 구독하기 + 부제 뉴스레터·채널 소식 받기 (href contact 유지)', () => {
+    const cta = blogSecs.find((s) => s.type === 'cta')!;
+    const btn = cta.elements.find((el) => el.kind === 'button')!;
+    assert.ok(btn.kind === 'button' && btn.label === '구독하기');
+    assert.ok(btn.kind === 'button' && btn.href.includes('#sec-contact'));
+    assert.ok(JSON.stringify(cta).includes('뉴스레터·채널 소식 받기'));
+  });
+
+  test('cta:join(community) → 라벨 가입 안내 보기 + 부제 카페·밴드 (href contact 유지)', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('community', '독서 모임'), candidate, opts);
+    const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
+    const btn = cta.elements.find((el) => el.kind === 'button')!;
+    assert.ok(btn.kind === 'button' && btn.label === '가입 안내 보기');
+    assert.ok(btn.kind === 'button' && btn.href.includes('#sec-contact'));
+    assert.ok(JSON.stringify(cta).includes('카페·밴드에서 함께해요'));
+  });
+
+  test('무변형 cta(ecommerce)는 문의하기 유지(무회귀)', () => {
+    const cfg = buildSiteConfigFromSurvey(surveyFor('ecommerce', '패션'), candidate, opts);
+    const cta = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'cta')!;
+    const btn = cta.elements.find((el) => el.kind === 'button')!;
+    assert.ok(btn.kind === 'button' && btn.label === '문의하기');
+  });
+});

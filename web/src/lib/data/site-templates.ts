@@ -897,11 +897,96 @@ function buildWorksGrid(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/**
+ * [T4-D] gallery:posts — 글 카드 3장(이미지 밴드+제목+1줄 발췌+'읽기' outline 버튼).
+ * 글 발행은 에디터에서 페이지 추가로 — 자체 CMS는 roadmap(T3 '자체 글 발행(CMS, 준비 중)' 정합).
+ * '읽기'는 about(만드는 사람)으로 폴백 배선(무배선 0) — 실글 링크는 에디터에서 교체.
+ */
+function buildPostsGrid(ctx: Ctx, item: SectionPlanItem): Section {
+  const { theme } = ctx;
+  const posts = [
+    { title: '첫 번째 글', excerpt: '대표 글의 첫 문장을 발췌해 보여주는 자리입니다.' },
+    { title: '두 번째 글', excerpt: '에디터에서 제목과 발췌를 실제 글로 바꿔주세요.' },
+    { title: '세 번째 글', excerpt: '새 글은 페이지 추가로 발행할 수 있어요.' },
+  ];
+  const TOP = 260;
+  const CARD_H = 400;
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-post-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '콘텐츠',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, headingOf(item, '최신 글'), 142),
+  ];
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
+  posts.forEach((post, i) => {
+    const x = 120 + i * 420;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-post-card'),
+        kind: 'shape',
+        frame: { x, y: TOP, w: 360, h: CARD_H },
+        z: 1,
+        shape: 'rect',
+        style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
+      },
+      {
+        id: nextId(ctx, 'el-post-img'),
+        kind: 'image',
+        frame: { x, y: TOP, w: 360, h: 170 },
+        z: 2,
+        src: nextImage(ctx),
+        alt: post.title,
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+      },
+      {
+        id: nextId(ctx, 'el-post-title'),
+        kind: 'text',
+        frame: { x: x + 28, y: TOP + 190, w: 304, h: 30 },
+        z: 3,
+        text: post.title,
+        style: { fontSize: 20, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-post-excerpt'),
+        kind: 'text',
+        frame: { x: x + 28, y: TOP + 228, w: 304, h: 48 },
+        z: 3,
+        text: post.excerpt,
+        style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.6 },
+      },
+      {
+        id: nextId(ctx, 'el-post-read'),
+        kind: 'button',
+        frame: { x: x + 28, y: TOP + 312, w: 110, h: 40 },
+        z: 3,
+        label: '읽기',
+        href: '#sec-about',
+        style: { variant: 'outline', color: theme.palette.primary, textColor: theme.palette.primary, fontSize: 14, borderRadius: theme.radius ?? 4 },
+      },
+    );
+  });
+  return {
+    id: 'sec-gallery',
+    type: 'gallery',
+    name: SECTION_NAMES.gallery,
+    height: TOP + CARD_H + 60,
+    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
+    elements,
+  };
+}
+
 function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
   // [T4-A] 쇼핑몰 상품 진열은 전용 그리드로 분기(variant 'gallery:products')
   if (variantSuffix(item.variant) === 'products') return buildProductGrid(ctx, item);
   // [T4-C] 포트폴리오 작업 그리드(variant 'gallery:works')
   if (variantSuffix(item.variant) === 'works') return buildWorksGrid(ctx, item);
+  // [T4-D] 블로그·미디어 글 카드(variant 'gallery:posts')
+  if (variantSuffix(item.variant) === 'posts') return buildPostsGrid(ctx, item);
   const { theme } = ctx;
   const frames = [
     { x: 120, y: 260, w: 560, h: 440 },
@@ -1068,7 +1153,16 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
 function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey, opts } = ctx;
   const copy = opts.copy ?? {};
-  const brief = briefToSubtitle(item.brief);
+  // [T4-D] 구독/가입 변형 — 라벨·부제만 프리셋(레이아웃 공유). href는 contact 폴백 유지
+  //        (외부 뉴스레터·카페·밴드 링크는 에디터에서 교체 — 무배선 0).
+  const suf = variantSuffix(item.variant);
+  const preset =
+    suf === 'subscribe'
+      ? { label: '구독하기', sub: '뉴스레터·채널 소식 받기' }
+      : suf === 'join'
+        ? { label: '가입 안내 보기', sub: '카페·밴드에서 함께해요' }
+        : undefined;
+  const brief = preset?.sub ?? briefToSubtitle(item.brief);
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-cta-title'),
@@ -1094,7 +1188,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
     kind: 'button',
     frame: { x: 634, y: 236, w: 172, h: 54 },
     z: 3,
-    label: '문의하기',
+    label: preset?.label ?? '문의하기',
     href: '#sec-contact',
     style: { variant: 'solid', color: theme.palette.primary, textColor: ctx.dark ? theme.palette.background : '#ffffff', fontSize: 15, borderRadius: theme.radius ?? 4 },
   });
