@@ -842,9 +842,66 @@ function buildProductGrid(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/**
+ * [T4-C] gallery:works — 작업 그리드 6장(3열×2행) + 이미지 하단 캡션('작업 01'~'작업 06', 결정적).
+ * 캡션이 이미지와 분리된 텍스트 요소라 에디터에서 실작업명으로 바로 교체 가능.
+ */
+function buildWorksGrid(ctx: Ctx, item: SectionPlanItem): Section {
+  const { theme } = ctx;
+  const IMG_H = 260;
+  const ROW_H = IMG_H + 12 + 24 + 40; // 이미지 + 캡션 간격 + 캡션 + 행 간격
+  const TOP = 260;
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-work-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '작업',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, headingOf(item, '대표 작업'), 142),
+  ];
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
+  for (let i = 0; i < 6; i += 1) {
+    const x = 120 + (i % 3) * 420;
+    const y = TOP + Math.floor(i / 3) * ROW_H;
+    const caption = `작업 0${i + 1}`;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-work-img'),
+        kind: 'image',
+        frame: { x, y, w: 360, h: IMG_H },
+        z: 2,
+        src: nextImage(ctx),
+        alt: caption,
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+      },
+      {
+        id: nextId(ctx, 'el-work-cap'),
+        kind: 'text',
+        frame: { x, y: y + IMG_H + 12, w: 360, h: 24 },
+        z: 2,
+        text: caption,
+        style: { fontSize: 15, fontWeight: 500, fontFamily: 'body', color: ctx.softText, align: 'left', letterSpacing: 0.5 },
+      },
+    );
+  }
+  return {
+    id: 'sec-gallery',
+    type: 'gallery',
+    name: SECTION_NAMES.gallery,
+    height: TOP + 2 * ROW_H + 20,
+    background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
+    elements,
+  };
+}
+
 function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
   // [T4-A] 쇼핑몰 상품 진열은 전용 그리드로 분기(variant 'gallery:products')
   if (variantSuffix(item.variant) === 'products') return buildProductGrid(ctx, item);
+  // [T4-C] 포트폴리오 작업 그리드(variant 'gallery:works')
+  if (variantSuffix(item.variant) === 'works') return buildWorksGrid(ctx, item);
   const { theme } = ctx;
   const frames = [
     { x: 120, y: 260, w: 560, h: 440 },
@@ -1350,7 +1407,96 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
+/**
+ * [T4-C] cases:projects — 케이스 스터디 레이아웃(포트폴리오·이력서).
+ * 프로젝트 2건 × [프로젝트명 + 개요/과정/결과 3단 텍스트(라벨 킥커+본문)].
+ * providedContent 파싱 없이 결정적 플레이스홀더(businessName 보간) — 실내용은 에디터에서 교체.
+ */
+function buildCasesProjects(ctx: Ctx, item: SectionPlanItem): Section {
+  const { theme, survey } = ctx;
+  const projects = [
+    {
+      name: `${survey.businessName} 대표 프로젝트`,
+      cols: [
+        '어떤 의뢰였고, 무엇을 목표로 했는지 정리하는 자리입니다.',
+        '리서치부터 완성까지 실제 진행 단계를 적어주세요.',
+        '완성물과 성과를 남겨주세요. 수치가 있으면 더 좋습니다.',
+      ],
+    },
+    {
+      name: `${survey.businessName} 주요 작업`,
+      cols: ['두 번째 프로젝트의 배경과 목표.', '작업 방식과 협업 과정.', '결과물과 지표, 그리고 배운 점.'],
+    },
+  ];
+  const COL_LABELS = ['개요', '과정', '결과'];
+  const TOP = 268; // 첫 블록 시작
+  const BLOCK_H = 260; // 프로젝트명(40)+구분선+라벨(20)+본문(96)+블록 간격
+  const elements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-proj-kicker'),
+      kind: 'text',
+      frame: { x: 122, y: 100, w: 320, h: 22 },
+      z: 2,
+      text: '프로젝트',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
+    },
+    titleEl(ctx, headingOf(item, '프로젝트 상세'), 142),
+  ];
+  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
+  projects.forEach((proj, i) => {
+    const top = TOP + i * BLOCK_H;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-proj-name'),
+        kind: 'text',
+        frame: { x: 120, y: top, w: 1200, h: 40 },
+        z: 2,
+        text: proj.name,
+        style: { fontSize: 26, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.4 },
+      },
+      {
+        id: nextId(ctx, 'el-proj-div'),
+        kind: 'divider',
+        frame: { x: 120, y: top + 52, w: 1200, h: 1 },
+        z: 1,
+        style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
+      },
+    );
+    proj.cols.forEach((body, j) => {
+      const x = 120 + j * 420;
+      elements.push(
+        {
+          id: nextId(ctx, 'el-proj-col-label'),
+          kind: 'text',
+          frame: { x, y: top + 80, w: 360, h: 20 },
+          z: 2,
+          text: COL_LABELS[j],
+          style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 3 },
+        },
+        {
+          id: nextId(ctx, 'el-proj-col-body'),
+          kind: 'text',
+          frame: { x, y: top + 108, w: 360, h: 96 },
+          z: 2,
+          text: body,
+          style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
+        },
+      );
+    });
+  });
+  return {
+    id: 'sec-cases',
+    type: 'cases',
+    name: SECTION_NAMES.cases,
+    height: TOP + projects.length * BLOCK_H + 40,
+    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
+    elements,
+  };
+}
+
 function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
+  // [T4-C] 포트폴리오·이력서 케이스 스터디는 전용 레이아웃(variant 'cases:projects')
+  if (variantSuffix(item.variant) === 'projects') return buildCasesProjects(ctx, item);
   const { theme, survey } = ctx;
   const items = [
     { title: '대표 사례', metric: '98%', desc: `${survey.industry}에서 검증된 결과.` },

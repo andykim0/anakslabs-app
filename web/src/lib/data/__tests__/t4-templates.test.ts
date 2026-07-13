@@ -97,3 +97,46 @@ describe('T4-B 손님받기 — 티저·구성원 어댑터', () => {
     assert.equal(teaserSummary({ slug: 'reviews', providedContent: '주소는 서울입니다' }), undefined);
   });
 });
+
+describe('T4-C 알리기 — 케이스 스터디·작업 그리드', () => {
+  const cfg = buildSiteConfigFromSurvey(surveyFor('portfolio', '디자인 스튜디오'), candidate, opts);
+  const secs = cfg.pages.flatMap((p) => p.sections);
+
+  test('gallery:works → 작업 6장 + 캡션 작업 01~06(하단 텍스트, 결정적)', () => {
+    const works = secs.find((s) => s.type === 'gallery')!;
+    const imgs = works.elements.filter((el) => el.id.includes('work-img'));
+    const caps = works.elements.filter((el) => el.id.includes('work-cap'));
+    assert.equal(imgs.length, 6);
+    assert.equal(caps.length, 6);
+    assert.deepEqual(
+      caps.map((el) => (el.kind === 'text' ? el.text : '')),
+      ['작업 01', '작업 02', '작업 03', '작업 04', '작업 05', '작업 06'],
+    );
+    // 캡션은 이미지 아래(오버레이 아님) — 각 캡션 y가 짝 이미지 하단보다 아래
+    for (let i = 0; i < 6; i += 1) {
+      assert.ok(caps[i].frame.y >= imgs[i].frame.y + imgs[i].frame.h, `캡션 ${i} 오버레이`);
+    }
+  });
+
+  test('cases:projects → 프로젝트 2건 × 개요/과정/결과 3단(businessName 보간)', () => {
+    const cases = secs.find((s) => s.type === 'cases')!;
+    const names = cases.elements.filter((el) => el.id.includes('proj-name'));
+    const labels = cases.elements
+      .filter((el) => el.id.includes('proj-col-label'))
+      .map((el) => (el.kind === 'text' ? el.text : ''));
+    assert.equal(names.length, 2);
+    assert.ok(names.every((el) => el.kind === 'text' && el.text.includes('테스트')), 'businessName 미보간');
+    assert.deepEqual(labels, ['개요', '과정', '결과', '개요', '과정', '결과']);
+    // 높이 정확 — 모든 요소가 섹션 높이 안에 있어야 함
+    for (const el of cases.elements) {
+      assert.ok(el.frame.y + el.frame.h <= cases.height, `${el.id} 섹션 높이 초과`);
+    }
+  });
+
+  test('무변형 cases(company_brand)는 기존 지표 카드 유지(무회귀)', () => {
+    const brand = buildSiteConfigFromSurvey(surveyFor('company_brand', '컨설팅'), candidate, opts);
+    const cases = brand.pages.flatMap((p) => p.sections).find((s) => s.type === 'cases')!;
+    assert.ok(cases.elements.some((el) => el.id.includes('case-metric')));
+    assert.ok(!cases.elements.some((el) => el.id.includes('proj-name')));
+  });
+});
