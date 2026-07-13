@@ -157,6 +157,9 @@ export function applyGeneratedMotion(
   choice?: MotionChoice,
 ): SiteConfig {
   const presetId = resolvePresetForIndustry(purpose, tier);
+  // [U2] 영상 애드온 선택(video-hero) = videoRequested 표식. 애드온 미보유(basic)면 sanitize가
+  // 능력(heroTechnique/videoConceptId)은 강등하지만 이 표식은 남겨 관리자가 판매·부여 대상 식별.
+  const videoRequested = choice?.heroTechnique === 'video-hero';
   return sanitizeMotion(
     {
       ...config,
@@ -165,6 +168,7 @@ export function applyGeneratedMotion(
         intensity: choice?.intensity ?? 'normal',
         ...(choice?.heroTechnique !== undefined ? { heroTechnique: choice.heroTechnique } : {}),
         ...(choice?.videoConceptId !== undefined ? { videoConceptId: choice.videoConceptId } : {}),
+        ...(videoRequested ? { videoRequested: true } : {}),
       },
     },
     tier,

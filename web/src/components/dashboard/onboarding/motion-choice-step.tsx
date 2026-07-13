@@ -10,7 +10,8 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Play } from 'lucide-react';
 import type { SitePurposeId, Tier } from '@/lib/types/domain';
-import { heroChoicesForTier } from '@/lib/motion/hero-choice';
+import { ALL_HERO_CHOICES } from '@/lib/motion/hero-choice';
+import { hasVideoAddon, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import type { MotionChoiceDto } from '../api';
@@ -126,7 +127,10 @@ export function MotionChoiceStep({
   onBack: () => void;
   onComplete: (choice: MotionChoiceDto) => void;
 }) {
-  const choices = heroChoicesForTier(tier);
+  // [U2] 영상 애드온을 누구에게나 노출(단일 제품 + 유료 애드온). 능력 게이팅은 서버(sanitize·생성)가 담당.
+  const choices = ALL_HERO_CHOICES;
+  const ownsAddon = hasVideoAddon(tier);
+  const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
 
   const [hero, setHero] = useState<string>(() =>
@@ -137,7 +141,8 @@ export function MotionChoiceStep({
   const [intensity, setIntensity] = useState<'subtle' | 'normal'>(initial?.intensity ?? 'normal');
   const [conceptId, setConceptId] = useState<string | undefined>(initial?.videoConceptId);
 
-  const showConcepts = tier === 'premium' && hero === 'video-hero';
+  // [U2] 영상 방향 선택은 애드온 보유와 무관하게 노출(요청 표식만 남김 — 실제 Veo는 애드온 승인 후).
+  const showConcepts = hero === 'video-hero';
   // 복원값이 현 목적 그룹에 없으면 첫 컨셉으로 폴백 — "다음"이 항상 완결된 선택을 반환
   const activeConceptId =
     conceptId && concepts.some((c) => c.id === conceptId) ? conceptId : concepts[0].id;
@@ -185,10 +190,21 @@ export function MotionChoiceStep({
                 ) : null}
               </div>
               <div className="p-4">
-                <p className={cn('text-sm font-semibold', selected ? 'text-ob-accent-strong' : 'text-ob-ink')}>
-                  {choice.label}
+                <div className="flex items-center justify-between gap-2">
+                  <p className={cn('text-sm font-semibold', selected ? 'text-ob-accent-strong' : 'text-ob-ink')}>
+                    {choice.label}
+                  </p>
+                  {choice.id === 'video-hero' ? (
+                    <span className="shrink-0 rounded-full border border-ob-accent bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">
+                      {ownsAddon ? '애드온 포함' : `영상 애드온 ${addonPrice}`}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-xs leading-5 text-ob-muted">
+                  {choice.id === 'video-hero' && !ownsAddon
+                    ? '원하실 때만 — 결제 후 제작에 반영돼요. 지금은 방향만 골라두면 됩니다.'
+                    : choice.description}
                 </p>
-                <p className="mt-1 text-xs leading-5 text-ob-muted">{choice.description}</p>
               </div>
             </button>
           );
@@ -228,7 +244,9 @@ export function MotionChoiceStep({
           <div>
             <h3 className="text-sm font-semibold text-ob-ink">메인 화면에 어떤 영상이 흐르면 좋을까요?</h3>
             <p className="mt-1 text-xs leading-5 text-ob-muted">
-              영상은 사이트 생성 후 스튜디오에서 만들어요 — 지금은 방향만 골라두면 돼요.
+              {ownsAddon
+                ? '영상은 사이트 생성 후 스튜디오에서 만들어요 — 지금은 방향만 골라두면 돼요.'
+                : '영상은 애드온 결제 후 제작에 반영돼요 — 지금은 방향만 골라두면 됩니다. 그 전까지는 정적 히어로로 보여드려요.'}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">

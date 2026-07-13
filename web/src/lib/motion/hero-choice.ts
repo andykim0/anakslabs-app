@@ -45,7 +45,13 @@ export const HERO_MOTION_CHOICES = {
   ],
 } as const satisfies Record<MotionTier, readonly HeroMotionChoice[]>;
 
-/** 티어별 선택지 (UI 노출용) */
+/**
+ * [U2] 표시용 전체 선택지 — 영상 애드온(video-hero)을 누구에게나 노출한다(단일 제품 + 유료 애드온).
+ * 능력 게이팅(애드온 미보유 시 강등)은 sanitizeMotion·생성 경로가 담당하고, UI는 전 선택지를 보여준다.
+ */
+export const ALL_HERO_CHOICES: readonly HeroMotionChoice[] = HERO_MOTION_CHOICES.premium;
+
+/** 티어별 선택지 (sanitize의 티어 초과 판정용 — 능력 게이팅). UI 노출은 ALL_HERO_CHOICES 사용. */
 export function heroChoicesForTier(tier: MotionTier): readonly HeroMotionChoice[] {
   return HERO_MOTION_CHOICES[tier];
 }
