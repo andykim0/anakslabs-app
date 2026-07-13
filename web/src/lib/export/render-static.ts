@@ -15,7 +15,7 @@ import { createElement } from 'react';
 // renderToStaticMarkup은 동기·환경중립이라 Node 런타임 라우트에서도 동작.
 import { renderToStaticMarkup } from 'react-dom/server.edge';
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
-import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
+import { TenantPageContent } from '@/components/site-renderer';
 import { buildDocumentShell } from './document-shell';
 
 /** CDN 폰트 <link>(구글폰트/제이에스딜리버 Pretendard)와 preconnect 제거 — 셀프호스트 시 */
@@ -41,8 +41,11 @@ export interface RenderDocumentOptions {
   fontFaceCss?: string;
   /** <head>에 추가할 원시 HTML (예: 셀프호스트 자산 preload) */
   headExtraHtml?: string;
-  /** </body> 직전에 붙일 HTML (§6 법적 푸터·페이지 링크) */
+  /** </body> 직전에 붙일 HTML (§6 페이지 링크 등) */
   bodyAppendHtml?: string;
+  /** [P1] 법적 푸터 링크 — export는 상대 파일명(./privacy.html), 미지정=서빙 '/privacy'·'/terms' */
+  privacyHref?: string;
+  termsHref?: string;
   /** 언어 속성 (기본 ko) */
   lang?: string;
   /** [motion 3단계] 소유자 티어 — resolveMotionPlan 티어 방어(defense-in-depth). 라우트가 client.tier 전달 */
@@ -54,22 +57,20 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   const { config } = opts;
   const pageSlug = opts.pageSlug ?? '';
 
-  // [v4] 자동 헤더 내비 (파일 간 상대 링크). 표시 조건은 TenantHeader 내부 판단.
-  const header = opts.navHrefForSlug
-    ? renderToStaticMarkup(
-        createElement(TenantHeader, {
-          config,
-          currentSlug: pageSlug,
-          hrefForSlug: opts.navHrefForSlug,
-        }),
-      )
-    : '';
-
-  // [motion-system 2단계] animate:true — 모션은 이제 data-m 속성 + CSS + 인라인 바닐라 런타임(<script>)로
-  // 방출된다(Reveal 클라이언트 컴포넌트 제거). renderToStaticMarkup으로 직렬화되어 내보낸 HTML 단독으로
-  // (파일서버만) 동작한다. SSR/no-JS 출력은 여전히 가시(런타임이 초기화 시점에만 숨김 부여).
+  // [P1] 라이브 서빙과 공유하는 시맨틱 셸 단일 소스 — 헤더+main(아웃라인+렌더)+법적푸터를 함께 방출한다.
+  // (기존엔 SiteRenderer 맨몸만 직렬화 → main/h1/아웃라인/푸터가 없어 preflight가 라이브보다 과소평가했다.)
+  // navHrefForSlug 미지정(preflight)이면 절대 링크(/slug)로 헤더가 렌더된다. 법적 링크는 export만 상대.
   let body = renderToStaticMarkup(
-    createElement(SiteRenderer, { config, mode: 'auto', interactive: true, animate: true, pageSlug, tier: opts.tier }),
+    createElement(TenantPageContent, {
+      config,
+      pageSlug,
+      tier: opts.tier,
+      interactive: true,
+      animate: true,
+      hrefForSlug: opts.navHrefForSlug,
+      privacyHref: opts.privacyHref,
+      termsHref: opts.termsHref,
+    }),
   );
 
   if (opts.fontFaceCss) {
@@ -80,7 +81,7 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   return buildDocumentShell({
     config,
     pageSlug,
-    headerHtml: header,
+    headerHtml: '', // 헤더는 body(TenantPageContent) 안에 포함
     bodyHtml: body,
     siteUrl: opts.siteUrl,
     fontFaceCss: opts.fontFaceCss,

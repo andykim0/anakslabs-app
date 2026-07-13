@@ -9,7 +9,7 @@ import { cache } from 'react';
 import type { Site } from '@/lib/types/domain';
 import { findPage } from '@/lib/types/site';
 import { getDataServices } from '@/lib/data';
-import { LegalFooter, SemanticOutline, SiteRenderer, SuspendedNotice, TenantHeader } from '@/components/site-renderer';
+import { SuspendedNotice, TenantPageContent } from '@/components/site-renderer';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 
@@ -80,7 +80,6 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
     return <SuspendedNotice siteName={site.name} />;
   }
   const config = site.siteConfig!;
-  const businessInfo = config.businessInfo ?? null;
   const jsonLdHtml = jsonLdScriptContent(config, siteUrlOf(site.domain));
 
   // [motion-system 2단계] 모션 유무·종류의 단일 소스는 config.motion.presetId(프리셋 계획)다.
@@ -96,14 +95,8 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
       />
-      {/* [v4 Phase 3] 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 미표시) */}
-      <TenantHeader config={config} currentSlug={pageSlug} />
-      <main>
-        {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조 */}
-        <SemanticOutline config={config} pageSlug={pageSlug} />
-        <SiteRenderer config={config} mode="auto" siteId={site.id} pageSlug={pageSlug} tier={tier} />
-      </main>
-      {businessInfo ? <LegalFooter info={businessInfo} theme={config.theme} /> : null}
+      {/* [P1] 헤더+main(아웃라인+렌더)+법적푸터 = render-static과 공유하는 시맨틱 셸 단일 소스 */}
+      <TenantPageContent config={config} pageSlug={pageSlug} siteId={site.id} tier={tier} />
     </>
   );
 }

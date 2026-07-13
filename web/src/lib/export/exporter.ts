@@ -17,8 +17,6 @@ import { zipFiles } from './zip';
 export interface BuildExportOptions {
   /** true(기본): 폰트를 zip에 포함해 외부 요청 0. 실패 시 CDN 링크로 폴백 */
   selfHostFonts?: boolean;
-  /** [§6] </body> 직전 법적 푸터 HTML */
-  legalFooterHtml?: string;
   /** [§6] privacy.html / terms.html 본문 (없으면 미포함) */
   legalPages?: { privacyHtml?: string; termsHtml?: string };
   /** [motion 3단계] 소유자 티어 — 모션 티어 방어(defense-in-depth). 상위 서비스가 client.tier 전달 */
@@ -66,7 +64,10 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
       siteUrl: siteUrlOf(site.domain) || undefined,
       navHrefForSlug,
       fontFaceCss: fontFaceCss || undefined,
-      bodyAppendHtml: opts.legalFooterHtml,
+      // [P1] 법적 푸터는 render-static 내부(TenantPageContent LegalFooter)가 방출 → 이중 부착 제거.
+      //      export 번들의 privacy/terms는 상대 파일명으로 링크.
+      privacyHref: opts.legalPages?.privacyHtml ? './privacy.html' : undefined,
+      termsHref: opts.legalPages?.termsHtml ? './terms.html' : undefined,
       tier: opts.tier,
     }),
   }));

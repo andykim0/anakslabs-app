@@ -10,7 +10,7 @@ import { getDataServices } from '@/lib/data';
 import { slugifySiteName } from '@/lib/data/slug';
 import { privacyPolicy, termsOfService } from '@/lib/legal/templates';
 import { buildExportZip, type BuildExportOptions } from './exporter';
-import { renderLegalDocHtml, renderLegalFooterHtml } from './legal-html';
+import { renderLegalDocHtml } from './legal-html';
 
 export interface RunExportResult {
   objectPath: string;
@@ -32,7 +32,6 @@ export async function runSiteExport(site: Site, opts?: BuildExportOptions): Prom
       if (info) {
         const theme = site.siteConfig.theme;
         const title = site.siteConfig.meta.title;
-        legalOpts.legalFooterHtml = renderLegalFooterHtml(info, theme);
         legalOpts.legalPages = {
           privacyHtml: renderLegalDocHtml(privacyPolicy(info), theme, info, title),
           termsHtml: renderLegalDocHtml(termsOfService(info), theme, info, title),

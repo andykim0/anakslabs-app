@@ -61,6 +61,8 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     `<title>${escapeHtml(docTitle)}</title>`,
     meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
+    // [P1] 파비콘 — 라이브 tenantMetadata(icons)와 파리티(seo_favicon)
+    '<link rel="icon" href="/favicon.ico">',
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
     meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
     meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',

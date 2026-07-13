@@ -6,6 +6,7 @@ export { SiteRenderer, type SiteRendererMode } from './SiteRenderer';
 export { TenantHeader } from './TenantHeader';
 export { LegalFooter } from './LegalFooter';
 export { SemanticOutline } from './SemanticOutline';
+export { TenantPageContent } from './TenantPageContent';
 export { SuspendedNotice } from './SuspendedNotice';
 export { ElementContent, type RenderVariant } from './ElementContent';
 export { SectionCanvas } from './SectionCanvas';
