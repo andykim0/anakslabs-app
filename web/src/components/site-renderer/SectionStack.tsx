@@ -9,7 +9,15 @@ import type { CanvasElement, Section, SiteTheme } from '@/lib/types/site';
 import { ElementContent } from './ElementContent';
 import { stackOrder } from './stack-order';
 import { resolveScrim } from '@/lib/design/scrim';
-import { motionFor, revealDelayFor, parseStatParts, type MotionPlan } from '@/lib/motion/apply';
+import {
+  cinematicParallaxDepthFor,
+  cinematicStoryWindowFor,
+  isSplitText,
+  motionFor,
+  revealDelayFor,
+  parseStatParts,
+  type MotionPlan,
+} from '@/lib/motion/apply';
 import { safeMediaSrc } from '@/lib/safe-url';
 
 interface SectionStackProps {
@@ -97,6 +105,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
         padding: '64px 24px',
         // 요소 없이 배경 이미지만 있는 섹션은 이미지 밴드로
         minHeight: elements.length === 0 ? '52vw' : undefined,
+        zIndex: cinematic ? 1 : undefined,
       }}
     >
       {!cinematic && bgImgSrc && (
@@ -142,6 +151,23 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           const hoverVideo = m === 'hovervideo';
           const dataM = m === 'reveal' || m === 'mask' ? m : undefined;
           const delay = m === 'reveal' && plan ? revealDelayFor(plan, section.id, el.id) : undefined;
+          const splitText = cinematic && plan ? isSplitText(plan, section.id, el.id) : false;
+          const storyWindow = cinematic && plan ? cinematicStoryWindowFor(plan, section.id, el.id) : undefined;
+          const cinematicDepth = cinematic && plan ? cinematicParallaxDepthFor(plan, section.id, el.id) : undefined;
+          const content = (
+            <ElementContent
+              element={el}
+              theme={theme}
+              variant="stack"
+              eager={isFirst}
+              interactive={interactive}
+              siteId={siteId}
+              countup={countup}
+              splitText={splitText}
+              splitTextMode={cinematic ? 'progress' : 'io'}
+              hoverVideo={hoverVideo}
+            />
+          );
           return (
             <div
               key={el.id}
@@ -149,7 +175,19 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
               style={el.kind === 'text' && imgTextShadow ? { ...itemStyle(el), textShadow: imgTextShadow } : itemStyle(el)}
             >
-              <ElementContent element={el} theme={theme} variant="stack" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} hoverVideo={hoverVideo} />
+              {cinematicDepth != null || storyWindow ? (
+                <div
+                  {...(cinematicDepth != null
+                    ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }
+                    : {})}
+                  {...(storyWindow
+                    ? { 'data-m-story': 'true', 'data-story-start': storyWindow.start.toFixed(4), 'data-story-end': storyWindow.end.toFixed(4) }
+                    : {})}
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  {content}
+                </div>
+              ) : content}
             </div>
           );
         })}
@@ -174,27 +212,29 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
     >
       <div data-m-mobile-pin>
         {/* no-JS/reduced/load-error의 영구 기저 레이어 */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={safeMediaSrc(bg.video.poster)}
-          alt=""
-          aria-hidden
-          loading={isFirst ? 'eager' : 'lazy'}
-          decoding="async"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-        <video
-          data-m="cinematicvideo"
-          data-m-cinematic-video="true"
-          data-playback="loop"
-          src={safeMediaSrc(bg.video.src)}
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+        <div data-m-cinematic-media style={{ position: 'absolute', inset: 0 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={safeMediaSrc(bg.video.poster)}
+            alt=""
+            aria-hidden
+            loading={isFirst ? 'eager' : 'lazy'}
+            decoding="async"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <video
+            data-m="cinematicvideo"
+            data-m-cinematic-video="true"
+            data-playback="loop"
+            src={safeMediaSrc(bg.video.src)}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
         {cinematicScrim && (
           <div
             aria-hidden

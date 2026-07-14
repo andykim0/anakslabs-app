@@ -15,6 +15,7 @@ import { isDarkColor } from '@/lib/design/quality-standards';
 import { MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
 import { MOTION_PRESETS, DEFAULT_PRESET, isPresetId, type MotionPreset } from './presets';
 import { ensureMotion, sanitizeMotion } from './validate';
+import { storyElementWindow, type ProgressWindow } from './progress';
 
 /** 요소에 부착할 data-m 값 (요소 단위) */
 export type ElementMotion = 'reveal' | 'countup' | 'mask' | 'hovervideo';
@@ -37,6 +38,10 @@ export interface MotionPlan {
   parallaxDepth: Map<string, number>;
   /** `${sectionId}::${elementId}`(히어로 헤드라인) → split-text 단어 분할 대상 */
   splitTextElements: Set<string>;
+  /** cinematic hero 본문 텍스트 → 진행도 등장 구간 */
+  cinematicStoryWindows: Map<string, ProgressWindow>;
+  /** cinematic hero 요소 → 내부 패럴럭스 깊이(기존 rotation wrapper와 분리) */
+  cinematicParallaxDepth: Map<string, number>;
   /** `${sectionId}::${elementId}` → 요소 단위 기법 (reveal/countup/mask/hovervideo) */
   elementMotion: Map<string, ElementMotion>;
   /** `${sectionId}::${elementId}` → reveal 스태거 delay(ms) */
@@ -128,6 +133,8 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
     marqueeSections: new Set(),
     parallaxDepth: new Map(),
     splitTextElements: new Set(),
+    cinematicStoryWindows: new Map(),
+    cinematicParallaxDepth: new Map(),
     elementMotion: new Map(),
     revealDelay: new Map(),
   };
@@ -151,7 +158,19 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
       const v = hero.background.video;
       if (v?.src && v.poster) {
         plan.videoHeroSections.add(hero.id);
-        if (cinematicPreset) plan.cinematicHeroSections.add(hero.id);
+        if (cinematicPreset) {
+          plan.cinematicHeroSections.add(hero.id);
+          const headlineId = heroHeadlineId(hero);
+          const storyTexts = yOrdered(hero).filter((el) => el.kind === 'text' && el.id !== headlineId);
+          storyTexts.forEach((el, rank) => {
+            plan.cinematicStoryWindows.set(key(hero.id, el.id), storyElementWindow(rank, storyTexts.length));
+          });
+          const layers = [...hero.elements].sort((a, b) => a.z - b.z).slice(0, 3);
+          const depths = [0.35, 0.6, 0.85];
+          layers.forEach((el, index) => {
+            plan.cinematicParallaxDepth.set(key(hero.id, el.id), depths[index] ?? 0.85);
+          });
+        }
       }
       else if (hero.background.image) plan.kenBurnsSections.add(hero.id); // 폴백
     } else if (heroTech === 'ken-burns' && hero.background.image) {
@@ -298,4 +317,10 @@ export function parallaxDepthFor(plan: MotionPlan, sectionId: string, elementId:
 }
 export function isSplitText(plan: MotionPlan, sectionId: string, elementId: string): boolean {
   return plan.splitTextElements.has(key(sectionId, elementId));
+}
+export function cinematicStoryWindowFor(plan: MotionPlan, sectionId: string, elementId: string): ProgressWindow | undefined {
+  return plan.cinematicStoryWindows.get(key(sectionId, elementId));
+}
+export function cinematicParallaxDepthFor(plan: MotionPlan, sectionId: string, elementId: string): number | undefined {
+  return plan.cinematicParallaxDepth.get(key(sectionId, elementId));
 }

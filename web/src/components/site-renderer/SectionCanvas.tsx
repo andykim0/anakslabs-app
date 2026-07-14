@@ -14,7 +14,16 @@ import { safeMediaSrc } from '@/lib/safe-url';
 import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
 import { resolveScrim } from '@/lib/design/scrim';
-import { motionFor, revealDelayFor, parseStatParts, parallaxDepthFor, isSplitText, type MotionPlan } from '@/lib/motion/apply';
+import {
+  cinematicParallaxDepthFor,
+  cinematicStoryWindowFor,
+  motionFor,
+  revealDelayFor,
+  parseStatParts,
+  parallaxDepthFor,
+  isSplitText,
+  type MotionPlan,
+} from '@/lib/motion/apply';
 
 interface SectionCanvasProps {
   section: Section;
@@ -84,6 +93,27 @@ function StandardSection({
     backgroundImage: bg.gradient,
   };
 
+  const videoBackdrop = videoHero && bg.video ? (
+    <>
+      {/* poster = 기저 레이어(항상 표시); 영상 로드 실패/reduced-motion 시 그대로 노출 */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={safeMediaSrc(bg.video.poster)} alt="" aria-hidden loading={isFirst ? 'eager' : 'lazy'} decoding="async" style={coverStyle} />
+      <video
+        data-m={cinematicPlayback ? 'cinematicvideo' : 'videohero'}
+        {...(cinematicPlayback
+          ? { 'data-m-cinematic-video': 'true', 'data-playback': 'scrub' }
+          : {})}
+        src={safeMediaSrc(bg.video.src)}
+        muted
+        loop={!cinematicPlayback}
+        playsInline
+        preload={cinematicPlayback ? 'none' : 'metadata'}
+        aria-hidden
+        style={coverStyle}
+      />
+    </>
+  ) : null;
+
   return (
     <section
       id={section.id}
@@ -92,25 +122,10 @@ function StandardSection({
       {...(sectionDataM ? { 'data-m': sectionDataM } : {})}
       style={sectionStyle}
     >
-      {videoHero && bg.video ? (
-        <>
-          {/* poster = 기저 레이어(항상 표시); 영상 로드 실패/reduced-motion 시 그대로 노출 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={safeMediaSrc(bg.video.poster)} alt="" aria-hidden loading={isFirst ? 'eager' : 'lazy'} decoding="async" style={coverStyle} />
-          <video
-            data-m={cinematicPlayback ? 'cinematicvideo' : 'videohero'}
-            {...(cinematicPlayback
-              ? { 'data-m-cinematic-video': 'true', 'data-playback': 'scrub' }
-              : {})}
-            src={safeMediaSrc(bg.video.src)}
-            muted
-            loop={!cinematicPlayback}
-            playsInline
-            preload={cinematicPlayback ? 'none' : 'metadata'}
-            aria-hidden
-            style={coverStyle}
-          />
-        </>
+      {videoBackdrop ? (
+        cinematicPlayback ? (
+          <div data-m-cinematic-media style={coverStyle}>{videoBackdrop}</div>
+        ) : videoBackdrop
       ) : (
         bg.image && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -141,6 +156,22 @@ function StandardSection({
           : m === 'reveal' && plan ? revealDelayFor(plan, section.id, el.id)
           : undefined;
         const depth = parallax && plan ? parallaxDepthFor(plan, section.id, el.id) : undefined;
+        const cinematicDepth = cinematicPlayback && plan ? cinematicParallaxDepthFor(plan, section.id, el.id) : undefined;
+        const storyWindow = cinematicPlayback && plan ? cinematicStoryWindowFor(plan, section.id, el.id) : undefined;
+        const content = (
+          <ElementContent
+            element={el}
+            theme={theme}
+            variant="canvas"
+            eager={isFirst}
+            interactive={interactive}
+            siteId={siteId}
+            countup={countup}
+            splitText={splitText}
+            splitTextMode={cinematicPlayback ? 'progress' : 'io'}
+            hoverVideo={hoverVideo}
+          />
+        );
         return (
           <div
             key={el.id}
@@ -159,7 +190,19 @@ function StandardSection({
               textShadow: el.kind === 'text' ? imgTextShadow : undefined,
             }}
           >
-            <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} countup={countup} splitText={splitText} hoverVideo={hoverVideo} />
+            {cinematicDepth != null || storyWindow ? (
+              <div
+                {...(cinematicDepth != null
+                  ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }
+                  : {})}
+                {...(storyWindow
+                  ? { 'data-m-story': 'true', 'data-story-start': storyWindow.start.toFixed(4), 'data-story-end': storyWindow.end.toFixed(4) }
+                  : {})}
+                style={{ width: '100%', height: '100%' }}
+              >
+                {content}
+              </div>
+            ) : content}
           </div>
         );
       })}

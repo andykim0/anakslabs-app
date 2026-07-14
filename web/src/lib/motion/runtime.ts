@@ -44,6 +44,22 @@ export const MOTION_CSS = `
 .anaks-site [data-m="videohero"], .anaks-site [data-m="cinematicvideo"] { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity calc(700ms * var(--m-dur-scale)) ease; }
 /* split-text: 히어로 헤드라인 단어 등장 (reveal와 동일 hide/show, 인라인 블록) */
 .anaks-site [data-m="splitword"] { display: inline-block; white-space: pre; }
+.anaks-site [data-m="storyword"] { display: inline-block; white-space: pre; }
+.anaks-site.m-cinematic-ready [data-m="storyword"],
+.anaks-site.m-cinematic-ready [data-m-story] {
+  opacity: var(--story-opacity, 1);
+  transform: translate3d(0, calc(var(--story-y, 0px) + var(--cinematic-parallax-y, 0px)), 0);
+  will-change: transform, opacity;
+}
+.anaks-site.m-cinematic-ready [data-m-cinematic-layer]:not([data-m-story]) {
+  transform: translate3d(0, var(--cinematic-parallax-y, 0px), 0);
+  will-change: transform;
+}
+.anaks-site.m-cinematic-ready [data-m-cinematic-media] {
+  transform: scale(var(--cinematic-scale, 1));
+  clip-path: inset(var(--cinematic-clip, 0%) round 24px);
+  transform-origin: 50% 50%; will-change: transform, clip-path;
+}
 .anaks-site [data-m="splitword"].m-hide { opacity: 0; transform: translateY(calc(18px * var(--m-amp))); }
 .anaks-site [data-m="splitword"].m-show { opacity: 1; transform: none;
   transition: opacity calc(520ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1),
@@ -130,6 +146,33 @@ export const MOTION_RUNTIME = `(function(){
       v.__anaksSeekStarted=(window.performance&&performance.now)?performance.now():Date.now();
       try{ v.currentTime=target; }catch(_){ startCinematicLoop(v); }
     }
+    function localProgress(node,p){
+      var start=parseFloat(node.getAttribute('data-story-start')||'0');
+      var end=parseFloat(node.getAttribute('data-story-end')||'1');
+      if(end<=start) return p>=start?1:0;
+      return Math.min(1,Math.max(0,(p-start)/(end-start)));
+    }
+    function syncCinematicStory(el,p){
+      var stories=el.__anaksStoryEls||(el.__anaksStoryEls=Array.prototype.slice.call(el.querySelectorAll('[data-m="storyword"],[data-m-story]')));
+      stories.forEach(function(node){
+        var local=localProgress(node,p);
+        node.style.setProperty('--story-opacity',local.toFixed(4));
+        node.style.setProperty('--story-y',((1-local)*18*amp0).toFixed(2)+'px');
+      });
+      var layers=el.__anaksCinematicLayers||(el.__anaksCinematicLayers=Array.prototype.slice.call(el.querySelectorAll('[data-m-cinematic-layer]')));
+      layers.forEach(function(layer){
+        var depth=parseFloat(layer.getAttribute('data-m-depth')||'0');
+        var y=Math.sin(p*Math.PI)*-24*depth*amp0;
+        layer.style.setProperty('--cinematic-parallax-y',y.toFixed(2)+'px');
+      });
+      var phase=Math.min(1,Math.max(0,p/0.32));
+      var scale=0.92+phase*0.08; var clip=(1-phase)*4;
+      var media=el.__anaksCinematicMedia||(el.__anaksCinematicMedia=Array.prototype.slice.call(el.querySelectorAll('[data-m-cinematic-media]')));
+      media.forEach(function(node){
+        node.style.setProperty('--cinematic-scale',scale.toFixed(4));
+        node.style.setProperty('--cinematic-clip',clip.toFixed(3)+'%');
+      });
+    }
 
     /* ---- [V2] 진행도 드라이버: nearest scroll root + passive scroll + rAF coalescing. ---- */
     var progressEls = q('[data-m-progress]');
@@ -153,6 +196,7 @@ export const MOTION_RUNTIME = `(function(){
         var p=Math.min(1,Math.max(0,-top/travel));
         el.style.setProperty('--scroll-progress',p.toFixed(4));
         syncCinematicProgress(el,p);
+        syncCinematicStory(el,p);
       }
       function progressFrame(){
         progressTick=false;

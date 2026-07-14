@@ -28,6 +28,7 @@ import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-
 import { resolveSolidButton } from '@/lib/design/button-contrast';
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
+import { storyWordWindow } from '@/lib/motion/progress';
 
 export type RenderVariant = 'canvas' | 'stack';
 
@@ -49,6 +50,8 @@ interface ElementContentProps {
   countup?: { to: number; prefix: string; suffix: string };
   /** [motion 3단계] split-text 대상(히어로 헤드라인) — 텍스트를 단어 span으로 분할, aria-label로 원문 보존 */
   splitText?: boolean;
+  /** cinematic이면 IO hide/show 대신 --scroll-progress 비례 storyword를 방출 */
+  splitTextMode?: 'io' | 'progress';
   /** [motion 3단계] hover-video 대상(썸네일) — autoplay 끄고 hover 재생(preload none) */
   hoverVideo?: boolean;
 }
@@ -58,10 +61,10 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
-export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup, splitText, hoverVideo }: ElementContentProps) {
+export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup, splitText, splitTextMode = 'io', hoverVideo }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
-      return <TextContent el={element} theme={theme} variant={variant} countup={countup} splitText={splitText} />;
+      return <TextContent el={element} theme={theme} variant={variant} countup={countup} splitText={splitText} splitTextMode={splitTextMode} />;
     case 'image':
       return <ImageContent el={element} theme={theme} variant={variant} eager={eager} />;
     case 'button':
@@ -93,12 +96,14 @@ function TextContent({
   variant,
   countup,
   splitText,
+  splitTextMode,
 }: {
   el: TextElement;
   theme: SiteTheme;
   variant: RenderVariant;
   countup?: { to: number; prefix: string; suffix: string };
   splitText?: boolean;
+  splitTextMode: 'io' | 'progress';
 }) {
   const s = el.style;
   const style: CSSProperties = {
@@ -119,16 +124,26 @@ function TextContent({
   };
 
   // [motion 3단계] split-text: 단어 단위 span 분할(렌더 시점 마크업 — 런타임 DOM 재작성 없음).
-  // 원문은 aria-label로 보존, 각 단어는 aria-hidden. 데스크톱 캔버스에서만(모바일 스택은 정적).
-  if (splitText && variant === 'canvas' && el.text.trim()) {
+  // 원문은 aria-label로 보존, 각 단어는 aria-hidden. cinematic progress는 모바일도 동일 서사를 쓴다.
+  if (splitText && (variant === 'canvas' || splitTextMode === 'progress') && el.text.trim()) {
     const tokens = el.text.match(/\S+\s*/g) ?? [el.text];
     return (
       <p style={style} aria-label={el.text}>
-        {tokens.map((tok, i) => (
-          <span key={i} data-m="splitword" data-m-delay={String(i * 60)} aria-hidden>
-            {tok}
-          </span>
-        ))}
+        {tokens.map((tok, i) => {
+          const window = storyWordWindow(i, tokens.length);
+          return (
+            <span
+              key={i}
+              data-m={splitTextMode === 'progress' ? 'storyword' : 'splitword'}
+              {...(splitTextMode === 'progress'
+                ? { 'data-story-start': window.start.toFixed(4), 'data-story-end': window.end.toFixed(4) }
+                : { 'data-m-delay': String(i * 60) })}
+              aria-hidden
+            >
+              {tok}
+            </span>
+          );
+        })}
       </p>
     );
   }

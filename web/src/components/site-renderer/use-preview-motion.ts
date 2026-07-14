@@ -41,6 +41,13 @@ function clearCinematicRuntime(root: Element): void {
   root.querySelectorAll<HTMLElement>('[data-m-progress]').forEach((el) => {
     el.style.removeProperty('--scroll-progress');
   });
+  root.querySelectorAll<HTMLElement>('[data-m="storyword"],[data-m-story],[data-m-cinematic-layer],[data-m-cinematic-media]').forEach((el) => {
+    el.style.removeProperty('--story-opacity');
+    el.style.removeProperty('--story-y');
+    el.style.removeProperty('--cinematic-parallax-y');
+    el.style.removeProperty('--cinematic-scale');
+    el.style.removeProperty('--cinematic-clip');
+  });
   root.querySelectorAll<HTMLVideoElement>('video[data-m-cinematic-video]').forEach((video) => {
     video.pause();
     video.style.opacity = '0';
