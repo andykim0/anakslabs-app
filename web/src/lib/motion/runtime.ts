@@ -77,39 +77,41 @@ export const MOTION_CSS = `
 .anaks-site [data-ss-heading] { margin: 0; font-family: var(--ss-heading-font); font-size: clamp(2rem, 5vw, 5rem); line-height: 1.12; }
 .anaks-site [data-ss-body] { margin: 24px 0 0; max-width: 680px; font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1.75; }
 .anaks-site [data-ss-word] { display: inline-block; white-space: pre; }
-.anaks-site.m-cinematic-ready [data-ss-stage] { height: var(--ss-scroll-height); }
-.anaks-site.m-cinematic-ready [data-ss-pin] { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-.anaks-site.m-cinematic-ready [data-ss-media] { position: absolute; inset: 0; height: auto; min-height: 0; }
-.anaks-site.m-cinematic-ready [data-ss-act-list] { position: absolute; inset: 0; }
-.anaks-site.m-cinematic-ready [data-ss-act] {
+.anaks-site.m-scrollytelling-ready [data-ss-stage] { height: var(--ss-scroll-height); }
+.anaks-site.m-scrollytelling-ready [data-ss-pin] { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.anaks-site.m-scrollytelling-ready [data-ss-media] { position: absolute; inset: 0; height: auto; min-height: 0; }
+.anaks-site.m-scrollytelling-ready [data-ss-act-list] { position: absolute; inset: 0; }
+.anaks-site.m-scrollytelling-ready [data-ss-act] {
   position: absolute; inset: 0; min-height: 0; opacity: var(--ss-act-opacity, 1);
   transform: translate3d(0, var(--ss-act-y, 0px), 0); color: var(--ss-text); background: transparent;
   will-change: transform, opacity; pointer-events: none;
 }
-.anaks-site.m-cinematic-ready [data-ss-word] {
+.anaks-site.m-scrollytelling-ready [data-ss-word] {
   opacity: var(--ss-word-opacity, 1); transform: translate3d(0, var(--ss-word-y, 0px), 0);
   will-change: transform, opacity;
 }
-.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] { height: auto; }
-.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
-.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-media] {
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] { height: auto; }
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-media] {
   position: sticky; inset: auto; top: 0; height: 100svh; min-height: 0; margin-bottom: -100svh;
 }
-.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act-list] { position: relative; inset: auto; }
-.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act] {
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act-list] { position: relative; inset: auto; }
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act] {
   position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
 }
 @media (max-width: 767.98px) {
-  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] { height: auto; }
-  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
-  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-media] {
+  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] { height: auto; }
+  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
+  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-media] {
     position: sticky; inset: auto; top: 0; height: 100svh; min-height: 0; margin-bottom: -100svh;
   }
-  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act-list] { position: relative; inset: auto; }
-  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act] {
+  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act-list] { position: relative; inset: auto; }
+  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act] {
     position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
   }
 }
+.anaks-site.m-scrollytelling-static [data-ss-stage] { height: auto; contain: none; }
+.anaks-site.m-scrollytelling-static [data-ss-video] { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .anaks-site [data-ss-stage] { height: auto !important; contain: none; }
 }
@@ -156,10 +158,21 @@ export const MOTION_RUNTIME = `(function(){
   try{
     var q = function(s){ return Array.prototype.slice.call(document.querySelectorAll('.anaks-site '+s)); };
     var root = document.querySelector('.anaks-site');
+    var hasScrollytelling = q('[data-ss-stage]').length>0;
     var mm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
-    if(mm && mm.matches){ if(root) root.classList.remove('m-cinematic-ready'); return; } /* 정적 poster */
-    if(!('IntersectionObserver' in window)) return; /* IO 없으면 보임 유지 */
-    if(root) root.classList.add('m-cinematic-ready');
+    if(mm && mm.matches){ if(root){ root.classList.remove('m-cinematic-ready'); root.classList.remove('m-scrollytelling-ready'); root.classList.add('m-scrollytelling-static'); } return; } /* 정적 poster */
+    if(!('IntersectionObserver' in window)){ if(root&&hasScrollytelling) root.classList.add('m-scrollytelling-static'); return; } /* IO 없으면 스택 유지 */
+    var connection0=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+    var reportedCores=navigator.hardwareConcurrency;
+    var cores0=typeof reportedCores==='number'&&Number.isFinite(reportedCores)?reportedCores:0;
+    var scrollytellingCapable=!(connection0&&connection0.saveData)&&cores0>=4;
+    if(root){
+      root.classList.add('m-cinematic-ready');
+      if(hasScrollytelling){
+        root.classList.toggle('m-scrollytelling-ready',scrollytellingCapable);
+        root.classList.toggle('m-scrollytelling-static',!scrollytellingCapable);
+      }
+    }
     var amp0 = root ? (parseFloat(getComputedStyle(root).getPropertyValue('--m-amp'))||1) : 1;
     /* reveal + mask + split-text 단어 + stacking 카드: 초기화 시점에 숨김 부여 후 진입 시 표시 */
     var reveals = q('[data-m="reveal"]').concat(q('[data-m="mask"]')).concat(q('[data-m="splitword"]')).concat(q('[data-m="stackcard"]'));
@@ -206,6 +219,7 @@ export const MOTION_RUNTIME = `(function(){
       return Math.min(1,Math.max(0,(p-start)/(end-start)));
     }
     function syncCinematicStory(el,p){
+      if(el.hasAttribute('data-ss-stage') && (!root || !root.classList.contains('m-scrollytelling-ready'))) return;
       var stories=el.__anaksStoryEls||(el.__anaksStoryEls=Array.prototype.slice.call(el.querySelectorAll('[data-m="storyword"],[data-m-story]')));
       stories.forEach(function(node){
         var local=localProgress(node,p);
@@ -227,7 +241,7 @@ export const MOTION_RUNTIME = `(function(){
       });
     }
     function syncScrollytelling(el,p){
-      if(!el.hasAttribute('data-ss-stage')) return;
+      if(!el.hasAttribute('data-ss-stage') || !root || !root.classList.contains('m-scrollytelling-ready')) return;
       var acts=el.__anaksActs||(el.__anaksActs=Array.prototype.slice.call(el.querySelectorAll('[data-ss-act]')));
       acts.forEach(function(act,index){
         var start=parseFloat(act.getAttribute('data-act-start')||'0');
@@ -264,7 +278,9 @@ export const MOTION_RUNTIME = `(function(){
     }
 
     /* ---- [V2] 진행도 드라이버: nearest scroll root + passive scroll + rAF coalescing. ---- */
-    var progressEls = q('[data-m-progress]');
+    var progressEls = q('[data-m-progress]').filter(function(el){
+      return !el.hasAttribute('data-ss-stage') || !!(root&&root.classList.contains('m-scrollytelling-ready'));
+    });
     if(window.__anaksProgressDispose){ try{ window.__anaksProgressDispose(); }catch(_){} }
     if(progressEls.length){
       var progressActive = [], progressTick = false, progressRoots = [];
@@ -334,14 +350,20 @@ export const MOTION_RUNTIME = `(function(){
     });
     /* ---- [V3] cinematic video: desktop scrub / mobile pinned loop / seek 실패 loop 폴백. ---- */
     if(window.__anaksCinematicDispose){ try{ window.__anaksCinematicDispose(); }catch(_){} }
-    var cinematicVideos=q('video[data-m-cinematic-video]');
+    var cinematicVideos=q('video[data-m-cinematic-video]').filter(function(v){
+      if(v.hasAttribute('data-ss-video') && (!root || !root.classList.contains('m-scrollytelling-ready'))){
+        v.__anaksPlayback='poster'; v.setAttribute('data-playback-state','poster'); v.style.opacity='0'; if(v.pause)v.pause(); return false;
+      }
+      return true;
+    });
     if(cinematicVideos.length){
       var cinemaCleanups=[], cinemaTimers=[];
       function on(v,name,fn){ v.addEventListener(name,fn); cinemaCleanups.push(function(){v.removeEventListener(name,fn);}); }
       function canDesktopScrub(v){
         var fine=window.matchMedia&&window.matchMedia('(pointer: fine)').matches;
-        var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-        return v.getAttribute('data-playback')==='scrub' && !!fine && window.innerWidth>=768 && !(conn&&conn.saveData) && (navigator.hardwareConcurrency||4)>=4;
+        var stage=v.closest&&v.closest('[data-ss-stage]');
+        var forcedMobile=stage&&stage.getAttribute('data-ss-mode')==='mobile';
+        return v.getAttribute('data-playback')==='scrub' && !forcedMobile && !!fine && window.innerWidth>=768 && !(connection0&&connection0.saveData) && cores0>=4;
       }
       cinematicVideos.forEach(function(v){
         v.muted=true; v.defaultMuted=true; v.setAttribute('playsinline',''); v.__anaksIntersecting=false;

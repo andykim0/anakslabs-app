@@ -105,6 +105,7 @@ export function ScrollytellingStage({
           <video
             data-m="cinematicvideo"
             data-m-cinematic-video="true"
+            data-ss-video
             data-playback="scrub"
             src={safeMediaSrc(video.src)}
             muted

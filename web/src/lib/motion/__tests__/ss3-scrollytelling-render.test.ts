@@ -102,7 +102,7 @@ describe('SS3 — 단일 sticky 무대와 정적 막 HTML', () => {
     assert.doesNotMatch(html, /class="anaks-site m-cinematic-ready"/);
     assert.match(html, /<noscript><style>\.anaks-site \[data-ss-stage\]\{height:auto!important;contain:none\}<\/style><\/noscript>/);
     assert.match(MOTION_CSS, /\[data-ss-stage\] \{[\s\S]*height: var\(--ss-scroll-height\)/);
-    assert.match(MOTION_CSS, /m-cinematic-ready \[data-ss-pin\] \{ position: sticky/);
+    assert.match(MOTION_CSS, /m-scrollytelling-ready \[data-ss-pin\] \{ position: sticky/);
     assert.match(MOTION_RUNTIME, /syncScrollytelling\(el,p\)/);
     assert.match(MOTION_RUNTIME, /--ss-act-opacity/);
     assert.match(MOTION_RUNTIME, /data-ss-count/);

@@ -17,6 +17,26 @@ export const SCROLLYTELLING_TEMPLATE_POLICY = [
 
 export const SCROLLYTELLING_TEMPLATE_IDS = SCROLLYTELLING_TEMPLATE_POLICY.map((entry) => entry.templateId);
 
+export type ScrollytellingPlayback = 'scrub' | 'loop' | 'static';
+
+/** [SS4] 환경별 progressive-enhancement 결정. static이면 pin·진행도·video load를 모두 금지한다. */
+export function resolveScrollytellingPlayback(input: {
+  js: boolean;
+  intersectionObserver: boolean;
+  reducedMotion: boolean;
+  saveData: boolean;
+  hardwareConcurrency: number;
+  finePointer: boolean;
+  viewportWidth: number;
+  renderMode?: 'desktop' | 'mobile' | 'auto';
+}): ScrollytellingPlayback {
+  if (
+    !input.js || !input.intersectionObserver || input.reducedMotion || input.saveData ||
+    !Number.isFinite(input.hardwareConcurrency) || input.hardwareConcurrency < 4
+  ) return 'static';
+  return input.renderMode !== 'mobile' && input.finePointer && input.viewportWidth >= 768 ? 'scrub' : 'loop';
+}
+
 export function isScrollytellingTemplate(purposeId: string | undefined, templateId: string | undefined): boolean {
   return SCROLLYTELLING_TEMPLATE_POLICY.some(
     (entry) => entry.purposeId === purposeId && entry.templateId === templateId,
