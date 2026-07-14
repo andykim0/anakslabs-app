@@ -33,7 +33,7 @@ export function Field({
 }) {
   return (
     <label className={cn('block', row && 'flex items-center justify-between gap-2')}>
-      <span className="mb-1 block text-[11px] font-medium text-neutral-400">{label}</span>
+      <span className="mb-1 block text-[11px] font-medium text-[#5F6B7C]">{label}</span>
       {children}
     </label>
   );
@@ -41,15 +41,15 @@ export function Field({
 
 export function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-b border-neutral-800 px-4 py-4">
-      <p className="mb-3 text-[11px] font-semibold tracking-wide text-neutral-500 uppercase">{title}</p>
+    <div className="border-b border-[#DCE4F0] px-4 py-4">
+      <p className="mb-3 text-[11px] font-semibold tracking-wide text-[#667085] uppercase">{title}</p>
       <div className="space-y-3">{children}</div>
     </div>
   );
 }
 
 const inputCls =
-  'h-8 w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 text-xs text-neutral-100 outline-none transition-colors focus:border-sky-600 placeholder:text-neutral-600';
+  'h-8 w-full rounded-md border border-[#CAD5E5] bg-white px-2 text-xs text-[#0B1736] outline-none transition-colors focus:border-sky-600 placeholder:text-[#667085]';
 
 // ---------- 텍스트 ----------
 
@@ -85,7 +85,7 @@ export function TextField({
           if (!allowEmpty && draft.trim().length === 0) setDraft(value);
         }}
       />
-      {hint ? <span className="mt-1 block text-[10px] leading-4 text-neutral-600">{hint}</span> : null}
+      {hint ? <span className="mt-1 block text-[10px] leading-4 text-[#667085]">{hint}</span> : null}
     </Field>
   );
 }
@@ -211,12 +211,12 @@ export function RangeField({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-neutral-400">{label}</span>
-        <span className="text-[11px] tabular-nums text-neutral-300">{format(value)}</span>
+        <span className="text-[11px] font-medium text-[#5F6B7C]">{label}</span>
+        <span className="text-[11px] tabular-nums text-[#344054]">{format(value)}</span>
       </div>
       <input
         type="range"
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-neutral-700 accent-sky-500"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#DCE4F0] accent-sky-500"
         min={min}
         max={max}
         step={step}
@@ -266,8 +266,8 @@ export function SegmentedField<T extends string>({
 }) {
   return (
     <div>
-      <span className="mb-1 block text-[11px] font-medium text-neutral-400">{label}</span>
-      <div className="flex rounded-md border border-neutral-700 bg-neutral-900 p-0.5">
+      <span className="mb-1 block text-[11px] font-medium text-[#5F6B7C]">{label}</span>
+      <div className="flex rounded-md border border-[#CAD5E5] bg-white p-0.5">
         {options.map((opt) => (
           <button
             key={opt.value}
@@ -277,8 +277,8 @@ export function SegmentedField<T extends string>({
             className={cn(
               'flex h-7 flex-1 items-center justify-center rounded text-xs transition-colors',
               value === opt.value
-                ? 'bg-neutral-700 text-neutral-50'
-                : 'text-neutral-400 hover:text-neutral-200',
+                ? 'bg-[#DCE4F0] text-[#0B1736]'
+                : 'text-[#5F6B7C] hover:text-[#26354D]',
             )}
           >
             {opt.label}
@@ -304,11 +304,11 @@ export function ToggleField({
       onClick={() => onCommit(!value)}
       className="flex w-full items-center justify-between py-0.5"
     >
-      <span className="text-xs text-neutral-300">{label}</span>
+      <span className="text-xs text-[#344054]">{label}</span>
       <span
         className={cn(
           'relative h-4.5 w-8 rounded-full transition-colors',
-          value ? 'bg-sky-600' : 'bg-neutral-700',
+          value ? 'bg-sky-600' : 'bg-[#DCE4F0]',
         )}
       >
         <span
@@ -349,7 +349,7 @@ export function ColorField({
       <div className="flex items-center gap-1.5">
         <input
           type="color"
-          className="h-8 w-9 shrink-0 cursor-pointer rounded-md border border-neutral-700 bg-neutral-900 p-0.5"
+          className="h-8 w-9 shrink-0 cursor-pointer rounded-md border border-[#CAD5E5] bg-white p-0.5"
           value={pickerValue}
           onChange={(e) => onCommit(e.target.value)}
         />
@@ -370,7 +370,7 @@ export function ColorField({
             type="button"
             title={`${clearLabel}으로 초기화`}
             onClick={() => onCommit(undefined)}
-            className="flex h-8 w-7 shrink-0 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+            className="flex h-8 w-7 shrink-0 items-center justify-center rounded-md text-[#667085] transition-colors hover:bg-[#E8EDF5] hover:text-[#26354D]"
           >
             <X className="h-3.5 w-3.5" />
           </button>

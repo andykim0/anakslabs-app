@@ -20,17 +20,17 @@ function SummaryRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex gap-3 text-sm">
-      <span className="w-28 shrink-0 text-[11px] leading-5 text-neutral-500">{label}</span>
-      <span className="min-w-0 flex-1 text-neutral-200">{value}</span>
+      <span className="w-28 shrink-0 text-[11px] leading-5 text-[#667085]">{label}</span>
+      <span className="min-w-0 flex-1 text-[#26354D]">{value}</span>
     </div>
   );
 }
 
 function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
   return (
-    <div className="space-y-1.5 rounded-lg border border-neutral-800 bg-neutral-950 px-3.5 py-3">
+    <div className="space-y-1.5 rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3">
       {info.isPersonal ? (
-        <p className="text-[11px] font-medium text-[#d9b878]">개인 운영 사이트</p>
+        <p className="text-[11px] font-medium text-[#174DDA]">개인 운영 사이트</p>
       ) : null}
       <SummaryRow label="상호" value={info.businessName} />
       <SummaryRow label={info.isPersonal ? '운영자' : '대표자'} value={info.ownerName} />
@@ -103,7 +103,7 @@ export function PrePublishDialog({
       ) : step === 1 ? (
         editing || !businessInfo ? (
           <div className="space-y-3">
-            <p className="text-xs leading-5 text-neutral-400">
+            <p className="text-xs leading-5 text-[#5F6B7C]">
               발행하려면 사이트에 표기할 {businessInfo ? '' : '사업자(또는 운영자) '}정보가 필요해요.
             </p>
             <BusinessInfoForm
@@ -119,7 +119,7 @@ export function PrePublishDialog({
                   <button
                     type="button"
                     onClick={() => setEditing(false)}
-                    className="inline-flex h-9 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-300 transition-colors hover:border-neutral-500"
+                    className="inline-flex h-9 items-center rounded-lg border border-[#CAD5E5] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
                   >
                     취소
                   </button>
@@ -133,7 +133,7 @@ export function PrePublishDialog({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-1.5 text-xs text-neutral-400 transition-colors hover:text-[#c8a96a]"
+              className="inline-flex items-center gap-1.5 text-xs text-[#5F6B7C] transition-colors hover:text-[#174DDA]"
             >
               <Pencil className="h-3 w-3" />
               정보 수정하기
@@ -141,16 +141,16 @@ export function PrePublishDialog({
             <label
               className={cn(
                 'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3.5 py-3 transition-colors',
-                confirmed ? 'border-[#c8a96a] bg-[#2a2117]/60' : 'border-neutral-700',
+                confirmed ? 'border-[#174DDA] bg-[#EDF4FF]/60' : 'border-[#CAD5E5]',
               )}
             >
               <input
                 type="checkbox"
                 checked={confirmed}
                 onChange={(e) => setConfirmed(e.target.checked)}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#c8a96a]"
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
               />
-              <span className="text-xs leading-5 text-neutral-300">
+              <span className="text-xs leading-5 text-[#344054]">
                 위 {businessInfo.isPersonal ? '운영자' : '사업자'} 정보가 정확한지 확인했습니다. 발행된 사이트
                 최하단에 법적 표기로 게시됩니다.
               </span>
@@ -167,11 +167,11 @@ export function PrePublishDialog({
         )
       ) : (
         <div className="space-y-4">
-          <p className="flex items-center gap-2 text-sm text-neutral-200">
-            <CheckCircle2 className="h-4 w-4 text-[#d9b878]" />
+          <p className="flex items-center gap-2 text-sm text-[#26354D]">
+            <CheckCircle2 className="h-4 w-4 text-[#174DDA]" />
             사업자 정보 확인 완료
           </p>
-          <p className="text-xs leading-5 text-neutral-400">
+          <p className="text-xs leading-5 text-[#5F6B7C]">
             지금 발행하면 편집 중인 초안이 라이브 사이트로 반영됩니다. 서브도메인은 즉시 접속 가능하며,
             이후에도 언제든 다시 편집하고 재발행할 수 있어요.
           </p>

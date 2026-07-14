@@ -16,11 +16,11 @@ const PILLAR_LABEL: Record<string, string> = { seo: '검색(SEO)', aeo: 'AI 답�
 const PASS_THRESHOLD = 70;
 
 function ScoreDot({ label, score }: { label: string; score: number }) {
-  const tone = score >= PASS_THRESHOLD ? 'text-emerald-400' : score >= 40 ? 'text-[#d9b878]' : 'text-red-400';
+  const tone = score >= PASS_THRESHOLD ? 'text-emerald-400' : score >= 40 ? 'text-[#174DDA]' : 'text-red-400';
   return (
-    <div className="flex flex-col items-center rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5">
+    <div className="flex flex-col items-center rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2.5">
       <span className={cn('text-xl font-semibold tabular-nums', tone)}>{score}</span>
-      <span className="mt-0.5 text-[10px] text-neutral-500">{label}</span>
+      <span className="mt-0.5 text-[10px] text-[#667085]">{label}</span>
     </div>
   );
 }
@@ -42,11 +42,11 @@ export function PublishDiagnostics({
   });
 
   if (isPending) {
-    return <div className="h-40 animate-pulse rounded-lg bg-neutral-900" />;
+    return <div className="h-40 animate-pulse rounded-lg bg-white" />;
   }
   if (isError || !data) {
     return (
-      <p className="rounded-lg border border-neutral-800 bg-neutral-950 px-3.5 py-3 text-xs text-neutral-400">
+      <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3 text-xs text-[#5F6B7C]">
         진단을 불러오지 못했어요. 그대로 발행하거나 잠시 후 다시 시도해 주세요.
       </p>
     );
@@ -67,8 +67,8 @@ export function PublishDiagnostics({
             <Sparkles className="h-4 w-4" />
             진단에서 찾은 문제 {improvement.resolved.length + improvement.remaining.length}개 중 {improvement.resolved.length}개를 고쳤어요
           </p>
-          <p className="mt-1 text-xs text-neutral-400">
-            진단 점수 <span className="tabular-nums text-neutral-300">{improvement.beforeTotal}</span> → 지금{' '}
+          <p className="mt-1 text-xs text-[#5F6B7C]">
+            진단 점수 <span className="tabular-nums text-[#344054]">{improvement.beforeTotal}</span> → 지금{' '}
             <span className="tabular-nums text-emerald-400">{improvement.afterTotal}</span>점.
             {improvement.remaining.length > 0 ? ` 남은 ${improvement.remaining.length}개는 아래에서 채우면 더 올라가요.` : ' 남은 문제도 거의 없어요.'}
           </p>
@@ -76,8 +76,8 @@ export function PublishDiagnostics({
       ) : null}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-semibold text-neutral-100">검색 노출 점수</p>
-          <span className={cn('text-xs font-medium', passed ? 'text-emerald-400' : 'text-[#d9b878]')}>
+          <p className="text-sm font-semibold text-[#0B1736]">검색 노출 점수</p>
+          <span className={cn('text-xs font-medium', passed ? 'text-emerald-400' : 'text-[#174DDA]')}>
             {scan.scores.total}점 · {scan.grade}등급
           </span>
         </div>
@@ -94,7 +94,7 @@ export function PublishDiagnostics({
           검색 노출 준비가 잘 됐어요. 바로 발행해도 좋아요.
         </p>
       ) : (
-        <p className="flex items-start gap-2 rounded-lg border border-[#4a3a22] bg-[#2a2117]/50 px-3.5 py-2.5 text-xs leading-5 text-[#d9b878]">
+        <p className="flex items-start gap-2 rounded-lg border border-[#9DB7EB] bg-[#EDF4FF]/50 px-3.5 py-2.5 text-xs leading-5 text-[#174DDA]">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
           아래 몇 가지만 채우면 네이버·구글·AI 검색 노출이 눈에 띄게 좋아져요. 지금 발행해도 되고, 먼저 보완해도 돼요.
         </p>
@@ -103,23 +103,23 @@ export function PublishDiagnostics({
       {actionable.length > 0 ? (
         <ul className="space-y-2">
           {actionable.map((iss) => (
-            <li key={iss.code} className="rounded-lg border border-neutral-800 bg-neutral-950 p-3">
+            <li key={iss.code} className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-neutral-100">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#d9b878]" />
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-[#0B1736]">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#174DDA]" />
                     {iss.guidance!.title}
-                    <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[9px] text-neutral-400">
+                    <span className="rounded bg-[#E8EDF5] px-1.5 py-0.5 text-[9px] text-[#5F6B7C]">
                       {PILLAR_LABEL[iss.pillar]}
                     </span>
                   </p>
-                  <p className="mt-1 text-[11px] leading-4 text-neutral-400">{iss.guidance!.action}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-[#5F6B7C]">{iss.guidance!.action}</p>
                   <p className="mt-0.5 text-[11px] leading-4 text-emerald-400/80">→ {iss.guidance!.effect}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onFix(iss.guidance!.anchor)}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-neutral-700 px-2.5 py-1 text-[11px] text-neutral-300 transition-colors hover:border-[#c8a96a] hover:text-[#c8a96a]"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#CAD5E5] px-2.5 py-1 text-[11px] text-[#344054] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
                 >
                   채우기 <ArrowRight className="h-3 w-3" />
                 </button>
@@ -130,7 +130,7 @@ export function PublishDiagnostics({
       ) : null}
 
       {autoCount > 0 ? (
-        <p className="text-[11px] text-neutral-500">
+        <p className="text-[11px] text-[#667085]">
           그 밖에 {autoCount}가지(대표 주소·구조화 정보 등)는 발행 시 자동으로 처리돼요.
         </p>
       ) : null}

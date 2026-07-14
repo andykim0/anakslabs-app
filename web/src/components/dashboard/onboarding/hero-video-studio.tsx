@@ -120,7 +120,7 @@ export function HeroVideoStudio({
                 <button
                   type="button"
                   onClick={() => pick(d)}
-                  className="flex h-8 w-full items-center justify-center gap-1 bg-ob-accent text-[11px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+                  className="flex h-8 w-full items-center justify-center gap-1 bg-ob-accent text-[11px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
                 >
                   <Check className="h-3.5 w-3.5" /> 이 영상 사용
                 </button>

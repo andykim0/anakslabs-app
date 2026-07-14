@@ -259,7 +259,7 @@ export function LandingScanner() {
                     if (e.key === 'Enter') void startScan();
                   }}
                   placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
-                  className="h-13 w-full rounded-xl border border-transparent bg-white px-4 text-sm text-[#0B1736] outline-none transition-shadow placeholder:text-[#7A8496] focus:ring-2 focus:ring-[#08AFC5]"
+                  className="h-13 w-full rounded-xl border border-transparent bg-white px-4 text-sm text-[#0B1736] outline-none transition-shadow placeholder:text-[#667085] focus:ring-2 focus:ring-[#08AFC5]"
                 />
                 {rotatePh ? (
                   <AnimatePresence mode="wait">

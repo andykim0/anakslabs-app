@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fbff;
+  --foreground: #0b1736;
 }
 
 @theme inline {
@@ -13,29 +13,24 @@
 }
 
 /*
- * [v4 #6a] 온보딩(및 향후 대시보드) 라이트 테마 토큰 — 우리가 파는 품질의 데모.
- * 온보딩 화면(/onboarding)만 이 토큰을 사용(bg-ob-*, text-ob-*, border-ob-*, rounded-ob).
- * 대시보드 나머지 페이지의 다크 하드코딩 치환은 다음 배치(범위 밖).
+ * Daboim 앱 라이트 테마 토큰.
+ * 아이스 화이트 위에 deep navy 본문, blue 상호작용, cyan/mint 신호색을 사용한다.
+ * ob-* 이름은 기존 온보딩 계약을 유지하기 위해 보존한다.
  */
 @theme {
-  --color-ob-bg: #f7f7f5;
+  --color-ob-bg: #f8fbff;
   --color-ob-surface: #ffffff;
-  --color-ob-ink: #1a1d26;
-  --color-ob-muted: #5b6472;
-  --color-ob-border: #e6e8ec;
-  --color-ob-accent: #c8a96a;
-  --color-ob-accent-strong: #a98844;
-  --color-ob-accent-soft: #f3ecdd;
-  --color-ob-success: #2e7d5b;
-  --color-ob-danger: #c0392b;
+  --color-ob-ink: #0b1736;
+  --color-ob-muted: #5f6b7c;
+  --color-ob-border: #dce4f0;
+  --color-ob-accent: #174dda;
+  --color-ob-accent-strong: #123fb7;
+  --color-ob-accent-soft: #eef5ff;
+  --color-ob-cyan: #08afc5;
+  --color-ob-mint: #03bfa9;
+  --color-ob-success: #087d70;
+  --color-ob-danger: #b42318;
   --radius-ob: 0.75rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

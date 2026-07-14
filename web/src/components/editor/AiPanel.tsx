@@ -177,13 +177,13 @@ export function AiPanel({ siteId }: { siteId: string }) {
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       {/* 잔액 */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-neutral-200">
-          <Wand2 className="h-3.5 w-3.5 text-[#d9b878]" /> AI 편집
+      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#26354D]">
+          <Wand2 className="h-3.5 w-3.5 text-[#174DDA]" /> AI 편집
         </span>
         <Link
           href="/dashboard/credits"
-          className="flex items-center gap-1 rounded-full border border-[#4a3a22] bg-[#2a2117] px-2.5 py-1 text-[11px] font-semibold text-[#d9b878] transition-colors hover:border-[#6a5432]"
+          className="flex items-center gap-1 rounded-full border border-[#9DB7EB] bg-[#EDF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#174DDA] transition-colors hover:border-[#7EA2EA]"
           title="크레딧 관리"
         >
           <Coins className="h-3 w-3" />
@@ -202,19 +202,19 @@ export function AiPanel({ siteId }: { siteId: string }) {
               className={cn(
                 'rounded-lg border px-2.5 py-2 text-left transition-colors',
                 type === a.type
-                  ? 'border-[#c8a96a] bg-[#2a2117]/70'
-                  : 'border-neutral-800 hover:border-neutral-600',
+                  ? 'border-[#174DDA] bg-[#EDF4FF]/70'
+                  : 'border-[#DCE4F0] hover:border-[#AEBACC]',
               )}
             >
               <span className="flex items-center justify-between">
-                <span className={cn('text-xs font-medium', type === a.type ? 'text-neutral-50' : 'text-neutral-300')}>
+                <span className={cn('text-xs font-medium', type === a.type ? 'text-[#0B1736]' : 'text-[#344054]')}>
                   {a.label}
                 </span>
-                <span className="rounded bg-neutral-800 px-1 py-0.5 text-[10px] tabular-nums text-[#d9b878]">
+                <span className="rounded bg-[#E8EDF5] px-1 py-0.5 text-[10px] tabular-nums text-[#174DDA]">
                   {CREDIT_COSTS[a.type]}cr
                 </span>
               </span>
-              <span className="mt-0.5 block text-[10px] leading-4 text-neutral-500">{a.desc}</span>
+              <span className="mt-0.5 block text-[10px] leading-4 text-[#667085]">{a.desc}</span>
             </button>
           ))}
         </div>
@@ -233,28 +233,28 @@ export function AiPanel({ siteId }: { siteId: string }) {
                   ? '예) 불꽃이 피어오르는 화로 클로즈업, 8초 루프'
                   : '예) 시그니처 메뉴 4개를 소개하는 섹션을 추가해 주세요'
           }
-          className="w-full resize-y rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-xs leading-5 text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-sky-600"
+          className="w-full resize-y rounded-lg border border-[#CAD5E5] bg-white px-3 py-2 text-xs leading-5 text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-sky-600"
         />
 
         <button
           type="button"
           onClick={submit}
           disabled={mutation.isPending}
-          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#c8a96a] text-xs font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#174DDA] text-xs font-semibold text-white transition-colors hover:bg-[#245FE5] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {mutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
           {mutation.isPending ? 'AI 생성 중…' : `요청하기 (크레딧 ${cost}개 사용)`}
         </button>
 
-        <p className="text-[10px] leading-4 text-neutral-600">
+        <p className="text-[10px] leading-4 text-[#667085]">
           요청은 AI 생성 후 QA 검수를 거쳐 반영됩니다. 생성 실패 시 크레딧은 자동 환불됩니다.
         </p>
 
         {/* 결과 카드 */}
         {result ? (
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/70 p-3">
+          <div className="rounded-lg border border-[#DCE4F0] bg-white/90 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-neutral-300">AI 생성 결과</span>
+              <span className="text-[11px] font-semibold text-[#344054]">AI 생성 결과</span>
               <span className="rounded bg-amber-950/60 px-1.5 py-0.5 text-[10px] text-amber-300">QA 검수 대기</span>
             </div>
 
@@ -266,7 +266,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
               <video src={resultOutput.url} poster={resultOutput.poster} controls muted playsInline className="mb-2 w-full rounded-md" />
             ) : null}
             {resultOutput.text ? (
-              <p className="mb-2 max-h-36 overflow-y-auto text-xs leading-5 whitespace-pre-wrap text-neutral-200">
+              <p className="mb-2 max-h-36 overflow-y-auto text-xs leading-5 whitespace-pre-wrap text-[#26354D]">
                 {resultOutput.text}
               </p>
             ) : null}
@@ -283,12 +283,12 @@ export function AiPanel({ siteId }: { siteId: string }) {
               <button
                 type="button"
                 onClick={() => setResult(null)}
-                className="h-8 rounded-md border border-neutral-700 px-3 text-xs text-neutral-300 transition-colors hover:border-neutral-500"
+                className="h-8 rounded-md border border-[#CAD5E5] px-3 text-xs text-[#344054] transition-colors hover:border-[#AEBACC]"
               >
                 닫기
               </button>
             </div>
-            <p className="mt-1.5 text-[10px] leading-4 text-neutral-600">
+            <p className="mt-1.5 text-[10px] leading-4 text-[#667085]">
               바로 적용 시 선택한 요소에 반영되며, 선택이 없으면 새 요소로 추가됩니다.
             </p>
           </div>
@@ -304,7 +304,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
           <>
             <Link
               href="/dashboard/billing"
-              className="inline-flex h-10 items-center rounded-lg border border-neutral-700 bg-neutral-900 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
+              className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
             >
               영상 애드온 상담
             </Link>
@@ -330,7 +330,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
             </Button>
             <Link
               href="/dashboard/credits"
-              className="inline-flex h-10 items-center rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+              className="inline-flex h-10 items-center rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
             >
               크레딧 구매하기
             </Link>
@@ -339,8 +339,8 @@ export function AiPanel({ siteId }: { siteId: string }) {
       >
         {shortage ? (
           <p>
-            이 요청에는 크레딧 <b className="text-neutral-50">{shortage.required}개</b>가 필요하지만, 현재{' '}
-            <b className="text-neutral-50">{shortage.balance}개</b> 보유 중입니다. 크레딧을 구매한 뒤 다시
+            이 요청에는 크레딧 <b className="text-[#0B1736]">{shortage.required}개</b>가 필요하지만, 현재{' '}
+            <b className="text-[#0B1736]">{shortage.balance}개</b> 보유 중입니다. 크레딧을 구매한 뒤 다시
             시도해 주세요.
           </p>
         ) : null}

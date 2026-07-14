@@ -336,7 +336,7 @@ export function ImproveStep({
                   <button
                     type="button"
                     onClick={() => setLocalStep(2)}
-                    className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+                    className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
                   >
                     직접 입력으로 시작
                     <ArrowRight className="h-4 w-4" />
@@ -614,7 +614,7 @@ export function ImproveStep({
             <button
               type="button"
               onClick={() => setLocalStep(2)}
-              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
             >
               이 내용으로 계속
               <ArrowRight className="h-4 w-4" />
@@ -636,7 +636,7 @@ export function ImproveStep({
               type="button"
               onClick={() => setLocalStep(3)}
               disabled={!gate.ok}
-              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
             >
               다음
               <ArrowRight className="h-4 w-4" />
@@ -658,7 +658,7 @@ export function ImproveStep({
               type="button"
               onClick={submit}
               disabled={tone.length === 0}
-              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Sparkles className="h-4 w-4" />
               이 방향으로 만들기

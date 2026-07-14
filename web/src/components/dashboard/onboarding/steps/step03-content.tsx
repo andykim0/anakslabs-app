@@ -178,7 +178,7 @@ export function Step03Content() {
             type="button"
             onClick={() => ocrInputRef.current?.click()}
             disabled={ocrLoading}
-            className="inline-flex h-11 items-center gap-2 rounded-ob border border-ob-accent-strong bg-ob-accent-soft px-4 text-[14px] font-medium text-ob-accent-strong transition-colors hover:bg-ob-accent hover:text-ob-ink disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 items-center gap-2 rounded-ob border border-ob-accent-strong bg-ob-accent-soft px-4 text-[14px] font-medium text-ob-accent-strong transition-colors hover:bg-ob-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {ocrLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
             {ocrButtonLabel}

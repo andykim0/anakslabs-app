@@ -113,7 +113,7 @@ export function OnboardingWizard({
                   <span
                     className={cn(
                       'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-colors',
-                      done || active ? 'bg-ob-accent text-ob-ink' : 'bg-ob-border text-ob-muted',
+                      done || active ? 'bg-ob-accent text-white' : 'bg-ob-border text-ob-muted',
                     )}
                   >
                     {s.no}

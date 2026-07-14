@@ -232,7 +232,7 @@ export function SurveyStep({
             <button
               type="button"
               onClick={() => (isLast ? void submit() : void goNext())}
-              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+              className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
             >
               {isLast ? <Sparkles className="h-4 w-4" /> : null}
               {primaryLabel}

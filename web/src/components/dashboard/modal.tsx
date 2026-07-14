@@ -38,7 +38,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-[#0B1736]/45 backdrop-blur-[2px]"
             onClick={onClose}
           />
           <motion.div
@@ -49,22 +49,22 @@ export function Modal({
             role="dialog"
             aria-modal="true"
             className={cn(
-              'relative w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-2xl',
+              'relative w-full max-w-md rounded-2xl border border-[#DCE4F0] bg-white p-6 text-[#26354D] shadow-[0_24px_80px_rgba(11,23,54,0.2)]',
               className,
             )}
           >
             <div className="mb-3 flex items-start justify-between gap-4">
-              <h2 className="text-base font-semibold text-neutral-50">{title}</h2>
+              <h2 className="text-base font-semibold text-[#0B1736]">{title}</h2>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="닫기"
-                className="rounded-md p-1 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+                className="rounded-md p-1 text-[#667085] transition-colors hover:bg-[#EDF4FF] hover:text-[#174DDA]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="text-sm leading-6 text-neutral-300">{children}</div>
+            <div className="text-sm leading-6 text-[#475467]">{children}</div>
             {footer ? <div className="mt-5 flex flex-wrap justify-end gap-2">{footer}</div> : null}
           </motion.div>
         </div>

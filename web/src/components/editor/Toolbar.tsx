@@ -58,7 +58,7 @@ function SaveStatusIndicator() {
 
   if (saveStatus === 'saving') {
     return (
-      <span className="flex items-center gap-1 text-[11px] text-neutral-400">
+      <span className="flex items-center gap-1 text-[11px] text-[#5F6B7C]">
         <Loader2 className="h-3 w-3 animate-spin" /> 저장 중…
       </span>
     );
@@ -71,19 +71,19 @@ function SaveStatusIndicator() {
     );
   }
   if (dirty) {
-    return <span className="text-[11px] text-neutral-500">변경사항 저장 대기 중…</span>;
+    return <span className="text-[11px] text-[#667085]">변경사항 저장 대기 중…</span>;
   }
   if (saveStatus === 'saved' && lastSavedAt) {
     const d = new Date(lastSavedAt);
     const hh = String(d.getHours()).padStart(2, '0');
     const mm = String(d.getMinutes()).padStart(2, '0');
     return (
-      <span className="flex items-center gap-1 text-[11px] text-neutral-500">
+      <span className="flex items-center gap-1 text-[11px] text-[#667085]">
         <Check className="h-3 w-3 text-emerald-500" /> 저장됨 {hh}:{mm}
       </span>
     );
   }
-  return <span className="text-[11px] text-neutral-600">모든 변경사항 저장됨</span>;
+  return <span className="text-[11px] text-[#667085]">모든 변경사항 저장됨</span>;
 }
 
 function ToolButton({
@@ -107,7 +107,7 @@ function ToolButton({
       onClick={onClick}
       className={cn(
         'flex h-8 min-w-8 items-center justify-center gap-1 rounded-lg px-1.5 text-xs transition-colors disabled:opacity-30',
-        active ? 'bg-neutral-800 text-neutral-50' : 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
+        active ? 'bg-[#E8EDF5] text-[#0B1736]' : 'text-[#344054] hover:bg-[#E8EDF5] hover:text-[#0B1736]',
       )}
     >
       {children}
@@ -153,18 +153,18 @@ export function Toolbar({
   };
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2 border-b border-neutral-800 bg-neutral-950 px-3">
+    <header className="flex h-12 shrink-0 items-center gap-2 border-b border-[#DCE4F0] bg-[#F8FBFF] px-3">
       {/* 좌: 나가기 + 사이트명 + 저장상태 */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Link
           href={exitHref}
           onClick={onExit}
-          className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+          className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> 나가기
         </Link>
-        <div className="h-4 w-px bg-neutral-800" />
-        <span className="truncate text-sm font-semibold text-neutral-100">{siteName}</span>
+        <div className="h-4 w-px bg-[#E8EDF5]" />
+        <span className="truncate text-sm font-semibold text-[#0B1736]">{siteName}</span>
         <SaveStatusIndicator />
       </div>
 
@@ -177,14 +177,14 @@ export function Toolbar({
           <Redo2 className="h-4 w-4" />
         </ToolButton>
 
-        <div className="mx-1.5 h-4 w-px bg-neutral-800" />
+        <div className="mx-1.5 h-4 w-px bg-[#E8EDF5]" />
 
         <DropMenu
           trigger={
             <button
               type="button"
               disabled={previewing}
-              className="flex h-8 items-center gap-1.5 rounded-lg border border-neutral-700 px-2.5 text-xs font-medium text-neutral-200 transition-colors hover:border-neutral-500 hover:bg-neutral-900 disabled:opacity-40"
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-[#CAD5E5] px-2.5 text-xs font-medium text-[#26354D] transition-colors hover:border-[#AEBACC] hover:bg-white disabled:opacity-40"
             >
               <Plus className="h-3.5 w-3.5" /> 요소 추가
             </button>
@@ -197,12 +197,12 @@ export function Toolbar({
           }))}
         />
 
-        <div className="mx-1.5 h-4 w-px bg-neutral-800" />
+        <div className="mx-1.5 h-4 w-px bg-[#E8EDF5]" />
 
         <ToolButton title="축소" onClick={() => stepZoom(-1)} disabled={previewing}>
           <ZoomOut className="h-4 w-4" />
         </ToolButton>
-        <span className="w-11 text-center text-[11px] tabular-nums text-neutral-400">
+        <span className="w-11 text-center text-[11px] tabular-nums text-[#5F6B7C]">
           {Math.round(effectiveScale * 100)}%
         </span>
         <ToolButton title="확대" onClick={() => stepZoom(1)} disabled={previewing}>
@@ -217,17 +217,17 @@ export function Toolbar({
           <Maximize className="h-3.5 w-3.5" />
         </ToolButton>
 
-        <div className="mx-1.5 h-4 w-px bg-neutral-800" />
+        <div className="mx-1.5 h-4 w-px bg-[#E8EDF5]" />
 
         {/* 편집 / 미리보기(발행본 동일: 애니메이션·버튼 동작) / 모바일(자동 스택) */}
-        <div className="flex rounded-lg border border-neutral-700 p-0.5">
+        <div className="flex rounded-lg border border-[#CAD5E5] p-0.5">
           <button
             type="button"
             title="편집 캔버스"
             onClick={() => useEditorStore.getState().setPreview('off')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
-              preview === 'off' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+              preview === 'off' ? 'bg-[#DCE4F0] text-[#0B1736]' : 'text-[#5F6B7C] hover:text-[#26354D]',
             )}
           >
             <Monitor className="h-3.5 w-3.5" />
@@ -238,7 +238,7 @@ export function Toolbar({
             onClick={() => useEditorStore.getState().setPreview('desktop')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
-              preview === 'desktop' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+              preview === 'desktop' ? 'bg-[#DCE4F0] text-[#0B1736]' : 'text-[#5F6B7C] hover:text-[#26354D]',
             )}
           >
             <Eye className="h-3.5 w-3.5" />
@@ -249,7 +249,7 @@ export function Toolbar({
             onClick={() => useEditorStore.getState().setPreview('mobile')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
-              preview === 'mobile' ? 'bg-neutral-700 text-neutral-50' : 'text-neutral-400 hover:text-neutral-200',
+              preview === 'mobile' ? 'bg-[#DCE4F0] text-[#0B1736]' : 'text-[#5F6B7C] hover:text-[#26354D]',
             )}
           >
             <Smartphone className="h-3.5 w-3.5" />
@@ -263,7 +263,7 @@ export function Toolbar({
           type="button"
           onClick={onPublish}
           disabled={publishing}
-          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-3.5 text-xs font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-8 items-center gap-1.5 rounded-lg bg-[#174DDA] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#245FE5] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
           발행

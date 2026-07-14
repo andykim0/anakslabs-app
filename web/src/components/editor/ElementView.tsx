@@ -285,7 +285,7 @@ export const ElementView = memo(function ElementView({
 
       {/* 제스처 중 좌표/크기 배지 */}
       {gestureActive ? (
-        <div className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded bg-neutral-900/95 px-1.5 py-0.5 text-[10px] whitespace-nowrap tabular-nums text-neutral-200 shadow">
+        <div className="pointer-events-none absolute top-full left-1/2 z-20 mt-1.5 -translate-x-1/2 rounded bg-white/95 px-1.5 py-0.5 text-[10px] whitespace-nowrap tabular-nums text-[#26354D] shadow">
           {Math.round(frame.x)}, {Math.round(frame.y)} · {Math.round(frame.w)}×{Math.round(frame.h)}
         </div>
       ) : null}
@@ -566,7 +566,7 @@ function EmptySourcePlaceholder({
 }) {
   return (
     <div
-      className="flex h-full w-full flex-col items-center justify-center gap-1.5 border border-dashed border-neutral-500/60 bg-neutral-800/50 text-neutral-400"
+      className="flex h-full w-full flex-col items-center justify-center gap-1.5 border border-dashed border-[#AEBACC]/60 bg-[#E8EDF5]/80 text-[#5F6B7C]"
       style={{ borderRadius: radius }}
     >
       {icon}

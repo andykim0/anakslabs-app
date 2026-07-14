@@ -90,7 +90,7 @@ function AiGenerateButton({ type, label }: { type: EditType; label: string }) {
     <button
       type="button"
       onClick={() => useEditorStore.getState().setAiIntent(type)}
-      className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#4a3a22] bg-[#2a2117] text-xs font-medium text-[#d9b878] transition-colors hover:border-[#6a5432]"
+      className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#9DB7EB] bg-[#EDF4FF] text-xs font-medium text-[#174DDA] transition-colors hover:border-[#7EA2EA]"
     >
       <Sparkles className="h-3.5 w-3.5" />
       {label} ({CREDIT_COSTS[type]}크레딧)
@@ -129,7 +129,7 @@ function ImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-neutral-700 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-500 hover:bg-neutral-800 disabled:opacity-40"
+        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#CAD5E5] text-xs font-medium text-[#344054] transition-colors hover:border-[#AEBACC] hover:bg-[#E8EDF5] disabled:opacity-40"
       >
         <Upload className="h-3.5 w-3.5" />
         {busy ? '업로드 중…' : '파일에서 교체'}
@@ -159,10 +159,10 @@ function SmallIconButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex h-7 flex-1 items-center justify-center rounded-md border border-neutral-700 text-neutral-300 transition-colors disabled:opacity-30',
+        'flex h-7 flex-1 items-center justify-center rounded-md border border-[#CAD5E5] text-[#344054] transition-colors disabled:opacity-30',
         danger
-          ? 'hover:border-red-900 hover:bg-red-950/50 hover:text-red-300'
-          : 'hover:border-neutral-500 hover:bg-neutral-800 hover:text-neutral-50',
+          ? 'hover:border-red-300 hover:bg-red-50 hover:text-red-700'
+          : 'hover:border-[#AEBACC] hover:bg-[#E8EDF5] hover:text-[#0B1736]',
       )}
     >
       {children}
@@ -192,8 +192,8 @@ function ElementInspector({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-        <span className="text-xs font-semibold text-neutral-200">
+      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
+        <span className="text-xs font-semibold text-[#26354D]">
           {ELEMENT_KIND_LABELS[element.kind]} 요소
         </span>
         <div className="flex gap-1">
@@ -201,7 +201,7 @@ function ElementInspector({
             type="button"
             title="복제 (⌘D)"
             onClick={() => store().duplicateElement(element.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
           >
             <Copy className="h-3.5 w-3.5" />
           </button>
@@ -209,7 +209,7 @@ function ElementInspector({
             type="button"
             title="삭제 (Delete)"
             onClick={() => store().deleteElement(element.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-red-950/60 hover:text-red-300"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5F6B7C] transition-colors hover:bg-red-50 hover:text-red-700"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -499,7 +499,7 @@ function FormFields({ el }: { el: FormElement }) {
   return (
     <FieldGroup title="문의 폼">
       <div className="space-y-1.5">
-        <span className="block text-[11px] text-neutral-500">받을 필드 (최소 1개)</span>
+        <span className="block text-[11px] text-[#667085]">받을 필드 (최소 1개)</span>
         {FORM_FIELD_OPTIONS.map((o) => (
           <ToggleField
             key={o.value}
@@ -521,7 +521,7 @@ function FormFields({ el }: { el: FormElement }) {
       />
       <ColorField label="버튼 색" value={s.color} clearable clearLabel="테마 포인트색" onCommit={(v) => store().updateElementStyle(el.id, { color: v })} />
       <NumberField label="둥글기" value={s.borderRadius ?? 8} min={0} max={40} onCommit={(v) => store().updateElementStyle(el.id, { borderRadius: v })} />
-      <p className="text-[11px] leading-4 text-neutral-600">
+      <p className="text-[11px] leading-4 text-[#667085]">
         제출된 문의는 대시보드 사이트 상세의 문의함에 쌓입니다.
       </p>
     </FieldGroup>
@@ -575,7 +575,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
       {el.links.map((link, i) => {
         const badUrl = link.url !== '' && !isHttpsUrl(link.url);
         return (
-          <div key={i} className="space-y-1.5 rounded-lg border border-neutral-800 p-2">
+          <div key={i} className="space-y-1.5 rounded-lg border border-[#DCE4F0] p-2">
             <div className="flex items-center gap-1.5">
               <div className="flex-1">
                 <SelectField
@@ -590,7 +590,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
                 title="링크 삭제"
                 disabled={el.links.length <= 1}
                 onClick={() => commitLinks(el.links.filter((_, j) => j !== i))}
-                className="mt-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-neutral-700 text-neutral-400 transition-colors hover:border-red-900 hover:bg-red-950/50 hover:text-red-300 disabled:opacity-30"
+                className="mt-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#CAD5E5] text-[#5F6B7C] transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700 disabled:opacity-30"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -609,7 +609,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
         type="button"
         disabled={el.links.length >= 8}
         onClick={() => commitLinks([...el.links, { kind: 'custom', url: '' }])}
-        className="h-8 w-full rounded-md border border-dashed border-neutral-700 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-40"
+        className="h-8 w-full rounded-md border border-dashed border-[#CAD5E5] text-xs text-[#5F6B7C] transition-colors hover:border-[#AEBACC] hover:text-[#26354D] disabled:opacity-40"
       >
         + 링크 추가
       </button>
@@ -663,8 +663,8 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-        <span className="text-xs font-semibold text-neutral-200">섹션 설정</span>
+      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
+        <span className="text-xs font-semibold text-[#26354D]">섹션 설정</span>
         <div className="flex gap-1">
           <SmallIconButton title="위로 이동" disabled={idx <= 0} onClick={() => store().moveSection(section.id, -1)}>
             <ArrowUp className="h-3.5 w-3.5" />
@@ -743,7 +743,7 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
                   gradient: `linear-gradient(165deg, ${theme.palette.primary} 0%, ${theme.palette.accent} 100%)`,
                 })
               }
-              className="h-7 w-full rounded-md border border-neutral-700 text-[11px] text-neutral-300 transition-colors hover:border-neutral-500"
+              className="h-7 w-full rounded-md border border-[#CAD5E5] text-[11px] text-[#344054] transition-colors hover:border-[#AEBACC]"
             >
               팔레트 색으로 그라디언트 만들기
             </button>
@@ -784,7 +784,7 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
         ) : null}
       </FieldGroup>
 
-      <div className="px-4 py-3 text-[11px] leading-5 text-neutral-600">
+      <div className="px-4 py-3 text-[11px] leading-5 text-[#667085]">
         요소를 선택하면 상세 속성을, 빈 곳을 클릭하면 사이트 테마를 편집할 수 있습니다.
       </div>
     </div>
@@ -828,14 +828,14 @@ function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean;
       onClick={onSelect}
       className={cn(
         'w-full rounded-lg border px-3 py-2 text-left transition-colors',
-        active ? 'border-[#c8a96a] bg-[#2a2117]/60' : 'border-neutral-700 hover:border-neutral-500',
+        active ? 'border-[#174DDA] bg-[#EDF4FF]/60' : 'border-[#CAD5E5] hover:border-[#AEBACC]',
       )}
     >
       <div className="flex items-center gap-1.5">
-        <span className="text-xs font-semibold text-neutral-100">{PRESET_LABELS[pid]}</span>
-        {active ? <Check className="ml-auto h-3.5 w-3.5 text-[#c8a96a]" /> : null}
+        <span className="text-xs font-semibold text-[#0B1736]">{PRESET_LABELS[pid]}</span>
+        {active ? <Check className="ml-auto h-3.5 w-3.5 text-[#174DDA]" /> : null}
       </div>
-      <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">{presetTechniqueSummary(pid)}</p>
+      <p className="mt-0.5 text-[10px] leading-4 text-[#667085]">{presetTechniqueSummary(pid)}</p>
     </button>
   );
 }
@@ -843,16 +843,16 @@ function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean;
 /** Basic 계정에 Premium 프리셋을 숨기지 않고 잠금 카드로 — 기법 나열 + 업셀(서버도 어차피 강등) */
 function PresetLockCard({ pid }: { pid: PresetId }) {
   return (
-    <div className="w-full rounded-lg border border-[#4a3a22] bg-[#2a2117]/40 px-3 py-2">
+    <div className="w-full rounded-lg border border-[#9DB7EB] bg-[#EDF4FF]/40 px-3 py-2">
       <div className="flex items-center gap-1.5">
-        <Lock className="h-3 w-3 text-[#d9b878]" />
-        <span className="text-xs font-semibold text-[#d9b878]">{PRESET_LABELS[pid]}</span>
-        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-[#d9b878]/70">Premium</span>
+        <Lock className="h-3 w-3 text-[#174DDA]" />
+        <span className="text-xs font-semibold text-[#174DDA]">{PRESET_LABELS[pid]}</span>
+        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-[#174DDA]/70">Premium</span>
       </div>
-      <p className="mt-0.5 text-[10px] leading-4 text-neutral-500">{presetTechniqueSummary(pid)}</p>
+      <p className="mt-0.5 text-[10px] leading-4 text-[#667085]">{presetTechniqueSummary(pid)}</p>
       <a
         href="/dashboard/billing"
-        className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#c8a96a] px-2.5 text-[10px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+        className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#174DDA] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#245FE5]"
       >
         <Sparkles className="h-3 w-3" /> Premium으로 업그레이드
       </a>
@@ -869,11 +869,11 @@ function MotionPanel() {
   const presetIds = Object.keys(MOTION_PRESETS) as PresetId[];
   return (
     <FieldGroup title="모션">
-      <p className="text-[11px] leading-4 text-neutral-500">
+      <p className="text-[11px] leading-4 text-[#667085]">
         사이트 전체 모션 — 프리셋 1개 + 강도만 고릅니다. 선택한 프리셋·강도는 발행하면 사이트에 적용됩니다.
       </p>
       <div>
-        <span className="mb-1 block text-[11px] text-neutral-400">강도</span>
+        <span className="mb-1 block text-[11px] text-[#5F6B7C]">강도</span>
         <div className="flex gap-1">
           {(['off', 'subtle', 'normal'] as MotionIntensity[]).map((v) => (
             <button
@@ -882,7 +882,7 @@ function MotionPanel() {
               onClick={() => store().setMotionIntensity(v)}
               className={cn(
                 'h-7 flex-1 rounded-md border text-[11px] transition-colors',
-                intensity === v ? 'border-[#c8a96a] bg-[#2a2117]/60 text-[#e6cf9a]' : 'border-neutral-700 text-neutral-300 hover:border-neutral-500',
+                intensity === v ? 'border-[#174DDA] bg-[#EDF4FF]/60 text-[#174DDA]' : 'border-[#CAD5E5] text-[#344054] hover:border-[#AEBACC]',
               )}
             >
               {INTENSITY_LABELS[v]}
@@ -946,9 +946,9 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="border-b border-neutral-800 px-4 py-3">
-        <span className="text-xs font-semibold text-neutral-200">사이트 테마</span>
-        <p className="mt-0.5 text-[11px] text-neutral-500">요소를 선택하지 않은 상태 — 사이트 전체 스타일</p>
+      <div className="border-b border-[#DCE4F0] px-4 py-3">
+        <span className="text-xs font-semibold text-[#26354D]">사이트 테마</span>
+        <p className="mt-0.5 text-[11px] text-[#667085]">요소를 선택하지 않은 상태 — 사이트 전체 스타일</p>
       </div>
 
       <FieldGroup title="팔레트">
@@ -971,7 +971,7 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
       <FieldGroup title="타이포그래피">
         <SelectField label="제목 폰트" value={fontValue(theme.fonts.heading)} options={fontOptions(theme.fonts.heading)} onCommit={(v) => setFont('heading', v)} />
         <SelectField label="본문 폰트" value={fontValue(theme.fonts.body)} options={fontOptions(theme.fonts.body)} onCommit={(v) => setFont('body', v)} />
-        <div className="rounded-lg border border-neutral-800 bg-neutral-900/60 px-3 py-3">
+        <div className="rounded-lg border border-[#DCE4F0] bg-white/90 px-3 py-3">
           <p className="truncate text-lg leading-6" style={{ fontFamily: theme.fonts.heading, color: theme.palette.text }}>
             여섯 가지 요리, 하나의 불
           </p>

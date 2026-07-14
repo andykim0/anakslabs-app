@@ -246,7 +246,7 @@ export function Step02Existing() {
                 type="checkbox"
                 checked={owned}
                 onChange={(e) => setOwned(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#a98844]"
+                className="mt-0.5 h-4 w-4 accent-[#174DDA]"
               />
               <span>제가 직접 운영하는 페이지입니다.</span>
             </label>

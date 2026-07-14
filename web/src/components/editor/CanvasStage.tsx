@@ -53,8 +53,8 @@ function MotionToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       aria-pressed={on}
       className={
         on
-          ? 'inline-flex items-center gap-1 rounded-md border border-[#c8a96a] bg-[#2a2117] px-2 py-1 text-xs font-medium text-[#d9b878]'
-          : 'inline-flex items-center gap-1 rounded-md border border-neutral-700 px-2 py-1 text-xs text-neutral-400 transition-colors hover:border-neutral-500 hover:text-neutral-200'
+          ? 'inline-flex items-center gap-1 rounded-md border border-[#174DDA] bg-[#EDF4FF] px-2 py-1 text-xs font-medium text-[#174DDA]'
+          : 'inline-flex items-center gap-1 rounded-md border border-[#CAD5E5] px-2 py-1 text-xs text-[#5F6B7C] transition-colors hover:border-[#AEBACC] hover:text-[#26354D]'
       }
     >
       <Play className="h-3 w-3" />
@@ -72,7 +72,7 @@ function PreviewPageSwitcher() {
     <select
       value={previewPageSlug}
       onChange={(e) => useEditorStore.getState().setPreviewPage(e.target.value)}
-      className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-200 outline-none focus:border-[#c8a96a]"
+      className="rounded-md border border-[#CAD5E5] bg-white px-2 py-1 text-xs text-[#26354D] outline-none focus:border-[#174DDA]"
     >
       {pages.map((p) => (
         <option key={p.id} value={p.slug}>
@@ -125,16 +125,16 @@ export function CanvasStage() {
 
   if (preview === 'mobile') {
     return (
-      <div className="flex min-w-0 flex-1 items-start justify-center overflow-auto bg-[#111] py-8">
+      <div className="flex min-w-0 flex-1 items-start justify-center overflow-auto bg-[#E8EEF7] py-8">
         <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
+          <div className="flex items-center gap-2 text-xs text-[#5F6B7C]">
             <Smartphone className="h-3.5 w-3.5" />
             모바일 미리보기
             <PreviewPageSwitcher />
             <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
           </div>
           <div
-            className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-neutral-700 bg-black shadow-2xl"
+            className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-[#CAD5E5] bg-black shadow-2xl"
             onClickCapture={handlePreviewClickCapture}
           >
             {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
@@ -149,8 +149,8 @@ export function CanvasStage() {
 
   if (preview === 'desktop') {
     return (
-      <div className="min-w-0 flex-1 overflow-y-auto bg-[#111]" onClickCapture={handlePreviewClickCapture}>
-        <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-neutral-400">
+      <div className="min-w-0 flex-1 overflow-y-auto bg-[#E8EEF7]" onClickCapture={handlePreviewClickCapture}>
+        <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-[#5F6B7C]">
           <Eye className="h-3.5 w-3.5" />
           미리보기 — 버튼 동작 (외부 링크는 새 탭) · 모션 토글로 실제 움직임 확인
           <PreviewPageSwitcher />
@@ -170,7 +170,7 @@ export function CanvasStage() {
     <div
       ref={scrollRef}
       data-canvas-bg="1"
-      className="relative min-w-0 flex-1 overflow-auto bg-[#111]"
+      className="relative min-w-0 flex-1 overflow-auto bg-[#E8EEF7]"
       onPointerDown={handleBgPointerDown}
     >
       <ThemeFonts theme={config.theme} />
@@ -181,7 +181,7 @@ export function CanvasStage() {
       >
         {/* 연속 페이지 시트 — 섹션이 간격 없이 이어 붙는 실제 사이트 모습 그대로 */}
         {sections.length > 0 ? (
-          <div className="shadow-2xl ring-1 ring-neutral-800" style={{ width: DESIGN_WIDTH * scale }}>
+          <div className="shadow-2xl ring-1 ring-[#DCE4F0]" style={{ width: DESIGN_WIDTH * scale }}>
             {sections.map((section) => (
               <SectionView key={section.id} section={section} theme={config.theme} scale={scale} />
             ))}
@@ -189,13 +189,13 @@ export function CanvasStage() {
         ) : null}
 
         {sections.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-900/40 px-14 py-16 text-center">
-            <p className="text-sm font-medium text-neutral-300">아직 섹션이 없습니다</p>
-            <p className="text-xs text-neutral-500">히어로 섹션부터 시작해 보세요.</p>
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#CAD5E5] bg-white/80 px-14 py-16 text-center">
+            <p className="text-sm font-medium text-[#344054]">아직 섹션이 없습니다</p>
+            <p className="text-xs text-[#667085]">히어로 섹션부터 시작해 보세요.</p>
             <button
               type="button"
               onClick={() => useEditorStore.getState().addSection('hero')}
-              className="mt-1 flex h-9 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-xs font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+              className="mt-1 flex h-9 items-center gap-1.5 rounded-lg bg-[#174DDA] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#245FE5]"
             >
               <Plus className="h-3.5 w-3.5" /> 히어로 섹션 추가
             </button>

@@ -81,12 +81,13 @@ export function Badge({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    neutral: 'bg-neutral-800 text-neutral-300 border-neutral-700',
-    blue: 'bg-sky-950/60 text-sky-300 border-sky-900',
-    emerald: 'bg-emerald-950/60 text-emerald-300 border-emerald-900',
-    amber: 'bg-amber-950/60 text-amber-300 border-amber-900',
-    red: 'bg-red-950/60 text-red-300 border-red-900',
-    gold: 'bg-[#2a2117] text-[#d9b878] border-[#4a3a22]',
+    neutral: 'border-[#DCE4F0] bg-[#EEF3F9] text-[#475467]',
+    blue: 'border-[#BBD0FA] bg-[#EDF4FF] text-[#174DDA]',
+    emerald: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
+    amber: 'border-[#F2D59B] bg-[#FFF8E8] text-[#855700]',
+    red: 'border-[#F2B8BE] bg-[#FFF0F2] text-[#B42318]',
+    // Legacy API name kept for callers; visually this is now the Daboim mint tier signal.
+    gold: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
   };
   return (
     <span
@@ -139,7 +140,12 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={cn('rounded-xl border border-neutral-800 bg-neutral-900/60 p-5', className)}>
+    <div
+      className={cn(
+        'rounded-xl border border-[#DCE4F0] bg-white p-5 shadow-[0_10px_32px_rgba(11,23,54,0.045)]',
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -157,8 +163,8 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-50">{title}</h1>
-        {description ? <p className="mt-1 text-sm text-neutral-400">{description}</p> : null}
+        <h1 className="text-xl font-semibold tracking-tight text-[#0B1736]">{title}</h1>
+        {description ? <p className="mt-1 text-sm text-[#5F6B7C]">{description}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
     </div>
@@ -168,7 +174,7 @@ export function PageHeader({
 // ---------- 상태 표현 ----------
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse rounded-md bg-neutral-800/80', className)} />;
+  return <div className={cn('animate-pulse rounded-md bg-[#DCE8F7]', className)} />;
 }
 
 export function Spinner({ className }: { className?: string }) {
@@ -187,10 +193,10 @@ export function EmptyState({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 bg-neutral-900/30 px-6 py-10 text-center">
-      {icon ? <div className="text-neutral-600">{icon}</div> : null}
-      <p className="text-sm font-medium text-neutral-300">{title}</p>
-      {description ? <p className="max-w-sm text-xs leading-5 text-neutral-500">{description}</p> : null}
+    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#CAD5E5] bg-[#F8FBFF] px-6 py-10 text-center">
+      {icon ? <div className="text-[#8B9AB0]">{icon}</div> : null}
+      <p className="text-sm font-medium text-[#26354D]">{title}</p>
+      {description ? <p className="max-w-sm text-xs leading-5 text-[#667085]">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
@@ -204,13 +210,13 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-red-950 bg-red-950/20 px-6 py-8 text-center">
-      <p className="text-sm text-red-300">{message}</p>
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-[#F2B8BE] bg-[#FFF5F6] px-6 py-8 text-center">
+      <p className="text-sm text-[#B42318]">{message}</p>
       {onRetry ? (
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-lg border border-red-900 px-3 py-1.5 text-xs text-red-200 transition-colors hover:bg-red-950/50"
+          className="rounded-lg border border-[#E59AA3] px-3 py-1.5 text-xs text-[#B42318] transition-colors hover:bg-[#FFE8EA]"
         >
           다시 시도
         </button>
@@ -236,11 +242,11 @@ export function Button({
 }) {
   const variants: Record<string, string> = {
     primary:
-      'bg-[#c8a96a] text-neutral-950 hover:bg-[#d9bc82] disabled:hover:bg-[#c8a96a] font-semibold',
+      'bg-[#174DDA] text-white hover:bg-[#0F3DB9] disabled:hover:bg-[#174DDA] font-semibold shadow-[0_8px_20px_rgba(23,77,218,0.16)]',
     secondary:
-      'border border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-neutral-500 hover:text-neutral-50',
-    ghost: 'text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50',
-    danger: 'border border-red-900 bg-red-950/40 text-red-200 hover:bg-red-950/70',
+      'border border-[#CAD5E5] bg-white text-[#26354D] hover:border-[#174DDA] hover:text-[#174DDA]',
+    ghost: 'text-[#475467] hover:bg-[#EDF4FF] hover:text-[#174DDA]',
+    danger: 'border border-[#F2B8BE] bg-[#FFF5F6] text-[#B42318] hover:bg-[#FFE8EA]',
   };
   const sizes: Record<string, string> = {
     sm: 'h-8 px-3 text-xs rounded-lg',

@@ -389,7 +389,7 @@ export function Step06MoodColor() {
                         직접 고르기
                         <input
                           type="color"
-                          value={/^#[0-9a-fA-F]{6}$/.test(colorOverride) ? colorOverride : '#a98844'}
+                          value={/^#[0-9a-fA-F]{6}$/.test(colorOverride) ? colorOverride : '#174DDA'}
                           onChange={(e) => setValue('colorOverride', e.target.value, { shouldValidate: true })}
                           className="h-6 w-8 cursor-pointer rounded border border-ob-border bg-ob-surface"
                         />
@@ -412,7 +412,7 @@ export function Step06MoodColor() {
                       <span className="text-[13px] text-ob-muted">보조색</span>
                       <input
                         type="color"
-                        value={/^#[0-9a-fA-F]{6}$/.test(secondaryColor) ? secondaryColor : '#f3ecdd'}
+                        value={/^#[0-9a-fA-F]{6}$/.test(secondaryColor) ? secondaryColor : '#E8FBF7'}
                         onChange={(e) => setValue('secondaryColor', e.target.value, { shouldValidate: true })}
                         className="h-7 w-10 cursor-pointer rounded border border-ob-border bg-ob-surface"
                       />

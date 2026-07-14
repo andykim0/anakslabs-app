@@ -220,7 +220,7 @@ export function GenerateStep({
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={`/dashboard/sites/${siteId}/editor`}
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-ob-accent px-6 text-sm font-semibold text-ob-ink transition-colors hover:bg-ob-accent-strong hover:text-white"
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-ob-accent px-6 text-sm font-semibold text-white transition-colors hover:bg-ob-accent-strong"
           >
             <PencilRuler className="h-4 w-4" />
             에디터에서 다듬기

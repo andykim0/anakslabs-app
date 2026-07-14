@@ -26,9 +26,9 @@ export function useToast(): ToastContextValue {
 }
 
 const ICONS: Record<ToastKind, React.ReactNode> = {
-  success: <CheckCircle2 className="h-4 w-4 text-emerald-400" />,
-  error: <AlertTriangle className="h-4 w-4 text-red-400" />,
-  info: <Info className="h-4 w-4 text-sky-400" />,
+  success: <CheckCircle2 className="h-4 w-4 text-[#087D70]" />,
+  error: <AlertTriangle className="h-4 w-4 text-[#B42318]" />,
+  info: <Info className="h-4 w-4 text-[#174DDA]" />,
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -60,10 +60,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               className={cn(
                 'pointer-events-auto flex w-full items-center gap-2.5 rounded-xl border px-4 py-3 text-sm shadow-xl backdrop-blur',
                 t.kind === 'error'
-                  ? 'border-red-900 bg-red-950/90 text-red-100'
+                  ? 'border-[#F2B8BE] bg-[#FFF5F6]/95 text-[#8F1D18]'
                   : t.kind === 'success'
-                    ? 'border-emerald-900 bg-neutral-900/95 text-neutral-100'
-                    : 'border-neutral-700 bg-neutral-900/95 text-neutral-100',
+                    ? 'border-[#A8E5D8] bg-[#F1FCF9]/95 text-[#195E56]'
+                    : 'border-[#BBD0FA] bg-white/95 text-[#26354D]',
               )}
             >
               {ICONS[t.kind]}

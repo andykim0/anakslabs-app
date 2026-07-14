@@ -44,7 +44,7 @@ export function PublishDialog({
           </Button>
           <Link
             href={result ? `/dashboard/sites/${result.site.id}` : '/dashboard'}
-            className="inline-flex h-10 items-center rounded-lg border border-neutral-700 bg-neutral-900 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
+            className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
           >
             사이트 관리로 이동
           </Link>
@@ -53,7 +53,7 @@ export function PublishDialog({
               href={openHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
             >
               라이브 사이트 열기 <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -62,16 +62,16 @@ export function PublishDialog({
       }
     >
       <div className="space-y-3">
-        <p className="flex items-center gap-2 text-neutral-200">
-          <PartyPopper className="h-4 w-4 text-[#d9b878]" />
+        <p className="flex items-center gap-2 text-[#26354D]">
+          <PartyPopper className="h-4 w-4 text-[#174DDA]" />
           초안이 라이브 사이트로 반영되었습니다.
         </p>
         {liveUrl ? (
-          <p className="rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2 font-mono text-xs text-[#d9b878]">
+          <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2 font-mono text-xs text-[#174DDA]">
             {liveUrl}
           </p>
         ) : null}
-        <p className="text-xs leading-5 text-neutral-500">
+        <p className="text-xs leading-5 text-[#667085]">
           서브도메인은 즉시 접속 가능합니다. 내 도메인 연결(커스텀 도메인)은 대시보드의 사이트 설정에서 진행할
           수 있습니다.
         </p>

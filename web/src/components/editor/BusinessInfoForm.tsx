@@ -25,7 +25,7 @@ interface FormValues {
 }
 
 const inputClass =
-  'h-9 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]';
+  'h-9 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-[#174DDA]';
 
 function Field({
   label,
@@ -41,7 +41,7 @@ function Field({
   return (
     <div className={span2 ? 'sm:col-span-2' : undefined}>
       <div className="mb-1 flex items-baseline justify-between gap-2">
-        <span className="text-[11px] text-neutral-500">{label}</span>
+        <span className="text-[11px] text-[#667085]">{label}</span>
         {error ? <span className="text-[11px] text-red-400">{error}</span> : null}
       </div>
       {children}
@@ -118,23 +118,23 @@ export function BusinessInfoForm({
         onClick={() => setValue('isPersonal', !isPersonal, { shouldValidate: true })}
         className={cn(
           'flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition-colors',
-          isPersonal ? 'border-[#c8a96a] bg-[#2a2117]' : 'border-neutral-700 hover:border-neutral-500',
+          isPersonal ? 'border-[#174DDA] bg-[#EDF4FF]' : 'border-[#CAD5E5] hover:border-[#AEBACC]',
         )}
       >
         <span>
-          <span className={cn('block text-xs font-medium', isPersonal ? 'text-[#d9b878]' : 'text-neutral-300')}>
+          <span className={cn('block text-xs font-medium', isPersonal ? 'text-[#174DDA]' : 'text-[#344054]')}>
             사업자가 아닌 개인 사이트예요
           </span>
-          <span className="mt-0.5 block text-[10px] text-neutral-500">
+          <span className="mt-0.5 block text-[10px] text-[#667085]">
             개인 운영이면 운영자명·연락처만 입력하면 돼요.
           </span>
         </span>
         <span
           role="switch"
           aria-checked={isPersonal}
-          className={cn('relative h-5 w-9 shrink-0 rounded-full transition-colors', isPersonal ? 'bg-[#c8a96a]' : 'bg-neutral-700')}
+          className={cn('relative h-5 w-9 shrink-0 rounded-full transition-colors', isPersonal ? 'bg-[#174DDA]' : 'bg-[#DCE4F0]')}
         >
-          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-neutral-950 transition-transform', isPersonal ? 'translate-x-4' : 'translate-x-0.5')} />
+          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-[#F8FBFF] transition-transform', isPersonal ? 'translate-x-4' : 'translate-x-0.5')} />
         </span>
       </button>
 
@@ -170,7 +170,7 @@ export function BusinessInfoForm({
         ) : null}
       </div>
 
-      <p className="text-[11px] leading-4 text-neutral-600">
+      <p className="text-[11px] leading-4 text-[#667085]">
         발행된 사이트 최하단에 법적 표기 푸터로 자동 표시됩니다 (전자상거래법·정보통신망법 표시 의무).
       </p>
 
@@ -178,7 +178,7 @@ export function BusinessInfoForm({
         {extraActions}
         <button
           type="submit"
-          className="inline-flex h-9 items-center rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+          className="inline-flex h-9 items-center rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
         >
           {submitLabel}
         </button>

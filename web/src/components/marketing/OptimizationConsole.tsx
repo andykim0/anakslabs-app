@@ -139,7 +139,7 @@ export function OptimizationConsole() {
           </div>
         </div>
       </div>
-      <p className="mt-3 text-center font-mono text-[8px] tracking-[0.08em] text-[#8B95A7]">
+      <p className="mt-3 text-center font-mono text-[8px] tracking-[0.08em] text-[#667085]">
         DABOIM 3D MOTION · 1920×1080 · MUTED · LAZY-LOADED
       </p>
     </div>
