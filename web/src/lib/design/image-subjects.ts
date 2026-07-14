@@ -14,6 +14,118 @@ export interface MoodSubjectRule {
   ambient: readonly string[];
 }
 
+export type IndustrySubjectClassId =
+  | 'restaurant'
+  | 'cafe'
+  | 'beauty'
+  | 'medical'
+  | 'education'
+  | 'company'
+  | 'portfolio'
+  | 'general';
+
+export interface IndustrySubjectSafetyRule {
+  /** 주문·예약 결과를 현실과 비교하기 쉬운 업종은 전체 PRODUCT_AVOID를 붙인다. */
+  strict: boolean;
+  /** SurveyInput.purposeId가 있으면 자유 입력 업종명보다 우선한다. */
+  purposeIds: readonly string[];
+  /** purposeId가 없는 레거시·직접 호출을 위한 업종 클래스 판정. */
+  industryMatch: RegExp;
+}
+
+/**
+ * 업종은 안전 강도만 결정한다. 양의 피사체는 이 레지스트리에서 고르지 않고 MOOD_SUBJECTS만 사용한다.
+ * 회사·포트폴리오는 추상 브랜드 표현을 허용하되 로고·인물·실적 날조는 별도 지시로 계속 금지한다.
+ */
+export const INDUSTRY_SUBJECT_SAFETY = {
+  restaurant: {
+    strict: true,
+    purposeIds: [],
+    industryMatch:
+      /음식|식당|레스토랑|파인다이닝|오마카세|고깃집|바베큐|한식|백반|분식|이자카야|주점|펍|restaurant|dining|bistro|omakase/i,
+  },
+  cafe: {
+    strict: true,
+    purposeIds: [],
+    industryMatch: /카페|커피|베이커리|제과|디저트|cafe|coffee|bakery/i,
+  },
+  beauty: {
+    strict: true,
+    purposeIds: [],
+    industryMatch: /뷰티|미용|헤어|네일|피부|에스테틱|왁싱|beauty|salon|hair|nail/i,
+  },
+  medical: {
+    strict: true,
+    purposeIds: [],
+    industryMatch: /병원|의원|치과|한의원|클리닉|hospital|clinic|medical|dental/i,
+  },
+  education: {
+    strict: true,
+    purposeIds: ['edu_membership'],
+    industryMatch: /학원|교육|과외|클래스|강의|academy|education|tutoring/i,
+  },
+  company: {
+    strict: false,
+    purposeIds: ['company_brand'],
+    industryMatch: /회사|기업|법인|브랜드|스타트업|company|corporate|agency|startup/i,
+  },
+  portfolio: {
+    strict: false,
+    purposeIds: ['portfolio'],
+    industryMatch: /포트폴리오|작가|이력서|portfolio|resume|creative practice/i,
+  },
+  general: {
+    strict: true,
+    purposeIds: [],
+    industryMatch: /(?!)/,
+  },
+} as const satisfies Record<IndustrySubjectClassId, IndustrySubjectSafetyRule>;
+
+const INDUSTRY_MATCH_ORDER: readonly Exclude<IndustrySubjectClassId, 'general'>[] = [
+  'cafe',
+  'restaurant',
+  'beauty',
+  'medical',
+  'education',
+  'company',
+  'portfolio',
+];
+
+export interface ResolvedIndustrySubjectSafety {
+  id: IndustrySubjectClassId;
+  strict: boolean;
+}
+
+export function resolveIndustrySubjectSafety(input: {
+  purposeId?: string | null;
+  industry?: string | null;
+}): ResolvedIndustrySubjectSafety {
+  const purposeId = input.purposeId?.trim();
+  if (purposeId) {
+    const purposeClass = INDUSTRY_MATCH_ORDER.find((id) =>
+      (INDUSTRY_SUBJECT_SAFETY[id].purposeIds as readonly string[]).includes(purposeId),
+    );
+    if (purposeClass) {
+      return { id: purposeClass, strict: INDUSTRY_SUBJECT_SAFETY[purposeClass].strict };
+    }
+
+    // 목적이 있으면 회사/포트폴리오 외에는 fail-closed. 업종명은 strict 클래스 라벨만 세분화한다.
+    const industry = input.industry?.trim() ?? '';
+    for (const id of INDUSTRY_MATCH_ORDER) {
+      const rule = INDUSTRY_SUBJECT_SAFETY[id];
+      if (rule.strict && rule.industryMatch.test(industry)) return { id, strict: true };
+    }
+    return { id: 'general', strict: true };
+  }
+
+  const industry = input.industry?.trim() ?? '';
+  for (const id of INDUSTRY_MATCH_ORDER) {
+    const rule = INDUSTRY_SUBJECT_SAFETY[id];
+    if (rule.industryMatch.test(industry)) return { id, strict: rule.strict };
+  }
+  return { id: 'general', strict: INDUSTRY_SUBJECT_SAFETY.general.strict };
+}
+
 export const MOOD_SUBJECTS = {
   elegant: {
     ambient: [
@@ -71,6 +183,10 @@ export const PRODUCT_AVOID = [
 /** 이미지·AI 무드 영상에 항상 붙는 소비자기만 방지 문장. */
 export const PRODUCT_SAFETY_DIRECTIVE =
   'Do NOT depict a specific finished dish, product, or service result that a customer would order and compare to reality. Render mood, space, light, and texture — not the product.';
+
+/** strict:false 회사·포트폴리오도 실존 주장·브랜드 자산을 날조하지 않도록 유지하는 완화 지시. */
+export const RELAXED_BRAND_SAFETY_DIRECTIVE =
+  'Abstract brand symbolism is allowed, but do NOT fabricate identifiable people, logos, credentials, reviews, clients, awards, or portfolio evidence.';
 
 /** 고객 실사 image-to-video 전용 — 원본에 없던 피사체·효과를 만들지 않는다. */
 export const FAITHFUL_PHOTO_MOTION_DIRECTIVE =
@@ -142,17 +258,26 @@ export function moodPromptForTone(
 }
 
 /** photo는 다큐멘터리처럼 오인되기 쉬워 금지 범주까지 명시하고, 비사진 스타일은 명백한 양식화를 요구한다. */
-export function productSafetyDirective(candidateStyle: CandidateStyle = 'photo'): string {
+export function productSafetyDirective(
+  candidateStyle: CandidateStyle = 'photo',
+  options?: { strict?: boolean },
+): string {
+  const styleDirective =
+    candidateStyle === 'illustration'
+      ? 'Keep all forms clearly illustrated.'
+      : candidateStyle === '3d_render'
+        ? 'Keep all forms clearly constructed and stylized.'
+        : 'Use art-directed atmosphere rather than documentary-looking claims.';
+  if (options?.strict === false) {
+    return `${PRODUCT_SAFETY_DIRECTIVE} ${RELAXED_BRAND_SAFETY_DIRECTIVE} ${styleDirective}`;
+  }
   if (candidateStyle === 'photo') {
     return (
       `${PRODUCT_SAFETY_DIRECTIVE} Photographic output is especially strict: never use these as focal subjects: ` +
       `${PRODUCT_AVOID.join('; ')}.`
     );
   }
-  return (
-    `${PRODUCT_SAFETY_DIRECTIVE} Keep all forms clearly ${candidateStyle === 'illustration' ? 'illustrated' : 'constructed and stylized'} ` +
-    'and keep the ambient mood, not an orderable outcome, as the focal subject.'
-  );
+  return `${PRODUCT_SAFETY_DIRECTIVE} ${styleDirective} Keep the ambient mood, not an orderable outcome, as the focal subject.`;
 }
 
 export function hasProductSafetyDirective(prompt: string): boolean {

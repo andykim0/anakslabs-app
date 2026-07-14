@@ -164,6 +164,7 @@ function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteThe
     palettePrimary: theme.palette.primary,
     background: theme.palette.background,
     tone: survey.tone,
+    purposeId: survey.purposeId,
   });
 }
 

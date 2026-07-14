@@ -32,5 +32,6 @@ export function povImagePrompt(
     palettePrimary: bp.theme.palette.primary,
     background: bp.theme.palette.background,
     tone: survey.tone,
+    purposeId: survey.purposeId,
   });
 }

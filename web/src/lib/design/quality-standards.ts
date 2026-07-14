@@ -13,7 +13,11 @@
 import type { CandidateStyle } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
 import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
-import { ambientSubjectFor, productSafetyDirective } from '@/lib/design/image-subjects';
+import {
+  ambientSubjectFor,
+  productSafetyDirective,
+  resolveIndustrySubjectSafety,
+} from '@/lib/design/image-subjects';
 
 export type EnforcementMode = 'hard-code' | 'generation-data' | 'validator' | 'qa-audit';
 
@@ -598,6 +602,8 @@ export function buildImagePrompt(
     background?: string;
     /** 고객이 고른 "원하는 느낌". 미지정 시 POV 영어 무드로 결정적 폴백. */
     tone?: readonly string[] | string;
+    /** 자유 업종명보다 신뢰할 수 있는 온보딩 목적. 회사·포트폴리오 strict:false 판정에 우선 사용. */
+    purposeId?: string;
   },
 ): string {
   const pov = findPov(povId);
@@ -610,6 +616,7 @@ export function buildImagePrompt(
         : 'photographic, art-directed';
   const role = imageRoleForSection(section);
   const context = industryDescriptor(industry);
+  const subjectSafety = resolveIndustrySubjectSafety({ purposeId: opts?.purposeId, industry });
   const subject = ambientSubjectFor({
     tone: opts?.tone,
     fallbackMood: pov.promptMood,
@@ -625,7 +632,7 @@ export function buildImagePrompt(
     `${role} for a Korean small business. Focal ambient subject: ${subject}. ` +
       `Business-setting context only: ${context}; do not turn its goods or service outcomes into the focal subject. ` +
       `Design point-of-view: ${pov.promptMood}. Render: ${render}.${color} ` +
-      `${productSafetyDirective(candidateStyle)} ` +
+      `${productSafetyDirective(candidateStyle, { strict: subjectSafety.strict })} ` +
       `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography. 16:10.`,
   );
 }
