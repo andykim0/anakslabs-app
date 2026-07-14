@@ -13,9 +13,11 @@ import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import {
   HERO_VIDEO_MOTION_IDS,
   HERO_VIDEO_MOTIONS,
+  heroVideoMotionIdsForContext,
   isHeroVideoMotionId,
   type HeroVideoMotionId,
 } from '@/lib/motion/hero-video-motions';
+import { SCROLLYTELLING_MOTION_ID, isScrollytellingTemplate } from '@/lib/motion/scrollytelling';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import type { MotionChoiceDto } from '../api';
 import { Button, Card, cn } from '../ui';
@@ -53,6 +55,11 @@ const PREVIEW_CSS = `
   from { transform: translate3d(-8%, 5%, 0); }
   to { transform: translate3d(9%, -6%, 0); }
 }
+@keyframes hvm-manifesto {
+  0% { transform: scale(1.025) translate3d(-1.4%, .8%, 0); filter: saturate(.92); }
+  50% { transform: scale(1.085) translate3d(.8%, -1.2%, 0); filter: saturate(1.06); }
+  100% { transform: scale(1.045) translate3d(1.2%, -.4%, 0); filter: saturate(.98); }
+}
 .mcs-preview-image {
   animation: mcs-preview-camera 8s cubic-bezier(.4, 0, .2, 1) infinite alternate;
   will-change: transform;
@@ -64,11 +71,12 @@ const PREVIEW_CSS = `
 .hvm-preview-boomerang { animation: hvm-boomerang 3.8s ease-in-out infinite alternate; }
 .hvm-preview-zoom { animation: hvm-zoom 7s ease-in-out infinite alternate; }
 .hvm-preview-parallax { animation: hvm-parallax 6s ease-in-out infinite alternate; }
+.hvm-preview-manifesto { animation: hvm-manifesto 8s cubic-bezier(.4, 0, .2, 1) infinite alternate; }
 .hvm-depth-orbit { animation: hvm-depth-orbit 4.5s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) {
   .mcs-preview-image, .mcs-preview-light,
   .hvm-preview-scrub, .hvm-preview-boomerang, .hvm-preview-zoom,
-  .hvm-preview-parallax, .hvm-depth-orbit { animation: none; transform: none; }
+  .hvm-preview-parallax, .hvm-preview-manifesto, .hvm-depth-orbit { animation: none; transform: none; filter: none; }
   .mcs-preview-light { display: none; }
 }
 `;
@@ -100,6 +108,14 @@ function HeroMotionDemo({
           className="hvm-depth-orbit absolute top-3 right-4 h-12 w-12 rounded-full border border-white/40 bg-white/15 blur-[1px]"
         />
       ) : null}
+      {motionId === SCROLLYTELLING_MOTION_ID ? (
+        <span aria-hidden="true" className="absolute inset-y-3 right-3 flex flex-col justify-center gap-1.5">
+          <span className="h-5 w-1 rounded-full bg-white/90" />
+          <span className="h-5 w-1 rounded-full bg-white/55" />
+          <span className="h-5 w-1 rounded-full bg-white/30" />
+          <span className="h-5 w-1 rounded-full bg-white/20" />
+        </span>
+      ) : null}
       <span className="absolute bottom-2 left-2 rounded-full border border-white/25 bg-black/55 px-2 py-0.5 text-[9px] font-semibold text-white">
         대표 예시
       </span>
@@ -126,6 +142,7 @@ export function motionChoiceForVideoPreference(
 export function MotionChoiceStep({
   tier,
   purposeId,
+  templateId,
   heroImageUrl,
   heroPhotoUrl,
   initial,
@@ -134,6 +151,7 @@ export function MotionChoiceStep({
 }: {
   tier: Tier;
   purposeId: SitePurposeId;
+  templateId: string;
   /** W1에서 고른 최종 히어로 소스. 업로드·AI 무드 모두 동일하게 미리보기한다. */
   heroImageUrl: string;
   /** 고객이 직접 올린 실제 히어로 사진. 있으면 영상은 원본 보존 모션만 사용한다. */
@@ -146,17 +164,21 @@ export function MotionChoiceStep({
   const ownsAddon = hasVideoAddon(tier);
   const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
+  const availableMotionIds = heroVideoMotionIdsForContext(isScrollytellingTemplate(purposeId, templateId));
   const [wantsVideo, setWantsVideo] = useState(initial?.heroTechnique === 'video-hero');
   const activeConceptId =
     initial?.videoConceptId && concepts.some((concept) => concept.id === initial.videoConceptId)
       ? initial.videoConceptId
       : concepts[0].id;
   const [heroMotionId, setHeroMotionId] = useState<HeroVideoMotionId>(() =>
-    isHeroVideoMotionId(initial?.heroMotionId) ? initial.heroMotionId : HERO_VIDEO_MOTION_IDS[0],
+    isHeroVideoMotionId(initial?.heroMotionId) && availableMotionIds.includes(initial.heroMotionId)
+      ? initial.heroMotionId
+      : HERO_VIDEO_MOTION_IDS[0],
   );
 
   const submit = () => {
-    onComplete(motionChoiceForVideoPreference(wantsVideo, activeConceptId, heroMotionId));
+    const safeMotionId = availableMotionIds.includes(heroMotionId) ? heroMotionId : availableMotionIds[0];
+    onComplete(motionChoiceForVideoPreference(wantsVideo, activeConceptId, safeMotionId));
   };
 
   return (
@@ -275,7 +297,7 @@ export function MotionChoiceStep({
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {HERO_VIDEO_MOTION_IDS.map((motionId) => {
+            {availableMotionIds.map((motionId) => {
               const motion = HERO_VIDEO_MOTIONS[motionId];
               const selected = heroMotionId === motionId;
               return (

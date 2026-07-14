@@ -12,6 +12,11 @@ import {
 } from '@/lib/design/image-subjects';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
 import { HERO_VIDEO_MOTIONS, heroVideoMotionById } from '@/lib/motion/hero-video-motions';
+import {
+  SCROLLYTELLING_MOTION_ID,
+  hasValidScrollytellingActs,
+  isScrollytellingTemplate,
+} from '@/lib/motion/scrollytelling';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 
 /** fast=온보딩 시안(저렴), 표준=고화질 재생성(에디터, 크레딧). env로 모델 id 오버라이드. */
@@ -157,6 +162,10 @@ export function applyHeroVideoToConfig(config: SiteConfig, videoUrl: string, pos
   const found = homeHero(config);
   if (!found) return config;
   const currentMotion = config.motion;
+  const restoreScrollytelling =
+    currentMotion?.heroMotionId === SCROLLYTELLING_MOTION_ID &&
+    isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId) &&
+    hasValidScrollytellingActs(found.hero.acts);
   return {
     ...config,
     // [W4] basic 정적 폴백으로 저장된 요청도 관리자 승인 후 실제 영상을 적용하는 순간 활성화한다.
@@ -175,7 +184,11 @@ export function applyHeroVideoToConfig(config: SiteConfig, videoUrl: string, pos
             ...page,
             sections: page.sections.map((section) =>
               section === found.hero
-                ? { ...section, background: { ...section.background, video: { src: videoUrl, poster: posterUrl } } }
+                ? {
+                    ...section,
+                    ...(restoreScrollytelling ? { layout: 'scrollytelling' as const } : {}),
+                    background: { ...section.background, video: { src: videoUrl, poster: posterUrl } },
+                  }
                 : section,
             ),
           }

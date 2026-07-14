@@ -21,6 +21,7 @@ function stageConfig(templateId = 'company_brand.default'): SiteConfig {
     presetId: 'cinematic-hero',
     intensity: 'normal',
     heroTechnique: 'video-hero',
+    heroMotionId: 'scrollytelling-manifesto',
     videoRequested: true,
   };
   config.pages[0].sections = [

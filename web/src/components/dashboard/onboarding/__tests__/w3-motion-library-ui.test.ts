@@ -10,17 +10,17 @@ const api = source('src/components/dashboard/api.ts');
 const generate = source('src/components/dashboard/onboarding/generate-step.tsx');
 
 describe('W3 — 영상 모션 라이브러리 UI', () => {
-  test('레지스트리 4안을 고객이 고른 사진으로 라이브 렌더한다', () => {
-    assert.match(motion, /HERO_VIDEO_MOTION_IDS\.map\(\(motionId\) =>/);
+  test('허용 컨텍스트의 레지스트리 5안을 고객이 고른 사진으로 라이브 렌더한다', () => {
+    assert.match(motion, /availableMotionIds\.map\(\(motionId\) =>/);
     assert.match(motion, /<HeroMotionDemo motionId=\{motionId\} heroImageUrl=\{heroImageUrl\}/);
     assert.match(motion, /className=\{cn\('h-full w-full object-cover will-change-transform', motion\.previewClass\)\}/);
     assert.match(motion, /원하는 영상 연출을 하나 골라주세요/);
     assert.doesNotMatch(motion, /concepts\.map/);
   });
 
-  test('모든 카드는 대표 예시로 표시되고 4종 CSS가 실제 움직임을 만든다', () => {
+  test('모든 카드는 대표 예시로 표시되고 5종 CSS가 실제 움직임을 만든다', () => {
     assert.match(motion, />\s*대표 예시\s*</);
-    for (const keyframe of ['hvm-scrub', 'hvm-boomerang', 'hvm-zoom', 'hvm-parallax']) {
+    for (const keyframe of ['hvm-scrub', 'hvm-boomerang', 'hvm-zoom', 'hvm-parallax', 'hvm-manifesto']) {
       assert.match(motion, new RegExp(`@keyframes ${keyframe}`), keyframe);
     }
     assert.match(motion, /prefers-reduced-motion: reduce[\s\S]*\.hvm-preview-scrub[\s\S]*animation: none; transform: none/);

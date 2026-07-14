@@ -1,16 +1,19 @@
 /**
  * [W3] 히어로 영상 연출 라이브러리.
  *
- * 네 선택은 고객이 고르는 연출 방향이며, 최종 렌더는 모두 V-batch의
+ * 다섯 선택은 고객이 고르는 연출 방향이며, 최종 렌더는 모두 V-batch의
  * cinematic-hero 합성(데스크톱 scrub·모바일 loop·reduced poster)을 재사용한다.
  * previewClass는 CSS 대표 예시용, promptSeed는 승인 후 Veo 모션 방향용이다.
  */
+
+export const SCROLLYTELLING_MOTION_ID = 'scrollytelling-manifesto' as const;
 
 export const HERO_VIDEO_MOTION_IDS = [
   'cinematic-scrub',
   'boomerang-loop',
   'slow-zoom',
   'parallax-depth',
+  SCROLLYTELLING_MOTION_ID,
 ] as const;
 
 export type HeroVideoMotionId = (typeof HERO_VIDEO_MOTION_IDS)[number];
@@ -57,7 +60,22 @@ export const HERO_VIDEO_MOTIONS = {
     heroTechnique: 'video-hero',
     rendererPresetId: 'cinematic-hero',
   },
+  [SCROLLYTELLING_MOTION_ID]: {
+    label: '매니페스토 (페이지 관통)',
+    description: '한 영상이 페이지의 여러 막을 관통하며 브랜드 이야기를 이어가요.',
+    previewClass: 'hvm-preview-manifesto',
+    promptSeed: 'Restrained continuous camera drift across a layered composition with measured depth and a calm seamless loop.',
+    heroTechnique: 'video-hero',
+    rendererPresetId: 'cinematic-hero',
+  },
 } as const satisfies Record<HeroVideoMotionId, HeroVideoMotionSpec>;
+
+/** SS5 절제 게이트: 일반 업종에는 페이지 관통 선택 자체를 노출하지 않는다. */
+export function heroVideoMotionIdsForContext(allowScrollytelling: boolean): readonly HeroVideoMotionId[] {
+  return allowScrollytelling
+    ? HERO_VIDEO_MOTION_IDS
+    : HERO_VIDEO_MOTION_IDS.filter((id) => id !== SCROLLYTELLING_MOTION_ID);
+}
 
 export function isHeroVideoMotionId(value: string | undefined): value is HeroVideoMotionId {
   return Boolean(value && Object.prototype.hasOwnProperty.call(HERO_VIDEO_MOTIONS, value));

@@ -1,8 +1,9 @@
 import type { MotionTier, ScrollytellingAct, Section, SiteConfig } from '@/lib/types/site';
 import { hasVideoAddon } from '@/lib/services/entitlements';
+import { SCROLLYTELLING_MOTION_ID } from './hero-video-motions';
 
 /** W/생성/승인 경로가 공유하는 명시적 페이지 관통 연출 id. */
-export const SCROLLYTELLING_MOTION_ID = 'scrollytelling-manifesto' as const;
+export { SCROLLYTELLING_MOTION_ID } from './hero-video-motions';
 
 /**
  * [SS1] broad purpose와 결정된 templateId의 exact pair. 카페·병원·교육·링크 허브는 fail-closed한다.
@@ -86,6 +87,7 @@ export function canRenderScrollytellingSection(
     config.motion?.intensity !== 'off' &&
     config.motion?.presetId === 'cinematic-hero' &&
     config.motion?.heroTechnique === 'video-hero' &&
+    config.motion?.heroMotionId === SCROLLYTELLING_MOTION_ID &&
     isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId) &&
     hasValidScrollytellingActs(section.acts) &&
     Boolean(section.background.video?.src && section.background.video.poster)
@@ -109,6 +111,7 @@ export function sanitizeScrollytellingSections(
       let reason: string | null = null;
       if (!hasVideoAddon(tier)) reason = '영상 애드온 미보유';
       else if (!isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId)) reason = '허용되지 않은 목적 템플릿';
+      else if (config.motion?.heroMotionId !== SCROLLYTELLING_MOTION_ID) reason = '페이지 관통 연출 명시 선택 없음';
       else if (section.type !== 'hero') reason = '히어로가 아닌 섹션';
       else if (!hasValidScrollytellingActs(section.acts)) reason = '유효한 3~5막 부재';
       else if (activeOnPage) reason = '페이지당 무대 1개 상한';

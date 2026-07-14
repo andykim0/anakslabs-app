@@ -15,6 +15,7 @@ import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
+import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
@@ -45,7 +46,8 @@ export const POST = withApiHandler(async (request) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
   const { siteId } = body.data;
-  const survey: SurveyInput = body.data.survey;
+  // [SS5] 재생성도 최초 생성과 같은 서버 권위 템플릿 분류를 사용한다.
+  const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
   const candidate: DesignCandidate = body.data.candidate;
 
   const site = await getOwnedSite(siteId, client.id);

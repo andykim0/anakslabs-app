@@ -10,6 +10,7 @@ import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import { siteConfigSchema } from '../../_lib/schemas';
 import { sanitizeMotion } from '@/lib/motion/validate';
+import { preserveSiteClassification } from '@/lib/onboarding/site-classification';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -39,8 +40,11 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const body = await parseBody(request, patchSchema);
   if (!body.ok) return body.res;
 
+  // [SS5] 목적/템플릿은 생성 시 확정된 서버 분류다. PATCH body로 바꿔 절제 게이트를 우회할 수 없다.
+  const persistedConfig = site.draftConfig ?? site.siteConfig;
+  const classified = preserveSiteClassification(body.data.draftConfig as SiteConfig, persistedConfig);
   // [motion-system] 플랜 기준 모션 새니타이즈 — 위반은 403이 아니라 자동 강등 + changes 안내.
-  const { config: sanitized, changes } = sanitizeMotion(body.data.draftConfig as SiteConfig, client.tier);
+  const { config: sanitized, changes } = sanitizeMotion(classified, client.tier);
   await getDataServices().sites.saveDraft(siteId, sanitized);
   return NextResponse.json({
     ok: true,

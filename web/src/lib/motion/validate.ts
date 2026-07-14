@@ -10,7 +10,11 @@ import { isAllowedHeroChoice, isKnownHeroChoice } from './hero-choice';
 import { findVideoConcept } from './video-concepts';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { isHeroVideoMotionId } from './hero-video-motions';
-import { sanitizeScrollytellingSections } from './scrollytelling';
+import {
+  SCROLLYTELLING_MOTION_ID,
+  isScrollytellingTemplate,
+  sanitizeScrollytellingSections,
+} from './scrollytelling';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['upload', 'ai-1', 'ai-2', 'ai-3'];
@@ -156,6 +160,12 @@ export function sanitizeMotion(
       heroMotionId = undefined;
     } else if (!isHeroVideoMotionId(heroMotionId)) {
       changes.push(`알 수 없는 히어로 영상 연출 '${heroMotionId}' → 제거했습니다.`);
+      heroMotionId = undefined;
+    } else if (
+      heroMotionId === SCROLLYTELLING_MOTION_ID &&
+      !isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId)
+    ) {
+      changes.push('페이지 관통 연출은 허용된 브랜드·전문·파인다이닝·포트폴리오 템플릿에서만 사용할 수 있어 제거했습니다.');
       heroMotionId = undefined;
     }
   }

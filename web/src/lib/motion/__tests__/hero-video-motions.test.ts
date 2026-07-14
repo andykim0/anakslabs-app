@@ -8,14 +8,15 @@ import {
 } from '@/lib/motion/hero-video-motions';
 
 describe('W3 — 히어로 영상 연출 레지스트리', () => {
-  test('정확히 4개의 고유 ID를 등록한다', () => {
+  test('정확히 5개의 고유 ID를 등록한다', () => {
     assert.deepEqual(HERO_VIDEO_MOTION_IDS, [
       'cinematic-scrub',
       'boomerang-loop',
       'slow-zoom',
       'parallax-depth',
+      'scrollytelling-manifesto',
     ]);
-    assert.equal(new Set(HERO_VIDEO_MOTION_IDS).size, 4);
+    assert.equal(new Set(HERO_VIDEO_MOTION_IDS).size, 5);
     assert.deepEqual(Object.keys(HERO_VIDEO_MOTIONS), [...HERO_VIDEO_MOTION_IDS]);
   });
 

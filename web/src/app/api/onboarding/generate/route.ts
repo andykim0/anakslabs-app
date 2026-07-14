@@ -10,6 +10,7 @@ import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
+import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import { parseBody, withApiHandler } from '../../_lib/http';
@@ -48,7 +49,8 @@ export const POST = withApiHandler(async (request) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
-  const survey: SurveyInput = body.data.survey;
+  // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
+  const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
   const candidate: DesignCandidate = body.data.candidate;
 
   const { ai, sites } = getDataServices();
