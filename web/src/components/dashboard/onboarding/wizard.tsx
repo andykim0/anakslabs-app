@@ -147,6 +147,7 @@ export function OnboardingWizard({
         <MotionChoiceStep
           tier={tier}
           purposeId={survey.purposeId}
+          heroPhotoUrl={survey.heroPhotoUrl}
           initial={motionChoice}
           onBack={() => setStep(1)}
           onComplete={(choice) => {

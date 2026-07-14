@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * S4 사진 — storePhotoUrls 단일 슬롯(최대 12, uploadImage). S2에서 고른 가져온 이미지가 미리 담김.
- * 레퍼런스 업로드 UI는 완전히 제거(referenceImageUrls 미수집).
+ * S4 사진 — 대표 히어로 실사 1장(heroPhotoUrl) + 본문·갤러리 사진(storePhotoUrls, 최대 12).
+ * 두 소스는 역할이 다르므로 별도 슬롯으로 유지한다. S2에서 고른 가져온 이미지는 일반 사진에 담긴다.
  */
 import { useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -16,13 +16,32 @@ const MAX = 12;
 export function Step04Photos() {
   const { watch, setValue } = useFormContext<SurveyForm>();
   const { toast } = useToast();
+  const heroInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [heroUploading, setHeroUploading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoWhiteBg, setLogoWhiteBg] = useState(false);
+  const heroPhotoUrl = watch('heroPhotoUrl') ?? '';
   const photos = watch('storePhotoUrls') ?? [];
   const logoUrl = watch('logoUrl') ?? '';
+
+  const handleHeroPhoto = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setHeroUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setValue('heroPhotoUrl', url, { shouldValidate: true });
+      toast('success', heroPhotoUrl ? '대표 사진을 교체했어요.' : '대표 사진을 올렸어요.');
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '대표 사진 업로드에 실패했습니다.');
+    } finally {
+      setHeroUploading(false);
+      if (heroInputRef.current) heroInputRef.current.value = '';
+    }
+  };
 
   const handleLogo = async (files: FileList | null) => {
     const file = files?.[0];
@@ -73,13 +92,70 @@ export function Step04Photos() {
   return (
     <div className="space-y-6">
       <StepIntro>
-        실제 사진이 있으면 첫 화면·갤러리에 먼저 써서 신뢰도가 올라가요. 부족한 사진은 AI가 채워드려요.
+        대표 사진은 첫 화면에 크게, 가게·메뉴 사진은 본문과 갤러리에 사용해요.
       </StepIntro>
+
+      <div className="rounded-ob border border-ob-accent/50 bg-ob-accent-soft/30 p-4">
+        <Field
+          label={
+            <>
+              대표 사진 <span className="font-normal text-ob-muted">(히어로에 크게 쓰여요 · 선택)</span>
+            </>
+          }
+          hint="가장 보여주고 싶은 사진 한 장을 올리면, 그 사진으로 시네마틱하게 만들어드려요. 없으면 분위기에 맞춰 AI가 연출해요."
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            {heroPhotoUrl ? (
+              <span className="relative block h-28 w-44 overflow-hidden rounded-ob border border-ob-border bg-ob-bg">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={heroPhotoUrl} alt="대표 사진" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setValue('heroPhotoUrl', '', { shouldValidate: true })}
+                  aria-label="대표 사진 제거"
+                  className="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-ob-ink/85 text-white transition-colors hover:bg-ob-danger"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => heroInputRef.current?.click()}
+                disabled={heroUploading}
+                className="inline-flex h-28 w-44 flex-col items-center justify-center gap-1.5 rounded-ob border border-dashed border-ob-accent-strong/50 bg-ob-surface text-[13px] text-ob-muted transition-colors hover:border-ob-accent-strong hover:text-ob-ink disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {heroUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
+                대표 사진 올리기
+              </button>
+            )}
+            {heroPhotoUrl ? (
+              <button
+                type="button"
+                onClick={() => heroInputRef.current?.click()}
+                disabled={heroUploading}
+                className="inline-flex h-10 items-center gap-1.5 rounded-ob border border-ob-border bg-ob-surface px-3.5 text-[13px] text-ob-ink transition-colors hover:border-ob-muted disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {heroUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                사진 교체
+              </button>
+            ) : null}
+            <input
+              ref={heroInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={(e) => void handleHeroPhoto(e.target.files)}
+            />
+          </div>
+          <p className="mt-2 text-[13px] text-ob-muted">직접 촬영했거나 사용 권한이 있는 사진 · 5MB 이하 · PNG·JPG·WEBP</p>
+        </Field>
+      </div>
 
       <Field
         label={
           <>
-            가게·메뉴 사진 <span className="font-normal text-ob-muted">(선택 · 최대 {MAX}장)</span>
+            가게·메뉴 사진 <span className="font-normal text-ob-muted">(본문·갤러리용 · 선택 · 최대 {MAX}장)</span>
           </>
         }
         hint="직접 촬영했거나 사용 권한이 있는 사진만 올려주세요."

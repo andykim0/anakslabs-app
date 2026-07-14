@@ -17,7 +17,33 @@ interface Draft {
 }
 type Phase = 'idle' | 'generating' | 'ready' | 'applying' | 'applied' | 'error';
 
-export function HeroVideoStudio({ siteId, businessName, industry }: { siteId: string; businessName: string; industry: string }) {
+/** API에는 등록 무드 분류에 필요한 tone과 짧은 원격/경로 출처 표식만 보낸다. */
+export function buildHeroVideoDraftBody(tone: readonly string[], heroPhotoUrl?: string) {
+  const normalizedTone = tone
+    .map((value) => value.trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 2);
+  const photo = heroPhotoUrl?.trim();
+  const remoteOrPath =
+    photo && photo.length <= 2048 && (/^https?:\/\//i.test(photo) || /^\/(?!\/)/.test(photo))
+      ? photo
+      : undefined;
+  return {
+    count: 2 as const,
+    ...(normalizedTone.length ? { tone: normalizedTone } : {}),
+    ...(remoteOrPath ? { heroPhotoUrl: remoteOrPath } : {}),
+  };
+}
+
+export function HeroVideoStudio({
+  siteId,
+  tone,
+  heroPhotoUrl,
+}: {
+  siteId: string;
+  tone: readonly string[];
+  heroPhotoUrl?: string;
+}) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [error, setError] = useState('');
@@ -29,7 +55,7 @@ export function HeroVideoStudio({ siteId, businessName, industry }: { siteId: st
       const res = await fetch(`/api/sites/${siteId}/hero-video`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ count: 2, businessName, industry }),
+        body: JSON.stringify(buildHeroVideoDraftBody(tone, heroPhotoUrl)),
       });
       const data = (await res.json().catch(() => null)) as { drafts?: Draft[]; message?: string } | null;
       if (!res.ok || !data?.drafts?.length) throw new Error(data?.message || '영상 시안 생성에 실패했습니다.');
@@ -71,7 +97,10 @@ export function HeroVideoStudio({ siteId, businessName, industry }: { siteId: st
       {phase === 'idle' && (
         <>
           <p className="text-xs leading-5 text-ob-muted">
-            히어로 배경을 시네마틱 영상으로 만들어 드려요. 시안 2개를 생성해 마음에 드는 걸 고르면 바로 적용됩니다.
+            {heroPhotoUrl
+              ? '올린 대표 사진의 피사체를 그대로 보존하고, 은은한 카메라·빛의 움직임만 더한 시안 2개를 만들어요.'
+              : '대표 사진이 없어 선택한 무드에 맞춘 AI 공간·빛·질감 연출로 시안 2개를 만들어요. 특정 제품이나 시술 결과는 만들지 않아요.'}{' '}
+            마음에 드는 시안을 고르면 바로 적용됩니다.
             (영상이 없어도 사이트는 이미 완성 상태예요 — 느린 줌 이미지로 표시됩니다.)
           </p>
           <Button className="mt-3" onClick={generate}>

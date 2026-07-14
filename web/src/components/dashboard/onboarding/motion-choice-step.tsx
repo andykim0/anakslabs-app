@@ -100,28 +100,25 @@ const INTENSITY_OPTIONS = [
 /** 영상 컨셉 카드용 이모지 (레지스트리 id → 이모지, 미지 id는 🎬) */
 const CONCEPT_EMOJI: Record<string, string> = {
   'space-mood': '🕯️',
-  'signature-closeup': '🍽️',
+  'signature-closeup': '✨',
   'street-time': '🌆',
-  'product-closeup': '📦',
-  'unboxing-detail': '🤲',
-  'lifestyle-cut': '☕',
   'people-at-work': '💼',
   'office-mood': '🏢',
   'city-flow': '🌃',
-  'learning-moment': '📖',
-  'hands-craft': '✍️',
-  'community-space': '🤝',
 };
 
 export function MotionChoiceStep({
   tier,
   purposeId,
+  heroPhotoUrl,
   initial,
   onBack,
   onComplete,
 }: {
   tier: Tier;
   purposeId: SitePurposeId;
+  /** 고객이 직접 고른 실제 히어로 사진. 있으면 영상은 원본 보존 모션만 사용한다. */
+  heroPhotoUrl?: string;
   /** 뒤로 왔다가 다시 진입 시 이전 선택 복원 */
   initial?: MotionChoiceDto;
   onBack: () => void;
@@ -235,7 +232,7 @@ export function MotionChoiceStep({
             </span>
           </div>
           <p className="text-xs leading-5 text-ob-muted">
-            사진 대신 짧은 <span className="font-semibold text-ob-ink">AI 영상</span>이 배경으로 흐릅니다(Veo로 제작).
+            첫 화면에 짧은 <span className="font-semibold text-ob-ink">시네마틱 영상</span>이 배경으로 흐릅니다.
             스크롤 효과가 아니라 실제로 움직이는 영상이에요.{ownsAddon ? '' : ' 원하실 때만 — 결제 후 제작에 반영돼요.'}
           </p>
           <div className="grid gap-3 sm:grid-cols-2">{renderHeroChoice(videoChoice)}</div>
@@ -272,6 +269,27 @@ export function MotionChoiceStep({
       {/* Premium × 영상 히어로 — 영상 컨셉 (여기서 영상을 만들지는 않음) */}
       {showConcepts ? (
         <div className="space-y-3 border-t border-ob-border pt-5">
+          <div className="flex items-center gap-3 rounded-ob border border-ob-accent bg-ob-accent-soft p-3">
+            {heroPhotoUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={heroPhotoUrl}
+                  alt="영상 소스로 선택한 대표 사진"
+                  className="h-14 w-20 shrink-0 rounded-ob border border-ob-border bg-ob-surface object-cover"
+                />
+                <p className="text-xs leading-5 text-ob-ink">
+                  <span className="font-semibold">이 대표 사진을 그대로 살려요.</span>{' '}
+                  피사체는 바꾸지 않고 은은한 카메라와 빛의 움직임만 더합니다.
+                </p>
+              </>
+            ) : (
+              <p className="text-xs leading-5 text-ob-ink">
+                <span className="font-semibold">선택한 무드에 맞춘 AI 공간·빛 연출</span>로 만들어요.
+                특정 메뉴·제품·시술 결과를 지어내지 않고 분위기와 질감만 움직입니다.
+              </p>
+            )}
+          </div>
           <div>
             <h3 className="text-sm font-semibold text-ob-ink">메인 화면에 어떤 영상이 흐르면 좋을까요?</h3>
             <p className="mt-1 text-xs leading-5 text-ob-muted">

@@ -30,6 +30,8 @@ export const surveyFormSchema = z.object({
   industry: z.string().min(1, '업종을 고르거나 입력해주세요.').max(100),
   existingPresence: z.array(z.object({ kind: z.enum(PRESENCE_KINDS), url: z.string() })).max(3),
   providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
+  /** [H1] 히어로에 크게 쓰는 고객 실사 1장. storePhotoUrls(본문·갤러리)와 별도. */
+  heroPhotoUrl: z.string().optional(),
   storePhotoUrls: z.array(z.string()).max(12),
   /** [v4.5] 로고 URL(선택). 없으면 상호명 글자 로고 폴백 */
   logoUrl: z.string().optional(),
@@ -106,6 +108,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       industry: '',
       existingPresence: [],
       providedContent: '',
+      heroPhotoUrl: '',
       storePhotoUrls: [],
       logoUrl: '',
       mode: 'fresh',
@@ -142,6 +145,7 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     industry: initial.industry,
     existingPresence: (initial.existingPresence ?? []).map((p) => ({ kind: p.kind, url: p.url })),
     providedContent: initial.providedContent ?? '',
+    heroPhotoUrl: initial.heroPhotoUrl ?? '',
     storePhotoUrls: initial.storePhotoUrls ?? [],
     logoUrl: initial.logoUrl ?? '',
     mode: initial.mode ?? 'fresh',

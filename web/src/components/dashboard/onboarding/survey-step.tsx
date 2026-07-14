@@ -149,6 +149,7 @@ export function SurveyStep({
       colorPreference,
       secondaryColor,
       imageStyle: (values.imageStyle as CandidateStyle | undefined) ?? defaultImageStyle(values.industry),
+      heroPhotoUrl: clean(values.heroPhotoUrl),
       storePhotoUrls: values.storePhotoUrls.length ? values.storePhotoUrls : undefined,
       logoUrl: clean(values.logoUrl),
       referenceImageUrls: [], // [v4] 수집 중단 — 항상 빈 배열

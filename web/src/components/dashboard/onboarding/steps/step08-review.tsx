@@ -96,7 +96,10 @@ export function Step08Review() {
             <span className="text-ob-muted">AI가 초안을 채워드려요</span>
           )}
         </Row>
-        <Row title="사진" step={4} goTo={goTo}>
+        <Row title="대표 사진" step={4} goTo={goTo}>
+          {v.heroPhotoUrl ? '1장 · 히어로에 사용' : <span className="text-ob-muted">AI가 분위기에 맞춰 연출</span>}
+        </Row>
+        <Row title="가게·메뉴 사진" step={4} goTo={goTo}>
           {v.storePhotoUrls.length ? `${v.storePhotoUrls.length}장` : <Empty />}
         </Row>
         <Row title="이미지 스타일" step={5} goTo={goTo}>
