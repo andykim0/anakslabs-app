@@ -2099,6 +2099,8 @@ export function buildSiteConfigFromSurvey(
       ogImage: opts.heroImageUrl,
       // [제품 확정] 목적·지역을 구조화 필드로 저장 → 서빙 시 JSON-LD @type/지역 결정(SEO/AEO 해자)
       purposeId: survey.purposeId,
+      // [SS1] broad purpose로 구분할 수 없는 파인다이닝/카페·법무/병원 절제 게이트의 결정적 원천.
+      templateId: survey.templateId,
       ...(region ? { region } : {}),
       // [I1] 개선 모드 진단 원본 — 발행 전 진단 화면 전후 대조(scans.getById)에 사용
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),

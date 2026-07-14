@@ -246,6 +246,18 @@ export interface SectionBackground {
   video?: { src: string; poster?: string; bytes?: number };
 }
 
+/**
+ * [SS1] 페이지 관통 스크롤리텔링의 정적 서사 단위.
+ * 텍스트는 런타임이 만들지 않고 SiteConfig에 그대로 보존해 SSR·정적 export가 항상 읽을 수 있다.
+ */
+export interface ScrollytellingAct {
+  heading: string;
+  body: string;
+  kind?: 'stat' | 'text' | 'image';
+  /** 전체 무대 진행도(0..1) 중 이 막이 활성화되는 구간. 미지정이면 막 수로 균등 분배한다. */
+  band?: [number, number];
+}
+
 export interface Section {
   id: string;
   type: SectionType;
@@ -260,7 +272,9 @@ export interface Section {
    * 무시하여 x좌표 오름차순 흐름 띠로 나열(비파괴 — 'canvas' 복귀 시 원배치 복원). 기본 'canvas'.
    * 실제 흐름 동작은 프리셋에 marquee 포함 AND 이 필드 'marquee'일 때만 resolveMotionPlan이 방출.
    */
-  layout?: 'canvas' | 'marquee';
+  layout?: 'canvas' | 'marquee' | 'scrollytelling';
+  /** [SS1] scrollytelling 무대의 3~5막. 일반 canvas 강등 때도 승인 후 복원을 위해 보존한다. */
+  acts?: ScrollytellingAct[];
   hidden?: boolean;
 }
 
@@ -274,6 +288,8 @@ export interface SiteMeta {
    * 레거시 config는 미설정 → buildJsonLd가 섹션 휴리스틱으로 폴백(무회귀).
    */
   purposeId?: string;
+  /** [SS1] 목적보다 세밀한 결정적 템플릿 id — 카페/병원 자동 적용을 막는 절제 게이트 원천. */
+  templateId?: string;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */
   region?: string;
   /**

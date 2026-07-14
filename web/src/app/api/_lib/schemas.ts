@@ -258,6 +258,17 @@ const sectionBackgroundSchema = z.object({
     .optional(),
 });
 
+const scrollytellingBandSchema = z
+  .tuple([z.number().min(0).max(1), z.number().min(0).max(1)])
+  .refine(([from, to]) => from < to, '막 진행 구간은 from < to 여야 합니다.');
+
+const scrollytellingActSchema = z.object({
+  heading: z.string().min(1).max(120),
+  body: z.string().min(1).max(600),
+  kind: z.enum(['stat', 'text', 'image']).optional(),
+  band: scrollytellingBandSchema.optional(),
+});
+
 const sectionSchema = z.object({
   id: z.string().min(1),
   type: sectionTypeSchema,
@@ -266,8 +277,39 @@ const sectionSchema = z.object({
   background: sectionBackgroundSchema,
   elements: z.array(canvasElementSchema),
   // [motion 3단계] 렌더 레이아웃 (marquee 흐름 띠). 미지정 = 'canvas'
-  layout: z.enum(['canvas', 'marquee']).optional(),
+  layout: z.enum(['canvas', 'marquee', 'scrollytelling']).optional(),
+  // [SS1] 정적 HTML에 직접 렌더할 다막 서사. scrollytelling일 때만 활성화되며 3~5막으로 절제한다.
+  acts: z.array(scrollytellingActSchema).min(3).max(5).optional(),
   hidden: z.boolean().optional(),
+}).superRefine((section, ctx) => {
+  if (section.layout === 'scrollytelling' && !section.acts) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['acts'],
+      message: '스크롤리텔링 레이아웃에는 3~5막이 필요합니다.',
+    });
+  }
+  const bands = section.acts?.map((act) => act.band) ?? [];
+  const explicitCount = bands.filter(Boolean).length;
+  if (explicitCount > 0 && explicitCount !== bands.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['acts'],
+      message: '막 진행 구간은 전부 지정하거나 전부 자동 분배해야 합니다.',
+    });
+  }
+  for (let i = 1; i < bands.length; i += 1) {
+    const previous = bands[i - 1];
+    const current = bands[i];
+    if (previous && current && current[0] < previous[1]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['acts'],
+        message: '막 진행 구간은 순서대로 겹치지 않아야 합니다.',
+      });
+      break;
+    }
+  }
 });
 
 const siteMetaSchema = z.object({
@@ -276,6 +318,7 @@ const siteMetaSchema = z.object({
   ogImage: z.string().optional(),
   // [제품 확정/I1] 목적·지역·진단원본 — JSON-LD @type·지역·전후 대조에 쓰이므로 저장 시 보존(strip 방지)
   purposeId: z.string().max(40).optional(),
+  templateId: z.string().max(80).optional(),
   region: z.string().max(60).optional(),
   sourceScanId: z.string().max(100).optional(),
 });
@@ -477,7 +520,7 @@ export const surveySchema = z.object({
     .refine((plan) => plan.some((s) => s.type === 'hero'), '히어로 섹션은 필수입니다.'),
   // [v4 Phase 4] 페이지 구성 메타 (없으면 sectionPlan.pageSlug 로 유추)
   pagePlan: z.array(pagePlanItemSchema).max(20).optional(),
-  templateId: z.string().min(1),
+  templateId: z.string().min(1).max(80),
   extraNotes: z.string().max(2000).optional(),
   // ---- [§7] additive (v3와 충돌 없음, 유지) ----
   tagline: z.string().max(200).optional(),

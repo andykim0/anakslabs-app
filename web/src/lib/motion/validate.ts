@@ -10,6 +10,7 @@ import { isAllowedHeroChoice, isKnownHeroChoice } from './hero-choice';
 import { findVideoConcept } from './video-concepts';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { isHeroVideoMotionId } from './hero-video-motions';
+import { sanitizeScrollytellingSections } from './scrollytelling';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['upload', 'ai-1', 'ai-2', 'ai-3'];
@@ -162,8 +163,7 @@ export function sanitizeMotion(
   // [U1/W4] 명시 videoAddon이 있으면 그 값이 레거시 videoRequested보다 우선한다.
   const videoRequested = videoAddon !== undefined ? videoAddon : config.motion?.videoRequested;
 
-  return {
-    config: {
+  const sanitizedMotionConfig: SiteConfig = {
       ...config,
       motion: {
         presetId,
@@ -175,9 +175,11 @@ export function sanitizeMotion(
         ...(videoAddon !== undefined ? { videoAddon } : {}),
         ...(heroMotionId !== undefined ? { heroMotionId } : {}),
       },
-    },
-    changes,
   };
+  const scrollytelling = sanitizeScrollytellingSections(sanitizedMotionConfig, plan);
+  changes.push(...scrollytelling.changes);
+
+  return { config: scrollytelling.config, changes };
 }
 
 /** [Q7] 온보딩 '움직임 고르기' 선택 — 생성 라우트 body(motionChoice)로 전달되는 사용자 선택 */
