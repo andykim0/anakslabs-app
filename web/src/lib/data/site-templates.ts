@@ -25,6 +25,8 @@ import type {
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
+import { buildNarrativeArc } from './narrative-arc';
+import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion/scrollytelling';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
 import { pickButtonTextColor } from '@/lib/design/button-contrast';
@@ -2065,6 +2067,20 @@ export function buildSiteConfigFromSurvey(
   // 4.7) [Q5] 배경 리듬 + 악센트 밴드 — POV 키트가 페이지의 배경 시퀀스를 결정(흰 배경 연속 해소).
   //      홈은 밴드 필수(one_page 목적 제외), 미디어 배경(hero)은 미개입(Q1 스크림 담당).
   applyRhythmToPages(pages, povId, theme.palette, { skipBand: survey.purposeId === 'one_page' });
+
+  // [SS2] 명시적으로 페이지 관통 연출을 고른 허용 템플릿만, 고객 원문 기반 막을 hero에 보존한다.
+  // 영상 승인 전에는 sanitizeMotion이 layout을 canvas로 강등하지만 acts는 남겨 승인 후 같은 서사를 복원한다.
+  if (
+    survey.heroMotionId === SCROLLYTELLING_MOTION_ID &&
+    isScrollytellingTemplate(survey.purposeId, survey.templateId)
+  ) {
+    const acts = buildNarrativeArc(survey);
+    const stage = pages.find((page) => page.slug === '')?.sections.find((section) => section.type === 'hero');
+    if (stage && acts.length >= 3) {
+      stage.layout = 'scrollytelling';
+      stage.acts = acts;
+    }
+  }
 
   // 5) [v4 Phase 4] 페이지 간 앵커 재작성 — 다른 페이지 섹션을 가리키는 '#id'는
   //    '/{slug}#id'(홈은 '/#id')로 바꿔 페이지 이동 후 스크롤되게 한다.
