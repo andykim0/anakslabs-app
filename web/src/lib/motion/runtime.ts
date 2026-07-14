@@ -10,6 +10,7 @@
 
 export const MOTION_CSS = `
 .anaks-site { --m-amp: 1; --m-dur-scale: 1; }
+.anaks-site [data-m-progress] { --scroll-progress: 0; }
 /* scroll-reveal / mask-reveal: 기본 보임. 숨김은 런타임이 .m-hide로만 부여(no-JS=보임) */
 .anaks-site [data-m="reveal"].m-hide { opacity: 0; transform: translateY(calc(26px * var(--m-amp))); }
 .anaks-site [data-m="reveal"].m-show { opacity: 1; transform: none;
@@ -98,6 +99,61 @@ export const MOTION_RUNTIME = `(function(){
     var lio = new IntersectionObserver(function(es){
       es.forEach(function(e){ e.target.style.animationPlayState = e.isIntersecting ? 'running' : 'paused'; }); });
     q('[data-m="kenburns"]').concat(q('[data-m="marquee"] .anaks-mq-track')).forEach(function(el){ lio.observe(el); });
+
+    /* ---- [V2] 진행도 드라이버: nearest scroll root + passive scroll + rAF coalescing. ---- */
+    var progressEls = q('[data-m-progress]');
+    if(window.__anaksProgressDispose){ try{ window.__anaksProgressDispose(); }catch(_){} }
+    if(progressEls.length){
+      var progressActive = [], progressTick = false, progressRoots = [];
+      function scrollRootOf(el){
+        var p=el.parentElement;
+        while(p && p!==document.body && p!==document.documentElement){
+          var oy=''; try{ oy=getComputedStyle(p).overflowY||''; }catch(_){}
+          if(/auto|scroll|overlay/.test(oy) && p.scrollHeight>p.clientHeight) return p;
+          p=p.parentElement;
+        }
+        return null;
+      }
+      function updateProgress(el){
+        var rootEl=el.__anaksScrollRoot; var r=el.getBoundingClientRect();
+        var rr=rootEl ? rootEl.getBoundingClientRect() : {top:0};
+        var vh=rootEl ? rootEl.clientHeight : (window.innerHeight||document.documentElement.clientHeight||1);
+        var travel=Math.max(1,r.height-vh); var top=r.top-rr.top;
+        var p=Math.min(1,Math.max(0,-top/travel));
+        el.style.setProperty('--scroll-progress',p.toFixed(4));
+      }
+      function progressFrame(){
+        progressTick=false;
+        for(var i=0;i<progressActive.length;i++) updateProgress(progressActive[i]);
+      }
+      function scheduleProgress(){
+        if(progressTick) return; progressTick=true; requestAnimationFrame(progressFrame);
+      }
+      function listenRoot(rootEl){
+        for(var i=0;i<progressRoots.length;i++) if(progressRoots[i]===rootEl) return;
+        progressRoots.push(rootEl);
+        (rootEl||window).addEventListener('scroll',scheduleProgress,{passive:true});
+      }
+      progressEls.forEach(function(el){
+        el.__anaksScrollRoot=scrollRootOf(el); listenRoot(el.__anaksScrollRoot); updateProgress(el);
+      });
+      window.addEventListener('resize',scheduleProgress,{passive:true});
+      var progressIo=new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          var i=progressActive.indexOf(e.target);
+          if(e.isIntersecting){ if(i<0) progressActive.push(e.target); }
+          else { if(i>=0) progressActive.splice(i,1); updateProgress(e.target); }
+        });
+        if(progressActive.length) scheduleProgress();
+      },{threshold:0});
+      progressEls.forEach(function(el){ progressIo.observe(el); });
+      window.__anaksProgressDispose=function(){
+        progressIo.disconnect();
+        for(var i=0;i<progressRoots.length;i++) (progressRoots[i]||window).removeEventListener('scroll',scheduleProgress);
+        window.removeEventListener('resize',scheduleProgress);
+        progressActive.length=0; progressRoots.length=0;
+      };
+    }
 
     /* ---- video 모듈: video-hero 배경 영상 IO 재생/정지. 로드 실패→poster(요소 숨김). ---- */
     q('video[data-m="videohero"]').forEach(function(v){

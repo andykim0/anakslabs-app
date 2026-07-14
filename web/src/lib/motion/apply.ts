@@ -13,7 +13,7 @@
 import type { MotionIntensity, MotionTier, Section, SiteConfig } from '@/lib/types/site';
 import { isDarkColor } from '@/lib/design/quality-standards';
 import { MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
-import { MOTION_PRESETS, DEFAULT_PRESET, isPresetId } from './presets';
+import { MOTION_PRESETS, DEFAULT_PRESET, isPresetId, type MotionPreset } from './presets';
 import { ensureMotion, sanitizeMotion } from './validate';
 
 /** 요소에 부착할 data-m 값 (요소 단위) */
@@ -25,6 +25,8 @@ export interface MotionPlan {
   kenBurnsSections: Set<string>;
   /** 히어로 섹션 id → video-hero (배경 영상; poster 有일 때만. poster 無면 ken-burns 폴백) */
   videoHeroSections: Set<string>;
+  /** 히어로 섹션 id → cinematic-hero 합성(sticky 진행도 컨테이너) */
+  cinematicHeroSections: Set<string>;
   /** 섹션 id → scroll-scrub(pin+스크럽) / parallax / stacking-cards / spotlight / marquee */
   scrollScrubSections: Set<string>;
   parallaxSections: Set<string>;
@@ -109,7 +111,8 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
   let safe = ensureMotion(config);
   if (opts?.tier) safe = sanitizeMotion(safe, opts.tier).config; // 티어 방어(강등)
   const presetId = isPresetId(safe.motion!.presetId) ? safe.motion!.presetId : DEFAULT_PRESET.basic;
-  const preset = MOTION_PRESETS[presetId];
+  const preset: MotionPreset = MOTION_PRESETS[presetId];
+  const cinematicPreset = preset.composite === 'cinematic-hero';
   const intensity = safe.motion!.intensity;
   const themeBg = safe.theme.palette.background;
 
@@ -117,6 +120,7 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
     intensity,
     kenBurnsSections: new Set(),
     videoHeroSections: new Set(),
+    cinematicHeroSections: new Set(),
     scrollScrubSections: new Set(),
     parallaxSections: new Set(),
     stackingSections: new Set(),
@@ -145,7 +149,10 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
     // video-hero: 배경 영상 + poster 존재 시에만. 아니면 ken-burns 폴백(배경 이미지 존재 시).
     if (heroTech === 'video-hero') {
       const v = hero.background.video;
-      if (v?.src && v.poster) plan.videoHeroSections.add(hero.id);
+      if (v?.src && v.poster) {
+        plan.videoHeroSections.add(hero.id);
+        if (cinematicPreset) plan.cinematicHeroSections.add(hero.id);
+      }
       else if (hero.background.image) plan.kenBurnsSections.add(hero.id); // 폴백
     } else if (heroTech === 'ken-burns' && hero.background.image) {
       plan.kenBurnsSections.add(hero.id);
@@ -207,7 +214,7 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
       if (target) { plan.stackingSections.add(target.id); usedSections.add(target.id); }
     }
     // parallax: 레이어 ≥2 첫 비히어로 섹션 (뒤→앞 최대 3레이어 깊이 배정)
-    if (accents.has('parallax')) {
+    if (accents.has('parallax') && !cinematicPreset) {
       const target = rest.find((s) => !usedSections.has(s.id) && s.elements.length >= 2);
       if (target) {
         plan.parallaxSections.add(target.id);
@@ -239,7 +246,7 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
       }
     }
     // scroll-scrub: 어느 프리셋에도 미포함(3단계 이월) — accent에 있으면 pin 대상 첫 비히어로 섹션.
-    if (accents.has('scroll-scrub')) {
+    if (accents.has('scroll-scrub') && !cinematicPreset) {
       const target = rest.find((s) => !usedSections.has(s.id) && !!s.background.video?.src);
       if (target) { plan.scrollScrubSections.add(target.id); usedSections.add(target.id); }
     }
@@ -268,6 +275,7 @@ export function planIsActive(plan: MotionPlan): boolean {
   return (
     plan.kenBurnsSections.size > 0 ||
     plan.videoHeroSections.size > 0 ||
+    plan.cinematicHeroSections.size > 0 ||
     plan.scrollScrubSections.size > 0 ||
     plan.parallaxSections.size > 0 ||
     plan.stackingSections.size > 0 ||

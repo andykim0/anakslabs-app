@@ -38,11 +38,12 @@ export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
   // 레이아웃이 발산하는 두 기법은 별도 렌더 분기
   if (section.layout === 'marquee') return <MarqueeSection {...props} animate={plan?.marqueeSections.has(section.id) ?? false} />;
+  if (plan?.cinematicHeroSections.has(section.id) && section.background.video?.src) return <CinematicProgressSection {...props} />;
   if (plan?.scrollScrubSections.has(section.id) && section.background.video?.src) return <ScrubSection {...props} />;
   return <StandardSection {...props} />;
 }
 
-function StandardSection({ section, theme, isFirst, interactive = true, plan, siteId }: SectionCanvasProps) {
+function StandardSection({ section, theme, isFirst, interactive = true, plan, siteId, pinned = false }: SectionCanvasProps & { pinned?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
@@ -68,7 +69,7 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
 
   const sectionStyle: CSSProperties = {
     position: 'relative',
-    height: cqw(section.height),
+    height: pinned ? '100%' : cqw(section.height),
     overflow: 'hidden',
     backgroundColor: bg.color ?? theme.palette.background,
     backgroundImage: bg.gradient,
@@ -151,6 +152,39 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
         );
       })}
     </section>
+  );
+}
+
+/**
+ * [V2] 시네마틱 진행도 컨테이너. 네이티브 sticky만 사용하며 스크롤을 가로채지 않는다.
+ * 실제 영상 scrub/모바일 loop/서사 변환은 V3·V4에서 같은 --scroll-progress를 소비한다.
+ */
+function CinematicProgressSection(props: SectionCanvasProps) {
+  const { section } = props;
+  return (
+    <div
+      data-m="cinematic"
+      data-m-progress
+      data-cinematic-layout="desktop"
+      style={{
+        position: 'relative',
+        height: cqw(section.height * 3),
+        minHeight: '240svh',
+        '--scroll-progress': 0,
+      } as CSSProperties}
+    >
+      <div
+        data-m-pin
+        style={{
+          position: 'sticky',
+          top: 0,
+          height: `min(100svh, ${cqw(section.height)})`,
+          overflow: 'hidden',
+        }}
+      >
+        <StandardSection {...props} pinned />
+      </div>
+    </div>
   );
 }
 
