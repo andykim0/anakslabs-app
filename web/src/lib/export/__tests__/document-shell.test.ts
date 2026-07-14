@@ -76,9 +76,12 @@ describe('buildDocumentShell — 서빙 레이어 방출', () => {
       bytes: 2_000_000,
     };
     const preload = '<link rel="preload" as="image" href="assets/deadbeef.webp" fetchpriority="high">';
-    const html = buildDocumentShell({ config, pageSlug: '', headerHtml: '', bodyHtml: '<main></main>' });
+    const reactAutoPreload = '<link rel="preload" as="image" href="assets/deadbeef.webp" fetchPriority="high"/>';
+    const html = buildDocumentShell({ config, pageSlug: '', headerHtml: '', bodyHtml: `${reactAutoPreload}<main></main>` });
     assert.equal(heroPosterPreloadHtml(config, ''), preload);
     assert.ok(html.slice(0, html.indexOf('</head>')).includes(preload), 'poster preload가 head 밖에 있음');
+    assert.equal((html.match(/href="assets\/deadbeef\.webp"/g) ?? []).length, 1, 'React 자동 preload와 중복됨');
+    assert.doesNotMatch(html.slice(html.indexOf('<body>')), /rel="preload"[^>]*deadbeef/);
   });
 
   test('hero가 아닌 섹션 poster와 임의 상대경로는 preload하지 않는다', () => {

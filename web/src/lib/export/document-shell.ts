@@ -43,13 +43,30 @@ export interface DocumentShellInput {
   lang?: string;
 }
 
-/** 페이지의 시네마틱 히어로 poster를 LCP 후보로 먼저 가져오게 한다. */
-export function heroPosterPreloadHtml(config: SiteConfig, pageSlug: string): string {
+function heroPosterSrc(config: SiteConfig, pageSlug: string): string | undefined {
   const page = findPage(config, pageSlug);
   const hero = page?.sections.find((section) => section.type === 'hero');
   const poster = hero?.background.video?.poster;
-  if (!poster || !isSafeMediaSrc(poster)) return '';
+  return poster && isSafeMediaSrc(poster) ? poster : undefined;
+}
+
+/** 페이지의 시네마틱 히어로 poster를 LCP 후보로 먼저 가져오게 한다. */
+export function heroPosterPreloadHtml(config: SiteConfig, pageSlug: string): string {
+  const poster = heroPosterSrc(config, pageSlug);
+  if (!poster) return '';
   return `<link rel="preload" as="image" href="${escapeAttr(poster)}" fetchpriority="high">`;
+}
+
+/** React 19가 body 앞에 자동 삽입한 같은 preload를 제거해 head의 명시적 힌트 하나만 남긴다. */
+function stripDuplicatePosterPreload(bodyHtml: string, poster: string | undefined): string {
+  if (!poster) return bodyHtml;
+  const escapedPoster = escapeAttr(poster);
+  return bodyHtml.replace(/<link\b[^>]*>/gi, (tag) => {
+    const rel = /\brel="([^"]*)"/i.exec(tag)?.[1]?.toLowerCase();
+    const as = /\bas="([^"]*)"/i.exec(tag)?.[1]?.toLowerCase();
+    const href = /\bhref="([^"]*)"/i.exec(tag)?.[1];
+    return rel === 'preload' && as === 'image' && href === escapedPoster ? '' : tag;
+  });
 }
 
 /** 완전한 <!doctype html> 문서 문자열 조립 (순수) */
@@ -64,6 +81,9 @@ export function buildDocumentShell(input: DocumentShellInput): string {
   // [S-batch] 서빙 레이어 — canonical + JSON-LD (단일 소스, siteUrl 없으면 생략)
   const canonical = input.siteUrl ? canonicalUrlFor(input.siteUrl, pageSlug) : null;
   const jsonLd = input.siteUrl ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, '')) : null;
+  const poster = heroPosterSrc(config, pageSlug);
+  const posterPreload = heroPosterPreloadHtml(config, pageSlug);
+  const bodyHtml = stripDuplicatePosterPreload(input.bodyHtml, poster);
 
   const head = [
     '<meta charset="utf-8">',
@@ -73,7 +93,7 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
     // [P1] 파비콘 — 라이브 tenantMetadata(icons)와 파리티(seo_favicon)
     '<link rel="icon" href="/favicon.ico">',
-    heroPosterPreloadHtml(config, pageSlug),
+    posterPreload,
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
     meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
     meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',
@@ -91,7 +111,7 @@ export function buildDocumentShell(input: DocumentShellInput): string {
 ${head}
 </head>
 <body>
-${input.headerHtml}${input.bodyHtml}
+${input.headerHtml}${bodyHtml}
 ${input.bodyAppendHtml ?? ''}
 </body>
 </html>
