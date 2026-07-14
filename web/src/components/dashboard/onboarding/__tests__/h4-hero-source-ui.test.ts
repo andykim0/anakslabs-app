@@ -34,7 +34,10 @@ describe('H4 — 히어로 영상 소스 UI·전달', () => {
   test('위저드와 생성 성공 화면이 대표 사진·tone을 하위 컴포넌트로 전달한다', () => {
     const wizard = source('src/components/dashboard/onboarding/wizard.tsx');
     const generate = source('src/components/dashboard/onboarding/generate-step.tsx');
-    assert.match(wizard, /<MotionChoiceStep[\s\S]*heroPhotoUrl=\{survey\.heroPhotoUrl\}/);
+    assert.match(
+      wizard,
+      /<MotionChoiceStep[\s\S]*heroPhotoUrl=\{heroImage\.source === 'upload' \? heroImage\.url : undefined\}/,
+    );
     assert.match(generate, /<HeroVideoStudio[\s\S]*tone=\{survey\.tone\}[\s\S]*heroPhotoUrl=\{survey\.heroPhotoUrl\}/);
   });
 

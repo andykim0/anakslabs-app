@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { ScanSearch } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
+import type { HeroImageSelection } from '@/lib/onboarding/hero-image-options';
 import type { ExtrasOptionsDto, MotionChoiceDto } from '../api';
 import { cn } from '../ui';
 import { SurveyStep } from './survey-step';
 import { ImproveStep } from './improve-step';
+import { HeroImageStep } from './hero-image-step';
 import { MotionChoiceStep } from './motion-choice-step';
 import { CandidateStep } from './candidate-step';
 import { ExtrasStep } from './extras-step';
@@ -30,10 +32,11 @@ export interface ImproveContext {
 // [A4] 승인 프레이밍 — 각 단계는 '확인하고 넘어가는' 게이트. 라벨을 승인 축으로.
 const STEPS = [
   { no: 1, label: '내용' },
-  { no: 2, label: '움직임' },
-  { no: 3, label: '디자인 방향' },
-  { no: 4, label: '부가기능' },
-  { no: 5, label: '구성·생성' },
+  { no: 2, label: '히어로 사진' },
+  { no: 3, label: '움직임' },
+  { no: 4, label: '디자인 방향' },
+  { no: 5, label: '부가기능' },
+  { no: 6, label: '구성·생성' },
 ] as const;
 
 export function OnboardingWizard({
@@ -49,8 +52,9 @@ export function OnboardingWizard({
   /** [motion 4단계] 소유자 티어 — Premium이면 성공화면에 AI 영상 히어로 스튜디오 노출 */
   tier?: Tier;
 }) {
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
+  const [heroImage, setHeroImage] = useState<HeroImageSelection | undefined>(undefined);
   // [Q7] 움직임 고르기 선택 (설문 직후 · 디자인 선택 전)
   const [motionChoice, setMotionChoice] = useState<MotionChoiceDto | undefined>(undefined);
   const [candidate, setCandidate] = useState<DesignCandidate | null>(null);
@@ -76,7 +80,7 @@ export function OnboardingWizard({
       {/* [A4] 진행 표시 + 승인 프레이밍 — 각 단계는 확인하고 넘어가는 게이트(기본 1클릭 통과, 언제든 이전) */}
       <div className="mb-8">
         <p className="mb-2 text-center text-[11px] text-ob-muted">
-          {step}/5 단계 · 확인하고 넘어가면 돼요 — 마음에 안 들면 언제든 이전으로
+          {step}/6 단계 · 확인하고 넘어가면 돼요 — 마음에 안 들면 언제든 이전으로
         </p>
         <div className="flex items-center">
           {STEPS.map((s, i) => {
@@ -124,6 +128,8 @@ export function OnboardingWizard({
             defaultBusinessName={defaultBusinessName}
             onComplete={(values) => {
               setSurvey(values);
+              setHeroImage(undefined);
+              setMotionChoice(undefined);
               setCandidate(null);
               setStep(2);
             }}
@@ -136,6 +142,8 @@ export function OnboardingWizard({
             onComplete={(values) => {
               setSurvey(values);
               // 설문이 바뀌었을 수 있으므로 이전 선택 초기화
+              setHeroImage(undefined);
+              setMotionChoice(undefined);
               setCandidate(null);
               setStep(2);
             }}
@@ -144,46 +152,61 @@ export function OnboardingWizard({
       ) : null}
 
       {step === 2 && survey ? (
-        <MotionChoiceStep
-          tier={tier}
-          purposeId={survey.purposeId}
-          heroPhotoUrl={survey.heroPhotoUrl}
-          initial={motionChoice}
+        <HeroImageStep
+          survey={survey}
+          initial={heroImage}
           onBack={() => setStep(1)}
-          onComplete={(choice) => {
-            setMotionChoice(choice);
+          onComplete={(selection) => {
+            setHeroImage(selection);
+            setMotionChoice(undefined);
+            setCandidate(null);
             setStep(3);
           }}
         />
       ) : null}
 
-      {step === 3 && survey ? (
-        <CandidateStep
-          survey={survey}
-          heroTechnique={motionChoice?.heroTechnique}
+      {step === 3 && survey && heroImage ? (
+        <MotionChoiceStep
+          tier={tier}
+          purposeId={survey.purposeId}
+          heroPhotoUrl={heroImage.source === 'upload' ? heroImage.url : undefined}
+          initial={motionChoice}
           onBack={() => setStep(2)}
-          onSelect={(selected) => {
-            setCandidate(selected);
+          onComplete={(choice) => {
+            setMotionChoice(choice);
             setStep(4);
           }}
         />
       ) : null}
 
-      {step === 4 && survey && candidate ? (
-        <ExtrasStep
+      {step === 4 && survey && heroImage ? (
+        <CandidateStep
           survey={survey}
+          heroImageUrl={heroImage.url}
+          heroTechnique={motionChoice?.heroTechnique}
           onBack={() => setStep(3)}
-          onComplete={(sel, opts) => {
-            setExtras(sel);
-            setExtrasOptions(opts);
+          onSelect={(selected) => {
+            setCandidate(selected);
             setStep(5);
           }}
         />
       ) : null}
 
       {step === 5 && survey && candidate ? (
-        <GenerateStep
+        <ExtrasStep
           survey={survey}
+          onBack={() => setStep(4)}
+          onComplete={(sel, opts) => {
+            setExtras(sel);
+            setExtrasOptions(opts);
+            setStep(6);
+          }}
+        />
+      ) : null}
+
+      {step === 6 && survey && heroImage && candidate ? (
+        <GenerateStep
+          survey={heroImage.source === 'upload' ? survey : { ...survey, heroPhotoUrl: undefined }}
           candidate={candidate}
           extras={extras}
           extrasOptions={extrasOptions}
@@ -195,8 +218,8 @@ export function OnboardingWizard({
             setSiteId(id);
             setFreeRegensUsed(used);
           }}
-          onBack={() => setStep(4)}
-          onPickAnother={() => setStep(3)}
+          onBack={() => setStep(5)}
+          onPickAnother={() => setStep(4)}
           onEditSurvey={() => setStep(1)}
         />
       ) : null}

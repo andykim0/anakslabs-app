@@ -358,9 +358,13 @@ export async function suggestSection(input: {
   );
 }
 
-export async function generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
+export async function generateCandidates(
+  survey: SurveyInput,
+  requestKey?: string,
+): Promise<DesignCandidate[]> {
   const data = await post<{ candidates: DesignCandidate[] }>('/api/onboarding/candidates', {
     survey,
+    ...(requestKey ? { requestKey } : {}),
   });
   if (!Array.isArray(data.candidates) || data.candidates.length === 0) {
     throw new ApiError(500, 'INVALID_RESPONSE', '디자인 후보 생성에 실패했습니다.');

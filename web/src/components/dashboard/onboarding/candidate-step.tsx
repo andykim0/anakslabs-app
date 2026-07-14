@@ -3,8 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, RefreshCw, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import type { CandidateStyle, DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import {
+  applyHeroImageToCandidate,
+  heroCandidateIntent,
+  surveyForHeroCandidates,
+} from '@/lib/onboarding/hero-image-options';
+import { genIdemKey } from '@/lib/onboarding/generate-dedup';
 import { generateCandidates } from '../api';
 import { Badge, Button, Card, cn, ErrorState } from '../ui';
 
@@ -82,11 +88,13 @@ const CANDIDATE_MOTION_CSS = `
 
 function CandidateCard({
   candidate,
+  heroImageUrl,
   selected,
   heroTechnique,
   onSelect,
 }: {
   candidate: DesignCandidate;
+  heroImageUrl: string;
   selected: boolean;
   heroTechnique?: string;
   onSelect: () => void;
@@ -117,7 +125,7 @@ function CandidateCard({
           />
         ) : (
           <img
-            src={candidate.heroImageUrl}
+            src={heroImageUrl}
             alt={candidate.label}
             className={cn('h-full w-full object-cover', motionClass ?? 'transition-transform duration-300 group-hover:scale-[1.03]')}
             onError={() => setImgFailed(true)}
@@ -157,17 +165,22 @@ function CandidateCard({
 
 export function CandidateStep({
   survey,
+  heroImageUrl,
   heroTechnique,
   onBack,
   onSelect,
 }: {
   survey: SurveyInput;
+  /** [W1] 앞 단계에서 고른 단일 히어로 소스. 디자인 3안은 같은 사진 위에서 테마만 비교한다. */
+  heroImageUrl: string;
   /** [G1] '움직임 고르기'에서 고른 히어로 기법 — 후보 히어로 이미지에서 체감시켜 선택→확인 루프를 닫는다 */
   heroTechnique?: string;
   onBack: () => void;
   onSelect: (candidate: DesignCandidate) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const candidateSurvey = surveyForHeroCandidates(survey);
+  const requestKey = genIdemKey(heroCandidateIntent(candidateSurvey));
 
   // 후보 생성은 "마운트 시 1회 fetch" — useMutation을 useEffect에서 쏘는 안티패턴 대신 useQuery로:
   //  · dedup: 같은 survey면 in-flight/캐시를 공유 → StrictMode 이중 마운트(개발)에도 요청 1회(이중 과금 방지)
@@ -175,8 +188,8 @@ export function CandidateStep({
   //  · 자동 refetch 전면 차단(창 포커스·재연결·재마운트) → 의도치 않은 재생성=재과금 방지
   //  · retry:false → 실패 즉시 에러 표면화(무한 스피너·재시도 폭주 금지)
   const { data, isFetching, isError, error, refetch } = useQuery({
-    queryKey: ['onboarding', 'candidates', survey],
-    queryFn: () => generateCandidates(survey),
+    queryKey: ['onboarding', 'hero-images', candidateSurvey],
+    queryFn: () => generateCandidates(candidateSurvey, requestKey),
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
@@ -185,13 +198,7 @@ export function CandidateStep({
     retry: false,
   });
 
-  // 명시적 재생성(재과금) — 사용자 액션에서만. refetch는 staleTime을 무시하고 새 후보를 받아온다.
-  const regenerate = () => {
-    setSelectedId(null);
-    void refetch();
-  };
-
-  // fetch 중(최초 또는 재생성)이면 분석 스피너. 성공/에러로 끝나면 반드시 벗어난다(idle 무한 스피너 불가).
+  // fetch 중(최초 또는 명시적 오류 재시도)이면 분석 스피너. 성공/에러로 끝나면 반드시 벗어난다.
   if (isFetching) {
     return <LoadingScreen messages={LOADING_MESSAGES} />;
   }
@@ -232,6 +239,7 @@ export function CandidateStep({
           <CandidateCard
             key={c.id}
             candidate={c}
+            heroImageUrl={heroImageUrl}
             selected={c.id === selectedId}
             heroTechnique={heroTechnique}
             onSelect={() => setSelectedId(c.id)}
@@ -240,17 +248,15 @@ export function CandidateStep({
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-            이전
-          </Button>
-          <Button variant="secondary" onClick={regenerate}>
-            <RefreshCw className="h-4 w-4" />
-            다시 추천받기
-          </Button>
-        </div>
-        <Button size="lg" disabled={!selected} onClick={() => selected && onSelect(selected)}>
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4" />
+          이전
+        </Button>
+        <Button
+          size="lg"
+          disabled={!selected}
+          onClick={() => selected && onSelect(applyHeroImageToCandidate(selected, heroImageUrl))}
+        >
           이 디자인으로 만들기
           <ArrowRight className="h-4 w-4" />
         </Button>
