@@ -52,6 +52,7 @@ describe('V3 — 데스크 scrub / 모바일 pinned loop / 정적 폴백', () =>
     assert.match(html, /plays[Ii]nline=""/);
     assert.match(html, /muted=""/);
     assert.match(html, /preload="none"/);
+    assert.match(html, /src="\/poster\.jpg"[^>]*fetchPriority="high"/);
   });
 
   test('SSR/no-JS 기본은 ready·은닉 클래스 없이 poster와 텍스트가 보인다', () => {

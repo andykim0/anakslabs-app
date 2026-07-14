@@ -6,6 +6,7 @@
 import type { SiteConfig } from '@/lib/types/site';
 import { findPage } from '@/lib/types/site';
 import { canonicalUrlFor, jsonLdScriptContent } from '@/lib/seo/structured-data';
+import { isSafeMediaSrc } from '@/lib/safe-url';
 
 /** 렌더러 auto 모드 반응형 전환 + 최소 리셋 (Tailwind 없이 동작) */
 const BASE_DOC_CSS = [
@@ -42,6 +43,15 @@ export interface DocumentShellInput {
   lang?: string;
 }
 
+/** 페이지의 시네마틱 히어로 poster를 LCP 후보로 먼저 가져오게 한다. */
+export function heroPosterPreloadHtml(config: SiteConfig, pageSlug: string): string {
+  const page = findPage(config, pageSlug);
+  const hero = page?.sections.find((section) => section.type === 'hero');
+  const poster = hero?.background.video?.poster;
+  if (!poster || !isSafeMediaSrc(poster)) return '';
+  return `<link rel="preload" as="image" href="${escapeAttr(poster)}" fetchpriority="high">`;
+}
+
 /** 완전한 <!doctype html> 문서 문자열 조립 (순수) */
 export function buildDocumentShell(input: DocumentShellInput): string {
   const { config, pageSlug } = input;
@@ -63,6 +73,7 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
     // [P1] 파비콘 — 라이브 tenantMetadata(icons)와 파리티(seo_favicon)
     '<link rel="icon" href="/favicon.ico">',
+    heroPosterPreloadHtml(config, pageSlug),
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
     meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
     meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',

@@ -219,6 +219,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
             alt=""
             aria-hidden
             loading={isFirst ? 'eager' : 'lazy'}
+            fetchPriority={isFirst ? 'high' : undefined}
             decoding="async"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />

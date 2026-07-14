@@ -97,7 +97,15 @@ function StandardSection({
     <>
       {/* poster = 기저 레이어(항상 표시); 영상 로드 실패/reduced-motion 시 그대로 노출 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={safeMediaSrc(bg.video.poster)} alt="" aria-hidden loading={isFirst ? 'eager' : 'lazy'} decoding="async" style={coverStyle} />
+      <img
+        src={safeMediaSrc(bg.video.poster)}
+        alt=""
+        aria-hidden
+        loading={isFirst ? 'eager' : 'lazy'}
+        fetchPriority={isFirst ? 'high' : undefined}
+        decoding="async"
+        style={coverStyle}
+      />
       <video
         data-m={cinematicPlayback ? 'cinematicvideo' : 'videohero'}
         {...(cinematicPlayback
@@ -107,7 +115,7 @@ function StandardSection({
         muted
         loop={!cinematicPlayback}
         playsInline
-        preload={cinematicPlayback ? 'none' : 'metadata'}
+        preload="none"
         aria-hidden
         style={coverStyle}
       />
@@ -302,7 +310,7 @@ function ScrubSection({ section, theme, interactive = true, siteId, isFirst }: S
         aria-label={section.name}
         style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', backgroundColor: section.background.color ?? theme.palette.background }}
       >
-        <video data-m-scrub src={safeMediaSrc(v.src)} poster={safeMediaSrc(v.poster)} muted playsInline preload="metadata" aria-hidden style={coverStyle} />
+        <video data-m-scrub src={safeMediaSrc(v.src)} poster={safeMediaSrc(v.poster)} muted playsInline preload="none" aria-hidden style={coverStyle} />
         {elements.map((el) => (
           <div
             key={el.id}

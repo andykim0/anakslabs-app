@@ -7,7 +7,7 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { SiteConfig } from '@/lib/types/site';
 import { emptySiteConfig } from '@/lib/types/site';
-import { buildDocumentShell } from '@/lib/export/document-shell';
+import { buildDocumentShell, heroPosterPreloadHtml } from '@/lib/export/document-shell';
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 
 function cfg(): SiteConfig {
@@ -66,5 +66,28 @@ describe('buildDocumentShell — 서빙 레이어 방출', () => {
     const html = shell('');
     assert.ok(!html.includes('rel="canonical"'));
     assert.ok(!html.includes('ld+json'));
+  });
+
+  test('페이지 히어로 영상 poster를 <head>에서 high priority preload한다', () => {
+    const config = cfg();
+    config.pages[0].sections[0].background.video = {
+      src: 'assets/0123abcd.mp4',
+      poster: 'assets/deadbeef.webp',
+      bytes: 2_000_000,
+    };
+    const preload = '<link rel="preload" as="image" href="assets/deadbeef.webp" fetchpriority="high">';
+    const html = buildDocumentShell({ config, pageSlug: '', headerHtml: '', bodyHtml: '<main></main>' });
+    assert.equal(heroPosterPreloadHtml(config, ''), preload);
+    assert.ok(html.slice(0, html.indexOf('</head>')).includes(preload), 'poster preload가 head 밖에 있음');
+  });
+
+  test('hero가 아닌 섹션 poster와 임의 상대경로는 preload하지 않는다', () => {
+    const config = cfg();
+    config.pages[0].sections[0].background.video = { src: '/hero.mp4', poster: '../escape.webp' };
+    config.pages[0].sections.push({
+      id: 'video-later', type: 'features', name: '후속', height: 400,
+      background: { video: { src: '/later.mp4', poster: '/later.webp' } }, elements: [],
+    });
+    assert.equal(heroPosterPreloadHtml(config, ''), '');
   });
 });

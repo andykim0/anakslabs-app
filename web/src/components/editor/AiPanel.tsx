@@ -5,7 +5,7 @@
  *  - 크레딧 잔액 표시 (GET /api/credits)
  *  - 액션: 텍스트 재생성 1cr / 이미지 생성 1cr / 영상 생성 3cr(Basic은 업셀) / AI 섹션 추가 2cr
  *  - POST /api/edit-requests → 201 { editRequest, balance }
- *    · 402 UPSELL_REQUIRED → 업셀 모달 (confirmUpsell:true 재요청 / Premium 안내)
+ *    · 402 UPSELL_REQUIRED → 영상 애드온 안내(크레딧 1회 우회 없음)
  *    · 409 INSUFFICIENT_CREDITS → 크레딧 구매 유도 모달
  *    · 502 AI_GENERATION_FAILED → 자동 환불 안내 토스트
  *  - 성공: "QA 검수 후 반영됩니다" 토스트 + aiOutput [바로 적용] (초안 캔버스 즉시 반영)
@@ -295,32 +295,27 @@ export function AiPanel({ siteId }: { siteId: string }) {
         ) : null}
       </div>
 
-      {/* 업셀 모달 (Basic × 영상) */}
+      {/* 영상 애드온 안내 (미보유 × 영상) */}
       <Modal
         open={upsellRequest !== null}
         onClose={() => setUpsellRequest(null)}
-        title="Premium 전용 기능"
+        title="영상 애드온이 필요합니다"
         footer={
           <>
             <Link
               href="/dashboard/billing"
               className="inline-flex h-10 items-center rounded-lg border border-neutral-700 bg-neutral-900 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
             >
-              Premium 알아보기
+              영상 애드온 상담
             </Link>
-            <Button
-              loading={mutation.isPending}
-              onClick={() => {
-                if (upsellRequest) mutation.mutate({ ...upsellRequest, confirmUpsell: true });
-              }}
-            >
-              크레딧 3개 사용
+            <Button variant="secondary" onClick={() => setUpsellRequest(null)}>
+              닫기
             </Button>
           </>
         }
       >
-        영상 편집은 Premium 전용 기능입니다. 크레딧 3개로 1회 추가하시겠습니까, 아니면 Premium으로
-        업그레이드하시겠습니까?
+        영상 편집은 영상 애드온이 승인된 사이트에서만 사용할 수 있습니다. 일반 크레딧으로 애드온 권한을
+        우회하지 않습니다.
       </Modal>
 
       {/* 크레딧 부족 모달 */}

@@ -3,9 +3,8 @@
 /**
  * 편집 요청 제출 폼 —
  * 유형 4종(비용 표시) · 사이트 선택 · 내용.
- * 불변식: Basic 티어 + 영상 → 서버가 402 UPSELL_REQUIRED로 차감 전 업셀 안내를 강제하고,
- * 이 폼은 그 응답(error.message/creditCost/options)을 모달로 노출한다 (에디터와 동일 문구 규칙:
- * 문구의 원본은 서버 응답 message).
+ * 불변식: 영상 애드온 미보유 + 영상 → 서버가 402 UPSELL_REQUIRED로 차감 전 안내를 강제하며,
+ * 일반 크레딧 1회 우회는 제공하지 않는다. 문구의 원본은 서버 응답 message다.
  * 잔액 부족은 409 INSUFFICIENT_CREDITS(error.balance/required) 모달.
  */
 import Link from 'next/link';
@@ -24,7 +23,6 @@ import {
   isInsufficientCredits,
   isUpsellRequired,
   listSites,
-  upsellInfo,
   type ApiError,
 } from './api';
 import { Modal } from './modal';
@@ -105,9 +103,6 @@ export function assembleRequestedContent(chips: QuickChip[], selectedKeys: Set<s
 
 interface UpsellState {
   message: string;
-  creditCost: number;
-  options: { action: string; label: string }[];
-  values: FormValues;
 }
 
 interface InsufficientState {
@@ -199,13 +194,8 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
     },
     onError: (err, variables) => {
       if (isUpsellRequired(err)) {
-        const info = upsellInfo(err as ApiError);
-        setUpsell({
-          message: (err as ApiError).message,
-          creditCost: info.creditCost,
-          options: info.options,
-          values: variables as FormValues,
-        });
+        void variables;
+        setUpsell({ message: (err as ApiError).message });
         return;
       }
       if (isInsufficientCredits(err)) {
@@ -371,11 +361,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
         )}
       </Card>
 
-      {/* 402 업셀 모달 — Basic 티어의 영상 요청, 차감 전 안내 (불변식) */}
+      {/* 402 애드온 모달 — 영상 요청의 차감 전 안내 (불변식) */}
       <Modal
         open={upsell !== null}
         onClose={() => setUpsell(null)}
-        title="영상 편집은 Premium 전용입니다"
+        title="영상 애드온이 필요합니다"
         footer={
           upsell ? (
             <>
@@ -384,13 +374,10 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                 className="inline-flex h-10 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
                 onClick={() => setUpsell(null)}
               >
-                Premium 업그레이드 상담
+                영상 애드온 상담
               </Link>
-              <Button
-                loading={mutation.isPending}
-                onClick={() => mutation.mutate({ ...upsell.values, confirmUpsell: true })}
-              >
-                크레딧 {upsell.creditCost}개 사용하고 진행
+              <Button variant="secondary" onClick={() => setUpsell(null)}>
+                닫기
               </Button>
             </>
           ) : null
@@ -400,8 +387,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
           <>
             <p>{upsell.message}</p>
             <p className="mt-3 rounded-lg bg-neutral-800/60 px-3 py-2 text-xs leading-5 text-neutral-400">
-              1회 진행: 크레딧 {upsell.creditCost}개 차감 · Premium 업그레이드: 영상 편집 상시 이용 + 동적
-              기능 포함
+              영상 생성 원가 보호를 위해 일반 크레딧으로 애드온 권한을 우회할 수 없습니다.
             </p>
           </>
         ) : null}

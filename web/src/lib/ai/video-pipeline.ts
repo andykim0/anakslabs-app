@@ -44,6 +44,39 @@ export interface HeroVideoResult {
   model: string;
 }
 
+export interface GuardedVideoResult {
+  url: string;
+  poster?: string;
+}
+
+/**
+ * 모든 유료 영상 호출의 단일 진입점. 순서는 반드시 guard → 원가 로그 → 생성이다.
+ * 생성 자체의 장기 HTTP 리팩터와 -g1 후처리는 별도 백엔드 배치에서 다룬다.
+ */
+export async function generateGuardedVideo(input: {
+  siteId: string;
+  tier: MotionTier;
+  prompt: string;
+  model: string;
+  stage: VideoGenStage;
+  image?: { base64: string; mimeType: string };
+}): Promise<GuardedVideoResult> {
+  await assertVideoGenAllowed(input.siteId, input.tier);
+  const { ai, videoGen } = getDataServices();
+  await videoGen.record({
+    siteId: input.siteId,
+    tier: input.tier,
+    model: input.model,
+    stage: input.stage,
+    prompt: input.prompt,
+  });
+  return ai.generateVideo({
+    prompt: input.prompt,
+    ...(input.image ? { image: input.image } : {}),
+    model: input.model,
+  });
+}
+
 /**
  * 히어로 영상 1개 생성 (image-to-video). 가드 통과 후에만 실행. posterUrl=입력 이미지(시작 프레임).
  * 원가 발생 시점(호출 직전)에 videoGen.record → 실패해도 카운트되어 재시도 폭주 방지.
@@ -55,13 +88,17 @@ export async function generateHeroVideo(input: {
   ctx: HeroVideoContext;
   stage: VideoGenStage;
 }): Promise<HeroVideoResult> {
-  await assertVideoGenAllowed(input.siteId, input.tier);
   const model = input.stage === 'final' ? STANDARD_MODEL : FAST_MODEL;
   const prompt = buildMotionPrompt(input.ctx.povMood, input.ctx.subject);
-  const { ai, videoGen } = getDataServices();
   const image = await fetchImageAsBase64(input.ctx.heroImageUrl);
-  await videoGen.record({ siteId: input.siteId, tier: input.tier, model, stage: input.stage, prompt });
-  const { url } = await ai.generateVideo({ prompt, ...(image ? { image } : {}), model });
+  const { url } = await generateGuardedVideo({
+    siteId: input.siteId,
+    tier: input.tier,
+    prompt,
+    model,
+    stage: input.stage,
+    ...(image ? { image } : {}),
+  });
   return { videoUrl: url, posterUrl: input.ctx.heroImageUrl, prompt, model };
 }
 

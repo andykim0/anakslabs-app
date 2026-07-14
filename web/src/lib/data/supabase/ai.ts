@@ -352,4 +352,3 @@ export class SupabaseAiService implements AiService {
     return fallback();
   }
 }
-

@@ -252,7 +252,7 @@ export async function createEditRequest(input: {
   siteId: string;
   type: EditType;
   requestedContent: string;
-  /** Basic 티어 영상 업셀 안내 확인 후 재제출 시 true */
+  /** @deprecated 영상 애드온 권한은 일반 크레딧으로 우회할 수 없음. 구버전 요청 호환용. */
   confirmUpsell?: boolean;
 }): Promise<CreateEditRequestResult> {
   return post<CreateEditRequestResult>('/api/edit-requests', input);

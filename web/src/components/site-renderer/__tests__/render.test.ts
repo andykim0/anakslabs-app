@@ -105,6 +105,8 @@ describe('SiteRenderer Premium 방출', () => {
     assert.match(markup, /data-m="stacking"/, 'stacking 섹션 미방출');
     assert.match(markup, /data-m="stackcard"/, 'stackcard 미방출');
     assert.match(markup, /<img src="\/p\.jpg"/, 'poster 폴백 이미지 없음');
+    assert.match(markup, /<video data-m="videohero"[^>]*preload="none"/, '배경 영상이 지연 로드되지 않음');
+    assert.match(markup, /<img src="\/p\.jpg"[^>]*fetchPriority="high"/, '첫 poster LCP 우선순위 없음');
     assert.match(html, /IntersectionObserver/, '런타임 미포함'); // 런타임은 full html에서
   });
 

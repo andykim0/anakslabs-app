@@ -40,9 +40,13 @@ export function safeHref(url: string): string | undefined {
 
 /**
  * <img>/<video> src로 허용 가능한 값인지.
- * 허용: http(s)://, 루트 상대경로, data:image/·data:video/(미디어 한정), blob:.
+ * 허용: http(s)://, 루트 상대경로, data:image/·data:video/(미디어 한정), blob:,
+ * 정적 export가 생성한 assets/<sha1-8>.<ext> 상대경로.
  */
 export function isSafeMediaSrc(url: string): boolean {
+  // export 수집기가 만드는 형식만 정확히 허용한다. 원문에 정규식을 적용해
+  // 제어문자 제거 후 우회나 ../ traversal, query/fragment 삽입을 허용하지 않는다.
+  if (/^(?:\.\/)?assets\/[a-f0-9]{8}\.[a-z0-9]{2,5}$/.test(url)) return true;
   const n = normalizeForScheme(url);
   if (n.startsWith('/') && !n.startsWith('//')) return true;
   return /^(https?:\/\/|data:image\/|data:video\/|blob:)/.test(n);

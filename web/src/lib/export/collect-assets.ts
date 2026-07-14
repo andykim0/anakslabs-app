@@ -4,7 +4,7 @@
  *
  * 수집 대상:
  *  - ImageElement.src, VideoElement.src / poster
- *  - SectionBackground.image.src
+ *  - SectionBackground.image.src, SectionBackground.video.src / poster
  *  - meta.ogImage
  * http(s)는 fetch, 루트 상대경로(/…)는 web/public에서 읽어 자체 포함(mock 데모 자산 대응).
  * data:/blob:은 건드리지 않음(data는 이미 내장, blob은 서버에서 못 읽음 → 경고).
@@ -15,8 +15,8 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { SiteConfig } from '@/lib/types/site';
-import { allSections } from '@/lib/types/site';
 import { isSafeMediaSrc } from '@/lib/safe-url';
+import { rewriteAssetReferences } from './rewrite-asset-references';
 
 export interface CollectedAssets {
   /** src가 상대경로로 재작성된 config 사본 */
@@ -112,33 +112,7 @@ export async function collectAndRewriteAssets(input: SiteConfig): Promise<Collec
   const warnings: string[] = [];
   const cache = new Map<string, string>();
 
-  for (const section of allSections(config)) {
-    const bgImage = section.background?.image;
-    if (bgImage?.src) {
-      const rel = await fetchAsset(bgImage.src, cache, assets, warnings);
-      if (rel) bgImage.src = rel;
-    }
-    for (const el of section.elements) {
-      if (el.kind === 'image' && el.src) {
-        const rel = await fetchAsset(el.src, cache, assets, warnings);
-        if (rel) el.src = rel;
-      } else if (el.kind === 'video') {
-        if (el.src) {
-          const rel = await fetchAsset(el.src, cache, assets, warnings);
-          if (rel) el.src = rel;
-        }
-        if (el.poster) {
-          const rel = await fetchAsset(el.poster, cache, assets, warnings);
-          if (rel) el.poster = rel;
-        }
-      }
-    }
-  }
-
-  if (config.meta.ogImage) {
-    const rel = await fetchAsset(config.meta.ogImage, cache, assets, warnings);
-    if (rel) config.meta.ogImage = rel;
-  }
+  await rewriteAssetReferences(config, (src) => fetchAsset(src, cache, assets, warnings));
 
   return { config, assets, warnings };
 }

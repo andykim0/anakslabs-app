@@ -1,7 +1,7 @@
 /**
  * POST /api/edit-requests — 편집 요청 제출 (크레딧 차감 → AI 생성 → QA 대기).
  *   body: { siteId, type, requestedContent, confirmUpsell? }
- *   - Basic 티어 + video + confirmUpsell 미확인 → 402 UPSELL_REQUIRED (차감 없음)
+ *   - video는 편집요청 생성·크레딧 차감 전에 VIDEO_GEN 가드 전체를 통과해야 함
  *   - 잔액 부족 → 409 INSUFFICIENT_CREDITS + balance
  * GET /api/edit-requests — 내 편집 요청 목록 (?siteId= 필터 지원)
  *
@@ -13,8 +13,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { CreditReason, EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS, FREE_INITIAL_REVISION_DAYS, QA_AUTOMATABLE_TYPES } from '@/lib/credits/constants';
-import { hasVideoAddon } from '@/lib/services/entitlements';
 import { getDataServices } from '@/lib/data';
+import { assertVideoGenAllowed, generateGuardedVideo, STANDARD_MODEL } from '@/lib/ai/video-pipeline';
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
 
@@ -32,33 +32,46 @@ const bodySchema = z.object({
   confirmUpsell: z.boolean().optional(),
 });
 
+/** VIDEO_GEN typed prefix를 기존 API 에러 계약으로 변환한다. unknown이면 공통 500 경계로 보낸다. */
+function videoGuardResponse(error: unknown, creditCost: number): NextResponse | null {
+  const raw = error instanceof Error ? error.message : String(error);
+  const separator = raw.indexOf(':');
+  const code = separator >= 0 ? raw.slice(0, separator) : raw;
+  const message = separator >= 0 ? raw.slice(separator + 1).trim() : raw;
+
+  if (code === 'VIDEO_GEN_ADDON') {
+    return apiError(402, 'UPSELL_REQUIRED', '영상 편집은 영상 애드온을 보유한 사이트에서만 이용할 수 있습니다.', {
+      creditCost,
+      options: [{ action: 'upgrade_premium', label: '영상 애드온 상담' }],
+    });
+  }
+  if (code === 'VIDEO_GEN_DISABLED') return apiError(503, code, message);
+  if (code === 'VIDEO_GEN_SITE_CAP' || code === 'VIDEO_GEN_DAILY_CAP') return apiError(429, code, message);
+  return null;
+}
+
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { siteId, type, requestedContent, confirmUpsell } = body.data;
+  const { siteId, type, requestedContent } = body.data;
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
 
   const creditCost = CREDIT_COSTS[type];
 
-  // 불변식: 영상 애드온 미보유 시 영상 편집 요청은 차감 전에 업셀 안내를 먼저 노출한다.
-  if (!hasVideoAddon(client.tier) && type === 'video' && !confirmUpsell) {
-    return apiError(
-      402,
-      'UPSELL_REQUIRED',
-      `영상 편집은 영상 애드온 기능입니다. 크레딧 ${creditCost}개를 사용해 1회 진행하시거나, 영상 애드온을 추가해 주세요.`,
-      {
-        creditCost,
-        options: [
-          { action: 'confirm_upsell', label: `크레딧 ${creditCost}개 사용하고 진행` },
-          { action: 'upgrade_premium', label: '영상 애드온 상담' },
-        ],
-      },
-    );
+  // 불변식: 애드온·킬스위치·사이트/일일 상한을 요청 생성과 크레딧 차감보다 먼저 검사한다.
+  if (type === 'video') {
+    try {
+      await assertVideoGenAllowed(siteId, client.tier);
+    } catch (error) {
+      const response = videoGuardResponse(error, creditCost);
+      if (response) return response;
+      throw error;
+    }
   }
 
   const { credits, editRequests, ai, qa } = getDataServices();
@@ -126,7 +139,13 @@ export const POST = withApiHandler(async (request) => {
         aiOutput = await ai.generateImage({ prompt: requestedContent });
         break;
       case 'video':
-        aiOutput = await ai.generateVideo({ prompt: requestedContent });
+        aiOutput = await generateGuardedVideo({
+          siteId,
+          tier: client.tier,
+          prompt: requestedContent,
+          model: STANDARD_MODEL,
+          stage: 'final',
+        });
         break;
       case 'structure':
         aiOutput = {
