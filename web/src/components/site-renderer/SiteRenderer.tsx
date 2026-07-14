@@ -20,6 +20,7 @@ import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from './fonts';
 import { SectionCanvas } from './SectionCanvas';
 import { SectionStack } from './SectionStack';
+import { ScrollytellingStage } from './ScrollytellingStage';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -133,6 +134,13 @@ export function SiteRenderer({
 
   const showDesktop = mode === 'desktop' || mode === 'auto';
   const showMobile = mode === 'mobile' || mode === 'auto';
+  const hasScrollytelling = !!plan && plan.scrollytellingSections.size > 0;
+  const scrollytellingSection = hasScrollytelling
+    ? sections.find((section) => plan?.scrollytellingSections.has(section.id))
+    : undefined;
+  const ordinarySections = scrollytellingSection
+    ? sections.filter((section) => section.id !== scrollytellingSection.id)
+    : sections;
 
   return (
     <>
@@ -145,17 +153,25 @@ export function SiteRenderer({
       {needsPretendard(theme) && <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />}
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="anaks-site" style={rootStyle}>
+        {scrollytellingSection ? (
+          <ScrollytellingStage
+            section={scrollytellingSection}
+            theme={theme}
+            isFirst={sections[0]?.id === scrollytellingSection.id}
+            mode={mode}
+          />
+        ) : null}
         {showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
-            {sections.map((section, i) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} plan={plan} siteId={siteId} />
+            {ordinarySections.map((section) => (
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
         {showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
-            {sections.map((section, i) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={i === 0} interactive={interactive} plan={plan} siteId={siteId} />
+            {ordinarySections.map((section) => (
+              <SectionStack key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}

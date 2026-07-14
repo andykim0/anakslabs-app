@@ -62,6 +62,14 @@ describe('SS1 — 스크롤리텔링 additive 계약', () => {
       { heading: '3', body: 'c', band: [0.8, 1] },
     ];
     assert.equal(siteConfigSchema.safeParse(overlap).success, false);
+
+    const gap = stageConfig();
+    gap.pages[0].sections[0].acts = [
+      { heading: '1', body: 'a', band: [0, 0.3] },
+      { heading: '2', body: 'b', band: [0.4, 0.7] },
+      { heading: '3', body: 'c', band: [0.7, 1] },
+    ];
+    assert.equal(siteConfigSchema.safeParse(gap).success, false);
   });
 
   test('허용 템플릿 + 영상 애드온 + 영상/poster만 무대를 보존한다', () => {

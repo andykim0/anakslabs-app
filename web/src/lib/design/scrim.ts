@@ -77,3 +77,24 @@ export function resolveScrim(palette: SiteTheme['palette']): ScrimResult {
   const op2 = minOverlayOpacityForAA(darkScrim, lightest) ?? 0.85;
   return { overlayColor: darkScrim, overlayOpacity: Math.max(op2, 0.5), textColor: lightest };
 }
+
+/**
+ * 저장된 사용자 오버레이도 같은 AA 수학을 통과시킨다.
+ * 선택한 색과 안전한 텍스트 조합이 opacity 1에서도 불가능하면 팔레트 기본 스크림으로 fail-closed한다.
+ */
+export function resolveScrimWithOverride(
+  palette: SiteTheme['palette'],
+  overlayColor: string | undefined,
+  overlayOpacity: number | undefined,
+): ScrimResult {
+  const fallback = resolveScrim(palette);
+  if (!overlayColor) return fallback;
+  const minimum = minOverlayOpacityForAA(overlayColor, fallback.textColor);
+  if (minimum === null) return fallback;
+  const requested = Number.isFinite(overlayOpacity) ? Math.min(1, Math.max(0, overlayOpacity!)) : 0;
+  return {
+    overlayColor,
+    overlayOpacity: Math.max(minimum, requested),
+    textColor: fallback.textColor,
+  };
+}

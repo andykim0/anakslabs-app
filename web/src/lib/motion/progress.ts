@@ -34,3 +34,29 @@ export function cinematicMediaScale(progress: number): number {
   const phase = clampProgress(progress / 0.32);
   return 0.92 + phase * 0.08;
 }
+
+/** [SS3] 막 내부 진행도. count-up·단어 reveal이 같은 band를 소비한다. */
+export function scrollytellingActProgress(progress: number, window: ProgressWindow): number {
+  return progressInWindow(progress, window);
+}
+
+/**
+ * [SS3] 막 crossfade의 경계 규칙.
+ * 첫 막은 p=0, 마지막 막은 p=1에서 반드시 완전히 보이고, 인접 band 경계에서는 둘이 0.5씩 겹친다.
+ */
+export function scrollytellingActOpacity(
+  progress: number,
+  window: ProgressWindow,
+  index: number,
+  count: number,
+): number {
+  const p = clampProgress(progress);
+  const span = Math.max(0.0001, window.end - window.start);
+  const fade = Math.min(0.06, span * 0.22);
+  if (index === 0 && p <= window.start + fade) return 1;
+  if (index === count - 1 && p >= window.end - fade) return 1;
+  if (p < window.start - fade || p > window.end + fade) return 0;
+  if (p < window.start + fade) return clampProgress((p - (window.start - fade)) / (fade * 2));
+  if (p > window.end - fade) return clampProgress(1 - (p - (window.end - fade)) / (fade * 2));
+  return 1;
+}

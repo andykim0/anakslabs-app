@@ -30,7 +30,8 @@ export function hasValidScrollytellingActs(acts: unknown): acts is Scrollytellin
   ).length;
   if (bandCount > 0 && bandCount !== acts.length) return false;
   let previousEnd = 0;
-  for (const act of acts) {
+  for (let index = 0; index < acts.length; index += 1) {
+    const act = acts[index];
     if (!act || typeof act !== 'object') return false;
     const value = act as Partial<ScrollytellingAct>;
     if (
@@ -41,7 +42,11 @@ export function hasValidScrollytellingActs(acts: unknown): acts is Scrollytellin
     if (!value.band) continue;
     if (!Array.isArray(value.band) || value.band.length !== 2) return false;
     const [from, to] = value.band;
-    if (!Number.isFinite(from) || !Number.isFinite(to) || from < 0 || to > 1 || from >= to || from < previousEnd) {
+    if (
+      !Number.isFinite(from) || !Number.isFinite(to) || from < 0 || to > 1 || from >= to ||
+      Math.abs(from - previousEnd) > 1e-6 ||
+      (index === acts.length - 1 && Math.abs(to - 1) > 1e-6)
+    ) {
       return false;
     }
     previousEnd = to;

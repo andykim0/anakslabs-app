@@ -16,6 +16,7 @@ import { MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
 import { MOTION_PRESETS, DEFAULT_PRESET, isPresetId, type MotionPreset } from './presets';
 import { ensureMotion, sanitizeMotion } from './validate';
 import { storyElementWindow, type ProgressWindow } from './progress';
+import { canRenderScrollytellingSection } from './scrollytelling';
 
 /** 요소에 부착할 data-m 값 (요소 단위) */
 export type ElementMotion = 'reveal' | 'countup' | 'mask' | 'hovervideo';
@@ -28,6 +29,8 @@ export interface MotionPlan {
   videoHeroSections: Set<string>;
   /** 히어로 섹션 id → cinematic-hero 합성(sticky 진행도 컨테이너) */
   cinematicHeroSections: Set<string>;
+  /** 히어로 섹션 id → 페이지 관통 다막 무대(영상 1개 + 정적 acts) */
+  scrollytellingSections: Set<string>;
   /** 섹션 id → scroll-scrub(pin+스크럽) / parallax / stacking-cards / spotlight / marquee */
   scrollScrubSections: Set<string>;
   parallaxSections: Set<string>;
@@ -126,6 +129,7 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
     kenBurnsSections: new Set(),
     videoHeroSections: new Set(),
     cinematicHeroSections: new Set(),
+    scrollytellingSections: new Set(),
     scrollScrubSections: new Set(),
     parallaxSections: new Set(),
     stackingSections: new Set(),
@@ -147,7 +151,8 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
 
   const accents = new Set<string>(preset.accents);
 
-  for (const page of config.pages) {
+  // 반드시 sanitize 결과의 pages를 순회한다. 오염된 원본 layout을 다시 신뢰하면 tier/purpose 강등이 무력화된다.
+  for (const page of safe.pages) {
     const sections = page.sections.filter((s) => !s.hidden);
     if (sections.length === 0) continue;
     const [hero, ...rest] = sections;
@@ -159,17 +164,22 @@ export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): Motio
       if (v?.src && v.poster) {
         plan.videoHeroSections.add(hero.id);
         if (cinematicPreset) {
-          plan.cinematicHeroSections.add(hero.id);
-          const headlineId = heroHeadlineId(hero);
-          const storyTexts = yOrdered(hero).filter((el) => el.kind === 'text' && el.id !== headlineId);
-          storyTexts.forEach((el, rank) => {
-            plan.cinematicStoryWindows.set(key(hero.id, el.id), storyElementWindow(rank, storyTexts.length));
-          });
-          const layers = [...hero.elements].sort((a, b) => a.z - b.z).slice(0, 3);
-          const depths = [0.35, 0.6, 0.85];
-          layers.forEach((el, index) => {
-            plan.cinematicParallaxDepth.set(key(hero.id, el.id), depths[index] ?? 0.85);
-          });
+          const stageReady = canRenderScrollytellingSection(safe, hero, opts?.tier ?? 'premium');
+          if (stageReady) {
+            plan.scrollytellingSections.add(hero.id);
+          } else {
+            plan.cinematicHeroSections.add(hero.id);
+            const headlineId = heroHeadlineId(hero);
+            const storyTexts = yOrdered(hero).filter((el) => el.kind === 'text' && el.id !== headlineId);
+            storyTexts.forEach((el, rank) => {
+              plan.cinematicStoryWindows.set(key(hero.id, el.id), storyElementWindow(rank, storyTexts.length));
+            });
+            const layers = [...hero.elements].sort((a, b) => a.z - b.z).slice(0, 3);
+            const depths = [0.35, 0.6, 0.85];
+            layers.forEach((el, index) => {
+              plan.cinematicParallaxDepth.set(key(hero.id, el.id), depths[index] ?? 0.85);
+            });
+          }
         }
       }
       else if (hero.background.image) plan.kenBurnsSections.add(hero.id); // 폴백
@@ -295,6 +305,7 @@ export function planIsActive(plan: MotionPlan): boolean {
     plan.kenBurnsSections.size > 0 ||
     plan.videoHeroSections.size > 0 ||
     plan.cinematicHeroSections.size > 0 ||
+    plan.scrollytellingSections.size > 0 ||
     plan.scrollScrubSections.size > 0 ||
     plan.parallaxSections.size > 0 ||
     plan.stackingSections.size > 0 ||

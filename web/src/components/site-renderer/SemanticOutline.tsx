@@ -32,6 +32,19 @@ function texts(section: Section): string[] {
 
 function SectionOutline({ section }: { section: Section }) {
   const body = texts(section);
+  if (section.acts?.length) {
+    return (
+      <section aria-label={section.name}>
+        <h2>{section.name}</h2>
+        {section.acts.map((act, index) => (
+          <article key={`${section.id}-outline-act-${index}`}>
+            <h3>{act.heading}</h3>
+            <p>{act.body}</p>
+          </article>
+        ))}
+      </section>
+    );
+  }
   // 섹션명 = h2 (첫 텍스트가 섹션명과 겹치면 중복 노출은 무방)
   if (section.type === 'faq') {
     const items: React.ReactNode[] = [];

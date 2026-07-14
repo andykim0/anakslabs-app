@@ -298,16 +298,20 @@ const sectionSchema = z.object({
       message: '막 진행 구간은 전부 지정하거나 전부 자동 분배해야 합니다.',
     });
   }
-  for (let i = 1; i < bands.length; i += 1) {
-    const previous = bands[i - 1];
-    const current = bands[i];
-    if (previous && current && current[0] < previous[1]) {
+  if (explicitCount === bands.length && explicitCount > 0) {
+    const continuous = Boolean(
+      bands[0] && Math.abs(bands[0][0]) <= 1e-6 &&
+      bands[bands.length - 1] && Math.abs(bands[bands.length - 1]![1] - 1) <= 1e-6 &&
+      bands.every((band, index) => index === 0 || Boolean(
+        band && bands[index - 1] && Math.abs(band[0] - bands[index - 1]![1]) <= 1e-6,
+      )),
+    );
+    if (!continuous) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['acts'],
-        message: '막 진행 구간은 순서대로 겹치지 않아야 합니다.',
+        message: '막 진행 구간은 0부터 1까지 빈틈이나 겹침 없이 이어져야 합니다.',
       });
-      break;
     }
   }
 });

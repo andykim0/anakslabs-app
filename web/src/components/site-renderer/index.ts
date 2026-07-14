@@ -10,5 +10,6 @@ export { TenantPageContent } from './TenantPageContent';
 export { SuspendedNotice } from './SuspendedNotice';
 export { ElementContent, type RenderVariant } from './ElementContent';
 export { SectionCanvas } from './SectionCanvas';
+export { ScrollytellingStage } from './ScrollytellingStage';
 export { SectionStack } from './SectionStack';
 export { cqw, mobileFontSize } from './scale';

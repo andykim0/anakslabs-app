@@ -60,6 +60,59 @@ export const MOTION_CSS = `
   clip-path: inset(var(--cinematic-clip, 0%) round 24px);
   transform-origin: 50% 50%; will-change: transform, clip-path;
 }
+/* ---------- [SS3] 페이지 관통 다막 무대 ----------
+   기본(no-JS/reduced)은 poster + 시맨틱 article 세로 스택. ready에서만 데스크 pin/막 전환으로 향상한다. */
+.anaks-site [data-ss-stage] {
+  position: relative; height: var(--ss-scroll-height); background: var(--ss-stage-bg);
+  contain: layout paint;
+}
+.anaks-site [data-ss-pin] { position: relative; }
+.anaks-site [data-ss-media] { position: relative; height: var(--ss-static-height); min-height: 360px; overflow: hidden; }
+.anaks-site [data-ss-act-list] { position: relative; z-index: 2; }
+.anaks-site [data-ss-act] {
+  position: relative; min-height: 240px; display: flex; align-items: center;
+  padding: clamp(48px, 8vw, 120px); color: var(--ss-stack-text); background: var(--ss-stack-bg);
+}
+.anaks-site [data-ss-copy] { width: min(820px, 100%); margin: 0 auto; }
+.anaks-site [data-ss-heading] { margin: 0; font-family: var(--ss-heading-font); font-size: clamp(2rem, 5vw, 5rem); line-height: 1.12; }
+.anaks-site [data-ss-body] { margin: 24px 0 0; max-width: 680px; font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1.75; }
+.anaks-site [data-ss-word] { display: inline-block; white-space: pre; }
+.anaks-site.m-cinematic-ready [data-ss-stage] { height: var(--ss-scroll-height); }
+.anaks-site.m-cinematic-ready [data-ss-pin] { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.anaks-site.m-cinematic-ready [data-ss-media] { position: absolute; inset: 0; height: auto; min-height: 0; }
+.anaks-site.m-cinematic-ready [data-ss-act-list] { position: absolute; inset: 0; }
+.anaks-site.m-cinematic-ready [data-ss-act] {
+  position: absolute; inset: 0; min-height: 0; opacity: var(--ss-act-opacity, 1);
+  transform: translate3d(0, var(--ss-act-y, 0px), 0); color: var(--ss-text); background: transparent;
+  will-change: transform, opacity; pointer-events: none;
+}
+.anaks-site.m-cinematic-ready [data-ss-word] {
+  opacity: var(--ss-word-opacity, 1); transform: translate3d(0, var(--ss-word-y, 0px), 0);
+  will-change: transform, opacity;
+}
+.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] { height: auto; }
+.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
+.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-media] {
+  position: sticky; inset: auto; top: 0; height: 100svh; min-height: 0; margin-bottom: -100svh;
+}
+.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act-list] { position: relative; inset: auto; }
+.anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act] {
+  position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
+}
+@media (max-width: 767.98px) {
+  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] { height: auto; }
+  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
+  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-media] {
+    position: sticky; inset: auto; top: 0; height: 100svh; min-height: 0; margin-bottom: -100svh;
+  }
+  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act-list] { position: relative; inset: auto; }
+  .anaks-site.m-cinematic-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act] {
+    position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anaks-site [data-ss-stage] { height: auto !important; contain: none; }
+}
 .anaks-site [data-m="splitword"].m-hide { opacity: 0; transform: translateY(calc(18px * var(--m-amp))); }
 .anaks-site [data-m="splitword"].m-show { opacity: 1; transform: none;
   transition: opacity calc(520ms * var(--m-dur-scale)) cubic-bezier(.22,1,.36,1),
@@ -173,6 +226,42 @@ export const MOTION_RUNTIME = `(function(){
         node.style.setProperty('--cinematic-clip',clip.toFixed(3)+'%');
       });
     }
+    function syncScrollytelling(el,p){
+      if(!el.hasAttribute('data-ss-stage')) return;
+      var acts=el.__anaksActs||(el.__anaksActs=Array.prototype.slice.call(el.querySelectorAll('[data-ss-act]')));
+      acts.forEach(function(act,index){
+        var start=parseFloat(act.getAttribute('data-act-start')||'0');
+        var end=parseFloat(act.getAttribute('data-act-end')||'1');
+        var span=Math.max(0.0001,end-start); var fade=Math.min(0.06,span*0.22); var opacity=1;
+        if(index===0 && p<=start+fade) opacity=1;
+        else if(index===acts.length-1 && p>=end-fade) opacity=1;
+        else if(p<start-fade || p>end+fade) opacity=0;
+        else if(p<start+fade) opacity=(p-(start-fade))/(fade*2);
+        else if(p>end-fade) opacity=1-(p-(end-fade))/(fade*2);
+        opacity=Math.min(1,Math.max(0,opacity));
+        act.style.setProperty('--ss-act-opacity',opacity.toFixed(4));
+        act.style.setProperty('--ss-act-y',((1-opacity)*22*amp0).toFixed(2)+'px');
+        var local=Math.min(1,Math.max(0,(p-start)/span));
+        var words=act.__anaksWords||(act.__anaksWords=Array.prototype.slice.call(act.querySelectorAll('[data-ss-word]')));
+        words.forEach(function(word,wordIndex){
+          var count=Math.max(1,words.length); var ws=(wordIndex/count)*0.62; var we=Math.min(1,ws+0.28);
+          var wp=wordIndex===0?1:(we<=ws?(local>=ws?1:0):Math.min(1,Math.max(0,(local-ws)/(we-ws))));
+          word.style.setProperty('--ss-word-opacity',wp.toFixed(4));
+          word.style.setProperty('--ss-word-y',((1-wp)*16*amp0).toFixed(2)+'px');
+        });
+        var counter=act.querySelector('[data-ss-count]');
+        if(counter){
+          var to=parseFloat(counter.getAttribute('data-count-to')||'0');
+          var decimals=parseInt(counter.getAttribute('data-count-decimals')||'0',10);
+          if(Number.isFinite(to)){
+            var current=to*local;
+            counter.textContent=decimals>0
+              ? current.toLocaleString(undefined,{minimumFractionDigits:decimals,maximumFractionDigits:decimals})
+              : Math.round(current).toLocaleString();
+          }
+        }
+      });
+    }
 
     /* ---- [V2] 진행도 드라이버: nearest scroll root + passive scroll + rAF coalescing. ---- */
     var progressEls = q('[data-m-progress]');
@@ -197,6 +286,7 @@ export const MOTION_RUNTIME = `(function(){
         el.style.setProperty('--scroll-progress',p.toFixed(4));
         syncCinematicProgress(el,p);
         syncCinematicStory(el,p);
+        syncScrollytelling(el,p);
       }
       function progressFrame(){
         progressTick=false;
