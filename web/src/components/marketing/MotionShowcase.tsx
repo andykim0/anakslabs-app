@@ -16,14 +16,14 @@ export function MotionShowcase() {
       <FadeIn>
         <Eyebrow>영상 애드온</Eyebrow>
         <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[#17181C] sm:text-3xl">
-          스크롤이 곧 연출이 되는 사이트
+          움직임도 브랜드의 언어가 됩니다
         </h2>
         <p className="mt-4 text-sm leading-7 text-[#5C6068]">
-          영상 애드온을 더하면 AI가 생성한 시네마틱 영상으로 첫 화면을 살아있게 만듭니다. 스크롤 등장 모션은 기본 포함입니다.
+          기본 스크롤 모션으로 정보의 순서를 안내하고, 영상 애드온을 더하면 AI가 생성한 시네마틱 히어로로 첫 장면을 연출합니다.
         </p>
         <Link
           href="/pricing"
-          className="group mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#856A26] transition-colors hover:text-[#17181C]"
+          className="group mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#174DDA] transition-colors hover:text-[#0B1736]"
         >
           영상 애드온 자세히 보기
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -34,7 +34,7 @@ export function MotionShowcase() {
           <BrowserFrame url="premium.anakslabs.com">
             <PreviewVideo mode="inview" className="rounded-lg" />
           </BrowserFrame>
-          <span className="absolute -top-2 right-4 z-10 rounded-full bg-[#9A7B33]/10 px-2.5 py-1 text-[11px] font-semibold text-[#9A7B33] ring-1 ring-[#9A7B33]/20">
+          <span className="absolute -top-2 right-4 z-10 rounded-full bg-gradient-to-r from-[#174DDA] to-[#03BFA9] px-2.5 py-1 font-mono text-[10px] font-semibold text-white ring-1 ring-white/70">
             영상 애드온
           </span>
         </div>

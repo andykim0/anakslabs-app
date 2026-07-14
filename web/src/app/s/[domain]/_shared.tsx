@@ -41,12 +41,12 @@ const getOwnerTier = cache(async (clientId: string) => {
  */
 export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   if (!site?.siteConfig) {
-    return { title: '사이트를 찾을 수 없습니다 · 아낙스랩스', robots: { index: false } };
+    return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
   }
   const config = site.siteConfig;
   const page = findPage(config, pageSlug);
   if (!page) {
-    return { title: '사이트를 찾을 수 없습니다 · 아낙스랩스', robots: { index: false } };
+    return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
   }
   const isHome = pageSlug === '';
   const meta = config.meta;

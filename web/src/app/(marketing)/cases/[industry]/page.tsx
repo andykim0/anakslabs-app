@@ -18,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { industry } = await params;
   const label = industryLabelOf(industry);
-  if (!label) return { title: '고객사례 — 아낙스랩스', robots: { index: false } };
+  if (!label) return { title: '고객사례 — Daboim', robots: { index: false } };
   return {
     title: `${label} 홈페이지 제작 사례`,
     description: `${label} 홈페이지 제작 사례 — 검색·AI가 읽을 수 있게 태어난 ${label} 사이트의 구성과 개편 전후를 확인해 보세요.`,

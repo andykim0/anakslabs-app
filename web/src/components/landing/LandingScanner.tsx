@@ -11,8 +11,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
+import { OptimizationConsole } from '@/components/marketing/OptimizationConsole';
 
 const SCAN_MESSAGES = [
   '페이지를 불러오는 중…',
@@ -130,7 +131,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mx-auto mt-10 max-w-3xl text-left"
+      className="mx-auto mt-14 max-w-3xl rounded-[28px] border border-[#DCE4F0] bg-white p-5 text-left shadow-[0_24px_70px_rgba(11,23,54,0.12)] sm:p-7"
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
@@ -158,19 +159,19 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
       ) : null}
 
       {/* 효과 요약 — 실제 스캔 값 바인딩 */}
-      <div className="mt-5 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
+      <div className="mt-5 rounded-2xl border border-[#CFEAE7] bg-[#EFFBF9] p-6">
         <p className="text-sm leading-7 text-[#17181C]">
-          지금 <span className="font-semibold text-[#856A26]">{scan.scores.total}점</span> —{' '}
+          지금 <span className="font-semibold text-[#174DDA]">{scan.scores.total}점</span> —{' '}
           {scan.scores.total < 60
             ? '검색도 AI도 제대로 못 읽는 사이트입니다.'
             : '기본기는 있지만 비어 있는 신호가 남아 있습니다.'}{' '}
-          아낙스랩스로 다시 지으면 위 <span className="font-semibold text-[#856A26]">{issueCount}개 문제가 0</span>이
-          되고, 검색·AI가 읽을 수 있는 <span className="font-semibold text-[#856A26]">100점 기반</span>으로
-          시작합니다.
+          Daboim은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빈 신호</span>를 설계 단계에서
+          보완하고, 검색·AI가 읽을 수 있는 <span className="font-semibold text-[#174DDA]">기술적 기반</span>부터
+          갖춰 발행합니다.
         </p>
         <Link
           href="/login"
-          className="group mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)]"
+          className="group mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#174DDA] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#123FB7] hover:shadow-[0_6px_20px_rgba(23,77,218,0.24)]"
         >
           내 사이트 다시 만들기
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -223,107 +224,114 @@ export function LandingScanner() {
   };
 
   return (
-    <section id="hero-scanner" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-16 pb-10 text-center md:pt-24">
-      <p className="mb-5 text-xs font-medium tracking-[0.2em] text-[#856A26] uppercase">
-        무료 SEO · AEO · GEO 진단
-      </p>
-      {/* [visual] 진단기가 히어로로 승격 — 이 h1이 메인 유일 h1 */}
-      <h1 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-[#17181C] md:text-5xl md:leading-[1.15]">
-        내 사이트, 검색과 AI가
-        <br />
-        읽을 수 있을까요?
-      </h1>
-      <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#5C6068]">
-        주소만 넣으면 30초 안에 진단합니다 — 네이버·구글 검색(SEO), 답변 발췌(AEO),
-        ChatGPT·Perplexity 인용(GEO) 관점으로.
-      </p>
+    <section id="hero-scanner" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-14 pb-20 sm:px-8 md:pt-20 md:pb-28">
+      <div className="grid items-center gap-16 lg:grid-cols-[.9fr_1.1fr] lg:gap-12 xl:gap-20">
+        <div className="text-left">
+          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8D8F5] bg-white/75 px-3 py-1.5 font-mono text-[10px] tracking-[0.14em] text-[#174DDA] uppercase shadow-sm backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
+            무료 SEO · AEO · GEO 진단
+          </p>
+          <h1 className="max-w-2xl text-[clamp(2.75rem,6vw,5.25rem)] leading-[1.01] font-semibold tracking-[-0.065em] text-[#0B1736]">
+            내 홈페이지,
+            <br />검색과 AI가
+            <br />
+            <span className="bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03A995] bg-clip-text text-transparent">
+              제대로 읽고 있을까요?
+            </span>
+          </h1>
+          <p className="mt-7 max-w-xl text-[15px] leading-7 text-[#5F6B7C] sm:text-base">
+            주소 하나로 비어 있는 검색·답변·AI 인용 신호를 확인하세요. 진단 결과를 바탕으로
+            Daboim이 업종 설계부터 제작·호스팅까지 이어갑니다.
+          </p>
 
-      {/* URL 입력 */}
-      <div className="mx-auto mt-8 flex max-w-xl gap-2">
-        <div className="relative min-w-0 flex-1">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void startScan();
-            }}
-            placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
-            className="h-13 w-full rounded-xl border border-[#E8E6E0] bg-white px-4 text-sm text-[#17181C] outline-none transition-colors placeholder:text-[#696E76] focus:border-[#9A7B33]"
-          />
-          {/* 예시 로테이션 오버레이 (fade) — 마운트 후·입력 없을 때만 (SSR은 native placeholder) */}
-          {rotatePh ? (
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={phIdx}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-[#696E76]"
+          <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">
+            <label htmlFor="landing-scan-url" className="sr-only">무료 진단을 받을 홈페이지 주소</label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative min-w-0 flex-1">
+                <input
+                  id="landing-scan-url"
+                  inputMode="url"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') void startScan();
+                  }}
+                  placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
+                  className="h-13 w-full rounded-xl border border-transparent bg-white px-4 text-sm text-[#0B1736] outline-none transition-shadow placeholder:text-[#7A8496] focus:ring-2 focus:ring-[#08AFC5]"
+                />
+                {rotatePh ? (
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={phIdx}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-[#747780]"
+                    >
+                      {PLACEHOLDERS[phIdx]}
+                    </motion.span>
+                  </AnimatePresence>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => void startScan()}
+                disabled={scanning || !url.trim()}
+                className="relative inline-flex h-13 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_rgba(8,175,197,.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
-                {PLACEHOLDERS[phIdx]}
-              </motion.span>
-            </AnimatePresence>
+                {!reduce && !url && !scanning ? (
+                  <motion.span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 -inset-x-2 -skew-x-12"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent)' }}
+                    initial={{ x: '-160%' }}
+                    animate={{ x: ['-160%', '260%'] }}
+                    transition={{ duration: 1.1, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
+                  />
+                ) : null}
+                {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanSearch className="h-4 w-4" />}
+                내 사이트 무료 진단
+              </button>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-[#6C7788]">
+            {['가입 없이 바로', 'SEO · AEO · GEO 동시 확인', '결과 30일 보관'].map((item) => (
+              <span key={item} className="inline-flex items-center gap-1.5">
+                <Check className="h-3 w-3 text-[#03A995]" /> {item}
+              </span>
+            ))}
+          </div>
+
+          <AnimatePresence>
+            {scanning ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-6 overflow-hidden"
+              >
+                <div className="rounded-xl border border-[#DCE4F0] bg-white/85 px-5 py-4 shadow-sm backdrop-blur">
+                  <motion.p key={msgIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-[#5F6B7C]">
+                    {SCAN_MESSAGES[msgIdx]}
+                  </motion.p>
+                  <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[#E4EAF2]">
+                    <motion.div className="h-full w-1/3 rounded-full bg-gradient-to-r from-[#174DDA] via-[#08B8E8] to-[#03D1B8]" animate={{ x: ['-100%', '300%'] }} transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }} />
+                  </div>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
+          {error ? (
+            <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</p>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => void startScan()}
-          disabled={scanning || !url.trim()}
-          className="relative inline-flex h-13 shrink-0 items-center gap-2 overflow-hidden rounded-xl bg-[#17181C] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
-        >
-          {/* 골드 shine — 5초 주기, 입력 중·reduced-motion이면 정지 (§6.6) */}
-          {!reduce && !url && !scanning ? (
-            <motion.span
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 -inset-x-2 -skew-x-12"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(214,178,94,0.35), transparent)' }}
-              initial={{ x: '-160%' }}
-              animate={{ x: ['-160%', '260%'] }}
-              transition={{ duration: 1.1, repeat: Infinity, repeatDelay: 4, ease: 'easeInOut' }}
-            />
-          ) : null}
-          {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanSearch className="h-4 w-4" />}
-          무료로 진단하기
-        </button>
+
+        <OptimizationConsole />
       </div>
-      <p className="mt-2.5 text-[11px] text-[#5C6068]">가입 없이 바로. 결과는 30일간 다시 볼 수 있어요.</p>
-
-      {/* 진행 애니메이션 */}
-      <AnimatePresence>
-        {scanning ? (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mx-auto mt-8 max-w-md overflow-hidden"
-          >
-            <div className="rounded-xl border border-[#E8E6E0] bg-white px-5 py-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-              <motion.p
-                key={msgIdx}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-[#5C6068]"
-              >
-                {SCAN_MESSAGES[msgIdx]}
-              </motion.p>
-              <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-[#EDEBE4]">
-                <motion.div
-                  className="h-full w-1/3 rounded-full bg-[#9A7B33]"
-                  animate={{ x: ['-100%', '300%'] }}
-                  transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-                />
-              </div>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
-      {error ? (
-        <p className="mx-auto mt-6 max-w-md rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
-          {error}
-        </p>
-      ) : null}
 
       {scan ? <ScanResultPanel scan={scan} /> : null}
     </section>

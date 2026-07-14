@@ -10,12 +10,12 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
   const reduce = useReducedMotion() ?? false;
   return (
     <span
-      className={`relative inline-block text-xs font-semibold tracking-[0.2em] text-[#856A26] uppercase ${className ?? ''}`}
+      className={`relative inline-block text-xs font-semibold tracking-[0.2em] text-[#174DDA] uppercase ${className ?? ''}`}
     >
       {children}
       <motion.span
         aria-hidden
-        className="absolute -bottom-1 left-0 block h-px bg-[#9A7B33]"
+        className="absolute -bottom-1 left-0 block h-px bg-gradient-to-r from-[#174DDA] to-[#03BFA9]"
         initial={reduce ? { width: '100%' } : { width: 0 }}
         whileInView={{ width: '100%' }}
         viewport={{ once: true, margin: '-40px' }}

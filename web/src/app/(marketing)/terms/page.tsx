@@ -9,7 +9,7 @@ import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 
 export const metadata: Metadata = {
   title: '이용약관',
-  description: '아낙스랩스 서비스 이용약관 요약. 소유권·환불·정적 산출물 고지.',
+  description: 'Daboim 서비스 이용약관 요약. 운영사 Anaks Labs, 소유권·환불·정적 산출물 고지.',
   alternates: { canonical: '/terms' },
   robots: { index: false },
 };

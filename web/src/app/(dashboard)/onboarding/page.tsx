@@ -4,7 +4,7 @@ import { getCurrentClient } from '@/lib/services/auth';
 import { getRecentScan, guessBusinessName, summarizeIssues } from '@/lib/services/recent-scan';
 import { OnboardingWizard } from '@/components/dashboard/onboarding/wizard';
 
-export const metadata: Metadata = { title: '새 사이트 만들기 — 아낙스랩스' };
+export const metadata: Metadata = { title: '새 사이트 만들기 — Daboim' };
 
 export default async function OnboardingPage({
   searchParams,

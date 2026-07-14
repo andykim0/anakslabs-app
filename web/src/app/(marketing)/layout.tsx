@@ -9,14 +9,14 @@ import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 // 마케팅 하위 페이지 제목에만 브랜드 접미 (테넌트/대시보드엔 미적용)
 export const metadata: Metadata = {
   title: {
-    template: '%s | 아낙스랩스',
-    default: '아낙스랩스 — 검색과 AI가 찾아오는 홈페이지',
+    template: '%s | Daboim 다보임',
+    default: 'Daboim 다보임 — 홈페이지 전문 최적화 AI',
   },
 };
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FDFDFB] text-[#17181C] antialiased">
+    <div className="flex min-h-screen flex-col bg-[#F8FBFF] text-[#0B1736] antialiased">
       <MarketingHeader />
       <main className="flex-1">{children}</main>
       <MarketingFooter />

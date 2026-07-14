@@ -245,7 +245,7 @@ export default function PricingPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#856A26]">아낙스랩스</p>
+            <p className="text-xs font-semibold tracking-widest text-[#174DDA]">Daboim · 다보임</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
               {man(PRICE_RANGES.buildFee.basic[0])}부터
             </p>

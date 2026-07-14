@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentClient } from '@/lib/services/auth';
 import { SiteDetail } from '@/components/dashboard/site-detail';
 
-export const metadata: Metadata = { title: '사이트 상세 — 아낙스랩스' };
+export const metadata: Metadata = { title: '사이트 상세 — Daboim' };
 
 export default async function SiteDetailPage({
   params,

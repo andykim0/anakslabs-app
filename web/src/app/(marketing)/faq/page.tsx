@@ -11,7 +11,7 @@ import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 export const metadata: Metadata = {
   title: '자주 묻는 질문 · 고객센터',
   description:
-    '아낙스랩스 홈페이지 제작·수정·해지·환불·도메인·검색 노출에 대한 자주 묻는 질문. 카카오톡 채널로 문의하세요.',
+    'Daboim 홈페이지 제작·수정·해지·환불·도메인·검색 노출에 대한 자주 묻는 질문. 카카오톡 채널로 문의하세요.',
   alternates: { canonical: '/faq' },
 };
 

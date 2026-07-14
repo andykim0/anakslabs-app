@@ -18,7 +18,7 @@ export function SuspendedNotice({ siteName }: { siteName?: string }) {
       </h1>
       <p className="mt-3 max-w-md text-sm leading-6 text-neutral-400">
         {siteName ? `‘${siteName}’ 사이트는` : '이 사이트는'} 유지보수 구독 결제가 확인되지 않아
-        일시 중지된 상태입니다. 사이트 관리자라면 아낙스랩스 대시보드에서 결제 정보를 확인해
+        일시 중지된 상태입니다. 사이트 관리자라면 Daboim 대시보드에서 결제 정보를 확인해
         주세요. 결제가 완료되면 사이트는 바로 다시 열립니다.
       </p>
       <a
@@ -28,7 +28,7 @@ export function SuspendedNotice({ siteName }: { siteName?: string }) {
         대시보드에서 결제 확인하기
       </a>
       <p className="mt-16 text-xs text-neutral-600">
-        Powered by <span className="font-semibold text-neutral-400">아낙스랩스</span>
+        Powered by <span className="font-semibold text-neutral-400">Daboim</span>
       </p>
     </main>
   );

@@ -67,7 +67,7 @@ export const POST = withApiHandler(async (request) => {
       provider: 'toss',
       clientKey: process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '',
       orderId,
-      orderName: `아낙스랩스 크레딧 팩 ${pack.label}`,
+      orderName: `Daboim 크레딧 팩 ${pack.label}`,
       amount: pack.priceKrw,
       customerKey: client.id,
       successUrl: `${origin}/dashboard?payment=success&orderId=${orderId}`,

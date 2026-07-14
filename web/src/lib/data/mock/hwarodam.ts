@@ -404,7 +404,7 @@ const contact: Section = {
       kind: 'text',
       frame: { x: 122, y: 654, w: 560, h: 18 },
       z: 2,
-      text: '© 2026 화로담 — 서울 성수. Made with Anaks Labs.',
+      text: '© 2026 화로담 — 서울 성수. Made with Daboim.',
       style: { fontSize: 12, fontWeight: 400, fontFamily: 'body', color: '#6f675a', align: 'left', letterSpacing: 0.5 },
     },
   ],

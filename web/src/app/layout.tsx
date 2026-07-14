@@ -17,9 +17,11 @@ const geistMono = Geist_Mono({
 // 테넌트 서빙(/s/*)이 자체 title을 그대로 쓰도록. 마케팅 접미 브랜딩은 (marketing)/layout.
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${ROOT_DOMAIN}`),
-  title: "아낙스랩스 — 검색과 AI가 찾아오는 홈페이지",
+  applicationName: "Daboim",
+  title: "Daboim 다보임 — 홈페이지 전문 최적화 AI",
   description:
-    "검색과 생성형 AI가 읽을 수 있는 사이트를 AI가 처음부터 짓습니다. 무료 SEO·AEO·GEO 진단으로 시작하세요.",
+    "Daboim이 업종에 맞는 홈페이지를 AI로 설계하고 SEO·AEO·GEO 기반부터 호스팅·관리까지 제공합니다. 무료 홈페이지 진단으로 시작하세요.",
+  category: "AI website builder",
 };
 
 export default function RootLayout({

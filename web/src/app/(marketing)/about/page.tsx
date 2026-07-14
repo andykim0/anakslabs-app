@@ -3,9 +3,9 @@ import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 import { ScannerCta } from '@/components/marketing/ui';
 
 export const metadata: Metadata = {
-  title: '회사소개 — 왜 아낙스랩스를 만들었나',
+  title: '회사소개 — 왜 Daboim을 만들었나',
   description:
-    '검색과 AI가 읽을 수 있는 사이트를 소상공인도 가질 수 있어야 한다는 생각에서 시작한 1인 개발 프로젝트, 아낙스랩스.',
+    '검색과 AI가 읽을 수 있는 사이트를 소상공인도 가질 수 있어야 한다는 생각에서 Anaks Labs가 만든 홈페이지 SaaS, Daboim.',
   alternates: { canonical: '/about' },
 };
 
@@ -14,7 +14,7 @@ export default function AboutPage() {
     <>
       <section className="mx-auto max-w-3xl px-6 pt-16 pb-12">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
-          왜 아낙스랩스를 만들었나
+          왜 Daboim을 만들었나
         </h1>
         <div className="mt-8 space-y-5 text-sm leading-7 text-[#5C6068]">
           <p>
@@ -27,8 +27,8 @@ export default function AboutPage() {
             무엇을 갖춰야 하는지 알기도 어렵습니다. 그래서 그 일을 AI가 처음부터 대신 해주면 어떨까 생각했습니다.
           </p>
           <p>
-            아낙스랩스는 그 생각에서 시작한 1인 개발 프로젝트입니다. AI가 사이트를 설계하고, 캔버스에서 손쉽게
-            다듬고, 검색·AI가 읽을 수 있는 구조를 기본값으로 깔아 즉시 호스팅합니다.
+            Daboim은 그 생각에서 시작한 Anaks Labs의 홈페이지 SaaS입니다. AI가 사이트를 설계하고, 캔버스에서
+            손쉽게 다듬고, 검색·AI가 읽을 수 있는 구조를 기본값으로 깔아 즉시 호스팅합니다.
           </p>
         </div>
       </section>

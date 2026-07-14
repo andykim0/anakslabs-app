@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Coins, CreditCard, LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import type { Tier } from '@/lib/types/domain';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { getCredits, logout } from './api';
 import { cn, Skeleton, Spinner, TierBadge } from './ui';
 
@@ -122,10 +123,7 @@ export function DashboardShell({
             onClick={() => router.push('/dashboard')}
             className="flex items-center gap-2 text-sm font-semibold tracking-tight text-neutral-50"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#c8a96a] text-[11px] font-black text-neutral-950">
-              A
-            </span>
-            아낙스랩스
+            <BrandLogo inverse />
           </button>
           <div className="flex items-center gap-2.5">
             <CreditBadge />

@@ -11,7 +11,7 @@ import { emptySiteConfig } from '@/lib/types/site';
 import { EditorShell } from '@/components/editor/EditorShell';
 
 export const metadata: Metadata = {
-  title: '에디터 — 아낙스랩스',
+  title: '에디터 — Daboim',
 };
 
 export default async function EditorPage({ params }: { params: Promise<{ siteId: string }> }) {

@@ -120,7 +120,7 @@ export function SettingsView({
           </div>
           {tier === 'basic' ? (
             <a
-              href={`mailto:hello@anakslabs.com?subject=${encodeURIComponent('[아낙스랩스] Premium 업그레이드 문의')}&body=${encodeURIComponent(`안녕하세요, Premium 업그레이드를 문의드립니다.\n\n계정: ${email}`)}`}
+              href={`mailto:hello@anakslabs.com?subject=${encodeURIComponent('[Daboim] 영상 애드온 문의')}&body=${encodeURIComponent(`안녕하세요, Daboim 영상 애드온을 문의드립니다.\n\n계정: ${email}`)}`}
               className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
             >
               <Sparkles className="h-4 w-4" />

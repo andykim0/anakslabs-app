@@ -7,8 +7,8 @@ import { isAdmin } from '@/lib/services/auth';
 
 export const metadata: Metadata = {
   title: {
-    default: '관리자 콘솔 — 아낙스랩스',
-    template: '%s — 아낙스랩스 ADMIN',
+    default: '관리자 콘솔 — Daboim',
+    template: '%s — Daboim ADMIN',
   },
   robots: { index: false, follow: false },
 };

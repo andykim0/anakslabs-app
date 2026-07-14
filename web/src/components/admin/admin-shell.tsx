@@ -5,6 +5,7 @@ import { ClipboardCheck, LayoutDashboard, Server, ShieldAlert, Users } from 'luc
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', icon: LayoutDashboard, exact: true },
@@ -21,7 +22,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full bg-slate-100 text-slate-900">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-slate-800 bg-slate-950 text-slate-300">
         <div className="flex items-center gap-2 px-4 py-4">
-          <span className="text-sm font-semibold tracking-tight text-white">아낙스랩스</span>
+          <BrandLogo inverse />
           <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
             ADMIN
           </span>

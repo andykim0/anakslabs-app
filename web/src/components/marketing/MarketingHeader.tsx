@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const NAV = [
   { href: '/features', label: '기능' },
@@ -30,22 +31,20 @@ export function MarketingHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const showScannerCta = pathname !== '/' || heroPassed;
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b border-[#E8E6E0] bg-white/80 backdrop-blur-sm transition-shadow ${
-        scrolled ? 'shadow-[0_1px_3px_rgba(0,0,0,0.06)]' : ''
+      className={`sticky top-0 z-40 border-b border-[#DCE4F0] bg-white/88 text-[#0B1736] backdrop-blur-xl transition-shadow ${
+        scrolled ? 'shadow-[0_12px_36px_rgba(11,23,54,0.09)]' : ''
       }`}
     >
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#17181C]">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#9A7B33] text-[11px] font-black text-white">
-            A
-          </span>
-          아낙스랩스
+      <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-7 px-5 sm:px-8">
+        <Link href="/" aria-label="Daboim 다보임 홈" className="shrink-0">
+          <BrandLogo />
         </Link>
 
-        <nav className="flex items-center gap-5 text-sm">
+        <nav aria-label="주요 메뉴" className="hidden items-center gap-6 text-sm md:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -53,8 +52,8 @@ export function MarketingHeader() {
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={
                 isActive(item.href)
-                  ? 'font-medium text-[#856A26]'
-                  : 'text-[#5C6068] transition-colors hover:text-[#17181C]'
+                  ? 'font-medium text-[#174DDA]'
+                  : 'text-[#5F6B7C] transition-colors hover:text-[#0B1736]'
               }
             >
               {item.label}
@@ -64,7 +63,7 @@ export function MarketingHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <AnimatePresence>
-            {heroPassed ? (
+            {showScannerCta ? (
               <motion.div
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -73,7 +72,7 @@ export function MarketingHeader() {
               >
                 <Link
                   href="/#hero-scanner"
-                  className="rounded-lg bg-[#17181C] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+                  className="rounded-lg bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-4 py-2 text-sm font-semibold text-white transition-shadow hover:shadow-[0_8px_22px_rgba(8,175,197,.24)]"
                 >
                   무료 진단
                 </Link>
@@ -82,7 +81,7 @@ export function MarketingHeader() {
           </AnimatePresence>
           <Link
             href="/login"
-            className="rounded-lg border border-[#D9D6CE] px-4 py-2 text-sm text-[#17181C] transition-colors hover:border-[#17181C]"
+            className="rounded-lg border border-[#CAD5E5] px-4 py-2 text-sm text-[#3F4A5A] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
           >
             로그인
           </Link>

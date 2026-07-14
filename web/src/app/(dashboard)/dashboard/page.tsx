@@ -16,7 +16,7 @@ import {
   PageHeader,
 } from '@/components/dashboard/ui';
 
-export const metadata: Metadata = { title: '내 사이트 — 아낙스랩스' };
+export const metadata: Metadata = { title: '내 사이트 — Daboim' };
 
 export default async function DashboardHomePage() {
   const client = await getCurrentClient();

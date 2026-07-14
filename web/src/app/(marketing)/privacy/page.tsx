@@ -3,7 +3,7 @@ import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 
 export const metadata: Metadata = {
   title: '개인정보처리방침',
-  description: '아낙스랩스 개인정보처리방침 요약(인터림).',
+  description: 'Daboim 개인정보처리방침 요약(운영사 Anaks Labs, 인터림).',
   alternates: { canonical: '/privacy' },
   robots: { index: false },
 };

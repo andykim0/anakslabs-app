@@ -24,7 +24,7 @@ function resolveSlug(path: string[]): string | null {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain, path } = await params;
   const slug = resolveSlug(path);
-  if (slug === null) return { title: '사이트를 찾을 수 없습니다 · 아낙스랩스', robots: { index: false } };
+  if (slug === null) return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
   const site = await getSiteByDomain(domain);
   return tenantMetadata(site, slug);
 }

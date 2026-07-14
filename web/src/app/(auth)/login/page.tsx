@@ -8,6 +8,7 @@ import { ShieldCheck, Sparkles, UserCog } from 'lucide-react';
 import { env, isEmailLoginPublic, isMockMode } from '@/lib/env';
 import { mockLogin, type MockRole } from '@/components/dashboard/api';
 import { Spinner } from '@/components/dashboard/ui';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const MOCK_BUTTONS: { role: MockRole; label: string; description: string; icon: React.ReactNode }[] = [
   {
@@ -134,10 +135,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-[#0a0a0b] text-neutral-100">
       <header className="mx-auto flex w-full max-w-5xl items-center px-6 py-5">
         <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#c8a96a] text-[11px] font-black text-neutral-950">
-            A
-          </span>
-          아낙스랩스
+          <BrandLogo inverse />
         </Link>
       </header>
 
