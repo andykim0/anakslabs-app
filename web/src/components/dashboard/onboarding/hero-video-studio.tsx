@@ -7,14 +7,14 @@
  */
 import { useState } from 'react';
 import { Clapperboard, Check, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react';
+import {
+  applyHeroVideoDraft,
+  generateHeroVideoDrafts,
+  type HeroVideoDraftDto,
+} from '../api';
+import { heroVideoPhotoHint } from '@/lib/onboarding/hero-video-process';
 import { Button } from '../ui';
 
-interface Draft {
-  videoUrl: string;
-  posterUrl: string;
-  prompt: string;
-  model: string;
-}
 type Phase = 'idle' | 'generating' | 'ready' | 'applying' | 'applied' | 'error';
 
 /** API에는 등록 무드 분류에 필요한 tone과 짧은 원격/경로 출처 표식만 보낸다. */
@@ -23,11 +23,7 @@ export function buildHeroVideoDraftBody(tone: readonly string[], heroPhotoUrl?: 
     .map((value) => value.trim().slice(0, 40))
     .filter(Boolean)
     .slice(0, 2);
-  const photo = heroPhotoUrl?.trim();
-  const remoteOrPath =
-    photo && photo.length <= 2048 && (/^https?:\/\//i.test(photo) || /^\/(?!\/)/.test(photo))
-      ? photo
-      : undefined;
+  const remoteOrPath = heroVideoPhotoHint(heroPhotoUrl);
   return {
     count: 2 as const,
     ...(normalizedTone.length ? { tone: normalizedTone } : {}),
@@ -45,21 +41,18 @@ export function HeroVideoStudio({
   heroPhotoUrl?: string;
 }) {
   const [phase, setPhase] = useState<Phase>('idle');
-  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [drafts, setDrafts] = useState<HeroVideoDraftDto[]>([]);
   const [error, setError] = useState('');
 
   async function generate() {
     setPhase('generating');
     setError('');
     try {
-      const res = await fetch(`/api/sites/${siteId}/hero-video`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(buildHeroVideoDraftBody(tone, heroPhotoUrl)),
-      });
-      const data = (await res.json().catch(() => null)) as { drafts?: Draft[]; message?: string } | null;
-      if (!res.ok || !data?.drafts?.length) throw new Error(data?.message || '영상 시안 생성에 실패했습니다.');
-      setDrafts(data.drafts);
+      const nextDrafts = await generateHeroVideoDrafts(
+        siteId,
+        buildHeroVideoDraftBody(tone, heroPhotoUrl),
+      );
+      setDrafts(nextDrafts);
       setPhase('ready');
     } catch (e) {
       setError(e instanceof Error ? e.message : '영상 시안 생성에 실패했습니다.');
@@ -67,18 +60,10 @@ export function HeroVideoStudio({
     }
   }
 
-  async function pick(d: Draft) {
+  async function pick(d: HeroVideoDraftDto) {
     setPhase('applying');
     try {
-      const res = await fetch(`/api/sites/${siteId}/hero-video`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ videoUrl: d.videoUrl, posterUrl: d.posterUrl, prompt: d.prompt, model: d.model }),
-      });
-      if (!res.ok) {
-        const j = (await res.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(j?.message || '영상 적용에 실패했습니다.');
-      }
+      await applyHeroVideoDraft(siteId, d);
       setPhase('applied');
     } catch (e) {
       setError(e instanceof Error ? e.message : '영상 적용에 실패했습니다.');

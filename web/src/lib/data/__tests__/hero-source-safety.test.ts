@@ -10,8 +10,9 @@ const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 describe('H3 — Supabase 이미지 생성 우회 방지', () => {
   test('mock 후보·최종 풀도 대표 사진을 명시 소스로 전달한다', () => {
     const mock = source('src/lib/data/mock/ai.ts');
-    assert.match(mock, /heroImageUrl: survey\.heroPhotoUrl \?\? bp\.mockHeroUrl/);
-    assert.match(mock, /heroPhoto: survey\.heroPhotoUrl/);
+    assert.match(mock, /const selectedUpload = selectedHeroPhotoUrl\(survey\)/);
+    assert.match(mock, /heroImageUrl: selectedUpload \?\? bp\.mockHeroUrl/);
+    assert.match(mock, /heroPhoto: selectedUpload/);
     assert.doesNotMatch(mock, /\/mock\/dish-/i, 'mock 기본 풀에도 가짜 완성 요리를 두지 않는다');
   });
 
@@ -28,7 +29,8 @@ describe('H3 — Supabase 이미지 생성 우회 방지', () => {
     assert.ok(heroGuard >= 0 && heroGuard < refine && heroGuard < gemini, '대표 사진 가드가 AI 호출보다 늦음');
     assert.match(candidates, /heroImageUrl: heroPhotoUrl/);
     assert.doesNotMatch(ai, /text\?\.heroImagePrompt|record\.heroImagePrompt/);
-    assert.match(ai, /heroPhoto: survey\.heroPhotoUrl/);
+    assert.match(ai, /const selectedUpload = selectedHeroPhotoUrl\(survey\)/);
+    assert.match(ai, /heroPhoto: selectedUpload/);
   });
 
   test('섹션 장면 레지스트리에 제품·서비스 결과 closeup 양의 피사체가 없다', () => {

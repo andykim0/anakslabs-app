@@ -21,8 +21,17 @@ import {
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
-import { generateSite, regenerateSite, type ExtrasOptionsDto, type MotionChoiceDto } from '../api';
+import {
+  applyHeroVideoDraft,
+  generateHeroVideoDrafts,
+  generateSite,
+  regenerateSite,
+  type ExtrasOptionsDto,
+  type MotionChoiceDto,
+} from '../api';
 import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
+import { heroImageUrlIntent } from '@/lib/onboarding/hero-image-options';
+import { processApprovedHeroVideo } from '@/lib/onboarding/hero-video-process';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { WireframePreview, pruneSections } from './wireframe-preview';
@@ -77,16 +86,30 @@ export function GenerateStep({
 
   // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
   // [Q7] 모션 시그니처 포함 — 모션만 바꿔 재생성해도 dedup 캐시에 걸리지 않게. [A3] 구성 변경도 시그니처에.
-  const intent = `${existingSiteId ?? 'new'}::${candidate.id}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}::${[...removed].sort().join(',')}`;
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}:${heroImageUrlIntent(candidate.heroImageUrl)}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}:${survey.heroImageChoice ?? ''}:${survey.videoAddon === true ? 'video' : 'still'}::${[...removed].sort().join(',')}`;
   const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({
     mutationFn: () =>
-      sharedGenerate(intent, () =>
-        existingSiteId
+      sharedGenerate(intent, async () => {
+        const generated = existingSiteId
           ? regenerateSite({ siteId: existingSiteId, survey: effectiveSurvey, candidate, extras, extrasOptions, motionChoice, idempotencyKey })
-          : generateSite({ survey: effectiveSurvey, candidate, extras, extrasOptions, motionChoice, idempotencyKey }),
-      ),
+          : generateSite({ survey: effectiveSurvey, candidate, extras, extrasOptions, motionChoice, idempotencyKey });
+        const site = await generated;
+        // [W4] 사이트를 먼저 완성한 뒤, 선택+승인일 때만 기존 U3 게이트 라우트로 1개를 생성·적용한다.
+        const heroVideo = await processApprovedHeroVideo(
+          {
+            siteId: site.siteId,
+            tier,
+            videoAddon: effectiveSurvey.videoAddon === true,
+            heroImageChoice: effectiveSurvey.heroImageChoice,
+            heroPhotoUrl: effectiveSurvey.heroPhotoUrl,
+            tone: effectiveSurvey.tone,
+          },
+          { generateDrafts: generateHeroVideoDrafts, applyDraft: applyHeroVideoDraft },
+        );
+        return { ...site, heroVideo };
+      }),
     // useMutation은 기본 재시도 없음 → 실패 시 즉시 에러 표면화(무한 스피너 없음).
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
@@ -157,6 +180,7 @@ export function GenerateStep({
   const usedNow = mutation.data.freeRegensUsed;
   const regenLeft = Math.max(0, FREE_REGEN_LIMIT - usedNow);
   const canRegen = regenLeft > 0;
+  const heroVideo = mutation.data.heroVideo;
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
@@ -178,6 +202,20 @@ export function GenerateStep({
           <Badge>섹션 {survey.sectionPlan.length}개</Badge>
           <Badge>초안 저장됨</Badge>
         </div>
+
+        {survey.videoAddon === true ? (
+          <div className="w-full max-w-md rounded-xl border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
+            {heroVideo.status === 'applied' ? (
+              <span className="font-medium text-ob-success">선택한 사진과 연출로 영상 히어로까지 적용했어요.</span>
+            ) : heroVideo.status === 'skipped' && heroVideo.reason === 'not-approved' ? (
+              '영상 애드온 승인 전이라 우선 정지 사진+기본 모션으로 완성했어요. 승인 후에만 Veo를 실행합니다.'
+            ) : heroVideo.status === 'fallback' ? (
+              `사이트는 완성했지만 영상은 준비하지 못해 정지 히어로로 보여요. ${heroVideo.message}`
+            ) : (
+              '선택한 사진을 정지 히어로로 적용했어요.'
+            )}
+          </div>
+        ) : null}
 
         <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -229,10 +267,13 @@ export function GenerateStep({
           )}
         </div>
 
-        {/* [U3] 영상 애드온 보유 시 — AI 영상 히어로 스튜디오 (선택). 미보유는 정적 히어로로 발행되고,
-             video-hero를 골랐다면 videoRequested 표식이 남아 애드온 부여 후 생성할 수 있다. */}
-        {hasVideoAddon(tier) ? (
-          <HeroVideoStudio siteId={siteId} tone={survey.tone} heroPhotoUrl={survey.heroPhotoUrl} />
+        {/* [W4] 선택+승인인데 자동 적용에 실패한 경우만 기존 수동 스튜디오를 재시도 경로로 노출. */}
+        {survey.videoAddon === true && hasVideoAddon(tier) && heroVideo.status !== 'applied' ? (
+          <HeroVideoStudio
+            siteId={siteId}
+            tone={survey.tone}
+            heroPhotoUrl={survey.heroImageChoice === 'upload' ? survey.heroPhotoUrl : undefined}
+          />
         ) : null}
 
         <p className="text-xs text-ob-muted">

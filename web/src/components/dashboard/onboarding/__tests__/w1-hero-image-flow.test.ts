@@ -47,10 +47,11 @@ describe('W1 — 히어로 사진 선택 플로우', () => {
     assert.doesNotMatch(candidateStep, /const regenerate/);
   });
 
-  test('AI 안을 고르면 기존 heroPhotoUrl이 process에서 선택 이미지를 덮지 않는다', () => {
-    assert.match(
-      wizard,
-      /survey=\{heroImage\.source === 'upload' \? survey : \{ \.\.\.survey, heroPhotoUrl: undefined \}\}/,
-    );
+  test('W4에서 AI 안을 고라도 heroPhotoUrl은 보존하고 명시적 선택 id로 덮어쓰기를 막는다', () => {
+    const selection = source('src/lib/onboarding/hero-video-selection.ts');
+    assert.match(wizard, /surveyWithHeroVideoSelection\(survey, heroImage, motionChoice\)/);
+    assert.match(selection, /heroImageChoice: heroImage\.id/);
+    assert.match(selection, /\.\.\.survey/);
+    assert.doesNotMatch(wizard, /heroPhotoUrl: undefined/);
   });
 });

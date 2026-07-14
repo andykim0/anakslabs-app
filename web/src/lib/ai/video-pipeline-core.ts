@@ -11,6 +11,7 @@ import {
   productSafetyDirective,
 } from '@/lib/design/image-subjects';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
+import { HERO_VIDEO_MOTIONS, heroVideoMotionById } from '@/lib/motion/hero-video-motions';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 
 /** fast=온보딩 시안(저렴), 표준=고화질 재생성(에디터, 크레딧). env로 모델 id 오버라이드. */
@@ -65,6 +66,9 @@ export function ambientMoodFromTone(tone: readonly string[] | undefined, dark: b
 
 /** 자유 카피에서는 제품이 아니라 카메라·빛의 움직임만 화이트리스트로 복원한다. */
 function cameraDirectionFor(hint: string): string {
+  // [W4] 사이트에 저장된 heroMotionId가 선택한 레지스트리 시드는 자유 문장 분류보다 우선한다.
+  const registered = Object.values(HERO_VIDEO_MOTIONS).find((motion) => hint.includes(motion.promptSeed));
+  if (registered) return registered.promptSeed.replace(/[.\s]+$/, '');
   if (/macro|close[- ]?up/i.test(hint)) return 'restrained macro framing with shallow focus';
   if (/dolly|depth/i.test(hint)) return 'slow restrained dolly movement with gentle depth';
   if (/dusk|temporal|time[- ]?shift/i.test(hint)) return 'soft passing light with a restrained temporal shift';
@@ -133,11 +137,18 @@ export function heroVideoContext(config: SiteConfig, hint?: HeroVideoHint): Hero
   const dark = isDarkColor(config.theme.palette.background);
   const toneMood = ambientMoodFromTone(hint?.tone, dark);
   const conceptMood = findVideoConcept(config.motion?.videoConceptId)?.promptSeed;
-  const povMood = conceptMood ? `${toneMood}, ${conceptMood}` : toneMood;
+  const motionMood = heroVideoMotionById(config.motion?.heroMotionId)?.promptSeed;
+  const povMood = [toneMood, conceptMood, motionMood].filter(Boolean).join(', ');
   // mock 업로드는 data:image URL이라 거대한 값을 API body로 다시 보내지 않는다. 실모드는 exact-match만 신뢰한다.
   const isMockUploadedPhoto = !hint?.heroPhotoUrl && heroImageUrl.startsWith('data:image/');
-  const source: HeroVideoSource =
-    hint?.heroPhotoUrl === heroImageUrl || isMockUploadedPhoto ? 'uploaded-photo' : 'ambient-ai';
+  const exactUploadedPhoto = hint?.heroPhotoUrl === heroImageUrl || isMockUploadedPhoto;
+  const source: HeroVideoSource = config.motion?.heroImageChoice === 'upload'
+    ? (exactUploadedPhoto ? 'uploaded-photo' : 'ambient-ai')
+    : config.motion?.heroImageChoice?.startsWith('ai-')
+      ? 'ambient-ai'
+      : exactUploadedPhoto
+        ? 'uploaded-photo'
+        : 'ambient-ai';
   return { heroImageUrl, povMood, source };
 }
 
@@ -145,8 +156,19 @@ export function heroVideoContext(config: SiteConfig, hint?: HeroVideoHint): Hero
 export function applyHeroVideoToConfig(config: SiteConfig, videoUrl: string, posterUrl: string): SiteConfig {
   const found = homeHero(config);
   if (!found) return config;
+  const currentMotion = config.motion;
   return {
     ...config,
+    // [W4] basic 정적 폴백으로 저장된 요청도 관리자 승인 후 실제 영상을 적용하는 순간 활성화한다.
+    // 이 함수의 외부 쓰기 경로는 premium U3 가드 뒤에만 있으며, poster가 붙기 전에는 활성화하지 않는다.
+    motion: {
+      ...(currentMotion ?? {}),
+      presetId: 'cinematic-hero',
+      intensity: currentMotion?.intensity === 'off' ? 'normal' : (currentMotion?.intensity ?? 'normal'),
+      heroTechnique: 'video-hero',
+      videoRequested: true,
+      videoAddon: true,
+    },
     pages: config.pages.map((page) =>
       page === found.home
         ? {

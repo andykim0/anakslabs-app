@@ -14,5 +14,5 @@ export default async function SiteDetailPage({
   const client = await getCurrentClient();
   if (!client) redirect('/login');
 
-  return <SiteDetail siteId={siteId} />;
+  return <SiteDetail siteId={siteId} tier={client.tier} />;
 }

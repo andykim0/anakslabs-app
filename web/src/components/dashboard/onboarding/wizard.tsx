@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ScanSearch } from 'lucide-react';
 import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '@/lib/types/domain';
 import type { HeroImageSelection } from '@/lib/onboarding/hero-image-options';
+import { isHeroVideoMotionId } from '@/lib/motion/hero-video-motions';
+import { surveyWithHeroVideoSelection } from '@/lib/onboarding/hero-video-selection';
 import type { ExtrasOptionsDto, MotionChoiceDto } from '../api';
 import { cn } from '../ui';
 import { SurveyStep } from './survey-step';
@@ -27,6 +29,19 @@ export interface ImproveContext {
   scanId: string;
   total: number;
   issueCount: number;
+}
+
+function motionChoiceWithHeroVideoSelection(
+  choice: MotionChoiceDto | undefined,
+  survey: SurveyInput,
+): MotionChoiceDto | undefined {
+  if (!choice) return undefined;
+  return {
+    ...choice,
+    heroImageChoice: survey.heroImageChoice,
+    videoAddon: survey.videoAddon,
+    heroMotionId: isHeroVideoMotionId(survey.heroMotionId) ? survey.heroMotionId : undefined,
+  };
 }
 
 // [A4] 승인 프레이밍 — 각 단계는 '확인하고 넘어가는' 게이트. 라벨을 승인 축으로.
@@ -64,6 +79,12 @@ export function OnboardingWizard({
   // [§3] 재생성: 최초 생성으로 만들어진 사이트 id + 무료 재생성 사용 횟수
   const [siteId, setSiteId] = useState<string | null>(null);
   const [freeRegensUsed, setFreeRegensUsed] = useState(0);
+  const generationSurvey = survey && heroImage
+    ? surveyWithHeroVideoSelection(survey, heroImage, motionChoice)
+    : null;
+  const generationMotionChoice = generationSurvey
+    ? motionChoiceWithHeroVideoSelection(motionChoice, generationSurvey)
+    : undefined;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -205,13 +226,13 @@ export function OnboardingWizard({
         />
       ) : null}
 
-      {step === 6 && survey && heroImage && candidate ? (
+      {step === 6 && generationSurvey && candidate ? (
         <GenerateStep
-          survey={heroImage.source === 'upload' ? survey : { ...survey, heroPhotoUrl: undefined }}
+          survey={generationSurvey}
           candidate={candidate}
           extras={extras}
           extrasOptions={extrasOptions}
-          motionChoice={motionChoice}
+          motionChoice={generationMotionChoice}
           existingSiteId={siteId}
           freeRegensUsed={freeRegensUsed}
           tier={tier}

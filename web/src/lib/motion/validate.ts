@@ -2,15 +2,21 @@
  * [motion-system] 서버 새니타이저 — LLM/클라이언트가 무엇을 넣든 최종 config는 유효 프리셋만.
  * 순수 함수·원본 불변. 모든 교정은 changes[]에 한국어로 남겨 로깅·고객 안내에 쓴다.
  */
-import type { MotionIntensity, MotionTier, SiteConfig } from '@/lib/types/site';
+import type { HeroImageChoice, MotionIntensity, MotionTier, SiteConfig } from '@/lib/types/site';
 import type { SitePurposeId } from '@/lib/types/domain';
 import { countMotionSignatures, MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
 import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, resolvePresetForIndustry, type MotionPreset, type PresetId } from './presets';
 import { isAllowedHeroChoice, isKnownHeroChoice } from './hero-choice';
 import { findVideoConcept } from './video-concepts';
 import { hasVideoAddon } from '@/lib/services/entitlements';
+import { isHeroVideoMotionId } from './hero-video-motions';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
+const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['upload', 'ai-1', 'ai-2', 'ai-3'];
+
+function isHeroImageChoice(value: unknown): value is HeroImageChoice {
+  return typeof value === 'string' && (HERO_IMAGE_CHOICES as readonly string[]).includes(value);
+}
 
 /** basic 플랜 강등 매핑 — 같은 계열 basic 프리셋 (다운그레이드 시 사이트를 깨진 채 두지 않는다) */
 const DOWNGRADE_MAP: Partial<Record<PresetId, PresetId>> = {
@@ -99,10 +105,20 @@ export function sanitizeMotion(
     presetId = fb;
   }
 
+  // [W4] videoAddon은 '선택 의사'이지 권한이 아니다. 타입 오염은 fail-closed.
+  let videoAddon = config.motion?.videoAddon;
+  if (videoAddon !== undefined && typeof videoAddon !== 'boolean') {
+    changes.push('영상 애드온 선택값이 올바르지 않아 제거했습니다.');
+    videoAddon = undefined;
+  }
+
   // ⑤ [Q7] heroTechnique — HERO_MOTION_CHOICES에 열거된 id만, 티어 초과는 프리셋 기본 히어로로 강등
   let heroTechnique = config.motion?.heroTechnique;
   if (heroTechnique !== undefined) {
-    if (!isAllowedHeroChoice(plan, heroTechnique)) {
+    if (videoAddon === false && heroTechnique === 'video-hero') {
+      changes.push('영상 애드온을 선택하지 않아 히어로를 ken-burns로 되돌렸습니다.');
+      heroTechnique = 'ken-burns';
+    } else if (!isAllowedHeroChoice(plan, heroTechnique)) {
       changes.push(
         isKnownHeroChoice(heroTechnique)
           ? `이 플랜에서 쓸 수 없는 히어로 모션 '${heroTechnique}' → 프리셋 기본 히어로로 되돌렸습니다.`
@@ -124,8 +140,27 @@ export function sanitizeMotion(
     }
   }
 
-  // [U1] videoRequested 표식은 능력 게이팅과 무관한 '요청 의도' — 강등(④⑤)을 견디고 그대로 보존한다.
-  const videoRequested = config.motion?.videoRequested;
+  // [W4] 히어로 소스·영상 연출은 등록값만 보존. basic 강등에서도 요청 의도는 남긴다.
+  let heroImageChoice = config.motion?.heroImageChoice;
+  if (heroImageChoice !== undefined && !isHeroImageChoice(heroImageChoice)) {
+    changes.push(`알 수 없는 히어로 이미지 선택 '${String(heroImageChoice)}' → 제거했습니다.`);
+    heroImageChoice = undefined;
+  }
+
+  const videoIntent = videoAddon === true || (videoAddon === undefined && config.motion?.videoRequested === true);
+  let heroMotionId = config.motion?.heroMotionId;
+  if (heroMotionId !== undefined) {
+    if (!videoIntent) {
+      changes.push('영상 애드온을 선택하지 않아 히어로 영상 연출을 제거했습니다.');
+      heroMotionId = undefined;
+    } else if (!isHeroVideoMotionId(heroMotionId)) {
+      changes.push(`알 수 없는 히어로 영상 연출 '${heroMotionId}' → 제거했습니다.`);
+      heroMotionId = undefined;
+    }
+  }
+
+  // [U1/W4] 명시 videoAddon이 있으면 그 값이 레거시 videoRequested보다 우선한다.
+  const videoRequested = videoAddon !== undefined ? videoAddon : config.motion?.videoRequested;
 
   return {
     config: {
@@ -136,6 +171,9 @@ export function sanitizeMotion(
         ...(heroTechnique !== undefined ? { heroTechnique } : {}),
         ...(videoConceptId !== undefined ? { videoConceptId } : {}),
         ...(videoRequested ? { videoRequested: true } : {}),
+        ...(heroImageChoice !== undefined ? { heroImageChoice } : {}),
+        ...(videoAddon !== undefined ? { videoAddon } : {}),
+        ...(heroMotionId !== undefined ? { heroMotionId } : {}),
       },
     },
     changes,
@@ -150,6 +188,10 @@ export interface MotionChoice {
   intensity?: MotionIntensity;
   /** Premium video-hero 선택 시 영상 컨셉(VIDEO_CONCEPTS id) */
   videoConceptId?: string;
+  /** [W4] 히어로 선택 소스·영상 애드온 의사·등록 연출. */
+  heroImageChoice?: HeroImageChoice;
+  videoAddon?: boolean;
+  heroMotionId?: string;
 }
 
 /**
@@ -164,21 +206,31 @@ export function applyGeneratedMotion(
   tier: MotionTier,
   choice?: MotionChoice,
 ): SiteConfig {
-  const presetId = choice?.heroTechnique === 'video-hero'
+  const explicitVideoAddon = choice?.videoAddon;
+  const videoSelected = explicitVideoAddon ?? choice?.heroTechnique === 'video-hero';
+  const selectedHeroTechnique = videoSelected
+    ? 'video-hero'
+    : choice?.heroTechnique === 'video-hero'
+      ? 'ken-burns'
+      : choice?.heroTechnique;
+  const presetId = videoSelected
     ? 'cinematic-hero'
     : resolvePresetForIndustry(purpose, tier);
   // [U2] 영상 애드온 선택(video-hero) = videoRequested 표식. 애드온 미보유(basic)면 sanitize가
   // 능력(heroTechnique/videoConceptId)은 강등하지만 이 표식은 남겨 관리자가 판매·부여 대상 식별.
-  const videoRequested = choice?.heroTechnique === 'video-hero';
+  const videoRequested = videoSelected;
   return sanitizeMotion(
     {
       ...config,
       motion: {
         presetId,
         intensity: choice?.intensity ?? 'normal',
-        ...(choice?.heroTechnique !== undefined ? { heroTechnique: choice.heroTechnique } : {}),
-        ...(choice?.videoConceptId !== undefined ? { videoConceptId: choice.videoConceptId } : {}),
+        ...(selectedHeroTechnique !== undefined ? { heroTechnique: selectedHeroTechnique } : {}),
+        ...(videoSelected && choice?.videoConceptId !== undefined ? { videoConceptId: choice.videoConceptId } : {}),
         ...(videoRequested ? { videoRequested: true } : {}),
+        ...(choice?.heroImageChoice !== undefined ? { heroImageChoice: choice.heroImageChoice } : {}),
+        ...(explicitVideoAddon !== undefined ? { videoAddon: explicitVideoAddon } : {}),
+        ...(videoSelected && choice?.heroMotionId !== undefined ? { heroMotionId: choice.heroMotionId } : {}),
       },
     },
     tier,

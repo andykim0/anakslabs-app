@@ -45,9 +45,15 @@ const draftsBody = z.object({
     .optional(),
 });
 
+const appliedMediaSrc = z
+  .string()
+  .trim()
+  .min(1)
+  .refine(isSafeMediaSrc, '이미지/영상 주소 형식이 올바르지 않습니다.');
+
 const applyBody = z.object({
-  videoUrl: z.string().min(1),
-  posterUrl: z.string().min(1),
+  videoUrl: appliedMediaSrc,
+  posterUrl: appliedMediaSrc,
   prompt: z.string().max(2000).optional(),
   model: z.string().max(120).optional(),
 });
@@ -107,6 +113,7 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
   const { siteId } = await params;
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'AI 영상 히어로는 영상 애드온이 필요합니다. 애드온을 추가해 주세요.');
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();

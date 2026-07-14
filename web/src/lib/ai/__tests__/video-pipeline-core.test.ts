@@ -20,6 +20,7 @@ import {
   MOOD_SUBJECTS,
   PRODUCT_SAFETY_DIRECTIVE,
 } from '@/lib/design/image-subjects';
+import { resolveMotionPlan } from '@/lib/motion/apply';
 
 const ON: VideoGuardConfig = { enabled: true, maxPerSite: 6, dailyCap: 20 };
 
@@ -138,7 +139,28 @@ describe('applyHeroVideoToConfig — 히어로 background.video 세팅(비파괴
     const hero = next.pages[0].sections[0];
     assert.deepEqual(hero.background.video, { src: '/v.mp4', poster: '/hero.png' });
     assert.equal(hero.background.image?.src, '/hero.png'); // ken-burns 폴백용 이미지 보존
+    assert.equal(next.motion?.presetId, 'cinematic-hero');
+    assert.equal(next.motion?.heroTechnique, 'video-hero');
+    assert.equal(next.motion?.videoAddon, true);
+    assert.ok(resolveMotionPlan(next, { tier: 'premium' }).cinematicHeroSections.has(hero.id));
     assert.notEqual(next, c); // 불변(새 객체)
+  });
+  test('basic 정적 폴백 요청도 승인 후 적용 시 선택 모션을 보존하며 cinematic으로 승격한다', () => {
+    const c = cfgWith({ image: { src: '/hero.png' } });
+    c.motion = {
+      presetId: 'cafe-basic',
+      intensity: 'normal',
+      videoRequested: true,
+      videoAddon: true,
+      heroImageChoice: 'upload',
+      heroMotionId: 'parallax-depth',
+    };
+    const next = applyHeroVideoToConfig(c, '/v.mp4', '/hero.png');
+    assert.equal(next.motion?.presetId, 'cinematic-hero');
+    assert.equal(next.motion?.heroTechnique, 'video-hero');
+    assert.equal(next.motion?.heroMotionId, 'parallax-depth');
+    assert.equal(next.motion?.heroImageChoice, 'upload');
+    assert.ok(resolveMotionPlan(next, { tier: 'premium' }).videoHeroSections.has(next.pages[0].sections[0].id));
   });
   test("홈의 type=hero만 갱신하고 앞선 페이지·비hero 섹션은 건드리지 않는다", () => {
     const c = cfgWith({ image: { src: '/old.png' } });

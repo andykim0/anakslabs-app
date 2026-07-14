@@ -29,7 +29,7 @@ import type {
   Site,
   SurveyInput,
 } from '@/lib/types/domain';
-import type { SectionType } from '@/lib/types/site';
+import type { HeroImageChoice, SectionType } from '@/lib/types/site';
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 
 // ---------- 에러 ----------
@@ -164,6 +164,73 @@ export async function publishSite(siteId: string): Promise<PublishResult> {
   return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
     businessInfoConfirmed: true,
   });
+}
+
+// ---------- 히어로 영상 시안 ----------
+
+export interface HeroVideoDraftDto {
+  videoUrl: string;
+  posterUrl: string;
+  prompt: string;
+  model: string;
+}
+
+export interface GenerateHeroVideoDraftsInput {
+  count: number;
+  tone?: readonly string[];
+  heroPhotoUrl?: string;
+}
+
+function isHeroVideoDraftDto(value: unknown): value is HeroVideoDraftDto {
+  if (!value || typeof value !== 'object') return false;
+  const draft = value as Record<string, unknown>;
+  return (
+    typeof draft.videoUrl === 'string' && draft.videoUrl.length > 0 &&
+    typeof draft.posterUrl === 'string' && draft.posterUrl.length > 0 &&
+    typeof draft.prompt === 'string' && draft.prompt.length > 0 &&
+    typeof draft.model === 'string' && draft.model.length > 0
+  );
+}
+
+/** 결제·애드온 승인된 사이트에서만 서버 U3 가드를 통과해 실제 image-to-video 시안을 만든다. */
+export async function generateHeroVideoDrafts(
+  siteId: string,
+  input: GenerateHeroVideoDraftsInput,
+): Promise<HeroVideoDraftDto[]> {
+  if (!Number.isInteger(input.count) || input.count < 1 || input.count > 2) {
+    throw new ApiError(400, 'VALIDATION_ERROR', '영상 시안 개수는 1~2개여야 합니다.');
+  }
+
+  const data = await post<unknown>(`/api/sites/${encodeURIComponent(siteId)}/hero-video`, input);
+  const drafts =
+    data && typeof data === 'object' && 'drafts' in data
+      ? (data as { drafts?: unknown }).drafts
+      : undefined;
+  if (
+    !Array.isArray(drafts) ||
+    drafts.length !== input.count ||
+    !drafts.every(isHeroVideoDraftDto)
+  ) {
+    throw new ApiError(500, 'INVALID_RESPONSE', '영상 시안 생성에 실패했습니다.');
+  }
+  return drafts;
+}
+
+/** 고객이 고른, 앞 단계에서 검증된 영상 시안을 사이트 초안에 적용한다. */
+export async function applyHeroVideoDraft(
+  siteId: string,
+  draft: HeroVideoDraftDto,
+): Promise<void> {
+  if (!isHeroVideoDraftDto(draft)) {
+    throw new ApiError(400, 'VALIDATION_ERROR', '영상 시안을 확인해 주세요.');
+  }
+  const data = await request<unknown>(`/api/sites/${encodeURIComponent(siteId)}/hero-video`, {
+    method: 'PATCH',
+    body: JSON.stringify(draft),
+  });
+  if (!data || typeof data !== 'object' || (data as { ok?: unknown }).ok !== true) {
+    throw new ApiError(500, 'INVALID_RESPONSE', '영상 적용에 실패했습니다.');
+  }
 }
 
 // ---------- 정적 HTML 백업 (§5) ----------
@@ -386,6 +453,9 @@ export interface MotionChoiceDto {
   videoConceptId?: string;
   /** [W3] 등록된 영상 연출 방향. W4에서 SiteConfig·Veo에 정식 배선한다. */
   heroMotionId?: HeroVideoMotionId;
+  /** [W4] 선택 소스·영상 의사. 서버는 SurveyInput 값을 권위로 다시 병합한다. */
+  heroImageChoice?: HeroImageChoice;
+  videoAddon?: boolean;
 }
 
 export async function generateSite(input: {

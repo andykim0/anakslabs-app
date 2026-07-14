@@ -11,6 +11,7 @@ import { buildCandidateBlueprints } from '../design-candidates';
 import { mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
+import { selectedHeroPhotoUrl } from '@/lib/onboarding/hero-image-options';
 import { getMockStore } from './store';
 
 /** 생성 이미지 순환 풀 — public/mock 로컬 자산 */
@@ -78,13 +79,14 @@ function pickCopyPool(hint: string): string[] {
 export class MockAiService implements AiService {
   async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
     await simulateLatency(1300);
+    const selectedUpload = selectedHeroPhotoUrl(survey);
     // 디자인 지식 기반 결정적 3안 (최소 1안 3d_render · 다크/라이트 혼합 · 안끼리 중복 없음)
     return buildCandidateBlueprints(survey).map((bp) => ({
       id: bp.id,
       label: bp.label,
       style: bp.style,
       // [H3] 고객 대표 사진은 세 후보 모두의 실제 히어로 소스. 미업로드일 때만 무드 프리뷰 폴백.
-      heroImageUrl: survey.heroPhotoUrl ?? bp.mockHeroUrl,
+      heroImageUrl: selectedUpload ?? bp.mockHeroUrl,
       theme: bp.theme,
       description: bp.description,
     }));
@@ -95,8 +97,9 @@ export class MockAiService implements AiService {
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
     // [F3 #2a] 사용자 실사 우선 → 부족분만 mock 큐레이션 이미지로 충전
+    const selectedUpload = selectedHeroPhotoUrl(survey);
     const { heroImageUrl, imagePool } = buildImagePool({
-      heroPhoto: survey.heroPhotoUrl,
+      heroPhoto: selectedUpload,
       storePhotos: survey.storePhotoUrls,
       aiImages: [...MOCK_IMAGE_POOL],
       heroFallback: candidate.heroImageUrl,

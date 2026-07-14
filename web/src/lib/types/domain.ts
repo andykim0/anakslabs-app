@@ -3,7 +3,7 @@
  * 도메인 모델 (DB 행의 앱 표현). SQL 스키마(supabase/migrations)와 1:1 정합 유지.
  * 모든 필드는 camelCase — 데이터 계층에서 snake_case ↔ camelCase 매핑 책임.
  */
-import type { SiteConfig } from './site';
+import type { HeroImageChoice, SiteConfig } from './site';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -319,6 +319,12 @@ export interface SurveyInput {
    * 히어로 소스에서는 이 실제 사진을 AI 무드 생성물보다 우선한다.
    */
   heroPhotoUrl?: string;
+  /** [W4] 최종 히어로로 고른 출처. URL은 heroPhotoUrl 또는 선택 DesignCandidate가 보유한다. */
+  heroImageChoice?: HeroImageChoice;
+  /** [W4] 영상 애드온을 원한다는 고객 선택. 실제 보유 권한은 client.tier에서만 판정한다. */
+  videoAddon?: boolean;
+  /** [W4] 등록된 영상 연출 방향. 결제·애드온 승인 전에는 생성 트리거가 아니다. */
+  heroMotionId?: string;
   /**
    * [F3 #7] 고객이 무드보드에서 고른 레퍼런스 샘플의 스타일 id(REFERENCE_SAMPLES.styleId).
    * selectDesignBriefs가 후보 스타일 선택에 가중치로 사용(imageStyle 고정 > 샘플 가중 > POV 비중복).

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
 import { isValidPageSlug } from '@/lib/types/site';
 import { MOTION_PRESETS } from '@/lib/motion/presets';
+import { HERO_VIDEO_MOTION_IDS } from '@/lib/motion/hero-video-motions';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -19,6 +20,10 @@ const safeMediaSrcSchema = z
   .string()
   .min(1)
   .refine(isSafeMediaSrc, '이미지/영상 주소는 http(s):// 또는 / 경로 형식만 사용할 수 있습니다.');
+
+/** [W4] 히어로 이미지·영상 선택 계약 — UI 자유 문자열이 저장 경계로 새지 않게 정확히 열거한다. */
+const heroImageChoiceSchema = z.enum(['upload', 'ai-1', 'ai-2', 'ai-3']);
+const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
 
 // ---------- 사이트 테마 ----------
 
@@ -341,6 +346,10 @@ export const motionSchema = z.object({
   videoConceptId: z.string().max(40).optional(),
   // [U1] 영상 애드온 요청 표식 — 편집 저장 시 스트립 방지(sanitizeMotion이 강등 견디고 보존)
   videoRequested: z.boolean().optional(),
+  // [W4] 선택 상태 기록. videoAddon은 권한이 아니라 요청 의도이며, 실제 생성은 U3 서버 가드가 판정한다.
+  heroImageChoice: heroImageChoiceSchema.optional(),
+  videoAddon: z.boolean().optional(),
+  heroMotionId: heroVideoMotionIdSchema.optional(),
 });
 
 /** [Q7] 온보딩 '움직임 고르기' 선택 — generate/regenerate body. 실검증은 sanitizeMotion */
@@ -348,6 +357,9 @@ export const motionChoiceSchema = z.object({
   heroTechnique: z.string().max(40).optional(),
   intensity: z.enum(['subtle', 'normal']).optional(),
   videoConceptId: z.string().max(40).optional(),
+  heroImageChoice: heroImageChoiceSchema.optional(),
+  videoAddon: z.boolean().optional(),
+  heroMotionId: heroVideoMotionIdSchema.optional(),
 });
 
 export const siteConfigSchema = z
@@ -451,6 +463,10 @@ export const surveySchema = z.object({
   storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
   // [히어로 소스] 고객이 직접 고른 대표 사진 1장 — 실제 사진을 AI 무드 생성물보다 우선
   heroPhotoUrl: safeMediaSrcSchema.optional(),
+  // [W4] 히어로 사진 선택 → 영상 애드온 의도 → 등록 모션 선택. 전부 additive이며 생성 권한이 아님.
+  heroImageChoice: heroImageChoiceSchema.optional(),
+  videoAddon: z.boolean().optional(),
+  heroMotionId: heroVideoMotionIdSchema.optional(),
   // [F3 #7] 무드보드에서 고른 레퍼런스 샘플 스타일 id
   referenceStyleIds: z.array(z.string().max(40)).max(12).optional(),
   // [R5] 레퍼런스 갤러리에서 고른 디자인 id — 뼈대(히어로 형태) 고정

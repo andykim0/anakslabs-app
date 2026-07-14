@@ -7,7 +7,9 @@ import {
   applyHeroImageToCandidate,
   buildHeroImageOptions,
   heroCandidateIntent,
+  heroImageUrlIntent,
   mockHeroImageUrl,
+  selectedHeroPhotoUrl,
   surveyForHeroCandidates,
   type HeroImageChoiceId,
 } from '@/lib/onboarding/hero-image-options';
@@ -120,5 +122,21 @@ describe('후보 생성 설문과 선택 적용', () => {
     assert.equal(applied.heroImageUrl, '/chosen/hero.webp');
     assert.deepEqual(original, originalSnapshot);
     assert.equal(original.heroImageUrl, '/generated/mood-1.webp');
+  });
+
+  test('W4 소스 선택: 레거시·upload만 대표 사진을 히어로로 쓰고 AI는 보존만 한다', () => {
+    const base = survey({ heroPhotoUrl: '/uploads/hero.webp' });
+    assert.equal(selectedHeroPhotoUrl(base), '/uploads/hero.webp');
+    assert.equal(selectedHeroPhotoUrl({ ...base, heroImageChoice: 'upload' }), '/uploads/hero.webp');
+    assert.equal(selectedHeroPhotoUrl({ ...base, heroImageChoice: 'ai-1' }), undefined);
+    assert.equal(selectedHeroPhotoUrl({ ...base, heroImageChoice: 'ai-3' }), undefined);
+    assert.equal(base.heroPhotoUrl, '/uploads/hero.webp', '원본 설문의 업로드 URL은 삭제하지 않는다');
+  });
+
+  test('히어로 URL intent는 결정적이고 다른 URL을 구분하며 원문을 노출하지 않는다', () => {
+    const first = heroImageUrlIntent('data:image/png;base64,VERY-LONG-SECRET');
+    assert.equal(first, heroImageUrlIntent('data:image/png;base64,VERY-LONG-SECRET'));
+    assert.notEqual(first, heroImageUrlIntent('/uploads/other.webp'));
+    assert.ok(!first.includes('VERY-LONG-SECRET'));
   });
 });

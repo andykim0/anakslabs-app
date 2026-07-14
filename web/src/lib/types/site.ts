@@ -4,6 +4,9 @@
  * 에디터(components/editor)와 렌더러(components/site-renderer)가 공유하는 단일 진실.
  */
 
+/** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
+export type HeroImageChoice = 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
+
 /** 캔버스 좌표계 기준 폭(px). 에디터·렌더러 공통. 렌더 시 뷰포트 폭에 비례 스케일. */
 export const DESIGN_WIDTH = 1440;
 
@@ -360,7 +363,19 @@ export interface SiteConfig {
    * 라도 sanitizeMotion 강등을 견디고 남아, 관리자가 애드온 판매·부여 대상을 식별한다. 실제 Veo는
    * 애드온 보유(assertVideoGenAllowed) 후에만 실행되고, 그전엔 정적 히어로로 폴백된다.
    */
-  motion?: { presetId: string; intensity: MotionIntensity; heroTechnique?: string; videoConceptId?: string; videoRequested?: boolean };
+  motion?: {
+    presetId: string;
+    intensity: MotionIntensity;
+    heroTechnique?: string;
+    videoConceptId?: string;
+    videoRequested?: boolean;
+    /** [W4] 히어로 이미지 선택 출처 — 업로드 1안 또는 안전한 AI 무드 3안. */
+    heroImageChoice?: HeroImageChoice;
+    /** [W4] 고객의 영상 애드온 선택 의도. 실제 권한은 hasVideoAddon(tier)만 신뢰한다. */
+    videoAddon?: boolean;
+    /** [W4] 등록된 영상 연출 방향. 이 필드만으로 Veo를 호출하지 않는다. */
+    heroMotionId?: string;
+  };
 }
 
 /** 빈 사이트 기본값 생성 헬퍼 */

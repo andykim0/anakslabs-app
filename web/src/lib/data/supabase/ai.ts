@@ -32,6 +32,7 @@ import { aiFillCount, buildImagePool, shouldSkipAiPool } from '../image-pool';
 import { imageFillMaxPerSite } from '@/lib/env';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
+import { selectedHeroPhotoUrl } from '@/lib/onboarding/hero-image-options';
 import { uploadAiAsset } from './storage';
 
 // ---------- 공통 유틸 ----------
@@ -207,7 +208,7 @@ export class SupabaseAiService implements AiService {
     const blueprints = buildCandidateBlueprints(survey);
     // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
     // 유지하고 테마·레이아웃으로만 비교한다(피사체 날조·불필요한 Gemini 비용 0).
-    const heroPhotoUrl = survey.heroPhotoUrl;
+    const heroPhotoUrl = selectedHeroPhotoUrl(survey);
     if (heroPhotoUrl) {
       return blueprints.map((bp) => ({
         id: bp.id,
@@ -256,8 +257,9 @@ export class SupabaseAiService implements AiService {
     let aiImages: string[] = [];
     const fillMax = imageFillMaxPerSite();
     // 대표 사진과 exact duplicate인 storePhoto는 히어로 전용이므로 본문 슬롯/비용 계산에서 제외한다.
+    const selectedUpload = selectedHeroPhotoUrl(survey);
     const bodyStorePhotos = survey.storePhotoUrls?.filter(
-      (url) => Boolean(url) && url !== survey.heroPhotoUrl,
+      (url) => Boolean(url) && url !== selectedUpload,
     );
     const fillCount = shouldSkipAiPool(bodyStorePhotos)
       ? 0
@@ -291,7 +293,7 @@ export class SupabaseAiService implements AiService {
 
     // [F3 #2a] 실사 우선 → 부족분만 AI 이미지로 충전
     const { heroImageUrl, imagePool } = buildImagePool({
-      heroPhoto: survey.heroPhotoUrl,
+      heroPhoto: selectedUpload,
       storePhotos: survey.storePhotoUrls,
       aiImages,
       heroFallback: candidate.heroImageUrl,

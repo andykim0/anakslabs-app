@@ -12,6 +12,7 @@ import {
   Download,
   ExternalLink,
   Globe,
+  Film,
   Inbox,
   Monitor,
   Package,
@@ -20,9 +21,23 @@ import {
   Rocket,
   Smartphone,
 } from 'lucide-react';
-import type { Site } from '@/lib/types/domain';
+import type { Site, Tier } from '@/lib/types/domain';
 import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
-import { ApiError, createExport, getSite, listEditRequests, listFormSubmissions, publishSite } from './api';
+import { hasVideoAddon } from '@/lib/services/entitlements';
+import {
+  heroVideoResumePlan,
+  processApprovedHeroVideo,
+} from '@/lib/onboarding/hero-video-process';
+import {
+  ApiError,
+  applyHeroVideoDraft,
+  createExport,
+  generateHeroVideoDrafts,
+  getSite,
+  listEditRequests,
+  listFormSubmissions,
+  publishSite,
+} from './api';
 import { DomainSection } from './domain-connect';
 import { Modal } from './modal';
 import { SitePreview } from './site-preview';
@@ -218,6 +233,65 @@ function BackupCard({ site }: { site: Site }) {
   );
 }
 
+// ---------- [W4] 관리자 승인 후 영상 process 재개 ----------
+
+function HeroVideoResumeCard({ site, tier }: { site: Site; tier: Tier }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const config = site.draftConfig ?? site.siteConfig;
+  const plan = heroVideoResumePlan(config);
+  const mutation = useMutation({
+    mutationFn: () =>
+      processApprovedHeroVideo(
+        {
+          siteId: site.id,
+          tier,
+          videoAddon: true,
+          heroImageChoice: plan.heroImageChoice,
+          heroPhotoUrl: plan.heroPhotoUrl,
+          tone: [],
+        },
+        { generateDrafts: generateHeroVideoDrafts, applyDraft: applyHeroVideoDraft },
+      ),
+    onSuccess: (result) => {
+      if (result.status === 'applied') {
+        queryClient.invalidateQueries({ queryKey: ['site', site.id] });
+        queryClient.invalidateQueries({ queryKey: ['sites'] });
+        toast('success', '선택한 사진과 연출로 영상 히어로를 적용했습니다.');
+      } else if (result.status === 'fallback') {
+        toast('error', result.message);
+      } else {
+        toast('error', '영상 애드온 승인을 다시 확인해 주세요.');
+      }
+    },
+  });
+
+  if (!hasVideoAddon(tier) || !plan.canResume) return null;
+
+  return (
+    <Card className="mt-6 border-[#4a3a22] bg-[#151310]">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2a2117] text-[#d9b878]">
+            <Film className="h-4 w-4" />
+          </span>
+          <div>
+            <h2 className="text-sm font-semibold text-neutral-100">영상 애드온 승인이 완료됐어요</h2>
+            <p className="mt-1 max-w-xl text-xs leading-5 text-neutral-400">
+              온보딩에서 고른 히어로 사진과 연출로 실제 영상을 1개 생성해 바로 적용합니다.
+              이 버튼을 누를 때만 Veo가 실행돼요.
+            </p>
+          </div>
+        </div>
+        <Button onClick={() => mutation.mutate()} loading={mutation.isPending}>
+          <Film className="h-4 w-4" />
+          영상 만들기
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 // ---------- [v3 Phase 3] 문의함 ----------
 
 const SUBMISSION_FIELD_LABELS: Record<string, string> = {
@@ -354,7 +428,7 @@ function DetailSkeleton() {
   );
 }
 
-export function SiteDetail({ siteId }: { siteId: string }) {
+export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   // [v3 Phase 4] 발행 전 사업자 정보 확인 모달
@@ -469,6 +543,8 @@ export function SiteDetail({ siteId }: { siteId: string }) {
       </div>
 
       <PreviewCard site={site} />
+
+      <HeroVideoResumeCard site={site} tier={tier} />
 
       {isPublished ? <BackupCard site={site} /> : null}
 

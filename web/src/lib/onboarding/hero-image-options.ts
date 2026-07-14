@@ -135,6 +135,11 @@ function fnv1a(value: string): string {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+/** 거대한 data URL을 intent 문자열에 복사하지 않고 선택 변경을 구분하는 결정적 표식. */
+export function heroImageUrlIntent(url: string): string {
+  return `hero-image:${fnv1a(url)}:${url.length}`;
+}
+
 /** StrictMode 재마운트에도 같은 후보 생성 요청을 합칠 수 있는 짧고 결정적인 intent. */
 export function heroCandidateIntent(survey: SurveyInput): string {
   const serialized = stableSerialize(surveyForHeroCandidates(survey));
@@ -147,4 +152,13 @@ export function applyHeroImageToCandidate(
   selectedUrl: string,
 ): DesignCandidate {
   return { ...candidate, heroImageUrl: selectedUrl };
+}
+
+/**
+ * W4 히어로 소스 해석. 레거시(선택 필드 없음)와 upload은 기존 대표 사진을 쓰고,
+ * AI 안을 명시하면 heroPhotoUrl을 설문에 보존하되 최종 히어로에서는 제외한다.
+ */
+export function selectedHeroPhotoUrl(survey: SurveyInput): string | undefined {
+  if (survey.heroImageChoice !== undefined && survey.heroImageChoice !== 'upload') return undefined;
+  return presentUrl(survey.heroPhotoUrl);
 }

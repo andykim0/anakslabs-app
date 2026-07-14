@@ -14,6 +14,7 @@ import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
@@ -69,7 +70,12 @@ export const POST = withApiHandler(async (request) => {
   const generated = await ai.generateSiteConfig(survey, candidate);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
-  const draftConfig = applyGeneratedMotion(withExtras, survey.purposeId, client.tier, body.data.motionChoice);
+  const draftConfig = applyGeneratedMotion(
+    withExtras,
+    survey.purposeId,
+    client.tier,
+    authoritativeHeroVideoChoice(survey, body.data.motionChoice),
+  );
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 
