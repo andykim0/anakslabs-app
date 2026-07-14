@@ -140,13 +140,15 @@ describe('applyGeneratedMotion — 선택 병합 순서(프리셋 주입 → 병
 });
 
 describe('Veo — videoConceptId → promptSeed 소비', () => {
-  test('컨셉 선택 시 heroVideoContext.povMood = promptSeed, 프롬프트에 포함', () => {
-    const cfg = cfgWith({ presetId: 'dining-premium', intensity: 'normal', heroTechnique: 'video-hero', videoConceptId: 'space-mood' });
+  test('컨셉 선택은 raw seed가 아니라 화이트리스트 카메라 방향으로 소비', () => {
+    const cfg = cfgWith({ presetId: 'dining-premium', intensity: 'normal', heroTechnique: 'video-hero', videoConceptId: 'signature-closeup' });
     const ctx = heroVideoContext(cfg);
     assert.ok(ctx, 'ctx null');
-    const seed = findVideoConcept('space-mood')!.promptSeed;
-    assert.equal(ctx!.povMood, seed);
-    assert.ok(buildMotionPrompt(ctx!.povMood, ctx!.subject).includes(seed));
+    const seed = findVideoConcept('signature-closeup')!.promptSeed;
+    assert.ok(ctx!.povMood.includes(seed));
+    const prompt = buildMotionPrompt(ctx!.povMood, ctx!.source);
+    assert.match(prompt, /restrained macro framing/);
+    assert.ok(!prompt.includes(seed), '레지스트리 seed 전체를 자유 문장으로 재주입하면 안 됨');
   });
   test('컨셉 없으면 팔레트 폴백(무회귀)', () => {
     const ctx = heroVideoContext(cfgWith({ presetId: 'dining-premium', intensity: 'normal' }));

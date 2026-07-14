@@ -13,14 +13,16 @@ import { apiError, parseBody, withApiHandler } from '../../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../../_lib/guards';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { videoGenConfig } from '@/lib/env';
+import { isSafeMediaSrc } from '@/lib/safe-url';
 import {
   applyHeroVideoToConfig,
   generateHeroVideo,
+  HERO_SOURCE_UNAVAILABLE,
   heroVideoContext,
+  isHeroSourceUnavailableError,
   recordHeroVideoSelection,
   type HeroVideoResult,
 } from '@/lib/ai/video-pipeline';
-import { industryDescriptor } from '@/lib/design/quality-standards';
 
 export const maxDuration = 300; // Veo 폴링 대비 (Vercel Pro 상한)
 
@@ -28,8 +30,19 @@ type Ctx = { params: Promise<{ siteId: string }> };
 
 const draftsBody = z.object({
   count: z.number().int().min(1).max(2).optional(),
-  businessName: z.string().max(120).optional(),
-  industry: z.string().max(120).optional(),
+  // 자유 카피·상품명이 아니라 등록 무드 선택만 받는다.
+  tone: z.array(z.string().trim().min(1).max(40)).max(2).optional(),
+  // 출처 판정용 표식일 뿐 fetch URL로 사용하지 않는다. 실제 hero src와 exact match해야 효력이 있다.
+  heroPhotoUrl: z
+    .string()
+    .trim()
+    .min(1)
+    .max(2048)
+    .refine(
+      (value) => isSafeMediaSrc(value) && !/^(?:blob:|data:video\/)/i.test(value),
+      '사진 주소 형식이 올바르지 않습니다.',
+    )
+    .optional(),
 });
 
 const applyBody = z.object({
@@ -55,10 +68,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   if (!body.ok) return body.res;
   const count = body.data.count ?? 2;
 
-  const ctx = heroVideoContext(config, {
-    // [T2] 상호(한글)는 영상에 각인 위험 — 업종 영어 디스크립터만 피사체로 전달
-    subject: body.data.industry ? industryDescriptor(body.data.industry) : undefined,
-  });
+  const ctx = heroVideoContext(config, { tone: body.data.tone, heroPhotoUrl: body.data.heroPhotoUrl });
   if (!ctx) return apiError(409, 'NO_HERO_IMAGE', '히어로 배경 이미지가 없어 영상을 만들 수 없습니다.');
 
   // 사이트당 상한 사전 확인 (병렬 레이스 회피 위해 순차 생성)
@@ -70,9 +80,24 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   }
 
   const drafts: HeroVideoResult[] = [];
-  for (let i = 0; i < count; i++) {
-    // generateHeroVideo가 킬스위치·tier·상한을 다시 검증(defense-in-depth). 첫 실패면 그대로 전파.
-    drafts.push(await generateHeroVideo({ siteId, tier: client.tier, ctx, stage: 'draft' }));
+  try {
+    for (let i = 0; i < count; i++) {
+      // generateHeroVideo가 시작 이미지와 킬스위치·tier·상한을 다시 검증한다. 첫 실패면 그대로 중단.
+      drafts.push(
+        await generateHeroVideo({
+          siteId,
+          tier: client.tier,
+          ctx,
+          stage: 'draft',
+          sourceOrigin: request.nextUrl.origin,
+        }),
+      );
+    }
+  } catch (error) {
+    if (isHeroSourceUnavailableError(error)) {
+      return apiError(409, HERO_SOURCE_UNAVAILABLE, '히어로 시작 이미지를 불러올 수 없어 영상 생성을 중단했습니다.');
+    }
+    throw error;
   }
   return NextResponse.json({ drafts });
 });

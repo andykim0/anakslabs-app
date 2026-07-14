@@ -13,6 +13,7 @@
 import type { CandidateStyle } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
 import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
+import { ambientSubjectFor, productSafetyDirective } from '@/lib/design/image-subjects';
 
 export type EnforcementMode = 'hard-code' | 'generation-data' | 'validator' | 'qa-audit';
 
@@ -394,7 +395,13 @@ export function stripHangul(s: string): string {
     .trim();
 }
 
-/** [T2] 업종(한글 자유 텍스트) → 영어 피사체 디스크립터 (describeColor 패턴 — 키워드 매핑, 결정적) */
+/**
+ * [T2] 업종(한글 자유 텍스트) → 영어 배경 맥락 디스크립터
+ * (describeColor 패턴 — 키워드 매핑, 결정적).
+ *
+ * 이 값은 피사체가 아니다. buildImagePrompt는 양의 피사체를 MOOD_SUBJECTS에서만 고르고,
+ * 업종 디스크립터는 공간을 이해하기 위한 보조 맥락으로만 사용한다.
+ */
 const INDUSTRY_DESCRIPTORS: { re: RegExp; en: string }[] = [
   { re: /카페|커피|베이커리|빵|디저트/, en: 'cozy cafe and bakery' },
   { re: /파인다이닝|오마카세|레스토랑|한식|식당|음식|주점|바\b/, en: 'restaurant dining' },
@@ -418,6 +425,19 @@ export function industryDescriptor(industry: string | undefined): string {
     if (re.test(s)) return en;
   }
   return 'local business';
+}
+
+/**
+ * 자유 입력 section을 프롬프트에 그대로 넣지 않기 위한 역할 화이트리스트.
+ * "signature product closeup" 같은 외부 문자열은 분류에만 쓰이고 출력에는 절대 포함되지 않는다.
+ */
+export function imageRoleForSection(section: string | undefined): string {
+  const value = (section ?? '').toLowerCase();
+  if (/hero|landing|히어로|메인/.test(value)) return 'hero ambient backdrop';
+  if (/about|story|brand|소개|이야기/.test(value)) return 'brand-story ambient backdrop';
+  if (/gallery|portfolio|cases|갤러리|포트폴리오|사례/.test(value)) return 'editorial gallery backdrop';
+  if (/contact|location|map|문의|위치|오시는/.test(value)) return 'welcoming contact backdrop';
+  return 'supporting ambient backdrop';
 }
 
 /** hex → HSL (h:0-360, s:0-1, l:0-1). 유효하지 않으면 null */
@@ -572,23 +592,40 @@ export function buildImagePrompt(
   povId: PovId,
   industry: string,
   section: string,
-  opts?: { candidateStyle?: CandidateStyle; palettePrimary?: string; background?: string },
+  opts?: {
+    candidateStyle?: CandidateStyle;
+    palettePrimary?: string;
+    background?: string;
+    /** 고객이 고른 "원하는 느낌". 미지정 시 POV 영어 무드로 결정적 폴백. */
+    tone?: readonly string[] | string;
+  },
 ): string {
   const pov = findPov(povId);
+  const candidateStyle = opts?.candidateStyle ?? 'photo';
   const render =
-    opts?.candidateStyle === '3d_render'
+    candidateStyle === '3d_render'
       ? 'soft 3D render, tactile materials'
-      : opts?.candidateStyle === 'illustration'
+      : candidateStyle === 'illustration'
         ? 'editorial illustration'
         : 'photographic, art-directed';
+  const role = imageRoleForSection(section);
+  const context = industryDescriptor(industry);
+  const subject = ambientSubjectFor({
+    tone: opts?.tone,
+    fallbackMood: pov.promptMood,
+    // raw section/industry는 선택의 결정성에만 쓰며 생성 프롬프트에는 노출하지 않는다.
+    seed: `${povId}:${role}:${context}`,
+  });
   // hex는 이미지 표면에 텍스트로 각인되므로 색 이름(describeColor)으로 치환 — 산출 프롬프트에 '#' 미포함(불변식).
   const color = opts?.palettePrimary
     ? ` Color mood: accent tone ${describeColor(opts.palettePrimary)}${opts.background ? `, background tone ${describeColor(opts.background)}` : ''}.`
     : '';
-  // [T2] 업종은 영어 디스크립터로, 무드는 promptMood(영어)로 — 최종 문자열에 한글 0(불변식).
+  // [H3] 양의 피사체는 tone 기반 ambient만. 업종은 배경 맥락, section은 화이트리스트 역할만 출력한다.
   return stripHangul(
-    `${section} image for a Korean small business (${industryDescriptor(industry)}). ` +
+    `${role} for a Korean small business. Focal ambient subject: ${subject}. ` +
+      `Business-setting context only: ${context}; do not turn its goods or service outcomes into the focal subject. ` +
       `Design point-of-view: ${pov.promptMood}. Render: ${render}.${color} ` +
+      `${productSafetyDirective(candidateStyle)} ` +
       `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography. 16:10.`,
   );
 }

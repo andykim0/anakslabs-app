@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import type { CandidateStyle, SurveyInput } from '@/lib/types/domain';
 import { buildCandidateBlueprints } from '@/lib/data/design-candidates';
 import { povForStyle } from '@/lib/design/quality-standards';
+import { MOOD_SUBJECTS, hasProductSafetyDirective } from '@/lib/design/image-subjects';
 
 function survey(over: Partial<SurveyInput> = {}): SurveyInput {
   return {
@@ -56,5 +57,16 @@ describe('buildCandidateBlueprints — 스타일 고정 + POV 다양화', () => 
     const a = buildCandidateBlueprints(survey({ imageStyle: 'photo' }));
     const b = buildCandidateBlueprints(survey({ imageStyle: 'photo' }));
     assert.deepEqual(a.map((x) => x.id), b.map((x) => x.id));
+  });
+
+  test('후보 히어로 프롬프트도 tone ambient만 양의 피사체로 사용한다', () => {
+    const bps = buildCandidateBlueprints(survey({ tone: ['고급스러운'], imageStyle: 'photo' }));
+    for (const bp of bps) {
+      assert.ok(MOOD_SUBJECTS.elegant.ambient.some((subject) => bp.heroImagePrompt.includes(subject)));
+      assert.ok(hasProductSafetyDirective(bp.heroImagePrompt));
+      assert.ok(!bp.heroImagePrompt.includes(bp.heroImageFragment), '레거시 heroImageFragment가 생성 프롬프트에 샘');
+      const positivePrompt = bp.heroImagePrompt.split('Do NOT depict')[0];
+      assert.doesNotMatch(positivePrompt, /signature (?:product|dish|item)|plated|treatment result/i);
+    }
   });
 });

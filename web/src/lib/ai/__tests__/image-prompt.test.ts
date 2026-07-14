@@ -15,6 +15,10 @@ import {
   stripHangul,
 } from '@/lib/design/quality-standards';
 import { buildCandidateBlueprints } from '@/lib/data/design-candidates';
+import {
+  MOOD_SUBJECTS,
+  hasProductSafetyDirective,
+} from '@/lib/design/image-subjects';
 import { buildMotionPrompt, heroVideoContext } from '@/lib/ai/video-pipeline-core';
 import { emptySiteConfig } from '@/lib/types/site';
 
@@ -57,16 +61,44 @@ describe('T2 — povImagePrompt 불변식', () => {
     const p = povImagePrompt(bp, survey(), 'hero section');
     assert.ok(p.includes(industryDescriptor('파인다이닝')), p.slice(0, 160));
   });
-  test('refinedScene(충분히 길면) 우선 + 한글 섞이면 안전망이 제거', () => {
-    const long = 'A quiet charcoal dining room 화로담 with warm low light and a single flame at the center';
-    const p = povImagePrompt(bp, survey(), 'hero section', long);
-    assert.ok(p.includes('A quiet charcoal dining room'));
-    assertPromptInvariants(p, 'pov-refined');
+  test('refinedScene 자유 피사체는 길이와 무관하게 무시하고 tone ambient만 사용', () => {
+    const unsafe = 'A hyperreal plated steak signature product closeup 화로담 with invented steam';
+    const p = povImagePrompt(bp, survey({ tone: ['차분한'] }), 'hero section', unsafe);
+    assert.ok(MOOD_SUBJECTS.calm.ambient.some((subject) => p.includes(subject)), p);
+    assert.ok(!p.includes('plated steak'));
+    assert.ok(!p.includes('signature product closeup'));
+    assert.ok(hasProductSafetyDirective(p));
+    assertPromptInvariants(p, 'pov-refined-blocked');
   });
   test('짧은 refinedScene 무시 → 결정적 폴백(자유서술 방지)', () => {
     const p = povImagePrompt(bp, survey(), 'hero section', 'short');
     assert.ok(!p.includes('Scene: short'));
     assertPromptInvariants(p, 'pov-short');
+  });
+
+  test('section 자유 입력도 화이트리스트 역할로만 변환된다', () => {
+    const p = povImagePrompt(
+      bp,
+      survey({ tone: ['고급스러운'] }),
+      'signature plated course dish and treatment-result closeup',
+    );
+    assert.match(p, /^supporting ambient backdrop/);
+    assert.ok(MOOD_SUBJECTS.elegant.ambient.some((subject) => p.includes(subject)), p);
+    assert.ok(!p.includes('plated course'));
+    assert.ok(!p.includes('treatment-result closeup'));
+  });
+
+  test('industry 자유 입력은 등록된 배경 맥락으로 축약되어 제품 피사체가 새지 않는다', () => {
+    const p = buildImagePrompt(
+      'dark-luxury',
+      'hyperreal steak menu product closeup',
+      'hero',
+      { tone: ['고급스러운'], candidateStyle: 'photo' },
+    );
+    const positivePrompt = p.split('Do NOT depict')[0];
+    assert.match(positivePrompt, /Business-setting context only: local business/);
+    assert.ok(MOOD_SUBJECTS.elegant.ambient.some((subject) => positivePrompt.includes(subject)));
+    assert.doesNotMatch(positivePrompt, /steak|menu product|hyperreal/i);
   });
 });
 
@@ -76,6 +108,7 @@ describe('T2 — buildImagePrompt / heroImagePrompt / Veo 불변식', () => {
       const p = buildImagePrompt('dark-luxury', '파인다이닝', 'hero', { palettePrimary: prim, background: bg });
       assert.match(p, /dark luxury mood/i, 'promptMood(영어) 미사용');
       assert.match(p, /accent tone .+background tone/);
+      assert.ok(hasProductSafetyDirective(p));
       assertPromptInvariants(p, `build-${prim}`);
     }
   });
@@ -84,14 +117,17 @@ describe('T2 — buildImagePrompt / heroImagePrompt / Veo 불변식', () => {
       const p = bpx.heroImagePrompt;
       assert.ok(!p.includes('소소한자리'), 'businessName 포함');
       assert.ok(p.includes(NO_TEXT_DIRECTIVE));
+      assert.ok(hasProductSafetyDirective(p));
+      assert.ok(!p.includes(bpx.heroImageFragment), '레거시 자유 피사체 조각 포함');
       assert.doesNotMatch(p, HANGUL);
       assert.doesNotMatch(p, /#/);
     }
   });
   test('Veo buildMotionPrompt: 한글 subject/mood 스크럽 + NO_TEXT', () => {
-    const p = buildMotionPrompt('따뜻한 아티산 무드', '소소한자리, 카페·베이커리');
+    const p = buildMotionPrompt('따뜻한 아티산 무드', 'ambient-ai');
     assert.doesNotMatch(p, HANGUL);
     assert.ok(p.includes(NO_TEXT_DIRECTIVE));
+    assert.doesNotMatch(p, /Subject:/);
   });
   test('Veo heroVideoContext(meta.title 한글) → 프롬프트 최종 한글 0', () => {
     const cfg = emptySiteConfig('소소한자리 — 카페');
@@ -99,7 +135,7 @@ describe('T2 — buildImagePrompt / heroImagePrompt / Veo 불변식', () => {
       { id: 'sec-hero', type: 'hero', name: '히어로', height: 800, background: { image: { src: '/h.jpg' } }, elements: [] },
     ];
     const ctx = heroVideoContext(cfg)!;
-    assert.doesNotMatch(buildMotionPrompt(ctx.povMood, ctx.subject), HANGUL);
+    assert.doesNotMatch(buildMotionPrompt(ctx.povMood, ctx.source), HANGUL);
   });
 });
 

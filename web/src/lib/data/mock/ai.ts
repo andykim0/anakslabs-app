@@ -17,12 +17,10 @@ import { getMockStore } from './store';
 export const MOCK_IMAGE_POOL = [
   '/mock/gen-texture-1.svg',
   '/mock/gen-texture-2.svg',
-  '/mock/dish-1.svg',
-  '/mock/dish-2.svg',
-  '/mock/dish-3.svg',
-  '/mock/dish-4.svg',
-  '/mock/dish-5.svg',
-  '/mock/dish-6.svg',
+  '/mock/candidate-light.svg',
+  '/mock/candidate-dark.svg',
+  '/mock/candidate-3d.svg',
+  '/mock/interior-hwarodam.svg',
 ];
 
 /** AI 호출 체감 지연 시뮬레이션 (1~2초) */
@@ -85,7 +83,8 @@ export class MockAiService implements AiService {
       id: bp.id,
       label: bp.label,
       style: bp.style,
-      heroImageUrl: bp.mockHeroUrl,
+      // [H3] 고객 대표 사진은 세 후보 모두의 실제 히어로 소스. 미업로드일 때만 무드 프리뷰 폴백.
+      heroImageUrl: survey.heroPhotoUrl ?? bp.mockHeroUrl,
       theme: bp.theme,
       description: bp.description,
     }));
@@ -97,6 +96,7 @@ export class MockAiService implements AiService {
     // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
     // [F3 #2a] 사용자 실사 우선 → 부족분만 mock 큐레이션 이미지로 충전
     const { heroImageUrl, imagePool } = buildImagePool({
+      heroPhoto: survey.heroPhotoUrl,
       storePhotos: survey.storePhotoUrls,
       aiImages: [...MOCK_IMAGE_POOL],
       heroFallback: candidate.heroImageUrl,

@@ -21,7 +21,7 @@ import {
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
-import { NO_TEXT_DIRECTIVE, derivePalette, describeColor, industryDescriptor, stripHangul } from '@/lib/design/quality-standards';
+import { buildImagePrompt, derivePalette, povForStyle } from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
@@ -31,7 +31,7 @@ export interface CandidateBlueprint {
   style: CandidateStyle;
   description: string;
   theme: SiteTheme;
-  /** 실모드: Gemini 히어로 이미지 생성 프롬프트 (결정적 기본값 — Claude가 다듬을 수 있음) */
+  /** 실모드: Gemini 히어로 이미지 생성 프롬프트 (tone ambient 레지스트리에서 결정) */
   heroImagePrompt: string;
   /** mock 모드: 정적 히어로 프리뷰 자산 (실모드에서는 생성 실패 시 폴백) */
   mockHeroUrl: string;
@@ -154,17 +154,17 @@ function themeForBrief(survey: SurveyInput, brief: DesignBrief): SiteTheme {
 }
 
 /**
- * 결정적 히어로 이미지 프롬프트 — 업종 맥락(영어 디스크립터) + 스타일 조각 + 팔레트 힌트(색 이름).
- * [T2] 상호·목적 등 한글 주입 금지(각인 아티팩트) + raw hex 금지(describeColor) + NO_TEXT_DIRECTIVE.
+ * 결정적 히어로 이미지 프롬프트 — 중앙 buildImagePrompt만 사용한다.
+ * brief.style.heroImageFragment는 기존 계약/표시용으로 보존하지만, 제품 클로즈업 같은 자유 피사체를
+ * 되살릴 수 있으므로 생성 프롬프트에는 합치지 않는다.
  */
-function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief): string {
-  const palette = brief.palette.palette;
-  return stripHangul(
-    `Website hero image for a Korean small business (${industryDescriptor(survey.industry)}). ` +
-      `Style: ${brief.style.heroImageFragment}. ` +
-      `Color mood: background tone ${describeColor(palette.background)}, key accent ${describeColor(palette.primary)}. ` +
-      `Generous negative space for a headline, ${NO_TEXT_DIRECTIVE}. 16:10.`,
-  );
+function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteTheme): string {
+  return buildImagePrompt(povForStyle(brief.style.id), survey.industry, 'hero', {
+    candidateStyle: brief.style.candidateStyle,
+    palettePrimary: theme.palette.primary,
+    background: theme.palette.background,
+    tone: survey.tone,
+  });
 }
 
 export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprint[] {
@@ -175,13 +175,14 @@ export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprin
   return briefs.map((brief) => {
     // 공유 StyleDirection을 변형하지 않도록 candidateStyle만 imageStyle로 덮은 복사본을 만든다.
     const styled: DesignBrief = { ...brief, style: { ...brief.style, candidateStyle: imageStyle } };
+    const theme = themeForBrief(survey, brief);
     return {
       id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
       label: brief.label,
       style: imageStyle, // 후보 표시 스타일 = 고정 imageStyle
       description: brief.description,
-      theme: themeForBrief(survey, brief),
-      heroImagePrompt: buildHeroPrompt(survey, styled),
+      theme,
+      heroImagePrompt: buildHeroPrompt(survey, styled, theme),
       mockHeroUrl: mockHeroFor(styled),
       heroImageFragment: brief.style.heroImageFragment,
       sectionImageFragment: brief.style.sectionImageFragment,

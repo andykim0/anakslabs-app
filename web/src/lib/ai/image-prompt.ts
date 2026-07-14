@@ -12,12 +12,12 @@
  */
 import type { SurveyInput } from '@/lib/types/domain';
 import type { CandidateBlueprint } from '@/lib/data/design-candidates';
-import { buildImagePrompt, industryDescriptor, povForStyle, stripHangul } from '@/lib/design/quality-standards';
+import { buildImagePrompt, povForStyle } from '@/lib/design/quality-standards';
 
 /**
- * POV 골격 + 매장 장면. 매장 장면은 Claude 다듬기 결과(있고 충분히 길면) 우선, 아니면
- * 업종 디스크립터 기반 결정적 폴백(영어). buildImagePrompt가 NO_TEXT_DIRECTIVE·negative-space·
- * 비율을 강제하므로 자유 서술이 끼어들 여지가 없다.
+ * POV 골격 + tone 기반 ambient 장면. refinedScene은 레거시 호출 호환을 위해 인자로 유지하지만,
+ * 제품·시술 결과를 양의 피사체로 되살릴 수 있는 자유 텍스트이므로 생성 프롬프트에는 사용하지 않는다.
+ * buildImagePrompt가 피사체·NO_TEXT_DIRECTIVE·negative-space·비율을 모두 강제한다.
  */
 export function povImagePrompt(
   bp: CandidateBlueprint,
@@ -25,14 +25,12 @@ export function povImagePrompt(
   section: string,
   refinedScene?: string,
 ): string {
-  const povBase = buildImagePrompt(povForStyle(bp.brief.style.id), survey.industry, section, {
+  // API 호환용 인자. 의도적으로 읽거나 출력하지 않는다(Claude 자유 피사체 우회 차단).
+  void refinedScene;
+  return buildImagePrompt(povForStyle(bp.brief.style.id), survey.industry, section, {
     candidateStyle: bp.brief.style.candidateStyle,
     palettePrimary: bp.theme.palette.primary,
     background: bp.theme.palette.background,
+    tone: survey.tone,
   });
-  const scene =
-    refinedScene && refinedScene.trim().length >= 40
-      ? refinedScene.trim()
-      : `signature scene of a ${industryDescriptor(survey.industry)}`;
-  return stripHangul(`Scene: ${scene}.\n${povBase}`);
 }

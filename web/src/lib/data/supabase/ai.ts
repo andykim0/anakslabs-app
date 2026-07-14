@@ -4,7 +4,7 @@
  * 전략: "구조는 결정적, 언어/이미지는 생성" —
  *  - 3안 선택/테마: design-candidates.ts(디자인 지식 큐레이션 기반, mock과 동일한 결정적 절반).
  *    테마 hex 는 항상 buildThemeFromBrief 산출물 — LLM 이 색을 만들지 않는다.
- *  - 후보 텍스트: Claude 1회 호출로 3안의 label/description/heroImagePrompt 를 설문 맥락에 맞게
+ *  - 후보 텍스트: Claude 1회 호출로 3안의 label/description 을 설문 맥락에 맞게
  *    다듬는다. 실패 시 브리프의 결정적 텍스트로 강등 — 온보딩이 죽지 않는다.
  *  - 카피: Claude (시스템 프롬프트에 디자인 원칙 결합, 실패 시 템플릿 기본 카피로 강등)
  *  - 이미지: Gemini(Nano Banana) → Supabase Storage 공개 URL (스타일 조각을 프롬프트에 반영)
@@ -20,6 +20,7 @@ import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-te
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
 import { povImagePrompt } from '@/lib/ai/image-prompt';
+import { buildImagePrompt } from '@/lib/design/quality-standards';
 import type { AiService, SuggestSectionContext } from '../types';
 import {
   buildCandidateBlueprints,
@@ -67,12 +68,12 @@ async function generateImageUrl(prompt: string, prefix: string, aspectRatio?: Ge
 interface RefinedCandidateText {
   label?: string;
   description?: string;
-  heroImagePrompt?: string;
 }
 
 /**
  * 결정적 3안(브리프)을 설문 맥락에 맞게 다듬는다 — 호출 1회로 3안 전부.
- * 출력: 안별 label(한국어 12자 내)/description(한국어 1~2문장)/heroImagePrompt(영어).
+ * 출력: 안별 label(한국어 12자 내)/description(한국어 1~2문장).
+ * 이미지 피사체는 중앙 buildImagePrompt만 결정하며 Claude 자유 문장은 받지 않는다.
  * 어떤 실패든 빈 Map 반환 → 호출부가 브리프의 결정적 텍스트를 그대로 쓴다.
  */
 async function refineCandidateTexts(
@@ -91,7 +92,7 @@ async function refineCandidateTexts(
     .join('\n');
 
   const prompt =
-    `다음 설문과 디자인 후보 ${blueprints.length}안을 검토하고, 각 안의 label/description/heroImagePrompt 를 이 가게에 맞게 다듬어줘.\n\n` +
+    `다음 설문과 디자인 후보 ${blueprints.length}안을 검토하고, 각 안의 label/description 을 이 가게에 맞게 다듬어줘.\n\n` +
     `[설문]\n상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
     `업종: ${survey.industry}\n목적: ${survey.purpose}\n톤: ${toneText(survey.tone)}\n선호 컬러: ${survey.colorPreference}\n` +
     `컨셉: ${survey.conceptMode === 'fictional' ? '가상 컨셉(그럴듯하게 창작 허용)' : '실제 매장 정보 기반'}\n` +
@@ -102,10 +103,8 @@ async function refineCandidateTexts(
     `각 안을 그 안의 관점에서 가장 매력적으로 팔아라.\n` +
     `- label: 한국어 12자 이내의 긍정적 후보명. 이 가게의 언어에서 출발하고 형용사 나열 금지.\n` +
     `- description: 한국어 1~2문장. 이 방향이 이 가게를 어떻게 돋보이게 하는지 구체적으로(부정어·비교 금지).\n` +
-    `- heroImagePrompt: 영어 한 단락. 이 가게의 구체적 장면 묘사로 시작하고, 해당 안의 스타일 조각(영어)을 그대로 포함. ` +
-    `"no text, no words, no logos, no watermark" 와 "16:10" 포함.\n` +
     `- 아래 형태의 JSON 객체 하나만 출력 (id 는 입력 그대로):\n` +
-    `{"candidates":[{"id":"...","label":"...","description":"...","heroImagePrompt":"..."}]}`;
+    `{"candidates":[{"id":"...","label":"...","description":"..."}]}`;
 
   try {
     const raw = await generateClaudeText({
@@ -127,7 +126,6 @@ async function refineCandidateTexts(
       refined.set(id, {
         label: cleanString(record.label, 24)?.replace(/\n/g, ' '),
         description: cleanString(record.description, 300),
-        heroImagePrompt: cleanString(record.heroImagePrompt, 900),
       });
     });
   } catch (err) {
@@ -207,14 +205,28 @@ async function generateSectionCopy(
 export class SupabaseAiService implements AiService {
   async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
     const blueprints = buildCandidateBlueprints(survey);
+    // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
+    // 유지하고 테마·레이아웃으로만 비교한다(피사체 날조·불필요한 Gemini 비용 0).
+    const heroPhotoUrl = survey.heroPhotoUrl;
+    if (heroPhotoUrl) {
+      return blueprints.map((bp) => ({
+        id: bp.id,
+        label: bp.label,
+        style: bp.style,
+        heroImageUrl: heroPhotoUrl,
+        theme: bp.theme,
+        description: bp.description,
+      }));
+    }
     // Claude 1회 호출로 3안 텍스트를 다듬는다 (실패 시 빈 Map → 결정적 텍스트)
     const refined = await refineCandidateTexts(survey, blueprints);
 
     return Promise.all(
       blueprints.map(async (bp) => {
         const text = refined.get(bp.id);
-        // [V2] POV 골격 + 매장 장면. 이 히어로 이미지가 곧 video-hero의 poster 후보(Veo 시작 프레임)로 보존된다.
-        const heroPrompt = povImagePrompt(bp, survey, 'hero section', text?.heroImagePrompt);
+        // [H3] 중앙 안전 빌더의 tone 기반 ambient만 사용. Claude 자유 피사체는 생성 입력으로 받지 않는다.
+        // 이 히어로 이미지가 곧 video-hero의 poster 후보(Veo 시작 프레임)로 보존된다.
+        const heroPrompt = povImagePrompt(bp, survey, 'hero section');
         let heroImageUrl = bp.mockHeroUrl; // 생성 실패 시 스타일 프리뷰 자산으로 강등
         try {
           heroImageUrl = await generateImageUrl(heroPrompt, 'candidates', '16:9'); // 히어로 = 와이드
@@ -243,12 +255,25 @@ export class SupabaseAiService implements AiService {
     //      실사가 슬롯을 덮으면 shouldSkipAiPool로 전량 스킵(실비용 절감).
     let aiImages: string[] = [];
     const fillMax = imageFillMaxPerSite();
-    const fillCount = shouldSkipAiPool(survey.storePhotoUrls)
+    // 대표 사진과 exact duplicate인 storePhoto는 히어로 전용이므로 본문 슬롯/비용 계산에서 제외한다.
+    const bodyStorePhotos = survey.storePhotoUrls?.filter(
+      (url) => Boolean(url) && url !== survey.heroPhotoUrl,
+    );
+    const fillCount = shouldSkipAiPool(bodyStorePhotos)
       ? 0
-      : aiFillCount({ sectionPlan: survey.sectionPlan, storePhotos: survey.storePhotoUrls, fillMax });
+      : aiFillCount({ sectionPlan: survey.sectionPlan, storePhotos: bodyStorePhotos, fillMax });
     if (fillCount > 0) {
       // 섹션마다 다른 장면 프롬프트로 unique 생성 — 재사용 상한 하에 서로 다른 이미지가 슬롯을 채운다.
-      const SCENES = ['interior/workspace detail', 'signature product/service closeup', 'ambient wide shot', 'materials/tools flatlay', 'people/hands in action', 'exterior/entrance', 'texture/pattern macro', 'seasonal/mood moment'];
+      const SCENES = [
+        'ambient interior with natural light',
+        'architectural detail with generous negative space',
+        'soft light moving across tactile materials',
+        'quiet contextual tools and material textures',
+        'abstract working gesture without a service result',
+        'exterior entrance atmosphere',
+        'subtle texture and shadow pattern',
+        'seasonal light and quiet environmental mood',
+      ];
       const scenes = Array.from({ length: fillCount }, (_, i) => SCENES[i % SCENES.length]);
       const generated = await Promise.all(
         scenes.map(async (scene) => {
@@ -266,6 +291,7 @@ export class SupabaseAiService implements AiService {
 
     // [F3 #2a] 실사 우선 → 부족분만 AI 이미지로 충전
     const { heroImageUrl, imagePool } = buildImagePool({
+      heroPhoto: survey.heroPhotoUrl,
       storePhotos: survey.storePhotoUrls,
       aiImages,
       heroFallback: candidate.heroImageUrl,
@@ -293,8 +319,14 @@ export class SupabaseAiService implements AiService {
   }
 
   async generateImage(input: { prompt: string }): Promise<{ url: string }> {
+    // [H3] edit-request 자유 문장은 tone 분류 힌트로만 사용한다. 원문을 모델의 양의 피사체로 전달하지 않고
+    // 중앙 레지스트리의 ambient + 제품 날조 금지 지시로 프롬프트 전체를 다시 조립한다.
+    const safePrompt = buildImagePrompt('editorial', 'local business', 'supporting image edit', {
+      candidateStyle: 'photo',
+      tone: input.prompt,
+    });
     const url = await generateImageUrl(
-      `${input.prompt}. High-quality editorial style for a business website, no text, no watermark.`,
+      safePrompt,
       'edits',
     );
     return { url };
