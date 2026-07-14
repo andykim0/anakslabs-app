@@ -169,6 +169,7 @@ export function OnboardingWizard({
         <MotionChoiceStep
           tier={tier}
           purposeId={survey.purposeId}
+          heroImageUrl={heroImage.url}
           heroPhotoUrl={heroImage.source === 'upload' ? heroImage.url : undefined}
           initial={motionChoice}
           onBack={() => setStep(2)}
