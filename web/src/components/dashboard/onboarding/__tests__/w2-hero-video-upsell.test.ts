@@ -35,7 +35,7 @@ describe('W2 — 선택 이미지 모션 예시·영상 애드온 업셀', () =>
       assert.ok(!motion.includes(banned), `미리보기에 금지된 영상 호출: ${banned}`);
     }
     assert.match(motion, /@media \(prefers-reduced-motion: reduce\)/);
-    assert.match(motion, /\.mcs-preview-image, \.mcs-preview-light \{ animation: none; transform: none; \}/);
+    assert.match(motion, /\.mcs-preview-image, \.mcs-preview-light,[\s\S]*animation: none; transform: none;/);
   });
 
   test('아니오는 켄번스 정지 소스, 예는 video-hero 요청 표식으로 결정적 분기한다', () => {

@@ -1,15 +1,21 @@
 'use client';
 
 /**
- * [W2] 고른 히어로 사진을 대표 CSS 모션으로 보여준 뒤 영상 애드온 의사를 묻는다.
+ * [W2/W3] 고른 히어로 사진을 대표 CSS 모션으로 보여준 뒤 영상 애드온과 연출을 고른다.
  * 이 단계는 대표 예시일 뿐 고객의 최종 Veo 영상이 아니다. AI/API 호출 없이 CSS만 사용한다.
  * 아니오는 ken-burns 기본 모션으로 바로 진행하고, 예는 등록된 영상 연출 선택으로 이어진다.
  */
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Film, ImageIcon, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Film, ImageIcon } from 'lucide-react';
 import type { SitePurposeId, Tier } from '@/lib/types/domain';
 import { hasVideoAddon, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
+import {
+  HERO_VIDEO_MOTION_IDS,
+  HERO_VIDEO_MOTIONS,
+  isHeroVideoMotionId,
+  type HeroVideoMotionId,
+} from '@/lib/motion/hero-video-motions';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import type { MotionChoiceDto } from '../api';
 import { Button, Card, cn } from '../ui';
@@ -26,6 +32,27 @@ const PREVIEW_CSS = `
   38% { opacity: .32; }
   65%, 100% { transform: translate3d(140%, 0, 0); opacity: 0; }
 }
+@keyframes hvm-scrub {
+  0% { transform: scale(1.02) translate3d(-2%, 0, 0); }
+  50% { transform: scale(1.09) translate3d(1%, -1%, 0); }
+  100% { transform: scale(1.04) translate3d(0, 0, 0); }
+}
+@keyframes hvm-boomerang {
+  from { transform: scale(1.06) translate3d(-2.5%, 0, 0); }
+  to { transform: scale(1.06) translate3d(2.5%, -1%, 0); }
+}
+@keyframes hvm-zoom {
+  from { transform: scale(1.01); }
+  to { transform: scale(1.13); }
+}
+@keyframes hvm-parallax {
+  from { transform: scale(1.08) translate3d(-1.5%, 1.5%, 0); }
+  to { transform: scale(1.08) translate3d(1.5%, -1.5%, 0); }
+}
+@keyframes hvm-depth-orbit {
+  from { transform: translate3d(-8%, 5%, 0); }
+  to { transform: translate3d(9%, -6%, 0); }
+}
 .mcs-preview-image {
   animation: mcs-preview-camera 8s cubic-bezier(.4, 0, .2, 1) infinite alternate;
   will-change: transform;
@@ -33,29 +60,66 @@ const PREVIEW_CSS = `
 .mcs-preview-light {
   animation: mcs-preview-light 6.5s ease-in-out infinite;
 }
+.hvm-preview-scrub { animation: hvm-scrub 5.5s cubic-bezier(.45, 0, .2, 1) infinite alternate; }
+.hvm-preview-boomerang { animation: hvm-boomerang 3.8s ease-in-out infinite alternate; }
+.hvm-preview-zoom { animation: hvm-zoom 7s ease-in-out infinite alternate; }
+.hvm-preview-parallax { animation: hvm-parallax 6s ease-in-out infinite alternate; }
+.hvm-depth-orbit { animation: hvm-depth-orbit 4.5s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) {
-  .mcs-preview-image, .mcs-preview-light { animation: none; transform: none; }
+  .mcs-preview-image, .mcs-preview-light,
+  .hvm-preview-scrub, .hvm-preview-boomerang, .hvm-preview-zoom,
+  .hvm-preview-parallax, .hvm-depth-orbit { animation: none; transform: none; }
   .mcs-preview-light { display: none; }
 }
 `;
 
-/** 레거시 영상 컨셉 카드용 이모지. W3의 모션 라이브러리가 이 영역을 대체한다. */
-const CONCEPT_EMOJI: Record<string, string> = {
-  'space-mood': '🕯️',
-  'signature-closeup': '✨',
-  'street-time': '🌆',
-  'people-at-work': '💼',
-  'office-mood': '🏢',
-  'city-flow': '🌃',
-};
+function HeroMotionDemo({
+  motionId,
+  heroImageUrl,
+}: {
+  motionId: HeroVideoMotionId;
+  heroImageUrl: string;
+}) {
+  const motion = HERO_VIDEO_MOTIONS[motionId];
+  return (
+    <div className="relative aspect-video overflow-hidden bg-ob-bg">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={heroImageUrl}
+        alt=""
+        className={cn('h-full w-full object-cover will-change-transform', motion.previewClass)}
+      />
+      {motionId === 'cinematic-scrub' ? (
+        <span className="absolute inset-x-3 bottom-3 h-0.5 overflow-hidden rounded bg-white/35">
+          <span className="block h-full w-2/3 bg-white/90" />
+        </span>
+      ) : null}
+      {motionId === 'parallax-depth' ? (
+        <span
+          aria-hidden="true"
+          className="hvm-depth-orbit absolute top-3 right-4 h-12 w-12 rounded-full border border-white/40 bg-white/15 blur-[1px]"
+        />
+      ) : null}
+      <span className="absolute bottom-2 left-2 rounded-full border border-white/25 bg-black/55 px-2 py-0.5 text-[9px] font-semibold text-white">
+        대표 예시
+      </span>
+    </div>
+  );
+}
 
-/** W2 스킵과 영상 요청 경로를 분기하는 순수 계약. */
+/** W2 스킵과 W3 연출 선택을 영상 요청 경로로 접는 순수 계약. */
 export function motionChoiceForVideoPreference(
   wantsVideo: boolean,
   activeConceptId: string,
+  heroMotionId?: HeroVideoMotionId,
 ): MotionChoiceDto {
   return wantsVideo
-    ? { heroTechnique: 'video-hero', intensity: 'normal', videoConceptId: activeConceptId }
+    ? {
+        heroTechnique: 'video-hero',
+        intensity: 'normal',
+        videoConceptId: activeConceptId,
+        ...(heroMotionId ? { heroMotionId } : {}),
+      }
     : { heroTechnique: 'ken-burns', intensity: 'subtle' };
 }
 
@@ -83,12 +147,16 @@ export function MotionChoiceStep({
   const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
   const [wantsVideo, setWantsVideo] = useState(initial?.heroTechnique === 'video-hero');
-  const [conceptId, setConceptId] = useState<string | undefined>(initial?.videoConceptId);
   const activeConceptId =
-    conceptId && concepts.some((concept) => concept.id === conceptId) ? conceptId : concepts[0].id;
+    initial?.videoConceptId && concepts.some((concept) => concept.id === initial.videoConceptId)
+      ? initial.videoConceptId
+      : concepts[0].id;
+  const [heroMotionId, setHeroMotionId] = useState<HeroVideoMotionId>(() =>
+    isHeroVideoMotionId(initial?.heroMotionId) ? initial.heroMotionId : HERO_VIDEO_MOTION_IDS[0],
+  );
 
   const submit = () => {
-    onComplete(motionChoiceForVideoPreference(wantsVideo, activeConceptId));
+    onComplete(motionChoiceForVideoPreference(wantsVideo, activeConceptId, heroMotionId));
   };
 
   return (
@@ -201,35 +269,33 @@ export function MotionChoiceStep({
           </div>
 
           <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-ob-accent-strong" />
-              <h3 className="text-sm font-semibold text-ob-ink">우선 영상의 분위기를 골라주세요</h3>
-            </div>
+            <h3 className="text-sm font-semibold text-ob-ink">원하는 영상 연출을 하나 골라주세요</h3>
             <p className="mt-1 text-xs leading-5 text-ob-muted">
-              여기서는 방향만 저장합니다. 아래 선택은 고객님의 최종 영상 미리보기가 아닙니다.
+              아래는 선택한 사진으로 보여드리는 CSS 대표 예시예요. 고객님의 최종 영상 미리보기가 아닙니다.
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {concepts.map((concept) => {
-              const selected = activeConceptId === concept.id;
+          <div className="grid gap-3 sm:grid-cols-2">
+            {HERO_VIDEO_MOTION_IDS.map((motionId) => {
+              const motion = HERO_VIDEO_MOTIONS[motionId];
+              const selected = heroMotionId === motionId;
               return (
                 <button
-                  key={concept.id}
+                  key={motionId}
                   type="button"
-                  onClick={() => setConceptId(concept.id)}
+                  onClick={() => setHeroMotionId(motionId)}
                   aria-pressed={selected}
                   className={cn(
-                    'rounded-ob border p-4 text-left transition-all',
+                    'overflow-hidden rounded-ob border bg-ob-surface text-left transition-all',
                     selected
-                      ? 'border-ob-accent-strong bg-ob-accent-soft ring-1 ring-ob-accent'
+                      ? 'border-ob-accent-strong ring-1 ring-ob-accent'
                       : 'border-ob-border hover:border-ob-muted',
                   )}
                 >
-                  <span className="text-xl" aria-hidden>
-                    {CONCEPT_EMOJI[concept.id] ?? '🎬'}
+                  <HeroMotionDemo motionId={motionId} heroImageUrl={heroImageUrl} />
+                  <span className="block p-3">
+                    <span className="block text-xs font-semibold text-ob-ink">{motion.label}</span>
+                    <span className="mt-1 block text-[11px] leading-4 text-ob-muted">{motion.description}</span>
                   </span>
-                  <span className="mt-2 block text-xs font-semibold text-ob-ink">{concept.label}</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-ob-muted">{concept.description}</span>
                 </button>
               );
             })}

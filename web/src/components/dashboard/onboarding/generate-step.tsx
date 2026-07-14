@@ -77,7 +77,7 @@ export function GenerateStep({
 
   // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
   // [Q7] 모션 시그니처 포함 — 모션만 바꿔 재생성해도 dedup 캐시에 걸리지 않게. [A3] 구성 변경도 시그니처에.
-  const intent = `${existingSiteId ?? 'new'}::${candidate.id}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}::${[...removed].sort().join(',')}`;
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}::${[...removed].sort().join(',')}`;
   const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({

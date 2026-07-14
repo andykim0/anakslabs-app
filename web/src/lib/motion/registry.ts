@@ -39,9 +39,8 @@ export const MOTION_TECHNIQUES = {
   'micro-hover': { tier: 'basic', weight: 'light', role: '버튼 lift·카드 그림자 기본 마이크로 인터랙션', maxPerPage: 99, infinite: false },
   // ---------- Premium ----------
   'video-hero': { tier: 'premium', weight: 'medium', role: 'AI 시네마틱 영상 히어로(루프) — 간판 기능', maxPerPage: 1, infinite: true, costKrwPerSite: 10000, basicFallback: 'ken-burns' },
-  // [motion 4단계 처분] scroll-scrub: 렌더러 capability는 3단계에 구현(pin+currentTime 스크럽)했으나 보류 유지 —
-  // ① 어느 프리셋에도 미배정(방출 경로 없음) ② 스크럽엔 촘촘한 키프레임(-g 1) 재인코딩이 필요한데 인프라 부재.
-  // 활성화 조건: (a) ffmpeg 등 -g 1 재인코딩 처리 경로 확보 (b) 프리셋 accents에 배정. 지우지 않고 문서화 유지.
+  // [V-batch] cinematic-hero 합성에서만 활성. 데스크톱은 currentTime scrub,
+  // 모바일·seek 실패는 pinned loop, reduced-motion은 poster로 강등한다.
   'scroll-scrub': { tier: 'premium', weight: 'medium', role: '스크롤=재생헤드 연출 — 데모에서 가장 팔리는 기법', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
   'parallax': { tier: 'premium', weight: 'light', role: '레이어 깊이감 (페이지당 1섹션)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
   'split-text': { tier: 'premium', weight: 'light', role: '히어로 헤드라인 단어별 등장', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },

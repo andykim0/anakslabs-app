@@ -30,6 +30,7 @@ import type {
   SurveyInput,
 } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
+import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 
 // ---------- 에러 ----------
 
@@ -383,6 +384,8 @@ export interface MotionChoiceDto {
   heroTechnique?: string;
   intensity?: 'subtle' | 'normal';
   videoConceptId?: string;
+  /** [W3] 등록된 영상 연출 방향. W4에서 SiteConfig·Veo에 정식 배선한다. */
+  heroMotionId?: HeroVideoMotionId;
 }
 
 export async function generateSite(input: {
