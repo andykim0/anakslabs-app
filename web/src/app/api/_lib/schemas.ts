@@ -449,6 +449,8 @@ export const surveySchema = z.object({
   referenceImageUrls: z.array(z.string()).max(10).default([]),
   // [F3 #2a] 실제 가게 사진(업로드) — 최대 12, 안전 미디어 소스만
   storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
+  // [히어로 소스] 고객이 직접 고른 대표 사진 1장 — 실제 사진을 AI 무드 생성물보다 우선
+  heroPhotoUrl: safeMediaSrcSchema.optional(),
   // [F3 #7] 무드보드에서 고른 레퍼런스 샘플 스타일 id
   referenceStyleIds: z.array(z.string().max(40)).max(12).optional(),
   // [R5] 레퍼런스 갤러리에서 고른 디자인 id — 뼈대(히어로 형태) 고정

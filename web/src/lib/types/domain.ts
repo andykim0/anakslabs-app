@@ -315,6 +315,11 @@ export interface SurveyInput {
    */
   storePhotoUrls?: string[];
   /**
+   * [히어로 소스] 고객이 직접 고른 대표 사진 1장. 갤러리용 storePhotoUrls와 구분하며,
+   * 히어로 소스에서는 이 실제 사진을 AI 무드 생성물보다 우선한다.
+   */
+  heroPhotoUrl?: string;
+  /**
    * [F3 #7] 고객이 무드보드에서 고른 레퍼런스 샘플의 스타일 id(REFERENCE_SAMPLES.styleId).
    * selectDesignBriefs가 후보 스타일 선택에 가중치로 사용(imageStyle 고정 > 샘플 가중 > POV 비중복).
    */
