@@ -41,7 +41,7 @@ describe('V2 — sticky pin + 스크롤 진행도 런타임', () => {
     assert.match(html, /data-m="cinematic"/);
     assert.match(html, /data-m-progress/);
     assert.match(html, /data-m-pin/);
-    assert.match(html, /position:sticky/);
+    assert.match(html, /position:\s*sticky/);
     assert.match(html, /--scroll-progress/);
   });
 

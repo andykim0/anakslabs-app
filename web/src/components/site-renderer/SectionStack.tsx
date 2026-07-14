@@ -10,6 +10,7 @@ import { ElementContent } from './ElementContent';
 import { stackOrder } from './stack-order';
 import { resolveScrim } from '@/lib/design/scrim';
 import { motionFor, revealDelayFor, parseStatParts, type MotionPlan } from '@/lib/motion/apply';
+import { safeMediaSrc } from '@/lib/safe-url';
 
 interface SectionStackProps {
   section: Section;
@@ -63,7 +64,8 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
   const elements = stackOrder(section.elements.filter(stackable));
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
-  // [motion 3단계] 모바일: video-hero는 poster 정적(영상 미로드 — 대역폭·자동재생 정책). 없으면 배경 이미지.
+  const cinematic = (plan?.cinematicHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
+  // 일반 video-hero는 모바일 poster 정적. cinematic만 IO 진입 시 pinned loop로 향상한다.
   const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;
   const bgImgSrc = videoHero ? bg.video!.poster! : bg.image?.src;
   // [Q1] overlayColor 없으면 팔레트 기반 기본 스크림(레거시 보호) + 이미지 배경 텍스트 미세 그림자
@@ -74,9 +76,13 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
     : null;
   const imgTextShadow = imgScrim ? `0 1px 2px ${imgScrim.overlayColor}` : undefined;
 
+  const cinematicScrim = cinematic
+    ? imgScrim ?? ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
+    : null;
+
   if (elements.length === 0 && !bgImgSrc) return null;
 
-  return (
+  const contentSection = (
     <section
       // [T1] 모바일 앵커 타깃 — id는 데스크톱 레이아웃(SectionCanvas)이 보유(중복 id 방지).
       // auto 모드에서 hidden 데스크톱 섹션이 앵커를 선점하는 문제는 SiteRenderer의 앵커 런타임이
@@ -86,14 +92,14 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
       style={{
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: bg.color ?? theme.palette.background,
-        backgroundImage: bg.gradient,
+        backgroundColor: cinematic ? 'transparent' : (bg.color ?? theme.palette.background),
+        backgroundImage: cinematic ? undefined : bg.gradient,
         padding: '64px 24px',
         // 요소 없이 배경 이미지만 있는 섹션은 이미지 밴드로
         minHeight: elements.length === 0 ? '52vw' : undefined,
       }}
     >
-      {bgImgSrc && (
+      {!cinematic && bgImgSrc && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={bgImgSrc}
@@ -105,7 +111,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       )}
-      {imgScrim && (
+      {!cinematic && imgScrim && (
         <div
           aria-hidden
           style={{
@@ -149,5 +155,59 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
         })}
       </div>
     </section>
+  );
+
+  if (!cinematic || !bg.video?.src || !bg.video.poster) return contentSection;
+
+  return (
+    <div
+      data-m="cinematic"
+      data-m-progress
+      data-cinematic-layout="mobile"
+      style={{
+        position: 'relative',
+        overflow: 'clip',
+        backgroundColor: bg.color ?? theme.palette.background,
+        backgroundImage: bg.gradient,
+        '--scroll-progress': 0,
+      } as CSSProperties}
+    >
+      <div data-m-mobile-pin>
+        {/* no-JS/reduced/load-error의 영구 기저 레이어 */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={safeMediaSrc(bg.video.poster)}
+          alt=""
+          aria-hidden
+          loading={isFirst ? 'eager' : 'lazy'}
+          decoding="async"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <video
+          data-m="cinematicvideo"
+          data-m-cinematic-video="true"
+          data-playback="loop"
+          src={safeMediaSrc(bg.video.src)}
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        {cinematicScrim && (
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: cinematicScrim.overlayColor,
+              opacity: cinematicScrim.overlayOpacity,
+            }}
+          />
+        )}
+      </div>
+      {contentSection}
+    </div>
   );
 }

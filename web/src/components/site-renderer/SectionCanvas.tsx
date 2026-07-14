@@ -43,7 +43,16 @@ export function SectionCanvas(props: SectionCanvasProps) {
   return <StandardSection {...props} />;
 }
 
-function StandardSection({ section, theme, isFirst, interactive = true, plan, siteId, pinned = false }: SectionCanvasProps & { pinned?: boolean }) {
+function StandardSection({
+  section,
+  theme,
+  isFirst,
+  interactive = true,
+  plan,
+  siteId,
+  pinned = false,
+  cinematicPlayback = false,
+}: SectionCanvasProps & { pinned?: boolean; cinematicPlayback?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
@@ -89,12 +98,15 @@ function StandardSection({ section, theme, isFirst, interactive = true, plan, si
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={safeMediaSrc(bg.video.poster)} alt="" aria-hidden loading={isFirst ? 'eager' : 'lazy'} decoding="async" style={coverStyle} />
           <video
-            data-m="videohero"
+            data-m={cinematicPlayback ? 'cinematicvideo' : 'videohero'}
+            {...(cinematicPlayback
+              ? { 'data-m-cinematic-video': 'true', 'data-playback': 'scrub' }
+              : {})}
             src={safeMediaSrc(bg.video.src)}
             muted
-            loop
+            loop={!cinematicPlayback}
             playsInline
-            preload="metadata"
+            preload={cinematicPlayback ? 'none' : 'metadata'}
             aria-hidden
             style={coverStyle}
           />
@@ -168,21 +180,17 @@ function CinematicProgressSection(props: SectionCanvasProps) {
       data-cinematic-layout="desktop"
       style={{
         position: 'relative',
-        height: cqw(section.height * 3),
-        minHeight: '240svh',
+        height: 'var(--cinematic-static-height)',
         '--scroll-progress': 0,
+        '--cinematic-static-height': cqw(section.height),
+        '--cinematic-scroll-height': cqw(section.height * 3),
       } as CSSProperties}
     >
       <div
         data-m-pin
-        style={{
-          position: 'sticky',
-          top: 0,
-          height: `min(100svh, ${cqw(section.height)})`,
-          overflow: 'hidden',
-        }}
+        style={{ overflow: 'hidden' }}
       >
-        <StandardSection {...props} pinned />
+        <StandardSection {...props} pinned cinematicPlayback />
       </div>
     </div>
   );

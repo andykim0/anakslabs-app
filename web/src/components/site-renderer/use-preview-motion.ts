@@ -30,6 +30,23 @@ export function clearMotionHidden(root: ParentNode): void {
   });
 }
 
+type MotionRuntimeWindow = Window & {
+  __anaksProgressDispose?: () => void;
+  __anaksCinematicDispose?: () => void;
+};
+
+/** 프리뷰 OFF/재마운트 시 sticky ready·진행도·영상 재생 잔존 제거. */
+function clearCinematicRuntime(root: Element): void {
+  root.classList.remove('m-cinematic-ready');
+  root.querySelectorAll<HTMLElement>('[data-m-progress]').forEach((el) => {
+    el.style.removeProperty('--scroll-progress');
+  });
+  root.querySelectorAll<HTMLVideoElement>('video[data-m-cinematic-video]').forEach((video) => {
+    video.pause();
+    video.style.opacity = '0';
+  });
+}
+
 /** 등장 애니(≤680ms) + 여유. 이 시점까지 밴드에 안 걸린 요소는 프리뷰에선 영영 안 걸리므로 강제 노출. */
 const PREVIEW_REVEAL_GRACE_MS = 1400;
 
@@ -40,7 +57,13 @@ export function usePreviewMotion(active: boolean, resetKey: unknown): void {
     const root = document.querySelector('.anaks-site');
     if (!active) {
       // [D1] OFF: 런타임 은닉 잔존을 즉시 해제(리마운트로 data-m이 사라져도 잔존 클래스 방어).
-      if (root) clearMotionHidden(root);
+      const runtimeWindow = window as MotionRuntimeWindow;
+      runtimeWindow.__anaksProgressDispose?.();
+      runtimeWindow.__anaksCinematicDispose?.();
+      if (root) {
+        clearMotionHidden(root);
+        clearCinematicRuntime(root);
+      }
       return;
     }
     // 요소 마운트/레이아웃 이후 실행(IntersectionObserver 초기 판정 정확도)
