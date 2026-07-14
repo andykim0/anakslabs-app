@@ -8,6 +8,7 @@ import {
   MOTION_TECHNIQUES,
   FORBIDDEN_TECHNIQUES,
   MOTION_LIMITS,
+  countMotionSignatures,
   type TechniqueId,
 } from '@/lib/motion/registry';
 import {
@@ -15,6 +16,7 @@ import {
   DEFAULT_PRESET,
   resolvePresetForIndustry,
   isPresetId,
+  type MotionPreset,
   type PresetId,
 } from '@/lib/motion/presets';
 import { sanitizeMotion } from '@/lib/motion/validate';
@@ -55,7 +57,7 @@ describe('registry', () => {
 describe('presets', () => {
   test('전 프리셋 hero/sections/accents가 registry 실존', () => {
     for (const pid of presetIds) {
-      const p = MOTION_PRESETS[pid];
+      const p: MotionPreset = MOTION_PRESETS[pid];
       for (const t of [p.hero, p.sections, ...p.accents]) {
         assert.ok(t in MOTION_TECHNIQUES, `${pid}: 기법 '${t}' 미존재`);
       }
@@ -74,10 +76,10 @@ describe('presets', () => {
 
   test('전 프리셋 MOTION_LIMITS·maxPerPage 자체 위반 없음', () => {
     for (const pid of presetIds) {
-      const p = MOTION_PRESETS[pid];
+      const p: MotionPreset = MOTION_PRESETS[pid];
       const used = [p.hero, p.sections, ...p.accents];
       const inf = used.filter((t) => MOTION_TECHNIQUES[t].infinite).length;
-      const sig = used.filter((t) => MOTION_TECHNIQUES[t].weight === 'medium').length;
+      const sig = countMotionSignatures(used, p.composite);
       assert.ok(inf <= MOTION_LIMITS.maxInfinitePerPage, `${pid}: 무한 ${inf} > ${MOTION_LIMITS.maxInfinitePerPage}`);
       assert.ok(sig <= MOTION_LIMITS.maxSignaturePerPage, `${pid}: 시그니처 ${sig} > ${MOTION_LIMITS.maxSignaturePerPage}`);
       const counts = new Map<TechniqueId, number>();

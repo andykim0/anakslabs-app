@@ -20,6 +20,14 @@ export type MotionTechniqueSpec = {
   basicFallback?: string;
 };
 
+/** 여러 기법을 한 시그니처 예산으로 묶는 합성 정의. */
+export interface CompositeSignatureSpec {
+  tier: MotionTier;
+  techniques: readonly string[];
+  signatureUnits: number;
+  basicFallback: string;
+}
+
 /** 확정 데이터 (13종). 추가·삭제·개명 금지 — 프롬프트 명시값 그대로. */
 export const MOTION_TECHNIQUES = {
   // ---------- Basic ----------
@@ -50,6 +58,18 @@ export type PremiumTechniqueId = {
   [K in TechniqueId]: (typeof MOTION_TECHNIQUES)[K]['tier'] extends 'premium' ? K : never;
 }[TechniqueId];
 
+/** cinematic-hero는 구성 기법 네 개를 페이지당 하나의 합성 시그니처로 센다. */
+export const COMPOSITE_SIGNATURES = {
+  'cinematic-hero': {
+    tier: 'premium',
+    techniques: ['video-hero', 'scroll-scrub', 'split-text', 'parallax'],
+    signatureUnits: 1,
+    basicFallback: 'ken-burns',
+  },
+} as const satisfies Record<string, CompositeSignatureSpec>;
+
+export type CompositeSignatureId = keyof typeof COMPOSITE_SIGNATURES;
+
 /**
  * 금지 기법 — 레지스트리에 절대 등장하지 않는다(테스트로 공집합 강제).
  * 금지 사유: ① 성능 리스크 — SEO 회사의 자기모순 ② 소상공인 업종 톤 불일치
@@ -74,4 +94,31 @@ export function isTechniqueId(id: string): id is TechniqueId {
 }
 export function isForbiddenTechnique(id: string): boolean {
   return (FORBIDDEN_TECHNIQUES as readonly string[]).includes(id);
+}
+
+/**
+ * 페이지의 시그니처 예산을 계산한다. 합성 기법이 포함한 medium 구성 기법은 다시 세지 않는다.
+ * 예: cinematic-hero + video-hero + scroll-scrub = 1개 시그니처.
+ */
+export function countMotionSignatures(ids: readonly TechniqueId[], compositeId?: CompositeSignatureId): number {
+  const covered = new Map<string, number>();
+  let count = 0;
+
+  if (compositeId) {
+    const composite = COMPOSITE_SIGNATURES[compositeId];
+    const complete = composite.techniques.every((child) => ids.includes(child as TechniqueId));
+    if (complete) {
+      count += composite.signatureUnits;
+      for (const child of composite.techniques) covered.set(child, (covered.get(child) ?? 0) + 1);
+    }
+  }
+
+  for (const id of ids) {
+    const spec = MOTION_TECHNIQUES[id];
+    if (spec.weight !== 'medium') continue;
+    const remaining = covered.get(id) ?? 0;
+    if (remaining > 0) covered.set(id, remaining - 1);
+    else count += 1;
+  }
+  return count;
 }

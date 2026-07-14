@@ -4,10 +4,11 @@
  */
 import type { MotionIntensity, MotionTier, SiteConfig } from '@/lib/types/site';
 import type { SitePurposeId } from '@/lib/types/domain';
-import { MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
-import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, resolvePresetForIndustry, type PresetId } from './presets';
+import { countMotionSignatures, MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
+import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, resolvePresetForIndustry, type MotionPreset, type PresetId } from './presets';
 import { isAllowedHeroChoice, isKnownHeroChoice } from './hero-choice';
 import { findVideoConcept } from './video-concepts';
+import { hasVideoAddon } from '@/lib/services/entitlements';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 
@@ -16,23 +17,23 @@ const DOWNGRADE_MAP: Partial<Record<PresetId, PresetId>> = {
   'clinic-premium': 'office-basic',
   'dining-premium': 'cafe-basic',
   'beauty-premium': 'cafe-basic',
+  'cinematic-hero': 'cafe-basic',
 };
 
 /** 프리셋 구성이 MOTION_LIMITS·maxPerPage를 위반하면 사유(한국어), 아니면 null (방어 검사) */
 function presetLimitViolation(id: PresetId): string | null {
-  const p = MOTION_PRESETS[id];
+  const p: MotionPreset = MOTION_PRESETS[id];
   const used = [p.hero, p.sections, ...p.accents];
   let infinite = 0;
-  let signature = 0;
   const counts = new Map<string, number>();
   for (const t of used) {
     const spec = MOTION_TECHNIQUES[t];
     if (spec.infinite) infinite += 1;
-    if (spec.weight === 'medium') signature += 1;
     counts.set(t, (counts.get(t) ?? 0) + 1);
   }
   if (infinite > MOTION_LIMITS.maxInfinitePerPage)
     return `무한 반복 모션 ${infinite}개(상한 ${MOTION_LIMITS.maxInfinitePerPage})`;
+  const signature = countMotionSignatures(used, p.composite);
   if (signature > MOTION_LIMITS.maxSignaturePerPage)
     return `시그니처 모션 ${signature}개(상한 ${MOTION_LIMITS.maxSignaturePerPage})`;
   for (const [t, c] of counts) {
@@ -76,14 +77,21 @@ export function sanitizeMotion(
     intensity = 'normal';
   }
 
-  // ② basic 플랜 + premium 프리셋 → 강등
-  if (plan === 'basic' && MOTION_PRESETS[presetId as PresetId].tier === 'premium') {
+  // ② 영상 합성 프리셋은 애드온 미보유 시 명시적으로 정적 ken-burns로 강등
+  if (!hasVideoAddon(plan) && presetId === 'cinematic-hero') {
+    const down = DOWNGRADE_MAP['cinematic-hero']!;
+    changes.push(`영상 애드온이 없어 시네마틱 프리셋 'cinematic-hero' → '${down}'(ken-burns)로 강등했습니다.`);
+    presetId = down;
+  }
+
+  // ③ basic 플랜 + 나머지 premium 프리셋 → 강등
+  if (!hasVideoAddon(plan) && MOTION_PRESETS[presetId as PresetId].tier === 'premium') {
     const down = DOWNGRADE_MAP[presetId as PresetId] ?? DEFAULT_PRESET.basic;
     changes.push(`Basic 플랜에서 Premium 프리셋 '${presetId}'은 사용할 수 없어 '${down}'으로 강등했습니다.`);
     presetId = down;
   }
 
-  // ③ 한도 위반 방어
+  // ④ 한도 위반 방어
   const viol = presetLimitViolation(presetId as PresetId);
   if (viol) {
     const fb = DEFAULT_PRESET[plan];
@@ -91,7 +99,7 @@ export function sanitizeMotion(
     presetId = fb;
   }
 
-  // ④ [Q7] heroTechnique — HERO_MOTION_CHOICES에 열거된 id만, 티어 초과는 프리셋 기본 히어로로 강등
+  // ⑤ [Q7] heroTechnique — HERO_MOTION_CHOICES에 열거된 id만, 티어 초과는 프리셋 기본 히어로로 강등
   let heroTechnique = config.motion?.heroTechnique;
   if (heroTechnique !== undefined) {
     if (!isAllowedHeroChoice(plan, heroTechnique)) {
@@ -104,7 +112,7 @@ export function sanitizeMotion(
     }
   }
 
-  // ⑤ [Q7] videoConceptId — 등록된 컨셉 id만, Basic 플랜은 무의미(video-hero 불가)라 제거
+  // ⑥ [Q7] videoConceptId — 등록된 컨셉 id만, Basic 플랜은 무의미(video-hero 불가)라 제거
   let videoConceptId = config.motion?.videoConceptId;
   if (videoConceptId !== undefined) {
     if (plan === 'basic') {
@@ -156,7 +164,9 @@ export function applyGeneratedMotion(
   tier: MotionTier,
   choice?: MotionChoice,
 ): SiteConfig {
-  const presetId = resolvePresetForIndustry(purpose, tier);
+  const presetId = choice?.heroTechnique === 'video-hero'
+    ? 'cinematic-hero'
+    : resolvePresetForIndustry(purpose, tier);
   // [U2] 영상 애드온 선택(video-hero) = videoRequested 표식. 애드온 미보유(basic)면 sanitize가
   // 능력(heroTechnique/videoConceptId)은 강등하지만 이 표식은 남겨 관리자가 판매·부여 대상 식별.
   const videoRequested = choice?.heroTechnique === 'video-hero';

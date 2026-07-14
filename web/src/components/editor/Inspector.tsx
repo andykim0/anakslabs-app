@@ -812,6 +812,7 @@ const PRESET_LABELS: Record<PresetId, string> = {
   'clinic-premium': '클리닉',
   'dining-premium': '파인다이닝',
   'beauty-premium': '뷰티·웰니스',
+  'cinematic-hero': '시네마틱 영상',
 };
 
 /** 프리셋이 쓰는 기법 role 요약 (registry role 앞부분 — 규칙 파일 단일 소스) */

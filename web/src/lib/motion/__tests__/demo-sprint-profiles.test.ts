@@ -51,10 +51,12 @@ describe('데모 스프린트 프로필 → 프리셋/모션 기대표 (docs/dem
     assert.ok(changes.length > 0, '강등 안내(changes[]) 있어야');
   });
 
-  test('6개 프리셋 전부 커버 — 5 실경로 프리셋 + office-basic(강등)', () => {
+  test('문서의 업종 프리셋 6개 전부 커버 — 영상 애드온 합성 프리셋은 별도', () => {
     const covered = new Set(PROFILES.map((p) => p.preset));
     covered.add('office-basic'); // §6 다운그레이드
-    assert.equal(covered.size, Object.keys(MOTION_PRESETS).length, '6개 프리셋 전부 커버해야');
+    const documentedIndustryPresets = Object.keys(MOTION_PRESETS).filter((id) => id !== 'cinematic-hero');
+    assert.equal(covered.size, documentedIndustryPresets.length, '문서의 업종 프리셋 6개를 전부 커버해야');
+    assert.ok('cinematic-hero' in MOTION_PRESETS, '영상 애드온 합성 프리셋 누락');
   });
 
   // [imageStyle 축] 데모 5종 업종 → 기본 이미지 스타일 폴백(설문 미설정 시). 전부 실사(photo).
