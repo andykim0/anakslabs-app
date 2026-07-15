@@ -2122,6 +2122,15 @@ export function buildSiteConfigFromSurvey(
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),
     },
     pages,
+    // [Q$3] 생성 파이프라인은 사용자 디렉션을 해석하거나 재작성하지 않고 저장 계약까지 보존한다.
+    ...(survey.directions
+      ? {
+          directions: survey.directions.map((direction) => ({
+            ...direction,
+            ...(direction.guided ? { guided: [...direction.guided] } : {}),
+          })),
+        }
+      : {}),
   };
 }
 

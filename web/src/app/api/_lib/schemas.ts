@@ -4,7 +4,7 @@
  */
 import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
-import { isValidPageSlug } from '@/lib/types/site';
+import { isValidPageSlug, SECTION_DIRECTION_GUIDES } from '@/lib/types/site';
 import { MOTION_PRESETS } from '@/lib/motion/presets';
 import { HERO_VIDEO_MOTION_IDS } from '@/lib/motion/hero-video-motions';
 
@@ -409,12 +409,21 @@ export const motionChoiceSchema = z.object({
   heroMotionId: heroVideoMotionIdSchema.optional(),
 });
 
+/** [Q$3] 타입 계약과 같은 등록 칩만 저장 경계를 통과시킨다. */
+export const sectionDirectionSchema = z.object({
+  sectionId: z.string().trim().min(1).max(100),
+  intent: z.enum(['keep', 'regenerate', 'adjust']),
+  note: z.string().trim().max(500).optional(),
+  guided: z.array(z.enum(SECTION_DIRECTION_GUIDES)).max(SECTION_DIRECTION_GUIDES.length).optional(),
+});
+
 export const siteConfigSchema = z
   .object({
     version: z.literal(2),
     theme: siteThemeSchema,
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
+    directions: z.array(sectionDirectionSchema).max(100).optional(),
     businessInfo: businessInfoSchema.optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),
     motion: motionSchema.optional(),
@@ -486,6 +495,8 @@ export const pagePlanItemSchema = z.object({
 
 export const surveySchema = z.object({
   businessName: z.string().min(1, '상호명을 입력해 주세요.').max(100),
+  // [Q$3] 섹션별 사용자 방향 — 생성 빌더와 SiteConfig 저장 경계까지 같은 계약으로 왕복
+  directions: z.array(sectionDirectionSchema).max(100).optional(),
   // [제품 확정] 신규 설문 제출은 소개형 6종만 — deprecated 4종은 신규 생성 차단(레거시 저장 config는 별도 스키마).
   purposeId: z.enum([
     'local_store',

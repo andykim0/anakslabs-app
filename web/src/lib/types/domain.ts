@@ -3,7 +3,7 @@
  * 도메인 모델 (DB 행의 앱 표현). SQL 스키마(supabase/migrations)와 1:1 정합 유지.
  * 모든 필드는 camelCase — 데이터 계층에서 snake_case ↔ camelCase 매핑 책임.
  */
-import type { HeroImageChoice, SiteConfig } from './site';
+import type { HeroImageChoice, SectionDirection, SiteConfig } from './site';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -276,6 +276,8 @@ export interface ExtraFeatureSelection {
 
 export interface SurveyInput {
   businessName: string;
+  /** [Q$3] 섹션별 유지·재생성·조정 방향. 생성된 SiteConfig까지 무손실로 전달한다. */
+  directions?: SectionDirection[];
   /** [v3] 목적 택소노미 id (추가 축) */
   purposeId: SitePurposeId;
   /** 택소노미 라벨 그대로 저장 (AI 프롬프트·표시용) — 예: '예약·서비스업'. 하위 파이프라인 유지용 */

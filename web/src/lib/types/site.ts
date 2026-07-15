@@ -350,6 +350,32 @@ export type MotionTier = 'basic' | 'premium';
 export type MotionIntensity = 'off' | 'subtle' | 'normal';
 
 /**
+ * [Q$3] 섹션별 검수에서 자유문장만으로 방향이 흔들리지 않도록 제공하는 등록 칩.
+ * API zod 스키마도 이 상수를 직접 사용해 타입과 저장 경계의 허용값을 한 곳에서 관리한다.
+ */
+export const SECTION_DIRECTION_GUIDES = [
+  '더 미니멀',
+  '사진 더 크게',
+  '톤 더 따뜻하게',
+  '여백 늘리기',
+  '카피 강조',
+  '신뢰 요소 강조',
+  '더 역동적으로',
+  '색상 차분하게',
+] as const;
+
+export type SectionDirectionGuide = (typeof SECTION_DIRECTION_GUIDES)[number];
+export type SectionDirectionIntent = 'keep' | 'regenerate' | 'adjust';
+
+/** [Q$3] 생성 전 사용자 디렉션과 생성 후 섹션별 검수 결과가 공유하는 additive 계약. */
+export interface SectionDirection {
+  sectionId: string;
+  intent: SectionDirectionIntent;
+  note?: string;
+  guided?: SectionDirectionGuide[];
+}
+
+/**
  * [v4] SiteConfig v2 — 페이지>섹션 2계층.
  * (v1: version:1 + sections 는 SiteConfigV1 — 데이터 계층 read 경계에서 normalizeSiteConfig로
  *  v2 승격한다. 데이터 계층 밖의 앱 코드는 항상 v2만 본다.)
@@ -359,6 +385,8 @@ export interface SiteConfig {
   theme: SiteTheme;
   meta: SiteMeta;
   pages: SitePage[];
+  /** [Q$3] 섹션별 승인·조정 방향. 미지정 레거시 사이트는 기존 생성 결과를 그대로 사용한다. */
+  directions?: SectionDirection[];
   /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */
   businessInfo?: BusinessInfo;
   /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */
