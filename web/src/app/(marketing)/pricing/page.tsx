@@ -4,7 +4,6 @@ import {
   CREDIT_EXPIRY_DAYS,
   CREDIT_PACKS,
   INITIAL_GRANT,
-  PRICE_RANGES,
 } from '@/lib/credits/constants';
 import {
   HOSTING_ONLY_FOOTNOTE,
@@ -14,11 +13,13 @@ import {
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { PreviewVideo } from '@/components/marketing/PreviewVideo';
+import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
   CREDIT_CONSUMING_ACTIONS,
   CREDIT_CONTRACT_COPY,
   formatKrw,
+  getBasePricePresentation,
   PRICING,
 } from '@/lib/pricing';
 
@@ -29,9 +30,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/pricing' },
 };
 
-function man(krw: number): string {
-  return `${Math.round(krw / 10_000)}만원`;
-}
 const won = (n: number) => n.toLocaleString('ko-KR');
 
 /** 기본 포함 기능 — 단일 제품이라 전부 ✓ (실제 AI 영상은 선택 옵션으로 분리) */
@@ -85,7 +83,7 @@ const PRICING_FAQ: FaqItem[] = [
 ];
 
 export default function PricingPage() {
-  const { buildFee } = PRICE_RANGES;
+  const basePrice = getBasePricePresentation();
   return (
     <>
       <script
@@ -137,13 +135,9 @@ export default function PricingPage() {
             <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">
               홈페이지 제작 + 호스팅
             </h2>
-            <p className="mt-4 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-base font-normal text-[#696E76] line-through">{man(buildFee.basic[1])}</span>
-              <span className="text-3xl font-semibold text-[#17181C]">{man(buildFee.basic[0])}</span>
-              <span className="rounded-full bg-[#F3ECD8] px-2 py-0.5 text-[11px] font-semibold text-[#7A5E1E]">
-                런칭 특가
-              </span>
-            </p>
+            <div className="mt-4">
+              <LaunchPrice />
+            </div>
             <p className="mt-1 text-xs text-[#5C6068]">
               + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
             </p>
@@ -243,7 +237,7 @@ export default function PricingPage() {
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
             <p className="text-xs font-semibold tracking-widest text-[#174DDA]">Daboim · 다보임</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
-              {man(PRICE_RANGES.buildFee.basic[0])}부터
+              {formatKrw(basePrice.currentPriceKrw)}부터
             </p>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               제작비 + 사이트 운영 구독. SEO·AEO·GEO 기본 세팅과 직접 수정 무제한 무료.

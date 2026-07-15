@@ -11,13 +11,14 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
-import { INITIAL_GRANT, PRICE_RANGES } from '@/lib/credits/constants';
+import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { CREDIT_CONTRACT_COPY, formatKrw, PRICING } from '@/lib/pricing';
 import { LandingScanner } from '@/components/landing/LandingScanner';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { HeroVideo } from '@/components/marketing/HeroVideo';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
+import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
@@ -46,10 +47,6 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
   },
 };
-
-function man(krw: number): string {
-  return `${Math.round(krw / 10_000)}만원`;
-}
 
 const ENGINES = [
   {
@@ -362,7 +359,7 @@ export default function MarketingHome() {
                   <p className="font-mono text-[10px] tracking-[0.14em] text-[#5DE0D0]">WEBSITE + MANAGED HOSTING</p>
                   <h3 className="mt-3 text-xl font-semibold">홈페이지 제작 + 호스팅</h3>
                 </div>
-                <p className="text-right"><span className="block text-sm text-white/38 line-through">{man(PRICE_RANGES.buildFee.basic[1])}</span><span className="text-4xl font-semibold tracking-[-0.04em]">{man(PRICE_RANGES.buildFee.basic[0])}</span></p>
+                <LaunchPrice tone="dark" align="right" />
               </div>
               <p className="mt-2 text-right text-xs text-white/48">+ 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · 부가세 별도</p>
               <ul className="mt-8 grid gap-3 border-t border-white/10 pt-7 text-sm text-white/68 sm:grid-cols-2">
