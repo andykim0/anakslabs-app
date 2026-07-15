@@ -3,6 +3,7 @@
  * 사이트 표현 모델: 하이브리드(섹션 스택 + 섹션 내 자유배치 캔버스).
  * 에디터(components/editor)와 렌더러(components/site-renderer)가 공유하는 단일 진실.
  */
+import type { AssetRef } from '@/lib/assets/provenance';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -608,6 +609,11 @@ export interface SiteConfig {
   theme: SiteTheme;
   meta: SiteMeta;
   pages: SitePage[];
+  /**
+   * provenance WRITE 모드에서 서버 registry가 발급한, 이 config가 참조하는 자산 manifest.
+   * URL-only 레거시 config는 미지정이며 이 배열 자체도 소유권 증명이 아니므로 사용 전 서버가 재검증한다.
+   */
+  assetRefs?: AssetRef[];
   /** [Q$3] 섹션별 승인·조정 방향. 미지정 레거시 사이트는 기존 생성 결과를 그대로 사용한다. */
   directions?: SectionDirection[];
   /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */

@@ -71,6 +71,7 @@ export interface SiteRow {
   export_status?: string | null;
   export_requested_at?: string | null;
   export_url?: string | null;
+  asset_policy_version?: number | null;
 }
 
 export function rowToSite(row: SiteRow): Site {
@@ -92,6 +93,7 @@ export function rowToSite(row: SiteRow): Site {
     exportStatus: (row.export_status as ExportStatus | null | undefined) ?? 'none',
     exportRequestedAt: row.export_requested_at ?? null,
     exportUrl: row.export_url ?? null,
+    ...(row.asset_policy_version === 2 ? { assetPolicyVersion: 2 as const } : {}),
   };
 }
 

@@ -116,7 +116,7 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
 
     const guardedCall = pipeline.indexOf('await assertVideoGenAllowed(input.siteId, input.tier)');
     const costLog = pipeline.indexOf('await videoGen.record({', guardedCall);
-    const generation = pipeline.indexOf('return ai.generateVideo({', costLog);
+    const generation = pipeline.indexOf('return ai.generateVideo(', costLog);
     assert.ok(guardedCall >= 0 && guardedCall < costLog && costLog < generation);
   });
 

@@ -49,8 +49,10 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
   test('대표 사진은 복사본에서 제거한 뒤 후보 AI에 전달한다', () => {
     const copyAt = routeSource.indexOf('const copy = { ...survey };');
     const stripAt = routeSource.indexOf('delete copy.heroPhotoUrl;');
-    const callAt = routeSource.indexOf('ai.generateCandidates(survey)');
+    const callAt = routeSource.indexOf('ai.generateCandidates(');
+    const trustedOwnerAt = routeSource.indexOf('{ clientId: client.id }', callAt);
     assert.ok(copyAt >= 0 && stripAt > copyAt && callAt > stripAt);
+    assert.ok(trustedOwnerAt > callAt, '후보 AI에는 인증된 서버 clientId를 별도 소유자 컨텍스트로 전달한다');
     assert.doesNotMatch(routeSource, /delete\s+body\.data\.survey\.heroPhotoUrl/);
   });
 

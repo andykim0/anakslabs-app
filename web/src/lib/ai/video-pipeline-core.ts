@@ -3,6 +3,7 @@
  * 비용 가드 판정·모션 프롬프트 조립·컨텍스트 도출·config 적용. 실호출/DB/저장은 video-pipeline.ts.
  */
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { NO_TEXT_DIRECTIVE, isDarkColor } from '@/lib/design/quality-standards';
 import {
   ambientSubjectFor,
@@ -173,7 +174,15 @@ export function heroVideoContext(config: SiteConfig, hint?: HeroVideoHint): Hero
 }
 
 /** 홈의 실제 hero(type='hero')에 background.video={src,poster} 세팅. */
-export function applyHeroVideoToConfig(config: SiteConfig, videoUrl: string, posterUrl: string): SiteConfig {
+export function applyHeroVideoToConfig(
+  config: SiteConfig,
+  videoUrl: string,
+  posterUrl: string,
+  trustedAssetRef?: AssetRef,
+): SiteConfig {
+  if (trustedAssetRef && trustedAssetRef.url !== videoUrl) {
+    throw new Error('ASSET_REF_URL_MISMATCH: 검증된 영상 자산 URL과 적용 URL이 다릅니다.');
+  }
   const found = homeHero(config);
   if (!found) return config;
   const currentMotion = config.motion;
@@ -183,6 +192,14 @@ export function applyHeroVideoToConfig(config: SiteConfig, videoUrl: string, pos
     hasValidScrollytellingActs(found.hero.acts);
   return {
     ...config,
+    ...(trustedAssetRef
+      ? {
+          assetRefs: [
+            ...(config.assetRefs ?? []).filter((ref) => ref.assetId !== trustedAssetRef.assetId),
+            { ...trustedAssetRef },
+          ],
+        }
+      : {}),
     // [W4] basic 정적 폴백으로 저장된 요청도 관리자 승인 후 실제 영상을 적용하는 순간 활성화한다.
     // 이 함수의 외부 쓰기 경로는 premium U3 가드 뒤에만 있으며, poster가 붙기 전에는 활성화하지 않는다.
     motion: {

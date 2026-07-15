@@ -23,6 +23,7 @@ import type {
   Tier,
 } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 import type { ClientsRepo, EditRequestsRepo, PaymentsService, SitesRepo } from '../types';
 import { slugifySiteName } from '../slug';
 import { createSessionClient, getServiceRoleClient } from './client';
@@ -147,8 +148,39 @@ export class SupabaseSitesRepo implements SitesRepo {
     return ((data ?? []) as SiteRow[]).map(rowToSite);
   }
 
-  async create(input: { clientId: string; name: string; draftConfig: SiteConfig }): Promise<Site> {
+  async create(input: {
+    clientId: string;
+    name: string;
+    draftConfig: SiteConfig;
+    assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
+    assetRefsToBind?: readonly AssetRef[];
+  }): Promise<Site> {
     const svc = getServiceRoleClient();
+    if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
+      throw new Error('sites 생성 실패: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
+    }
+    if (input.assetRefsToBind?.length) {
+      const configRefs = input.draftConfig.assetRefs ?? [];
+      const sameManifest = configRefs.length === input.assetRefsToBind.length
+        && configRefs.every((ref, index) => (
+          ref.assetId === input.assetRefsToBind?.[index]?.assetId
+          && ref.url === input.assetRefsToBind[index]?.url
+        ));
+      if (!sameManifest) {
+        throw new Error('sites 생성 실패: draft asset manifest와 binding 요청이 일치하지 않습니다.');
+      }
+      const { data, error } = await svc
+        .rpc('create_site_with_asset_bindings', {
+          p_client_id: input.clientId,
+          p_name: input.name,
+          p_draft_config: input.draftConfig,
+          p_asset_policy_version: input.assetPolicyVersion ?? null,
+          p_asset_ids: input.assetRefsToBind.map((ref) => ref.assetId),
+        })
+        .single();
+      if (error) throw new Error(`sites+asset binding 원자 생성 실패: ${error.message}`);
+      return rowToSite(data as SiteRow);
+    }
     const { data, error } = await svc
       .from('sites')
       .insert({
@@ -156,6 +188,7 @@ export class SupabaseSitesRepo implements SitesRepo {
         name: input.name,
         draft_config: input.draftConfig,
         status: 'draft',
+        ...(input.assetPolicyVersion ? { asset_policy_version: input.assetPolicyVersion } : {}),
       })
       .select('*')
       .single();

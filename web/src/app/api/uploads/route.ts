@@ -3,8 +3,9 @@
  * multipart/form-data, field 'file'. 5MB 제한, png/jpg/webp/svg 허용.
  * SVG는 저장 전 sanitize(스크립트/이벤트핸들러 제거) 필수 — 저장형 XSS 방어.
  *  - mock: data URL 반환  · 실모드: client-assets 공개 버킷 URL 반환
+ *  - provenance WRITE flag OFF: 기존 {url} 그대로 · ON: {url, assetRef} additive dual-write
  * mode=before-after일 때는 래스터만 허용하고 소유자/사이트/case/권리 증빙을 서버 원장에
- * 기록해 { url, assetId, asset }을 반환한다. 일반 호출의 { url } 계약은 그대로다.
+ * 기록해 { url, assetId, asset }을 반환한다. 이 전용 0009 원장은 generic dual-write하지 않는다.
  */
 import { NextResponse } from 'next/server';
 import { isMockMode } from '@/lib/env';
@@ -14,6 +15,11 @@ import { getAuthedClient, getOwnedSite, unauthorized } from '@/app/api/_lib/guar
 import { CUSTOMER_ASSET_CONTEXTS, type CustomerAssetUsageContext } from '@/lib/uploads/asset-provenance';
 import { RasterImageError, readRasterDimensions } from '@/lib/uploads/raster-dimensions';
 import { getCustomerAssetRegistry } from '@/lib/uploads/asset-registry';
+import { findForbiddenFormAssetClaim } from '@/lib/uploads/client-provenance-claims';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import { registerCustomerUploadAsset, toAssetRef } from '@/lib/assets/registry';
+import { projectAssetIngressResponse } from '@/lib/assets/compatibility';
+import { resolveBeforeAfterUploadPolicy } from '@/lib/uploads/before-after-upload-policy';
 
 export const runtime = 'nodejs';
 
@@ -41,6 +47,16 @@ export const POST = withApiHandler(async (request) => {
     return apiError(400, 'INVALID_FORM', 'multipart/form-data 형식이 아닙니다.');
   }
 
+  const forbiddenClaim = findForbiddenFormAssetClaim(form);
+  if (forbiddenClaim) {
+    return apiError(
+      400,
+      'CLIENT_PROVENANCE_FORBIDDEN',
+      '자산 소유자와 출처는 인증된 업로드 경로에서 서버가 기록합니다.',
+      { field: forbiddenClaim },
+    );
+  }
+
   const file = form.get('file');
   if (!(file instanceof File)) {
     return apiError(400, 'NO_FILE', '업로드할 파일(file)이 없습니다.');
@@ -58,6 +74,7 @@ export const POST = withApiHandler(async (request) => {
   const beforeAfterMode = formText(form, 'mode') === 'before-after';
   let beforeAfterCaseId = '';
   let beforeAfterContext: CustomerAssetUsageContext | null = null;
+  let beforeAfterSiteId: string | null = null;
 
   if (beforeAfterMode) {
     if (mime === 'image/svg+xml') {
@@ -71,16 +88,42 @@ export const POST = withApiHandler(async (request) => {
     if (!(CUSTOMER_ASSET_CONTEXTS as readonly string[]).includes(usageContextRaw)) {
       return apiError(400, 'INVALID_USAGE_CONTEXT', '업로드 사용 맥락이 올바르지 않습니다.');
     }
-    if (usageContextRaw === 'medical') {
-      return apiError(
-        403,
-        'MEDICAL_BEFORE_AFTER_DISABLED',
-        '의료·치료 전후 사진 기능은 비활성화되어 있습니다. 법률 검토와 별도 승인이 완료되기 전에는 사용할 수 없습니다.',
-        { featureDisabled: true, legalReviewRequired: true },
-      );
+    const siteId = formText(form, 'siteId') || null;
+    const site = siteId ? await getOwnedSite(siteId, client.id) : null;
+    if (siteId && !site) {
+      return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
     }
-    if (usageContextRaw === 'other') {
-      return apiError(400, 'BEFORE_AFTER_CONTEXT_NOT_ALLOWED', '전후 사진은 현재 뷰티·리모델링 case에서만 사용할 수 있습니다.');
+    const storedConfig = site?.draftConfig ?? site?.siteConfig;
+    const policy = resolveBeforeAfterUploadPolicy({
+      enabled: assetProvenanceConfig().beforeAfterEnabled,
+      siteId,
+      industryClass: storedConfig?.meta.industryClass ?? null,
+      requestedUsageContext: usageContextRaw as CustomerAssetUsageContext,
+    });
+    if (!policy.allowed) {
+      if (policy.code === 'MEDICAL_BEFORE_AFTER_DISABLED') {
+        return apiError(
+          403,
+          policy.code,
+          '의료·치료 전후 사진 기능은 비활성화되어 있습니다. 법률 검토와 별도 승인이 완료되기 전에는 사용할 수 없습니다.',
+          { featureDisabled: true, legalReviewRequired: true },
+        );
+      }
+      if (policy.code === 'BEFORE_AFTER_DISABLED') {
+        return apiError(
+          403,
+          policy.code,
+          '전후 비교 기능은 법무 검토와 별도 승인이 완료되기 전까지 사용할 수 없습니다.',
+          { featureDisabled: true, legalReviewRequired: true },
+        );
+      }
+      if (policy.code === 'BEFORE_AFTER_SITE_REQUIRED') {
+        return apiError(409, policy.code, '전후 사진은 업종이 확인된 현재 사이트에 연결한 뒤 업로드할 수 있습니다.');
+      }
+      if (policy.code === 'BEFORE_AFTER_CONTEXT_MISMATCH') {
+        return apiError(400, policy.code, '요청한 전후 사진 맥락이 사이트의 확인된 업종과 일치하지 않습니다.');
+      }
+      return apiError(400, policy.code, '전후 사진은 현재 뷰티·리모델링 사이트에서만 사용할 수 있습니다.');
     }
     if (formText(form, 'rightsAttested') !== 'true') {
       return apiError(400, 'RIGHTS_ATTESTATION_REQUIRED', '사진의 소유권 또는 사용 권리를 확인해 주세요.');
@@ -89,7 +132,8 @@ export const POST = withApiHandler(async (request) => {
       return apiError(400, 'SAME_CASE_ATTESTATION_REQUIRED', '같은 실제 고객·공간 case의 사진인지 확인해 주세요.');
     }
     beforeAfterCaseId = caseId;
-    beforeAfterContext = usageContextRaw as CustomerAssetUsageContext;
+    beforeAfterContext = policy.usageContext;
+    beforeAfterSiteId = siteId;
   }
 
   let bytes = Buffer.from(await file.arrayBuffer());
@@ -105,12 +149,6 @@ export const POST = withApiHandler(async (request) => {
     } catch (error) {
       if (error instanceof RasterImageError) return apiError(400, error.code, error.message);
       throw error;
-    }
-
-    const siteId = formText(form, 'siteId') || null;
-    if (siteId) {
-      const site = await getOwnedSite(siteId, client.id);
-      if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
     }
 
     let uploaded: { objectPath: string; url: string };
@@ -131,7 +169,7 @@ export const POST = withApiHandler(async (request) => {
 
     const asset = await getCustomerAssetRegistry().create({
       clientId: client.id,
-      siteId,
+      siteId: beforeAfterSiteId,
       objectPath: uploaded.objectPath,
       publicUrl: uploaded.url,
       mimeType: contentType as 'image/png' | 'image/jpeg' | 'image/webp',
@@ -169,13 +207,52 @@ export const POST = withApiHandler(async (request) => {
     contentType = 'image/svg+xml';
   }
 
+  const provenance = assetProvenanceConfig();
+  const siteId = provenance.write ? formText(form, 'siteId') || null : null;
+  if (siteId) {
+    const site = await getOwnedSite(siteId, client.id);
+    if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
+  }
+
   if (isMockMode()) {
     // mock: data URL (isSafeMediaSrc가 data:image/ 허용) — 렌더러에서 <img src>로 사용
     const url = `data:${contentType};base64,${bytes.toString('base64')}`;
-    return NextResponse.json({ url }, { status: 201 });
+    if (!provenance.write) {
+      return NextResponse.json(projectAssetIngressResponse({ url }, false), { status: 201 });
+    }
+
+    const record = await registerCustomerUploadAsset({
+      clientId: client.id,
+      siteId,
+      storageBucket: 'client-assets',
+      storageKey: `mock/uploads/${client.id}/${crypto.randomUUID()}.${ext}`,
+      canonicalUrl: url,
+      mediaType: 'image',
+    });
+    return NextResponse.json(
+      projectAssetIngressResponse({ url, assetRef: toAssetRef(record) }, true),
+      { status: 201 },
+    );
   }
 
-  const { uploadClientAsset } = await import('@/lib/data/supabase/storage');
-  const url = await uploadClientAsset({ bytes, mimeType: contentType, ext, prefix: 'logos' });
-  return NextResponse.json({ url }, { status: 201 });
+  if (!provenance.write) {
+    const { uploadClientAsset } = await import('@/lib/data/supabase/storage');
+    const url = await uploadClientAsset({ bytes, mimeType: contentType, ext, prefix: 'logos' });
+    return NextResponse.json(projectAssetIngressResponse({ url }, false), { status: 201 });
+  }
+
+  const { uploadClientAssetDetailed } = await import('@/lib/data/supabase/storage');
+  const uploaded = await uploadClientAssetDetailed({ bytes, mimeType: contentType, ext, prefix: 'logos' });
+  const record = await registerCustomerUploadAsset({
+    clientId: client.id,
+    siteId,
+    storageBucket: 'client-assets',
+    storageKey: uploaded.objectPath,
+    canonicalUrl: uploaded.url,
+    mediaType: 'image',
+  });
+  return NextResponse.json(
+    projectAssetIngressResponse({ url: uploaded.url, assetRef: toAssetRef(record) }, true),
+    { status: 201 },
+  );
 });

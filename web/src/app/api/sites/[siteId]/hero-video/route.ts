@@ -14,6 +14,8 @@ import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../..
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { videoGenConfig } from '@/lib/env';
 import { isSafeMediaSrc } from '@/lib/safe-url';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import { resolveOwnedAssetRecords, toAssetRef } from '@/lib/assets/registry';
 import {
   applyHeroVideoToConfig,
   assertVideoGenAllowed,
@@ -57,6 +59,7 @@ const applyBody = z.object({
   posterUrl: appliedMediaSrc,
   prompt: z.string().max(2000).optional(),
   model: z.string().max(120).optional(),
+  assetId: z.string().uuid().optional(),
 });
 
 /** VIDEO_GEN typed prefix를 비용 발생 전 API 응답으로 변환한다. */
@@ -92,6 +95,9 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   if (!body.ok) return body.res;
   const count = body.data.count ?? 2;
 
+  // provenance dependency 오류는 VIDEO_GEN 비용 가드·로그·Veo 호출 전에 중단한다.
+  assetProvenanceConfig();
+
   // 킬스위치→애드온→상한→동기 전송 가드를 이미지 fetch·로그·Veo 호출 전에 통과한다.
   try {
     await assertVideoGenAllowed(siteId, client.tier);
@@ -118,6 +124,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       // generateHeroVideo가 시작 이미지와 킬스위치·tier·상한을 다시 검증한다. 첫 실패면 그대로 중단.
       drafts.push(
         await generateHeroVideo({
+          clientId: client.id,
           siteId,
           tier: client.tier,
           ctx,
@@ -150,7 +157,38 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
   const body = await parseBody(request, applyBody);
   if (!body.ok) return body.res;
 
-  const next = applyHeroVideoToConfig(config, body.data.videoUrl, body.data.posterUrl);
+  const provenance = assetProvenanceConfig();
+  let trustedAssetRef: { assetId: string; url: string } | undefined;
+  if (provenance.write) {
+    if (!body.data.assetId) {
+      return apiError(422, 'ASSET_PROVENANCE_REQUIRED', '영상 자산의 서버 출처 기록을 확인할 수 없습니다. 시안을 다시 생성해 주세요.');
+    }
+    try {
+      const [record] = await resolveOwnedAssetRecords({
+        assetIds: [body.data.assetId],
+        clientId: client.id,
+        siteId,
+      });
+      if (!record || record.origin !== 'ai_generated' || record.mediaType !== 'video') {
+        throw new Error('The selected asset is not a server-generated video.');
+      }
+      trustedAssetRef = toAssetRef(record);
+      if (trustedAssetRef.url !== body.data.videoUrl) {
+        throw new Error('The selected video URL does not match its canonical registry record.');
+      }
+    } catch {
+      return apiError(422, 'ASSET_PROVENANCE_MISMATCH', '영상 자산의 소유권 또는 저장 주소가 일치하지 않습니다.');
+    }
+  } else if (body.data.assetId) {
+    return apiError(422, 'ASSET_PROVENANCE_DISABLED', '현재 자산 출처 기록 모드에서는 assetId를 적용할 수 없습니다.');
+  }
+
+  const next = applyHeroVideoToConfig(
+    config,
+    body.data.videoUrl,
+    body.data.posterUrl,
+    trustedAssetRef,
+  );
   await getDataServices().sites.saveDraft(siteId, next);
   await recordHeroVideoSelection({
     siteId,

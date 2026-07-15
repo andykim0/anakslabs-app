@@ -42,6 +42,8 @@ export type CreateCustomerAssetProvenance = Omit<
 export interface CustomerAssetRegistry {
   create(input: CreateCustomerAssetProvenance): Promise<CustomerAssetProvenance>;
   getById(assetId: string): Promise<CustomerAssetProvenance | null>;
+  /** Additive trusted identity lookup for generic-registry conflict detection. Never use publicUrl. */
+  getByObjectPath(objectPath: string): Promise<CustomerAssetProvenance | null>;
   /** caller가 site 소유권을 확인한 뒤 호출한다. 다른 site로 재바인딩하지 않는다. */
   bindToSite(input: { assetId: string; clientId: string; siteId: string }): Promise<CustomerAssetProvenance>;
 }
@@ -207,6 +209,12 @@ export function createMemoryCustomerAssetRegistry(): CustomerAssetRegistry & { c
     async getById(assetId) {
       const record = records.get(assetId);
       return record ? cloneRecord(record) : null;
+    },
+    async getByObjectPath(objectPath) {
+      for (const record of records.values()) {
+        if (record.objectPath === objectPath) return cloneRecord(record);
+      }
+      return null;
     },
     async bindToSite({ assetId, clientId, siteId }) {
       const record = records.get(assetId);

@@ -20,6 +20,10 @@ import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification
 import { applySectionDirections } from '@/lib/onboarding/section-directions';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
+import {
+  bindGeneratedConfigAssetRefs,
+  validateCandidateAssetRef,
+} from '@/lib/assets/owned-refs';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
@@ -50,10 +54,15 @@ export const POST = withApiHandler(async (request) => {
   const { siteId } = body.data;
   // [SS5] 재생성도 최초 생성과 같은 서버 권위 템플릿 분류를 사용한다.
   const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
-  const candidate: DesignCandidate = body.data.candidate;
+  const candidateInput: DesignCandidate = body.data.candidate;
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
+  const candidate = await validateCandidateAssetRef({
+    candidate: candidateInput,
+    clientId: client.id,
+    targetSiteId: siteId,
+  });
 
   const used = site.freeRegensUsed ?? 0;
   if (used >= FREE_REGEN_LIMIT) {
@@ -72,7 +81,7 @@ export const POST = withApiHandler(async (request) => {
   }
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
   const generated = applySectionDirections(
-    await ai.generateSiteConfig(survey, candidate),
+    await ai.generateSiteConfig(survey, candidate, { clientId: client.id, siteId }),
     survey.directions,
   );
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
@@ -107,6 +116,11 @@ export const POST = withApiHandler(async (request) => {
       motionWarning = { code: provenance.code, message: provenance.message };
     }
   }
+  draftConfig = await bindGeneratedConfigAssetRefs({
+    config: draftConfig,
+    clientId: client.id,
+    siteId,
+  });
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

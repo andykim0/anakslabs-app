@@ -91,6 +91,17 @@ class SupabaseCustomerAssetRegistry implements CustomerAssetRegistry {
     return data ? rowToRecord(data as CustomerAssetRow) : null;
   }
 
+  async getByObjectPath(objectPath: string): Promise<CustomerAssetProvenance | null> {
+    const svc = getServiceRoleClient();
+    const { data, error } = await svc
+      .from('motion_asset_provenance')
+      .select('*')
+      .eq('object_path', objectPath)
+      .maybeSingle();
+    if (error) throw new Error(`고객 자산 저장 identity 조회 실패: ${error.message}`);
+    return data ? rowToRecord(data as CustomerAssetRow) : null;
+  }
+
   async bindToSite(input: { assetId: string; clientId: string; siteId: string }): Promise<CustomerAssetProvenance> {
     const svc = getServiceRoleClient();
     const current = await this.getById(input.assetId);

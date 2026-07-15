@@ -17,6 +17,7 @@ import { getDataServices } from '@/lib/data';
 import { assertVideoGenAllowed, generateGuardedVideo, STANDARD_MODEL } from '@/lib/ai/video-pipeline';
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -63,6 +64,9 @@ export const POST = withApiHandler(async (request) => {
   if (!site) return siteNotFound();
 
   const creditCost = CREDIT_COSTS[type];
+
+  // 이미지/영상 산출물 provenance flag 오류는 요청 row·크레딧 차감·provider 호출 전에 중단한다.
+  if (type === 'image' || type === 'video') assetProvenanceConfig();
 
   // 불변식: 애드온·킬스위치·사이트/일일 상한을 요청 생성과 크레딧 차감보다 먼저 검사한다.
   if (type === 'video') {
@@ -137,10 +141,14 @@ export const POST = withApiHandler(async (request) => {
         aiOutput = { text: await ai.generateText({ prompt: requestedContent }) };
         break;
       case 'image':
-        aiOutput = await ai.generateImage({ prompt: requestedContent });
+        aiOutput = await ai.generateImage(
+          { prompt: requestedContent },
+          { clientId: client.id, siteId },
+        );
         break;
       case 'video':
         aiOutput = await generateGuardedVideo({
+          clientId: client.id,
           siteId,
           tier: client.tier,
           prompt: requestedContent,

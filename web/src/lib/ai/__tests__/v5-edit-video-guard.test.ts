@@ -25,7 +25,7 @@ describe('V5 edit-request VIDEO_GEN 비용 안전 순서', () => {
 
     const guard = pipeline.indexOf('await assertVideoGenAllowed(input.siteId, input.tier)');
     const log = pipeline.indexOf('await videoGen.record({', guard);
-    const generate = pipeline.indexOf('return ai.generateVideo({', log);
+    const generate = pipeline.indexOf('return ai.generateVideo(', log);
     assert.ok(guard >= 0 && guard < log && log < generate, 'guard → log → AI 순서가 깨짐');
   });
 
@@ -42,7 +42,7 @@ describe('V5 edit-request VIDEO_GEN 비용 안전 순서', () => {
 
     const guarded = pipeline.indexOf('await assertVideoGenAllowed(input.siteId, input.tier)');
     const log = pipeline.indexOf('await videoGen.record({', guarded);
-    const generate = pipeline.indexOf('return ai.generateVideo({', log);
+    const generate = pipeline.indexOf('return ai.generateVideo(', log);
     assert.ok(guarded >= 0 && guarded < log && log < generate, 'sync 가드가 log/AI보다 늦음');
   });
 

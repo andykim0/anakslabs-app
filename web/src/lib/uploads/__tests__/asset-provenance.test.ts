@@ -47,6 +47,9 @@ function registry(records: CustomerAssetProvenance[]): CustomerAssetRegistry {
     async getById(assetId) {
       return byId.get(assetId) ?? null;
     },
+    async getByObjectPath(objectPath) {
+      return [...byId.values()].find((record) => record.objectPath === objectPath) ?? null;
+    },
     async bindToSite() {
       throw new Error('not used');
     },

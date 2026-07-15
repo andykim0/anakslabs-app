@@ -185,6 +185,17 @@ describe('applyHeroVideoToConfig — 히어로 background.video 세팅(비파괴
     assert.equal(next.pages[1].sections[0].background.video, undefined);
     assert.deepEqual(next.pages[1].sections[1].background.video, { src: '/v.mp4', poster: '/old.png' });
   });
+  test('route가 검증한 영상 AssetRef만 manifest에 병합하고 URL 불일치는 거부한다', () => {
+    const c = cfgWith({ image: { src: '/hero.png' } });
+    c.assetRefs = [{ assetId: '00000000-0000-4000-8000-000000000001', url: '/hero.png' }];
+    const videoRef = { assetId: '00000000-0000-4000-8000-000000000002', url: '/v.mp4' };
+    const next = applyHeroVideoToConfig(c, '/v.mp4', '/hero.png', videoRef);
+    assert.deepEqual(next.assetRefs, [c.assetRefs[0], videoRef]);
+    assert.throws(
+      () => applyHeroVideoToConfig(c, '/other.mp4', '/hero.png', videoRef),
+      /ASSET_REF_URL_MISMATCH/,
+    );
+  });
 });
 
 describe('resolveHeroSourceUrl — 상대 mock src', () => {

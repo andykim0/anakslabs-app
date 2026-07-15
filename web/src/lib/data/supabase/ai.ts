@@ -14,6 +14,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { toneText } from '@/lib/onboarding/tone';
 import { regionOf } from '@/lib/onboarding/region';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
@@ -21,7 +22,12 @@ import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
 import { povImagePrompt } from '@/lib/ai/image-prompt';
 import { buildImagePrompt } from '@/lib/design/quality-standards';
-import type { AiService, SuggestSectionContext } from '../types';
+import type {
+  AiAssetOwnerContext,
+  AiGeneratedAssetResult,
+  AiService,
+  SuggestSectionContext,
+} from '../types';
 import {
   buildCandidateBlueprints,
   matchBlueprintForCandidate,
@@ -34,7 +40,11 @@ import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
 import { selectedHeroPhotoUrl } from '@/lib/onboarding/hero-image-options';
 import { sectionDirectionPrompt } from '@/lib/onboarding/section-directions';
-import { uploadAiAsset } from './storage';
+import {
+  assertAiAssetProvenanceReady,
+  isAiAssetRegistrationError,
+  uploadAiAssetDetailed,
+} from './storage';
 
 // ---------- 공통 유틸 ----------
 
@@ -59,10 +69,21 @@ function cleanString(value: unknown, maxLength: number): string | undefined {
   return trimmed.length > 0 ? trimmed.slice(0, maxLength) : undefined;
 }
 
-async function generateImageUrl(prompt: string, prefix: string, aspectRatio?: GeminiAspectRatio): Promise<string> {
+async function generateImageAsset(
+  prompt: string,
+  prefix: string,
+  owner: AiAssetOwnerContext,
+  aspectRatio?: GeminiAspectRatio,
+): Promise<AiGeneratedAssetResult> {
   // aspectRatio는 프롬프트 문자열이 아니라 imageConfig로 강제된다(문자열 비율은 무시됨이 실증).
   const image = await generateGeminiImage({ prompt, aspectRatio });
-  return uploadAiAsset({ base64: image.base64, mimeType: image.mimeType, prefix });
+  const stored = await uploadAiAssetDetailed({
+    base64: image.base64,
+    mimeType: image.mimeType,
+    prefix,
+    owner,
+  });
+  return { url: stored.url, ...(stored.assetId ? { assetId: stored.assetId } : {}) };
 }
 
 // ---------- 1차 가공: 후보 3안 텍스트 다듬기 (Claude 1회 호출) ----------
@@ -212,7 +233,11 @@ async function generateSectionCopy(
 // ---------- AiService ----------
 
 export class SupabaseAiService implements AiService {
-  async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
+  async generateCandidates(
+    survey: SurveyInput,
+    owner: AiAssetOwnerContext,
+  ): Promise<DesignCandidate[]> {
+    assertAiAssetProvenanceReady();
     const blueprints = buildCandidateBlueprints(survey);
     // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
     // 유지하고 테마·레이아웃으로만 비교한다(피사체 날조·불필요한 Gemini 비용 0).
@@ -237,9 +262,16 @@ export class SupabaseAiService implements AiService {
         // 이 히어로 이미지가 곧 video-hero의 poster 후보(Veo 시작 프레임)로 보존된다.
         const heroPrompt = povImagePrompt(bp, survey, 'hero section');
         let heroImageUrl = bp.mockHeroUrl; // 생성 실패 시 스타일 프리뷰 자산으로 강등
+        let heroAssetRef: AssetRef | undefined;
         try {
-          heroImageUrl = await generateImageUrl(heroPrompt, 'candidates', '16:9'); // 히어로 = 와이드
+          const generated = await generateImageAsset(heroPrompt, 'candidates', owner, '16:9'); // 히어로 = 와이드
+          heroImageUrl = generated.url;
+          if (generated.assetId) {
+            heroAssetRef = { assetId: generated.assetId, url: generated.url };
+          }
         } catch (err) {
+          // WRITE가 켜졌는데 registry 기록이 실패한 경우 URL-only 후보로 강등하면 안 된다.
+          if (isAiAssetRegistrationError(err)) throw err;
           console.warn(`[ai] 후보(${bp.id}) 히어로 이미지 생성 실패 — 프리뷰 자산 사용:`, err);
         }
         return {
@@ -247,6 +279,7 @@ export class SupabaseAiService implements AiService {
           label: text?.label ?? bp.label,
           style: bp.style,
           heroImageUrl,
+          ...(heroAssetRef ? { heroAssetRef } : {}),
           // 테마는 항상 결정적(buildThemeFromBrief 산출) — LLM 이 hex 를 만들지 않는다
           theme: bp.theme,
           description: text?.description ?? bp.description,
@@ -255,7 +288,12 @@ export class SupabaseAiService implements AiService {
     );
   }
 
-  async generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig> {
+  async generateSiteConfig(
+    survey: SurveyInput,
+    candidate: DesignCandidate,
+    owner: AiAssetOwnerContext,
+  ): Promise<SiteConfig> {
+    assertAiAssetProvenanceReady();
     // 선택된 후보의 브리프를 설문으로 재도출 (결정적 — 계약 타입 확장 없이 스타일 조각 복원)
     const blueprint = matchBlueprintForCandidate(survey, candidate);
     const copy = await generateSectionCopy(survey, blueprint);
@@ -263,6 +301,7 @@ export class SupabaseAiService implements AiService {
     // [Q4] 부족분(추정 슬롯 − 실사)만 AI 보충 생성. 비용 가드 IMAGE_FILL_MAX_PER_SITE(기본 8, 0=킬스위치).
     //      실사가 슬롯을 덮으면 shouldSkipAiPool로 전량 스킵(실비용 절감).
     let aiImages: string[] = [];
+    let generatedSectionAssets: AiGeneratedAssetResult[] = [];
     const fillMax = imageFillMaxPerSite();
     // 대표 사진과 exact duplicate인 storePhoto는 히어로 전용이므로 본문 슬롯/비용 계산에서 제외한다.
     const selectedUpload = selectedHeroPhotoUrl(survey);
@@ -288,14 +327,26 @@ export class SupabaseAiService implements AiService {
       const generated = await Promise.all(
         scenes.map(async (scene) => {
           try {
-            return await generateImageUrl(povImagePrompt(blueprint, survey, scene), 'sections', '4:3');
+            return await generateImageAsset(
+              povImagePrompt(blueprint, survey, scene),
+              'sections',
+              owner,
+              '4:3',
+            );
           } catch (err) {
+            // provider 실패는 기존처럼 해당 슬롯만 스킵하되 provenance WRITE 실패는 전체 생성 실패.
+            if (isAiAssetRegistrationError(err)) throw err;
             console.warn('[ai] 섹션 이미지 생성 실패 — 스킵:', err);
             return null;
           }
         }),
       );
-      aiImages = generated.filter((url): url is string => url !== null);
+      aiImages = generated
+        .filter((asset): asset is AiGeneratedAssetResult => asset !== null)
+        .map((asset) => asset.url);
+      generatedSectionAssets = generated.filter(
+        (asset): asset is AiGeneratedAssetResult => asset !== null,
+      );
     }
     console.info(`[image-pool] 실사 ${survey.storePhotoUrls?.length ?? 0}장 + AI 보충 ${aiImages.length}/${fillCount}장 (fillMax ${fillMax})`);
 
@@ -306,6 +357,12 @@ export class SupabaseAiService implements AiService {
       aiImages,
       heroFallback: candidate.heroImageUrl,
     });
+    const usedUrls = new Set([heroImageUrl, ...imagePool]);
+    const assetRefs = [
+      candidate.heroAssetRef,
+      ...generatedSectionAssets.map((asset) =>
+        asset.assetId ? { assetId: asset.assetId, url: asset.url } : undefined),
+    ].filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)));
 
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // [R2/R5] 히어로 형태 — 갤러리 선택(referenceDesignId) 우선, 없으면 후보별 결정적 폴백
@@ -315,6 +372,7 @@ export class SupabaseAiService implements AiService {
       imagePool,
       copy,
       heroVariant,
+      ...(assetRefs.length ? { assetRefs } : {}),
     });
   }
 
@@ -328,27 +386,32 @@ export class SupabaseAiService implements AiService {
     return generateClaudeText({ prompt: parts.join('\n\n') });
   }
 
-  async generateImage(input: { prompt: string }): Promise<{ url: string }> {
+  async generateImage(
+    input: { prompt: string },
+    owner: AiAssetOwnerContext,
+  ): Promise<AiGeneratedAssetResult> {
+    assertAiAssetProvenanceReady();
     // [H3] edit-request 자유 문장은 tone 분류 힌트로만 사용한다. 원문을 모델의 양의 피사체로 전달하지 않고
     // 중앙 레지스트리의 ambient + 제품 날조 금지 지시로 프롬프트 전체를 다시 조립한다.
     const safePrompt = buildImagePrompt('editorial', 'local business', 'supporting image edit', {
       candidateStyle: 'photo',
       tone: input.prompt,
     });
-    const url = await generateImageUrl(
+    return generateImageAsset(
       safePrompt,
       'edits',
+      owner,
     );
-    return { url };
   }
 
   async generateVideo(input: {
     prompt: string;
     image?: { base64: string; mimeType: string };
     model?: string;
-  }): Promise<{ url: string; poster?: string }> {
+  }, owner: AiAssetOwnerContext): Promise<AiGeneratedAssetResult & { poster?: string }> {
+    assertAiAssetProvenanceReady();
     // 실패 시 명확한 에러 → 편집 요청 라우트가 502 + 크레딧 자동 환불로 처리
-    return generateVeoVideo(input);
+    return generateVeoVideo(input, owner);
   }
 
   async suggestCustomSection(input: {

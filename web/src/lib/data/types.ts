@@ -33,6 +33,7 @@ import type {
   Tier,
 } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 
 // ---------- 클라이언트(고객) ----------
 
@@ -68,6 +69,10 @@ export interface SitesRepo {
     clientId: string;
     name: string;
     draftConfig: SiteConfig;
+    /** 서버가 provenance assignment flag를 확인한 경우에만 기록한다. */
+    assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
+    /** 있으면 site insert와 provisional registry binding을 하나의 저장 경계로 처리한다. */
+    assetRefsToBind?: readonly AssetRef[];
   }): Promise<Site>;
   /** 에디터 자동저장 대상 */
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;
@@ -193,15 +198,36 @@ export interface DomainService {
 
 // ---------- AI 생성 ----------
 
+/**
+ * AI 산출물 소유권을 서버가 부여하기 위한 신뢰 컨텍스트.
+ *
+ * 반드시 인증/사이트 소유권 검사를 마친 서버 호출부가 별도 인자로 전달한다. 설문·폼·클라이언트
+ * DTO에서 역직렬화하지 않는다. 최초 사이트 생성 전에는 siteId가 아직 없으므로 생략할 수 있다.
+ */
+export interface AiAssetOwnerContext {
+  clientId: string;
+  siteId?: string;
+}
+
+export interface AiGeneratedAssetResult {
+  url: string;
+  /** provenance dual-write가 켜진 경우 서버 레지스트리가 발급한 자산 ID */
+  assetId?: string;
+}
+
 export interface AiService {
   /** 설문 → 디자인 후보 3안 (photo/3d_render 스타일 섞어서) */
-  generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]>;
+  generateCandidates(survey: SurveyInput, owner: AiAssetOwnerContext): Promise<DesignCandidate[]>;
   /** 선택된 후보 + 설문 → 전체 SiteConfig 초안 (설문의 sections 반영) */
-  generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig>;
+  generateSiteConfig(
+    survey: SurveyInput,
+    candidate: DesignCandidate,
+    owner: AiAssetOwnerContext,
+  ): Promise<SiteConfig>;
   /** 카피 재생성 (GLM) */
   generateText(input: { prompt: string; currentText?: string; tone?: string }): Promise<string>;
   /** 이미지 생성 (Nano Banana) */
-  generateImage(input: { prompt: string }): Promise<{ url: string }>;
+  generateImage(input: { prompt: string }, owner: AiAssetOwnerContext): Promise<AiGeneratedAssetResult>;
   /**
    * 영상 생성 (Veo 3.1) — Premium 전용 기능.
    * [motion 4단계] image 주면 image-to-video(poster=시작 프레임=그 이미지). model로 fast/표준 전환.
@@ -210,7 +236,7 @@ export interface AiService {
     prompt: string;
     image?: { base64: string; mimeType: string };
     model?: string;
-  }): Promise<{ url: string; poster?: string }>;
+  }, owner: AiAssetOwnerContext): Promise<AiGeneratedAssetResult & { poster?: string }>;
   /** [v3 Phase 2] 커스텀 섹션 이름/설명 → 섹션 계획(known type 매핑 or custom + 카피 시드) */
   suggestCustomSection(input: {
     name: string;

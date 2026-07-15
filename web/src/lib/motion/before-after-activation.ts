@@ -8,6 +8,8 @@ import {
   bindCustomerAssetToOwnedSite,
   verifyRegisteredBeforeAfterAssets,
 } from '@/lib/uploads/asset-registry';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import { resolveBeforeAfterFeatureDecision } from '@/lib/assets/provenance-flags-core';
 
 export interface ResolveBeforeAfterOptionsInput {
   survey: SurveyInput;
@@ -55,12 +57,18 @@ export async function resolveBeforeAfterMotionOptions(
     ok: true,
     options: { ownerId: input.clientId, siteId: input.siteId },
   };
-  if (!selection) return { ok: false, code: 'BEFORE_AFTER_SELECTION_REQUIRED', message: '전·후 실제 사진 두 장을 선택해 주세요.' };
-  if (input.industryClass === 'medical') return {
+  // 의료 차단은 어떤 feature flag보다 우선한다. 그 외 업종도 법무 승인 전 kill switch 기본 OFF다.
+  const feature = input.industryClass === 'medical'
+    ? resolveBeforeAfterFeatureDecision({ medical: true, config: { beforeAfterEnabled: false } })
+    : resolveBeforeAfterFeatureDecision({ medical: false, config: assetProvenanceConfig() });
+  if (!feature.allowed) return {
     ok: false,
-    code: 'MEDICAL_BEFORE_AFTER_DISABLED',
-    message: '의료 업종에서는 전후 비교 연출을 기본 제공하지 않습니다. 사용 전 별도의 광고 심의 및 법무 검토가 필요합니다.',
+    code: feature.code,
+    message: feature.code === 'MEDICAL_BEFORE_AFTER_DISABLED'
+      ? '의료 업종에서는 전후 비교 연출을 기본 제공하지 않습니다. 사용 전 별도의 광고 심의 및 법무 검토가 필요합니다.'
+      : '전후 비교 기능은 법무 검토와 별도 승인이 완료되기 전까지 비활성화되어 있습니다.',
   };
+  if (!selection) return { ok: false, code: 'BEFORE_AFTER_SELECTION_REQUIRED', message: '전·후 실제 사진 두 장을 선택해 주세요.' };
 
   try {
     await Promise.all([
@@ -117,10 +125,15 @@ export async function resolveStoredBeforeAfterMotionOptions(input: {
     options: { ownerId: input.clientId, siteId: input.siteId },
   };
   const industryClass = input.config.meta.industryClass ?? 'other';
-  if (industryClass === 'medical') return {
+  const feature = industryClass === 'medical'
+    ? resolveBeforeAfterFeatureDecision({ medical: true, config: { beforeAfterEnabled: false } })
+    : resolveBeforeAfterFeatureDecision({ medical: false, config: assetProvenanceConfig() });
+  if (!feature.allowed) return {
     ok: false,
-    code: 'MEDICAL_BEFORE_AFTER_DISABLED',
-    message: '의료 업종에서는 전후 비교 연출을 기본 제공하지 않습니다. 사용 전 별도의 광고 심의 및 법무 검토가 필요합니다.',
+    code: feature.code,
+    message: feature.code === 'MEDICAL_BEFORE_AFTER_DISABLED'
+      ? '의료 업종에서는 전후 비교 연출을 기본 제공하지 않습니다. 사용 전 별도의 광고 심의 및 법무 검토가 필요합니다.'
+      : '전후 비교 기능은 법무 검토와 별도 승인이 완료되기 전까지 비활성화되어 있습니다.',
   };
   const verified = await verifyRegisteredBeforeAfterAssets({
     beforeAssetId: scene.before.assetId,

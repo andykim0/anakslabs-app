@@ -15,6 +15,11 @@ import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification
 import { applySectionDirections } from '@/lib/onboarding/section-directions';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
+import {
+  validateCandidateAssetRef,
+} from '@/lib/assets/owned-refs';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import { assetPolicyVersionForNewSite } from '@/lib/assets/provenance-flags-core';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import {
@@ -53,7 +58,15 @@ export const POST = withApiHandler(async (request) => {
 
   // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
   const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
-  const candidate: DesignCandidate = body.data.candidate;
+  const candidate: DesignCandidate = await validateCandidateAssetRef({
+    candidate: body.data.candidate,
+    clientId: client.id,
+  });
+  // Cohort membership is derived exclusively from server-owned launch flags.
+  // Invalid WRITE -> ASSIGN -> ENFORCE dependencies throw here before any AI
+  // generation or site mutation; they must never silently downgrade to legacy.
+  const provenance = assetProvenanceConfig();
+  const assetPolicyVersion = assetPolicyVersionForNewSite(provenance);
 
   const { ai, sites } = getDataServices();
 
@@ -75,7 +88,8 @@ export const POST = withApiHandler(async (request) => {
   }
 
   const generated = applySectionDirections(
-    await ai.generateSiteConfig(survey, candidate),
+    // 사이트 row 생성 전 단계라 siteId는 아직 없다. 인증된 clientId만 provenance owner로 전달한다.
+    await ai.generateSiteConfig(survey, candidate, { clientId: client.id }),
     survey.directions,
   );
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
@@ -92,6 +106,8 @@ export const POST = withApiHandler(async (request) => {
     clientId: client.id,
     name: survey.businessName,
     draftConfig,
+    ...(assetPolicyVersion ? { assetPolicyVersion } : {}),
+    ...(draftConfig.assetRefs?.length ? { assetRefsToBind: draftConfig.assetRefs } : {}),
   });
 
   let motionWarning: { code: string; message: string } | undefined;

@@ -119,17 +119,22 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
     ]) {
       const code = source(route);
       const canonical = code.indexOf('canonicalizeSurveyTemplate(body.data.survey');
-      const generate = code.indexOf('ai.generateSiteConfig(survey, candidate)');
+      const generate = code.indexOf('ai.generateSiteConfig(');
       assert.ok(canonical >= 0 && canonical < generate, route);
+      assert.match(code.slice(generate, generate + 300), /clientId:\s*client\.id/);
+      if (route.includes('regenerate')) {
+        assert.match(code.slice(generate, generate + 300), /siteId/);
+      }
     }
 
     const patch = source('src/app/api/sites/[siteId]/route.ts');
     const preserve = patch.indexOf('preserveSiteClassification(body.data.draftConfig');
-    const provenance = patch.indexOf('resolveStoredBeforeAfterMotionOptions({ config: classified');
+    const assetRefs = patch.indexOf('validateConfigAssetRefsForSave({', preserve);
+    const provenance = patch.indexOf('resolveStoredBeforeAfterMotionOptions({ config: assetValidated');
     const sanitize = patch.indexOf('const { config: sanitized, changes } = sanitizeMotion(');
     assert.ok(
-      preserve >= 0 && preserve < provenance && provenance < sanitize,
-      '저장 분류를 복원하고 민감 자산 provenance를 재검증한 뒤 모션을 sanitize해야 한다',
+      preserve >= 0 && preserve < assetRefs && assetRefs < provenance && provenance < sanitize,
+      '저장 분류와 asset manifest를 권위화하고 민감 provenance를 재검증한 뒤 모션을 sanitize해야 한다',
     );
   });
 });

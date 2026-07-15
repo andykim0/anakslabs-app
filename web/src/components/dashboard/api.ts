@@ -38,6 +38,7 @@ import type {
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
+import type { AssetRef } from '@/lib/assets/provenance';
 
 // ---------- 에러 ----------
 
@@ -181,6 +182,8 @@ export interface HeroVideoDraftDto {
   posterUrl: string;
   prompt: string;
   model: string;
+  /** provenance WRITE 모드에서만 서버가 발급한다. */
+  assetId?: string;
 }
 
 export interface GenerateHeroVideoDraftsInput {
@@ -192,7 +195,11 @@ export interface GenerateHeroVideoDraftsInput {
 function isHeroVideoDraftDto(value: unknown): value is HeroVideoDraftDto {
   if (!value || typeof value !== 'object') return false;
   const draft = value as Record<string, unknown>;
-  return (
+  const assetIdValid = draft.assetId === undefined || (
+    typeof draft.assetId === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(draft.assetId)
+  );
+  return assetIdValid && (
     typeof draft.videoUrl === 'string' && draft.videoUrl.length > 0 &&
     typeof draft.posterUrl === 'string' && draft.posterUrl.length > 0 &&
     typeof draft.prompt === 'string' && draft.prompt.length > 0 &&
@@ -343,8 +350,25 @@ export async function listPayments(): Promise<Payment[]> {
 
 // ---------- 업로드 (§7) ----------
 
-/** 로고/이미지 업로드 (multipart) → 저장 URL. SVG는 서버에서 sanitize됨. */
-export async function uploadImage(file: File): Promise<string> {
+export interface UploadedImageResult {
+  url: string;
+  /** provenance WRITE flag가 켜진 신규 경로에서만 존재한다. */
+  assetRef?: AssetRef;
+}
+
+function parseAssetRef(value: unknown, url: string): AssetRef | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const candidate = value as Partial<AssetRef>;
+  if (typeof candidate.assetId !== 'string' || typeof candidate.url !== 'string') return undefined;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidate.assetId)) {
+    return undefined;
+  }
+  if (candidate.url !== url) return undefined;
+  return { assetId: candidate.assetId, url: candidate.url };
+}
+
+/** 로고/이미지 업로드의 additive 결과. SVG는 서버에서 sanitize됨. */
+export async function uploadImageWithAssetRef(file: File): Promise<UploadedImageResult> {
   const form = new FormData();
   form.append('file', file);
   let res: Response;
@@ -370,7 +394,17 @@ export async function uploadImage(file: File): Promise<string> {
   }
   const url = (body as { url?: string }).url;
   if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
-  return url;
+  const rawAssetRef = (body as { assetRef?: unknown }).assetRef;
+  const assetRef = parseAssetRef(rawAssetRef, url);
+  if (rawAssetRef !== undefined && !assetRef) {
+    throw new ApiError(500, 'ASSET_PROVENANCE_MISSING', '업로드 자산의 서버 출처 기록을 확인하지 못했습니다.');
+  }
+  return assetRef ? { url, assetRef } : { url };
+}
+
+/** 기존 URL-only 호출자용 compatibility adapter. */
+export async function uploadImage(file: File): Promise<string> {
+  return (await uploadImageWithAssetRef(file)).url;
 }
 
 /** [G3c] 메뉴판 사진 URL → 추출 항목({name, price}). 실패/0건이면 빈 배열(호출부가 직접 입력 안내). */

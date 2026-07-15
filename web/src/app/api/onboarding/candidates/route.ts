@@ -9,6 +9,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { heroImageGenConfig } from '@/lib/onboarding/hero-image-cost';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import { surveySchema } from '../../_lib/schemas';
@@ -82,6 +83,8 @@ export const POST = withApiHandler(async (request) => {
   if (!body.ok) return body.res;
 
   const survey = withoutHeroPhoto(body.data.survey as SurveyInput);
+  // flag 의존성 오류는 rate 차감·Claude/Gemini 비용 전에 중단한다.
+  assetProvenanceConfig();
   const dedupKey = candidateDedupKey(client.id, body.data.requestKey, survey);
   const dedupStore = getDedupStore();
 
@@ -102,9 +105,11 @@ export const POST = withApiHandler(async (request) => {
     return apiError(429, 'HERO_IMAGE_RATE_LIMITED', '히어로 이미지 요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
   }
 
-  const generation = getDataServices().ai.generateCandidates(survey).then((items) =>
-    items.slice(0, HERO_CANDIDATE_LIMIT),
-  );
+  const generation = getDataServices().ai.generateCandidates(
+    survey,
+    // 서버 인증 결과만 신뢰한다. 설문/request body는 자산 소유권 입력으로 사용하지 않는다.
+    { clientId: client.id },
+  ).then((items) => items.slice(0, HERO_CANDIDATE_LIMIT));
   if (dedupKey) dedupStore.set(dedupKey, { at: Date.now(), promise: generation });
 
   let candidates: DesignCandidate[];

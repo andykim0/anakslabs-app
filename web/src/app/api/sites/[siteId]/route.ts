@@ -12,6 +12,7 @@ import { siteConfigSchema } from '../../_lib/schemas';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { preserveSiteClassification } from '@/lib/onboarding/site-classification';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { validateConfigAssetRefsForSave } from '@/lib/assets/owned-refs';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -44,11 +45,17 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   // [SS5] 목적/템플릿은 생성 시 확정된 서버 분류다. PATCH body로 바꿔 절제 게이트를 우회할 수 없다.
   const persistedConfig = site.draftConfig ?? site.siteConfig;
   const classified = preserveSiteClassification(body.data.draftConfig as SiteConfig, persistedConfig);
+  const assetValidated = await validateConfigAssetRefsForSave({
+    config: classified,
+    persistedConfig,
+    clientId: client.id,
+    siteId,
+  });
   // [motion-system] 플랜 기준 모션 새니타이즈 — 위반은 403이 아니라 자동 강등 + changes 안내.
   // 민감 scene는 저장된 URL/클라이언트 provenance를 신뢰하지 않고 현재 owner/site 레지스트리로 재검증한다.
-  const provenance = await resolveStoredBeforeAfterMotionOptions({ config: classified, clientId: client.id, siteId });
+  const provenance = await resolveStoredBeforeAfterMotionOptions({ config: assetValidated, clientId: client.id, siteId });
   const { config: sanitized, changes } = sanitizeMotion(
-    classified,
+    assetValidated,
     client.tier,
     provenance.ok ? provenance.options : { ownerId: client.id, siteId },
   );

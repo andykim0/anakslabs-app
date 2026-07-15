@@ -11,9 +11,10 @@ describe('고객 자산 증빙 저장 배선', () => {
   const registry = source('src/lib/uploads/asset-registry.ts');
   const migration = source('../supabase/migrations/0009_motion_asset_provenance.sql');
 
-  test('일반 업로드 URL 계약을 유지하고 before-after에서만 assetId를 추가한다', () => {
+  test('일반 업로드는 WRITE OFF URL 계약을 유지하고 before-after 전용 assetId 계약도 보존한다', () => {
     assert.match(route, /beforeAfterMode = formText\(form, 'mode'\) === 'before-after'/);
-    assert.match(route, /return NextResponse\.json\(\{ url \}, \{ status: 201 \}\)/);
+    assert.match(route, /projectAssetIngressResponse\(\{ url \}, false\)/);
+    assert.match(route, /projectAssetIngressResponse\(\{ url, assetRef: toAssetRef\(record\) \}, true\)/);
     assert.match(route, /assetId: asset\.id/);
     assert.match(route, /BEFORE_AFTER_RASTER_ONLY/);
     assert.match(route, /MEDICAL_BEFORE_AFTER_DISABLED/);

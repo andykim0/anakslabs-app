@@ -27,6 +27,11 @@ const safeMediaSrcSchema = z
   .min(1)
   .refine(isSafeMediaSrc, '이미지/영상 주소는 http(s):// 또는 / 경로 형식만 사용할 수 있습니다.');
 
+const assetRefSchema = z.object({
+  assetId: z.string().uuid(),
+  url: safeMediaSrcSchema,
+});
+
 /** [W4] 히어로 이미지·영상 선택 계약 — UI 자유 문자열이 저장 경계로 새지 않게 정확히 열거한다. */
 const heroImageChoiceSchema = z.enum(['upload', 'ai-1', 'ai-2', 'ai-3']);
 const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
@@ -632,6 +637,7 @@ export const siteConfigSchema = z
     theme: siteThemeSchema,
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
+    assetRefs: z.array(assetRefSchema).max(100).optional(),
     directions: z.array(sectionDirectionSchema).max(100).optional(),
     businessInfo: businessInfoSchema.optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),
@@ -908,6 +914,7 @@ export const designCandidateSchema = z.object({
   label: z.string().min(1),
   style: z.enum(['photo', '3d_render', 'illustration']),
   heroImageUrl: z.string().min(1),
+  heroAssetRef: assetRefSchema.optional(),
   theme: siteThemeSchema,
   description: z.string(),
 });

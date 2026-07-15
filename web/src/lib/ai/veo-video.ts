@@ -17,7 +17,8 @@
  */
 import 'server-only';
 import { env } from '@/lib/env';
-import { uploadAiVideo } from '@/lib/data/supabase/storage';
+import { uploadAiVideoDetailed } from '@/lib/data/supabase/storage';
+import type { AiAssetOwnerContext, AiGeneratedAssetResult } from '@/lib/data/types';
 import { veoRequestBody, type VeoResolution } from './veo-request';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -151,8 +152,14 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
 }
 
 /** 테넌트 경로: Veo 생성 → Supabase Storage 업로드 → 공개 URL. */
-export async function generateVeoVideo(input: VeoInput): Promise<{ url: string; poster?: string }> {
+export async function generateVeoVideo(
+  input: VeoInput,
+  owner: AiAssetOwnerContext,
+): Promise<AiGeneratedAssetResult & { poster?: string }> {
   const { bytes, mimeType } = await generateVeoVideoBytes(input);
-  const url = await uploadAiVideo({ bytes, mimeType, prefix: 'videos' });
-  return { url }; // poster 는 파이프라인이 입력 이미지로 세팅 (ffmpeg 미도입)
+  const stored = await uploadAiVideoDetailed({ bytes, mimeType, prefix: 'videos', owner });
+  return {
+    url: stored.url,
+    ...(stored.assetId ? { assetId: stored.assetId } : {}),
+  }; // poster 는 파이프라인이 입력 이미지로 세팅 (ffmpeg 미도입)
 }

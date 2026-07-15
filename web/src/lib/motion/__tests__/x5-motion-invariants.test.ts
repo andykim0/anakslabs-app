@@ -983,6 +983,9 @@ describe('X5-9 legal and provenance defense layers', () => {
       async create() { throw new Error('not used'); },
       async bindToSite() { throw new Error('not used'); },
       async getById(assetId) { return records.get(assetId) ?? null; },
+      async getByObjectPath(objectPath) {
+        return [...records.values()].find((record) => record.objectPath === objectPath) ?? null;
+      },
     };
     const base = { beforeAssetId: BEFORE_ID, afterAssetId: AFTER_ID, clientId: OWNER_ID, siteId: SITE_ID, usageContext: 'beauty' as const };
     assert.deepEqual(await verifyBeforeAfterAssetIds(registry, { ...base, beforeAssetId: 'https://copied.example/before.webp' }), {

@@ -23,6 +23,7 @@ import type {
   SiteTheme,
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { buildNarrativeArc } from './narrative-arc';
@@ -66,6 +67,8 @@ export interface BuildOptions {
   heroImageUrl: string;
   /** 섹션 이미지에 순환 사용할 자산 URL 풀 */
   imagePool: string[];
+  /** 서버 registry가 발급한 참조만 전달. URL 배열 membership으로 합성하지 않는다. */
+  assetRefs?: readonly AssetRef[];
   copy?: SectionCopy;
   /** [R2] 히어로 형태(뼈대) — 미지정=fullbleed(기존, 무회귀). centered/split은 정렬·앵커만 다름 */
   heroVariant?: HeroVariant;
@@ -2102,6 +2105,9 @@ export function buildSiteConfigFromSurvey(
 
   // [v4.5] 지역(1급 필드 ∪ 레거시 [지역] extraNotes) → SEO 메타 결합(지역 검색 = 제품 핵심 약속)
   const region = regionOf(survey);
+  const assetRefs = opts.assetRefs?.filter(
+    (ref, index, refs) => refs.findIndex((candidate) => candidate.assetId === ref.assetId) === index,
+  );
   return {
     version: 2,
     theme,
@@ -2122,6 +2128,7 @@ export function buildSiteConfigFromSurvey(
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),
     },
     pages,
+    ...(assetRefs?.length ? { assetRefs: assetRefs.map((ref) => ({ ...ref })) } : {}),
     // [Q$3] 생성 파이프라인은 사용자 디렉션을 해석하거나 재작성하지 않고 저장 계약까지 보존한다.
     ...(survey.directions
       ? {

@@ -3,7 +3,7 @@
  * 산출 SiteConfig/DesignCandidate는 계약 타입과 필드 단위로 정확히 일치해야 한다
  * (API가 zod로 검증 — 여분 필드 금지).
  */
-import type { AiService, SuggestSectionContext } from '../types';
+import type { AiAssetOwnerContext, AiService, SuggestSectionContext } from '../types';
 import { buildImagePool } from '../image-pool';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
@@ -13,6 +13,11 @@ import { buildSiteConfigFromSurvey } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
 import { selectedHeroPhotoUrl } from '@/lib/onboarding/hero-image-options';
 import { getMockStore } from './store';
+import {
+  assertAiAssetProvenanceReady,
+  stampAiGeneratedAsset,
+} from '../supabase/storage';
+import type { AssetRef } from '@/lib/assets/provenance';
 
 /** 생성 이미지 순환 풀 — public/mock 로컬 자산 */
 export const MOCK_IMAGE_POOL = [
@@ -23,6 +28,35 @@ export const MOCK_IMAGE_POOL = [
   '/mock/candidate-3d.svg',
   '/mock/interior-hwarodam.svg',
 ];
+
+const MOCK_AI_ASSET_BUCKET = 'mock-ai-assets';
+
+function mockAiObjectPath(
+  owner: AiAssetOwnerContext,
+  kind: 'candidate' | 'section' | 'edit' | 'video',
+  url: string,
+): string {
+  const ownerKey = encodeURIComponent(owner.clientId);
+  const siteKey = encodeURIComponent(owner.siteId ?? 'pre-site');
+  const assetKey = url.replace(/^\/+/, '').replace(/[^a-zA-Z0-9._/-]+/g, '-');
+  return `${ownerKey}/${siteKey}/${kind}/${crypto.randomUUID()}/${assetKey}`;
+}
+
+/** mock도 WRITE 모드에서는 실서비스와 같은 canonical ai_generated owner/origin 계약을 지킨다. */
+async function stampMockAiAsset(
+  url: string,
+  owner: AiAssetOwnerContext,
+  kind: 'candidate' | 'section' | 'edit' | 'video',
+): Promise<{ url: string; assetId?: string }> {
+  const assetId = await stampAiGeneratedAsset({
+    owner,
+    storageBucket: MOCK_AI_ASSET_BUCKET,
+    objectPath: mockAiObjectPath(owner, kind, url),
+    url,
+    mediaType: kind === 'video' ? 'video' : 'image',
+  });
+  return { url, ...(assetId ? { assetId } : {}) };
+}
 
 /** AI 호출 체감 지연 시뮬레이션 (1~2초) */
 function simulateLatency(baseMs: number, jitterMs = 600): Promise<void> {
@@ -77,36 +111,66 @@ function pickCopyPool(hint: string): string[] {
 }
 
 export class MockAiService implements AiService {
-  async generateCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
+  async generateCandidates(
+    survey: SurveyInput,
+    owner: AiAssetOwnerContext,
+  ): Promise<DesignCandidate[]> {
+    assertAiAssetProvenanceReady();
     await simulateLatency(1300);
     const selectedUpload = selectedHeroPhotoUrl(survey);
     // 디자인 지식 기반 결정적 3안 (최소 1안 3d_render · 다크/라이트 혼합 · 안끼리 중복 없음)
-    return buildCandidateBlueprints(survey).map((bp) => ({
-      id: bp.id,
-      label: bp.label,
-      style: bp.style,
-      // [H3] 고객 대표 사진은 세 후보 모두의 실제 히어로 소스. 미업로드일 때만 무드 프리뷰 폴백.
-      heroImageUrl: selectedUpload ?? bp.mockHeroUrl,
-      theme: bp.theme,
-      description: bp.description,
+    return Promise.all(buildCandidateBlueprints(survey).map(async (bp) => {
+      // 고객 업로드 원본에는 AI origin을 덮지 않는다. mock 생성 후보만 실모드와 같은 stamp를 갖는다.
+      const hero = selectedUpload
+        ? { url: selectedUpload }
+        : await stampMockAiAsset(bp.mockHeroUrl, owner, 'candidate');
+      return {
+        id: bp.id,
+        label: bp.label,
+        style: bp.style,
+        // [H3] 고객 대표 사진은 세 후보 모두의 실제 히어로 소스. 미업로드일 때만 무드 프리뷰 폴백.
+        heroImageUrl: hero.url,
+        ...(hero.assetId ? { heroAssetRef: { assetId: hero.assetId, url: hero.url } } : {}),
+        theme: bp.theme,
+        description: bp.description,
+      };
     }));
   }
 
-  async generateSiteConfig(survey: SurveyInput, candidate: DesignCandidate): Promise<SiteConfig> {
+  async generateSiteConfig(
+    survey: SurveyInput,
+    candidate: DesignCandidate,
+    owner: AiAssetOwnerContext,
+  ): Promise<SiteConfig> {
+    assertAiAssetProvenanceReady();
     await simulateLatency(1500);
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
     // [F3 #2a] 사용자 실사 우선 → 부족분만 mock 큐레이션 이미지로 충전
     const selectedUpload = selectedHeroPhotoUrl(survey);
+    const generatedAssets = await Promise.all(
+      MOCK_IMAGE_POOL.map((url) => stampMockAiAsset(url, owner, 'section')),
+    );
     const { heroImageUrl, imagePool } = buildImagePool({
       heroPhoto: selectedUpload,
       storePhotos: survey.storePhotoUrls,
-      aiImages: [...MOCK_IMAGE_POOL],
+      aiImages: generatedAssets.map((asset) => asset.url),
       heroFallback: candidate.heroImageUrl,
     });
+    const usedUrls = new Set([heroImageUrl, ...imagePool]);
+    const assetRefs = [
+      candidate.heroAssetRef,
+      ...generatedAssets.map((asset) =>
+        asset.assetId ? { assetId: asset.assetId, url: asset.url } : undefined),
+    ].filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)));
     // [R2/R5] 히어로 형태 — 갤러리 선택(referenceDesignId) 우선, 없으면 후보별 결정적 폴백
     const heroVariant = heroVariantForSurvey(survey.referenceDesignId, survey.purposeId, candidate.id);
-    return buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl, imagePool, heroVariant });
+    return buildSiteConfigFromSurvey(survey, candidate, {
+      heroImageUrl,
+      imagePool,
+      heroVariant,
+      ...(assetRefs.length ? { assetRefs } : {}),
+    });
   }
 
   async generateText(input: { prompt: string; currentText?: string; tone?: string }): Promise<string> {
@@ -124,23 +188,29 @@ export class MockAiService implements AiService {
     return line;
   }
 
-  async generateImage(_input: { prompt: string }): Promise<{ url: string }> {
+  async generateImage(
+    _input: { prompt: string },
+    owner: AiAssetOwnerContext,
+  ): Promise<{ url: string; assetId?: string }> {
+    assertAiAssetProvenanceReady();
     await simulateLatency(1100);
     const store = getMockStore();
     const url = MOCK_IMAGE_POOL[store.counters.image % MOCK_IMAGE_POOL.length];
     store.counters.image += 1;
-    return { url };
+    return stampMockAiAsset(url, owner, 'edit');
   }
 
   async generateVideo(input: {
     prompt: string;
     image?: { base64: string; mimeType: string };
     model?: string;
-  }): Promise<{ url: string; poster?: string }> {
+  }, owner: AiAssetOwnerContext): Promise<{ url: string; poster?: string; assetId?: string }> {
+    assertAiAssetProvenanceReady();
     void input;
     await simulateLatency(1800);
     // [motion 4단계] mock: 실호출 없음. image-to-video면 첫 프레임=입력 이미지지만 mock은 고정 클립.
-    return { url: '/mock/clip-ember.mp4', poster: '/mock/video-poster.svg' };
+    const generated = await stampMockAiAsset('/mock/clip-ember.mp4', owner, 'video');
+    return { ...generated, poster: '/mock/video-poster.svg' };
   }
 
   async suggestCustomSection(input: {

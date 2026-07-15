@@ -11,6 +11,7 @@ export interface ProcessHeroVideoDraft {
   posterUrl: string;
   prompt: string;
   model: string;
+  assetId?: string;
 }
 
 export type HeroVideoProcessResult =

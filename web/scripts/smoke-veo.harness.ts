@@ -5,12 +5,18 @@
  */
 import { getDataServices } from '@/lib/data';
 
+// 서버 운영자가 실행하는 하네스 전용 owner. provenance WRITE 점검 시 실제 clients.id를 명시한다.
+const aiOwner = { clientId: process.env.SMOKE_CLIENT_ID?.trim() || 'smoke-veo-harness' };
+
 (async () => {
   try {
     const t0 = Date.now();
-    const res = await getDataServices().ai.generateVideo({
-      prompt: '고요한 카페 창가에 스며드는 아침 햇살, 김이 오르는 커피 한 잔, 잔잔한 카메라 무빙',
-    });
+    const res = await getDataServices().ai.generateVideo(
+      {
+        prompt: '고요한 카페 창가에 스며드는 아침 햇살, 김이 오르는 커피 한 잔, 잔잔한 카메라 무빙',
+      },
+      aiOwner,
+    );
     const ok = /^https?:\/\//.test(res.url);
     const secs = Math.round((Date.now() - t0) / 1000);
     console.log(`  ${ok ? '✓' : '✗'} generateVideo → ${res.url}  (${res.poster ? 'poster 있음' : 'poster 생략'}) · ${secs}s`);

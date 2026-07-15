@@ -11,6 +11,7 @@ import type {
   SectionDirection,
   SiteConfig,
 } from './site';
+import type { AssetRef } from '@/lib/assets/provenance';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -35,6 +36,12 @@ export type DomainType = 'subdomain' | 'custom';
 /** draft: 온보딩 중(미확정) — 스펙 4상태 + draft 추가 */
 export type SiteStatus = 'draft' | 'building' | 'live' | 'pending_dns' | 'suspended';
 
+/**
+ * 서버가 사이트 생성 시에만 기록하는 자산 사실성 정책 cohort.
+ * 미지정/null은 기존 URL-only 호환 사이트이며 클라이언트가 이 값을 주장할 수 없다.
+ */
+export type AssetPolicyVersion = 2;
+
 /** [§5] 정적 HTML export 진행 상태 */
 export type ExportStatus = 'none' | 'processing' | 'ready' | 'failed';
 
@@ -54,6 +61,8 @@ export interface Site {
   draftConfig: SiteConfig | null;
   publishedAt: string | null;
   createdAt: string;
+  /** [asset provenance v2] 서버 소유 cohort marker. 기존 사이트는 null/미정의. */
+  assetPolicyVersion?: AssetPolicyVersion | null;
   /** [§3] 온보딩 무료 재생성 사용 횟수 (한도 FREE_REGEN_LIMIT). 미정의=0 */
   freeRegensUsed?: number;
   /** [§5] 정적 export 상태. 미정의='none' */
@@ -408,6 +417,8 @@ export interface DesignCandidate {
   label: string;
   style: CandidateStyle;
   heroImageUrl: string;
+  /** provenance WRITE 모드에서만 서버가 붙이는 히어로 AI 자산 참조. URL만으로 생성하지 않는다. */
+  heroAssetRef?: AssetRef;
   theme: SiteTheme;
   description: string;
 }

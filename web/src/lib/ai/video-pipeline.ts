@@ -56,11 +56,14 @@ export interface HeroVideoResult {
   posterUrl: string;
   prompt: string;
   model: string;
+  /** provenance WRITE 모드에서 서버가 발급한 AI 영상 자산 ID */
+  assetId?: string;
 }
 
 export interface GuardedVideoResult {
   url: string;
   poster?: string;
+  assetId?: string;
 }
 
 export const HERO_SOURCE_UNAVAILABLE = 'HERO_SOURCE_UNAVAILABLE';
@@ -74,6 +77,8 @@ export function isHeroSourceUnavailableError(error: unknown): boolean {
  * 생성 자체의 장기 HTTP 리팩터와 -g1 후처리는 별도 백엔드 배치에서 다룬다.
  */
 export async function generateGuardedVideo(input: {
+  /** 인증/사이트 소유권 검사를 마친 서버 호출부가 전달한다. */
+  clientId: string;
   siteId: string;
   tier: MotionTier;
   prompt: string;
@@ -95,11 +100,14 @@ export async function generateGuardedVideo(input: {
     stage: input.stage,
     prompt: safePrompt,
   });
-  return ai.generateVideo({
-    prompt: safePrompt,
-    ...(input.image ? { image: input.image } : {}),
-    model: input.model,
-  });
+  return ai.generateVideo(
+    {
+      prompt: safePrompt,
+      ...(input.image ? { image: input.image } : {}),
+      model: input.model,
+    },
+    { clientId: input.clientId, siteId: input.siteId },
+  );
 }
 
 /**
@@ -108,6 +116,8 @@ export async function generateGuardedVideo(input: {
  * mock 모드는 실호출 없이 고정 클립을 반환하지만 가드·로그는 동일하게 동작한다.
  */
 export async function generateHeroVideo(input: {
+  /** 인증/사이트 소유권 검사를 마친 서버 호출부가 전달한다. */
+  clientId: string;
   siteId: string;
   tier: MotionTier;
   ctx: HeroVideoContext;
@@ -122,7 +132,8 @@ export async function generateHeroVideo(input: {
   if (!image) {
     throw new Error(`${HERO_SOURCE_UNAVAILABLE}: 히어로 시작 이미지를 불러올 수 없습니다.`);
   }
-  const { url } = await generateGuardedVideo({
+  const generated = await generateGuardedVideo({
+    clientId: input.clientId,
     siteId: input.siteId,
     tier: input.tier,
     // 공용 진입점이 이 안전 맥락으로 같은 최종 프롬프트를 조립한다(완성 문자열 재파싱 금지).
@@ -132,7 +143,13 @@ export async function generateHeroVideo(input: {
     image,
     source: input.ctx.source,
   });
-  return { videoUrl: url, posterUrl: input.ctx.heroImageUrl, prompt, model };
+  return {
+    videoUrl: generated.url,
+    posterUrl: input.ctx.heroImageUrl,
+    prompt,
+    model,
+    ...(generated.assetId ? { assetId: generated.assetId } : {}),
+  };
 }
 
 /** 선택된 시안 로그(원가 없음 — 카운트 제외). 어느 시안·프롬프트가 채택됐는지 튜닝 데이터. */

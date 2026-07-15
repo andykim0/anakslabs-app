@@ -11,6 +11,8 @@ const hasGemini = !!process.env.GEMINI_API_KEY;
 const supaReady = process.env.SMOKE_SUPA_READY === '1';
 const KOREAN = /[가-힣]/;
 const KNOWN = ['hero','about','features','menu','gallery','testimonials','pricing','contact','cta','custom','team','cases','faq'];
+// 서버 운영자가 실행하는 하네스 전용 owner. provenance WRITE 점검 시 실제 clients.id를 명시한다.
+const aiOwner = { clientId: process.env.SMOKE_CLIENT_ID?.trim() || 'smoke-ai-harness' };
 
 const survey: SurveyInput = {
   businessName: '스모크살롱', purposeId: 'booking_service', purpose: '예약·서비스업',
@@ -62,7 +64,7 @@ function classify(name: string, e: unknown): void {
   if (!hasAnthropic) console.log('  ⏭  generateCandidates — ANTHROPIC_API_KEY 없음');
   else {
     try {
-      const cands = await ai.generateCandidates(survey);
+      const cands = await ai.generateCandidates(survey, aiOwner);
       if (!Array.isArray(cands) || cands.length !== 3) throw new Error('후보 3안 아님: ' + cands?.length);
       if (cands.some((c) => !c.label?.trim())) throw new Error('빈 라벨');
       console.log(`  ✓ generateCandidates — 3안: ${cands.map((c) => c.label).join(', ').slice(0, 46)}`);
@@ -74,7 +76,10 @@ function classify(name: string, e: unknown): void {
   else if (!supaReady) console.log('  ⏭  generateImage — 스토리지 업로드에 Supabase 필요(로컬 스택 미기동)');
   else {
     try {
-      const img = await ai.generateImage({ prompt: '미니멀한 미용실 인테리어, 따뜻한 톤' });
+      const img = await ai.generateImage(
+        { prompt: '미니멀한 미용실 인테리어, 따뜻한 톤' },
+        aiOwner,
+      );
       if (!/^https?:\/\//.test(img.url)) throw new Error('URL 형태 아님: ' + img.url);
       console.log(`  ✓ generateImage — ${img.url.slice(0, 64)}`);
     } catch (e) { classify('generateImage', e); }

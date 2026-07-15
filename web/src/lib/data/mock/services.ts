@@ -18,6 +18,7 @@ import type {
   Tier,
 } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 import type {
   ClientsRepo,
   DataServices,
@@ -125,8 +126,38 @@ class MockSitesRepo implements SitesRepo {
       .map((site) => structuredClone(site));
   }
 
-  async create(input: { clientId: string; name: string; draftConfig: SiteConfig }): Promise<Site> {
+  async create(input: {
+    clientId: string;
+    name: string;
+    draftConfig: SiteConfig;
+    assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
+    assetRefsToBind?: readonly AssetRef[];
+  }): Promise<Site> {
     const store = getMockStore();
+    if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
+      throw new Error('sites.create: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
+    }
+    if (input.assetRefsToBind?.length) {
+      const configRefs = input.draftConfig.assetRefs ?? [];
+      const sameManifest = configRefs.length === input.assetRefsToBind.length
+        && configRefs.every((ref, index) => (
+          ref.assetId === input.assetRefsToBind?.[index]?.assetId
+          && ref.url === input.assetRefsToBind[index]?.url
+        ));
+      if (!sameManifest) {
+        throw new Error('sites.create: draft asset manifest와 binding 요청이 일치하지 않습니다.');
+      }
+      const { resolveOwnedAssetRecords } = await import('@/lib/assets/registry');
+      const records = await resolveOwnedAssetRecords({
+        assetIds: input.assetRefsToBind.map((ref) => ref.assetId),
+        clientId: input.clientId,
+      });
+      const invalid = records.some((record, index) => (
+        record.siteId !== null
+        || record.canonicalUrl !== input.assetRefsToBind?.[index]?.url
+      ));
+      if (invalid) throw new Error('sites.create: provisional asset ownership 또는 URL이 일치하지 않습니다.');
+    }
     const site: Site = {
       id: crypto.randomUUID(),
       clientId: input.clientId,
@@ -140,12 +171,24 @@ class MockSitesRepo implements SitesRepo {
       draftConfig: structuredClone(input.draftConfig),
       publishedAt: null,
       createdAt: nowIso(),
+      ...(input.assetPolicyVersion ? { assetPolicyVersion: input.assetPolicyVersion } : {}),
       freeRegensUsed: 0,
       exportStatus: 'none',
       exportRequestedAt: null,
       exportUrl: null,
     };
     store.sites.set(site.id, site);
+    if (input.assetRefsToBind?.length) {
+      try {
+        const { bindAssetToOwnedSite } = await import('@/lib/assets/registry');
+        for (const ref of input.assetRefsToBind) {
+          await bindAssetToOwnedSite({ assetId: ref.assetId, clientId: input.clientId, siteId: site.id });
+        }
+      } catch (error) {
+        store.sites.delete(site.id);
+        throw error;
+      }
+    }
     return structuredClone(site);
   }
 
