@@ -32,6 +32,7 @@ import type {
 import type { HeroImageChoice, SectionType } from '@/lib/types/site';
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
+import type { PublishedSiteResult } from '@/lib/publish/result';
 
 // ---------- 에러 ----------
 
@@ -155,10 +156,7 @@ export async function getSite(siteId: string): Promise<Site> {
   return data.site;
 }
 
-export interface PublishResult {
-  site: Site;
-  url: string | null;
-}
+export type PublishResult = PublishedSiteResult;
 
 export async function publishSite(
   siteId: string,

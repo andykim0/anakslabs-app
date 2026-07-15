@@ -218,7 +218,7 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
     const artifactAudit = route.indexOf('scan = preflightScan(', humanFailure);
     const auditFailure = route.indexOf("'PUBLISH_AUDIT_UNAVAILABLE'", artifactAudit);
     const qualityGate = route.indexOf('const preflight = checkPublish(', auditFailure);
-    const persistence = route.indexOf('sites.publish(siteId)', qualityGate);
+    const persistence = route.indexOf('publishAuditedSnapshot(', qualityGate);
     assert.ok(
       humanGate >= 0 &&
         humanGate < humanFailure &&
@@ -230,5 +230,6 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
     );
     assert.match(route.slice(artifactAudit, qualityGate), /catch \(error\)[\s\S]*apiError\([\s\S]*503/);
     assert.match(route.slice(qualityGate, persistence), /if \(!preflight\.ok\)[\s\S]*PUBLISH_QUALITY_BLOCKED/);
+    assert.match(route.slice(persistence), /site\.draftConfig/);
   });
 });

@@ -12,6 +12,7 @@ import { checkPublish } from '@/lib/publish/preflight';
 import { preflightScan } from '@/lib/scan/preflight';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import { missingPublishHumanChecks, PUBLISH_HUMAN_CHECKS } from '@/lib/publish/human-checks';
+import { publishAuditedSnapshot } from '@/lib/publish/publish-audited-snapshot';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -85,7 +86,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     });
   }
 
-  const published = await getDataServices().sites.publish(siteId);
+  // 진단한 site.draftConfig와 실제 라이브에 복사하는 snapshot이 반드시 동일해야 한다.
+  const published = await publishAuditedSnapshot(getDataServices().sites, siteId, site.draftConfig);
   return NextResponse.json({
     site: published,
     url: published.domain ? `https://${published.domain}` : null,

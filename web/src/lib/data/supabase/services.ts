@@ -175,11 +175,12 @@ export class SupabaseSitesRepo implements SitesRepo {
     if (error) throw new Error(`sites 초안 저장 실패: ${error.message}`);
   }
 
-  async publish(siteId: string): Promise<Site> {
+  async publish(siteId: string, auditedDraft?: SiteConfig): Promise<Site> {
     const svc = getServiceRoleClient();
     const site = await this.getById(siteId);
     if (!site) throw new Error(`sites.publish: 사이트가 없습니다 (${siteId})`);
     if (!site.draftConfig) throw new Error('sites.publish: 발행할 초안이 없습니다');
+    if (!auditedDraft) throw new Error('sites.publish: 검증된 발행 초안이 필요합니다');
 
     // 도메인 미지정 시 {slug}.ROOT_DOMAIN 자동 할당 (소문자, 중복 회피)
     let domain = site.domain;
@@ -206,7 +207,8 @@ export class SupabaseSitesRepo implements SitesRepo {
     const { data, error } = await svc
       .from('sites')
       .update({
-        site_config: site.draftConfig,
+        // Q$6: 진단 뒤 다른 탭이 autosave해도 미검사 최신본이 아니라 진단 snapshot을 발행한다.
+        site_config: auditedDraft,
         status: 'live',
         domain,
         published_at: new Date().toISOString(),

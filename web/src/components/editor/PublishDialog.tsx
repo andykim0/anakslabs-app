@@ -7,14 +7,11 @@
  */
 import Link from 'next/link';
 import { ExternalLink, PartyPopper } from 'lucide-react';
-import type { Site } from '@/lib/types/domain';
+import type { PublishedSiteResult } from '@/lib/publish/result';
 import { Modal } from '@/components/dashboard/modal';
 import { Button } from '@/components/dashboard/ui';
 
-export interface PublishResult {
-  site: Site;
-  url: string | null;
-}
+export type PublishResult = PublishedSiteResult;
 
 function isLocalHost(): boolean {
   if (typeof window === 'undefined') return false;
@@ -69,6 +66,19 @@ export function PublishDialog({
         {liveUrl ? (
           <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2 font-mono text-xs text-[#174DDA]">
             {liveUrl}
+          </p>
+        ) : null}
+        {result?.preflight.warnings.length ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-800">
+            <p className="font-semibold">발행은 완료됐고, 아래 항목은 운영 QA에서 계속 확인해요.</p>
+            <ul className="mt-1 space-y-0.5">
+              {result.preflight.warnings.map((warning) => <li key={warning}>· {warning}</li>)}
+            </ul>
+          </div>
+        ) : null}
+        {result?.preflight.needsQa ? (
+          <p className="text-xs leading-5 text-[#667085]">
+            자동 진단 결과에 따라 관리자 QA 확인 대상으로 표시했습니다. 사이트는 정상 발행됐어요.
           </p>
         ) : null}
         <p className="text-xs leading-5 text-[#667085]">

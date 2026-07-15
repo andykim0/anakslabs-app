@@ -17,6 +17,13 @@ const LONG_COPY =
   '페이지의 제목과 본문, 구조화 데이터, 모바일 화면을 함께 점검하고 방문자가 필요한 정보를 빠르게 찾도록 구성합니다. ' +
   '운영자는 발행 전에 사진과 문구를 직접 확인하며 이후에도 내용을 수정하고 다시 발행할 수 있습니다.';
 
+const PURPOSE_EXTRA_TYPES: Partial<Record<LivePurposeId, string>> = {
+  booking_service: 'Service',
+  portfolio: 'CreativeWork',
+  edu_membership: 'Course',
+  one_page: 'ProfilePage',
+};
+
 function config(): SiteConfig {
   const value = emptySiteConfig('정적 발행 품질 테스트');
   value.meta = {
@@ -262,6 +269,22 @@ describe('Q$6 발행 산출물 하드 게이트', () => {
         [],
         `${purposeId}: ${result.blockers.map((blocker) => blocker.message).join(' / ')}`,
       );
+
+      const extraType = PURPOSE_EXTRA_TYPES[purposeId];
+      if (extraType) {
+        const corrupted = rendered.map((document) => ({
+          ...document,
+          html: document.html.replace(
+            new RegExp(`"@type":"${extraType}"`, 'g'),
+            '"@type":"Thing"',
+          ),
+        }));
+        const missingPurposeType = auditPublishArtifacts(value, 'basic', corrupted);
+        assert.ok(
+          missingPurposeType.blockers.some((blocker) => blocker.code === 'schema_type'),
+          `${purposeId}: ${extraType} 누락을 차단해야 함`,
+        );
+      }
     }
   });
 });

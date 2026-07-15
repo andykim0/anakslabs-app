@@ -155,11 +155,12 @@ class MockSitesRepo implements SitesRepo {
     site.draftConfig = structuredClone(config);
   }
 
-  async publish(siteId: string): Promise<Site> {
+  async publish(siteId: string, auditedDraft?: SiteConfig): Promise<Site> {
     const store = getMockStore();
     const site = store.sites.get(siteId);
     if (!site) throw new Error(`sites.publish: 사이트가 없습니다 (${siteId})`);
     if (!site.draftConfig) throw new Error('sites.publish: 발행할 초안이 없습니다');
+    if (!auditedDraft) throw new Error('sites.publish: 검증된 발행 초안이 필요합니다');
 
     // 도메인 미지정 시 {slug}.ROOT_DOMAIN 자동 할당 (소문자, 중복 회피)
     if (!site.domain) {
@@ -176,7 +177,8 @@ class MockSitesRepo implements SitesRepo {
       site.domainType = 'subdomain';
     }
 
-    site.siteConfig = structuredClone(site.draftConfig);
+    // Q$6: 현재 draft를 다시 읽지 않고 route가 진단한 snapshot만 발행한다.
+    site.siteConfig = structuredClone(auditedDraft);
     site.status = 'live';
     site.publishedAt = nowIso();
     return structuredClone(site);

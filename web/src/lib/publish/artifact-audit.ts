@@ -224,11 +224,15 @@ function nodeTypes(node: Record<string, unknown>): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
-function expectedOrganizationTypes(config: SiteConfig): string[] {
+function expectedSchemaTypes(config: SiteConfig): string[] {
   const spec = schemaSpecFor(config.meta.purposeId);
   if (spec) {
     const { orgType } = spec;
-    return typeof orgType === 'string' ? [orgType] : [...orgType];
+    return [
+      ...(typeof orgType === 'string' ? [orgType] : [...orgType]),
+      ...(spec.extra ?? []),
+      ...(spec.profilePage ? ['ProfilePage'] : []),
+    ];
   }
   const hasMenu = config.pages.some((page) => page.sections.some((section) => section.type === 'menu'));
   return [hasMenu ? 'LocalBusiness' : 'Organization'];
@@ -264,12 +268,12 @@ function auditSchema(
     push(blockers, 'schema_context', `${pageLabel(page)}의 구조화 데이터 schema.org 문맥이 올바르지 않습니다.`, { pageSlug: page.slug });
   }
   const types = new Set(nodes.flatMap(nodeTypes));
-  const expected = expectedOrganizationTypes(config);
+  const expected = expectedSchemaTypes(config);
   if (!types.has('WebSite') || expected.some((type) => !types.has(type))) {
     push(
       blockers,
       'schema_type',
-      `${pageLabel(page)}의 구조화 데이터에 필요한 타입(WebSite·${expected.join('·')})이 없습니다.`,
+      `${pageLabel(page)}의 목적별 구조화 데이터 타입(WebSite·${expected.join('·')})이 없습니다.`,
       { pageSlug: page.slug },
     );
   }

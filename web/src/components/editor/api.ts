@@ -14,6 +14,7 @@
 import type { CreditLedgerEntry, EditRequest, EditType, Site } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
+import type { PublishedSiteResult } from '@/lib/publish/result';
 
 export class EditorApiError extends Error {
   status: number;
@@ -115,7 +116,7 @@ export async function saveDraftRequest(
 export async function publishSiteRequest(
   siteId: string,
   humanChecks: PublishHumanChecks,
-): Promise<{ site: Site; url: string | null }> {
+): Promise<PublishedSiteResult> {
   // 사업자 정보와 사람의 최종 3체크를 각각 서버에 명시한다.
   return request(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
     method: 'POST',

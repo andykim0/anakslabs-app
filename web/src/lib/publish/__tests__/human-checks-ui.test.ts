@@ -32,7 +32,32 @@ describe('발행 휴먼 체크 UI 배선', () => {
     assert.match(dialog, /onGateChange=\{setQualityGateReady\}/);
     assert.match(dialog, /disabled=\{!qualityGateReady\}/);
     assert.match(diagnostics, /data\?\.ok === true/);
+    assert.match(diagnostics, /!isFetching/);
+    assert.match(diagnostics, /refetchOnMount:\s*'always'/);
     assert.match(diagnostics, /진단을 완료하지 못해 지금은 발행할 수 없어요/);
     assert.doesNotMatch(diagnostics, /그대로 발행/);
+  });
+
+  test('에디터는 autosave 완료 뒤에만 새 진단을 마운트하고 차단 상태에 발행 가능 문구를 내지 않는다', () => {
+    const shell = source('src/components/editor/EditorShell.tsx');
+    const diagnostics = source('src/components/editor/PublishDiagnostics.tsx');
+    const clickStart = shell.indexOf('const handlePublishClick = async');
+    const flushAt = shell.indexOf('await autosave.flush()', clickStart);
+    const openAt = shell.indexOf('setPrePublishOpen(true)', flushAt);
+    assert.ok(clickStart >= 0 && flushAt > clickStart && openAt > flushAt);
+    assert.match(shell, /prePublishOpen \? \(\s*<PrePublishDialog/);
+    assert.match(diagnostics, /!data\.ok \? \([\s\S]*다시 진단해야 발행할 수 있어요/);
+    assert.match(diagnostics, /data\.ok && data\.warnings\.length/);
+  });
+
+  test('발행 성공 응답의 QA 경고를 에디터와 대시보드가 버리지 않는다', () => {
+    const resultContract = source('src/lib/publish/result.ts');
+    const dialog = source('src/components/editor/PublishDialog.tsx');
+    const dashboard = source('src/components/dashboard/site-detail.tsx');
+    assert.match(resultContract, /warnings:\s*string\[\]/);
+    assert.match(resultContract, /needsQa:\s*boolean/);
+    assert.match(dialog, /result\?\.preflight\.warnings/);
+    assert.match(dialog, /result\?\.preflight\.needsQa/);
+    assert.match(dashboard, /result\.preflight\.warnings\.length/);
   });
 });

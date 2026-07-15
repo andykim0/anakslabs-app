@@ -28,10 +28,20 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     return apiError(409, 'NO_DRAFT', '진단할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
   }
 
-  const scan = preflightScan(config, {
-    siteUrl: siteUrlOf(site.domain) || undefined,
-    tier: client.tier,
-  });
+  let scan: ReturnType<typeof preflightScan>;
+  try {
+    scan = preflightScan(config, {
+      siteUrl: siteUrlOf(site.domain) || undefined,
+      tier: client.tier,
+    });
+  } catch (error) {
+    console.error('[preflight-audit] scan failed:', error);
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 품질 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+  }
   const preflight = checkPublish(config, client.tier, {
     scan: { total: scan.scores.total, grade: scan.grade },
     artifact: scan.publishAudit,

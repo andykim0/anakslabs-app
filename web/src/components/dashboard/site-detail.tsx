@@ -477,7 +477,11 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       toast(
         'success',
-        result.url ? `발행 완료 — ${result.url.replace(/^https?:\/\//, '')} 에서 라이브` : '발행이 완료되었습니다.',
+        result.preflight.warnings.length > 0
+          ? `발행 완료 · 운영 QA 확인 ${result.preflight.warnings.length}건`
+          : result.url
+            ? `발행 완료 — ${result.url.replace(/^https?:\/\//, '')} 에서 라이브`
+            : '발행이 완료되었습니다.',
       );
     },
     onError: (err) => {

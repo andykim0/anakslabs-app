@@ -17,7 +17,7 @@ const PILLAR_LABEL: Record<string, string> = { seo: '검색(SEO)', aeo: 'AI 답�
 const PASS_THRESHOLD = 70;
 
 function ScoreDot({ label, score }: { label: string; score: number }) {
-  const tone = score >= PASS_THRESHOLD ? 'text-emerald-400' : score >= 40 ? 'text-[#174DDA]' : 'text-red-400';
+  const tone = score >= PASS_THRESHOLD ? 'text-emerald-700' : score >= 40 ? 'text-[#174DDA]' : 'text-red-600';
   return (
     <div className="flex flex-col items-center rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2.5">
       <span className={cn('text-xl font-semibold tabular-nums', tone)}>{score}</span>
@@ -37,19 +37,20 @@ export function PublishDiagnostics({
   /** 자동 하드 게이트가 모두 통과했을 때만 true. 진단 실패·로딩도 fail-closed. */
   onGateChange: (ready: boolean) => void;
 }) {
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isFetching, isError } = useQuery({
     queryKey: ['preflight', siteId],
     queryFn: () => fetchPreflight(siteId),
     staleTime: 0,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
     retry: false,
   });
 
   useEffect(() => {
-    onGateChange(!isPending && !isError && data?.ok === true);
-  }, [data?.ok, isError, isPending, onGateChange]);
+    onGateChange(!isPending && !isFetching && !isError && data?.ok === true);
+  }, [data?.ok, isError, isFetching, isPending, onGateChange]);
 
-  if (isPending) {
+  if (isPending || isFetching) {
     return <div className="h-40 animate-pulse rounded-lg bg-white" />;
   }
   if (isError || !data) {
@@ -81,14 +82,14 @@ export function PublishDiagnostics({
       ) : null}
       {/* [I4] 개선 모드 — 진단에서 찾은 문제를 이렇게 고쳤어요 (실제 사라진 이슈만) */}
       {improvement && improvement.resolved.length > 0 ? (
-        <div className="rounded-lg border border-emerald-900/60 bg-emerald-950/25 px-3.5 py-3">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-300">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-3">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
             <Sparkles className="h-4 w-4" />
             진단에서 찾은 문제 {improvement.resolved.length + improvement.remaining.length}개 중 {improvement.resolved.length}개를 고쳤어요
           </p>
           <p className="mt-1 text-xs text-[#5F6B7C]">
             진단 점수 <span className="tabular-nums text-[#344054]">{improvement.beforeTotal}</span> → 지금{' '}
-            <span className="tabular-nums text-emerald-400">{improvement.afterTotal}</span>점.
+            <span className="tabular-nums text-emerald-700">{improvement.afterTotal}</span>점.
             {improvement.remaining.length > 0 ? ` 남은 ${improvement.remaining.length}개는 아래에서 채우면 더 올라가요.` : ' 남은 문제도 거의 없어요.'}
           </p>
         </div>
@@ -96,7 +97,7 @@ export function PublishDiagnostics({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm font-semibold text-[#0B1736]">검색 노출 점수</p>
-          <span className={cn('text-xs font-medium', passed ? 'text-emerald-400' : 'text-[#174DDA]')}>
+          <span className={cn('text-xs font-medium', passed ? 'text-emerald-700' : 'text-[#174DDA]')}>
             {scan.scores.total}점 · {scan.grade}등급
           </span>
         </div>
@@ -107,8 +108,13 @@ export function PublishDiagnostics({
         </div>
       </div>
 
-      {passed ? (
-        <p className="flex items-center gap-2 rounded-lg border border-emerald-900/60 bg-emerald-950/30 px-3.5 py-2.5 text-xs text-emerald-300">
+      {!data.ok ? (
+        <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs leading-5 text-red-700">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          위 차단 항목을 고친 뒤 다시 진단해야 발행할 수 있어요.
+        </p>
+      ) : passed ? (
+        <p className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-700">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           검색 노출 준비가 잘 됐어요. 바로 발행해도 좋아요.
         </p>
@@ -118,6 +124,15 @@ export function PublishDiagnostics({
           아래 몇 가지만 채우면 네이버·구글·AI 검색 노출이 눈에 띄게 좋아져요. 지금 발행해도 되고, 먼저 보완해도 돼요.
         </p>
       )}
+
+      {data.ok && data.warnings.length > 0 ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-3">
+          <p className="text-xs font-semibold text-amber-800">발행은 가능하지만 확인하면 좋은 항목</p>
+          <ul className="mt-1.5 space-y-1 text-xs leading-5 text-amber-800/90">
+            {data.warnings.map((warning) => <li key={warning}>· {warning}</li>)}
+          </ul>
+        </div>
+      ) : null}
 
       {actionable.length > 0 ? (
         <ul className="space-y-2">
@@ -133,7 +148,7 @@ export function PublishDiagnostics({
                     </span>
                   </p>
                   <p className="mt-1 text-[11px] leading-4 text-[#5F6B7C]">{iss.guidance!.action}</p>
-                  <p className="mt-0.5 text-[11px] leading-4 text-emerald-400/80">→ {iss.guidance!.effect}</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-emerald-700">→ {iss.guidance!.effect}</p>
                 </div>
                 <button
                   type="button"

@@ -66,16 +66,26 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
   };
 
   const [publishing, setPublishing] = useState(false);
+  const [preparingPublish, setPreparingPublish] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
   // [v3 Phase 4] 발행 전 2단계 확인 다이얼로그 (사업자 정보 확인 → 발행 확인)
   const [prePublishOpen, setPrePublishOpen] = useState(false);
 
   // 툴바 발행 버튼 → 즉시 발행이 아니라 확인 다이얼로그부터
-  const handlePublishClick = () => {
-    if (publishing) return;
-    // [G4] 진단이 최신 draft를 보도록 먼저 flush 후 다이얼로그 오픈(진단→사업자정보→발행)
-    void autosave.flush();
-    setPrePublishOpen(true);
+  const handlePublishClick = async () => {
+    if (publishing || preparingPublish) return;
+    // 진단 컴포넌트를 마운트하기 전에 최신 draft 저장이 끝나야 한다.
+    setPreparingPublish(true);
+    try {
+      const saved = await autosave.flush();
+      if (!saved) {
+        toast('error', '초안 저장에 실패해 발행 진단을 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+      setPrePublishOpen(true);
+    } finally {
+      setPreparingPublish(false);
+    }
   };
 
   // 다이얼로그 확인 완료 → 사업자 확인 + 실제 체크값을 동봉해 발행
@@ -104,8 +114,8 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
       <Toolbar
         siteName={siteName}
         exitHref={exitHref}
-        onPublish={handlePublishClick}
-        publishing={publishing}
+        onPublish={() => void handlePublishClick()}
+        publishing={publishing || preparingPublish}
         onExit={() => void autosave.flush()}
       />
 
@@ -129,13 +139,15 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
         </aside>
       </div>
 
-      <PrePublishDialog
-        open={prePublishOpen}
-        siteId={siteId}
-        publishing={publishing}
-        onClose={() => setPrePublishOpen(false)}
-        onConfirmed={(humanChecks) => void handlePublishConfirmed(humanChecks)}
-      />
+      {prePublishOpen ? (
+        <PrePublishDialog
+          open
+          siteId={siteId}
+          publishing={publishing}
+          onClose={() => setPrePublishOpen(false)}
+          onConfirmed={(humanChecks) => void handlePublishConfirmed(humanChecks)}
+        />
+      ) : null}
       <PublishDialog result={publishResult} onClose={() => setPublishResult(null)} />
     </div>
   );
