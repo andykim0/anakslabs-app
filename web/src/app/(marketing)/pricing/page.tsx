@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { Check } from 'lucide-react';
 import {
-  CREDIT_COSTS,
   CREDIT_EXPIRY_DAYS,
   CREDIT_PACKS,
-  FREE_REGEN_LIMIT,
   INITIAL_GRANT,
   PRICE_RANGES,
 } from '@/lib/credits/constants';
@@ -17,6 +15,11 @@ import {
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { PreviewVideo } from '@/components/marketing/PreviewVideo';
+import {
+  CREDIT_CONSUMING_ACTION_LABELS,
+  CREDIT_CONSUMING_ACTIONS,
+  CREDIT_CONTRACT_COPY,
+} from '@/lib/pricing';
 
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
@@ -45,18 +48,17 @@ const INCLUDED_FEATURES: string[] = [
 const PRICING_FAQ: FaqItem[] = [
   {
     q: '왜 제작비와 월 구독으로 나뉘나요?',
-    a: '제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 월 유지보수는 호스팅·SSL·백업·소소한 운영을 이어가는 구독입니다. 큰 수정은 편집 크레딧으로 별도 처리해, 안 쓰는 기능에 매달 돈이 나가지 않게 했습니다.',
-    plain:
-      '제작비는 사이트를 처음 설계·생성하는 1회 비용, 월 유지보수는 호스팅·SSL·백업 등 운영 구독입니다. 큰 수정은 편집 크레딧으로 별도 처리합니다.',
+    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 월 유지보수는 호스팅·SSL·백업·소소한 운영을 이어가는 구독입니다. ${CREDIT_CONTRACT_COPY}`,
+    plain: `제작비는 1회 비용이고 월 유지보수는 운영 구독입니다. ${CREDIT_CONTRACT_COPY}`,
   },
   {
     q: '편집 크레딧은 어떻게 쓰이나요?',
-    a: `수정 유형별로 크레딧을 소모합니다 — 텍스트 ${CREDIT_COSTS.text}개, 이미지 ${CREDIT_COSTS.image}개, 구조 변경 ${CREDIT_COSTS.structure}개, 영상 ${CREDIT_COSTS.video}개(영상 애드온). 최초 발행 후 첫 편집 1건과 온보딩 재생성 ${FREE_REGEN_LIMIT}회는 무료입니다.`,
-    plain: `수정 유형별로 크레딧을 소모합니다: 텍스트 ${CREDIT_COSTS.text}, 이미지 ${CREDIT_COSTS.image}, 구조 변경 ${CREDIT_COSTS.structure}, 영상 ${CREDIT_COSTS.video}(영상 애드온). 최초 편집 1건과 재생성 ${FREE_REGEN_LIMIT}회 무료.`,
+    a: CREDIT_CONTRACT_COPY,
+    plain: CREDIT_CONTRACT_COPY,
   },
   {
     q: '영상 애드온은 무엇인가요?',
-    a: `기본 제품에 AI 디자인 3안, 캔버스 에디터, 다중 페이지, SEO·AEO·GEO 세팅이 전부 포함됩니다. AI가 만드는 영상 히어로·시네마틱 영상만 원하는 분에 한해 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온으로 추가합니다. 편집 시 영상 수정은 크레딧 ${CREDIT_COSTS.video}개를 소모합니다.`,
+    a: `기본 제품에 AI 디자인 3안, 캔버스 에디터, 다중 페이지, SEO·AEO·GEO 세팅이 전부 포함됩니다. AI가 만드는 영상 히어로·시네마틱 영상만 원하는 분에 한해 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온으로 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
     plain: `기본 제품에 디자인·에디터·다중 페이지·SEO 세팅이 전부 포함됩니다. AI 영상 히어로·시네마틱 영상만 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온입니다.`,
   },
   {
@@ -187,8 +189,8 @@ export default function PricingPage() {
               영상 애드온 · +{man(VIDEO_ADDON_PRICE_KRW)}
             </span>
             <p className="mt-3 text-sm leading-6 text-[#5C6068]">
-              AI 영상 히어로·시네마틱 영상 편집은 기본 제품에 포함되지 않는 별도 애드온입니다. 편집 시
-              크레딧 {CREDIT_COSTS.video}개를 소모합니다.
+              AI 영상 히어로·시네마틱 영상은 기본 제품에 포함되지 않는 별도 애드온입니다. 완성 후 AI 영상
+              재생성에는 크레딧을 사용합니다.
             </p>
           </div>
         </div>
@@ -199,19 +201,18 @@ export default function PricingPage() {
         <div className="mx-auto max-w-5xl px-6 py-16">
           <SectionHeading
             title="편집 크레딧"
-            subtitle="사이트를 고칠 때만 쓰는 이용권입니다. 수정 유형별 소모량이 정해져 있습니다."
+            subtitle={CREDIT_CONTRACT_COPY}
           />
           <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
             <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-              <h3 className="text-sm font-semibold text-[#17181C]">유형별 소모</h3>
+              <h3 className="text-sm font-semibold text-[#17181C]">크레딧 사용처</h3>
               <ul className="mt-4 space-y-2 text-sm text-[#5C6068]">
-                <li>텍스트 수정 — {CREDIT_COSTS.text}개</li>
-                <li>이미지 교체·생성 — {CREDIT_COSTS.image}개</li>
-                <li>구조 변경 — {CREDIT_COSTS.structure}개</li>
-                <li>영상(Veo) 편집 — {CREDIT_COSTS.video}개 <span className="text-[#696E76]">(영상 애드온)</span></li>
+                {CREDIT_CONSUMING_ACTIONS.map((action) => (
+                  <li key={action}>{CREDIT_CONSUMING_ACTION_LABELS[action]}</li>
+                ))}
               </ul>
               <p className="mt-4 text-xs leading-5 text-[#696E76]">
-                최초 발행 후 첫 편집 1건과 온보딩 무료 재생성 {FREE_REGEN_LIMIT}회는 크레딧이 소모되지 않습니다.
+                텍스트를 직접 고치거나 이미지를 직접 교체하는 편집은 횟수 제한 없이 무료입니다.
               </p>
             </div>
             <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">

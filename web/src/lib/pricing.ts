@@ -23,6 +23,16 @@ export const CREDIT_CONSUMING_ACTIONS = [
 
 export type CreditConsumingAction = (typeof CREDIT_CONSUMING_ACTIONS)[number];
 
+export const CREDIT_CONSUMING_ACTION_LABELS = {
+  'ai-image-generate': 'AI 이미지 새로 생성',
+  'ai-video-regenerate': 'AI 영상 재생성',
+  'ai-section-redesign': 'AI 전체 섹션 재디자인',
+  'daboim-edit-service': '다보임 수정 대행',
+} as const satisfies Record<CreditConsumingAction, string>;
+
+export const CREDIT_CONTRACT_COPY =
+  '직접 수정은 횟수 제한 없이 무료입니다. 크레딧은 AI 재생성(이미지·영상·섹션)과 다보임 수정 대행에만 사용됩니다.';
+
 export type LaunchOffer = {
   display: 'strikethrough' | 'none';
   kind: 'quantity' | 'deadline' | 'none';
