@@ -82,7 +82,7 @@ describe('T2 — povImagePrompt 불변식', () => {
       survey({ tone: ['고급스러운'] }),
       'signature plated course dish and treatment-result closeup',
     );
-    assert.match(p, /^supporting ambient backdrop/);
+    assert.match(p, /Website image role: supporting ambient backdrop/);
     assert.ok(MOOD_SUBJECTS.elegant.ambient.some((subject) => p.includes(subject)), p);
     assert.ok(!p.includes('plated course'));
     assert.ok(!p.includes('treatment-result closeup'));
@@ -108,6 +108,11 @@ describe('T2 — buildImagePrompt / heroImagePrompt / Veo 불변식', () => {
       const p = buildImagePrompt('dark-luxury', '파인다이닝', 'hero', { palettePrimary: prim, background: bg });
       assert.match(p, /dark luxury mood/i, 'promptMood(영어) 미사용');
       assert.match(p, /accent tone .+background tone/);
+      assert.match(p, /Foreground: .+Midground: .+Background:/);
+      assert.match(p, /Lighting: .+Camera:/);
+      assert.match(p, /35mm prime lens at f\/4/);
+      assert.match(p, /material micro-texture/);
+      assert.match(p, /captured on location by a professional photographer/);
       assert.ok(hasProductSafetyDirective(p));
       assertPromptInvariants(p, `build-${prim}`);
     }

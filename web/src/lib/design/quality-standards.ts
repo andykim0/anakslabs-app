@@ -17,7 +17,9 @@ import {
   ambientSubjectFor,
   productSafetyDirective,
   resolveIndustrySubjectSafety,
+  resolveMoodSubjectId,
 } from '@/lib/design/image-subjects';
+import { buildPhotorealisticPhotoPrompt } from '@/lib/design/photorealistic-prompt';
 
 export type EnforcementMode = 'hard-code' | 'generation-data' | 'validator' | 'qa-audit';
 
@@ -79,7 +81,12 @@ export const QUALITY_STANDARDS: QualityStandard[] = [
     // 고객이 올린 실제 사진은 슬롯이 있는 한 반드시 1회 이상 사용하고 부족분만 AI로 채운다.
     // 구현: src/lib/data/image-pool.ts (buildImagePool) — mock/supabase AiService가 소비.
     enforcement: ['generation-data', 'validator', 'qa-audit'],
-    implementedBy: ['src/lib/design/quality-standards.ts', 'src/lib/ai/gemini-image.ts', 'src/lib/data/image-pool.ts'],
+    implementedBy: [
+      'src/lib/design/quality-standards.ts',
+      'src/lib/design/photorealistic-prompt.ts',
+      'src/lib/ai/gemini-image.ts',
+      'src/lib/data/image-pool.ts',
+    ],
   },
   {
     id: 'whispered-motion',
@@ -403,8 +410,8 @@ export function stripHangul(s: string): string {
  * [T2] 업종(한글 자유 텍스트) → 영어 배경 맥락 디스크립터
  * (describeColor 패턴 — 키워드 매핑, 결정적).
  *
- * 이 값은 피사체가 아니다. buildImagePrompt는 양의 피사체를 MOOD_SUBJECTS에서만 고르고,
- * 업종 디스크립터는 공간을 이해하기 위한 보조 맥락으로만 사용한다.
+ * 이 값은 주문 가능한 피사체가 아니다. buildImagePrompt는 MOOD_SUBJECTS의 안전한 시각 모티프와
+ * photorealistic-prompt의 통제된 업종 공간을 조합하고, 자유 업종명은 출력하지 않는다.
  */
 const INDUSTRY_DESCRIPTORS: { re: RegExp; en: string }[] = [
   { re: /카페|커피|베이커리|빵|디저트/, en: 'cozy cafe and bakery' },
@@ -589,8 +596,8 @@ export function derivePalette(primary: string, secondary?: string, opts?: { dark
 /**
  * gemini-image 프롬프트 조립 — POV 무드 + 업종 + (선택)팔레트/렌더방식에서만 조립(자유 서술 금지).
  * POV=무드, candidateStyle=렌더 방식(직교 조합).
- * [주의] 말미 "16:10"은 예술적 힌트일 뿐 — gemini-2.5-flash-image는 프롬프트 문자열 비율을 무시함이
- * 실증됨(정사각 출력). 실제 출력 비율은 generateGeminiImage의 aspectRatio(imageConfig)가 강제한다.
+ * photo는 Qwen-Image 2512식 구조화(공간 레이어·빛·카메라·재질)를 로컬에서 결정적으로 확장한다.
+ * 실제 출력 비율은 prompt가 아니라 generateGeminiImage의 aspectRatio(imageConfig)가 강제한다.
  */
 export function buildImagePrompt(
   povId: PovId,
@@ -617,6 +624,7 @@ export function buildImagePrompt(
   const role = imageRoleForSection(section);
   const context = industryDescriptor(industry);
   const subjectSafety = resolveIndustrySubjectSafety({ purposeId: opts?.purposeId, industry });
+  const moodId = resolveMoodSubjectId(opts?.tone, pov.promptMood);
   const subject = ambientSubjectFor({
     tone: opts?.tone,
     fallbackMood: pov.promptMood,
@@ -624,16 +632,33 @@ export function buildImagePrompt(
     seed: `${povId}:${role}:${context}`,
   });
   // hex는 이미지 표면에 텍스트로 각인되므로 색 이름(describeColor)으로 치환 — 산출 프롬프트에 '#' 미포함(불변식).
-  const color = opts?.palettePrimary
-    ? ` Color mood: accent tone ${describeColor(opts.palettePrimary)}${opts.background ? `, background tone ${describeColor(opts.background)}` : ''}.`
-    : '';
-  // [H3] 양의 피사체는 tone 기반 ambient만. 업종은 배경 맥락, section은 화이트리스트 역할만 출력한다.
+  const colorMood = opts?.palettePrimary
+    ? `accent tone ${describeColor(opts.palettePrimary)}${opts.background ? `, background tone ${describeColor(opts.background)}` : ''}`
+    : undefined;
+  // [H3] 자유 피사체는 계속 차단한다. photo만 안전한 업종 공간을 구체화해 실제 촬영 정보로 확장한다.
+  if (candidateStyle === 'photo') {
+    const photoPrompt = buildPhotorealisticPhotoPrompt({
+      role,
+      businessContext: context,
+      ambientSubject: subject,
+      mood: pov.promptMood,
+      moodId,
+      colorMood,
+      seed: `${povId}:${role}:${context}:${moodId}`,
+    });
+    return stripHangul(
+      `${photoPrompt} ${productSafetyDirective(candidateStyle, { strict: subjectSafety.strict })} ` +
+        `${NO_TEXT_DIRECTIVE}, no stock photography.`,
+    );
+  }
+
+  const color = colorMood ? ` Color mood: ${colorMood}.` : '';
   return stripHangul(
     `${role} for a Korean small business. Focal ambient subject: ${subject}. ` +
       `Business-setting context only: ${context}; do not turn its goods or service outcomes into the focal subject. ` +
       `Design point-of-view: ${pov.promptMood}. Render: ${render}.${color} ` +
       `${productSafetyDirective(candidateStyle, { strict: subjectSafety.strict })} ` +
-      `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography. 16:10.`,
+      `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography.`,
   );
 }
 
