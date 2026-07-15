@@ -31,6 +31,7 @@ import type {
 } from '@/lib/types/domain';
 import type { HeroImageChoice, SectionType } from '@/lib/types/site';
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
+import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 
 // ---------- 에러 ----------
 
@@ -159,10 +160,14 @@ export interface PublishResult {
   url: string | null;
 }
 
-export async function publishSite(siteId: string): Promise<PublishResult> {
-  // [v3 Phase 4] 발행 확인 모달을 거친 뒤에만 호출 — 서버가 이 필드를 요구(400)
+export async function publishSite(
+  siteId: string,
+  humanChecks: PublishHumanChecks,
+): Promise<PublishResult> {
+  // 발행 확인 모달의 사업자 정보 확인과 휴먼 3체크를 서버가 각각 요구한다.
   return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
     businessInfoConfirmed: true,
+    humanChecks,
   });
 }
 

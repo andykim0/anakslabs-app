@@ -6,9 +6,14 @@
  */
 import 'server-only';
 import { parse } from 'node-html-parser';
-import type { SiteConfig } from '@/lib/types/site';
+import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import type { ScanIssue } from '@/lib/data/types';
 import { renderStaticDocument } from '@/lib/export/render-static';
+import {
+  auditPublishArtifacts,
+  type PublishArtifactAudit,
+  type RenderedPublishPage,
+} from '@/lib/publish/artifact-audit';
 import { runRules, type RuleContext } from './rules';
 import { SEO_RULES } from './checks/seo';
 import { AEO_RULES } from './checks/aeo';
@@ -16,7 +21,12 @@ import { GEO_RULES } from './checks/geo';
 import { buildScores } from './score';
 import type { ScanCore } from './index';
 
-export function preflightScan(config: SiteConfig, opts?: { siteUrl?: string }): ScanCore {
+export type PreflightScanResult = ScanCore & { publishAudit: PublishArtifactAudit };
+
+export function preflightScan(
+  config: SiteConfig,
+  opts: { siteUrl?: string; tier: MotionTier },
+): PreflightScanResult {
   // [F1] 전 페이지 순회 — 각 페이지를 렌더·규칙 적용 후 축별 '최악 페이지'의 차감을 채택(thin 서브페이지도
   //      발행 게이트에 반영) + 이슈는 code 기준 합집합. 단일 페이지 사이트는 홈 1장 = 기존과 동일(무회귀).
   // [S-batch] siteUrl(발행 라우트가 site.domain 전달)로 서빙 레이어(canonical·JSON-LD)까지 포함해
@@ -25,9 +35,11 @@ export function preflightScan(config: SiteConfig, opts?: { siteUrl?: string }): 
   const worst = { seo: 0, aeo: 0, geo: 0 };
   const issues: ScanIssue[] = [];
   const seenCodes = new Set<string>();
+  const renderedPages: RenderedPublishPage[] = [];
 
   for (const page of config.pages) {
-    const html = renderStaticDocument({ config, pageSlug: page.slug, siteUrl });
+    const html = renderStaticDocument({ config, pageSlug: page.slug, siteUrl, tier: opts.tier });
+    renderedPages.push({ pageSlug: page.slug, html });
     const root = parse(html);
     const clone = parse(root.toString());
     for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
@@ -58,5 +70,6 @@ export function preflightScan(config: SiteConfig, opts?: { siteUrl?: string }): 
   }
 
   const { scores, grade } = buildScores(worst);
-  return { url: siteUrl, scores, grade, issues };
+  const publishAudit = auditPublishArtifacts(config, opts.tier, renderedPages);
+  return { url: siteUrl, scores, grade, issues, publishAudit };
 }

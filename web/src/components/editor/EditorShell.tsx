@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import { Palette, Wand2 } from 'lucide-react';
 import type { SiteConfig } from '@/lib/types/site';
 import type { Tier } from '@/lib/types/domain';
+import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import { initializeEditor, useEditorStore } from '@/stores/editor';
 import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
@@ -77,8 +78,8 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
     setPrePublishOpen(true);
   };
 
-  // 다이얼로그 2단계 완료 → 실제 발행 (businessInfoConfirmed는 editor api가 body에 동봉)
-  const handlePublishConfirmed = async () => {
+  // 다이얼로그 확인 완료 → 사업자 확인 + 실제 체크값을 동봉해 발행
+  const handlePublishConfirmed = async (humanChecks: PublishHumanChecks) => {
     if (publishing) return;
     setPublishing(true);
     try {
@@ -87,7 +88,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
         toast('error', '초안 저장에 실패해 발행을 중단했습니다. 잠시 후 다시 시도해 주세요.');
         return;
       }
-      const result = await publishSiteRequest(siteId);
+      const result = await publishSiteRequest(siteId, humanChecks);
       setPrePublishOpen(false);
       setPublishResult(result);
     } catch (err) {
@@ -133,7 +134,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
         siteId={siteId}
         publishing={publishing}
         onClose={() => setPrePublishOpen(false)}
-        onConfirmed={() => void handlePublishConfirmed()}
+        onConfirmed={(humanChecks) => void handlePublishConfirmed(humanChecks)}
       />
       <PublishDialog result={publishResult} onClose={() => setPublishResult(null)} />
     </div>

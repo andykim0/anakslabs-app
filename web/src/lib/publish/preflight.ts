@@ -17,6 +17,7 @@ import { scrimPassesAA } from '@/lib/design/scrim';
 import { solidButtonPassesAA } from '@/lib/design/button-contrast';
 import { isThinSection } from '@/lib/design/section-density';
 import { resolveSectionPriority } from '@/lib/data/site-blueprints';
+import type { PublishArtifactAudit } from './artifact-audit';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
 
@@ -38,13 +39,22 @@ export interface PublishPreflight {
   scan?: { total: number; grade: string; belowThreshold: boolean };
 }
 
+export interface PublishCheckOptions {
+  scan?: { total: number; grade: string };
+  scanThreshold?: number;
+  /** 렌더된 정적 문서에서 증명한 하드 게이트. 점수와 달리 한 건이라도 있으면 발행 차단. */
+  artifact?: PublishArtifactAudit;
+}
+
 export function checkPublish(
   config: SiteConfig,
   tier: MotionTier,
-  opts?: { scan?: { total: number; grade: string }; scanThreshold?: number },
+  opts?: PublishCheckOptions,
 ): PublishPreflight {
   const blockers: string[] = [];
   const warnings: string[] = [];
+
+  for (const blocker of opts?.artifact?.blockers ?? []) blockers.push(blocker.message);
 
   // ② 모션 무결성 — 저장 시 sanitize되므로 정상 draft는 무변경. 변경 발생 = 저장 우회/오염 → 차단.
   const { changes } = sanitizeMotion(config, tier);

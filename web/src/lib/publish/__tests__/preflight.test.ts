@@ -32,6 +32,17 @@ describe('checkPublish 하드 게이트(차단)', () => {
     assert.equal(r.ok, false);
     assert.ok(r.blockers.some((b) => b.includes('대비')), '대비 blocker 없음');
   });
+
+  test('정적 산출물 감사 blocker → 점수와 무관하게 발행 차단', () => {
+    const r = checkPublish(valid(), 'premium', {
+      scan: { total: 100, grade: 'A' },
+      artifact: {
+        blockers: [{ code: 'static_main', message: '정적 HTML에 main이 없습니다.', pageSlug: '' }],
+      },
+    });
+    assert.equal(r.ok, false);
+    assert.deepEqual(r.blockers, ['정적 HTML에 main이 없습니다.']);
+  });
 });
 
 describe('checkPublish 경고(발행 허용 + QA)', () => {

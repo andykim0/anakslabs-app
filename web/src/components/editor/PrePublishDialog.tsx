@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * [v3 Phase 4] 발행 전 2단계 다이얼로그.
- *  1단계 — 사업자 정보 확인: 입력값 요약(미입력이면 인라인 폼 즉시 입력),
+ * 발행 전 3단계 다이얼로그.
+ *  1단계 — 자동 진단.
+ *  2단계 — 사업자 정보 확인: 입력값 요약(미입력이면 인라인 폼 즉시 입력),
  *          "위 정보가 정확한지 확인했습니다" 체크 필수. 개인 사이트 토글은 폼 안에.
- *  2단계 — 발행 확인: 초안이 라이브로 반영됨을 안내하고 발행 실행.
- * 서버도 publish body의 businessInfoConfirmed:true를 요구한다(클라 우회 방지).
+ *  3단계 — 휴먼 3체크 후 발행 실행.
+ * 서버도 사업자 정보 확인과 휴먼 3체크를 각각 요구한다(클라 우회 방지).
  */
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Pencil, Rocket, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,13 @@ import { Modal } from '@/components/dashboard/modal';
 import { Button, cn } from '@/components/dashboard/ui';
 import { BusinessInfoForm } from './BusinessInfoForm';
 import { PublishDiagnostics, type FixAnchor } from './PublishDiagnostics';
+import { HumanPublishChecklist } from '@/components/publish/HumanPublishChecklist';
+import {
+  allPublishHumanChecksConfirmed,
+  emptyPublishHumanChecks,
+  type PublishHumanCheckId,
+  type PublishHumanChecks,
+} from '@/lib/publish/human-checks';
 
 function SummaryRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
@@ -55,14 +63,16 @@ export function PrePublishDialog({
   siteId: string;
   publishing: boolean;
   onClose: () => void;
-  /** 발행 클릭 완료 — 실제 발행 요청 실행 */
-  onConfirmed: () => void;
+  /** 발행 클릭 완료 — 실제로 체크한 값을 서버 요청에 전달 */
+  onConfirmed: (humanChecks: PublishHumanChecks) => void;
 }) {
   const businessInfo = useEditorStore((s) => s.businessInfo);
   // [G4] 3단계: 0=진단 → 1=사업자정보 → 2=발행
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [editing, setEditing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [humanChecks, setHumanChecks] = useState<PublishHumanChecks>(emptyPublishHumanChecks);
+  const [qualityGateReady, setQualityGateReady] = useState(false);
 
   // 열릴 때마다 초기화 — 진단부터. (사업자정보 미입력이면 그 단계에서 인라인 폼)
   useEffect(() => {
@@ -70,6 +80,8 @@ export function PrePublishDialog({
       setStep(0);
       setEditing(!useEditorStore.getState().businessInfo);
       setConfirmed(false);
+      setHumanChecks(emptyPublishHumanChecks());
+      setQualityGateReady(false);
     }
   }, [open]);
 
@@ -84,17 +96,20 @@ export function PrePublishDialog({
   };
 
   const title = step === 0 ? '발행 전 진단 (1/3)' : step === 1 ? '사업자 정보 확인 (2/3)' : '발행 (3/3)';
+  const updateHumanCheck = (id: PublishHumanCheckId, checked: boolean) => {
+    setHumanChecks((current) => ({ ...current, [id]: checked }));
+  };
 
   return (
     <Modal open={open} onClose={onClose} title={title} className="max-w-lg">
       {step === 0 ? (
         <div className="space-y-4">
-          <PublishDiagnostics siteId={siteId} onFix={handleFix} />
+          <PublishDiagnostics siteId={siteId} onFix={handleFix} onGateChange={setQualityGateReady} />
           <div className="flex justify-end gap-2 pt-1">
             <Button variant="ghost" onClick={onClose}>
               먼저 보완하기
             </Button>
-            <Button onClick={() => setStep(1)}>
+            <Button disabled={!qualityGateReady} onClick={() => setStep(1)}>
               계속
               <Rocket className="h-4 w-4" />
             </Button>
@@ -175,11 +190,16 @@ export function PrePublishDialog({
             지금 발행하면 편집 중인 초안이 라이브 사이트로 반영됩니다. 서브도메인은 즉시 접속 가능하며,
             이후에도 언제든 다시 편집하고 재발행할 수 있어요.
           </p>
+          <HumanPublishChecklist value={humanChecks} onChange={updateHumanCheck} />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setStep(1)}>
               이전
             </Button>
-            <Button loading={publishing} onClick={onConfirmed}>
+            <Button
+              disabled={!allPublishHumanChecksConfirmed(humanChecks)}
+              loading={publishing}
+              onClick={() => onConfirmed(humanChecks)}
+            >
               <Rocket className="h-4 w-4" />
               발행하기
             </Button>

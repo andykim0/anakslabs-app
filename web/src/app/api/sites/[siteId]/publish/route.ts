@@ -1,7 +1,7 @@
 /**
  * POST /api/sites/[siteId]/publish — 발행 (draft → 발행본, status='live', 서브도메인 할당).
- * body: { businessInfoConfirmed: true } 필수 — [v3 Phase 4] 발행 다이얼로그 1단계
- * (사업자 정보 확인)를 거쳤음을 명시. 없으면 400 (클라 우회 방지).
+ * body: { businessInfoConfirmed: true, humanChecks: { ...3개 true } } 필수.
+ * 사업자 정보와 사람만 판단할 수 있는 최종 확인을 모두 서버가 재검증한다.
  * 응답: { site, url } — url은 라이브 주소.
  */
 import { NextResponse, type NextRequest } from 'next/server';
@@ -11,6 +11,7 @@ import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../..
 import { checkPublish } from '@/lib/publish/preflight';
 import { preflightScan } from '@/lib/scan/preflight';
 import { siteUrlOf } from '@/lib/seo/structured-data';
+import { missingPublishHumanChecks, PUBLISH_HUMAN_CHECKS } from '@/lib/publish/human-checks';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -26,19 +27,27 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, 'NO_DRAFT', '발행할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
   }
 
-  // [v3 Phase 4] 사업자 정보 확인 단계를 거쳤는지 — body 없이 직접 호출하면 400
-  let confirmed = false;
+  // 요청 본문은 한 번만 읽고 사업자 확인과 휴먼 3체크를 각각 검증한다.
+  let body: { businessInfoConfirmed?: unknown; humanChecks?: unknown } | null = null;
   try {
-    const body = (await request.json()) as { businessInfoConfirmed?: unknown } | null;
-    confirmed = body?.businessInfoConfirmed === true;
+    body = (await request.json()) as { businessInfoConfirmed?: unknown; humanChecks?: unknown } | null;
   } catch {
-    confirmed = false; // body 없음/JSON 아님
+    body = null;
   }
-  if (!confirmed) {
+  if (body?.businessInfoConfirmed !== true) {
     return apiError(
       400,
       'BUSINESS_INFO_CONFIRM_REQUIRED',
       '발행 전 사업자 정보 확인이 필요합니다. 에디터의 발행 버튼으로 진행해 주세요.',
+    );
+  }
+  const missingHumanChecks = missingPublishHumanChecks(body.humanChecks);
+  if (missingHumanChecks.length > 0) {
+    return apiError(
+      400,
+      'PUBLISH_HUMAN_CHECKS_REQUIRED',
+      '발행 전 대표 사진·문구·완성 화면을 직접 확인해 주세요.',
+      { missing: missingHumanChecks, checklist: PUBLISH_HUMAN_CHECKS },
     );
   }
 
@@ -51,15 +60,25 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
-  // [quality-system] 발행 전 자가 검증. ② 모션·팔레트 무결성 = 하드 게이트, ① 자가 진단·③ 모바일 = 경고+QA.
-  let scanInput: { total: number; grade: string } | undefined;
+  // [Q$6] 렌더/감사 자체가 실패하면 품질을 증명할 수 없으므로 fail-closed. 점수 미달 자체는 계속 경고다.
+  let scan: ReturnType<typeof preflightScan>;
   try {
-    const s = preflightScan(site.draftConfig, { siteUrl: siteUrlOf(site.domain) || undefined });
-    scanInput = { total: s.scores.total, grade: s.grade };
-  } catch {
-    // 렌더/스캔 실패는 발행을 막지 않는다(하드 게이트만 강제)
+    scan = preflightScan(site.draftConfig, {
+      siteUrl: siteUrlOf(site.domain) || undefined,
+      tier: client.tier,
+    });
+  } catch (error) {
+    console.error('[publish-audit] preflight failed:', error);
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 품질 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
   }
-  const preflight = checkPublish(site.draftConfig, client.tier, scanInput ? { scan: scanInput } : undefined);
+  const preflight = checkPublish(site.draftConfig, client.tier, {
+    scan: { total: scan.scores.total, grade: scan.grade },
+    artifact: scan.publishAudit,
+  });
   if (!preflight.ok) {
     return apiError(409, 'PUBLISH_QUALITY_BLOCKED', preflight.blockers.join(' '), {
       blockers: preflight.blockers,

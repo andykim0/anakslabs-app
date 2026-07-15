@@ -5,6 +5,7 @@
  * "홈페이지 최적화 AI"의 정체성 최전선: 점수 자랑이 아니라 "이거 채우면 검색 노출이 좋아져요".
  * 점수는 발행을 차단하지 않는다(기존 정책). 하드 blocker만 발행 불가.
  */
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { fetchPreflight, type ScanIssueGuidance } from './api';
@@ -28,10 +29,13 @@ function ScoreDot({ label, score }: { label: string; score: number }) {
 export function PublishDiagnostics({
   siteId,
   onFix,
+  onGateChange,
 }: {
   siteId: string;
   /** 개선 항목의 딥링크 앵커로 이동(에디터 포커스/사업자정보 등) */
   onFix: (anchor: FixAnchor) => void;
+  /** 자동 하드 게이트가 모두 통과했을 때만 true. 진단 실패·로딩도 fail-closed. */
+  onGateChange: (ready: boolean) => void;
 }) {
   const { data, isPending, isError } = useQuery({
     queryKey: ['preflight', siteId],
@@ -41,25 +45,40 @@ export function PublishDiagnostics({
     retry: false,
   });
 
+  useEffect(() => {
+    onGateChange(!isPending && !isError && data?.ok === true);
+  }, [data?.ok, isError, isPending, onGateChange]);
+
   if (isPending) {
     return <div className="h-40 animate-pulse rounded-lg bg-white" />;
   }
   if (isError || !data) {
     return (
       <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3 text-xs text-[#5F6B7C]">
-        진단을 불러오지 못했어요. 그대로 발행하거나 잠시 후 다시 시도해 주세요.
+        진단을 완료하지 못해 지금은 발행할 수 없어요. 잠시 후 다시 시도해 주세요.
       </p>
     );
   }
 
   const { scan, improvement } = data;
-  const passed = scan.scores.total >= PASS_THRESHOLD;
+  const passed = data.ok && scan.scores.total >= PASS_THRESHOLD;
   // 고객이 조치할 수 있는(자동 처리 아닌) 항목만, 감점 큰 순(preflightScan 정렬) 상위 노출
   const actionable = scan.issues.filter((i) => i.guidance && i.guidance.anchor !== 'system').slice(0, 5);
   const autoCount = scan.issues.filter((i) => i.guidance?.anchor === 'system').length;
 
   return (
     <div className="space-y-4">
+      {!data.ok ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-3">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-red-700">
+            <AlertTriangle className="h-4 w-4" />
+            발행 전에 꼭 고쳐야 할 항목이 있어요
+          </p>
+          <ul className="mt-2 space-y-1 text-xs leading-5 text-red-700/90">
+            {data.blockers.map((blocker) => <li key={blocker}>· {blocker}</li>)}
+          </ul>
+        </div>
+      ) : null}
       {/* [I4] 개선 모드 — 진단에서 찾은 문제를 이렇게 고쳤어요 (실제 사라진 이슈만) */}
       {improvement && improvement.resolved.length > 0 ? (
         <div className="rounded-lg border border-emerald-900/60 bg-emerald-950/25 px-3.5 py-3">

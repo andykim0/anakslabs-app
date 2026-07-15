@@ -28,9 +28,13 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     return apiError(409, 'NO_DRAFT', '진단할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
   }
 
-  const scan = preflightScan(config, { siteUrl: siteUrlOf(site.domain) || undefined });
+  const scan = preflightScan(config, {
+    siteUrl: siteUrlOf(site.domain) || undefined,
+    tier: client.tier,
+  });
   const preflight = checkPublish(config, client.tier, {
     scan: { total: scan.scores.total, grade: scan.grade },
+    artifact: scan.publishAudit,
   });
 
   // scan 이슈에 고객 언어 가이드 부착
