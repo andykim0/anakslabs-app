@@ -46,19 +46,19 @@ export const EDIT_STATUS_LABELS: Record<EditStatus, string> = {
 };
 
 export const EDIT_TYPE_LABELS: Record<EditType, string> = {
-  text: '텍스트/카피 수정',
-  image: '이미지 교체·추가',
-  video: '영상 클립 교체·추가',
-  structure: '구조 변경(섹션 추가 등)',
+  text: '다보임 카피 수정 대행',
+  image: 'AI 이미지 새로 생성',
+  video: 'AI 영상 재생성',
+  structure: 'AI 전체 섹션 재디자인',
 };
 
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
   initial_grant: '초기 지급',
   purchase: '크레딧 구매',
-  edit_text: '텍스트 수정',
-  edit_image: '이미지 수정',
-  edit_video: '영상 수정',
-  edit_structure: '구조 변경',
+  edit_text: '다보임 카피 수정 대행',
+  edit_image: 'AI 이미지 새로 생성',
+  edit_video: 'AI 영상 재생성',
+  edit_structure: 'AI 전체 섹션 재디자인',
   refund: '환불',
   expired: '만료 소멸',
   admin_adjust: '운영자 조정',

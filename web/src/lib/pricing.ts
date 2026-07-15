@@ -116,6 +116,7 @@ export function isLaunchOfferActive(input: LaunchOfferEvaluationInput = {}): boo
 }
 
 export function getLaunchOfferLabel(offer: LaunchOffer = LAUNCH_OFFER): string | null {
+  if (offer.display !== 'strikethrough') return null;
   if (offer.kind === 'quantity' && Number.isInteger(offer.limitCount) && (offer.limitCount ?? 0) > 0) {
     return `런칭 선착순 ${offer.limitCount}곳 한정`;
   }

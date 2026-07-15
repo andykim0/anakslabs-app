@@ -4,10 +4,14 @@
  * 자동 진단이나 사업자 정보 확인과 섞지 않는다. 서버는 아래 세 id가 모두
  * 명시적으로 true인 요청만 허용한다.
  */
+import { formatKrw, getBasePricePresentation } from '@/lib/pricing';
+
+const currentBasePrice = formatKrw(getBasePricePresentation().currentPriceKrw);
+
 export const PUBLISH_HUMAN_CHECKS = [
   { id: 'heroPhotoAuthentic', label: '대표 사진이 진짜인가' },
   { id: 'copyIsFactual', label: '문구가 사실인가' },
-  { id: 'worthThePrice', label: '이 화면을 39만원 주고 살 만한가' },
+  { id: 'worthThePrice', label: `이 화면을 ${currentBasePrice}에 살 만한가` },
 ] as const;
 
 export type PublishHumanCheckId = (typeof PUBLISH_HUMAN_CHECKS)[number]['id'];
