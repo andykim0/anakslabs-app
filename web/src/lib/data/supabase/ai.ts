@@ -33,6 +33,7 @@ import { imageFillMaxPerSite } from '@/lib/env';
 import { buildSiteConfigFromSurvey, type SectionCopy } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
 import { selectedHeroPhotoUrl } from '@/lib/onboarding/hero-image-options';
+import { sectionDirectionPrompt } from '@/lib/onboarding/section-directions';
 import { uploadAiAsset } from './storage';
 
 // ---------- 공통 유틸 ----------
@@ -154,6 +155,10 @@ async function generateSectionCopy(
   const planLines = survey.sectionPlan
     .map((s) => `- ${s.name}${s.brief ? `: ${s.brief}` : ''}`)
     .join('\n');
+  const directionLines = survey.directions
+    ?.map(sectionDirectionPrompt)
+    .filter(Boolean)
+    .join('\n');
   const prompt =
     `다음 사업장의 웹사이트 섹션 카피를 JSON으로 작성해줘.\n` +
     `상호: ${survey.businessName}\n${survey.tagline ? `태그라인: ${survey.tagline}\n` : ''}` +
@@ -166,6 +171,9 @@ async function generateSectionCopy(
       : '') +
     (planLines
       ? `\n[이 사이트의 섹션 구성 — 각 섹션의 의도를 카피에 반영]\n${planLines}\n`
+      : '') +
+    (directionLines
+      ? `\n[고객의 섹션별 디렉션 — 기존 사실·숫자·이름·링크는 그대로 보존]\n${directionLines}\n`
       : '') +
     (provided
       ? `\n[고객 제공 원문 — 창작 금지, 아래 내용을 다듬어서만 사용하고 없는 사실을 지어내지 마라]\n${survey.providedContent!.trim().slice(0, 3000)}\n\n`

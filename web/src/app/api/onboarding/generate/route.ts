@@ -11,6 +11,7 @@ import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
+import { applySectionDirections } from '@/lib/onboarding/section-directions';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import { parseBody, withApiHandler } from '../../_lib/http';
@@ -72,7 +73,10 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
 
-  const generated = await ai.generateSiteConfig(survey, candidate);
+  const generated = applySectionDirections(
+    await ai.generateSiteConfig(survey, candidate),
+    survey.directions,
+  );
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 주입 → [Q7] 사용자 선택 병합 → sanitize
   const draftConfig = applyGeneratedMotion(

@@ -16,6 +16,7 @@ import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
+import { applySectionDirections } from '@/lib/onboarding/section-directions';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
@@ -69,7 +70,10 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
-  const generated = await ai.generateSiteConfig(survey, candidate);
+  const generated = applySectionDirections(
+    await ai.generateSiteConfig(survey, candidate),
+    survey.directions,
+  );
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
   const draftConfig = applyGeneratedMotion(
