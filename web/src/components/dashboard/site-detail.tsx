@@ -59,12 +59,14 @@ import {
 
 // ---------- 미리보기 ----------
 
-function PreviewCard({ site }: { site: Site }) {
+function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
   const { toast } = useToast();
   const [source, setSource] = useState<'draft' | 'published'>(site.draftConfig ? 'draft' : 'published');
   // [G1] 모션 미리보기 — 발행 전 reveal/ken-burns 실동작을 기본 재생(토글은 '끄기' 용도)
   const [motionOn, setMotionOn] = useState(true);
+  const [previewAsAddon, setPreviewAsAddon] = useState(false);
+  const ownsVideoAddon = hasVideoAddon(tier);
 
   const hasBoth = Boolean(site.draftConfig && site.siteConfig);
   const config = source === 'draft' ? (site.draftConfig ?? site.siteConfig) : (site.siteConfig ?? site.draftConfig);
@@ -102,6 +104,22 @@ function PreviewCard({ site }: { site: Site }) {
           )}
         </div>
         <div className="flex items-center gap-2">
+        {!ownsVideoAddon ? (
+          <button
+            type="button"
+            onClick={() => setPreviewAsAddon((value) => !value)}
+            aria-pressed={previewAsAddon}
+            className={cn(
+              'flex h-7 items-center gap-1 rounded-lg border px-2 text-[11px] transition-colors',
+              previewAsAddon
+                ? 'border-ob-accent-strong bg-ob-accent-soft font-medium text-ob-accent-strong'
+                : 'border-ob-border text-ob-muted hover:border-ob-muted hover:text-ob-ink',
+            )}
+          >
+            <Film className="h-3 w-3" />
+            애드온 적용 예시
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => setMotionOn((v) => !v)}
@@ -152,6 +170,8 @@ function PreviewCard({ site }: { site: Site }) {
               scroll
               interactive
               motion={motionOn}
+              previewAsAddon={previewAsAddon}
+              tier={tier}
               onFormSubmit={() => toast('info', '발행 후 실제 사이트에서 문의가 전송됩니다.')}
             />
           </div>
@@ -542,7 +562,7 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
         )}
       </div>
 
-      <PreviewCard site={site} />
+      <PreviewCard site={site} tier={tier} />
 
       <HeroVideoResumeCard site={site} tier={tier} />
 

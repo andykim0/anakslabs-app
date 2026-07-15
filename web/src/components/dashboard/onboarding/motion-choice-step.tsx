@@ -166,6 +166,7 @@ export function MotionChoiceStep({
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
   const availableMotionIds = heroVideoMotionIdsForContext(isScrollytellingTemplate(purposeId, templateId));
   const [wantsVideo, setWantsVideo] = useState(initial?.heroTechnique === 'video-hero');
+  const [showAddonDemo, setShowAddonDemo] = useState(false);
   const activeConceptId =
     initial?.videoConceptId && concepts.some((concept) => concept.id === initial.videoConceptId)
       ? initial.videoConceptId
@@ -211,6 +212,46 @@ export function MotionChoiceStep({
             예시 움직임이에요. 결제하시면 이 사진으로 실제 영상을 만들어드려요.
           </span>
         </div>
+      </div>
+
+      <div className="rounded-ob border border-ob-border bg-ob-bg p-3">
+        <button
+          type="button"
+          aria-expanded={showAddonDemo}
+          onClick={() => setShowAddonDemo((value) => !value)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span>
+            <span className="block text-sm font-semibold text-ob-ink">애드온 적용 예시 보기</span>
+            <span className="mt-0.5 block text-xs leading-5 text-ob-muted">
+              실제 시네마틱 영상의 깊이와 움직임을 대표 클립으로 확인해요.
+            </span>
+          </span>
+          <Film className="h-5 w-5 shrink-0 text-ob-accent-strong" />
+        </button>
+        {showAddonDemo ? (
+          <div className="relative mt-3 aspect-video overflow-hidden rounded-ob border border-ob-border bg-[#07162f]">
+            <video
+              className="h-full w-full object-cover"
+              poster="/daboim-visibility-film-poster.webp"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="영상 애드온 대표 예시"
+            >
+              <source src="/daboim-visibility-film.webm" type="video/webm" />
+              <source src="/daboim-visibility-film-scrub.mp4" type="video/mp4" />
+            </video>
+            <span className="absolute top-2 left-2 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
+              예시 · 애드온(+₩{VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}) 적용 시
+            </span>
+            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pt-10 pb-3 text-[10px] leading-4 text-white/90">
+              대표 데모 클립이며 고객님의 최종 영상이 아닙니다. 실제 생성은 결제·승인 후에만 진행됩니다.
+            </span>
+          </div>
+        ) : null}
       </div>
 
       <div className="space-y-2.5">

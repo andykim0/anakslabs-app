@@ -8,11 +8,13 @@
  *    내부 폭만 고정해주면 그 폭 기준으로 정확히 비례 렌더된다)
  * - 확정 계약: SiteRenderer({ config, mode?: 'desktop'|'mobile'|'auto' })
  */
-import { Component, useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
+import { Component, useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
 import { ImageOff } from 'lucide-react';
-import { DESIGN_WIDTH, type SiteConfig } from '@/lib/types/site';
+import { DESIGN_WIDTH, type MotionTier, type SiteConfig } from '@/lib/types/site';
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 import { usePreviewMotion } from '@/components/site-renderer/use-preview-motion';
+import { configForAddonPreview } from '@/lib/motion/preview-addon';
+import { VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import { cn } from './ui';
 
 const MOBILE_PREVIEW_WIDTH = 390;
@@ -48,6 +50,8 @@ export function SitePreview({
   interactive = false,
   onFormSubmit,
   motion = false,
+  previewAsAddon = false,
+  tier,
 }: {
   config: SiteConfig;
   mode?: 'desktop' | 'mobile';
@@ -68,6 +72,13 @@ export function SitePreview({
    * reveal/ken-burns 등이 실제로 재생된다(기본 false=정적 썸네일).
    */
   motion?: boolean;
+  /**
+   * 결제 전 화면에서만 고정 데모 자산으로 시네마틱 연출을 합성한다.
+   * 저장·발행·export·tier에는 전달하지 않는 화면 projection이다.
+   */
+  previewAsAddon?: boolean;
+  /** 실제 소유 tier. 애드온 예시를 끈 기본 화면에서는 renderer 방벽에 그대로 전달한다. */
+  tier?: MotionTier;
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -75,11 +86,15 @@ export function SitePreview({
   const [displayHeight, setDisplayHeight] = useState(0);
   // [F2b] 대화형 프리뷰의 현재 페이지 slug (내부 링크·헤더 내비로 전환)
   const [previewSlug, setPreviewSlug] = useState('');
+  const previewConfig = useMemo(
+    () => configForAddonPreview(config, previewAsAddon),
+    [config, previewAsAddon],
+  );
 
   const innerWidth = mode === 'mobile' ? MOBILE_PREVIEW_WIDTH : DESIGN_WIDTH;
 
   // [G1] motion=true 프리뷰에서 런타임 실제 실행(SiteRenderer <script> CSR 미실행 보완)
-  usePreviewMotion(motion, `${config.pages.length}:${previewSlug}:${motion}`);
+  usePreviewMotion(motion || previewAsAddon, `${previewConfig.pages.length}:${previewSlug}:${motion}:${previewAsAddon}`);
 
   // 설정이 바뀌면 홈으로 리셋(삭제된 페이지에 머무르지 않도록)
   useEffect(() => {
@@ -155,19 +170,25 @@ export function SitePreview({
                  interactive=true: 헤더 내비 + 페이지 전환. 기본 animate=false(정적)이고,
                  [Q6] motion=true일 때만 발행본과 동일한 모션(data-m+CSS+런타임)을 방출·재생.
                  siteId sentinel로 폼 입력 활성화(제출은 캡처에서 가로챔). */}
-            {interactive && <TenantHeader config={config} currentSlug={previewSlug} />}
+            {interactive && <TenantHeader config={previewConfig} currentSlug={previewSlug} />}
             <SiteRenderer
-              key={motion ? 'motion-on' : 'motion-off'} // [Q6] 토글 시 리마운트 → 런타임 재실행(처음부터 재생)
-              config={config}
+              key={`${motion ? 'motion-on' : 'motion-off'}:${previewAsAddon ? 'addon-demo' : 'owned'}`} // 토글 시 리마운트 → 런타임 재실행
+              config={previewConfig}
               mode={mode}
               pageSlug={interactive ? previewSlug : undefined}
               interactive={interactive}
-              animate={motion ? true : interactive ? false : undefined}
+              animate={motion || previewAsAddon ? true : interactive ? false : undefined}
+              tier={previewAsAddon ? 'premium' : tier}
               siteId={interactive ? PREVIEW_SITE_ID : undefined}
             />
           </PreviewErrorBoundary>
         </div>
       </div>
+      {previewAsAddon ? (
+        <span className="pointer-events-none absolute top-2 left-2 z-50 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-lg backdrop-blur-sm">
+          예시 · 애드온(+₩{VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}) 적용 시
+        </span>
+      ) : null}
     </div>
   );
 }
