@@ -6,13 +6,17 @@
  * 계산하고, 에디터 저장 경계에서는 이미 저장된 분류를 불변 메타로 보존한다.
  */
 import { resolveTemplate } from '@/lib/data/site-blueprints';
+import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-/** 정상 설문은 같은 객체를 유지하고, 불일치한 templateId만 서버 계산값으로 교정한다. */
+/** templateId와 industryClass는 모두 서버 계산값으로 덮어써 민감 기능의 자유문장 우회를 막는다. */
 export function canonicalizeSurveyTemplate(survey: SurveyInput): SurveyInput {
   const templateId = resolveTemplate(survey.purposeId, survey.industry).id;
-  return survey.templateId === templateId ? survey : { ...survey, templateId };
+  const industryClass = canonicalIndustryClass(survey.purposeId, templateId, survey.industry);
+  return survey.templateId === templateId && survey.industryClass === industryClass
+    ? survey
+    : { ...survey, templateId, industryClass };
 }
 
 /**
@@ -23,13 +27,13 @@ export function preserveSiteClassification(
   submitted: SiteConfig,
   persisted: SiteConfig | null | undefined,
 ): SiteConfig {
-  const {
-    purposeId: _submittedPurposeId,
-    templateId: _submittedTemplateId,
-    ...mutableMeta
-  } = submitted.meta;
+  const mutableMeta = { ...submitted.meta };
+  Reflect.deleteProperty(mutableMeta, 'purposeId');
+  Reflect.deleteProperty(mutableMeta, 'templateId');
+  Reflect.deleteProperty(mutableMeta, 'industryClass');
   const purposeId = persisted?.meta.purposeId;
   const templateId = persisted?.meta.templateId;
+  const industryClass = persisted?.meta.industryClass;
 
   return {
     ...submitted,
@@ -37,6 +41,7 @@ export function preserveSiteClassification(
       ...mutableMeta,
       ...(purposeId !== undefined ? { purposeId } : {}),
       ...(templateId !== undefined ? { templateId } : {}),
+      ...(industryClass !== undefined ? { industryClass } : {}),
     },
   };
 }

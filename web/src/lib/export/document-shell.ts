@@ -6,7 +6,7 @@
 import type { SiteConfig } from '@/lib/types/site';
 import { findPage } from '@/lib/types/site';
 import { canonicalUrlFor, jsonLdScriptContent } from '@/lib/seo/structured-data';
-import { isSafeMediaSrc } from '@/lib/safe-url';
+import { pageLcpImageSrc } from './motion-scene-assets';
 
 /** 렌더러 auto 모드 반응형 전환 + 최소 리셋 (Tailwind 없이 동작) */
 const BASE_DOC_CSS = [
@@ -43,22 +43,15 @@ export interface DocumentShellInput {
   lang?: string;
 }
 
-function heroPosterSrc(config: SiteConfig, pageSlug: string): string | undefined {
-  const page = findPage(config, pageSlug);
-  const hero = page?.sections.find((section) => section.type === 'hero');
-  const poster = hero?.background.video?.poster;
-  return poster && isSafeMediaSrc(poster) ? poster : undefined;
-}
-
-/** 페이지의 시네마틱 히어로 poster를 LCP 후보로 먼저 가져오게 한다. */
+/** 페이지의 단 하나뿐인 hero/signature 이미지 LCP 후보를 먼저 가져오게 한다. */
 export function heroPosterPreloadHtml(config: SiteConfig, pageSlug: string): string {
-  const poster = heroPosterSrc(config, pageSlug);
+  const poster = pageLcpImageSrc(config, pageSlug);
   if (!poster) return '';
   return `<link rel="preload" as="image" href="${escapeAttr(poster)}" fetchpriority="high">`;
 }
 
 /** React 19가 body 앞에 자동 삽입한 같은 preload를 제거해 head의 명시적 힌트 하나만 남긴다. */
-function stripDuplicatePosterPreload(bodyHtml: string, poster: string | undefined): string {
+function stripDuplicateLcpPreload(bodyHtml: string, poster: string | undefined): string {
   if (!poster) return bodyHtml;
   const escapedPoster = escapeAttr(poster);
   return bodyHtml.replace(/<link\b[^>]*>/gi, (tag) => {
@@ -81,9 +74,9 @@ export function buildDocumentShell(input: DocumentShellInput): string {
   // [S-batch] 서빙 레이어 — canonical + JSON-LD (단일 소스, siteUrl 없으면 생략)
   const canonical = input.siteUrl ? canonicalUrlFor(input.siteUrl, pageSlug) : null;
   const jsonLd = input.siteUrl ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, '')) : null;
-  const poster = heroPosterSrc(config, pageSlug);
+  const poster = pageLcpImageSrc(config, pageSlug);
   const posterPreload = heroPosterPreloadHtml(config, pageSlug);
-  const bodyHtml = stripDuplicatePosterPreload(input.bodyHtml, poster);
+  const bodyHtml = stripDuplicateLcpPreload(input.bodyHtml, poster);
 
   const head = [
     '<meta charset="utf-8">',

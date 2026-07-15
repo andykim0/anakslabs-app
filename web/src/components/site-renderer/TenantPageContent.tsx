@@ -10,12 +10,15 @@ import { TenantHeader } from './TenantHeader';
 import { SemanticOutline } from './SemanticOutline';
 import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
+import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 
 export function TenantPageContent({
   config,
   pageSlug,
   siteId,
   tier,
+  motionOwnerId,
+  motionAssets,
   interactive,
   animate,
   hrefForSlug,
@@ -26,6 +29,9 @@ export function TenantPageContent({
   pageSlug: string;
   siteId?: string;
   tier?: MotionTier;
+  /** before-after renderer를 위한 서버 권위 projection. 미지정은 fail-closed. */
+  motionOwnerId?: string;
+  motionAssets?: readonly MotionAssetProvenance[];
   /** 미지정 시 SiteRenderer 기본(true=실서빙). 정적/프리뷰는 명시 전달 */
   interactive?: boolean;
   animate?: boolean;
@@ -49,6 +55,8 @@ export function TenantPageContent({
           siteId={siteId}
           pageSlug={pageSlug}
           tier={tier}
+          motionOwnerId={motionOwnerId}
+          motionAssets={motionAssets}
           interactive={interactive}
           animate={animate}
         />

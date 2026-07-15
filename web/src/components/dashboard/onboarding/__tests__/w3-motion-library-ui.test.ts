@@ -9,43 +9,33 @@ const motion = source('src/components/dashboard/onboarding/motion-choice-step.ts
 const api = source('src/components/dashboard/api.ts');
 const generate = source('src/components/dashboard/onboarding/generate-step.tsx');
 
-describe('W3 — 영상 모션 라이브러리 UI', () => {
-  test('허용 컨텍스트의 레지스트리 5안을 고객이 고른 사진으로 라이브 렌더한다', () => {
-    assert.match(motion, /availableMotionIds\.map\(\(motionId\) =>/);
-    assert.match(motion, /<HeroMotionDemo motionId=\{motionId\} heroImageUrl=\{heroImageUrl\}/);
-    assert.match(motion, /className=\{cn\('h-full w-full object-cover will-change-transform', motion\.previewClass\)\}/);
-    assert.match(motion, /원하는 영상 연출을 하나 골라주세요/);
-    assert.doesNotMatch(motion, /concepts\.map/);
+describe('W3/v2 — 시그니처 production 라이브러리 UI', () => {
+  test('중앙 정책이 2~4개를 추천하고 승격된 production ID만 실제 config로 렌더한다', () => {
+    assert.match(motion, /motionSignaturesForContext\(demoContext, \{ includeCandidates: false \}\)/);
+    assert.match(motion, /isProductionMotionSignatureId\(spec\.id\)/);
+    assert.match(motion, /buildMotionSignaturePreviewConfig/);
+    assert.match(motion, /preview\.contentFit/);
   });
 
-  test('모든 카드는 대표 예시로 표시되고 5종 CSS가 실제 움직임을 만든다', () => {
-    assert.match(motion, />\s*대표 예시\s*</);
-    for (const keyframe of ['hvm-scrub', 'hvm-boomerang', 'hvm-zoom', 'hvm-parallax', 'hvm-manifesto']) {
-      assert.match(motion, new RegExp(`@keyframes ${keyframe}`), keyframe);
-    }
-    assert.match(motion, /prefers-reduced-motion: reduce[\s\S]*\.hvm-preview-scrub[\s\S]*animation: none; transform: none/);
+  test('모든 카드는 production SitePreview이며 레거시 약한 ID·CSS keyframe을 나열하지 않는다', () => {
+    assert.match(motion, /실제 렌더러 티저/);
+    assert.match(motion, /<SitePreview/);
+    assert.doesNotMatch(motion, /boomerang-loop|slow-zoom|parallax-depth|@keyframes hvm-/);
   });
 
-  test('매니페스토 선택은 고정 데모 영상으로 실제 SitePreview 스크롤 무대를 열고 소스 사진과 구분한다', () => {
-    assert.match(motion, /configForManifestoChoicePreview\(survey, heroImageUrl\)/);
-    assert.match(motion, /heroMotionId === SCROLLYTELLING_MOTION_ID/);
-    assert.match(motion, /<SitePreview[\s\S]*scroll[\s\S]*motion[\s\S]*previewAsAddon/);
-    assert.match(motion, /페이지 관통 연출을 실제 스크롤로 확인하세요/);
-    assert.match(motion, /선택한 히어로 소스/);
-    assert.match(motion, /대표 예시 · 최종본 아님/);
-    assert.match(motion, /오른쪽 배경 영상은 스크롤 동작을 설명하는 다보임 대표 데모/);
+  test('대형 미리보기는 실제 스크롤을 켜고 대표 영상은 고객 최종 자산이 아님을 표시한다', () => {
+    assert.match(motion, /<SitePreview[\s\S]*maxHeight=\{520\}[\s\S]*scroll[\s\S]*motion/);
+    assert.match(motion, /움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님/);
   });
 
-  test('절제 게이트는 유지하고 미노출 업종에는 시네마틱 스크럽 권장 사유를 보여준다', () => {
-    assert.match(motion, /const allowsScrollytelling = isScrollytellingTemplate\(purposeId, templateId\)/);
-    assert.match(motion, /!allowsScrollytelling/);
-    assert.match(motion, /정보를 빠르게 찾아야 하는 업종은 페이지 관통 연출 대신/);
+  test('콘텐츠가 부족하면 복제·날조하지 않고 기본 모션을 권한다', () => {
+    assert.match(motion, /부족한 카드·사진·과정을 임의로 복제하지 않습니다/);
+    assert.match(motion, /현재 콘텐츠에는 기본 모션이 가장 완성도가 높아요/);
   });
 
-  test('부메랑을 정확한 역재생으로 과장하지 않고 최종본과 예시를 구분한다', () => {
-    assert.match(motion, /CSS 대표 예시예요/);
-    assert.match(motion, /최종 영상 미리보기가 아닙니다/);
-    assert.doesNotMatch(motion, /정확한 역재생|반드시 부메랑/);
+  test('시그니처와 AI 영상 미디어를 분리하고 권한 우회를 약속하지 않는다', () => {
+    assert.match(motion, /시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어/);
+    assert.match(motion, /실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과/);
   });
 
   test('예 경로만 등록된 heroMotionId를 저장하고 스킵은 이를 버린다', () => {
@@ -64,9 +54,12 @@ describe('W3 — 영상 모션 라이브러리 UI', () => {
     });
   });
 
-  test('DTO와 생성 idempotency intent가 heroMotionId를 분리한다', () => {
+  test('DTO와 생성 idempotency intent가 signatureId·assetId를 분리한다', () => {
     assert.match(api, /heroMotionId\?: HeroVideoMotionId/);
     assert.match(generate, /motionChoice\?\.heroMotionId \?\? ''/);
+    assert.match(api, /signatureId\?: ProductionMotionSignatureId/);
+    assert.match(api, /beforeAfterSelection\?: BeforeAfterAssetSelection/);
+    assert.match(generate, /motionChoice\?\.signatureId \?\? ''/);
   });
 
   test('라이브 프리뷰 컴포넌트는 AI·영상 API를 호출하지 않는다', () => {

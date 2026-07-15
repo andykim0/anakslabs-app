@@ -119,12 +119,17 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     assert.match(html, /고객이 입력한 첫 문장/);
   });
 
-  test('온보딩 적용 예시는 명확한 라벨·고정 자산만 쓰고 생성 API를 호출하지 않는다', () => {
+  test('온보딩 적용 예시는 실제 production renderer·명확한 라벨·고정 자산만 쓰고 생성 API를 호출하지 않는다', () => {
     const onboarding = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
-    assert.match(onboarding, /AI 영상 홈페이지 적용 예시 보기/);
-    assert.match(onboarding, /예시 · AI 영상 홈페이지\(\+₩/);
-    assert.match(onboarding, /고객님의 최종 영상이 아닙니다/);
-    assert.match(onboarding, /daboim-visibility-film\.webm/);
-    assert.doesNotMatch(onboarding, /fetch\(|\/api\/sites\/|generateVeoVideo|generateHeroVideo/);
+    const projection = source('src/lib/motion/preview-config.ts');
+    assert.match(onboarding, /buildMotionSignaturePreviewConfig/);
+    assert.match(onboarding, /<SitePreview/);
+    assert.match(onboarding, /실제 렌더러 티저/);
+    assert.match(onboarding, /실제 스크롤 체험/);
+    assert.match(onboarding, /고객 최종 자산 아님/);
+    assert.match(onboarding, /예시는 최종 Veo 영상이 아닙니다/);
+    assert.match(projection, /daboim-visibility-film-scrub\.mp4/);
+    assert.match(projection, /daboim-visibility-film-poster\.webp/);
+    assert.doesNotMatch(`${onboarding}\n${projection}`, /fetch\(|\/api\/sites\/|generateVeoVideo|generateHeroVideo/);
   });
 });

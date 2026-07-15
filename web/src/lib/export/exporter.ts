@@ -13,6 +13,8 @@ import { renderStaticDocument } from './render-static';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import { selfHostFonts } from './self-host-fonts';
 import { zipFiles } from './zip';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { motionAssetsForStaticRender } from './motion-scene-assets';
 
 export interface BuildExportOptions {
   /** true(기본): 폰트를 zip에 포함해 외부 요청 0. 실패 시 CDN 링크로 폴백 */
@@ -36,10 +38,25 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
     throw new Error('PUBLISH_REQUIRED: 발행본이 없는 사이트는 export할 수 없습니다.');
   }
   const warnings: string[] = [];
+  const provenance = await resolveStoredBeforeAfterMotionOptions({
+    config: site.siteConfig,
+    clientId: site.clientId,
+    siteId: site.id,
+  });
+  if (!provenance.ok) {
+    throw new Error(`EXPORT_MOTION_PROVENANCE_BLOCKED: ${provenance.message}`);
+  }
 
   // 1. 자산 수집 + src 재작성
   const collected = await collectAndRewriteAssets(site.siteConfig);
   warnings.push(...collected.warnings);
+  // Sensitive before/after media is revalidated again inside SiteRenderer. The exporter is
+  // the only authority allowed to add renderSrc, derived from its own successful asset map;
+  // client/config input can never authorize an arbitrary rewritten URL.
+  const exportMotionAssets = motionAssetsForStaticRender(
+    provenance.options.assets ?? [],
+    collected.assetRewrites,
+  );
 
   // 2. 폰트 셀프호스트 (기본 on, 실패 시 CDN 폴백)
   let fontFaceCss = '';
@@ -69,6 +86,9 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
       privacyHref: opts.legalPages?.privacyHtml ? './privacy.html' : undefined,
       termsHref: opts.legalPages?.termsHtml ? './terms.html' : undefined,
       tier: opts.tier,
+      motionOwnerId: site.clientId,
+      motionSiteId: site.id,
+      motionAssets: exportMotionAssets,
     }),
   }));
 

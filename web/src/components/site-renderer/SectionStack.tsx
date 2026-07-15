@@ -228,6 +228,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
             data-m-cinematic-video="true"
             data-playback="loop"
             src={safeMediaSrc(bg.video.src)}
+            poster={safeMediaSrc(bg.video.poster)}
             muted
             loop
             playsInline

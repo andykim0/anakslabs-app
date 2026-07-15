@@ -20,12 +20,19 @@ import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { buildScores } from './score';
 import type { ScanCore } from './index';
+import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 
 export type PreflightScanResult = ScanCore & { publishAudit: PublishArtifactAudit };
 
 export function preflightScan(
   config: SiteConfig,
-  opts: { siteUrl?: string; tier: MotionTier },
+  opts: {
+    siteUrl?: string;
+    tier: MotionTier;
+    motionOwnerId?: string;
+    motionSiteId?: string;
+    motionAssets?: readonly MotionAssetProvenance[];
+  },
 ): PreflightScanResult {
   // [F1] 전 페이지 순회 — 각 페이지를 렌더·규칙 적용 후 축별 '최악 페이지'의 차감을 채택(thin 서브페이지도
   //      발행 게이트에 반영) + 이슈는 code 기준 합집합. 단일 페이지 사이트는 홈 1장 = 기존과 동일(무회귀).
@@ -38,7 +45,15 @@ export function preflightScan(
   const renderedPages: RenderedPublishPage[] = [];
 
   for (const page of config.pages) {
-    const html = renderStaticDocument({ config, pageSlug: page.slug, siteUrl, tier: opts.tier });
+    const html = renderStaticDocument({
+      config,
+      pageSlug: page.slug,
+      siteUrl,
+      tier: opts.tier,
+      motionOwnerId: opts.motionOwnerId,
+      motionSiteId: opts.motionSiteId,
+      motionAssets: opts.motionAssets,
+    });
     renderedPages.push({ pageSlug: page.slug, html });
     const root = parse(html);
     const clone = parse(root.toString());

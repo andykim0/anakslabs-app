@@ -112,6 +112,7 @@ function StandardSection({
           ? { 'data-m-cinematic-video': 'true', 'data-playback': 'scrub' }
           : {})}
         src={safeMediaSrc(bg.video.src)}
+        poster={safeMediaSrc(bg.video.poster)}
         muted
         loop={!cinematicPlayback}
         playsInline

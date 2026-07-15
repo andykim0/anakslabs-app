@@ -29,7 +29,12 @@ import type {
   Site,
   SurveyInput,
 } from '@/lib/types/domain';
-import type { HeroImageChoice, SectionType } from '@/lib/types/site';
+import type {
+  BeforeAfterAssetSelection,
+  HeroImageChoice,
+  ProductionMotionSignatureId,
+  SectionType,
+} from '@/lib/types/site';
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
@@ -459,6 +464,10 @@ export interface MotionChoiceDto {
   /** [W4] 선택 소스·영상 의사. 서버는 SurveyInput 값을 권위로 다시 병합한다. */
   heroImageChoice?: HeroImageChoice;
   videoAddon?: boolean;
+  /** production renderer ID. 레거시 heroMotionId와 분리한다. */
+  signatureId?: ProductionMotionSignatureId;
+  /** 공개 URL이 아닌 서버 자산 레코드 선택. */
+  beforeAfterSelection?: BeforeAfterAssetSelection;
 }
 
 export async function generateSite(input: {

@@ -11,6 +11,7 @@ import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../..
 import { siteConfigSchema } from '../../_lib/schemas';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { preserveSiteClassification } from '@/lib/onboarding/site-classification';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -44,7 +45,14 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const persistedConfig = site.draftConfig ?? site.siteConfig;
   const classified = preserveSiteClassification(body.data.draftConfig as SiteConfig, persistedConfig);
   // [motion-system] 플랜 기준 모션 새니타이즈 — 위반은 403이 아니라 자동 강등 + changes 안내.
-  const { config: sanitized, changes } = sanitizeMotion(classified, client.tier);
+  // 민감 scene는 저장된 URL/클라이언트 provenance를 신뢰하지 않고 현재 owner/site 레지스트리로 재검증한다.
+  const provenance = await resolveStoredBeforeAfterMotionOptions({ config: classified, clientId: client.id, siteId });
+  const { config: sanitized, changes } = sanitizeMotion(
+    classified,
+    client.tier,
+    provenance.ok ? provenance.options : { ownerId: client.id, siteId },
+  );
+  if (!provenance.ok) changes.push(`전후 비교 연출을 비활성화했습니다: ${provenance.message}`);
   await getDataServices().sites.saveDraft(siteId, sanitized);
   return NextResponse.json({
     ok: true,

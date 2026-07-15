@@ -56,7 +56,6 @@ export function GenerateStep({
   extrasOptions,
   motionChoice,
   existingSiteId,
-  freeRegensUsed,
   tier = 'basic',
   onResult,
   onBack,
@@ -96,7 +95,7 @@ export function GenerateStep({
 
   // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
   // [Q7] 모션 시그니처 포함 — 모션만 바꿔 재생성해도 dedup 캐시에 걸리지 않게. [A3] 구성 변경도 시그니처에.
-  const intent = `${existingSiteId ?? 'new'}::${candidate.id}:${heroImageUrlIntent(candidate.heroImageUrl)}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}:${survey.heroImageChoice ?? ''}:${survey.videoAddon === true ? 'video' : 'still'}::${[...removed].sort().join(',')}::${sectionDirectionsIntent(survey.directions)}`;
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}:${heroImageUrlIntent(candidate.heroImageUrl)}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}:${motionChoice?.signatureId ?? ''}:${motionChoice?.beforeAfterSelection?.beforeAssetId ?? ''}:${motionChoice?.beforeAfterSelection?.afterAssetId ?? ''}:${survey.heroImageChoice ?? ''}:${survey.videoAddon === true ? 'video' : 'still'}::${[...removed].sort().join(',')}::${sectionDirectionsIntent(survey.directions)}`;
   const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({

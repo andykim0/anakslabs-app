@@ -69,14 +69,19 @@ export async function uploadAiVideo(input: {
   return svc.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-/** [§7] 고객 업로드 자산(로고 등) → 공개 버킷(client-assets) 업로드 → 공개 URL */
-export async function uploadClientAsset(input: {
+export interface UploadedClientAsset {
+  objectPath: string;
+  url: string;
+}
+
+/** [§7] 고객 업로드 자산 → 공개 버킷(client-assets) 업로드 + 서버 증빙용 object path */
+export async function uploadClientAssetDetailed(input: {
   bytes: Buffer;
   mimeType: string;
   ext: string;
   /** 경로 프리픽스 (예: 'logos') */
   prefix: string;
-}): Promise<string> {
+}): Promise<UploadedClientAsset> {
   const svc = getServiceRoleClient();
   const bucket = 'client-assets';
   const path = `${input.prefix}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${input.ext}`;
@@ -85,5 +90,15 @@ export async function uploadClientAsset(input: {
     upsert: false,
   });
   if (error) throw new Error(`client-assets 업로드 실패 (${path}): ${error.message}`);
-  return svc.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  return { objectPath: path, url: svc.storage.from(bucket).getPublicUrl(path).data.publicUrl };
+}
+
+/** 기존 로고·갤러리 호출자의 string URL 계약을 그대로 유지한다. */
+export async function uploadClientAsset(input: {
+  bytes: Buffer;
+  mimeType: string;
+  ext: string;
+  prefix: string;
+}): Promise<string> {
+  return (await uploadClientAssetDetailed(input)).url;
 }

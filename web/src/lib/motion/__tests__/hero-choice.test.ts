@@ -9,6 +9,7 @@ import { MOTION_TECHNIQUES } from '@/lib/motion/registry';
 import { HERO_MOTION_CHOICES, heroChoicesForTier, isAllowedHeroChoice } from '@/lib/motion/hero-choice';
 import { VIDEO_CONCEPTS, findVideoConcept, videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import { sanitizeMotion, applyGeneratedMotion } from '@/lib/motion/validate';
+import { resolvePresetForIndustry } from '@/lib/motion/presets';
 import { resolveMotionPlan } from '@/lib/motion/apply';
 import { heroVideoContext, buildMotionPrompt } from '@/lib/ai/video-pipeline-core';
 
@@ -128,7 +129,7 @@ describe('applyGeneratedMotion — 선택 병합 순서(프리셋 주입 → 병
       heroTechnique: 'none',
       intensity: 'subtle',
     });
-    assert.equal(out.motion?.presetId, 'cafe-basic');
+    assert.equal(out.motion?.presetId, resolvePresetForIndustry('local_store', 'basic'));
     assert.equal(out.motion?.intensity, 'subtle');
     assert.equal(out.motion?.heroTechnique, 'none');
   });

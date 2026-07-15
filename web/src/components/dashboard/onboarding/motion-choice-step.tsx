@@ -1,136 +1,35 @@
 'use client';
 
 /**
- * [W2/W3] 고른 히어로 사진을 대표 CSS 모션으로 보여준 뒤 AI 영상 홈페이지와 연출을 고른다.
- * 이 단계는 대표 예시일 뿐 고객의 최종 Veo 영상이 아니다. AI/API 호출 없이 CSS만 사용한다.
- * 아니오는 ken-burns 기본 모션으로 바로 진행하고, 예는 등록된 영상 연출 선택으로 이어진다.
+ * 모션 선택은 세 축을 섞지 않는다.
+ * 1) 가벼운 기본 모션은 자동, 2) 페이지 시그니처는 실제 renderer로 체험,
+ * 3) AI 영상은 지원 시그니처에서만 별도 애드온 의사를 기록한다.
  */
 import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Film, ImageIcon } from 'lucide-react';
-import type { SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
+import { ArrowLeft, ArrowRight, Check, Film, Gauge, ImageIcon, MonitorPlay, Smartphone } from 'lucide-react';
+import type { DesignCandidate, SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
+import type { ProductionMotionSignatureId } from '@/lib/types/site';
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { PRICING } from '@/lib/pricing';
-import { configForManifestoChoicePreview } from '@/lib/motion/preview-addon';
-import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import {
-  HERO_VIDEO_MOTION_IDS,
-  HERO_VIDEO_MOTIONS,
-  heroVideoMotionIdsForContext,
-  isHeroVideoMotionId,
-  type HeroVideoMotionId,
-} from '@/lib/motion/hero-video-motions';
-import { SCROLLYTELLING_MOTION_ID, isScrollytellingTemplate } from '@/lib/motion/scrollytelling';
-import { findPurpose } from '@/lib/data/purpose-taxonomy';
+  MOTION_SIGNATURES,
+  isProductionMotionSignatureId,
+  motionContextFromSurvey,
+  motionSignaturesForContext,
+  type MotionSignatureSpec,
+} from '@/lib/motion/signatures';
+import { buildMotionSignaturePreviewConfig } from '@/lib/motion/preview-config';
+import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { MotionChoiceDto } from '../api';
 import { SitePreview } from '../site-preview';
 import { Button, Card, cn } from '../ui';
 
-/** W2 대표 미리보기. mcs- 프리픽스로 렌더러 런타임과 격리한다. */
-const PREVIEW_CSS = `
-@keyframes mcs-preview-camera {
-  0% { transform: scale(1.02) translate3d(-0.6%, 0.3%, 0); }
-  50% { transform: scale(1.075) translate3d(0.7%, -0.7%, 0); }
-  100% { transform: scale(1.035) translate3d(0.2%, 0.4%, 0); }
-}
-@keyframes mcs-preview-light {
-  0%, 15% { transform: translate3d(-120%, 0, 0); opacity: 0; }
-  38% { opacity: .32; }
-  65%, 100% { transform: translate3d(140%, 0, 0); opacity: 0; }
-}
-@keyframes hvm-scrub {
-  0% { transform: scale(1.02) translate3d(-2%, 0, 0); }
-  50% { transform: scale(1.09) translate3d(1%, -1%, 0); }
-  100% { transform: scale(1.04) translate3d(0, 0, 0); }
-}
-@keyframes hvm-boomerang {
-  from { transform: scale(1.06) translate3d(-2.5%, 0, 0); }
-  to { transform: scale(1.06) translate3d(2.5%, -1%, 0); }
-}
-@keyframes hvm-zoom {
-  from { transform: scale(1.01); }
-  to { transform: scale(1.13); }
-}
-@keyframes hvm-parallax {
-  from { transform: scale(1.08) translate3d(-1.5%, 1.5%, 0); }
-  to { transform: scale(1.08) translate3d(1.5%, -1.5%, 0); }
-}
-@keyframes hvm-depth-orbit {
-  from { transform: translate3d(-8%, 5%, 0); }
-  to { transform: translate3d(9%, -6%, 0); }
-}
-@keyframes hvm-manifesto {
-  0% { transform: scale(1.025) translate3d(-1.4%, .8%, 0); filter: saturate(.92); }
-  50% { transform: scale(1.085) translate3d(.8%, -1.2%, 0); filter: saturate(1.06); }
-  100% { transform: scale(1.045) translate3d(1.2%, -.4%, 0); filter: saturate(.98); }
-}
-.mcs-preview-image {
-  animation: mcs-preview-camera 8s cubic-bezier(.4, 0, .2, 1) infinite alternate;
-  will-change: transform;
-}
-.mcs-preview-light {
-  animation: mcs-preview-light 6.5s ease-in-out infinite;
-}
-.hvm-preview-scrub { animation: hvm-scrub 5.5s cubic-bezier(.45, 0, .2, 1) infinite alternate; }
-.hvm-preview-boomerang { animation: hvm-boomerang 3.8s ease-in-out infinite alternate; }
-.hvm-preview-zoom { animation: hvm-zoom 7s ease-in-out infinite alternate; }
-.hvm-preview-parallax { animation: hvm-parallax 6s ease-in-out infinite alternate; }
-.hvm-preview-manifesto { animation: hvm-manifesto 8s cubic-bezier(.4, 0, .2, 1) infinite alternate; }
-.hvm-depth-orbit { animation: hvm-depth-orbit 4.5s ease-in-out infinite alternate; }
-@media (prefers-reduced-motion: reduce) {
-  .mcs-preview-image, .mcs-preview-light,
-  .hvm-preview-scrub, .hvm-preview-boomerang, .hvm-preview-zoom,
-  .hvm-preview-parallax, .hvm-preview-manifesto, .hvm-depth-orbit { animation: none; transform: none; filter: none; }
-  .mcs-preview-light { display: none; }
-}
-`;
-
-function HeroMotionDemo({
-  motionId,
-  heroImageUrl,
-}: {
-  motionId: HeroVideoMotionId;
-  heroImageUrl: string;
-}) {
-  const motion = HERO_VIDEO_MOTIONS[motionId];
-  return (
-    <div className="relative aspect-video overflow-hidden bg-ob-bg">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={heroImageUrl}
-        alt=""
-        className={cn('h-full w-full object-cover will-change-transform', motion.previewClass)}
-      />
-      {motionId === 'cinematic-scrub' ? (
-        <span className="absolute inset-x-3 bottom-3 h-0.5 overflow-hidden rounded bg-white/35">
-          <span className="block h-full w-2/3 bg-white/90" />
-        </span>
-      ) : null}
-      {motionId === 'parallax-depth' ? (
-        <span
-          aria-hidden="true"
-          className="hvm-depth-orbit absolute top-3 right-4 h-12 w-12 rounded-full border border-white/40 bg-white/15 blur-[1px]"
-        />
-      ) : null}
-      {motionId === SCROLLYTELLING_MOTION_ID ? (
-        <span aria-hidden="true" className="absolute inset-y-3 right-3 flex flex-col justify-center gap-1.5">
-          <span className="h-5 w-1 rounded-full bg-white/90" />
-          <span className="h-5 w-1 rounded-full bg-white/55" />
-          <span className="h-5 w-1 rounded-full bg-white/30" />
-          <span className="h-5 w-1 rounded-full bg-white/20" />
-        </span>
-      ) : null}
-      <span className="absolute bottom-2 left-2 rounded-full border border-white/25 bg-black/55 px-2 py-0.5 text-[9px] font-semibold text-white">
-        대표 예시
-      </span>
-    </div>
-  );
-}
-
-/** W2 스킵과 W3 연출 선택을 영상 요청 경로로 접는 순수 계약. */
+/** 기존 W2 호출자를 깨지 않으면서 새 signature 선택을 같은 DTO에 저장한다. */
 export function motionChoiceForVideoPreference(
   wantsVideo: boolean,
   activeConceptId: string,
   heroMotionId?: HeroVideoMotionId,
+  signatureId?: ProductionMotionSignatureId,
 ): MotionChoiceDto {
   return wantsVideo
     ? {
@@ -138,15 +37,33 @@ export function motionChoiceForVideoPreference(
         intensity: 'normal',
         videoConceptId: activeConceptId,
         ...(heroMotionId ? { heroMotionId } : {}),
+        ...(signatureId ? { signatureId } : {}),
       }
-    : { heroTechnique: 'ken-burns', intensity: 'subtle' };
+    : {
+        heroTechnique: 'ken-burns',
+        intensity: 'subtle',
+        ...(signatureId ? { signatureId } : {}),
+      };
+}
+
+function mediaRequirement(spec: MotionSignatureSpec): string {
+  switch (spec.mediaCapability) {
+    case 'none': return '별도 이미지 없이 콘텐츠로 작동';
+    case 'image': return '실제 이미지가 필요';
+    case 'image-or-video': return '이미지로 작동 · 영상 선택 가능';
+    case 'video-required': return 'AI 영상 홈페이지가 있어야 발행 가능';
+    case 'verified-customer-images-only': return '소유권이 확인된 같은 실제 사례 사진 2장만';
+  }
+}
+
+function compactPreviewHeight(spec: MotionSignatureSpec): number {
+  return spec.target === 'page' ? 210 : 180;
 }
 
 export function MotionChoiceStep({
   tier,
-  purposeId,
-  templateId,
   survey,
+  candidate,
   heroImageUrl,
   heroPhotoUrl,
   initial,
@@ -156,295 +73,214 @@ export function MotionChoiceStep({
   tier: Tier;
   purposeId: SitePurposeId;
   templateId: string;
-  /** 실제 매니페스토 막을 고객 입력에서 만들기 위한 현재 설문. 화면 전용이며 저장하지 않는다. */
   survey: SurveyInput;
-  /** W1에서 고른 최종 히어로 소스. 업로드·AI 무드 모두 동일하게 미리보기한다. */
+  /** 고객이 바로 앞 단계에서 고른 팔레트·타이포를 production preview에 그대로 사용한다. */
+  candidate: DesignCandidate;
   heroImageUrl: string;
-  /** 고객이 직접 올린 실제 히어로 사진. 있으면 영상은 원본 보존 모션만 사용한다. */
   heroPhotoUrl?: string;
-  /** 뒤로 왔다가 다시 진입 시 이전 선택 복원. */
   initial?: MotionChoiceDto;
   onBack: () => void;
   onComplete: (choice: MotionChoiceDto) => void;
 }) {
   const ownsAddon = hasVideoAddon(tier);
+  // 결제 전에도 애드온 결과를 체험할 수 있지만 이 context는 화면 projection에만 사용한다.
+  const demoContext = useMemo(
+    () => motionContextFromSurvey(survey, 'premium', { theme: candidate.theme }),
+    [candidate.theme, survey],
+  );
+  const previewOptions = useMemo(() => {
+    const promoted = motionSignaturesForContext(demoContext, { includeCandidates: false });
+    return promoted.flatMap((spec) => {
+      if (!isProductionMotionSignatureId(spec.id) || spec.id === 'before-after-scrub' || spec.status !== 'active') return [];
+      const preview = buildMotionSignaturePreviewConfig(
+        survey,
+        candidate,
+        heroImageUrl,
+        spec.id,
+        tier,
+      );
+      return preview.contentFit ? [{ spec: { ...spec, id: spec.id }, preview }] : [];
+    });
+  }, [candidate, demoContext, heroImageUrl, survey, tier]);
+
+  const initialId = initial?.signatureId;
+  const defaultId = previewOptions.some(({ spec }) => spec.id === initialId)
+    ? initialId
+    : previewOptions[0]?.spec.id;
+  const [signatureId, setSignatureId] = useState<ProductionMotionSignatureId | undefined>(defaultId);
+  const selected = previewOptions.find(({ spec }) => spec.id === signatureId);
+  const videoRequired = selected?.spec.mediaCapability === 'video-required';
+  const supportsVideo = selected?.spec.mediaCapability === 'video-required' || selected?.spec.mediaCapability === 'image-or-video';
+  const [wantsVideo, setWantsVideo] = useState(videoRequired || initial?.videoAddon === true || initial?.heroTechnique === 'video-hero');
   const addonPrice = `+₩${PRICING.videoHeroAddon.toLocaleString('ko-KR')}`;
-  const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
-  const allowsScrollytelling = isScrollytellingTemplate(purposeId, templateId);
-  const availableMotionIds = heroVideoMotionIdsForContext(allowsScrollytelling);
-  const [wantsVideo, setWantsVideo] = useState(initial?.heroTechnique === 'video-hero');
-  const [showAddonDemo, setShowAddonDemo] = useState(false);
-  const activeConceptId =
-    initial?.videoConceptId && concepts.some((concept) => concept.id === initial.videoConceptId)
-      ? initial.videoConceptId
-      : concepts[0].id;
-  const [heroMotionId, setHeroMotionId] = useState<HeroVideoMotionId>(() =>
-    isHeroVideoMotionId(initial?.heroMotionId) && availableMotionIds.includes(initial.heroMotionId)
-      ? initial.heroMotionId
-      : HERO_VIDEO_MOTION_IDS[0],
-  );
-  const manifestoPreviewConfig = useMemo(
-    () => configForManifestoChoicePreview(survey, heroImageUrl),
-    [heroImageUrl, survey],
-  );
+
+  const chooseSignature = (id: ProductionMotionSignatureId) => {
+    const next = MOTION_SIGNATURES[id];
+    setSignatureId(id);
+    if (next.mediaCapability === 'video-required') setWantsVideo(true);
+    if (next.mediaCapability === 'none' || next.mediaCapability === 'image' || next.mediaCapability === 'verified-customer-images-only') {
+      setWantsVideo(false);
+    }
+  };
 
   const submit = () => {
-    const safeMotionId = availableMotionIds.includes(heroMotionId) ? heroMotionId : availableMotionIds[0];
-    onComplete(motionChoiceForVideoPreference(wantsVideo, activeConceptId, safeMotionId));
+    if (!signatureId) {
+      onComplete({ heroTechnique: 'ken-burns', intensity: 'subtle' });
+      return;
+    }
+    const video = Boolean(supportsVideo && (videoRequired || wantsVideo));
+    const legacyMotionId: HeroVideoMotionId | undefined = signatureId === 'scrollytelling-manifesto'
+      ? 'scrollytelling-manifesto'
+      : signatureId === 'cinematic-scrub'
+        ? 'cinematic-scrub'
+        : undefined;
+    onComplete(motionChoiceForVideoPreference(video, 'space-mood', legacyMotionId, signatureId));
   };
 
   return (
-    <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
-      <style>{PREVIEW_CSS}</style>
-
+    <Card className="space-y-6 border-ob-border bg-ob-surface p-6">
       <div>
-        <h2 className="text-lg font-semibold text-ob-ink">이 사진이 움직이면 어떤 느낌일까요?</h2>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-ob-border bg-ob-bg px-2.5 py-1 text-[11px] font-semibold text-ob-muted">
+          <Gauge className="h-3.5 w-3.5" /> 기본 모션 자동 적용
+        </span>
+        <h2 className="mt-3 text-xl font-semibold text-ob-ink">페이지의 대표 움직임을 골라주세요</h2>
         <p className="mt-1 text-sm leading-6 text-ob-muted">
-          고른 사진에 대표 모션을 얹어 느낌만 미리 보여드려요.
+          버튼·문단의 가벼운 리빌은 자동으로 맞춥니다. 여기서는 사이트 전체에서 딱 한 번 쓰는 대표 연출만 정해요.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-bg">
-        <div className="relative aspect-video overflow-hidden bg-ob-bg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={heroImageUrl}
-            alt="선택한 히어로 사진 모션 예시"
-            className="mcs-preview-image h-full w-full object-cover"
-          />
-          <span
-            aria-hidden="true"
-            className="mcs-preview-light absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-14deg] bg-gradient-to-r from-transparent via-white/50 to-transparent blur-xl"
-          />
-          <span className="absolute top-3 left-3 rounded-full border border-white/30 bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
-            이런 느낌으로 움직여요 · 대표 예시
-          </span>
-          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pt-12 pb-4 text-xs leading-5 text-white">
-            예시 움직임이에요. 결제하시면 이 사진으로 실제 영상을 만들어드려요.
-          </span>
-        </div>
-      </div>
-
-      <div className="rounded-ob border border-ob-border bg-ob-bg p-3">
-        <button
-          type="button"
-          aria-expanded={showAddonDemo}
-          onClick={() => setShowAddonDemo((value) => !value)}
-          className="flex w-full items-center justify-between gap-3 text-left"
-        >
-          <span>
-            <span className="block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 적용 예시 보기</span>
-            <span className="mt-0.5 block text-xs leading-5 text-ob-muted">
-              실제 Veo 영상 히어로의 깊이와 움직임을 대표 클립으로 확인해요.
-            </span>
-          </span>
-          <Film className="h-5 w-5 shrink-0 text-ob-accent-strong" />
-        </button>
-        {showAddonDemo ? (
-          <div className="relative mt-3 aspect-video overflow-hidden rounded-ob border border-ob-border bg-[#07162f]">
-            <video
-              className="h-full w-full object-cover"
-              poster="/daboim-visibility-film-poster.webp"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label="AI 영상 홈페이지 대표 예시"
-            >
-              <source src="/daboim-visibility-film.webm" type="video/webm" />
-              <source src="/daboim-visibility-film-scrub.mp4" type="video/mp4" />
-            </video>
-            <span className="absolute top-2 left-2 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
-              예시 · AI 영상 홈페이지(+₩{PRICING.videoHeroAddon.toLocaleString('ko-KR')}) 적용 시
-            </span>
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pt-10 pb-3 text-[10px] leading-4 text-white/90">
-              대표 데모 클립이며 고객님의 최종 영상이 아닙니다. 실제 생성은 결제·승인 후에만 진행됩니다.
-            </span>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="space-y-2.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 className="text-sm font-semibold text-ob-ink">AI 영상 홈페이지로 만들까요?</h3>
-            <p className="mt-0.5 text-xs leading-5 text-ob-muted">
-              {ownsAddon
-                ? 'AI 영상 홈페이지가 승인되어 사이트 생성 후 실제 Veo 영상 히어로를 만들 수 있어요.'
-                : `실제 Veo 영상 히어로를 만드는 ${addonPrice} AI 영상 홈페이지예요.`}
-            </p>
-          </div>
-          <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2.5 py-1 text-[10px] font-semibold text-ob-accent-strong">
-            {ownsAddon ? 'AI 영상 승인됨' : addonPrice}
-          </span>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            aria-pressed={!wantsVideo}
-            onClick={() => setWantsVideo(false)}
-            className={cn(
-              'rounded-ob border p-4 text-left transition-all',
-              !wantsVideo
-                ? 'border-ob-accent-strong bg-ob-accent-soft ring-1 ring-ob-accent'
-                : 'border-ob-border hover:border-ob-muted',
-            )}
-          >
-            <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
-            <span className="mt-2 block text-sm font-semibold text-ob-ink">기본 모션으로 할게요</span>
-            <span className="mt-1 block text-xs leading-5 text-ob-muted">
-              기본 모션은 포함·무료예요. 정지 사진에 잔잔한 켄번스·리빌 효과를 적용하고 영상은 생성하지 않아요.
-            </span>
-          </button>
-          <button
-            type="button"
-            aria-pressed={wantsVideo}
-            onClick={() => setWantsVideo(true)}
-            className={cn(
-              'rounded-ob border p-4 text-left transition-all',
-              wantsVideo
-                ? 'border-ob-accent-strong bg-ob-accent-soft ring-1 ring-ob-accent'
-                : 'border-ob-border hover:border-ob-muted',
-            )}
-          >
-            <Film className="h-5 w-5 text-ob-accent-strong" />
-            <span className="mt-2 block text-sm font-semibold text-ob-ink">
-              {ownsAddon ? 'AI 영상 홈페이지로 만들게요' : `AI 영상 홈페이지로 만들게요 (${addonPrice})`}
-            </span>
-            <span className="mt-1 block text-xs leading-5 text-ob-muted">
-              실제 Veo 영상 히어로를 생성해요. 결제·AI 영상 승인 후에만 진행됩니다.
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {wantsVideo ? (
-        <div className="space-y-3 border-t border-ob-border pt-5">
-          <div className="flex items-center gap-3 rounded-ob border border-ob-accent bg-ob-accent-soft p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={heroImageUrl}
-              alt="영상 소스로 선택한 히어로 사진"
-              className="h-14 w-20 shrink-0 rounded-ob border border-ob-border bg-ob-surface object-cover"
-            />
-            {heroPhotoUrl ? (
-              <p className="text-xs leading-5 text-ob-ink">
-                <span className="font-semibold">이 대표 사진을 그대로 살려요.</span>{' '}
-                피사체는 바꾸지 않고 은은한 카메라와 빛의 움직임만 더합니다.
-              </p>
-            ) : (
-              <p className="text-xs leading-5 text-ob-ink">
-                <span className="font-semibold">선택한 무드에 맞춘 AI 공간·빛 연출</span>로 만들어요.
-                특정 메뉴·제품·시술 결과를 지어내지 않고 분위기와 질감만 움직입니다.
-              </p>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-ob-ink">원하는 영상 연출을 하나 골라주세요</h3>
-            <p className="mt-1 text-xs leading-5 text-ob-muted">
-              아래는 선택한 사진으로 보여드리는 CSS 대표 예시예요. 고객님의 최종 영상 미리보기가 아닙니다.
-            </p>
-          </div>
-          {!allowsScrollytelling ? (
-            <p className="rounded-ob border border-ob-border bg-ob-bg px-3 py-2 text-xs leading-5 text-ob-muted">
-              정보를 빠르게 찾아야 하는 업종은 페이지 관통 연출 대신 <span className="font-semibold text-ob-ink">시네마틱 스크럽</span>을 권장해요.
-            </p>
-          ) : null}
-          <div className="grid gap-3 sm:grid-cols-2">
-            {availableMotionIds.map((motionId) => {
-              const motion = HERO_VIDEO_MOTIONS[motionId];
-              const selected = heroMotionId === motionId;
-              return (
-                <button
-                  key={motionId}
-                  type="button"
-                  onClick={() => setHeroMotionId(motionId)}
-                  aria-pressed={selected}
-                  className={cn(
-                    'overflow-hidden rounded-ob border bg-ob-surface text-left transition-all',
-                    selected
-                      ? 'border-ob-accent-strong ring-1 ring-ob-accent'
-                      : 'border-ob-border hover:border-ob-muted',
-                  )}
-                >
-                  <HeroMotionDemo motionId={motionId} heroImageUrl={heroImageUrl} />
-                  <span className="block p-3">
-                    <span className="block text-xs font-semibold text-ob-ink">{motion.label}</span>
-                    <span className="mt-1 block text-[11px] leading-4 text-ob-muted">{motion.description}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {heroMotionId === SCROLLYTELLING_MOTION_ID ? (
-            <div className="space-y-3 rounded-ob border border-ob-accent bg-ob-accent-soft p-3 sm:p-4">
-              <div>
-                <h4 className="text-sm font-semibold text-ob-ink">페이지 관통 연출을 실제 스크롤로 확인하세요</h4>
-                <p className="mt-1 text-xs leading-5 text-ob-muted">
-                  아래 무대 안을 직접 스크롤하면 고정 영상·막 전환·문구 등장을 실제 렌더러와 같은 방식으로 체험할 수 있어요.
-                </p>
-              </div>
-
-              <div className="grid gap-3 lg:grid-cols-[180px_minmax(0,1fr)]">
-                <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
-                  <div className="relative aspect-video overflow-hidden bg-ob-bg lg:aspect-[4/5]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={heroImageUrl} alt="선택한 히어로 원본" className="h-full w-full object-cover" />
-                    <span className="absolute top-2 left-2 rounded-full bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
-                      선택한 히어로 소스
-                    </span>
-                  </div>
-                  <p className="p-2.5 text-[10px] leading-4 text-ob-muted">
-                    실제 생성 때 사용하는 고객 선택 이미지예요.
-                  </p>
-                </div>
-
-                {manifestoPreviewConfig ? (
-                  <div className="relative overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
-                    <SitePreview
-                      config={manifestoPreviewConfig}
-                      mode="desktop"
-                      maxHeight={420}
-                      scroll
-                      motion
-                      previewAsAddon
-                    />
-                    <span className="pointer-events-none absolute top-2 right-2 z-[60] rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[9px] font-semibold text-white shadow-lg backdrop-blur-sm">
-                      대표 예시 · 최종본 아님
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex min-h-40 items-center justify-center rounded-ob border border-ob-border bg-ob-surface p-5 text-center text-xs leading-5 text-ob-muted">
-                    입력하신 이야기 근거가 3막 이상 모이면 실제 페이지 관통 미리보기가 열려요.
-                  </div>
+      {previewOptions.length ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {previewOptions.map(({ spec, preview }, index) => {
+            const active = signatureId === spec.id;
+            return (
+              <button
+                key={spec.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => chooseSignature(spec.id as ProductionMotionSignatureId)}
+                className={cn(
+                  'overflow-hidden rounded-ob border bg-ob-surface text-left transition-colors',
+                  active ? 'border-ob-accent-strong ring-1 ring-ob-accent' : 'border-ob-border hover:border-ob-muted',
                 )}
-              </div>
-
-              <p className="text-[10px] leading-4 text-ob-muted">
-                선택한 사진은 왼쪽의 영상 소스이고, 오른쪽 배경 영상은 스크롤 동작을 설명하는 다보임 대표 데모예요.
-                고객님의 실제 최종 영상은 결제·승인 후 별도로 생성됩니다.
-              </p>
-            </div>
-          ) : null}
+              >
+                <div className="pointer-events-none relative bg-ob-bg">
+                  <SitePreview
+                    config={preview.config}
+                    mode="desktop"
+                    maxHeight={compactPreviewHeight(spec)}
+                    motion
+                    previewAsAddon={spec.tier === 'premium'}
+                  />
+                  <span className="absolute top-2 left-2 z-[70] rounded-full border border-white/25 bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
+                    실제 렌더러 티저
+                  </span>
+                </div>
+                <span className="block space-y-2 p-3.5">
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold text-ob-ink">{spec.label}</span>
+                    {index === 0 ? <span className="text-[10px] font-semibold text-ob-accent-strong">추천</span> : null}
+                  </span>
+                  <span className="block text-xs leading-5 text-ob-muted">{spec.description}</span>
+                  <span className="block text-[11px] leading-4 text-ob-muted">
+                    모바일: {spec.mobileFallback}
+                  </span>
+                  <span className="block text-[11px] font-medium text-ob-ink">{mediaRequirement(spec)}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       ) : (
-        <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
-          선택한 히어로 사진을 그대로 쓰고, 완성 페이지에는 포함·무료인 기본 모션만 더합니다.
+        <div className="rounded-ob border border-ob-border bg-ob-bg p-5">
+          <p className="text-sm font-semibold text-ob-ink">현재 콘텐츠에는 기본 모션이 가장 완성도가 높아요</p>
+          <p className="mt-1 text-xs leading-5 text-ob-muted">
+            부족한 카드·사진·과정을 임의로 복제하지 않습니다. 콘텐츠를 더 넣으면 그에 맞는 시그니처가 열려요.
+          </p>
         </div>
       )}
 
+      {selected ? (
+        <div className="space-y-3 rounded-ob border border-ob-accent bg-ob-accent-soft p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-ob-ink">
+                <MonitorPlay className="h-4 w-4 text-ob-accent-strong" /> {selected.spec.label} 실제 스크롤 체험
+              </h3>
+              <p className="mt-1 text-xs leading-5 text-ob-muted">
+                선택하신 색·글꼴·콘텐츠와 발행본의 동일한 scene 계약·런타임을 사용합니다. 안쪽을 직접 스크롤해 보세요.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-ob-surface px-2.5 py-1 text-[10px] font-semibold text-ob-ink">
+              <Smartphone className="h-3 w-3" /> 모바일은 세로형으로 자동 전환
+            </span>
+          </div>
+          <div className="relative overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
+            <SitePreview
+              config={selected.preview.config}
+              mode="desktop"
+              maxHeight={520}
+              scroll
+              motion
+              previewAsAddon={selected.spec.tier === 'premium'}
+            />
+            {selected.preview.usesRepresentativeMedia ? (
+              <span className="pointer-events-none absolute right-2 bottom-2 z-[70] rounded-full border border-white/25 bg-black/70 px-2.5 py-1 text-[9px] font-semibold text-white">
+                움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님
+              </span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {selected && supportsVideo ? (
+        <div className="space-y-3 border-t border-ob-border pt-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-ob-ink">AI 영상 홈페이지를 더할까요?</h3>
+              <p className="mt-1 text-xs leading-5 text-ob-muted">
+                시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어예요. 선택만으로 생성되거나 권한이 부여되지 않습니다.
+              </p>
+            </div>
+            <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2.5 py-1 text-[10px] font-semibold text-ob-accent-strong">
+              {ownsAddon ? '승인됨' : addonPrice}
+            </span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              disabled={videoRequired}
+              aria-pressed={!wantsVideo}
+              onClick={() => setWantsVideo(false)}
+              className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border', videoRequired && 'cursor-not-allowed opacity-55')}
+            >
+              <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">이미지 + 기본 모션</span>
+              <span className="mt-1 block text-xs leading-5 text-ob-muted">포함·무료. 직접 올린 이미지와 가벼운 모션으로 완성해요.</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={wantsVideo}
+              onClick={() => setWantsVideo(true)}
+              className={cn('rounded-ob border p-4 text-left', wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
+            >
+              <Film className="h-5 w-5 text-ob-accent-strong" />
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 {ownsAddon ? '' : addonPrice}</span>
+              <span className="mt-1 block text-xs leading-5 text-ob-muted">
+                {heroPhotoUrl ? '대표 사진의 피사체를 그대로 보존해 움직입니다.' : '제품을 지어내지 않고 선택한 무드·빛·공간을 움직입니다.'}
+              </span>
+            </button>
+          </div>
+          <p className="text-[11px] leading-5 text-ob-muted">
+            예시는 최종 Veo 영상이 아닙니다. 실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 시작됩니다.
+          </p>
+        </div>
+      ) : null}
+
       <div className="flex items-center justify-between border-t border-ob-border pt-5">
-        <Button variant="ghost" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4" />
-          이전
-        </Button>
+        <Button variant="ghost" onClick={onBack}><ArrowLeft className="h-4 w-4" />이전</Button>
         <Button size="lg" onClick={submit}>
-          {wantsVideo ? '이 AI 영상 방향으로 계속' : '기본 모션으로 계속'}
-          <ArrowRight className="h-4 w-4" />
+          {signatureId ? <><Check className="h-4 w-4" />이 움직임으로 계속</> : <>기본 모션으로 계속<ArrowRight className="h-4 w-4" /></>}
         </Button>
       </div>
     </Card>

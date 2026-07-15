@@ -41,6 +41,8 @@ function motionChoiceWithHeroVideoSelection(
     heroImageChoice: survey.heroImageChoice,
     videoAddon: survey.videoAddon,
     heroMotionId: isHeroVideoMotionId(survey.heroMotionId) ? survey.heroMotionId : undefined,
+    signatureId: survey.signatureId ?? choice.signatureId,
+    beforeAfterSelection: survey.beforeAfterSelection ?? choice.beforeAfterSelection,
   };
 }
 
@@ -48,8 +50,8 @@ function motionChoiceWithHeroVideoSelection(
 const STEPS = [
   { no: 1, label: '내용' },
   { no: 2, label: '히어로 사진' },
-  { no: 3, label: '움직임' },
-  { no: 4, label: '디자인 방향' },
+  { no: 3, label: '디자인 방향' },
+  { no: 4, label: '움직임' },
   { no: 5, label: '부가기능' },
   { no: 6, label: '구성·생성' },
 ] as const;
@@ -187,30 +189,31 @@ export function OnboardingWizard({
       ) : null}
 
       {step === 3 && survey && heroImage ? (
-        <MotionChoiceStep
-          tier={tier}
-          purposeId={survey.purposeId}
-          templateId={survey.templateId}
+        <CandidateStep
           survey={survey}
           heroImageUrl={heroImage.url}
-          heroPhotoUrl={heroImage.source === 'upload' ? heroImage.url : undefined}
-          initial={motionChoice}
           onBack={() => setStep(2)}
-          onComplete={(choice) => {
-            setMotionChoice(choice);
+          onSelect={(selected) => {
+            setCandidate(selected);
+            setMotionChoice(undefined);
             setStep(4);
           }}
         />
       ) : null}
 
-      {step === 4 && survey && heroImage ? (
-        <CandidateStep
+      {step === 4 && survey && heroImage && candidate ? (
+        <MotionChoiceStep
+          tier={tier}
+          purposeId={survey.purposeId}
+          templateId={survey.templateId}
           survey={survey}
+          candidate={candidate}
           heroImageUrl={heroImage.url}
-          heroTechnique={motionChoice?.heroTechnique}
+          heroPhotoUrl={heroImage.source === 'upload' ? heroImage.url : undefined}
+          initial={motionChoice}
           onBack={() => setStep(3)}
-          onSelect={(selected) => {
-            setCandidate(selected);
+          onComplete={(choice) => {
+            setMotionChoice(choice);
             setStep(5);
           }}
         />
@@ -243,10 +246,10 @@ export function OnboardingWizard({
             setFreeRegensUsed(used);
           }}
           onBack={() => setStep(5)}
-          onPickAnother={() => setStep(4)}
+          onPickAnother={() => setStep(3)}
           onEditSurvey={() => setStep(1)}
           onChooseHeroImage={() => setStep(2)}
-          onChooseHeroMotion={() => setStep(3)}
+          onChooseHeroMotion={() => setStep(4)}
           onDirectionsChange={(directions) => {
             setSurvey((current) => {
               if (!current) return current;

@@ -12,7 +12,6 @@ import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/d
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { resolveMotionPlan } from '@/lib/motion/apply';
 import { scrimPassesAA } from '@/lib/design/scrim';
-import { contrastRatio } from '@/lib/design/quality-standards';
 import { checkPublish } from '@/lib/publish/preflight';
 
 const SOSO_CONTENT = `[소개]
@@ -124,8 +123,8 @@ describe('Q-batch 통합 — 소소한자리 시드', () => {
     assert.equal((firstNeutral.background.color ?? '').toLowerCase(), palette.background.toLowerCase(), '히어로 직후 연속-배경 아님');
   });
 
-  test('⑥ 모션 — cafe-basic 프리셋 + 히어로 ken-burns + 티저 reveal 스태거', () => {
-    assert.equal(cfg.motion?.presetId, 'cafe-basic');
+  test('⑥ 모션 — v2 cafe base + 히어로 ken-burns + 티저 reveal 스태거', () => {
+    assert.equal(cfg.motion?.presetId, 'base-flow-v2');
     const plan = resolveMotionPlan(cfg);
     assert.ok(plan.kenBurnsSections.has(hero.id), '히어로 ken-burns 미부착');
     const teaser = home.sections.find((s) => s.id === 'sec-home-teaser')!;

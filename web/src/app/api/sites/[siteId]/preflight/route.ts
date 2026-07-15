@@ -12,6 +12,7 @@ import { preflightScan } from '@/lib/scan/preflight';
 import { guidanceFor } from '@/lib/scan/guidance';
 import { computeResolution } from '@/lib/scan/issue-resolution';
 import { siteUrlOf } from '@/lib/seo/structured-data';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -30,9 +31,16 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
 
   let scan: ReturnType<typeof preflightScan>;
   try {
+    const provenance = await resolveStoredBeforeAfterMotionOptions({ config, clientId: client.id, siteId });
+    if (!provenance.ok) {
+      return apiError(409, 'PREFLIGHT_MOTION_PROVENANCE_BLOCKED', provenance.message, { code: provenance.code });
+    }
     scan = preflightScan(config, {
       siteUrl: siteUrlOf(site.domain) || undefined,
       tier: client.tier,
+      motionOwnerId: client.id,
+      motionSiteId: siteId,
+      motionAssets: provenance.options.assets,
     });
   } catch (error) {
     console.error('[preflight-audit] scan failed:', error);

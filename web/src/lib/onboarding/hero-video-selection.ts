@@ -30,7 +30,9 @@ export function authoritativeHeroVideoChoice(
   const hasWSelection =
     survey.heroImageChoice !== undefined ||
     survey.videoAddon !== undefined ||
-    survey.heroMotionId !== undefined;
+    survey.heroMotionId !== undefined ||
+    survey.signatureId !== undefined ||
+    survey.beforeAfterSelection !== undefined;
   if (!choice && !hasWSelection) return undefined;
 
   return {
@@ -38,5 +40,7 @@ export function authoritativeHeroVideoChoice(
     ...(survey.heroImageChoice !== undefined ? { heroImageChoice: survey.heroImageChoice } : {}),
     ...(survey.videoAddon !== undefined ? { videoAddon: survey.videoAddon } : {}),
     ...(survey.heroMotionId !== undefined ? { heroMotionId: survey.heroMotionId } : {}),
+    ...(survey.signatureId !== undefined ? { signatureId: survey.signatureId } : {}),
+    ...(survey.beforeAfterSelection !== undefined ? { beforeAfterSelection: survey.beforeAfterSelection } : {}),
   };
 }

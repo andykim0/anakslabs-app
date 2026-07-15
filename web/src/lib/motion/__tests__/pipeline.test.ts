@@ -17,8 +17,9 @@ describe('applyGeneratedMotion (LLM 방벽)', () => {
     const polluted = { ...base(), motion: { presetId: 'webgl-shader', intensity: 'normal' as const } };
     const out = applyGeneratedMotion(polluted, 'local_store', 'premium');
     assert.equal(out.motion?.presetId, resolvePresetForIndustry('local_store', 'premium'));
-    assert.equal(out.motion?.presetId, 'dining-premium');
     assert.ok(isPresetId(out.motion!.presetId));
+    assert.equal(MOTION_PRESETS[out.motion!.presetId as PresetId].catalogVersion, 2);
+    assert.equal(MOTION_PRESETS[out.motion!.presetId as PresetId].status, 'active');
   });
 
   test('motion 없는 생성물에도 항상 유효 motion 주입 + 전 업종×플랜 tier 일치', () => {

@@ -14,6 +14,7 @@ import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
 import { applySectionDirections } from '@/lib/onboarding/section-directions';
@@ -76,12 +77,36 @@ export const POST = withApiHandler(async (request) => {
   );
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
-  const draftConfig = applyGeneratedMotion(
+  const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
+  let draftConfig = applyGeneratedMotion(
     withExtras,
     survey.purposeId,
     client.tier,
-    authoritativeHeroVideoChoice(survey, body.data.motionChoice),
+    motionChoice,
+    survey,
   );
+  let motionWarning: { code: string; message: string } | undefined;
+  if (motionChoice?.signatureId === 'before-after-scrub') {
+    const provenance = await resolveBeforeAfterMotionOptions({
+      survey,
+      choice: motionChoice,
+      clientId: client.id,
+      siteId,
+      industryClass: draftConfig.meta.industryClass ?? 'other',
+    });
+    if (provenance.ok) {
+      draftConfig = applyGeneratedMotion(
+        withExtras,
+        survey.purposeId,
+        client.tier,
+        motionChoice,
+        survey,
+        provenance.options,
+      );
+    } else {
+      motionWarning = { code: provenance.code, message: provenance.message };
+    }
+  }
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 
@@ -91,5 +116,6 @@ export const POST = withApiHandler(async (request) => {
     site: updated ?? site,
     freeRegensUsed: used + 1,
     freeRegenLimit: FREE_REGEN_LIMIT,
+    ...(motionWarning ? { motionWarning } : {}),
   });
 });

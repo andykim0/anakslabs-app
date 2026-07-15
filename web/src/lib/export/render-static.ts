@@ -17,6 +17,7 @@ import { renderToStaticMarkup } from 'react-dom/server.edge';
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { TenantPageContent } from '@/components/site-renderer';
 import { buildDocumentShell } from './document-shell';
+import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 
 /** CDN 폰트 <link>(구글폰트/제이에스딜리버 Pretendard)와 preconnect 제거 — 셀프호스트 시 */
 const CDN_FONT_LINK_RE =
@@ -50,6 +51,10 @@ export interface RenderDocumentOptions {
   lang?: string;
   /** [motion 3단계] 소유자 티어 — resolveMotionPlan 티어 방어(defense-in-depth). 라우트가 client.tier 전달 */
   tier?: MotionTier;
+  /** 민감 자산은 export 호출부가 DB 레지스트리에서 검증한 projection만 전달한다. */
+  motionOwnerId?: string;
+  motionSiteId?: string;
+  motionAssets?: readonly MotionAssetProvenance[];
 }
 
 /** 발행본 SiteConfig → `<!doctype html>` 완전 문서 문자열 */
@@ -65,6 +70,9 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
       config,
       pageSlug,
       tier: opts.tier,
+      siteId: opts.motionSiteId,
+      motionOwnerId: opts.motionOwnerId,
+      motionAssets: opts.motionAssets,
       interactive: true,
       animate: true,
       hrefForSlug: opts.navHrefForSlug,

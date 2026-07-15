@@ -68,14 +68,17 @@ describe('SS5 — W 모션 라이브러리 절제 게이트', () => {
     assert.equal(isScrollytellingTemplate('booking_service', 'booking_service.clinic'), false, '병원 자동 적용 금지');
   });
 
-  test('온보딩은 templateId exact gate와 CSS 대표 예시만 사용한다', () => {
+  test('온보딩은 중앙 eligibility와 production renderer 대표 예시만 사용한다', () => {
     const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
     const wizard = source('src/components/dashboard/onboarding/wizard.tsx');
     assert.match(wizard, /<MotionChoiceStep[\s\S]*templateId=\{survey\.templateId\}/);
-    assert.match(motion, /isScrollytellingTemplate\(purposeId, templateId\)/);
-    assert.match(motion, /heroVideoMotionIdsForContext/);
-    assert.match(motion, /@keyframes hvm-manifesto/);
-    assert.match(motion, /CSS 대표 예시예요/);
+    assert.match(motion, /motionContextFromSurvey\(survey, 'premium'/);
+    assert.match(motion, /motionSignaturesForContext\(demoContext/);
+    assert.match(motion, /buildMotionSignaturePreviewConfig/);
+    assert.match(motion, /<SitePreview/);
+    assert.match(motion, /실제 렌더러 티저/);
+    assert.match(motion, /실제 스크롤 체험/);
+    assert.doesNotMatch(motion, /@keyframes|CSS 대표 예시예요/);
     assert.doesNotMatch(motion, /fetch\(|generateVeoVideo|generateHeroVideo/);
   });
 

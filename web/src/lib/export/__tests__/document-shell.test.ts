@@ -93,4 +93,32 @@ describe('buildDocumentShell — 서빙 레이어 방출', () => {
     });
     assert.equal(heroPosterPreloadHtml(config, ''), '');
   });
+
+  test('v2 시그니처가 첫 섹션을 소유하면 해당 poster만 LCP 후보가 된다', () => {
+    const config = cfg();
+    config.pages[0].sections[0].background.video = { src: '/legacy.mp4', poster: '/legacy.webp' };
+    config.motion = {
+      presetId: 'base-premium-v2', intensity: 'normal', catalogVersion: 2,
+      signatures: [{
+        signatureId: 'cinematic-scrub', pageId: 'home', sectionId: 'sec-hero', heading: '시네마틱',
+        media: {
+          id: 'signature-video', kind: 'video', src: 'assets/0123abcd.mp4', poster: 'assets/deadbeef.webp',
+          alt: '브랜드 영상', width: 1920, height: 1080, provenance: 'customer-provided',
+        },
+      }],
+    };
+    assert.equal(
+      heroPosterPreloadHtml(config, ''),
+      '<link rel="preload" as="image" href="assets/deadbeef.webp" fetchpriority="high">',
+    );
+  });
+
+  test('정적 히어로 이미지는 영상이 없어도 단 하나의 LCP 후보가 된다', () => {
+    const config = cfg();
+    config.pages[0].sections[0].background.image = { src: 'assets/deadbeef.webp' };
+    assert.equal(
+      heroPosterPreloadHtml(config, ''),
+      '<link rel="preload" as="image" href="assets/deadbeef.webp" fetchpriority="high">',
+    );
+  });
 });

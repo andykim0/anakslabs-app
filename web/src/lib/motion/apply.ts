@@ -17,6 +17,7 @@ import { MOTION_PRESETS, DEFAULT_PRESET, isPresetId, type MotionPreset } from '.
 import { ensureMotion, sanitizeMotion } from './validate';
 import { storyElementWindow, type ProgressWindow } from './progress';
 import { canRenderScrollytellingSection } from './scrollytelling';
+import type { MotionContextOptions } from './signatures';
 
 /** 요소에 부착할 data-m 값 (요소 단위) */
 export type ElementMotion = 'reveal' | 'countup' | 'mask' | 'hovervideo';
@@ -113,11 +114,13 @@ export interface ResolveOpts {
    * 저장 방벽이 이미 보장한 프리셋을 신뢰(에디터 프리뷰는 애초에 plan 미생성).
    */
   tier?: MotionTier;
+  /** Sensitive signature provenance/classification used by the same defense-in-depth pass. */
+  signatureContext?: MotionContextOptions;
 }
 
 export function resolveMotionPlan(config: SiteConfig, opts?: ResolveOpts): MotionPlan {
   let safe = ensureMotion(config);
-  if (opts?.tier) safe = sanitizeMotion(safe, opts.tier).config; // 티어 방어(강등)
+  if (opts?.tier) safe = sanitizeMotion(safe, opts.tier, opts.signatureContext).config; // 티어 방어(강등)
   const presetId = isPresetId(safe.motion!.presetId) ? safe.motion!.presetId : DEFAULT_PRESET.basic;
   const preset: MotionPreset = MOTION_PRESETS[presetId];
   const cinematicPreset = preset.composite === 'cinematic-hero';

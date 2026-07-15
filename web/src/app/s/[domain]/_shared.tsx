@@ -10,6 +10,7 @@ import type { Site } from '@/lib/types/domain';
 import { findPage } from '@/lib/types/site';
 import { getDataServices } from '@/lib/data';
 import { SuspendedNotice, TenantPageContent } from '@/components/site-renderer';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 
@@ -87,6 +88,11 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
   // 저장/발행 단계에서 이미 보장한다. 실서빙은 항상 모션 레이어를 방출(animate 미지정=interactive=true).
   // [3단계] 티어는 게이트가 아니라 방어용 — resolveMotionPlan이 sanitizeMotion 강등에만 사용(defense-in-depth).
   const tier = await getOwnerTier(site.clientId);
+  const provenance = await resolveStoredBeforeAfterMotionOptions({
+    config,
+    clientId: site.clientId,
+    siteId: site.id,
+  });
 
   return (
     <>
@@ -96,7 +102,14 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
         dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
       />
       {/* [P1] 헤더+main(아웃라인+렌더)+법적푸터 = render-static과 공유하는 시맨틱 셸 단일 소스 */}
-      <TenantPageContent config={config} pageSlug={pageSlug} siteId={site.id} tier={tier} />
+      <TenantPageContent
+        config={config}
+        pageSlug={pageSlug}
+        siteId={site.id}
+        tier={tier}
+        motionOwnerId={site.clientId}
+        motionAssets={provenance.ok ? provenance.options.assets : undefined}
+      />
     </>
   );
 }

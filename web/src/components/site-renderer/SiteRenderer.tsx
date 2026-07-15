@@ -17,10 +17,23 @@ import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
 import { resolveMotionPlan, intensityFactors, planIsActive } from '@/lib/motion/apply';
 import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
+import {
+  motionContextFromConfig,
+  resolveMotionArtDirectionProfile,
+  resolveMotionSignaturePlan,
+  type MotionAssetProvenance,
+} from '@/lib/motion/signatures';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from './fonts';
 import { SectionCanvas } from './SectionCanvas';
 import { SectionStack } from './SectionStack';
 import { ScrollytellingStage } from './ScrollytellingStage';
+import {
+  consumedSectionIds,
+  isRenderableMotionScene,
+  MotionSignatureRenderer,
+  sceneSourceSectionsAreSafe,
+} from './MotionSignatureRenderer';
+import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -77,6 +90,8 @@ export function SiteRenderer({
   animate,
   tier,
   siteId,
+  motionOwnerId,
+  motionAssets,
   pageSlug = '',
 }: {
   config: SiteConfig;
@@ -104,6 +119,13 @@ export function SiteRenderer({
   animate?: boolean;
   /** [v3 Phase 3] 문의 폼 제출 대상 사이트 — 실서빙(/s/[domain])에서만 전달 */
   siteId?: string;
+  /**
+   * 민감한 시그니처용 서버 권위 소유자. URL/클라이언트 provenance 문자열만으로는 대체할 수 없다.
+   * 미지정 시 before-after는 sanitizer에서 fail-closed 된다.
+   */
+  motionOwnerId?: string;
+  /** 저장소에서 현재 사이트 소유권까지 검증한 자산 projection. 기본 빈 배열 = 민감 기능 비활성. */
+  motionAssets?: readonly MotionAssetProvenance[];
 }) {
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
@@ -112,11 +134,42 @@ export function SiteRenderer({
   const sections = page.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
 
-  // [motion-system 2·3단계] 프리셋 계획 (모션 방출 시에만). intensity off면 계획이 비어 실질 미방출.
-  // tier 주면 sanitizeMotion 강등(defense-in-depth). planIsActive가 Basic 4종+Premium 7종 전부 커버.
-  const plan = shouldAnimate ? resolveMotionPlan(config, tier ? { tier } : undefined) : undefined;
-  const motionActive = !!plan && planIsActive(plan);
-  const css = BASE_CSS + scopeCustomCss(theme.customCss) + (motionActive ? MOTION_CSS : '');
+  // v2 signature는 저장값을 곧바로 신뢰하지 않는다. 렌더 진입에서도 업종·tier·target·자산 소유권을
+  // 재검증한다. tier/권위 자산이 빠진 호출은 basic/empty로 fail-closed 하되 ordinary sections는 보존한다.
+  const signatureContext = motionContextFromConfig(config, tier ?? 'basic', {
+    assets: motionAssets ?? [],
+    ...(motionOwnerId ? { ownerId: motionOwnerId } : {}),
+    ...(siteId ? { siteId } : {}),
+    theme,
+    playback: { renderMode: mode },
+  });
+  // Base and signature planning share the same authoritative projection. Otherwise a
+  // verified sensitive scene could be stripped in the base pass and leave a duplicate
+  // legacy video-hero active beside the later verified signature renderer.
+  const signatureSanitizeOptions = {
+    assets: motionAssets ?? [],
+    ...(motionOwnerId ? { ownerId: motionOwnerId } : {}),
+    ...(siteId ? { siteId } : {}),
+    theme,
+  };
+  const plan = shouldAnimate
+    ? resolveMotionPlan(config, tier ? { tier, signatureContext: signatureSanitizeOptions } : undefined)
+    : undefined;
+  const baseMotionActive = !!plan && planIsActive(plan);
+  const signaturePlan = resolveMotionSignaturePlan(config, signatureContext);
+  const signatureCandidate = signaturePlan.sceneByPage.get(page.id);
+  const signatureScene = signatureCandidate && isRenderableMotionScene(signatureCandidate) &&
+    sceneSourceSectionsAreSafe(signatureCandidate, sections)
+    ? signatureCandidate
+    : undefined;
+  const signatureArt = signatureScene
+    ? resolveMotionArtDirectionProfile(signatureScene.signatureId, signatureContext, signatureScene)
+    : undefined;
+  // Signature CSS is also its complete no-JS/reduced static layout; runtime remains optional enhancement.
+  const motionCssNeeded = baseMotionActive || Boolean(signatureScene);
+  const signatureMotionEnabled = Boolean(signatureScene) && config.motion?.intensity !== 'off';
+  const motionActive = shouldAnimate && (baseMotionActive || signatureMotionEnabled);
+  const css = BASE_CSS + scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
     containerType: 'inline-size',
@@ -126,21 +179,24 @@ export function SiteRenderer({
     color: theme.palette.text,
     fontFamily: theme.fonts.body,
   };
-  if (motionActive && plan) {
-    const f = intensityFactors(plan.intensity);
+  if (motionCssNeeded) {
+    const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
     (rootStyle as Record<string, string | number>)['--m-amp'] = f.amp;
     (rootStyle as Record<string, string | number>)['--m-dur-scale'] = f.durScale;
   }
 
   const showDesktop = mode === 'desktop' || mode === 'auto';
   const showMobile = mode === 'mobile' || mode === 'auto';
-  const hasScrollytelling = !!plan && plan.scrollytellingSections.size > 0;
+  // Structured signature wins over a legacy layout on the same page; persisted legacy IDs remain untouched
+  // and continue through SectionCanvas/ScrollytellingStage when no v2 scene is valid.
+  const hasScrollytelling = !signatureScene && !!plan && plan.scrollytellingSections.size > 0;
   const scrollytellingSection = hasScrollytelling
     ? sections.find((section) => plan?.scrollytellingSections.has(section.id))
     : undefined;
   const ordinarySections = scrollytellingSection
     ? sections.filter((section) => section.id !== scrollytellingSection.id)
     : sections;
+  const signatureConsumed = signatureScene ? consumedSectionIds(signatureScene) : new Set<string>();
 
   return (
     <>
@@ -153,7 +209,52 @@ export function SiteRenderer({
       {needsPretendard(theme) && <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />}
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="anaks-site" style={rootStyle}>
-        {scrollytellingSection ? (
+        {signatureScene && signatureArt ? (
+          ordinarySections.map((section) => {
+            if (section.id === signatureScene.sectionId) {
+              return (
+                <MotionSignatureRenderer
+                  key={`signature:${signatureScene.signatureId}:${section.id}`}
+                  scene={signatureScene}
+                  theme={theme}
+                  artDirection={signatureArt}
+                  mode={mode}
+                  isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
+                />
+              );
+            }
+            if (signatureConsumed.has(section.id)) return null;
+            return (
+              <div key={section.id} data-signature-ordinary-section>
+                {showDesktop && (
+                  <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
+                    <SectionCanvas
+                      section={section}
+                      theme={theme}
+                      isFirst={sections[0]?.id === section.id}
+                      interactive={interactive}
+                      plan={plan}
+                      siteId={siteId}
+                    />
+                  </div>
+                )}
+                {showMobile && (
+                  <div className={mode === 'auto' ? 'md:hidden' : undefined}>
+                    <SectionStack
+                      section={section}
+                      theme={theme}
+                      // auto contains both trees: only desktop receives eager/high so a page has one LCP candidate.
+                      isFirst={mode === 'mobile' && sections[0]?.id === section.id}
+                      interactive={interactive}
+                      plan={plan}
+                      siteId={siteId}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : scrollytellingSection ? (
           <ScrollytellingStage
             section={scrollytellingSection}
             theme={theme}
@@ -161,17 +262,26 @@ export function SiteRenderer({
             mode={mode}
           />
         ) : null}
-        {showDesktop && (
+        {!signatureScene && showDesktop && (
           <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
             {ordinarySections.map((section) => (
               <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
-        {showMobile && (
+        {!signatureScene && showMobile && (
           <div className={mode === 'auto' ? 'md:hidden' : undefined}>
             {ordinarySections.map((section) => (
-              <SectionStack key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
+              <SectionStack
+                key={section.id}
+                section={section}
+                theme={theme}
+                // auto already rendered the desktop LCP image; never create a second eager/high candidate.
+                isFirst={mode === 'mobile' && sections[0]?.id === section.id}
+                interactive={interactive}
+                plan={plan}
+                siteId={siteId}
+              />
             ))}
           </div>
         )}

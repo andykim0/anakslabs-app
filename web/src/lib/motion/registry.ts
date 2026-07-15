@@ -8,6 +8,8 @@
 import type { MotionTier } from '@/lib/types/site';
 
 export type MotionTechniqueSpec = {
+  /** v2 catalog exposure. Legacy techniques remain renderable for persisted sites. */
+  status: 'active' | 'legacy';
   tier: MotionTier;
   weight: 'light' | 'medium';
   /** 한국어, 에디터 UI 노출용 */
@@ -31,22 +33,22 @@ export interface CompositeSignatureSpec {
 /** 확정 데이터 (13종). 추가·삭제·개명 금지 — 프롬프트 명시값 그대로. */
 export const MOTION_TECHNIQUES = {
   // ---------- Basic ----------
-  'scroll-reveal': { tier: 'basic', weight: 'light', role: '섹션 등장 모션(스태거) — 정적인 느낌 제거', maxPerPage: 99, infinite: false },
-  'ken-burns': { tier: 'basic', weight: 'light', role: '정지 이미지의 느린 줌/팬 — Basic 히어로 담당', maxPerPage: 1, infinite: true },
-  'count-up': { tier: 'basic', weight: 'light', role: '통계·실적 숫자 카운트업 (시술 건수·방문자 등)', maxPerPage: 3, infinite: false },
-  'mask-reveal': { tier: 'basic', weight: 'light', role: '이미지 등장 연출(clip-path)', maxPerPage: 2, infinite: false },
-  'marquee': { tier: 'basic', weight: 'light', role: '파트너 로고·메뉴 흐름 띠', maxPerPage: 1, infinite: true },
-  'micro-hover': { tier: 'basic', weight: 'light', role: '버튼 lift·카드 그림자 기본 마이크로 인터랙션', maxPerPage: 99, infinite: false },
+  'scroll-reveal': { status: 'active', tier: 'basic', weight: 'light', role: '섹션 등장 모션(스태거) — 정적인 느낌 제거', maxPerPage: 99, infinite: false },
+  'ken-burns': { status: 'active', tier: 'basic', weight: 'light', role: '정지 이미지의 느린 줌/팬 — Basic 히어로 담당', maxPerPage: 1, infinite: true },
+  'count-up': { status: 'legacy', tier: 'basic', weight: 'light', role: '통계·실적 숫자 카운트업 (레거시 사이트 전용)', maxPerPage: 3, infinite: false },
+  'mask-reveal': { status: 'active', tier: 'basic', weight: 'light', role: '이미지 등장 연출(clip-path)', maxPerPage: 2, infinite: false },
+  'marquee': { status: 'active', tier: 'basic', weight: 'light', role: '파트너 로고·메뉴 흐름 띠', maxPerPage: 1, infinite: true },
+  'micro-hover': { status: 'legacy', tier: 'basic', weight: 'light', role: '기본 UI affordance로만 유지(선택형 모션 아님)', maxPerPage: 99, infinite: false },
   // ---------- Premium ----------
-  'video-hero': { tier: 'premium', weight: 'medium', role: 'AI 시네마틱 영상 히어로(루프) — 간판 기능', maxPerPage: 1, infinite: true, costKrwPerSite: 10000, basicFallback: 'ken-burns' },
+  'video-hero': { status: 'active', tier: 'premium', weight: 'medium', role: 'AI 시네마틱 영상 히어로(루프) — 간판 기능', maxPerPage: 1, infinite: true, costKrwPerSite: 10000, basicFallback: 'ken-burns' },
   // [V-batch] cinematic-hero 합성에서만 활성. 데스크톱은 currentTime scrub,
   // 모바일·seek 실패는 pinned loop, reduced-motion은 poster로 강등한다.
-  'scroll-scrub': { tier: 'premium', weight: 'medium', role: '스크롤=재생헤드 연출 — 데모에서 가장 팔리는 기법', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'parallax': { tier: 'premium', weight: 'light', role: '레이어 깊이감 (페이지당 1섹션)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'split-text': { tier: 'premium', weight: 'light', role: '히어로 헤드라인 단어별 등장', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'stacking-cards': { tier: 'premium', weight: 'light', role: '메뉴·시술·서비스 스티키 카드', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'spotlight': { tier: 'premium', weight: 'light', role: '커서 추적 빛 — 다크 무드 업종 한정', maxPerPage: 1, infinite: false, darkSectionOnly: true, basicFallback: 'micro-hover' },
-  'hover-video': { tier: 'premium', weight: 'light', role: '갤러리·메뉴 썸네일 호버 재생', maxPerPage: 4, infinite: false, basicFallback: 'micro-hover' },
+  'scroll-scrub': { status: 'active', tier: 'premium', weight: 'medium', role: '스크롤=재생헤드 연출 — 시그니처 내부 합성용', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'parallax': { status: 'active', tier: 'premium', weight: 'light', role: '레이어 깊이감 (페이지당 1섹션)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'split-text': { status: 'active', tier: 'premium', weight: 'light', role: '히어로 헤드라인 단어별 등장', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'stacking-cards': { status: 'legacy', tier: 'premium', weight: 'light', role: '기존 IO 카드 등장(레거시 사이트 전용)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'spotlight': { status: 'legacy', tier: 'premium', weight: 'light', role: '커서 추적 빛(레거시 사이트 전용)', maxPerPage: 1, infinite: false, darkSectionOnly: true, basicFallback: 'micro-hover' },
+  'hover-video': { status: 'active', tier: 'premium', weight: 'light', role: '갤러리·메뉴 썸네일 호버 재생', maxPerPage: 4, infinite: false, basicFallback: 'micro-hover' },
 } as const satisfies Record<string, MotionTechniqueSpec>;
 
 export type TechniqueId = keyof typeof MOTION_TECHNIQUES;
@@ -56,6 +58,29 @@ export type BasicTechniqueId = {
 export type PremiumTechniqueId = {
   [K in TechniqueId]: (typeof MOTION_TECHNIQUES)[K]['tier'] extends 'premium' ? K : never;
 }[TechniqueId];
+
+/** 신규 생성/온보딩에서 사용할 수 있는 가벼운 production base catalog. */
+export const ACTIVE_BASE_TECHNIQUE_IDS = [
+  'scroll-reveal',
+  'ken-burns',
+  'mask-reveal',
+  'marquee',
+  'video-hero',
+  'scroll-scrub',
+  'split-text',
+  'parallax',
+  'hover-video',
+] as const satisfies readonly TechniqueId[];
+
+export type ActiveBaseTechniqueId = (typeof ACTIVE_BASE_TECHNIQUE_IDS)[number];
+
+/** 삭제하지 않는 읽기/렌더 호환 catalog. 신규 자동 배정과 선택 UI에서는 제외한다. */
+export const LEGACY_TECHNIQUE_IDS = [
+  'count-up',
+  'spotlight',
+  'stacking-cards',
+  'micro-hover',
+] as const satisfies readonly TechniqueId[];
 
 /** cinematic-hero는 구성 기법 네 개를 페이지당 하나의 합성 시그니처로 센다. */
 export const COMPOSITE_SIGNATURES = {

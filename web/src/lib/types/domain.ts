@@ -3,7 +3,14 @@
  * 도메인 모델 (DB 행의 앱 표현). SQL 스키마(supabase/migrations)와 1:1 정합 유지.
  * 모든 필드는 camelCase — 데이터 계층에서 snake_case ↔ camelCase 매핑 책임.
  */
-import type { HeroImageChoice, SectionDirection, SiteConfig } from './site';
+import type {
+  BeforeAfterAssetSelection,
+  HeroImageChoice,
+  MotionIndustryClass,
+  ProductionMotionSignatureId,
+  SectionDirection,
+  SiteConfig,
+} from './site';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -284,6 +291,8 @@ export interface SurveyInput {
   purpose: string;
   /** 업종 — 택소노미 칩 또는 자유 입력 */
   industry: string;
+  /** [motion signatures v2] 서버가 확정한 분류. 클라이언트 입력은 생성 경계에서 항상 덮어쓴다. */
+  industryClass?: MotionIndustryClass;
   /**
    * [v4.5] 지역(선택) — 예: '서울 연희동'. 지역 검색은 제품 핵심 약속이라 1급 필드.
    * 생성 프롬프트 지역 컨텍스트 + SEO 메타(title/description)·JSON-LD addressLocality에 배선.
@@ -327,6 +336,10 @@ export interface SurveyInput {
   videoAddon?: boolean;
   /** [W4] 등록된 영상 연출 방향. 결제·애드온 승인 전에는 생성 트리거가 아니다. */
   heroMotionId?: string;
+  /** [motion signatures v2] 고객이 고른 실제 페이지 연출. 서버 eligibility가 다시 판정한다. */
+  signatureId?: ProductionMotionSignatureId;
+  /** 전후 비교는 URL이 아니라 서버 자산 레코드 ID 두 개와 명시적 확인만 전달한다. */
+  beforeAfterSelection?: BeforeAfterAssetSelection;
   /**
    * [F3 #7] 고객이 무드보드에서 고른 레퍼런스 샘플의 스타일 id(REFERENCE_SAMPLES.styleId).
    * selectDesignBriefs가 후보 스타일 선택에 가중치로 사용(imageStyle 고정 > 샘플 가중 > POV 비중복).

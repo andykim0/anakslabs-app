@@ -46,8 +46,8 @@ describe('H4 — 히어로 영상 소스 UI·전달', () => {
   test('영상 선택 카피는 사진 보존/AI 무드 경로를 구분하고 음식 접시 이모지를 쓰지 않는다', () => {
     const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
     const studio = source('src/components/dashboard/onboarding/hero-video-studio.tsx');
-    assert.match(motion, /이 대표 사진을 그대로 살려요/);
-    assert.match(motion, /선택한 무드에 맞춘 AI 공간·빛 연출/);
+    assert.match(motion, /대표 사진의 피사체를 그대로 보존해 움직입니다/);
+    assert.match(motion, /제품을 지어내지 않고 선택한 무드·빛·공간을 움직입니다/);
     assert.match(studio, /피사체를 그대로 보존/);
     assert.match(studio, /AI 공간·빛·질감 연출/);
     assert.doesNotMatch(motion, /🍽️|product-closeup|unboxing-detail/);

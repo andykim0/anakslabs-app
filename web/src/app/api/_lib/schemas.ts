@@ -4,9 +4,15 @@
  */
 import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
-import { isValidPageSlug, SECTION_DIRECTION_GUIDES } from '@/lib/types/site';
+import {
+  isValidPageSlug,
+  SECTION_DIRECTION_GUIDES,
+} from '@/lib/types/site';
 import { MOTION_PRESETS } from '@/lib/motion/presets';
 import { HERO_VIDEO_MOTION_IDS } from '@/lib/motion/hero-video-motions';
+import {
+  PRODUCTION_MOTION_SIGNATURE_IDS,
+} from '@/lib/motion/signatures';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -24,6 +30,22 @@ const safeMediaSrcSchema = z
 /** [W4] 히어로 이미지·영상 선택 계약 — UI 자유 문자열이 저장 경계로 새지 않게 정확히 열거한다. */
 const heroImageChoiceSchema = z.enum(['upload', 'ai-1', 'ai-2', 'ai-3']);
 const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
+const productionMotionSignatureIdSchema = z.enum(PRODUCTION_MOTION_SIGNATURE_IDS);
+const motionIndustryClassSchema = z.enum([
+  'cafe',
+  'retail',
+  'fine_dining',
+  'beauty',
+  'medical',
+  'remodeling',
+  'legal',
+  'consulting',
+  'workshop',
+  'photography',
+  'brand',
+  'portfolio',
+  'other',
+]);
 
 // ---------- 사이트 테마 ----------
 
@@ -323,6 +345,8 @@ const siteMetaSchema = z.object({
   // [제품 확정/I1] 목적·지역·진단원본 — JSON-LD @type·지역·전후 대조에 쓰이므로 저장 시 보존(strip 방지)
   purposeId: z.string().max(40).optional(),
   templateId: z.string().max(80).optional(),
+  // [motion signatures v2] 서버 택소노미가 확정한 값만 저장. 자유 업종 문자열은 이 필드를 권한으로 만들 수 없다.
+  industryClass: motionIndustryClassSchema.optional(),
   region: z.string().max(60).optional(),
   sourceScanId: z.string().max(100).optional(),
 });
@@ -383,11 +407,184 @@ const sitePageSchema = z.object({
   navLabel: z.string().max(60).optional(),
 });
 
+// ---------- [motion signatures v2] 구조화 scene 계약 ----------
+
+const focalPointSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+});
+
+const motionImageMediaSchema = z.object({
+  id: z.string().min(1).max(100),
+  kind: z.literal('image'),
+  src: safeMediaSrcSchema,
+  poster: safeMediaSrcSchema.optional(),
+  alt: z.string().trim().min(1).max(300),
+  caption: z.string().trim().max(300).optional(),
+  width: z.number().int().positive().max(16384),
+  height: z.number().int().positive().max(16384),
+  focalPoint: focalPointSchema.optional(),
+  provenance: z.enum(['customer-provided', 'ai-generated', 'curated', 'unknown']),
+  assetId: z.string().max(100).optional(),
+});
+
+const motionVideoMediaSchema = z.object({
+  id: z.string().min(1).max(100),
+  kind: z.literal('video'),
+  src: safeMediaSrcSchema,
+  // Poster-first는 선택 기능이 아니라 LCP/오류 폴백 계약이다.
+  poster: safeMediaSrcSchema,
+  alt: z.string().trim().min(1).max(300),
+  caption: z.string().trim().max(300).optional(),
+  width: z.number().int().positive().max(16384),
+  height: z.number().int().positive().max(16384),
+  focalPoint: focalPointSchema.optional(),
+  provenance: z.enum(['customer-provided', 'ai-generated', 'curated', 'unknown']),
+  assetId: z.string().max(100).optional(),
+});
+
+export const motionMediaSchema = z.discriminatedUnion('kind', [
+  motionImageMediaSchema,
+  motionVideoMediaSchema,
+]);
+
+const customerCaseMediaSchema = motionImageMediaSchema.extend({
+  provenance: z.literal('customer-provided'),
+  // UUID 형식의 서버 자산 레코드만 저장 경계를 통과한다. URL은 provenance가 아니다.
+  assetId: z.string().uuid(),
+  caseId: z.string().uuid(),
+});
+
+const motionSceneTargetShape = {
+  pageId: z.string().min(1).max(64),
+  sectionId: z.string().min(1).max(100),
+};
+
+const sceneTextShape = {
+  id: z.string().min(1).max(100),
+  sourceSectionId: z.string().min(1).max(100),
+  heading: z.string().trim().min(1).max(160),
+  body: z.string().trim().min(1).max(1200),
+  media: motionMediaSchema.optional(),
+};
+
+const cinematicScrubSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('cinematic-scrub'),
+  heading: z.string().trim().min(1).max(160),
+  body: z.string().trim().max(1200).optional(),
+  media: motionVideoMediaSchema,
+});
+
+const scrollytellingManifestoSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('scrollytelling-manifesto'),
+  media: motionVideoMediaSchema,
+  acts: z.array(z.object({
+    id: z.string().min(1).max(100),
+    heading: z.string().trim().min(1).max(160),
+    body: z.string().trim().min(1).max(1200),
+    kind: z.enum(['stat', 'text', 'image']).optional(),
+    band: scrollytellingBandSchema.optional(),
+  })).min(3).max(5),
+});
+
+const stickyChaptersSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('sticky-chapters'),
+  chapters: z.array(z.object(sceneTextShape)).min(3).max(5),
+});
+
+const trueCardStackSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('true-card-stack'),
+  heading: z.string().trim().min(1).max(160),
+  cards: z.array(z.object({
+    id: z.string().min(1).max(100),
+    heading: z.string().trim().min(1).max(160),
+    body: z.string().trim().min(1).max(1200),
+    caption: z.string().trim().max(300).optional(),
+    media: motionMediaSchema.optional(),
+  })).min(3).max(6),
+});
+
+const portalZoomSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('portal-zoom'),
+  scenes: z.array(z.object(sceneTextShape)).min(2).max(3),
+});
+
+const scrollCurtainSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('scroll-curtain'),
+  scenes: z.array(z.object(sceneTextShape)).min(2).max(4),
+});
+
+const mosaicRevealSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('mosaic-reveal'),
+  heading: z.string().trim().max(160).optional(),
+  images: z.array(motionImageMediaSchema).min(6).max(12),
+});
+
+const pathJourneySceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('path-journey'),
+  heading: z.string().trim().min(1).max(160),
+  milestones: z.array(z.object({
+    id: z.string().min(1).max(100),
+    heading: z.string().trim().min(1).max(160),
+    body: z.string().trim().min(1).max(1200),
+    caption: z.string().trim().max(300).optional(),
+  })).min(3).max(7),
+});
+
+const beforeAfterScrubSceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('before-after-scrub'),
+  heading: z.string().trim().min(1).max(160),
+  caseId: z.string().uuid(),
+  before: customerCaseMediaSchema,
+  after: customerCaseMediaSchema,
+  sameCaseAttested: z.literal(true),
+  publicationRightsAttested: z.literal(true),
+}).superRefine((scene, ctx) => {
+  if (scene.before.assetId === scene.after.assetId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['after', 'assetId'], message: '서로 다른 실제 이미지 두 장이 필요합니다.' });
+  }
+  if (scene.before.caseId !== scene.caseId || scene.after.caseId !== scene.caseId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['caseId'], message: '전후 이미지는 같은 실제 사례여야 합니다.' });
+  }
+});
+
+const horizontalStorySceneSchema = z.object({
+  ...motionSceneTargetShape,
+  signatureId: z.literal('horizontal-story'),
+  heading: z.string().trim().max(160).optional(),
+  panels: z.array(z.object(sceneTextShape)).min(3).max(6),
+});
+
+export const motionSceneSchema = z.discriminatedUnion('signatureId', [
+  cinematicScrubSceneSchema,
+  scrollytellingManifestoSceneSchema,
+  stickyChaptersSceneSchema,
+  trueCardStackSceneSchema,
+  portalZoomSceneSchema,
+  scrollCurtainSceneSchema,
+  mosaicRevealSceneSchema,
+  pathJourneySceneSchema,
+  beforeAfterScrubSceneSchema,
+  horizontalStorySceneSchema,
+]);
+
 /** [v4] SiteConfig v2 — 페이지>섹션 2계층. 쓰기 API는 v2만 수용(클라는 항상 정규화본 로드). */
 /** [motion-system] presetId는 MOTION_PRESETS 키만, intensity는 계약 enum. 플랜 강등은 sanitizeMotion 담당 */
 export const motionSchema = z.object({
   presetId: z.enum(Object.keys(MOTION_PRESETS) as [string, ...string[]]),
   intensity: z.enum(['off', 'subtle', 'normal']),
+  catalogVersion: z.literal(2).optional(),
+  signatures: z.array(motionSceneSchema).max(20).optional(),
+  requestedSignatureId: productionMotionSignatureIdSchema.optional(),
   // [Q7] 히어로 선택('none' 포함)·영상 컨셉 — 형식만 검사(등록·티어 검증은 sanitizeMotion 이중 방벽)
   heroTechnique: z.string().max(40).optional(),
   videoConceptId: z.string().max(40).optional(),
@@ -407,6 +604,18 @@ export const motionChoiceSchema = z.object({
   heroImageChoice: heroImageChoiceSchema.optional(),
   videoAddon: z.boolean().optional(),
   heroMotionId: heroVideoMotionIdSchema.optional(),
+  signatureId: productionMotionSignatureIdSchema.optional(),
+  beforeAfterSelection: z.object({
+    beforeAssetId: z.string().uuid(),
+    afterAssetId: z.string().uuid(),
+    caseId: z.string().uuid(),
+    sameCaseAttested: z.literal(true),
+    publicationRightsAttested: z.literal(true),
+  }).superRefine((selection, ctx) => {
+    if (selection.beforeAssetId === selection.afterAssetId) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['afterAssetId'], message: '서로 다른 실제 이미지 두 장이 필요합니다.' });
+    }
+  }).optional(),
 });
 
 /** [Q$3] 타입 계약과 같은 등록 칩만 저장 경계를 통과시킨다. */
@@ -460,6 +669,73 @@ export const siteConfigSchema = z
       }
       seen.add(p.slug);
     });
+
+    const signatures = cfg.motion?.signatures ?? [];
+    const signaturePages = new Set<string>();
+    let stickySignatures = 0;
+    signatures.forEach((scene, sceneIndex) => {
+      const pageIndex = cfg.pages.findIndex((page) => page.id === scene.pageId);
+      const page = pageIndex >= 0 ? cfg.pages[pageIndex] : undefined;
+      const sectionIndex = page?.sections.findIndex((section) => section.id === scene.sectionId) ?? -1;
+      const section = sectionIndex >= 0 ? page!.sections[sectionIndex] : undefined;
+      if (scene.signatureId === 'before-after-scrub' && cfg.meta.industryClass === 'medical') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['motion', 'signatures', sceneIndex],
+          message: '의료 업종에서는 전후 비교 시그니처를 저장할 수 없습니다.',
+        });
+      }
+      if (!page) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['motion', 'signatures', sceneIndex, 'pageId'],
+          message: '시그니처 대상 페이지가 존재하지 않습니다.',
+        });
+        return;
+      }
+      if (!section) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['motion', 'signatures', sceneIndex, 'sectionId'],
+          message: '시그니처 대상 섹션이 존재하지 않습니다.',
+        });
+        return;
+      }
+      if (signaturePages.has(scene.pageId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['motion', 'signatures', sceneIndex],
+          message: '페이지마다 시그니처 애니메이션은 최대 하나입니다.',
+        });
+      }
+      signaturePages.add(scene.pageId);
+
+      const supported: Partial<Record<(typeof scene)['signatureId'], readonly string[]>> = {
+        'cinematic-scrub': ['hero'],
+        'scrollytelling-manifesto': ['hero'],
+        'sticky-chapters': ['hero'],
+        'true-card-stack': ['menu', 'features', 'pricing', 'gallery', 'cases'],
+        'portal-zoom': ['hero'],
+        'scroll-curtain': ['hero'],
+        'mosaic-reveal': ['gallery'],
+        'path-journey': ['about', 'features', 'custom', 'faq'],
+        'before-after-scrub': ['gallery', 'cases'],
+        'horizontal-story': ['hero'],
+      };
+      if (!supported[scene.signatureId]?.includes(section.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['motion', 'signatures', sceneIndex, 'sectionId'],
+          message: `시그니처 '${scene.signatureId}'가 지원하지 않는 섹션 타입입니다.`,
+        });
+      }
+      if (['cinematic-scrub', 'scrollytelling-manifesto', 'sticky-chapters', 'true-card-stack', 'portal-zoom', 'scroll-curtain', 'horizontal-story'].includes(scene.signatureId)) {
+        stickySignatures += 1;
+      }
+    });
+    if (stickySignatures > cfg.pages.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['motion', 'signatures'], message: '페이지마다 sticky 시그니처는 최대 하나입니다.' });
+    }
   });
 
 // ---------- 온보딩 (설문 / 디자인 후보) ----------
@@ -525,6 +801,16 @@ export const surveySchema = z.object({
   heroImageChoice: heroImageChoiceSchema.optional(),
   videoAddon: z.boolean().optional(),
   heroMotionId: heroVideoMotionIdSchema.optional(),
+  // 클라이언트가 industryClass를 보내더라도 서버 생성 경계가 canonical taxonomy로 덮어쓴다.
+  industryClass: motionIndustryClassSchema.optional(),
+  signatureId: productionMotionSignatureIdSchema.optional(),
+  beforeAfterSelection: z.object({
+    beforeAssetId: z.string().uuid(),
+    afterAssetId: z.string().uuid(),
+    caseId: z.string().uuid(),
+    sameCaseAttested: z.literal(true),
+    publicationRightsAttested: z.literal(true),
+  }).optional(),
   // [F3 #7] 무드보드에서 고른 레퍼런스 샘플 스타일 id
   referenceStyleIds: z.array(z.string().max(40)).max(12).optional(),
   // [R5] 레퍼런스 갤러리에서 고른 디자인 id — 뼈대(히어로 형태) 고정

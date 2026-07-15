@@ -67,7 +67,7 @@ describe('Q$4 — 생성 후 섹션별 반복 검수 게이트', () => {
     assert.match(generate, /onChooseHeroImage=\{onChooseHeroImage\}/);
     assert.match(generate, /onChooseHeroMotion=\{onChooseHeroMotion\}/);
     assert.match(wizard, /onChooseHeroImage=\{\(\) => setStep\(2\)\}/);
-    assert.match(wizard, /onChooseHeroMotion=\{\(\) => setStep\(3\)\}/);
+    assert.match(wizard, /onChooseHeroMotion=\{\(\) => setStep\(4\)\}/);
   });
 
   test('완료된 direction 이력은 Wizard survey로 돌아가 다음 전체 reroll 입력에 남는다', () => {

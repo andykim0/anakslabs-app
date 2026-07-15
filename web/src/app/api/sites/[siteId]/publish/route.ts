@@ -13,6 +13,7 @@ import { preflightScan } from '@/lib/scan/preflight';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import { missingPublishHumanChecks, PUBLISH_HUMAN_CHECKS } from '@/lib/publish/human-checks';
 import { publishAuditedSnapshot } from '@/lib/publish/publish-audited-snapshot';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -61,12 +62,24 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
+  const provenance = await resolveStoredBeforeAfterMotionOptions({
+    config: site.draftConfig,
+    clientId: client.id,
+    siteId,
+  });
+  if (!provenance.ok) {
+    return apiError(409, 'PUBLISH_MOTION_PROVENANCE_BLOCKED', provenance.message, { code: provenance.code });
+  }
+
   // [Q$6] 렌더/감사 자체가 실패하면 품질을 증명할 수 없으므로 fail-closed. 점수 미달 자체는 계속 경고다.
   let scan: ReturnType<typeof preflightScan>;
   try {
     scan = preflightScan(site.draftConfig, {
       siteUrl: siteUrlOf(site.domain) || undefined,
       tier: client.tier,
+      motionOwnerId: client.id,
+      motionSiteId: siteId,
+      motionAssets: provenance.options.assets,
     });
   } catch (error) {
     console.error('[publish-audit] preflight failed:', error);

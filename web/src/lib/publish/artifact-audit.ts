@@ -6,11 +6,13 @@
  * 정적 본문·schema.org, 내부 링크 타깃, 비어 있지 않은 페이지/섹션.
  */
 import { parse } from 'node-html-parser';
-import type { MotionTier, Section, SiteConfig, SitePage } from '@/lib/types/site';
+import type { MotionMedia, MotionScene, MotionTier, Section, SiteConfig, SitePage } from '@/lib/types/site';
 import { findPage } from '@/lib/types/site';
 import { resolveMotionPlan } from '@/lib/motion/apply';
+import { isProductionMotionSignatureId, MOTION_SIGNATURES } from '@/lib/motion/signatures';
 import { schemaSpecFor } from '@/lib/seo/structured-data';
-import { isHttpsUrl, isSafeHref } from '@/lib/safe-url';
+import { isHttpsUrl, isSafeHref, isSafeMediaSrc } from '@/lib/safe-url';
+import { motionSceneForPage, motionSceneMedia, pageLcpImageSrc } from '@/lib/export/motion-scene-assets';
 
 export type PublishArtifactCode =
   | 'lcp_hero_poster'
@@ -26,7 +28,15 @@ export type PublishArtifactCode =
   | 'schema_type'
   | 'broken_internal_link'
   | 'empty_page'
-  | 'empty_section';
+  | 'empty_section'
+  | 'motion_signature_limit'
+  | 'motion_signature_target'
+  | 'motion_signature_content'
+  | 'motion_media_contract'
+  | 'motion_media_loading'
+  | 'before_after_provenance'
+  | 'before_after_medical'
+  | 'before_after_label';
 
 export interface PublishArtifactBlocker {
   code: PublishArtifactCode;
@@ -78,6 +88,216 @@ export function sectionHasMeaningfulContent(section: Section): boolean {
     if (element.kind === 'socialLinks') return element.links.some((link) => link.url.trim().length > 0);
     return false;
   });
+}
+
+function sceneItems(scene: MotionScene): readonly unknown[] {
+  switch (scene.signatureId) {
+    case 'cinematic-scrub': return [scene];
+    case 'scrollytelling-manifesto': return scene.acts;
+    case 'sticky-chapters': return scene.chapters;
+    case 'true-card-stack': return scene.cards;
+    case 'portal-zoom':
+    case 'scroll-curtain': return scene.scenes;
+    case 'mosaic-reveal': return scene.images;
+    case 'path-journey': return scene.milestones;
+    case 'before-after-scrub': return [scene.before, scene.after];
+    case 'horizontal-story': return scene.panels;
+  }
+}
+
+/** Core copy that must exist in the signature's own static semantic subtree. */
+function sceneCoreText(scene: MotionScene): string[] {
+  const values: Array<string | undefined> = [];
+  switch (scene.signatureId) {
+    case 'cinematic-scrub':
+      values.push(scene.heading, scene.body);
+      break;
+    case 'scrollytelling-manifesto':
+      for (const act of scene.acts) values.push(act.heading, act.body);
+      break;
+    case 'sticky-chapters':
+      for (const chapter of scene.chapters) values.push(chapter.heading, chapter.body);
+      break;
+    case 'true-card-stack':
+      values.push(scene.heading);
+      for (const card of scene.cards) values.push(card.heading, card.body, card.caption);
+      break;
+    case 'portal-zoom':
+    case 'scroll-curtain':
+      for (const item of scene.scenes) values.push(item.heading, item.body);
+      break;
+    case 'mosaic-reveal':
+      values.push(scene.heading);
+      for (const media of scene.images) values.push(media.caption);
+      break;
+    case 'path-journey':
+      values.push(scene.heading);
+      for (const milestone of scene.milestones) values.push(milestone.heading, milestone.body, milestone.caption);
+      break;
+    case 'before-after-scrub':
+      values.push(scene.heading, scene.before.caption, scene.after.caption);
+      break;
+    case 'horizontal-story':
+      values.push(scene.heading);
+      for (const panel of scene.panels) values.push(panel.heading, panel.body);
+      break;
+  }
+  return values.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+}
+
+function nonBlank(value: string | undefined): boolean {
+  return Boolean(value?.trim());
+}
+
+function sceneContentContractValid(scene: MotionScene): boolean {
+  const uniqueIds = (items: readonly { id: string }[]) =>
+    items.every((item) => nonBlank(item.id)) && new Set(items.map((item) => item.id)).size === items.length;
+  switch (scene.signatureId) {
+    case 'cinematic-scrub':
+      return nonBlank(scene.heading);
+    case 'scrollytelling-manifesto':
+      return uniqueIds(scene.acts) && scene.acts.every((item) => nonBlank(item.heading) && nonBlank(item.body));
+    case 'sticky-chapters':
+      return uniqueIds(scene.chapters) && scene.chapters.every((item) =>
+        nonBlank(item.sourceSectionId) && nonBlank(item.heading) && nonBlank(item.body));
+    case 'true-card-stack':
+      return nonBlank(scene.heading) && uniqueIds(scene.cards) && scene.cards.every((item) => nonBlank(item.heading) && nonBlank(item.body));
+    case 'portal-zoom':
+    case 'scroll-curtain':
+      return uniqueIds(scene.scenes) && scene.scenes.every((item) =>
+        nonBlank(item.sourceSectionId) && nonBlank(item.heading) && nonBlank(item.body));
+    case 'mosaic-reveal':
+      return uniqueIds(scene.images);
+    case 'path-journey':
+      return nonBlank(scene.heading) && uniqueIds(scene.milestones) && scene.milestones.every((item) =>
+        nonBlank(item.heading) && nonBlank(item.body));
+    case 'before-after-scrub':
+      return nonBlank(scene.heading);
+    case 'horizontal-story':
+      return uniqueIds(scene.panels) && scene.panels.every((item) =>
+        nonBlank(item.sourceSectionId) && nonBlank(item.heading) && nonBlank(item.body));
+  }
+}
+
+function sceneSourceSectionIds(scene: MotionScene): string[] {
+  switch (scene.signatureId) {
+    case 'sticky-chapters': return scene.chapters.map((item) => item.sourceSectionId);
+    case 'portal-zoom':
+    case 'scroll-curtain': return scene.scenes.map((item) => item.sourceSectionId);
+    case 'horizontal-story': return scene.panels.map((item) => item.sourceSectionId);
+    default: return [];
+  }
+}
+
+function validUuid(value: string | undefined): boolean {
+  return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
+}
+
+function mediaContractValid(media: MotionMedia): boolean {
+  return (
+    Boolean(media.id.trim()) &&
+    Boolean(media.alt.trim()) &&
+    isSafeMediaSrc(media.src) &&
+    Number.isFinite(media.width) && media.width > 0 &&
+    Number.isFinite(media.height) && media.height > 0 &&
+    (media.kind !== 'video' || Boolean(media.poster && isSafeMediaSrc(media.poster)))
+  );
+}
+
+function auditBeforeAfterStructure(
+  config: SiteConfig,
+  scene: Extract<MotionScene, { signatureId: 'before-after-scrub' }>,
+  blockers: PublishArtifactBlocker[],
+): void {
+  const detail = { pageSlug: config.pages.find((page) => page.id === scene.pageId)?.slug, sectionId: scene.sectionId };
+  const industry = config.meta.industryClass;
+  if (industry !== 'beauty' && industry !== 'remodeling') {
+    push(
+      blockers,
+      'before_after_medical',
+      industry === 'medical'
+        ? '의료 업종에서는 전후 비교 연출을 발행할 수 없습니다. 별도의 광고 심의 및 법무 검토 대상입니다.'
+        : '검증된 뷰티·리모델링 업종 분류가 없어 전후 비교 연출을 안전하게 발행할 수 없습니다.',
+      detail,
+    );
+  }
+
+  const provenanceValid = (
+    scene.sameCaseAttested === true &&
+    scene.publicationRightsAttested === true &&
+    validUuid(scene.caseId) &&
+    scene.before.caseId === scene.caseId &&
+    scene.after.caseId === scene.caseId &&
+    scene.before.provenance === 'customer-provided' &&
+    scene.after.provenance === 'customer-provided' &&
+    validUuid(scene.before.assetId) &&
+    validUuid(scene.after.assetId) &&
+    scene.before.assetId !== scene.after.assetId &&
+    scene.before.kind === 'image' &&
+    scene.after.kind === 'image' &&
+    scene.before.width * scene.after.height === scene.after.width * scene.before.height
+  );
+  if (!provenanceValid) {
+    push(
+      blockers,
+      'before_after_provenance',
+      '전후 비교는 같은 실제 사례의 고객 업로드 자산 ID 두 개와 권리·동일 사례 확인이 모두 필요합니다.',
+      detail,
+    );
+  }
+}
+
+function auditMotionSceneStructure(config: SiteConfig, blockers: PublishArtifactBlocker[]): void {
+  const scenes = config.motion?.signatures ?? [];
+  if (scenes.length === 0) return;
+  if (config.motion?.catalogVersion !== 2) {
+    push(blockers, 'motion_signature_target', 'v2 카탈로그 버전이 없는 모션 시그니처는 발행할 수 없습니다.');
+  }
+
+  const perPage = new Map<string, number>();
+  for (const scene of scenes) {
+    perPage.set(scene.pageId, (perPage.get(scene.pageId) ?? 0) + 1);
+    const page = config.pages.find((candidate) => candidate.id === scene.pageId);
+    const detail = { pageSlug: page?.slug, sectionId: scene.sectionId };
+    if (!isProductionMotionSignatureId(scene.signatureId)) {
+      push(blockers, 'motion_signature_target', `알 수 없는 모션 시그니처 '${String(scene.signatureId)}'은 발행할 수 없습니다.`, detail);
+      continue;
+    }
+    const section = page?.sections.find((candidate) => candidate.id === scene.sectionId && !candidate.hidden);
+    const spec = MOTION_SIGNATURES[scene.signatureId];
+    const sourceTargetsValid = Boolean(page) && sceneSourceSectionIds(scene).every((sourceId) =>
+      page!.sections.some((candidate) => candidate.id === sourceId && !candidate.hidden),
+    );
+    if (!page || !section || !(spec.supportedSectionTypes as readonly string[]).includes(section.type) || !sourceTargetsValid) {
+      push(blockers, 'motion_signature_target', `모션 시그니처 '${scene.signatureId}'의 페이지·섹션 대상이 없거나 허용 타입이 아닙니다.`, detail);
+      continue;
+    }
+
+    const itemCount = sceneItems(scene).length;
+    if (itemCount < spec.minItems || itemCount > spec.maxItems || !sceneContentContractValid(scene)) {
+      push(blockers, 'motion_signature_content', `모션 시그니처 '${scene.signatureId}'의 구조화 콘텐츠 수나 본문이 발행 조건에 맞지 않습니다.`, detail);
+    }
+    const sceneMedia = motionSceneMedia(scene);
+    const mediaIds = new Set<string>();
+    const mediaSources = new Set<string>();
+    for (const media of sceneMedia) {
+      if (!mediaContractValid(media)) {
+        push(blockers, 'motion_media_contract', `모션 미디어 '${media.id || 'unknown'}'의 URL·대체텍스트·예약 크기·poster 계약이 불완전합니다.`, detail);
+      }
+      if (mediaIds.has(media.id) || mediaSources.has(media.src)) {
+        push(blockers, 'motion_media_contract', `모션 시그니처 '${scene.signatureId}'에 같은 미디어가 반복되어 프리미엄 콘텐츠 조건을 충족하지 못합니다.`, detail);
+      }
+      mediaIds.add(media.id);
+      mediaSources.add(media.src);
+    }
+    if (scene.signatureId === 'before-after-scrub') auditBeforeAfterStructure(config, scene, blockers);
+  }
+
+  for (const [pageId, count] of perPage) {
+    if (count <= 1) continue;
+    const page = config.pages.find((candidate) => candidate.id === pageId);
+    push(blockers, 'motion_signature_limit', `${page ? pageLabel(page) : pageId}에 모션 시그니처가 ${count}개 있어 페이지당 1개 제한을 위반합니다.`, { pageSlug: page?.slug });
+  }
 }
 
 function auditReservedLayout(config: SiteConfig, blockers: PublishArtifactBlocker[]): void {
@@ -200,6 +420,7 @@ function auditLinks(config: SiteConfig, blockers: PublishArtifactBlocker[]): voi
 }
 
 function auditEmptyContent(config: SiteConfig, blockers: PublishArtifactBlocker[]): void {
+  const sceneTargets = new Set((config.motion?.signatures ?? []).map((scene) => `${scene.pageId}:${scene.sectionId}`));
   for (const page of config.pages) {
     const sections = visibleSections(page);
     if (sections.length === 0) {
@@ -208,6 +429,7 @@ function auditEmptyContent(config: SiteConfig, blockers: PublishArtifactBlocker[
     }
     for (const section of sections) {
       if (sectionHasMeaningfulContent(section)) continue;
+      if (sceneTargets.has(`${page.id}:${section.id}`)) continue;
       push(
         blockers,
         'empty_section',
@@ -215,6 +437,122 @@ function auditEmptyContent(config: SiteConfig, blockers: PublishArtifactBlocker[
         { pageSlug: page.slug, sectionId: section.id },
       );
     }
+  }
+}
+
+function normalizedText(value: string): string {
+  return value.replace(/\s+/g, '').trim();
+}
+
+function numericAttribute(node: ReturnType<typeof parse>, name: string): number {
+  return Number(node.getAttribute(name));
+}
+
+function mediaGeometryMatches(node: ReturnType<typeof parse>, media: MotionMedia): boolean {
+  return numericAttribute(node, 'width') === media.width && numericAttribute(node, 'height') === media.height;
+}
+
+function auditSceneMediaDocument(
+  config: SiteConfig,
+  page: SitePage,
+  scene: MotionScene,
+  root: ReturnType<typeof parse>,
+  blockers: PublishArtifactBlocker[],
+): void {
+  const detail = { pageSlug: page.slug, sectionId: scene.sectionId };
+  const lcpSrc = pageLcpImageSrc(config, page.slug);
+
+  for (const media of motionSceneMedia(scene)) {
+    if (media.kind === 'video') {
+      const videos = root.querySelectorAll('video').filter((node) => node.getAttribute('src') === media.src);
+      const posters = root.querySelectorAll('img').filter((node) =>
+        node.getAttribute('src') === media.poster && node.hasAttribute('data-video-poster'),
+      );
+      if (
+        videos.length !== 1 || !videos.every((node) =>
+          node.getAttribute('poster') === media.poster &&
+          (node.getAttribute('preload') ?? '').toLowerCase() === 'none' &&
+          node.hasAttribute('muted') && node.hasAttribute('playsinline') &&
+          mediaGeometryMatches(node, media),
+        ) ||
+        posters.length !== 1 || !posters.every((node) => mediaGeometryMatches(node, media))
+      ) {
+        push(blockers, 'motion_media_loading', `영상 '${media.id}'은 동일 크기 poster가 먼저 보이고 preload=none인 실제 <video> 한 개여야 합니다.`, detail);
+      }
+      continue;
+    }
+
+    const images = root.querySelectorAll('img').filter((node) => node.getAttribute('src') === media.src);
+    const isLcp = media.src === lcpSrc;
+    if (
+      images.length !== 1 ||
+      !images.every((node) =>
+        node.getAttribute('alt') === media.alt &&
+        mediaGeometryMatches(node, media) &&
+        (isLcp
+          ? (node.getAttribute('loading') ?? '').toLowerCase() === 'eager' && (node.getAttribute('fetchpriority') ?? '').toLowerCase() === 'high'
+          : (node.getAttribute('loading') ?? '').toLowerCase() === 'lazy' && (node.getAttribute('decoding') ?? '').toLowerCase() === 'async'),
+      )
+    ) {
+      push(blockers, 'motion_media_loading', `이미지 '${media.id}'의 대체텍스트·예약 크기·${isLcp ? '단일 LCP' : 'lazy/async'} 정책이 정적 HTML에 반영되지 않았습니다.`, detail);
+    }
+  }
+}
+
+function auditMotionSceneDocument(
+  config: SiteConfig,
+  page: SitePage,
+  root: ReturnType<typeof parse>,
+  blockers: PublishArtifactBlocker[],
+): void {
+  const scene = motionSceneForPage(config, page);
+  if (!scene) return;
+  const detail = { pageSlug: page.slug, sectionId: scene.sectionId };
+  const stages = root.querySelectorAll(`[data-motion-signature="${scene.signatureId}"]`);
+  if (stages.length !== 1) {
+    push(blockers, 'motion_signature_content', `모션 시그니처 '${scene.signatureId}'의 프로덕션 렌더러가 정적 HTML에 정확히 한 번 있어야 합니다.`, detail);
+    return;
+  }
+  const stage = stages[0]!;
+  const stageText = normalizedText(stage.text);
+  if (sceneCoreText(scene).some((value) => !stageText.includes(normalizedText(value)))) {
+    push(blockers, 'motion_signature_content', `모션 시그니처 '${scene.signatureId}'의 핵심 문구가 자체 시맨틱 DOM에 모두 존재하지 않습니다.`, detail);
+  }
+
+  auditSceneMediaDocument(config, page, scene, root, blockers);
+
+  if (scene.signatureId === 'before-after-scrub') {
+    const labels = stage.querySelectorAll('[data-before-after-label="actual-case"][data-non-removable="true"]');
+    const label = labels[0];
+    const classes = label?.getAttribute('class') ?? '';
+    const style = label?.getAttribute('style') ?? '';
+    const hidden = !label || labels.length !== 1 || normalizedText(label.text) !== '실제사례' ||
+      label.hasAttribute('hidden') || label.getAttribute('aria-hidden') === 'true' ||
+      /(?:^|\s)(?:hidden|invisible|opacity-0|text-transparent|sr-only)(?:\s|$)/.test(classes) ||
+      /(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)|color\s*:\s*transparent)/i.test(style);
+    if (hidden) {
+      push(blockers, 'before_after_label', '전후 비교의 비편집 고정 라벨 “실제 사례”가 항상 보이는 상태로 렌더되지 않았습니다.', detail);
+    }
+    if (stage.querySelectorAll('video').length > 0) {
+      push(blockers, 'before_after_provenance', '전후 비교에는 Veo 또는 영상 미디어를 사용할 수 없습니다.', detail);
+    }
+  }
+
+  const expectedLcp = pageLcpImageSrc(config, page.slug);
+  const eager = root.querySelectorAll('img').filter((node) =>
+    (node.getAttribute('loading') ?? '').toLowerCase() === 'eager' ||
+    (node.getAttribute('fetchpriority') ?? '').toLowerCase() === 'high',
+  );
+  const preloads = root.querySelectorAll('link[rel="preload"]').filter((node) =>
+    (node.getAttribute('as') ?? '').toLowerCase() === 'image' &&
+    (node.getAttribute('fetchpriority') ?? '').toLowerCase() === 'high',
+  );
+  if (
+    expectedLcp
+      ? eager.length !== 1 || eager[0]?.getAttribute('src') !== expectedLcp || preloads.length !== 1 || preloads[0]?.getAttribute('href') !== expectedLcp
+      : eager.length !== 0 || preloads.length !== 0
+  ) {
+    push(blockers, 'lcp_hero_preload', `${pageLabel(page)}의 LCP 이미지 후보는 정확히 하나만 eager/high + preload여야 합니다.`, detail);
   }
 }
 
@@ -394,6 +732,7 @@ export function auditPublishArtifacts(
 ): PublishArtifactAudit {
   const blockers: PublishArtifactBlocker[] = [];
   auditReservedLayout(config, blockers);
+  auditMotionSceneStructure(config, blockers);
   auditLinks(config, blockers);
   auditEmptyContent(config, blockers);
 
@@ -406,6 +745,7 @@ export function auditPublishArtifacts(
     }
     const root = auditStaticDocument(config, page, html, blockers);
     auditHeroMedia(config, tier, page, root, blockers);
+    auditMotionSceneDocument(config, page, root, blockers);
   }
 
   const deduped = new Map<string, PublishArtifactBlocker>();

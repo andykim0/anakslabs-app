@@ -11,14 +11,17 @@ const candidateStep = source('src/components/dashboard/onboarding/candidate-step
 const dashboardApi = source('src/components/dashboard/api.ts');
 
 describe('W1 — 히어로 사진 선택 플로우', () => {
-  test('히어로 사진은 설문 뒤·움직임과 디자인 앞의 2단계 게이트다', () => {
+  test('히어로 사진 뒤 디자인을 확정한 다음 고객 팔레트로 실제 모션을 미리본다', () => {
     const heroAt = wizard.indexOf('<HeroImageStep');
     const motionAt = wizard.indexOf('<MotionChoiceStep');
     const candidateAt = wizard.indexOf('<CandidateStep');
 
-    assert.ok(heroAt >= 0 && motionAt > heroAt && candidateAt > motionAt);
+    assert.ok(heroAt >= 0 && candidateAt > heroAt && motionAt > candidateAt);
     assert.match(wizard, /\{ no: 2, label: '히어로 사진' \}/);
+    assert.match(wizard, /\{ no: 3, label: '디자인 방향' \}/);
+    assert.match(wizard, /\{ no: 4, label: '움직임' \}/);
     assert.match(wizard, /heroImageUrl=\{heroImage\.url\}/);
+    assert.match(wizard, /candidate=\{candidate\}/);
   });
 
   test('히어로·디자인 단계는 같은 query key·requestKey로 AI 3안 한 배치를 공유한다', () => {

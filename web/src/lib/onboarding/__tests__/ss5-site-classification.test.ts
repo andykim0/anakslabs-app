@@ -66,9 +66,15 @@ function forgedStageConfig(): SiteConfig {
 }
 
 describe('SS5 — 서버 권위 purpose/template 분류', () => {
-  test('정상 템플릿은 무변경, 카페가 보낸 fine-dining templateId는 서버 계산값으로 교정한다', () => {
+  test('정상 템플릿은 서버 업종 분류를 확정하고, 카페가 보낸 fine-dining templateId는 서버 계산값으로 교정한다', () => {
     const normal = survey('카페·디저트');
-    assert.equal(canonicalizeSurveyTemplate(normal), normal, '정상 설문은 불필요하게 복제하지 않는다');
+    const classifiedNormal = canonicalizeSurveyTemplate(normal);
+    assert.equal(classifiedNormal.industryClass, 'cafe');
+    assert.equal(
+      canonicalizeSurveyTemplate(classifiedNormal),
+      classifiedNormal,
+      '서버 분류가 이미 확정된 설문은 불필요하게 복제하지 않는다',
+    );
 
     const forged = survey('카페·디저트', 'local_store.fine_dining');
     const canonical = canonicalizeSurveyTemplate(forged);
@@ -119,7 +125,11 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
 
     const patch = source('src/app/api/sites/[siteId]/route.ts');
     const preserve = patch.indexOf('preserveSiteClassification(body.data.draftConfig');
-    const sanitize = patch.indexOf('sanitizeMotion(classified, client.tier)');
-    assert.ok(preserve >= 0 && preserve < sanitize, '저장 분류를 복원한 뒤 모션을 sanitize해야 한다');
+    const provenance = patch.indexOf('resolveStoredBeforeAfterMotionOptions({ config: classified');
+    const sanitize = patch.indexOf('const { config: sanitized, changes } = sanitizeMotion(');
+    assert.ok(
+      preserve >= 0 && preserve < provenance && provenance < sanitize,
+      '저장 분류를 복원하고 민감 자산 provenance를 재검증한 뒤 모션을 sanitize해야 한다',
+    );
   });
 });

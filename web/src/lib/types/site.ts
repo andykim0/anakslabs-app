@@ -278,6 +278,227 @@ export interface Section {
   hidden?: boolean;
 }
 
+/**
+ * [motion signatures v2] 서버가 결정해 저장하는 정규 업종 분류.
+ * 민감 기능(전후 비교)은 자유 입력 업종 문자열이 아니라 이 값만 신뢰한다.
+ */
+export type MotionIndustryClass =
+  | 'cafe'
+  | 'retail'
+  | 'fine_dining'
+  | 'beauty'
+  | 'medical'
+  | 'remodeling'
+  | 'legal'
+  | 'consulting'
+  | 'workshop'
+  | 'photography'
+  | 'brand'
+  | 'portfolio'
+  | 'other';
+
+/** 검증을 마치고 기본 선택 카탈로그에 승격된 페이지 시그니처. */
+export type ActiveMotionSignatureId =
+  | 'cinematic-scrub'
+  | 'scrollytelling-manifesto'
+  | 'true-card-stack';
+
+/**
+ * 프로덕션 계약·렌더러·X5를 갖추되 제품 승격 심사 전인 후보 시그니처.
+ * status 승격 전까지 자동 배정하지 않는다.
+ */
+export type CandidateMotionSignatureId =
+  | 'sticky-chapters'
+  | 'portal-zoom'
+  | 'scroll-curtain'
+  | 'before-after-scrub'
+  | 'horizontal-story'
+  | 'mosaic-reveal'
+  | 'path-journey';
+
+export type ProductionMotionSignatureId = ActiveMotionSignatureId | CandidateMotionSignatureId;
+
+/**
+ * 읽기 호환 전용 ID. 새 선택·자동 배정에서는 제외하지만 기존 발행물의 의미는 바꾸지 않는다.
+ * 일부는 과거 heroMotionId, 일부는 과거 accent technique로 저장됐다.
+ */
+export type LegacyMotionSignatureId =
+  | 'boomerang-loop'
+  | 'slow-zoom'
+  | 'parallax-depth'
+  | 'count-up'
+  | 'spotlight'
+  | 'stacking-cards'
+  | 'micro-hover';
+
+export type MotionSignatureId = ProductionMotionSignatureId | LegacyMotionSignatureId;
+
+export type MotionMediaProvenance =
+  | 'customer-provided'
+  | 'ai-generated'
+  | 'curated'
+  | 'unknown';
+
+/**
+ * 시그니처가 소비하는 예약-크기 미디어. width/height는 CLS 방지를 위한 필수 계약이다.
+ * assetId는 URL과 별개인 서버 자산 레코드 참조이며, 존재 자체가 소유권 증명은 아니다.
+ */
+export interface MotionMedia {
+  id: string;
+  kind: 'image' | 'video';
+  src: string;
+  poster?: string;
+  alt: string;
+  caption?: string;
+  width: number;
+  height: number;
+  /** 원본 피사체를 크롭에서 보존하기 위한 정규화 좌표(0..1). */
+  focalPoint?: { x: number; y: number };
+  provenance: MotionMediaProvenance;
+  assetId?: string;
+}
+
+/** 온보딩→서버 자산 검증 경계로 전달하는 URL 없는 전후 비교 선택. */
+export interface BeforeAfterAssetSelection {
+  beforeAssetId: string;
+  afterAssetId: string;
+  caseId: string;
+  sameCaseAttested: true;
+  publicationRightsAttested: true;
+}
+
+/** before-after 전용 자산 참조. 서버 권위 자산 목록과 다시 대조하기 전에는 활성화할 수 없다. */
+export interface CustomerCaseMedia extends MotionMedia {
+  kind: 'image';
+  provenance: 'customer-provided';
+  assetId: string;
+  caseId: string;
+}
+
+interface MotionSceneBase {
+  signatureId: ProductionMotionSignatureId;
+  /** 시그니처가 놓일 실제 SitePage.id. */
+  pageId: string;
+  /** 시그니처가 대체·강화할 실제 Section.id. */
+  sectionId: string;
+}
+
+export interface CinematicScrubScene extends MotionSceneBase {
+  signatureId: 'cinematic-scrub';
+  heading: string;
+  body?: string;
+  media: MotionMedia;
+}
+
+export interface ScrollytellingManifestoScene extends MotionSceneBase {
+  signatureId: 'scrollytelling-manifesto';
+  media: MotionMedia;
+  acts: {
+    id: string;
+    heading: string;
+    body: string;
+    kind?: 'stat' | 'text' | 'image';
+    band?: [number, number];
+  }[];
+}
+
+export interface StickyChaptersScene extends MotionSceneBase {
+  signatureId: 'sticky-chapters';
+  chapters: {
+    id: string;
+    sourceSectionId: string;
+    heading: string;
+    body: string;
+    media?: MotionMedia;
+  }[];
+}
+
+export interface TrueCardStackScene extends MotionSceneBase {
+  signatureId: 'true-card-stack';
+  heading: string;
+  cards: {
+    id: string;
+    heading: string;
+    body: string;
+    caption?: string;
+    media?: MotionMedia;
+  }[];
+}
+
+export interface PortalZoomScene extends MotionSceneBase {
+  signatureId: 'portal-zoom';
+  scenes: {
+    id: string;
+    sourceSectionId: string;
+    heading: string;
+    body: string;
+    media?: MotionMedia;
+  }[];
+}
+
+export interface ScrollCurtainScene extends MotionSceneBase {
+  signatureId: 'scroll-curtain';
+  scenes: {
+    id: string;
+    sourceSectionId: string;
+    heading: string;
+    body: string;
+    media?: MotionMedia;
+  }[];
+}
+
+export interface MosaicRevealScene extends MotionSceneBase {
+  signatureId: 'mosaic-reveal';
+  heading?: string;
+  images: MotionMedia[];
+}
+
+export interface PathJourneyScene extends MotionSceneBase {
+  signatureId: 'path-journey';
+  heading: string;
+  milestones: {
+    id: string;
+    heading: string;
+    body: string;
+    caption?: string;
+  }[];
+}
+
+export interface BeforeAfterScrubScene extends MotionSceneBase {
+  signatureId: 'before-after-scrub';
+  heading: string;
+  caseId: string;
+  before: CustomerCaseMedia;
+  after: CustomerCaseMedia;
+  sameCaseAttested: true;
+  publicationRightsAttested: true;
+}
+
+export interface HorizontalStoryScene extends MotionSceneBase {
+  signatureId: 'horizontal-story';
+  heading?: string;
+  panels: {
+    id: string;
+    sourceSectionId: string;
+    heading: string;
+    body: string;
+    media?: MotionMedia;
+  }[];
+}
+
+/** 런타임이 좌표를 추론하지 않고 직접 소비하는 엄격한 시그니처 장면 계약. */
+export type MotionScene =
+  | CinematicScrubScene
+  | ScrollytellingManifestoScene
+  | StickyChaptersScene
+  | TrueCardStackScene
+  | PortalZoomScene
+  | ScrollCurtainScene
+  | MosaicRevealScene
+  | PathJourneyScene
+  | BeforeAfterScrubScene
+  | HorizontalStoryScene;
+
 export interface SiteMeta {
   title: string;
   description?: string;
@@ -290,6 +511,8 @@ export interface SiteMeta {
   purposeId?: string;
   /** [SS1] 목적보다 세밀한 결정적 템플릿 id — 카페/병원 자동 적용을 막는 절제 게이트 원천. */
   templateId?: string;
+  /** [motion signatures v2] 서버가 purpose/template/등록 택소노미로 확정한 업종 분류. */
+  industryClass?: MotionIndustryClass;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */
   region?: string;
   /**
@@ -410,6 +633,12 @@ export interface SiteConfig {
   motion?: {
     presetId: string;
     intensity: MotionIntensity;
+    /** v2 시그니처 계약. 미지정은 기존 preset/heroMotionId 읽기 경로다. */
+    catalogVersion?: 2;
+    /** 페이지당 최대 하나. 서버 sanitizer가 대상·권한·콘텐츠·출처를 다시 검증한다. */
+    signatures?: MotionScene[];
+    /** 결제/승인 전 선택 의사. 활성 권한이나 렌더 근거로 사용하지 않는다. */
+    requestedSignatureId?: ProductionMotionSignatureId;
     heroTechnique?: string;
     videoConceptId?: string;
     videoRequested?: boolean;

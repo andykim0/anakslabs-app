@@ -44,7 +44,7 @@ import type {
 import type { EditType } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
-import { MOTION_PRESETS, type PresetId } from '@/lib/motion/presets';
+import { ACTIVE_PRESET_IDS, MOTION_PRESETS, type PresetId } from '@/lib/motion/presets';
 import { MOTION_TECHNIQUES } from '@/lib/motion/registry';
 import { contrastRatio } from '@/lib/design/quality-standards';
 import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
@@ -813,6 +813,10 @@ const PRESET_LABELS: Record<PresetId, string> = {
   'dining-premium': '파인다이닝',
   'beauty-premium': '뷰티·웰니스',
   'cinematic-hero': '시네마틱 영상',
+  'base-calm-v2': '차분한 기본 모션',
+  'base-flow-v2': '로컬 흐름 모션',
+  'base-editorial-v2': '에디토리얼 모션',
+  'base-premium-v2': '프리미엄 기본 모션',
 };
 
 /** 프리셋이 쓰는 기법 role 요약 (registry role 앞부분 — 규칙 파일 단일 소스) */
@@ -864,9 +868,11 @@ function MotionPanel() {
   const motion = useEditorStore((s) => s.config.motion);
   const tier = useEditorStore((s) => s.tier);
   const store = useEditorStore.getState;
-  const current = motion?.presetId ?? 'cafe-basic';
+  const current = motion?.presetId ?? 'base-calm-v2';
   const intensity = motion?.intensity ?? 'normal';
-  const presetIds = Object.keys(MOTION_PRESETS) as PresetId[];
+  const presetIds: PresetId[] = (ACTIVE_PRESET_IDS as readonly string[]).includes(current)
+    ? [...ACTIVE_PRESET_IDS]
+    : [current as PresetId, ...ACTIVE_PRESET_IDS];
   return (
     <FieldGroup title="모션">
       <p className="text-[11px] leading-4 text-[#667085]">

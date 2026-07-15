@@ -7,6 +7,8 @@
  */
 import type { SiteConfig } from '@/lib/types/site';
 import { allSections } from '@/lib/types/site';
+import { motionSceneMedia } from './motion-scene-assets';
+import { isProductionMotionSignatureId } from '@/lib/motion/signatures';
 
 export type RewriteAsset = (src: string) => Promise<string | null>;
 
@@ -41,6 +43,20 @@ export async function rewriteAssetReferences(config: SiteConfig, rewrite: Rewrit
           const rel = await rewrite(el.poster);
           if (rel) el.poster = rel;
         }
+      }
+    }
+  }
+
+  for (const scene of config.motion?.signatures ?? []) {
+    if (!isProductionMotionSignatureId(scene.signatureId)) continue;
+    for (const media of motionSceneMedia(scene)) {
+      if (media.src) {
+        const rel = await rewrite(media.src);
+        if (rel) media.src = rel;
+      }
+      if (media.poster) {
+        const rel = await rewrite(media.poster);
+        if (rel) media.poster = rel;
       }
     }
   }

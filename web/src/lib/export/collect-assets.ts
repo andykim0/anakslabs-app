@@ -5,6 +5,7 @@
  * 수집 대상:
  *  - ImageElement.src, VideoElement.src / poster
  *  - SectionBackground.image.src, SectionBackground.video.src / poster
+ *  - MotionScene의 구조화 image/video src / poster
  *  - meta.ogImage
  * http(s)는 fetch, 루트 상대경로(/…)는 web/public에서 읽어 자체 포함(mock 데모 자산 대응).
  * data:/blob:은 건드리지 않음(data는 이미 내장, blob은 서버에서 못 읽음 → 경고).
@@ -23,6 +24,8 @@ export interface CollectedAssets {
   config: SiteConfig;
   /** zip에 넣을 자산 — 상대경로(assets/xxx.ext) → 바이트 */
   assets: Map<string, Buffer>;
+  /** Trusted original src -> bundle-relative rewrite, used for provenance-preserving render checks. */
+  assetRewrites: ReadonlyMap<string, string>;
   warnings: string[];
 }
 
@@ -114,5 +117,5 @@ export async function collectAndRewriteAssets(input: SiteConfig): Promise<Collec
 
   await rewriteAssetReferences(config, (src) => fetchAsset(src, cache, assets, warnings));
 
-  return { config, assets, warnings };
+  return { config, assets, assetRewrites: cache, warnings };
 }
