@@ -16,6 +16,7 @@ import { videoGenConfig } from '@/lib/env';
 import { isSafeMediaSrc } from '@/lib/safe-url';
 import {
   applyHeroVideoToConfig,
+  assertVideoGenAllowed,
   generateHeroVideo,
   HERO_SOURCE_UNAVAILABLE,
   heroVideoContext,
@@ -58,6 +59,23 @@ const applyBody = z.object({
   model: z.string().max(120).optional(),
 });
 
+/** VIDEO_GEN typed prefix를 비용 발생 전 API 응답으로 변환한다. */
+function videoGuardResponse(error: unknown): NextResponse | null {
+  const raw = error instanceof Error ? error.message : String(error);
+  const separator = raw.indexOf(':');
+  const code = separator >= 0 ? raw.slice(0, separator) : raw;
+  const message = separator >= 0 ? raw.slice(separator + 1).trim() : raw;
+
+  if (code === 'VIDEO_GEN_ADDON') return apiError(403, code, message);
+  if (code === 'VIDEO_GEN_DISABLED' || code === 'VIDEO_GEN_SYNC_UNSAFE') {
+    return apiError(503, code, message);
+  }
+  if (code === 'VIDEO_GEN_SITE_CAP' || code === 'VIDEO_GEN_DAILY_CAP') {
+    return apiError(429, code, message);
+  }
+  return null;
+}
+
 /** POST — fast 시안 생성 */
 export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params }) => {
   const { siteId } = await params;
@@ -73,6 +91,15 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const body = await parseBody(request, draftsBody);
   if (!body.ok) return body.res;
   const count = body.data.count ?? 2;
+
+  // 킬스위치→애드온→상한→동기 전송 가드를 이미지 fetch·로그·Veo 호출 전에 통과한다.
+  try {
+    await assertVideoGenAllowed(siteId, client.tier);
+  } catch (error) {
+    const response = videoGuardResponse(error);
+    if (response) return response;
+    throw error;
+  }
 
   const ctx = heroVideoContext(config, { tone: body.data.tone, heroPhotoUrl: body.data.heroPhotoUrl });
   if (!ctx) return apiError(409, 'NO_HERO_IMAGE', '히어로 배경 이미지가 없어 영상을 만들 수 없습니다.');

@@ -49,6 +49,21 @@ export function videoGuardError(
   return null;
 }
 
+/**
+ * 재개 상태가 없는 긴 동기 HTTP 영상 생성은 프로덕션에서 fail-closed한다.
+ * mock은 실원가·외부 장기 작업이 없으므로 기존 데모 플로우를 그대로 허용한다.
+ *
+ * 이 가드는 videoGuardError(킬스위치→애드온→사이트/일일 상한) 뒤에만 평가해야 한다.
+ * 그래야 기존 비용·권한 오류가 전송 방식 오류보다 항상 우선한다.
+ */
+export function synchronousVideoTransportError(mockMode: boolean): string | null {
+  if (mockMode) return null;
+  return (
+    'VIDEO_GEN_SYNC_UNSAFE: 실제 영상 생성은 긴 동기 HTTP 요청으로 실행할 수 없습니다. ' +
+    '재개 가능한 비동기 처리 경로가 준비될 때까지 정지 히어로를 사용해 주세요.'
+  );
+}
+
 /** 유료 영상 진입점이 신뢰할 수 있는 고정 프롬프트인지 판별하는 서버 내부 마커. */
 export const REGISTERED_VIDEO_PROMPT_MARKER = 'DABOIM_REGISTERED_MOTION_V1';
 

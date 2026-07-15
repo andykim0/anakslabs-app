@@ -46,6 +46,7 @@ function videoGuardResponse(error: unknown, creditCost: number): NextResponse | 
     });
   }
   if (code === 'VIDEO_GEN_DISABLED') return apiError(503, code, message);
+  if (code === 'VIDEO_GEN_SYNC_UNSAFE') return apiError(503, code, message);
   if (code === 'VIDEO_GEN_SITE_CAP' || code === 'VIDEO_GEN_DAILY_CAP') return apiError(429, code, message);
   return null;
 }

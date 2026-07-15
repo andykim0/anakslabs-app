@@ -11,6 +11,7 @@ import {
   buildMotionPrompt,
   ensureRegisteredVideoPrompt,
   resolveHeroSourceUrl,
+  synchronousVideoTransportError,
   videoGuardError,
   FAST_MODEL,
   STANDARD_MODEL,
@@ -33,7 +34,11 @@ export {
   type VideoGenStage,
 } from './video-pipeline-core';
 
-/** 비용 가드 3종 + tier — 위반 시 명확한 typed Error. 카운트는 videoGen 로그 기준. */
+/**
+ * 비용 가드 3종 + tier + 동기 전송 안전 가드 — 위반 시 명확한 typed Error.
+ * 순서 불변식: kill/addon/cap 오류가 우선이고, 이를 모두 통과한 실제 프로덕션 요청만
+ * VIDEO_GEN_SYNC_UNSAFE로 중단한다. mock은 외부 장기 작업이 없어 허용한다.
+ */
 export async function assertVideoGenAllowed(siteId: string, tier: MotionTier): Promise<void> {
   const { videoGen } = getDataServices();
   const [bySite, today] = await Promise.all([videoGen.countBySite(siteId), videoGen.countToday()]);
@@ -42,6 +47,8 @@ export async function assertVideoGenAllowed(siteId: string, tier: MotionTier): P
   const enabled = cfg.enabled || isMockMode();
   const err = videoGuardError({ ...cfg, enabled }, tier, bySite, today);
   if (err) throw new Error(err);
+  const transportError = synchronousVideoTransportError(isMockMode());
+  if (transportError) throw new Error(transportError);
 }
 
 export interface HeroVideoResult {

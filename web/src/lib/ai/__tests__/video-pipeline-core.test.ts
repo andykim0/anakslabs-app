@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
 import {
   videoGuardError,
+  synchronousVideoTransportError,
   buildMotionPrompt,
   ensureRegisteredVideoPrompt,
   FAITHFUL_PHOTO_MOTION_DIRECTIVE,
@@ -42,6 +43,16 @@ describe('videoGuardError — 비용 가드 3종 + tier', () => {
   });
   test('우선순위: 킬스위치가 tier·상한보다 먼저', () => {
     assert.match(videoGuardError({ ...ON, enabled: false }, 'basic', 99, 99)!, /VIDEO_GEN_DISABLED/);
+  });
+});
+
+describe('synchronousVideoTransportError — 장기 HTTP fail-closed', () => {
+  test('mock은 실원가·외부 장기 작업이 없어 기존 플로우를 허용한다', () => {
+    assert.equal(synchronousVideoTransportError(true), null);
+  });
+
+  test('non-mock 실제 동기 생성은 재개 가능한 처리 경로 전까지 차단한다', () => {
+    assert.match(synchronousVideoTransportError(false) ?? '', /^VIDEO_GEN_SYNC_UNSAFE:/);
   });
 });
 
