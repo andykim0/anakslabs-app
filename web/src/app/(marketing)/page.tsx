@@ -12,8 +12,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { INITIAL_GRANT, PRICE_RANGES } from '@/lib/credits/constants';
-import { VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import { ROOT_DOMAIN } from '@/lib/env';
+import { CREDIT_CONTRACT_COPY, formatKrw, PRICING } from '@/lib/pricing';
 import { LandingScanner } from '@/components/landing/LandingScanner';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { HeroVideo } from '@/components/marketing/HeroVideo';
@@ -25,7 +25,7 @@ import { FadeIn } from '@/components/motion/FadeIn';
 
 const PAGE_TITLE = '홈페이지 전문 최적화 AI — SEO·AEO·GEO 기반 제작';
 const PAGE_DESCRIPTION =
-  '업종에 맞는 홈페이지를 AI가 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 적용합니다. 디자인 3안, 캔버스 편집, 멀티페이지 호스팅과 월 관리까지 Daboim 하나로.';
+  '업종에 맞는 홈페이지를 AI가 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 적용합니다. 디자인 3안, 캔버스 편집, 멀티페이지 호스팅과 사이트 운영 구독까지 Daboim 하나로.';
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -100,8 +100,8 @@ const COMPARISON = [
   {
     label: '오픈 후',
     builder: '사용자가 직접 운영',
-    agency: '수정 요청 또는 별도 유지보수',
-    anaks: '직접 편집 + 월 관리 + 편집 크레딧',
+    agency: '수정 요청 또는 별도 관리 계약',
+    anaks: '직접 수정 무제한 무료 + 사이트 운영 구독',
   },
 ];
 
@@ -124,7 +124,7 @@ const CORE_FEATURES = [
 const FAQS: FaqItem[] = [
   {
     q: '아임웹 같은 범용 웹 빌더와 무엇이 다른가요?',
-    a: '범용 빌더는 쇼핑·예약을 포함한 폭넓은 도구를 직접 조합하는 데 강점이 있습니다. Daboim은 비개발자 사업자의 업종 홈페이지에 집중해, 페이지 기획과 SEO·AEO·GEO 구조를 생성 기본값으로 제공하고 호스팅과 월 관리까지 한 제품으로 묶습니다.',
+    a: '범용 빌더는 쇼핑·예약을 포함한 폭넓은 도구를 직접 조합하는 데 강점이 있습니다. Daboim은 비개발자 사업자의 업종 홈페이지에 집중해, 페이지 기획과 SEO·AEO·GEO 구조를 생성 기본값으로 제공하고 호스팅과 사이트 운영 구독까지 한 제품으로 묶습니다.',
   },
   {
     q: 'SEO·AEO·GEO를 적용하면 검색 순위나 AI 인용이 보장되나요?',
@@ -132,11 +132,11 @@ const FAQS: FaqItem[] = [
   },
   {
     q: '완성된 홈페이지를 직접 수정할 수 있나요?',
-    a: '네. 캔버스 에디터에서 텍스트·이미지·위치·크기를 직접 바꿀 수 있고, 어려운 수정은 월 제공 편집 크레딧으로 요청할 수 있습니다.',
+    a: CREDIT_CONTRACT_COPY,
   },
   {
-    q: '영상이 들어간 홈페이지도 만들 수 있나요?',
-    a: `기본 스크롤 모션은 홈페이지 제작에 포함됩니다. AI 시네마틱 영상 히어로는 ${man(VIDEO_ADDON_PRICE_KRW)} 선택 애드온으로 추가할 수 있습니다.`,
+    q: 'AI 영상 홈페이지도 만들 수 있나요?',
+    a: `기본 모션은 제작비에 포함되어 무료입니다. 실제 Veo 영상으로 만드는 AI 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
   },
 ];
 
@@ -313,7 +313,7 @@ export default function MarketingHome() {
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">DIRECTABLE AI</p>
                 <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736]">AI가 시작하고,<br />사장님이 방향을 잡습니다.</h3>
-                <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">결과를 그냥 받는 생성기가 아닙니다. 구성안을 승인하고, 세 가지 디자인에서 고르고, PPT처럼 직접 다듬습니다. 어려운 변경만 편집 크레딧으로 요청하세요.</p>
+                <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">결과를 그냥 받는 생성기가 아닙니다. 구성안을 승인하고, 세 가지 디자인에서 고르고, PPT처럼 직접 다듬습니다. 직접 수정은 무제한 무료이고 AI 재생성·다보임 수정 대행에만 크레딧을 사용합니다.</p>
                 <ul className="mt-7 grid gap-3 text-sm text-[#41444C] sm:grid-cols-2">
                   {['생성 전 구성 확인', '디자인 3안 비교', '드래그·리사이즈 편집', '구조 진단 후 발행'].map((item) => (
                     <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-[#03A995]" />{item}</li>
@@ -353,7 +353,7 @@ export default function MarketingHome() {
           <FadeIn>
             <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">만들고 끝내지 않고,<br />계속 좋아지게 관리합니다.</h2>
-            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">제작비 1회와 월 관리비로 호스팅·운영을 이어갑니다. 영상이 꼭 필요한 브랜드만 애드온을 선택하세요.</p>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">제작비 1회와 사이트 운영 구독으로 호스팅·운영을 이어갑니다. 실제 영상이 필요한 브랜드만 AI 영상 홈페이지를 선택하세요.</p>
           </FadeIn>
           <FadeIn delay={0.08}>
             <div className="rounded-[28px] border border-[#173060] bg-gradient-to-br from-[#0B1736] to-[#113E70] p-7 text-white shadow-[0_24px_70px_rgba(11,23,54,.18)] sm:p-9">
@@ -364,13 +364,13 @@ export default function MarketingHome() {
                 </div>
                 <p className="text-right"><span className="block text-sm text-white/38 line-through">{man(PRICE_RANGES.buildFee.basic[1])}</span><span className="text-4xl font-semibold tracking-[-0.04em]">{man(PRICE_RANGES.buildFee.basic[0])}</span></p>
               </div>
-              <p className="mt-2 text-right text-xs text-white/48">+ 월 {man(PRICE_RANGES.maintenanceMonthly.basic[1])} 관리 · 부가세 별도</p>
+              <p className="mt-2 text-right text-xs text-white/48">+ 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · 부가세 별도</p>
               <ul className="mt-8 grid gap-3 border-t border-white/10 pt-7 text-sm text-white/68 sm:grid-cols-2">
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>
               <div className="mt-7 flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-white/[0.045] p-4 sm:flex-row sm:items-center">
-                <p className="text-xs leading-5 text-white/52">AI 시네마틱 영상 히어로<br /><span className="text-white/78">원할 때만 선택하는 애드온</span></p>
-                <span className="font-mono text-sm font-semibold text-[#5DE0D0]">+{man(VIDEO_ADDON_PRICE_KRW)}</span>
+                <p className="text-xs leading-5 text-white/52">AI 영상 홈페이지<br /><span className="text-white/78">실제 Veo 영상 히어로 · 선택</span></p>
+                <span className="font-mono text-sm font-semibold text-[#5DE0D0]">+{formatKrw(PRICING.videoHeroAddon)}</span>
               </div>
               <Link href="/pricing" className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white">가격 자세히 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
             </div>

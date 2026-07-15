@@ -30,7 +30,7 @@ function StepVisual({ no }: { no: string }) {
 export const metadata: Metadata = {
   title: '기능 — 검색·AI가 읽는 사이트를 만드는 방법',
   description:
-    '설문부터 호스팅까지 5단계 작동 방식, SEO·AEO·GEO 엔진(JSON-LD·llms.txt·시맨틱 아웃라인·페이지별 sitemap), 기본 포함 스크롤 등장 모션과 영상 애드온, 호스팅·보안까지.',
+    '설문부터 호스팅까지 5단계 작동 방식, SEO·AEO·GEO 엔진(JSON-LD·llms.txt·시맨틱 아웃라인·페이지별 sitemap), 포함·무료인 기본 모션과 AI 영상 홈페이지, 호스팅·보안까지.',
   alternates: { canonical: '/features' },
 };
 
@@ -103,7 +103,7 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* 영상 애드온 데모 — 시네마틱 영상(애드온) + 스크롤 모션(기본 포함) (MotionShowcase가 자체 헤딩 보유) */}
+      {/* AI 영상 홈페이지 데모 — 실제 영상(선택) + 기본 모션(포함·무료) */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <MotionShowcase />

@@ -4,6 +4,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { hasVideoAddon, VIDEO_ADDON_TIER, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
+import { PRICING } from '@/lib/pricing';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { emptySiteConfig } from '@/lib/types/site';
 
@@ -12,7 +13,7 @@ describe('U1 — hasVideoAddon 파생', () => {
     assert.equal(hasVideoAddon('premium'), true);
     assert.equal(hasVideoAddon('basic'), false);
     assert.equal(VIDEO_ADDON_TIER, 'premium');
-    assert.equal(VIDEO_ADDON_PRICE_KRW, 200_000);
+    assert.equal(VIDEO_ADDON_PRICE_KRW, PRICING.videoHeroAddon);
   });
 });
 

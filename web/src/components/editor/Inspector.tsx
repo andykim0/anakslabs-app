@@ -840,21 +840,21 @@ function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean;
   );
 }
 
-/** Basic 계정에 Premium 프리셋을 숨기지 않고 잠금 카드로 — 기법 나열 + 업셀(서버도 어차피 강등) */
+/** AI 영상 홈페이지 미적용 계정에 영상 프리셋을 잠금 카드로 안내한다. */
 function PresetLockCard({ pid }: { pid: PresetId }) {
   return (
     <div className="w-full rounded-lg border border-[#9DB7EB] bg-[#EDF4FF]/40 px-3 py-2">
       <div className="flex items-center gap-1.5">
         <Lock className="h-3 w-3 text-[#174DDA]" />
         <span className="text-xs font-semibold text-[#174DDA]">{PRESET_LABELS[pid]}</span>
-        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wide text-[#174DDA]/70">Premium</span>
+        <span className="ml-auto text-[9px] font-semibold tracking-wide text-[#174DDA]/70">AI 영상</span>
       </div>
       <p className="mt-0.5 text-[10px] leading-4 text-[#667085]">{presetTechniqueSummary(pid)}</p>
       <a
         href="/dashboard/billing"
         className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#174DDA] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#245FE5]"
       >
-        <Sparkles className="h-3 w-3" /> Premium으로 업그레이드
+        <Sparkles className="h-3 w-3" /> AI 영상 홈페이지 문의
       </a>
     </div>
   );

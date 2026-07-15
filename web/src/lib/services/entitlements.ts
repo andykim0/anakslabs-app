@@ -9,12 +9,13 @@
  * 등급의 진짜 소스로 유지된다. '영상 애드온 보유'만 이 파생 헬퍼로 명확히 표현한다(레거시 무손상).
  */
 import type { Tier } from '@/lib/types/domain';
+import { PRICING } from '@/lib/pricing';
 
 /** 영상 애드온 보유로 간주되는 tier. 현행 요금제에선 premium이 곧 애드온 보유. */
 export const VIDEO_ADDON_TIER: Tier = 'premium';
 
-/** 영상 애드온 안내 가격(원). 마케팅·온보딩 라벨 단일 소스. 실제 수금은 크몽(수동). */
-export const VIDEO_ADDON_PRICE_KRW = 200_000;
+/** @deprecated 표시 가격은 PRICING.videoHeroAddon을 직접 사용한다. */
+export const VIDEO_ADDON_PRICE_KRW = PRICING.videoHeroAddon;
 
 /** client.tier로부터 영상 애드온(AI 영상 히어로·영상 편집) 보유 여부 파생. */
 export function hasVideoAddon(tier: Tier): boolean {

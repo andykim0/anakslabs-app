@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * [motion 4단계 — V3] AI 영상 히어로 스튜디오 (Premium, 온보딩 성공화면).
+ * [motion 4단계 — V3] AI 영상 히어로 스튜디오 (AI 영상 홈페이지, 온보딩 성공화면).
  * fast 시안 2안 생성 → 고객이 픽 → 선택안을 draftConfig 히어로 background.video로 적용.
  * 실패·상한·킬스위치는 안내로 폴백(사이트는 ken-burns로 항상 완성). "둘 다 별로"면 재생성(상한 내).
  */
@@ -76,7 +76,7 @@ export function HeroVideoStudio({
       <div className="mb-1 flex items-center gap-1.5">
         <Clapperboard className="h-4 w-4 text-ob-accent-strong" />
         <span className="text-sm font-semibold text-ob-accent-strong">AI 영상 히어로</span>
-        <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide text-ob-accent-strong/80">Premium</span>
+        <span className="ml-auto text-[10px] font-semibold tracking-wide text-ob-accent-strong/80">AI 영상 홈페이지</span>
       </div>
 
       {phase === 'idle' && (

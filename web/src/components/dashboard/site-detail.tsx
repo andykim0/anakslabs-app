@@ -288,7 +288,7 @@ function HeroVideoResumeCard({ site, tier }: { site: Site; tier: Tier }) {
       } else if (result.status === 'fallback') {
         toast('error', result.message);
       } else {
-        toast('error', '영상 애드온 승인을 다시 확인해 주세요.');
+        toast('error', 'AI 영상 홈페이지 승인을 다시 확인해 주세요.');
       }
     },
   });
@@ -303,7 +303,7 @@ function HeroVideoResumeCard({ site, tier }: { site: Site; tier: Tier }) {
             <Film className="h-4 w-4" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-neutral-100">영상 애드온 승인이 완료됐어요</h2>
+            <h2 className="text-sm font-semibold text-neutral-100">AI 영상 홈페이지 승인이 완료됐어요</h2>
             <p className="mt-1 max-w-xl text-xs leading-5 text-neutral-400">
               온보딩에서 고른 히어로 사진과 연출로 실제 영상을 1개 생성해 바로 적용합니다.
               이 버튼을 누를 때만 Veo가 실행돼요.
@@ -413,7 +413,7 @@ function EditHistory({ siteId }: { siteId: string }) {
       ) : data.length === 0 ? (
         <EmptyState
           title="이 사이트의 편집 요청이 없습니다"
-          description="발행 후 텍스트·이미지 수정이 필요하면 크레딧으로 요청할 수 있어요."
+          description="에디터에서 직접 수정하는 것은 무료예요. AI 재생성이나 다보임 수정 대행이 필요할 때만 크레딧으로 요청하세요."
         />
       ) : (
         <Card className="p-0">

@@ -88,7 +88,7 @@ export function LandingCinematicShowcase() {
           </div>
           <div className="max-w-md">
             <p className="text-sm leading-7 text-white/68">
-              지금 보이는 무대가 영상 애드온에 적용되는 실제 스크롤 스크럽 방식입니다. 새 영상을 생성한 데모가 아니라 기존 Daboim 1080p 필름을 같은 런타임으로 재생합니다.
+              지금 보이는 무대가 AI 영상 홈페이지에 적용되는 실제 스크롤 스크럽 방식입니다. 새 영상을 생성한 데모가 아니라 기존 Daboim 1080p 필름을 같은 런타임으로 재생합니다.
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[9px] tracking-[0.11em] text-white/80">
               <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> DESKTOP: SCROLL TO SCRUB · MOBILE: PINNED LOOP

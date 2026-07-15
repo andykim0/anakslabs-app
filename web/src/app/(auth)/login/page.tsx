@@ -13,14 +13,14 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 const MOCK_BUTTONS: { role: MockRole; label: string; description: string; icon: React.ReactNode }[] = [
   {
     role: 'premium',
-    label: '데모: Premium 고객',
-    description: '영상 편집 가능 · 크레딧 3개 지급',
+    label: '데모: AI 영상 홈페이지',
+    description: '실제 영상 히어로 적용 · 크레딧 3개 지급',
     icon: <Sparkles className="h-4 w-4 text-[#174DDA]" />,
   },
   {
     role: 'basic',
-    label: '데모: Basic 고객',
-    description: '이미지 사이트 · 영상 요청 시 업셀',
+    label: '데모: 기본 홈페이지',
+    description: '기본 모션 포함 · AI 영상 홈페이지 미적용',
     icon: <ShieldCheck className="h-4 w-4 text-[#087F91]" />,
   },
   {

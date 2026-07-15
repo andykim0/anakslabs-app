@@ -276,8 +276,8 @@ function ClientEditControls({ client }: { client: Client }) {
             onChange={(e) => setTier(e.target.value as Tier)}
             className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
           >
-            <option value="basic">Basic</option>
-            <option value="premium">Premium</option>
+            <option value="basic">기본 홈페이지</option>
+            <option value="premium">AI 영상 홈페이지</option>
           </select>
         </label>
         <label className="flex-1">

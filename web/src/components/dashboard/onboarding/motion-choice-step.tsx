@@ -1,14 +1,15 @@
 'use client';
 
 /**
- * [W2/W3] 고른 히어로 사진을 대표 CSS 모션으로 보여준 뒤 영상 애드온과 연출을 고른다.
+ * [W2/W3] 고른 히어로 사진을 대표 CSS 모션으로 보여준 뒤 AI 영상 홈페이지와 연출을 고른다.
  * 이 단계는 대표 예시일 뿐 고객의 최종 Veo 영상이 아니다. AI/API 호출 없이 CSS만 사용한다.
  * 아니오는 ken-burns 기본 모션으로 바로 진행하고, 예는 등록된 영상 연출 선택으로 이어진다.
  */
 import { useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Film, ImageIcon } from 'lucide-react';
 import type { SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
-import { hasVideoAddon, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
+import { hasVideoAddon } from '@/lib/services/entitlements';
+import { PRICING } from '@/lib/pricing';
 import { configForManifestoChoicePreview } from '@/lib/motion/preview-addon';
 import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import {
@@ -167,7 +168,7 @@ export function MotionChoiceStep({
   onComplete: (choice: MotionChoiceDto) => void;
 }) {
   const ownsAddon = hasVideoAddon(tier);
-  const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
+  const addonPrice = `+₩${PRICING.videoHeroAddon.toLocaleString('ko-KR')}`;
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
   const allowsScrollytelling = isScrollytellingTemplate(purposeId, templateId);
   const availableMotionIds = heroVideoMotionIdsForContext(allowsScrollytelling);
@@ -232,9 +233,9 @@ export function MotionChoiceStep({
           className="flex w-full items-center justify-between gap-3 text-left"
         >
           <span>
-            <span className="block text-sm font-semibold text-ob-ink">애드온 적용 예시 보기</span>
+            <span className="block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 적용 예시 보기</span>
             <span className="mt-0.5 block text-xs leading-5 text-ob-muted">
-              실제 시네마틱 영상의 깊이와 움직임을 대표 클립으로 확인해요.
+              실제 Veo 영상 히어로의 깊이와 움직임을 대표 클립으로 확인해요.
             </span>
           </span>
           <Film className="h-5 w-5 shrink-0 text-ob-accent-strong" />
@@ -249,13 +250,13 @@ export function MotionChoiceStep({
               loop
               playsInline
               preload="metadata"
-              aria-label="영상 애드온 대표 예시"
+              aria-label="AI 영상 홈페이지 대표 예시"
             >
               <source src="/daboim-visibility-film.webm" type="video/webm" />
               <source src="/daboim-visibility-film-scrub.mp4" type="video/mp4" />
             </video>
             <span className="absolute top-2 left-2 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
-              예시 · 애드온(+₩{VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}) 적용 시
+              예시 · AI 영상 홈페이지(+₩{PRICING.videoHeroAddon.toLocaleString('ko-KR')}) 적용 시
             </span>
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pt-10 pb-3 text-[10px] leading-4 text-white/90">
               대표 데모 클립이며 고객님의 최종 영상이 아닙니다. 실제 생성은 결제·승인 후에만 진행됩니다.
@@ -267,15 +268,15 @@ export function MotionChoiceStep({
       <div className="space-y-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm font-semibold text-ob-ink">영상 배경으로 만들까요?</h3>
+            <h3 className="text-sm font-semibold text-ob-ink">AI 영상 홈페이지로 만들까요?</h3>
             <p className="mt-0.5 text-xs leading-5 text-ob-muted">
               {ownsAddon
-                ? '승인된 영상 애드온으로 사이트 생성 후 실제 영상을 만들 수 있어요.'
-                : `원하실 때만 추가하는 ${addonPrice} 애드온이에요.`}
+                ? 'AI 영상 홈페이지가 승인되어 사이트 생성 후 실제 Veo 영상 히어로를 만들 수 있어요.'
+                : `실제 Veo 영상 히어로를 만드는 ${addonPrice} AI 영상 홈페이지예요.`}
             </p>
           </div>
           <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2.5 py-1 text-[10px] font-semibold text-ob-accent-strong">
-            {ownsAddon ? '애드온 승인됨' : addonPrice}
+            {ownsAddon ? 'AI 영상 승인됨' : addonPrice}
           </span>
         </div>
 
@@ -292,9 +293,9 @@ export function MotionChoiceStep({
             )}
           >
             <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
-            <span className="mt-2 block text-sm font-semibold text-ob-ink">아니오, 사진으로 할게요</span>
+            <span className="mt-2 block text-sm font-semibold text-ob-ink">기본 모션으로 할게요</span>
             <span className="mt-1 block text-xs leading-5 text-ob-muted">
-              정지 사진에 잔잔한 켄번스·리빌 효과만 적용해요. 영상 생성은 없어요.
+              기본 모션은 포함·무료예요. 정지 사진에 잔잔한 켄번스·리빌 효과를 적용하고 영상은 생성하지 않아요.
             </span>
           </button>
           <button
@@ -310,10 +311,10 @@ export function MotionChoiceStep({
           >
             <Film className="h-5 w-5 text-ob-accent-strong" />
             <span className="mt-2 block text-sm font-semibold text-ob-ink">
-              {ownsAddon ? '예, 영상으로 만들게요' : `예, 영상으로 만들게요 (${addonPrice})`}
+              {ownsAddon ? 'AI 영상 홈페이지로 만들게요' : `AI 영상 홈페이지로 만들게요 (${addonPrice})`}
             </span>
             <span className="mt-1 block text-xs leading-5 text-ob-muted">
-              다음에서 원하는 연출을 고릅니다. 실제 Veo 생성은 애드온 승인 후에만 진행돼요.
+              실제 Veo 영상 히어로를 생성해요. 결제·AI 영상 승인 후에만 진행됩니다.
             </span>
           </button>
         </div>
@@ -432,7 +433,7 @@ export function MotionChoiceStep({
         </div>
       ) : (
         <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
-          선택한 히어로 사진을 그대로 쓰고, 완성 페이지에는 가벼운 기본 모션만 더합니다.
+          선택한 히어로 사진을 그대로 쓰고, 완성 페이지에는 포함·무료인 기본 모션만 더합니다.
         </div>
       )}
 
@@ -442,7 +443,7 @@ export function MotionChoiceStep({
           이전
         </Button>
         <Button size="lg" onClick={submit}>
-          {wantsVideo ? '이 방향으로 계속' : '영상 없이 계속'}
+          {wantsVideo ? '이 AI 영상 방향으로 계속' : '기본 모션으로 계속'}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>

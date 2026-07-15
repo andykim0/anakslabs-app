@@ -90,7 +90,7 @@ describe('SS1 — 스크롤리텔링 additive 계약', () => {
     assert.equal(basic.config.pages[0].sections[0].layout, 'canvas');
     assert.deepEqual(basic.config.pages[0].sections[0].acts, ACTS);
     assert.equal(requested.pages[0].sections[0].layout, 'scrollytelling', '원본 변형');
-    assert.match(basic.changes.join('\n'), /영상 애드온 미보유/);
+    assert.match(basic.changes.join('\n'), /AI 영상 홈페이지 미보유/);
 
     const cafe = stageConfig('local_store.default');
     const disallowed = sanitizeScrollytellingSections(cafe, 'premium');

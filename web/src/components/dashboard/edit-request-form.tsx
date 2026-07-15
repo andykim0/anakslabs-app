@@ -3,7 +3,7 @@
 /**
  * 편집 요청 제출 폼 —
  * 유형 4종(비용 표시) · 사이트 선택 · 내용.
- * 불변식: 영상 애드온 미보유 + 영상 → 서버가 402 UPSELL_REQUIRED로 차감 전 안내를 강제하며,
+ * 불변식: AI 영상 홈페이지 미보유 + 영상 → 서버가 402 UPSELL_REQUIRED로 차감 전 안내를 강제하며,
  * 일반 크레딧 1회 우회는 제공하지 않는다. 문구의 원본은 서버 응답 message다.
  * 잔액 부족은 409 INSUFFICIENT_CREDITS(error.balance/required) 모달.
  */
@@ -41,10 +41,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const TYPE_META: { value: EditType; icon: React.ReactNode; hint: string }[] = [
-  { value: 'text', icon: <Type className="h-4 w-4" />, hint: '문구·카피 수정' },
-  { value: 'image', icon: <ImagePlus className="h-4 w-4" />, hint: 'AI 이미지 생성·교체' },
-  { value: 'video', icon: <Clapperboard className="h-4 w-4" />, hint: '영상 클립 (Premium)' },
-  { value: 'structure', icon: <LayoutList className="h-4 w-4" />, hint: '섹션 추가·재배치' },
+  { value: 'text', icon: <Type className="h-4 w-4" />, hint: '다보임 카피 수정 대행' },
+  { value: 'image', icon: <ImagePlus className="h-4 w-4" />, hint: 'AI 이미지 새로 생성' },
+  { value: 'video', icon: <Clapperboard className="h-4 w-4" />, hint: 'AI 영상 재생성' },
+  { value: 'structure', icon: <LayoutList className="h-4 w-4" />, hint: 'AI 전체 섹션 재디자인' },
 ];
 
 /**
@@ -280,7 +280,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                         <Badge tone={selected ? 'gold' : 'neutral'}>{CREDIT_COSTS[meta.value]}</Badge>
                       </span>
                       <span className="text-[10px] text-neutral-500">
-                        {isVideoOnBasic ? 'Premium 전용 — 제출 시 안내' : meta.hint}
+                        {isVideoOnBasic ? 'AI 영상 홈페이지 전용 — 제출 시 안내' : meta.hint}
                       </span>
                     </button>
                   );
@@ -361,11 +361,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
         )}
       </Card>
 
-      {/* 402 애드온 모달 — 영상 요청의 차감 전 안내 (불변식) */}
+      {/* 402 AI 영상 홈페이지 모달 — 영상 요청의 차감 전 안내 (불변식) */}
       <Modal
         open={upsell !== null}
         onClose={() => setUpsell(null)}
-        title="영상 애드온이 필요합니다"
+        title="AI 영상 홈페이지가 필요합니다"
         footer={
           upsell ? (
             <>
@@ -374,7 +374,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                 className="inline-flex h-10 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
                 onClick={() => setUpsell(null)}
               >
-                영상 애드온 상담
+                AI 영상 홈페이지 상담
               </Link>
               <Button variant="secondary" onClick={() => setUpsell(null)}>
                 닫기

@@ -117,7 +117,7 @@ describe('W4 — 히어로 영상 dashboard API', () => {
   test('서버 에러 메시지는 기존 Studio 오류 UX가 표시할 Error.message로 보존한다', async () => {
     globalThis.fetch = (async () =>
       jsonResponse(
-        { error: { code: 'VIDEO_GEN_ADDON', message: '영상 애드온 승인이 필요합니다.' } },
+        { error: { code: 'VIDEO_GEN_ADDON', message: 'AI 영상 홈페이지 승인이 필요합니다.' } },
         403,
       )) as typeof fetch;
 
@@ -127,7 +127,7 @@ describe('W4 — 히어로 영상 dashboard API', () => {
         error instanceof ApiError &&
         error.status === 403 &&
         error.code === 'VIDEO_GEN_ADDON' &&
-        error.message === '영상 애드온 승인이 필요합니다.',
+        error.message === 'AI 영상 홈페이지 승인이 필요합니다.',
     );
   });
 });

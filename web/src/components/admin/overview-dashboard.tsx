@@ -61,7 +61,7 @@ export function OverviewDashboard() {
           value={formatNumber(data.clients.total)}
           sub={
             <span>
-              Basic {formatNumber(data.clients.basic)} · Premium{' '}
+              기본 홈페이지 {formatNumber(data.clients.basic)} · AI 영상 홈페이지{' '}
               {formatNumber(data.clients.premium)}
             </span>
           }

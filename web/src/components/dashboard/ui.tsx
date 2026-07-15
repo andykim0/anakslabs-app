@@ -65,8 +65,8 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
 };
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: 'Basic',
-  premium: 'Premium',
+  basic: '기본 홈페이지',
+  premium: 'AI 영상 홈페이지',
 };
 
 // ---------- 뱃지 ----------

@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         </div>
         <div>
           <h2 className="text-sm font-semibold text-[#17181C]">이용 목적</h2>
-          <p className="mt-2">계정 인증, 사이트 생성·호스팅·유지보수, 결제 및 고객 문의 응대에 사용합니다.</p>
+          <p className="mt-2">계정 인증, 사이트 생성·호스팅·사이트 운영 구독 제공, 결제 및 고객 문의 응대에 사용합니다.</p>
         </div>
         <div>
           <h2 className="text-sm font-semibold text-[#17181C]">문의</h2>

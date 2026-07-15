@@ -72,7 +72,7 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     const detail = source('src/components/dashboard/site-detail.tsx');
 
     assert.match(preview, /configForAddonPreview/);
-    assert.match(preview, /예시 · 애드온\(\+₩/);
+    assert.match(preview, /예시 · AI 영상 홈페이지\(\+₩/);
     assert.match(detail, /애드온 적용 예시/);
     assert.doesNotMatch(serving, /preview-addon|previewAsAddon|configForAddonPreview/);
     assert.doesNotMatch(exporter, /preview-addon|previewAsAddon|configForAddonPreview/);
@@ -121,8 +121,8 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
 
   test('온보딩 적용 예시는 명확한 라벨·고정 자산만 쓰고 생성 API를 호출하지 않는다', () => {
     const onboarding = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
-    assert.match(onboarding, /애드온 적용 예시 보기/);
-    assert.match(onboarding, /예시 · 애드온\(\+₩/);
+    assert.match(onboarding, /AI 영상 홈페이지 적용 예시 보기/);
+    assert.match(onboarding, /예시 · AI 영상 홈페이지\(\+₩/);
     assert.match(onboarding, /고객님의 최종 영상이 아닙니다/);
     assert.match(onboarding, /daboim-visibility-film\.webm/);
     assert.doesNotMatch(onboarding, /fetch\(|\/api\/sites\/|generateVeoVideo|generateHeroVideo/);

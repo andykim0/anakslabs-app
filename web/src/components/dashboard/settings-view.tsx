@@ -2,14 +2,14 @@
 
 /**
  * 설정 페이지 (/dashboard/settings) —
- * 프로필(이름/이메일/로그인 수단) · 티어 + Premium 업그레이드 문의 CTA · 로그아웃.
+ * 프로필(이름/이메일/로그인 수단) · 사이트 운영 구독 + AI 영상 홈페이지 문의 CTA · 로그아웃.
  */
 import { useState } from 'react';
 import { ArrowUpRight, LogOut, Mail, Sparkles, User } from 'lucide-react';
 import type { AuthProvider, Tier } from '@/lib/types/domain';
-import { PRICE_RANGES } from '@/lib/credits/constants';
+import { PRICING } from '@/lib/pricing';
 import { logout } from './api';
-import { Button, Card, formatDate, PageHeader, TierBadge } from './ui';
+import { Button, Card, formatDate, PageHeader } from './ui';
 
 const AUTH_PROVIDER_LABELS: Record<AuthProvider, string> = {
   kakao: '카카오 로그인',
@@ -64,11 +64,9 @@ export function SettingsView({
     window.location.href = '/login';
   };
 
-  const premiumMonthly = PRICE_RANGES.maintenanceMonthly.premium;
-
   return (
     <div className="max-w-2xl">
-      <PageHeader title="설정" description="계정 정보와 요금제를 관리하세요." />
+      <PageHeader title="설정" description="계정 정보와 이용 구성을 관리하세요." />
 
       {/* 프로필 */}
       <Card>
@@ -105,37 +103,35 @@ export function SettingsView({
         </p>
       </Card>
 
-      {/* 요금제 */}
+      {/* 이용 구성 */}
       <Card className="mt-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-sm font-semibold text-neutral-200">
-              요금제 <TierBadge tier={tier} />
+              이용 구성
             </h2>
             <p className="mt-1 text-xs text-neutral-500">
               {tier === 'premium'
-                ? '영상·애니메이션과 동적 기능(폼·CMS)을 포함한 최상위 플랜을 이용 중입니다.'
-                : '이미지 중심 정적 사이트 플랜입니다. 영상 편집이 필요하다면 Premium을 추천해요.'}
+                ? 'AI 영상 홈페이지가 적용되어 실제 영상 히어로와 시네마틱 모션을 이용 중입니다.'
+                : '기본 모션은 무료로 포함됩니다. AI 영상 홈페이지는 실제 영상 히어로를 추가하는 1회 애드온입니다.'}
             </p>
           </div>
           {tier === 'basic' ? (
             <a
-              href={`mailto:hello@anakslabs.com?subject=${encodeURIComponent('[Daboim] 영상 애드온 문의')}&body=${encodeURIComponent(`안녕하세요, Daboim 영상 애드온을 문의드립니다.\n\n계정: ${email}`)}`}
+              href={`mailto:hello@anakslabs.com?subject=${encodeURIComponent('[Daboim] AI 영상 홈페이지 문의')}&body=${encodeURIComponent(`안녕하세요, Daboim AI 영상 홈페이지를 문의드립니다.\n\n계정: ${email}`)}`}
               className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
             >
               <Sparkles className="h-4 w-4" />
-              Premium 업그레이드 문의
+              AI 영상 홈페이지 문의
               <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
           ) : null}
         </div>
         {tier === 'basic' ? (
           <ul className="mt-4 space-y-1.5 rounded-lg bg-neutral-800/40 px-4 py-3 text-xs leading-5 text-neutral-400">
-            <li>· 영상 클립 편집 상시 이용 (Basic은 요청당 크레딧 3개 + 안내)</li>
-            <li>· 폼 · 예약 등 동적 기능 추가</li>
-            <li>
-              · 월 유지보수 {premiumMonthly[0].toLocaleString()}~{premiumMonthly[1].toLocaleString()}원
-            </li>
+            <li>· 기본 스크롤 모션 포함 · 추가 비용 없음</li>
+            <li>· AI 영상 히어로 +{PRICING.videoHeroAddon.toLocaleString()}원 (1회)</li>
+            <li>· 사이트 운영 구독 월 {PRICING.subscription.monthly.toLocaleString()}원 (단일)</li>
           </ul>
         ) : null}
       </Card>

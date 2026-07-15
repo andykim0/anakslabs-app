@@ -1,5 +1,5 @@
 /**
- * 사이트 정지(suspended) 안내 — 유지보수 구독 결제 실패 시 노출.
+ * 사이트 정지(suspended) 안내 — 사이트 운영 구독 결제 실패 시 노출.
  * 방문자에게는 정중한 휴식 안내, 소유자에게는 결제 확인 유도.
  */
 import { ROOT_DOMAIN } from '@/lib/env';
@@ -17,7 +17,7 @@ export function SuspendedNotice({ siteName }: { siteName?: string }) {
         사이트가 잠시 쉬고 있어요
       </h1>
       <p className="mt-3 max-w-md text-sm leading-6 text-neutral-400">
-        {siteName ? `‘${siteName}’ 사이트는` : '이 사이트는'} 유지보수 구독 결제가 확인되지 않아
+        {siteName ? `‘${siteName}’ 사이트는` : '이 사이트는'} 사이트 운영 구독 결제가 확인되지 않아
         일시 중지된 상태입니다. 사이트 관리자라면 Daboim 대시보드에서 결제 정보를 확인해
         주세요. 결제가 완료되면 사이트는 바로 다시 열립니다.
       </p>

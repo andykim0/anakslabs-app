@@ -38,8 +38,8 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '스크롤 모션은 실제 영상인가요?',
-    a: `아닙니다. 스크롤에 반응하는 CSS 기반 등장 애니메이션으로, 기본 제품에 포함되며 실사 영상이 아닙니다. AI가 만드는 실사 영상 히어로·시네마틱 영상은 별도 유료 애드온입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
-    plain: `스크롤 모션은 기본 포함된 CSS 등장 애니메이션이며 실사 영상이 아닙니다. 실사 영상은 별도 애드온입니다. ${DYNAMIC_FEATURE_NOTICE}`,
+    a: `기본 모션은 포함·무료이며 CSS 기반 등장 효과라 실제 영상이 아닙니다. AI 영상 홈페이지는 실제 Veo AI 영상 히어로를 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
+    plain: `기본 모션은 포함·무료인 CSS 효과입니다. AI 영상 홈페이지는 실제 Veo 영상 히어로 유료 옵션입니다. ${DYNAMIC_FEATURE_NOTICE}`,
   },
   {
     q: '환불이 되나요?',

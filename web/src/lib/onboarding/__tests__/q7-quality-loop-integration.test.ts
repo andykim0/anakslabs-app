@@ -92,7 +92,7 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
     assert.doesNotMatch(serving, /previewAsAddon|configForAddonPreview|preview-addon/);
     assert.doesNotMatch(exporter, /previewAsAddon|configForAddonPreview|preview-addon/);
     assert.match(preview, /previewAsAddon\s*=\s*false/);
-    assert.match(preview, /예시 · 애드온\(\+₩/);
+    assert.match(preview, /예시 · AI 영상 홈페이지\(\+₩/);
   });
 
   test('Veo는 비용·권한·상한 순서 뒤에서 실제 동기 전송만 fail-closed한다', () => {

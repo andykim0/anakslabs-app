@@ -2,14 +2,15 @@
 
 /**
  * 결제·구독 페이지 (/dashboard/billing) —
- * 구독 상태 카드(티어·월 요금 범위·mock 표기) · suspended 경고 배너 · 결제 이력 테이블.
+ * 구독 상태 카드(단일 월 요금·mock 표기) · suspended 경고 배너 · 결제 이력 테이블.
  */
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, BadgeCheck, ReceiptText } from 'lucide-react';
 import type { PaymentType, Tier } from '@/lib/types/domain';
-import { PRICE_RANGES, SUSPENSION_GRACE_DAYS } from '@/lib/credits/constants';
+import { SUSPENSION_GRACE_DAYS } from '@/lib/credits/constants';
 import { isMockMode } from '@/lib/env';
+import { PRICING } from '@/lib/pricing';
 import { listPayments, listSites } from './api';
 import {
   Badge,
@@ -20,12 +21,11 @@ import {
   formatKrw,
   PageHeader,
   Skeleton,
-  TierBadge,
 } from './ui';
 
 const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   build_fee: '제작비 (1회)',
-  maintenance_subscription: '유지보수 구독 (월)',
+  maintenance_subscription: '사이트 운영 구독 (월)',
   credit_pack: '크레딧 팩',
 };
 
@@ -48,7 +48,7 @@ function SuspendedBanner() {
           일시중지된 사이트가 있습니다 — {suspended.map((s) => s.name).join(', ')}
         </p>
         <p className="mt-0.5 text-xs text-red-300/80">
-          유지보수 구독 결제가 실패하면 사이트가 일시중지됩니다. 유예기간 {SUSPENSION_GRACE_DAYS}일 안에
+          사이트 운영 구독 결제가 실패하면 사이트가 일시중지됩니다. 유예기간 {SUSPENSION_GRACE_DAYS}일 안에
           결제 수단을 갱신하면 자동으로 복구돼요. 문의: hello@anakslabs.com
         </p>
       </div>
@@ -57,7 +57,6 @@ function SuspendedBanner() {
 }
 
 function SubscriptionCard({ tier }: { tier: Tier }) {
-  const monthly = PRICE_RANGES.maintenanceMonthly[tier];
   const mock = isMockMode();
 
   return (
@@ -68,13 +67,15 @@ function SubscriptionCard({ tier }: { tier: Tier }) {
         </span>
         <div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-neutral-100">유지보수 구독</p>
-            <TierBadge tier={tier} />
+            <p className="text-sm font-semibold text-neutral-100">사이트 운영 구독</p>
+            <Badge tone={tier === 'premium' ? 'gold' : 'neutral'}>
+              {tier === 'premium' ? 'AI 영상 홈페이지 적용' : '기본 모션 포함'}
+            </Badge>
             {mock ? <Badge tone="blue">데모 결제</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            월 {monthly[0].toLocaleString()}~{monthly[1].toLocaleString()}원 · 호스팅 · SSL · 인프라 관리
-            포함 (크레딧과 별개)
+            월 {PRICING.subscription.monthly.toLocaleString()}원 · 호스팅 · SSL · 백업 · 인프라 관리 포함
+            (크레딧과 별개)
           </p>
         </div>
       </div>
@@ -86,7 +87,7 @@ function SubscriptionCard({ tier }: { tier: Tier }) {
             href="/dashboard/settings"
             className="mt-1 inline-block text-xs text-[#c8a96a] hover:underline"
           >
-            Premium 업그레이드 문의 →
+            AI 영상 홈페이지 문의 →
           </Link>
         ) : null}
       </div>
@@ -112,7 +113,7 @@ function PaymentsTable() {
         <EmptyState
           icon={<ReceiptText className="h-8 w-8" />}
           title="결제 이력이 없습니다"
-          description="제작비, 유지보수 구독, 크레딧 팩 결제 내역이 이곳에 표시됩니다."
+          description="제작비, 사이트 운영 구독, 크레딧 팩 결제 내역이 이곳에 표시됩니다."
         />
       ) : (
         <Card className="overflow-x-auto p-0">
@@ -166,7 +167,7 @@ export function BillingView({ tier }: { tier: Tier }) {
     <div>
       <PageHeader
         title="결제·구독"
-        description="유지보수 구독 상태와 결제 이력을 확인하세요."
+        description="사이트 운영 구독 상태와 결제 이력을 확인하세요."
       />
       <SuspendedBanner />
       <SubscriptionCard tier={tier} />

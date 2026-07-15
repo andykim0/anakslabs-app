@@ -10,6 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Clock3, Coins, ShoppingCart } from 'lucide-react';
 import type { CreditLedgerEntry, Tier } from '@/lib/types/domain';
 import { CREDIT_PACKS, CREDIT_PURCHASE_COOLING_OFF_DAYS } from '@/lib/credits/constants';
+import { CREDIT_CONTRACT_COPY } from '@/lib/pricing';
 import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
 import { getCredits, purchaseCreditPack } from './api';
 import { EditRequestForm } from './edit-request-form';
@@ -157,7 +158,7 @@ function PackGrid() {
         </span>
       </label>
       <p className="mt-2 text-[11px] text-neutral-600">
-        편집 크레딧 소모: 텍스트 1 · 이미지 1 · 영상 3(Premium) · 구조 변경 2개 기준.
+        {CREDIT_CONTRACT_COPY}
       </p>
     </section>
   );

@@ -6,7 +6,6 @@ import {
   INITIAL_GRANT,
   PRICE_RANGES,
 } from '@/lib/credits/constants';
-import { VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
 import {
   HOSTING_ONLY_FOOTNOTE,
   OWNERSHIP_SUMMARY,
@@ -19,12 +18,14 @@ import {
   CREDIT_CONSUMING_ACTION_LABELS,
   CREDIT_CONSUMING_ACTIONS,
   CREDIT_CONTRACT_COPY,
+  formatKrw,
+  PRICING,
 } from '@/lib/pricing';
 
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
   description:
-    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월 유지보수 + 편집 크레딧. 단일 제품에 AI 영상 히어로는 유료 애드온, 크레딧 단가·팩 가격, 환불 규정까지.',
+    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월 사이트 운영 구독 + 필요할 때 쓰는 편집 크레딧. 기본 모션과 AI 영상 홈페이지의 차이, 크레딧 팩·환불 규정까지.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -33,14 +34,14 @@ function man(krw: number): string {
 }
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-/** 기본 포함 기능 — 단일 제품이라 전부 ✓ (영상은 별도 애드온 그룹으로 분리) */
+/** 기본 포함 기능 — 단일 제품이라 전부 ✓ (실제 AI 영상은 선택 옵션으로 분리) */
 const INCLUDED_FEATURES: string[] = [
   '서브도메인 + SSL (xxx.anakslabs.com)',
   'AI 디자인 3안 + 캔버스 에디터',
   '다중 페이지(홈·소개·문의) + 자동 헤더 내비',
   'SEO·AEO·GEO 기본 세팅(JSON-LD·시맨틱·사업자정보)',
   `초기 편집 크레딧 ${INITIAL_GRANT.basic}개`,
-  '등장 애니메이션(스크롤 모션)',
+  '기본 모션(포함·무료) — 스크롤 등장 효과',
   '폼·예약 등 동적 기능(당사 호스팅에서 작동)',
   '커스텀 도메인 연결',
 ];
@@ -48,8 +49,8 @@ const INCLUDED_FEATURES: string[] = [
 const PRICING_FAQ: FaqItem[] = [
   {
     q: '왜 제작비와 월 구독으로 나뉘나요?',
-    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 월 유지보수는 호스팅·SSL·백업·소소한 운영을 이어가는 구독입니다. ${CREDIT_CONTRACT_COPY}`,
-    plain: `제작비는 1회 비용이고 월 유지보수는 운영 구독입니다. ${CREDIT_CONTRACT_COPY}`,
+    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 사이트 운영 구독은 호스팅·SSL·백업·소소한 운영을 이어가는 월 구독입니다. ${CREDIT_CONTRACT_COPY}`,
+    plain: `제작비는 1회 비용이고 사이트 운영 구독은 호스팅·SSL·백업을 위한 월 구독입니다. ${CREDIT_CONTRACT_COPY}`,
   },
   {
     q: '편집 크레딧은 어떻게 쓰이나요?',
@@ -57,9 +58,9 @@ const PRICING_FAQ: FaqItem[] = [
     plain: CREDIT_CONTRACT_COPY,
   },
   {
-    q: '영상 애드온은 무엇인가요?',
-    a: `기본 제품에 AI 디자인 3안, 캔버스 에디터, 다중 페이지, SEO·AEO·GEO 세팅이 전부 포함됩니다. AI가 만드는 영상 히어로·시네마틱 영상만 원하는 분에 한해 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온으로 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
-    plain: `기본 제품에 디자인·에디터·다중 페이지·SEO 세팅이 전부 포함됩니다. AI 영상 히어로·시네마틱 영상만 +${man(VIDEO_ADDON_PRICE_KRW)} 애드온입니다.`,
+    q: 'AI 영상 홈페이지는 무엇인가요?',
+    a: `기본 모션은 모든 홈페이지에 포함되어 무료입니다. 실제 Veo 영상으로 만드는 AI 영상 히어로는 원하는 분만 +${formatKrw(PRICING.videoHeroAddon)}에 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
+    plain: `기본 모션은 포함·무료입니다. 실제 Veo AI 영상 히어로는 +${formatKrw(PRICING.videoHeroAddon)} 선택 옵션입니다.`,
   },
   {
     q: '연간 결제 할인이 있나요?',
@@ -84,7 +85,7 @@ const PRICING_FAQ: FaqItem[] = [
 ];
 
 export default function PricingPage() {
-  const { buildFee, maintenanceMonthly } = PRICE_RANGES;
+  const { buildFee } = PRICE_RANGES;
   return (
     <>
       <script
@@ -98,7 +99,7 @@ export default function PricingPage() {
           홈페이지 제작 비용
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
-          1회 제작비 + 월 유지보수 + 필요할 때만 쓰는 편집 크레딧. 어떤 돈이 언제 왜 나가는지 전부 공개합니다.
+          1회 제작비 + 사이트 운영 구독 + 필요할 때만 쓰는 편집 크레딧. 어떤 돈이 언제 왜 나가는지 전부 공개합니다.
         </p>
       </section>
 
@@ -114,22 +115,22 @@ export default function PricingPage() {
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
             <p className="text-xs font-semibold tracking-widest text-[#856A26]">매월</p>
-            <h3 className="mt-2 text-base font-semibold text-[#17181C]">유지보수 구독</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#17181C]">사이트 운영 구독</h3>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
               호스팅·SSL·백업·운영을 이어가는 구독. 사이트가 살아있는 동안 매달 나갑니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
             <p className="text-xs font-semibold tracking-widest text-[#856A26]">필요할 때만</p>
-            <h3 className="mt-2 text-base font-semibold text-[#17181C]">편집 크레딧</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#17181C]">AI·대행 크레딧</h3>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
-              수정이 필요할 때만 크레딧을 소모합니다. 안 쓰면 나가지 않습니다.
+              AI로 다시 만들거나 다보임에 수정을 맡길 때만 사용합니다. 직접 수정은 무료입니다.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 단일 제품 카드 + 영상 애드온 */}
+      {/* 단일 제품 카드 + AI 영상 홈페이지 */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
         <div className="mx-auto max-w-xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
@@ -144,7 +145,7 @@ export default function PricingPage() {
               </span>
             </p>
             <p className="mt-1 text-xs text-[#5C6068]">
-              + 월 {man(maintenanceMonthly.basic[1])} 관리 · VAT 별도
+              + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
             </p>
             <p className="mt-4 text-sm leading-6 text-[#5C6068]">
               이미지 중심의 정적 사이트, AI 디자인 3안 + 캔버스 에디터, 다중 페이지 + 자동 헤더 내비,
@@ -152,24 +153,18 @@ export default function PricingPage() {
             </p>
 
             <div className="mt-6 rounded-xl border border-[#E4D9BF] bg-white p-5">
-              {/* [video] 영상 애드온 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 (모바일=poster) */}
+              {/* [video] AI 영상 홈페이지 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 */}
               <PreviewVideo mode="hover" className="mb-4 rounded-lg border border-[#E4D9BF]" />
               <p className="text-sm font-semibold text-[#17181C]">
-                영상 추가 +{man(VIDEO_ADDON_PRICE_KRW)}
+                AI 영상 홈페이지 +{formatKrw(PRICING.videoHeroAddon)}
               </p>
               <p className="mt-1 text-xs leading-5 text-[#5C6068]">
-                AI 영상 히어로·시네마틱 영상을 원하면 애드온으로 추가합니다. 원할 때만 더하면 됩니다.
+                기본 모션은 포함·무료입니다. 실제 Veo AI 영상 히어로가 필요할 때만 추가합니다.
               </p>
             </div>
 
-            <p className="mt-4 text-center text-[11px] text-[#696E76]">
-              영상까지 포함한 프리미엄 제작 {man(PRICE_RANGES.buildFee.premium[0])}부터
-            </p>
           </div>
         </div>
-        <p className="mt-4 text-center text-[11px] text-[#696E76]">
-          제작비·구독료는 업종·규모에 따라 위 범위 내에서 책정됩니다.
-        </p>
       </section>
 
       {/* 기본 포함 기능 체크리스트 */}
@@ -186,11 +181,11 @@ export default function PricingPage() {
           </ul>
           <div className="mt-8 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
             <span className="rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
-              영상 애드온 · +{man(VIDEO_ADDON_PRICE_KRW)}
+              AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
             </span>
             <p className="mt-3 text-sm leading-6 text-[#5C6068]">
-              AI 영상 히어로·시네마틱 영상은 기본 제품에 포함되지 않는 별도 애드온입니다. 완성 후 AI 영상
-              재생성에는 크레딧을 사용합니다.
+              기본 모션은 포함·무료입니다. 실제 Veo AI 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
+              재생성에만 크레딧을 사용합니다.
             </p>
           </div>
         </div>
@@ -200,7 +195,7 @@ export default function PricingPage() {
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <SectionHeading
-            title="편집 크레딧"
+            title="AI·대행 크레딧"
             subtitle={CREDIT_CONTRACT_COPY}
           />
           <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
@@ -251,7 +246,7 @@ export default function PricingPage() {
               {man(PRICE_RANGES.buildFee.basic[0])}부터
             </p>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
-              제작비 + 월 구독. SEO·AEO·GEO 기본 세팅 포함, 수정은 크레딧으로 필요한 만큼만.
+              제작비 + 사이트 운영 구독. SEO·AEO·GEO 기본 세팅과 직접 수정 무제한 무료.
             </p>
           </div>
         </div>

@@ -73,8 +73,8 @@ export function ClientsTable() {
               className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
             >
               <option value="all">티어 전체</option>
-              <option value="basic">Basic</option>
-              <option value="premium">Premium</option>
+              <option value="basic">기본 홈페이지</option>
+              <option value="premium">AI 영상 홈페이지</option>
             </select>
             <select
               value={statusFilter}

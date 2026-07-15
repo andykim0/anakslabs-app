@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * [마케팅] 지연 로드 프리뷰 영상 (Premium 데모 섹션·가격 카드 티저 공용).
+ * [마케팅] 지연 로드 프리뷰 영상 (AI 영상 홈페이지 데모·가격 카드 티저 공용).
  *  - mode 'inview': 뷰포트 진입 시에만 재생, 이탈 시 pause (preload="none" → 진입 전 미전송)
  *  - mode 'hover' : 데스크톱 hover 시 재생, 이탈 시 pause + 첫 프레임 복귀
  * 성능: preload="none"로 히어로 외 인스턴스는 자동 로드 안 함. 모바일·reduced-motion은 poster만.

@@ -91,7 +91,7 @@ export function sanitizeMotion(
   // ② 영상 합성 프리셋은 애드온 미보유 시 명시적으로 정적 ken-burns로 강등
   if (!hasVideoAddon(plan) && presetId === 'cinematic-hero') {
     const down = DOWNGRADE_MAP['cinematic-hero']!;
-    changes.push(`영상 애드온이 없어 시네마틱 프리셋 'cinematic-hero' → '${down}'(ken-burns)로 강등했습니다.`);
+    changes.push(`AI 영상 홈페이지가 없어 시네마틱 프리셋 'cinematic-hero' → '${down}'(ken-burns)로 강등했습니다.`);
     presetId = down;
   }
 
@@ -113,7 +113,7 @@ export function sanitizeMotion(
   // [W4] videoAddon은 '선택 의사'이지 권한이 아니다. 타입 오염은 fail-closed.
   let videoAddon = config.motion?.videoAddon;
   if (videoAddon !== undefined && typeof videoAddon !== 'boolean') {
-    changes.push('영상 애드온 선택값이 올바르지 않아 제거했습니다.');
+    changes.push('AI 영상 홈페이지 선택값이 올바르지 않아 제거했습니다.');
     videoAddon = undefined;
   }
 
@@ -121,7 +121,7 @@ export function sanitizeMotion(
   let heroTechnique = config.motion?.heroTechnique;
   if (heroTechnique !== undefined) {
     if (videoAddon === false && heroTechnique === 'video-hero') {
-      changes.push('영상 애드온을 선택하지 않아 히어로를 ken-burns로 되돌렸습니다.');
+      changes.push('AI 영상 홈페이지를 선택하지 않아 히어로를 ken-burns로 되돌렸습니다.');
       heroTechnique = 'ken-burns';
     } else if (!isAllowedHeroChoice(plan, heroTechnique)) {
       changes.push(
@@ -137,7 +137,7 @@ export function sanitizeMotion(
   let videoConceptId = config.motion?.videoConceptId;
   if (videoConceptId !== undefined) {
     if (plan === 'basic') {
-      changes.push('영상 컨셉은 Premium 전용이라 제거했습니다.');
+      changes.push('영상 컨셉은 AI 영상 홈페이지 전용이라 제거했습니다.');
       videoConceptId = undefined;
     } else if (!findVideoConcept(videoConceptId)) {
       changes.push(`알 수 없는 영상 컨셉 '${videoConceptId}' → 제거했습니다.`);
@@ -156,7 +156,7 @@ export function sanitizeMotion(
   let heroMotionId = config.motion?.heroMotionId;
   if (heroMotionId !== undefined) {
     if (!videoIntent) {
-      changes.push('영상 애드온을 선택하지 않아 히어로 영상 연출을 제거했습니다.');
+      changes.push('AI 영상 홈페이지를 선택하지 않아 히어로 영상 연출을 제거했습니다.');
       heroMotionId = undefined;
     } else if (!isHeroVideoMotionId(heroMotionId)) {
       changes.push(`알 수 없는 히어로 영상 연출 '${heroMotionId}' → 제거했습니다.`);

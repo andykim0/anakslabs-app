@@ -138,7 +138,7 @@ export default async function DashboardHomePage() {
         {recentEdits.length === 0 ? (
           <EmptyState
             title="편집 요청 내역이 없습니다"
-            description="텍스트 수정, 이미지 교체 등 발행 후 수정이 필요하면 크레딧으로 요청할 수 있습니다."
+            description="에디터에서 직접 수정하는 것은 무료입니다. AI 재생성이나 다보임 수정 대행이 필요할 때만 크레딧을 사용합니다."
           />
         ) : (
           <Card className="p-0">

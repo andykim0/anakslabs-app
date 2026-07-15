@@ -43,7 +43,7 @@ export function videoGuardError(
   countToday: number,
 ): string | null {
   if (!cfg.enabled) return 'VIDEO_GEN_DISABLED: 영상 생성이 비활성화되어 있습니다 (VIDEO_GEN_ENABLED=1 필요).';
-  if (!hasVideoAddon(tier)) return 'VIDEO_GEN_ADDON: AI 영상 히어로는 영상 애드온이 필요합니다.';
+  if (!hasVideoAddon(tier)) return 'VIDEO_GEN_ADDON: AI 영상 히어로는 AI 영상 홈페이지 승인이 필요합니다.';
   if (countBySite >= cfg.maxPerSite) return `VIDEO_GEN_SITE_CAP: 이 사이트의 영상 생성 상한(${cfg.maxPerSite}회)에 도달했습니다.`;
   if (countToday >= cfg.dailyCap) return `VIDEO_GEN_DAILY_CAP: 오늘 영상 생성 상한(${cfg.dailyCap}회)에 도달했습니다.`;
   return null;

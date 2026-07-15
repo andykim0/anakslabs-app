@@ -109,7 +109,7 @@ export function sanitizeScrollytellingSections(
       if (section.layout !== 'scrollytelling') return section;
 
       let reason: string | null = null;
-      if (!hasVideoAddon(tier)) reason = '영상 애드온 미보유';
+      if (!hasVideoAddon(tier)) reason = 'AI 영상 홈페이지 미보유';
       else if (!isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId)) reason = '허용되지 않은 목적 템플릿';
       else if (config.motion?.heroMotionId !== SCROLLYTELLING_MOTION_ID) reason = '페이지 관통 연출 명시 선택 없음';
       else if (section.type !== 'hero') reason = '히어로가 아닌 섹션';

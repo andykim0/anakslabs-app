@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
 const wizard = source('src/components/dashboard/onboarding/wizard.tsx');
 
-describe('W2 — 선택 이미지 모션 예시·영상 애드온 업셀', () => {
+describe('W2 — 선택 이미지 모션 예시·AI 영상 홈페이지 업셀', () => {
   test('업로드·AI와 무관하게 W1의 선택 이미지 하나를 미리보기한다', () => {
     assert.match(wizard, /<MotionChoiceStep[\s\S]*heroImageUrl=\{heroImage\.url\}/);
     assert.match(motion, /heroImageUrl: string/);
@@ -22,11 +22,13 @@ describe('W2 — 선택 이미지 모션 예시·영상 애드온 업셀', () =>
     assert.match(motion, /최종 영상 미리보기가 아닙니다/);
   });
 
-  test('애드온 가격은 단일 소스를 쓰고 예·아니오 선택은 접근 가능하다', () => {
-    assert.match(motion, /VIDEO_ADDON_PRICE_KRW\.toLocaleString/);
+  test('AI 영상 홈페이지 가격은 pricing 단일 소스를 쓰고 기본·영상 선택은 접근 가능하다', () => {
+    assert.match(motion, /PRICING\.videoHeroAddon\.toLocaleString/);
     assert.doesNotMatch(motion, /200_?000/);
-    assert.match(motion, /아니오, 사진으로 할게요/);
-    assert.match(motion, /예, 영상으로 만들게요/);
+    assert.match(motion, /기본 모션으로 할게요/);
+    assert.match(motion, /기본 모션은 포함·무료예요/);
+    assert.match(motion, /AI 영상 홈페이지로 만들게요/);
+    assert.match(motion, /실제 Veo 영상 히어로/);
     assert.ok((motion.match(/aria-pressed=/g) ?? []).length >= 2);
   });
 

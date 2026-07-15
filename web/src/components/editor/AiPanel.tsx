@@ -3,9 +3,9 @@
 /**
  * AI 편집 패널.
  *  - 크레딧 잔액 표시 (GET /api/credits)
- *  - 액션: 텍스트 재생성 1cr / 이미지 생성 1cr / 영상 생성 3cr(Basic은 업셀) / AI 섹션 추가 2cr
+ *  - 액션: 다보임 카피 수정 / AI 이미지 생성 / AI 영상 재생성 / AI 전체 섹션 재디자인
  *  - POST /api/edit-requests → 201 { editRequest, balance }
- *    · 402 UPSELL_REQUIRED → 영상 애드온 안내(크레딧 1회 우회 없음)
+ *    · 402 UPSELL_REQUIRED → AI 영상 홈페이지 안내(크레딧 우회 없음)
  *    · 409 INSUFFICIENT_CREDITS → 크레딧 구매 유도 모달
  *    · 502 AI_GENERATION_FAILED → 자동 환불 안내 토스트
  *  - 성공: "QA 검수 후 반영됩니다" 토스트 + aiOutput [바로 적용] (초안 캔버스 즉시 반영)
@@ -24,10 +24,10 @@ import { Button, cn } from '@/components/dashboard/ui';
 import { createEditRequest, EditorApiError, getCredits, type CreateEditRequestInput } from './api';
 
 const ACTIONS: { type: EditType; label: string; desc: string }[] = [
-  { type: 'text', label: '텍스트 재생성', desc: '카피/문구를 AI가 다시 씁니다' },
-  { type: 'image', label: '이미지 생성', desc: '설명으로 이미지를 만듭니다' },
-  { type: 'video', label: '영상 생성', desc: 'Premium 전용 · 8초 클립' },
-  { type: 'structure', label: 'AI 섹션 추가', desc: '새 섹션 구성을 제안합니다' },
+  { type: 'text', label: '다보임 카피 수정 대행', desc: '요청한 문구를 만들고 검수해 드립니다' },
+  { type: 'image', label: 'AI 이미지 새로 생성', desc: '설명으로 새 이미지를 만듭니다' },
+  { type: 'video', label: 'AI 영상 재생성', desc: 'AI 영상 홈페이지 전용 · 8초 클립' },
+  { type: 'structure', label: 'AI 전체 섹션 재디자인', desc: '섹션 전체 구성을 다시 제안합니다' },
 ];
 
 interface AiOutput {
@@ -295,18 +295,18 @@ export function AiPanel({ siteId }: { siteId: string }) {
         ) : null}
       </div>
 
-      {/* 영상 애드온 안내 (미보유 × 영상) */}
+      {/* AI 영상 홈페이지 안내 (미보유 × 영상) */}
       <Modal
         open={upsellRequest !== null}
         onClose={() => setUpsellRequest(null)}
-        title="영상 애드온이 필요합니다"
+        title="AI 영상 홈페이지가 필요합니다"
         footer={
           <>
             <Link
               href="/dashboard/billing"
               className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
             >
-              영상 애드온 상담
+              AI 영상 홈페이지 상담
             </Link>
             <Button variant="secondary" onClick={() => setUpsellRequest(null)}>
               닫기
@@ -314,8 +314,8 @@ export function AiPanel({ siteId }: { siteId: string }) {
           </>
         }
       >
-        영상 편집은 영상 애드온이 승인된 사이트에서만 사용할 수 있습니다. 일반 크레딧으로 애드온 권한을
-        우회하지 않습니다.
+        AI 영상 재생성은 AI 영상 홈페이지가 승인된 사이트에서만 사용할 수 있습니다. 일반 크레딧으로
+        이용 권한을 우회하지 않습니다.
       </Modal>
 
       {/* 크레딧 부족 모달 */}

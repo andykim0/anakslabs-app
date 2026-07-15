@@ -40,9 +40,9 @@ function videoGuardResponse(error: unknown, creditCost: number): NextResponse | 
   const message = separator >= 0 ? raw.slice(separator + 1).trim() : raw;
 
   if (code === 'VIDEO_GEN_ADDON') {
-    return apiError(402, 'UPSELL_REQUIRED', '영상 편집은 영상 애드온을 보유한 사이트에서만 이용할 수 있습니다.', {
+    return apiError(402, 'UPSELL_REQUIRED', 'AI 영상 재생성은 AI 영상 홈페이지가 적용된 사이트에서만 이용할 수 있습니다.', {
       creditCost,
-      options: [{ action: 'upgrade_premium', label: '영상 애드온 상담' }],
+      options: [{ action: 'upgrade_premium', label: 'AI 영상 홈페이지 상담' }],
     });
   }
   if (code === 'VIDEO_GEN_DISABLED') return apiError(503, code, message);

@@ -42,8 +42,8 @@ export function shortId(id: string | null | undefined): string {
 }
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: 'Basic',
-  premium: 'Premium',
+  basic: '기본 홈페이지',
+  premium: 'AI 영상 홈페이지',
 };
 
 export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
@@ -94,6 +94,6 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
 
 export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   build_fee: '빌드비',
-  maintenance_subscription: '유지보수 구독',
+  maintenance_subscription: '사이트 운영 구독',
   credit_pack: '크레딧 팩',
 };
