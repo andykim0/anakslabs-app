@@ -25,6 +25,7 @@ import {
   applyHeroVideoDraft,
   generateHeroVideoDrafts,
   generateSite,
+  getSite,
   regenerateSite,
   type ExtrasOptionsDto,
   type MotionChoiceDto,
@@ -32,12 +33,14 @@ import {
 import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
 import { heroImageUrlIntent } from '@/lib/onboarding/hero-image-options';
 import { processApprovedHeroVideo } from '@/lib/onboarding/hero-video-process';
+import { sectionDirectionsIntent } from '@/lib/onboarding/section-directions';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { WireframePreview, pruneSections } from './wireframe-preview';
 import { HeroVideoStudio } from './hero-video-studio';
 import { NextStepsChecklist } from './next-steps-checklist';
 import { PageEnrichmentCards } from './page-enrichment-cards';
+import { SectionReviewStep } from './section-review-step';
 
 const LOADING_MESSAGES = [
   '선택하신 방향으로 사이트 구조를 설계하고 있습니다…',
@@ -59,6 +62,9 @@ export function GenerateStep({
   onBack,
   onPickAnother,
   onEditSurvey,
+  onChooseHeroImage,
+  onChooseHeroMotion,
+  onDirectionsChange,
 }: {
   survey: SurveyInput;
   candidate: DesignCandidate;
@@ -76,17 +82,21 @@ export function GenerateStep({
   onBack: () => void;
   onPickAnother: () => void;
   onEditSurvey: () => void;
+  onChooseHeroImage: () => void;
+  onChooseHeroMotion: () => void;
+  onDirectionsChange: (directions: SurveyInput['directions']) => void;
 }) {
   const queryClient = useQueryClient();
   // [A3] 와이어프레임 승인 게이트 — 첫 생성만(이미지·최종카피 원가 발생 전). 재생성은 이미 확정이라 스킵.
   const [confirmed, setConfirmed] = useState(Boolean(existingSiteId));
   // [A3] 구성 바꾸기 — 제외한 nice 섹션 키. 승인 시 survey.sectionPlan에서 필터.
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+  const [reviewComplete, setReviewComplete] = useState(false);
   const effectiveSurvey = useMemo(() => pruneSections(survey, removed), [survey, removed]);
 
   // intent가 같으면(=StrictMode 재마운트) 요청·idempotencyKey를 공유 → 요청 1회, 사이트 1개.
   // [Q7] 모션 시그니처 포함 — 모션만 바꿔 재생성해도 dedup 캐시에 걸리지 않게. [A3] 구성 변경도 시그니처에.
-  const intent = `${existingSiteId ?? 'new'}::${candidate.id}:${heroImageUrlIntent(candidate.heroImageUrl)}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}:${survey.heroImageChoice ?? ''}:${survey.videoAddon === true ? 'video' : 'still'}::${[...removed].sort().join(',')}`;
+  const intent = `${existingSiteId ?? 'new'}::${candidate.id}:${heroImageUrlIntent(candidate.heroImageUrl)}::${motionChoice?.heroTechnique ?? ''}:${motionChoice?.intensity ?? ''}:${motionChoice?.videoConceptId ?? ''}:${motionChoice?.heroMotionId ?? ''}:${survey.heroImageChoice ?? ''}:${survey.videoAddon === true ? 'video' : 'still'}::${[...removed].sort().join(',')}::${sectionDirectionsIntent(survey.directions)}`;
   const idempotencyKey = genIdemKey(intent);
 
   const mutation = useMutation({
@@ -108,10 +118,23 @@ export function GenerateStep({
           },
           { generateDrafts: generateHeroVideoDrafts, applyDraft: applyHeroVideoDraft },
         );
-        return { ...site, heroVideo };
+        // 영상 적용까지 끝난 최신 draft를 검수 게이트의 단일 기준으로 사용한다. GET 실패 시
+        // generate 응답에 포함된 config로 안전하게 이어가되, config 자체가 없으면 완료로 오인하지 않는다.
+        let reviewConfig = site.site?.draftConfig ?? site.site?.siteConfig;
+        try {
+          const refreshed = await getSite(site.siteId);
+          reviewConfig = refreshed.draftConfig ?? refreshed.siteConfig ?? reviewConfig;
+        } catch (cause) {
+          if (!reviewConfig) throw cause;
+        }
+        if (!reviewConfig) {
+          throw new Error('생성된 사이트 초안을 불러오지 못했습니다.');
+        }
+        return { ...site, heroVideo, reviewConfig };
       }),
     // useMutation은 기본 재시도 없음 → 실패 시 즉시 에러 표면화(무한 스피너 없음).
     onSuccess: (data) => {
+      setReviewComplete(false);
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       onResult(data.siteId, data.freeRegensUsed);
     },
@@ -181,6 +204,23 @@ export function GenerateStep({
   const regenLeft = Math.max(0, FREE_REGEN_LIMIT - usedNow);
   const canRegen = regenLeft > 0;
   const heroVideo = mutation.data.heroVideo;
+
+  // [Q$4] 생성 성공은 곧바로 완료가 아니다. 모든 섹션을 사용자가 명시적으로 keep한 뒤에만
+  // 기존 완료 카드로 진입한다. adjust/regenerate는 같은 섹션을 다시 보여주는 검수 루프다.
+  if (!reviewComplete) {
+    return (
+      <SectionReviewStep
+        siteId={siteId}
+        initialConfig={mutation.data.reviewConfig}
+        onChooseHeroImage={onChooseHeroImage}
+        onChooseHeroMotion={onChooseHeroMotion}
+        onComplete={(reviewedConfig) => {
+          onDirectionsChange(reviewedConfig.directions);
+          setReviewComplete(true);
+        }}
+      />
+    );
+  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>

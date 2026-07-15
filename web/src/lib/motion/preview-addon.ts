@@ -1,4 +1,6 @@
-import type { Section, SiteConfig } from '@/lib/types/site';
+import type { SurveyInput } from '@/lib/types/domain';
+import { emptySiteConfig, type Section, type SiteConfig } from '@/lib/types/site';
+import { buildNarrativeArc } from '@/lib/data/narrative-arc';
 import { SCROLLYTELLING_MOTION_ID } from './hero-video-motions';
 import { hasValidScrollytellingActs, isScrollytellingTemplate } from './scrollytelling';
 
@@ -9,6 +11,63 @@ import { hasValidScrollytellingActs, isScrollytellingTemplate } from './scrollyt
 export const ADDON_DEMO_VIDEO = '/daboim-visibility-film-scrub.mp4';
 export const ADDON_DEMO_POSTER = '/daboim-visibility-film-poster.webp';
 export const ADDON_DEMO_VIDEO_BYTES = 6_950_435;
+
+/**
+ * 움직임 선택 화면에서 실제 ScrollytellingStage/runtime을 체험하기 위한 화면 전용 config.
+ * 문구는 고객 설문에서 결정적으로 만든 막만 사용하고, 선택 이미지는 source 표식으로 보존한다.
+ * 배경 영상은 configForAddonPreview/SitePreview가 고정 데모 자산을 주입하므로 저장·발행 대상이 아니다.
+ */
+export function configForManifestoChoicePreview(
+  survey: SurveyInput,
+  heroImageUrl: string,
+): SiteConfig | null {
+  if (!isScrollytellingTemplate(survey.purposeId, survey.templateId)) return null;
+  const acts = buildNarrativeArc(survey);
+  if (!hasValidScrollytellingActs(acts)) return null;
+
+  const config = emptySiteConfig(`${survey.businessName} 매니페스토 대표 예시`);
+  config.theme = {
+    ...config.theme,
+    palette: {
+      background: '#07162f',
+      surface: '#0b2042',
+      text: '#ffffff',
+      muted: '#b8c8e5',
+      primary: '#2f72ff',
+      accent: '#11c8bf',
+    },
+  };
+  config.meta = {
+    ...config.meta,
+    purposeId: survey.purposeId,
+    templateId: survey.templateId,
+  };
+  config.motion = {
+    presetId: 'cinematic-hero',
+    intensity: 'normal',
+    heroTechnique: 'video-hero',
+    videoRequested: true,
+    videoAddon: true,
+    heroMotionId: SCROLLYTELLING_MOTION_ID,
+  };
+  config.pages[0].sections = [{
+    id: 'manifesto-choice-preview',
+    type: 'hero',
+    name: '매니페스토 대표 예시',
+    height: 800,
+    layout: 'scrollytelling',
+    acts,
+    background: {
+      image: {
+        src: heroImageUrl,
+        overlayColor: '#07162f',
+        overlayOpacity: 0.52,
+      },
+    },
+    elements: [],
+  }];
+  return config;
+}
 
 function previewHero(section: Section, config: SiteConfig): Section {
   const requestedManifesto =

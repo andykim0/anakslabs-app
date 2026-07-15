@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
+import type { SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
 import { resolveMotionPlan } from '@/lib/motion/apply';
 import {
@@ -9,6 +13,7 @@ import {
   ADDON_DEMO_VIDEO,
   ADDON_DEMO_VIDEO_BYTES,
   configForAddonPreview,
+  configForManifestoChoicePreview,
 } from '@/lib/motion/preview-addon';
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
@@ -71,6 +76,47 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     assert.match(detail, /애드온 적용 예시/);
     assert.doesNotMatch(serving, /preview-addon|previewAsAddon|configForAddonPreview/);
     assert.doesNotMatch(exporter, /preview-addon|previewAsAddon|configForAddonPreview/);
+  });
+
+  test('매니페스토 선택용 config는 고객 원문 막·선택 이미지를 보존하고 Q1 projection에서 실제 무대로 열린다', () => {
+    const survey: SurveyInput = {
+      businessName: '고객 브랜드',
+      purposeId: 'company_brand',
+      purpose: '회사·브랜드 소개',
+      industry: '브랜드 스튜디오',
+      tone: ['차분한'],
+      colorPreference: '블루',
+      referenceImageUrls: [],
+      sectionPlan: [{ type: 'hero', name: '첫 화면', brief: '', source: 'user' }],
+      templateId: 'company_brand.default',
+      tagline: '고객이 입력한 첫 문장',
+      highlights: ['고객이 입력한 12년'],
+      siteGoal: 'trust',
+    };
+    const base = configForManifestoChoicePreview(survey, '/selected-source.webp');
+    assert.ok(base);
+    const baseHero = base.pages[0].sections[0];
+    assert.equal(baseHero.background.image?.src, '/selected-source.webp');
+    assert.ok(baseHero.acts?.some((act) => act.heading === '고객이 입력한 첫 문장'));
+
+    const projected = configForAddonPreview(base, true);
+    assert.equal(projected.pages[0].sections[0].background.video?.src, ADDON_DEMO_VIDEO);
+    assert.deepEqual([...resolveMotionPlan(projected, { tier: 'premium' }).scrollytellingSections], [
+      'manifesto-choice-preview',
+    ]);
+
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: projected,
+      mode: 'desktop',
+      interactive: true,
+      animate: true,
+      tier: 'premium',
+    }));
+    assert.equal((html.match(/data-ss-stage="true"/g) ?? []).length, 1);
+    assert.equal((html.match(/data-ss-act="true"/g) ?? []).length, baseHero.acts?.length);
+    assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    assert.match(html, /daboim-visibility-film-scrub\.mp4/);
+    assert.match(html, /고객이 입력한 첫 문장/);
   });
 
   test('온보딩 적용 예시는 명확한 라벨·고정 자산만 쓰고 생성 API를 호출하지 않는다', () => {

@@ -82,7 +82,7 @@ describe('buildHeroImageOptions', () => {
 });
 
 describe('후보 생성 설문과 선택 적용', () => {
-  test('대표 사진과 W 선택 상태를 후보 생성 입력/intent에서 제외하고 원본을 보존한다', () => {
+  test('대표 사진·W 선택·섹션 검수 이력을 후보 생성 입력/intent에서 제외하고 원본을 보존한다', () => {
     type FutureSurvey = SurveyInput & {
       heroImageChoice?: HeroImageChoiceId;
       videoAddon?: boolean;
@@ -93,6 +93,7 @@ describe('후보 생성 설문과 선택 적용', () => {
       heroImageChoice: 'upload',
       videoAddon: true,
       heroMotionId: 'cinematic-hero',
+      directions: [{ sectionId: 'hero', intent: 'adjust', guided: ['사진 더 크게'] }],
     };
     const normalized = surveyForHeroCandidates(input);
 
@@ -100,6 +101,7 @@ describe('후보 생성 설문과 선택 적용', () => {
     assert.equal('heroImageChoice' in normalized, false);
     assert.equal('videoAddon' in normalized, false);
     assert.equal('heroMotionId' in normalized, false);
+    assert.equal('directions' in normalized, false);
     assert.equal(input.heroPhotoUrl, '/uploads/hero.webp', '입력 설문을 변형하지 않아야 한다');
 
     const sameIntent = heroCandidateIntent({
@@ -108,6 +110,7 @@ describe('후보 생성 설문과 선택 적용', () => {
       heroImageChoice: 'ai-2',
       videoAddon: false,
       heroMotionId: 'ken-burns',
+      directions: [{ sectionId: 'hero', intent: 'keep' }],
     } as FutureSurvey);
     assert.equal(heroCandidateIntent(input), sameIntent);
     assert.notEqual(heroCandidateIntent(input), heroCandidateIntent({ ...input, industry: '뷰티' }));

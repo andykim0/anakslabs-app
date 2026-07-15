@@ -191,6 +191,7 @@ export function OnboardingWizard({
           tier={tier}
           purposeId={survey.purposeId}
           templateId={survey.templateId}
+          survey={survey}
           heroImageUrl={heroImage.url}
           heroPhotoUrl={heroImage.source === 'upload' ? heroImage.url : undefined}
           initial={motionChoice}
@@ -244,6 +245,20 @@ export function OnboardingWizard({
           onBack={() => setStep(5)}
           onPickAnother={() => setStep(4)}
           onEditSurvey={() => setStep(1)}
+          onChooseHeroImage={() => setStep(2)}
+          onChooseHeroMotion={() => setStep(3)}
+          onDirectionsChange={(directions) => {
+            setSurvey((current) => {
+              if (!current) return current;
+              const preserved = directions?.length
+                ? directions.map((direction) => ({
+                    ...direction,
+                    ...(direction.guided ? { guided: [...direction.guided] } : {}),
+                  }))
+                : undefined;
+              return { ...current, directions: preserved };
+            });
+          }}
         />
       ) : null}
     </div>

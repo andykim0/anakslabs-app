@@ -26,6 +26,22 @@ describe('W3 — 영상 모션 라이브러리 UI', () => {
     assert.match(motion, /prefers-reduced-motion: reduce[\s\S]*\.hvm-preview-scrub[\s\S]*animation: none; transform: none/);
   });
 
+  test('매니페스토 선택은 고정 데모 영상으로 실제 SitePreview 스크롤 무대를 열고 소스 사진과 구분한다', () => {
+    assert.match(motion, /configForManifestoChoicePreview\(survey, heroImageUrl\)/);
+    assert.match(motion, /heroMotionId === SCROLLYTELLING_MOTION_ID/);
+    assert.match(motion, /<SitePreview[\s\S]*scroll[\s\S]*motion[\s\S]*previewAsAddon/);
+    assert.match(motion, /페이지 관통 연출을 실제 스크롤로 확인하세요/);
+    assert.match(motion, /선택한 히어로 소스/);
+    assert.match(motion, /대표 예시 · 최종본 아님/);
+    assert.match(motion, /오른쪽 배경 영상은 스크롤 동작을 설명하는 다보임 대표 데모/);
+  });
+
+  test('절제 게이트는 유지하고 미노출 업종에는 시네마틱 스크럽 권장 사유를 보여준다', () => {
+    assert.match(motion, /const allowsScrollytelling = isScrollytellingTemplate\(purposeId, templateId\)/);
+    assert.match(motion, /!allowsScrollytelling/);
+    assert.match(motion, /정보를 빠르게 찾아야 하는 업종은 페이지 관통 연출 대신/);
+  });
+
   test('부메랑을 정확한 역재생으로 과장하지 않고 최종본과 예시를 구분한다', () => {
     assert.match(motion, /CSS 대표 예시예요/);
     assert.match(motion, /최종 영상 미리보기가 아닙니다/);

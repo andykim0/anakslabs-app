@@ -97,6 +97,8 @@ type OptionalHeroVideoSurveyFields = {
   heroImageChoice?: HeroImageChoiceId;
   videoAddon?: boolean;
   heroMotionId?: string;
+  /** 섹션 검수 이력은 히어로 이미지 피사체·무드 후보와 무관하다. */
+  directions?: SurveyInput['directions'];
 };
 
 /**
@@ -109,6 +111,7 @@ export function surveyForHeroCandidates(survey: SurveyInput): SurveyInput {
     heroImageChoice: _heroImageChoice,
     videoAddon: _videoAddon,
     heroMotionId: _heroMotionId,
+    directions: _directions,
     ...candidateSurvey
   } = survey as SurveyInput & OptionalHeroVideoSurveyFields;
   return candidateSurvey;

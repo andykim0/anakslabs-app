@@ -5,10 +5,11 @@
  * 이 단계는 대표 예시일 뿐 고객의 최종 Veo 영상이 아니다. AI/API 호출 없이 CSS만 사용한다.
  * 아니오는 ken-burns 기본 모션으로 바로 진행하고, 예는 등록된 영상 연출 선택으로 이어진다.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Film, ImageIcon } from 'lucide-react';
-import type { SitePurposeId, Tier } from '@/lib/types/domain';
+import type { SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
 import { hasVideoAddon, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
+import { configForManifestoChoicePreview } from '@/lib/motion/preview-addon';
 import { videoConceptsForGroup } from '@/lib/motion/video-concepts';
 import {
   HERO_VIDEO_MOTION_IDS,
@@ -20,6 +21,7 @@ import {
 import { SCROLLYTELLING_MOTION_ID, isScrollytellingTemplate } from '@/lib/motion/scrollytelling';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import type { MotionChoiceDto } from '../api';
+import { SitePreview } from '../site-preview';
 import { Button, Card, cn } from '../ui';
 
 /** W2 대표 미리보기. mcs- 프리픽스로 렌더러 런타임과 격리한다. */
@@ -143,6 +145,7 @@ export function MotionChoiceStep({
   tier,
   purposeId,
   templateId,
+  survey,
   heroImageUrl,
   heroPhotoUrl,
   initial,
@@ -152,6 +155,8 @@ export function MotionChoiceStep({
   tier: Tier;
   purposeId: SitePurposeId;
   templateId: string;
+  /** 실제 매니페스토 막을 고객 입력에서 만들기 위한 현재 설문. 화면 전용이며 저장하지 않는다. */
+  survey: SurveyInput;
   /** W1에서 고른 최종 히어로 소스. 업로드·AI 무드 모두 동일하게 미리보기한다. */
   heroImageUrl: string;
   /** 고객이 직접 올린 실제 히어로 사진. 있으면 영상은 원본 보존 모션만 사용한다. */
@@ -164,7 +169,8 @@ export function MotionChoiceStep({
   const ownsAddon = hasVideoAddon(tier);
   const addonPrice = `+₩${VIDEO_ADDON_PRICE_KRW.toLocaleString('ko-KR')}`;
   const concepts = videoConceptsForGroup(findPurpose(purposeId)?.group ?? 'serve');
-  const availableMotionIds = heroVideoMotionIdsForContext(isScrollytellingTemplate(purposeId, templateId));
+  const allowsScrollytelling = isScrollytellingTemplate(purposeId, templateId);
+  const availableMotionIds = heroVideoMotionIdsForContext(allowsScrollytelling);
   const [wantsVideo, setWantsVideo] = useState(initial?.heroTechnique === 'video-hero');
   const [showAddonDemo, setShowAddonDemo] = useState(false);
   const activeConceptId =
@@ -175,6 +181,10 @@ export function MotionChoiceStep({
     isHeroVideoMotionId(initial?.heroMotionId) && availableMotionIds.includes(initial.heroMotionId)
       ? initial.heroMotionId
       : HERO_VIDEO_MOTION_IDS[0],
+  );
+  const manifestoPreviewConfig = useMemo(
+    () => configForManifestoChoicePreview(survey, heroImageUrl),
+    [heroImageUrl, survey],
   );
 
   const submit = () => {
@@ -337,6 +347,11 @@ export function MotionChoiceStep({
               아래는 선택한 사진으로 보여드리는 CSS 대표 예시예요. 고객님의 최종 영상 미리보기가 아닙니다.
             </p>
           </div>
+          {!allowsScrollytelling ? (
+            <p className="rounded-ob border border-ob-border bg-ob-bg px-3 py-2 text-xs leading-5 text-ob-muted">
+              정보를 빠르게 찾아야 하는 업종은 페이지 관통 연출 대신 <span className="font-semibold text-ob-ink">시네마틱 스크럽</span>을 권장해요.
+            </p>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             {availableMotionIds.map((motionId) => {
               const motion = HERO_VIDEO_MOTIONS[motionId];
@@ -363,6 +378,57 @@ export function MotionChoiceStep({
               );
             })}
           </div>
+
+          {heroMotionId === SCROLLYTELLING_MOTION_ID ? (
+            <div className="space-y-3 rounded-ob border border-ob-accent bg-ob-accent-soft p-3 sm:p-4">
+              <div>
+                <h4 className="text-sm font-semibold text-ob-ink">페이지 관통 연출을 실제 스크롤로 확인하세요</h4>
+                <p className="mt-1 text-xs leading-5 text-ob-muted">
+                  아래 무대 안을 직접 스크롤하면 고정 영상·막 전환·문구 등장을 실제 렌더러와 같은 방식으로 체험할 수 있어요.
+                </p>
+              </div>
+
+              <div className="grid gap-3 lg:grid-cols-[180px_minmax(0,1fr)]">
+                <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
+                  <div className="relative aspect-video overflow-hidden bg-ob-bg lg:aspect-[4/5]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={heroImageUrl} alt="선택한 히어로 원본" className="h-full w-full object-cover" />
+                    <span className="absolute top-2 left-2 rounded-full bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
+                      선택한 히어로 소스
+                    </span>
+                  </div>
+                  <p className="p-2.5 text-[10px] leading-4 text-ob-muted">
+                    실제 생성 때 사용하는 고객 선택 이미지예요.
+                  </p>
+                </div>
+
+                {manifestoPreviewConfig ? (
+                  <div className="relative overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
+                    <SitePreview
+                      config={manifestoPreviewConfig}
+                      mode="desktop"
+                      maxHeight={420}
+                      scroll
+                      motion
+                      previewAsAddon
+                    />
+                    <span className="pointer-events-none absolute top-2 right-2 z-[60] rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[9px] font-semibold text-white shadow-lg backdrop-blur-sm">
+                      대표 예시 · 최종본 아님
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex min-h-40 items-center justify-center rounded-ob border border-ob-border bg-ob-surface p-5 text-center text-xs leading-5 text-ob-muted">
+                    입력하신 이야기 근거가 3막 이상 모이면 실제 페이지 관통 미리보기가 열려요.
+                  </div>
+                )}
+              </div>
+
+              <p className="text-[10px] leading-4 text-ob-muted">
+                선택한 사진은 왼쪽의 영상 소스이고, 오른쪽 배경 영상은 스크롤 동작을 설명하는 다보임 대표 데모예요.
+                고객님의 실제 최종 영상은 결제·승인 후 별도로 생성됩니다.
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
