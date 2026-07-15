@@ -17,6 +17,7 @@ import { ROOT_DOMAIN } from '@/lib/env';
 import { LandingScanner } from '@/components/landing/LandingScanner';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { HeroVideo } from '@/components/marketing/HeroVideo';
+import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
@@ -183,6 +184,9 @@ export default function MarketingHome() {
           </div>
         </div>
       </div>
+
+      {/* 실제 판매되는 데스크 scrub·모바일 loop 런타임을 기존 1080p 필름으로 비용 없이 시연 */}
+      <LandingCinematicShowcase />
 
       {/* 범용 AI 제작이 아니라 홈페이지 전문 최적화 AI라는 카테고리 정의 */}
       <section className="overflow-hidden bg-[#F8FBFF]">
