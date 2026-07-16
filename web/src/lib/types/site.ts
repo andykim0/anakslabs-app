@@ -302,7 +302,8 @@ export type MotionIndustryClass =
 export type ActiveMotionSignatureId =
   | 'cinematic-scrub'
   | 'scrollytelling-manifesto'
-  | 'true-card-stack';
+  | 'true-card-stack'
+  | 'scroll-curtain';
 
 /**
  * 프로덕션 계약·렌더러·X5를 갖추되 제품 승격 심사 전인 후보 시그니처.
@@ -311,7 +312,6 @@ export type ActiveMotionSignatureId =
 export type CandidateMotionSignatureId =
   | 'sticky-chapters'
   | 'portal-zoom'
-  | 'scroll-curtain'
   | 'before-after-scrub'
   | 'horizontal-story'
   | 'mosaic-reveal'

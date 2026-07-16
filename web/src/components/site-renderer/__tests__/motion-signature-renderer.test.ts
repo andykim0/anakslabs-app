@@ -206,6 +206,16 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_RUNTIME, /portalPosition[\s\S]*sceneVisible[\s\S]*focal[\s\S]*settled[\s\S]*--portal-copy-opacity/);
     assert.match(MOTION_RUNTIME, /clearStage[\s\S]*data-portal-aperture[\s\S]*--portal-boundary-opacity[\s\S]*--portal-copy-x/);
   });
+
+  test('scroll curtain separates outgoing and incoming copy around a composed edge', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['scroll-curtain']);
+    assert.equal((html.match(/data-curtain-copy=/g) ?? []).length, 2);
+    assert.equal((html.match(/data-curtain-edge=/g) ?? []).length, 2);
+    assert.match(MOTION_CSS, /data-curtain-edge\][\s\S]*--curtain-edge-opacity/);
+    assert.match(MOTION_CSS, /creative-spatial[\s\S]*--curtain-x[\s\S]*clip-path: inset\(0 var\(--curtain-clip/);
+    assert.match(MOTION_RUNTIME, /curtainExit[\s\S]*copyVisible[\s\S]*--curtain-copy-opacity[\s\S]*--curtain-media-scale/);
+    assert.match(MOTION_RUNTIME, /i===count-1\?1:1-smooth/, 'final scene must remain fully readable');
+  });
 });
 
 function textElement(id: string, text: string, y: number) {

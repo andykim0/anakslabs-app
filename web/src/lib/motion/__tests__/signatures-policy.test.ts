@@ -131,6 +131,7 @@ describe('motion signature catalog', () => {
       assert.equal(entry.signatureUnits, 1);
     }
     assert.ok(ACTIVE_MOTION_SIGNATURE_IDS.every((id) => MOTION_SIGNATURES[id].status === 'active'));
+    assert.ok(ACTIVE_MOTION_SIGNATURE_IDS.includes('scroll-curtain'), '8.5+ choreography review promotion must reach onboarding');
     assert.ok(CANDIDATE_MOTION_SIGNATURE_IDS.every((id) => MOTION_SIGNATURES[id].status === 'candidate'));
     assert.ok(LEGACY_MOTION_SIGNATURE_IDS.every((id) => MOTION_SIGNATURES[id].status === 'legacy'));
   });

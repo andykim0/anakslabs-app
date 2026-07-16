@@ -503,7 +503,8 @@ function EditorialScenes({
                   />
                 )
               ) : null}
-              <div data-scene-copy style={copyStyle}>
+              {kind === 'curtain' ? <span data-curtain-edge aria-hidden="true" /> : null}
+              <div data-scene-copy data-curtain-copy={kind === 'curtain' ? true : undefined} style={copyStyle}>
                 <h2 id={headingId} data-signature-heading>{item.heading}</h2>
                 <p data-signature-body>{item.body}</p>
               </div>

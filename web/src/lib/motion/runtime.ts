@@ -312,6 +312,26 @@ export const MOTION_CSS = `
   clip-path: inset(0 0 var(--curtain-clip, 0%) 0);
   transition-timing-function: var(--signature-easing);
 }
+.anaks-site [data-signature-id="scroll-curtain"].m-signature-ready [data-curtain-copy] {
+  opacity: var(--curtain-copy-opacity, 1); transform: translate3d(0,var(--curtain-copy-y, 0px),0);
+}
+.anaks-site [data-signature-id="scroll-curtain"].m-signature-ready [data-curtain-media] {
+  transform: scale(var(--curtain-media-scale, 1)); transform-origin: 50% 50%;
+}
+.anaks-site [data-signature-id="scroll-curtain"] [data-curtain-edge] { display: none; }
+.anaks-site [data-signature-id="scroll-curtain"].m-signature-ready [data-curtain-edge] {
+  display: block; position: absolute; z-index: 8; left: 0; right: 0; top: calc(100% - var(--curtain-clip, 0%)); height: 2px;
+  pointer-events: none; opacity: var(--curtain-edge-opacity, 0);
+  background: linear-gradient(90deg, transparent 4%, color-mix(in srgb, var(--signature-accent) 72%, white), transparent 96%);
+  box-shadow: 0 -9px 24px color-mix(in srgb, var(--signature-text) 24%, transparent), 0 7px 22px color-mix(in srgb, var(--signature-accent) 20%, transparent);
+}
+.anaks-site [data-signature-id="scroll-curtain"][data-signature-art-direction="creative-spatial"].m-signature-ready [data-curtain-panel] {
+  transform: translate3d(var(--curtain-x, 0%),0,0); clip-path: inset(0 var(--curtain-clip, 0%) 0 0);
+}
+.anaks-site [data-signature-id="scroll-curtain"][data-signature-art-direction="creative-spatial"].m-signature-ready [data-curtain-edge] {
+  left: calc(100% - var(--curtain-clip, 0%)); right: auto; top: 0; bottom: 0; width: 2px; height: auto;
+  background: linear-gradient(180deg, transparent 4%, color-mix(in srgb, var(--signature-accent) 72%, white), transparent 96%);
+}
 .anaks-site [data-signature-id="scroll-curtain"] [data-curtain-panel]::after {
   content: ''; position: absolute; right: 0; bottom: 0; left: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--signature-accent), transparent); opacity: .7;
@@ -561,8 +581,8 @@ export const MOTION_RUNTIME = `(function(){
       ['--signature-progress','--phase-establish','--phase-progress','--phase-focal','--phase-settle','--horizontal-x','--path-progress','--before-after-clip'].forEach(function(k){stage.style.removeProperty(k);});
       stage.__anaksPhaseWindows=null;
       progressWillChange(stage,false);
-      Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-signature-chapter],[data-chapter-indicator-item],[data-stack-card],[data-signature-panel],[data-portal-aperture],[data-portal-media],[data-scene-copy],[data-mosaic-tile],[data-path-milestone]')).forEach(function(node){
-        node.removeAttribute('data-active');['--chapter-emphasis','--chapter-scale','--chapter-clip','--chapter-light','--chapter-light-x','--chapter-copy-opacity','--chapter-copy-y','--chapter-dot-width','--card-scale','--card-y','--scene-opacity','--scene-pointer','--portal-scale','--portal-clip','--portal-boundary-opacity','--portal-media-scale','--portal-copy-opacity','--portal-copy-x','--curtain-y','--curtain-clip','--mosaic-opacity','--mosaic-y','--milestone-opacity','--milestone-y','--milestone-marker-scale'].forEach(function(k){node.style.removeProperty(k);});
+      Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-signature-chapter],[data-chapter-indicator-item],[data-stack-card],[data-signature-panel],[data-portal-aperture],[data-portal-media],[data-scene-copy],[data-curtain-media],[data-curtain-edge],[data-mosaic-tile],[data-path-milestone]')).forEach(function(node){
+        node.removeAttribute('data-active');['--chapter-emphasis','--chapter-scale','--chapter-clip','--chapter-light','--chapter-light-x','--chapter-copy-opacity','--chapter-copy-y','--chapter-dot-width','--card-scale','--card-y','--scene-opacity','--scene-pointer','--portal-scale','--portal-clip','--portal-boundary-opacity','--portal-media-scale','--portal-copy-opacity','--portal-copy-x','--curtain-y','--curtain-x','--curtain-clip','--curtain-copy-opacity','--curtain-copy-y','--curtain-media-scale','--curtain-edge-opacity','--mosaic-opacity','--mosaic-y','--milestone-opacity','--milestone-y','--milestone-marker-scale'].forEach(function(k){node.style.removeProperty(k);});
       });
     }
     function markStatic(root){
@@ -722,7 +742,8 @@ export const MOTION_RUNTIME = `(function(){
         nodes.forEach(function(node,i){var distance=Math.abs(portalPosition-i),sceneVisible=1-smooth(.42,.72,distance),copyVisible=1-smooth(.24,.48,distance),sceneStart=count<=1?0:(i-.5)/(count-1),sceneEnd=count<=1?1:(i+.5)/(count-1);local=clamp((motionP-sceneStart)/Math.max(.0001,sceneEnd-sceneStart));var established=smooth(0,.24,local),focal=smooth(.2,.66,local),settled=smooth(.76,1,local),aperture=node.querySelector('[data-portal-aperture]'),media=node.querySelector('[data-portal-media]'),copy=node.querySelector('[data-scene-copy]');node.style.setProperty('--scene-opacity',sceneVisible.toFixed(4));node.style.setProperty('--scene-pointer',copyVisible>.55?'auto':'none');node.toggleAttribute('data-active',distance<.5);if(aperture){aperture.style.setProperty('--portal-scale',(.66+.39*focal-.02*settled).toFixed(4));aperture.style.setProperty('--portal-clip',((1-focal)*11).toFixed(3)+'%');aperture.style.setProperty('--portal-boundary-opacity',(.38+.44*Math.sin(Math.min(1,local)*Math.PI)).toFixed(4));}if(media)media.style.setProperty('--portal-media-scale',(1.035-.025*established+.012*Math.sin(local*Math.PI)).toFixed(4));if(copy){copy.style.setProperty('--portal-copy-opacity',copyVisible.toFixed(4));copy.style.setProperty('--portal-copy-x',((1-established)*22-settled*4).toFixed(2)+'px');}});
       }else if(id==='scroll-curtain'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-curtain-panel]'));count=Math.max(1,nodes.length);
-        nodes.forEach(function(node,i){var transition=count<=1?0:smooth(i/(count-1),Math.min(1,(i+.78)/(count-1)),motionP);if(i===count-1)transition=0;node.style.setProperty('--scene-opacity','1');node.style.setProperty('--curtain-y',(-transition*8).toFixed(3)+'%');node.style.setProperty('--curtain-clip',(transition*100).toFixed(3)+'%');});
+        var curtainSegments=Math.max(1,count-1),curtainPosition=motionP*curtainSegments,curtainCurrent=Math.min(count-1,Math.floor(curtainPosition)),curtainLocal=curtainPosition-curtainCurrent,curtainExit=curtainCurrent<count-1?smooth(.34,.82,curtainLocal):0;
+        nodes.forEach(function(node,i){var transition=i<curtainCurrent?1:(i===curtainCurrent?curtainExit:0),incoming=i===curtainCurrent+1?smooth(.62,.9,curtainExit):0,copyVisible=i<curtainCurrent?0:(i===curtainCurrent?(i===count-1?1:1-smooth(.06,.32,curtainExit)):incoming),current=i===curtainCurrent||(i===curtainCurrent+1&&incoming>.5),media=node.querySelector('[data-curtain-media]'),copy=node.querySelector('[data-curtain-copy]'),edge=node.querySelector('[data-curtain-edge]');node.style.setProperty('--scene-opacity','1');node.style.setProperty('--scene-pointer',copyVisible>.55?'auto':'none');node.style.setProperty('--curtain-y',(-transition*6).toFixed(3)+'%');node.style.setProperty('--curtain-x',(-transition*4.5).toFixed(3)+'%');node.style.setProperty('--curtain-clip',(transition*100).toFixed(3)+'%');node.toggleAttribute('data-active',current);if(copy){copy.style.setProperty('--curtain-copy-opacity',copyVisible.toFixed(4));copy.style.setProperty('--curtain-copy-y',((1-copyVisible)*10).toFixed(2)+'px');}if(media)media.style.setProperty('--curtain-media-scale',(1-transition*.012+(i===curtainCurrent+1?(1-incoming)*.018:0)).toFixed(4));if(edge)edge.style.setProperty('--curtain-edge-opacity',(Math.sin(transition*Math.PI)*.86).toFixed(4));});
       }else if(id==='mosaic-reveal'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-mosaic-tile]'));count=Math.max(1,nodes.length);
         nodes.forEach(function(node,i){var order=parseInt(node.getAttribute('data-reveal-order')||String(i),10),rank=Number.isFinite(order)?order:i;local=smooth(rank/count*.72,Math.min(1,rank/count*.72+.28),motionP);node.style.setProperty('--mosaic-opacity',local.toFixed(4));node.style.setProperty('--mosaic-y',((1-local)*18).toFixed(2)+'px');node.toggleAttribute('data-active',local>.98);});

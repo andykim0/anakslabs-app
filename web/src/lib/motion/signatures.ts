@@ -28,12 +28,12 @@ export const ACTIVE_MOTION_SIGNATURE_IDS = [
   'cinematic-scrub',
   'scrollytelling-manifesto',
   'true-card-stack',
+  'scroll-curtain',
 ] as const satisfies readonly ActiveMotionSignatureId[];
 
 export const CANDIDATE_MOTION_SIGNATURE_IDS = [
   'sticky-chapters',
   'portal-zoom',
-  'scroll-curtain',
   'before-after-scrub',
   'horizontal-story',
   'mosaic-reveal',
@@ -194,7 +194,7 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: true,
   }),
   'scroll-curtain': spec({
-    id: 'scroll-curtain', status: 'candidate', label: '스크롤 커튼',
+    id: 'scroll-curtain', status: 'active', label: '스크롤 커튼',
     description: '하나의 공유 진행도로 2~4개 의미 장면의 전경을 걷어 다음 장면을 드러냅니다.',
     tier: 'basic', target: 'page', minItems: 2, maxItems: 4,
     supportedSectionTypes: ['hero'], mediaCapability: 'image-or-video',
