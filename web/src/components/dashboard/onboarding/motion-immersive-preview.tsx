@@ -21,6 +21,7 @@ export interface MotionImmersivePreviewProps {
 }
 
 const FOCUSABLE = 'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+type MotionRuntimeWindow = Window & { __anaksMotionDispose?: () => void };
 
 /**
  * 고객의 production SiteConfig/scene/runtime을 그대로 쓰는 화면 전용 몰입 레이어.
@@ -102,10 +103,53 @@ export function MotionImmersivePreview({
     window.addEventListener('keydown', onKeyDown);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
+      try {
+        (window as MotionRuntimeWindow).__anaksMotionDispose?.();
+      } catch {
+        // Preview cleanup must still restore focus and page scrolling.
+      }
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
   }, [mounted, onClose, previewAsAddon, selected, spec.id, usesRepresentativeMedia]);
+
+  useEffect(() => {
+    if (!mounted || mode !== 'mobile' || reducedMotion) return;
+    const scroller = dialogRef.current?.querySelector<HTMLElement>('[data-site-preview-scroll="true"]');
+    if (!scroller) return;
+
+    let interval = 0;
+    let stopped = false;
+    const stopAutoProgress = () => {
+      stopped = true;
+      if (interval) window.clearInterval(interval);
+    };
+    const start = window.setTimeout(() => {
+      if (stopped) return;
+      interval = window.setInterval(() => {
+        const remaining = scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop;
+        if (remaining <= 2) {
+          stopAutoProgress();
+          return;
+        }
+        scroller.scrollBy({
+          top: Math.min(remaining, Math.max(120, scroller.clientHeight * 0.42)),
+          behavior: 'smooth',
+        });
+      }, 2_400);
+    }, 1_200);
+    scroller.addEventListener('pointerdown', stopAutoProgress, { passive: true });
+    scroller.addEventListener('touchstart', stopAutoProgress, { passive: true });
+    scroller.addEventListener('wheel', stopAutoProgress, { passive: true });
+    return () => {
+      stopped = true;
+      window.clearTimeout(start);
+      if (interval) window.clearInterval(interval);
+      scroller.removeEventListener('pointerdown', stopAutoProgress);
+      scroller.removeEventListener('touchstart', stopAutoProgress);
+      scroller.removeEventListener('wheel', stopAutoProgress);
+    };
+  }, [mode, mounted, reducedMotion]);
 
   if (!mounted) return null;
 
@@ -179,7 +223,7 @@ export function MotionImmersivePreview({
 
         <footer className="flex shrink-0 flex-wrap items-center gap-3 border-t border-white/12 bg-[#07162f]/92 px-4 py-3 sm:px-6">
           <div className="mr-auto min-w-0 text-[11px] leading-5 text-white/65">
-            <p>{mode === 'mobile' ? `모바일: ${spec.mobileFallback} · 화면을 세로로 스와이프하세요.` : '데스크톱: 안쪽을 스크롤하면 발행본과 같은 진행도 런타임이 작동합니다.'}</p>
+            <p>{mode === 'mobile' ? `모바일: ${spec.mobileFallback} · 천천히 자동 진행되며 직접 스와이프하면 멈춰요.` : '데스크톱: 안쪽을 스크롤하면 발행본과 같은 진행도 런타임이 작동합니다.'}</p>
             <p>{usesRepresentativeMedia ? '대표 데모 영상은 움직임 설명용이며 고객님의 최종 자산이 아닙니다.' : '선택한 팔레트·글꼴·콘텐츠·이미지를 그대로 반영한 예시입니다.'}</p>
           </div>
           <Button variant="secondary" onClick={onClose}>다른 연출 보기</Button>

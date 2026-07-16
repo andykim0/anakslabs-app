@@ -90,16 +90,12 @@ export function SitePreview({
     () => configForAddonPreview(config, previewAsAddon),
     [config, previewAsAddon],
   );
+  const resolvedPreviewSlug = config.pages.some((page) => page.slug === previewSlug) ? previewSlug : '';
 
   const innerWidth = mode === 'mobile' ? MOBILE_PREVIEW_WIDTH : DESIGN_WIDTH;
 
   // [G1] motion=true 프리뷰에서 런타임 실제 실행(SiteRenderer <script> CSR 미실행 보완)
-  usePreviewMotion(motion || previewAsAddon, `${previewConfig.pages.length}:${previewSlug}:${motion}:${previewAsAddon}`);
-
-  // 설정이 바뀌면 홈으로 리셋(삭제된 페이지에 머무르지 않도록)
-  useEffect(() => {
-    setPreviewSlug((s) => (config.pages.some((p) => p.slug === s) ? s : ''));
-  }, [config]);
+  usePreviewMotion(motion || previewAsAddon, `${previewConfig.pages.length}:${resolvedPreviewSlug}:${motion}:${previewAsAddon}`);
 
   // [F2b] 링크 클릭 가로채기 — 참조 구현(CanvasStage.handlePreviewClickCapture)과 동일 규칙
   const handleClickCapture = (e: MouseEvent) => {
@@ -148,6 +144,7 @@ export function SitePreview({
   return (
     <div
       ref={outerRef}
+      data-site-preview-scroll={scroll ? 'true' : undefined}
       className={cn('relative w-full', scroll ? 'overflow-y-auto' : 'overflow-hidden', className)}
       style={scroll ? { maxHeight } : { height: clampedHeight || undefined }}
     >
@@ -170,12 +167,12 @@ export function SitePreview({
                  interactive=true: 헤더 내비 + 페이지 전환. 기본 animate=false(정적)이고,
                  [Q6] motion=true일 때만 발행본과 동일한 모션(data-m+CSS+런타임)을 방출·재생.
                  siteId sentinel로 폼 입력 활성화(제출은 캡처에서 가로챔). */}
-            {interactive && <TenantHeader config={previewConfig} currentSlug={previewSlug} />}
+            {interactive && <TenantHeader config={previewConfig} currentSlug={resolvedPreviewSlug} />}
             <SiteRenderer
               key={`${motion ? 'motion-on' : 'motion-off'}:${previewAsAddon ? 'addon-demo' : 'owned'}`} // 토글 시 리마운트 → 런타임 재실행
               config={previewConfig}
               mode={mode}
-              pageSlug={interactive ? previewSlug : undefined}
+              pageSlug={interactive ? resolvedPreviewSlug : undefined}
               interactive={interactive}
               animate={motion || previewAsAddon ? true : interactive ? false : undefined}
               tier={previewAsAddon ? 'premium' : tier}
