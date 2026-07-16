@@ -123,6 +123,12 @@ export function MotionImmersivePreview({
     const stopAutoProgress = () => {
       stopped = true;
       if (interval) window.clearInterval(interval);
+      // A native smooth scroll can keep travelling after its interval is
+      // cleared. Lock the current position synchronously so the first user
+      // gesture takes ownership of the preview immediately.
+      const lockedTop = scroller.scrollTop;
+      scroller.style.scrollBehavior = 'auto';
+      scroller.scrollTop = lockedTop;
     };
     const start = window.setTimeout(() => {
       if (stopped) return;

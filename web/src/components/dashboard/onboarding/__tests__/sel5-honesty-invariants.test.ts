@@ -148,6 +148,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
     assert.match(SOURCES.previewMotion, /return \(\) => \{[\s\S]*window\.cancelAnimationFrame\(raf\);[\s\S]*window\.clearTimeout\(sweep\)/);
     assert.match(SOURCES.immersive, /mode !== 'mobile' \|\| reducedMotion\) return/);
     assert.match(SOURCES.immersive, /data-site-preview-scroll[\s\S]*scrollBy[\s\S]*behavior: 'smooth'/);
+    assert.match(SOURCES.immersive, /const lockedTop = scroller\.scrollTop;[\s\S]*scroller\.style\.scrollBehavior = 'auto';[\s\S]*scroller\.scrollTop = lockedTop/);
     assert.match(SOURCES.immersive, /removeEventListener\('pointerdown', stopAutoProgress\)[\s\S]*removeEventListener\('touchstart', stopAutoProgress\)[\s\S]*removeEventListener\('wheel', stopAutoProgress\)/);
   });
 
