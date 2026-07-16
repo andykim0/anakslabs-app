@@ -303,7 +303,8 @@ export type ActiveMotionSignatureId =
   | 'cinematic-scrub'
   | 'scrollytelling-manifesto'
   | 'true-card-stack'
-  | 'scroll-curtain';
+  | 'scroll-curtain'
+  | 'path-journey';
 
 /**
  * 프로덕션 계약·렌더러·X5를 갖추되 제품 승격 심사 전인 후보 시그니처.
@@ -314,8 +315,7 @@ export type CandidateMotionSignatureId =
   | 'portal-zoom'
   | 'before-after-scrub'
   | 'horizontal-story'
-  | 'mosaic-reveal'
-  | 'path-journey';
+  | 'mosaic-reveal';
 
 export type ProductionMotionSignatureId = ActiveMotionSignatureId | CandidateMotionSignatureId;
 

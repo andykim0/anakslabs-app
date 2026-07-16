@@ -567,13 +567,13 @@ function PathJourney({ scene, theme, art, mode }: MotionSignatureRendererProps &
       <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(40px, 7vw, 104px) clamp(24px, 8vw, 120px) 0' }}>
         <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
       </header>
-      <div data-path-stage>
+      <div data-path-stage data-path-count={scene.milestones.length}>
         <span data-path-line aria-hidden="true" />
         <ol data-path-list aria-labelledby={headingId}>
           {scene.milestones.map((milestone, index) => {
             const milestoneId = `${domId(scene.sectionId)}-milestone-${index + 1}`;
             return (
-              <li key={milestone.id} data-path-milestone>
+              <li key={milestone.id} data-path-milestone data-milestone-index={index}>
                 <span data-path-marker aria-hidden="true" />
                 <article aria-labelledby={milestoneId} style={copyStyle}>
                   <span data-path-index aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>

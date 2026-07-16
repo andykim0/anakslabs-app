@@ -29,6 +29,7 @@ export const ACTIVE_MOTION_SIGNATURE_IDS = [
   'scrollytelling-manifesto',
   'true-card-stack',
   'scroll-curtain',
+  'path-journey',
 ] as const satisfies readonly ActiveMotionSignatureId[];
 
 export const CANDIDATE_MOTION_SIGNATURE_IDS = [
@@ -37,7 +38,6 @@ export const CANDIDATE_MOTION_SIGNATURE_IDS = [
   'before-after-scrub',
   'horizontal-story',
   'mosaic-reveal',
-  'path-journey',
 ] as const satisfies readonly CandidateMotionSignatureId[];
 
 export const PRODUCTION_MOTION_SIGNATURE_IDS = [
@@ -225,7 +225,7 @@ export const MOTION_SIGNATURES = {
     basicTierFallback: 'scroll-reveal', signatureUnits: 1, sticky: false,
   }),
   'path-journey': spec({
-    id: 'path-journey', status: 'candidate', label: '패스 저니',
+    id: 'path-journey', status: 'active', label: '패스 저니',
     description: '3~7개의 검증된 과정 항목을 ol/li 타임라인과 transform 진행선으로 연결합니다.',
     tier: 'basic', target: 'section', minItems: 3, maxItems: 7,
     supportedSectionTypes: ['about', 'features', 'custom', 'faq'], mediaCapability: 'none',

@@ -225,6 +225,16 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_CSS, /m-signature-ready \[data-mosaic-focal\][\s\S]*--mosaic-opacity, 1/);
     assert.match(MOTION_RUNTIME, /mosaicRevealP[\s\S]*rank===0\?1:smooth[\s\S]*\.24\+\.76\*local/);
   });
+
+  test('path journey keeps one guided current step and a restrained clinical amplitude', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['path-journey']);
+    assert.match(html, /data-path-stage="true" data-path-count="3"/);
+    assert.equal((html.match(/data-milestone-index=/g) ?? []).length, 3);
+    assert.match(MOTION_CSS, /data-path-count="3"[\s\S]*width: min\(52%, 680px\)/);
+    assert.match(MOTION_CSS, /max-width: 1023\.98px[\s\S]*data-path-count\][^}]*width: 100%; max-width: none/);
+    assert.match(MOTION_RUNTIME, /journeyCurrent[\s\S]*clinical-informational'\?6:14[\s\S]*data-current[\s\S]*data-complete/);
+    assert.doesNotMatch(MOTION_CSS, /data-current[^}]*opacity:\s*0/);
+  });
 });
 
 function textElement(id: string, text: string, y: number) {
