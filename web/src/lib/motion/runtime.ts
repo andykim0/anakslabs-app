@@ -432,11 +432,20 @@ export const MOTION_CSS = `
 }
 .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame="after"] figcaption { right: 12px; left: auto; }
 .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range] {
-  display: block; width: 100%; height: 20px; opacity: 0; visibility: hidden; pointer-events: none;
+  display: block; width: 100%; height: 44px; margin: 0; opacity: 0; visibility: hidden; pointer-events: none;
+  appearance: none; -webkit-appearance: none; background: transparent; cursor: ew-resize; accent-color: var(--signature-accent);
 }
 .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-control] {
-  display: grid; align-content: start; gap: 10px; min-height: 54px; margin-top: 22px; font-weight: 700;
+  display: grid; align-content: start; gap: 6px; min-height: 82px; margin-top: 22px; opacity: 0; visibility: hidden; font-weight: 700;
 }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-control-row] { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-output] { display: inline-block; width: 4ch; color: var(--signature-accent); font-variant-numeric: tabular-nums; text-align: right; }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-help] { color: var(--signature-muted); font-size: .78rem; font-weight: 500; }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range]::-webkit-slider-runnable-track { height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--signature-text) 22%, var(--signature-surface)); }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range]::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -10px; border: 2px solid var(--signature-text); border-radius: 50%; background: var(--signature-surface); box-shadow: 0 4px 14px color-mix(in srgb, var(--signature-text) 22%, transparent); -webkit-appearance: none; }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range]::-moz-range-track { height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--signature-text) 22%, var(--signature-surface)); }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range]::-moz-range-thumb { width: 22px; height: 22px; border: 2px solid var(--signature-text); border-radius: 50%; background: var(--signature-surface); box-shadow: 0 4px 14px color-mix(in srgb, var(--signature-text) 22%, transparent); }
+.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range]:focus-visible { outline: 3px solid color-mix(in srgb, var(--signature-accent) 72%, transparent); outline-offset: 3px; }
 .anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-viewport] { cursor: ew-resize; touch-action: pan-y; }
 .anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-frame] { grid-area: 1 / 1; height: 100%; }
 .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-handle] { display: none; }
@@ -451,8 +460,17 @@ export const MOTION_CSS = `
   border-right: 1px solid #111; border-left: 1px solid #111; background: #fff;
 }
 .anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-handle] > span {
-  position: absolute; top: 50%; left: 0; width: 34px; height: 34px; border: 2px solid #111; border-radius: 50%;
-  background: #fff; transform: translate(-50%,-50%); box-shadow: 0 8px 24px rgba(0,0,0,.24);
+  position: absolute; top: 50%; left: 0; width: 42px; height: 42px; border: 2px solid #111; border-radius: 50%;
+  background: #fff; color: #111; transform: translate(-50%,-50%); box-shadow: 0 8px 24px rgba(0,0,0,.24);
+}
+.anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-handle] > span::before,
+.anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-handle] > span::after {
+  position: absolute; top: 50%; font-size: 18px; font-weight: 900; line-height: 1; transform: translateY(-56%);
+}
+.anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-handle] > span::before { content: '‹'; left: 8px; }
+.anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-handle] > span::after { content: '›'; right: 8px; }
+.anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-control] {
+  opacity: 1; visibility: visible;
 }
 .anaks-site [data-signature-id="before-after-scrub"].m-signature-ready [data-before-after-range] {
   opacity: 1; visibility: visible; pointer-events: auto;
@@ -533,6 +551,7 @@ export const MOTION_CSS = `
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-viewport] { grid-template-columns: 1fr; aspect-ratio: auto; overflow: visible; }
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame] { grid-area: auto; height: auto; aspect-ratio: var(--before-after-ratio, 4 / 3) !important; }
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame="after"] { clip-path: none; }
+  .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-control] { display: none; }
 }
 /* Dashboard/editor forced-mobile previews obey the same fallback even on a wide host viewport. */
 .anaks-site [data-render-mode="mobile"][data-signature-id="sticky-chapters"] [data-signature-chapter] { display: block; min-height: 0; }
@@ -556,6 +575,7 @@ export const MOTION_CSS = `
 .anaks-site [data-render-mode="mobile"][data-signature-id="before-after-scrub"] [data-before-after-viewport] { grid-template-columns: 1fr; aspect-ratio: auto; overflow: visible; }
 .anaks-site [data-render-mode="mobile"][data-signature-id="before-after-scrub"] [data-before-after-frame] { grid-area: auto; height: auto; aspect-ratio: var(--before-after-ratio, 4 / 3) !important; }
 .anaks-site [data-render-mode="mobile"][data-signature-id="before-after-scrub"] [data-before-after-frame="after"] { clip-path: none; }
+.anaks-site [data-render-mode="mobile"][data-signature-id="before-after-scrub"] [data-before-after-control] { display: none; }
 @media (max-width: 639.98px) {
   .anaks-site [data-signature-id="mosaic-reveal"] [data-mosaic-grid] { grid-template-columns: 1fr; }
 }
@@ -574,7 +594,7 @@ export const MOTION_CSS = `
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-viewport] { grid-template-columns: 1fr !important; aspect-ratio: auto !important; overflow: visible !important; }
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame] { grid-area: auto !important; height: auto !important; aspect-ratio: var(--before-after-ratio, 4 / 3) !important; }
   .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame="after"] { clip-path: none !important; }
-  .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-range] { display: none !important; }
+  .anaks-site [data-signature-id="before-after-scrub"] [data-before-after-control] { display: none !important; }
   .anaks-site [data-signature-progress-rail],
   .anaks-site [data-before-after-handle] { display: none !important; }
   .anaks-site [data-signature-id="cinematic-scrub"] [data-signature-pin] { min-height: min(100svh, 900px) !important; }
@@ -634,6 +654,7 @@ export const MOTION_RUNTIME = `(function(){
       stage.classList.remove('m-signature-ready'); stage.removeAttribute('data-signature-active');
       ['--signature-progress','--phase-establish','--phase-progress','--phase-focal','--phase-settle','--horizontal-x','--horizontal-progress','--path-progress','--before-after-clip'].forEach(function(k){stage.style.removeProperty(k);});
       stage.__anaksPhaseWindows=null;
+      stage.__anaksRangeControlled=false;stage.__anaksComparePending=null;stage.__anaksCompareRect=null;stage.__anaksComparePointer=null;
       progressWillChange(stage,false);
       Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-current],[data-signature-chapter],[data-chapter-indicator-item],[data-stack-card],[data-signature-panel],[data-portal-aperture],[data-portal-media],[data-scene-copy],[data-curtain-media],[data-curtain-edge],[data-mosaic-tile],[data-path-milestone],[data-horizontal-step],[data-horizontal-panel] [data-signature-media],[data-panel-copy]')).forEach(function(node){
         node.removeAttribute('data-active');node.removeAttribute('data-current');node.removeAttribute('data-complete');['--chapter-emphasis','--chapter-scale','--chapter-clip','--chapter-light','--chapter-light-x','--chapter-copy-opacity','--chapter-copy-y','--chapter-dot-width','--card-scale','--card-y','--scene-opacity','--scene-pointer','--portal-scale','--portal-clip','--portal-boundary-opacity','--portal-media-scale','--portal-copy-opacity','--portal-copy-x','--curtain-y','--curtain-x','--curtain-clip','--curtain-copy-opacity','--curtain-copy-y','--curtain-media-scale','--curtain-edge-opacity','--mosaic-opacity','--mosaic-y','--mosaic-scale','--milestone-opacity','--milestone-y','--milestone-marker-scale','--milestone-ring','--horizontal-media-scale','--horizontal-copy-opacity','--horizontal-copy-x','--horizontal-step-scale'].forEach(function(k){node.style.removeProperty(k);});
@@ -779,6 +800,12 @@ export const MOTION_RUNTIME = `(function(){
       if(index<count-1){var exit=(index+1)/count;opacity*=1-smooth(exit-overlap,exit+overlap,p);}
       return clamp(opacity);
     }
+    function writeBeforeAfterState(stage,value){
+      value=clamp(value);var rounded=Math.round(value*100),input=stage.querySelector('[data-before-after-range]'),output=stage.querySelector('[data-before-after-output]');
+      stage.style.setProperty('--before-after-clip',((1-value)*100).toFixed(3)+'%');
+      if(input){input.value=String(rounded);input.setAttribute('aria-valuetext','이후 사진 '+rounded+'%');}
+      if(output)output.textContent=rounded+'%';
+    }
     function syncSignature(stage,p,measure){
       if(!stage.classList.contains('m-signature-ready'))return; var phases=phaseVars(stage,p),motionP=phases.travel;
       var id=stage.getAttribute('data-signature-id')||'',nodes,index,count,local,opacity;
@@ -807,7 +834,7 @@ export const MOTION_RUNTIME = `(function(){
         var journeyCurrent=Math.min(count-1,Math.max(0,Math.round(motionP*Math.max(0,count-1)))),journeyAmp=stage.getAttribute('data-signature-art-direction')==='clinical-informational'?6:14;
         nodes.forEach(function(node,i){var center=count<=1?0:i/(count-1),complete=i<journeyCurrent,current=i===journeyCurrent;local=smooth(Math.max(0,center-.12),Math.min(1,center+.12),motionP);node.style.setProperty('--milestone-opacity',(current?1:(complete ? .96 : .88)).toFixed(4));node.style.setProperty('--milestone-y',(complete||current?0:(1-local)*journeyAmp).toFixed(2)+'px');node.style.setProperty('--milestone-marker-scale',(current?1.12:(complete ? .9 : .76)).toFixed(4));node.style.setProperty('--milestone-ring',(current?8:0)+'px');node.toggleAttribute('data-active',current);node.toggleAttribute('data-current',current);node.toggleAttribute('data-complete',complete);});
       }else if(id==='before-after-scrub'){
-        if(!stage.__anaksRangeControlled)stage.style.setProperty('--before-after-clip',((1-motionP)*100).toFixed(3)+'%');
+        var compareInput=stage.querySelector('[data-before-after-range]'),comparePending=stage.__anaksComparePending,compareValue=comparePending!=null?comparePending:(stage.__anaksRangeControlled&&compareInput?clamp(parseFloat(compareInput.value||'50')/100):motionP);writeBeforeAfterState(stage,compareValue);stage.__anaksComparePending=null;
       }else if(id==='horizontal-story'){
         var rail=stage.querySelector('[data-horizontal-rail]');count=parseInt((rail&&rail.getAttribute('data-panel-count'))||'1',10);var width=measure&&measure.width?measure.width:0,held=0;if(count>1){if(motionP>=.96)held=1;else if(motionP>.04){var horizontalPosition=clamp((motionP-.04)/.92)*(count-1),horizontalIndex=Math.min(count-2,Math.floor(horizontalPosition)),horizontalLocal=horizontalPosition-horizontalIndex;held=(horizontalIndex+smooth(.2,.8,horizontalLocal))/(count-1);}}var horizontalPanelPosition=held*Math.max(0,count-1),horizontalCurrent=Math.min(count-1,Math.max(0,Math.round(horizontalPanelPosition)));stage.style.setProperty('--horizontal-progress',held.toFixed(4));stage.style.setProperty('--horizontal-x',(-held*width*Math.max(0,count-1)).toFixed(2)+'px');nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-horizontal-panel]'));nodes.forEach(function(node,i){var distance=Math.min(1,Math.abs(i-horizontalPanelPosition)),weight=1-distance,current=i===horizontalCurrent,media=node.querySelector('[data-signature-media]'),copy=node.querySelector('[data-panel-copy]');node.toggleAttribute('data-current',current);if(media)media.style.setProperty('--horizontal-media-scale',(.985+.015*weight).toFixed(4));if(copy){copy.style.setProperty('--horizontal-copy-opacity',(.76+.24*weight).toFixed(4));copy.style.setProperty('--horizontal-copy-x',((i-horizontalPanelPosition)*12).toFixed(2)+'px');}});Array.prototype.slice.call(stage.querySelectorAll('[data-horizontal-step]')).forEach(function(step,i){var distance=Math.min(1,Math.abs(i-horizontalPanelPosition)),weight=1-distance;step.toggleAttribute('data-current',i===horizontalCurrent);step.style.setProperty('--horizontal-step-scale',(.2857+.7143*weight).toFixed(4));});
       }else if(id==='cinematic-scrub'){
@@ -818,15 +845,15 @@ export const MOTION_RUNTIME = `(function(){
     }
     q('[data-before-after-range]').forEach(function(input){
       var stage=input.closest('[data-signature-id="before-after-scrub"]');if(!stage)return;
-      listen(input,'input',function(){var value=clamp(parseFloat(input.value||'50')/100);stage.__anaksRangeControlled=true;stage.style.setProperty('--before-after-clip',((1-value)*100).toFixed(3)+'%');});
+      listen(input,'input',function(){var value=clamp(parseFloat(input.value||'50')/100);stage.__anaksRangeControlled=true;stage.__anaksComparePending=value;if(progressActive.indexOf(stage)<0&&progressForced.indexOf(stage)<0)progressForced.push(stage);scheduleProgress();});
       listen(input,'change',function(){stage.__anaksRangeControlled=true;});
     });
     q('[data-before-after-viewport]').forEach(function(viewport){
       var stage=viewport.closest('[data-signature-id="before-after-scrub"]'),input=stage&&stage.querySelector('[data-before-after-range]');if(!stage||!input)return;
-      function compareAt(clientX){var rect=viewport.getBoundingClientRect();if(!rect.width)return;var value=clamp((clientX-rect.left)/rect.width);stage.__anaksRangeControlled=true;stage.style.setProperty('--before-after-clip',((1-value)*100).toFixed(3)+'%');input.value=String(Math.round(value*100));}
-      listen(viewport,'pointerdown',function(event){if(event.button!==undefined&&event.button!==0)return;stage.__anaksComparePointer=event.pointerId;try{viewport.setPointerCapture(event.pointerId);}catch(_){}compareAt(event.clientX);});
-      listen(viewport,'pointermove',function(event){if(stage.__anaksComparePointer!==event.pointerId)return;compareAt(event.clientX);});
-      function releasePointer(event){if(stage.__anaksComparePointer!==event.pointerId)return;stage.__anaksComparePointer=null;try{viewport.releasePointerCapture(event.pointerId);}catch(_){}}
+      function queueCompare(clientX){var rect=stage.__anaksCompareRect;if(!rect||!rect.width)return;stage.__anaksRangeControlled=true;stage.__anaksComparePending=clamp((clientX-rect.left)/rect.width);if(progressActive.indexOf(stage)<0&&progressForced.indexOf(stage)<0)progressForced.push(stage);scheduleProgress();}
+      listen(viewport,'pointerdown',function(event){if(event.button!==undefined&&event.button!==0)return;stage.__anaksComparePointer=event.pointerId;stage.__anaksCompareRect=viewport.getBoundingClientRect();try{viewport.setPointerCapture(event.pointerId);}catch(_){}queueCompare(event.clientX);});
+      listen(viewport,'pointermove',function(event){if(stage.__anaksComparePointer!==event.pointerId)return;queueCompare(event.clientX);});
+      function releasePointer(event){if(stage.__anaksComparePointer!==event.pointerId)return;stage.__anaksComparePointer=null;stage.__anaksCompareRect=null;try{viewport.releasePointerCapture(event.pointerId);}catch(_){}}
       listen(viewport,'pointerup',releasePointer);listen(viewport,'pointercancel',releasePointer);
     });
 
@@ -898,7 +925,7 @@ export const MOTION_RUNTIME = `(function(){
     }
     rebuildProgressNodes();
     var resizeQueued=false;
-    listen(window,'resize',function(){if(resizeQueued)return;resizeQueued=true;requestAnimationFrame(function(){resizeQueued=false;rebuildProgressNodes();});},{passive:true});
+    listen(window,'resize',function(){if(resizeQueued)return;resizeQueued=true;requestAnimationFrame(function(){resizeQueued=false;q('[data-signature-id="before-after-scrub"]').forEach(function(stage){stage.__anaksCompareRect=null;});rebuildProgressNodes();});},{passive:true});
 
     function disposeAll(){
       if(disposed)return;disposed=true;cleanups.forEach(function(off){try{off();}catch(_){}});observers.forEach(function(io){try{io.disconnect();}catch(_){}});timers.forEach(clearTimeout);removeRootListeners();

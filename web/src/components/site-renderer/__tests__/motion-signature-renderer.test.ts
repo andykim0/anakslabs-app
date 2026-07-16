@@ -166,15 +166,31 @@ describe('motion signature production renderers', () => {
   });
 
   test('before-after is immutable, labelled, static-readable and contains no generated video', () => {
-    const html = renderScene(X5_RENDERER_FIXTURES['before-after-scrub']);
+    const fixture = X5_RENDERER_FIXTURES['before-after-scrub'];
+    const html = renderScene({
+      ...fixture,
+      before: { ...fixture.before, focalPoint: { x: 0.2, y: 0.7 } },
+      after: { ...fixture.after, focalPoint: { x: 0.8, y: 0.2 } },
+    });
     assert.match(html, /data-before-after-label="actual-case" data-non-removable="true" data-label-contrast="aa"[^>]*>실제 사례<\/span>/);
     assert.match(html, /이전 · 실제 사례/);
     assert.match(html, /이후 · 실제 사례/);
-    assert.match(html, /type="range"/);
+    assert.match(html, /type="range"[^>]*aria-controls="cases-comparison-viewport"[^>]*aria-describedby="cases-comparison-help"[^>]*aria-valuetext="이후 사진 50%"/);
+    assert.match(html, /data-before-after-output="true"[^>]*>50%<\/output>/);
+    assert.match(html, /좌우 방향키 또는 비교 화면을 움직여 확인하세요/);
+    assert.equal((html.match(/object-position:20% 70%/g) ?? []).length, 2, 'both verified images keep identical comparison framing');
     assert.match(MOTION_RUNTIME, /pointerdown/);
     assert.match(MOTION_RUNTIME, /pointermove/);
+    assert.match(MOTION_RUNTIME, /function queueCompare\(clientX\)[\s\S]*__anaksComparePending[\s\S]*scheduleProgress\(\)/);
+    assert.match(MOTION_RUNTIME, /pointerdown[\s\S]*__anaksCompareRect=viewport\.getBoundingClientRect\(\)/);
+    assert.match(MOTION_RUNTIME, /writeBeforeAfterState[\s\S]*aria-valuetext/);
+    assert.match(MOTION_RUNTIME, /data-before-after-output[\s\S]*output\.textContent=rounded\+'%'/);
     assert.match(MOTION_CSS, /touch-action: pan-y/);
+    assert.match(MOTION_CSS, /data-before-after-handle[^}]*> span::before[\s\S]*content: '‹'[\s\S]*content: '›'/);
     assert.doesNotMatch(html, /<video/);
+
+    const mismatched = renderScene({ ...fixture, after: { ...fixture.after, height: 900 } });
+    assert.doesNotMatch(mismatched, /data-motion-signature="before-after-scrub"/);
   });
 
   test('runtime is one passive dirty-rAF scheduler and horizontal is capability gated', () => {

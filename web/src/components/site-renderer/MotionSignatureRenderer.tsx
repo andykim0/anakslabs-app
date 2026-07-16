@@ -94,6 +94,7 @@ function beforeAfterContractIsSafe(scene: BeforeAfterScrubScene): boolean {
     scene.before.assetId !== scene.after.assetId &&
     scene.before.caseId === scene.caseId &&
     scene.after.caseId === scene.caseId &&
+    scene.before.width * scene.after.height === scene.after.width * scene.before.height &&
     mediaIsSafe(scene.before) &&
     mediaIsSafe(scene.after)
   );
@@ -596,7 +597,12 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
 }) {
   if (!beforeAfterContractIsSafe(scene)) return null;
   const headingId = `${domId(scene.sectionId)}-comparison-heading`;
+  const viewportId = `${domId(scene.sectionId)}-comparison-viewport`;
+  const rangeId = `${domId(scene.sectionId)}-comparison-range`;
+  const helpId = `${domId(scene.sectionId)}-comparison-help`;
+  const outputId = `${domId(scene.sectionId)}-comparison-output`;
   const ratio = `${scene.before.width} / ${scene.before.height}`;
+  const comparisonFocal = focalPosition(scene.before);
   return (
     <SignatureRoot
       scene={scene}
@@ -607,7 +613,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
       style={{ '--before-after-ratio': ratio } as CSSProperties}
     >
       <noscript>
-        <style dangerouslySetInnerHTML={{ __html: '.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-viewport]{grid-template-columns:repeat(2,minmax(0,1fr));aspect-ratio:auto;overflow:visible}.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame]{grid-area:auto;height:auto;aspect-ratio:var(--before-after-ratio,4/3)!important}.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame="after"]{clip-path:none}' }} />
+        <style dangerouslySetInnerHTML={{ __html: '.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-viewport]{grid-template-columns:repeat(2,minmax(0,1fr));aspect-ratio:auto;overflow:visible}.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame]{grid-area:auto;height:auto;aspect-ratio:var(--before-after-ratio,4/3)!important}.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-frame="after"]{clip-path:none}.anaks-site [data-signature-id="before-after-scrub"] [data-before-after-control]{display:none!important}' }} />
       </noscript>
       <div data-before-after-shell>
         <div data-before-after-heading style={copyStyle}>
@@ -627,7 +633,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
           </span>
           <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
         </div>
-        <div data-before-after-viewport aria-labelledby={headingId}>
+        <div id={viewportId} data-before-after-viewport aria-labelledby={headingId}>
           {([
             ['before', scene.before, '이전 · 실제 사례'],
             ['after', scene.after, '이후 · 실제 사례'],
@@ -645,7 +651,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
                 height={media.height}
                 loading="lazy"
                 decoding="async"
-                style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: focalPosition(media) }}
+                style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: comparisonFocal }}
               />
               <figcaption>{caption}</figcaption>
             </figure>
@@ -653,8 +659,12 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
           <span data-before-after-handle aria-hidden="true"><span /></span>
         </div>
         <label data-before-after-control>
-          <span>비교 위치</span>
+          <span data-before-after-control-row>
+            <span>비교 위치</span>
+            <output id={outputId} data-before-after-output htmlFor={rangeId}>50%</output>
+          </span>
           <input
+            id={rangeId}
             data-before-after-range
             type="range"
             min="0"
@@ -662,7 +672,11 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
             step="1"
             defaultValue="50"
             aria-label="실제 사례 전후 비교 위치"
+            aria-controls={viewportId}
+            aria-describedby={helpId}
+            aria-valuetext="이후 사진 50%"
           />
+          <span id={helpId} data-before-after-help>좌우 방향키 또는 비교 화면을 움직여 확인하세요.</span>
         </label>
       </div>
     </SignatureRoot>
