@@ -34,8 +34,15 @@ interface SectionStackProps {
 
 function stackable(el: CanvasElement): boolean {
   if (el.hiddenOnMobile) return false;
-  if (el.kind === 'shape' && el.shape !== 'line') return false;
+  // Provenance enforcement replaces a denied factual image with an intentional
+  // CSS shape that occupies the original media frame. Keep that shape in the
+  // mobile stack; ordinary decorative shapes remain omitted as before.
+  if (el.kind === 'shape' && el.shape !== 'line' && !hasAssetFallback(el)) return false;
   return true;
+}
+
+function hasAssetFallback(el: CanvasElement): boolean {
+  return el.kind === 'shape' && el.assetFallback === true;
 }
 
 /** 요소 종류별 스택 아이템 래퍼 스타일 */
@@ -53,8 +60,17 @@ function itemStyle(el: CanvasElement): CSSProperties {
     case 'button':
       return { ...base, display: 'flex', justifyContent: 'center' };
     case 'divider':
-    case 'shape':
       return { ...base, width: '56%', height: '16px' };
+    case 'shape':
+      return hasAssetFallback(el)
+        ? {
+            ...base,
+            width: '100%',
+            // Keep the rejected asset's reserved geometry in the no-JS/mobile
+            // fallback instead of collapsing it into a decorative divider.
+            aspectRatio: el.frame.h > 0 ? `${el.frame.w} / ${el.frame.h}` : undefined,
+          }
+        : { ...base, width: '56%', height: '16px' };
     // [v3 Phase 3] 지도는 스택에서 고정 높이 240px
     case 'map':
       return { ...base, width: '100%', height: '240px' };
@@ -171,6 +187,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           return (
             <div
               key={el.id}
+              {...(hasAssetFallback(el) ? { 'data-asset-fallback': 'true' } : {})}
               {...(dataM ? { 'data-m': dataM } : {})}
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
               style={el.kind === 'text' && imgTextShadow ? { ...itemStyle(el), textShadow: imgTextShadow } : itemStyle(el)}

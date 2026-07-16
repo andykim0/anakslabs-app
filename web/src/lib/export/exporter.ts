@@ -15,6 +15,7 @@ import { selfHostFonts } from './self-host-fonts';
 import { zipFiles } from './zip';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { motionAssetsForStaticRender } from './motion-scene-assets';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 
 export interface BuildExportOptions {
   /** true(기본): 폰트를 zip에 포함해 외부 요청 0. 실패 시 CDN 링크로 폴백 */
@@ -38,8 +39,20 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
     throw new Error('PUBLISH_REQUIRED: 발행본이 없는 사이트는 export할 수 없습니다.');
   }
   const warnings: string[] = [];
-  const provenance = await resolveStoredBeforeAfterMotionOptions({
+  // Generic provenance enforcement must run before asset collection. Otherwise a
+  // denied factual URL could still be downloaded and bundled even if the renderer
+  // later replaces it with an honest CSS/typography fallback.
+  const assetPolicy = await resolveSiteAssetPolicy({
+    operation: 'audit',
     config: site.siteConfig,
+    clientId: site.clientId,
+    siteId: site.id,
+    assetPolicyVersion: site.assetPolicyVersion,
+    phase: 'static-export',
+  });
+  const renderConfig = assetPolicy.config;
+  const provenance = await resolveStoredBeforeAfterMotionOptions({
+    config: renderConfig,
     clientId: site.clientId,
     siteId: site.id,
   });
@@ -48,7 +61,7 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
   }
 
   // 1. 자산 수집 + src 재작성
-  const collected = await collectAndRewriteAssets(site.siteConfig);
+  const collected = await collectAndRewriteAssets(renderConfig);
   warnings.push(...collected.warnings);
   // Sensitive before/after media is revalidated again inside SiteRenderer. The exporter is
   // the only authority allowed to add renderSrc, derived from its own successful asset map;

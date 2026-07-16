@@ -14,6 +14,14 @@ import { siteUrlOf } from '@/lib/seo/structured-data';
 import { missingPublishHumanChecks, PUBLISH_HUMAN_CHECKS } from '@/lib/publish/human-checks';
 import { publishAuditedSnapshot } from '@/lib/publish/publish-audited-snapshot';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
+import {
+  assetPolicyBlockedMessage,
+  logAssetPolicyIssues,
+  publishAssetPolicyIssues,
+  safeAuditErrorName,
+  shouldBlockAssetPolicy,
+} from '@/lib/publish/asset-policy-feedback';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -62,19 +70,65 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
-  const provenance = await resolveStoredBeforeAfterMotionOptions({
-    config: site.draftConfig,
-    clientId: client.id,
-    siteId,
-  });
+  let provenance: Awaited<ReturnType<typeof resolveStoredBeforeAfterMotionOptions>>;
+  try {
+    provenance = await resolveStoredBeforeAfterMotionOptions({
+      config: site.draftConfig,
+      clientId: client.id,
+      siteId,
+    });
+  } catch (error) {
+    console.error('[publish-audit] motion provenance failed:', {
+      errorName: safeAuditErrorName(error),
+    });
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 사진 출처 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+  }
   if (!provenance.ok) {
     return apiError(409, 'PUBLISH_MOTION_PROVENANCE_BLOCKED', provenance.message, { code: provenance.code });
   }
 
+  let assetAudit: Awaited<ReturnType<typeof resolveSiteAssetPolicy>>;
+  try {
+    assetAudit = await resolveSiteAssetPolicy({
+      operation: 'audit',
+      config: site.draftConfig,
+      clientId: client.id,
+      siteId,
+      assetPolicyVersion: site.assetPolicyVersion,
+      phase: 'publish',
+    });
+  } catch (error) {
+    console.error('[publish-audit] asset policy failed:', {
+      errorName: safeAuditErrorName(error),
+    });
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 사진 출처 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+  }
+  const assetPolicyIssues = publishAssetPolicyIssues(assetAudit.violations);
+  if (assetPolicyIssues.length > 0) {
+    logAssetPolicyIssues('publish', assetAudit.mode, assetPolicyIssues);
+  }
+  if (shouldBlockAssetPolicy(assetAudit.mode, assetPolicyIssues)) {
+    return apiError(
+      409,
+      'PUBLISH_ASSET_PROVENANCE_BLOCKED',
+      assetPolicyBlockedMessage(assetPolicyIssues),
+      { violations: assetPolicyIssues },
+    );
+  }
+  const auditedDraft = assetAudit.config;
+
   // [Q$6] 렌더/감사 자체가 실패하면 품질을 증명할 수 없으므로 fail-closed. 점수 미달 자체는 계속 경고다.
   let scan: ReturnType<typeof preflightScan>;
   try {
-    scan = preflightScan(site.draftConfig, {
+    scan = preflightScan(auditedDraft, {
       siteUrl: siteUrlOf(site.domain) || undefined,
       tier: client.tier,
       motionOwnerId: client.id,
@@ -82,14 +136,16 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       motionAssets: provenance.options.assets,
     });
   } catch (error) {
-    console.error('[publish-audit] preflight failed:', error);
+    console.error('[publish-audit] preflight failed:', {
+      errorName: safeAuditErrorName(error),
+    });
     return apiError(
       503,
       'PUBLISH_AUDIT_UNAVAILABLE',
       '발행 전 품질 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     );
   }
-  const preflight = checkPublish(site.draftConfig, client.tier, {
+  const preflight = checkPublish(auditedDraft, client.tier, {
     scan: { total: scan.scores.total, grade: scan.grade },
     artifact: scan.publishAudit,
   });
@@ -99,8 +155,9 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     });
   }
 
-  // 진단한 site.draftConfig와 실제 라이브에 복사하는 snapshot이 반드시 동일해야 한다.
-  const published = await publishAuditedSnapshot(getDataServices().sites, siteId, site.draftConfig);
+  // provenance와 품질 검사를 통과한 exact snapshot만 라이브로 복사한다.
+  const published = await publishAuditedSnapshot(getDataServices().sites, siteId, auditedDraft);
+  // site.draftConfig를 직접 복사하지 않아 감사한 snapshot과 발행본 사이의 TOCTOU를 막는다.
   return NextResponse.json({
     site: published,
     url: published.domain ? `https://${published.domain}` : null,
@@ -110,6 +167,10 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       needsQa: preflight.needsQa,
       scan: preflight.scan,
       qaChecklist: preflight.qaChecklist,
+      assetPolicy: {
+        mode: assetAudit.mode,
+        issues: assetPolicyIssues,
+      },
     },
   });
 });

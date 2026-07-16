@@ -31,6 +31,7 @@ import {
   mergeCanonicalAssetRefs,
   verifySurveyAssetTruth,
 } from '@/lib/assets/survey-truth';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
@@ -198,6 +199,15 @@ export const POST = withApiHandler(async (request) => {
     clientId: client.id,
     siteId,
   });
+  const assetPolicy = await resolveSiteAssetPolicy({
+    operation: 'assign',
+    config: draftConfig,
+    clientId: client.id,
+    siteId,
+    assetPolicyVersion: site.assetPolicyVersion,
+    phase: 'regeneration',
+  });
+  draftConfig = assetPolicy.config;
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 
@@ -208,5 +218,14 @@ export const POST = withApiHandler(async (request) => {
     freeRegensUsed: used + 1,
     freeRegenLimit: FREE_REGEN_LIMIT,
     ...(motionWarning ? { motionWarning } : {}),
+    ...(assetPolicy.violations.length
+      ? {
+          assetWarnings: assetPolicy.violations.map(({ slotKey, reason, fallbackIntent }) => ({
+            slotKey,
+            reason,
+            fallbackIntent,
+          })),
+        }
+      : {}),
   });
 });

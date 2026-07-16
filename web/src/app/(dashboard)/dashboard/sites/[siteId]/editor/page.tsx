@@ -9,6 +9,10 @@ import { getDataServices } from '@/lib/data';
 import { getCurrentClient } from '@/lib/services/auth';
 import { emptySiteConfig } from '@/lib/types/site';
 import { EditorShell } from '@/components/editor/EditorShell';
+import {
+  preservePersistedAssetUsagesInPreview,
+  resolveSiteAssetPolicy,
+} from '@/lib/assets/assignment';
 
 export const metadata: Metadata = {
   title: '에디터 — Daboim',
@@ -24,7 +28,20 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
   // 존재하지 않거나 내 소유가 아니면 존재 여부를 노출하지 않고 404
   if (!site || site.clientId !== client.id) notFound();
 
-  const initialConfig = site.draftConfig ?? site.siteConfig ?? emptySiteConfig(site.name || '새 사이트');
+  const persistedConfig = site.draftConfig ?? site.siteConfig;
+  const initialConfig = persistedConfig
+    ? preservePersistedAssetUsagesInPreview({
+        projectedConfig: (await resolveSiteAssetPolicy({
+          operation: 'audit',
+          config: persistedConfig,
+          clientId: client.id,
+          siteId,
+          assetPolicyVersion: site.assetPolicyVersion,
+          phase: 'preview',
+        })).config,
+        persistedConfig,
+      })
+    : emptySiteConfig(site.name || '새 사이트');
 
   // [gating] 소유자 tier — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰). 조회 실패 시 fail-closed(basic).
   const owner = await getDataServices().clients.getById(site.clientId);

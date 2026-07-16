@@ -26,6 +26,7 @@ import {
   mergeCanonicalAssetRefs,
   verifySurveyAssetTruth,
 } from '@/lib/assets/survey-truth';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
@@ -163,6 +164,15 @@ export const POST = withApiHandler(async (request) => {
     ...draftConfig,
     assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
   };
+  let assetPolicy = await resolveSiteAssetPolicy({
+    operation: 'assign',
+    config: draftConfig,
+    clientId: client.id,
+    assetPolicyVersion,
+    generalAttestationId: survey.generalAssetAttestationId,
+    phase: 'generation',
+  });
+  draftConfig = assetPolicy.config;
   let site = await sites.create({
     clientId: client.id,
     name: survey.businessName,
@@ -199,6 +209,15 @@ export const POST = withApiHandler(async (request) => {
         ...draftConfig,
         assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
       };
+      assetPolicy = await resolveSiteAssetPolicy({
+        operation: 'assign',
+        config: draftConfig,
+        clientId: client.id,
+        siteId: site.id,
+        assetPolicyVersion,
+        phase: 'generation',
+      });
+      draftConfig = assetPolicy.config;
       await sites.saveDraft(site.id, draftConfig);
       site = await sites.getById(site.id) ?? site;
     } else {
@@ -208,5 +227,18 @@ export const POST = withApiHandler(async (request) => {
 
   if (idemK) recentGenerations.set(idemK, { siteId: site.id, at: Date.now() });
 
-  return NextResponse.json({ siteId: site.id, site, ...(motionWarning ? { motionWarning } : {}) }, { status: 201 });
+  return NextResponse.json({
+    siteId: site.id,
+    site,
+    ...(motionWarning ? { motionWarning } : {}),
+    ...(assetPolicy.violations.length
+      ? {
+          assetWarnings: assetPolicy.violations.map(({ slotKey, reason, fallbackIntent }) => ({
+            slotKey,
+            reason,
+            fallbackIntent,
+          })),
+        }
+      : {}),
+  }, { status: 201 });
 });

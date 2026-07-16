@@ -10,6 +10,7 @@ import {
   toAssetRef,
   type AssetRef,
 } from './provenance';
+import { preserveServerAssetUsagesForSave } from './assignment-core';
 import type { DesignCandidate } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { ImageDirectionId } from './image-directions';
@@ -162,12 +163,16 @@ export async function validateConfigAssetRefsForSave(input: {
   siteId: string;
 }): Promise<SiteConfig> {
   const flags = assetProvenanceConfig();
-  const submittedHasManifest = Object.hasOwn(input.config, 'assetRefs');
-  const submitted = input.config.assetRefs;
+  const protectedConfig = preserveServerAssetUsagesForSave({
+    config: input.config,
+    persistedConfig: input.persistedConfig,
+  });
+  const submittedHasManifest = Object.hasOwn(protectedConfig, 'assetRefs');
+  const submitted = protectedConfig.assetRefs;
   const persisted = input.persistedConfig?.assetRefs;
   if (!flags.write) {
     if (!persisted?.length) {
-      if (!submittedHasManifest) return input.config;
+      if (!submittedHasManifest) return protectedConfig;
       throw new AssetProvenanceError(
         'CLIENT_PROVENANCE_FORBIDDEN',
         'Asset references cannot be submitted while provenance WRITE is disabled.',
@@ -185,7 +190,7 @@ export async function validateConfigAssetRefsForSave(input: {
     }
     // Feature-flag rollback must not strand already dual-written sites. The persisted
     // server manifest remains authoritative even when a legacy editor omits the field.
-    return { ...input.config, assetRefs: persisted };
+    return { ...protectedConfig, assetRefs: persisted };
   }
   if (!persisted?.length) {
     if (submittedHasManifest) {
@@ -194,7 +199,7 @@ export async function validateConfigAssetRefsForSave(input: {
         'A client cannot introduce a new asset manifest.',
       );
     }
-    return input.config;
+    return protectedConfig;
   }
   if (submittedHasManifest) {
     const unchanged = submitted?.length === persisted.length && submitted.every((ref, index) =>
@@ -211,5 +216,5 @@ export async function validateConfigAssetRefsForSave(input: {
     clientId: input.clientId,
     siteId: input.siteId,
   });
-  return { ...input.config, assetRefs: canonical };
+  return { ...protectedConfig, assetRefs: canonical };
 }

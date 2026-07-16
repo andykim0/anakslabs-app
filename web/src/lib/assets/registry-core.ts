@@ -31,6 +31,15 @@ export interface AssetRegistry {
     clientId: string;
     siteId?: string | null;
   }): Promise<AssetRecord[]>;
+  /**
+   * One batch query that returns only records visible to the authenticated
+   * owner. Missing/cross-tenant ids are omitted so policy audits can emit a
+   * per-slot fail-closed result without disclosing another tenant's record.
+   */
+  resolveOwnedAvailable(input: {
+    assetIds: readonly string[];
+    clientId: string;
+  }): Promise<AssetRecord[]>;
   bindToSite(input: { assetId: string; clientId: string; siteId: string }): Promise<AssetRecord>;
 }
 
@@ -181,19 +190,26 @@ export function createMemoryAssetRegistry(options: {
     },
 
     async resolveOwned({ assetIds, clientId, siteId }) {
+      const ids = [...new Set(assetIds)];
+      const available = await this.resolveOwnedAvailable({ assetIds: ids, clientId });
+      const byId = new Map(available.map((record) => [record.id, record] as const));
       const result: AssetRecord[] = [];
-      for (const id of [...new Set(assetIds)]) {
+      for (const id of ids) {
         const record = byId.get(id);
         if (!record) throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${id}`);
-        if (record.ownerId !== clientId) {
-          // Match the real query, which filters by client_id before returning
-          // rows. Batch resolution must not disclose another tenant's asset.
-          throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${id}`);
-        }
         if (siteId !== undefined && siteId !== null && record.siteId !== siteId) {
           throw new AssetProvenanceError('ASSET_SITE_MISMATCH', `Asset is not bound to site ${siteId}`);
         }
         result.push(clone(record));
+      }
+      return result;
+    },
+
+    async resolveOwnedAvailable({ assetIds, clientId }) {
+      const result: AssetRecord[] = [];
+      for (const id of [...new Set(assetIds)]) {
+        const record = byId.get(id);
+        if (record?.ownerId === clientId) result.push(clone(record));
       }
       return result;
     },

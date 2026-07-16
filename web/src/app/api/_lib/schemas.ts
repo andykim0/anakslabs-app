@@ -33,6 +33,13 @@ const assetRefSchema = z.object({
   url: safeMediaSrcSchema,
 });
 
+const assetUsageSchema = z.object({
+  assetId: z.string().uuid(),
+  role: z.enum(['factual', 'atmospheric', 'decorative']),
+  subject: z.enum(['product', 'place', 'person', 'portfolio', 'before_after', 'abstract']),
+  slotKey: z.string().trim().min(1).max(300),
+});
+
 /** [W4] 히어로 이미지·영상 선택 계약 — UI 자유 문자열이 저장 경계로 새지 않게 정확히 열거한다. */
 const heroImageChoiceSchema = z.enum(['upload', 'ai-1', 'ai-2', 'ai-3']);
 const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
@@ -145,6 +152,7 @@ const buttonElementSchema = z.object({
 const shapeElementSchema = z.object({
   ...elementBaseShape,
   kind: z.literal('shape'),
+  assetFallback: z.literal(true).optional(),
   shape: z.enum(['rect', 'ellipse', 'line']),
   style: z.object({
     fill: z.string().optional(),
@@ -639,6 +647,7 @@ export const siteConfigSchema = z
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
     assetRefs: z.array(assetRefSchema).max(100).optional(),
+    assetUsages: z.array(assetUsageSchema).max(500).optional(),
     directions: z.array(sectionDirectionSchema).max(100).optional(),
     businessInfo: businessInfoSchema.optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),

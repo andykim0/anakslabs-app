@@ -139,6 +139,27 @@ class SupabaseAssetRegistry implements AssetRegistry {
   }): Promise<AssetRecord[]> {
     const ids = [...new Set(input.assetIds)];
     if (ids.length === 0) return [];
+    const available = await this.resolveOwnedAvailable({
+      assetIds: ids,
+      clientId: input.clientId,
+    });
+    const byId = new Map(available.map((record) => [record.id, record] as const));
+    return ids.map((id) => {
+      const record = byId.get(id);
+      if (!record) throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${id}`);
+      if (input.siteId !== undefined && input.siteId !== null && record.siteId !== input.siteId) {
+        throw new AssetProvenanceError('ASSET_SITE_MISMATCH', `Asset is not bound to site ${input.siteId}`);
+      }
+      return record;
+    });
+  }
+
+  async resolveOwnedAvailable(input: {
+    assetIds: readonly string[];
+    clientId: string;
+  }): Promise<AssetRecord[]> {
+    const ids = [...new Set(input.assetIds)];
+    if (ids.length === 0) return [];
     const svc = getServiceRoleClient();
     const { data, error } = await svc
       .from('asset_records')
@@ -152,16 +173,9 @@ class SupabaseAssetRegistry implements AssetRegistry {
         return [record.id, record] as const;
       }),
     );
-    return ids.map((id) => {
+    return ids.flatMap((id) => {
       const record = byId.get(id);
-      if (!record) throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${id}`);
-      if (record.ownerId !== input.clientId) {
-        throw new AssetProvenanceError('ASSET_OWNER_MISMATCH', `Asset belongs to another client: ${id}`);
-      }
-      if (input.siteId !== undefined && input.siteId !== null && record.siteId !== input.siteId) {
-        throw new AssetProvenanceError('ASSET_SITE_MISMATCH', `Asset is not bound to site ${input.siteId}`);
-      }
-      return record;
+      return record ? [record] : [];
     });
   }
 
@@ -238,6 +252,13 @@ export function resolveOwnedAssetRecords(input: {
   siteId?: string | null;
 }): Promise<AssetRecord[]> {
   return getAssetRegistry().resolveOwned(input);
+}
+
+export function resolveAvailableOwnedAssetRecords(input: {
+  assetIds: readonly string[];
+  clientId: string;
+}): Promise<AssetRecord[]> {
+  return getAssetRegistry().resolveOwnedAvailable(input);
 }
 
 /**

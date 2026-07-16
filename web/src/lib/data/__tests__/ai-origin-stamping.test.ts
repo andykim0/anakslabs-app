@@ -196,14 +196,20 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
 
     const editor = source('src/app/api/sites/[siteId]/route.ts');
     const validateManifest = editor.indexOf('await validateConfigAssetRefsForSave({');
-    const editorSave = editor.indexOf('sites.saveDraft(siteId, sanitized)');
-    assert.ok(validateManifest >= 0 && validateManifest < editorSave);
+    const assignment = editor.indexOf('resolveSiteAssetPolicy({', validateManifest);
+    const editorSave = editor.indexOf('sites.saveDraft(siteId, assetPolicy.config)', assignment);
+    assert.ok(
+      validateManifest >= 0
+      && validateManifest < assignment
+      && assignment < editorSave,
+    );
 
     const hero = source('src/app/api/sites/[siteId]/hero-video/route.ts');
     const resolve = hero.indexOf('await resolveOwnedAssetRecords({', hero.indexOf('export const PATCH'));
     const apply = hero.indexOf('applyHeroVideoToConfig(', resolve);
-    const saveHero = hero.indexOf('sites.saveDraft(siteId, next)', apply);
-    assert.ok(resolve >= 0 && resolve < apply && apply < saveHero);
+    const policy = hero.indexOf('resolveSiteAssetPolicy({', apply);
+    const saveHero = hero.indexOf('sites.saveDraft(siteId, assetPolicy.config)', policy);
+    assert.ok(resolve >= 0 && resolve < apply && apply < policy && policy < saveHero);
     assert.match(hero.slice(resolve, apply), /clientId: client\.id[\s\S]*siteId/);
     assert.match(hero.slice(resolve, apply), /record\.origin !== 'ai_generated'[\s\S]*record\.mediaType !== 'video'/);
   });

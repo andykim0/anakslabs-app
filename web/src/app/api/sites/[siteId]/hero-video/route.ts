@@ -16,6 +16,7 @@ import { videoGenConfig } from '@/lib/env';
 import { isSafeMediaSrc } from '@/lib/safe-url';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { resolveOwnedAssetRecords, toAssetRef } from '@/lib/assets/registry';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import {
   applyHeroVideoToConfig,
   assertVideoGenAllowed,
@@ -189,7 +190,15 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
     body.data.posterUrl,
     trustedAssetRef,
   );
-  await getDataServices().sites.saveDraft(siteId, next);
+  const assetPolicy = await resolveSiteAssetPolicy({
+    operation: 'assign',
+    config: next,
+    clientId: client.id,
+    siteId,
+    assetPolicyVersion: site.assetPolicyVersion,
+    phase: 'regeneration',
+  });
+  await getDataServices().sites.saveDraft(siteId, assetPolicy.config);
   await recordHeroVideoSelection({
     siteId,
     tier: client.tier,
@@ -197,5 +206,16 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
     videoUrl: body.data.videoUrl,
     prompt: body.data.prompt ?? '',
   });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    ...(assetPolicy.violations.length
+      ? {
+          assetWarnings: assetPolicy.violations.map(({ slotKey, reason, fallbackIntent }) => ({
+            slotKey,
+            reason,
+            fallbackIntent,
+          })),
+        }
+      : {}),
+  });
 });

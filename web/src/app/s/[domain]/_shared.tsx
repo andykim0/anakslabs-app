@@ -11,12 +11,17 @@ import { findPage } from '@/lib/types/site';
 import { getDataServices } from '@/lib/data';
 import { SuspendedNotice, TenantPageContent } from '@/components/site-renderer';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 
 export { siteUrlOf };
 
-/** generateMetadata + page 중복 조회 방지 (요청 단위 dedupe) */
+/**
+ * generateMetadata + page 중복 조회와 provenance audit를 함께 dedupe한다.
+ * React cache는 Metadata/Page/Server Component 사이의 같은 요청 데이터를 공유하므로,
+ * OG metadata와 본문이 반드시 같은 audited config projection을 소비한다.
+ */
 export const getSiteByDomain = cache(async (rawDomain: string): Promise<Site | null> => {
   let domain: string;
   try {
@@ -25,7 +30,23 @@ export const getSiteByDomain = cache(async (rawDomain: string): Promise<Site | n
     return null;
   }
   if (!domain) return null;
-  return getDataServices().sites.getByDomain(domain);
+  const site = await getDataServices().sites.getByDomain(domain);
+  if (!site?.siteConfig) return site;
+
+  const policy = await resolveSiteAssetPolicy({
+    operation: 'audit',
+    config: site.siteConfig,
+    clientId: site.clientId,
+    siteId: site.id,
+    assetPolicyVersion: site.assetPolicyVersion,
+    phase: 'render',
+  });
+
+  // Legacy-bypass/observe preserve the original object and exact DOM contract.
+  // Enforced v2 sites receive the server-projected config with honest fallbacks.
+  return policy.config === site.siteConfig
+    ? site
+    : { ...site, siteConfig: policy.config };
 });
 
 /**

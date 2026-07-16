@@ -13,6 +13,10 @@ import { sanitizeMotion } from '@/lib/motion/validate';
 import { preserveSiteClassification } from '@/lib/onboarding/site-classification';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { validateConfigAssetRefsForSave } from '@/lib/assets/owned-refs';
+import {
+  preservePersistedAssetUsagesInPreview,
+  resolveSiteAssetPolicy,
+} from '@/lib/assets/assignment';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -24,7 +28,33 @@ export const GET = withApiHandler<Ctx>(async (_request, { params }) => {
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
 
-  return NextResponse.json({ site });
+  // Dashboard previews are a production render surface too. Project both
+  // persisted snapshots through the server policy without mutating storage;
+  // legacy-bypass/observe return the original config objects unchanged.
+  const projectPreview = async (config: SiteConfig | null) => {
+    if (!config) return null;
+    const policy = await resolveSiteAssetPolicy({
+      operation: 'audit',
+      config,
+      clientId: client.id,
+      siteId,
+      assetPolicyVersion: site.assetPolicyVersion,
+      phase: 'preview',
+    });
+    return preservePersistedAssetUsagesInPreview({
+      projectedConfig: policy.config,
+      persistedConfig: config,
+    });
+  };
+  const [draftConfig, siteConfig] = await Promise.all([
+    projectPreview(site.draftConfig),
+    projectPreview(site.siteConfig),
+  ]);
+  const previewSite = draftConfig === site.draftConfig && siteConfig === site.siteConfig
+    ? site
+    : { ...site, draftConfig, siteConfig };
+
+  return NextResponse.json({ site: previewSite });
 });
 
 const patchSchema = z.object({
@@ -60,10 +90,30 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
     provenance.ok ? provenance.options : { ownerId: client.id, siteId },
   );
   if (!provenance.ok) changes.push(`전후 비교 연출을 비활성화했습니다: ${provenance.message}`);
-  await getDataServices().sites.saveDraft(siteId, sanitized);
+  const assetPolicy = await resolveSiteAssetPolicy({
+    // An editor save is an assignment boundary: recompute the server-owned
+    // usage manifest from the actual slots before persisting. Preview-only
+    // reads use `audit`; writes must never preserve a stale client manifest.
+    operation: 'assign',
+    config: sanitized,
+    clientId: client.id,
+    siteId,
+    assetPolicyVersion: site.assetPolicyVersion,
+    phase: 'preview',
+  });
+  await getDataServices().sites.saveDraft(siteId, assetPolicy.config);
   return NextResponse.json({
     ok: true,
     savedAt: new Date().toISOString(),
     ...(changes.length ? { motionChanges: changes } : {}),
+    ...(assetPolicy.violations.length
+      ? {
+          assetWarnings: assetPolicy.violations.map(({ slotKey, reason, fallbackIntent }) => ({
+            slotKey,
+            reason,
+            fallbackIntent,
+          })),
+        }
+      : {}),
   });
 });

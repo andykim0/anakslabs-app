@@ -38,6 +38,8 @@ test('generate and regenerate verify truth before AI, mutation, or free-regen ac
   before(generate, 'verifySurveyAssetTruth({', 'ai.generateSiteConfig(', 'truth must precede generation');
   before(generate, 'verifySurveyAssetTruth({', 'sites.create({', 'truth must precede site creation');
   assert.match(generate, /mergeCanonicalAssetRefs\(draftConfig\.assetRefs, truth\.directUploadAssetRefs\)/);
+  before(generate, 'resolveSiteAssetPolicy({', 'sites.create({', 'slot assignment must precede site creation');
+  assert.match(generate, /operation: 'assign'[\s\S]*assetPolicyVersion[\s\S]*phase: 'generation'/);
   assert.match(generate, /generalAssetAttestationId: survey\.generalAssetAttestationId/);
   assert.match(generate, /expectedImageDirectionId: survey\.imageDirectionId/);
   assert.match(generate, /error instanceof CandidateAssetTruthError/);
@@ -50,6 +52,8 @@ test('generate and regenerate verify truth before AI, mutation, or free-regen ac
   assert.match(regenerate, /site\.assetPolicyVersion === 2 && !submittedSurvey\.imageDirectionId/);
   assert.match(regenerate, /expectedImageDirectionId: survey\.imageDirectionId/);
   assert.match(regenerate, /customerUploadAssetRefs: truth\.directUploadAssetRefs/);
+  before(regenerate, 'resolveSiteAssetPolicy({', 'sites.saveDraft(siteId, draftConfig)', 'slot assignment must precede draft persistence');
+  before(regenerate, 'resolveSiteAssetPolicy({', 'incrementFreeRegens(', 'slot assignment must precede regen accounting');
 });
 
 test('v2 image edit policy rejects factual prompts before mutation while legacy stays on its existing provider path', () => {
@@ -74,4 +78,14 @@ test('customer upload candidates require a server-preverified ID allowlist', () 
   assert.match(refs, /record\.origin === 'customer_upload'/);
   assert.match(refs, /allowedCustomerUploadAssetIds\?\.includes\(record\.id\)/);
   assert.doesNotMatch(refs, /storePhotoUrls\.includes|heroPhotoUrl\.includes/);
+});
+
+test('editor and hero-video saves re-run the server asset policy before persistence', () => {
+  const editor = source('src/app/api/sites/[siteId]/route.ts');
+  before(editor, 'resolveSiteAssetPolicy({', 'sites.saveDraft(siteId, assetPolicy.config)', 'editor save must audit asset slots first');
+  assert.match(editor, /operation: 'assign'[\s\S]*assetPolicyVersion: site\.assetPolicyVersion/);
+
+  const heroVideo = source('src/app/api/sites/[siteId]/hero-video/route.ts');
+  before(heroVideo, 'resolveSiteAssetPolicy({', 'sites.saveDraft(siteId, assetPolicy.config)', 'video assignment must precede save');
+  assert.match(heroVideo, /operation: 'assign'[\s\S]*assetPolicyVersion: site\.assetPolicyVersion/);
 });

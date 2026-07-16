@@ -13,6 +13,14 @@ import { guidanceFor } from '@/lib/scan/guidance';
 import { computeResolution } from '@/lib/scan/issue-resolution';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
+import {
+  assetPolicyBlockedMessage,
+  logAssetPolicyIssues,
+  publishAssetPolicyIssues,
+  safeAuditErrorName,
+  shouldBlockAssetPolicy,
+} from '@/lib/publish/asset-policy-feedback';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -29,13 +37,60 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     return apiError(409, 'NO_DRAFT', '진단할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
   }
 
+  let provenance: Awaited<ReturnType<typeof resolveStoredBeforeAfterMotionOptions>>;
+  try {
+    provenance = await resolveStoredBeforeAfterMotionOptions({ config, clientId: client.id, siteId });
+  } catch (error) {
+    console.error('[preflight-audit] motion provenance failed:', {
+      errorName: safeAuditErrorName(error),
+    });
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 사진 출처 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+  }
+  if (!provenance.ok) {
+    return apiError(409, 'PREFLIGHT_MOTION_PROVENANCE_BLOCKED', provenance.message, { code: provenance.code });
+  }
+
+  let assetAudit: Awaited<ReturnType<typeof resolveSiteAssetPolicy>>;
+  try {
+    assetAudit = await resolveSiteAssetPolicy({
+      operation: 'audit',
+      config,
+      clientId: client.id,
+      siteId,
+      assetPolicyVersion: site.assetPolicyVersion,
+      phase: 'publish',
+    });
+  } catch (error) {
+    console.error('[preflight-audit] asset policy failed:', {
+      errorName: safeAuditErrorName(error),
+    });
+    return apiError(
+      503,
+      'PUBLISH_AUDIT_UNAVAILABLE',
+      '발행 전 사진 출처 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    );
+  }
+  const assetPolicyIssues = publishAssetPolicyIssues(assetAudit.violations);
+  if (assetPolicyIssues.length > 0) {
+    logAssetPolicyIssues('preflight', assetAudit.mode, assetPolicyIssues);
+  }
+  if (shouldBlockAssetPolicy(assetAudit.mode, assetPolicyIssues)) {
+    return apiError(
+      409,
+      'PREFLIGHT_ASSET_PROVENANCE_BLOCKED',
+      assetPolicyBlockedMessage(assetPolicyIssues),
+      { violations: assetPolicyIssues },
+    );
+  }
+  const auditedConfig = assetAudit.config;
+
   let scan: ReturnType<typeof preflightScan>;
   try {
-    const provenance = await resolveStoredBeforeAfterMotionOptions({ config, clientId: client.id, siteId });
-    if (!provenance.ok) {
-      return apiError(409, 'PREFLIGHT_MOTION_PROVENANCE_BLOCKED', provenance.message, { code: provenance.code });
-    }
-    scan = preflightScan(config, {
+    scan = preflightScan(auditedConfig, {
       siteUrl: siteUrlOf(site.domain) || undefined,
       tier: client.tier,
       motionOwnerId: client.id,
@@ -43,14 +98,16 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
       motionAssets: provenance.options.assets,
     });
   } catch (error) {
-    console.error('[preflight-audit] scan failed:', error);
+    console.error('[preflight-audit] scan failed:', {
+      errorName: safeAuditErrorName(error),
+    });
     return apiError(
       503,
       'PUBLISH_AUDIT_UNAVAILABLE',
       '발행 전 품질 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
     );
   }
-  const preflight = checkPublish(config, client.tier, {
+  const preflight = checkPublish(auditedConfig, client.tier, {
     scan: { total: scan.scores.total, grade: scan.grade },
     artifact: scan.publishAudit,
   });
@@ -66,7 +123,7 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     afterTotal: number;
     sourceUrl: string;
   } | null = null;
-  const sourceScanId = config.meta.sourceScanId;
+  const sourceScanId = auditedConfig.meta.sourceScanId;
   if (sourceScanId) {
     try {
       const source = await getDataServices().scans.getById(sourceScanId);
@@ -90,7 +147,11 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     blockers: preflight.blockers,
     warnings: preflight.warnings,
     needsQa: preflight.needsQa,
-    businessInfoMissing: !config.businessInfo,
+    businessInfoMissing: !auditedConfig.businessInfo,
+    assetPolicy: {
+      mode: assetAudit.mode,
+      issues: assetPolicyIssues,
+    },
     improvement,
   });
 });
