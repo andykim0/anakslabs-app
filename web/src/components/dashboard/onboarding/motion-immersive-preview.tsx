@@ -118,31 +118,29 @@ export function MotionImmersivePreview({
     const scroller = dialogRef.current?.querySelector<HTMLElement>('[data-site-preview-scroll="true"]');
     if (!scroller) return;
 
-    let interval = 0;
+    let frame = 0;
+    let lastTime = 0;
     let stopped = false;
     const stopAutoProgress = () => {
       stopped = true;
-      if (interval) window.clearInterval(interval);
-      // A native smooth scroll can keep travelling after its interval is
-      // cleared. Lock the current position synchronously so the first user
-      // gesture takes ownership of the preview immediately.
-      const lockedTop = scroller.scrollTop;
-      scroller.style.scrollBehavior = 'auto';
-      scroller.scrollTop = lockedTop;
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+    const advance = (time: number) => {
+      if (stopped) return;
+      if (!lastTime) lastTime = time;
+      const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      const nextTop = Math.min(maxTop, scroller.scrollTop + (time - lastTime) * 0.045);
+      lastTime = time;
+      scroller.scrollTop = nextTop;
+      if (maxTop - nextTop <= 2) {
+        stopAutoProgress();
+        return;
+      }
+      frame = window.requestAnimationFrame(advance);
     };
     const start = window.setTimeout(() => {
       if (stopped) return;
-      interval = window.setInterval(() => {
-        const remaining = scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop;
-        if (remaining <= 2) {
-          stopAutoProgress();
-          return;
-        }
-        scroller.scrollBy({
-          top: Math.min(remaining, Math.max(120, scroller.clientHeight * 0.42)),
-          behavior: 'smooth',
-        });
-      }, 2_400);
+      frame = window.requestAnimationFrame(advance);
     }, 1_200);
     scroller.addEventListener('pointerdown', stopAutoProgress, { passive: true });
     scroller.addEventListener('touchstart', stopAutoProgress, { passive: true });
@@ -150,7 +148,7 @@ export function MotionImmersivePreview({
     return () => {
       stopped = true;
       window.clearTimeout(start);
-      if (interval) window.clearInterval(interval);
+      if (frame) window.cancelAnimationFrame(frame);
       scroller.removeEventListener('pointerdown', stopAutoProgress);
       scroller.removeEventListener('touchstart', stopAutoProgress);
       scroller.removeEventListener('wheel', stopAutoProgress);
