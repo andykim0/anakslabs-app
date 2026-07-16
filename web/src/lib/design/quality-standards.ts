@@ -11,10 +11,12 @@
  * 유도. ③ CandidateStyle(photo|3d_render|illustration)은 POV와 직교(렌더 방식) — buildImagePrompt 파라미터로만 사용.
  */
 import type { CandidateStyle } from '@/lib/types/domain';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { SectionType } from '@/lib/types/site';
 import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
 import {
   ambientSubjectFor,
+  moodPromptForTone,
   productSafetyDirective,
   resolveIndustrySubjectSafety,
   resolveMoodSubjectId,
@@ -659,6 +661,51 @@ export function buildImagePrompt(
       `Design point-of-view: ${pov.promptMood}. Render: ${render}.${color} ` +
       `${productSafetyDirective(candidateStyle, { strict: subjectSafety.strict })} ` +
       `Generous negative space, ${NO_TEXT_DIRECTIVE}, no stock photography.`,
+  );
+}
+
+type GenerativeImageDirection = Exclude<ImageDirectionId, 'real_photo'>;
+
+const V2_DIRECTION_TREATMENT: Record<GenerativeImageDirection, string> = {
+  '3d_brand_world':
+    'A clearly synthetic, non-photographic 3D brand world made only from abstract geometric volumes, translucent layers, and stylized material studies. No literal merchandise, architecture, people, or documentary scene',
+  illustration_collage:
+    'An intentionally non-photographic editorial illustration and cut-paper collage made from abstract shapes, drawn marks, layered color fields, and tactile paper-like material. No literal evidence or documentary scene',
+  abstract_editorial:
+    'An abstract editorial composition made from light, shadow, color fields, translucent layers, restrained geometry, and non-representational material texture. No literal product, place, person, or portfolio work',
+};
+
+/**
+ * Asset-policy v2 prompt boundary. This path cannot request photography and
+ * never passes through buildPhotorealisticPhotoPrompt. Industry and arbitrary
+ * user copy are intentionally absent: AI supplies atmosphere, never evidence.
+ */
+export function buildV2ImagePrompt(
+  povId: PovId,
+  section: string,
+  opts: {
+    imageDirectionId: GenerativeImageDirection;
+    palettePrimary?: string;
+    background?: string;
+    tone?: readonly string[] | string;
+  },
+): string {
+  const pov = findPov(povId);
+  const role = imageRoleForSection(section);
+  const treatment = V2_DIRECTION_TREATMENT[opts.imageDirectionId];
+  const mood = moodPromptForTone(opts.tone, pov.promptMood);
+  const colorMood = opts.palettePrimary
+    ? ` Palette language: ${describeColor(opts.palettePrimary)}${opts.background ? ` with ${describeColor(opts.background)}` : ''}.`
+    : '';
+  const candidateStyle: CandidateStyle = opts.imageDirectionId === '3d_brand_world'
+    ? '3d_render'
+    : 'illustration';
+
+  return stripHangul(
+    `${role}. ${treatment}. Art direction: ${pov.promptMood}; ${mood}.${colorMood} `
+      + `${productSafetyDirective(candidateStyle, { strict: true })} `
+      + `Keep the composition atmospheric or decorative only, with generous negative space. `
+      + `${NO_TEXT_DIRECTIVE}, no stock photography.`,
   );
 }
 

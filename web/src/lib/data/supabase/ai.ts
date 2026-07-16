@@ -20,8 +20,15 @@ import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
 import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
-import { povImagePrompt } from '@/lib/ai/image-prompt';
-import { buildImagePrompt } from '@/lib/design/quality-standards';
+import { povImagePrompt, v2ImagePrompt } from '@/lib/ai/image-prompt';
+import { buildImagePrompt, buildV2ImagePrompt } from '@/lib/design/quality-standards';
+import {
+  assertAiImageGenerationPolicy,
+} from '@/lib/ai/image-generation-policy';
+import {
+  resolveSurveyV2ImageGenerationPlan,
+  surveyWithResolvedV2ImageDirection,
+} from '@/lib/ai/survey-image-generation';
 import type {
   AiAssetOwnerContext,
   AiGeneratedAssetResult,
@@ -238,10 +245,24 @@ export class SupabaseAiService implements AiService {
     owner: AiAssetOwnerContext,
   ): Promise<DesignCandidate[]> {
     assertAiAssetProvenanceReady();
-    const blueprints = buildCandidateBlueprints(survey);
+    const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
+    const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
+    const blueprints = buildCandidateBlueprints(generationSurvey);
+    if (v2Plan?.kind === 'reuse_customer_upload') {
+      return blueprints.map((bp) => ({
+        id: bp.id,
+        label: bp.label,
+        style: bp.style,
+        imageDirectionId: v2Plan.direction,
+        heroImageUrl: v2Plan.asset.canonicalUrl,
+        heroAssetRef: { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl },
+        theme: bp.theme,
+        description: bp.description,
+      }));
+    }
     // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
     // 유지하고 테마·레이아웃으로만 비교한다(피사체 날조·불필요한 Gemini 비용 0).
-    const heroPhotoUrl = selectedHeroPhotoUrl(survey);
+    const heroPhotoUrl = v2Plan ? undefined : selectedHeroPhotoUrl(survey);
     if (heroPhotoUrl) {
       return blueprints.map((bp) => ({
         id: bp.id,
@@ -253,14 +274,16 @@ export class SupabaseAiService implements AiService {
       }));
     }
     // Claude 1회 호출로 3안 텍스트를 다듬는다 (실패 시 빈 Map → 결정적 텍스트)
-    const refined = await refineCandidateTexts(survey, blueprints);
+    const refined = await refineCandidateTexts(generationSurvey, blueprints);
 
     return Promise.all(
       blueprints.map(async (bp) => {
         const text = refined.get(bp.id);
         // [H3] 중앙 안전 빌더의 tone 기반 ambient만 사용. Claude 자유 피사체는 생성 입력으로 받지 않는다.
         // 이 히어로 이미지가 곧 video-hero의 poster 후보(Veo 시작 프레임)로 보존된다.
-        const heroPrompt = povImagePrompt(bp, survey, 'hero section');
+        const heroPrompt = v2Plan
+          ? v2ImagePrompt(bp, generationSurvey, 'hero section', v2Plan.direction)
+          : povImagePrompt(bp, generationSurvey, 'hero section');
         let heroImageUrl = bp.mockHeroUrl; // 생성 실패 시 스타일 프리뷰 자산으로 강등
         let heroAssetRef: AssetRef | undefined;
         try {
@@ -278,6 +301,7 @@ export class SupabaseAiService implements AiService {
           id: bp.id,
           label: text?.label ?? bp.label,
           style: bp.style,
+          ...(bp.imageDirectionId ? { imageDirectionId: bp.imageDirectionId } : {}),
           heroImageUrl,
           ...(heroAssetRef ? { heroAssetRef } : {}),
           // 테마는 항상 결정적(buildThemeFromBrief 산출) — LLM 이 hex 를 만들지 않는다
@@ -294,9 +318,12 @@ export class SupabaseAiService implements AiService {
     owner: AiAssetOwnerContext,
   ): Promise<SiteConfig> {
     assertAiAssetProvenanceReady();
+    const routeVerifiedV2Uploads = Boolean(survey.imageDirectionId);
+    const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
+    const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
     // 선택된 후보의 브리프를 설문으로 재도출 (결정적 — 계약 타입 확장 없이 스타일 조각 복원)
-    const blueprint = matchBlueprintForCandidate(survey, candidate);
-    const copy = await generateSectionCopy(survey, blueprint);
+    const blueprint = matchBlueprintForCandidate(generationSurvey, candidate);
+    const copy = await generateSectionCopy(generationSurvey, blueprint);
 
     // [Q4] 부족분(추정 슬롯 − 실사)만 AI 보충 생성. 비용 가드 IMAGE_FILL_MAX_PER_SITE(기본 8, 0=킬스위치).
     //      실사가 슬롯을 덮으면 shouldSkipAiPool로 전량 스킵(실비용 절감).
@@ -304,16 +331,24 @@ export class SupabaseAiService implements AiService {
     let generatedSectionAssets: AiGeneratedAssetResult[] = [];
     const fillMax = imageFillMaxPerSite();
     // 대표 사진과 exact duplicate인 storePhoto는 히어로 전용이므로 본문 슬롯/비용 계산에서 제외한다.
-    const selectedUpload = selectedHeroPhotoUrl(survey);
-    const bodyStorePhotos = survey.storePhotoUrls?.filter(
+    const selectedUpload = v2Plan?.kind === 'reuse_customer_upload'
+      ? v2Plan.asset.canonicalUrl
+      : v2Plan
+        ? undefined
+        : selectedHeroPhotoUrl(survey);
+    const bodyStorePhotos = v2Plan
+      ? routeVerifiedV2Uploads ? generationSurvey.storePhotoUrls : undefined
+      : survey.storePhotoUrls?.filter(
       (url) => Boolean(url) && url !== selectedUpload,
     );
-    const fillCount = shouldSkipAiPool(bodyStorePhotos)
+    const fillCount = v2Plan?.kind === 'reuse_customer_upload'
+      ? 0
+      : shouldSkipAiPool(bodyStorePhotos)
       ? 0
       : aiFillCount({ sectionPlan: survey.sectionPlan, storePhotos: bodyStorePhotos, fillMax });
     if (fillCount > 0) {
       // 섹션마다 다른 장면 프롬프트로 unique 생성 — 재사용 상한 하에 서로 다른 이미지가 슬롯을 채운다.
-      const SCENES = [
+      const LEGACY_SCENES = [
         'ambient interior with natural light',
         'architectural detail with generous negative space',
         'soft light moving across tactile materials',
@@ -323,12 +358,16 @@ export class SupabaseAiService implements AiService {
         'subtle texture and shadow pattern',
         'seasonal light and quiet environmental mood',
       ];
-      const scenes = Array.from({ length: fillCount }, (_, i) => SCENES[i % SCENES.length]);
+      const V2_SCENE_ROLES = ['about backdrop', 'gallery backdrop', 'contact backdrop', 'supporting backdrop'];
+      const sceneRoles = v2Plan ? V2_SCENE_ROLES : LEGACY_SCENES;
+      const scenes = Array.from({ length: fillCount }, (_, i) => sceneRoles[i % sceneRoles.length]);
       const generated = await Promise.all(
         scenes.map(async (scene) => {
           try {
             return await generateImageAsset(
-              povImagePrompt(blueprint, survey, scene),
+              v2Plan?.kind === 'generate_atmospheric_ai'
+                ? v2ImagePrompt(blueprint, generationSurvey, scene, v2Plan.direction)
+                : povImagePrompt(blueprint, generationSurvey, scene),
               'sections',
               owner,
               '4:3',
@@ -353,21 +392,28 @@ export class SupabaseAiService implements AiService {
     // [F3 #2a] 실사 우선 → 부족분만 AI 이미지로 충전
     const { heroImageUrl, imagePool } = buildImagePool({
       heroPhoto: selectedUpload,
-      storePhotos: survey.storePhotoUrls,
+      storePhotos: v2Plan
+        ? routeVerifiedV2Uploads ? generationSurvey.storePhotoUrls : undefined
+        : survey.storePhotoUrls,
       aiImages,
       heroFallback: candidate.heroImageUrl,
     });
     const usedUrls = new Set([heroImageUrl, ...imagePool]);
     const assetRefs = [
+      v2Plan?.kind === 'reuse_customer_upload'
+        ? { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl }
+        : undefined,
       candidate.heroAssetRef,
       ...generatedSectionAssets.map((asset) =>
         asset.assetId ? { assetId: asset.assetId, url: asset.url } : undefined),
-    ].filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)));
+    ]
+      .filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)))
+      .filter((ref, index, refs) => refs.findIndex((item) => item.assetId === ref.assetId) === index);
 
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // [R2/R5] 히어로 형태 — 갤러리 선택(referenceDesignId) 우선, 없으면 후보별 결정적 폴백
     const heroVariant = heroVariantForSurvey(survey.referenceDesignId, survey.purposeId, candidate.id);
-    return buildSiteConfigFromSurvey(survey, candidate, {
+    return buildSiteConfigFromSurvey(generationSurvey, candidate, {
       heroImageUrl,
       imagePool,
       copy,
@@ -390,13 +436,29 @@ export class SupabaseAiService implements AiService {
     input: { prompt: string },
     owner: AiAssetOwnerContext,
   ): Promise<AiGeneratedAssetResult> {
+    const plan = owner.assetPolicyVersion === 2
+      ? assertAiImageGenerationPolicy({
+          imageDirectionId: 'abstract_editorial',
+          role: 'decorative',
+          subject: 'abstract',
+          requestedContent: input.prompt,
+          clientId: owner.clientId,
+          siteId: owner.siteId,
+        })
+      : null;
     assertAiAssetProvenanceReady();
-    // [H3] edit-request 자유 문장은 tone 분류 힌트로만 사용한다. 원문을 모델의 양의 피사체로 전달하지 않고
-    // 중앙 레지스트리의 ambient + 제품 날조 금지 지시로 프롬프트 전체를 다시 조립한다.
-    const safePrompt = buildImagePrompt('editorial', 'local business', 'supporting image edit', {
-      candidateStyle: 'photo',
-      tone: input.prompt,
-    });
+    if (plan && plan.kind !== 'generate_atmospheric_ai') {
+      throw new Error('Edit image generation must resolve to an atmospheric AI plan.');
+    }
+    const safePrompt = plan
+      ? buildV2ImagePrompt('editorial', 'supporting image edit', {
+          imageDirectionId: plan.direction,
+          tone: input.prompt,
+        })
+      : buildImagePrompt('editorial', 'local business', 'supporting image edit', {
+          candidateStyle: 'photo',
+          tone: input.prompt,
+        });
     return generateImageAsset(
       safePrompt,
       'edits',

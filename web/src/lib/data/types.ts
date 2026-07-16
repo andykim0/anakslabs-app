@@ -73,6 +73,11 @@ export interface SitesRepo {
     assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
     /** 있으면 site insert와 provisional registry binding을 하나의 저장 경계로 처리한다. */
     assetRefsToBind?: readonly AssetRef[];
+    /**
+     * 서버가 검증한 onboarding 범위 일반 자산 확인서. 있으면 site 생성·asset binding과
+     * 같은 저장 경계에서 현재 site에 한 번만 귀속한다.
+     */
+    generalAssetAttestationId?: string;
   }): Promise<Site>;
   /** 에디터 자동저장 대상 */
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;
@@ -207,6 +212,8 @@ export interface DomainService {
 export interface AiAssetOwnerContext {
   clientId: string;
   siteId?: string;
+  /** Server-owned cohort marker; never deserialize this from a survey or client DTO. */
+  assetPolicyVersion?: 2;
 }
 
 export interface AiGeneratedAssetResult {

@@ -13,6 +13,7 @@ import { HERO_VIDEO_MOTION_IDS } from '@/lib/motion/hero-video-motions';
 import {
   PRODUCTION_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
+import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -801,8 +802,16 @@ export const surveySchema = z.object({
   referenceImageUrls: z.array(z.string()).max(10).default([]),
   // [F3 #2a] 실제 가게 사진(업로드) — 최대 12, 안전 미디어 소스만
   storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
+  // [asset policy v2] URL은 projection일 뿐이다. 서버 registry가 각 참조의 owner/origin을 재검증한다.
+  storePhotoAssetRefs: z.array(assetRefSchema).max(12).optional(),
+  // customer_import 추적 전용. 이 필드는 factual/real_photo 권한을 부여하지 않는다.
+  importedPhotoAssetRefs: z.array(assetRefSchema).max(12).optional(),
   // [히어로 소스] 고객이 직접 고른 대표 사진 1장 — 실제 사진을 AI 무드 생성물보다 우선
   heroPhotoUrl: safeMediaSrcSchema.optional(),
+  heroPhotoAssetRef: assetRefSchema.optional(),
+  generalAssetAttestationId: z.string().uuid().optional(),
+  personPhotoAssetIds: z.array(z.string().uuid()).max(100).optional(),
+  nonPersonPhotoAssetIds: z.array(z.string().uuid()).max(100).optional(),
   // [W4] 히어로 사진 선택 → 영상 애드온 의도 → 등록 모션 선택. 전부 additive이며 생성 권한이 아님.
   heroImageChoice: heroImageChoiceSchema.optional(),
   videoAddon: z.boolean().optional(),
@@ -835,6 +844,8 @@ export const surveySchema = z.object({
   logoUrl: safeMediaSrcSchema.optional(),
   // [온보딩] 이미지 렌더 스타일(고객 선택 축). 미설정 시 서버가 업종 기본값 폴백
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
+  // [asset policy v2] legacy imageStyle과 별도인 신규 방향. real_photo 권한은 서버가 별도 검증한다.
+  imageDirectionId: z.enum(IMAGE_DIRECTION_IDS).optional(),
   contentMode: z.enum(['ai', 'provided']).optional(),
   providedContent: z.string().max(5000).optional(),
   reservationMode: z.enum(['external_link', 'cta']).optional(),
@@ -868,6 +879,7 @@ export const surveySchema = z.object({
         price: z.string().max(30).optional(),
         description: z.string().max(200).optional(),
         photoUrl: z.string().max(2000).optional(),
+        photoAssetRef: assetRefSchema.optional(),
       }),
     )
     .max(40)
@@ -913,6 +925,7 @@ export const designCandidateSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
   style: z.enum(['photo', '3d_render', 'illustration']),
+  imageDirectionId: z.enum(IMAGE_DIRECTION_IDS).optional(),
   heroImageUrl: z.string().min(1),
   heroAssetRef: assetRefSchema.optional(),
   theme: siteThemeSchema,

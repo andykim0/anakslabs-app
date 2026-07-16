@@ -12,6 +12,7 @@ import type {
   SiteConfig,
 } from './site';
 import type { AssetRef } from '@/lib/assets/provenance';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -208,6 +209,8 @@ export interface ContentItem {
   description?: string;
   /** 항목 사진 URL(선택) */
   photoUrl?: string;
+  /** [asset policy v2] 이 항목 사진을 직접 업로드한 경우의 서버 자산 참조. */
+  photoAssetRef?: AssetRef;
 }
 
 /**
@@ -335,10 +338,37 @@ export interface SurveyInput {
    */
   storePhotoUrls?: string[];
   /**
+   * [asset policy v2] 직접 업로드 API가 발급한 본문·갤러리 자산 참조.
+   * URL 배열과 같은 순서/개수라는 가정은 금지하며 서버 registry가 소유권·origin을 재검증한다.
+   */
+  storePhotoAssetRefs?: AssetRef[];
+  /**
+   * [asset policy v2] 외부 채널 이미지를 서버 ingest한 customer_import 참조.
+   * 호환·추적용이며 신규 factual 슬롯 또는 real_photo 자격으로 자동 승격되지 않는다.
+   */
+  importedPhotoAssetRefs?: AssetRef[];
+  /**
    * [히어로 소스] 고객이 직접 고른 대표 사진 1장. 갤러리용 storePhotoUrls와 구분하며,
    * 히어로 소스에서는 이 실제 사진을 AI 무드 생성물보다 우선한다.
    */
   heroPhotoUrl?: string;
+  /** [asset policy v2] 직접 업로드한 대표 사진의 서버 자산 참조. URL만으로 대체할 수 없다. */
+  heroPhotoAssetRef?: AssetRef;
+  /**
+   * [asset policy v2] 서버에 기록된 일반 factual upload 확인 레코드 ID.
+   * boolean/클라이언트 주장 대신 서버가 자산 범위와 문구 버전을 재검증한다.
+   */
+  generalAssetAttestationId?: string;
+  /**
+   * [asset policy v2] 실제 사진 중 식별 가능한 인물을 주 피사체로 사용하는 자산 ID.
+   * 이 분류만으로 권한이 생기지 않으며 서버의 자산별 person consent가 반드시 추가로 필요하다.
+   */
+  personPhotoAssetIds?: string[];
+  /**
+   * [asset policy v2] 직접 업로드 사진 중 식별 가능한 인물이 없는 것으로 고객이 분류한 자산 ID.
+   * personPhotoAssetIds와 겹칠 수 없으며, 두 배열은 일반 확인 레코드의 전체 자산을 정확히 덮어야 한다.
+   */
+  nonPersonPhotoAssetIds?: string[];
   /** [W4] 최종 히어로로 고른 출처. URL은 heroPhotoUrl 또는 선택 DesignCandidate가 보유한다. */
   heroImageChoice?: HeroImageChoice;
   /** [W4] 영상 애드온을 원한다는 고객 선택. 실제 보유 권한은 client.tier에서만 판정한다. */
@@ -382,6 +412,11 @@ export interface SurveyInput {
    * (defaultImageStyle). 후보 3안은 이 스타일로 고정되고 POV(무드)로만 차별화된다.
    */
   imageStyle?: CandidateStyle;
+  /**
+   * [asset policy v2] 신규 이미지 아트디렉션. legacy imageStyle의 의미는 변경하지 않는다.
+   * real_photo 자격은 이 값만으로 부여되지 않으며 서버 자산/확인서 검증이 필수다.
+   */
+  imageDirectionId?: ImageDirectionId;
   /** 'ai'(기본): AI 카피 창작 / 'provided': 고객 제공 원문 다듬기만 */
   contentMode?: ContentMode;
   /** contentMode='provided' 시 고객이 제공한 원문 */
@@ -416,6 +451,8 @@ export interface DesignCandidate {
   /** 예: '다크 무디 럭셔리' */
   label: string;
   style: CandidateStyle;
+  /** [asset policy v2] 후보가 실제 생성·배치에 사용한 신규 이미지 방향. */
+  imageDirectionId?: ImageDirectionId;
   heroImageUrl: string;
   /** provenance WRITE 모드에서만 서버가 붙이는 히어로 AI 자산 참조. URL만으로 생성하지 않는다. */
   heroAssetRef?: AssetRef;

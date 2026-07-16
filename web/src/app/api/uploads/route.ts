@@ -94,8 +94,10 @@ export const POST = withApiHandler(async (request) => {
       return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
     }
     const storedConfig = site?.draftConfig ?? site?.siteConfig;
+    const beforeAfterConfig = assetProvenanceConfig();
     const policy = resolveBeforeAfterUploadPolicy({
-      enabled: assetProvenanceConfig().beforeAfterEnabled,
+      enabled: beforeAfterConfig.beforeAfterEnabled,
+      approvedIndustries: beforeAfterConfig.beforeAfterApprovedIndustries,
       siteId,
       industryClass: storedConfig?.meta.industryClass ?? null,
       requestedUsageContext: usageContextRaw as CustomerAssetUsageContext,
@@ -119,6 +121,14 @@ export const POST = withApiHandler(async (request) => {
       }
       if (policy.code === 'BEFORE_AFTER_SITE_REQUIRED') {
         return apiError(409, policy.code, '전후 사진은 업종이 확인된 현재 사이트에 연결한 뒤 업로드할 수 있습니다.');
+      }
+      if (policy.code === 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED') {
+        return apiError(
+          403,
+          policy.code,
+          '현재 업종은 전후 비교 기능의 법무 승인 목록에 포함되어 있지 않습니다.',
+          { featureDisabled: true, legalReviewRequired: true },
+        );
       }
       if (policy.code === 'BEFORE_AFTER_CONTEXT_MISMATCH') {
         return apiError(400, policy.code, '요청한 전후 사진 맥락이 사이트의 확인된 업종과 일치하지 않습니다.');

@@ -22,9 +22,20 @@ import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import {
   bindGeneratedConfigAssetRefs,
+  CandidateAssetTruthError,
   validateCandidateAssetRef,
 } from '@/lib/assets/owned-refs';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import {
+  AssetTruthRequestError,
+  mergeCanonicalAssetRefs,
+  verifySurveyAssetTruth,
+} from '@/lib/assets/survey-truth';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
+import {
+  DEFAULT_V2_IMAGE_DIRECTION,
+  isAssetTruthGenerationError,
+} from '@/lib/ai/image-generation-policy';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
   designCandidateSchema,
@@ -53,16 +64,60 @@ export const POST = withApiHandler(async (request) => {
   if (!body.ok) return body.res;
   const { siteId } = body.data;
   // [SS5] 재생성도 최초 생성과 같은 서버 권위 템플릿 분류를 사용한다.
-  const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
+  const submittedSurvey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
   const candidateInput: DesignCandidate = body.data.candidate;
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
-  const candidate = await validateCandidateAssetRef({
-    candidate: candidateInput,
-    clientId: client.id,
-    targetSiteId: siteId,
-  });
+  const provenanceFlags = assetProvenanceConfig();
+  if ((submittedSurvey.imageDirectionId || site.assetPolicyVersion === 2) && !provenanceFlags.assign) {
+    return apiError(
+      503,
+      'ASSET_POLICY_V2_NOT_ACTIVE',
+      '새 이미지 방향은 안전한 자산 배정 기능이 활성화된 사이트에서만 사용할 수 있습니다.',
+    );
+  }
+  // A persisted v2 site remains in the v2 truth path even if an older client
+  // omits the additive direction field.
+  const canonicalSurvey: SurveyInput = site.assetPolicyVersion === 2 && !submittedSurvey.imageDirectionId
+    ? { ...submittedSurvey, imageDirectionId: DEFAULT_V2_IMAGE_DIRECTION }
+    : submittedSurvey;
+  let truth;
+  try {
+    truth = await verifySurveyAssetTruth({
+      survey: canonicalSurvey,
+      clientId: client.id,
+      targetSiteId: siteId,
+    });
+  } catch (error) {
+    if (error instanceof AssetTruthRequestError) {
+      return apiError(error.status, error.code, error.message);
+    }
+    throw error;
+  }
+  const survey = truth.survey;
+  if (truth.directUploadAssetRefs.length && site.assetPolicyVersion !== 2) {
+    return apiError(
+      503,
+      'ASSET_POLICY_V2_NOT_ACTIVE',
+      '이 사이트는 아직 실제 사진의 안전한 재생성 귀속 대상이 아닙니다. 기존 사진은 에디터에서 직접 유지해 주세요.',
+    );
+  }
+  let candidate: DesignCandidate;
+  try {
+    candidate = await validateCandidateAssetRef({
+      candidate: candidateInput,
+      clientId: client.id,
+      targetSiteId: siteId,
+      expectedImageDirectionId: survey.imageDirectionId,
+      allowedCustomerUploadAssetIds: truth.directUploadAssetRefs.map((ref) => ref.assetId),
+    });
+  } catch (error) {
+    if (error instanceof CandidateAssetTruthError) {
+      return apiError(error.status, error.code, error.message);
+    }
+    throw error;
+  }
 
   const used = site.freeRegensUsed ?? 0;
   if (used >= FREE_REGEN_LIMIT) {
@@ -80,10 +135,16 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
   // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
-  const generated = applySectionDirections(
-    await ai.generateSiteConfig(survey, candidate, { clientId: client.id, siteId }),
-    survey.directions,
-  );
+  let generatedByAi;
+  try {
+    generatedByAi = await ai.generateSiteConfig(survey, candidate, { clientId: client.id, siteId });
+  } catch (error) {
+    if (isAssetTruthGenerationError(error)) {
+      return apiError(error.status, error.code, error.message, { guidance: error.guidance });
+    }
+    throw error;
+  }
+  const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
@@ -93,7 +154,16 @@ export const POST = withApiHandler(async (request) => {
     client.tier,
     motionChoice,
     survey,
+    {
+      customerUploadAssetRefs: truth.directUploadAssetRefs,
+      ownerId: client.id,
+      siteId,
+    },
   );
+  draftConfig = {
+    ...draftConfig,
+    assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
+  };
   let motionWarning: { code: string; message: string } | undefined;
   if (motionChoice?.signatureId === 'before-after-scrub') {
     const provenance = await resolveBeforeAfterMotionOptions({
@@ -110,8 +180,15 @@ export const POST = withApiHandler(async (request) => {
         client.tier,
         motionChoice,
         survey,
-        provenance.options,
+        {
+          ...provenance.options,
+          customerUploadAssetRefs: truth.directUploadAssetRefs,
+        },
       );
+      draftConfig = {
+        ...draftConfig,
+        assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
+      };
     } else {
       motionWarning = { code: provenance.code, message: provenance.message };
     }

@@ -12,11 +12,16 @@ import type { CandidateStyle, SiteGoalId, SurveyInput } from '@/lib/types/domain
 import { REFERENCE_SAMPLES } from '@/lib/design/reference-samples';
 import { normalizeTone } from '@/lib/onboarding/tone';
 import { regionOf } from '@/lib/onboarding/region';
+import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
 import { cn } from '../../ui';
 
 // ---------- 폼 스키마 (RHF 전용 — 내부 필드 포함. 서버 계약은 호스트 onComplete에서 조립) ----------
 
 const PRESENCE_KINDS = ['website', 'instagram', 'naver_place', 'other'] as const;
+const assetRefSchema = z.object({
+  assetId: z.string().uuid(),
+  url: z.string().min(1),
+});
 
 export const surveyFormSchema = z.object({
   purposeId: z.string().min(1, '어떤 곳인지 하나 골라주세요.'),
@@ -32,7 +37,13 @@ export const surveyFormSchema = z.object({
   providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
   /** [H1] 히어로에 크게 쓰는 고객 실사 1장. storePhotoUrls(본문·갤러리)와 별도. */
   heroPhotoUrl: z.string().optional(),
+  heroPhotoAssetRef: assetRefSchema.optional(),
   storePhotoUrls: z.array(z.string()).max(12),
+  storePhotoAssetRefs: z.array(assetRefSchema).max(12),
+  importedPhotoAssetRefs: z.array(assetRefSchema).max(12),
+  generalAssetAttestationId: z.string().uuid().optional(),
+  personPhotoAssetIds: z.array(z.string().uuid()).max(100),
+  nonPersonPhotoAssetIds: z.array(z.string().uuid()).max(100),
   /** [v4.5] 로고 URL(선택). 없으면 상호명 글자 로고 폴백 */
   logoUrl: z.string().optional(),
   /** [I1] 개선 모드 — 진단 기반 재생성. 기본 'fresh' */
@@ -46,9 +57,11 @@ export const surveyFormSchema = z.object({
       price: z.string().optional(),
       description: z.string().optional(),
       photoUrl: z.string().optional(),
+      photoAssetRef: assetRefSchema.optional(),
     }),
   ),
   imageStyle: z.enum(['photo', '3d_render', 'illustration']).optional(),
+  imageDirectionId: z.enum(IMAGE_DIRECTION_IDS).optional(),
   /** [UI 전용] 고른 무드 샘플 id (최대 2, 첫 번째 = 팔레트 시드) */
   moodIds: z.array(z.string()).max(2),
   /** [UI 전용] 대표색 직접 지정(hex). 있으면 colorPreference를 덮어씀 */
@@ -109,13 +122,20 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       existingPresence: [],
       providedContent: '',
       heroPhotoUrl: '',
+      heroPhotoAssetRef: undefined,
       storePhotoUrls: [],
+      storePhotoAssetRefs: [],
+      importedPhotoAssetRefs: [],
+      generalAssetAttestationId: undefined,
+      personPhotoAssetIds: [],
+      nonPersonPhotoAssetIds: [],
       logoUrl: '',
       mode: 'fresh',
       sourceUrl: '',
       sourceScanId: '',
       contentItems: [],
       imageStyle: undefined,
+      imageDirectionId: undefined,
       moodIds: [],
       colorOverride: '',
       secondaryColor: '',
@@ -137,6 +157,10 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     initial.colorPreference && (!firstSeed || initial.colorPreference !== firstSeed.primary)
       ? initial.colorPreference
       : '';
+  // URL은 권위가 아니지만 projection 불일치는 stale ref이므로 보존하지 않는다.
+  const heroPhotoAssetRef = initial.heroPhotoAssetRef?.url === initial.heroPhotoUrl
+    ? initial.heroPhotoAssetRef
+    : undefined;
   return {
     purposeId: initial.purposeId,
     businessName: initial.businessName,
@@ -146,13 +170,20 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     existingPresence: (initial.existingPresence ?? []).map((p) => ({ kind: p.kind, url: p.url })),
     providedContent: initial.providedContent ?? '',
     heroPhotoUrl: initial.heroPhotoUrl ?? '',
+    heroPhotoAssetRef,
     storePhotoUrls: initial.storePhotoUrls ?? [],
+    storePhotoAssetRefs: initial.storePhotoAssetRefs ?? [],
+    importedPhotoAssetRefs: initial.importedPhotoAssetRefs ?? [],
+    generalAssetAttestationId: initial.generalAssetAttestationId,
+    personPhotoAssetIds: initial.personPhotoAssetIds ?? [],
+    nonPersonPhotoAssetIds: initial.nonPersonPhotoAssetIds ?? [],
     logoUrl: initial.logoUrl ?? '',
     mode: initial.mode ?? 'fresh',
     sourceUrl: initial.sourceUrl ?? '',
     sourceScanId: initial.sourceScanId ?? '',
     contentItems: initial.contentItems ?? [],
     imageStyle: initial.imageStyle,
+    imageDirectionId: initial.imageDirectionId,
     moodIds,
     colorOverride,
     secondaryColor: initial.secondaryColor ?? '',
@@ -253,6 +284,10 @@ export interface SurveyUx {
   /** S2 가져오기로 S3 원문이 프리필됐는지 */
   importedBadge: boolean;
   setImportedBadge: (v: boolean) => void;
+  /** Existing owned site when the user returns to edit/regenerate. */
+  siteId?: string;
+  /** Server-derived ASSIGN readiness. This controls UX only and grants no authority. */
+  assetPolicyV2Ready: boolean;
 }
 
 const SurveyUxContext = createContext<SurveyUx | null>(null);

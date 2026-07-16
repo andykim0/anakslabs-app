@@ -16,12 +16,19 @@ import type {
   SurveyInput,
 } from '@/lib/types/domain';
 import type { SiteTheme } from '@/lib/types/site';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
+import { imageDirectionToLegacyCandidateStyle } from '@/lib/assets/image-directions';
 import {
   selectDesignBriefs,
   buildThemeFromBrief,
   type DesignBrief,
 } from '@/lib/ai/design-knowledge';
-import { buildImagePrompt, derivePalette, povForStyle } from '@/lib/design/quality-standards';
+import {
+  buildImagePrompt,
+  buildV2ImagePrompt,
+  derivePalette,
+  povForStyle,
+} from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
@@ -29,6 +36,8 @@ export interface CandidateBlueprint {
   id: string;
   label: string;
   style: CandidateStyle;
+  /** v2 art direction. Undefined means the unmodified legacy generation path. */
+  imageDirectionId?: ImageDirectionId;
   description: string;
   theme: SiteTheme;
   /** 실모드: Gemini 히어로 이미지 생성 프롬프트 (tone ambient 레지스트리에서 결정) */
@@ -159,6 +168,16 @@ function themeForBrief(survey: SurveyInput, brief: DesignBrief): SiteTheme {
  * 되살릴 수 있으므로 생성 프롬프트에는 합치지 않는다.
  */
 function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteTheme): string {
+  if (survey.imageDirectionId) {
+    // real_photo is a reuse-only plan. No image-generation prompt exists by design.
+    if (survey.imageDirectionId === 'real_photo') return '';
+    return buildV2ImagePrompt(povForStyle(brief.style.id), 'hero', {
+      imageDirectionId: survey.imageDirectionId,
+      palettePrimary: theme.palette.primary,
+      background: theme.palette.background,
+      tone: survey.tone,
+    });
+  }
   return buildImagePrompt(povForStyle(brief.style.id), survey.industry, 'hero', {
     candidateStyle: brief.style.candidateStyle,
     palettePrimary: theme.palette.primary,
@@ -171,7 +190,9 @@ function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteThe
 export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprint[] {
   // [온보딩] 이미지 스타일은 고객 선택 축 — 3안 전부 이 스타일로 고정하고 차별화는 POV(무드)로만.
   // 미설정 시 업종 기본값 폴백(기존 데이터 호환). 렌더 스타일은 candidateStyle이 결정(buildImagePrompt·mock).
-  const imageStyle = resolveImageStyle({ imageStyle: survey.imageStyle, industry: survey.industry });
+  const imageStyle = survey.imageDirectionId
+    ? imageDirectionToLegacyCandidateStyle(survey.imageDirectionId)
+    : resolveImageStyle({ imageStyle: survey.imageStyle, industry: survey.industry });
   const briefs = selectDesignBriefs(surveyForBriefs(survey));
   return briefs.map((brief) => {
     // 공유 StyleDirection을 변형하지 않도록 candidateStyle만 imageStyle로 덮은 복사본을 만든다.
@@ -181,6 +202,7 @@ export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprin
       id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
       label: brief.label,
       style: imageStyle, // 후보 표시 스타일 = 고정 imageStyle
+      ...(survey.imageDirectionId ? { imageDirectionId: survey.imageDirectionId } : {}),
       description: brief.description,
       theme,
       heroImagePrompt: buildHeroPrompt(survey, styled, theme),

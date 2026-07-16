@@ -132,12 +132,24 @@ class MockSitesRepo implements SitesRepo {
     draftConfig: SiteConfig;
     assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
     assetRefsToBind?: readonly AssetRef[];
+    generalAssetAttestationId?: string;
   }): Promise<Site> {
     const store = getMockStore();
+    let attestedCustomerUploadIds: string[] = [];
     if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
       throw new Error('sites.create: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
     }
+    if (input.generalAssetAttestationId && !input.assetRefsToBind?.length) {
+      throw new Error('sites.create: 일반 자산 확인서는 atomic asset binding 없이 귀속할 수 없습니다.');
+    }
+    if (input.generalAssetAttestationId && input.assetPolicyVersion !== 2) {
+      throw new Error('sites.create: 일반 자산 확인서 귀속은 서버가 지정한 asset policy v2 사이트에만 허용됩니다.');
+    }
     if (input.assetRefsToBind?.length) {
+      const bindingAssetIds = input.assetRefsToBind.map((ref) => ref.assetId);
+      if (new Set(bindingAssetIds).size !== bindingAssetIds.length) {
+        throw new Error('sites.create: atomic binding 자산 ID는 중복될 수 없습니다.');
+      }
       const configRefs = input.draftConfig.assetRefs ?? [];
       const sameManifest = configRefs.length === input.assetRefsToBind.length
         && configRefs.every((ref, index) => (
@@ -149,7 +161,7 @@ class MockSitesRepo implements SitesRepo {
       }
       const { resolveOwnedAssetRecords } = await import('@/lib/assets/registry');
       const records = await resolveOwnedAssetRecords({
-        assetIds: input.assetRefsToBind.map((ref) => ref.assetId),
+        assetIds: bindingAssetIds,
         clientId: input.clientId,
       });
       const invalid = records.some((record, index) => (
@@ -157,7 +169,45 @@ class MockSitesRepo implements SitesRepo {
         || record.canonicalUrl !== input.assetRefsToBind?.[index]?.url
       ));
       if (invalid) throw new Error('sites.create: provisional asset ownership 또는 URL이 일치하지 않습니다.');
+      attestedCustomerUploadIds = records
+        .filter((record) => record.origin === 'customer_upload')
+        .map((record) => record.id);
+      if (attestedCustomerUploadIds.length
+        && (input.assetPolicyVersion !== 2 || !input.generalAssetAttestationId)) {
+        throw new Error(
+          'sites.create: 새 customer upload manifest에는 asset policy v2와 일반 자산 확인서가 모두 필요합니다.',
+        );
+      }
+      if (input.generalAssetAttestationId) {
+        const { resolveOwnedGeneralAssetAttestation } = await import('@/lib/assets/attestation-registry');
+        const attestation = await resolveOwnedGeneralAssetAttestation({
+          attestationId: input.generalAssetAttestationId,
+          clientId: input.clientId,
+          siteId: null,
+        });
+        const covered = new Set(attestation?.assetIds ?? []);
+        const exactCoverage = Boolean(attestation)
+          && covered.size === attestedCustomerUploadIds.length
+          && attestedCustomerUploadIds.every((assetId) => covered.has(assetId));
+        const personIds = new Set(attestation?.personAssetIds ?? []);
+        const nonPersonIds = new Set(attestation?.nonPersonAssetIds ?? []);
+        const exactClassification = Boolean(attestation)
+          && attestation?.scope === 'onboarding'
+          && personIds.size === (attestation?.personAssetIds.length ?? -1)
+          && nonPersonIds.size === (attestation?.nonPersonAssetIds.length ?? -1)
+          && [...personIds].every((assetId) => covered.has(assetId) && !nonPersonIds.has(assetId))
+          && [...nonPersonIds].every((assetId) => covered.has(assetId))
+          && personIds.size + nonPersonIds.size === covered.size;
+        if (!exactCoverage || !exactClassification) {
+          throw new Error('sites.create: 일반 자산 확인서가 현재 customer upload manifest와 일치하지 않습니다.');
+        }
+      }
     }
+    // All deterministic manifest, ownership, cohort, attestation-set, and
+    // classification failures are resolved before the first memory mutation.
+    // The production path remains the SQL RPC transaction; this mock sequence
+    // only has a residual risk under an injected/concurrent failure between
+    // the final asset bind and attestation bind.
     const site: Site = {
       id: crypto.randomUUID(),
       clientId: input.clientId,
@@ -183,6 +233,14 @@ class MockSitesRepo implements SitesRepo {
         const { bindAssetToOwnedSite } = await import('@/lib/assets/registry');
         for (const ref of input.assetRefsToBind) {
           await bindAssetToOwnedSite({ assetId: ref.assetId, clientId: input.clientId, siteId: site.id });
+        }
+        if (input.generalAssetAttestationId) {
+          const { bindGeneralAssetAttestationToOwnedSite } = await import('@/lib/assets/attestation-registry');
+          await bindGeneralAssetAttestationToOwnedSite({
+            attestationId: input.generalAssetAttestationId,
+            clientId: input.clientId,
+            siteId: site.id,
+          });
         }
       } catch (error) {
         store.sites.delete(site.id);

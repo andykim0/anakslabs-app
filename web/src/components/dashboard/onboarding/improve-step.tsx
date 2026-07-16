@@ -17,6 +17,10 @@ import { LIVE_PURPOSE_IDS, findPurpose } from '@/lib/data/purpose-taxonomy';
 import { capabilityOf } from '@/lib/onboarding/purpose-capabilities';
 import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { defaultImageStyle } from '@/lib/onboarding/image-style';
+import {
+  imageDirectionToLegacyCandidateStyle,
+  recommendedImageDirection,
+} from '@/lib/assets/image-directions';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { REFERENCE_SAMPLES, styleIdsForSamples } from '@/lib/design/reference-samples';
 import { improveExtract, type ImproveExtractResult } from '../api';
@@ -34,7 +38,13 @@ const TONE_CHIPS = ['차분한', '친근한', '모던', '고급스러운', '대�
 const MOOD_SAMPLES = REFERENCE_SAMPLES.slice(0, 6);
 
 /** 편집용 콘텐츠 항목(입력 controlled를 위해 전 필드 string) */
-type EditItem = { name: string; price: string; description: string; photoUrl: string };
+type EditItem = {
+  name: string;
+  price: string;
+  description: string;
+  photoUrl: string;
+  photoAssetRef?: ContentItem['photoAssetRef'];
+};
 
 function toEditItem(it: ContentItem): EditItem {
   return {
@@ -42,6 +52,7 @@ function toEditItem(it: ContentItem): EditItem {
     price: it.price ?? '',
     description: it.description ?? '',
     photoUrl: it.photoUrl ?? '',
+    photoAssetRef: it.photoAssetRef,
   };
 }
 
@@ -82,10 +93,13 @@ function Swatch({ color, size = 'h-5 w-5' }: { color: string; size?: string }) {
 export function ImproveStep({
   improve,
   defaultBusinessName,
+  assetPolicyV2Ready = false,
   onComplete,
 }: {
   improve: ImproveContext;
   defaultBusinessName?: string;
+  /** Server-derived rollout readiness. False keeps improve requests legacy-compatible. */
+  assetPolicyV2Ready?: boolean;
   onComplete: (survey: SurveyInput) => void;
 }) {
   const host = useMemo(() => hostOf(improve.url), [improve.url]);
@@ -178,7 +192,7 @@ export function ImproveStep({
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   const removeItem = (i: number) => setItems((prev) => prev.filter((_, idx) => idx !== i));
   const addItem = () =>
-    setItems((prev) => [...prev, { name: '', price: '', description: '', photoUrl: '' }]);
+    setItems((prev) => [...prev, { name: '', price: '', description: '', photoUrl: '', photoAssetRef: undefined }]);
 
   // ── 무드/팔레트 선택 ──
   const pickSeed = () => {
@@ -215,6 +229,7 @@ export function ImproveStep({
         price: it.price.trim() || undefined,
         description: it.description.trim() || undefined,
         photoUrl: it.photoUrl.trim() || undefined,
+        photoAssetRef: it.photoAssetRef,
       }))
       .filter((it) => it.name.length > 0);
 
@@ -238,6 +253,9 @@ export function ImproveStep({
     const storePhotoUrls = (extract?.imageUrls ?? []).slice(0, 12);
     const referenceStyleIds = !useSeedPalette && moodId ? styleIdsForSamples([moodId]) : undefined;
     const siteGoal: SiteGoalId | undefined = group === 'serve' ? 'directions' : undefined;
+    // Imported/extracted URLs are not direct customer-upload evidence. Improve mode therefore
+    // always starts in an explicitly artistic direction and carries no factual asset refs.
+    const imageDirectionId = recommendedImageDirection({ industry: industryClean, tone });
 
     onComplete({
       purposeId,
@@ -248,7 +266,10 @@ export function ImproveStep({
       tone,
       colorPreference,
       secondaryColor,
-      imageStyle: defaultImageStyle(industryClean),
+      ...(assetPolicyV2Ready ? { imageDirectionId } : {}),
+      imageStyle: assetPolicyV2Ready
+        ? imageDirectionToLegacyCandidateStyle(imageDirectionId)
+        : defaultImageStyle(industryClean),
       storePhotoUrls: storePhotoUrls.length ? storePhotoUrls : undefined,
       referenceImageUrls: [],
       referenceStyleIds: referenceStyleIds && referenceStyleIds.length ? referenceStyleIds : undefined,

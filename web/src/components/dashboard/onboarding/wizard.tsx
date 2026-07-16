@@ -61,6 +61,8 @@ export function OnboardingWizard({
   scanContext,
   improve,
   tier = 'basic',
+  existingSiteId,
+  assetPolicyV2Ready = false,
 }: {
   defaultBusinessName?: string;
   scanContext?: ScanContext;
@@ -68,6 +70,10 @@ export function OnboardingWizard({
   improve?: ImproveContext;
   /** [motion 4단계] 소유자 티어 — Premium이면 성공화면에 AI 영상 히어로 스튜디오 노출 */
   tier?: Tier;
+  /** Optional owned site scope when reopening the workflow. */
+  existingSiteId?: string;
+  /** Server-derived ASSIGN readiness; not an entitlement or client authority. */
+  assetPolicyV2Ready?: boolean;
 }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
@@ -79,7 +85,7 @@ export function OnboardingWizard({
   const [extras, setExtras] = useState<ExtraFeatureSelection | undefined>(undefined);
   const [extrasOptions, setExtrasOptions] = useState<ExtrasOptionsDto | undefined>(undefined);
   // [§3] 재생성: 최초 생성으로 만들어진 사이트 id + 무료 재생성 사용 횟수
-  const [siteId, setSiteId] = useState<string | null>(null);
+  const [siteId, setSiteId] = useState<string | null>(existingSiteId ?? null);
   const [freeRegensUsed, setFreeRegensUsed] = useState(0);
   const generationSurvey = survey && heroImage
     ? surveyWithHeroVideoSelection(survey, heroImage, motionChoice)
@@ -149,6 +155,7 @@ export function OnboardingWizard({
           <ImproveStep
             improve={improve}
             defaultBusinessName={defaultBusinessName}
+            assetPolicyV2Ready={assetPolicyV2Ready}
             onComplete={(values) => {
               setSurvey(values);
               setHeroImage(undefined);
@@ -162,6 +169,8 @@ export function OnboardingWizard({
             defaultBusinessName={defaultBusinessName}
             initialValues={survey}
             improveSeed={undefined}
+            existingSiteId={siteId ?? undefined}
+            assetPolicyV2Ready={assetPolicyV2Ready}
             onComplete={(values) => {
               setSurvey(values);
               // 설문이 바뀌었을 수 있으므로 이전 선택 초기화
@@ -177,6 +186,7 @@ export function OnboardingWizard({
       {step === 2 && survey ? (
         <HeroImageStep
           survey={survey}
+          existingSiteId={siteId ?? undefined}
           initial={heroImage}
           onBack={() => setStep(1)}
           onComplete={(selection) => {
@@ -191,7 +201,9 @@ export function OnboardingWizard({
       {step === 3 && survey && heroImage ? (
         <CandidateStep
           survey={survey}
+          existingSiteId={siteId ?? undefined}
           heroImageUrl={heroImage.url}
+          heroImageAssetRef={heroImage.assetRef}
           onBack={() => setStep(2)}
           onSelect={(selected) => {
             setCandidate(selected);

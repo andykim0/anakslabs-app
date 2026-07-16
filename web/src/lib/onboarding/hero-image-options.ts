@@ -1,4 +1,6 @@
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
 
 /** W1에서 생성하는 AI 무드 히어로 안의 수. 비용 상한과 UI 카드 수가 이 값에 종속된다. */
 export const HERO_AI_OPTION_COUNT = 3 as const;
@@ -13,6 +15,8 @@ export type HeroImageSelection = {
   url: string;
   source: 'upload' | 'ai';
   candidateId?: string;
+  /** URL과 함께 왕복하는 비권위 projection. 서버 registry가 generation 경계에서 재검증한다. */
+  assetRef?: AssetRef;
 };
 
 /** public/mock에 실제 존재하는, 제품을 날조하지 않는 대표 무드 자산. */
@@ -50,13 +54,39 @@ function aiChoiceId(index: HeroOptionIndex): HeroImageChoiceId {
 export function buildHeroImageOptions(
   candidates: readonly DesignCandidate[],
   heroPhotoUrl?: string,
+  heroPhotoAssetRef?: AssetRef,
+  imageDirectionId?: ImageDirectionId,
 ): HeroImageSelection[] {
   const options: HeroImageSelection[] = [];
   const usedAiUrls = new Set<string>();
   const uploadUrl = presentUrl(heroPhotoUrl);
 
-  if (uploadUrl) {
-    options.push({ id: 'upload', url: uploadUrl, source: 'upload' });
+  if (imageDirectionId === 'real_photo') {
+    if (uploadUrl && heroPhotoAssetRef?.url === uploadUrl) {
+      return [{ id: 'upload', url: uploadUrl, source: 'upload', assetRef: heroPhotoAssetRef }];
+    }
+    const verifiedCandidate = candidates.find((candidate) =>
+      candidate.heroAssetRef?.url === presentUrl(candidate.heroImageUrl));
+    return verifiedCandidate?.heroAssetRef
+      ? [{
+          id: 'upload',
+          url: verifiedCandidate.heroImageUrl,
+          source: 'upload',
+          candidateId: verifiedCandidate.id,
+          assetRef: verifiedCandidate.heroAssetRef,
+        }]
+      : [];
+  }
+
+  // Legacy surveys keep the original upload+AI choice behavior. In v2 an
+  // explicit artistic direction uses only generated atmospheric candidates.
+  if (uploadUrl && imageDirectionId === undefined) {
+    options.push({
+      id: 'upload',
+      url: uploadUrl,
+      source: 'upload',
+      ...(heroPhotoAssetRef?.url === uploadUrl ? { assetRef: heroPhotoAssetRef } : {}),
+    });
   }
 
   for (let index = 0; index < HERO_AI_OPTION_COUNT; index += 1) {
@@ -86,34 +116,31 @@ export function buildHeroImageOptions(
       url: resolvedUrl,
       source: 'ai',
       ...(candidate?.id ? { candidateId: candidate.id } : {}),
+      ...(candidate?.heroAssetRef?.url === resolvedUrl ? { assetRef: candidate.heroAssetRef } : {}),
     });
   }
 
   return options;
 }
 
-/** W4에서 SurveyInput에 추가될 수 있는 선택 상태. 후보 이미지 생성 입력에서는 모두 제외한다. */
-type OptionalHeroVideoSurveyFields = {
-  heroImageChoice?: HeroImageChoiceId;
-  videoAddon?: boolean;
-  heroMotionId?: string;
-  /** 섹션 검수 이력은 히어로 이미지 피사체·무드 후보와 무관하다. */
-  directions?: SurveyInput['directions'];
-};
-
 /**
  * AI 무드 후보 생성 전용 설문.
  * heroPhotoUrl을 남기면 기존 후보 생성기가 세 후보 모두를 같은 업로드 사진으로 덮으므로 반드시 뺀다.
  */
 export function surveyForHeroCandidates(survey: SurveyInput): SurveyInput {
-  const {
-    heroPhotoUrl: _heroPhotoUrl,
-    heroImageChoice: _heroImageChoice,
-    videoAddon: _videoAddon,
-    heroMotionId: _heroMotionId,
-    directions: _directions,
-    ...candidateSurvey
-  } = survey as SurveyInput & OptionalHeroVideoSurveyFields;
+  const candidateSurvey = { ...survey };
+  // real_photo is a no-generation reuse path: the authenticated route needs
+  // the exact refs + attestation to resolve ownership. Artistic paths must not
+  // leak a real business photo into AI mood candidates.
+  if (survey.imageDirectionId !== 'real_photo') {
+    delete candidateSurvey.heroPhotoUrl;
+    delete candidateSurvey.heroPhotoAssetRef;
+  }
+  delete candidateSurvey.heroImageChoice;
+  delete candidateSurvey.videoAddon;
+  delete candidateSurvey.heroMotionId;
+  // 섹션 검수 이력은 히어로 이미지 피사체·무드 후보와 무관하다.
+  delete candidateSurvey.directions;
   return candidateSurvey;
 }
 
@@ -153,8 +180,12 @@ export function heroCandidateIntent(survey: SurveyInput): string {
 export function applyHeroImageToCandidate(
   candidate: DesignCandidate,
   selectedUrl: string,
+  selectedAssetRef?: AssetRef,
 ): DesignCandidate {
-  return { ...candidate, heroImageUrl: selectedUrl };
+  const applied = { ...candidate, heroImageUrl: selectedUrl };
+  delete applied.heroAssetRef;
+  if (selectedAssetRef?.url === selectedUrl) applied.heroAssetRef = selectedAssetRef;
+  return applied;
 }
 
 /**

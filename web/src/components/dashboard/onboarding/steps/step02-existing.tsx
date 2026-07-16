@@ -5,10 +5,11 @@
  * 가져오기(POST /api/onboarding/import) → 추출 텍스트 요약 + 이미지 후보 선택 → ingest.
  * 추출 텍스트는 S3 providedContent 프리필, 선택 이미지는 storePhotoUrls에 추가(S4 반영).
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AtSign, Globe, ImageOff, Loader2, MapPin } from 'lucide-react';
 import type { PresenceKind } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { handleFromSnsUrl, snsUrlFromHandle } from '@/lib/onboarding/sns';
 import { Button, cn } from '../../ui';
 import { useToast } from '../../toast';
@@ -45,27 +46,34 @@ function isWebUrl(u: string): boolean {
   return /^https?:\/\/[^\s./]+(\.[^\s./]+)+/i.test(u);
 }
 
+function isAssetRef(value: unknown): value is AssetRef {
+  if (!value || typeof value !== 'object') return false;
+  const ref = value as Partial<AssetRef>;
+  return typeof ref.assetId === 'string'
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ref.assetId)
+    && typeof ref.url === 'string'
+    && ref.url.length > 0;
+}
+
 export function Step02Existing() {
   const { watch, setValue, getValues } = useFormContext<SurveyForm>();
   const { toast } = useToast();
-  const { setImportedBadge } = useSurveyUx();
+  const { setImportedBadge, assetPolicyV2Ready } = useSurveyUx();
 
   const presence = watch('existingPresence') ?? [];
 
-  // 로컬 입력 (form.existingPresence 역추출로 초기화)
-  const init = useRef(false);
-  const [instaHandle, setInstaHandle] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [naverUrl, setNaverUrl] = useState('');
+  // 로컬 입력 (form.existingPresence 역추출로 최초 state를 직접 초기화)
+  const [instaHandle, setInstaHandle] = useState(() => {
+    const value = presence.find((item) => item.kind === 'instagram')?.url;
+    return value ? handleFromSnsUrl('instagram', value) : '';
+  });
+  const [websiteUrl, setWebsiteUrl] = useState(
+    () => presence.find((item) => item.kind === 'website')?.url ?? '',
+  );
+  const [naverUrl, setNaverUrl] = useState(
+    () => presence.find((item) => item.kind === 'naver_place')?.url ?? '',
+  );
   const [skip, setSkip] = useState(false);
-  if (!init.current) {
-    init.current = true;
-    for (const p of presence) {
-      if (p.kind === 'instagram') setInstaHandle(handleFromSnsUrl('instagram', p.url));
-      else if (p.kind === 'website') setWebsiteUrl(p.url);
-      else if (p.kind === 'naver_place') setNaverUrl(p.url);
-    }
-  }
 
   const [owned, setOwned] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -157,7 +165,7 @@ export function Step02Existing() {
         body: JSON.stringify({ ingestImageUrls: selectedImages.slice(0, 12) }),
       });
       const data = (await res.json().catch(() => null)) as
-        | { imageUrls?: string[]; error?: { message?: string } }
+        | { imageUrls?: string[]; assetRefs?: unknown; error?: { message?: string } }
         | null;
       if (!res.ok) {
         toast('error', data?.error?.message ?? '이미지 가져오기에 실패했어요.');
@@ -168,11 +176,34 @@ export function Step02Existing() {
         toast('info', '가져올 수 있는 이미지가 없었어요.');
         return;
       }
+      const importedRefs = data?.assetRefs === undefined
+        ? []
+        : Array.isArray(data.assetRefs) && data.assetRefs.every(isAssetRef)
+          ? data.assetRefs
+          : null;
+      if (importedRefs === null
+        || (data?.assetRefs !== undefined
+          && (importedRefs.length !== got.length
+            || importedRefs.some((ref, index) => ref.url !== got[index])))) {
+        toast('error', '가져온 이미지의 서버 출처 기록을 확인하지 못했습니다. 다시 시도해 주세요.');
+        return;
+      }
       const cur = getValues('storePhotoUrls') ?? [];
       const next = Array.from(new Set([...cur, ...got])).slice(0, 12);
       setValue('storePhotoUrls', next, { shouldValidate: false });
+      if (importedRefs.length) {
+        const currentImportedRefs = getValues('importedPhotoAssetRefs') ?? [];
+        const byId = new Map(currentImportedRefs.map((ref) => [ref.assetId, ref]));
+        for (const ref of importedRefs) byId.set(ref.assetId, ref);
+        setValue('importedPhotoAssetRefs', [...byId.values()].slice(0, 12), { shouldValidate: false });
+      }
       setSelectedImages([]);
-      toast('success', `사진 ${got.length}장을 담았어요. 다음 사진 단계에서 확인할 수 있어요.`);
+      toast(
+        'success',
+        assetPolicyV2Ready
+          ? `사진 ${got.length}장을 담았어요. 가져온 사진은 실사 사진 자격으로 자동 전환되지 않아요.`
+          : `사진 ${got.length}장을 담았어요. 다음 사진 단계에서 확인할 수 있어요.`,
+      );
     } catch {
       toast('error', '네트워크 연결을 확인해 주세요.');
     } finally {

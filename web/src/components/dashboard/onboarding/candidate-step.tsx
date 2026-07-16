@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import type { CandidateStyle, DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
 import {
   applyHeroImageToCandidate,
   heroCandidateIntent,
@@ -35,9 +36,15 @@ export function LoadingScreen({ messages }: { messages: string[] }) {
   }, [messages.length]);
 
   return (
-    <Card className="flex flex-col items-center justify-center gap-5 border-ob-border bg-ob-surface py-20">
+    <Card
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      className="flex flex-col items-center justify-center gap-5 border-ob-border bg-ob-surface py-20"
+    >
       <div className="relative flex h-14 w-14 items-center justify-center">
         <motion.span
+          aria-hidden="true"
           className="absolute inset-0 rounded-full border-2 border-ob-accent/30 border-t-ob-accent-strong"
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1.1, ease: 'linear' }}
@@ -54,6 +61,7 @@ export function LoadingScreen({ messages }: { messages: string[] }) {
       </motion.p>
       <div className="h-1 w-48 overflow-hidden rounded-full bg-ob-border">
         <motion.div
+          aria-hidden="true"
           className="h-full w-1/3 rounded-full bg-ob-accent-strong"
           animate={{ x: ['-100%', '300%'] }}
           transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
@@ -124,6 +132,8 @@ function CandidateCard({
             }}
           />
         ) : (
+          // Dynamic customer/AI preview URLs may be data URLs or unconfigured remote hosts.
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={heroImageUrl}
             alt={candidate.label}
@@ -165,21 +175,29 @@ function CandidateCard({
 
 export function CandidateStep({
   survey,
+  existingSiteId,
   heroImageUrl,
+  heroImageAssetRef,
   heroTechnique,
   onBack,
   onSelect,
 }: {
   survey: SurveyInput;
+  /** Existing owned draft whose site-bound candidate assets may be reused. */
+  existingSiteId?: string;
   /** [W1] 앞 단계에서 고른 단일 히어로 소스. 디자인 3안은 같은 사진 위에서 테마만 비교한다. */
   heroImageUrl: string;
+  /** URL과 일치하는 경우에만 후보에 전달하며 서버가 소유권/origin을 다시 검증한다. */
+  heroImageAssetRef?: AssetRef;
   /** [G1] '움직임 고르기'에서 고른 히어로 기법 — 후보 히어로 이미지에서 체감시켜 선택→확인 루프를 닫는다 */
   heroTechnique?: string;
   onBack: () => void;
   onSelect: (candidate: DesignCandidate) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const candidateSurvey = surveyForHeroCandidates(survey);
+  const candidateSurvey = survey.imageDirectionId === 'real_photo'
+    ? survey
+    : surveyForHeroCandidates(survey);
   const requestKey = genIdemKey(heroCandidateIntent(candidateSurvey));
 
   // 후보 생성은 "마운트 시 1회 fetch" — useMutation을 useEffect에서 쏘는 안티패턴 대신 useQuery로:
@@ -188,8 +206,8 @@ export function CandidateStep({
   //  · 자동 refetch 전면 차단(창 포커스·재연결·재마운트) → 의도치 않은 재생성=재과금 방지
   //  · retry:false → 실패 즉시 에러 표면화(무한 스피너·재시도 폭주 금지)
   const { data, isFetching, isError, error, refetch } = useQuery({
-    queryKey: ['onboarding', 'hero-images', candidateSurvey],
-    queryFn: () => generateCandidates(candidateSurvey, requestKey),
+    queryKey: ['onboarding', 'hero-images', existingSiteId ?? 'new', candidateSurvey],
+    queryFn: () => generateCandidates(candidateSurvey, requestKey, existingSiteId),
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
@@ -255,7 +273,7 @@ export function CandidateStep({
         <Button
           size="lg"
           disabled={!selected}
-          onClick={() => selected && onSelect(applyHeroImageToCandidate(selected, heroImageUrl))}
+          onClick={() => selected && onSelect(applyHeroImageToCandidate(selected, heroImageUrl, heroImageAssetRef))}
         >
           이 디자인으로 만들기
           <ArrowRight className="h-4 w-4" />

@@ -16,11 +16,21 @@ import { applySectionDirections } from '@/lib/onboarding/section-directions';
 import { absorbUrlsInContent } from '@/lib/import/absorb-content';
 import { isMockMode } from '@/lib/env';
 import {
+  CandidateAssetTruthError,
   validateCandidateAssetRef,
 } from '@/lib/assets/owned-refs';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { assetPolicyVersionForNewSite } from '@/lib/assets/provenance-flags-core';
-import { parseBody, withApiHandler } from '../../_lib/http';
+import {
+  AssetTruthRequestError,
+  mergeCanonicalAssetRefs,
+  verifySurveyAssetTruth,
+} from '@/lib/assets/survey-truth';
+import { apiError, parseBody, withApiHandler } from '../../_lib/http';
+import {
+  DEFAULT_V2_IMAGE_DIRECTION,
+  isAssetTruthGenerationError,
+} from '@/lib/ai/image-generation-policy';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import {
   designCandidateSchema,
@@ -56,21 +66,10 @@ export const POST = withApiHandler(async (request) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
-  // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
-  const survey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
-  const candidate: DesignCandidate = await validateCandidateAssetRef({
-    candidate: body.data.candidate,
-    clientId: client.id,
-  });
-  // Cohort membership is derived exclusively from server-owned launch flags.
-  // Invalid WRITE -> ASSIGN -> ENFORCE dependencies throw here before any AI
-  // generation or site mutation; they must never silently downgrade to legacy.
-  const provenance = assetProvenanceConfig();
-  const assetPolicyVersion = assetPolicyVersionForNewSite(provenance);
-
   const { ai, sites } = getDataServices();
 
-  // [멱등] 같은 키로 최근 생성된 사이트가 있으면 그대로 반환(2번째 create·AI 생성 비용 방지).
+  // [멱등] 같은 키로 최근 생성된 사이트가 있으면 그대로 반환한다. 첫 요청에서 onboarding
+  // attestation이 site scope로 원자 결합된 뒤에도 안전하게 재시도할 수 있어야 한다.
   const idemK = body.data.idempotencyKey ? `${client.id}:${body.data.idempotencyKey}` : null;
   if (idemK) {
     const prev = recentGenerations.get(idemK);
@@ -82,16 +81,73 @@ export const POST = withApiHandler(async (request) => {
     }
   }
 
+  // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
+  const submittedSurvey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
+  // Cohort membership is derived exclusively from server-owned launch flags.
+  // Invalid WRITE -> ASSIGN -> ENFORCE dependencies throw here before any AI
+  // generation or site mutation; they must never silently downgrade to legacy.
+  const provenance = assetProvenanceConfig();
+  const assetPolicyVersion = assetPolicyVersionForNewSite(provenance);
+  if (submittedSurvey.imageDirectionId && !provenance.assign) {
+    return apiError(
+      503,
+      'ASSET_POLICY_V2_NOT_ACTIVE',
+      '새 이미지 방향은 안전한 자산 배정 기능이 활성화된 사이트에서만 사용할 수 있습니다.',
+    );
+  }
+  // ASSIGN cohort membership is server-owned. Omitting the optional client
+  // field cannot reopen the legacy photoreal path for a new v2 site.
+  const canonicalSurvey: SurveyInput = provenance.assign && !submittedSurvey.imageDirectionId
+    ? { ...submittedSurvey, imageDirectionId: DEFAULT_V2_IMAGE_DIRECTION }
+    : submittedSurvey;
+  let truth;
+  try {
+    truth = await verifySurveyAssetTruth({ survey: canonicalSurvey, clientId: client.id });
+  } catch (error) {
+    if (error instanceof AssetTruthRequestError) {
+      return apiError(error.status, error.code, error.message);
+    }
+    throw error;
+  }
+  const survey = truth.survey;
+  if (truth.directUploadAssetRefs.length && assetPolicyVersion !== 2) {
+    return apiError(
+      503,
+      'ASSET_POLICY_V2_NOT_ACTIVE',
+      '실제 사진의 안전한 사이트 귀속 기능이 아직 활성화되지 않았습니다. 예술적인 AI 방향을 사용하거나 잠시 후 다시 시도해 주세요.',
+    );
+  }
+  let candidate: DesignCandidate;
+  try {
+    candidate = await validateCandidateAssetRef({
+      candidate: body.data.candidate,
+      clientId: client.id,
+      expectedImageDirectionId: survey.imageDirectionId,
+      allowedCustomerUploadAssetIds: truth.directUploadAssetRefs.map((ref) => ref.assetId),
+    });
+  } catch (error) {
+    if (error instanceof CandidateAssetTruthError) {
+      return apiError(error.status, error.code, error.message);
+    }
+    throw error;
+  }
+
   // [v4 #3e] providedContent 내 URL 텍스트 흡수 (실모드만 — mock은 providedContent 미소비)
   if (!isMockMode() && survey.providedContent) {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
 
-  const generated = applySectionDirections(
+  let generatedByAi;
+  try {
     // 사이트 row 생성 전 단계라 siteId는 아직 없다. 인증된 clientId만 provenance owner로 전달한다.
-    await ai.generateSiteConfig(survey, candidate, { clientId: client.id }),
-    survey.directions,
-  );
+    generatedByAi = await ai.generateSiteConfig(survey, candidate, { clientId: client.id });
+  } catch (error) {
+    if (isAssetTruthGenerationError(error)) {
+      return apiError(error.status, error.code, error.message, { guidance: error.guidance });
+    }
+    throw error;
+  }
+  const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 주입 → [Q7] 사용자 선택 병합 → sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
@@ -101,13 +157,21 @@ export const POST = withApiHandler(async (request) => {
     client.tier,
     motionChoice,
     survey,
+    { customerUploadAssetRefs: truth.directUploadAssetRefs, ownerId: client.id },
   );
+  draftConfig = {
+    ...draftConfig,
+    assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
+  };
   let site = await sites.create({
     clientId: client.id,
     name: survey.businessName,
     draftConfig,
     ...(assetPolicyVersion ? { assetPolicyVersion } : {}),
     ...(draftConfig.assetRefs?.length ? { assetRefsToBind: draftConfig.assetRefs } : {}),
+    ...(truth.directUploadAssetRefs.length && survey.generalAssetAttestationId
+      ? { generalAssetAttestationId: survey.generalAssetAttestationId }
+      : {}),
   });
 
   let motionWarning: { code: string; message: string } | undefined;
@@ -126,8 +190,15 @@ export const POST = withApiHandler(async (request) => {
         client.tier,
         motionChoice,
         survey,
-        provenance.options,
+        {
+          ...provenance.options,
+          customerUploadAssetRefs: truth.directUploadAssetRefs,
+        },
       );
+      draftConfig = {
+        ...draftConfig,
+        assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
+      };
       await sites.saveDraft(site.id, draftConfig);
       site = await sites.getById(site.id) ?? site;
     } else {

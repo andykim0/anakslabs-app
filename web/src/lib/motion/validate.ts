@@ -12,6 +12,7 @@ import type {
   SiteConfig,
 } from '@/lib/types/site';
 import type { SitePurposeId, SurveyInput } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { countMotionSignatures, MOTION_LIMITS, MOTION_TECHNIQUES } from './registry';
 import { DEFAULT_PRESET, MOTION_PRESETS, isPresetId, resolvePresetForIndustry, type MotionPreset, type PresetId } from './presets';
 import { isAllowedHeroChoice, isKnownHeroChoice } from './hero-choice';
@@ -282,6 +283,8 @@ export interface MotionChoice {
 export interface ApplyGeneratedMotionOptions {
   assets?: readonly MotionAssetProvenance[];
   customerCaseMedia?: readonly CustomerCaseMedia[];
+  /** Authenticated route truth result; never derive this set from survey URLs. */
+  customerUploadAssetRefs?: readonly AssetRef[];
   ownerId?: string;
   siteId?: string;
 }
@@ -353,6 +356,7 @@ export function applyGeneratedMotion(
       };
       const scene = buildMotionSceneFromSurvey(nextConfig, sceneSurvey, signatureId, {
         customerCaseMedia: options.customerCaseMedia,
+        customerUploadAssetRefs: options.customerUploadAssetRefs,
       });
       if (scene) nextConfig = {
         ...nextConfig,

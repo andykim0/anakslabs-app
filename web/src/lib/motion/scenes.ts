@@ -7,6 +7,7 @@
  */
 import { buildNarrativeArc } from '@/lib/data/narrative-arc';
 import type { SurveyInput } from '@/lib/types/domain';
+import type { AssetRef } from '@/lib/assets/provenance';
 import type {
   CustomerCaseMedia,
   MotionMedia,
@@ -24,6 +25,11 @@ const MEDIA_HEIGHT = 900;
 export interface BuildMotionSceneOptions {
   /** before-after IDs resolved to server-owned asset records before this builder is called. */
   customerCaseMedia?: readonly CustomerCaseMedia[];
+  /**
+   * Direct-upload refs already resolved through the authenticated server truth boundary.
+   * Survey URLs and client-supplied refs alone are never sufficient evidence.
+   */
+  customerUploadAssetRefs?: readonly AssetRef[];
 }
 
 function homePage(config: SiteConfig): SitePage | undefined {
@@ -54,18 +60,47 @@ function heroBody(section: Section): string | undefined {
   return values.length > 1 ? values.slice(1, 3).join(' ') : undefined;
 }
 
-function provenanceFor(src: string, survey: SurveyInput): MotionMedia['provenance'] {
-  if (survey.heroImageChoice === 'upload' && survey.heroPhotoUrl === src) return 'customer-provided';
-  if (survey.heroImageChoice?.startsWith('ai-') && homeImageSource(survey) === src) return 'ai-generated';
-  if (survey.storePhotoUrls?.includes(src)) return 'customer-provided';
-  return 'unknown';
+function customerUploadRefFor(
+  src: string,
+  options: BuildMotionSceneOptions,
+): AssetRef | undefined {
+  return options.customerUploadAssetRefs?.find((ref) => ref.url === src);
+}
+
+function mediaTruthFor(
+  src: string,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): Pick<MotionMedia, 'provenance' | 'assetId'> {
+  const verifiedUpload = customerUploadRefFor(src, options);
+  if (verifiedUpload) {
+    return { provenance: 'customer-provided', assetId: verifiedUpload.assetId };
+  }
+
+  // Existing URL-only configs keep their historical render projection. New v2
+  // construction fails closed and may only gain customer provenance above.
+  if (survey.imageDirectionId) return { provenance: 'unknown' };
+  if (survey.heroImageChoice === 'upload' && survey.heroPhotoUrl === src) {
+    return { provenance: 'customer-provided' };
+  }
+  if (survey.heroImageChoice?.startsWith('ai-') && homeImageSource(survey) === src) {
+    return { provenance: 'ai-generated' };
+  }
+  const legacyCustomerUrls = new Set(survey.storePhotoUrls ?? []);
+  if (legacyCustomerUrls.has(src)) return { provenance: 'customer-provided' };
+  return { provenance: 'unknown' };
 }
 
 function homeImageSource(survey: SurveyInput): string | undefined {
   return survey.heroImageChoice === 'upload' ? survey.heroPhotoUrl : undefined;
 }
 
-function sectionMedia(section: Section, survey: SurveyInput, id: string): MotionMedia | undefined {
+function sectionMedia(
+  section: Section,
+  survey: SurveyInput,
+  id: string,
+  options: BuildMotionSceneOptions,
+): MotionMedia | undefined {
   const video = section.background.video;
   if (video?.src && video.poster) {
     return {
@@ -90,7 +125,7 @@ function sectionMedia(section: Section, survey: SurveyInput, id: string): Motion
       width: MEDIA_WIDTH,
       height: MEDIA_HEIGHT,
       focalPoint: { x: 0.5, y: 0.5 },
-      provenance: provenanceFor(background, survey),
+      ...mediaTruthFor(background, survey, options),
     };
   }
   const image = section.elements.find((element) => element.kind === 'image' && element.src);
@@ -103,7 +138,7 @@ function sectionMedia(section: Section, survey: SurveyInput, id: string): Motion
     width: MEDIA_WIDTH,
     height: MEDIA_HEIGHT,
     focalPoint: { x: 0.5, y: 0.5 },
-    provenance: provenanceFor(image.src, survey),
+    ...mediaTruthFor(image.src, survey, options),
   };
 }
 
@@ -111,7 +146,11 @@ function targetSection(page: SitePage, types: readonly SectionType[]): Section |
   return page.sections.find((section) => !section.hidden && types.includes(section.type));
 }
 
-function editorialSourcesForSurvey(page: SitePage, survey: SurveyInput) {
+function editorialSourcesForSurvey(
+  page: SitePage,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+) {
   return page.sections
     .filter((section) => !section.hidden && !['hero', 'contact', 'cta'].includes(section.type))
     .map((section) => {
@@ -120,7 +159,7 @@ function editorialSourcesForSurvey(page: SitePage, survey: SurveyInput) {
         section,
         heading: section.name,
         body,
-        media: sectionMedia(section, survey, `media-${section.id}`),
+        media: sectionMedia(section, survey, `media-${section.id}`, options),
       } : null;
     })
     .filter((value): value is NonNullable<typeof value> => value !== null);
@@ -130,10 +169,14 @@ function editorialSourcesForSurvey(page: SitePage, survey: SurveyInput) {
  * Image-or-video signatures consume the already selected hero asset as their first real
  * scene. This keeps onboarding media choice and published output on one production path.
  */
-function heroEditorialSource(page: SitePage, survey: SurveyInput) {
+function heroEditorialSource(
+  page: SitePage,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+) {
   const hero = targetSection(page, ['hero']);
   if (!hero) return undefined;
-  const media = sectionMedia(hero, survey, `media-${hero.id}`);
+  const media = sectionMedia(hero, survey, `media-${hero.id}`, options);
   const body = heroBody(hero);
   if (!media || !body) return undefined;
   return {
@@ -144,10 +187,14 @@ function heroEditorialSource(page: SitePage, survey: SurveyInput) {
   };
 }
 
-function buildCinematic(config: SiteConfig, survey: SurveyInput): MotionScene | null {
+function buildCinematic(
+  config: SiteConfig,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): MotionScene | null {
   const page = homePage(config);
   const hero = page && targetSection(page, ['hero']);
-  const media = hero && sectionMedia(hero, survey, `media-${hero.id}`);
+  const media = hero && sectionMedia(hero, survey, `media-${hero.id}`, options);
   if (!page || !hero || !media || media.kind !== 'video') return null;
   return {
     signatureId: 'cinematic-scrub', pageId: page.id, sectionId: hero.id,
@@ -157,10 +204,14 @@ function buildCinematic(config: SiteConfig, survey: SurveyInput): MotionScene | 
   };
 }
 
-function buildManifesto(config: SiteConfig, survey: SurveyInput): MotionScene | null {
+function buildManifesto(
+  config: SiteConfig,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): MotionScene | null {
   const page = homePage(config);
   const hero = page && targetSection(page, ['hero']);
-  const media = hero && sectionMedia(hero, survey, `media-${hero.id}`);
+  const media = hero && sectionMedia(hero, survey, `media-${hero.id}`, options);
   const acts = buildNarrativeArc(survey);
   if (!page || !hero || !media || media.kind !== 'video' || acts.length < 3 || acts.length > 5) return null;
   return {
@@ -169,14 +220,18 @@ function buildManifesto(config: SiteConfig, survey: SurveyInput): MotionScene | 
   };
 }
 
-function buildStickyChapters(config: SiteConfig, survey: SurveyInput): MotionScene | null {
+function buildStickyChapters(
+  config: SiteConfig,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): MotionScene | null {
   const page = homePage(config);
   const hero = page && targetSection(page, ['hero']);
   if (!page || !hero) return null;
-  const heroSource = heroEditorialSource(page, survey);
+  const heroSource = heroEditorialSource(page, survey, options);
   const sources = [
     ...(heroSource ? [heroSource] : []),
-    ...editorialSourcesForSurvey(page, survey).filter((source) => source.media),
+    ...editorialSourcesForSurvey(page, survey, options).filter((source) => source.media),
   ].slice(0, 5);
   if (sources.length < 3) return null;
   return {
@@ -191,7 +246,11 @@ function buildStickyChapters(config: SiteConfig, survey: SurveyInput): MotionSce
   };
 }
 
-function buildCards(config: SiteConfig, survey: SurveyInput): MotionScene | null {
+function buildCards(
+  config: SiteConfig,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): MotionScene | null {
   const page = homePage(config);
   const section = page && targetSection(page, ['menu', 'features', 'pricing', 'gallery', 'cases']);
   const items = survey.contentItems
@@ -214,7 +273,7 @@ function buildCards(config: SiteConfig, survey: SurveyInput): MotionScene | null
           width: MEDIA_WIDTH,
           height: MEDIA_HEIGHT,
           focalPoint: { x: 0.5, y: 0.5 },
-          provenance: provenanceFor(item.photoUrl, survey),
+          ...mediaTruthFor(item.photoUrl, survey, options),
         },
       } : {}),
     })),
@@ -225,15 +284,16 @@ function buildEditorial(
   signatureId: 'portal-zoom' | 'scroll-curtain' | 'horizontal-story',
   config: SiteConfig,
   survey: SurveyInput,
+  options: BuildMotionSceneOptions,
 ): MotionScene | null {
   const page = homePage(config);
   const hero = page && targetSection(page, ['hero']);
   if (!page || !hero) return null;
   const limits = signatureId === 'portal-zoom' ? [2, 3] : signatureId === 'scroll-curtain' ? [2, 4] : [3, 6];
-  const heroSource = heroEditorialSource(page, survey);
+  const heroSource = heroEditorialSource(page, survey, options);
   const sources = [
     ...(heroSource ? [heroSource] : []),
-    ...editorialSourcesForSurvey(page, survey).filter((source) => source.media),
+    ...editorialSourcesForSurvey(page, survey, options).filter((source) => source.media),
   ].slice(0, limits[1]);
   if (sources.length < limits[0]) return null;
   const items = sources.map((source, index) => ({
@@ -252,10 +312,22 @@ function buildEditorial(
   return { signatureId, pageId: page.id, sectionId: hero.id, heading: firstText(hero), panels: items };
 }
 
-function buildMosaic(config: SiteConfig, survey: SurveyInput): MotionScene | null {
+function buildMosaic(
+  config: SiteConfig,
+  survey: SurveyInput,
+  options: BuildMotionSceneOptions,
+): MotionScene | null {
   const page = homePage(config);
   const section = page && targetSection(page, ['gallery']);
-  const photos = survey.storePhotoUrls?.filter(Boolean).slice(0, 12) ?? [];
+  const seenAssetIds = new Set<string>();
+  const photos = survey.storePhotoUrls?.filter((src) => {
+    if (!src) return false;
+    if (!survey.imageDirectionId) return true;
+    const ref = customerUploadRefFor(src, options);
+    if (!ref || seenAssetIds.has(ref.assetId)) return false;
+    seenAssetIds.add(ref.assetId);
+    return true;
+  }).slice(0, 12) ?? [];
   if (!page || !section || photos.length < 6) return null;
   return {
     signatureId: 'mosaic-reveal', pageId: page.id, sectionId: section.id, heading: section.name,
@@ -270,7 +342,7 @@ function buildMosaic(config: SiteConfig, survey: SurveyInput): MotionScene | nul
         width: MEDIA_WIDTH,
         height: MEDIA_HEIGHT,
         focalPoint: { x: 0.5, y: 0.5 },
-        provenance: 'customer-provided' as const,
+        ...mediaTruthFor(src, survey, options),
       };
     }),
   };
@@ -334,14 +406,14 @@ export function buildMotionSceneFromSurvey(
   options: BuildMotionSceneOptions = {},
 ): MotionScene | null {
   switch (signatureId) {
-    case 'cinematic-scrub': return buildCinematic(config, survey);
-    case 'scrollytelling-manifesto': return buildManifesto(config, survey);
-    case 'sticky-chapters': return buildStickyChapters(config, survey);
-    case 'true-card-stack': return buildCards(config, survey);
+    case 'cinematic-scrub': return buildCinematic(config, survey, options);
+    case 'scrollytelling-manifesto': return buildManifesto(config, survey, options);
+    case 'sticky-chapters': return buildStickyChapters(config, survey, options);
+    case 'true-card-stack': return buildCards(config, survey, options);
     case 'portal-zoom':
     case 'scroll-curtain':
-    case 'horizontal-story': return buildEditorial(signatureId, config, survey);
-    case 'mosaic-reveal': return buildMosaic(config, survey);
+    case 'horizontal-story': return buildEditorial(signatureId, config, survey, options);
+    case 'mosaic-reveal': return buildMosaic(config, survey, options);
     case 'path-journey': return buildJourney(config, survey);
     case 'before-after-scrub': return buildBeforeAfter(config, survey, options);
   }

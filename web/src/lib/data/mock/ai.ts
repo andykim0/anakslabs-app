@@ -18,6 +18,11 @@ import {
   stampAiGeneratedAsset,
 } from '../supabase/storage';
 import type { AssetRef } from '@/lib/assets/provenance';
+import { assertAiImageGenerationPolicy } from '@/lib/ai/image-generation-policy';
+import {
+  resolveSurveyV2ImageGenerationPlan,
+  surveyWithResolvedV2ImageDirection,
+} from '@/lib/ai/survey-image-generation';
 
 /** 생성 이미지 순환 풀 — public/mock 로컬 자산 */
 export const MOCK_IMAGE_POOL = [
@@ -28,6 +33,15 @@ export const MOCK_IMAGE_POOL = [
   '/mock/candidate-3d.svg',
   '/mock/interior-hwarodam.svg',
 ];
+
+/** Asset-policy v2 never uses the legacy mock business-interior scene. */
+export const SAFE_V2_MOCK_IMAGE_POOL = [
+  '/mock/gen-texture-1.svg',
+  '/mock/gen-texture-2.svg',
+  '/mock/candidate-light.svg',
+  '/mock/candidate-dark.svg',
+  '/mock/candidate-3d.svg',
+] as const;
 
 const MOCK_AI_ASSET_BUCKET = 'mock-ai-assets';
 
@@ -116,10 +130,25 @@ export class MockAiService implements AiService {
     owner: AiAssetOwnerContext,
   ): Promise<DesignCandidate[]> {
     assertAiAssetProvenanceReady();
+    const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
+    const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
+    const blueprints = buildCandidateBlueprints(generationSurvey);
+    if (v2Plan?.kind === 'reuse_customer_upload') {
+      return blueprints.map((bp) => ({
+        id: bp.id,
+        label: bp.label,
+        style: bp.style,
+        imageDirectionId: v2Plan.direction,
+        heroImageUrl: v2Plan.asset.canonicalUrl,
+        heroAssetRef: { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl },
+        theme: bp.theme,
+        description: bp.description,
+      }));
+    }
     await simulateLatency(1300);
-    const selectedUpload = selectedHeroPhotoUrl(survey);
+    const selectedUpload = v2Plan ? undefined : selectedHeroPhotoUrl(survey);
     // 디자인 지식 기반 결정적 3안 (최소 1안 3d_render · 다크/라이트 혼합 · 안끼리 중복 없음)
-    return Promise.all(buildCandidateBlueprints(survey).map(async (bp) => {
+    return Promise.all(blueprints.map(async (bp) => {
       // 고객 업로드 원본에는 AI origin을 덮지 않는다. mock 생성 후보만 실모드와 같은 stamp를 갖는다.
       const hero = selectedUpload
         ? { url: selectedUpload }
@@ -128,6 +157,7 @@ export class MockAiService implements AiService {
         id: bp.id,
         label: bp.label,
         style: bp.style,
+        ...(bp.imageDirectionId ? { imageDirectionId: bp.imageDirectionId } : {}),
         // [H3] 고객 대표 사진은 세 후보 모두의 실제 히어로 소스. 미업로드일 때만 무드 프리뷰 폴백.
         heroImageUrl: hero.url,
         ...(hero.assetId ? { heroAssetRef: { assetId: hero.assetId, url: hero.url } } : {}),
@@ -143,29 +173,48 @@ export class MockAiService implements AiService {
     owner: AiAssetOwnerContext,
   ): Promise<SiteConfig> {
     assertAiAssetProvenanceReady();
-    await simulateLatency(1500);
+    const routeVerifiedV2Uploads = Boolean(survey.imageDirectionId);
+    const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
+    const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
+    if (v2Plan?.kind !== 'reuse_customer_upload') await simulateLatency(1500);
     // 설문의 sectionPlan(name/brief/variant/source 보존)을 순서 그대로 빌더에 전달한다.
     // (한국어 카피는 계획 name·brief + 템플릿 톤 기반 결정적 기본값)
     // [F3 #2a] 사용자 실사 우선 → 부족분만 mock 큐레이션 이미지로 충전
-    const selectedUpload = selectedHeroPhotoUrl(survey);
+    const selectedUpload = v2Plan?.kind === 'reuse_customer_upload'
+      ? v2Plan.asset.canonicalUrl
+      : v2Plan
+        ? undefined
+        : selectedHeroPhotoUrl(survey);
+    const generationPool = v2Plan?.kind === 'reuse_customer_upload'
+      ? []
+      : v2Plan
+        ? SAFE_V2_MOCK_IMAGE_POOL
+        : MOCK_IMAGE_POOL;
     const generatedAssets = await Promise.all(
-      MOCK_IMAGE_POOL.map((url) => stampMockAiAsset(url, owner, 'section')),
+      generationPool.map((url) => stampMockAiAsset(url, owner, 'section')),
     );
     const { heroImageUrl, imagePool } = buildImagePool({
       heroPhoto: selectedUpload,
-      storePhotos: survey.storePhotoUrls,
+      storePhotos: v2Plan
+        ? routeVerifiedV2Uploads ? generationSurvey.storePhotoUrls : undefined
+        : survey.storePhotoUrls,
       aiImages: generatedAssets.map((asset) => asset.url),
       heroFallback: candidate.heroImageUrl,
     });
     const usedUrls = new Set([heroImageUrl, ...imagePool]);
     const assetRefs = [
+      v2Plan?.kind === 'reuse_customer_upload'
+        ? { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl }
+        : undefined,
       candidate.heroAssetRef,
       ...generatedAssets.map((asset) =>
         asset.assetId ? { assetId: asset.assetId, url: asset.url } : undefined),
-    ].filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)));
+    ]
+      .filter((ref): ref is AssetRef => Boolean(ref && usedUrls.has(ref.url)))
+      .filter((ref, index, refs) => refs.findIndex((item) => item.assetId === ref.assetId) === index);
     // [R2/R5] 히어로 형태 — 갤러리 선택(referenceDesignId) 우선, 없으면 후보별 결정적 폴백
     const heroVariant = heroVariantForSurvey(survey.referenceDesignId, survey.purposeId, candidate.id);
-    return buildSiteConfigFromSurvey(survey, candidate, {
+    return buildSiteConfigFromSurvey(generationSurvey, candidate, {
       heroImageUrl,
       imagePool,
       heroVariant,
@@ -189,13 +238,24 @@ export class MockAiService implements AiService {
   }
 
   async generateImage(
-    _input: { prompt: string },
+    input: { prompt: string },
     owner: AiAssetOwnerContext,
   ): Promise<{ url: string; assetId?: string }> {
+    if (owner.assetPolicyVersion === 2) {
+      assertAiImageGenerationPolicy({
+        imageDirectionId: 'abstract_editorial',
+        role: 'decorative',
+        subject: 'abstract',
+        requestedContent: input.prompt,
+        clientId: owner.clientId,
+        siteId: owner.siteId,
+      });
+    }
     assertAiAssetProvenanceReady();
     await simulateLatency(1100);
     const store = getMockStore();
-    const url = MOCK_IMAGE_POOL[store.counters.image % MOCK_IMAGE_POOL.length];
+    const pool = owner.assetPolicyVersion === 2 ? SAFE_V2_MOCK_IMAGE_POOL : MOCK_IMAGE_POOL;
+    const url = pool[store.counters.image % pool.length];
     store.counters.image += 1;
     return stampMockAiAsset(url, owner, 'edit');
   }

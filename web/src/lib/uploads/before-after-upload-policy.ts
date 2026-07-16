@@ -1,4 +1,5 @@
 import type { MotionIndustryClass } from '@/lib/types/site';
+import type { BeforeAfterApprovedIndustry } from '@/lib/assets/provenance-flags-core';
 import type { CustomerAssetUsageContext } from './asset-provenance';
 
 export type BeforeAfterUploadPolicyDecision =
@@ -10,6 +11,7 @@ export type BeforeAfterUploadPolicyDecision =
         | 'BEFORE_AFTER_DISABLED'
         | 'BEFORE_AFTER_SITE_REQUIRED'
         | 'BEFORE_AFTER_CONTEXT_NOT_ALLOWED'
+        | 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED'
         | 'BEFORE_AFTER_CONTEXT_MISMATCH';
     };
 
@@ -19,6 +21,7 @@ export type BeforeAfterUploadPolicyDecision =
  */
 export function resolveBeforeAfterUploadPolicy(input: {
   enabled: boolean;
+  approvedIndustries: readonly BeforeAfterApprovedIndustry[];
   siteId: string | null;
   industryClass: MotionIndustryClass | null;
   requestedUsageContext: CustomerAssetUsageContext;
@@ -32,6 +35,9 @@ export function resolveBeforeAfterUploadPolicy(input: {
   }
   if (input.industryClass !== 'beauty' && input.industryClass !== 'remodeling') {
     return { allowed: false, code: 'BEFORE_AFTER_CONTEXT_NOT_ALLOWED' };
+  }
+  if (!input.approvedIndustries.includes(input.industryClass)) {
+    return { allowed: false, code: 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED' };
   }
   if (input.requestedUsageContext !== input.industryClass) {
     return { allowed: false, code: 'BEFORE_AFTER_CONTEXT_MISMATCH' };

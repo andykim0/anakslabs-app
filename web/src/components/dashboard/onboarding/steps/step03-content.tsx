@@ -11,7 +11,7 @@ import { ImagePlus, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
 import type { LivePurposeId } from '@/lib/types/domain';
 import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { cn } from '../../ui';
-import { extractMenuFromImage, uploadImage } from '../../api';
+import { extractMenuFromImage, uploadImage, uploadImageWithAssetRef } from '../../api';
 import { useToast } from '../../toast';
 import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
@@ -33,17 +33,41 @@ function josa(word: string, withBatchim: string, withoutBatchim: string): string
 function ContentRowPhoto({ index }: { index: number }) {
   const { watch, setValue } = useFormContext<SurveyForm>();
   const { toast } = useToast();
+  const { siteId, assetPolicyV2Ready } = useSurveyUx();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const url = watch(`contentItems.${index}.photoUrl`) ?? '';
+  const assetRef = watch(`contentItems.${index}.photoAssetRef`);
 
   const handleFile = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const uploaded = await uploadImage(file);
-      setValue(`contentItems.${index}.photoUrl`, uploaded, { shouldValidate: false });
+      const uploaded = await uploadImageWithAssetRef(file, siteId);
+      if (assetRef) {
+        const personIds = watch('personPhotoAssetIds') ?? [];
+        const nonPersonIds = watch('nonPersonPhotoAssetIds') ?? [];
+        setValue(
+          'personPhotoAssetIds',
+          personIds.filter((assetId) => assetId !== assetRef.assetId),
+          { shouldValidate: false },
+        );
+        setValue(
+          'nonPersonPhotoAssetIds',
+          nonPersonIds.filter((assetId) => assetId !== assetRef.assetId),
+          { shouldValidate: false },
+        );
+      }
+      setValue(`contentItems.${index}.photoUrl`, uploaded.url, { shouldValidate: false });
+      setValue(`contentItems.${index}.photoAssetRef`, uploaded.assetRef, { shouldValidate: false });
+      if (assetRef || uploaded.assetRef) {
+        // The recorded attestation covers an exact asset set; replacing a member invalidates it.
+        setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
+      }
+      if (assetPolicyV2Ready && !uploaded.assetRef) {
+        toast('info', '사진은 올렸지만 직접 업로드 자산 참조가 없어 실사 사진 방향에는 사용할 수 없어요.');
+      }
     } catch (err) {
       toast('error', err instanceof Error ? err.message : '사진 업로드에 실패했어요.');
     } finally {
@@ -60,7 +84,25 @@ function ContentRowPhoto({ index }: { index: number }) {
           <img src={url} alt="항목 사진" className="h-14 w-14 rounded-ob border border-ob-border object-cover" />
           <button
             type="button"
-            onClick={() => setValue(`contentItems.${index}.photoUrl`, '', { shouldValidate: false })}
+            onClick={() => {
+              setValue(`contentItems.${index}.photoUrl`, '', { shouldValidate: false });
+              setValue(`contentItems.${index}.photoAssetRef`, undefined, { shouldValidate: false });
+              if (assetRef) {
+                setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
+                const personIds = watch('personPhotoAssetIds') ?? [];
+                const nonPersonIds = watch('nonPersonPhotoAssetIds') ?? [];
+                setValue(
+                  'personPhotoAssetIds',
+                  personIds.filter((assetId) => assetId !== assetRef.assetId),
+                  { shouldValidate: false },
+                );
+                setValue(
+                  'nonPersonPhotoAssetIds',
+                  nonPersonIds.filter((assetId) => assetId !== assetRef.assetId),
+                  { shouldValidate: false },
+                );
+              }
+            }}
             aria-label="사진 제거"
             className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ob-ink text-white transition-colors hover:bg-ob-danger"
           >
@@ -105,6 +147,26 @@ export function Step03Content() {
   const filledCount = watchedItems.filter((it) => (it?.name ?? '').trim().length > 0).length;
   const gate = contentGateStatus(purposeId, filledCount);
 
+  const removeItem = (index: number) => {
+    const removedRef = watchedItems[index]?.photoAssetRef;
+    if (removedRef) {
+      setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
+      const personIds = watch('personPhotoAssetIds') ?? [];
+      const nonPersonIds = watch('nonPersonPhotoAssetIds') ?? [];
+      setValue(
+        'personPhotoAssetIds',
+        personIds.filter((assetId) => assetId !== removedRef.assetId),
+        { shouldValidate: false },
+      );
+      setValue(
+        'nonPersonPhotoAssetIds',
+        nonPersonIds.filter((assetId) => assetId !== removedRef.assetId),
+        { shouldValidate: false },
+      );
+    }
+    remove(index);
+  };
+
   const content = watch('providedContent') ?? '';
   const insert = (heading: string) => {
     const base = content.trim();
@@ -141,6 +203,8 @@ export function Step03Content() {
           price: raw.price?.trim() ?? '',
           description: raw.description?.trim() ?? '',
           photoUrl: raw.photoUrl?.trim() ?? '',
+          // OCR output may contain a URL but never inherits direct-upload provenance.
+          photoAssetRef: undefined,
         });
       }
       if (toAdd.length === 0) {
@@ -217,7 +281,7 @@ export function Step03Content() {
                   ) : null}
                   <button
                     type="button"
-                    onClick={() => remove(index)}
+                    onClick={() => removeItem(index)}
                     aria-label="항목 삭제"
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ob border border-ob-border text-ob-muted transition-colors hover:border-ob-danger hover:text-ob-danger"
                   >
@@ -236,7 +300,7 @@ export function Step03Content() {
 
         <button
           type="button"
-          onClick={() => append({ name: '', price: '', description: '', photoUrl: '' })}
+          onClick={() => append({ name: '', price: '', description: '', photoUrl: '', photoAssetRef: undefined })}
           className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink"
         >
           <Plus className="h-4 w-4" />

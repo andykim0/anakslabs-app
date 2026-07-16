@@ -4,7 +4,16 @@ export interface AssetProvenanceConfig {
   enforceNewSites: boolean;
   enforceLegacy: boolean;
   beforeAfterEnabled: boolean;
+  /**
+   * Legal approval is a second, independent server gate. The global switch
+   * alone never authorizes an industry. An unset allowlist is intentionally
+   * empty, even when BEFORE_AFTER_ENABLED=1.
+   */
+  beforeAfterApprovedIndustries: readonly BeforeAfterApprovedIndustry[];
 }
+
+export const BEFORE_AFTER_APPROVABLE_INDUSTRIES = ['beauty', 'remodeling'] as const;
+export type BeforeAfterApprovedIndustry = (typeof BEFORE_AFTER_APPROVABLE_INDUSTRIES)[number];
 
 export const ASSET_PROVENANCE_FLAG_DEPENDENCY_INVALID = 'ASSET_PROVENANCE_FLAG_DEPENDENCY_INVALID' as const;
 
@@ -23,6 +32,24 @@ function enabled(environment: FlagEnvironment, name: string): boolean {
   return environment[name] === '1';
 }
 
+function beforeAfterApprovedIndustries(
+  environment: FlagEnvironment,
+): readonly BeforeAfterApprovedIndustry[] {
+  const raw = environment.BEFORE_AFTER_APPROVED_INDUSTRIES?.trim();
+  if (!raw) return [];
+
+  const requested = new Set(raw.split(',').map((value) => value.trim()).filter(Boolean));
+  const invalid = [...requested].filter(
+    (value) => !(BEFORE_AFTER_APPROVABLE_INDUSTRIES as readonly string[]).includes(value),
+  );
+  if (invalid.length > 0) {
+    throw new AssetProvenanceFlagError(
+      `Unsupported before/after approved industries: ${invalid.join(', ')}`,
+    );
+  }
+  return BEFORE_AFTER_APPROVABLE_INDUSTRIES.filter((industry) => requested.has(industry));
+}
+
 /** Pure resolver kept separate so dependency failure is deterministic in unit tests. */
 export function resolveAssetProvenanceConfig(environment: FlagEnvironment): AssetProvenanceConfig {
   const config: AssetProvenanceConfig = {
@@ -31,6 +58,7 @@ export function resolveAssetProvenanceConfig(environment: FlagEnvironment): Asse
     enforceNewSites: enabled(environment, 'ASSET_PROVENANCE_V2_ENFORCE_NEW_SITES'),
     enforceLegacy: enabled(environment, 'ASSET_PROVENANCE_V2_ENFORCE_LEGACY'),
     beforeAfterEnabled: enabled(environment, 'BEFORE_AFTER_ENABLED'),
+    beforeAfterApprovedIndustries: beforeAfterApprovedIndustries(environment),
   };
 
   const invalid = (config.assign && !config.write)
@@ -59,14 +87,29 @@ export function assetPolicyVersionForNewSite(
 
 export type BeforeAfterFeatureDecision =
   | { allowed: true }
-  | { allowed: false; code: 'MEDICAL_BEFORE_AFTER_DISABLED' | 'BEFORE_AFTER_DISABLED' };
+  | {
+      allowed: false;
+      code:
+        | 'MEDICAL_BEFORE_AFTER_DISABLED'
+        | 'BEFORE_AFTER_DISABLED'
+        | 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED';
+    };
 
 /** Medical policy outranks the launch kill switch and can never be enabled by a flag. */
 export function resolveBeforeAfterFeatureDecision(input: {
   medical: boolean;
-  config: Pick<AssetProvenanceConfig, 'beforeAfterEnabled'>;
+  industryClass: string | null;
+  config: Pick<AssetProvenanceConfig, 'beforeAfterEnabled' | 'beforeAfterApprovedIndustries'>;
 }): BeforeAfterFeatureDecision {
-  if (input.medical) return { allowed: false, code: 'MEDICAL_BEFORE_AFTER_DISABLED' };
+  if (input.medical || input.industryClass === 'medical') {
+    return { allowed: false, code: 'MEDICAL_BEFORE_AFTER_DISABLED' };
+  }
   if (!input.config.beforeAfterEnabled) return { allowed: false, code: 'BEFORE_AFTER_DISABLED' };
+  if (
+    !input.industryClass ||
+    !(input.config.beforeAfterApprovedIndustries as readonly string[]).includes(input.industryClass)
+  ) {
+    return { allowed: false, code: 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED' };
+  }
   return { allowed: true };
 }

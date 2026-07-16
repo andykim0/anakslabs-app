@@ -24,6 +24,10 @@ const LOADING_MESSAGES = [
   '제품 대신 공간·빛·질감으로 연출하는 중…',
   '서로 다른 무드 3안을 준비하고 있습니다',
 ];
+const REAL_PHOTO_LOADING_MESSAGES = [
+  '올린 사진의 소유권과 등록 상태를 확인하고 있어요…',
+  '실제 사진을 바꾸지 않고 디자인 구도를 준비하고 있습니다',
+];
 
 function optionCopy(option: HeroImageSelection): { label: string; description: string } {
   if (option.source === 'upload') {
@@ -41,22 +45,26 @@ function optionCopy(option: HeroImageSelection): { label: string; description: s
 
 export function HeroImageStep({
   survey,
+  existingSiteId,
   initial,
   onBack,
   onComplete,
 }: {
   survey: SurveyInput;
+  /** Existing owned draft whose site-bound assets may be reused for regeneration. */
+  existingSiteId?: string;
   initial?: HeroImageSelection;
   onBack: () => void;
   onComplete: (selection: HeroImageSelection) => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(initial?.id ?? null);
-  const candidateSurvey = surveyForHeroCandidates(survey);
+  const isRealPhoto = survey.imageDirectionId === 'real_photo';
+  const candidateSurvey = isRealPhoto ? survey : surveyForHeroCandidates(survey);
   const intent = heroCandidateIntent(candidateSurvey);
   const requestKey = genIdemKey(intent);
   const { data, isFetching, isError, error, refetch } = useQuery({
-    queryKey: ['onboarding', 'hero-images', candidateSurvey],
-    queryFn: () => generateCandidates(candidateSurvey, requestKey),
+    queryKey: ['onboarding', 'hero-images', existingSiteId ?? 'new', candidateSurvey],
+    queryFn: () => generateCandidates(candidateSurvey, requestKey, existingSiteId),
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
@@ -65,7 +73,9 @@ export function HeroImageStep({
     retry: false,
   });
 
-  if (isFetching) return <LoadingScreen messages={LOADING_MESSAGES} />;
+  if (isFetching) {
+    return <LoadingScreen messages={isRealPhoto ? REAL_PHOTO_LOADING_MESSAGES : LOADING_MESSAGES} />;
+  }
 
   if (isError) {
     return (
@@ -82,18 +92,39 @@ export function HeroImageStep({
     );
   }
 
-  const options = buildHeroImageOptions(data ?? [], survey.heroPhotoUrl);
+  const options = buildHeroImageOptions(
+    data ?? [],
+    survey.heroPhotoUrl,
+    survey.heroPhotoAssetRef,
+    survey.imageDirectionId,
+  );
   const selected = options.find((option) => option.id === selectedId) ?? null;
+
+  if (isRealPhoto && options.length === 0) {
+    return (
+      <div className="space-y-4">
+        <ErrorState message="확인된 직접 업로드 사진을 찾지 못했어요. 사진 단계에서 다시 올리고 사용 확인을 완료해 주세요." />
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4" />
+          사진 방향 다시 고르기
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
       <div>
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
-          <h2 className="text-lg font-semibold text-ob-ink">첫 화면에 쓸 사진을 골라주세요</h2>
+          <h2 className="text-lg font-semibold text-ob-ink">
+            {isRealPhoto ? '첫 화면에 쓸 실제 사진을 확인해 주세요' : '첫 화면에 쓸 이미지를 골라주세요'}
+          </h2>
         </div>
         <p className="mt-1 text-sm leading-6 text-ob-muted">
-          직접 올린 대표 사진이나 AI가 만든 무드 3안 중 하나를 고르면, 이후 움직임과 최종 히어로가 모두 이 사진을 사용해요.
+          {isRealPhoto
+            ? '서버에서 확인한 고객님의 실제 사진만 사용합니다. AI로 제품·공간·사람을 다시 만들지 않아요.'
+            : '선택한 예술 방향으로 만든 무드 3안 중 하나를 고르면, 이후 움직임과 최종 히어로가 모두 이 이미지를 사용해요.'}
         </p>
       </div>
 
@@ -137,7 +168,9 @@ export function HeroImageStep({
       </div>
 
       <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
-        AI 이미지는 특정 메뉴·상품·시술 결과를 만들지 않고, 선택한 톤의 공간·빛·질감만 표현합니다.
+        {isRealPhoto
+          ? '실제 사진은 원본 픽셀을 유지한 채 크롭·배치·색감과 CSS 모션만 연출합니다.'
+          : 'AI 이미지는 특정 메뉴·상품·시술 결과를 만들지 않고, 선택한 톤의 공간·빛·질감만 표현합니다.'}
       </div>
 
       <div className="flex items-center justify-between border-t border-ob-border pt-5">

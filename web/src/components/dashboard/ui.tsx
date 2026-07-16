@@ -135,12 +135,11 @@ export function TierBadge({ tier }: { tier: Tier }) {
 export function Card({
   children,
   className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+  ...props
+}: React.ComponentPropsWithoutRef<'div'>) {
   return (
     <div
+      {...props}
       className={cn(
         'rounded-xl border border-[#DCE4F0] bg-white p-5 shadow-[0_10px_32px_rgba(11,23,54,0.045)]',
         className,
@@ -210,7 +209,11 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-[#F2B8BE] bg-[#FFF5F6] px-6 py-8 text-center">
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="flex flex-col items-center justify-center gap-3 rounded-xl border border-[#F2B8BE] bg-[#FFF5F6] px-6 py-8 text-center"
+    >
       <p className="text-sm text-[#B42318]">{message}</p>
       {onRetry ? (
         <button

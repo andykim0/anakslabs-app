@@ -18,6 +18,10 @@ import { assertVideoGenAllowed, generateGuardedVideo, STANDARD_MODEL } from '@/l
 import { apiError, parseBody, withApiHandler } from '../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../_lib/guards';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
+import {
+  assertAiImageGenerationPolicy,
+  isAssetTruthGenerationError,
+} from '@/lib/ai/image-generation-policy';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -67,6 +71,26 @@ export const POST = withApiHandler(async (request) => {
 
   // 이미지/영상 산출물 provenance flag 오류는 요청 row·크레딧 차감·provider 호출 전에 중단한다.
   if (type === 'image' || type === 'video') assetProvenanceConfig();
+
+  // AI 이미지 편집은 분위기·장식만 허용한다. 사실 피사체/하이퍼리얼 요청은 요청 row,
+  // 무료 수정권 조회, 크레딧 차감, provider 호출보다 먼저 안정적인 422로 거부한다.
+  if (type === 'image' && site.assetPolicyVersion === 2) {
+    try {
+      assertAiImageGenerationPolicy({
+        imageDirectionId: 'abstract_editorial',
+        role: 'decorative',
+        subject: 'abstract',
+        requestedContent,
+        clientId: client.id,
+        siteId,
+      });
+    } catch (error) {
+      if (isAssetTruthGenerationError(error)) {
+        return apiError(error.status, error.code, error.message, { guidance: error.guidance });
+      }
+      throw error;
+    }
+  }
 
   // 불변식: 애드온·킬스위치·사이트/일일 상한을 요청 생성과 크레딧 차감보다 먼저 검사한다.
   if (type === 'video') {
@@ -143,7 +167,11 @@ export const POST = withApiHandler(async (request) => {
       case 'image':
         aiOutput = await ai.generateImage(
           { prompt: requestedContent },
-          { clientId: client.id, siteId },
+          {
+            clientId: client.id,
+            siteId,
+            ...(site.assetPolicyVersion === 2 ? { assetPolicyVersion: 2 as const } : {}),
+          },
         );
         break;
       case 'video':

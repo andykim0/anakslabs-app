@@ -39,6 +39,12 @@ import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
 import type { AssetRef } from '@/lib/assets/provenance';
+import {
+  GENERAL_ASSET_ATTESTATION_VERSION,
+  type GeneralAssetAttestation,
+  PERSON_ASSET_CONSENT_VERSION,
+  type PersonAssetConsent,
+} from '@/lib/assets/attestation-contract';
 
 // ---------- 에러 ----------
 
@@ -368,9 +374,13 @@ function parseAssetRef(value: unknown, url: string): AssetRef | undefined {
 }
 
 /** 로고/이미지 업로드의 additive 결과. SVG는 서버에서 sanitize됨. */
-export async function uploadImageWithAssetRef(file: File): Promise<UploadedImageResult> {
+export async function uploadImageWithAssetRef(
+  file: File,
+  siteId?: string,
+): Promise<UploadedImageResult> {
   const form = new FormData();
   form.append('file', file);
+  if (siteId) form.append('siteId', siteId);
   let res: Response;
   try {
     res = await fetch('/api/uploads', { method: 'POST', body: form });
@@ -405,6 +415,98 @@ export async function uploadImageWithAssetRef(file: File): Promise<UploadedImage
 /** 기존 URL-only 호출자용 compatibility adapter. */
 export async function uploadImage(file: File): Promise<string> {
   return (await uploadImageWithAssetRef(file)).url;
+}
+
+export interface CreateGeneralAssetAttestationInput {
+  /** Direct-upload registry IDs only. Raw URLs and imported images are never accepted here. */
+  assetIds: readonly string[];
+  /** Exact subset classified as containing an identifiable person. */
+  personAssetIds: readonly string[];
+  /** Exact complementary subset classified as containing no identifiable person. */
+  nonPersonAssetIds: readonly string[];
+  /** Stable across a retry of the same confirmation; rotate when the asset set changes. */
+  idempotencyKey: string;
+  /** Absent during pre-site onboarding. The authenticated server may bind it later exactly once. */
+  siteId?: string;
+}
+
+function isGeneralAssetAttestation(value: unknown): value is GeneralAssetAttestation {
+  if (!value || typeof value !== 'object') return false;
+  const row = value as Record<string, unknown>;
+  return typeof row.id === 'string'
+    && typeof row.clientId === 'string'
+    && (row.siteId === null || typeof row.siteId === 'string')
+    && (row.scope === 'onboarding' || row.scope === 'site')
+    && row.statementVersion === GENERAL_ASSET_ATTESTATION_VERSION
+    && typeof row.actorId === 'string'
+    && typeof row.attestedAt === 'string'
+    && (row.revokedAt === null || typeof row.revokedAt === 'string')
+    && typeof row.idempotencyKey === 'string'
+    && Array.isArray(row.assetIds)
+    && row.assetIds.every((assetId) => typeof assetId === 'string')
+    && Array.isArray(row.personAssetIds)
+    && row.personAssetIds.every((assetId) => typeof assetId === 'string')
+    && Array.isArray(row.nonPersonAssetIds)
+    && row.nonPersonAssetIds.every((assetId) => typeof assetId === 'string');
+}
+
+/**
+ * Records one immutable factual-upload snapshot. A changed photo/classification
+ * set receives a new snapshot; the route derives
+ * actor/owner/time and re-verifies every registry asset; the client submits no
+ * provenance or ownership claim.
+ */
+export async function createGeneralAssetAttestation(
+  input: CreateGeneralAssetAttestationInput,
+): Promise<GeneralAssetAttestation> {
+  const assetIds = [...new Set(input.assetIds)];
+  const personAssetIds = [...new Set(input.personAssetIds)];
+  const nonPersonAssetIds = [...new Set(input.nonPersonAssetIds)];
+  if (assetIds.length < 1) {
+    throw new ApiError(400, 'VALIDATION_ERROR', '확인할 직접 업로드 사진이 없습니다.');
+  }
+  const data = await post<{ attestation?: unknown }>('/api/asset-attestations/general', {
+    accepted: true,
+    statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
+    assetIds,
+    personAssetIds,
+    nonPersonAssetIds,
+    idempotencyKey: input.idempotencyKey,
+    ...(input.siteId ? { siteId: input.siteId } : {}),
+  });
+  if (!isGeneralAssetAttestation(data?.attestation)) {
+    throw new ApiError(500, 'INVALID_RESPONSE', '사진 사용 확인 기록을 확인하지 못했습니다.');
+  }
+  return data.attestation;
+}
+
+function isPersonAssetConsent(value: unknown): value is PersonAssetConsent {
+  if (!value || typeof value !== 'object') return false;
+  const row = value as Record<string, unknown>;
+  return typeof row.id === 'string'
+    && typeof row.assetId === 'string'
+    && typeof row.clientId === 'string'
+    && row.statementVersion === PERSON_ASSET_CONSENT_VERSION
+    && typeof row.actorId === 'string'
+    && typeof row.attestedAt === 'string'
+    && (row.revokedAt === null || typeof row.revokedAt === 'string');
+}
+
+/** Server records the actor/time and re-verifies the direct-upload asset. */
+export async function createPersonAssetConsent(
+  assetId: string,
+  siteId?: string,
+): Promise<PersonAssetConsent> {
+  const data = await post<{ consent?: unknown }>('/api/asset-attestations/person', {
+    accepted: true,
+    statementVersion: PERSON_ASSET_CONSENT_VERSION,
+    assetId,
+    ...(siteId ? { siteId } : {}),
+  });
+  if (!isPersonAssetConsent(data?.consent)) {
+    throw new ApiError(500, 'INVALID_RESPONSE', '인물 사진 사용 확인 기록을 확인하지 못했습니다.');
+  }
+  return data.consent;
 }
 
 /** [G3c] 메뉴판 사진 URL → 추출 항목({name, price}). 실패/0건이면 빈 배열(호출부가 직접 입력 안내). */
@@ -471,10 +573,12 @@ export async function suggestSection(input: {
 export async function generateCandidates(
   survey: SurveyInput,
   requestKey?: string,
+  siteId?: string,
 ): Promise<DesignCandidate[]> {
   const data = await post<{ candidates: DesignCandidate[] }>('/api/onboarding/candidates', {
     survey,
     ...(requestKey ? { requestKey } : {}),
+    ...(siteId ? { siteId } : {}),
   });
   if (!Array.isArray(data.candidates) || data.candidates.length === 0) {
     throw new ApiError(500, 'INVALID_RESPONSE', '디자인 후보 생성에 실패했습니다.');

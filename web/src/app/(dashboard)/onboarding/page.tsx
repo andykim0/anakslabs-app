@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentClient } from '@/lib/services/auth';
 import { getRecentScan, guessBusinessName, summarizeIssues } from '@/lib/services/recent-scan';
 import { OnboardingWizard } from '@/components/dashboard/onboarding/wizard';
+import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 
 export const metadata: Metadata = { title: '새 사이트 만들기 — Daboim' };
 
@@ -21,11 +22,15 @@ export default async function OnboardingPage({
   const guessed = scan ? guessBusinessName(scan.url) : '';
   // [I1] 개선 모드 — ?mode=improve 이고 진단 scan이 있어야 진입(둘 중 하나라도 없으면 fresh)
   const improve = sp.mode === 'improve' && !!scan;
+  // Server-only rollout decision. The client receives a serializable readiness
+  // boolean, never environment variables or authority-bearing policy state.
+  const assetPolicyV2Ready = assetProvenanceConfig().assign;
 
   return (
     <OnboardingWizard
       defaultBusinessName={guessed || client.name}
       tier={client.tier}
+      assetPolicyV2Ready={assetPolicyV2Ready}
       scanContext={
         scan
           ? { url: scan.url, total: scan.scores.total, issueCount: scan.issues.length, notes: summarizeIssues(scan) }

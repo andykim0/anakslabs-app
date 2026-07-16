@@ -5,8 +5,18 @@
  */
 import { useFormContext } from 'react-hook-form';
 import { Pencil } from 'lucide-react';
-import type { CandidateStyle, PresenceKind, SiteGoalId, SitePurposeId } from '@/lib/types/domain';
+import type {
+  CandidateStyle,
+  PresenceKind,
+  SiteGoalId,
+  SitePurposeId,
+} from '@/lib/types/domain';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
+import {
+  IMAGE_DIRECTIONS,
+  canSelectRealPhoto,
+  legacyCandidateStyleToImageDirection,
+} from '@/lib/assets/image-directions';
 import { IMAGE_STYLE_OPTIONS, defaultImageStyle } from '@/lib/onboarding/image-style';
 import { REFERENCE_SAMPLES } from '@/lib/design/reference-samples';
 import { SITE_GOALS } from '@/lib/onboarding/site-goal';
@@ -54,12 +64,19 @@ function Empty() {
 
 export function Step08Review() {
   const { watch, register } = useFormContext<SurveyForm>();
-  const { goTo } = useSurveyUx();
+  const { goTo, assetPolicyV2Ready } = useSurveyUx();
   const v = watch();
 
   const purpose = v.purposeId ? findPurpose(v.purposeId as SitePurposeId) : undefined;
-  const imageStyle = (v.imageStyle as CandidateStyle | undefined) ?? defaultImageStyle(v.industry);
-  const imageStyleLabel = IMAGE_STYLE_OPTIONS.find((o) => o.id === imageStyle)?.label ?? imageStyle;
+  const legacyImageStyle = (v.imageStyle as CandidateStyle | undefined)
+    ?? defaultImageStyle(v.industry);
+  const legacyImageStyleLabel = IMAGE_STYLE_OPTIONS.find(
+    (option) => option.id === legacyImageStyle,
+  )?.label ?? legacyImageStyle;
+  const realPhotoEligible = canSelectRealPhoto(v);
+  const imageDirection = v.imageDirectionId
+    ?? legacyCandidateStyleToImageDirection(v.imageStyle, realPhotoEligible);
+  const imageDirectionLabel = IMAGE_DIRECTIONS[imageDirection].label;
   const goalLabel = v.siteGoal ? SITE_GOALS[v.siteGoal as SiteGoalId]?.label : undefined;
   const moodLabels = (v.moodIds ?? [])
     .map((id) => REFERENCE_SAMPLES.find((s) => s.id === id)?.label)
@@ -97,13 +114,45 @@ export function Step08Review() {
           )}
         </Row>
         <Row title="대표 사진" step={4} goTo={goTo}>
-          {v.heroPhotoUrl ? '1장 · 히어로에 사용' : <span className="text-ob-muted">AI가 분위기에 맞춰 연출</span>}
+          {!assetPolicyV2Ready ? (
+            v.heroPhotoUrl
+              ? '1장 · 히어로에 사용'
+              : <span className="text-ob-muted">AI가 분위기에 맞춰 연출</span>
+          ) : v.heroPhotoUrl ? (
+            v.heroPhotoAssetRef
+              ? '1장 · 직접 업로드 등록'
+              : <span className="text-ob-muted">1장 · URL 이미지(실사 근거 아님)</span>
+          ) : <span className="text-ob-muted">AI가 예술적인 방향으로 연출</span>}
         </Row>
         <Row title="가게·메뉴 사진" step={4} goTo={goTo}>
-          {v.storePhotoUrls.length ? `${v.storePhotoUrls.length}장` : <Empty />}
+          {!assetPolicyV2Ready
+            ? (v.storePhotoUrls.length ? `${v.storePhotoUrls.length}장` : <Empty />)
+            : v.storePhotoUrls.length
+            ? `${v.storePhotoUrls.length}장 · 직접 업로드 등록 ${v.storePhotoAssetRefs.length}장`
+            : <Empty />}
         </Row>
-        <Row title="이미지 스타일" step={5} goTo={goTo}>
-          {imageStyleLabel}
+        {assetPolicyV2Ready && v.importedPhotoAssetRefs.length ? (
+          <Row title="외부 채널에서 가져온 사진" step={2} goTo={goTo}>
+            <span className="text-ob-muted">{v.importedPhotoAssetRefs.length}장 · 실사 사진 근거로 자동 사용 안 함</span>
+          </Row>
+        ) : null}
+        {assetPolicyV2Ready ? (
+          <Row title="실제 사진 사용 확인" step={4} goTo={goTo}>
+            {v.generalAssetAttestationId ? '확인 완료' : <span className="text-ob-muted">확인 안 됨</span>}
+          </Row>
+        ) : null}
+        {assetPolicyV2Ready && v.personPhotoAssetIds.length ? (
+          <Row title="인물 사진 추가 확인" step={4} goTo={goTo}>
+            {v.personPhotoAssetIds.length}장 · 자산별 확인 완료
+          </Row>
+        ) : null}
+        {assetPolicyV2Ready && v.nonPersonPhotoAssetIds.length ? (
+          <Row title="인물 없음 확인" step={4} goTo={goTo}>
+            {v.nonPersonPhotoAssetIds.length}장 · 식별 가능한 인물 없음
+          </Row>
+        ) : null}
+        <Row title={assetPolicyV2Ready ? '이미지 방향' : '이미지 스타일'} step={5} goTo={goTo}>
+          {assetPolicyV2Ready ? imageDirectionLabel : legacyImageStyleLabel}
         </Row>
         <Row title="느낌 · 색" step={6} goTo={goTo}>
           <span className="inline-flex items-center gap-2">

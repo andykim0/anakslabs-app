@@ -12,7 +12,12 @@
  */
 import type { SurveyInput } from '@/lib/types/domain';
 import type { CandidateBlueprint } from '@/lib/data/design-candidates';
-import { buildImagePrompt, povForStyle } from '@/lib/design/quality-standards';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
+import {
+  buildImagePrompt,
+  buildV2ImagePrompt,
+  povForStyle,
+} from '@/lib/design/quality-standards';
 
 /**
  * POV 골격 + tone 기반 ambient 장면. refinedScene은 레거시 호출 호환을 위해 인자로 유지하지만,
@@ -33,5 +38,20 @@ export function povImagePrompt(
     background: bp.theme.palette.background,
     tone: survey.tone,
     purposeId: survey.purposeId,
+  });
+}
+
+/** v2 callers must pass a resolved non-real direction from the server policy. */
+export function v2ImagePrompt(
+  bp: CandidateBlueprint,
+  survey: SurveyInput,
+  section: string,
+  imageDirectionId: Exclude<ImageDirectionId, 'real_photo'>,
+): string {
+  return buildV2ImagePrompt(povForStyle(bp.brief.style.id), section, {
+    imageDirectionId,
+    palettePrimary: bp.theme.palette.primary,
+    background: bp.theme.palette.background,
+    tone: survey.tone,
   });
 }

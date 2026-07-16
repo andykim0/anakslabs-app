@@ -154,12 +154,23 @@ export class SupabaseSitesRepo implements SitesRepo {
     draftConfig: SiteConfig;
     assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
     assetRefsToBind?: readonly AssetRef[];
+    generalAssetAttestationId?: string;
   }): Promise<Site> {
     const svc = getServiceRoleClient();
     if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
       throw new Error('sites 생성 실패: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
     }
+    if (input.generalAssetAttestationId && !input.assetRefsToBind?.length) {
+      throw new Error('sites 생성 실패: 일반 자산 확인서는 atomic asset binding 없이 귀속할 수 없습니다.');
+    }
+    if (input.generalAssetAttestationId && input.assetPolicyVersion !== 2) {
+      throw new Error('sites 생성 실패: 일반 자산 확인서 귀속은 서버가 지정한 asset policy v2 사이트에만 허용됩니다.');
+    }
     if (input.assetRefsToBind?.length) {
+      const bindingAssetIds = input.assetRefsToBind.map((ref) => ref.assetId);
+      if (new Set(bindingAssetIds).size !== bindingAssetIds.length) {
+        throw new Error('sites 생성 실패: atomic binding 자산 ID는 중복될 수 없습니다.');
+      }
       const configRefs = input.draftConfig.assetRefs ?? [];
       const sameManifest = configRefs.length === input.assetRefsToBind.length
         && configRefs.every((ref, index) => (
@@ -169,14 +180,33 @@ export class SupabaseSitesRepo implements SitesRepo {
       if (!sameManifest) {
         throw new Error('sites 생성 실패: draft asset manifest와 binding 요청이 일치하지 않습니다.');
       }
-      const { data, error } = await svc
-        .rpc('create_site_with_asset_bindings', {
+      const { resolveOwnedAssetRecords } = await import('@/lib/assets/registry');
+      const records = await resolveOwnedAssetRecords({
+        assetIds: bindingAssetIds,
+        clientId: input.clientId,
+      });
+      const hasCustomerUpload = records.some((record) => record.origin === 'customer_upload');
+      if (hasCustomerUpload
+        && (input.assetPolicyVersion !== 2 || !input.generalAssetAttestationId)) {
+        throw new Error(
+          'sites 생성 실패: 새 customer upload manifest에는 asset policy v2와 일반 자산 확인서가 모두 필요합니다.',
+        );
+      }
+      const rpcName = input.generalAssetAttestationId
+        ? 'create_site_with_asset_bindings_and_attestation'
+        : 'create_site_with_asset_bindings';
+      const rpcArgs = {
           p_client_id: input.clientId,
           p_name: input.name,
           p_draft_config: input.draftConfig,
           p_asset_policy_version: input.assetPolicyVersion ?? null,
-          p_asset_ids: input.assetRefsToBind.map((ref) => ref.assetId),
-        })
+          p_asset_ids: bindingAssetIds,
+          ...(input.generalAssetAttestationId
+            ? { p_general_attestation_id: input.generalAssetAttestationId }
+            : {}),
+        };
+      const { data, error } = await svc
+        .rpc(rpcName, rpcArgs)
         .single();
       if (error) throw new Error(`sites+asset binding 원자 생성 실패: ${error.message}`);
       return rowToSite(data as SiteRow);
