@@ -771,7 +771,10 @@ export function resolveMotionSignaturePlayback(
       capability.hardwareConcurrency >= 4 && capability.renderMode !== 'mobile'
     ) ? 'enhanced' : 'mobile-fallback';
   }
-  if (capability.renderMode === 'mobile' || capability.viewportWidth < 768) return 'mobile-fallback';
+  if (
+    capability.renderMode === 'mobile' ||
+    capability.viewportWidth < (['sticky-chapters', 'portal-zoom', 'scroll-curtain'].includes(signatureId) ? 1024 : 768)
+  ) return 'mobile-fallback';
   return 'enhanced';
 }
 

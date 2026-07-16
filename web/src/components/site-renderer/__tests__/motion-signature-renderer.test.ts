@@ -188,6 +188,14 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_CSS, /prefers-reduced-motion: reduce[\s\S]*data-horizontal-rail[\s\S]*transform: none !important/);
     assert.match(MOTION_RUNTIME, /i===count-1\?0:smooth/, 'last card must settle at scale 1 before document-flow release');
   });
+
+  test('sticky chapters has editorial clip/light choreography and an active progress indicator', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['sticky-chapters']);
+    assert.equal((html.match(/data-chapter-indicator-item=/g) ?? []).length, 3);
+    assert.match(MOTION_CSS, /data-chapter-media\][\s\S]*--chapter-clip/);
+    assert.match(MOTION_CSS, /data-chapter-media\]::after[\s\S]*--chapter-light/);
+    assert.match(MOTION_RUNTIME, /activeChapter[\s\S]*--chapter-copy-opacity[\s\S]*data-chapter-indicator-item/);
+  });
 });
 
 function textElement(id: string, text: string, y: number) {

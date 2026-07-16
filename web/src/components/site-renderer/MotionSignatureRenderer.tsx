@@ -377,6 +377,13 @@ function StickyChapters({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   return (
     <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label="주요 이야기">
       <span data-signature-progress-rail aria-hidden="true"><span data-signature-progress-fill /></span>
+      <ol data-chapter-indicator aria-hidden="true">
+        {scene.chapters.map((chapter, index) => (
+          <li key={`indicator-${chapter.id}`} data-chapter-indicator-item data-chapter-index={index}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+          </li>
+        ))}
+      </ol>
       {scene.chapters.map((chapter, index) => {
         const headingId = `${domId(scene.sectionId)}-chapter-${index + 1}`;
         return (
@@ -384,6 +391,7 @@ function StickyChapters({ scene, theme, art, mode, isFirst }: MotionSignatureRen
             key={chapter.id}
             id={chapter.sourceSectionId !== scene.sectionId ? chapter.sourceSectionId : undefined}
             data-signature-chapter
+            data-chapter-index={index}
             aria-labelledby={headingId}
           >
             {chapter.media ? (

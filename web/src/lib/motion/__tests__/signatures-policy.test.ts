@@ -303,6 +303,18 @@ describe('signature sanitizer and playback', () => {
     }), 'static');
   });
 
+  test('sticky/editorial page signatures match the runtime 1024px enhancement boundary', () => {
+    const desktop = sensitiveContext({ industryClass: 'brand' });
+    for (const signatureId of ['sticky-chapters', 'portal-zoom', 'scroll-curtain'] as const) {
+      assert.equal(resolveMotionSignaturePlayback(signatureId, {
+        ...desktop, playback: { ...desktop.playback, viewportWidth: 1023 },
+      }), 'mobile-fallback');
+      assert.equal(resolveMotionSignaturePlayback(signatureId, {
+        ...desktop, playback: { ...desktop.playback, viewportWidth: 1024 },
+      }), 'enhanced');
+    }
+  });
+
   test('art direction is deterministic and uses density/theme without animating comparison geometry', () => {
     const context = sensitiveContext({
       contentDensity: 'dense',

@@ -190,6 +190,9 @@ export const MOTION_CSS = `
   min-height: 70svh; padding: clamp(40px, 7vw, 112px); display: grid; gap: clamp(24px, 5vw, 72px); align-items: start;
 }
 .anaks-site [data-signature-id="sticky-chapters"] [data-chapter-copy] { align-self: center; }
+.anaks-site [data-signature-id="sticky-chapters"] [data-chapter-indicator] {
+  display: none; list-style: none; margin: 0; padding: 0;
+}
 .anaks-site [data-signature-id="sticky-chapters"].m-signature-ready [data-signature-chapter] {
   grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); min-height: 100svh;
 }
@@ -198,7 +201,28 @@ export const MOTION_CSS = `
 }
 .anaks-site [data-signature-id="sticky-chapters"].m-signature-ready [data-chapter-media] {
   position: sticky; top: clamp(56px, 10svh, 112px); opacity: var(--chapter-emphasis, .55);
-  transform: scale(var(--chapter-scale, .985)); transition: opacity 180ms var(--signature-easing), transform 180ms var(--signature-easing);
+  transform: scale(var(--chapter-scale, .985)); clip-path: inset(var(--chapter-clip, 2.5%) round max(var(--signature-radius), 18px));
+  transition: opacity 260ms var(--signature-easing), transform 260ms var(--signature-easing), clip-path 260ms var(--signature-easing);
+}
+.anaks-site [data-signature-id="sticky-chapters"].m-signature-ready [data-chapter-media]::after {
+  content: ''; position: absolute; inset: -12%; z-index: 2; pointer-events: none;
+  background: linear-gradient(112deg, transparent 34%, color-mix(in srgb, var(--signature-accent) 22%, white) 49%, transparent 64%);
+  opacity: var(--chapter-light, 0); transform: translate3d(var(--chapter-light-x, -24%),0,0);
+}
+.anaks-site [data-signature-id="sticky-chapters"].m-signature-ready [data-chapter-copy] {
+  opacity: var(--chapter-copy-opacity, .72); transform: translate3d(0,var(--chapter-copy-y, 10px),0);
+}
+.anaks-site [data-signature-id="sticky-chapters"].m-signature-ready [data-chapter-indicator] {
+  position: sticky; top: 50%; z-index: 14; float: right; display: grid; width: 42px; margin: 0 18px -100%; transform: translateY(-50%); gap: 7px;
+}
+.anaks-site [data-signature-id="sticky-chapters"] [data-chapter-indicator-item] {
+  display: flex; justify-content: flex-end; color: var(--signature-muted); font-size: .66rem; font-variant-numeric: tabular-nums;
+}
+.anaks-site [data-signature-id="sticky-chapters"] [data-chapter-indicator-item]::before {
+  content: ''; align-self: center; width: var(--chapter-dot-width, 8px); height: 1px; margin-right: 7px; background: currentColor;
+}
+.anaks-site [data-signature-id="sticky-chapters"] [data-chapter-indicator-item][data-active] {
+  color: var(--signature-accent); font-weight: 800;
 }
 
 /* true-card-stack: 기존 IO stacking과 별개인 실제 native sticky stack. */
@@ -387,6 +411,8 @@ export const MOTION_CSS = `
 @media (max-width: 1023.98px) {
   .anaks-site [data-signature-id="sticky-chapters"] [data-signature-chapter] { display: block; min-height: 0; }
   .anaks-site [data-signature-id="sticky-chapters"] [data-chapter-media] { position: relative; top: auto; margin-bottom: 28px; opacity: 1; transform: none; }
+  .anaks-site [data-signature-id="sticky-chapters"] [data-chapter-copy] { opacity: 1; transform: none; }
+  .anaks-site [data-signature-id="sticky-chapters"] [data-chapter-indicator] { display: none; }
   .anaks-site [data-signature-id="portal-zoom"],
   .anaks-site [data-signature-id="scroll-curtain"],
   .anaks-site [data-signature-id="horizontal-story"] { height: auto; }
@@ -413,6 +439,8 @@ export const MOTION_CSS = `
 /* Dashboard/editor forced-mobile previews obey the same fallback even on a wide host viewport. */
 .anaks-site [data-render-mode="mobile"][data-signature-id="sticky-chapters"] [data-signature-chapter] { display: block; min-height: 0; }
 .anaks-site [data-render-mode="mobile"][data-signature-id="sticky-chapters"] [data-chapter-media] { position: relative; top: auto; margin-bottom: 28px; opacity: 1; transform: none; }
+.anaks-site [data-render-mode="mobile"][data-signature-id="sticky-chapters"] [data-chapter-copy] { opacity: 1; transform: none; }
+.anaks-site [data-render-mode="mobile"][data-signature-id="sticky-chapters"] [data-chapter-indicator] { display: none; }
 .anaks-site [data-render-mode="mobile"][data-signature-id="portal-zoom"],
 .anaks-site [data-render-mode="mobile"][data-signature-id="scroll-curtain"],
 .anaks-site [data-render-mode="mobile"][data-signature-id="horizontal-story"] { height: auto; }
@@ -654,7 +682,9 @@ export const MOTION_RUNTIME = `(function(){
       var id=stage.getAttribute('data-signature-id')||'',nodes,index,count,local,opacity;
       if(id==='sticky-chapters'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-signature-chapter]'));count=Math.max(1,nodes.length);
-        nodes.forEach(function(node,i){var center=count<=1?0:i/(count-1),distance=Math.min(1,Math.abs(motionP-center)*count),emphasis=1-smooth(.08,.75,distance);node.style.setProperty('--chapter-emphasis',(.48+.52*emphasis).toFixed(4));node.style.setProperty('--chapter-scale',(.982+.018*emphasis).toFixed(4));node.toggleAttribute('data-active',emphasis>.62);});
+        var activeChapter=Math.min(count-1,Math.max(0,Math.round(motionP*(count-1))));
+        nodes.forEach(function(node,i){var center=count<=1?0:i/(count-1),distance=Math.min(1,Math.abs(motionP-center)*Math.max(1,count-1)),emphasis=1-smooth(.1,.82,distance),active=i===activeChapter,arrival=1-smooth(.04,.72,distance);node.style.setProperty('--chapter-emphasis',(.58+.42*emphasis).toFixed(4));node.style.setProperty('--chapter-scale',(.977+.023*emphasis).toFixed(4));node.style.setProperty('--chapter-clip',((1-emphasis)*3.2).toFixed(3)+'%');node.style.setProperty('--chapter-light',(active*Math.sin(arrival*Math.PI)*.42).toFixed(4));node.style.setProperty('--chapter-light-x',((-26+arrival*52)).toFixed(2)+'%');node.style.setProperty('--chapter-copy-opacity',(.7+.3*emphasis).toFixed(4));node.style.setProperty('--chapter-copy-y',((1-emphasis)*12).toFixed(2)+'px');node.toggleAttribute('data-active',active);});
+        Array.prototype.slice.call(stage.querySelectorAll('[data-chapter-indicator-item]')).forEach(function(item,i){item.toggleAttribute('data-active',i===activeChapter);item.style.setProperty('--chapter-dot-width',(i===activeChapter?22:8)+'px');});
       }else if(id==='true-card-stack'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-stack-card]'));count=Math.max(1,nodes.length);
         nodes.forEach(function(node,i){local=clamp(motionP*count-i);var covered=i===count-1?0:smooth(.62,1,local);node.style.setProperty('--card-scale',(1-covered*.035).toFixed(4));node.style.setProperty('--card-y',(-covered*8).toFixed(2)+'px');node.toggleAttribute('data-active',local>.18&&local<.96);});
