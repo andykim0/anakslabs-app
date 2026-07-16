@@ -4,7 +4,7 @@
  * S4 사진 — 대표 히어로 실사 1장(heroPhotoUrl) + 본문·갤러리 사진(storePhotoUrls, 최대 12).
  * 두 소스는 역할이 다르므로 별도 슬롯으로 유지한다. S2에서 고른 가져온 이미지는 일반 사진에 담긴다.
  */
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { ImagePlus, Loader2, ShieldCheck, X } from 'lucide-react';
 import type { AssetRef } from '@/lib/assets/provenance';
@@ -19,9 +19,19 @@ import {
   uploadImageWithAssetRef,
 } from '../../api';
 import { useToast } from '../../toast';
+import { projectPersonPhotoClassification } from './photo-person-classification';
 import { Field, StepIntro, detectWhiteBg, useSurveyUx, type SurveyForm } from './shared';
 
 const MAX = 12;
+
+function sameAssetIdSet(actual: readonly string[], expected: readonly string[]): boolean {
+  if (actual.length !== expected.length) return false;
+  const actualIds = new Set(actual);
+  return actualIds.size === actual.length && expected.every((assetId) => actualIds.has(assetId));
+}
+const EMPTY_ASSET_REFS: AssetRef[] = [];
+const EMPTY_CONTENT_ITEMS: SurveyForm['contentItems'] = [];
+const EMPTY_ASSET_IDS: string[] = [];
 
 export function Step04Photos() {
   const { watch, setValue } = useFormContext<SurveyForm>();
@@ -42,29 +52,59 @@ export function Step04Photos() {
   const heroPhotoUrl = watch('heroPhotoUrl') ?? '';
   const heroPhotoAssetRef = watch('heroPhotoAssetRef');
   const photos = watch('storePhotoUrls') ?? [];
-  const storePhotoAssetRefs = watch('storePhotoAssetRefs') ?? [];
-  const contentItems = watch('contentItems') ?? [];
+  const storePhotoAssetRefs = watch('storePhotoAssetRefs') ?? EMPTY_ASSET_REFS;
+  const contentItems = watch('contentItems') ?? EMPTY_CONTENT_ITEMS;
   const generalAssetAttestationId = watch('generalAssetAttestationId');
-  const personPhotoAssetIds = watch('personPhotoAssetIds') ?? [];
-  const nonPersonPhotoAssetIds = watch('nonPersonPhotoAssetIds') ?? [];
+  const personPhotoAssetIds = watch('personPhotoAssetIds') ?? EMPTY_ASSET_IDS;
+  const nonPersonPhotoAssetIds = watch('nonPersonPhotoAssetIds') ?? EMPTY_ASSET_IDS;
   const logoUrl = watch('logoUrl') ?? '';
 
-  const registeredAssetRefs: AssetRef[] = [...new Map([
+  const registeredAssetRefs = useMemo<AssetRef[]>(() => [...new Map([
     ...(heroPhotoAssetRef ? [heroPhotoAssetRef] : []),
     ...storePhotoAssetRefs,
     ...contentItems.flatMap((item) => item.photoAssetRef ? [item.photoAssetRef] : []),
-  ].map((ref) => [ref.assetId, ref] as const)).values()];
+  ].map((ref) => [ref.assetId, ref] as const)).values()], [
+    contentItems,
+    heroPhotoAssetRef,
+    storePhotoAssetRefs,
+  ]);
   const contentPhotoCount = contentItems.filter((item) => Boolean(item.photoUrl)).length;
   const unregisteredPhotoCount = Math.max(
     0,
     (heroPhotoUrl ? 1 : 0) + photos.length + contentPhotoCount - registeredAssetRefs.length,
   );
-  const personAssetIdSet = new Set(personPhotoAssetIds);
-  const nonPersonAssetIdSet = new Set(nonPersonPhotoAssetIds);
-  const classificationComplete = registeredAssetRefs.length > 0
-    && registeredAssetRefs.every((ref) =>
-      personAssetIdSet.has(ref.assetId) !== nonPersonAssetIdSet.has(ref.assetId))
-    && personAssetIdSet.size + nonPersonAssetIdSet.size === registeredAssetRefs.length;
+  const personClassification = useMemo(
+    () => projectPersonPhotoClassification(registeredAssetRefs, personPhotoAssetIds),
+    [personPhotoAssetIds, registeredAssetRefs],
+  );
+  const classificationMatchesForm = sameAssetIdSet(
+    personPhotoAssetIds,
+    personClassification.personPhotoAssetIds,
+  ) && sameAssetIdSet(
+    nonPersonPhotoAssetIds,
+    personClassification.nonPersonPhotoAssetIds,
+  );
+
+  useEffect(() => {
+    if (!assetPolicyV2Ready || classificationMatchesForm) return;
+    setValue('personPhotoAssetIds', personClassification.personPhotoAssetIds, {
+      shouldValidate: false,
+    });
+    setValue('nonPersonPhotoAssetIds', personClassification.nonPersonPhotoAssetIds, {
+      shouldValidate: false,
+    });
+    if (generalAssetAttestationId) {
+      setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
+      attestationKeyRef.current = null;
+    }
+  }, [
+    assetPolicyV2Ready,
+    classificationMatchesForm,
+    generalAssetAttestationId,
+    personClassification.nonPersonPhotoAssetIds,
+    personClassification.personPhotoAssetIds,
+    setValue,
+  ]);
 
   const invalidateGeneralAttestation = () => {
     setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
@@ -240,10 +280,20 @@ export function Step04Photos() {
       setPhotoError('서버에 등록된 직접 업로드 사진이 없습니다. 사진을 다시 올려주세요.');
       return;
     }
-    if (!classificationComplete) {
-      setPhotoError('모든 직접 업로드 사진에서 식별 가능한 인물 여부를 하나씩 골라주세요.');
+    if (personAttestingAssetId) {
+      setPhotoError('인물 사진 사용 확인을 기록한 뒤 다시 시도해 주세요.');
       return;
     }
+    const exactClassification = projectPersonPhotoClassification(
+      registeredAssetRefs,
+      personPhotoAssetIds,
+    );
+    setValue('personPhotoAssetIds', exactClassification.personPhotoAssetIds, {
+      shouldValidate: false,
+    });
+    setValue('nonPersonPhotoAssetIds', exactClassification.nonPersonPhotoAssetIds, {
+      shouldValidate: false,
+    });
     setAttesting(true);
     try {
       if (!attestationKeyRef.current) {
@@ -254,8 +304,8 @@ export function Step04Photos() {
       }
       const attestation = await createGeneralAssetAttestation({
         assetIds: registeredAssetRefs.map((ref) => ref.assetId),
-        personAssetIds: personPhotoAssetIds,
-        nonPersonAssetIds: nonPersonPhotoAssetIds,
+        personAssetIds: exactClassification.personPhotoAssetIds,
+        nonPersonAssetIds: exactClassification.nonPersonPhotoAssetIds,
         idempotencyKey: attestationKeyRef.current,
         ...(siteId ? { siteId } : {}),
       });
@@ -270,39 +320,36 @@ export function Step04Photos() {
     }
   };
 
-  const handlePersonClassification = async (
-    assetId: string,
-    classification: 'person' | 'non-person',
-  ) => {
+  const handlePersonPhotoCheck = async (assetId: string, checked: boolean) => {
     resetPhotoMessages();
     invalidateGeneralAttestation();
-    if (classification === 'non-person') {
-      setValue(
-        'personPhotoAssetIds',
-        personPhotoAssetIds.filter((current) => current !== assetId),
-        { shouldValidate: false },
+    if (!checked) {
+      const nextClassification = projectPersonPhotoClassification(
+        registeredAssetRefs,
+        personClassification.personPhotoAssetIds.filter((current) => current !== assetId),
       );
-      setValue(
-        'nonPersonPhotoAssetIds',
-        [...new Set([...nonPersonPhotoAssetIds, assetId])],
-        { shouldValidate: true },
-      );
+      setValue('personPhotoAssetIds', nextClassification.personPhotoAssetIds, {
+        shouldValidate: false,
+      });
+      setValue('nonPersonPhotoAssetIds', nextClassification.nonPersonPhotoAssetIds, {
+        shouldValidate: true,
+      });
       setPhotoStatus('이 사진은 식별 가능한 인물이 없는 사진으로 분류했어요.');
       return;
     }
     setPersonAttestingAssetId(assetId);
     try {
       await createPersonAssetConsent(assetId, siteId);
-      setValue(
-        'personPhotoAssetIds',
-        [...new Set([...personPhotoAssetIds, assetId])],
-        { shouldValidate: true },
+      const nextClassification = projectPersonPhotoClassification(
+        registeredAssetRefs,
+        [...personClassification.personPhotoAssetIds, assetId],
       );
-      setValue(
-        'nonPersonPhotoAssetIds',
-        nonPersonPhotoAssetIds.filter((current) => current !== assetId),
-        { shouldValidate: false },
-      );
+      setValue('personPhotoAssetIds', nextClassification.personPhotoAssetIds, {
+        shouldValidate: true,
+      });
+      setValue('nonPersonPhotoAssetIds', nextClassification.nonPersonPhotoAssetIds, {
+        shouldValidate: false,
+      });
       setPhotoStatus('인물 사진의 공개·홍보 사용 확인이 자산별로 기록됐어요.');
     } catch (error) {
       setPhotoError(error instanceof Error ? error.message : '인물 사진 사용 확인을 기록하지 못했습니다.');
@@ -431,52 +478,21 @@ export function Step04Photos() {
       {assetPolicyV2Ready && registeredAssetRefs.length ? (
         <fieldset
           className="rounded-ob border border-ob-border bg-ob-surface p-4"
-          aria-describedby="general-asset-attestation-help"
-          aria-busy={attesting}
-        >
-          <legend className="px-1 text-[15px] font-semibold text-ob-ink">실제 사진 사용 확인</legend>
-          <label className="flex cursor-pointer items-start gap-3 rounded-ob p-1 text-[14px] leading-6 text-ob-ink">
-            <input
-              type="checkbox"
-              checked={Boolean(generalAssetAttestationId)}
-              disabled={attesting || !classificationComplete}
-              onChange={(event) => void handleGeneralAttestation(event.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-ob-border text-ob-accent-strong focus:ring-ob-accent"
-            />
-            <span>
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="h-4 w-4 text-ob-accent-strong" aria-hidden="true" />
-                {GENERAL_ASSET_ATTESTATION_TEXT}
-              </span>
-              <span id="general-asset-attestation-help" className="mt-1 block text-[13px] leading-5 text-ob-muted">
-                먼저 아래에서 모든 사진의 인물 여부를 선택해야 기록할 수 있어요. 법적 보증을 요구하는 것이 아니라, 이 사진을 실제 제품·장소·작업을 보여주는 이미지로 사용할 수 있는지 확인하는 절차예요.
-              </span>
-            </span>
-          </label>
-          {attesting ? (
-            <p className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-ob-muted">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-              확인을 안전하게 기록하고 있어요.
-            </p>
-          ) : null}
-        </fieldset>
-      ) : null}
-
-      {assetPolicyV2Ready && registeredAssetRefs.length ? (
-        <fieldset
-          className="rounded-ob border border-ob-border bg-ob-surface p-4"
           aria-describedby="person-asset-consent-help"
           aria-busy={Boolean(personAttestingAssetId)}
         >
-          <legend className="px-1 text-[15px] font-semibold text-ob-ink">사진별 인물 여부 확인</legend>
+          <legend className="px-1 text-[15px] font-semibold text-ob-ink">
+            인물이 들어간 사진만 체크해 주세요
+          </legend>
           <p id="person-asset-consent-help" className="mb-3 text-[13px] leading-5 text-ob-muted">
-            모든 직접 업로드 사진마다 식별 가능한 인물이 있는지 하나씩 선택해 주세요.
-            인물이 있는 사진은 자산별로 다음 확인을 기록합니다: {PERSON_ASSET_CONSENT_TEXT}
-            이 절차가 법적 검토를 대신하지는 않습니다.
+            체크하지 않은 직접 업로드 사진은 식별 가능한 인물이 없는 사진으로 기록합니다.
+            체크하면 해당 사진에 다음 공개·홍보 사용 확인을 자산별로 기록합니다: {PERSON_ASSET_CONSENT_TEXT}
+            이 확인은 법적 검토를 대신하지 않습니다.
           </p>
           <div className="space-y-2">
             {registeredAssetRefs.map((ref, index) => {
               const busy = personAttestingAssetId === ref.assetId;
+              const checked = personClassification.personPhotoAssetIds.includes(ref.assetId);
               return (
                 <div
                   key={ref.assetId}
@@ -498,39 +514,68 @@ export function Step04Photos() {
                       <span id={`asset-classification-${ref.assetId}`} className="block font-medium">
                         사진 {index + 1}
                       </span>
-                      <span className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2">
-                    <label className="inline-flex cursor-pointer items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`asset-classification-${ref.assetId}`}
-                        value="non-person"
-                        checked={nonPersonPhotoAssetIds.includes(ref.assetId)}
-                        disabled={Boolean(personAttestingAssetId)}
-                        onChange={() => void handlePersonClassification(ref.assetId, 'non-person')}
-                        className="h-4 w-4 border-ob-border text-ob-accent-strong focus:ring-ob-accent"
-                      />
-                      식별 가능한 인물 없음
-                    </label>
-                    <label className="inline-flex cursor-pointer items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`asset-classification-${ref.assetId}`}
-                        value="person"
-                        checked={personPhotoAssetIds.includes(ref.assetId)}
-                        disabled={Boolean(personAttestingAssetId)}
-                        onChange={() => void handlePersonClassification(ref.assetId, 'person')}
-                        className="h-4 w-4 border-ob-border text-ob-accent-strong focus:ring-ob-accent"
-                      />
-                      식별 가능한 인물 있음
-                    </label>
+                      <label className="mt-2 inline-flex cursor-pointer items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={Boolean(personAttestingAssetId) || Boolean(generalAssetAttestationId)}
+                          onChange={(event) => void handlePersonPhotoCheck(ref.assetId, event.target.checked)}
+                          className="h-4 w-4 rounded border-ob-border text-ob-accent-strong focus:ring-ob-accent"
+                        />
+                        이 사진에 식별 가능한 인물이 있어요
                         {busy ? <Loader2 className="h-4 w-4 animate-spin text-ob-muted" aria-hidden="true" /> : null}
-                      </span>
+                      </label>
+                      {checked ? (
+                        <span className="mt-2 flex items-start gap-1.5 rounded-ob bg-ob-accent-soft/40 px-2.5 py-2 text-[12px] leading-5 text-ob-muted">
+                          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ob-accent-strong" aria-hidden="true" />
+                          <span>이 자산의 인물 사진 공개·홍보 사용 확인이 기록됐어요.</span>
+                        </span>
+                      ) : null}
+                      {generalAssetAttestationId ? (
+                        <span className="mt-2 block text-[12px] leading-5 text-ob-muted">
+                          이 사진 묶음의 인물 여부가 기록됐어요. 사진을 추가·교체·삭제하면 다시 확인합니다.
+                        </span>
+                      ) : null}
                     </span>
                   </span>
                 </div>
               );
             })}
           </div>
+        </fieldset>
+      ) : null}
+
+      {assetPolicyV2Ready && registeredAssetRefs.length ? (
+        <fieldset
+          className="rounded-ob border border-ob-border bg-ob-surface p-4"
+          aria-describedby="general-asset-attestation-help"
+          aria-busy={attesting}
+        >
+          <legend className="px-1 text-[15px] font-semibold text-ob-ink">실제 사진 사용 확인</legend>
+          <label className="flex cursor-pointer items-start gap-3 rounded-ob p-1 text-[14px] leading-6 text-ob-ink">
+            <input
+              type="checkbox"
+              checked={Boolean(generalAssetAttestationId)}
+              disabled={attesting || Boolean(personAttestingAssetId) || Boolean(generalAssetAttestationId)}
+              onChange={(event) => void handleGeneralAttestation(event.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-ob-border text-ob-accent-strong focus:ring-ob-accent"
+            />
+            <span>
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <ShieldCheck className="h-4 w-4 text-ob-accent-strong" aria-hidden="true" />
+                {GENERAL_ASSET_ATTESTATION_TEXT}
+              </span>
+              <span id="general-asset-attestation-help" className="mt-1 block text-[13px] leading-5 text-ob-muted">
+                위에서 인물이 들어간 사진만 체크했는지 확인해 주세요. 법적 보증을 요구하는 것이 아니라, 이 사진을 실제 제품·장소·작업을 보여주는 이미지로 사용할 수 있는지 확인하는 절차예요.
+              </span>
+            </span>
+          </label>
+          {attesting ? (
+            <p className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-ob-muted">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              확인을 안전하게 기록하고 있어요.
+            </p>
+          ) : null}
         </fieldset>
       ) : null}
 

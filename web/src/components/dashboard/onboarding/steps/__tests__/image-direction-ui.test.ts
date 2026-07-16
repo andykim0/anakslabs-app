@@ -64,10 +64,21 @@ describe('asset-policy v2 onboarding wiring', () => {
     assert.match(STEP04, /createPersonAssetConsent/);
     assert.match(STEP04, /personPhotoAssetIds/);
     assert.match(STEP04, /nonPersonPhotoAssetIds/);
-    assert.match(STEP04, /type="radio"/);
-    assert.match(STEP04, /식별 가능한 인물 없음/);
-    assert.match(STEP04, /classificationComplete/);
-    assert.match(STEP04, /nonPersonPhotoAssetIds\.filter/);
+    assert.match(STEP04, /projectPersonPhotoClassification/);
+    assert.match(STEP04, /인물이 들어간 사진만 체크해 주세요/);
+    assert.match(STEP04, /체크하지 않은 직접 업로드 사진은 식별 가능한 인물이 없는 사진으로 기록합니다/);
+    assert.match(STEP04, /type="checkbox"[\s\S]*?checked=\{checked\}[\s\S]*?handlePersonPhotoCheck\(ref\.assetId, event\.target\.checked\)/);
+    assert.doesNotMatch(STEP04, /type="radio"|value="non-person"|value="person"/);
+    const personCheck = block(STEP04, 'const handlePersonPhotoCheck', 'return (');
+    assert.match(personCheck, /if \(!checked\)[\s\S]*?projectPersonPhotoClassification[\s\S]*?return;/);
+    assert.match(personCheck, /await createPersonAssetConsent\(assetId, siteId\)[\s\S]*?projectPersonPhotoClassification/);
+    assert.match(STEP04, /personAssetIds: exactClassification\.personPhotoAssetIds/);
+    assert.match(STEP04, /nonPersonAssetIds: exactClassification\.nonPersonPhotoAssetIds/);
+    assert.match(
+      STEP04,
+      /disabled=\{Boolean\(personAttestingAssetId\) \|\| Boolean\(generalAssetAttestationId\)\}/,
+    );
+    assert.match(STEP04, /사진을 추가·교체·삭제하면 다시 확인합니다/);
     assert.match(STEP03, /nonPersonIds\.filter/);
     assert.match(DASHBOARD_API, /\/api\/asset-attestations\/person/);
     assert.match(DASHBOARD_API, /statementVersion: PERSON_ASSET_CONSENT_VERSION/);
