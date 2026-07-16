@@ -21,19 +21,22 @@ describe('W1 — 히어로 사진 선택 플로우', () => {
     assert.match(wizard, /\{ no: 3, label: '디자인 방향' \}/);
     assert.match(wizard, /\{ no: 4, label: '움직임' \}/);
     assert.match(wizard, /heroImageUrl=\{heroImage\.url\}/);
+    assert.match(wizard, /heroImageAssetRef=\{heroImage\.assetRef\}/);
     assert.match(wizard, /candidate=\{candidate\}/);
   });
 
   test('히어로·디자인 단계는 같은 query key·requestKey로 AI 3안 한 배치를 공유한다', () => {
     for (const src of [heroStep, candidateStep]) {
-      assert.match(src, /queryKey: \['onboarding', 'hero-images', candidateSurvey\]/);
+      assert.match(src, /queryKey: \['onboarding', 'hero-images', existingSiteId \?\? 'new', candidateSurvey\]/);
       assert.match(src, /heroCandidateIntent\(candidateSurvey\)/);
-      assert.match(src, /generateCandidates\(candidateSurvey, requestKey\)/);
+      assert.match(src, /generateCandidates\(candidateSurvey, requestKey, existingSiteId\)/);
       assert.match(src, /staleTime: Infinity/);
       assert.match(src, /retry: false/);
     }
     assert.match(dashboardApi, /requestKey\?: string/);
+    assert.match(dashboardApi, /siteId\?: string/);
     assert.match(dashboardApi, /\.\.\.\(requestKey \? \{ requestKey \} : \{\}\)/);
+    assert.match(dashboardApi, /\.\.\.\(siteId \? \{ siteId \} : \{\}\)/);
   });
 
   test('업로드·AI 무드 선택을 구분하고 제품 날조 금지를 고지한다', () => {
@@ -45,7 +48,7 @@ describe('W1 — 히어로 사진 선택 플로우', () => {
 
   test('디자인 3안은 새 히어로를 재생성하지 않고 선택 URL을 고정한다', () => {
     assert.match(candidateStep, /src=\{heroImageUrl\}/);
-    assert.match(candidateStep, /applyHeroImageToCandidate\(selected, heroImageUrl\)/);
+    assert.match(candidateStep, /applyHeroImageToCandidate\(selected, heroImageUrl, heroImageAssetRef\)/);
     assert.doesNotMatch(candidateStep, /다시 추천받기/);
     assert.doesNotMatch(candidateStep, /const regenerate/);
   });

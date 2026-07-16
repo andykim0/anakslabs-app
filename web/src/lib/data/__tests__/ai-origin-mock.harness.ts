@@ -1,15 +1,29 @@
 import assert from 'node:assert/strict';
-import { MockAiService } from '@/lib/data/mock/ai';
+import { MockAiService, SAFE_V2_MOCK_IMAGE_POOL } from '@/lib/data/mock/ai';
 import { getDataServices } from '@/lib/data';
 import { getMockStore } from '@/lib/data/mock/store';
 import {
   getAssetRegistry,
+  registerCustomerUploadAsset,
   resolveOwnedAssetRecords,
 } from '@/lib/assets/registry';
+import { toAssetRef } from '@/lib/assets/provenance';
 import {
+  GENERAL_ASSET_ATTESTATION_VERSION,
+} from '@/lib/assets/attestation-contract';
+import {
+  recordGeneralAssetAttestation,
+  resolveAssetAttestationSnapshot,
+  resolveCurrentSiteAssetAttestation,
+} from '@/lib/assets/attestation-registry';
+import { emptySiteConfig } from '@/lib/types/site';
+import {
+  CandidateAssetTruthError,
   validateCandidateAssetRef,
   validateConfigAssetRefsForSave,
 } from '@/lib/assets/owned-refs';
+import { AssetTruthGenerationError } from '@/lib/ai/image-generation-policy';
+import { resolveSurveyV2ImageGenerationPlan } from '@/lib/ai/survey-image-generation';
 import type { SurveyInput } from '@/lib/types/domain';
 
 // mock 체감 지연만 제거한다. registry/서비스/manifest의 실제 production 코드는 그대로 실행한다.
@@ -58,15 +72,75 @@ try {
   assert.equal(legacyCandidates.some((candidate) => 'heroAssetRef' in candidate), false);
   const legacyConfig = await ai.generateSiteConfig(survey, legacyCandidates[0], { clientId });
   assert.equal(Object.hasOwn(legacyConfig, 'assetRefs'), false);
-  assert.deepEqual(Object.keys(await ai.generateImage({ prompt: '무드' }, { clientId })).sort(), ['url']);
+  const legacyImageCount = getMockStore().counters.image;
+  const legacyFactualEdit = await ai.generateImage(
+    { prompt: '스테이크 제품 사진을 만들어줘' },
+    { clientId },
+  );
+  assert.deepEqual(Object.keys(legacyFactualEdit).sort(), ['url']);
+  assert.equal(
+    getMockStore().counters.image,
+    legacyImageCount + 1,
+    'legacy edit stays on the existing provider path instead of entering v2 policy',
+  );
   assert.deepEqual(
     Object.keys(await ai.generateVideo({ prompt: '무드' }, { clientId })).sort(),
     ['poster', 'url'],
   );
 
   setFlags(true);
+  const beforeRejectedV2Edit = getMockStore().counters.image;
+  await assert.rejects(
+    ai.generateImage(
+      { prompt: '스테이크 제품 사진을 만들어줘' },
+      { clientId, assetPolicyVersion: 2 },
+    ),
+    (error) => error instanceof AssetTruthGenerationError
+      && error.status === 422
+      && error.code === 'AI_FACTUAL_PRODUCT_FORBIDDEN',
+  );
+  assert.equal(
+    getMockStore().counters.image,
+    beforeRejectedV2Edit,
+    'v2 rejection must happen before mock/provider accounting',
+  );
+  const safeV2Edit = await ai.generateImage(
+    { prompt: '더 차분한 파란 빛과 기하학 질감' },
+    { clientId, assetPolicyVersion: 2 },
+  );
+  assert.ok(safeV2Edit.assetId);
+  assert.equal(
+    SAFE_V2_MOCK_IMAGE_POOL.includes(safeV2Edit.url as (typeof SAFE_V2_MOCK_IMAGE_POOL)[number]),
+    true,
+    'v2 edit must use only the explicitly safe synthetic pool',
+  );
   const candidates = await ai.generateCandidates(survey, { clientId });
   assert.equal(candidates.every((candidate) => Boolean(candidate.heroAssetRef)), true);
+  const v2Candidate = { ...candidates[0], imageDirectionId: 'abstract_editorial' as const };
+  await assert.rejects(
+    validateCandidateAssetRef({
+      candidate: { ...v2Candidate, heroAssetRef: undefined },
+      clientId,
+      expectedImageDirectionId: 'abstract_editorial',
+    }),
+    (error) => error instanceof CandidateAssetTruthError
+      && error.status === 422
+      && error.code === 'CANDIDATE_ASSET_REF_REQUIRED',
+  );
+  await assert.rejects(
+    validateCandidateAssetRef({
+      candidate: v2Candidate,
+      clientId,
+      expectedImageDirectionId: '3d_brand_world',
+    }),
+    (error) => error instanceof CandidateAssetTruthError
+      && error.code === 'CANDIDATE_IMAGE_DIRECTION_MISMATCH',
+  );
+  await assert.doesNotReject(validateCandidateAssetRef({
+    candidate: v2Candidate,
+    clientId,
+    expectedImageDirectionId: 'abstract_editorial',
+  }));
   const secondCandidates = await ai.generateCandidates(survey, { clientId });
   assert.notEqual(
     candidates[0].heroAssetRef?.assetId,
@@ -86,6 +160,88 @@ try {
   assert.equal(preSiteRecords.every((record) => record.ownerId === clientId && record.siteId === null), true);
 
   const { sites } = getDataServices();
+
+  const factualUpload = await registerCustomerUploadAsset({
+    clientId,
+    storageBucket: 'client-assets',
+    storageKey: `truth-policy/${crypto.randomUUID()}.webp`,
+    canonicalUrl: `https://assets.example/${crypto.randomUUID()}.webp`,
+    mediaType: 'image',
+  });
+  const factualGalleryUpload = await registerCustomerUploadAsset({
+    clientId,
+    storageBucket: 'client-assets',
+    storageKey: `truth-policy/${crypto.randomUUID()}.webp`,
+    canonicalUrl: `https://assets.example/${crypto.randomUUID()}.webp`,
+    mediaType: 'image',
+  });
+  const factualRef = toAssetRef(factualUpload);
+  const factualGalleryRef = toAssetRef(factualGalleryUpload);
+  const factualConfig = {
+    ...emptySiteConfig('사실 사진'),
+    assetRefs: [factualRef, factualGalleryRef],
+  };
+  const generalAttestation = await recordGeneralAssetAttestation({
+    clientId,
+    statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
+    assetIds: [factualUpload.id, factualGalleryUpload.id],
+    personAssetIds: [],
+    nonPersonAssetIds: [factualUpload.id, factualGalleryUpload.id],
+    idempotencyKey: crypto.randomUUID(),
+  });
+  await assert.rejects(
+    sites.create({
+      clientId,
+      name: 'legacy 강등 금지',
+      draftConfig: factualConfig,
+      assetRefsToBind: [factualRef, factualGalleryRef],
+    }),
+    /asset policy v2와 일반 자산 확인서가 모두 필요합니다/,
+  );
+  await assert.rejects(
+    sites.create({
+      clientId,
+      name: '확인 누락 금지',
+      draftConfig: factualConfig,
+      assetPolicyVersion: 2,
+      assetRefsToBind: [factualRef, factualGalleryRef],
+    }),
+    /asset policy v2와 일반 자산 확인서가 모두 필요합니다/,
+  );
+  const factualSite = await sites.create({
+    clientId,
+    name: '확인된 사실 사진',
+    draftConfig: factualConfig,
+    assetPolicyVersion: 2,
+    assetRefsToBind: [factualRef, factualGalleryRef],
+    generalAssetAttestationId: generalAttestation.id,
+  });
+  assert.equal((await resolveCurrentSiteAssetAttestation({
+    clientId,
+    siteId: factualSite.id,
+    assetIds: [factualUpload.id, factualGalleryUpload.id],
+  }))?.id, generalAttestation.id);
+  assert.equal((await resolveAssetAttestationSnapshot({
+    clientId,
+    siteId: factualSite.id,
+    assetIds: [factualUpload.id, factualGalleryUpload.id],
+    generalAttestationId: crypto.randomUUID(),
+  })).generalAttestation?.id, generalAttestation.id, 'site scope에서는 client snapshot id보다 exact manifest가 권위다');
+  const realPhotoRegenerationPlan = await resolveSurveyV2ImageGenerationPlan({
+    ...survey,
+    imageDirectionId: 'real_photo',
+    heroPhotoUrl: factualRef.url,
+    heroPhotoAssetRef: factualRef,
+    storePhotoUrls: [factualGalleryRef.url],
+    storePhotoAssetRefs: [factualGalleryRef],
+    nonPersonPhotoAssetIds: [factualUpload.id, factualGalleryUpload.id],
+  }, { clientId, siteId: factualSite.id });
+  assert.equal(
+    realPhotoRegenerationPlan?.kind,
+    'reuse_customer_upload',
+    'existing-site regeneration must resolve the full attested upload manifest, not only the hero ref',
+  );
+
   await assert.rejects(
     sites.create({ clientId, name: '사후 binding 금지', draftConfig: config }),
     /atomic binding 요청 없이 저장할 수 없습니다/,
@@ -129,8 +285,18 @@ try {
   });
   assert.equal(boundRecords.every((record) => record.siteId === site.id), true);
   await assert.rejects(
+    validateCandidateAssetRef({
+      candidate: secondCandidates[0],
+      clientId,
+      targetSiteId: site.id,
+    }),
+    (error) => error instanceof CandidateAssetTruthError
+      && error.code === 'CANDIDATE_ASSET_INVALID',
+    'existing-site candidate validation must reject a provisional AssetRef rather than treating it as site-bound',
+  );
+  await assert.rejects(
     validateCandidateAssetRef({ candidate: candidates[0], clientId }),
-    /Candidate hero URL does not match its server asset record/,
+    /히어로 이미지가 서버 자산 기록과 일치하지 않습니다/,
   );
   await assert.doesNotReject(
     validateCandidateAssetRef({ candidate: candidates[0], clientId, targetSiteId: site.id }),

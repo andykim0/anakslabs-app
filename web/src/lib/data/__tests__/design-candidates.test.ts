@@ -69,4 +69,26 @@ describe('buildCandidateBlueprints — 스타일 고정 + POV 다양화', () => 
       assert.doesNotMatch(positivePrompt, /signature (?:product|dish|item)|plated|treatment result/i);
     }
   });
+
+  test('v2 생성 방향은 legacy photo 경로 대신 안전 프롬프트를 사용한다', () => {
+    for (const [imageDirectionId, style] of [
+      ['3d_brand_world', '3d_render'],
+      ['illustration_collage', 'illustration'],
+      ['abstract_editorial', 'illustration'],
+    ] as const) {
+      const bps = buildCandidateBlueprints(survey({ imageDirectionId, imageStyle: 'photo' }));
+      for (const bp of bps) {
+        assert.equal(bp.imageDirectionId, imageDirectionId);
+        assert.equal(bp.style, style);
+        assert.match(bp.heroImagePrompt, /atmospheric or decorative only/i);
+        assert.doesNotMatch(bp.heroImagePrompt, /Business-setting context|photographic, art-directed/i);
+      }
+    }
+  });
+
+  test('real_photo는 재사용 전용이라 생성 프롬프트가 없다', () => {
+    const bps = buildCandidateBlueprints(survey({ imageDirectionId: 'real_photo' }));
+    assert.ok(bps.every((bp) => bp.imageDirectionId === 'real_photo'));
+    assert.ok(bps.every((bp) => bp.heroImagePrompt === ''));
+  });
 });

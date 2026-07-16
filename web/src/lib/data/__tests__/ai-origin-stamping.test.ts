@@ -12,6 +12,7 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     const mock = source('src/lib/data/mock/ai.ts');
 
     assert.match(contract, /export interface AiAssetOwnerContext\s*\{[\s\S]*clientId:\s*string;[\s\S]*siteId\?:\s*string;/);
+    assert.match(contract, /assetPolicyVersion\?:\s*2;/);
     assert.match(contract, /generateCandidates\(survey: SurveyInput, owner: AiAssetOwnerContext\)/);
     assert.match(contract, /generateSiteConfig\([\s\S]*owner: AiAssetOwnerContext/);
     assert.match(contract, /generateImage\([\s\S]*owner: AiAssetOwnerContext/);
@@ -32,10 +33,10 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     const edits = source('src/app/api/edit-requests/route.ts');
     const heroVideo = source('src/app/api/sites/[siteId]/hero-video/route.ts');
 
-    assert.match(candidates, /getAuthedClient\(\)[\s\S]*generateCandidates\([\s\S]*\{ clientId: client\.id \}/);
+    assert.match(candidates, /getAuthedClient\(\)[\s\S]*getOwnedSite\(targetSiteId, client\.id\)[\s\S]*generateCandidates\([\s\S]*\{ clientId: client\.id, \.\.\.\(targetSiteId \? \{ siteId: targetSiteId \} : \{\}\) \}/);
     assert.match(generate, /getAuthedClient\(\)[\s\S]*generateSiteConfig\([\s\S]*\{ clientId: client\.id \}/);
     assert.match(regenerate, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateSiteConfig\([\s\S]*\{ clientId: client\.id, siteId \}/);
-    assert.match(edits, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateImage\([\s\S]*\{ clientId: client\.id, siteId \}/);
+    assert.match(edits, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateImage\([\s\S]*clientId: client\.id,[\s\S]*siteId,/);
     assert.match(edits, /generateGuardedVideo\(\{[\s\S]*clientId: client\.id,[\s\S]*siteId,/);
     assert.match(heroVideo, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateHeroVideo\(\{[\s\S]*clientId: client\.id/);
 
@@ -49,8 +50,29 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
       const schemaStart = route.indexOf(schemaMarker);
       const schemaEnd = route.indexOf('\n});', schemaStart);
       const schema = route.slice(schemaStart, schemaEnd + '\n});'.length);
-      assert.doesNotMatch(schema, /\b(?:owner|origin|clientId)\s*:/, '소유자/출처를 request body에서 받으면 안 된다');
+      assert.doesNotMatch(schema, /\b(?:owner|origin|clientId|assetPolicyVersion)\s*:/, '소유자/출처/cohort를 request body에서 받으면 안 된다');
     }
+    assert.match(
+      edits,
+      /ai\.generateImage\([\s\S]*\.\.\.\(site\.assetPolicyVersion === 2 \? \{ assetPolicyVersion: 2 as const \} : \{\}\)/,
+      '서버가 읽은 site cohort만 provider owner context에 전달해야 한다',
+    );
+  });
+
+  test('mock·real edit providers preserve legacy generation and gate only the v2 owner cohort', () => {
+    const real = source('src/lib/data/supabase/ai.ts');
+    const mock = source('src/lib/data/mock/ai.ts');
+    const block = (text: string) => text.slice(
+      text.indexOf('async generateImage('),
+      text.indexOf('async generateVideo(', text.indexOf('async generateImage(')),
+    );
+    const realImage = block(real);
+    const mockImage = block(mock);
+
+    assert.match(realImage, /const plan = owner\.assetPolicyVersion === 2[\s\S]*assertAiImageGenerationPolicy\([\s\S]*:\s*null/);
+    assert.match(realImage, /const safePrompt = plan[\s\S]*buildV2ImagePrompt\([\s\S]*:\s*buildImagePrompt\(/);
+    assert.match(mockImage, /if \(owner\.assetPolicyVersion === 2\)[\s\S]*assertAiImageGenerationPolicy\(/);
+    assert.match(mockImage, /owner\.assetPolicyVersion === 2 \? SAFE_V2_MOCK_IMAGE_POOL : MOCK_IMAGE_POOL/);
   });
 
   test('WRITE off는 기존 URL wrapper이고 WRITE on은 ai_generated registry dual-write를 await한다', () => {
@@ -115,9 +137,9 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
   test('flag 의존성은 AI 비용·rate·credit·provider보다 앞에서 검증된다', () => {
     const real = source('src/lib/data/supabase/ai.ts');
     for (const [method, firstCost] of [
-      ['async generateCandidates', 'buildCandidateBlueprints(survey)'],
-      ['async generateSiteConfig', 'generateSectionCopy(survey, blueprint)'],
-      ['async generateImage', "buildImagePrompt('editorial'"],
+      ['async generateCandidates', 'buildCandidateBlueprints(generationSurvey)'],
+      ['async generateSiteConfig', 'generateSectionCopy(generationSurvey, blueprint)'],
+      ['async generateImage', "buildV2ImagePrompt('editorial'"],
       ['async generateVideo', 'generateVeoVideo(input, owner)'],
     ] as const) {
       const start = real.indexOf(method);
@@ -149,9 +171,28 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     );
 
     const services = source('src/lib/data/supabase/services.ts');
-    const rpc = services.indexOf(".rpc('create_site_with_asset_bindings'");
+    const rpcName = services.indexOf("const rpcName = input.generalAssetAttestationId");
+    const rpc = services.indexOf('.rpc(rpcName, rpcArgs)', rpcName);
     const ordinaryInsert = services.indexOf(".from('sites')", rpc);
-    assert.ok(rpc >= 0 && ordinaryInsert > rpc, 'asset manifest가 있으면 atomic RPC를 먼저 사용해야 한다');
+    assert.ok(rpcName >= 0 && rpc > rpcName && ordinaryInsert > rpc, 'asset manifest가 있으면 atomic RPC를 먼저 사용해야 한다');
+    assert.match(services.slice(rpcName, rpc), /create_site_with_asset_bindings_and_attestation/);
+    assert.match(services.slice(rpcName, rpc), /create_site_with_asset_bindings/);
+    assert.match(
+      services.slice(services.indexOf('async create(input:'), rpcName),
+      /hasCustomerUpload[\s\S]*input\.assetPolicyVersion !== 2[\s\S]*!input\.generalAssetAttestationId/,
+      '새 customer upload는 real repo에서도 v2+attestation 없이 legacy RPC로 강등되면 안 된다',
+    );
+
+    const mockServices = source('src/lib/data/mock/services.ts');
+    const mockCreate = mockServices.slice(
+      mockServices.indexOf('async create(input:'),
+      mockServices.indexOf('async saveDraft', mockServices.indexOf('async create(input:')),
+    );
+    assert.match(
+      mockCreate,
+      /attestedCustomerUploadIds\.length[\s\S]*input\.assetPolicyVersion !== 2[\s\S]*!input\.generalAssetAttestationId/,
+      'mock repo도 같은 fail-closed 신규 생성 계약을 가져야 한다',
+    );
 
     const editor = source('src/app/api/sites/[siteId]/route.ts');
     const validateManifest = editor.indexOf('await validateConfigAssetRefsForSave({');

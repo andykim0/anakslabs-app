@@ -135,6 +135,7 @@ test('feature flags default off and invalid dependency states fail closed', () =
     enforceNewSites: false,
     enforceLegacy: false,
     beforeAfterEnabled: false,
+    beforeAfterApprovedIndustries: [],
   });
   assert.equal(assetPolicyVersionForNewSite(legacy), undefined);
   assert.equal(assetPolicyVersionForNewSite(resolveAssetProvenanceConfig({
@@ -162,16 +163,44 @@ test('feature flags default off and invalid dependency states fail closed', () =
   );
   const medical = resolveBeforeAfterFeatureDecision({
     medical: true,
-    config: { beforeAfterEnabled: true },
+    industryClass: 'medical',
+    config: { beforeAfterEnabled: true, beforeAfterApprovedIndustries: ['beauty'] },
   });
   assert.equal(medical.allowed, false);
   if (!medical.allowed) assert.equal(medical.code, 'MEDICAL_BEFORE_AFTER_DISABLED');
   const disabled = resolveBeforeAfterFeatureDecision({
     medical: false,
-    config: { beforeAfterEnabled: false },
+    industryClass: 'beauty',
+    config: { beforeAfterEnabled: false, beforeAfterApprovedIndustries: ['beauty'] },
   });
   assert.equal(disabled.allowed, false);
   if (!disabled.allowed) assert.equal(disabled.code, 'BEFORE_AFTER_DISABLED');
+
+  const noLegalApproval = resolveBeforeAfterFeatureDecision({
+    medical: false,
+    industryClass: 'beauty',
+    config: { beforeAfterEnabled: true, beforeAfterApprovedIndustries: [] },
+  });
+  assert.deepEqual(noLegalApproval, {
+    allowed: false,
+    code: 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED',
+  });
+  assert.deepEqual(resolveBeforeAfterFeatureDecision({
+    medical: false,
+    industryClass: 'beauty',
+    config: { beforeAfterEnabled: true, beforeAfterApprovedIndustries: ['beauty'] },
+  }), { allowed: true });
+  assert.deepEqual(
+    resolveAssetProvenanceConfig({
+      BEFORE_AFTER_ENABLED: '1',
+      BEFORE_AFTER_APPROVED_INDUSTRIES: 'remodeling,beauty',
+    }).beforeAfterApprovedIndustries,
+    ['beauty', 'remodeling'],
+  );
+  assert.throws(
+    () => resolveAssetProvenanceConfig({ BEFORE_AFTER_APPROVED_INDUSTRIES: 'medical' }),
+    (error) => codeOf(error) === 'ASSET_PROVENANCE_FLAG_DEPENDENCY_INVALID',
+  );
 });
 
 test('site cohort marker is additive and absent from legacy mapped rows', () => {

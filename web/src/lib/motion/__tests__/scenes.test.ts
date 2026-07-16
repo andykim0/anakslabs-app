@@ -168,6 +168,52 @@ describe('buildMotionSceneFromSurvey', () => {
     }
   });
 
+  test('v2 raw URLs never gain customer provenance and mosaic requires six server-verified pairs', () => {
+    const input: SurveyInput = {
+      ...survey(),
+      imageDirectionId: 'real_photo',
+    };
+    const cfg = config();
+    const hero = cfg.pages[0].sections.find((candidate) => candidate.type === 'hero');
+    assert.ok(hero);
+    hero.background.video = undefined;
+
+    const rawEditorial = buildMotionSceneFromSurvey(cfg, input, 'portal-zoom');
+    assert.ok(rawEditorial && rawEditorial.signatureId === 'portal-zoom');
+    assert.equal(rawEditorial.scenes[0].media?.src, input.heroPhotoUrl);
+    assert.equal(rawEditorial.scenes[0].media?.provenance, 'unknown');
+    assert.equal(rawEditorial.scenes[0].media?.assetId, undefined);
+    assert.equal(buildMotionSceneFromSurvey(cfg, input, 'mosaic-reveal'), null);
+
+    const refs = (input.storePhotoUrls ?? []).map((url, index) => ({
+      assetId: `verified-upload-${index + 1}`,
+      url,
+    }));
+    assert.equal(buildMotionSceneFromSurvey(cfg, input, 'mosaic-reveal', {
+      customerUploadAssetRefs: refs.slice(0, 5),
+    }), null, 'five verified pairs cannot satisfy the six-image factual mosaic minimum');
+
+    const verifiedMosaic = buildMotionSceneFromSurvey(cfg, input, 'mosaic-reveal', {
+      customerUploadAssetRefs: refs,
+    });
+    assert.ok(verifiedMosaic && verifiedMosaic.signatureId === 'mosaic-reveal');
+    assert.deepEqual(
+      verifiedMosaic.images.map((image) => image.assetId),
+      refs.map((ref) => ref.assetId),
+    );
+    assert.equal(
+      verifiedMosaic.images.every((image) => image.provenance === 'customer-provided'),
+      true,
+    );
+
+    const verifiedEditorial = buildMotionSceneFromSurvey(cfg, input, 'portal-zoom', {
+      customerUploadAssetRefs: [{ assetId: 'verified-hero', url: input.heroPhotoUrl! }],
+    });
+    assert.ok(verifiedEditorial && verifiedEditorial.signatureId === 'portal-zoom');
+    assert.equal(verifiedEditorial.scenes[0].media?.assetId, 'verified-hero');
+    assert.equal(verifiedEditorial.scenes[0].media?.provenance, 'customer-provided');
+  });
+
   test('premium candidate builders require distinct media-backed chapters/scenes and focal portal media', () => {
     const cfg = config();
     const input = survey();

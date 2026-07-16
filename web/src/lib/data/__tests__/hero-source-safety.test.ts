@@ -2,15 +2,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
-import { buildImagePrompt } from '@/lib/design/quality-standards';
+import { buildV2ImagePrompt } from '@/lib/design/quality-standards';
 import { PRODUCT_SAFETY_DIRECTIVE } from '@/lib/design/image-subjects';
+import {
+  AssetTruthGenerationError,
+  assertSafeAiImageRequest,
+} from '@/lib/ai/image-generation-policy';
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('H3 — Supabase 이미지 생성 우회 방지', () => {
   test('mock 후보·최종 풀도 대표 사진을 명시 소스로 전달한다', () => {
     const mock = source('src/lib/data/mock/ai.ts');
-    assert.match(mock, /const selectedUpload = selectedHeroPhotoUrl\(survey\)/);
+    assert.match(mock, /if \(v2Plan\?\.kind === 'reuse_customer_upload'\)/);
+    assert.match(mock, /heroAssetRef: \{ assetId: v2Plan\.asset\.id, url: v2Plan\.asset\.canonicalUrl \}/);
+    assert.match(mock, /selectedHeroPhotoUrl\(survey\)/, 'legacy upload path remains read-compatible');
     assert.match(
       mock,
       /const hero = selectedUpload[\s\S]*?\? \{ url: selectedUpload \}[\s\S]*?: await stampMockAiAsset\(bp\.mockHeroUrl, owner, 'candidate'\)/,
@@ -26,14 +32,17 @@ describe('H3 — Supabase 이미지 생성 우회 방지', () => {
       ai.indexOf('async generateCandidates'),
       ai.indexOf('async generateSiteConfig'),
     );
-    const heroGuard = candidates.indexOf('if (heroPhotoUrl)');
+    const truthGuard = candidates.indexOf("if (v2Plan?.kind === 'reuse_customer_upload')");
+    const legacyGuard = candidates.indexOf('if (heroPhotoUrl)');
     const refine = candidates.indexOf('refineCandidateTexts');
     const gemini = candidates.indexOf('generateImageAsset');
 
-    assert.ok(heroGuard >= 0 && heroGuard < refine && heroGuard < gemini, '대표 사진 가드가 AI 호출보다 늦음');
+    assert.ok(truthGuard >= 0 && truthGuard < refine && truthGuard < gemini, '검증 실사 가드가 AI 호출보다 늦음');
+    assert.ok(legacyGuard >= 0 && legacyGuard < refine && legacyGuard < gemini, '레거시 대표 사진 가드가 AI 호출보다 늦음');
+    assert.match(candidates, /heroAssetRef: \{ assetId: v2Plan\.asset\.id, url: v2Plan\.asset\.canonicalUrl \}/);
     assert.match(candidates, /heroImageUrl: heroPhotoUrl/);
     assert.doesNotMatch(ai, /text\?\.heroImagePrompt|record\.heroImagePrompt/);
-    assert.match(ai, /const selectedUpload = selectedHeroPhotoUrl\(survey\)/);
+    assert.match(ai, /selectedHeroPhotoUrl\(survey\)/);
     assert.match(ai, /heroPhoto: selectedUpload/);
   });
 
@@ -43,18 +52,24 @@ describe('H3 — Supabase 이미지 생성 우회 방지', () => {
     assert.doesNotMatch(ai, /finished (dish|product|service result)/i);
   });
 
-  test('edit-request 원문은 tone 힌트로만 분류되고 안전 프롬프트에는 특정 제품이 남지 않는다', () => {
+  test('edit-request 명시 제품·하이퍼리얼 요청은 차단하고 tone-only는 추상 프롬프트로 재조립한다', () => {
     const raw = 'hyperrealistic WAGYU-TOMAHAWK-AX77 steak on a ceramic plate';
-    const safe = buildImagePrompt('editorial', 'local business', 'supporting image edit', {
-      candidateStyle: 'photo',
-      tone: raw,
+    assert.throws(
+      () => assertSafeAiImageRequest(raw),
+      (error) => error instanceof AssetTruthGenerationError
+        && error.code === 'AI_HYPERREAL_REQUEST_FORBIDDEN',
+    );
+    const safe = buildV2ImagePrompt('editorial', 'supporting image edit', {
+      imageDirectionId: 'abstract_editorial',
+      tone: '더 차분하고 미니멀하게',
     });
     assert.ok(safe.includes(PRODUCT_SAFETY_DIRECTIVE));
     assert.doesNotMatch(safe, /WAGYU-TOMAHAWK-AX77|steak|ceramic plate/i);
 
     const ai = source('src/lib/data/supabase/ai.ts');
     const edit = ai.slice(ai.indexOf('async generateImage('), ai.indexOf('async generateVideo('));
-    assert.match(edit, /buildImagePrompt\(/);
+    assert.match(edit, /assertAiImageGenerationPolicy\(/);
+    assert.match(edit, /buildV2ImagePrompt\(/);
     assert.match(edit, /tone: input\.prompt/);
     assert.doesNotMatch(edit, /`\$\{input\.prompt\}/);
   });

@@ -60,28 +60,39 @@ describe('Track 1 자산 유입 provenance 배선', () => {
   test('before-after는 client 맥락이 아니라 owned site의 canonical 업종으로 차단한다', () => {
     assert.deepEqual(resolveBeforeAfterUploadPolicy({
       enabled: true,
+      approvedIndustries: ['beauty'],
       siteId: 'site-medical',
       industryClass: 'medical',
       requestedUsageContext: 'beauty',
     }), { allowed: false, code: 'MEDICAL_BEFORE_AFTER_DISABLED' });
     assert.deepEqual(resolveBeforeAfterUploadPolicy({
       enabled: true,
+      approvedIndustries: ['beauty'],
       siteId: null,
       industryClass: null,
       requestedUsageContext: 'beauty',
     }), { allowed: false, code: 'BEFORE_AFTER_SITE_REQUIRED' });
     assert.deepEqual(resolveBeforeAfterUploadPolicy({
       enabled: true,
+      approvedIndustries: ['beauty', 'remodeling'],
       siteId: 'site-beauty',
       industryClass: 'beauty',
       requestedUsageContext: 'remodeling',
     }), { allowed: false, code: 'BEFORE_AFTER_CONTEXT_MISMATCH' });
     assert.deepEqual(resolveBeforeAfterUploadPolicy({
       enabled: true,
+      approvedIndustries: ['beauty'],
       siteId: 'site-beauty',
       industryClass: 'beauty',
       requestedUsageContext: 'beauty',
     }), { allowed: true, usageContext: 'beauty' });
+    assert.deepEqual(resolveBeforeAfterUploadPolicy({
+      enabled: true,
+      approvedIndustries: [],
+      siteId: 'site-beauty',
+      industryClass: 'beauty',
+      requestedUsageContext: 'beauty',
+    }), { allowed: false, code: 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED' });
     assert.match(uploadRoute, /storedConfig\?\.meta\.industryClass/);
     assert.doesNotMatch(uploadRoute, /beforeAfterContext = usageContextRaw/);
     assert.match(uploadRoute, /'BEFORE_AFTER_DISABLED'/);
@@ -93,18 +104,20 @@ describe('Track 1 자산 유입 provenance 배선', () => {
     );
   });
 
-  test('raw improve/extract URL은 registry evidence를 받지 않는다 (legacy scene 승격 제거는 Track 2/3 blocker)', () => {
+  test('raw improve/extract URL은 registry evidence나 v2 motion factual provenance를 받지 않는다', () => {
     const improveRoute = source('src/app/api/onboarding/improve-extract/route.ts');
     const scenes = source('src/lib/motion/scenes.ts');
     assert.doesNotMatch(improveRoute, /registerCustomer(?:Upload|Import)Asset/);
     assert.doesNotMatch(improveRoute, /assetRef/);
     assert.match(importRoute, /body\.data\.ingestImageUrls/);
     assert.match(importRoute, /const extracted = await extractFromUrl\(url\)/);
-    assert.match(
+    assert.doesNotMatch(
       scenes,
       /storePhotoUrls\?\.includes\(src\)/,
-      'URL membership heuristic가 남아 있으므로 Track 2/3 완료 전 enforcement flag를 켜면 안 된다',
+      '신규 v2 scene에서 URL membership을 customer upload 증거로 사용하면 안 된다',
     );
+    assert.match(scenes, /customerUploadAssetRefs/);
+    assert.match(scenes, /if \(survey\.imageDirectionId\) return \{ provenance: 'unknown' \}/);
   });
 
   test('import route는 invalid flag dependency를 rate mutation 전에 검증한다', () => {
