@@ -161,7 +161,7 @@ describe('motion signature production renderers', () => {
     assert.equal((html.match(/data-mosaic-focal="true"/g) ?? []).length, 1);
     assert.equal((html.match(/data-reveal-order="/g) ?? []).length, 6);
     assert.match(html, /data-tile-index="0" data-reveal-order="0"/);
-    assert.match(MOTION_CSS, /data-mosaic-tile\]:nth-child\(6n\+1\)[\s\S]*grid-column: span 2/);
+    assert.match(MOTION_CSS, /data-mosaic-focal\][\s\S]*grid-column: span 2; grid-row: span 2/);
     assert.match(MOTION_RUNTIME, /getAttribute\('data-reveal-order'\)/);
   });
 
@@ -215,6 +215,15 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_CSS, /creative-spatial[\s\S]*--curtain-x[\s\S]*clip-path: inset\(0 var\(--curtain-clip/);
     assert.match(MOTION_RUNTIME, /curtainExit[\s\S]*copyVisible[\s\S]*--curtain-copy-opacity[\s\S]*--curtain-media-scale/);
     assert.match(MOTION_RUNTIME, /i===count-1\?1:1-smooth/, 'final scene must remain fully readable');
+  });
+
+  test('mosaic is recognizable immediately and reveals deterministic support groups', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['mosaic-reveal']);
+    assert.equal((html.match(/data-reveal-group=/g) ?? []).length, 6);
+    assert.equal((html.match(/data-mosaic-focal=/g) ?? []).length, 1);
+    assert.match(html, /data-mosaic-focal="true"[\s\S]*data-reveal-order="0"[\s\S]*data-reveal-group="0"/);
+    assert.match(MOTION_CSS, /m-signature-ready \[data-mosaic-focal\][\s\S]*--mosaic-opacity, 1/);
+    assert.match(MOTION_RUNTIME, /mosaicRevealP[\s\S]*rank===0\?1:smooth[\s\S]*\.24\+\.76\*local/);
   });
 });
 

@@ -51,6 +51,13 @@ function mosaicRevealRanks(count: number): number[] {
     }, Array<number>(count));
 }
 
+function mosaicMediaShape(media: MotionMedia): 'wide' | 'square' | 'portrait' {
+  const ratio = media.width / media.height;
+  if (ratio >= 1.28) return 'wide';
+  if (ratio <= 0.82) return 'portrait';
+  return 'square';
+}
+
 function sceneVars(theme: SiteTheme, art: MotionArtDirectionProfile): CSSProperties {
   return {
     '--signature-bg': theme.palette.background,
@@ -525,7 +532,7 @@ function MosaicReveal({ scene, theme, art, mode }: MotionSignatureRendererProps 
   return (
     <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label={scene.heading ?? '이미지 갤러리'}>
       {scene.heading ? (
-        <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(40px, 7vw, 104px) clamp(24px, 8vw, 120px) 0' }}>
+        <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(28px, 5vw, 72px) clamp(24px, 8vw, 120px) 0' }}>
           <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
         </header>
       ) : null}
@@ -537,6 +544,8 @@ function MosaicReveal({ scene, theme, art, mode }: MotionSignatureRendererProps 
             data-mosaic-focal={index === 0 ? true : undefined}
             data-tile-index={index}
             data-reveal-order={revealRanks[index]}
+            data-reveal-group={revealRanks[index] === 0 ? 0 : 1 + Math.floor((revealRanks[index] - 1) / 2)}
+            data-tile-shape={mosaicMediaShape(media)}
             role="listitem"
           >
             {/* Mosaic is never an LCP candidate: every tile is lazy + async by contract. */}
