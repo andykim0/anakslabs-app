@@ -23,6 +23,7 @@ import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { MotionChoiceDto } from '../api';
 import { SitePreview } from '../site-preview';
 import { Button, Card, cn } from '../ui';
+import { HeroMotionUpsellPreview } from './hero-motion-upsell-preview';
 
 /** 기존 W2 호출자를 깨지 않으면서 새 signature 선택을 같은 DTO에 저장한다. */
 export function motionChoiceForVideoPreference(
@@ -44,6 +45,18 @@ export function motionChoiceForVideoPreference(
         intensity: 'subtle',
         ...(signatureId ? { signatureId } : {}),
       };
+}
+
+/** 새 업셀은 모션 예시가 기본이다. 돌아온 사용자의 명시적 선택은 그대로 복원한다. */
+export function initialVideoPreference(
+  supportsVideo: boolean,
+  videoRequired: boolean,
+  initial?: MotionChoiceDto,
+): boolean {
+  if (!supportsVideo) return false;
+  if (videoRequired) return true;
+  if (initial) return initial.videoAddon === true || initial.heroTechnique === 'video-hero';
+  return true;
 }
 
 function mediaRequirement(spec: MotionSignatureSpec): string {
@@ -111,7 +124,7 @@ export function MotionChoiceStep({
   const selected = previewOptions.find(({ spec }) => spec.id === signatureId);
   const videoRequired = selected?.spec.mediaCapability === 'video-required';
   const supportsVideo = selected?.spec.mediaCapability === 'video-required' || selected?.spec.mediaCapability === 'image-or-video';
-  const [wantsVideo, setWantsVideo] = useState(videoRequired || initial?.videoAddon === true || initial?.heroTechnique === 'video-hero');
+  const [wantsVideo, setWantsVideo] = useState(() => initialVideoPreference(supportsVideo, videoRequired, initial));
   const addonPrice = `+₩${PRICING.videoHeroAddon.toLocaleString('ko-KR')}`;
 
   const chooseSignature = (id: ProductionMotionSignatureId) => {
@@ -235,9 +248,16 @@ export function MotionChoiceStep({
 
       {selected && supportsVideo ? (
         <div className="space-y-3 border-t border-ob-border pt-5">
+          <div>
+            <h3 className="text-lg font-semibold tracking-tight text-ob-ink">사장님의 이 사진이, 이렇게 움직입니다</h3>
+            <p className="mt-1 text-xs leading-5 text-ob-muted">
+              예시 연출이에요. 선택하시면 이 사진을 소스로 실제 영상을 만들어 드립니다 {ownsAddon ? '' : `(${addonPrice})`}.
+            </p>
+          </div>
+          <HeroMotionUpsellPreview heroImageUrl={heroImageUrl} businessName={survey.businessName} />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-ob-ink">AI 영상 홈페이지를 더할까요?</h3>
+              <h3 className="text-sm font-semibold text-ob-ink">이 움직임을 홈페이지에 남길까요?</h3>
               <p className="mt-1 text-xs leading-5 text-ob-muted">
                 시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어예요. 선택만으로 생성되거나 권한이 부여되지 않습니다.
               </p>
@@ -255,8 +275,8 @@ export function MotionChoiceStep({
               className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border', videoRequired && 'cursor-not-allowed opacity-55')}
             >
               <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
-              <span className="mt-2 block text-sm font-semibold text-ob-ink">이미지 + 기본 모션</span>
-              <span className="mt-1 block text-xs leading-5 text-ob-muted">포함·무료. 직접 올린 이미지와 가벼운 모션으로 완성해요.</span>
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">정지 화면으로 유지하기</span>
+              <span className="mt-1 block text-xs leading-5 text-ob-muted">이미지 + 기본 모션 · 포함·무료. 직접 올린 이미지와 가벼운 모션으로 완성해요.</span>
             </button>
             <button
               type="button"
