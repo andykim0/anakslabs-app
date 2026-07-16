@@ -1,6 +1,6 @@
 /**
- * [v3 Phase 7] 테넌트별 robots.txt — 발행 사이트만 크롤 허용 + sitemap 링크.
- * proxy가 {host}/robots.txt → /s/{host}/robots.txt 로 rewrite.
+ * Tenant robots policy. Public sites explicitly allow Korea's Naver Yeti and
+ * the search-specific AI crawlers used by ChatGPT and Perplexity.
  */
 import { getDataServices } from '@/lib/data';
 
@@ -21,8 +21,27 @@ export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
   }
 
   const base = `https://${host}`;
-  const body = `User-agent: *
+  const body = `User-agent: Yeti
 Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+User-agent: Daum
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: *
+Allow: /
+
 Sitemap: ${base}/sitemap.xml
 `;
   return new Response(body, {

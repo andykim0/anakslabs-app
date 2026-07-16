@@ -30,7 +30,7 @@ function StepVisual({ no }: { no: string }) {
 export const metadata: Metadata = {
   title: '기능 — 검색·AI가 읽는 사이트를 만드는 방법',
   description:
-    '설문부터 호스팅까지 5단계 작동 방식, SEO·AEO·GEO 엔진(JSON-LD·llms.txt·시맨틱 아웃라인·페이지별 sitemap), 포함·무료인 기본 모션과 AI 영상 홈페이지, 호스팅·보안까지.',
+    '설문부터 호스팅까지 5단계 작동 방식, SEO·AEO·GEO 엔진(JSON-LD·시맨틱 HTML·페이지별 sitemap·네이버 IndexNow), 포함·무료인 기본 모션과 AI 영상 홈페이지, 호스팅·보안까지.',
   alternates: { canonical: '/features' },
 };
 
@@ -51,12 +51,12 @@ const ENGINE = [
   {
     icon: <MessageSquareQuote className="h-5 w-5" />,
     name: 'AEO',
-    body: 'FAQ 등 질문형 콘텐츠와 구조화 데이터(JSON-LD)를 심어, 검색 결과의 답변 상자가 내 사이트에서 발췌할 수 있게 합니다.',
+    body: '페이지 성격에 맞는 제목·목록·질문 경계와 페이지별 JSON-LD를 구성해 답변 시스템이 내용을 덜 추측하게 합니다.',
   },
   {
     icon: <Bot className="h-5 w-5" />,
     name: 'GEO',
-    body: '본문을 텍스트로 두고 주체·연락처를 명시하며, llms.txt와 화면 비표시 시맨틱 아웃라인을 제공해 생성형 AI가 인용하기 쉽게 합니다.',
+    body: '본문·사업 주체·연락처·공식 채널·근거를 명시하고 AI 검색 크롤러 접근을 관리해 생성형 검색이 내용을 확인하기 쉽게 합니다.',
   },
 ];
 
@@ -128,7 +128,7 @@ export default function FeaturesPage() {
           ))}
         </div>
         <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-5 text-[#696E76]">
-          제공: 페이지별 제목·설명 · JSON-LD 구조화 데이터 · 시맨틱 아웃라인 · llms.txt · 페이지별 sitemap.
+          제공: 페이지별 제목·설명 · 연결형 JSON-LD · 시맨틱 HTML · crawler 정책 · 페이지별 sitemap · 네이버 IndexNow.
         </p>
       </section>
 

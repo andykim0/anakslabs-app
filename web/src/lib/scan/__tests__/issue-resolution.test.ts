@@ -20,9 +20,9 @@ describe('resolutionOf 분류', () => {
     assert.equal(resolutionOf('seo_img_alt'), 'content');
     assert.equal(resolutionOf('seo_speed_very_slow'), 'manual');
   });
-  test("system 앵커(canonical 등) 기본 auto", () => {
+  test("system 앵커(canonical·crawler 정책 등) 기본 auto", () => {
     assert.equal(resolutionOf('seo_canonical'), 'auto');
-    assert.equal(resolutionOf('geo_llms_txt'), 'auto');
+    assert.equal(resolutionOf('geo_oai_search_blocked'), 'auto');
   });
 });
 

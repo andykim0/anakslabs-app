@@ -23,15 +23,19 @@ export function canonicalUrlFor(siteUrl: string, pageSlug: string): string | nul
   return pageSlug === '' ? base : `${base}/${pageSlug}`;
 }
 
-/** JSON-LD 노드 배열 — buildJsonLd 위임(구조화 데이터 단일 소스는 lib/seo/jsonld.ts) */
-export function structuredDataNodes(config: SiteConfig, siteUrl: string): Record<string, unknown>[] {
-  return buildJsonLd(config, siteUrl);
+/** JSON-LD 노드 배열 — 현재 페이지 slug까지 buildJsonLd에 전달한다. */
+export function structuredDataNodes(
+  config: SiteConfig,
+  siteUrl: string,
+  pageSlug = '',
+): Record<string, unknown>[] {
+  return buildJsonLd(config, siteUrl, pageSlug);
 }
 
 /**
  * 인라인 <script type="application/ld+json"> 콘텐츠 — '<'를 <로 이스케이프해
  * '</script>' 등 스크립트 탈출을 원천 차단(JSON 의미는 동일 — 파서가 동일 값으로 해석).
  */
-export function jsonLdScriptContent(config: SiteConfig, siteUrl: string): string {
-  return JSON.stringify(structuredDataNodes(config, siteUrl)).replace(/</g, '\\u003c');
+export function jsonLdScriptContent(config: SiteConfig, siteUrl: string, pageSlug = ''): string {
+  return JSON.stringify(structuredDataNodes(config, siteUrl, pageSlug)).replace(/</g, '\\u003c');
 }

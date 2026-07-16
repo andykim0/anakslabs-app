@@ -2,7 +2,7 @@
  * [quality-system] 발행 전 자가 진단 — 생성물(SiteConfig)을 렌더한 HTML에 자사 SEO/AEO/GEO 규칙을
  * 그대로 적용한다. runScan은 라이브 URL을 fetch하지만 발행 전엔 URL이 없으므로, 여기서는
  * 렌더 HTML로 동일 규칙을 실행한다(같은 규칙 사전·점수 로직 재사용). 비차단 — 점수는 checkPublish로 전달.
- * (robots/sitemap/llms.txt는 테넌트 서빙이 자동 생성하므로 발행 후 존재 → true 가정)
+ * (robots/sitemap은 테넌트 서빙이 자동 생성하므로 발행 후 정상 리소스로 가정)
  */
 import 'server-only';
 import { parse } from 'node-html-parser';
@@ -65,10 +65,27 @@ export function preflightScan(
       rawHtml: html,
       visibleText,
       url: new URL(page.slug === '' ? siteUrl : `${siteUrl}/${page.slug}`),
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      xRobotsTag: '',
+      truncated: false,
       ttfbMs: 0,
-      robotsTxtOk: true,
-      sitemapOk: true,
-      llmsTxtOk: true,
+      robots: {
+        url: `${siteUrl}/robots.txt`,
+        status: 200,
+        ok: true,
+        body: `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`,
+        contentType: 'text/plain; charset=utf-8',
+        truncated: false,
+      },
+      sitemap: {
+        url: `${siteUrl}/sitemap.xml`,
+        status: 200,
+        ok: true,
+        body: `<?xml version="1.0"?><urlset><url><loc>${siteUrl}${page.slug ? `/${page.slug}` : ''}</loc></url></urlset>`,
+        contentType: 'application/xml; charset=utf-8',
+        truncated: false,
+      },
     };
 
     const seo = runRules(SEO_RULES, ctx);

@@ -62,6 +62,25 @@ describe('buildDocumentShell — 서빙 레이어 방출', () => {
     assert.ok(html.includes('name="description"'));
     assert.ok(html.includes('<title>메뉴 · 소소한자리 — 카페 · 서울 연희동</title>'));
   });
+  test('검색 발췌 허용과 절대 OG 이미지 URL을 방출', () => {
+    const config = cfg();
+    config.meta.ogImage = '/images/cover.webp';
+    const html = buildDocumentShell({
+      config,
+      pageSlug: '',
+      headerHtml: '',
+      bodyHtml: '<main></main>',
+      siteUrl: SITE_URL,
+    });
+    assert.ok(
+      html.includes(
+        'name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"',
+      ),
+    );
+    assert.ok(
+      html.includes(`property="og:image" content="${SITE_URL}/images/cover.webp"`),
+    );
+  });
   test('siteUrl 미상이면 canonical·ld+json 생략(오프라인 zip 하위호환)', () => {
     const html = shell('');
     assert.ok(!html.includes('rel="canonical"'));

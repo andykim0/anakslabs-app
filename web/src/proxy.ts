@@ -54,11 +54,12 @@ export const config = {
      * `/s/…` 직접 접근(데모: localhost:3000/s/hwarodam.anakslabs.com)은
      * 경로에 점(.)이 포함되어 있어 자연스럽게 매처에서 빠진다.
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|indexnow-key.txt|.*\\..*).*)',
     // [v3 Phase 7] 테넌트별 SEO 파일 — proxy가 테넌트 호스트에서 /s/[host]/… 로 rewrite.
     // (앱 호스트는 proxy 내부 isAppHost 분기로 그대로 통과)
     '/robots.txt',
     '/sitemap.xml',
     '/llms.txt',
+    '/indexnow-key.txt',
   ],
 };

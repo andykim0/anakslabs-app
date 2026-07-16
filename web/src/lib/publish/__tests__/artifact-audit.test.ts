@@ -275,8 +275,10 @@ describe('Q$6 발행 산출물 하드 게이트', () => {
         const corrupted = rendered.map((document) => ({
           ...document,
           html: document.html.replace(
-            new RegExp(`"@type":"${extraType}"`, 'g'),
-            '"@type":"Thing"',
+            extraType === 'ProfilePage'
+              ? /"ProfilePage"/g
+              : new RegExp(`"@type":"${extraType}"`, 'g'),
+            extraType === 'ProfilePage' ? '"Thing"' : '"@type":"Thing"',
           ),
         }));
         const missingPurposeType = auditPublishArtifacts(value, 'basic', corrupted);

@@ -1,7 +1,6 @@
 /**
- * [v4 Phase 3] 테넌트별 sitemap.xml — 발행 사이트의 전체 페이지 + privacy/terms.
- * config.pages 각각을 URL로 (홈 slug='' → 루트, 그 외 → /{slug}).
- * proxy가 {host}/sitemap.xml → /s/{host}/sitemap.xml 로 rewrite.
+ * Tenant XML sitemap containing only canonical, indexable content pages.
+ * noindex legal documents are intentionally excluded.
  */
 import { getDataServices } from '@/lib/data';
 
@@ -24,12 +23,11 @@ export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
 
   const base = `https://${host}`;
   const lastmod = (site.publishedAt ?? site.createdAt ?? '').slice(0, 10);
-  // 발행본의 모든 페이지(홈 slug='' → 루트) + 법적 고정 페이지
+  // 발행본의 canonical 페이지만 포함한다. privacy/terms는 noindex이므로 제외한다.
   const pagePaths = site.siteConfig.pages.map((p) => (p.slug === '' ? '' : `/${p.slug}`));
-  const paths = [...pagePaths, '/privacy', '/terms'];
-  const urls = paths.map((path) => {
+  const urls = pagePaths.map((path) => {
     const loc = xmlEscape(`${base}${path}`);
-    return `  <url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}<changefreq>weekly</changefreq></url>`;
+    return `  <url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`;
   });
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>

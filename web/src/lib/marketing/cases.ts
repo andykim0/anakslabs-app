@@ -50,7 +50,7 @@ export const CASES: Case[] = [
     businessName: '화로담 (데모)',
     summary: '숯불 한식 다이닝 — 검색·AI가 읽을 수 있게 태어난 사이트의 데모.',
     before: '검색에 상호만 겨우 노출, 메뉴·위치·예약 정보가 구조화되지 않음.',
-    after: '제목·JSON-LD·시맨틱 아웃라인·사업자 정보를 갖춘 상태로 발행 — 답변 상자·AI 인용 대비.',
+    after: '제목·JSON-LD·시맨틱 아웃라인·사업자 정보를 갖춘 상태로 발행 — 검색·답변 시스템이 해석할 기반 마련.',
     url: 'https://hwarodam.anakslabs.com',
     ownerQuote: '메뉴와 오시는 길이 한 번에 정리돼 손님 문의가 줄었어요. (데모 예시 문구)',
     isDemo: true,

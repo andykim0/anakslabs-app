@@ -1,6 +1,9 @@
 /**
- * [v3 Phase 7] 테넌트별 llms.txt — 생성형 AI 크롤러에 사이트 요약·핵심 정보를 직접 전달(GEO).
- * proxy가 {host}/llms.txt → /s/{host}/llms.txt 로 rewrite.
+ * Optional machine-readable site outline.
+ *
+ * This is provided as a convenience for tools that voluntarily consume the
+ * emerging format. It is not treated as a ranking/indexing signal and does not
+ * replace crawlable HTML, robots policy, sitemaps, or structured data.
  */
 import { getDataServices } from '@/lib/data';
 

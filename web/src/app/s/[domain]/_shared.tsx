@@ -17,6 +17,16 @@ import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/struc
 
 export { siteUrlOf };
 
+function absoluteMediaUrl(raw: string | undefined, baseUrl: string): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const url = new URL(raw, `${baseUrl.replace(/\/+$/, '')}/`);
+    return ['http:', 'https:'].includes(url.protocol) ? url.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * generateMetadata + page 중복 조회와 provenance audit를 함께 dedupe한다.
  * React cache는 Metadata/Page/Server Component 사이의 같은 요청 데이터를 공유하므로,
@@ -73,23 +83,42 @@ export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   const isHome = pageSlug === '';
   const meta = config.meta;
   const pageUrl = canonicalUrlFor(siteUrlOf(site.domain), pageSlug) ?? '';
+  const ogImage = absoluteMediaUrl(meta.ogImage, siteUrlOf(site.domain));
   const title = isHome ? meta.title : `${page.title} · ${meta.title}`;
-  const publishedTime = site.publishedAt ?? undefined;
-
   return {
     title,
     description: meta.description,
     ...(pageUrl ? { alternates: { canonical: pageUrl } } : {}),
     icons: { icon: '/favicon.ico' },
     openGraph: {
-      type: 'article',
+      type: 'website',
+      siteName: meta.title,
+      locale: 'ko_KR',
       title,
       description: meta.description,
       ...(pageUrl ? { url: pageUrl } : {}),
-      ...(publishedTime ? { publishedTime, modifiedTime: publishedTime } : {}),
-      ...(meta.ogImage ? { images: [{ url: meta.ogImage }] } : {}),
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
-    ...(site.status === 'suspended' ? { robots: { index: false } } : {}),
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title,
+      description: meta.description,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    robots:
+      site.status === 'suspended'
+        ? { index: false, follow: false }
+        : {
+            index: true,
+            follow: true,
+            googleBot: {
+              index: true,
+              follow: true,
+              'max-image-preview': 'large',
+              'max-snippet': -1,
+              'max-video-preview': -1,
+            },
+          },
   };
 }
 
@@ -102,7 +131,7 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
     return <SuspendedNotice siteName={site.name} />;
   }
   const config = site.siteConfig!;
-  const jsonLdHtml = jsonLdScriptContent(config, siteUrlOf(site.domain));
+  const jsonLdHtml = jsonLdScriptContent(config, siteUrlOf(site.domain), pageSlug);
 
   // [motion-system 2단계] 모션 유무·종류의 단일 소스는 config.motion.presetId(프리셋 계획)다.
   // Stage-1의 tier 게이팅(animate=tier==='premium')은 제거 — 티어 적정성은 sanitizeMotion이

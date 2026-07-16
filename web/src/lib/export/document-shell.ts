@@ -25,6 +25,17 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function openGraphImageUrl(raw: string | undefined, siteUrl: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  if (!siteUrl) return raw;
+  try {
+    const url = new URL(raw, `${siteUrl.replace(/\/+$/, '')}/`);
+    return ['http:', 'https:'].includes(url.protocol) ? url.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export interface DocumentShellInput {
   config: SiteConfig;
   pageSlug: string;
@@ -73,14 +84,18 @@ export function buildDocumentShell(input: DocumentShellInput): string {
 
   // [S-batch] 서빙 레이어 — canonical + JSON-LD (단일 소스, siteUrl 없으면 생략)
   const canonical = input.siteUrl ? canonicalUrlFor(input.siteUrl, pageSlug) : null;
-  const jsonLd = input.siteUrl ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, '')) : null;
+  const jsonLd = input.siteUrl
+    ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, ''), pageSlug)
+    : null;
   const poster = pageLcpImageSrc(config, pageSlug);
   const posterPreload = heroPosterPreloadHtml(config, pageSlug);
   const bodyHtml = stripDuplicateLcpPreload(input.bodyHtml, poster);
+  const ogImage = openGraphImageUrl(meta.ogImage, input.siteUrl);
 
   const head = [
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
     `<title>${escapeHtml(docTitle)}</title>`,
     meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
@@ -88,8 +103,12 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     '<link rel="icon" href="/favicon.ico">',
     posterPreload,
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
+    '<meta property="og:type" content="website">',
+    '<meta property="og:locale" content="ko_KR">',
+    `<meta property="og:site_name" content="${escapeAttr(meta.title)}">`,
+    canonical ? `<meta property="og:url" content="${escapeAttr(canonical)}">` : '',
     meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
-    meta.ogImage ? `<meta property="og:image" content="${escapeAttr(meta.ogImage)}">` : '',
+    ogImage ? `<meta property="og:image" content="${escapeAttr(ogImage)}">` : '',
     jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : '',
     `<style>${BASE_DOC_CSS}</style>`,
     input.fontFaceCss ? `<style>${input.fontFaceCss}</style>` : '',

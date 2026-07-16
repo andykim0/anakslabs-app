@@ -14,7 +14,7 @@ const VALID_ANCHORS: GuidanceAnchor[] = [
 ];
 
 describe('SCAN_GUIDANCE 완전성', () => {
-  test('전 scan 코드(28종)가 guidance를 가짐 — 누락 0', () => {
+  test('전 scan 코드가 guidance를 가짐 — 누락 0', () => {
     const codes = allScanCodes();
     assert.ok(codes.length >= 20, `scan 코드 수 ${codes.length}`);
     const missing = codes.filter((c) => !guidanceFor(c));

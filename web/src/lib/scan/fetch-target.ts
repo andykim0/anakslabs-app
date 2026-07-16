@@ -9,6 +9,7 @@ import { assertPublicHttpUrl, ScanError } from './ssrf';
 
 const TIMEOUT_MS = 5_000;
 const MAX_BYTES = 1_000_000; // 1MB
+const AUX_MAX_BYTES = 256_000;
 const MAX_REDIRECTS = 3;
 const UA = 'Mozilla/5.0 (compatible; AnaksScan/1.0; +https://anakslabs.com)';
 
@@ -20,6 +21,17 @@ export interface FetchedTarget {
   /** 응답 헤더 도착까지 ms */
   ttfbMs: number;
   /** 본문이 1MB 캡으로 잘렸는지 */
+  truncated: boolean;
+  contentType: string;
+  xRobotsTag: string;
+}
+
+export interface ProbedResource {
+  url: string;
+  status: number | null;
+  ok: boolean;
+  body: string;
+  contentType: string;
   truncated: boolean;
 }
 
@@ -38,8 +50,12 @@ export function normalizeScanUrl(input: string): string {
   return url.toString();
 }
 
-/** 본문을 1MB 캡까지 읽기 (초과 시 절단) */
-async function readCapped(res: Response, signal: AbortSignal): Promise<{ text: string; truncated: boolean }> {
+/** 본문을 지정 cap까지 읽기 (초과 시 절단) */
+async function readCapped(
+  res: Response,
+  signal: AbortSignal,
+  maxBytes = MAX_BYTES,
+): Promise<{ text: string; truncated: boolean }> {
   const reader = res.body?.getReader();
   if (!reader) return { text: '', truncated: false };
   const chunks: Uint8Array[] = [];
@@ -51,8 +67,8 @@ async function readCapped(res: Response, signal: AbortSignal): Promise<{ text: s
     if (done) break;
     if (value) {
       received += value.byteLength;
-      if (received > MAX_BYTES) {
-        chunks.push(value.slice(0, value.byteLength - (received - MAX_BYTES)));
+      if (received > maxBytes) {
+        chunks.push(value.slice(0, value.byteLength - (received - maxBytes)));
         truncated = true;
         await reader.cancel().catch(() => undefined);
         break;
@@ -102,7 +118,15 @@ export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
 
       const ttfbMs = Date.now() - started;
       const { text, truncated } = await readCapped(res, controller.signal);
-      return { finalUrl: current, status: res.status, html: text, ttfbMs, truncated };
+      return {
+        finalUrl: current,
+        status: res.status,
+        html: text,
+        ttfbMs,
+        truncated,
+        contentType: res.headers.get('content-type') ?? '',
+        xRobotsTag: res.headers.get('x-robots-tag') ?? '',
+      };
     }
     throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다.');
   } finally {
@@ -111,23 +135,56 @@ export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
 }
 
 /**
- * 보조 리소스(robots.txt/sitemap.xml/llms.txt) 존재 확인 — 최종 URL origin 기준.
- * 실패/타임아웃은 '없음'으로 취급 (스캔을 막지 않는다).
+ * 보조 리소스(robots.txt/sitemap.xml) fetch — 내용·상태·content-type까지 진단한다.
+ * redirect 각 hop도 공개 URL인지 재검증한다. 실패/타임아웃은 status=null로 반환해
+ * 메인 페이지 스캔 자체를 막지 않는다.
  */
-export async function probeExists(origin: string, path: string): Promise<boolean> {
+export async function probeResource(origin: string, path: string): Promise<ProbedResource> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 3_000);
   try {
-    const res = await fetch(`${origin}${path}`, {
-      redirect: 'manual',
-      signal: controller.signal,
-      headers: { 'user-agent': UA },
-    });
-    await res.body?.cancel().catch(() => undefined);
-    return res.status >= 200 && res.status < 300;
+    let current = await assertPublicHttpUrl(new URL(path, origin).toString());
+    for (let hop = 0; hop <= 2; hop++) {
+      const res = await fetch(current.toString(), {
+        redirect: 'manual',
+        signal: controller.signal,
+        headers: { 'user-agent': UA, accept: 'text/plain,application/xml,text/xml,*/*;q=0.5' },
+      });
+      if (res.status >= 300 && res.status < 400) {
+        const location = res.headers.get('location');
+        await res.body?.cancel().catch(() => undefined);
+        if (!location || hop === 2) {
+          return {
+            url: current.toString(),
+            status: res.status,
+            ok: false,
+            body: '',
+            contentType: res.headers.get('content-type') ?? '',
+            truncated: false,
+          };
+        }
+        current = await assertPublicHttpUrl(new URL(location, current).toString());
+        continue;
+      }
+      const { text, truncated } = await readCapped(res, controller.signal, AUX_MAX_BYTES);
+      return {
+        url: current.toString(),
+        status: res.status,
+        ok: res.status >= 200 && res.status < 300,
+        body: text,
+        contentType: res.headers.get('content-type') ?? '',
+        truncated,
+      };
+    }
+    return { url: `${origin}${path}`, status: null, ok: false, body: '', contentType: '', truncated: false };
   } catch {
-    return false;
+    return { url: `${origin}${path}`, status: null, ok: false, body: '', contentType: '', truncated: false };
   } finally {
     clearTimeout(timer);
   }
+}
+
+/** 이전 호출부 호환용 boolean wrapper. */
+export async function probeExists(origin: string, path: string): Promise<boolean> {
+  return (await probeResource(origin, path)).ok;
 }

@@ -4,7 +4,7 @@
  * 사업자 정보와 사람만 판단할 수 있는 최종 확인을 모두 서버가 재검증한다.
  * 응답: { site, url } — url은 라이브 주소.
  */
-import { NextResponse, type NextRequest } from 'next/server';
+import { after, NextResponse, type NextRequest } from 'next/server';
 import { getDataServices } from '@/lib/data';
 import { apiError, withApiHandler } from '../../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../../_lib/guards';
@@ -15,6 +15,7 @@ import { missingPublishHumanChecks, PUBLISH_HUMAN_CHECKS } from '@/lib/publish/h
 import { publishAuditedSnapshot } from '@/lib/publish/publish-audited-snapshot';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
+import { submitIndexNow } from '@/lib/seo/indexnow';
 import {
   assetPolicyBlockedMessage,
   logAssetPolicyIssues,
@@ -157,6 +158,22 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
 
   // provenance와 품질 검사를 통과한 exact snapshot만 라이브로 복사한다.
   const published = await publishAuditedSnapshot(getDataServices().sites, siteId, auditedDraft);
+  if (published.domain && published.siteConfig) {
+    const host = published.domain;
+    const urls = published.siteConfig.pages.map((page) =>
+      page.slug === '' ? `https://${host}` : `https://${host}/${page.slug}`,
+    );
+    after(async () => {
+      try {
+        await submitIndexNow(host, urls);
+      } catch (error) {
+        console.warn('[publish-indexnow] notification failed:', {
+          host,
+          errorName: error instanceof Error ? error.name : 'UnknownError',
+        });
+      }
+    });
+  }
   // site.draftConfig를 직접 복사하지 않아 감사한 snapshot과 발행본 사이의 TOCTOU를 막는다.
   return NextResponse.json({
     site: published,

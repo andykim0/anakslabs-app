@@ -11,7 +11,7 @@ import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { SEO_RULES } from './checks/seo';
-import { fetchTarget, normalizeScanUrl, probeExists } from './fetch-target';
+import { fetchTarget, normalizeScanUrl, probeResource } from './fetch-target';
 import { runRules, type RuleContext } from './rules';
 import { buildScores } from './score';
 
@@ -33,10 +33,9 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
   const origin = target.finalUrl.origin;
 
   // 보조 리소스 존재 확인 (병렬, 실패는 '없음')
-  const [robotsTxtOk, sitemapOk, llmsTxtOk] = await Promise.all([
-    probeExists(origin, '/robots.txt'),
-    probeExists(origin, '/sitemap.xml'),
-    probeExists(origin, '/llms.txt'),
+  const [robots, sitemap] = await Promise.all([
+    probeResource(origin, '/robots.txt'),
+    probeResource(origin, '/sitemap.xml'),
   ]);
 
   const root = parse(target.html);
@@ -45,10 +44,13 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
     rawHtml: target.html,
     visibleText: extractVisibleText(root),
     url: target.finalUrl,
+    status: target.status,
+    contentType: target.contentType,
+    xRobotsTag: target.xRobotsTag,
+    truncated: target.truncated,
     ttfbMs: target.ttfbMs,
-    robotsTxtOk,
-    sitemapOk,
-    llmsTxtOk,
+    robots,
+    sitemap,
   };
 
   const seo = runRules(SEO_RULES, ctx);
@@ -74,7 +76,7 @@ export function demoFixture(url: string): ScanCore {
   const issues: ScanIssue[] = [
     ...pick(SEO_RULES, ['seo_meta_description', 'seo_h1', 'seo_og', 'seo_img_alt', 'seo_canonical']),
     ...pick(AEO_RULES, ['aeo_jsonld_missing', 'aeo_question_headings', 'aeo_main_landmark', 'aeo_lists_tables']),
-    ...pick(GEO_RULES, ['geo_no_text', 'geo_business_info', 'geo_llms_txt']),
+    ...pick(GEO_RULES, ['geo_no_text', 'geo_business_info', 'geo_oai_search_blocked']),
   ];
   // seo: 10+10+8+8+6=42→58 / aeo: 20+15+15+10=60→40 / geo: 20+15+10=45→55... 데모 값은 고정 명시
   return {

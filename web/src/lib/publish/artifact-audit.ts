@@ -562,18 +562,19 @@ function nodeTypes(node: Record<string, unknown>): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
-function expectedSchemaTypes(config: SiteConfig): string[] {
+function expectedSchemaTypes(config: SiteConfig, page: SitePage): string[] {
   const spec = schemaSpecFor(config.meta.purposeId);
   if (spec) {
     const { orgType } = spec;
     return [
       ...(typeof orgType === 'string' ? [orgType] : [...orgType]),
-      ...(spec.extra ?? []),
-      ...(spec.profilePage ? ['ProfilePage'] : []),
+      'WebPage',
+      ...(page.slug === '' ? (spec.extra ?? []) : []),
+      ...(page.slug === '' && spec.profilePage ? ['ProfilePage'] : []),
     ];
   }
   const hasMenu = config.pages.some((page) => page.sections.some((section) => section.type === 'menu'));
-  return [hasMenu ? 'LocalBusiness' : 'Organization'];
+  return [hasMenu ? 'LocalBusiness' : 'Organization', 'WebPage'];
 }
 
 function auditSchema(
@@ -606,7 +607,7 @@ function auditSchema(
     push(blockers, 'schema_context', `${pageLabel(page)}의 구조화 데이터 schema.org 문맥이 올바르지 않습니다.`, { pageSlug: page.slug });
   }
   const types = new Set(nodes.flatMap(nodeTypes));
-  const expected = expectedSchemaTypes(config);
+  const expected = expectedSchemaTypes(config, page);
   if (!types.has('WebSite') || expected.some((type) => !types.has(type))) {
     push(
       blockers,

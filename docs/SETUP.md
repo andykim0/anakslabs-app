@@ -13,6 +13,7 @@
 | **Veo 3.1** (영상) | 영상 편집 (Premium) | 현재 **스텁** → 실구현 필요 | 초당 과금 | 3 |
 | **토스페이먼츠** | 실제 결제/구독 | **사업자등록 + 토스 가맹** | 수수료 | 4 |
 | **Cloudflare + 도메인** | 서브도메인/커스텀 도메인 서빙 | **anakslabs.com 실소유** + Vercel 배포 | 도메인 연 1~2만원 | 5 |
+| **네이버 IndexNow** | 발행 URL 변경 알림 | 16자 이상의 서버 시크릿 | 무료 | 5 |
 
 전환 스위치는 `web/.env.local`의 `NEXT_PUBLIC_MOCK_MODE`. **`0`이면 실연동, 그 외/미설정이면 mock**입니다.
 
@@ -44,6 +45,9 @@ NEXT_PUBLIC_TOSS_CLIENT_KEY=            # 클라이언트 — 결제창
 
 # ── 크론 보호 ──
 CRON_SECRET=dev-secret                  # /api/cron/* Bearer 검증
+
+# ── 네이버 검색 발견 알림 ──
+INDEXNOW_SECRET=                        # 서버 전용 16자 이상, 테넌트별 검증 키를 HMAC으로 파생
 ```
 
 ---
@@ -160,6 +164,7 @@ CLOUDFLARE_ZONE_ID=...
 - **기본 서브도메인**(`xxx.anakslabs.com`): 자체 존 와일드카드 — Cloudflare for SaaS 과금 대상 아님(무료).
 - **커스텀 도메인**(고객 소유): `/api/domains`가 Cloudflare custom_hostnames API로 등록 → 검증 CNAME/TXT 반환 → 고객이 DNS 추가 → SSL 자동 발급 → `active`. 100개까지 무료, 이후 $0.10/호스트네임/월.
 - 서빙 경로: 요청 host → `web/src/proxy.ts`가 파싱 → `/s/[domain]` rewrite → 발행본 SSR.
+- `INDEXNOW_SECRET`을 설정하면 발행 성공 뒤 canonical 페이지 URL을 네이버 IndexNow에 비동기 통지합니다. 각 도메인의 검증 키는 `/indexnow-key.txt`에서 제공되며, 통지 수락은 색인·순위를 보장하지 않습니다.
 - Vercel Cron: `web/vercel.json`에 `/api/cron/expire-credits` 매일 03:00 KST 등록됨(`CRON_SECRET` 검증).
 
 ---
@@ -172,4 +177,5 @@ CLOUDFLARE_ZONE_ID=...
 - [ ] 크레딧: 팩 구매(토스 테스트키) → 웹훅 → 원장/잔액 반영
 - [ ] 편집 요청: 이미지 1cr 차감 → QA 큐 → 승인/반려(환불) 확인
 - [ ] 커스텀 도메인: request → DNS 안내 → `active` 전이
+- [ ] 발행 후 `/indexnow-key.txt` 200 + 서버 로그에 IndexNow 오류 없음 확인
 - [ ] 크론: `expire_credits` 만료 처리

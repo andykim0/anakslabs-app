@@ -6,6 +6,7 @@
  */
 import type { HTMLElement as ParsedElement } from 'node-html-parser';
 import type { ScanIssue } from '@/lib/data/types';
+import type { ProbedResource } from './fetch-target';
 
 export interface RuleContext {
   /** node-html-parser 루트 */
@@ -14,10 +15,13 @@ export interface RuleContext {
   /** script/style 제거 후 보이는 텍스트 */
   visibleText: string;
   url: URL;
+  status: number;
+  contentType: string;
+  xRobotsTag: string;
+  truncated: boolean;
   ttfbMs: number;
-  robotsTxtOk: boolean;
-  sitemapOk: boolean;
-  llmsTxtOk: boolean;
+  robots: ProbedResource;
+  sitemap: ProbedResource;
 }
 
 export interface ScanRule {

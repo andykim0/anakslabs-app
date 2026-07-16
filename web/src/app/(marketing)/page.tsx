@@ -62,16 +62,16 @@ const ENGINES = [
     name: 'AEO',
     label: '답변되는 구조',
     icon: MessageSquareQuote,
-    body: '질문에 바로 답하는 문장과 FAQ 구조화 데이터를 배치해 검색의 답변 영역이 발췌하기 좋은 형태로 만듭니다.',
-    detail: 'FAQ · DIRECT ANSWER · JSON-LD',
+    body: '페이지 성격에 맞는 제목 계층·목록·질문과 페이지별 구조화 데이터를 구성해 답변 경계를 해석하기 쉽게 만듭니다.',
+    detail: 'SEMANTIC ANSWERS · ENTITY · JSON-LD',
   },
   {
     no: '03',
     name: 'GEO',
     label: '인용되는 구조',
     icon: Bot,
-    body: '사업 주체·지역·서비스 정보를 텍스트와 구조화 데이터로 명확히 표현해 생성형 AI가 참고하기 쉬운 기반을 만듭니다.',
-    detail: 'ENTITY · LOCAL SIGNAL · LLMS.TXT',
+    body: 'AI 검색 크롤러 접근, 사업 주체·지역·서비스, 근거와 공식 채널을 명확히 표현해 생성형 검색이 검증하기 쉬운 기반을 만듭니다.',
+    detail: 'CRAWLER ACCESS · EVIDENCE · ENTITY',
   },
 ];
 
@@ -173,7 +173,7 @@ export default function MarketingHome() {
         </div>
         <div className="relative z-10 border-t border-[#DCE4F0] bg-white/55 backdrop-blur">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono text-[9px] tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
-            {['SEMANTIC HTML', 'JSON-LD', 'LLMS.TXT', 'MULTI-PAGE SSR', 'SSL HOSTING', 'CANVAS EDITOR'].map((item) => (
+            {['SEMANTIC HTML', 'JSON-LD', 'NAVER INDEXNOW', 'MULTI-PAGE SSR', 'SSL HOSTING', 'CANVAS EDITOR'].map((item) => (
               <span key={item} className="inline-flex items-center gap-2">
                 <span className="h-1 w-1 rounded-full bg-[#03BFA9]" /> {item}
               </span>

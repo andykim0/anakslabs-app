@@ -1,5 +1,5 @@
 /**
- * [마케팅] FAQ 리스트 + FAQPage JSON-LD 헬퍼 (AEO — 답변 상자·AI 발췌 대비).
+ * [마케팅] FAQ 리스트 + 화면 내용과 일치하는 FAQPage JSON-LD 헬퍼.
  * 답변에 JSX(링크 등)가 필요할 수 있어 렌더용 `a`(node)와 JSON-LD용 `plain`(string)을 분리.
  */
 

@@ -628,8 +628,8 @@ lib/scan/
 - **SSRF 방어 필수**: http/https만, `dns.lookup` 결과가 사설/루프백/링크로컬 대역이면 거부, 포트 80/443만. `safe-url.ts`와 별도의 서버 전용 `lib/scan/ssrf.ts`.
 - 점수는 **결정적 규칙 기반, LLM 불사용** (비로그인 무료 경로에 토큰 비용 0, 응답 3초 내). 규칙당 `{code, pillar, weight, severity, label, detail}`:
   - **SEO**: title 존재/길이, meta description, H1 개수(0 또는 중복), canonical, og:title/image, img alt 비율, https 여부, viewport, robots.txt, sitemap.xml, 응답속도(TTFB 등급), favicon
-  - **AEO**: JSON-LD 구조화 데이터 유무/타입(LocalBusiness·FAQ·Product), 시맨틱 헤딩 계층, FAQ성 콘텐츠 감지(질문형 헤딩), `<main>`/landmark 사용, 목록·표 등 발췌 가능 구조
-  - **GEO**: 본문 텍스트/마크업 비율(JS 렌더 의존이면 "AI가 읽을 수 없음"), llms.txt, 명시적 사업 정보(주소/전화 패턴), 날짜/저자 메타, 언어 선언(`lang`), 콘텐츠 중복·빈 페이지 감지
+  - **AEO**: 유효한 페이지별 JSON-LD와 엔티티 연결, 시맨틱 헤딩/landmark, 접근 가능한 컨트롤, FAQ·목록·표가 실제 콘텐츠 성격에 맞을 때만 적용되는 조건부 발췌 구조
+  - **GEO**: OAI-SearchBot·PerplexityBot 접근, snippet 허용, 본문 텍스트/마크업 비율, 지역 업체 정보, 기사형 콘텐츠의 날짜·저자, 한국어 선언, 공식 채널 sameAs, 수치 주장의 출처, 주제 정합성
 - 카피 원칙 반영: 결과 문구는 **상태 서술**("검색·AI가 읽을 수 있는 100점 기반")만. "1등 노출"류 순위 보장 표현은 이슈 라벨·요약 어디에도 금지 — 라벨 사전을 코드에 상수로 두고 리뷰에서 grep 가능하게.
 
 ### 6.2 API

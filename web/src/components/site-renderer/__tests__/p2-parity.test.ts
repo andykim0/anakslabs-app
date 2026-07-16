@@ -50,7 +50,28 @@ function ctxOf(html: string): RuleContext {
   for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
   return {
     root, rawHtml: html, visibleText: clone.text.replace(/\s+/g, ' ').trim(),
-    url: new URL('https://x.anakslabs.com'), ttfbMs: 0, robotsTxtOk: true, sitemapOk: true, llmsTxtOk: true,
+    url: new URL('https://x.anakslabs.com'),
+    status: 200,
+    contentType: 'text/html; charset=utf-8',
+    xRobotsTag: '',
+    truncated: false,
+    ttfbMs: 0,
+    robots: {
+      url: 'https://x.anakslabs.com/robots.txt',
+      status: 200,
+      ok: true,
+      body: 'User-agent: *\nAllow: /\nSitemap: https://x.anakslabs.com/sitemap.xml',
+      contentType: 'text/plain',
+      truncated: false,
+    },
+    sitemap: {
+      url: 'https://x.anakslabs.com/sitemap.xml',
+      status: 200,
+      ok: true,
+      body: '<?xml version="1.0"?><urlset><url><loc>https://x.anakslabs.com/</loc></url></urlset>',
+      contentType: 'application/xml',
+      truncated: false,
+    },
   };
 }
 const ruleBy = (rules: typeof SEO_RULES, code: string) => rules.find((r) => r.code === code)!;
