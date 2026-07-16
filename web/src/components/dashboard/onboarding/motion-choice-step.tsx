@@ -20,6 +20,7 @@ import {
   type MotionSignatureSpec,
 } from '@/lib/motion/signatures';
 import { buildMotionSignaturePreviewConfig } from '@/lib/motion/preview-config';
+import { trackMotionUpsellFunnelEvent } from '@/lib/analytics/motion-upsell-funnel';
 import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { MotionChoiceDto } from '../api';
 import { SitePreview } from '../site-preview';
@@ -32,7 +33,7 @@ const MotionImmersivePreview = dynamic(
     ssr: false,
     loading: () => (
       <div className="fixed inset-0 z-[120] grid place-items-center bg-[#07162f]/95 text-sm font-semibold text-white" role="status">
-        실제 연출을 준비하고 있어요…
+        실제 예시 연출을 준비하고 있어요…
       </div>
     ),
   },
@@ -168,6 +169,17 @@ export function MotionChoiceStep({
 
   const closeImmersive = useCallback(() => setPreviewingSignatureId(undefined), []);
 
+  const chooseVideoPreference = (next: boolean) => {
+    setWantsVideo(next);
+    if (!selected) return;
+    trackMotionUpsellFunnelEvent({
+      action: next ? 'addon_select' : 'addon_decline',
+      signatureId: selected.spec.id,
+      addonOwned: ownsAddon,
+      videoRequired,
+    });
+  };
+
   return (
     <Card className="space-y-6 border-ob-border bg-ob-surface p-6">
       <div>
@@ -206,7 +218,7 @@ export function MotionChoiceStep({
                     previewAsAddon={spec.tier === 'premium'}
                   />
                   <span className="absolute top-2 left-2 z-[70] rounded-full border border-white/25 bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
-                    실제 렌더러 티저 · 눌러서 체험
+                    예시 · 실제 렌더러 티저 · 눌러서 체험
                   </span>
                 </div>
                 <span className="block space-y-2 p-3.5">
@@ -293,7 +305,13 @@ export function MotionChoiceStep({
               예시 연출이에요. 선택하시면 이 사진을 소스로 실제 영상을 만들어 드립니다 {ownsAddon ? '' : `(${addonPrice})`}.
             </p>
           </div>
-          <HeroMotionUpsellPreview heroImageUrl={heroImageUrl} businessName={survey.businessName} />
+          <HeroMotionUpsellPreview
+            heroImageUrl={heroImageUrl}
+            businessName={survey.businessName}
+            signatureId={selected.spec.id}
+            addonOwned={ownsAddon}
+            videoRequired={videoRequired}
+          />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold text-ob-ink">이 움직임을 홈페이지에 남길까요?</h3>
@@ -309,7 +327,7 @@ export function MotionChoiceStep({
             <button
               type="button"
               aria-pressed={!wantsVideo}
-              onClick={() => setWantsVideo(false)}
+              onClick={() => chooseVideoPreference(false)}
               className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
@@ -319,7 +337,7 @@ export function MotionChoiceStep({
             <button
               type="button"
               aria-pressed={wantsVideo}
-              onClick={() => setWantsVideo(true)}
+              onClick={() => chooseVideoPreference(true)}
               className={cn('rounded-ob border p-4 text-left', wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <Film className="h-5 w-5 text-ob-accent-strong" />

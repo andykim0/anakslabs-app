@@ -6,6 +6,7 @@ import { Check, Monitor, Smartphone, X } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import type { SiteConfig } from '@/lib/types/site';
 import type { MotionSignatureSpec } from '@/lib/motion/signatures';
+import { trackMotionUpsellFunnelEvent } from '@/lib/analytics/motion-upsell-funnel';
 import { SitePreview } from '../site-preview';
 import { Button, cn } from '../ui';
 
@@ -37,24 +38,42 @@ export function MotionImmersivePreview({
   const reducedMotion = useReducedMotion() ?? false;
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const openTracked = useRef(false);
   const [mode, setMode] = useState<'desktop' | 'mobile'>('desktop');
   const [previewHeight, setPreviewHeight] = useState(640);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const updateViewport = () => {
       const compact = window.innerWidth < 768;
       if (compact) setMode('mobile');
       setPreviewHeight(Math.max(360, window.innerHeight - (compact ? 210 : 190)));
     };
-    updateViewport();
+    // Mount the portal with the measured viewport in the same browser frame,
+    // without a synchronous state write in the effect body.
+    const frame = window.requestAnimationFrame(() => {
+      updateViewport();
+      setMounted(true);
+    });
     window.addEventListener('resize', updateViewport, { passive: true });
-    return () => window.removeEventListener('resize', updateViewport);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', updateViewport);
+    };
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
+    if (!openTracked.current) {
+      openTracked.current = true;
+      trackMotionUpsellFunnelEvent({
+        action: 'immersive_preview_open',
+        signatureId: spec.id,
+        alreadySelected: selected,
+        addonDemo: previewAsAddon,
+        representativeMedia: usesRepresentativeMedia,
+      });
+    }
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -86,7 +105,7 @@ export function MotionImmersivePreview({
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [mounted, onClose]);
+  }, [mounted, onClose, previewAsAddon, selected, spec.id, usesRepresentativeMedia]);
 
   if (!mounted) return null;
 

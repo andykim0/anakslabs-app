@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ImageIcon, Play, Sparkles } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { MotionSignatureId } from '@/lib/types/site';
+import { trackMotionUpsellFunnelEvent } from '@/lib/analytics/motion-upsell-funnel';
 import { cn } from '../ui';
 
 export type UpsellPreviewMode = 'still' | 'motion';
@@ -16,15 +18,33 @@ const STILL_HOLD_MS = 2_000;
 export function HeroMotionUpsellPreview({
   heroImageUrl,
   businessName,
+  signatureId,
+  addonOwned,
+  videoRequired,
   onModeChange,
 }: {
   heroImageUrl: string;
   businessName: string;
+  signatureId: MotionSignatureId;
+  addonOwned: boolean;
+  videoRequired: boolean;
   onModeChange?: (mode: UpsellPreviewMode, source: 'auto' | 'user') => void;
 }) {
   const reducedMotion = useReducedMotion() ?? false;
   const [mode, setMode] = useState<UpsellPreviewMode>('still');
   const userSelected = useRef(false);
+  const impressionSignature = useRef<MotionSignatureId | undefined>(undefined);
+
+  useEffect(() => {
+    if (impressionSignature.current === signatureId) return;
+    impressionSignature.current = signatureId;
+    trackMotionUpsellFunnelEvent({
+      action: 'upsell_impression',
+      signatureId,
+      addonOwned,
+      videoRequired,
+    });
+  }, [addonOwned, signatureId, videoRequired]);
 
   // 첫 노출에서 같은 프레임을 2초간 보여준 뒤 움직여 정지/모션의 차이를 한 화면에서 만든다.
   // reduced-motion 또는 사용자의 명시 선택은 자동 전환보다 항상 우선한다.
@@ -32,23 +52,32 @@ export function HeroMotionUpsellPreview({
     if (reducedMotion || userSelected.current) return;
     const timer = window.setTimeout(() => {
       setMode('motion');
+      trackMotionUpsellFunnelEvent({
+        action: 'preview_mode_toggle',
+        signatureId,
+        mode: 'motion',
+        trigger: 'auto',
+      });
       onModeChange?.('motion', 'auto');
     }, STILL_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [onModeChange, reducedMotion]);
-
-  useEffect(() => {
-    if (!reducedMotion) return;
-    setMode('still');
-  }, [reducedMotion]);
+  }, [onModeChange, reducedMotion, signatureId]);
 
   const choose = (next: UpsellPreviewMode) => {
+    if (next === mode) return;
     userSelected.current = true;
     setMode(next);
+    trackMotionUpsellFunnelEvent({
+      action: 'preview_mode_toggle',
+      signatureId,
+      mode: next,
+      trigger: 'user',
+    });
     onModeChange?.(next, 'user');
   };
 
-  const moving = mode === 'motion' && !reducedMotion;
+  const effectiveMode: UpsellPreviewMode = reducedMotion ? 'still' : mode;
+  const moving = effectiveMode === 'motion';
 
   return (
     <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface shadow-[0_24px_70px_-42px_rgba(23,77,218,.45)]">
@@ -100,27 +129,27 @@ export function HeroMotionUpsellPreview({
         <div className="flex shrink-0 rounded-full border border-ob-border bg-ob-bg p-1" aria-label="예시 움직임 비교">
           <button
             type="button"
-            aria-pressed={mode === 'still'}
+            aria-pressed={effectiveMode === 'still'}
             onClick={() => choose('still')}
             className={cn(
               'inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition-colors',
-              mode === 'still' ? 'bg-ob-surface text-ob-ink shadow-sm' : 'text-ob-muted hover:text-ob-ink',
+              effectiveMode === 'still' ? 'bg-ob-surface text-ob-ink shadow-sm' : 'text-ob-muted hover:text-ob-ink',
             )}
           >
             <ImageIcon className="h-3 w-3" /> 정지
           </button>
           <button
             type="button"
-            aria-pressed={mode === 'motion'}
+            aria-pressed={effectiveMode === 'motion'}
             disabled={reducedMotion}
             onClick={() => choose('motion')}
             className={cn(
               'inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition-colors',
-              mode === 'motion' ? 'bg-ob-accent-strong text-white shadow-sm' : 'text-ob-muted hover:text-ob-ink',
+              effectiveMode === 'motion' ? 'bg-ob-accent-strong text-white shadow-sm' : 'text-ob-muted hover:text-ob-ink',
               reducedMotion && 'cursor-not-allowed opacity-50',
             )}
           >
-            {mode === 'motion' ? <Sparkles className="h-3 w-3" /> : <Play className="h-3 w-3" />} 모션
+            {effectiveMode === 'motion' ? <Sparkles className="h-3 w-3" /> : <Play className="h-3 w-3" />} 모션
           </button>
         </div>
       </div>
