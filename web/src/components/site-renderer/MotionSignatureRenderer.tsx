@@ -687,6 +687,13 @@ function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRe
       <div data-signature-pin>
         {scene.heading ? <p data-horizontal-kicker>{scene.heading}</p> : null}
         <span data-signature-progress-rail aria-hidden="true"><span data-signature-progress-fill /></span>
+        <ol data-horizontal-indicator aria-hidden="true">
+          {scene.panels.map((panel, index) => (
+            <li key={`horizontal-step-${panel.id}`} data-horizontal-step data-panel-index={index}>
+              {String(index + 1).padStart(2, '0')}
+            </li>
+          ))}
+        </ol>
         <div data-horizontal-rail data-panel-count={count}>
           {scene.panels.map((panel, index) => {
             const headingId = `${domId(scene.sectionId)}-panel-${index + 1}`;
@@ -695,6 +702,8 @@ function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRe
                 key={panel.id}
                 id={panel.sourceSectionId !== scene.sectionId ? panel.sourceSectionId : undefined}
                 data-signature-panel
+                data-horizontal-panel
+                data-panel-index={index}
                 aria-labelledby={headingId}
               >
                 {panel.media ? (

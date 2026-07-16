@@ -235,6 +235,18 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_RUNTIME, /journeyCurrent[\s\S]*clinical-informational'\?6:14[\s\S]*data-current[\s\S]*data-complete/);
     assert.doesNotMatch(MOTION_CSS, /data-current[^}]*opacity:\s*0/);
   });
+
+  test('horizontal story uses held progress, exact settle, and explicit mobile dismantling', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['horizontal-story']);
+    assert.equal((html.match(/data-horizontal-panel=/g) ?? []).length, 3);
+    assert.equal((html.match(/data-horizontal-step=/g) ?? []).length, 3);
+    assert.match(MOTION_RUNTIME, /motionP>=\.96\)held=1[\s\S]*smooth\(\.2,\.8,horizontalLocal\)[\s\S]*--horizontal-progress/);
+    assert.match(MOTION_RUNTIME, /horizontalPanelPosition[\s\S]*--horizontal-media-scale[\s\S]*--horizontal-copy-opacity[\s\S]*--horizontal-step-scale/);
+    assert.match(MOTION_CSS, /data-horizontal-step[^}]*::before[^}]*width:\s*28px[^}]*transform:\s*scaleX\(var\(--horizontal-step-scale/);
+    assert.doesNotMatch(MOTION_CSS, /data-horizontal-step[^}]*::before[^}]*width:\s*var\(/);
+    assert.match(MOTION_CSS, /max-width: 1023\.98px[\s\S]*data-horizontal-rail\][^}]*transform: none !important/);
+    assert.match(MOTION_CSS, /data-render-mode="mobile"[^}]*data-horizontal-rail\][^}]*transform: none !important/);
+  });
 });
 
 function textElement(id: string, text: string, y: number) {
