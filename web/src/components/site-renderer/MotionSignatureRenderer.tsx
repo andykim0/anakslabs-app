@@ -480,16 +480,28 @@ function EditorialScenes({
               key={item.id}
               id={item.sourceSectionId !== scene.sectionId ? item.sourceSectionId : undefined}
               data-signature-panel
+              data-scene-index={index}
               {...(kind === 'curtain' ? { 'data-curtain-panel': true } : {})}
               aria-labelledby={headingId}
               style={kind === 'curtain' ? { zIndex: count - index } : undefined}
             >
               {item.media ? (
-                <SignatureMedia
-                  media={item.media}
-                  eager={Boolean(isFirst && index === firstMedia)}
-                  dataAttrs={kind === 'portal' ? { 'data-portal-media': true } : { 'data-curtain-media': true }}
-                />
+                kind === 'portal' ? (
+                  <div data-portal-aperture>
+                    <SignatureMedia
+                      media={item.media}
+                      eager={Boolean(isFirst && index === firstMedia)}
+                      dataAttrs={{ 'data-portal-media': true }}
+                    />
+                    <span data-portal-boundary aria-hidden="true" />
+                  </div>
+                ) : (
+                  <SignatureMedia
+                    media={item.media}
+                    eager={Boolean(isFirst && index === firstMedia)}
+                    dataAttrs={{ 'data-curtain-media': true }}
+                  />
+                )
               ) : null}
               <div data-scene-copy style={copyStyle}>
                 <h2 id={headingId} data-signature-heading>{item.heading}</h2>

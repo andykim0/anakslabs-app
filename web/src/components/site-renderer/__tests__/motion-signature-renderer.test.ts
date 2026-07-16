@@ -196,6 +196,16 @@ describe('motion signature production renderers', () => {
     assert.match(MOTION_CSS, /data-chapter-media\]::after[\s\S]*--chapter-light/);
     assert.match(MOTION_RUNTIME, /activeChapter[\s\S]*--chapter-copy-opacity[\s\S]*data-chapter-indicator-item/);
   });
+
+  test('portal zoom has a real aperture, focal settle, and non-blank scene crossfade', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['portal-zoom']);
+    assert.equal((html.match(/data-portal-aperture=/g) ?? []).length, 2);
+    assert.equal((html.match(/data-portal-boundary=/g) ?? []).length, 2);
+    assert.match(MOTION_CSS, /data-portal-aperture\][\s\S]*--portal-scale[\s\S]*--portal-clip/);
+    assert.match(MOTION_CSS, /data-signature-corners="spatial"[\s\S]*--portal-radius/);
+    assert.match(MOTION_RUNTIME, /portalPosition[\s\S]*sceneVisible[\s\S]*focal[\s\S]*settled[\s\S]*--portal-copy-opacity/);
+    assert.match(MOTION_RUNTIME, /clearStage[\s\S]*data-portal-aperture[\s\S]*--portal-boundary-opacity[\s\S]*--portal-copy-x/);
+  });
 });
 
 function textElement(id: string, text: string, y: number) {

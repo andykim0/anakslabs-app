@@ -271,12 +271,40 @@ export const MOTION_CSS = `
 }
 .anaks-site [data-signature-panel] [data-signature-media] { max-height: min(68svh, 760px); }
 .anaks-site [data-signature-id="portal-zoom"].m-signature-ready [data-portal-media] {
-  transform: scale(var(--portal-scale, 1)); clip-path: inset(var(--portal-clip, 0%) round 28px);
-  transform-origin: 50% 50%; transition-timing-function: var(--signature-easing);
+  width: 100%; height: 100%; max-height: none; aspect-ratio: auto !important; border-radius: inherit;
+  transform: scale(var(--portal-media-scale, 1.025)); transform-origin: 50% 50%; box-shadow: none;
 }
+.anaks-site [data-signature-id="portal-zoom"] [data-portal-aperture] { position: relative; }
+.anaks-site [data-signature-id="portal-zoom"].m-signature-ready [data-signature-panel] {
+  grid-template-columns: 1fr; place-items: center; isolation: isolate;
+  background: color-mix(in srgb, var(--signature-bg) 92%, var(--signature-surface));
+}
+.anaks-site [data-signature-id="portal-zoom"].m-signature-ready [data-portal-aperture] {
+  position: absolute; left: 50%; top: 50%; width: min(92vw, 1380px); height: min(84svh, 860px);
+  transform: translate3d(-50%,-50%,0) scale(var(--portal-scale, .66));
+  clip-path: inset(var(--portal-clip, 11%) round var(--portal-radius, 30px)); overflow: hidden;
+  box-shadow: 0 44px 120px -58px color-mix(in srgb, var(--signature-text) 48%, transparent);
+}
+.anaks-site [data-signature-id="portal-zoom"].m-signature-ready [data-portal-boundary] {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--signature-text) 28%, transparent);
+  box-shadow: inset 0 0 80px color-mix(in srgb, var(--signature-text) 16%, transparent), 0 0 0 1px color-mix(in srgb, var(--signature-accent) 16%, transparent);
+  opacity: var(--portal-boundary-opacity, .72);
+}
+.anaks-site [data-signature-id="portal-zoom"].m-signature-ready [data-scene-copy] {
+  position: relative; z-index: 4; width: min(42rem, calc(100vw - 48px)); margin-inline-start: min(42vw, 620px);
+  padding: clamp(24px, 4vw, 56px); border: 1px solid color-mix(in srgb, var(--signature-text) 12%, transparent);
+  border-radius: max(var(--signature-radius), 18px); color: var(--signature-text);
+  background: color-mix(in srgb, var(--signature-bg) 91%, transparent);
+  box-shadow: 0 28px 80px -54px color-mix(in srgb, var(--signature-text) 62%, transparent);
+  opacity: var(--portal-copy-opacity, 1); transform: translate3d(var(--portal-copy-x, 0px),0,0);
+}
+.anaks-site [data-signature-id="portal-zoom"][data-signature-corners="precise"] { --portal-radius: 12px; }
+.anaks-site [data-signature-id="portal-zoom"][data-signature-corners="soft"] { --portal-radius: 42px; }
+.anaks-site [data-signature-id="portal-zoom"][data-signature-corners="spatial"] { --portal-radius: 50% 50% 24% 24% / 18% 18% 12% 12%; }
 .anaks-site [data-signature-id="portal-zoom"] [data-portal-media]::after {
-  content: ''; position: absolute; inset: 0; border: 1px solid color-mix(in srgb, var(--signature-text) 24%, transparent);
-  border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 64px rgba(0,0,0,.12);
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(112deg, color-mix(in srgb, var(--signature-bg) 18%, transparent), transparent 38%, color-mix(in srgb, var(--signature-accent) 10%, transparent));
 }
 .anaks-site [data-signature-id="scroll-curtain"].m-signature-ready [data-curtain-panel] {
   background: var(--signature-bg);
@@ -533,8 +561,8 @@ export const MOTION_RUNTIME = `(function(){
       ['--signature-progress','--phase-establish','--phase-progress','--phase-focal','--phase-settle','--horizontal-x','--path-progress','--before-after-clip'].forEach(function(k){stage.style.removeProperty(k);});
       stage.__anaksPhaseWindows=null;
       progressWillChange(stage,false);
-      Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-signature-chapter],[data-stack-card],[data-signature-panel],[data-mosaic-tile],[data-path-milestone]')).forEach(function(node){
-        node.removeAttribute('data-active');['--chapter-emphasis','--chapter-scale','--card-scale','--card-y','--scene-opacity','--scene-pointer','--portal-scale','--portal-clip','--curtain-y','--curtain-clip','--mosaic-opacity','--mosaic-y','--milestone-opacity','--milestone-y','--milestone-marker-scale'].forEach(function(k){node.style.removeProperty(k);});
+      Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-signature-chapter],[data-chapter-indicator-item],[data-stack-card],[data-signature-panel],[data-portal-aperture],[data-portal-media],[data-scene-copy],[data-mosaic-tile],[data-path-milestone]')).forEach(function(node){
+        node.removeAttribute('data-active');['--chapter-emphasis','--chapter-scale','--chapter-clip','--chapter-light','--chapter-light-x','--chapter-copy-opacity','--chapter-copy-y','--chapter-dot-width','--card-scale','--card-y','--scene-opacity','--scene-pointer','--portal-scale','--portal-clip','--portal-boundary-opacity','--portal-media-scale','--portal-copy-opacity','--portal-copy-x','--curtain-y','--curtain-clip','--mosaic-opacity','--mosaic-y','--milestone-opacity','--milestone-y','--milestone-marker-scale'].forEach(function(k){node.style.removeProperty(k);});
       });
     }
     function markStatic(root){
@@ -690,7 +718,8 @@ export const MOTION_RUNTIME = `(function(){
         nodes.forEach(function(node,i){local=clamp(motionP*count-i);var covered=i===count-1?0:smooth(.62,1,local);node.style.setProperty('--card-scale',(1-covered*.035).toFixed(4));node.style.setProperty('--card-y',(-covered*8).toFixed(2)+'px');node.toggleAttribute('data-active',local>.18&&local<.96);});
       }else if(id==='portal-zoom'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-signature-panel]'));count=Math.max(1,nodes.length);
-        nodes.forEach(function(node,i){var start=i/count,end=(i+1)/count;local=clamp((motionP-start)/(end-start));opacity=sceneOpacity(i,count,motionP);node.style.setProperty('--scene-opacity',opacity.toFixed(4));node.style.setProperty('--scene-pointer',opacity>.5?'auto':'none');var media=node.querySelector('[data-portal-media]');if(media){var focal=smooth(.08,.62,local);media.style.setProperty('--portal-scale',(.74+.26*focal).toFixed(4));media.style.setProperty('--portal-clip',((1-focal)*14).toFixed(3)+'%');}});
+        var portalPosition=motionP*Math.max(0,count-1);
+        nodes.forEach(function(node,i){var distance=Math.abs(portalPosition-i),sceneVisible=1-smooth(.42,.72,distance),copyVisible=1-smooth(.24,.48,distance),sceneStart=count<=1?0:(i-.5)/(count-1),sceneEnd=count<=1?1:(i+.5)/(count-1);local=clamp((motionP-sceneStart)/Math.max(.0001,sceneEnd-sceneStart));var established=smooth(0,.24,local),focal=smooth(.2,.66,local),settled=smooth(.76,1,local),aperture=node.querySelector('[data-portal-aperture]'),media=node.querySelector('[data-portal-media]'),copy=node.querySelector('[data-scene-copy]');node.style.setProperty('--scene-opacity',sceneVisible.toFixed(4));node.style.setProperty('--scene-pointer',copyVisible>.55?'auto':'none');node.toggleAttribute('data-active',distance<.5);if(aperture){aperture.style.setProperty('--portal-scale',(.66+.39*focal-.02*settled).toFixed(4));aperture.style.setProperty('--portal-clip',((1-focal)*11).toFixed(3)+'%');aperture.style.setProperty('--portal-boundary-opacity',(.38+.44*Math.sin(Math.min(1,local)*Math.PI)).toFixed(4));}if(media)media.style.setProperty('--portal-media-scale',(1.035-.025*established+.012*Math.sin(local*Math.PI)).toFixed(4));if(copy){copy.style.setProperty('--portal-copy-opacity',copyVisible.toFixed(4));copy.style.setProperty('--portal-copy-x',((1-established)*22-settled*4).toFixed(2)+'px');}});
       }else if(id==='scroll-curtain'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-curtain-panel]'));count=Math.max(1,nodes.length);
         nodes.forEach(function(node,i){var transition=count<=1?0:smooth(i/(count-1),Math.min(1,(i+.78)/(count-1)),motionP);if(i===count-1)transition=0;node.style.setProperty('--scene-opacity','1');node.style.setProperty('--curtain-y',(-transition*8).toFixed(3)+'%');node.style.setProperty('--curtain-clip',(transition*100).toFixed(3)+'%');});
