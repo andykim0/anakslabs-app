@@ -6,6 +6,7 @@ import { motionChoiceForVideoPreference } from '@/components/dashboard/onboardin
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
+const immersive = source('src/components/dashboard/onboarding/motion-immersive-preview.tsx');
 const api = source('src/components/dashboard/api.ts');
 const generate = source('src/components/dashboard/onboarding/generate-step.tsx');
 
@@ -23,9 +24,10 @@ describe('W3/v2 — 시그니처 production 라이브러리 UI', () => {
     assert.doesNotMatch(motion, /boomerang-loop|slow-zoom|parallax-depth|@keyframes hvm-/);
   });
 
-  test('대형 미리보기는 실제 스크롤을 켜고 대표 영상은 고객 최종 자산이 아님을 표시한다', () => {
-    assert.match(motion, /<SitePreview[\s\S]*maxHeight=\{520\}[\s\S]*scroll[\s\S]*motion/);
-    assert.match(motion, /움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님/);
+  test('대형 미리보기는 lazy overlay에서 실제 스크롤을 켜고 대표 영상의 출처를 표시한다', () => {
+    assert.match(motion, /dynamic\([\s\S]*motion-immersive-preview[\s\S]*ssr: false/);
+    assert.match(immersive, /<SitePreview[\s\S]*scroll[\s\S]*motion=\{!reducedMotion\}/);
+    assert.match(immersive, /대표 데모 영상은 움직임 설명용이며 고객님의 최종 자산이 아닙니다/);
   });
 
   test('콘텐츠가 부족하면 복제·날조하지 않고 기본 모션을 권한다', () => {

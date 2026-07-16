@@ -6,6 +6,7 @@ import { motionChoiceForVideoPreference } from '@/components/dashboard/onboardin
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
+const immersive = source('src/components/dashboard/onboarding/motion-immersive-preview.tsx');
 const wizard = source('src/components/dashboard/onboarding/wizard.tsx');
 
 describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () => {
@@ -17,9 +18,10 @@ describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () 
   });
 
   test('가짜 CSS 카드 대신 동일 scene·runtime의 SitePreview를 소형·대형으로 쓴다', () => {
-    assert.ok((motion.match(/<SitePreview/g) ?? []).length >= 2);
+    assert.ok((`${motion}\n${immersive}`.match(/<SitePreview/g) ?? []).length >= 2);
     assert.match(motion, /실제 렌더러 티저/);
     assert.match(motion, /동일한 scene 계약·런타임/);
+    assert.match(immersive, /motion=\{!reducedMotion\}/);
     assert.doesNotMatch(motion, /@keyframes hvm-|HeroMotionDemo/);
   });
 
@@ -37,7 +39,7 @@ describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () 
     for (const banned of ['fetch(', '/api/sites/', 'generateVeoVideo', 'generateHeroVideo']) {
       assert.ok(!motion.includes(banned), `미리보기에 금지된 영상 호출: ${banned}`);
     }
-    assert.match(motion, /<SitePreview[\s\S]*motion/);
+    assert.match(immersive, /<SitePreview[\s\S]*motion=\{!reducedMotion\}/);
     assert.match(motion, /mobileFallback/);
   });
 

@@ -5,8 +5,9 @@
  * 1) 가벼운 기본 모션은 자동, 2) 페이지 시그니처는 실제 renderer로 체험,
  * 3) AI 영상은 지원 시그니처에서만 별도 애드온 의사를 기록한다.
  */
-import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Film, Gauge, ImageIcon, MonitorPlay, Smartphone } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useCallback, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, Expand, Film, Gauge, ImageIcon, MonitorPlay, Smartphone } from 'lucide-react';
 import type { DesignCandidate, SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
 import type { ProductionMotionSignatureId } from '@/lib/types/site';
 import { hasVideoAddon } from '@/lib/services/entitlements';
@@ -24,6 +25,18 @@ import type { MotionChoiceDto } from '../api';
 import { SitePreview } from '../site-preview';
 import { Button, Card, cn } from '../ui';
 import { HeroMotionUpsellPreview } from './hero-motion-upsell-preview';
+
+const MotionImmersivePreview = dynamic(
+  () => import('./motion-immersive-preview').then((module) => module.MotionImmersivePreview),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="fixed inset-0 z-[120] grid place-items-center bg-[#07162f]/95 text-sm font-semibold text-white" role="status">
+        실제 연출을 준비하고 있어요…
+      </div>
+    ),
+  },
+);
 
 /** 기존 W2 호출자를 깨지 않으면서 새 signature 선택을 같은 DTO에 저장한다. */
 export function motionChoiceForVideoPreference(
@@ -121,7 +134,9 @@ export function MotionChoiceStep({
     ? initialId
     : previewOptions[0]?.spec.id;
   const [signatureId, setSignatureId] = useState<ProductionMotionSignatureId | undefined>(defaultId);
+  const [previewingSignatureId, setPreviewingSignatureId] = useState<ProductionMotionSignatureId>();
   const selected = previewOptions.find(({ spec }) => spec.id === signatureId);
+  const immersive = previewOptions.find(({ spec }) => spec.id === previewingSignatureId);
   const videoRequired = selected?.spec.mediaCapability === 'video-required';
   const supportsVideo = selected?.spec.mediaCapability === 'video-required' || selected?.spec.mediaCapability === 'image-or-video';
   const [wantsVideo, setWantsVideo] = useState(() => initialVideoPreference(supportsVideo, videoRequired, initial));
@@ -141,14 +156,17 @@ export function MotionChoiceStep({
       onComplete({ heroTechnique: 'ken-burns', intensity: 'subtle' });
       return;
     }
-    const video = Boolean(supportsVideo && (videoRequired || wantsVideo));
-    const legacyMotionId: HeroVideoMotionId | undefined = signatureId === 'scrollytelling-manifesto'
+    const video = Boolean(supportsVideo && wantsVideo);
+    const submittedSignatureId = videoRequired && !video ? undefined : signatureId;
+    const legacyMotionId: HeroVideoMotionId | undefined = submittedSignatureId === 'scrollytelling-manifesto'
       ? 'scrollytelling-manifesto'
-      : signatureId === 'cinematic-scrub'
+      : submittedSignatureId === 'cinematic-scrub'
         ? 'cinematic-scrub'
         : undefined;
-    onComplete(motionChoiceForVideoPreference(video, 'space-mood', legacyMotionId, signatureId));
+    onComplete(motionChoiceForVideoPreference(video, 'space-mood', legacyMotionId, submittedSignatureId));
   };
+
+  const closeImmersive = useCallback(() => setPreviewingSignatureId(undefined), []);
 
   return (
     <Card className="space-y-6 border-ob-border bg-ob-surface p-6">
@@ -167,26 +185,28 @@ export function MotionChoiceStep({
           {previewOptions.map(({ spec, preview }, index) => {
             const active = signatureId === spec.id;
             return (
-              <button
+              <article
                 key={spec.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => chooseSignature(spec.id as ProductionMotionSignatureId)}
                 className={cn(
                   'overflow-hidden rounded-ob border bg-ob-surface text-left transition-colors',
                   active ? 'border-ob-accent-strong ring-1 ring-ob-accent' : 'border-ob-border hover:border-ob-muted',
                 )}
               >
+                <button
+                  type="button"
+                  onClick={() => setPreviewingSignatureId(spec.id as ProductionMotionSignatureId)}
+                  className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ob-accent-strong"
+                  aria-label={`${spec.label} 전체 화면 예시 열기`}
+                >
                 <div className="pointer-events-none relative bg-ob-bg">
                   <SitePreview
                     config={preview.config}
                     mode="desktop"
                     maxHeight={compactPreviewHeight(spec)}
-                    motion
                     previewAsAddon={spec.tier === 'premium'}
                   />
                   <span className="absolute top-2 left-2 z-[70] rounded-full border border-white/25 bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
-                    실제 렌더러 티저
+                    실제 렌더러 티저 · 눌러서 체험
                   </span>
                 </div>
                 <span className="block space-y-2 p-3.5">
@@ -200,7 +220,25 @@ export function MotionChoiceStep({
                   </span>
                   <span className="block text-[11px] font-medium text-ob-ink">{mediaRequirement(spec)}</span>
                 </span>
-              </button>
+                </button>
+                <div className="flex items-center justify-between gap-2 border-t border-ob-border px-3.5 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewingSignatureId(spec.id as ProductionMotionSignatureId)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-ob-accent-strong hover:underline"
+                  >
+                    <Expand className="h-3.5 w-3.5" /> 크게 체험
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => chooseSignature(spec.id as ProductionMotionSignatureId)}
+                    className={cn('rounded-full px-3 py-1.5 text-[11px] font-semibold', active ? 'bg-ob-accent-strong text-white' : 'border border-ob-border text-ob-ink hover:border-ob-muted')}
+                  >
+                    {active ? '선택됨' : '이 연출 선택'}
+                  </button>
+                </div>
+              </article>
             );
           })}
         </div>
@@ -228,21 +266,22 @@ export function MotionChoiceStep({
               <Smartphone className="h-3 w-3" /> 모바일은 세로형으로 자동 전환
             </span>
           </div>
-          <div className="relative overflow-hidden rounded-ob border border-ob-border bg-ob-surface">
-            <SitePreview
-              config={selected.preview.config}
-              mode="desktop"
-              maxHeight={520}
-              scroll
-              motion
-              previewAsAddon={selected.spec.tier === 'premium'}
-            />
-            {selected.preview.usesRepresentativeMedia ? (
-              <span className="pointer-events-none absolute right-2 bottom-2 z-[70] rounded-full border border-white/25 bg-black/70 px-2.5 py-1 text-[9px] font-semibold text-white">
-                움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님
+          <button
+            type="button"
+            onClick={() => setPreviewingSignatureId(selected.spec.id as ProductionMotionSignatureId)}
+            className="flex w-full items-center justify-between gap-4 rounded-ob border border-ob-border bg-ob-surface p-4 text-left transition-colors hover:border-ob-accent-strong"
+          >
+            <span>
+              <span className="block text-sm font-semibold text-ob-ink">전체 화면에서 실제 스크롤로 체험</span>
+              <span className="mt-1 block text-xs leading-5 text-ob-muted">
+                작은 카드에서 보이지 않던 진입·전환·마무리까지 고객님의 디자인으로 확인합니다.
               </span>
-            ) : null}
-          </div>
+            </span>
+            <Expand className="h-5 w-5 shrink-0 text-ob-accent-strong" />
+          </button>
+          {selected.preview.usesRepresentativeMedia ? (
+            <p className="text-[10px] leading-4 text-ob-muted">움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님</p>
+          ) : null}
         </div>
       ) : null}
 
@@ -269,10 +308,9 @@ export function MotionChoiceStep({
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
-              disabled={videoRequired}
               aria-pressed={!wantsVideo}
               onClick={() => setWantsVideo(false)}
-              className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border', videoRequired && 'cursor-not-allowed opacity-55')}
+              className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
               <span className="mt-2 block text-sm font-semibold text-ob-ink">정지 화면으로 유지하기</span>
@@ -303,6 +341,21 @@ export function MotionChoiceStep({
           {signatureId ? <><Check className="h-4 w-4" />이 움직임으로 계속</> : <>기본 모션으로 계속<ArrowRight className="h-4 w-4" /></>}
         </Button>
       </div>
+
+      {immersive ? (
+        <MotionImmersivePreview
+          config={immersive.preview.config}
+          spec={immersive.spec}
+          previewAsAddon={immersive.spec.tier === 'premium'}
+          usesRepresentativeMedia={immersive.preview.usesRepresentativeMedia}
+          selected={signatureId === immersive.spec.id}
+          onClose={closeImmersive}
+          onConfirm={() => {
+            chooseSignature(immersive.spec.id as ProductionMotionSignatureId);
+            closeImmersive();
+          }}
+        />
+      ) : null}
     </Card>
   );
 }
