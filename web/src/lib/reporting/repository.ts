@@ -10,6 +10,7 @@ import {
   normalizeClaimedAt,
   normalizeDeliveryResult,
   normalizeReportListLimit,
+  normalizeStaleReconciliation,
   type MonthlyReportRecord,
   type MonthlyReportsRepository,
 } from './repository-core';
@@ -137,6 +138,25 @@ export class SupabaseMonthlyReportsRepository implements MonthlyReportsRepositor
     });
     if (error) throw new Error(`monthly report mark result failed: ${error.message}`);
     return toRecord(data as MonthlyReportRow);
+  }
+
+  async reconcileStaleDeliveries(
+    input: Parameters<MonthlyReportsRepository['reconcileStaleDeliveries']>[0],
+  ): Promise<number> {
+    const normalized = normalizeStaleReconciliation(input);
+    const { data, error } = await getServiceRoleClient().rpc(
+      'reconcile_stale_monthly_report_deliveries',
+      {
+        p_before: normalized.beforeIso,
+        p_reconciled_at: normalized.reconciledAt,
+      },
+    );
+    if (error) throw new Error(`monthly report stale reconciliation failed: ${error.message}`);
+    const reconciled = Number(data);
+    if (!Number.isSafeInteger(reconciled) || reconciled < 0) {
+      throw new Error('MONTHLY_REPORT_RECONCILIATION_RESULT_INVALID');
+    }
+    return reconciled;
   }
 
   async purgeOlderThan(cutoffIso: string): Promise<number> {

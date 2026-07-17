@@ -5,6 +5,7 @@
 import type { LegalDocument } from '@/lib/legal/templates';
 import type { BusinessInfo, SiteTheme } from '@/lib/types/site';
 import { LegalFooter } from '@/components/site-renderer';
+import Link from 'next/link';
 
 export function LegalDocView({
   doc,
@@ -25,9 +26,9 @@ export function LegalDocView({
       }}
     >
       <main style={{ maxWidth: 760, margin: '0 auto', padding: '56px 24px 40px' }}>
-        <a href="/" style={{ color: theme.palette.muted, fontSize: 13, textDecoration: 'none' }}>
+        <Link href="/" style={{ color: theme.palette.muted, fontSize: 13, textDecoration: 'none' }}>
           ← 홈으로
-        </a>
+        </Link>
         <h1
           style={{
             fontFamily: theme.fonts.heading,

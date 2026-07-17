@@ -1,3 +1,10 @@
+import {
+  DIRECTIONS_HOSTS,
+  RESERVATION_HOSTS,
+  classifyTrackableHref,
+  isHostOrSubdomain,
+} from './trackable-actions';
+
 /**
  * RPT1 first-party site analytics contract.
  *
@@ -27,27 +34,6 @@ export const SITE_REFERRER_SOURCES = [
 ] as const;
 export type SiteReferrerSource = (typeof SITE_REFERRER_SOURCES)[number];
 
-const RESERVATION_HOSTS = [
-  'booking.naver.com',
-  'pf.kakao.com',
-  'baemin.com',
-  'baemin.me',
-  'yogiyo.co.kr',
-  'catchtable.co.kr',
-  'tabling.co.kr',
-] as const;
-
-const DIRECTIONS_HOSTS = [
-  'map.naver.com',
-  'map.kakao.com',
-  'maps.google.com',
-  'maps.app.goo.gl',
-] as const;
-
-function isHostOrSubdomain(hostname: string, domain: string): boolean {
-  return hostname === domain || hostname.endsWith(`.${domain}`);
-}
-
 /** Raw referrers are classified in-browser and are never placed in a beacon. */
 export function classifySiteReferrer(
   rawReferrer: string,
@@ -72,28 +58,7 @@ export function classifySiteClick(
   rawHref: string,
   baseUrl: string,
 ): Exclude<SiteEventName, 'pageview' | 'form'> | null {
-  try {
-    const url = new URL(rawHref, baseUrl);
-    if (url.protocol === 'tel:') return 'tel';
-    if (!['http:', 'https:'].includes(url.protocol)) return null;
-
-    const hostname = url.hostname.toLowerCase();
-    if (
-      DIRECTIONS_HOSTS.some((domain) => isHostOrSubdomain(hostname, domain)) ||
-      (/^(?:.+\.)?google\.[a-z.]+$/.test(hostname) && url.pathname.startsWith('/maps'))
-    ) {
-      return 'directions';
-    }
-    if (
-      RESERVATION_HOSTS.some((domain) => isHostOrSubdomain(hostname, domain)) ||
-      (isHostOrSubdomain(hostname, 'place.naver.com') && /\/(?:booking|reserve)(?:\/|$)/i.test(url.pathname))
-    ) {
-      return 'reserve';
-    }
-    return null;
-  } catch {
-    return null;
-  }
+  return classifyTrackableHref(rawHref, baseUrl);
 }
 
 /** Resolve the platform collector used by ZIP exports hosted on another origin. */
@@ -142,7 +107,11 @@ export function buildSiteBeaconRuntime(input: SiteBeaconRuntimeInput): string {
   const reserveHosts = JSON.stringify(RESERVATION_HOSTS);
   const directionsHosts = JSON.stringify(DIRECTIONS_HOSTS);
 
-  return `!function(d,l,n){var I=${siteId},U=${endpoint},R=${reserveHosts},D=${directionsHosts},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(h(a,'naver.com'))return'naver';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var b=JSON.stringify({siteId:I,event:e,source:S});try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('[data-daboim-action],a[href]');if(!a)return;var t=a.getAttribute('data-daboim-action');if(t==='tel'||t==='reserve'||t==='directions')return p(t);var x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';else if(R.some(function(v){return h(o,v)})||h(o,'place.naver.com')&&/\\/(booking|reserve)(\\/|$)/i.test(q))t='reserve';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='loading'?d.addEventListener('DOMContentLoaded',i,{once:true}):setTimeout(i,0)}(document,location,navigator);`;
+  const runtime = `!function(d,l,n){var I=${siteId},U=${endpoint},R=${reserveHosts},D=${directionsHosts},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(h(a,'naver.com'))return'naver';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var b=JSON.stringify({siteId:I,event:e,source:S});try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var t,x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';else if(R.some(function(v){return h(o,v)})||h(o,'place.naver.com')&&/\\/(booking|reserve)(\\/|$)/i.test(q))t='reserve';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='complete'?setTimeout(i,0):d.addEventListener('DOMContentLoaded',i,{once:true})}(document,location,navigator);`;
+  if (new TextEncoder().encode(runtime).byteLength > SITE_BEACON_MAX_BYTES) {
+    throw new Error(`SITE_BEACON_TOO_LARGE: runtime exceeds ${SITE_BEACON_MAX_BYTES} UTF-8 bytes`);
+  }
+  return runtime;
 }
 
 /** Notify the beacon only after the first-party contact endpoint confirms success. */

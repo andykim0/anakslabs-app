@@ -5,11 +5,19 @@ import { getMockStore, resetMockStore } from '@/lib/data/mock/store';
 import { MockSiteEventsRepo } from '@/lib/data/mock/site-events';
 import { MockMonthlyReportsRepository } from '../repository-mock';
 import {
+  REPORT_DELIVERY_CONCURRENCY,
+  REPORT_DELIVERY_STALE_MS,
   reportDeliveryFailure,
   retryMonthlyReportCore,
   runMonthlyReportsCore,
   type MonthlyReportRunnerDependencies,
 } from '../runner-core';
+import { REPORT_EMAIL_TIMEOUT_MS } from '../resend-core';
+import {
+  REPORT_EMAIL_MAX_STARTS_PER_SECOND,
+  REPORT_EMAIL_START_INTERVAL_MS,
+  type ReportEmailRateGateTiming,
+} from '../start-rate-gate';
 
 const NOW = new Date('2026-07-17T03:00:00.000Z');
 
@@ -147,6 +155,134 @@ describe('RPT2 monthly report runner', () => {
         dependencies: ctx.dependencies,
       }),
       'not_retryable',
+    );
+  });
+
+  test('provider acceptance followed by sent-state failure never becomes retryable failed', async () => {
+    const ctx = setup();
+    const original = ctx.reports.markDeliveryResult.bind(ctx.reports);
+    let rejectSentOnce = true;
+    ctx.reports.markDeliveryResult = async (input) => {
+      if (input.status === 'sent' && rejectSentOnce) {
+        rejectSentOnce = false;
+        throw new Error('transient database failure');
+      }
+      return original(input);
+    };
+    const result = await runMonthlyReportsCore(ctx.dependencies, NOW);
+    assert.equal(result.sentReports, 0);
+    assert.equal(result.unknownDeliveries, 1);
+    const [report] = await ctx.reports.listByClient({ clientId: DEMO_PREMIUM_ID });
+    assert.equal(report.deliveryStatus, 'delivery_unknown');
+    assert.equal(report.providerMessageId, 'resend-1');
+    assert.equal(report.lastErrorCode, 'RESEND_ACCEPTED_PERSISTENCE_UNKNOWN');
+    assert.equal(await ctx.reports.claimDelivery({ reportId: report.id }), null);
+  });
+
+  test('reconciles an abandoned sending lease before processing and never resends it', async () => {
+    const ctx = setup();
+    const inserted = await ctx.reports.insertIfAbsent({
+      siteId: HWARODAM_SITE_ID,
+      clientId: DEMO_PREMIUM_ID,
+      periodMonth: '2026-06',
+      report: {
+        schemaVersion: 1,
+        siteId: HWARODAM_SITE_ID,
+        period: {
+          month: '2026-06',
+          startDate: '2026-06-01',
+          endExclusiveDate: '2026-07-01',
+          startIso: '2026-05-31T15:00:00.000Z',
+          endExclusiveIso: '2026-06-30T15:00:00.000Z',
+        },
+        comparisonPeriod: {
+          month: '2026-05',
+          startDate: '2026-05-01',
+          endExclusiveDate: '2026-06-01',
+          startIso: '2026-04-30T15:00:00.000Z',
+          endExclusiveIso: '2026-05-31T15:00:00.000Z',
+        },
+        metrics: {
+          pageviews: { current: 0, previous: 0, changePercent: null },
+          phoneClicks: { current: 0, previous: 0, changePercent: null },
+          reservationClicks: { current: 0, previous: 0, changePercent: null },
+          directionsClicks: { current: 0, previous: 0, changePercent: null },
+          formSubmissions: { current: 0, previous: 0, changePercent: null },
+        },
+        sources: [],
+        hasCurrentData: false,
+        hasComparisonData: false,
+        insight: '이번 달에는 아직 집계된 방문과 행동이 없어요.',
+      },
+    });
+    await ctx.reports.claimDelivery({
+      reportId: inserted.record.id,
+      claimedAt: new Date(NOW.getTime() - REPORT_DELIVERY_STALE_MS - 1).toISOString(),
+    });
+
+    const result = await runMonthlyReportsCore(ctx.dependencies, NOW);
+    assert.equal(result.reconciledUnknownDeliveries, 1);
+    assert.equal(result.sentReports, 0);
+    assert.equal(ctx.sends(), 0);
+    assert.equal(
+      (await ctx.reports.getByIdForService(inserted.record.id))?.deliveryStatus,
+      'delivery_unknown',
+    );
+  });
+
+  test('bounds provider sends to eight workers within the route timeout budget', async () => {
+    const ctx = setup();
+    const store = getMockStore();
+    const sites = Array.from({ length: 12 }, (_, index) => ({
+      ...ctx.site,
+      id: `concurrency-site-${index}`,
+      name: `동시성 사이트 ${index}`,
+    }));
+    for (const site of sites) store.sites.set(site.id, site);
+
+    let entered = 0;
+    let inFlight = 0;
+    let maximumInFlight = 0;
+    let fakeNow = 0;
+    const starts: number[] = [];
+    const rateGateTiming: ReportEmailRateGateTiming = {
+      now: () => fakeNow,
+      sleep: async (ms) => { fakeNow += ms; },
+    };
+    const firstWave: Array<() => void> = [];
+    const sendEmail: MonthlyReportRunnerDependencies['sendEmail'] = async () => {
+      const position = ++entered;
+      inFlight += 1;
+      maximumInFlight = Math.max(maximumInFlight, inFlight);
+      starts.push(fakeNow);
+      if (position <= REPORT_DELIVERY_CONCURRENCY) {
+        await new Promise<void>((resolve) => {
+          firstWave.push(resolve);
+          if (firstWave.length === REPORT_DELIVERY_CONCURRENCY) {
+            for (const release of firstWave.splice(0)) release();
+          }
+        });
+      }
+      inFlight -= 1;
+      return { ok: true, providerId: `resend-${position}` };
+    };
+
+    const result = await runMonthlyReportsCore({
+      ...ctx.dependencies,
+      listSites: async () => sites,
+      sendEmail,
+    }, NOW, { rateGateTiming });
+    assert.equal(REPORT_DELIVERY_CONCURRENCY, 8);
+    assert.equal(maximumInFlight, REPORT_DELIVERY_CONCURRENCY);
+    assert.equal(result.sentReports, sites.length);
+    assert.equal(REPORT_EMAIL_MAX_STARTS_PER_SECOND, 5);
+    assert.deepEqual(
+      starts,
+      Array.from({ length: sites.length }, (_, index) => index * REPORT_EMAIL_START_INTERVAL_MS),
+    );
+    assert.ok(
+      (49 * REPORT_EMAIL_START_INTERVAL_MS) + REPORT_EMAIL_TIMEOUT_MS < 60_000,
+      'the launch batch provider budget must fit under maxDuration=60s',
     );
   });
 

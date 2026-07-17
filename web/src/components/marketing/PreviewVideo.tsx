@@ -8,30 +8,35 @@
  * CLS 0: aspect-video 고정 컨테이너. 에셋 부재 시 그라데이션 placeholder + onError 폴백.
  * Daboim 1080p MP4/WebM과 정적 WebP 포스터를 공용으로 사용한다.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 const POSTER_GRADIENT =
   'bg-[radial-gradient(circle_at_72%_28%,rgba(8,184,232,.2),transparent_28%),radial-gradient(circle_at_20%_82%,rgba(3,209,184,.12),transparent_32%),#F8FBFF]';
 
+const DESKTOP_QUERY = '(min-width: 768px)';
+
+function subscribeToDesktopQuery(onStoreChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener('change', onStoreChange);
+  return () => query.removeEventListener('change', onStoreChange);
+}
+
+const getDesktopSnapshot = () => window.matchMedia(DESKTOP_QUERY).matches;
+const getDesktopServerSnapshot = () => false;
+
 export function PreviewVideo({ mode, className }: { mode: 'inview' | 'hover'; className?: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion() ?? false;
-  const [mounted, setMounted] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
   const [failed, setFailed] = useState(false);
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktopQuery,
+    getDesktopSnapshot,
+    getDesktopServerSnapshot,
+  );
 
-  useEffect(() => {
-    setMounted(true);
-    const mq = window.matchMedia('(min-width: 768px)');
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
-  const canVideo = mounted && isDesktop && !reduce && !failed;
+  const canVideo = isDesktop && !reduce && !failed;
 
   // inview 모드: 진입 시에만 로드(play가 preload:none을 트리거)·재생, 이탈 시 pause
   useEffect(() => {

@@ -404,31 +404,16 @@ export function SelectCard({
  */
 export function StepFade({ children }: { children: React.ReactNode }) {
   const [shown, setShown] = useState(false);
-  const [reduce, setReduce] = useState(false);
   useEffect(() => {
-    const m =
-      typeof window !== 'undefined' && window.matchMedia
-        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        : false;
-    if (m) {
-      setReduce(true);
-      setShown(true);
-      return;
-    }
     const r = requestAnimationFrame(() => setShown(true));
     return () => cancelAnimationFrame(r);
   }, []);
   return (
     <div
-      style={
-        reduce
-          ? undefined
-          : {
-              opacity: shown ? 1 : 0,
-              transform: shown ? 'translateY(0)' : 'translateY(8px)',
-              transition: 'opacity 180ms ease, transform 180ms ease',
-            }
-      }
+      className={cn(
+        'transition-[opacity,transform] duration-[180ms] ease-[ease] motion-reduce:!translate-y-0 motion-reduce:!opacity-100 motion-reduce:!transition-none',
+        shown ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
+      )}
     >
       {children}
     </div>

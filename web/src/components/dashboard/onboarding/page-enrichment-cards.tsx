@@ -11,19 +11,25 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Sparkles, X } from 'lucide-react';
 import { detectPageEnrichments, pageEnrichmentStorageKey } from '@/lib/onboarding/page-enrichment';
 import { getSite } from '../api';
-import { cn } from '../ui';
 
 export function PageEnrichmentCards({ siteId }: { siteId: string }) {
   const { data: site } = useQuery({ queryKey: ['site', siteId], queryFn: () => getSite(siteId) });
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    let restoreFrame: number | undefined;
     try {
       const raw = localStorage.getItem(pageEnrichmentStorageKey(siteId));
-      if (raw) setDismissed(new Set(JSON.parse(raw) as string[]));
+      if (raw) {
+        const storedDismissed = new Set(JSON.parse(raw) as string[]);
+        restoreFrame = requestAnimationFrame(() => setDismissed(storedDismissed));
+      }
     } catch {
       /* localStorage 접근 불가 — 무시 */
     }
+    return () => {
+      if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
+    };
   }, [siteId]);
 
   const dismiss = (id: string) => {

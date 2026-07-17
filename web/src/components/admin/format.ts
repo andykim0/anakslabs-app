@@ -90,6 +90,7 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
   edit_structure: 'AI 전체 섹션 재디자인',
   refund: '환불',
   expired: '만료 소멸',
+  admin_clawback: '지급분 회수',
   admin_adjust: '관리자 조정',
 };
 

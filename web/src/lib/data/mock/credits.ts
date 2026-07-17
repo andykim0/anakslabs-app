@@ -81,8 +81,13 @@ export class MockCreditsService implements CreditsService {
     reason: CreditReason;
     referenceId?: string;
     idempotencyKey?: string;
+    /** Mock-only parity hook for append-only benefit transfer on payment refund. */
+    expiresAt?: string;
   }): Promise<void> {
     const store = getMockStore();
+    if (input.reason === 'admin_clawback') {
+      throw new Error('grant: admin_clawback은 서버 환불 정합 함수만 기록할 수 있습니다');
+    }
     if (!Number.isFinite(input.amount) || input.amount <= 0) {
       throw new Error(`grant: amount는 양수여야 합니다 (입력: ${input.amount})`);
     }
@@ -92,7 +97,10 @@ export class MockCreditsService implements CreditsService {
 
     const createdAt = nowIso();
     const expiresDays = CREDIT_EXPIRY_DAYS[input.reason] ?? 365;
-    const expiresAt = new Date(Date.now() + expiresDays * 86_400_000).toISOString();
+    const expiresAt = input.expiresAt ?? new Date(Date.now() + expiresDays * 86_400_000).toISOString();
+    if (!Number.isFinite(Date.parse(expiresAt))) {
+      throw new Error(`grant: expiresAt이 올바른 날짜가 아닙니다 (입력: ${expiresAt})`);
+    }
     const entryId = newId(store, 'led');
 
     store.ledger.push({
@@ -122,6 +130,9 @@ export class MockCreditsService implements CreditsService {
     referenceId?: string;
   }): Promise<ConsumeResult> {
     const store = getMockStore();
+    if (input.reason === 'admin_clawback') {
+      throw new Error('consume: admin_clawback은 서버 환불 정합 함수만 기록할 수 있습니다');
+    }
     if (!Number.isFinite(input.amount) || input.amount <= 0) {
       throw new Error(`consume: amount는 양수여야 합니다 (입력: ${input.amount})`);
     }
@@ -184,7 +195,8 @@ export class MockCreditsService implements CreditsService {
 
   /**
    * [§3] 환불 시 특정 지급(referenceId)으로 생성된 lot의 미사용 잔여를
-   * admin_adjust 음수 원장으로 회수. 회수액 반환 (SQL admin_refund_payment와 동일 의미).
+   * 양수 lot id를 직접 가리키는 admin_clawback 음수 원장으로 회수.
+   * 일반 admin_adjust/FIFO 소진과 섞이지 않는다. 회수액 반환.
    */
   async clawbackGrant(input: {
     clientId: string;
@@ -203,20 +215,19 @@ export class MockCreditsService implements CreditsService {
     for (const g of grantEntries) {
       const lot = store.lots.find((l) => l.entryId === g.id);
       if (lot && lot.remaining > 0) {
-        clawed += lot.remaining;
+        const amount = lot.remaining;
+        clawed += amount;
         lot.remaining = 0;
+        store.ledger.push({
+          id: newId(store, 'led'),
+          clientId: input.clientId,
+          amount: -amount,
+          reason: 'admin_clawback',
+          referenceId: g.id,
+          expiresAt: null,
+          createdAt: nowIso(),
+        });
       }
-    }
-    if (clawed > 0) {
-      store.ledger.push({
-        id: newId(store, 'led'),
-        clientId: input.clientId,
-        amount: -clawed,
-        reason: 'admin_adjust',
-        referenceId: input.referenceId,
-        expiresAt: null,
-        createdAt: nowIso(),
-      });
     }
     return clawed;
   }

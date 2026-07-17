@@ -16,12 +16,19 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
   const [done, setDone] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    let restoreFrame: number | undefined;
     try {
       const raw = localStorage.getItem(checklistStorageKey(siteId));
-      if (raw) setDone(new Set(JSON.parse(raw) as string[]));
+      if (raw) {
+        const storedDone = new Set(JSON.parse(raw) as string[]);
+        restoreFrame = requestAnimationFrame(() => setDone(storedDone));
+      }
     } catch {
       /* localStorage 접근 불가 — 무시 */
     }
+    return () => {
+      if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
+    };
   }, [siteId]);
 
   const toggle = (id: string) => {

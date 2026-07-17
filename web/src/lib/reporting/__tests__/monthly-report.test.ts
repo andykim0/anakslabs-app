@@ -73,7 +73,7 @@ describe('RPT2 monthly report core', () => {
     assert.equal(report.hasComparisonData, true);
     assert.equal(report.sources.reduce((sum, source) => sum + source.sharePercent, 0), 100);
     assert.equal(report.sources.find((source) => source.source === 'naver')?.sharePercent, 60);
-    assert.equal(report.insight, '직접 방문 유입이 전월보다 100% 늘었어요.');
+    assert.equal(report.insight, '직접·사이트 내부 유입이 전월보다 100% 늘었어요.');
   });
 
   test('never invents a percentage from a zero baseline and rejects invalid aggregates', () => {
@@ -123,7 +123,7 @@ describe('RPT2 monthly report core', () => {
     assert.match(email.subject, /2026년 06월/);
     assert.match(email.html, /&lt;온화 &amp; 다이닝&gt;/);
     assert.doesNotMatch(email.html, /<온화/);
-    assert.match(email.html, /고유 방문자가 아닌 실제 페이지뷰/);
+    assert.match(email.html, /고유 방문자가 아니라 이 사이트에서 수집된 페이지 조회/);
     assert.match(email.html, /첫 리포트예요/);
     assert.match(email.text, /유입\(페이지뷰\): 3건 · 신규 집계/);
     assert.equal('to' in email, false);

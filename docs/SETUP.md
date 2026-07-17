@@ -170,7 +170,9 @@ CLOUDFLARE_ZONE_ID=...
 - **커스텀 도메인**(고객 소유): `/api/domains`가 Cloudflare custom_hostnames API로 등록 → 검증 CNAME/TXT 반환 → 고객이 DNS 추가 → SSL 자동 발급 → `active`. 100개까지 무료, 이후 $0.10/호스트네임/월.
 - 서빙 경로: 요청 host → `web/src/proxy.ts`가 파싱 → `/s/[domain]` rewrite → 발행본 SSR.
 - `INDEXNOW_SECRET`을 설정하면 발행 성공 뒤 canonical 페이지 URL을 네이버 IndexNow에 비동기 통지합니다. 각 도메인의 검증 키는 `/indexnow-key.txt`에서 제공되며, 통지 수락은 색인·순위를 보장하지 않습니다.
-- Vercel Cron: `web/vercel.json`에 `/api/cron/expire-credits` 매일 03:00 KST 등록됨(`CRON_SECRET` 검증).
+- Vercel Cron: `web/vercel.json`에 `/api/cron/expire-credits` 매일 03:00 KST,
+  `/api/cron/monthly-reports` 매일 09:15 KST 등록됨(`CRON_SECRET` 검증). 리포트 크론은
+  사이트·월 멱등키로 월 1회만 생성·발송하고, 같은 실행에서 월 구독 크레딧과 24개월 보관 정책을 집행합니다.
 
 ---
 
@@ -184,6 +186,7 @@ CLOUDFLARE_ZONE_ID=...
 - [ ] 커스텀 도메인: request → DNS 안내 → `active` 전이
 - [ ] 발행 후 `/indexnow-key.txt` 200 + 서버 로그에 IndexNow 오류 없음 확인
 - [ ] 크론: `expire_credits` 만료 처리
+- [ ] 크론: 활성 구독만 월간 리포트·2크레딧 지급, 실패 메일 재발송 상태, 24개월 삭제 확인
 
 ### 월간 리포트 이메일 운영 준비 (Resend)
 
@@ -194,6 +197,11 @@ CLOUDFLARE_ZONE_ID=...
 4. 월간 리포트 크론의 실패 기록에서 재발송 가능한 건을 확인하고, 같은 리포트의 재시도에는
    동일한 idempotency key를 사용합니다. Resend의 provider-side key 보존 기간은 24시간이므로,
    장기 중복 방지는 DB의 월별 리포트 고유키와 발송 상태를 함께 신뢰합니다.
+5. Resend **Settings → Usage**에서 팀의 현재 API rate limit이 최소 10 requests/sec인지 확인합니다.
+   한도는 API 키별이 아니라 팀 전체 합산입니다. 리포트 실행은 코드에서 200ms 간격(최대
+   5 starts/sec)으로 제한하지만, 같은 팀의 다른 대량 발송과 크론 시간을 겹치지 않게 운영하고
+   Resend Logs에서 `429`를 점검합니다. 팀 한도가 5 requests/sec 미만이면 배포 전 코드의 발송
+   간격을 더 낮춰야 합니다. 기준: https://resend.com/docs/api-reference/rate-limit
 
 > **Ops 필수:** SPF·DKIM 인증과 실제 수신함 전달 테스트가 끝나기 전에는 이메일 발송 준비가
 > 완료된 것이 아닙니다. API 키나 발신 주소가 없거나 발송이 실패해도 리포트 생성·대시보드 열람은

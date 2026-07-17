@@ -86,6 +86,8 @@ export type CreditReason =
   | 'edit_structure'
   | 'refund'
   | 'expired'
+  /** 서버 전용: referenceId가 가리키는 양수 지급 lot만 직접 회수 */
+  | 'admin_clawback'
   | 'admin_adjust';
 
 export interface CreditLedgerEntry {
@@ -94,7 +96,7 @@ export interface CreditLedgerEntry {
   /** 양수 지급 / 음수 차감 */
   amount: number;
   reason: CreditReason;
-  /** edit_requests.id 또는 payments.id */
+  /** edit_requests.id, payments.id 또는 targeted 상쇄 시 원본 credit_ledger lot id */
   referenceId: string | null;
   /** 지급(양수) 행만: 만료 시각. 차감 행은 null */
   expiresAt: string | null;
@@ -289,6 +291,8 @@ export interface PagePlanItem {
  * [v4 Phase 4] targetPageSlug: 대상 섹션을 특정 페이지에서 찾도록 한정 (없으면 전 페이지 탐색).
  */
 export interface ExtraFeatureSelection {
+  /** 실제 외부 예약 서비스로 이동하는 히어로 주 CTA. 내부 앵커/임의 URL은 허용하지 않는다. */
+  reservationLink?: { url: string };
   contactForm?: { targetSection: SectionType; targetPageSlug?: string };
   mapEmbed?: { embedUrl: string; targetSection: SectionType; targetPageSlug?: string };
   snsLinks?: { kind: SnsKind; url: string; label?: string }[];

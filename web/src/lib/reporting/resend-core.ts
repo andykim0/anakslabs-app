@@ -1,7 +1,8 @@
 import type { MonthlyReportEmailMessage } from './types';
 
 const RESEND_EMAIL_ENDPOINT = 'https://api.resend.com/emails';
-const DEFAULT_TIMEOUT_MS = 10_000;
+/** Keeps an eight-wide 50-site launch batch inside a 60-second cron budget. */
+export const REPORT_EMAIL_TIMEOUT_MS = 5_000;
 
 export type ReportEmailSendFailureCode =
   | 'not_configured'
@@ -83,7 +84,10 @@ export async function sendReportEmailViaResend(
   }
 
   const controller = new AbortController();
-  const timeoutMs = Math.max(1, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  const requestedTimeout = options.timeoutMs ?? REPORT_EMAIL_TIMEOUT_MS;
+  const timeoutMs = Number.isFinite(requestedTimeout)
+    ? Math.min(REPORT_EMAIL_TIMEOUT_MS, Math.max(1, Math.floor(requestedTimeout)))
+    : REPORT_EMAIL_TIMEOUT_MS;
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await (options.fetchImpl ?? fetch)(RESEND_EMAIL_ENDPOINT, {

@@ -1,5 +1,6 @@
 /** mock site_events — 방문자 행 없이 일별 집계 키만 보관한다. */
 import type { SiteEventAggregate, SiteEventsRepo } from '../types';
+import { assertReportingCalendarDate } from '@/lib/reporting/retention';
 import { getMockStore } from './store';
 
 function keyOf(input: {
@@ -53,5 +54,17 @@ export class MockSiteEventsRepo implements SiteEventsRepo {
         || a.source.localeCompare(b.source)
       ))
       .map((row) => structuredClone(row));
+  }
+
+  async purgeBeforeDate(beforeDate: string): Promise<number> {
+    assertReportingCalendarDate(beforeDate);
+    const store = getMockStore();
+    let deleted = 0;
+    for (const [key, row] of store.siteEvents) {
+      if (row.eventDate >= beforeDate) continue;
+      store.siteEvents.delete(key);
+      deleted += 1;
+    }
+    return deleted;
   }
 }

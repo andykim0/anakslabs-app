@@ -99,7 +99,7 @@ export interface InsertMonthlyReportInput {
 export interface MarkMonthlyReportDeliveryInput {
   reportId: string;
   status: MonthlyReportDeliveryResultStatus;
-  /** Required for `sent`, forbidden otherwise. */
+  /** Required for `sent`; optional for `delivery_unknown` when the provider accepted the email. */
   providerMessageId?: string | null;
   /** Required for failed/unknown, forbidden for sent. Must be a stable code, not raw provider text. */
   errorCode?: string | null;
@@ -118,6 +118,8 @@ export interface MonthlyReportsRepository {
   /** Only pending/failed rows can be claimed. Ambiguous delivery is never auto-reclaimed. */
   claimDelivery(input: { reportId: string; claimedAt?: string }): Promise<MonthlyReportRecord | null>;
   markDeliveryResult(input: MarkMonthlyReportDeliveryInput): Promise<MonthlyReportRecord>;
+  /** Converts abandoned sending leases to review-only unknown; never retries them. */
+  reconcileStaleDeliveries(input: { beforeIso: string; reconciledAt?: string }): Promise<number>;
   /** Purges records whose report month is before the month containing this instant. */
   purgeOlderThan(cutoffIso: string): Promise<number>;
 }
@@ -159,12 +161,34 @@ export function normalizeDeliveryResult(input: MarkMonthlyReportDeliveryInput): 
     if (!providerMessageId || errorCode) {
       throw new TypeError('Sent delivery requires a provider message id and no error code');
     }
-  } else {
+  } else if (input.status === 'failed') {
     if (providerMessageId || !errorCode || !/^[A-Z0-9_:-]{1,80}$/.test(errorCode)) {
-      throw new TypeError('Failed/unknown delivery requires a stable non-PII error code');
+      throw new TypeError('Failed delivery requires a stable non-PII error code only');
     }
+  } else if (!errorCode || !/^[A-Z0-9_:-]{1,80}$/.test(errorCode)) {
+    throw new TypeError('Unknown delivery requires a stable non-PII error code');
+  }
+  if (providerMessageId && providerMessageId.length > 255) {
+    throw new TypeError('Provider message id is too long');
   }
   return { providerMessageId, errorCode, completedAt };
+}
+
+export function normalizeStaleReconciliation(input: {
+  beforeIso: string;
+  reconciledAt?: string;
+}): { beforeIso: string; reconciledAt: string } {
+  const reconciledAt = input.reconciledAt ?? new Date().toISOString();
+  if (!ISO_DATE_TIME.safeParse(input.beforeIso).success) {
+    throw new TypeError('Stale delivery boundary must be ISO-8601');
+  }
+  if (!ISO_DATE_TIME.safeParse(reconciledAt).success) {
+    throw new TypeError('Stale delivery reconciliation time must be ISO-8601');
+  }
+  if (Date.parse(input.beforeIso) >= Date.parse(reconciledAt)) {
+    throw new TypeError('Stale delivery boundary must precede reconciliation time');
+  }
+  return { beforeIso: input.beforeIso, reconciledAt };
 }
 
 export function normalizeClaimedAt(claimedAt: string | undefined): string {

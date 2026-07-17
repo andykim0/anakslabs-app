@@ -1,5 +1,6 @@
 /** Supabase site_events 일별 집계 저장소 — 모든 쓰기는 SECURITY DEFINER RPC 경유. */
 import type { SiteEventAggregate, SiteEventsRepo } from '../types';
+import { assertReportingCalendarDate } from '@/lib/reporting/retention';
 import { getServiceRoleClient } from './client';
 
 interface SiteEventRow {
@@ -45,5 +46,18 @@ export class SupabaseSiteEventsRepo implements SiteEventsRepo {
       .order('event_date', { ascending: true });
     if (error) throw new Error(`site_events 조회 실패: ${error.message}`);
     return ((data ?? []) as SiteEventRow[]).map(toAggregate);
+  }
+
+  async purgeBeforeDate(beforeDate: string): Promise<number> {
+    assertReportingCalendarDate(beforeDate);
+    const { data, error } = await getServiceRoleClient().rpc('purge_site_events', {
+      p_before_date: beforeDate,
+    });
+    if (error) throw new Error(`site_events 보관기간 삭제 실패: ${error.message}`);
+    const deleted = Number(data);
+    if (!Number.isSafeInteger(deleted) || deleted < 0) {
+      throw new Error('site_events 보관기간 삭제 결과가 올바르지 않습니다.');
+    }
+    return deleted;
   }
 }

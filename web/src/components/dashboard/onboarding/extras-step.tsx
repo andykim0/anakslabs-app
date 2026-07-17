@@ -10,12 +10,13 @@
  * - 전부 선택사항 — "건너뛰기" 명시 버튼.
  */
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, FormInput, Map as MapIcon, Plus, Share2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarCheck, FormInput, Map as MapIcon, Plus, Share2, X } from 'lucide-react';
 import type { ExtraFeatureSelection, SectionPlanItem, SnsKind, SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 import { SNS_BASES, hasHandleBase, snsUrlFromHandle } from '@/lib/onboarding/sns';
+import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
 import type { ExtrasOptionsDto } from '../api';
 import { Button, Card, cn } from '../ui';
 
@@ -109,6 +110,17 @@ export function ExtrasStep({
   const formRow = targets.find((t) => t.variant === 'contact:form');
   const mapRow = targets.find((t) => t.variant === 'contact:map');
 
+  // 실제 외부 예약 링크 — 예약이 목표일 때만 추천으로 켜고, URL은 사용자가 직접 확정한다.
+  // 레거시 survey.reservationUrl은 같은 엄격한 allowlist를 통과할 때만 편의상 프리필한다.
+  const initialReservationUrl = survey.reservationUrl && isRecognizedReservationUrl(survey.reservationUrl)
+    ? survey.reservationUrl
+    : '';
+  const [reservationOn, setReservationOn] = useState(
+    survey.siteGoal === 'reserve' || Boolean(initialReservationUrl),
+  );
+  const [reservationUrl, setReservationUrl] = useState(initialReservationUrl);
+  const reservationInvalid = reservationUrl.trim() !== '' && !isRecognizedReservationUrl(reservationUrl);
+
   // 문의 폼
   const [formOn, setFormOn] = useState(recommended.has('contactForm'));
   const [formFields, setFormFields] = useState<FormFieldKey[]>(['name', 'phone', 'message']);
@@ -141,6 +153,15 @@ export function ExtrasStep({
     const extras: ExtraFeatureSelection = {};
     const options: ExtrasOptionsDto = {};
 
+    if (reservationOn) {
+      const url = reservationUrl.trim();
+      if (!url || !isRecognizedReservationUrl(url)) {
+        setError('예약 링크를 확인해 주세요 — 지원하는 예약 서비스의 https:// 주소만 사용할 수 있어요.');
+        return;
+      }
+      extras.reservationLink = { url };
+    }
+
     if (formOn) {
       extras.contactForm = { targetSection: formTarget };
       options.formFields = formFields;
@@ -166,7 +187,7 @@ export function ExtrasStep({
       options.snsStyle = snsStyle;
     }
 
-    const any = extras.contactForm || extras.mapEmbed || extras.snsLinks;
+    const any = extras.reservationLink || extras.contactForm || extras.mapEmbed || extras.snsLinks;
     onComplete(any ? extras : undefined, any ? options : undefined);
   };
 
@@ -198,6 +219,41 @@ export function ExtrasStep({
           전부 선택사항이에요. {purpose ? `${purpose.label}에 추천하는 기능은 미리 켜뒀어요.` : ''} 생성 후 에디터에서도 추가·수정할 수 있어요.
         </p>
       </div>
+
+      {/* 예약 링크 — 의도 라벨이 아니라 실제 외부 href가 있을 때만 생성·집계 */}
+      <FeatureCard
+        icon={<CalendarCheck className="h-4.5 w-4.5" />}
+        title="예약 링크"
+        desc="히어로의 예약 버튼을 실제 예약 서비스로 연결해요. 예약이 목표일 때만 추천해요."
+        enabled={reservationOn}
+        onToggle={() => setReservationOn((value) => !value)}
+      >
+        <div>
+          <label htmlFor="reservation-url" className="mb-1 block text-[11px] text-ob-muted">
+            외부 예약 URL
+          </label>
+          <input
+            id="reservation-url"
+            value={reservationUrl}
+            onChange={(event) => setReservationUrl(event.target.value)}
+            placeholder="https://booking.naver.com/..."
+            inputMode="url"
+            autoComplete="url"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[11px] leading-4 text-ob-muted">
+            네이버 예약·카카오 채널·캐치테이블·테이블링·배민·요기요의 https 링크를 지원해요.
+          </p>
+          {reservationInvalid ? (
+            <p className="mt-1 text-[11px] text-ob-danger">
+              지원하지 않는 주소예요. 실제 예약 페이지의 https 링크를 입력해 주세요.
+            </p>
+          ) : null}
+          {reservationUrl.trim() && !reservationInvalid ? (
+            <p className="mt-1 text-[11px] text-ob-success">실제 예약 버튼으로 연결할 수 있어요.</p>
+          ) : null}
+        </div>
+      </FeatureCard>
 
       {/* 문의 폼 */}
       <FeatureCard

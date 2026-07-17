@@ -12,7 +12,17 @@ export type MockSubscriptionRenewalSource = 'payment_webhook' | 'admin_manual';
 
 interface MockSubscriptionData {
   states: Map<string, SiteSubscriptionState>;
-  renewalKeys: Set<string>;
+  renewals: Map<string, MockSubscriptionRenewal>;
+}
+
+interface MockSubscriptionRenewal {
+  clientId: string;
+  idempotencyKey: string;
+  source: MockSubscriptionRenewalSource;
+  paymentId: string | null;
+  periodStart: string;
+  periodEnd: string;
+  reversedAt: string | null;
 }
 
 // resetMockStore() swaps the MockStore object, so a WeakMap gives test/HMR reset
@@ -23,12 +33,23 @@ function data(): MockSubscriptionData {
   const store = getMockStore();
   let value = subscriptionsByStore.get(store);
   if (!value) {
-    value = { states: new Map(), renewalKeys: new Set() };
+    value = { states: new Map(), renewals: new Map() };
     // One-time compatibility bootstrap mirrors migration 0013. Payment rows
     // are never consulted again after this authoritative state is projected.
     const latestByClient = new Map<string, { clientId: string; createdAt: string }>();
     for (const payment of store.payments.values()) {
       if (payment.type !== 'maintenance_subscription' || payment.refundedAt) continue;
+      const periodEnd = addUtcCalendarMonthsClamped(new Date(payment.createdAt), 1);
+      const idempotencyKey = `bootstrap-payment:${payment.id}`;
+      value.renewals.set(idempotencyKey, {
+        clientId: payment.clientId,
+        idempotencyKey,
+        source: 'payment_webhook',
+        paymentId: payment.id,
+        periodStart: payment.createdAt,
+        periodEnd: periodEnd.toISOString(),
+        reversedAt: null,
+      });
       const current = latestByClient.get(payment.clientId);
       if (!current || payment.createdAt > current.createdAt) {
         latestByClient.set(payment.clientId, payment);
@@ -71,6 +92,7 @@ export function renewMockSiteSubscription(input: {
   clientId: string;
   idempotencyKey: string;
   source: MockSubscriptionRenewalSource;
+  paymentId?: string;
   periodMonths?: number;
   at?: Date;
 }): { duplicated: boolean; state: SiteSubscriptionState } {
@@ -84,12 +106,39 @@ export function renewMockSiteSubscription(input: {
   if (!Number.isInteger(months) || months < 1 || months > 12) {
     throw new Error('renewSiteSubscription: periodMonths must be an integer from 1 to 12');
   }
+  const paymentId = input.paymentId ?? null;
+  if ((input.source === 'payment_webhook') !== (paymentId !== null)) {
+    throw new Error('renewSiteSubscription: payment source/reference mismatch');
+  }
+  if (paymentId) {
+    const payment = store.payments.get(paymentId);
+    if (
+      !payment ||
+      payment.clientId !== input.clientId ||
+      payment.type !== 'maintenance_subscription' ||
+      payment.refundedAt
+    ) {
+      throw new Error('renewSiteSubscription: verified maintenance payment is required');
+    }
+  }
 
   const stateData = data();
   const existing = stateData.states.get(input.clientId);
-  if (stateData.renewalKeys.has(key)) {
+  const existingRenewal = stateData.renewals.get(key);
+  if (existingRenewal) {
+    if (existingRenewal.clientId !== input.clientId) {
+      throw new Error('renewSiteSubscription: idempotency key belongs to another owner');
+    }
     if (!existing) throw new Error('renewSiteSubscription: renewal key exists without state');
     return { duplicated: true, state: structuredClone(existing) };
+  }
+  if (
+    paymentId &&
+    [...stateData.renewals.values()].some(
+      (renewal) => renewal.paymentId === paymentId && renewal.reversedAt === null,
+    )
+  ) {
+    throw new Error('renewSiteSubscription: payment already belongs to a renewal');
   }
 
   const at = input.at ?? new Date();
@@ -106,8 +155,86 @@ export function renewMockSiteSubscription(input: {
     updatedAt: nowIso,
   };
   stateData.states.set(input.clientId, state);
-  stateData.renewalKeys.add(key);
+  stateData.renewals.set(key, {
+    clientId: input.clientId,
+    idempotencyKey: key,
+    source: input.source,
+    paymentId,
+    periodStart: new Date(periodStart).toISOString(),
+    periodEnd: nextEnd.toISOString(),
+    reversedAt: null,
+  });
   return { duplicated: false, state: structuredClone(state) };
+}
+
+export function assertMockSiteSubscriptionRefundEvidence(input: {
+  clientId: string;
+  paymentId: string;
+}): void {
+  const renewal = [...data().renewals.values()].find(
+    (candidate) =>
+      candidate.clientId === input.clientId &&
+      candidate.paymentId === input.paymentId &&
+      candidate.reversedAt === null,
+  );
+  if (!renewal) {
+    throw new Error('reconcileSiteSubscriptionRefund: verified renewal evidence is required');
+  }
+}
+
+/**
+ * A full maintenance-payment refund reverses only that paid period. The
+ * authoritative state is then rebuilt from non-reversed renewal evidence so a
+ * later payment/manual collection remains active. Partial refunds never call
+ * this function.
+ */
+export function reconcileMockSiteSubscriptionFullRefund(input: {
+  clientId: string;
+  paymentId: string;
+  at?: Date;
+}): { state: SiteSubscriptionState; replacementPaymentId: string | null } {
+  const at = input.at ?? new Date();
+  if (!Number.isFinite(at.getTime())) {
+    throw new Error('reconcileSiteSubscriptionRefund: invalid date');
+  }
+  const stateData = data();
+  const renewal = [...stateData.renewals.values()].find(
+    (candidate) =>
+      candidate.clientId === input.clientId &&
+      candidate.paymentId === input.paymentId &&
+      candidate.reversedAt === null,
+  );
+  if (!renewal) {
+    throw new Error('reconcileSiteSubscriptionRefund: verified renewal evidence is required');
+  }
+  renewal.reversedAt = at.toISOString();
+
+  const replacementRenewal = [...stateData.renewals.values()]
+    .filter((candidate) => candidate.clientId === input.clientId && candidate.reversedAt === null)
+    .reduce<MockSubscriptionRenewal | null>(
+      (latest, candidate) =>
+        latest === null || candidate.periodEnd > latest.periodEnd ? candidate : latest,
+      null,
+    );
+  const remainingPeriodEnd = replacementRenewal?.periodEnd ?? null;
+  const currentPeriodEnd = remainingPeriodEnd ?? at.toISOString();
+  const existingStatus = stateData.states.get(input.clientId)?.status;
+  const next: SiteSubscriptionState = {
+    clientId: input.clientId,
+    status:
+      Date.parse(currentPeriodEnd) <= at.getTime()
+        ? 'cancelled'
+        : existingStatus && existingStatus !== 'active'
+          ? existingStatus
+          : 'active',
+    currentPeriodEnd,
+    updatedAt: at.toISOString(),
+  };
+  stateData.states.set(input.clientId, next);
+  return {
+    state: structuredClone(next),
+    replacementPaymentId: replacementRenewal?.paymentId ?? null,
+  };
 }
 
 export function setMockSiteSubscriptionStatus(

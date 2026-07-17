@@ -20,6 +20,7 @@ import type {
 } from '@/lib/types/site';
 import { allSections, findPage } from '@/lib/types/site';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
+import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
 
 export interface ExtrasOptions {
   /** SNS 표현: 묶음 바(socialLinks) vs 개별 버튼(ButtonElement). 기본 bar */
@@ -119,10 +120,27 @@ export function applyExtraFeatures(
   extras: ExtraFeatureSelection | undefined,
   opts: ExtrasOptions = {},
 ): SiteConfig {
-  if (!extras || (!extras.contactForm && !extras.mapEmbed && !extras.snsLinks?.length)) return input;
+  if (!extras || (!extras.reservationLink && !extras.contactForm && !extras.mapEmbed && !extras.snsLinks?.length)) return input;
   const config = structuredClone(input);
   const theme = config.theme;
   const radius = theme.radius ?? 8;
+
+  // 실제 예약 URL을 선택한 경우에만 홈 히어로의 주 CTA를 외부 행동으로 승격한다.
+  // label/siteGoal/data 속성은 권한이 아니며, allowlist 밖 URL은 기존 내부 앵커를 그대로 보존한다.
+  if (extras.reservationLink && isRecognizedReservationUrl(extras.reservationLink.url)) {
+    const homeHero = config.pages.find((page) => page.slug === '')?.sections.find((section) => section.type === 'hero');
+    const hero = homeHero ?? allSections(config).find((section) => section.type === 'hero');
+    const primaryCta = hero?.elements.find(
+      (element): element is ButtonElement =>
+        element.kind === 'button' && element.id.includes('hero-cta') && !element.id.includes('cta2'),
+    ) ?? hero?.elements.find(
+      (element): element is ButtonElement => element.kind === 'button' && element.style.variant === 'solid',
+    );
+    if (primaryCta) {
+      primaryCta.href = extras.reservationLink.url;
+      primaryCta.label = '예약하기';
+    }
+  }
 
   // 지도 — contact:map 섹션 우선
   if (extras.mapEmbed && isSafeMapEmbedUrl(extras.mapEmbed.embedUrl)) {

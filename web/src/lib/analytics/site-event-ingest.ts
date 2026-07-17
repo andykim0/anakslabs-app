@@ -38,6 +38,8 @@ export function kstDateString(now: Date = new Date()): string {
 
 export interface SiteRateLimiter {
   allow(siteId: string, nowMs?: number): boolean;
+  /** Operational/test introspection only; keys are opaque site IDs, never visitor identifiers. */
+  bucketCount(): number;
 }
 
 /**
@@ -47,18 +49,65 @@ export interface SiteRateLimiter {
 export function createSiteRateLimiter(input: {
   limit: number;
   windowMs: number;
+  maxBuckets?: number;
 }): SiteRateLimiter {
-  const buckets = new Map<string, number[]>();
+  const maxBuckets = input.maxBuckets ?? 10_000;
+  if (
+    !Number.isSafeInteger(input.limit)
+    || input.limit < 1
+    || !Number.isFinite(input.windowMs)
+    || input.windowMs <= 0
+    || !Number.isSafeInteger(maxBuckets)
+    || maxBuckets < 1
+  ) {
+    throw new TypeError('site rate limiter requires positive finite limits');
+  }
+
+  const buckets = new Map<string, { hits: number[]; touchedAt: number }>();
+  let lastSweepAt = Number.NEGATIVE_INFINITY;
+
+  function sweepExpired(nowMs: number): void {
+    for (const [siteId, bucket] of buckets) {
+      const active = bucket.hits.filter((at) => nowMs - at < input.windowMs);
+      if (active.length === 0) buckets.delete(siteId);
+      else bucket.hits = active;
+    }
+    lastSweepAt = nowMs;
+  }
+
+  function reserveBucket(nowMs: number): void {
+    if (buckets.size < maxBuckets) return;
+    sweepExpired(nowMs);
+    if (buckets.size < maxBuckets) return;
+
+    let oldestSiteId: string | undefined;
+    let oldestTouchedAt = Number.POSITIVE_INFINITY;
+    for (const [siteId, bucket] of buckets) {
+      if (bucket.touchedAt >= oldestTouchedAt) continue;
+      oldestSiteId = siteId;
+      oldestTouchedAt = bucket.touchedAt;
+    }
+    if (oldestSiteId !== undefined) buckets.delete(oldestSiteId);
+  }
+
   return {
     allow(siteId, nowMs = Date.now()) {
-      const active = (buckets.get(siteId) ?? []).filter((at) => nowMs - at < input.windowMs);
+      if (!Number.isFinite(nowMs)) return false;
+      if (nowMs - lastSweepAt >= input.windowMs) sweepExpired(nowMs);
+
+      const existing = buckets.get(siteId);
+      const active = (existing?.hits ?? []).filter((at) => nowMs - at < input.windowMs);
       if (active.length >= input.limit) {
-        buckets.set(siteId, active);
+        buckets.set(siteId, { hits: active, touchedAt: nowMs });
         return false;
       }
+      if (!existing) reserveBucket(nowMs);
       active.push(nowMs);
-      buckets.set(siteId, active);
+      buckets.set(siteId, { hits: active, touchedAt: nowMs });
       return true;
+    },
+    bucketCount() {
+      return buckets.size;
     },
   };
 }

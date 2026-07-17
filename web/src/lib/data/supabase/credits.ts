@@ -43,6 +43,9 @@ export class SupabaseCreditsService implements CreditsService {
     referenceId?: string;
     idempotencyKey?: string;
   }): Promise<void> {
+    if (input.reason === 'admin_clawback') {
+      throw new Error('grant_credits: admin_clawback은 서버 환불 정합 함수만 기록할 수 있습니다');
+    }
     const svc = getServiceRoleClient();
     const { error } = await svc.rpc('grant_credits', {
       p_client_id: input.clientId,
@@ -62,6 +65,9 @@ export class SupabaseCreditsService implements CreditsService {
     reason: CreditReason;
     referenceId?: string;
   }): Promise<ConsumeResult> {
+    if (input.reason === 'admin_clawback') {
+      throw new Error('consume_credits: admin_clawback은 서버 환불 정합 함수만 기록할 수 있습니다');
+    }
     const svc = getServiceRoleClient();
     const { data, error } = await svc.rpc('consume_credits', {
       p_client_id: input.clientId,

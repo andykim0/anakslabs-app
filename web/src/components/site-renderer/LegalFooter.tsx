@@ -9,6 +9,10 @@
  * 순수 서버 컴포넌트 — 서빙(React)과 Export(renderToStaticMarkup) 양쪽에서 동일 출력.
  */
 import type { BusinessInfo, SiteTheme } from '@/lib/types/site';
+import {
+  businessDirectionsHref,
+  businessPhoneHref,
+} from '@/lib/analytics/trackable-actions';
 
 export function LegalFooter({
   info,
@@ -22,15 +26,26 @@ export function LegalFooter({
   privacyHref?: string;
   termsHref?: string;
 }) {
+  const phoneHref = businessPhoneHref(info.phone);
+  const directionsHref = info.address ? businessDirectionsHref(info.address) : undefined;
+  type FooterItem = { key: string; label: string; href?: string; external?: boolean };
   const items = [
-    info.businessName ? `상호 ${info.businessName}` : null,
-    `${info.isPersonal ? '운영자' : '대표'} ${info.ownerName}`,
-    info.businessNumber ? `사업자등록번호 ${info.businessNumber}` : null,
-    info.mailOrderNumber ? `통신판매업신고 ${info.mailOrderNumber}` : null,
-    info.address ? `주소 ${info.address}` : null,
-    `전화 ${info.phone}`,
-    info.email ? `이메일 ${info.email}` : null,
-  ].filter((x): x is string => Boolean(x));
+    info.businessName ? { key: 'business', label: `상호 ${info.businessName}` } : null,
+    { key: 'owner', label: `${info.isPersonal ? '운영자' : '대표'} ${info.ownerName}` },
+    info.businessNumber ? { key: 'number', label: `사업자등록번호 ${info.businessNumber}` } : null,
+    info.mailOrderNumber ? { key: 'mail-order', label: `통신판매업신고 ${info.mailOrderNumber}` } : null,
+    info.address
+      ? { key: 'address', label: `주소 ${info.address}`, href: directionsHref, external: true }
+      : null,
+    { key: 'phone', label: `전화 ${info.phone}`, href: phoneHref },
+    info.email ? { key: 'email', label: `이메일 ${info.email}` } : null,
+  ].filter((item): item is FooterItem => Boolean(item));
+
+  const actionStyle = {
+    color: 'inherit',
+    textDecoration: 'underline',
+    textUnderlineOffset: 2,
+  } as const;
 
   return (
     <footer
@@ -46,9 +61,17 @@ export function LegalFooter({
       }}
     >
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '6px 16px' }}>
-        {items.map((line, i) => (
-          <span key={i} style={{ whiteSpace: 'nowrap' }}>
-            {line}
+        {items.map((item) => (
+          <span key={item.key} style={{ whiteSpace: 'nowrap' }}>
+            {item.href ? (
+              <a
+                href={item.href}
+                {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                style={actionStyle}
+              >
+                {item.label}
+              </a>
+            ) : item.label}
           </span>
         ))}
       </div>

@@ -8,7 +8,7 @@ import 'server-only';
 import type { Site } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { slugifySiteName } from '@/lib/data/slug';
-import { privacyPolicy, termsOfService } from '@/lib/legal/templates';
+import { privacyPolicy, siteCollectsPersonalData, termsOfService } from '@/lib/legal/templates';
 import { buildExportZip, type BuildExportOptions } from './exporter';
 import { renderLegalDocHtml } from './legal-html';
 
@@ -33,7 +33,14 @@ export async function runSiteExport(site: Site, opts?: BuildExportOptions): Prom
         const theme = site.siteConfig.theme;
         const title = site.siteConfig.meta.title;
         legalOpts.legalPages = {
-          privacyHtml: renderLegalDocHtml(privacyPolicy(info), theme, info, title),
+          privacyHtml: renderLegalDocHtml(
+            privacyPolicy(info, {
+              collectsPersonalData: siteCollectsPersonalData(site.siteConfig),
+            }),
+            theme,
+            info,
+            title,
+          ),
           termsHtml: renderLegalDocHtml(termsOfService(info), theme, info, title),
         };
       }

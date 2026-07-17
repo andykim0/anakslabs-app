@@ -27,8 +27,8 @@ const DELIVERY_STATE: Record<
 > = {
   pending: { label: '이메일 발송 대기', tone: 'neutral' },
   sending: { label: '이메일 발송 중', tone: 'blue' },
-  sent: { label: '이메일 발송 완료', tone: 'emerald' },
-  failed: { label: '발송 실패 · 재시도 예정', tone: 'red' },
+  sent: { label: '이메일 발송 요청 접수', tone: 'emerald' },
+  failed: { label: '발송 실패 · 재발송 가능', tone: 'red' },
   delivery_unknown: { label: '발송 상태 확인 필요', tone: 'amber' },
 };
 
@@ -132,11 +132,13 @@ function ReportCard({
         </div>
 
         <div className="space-y-6 px-5 py-5 sm:px-6">
-          {!report.hasCurrentData ? (
+          {!report.hasComparisonData ? (
             <div className="rounded-xl border border-[#BBD0FA] bg-[#EDF4FF] px-4 py-3">
-              <p className="text-sm font-medium text-[#174DDA]">성과 데이터 수집을 시작했어요</p>
+              <p className="text-sm font-medium text-[#174DDA]">첫 비교 리포트를 준비하고 있어요</p>
               <p className="mt-1 text-xs leading-5 text-[#475467]">
-                방문과 고객 행동이 쌓이면 다음 리포트부터 전월 비교를 함께 보여드릴게요.
+                {report.hasCurrentData
+                  ? '이번 달 성과는 정상 집계됐어요. 다음 리포트부터 전월 비교를 함께 보여드릴게요.'
+                  : '방문과 고객 행동을 수집 중이에요. 데이터가 쌓이면 전월 비교를 함께 보여드릴게요.'}
               </p>
             </div>
           ) : null}

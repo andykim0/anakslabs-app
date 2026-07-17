@@ -8,6 +8,11 @@ import type {
   MonthlyReportsRepository,
 } from './repository-core';
 import type { ReportEmailSendResult } from './resend-core';
+import {
+  createReportEmailStartRateGate,
+  type ReportEmailRateGateTiming,
+  type ReportEmailStartRateGate,
+} from './start-rate-gate';
 
 export interface MonthlyReportRunnerDependencies {
   listSites(): Promise<Site[]>;
@@ -35,9 +40,18 @@ export interface MonthlyReportRunSummary {
   sentReports: number;
   failedDeliveries: number;
   unknownDeliveries: number;
+  reconciledUnknownDeliveries: number;
   skippedSites: number;
   pipelineErrors: number;
 }
+
+export interface MonthlyReportRunOptions {
+  /** Deterministic test seam; production uses a monotonic clock and real timers. */
+  rateGateTiming?: ReportEmailRateGateTiming;
+}
+
+export const REPORT_DELIVERY_CONCURRENCY = 8;
+export const REPORT_DELIVERY_STALE_MS = 15 * 60 * 1_000;
 
 function publishedSite(site: Site): boolean {
   return (
@@ -70,19 +84,17 @@ export function reportDeliveryFailure(result: Extract<ReportEmailSendResult, { o
   };
 }
 
-async function markPipelineFailure(
+async function markDeliverySafely(
   reports: MonthlyReportsRepository,
-  claimed: MonthlyReportRecord,
-): Promise<void> {
+  input: Parameters<MonthlyReportsRepository['markDeliveryResult']>[0],
+): Promise<boolean> {
   try {
-    await reports.markDeliveryResult({
-      reportId: claimed.id,
-      status: 'failed',
-      errorCode: 'REPORT_PIPELINE_ERROR',
-    });
+    await reports.markDeliveryResult(input);
+    return true;
   } catch {
-    // The cron summary exposes the pipeline error. Never replace the original
-    // failure with a second exception that could suppress other sites.
+    // A stale-lease reconciliation moves the abandoned `sending` row to
+    // delivery_unknown. Never guess `failed` after a possible provider send.
+    return false;
   }
 }
 
@@ -91,42 +103,97 @@ async function deliverReport(input: {
   site: Site;
   client: Client | null;
   dependencies: MonthlyReportRunnerDependencies;
+  startRateGate: ReportEmailStartRateGate;
 }): Promise<'sent' | 'failed' | 'delivery_unknown' | 'pipeline_error'> {
-  const { dependencies, record, site, client } = input;
+  const { dependencies, record, site, client, startRateGate } = input;
   const claimed = await dependencies.reports.claimDelivery({ reportId: record.id });
   if (!claimed) return 'pipeline_error';
 
+  let message: ReturnType<typeof buildMonthlyReportEmail>;
   try {
-    const message = buildMonthlyReportEmail({
+    message = buildMonthlyReportEmail({
       siteName: site.name,
       dashboardUrl: dependencies.dashboardUrl,
       report: claimed.report,
     });
-    const result = await dependencies.sendEmail({
+  } catch {
+    const marked = await markDeliverySafely(dependencies.reports, {
+      reportId: claimed.id,
+      status: 'failed',
+      errorCode: 'REPORT_MESSAGE_BUILD_FAILED',
+    });
+    return marked ? 'failed' : 'pipeline_error';
+  }
+
+  let result: ReportEmailSendResult;
+  try {
+    await startRateGate.acquire();
+  } catch {
+    const marked = await markDeliverySafely(dependencies.reports, {
+      reportId: claimed.id,
+      status: 'failed',
+      errorCode: 'REPORT_EMAIL_RATE_GATE_FAILED',
+    });
+    return marked ? 'failed' : 'pipeline_error';
+  }
+  try {
+    result = await dependencies.sendEmail({
       to: client?.email ?? '',
       message,
       // Stable across manual retries. The database remains the long-lived
       // guard; Resend additionally deduplicates this key for 24 hours.
       idempotencyKey: `monthly-report:${claimed.id}`,
     });
-    if (result.ok) {
-      await dependencies.reports.markDeliveryResult({
-        reportId: claimed.id,
-        status: 'sent',
-        providerMessageId: result.providerId,
-      });
-      return 'sent';
-    }
-    const failure = reportDeliveryFailure(result);
-    await dependencies.reports.markDeliveryResult({
-      reportId: claimed.id,
-      ...failure,
-    });
-    return failure.status;
   } catch {
-    await markPipelineFailure(dependencies.reports, claimed);
-    return 'pipeline_error';
+    const marked = await markDeliverySafely(dependencies.reports, {
+      reportId: claimed.id,
+      status: 'delivery_unknown',
+      errorCode: 'RESEND_TRANSPORT_THROWN',
+    });
+    return marked ? 'delivery_unknown' : 'pipeline_error';
   }
+
+  if (result.ok) {
+    const sent = await markDeliverySafely(dependencies.reports, {
+      reportId: claimed.id,
+      status: 'sent',
+      providerMessageId: result.providerId,
+    });
+    if (sent) return 'sent';
+    // Provider acceptance is known, but durable sent-state is not. Preserve
+    // the provider id when the second DB attempt succeeds; never mark failed.
+    const unknown = await markDeliverySafely(dependencies.reports, {
+      reportId: claimed.id,
+      status: 'delivery_unknown',
+      providerMessageId: result.providerId,
+      errorCode: 'RESEND_ACCEPTED_PERSISTENCE_UNKNOWN',
+    });
+    return unknown ? 'delivery_unknown' : 'pipeline_error';
+  }
+  const failure = reportDeliveryFailure(result);
+  const marked = await markDeliverySafely(dependencies.reports, {
+    reportId: claimed.id,
+    ...failure,
+  });
+  return marked ? failure.status : 'pipeline_error';
+}
+
+async function runWithConcurrency<T>(
+  items: readonly T[],
+  concurrency: number,
+  task: (item: T) => Promise<void>,
+): Promise<void> {
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      await task(items[index]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, () => worker()),
+  );
 }
 
 /**
@@ -137,6 +204,7 @@ async function deliverReport(input: {
 export async function runMonthlyReportsCore(
   dependencies: MonthlyReportRunnerDependencies,
   now: Date = new Date(),
+  options: MonthlyReportRunOptions = {},
 ): Promise<MonthlyReportRunSummary> {
   const periods = previousMonthRangesKst(now);
   const sites = await dependencies.listSites();
@@ -148,15 +216,26 @@ export async function runMonthlyReportsCore(
     sentReports: 0,
     failedDeliveries: 0,
     unknownDeliveries: 0,
+    reconciledUnknownDeliveries: 0,
     skippedSites: 0,
     pipelineErrors: 0,
   };
   const eligibility = new Map<string, Promise<boolean>>();
+  const startRateGate = createReportEmailStartRateGate(options.rateGateTiming);
 
-  for (const site of sites) {
+  try {
+    summary.reconciledUnknownDeliveries = await dependencies.reports.reconcileStaleDeliveries({
+      beforeIso: new Date(now.getTime() - REPORT_DELIVERY_STALE_MS).toISOString(),
+      reconciledAt: now.toISOString(),
+    });
+  } catch {
+    summary.pipelineErrors += 1;
+  }
+
+  await runWithConcurrency(sites, REPORT_DELIVERY_CONCURRENCY, async (site) => {
     if (!publishedSite(site)) {
       summary.skippedSites += 1;
-      continue;
+      return;
     }
     try {
       let active = eligibility.get(site.clientId);
@@ -166,7 +245,7 @@ export async function runMonthlyReportsCore(
       }
       if (!(await active)) {
         summary.skippedSites += 1;
-        continue;
+        return;
       }
       summary.eligibleSites += 1;
 
@@ -199,13 +278,14 @@ export async function runMonthlyReportsCore(
 
       // Failed rows are explicitly retryable by an administrator. Do not run
       // an unbounded daily retry loop. Pending covers a prior crash before send.
-      if (inserted.record.deliveryStatus !== 'pending') continue;
+      if (inserted.record.deliveryStatus !== 'pending') return;
       const client = await dependencies.getClient(site.clientId);
       const delivery = await deliverReport({
         record: inserted.record,
         site,
         client,
         dependencies,
+        startRateGate,
       });
       if (delivery === 'sent') summary.sentReports += 1;
       else if (delivery === 'failed') summary.failedDeliveries += 1;
@@ -214,7 +294,7 @@ export async function runMonthlyReportsCore(
     } catch {
       summary.pipelineErrors += 1;
     }
-  }
+  });
   return summary;
 }
 
@@ -224,6 +304,7 @@ export async function retryMonthlyReportCore(input: {
   client: Client | null;
   subscriptionActive: boolean;
   dependencies: MonthlyReportRunnerDependencies;
+  rateGateTiming?: ReportEmailRateGateTiming;
 }): Promise<'sent' | 'failed' | 'delivery_unknown' | 'not_retryable' | 'ineligible'> {
   if (!input.subscriptionActive) return 'ineligible';
   if (input.report.deliveryStatus !== 'failed') return 'not_retryable';
@@ -232,6 +313,7 @@ export async function retryMonthlyReportCore(input: {
     site: input.site,
     client: input.client,
     dependencies: input.dependencies,
+    startRateGate: createReportEmailStartRateGate(input.rateGateTiming),
   });
   return result === 'pipeline_error' ? 'failed' : result;
 }

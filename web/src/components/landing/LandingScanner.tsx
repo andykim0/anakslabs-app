@@ -8,7 +8,7 @@
  * 카피 원칙: 수치는 실제 스캔 값 바인딩만(하드코딩 예시 금지),
  * 순위·노출 보장 표현 금지 — 상태 서술("검색·AI가 읽을 수 있는 100점 기반").
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Check, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
@@ -24,6 +24,10 @@ const SCAN_MESSAGES = [
 
 /** 입력창 예시 로테이션 (3초 fade, 입력 시작 시 정지) */
 const PLACEHOLDERS = ['예: mysite.co.kr', '예: 우리가게.com', '예: cafe-dodum.kr'];
+
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 async function requestScan(url: string): Promise<ScanResult> {
   const res = await fetch('/api/scan', {
@@ -191,9 +195,8 @@ export function LandingScanner() {
   const [error, setError] = useState('');
   const reduce = useReducedMotion() ?? false;
   const [phIdx, setPhIdx] = useState(0);
-  const [mounted, setMounted] = useState(false);
   // 하이드레이션 후에만 로테이션 오버레이 사용 — SSR/no-JS는 native placeholder(가시)로 LCP 보호
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerSnapshot);
   const rotatePh = mounted && !reduce && !url;
 
   // 예시 placeholder 로테이션 — 입력 시작(url 존재)·reduced-motion 시 정지

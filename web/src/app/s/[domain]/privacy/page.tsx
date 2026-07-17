@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { getDataServices } from '@/lib/data';
-import { privacyPolicy } from '@/lib/legal/templates';
+import { privacyPolicy, siteCollectsPersonalData } from '@/lib/legal/templates';
 import { LegalDocView } from '../LegalDocView';
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,8 @@ export default async function PrivacyPage({ params }: Props) {
   const tenant = await loadTenant(domain);
   if (!tenant?.businessInfo) notFound();
 
-  // Premium 폼/예약 등 개인정보 수집 기능 사용 여부(향후 site_config 스캔으로 대체 — 현재는 보수적 false)
-  const doc = privacyPolicy(tenant.businessInfo, { collectsPersonalData: false });
+  const doc = privacyPolicy(tenant.businessInfo, {
+    collectsPersonalData: siteCollectsPersonalData(tenant.site.siteConfig!),
+  });
   return <LegalDocView doc={doc} theme={tenant.site.siteConfig!.theme} info={tenant.businessInfo} />;
 }

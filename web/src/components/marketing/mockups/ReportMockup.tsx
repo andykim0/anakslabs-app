@@ -7,7 +7,7 @@
  * SSR 가시성: 서버/첫 페인트·reduced-motion 시 최종 상태로 그대로 출력(opacity:0 SSR 금지) —
  *   하이드레이션(mounted) 후에만 애니메이션 전환. transform/opacity·stroke만(CLS 0).
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { animate, motion, useInView, useReducedMotion } from 'framer-motion';
 import { Check, TriangleAlert, XCircle } from 'lucide-react';
 
@@ -27,23 +27,26 @@ const ITEMS = [
 const R = 26;
 const C = 2 * Math.PI * R;
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 function Ring({ label, score, color, live }: { label: string; score: number; color: string; live: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
-  const [n, setN] = useState(score);
+  const [animatedScore, setAnimatedScore] = useState(0);
 
   useEffect(() => {
-    if (!live) {
-      setN(score);
-      return;
-    }
-    if (!inView) {
-      setN(0);
-      return;
-    }
-    const c = animate(0, score, { duration: 1, ease: 'easeOut', onUpdate: (v) => setN(Math.round(v)) });
+    if (!live || !inView) return;
+    const c = animate(0, score, {
+      duration: 1,
+      ease: 'easeOut',
+      onUpdate: (value) => setAnimatedScore(Math.round(value)),
+    });
     return () => c.stop();
   }, [live, inView, score]);
+
+  const displayedScore = live ? animatedScore : score;
 
   const finalOffset = C * (1 - score / 100);
   return (
@@ -69,7 +72,7 @@ function Ring({ label, score, color, live }: { label: string; score: number; col
           className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular-nums"
           style={{ color }}
         >
-          {n}
+          {displayedScore}
         </span>
       </div>
       <span className="mt-1.5 text-[11px] font-medium text-[#5C6068]">{label}</span>
@@ -79,8 +82,7 @@ function Ring({ label, score, color, live }: { label: string; score: number; col
 
 export function ReportMockup({ className }: { className?: string }) {
   const reduce = useReducedMotion() ?? false;
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerSnapshot);
   const live = mounted && !reduce; // 서버/첫 페인트·reduced-motion에선 정적(최종 상태)
 
   return (

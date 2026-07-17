@@ -1,7 +1,7 @@
 /**
  * POST /api/onboarding/generate — 선택된 후보 + 설문 → SiteConfig 초안 생성 → 사이트(draft) 생성.
  * body: { survey, candidate, extras?, extrasOptions? } → { siteId }
- * [v3 Phase 3] extras(문의 폼·지도·SNS)는 생성 직후 applyExtraFeatures로 대상 섹션에 주입.
+ * [v3 Phase 3] extras(예약 CTA·문의 폼·지도·SNS)는 생성 직후 applyExtraFeatures로 대상 섹션에 주입.
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';

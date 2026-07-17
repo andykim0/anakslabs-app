@@ -14,6 +14,7 @@ import {
   PRODUCTION_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
 import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
+import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -897,6 +898,14 @@ export const surveySchema = z.object({
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */
 export const extraFeatureSelectionSchema = z.object({
+  reservationLink: z
+    .object({
+      url: z.string().max(2_000).refine(
+        isRecognizedReservationUrl,
+        '예약 링크는 지원하는 예약 서비스의 https:// 주소여야 합니다.',
+      ),
+    })
+    .optional(),
   contactForm: z
     .object({ targetSection: sectionTypeSchema, targetPageSlug: pageSlugSchema.optional() })
     .optional(),

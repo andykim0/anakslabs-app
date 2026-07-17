@@ -6,7 +6,12 @@ import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constan
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PRICING } from '@/lib/pricing';
 import { subscriptionGrantIdempotencyKey } from '@/lib/subscriptions/core';
-import { renewMockSiteSubscription } from '@/lib/subscriptions/mock';
+import {
+  assertMockSiteSubscriptionRefundEvidence,
+  getMockSiteSubscription,
+  reconcileMockSiteSubscriptionFullRefund,
+  renewMockSiteSubscription,
+} from '@/lib/subscriptions/mock';
 import type {
   Client,
   ClientStatus,
@@ -441,12 +446,9 @@ class MockPaymentsService implements PaymentsService {
           `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.monthly}`,
         );
       }
-      renewMockSiteSubscription({
-        clientId: payload.clientId,
-        idempotencyKey: `payment:${payload.providerPaymentKey}`,
-        source: 'payment_webhook',
-        at: processedAt,
-      });
+      // Freeze the one-time legacy projection before inserting this new
+      // payment, exactly as an already-applied migration would in real mode.
+      getMockSiteSubscription(payload.clientId);
       subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
       creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
     }
@@ -462,6 +464,24 @@ class MockPaymentsService implements PaymentsService {
     };
     store.payments.set(payment.id, payment);
     store.paymentKeys.set(payload.providerPaymentKey, payment.id);
+
+    if (payload.type === 'maintenance_subscription') {
+      try {
+        renewMockSiteSubscription({
+          clientId: payload.clientId,
+          idempotencyKey: `payment:${payload.providerPaymentKey}`,
+          source: 'payment_webhook',
+          paymentId: payment.id,
+          at: processedAt,
+        });
+      } catch (error) {
+        // Mirror the real RPC transaction boundary: renewal failure must not
+        // leave an accepted payment row without authoritative subscription evidence.
+        store.payments.delete(payment.id);
+        store.paymentKeys.delete(payload.providerPaymentKey);
+        throw error;
+      }
+    }
 
     if (payload.type === 'build_fee') {
       await this.credits.grant({
@@ -517,11 +537,32 @@ class MockPaymentsService implements PaymentsService {
     const store = getMockStore();
     const payment = store.payments.get(input.paymentId);
     if (!payment) throw new Error(`payments.refund: 결제가 없습니다 (${input.paymentId})`);
+    if (!Number.isInteger(input.amount)) {
+      throw new Error('payments.refund: amount는 원 단위 정수여야 합니다');
+    }
     if (input.amount < 0) throw new Error('payments.refund: amount는 0 이상이어야 합니다');
+    if (input.amount > payment.amount) {
+      throw new Error('payments.refund: amount는 결제 금액 이하여야 합니다');
+    }
     if (payment.refundedAt) return { ok: true, alreadyRefunded: true };
 
+    const isFullMaintenanceRefund =
+      payment.type === 'maintenance_subscription' && input.amount === payment.amount;
+    // Bootstrap legacy payment evidence before refundedAt makes that payment
+    // intentionally ineligible for compatibility projection.
+    if (isFullMaintenanceRefund) {
+      getMockSiteSubscription(payment.clientId);
+      // Preflight before any payment/ledger mutation so missing compatibility
+      // evidence cannot leave a half-refunded mock transaction.
+      assertMockSiteSubscriptionRefundEvidence({
+        clientId: payment.clientId,
+        paymentId: payment.id,
+      });
+    }
+
     // TODO(실모드): PG 환불 API 호출 후 성공 시 아래 기록/회수 실행.
-    payment.refundedAt = nowIso();
+    const refundedAt = nowIso();
+    payment.refundedAt = refundedAt;
     payment.refundAmount = input.amount;
 
     // build_fee 환불: 초기 지급 크레딧 미사용분 회수
@@ -531,6 +572,40 @@ class MockPaymentsService implements PaymentsService {
         referenceId: payment.id,
         grantReason: 'initial_grant',
       });
+    } else if (isFullMaintenanceRefund) {
+      const originalGrant = (await this.credits.getLedger(payment.clientId)).find(
+        (entry) =>
+          entry.referenceId === payment.id &&
+          entry.reason === 'subscription_grant' &&
+          entry.amount > 0,
+      );
+      const clawed = await this.credits.clawbackGrant({
+        clientId: payment.clientId,
+        referenceId: payment.id,
+        grantReason: 'subscription_grant',
+      });
+      const reconciliation = reconcileMockSiteSubscriptionFullRefund({
+        clientId: payment.clientId,
+        paymentId: payment.id,
+        at: new Date(refundedAt),
+      });
+      // The calendar grant key remains consumed by the reversed payment. If a
+      // later paid/manual period is still future-authoritative, transfer only
+      // the unused remainder (same expiry) so the month's two-credit benefit
+      // is neither lost nor doubled.
+      if (
+        clawed > 0 &&
+        Date.parse(reconciliation.state.currentPeriodEnd) > Date.parse(refundedAt)
+      ) {
+        await this.credits.grant({
+          clientId: payment.clientId,
+          amount: clawed,
+          reason: 'subscription_grant',
+          referenceId: reconciliation.replacementPaymentId ?? undefined,
+          idempotencyKey: `subscription_refund_regrant:${payment.id}`,
+          expiresAt: originalGrant?.expiresAt ?? undefined,
+        });
+      }
     }
     return { ok: true, alreadyRefunded: false };
   }

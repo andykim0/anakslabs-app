@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { sendReportEmailViaResend } from '../resend-core';
+import {
+  REPORT_EMAIL_TIMEOUT_MS,
+  sendReportEmailViaResend,
+} from '../resend-core';
 import type { MonthlyReportEmailMessage } from '../types';
 
 const message: MonthlyReportEmailMessage = {
@@ -59,6 +62,33 @@ describe('RPT2 Resend fail-soft transport', () => {
       code: 'request_failed',
       retryable: true,
       message: 'Resend request failed',
+    });
+  });
+
+  test('aborts a stalled provider request within the bounded delivery budget', async () => {
+    assert.equal(REPORT_EMAIL_TIMEOUT_MS, 5_000);
+    let observedSignal: AbortSignal | null = null;
+    let observedAbort = false;
+    const result = await sendReportEmailViaResend(validInput, {
+      timeoutMs: 5,
+      fetchImpl: async (_url, init) => new Promise<Response>((_resolve, reject) => {
+        observedSignal = init?.signal ?? null;
+        const abort = () => {
+          observedAbort = true;
+          const error = new Error('aborted');
+          error.name = 'AbortError';
+          reject(error);
+        };
+        if (observedSignal?.aborted) abort();
+        else observedSignal?.addEventListener('abort', abort, { once: true });
+      }),
+    });
+    assert.equal(observedAbort, true);
+    assert.deepEqual(result, {
+      ok: false,
+      code: 'request_failed',
+      retryable: true,
+      message: 'Resend request timed out',
     });
   });
 

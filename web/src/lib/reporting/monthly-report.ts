@@ -18,7 +18,7 @@ export const REPORT_SOURCE_LABELS = {
   naver: '네이버',
   google: '구글',
   instagram: '인스타그램',
-  direct: '직접 방문',
+  direct: '직접·사이트 내부',
   other: '기타',
 } as const satisfies Record<ReportReferrerSource, string>;
 

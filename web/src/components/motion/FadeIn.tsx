@@ -10,7 +10,11 @@
  * transform·opacity만 사용(CLS 0).
  */
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export function FadeIn({
   children,
@@ -22,8 +26,7 @@ export function FadeIn({
   className?: string;
 }) {
   const reduce = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerSnapshot);
 
   if (!mounted || reduce) return <div className={className}>{children}</div>;
   return (

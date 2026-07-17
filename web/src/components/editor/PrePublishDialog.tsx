@@ -8,8 +8,8 @@
  *  3단계 — 휴먼 3체크 후 발행 실행.
  * 서버도 사업자 정보 확인과 휴먼 3체크를 각각 요구한다(클라 우회 방지).
  */
-import { useEffect, useState } from 'react';
-import { CheckCircle2, Pencil, Rocket, ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle2, Pencil, Rocket } from 'lucide-react';
 import type { BusinessInfo } from '@/lib/types/site';
 import { useEditorStore } from '@/stores/editor';
 import { Modal } from '@/components/dashboard/modal';
@@ -51,13 +51,7 @@ function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
   );
 }
 
-export function PrePublishDialog({
-  open,
-  siteId,
-  publishing,
-  onClose,
-  onConfirmed,
-}: {
+type PrePublishDialogProps = {
   open: boolean;
   /** [G4] 발행 전 진단 조회 대상 */
   siteId: string;
@@ -65,25 +59,26 @@ export function PrePublishDialog({
   onClose: () => void;
   /** 발행 클릭 완료 — 실제로 체크한 값을 서버 요청에 전달 */
   onConfirmed: (humanChecks: PublishHumanChecks) => void;
-}) {
+};
+
+export function PrePublishDialog(props: PrePublishDialogProps) {
+  return <PrePublishDialogContent key={props.open ? 'open' : 'closed'} {...props} />;
+}
+
+function PrePublishDialogContent({
+  open,
+  siteId,
+  publishing,
+  onClose,
+  onConfirmed,
+}: PrePublishDialogProps) {
   const businessInfo = useEditorStore((s) => s.businessInfo);
   // [G4] 3단계: 0=진단 → 1=사업자정보 → 2=발행
   const [step, setStep] = useState<0 | 1 | 2>(0);
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(() => !businessInfo);
   const [confirmed, setConfirmed] = useState(false);
   const [humanChecks, setHumanChecks] = useState<PublishHumanChecks>(emptyPublishHumanChecks);
   const [qualityGateReady, setQualityGateReady] = useState(false);
-
-  // 열릴 때마다 초기화 — 진단부터. (사업자정보 미입력이면 그 단계에서 인라인 폼)
-  useEffect(() => {
-    if (open) {
-      setStep(0);
-      setEditing(!useEditorStore.getState().businessInfo);
-      setConfirmed(false);
-      setHumanChecks(emptyPublishHumanChecks());
-      setQualityGateReady(false);
-    }
-  }, [open]);
 
   // [G4] 개선 항목 '채우기' — 사업자정보는 그 단계로, 나머지는 다이얼로그 닫고 에디터에서 편집
   const handleFix = (anchor: FixAnchor) => {

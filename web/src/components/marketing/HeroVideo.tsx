@@ -4,14 +4,17 @@
  * 밝은 히어로 데이터 필드. 무료 진단의 가독성을 해치지 않으면서 발견 신호를 표현한다.
  * transform/opacity만 움직이며 reduced-motion에서는 정적 배경으로 남는다.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export function HeroVideo() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion() ?? false;
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerSnapshot);
 
   // 스크롤 시 영상이 살짝 줄며 가라앉는 시네마틱 전환 (transform/opacity만)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });

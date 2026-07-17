@@ -9,7 +9,7 @@
  * 유지한 무음 1080p MP4/WebM이다. 뷰포트 근접 시에만 소스를 마운트하고,
  * 모바일·reduced-motion은 포스터만 쓴다.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check, Search, Sparkles } from 'lucide-react';
 
@@ -19,22 +19,27 @@ const SIGNALS = [
   { label: 'GEO', sub: 'AI 인용 구조' },
 ];
 
+const DESKTOP_QUERY = '(min-width: 768px)';
+
+function subscribeToDesktopQuery(onStoreChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener('change', onStoreChange);
+  return () => query.removeEventListener('change', onStoreChange);
+}
+
+const getDesktopSnapshot = () => window.matchMedia(DESKTOP_QUERY).matches;
+const getDesktopServerSnapshot = () => false;
+
 export function OptimizationConsole() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion() ?? false;
-  const [mounted, setMounted] = useState(false);
   const [nearViewport, setNearViewport] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const mq = window.matchMedia('(min-width: 768px)');
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktopQuery,
+    getDesktopSnapshot,
+    getDesktopServerSnapshot,
+  );
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -49,7 +54,7 @@ export function OptimizationConsole() {
     return () => observer.disconnect();
   }, []);
 
-  const showVideo = mounted && nearViewport && isDesktop && !reduce;
+  const showVideo = nearViewport && isDesktop && !reduce;
 
   useEffect(() => {
     if (!showVideo) return;

@@ -5,10 +5,9 @@
  * 인증:
  *  - CRON_SECRET 설정 시: Authorization: Bearer {CRON_SECRET} 필수.
  *    (Vercel Cron은 프로젝트 env에 CRON_SECRET이 있으면 이 헤더를 자동으로 붙인다)
- *  - CRON_SECRET 미설정 시: Vercel cron 헤더(x-vercel-cron) 또는 mock 모드에서만 허용.
+ *  - CRON_SECRET 미설정 시: mock 모드에서만 허용. 실배포는 fail-closed.
  */
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import { getDataServices } from '@/lib/data';
 import { apiError, withApiHandler } from '../../_lib/http';
 import { isCronAuthorized } from '../_lib/auth';

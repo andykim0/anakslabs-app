@@ -5,7 +5,7 @@
  *
  * ⚠️ 실제 문안은 시행 전 변호사 검토 필요.
  */
-import type { BusinessInfo } from '@/lib/types/site';
+import type { BusinessInfo, SiteConfig } from '@/lib/types/site';
 
 export interface LegalSection {
   heading: string;
@@ -17,6 +17,33 @@ export interface LegalDocument {
   title: string;
   updatedNote: string;
   sections: LegalSection[];
+}
+
+/**
+ * RPT4 — 발행 사이트 성과 측정 고지의 단일 문구 소스.
+ *
+ * 비콘은 아래 열거형을 일별·사이트별 합계로만 저장한다. 원문 리퍼러나 폼 입력값처럼
+ * 방문자를 재식별할 수 있는 값을 방침 문구에 암시적으로 포함하지 않도록 고정한다.
+ */
+export const ANONYMOUS_SITE_EVENT_DISCLOSURE = {
+  heading: '익명 성과 측정 및 월간 리포트',
+  collected:
+    '페이지 조회, 전화·예약·길찾기 링크 클릭, 폼 제출 여부와 유입 출처 분류(네이버·구글·인스타그램·직접 방문/사이트 내부·기타)를 사이트·날짜 단위의 집계 건수로 저장합니다.',
+  purpose:
+    '집계 정보는 웹사이트 운영 성과 확인과 월간 성과 리포트 생성·제공에만 사용합니다.',
+  excluded:
+    '성과 측정 저장소에는 이름·연락처 등 개인정보, IP 주소, 원문 리퍼러(raw referrer), 방문자·세션 식별자, 폼 입력 내용을 저장하지 않습니다.',
+  retention:
+    '익명 집계 정보와 이를 바탕으로 생성한 월간 성과 리포트는 집계 기준월부터 24개월 동안 보관한 뒤 삭제합니다.',
+  legalReview:
+    '※ 법무 검토 대상: 익명 성과 측정의 수집 항목·보관 기간·고지 문구는 정식 방침 확정 시 갱신될 수 있습니다.',
+} as const;
+
+/** 실제 발행 config에 다보임 수신 폼이 있을 때만 개인정보 수집으로 고지한다. */
+export function siteCollectsPersonalData(config: SiteConfig): boolean {
+  return config.pages.some((page) =>
+    page.sections.some((section) => section.elements.some((element) => element.kind === 'form')),
+  );
 }
 
 function contactLine(info: BusinessInfo): string {
@@ -49,7 +76,8 @@ export function privacyPolicy(
 
   return {
     title: '개인정보처리방침',
-    updatedNote: '본 방침은 관련 법령 및 내부 방침에 따라 변경될 수 있습니다.',
+    updatedNote:
+      '본 방침은 관련 법령 및 내부 방침에 따라 변경될 수 있습니다. 익명 성과 측정 고지는 법무 검토 대상입니다.',
     sections: [
       {
         heading: '1. 개인정보의 수집 항목 및 방법',
@@ -65,25 +93,35 @@ export function privacyPolicy(
         ],
       },
       {
-        heading: '3. 개인정보의 보유 및 이용 기간',
+        heading: '3. 익명 성과 측정 및 월간 리포트',
+        body: [
+          ANONYMOUS_SITE_EVENT_DISCLOSURE.collected,
+          ANONYMOUS_SITE_EVENT_DISCLOSURE.purpose,
+          ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded,
+          ANONYMOUS_SITE_EVENT_DISCLOSURE.retention,
+          ANONYMOUS_SITE_EVENT_DISCLOSURE.legalReview,
+        ],
+      },
+      {
+        heading: '4. 개인정보의 보유 및 이용 기간',
         body: [
           '수집 목적 달성 후 지체 없이 파기함을 원칙으로 하며, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.',
         ],
       },
       {
-        heading: '4. 개인정보의 제3자 제공',
+        heading: '5. 개인정보의 제3자 제공',
         body: [
           '사업자는 이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다. 다만 법령에 특별한 규정이 있는 경우는 예외로 합니다.',
         ],
       },
       {
-        heading: '5. 이용자의 권리',
+        heading: '6. 이용자의 권리',
         body: [
           '이용자는 자신의 개인정보에 대한 열람·정정·삭제·처리정지를 언제든지 요청할 수 있으며, 사업자는 관련 법령에 따라 지체 없이 조치합니다.',
         ],
       },
       {
-        heading: '6. 개인정보 보호책임자',
+        heading: '7. 개인정보 보호책임자',
         body: [
           `개인정보 보호책임자: ${info.ownerName}`,
           `문의: ${info.phone}${info.email ? ` / ${info.email}` : ''}`,

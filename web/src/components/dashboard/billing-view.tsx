@@ -61,12 +61,20 @@ function SuspendedBanner() {
   );
 }
 
-const SUBSCRIPTION_STATUS_LABELS: Record<SiteSubscriptionStatus, string> = {
-  active: '이용 중',
+const INACTIVE_SUBSCRIPTION_STATUS_LABELS: Record<Exclude<SiteSubscriptionStatus, 'active'>, string> = {
   past_due: '결제 확인 필요',
   suspended: '일시중지',
   cancelled: '해지됨',
 };
+
+/** Display the canonical resolved entitlement, never the persisted status alone. */
+export function subscriptionStatusLabel(subscription: ResolvedSubscription): string {
+  const state = subscription.state;
+  if (!state) return '구독 전';
+  if (subscription.active) return '이용 중';
+  if (state.status === 'active') return '이용기간 만료';
+  return INACTIVE_SUBSCRIPTION_STATUS_LABELS[state.status];
+}
 
 function SubscriptionCard({
   tier,
@@ -77,7 +85,7 @@ function SubscriptionCard({
 }) {
   const mock = isMockMode();
   const state = subscription.state;
-  const statusLabel = state ? SUBSCRIPTION_STATUS_LABELS[state.status] : '구독 전';
+  const statusLabel = subscriptionStatusLabel(subscription);
 
   return (
     <Card className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">

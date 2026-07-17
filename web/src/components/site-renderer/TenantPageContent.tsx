@@ -46,7 +46,9 @@ export function TenantPageContent({
   analyticsEndpoint?: string;
 }) {
   const businessInfo = config.businessInfo ?? null;
-  const analyticsRuntime = siteId
+  // A legacy config without business information has no reachable tenant
+  // privacy page. Tracking therefore fails closed until the disclosure exists.
+  const analyticsRuntime = siteId && businessInfo
     ? buildSiteBeaconRuntime({ siteId, endpoint: analyticsEndpoint ?? SITE_EVENT_INGEST_PATH })
     : null;
   return (

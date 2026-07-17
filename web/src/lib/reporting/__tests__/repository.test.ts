@@ -42,7 +42,7 @@ function report(siteId: string, month: string, pageviews = 3): MonthlyPerformanc
     sources: [
       {
         source: 'direct',
-        label: '직접 방문',
+        label: '직접·사이트 내부',
         count: pageviews,
         previousCount: 0,
         sharePercent: pageviews > 0 ? 100 : 0,
@@ -165,6 +165,28 @@ describe('RPT2 monthly report repository', () => {
     assert.equal(await repo.claimDelivery({ reportId: unknown.record.id }), null);
   });
 
+  test('stale sending leases become review-only unknown and are never resent', async () => {
+    const repo = repository();
+    const inserted = await repo.insertIfAbsent({
+      siteId: HWARODAM_SITE_ID,
+      clientId: DEMO_PREMIUM_ID,
+      periodMonth: '2026-06',
+      report: report(HWARODAM_SITE_ID, '2026-06'),
+    });
+    await repo.claimDelivery({
+      reportId: inserted.record.id,
+      claimedAt: '2026-07-01T00:00:00.000Z',
+    });
+    assert.equal(await repo.reconcileStaleDeliveries({
+      beforeIso: '2026-07-01T00:10:00.000Z',
+      reconciledAt: '2026-07-01T00:15:00.000Z',
+    }), 1);
+    const record = await repo.getByIdForService(inserted.record.id);
+    assert.equal(record?.deliveryStatus, 'delivery_unknown');
+    assert.equal(record?.lastErrorCode, 'DELIVERY_STALE_REQUIRES_REVIEW');
+    assert.equal(await repo.claimDelivery({ reportId: inserted.record.id }), null);
+  });
+
   test('purges by report month and keeps the cutoff month', async () => {
     const repo = repository();
     for (const month of ['2024-06', '2024-07', '2026-06']) {
@@ -215,6 +237,7 @@ describe('RPT2 monthly report SQL contract', () => {
       'insert_monthly_site_report',
       'claim_monthly_report_delivery',
       'mark_monthly_report_delivery',
+      'reconcile_stale_monthly_report_deliveries',
       'purge_monthly_site_reports',
     ]) {
       assert.match(migration, new RegExp(`grant execute on function public\\.${routine}[^;]+to service_role`));
@@ -230,6 +253,18 @@ describe('RPT2 monthly report SQL contract', () => {
       /delivery_unknown|delivery_status\s*=\s*'sending'\s+or/i,
     );
     assert.match(migration, /delivery_attempts = delivery_attempts \+ 1/);
+    assert.match(migration, /where delivery_status = 'sending' and updated_at < p_before/);
+    assert.match(migration, /DELIVERY_STALE_REQUIRES_REVIEW/);
+    assert.match(migration, /monthly_site_reports_sending_updated_idx[\s\S]*where delivery_status = 'sending'/);
+    const unknownShape = migration.match(
+      /or \(delivery_status = 'delivery_unknown'([\s\S]*?)\n    or \(delivery_status in \('pending', 'sending'\)/,
+    )?.[1] ?? '';
+    assert.match(unknownShape, /last_error_code is not null/);
+    assert.doesNotMatch(
+      unknownShape,
+      /provider_message_id is null/,
+      'known provider acceptance must preserve its provider id in delivery_unknown',
+    );
   });
 
   test('insert derives owner from sites and cannot overwrite an existing monthly report', () => {

@@ -340,6 +340,8 @@ export interface SiteEventsRepo {
     fromDate: string;
     toDate: string;
   }): Promise<SiteEventAggregate[]>;
+  /** 24개월 보관 정책 집행. beforeDate 미만의 일별 익명 집계를 삭제한다. */
+  purgeBeforeDate(beforeDate: string): Promise<number>;
 }
 
 // ---------- [§2] QA 자동화 ----------

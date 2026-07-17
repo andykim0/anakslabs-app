@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import {
   SITE_EVENT_TYPES,
@@ -45,5 +46,29 @@ describe('RPT1 site event ingest invariants', () => {
     assert.equal(limiter.allow('site-a', 200), false);
     assert.equal(limiter.allow('site-b', 200), true);
     assert.equal(limiter.allow('site-a', 1_001), true);
+  });
+
+  test('limiter storage is TTL-cleaned and globally bounded', () => {
+    const limiter = createSiteRateLimiter({ limit: 2, windowMs: 1_000, maxBuckets: 2 });
+    assert.equal(limiter.allow('site-a', 0), true);
+    assert.equal(limiter.allow('site-b', 100), true);
+    assert.equal(limiter.bucketCount(), 2);
+
+    assert.equal(limiter.allow('site-c', 200), true);
+    assert.equal(limiter.bucketCount(), 2, 'oldest bucket is evicted at the global cap');
+
+    assert.equal(limiter.allow('site-d', 1_500), true);
+    assert.equal(limiter.bucketCount(), 1, 'expired buckets are removed before allocating a new one');
+  });
+
+  test('public route validates a published site before allocating its limiter bucket', () => {
+    const route = readFileSync(
+      new URL('../../../app/api/site-events/route.ts', import.meta.url),
+      'utf8',
+    );
+    const lookup = route.indexOf('services.sites.getById(parsed.data.siteId)');
+    const eligibility = route.indexOf('canCollectSiteEvents(site)');
+    const allocation = route.indexOf('limiter.allow(parsed.data.siteId)');
+    assert.ok(lookup >= 0 && eligibility > lookup && allocation > eligibility);
   });
 });

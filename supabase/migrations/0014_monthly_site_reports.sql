@@ -46,8 +46,11 @@ create table public.monthly_site_reports (
       and provider_message_id is not null
       and last_error_code is null
       and sent_at is not null)
-    or (delivery_status in ('failed', 'delivery_unknown')
+    or (delivery_status = 'failed'
       and provider_message_id is null
+      and last_error_code is not null
+      and sent_at is null)
+    or (delivery_status = 'delivery_unknown'
       and last_error_code is not null
       and sent_at is null)
     or (delivery_status in ('pending', 'sending')
@@ -63,6 +66,9 @@ create index monthly_site_reports_client_period_idx
 create index monthly_site_reports_delivery_idx
   on public.monthly_site_reports (delivery_status, period_month)
   where delivery_status in ('pending', 'failed');
+create index monthly_site_reports_sending_updated_idx
+  on public.monthly_site_reports (updated_at)
+  where delivery_status = 'sending';
 
 comment on table public.monthly_site_reports is
   '[RPT$] Anonymous aggregate monthly reports. Retained for 24 months by the report cron.';
@@ -174,10 +180,17 @@ begin
       or p_error_code is not null then
       raise exception 'mark_monthly_report_delivery: sent requires provider id only';
     end if;
-  elsif p_provider_message_id is not null
+  elsif p_status = 'failed' and (
+    p_provider_message_id is not null
     or p_error_code is null
-    or p_error_code !~ '^[A-Z0-9_:-]{1,80}$' then
-    raise exception 'mark_monthly_report_delivery: failed/unknown requires safe error code only';
+    or p_error_code !~ '^[A-Z0-9_:-]{1,80}$'
+  ) then
+    raise exception 'mark_monthly_report_delivery: failed requires safe error code only';
+  elsif p_status = 'delivery_unknown' and (
+    p_error_code is null
+    or p_error_code !~ '^[A-Z0-9_:-]{1,80}$'
+  ) then
+    raise exception 'mark_monthly_report_delivery: unknown requires safe error code';
   end if;
 
   update public.monthly_site_reports
@@ -193,6 +206,35 @@ begin
     raise exception 'mark_monthly_report_delivery: report is not claimed';
   end if;
   return to_jsonb(v_record);
+end;
+$$;
+
+-- A function crash can abandon a claimed row. Never resend it automatically:
+-- after a conservative lease, move it to review-only delivery_unknown.
+create or replace function public.reconcile_stale_monthly_report_deliveries(
+  p_before timestamptz,
+  p_reconciled_at timestamptz default now()
+)
+returns integer
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_reconciled integer;
+begin
+  if p_before is null or p_reconciled_at is null or p_before >= p_reconciled_at then
+    raise exception 'reconcile_stale_monthly_report_deliveries: invalid boundary';
+  end if;
+  update public.monthly_site_reports
+  set delivery_status = 'delivery_unknown',
+      last_error_code = 'DELIVERY_STALE_REQUIRES_REVIEW',
+      provider_message_id = null,
+      sent_at = null,
+      updated_at = p_reconciled_at
+  where delivery_status = 'sending' and updated_at < p_before;
+  get diagnostics v_reconciled = row_count;
+  return v_reconciled;
 end;
 $$;
 
@@ -221,10 +263,13 @@ revoke execute on function public.claim_monthly_report_delivery(uuid, timestampt
   from public, anon, authenticated;
 revoke execute on function public.mark_monthly_report_delivery(uuid, text, text, text, timestamptz)
   from public, anon, authenticated;
+revoke execute on function public.reconcile_stale_monthly_report_deliveries(timestamptz, timestamptz)
+  from public, anon, authenticated;
 revoke execute on function public.purge_monthly_site_reports(date)
   from public, anon, authenticated;
 
 grant execute on function public.insert_monthly_site_report(uuid, date, jsonb) to service_role;
 grant execute on function public.claim_monthly_report_delivery(uuid, timestamptz) to service_role;
 grant execute on function public.mark_monthly_report_delivery(uuid, text, text, text, timestamptz) to service_role;
+grant execute on function public.reconcile_stale_monthly_report_deliveries(timestamptz, timestamptz) to service_role;
 grant execute on function public.purge_monthly_site_reports(date) to service_role;

@@ -6,6 +6,7 @@ import {
   normalizeClaimedAt,
   normalizeDeliveryResult,
   normalizeReportListLimit,
+  normalizeStaleReconciliation,
   type MonthlyReportRecord,
   type MonthlyReportsRepository,
 } from './repository-core';
@@ -130,6 +131,27 @@ export class MockMonthlyReportsRepository implements MonthlyReportsRepository {
     };
     state.records.set(next.id, next);
     return copyRecord(next);
+  }
+
+  async reconcileStaleDeliveries(
+    input: Parameters<MonthlyReportsRepository['reconcileStaleDeliveries']>[0],
+  ): Promise<number> {
+    const normalized = normalizeStaleReconciliation(input);
+    const state = stateFor(this.store);
+    let reconciled = 0;
+    for (const [id, record] of state.records) {
+      if (record.deliveryStatus !== 'sending' || record.updatedAt >= normalized.beforeIso) continue;
+      state.records.set(id, {
+        ...record,
+        deliveryStatus: 'delivery_unknown',
+        lastErrorCode: 'DELIVERY_STALE_REQUIRES_REVIEW',
+        providerMessageId: null,
+        sentAt: null,
+        updatedAt: normalized.reconciledAt,
+      });
+      reconciled += 1;
+    }
+    return reconciled;
   }
 
   async purgeOlderThan(cutoffIso: string): Promise<number> {
