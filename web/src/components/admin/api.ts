@@ -19,6 +19,8 @@
  *  - GET   /api/admin/infra                   → AdminInfraStatus
  *  - GET   /api/admin/video-queue             → AdminVideoQueueResponse
  *  - POST  /api/admin/video-queue/:siteId/complete body { videoAssetId } → idempotent completion
+ *  - GET   /api/admin/edit-queue              → AdminEditQueueResponse
+ *  - POST  /api/admin/edit-queue/:id/complete → 요청 상태를 멱등하게 applied로 종료
  */
 import type {
   Client,
@@ -189,6 +191,29 @@ export interface AdminSubscriptionsResponse {
   items: AdminSubscriptionItem[];
 }
 
+export interface AdminEditQueueItem {
+  id: string;
+  clientId: string;
+  clientName: string;
+  siteId: string;
+  siteName: string;
+  siteStatus: SiteStatus | null;
+  type: EditType;
+  status: Extract<EditRequest['status'], 'pending' | 'ai_processing' | 'qa_review'>;
+  requestedContent: string;
+  createdAt: string;
+  waitingHours: number;
+  isInitialRevision: boolean;
+  /** 같은 request id를 referenceId로 가진 append-only 원장의 차감·환불 순액. */
+  netCreditCharge: number;
+  creditCharged: boolean;
+  ledgerEntryCount: number;
+}
+
+export interface AdminEditQueueResponse {
+  items: AdminEditQueueItem[];
+}
+
 // ---------- fetch 헬퍼 ----------
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -318,6 +343,22 @@ export function retryAdminMonthlyReport(
     {
       method: 'POST',
       body: JSON.stringify({ reportId }),
+    },
+  );
+}
+
+export function getAdminEditQueue(): Promise<AdminEditQueueResponse> {
+  return fetchJson<AdminEditQueueResponse>('/api/admin/edit-queue');
+}
+
+export function completeAdminEditRequest(
+  editRequestId: string,
+): Promise<{ ok: true; duplicated: boolean }> {
+  return fetchJson<{ ok: true; duplicated: boolean }>(
+    `/api/admin/edit-queue/${encodeURIComponent(editRequestId)}/complete`,
+    {
+      method: 'POST',
+      body: JSON.stringify({}),
     },
   );
 }
