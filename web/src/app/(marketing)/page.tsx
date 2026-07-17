@@ -128,7 +128,7 @@ const CORE_FEATURES = [
 
 const FAQS: FaqItem[] = [
   {
-    q: '아임웹 같은 범용 웹 빌더와 무엇이 다른가요?',
+    q: '일반 템플릿 빌더와 무엇이 다른가요?',
     a: '범용 빌더는 쇼핑·예약을 포함한 폭넓은 도구를 직접 조합하는 데 강점이 있습니다. Daboim은 비개발자 사업자의 업종 홈페이지에 집중해, 페이지 기획과 SEO·AEO·GEO 구조를 생성 기본값으로 제공하고 호스팅과 사이트 운영 구독까지 한 제품으로 묶습니다.',
   },
   {
@@ -269,7 +269,7 @@ export default function MarketingHome() {
               <div className="min-w-[820px]">
                 <div className="grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#DCE4F0] bg-[#F8FBFF] text-sm">
                   <div className="p-5" />
-                  <div className="p-5 font-medium text-[#667085]">범용 빌더 <span className="text-[#98A2B3]">(아임웹 등)</span></div>
+                  <div className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
                   <div className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
                   <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">Daboim</div>
                 </div>
