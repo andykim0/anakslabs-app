@@ -11,8 +11,9 @@
  *    토스 결제조회 API(GET /v1/payments/{paymentKey})를 호출해 status=DONE·orderId·totalAmount를
  *    재검증한 뒤에만 지급한다. 검증 실패 시 4xx 거부.
  *  - 지급량은 orderId 파싱값(공격자 통제 가능)만으로 결정하지 않는다:
- *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액 정확 일치, bf_ 주문은 티어 최소 계약가
- *    이상인지 검증. 불일치 = 지급 거부(수동 확인 로그).
+ *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액이 정확히 일치해야 하고, bf_ 주문도
+ *    pricing.ts에서 파생한 현재 티어별 제작비 조합과 정확히 일치해야 한다.
+ *    불일치 = 지급 거부(수동 확인 로그).
  *
  * 지원 페이로드:
  *  1) 내부 포맷 (mock 모드 전용): { providerPaymentKey, clientId, type, amount, tier?, creditsGranted? }
@@ -26,10 +27,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { PaymentType, Tier } from '@/lib/types/domain';
-import { CREDIT_PACKS, PRICE_RANGES } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { env, isMockMode } from '@/lib/env';
-import { PRICING } from '@/lib/pricing';
+import {
+  paymentAmountSubject,
+  validatePaymentAmount,
+} from '@/lib/payments/amount-policy';
 import { apiError, withApiHandler } from '../../_lib/http';
 
 const internalPayloadSchema = z.object({
@@ -84,28 +87,12 @@ function parseOrderId(orderId: string): ParsedOrder | null {
  * 반환: 문제 없으면 null, 문제 있으면 거부 사유.
  */
 function validateOrderAmount(order: ParsedOrder, totalAmount: number): string | null {
-  if (order.type === 'credit_pack') {
-    const pack = CREDIT_PACKS.find((p) => p.credits === order.creditsGranted);
-    if (!pack) {
-      return `존재하지 않는 크레딧 팩 (credits=${order.creditsGranted})`;
-    }
-    if (totalAmount !== pack.priceKrw) {
-      return `크레딧 팩 결제 금액 불일치 (팩 정가 ${pack.priceKrw}원, 실결제 ${totalAmount}원)`;
-    }
+  const subject = paymentAmountSubject(order);
+  if (!subject) {
+    return '결제 유형의 현재 가격 조합을 확정할 수 없습니다.';
   }
-  if (order.type === 'build_fee' && order.tier) {
-    const [minPrice] = PRICE_RANGES.buildFee[order.tier];
-    if (totalAmount < minPrice) {
-      return `빌드비 결제 금액이 ${order.tier} 최소 계약가(${minPrice}원) 미만 (실결제 ${totalAmount}원)`;
-    }
-  }
-  if (
-    order.type === 'maintenance_subscription'
-    && totalAmount !== PRICING.subscription.monthly
-  ) {
-    return `사이트 운영 구독 결제 금액 불일치 (월 ${PRICING.subscription.monthly}원, 실결제 ${totalAmount}원)`;
-  }
-  return null;
+  const validation = validatePaymentAmount(subject, totalAmount);
+  return validation.ok ? null : validation.message;
 }
 
 const TOSS_API_BASE = 'https://api.tosspayments.com';
@@ -173,6 +160,10 @@ export const POST = withApiHandler(async (request) => {
   if (isMockMode()) {
     const internal = internalPayloadSchema.safeParse(raw);
     if (internal.success) {
+      const amountError = validateOrderAmount(internal.data, internal.data.amount);
+      if (amountError) {
+        return apiError(400, 'AMOUNT_MISMATCH', `결제 금액 검증에 실패했습니다. (${amountError})`);
+      }
       const result = await getDataServices().payments.handleWebhook(internal.data);
       return NextResponse.json({ received: true, ...result });
     }
