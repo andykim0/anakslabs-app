@@ -17,6 +17,8 @@
  *  - POST  /api/admin/qa/:id/reject           body { reason } → { ok: true }
  *                                               (status→rejected + credits.refund(referenceId=편집요청 id))
  *  - GET   /api/admin/infra                   → AdminInfraStatus
+ *  - GET   /api/admin/video-queue             → AdminVideoQueueResponse
+ *  - POST  /api/admin/video-queue/:siteId/complete body { videoAssetId } → idempotent completion
  */
 import type {
   Client,
@@ -107,6 +109,42 @@ export interface AdminInfraStatus {
     maxPerSite: number;
     budgetKrwPerSite: number;
   };
+}
+
+export type AdminVideoQueueTimingSource = 'recorded' | 'site-created-fallback';
+
+export interface AdminVideoQueueItem {
+  siteId: string;
+  clientId: string;
+  clientName: string;
+  siteName: string;
+  siteStatus: SiteStatus;
+  industryClass: string;
+  heroImageUrl: string | null;
+  motionLabel: string;
+  videoConceptLabel: string | null;
+  requestedAt: string;
+  timingSource: AdminVideoQueueTimingSource;
+  waitingDays: number;
+  blockedReason: 'hero-source-missing' | null;
+}
+
+export interface AdminVideoFulfillmentHistoryItem {
+  id: string;
+  siteId: string;
+  siteName: string;
+  clientName: string;
+  videoAssetId: string;
+  canonicalVideoUrl: string;
+  posterUrl: string;
+  requestedAt: string;
+  timingSource: AdminVideoQueueTimingSource;
+  completedAt: string;
+}
+
+export interface AdminVideoQueueResponse {
+  items: AdminVideoQueueItem[];
+  recentCompletions: AdminVideoFulfillmentHistoryItem[];
 }
 
 // ---------- fetch 헬퍼 ----------
@@ -207,4 +245,21 @@ export function rejectQaRequest(id: string, reason: string): Promise<{ ok: true 
 
 export function getInfra(): Promise<AdminInfraStatus> {
   return fetchJson<AdminInfraStatus>('/api/admin/infra');
+}
+
+export function getVideoQueue(): Promise<AdminVideoQueueResponse> {
+  return fetchJson<AdminVideoQueueResponse>('/api/admin/video-queue');
+}
+
+export function completeVideoFulfillment(
+  siteId: string,
+  videoAssetId: string,
+): Promise<{ ok: true; duplicated: boolean }> {
+  return fetchJson<{ ok: true; duplicated: boolean }>(
+    `/api/admin/video-queue/${encodeURIComponent(siteId)}/complete`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ videoAssetId }),
+    },
+  );
 }

@@ -66,7 +66,7 @@ describe('W4 — process 히어로 영상 게이트', () => {
     config.pages[0].sections[0].background.video = { src: '/video.mp4', poster: '/poster.webp' };
     assert.equal(heroVideoResumePlan(config).canResume, false);
     config.motion.videoAddon = false;
-    config.motion.videoRequested = false;
+    config.motion.videoRequested = true;
     assert.equal(heroVideoResumePlan(config).requested, false);
 
     config.pages[0].sections[0].hidden = true;

@@ -40,7 +40,11 @@ export function heroVideoResumePlan(config: SiteConfig | null | undefined): Hero
   const hero = config?.pages
     .find((page) => page.slug === '')
     ?.sections.find((section) => section.type === 'hero' && !section.hidden);
-  const requested = config?.motion?.videoAddon === true || config?.motion?.videoRequested === true;
+  // [ADM1] The additive W4 field is authoritative when present. A customer who
+  // explicitly chose the static path must not be re-queued by a stale U1 marker.
+  const requested = config?.motion?.videoAddon !== undefined
+    ? config.motion.videoAddon
+    : config?.motion?.videoRequested === true;
   const applied = Boolean(hero?.background.video?.src && hero.background.video.poster);
   const heroImageChoice = config?.motion?.heroImageChoice;
   const heroPhotoUrl = heroImageChoice === 'upload' ? hero?.background.image?.src : undefined;
