@@ -10,6 +10,8 @@ import FaqPage from '@/app/(marketing)/faq/page';
 import FeaturesPage from '@/app/(marketing)/features/page';
 import MarketingHome from '@/app/(marketing)/page';
 import PricingPage from '@/app/(marketing)/pricing/page';
+import PrivacyPage from '@/app/(marketing)/privacy/page';
+import TermsPage from '@/app/(marketing)/terms/page';
 
 const MARKETING_PAGES = [
   ['home', MarketingHome],
@@ -18,6 +20,8 @@ const MARKETING_PAGES = [
   ['features', FeaturesPage],
   ['about', AboutPage],
   ['cases', CasesPage],
+  ['privacy', PrivacyPage],
+  ['terms', TermsPage],
 ] as const satisfies readonly (readonly [string, ComponentType])[];
 
 /**
@@ -25,9 +29,27 @@ const MARKETING_PAGES = [
  * 홈페이지/빌더 문맥에서만 차단해 정상 카피를 오탐하지 않는다.
  */
 const COMPETITOR_NAME =
-  /(?:아임웹|Wix|윙스|modoo|모두\s*(?:홈페이지|사이트|웹\s*빌더)|식스샵|카페24|Cafe24|워드프레스|WordPress)/iu;
+  /(?:아임웹|\bWix\b|윅스|\bmodoo\b|모두\s*(?:홈페이지|사이트|웹\s*빌더)|식스샵|카페24|\bCafe24\b|워드프레스|\bWordPress\b)/iu;
 
 describe('M1 마케팅 비교 카피 폴리시', () => {
+  test('금지 목록은 한글·영문 경쟁사 표기를 실제로 잡되 일반어 모두는 허용한다', () => {
+    for (const fixture of [
+      '아임웹',
+      'Wix',
+      '윅스',
+      'modoo',
+      '모두 홈페이지',
+      '식스샵',
+      '카페24',
+      'Cafe24',
+      '워드프레스',
+      'WordPress',
+    ]) {
+      assert.match(fixture, COMPETITOR_NAME, `금지 표기를 놓침: ${fixture}`);
+    }
+    assert.doesNotMatch('필요한 기능을 모두 제공합니다.', COMPETITOR_NAME);
+  });
+
   test('공개 마케팅 라우트 렌더 결과에 경쟁사 실명이 없다', () => {
     for (const [name, Page] of MARKETING_PAGES) {
       const html = renderToStaticMarkup(createElement(Page));

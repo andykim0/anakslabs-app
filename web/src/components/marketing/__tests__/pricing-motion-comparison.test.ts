@@ -2,6 +2,10 @@ import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { formatKrw, PRICING } from '@/lib/pricing';
+import { PricingMotionComparison } from '../PricingMotionComparison';
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
@@ -37,5 +41,18 @@ describe('M4 기본 홈페이지 vs AI 영상 홈페이지 비교', () => {
     assert.match(source, /PRICING\.videoHeroAddon/);
     assert.doesNotMatch(source, /200000|200,000|20만원/);
     assert.doesNotMatch(source, /베이식|프리미엄|basic tier|premium tier/i);
+  });
+
+  test('M6 실제 SSR은 같은 poster 두 장과 정확한 가격을 보여주고 영상은 초기 다운로드하지 않는다', () => {
+    const html = renderToStaticMarkup(createElement(PricingMotionComparison));
+    assert.match(html, /data-pricing-motion-comparison/);
+    assert.match(html, /기본 홈페이지 · 기본 모션 포함/);
+    assert.match(html, /AI 영상 홈페이지/);
+    assert.match(html, /예시 연출/);
+    assert.ok(html.includes(formatKrw(PRICING.videoHeroAddon)));
+    assert.equal((html.match(/src="\/daboim-visibility-film-poster\.webp"/g) ?? []).length, 2);
+    assert.equal((html.match(/<article\b/g) ?? []).length, 2);
+    assert.doesNotMatch(html, /<video\b/);
+    assert.doesNotMatch(html, /<script\b[^>]*\bsrc=/i);
   });
 });
