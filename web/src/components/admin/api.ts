@@ -33,6 +33,7 @@ import type {
   SiteStatus,
   Tier,
 } from '@/lib/types/domain';
+import type { AdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
 
@@ -45,6 +46,7 @@ export interface AdminOverview {
   credits: { granted: number; consumed: number; circulating: number };
   qaPending: number;
   customHostnameCount: number;
+  revenue: AdminOpsRevenueMetrics;
 }
 
 export interface AdminClientRow {

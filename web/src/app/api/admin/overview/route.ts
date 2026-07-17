@@ -6,6 +6,7 @@
  *  - credits.circulating = granted - consumed (유통량 정의)
  */
 import { NextResponse } from 'next/server';
+import { buildAdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import { getDataServices } from '@/lib/data';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
@@ -14,11 +15,12 @@ export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
-  const { clients, sites, credits, editRequests, domains } = getDataServices();
-  const [clientList, siteList, qaQueue, customHostnameCount] = await Promise.all([
+  const { clients, sites, credits, editRequests, payments, domains } = getDataServices();
+  const [clientList, siteList, qaQueue, paymentList, customHostnameCount] = await Promise.all([
     clients.listAll(),
     sites.listAll(),
     editRequests.listQaQueue(),
+    payments.listAll(),
     domains.countHostnames(),
   ]);
 
@@ -40,5 +42,6 @@ export const GET = withApiHandler(async () => {
     credits: { granted, consumed, circulating: granted - consumed },
     qaPending: qaQueue.length,
     customHostnameCount,
+    revenue: buildAdminOpsRevenueMetrics(paymentList),
   });
 });
