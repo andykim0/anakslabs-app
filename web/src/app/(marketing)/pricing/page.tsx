@@ -21,12 +21,14 @@ import {
   formatKrw,
   getBasePricePresentation,
   PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
 
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
   description:
-    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월 사이트 운영 구독 + 필요할 때 쓰는 편집 크레딧. 기본 모션과 AI 영상 홈페이지의 차이, 크레딧 팩·환불 규정까지.',
+    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월간 성과 리포트와 크레딧이 포함된 사이트 운영 구독. 기본 모션과 AI 영상 홈페이지의 차이, 크레딧 팩·환불 규정까지.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -47,8 +49,8 @@ const INCLUDED_FEATURES: string[] = [
 const PRICING_FAQ: FaqItem[] = [
   {
     q: '왜 제작비와 월 구독으로 나뉘나요?',
-    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 사이트 운영 구독은 호스팅·SSL·백업·소소한 운영을 이어가는 월 구독입니다. ${CREDIT_CONTRACT_COPY}`,
-    plain: `제작비는 1회 비용이고 사이트 운영 구독은 호스팅·SSL·백업을 위한 월 구독입니다. ${CREDIT_CONTRACT_COPY}`,
+    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 사이트 운영 구독에는 ${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${CREDIT_CONTRACT_COPY}`,
+    plain: `제작비는 1회 비용이고 사이트 운영 구독에는 ${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${CREDIT_CONTRACT_COPY}`,
   },
   {
     q: '편집 크레딧은 어떻게 쓰이나요?',
@@ -77,8 +79,8 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: '크레딧에 유효기간이 있나요?',
-    a: `초기 지급 크레딧은 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매한 크레딧은 ${CREDIT_EXPIRY_DAYS.purchase}일간 유효합니다. 소진은 만료가 임박한 것부터 자동 차감됩니다.`,
-    plain: `초기 지급 크레딧 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧 ${CREDIT_EXPIRY_DAYS.purchase}일 유효. 만료 임박분부터 소진됩니다.`,
+    a: `초기 지급 크레딧은 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매한 크레딧은 ${CREDIT_EXPIRY_DAYS.purchase}일, 구독으로 매월 지급되는 크레딧은 ${CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다. 소진은 만료가 임박한 것부터 자동 차감됩니다.`,
+    plain: `초기 지급 크레딧 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧 ${CREDIT_EXPIRY_DAYS.purchase}일, 월 구독 크레딧 ${CREDIT_EXPIRY_DAYS.subscription_grant}일 유효. 만료 임박분부터 소진됩니다.`,
   },
 ];
 
@@ -115,7 +117,8 @@ export default function PricingPage() {
             <p className="text-xs font-semibold tracking-widest text-[#856A26]">매월</p>
             <h3 className="mt-2 text-base font-semibold text-[#17181C]">사이트 운영 구독</h3>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
-              호스팅·SSL·백업·운영을 이어가는 구독. 사이트가 살아있는 동안 매달 나갑니다.
+              {SUBSCRIPTION_BENEFIT_COPY.report}와 {SUBSCRIPTION_BENEFIT_COPY.credits}, {SUBSCRIPTION_BENEFIT_COPY.operations}을
+              한 번에 제공합니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
@@ -140,6 +143,9 @@ export default function PricingPage() {
             </div>
             <p className="mt-1 text-xs text-[#5C6068]">
               + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
+            </p>
+            <p className="mt-2 text-xs font-medium leading-5 text-[#174DDA]">
+              {SUBSCRIPTION_VALUE_COPY}
             </p>
             <p className="mt-4 text-sm leading-6 text-[#5C6068]">
               이미지 중심의 정적 사이트, AI 디자인 3안 + 캔버스 에디터, 다중 페이지 + 자동 헤더 내비,
@@ -215,8 +221,8 @@ export default function PricingPage() {
                 ))}
               </ul>
               <p className="mt-4 text-xs leading-5 text-[#696E76]">
-                초기 지급 크레딧은 {CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일간
-                유효합니다.
+                초기 지급 크레딧은 {CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일,
+                월 구독 크레딧은 {CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다.
               </p>
             </div>
           </div>

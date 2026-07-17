@@ -13,7 +13,13 @@ import {
 } from 'lucide-react';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
-import { CREDIT_CONTRACT_COPY, formatKrw, PRICING } from '@/lib/pricing';
+import {
+  CREDIT_CONTRACT_COPY,
+  formatKrw,
+  PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
+} from '@/lib/pricing';
 import { LandingScanner } from '@/components/landing/LandingScanner';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { HeroVideo } from '@/components/marketing/HeroVideo';
@@ -26,7 +32,7 @@ import { FadeIn } from '@/components/motion/FadeIn';
 
 const PAGE_TITLE = '홈페이지 전문 최적화 AI — SEO·AEO·GEO 기반 제작';
 const PAGE_DESCRIPTION =
-  '업종에 맞는 홈페이지를 AI가 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 적용합니다. 디자인 3안, 캔버스 편집, 멀티페이지 호스팅과 사이트 운영 구독까지 Daboim 하나로.';
+  '업종에 맞는 홈페이지를 AI가 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 적용합니다. 디자인 3안, 캔버스 편집, 멀티페이지 호스팅과 월간 성과 리포트까지 Daboim 하나로.';
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -98,7 +104,7 @@ const COMPARISON = [
     label: '오픈 후',
     builder: '사용자가 직접 운영',
     agency: '수정 요청 또는 별도 관리 계약',
-    anaks: '직접 수정 무제한 무료 + 사이트 운영 구독',
+    anaks: `${SUBSCRIPTION_BENEFIT_COPY.selfEdit} + ${SUBSCRIPTION_BENEFIT_COPY.report}`,
   },
 ];
 
@@ -116,6 +122,8 @@ const CORE_FEATURES = [
   'SEO·AEO·GEO 기본 구조',
   '멀티페이지 + SSL 호스팅',
   `편집 크레딧 ${INITIAL_GRANT.basic}개`,
+  SUBSCRIPTION_BENEFIT_COPY.report,
+  SUBSCRIPTION_BENEFIT_COPY.credits,
 ];
 
 const FAQS: FaqItem[] = [
@@ -130,6 +138,10 @@ const FAQS: FaqItem[] = [
   {
     q: '완성된 홈페이지를 직접 수정할 수 있나요?',
     a: CREDIT_CONTRACT_COPY,
+  },
+  {
+    q: '사이트 운영 구독에는 무엇이 포함되나요?',
+    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
@@ -350,7 +362,7 @@ export default function MarketingHome() {
           <FadeIn>
             <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">만들고 끝내지 않고,<br />계속 좋아지게 관리합니다.</h2>
-            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">제작비 1회와 사이트 운영 구독으로 호스팅·운영을 이어갑니다. 실제 영상이 필요한 브랜드만 AI 영상 홈페이지를 선택하세요.</p>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">제작비 1회와 사이트 운영 구독으로 홈페이지를 운영하고, 매달 유입·전화·예약·길찾기 성과를 확인합니다. 실제 영상이 필요한 브랜드만 AI 영상 홈페이지를 선택하세요.</p>
           </FadeIn>
           <FadeIn delay={0.08}>
             <div className="rounded-[28px] border border-[#173060] bg-gradient-to-br from-[#0B1736] to-[#113E70] p-7 text-white shadow-[0_24px_70px_rgba(11,23,54,.18)] sm:p-9">
@@ -362,6 +374,7 @@ export default function MarketingHome() {
                 <LaunchPrice tone="dark" align="right" />
               </div>
               <p className="mt-2 text-right text-xs text-white/48">+ 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · 부가세 별도</p>
+              <p className="mt-2 text-right text-xs font-medium leading-5 text-[#5DE0D0]">{SUBSCRIPTION_VALUE_COPY}</p>
               <ul className="mt-8 grid gap-3 border-t border-white/10 pt-7 text-sm text-white/68 sm:grid-cols-2">
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>

@@ -7,7 +7,11 @@
 import { useState } from 'react';
 import { ArrowUpRight, LogOut, Mail, Sparkles, User } from 'lucide-react';
 import type { AuthProvider, Tier } from '@/lib/types/domain';
-import { PRICING } from '@/lib/pricing';
+import {
+  PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
+} from '@/lib/pricing';
 import { logout } from './api';
 import { Button, Card, formatDate, PageHeader } from './ui';
 
@@ -132,8 +136,11 @@ export function SettingsView({
             <li>· 기본 스크롤 모션 포함 · 추가 비용 없음</li>
             <li>· AI 영상 히어로 +{PRICING.videoHeroAddon.toLocaleString()}원 (1회)</li>
             <li>· 사이트 운영 구독 월 {PRICING.subscription.monthly.toLocaleString()}원 (단일)</li>
+            <li>· {SUBSCRIPTION_BENEFIT_COPY.report} · {SUBSCRIPTION_BENEFIT_COPY.credits}</li>
+            <li>· {SUBSCRIPTION_BENEFIT_COPY.selfEdit}</li>
           </ul>
         ) : null}
+        <p className="mt-3 text-[11px] leading-5 text-blue-300/80">{SUBSCRIPTION_VALUE_COPY}</p>
       </Card>
 
       {/* 세션 */}

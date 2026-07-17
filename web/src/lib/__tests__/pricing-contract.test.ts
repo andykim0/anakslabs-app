@@ -13,6 +13,8 @@ import {
   LAUNCH_OFFER,
   LAUNCH_OFFER_AVAILABILITY,
   PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
   type LaunchOffer,
 } from '@/lib/pricing';
 
@@ -71,6 +73,33 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     assert.match(pricing, /a: CREDIT_CONTRACT_COPY,\s*plain: CREDIT_CONTRACT_COPY/);
     assert.match(pricing, /CREDIT_CONSUMING_ACTIONS\.map/);
     assert.doesNotMatch(`${faq}\n${pricing}`, /CREDIT_COSTS/);
+  });
+
+  test('구독 혜택과 가치 카피는 pricing.ts 단일 소스를 모든 고객 화면이 소비한다', () => {
+    assert.deepEqual(SUBSCRIPTION_BENEFIT_COPY, {
+      report: '매월 성과 리포트',
+      credits: `매월 ${PRICING.subscription.creditsPerMonth}크레딧`,
+      operations: '호스팅·SSL·백업·운영',
+      selfEdit: '직접 수정 무제한 무료',
+    });
+    assert.match(SUBSCRIPTION_VALUE_COPY, /구독비만큼 크레딧으로 돌려받아요/);
+    assert.match(SUBSCRIPTION_VALUE_COPY, new RegExp(`${PRICING.subscription.creditsPerMonth}개`));
+    assert.match(
+      SUBSCRIPTION_VALUE_COPY,
+      new RegExp(PRICING.subscription.creditValueKrw.toLocaleString('ko-KR')),
+    );
+
+    for (const path of [
+      'src/app/(marketing)/page.tsx',
+      'src/app/(marketing)/pricing/page.tsx',
+      'src/app/(marketing)/faq/page.tsx',
+      'src/components/dashboard/billing-view.tsx',
+      'src/components/dashboard/settings-view.tsx',
+    ]) {
+      const source = read(path);
+      assert.match(source, /SUBSCRIPTION_BENEFIT_COPY/);
+      assert.match(source, /SUBSCRIPTION_VALUE_COPY/);
+    }
   });
 });
 

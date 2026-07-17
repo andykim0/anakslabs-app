@@ -5,7 +5,11 @@ import {
   REFUND_NOTICE,
 } from '@/lib/legal/notices';
 import { COMPANY_EMAIL, KAKAO_CHANNEL_URL } from '@/lib/marketing/contact';
-import { CREDIT_CONTRACT_COPY } from '@/lib/pricing';
+import {
+  CREDIT_CONTRACT_COPY,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
+} from '@/lib/pricing';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 
 export const metadata: Metadata = {
@@ -30,6 +34,11 @@ const FAQ: FaqItem[] = [
     q: '발행 후 수정은 어떻게 하나요?',
     a: CREDIT_CONTRACT_COPY,
     plain: CREDIT_CONTRACT_COPY,
+  },
+  {
+    q: '사이트 운영 구독에는 무엇이 포함되나요?',
+    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
+    plain: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits} 포함. ${SUBSCRIPTION_VALUE_COPY}`,
   },
   {
     q: '구독을 해지하면 사이트는 어떻게 되나요?',
