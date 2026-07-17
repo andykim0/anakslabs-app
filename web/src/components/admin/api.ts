@@ -36,6 +36,12 @@ import type {
 import type { AdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
+import type {
+  ManualCollectionChannel,
+  ManualCollectionDirection,
+  ManualCollectionProductKind,
+  ManualPaymentEntry,
+} from '@/lib/payments/manual-collection-core';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -47,6 +53,35 @@ export interface AdminOverview {
   qaPending: number;
   customHostnameCount: number;
   revenue: AdminOpsRevenueMetrics;
+  manualCollections: AdminManualCollectionRow[];
+}
+
+export interface AdminManualCollectionRow {
+  entryId: string;
+  paymentId: string | null;
+  clientId: string;
+  clientName: string;
+  siteId: string | null;
+  siteName: string | null;
+  productKind: ManualCollectionProductKind;
+  direction: ManualCollectionDirection;
+  amountKrw: number;
+  channel: ManualCollectionChannel;
+  collectionReference: string;
+  memo: string | null;
+  createdAt: string;
+  reversible: boolean;
+}
+
+export interface RecordManualCollectionInput {
+  clientId: string;
+  siteId?: string | null;
+  productKind: ManualCollectionProductKind;
+  amountKrw: number;
+  channel: ManualCollectionChannel;
+  collectionReference: string;
+  memo?: string | null;
+  creditPackCredits?: number;
 }
 
 export interface AdminClientRow {
@@ -274,6 +309,25 @@ export function setQaRule(editType: EditType, enabled: boolean): Promise<{ ok: b
 
 export function getOverview(): Promise<AdminOverview> {
   return fetchJson<AdminOverview>('/api/admin/overview');
+}
+
+export function recordManualCollection(
+  input: RecordManualCollectionInput,
+): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
+  return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
+    '/api/admin/payments/manual',
+    { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+export function reverseManualCollection(
+  entryId: string,
+  input: { collectionReference: string; memo: string },
+): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
+  return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
+    `/api/admin/payments/manual/${encodeURIComponent(entryId)}/reverse`,
+    { method: 'POST', body: JSON.stringify(input) },
+  );
 }
 
 export function getClients(): Promise<AdminClientRow[]> {

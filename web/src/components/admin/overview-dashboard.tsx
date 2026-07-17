@@ -17,6 +17,7 @@ import {
 import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credits/constants';
 import { getOverview } from './api';
 import { formatKrw, formatNumber } from './format';
+import { ManualCollectionPanel } from './manual-collection-panel';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
 
 export function OverviewDashboard() {
@@ -125,6 +126,8 @@ export function OverviewDashboard() {
         />
       </div>
 
+      <ManualCollectionPanel rows={data.manualCollections} />
+
       <section className="mt-7" aria-labelledby="admin-revenue-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -132,7 +135,7 @@ export function OverviewDashboard() {
               매출 한눈판
             </h2>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              {data.revenue.month.month} KST · PG payments 결제·환불 원장 기준 · 크몽 수동 수금 제외
+              {data.revenue.month.month} KST · PG와 수동 수금 원장 합산 · 현금주의
             </p>
           </div>
           <p className="text-xs text-slate-500">
@@ -140,23 +143,21 @@ export function OverviewDashboard() {
           </p>
         </div>
 
-        <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] leading-5 text-amber-800">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden />
-          현재 합계와 런칭 카운터는 payments 원장에 기록된 PG 결제만 포함합니다. 크몽 수동 제작비·영상
-          승인·수동 구독 갱신 수금은 금액 증거가 없어 포함하지 않습니다.
-        </div>
-
         <Card className="p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                이번 달 PG 현금주의 순수금
+                이번 달 운영 순수금
               </p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
                 {formatKrw(data.revenue.operatingRevenueNetKrw)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
                 제작·AI 영상·사이트 운영 구독 수금 − 환불 · 크레딧 팩 제외
+              </p>
+              <p className="mt-1 text-[11px] text-slate-400">
+                PG {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · 수동 수금{' '}
+                {formatKrw(data.revenue.operatingRevenueBySourceKrw.manual)}
               </p>
             </div>
             <div className="text-right">
@@ -214,7 +215,7 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                런칭가 패턴 결제 카운터
+                런칭가 고유 사이트 카운터
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
                 {formatNumber(data.revenue.launchOffer.contracts)}
@@ -226,8 +227,8 @@ export function OverviewDashboard() {
               </p>
             </div>
             <p className="max-w-lg text-right text-[11px] leading-5 text-slate-500">
-              현 가격·초기 지급 조합이 정확히 확인되는 PG 결제 패턴만 집계합니다. Payment에 siteId가 없어
-              실제 사이트·크몽 계약 수가 아니며, 소진 플래그는 자동 변경하지 않습니다.
+              PG는 고객 소유 사이트가 하나로 확인될 때만, 수동 수금은 원장에 귀속된 사이트만 집계합니다.
+              동일 사이트의 PG·수동 중복은 1곳이며 소진 플래그는 자동 변경하지 않습니다.
             </p>
           </div>
           {data.revenue.launchOffer.limit !== null ? (

@@ -63,7 +63,15 @@ const GUARDED_ROUTES = [
   },
   {
     path: 'src/app/api/admin/overview/route.ts',
-    markers: ['getDataServices()', 'buildAdminOpsRevenueMetrics(paymentList)'],
+    markers: ['getDataServices()', 'getManualCollectionsRepository().listAll()', 'buildAdminOpsRevenueMetrics(paymentList,'],
+  },
+  {
+    path: 'src/app/api/admin/payments/manual/route.ts',
+    markers: ['await parseBody(', 'getDataServices()', 'getManualCollectionsRepository().record('],
+  },
+  {
+    path: 'src/app/api/admin/payments/manual/[entryId]/reverse/route.ts',
+    markers: ['await parseBody(', 'await params', 'getManualCollectionsRepository().reverse('],
   },
 ] as const;
 

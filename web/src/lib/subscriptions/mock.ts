@@ -254,6 +254,55 @@ export function reconcileMockSiteSubscriptionFullRefund(input: {
   };
 }
 
+/** Manual collection reversal uses the stable renewal key rather than PG evidence. */
+export function reconcileMockSiteSubscriptionManualReversal(input: {
+  clientId: string;
+  idempotencyKey: string;
+  at?: Date;
+}): { state: SiteSubscriptionState; replacementPaymentId: string | null } {
+  const at = input.at ?? new Date();
+  if (!Number.isFinite(at.getTime())) {
+    throw new Error('reconcileManualSubscription: invalid date');
+  }
+  const stateData = data();
+  const renewal = stateData.renewals.get(input.idempotencyKey);
+  if (
+    !renewal
+    || renewal.clientId !== input.clientId
+    || renewal.source !== 'admin_manual'
+    || renewal.reversedAt !== null
+  ) {
+    throw new Error('reconcileManualSubscription: verified renewal evidence is required');
+  }
+  renewal.reversedAt = at.toISOString();
+
+  const replacementRenewal = [...stateData.renewals.values()]
+    .filter((candidate) => candidate.clientId === input.clientId && candidate.reversedAt === null)
+    .reduce<MockSubscriptionRenewal | null>(
+      (latest, candidate) =>
+        latest === null || candidate.periodEnd > latest.periodEnd ? candidate : latest,
+      null,
+    );
+  const currentPeriodEnd = replacementRenewal?.periodEnd ?? at.toISOString();
+  const existingStatus = stateData.states.get(input.clientId)?.status;
+  const next: SiteSubscriptionState = {
+    clientId: input.clientId,
+    status:
+      Date.parse(currentPeriodEnd) <= at.getTime()
+        ? 'cancelled'
+        : existingStatus && existingStatus !== 'active'
+          ? existingStatus
+          : 'active',
+    currentPeriodEnd,
+    updatedAt: at.toISOString(),
+  };
+  stateData.states.set(input.clientId, next);
+  return {
+    state: structuredClone(next),
+    replacementPaymentId: replacementRenewal?.paymentId ?? null,
+  };
+}
+
 export function setMockSiteSubscriptionStatus(
   clientId: string,
   status: Exclude<SiteSubscriptionStatus, 'active'>,

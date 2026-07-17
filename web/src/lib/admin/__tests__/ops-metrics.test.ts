@@ -3,6 +3,7 @@ import { describe, test } from 'node:test';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { LAUNCH_OFFER, PRICING } from '@/lib/pricing';
 import type { Payment } from '@/lib/types/domain';
+import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
 import {
   ADMIN_MONTHLY_REVENUE_TARGET_KRW,
   buildAdminOpsRevenueMetrics,
@@ -26,6 +27,28 @@ function payment(
     createdAt: '2026-07-10T03:00:00.000Z',
     refundedAt: null,
     refundAmount: null,
+    ...patch,
+  };
+}
+
+function manualEntry(
+  id: string,
+  paymentId: string | null,
+  patch: Partial<ManualPaymentEntry> = {},
+): ManualPaymentEntry {
+  return {
+    id,
+    paymentId,
+    clientId: `client-${paymentId ?? id}`,
+    siteId: `site-${paymentId ?? id}`,
+    productKind: 'launch_build',
+    direction: paymentId ? 'receipt' : 'reversal',
+    amountKrw: PRICING.base.launch,
+    channel: 'kmong',
+    collectionReference: `kmong-${id}`,
+    memo: null,
+    reversesEntryId: null,
+    createdAt: '2026-07-10T03:00:00.000Z',
     ...patch,
   };
 }
@@ -244,5 +267,85 @@ describe('ADM4 admin revenue metrics', () => {
     ], NOW);
     assert.equal(result.targetKrw, ADMIN_MONTHLY_REVENUE_TARGET_KRW);
     assert.equal(result.targetProgress, 1);
+  });
+
+  test('combines provider and manual cash while preserving an exact source split', () => {
+    const manualPayment = payment('manual-launch', {
+      clientId: 'manual-client',
+      creditsGranted: 0,
+      providerPaymentKey: null,
+    });
+    const entry = manualEntry('manual-entry', manualPayment.id, {
+      clientId: manualPayment.clientId,
+      siteId: 'manual-site',
+    });
+    const result = buildAdminOpsRevenueMetrics(
+      [payment('provider-launch'), manualPayment],
+      NOW,
+      {
+        manualEntries: [entry],
+        sites: [
+          { id: 'provider-site', clientId: 'client-provider-launch' },
+          { id: 'manual-site', clientId: 'manual-client' },
+        ],
+      },
+    );
+
+    assert.equal(result.sources.provider.grossKrw, PRICING.base.launch);
+    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch);
+    assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.operatingRevenueBySourceKrw.provider, PRICING.base.launch);
+    assert.equal(result.operatingRevenueBySourceKrw.manual, PRICING.base.launch);
+    assert.equal(result.launchOffer.contracts, 2);
+  });
+
+  test('counts launch contracts by unique site across provider/manual evidence and reversals', () => {
+    const provider = payment('provider', { clientId: 'same-client' });
+    const manualPayment = payment('manual', {
+      clientId: 'same-client',
+      creditsGranted: 0,
+      providerPaymentKey: null,
+    });
+    const receipt = manualEntry('receipt', manualPayment.id, {
+      clientId: 'same-client',
+      siteId: 'same-site',
+    });
+    const duplicateReceipt = manualEntry('receipt-2', 'manual-2', {
+      clientId: 'same-client',
+      siteId: 'same-site',
+      collectionReference: 'kmong-receipt-2',
+    });
+    const manualPayment2 = payment('manual-2', {
+      clientId: 'same-client',
+      creditsGranted: 0,
+      providerPaymentKey: null,
+    });
+    const reversal = manualEntry('reversal', null, {
+      clientId: 'same-client',
+      siteId: 'same-site',
+      reversesEntryId: receipt.id,
+      collectionReference: 'kmong-correction',
+    });
+    const result = buildAdminOpsRevenueMetrics(
+      [provider, manualPayment, manualPayment2],
+      NOW,
+      {
+        manualEntries: [receipt, duplicateReceipt, reversal],
+        sites: [{ id: 'same-site', clientId: 'same-client' }],
+      },
+    );
+
+    assert.equal(result.launchOffer.contracts, 1, 'one site must never consume several launch slots');
+    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.sources.manual.refundsKrw, PRICING.base.launch);
+  });
+
+  test('fails closed for URL-less/manual-looking payment rows without immutable evidence', () => {
+    const unknown = payment('unknown-manual', { providerPaymentKey: null });
+    const result = buildAdminOpsRevenueMetrics([unknown], NOW, { manualEntries: [], sites: [] });
+    assert.equal(result.receipts.grossKrw, 0);
+    assert.deepEqual(result.anomalies, [
+      { paymentId: unknown.id, code: 'manual_metadata_missing' },
+    ]);
   });
 });

@@ -15,6 +15,7 @@ import type {
   Site,
 } from '@/lib/types/domain';
 import type { FormSubmission, ScanResult, SiteEventAggregate } from '../types';
+import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
 import { buildSeed } from './seed';
 
 /** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
@@ -47,6 +48,8 @@ export interface MockStore {
   payments: Map<string, Payment>;
   /** providerPaymentKey → payment.id (웹훅 멱등) */
   paymentKeys: Map<string, string>;
+  /** [OPS$] append-only manual collection companion ledger (lazy, seed unchanged). */
+  manualPaymentEntries?: Map<string, ManualPaymentEntry>;
   /** siteId → 커스텀 도메인 검증 상태 */
   domainStates: Map<string, MockDomainState>;
   /** Cloudflare custom hostname 총수 (시드 7) */
