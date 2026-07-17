@@ -39,6 +39,25 @@ export const ANONYMOUS_SITE_EVENT_DISCLOSURE = {
     '※ 법무 검토 대상: 익명 성과 측정의 수집 항목·보관 기간·고지 문구는 정식 방침 확정 시 갱신될 수 있습니다.',
 } as const;
 
+/**
+ * Daboim 서비스의 외부 AI 처리 고지. 테넌트 방문자 방침이 아니라,
+ * Daboim 고객이 명시적으로 AI 기능을 요청할 때의 서비스 처리에만 적용한다.
+ * 실제 법인명·처리 국가·보관 조건은 공급자 계약 확인 전에 지어내지 않는다.
+ */
+export const EXTERNAL_AI_PROCESSING_DISCLOSURE = {
+  heading: '외부 AI 서비스 처리 위탁',
+  processors:
+    '수탁·처리 서비스: Google AI 서비스(이미지·영상 생성 및 문서 인식), Anthropic AI 서비스(텍스트 생성).',
+  data:
+    '처리 항목: 고객이 AI 기능에 제공한 사업 정보·지시문·콘텐츠와, 해당 기능을 위해 고객이 명시적으로 선택한 이미지·문서에 한합니다. 비밀번호와 결제정보는 AI 생성 요청에 전송하지 않습니다.',
+  purpose:
+    '처리 목적: 고객이 요청한 홈페이지 초안·문구·이미지·영상 생성과 문서 인식 기능을 제공하기 위함이며, 해당 요청에 필요한 범위로만 전송합니다.',
+  terms:
+    '외부 AI 사업자의 처리·보관·삭제 조건은 적용되는 공급자 계약과 정책에 따릅니다. AI 처리 여부·삭제·이용 제한에 대한 문의는 Daboim 개인정보 문의처로 접수할 수 있습니다.',
+  legalReview:
+    '※ 법무 검토 대상: 수탁자의 정확한 법인명, 국외 처리·이전 국가, 보관·삭제 기간과 거부 방법은 정식 방침 확정 전 공급자 계약·운영 설정과 함께 확인해 갱신합니다.',
+} as const;
+
 /** 실제 발행 config에 다보임 수신 폼이 있을 때만 개인정보 수집으로 고지한다. */
 export function siteCollectsPersonalData(config: SiteConfig): boolean {
   return config.pages.some((page) =>

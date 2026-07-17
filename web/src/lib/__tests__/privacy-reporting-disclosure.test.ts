@@ -5,6 +5,7 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  EXTERNAL_AI_PROCESSING_DISCLOSURE,
   privacyPolicy,
   siteCollectsPersonalData,
 } from '@/lib/legal/templates';
@@ -81,5 +82,19 @@ describe('RPT4 — 익명 성과 측정 개인정보 고지', () => {
       privacyPolicy(BUSINESS_INFO, { collectsPersonalData: true }).sections[0].body.join(' '),
       /이름, 연락처/,
     );
+  });
+});
+
+describe('M2 — 외부 AI 처리 위탁 고지', () => {
+  test('Daboim 방침은 Google·Anthropic 처리와 법무 검토 경계를 실제 HTML에 표시한다', () => {
+    const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
+    for (const line of Object.values(EXTERNAL_AI_PROCESSING_DISCLOSURE)) {
+      assert.ok(html.includes(line), `외부 AI 고지 누락: ${line}`);
+    }
+    assert.match(html, /Google AI 서비스/);
+    assert.match(html, /Anthropic AI 서비스/);
+    assert.match(html, /비밀번호와 결제정보는 AI 생성 요청에 전송하지 않/);
+    assert.match(html, /수탁자의 정확한 법인명/);
+    assert.match(html, /※ 법무 검토 대상/);
   });
 });

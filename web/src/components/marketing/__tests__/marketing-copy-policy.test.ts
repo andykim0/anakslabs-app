@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { createElement, type ComponentType } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import AboutPage from '@/app/(marketing)/about/page';
 import CasesPage from '@/app/(marketing)/cases/page';
 import FaqPage from '@/app/(marketing)/faq/page';
@@ -30,6 +32,27 @@ describe('M1 마케팅 비교 카피 폴리시', () => {
     for (const [name, Page] of MARKETING_PAGES) {
       const html = renderToStaticMarkup(createElement(Page));
       assert.doesNotMatch(html, COMPETITOR_NAME, `${name}: 경쟁사 실명은 일반 명사로 표현해야 합니다.`);
+    }
+  });
+});
+
+describe('M2 Daboim AI 고객 노출 브랜딩', () => {
+  test('마케팅 라우트 렌더 결과에 파운데이션 모델명을 노출하지 않는다', () => {
+    for (const [name, Page] of MARKETING_PAGES) {
+      const html = renderToStaticMarkup(createElement(Page));
+      assert.doesNotMatch(html, /\bVeo\b/i, `${name}: 고객 카피는 Daboim AI로 표기해야 합니다.`);
+    }
+  });
+
+  test('온보딩·대시보드·mock 고객 표면에도 파운데이션 모델명이 없다', () => {
+    for (const path of [
+      'src/components/dashboard/onboarding/motion-choice-step.tsx',
+      'src/components/dashboard/onboarding/generate-step.tsx',
+      'src/components/dashboard/site-detail.tsx',
+      'public/mock/video-poster.svg',
+    ]) {
+      const source = readFileSync(join(process.cwd(), path), 'utf8');
+      assert.doesNotMatch(source, /\bVeo\b/i, `${path}: 고객 표면에 모델명이 노출됩니다.`);
     }
   });
 });

@@ -534,7 +534,7 @@ function auditMotionSceneDocument(
       push(blockers, 'before_after_label', '전후 비교의 비편집 고정 라벨 “실제 사례”가 항상 보이는 상태로 렌더되지 않았습니다.', detail);
     }
     if (stage.querySelectorAll('video').length > 0) {
-      push(blockers, 'before_after_provenance', '전후 비교에는 Veo 또는 영상 미디어를 사용할 수 없습니다.', detail);
+      push(blockers, 'before_after_provenance', '전후 비교에는 AI 생성 또는 영상 미디어를 사용할 수 없습니다.', detail);
     }
   }
 

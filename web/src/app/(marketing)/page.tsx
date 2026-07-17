@@ -145,7 +145,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
-    a: `기본 모션은 제작비에 포함되어 무료입니다. 실제 Veo 영상으로 만드는 AI 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
+    a: `기본 모션은 제작비에 포함되어 무료입니다. Daboim AI가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
   },
 ];
 
@@ -379,7 +379,7 @@ export default function MarketingHome() {
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>
               <div className="mt-7 flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-white/[0.045] p-4 sm:flex-row sm:items-center">
-                <p className="text-xs leading-5 text-white/52">AI 영상 홈페이지<br /><span className="text-white/78">실제 Veo 영상 히어로 · 선택</span></p>
+                <p className="text-xs leading-5 text-white/52">AI 영상 홈페이지<br /><span className="text-white/78">Daboim AI 시네마틱 영상 히어로 · 선택</span></p>
                 <span className="font-mono text-sm font-semibold text-[#5DE0D0]">+{formatKrw(PRICING.videoHeroAddon)}</span>
               </div>
               <Link href="/pricing" className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-white">가격 자세히 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>

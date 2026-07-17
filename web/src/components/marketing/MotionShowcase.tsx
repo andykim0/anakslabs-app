@@ -1,5 +1,5 @@
 /**
- * [마케팅] AI 영상 홈페이지 데모 섹션 — 기본 모션과 실제 Veo 영상 히어로를 구분한다.
+ * [마케팅] AI 영상 홈페이지 데모 섹션 — 기본 모션과 Daboim AI 영상 히어로를 구분한다.
  * 영상은 뷰포트 진입 시에만 로드·재생(PreviewVideo mode="inview"). 섹션은 FadeIn 등장(once).
  */
 import Link from 'next/link';
@@ -18,7 +18,7 @@ export function MotionShowcase() {
           움직임도 브랜드의 언어가 됩니다
         </h2>
         <p className="mt-4 text-sm leading-7 text-[#5C6068]">
-          기본 모션은 포함·무료입니다. AI 영상 홈페이지를 선택하면 실제 Veo 영상 히어로로 첫 장면을 연출합니다.
+          기본 모션은 포함·무료입니다. AI 영상 홈페이지를 선택하면 Daboim AI 시네마틱 영상 히어로로 첫 장면을 연출합니다.
         </p>
         <Link
           href="/pricing"

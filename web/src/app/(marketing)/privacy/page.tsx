@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { ANONYMOUS_SITE_EVENT_DISCLOSURE } from '@/lib/legal/templates';
+import {
+  ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  EXTERNAL_AI_PROCESSING_DISCLOSURE,
+} from '@/lib/legal/templates';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 
 export const metadata: Metadata = {
@@ -33,6 +36,20 @@ export default function PrivacyPage() {
         <div>
           <h2 className="text-sm font-semibold text-[#17181C]">이용 목적</h2>
           <p className="mt-2">계정 인증, 사이트 생성·호스팅·사이트 운영 구독 제공, 결제 및 고객 문의 응대에 사용합니다.</p>
+        </div>
+        <div>
+          <h2 className="text-sm font-semibold text-[#17181C]">
+            {EXTERNAL_AI_PROCESSING_DISCLOSURE.heading}
+          </h2>
+          <div className="mt-2 space-y-2">
+            <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.processors}</p>
+            <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.data}</p>
+            <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.purpose}</p>
+            <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.terms}</p>
+            <p className="font-medium text-[#3F4651]">
+              {EXTERNAL_AI_PROCESSING_DISCLOSURE.legalReview}
+            </p>
+          </div>
         </div>
         <div>
           <h2 className="text-sm font-semibold text-[#17181C]">

@@ -306,7 +306,7 @@ function HeroVideoResumeCard({ site, tier }: { site: Site; tier: Tier }) {
             <h2 className="text-sm font-semibold text-neutral-100">AI 영상 홈페이지 승인이 완료됐어요</h2>
             <p className="mt-1 max-w-xl text-xs leading-5 text-neutral-400">
               온보딩에서 고른 히어로 사진과 연출로 실제 영상을 1개 생성해 바로 적용합니다.
-              이 버튼을 누를 때만 Veo가 실행돼요.
+              이 버튼을 누를 때만 Daboim AI 영상 생성을 시작해요.
             </p>
           </div>
         </div>
