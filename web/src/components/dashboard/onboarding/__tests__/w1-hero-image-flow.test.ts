@@ -8,6 +8,7 @@ const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 const wizard = source('src/components/dashboard/onboarding/wizard.tsx');
 const heroStep = source('src/components/dashboard/onboarding/hero-image-step.tsx');
 const candidateStep = source('src/components/dashboard/onboarding/candidate-step.tsx');
+const candidateThemePreview = source('src/components/dashboard/onboarding/CandidateThemePreview.tsx');
 const dashboardApi = source('src/components/dashboard/api.ts');
 
 describe('W1 — 히어로 사진 선택 플로우', () => {
@@ -47,7 +48,8 @@ describe('W1 — 히어로 사진 선택 플로우', () => {
   });
 
   test('디자인 3안은 새 히어로를 재생성하지 않고 선택 URL을 고정한다', () => {
-    assert.match(candidateStep, /src=\{heroImageUrl\}/);
+    assert.match(candidateStep, /heroImageUrl=\{heroImageUrl\}/);
+    assert.match(candidateThemePreview, /src=\{heroImageUrl\}/);
     assert.match(candidateStep, /applyHeroImageToCandidate\(selected, heroImageUrl, heroImageAssetRef\)/);
     assert.doesNotMatch(candidateStep, /다시 추천받기/);
     assert.doesNotMatch(candidateStep, /const regenerate/);

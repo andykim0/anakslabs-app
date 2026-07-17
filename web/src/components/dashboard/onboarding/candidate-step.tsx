@@ -12,8 +12,10 @@ import {
   surveyForHeroCandidates,
 } from '@/lib/onboarding/hero-image-options';
 import { genIdemKey } from '@/lib/onboarding/generate-dedup';
+import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
 import { generateCandidates } from '../api';
 import { Badge, Button, Card, cn, ErrorState } from '../ui';
+import { CandidateThemePreview } from './CandidateThemePreview';
 
 const STYLE_LABELS: Record<CandidateStyle, string> = {
   photo: '실사 포토',
@@ -97,12 +99,14 @@ const CANDIDATE_MOTION_CSS = `
 function CandidateCard({
   candidate,
   heroImageUrl,
+  survey,
   selected,
   heroTechnique,
   onSelect,
 }: {
   candidate: DesignCandidate;
   heroImageUrl: string;
+  survey: SurveyInput;
   selected: boolean;
   heroTechnique?: string;
   onSelect: () => void;
@@ -123,27 +127,19 @@ function CandidateCard({
           : 'border-ob-border hover:border-ob-muted',
       )}
     >
-      <div className="relative h-36 overflow-hidden bg-ob-bg">
-        {imgFailed ? (
-          <div
-            className="h-full w-full"
-            style={{
-              background: `linear-gradient(135deg, ${palette.background} 0%, ${palette.primary} 100%)`,
-            }}
-          />
-        ) : (
-          // Dynamic customer/AI preview URLs may be data URLs or unconfigured remote hosts.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={heroImageUrl}
-            alt={candidate.label}
-            className={cn('h-full w-full object-cover', motionClass ?? 'transition-transform duration-300 group-hover:scale-[1.03]')}
-            onError={() => setImgFailed(true)}
-          />
-        )}
-        <span className="absolute top-2 left-2">
-          <Badge tone={candidate.style === '3d_render' ? 'gold' : 'neutral'}>{STYLE_LABELS[candidate.style]}</Badge>
-        </span>
+      <div className="relative overflow-hidden bg-ob-bg p-2">
+        <CandidateThemePreview
+          candidate={candidate}
+          heroImageUrl={heroImageUrl}
+          businessName={survey.businessName}
+          tagline={survey.tagline}
+          purposeId={survey.purposeId}
+          referenceDesignId={survey.referenceDesignId}
+          sectionPlan={survey.sectionPlan}
+          imageFailed={imgFailed}
+          motionClass={motionClass ?? 'motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03] motion-reduce:transform-none'}
+          onImageError={() => setImgFailed(true)}
+        />
         {selected ? (
           <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
             ✓
@@ -151,8 +147,11 @@ function CandidateCard({
         ) : null}
       </div>
       <div className="bg-ob-surface p-4">
-        <p className="text-sm font-semibold text-ob-ink">{candidate.label}</p>
-        <p className="mt-1 line-clamp-2 text-xs leading-5 text-ob-muted">{candidate.description}</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-ob-ink">{candidate.label}</p>
+          <Badge tone={candidate.style === '3d_render' ? 'gold' : 'neutral'}>{STYLE_LABELS[candidate.style]}</Badge>
+        </div>
+        <p className="mt-1 text-xs leading-5 text-ob-muted">{candidate.description}</p>
         <div className="mt-3 flex items-center justify-between">
           <div className="flex gap-1">
             {swatches.map((c, i) => (
@@ -238,6 +237,10 @@ export function CandidateStep({
 
   const candidates = data ?? [];
   const selected = candidates.find((c) => c.id === selectedId) ?? null;
+  const candidateFontUrls = googleFontUrls(
+    candidates.flatMap((candidate) => (candidate.theme.fonts.googleFonts ?? []).filter((family) => !/pretendard/i.test(family))),
+  );
+  const loadPretendard = candidates.some((candidate) => needsPretendard(candidate.theme));
 
   return (
     <div>
@@ -245,6 +248,8 @@ export function CandidateStep({
       {heroTechnique && HERO_MOTION_CLASS[heroTechnique] ? (
         <style dangerouslySetInnerHTML={{ __html: CANDIDATE_MOTION_CSS }} />
       ) : null}
+      {loadPretendard ? <link rel="stylesheet" href={PRETENDARD_CSS_URL} /> : null}
+      {candidateFontUrls.map((url) => <link key={url} rel="stylesheet" href={url} />)}
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-ob-ink">디자인 방향을 골라주세요</h2>
         <p className="mt-1 text-sm text-ob-muted">
@@ -258,6 +263,7 @@ export function CandidateStep({
             key={c.id}
             candidate={c}
             heroImageUrl={heroImageUrl}
+            survey={survey}
             selected={c.id === selectedId}
             heroTechnique={heroTechnique}
             onSelect={() => setSelectedId(c.id)}
