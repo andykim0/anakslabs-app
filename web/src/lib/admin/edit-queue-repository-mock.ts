@@ -3,6 +3,7 @@ import { getMockStore } from '@/lib/data/mock/store';
 import {
   AdminEditQueueError,
   deriveAdminEditQueueItem,
+  isAdminEditCompletionStatus,
   isAdminEditQueueStatus,
   normalizeAdminEditQueueLimit,
   normalizeCompleteAdminEditInput,
@@ -48,7 +49,7 @@ export class MockAdminEditQueueRepository implements AdminEditQueueRepository {
         'A rejected edit request cannot be completed.',
       );
     }
-    if (!isAdminEditQueueStatus(request.status)) {
+    if (!isAdminEditQueueStatus(request.status) || !isAdminEditCompletionStatus(request.status)) {
       throw new AdminEditQueueError(
         'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
         `The edit request cannot transition from ${request.status}.`,
@@ -57,6 +58,8 @@ export class MockAdminEditQueueRepository implements AdminEditQueueRepository {
 
     request.status = 'applied';
     request.appliedAt = input.completedAt;
+    request.reviewedAt = input.completedAt;
+    request.qaNote = 'ADMIN_CONFIRMED_SITE_APPLIED';
     return { record: structuredClone(request), duplicated: false };
   }
 }

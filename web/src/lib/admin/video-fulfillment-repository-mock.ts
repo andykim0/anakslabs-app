@@ -89,6 +89,9 @@ export class MockHeroVideoFulfillmentRepository implements HeroVideoFulfillmentR
     }
     const eligibility = siteVideoFulfillmentState({ site, client });
     if (!eligibility.pending) throw new Error(`VIDEO_FULFILLMENT_NOT_PENDING:${eligibility.reason}`);
+    if (eligibility.blockedReason) {
+      throw new Error(`VIDEO_FULFILLMENT_BLOCKED:${eligibility.blockedReason}`);
+    }
 
     const assetRegistry = this.assets ?? (await import('@/lib/assets/registry')).getAssetRegistry();
     const asset = await assetRegistry.getById(input.videoAssetId);
@@ -131,6 +134,9 @@ export class MockHeroVideoFulfillmentRepository implements HeroVideoFulfillmentR
       ...site,
       draftConfig: structuredClone(input.nextDraftConfig),
       siteConfig: structuredClone(input.nextSiteConfig),
+      exportStatus: 'none',
+      exportUrl: null,
+      exportRequestedAt: null,
     });
     state.recordsBySite.set(record.siteId, record);
     return copy(record);

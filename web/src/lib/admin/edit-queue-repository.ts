@@ -4,6 +4,7 @@ import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { rowToEditRequest, rowToLedgerEntry, type EditRequestRow, type LedgerRow } from '@/lib/data/supabase/mappers';
 import { MockAdminEditQueueRepository } from './edit-queue-repository-mock';
 import {
+  ADMIN_EDIT_COMPLETION_STATUSES,
   ADMIN_EDIT_QUEUE_STATUSES,
   AdminEditQueueError,
   deriveAdminEditQueueItem,
@@ -46,9 +47,14 @@ export class SupabaseAdminEditQueueRepository implements AdminEditQueueRepositor
     const client = getServiceRoleClient();
     const { data, error } = await client
       .from('edit_requests')
-      .update({ status: 'applied', applied_at: input.completedAt })
+      .update({
+        status: 'applied',
+        applied_at: input.completedAt,
+        reviewed_at: input.completedAt,
+        qa_note: 'ADMIN_CONFIRMED_SITE_APPLIED',
+      })
       .eq('id', input.editRequestId)
-      .in('status', ADMIN_EDIT_QUEUE_STATUSES)
+      .in('status', ADMIN_EDIT_COMPLETION_STATUSES)
       .select('*')
       .maybeSingle();
     if (error) throw new Error(`admin edit request completion failed: ${error.message}`);

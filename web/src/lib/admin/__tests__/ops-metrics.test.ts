@@ -41,7 +41,8 @@ describe('ADM4 admin revenue metrics', () => {
     const result = buildAdminOpsRevenueMetrics([
       payment('before', { createdAt: '2026-06-30T14:59:59.999Z' }),
       payment('start', { createdAt: '2026-06-30T15:00:00.000Z' }),
-      payment('last', { createdAt: '2026-07-31T14:59:59.999Z' }),
+      payment('before-now', { createdAt: '2026-07-17T02:59:59.999Z' }),
+      payment('future-in-month', { createdAt: '2026-07-31T14:59:59.999Z' }),
       payment('end', { createdAt: '2026-07-31T15:00:00.000Z' }),
     ], NOW);
 
@@ -154,6 +155,30 @@ describe('ADM4 admin revenue metrics', () => {
     assert.equal(result.operatingRevenueNetKrw, -100_000);
   });
 
+  test('does not count future receipts/refunds/contracts and rejects impossible refund chronology', () => {
+    const futurePayment = payment('future-payment', {
+      createdAt: '2026-07-18T03:00:00.000Z',
+    });
+    const futureRefund = payment('future-refund', {
+      createdAt: '2026-07-01T03:00:00.000Z',
+      refundedAt: '2026-07-18T03:00:00.000Z',
+      refundAmount: PRICING.base.launch,
+    });
+    const impossible = payment('impossible-refund', {
+      createdAt: '2026-07-10T03:00:00.000Z',
+      refundedAt: '2026-07-09T03:00:00.000Z',
+      refundAmount: PRICING.base.launch,
+    });
+    const result = buildAdminOpsRevenueMetrics([futurePayment, futureRefund, impossible], NOW);
+
+    assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.receipts.refundsKrw, 0);
+    assert.equal(result.launchOffer.contracts, 1);
+    assert.deepEqual(result.anomalies, [
+      { paymentId: 'impossible-refund', code: 'invalid_refund' },
+    ]);
+  });
+
   test('counts cumulative exact launch contracts, excludes full refunds, and uses the offer limit', () => {
     const launchVideo = PRICING.base.launch + PRICING.videoHeroAddon;
     const fullRefund = payment('full-refund', {
@@ -169,6 +194,7 @@ describe('ADM4 admin revenue metrics', () => {
         createdAt: '2026-01-01T03:00:00.000Z',
       }),
       payment('launch-partial', {
+        createdAt: '2026-01-10T03:00:00.000Z',
         refundedAt: '2026-03-01T03:00:00.000Z',
         refundAmount: 10_000,
       }),
@@ -204,6 +230,7 @@ describe('ADM4 admin revenue metrics', () => {
       { paymentId: 'bad-created', code: 'invalid_created_at' },
       { paymentId: 'bad-refund', code: 'invalid_refund' },
     ]);
+    assert.equal(result.anomalyPaymentCount, 5);
     assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
   });
 

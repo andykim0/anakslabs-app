@@ -3,12 +3,18 @@ import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { applyHeroVideoToConfig } from '@/lib/ai/video-pipeline-core';
 import { getHeroVideoFulfillmentRepository } from '@/lib/admin/video-fulfillment-repository';
-import { siteVideoFulfillmentState } from '@/lib/admin/video-fulfillment-core';
+import {
+  siteVideoFulfillmentState,
+  type VideoFulfillmentBlockedReason,
+} from '@/lib/admin/video-fulfillment-core';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { resolveOwnedAssetRecords, toAssetRef } from '@/lib/assets/registry';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
+import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
+import { preflightScan } from '@/lib/scan/preflight';
+import { checkPublish } from '@/lib/publish/preflight';
+import { siteUrlOf } from '@/lib/seo/structured-data';
 import type { AssetRecord } from '@/lib/assets/provenance';
-import type { Site } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import { apiError, parseBody, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
@@ -26,8 +32,26 @@ function heroPoster(config: SiteConfig): string | null {
     ?.background.image?.src ?? null;
 }
 
-function activeConfig(site: Site): SiteConfig | null {
-  return site?.draftConfig ?? site?.siteConfig ?? null;
+function blockedFulfillmentResponse(reason: VideoFulfillmentBlockedReason): NextResponse {
+  if (reason === 'asset-policy-v2-required') {
+    return apiError(
+      409,
+      'VIDEO_FULFILLMENT_ASSET_POLICY_REQUIRED',
+      '자산 출처 정책 v2가 확인되지 않아 영상을 안전하게 적용할 수 없습니다.',
+    );
+  }
+  if (reason === 'hero-poster-mismatch') {
+    return apiError(
+      409,
+      'VIDEO_FULFILLMENT_HERO_SOURCE_MISMATCH',
+      '초안과 발행본의 히어로 원본이 달라 같은 poster를 적용할 수 없습니다.',
+    );
+  }
+  return apiError(
+    409,
+    'HERO_SOURCE_MISSING',
+    '히어로 원본 이미지가 없어 poster와 영상을 안전하게 적용할 수 없습니다.',
+  );
 }
 
 export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params }) => {
@@ -63,7 +87,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, 'VIDEO_FULFILLMENT_NOT_PENDING', '애드온 권한·명시적 요청·미이행 상태를 모두 확인할 수 없습니다.');
   }
   if (state.blockedReason) {
-    return apiError(409, 'HERO_SOURCE_MISSING', '히어로 원본 이미지가 없어 poster와 영상을 안전하게 적용할 수 없습니다.');
+    return blockedFulfillmentResponse(state.blockedReason);
   }
 
   let videoRecord: AssetRecord | undefined;
@@ -86,8 +110,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(422, 'VIDEO_ASSET_PROVENANCE_INVALID', '서버가 등록한 AI 영상 자산만 이행에 사용할 수 있습니다.');
   }
 
-  const current = activeConfig(site);
-  const posterUrl = current ? heroPoster(current) : null;
+  const posterUrl = heroPoster(state.config);
   if (!posterUrl) return apiError(409, 'HERO_SOURCE_MISSING', '히어로 poster 원본을 확인할 수 없습니다.');
   const trustedAssetRef = toAssetRef(videoRecord);
 
@@ -129,6 +152,70 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       return apiError(422, 'VIDEO_FULFILLMENT_POLICY_REJECTED', '현재 자산 정책에서 이 영상의 배정을 승인할 수 없습니다.');
     }
     throw error;
+  }
+
+  // Updating an existing live snapshot is equivalent to publishing a new
+  // artifact. Audit the exact policy-authorized object that the atomic
+  // repository call will persist; warnings remain non-blocking by contract.
+  if (nextSiteConfig) {
+    let motionProvenance: Awaited<ReturnType<typeof resolveStoredBeforeAfterMotionOptions>>;
+    try {
+      motionProvenance = await resolveStoredBeforeAfterMotionOptions({
+        config: nextSiteConfig,
+        clientId: client.id,
+        siteId,
+      });
+    } catch (error) {
+      console.error('[video-fulfillment] live motion provenance audit unavailable', {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return apiError(
+        503,
+        'VIDEO_FULFILLMENT_PUBLISH_AUDIT_UNAVAILABLE',
+        '영상 적용 전 발행 자산 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      );
+    }
+    if (!motionProvenance.ok) {
+      return apiError(
+        409,
+        'VIDEO_FULFILLMENT_PUBLISH_PROVENANCE_BLOCKED',
+        motionProvenance.message,
+        { reason: motionProvenance.code },
+      );
+    }
+
+    let scan: ReturnType<typeof preflightScan>;
+    let publishGate: ReturnType<typeof checkPublish>;
+    try {
+      scan = preflightScan(nextSiteConfig, {
+        siteUrl: siteUrlOf(site.domain) || undefined,
+        tier: client.tier,
+        motionOwnerId: client.id,
+        motionSiteId: siteId,
+        motionAssets: motionProvenance.options.assets,
+      });
+      publishGate = checkPublish(nextSiteConfig, client.tier, {
+        scan: { total: scan.scores.total, grade: scan.grade },
+        artifact: scan.publishAudit,
+      });
+    } catch (error) {
+      console.error('[video-fulfillment] live artifact audit unavailable', {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return apiError(
+        503,
+        'VIDEO_FULFILLMENT_PUBLISH_AUDIT_UNAVAILABLE',
+        '영상 적용 전 발행 품질 검사를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      );
+    }
+    if (!publishGate.ok) {
+      return apiError(
+        409,
+        'VIDEO_FULFILLMENT_PUBLISH_QUALITY_BLOCKED',
+        publishGate.blockers.join(' '),
+        { blockers: publishGate.blockers },
+      );
+    }
   }
 
   try {

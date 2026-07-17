@@ -26,9 +26,15 @@ export const GET = withApiHandler(async () => {
     sites.listAll(),
     fulfillments.listRecent(100),
   ]);
+  // Recent history is presentation-only. Queue eligibility must consult the
+  // authoritative per-site completion lookup so an older completion can never
+  // fall out of the window and re-enter the queue.
+  const completionsBySite = await Promise.all(
+    allSites.map(async (site) => [site.id, await fulfillments.getBySite(site.id)] as const),
+  );
   const clientById = new Map(allClients.map((client) => [client.id, client] as const));
   const siteById = new Map(allSites.map((site) => [site.id, site] as const));
-  const completionBySite = new Map(recentCompletions.map((row) => [row.siteId, row] as const));
+  const completionBySite = new Map(completionsBySite);
   const nowMs = Date.now();
 
   const items = allSites.flatMap((site) => {
@@ -55,7 +61,13 @@ export const GET = withApiHandler(async () => {
       requestedAt: item.requestedAt,
       timingSource: item.requestedAtSource,
       waitingDays: waitingDays(item.requestedAt, nowMs),
-      blockedReason: item.blockedReason === 'missing-hero-image' ? 'hero-source-missing' as const : null,
+      blockedReason: item.blockedReason === 'missing-hero-image'
+        ? 'hero-source-missing' as const
+        : item.blockedReason === 'asset-policy-v2-required'
+          ? 'asset-policy-v2-required' as const
+          : item.blockedReason === 'hero-poster-mismatch'
+            ? 'hero-source-mismatch' as const
+            : null,
     }];
   }).sort((left, right) => left.requestedAt.localeCompare(right.requestedAt));
 

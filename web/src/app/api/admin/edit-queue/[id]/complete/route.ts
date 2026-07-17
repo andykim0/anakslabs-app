@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import {
-  AdminEditQueueError,
-} from '@/lib/admin/edit-queue-core';
+import { z } from 'zod';
+import { AdminEditQueueError } from '@/lib/admin/edit-queue-core';
 import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
-import { apiError, withApiHandler } from '../../../../_lib/http';
+import { apiError, parseBody, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
 
 type Ctx = { params: Promise<{ id: string }> };
+
+const completionBody = z.object({ siteAppliedConfirmed: z.literal(true) }).strict();
 
 function errorResponse(error: AdminEditQueueError): NextResponse {
   if (error.code === 'ADMIN_EDIT_REQUEST_NOT_FOUND') {
@@ -18,9 +19,12 @@ function errorResponse(error: AdminEditQueueError): NextResponse {
   return apiError(409, error.code, '이미 반려됐거나 현재 상태에서는 완료할 수 없는 요청입니다.');
 }
 
-export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
+export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
+
+  const body = await parseBody(request, completionBody);
+  if (!body.ok) return body.res;
 
   const { id } = await params;
   try {

@@ -16,7 +16,10 @@ export interface VideoFulfillmentRecord {
   completedAt: string;
 }
 
-export type VideoFulfillmentBlockedReason = 'missing-hero-image';
+export type VideoFulfillmentBlockedReason =
+  | 'missing-hero-image'
+  | 'asset-policy-v2-required'
+  | 'hero-poster-mismatch';
 
 export interface VideoQueueItem {
   siteId: string;
@@ -59,14 +62,35 @@ export interface VideoFulfillmentRequestTiming {
   requestedAtSource: VideoFulfillmentRequestedAtSource;
 }
 
-function activeConfig(site: Site): { config: SiteConfig; source: 'draft' | 'published' } | null {
-  if (site.draftConfig) return { config: site.draftConfig, source: 'draft' };
-  if (site.siteConfig) return { config: site.siteConfig, source: 'published' };
+function requestedConfig(site: Site): { config: SiteConfig; source: 'draft' | 'published' } | null {
+  if (site.draftConfig && heroVideoResumePlan(site.draftConfig).requested) {
+    return { config: site.draftConfig, source: 'draft' };
+  }
+  if (site.siteConfig && heroVideoResumePlan(site.siteConfig).requested) {
+    return { config: site.siteConfig, source: 'published' };
+  }
   return null;
 }
 
-function appliedInEitherConfig(site: Site): boolean {
-  return [site.draftConfig, site.siteConfig].some((config) => heroVideoResumePlan(config).applied);
+function existingConfigs(site: Site): SiteConfig[] {
+  return [site.draftConfig, site.siteConfig].filter((config): config is SiteConfig => config !== null);
+}
+
+function appliedInEveryExistingConfig(site: Site): boolean {
+  const configs = existingConfigs(site);
+  return configs.length > 0 && configs.every((config) => heroVideoResumePlan(config).applied);
+}
+
+function heroImageSource(config: SiteConfig): string | null {
+  return config.pages
+    .find((page) => page.slug === '')
+    ?.sections.find((section) => section.type === 'hero' && !section.hidden)
+    ?.background.image?.src ?? null;
+}
+
+function heroPosterSourcesDiffer(site: Site): boolean {
+  if (!site.draftConfig || !site.siteConfig) return false;
+  return heroImageSource(site.draftConfig) !== heroImageSource(site.siteConfig);
 }
 
 function validIso(value: string): boolean {
@@ -83,10 +107,10 @@ export function siteVideoFulfillmentState(input: {
     return { pending: false, reason: 'addon-not-owned' };
   }
   if (input.completion) return { pending: false, reason: 'completed' };
-  if (appliedInEitherConfig(input.site)) return { pending: false, reason: 'already-applied' };
+  if (appliedInEveryExistingConfig(input.site)) return { pending: false, reason: 'already-applied' };
 
-  const selected = activeConfig(input.site);
-  if (!selected || !heroVideoResumePlan(selected.config).requested) {
+  const selected = requestedConfig(input.site);
+  if (!selected) {
     return { pending: false, reason: 'not-requested' };
   }
 
@@ -96,14 +120,20 @@ export function siteVideoFulfillmentState(input: {
         requestedAt: input.site.createdAt,
         requestedAtSource: 'site-created-fallback' as const,
       };
-  const resume = heroVideoResumePlan(selected.config);
+  const blockedReason: VideoFulfillmentBlockedReason | null = input.site.assetPolicyVersion !== 2
+    ? 'asset-policy-v2-required'
+    : heroPosterSourcesDiffer(input.site)
+      ? 'hero-poster-mismatch'
+      : heroImageSource(selected.config)
+        ? null
+        : 'missing-hero-image';
   return {
     pending: true,
     config: selected.config,
     configSource: selected.source,
     requestedAt: timing.requestedAt,
     requestedAtSource: timing.requestedAtSource,
-    blockedReason: resume.canResume ? null : 'missing-hero-image',
+    blockedReason,
   };
 }
 
@@ -152,7 +182,8 @@ function configHasAppliedVideo(
     .find((page) => page.slug === '')
     ?.sections.find((section) => section.type === 'hero' && !section.hidden);
   const ref = config.assetRefs?.find((candidate) => candidate.assetId === input.assetId);
-  return hero?.background.video?.src === input.videoUrl
+  return config.motion?.videoAddon === true
+    && hero?.background.video?.src === input.videoUrl
     && hero.background.video.poster === input.posterUrl
     && ref?.url === input.videoUrl;
 }

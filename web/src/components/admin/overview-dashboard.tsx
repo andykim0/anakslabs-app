@@ -132,7 +132,7 @@ export function OverviewDashboard() {
               매출 한눈판
             </h2>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              {data.revenue.month.month} KST · 결제·환불 원장 기준
+              {data.revenue.month.month} KST · PG payments 결제·환불 원장 기준 · 크몽 수동 수금 제외
             </p>
           </div>
           <p className="text-xs text-slate-500">
@@ -140,17 +140,23 @@ export function OverviewDashboard() {
           </p>
         </div>
 
+        <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] leading-5 text-amber-800">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden />
+          현재 합계와 런칭 카운터는 payments 원장에 기록된 PG 결제만 포함합니다. 크몽 수동 제작비·영상
+          승인·수동 구독 갱신 수금은 금액 증거가 없어 포함하지 않습니다.
+        </div>
+
         <Card className="p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                이번 달 운영 매출
+                이번 달 PG 현금주의 순수금
               </p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
                 {formatKrw(data.revenue.operatingRevenueNetKrw)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                제작·AI 영상·사이트 운영 구독 순매출 · 크레딧 팩 제외
+                제작·AI 영상·사이트 운영 구독 수금 − 환불 · 크레딧 팩 제외
               </p>
             </div>
             <div className="text-right">
@@ -191,14 +197,14 @@ export function OverviewDashboard() {
           <StatCard
             label="미분류 제작"
             value={formatKrw(data.revenue.segments.unclassifiedBuild.netKrw)}
-            sub="과거·협의가 또는 불명확 조합"
+            sub="과거·협의가·불명확 조합·부분환불 배분"
             icon={CircleDollarSign}
             tone={data.revenue.segments.unclassifiedBuild.netKrw !== 0 ? 'danger' : 'neutral'}
           />
           <StatCard
-            label="이번 달 환불"
+            label="전체 환불"
             value={formatKrw(data.revenue.receipts.refundsKrw)}
-            sub="실제 환불 처리 시각 기준"
+            sub="크레딧 팩 포함 · 실제 처리 시각"
             icon={ReceiptText}
             tone={data.revenue.receipts.refundsKrw > 0 ? 'danger' : 'neutral'}
           />
@@ -208,7 +214,7 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                런칭 선착순 계약 카운터
+                런칭가 패턴 결제 카운터
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
                 {formatNumber(data.revenue.launchOffer.contracts)}
@@ -220,8 +226,8 @@ export function OverviewDashboard() {
               </p>
             </div>
             <p className="max-w-lg text-right text-[11px] leading-5 text-slate-500">
-              현 가격·초기 지급 조합이 정확히 확인되는 결제 계약만 집계합니다. Payment에 siteId가 없어
-              사이트 수가 아닌 계약 건수이며, 소진 플래그는 자동 변경하지 않습니다.
+              현 가격·초기 지급 조합이 정확히 확인되는 PG 결제 패턴만 집계합니다. Payment에 siteId가 없어
+              실제 사이트·크몽 계약 수가 아니며, 소진 플래그는 자동 변경하지 않습니다.
             </p>
           </div>
           {data.revenue.launchOffer.limit !== null ? (
@@ -245,7 +251,9 @@ export function OverviewDashboard() {
         {data.revenue.anomalies.length ? (
           <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
             <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
-            결제 원장 {formatNumber(data.revenue.anomalies.length)}건은 중복·형식 오류로 집계에서 제외됐습니다.
+            결제 원장 {formatNumber(data.revenue.anomalyPaymentCount)}건에서 오류{' '}
+            {formatNumber(data.revenue.anomalies.length)}개를 발견했습니다. 해당 필드의 분류·환불 반영은
+            추정하지 않았습니다.
           </div>
         ) : null}
       </section>

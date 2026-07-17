@@ -132,7 +132,11 @@ export interface AdminVideoQueueItem {
   requestedAt: string;
   timingSource: AdminVideoQueueTimingSource;
   waitingDays: number;
-  blockedReason: 'hero-source-missing' | null;
+  blockedReason:
+    | 'hero-source-missing'
+    | 'asset-policy-v2-required'
+    | 'hero-source-mismatch'
+    | null;
 }
 
 export interface AdminVideoFulfillmentHistoryItem {
@@ -360,7 +364,7 @@ export function completeAdminEditRequest(
     `/api/admin/edit-queue/${encodeURIComponent(editRequestId)}/complete`,
     {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify({ siteAppliedConfirmed: true }),
     },
   );
 }

@@ -8,6 +8,9 @@ export const ADMIN_EDIT_QUEUE_STATUSES = [
 
 export type AdminEditQueueStatus = (typeof ADMIN_EDIT_QUEUE_STATUSES)[number];
 
+/** Only QA-ready work can be closed; pending/in-flight AI work fails closed. */
+export const ADMIN_EDIT_COMPLETION_STATUSES = ['qa_review'] as const satisfies readonly EditStatus[];
+
 export interface EditCreditAudit {
   /** Append-only ledger entries tied to this request, including a refund if present. */
   ledgerEntryCount: number;
@@ -53,6 +56,10 @@ export class AdminEditQueueError extends Error {
 
 export function isAdminEditQueueStatus(status: EditStatus): status is AdminEditQueueStatus {
   return (ADMIN_EDIT_QUEUE_STATUSES as readonly EditStatus[]).includes(status);
+}
+
+export function isAdminEditCompletionStatus(status: EditStatus): status is 'qa_review' {
+  return (ADMIN_EDIT_COMPLETION_STATUSES as readonly EditStatus[]).includes(status);
 }
 
 /**

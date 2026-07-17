@@ -62,6 +62,8 @@ export interface AdminOpsRevenueMetrics {
   targetProgress: number;
   launchOffer: LaunchOfferCounterMetrics;
   anomalies: AdminPaymentAnomaly[];
+  /** Number of distinct payment rows represented by `anomalies`. */
+  anomalyPaymentCount: number;
 }
 
 type BuildContract =
@@ -201,8 +203,8 @@ function refundAllocations(
   return [{ segment: 'unclassifiedBuild', amount: refundAmount }];
 }
 
-function inRange(value: number, start: number, end: number): boolean {
-  return value >= start && value < end;
+function inRangeAsOf(value: number, start: number, end: number, nowMs: number): boolean {
+  return value >= start && value < end && value <= nowMs;
 }
 
 function quantityOfferLimit(): number | null {
@@ -223,6 +225,7 @@ export function buildAdminOpsRevenueMetrics(
   now: Date = new Date(),
 ): AdminOpsRevenueMetrics {
   const month = currentKstRevenueMonth(now);
+  const nowMs = now.getTime();
   const start = Date.parse(month.startIso);
   const end = Date.parse(month.endExclusiveIso);
   const segments = emptySegments();
@@ -256,14 +259,16 @@ export function buildAdminOpsRevenueMetrics(
     const refundValid =
       hasRefundMarker === hasRefundAmount
       && (!hasRefundMarker || (
-        refundAt !== null
+        createdAt !== null
+        && refundAt !== null
         && refundAmount !== null
         && isKrw(refundAmount)
         && refundAmount <= payment.amount
+        && refundAt >= createdAt
       ));
     if (!refundValid) anomalies.push({ paymentId: payment.id, code: 'invalid_refund' });
 
-    if (createdAt !== null && inRange(createdAt, start, end)) {
+    if (createdAt !== null && inRangeAsOf(createdAt, start, end, nowMs)) {
       for (const allocation of grossAllocations(payment, classification)) {
         addGross(segments[allocation.segment], allocation.amount);
       }
@@ -274,7 +279,7 @@ export function buildAdminOpsRevenueMetrics(
       refundValid
       && refundAt !== null
       && refundAmount !== null
-      && inRange(refundAt, start, end)
+      && inRangeAsOf(refundAt, start, end, nowMs)
     ) {
       for (const allocation of refundAllocations(payment, refundAmount, classification)) {
         addRefund(segments[allocation.segment], allocation.amount);
@@ -282,15 +287,17 @@ export function buildAdminOpsRevenueMetrics(
       addRefund(receipts, refundAmount);
     }
 
-    const fullyRefunded = refundValid
+    const fullyRefundedAsOfNow = refundValid
       && refundAt !== null
+      && refundAt <= nowMs
       && refundAmount === payment.amount;
     if (
       createdAt !== null
+      && createdAt <= nowMs
       && refundValid
       && payment.type === 'build_fee'
       && classification?.base === 'launch'
-      && !fullyRefunded
+      && !fullyRefundedAsOfNow
     ) {
       launchContracts += 1;
     }
@@ -322,5 +329,6 @@ export function buildAdminOpsRevenueMetrics(
       reachedLimit: limit !== null && launchContracts >= limit,
     },
     anomalies,
+    anomalyPaymentCount: new Set(anomalies.map((anomaly) => anomaly.paymentId)).size,
   };
 }

@@ -115,8 +115,10 @@ describe('ADM3 admin edit queue repository', () => {
 
   test('conditional completion is race-safe and duplicate application preserves the first timestamp', async () => {
     const { store, repository } = mockRepository();
-    const edit = request('race-id', 'pending', '2026-07-01T00:00:00.000Z');
+    const edit = request('race-id', 'qa_review', '2026-07-01T00:00:00.000Z');
     store.editRequests.set(edit.id, edit);
+    store.ledger.push(ledger('race-charge', edit.id, -1));
+    const ledgerBefore = structuredClone(store.ledger);
     const [first, second] = await Promise.all([
       repository.complete({ editRequestId: edit.id }),
       repository.complete({ editRequestId: edit.id }),
@@ -125,14 +127,22 @@ describe('ADM3 admin edit queue repository', () => {
     assert.equal(first.record.appliedAt, '2026-07-17T12:00:00.000Z');
     assert.equal(second.record.appliedAt, first.record.appliedAt);
     assert.equal(store.editRequests.get(edit.id)?.status, 'applied');
+    assert.equal(store.editRequests.get(edit.id)?.qaNote, 'ADMIN_CONFIRMED_SITE_APPLIED');
+    assert.deepEqual(store.ledger, ledgerBefore, 'completion only closes the request; it never rewrites credits');
   });
 
-  test('all three open states complete, while rejected and missing requests fail closed', async () => {
+  test('only QA-ready work completes; in-flight, rejected and missing requests fail closed', async () => {
     const { store, repository } = mockRepository();
-    for (const status of ADMIN_EDIT_QUEUE_STATUSES) {
-      const edit = request(`open-${status}`, status, '2026-07-01T00:00:00.000Z');
+    const ready = request('open-qa_review', 'qa_review', '2026-07-01T00:00:00.000Z');
+    store.editRequests.set(ready.id, ready);
+    assert.equal((await repository.complete({ editRequestId: ready.id })).record.status, 'applied');
+    for (const status of ADMIN_EDIT_QUEUE_STATUSES.filter((value) => value !== 'qa_review')) {
+      const edit = request(`in-flight-${status}`, status, '2026-07-01T00:00:00.000Z');
       store.editRequests.set(edit.id, edit);
-      assert.equal((await repository.complete({ editRequestId: edit.id })).record.status, 'applied');
+      await assert.rejects(
+        repository.complete({ editRequestId: edit.id }),
+        (error) => error instanceof AdminEditQueueError && error.code === 'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
+      );
     }
     const rejected = request('rejected-id', 'rejected', '2026-07-01T00:00:00.000Z');
     store.editRequests.set(rejected.id, rejected);
@@ -160,8 +170,8 @@ describe('ADM3 Supabase repository wiring', () => {
   });
 
   test('completion is a conditional state transition followed by authoritative race reread', () => {
-    const update = source.indexOf(".update({ status: 'applied'");
-    const conditional = source.indexOf(".in('status', ADMIN_EDIT_QUEUE_STATUSES)", update);
+    const update = source.indexOf('.update({');
+    const conditional = source.indexOf(".in('status', ADMIN_EDIT_COMPLETION_STATUSES)", update);
     const reread = source.indexOf(".from('edit_requests')", conditional);
     const duplicate = source.indexOf("current.status === 'applied'", reread);
     const rejected = source.indexOf("current.status === 'rejected'", duplicate);

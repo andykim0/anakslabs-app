@@ -22,6 +22,24 @@ import {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const BLOCKED_REASON_COPY: Record<
+  NonNullable<AdminVideoQueueItem['blockedReason']>,
+  { badge: string; message: string }
+> = {
+  'hero-source-missing': {
+    badge: '소스 확인 필요',
+    message: '히어로 원본 이미지가 없어 poster와 영상을 안전하게 적용할 수 없습니다.',
+  },
+  'asset-policy-v2-required': {
+    badge: '출처 정책 확인 필요',
+    message: '자산 출처 정책 v2가 확인되지 않은 사이트입니다. 정책 전환을 마친 뒤 이행해 주세요.',
+  },
+  'hero-source-mismatch': {
+    badge: '초안·발행본 불일치',
+    message: '초안과 발행본의 히어로 원본이 달라 하나의 poster를 양쪽에 적용할 수 없습니다. 먼저 원본을 일치시켜 주세요.',
+  },
+};
+
 function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
   const queryClient = useQueryClient();
   const [videoAssetId, setVideoAssetId] = useState('');
@@ -35,7 +53,8 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
       ]);
     },
   });
-  const blocked = item.blockedReason === 'hero-source-missing';
+  const blockedCopy = item.blockedReason ? BLOCKED_REASON_COPY[item.blockedReason] : null;
+  const blocked = blockedCopy !== null;
   const validAssetId = UUID_PATTERN.test(videoAssetId.trim());
 
   return (
@@ -60,7 +79,7 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
                 <Badge tone={SITE_STATUS_TONES[item.siteStatus]}>{item.siteStatus}</Badge>
-                {blocked ? <Badge tone="red">소스 확인 필요</Badge> : <Badge tone="amber">이행 대기</Badge>}
+                {blockedCopy ? <Badge tone="red">{blockedCopy.badge}</Badge> : <Badge tone="amber">이행 대기</Badge>}
               </div>
               <p className="mt-1 text-xs text-slate-500">
                 {item.clientName} · {item.industryClass}
@@ -90,13 +109,19 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
             </p>
           ) : null}
 
+          {blockedCopy ? (
+            <p className="mt-2 rounded-md border border-red-100 bg-red-50 px-3 py-2 text-[11px] leading-5 text-red-700">
+              {blockedCopy.message}
+            </p>
+          ) : null}
+
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <label className="min-w-0 flex-1">
               <span className="sr-only">영상 자산 ID</span>
               <input
                 value={videoAssetId}
                 onChange={(event) => setVideoAssetId(event.target.value)}
-                placeholder="스크립트가 반환한 영상 자산 UUID"
+                placeholder="registry 등록 후 확인한 영상 자산 UUID"
                 disabled={blocked || completion.isPending}
                 className="h-9 w-full rounded-md border border-slate-300 px-3 text-xs text-slate-800 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100"
               />

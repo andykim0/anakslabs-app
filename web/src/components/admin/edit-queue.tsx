@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { CheckCircle2, Clock3, Inbox, Loader2, RefreshCw, WalletCards } from 'lucide-react';
+import { useState } from 'react';
 import {
   completeAdminEditRequest,
   getAdminEditQueue,
@@ -28,6 +29,8 @@ function elapsedLabel(hours: number): string {
 
 function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
   const queryClient = useQueryClient();
+  const [siteAppliedConfirmed, setSiteAppliedConfirmed] = useState(false);
+  const canComplete = item.status === 'qa_review';
   const completion = useMutation({
     mutationFn: () => completeAdminEditRequest(item.id),
     onSuccess: async () => {
@@ -78,22 +81,37 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
           {item.isInitialRevision ? <Badge tone="green">초기 무료 수정</Badge> : null}
         </div>
 
-        <button
-          type="button"
-          onClick={() => completion.mutate()}
-          disabled={completion.isPending}
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {completion.isPending ? (
-            <Loader2 size={13} className="animate-spin" aria-hidden />
+        <div className="flex flex-col items-end gap-2">
+          {canComplete ? (
+            <label className="flex items-center gap-2 text-xs text-slate-600">
+              <input
+                type="checkbox"
+                checked={siteAppliedConfirmed}
+                onChange={(event) => setSiteAppliedConfirmed(event.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-slate-900"
+              />
+              사이트에 실제 반영한 내용을 확인했습니다
+            </label>
           ) : (
-            <CheckCircle2 size={13} aria-hidden />
+            <p className="text-[11px] text-amber-700">처리·QA 준비가 끝난 요청만 완료할 수 있습니다.</p>
           )}
-          요청 처리 완료
-        </button>
+          <button
+            type="button"
+            onClick={() => completion.mutate()}
+            disabled={!canComplete || !siteAppliedConfirmed || completion.isPending}
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {completion.isPending ? (
+              <Loader2 size={13} className="animate-spin" aria-hidden />
+            ) : (
+              <CheckCircle2 size={13} aria-hidden />
+            )}
+            실제 반영 확인·완료
+          </button>
+        </div>
       </div>
       <p className="mt-1.5 text-right text-[11px] text-slate-400">
-        사이트 배포를 뜻하지 않고, 이 운영 요청의 상태만 완료로 기록합니다.
+        이 버튼은 새 배포를 실행하지 않습니다. 운영자가 사이트에 실제 반영한 사실을 확인한 뒤 기록합니다.
       </p>
       {completion.isError ? (
         <p role="alert" className="mt-2 text-right text-xs text-red-600">

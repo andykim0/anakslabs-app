@@ -64,6 +64,8 @@ declare
   v_created public.hero_video_fulfillments%rowtype;
   v_config jsonb;
   v_current_config jsonb;
+  v_draft_hero_image text;
+  v_site_hero_image text;
   v_has_hero boolean;
   v_has_ref boolean;
   v_requested boolean;
@@ -161,31 +163,82 @@ begin
       using errcode = '42501';
   end if;
 
-  v_current_config := coalesce(v_site.draft_config, v_site.site_config);
-  if v_current_config is null then
+  if v_site.draft_config is null and v_site.site_config is null then
     raise exception 'video fulfillment requires a persisted site config'
       using errcode = '23514';
   end if;
-  v_requested := case
-    when (v_current_config -> 'motion') ? 'videoAddon'
-      then v_current_config #>> '{motion,videoAddon}' = 'true'
-    else v_current_config #>> '{motion,videoRequested}' = 'true'
-  end;
-  if not coalesce(v_requested, false) then
+
+  -- Prefer a requested draft, but do not let a stale non-requesting draft hide
+  -- an explicit request in the published snapshot.
+  v_current_config := null;
+  foreach v_config in array array[v_site.draft_config, v_site.site_config]
+  loop
+    if v_config is null then
+      continue;
+    end if;
+    v_requested := case
+      when (v_config -> 'motion') ? 'videoAddon'
+        then v_config #>> '{motion,videoAddon}' = 'true'
+      else v_config #>> '{motion,videoRequested}' = 'true'
+    end;
+    if coalesce(v_requested, false) then
+      v_current_config := v_config;
+      exit;
+    end if;
+  end loop;
+  if v_current_config is null then
     raise exception 'video fulfillment was not explicitly requested'
       using errcode = '42501';
   end if;
-  if exists (
+
+  select section #>> '{background,image,src}'
+  into v_draft_hero_image
+  from jsonb_array_elements(coalesce(v_site.draft_config -> 'pages', '[]'::jsonb)) page,
+       jsonb_array_elements(coalesce(page -> 'sections', '[]'::jsonb)) section
+  where page ->> 'slug' = ''
+    and section ->> 'type' = 'hero'
+    and coalesce(section ->> 'hidden', 'false') = 'false'
+  limit 1;
+  select section #>> '{background,image,src}'
+  into v_site_hero_image
+  from jsonb_array_elements(coalesce(v_site.site_config -> 'pages', '[]'::jsonb)) page,
+       jsonb_array_elements(coalesce(page -> 'sections', '[]'::jsonb)) section
+  where page ->> 'slug' = ''
+    and section ->> 'type' = 'hero'
+    and coalesce(section ->> 'hidden', 'false') = 'false'
+  limit 1;
+  if v_site.draft_config is not null and v_site.site_config is not null
+     and v_draft_hero_image is distinct from v_site_hero_image then
+    raise exception 'draft and published hero poster sources differ'
+      using errcode = '23514';
+  end if;
+  if coalesce(v_draft_hero_image, v_site_hero_image) is null
+     or coalesce(v_draft_hero_image, v_site_hero_image) <> btrim(p_poster_url) then
+    raise exception 'video fulfillment poster does not match the persisted hero source'
+      using errcode = '23514';
+  end if;
+
+  -- Completion is redundant only when every config column that exists already
+  -- contains a complete hero video. A partially applied pair remains repairable.
+  if (v_site.draft_config is null or exists (
     select 1
-    from unnest(array[v_site.draft_config, v_site.site_config]) current_config,
-         jsonb_array_elements(coalesce(current_config -> 'pages', '[]'::jsonb)) page,
+    from jsonb_array_elements(coalesce(v_site.draft_config -> 'pages', '[]'::jsonb)) page,
          jsonb_array_elements(coalesce(page -> 'sections', '[]'::jsonb)) section
-    where current_config is not null
-      and page ->> 'slug' = ''
+    where page ->> 'slug' = ''
       and section ->> 'type' = 'hero'
+      and coalesce(section ->> 'hidden', 'false') = 'false'
       and nullif(section #>> '{background,video,src}', '') is not null
       and nullif(section #>> '{background,video,poster}', '') is not null
-  ) then
+  )) and (v_site.site_config is null or exists (
+    select 1
+    from jsonb_array_elements(coalesce(v_site.site_config -> 'pages', '[]'::jsonb)) page,
+         jsonb_array_elements(coalesce(page -> 'sections', '[]'::jsonb)) section
+    where page ->> 'slug' = ''
+      and section ->> 'type' = 'hero'
+      and coalesce(section ->> 'hidden', 'false') = 'false'
+      and nullif(section #>> '{background,video,src}', '') is not null
+      and nullif(section #>> '{background,video,poster}', '') is not null
+  )) then
     raise exception 'hero video is already applied'
       using errcode = '23505';
   end if;
@@ -232,7 +285,10 @@ begin
 
   update public.sites
   set draft_config = p_next_draft_config,
-      site_config = p_next_site_config
+      site_config = p_next_site_config,
+      export_status = 'none',
+      export_url = null,
+      export_requested_at = null
   where id = p_site_id and client_id = p_client_id;
   if not found then
     raise exception 'video fulfillment site changed concurrently'

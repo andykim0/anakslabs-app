@@ -18,22 +18,34 @@ export function formatNumber(n: number): string {
   return n.toLocaleString('ko-KR');
 }
 
+function kstParts(iso: string): Record<string, string> | null {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(date).map((part) => [part.type, part.value]),
+  );
+}
+
 export function formatDate(iso?: string | null): string {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}.${mm}.${dd}`;
+  const parts = kstParts(iso);
+  return parts ? `${parts.year}.${parts.month}.${parts.day}` : '—';
 }
 
 export function formatDateTime(iso?: string | null): string {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mi = String(d.getMinutes()).padStart(2, '0');
-  return `${formatDate(iso)} ${hh}:${mi}`;
+  const parts = kstParts(iso);
+  return parts
+    ? `${parts.year}.${parts.month}.${parts.day} ${parts.hour}:${parts.minute} KST`
+    : '—';
 }
 
 export function shortId(id: string | null | undefined): string {
