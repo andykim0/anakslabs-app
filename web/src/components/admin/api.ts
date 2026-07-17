@@ -31,6 +31,8 @@ import type {
   SiteStatus,
   Tier,
 } from '@/lib/types/domain';
+import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
+import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -147,6 +149,46 @@ export interface AdminVideoQueueResponse {
   recentCompletions: AdminVideoFulfillmentHistoryItem[];
 }
 
+export interface AdminSubscriptionReportItem {
+  siteId: string;
+  siteName: string;
+  siteStatus: SiteStatus;
+  reportId: string | null;
+  deliveryStatus: MonthlyReportDeliveryStatus | 'not-generated' | 'not-eligible';
+  deliveryAttempts: number;
+  lastErrorCode: string | null;
+  sentAt: string | null;
+}
+
+export interface AdminSubscriptionItem {
+  clientId: string;
+  clientName: string;
+  clientEmail: string;
+  status: SiteSubscriptionStatus;
+  active: boolean;
+  currentPeriodEnd: string;
+  updatedAt: string;
+  reports: AdminSubscriptionReportItem[];
+}
+
+export interface AdminSubscriptionsResponse {
+  asOf: string;
+  reportPeriodMonth: string;
+  summary: {
+    active: number;
+    pastDue: number;
+    suspended: number;
+    cancelled: number;
+    mrrKrw: number;
+    newThisMonth: number;
+    cancelledThisMonth: number;
+    reportAccepted: number;
+    reportFailed: number;
+    reportMissing: number;
+  };
+  items: AdminSubscriptionItem[];
+}
+
 // ---------- fetch 헬퍼 ----------
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -260,6 +302,22 @@ export function completeVideoFulfillment(
     {
       method: 'POST',
       body: JSON.stringify({ videoAssetId }),
+    },
+  );
+}
+
+export function getAdminSubscriptions(): Promise<AdminSubscriptionsResponse> {
+  return fetchJson<AdminSubscriptionsResponse>('/api/admin/subscriptions');
+}
+
+export function retryAdminMonthlyReport(
+  reportId: string,
+): Promise<{ ok: boolean; deliveryStatus: 'sent' | 'failed' | 'delivery_unknown' }> {
+  return fetchJson<{ ok: boolean; deliveryStatus: 'sent' | 'failed' | 'delivery_unknown' }>(
+    '/api/admin/reports/retry',
+    {
+      method: 'POST',
+      body: JSON.stringify({ reportId }),
     },
   );
 }

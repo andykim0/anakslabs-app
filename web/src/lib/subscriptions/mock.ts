@@ -2,7 +2,9 @@ import type { MockStore } from '@/lib/data/mock/store';
 import { getMockStore } from '@/lib/data/mock/store';
 import {
   addUtcCalendarMonthsClamped,
+  buildAdminSiteSubscriptionListing,
   isSiteSubscriptionActiveAt,
+  type AdminSiteSubscriptionListing,
   type ResolvedSubscription,
   type SiteSubscriptionState,
   type SiteSubscriptionStatus,
@@ -86,6 +88,21 @@ export function listMockActiveSiteSubscriptions(at = new Date()): SiteSubscripti
   return [...data().states.values()]
     .filter((state) => isSiteSubscriptionActiveAt(state, at))
     .map((state) => structuredClone(state));
+}
+
+export function listMockSiteSubscriptionsForAdmin(
+  at = new Date(),
+): AdminSiteSubscriptionListing {
+  const stateData = data();
+  return buildAdminSiteSubscriptionListing({
+    states: [...stateData.states.values()].map((state) => structuredClone(state)),
+    renewals: [...stateData.renewals.values()].map((renewal) => ({
+      clientId: renewal.clientId,
+      periodStart: renewal.periodStart,
+      reversedAt: renewal.reversedAt,
+    })),
+    at,
+  });
 }
 
 export function renewMockSiteSubscription(input: {

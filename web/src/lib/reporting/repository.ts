@@ -10,6 +10,7 @@ import {
   normalizeClaimedAt,
   normalizeDeliveryResult,
   normalizeReportListLimit,
+  normalizeReportPeriodMonth,
   normalizeStaleReconciliation,
   type MonthlyReportRecord,
   type MonthlyReportsRepository,
@@ -94,6 +95,18 @@ export class SupabaseMonthlyReportsRepository implements MonthlyReportsRepositor
       .order('created_at', { ascending: false })
       .limit(limit);
     if (error) throw new Error(`monthly report list failed: ${error.message}`);
+    return ((data ?? []) as MonthlyReportRow[]).map(toRecord);
+  }
+
+  async listForService(input: Parameters<MonthlyReportsRepository['listForService']>[0]) {
+    const periodMonth = normalizeReportPeriodMonth(input.periodMonth);
+    const { data, error } = await getServiceRoleClient()
+      .from('monthly_site_reports')
+      .select('*')
+      .eq('period_month', `${periodMonth}-01`)
+      .order('created_at', { ascending: false })
+      .order('site_id', { ascending: true });
+    if (error) throw new Error(`monthly report service list failed: ${error.message}`);
     return ((data ?? []) as MonthlyReportRow[]).map(toRecord);
   }
 

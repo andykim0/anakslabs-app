@@ -5,8 +5,10 @@ import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { MockCreditsService } from '@/lib/data/mock/credits';
 import { PRICING } from '@/lib/pricing';
 import {
+  buildAdminSiteSubscriptionListing,
   isSiteSubscriptionActiveAt,
   subscriptionGrantIdempotencyKey,
+  type AdminSiteSubscriptionListing,
   type ResolvedSubscription,
   type SiteSubscriptionState,
   type SiteSubscriptionStatus,
@@ -14,6 +16,7 @@ import {
 import {
   getMockSiteSubscription,
   listMockActiveSiteSubscriptions,
+  listMockSiteSubscriptionsForAdmin,
   renewMockSiteSubscription,
   resolveMockSiteSubscription,
   setMockSiteSubscriptionStatus,
@@ -24,6 +27,12 @@ type SubscriptionRow = {
   status: SiteSubscriptionStatus;
   current_period_end: string;
   updated_at: string;
+};
+
+type SubscriptionRenewalRow = {
+  client_id: string;
+  period_start: string;
+  reversed_at: string | null;
 };
 
 function rowToState(row: SubscriptionRow): SiteSubscriptionState {
@@ -54,6 +63,37 @@ export async function resolveSiteSubscription(
   if (isMockMode()) return resolveMockSiteSubscription(clientId, at);
   const state = await getSiteSubscription(clientId);
   return { state, active: isSiteSubscriptionActiveAt(state, at) };
+}
+
+/** Service-role operational read model; routes must apply the existing admin guard first. */
+export async function listSiteSubscriptionsForAdmin(
+  at: Date = new Date(),
+): Promise<AdminSiteSubscriptionListing> {
+  if (isMockMode()) return listMockSiteSubscriptionsForAdmin(at);
+  const service = getServiceRoleClient();
+  const [statesResult, renewalsResult] = await Promise.all([
+    service
+      .from('site_subscriptions')
+      .select('client_id,status,current_period_end,updated_at'),
+    service
+      .from('site_subscription_renewals')
+      .select('client_id,period_start,reversed_at'),
+  ]);
+  if (statesResult.error) {
+    throw new Error(`site subscription admin list failed: ${statesResult.error.message}`);
+  }
+  if (renewalsResult.error) {
+    throw new Error(`site subscription renewal list failed: ${renewalsResult.error.message}`);
+  }
+  return buildAdminSiteSubscriptionListing({
+    states: ((statesResult.data ?? []) as SubscriptionRow[]).map(rowToState),
+    renewals: ((renewalsResult.data ?? []) as SubscriptionRenewalRow[]).map((row) => ({
+      clientId: row.client_id,
+      periodStart: row.period_start,
+      reversedAt: row.reversed_at,
+    })),
+    at,
+  });
 }
 
 export async function renewSiteSubscriptionManually(input: {

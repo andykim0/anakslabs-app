@@ -6,6 +6,7 @@ import {
   normalizeClaimedAt,
   normalizeDeliveryResult,
   normalizeReportListLimit,
+  normalizeReportPeriodMonth,
   normalizeStaleReconciliation,
   type MonthlyReportRecord,
   type MonthlyReportsRepository,
@@ -81,6 +82,17 @@ export class MockMonthlyReportsRepository implements MonthlyReportsRepository {
           right.createdAt.localeCompare(left.createdAt),
       )
       .slice(0, limit)
+      .map(copyRecord);
+  }
+
+  async listForService(input: Parameters<MonthlyReportsRepository['listForService']>[0]) {
+    const periodMonth = normalizeReportPeriodMonth(input.periodMonth);
+    return [...stateFor(this.store).records.values()]
+      .filter((record) => record.periodMonth === periodMonth)
+      .sort(
+        (left, right) =>
+          right.createdAt.localeCompare(left.createdAt) || left.siteId.localeCompare(right.siteId),
+      )
       .map(copyRecord);
   }
 

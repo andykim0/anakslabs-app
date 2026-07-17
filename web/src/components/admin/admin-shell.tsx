@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Clapperboard, ClipboardCheck, LayoutDashboard, Server, ShieldAlert, Users } from 'lucide-react';
+import { Clapperboard, ClipboardCheck, LayoutDashboard, ReceiptText, Server, ShieldAlert, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/admin/clients', label: '고객', icon: Users, exact: false },
   { href: '/admin/qa', label: 'QA 큐', icon: ClipboardCheck, exact: false },
   { href: '/admin/video-queue', label: '영상 이행', icon: Clapperboard, exact: false },
+  { href: '/admin/subscriptions', label: '구독·리포트', icon: ReceiptText, exact: false },
   { href: '/admin/infra', label: '인프라', icon: Server, exact: false },
 ] as const;
 

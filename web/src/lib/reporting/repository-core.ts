@@ -112,6 +112,8 @@ export interface MonthlyReportsRepository {
     created: boolean;
   }>;
   listByClient(input: { clientId: string; limit?: number }): Promise<MonthlyReportRecord[]>;
+  /** Service/admin month view. Callers must enforce an admin or service-only guard. */
+  listForService(input: { periodMonth: string }): Promise<MonthlyReportRecord[]>;
   get(input: { clientId: string; reportId: string }): Promise<MonthlyReportRecord | null>;
   /** Service/admin retry path. Callers must enforce an owned-site or admin guard. */
   getByIdForService(reportId: string): Promise<MonthlyReportRecord | null>;
@@ -124,13 +126,19 @@ export interface MonthlyReportsRepository {
   purgeOlderThan(cutoffIso: string): Promise<number>;
 }
 
+export function normalizeReportPeriodMonth(periodMonth: string): string {
+  const value = periodMonth.trim();
+  if (!KST_MONTH.safeParse(value).success) {
+    throw new TypeError('Monthly report periodMonth must be YYYY-MM');
+  }
+  return value;
+}
+
 export function assertReportInsertInput(input: InsertMonthlyReportInput): void {
   if (!input.siteId.trim() || !input.clientId.trim()) {
     throw new TypeError('Monthly report siteId and clientId are required');
   }
-  if (!KST_MONTH.safeParse(input.periodMonth).success) {
-    throw new TypeError('Monthly report periodMonth must be YYYY-MM');
-  }
+  normalizeReportPeriodMonth(input.periodMonth);
   const parsed = monthlyPerformanceReportSchema.safeParse(input.report);
   if (!parsed.success) throw new TypeError('Monthly report payload is invalid');
   if (input.report.siteId !== input.siteId || input.report.period.month !== input.periodMonth) {

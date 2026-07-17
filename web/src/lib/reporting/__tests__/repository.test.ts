@@ -119,6 +119,28 @@ describe('RPT2 monthly report repository', () => {
     );
   });
 
+  test('service month listing matches the exact KST report month', async () => {
+    const repo = repository();
+    const june = await repo.insertIfAbsent({
+      siteId: HWARODAM_SITE_ID,
+      clientId: DEMO_PREMIUM_ID,
+      periodMonth: '2026-06',
+      report: report(HWARODAM_SITE_ID, '2026-06'),
+    });
+    await repo.insertIfAbsent({
+      siteId: HWARODAM_SITE_ID,
+      clientId: DEMO_PREMIUM_ID,
+      periodMonth: '2026-05',
+      report: report(HWARODAM_SITE_ID, '2026-05'),
+    });
+
+    assert.deepEqual(
+      (await repo.listForService({ periodMonth: '2026-06' })).map((row) => row.id),
+      [june.record.id],
+    );
+    await assert.rejects(repo.listForService({ periodMonth: '2026-6' }), /YYYY-MM/);
+  });
+
   test('delivery claim is atomic by state and sent/unknown are never auto-reclaimed', async () => {
     const repo = repository();
     const inserted = await repo.insertIfAbsent({
