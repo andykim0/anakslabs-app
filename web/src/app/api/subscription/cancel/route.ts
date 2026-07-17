@@ -9,6 +9,7 @@ import { getDataServices } from '@/lib/data';
 import { runSiteExport } from '@/lib/export/run-export';
 import { withApiHandler } from '@/app/api/_lib/http';
 import { getAuthedClient, unauthorized } from '@/app/api/_lib/guards';
+import { resolveSiteSubscription, setSiteSubscriptionStatus } from '@/lib/subscriptions/service';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -27,6 +28,15 @@ export const POST = withApiHandler(async () => {
 
   const { clients, sites, exports } = getDataServices();
   const cancelRequestedAt = new Date().toISOString();
+  // 보고서·월 크레딧 자격은 client.status가 아니라 이 권위 상태만 신뢰한다.
+  const subscription = await resolveSiteSubscription(client.id, new Date(cancelRequestedAt));
+  if (subscription.state) {
+    await setSiteSubscriptionStatus({
+      clientId: client.id,
+      status: 'cancelled',
+      at: new Date(cancelRequestedAt),
+    });
+  }
   await clients.setCancelRequested(client.id, cancelRequestedAt);
 
   const mySites = await sites.listByClient(client.id);

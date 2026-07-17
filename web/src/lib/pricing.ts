@@ -5,10 +5,27 @@ export const PRICING = {
   },
   videoHeroAddon: 200_000,
   subscription: {
-    monthly: 19_900,
+    monthly: 29_900,
+    creditsPerMonth: 2,
+    creditValueKrw: 30_000,
+    reportFrequency: 'monthly',
   },
   selfEdit: 'unlimited-free',
 } as const;
+
+/**
+ * 사이트 운영 구독의 고객 노출 혜택. 화면별 문구가 서로 다른 계약을
+ * 설명하지 않도록 가격과 함께 이 모듈을 단일 진실원으로 사용한다.
+ */
+export const SUBSCRIPTION_BENEFIT_COPY = {
+  report: '매월 성과 리포트',
+  credits: `매월 ${PRICING.subscription.creditsPerMonth}크레딧`,
+  operations: '호스팅·SSL·백업·운영',
+  selfEdit: '직접 수정 무제한 무료',
+} as const;
+
+export const SUBSCRIPTION_VALUE_COPY =
+  `구독비만큼 크레딧으로 돌려받아요(매월 ${PRICING.subscription.creditsPerMonth}개 · ${formatKrw(PRICING.subscription.creditValueKrw)} 상당). 매달 성과 리포트에 호스팅·운영까지 함께합니다.`;
 
 /**
  * Customer-facing actions that may consume credits.

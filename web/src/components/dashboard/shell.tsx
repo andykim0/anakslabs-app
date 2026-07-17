@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Coins, CreditCard, LayoutDashboard, LogOut, Settings } from 'lucide-react';
+import { BarChart3, Coins, CreditCard, LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import type { Tier } from '@/lib/types/domain';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { getCredits, logout } from './api';
@@ -24,6 +24,12 @@ const NAV_ITEMS = [
     label: '크레딧',
     icon: Coins,
     isActive: (path: string) => path.startsWith('/dashboard/credits'),
+  },
+  {
+    href: '/dashboard/reports',
+    label: '성과 리포트',
+    icon: BarChart3,
+    isActive: (path: string) => path.startsWith('/dashboard/reports'),
   },
   {
     href: '/dashboard/billing',

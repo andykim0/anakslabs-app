@@ -2,8 +2,11 @@
  * mock 모드 데이터 서비스 — 인메모리(globalThis 싱글턴) 구현.
  * 저장 객체 오염 방지를 위해 조회 결과는 structuredClone으로 복사해 반환한다.
  */
-import { INITIAL_GRANT } from '@/lib/credits/constants';
+import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
+import { PRICING } from '@/lib/pricing';
+import { subscriptionGrantIdempotencyKey } from '@/lib/subscriptions/core';
+import { renewMockSiteSubscription } from '@/lib/subscriptions/mock';
 import type {
   Client,
   ClientStatus,
@@ -420,7 +423,9 @@ class MockPaymentsService implements PaymentsService {
       throw new Error(`payments.handleWebhook: 알 수 없는 clientId (${payload.clientId})`);
     }
 
+    const processedAt = new Date();
     let creditsGranted = 0;
+    let subscriptionGrantKey: string | null = null;
     if (payload.type === 'build_fee') {
       const tier = payload.tier ?? client.tier;
       creditsGranted = INITIAL_GRANT[tier];
@@ -430,6 +435,20 @@ class MockPaymentsService implements PaymentsService {
         throw new Error('payments.handleWebhook: credit_pack은 creditsGranted가 양수여야 합니다');
       }
       creditsGranted = payload.creditsGranted;
+    } else if (payload.type === 'maintenance_subscription') {
+      if (payload.amount !== PRICING.subscription.monthly) {
+        throw new Error(
+          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.monthly}`,
+        );
+      }
+      renewMockSiteSubscription({
+        clientId: payload.clientId,
+        idempotencyKey: `payment:${payload.providerPaymentKey}`,
+        source: 'payment_webhook',
+        at: processedAt,
+      });
+      subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
+      creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
     }
 
     const payment: Payment = {
@@ -460,8 +479,15 @@ class MockPaymentsService implements PaymentsService {
         referenceId: payment.id,
         idempotencyKey: `purchase:${payload.providerPaymentKey}`,
       });
+    } else if (payload.type === 'maintenance_subscription' && subscriptionGrantKey) {
+      await this.credits.grant({
+        clientId: payload.clientId,
+        amount: SUBSCRIPTION_MONTHLY_GRANT,
+        reason: 'subscription_grant',
+        referenceId: payment.id,
+        idempotencyKey: subscriptionGrantKey,
+      });
     }
-    // maintenance_subscription: 기록만 (크레딧 없음)
 
     return { processed: true, duplicated: false };
   }

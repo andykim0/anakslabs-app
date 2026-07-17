@@ -29,6 +29,7 @@ import type { PaymentType, Tier } from '@/lib/types/domain';
 import { CREDIT_PACKS, PRICE_RANGES } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { env, isMockMode } from '@/lib/env';
+import { PRICING } from '@/lib/pricing';
 import { apiError, withApiHandler } from '../../_lib/http';
 
 const internalPayloadSchema = z.object({
@@ -97,6 +98,12 @@ function validateOrderAmount(order: ParsedOrder, totalAmount: number): string | 
     if (totalAmount < minPrice) {
       return `빌드비 결제 금액이 ${order.tier} 최소 계약가(${minPrice}원) 미만 (실결제 ${totalAmount}원)`;
     }
+  }
+  if (
+    order.type === 'maintenance_subscription'
+    && totalAmount !== PRICING.subscription.monthly
+  ) {
+    return `사이트 운영 구독 결제 금액 불일치 (월 ${PRICING.subscription.monthly}원, 실결제 ${totalAmount}원)`;
   }
   return null;
 }

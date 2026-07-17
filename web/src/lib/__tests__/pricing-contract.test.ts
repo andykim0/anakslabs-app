@@ -43,7 +43,12 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     assert.deepEqual(PRICING, {
       base: { list: 590_000, launch: 390_000 },
       videoHeroAddon: 200_000,
-      subscription: { monthly: 19_900 },
+      subscription: {
+        monthly: 29_900,
+        creditsPerMonth: 2,
+        creditValueKrw: 30_000,
+        reportFrequency: 'monthly',
+      },
       selfEdit: 'unlimited-free',
     });
   });
@@ -156,7 +161,7 @@ describe('P$ — 표시 금액 하드코딩 방지', () => {
       .flatMap(sourceFiles)
       .filter((path) => /\.tsx?$/.test(path) && !path.includes('/__tests__/'));
     const forbiddenAmounts =
-      /(?:590_?000|390_?000|200_?000|19_?900|590,000|390,000|200,000|19,900|59만원|39만원|20만원)/;
+      /(?:590_?000|390_?000|200_?000|29_?900|19_?900|590,000|390,000|200,000|29,900|19,900|59만원|39만원|20만원)/;
 
     for (const file of files) {
       const source = read(file);

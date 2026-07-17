@@ -3,6 +3,7 @@
  * 크레딧/과금 상수. SQL 함수와 프론트가 동일 값 공유.
  */
 import type { EditType, Tier, CreditReason } from '@/lib/types/domain';
+import { PRICING } from '@/lib/pricing';
 
 /**
  * 편집 유형별 크레딧 소모량.
@@ -28,9 +29,13 @@ export const INITIAL_GRANT: Record<Tier, number> = {
 export const CREDIT_EXPIRY_DAYS: Partial<Record<CreditReason, number>> = {
   initial_grant: 180,
   purchase: 365,
+  subscription_grant: 90,
   refund: 365,
   admin_adjust: 365,
 };
+
+/** 활성 사이트 운영 구독이 매 한국 달 1회 받는 혜택. */
+export const SUBSCRIPTION_MONTHLY_GRANT = PRICING.subscription.creditsPerMonth;
 
 export interface CreditPack {
   credits: number;

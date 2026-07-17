@@ -10,19 +10,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getDataServices } from '@/lib/data';
-import { env, isMockMode } from '@/lib/env';
 import { apiError, withApiHandler } from '../../_lib/http';
-
-function isAuthorized(request: NextRequest): boolean {
-  if (env.cronSecret) {
-    return request.headers.get('authorization') === `Bearer ${env.cronSecret}`;
-  }
-  if (request.headers.get('x-vercel-cron')) return true;
-  return isMockMode();
-}
+import { isCronAuthorized } from '../_lib/auth';
 
 const handler = withApiHandler(async (request) => {
-  if (!isAuthorized(request)) {
+  if (!isCronAuthorized(request)) {
     return apiError(401, 'UNAUTHORIZED', '크론 인증에 실패했습니다.');
   }
 

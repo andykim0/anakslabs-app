@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/expire-credits",
       "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/cron/monthly-reports",
+      "schedule": "15 0 * * *"
     }
   ]
 }

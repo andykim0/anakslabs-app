@@ -83,6 +83,7 @@ export const EDIT_STATUS_LABELS: Record<EditStatus, string> = {
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
   initial_grant: '초기 지급',
   purchase: '팩 구매',
+  subscription_grant: '구독 월 지급',
   edit_text: '다보임 카피 수정 대행',
   edit_image: 'AI 이미지 새로 생성',
   edit_video: 'AI 영상 재생성',

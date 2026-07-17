@@ -10,7 +10,12 @@ import { AlertTriangle, BadgeCheck, ReceiptText } from 'lucide-react';
 import type { PaymentType, Tier } from '@/lib/types/domain';
 import { SUSPENSION_GRACE_DAYS } from '@/lib/credits/constants';
 import { isMockMode } from '@/lib/env';
-import { PRICING } from '@/lib/pricing';
+import {
+  PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+  SUBSCRIPTION_VALUE_COPY,
+} from '@/lib/pricing';
+import type { ResolvedSubscription, SiteSubscriptionStatus } from '@/lib/subscriptions/core';
 import { listPayments, listSites } from './api';
 import {
   Badge,
@@ -56,8 +61,23 @@ function SuspendedBanner() {
   );
 }
 
-function SubscriptionCard({ tier }: { tier: Tier }) {
+const SUBSCRIPTION_STATUS_LABELS: Record<SiteSubscriptionStatus, string> = {
+  active: '이용 중',
+  past_due: '결제 확인 필요',
+  suspended: '일시중지',
+  cancelled: '해지됨',
+};
+
+function SubscriptionCard({
+  tier,
+  subscription,
+}: {
+  tier: Tier;
+  subscription: ResolvedSubscription;
+}) {
   const mock = isMockMode();
+  const state = subscription.state;
+  const statusLabel = state ? SUBSCRIPTION_STATUS_LABELS[state.status] : '구독 전';
 
   return (
     <Card className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -74,14 +94,24 @@ function SubscriptionCard({ tier }: { tier: Tier }) {
             {mock ? <Badge tone="blue">데모 결제</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            월 {PRICING.subscription.monthly.toLocaleString()}원 · 호스팅 · SSL · 백업 · 인프라 관리 포함
-            (크레딧과 별개)
+            월 {PRICING.subscription.monthly.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
+            {SUBSCRIPTION_BENEFIT_COPY.credits} · {SUBSCRIPTION_BENEFIT_COPY.operations}
+          </p>
+          <p className="mt-1 text-[11px] leading-5 text-blue-300/80">
+            {SUBSCRIPTION_VALUE_COPY}
           </p>
         </div>
       </div>
       <div className="text-left sm:text-right">
         <p className="text-xs text-neutral-500">상태</p>
-        <p className="text-sm font-medium text-emerald-400">이용 중</p>
+        <p className={subscription.active ? 'text-sm font-medium text-emerald-400' : 'text-sm font-medium text-amber-500'}>
+          {statusLabel}
+        </p>
+        {state ? (
+          <p className="mt-1 text-[11px] text-neutral-500">
+            현재 이용기간 {formatDateTime(state.currentPeriodEnd)}까지
+          </p>
+        ) : null}
         {tier === 'basic' ? (
           <Link
             href="/dashboard/settings"
@@ -162,7 +192,7 @@ function PaymentsTable() {
   );
 }
 
-export function BillingView({ tier }: { tier: Tier }) {
+export function BillingView({ tier, subscription }: { tier: Tier; subscription: ResolvedSubscription }) {
   return (
     <div>
       <PageHeader
@@ -170,7 +200,7 @@ export function BillingView({ tier }: { tier: Tier }) {
         description="사이트 운영 구독 상태와 결제 이력을 확인하세요."
       />
       <SuspendedBanner />
-      <SubscriptionCard tier={tier} />
+      <SubscriptionCard tier={tier} subscription={subscription} />
       <PaymentsTable />
     </div>
   );

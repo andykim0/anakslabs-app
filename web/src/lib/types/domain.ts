@@ -79,6 +79,7 @@ export interface Site {
 export type CreditReason =
   | 'initial_grant'
   | 'purchase'
+  | 'subscription_grant'
   | 'edit_text'
   | 'edit_image'
   | 'edit_video'

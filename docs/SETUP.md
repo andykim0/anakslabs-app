@@ -14,6 +14,7 @@
 | **토스페이먼츠** | 실제 결제/구독 | **사업자등록 + 토스 가맹** | 수수료 | 4 |
 | **Cloudflare + 도메인** | 서브도메인/커스텀 도메인 서빙 | **anakslabs.com 실소유** + Vercel 배포 | 도메인 연 1~2만원 | 5 |
 | **네이버 IndexNow** | 발행 URL 변경 알림 | 16자 이상의 서버 시크릿 | 무료 | 5 |
+| **Resend** | 월간 성과 리포트 이메일 발송 | sending access API 키 + 발신 도메인 인증 | 무료~사용량 과금 | 5 |
 
 전환 스위치는 `web/.env.local`의 `NEXT_PUBLIC_MOCK_MODE`. **`0`이면 실연동, 그 외/미설정이면 mock**입니다.
 
@@ -48,6 +49,10 @@ CRON_SECRET=dev-secret                  # /api/cron/* Bearer 검증
 
 # ── 네이버 검색 발견 알림 ──
 INDEXNOW_SECRET=                        # 서버 전용 16자 이상, 테넌트별 검증 키를 HMAC으로 파생
+
+# ── 월간 성과 리포트 이메일 ──
+RESEND_API_KEY=                         # 서버 전용 sending access 키 — 클라이언트 노출 금지
+REPORT_FROM_EMAIL=다보임 <report@daboim.com> # Resend에서 인증을 마친 도메인의 발신 주소
 ```
 
 ---
@@ -179,3 +184,17 @@ CLOUDFLARE_ZONE_ID=...
 - [ ] 커스텀 도메인: request → DNS 안내 → `active` 전이
 - [ ] 발행 후 `/indexnow-key.txt` 200 + 서버 로그에 IndexNow 오류 없음 확인
 - [ ] 크론: `expire_credits` 만료 처리
+
+### 월간 리포트 이메일 운영 준비 (Resend)
+
+1. Resend에서 실제 발신 도메인을 추가하고 안내된 **SPF·DKIM DNS 레코드**를 모두 등록합니다.
+2. 도메인 인증 완료 후 sending access 범위의 API 키를 발급해 배포 환경의
+   `RESEND_API_KEY`에 저장합니다. `NEXT_PUBLIC_` 접두사를 붙이거나 브라우저에 전달하면 안 됩니다.
+3. 인증된 도메인의 주소를 `REPORT_FROM_EMAIL`에 설정합니다. 예: `다보임 <report@daboim.com>`.
+4. 월간 리포트 크론의 실패 기록에서 재발송 가능한 건을 확인하고, 같은 리포트의 재시도에는
+   동일한 idempotency key를 사용합니다. Resend의 provider-side key 보존 기간은 24시간이므로,
+   장기 중복 방지는 DB의 월별 리포트 고유키와 발송 상태를 함께 신뢰합니다.
+
+> **Ops 필수:** SPF·DKIM 인증과 실제 수신함 전달 테스트가 끝나기 전에는 이메일 발송 준비가
+> 완료된 것이 아닙니다. API 키나 발신 주소가 없거나 발송이 실패해도 리포트 생성·대시보드 열람은
+> 계속되며, 실패 상태를 기록해 재발송합니다.
