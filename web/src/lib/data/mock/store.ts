@@ -14,7 +14,7 @@ import type {
   QaAutomationRule,
   Site,
 } from '@/lib/types/domain';
-import type { FormSubmission, ScanResult } from '../types';
+import type { FormSubmission, ScanResult, SiteEventAggregate } from '../types';
 import { buildSeed } from './seed';
 
 /** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
@@ -59,6 +59,8 @@ export interface MockStore {
   scans: Map<string, ScanResult>;
   /** [v3 Phase 3] 테넌트 사이트 문의 폼 수신 — submissionId → 제출 */
   formSubmissions: Map<string, FormSubmission>;
+  /** [RPT$] site/date/event/source별 PII 없는 누적 카운트 */
+  siteEvents: Map<string, SiteEventAggregate>;
   /** [motion 4단계] 영상 생성 로그 (비용 가드 카운트 + 프롬프트 튜닝). optional=lazy init(시드 무변경) */
   videoGenLog?: { siteId: string; tier: string; model: string; stage: string; prompt?: string; detail?: string; at: number }[];
   counters: { id: number; text: number; image: number };

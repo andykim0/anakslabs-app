@@ -34,6 +34,7 @@ import { MockExportService } from './exports';
 import { MockFormSubmissionsRepo } from './forms';
 import { MockQaRulesService } from './qa';
 import { MockScansRepo } from './scans';
+import { MockSiteEventsRepo } from './site-events';
 import { MockVideoGenRepo } from './video-gen';
 import { getMockStore, newId, nowIso } from './store';
 
@@ -608,6 +609,7 @@ export function createMockServices(): DataServices {
     qa: new MockQaRulesService(),
     scans: new MockScansRepo(),
     formSubmissions: new MockFormSubmissionsRepo(),
+    siteEvents: new MockSiteEventsRepo(),
     videoGen: new MockVideoGenRepo(),
   };
 }

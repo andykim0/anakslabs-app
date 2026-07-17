@@ -10,6 +10,7 @@
  */
 import { useState, type CSSProperties } from 'react';
 import type { FormElement, SiteTheme } from '@/lib/types/site';
+import { announceSuccessfulSiteForm } from '@/lib/analytics/site-beacon';
 
 type FormFieldKey = FormElement['fields'][number];
 
@@ -86,6 +87,8 @@ export function ContactForm({
         setStatus('ok');
         setFeedback('문의가 접수됐어요. 확인 후 연락드리겠습니다.');
         setValues({});
+        // 성공한 제출만 집계한다. detail/payload가 없어 폼 값·연락처는 비콘으로 전달되지 않는다.
+        announceSuccessfulSiteForm();
       } else {
         const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
         setStatus('error');

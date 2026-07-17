@@ -309,6 +309,39 @@ export interface FormSubmissionsRepo {
   listBySite(siteId: string): Promise<FormSubmission[]>;
 }
 
+// ---------- [RPT$] 익명 사이트 성과 집계 ----------
+
+/** 비콘이 전송할 수 있는 성과 이벤트. 자유 문자열은 저장하지 않는다. */
+export type SiteEventType = 'pageview' | 'tel' | 'reserve' | 'directions' | 'form';
+/** raw referrer 대신 저장하는 고정 유입 분류. */
+export type TrafficSource = 'naver' | 'google' | 'instagram' | 'direct' | 'other';
+
+/** 방문자 단위 행이 아닌 site/date/event/source별 누적 카운트. */
+export interface SiteEventAggregate {
+  siteId: string;
+  clientId: string;
+  eventDate: string; // YYYY-MM-DD, KST
+  eventType: SiteEventType;
+  source: TrafficSource;
+  count: number;
+}
+
+export interface SiteEventsRepo {
+  /** 서버가 검증한 공개 비콘 이벤트를 원자적으로 +1 한다. */
+  increment(input: {
+    siteId: string;
+    eventType: SiteEventType;
+    source: TrafficSource;
+    eventDate: string;
+  }): Promise<void>;
+  /** half-open 날짜 범위 [fromDate, toDate) 집계. */
+  listBySiteRange(input: {
+    siteId: string;
+    fromDate: string;
+    toDate: string;
+  }): Promise<SiteEventAggregate[]>;
+}
+
 // ---------- [§2] QA 자동화 ----------
 
 export interface QaRulesService {
@@ -381,6 +414,8 @@ export interface DataServices {
   scans: ScansRepo;
   /** [v3 Phase 3] 문의 폼 수신 */
   formSubmissions: FormSubmissionsRepo;
+  /** [RPT$] PII 없는 일별 사이트 성과 집계 */
+  siteEvents: SiteEventsRepo;
   /** [motion 4단계] 영상 생성 로그 + 비용 가드 카운터 */
   videoGen: VideoGenRepo;
 }

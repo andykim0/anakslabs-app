@@ -11,6 +11,7 @@ import { SemanticOutline } from './SemanticOutline';
 import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
+import { buildSiteBeaconRuntime, SITE_EVENT_INGEST_PATH } from '@/lib/analytics/site-beacon';
 
 export function TenantPageContent({
   config,
@@ -24,6 +25,7 @@ export function TenantPageContent({
   hrefForSlug,
   privacyHref,
   termsHref,
+  analyticsEndpoint,
 }: {
   config: SiteConfig;
   pageSlug: string;
@@ -40,8 +42,13 @@ export function TenantPageContent({
   /** 법적 페이지 링크(export는 상대 파일명, 미지정=서빙 '/privacy'·'/terms') */
   privacyHref?: string;
   termsHref?: string;
+  /** 공개 발행본의 first-party 집계 엔드포인트. export는 반드시 절대 플랫폼 URL을 전달한다. */
+  analyticsEndpoint?: string;
 }) {
   const businessInfo = config.businessInfo ?? null;
+  const analyticsRuntime = siteId
+    ? buildSiteBeaconRuntime({ siteId, endpoint: analyticsEndpoint ?? SITE_EVENT_INGEST_PATH })
+    : null;
   return (
     <>
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}
@@ -63,6 +70,13 @@ export function TenantPageContent({
       </main>
       {businessInfo ? (
         <LegalFooter info={businessInfo} theme={config.theme} privacyHref={privacyHref} termsHref={termsHref} />
+      ) : null}
+      {analyticsRuntime ? (
+        <script
+          type="module"
+          data-daboim-site-beacon="1"
+          dangerouslySetInnerHTML={{ __html: analyticsRuntime }}
+        />
       ) : null}
     </>
   );

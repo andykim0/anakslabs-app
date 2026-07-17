@@ -336,6 +336,7 @@ export function buildSeed(): MockStore {
     ),
     scans: new Map(),
     formSubmissions: new Map(),
+    siteEvents: new Map(),
     counters: { id: 0, text: 0, image: 0 },
   };
 }
