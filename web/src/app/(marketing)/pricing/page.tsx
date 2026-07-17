@@ -12,7 +12,7 @@ import {
 } from '@/lib/legal/notices';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
-import { PreviewVideo } from '@/components/marketing/PreviewVideo';
+import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
@@ -133,7 +133,7 @@ export default function PricingPage() {
 
       {/* 단일 제품 카드 + AI 영상 홈페이지 */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
-        <div className="mx-auto max-w-xl">
+        <div className="mx-auto max-w-4xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
             <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">
               홈페이지 제작 + 호스팅
@@ -152,15 +152,8 @@ export default function PricingPage() {
               SEO·AEO·GEO 기본 세팅, 초기 편집 크레딧 {INITIAL_GRANT.basic}개까지 전부 포함됩니다.
             </p>
 
-            <div className="mt-6 rounded-xl border border-[#E4D9BF] bg-white p-5">
-              {/* [video] AI 영상 홈페이지 티저 — 데스크톱 hover 시 영상 재생, 아웃 시 첫 프레임 복귀 */}
-              <PreviewVideo mode="hover" className="mb-4 rounded-lg border border-[#E4D9BF]" />
-              <p className="text-sm font-semibold text-[#17181C]">
-                AI 영상 홈페이지 +{formatKrw(PRICING.videoHeroAddon)}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-[#5C6068]">
-                기본 모션은 포함·무료입니다. Daboim AI 시네마틱 영상 히어로가 필요할 때만 추가합니다.
-              </p>
+            <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
+              <PricingMotionComparison />
             </div>
 
           </div>
