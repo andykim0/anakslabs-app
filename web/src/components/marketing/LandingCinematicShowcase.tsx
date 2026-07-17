@@ -37,6 +37,12 @@ const ACTS = [
 const STAGE_CSS = `
 .daboim-cinematic [data-ss-media] { background: #07142f; }
 .daboim-cinematic [data-ss-copy] { padding-inline: clamp(24px, 7vw, 108px); }
+.daboim-cinematic.m-scrollytelling-ready [data-lcs-local-scrim] {
+  padding: clamp(24px, 4vw, 52px);
+  border: 1px solid rgba(255,255,255,.12); border-radius: clamp(22px, 2vw, 30px);
+  background: linear-gradient(108deg,rgba(3,12,31,.84),rgba(3,12,31,.54) 68%,rgba(3,12,31,.16));
+  box-shadow: 0 28px 80px rgba(0,8,28,.24);
+}
 .daboim-cinematic [data-ss-heading] {
   max-width: 860px; color: #fff; font-size: clamp(2.25rem, 5.5vw, 5.5rem);
   letter-spacing: -.055em; text-wrap: balance;
@@ -118,6 +124,8 @@ export function LandingCinematicShowcase() {
                 src="/daboim-visibility-film-poster.webp"
                 alt=""
                 aria-hidden="true"
+                width={1920}
+                height={1080}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 h-full w-full object-cover"
@@ -148,9 +156,6 @@ export function LandingCinematicShowcase() {
                 aria-hidden="true"
                 className="md:hidden"
               />
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,12,31,.76),rgba(3,12,31,.22)_58%,rgba(3,12,31,.42))]" />
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(7,20,47,.16),transparent_55%,rgba(7,20,47,.72))]" />
-
               <div
                 data-lcs-film-ui
                 className="absolute top-5 right-5 left-5 z-10 flex items-center justify-between opacity-0 transition-opacity duration-500"
@@ -173,7 +178,7 @@ export function LandingCinematicShowcase() {
                   data-act-start={act.start.toFixed(4)}
                   data-act-end={act.end.toFixed(4)}
                 >
-                  <div data-ss-copy>
+                  <div data-ss-copy data-lcs-local-scrim>
                     <p data-lcs-eyebrow>{act.eyebrow}</p>
                     <h3 data-ss-heading>{act.heading}</h3>
                     <p data-ss-body>{act.body}</p>

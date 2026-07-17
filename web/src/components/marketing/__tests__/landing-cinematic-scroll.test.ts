@@ -27,6 +27,10 @@ describe('L$ 랜딩 시네마틱 스크롤 시연', () => {
     assert.match(source, /data-playback="scrub"/);
     assert.match(source, /data-playback="loop"/);
     assert.match(source, /daboim-visibility-film-poster\.webp/);
+    assert.match(source, /width=\{1920\}/);
+    assert.match(source, /height=\{1080\}/);
+    assert.match(source, /loading="lazy"/);
+    assert.match(source, /decoding="async"/);
     assert.match(source, /preload="none"/);
     assert.match(source, /<article/);
     assert.match(source, /<h3 data-ss-heading>/);
@@ -35,6 +39,15 @@ describe('L$ 랜딩 시네마틱 스크롤 시연', () => {
     for (const forbidden of ['WebGL', 'three.js', 'Lenis', 'preventDefault']) {
       assert.ok(!source.includes(forbidden), `금지 기법 포함: ${forbidden}`);
     }
+  });
+
+  test('영상 전체를 덮는 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
+    const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.match(source, /data-lcs-local-scrim/);
+    assert.match(source, /\.m-scrollytelling-ready \[data-lcs-local-scrim\]/);
+    assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
+    assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
+    assert.doesNotMatch(source, /rel=["']preload["'][^>]+daboim-visibility-film-poster/);
   });
 
   test('데스크 scrub MP4는 8MB 이하 all-intra(-g 1) 자산이다', () => {
