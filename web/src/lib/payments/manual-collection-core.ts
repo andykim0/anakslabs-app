@@ -74,6 +74,60 @@ export function manualCollectionNeedsSite(kind: ManualCollectionProductKind): bo
   return kind === 'launch_build' || kind === 'list_build' || kind === 'video_addon';
 }
 
+/**
+ * Resolve the admin form's site value without turning an explicit "no site"
+ * choice back into the client's first site. `selectedSiteId === null` means the
+ * operator has not made a choice for the current client yet; an empty string is
+ * an intentional optional-site choice.
+ */
+export function resolveManualCollectionSiteChoice(input: {
+  selectedSiteId: string | null;
+  availableSiteIds: readonly string[];
+  siteRequired: boolean;
+}): string {
+  const firstSiteId = input.availableSiteIds[0] ?? '';
+  if (input.selectedSiteId && input.availableSiteIds.includes(input.selectedSiteId)) {
+    return input.selectedSiteId;
+  }
+  return input.siteRequired ? firstSiteId : '';
+}
+
+/**
+ * UI projection of the server reversal policy. Non-subscription receipts stay
+ * reversible until corrected; subscription periods can only be unwound from
+ * the latest unreversed receipt backwards. The repository/SQL remains the
+ * authority and rechecks this rule under a per-client lock.
+ */
+export function manualCollectionReversibleEntryIds(
+  entries: readonly ManualPaymentEntry[],
+): ReadonlySet<string> {
+  const reversedReceiptIds = new Set(entries.flatMap((entry) =>
+    entry.direction === 'reversal' && entry.reversesEntryId
+      ? [entry.reversesEntryId]
+      : []));
+  const latestSubscriptionByClient = new Map<string, ManualPaymentEntry>();
+
+  for (const entry of entries) {
+    if (
+      entry.direction !== 'receipt'
+      || entry.productKind !== 'subscription'
+      || reversedReceiptIds.has(entry.id)
+      || !Number.isFinite(Date.parse(entry.createdAt))
+    ) continue;
+    const current = latestSubscriptionByClient.get(entry.clientId);
+    if (!current || entry.createdAt > current.createdAt
+      || (entry.createdAt === current.createdAt && entry.id > current.id)) {
+      latestSubscriptionByClient.set(entry.clientId, entry);
+    }
+  }
+
+  return new Set(entries.flatMap((entry) => {
+    if (entry.direction !== 'receipt' || reversedReceiptIds.has(entry.id)) return [];
+    if (entry.productKind !== 'subscription') return [entry.id];
+    return latestSubscriptionByClient.get(entry.clientId)?.id === entry.id ? [entry.id] : [];
+  }));
+}
+
 export function manualCollectionQuote(input: {
   productKind: ManualCollectionProductKind;
   creditPackCredits?: number;

@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server';
 import { buildAdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import { getDataServices } from '@/lib/data';
 import { getManualCollectionsRepository } from '@/lib/payments/manual-collections';
+import { manualCollectionReversibleEntryIds } from '@/lib/payments/manual-collection-core';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
 
@@ -36,8 +37,8 @@ export const GET = withApiHandler(async () => {
 
   const clientById = new Map(clientList.map((client) => [client.id, client]));
   const siteById = new Map(siteList.map((site) => [site.id, site]));
-  const reversedEntryIds = new Set(
-    manualRecords.flatMap(({ entry }) => entry.reversesEntryId ? [entry.reversesEntryId] : []),
+  const reversibleEntryIds = manualCollectionReversibleEntryIds(
+    manualRecords.map(({ entry }) => entry),
   );
 
   return NextResponse.json({
@@ -68,7 +69,7 @@ export const GET = withApiHandler(async () => {
       collectionReference: entry.collectionReference,
       memo: entry.memo,
       createdAt: entry.createdAt,
-      reversible: entry.direction === 'receipt' && !reversedEntryIds.has(entry.id),
+      reversible: reversibleEntryIds.has(entry.id),
     })),
   });
 });

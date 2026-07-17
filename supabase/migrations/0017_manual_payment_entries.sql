@@ -257,6 +257,8 @@ declare
   v_existing public.manual_payment_entries%rowtype;
   v_payment public.payments%rowtype;
   v_reversal public.manual_payment_entries%rowtype;
+  v_subscription_renewal_id uuid;
+  v_latest_renewal_id uuid;
   v_lot_id uuid;
   v_original_expires_at timestamptz;
   v_remaining numeric := 0;
@@ -304,6 +306,34 @@ begin
     raise exception 'reverse_manual_collection: correction reference already exists';
   end if;
 
+  if v_original.product_kind = 'subscription' then
+    -- A later renewal's period_start was calculated from this period_end. Removing
+    -- an older link without replaying the whole chain would leave an unearned gap
+    -- inside current_period_end, so corrections are deliberately LIFO.
+    perform pg_advisory_xact_lock(hashtextextended(v_original.client_id::text, 0));
+    v_key := 'manual:' || v_original.collection_channel || ':' || v_original.collection_reference;
+    select r.id into v_subscription_renewal_id
+    from public.site_subscription_renewals r
+    where r.client_id = v_original.client_id
+      and r.idempotency_key = v_key
+      and r.source = 'admin_manual'
+      and r.reversed_at is null
+    for update;
+    if not found then
+      raise exception 'reverse_manual_collection: subscription renewal evidence is missing';
+    end if;
+
+    select r.id into v_latest_renewal_id
+    from public.site_subscription_renewals r
+    where r.client_id = v_original.client_id and r.reversed_at is null
+    order by r.period_end desc, r.created_at desc, r.id desc
+    limit 1
+    for update;
+    if v_latest_renewal_id is distinct from v_subscription_renewal_id then
+      raise exception 'reverse_manual_collection: only the latest subscription renewal can be reversed';
+    end if;
+  end if;
+
   -- Credits are append-only too: reclaim only the unused remainder of the
   -- exact lot tied to this receipt. Already consumed value is never invented.
   if v_original.product_kind in ('subscription', 'credit_pack') then
@@ -337,13 +367,9 @@ begin
   end if;
 
   if v_original.product_kind = 'subscription' then
-    v_key := 'manual:' || v_original.collection_channel || ':' || v_original.collection_reference;
     update public.site_subscription_renewals r
     set reversed_at = p_as_of
-    where r.client_id = v_original.client_id
-      and r.idempotency_key = v_key
-      and r.source = 'admin_manual'
-      and r.reversed_at is null;
+    where r.id = v_subscription_renewal_id and r.reversed_at is null;
     if not found then
       raise exception 'reverse_manual_collection: subscription renewal evidence is missing';
     end if;

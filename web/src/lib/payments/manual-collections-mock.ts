@@ -1,5 +1,5 @@
 import { MockCreditsService } from '@/lib/data/mock/credits';
-import { getMockStore } from '@/lib/data/mock/store';
+import { getMockStore, type MockStore } from '@/lib/data/mock/store';
 import {
   getMockSiteSubscription,
   reconcileMockSiteSubscriptionManualReversal,
@@ -22,6 +22,20 @@ import {
 function mockEntries(): Map<string, ManualPaymentEntry> {
   const store = getMockStore();
   return (store.manualPaymentEntries ??= new Map());
+}
+
+// Manual entry rows intentionally stay aligned with the real SQL contract, so
+// the mock keeps its renewal-period join as server-only side state. resetMockStore
+// swaps the key and therefore resets this evidence without widening MockStore.
+const manualRenewalPeriodEnds = new WeakMap<MockStore, Map<string, string>>();
+
+function renewalPeriodEnds(store: MockStore): Map<string, string> {
+  let periods = manualRenewalPeriodEnds.get(store);
+  if (!periods) {
+    periods = new Map();
+    manualRenewalPeriodEnds.set(store, periods);
+  }
+  return periods;
 }
 
 function sameReceipt(
@@ -92,14 +106,16 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
     };
     store.payments.set(payment.id, payment);
 
+    let subscriptionPeriodEnd: string | null = null;
     if (input.productKind === 'subscription') {
       const at = new Date(createdAt);
-      renewMockSiteSubscription({
+      const renewal = renewMockSiteSubscription({
         clientId: input.clientId,
         idempotencyKey: manualCollectionIdempotencyKey(input),
         source: 'admin_manual',
         at,
       });
+      subscriptionPeriodEnd = renewal.state.currentPeriodEnd;
       const credits = new MockCreditsService();
       const before = (await credits.getLedger(input.clientId)).length;
       await credits.grant({
@@ -136,6 +152,9 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
       createdAt,
     };
     entries.set(entry.id, entry);
+    if (subscriptionPeriodEnd) {
+      renewalPeriodEnds(store).set(manualCollectionIdempotencyKey(input), subscriptionPeriodEnd);
+    }
     return {
       duplicated: false,
       record: { payment: structuredClone(payment), entry: structuredClone(entry) },
@@ -168,6 +187,14 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
 
     const payment = store.payments.get(original.paymentId);
     if (!payment) throw new Error('MANUAL_COLLECTION_PAYMENT_MISSING');
+    if (original.productKind === 'subscription') {
+      const renewalKey = manualCollectionIdempotencyKey(original);
+      const periodEnd = renewalPeriodEnds(store).get(renewalKey);
+      const authoritative = getMockSiteSubscription(original.clientId);
+      if (!periodEnd || authoritative?.currentPeriodEnd !== periodEnd) {
+        throw new Error('MANUAL_REVERSAL_SUBSCRIPTION_NOT_LATEST');
+      }
+    }
     const credits = new MockCreditsService();
     let clawed = 0;
     let originalExpiry: string | null = null;
@@ -221,4 +248,3 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
     return { duplicated: false, record: { payment: null, entry: structuredClone(reversal) } };
   }
 }
-

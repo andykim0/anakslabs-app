@@ -33,7 +33,13 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     if (/ALREADY_EXISTS|already has another reversal|REFERENCE_CONFLICT/i.test(message)) {
       return apiError(409, 'MANUAL_REVERSAL_CONFLICT', '이미 반대 분개됐거나 참조번호가 충돌합니다.');
     }
+    if (/SUBSCRIPTION_NOT_LATEST|only the latest subscription renewal/i.test(message)) {
+      return apiError(
+        409,
+        'MANUAL_SUBSCRIPTION_REVERSAL_ORDER_REQUIRED',
+        '구독 수금은 가장 최근 갱신부터 역순으로만 반대 분개할 수 있습니다.',
+      );
+    }
     throw error;
   }
 });
-

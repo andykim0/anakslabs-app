@@ -8,6 +8,7 @@ import {
   MANUAL_COLLECTION_LABELS,
   manualCollectionNeedsSite,
   manualCollectionQuote,
+  resolveManualCollectionSiteChoice,
   type ManualCollectionChannel,
   type ManualCollectionProductKind,
 } from '@/lib/payments/manual-collection-core';
@@ -34,7 +35,8 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
   const queryClient = useQueryClient();
   const clients = useQuery({ queryKey: ['admin', 'clients'], queryFn: getClients });
   const [clientId, setClientId] = useState('');
-  const [siteId, setSiteId] = useState('');
+  // null = untouched for the current client; '' = explicit "사이트 귀속 없음".
+  const [siteId, setSiteId] = useState<string | null>(null);
   const [productKind, setProductKind] = useState<ManualCollectionProductKind>('launch_build');
   const [creditPackCredits, setCreditPackCredits] = useState(CREDIT_PACKS[0]?.credits ?? 1);
   const [channel, setChannel] = useState<ManualCollectionChannel>('kmong');
@@ -51,9 +53,14 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
     queryFn: () => getClientDetail(effectiveClientId),
     enabled: Boolean(effectiveClientId),
   });
-  const effectiveSiteId = detail.data?.sites.some((site) => site.id === siteId)
-    ? siteId
-    : detail.data?.sites[0]?.id ?? '';
+  const detailMatchesClient = detail.data?.client.id === effectiveClientId;
+  const availableSites = detailMatchesClient ? detail.data?.sites ?? [] : [];
+  const siteRequired = manualCollectionNeedsSite(productKind);
+  const effectiveSiteId = resolveManualCollectionSiteChoice({
+    selectedSiteId: siteId,
+    availableSiteIds: availableSites.map((site) => site.id),
+    siteRequired,
+  });
 
   const quote = useMemo(() => manualCollectionQuote({
     productKind,
@@ -105,9 +112,9 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
     },
   });
 
-  const siteRequired = manualCollectionNeedsSite(productKind);
   const canSubmit = Boolean(
     effectiveClientId
+    && detailMatchesClient
     && quote
     && reference.trim()
     && (!siteRequired || effectiveSiteId)
@@ -132,7 +139,7 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
         >
           <label className="text-xs font-medium text-slate-600">
             고객
-            <select className={`${inputClass} mt-1`} value={effectiveClientId} onChange={(event) => { setClientId(event.target.value); setSiteId(''); }}>
+            <select className={`${inputClass} mt-1`} value={effectiveClientId} onChange={(event) => { setClientId(event.target.value); setSiteId(null); }}>
               {(clients.data ?? []).map((client) => (
                 <option key={client.id} value={client.id}>{client.name} · {client.email}</option>
               ))}
@@ -142,7 +149,7 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
             사이트 {siteRequired ? '(필수)' : '(선택)'}
             <select className={`${inputClass} mt-1`} value={effectiveSiteId} onChange={(event) => setSiteId(event.target.value)}>
               {!siteRequired ? <option value="">사이트 귀속 없음</option> : null}
-              {(detail.data?.sites ?? []).map((site) => (
+              {availableSites.map((site) => (
                 <option key={site.id} value={site.id}>{site.name}</option>
               ))}
             </select>

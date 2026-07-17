@@ -340,6 +340,22 @@ describe('ADM4 admin revenue metrics', () => {
     assert.equal(result.sources.manual.refundsKrw, PRICING.base.launch);
   });
 
+  test('fails closed when a provider launch payment cannot be bound to one site', () => {
+    const provider = payment('provider-multi-site', { clientId: 'multi-site-client' });
+    const result = buildAdminOpsRevenueMetrics([provider], NOW, {
+      sites: [
+        { id: 'site-one', clientId: 'multi-site-client' },
+        { id: 'site-two', clientId: 'multi-site-client' },
+      ],
+    });
+
+    assert.equal(result.sources.provider.grossKrw, PRICING.base.launch);
+    assert.equal(result.launchOffer.contracts, 0);
+    assert.deepEqual(result.anomalies, [
+      { paymentId: provider.id, code: 'launch_site_unresolved' },
+    ]);
+  });
+
   test('fails closed for URL-less/manual-looking payment rows without immutable evidence', () => {
     const unknown = payment('unknown-manual', { providerPaymentKey: null });
     const result = buildAdminOpsRevenueMetrics([unknown], NOW, { manualEntries: [], sites: [] });
