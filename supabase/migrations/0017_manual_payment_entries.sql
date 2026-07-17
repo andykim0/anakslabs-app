@@ -259,12 +259,12 @@ declare
   v_reversal public.manual_payment_entries%rowtype;
   v_subscription_renewal_id uuid;
   v_latest_renewal_id uuid;
-  v_lot_id uuid;
-  v_original_expires_at timestamptz;
+  v_lot record;
   v_remaining numeric := 0;
-  v_clawed numeric := 0;
   v_remaining_period_end timestamptz;
   v_replacement_payment_id uuid;
+  v_replacement_source text;
+  v_replacement_key text;
   v_current_status text;
   v_next_status text;
   v_key text;
@@ -332,38 +332,89 @@ begin
     if v_latest_renewal_id is distinct from v_subscription_renewal_id then
       raise exception 'reverse_manual_collection: only the latest subscription renewal can be reversed';
     end if;
+
+    -- Resolve the surviving authority before any ledger mutation. Provider
+    -- renewals carry their payment id directly; admin renewals deliberately do
+    -- not, so their immutable manual receipt is the stable benefit reference.
+    select r.period_end, r.payment_id, r.source, r.idempotency_key
+    into v_remaining_period_end, v_replacement_payment_id,
+         v_replacement_source, v_replacement_key
+    from public.site_subscription_renewals r
+    where r.client_id = v_original.client_id
+      and r.reversed_at is null
+      and r.id <> v_subscription_renewal_id
+    order by r.period_end desc, r.created_at desc, r.id desc
+    limit 1;
+
+    if v_replacement_source = 'admin_manual' then
+      select e.payment_id into v_replacement_payment_id
+      from public.manual_payment_entries e
+      where e.client_id = v_original.client_id
+        and e.product_kind = 'subscription'
+        and e.direction = 'receipt'
+        and e.payment_id is not null
+        and 'manual:' || e.collection_channel || ':' || e.collection_reference = v_replacement_key
+        and not exists (
+          select 1 from public.manual_payment_entries correction
+          where correction.reverses_entry_id = e.id
+        )
+      limit 1;
+      if not found then
+        raise exception 'reverse_manual_collection: replacement manual payment evidence is missing';
+      end if;
+    end if;
+
+    v_remaining_period_end := coalesce(v_remaining_period_end, p_as_of);
+    if v_remaining_period_end > p_as_of and v_replacement_payment_id is null then
+      raise exception 'reverse_manual_collection: replacement payment evidence is missing';
+    end if;
   end if;
 
   -- Credits are append-only too: reclaim only the unused remainder of the
-  -- exact lot tied to this receipt. Already consumed value is never invented.
+  -- lots tied to this receipt. A prior LIFO correction may have transferred
+  -- more than one calendar-month lot to the surviving receipt, so every linked
+  -- lot must be handled independently and keep its original expiry.
   if v_original.product_kind in ('subscription', 'credit_pack') then
     perform public.lock_credit_balance(v_original.client_id);
-    select l.id, l.expires_at into v_lot_id, v_original_expires_at
-    from public.credit_ledger l
-    where l.client_id = v_original.client_id
-      and l.reference_id = v_original.payment_id
-      and l.reason = case
-        when v_original.product_kind = 'subscription' then 'subscription_grant'
-        else 'purchase'
-      end
-      and l.amount > 0
-    order by l.created_at asc, l.id asc
-    limit 1;
-    if v_lot_id is not null then
-      v_remaining := public.credit_lot_remaining(v_original.client_id, v_lot_id);
+    for v_lot in
+      select l.id, l.expires_at
+      from public.credit_ledger l
+      where l.client_id = v_original.client_id
+        and l.reference_id = v_original.payment_id
+        and l.reason = case
+          when v_original.product_kind = 'subscription' then 'subscription_grant'
+          else 'purchase'
+        end
+        and l.amount > 0
+      order by l.created_at asc, l.id asc
+    loop
+      v_remaining := public.credit_lot_remaining(v_original.client_id, v_lot.id);
       if v_remaining > 0 then
         insert into public.credit_ledger (
           client_id, amount, reason, reference_id, idempotency_key
         ) values (
-          v_original.client_id, -v_remaining, 'admin_clawback', v_lot_id,
-          'manual_reversal_clawback:' || p_entry_id::text
+          v_original.client_id, -v_remaining, 'admin_clawback', v_lot.id,
+          'manual_reversal_clawback:' || p_entry_id::text || ':' || v_lot.id::text
         );
         update public.credit_balances
         set balance = balance - v_remaining, updated_at = p_as_of
         where client_id = v_original.client_id;
-        v_clawed := v_remaining;
+
+        if v_original.product_kind = 'subscription'
+           and v_remaining_period_end > p_as_of then
+          insert into public.credit_ledger (
+            client_id, amount, reason, reference_id, expires_at, idempotency_key
+          ) values (
+            v_original.client_id, v_remaining, 'subscription_grant',
+            v_replacement_payment_id, v_lot.expires_at,
+            'manual_reversal_regrant:' || p_entry_id::text || ':' || v_lot.id::text
+          );
+          update public.credit_balances
+          set balance = balance + v_remaining, updated_at = p_as_of
+          where client_id = v_original.client_id;
+        end if;
       end if;
-    end if;
+    end loop;
   end if;
 
   if v_original.product_kind = 'subscription' then
@@ -378,13 +429,6 @@ begin
     from public.site_subscriptions s
     where s.client_id = v_original.client_id
     for update;
-    select r.period_end, r.payment_id
-    into v_remaining_period_end, v_replacement_payment_id
-    from public.site_subscription_renewals r
-    where r.client_id = v_original.client_id and r.reversed_at is null
-    order by r.period_end desc, r.created_at desc, r.id desc
-    limit 1;
-    v_remaining_period_end := coalesce(v_remaining_period_end, p_as_of);
     v_next_status := case
       when v_remaining_period_end <= p_as_of then 'cancelled'
       when v_current_status is null or v_current_status = 'active' then 'active'
@@ -396,19 +440,6 @@ begin
       set status = excluded.status,
           current_period_end = excluded.current_period_end,
           updated_at = excluded.updated_at;
-
-    if v_clawed > 0 and v_remaining_period_end > p_as_of then
-      insert into public.credit_ledger (
-        client_id, amount, reason, reference_id, expires_at, idempotency_key
-      ) values (
-        v_original.client_id, v_clawed, 'subscription_grant',
-        v_replacement_payment_id, v_original_expires_at,
-        'manual_reversal_regrant:' || p_entry_id::text
-      );
-      update public.credit_balances
-      set balance = balance + v_clawed, updated_at = p_as_of
-      where client_id = v_original.client_id;
-    end if;
   end if;
 
   insert into public.manual_payment_entries (

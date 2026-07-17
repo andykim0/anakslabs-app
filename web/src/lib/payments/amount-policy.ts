@@ -12,7 +12,6 @@ export interface PaymentAmountValidation {
   expectedKrw: readonly number[];
   message: string | null;
 }
-
 function uniqueSorted(values: readonly number[]): readonly number[] {
   return [...new Set(values)].sort((left, right) => left - right);
 }
@@ -74,4 +73,3 @@ export function paymentAmountSubject(input: {
     ? { type: 'credit_pack', credits: input.creditsGranted! }
     : null;
 }
-

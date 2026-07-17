@@ -219,6 +219,70 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(balance(), creditsBefore, 'no surviving renewal means no unused monthly benefit remains');
   });
 
+  test('cross-month LIFO corrections transfer every grant to stable receipt evidence', async () => {
+    let at = new Date('2026-07-31T14:50:00.000Z');
+    resetMockStore();
+    const repository = new MockManualCollectionsRepository(() => new Date(at));
+    const store = getMockStore();
+    const balance = () => store.ledger
+      .filter((entry) => entry.clientId === DEMO_BASIC_ID)
+      .reduce((sum, entry) => sum + entry.amount, 0);
+    const creditsBefore = balance();
+    const recordSubscription = (reference: string) => repository.record({
+      clientId: DEMO_BASIC_ID,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.monthly,
+      channel: 'kmong',
+      collectionReference: reference,
+    });
+
+    const july = await recordSubscription('KMONG-SUB-CROSS-MONTH-07');
+    assert.ok(july.record.payment);
+    at = new Date('2026-07-31T15:10:00.000Z'); // Korea billing month is now August.
+    const august = await recordSubscription('KMONG-SUB-CROSS-MONTH-08');
+    assert.ok(august.record.payment);
+    assert.equal(
+      balance(),
+      creditsBefore + PRICING.subscription.creditsPerMonth * 2,
+      'collections in two Korean billing months each grant their earned benefit',
+    );
+
+    await repository.reverse({
+      entryId: august.record.entry.id,
+      collectionReference: 'KMONG-SUB-CROSS-MONTH-08-CORRECTION',
+      memo: '최신 월 구독 수금 정정',
+    });
+    assert.equal(
+      balance(),
+      creditsBefore + PRICING.subscription.creditsPerMonth * 2,
+      'the still-active July renewal retains both calendar-month benefits',
+    );
+    const julyLinkedRemaining = store.lots
+      .filter((lot) => lot.clientId === DEMO_BASIC_ID && lot.remaining > 0)
+      .filter((lot) => store.ledger.some((entry) =>
+        entry.id === lot.entryId
+          && entry.reason === 'subscription_grant'
+          && entry.referenceId === july.record.payment?.id))
+      .reduce((sum, lot) => sum + lot.remaining, 0);
+    assert.equal(
+      julyLinkedRemaining,
+      PRICING.subscription.creditsPerMonth * 2,
+      'transferred credits use the surviving immutable receipt payment id',
+    );
+
+    await repository.reverse({
+      entryId: july.record.entry.id,
+      collectionReference: 'KMONG-SUB-CROSS-MONTH-07-CORRECTION',
+      memo: '남은 월 구독 수금 정정',
+    });
+    assert.equal(getMockSiteSubscription(DEMO_BASIC_ID)?.status, 'cancelled');
+    assert.equal(
+      balance(),
+      creditsBefore,
+      'reversing the final renewal claws every transferred unused month',
+    );
+  });
+
   test('migration makes manual evidence and attached payments append-only and service-only', () => {
     const sql = readFileSync(
       join(process.cwd(), '../supabase/migrations/0017_manual_payment_entries.sql'),
@@ -246,6 +310,16 @@ describe('OPS O1 manual collection contract', () => {
       sql.indexOf('if v_latest_renewal_id is distinct from v_subscription_renewal_id')
         < sql.indexOf('-- Credits are append-only too:'),
       'latest-renewal rejection must happen before any credit or subscription side effect',
+    );
+    assert.match(
+      sql,
+      /v_replacement_source = 'admin_manual'[\s\S]*?select e\.payment_id into v_replacement_payment_id[\s\S]*?replacement manual payment evidence is missing/,
+      'an active manual renewal must resolve to its immutable receipt payment id before transfer',
+    );
+    assert.match(
+      sql,
+      /for v_lot in[\s\S]*?manual_reversal_clawback:[\s\S]*?v_lot\.id::text[\s\S]*?manual_reversal_regrant:[\s\S]*?v_lot\.id::text/,
+      'every transferred calendar-month lot keeps an independently idempotent append-only trail',
     );
     assert.match(
       sql,

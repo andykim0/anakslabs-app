@@ -50,7 +50,26 @@ function sameReceipt(
     && entry.channel === input.channel;
 }
 
+function manualRenewalPaymentId(
+  entries: ReadonlyMap<string, ManualPaymentEntry>,
+  idempotencyKey: string,
+): string | null {
+  const reversedReceiptIds = new Set([...entries.values()].flatMap((entry) =>
+    entry.direction === 'reversal' && entry.reversesEntryId
+      ? [entry.reversesEntryId]
+      : []));
+  const receipt = [...entries.values()].find((entry) =>
+    entry.direction === 'receipt'
+      && entry.productKind === 'subscription'
+      && entry.paymentId !== null
+      && !reversedReceiptIds.has(entry.id)
+      && manualCollectionIdempotencyKey(entry) === idempotencyKey);
+  return receipt?.paymentId ?? null;
+}
+
 export class MockManualCollectionsRepository implements ManualCollectionsRepository {
+  constructor(private readonly now: () => Date = () => new Date()) {}
+
   async listAll(): Promise<ManualPaymentRecord[]> {
     const store = getMockStore();
     return [...mockEntries().values()]
@@ -92,7 +111,7 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
     }
 
     if (input.productKind === 'subscription') getMockSiteSubscription(input.clientId);
-    const createdAt = new Date().toISOString();
+    const createdAt = this.now().toISOString();
     const payment: Payment = {
       id: crypto.randomUUID(),
       clientId: input.clientId,
@@ -163,6 +182,7 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
 
   async reverse(rawInput: ReverseManualCollectionInput): Promise<ManualCollectionMutationResult> {
     const input = normalizeReverseManualCollectionInput(rawInput);
+    const reversedAt = this.now();
     const store = getMockStore();
     const entries = mockEntries();
     const original = entries.get(input.entryId);
@@ -197,16 +217,31 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
     }
     const credits = new MockCreditsService();
     let clawed = 0;
-    let originalExpiry: string | null = null;
+    const transferableSubscriptionLots: Array<{
+      grantId: string;
+      amount: number;
+      expiresAt: string | null;
+    }> = [];
     if (original.productKind === 'subscription' || original.productKind === 'credit_pack') {
       const grantReason = original.productKind === 'subscription'
         ? 'subscription_grant'
         : 'purchase';
-      originalExpiry = (await credits.getLedger(original.clientId)).find(
-        (candidate) => candidate.referenceId === payment.id
-          && candidate.reason === grantReason
-          && candidate.amount > 0,
-      )?.expiresAt ?? null;
+      if (original.productKind === 'subscription') {
+        for (const candidate of await credits.getLedger(original.clientId)) {
+          if (
+            candidate.referenceId !== payment.id
+            || candidate.reason !== grantReason
+            || candidate.amount <= 0
+          ) continue;
+          const lot = store.lots.find((value) => value.entryId === candidate.id);
+          if (!lot || lot.remaining <= 0) continue;
+          transferableSubscriptionLots.push({
+            grantId: candidate.id,
+            amount: lot.remaining,
+            expiresAt: candidate.expiresAt,
+          });
+        }
+      }
       clawed = await credits.clawbackGrant({
         clientId: original.clientId,
         referenceId: payment.id,
@@ -217,16 +252,24 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
       const reconciliation = reconcileMockSiteSubscriptionManualReversal({
         clientId: original.clientId,
         idempotencyKey: manualCollectionIdempotencyKey(original),
+        resolveManualPaymentId: (idempotencyKey) =>
+          manualRenewalPaymentId(entries, idempotencyKey),
+        at: reversedAt,
       });
-      if (clawed > 0 && Date.parse(reconciliation.state.currentPeriodEnd) > Date.now()) {
-        await credits.grant({
-          clientId: original.clientId,
-          amount: clawed,
-          reason: 'subscription_grant',
-          referenceId: reconciliation.replacementPaymentId ?? undefined,
-          idempotencyKey: `manual_reversal_regrant:${original.id}`,
-          expiresAt: originalExpiry ?? undefined,
-        });
+      if (clawed > 0 && Date.parse(reconciliation.state.currentPeriodEnd) > reversedAt.getTime()) {
+        if (!reconciliation.replacementPaymentId) {
+          throw new Error('MANUAL_REVERSAL_REPLACEMENT_PAYMENT_MISSING');
+        }
+        for (const lot of transferableSubscriptionLots) {
+          await credits.grant({
+            clientId: original.clientId,
+            amount: lot.amount,
+            reason: 'subscription_grant',
+            referenceId: reconciliation.replacementPaymentId,
+            idempotencyKey: `manual_reversal_regrant:${original.id}:${lot.grantId}`,
+            expiresAt: lot.expiresAt ?? undefined,
+          });
+        }
       }
     }
 
@@ -242,7 +285,7 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
       collectionReference: input.collectionReference,
       memo: input.memo,
       reversesEntryId: original.id,
-      createdAt: new Date().toISOString(),
+      createdAt: reversedAt.toISOString(),
     };
     entries.set(reversal.id, reversal);
     return { duplicated: false, record: { payment: null, entry: structuredClone(reversal) } };

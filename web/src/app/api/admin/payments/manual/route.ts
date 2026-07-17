@@ -58,4 +58,3 @@ export const POST = withApiHandler(async (request) => {
     throw error;
   }
 });
-

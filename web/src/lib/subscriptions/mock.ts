@@ -258,6 +258,7 @@ export function reconcileMockSiteSubscriptionFullRefund(input: {
 export function reconcileMockSiteSubscriptionManualReversal(input: {
   clientId: string;
   idempotencyKey: string;
+  resolveManualPaymentId: (idempotencyKey: string) => string | null;
   at?: Date;
 }): { state: SiteSubscriptionState; replacementPaymentId: string | null } {
   const at = input.at ?? new Date();
@@ -274,15 +275,28 @@ export function reconcileMockSiteSubscriptionManualReversal(input: {
   ) {
     throw new Error('reconcileManualSubscription: verified renewal evidence is required');
   }
-  renewal.reversedAt = at.toISOString();
-
   const replacementRenewal = [...stateData.renewals.values()]
-    .filter((candidate) => candidate.clientId === input.clientId && candidate.reversedAt === null)
+    .filter((candidate) =>
+      candidate !== renewal
+      && candidate.clientId === input.clientId
+      && candidate.reversedAt === null)
     .reduce<MockSubscriptionRenewal | null>(
       (latest, candidate) =>
         latest === null || candidate.periodEnd > latest.periodEnd ? candidate : latest,
       null,
     );
+  const replacementPaymentId = replacementRenewal?.paymentId
+    ?? (replacementRenewal?.source === 'admin_manual'
+      ? input.resolveManualPaymentId(replacementRenewal.idempotencyKey)
+      : null);
+  if (replacementRenewal && !replacementPaymentId) {
+    throw new Error('reconcileManualSubscription: replacement payment evidence is required');
+  }
+
+  // Evidence resolution happens before this first mutation so mock failures
+  // preserve the all-or-nothing behavior of the real SQL transaction.
+  renewal.reversedAt = at.toISOString();
+
   const currentPeriodEnd = replacementRenewal?.periodEnd ?? at.toISOString();
   const existingStatus = stateData.states.get(input.clientId)?.status;
   const next: SiteSubscriptionState = {
@@ -299,7 +313,7 @@ export function reconcileMockSiteSubscriptionManualReversal(input: {
   stateData.states.set(input.clientId, next);
   return {
     state: structuredClone(next),
-    replacementPaymentId: replacementRenewal?.paymentId ?? null,
+    replacementPaymentId,
   };
 }
 

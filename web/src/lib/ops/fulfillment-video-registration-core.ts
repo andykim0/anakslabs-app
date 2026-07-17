@@ -4,8 +4,14 @@ import {
   classifyVideoBytes,
 } from '@/lib/motion/asset-limits';
 
-export const FULFILLMENT_VIDEO_MIME_TYPES = ['video/mp4', 'video/webm'] as const;
+export const FULFILLMENT_VIDEO_MIME_TYPES = ['video/mp4'] as const;
 export type FulfillmentVideoMimeType = (typeof FULFILLMENT_VIDEO_MIME_TYPES)[number];
+
+export const FULFILLMENT_VIDEO_WIDTH = 1920;
+export const FULFILLMENT_VIDEO_HEIGHT = 1080;
+// Veo requests are 6–8 seconds. Allow only a small container/encoder tolerance.
+export const FULFILLMENT_VIDEO_MIN_DURATION_SECONDS = 5.5;
+export const FULFILLMENT_VIDEO_MAX_DURATION_SECONDS = 8.5;
 
 export type FulfillmentVideoSource =
   | { kind: 'file'; value: string }
@@ -20,6 +26,8 @@ export interface RegisterFulfillmentVideoArgs {
 export interface FulfillmentVideoProbe {
   streams?: Array<{
     codec_type?: unknown;
+    codec_name?: unknown;
+    pix_fmt?: unknown;
     width?: unknown;
     height?: unknown;
     duration?: unknown;
@@ -31,7 +39,7 @@ export interface FulfillmentVideoProbe {
 export interface VerifiedFulfillmentVideoProbe {
   width: number;
   height: number;
-  durationSeconds?: number;
+  durationSeconds: number;
   frameCount: number;
   keyframeCount: number;
 }
@@ -54,6 +62,63 @@ function requiredFlagValue(argv: readonly string[], index: number, flag: string)
     );
   }
   return value;
+}
+
+function ipv4Number(address: string): number | null {
+  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(address);
+  if (!match) return null;
+  const octets = match.slice(1).map(Number);
+  if (octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)) return null;
+  return (((octets[0] * 256 + octets[1]) * 256 + octets[2]) * 256 + octets[3]) >>> 0;
+}
+
+function inIpv4Cidr(value: number, base: string, prefix: number): boolean {
+  const baseValue = ipv4Number(base);
+  if (baseValue === null) return false;
+  const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+  return (value & mask) === (baseValue & mask);
+}
+
+const NON_PUBLIC_IPV4_CIDRS = [
+  ['0.0.0.0', 8],
+  ['10.0.0.0', 8],
+  ['100.64.0.0', 10],
+  ['127.0.0.0', 8],
+  ['169.254.0.0', 16],
+  ['172.16.0.0', 12],
+  ['192.0.0.0', 24],
+  ['192.0.2.0', 24],
+  ['192.88.99.0', 24],
+  ['192.168.0.0', 16],
+  ['198.18.0.0', 15],
+  ['198.51.100.0', 24],
+  ['203.0.113.0', 24],
+  ['224.0.0.0', 4],
+  ['240.0.0.0', 4],
+] as const;
+
+/**
+ * Remote fulfillment ingest intentionally pins a validated IPv4 address.
+ * IPv6-only hosts fail closed rather than allowing a second, unvalidated lookup.
+ */
+export function selectPinnedFulfillmentVideoIpv4(addresses: readonly string[]): string {
+  if (addresses.length === 0) {
+    throw new FulfillmentVideoRegistrationError(
+      'OPS_VIDEO_URL_DNS_FAILED',
+      '원격 영상 호스트의 공개 IPv4 주소를 찾을 수 없습니다.',
+    );
+  }
+  const parsed = addresses.map((address) => ({ address, value: ipv4Number(address) }));
+  if (parsed.some(({ value }) => (
+    value === null
+    || NON_PUBLIC_IPV4_CIDRS.some(([base, prefix]) => inIpv4Cidr(value, base, prefix))
+  ))) {
+    throw new FulfillmentVideoRegistrationError(
+      'OPS_VIDEO_URL_BLOCKED',
+      '원격 영상 URL은 공개 IPv4 호스트만 사용할 수 있습니다.',
+    );
+  }
+  return parsed[0].address;
 }
 
 /** Parse a deliberately narrow CLI contract. Owner/origin/storage claims are never accepted. */
@@ -176,15 +241,6 @@ export function detectFulfillmentVideoMime(bytes: Uint8Array): FulfillmentVideoM
   ) {
     return 'video/mp4';
   }
-  if (
-    bytes.byteLength >= 4
-    && bytes[0] === 0x1a
-    && bytes[1] === 0x45
-    && bytes[2] === 0xdf
-    && bytes[3] === 0xa3
-  ) {
-    return 'video/webm';
-  }
   return null;
 }
 
@@ -196,7 +252,7 @@ export function normalizeFulfillmentVideoMime(
   if (!detected) {
     throw new FulfillmentVideoRegistrationError(
       'OPS_VIDEO_CONTAINER_UNSUPPORTED',
-      'MP4 또는 WebM 컨테이너만 등록할 수 있습니다.',
+      '브라우저 호환 H.264 MP4 컨테이너만 등록할 수 있습니다.',
     );
   }
   if (declaredMime) {
@@ -222,7 +278,7 @@ function positiveInteger(value: unknown): number | null {
   return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
-/** Require a single silent video stream and an actual all-intra (-g 1) frame table. */
+/** Require the exact browser-compatible 1080p H.264 scrub asset contract. */
 export function verifyFulfillmentVideoProbe(
   probe: FulfillmentVideoProbe,
 ): VerifiedFulfillmentVideoProbe {
@@ -242,12 +298,31 @@ export function verifyFulfillmentVideoProbe(
     );
   }
 
+  if (videos[0].codec_name !== 'h264' || videos[0].pix_fmt !== 'yuv420p') {
+    throw new FulfillmentVideoRegistrationError(
+      'OPS_VIDEO_CODEC_INVALID',
+      '히어로 영상은 브라우저 호환 H.264 yuv420p여야 합니다.',
+    );
+  }
+
   const width = positiveInteger(videos[0].width);
   const height = positiveInteger(videos[0].height);
-  if (!width || !height) {
+  if (width !== FULFILLMENT_VIDEO_WIDTH || height !== FULFILLMENT_VIDEO_HEIGHT) {
     throw new FulfillmentVideoRegistrationError(
       'OPS_VIDEO_GEOMETRY_INVALID',
-      '영상 해상도를 확인할 수 없습니다.',
+      `히어로 영상은 ${FULFILLMENT_VIDEO_WIDTH}x${FULFILLMENT_VIDEO_HEIGHT}여야 합니다.`,
+    );
+  }
+
+  const duration = Number(videos[0].duration);
+  if (
+    !Number.isFinite(duration)
+    || duration < FULFILLMENT_VIDEO_MIN_DURATION_SECONDS
+    || duration > FULFILLMENT_VIDEO_MAX_DURATION_SECONDS
+  ) {
+    throw new FulfillmentVideoRegistrationError(
+      'OPS_VIDEO_DURATION_INVALID',
+      `히어로 영상 길이는 ${FULFILLMENT_VIDEO_MIN_DURATION_SECONDS}~${FULFILLMENT_VIDEO_MAX_DURATION_SECONDS}초여야 합니다.`,
     );
   }
 
@@ -266,11 +341,10 @@ export function verifyFulfillmentVideoProbe(
     );
   }
 
-  const duration = Number(videos[0].duration);
   return {
     width,
     height,
-    durationSeconds: Number.isFinite(duration) && duration > 0 ? duration : undefined,
+    durationSeconds: duration,
     frameCount: frames.length,
     keyframeCount,
   };

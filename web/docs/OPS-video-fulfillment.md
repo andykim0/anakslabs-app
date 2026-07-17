@@ -7,13 +7,13 @@
 - `/admin/video-queue`에서 대상 행이 `이행 대기`인지 확인합니다. 차단 표시가 있으면 먼저 원인을 해결합니다.
 - 대상 사이트 ID, 선택한 히어로 사진, 선택 연출을 주문 내용과 대조합니다.
 - 운영 셸에는 `NEXT_PUBLIC_MOCK_MODE=0`, Supabase URL·service-role key, `ASSET_PROVENANCE_V2_WRITE=1`이 설정되어 있어야 합니다. 키를 브라우저·문서·Git에 복사하지 않습니다.
-- 로컬에 `ffmpeg`와 `ffprobe`가 설치되어 있어야 합니다.
+- 로컬에 `ffmpeg`와 `ffprobe`가 설치되어 있어야 합니다. URL 등록은 공개 IPv4로 해석되는 HTTPS 호스트만 지원합니다.
 
 ## 1. 영상 생성·인코딩
 
-승인된 고객별 Daboim AI(Veo) 수동 생성 절차로 1080p 원본을 만들고, 고객이 선택한 히어로 소스와 연출인지 눈으로 확인합니다. 다른 가게의 영상이나 제품·시술 결과를 날조한 영상을 사용하지 않습니다.
+승인된 고객별 Daboim AI(Veo) 수동 생성 절차로 6~8초, 1920×1080 원본을 만들고, 고객이 선택한 히어로 소스와 연출인지 눈으로 확인합니다. 다른 가게의 영상이나 제품·시술 결과를 날조한 영상을 사용하지 않습니다.
 
-스크럽용 파일은 해상도를 자동으로 낮추지 않고 무음 all-intra로 인코딩합니다.
+스크럽용 파일은 해상도를 자동으로 낮추지 않고 MP4/H.264/yuv420p, 무음 all-intra로 인코딩합니다. 등록 검사는 인코더·컨테이너 오차를 고려해 5.5~8.5초만 허용합니다.
 
 ```bash
 ffmpeg -i veo-raw.mp4 \
@@ -48,7 +48,7 @@ node --env-file=.env.local ./node_modules/.bin/tsx \
   --url https://storage.example/video.mp4
 ```
 
-URL은 provenance가 아닙니다. 스크립트가 SSRF 방어와 크기 제한 아래 바이트를 받아 다보임 `ai-assets`에 다시 저장한 뒤 `(storage bucket, storage key)` identity를 등록합니다. `clientId`, origin과 사이트 귀속은 CLI가 아니라 서버가 결정합니다.
+URL은 provenance가 아닙니다. 스크립트는 각 HTTPS 리다이렉트마다 DNS 결과를 검사하고 검증한 공개 IPv4에 연결을 고정하되 원래 Host와 TLS SNI를 유지합니다. DNS·리다이렉트·본문 전체를 합쳐 60초, 스트리밍 본문은 8MiB로 제한합니다. 받은 MP4 바이트를 다보임 `ai-assets`에 다시 저장한 뒤 `(storage bucket, storage key)` identity를 등록합니다. `clientId`, origin과 사이트 귀속은 CLI가 아니라 서버가 결정합니다.
 
 쓰기 전 검사만 하려면 `--dry-run`을 추가합니다. 실제 등록 성공 시 마지막 줄의 UUID를 복사합니다.
 
@@ -74,5 +74,10 @@ VIDEO_ASSET_ID=22222222-2222-4222-8222-222222222222
 - `OPS_VIDEO_QUEUE_*`: 애드온 승인·명시적 요청·자산 정책·히어로 poster 상태를 큐에서 확인합니다.
 - `OPS_VIDEO_GOP_INVALID`: 모든 프레임이 키프레임이 아닙니다. `-g 1`로 다시 인코딩합니다.
 - `OPS_VIDEO_AUDIO_FORBIDDEN`: `-an`으로 다시 인코딩합니다.
+- `OPS_VIDEO_CODEC_INVALID`: H.264/yuv420p로 다시 인코딩합니다.
+- `OPS_VIDEO_GEOMETRY_INVALID`: 1920×1080 원본인지 확인합니다.
+- `OPS_VIDEO_DURATION_INVALID`: 6~8초 원본을 다시 확인합니다.
 - `OPS_VIDEO_SIZE_BLOCKED`: 8MiB 이하로 다시 인코딩합니다.
+- `OPS_VIDEO_URL_BLOCKED`, `OPS_VIDEO_URL_DNS_FAILED`: URL 호스트가 공개 IPv4로만 해석되는지 확인합니다.
+- `OPS_VIDEO_URL_TIMEOUT`: DNS부터 본문 완료까지 60초를 넘었습니다. 파일을 로컬로 안전하게 내려받아 `--file`로 등록합니다.
 - registry 오류 뒤에는 UUID가 출력되지 않습니다. URL만으로 큐 완료를 시도하지 않습니다.

@@ -13,6 +13,7 @@ import {
   formatFulfillmentVideoAssetId,
   normalizeFulfillmentVideoMime,
   parseRegisterFulfillmentVideoArgs,
+  selectPinnedFulfillmentVideoIpv4,
   verifyFulfillmentVideoProbe,
 } from '../fulfillment-video-registration-core';
 
@@ -34,7 +35,14 @@ function webmBytes(): Uint8Array {
 
 function probe(overrides: Record<string, unknown> = {}) {
   return {
-    streams: [{ codec_type: 'video', width: 1920, height: 1080, duration: '8.0' }],
+    streams: [{
+      codec_type: 'video',
+      codec_name: 'h264',
+      pix_fmt: 'yuv420p',
+      width: 1920,
+      height: 1080,
+      duration: '8.0',
+    }],
     frames: Array.from({ length: 192 }, () => ({ key_frame: 1 })),
     ...overrides,
   };
@@ -111,14 +119,14 @@ describe('O3 fulfillment video CLI contract', () => {
     assert.throws(() => classifyFulfillmentVideoBytes(0), /OPS_VIDEO_EMPTY/);
   });
 
-  test('container magic and declared MIME must agree', () => {
+  test('only an MP4 container with matching declared MIME is accepted', () => {
     assert.equal(detectFulfillmentVideoMime(mp4Bytes()), 'video/mp4');
-    assert.equal(detectFulfillmentVideoMime(webmBytes()), 'video/webm');
+    assert.equal(detectFulfillmentVideoMime(webmBytes()), null);
     assert.equal(detectFulfillmentVideoMime(Uint8Array.from([1, 2, 3, 4])), null);
     assert.equal(normalizeFulfillmentVideoMime(mp4Bytes(), 'video/mp4; charset=binary'), 'video/mp4');
     assert.throws(
       () => normalizeFulfillmentVideoMime(mp4Bytes(), 'video/webm'),
-      /OPS_VIDEO_MIME_MISMATCH/,
+      /OPS_VIDEO_MIME_UNSUPPORTED/,
     );
     assert.throws(
       () => normalizeFulfillmentVideoMime(mp4Bytes(), 'application/octet-stream'),
@@ -126,7 +134,29 @@ describe('O3 fulfillment video CLI contract', () => {
     );
   });
 
-  test('ffprobe contract requires one video, no audio, and every frame key_frame=1', () => {
+  test('DNS pin selection accepts only public IPv4 and rejects mixed/private answers', () => {
+    assert.equal(
+      selectPinnedFulfillmentVideoIpv4(['93.184.216.34', '8.8.8.8']),
+      '93.184.216.34',
+    );
+    for (const blocked of [
+      [],
+      ['127.0.0.1'],
+      ['169.254.169.254'],
+      ['10.0.0.1'],
+      ['100.64.0.1'],
+      ['172.16.0.1'],
+      ['192.168.0.1'],
+      ['198.18.0.1'],
+      ['224.0.0.1'],
+      ['::1'],
+      ['93.184.216.34', '127.0.0.1'],
+    ]) {
+      assert.throws(() => selectPinnedFulfillmentVideoIpv4(blocked), /OPS_VIDEO_URL_/);
+    }
+  });
+
+  test('ffprobe contract requires browser-compatible 1080p H.264 yuv420p and bounded duration', () => {
     const verified = verifyFulfillmentVideoProbe(probe());
     assert.deepEqual(verified, {
       width: 1920,
@@ -148,6 +178,44 @@ describe('O3 fulfillment video CLI contract', () => {
       })),
       /OPS_VIDEO_AUDIO_FORBIDDEN/,
     );
+    assert.throws(
+      () => verifyFulfillmentVideoProbe(probe({
+        streams: [{
+          codec_type: 'video', codec_name: 'hevc', pix_fmt: 'yuv420p',
+          width: 1920, height: 1080, duration: '8.0',
+        }],
+      })),
+      /OPS_VIDEO_CODEC_INVALID/,
+    );
+    assert.throws(
+      () => verifyFulfillmentVideoProbe(probe({
+        streams: [{
+          codec_type: 'video', codec_name: 'h264', pix_fmt: 'yuv444p',
+          width: 1920, height: 1080, duration: '8.0',
+        }],
+      })),
+      /OPS_VIDEO_CODEC_INVALID/,
+    );
+    assert.throws(
+      () => verifyFulfillmentVideoProbe(probe({
+        streams: [{
+          codec_type: 'video', codec_name: 'h264', pix_fmt: 'yuv420p',
+          width: 1280, height: 720, duration: '8.0',
+        }],
+      })),
+      /OPS_VIDEO_GEOMETRY_INVALID/,
+    );
+    for (const duration of [undefined, '0', '5.49', '8.51', 'NaN']) {
+      assert.throws(
+        () => verifyFulfillmentVideoProbe(probe({
+          streams: [{
+            codec_type: 'video', codec_name: 'h264', pix_fmt: 'yuv420p',
+            width: 1920, height: 1080, duration,
+          }],
+        })),
+        /OPS_VIDEO_DURATION_INVALID/,
+      );
+    }
     assert.throws(
       () => verifyFulfillmentVideoProbe(probe({ frames: [{ key_frame: 1 }, { key_frame: 0 }] })),
       /OPS_VIDEO_GOP_INVALID/,
@@ -218,13 +286,21 @@ describe('O3 provenance and ADM1 integration invariants', () => {
     }), { allowed: true });
   });
 
-  test('script performs SSRF-safe bounded ingest, server owner derivation, upload, and registry recheck', () => {
+  test('script pins each HTTPS request, bounds the whole transfer, derives owner, and rechecks registry', () => {
     const source = readFileSync(
       join(process.cwd(), 'scripts/register-fulfillment-video.ts'),
       'utf8',
     );
-    assert.match(source, /safeFetch\(url/);
-    assert.match(source, /readLimitedBytes\(res, VIDEO_HARD_MAX_BYTES\)/);
+    assert.match(source, /resolver\.resolve4\(hostname\)/);
+    assert.match(source, /selectPinnedFulfillmentVideoIpv4/);
+    assert.match(source, /lookup: pinnedLookup\(address\)/);
+    assert.match(source, /host: url\.host/);
+    assert.match(source, /servername: url\.hostname/);
+    assert.match(source, /agent: false/);
+    assert.match(source, /setTimeout\(\(\) => controller\.abort\(\), REMOTE_VIDEO_TIMEOUT_MS\)/);
+    assert.match(source, /for await \(const chunk of response\)/);
+    assert.match(source, /total > VIDEO_HARD_MAX_BYTES/);
+    assert.doesNotMatch(source, /safeFetch|readLimitedBytes/);
     assert.match(source, /sites\.getById\(siteId\)/);
     assert.match(source, /clients\.getById\(site\.clientId\)/);
     assert.match(source, /siteVideoFulfillmentState\(\{ site, client, completion \}\)/);
@@ -259,6 +335,11 @@ describe('O3 provenance and ADM1 integration invariants', () => {
     assert.match(guide, /VIDEO_ASSET_ID=/);
     assert.match(guide, /URL은 provenance가 아닙니다/);
     assert.match(guide, /-g 1/);
+    assert.match(guide, /1920.?1080/);
+    assert.match(guide, /H\.264/);
+    assert.match(guide, /yuv420p/);
+    assert.match(guide, /공개 IPv4/);
+    assert.match(guide, /60초/);
     assert.match(guide, /3MiB/);
     assert.match(guide, /8MiB/);
     assert.match(guide, /append-only/);
