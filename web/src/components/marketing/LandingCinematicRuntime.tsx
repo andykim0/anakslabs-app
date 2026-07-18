@@ -8,6 +8,6 @@ import { usePreviewMotion } from '@/components/site-renderer/use-preview-motion'
  * 실제 판매되는 cinematic-hero와 동일한 규칙을 사용한다.
  */
 export function LandingCinematicRuntime() {
-  usePreviewMotion(true, 'daboim-landing-cinematic-v1');
+  usePreviewMotion(true, 'daboim-landing-manifesto-v2');
   return null;
 }

@@ -20,9 +20,7 @@ import {
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
-import { LandingScanner } from '@/components/landing/LandingScanner';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
-import { HeroVideo } from '@/components/marketing/HeroVideo';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
@@ -177,24 +175,7 @@ export default function MarketingHome() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
 
-      {/* 카테고리 선언 + 실제 무료 진단 + 제품 구조 시각화 */}
-      <div className="relative overflow-hidden bg-[#F8FBFF]">
-        <HeroVideo />
-        <div className="relative z-10">
-          <LandingScanner />
-        </div>
-        <div className="relative z-10 border-t border-[#DCE4F0] bg-white/55 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono text-[9px] tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
-            {['SEMANTIC HTML', 'JSON-LD', 'NAVER INDEXNOW', 'MULTI-PAGE SSR', 'SSL HOSTING', 'CANVAS EDITOR'].map((item) => (
-              <span key={item} className="inline-flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-[#03BFA9]" /> {item}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 실제 판매되는 데스크 scrub·모바일 loop 런타임을 기존 1080p 필름으로 비용 없이 시연 */}
+      {/* 무료 진단 prelude에서 실제 4막 매니페스토 무대로 이어지는 단일 공용 motion runtime. */}
       <LandingCinematicShowcase />
 
       {/* 범용 AI 제작이 아니라 홈페이지 전문 최적화 AI라는 카테고리 정의 */}

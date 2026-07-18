@@ -198,7 +198,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
 
 // ---------- 히어로 + 스캐너 ----------
 
-export function LandingScanner() {
+export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film' | 'poster' }) {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
   const [msgIdx, setMsgIdx] = useState(0);
@@ -344,7 +344,7 @@ export function LandingScanner() {
           ) : null}
         </div>
 
-        <OptimizationConsole />
+        <OptimizationConsole mediaMode={consoleMedia} />
       </div>
 
       {scan ? <ScanResultPanel scan={scan} /> : null}

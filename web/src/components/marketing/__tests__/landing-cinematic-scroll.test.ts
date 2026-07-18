@@ -4,19 +4,27 @@ import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { parse } from 'node-html-parser';
 import { LandingCinematicShowcase } from '../LandingCinematicShowcase';
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
 
-describe('L$ 랜딩 시네마틱 스크롤 시연', () => {
-  test('무료 진단 직후 실제 공용 progress 런타임 무대가 노출된다', () => {
+describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
+  test('무료 진단과 4막 무대가 하나의 공용 runtime 컴포넌트로 이어진다', () => {
     const page = read('src/app/(marketing)/page.tsx');
-    const scanner = page.indexOf('<LandingScanner />');
     const cinematic = page.indexOf('<LandingCinematicShowcase />');
     const category = page.indexOf('A NEW WEBSITE CATEGORY');
-    assert.ok(scanner >= 0 && cinematic > scanner, '스크럽 시연이 무료 진단 뒤에 없음');
+    assert.ok(cinematic >= 0, '페이지 관통 무대가 랜딩 첫 경험에서 사라짐');
     assert.ok(category > cinematic, '스크럽 시연이 후속 제품 설명 뒤로 밀림');
+    assert.doesNotMatch(page, /HeroVideo|<LandingScanner/, '별도 히어로 엔진이나 진단 surface가 남아 있음');
+
+    const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.match(showcase, /data-landing-manifesto/);
+    assert.match(showcase, /<LandingScanner consoleMedia="poster" \/>/);
+    assert.match(showcase, /signatureId: 'scrollytelling-manifesto'/);
+    assert.match(showcase, /<MotionSignatureRenderer/);
+    assert.doesNotMatch(showcase, /data-signature-status=/, 'production renderer 상태를 마케팅 DOM이 흉내 내면 안 됨');
 
     const runtime = read('src/components/marketing/LandingCinematicRuntime.tsx');
     assert.match(runtime, /usePreviewMotion/);
@@ -25,27 +33,30 @@ describe('L$ 랜딩 시네마틱 스크롤 시연', () => {
 
   test('SSR 마크업은 poster·전 막 본문을 보존하고 영상만 지연 로드한다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
-    assert.match(source, /data-m-progress/);
-    assert.match(source, /data-m-cinematic-video/);
-    assert.match(source, /data-playback="scrub"/);
-    assert.match(source, /data-playback="loop"/);
+    const renderer = read('src/components/site-renderer/MotionSignatureRenderer.tsx');
+    assert.match(source, /satisfies ScrollytellingManifestoScene/);
+    assert.match(source, /responsiveVideoSources=\{LANDING_VIDEO_SOURCES\}/);
+    assert.match(renderer, /data-m-progress/);
+    assert.match(renderer, /data-m-cinematic-video/);
+    assert.match(renderer, /data-playback=\{scrub \? 'scrub' : 'loop'\}/);
     assert.match(source, /daboim-visibility-film-poster\.webp/);
-    assert.match(source, /width=\{1920\}/);
-    assert.match(source, /height=\{1080\}/);
-    assert.match(source, /loading="lazy"/);
-    assert.match(source, /decoding="async"/);
-    assert.match(source, /preload="none"/);
-    assert.match(source, /<article/);
-    assert.match(source, /<h3 data-ss-heading>/);
-    assert.equal((source.match(/<article/g) ?? []).length, 1, '막은 ACTS map의 단일 시맨틱 템플릿이어야 함');
-    assert.doesNotMatch(source, /autoPlay|autoplay/);
+    assert.match(source, /width: 1920/);
+    assert.match(source, /height: 1080/);
+    assert.match(renderer, /loading: eager \? 'eager' as const : 'lazy' as const/);
+    assert.match(renderer, /decoding: eager \? 'sync' as const : 'async' as const/);
+    assert.match(renderer, /preload="none"/);
+    assert.match(renderer, /<article/);
+    assert.match(renderer, /<h2 id=\{headingId\} data-ss-heading data-signature-heading>/);
+    assert.doesNotMatch(source, /<article|<video/, '마케팅에서 production scene DOM을 복제하면 안 됨');
+    assert.doesNotMatch(renderer, /autoPlay|autoplay/);
     for (const forbidden of ['WebGL', 'three.js', 'Lenis', 'preventDefault']) {
       assert.ok(!source.includes(forbidden), `금지 기법 포함: ${forbidden}`);
     }
   });
 
-  test('M6 실제 SSR은 4막 전체와 no-JS 폴백을 보존하고 블로킹 외부 스크립트가 없다', () => {
+  test('SSR은 LCP poster·무료 진단·4막 전체를 보존하고 영상만 지연한다', () => {
     const html = renderToStaticMarkup(createElement(LandingCinematicShowcase));
+    const rootNode = parse(html);
     const expectedCopy = [
       ['손님이 검색하면, 가게를 찾기 쉽게.', '네이버·구글이 가게 이름, 지역, 서비스와 페이지 내용을 찾을 수 있게 정리합니다.'],
       ['“주차 되나요?”에 홈페이지가 바로 답하게.', '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 적습니다.'],
@@ -53,26 +64,57 @@ describe('L$ 랜딩 시네마틱 스크롤 시연', () => {
       ['이 움직임을 사장님 홈페이지에도.', '컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 움직임을 줄인 기기에서는 사진과 글이 그대로 보입니다.'],
     ] as const;
 
-    assert.equal((html.match(/<article\b/g) ?? []).length, 4);
+    assert.equal(rootNode.querySelectorAll('h1').length, 1);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act]').length, 4);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act][aria-labelledby]').length, 4);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act] h2').length, 4);
+    assert.equal(rootNode.querySelectorAll('[data-motion-signature]').length, 1);
     for (const [heading, body] of expectedCopy) {
       assert.ok(html.includes(heading), `SSR heading 누락: ${heading}`);
       assert.ok(html.includes(body), `SSR body 누락: ${body}`);
     }
-    assert.equal((html.match(/<video\b/g) ?? []).length, 2);
-    assert.equal((html.match(/preload="none"/g) ?? []).length, 2);
-    assert.equal((html.match(/poster="\/daboim-visibility-film-poster\.webp"/g) ?? []).length, 2);
+    assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    assert.equal((html.match(/preload="none"/g) ?? []).length, 1);
+    assert.equal((html.match(/poster="\/daboim-visibility-film-poster\.webp"/g) ?? []).length, 1);
     assert.match(html, /<img[^>]+width="1920"[^>]+height="1080"[^>]+loading="lazy"[^>]+decoding="async"/);
+    assert.match(html, /<link[^>]+rel="preload"[^>]+as="image"[^>]+href="\/daboim-visibility-film-poster\.webp"/);
+    assert.equal(rootNode.querySelectorAll('video[preload="none"][muted][playsinline]').length, 1);
+    assert.equal(rootNode.querySelectorAll('video[width="1920"][height="1080"]').length, 1);
+    assert.equal(rootNode.querySelectorAll('video source').length, 2);
+    assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film.webm"][media="(max-width: 767.98px)"]').length, 1);
+    assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film-scrub.mp4"]').length, 1);
+    assert.equal(rootNode.querySelectorAll('[data-signature-status="production-renderer"]').length, 1);
+    assert.equal(rootNode.querySelectorAll('img[data-lcs-hero-poster][loading="lazy"]').length, 0);
+    assert.equal(rootNode.querySelectorAll('img[data-lcs-hero-poster][fetchpriority]').length, 0,
+      'Next 16 문서상 preload와 fetchPriority를 함께 쓰면 안 됨');
     assert.match(html, /<noscript>/);
     assert.doesNotMatch(html, /<script\b[^>]*\bsrc=/i);
   });
 
-  test('영상 전체를 덮는 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
+  test('막 영상 전체 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
-    assert.match(source, /data-lcs-local-scrim/);
-    assert.match(source, /\.m-scrollytelling-ready \[data-lcs-local-scrim\]/);
+    assert.match(source, /\.m-scrollytelling-ready \[data-signature-id="scrollytelling-manifesto"\] \[data-ss-copy\]/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
     assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
-    assert.doesNotMatch(source, /rel=["']preload["'][^>]+daboim-visibility-film-poster/);
+    assert.match(source, /data-lcs-hero-poster[\s\S]*preload/);
+  });
+
+  test('reduced-motion과 no-JS는 큰 sticky track 없이 compact 세로 기사로 읽힌다', () => {
+    const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.match(source, /\.m-scrollytelling-static \[data-signature-id="scrollytelling-manifesto"\]/);
+    assert.match(source, /height: auto !important; contain: none/);
+    assert.match(source, /min-height: 0; padding-block: clamp\(56px, 6vw, 88px\)/);
+    assert.match(source, /const NO_JS_STAGE_CSS/);
+    assert.match(source, /<noscript>[\s\S]*NO_JS_STAGE_CSS/);
+  });
+
+  test('중복 영상 consumer 없이 hero는 poster-only이고 stage만 영상을 소비한다', () => {
+    const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
+    assert.match(source, /consoleMedia="poster"/);
+    assert.match(consoleSource, /mediaMode === 'film'/);
+    assert.equal((source.match(/<video\b/g) ?? []).length, 0);
+    assert.match(source, /responsiveVideoSources=\{LANDING_VIDEO_SOURCES\}/);
   });
 
   test('데스크 scrub MP4는 8MB 이하 all-intra(-g 1) 자산이다', () => {

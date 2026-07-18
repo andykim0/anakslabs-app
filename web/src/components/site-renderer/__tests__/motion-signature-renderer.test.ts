@@ -150,6 +150,29 @@ describe('motion signature production renderers', () => {
     assert.doesNotMatch(html, /autoplay/);
   });
 
+  test('curated manifesto preview may select a lightweight mobile source without changing persisted media', () => {
+    const scene = X5_RENDERER_FIXTURES['scrollytelling-manifesto'];
+    const html = renderToStaticMarkup(createElement(MotionSignatureRenderer, {
+      scene,
+      theme,
+      artDirection: art(scene.signatureId),
+      mode: 'auto',
+      isFirst: false,
+      responsiveVideoSources: [
+        { src: '/motion/manifesto-mobile.webm', type: 'video/webm', media: '(max-width: 767.98px)' },
+        { src: scene.media.src, type: 'video/mp4' },
+      ],
+    }));
+
+    assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    assert.equal((html.match(/<source\b/g) ?? []).length, 2);
+    assert.match(html, /<source src="\/motion\/manifesto-mobile\.webm" type="video\/webm" media="\(max-width: 767\.98px\)"/);
+    assert.match(html, /<source src="\/motion\/manifesto\.mp4" type="video\/mp4"/);
+    assert.match(html, /<video[^>]*poster="\/motion\/manifesto-poster\.webp"[^>]*preload="none"/);
+    assert.doesNotMatch(html, /<video[^>]*\ssrc=/);
+    assert.doesNotMatch(html, /autoplay/);
+  });
+
   test('mosaic never eagerly loads a tile and preserves captions/dimensions', () => {
     const html = renderScene(X5_RENDERER_FIXTURES['mosaic-reveal'], true);
     assert.equal((html.match(/loading="lazy"/g) ?? []).length, 6);

@@ -17,6 +17,12 @@ interface MotionSignatureRendererProps {
   artDirection: MotionArtDirectionProfile;
   mode: MotionSignatureRenderMode;
   isFirst?: boolean;
+  /** Renderer-only responsive sources for curated previews; persisted MotionMedia remains unchanged. */
+  responsiveVideoSources?: readonly {
+    src: string;
+    type: 'video/webm' | 'video/mp4';
+    media?: string;
+  }[];
 }
 
 const copyStyle: CSSProperties = {
@@ -169,6 +175,7 @@ function SignatureMedia({
   scrollytelling = false,
   className,
   dataAttrs = {},
+  responsiveVideoSources,
 }: {
   media: MotionMedia;
   eager?: boolean;
@@ -176,6 +183,7 @@ function SignatureMedia({
   scrollytelling?: boolean;
   className?: string;
   dataAttrs?: Record<string, string | number | boolean>;
+  responsiveVideoSources?: MotionSignatureRendererProps['responsiveVideoSources'];
 }) {
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
@@ -218,7 +226,7 @@ function SignatureMedia({
             data-m-cinematic-video="true"
             data-ss-video={scrollytelling ? true : undefined}
             data-playback={scrub ? 'scrub' : 'loop'}
-            src={src}
+            src={responsiveVideoSources?.length ? undefined : src}
             poster={poster}
             width={media.width}
             height={media.height}
@@ -228,7 +236,16 @@ function SignatureMedia({
             aria-hidden="true"
             tabIndex={-1}
             style={{ objectFit: 'cover', objectPosition: focalPosition(media) }}
-          />
+          >
+            {responsiveVideoSources?.map((source) => (
+              <source
+                key={`${source.media ?? 'default'}-${source.src}`}
+                src={safeMediaSrc(source.src)}
+                type={source.type}
+                media={source.media}
+              />
+            ))}
+          </video>
         </>
       )}
       {media.caption ? <figcaption data-signature-caption>{media.caption}</figcaption> : null}
@@ -316,7 +333,7 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function ScrollytellingManifesto({ scene, theme, art, mode, isFirst }: MotionSignatureRendererProps & {
+function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -348,6 +365,7 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst }: MotionSig
             eager={isFirst}
             scrub
             scrollytelling
+            responsiveVideoSources={responsiveVideoSources}
             dataAttrs={{ 'data-ss-video-wrap': true }}
           />
         </div>

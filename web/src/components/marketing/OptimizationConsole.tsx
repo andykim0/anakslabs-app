@@ -30,7 +30,7 @@ function subscribeToDesktopQuery(onStoreChange: () => void) {
 const getDesktopSnapshot = () => window.matchMedia(DESKTOP_QUERY).matches;
 const getDesktopServerSnapshot = () => false;
 
-export function OptimizationConsole() {
+export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film' | 'poster' }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion() ?? false;
@@ -54,7 +54,7 @@ export function OptimizationConsole() {
     return () => observer.disconnect();
   }, []);
 
-  const showVideo = nearViewport && isDesktop && !reduce;
+  const showVideo = mediaMode === 'film' && nearViewport && isDesktop && !reduce;
 
   useEffect(() => {
     if (!showVideo) return;

@@ -9,11 +9,13 @@ const read = (path: string) => readFileSync(join(root, path), 'utf8');
 describe('Daboim 브랜드·랜딩 불변조건', () => {
   test('무료 진단은 랜딩 첫 히어로의 핵심 진입점이다', () => {
     const page = read('src/app/(marketing)/page.tsx');
-    const scanner = page.indexOf('<LandingScanner />');
+    const cinematic = page.indexOf('<LandingCinematicShowcase />');
     const engineSection = page.indexOf('ONE SITE · THREE ENGINES');
-    assert.ok(scanner >= 0, '무료 진단 컴포넌트가 랜딩에서 사라짐');
-    assert.ok(engineSection > scanner, '무료 진단이 후속 설명 섹션보다 뒤로 밀림');
+    assert.ok(cinematic >= 0, '무료 진단을 품은 매니페스토 컴포넌트가 랜딩에서 사라짐');
+    assert.ok(engineSection > cinematic, '무료 진단이 후속 설명 섹션보다 뒤로 밀림');
 
+    const manifesto = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.match(manifesto, /<LandingScanner consoleMedia="poster" \/>/);
     const scannerSource = read('src/components/landing/LandingScanner.tsx');
     assert.match(scannerSource, /id="hero-scanner"/);
     assert.match(scannerSource, /내 사이트 무료 진단/);
@@ -30,6 +32,14 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
     const footer = read('src/components/marketing/MarketingFooter.tsx');
     assert.match(header, /<BrandLogo \/>/);
     assert.match(footer, /<BrandLogo inverse/);
+  });
+
+  test('스크롤 진단 CTA는 예약 폭 안에서만 나타나 헤더 CLS를 만들지 않는다', () => {
+    const header = read('src/components/marketing/MarketingHeader.tsx');
+    assert.match(header, /w-\[88px\] shrink-0/);
+    assert.match(header, /aria-hidden=\{!showScannerCta\}/);
+    assert.match(header, /tabIndex=\{showScannerCta \? undefined : -1\}/);
+    assert.doesNotMatch(header, /AnimatePresence/, 'CTA DOM 삽입으로 로그인 버튼을 밀면 안 됨');
   });
 
   test('SEO/AEO/GEO 주장은 보장이 아니라 읽히는 기반으로 제한한다', () => {

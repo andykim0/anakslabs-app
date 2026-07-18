@@ -1,7 +1,25 @@
-import type { CSSProperties } from 'react';
-import { Check, MousePointer2 } from 'lucide-react';
+import Image from 'next/image';
+import { MousePointer2 } from 'lucide-react';
+import type { ScrollytellingManifestoScene, SiteTheme } from '@/lib/types/site';
+import {
+  resolveMotionArtDirectionProfile,
+  type MotionContext,
+} from '@/lib/motion/signatures';
 import { MOTION_CSS } from '@/lib/motion/runtime';
+import { LandingScanner } from '@/components/landing/LandingScanner';
+import { MotionSignatureRenderer } from '@/components/site-renderer/MotionSignatureRenderer';
 import { LandingCinematicRuntime } from './LandingCinematicRuntime';
+
+const POSTER_SRC = '/daboim-visibility-film-poster.webp';
+
+const TECH_RAIL = [
+  'SEMANTIC HTML',
+  'JSON-LD',
+  'NAVER INDEXNOW',
+  'MULTI-PAGE SSR',
+  'SSL HOSTING',
+  'CANVAS EDITOR',
+] as const;
 
 const ACTS = [
   {
@@ -34,10 +52,94 @@ const ACTS = [
   },
 ] as const;
 
+const LANDING_THEME = {
+  fonts: {
+    heading: "'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif",
+    body: "'Pretendard', 'Apple SD Gothic Neo', system-ui, sans-serif",
+  },
+  palette: {
+    background: '#07142F',
+    surface: '#0B1736',
+    text: '#FFFFFF',
+    muted: '#C3CEE2',
+    primary: '#68E8D8',
+    accent: '#174DDA',
+  },
+  radius: 28,
+} satisfies SiteTheme;
+
+const LANDING_SCENE = {
+  signatureId: 'scrollytelling-manifesto',
+  pageId: 'marketing-home',
+  sectionId: 'landing-manifesto-stage',
+  media: {
+    id: 'daboim-visibility-film',
+    kind: 'video',
+    src: '/daboim-visibility-film-scrub.mp4',
+    poster: POSTER_SRC,
+    alt: 'Daboim 홈페이지가 손님에게 발견되는 흐름을 표현한 시네마틱 필름',
+    width: 1920,
+    height: 1080,
+    focalPoint: { x: 0.5, y: 0.48 },
+    provenance: 'curated',
+  },
+  acts: ACTS.map((act, index) => ({
+    id: `landing-act-${index + 1}`,
+    heading: act.heading,
+    body: act.body,
+    kind: 'text' as const,
+    band: [act.start, act.end] as [number, number],
+  })),
+} satisfies ScrollytellingManifestoScene;
+
+const LANDING_MOTION_CONTEXT = {
+  purposeId: 'company_brand',
+  templateId: 'default',
+  industryClass: 'brand',
+  classificationSource: 'server',
+  availableSections: [{
+    pageId: LANDING_SCENE.pageId,
+    sectionId: LANDING_SCENE.sectionId,
+    type: 'hero',
+    itemCount: ACTS.length,
+    mediaCount: 1,
+  }],
+  assets: [],
+  tier: 'premium',
+  entitlement: { videoAddon: true },
+  playback: {
+    javascript: true,
+    viewportWidth: 1440,
+    finePointer: true,
+    hover: true,
+    reducedMotion: false,
+    saveData: false,
+    hardwareConcurrency: 8,
+    intersectionObserver: true,
+    renderMode: 'auto',
+  },
+  theme: LANDING_THEME,
+  contentDensity: 'balanced',
+  motionIntensity: 'normal',
+} satisfies MotionContext;
+
+const LANDING_ART_DIRECTION = resolveMotionArtDirectionProfile(
+  'scrollytelling-manifesto',
+  LANDING_MOTION_CONTEXT,
+  LANDING_SCENE,
+);
+
+const LANDING_VIDEO_SOURCES = [
+  { src: '/daboim-visibility-film.webm', type: 'video/webm', media: '(max-width: 767.98px)' },
+  { src: '/daboim-visibility-film-scrub.mp4', type: 'video/mp4' },
+] as const;
+
 const STAGE_CSS = `
-.daboim-cinematic [data-ss-media] { background: #07142f; }
-.daboim-cinematic [data-ss-copy] { padding-inline: clamp(24px, 7vw, 108px); }
-.daboim-cinematic.m-scrollytelling-ready [data-lcs-local-scrim] {
+.daboim-cinematic [data-lcs-hero-poster] { object-position: center 48%; }
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-copy] {
+  padding-inline: clamp(24px, 7vw, 108px);
+}
+.daboim-cinematic.m-scrollytelling-ready [data-signature-id="scrollytelling-manifesto"] [data-ss-copy] {
   padding: clamp(24px, 4vw, 52px);
   border: 1px solid rgba(255,255,255,.12); border-radius: clamp(22px, 2vw, 30px);
   background: linear-gradient(108deg,rgba(3,12,31,.84),rgba(3,12,31,.54) 68%,rgba(3,12,31,.16));
@@ -48,148 +150,101 @@ const STAGE_CSS = `
   letter-spacing: -.055em; text-wrap: balance;
 }
 .daboim-cinematic [data-ss-body] { color: rgba(255,255,255,.76); }
-.daboim-cinematic [data-lcs-eyebrow] {
-  margin: 0 0 18px; color: #68e8d8; font: 600 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: .16em;
+.daboim-cinematic.m-scrollytelling-static [data-signature-id="scrollytelling-manifesto"] {
+  height: auto !important; contain: none;
 }
-.daboim-cinematic:not(.m-scrollytelling-ready) [data-ss-heading] { color: #0b1736; }
-.daboim-cinematic:not(.m-scrollytelling-ready) [data-ss-body] { color: #5f6b7c; }
-.daboim-cinematic:not(.m-scrollytelling-ready) [data-lcs-eyebrow] { color: #174dda; }
-.daboim-cinematic.m-scrollytelling-ready [data-lcs-film-ui] { opacity: 1; }
+.daboim-cinematic.m-scrollytelling-static [data-signature-id="scrollytelling-manifesto"] [data-ss-pin] {
+  height: auto; overflow: visible;
+}
+.daboim-cinematic.m-scrollytelling-static [data-signature-id="scrollytelling-manifesto"] [data-ss-media] {
+  position: relative; inset: auto; height: var(--ss-static-height); min-height: 0;
+}
+.daboim-cinematic.m-scrollytelling-static [data-signature-id="scrollytelling-manifesto"] [data-ss-act] {
+  min-height: 0; padding-block: clamp(56px, 6vw, 88px);
+  border-top: 1px solid rgba(255,255,255,.08);
+}
 @media (max-width: 767.98px) {
   .daboim-cinematic [data-ss-heading] { font-size: clamp(2.15rem, 11vw, 4.25rem); }
   .daboim-cinematic [data-ss-copy] { padding-inline: 24px; }
+  .daboim-cinematic.m-scrollytelling-static [data-signature-id="scrollytelling-manifesto"] [data-ss-act] {
+    padding-block: 56px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .daboim-cinematic [data-lcs-film-ui] { display: none; }
+  .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-act] {
+    padding-block: clamp(56px, 6vw, 88px);
+  }
 }
 `;
 
-const stageVars = {
-  '--scroll-progress': 0,
-  '--m-amp': 1,
-  '--m-dur-scale': 1,
-  '--ss-scroll-height': `${ACTS.length * 100}svh`,
-  '--ss-static-height': 'min(72svh, 820px)',
-  '--ss-stage-bg': '#07142f',
-  '--ss-stack-bg': '#f8fbff',
-  '--ss-stack-text': '#0b1736',
-  '--ss-text': '#ffffff',
-  '--ss-heading-font': "'Pretendard', system-ui, sans-serif",
-} as CSSProperties;
+const NO_JS_STAGE_CSS = `
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"]{height:auto!important;contain:none}
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-pin]{height:auto;overflow:visible}
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media]{position:relative;inset:auto;height:var(--ss-static-height);min-height:0}
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-act]{min-height:0;padding-block:clamp(56px,6vw,88px)}
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-video]{display:none!important}
+`;
 
 export function LandingCinematicShowcase() {
   return (
-    <section aria-labelledby="landing-cinematic-title" className="border-y border-[#1B3158] bg-[#07142F]">
-      <div className="mx-auto max-w-7xl px-5 pt-20 pb-12 text-white sm:px-8 md:pt-28">
-        <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end">
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.16em] text-[#68E8D8] uppercase">
-              LIVE CINEMATIC SCROLL · ADD-ON PREVIEW
-            </p>
-            <h2 id="landing-cinematic-title" className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-0.045em] sm:text-5xl">
-              설명보다 먼저,
-              <br />직접 스크롤해 보세요.
-            </h2>
-          </div>
-          <div className="max-w-md">
-            <p className="text-sm leading-7 text-white/68">
-              지금 화면은 유료 옵션에 실제로 들어가는 움직임입니다. 컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 예시는 기존 Daboim 1080p 영상으로 보여드립니다.
-            </p>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[9px] tracking-[0.11em] text-white/80">
-              <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> DESKTOP: SCROLL TO SCRUB · MOBILE: PINNED LOOP
-            </p>
+    <div
+      data-landing-manifesto
+      className="anaks-site daboim-cinematic border-y border-[#DCE4F0]"
+      style={{ minHeight: 0, backgroundColor: '#07142f' }}
+    >
+      <style dangerouslySetInnerHTML={{ __html: `${MOTION_CSS}\n${STAGE_CSS}` }} />
+
+      <div data-lcs-prelude className="relative isolate overflow-hidden bg-[#F8FBFF]">
+        <Image
+          data-lcs-hero-poster
+          src={POSTER_SRC}
+          alt=""
+          aria-hidden="true"
+          width={1920}
+          height={1080}
+          preload
+          unoptimized
+          className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_82%_42%,rgba(248,251,255,.18),rgba(248,251,255,.68)_42%,rgba(248,251,255,.97)_78%)]"
+        />
+        <LandingScanner consoleMedia="poster" />
+        <div className="border-t border-[#DCE4F0] bg-white/65 backdrop-blur">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono text-[9px] tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
+            {TECH_RAIL.map((item) => (
+              <span key={item} className="inline-flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-[#03BFA9]" /> {item}
+              </span>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="anaks-site daboim-cinematic" style={{ minHeight: 0, backgroundColor: '#07142f' }}>
-        <style dangerouslySetInnerHTML={{ __html: `${MOTION_CSS}\n${STAGE_CSS}` }} />
-        <section
-          data-m="scrollytelling"
-          data-m-progress
-          data-ss-stage
-          data-ss-mode="auto"
-          aria-label="Daboim 검색·질문·AI 시네마틱 스크롤 기능 시연"
-          style={stageVars}
-        >
-          <noscript>
-            <style dangerouslySetInnerHTML={{ __html: '.daboim-cinematic [data-ss-stage]{height:auto!important;contain:none}' }} />
-          </noscript>
-          <div data-ss-pin>
-            <div data-ss-media data-m-cinematic-media>
-              {/* 포스터는 항상 DOM에 남고 영상은 뷰포트 진입 전 preload하지 않는다. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/daboim-visibility-film-poster.webp"
-                alt=""
-                aria-hidden="true"
-                width={1920}
-                height={1080}
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <video
-                data-m="cinematicvideo"
-                data-m-cinematic-video="true"
-                data-ss-video
-                data-playback="scrub"
-                src="/daboim-visibility-film-scrub.mp4"
-                poster="/daboim-visibility-film-poster.webp"
-                muted
-                playsInline
-                preload="none"
-                aria-hidden="true"
-                className="hidden md:block"
-              />
-              <video
-                data-m="cinematicvideo"
-                data-m-cinematic-video="true"
-                data-ss-video
-                data-playback="loop"
-                src="/daboim-visibility-film.webm"
-                poster="/daboim-visibility-film-poster.webp"
-                muted
-                playsInline
-                preload="none"
-                aria-hidden="true"
-                className="md:hidden"
-              />
-              <div
-                data-lcs-film-ui
-                className="absolute top-5 right-5 left-5 z-10 flex items-center justify-between opacity-0 transition-opacity duration-500"
-              >
-                <span className="rounded-full border border-white/20 bg-[#07142F]/55 px-3 py-1.5 font-mono text-[9px] tracking-[0.13em] text-white backdrop-blur-md">
-                  DABOIM CINEMATIC ENGINE · 1080P
-                </span>
-                <span className="hidden items-center gap-1.5 rounded-full border border-[#68E8D8]/25 bg-[#082D39]/65 px-3 py-1.5 font-mono text-[9px] text-[#8AF4E7] backdrop-blur-md sm:inline-flex">
-                  <Check className="h-3 w-3" /> LIVE SCRUB
-                </span>
-              </div>
-            </div>
-
-            <div data-ss-act-list>
-              {ACTS.map((act) => (
-                <article
-                  key={act.eyebrow}
-                  data-ss-act
-                  data-act-kind="text"
-                  data-act-start={act.start.toFixed(4)}
-                  data-act-end={act.end.toFixed(4)}
-                >
-                  <div data-ss-copy data-lcs-local-scrim>
-                    <p data-lcs-eyebrow>{act.eyebrow}</p>
-                    <h3 data-ss-heading>{act.heading}</h3>
-                    <p data-ss-body>{act.body}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-        <LandingCinematicRuntime />
+      <div className="relative bg-[#07142F] px-5 pt-12 text-white sm:px-8 md:pt-16">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 pb-8">
+          <p className="font-mono text-[10px] tracking-[0.16em] text-[#68E8D8] uppercase">
+            예시 · AI 영상 홈페이지 적용 시
+          </p>
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[9px] tracking-[0.11em] text-white/80">
+            <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> 컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복
+          </p>
+        </div>
       </div>
-    </section>
+
+      <MotionSignatureRenderer
+        scene={LANDING_SCENE}
+        theme={LANDING_THEME}
+        artDirection={LANDING_ART_DIRECTION}
+        mode="auto"
+        isFirst={false}
+        responsiveVideoSources={LANDING_VIDEO_SOURCES}
+      />
+      <noscript>
+        <style dangerouslySetInnerHTML={{ __html: NO_JS_STAGE_CSS }} />
+      </noscript>
+      <LandingCinematicRuntime />
+    </div>
   );
 }

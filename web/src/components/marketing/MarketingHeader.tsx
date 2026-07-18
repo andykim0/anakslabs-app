@@ -7,7 +7,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const NAV = [
@@ -62,23 +61,21 @@ export function MarketingHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <AnimatePresence>
-            {showScannerCta ? (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.25 }}
-              >
-                <Link
-                  href="/#hero-scanner"
-                  className="rounded-lg bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-4 py-2 text-sm font-semibold text-white transition-shadow hover:shadow-[0_8px_22px_rgba(8,175,197,.24)]"
-                >
-                  무료 진단
-                </Link>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+          {/* CTA가 나타날 때 로그인 버튼이 밀려 CLS가 생기지 않도록 폭을 항상 예약한다. */}
+          <div className="w-[88px] shrink-0">
+            <Link
+              href="/#hero-scanner"
+              aria-hidden={!showScannerCta}
+              tabIndex={showScannerCta ? undefined : -1}
+              className={`inline-flex w-full justify-center rounded-lg bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-4 py-2 text-sm font-semibold text-white transition-[opacity,transform,visibility,box-shadow] duration-300 hover:shadow-[0_8px_22px_rgba(8,175,197,.24)] ${
+                showScannerCta
+                  ? 'visible translate-y-0 opacity-100'
+                  : 'invisible pointer-events-none -translate-y-1 opacity-0'
+              }`}
+            >
+              무료 진단
+            </Link>
+          </div>
           <Link
             href="/login"
             className="rounded-lg border border-[#CAD5E5] px-4 py-2 text-sm text-[#3F4A5A] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
