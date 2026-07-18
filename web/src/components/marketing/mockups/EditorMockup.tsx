@@ -1,55 +1,173 @@
 'use client';
 
 /**
- * [마케팅] 캔버스 에디터 목업 — 좌 섹션 리스트 + 중앙 미리보기 + 부유 드래그 블록(커서 동행).
- * 무한 반복 모션 1개(드래그 블록 y±6/rotate±1, 3.5s). transform만. reduced-motion: 정지.
+ * [마케팅] 하나로 이어지는 캔버스에서 직접 다듬는 과정을 보여주는 에디터 목업.
+ * CSS 타임라인 하나를 IO/visibility로 재생·정지하며 React 프레임 업데이트는 하지 않는다.
  */
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { MousePointer2 } from 'lucide-react';
+import { EDITOR_MOCKUP_CSS, editorMockupStyles as styles } from './EditorMockup.styles';
 
-const SECTIONS = ['히어로', '소개', '메뉴', '문의'];
+export const EDITOR_DEMO_DURATION_MS = 10_000;
+
+const SECTIONS = ['히어로', '소개', '메뉴', '문의'] as const;
+
+type EditorDemoStyle = CSSProperties & { '--editor-demo-duration': string };
 
 export function EditorMockup({ className }: { className?: string }) {
-  const reduce = useReducedMotion() ?? false;
-  const float = reduce
-    ? {}
-    : {
-        animate: { y: [0, -6, 0], rotate: [-1, 1, -1] },
-        transition: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' as const },
-      };
+  const demoRef = useRef<HTMLElement>(null);
+  const captionId = useId();
+  const canvasHeadingId = useId();
+
+  useEffect(() => {
+    const demo = demoRef.current;
+    if (!demo || typeof window.IntersectionObserver !== 'function') return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let isIntersecting = false;
+
+    const syncPlayback = () => {
+      const canPlay = isIntersecting && !document.hidden && !reducedMotion.matches;
+      demo.dataset.enhanced = reducedMotion.matches ? 'false' : 'true';
+      demo.dataset.playing = canPlay ? 'true' : 'false';
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry?.isIntersecting ?? false;
+        syncPlayback();
+      },
+      { rootMargin: '0px', threshold: 0.2 },
+    );
+
+    const handleVisibilityChange = () => syncPlayback();
+    const handleMotionChange = () => syncPlayback();
+
+    demo.dataset.enhanced = reducedMotion.matches ? 'false' : 'true';
+    demo.dataset.playing = 'false';
+    observer.observe(demo);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    reducedMotion.addEventListener('change', handleMotionChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      reducedMotion.removeEventListener('change', handleMotionChange);
+      delete demo.dataset.enhanced;
+      delete demo.dataset.playing;
+    };
+  }, []);
+
+  const demoStyle: EditorDemoStyle = {
+    '--editor-demo-duration': `${EDITOR_DEMO_DURATION_MS}ms`,
+  };
+
   return (
-    <div className={className}>
-      <div className="flex gap-2">
-        {/* 좌측 섹션 리스트 */}
-        <div className="w-1/4 space-y-1.5">
-          {SECTIONS.map((s, i) => (
-            <div
-              key={s}
-              className={`rounded-md px-2 py-1.5 text-[10px] font-medium ${
-                i === 0 ? 'bg-[#F3ECD8] text-[#7A5E1E]' : 'bg-[#F6F5F1] text-[#5C6068]'
-              }`}
-            >
-              {s}
+    <>
+      <style data-editor-demo-css>{EDITOR_MOCKUP_CSS}</style>
+      <figure
+        ref={demoRef}
+        data-editor-demo="continuous-canvas"
+        aria-labelledby={captionId}
+        className={`${styles.demo}${className ? ` ${className}` : ''}`}
+        style={demoStyle}
+      >
+        <figcaption id={captionId} className="sr-only">
+          하나로 이어지는 홈페이지 캔버스에서 메뉴 영역을 고르고, 이미지 블록을 옮기고, 문구와 색을 직접 다듬는 예시
+        </figcaption>
+
+        <div className={styles.workspace}>
+          <nav className={styles.sectionRail} aria-label="편집할 홈페이지 영역">
+            <p className={styles.railLabel}>페이지 구성</p>
+            <ol className={styles.sectionList}>
+              {SECTIONS.map((section, index) => (
+                <li key={section}>
+                  <span
+                    className={`${styles.sectionItem} ${
+                      index === 0 ? styles.heroSection : index === 2 ? styles.menuSection : ''
+                    }`}
+                  >
+                    <span className={styles.sectionDot} aria-hidden="true" />
+                    {section}
+                  </span>
+                </li>
+              ))}
+            </ol>
+
+            <div className={styles.blockLibrary} role="group" aria-label="추가할 블록">
+              <span className={styles.railLabel}>블록</span>
+              <span className={styles.imageSource}>
+                <span className={styles.imageGlyph} aria-hidden="true" />
+                이미지
+              </span>
             </div>
-          ))}
+          </nav>
+
+          <section className={styles.canvas} aria-labelledby={canvasHeadingId}>
+            <h3 id={canvasHeadingId} className="sr-only">
+              메뉴 영역 편집 화면
+            </h3>
+
+            <header className={styles.canvasToolbar}>
+              <span className={styles.toolbarStatus} aria-hidden="true">
+                <span className={styles.heroToolbarLabel}>히어로</span>
+                <span className={styles.menuToolbarLabel}>메뉴</span>
+              </span>
+              <span className={styles.savedStatus}>저장됨</span>
+            </header>
+
+            <div className={styles.canvasBody}>
+              <p className={styles.canvasEyebrow}>SEASON MENU</p>
+              <div className={styles.typingLine}>
+                <span className={styles.typingText}>여름 메뉴를 소개해요</span>
+                <span className={styles.typingCaret} aria-hidden="true" />
+              </div>
+
+              <div className={styles.contentGrid}>
+                <div className={styles.copyLines} aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <figure className={styles.imageSlot}>
+                  <div className={styles.imageBlock} aria-hidden="true">
+                    <span className={styles.imageSun} />
+                    <span className={styles.imageHill} />
+                  </div>
+                  <figcaption>대표 이미지</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <aside className={styles.palette} aria-label="홈페이지 강조 색">
+              <span className={styles.paletteLabel}>강조 색</span>
+              <ul>
+                <li>
+                  <span className={`${styles.paletteChip} ${styles.blueChip}`}>
+                    <span className="sr-only">파란색</span>
+                  </span>
+                </li>
+                <li>
+                  <span className={`${styles.paletteChip} ${styles.mintChip}`}>
+                    <span className="sr-only">민트색</span>
+                  </span>
+                </li>
+                <li>
+                  <span className={`${styles.paletteChip} ${styles.goldChip}`}>
+                    <span className="sr-only">금색</span>
+                  </span>
+                </li>
+              </ul>
+            </aside>
+          </section>
+
+          <span className={styles.dragGhost} aria-hidden="true">
+            <span className={styles.imageGlyph} />
+            이미지 블록
+          </span>
+          <MousePointer2 className={styles.cursor} aria-hidden="true" />
         </div>
-        {/* 중앙 미리보기 */}
-        <div className="relative min-h-[132px] flex-1 rounded-lg border border-[#E8E6E0] bg-[#FDFDFB] p-3">
-          <div className="h-3 w-2/3 rounded bg-[#E8E6E0]" />
-          <div className="mt-2 h-2 w-1/2 rounded bg-[#EDEBE4]" />
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="h-10 rounded bg-[#F3F1EB]" />
-            <div className="h-10 rounded bg-[#F3F1EB]" />
-          </div>
-          {/* 부유 드래그 블록 + 커서 */}
-          <motion.div className="absolute top-7 right-3 flex items-start" {...float}>
-            <span className="rounded-md border-2 border-dashed border-[#9A7B33] bg-[#FBF8F1] px-3 py-2 text-[10px] font-medium text-[#7A5E1E] shadow-sm">
-              이미지 블록
-            </span>
-            <MousePointer2 className="-ml-1 mt-4 h-4 w-4 text-[#17181C]" />
-          </motion.div>
-        </div>
-      </div>
-    </div>
+      </figure>
+    </>
   );
 }
