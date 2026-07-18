@@ -20,13 +20,13 @@ export function MarketingFooter() {
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div>
             <BrandLogo inverse />
-            <p className="mt-5 max-w-sm text-sm leading-6 text-white/52">
+            <p className="mkt-type-body mt-5 max-w-sm text-white/52">
               검색과 AI가 읽을 수 있게, Daboim.
               <br />업종 설계부터 최적화·호스팅까지 하나로.
             </p>
-            <p className="mt-4 font-mono text-[9px] tracking-[0.12em] text-[#5DE0D0]">A PRODUCT BY ANAKS LABS</p>
+            <p className="mkt-type-eyebrow mt-4 font-mono tracking-[0.12em] text-[#5DE0D0]">A PRODUCT BY ANAKS LABS</p>
           </div>
-          <div className="flex max-w-xl flex-wrap content-start gap-x-6 gap-y-3 text-xs text-white/52">
+          <div className="mkt-type-control flex max-w-xl flex-wrap content-start gap-x-6 gap-y-3 text-white/52">
             {LINKS.map((l) => (
               <Link key={l.href} href={l.href} className="transition-colors hover:text-white">
                 {l.label}
@@ -37,7 +37,7 @@ export function MarketingFooter() {
             </a>
           </div>
         </div>
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-5 font-mono text-[10px] tracking-[0.08em] text-white/30">
+        <div className="mkt-type-support mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-5 font-mono tracking-[0.08em] text-white/30">
           <p>© 2026 ANAKS LABS · DABOIM</p>
           <p>SEO · AEO · GEO · WEBSITE GENERATION</p>
         </div>

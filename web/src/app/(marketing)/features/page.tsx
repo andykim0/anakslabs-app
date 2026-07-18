@@ -71,11 +71,11 @@ export default function FeaturesPage() {
     <>
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
+        <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
           손님이 찾고,
           <br className="sm:hidden" /> 궁금한 점까지 확인하는 홈페이지
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
+        <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
           예쁘게만 만들지 않습니다. 손님이 네이버·구글에서 찾고 AI에 물어볼 때, 가게 정보를 확인하기 쉽게 만듭니다.
         </p>
       </section>
@@ -90,9 +90,9 @@ export default function FeaturesPage() {
               className="grid items-center gap-5 rounded-2xl border border-[#E8E6E0] bg-white p-6 md:grid-cols-2"
             >
               <div className={i % 2 === 1 ? 'md:order-2' : ''}>
-                <p className="text-xs font-semibold tracking-widest text-[#856A26]">STEP {s.no}</p>
-                <h3 className="mt-2 text-lg font-semibold text-[#17181C]">{s.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5C6068]">{s.body}</p>
+                <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">STEP {s.no}</p>
+                <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">{s.title}</h3>
+                <p className="mkt-type-body mt-2 text-[#5C6068]">{s.body}</p>
               </div>
               {/* 단계별 목업(02·03) 또는 스크린샷 placeholder 슬롯 */}
               <div className={i % 2 === 1 ? 'md:order-1' : ''}>
@@ -122,12 +122,12 @@ export default function FeaturesPage() {
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
                 {p.icon}
               </span>
-              <h3 className="mt-4 text-base font-semibold text-[#17181C]">{p.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#5C6068]">{p.body}</p>
+              <h3 className="mkt-type-card-title mt-4 font-semibold text-[#17181C]">{p.name}</h3>
+              <p className="mkt-type-body mt-2 text-[#5C6068]">{p.body}</p>
             </div>
           ))}
         </div>
-        <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-5 text-[#696E76]">
+        <p className="mkt-type-support mx-auto mt-8 max-w-2xl text-center text-[#696E76]">
           기술 항목: 페이지별 제목·설명 · JSON-LD · 시맨틱 HTML · crawler 정책 · 페이지별 sitemap · 네이버 IndexNow.
         </p>
       </section>
@@ -142,8 +142,8 @@ export default function FeaturesPage() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
                   {f.icon}
                 </span>
-                <h3 className="mt-4 text-base font-semibold text-[#17181C]">{f.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5C6068]">{f.body}</p>
+                <h3 className="mkt-type-card-title mt-4 font-semibold text-[#17181C]">{f.title}</h3>
+                <p className="mkt-type-body mt-2 text-[#5C6068]">{f.body}</p>
               </div>
             ))}
           </div>
@@ -152,7 +152,7 @@ export default function FeaturesPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-6 py-16 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">
+        <h2 className="mkt-type-section-title font-semibold tracking-tight text-[#17181C]">
           내 사이트는 지금 몇 점일까요?
         </h2>
         <div className="mt-8 flex justify-center">

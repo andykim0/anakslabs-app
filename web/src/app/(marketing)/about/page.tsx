@@ -13,10 +13,10 @@ export default function AboutPage() {
   return (
     <>
       <section className="mx-auto max-w-3xl px-6 pt-16 pb-12">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
+        <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
           왜 Daboim을 만들었나
         </h1>
-        <div className="mt-8 space-y-5 text-sm leading-7 text-[#5C6068]">
+        <div className="mkt-type-body mt-8 space-y-5 text-[#5C6068]">
           <p>
             좋은 가게가 손님 눈에 보이지 않는 걸 자주 봤습니다. 음식도 실력도 훌륭한데, 홈페이지가 없거나
             가게 이름·지역·메뉴가 제대로 정리되지 않아 &ldquo;근처 맛집&rdquo;을 찾는 손님이 발견하기 어려웠습니다.
@@ -35,20 +35,20 @@ export default function AboutPage() {
 
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-3xl px-6 py-16">
-          <h2 className="text-lg font-semibold text-[#17181C]">우리가 지키려는 것</h2>
-          <ul className="mt-6 space-y-3 text-sm leading-6 text-[#5C6068]">
+          <h2 className="mkt-type-section-title font-semibold text-[#17181C]">우리가 지키려는 것</h2>
+          <ul className="mkt-type-body mt-6 space-y-3 text-[#5C6068]">
             <li>· 예쁘게만 보이는 사이트가 아니라, 손님이 필요한 정보를 찾을 수 있는 사이트.</li>
             <li>· 숨은 비용 없는 투명한 가격 — 안 쓰는 기능에 매달 돈이 나가지 않게.</li>
             <li>· 과장하지 않기 — 보장할 수 없는 순위·성과를 약속하지 않습니다.</li>
           </ul>
-          <p className="mt-8 text-xs text-[#696E76]">
+          <p className="mkt-type-support mt-8 text-[#696E76]">
             문의: <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#5C6068] hover:text-[#17181C]">{COMPANY_EMAIL}</a>
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-16 text-center">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#17181C]">함께 시작해볼까요?</h2>
+        <h2 className="mkt-type-section-title font-semibold tracking-tight text-[#17181C]">함께 시작해볼까요?</h2>
         <div className="mt-8 flex justify-center">
           <ScannerCta href="/#hero-scanner">내 가게 무료 진단받기</ScannerCta>
         </div>

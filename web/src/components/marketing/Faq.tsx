@@ -32,13 +32,13 @@ export function FaqList({ items }: { items: FaqItem[] }) {
     <div className="mx-auto max-w-3xl divide-y divide-[#E8E6E0] border-y border-[#E8E6E0]">
       {items.map((it, i) => (
         <details key={i} className="group px-1 py-5">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-sm font-medium text-[#17181C] marker:content-['']">
+          <summary className="mkt-type-card-title flex cursor-pointer list-none items-start justify-between gap-4 font-medium text-[#17181C] marker:content-['']">
             <span>{it.q}</span>
             <span className="mt-0.5 shrink-0 text-[#696E76] transition-transform group-open:rotate-45">
               +
             </span>
           </summary>
-          <div className="mt-3 text-sm leading-6 text-[#5C6068]">{it.a}</div>
+          <div className="mkt-type-body mt-3 text-[#5C6068]">{it.a}</div>
         </details>
       ))}
     </div>

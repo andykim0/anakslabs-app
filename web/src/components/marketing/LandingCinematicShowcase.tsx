@@ -212,7 +212,7 @@ export function LandingCinematicShowcase() {
         />
         <LandingScanner consoleMedia="poster" />
         <div className="border-t border-[#DCE4F0] bg-white/65 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono text-[9px] tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
+          <div className="mkt-type-support mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
             {TECH_RAIL.map((item) => (
               <span key={item} className="inline-flex items-center gap-2">
                 <span className="h-1 w-1 rounded-full bg-[#03BFA9]" /> {item}
@@ -224,10 +224,10 @@ export function LandingCinematicShowcase() {
 
       <div className="relative bg-[#07142F] px-5 pt-12 text-white sm:px-8 md:pt-16">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 pb-8">
-          <p className="font-mono text-[10px] tracking-[0.16em] text-[#68E8D8] uppercase">
+          <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">
             예시 · AI 영상 홈페이지 적용 시
           </p>
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[9px] tracking-[0.11em] text-white/80">
+          <p className="mkt-type-support inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono tracking-[0.11em] text-white/80">
             <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> 컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복
           </p>
         </div>

@@ -39,11 +39,11 @@ export function TrustStrip() {
             <CountUp to={s.value} reduce={reduce} />
             <span className="text-[#856A26]">{s.suffix}</span>
           </p>
-          <p className="mt-1 text-[11px] text-[#5C6068] sm:text-xs">{s.label}</p>
+          <p className="mkt-type-support mt-1 text-[#5C6068]">{s.label}</p>
         </div>
       ))}
       <div className="col-span-3 text-center sm:col-span-3">
-        <p className="text-[11px] text-[#696E76]">서브도메인 · SSL 즉시 호스팅 포함</p>
+        <p className="mkt-type-support text-[#696E76]">서브도메인 · SSL 즉시 호스팅 포함</p>
       </div>
     </div>
   );

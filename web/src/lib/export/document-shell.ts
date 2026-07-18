@@ -16,6 +16,7 @@ const BASE_DOC_CSS = [
   'img,video{max-width:100%}',
   '.hidden{display:none}',
   '@media(min-width:768px){.md\\:block{display:block}.md\\:hidden{display:none}}',
+  '@media(min-width:1280px){.xl\\:block{display:block}.xl\\:flex{display:flex}.xl\\:hidden{display:none}}',
 ].join('');
 
 function escapeHtml(s: string): string {

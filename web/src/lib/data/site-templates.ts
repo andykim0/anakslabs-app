@@ -31,6 +31,11 @@ import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
 import { pickButtonTextColor } from '@/lib/design/button-contrast';
+import {
+  generatedTextRoleFor,
+  generatedType,
+  minTextFrameHeight,
+} from '@/lib/design/typography-scale';
 import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import type { HeroVariant } from './skeletons';
@@ -278,7 +283,7 @@ function briefToSubtitle(brief?: string): string {
 }
 
 /** brief(내용 지시문)를 섹션 제목 아래 안내 문구로 노출하는 서브타이틀 요소 */
-function subtitleEl(ctx: Ctx, text: string, y = 186): CanvasElement {
+function subtitleEl(ctx: Ctx, text: string, y = 214): CanvasElement {
   return {
     id: nextId(ctx, 'el-subtitle'),
     kind: 'text',
@@ -306,6 +311,39 @@ function footerEl(ctx: Ctx, y = 560): CanvasElement {
     text: `© ${new Date().getFullYear()} ${ctx.survey.businessName}. Made with Daboim.`,
     style: { fontSize: 12, fontWeight: 400, fontFamily: 'body', color: ctx.theme.palette.muted, align: 'left', letterSpacing: 0.5 },
   };
+}
+
+/** Apply LP$ semantic typography and matching frame geometry during generation. */
+function applyGeneratedTypography(pages: readonly SitePage[]): void {
+  for (const page of pages) {
+    for (const section of page.sections) {
+      for (const element of section.elements) {
+        if (element.kind !== 'text') continue;
+        const rule = element.style.fontFamily === 'heading'
+          ? undefined
+          : generatedTextRoleFor(element.id);
+
+        if (rule) {
+          const token = generatedType(rule.role);
+          element.style.fontSize = Math.max(element.style.fontSize ?? 0, token.fontSize);
+          element.style.lineHeight = Math.max(element.style.lineHeight ?? 1.45, token.lineHeight);
+          element.frame.h = Math.max(
+            element.frame.h,
+            minTextFrameHeight(rule.role, rule.lines),
+            Math.ceil(element.style.fontSize * element.style.lineHeight * rule.lines),
+          );
+        }
+
+        // Every fixed canvas text frame reserves at least one real line box. This also
+        // protects authored headings/numeric labels that intentionally keep their size.
+        const renderedLineHeight = element.style.lineHeight ?? 1.45;
+        element.frame.h = Math.max(
+          element.frame.h,
+          Math.ceil(element.style.fontSize * renderedLineHeight),
+        );
+      }
+    }
+  }
 }
 
 // ---------- 섹션 빌더 (ctx, item) => Section ----------
@@ -373,12 +411,12 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
   );
   // [D2] 핵심 포인트 칩 — 아웃라인 필(스크림 텍스트색 보더), 최대 3개. 사실만(heroChips는 지어내지 않음).
   chips.forEach((chip, i) => {
-    const cx = 122 + i * 168;
+    const cx = 122 + i * 384;
     elements.push(
       {
         id: nextId(ctx, 'el-hero-chip'),
         kind: 'shape',
-        frame: { x: cx, y: 612, w: 156, h: 34 },
+        frame: { x: cx, y: 612, w: 360, h: 60 },
         z: 3,
         shape: 'rect',
         style: { borderColor: scrim.textColor, borderWidth: 1, borderRadius: 17 },
@@ -386,7 +424,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-hero-chip-label'),
         kind: 'text',
-        frame: { x: cx, y: 620, w: 156, h: 20 },
+        frame: { x: cx, y: 620, w: 360, h: 45 },
         z: 4,
         text: chip,
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'center' },
@@ -397,7 +435,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta'),
       kind: 'button',
-      frame: { x: 122, y: 674, w: 172, h: 54 },
+      frame: { x: 122, y: 694, w: 172, h: 54 },
       z: 4,
       label: ctaLabel,
       href: ctaHref,
@@ -406,7 +444,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     {
       id: nextId(ctx, 'el-hero-cta2'),
       kind: 'button',
-      frame: { x: 310, y: 674, w: 172, h: 54 },
+      frame: { x: 310, y: 694, w: 172, h: 54 },
       z: 4,
       label: '더 알아보기',
       // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
@@ -427,7 +465,7 @@ function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
     id: 'sec-hero',
     type: 'hero',
     name: SECTION_NAMES.hero,
-    height: 820,
+    height: 840,
     background: {
       color: theme.palette.background,
       image: {
@@ -463,8 +501,8 @@ function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant, chipC
     }
   }
   // 칩 행(shape+label 쌍) — 그룹 중앙/우측 정렬
-  const chipW = 156;
-  const gap = 12;
+  const chipW = 360;
+  const gap = 24;
   const rowW = chipCount > 0 ? chipCount * chipW + (chipCount - 1) * gap : 0;
   const rowStart = variant === 'centered' ? centerX(rowW) : rightX(rowW);
   let ci = 0;
@@ -626,6 +664,8 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
 /** about:resume — 학력·경력 리스트 */
 function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
+  const subtitle = briefToSubtitle(item.brief);
+  const rowsTop = subtitle ? 300 : 268;
   const rows = [
     { period: '2020 – 현재', role: '대표 · 주요 직함 / 핵심 역할' },
     { period: '2016 – 2020', role: '핵심 경력 · 대표 프로젝트' },
@@ -642,9 +682,9 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
     },
     titleEl(ctx, headingOf(item, '경력·이력'), 142),
   ];
-  { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub, 214)); }
+  if (subtitle) elements.push(subtitleEl(ctx, subtitle));
   rows.forEach((row, i) => {
-    const y = 268 + i * 92;
+    const y = rowsTop + i * 92;
     elements.push(
       {
         id: nextId(ctx, 'el-resume-period'),
@@ -675,7 +715,7 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-about',
     type: 'about',
     name: SECTION_NAMES.about,
-    height: 268 + rows.length * 92 + 60,
+    height: rowsTop + rows.length * 92 + 60,
     background: { color: theme.palette.background },
     elements,
   };
@@ -709,7 +749,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-feat-card'),
         kind: 'shape',
-        frame: { x, y: 268, w: 360, h: 280 },
+        frame: { x, y: 300, w: 360, h: 330 },
         z: 1,
         shape: 'rect',
         style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
@@ -717,7 +757,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-feat-num'),
         kind: 'text',
-        frame: { x: x + 36, y: 308, w: 120, h: 40 },
+        frame: { x: x + 36, y: 340, w: 120, h: 40 },
         z: 2,
         text: `0${i + 1}`,
         style: { fontSize: 30, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
@@ -725,7 +765,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-feat-title'),
         kind: 'text',
-        frame: { x: x + 36, y: 372, w: 288, h: 30 },
+        frame: { x: x + 36, y: 404, w: 288, h: 64 },
         z: 2,
         text: it.title,
         style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
@@ -733,7 +773,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-feat-desc'),
         kind: 'text',
-        frame: { x: x + 36, y: 416, w: 288, h: 80 },
+        frame: { x: x + 36, y: 484, w: 288, h: 84 },
         z: 2,
         text: it.desc,
         style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
@@ -744,7 +784,7 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-features',
     type: 'features',
     name: SECTION_NAMES.features,
-    height: 660,
+    height: 742,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements,
   };
@@ -934,7 +974,7 @@ function buildWorksGrid(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
   const IMG_H = 260;
   const ROW_H = IMG_H + 12 + 24 + 40; // 이미지 + 캡션 간격 + 캡션 + 행 간격
-  const TOP = 260;
+  const TOP = 300;
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-work-kicker'),
@@ -986,10 +1026,10 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
   if (variantSuffix(item.variant) === 'works') return buildWorksGrid(ctx, item);
   const { theme } = ctx;
   const frames = [
-    { x: 120, y: 260, w: 560, h: 440 },
-    { x: 720, y: 260, w: 280, h: 210 },
-    { x: 720, y: 490, w: 280, h: 210 },
-    { x: 1040, y: 260, w: 280, h: 440 },
+    { x: 120, y: 300, w: 560, h: 440 },
+    { x: 720, y: 300, w: 280, h: 210 },
+    { x: 720, y: 530, w: 280, h: 210 },
+    { x: 1040, y: 300, w: 280, h: 440 },
   ];
   const elements: CanvasElement[] = [
     {
@@ -1018,7 +1058,7 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-gallery',
     type: 'gallery',
     name: SECTION_NAMES.gallery,
-    height: 800,
+    height: 840,
     background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
     elements,
   };
@@ -1117,7 +1157,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-price-card'),
         kind: 'shape',
-        frame: { x, y: 268, w: 580, h: 330 },
+        frame: { x, y: 300, w: 580, h: 330 },
         z: 1,
         shape: 'rect',
         style: {
@@ -1130,7 +1170,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-price-name'),
         kind: 'text',
-        frame: { x: x + 40, y: 312, w: 300, h: 30 },
+        frame: { x: x + 40, y: 344, w: 300, h: 30 },
         z: 2,
         text: plan.name,
         style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
@@ -1138,7 +1178,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-price-price'),
         kind: 'text',
-        frame: { x: x + 40, y: 360, w: 300, h: 50 },
+        frame: { x: x + 40, y: 392, w: 300, h: 50 },
         z: 2,
         text: plan.price,
         style: { fontSize: 38, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
@@ -1146,7 +1186,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-price-desc'),
         kind: 'text',
-        frame: { x: x + 40, y: 432, w: 500, h: 60 },
+        frame: { x: x + 40, y: 464, w: 500, h: 60 },
         z: 2,
         text: plan.desc,
         style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
@@ -1154,7 +1194,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-price-cta'),
         kind: 'button',
-        frame: { x: x + 40, y: 512, w: 160, h: 50 },
+        frame: { x: x + 40, y: 544, w: 160, h: 50 },
         z: 3,
         label: '문의하기',
         href: '#sec-contact',
@@ -1172,7 +1212,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-pricing',
     type: 'pricing',
     name: SECTION_NAMES.pricing,
-    height: 680,
+    height: 712,
     background: { color: theme.palette.background },
     elements,
   };
@@ -1523,7 +1563,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-team-img'),
         kind: 'image',
-        frame: { x, y: 268, w: 360, h: 320 },
+        frame: { x, y: 300, w: 360, h: 320 },
         z: 2,
         src: nextImage(ctx),
         alt: m.name,
@@ -1532,7 +1572,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-team-name'),
         kind: 'text',
-        frame: { x, y: 610, w: 360, h: 30 },
+        frame: { x, y: 642, w: 360, h: 30 },
         z: 2,
         text: m.name,
         style: { fontSize: 21, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
@@ -1540,7 +1580,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-team-title'),
         kind: 'text',
-        frame: { x, y: 646, w: 360, h: 24 },
+        frame: { x, y: 678, w: 360, h: 24 },
         z: 2,
         text: m.title,
         style: { fontSize: 14, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left' },
@@ -1548,7 +1588,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-team-career'),
         kind: 'text',
-        frame: { x, y: 676, w: 360, h: 48 },
+        frame: { x, y: 708, w: 360, h: 48 },
         z: 2,
         text: m.career.join('\n'),
         style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
@@ -1559,7 +1599,7 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-team',
     type: 'team',
     name: SECTION_NAMES.team,
-    height: 780,
+    height: 812,
     background: { color: ctx.dark ? theme.palette.surface : theme.palette.background },
     elements,
   };
@@ -1587,7 +1627,7 @@ function buildCasesProjects(ctx: Ctx, item: SectionPlanItem): Section {
     },
   ];
   const COL_LABELS = ['개요', '과정', '결과'];
-  const TOP = 268; // 첫 블록 시작
+  const TOP = 300; // 두 줄 섹션 소개 뒤 첫 블록 시작
   const BLOCK_H = 260; // 프로젝트명(40)+구분선+라벨(20)+본문(96)+블록 간격
   const elements: CanvasElement[] = [
     {
@@ -1679,7 +1719,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-case-card'),
         kind: 'shape',
-        frame: { x, y: 268, w: 360, h: 280 },
+        frame: { x, y: 300, w: 360, h: 280 },
         z: 1,
         shape: 'rect',
         style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
@@ -1687,7 +1727,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-case-title'),
         kind: 'text',
-        frame: { x: x + 36, y: 308, w: 288, h: 30 },
+        frame: { x: x + 36, y: 340, w: 288, h: 30 },
         z: 2,
         text: it.title,
         style: { fontSize: 18, fontWeight: 500, fontFamily: 'body', color: ctx.softText, align: 'left' },
@@ -1695,7 +1735,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-case-metric'),
         kind: 'text',
-        frame: { x: x + 36, y: 348, w: 288, h: 60 },
+        frame: { x: x + 36, y: 380, w: 288, h: 60 },
         z: 2,
         text: it.metric,
         style: { fontSize: 48, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
@@ -1703,7 +1743,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-case-desc'),
         kind: 'text',
-        frame: { x: x + 36, y: 428, w: 288, h: 80 },
+        frame: { x: x + 36, y: 460, w: 288, h: 80 },
         z: 2,
         text: it.desc,
         style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
@@ -1714,7 +1754,7 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
     id: 'sec-cases',
     type: 'cases',
     name: SECTION_NAMES.cases,
-    height: 660,
+    height: 692,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements,
   };
@@ -1811,7 +1851,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
   const { theme } = ctx;
   const cards = entries.slice(0, 6); // 홈 티저는 최대 6장(내비 상한과 정합)
   const rows = Math.ceil(cards.length / 3);
-  const ROW_GAP = 340;
+  const ROW_GAP = 360;
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-teaser-kicker'),
@@ -1831,7 +1871,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
     elements.push({
       id: nextId(ctx, 'el-teaser-card'),
       kind: 'shape',
-      frame: { x, y, w: 360, h: 300 },
+      frame: { x, y, w: 360, h: 320 },
       z: 1,
       shape: 'rect',
       style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
@@ -1870,7 +1910,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
       {
         id: nextId(ctx, 'el-teaser-link'),
         kind: 'button',
-        frame: { x: x + 28, y: y + 250, w: 150, h: 40 },
+        frame: { x: x + 28, y: y + 272, w: 150, h: 40 },
         z: 3,
         label: '자세히 보기',
         href: `/${entry.slug}`,
@@ -2066,6 +2106,10 @@ export function buildSiteConfigFromSurvey(
     const heroIdx = homePg.sections.findIndex((s) => s.type === 'hero');
     homePg.sections.splice(heroIdx >= 0 ? heroIdx + 1 : 0, 0, teaser);
   }
+
+  // [LP$ L3] Reserve fixed canvas geometry from the shared semantic scale. This runs
+  // after home-teaser injection so every generated section follows one source of truth.
+  applyGeneratedTypography(pages);
 
   // 4.7) [Q5] 배경 리듬 + 악센트 밴드 — POV 키트가 페이지의 배경 시퀀스를 결정(흰 배경 연속 해소).
   //      홈은 밴드 필수(one_page 목적 제외), 미디어 배경(hero)은 미개입(Q1 스크림 담당).

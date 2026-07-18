@@ -67,12 +67,12 @@ function Gauge({ name, sub, score }: { name: string; sub: string; score: number 
   return (
     <div className="rounded-xl border border-[#E8E6E0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-baseline justify-between">
-        <span className="text-sm font-semibold text-[#17181C]">{name}</span>
+        <span className="mkt-type-card-title font-semibold text-[#17181C]">{name}</span>
         <span className="text-2xl font-semibold tabular-nums" style={{ color }}>
           {score}
         </span>
       </div>
-      <p className="mt-0.5 text-[11px] text-[#5C6068]">{sub}</p>
+      <p className="mkt-type-support mt-0.5 text-[#5C6068]">{sub}</p>
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#EDEBE4]">
         <motion.div
           className="h-full rounded-full"
@@ -104,19 +104,19 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
           <li key={issue.code} className="px-4 py-4">
             <div className="flex items-start gap-2">
               <span className={SEVERITY_META[issue.severity].tone}>{SEVERITY_META[issue.severity].icon}</span>
-              <span className="text-sm font-medium text-[#17181C]">{guidanceFor(issue.code)?.title ?? issue.label}</span>
-              <span className="ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#5C6068]">
+              <span className="mkt-type-body font-medium text-[#17181C]">{guidanceFor(issue.code)?.title ?? issue.label}</span>
+              <span className="mkt-type-support ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 uppercase tracking-wider text-[#5C6068]">
                 {issue.pillar}
               </span>
             </div>
-            <p className="mt-1.5 pl-5.5 text-xs leading-5 text-[#4F5867]">
+            <p className="mkt-type-support mt-1.5 pl-5.5 text-[#4F5867]">
               {guidanceFor(issue.code)?.action ?? issue.detail}
             </p>
             {guidanceFor(issue.code)?.effect ? (
-              <p className="mt-1 pl-5.5 text-xs leading-5 text-[#087D70]">바뀌는 점: {guidanceFor(issue.code)?.effect}</p>
+              <p className="mkt-type-support mt-1 pl-5.5 text-[#087D70]">바뀌는 점: {guidanceFor(issue.code)?.effect}</p>
             ) : null}
             {guidanceFor(issue.code) ? (
-              <details className="mt-2 pl-5.5 text-[11px] leading-5 text-[#697386]">
+              <details className="mkt-type-support mt-2 pl-5.5 text-[#697386]">
                 <summary className="cursor-pointer select-none">기술 설명 보기</summary>
                 <p className="mt-1">{issue.label} — {issue.detail}</p>
               </details>
@@ -128,7 +128,7 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-9 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-xs text-[#5C6068] transition-colors hover:text-[#17181C]"
+          className="mkt-type-control flex h-10 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-[#5C6068] transition-colors hover:text-[#17181C]"
         >
           {open ? '접기' : `문제 ${issues.length - 4}개 더 보기`}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -151,11 +151,11 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate font-mono text-xs text-[#5C6068]">{scan.url}</p>
-          <p className="mt-1 text-sm text-[#5C6068]">
+          <p className="mkt-type-support truncate font-mono text-[#5C6068]">{scan.url}</p>
+          <p className="mkt-type-body mt-1 text-[#5C6068]">
             종합 <span className="text-3xl font-semibold tabular-nums" style={{ color: scoreColor(scan.scores.total) }}>{scan.scores.total}</span>
             <span className="text-[#696E76]">/100</span>
-            <span className="ml-2 rounded-md border border-[#E8E6E0] px-2 py-0.5 text-sm font-semibold text-[#17181C]">
+            <span className="mkt-type-body ml-2 rounded-md border border-[#E8E6E0] px-2 py-0.5 font-semibold text-[#17181C]">
               {scan.grade} 등급
             </span>
           </p>
@@ -176,7 +176,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
 
       {/* 효과 요약 — 실제 스캔 값 바인딩 */}
       <div className="mt-5 rounded-2xl border border-[#CFEAE7] bg-[#EFFBF9] p-6">
-        <p className="text-sm leading-7 text-[#17181C]">
+        <p className="mkt-type-body text-[#17181C]">
           지금 <span className="font-semibold text-[#174DDA]">{scan.scores.total}점</span> —{' '}
           {scan.scores.total < 60
             ? '손님이 검색하거나 AI에 물을 때 핵심 정보를 찾기 어려운 상태입니다.'
@@ -186,7 +186,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
         </p>
         <Link
           href="/login"
-          className="group mt-4 inline-flex h-11 items-center gap-2 rounded-xl bg-[#174DDA] px-6 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#123FB7] hover:shadow-[0_6px_20px_rgba(23,77,218,0.24)]"
+          className="mkt-type-control group mt-4 inline-flex h-12 items-center gap-2 rounded-xl bg-[#174DDA] px-6 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#123FB7] hover:shadow-[0_6px_20px_rgba(23,77,218,0.24)]"
         >
           내 사이트 다시 만들기
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -241,11 +241,11 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
     <section id="hero-scanner" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-14 pb-20 sm:px-8 md:pt-20 md:pb-28">
       <div className="grid items-center gap-16 lg:grid-cols-[.9fr_1.1fr] lg:gap-12 xl:gap-20">
         <div className="text-left">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8D8F5] bg-white/75 px-3 py-1.5 font-mono text-[10px] tracking-[0.14em] text-[#174DDA] uppercase shadow-sm backdrop-blur">
+          <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8D8F5] bg-white/75 px-3 py-1.5 font-mono tracking-[0.14em] text-[#174DDA] uppercase shadow-sm backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
             무료 SEO · AEO · GEO 진단
           </p>
-          <h1 className="max-w-2xl text-[clamp(2.75rem,6vw,5.25rem)] leading-[1.01] font-semibold tracking-[-0.065em] text-[#0B1736]">
+          <h1 className="mkt-type-hero max-w-2xl font-semibold tracking-[-0.065em] text-[#0B1736]">
             손님이 내 가게를
             <br />검색할 때,
             <br />
@@ -253,7 +253,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
               홈페이지가 보일까요?
             </span>
           </h1>
-          <p className="mt-7 max-w-xl text-[15px] leading-7 text-[#5F6B7C] sm:text-base">
+          <p className="mkt-type-body mt-7 max-w-xl text-[#5F6B7C]">
             홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.
             결과를 확인한 뒤 업종에 맞는 새 홈페이지 제작까지 이어갈 수 있습니다.
           </p>
@@ -273,7 +273,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
                     if (e.key === 'Enter') void startScan();
                   }}
                   placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
-                  className="h-13 w-full rounded-xl border border-transparent bg-white px-4 text-sm text-[#0B1736] outline-none transition-shadow placeholder:text-[#667085] focus:ring-2 focus:ring-[#08AFC5]"
+                  className="mkt-type-control h-13 w-full rounded-xl border border-transparent bg-white px-4 text-[#0B1736] outline-none transition-shadow placeholder:text-[#667085] focus:ring-2 focus:ring-[#08AFC5]"
                 />
                 {rotatePh ? (
                   <AnimatePresence mode="wait">
@@ -283,7 +283,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.4 }}
-                      className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm text-[#747780]"
+                      className="mkt-type-control pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[#747780]"
                     >
                       {PLACEHOLDERS[phIdx]}
                     </motion.span>
@@ -294,7 +294,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
                 type="button"
                 onClick={() => void startScan()}
                 disabled={scanning || !url.trim()}
-                className="relative inline-flex h-13 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_rgba(8,175,197,.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="mkt-type-control relative inline-flex h-13 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-5 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_rgba(8,175,197,.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
                 {!reduce && !url && !scanning ? (
                   <motion.span
@@ -311,7 +311,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
               </button>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-[#6C7788]">
+          <div className="mkt-type-support mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[#6C7788]">
             {['가입 없이 바로', '검색 · 질문 · AI 신호 동시 확인', '결과 30일 보관'].map((item) => (
               <span key={item} className="inline-flex items-center gap-1.5">
                 <Check className="h-3 w-3 text-[#03A995]" /> {item}
@@ -328,7 +328,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
                 className="mt-6 overflow-hidden"
               >
                 <div className="rounded-xl border border-[#DCE4F0] bg-white/85 px-5 py-4 shadow-sm backdrop-blur">
-                  <motion.p key={msgIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-[#5F6B7C]">
+                  <motion.p key={msgIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mkt-type-support text-[#5F6B7C]">
                     {SCAN_MESSAGES[msgIdx]}
                   </motion.p>
                   <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[#E4EAF2]">
@@ -340,7 +340,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
           </AnimatePresence>
 
           {error ? (
-            <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</p>
+            <p className="mkt-type-support mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">{error}</p>
           ) : null}
         </div>
 

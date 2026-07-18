@@ -76,10 +76,10 @@ export default function FaqPage() {
       />
 
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-10 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
+        <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
           자주 묻는 질문
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
+        <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
           찾는 답이 없으면 편하게 문의하세요. 빠르게 도와드리겠습니다.
         </p>
       </section>
@@ -91,21 +91,21 @@ export default function FaqPage() {
       {/* 고객센터 — 카카오 채널 */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-          <h2 className="text-xl font-semibold tracking-tight text-[#17181C]">문의하기</h2>
-          <p className="mt-3 text-sm text-[#5C6068]">카카오톡 채널로 문의하시면 가장 빠릅니다.</p>
+          <h2 className="mkt-type-section-title font-semibold tracking-tight text-[#17181C]">문의하기</h2>
+          <p className="mkt-type-body mt-3 text-[#5C6068]">카카오톡 채널로 문의하시면 가장 빠릅니다.</p>
           <div className="mt-6 flex flex-col items-center gap-3">
             {KAKAO_CHANNEL_URL ? (
               <a
                 href={KAKAO_CHANNEL_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#FEE500] px-8 text-sm font-semibold text-[#191600] transition-opacity hover:opacity-90"
+                className="mkt-type-control inline-flex h-12 items-center gap-2 rounded-xl bg-[#FEE500] px-8 font-semibold text-[#191600] transition-opacity hover:opacity-90"
               >
                 카카오톡 채널로 문의
               </a>
             ) : (
               <span
-                className="inline-flex h-12 cursor-not-allowed items-center gap-2 rounded-xl border border-[#E8E6E0] px-8 text-sm font-medium text-[#696E76]"
+                className="mkt-type-control inline-flex h-12 cursor-not-allowed items-center gap-2 rounded-xl border border-[#E8E6E0] px-8 font-medium text-[#696E76]"
                 title="채널 오픈 준비 중"
               >
                 카카오톡 채널 준비 중
@@ -113,7 +113,7 @@ export default function FaqPage() {
             )}
             <a
               href={`mailto:${COMPANY_EMAIL}`}
-              className="text-xs text-[#5C6068] transition-colors hover:text-[#17181C]"
+              className="mkt-type-control text-[#5C6068] transition-colors hover:text-[#17181C]"
             >
               또는 이메일: {COMPANY_EMAIL}
             </a>

@@ -10,7 +10,7 @@ export function Eyebrow({ children, className }: { children: React.ReactNode; cl
   const reduce = useReducedMotion() ?? false;
   return (
     <span
-      className={`relative inline-block text-xs font-semibold tracking-[0.2em] text-[#174DDA] uppercase ${className ?? ''}`}
+      className={`mkt-type-eyebrow relative inline-block font-semibold tracking-[0.2em] text-[#174DDA] uppercase ${className ?? ''}`}
     >
       {children}
       <motion.span

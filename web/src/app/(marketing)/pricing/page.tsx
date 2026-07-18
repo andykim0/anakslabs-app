@@ -95,10 +95,10 @@ export default function PricingPage() {
 
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
+        <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
           홈페이지 제작 비용
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
+        <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
           처음 만들 때 한 번, 운영은 매달 냅니다. AI에게 다시 만들라고 하거나 다보임에 맡길 때만 크레딧을 쓰고, 직접 수정은 무료입니다.
         </p>
       </section>
@@ -107,24 +107,24 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-16">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#856A26]">1회</p>
-            <h3 className="mt-2 text-base font-semibold text-[#17181C]">제작비</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">1회</p>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">제작비</h3>
+            <p className="mkt-type-body mt-2 text-[#5C6068]">
               사이트를 처음 설계·생성하고 발행하는 비용. 결제 시 초기 편집 크레딧이 자동 지급됩니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#856A26]">매월</p>
-            <h3 className="mt-2 text-base font-semibold text-[#17181C]">사이트 운영 구독</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">매월</p>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">사이트 운영 구독</h3>
+            <p className="mkt-type-body mt-2 text-[#5C6068]">
               {SUBSCRIPTION_BENEFIT_COPY.report}와 {SUBSCRIPTION_BENEFIT_COPY.credits}, {SUBSCRIPTION_BENEFIT_COPY.operations}을
               한 번에 제공합니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#856A26]">필요할 때만</p>
-            <h3 className="mt-2 text-base font-semibold text-[#17181C]">AI·대행 크레딧</h3>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">필요할 때만</p>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">AI·대행 크레딧</h3>
+            <p className="mkt-type-body mt-2 text-[#5C6068]">
               AI로 다시 만들거나 다보임에 수정을 맡길 때만 사용합니다. 직접 수정은 무료입니다.
             </p>
           </div>
@@ -135,19 +135,19 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-8">
         <div className="mx-auto max-w-4xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
-            <h2 className="text-sm font-semibold tracking-widest text-[#856A26] uppercase">
+            <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26] uppercase">
               홈페이지 제작 + 호스팅
             </h2>
             <div className="mt-4">
               <LaunchPrice />
             </div>
-            <p className="mt-1 text-xs text-[#5C6068]">
+            <p className="mkt-type-support mt-1 text-[#5C6068]">
               + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
             </p>
-            <p className="mt-2 text-xs font-medium leading-5 text-[#174DDA]">
+            <p className="mkt-type-support mt-2 font-medium text-[#174DDA]">
               {SUBSCRIPTION_VALUE_COPY}
             </p>
-            <p className="mt-4 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-body mt-4 text-[#5C6068]">
               서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
               읽기 쉬운 기본 구성, 초기 편집 크레딧 {INITIAL_GRANT.basic}개가 모두 포함됩니다.
             </p>
@@ -166,17 +166,17 @@ export default function PricingPage() {
         <div className="mx-auto mt-10 max-w-3xl">
           <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
             {INCLUDED_FEATURES.map((f) => (
-              <li key={f} className="flex items-start gap-2 text-sm text-[#5C6068]">
+              <li key={f} className="mkt-type-body flex items-start gap-2 text-[#5C6068]">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
                 {f}
               </li>
             ))}
           </ul>
           <div className="mt-8 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
-            <span className="rounded-full bg-[#F3ECD8] px-3 py-1 text-[11px] font-semibold text-[#7A5E1E]">
+            <span className="mkt-type-support rounded-full bg-[#F3ECD8] px-3 py-1 font-semibold text-[#7A5E1E]">
               AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
             </span>
-            <p className="mt-3 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-body mt-3 text-[#5C6068]">
               기본 모션은 포함·무료입니다. Daboim AI 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
               재생성에만 크레딧을 사용합니다.
             </p>
@@ -193,19 +193,19 @@ export default function PricingPage() {
           />
           <div className="mx-auto mt-10 grid max-w-3xl gap-6 md:grid-cols-2">
             <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-              <h3 className="text-sm font-semibold text-[#17181C]">크레딧 사용처</h3>
-              <ul className="mt-4 space-y-2 text-sm text-[#5C6068]">
+              <h3 className="mkt-type-card-title font-semibold text-[#17181C]">크레딧 사용처</h3>
+              <ul className="mkt-type-body mt-4 space-y-2 text-[#5C6068]">
                 {CREDIT_CONSUMING_ACTIONS.map((action) => (
                   <li key={action}>{CREDIT_CONSUMING_ACTION_LABELS[action]}</li>
                 ))}
               </ul>
-              <p className="mt-4 text-xs leading-5 text-[#696E76]">
+              <p className="mkt-type-support mt-4 text-[#696E76]">
                 텍스트를 직접 고치거나 이미지를 직접 교체하는 편집은 횟수 제한 없이 무료입니다.
               </p>
             </div>
             <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-              <h3 className="text-sm font-semibold text-[#17181C]">크레딧 팩</h3>
-              <ul className="mt-4 space-y-2 text-sm text-[#5C6068]">
+              <h3 className="mkt-type-card-title font-semibold text-[#17181C]">크레딧 팩</h3>
+              <ul className="mkt-type-body mt-4 space-y-2 text-[#5C6068]">
                 {CREDIT_PACKS.map((p) => (
                   <li key={p.credits} className="flex items-baseline justify-between">
                     <span>{p.label}</span>
@@ -213,7 +213,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-xs leading-5 text-[#696E76]">
+              <p className="mkt-type-support mt-4 text-[#696E76]">
                 초기 지급 크레딧은 {CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일,
                 월 구독 크레딧은 {CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다.
               </p>
@@ -227,23 +227,23 @@ export default function PricingPage() {
         <SectionHeading title="왜 이 방식이 더 합리적일까요" />
         <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#5C6068]">일반 제작 에이전시</p>
-            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">평균 430만원<sup className="ml-1 text-xs text-[#696E76]">1</sup></p>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#5C6068]">일반 제작 에이전시</p>
+            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">평균 430만원<sup className="mkt-type-support ml-1 text-[#696E76]">1</sup></p>
+            <p className="mkt-type-body mt-2 text-[#5C6068]">
               외주 디자인·개발 1회 비용입니다. 수정할 때마다 추가 견적이 생기거나, 손님이 찾는 정보 정리가 별도일 수 있습니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
-            <p className="text-xs font-semibold tracking-widest text-[#174DDA]">Daboim · 다보임</p>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA]">Daboim · 다보임</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
               {formatKrw(basePrice.currentPriceKrw)}부터
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#5C6068]">
+            <p className="mkt-type-body mt-2 text-[#5C6068]">
               제작비 + 사이트 운영 구독. 손님이 찾는 정보까지 기본으로 정리하고, 직접 수정은 횟수 제한 없이 무료입니다.
             </p>
           </div>
         </div>
-        <p className="mx-auto mt-4 max-w-3xl text-[11px] leading-5 text-[#696E76]">
+        <p className="mkt-type-support mx-auto mt-4 max-w-3xl text-[#696E76]">
           1) 자체 조사 기준의 참고 수치입니다. 실제 견적은 업체·범위에 따라 달라집니다.
         </p>
       </section>
@@ -251,13 +251,13 @@ export default function PricingPage() {
       {/* 해지·소유권·환불 */}
       <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-3xl px-6 py-16">
-          <h2 className="text-center text-xl font-semibold tracking-tight text-[#17181C]">
+          <h2 className="mkt-type-section-title text-center font-semibold tracking-tight text-[#17181C]">
             해지·소유권·환불
           </h2>
-          <div className="mt-8 space-y-4 text-sm leading-6 text-[#5C6068]">
+          <div className="mkt-type-body mt-8 space-y-4 text-[#5C6068]">
             <p>{OWNERSHIP_SUMMARY}</p>
             <p>{REFUND_NOTICE}</p>
-            <p className="text-[12px] leading-5 text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
+            <p className="mkt-type-support text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
           </div>
         </div>
       </section>
@@ -272,7 +272,7 @@ export default function PricingPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-5xl px-6 pb-24 text-center">
-        <p className="text-sm text-[#5C6068]">먼저 내 가게가 지금 어떤 상태인지 무료로 확인해 보세요.</p>
+        <p className="mkt-type-body text-[#5C6068]">먼저 내 가게가 지금 어떤 상태인지 무료로 확인해 보세요.</p>
         <div className="mt-6 flex justify-center">
           <ScannerCta href="/#hero-scanner">무료 진단받기</ScannerCta>
         </div>

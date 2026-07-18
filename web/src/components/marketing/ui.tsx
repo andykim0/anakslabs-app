@@ -16,7 +16,7 @@ export function ScannerCta({
   variant?: 'solid' | 'outline';
 }) {
   const base =
-    'group inline-flex h-12 items-center gap-2 rounded-xl px-7 text-sm font-semibold transition-all duration-200';
+    'mkt-type-control group inline-flex h-12 items-center gap-2 rounded-xl px-7 font-semibold transition-all duration-200';
   const cls =
     variant === 'solid'
       ? `${base} bg-[#17181C] text-white hover:-translate-y-px hover:bg-black hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)]`
@@ -38,9 +38,9 @@ export function SectionHeading({
 }) {
   return (
     <div className="text-center">
-      <h2 className="text-2xl font-semibold tracking-tight text-[#17181C] sm:text-3xl">{title}</h2>
+      <h2 className="mkt-type-section-title font-semibold tracking-tight text-[#17181C]">{title}</h2>
       {subtitle ? (
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#5C6068]">{subtitle}</p>
+        <p className="mkt-type-body mx-auto mt-3 max-w-2xl text-[#5C6068]">{subtitle}</p>
       ) : null}
     </div>
   );

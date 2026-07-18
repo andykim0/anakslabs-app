@@ -76,10 +76,10 @@ export function PricingMotionComparison() {
 
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-[#17181C]">같은 장면, 움직임의 차이</p>
-          <p className="mt-1 text-xs leading-5 text-[#5C6068]">기본 모션과 AI 영상 홈페이지를 직접 비교해 보세요.</p>
+          <p className="mkt-type-card-title font-semibold text-[#17181C]">같은 장면, 움직임의 차이</p>
+          <p className="mkt-type-body mt-1 text-[#5C6068]">기본 모션과 AI 영상 홈페이지를 직접 비교해 보세요.</p>
         </div>
-        <span className="shrink-0 rounded-full border border-[#174DDA]/15 bg-[#EEF4FF] px-2.5 py-1 text-[10px] font-semibold text-[#174DDA]">
+        <span className="mkt-type-support shrink-0 rounded-full border border-[#174DDA]/15 bg-[#EEF4FF] px-2.5 py-1 font-semibold text-[#174DDA]">
           예시 연출
         </span>
       </div>
@@ -96,13 +96,13 @@ export function PricingMotionComparison() {
               <Poster />
             </div>
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#07142F]/55 via-transparent to-transparent" />
-            <span className="absolute right-3 bottom-3 rounded-full border border-white/25 bg-[#07142F]/68 px-2.5 py-1 font-mono text-[9px] tracking-[0.1em] text-white">
+            <span className="mkt-type-support absolute right-3 bottom-3 rounded-full border border-white/25 bg-[#07142F]/68 px-2.5 py-1 font-mono tracking-[0.1em] text-white">
               BASIC MOTION
             </span>
           </div>
           <div className="p-4">
-            <h3 className="text-sm font-semibold text-[#17181C]">기본 홈페이지 · 기본 모션 포함</h3>
-            <p className="mt-1 text-xs leading-5 text-[#5C6068]">정지 사진에 느린 확대와 스크롤 등장 효과를 더합니다.</p>
+            <h3 className="mkt-type-card-title font-semibold text-[#17181C]">기본 홈페이지 · 기본 모션 포함</h3>
+            <p className="mkt-type-body mt-1 text-[#5C6068]">정지 사진에 느린 확대와 스크롤 등장 효과를 더합니다.</p>
           </div>
         </article>
 
@@ -135,20 +135,20 @@ export function PricingMotionComparison() {
               </video>
             ) : null}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07142F]/48 via-transparent to-transparent" />
-            <span className="absolute right-3 bottom-3 rounded-full border border-[#68E8D8]/30 bg-[#07142F]/72 px-2.5 py-1 font-mono text-[9px] tracking-[0.1em] text-[#8AF4E7]">
+            <span className="mkt-type-support absolute right-3 bottom-3 rounded-full border border-[#68E8D8]/30 bg-[#07142F]/72 px-2.5 py-1 font-mono tracking-[0.1em] text-[#8AF4E7]">
               DABOIM AI CINEMATIC
             </span>
           </div>
           <div className="p-4">
-            <h3 className="text-sm font-semibold text-[#0B1736]">
+            <h3 className="mkt-type-card-title font-semibold text-[#0B1736]">
               AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
             </h3>
-            <p className="mt-1 text-xs leading-5 text-[#5C6068]">같은 장면에 실제 공간감과 시네마틱 움직임을 더합니다.</p>
+            <p className="mkt-type-body mt-1 text-[#5C6068]">같은 장면에 실제 공간감과 시네마틱 움직임을 더합니다.</p>
           </div>
         </article>
       </div>
 
-      <p className="text-[11px] leading-5 text-[#696E76]">
+      <p className="mkt-type-support text-[#696E76]">
         예시 연출입니다. 실제 결과는 선택한 사진과 디자인 방향에 맞춰 달라집니다. 모바일에서는 각 장면이 화면에 들어올 때 순서대로 재생됩니다.
       </p>
     </div>

@@ -26,6 +26,7 @@ import type {
 } from '@/lib/types/site';
 import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
 import { resolveSolidButton } from '@/lib/design/button-contrast';
+import { resolveRenderedSiteTypography } from '@/lib/design/typography-scale';
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 import { storyWordWindow } from '@/lib/motion/progress';
@@ -106,16 +107,22 @@ function TextContent({
   splitTextMode: 'io' | 'progress';
 }) {
   const s = el.style;
+  const typography = resolveRenderedSiteTypography({
+    elementId: el.id,
+    style: s,
+    variant,
+    frameHeight: el.frame.h,
+  });
   const style: CSSProperties = {
     margin: 0,
     width: '100%',
-    fontSize: variant === 'canvas' ? cqw(s.fontSize) : `${mobileFontSize(s.fontSize)}px`,
+    fontSize: variant === 'canvas' ? cqw(typography.fontSize) : `${mobileFontSize(typography.fontSize)}px`,
     fontWeight: s.fontWeight ?? 400,
     fontFamily: s.fontFamily === 'heading' ? theme.fonts.heading : theme.fonts.body,
     color: s.color ?? theme.palette.text,
     // 모바일 스택은 중앙 정렬 보정 (자유배치 좌표 의미가 사라지므로)
     textAlign: variant === 'stack' ? 'center' : (s.align ?? 'left'),
-    lineHeight: s.lineHeight ?? 1.45,
+    lineHeight: typography.lineHeight,
     letterSpacing: s.letterSpacing != null ? len(s.letterSpacing, variant) : undefined,
     fontStyle: s.italic ? 'italic' : undefined,
     whiteSpace: 'pre-wrap', // \n 줄바꿈 반영

@@ -5,7 +5,7 @@
  * 표시 조건: nav.enabled !== false 이고 내비 노출 페이지(showInNav !== false) ≥ 2.
  * (페이지 1개 사이트는 헤더 미표시 — 기존 단일 페이지 사이트 회귀 0)
  * [F1] 데스크톱은 최대 NAV_MAX_INLINE(6)개 인라인 + 초과분 '더보기' 드롭다운, 모바일은 햄버거.
- *  둘 다 native <details>/<summary>(JS 0) + Tailwind md: 반응형으로 구현(SSR/Export 동일 출력).
+ *  둘 다 native <details>/<summary>(JS 0) + Tailwind xl: 반응형으로 구현(SSR/Export 동일 출력).
  * 링크: navLabel ?? title, href '/'+slug (홈은 '/'), 현재 페이지 강조. theme 폰트/팔레트 적용.
  */
 import type { SiteConfig, SitePage } from '@/lib/types/site';
@@ -118,8 +118,8 @@ export function TenantHeader({
           {siteName}
         </a>
 
-        {/* 데스크톱 내비 (md+) — 인라인 최대 6개 + 초과분 '더보기' 드롭다운 */}
-        <nav className="hidden md:flex" style={{ gap: 20, alignItems: 'center', flexShrink: 0 }}>
+        {/* 데스크톱 내비 (xl+) — 인라인 최대 6개 + 초과분 '더보기' 드롭다운 */}
+        <nav className="hidden xl:flex" style={{ gap: 20, alignItems: 'center', flexShrink: 0 }}>
           {inline.map((p) => (
             <a
               key={p.id}
@@ -149,8 +149,8 @@ export function TenantHeader({
           )}
         </nav>
 
-        {/* 모바일 햄버거 (<md) — 전체 페이지 드롭다운 */}
-        <details className="md:hidden" style={{ position: 'relative', flexShrink: 0 }}>
+        {/* 축소/모바일 햄버거 (<xl) — 전체 페이지 드롭다운 */}
+        <details className="xl:hidden" style={{ position: 'relative', flexShrink: 0 }}>
           <summary aria-label="메뉴 열기" style={{ ...summaryStyle, fontSize: 22, lineHeight: 1, color: theme.palette.text }}>
             ☰
           </summary>

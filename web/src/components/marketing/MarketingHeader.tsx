@@ -43,7 +43,7 @@ export function MarketingHeader() {
           <BrandLogo />
         </Link>
 
-        <nav aria-label="주요 메뉴" className="hidden items-center gap-6 text-sm md:flex">
+        <nav aria-label="주요 메뉴" className="mkt-type-control hidden items-center gap-6 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -67,7 +67,7 @@ export function MarketingHeader() {
               href="/#hero-scanner"
               aria-hidden={!showScannerCta}
               tabIndex={showScannerCta ? undefined : -1}
-              className={`inline-flex w-full justify-center rounded-lg bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-4 py-2 text-sm font-semibold text-white transition-[opacity,transform,visibility,box-shadow] duration-300 hover:shadow-[0_8px_22px_rgba(8,175,197,.24)] ${
+              className={`mkt-type-control inline-flex w-full justify-center rounded-lg bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-4 py-2 font-semibold text-white transition-[opacity,transform,visibility,box-shadow] duration-300 hover:shadow-[0_8px_22px_rgba(8,175,197,.24)] ${
                 showScannerCta
                   ? 'visible translate-y-0 opacity-100'
                   : 'invisible pointer-events-none -translate-y-1 opacity-0'
@@ -78,7 +78,7 @@ export function MarketingHeader() {
           </div>
           <Link
             href="/login"
-            className="rounded-lg border border-[#CAD5E5] px-4 py-2 text-sm text-[#3F4A5A] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
+            className="mkt-type-control rounded-lg border border-[#CAD5E5] px-4 py-2 text-[#3F4A5A] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
           >
             로그인
           </Link>

@@ -9,8 +9,8 @@
  *
  * mode:
  *  - 'desktop' | 'mobile': 해당 레이아웃만 (에디터/대시보드 미리보기용)
- *  - 'auto'(기본): 두 레이아웃을 모두 렌더하고 Tailwind 브레이크포인트로 전환
- *    (hidden md:block / md:hidden) — <768px에서는 y순 세로 스택 재배치.
+ *  - 'auto'(기본): 두 레이아웃을 모두 렌더하고 Tailwind 브레이크포인트로 전환.
+ *    1440 고정 캔버스가 읽기 어려울 만큼 축소되지 않도록 <1280px는 세로 스택 재배치.
  */
 import type { CSSProperties } from 'react';
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
@@ -227,7 +227,7 @@ export function SiteRenderer({
             return (
               <div key={section.id} data-signature-ordinary-section>
                 {showDesktop && (
-                  <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
+                  <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
                     <SectionCanvas
                       section={section}
                       theme={theme}
@@ -239,7 +239,7 @@ export function SiteRenderer({
                   </div>
                 )}
                 {showMobile && (
-                  <div className={mode === 'auto' ? 'md:hidden' : undefined}>
+                  <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
                     <SectionStack
                       section={section}
                       theme={theme}
@@ -263,14 +263,14 @@ export function SiteRenderer({
           />
         ) : null}
         {!signatureScene && showDesktop && (
-          <div className={mode === 'auto' ? 'hidden md:block' : undefined}>
+          <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
             {ordinarySections.map((section) => (
               <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
         {!signatureScene && showMobile && (
-          <div className={mode === 'auto' ? 'md:hidden' : undefined}>
+          <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
             {ordinarySections.map((section) => (
               <SectionStack
                 key={section.id}

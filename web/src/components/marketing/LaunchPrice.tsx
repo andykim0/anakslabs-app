@@ -30,7 +30,7 @@ export function LaunchPrice({
       className={`flex flex-col gap-1.5 ${alignment}`}
     >
       {price.compareAtPriceKrw !== null ? (
-        <del data-launch-compare="" className={`text-sm decoration-2 ${compareColor}`}>
+        <del data-launch-compare="" className={`mkt-type-support decoration-2 ${compareColor}`}>
           {formatKrw(price.compareAtPriceKrw)}
         </del>
       ) : null}
@@ -38,7 +38,7 @@ export function LaunchPrice({
         {formatKrw(price.currentPriceKrw)}
       </span>
       {price.conditionLabel ? (
-        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${labelColor}`}>
+        <span className={`mkt-type-support rounded-full border px-2.5 py-1 font-semibold ${labelColor}`}>
           {price.conditionLabel}
         </span>
       ) : null}
