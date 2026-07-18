@@ -13,13 +13,14 @@ import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Check, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
+import { guidanceFor } from '@/lib/scan/guidance';
 import { OptimizationConsole } from '@/components/marketing/OptimizationConsole';
 
 const SCAN_MESSAGES = [
-  '페이지를 불러오는 중…',
-  '검색엔진 관점으로 구조를 읽는 중…',
-  '답변 엔진(FAQ·요약) 신호를 확인하는 중…',
-  'AI가 인용할 수 있는지 검사하는 중…',
+  '홈페이지를 여는 중…',
+  '네이버·구글이 내용을 찾을 수 있는지 보는 중…',
+  '“주차 되나요?” 같은 질문에 답이 있는지 보는 중…',
+  'AI가 가게 정보를 확인할 근거가 있는지 보는 중…',
 ];
 
 /** 입력창 예시 로테이션 (3초 fade, 입력 시작 시 정지) */
@@ -100,15 +101,26 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
     <div className="rounded-xl border border-[#E8E6E0] bg-white">
       <ul className="divide-y divide-[#EDEBE4]">
         {shown.map((issue) => (
-          <li key={issue.code} className="px-4 py-3">
-            <div className="flex items-center gap-2">
+          <li key={issue.code} className="px-4 py-4">
+            <div className="flex items-start gap-2">
               <span className={SEVERITY_META[issue.severity].tone}>{SEVERITY_META[issue.severity].icon}</span>
-              <span className="text-sm text-[#17181C]">{issue.label}</span>
+              <span className="text-sm font-medium text-[#17181C]">{guidanceFor(issue.code)?.title ?? issue.label}</span>
               <span className="ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#5C6068]">
                 {issue.pillar}
               </span>
             </div>
-            <p className="mt-1 pl-5.5 text-xs leading-5 text-[#5C6068]">{issue.detail}</p>
+            <p className="mt-1.5 pl-5.5 text-xs leading-5 text-[#4F5867]">
+              {guidanceFor(issue.code)?.action ?? issue.detail}
+            </p>
+            {guidanceFor(issue.code)?.effect ? (
+              <p className="mt-1 pl-5.5 text-xs leading-5 text-[#087D70]">바뀌는 점: {guidanceFor(issue.code)?.effect}</p>
+            ) : null}
+            {guidanceFor(issue.code) ? (
+              <details className="mt-2 pl-5.5 text-[11px] leading-5 text-[#697386]">
+                <summary className="cursor-pointer select-none">기술 설명 보기</summary>
+                <p className="mt-1">{issue.label} — {issue.detail}</p>
+              </details>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -167,11 +179,10 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
         <p className="text-sm leading-7 text-[#17181C]">
           지금 <span className="font-semibold text-[#174DDA]">{scan.scores.total}점</span> —{' '}
           {scan.scores.total < 60
-            ? '검색도 AI도 제대로 못 읽는 사이트입니다.'
-            : '기본기는 있지만 비어 있는 신호가 남아 있습니다.'}{' '}
-          Daboim은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빈 신호</span>를 설계 단계에서
-          보완하고, 검색·AI가 읽을 수 있는 <span className="font-semibold text-[#174DDA]">기술적 기반</span>부터
-          갖춰 발행합니다.
+            ? '손님이 검색하거나 AI에 물을 때 핵심 정보를 찾기 어려운 상태입니다.'
+            : '기본 정보는 있지만 손님이 찾기 어려운 항목이 남아 있습니다.'}{' '}
+          Daboim은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
+          보완해, 가게 이름·지역·서비스를 네이버·구글·AI가 읽기 쉽게 정리합니다.
         </p>
         <Link
           href="/login"
@@ -235,16 +246,16 @@ export function LandingScanner() {
             무료 SEO · AEO · GEO 진단
           </p>
           <h1 className="max-w-2xl text-[clamp(2.75rem,6vw,5.25rem)] leading-[1.01] font-semibold tracking-[-0.065em] text-[#0B1736]">
-            내 홈페이지,
-            <br />검색과 AI가
+            손님이 내 가게를
+            <br />검색할 때,
             <br />
             <span className="bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03A995] bg-clip-text text-transparent">
-              제대로 읽고 있을까요?
+              홈페이지가 보일까요?
             </span>
           </h1>
           <p className="mt-7 max-w-xl text-[15px] leading-7 text-[#5F6B7C] sm:text-base">
-            주소 하나로 비어 있는 검색·답변·AI 인용 신호를 확인하세요. 진단 결과를 바탕으로
-            Daboim이 업종 설계부터 제작·호스팅까지 이어갑니다.
+            홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.
+            결과를 확인한 뒤 업종에 맞는 새 홈페이지 제작까지 이어갈 수 있습니다.
           </p>
 
           <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">
@@ -301,7 +312,7 @@ export function LandingScanner() {
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-[#6C7788]">
-            {['가입 없이 바로', 'SEO · AEO · GEO 동시 확인', '결과 30일 보관'].map((item) => (
+            {['가입 없이 바로', '검색 · 질문 · AI 신호 동시 확인', '결과 30일 보관'].map((item) => (
               <span key={item} className="inline-flex items-center gap-1.5">
                 <Check className="h-3 w-3 text-[#03A995]" /> {item}
               </span>

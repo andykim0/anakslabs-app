@@ -39,7 +39,7 @@ const INCLUDED_FEATURES: string[] = [
   '서브도메인 + SSL (xxx.anakslabs.com)',
   'AI 디자인 3안 + 캔버스 에디터',
   '다중 페이지(홈·소개·문의) + 자동 헤더 내비',
-  'SEO·AEO·GEO 기본 세팅(JSON-LD·시맨틱·사업자정보)',
+  '네이버·구글·AI가 읽기 쉬운 기본 구성',
   `초기 편집 크레딧 ${INITIAL_GRANT.basic}개`,
   '기본 모션(포함·무료) — 스크롤 등장 효과',
   '폼·예약 등 동적 기능(당사 호스팅에서 작동)',
@@ -99,7 +99,7 @@ export default function PricingPage() {
           홈페이지 제작 비용
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
-          1회 제작비 + 사이트 운영 구독 + 필요할 때만 쓰는 편집 크레딧. 어떤 돈이 언제 왜 나가는지 전부 공개합니다.
+          처음 만들 때 한 번, 운영은 매달 냅니다. AI에게 다시 만들라고 하거나 다보임에 맡길 때만 크레딧을 쓰고, 직접 수정은 무료입니다.
         </p>
       </section>
 
@@ -148,8 +148,8 @@ export default function PricingPage() {
               {SUBSCRIPTION_VALUE_COPY}
             </p>
             <p className="mt-4 text-sm leading-6 text-[#5C6068]">
-              이미지 중심의 정적 사이트, AI 디자인 3안 + 캔버스 에디터, 다중 페이지 + 자동 헤더 내비,
-              SEO·AEO·GEO 기본 세팅, 초기 편집 크레딧 {INITIAL_GRANT.basic}개까지 전부 포함됩니다.
+              서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
+              읽기 쉬운 기본 구성, 초기 편집 크레딧 {INITIAL_GRANT.basic}개가 모두 포함됩니다.
             </p>
 
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
@@ -230,7 +230,7 @@ export default function PricingPage() {
             <p className="text-xs font-semibold tracking-widest text-[#5C6068]">일반 제작 에이전시</p>
             <p className="mt-3 text-2xl font-semibold text-[#5C6068]">평균 430만원<sup className="ml-1 text-xs text-[#696E76]">1</sup></p>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
-              외주 디자인·개발 1회 비용. 수정마다 추가 견적, 검색·AI 최적화는 별도인 경우가 많습니다.
+              외주 디자인·개발 1회 비용입니다. 수정할 때마다 추가 견적이 생기거나, 손님이 찾는 정보 정리가 별도일 수 있습니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
@@ -239,7 +239,7 @@ export default function PricingPage() {
               {formatKrw(basePrice.currentPriceKrw)}부터
             </p>
             <p className="mt-2 text-sm leading-6 text-[#5C6068]">
-              제작비 + 사이트 운영 구독. SEO·AEO·GEO 기본 세팅과 직접 수정 무제한 무료.
+              제작비 + 사이트 운영 구독. 손님이 찾는 정보까지 기본으로 정리하고, 직접 수정은 횟수 제한 없이 무료입니다.
             </p>
           </div>
         </div>

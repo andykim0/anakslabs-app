@@ -6,29 +6,29 @@ import { LandingCinematicRuntime } from './LandingCinematicRuntime';
 const ACTS = [
   {
     eyebrow: '01 · SEARCH',
-    heading: '검색엔진이 먼저 구조를 읽습니다.',
-    body: '페이지 제목과 설명, 시맨틱 HTML, 사이트맵을 화면 뒤의 실제 문서 구조로 함께 만듭니다.',
+    heading: '손님이 검색하면, 가게를 찾기 쉽게.',
+    body: '네이버·구글이 가게 이름, 지역, 서비스와 페이지 내용을 찾을 수 있게 정리합니다.',
     start: 0,
     end: 0.25,
   },
   {
     eyebrow: '02 · ANSWER',
-    heading: '질문의 답이 되는 문장을 설계합니다.',
-    body: 'FAQ와 직접 답변 문장을 배치해 검색의 답변 영역이 핵심 정보를 집어가기 좋은 형태로 정리합니다.',
+    heading: '“주차 되나요?”에 홈페이지가 바로 답하게.',
+    body: '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 적습니다.',
     start: 0.25,
     end: 0.5,
   },
   {
     eyebrow: '03 · GENERATIVE',
-    heading: 'AI가 사업 정보를 이해할 단서를 남깁니다.',
-    body: '사업 주체와 지역, 서비스 정보를 텍스트와 구조화 데이터로 일치시켜 생성형 AI가 참고하기 쉬운 기반을 만듭니다.',
+    heading: 'AI에게 물어봐도, 공식 정보를 확인하기 쉽게.',
+    body: '가게 이름, 지역, 서비스와 공식 연락처를 한뜻으로 정리해 AI가 정보를 덜 헷갈리게 합니다.',
     start: 0.5,
     end: 0.75,
   },
   {
     eyebrow: '04 · CINEMATIC',
-    heading: '이 움직임까지 실제 홈페이지에 적용됩니다.',
-    body: '데스크톱에서는 스크롤이 영상의 재생 위치를 제어하고, 모바일에서는 안정적인 루프로 전환됩니다. 정적인 포스터와 본문은 언제나 남습니다.',
+    heading: '이 움직임을 사장님 홈페이지에도.',
+    body: '컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 움직임을 줄인 기기에서는 사진과 글이 그대로 보입니다.',
     start: 0.75,
     end: 1,
   },
@@ -94,7 +94,7 @@ export function LandingCinematicShowcase() {
           </div>
           <div className="max-w-md">
             <p className="text-sm leading-7 text-white/68">
-              지금 보이는 무대가 AI 영상 홈페이지에 적용되는 실제 스크롤 스크럽 방식입니다. 새 영상을 생성한 데모가 아니라 기존 Daboim 1080p 필름을 같은 런타임으로 재생합니다.
+              지금 화면은 유료 옵션에 실제로 들어가는 움직임입니다. 컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 예시는 기존 Daboim 1080p 영상으로 보여드립니다.
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[9px] tracking-[0.11em] text-white/80">
               <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> DESKTOP: SCROLL TO SCRUB · MOBILE: PINNED LOOP
@@ -110,7 +110,7 @@ export function LandingCinematicShowcase() {
           data-m-progress
           data-ss-stage
           data-ss-mode="auto"
-          aria-label="Daboim SEO, AEO, GEO 시네마틱 스크롤 기능 시연"
+          aria-label="Daboim 검색·질문·AI 시네마틱 스크롤 기능 시연"
           style={stageVars}
         >
           <noscript>

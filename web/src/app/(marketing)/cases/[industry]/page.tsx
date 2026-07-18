@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!label) return { title: '고객사례 — Daboim', robots: { index: false } };
   return {
     title: `${label} 홈페이지 제작 사례`,
-    description: `${label} 홈페이지 제작 사례 — 검색·AI가 읽을 수 있게 태어난 ${label} 사이트의 구성과 개편 전후를 확인해 보세요.`,
+    description: `${label} 홈페이지 제작 사례 — 손님이 먼저 찾는 정보를 담은 ${label} 사이트의 구성과 개편 전후를 확인해 보세요.`,
     alternates: { canonical: `/cases/${industry}` },
   };
 }

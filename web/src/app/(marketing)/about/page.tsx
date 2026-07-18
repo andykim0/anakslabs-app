@@ -5,7 +5,7 @@ import { ScannerCta } from '@/components/marketing/ui';
 export const metadata: Metadata = {
   title: '회사소개 — 왜 Daboim을 만들었나',
   description:
-    '검색과 AI가 읽을 수 있는 사이트를 소상공인도 가질 수 있어야 한다는 생각에서 Anaks Labs가 만든 홈페이지 SaaS, Daboim.',
+    '좋은 가게가 손님에게 더 잘 발견되도록, 업종별 설계부터 직접 편집·호스팅·성과 리포트까지 한 번에 제공하는 Daboim을 만들었습니다.',
   alternates: { canonical: '/about' },
 };
 
@@ -18,17 +18,17 @@ export default function AboutPage() {
         </h1>
         <div className="mt-8 space-y-5 text-sm leading-7 text-[#5C6068]">
           <p>
-            좋은 가게가 검색에서 사라지는 걸 자주 봤습니다. 음식도 실력도 훌륭한데, 사이트가 없거나 있어도
-            검색엔진이 읽을 수 없는 구조라 &ldquo;근처 맛집&rdquo;에 끼지 못했습니다. 이제는 사람들이 AI에게까지
-            추천을 묻는데, 거기서도 마찬가지였습니다.
+            좋은 가게가 손님 눈에 보이지 않는 걸 자주 봤습니다. 음식도 실력도 훌륭한데, 홈페이지가 없거나
+            가게 이름·지역·메뉴가 제대로 정리되지 않아 &ldquo;근처 맛집&rdquo;을 찾는 손님이 발견하기 어려웠습니다.
+            이제는 사람들이 AI에게도 추천을 묻지만, 공식 정보를 확인할 곳이 없는 가게는 거기서도 빠지기 쉽습니다.
           </p>
           <p>
-            문제는 대부분 예산과 정보였습니다. 검색·AI 최적화까지 챙긴 사이트를 제대로 만들려면 비용이 크고,
-            무엇을 갖춰야 하는지 알기도 어렵습니다. 그래서 그 일을 AI가 처음부터 대신 해주면 어떨까 생각했습니다.
+            문제는 대부분 예산과 시간이었습니다. 손님이 찾는 정보까지 갖춘 홈페이지를 맡기려면 비용이 크고,
+            직접 만들려면 무엇부터 넣어야 하는지 알기 어렵습니다. 그래서 AI가 초안을 만들고 사장님이 방향을 고르는 방식을 생각했습니다.
           </p>
           <p>
-            Daboim은 그 생각에서 시작한 Anaks Labs의 홈페이지 SaaS입니다. AI가 사이트를 설계하고, 캔버스에서
-            손쉽게 다듬고, 검색·AI가 읽을 수 있는 구조를 기본값으로 깔아 즉시 호스팅합니다.
+            Daboim은 그 생각에서 시작한 Anaks Labs의 홈페이지 제품입니다. AI가 업종에 맞게 사이트를 설계하고,
+            사장님이 직접 다듬은 뒤 바로 공개합니다. 손님이 검색하거나 AI에 물을 때 필요한 정보도 처음부터 함께 정리합니다.
           </p>
         </div>
       </section>
@@ -37,7 +37,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-3xl px-6 py-16">
           <h2 className="text-lg font-semibold text-[#17181C]">우리가 지키려는 것</h2>
           <ul className="mt-6 space-y-3 text-sm leading-6 text-[#5C6068]">
-            <li>· 예쁜 사이트가 아니라, 검색·AI가 읽을 수 있게 태어난 사이트.</li>
+            <li>· 예쁘게만 보이는 사이트가 아니라, 손님이 필요한 정보를 찾을 수 있는 사이트.</li>
             <li>· 숨은 비용 없는 투명한 가격 — 안 쓰는 기능에 매달 돈이 나가지 않게.</li>
             <li>· 과장하지 않기 — 보장할 수 없는 순위·성과를 약속하지 않습니다.</li>
           </ul>

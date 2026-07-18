@@ -8,7 +8,7 @@ import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMoc
 export const metadata: Metadata = {
   title: '고객사례 — 업종별 홈페이지 제작 사례',
   description:
-    '음식점·병원·학원·뷰티 등 업종별 홈페이지 제작 사례. 검색·AI가 읽을 수 있게 태어난 사이트의 실제 구성을 확인해 보세요.',
+    '음식점·병원·학원·뷰티 등 업종마다 손님이 먼저 찾는 정보를 어떻게 홈페이지에 담는지 데모 사례로 확인해 보세요.',
   alternates: { canonical: '/cases' },
 };
 

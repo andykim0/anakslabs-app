@@ -28,42 +28,42 @@ function StepVisual({ no }: { no: string }) {
 }
 
 export const metadata: Metadata = {
-  title: '기능 — 검색·AI가 읽는 사이트를 만드는 방법',
+  title: '기능 — 손님이 찾고 바로 이해하는 홈페이지',
   description:
-    '설문부터 호스팅까지 5단계 작동 방식, SEO·AEO·GEO 엔진(JSON-LD·시맨틱 HTML·페이지별 sitemap·네이버 IndexNow), 포함·무료인 기본 모션과 AI 영상 홈페이지, 호스팅·보안까지.',
+    '사장님이 몇 가지 질문에 답하면 디자인 3안을 만들고, 직접 고친 뒤 바로 엽니다. 손님이 검색하거나 AI에 물을 때 필요한 정보, 기본 모션, 호스팅과 보안까지 함께 제공합니다.',
   alternates: { canonical: '/features' },
 };
 
 const STEPS = [
-  { no: '01', title: '설문', body: '목적·업종·톤·레퍼런스를 고릅니다. 사이트 페이지 구성이 자동으로 잡힙니다.' },
-  { no: '02', title: '1차 생성 — 디자인 3안', body: '테마·팔레트·히어로 비주얼(3D 렌더 포함)까지 세 가지 방향을 AI가 제시합니다.' },
-  { no: '03', title: '캔버스 편집', body: 'PPT처럼 끌어서 이동·리사이즈. 페이지별로 자유배치 캔버스에서 다듬습니다.' },
-  { no: '04', title: '2차 처리', body: '카피·이미지 다듬기, 사업자 정보·법적 푸터, 문의 버튼(카톡·전화)·지도 등 부가기능을 얹습니다.' },
-  { no: '05', title: '호스팅', body: '버튼 하나로 서브도메인·SSL과 함께 라이브. 발행 즉시 SSR로 서빙됩니다.' },
+  { no: '01', title: '몇 가지 질문에 답합니다', body: '업종, 지역, 원하는 분위기와 참고할 홈페이지를 고르면 필요한 페이지를 먼저 정합니다.' },
+  { no: '02', title: '서로 다른 디자인 3안을 봅니다', body: '사진 배치, 색, 글꼴과 첫 화면이 다른 세 가지 방향을 보고 마음에 드는 안을 고릅니다.' },
+  { no: '03', title: '원하는 곳을 직접 다듬습니다', body: '하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 글과 사진을 끌어 옮기고 크기를 바꿉니다.' },
+  { no: '04', title: '장사 정보를 빠짐없이 채웁니다', body: '문구와 사진을 다듬고, 사업자 정보, 전화·카카오톡·예약 버튼과 지도를 넣습니다.' },
+  { no: '05', title: '버튼 한 번으로 홈페이지를 엽니다', body: '안전한 주소와 보안 연결을 붙여 바로 공개합니다. 손님은 휴대폰과 컴퓨터에서 곧바로 볼 수 있습니다.' },
 ];
 
 const ENGINE = [
   {
     icon: <Search className="h-5 w-5" />,
     name: 'SEO',
-    body: '페이지별 제목·설명, 시맨틱 마크업, 페이지별 sitemap을 자동 생성해 검색엔진이 읽고 색인할 수 있게 합니다.',
+    body: '가게 이름, 지역, 서비스와 페이지 내용을 분명히 적어 네이버와 구글이 찾기 쉽게 합니다.',
   },
   {
     icon: <MessageSquareQuote className="h-5 w-5" />,
     name: 'AEO',
-    body: '페이지 성격에 맞는 제목·목록·질문 경계와 페이지별 JSON-LD를 구성해 답변 시스템이 내용을 덜 추측하게 합니다.',
+    body: '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 정리합니다.',
   },
   {
     icon: <Bot className="h-5 w-5" />,
     name: 'GEO',
-    body: '본문·사업 주체·연락처·공식 채널·근거를 명시하고 AI 검색 크롤러 접근을 관리해 생성형 검색이 내용을 확인하기 쉽게 합니다.',
+    body: '가게 이름, 연락처와 공식 채널을 같은 정보로 맞춰 AI가 어느 정보가 공식인지 확인하기 쉽게 합니다.',
   },
 ];
 
 const INFRA = [
-  { icon: <Gauge className="h-5 w-5" />, title: 'SSR 서빙', body: '발행본을 서버 렌더링으로 제공 — 크롤러·AI가 즉시 텍스트를 읽습니다.' },
-  { icon: <ShieldCheck className="h-5 w-5" />, title: '업로드 보안', body: '업로드 이미지·SVG는 저장 전 sanitize로 스크립트·위험 요소를 제거합니다.' },
-  { icon: <Lock className="h-5 w-5" />, title: '멀티테넌트 격리', body: '고객 데이터는 테넌트 단위로 격리(RLS)되어 서로 접근할 수 없습니다.' },
+  { icon: <Gauge className="h-5 w-5" />, title: '처음부터 글이 보이는 페이지', body: '손님과 검색 서비스가 기다리지 않고 핵심 글을 바로 읽을 수 있게 제공합니다.' },
+  { icon: <ShieldCheck className="h-5 w-5" />, title: '올린 파일 안전 확인', body: '사진과 그림 파일은 저장하기 전에 위험한 코드가 들어 있는지 확인합니다.' },
+  { icon: <Lock className="h-5 w-5" />, title: '고객별 데이터 분리', body: '사장님의 사이트와 자료는 다른 고객이 열어볼 수 없도록 나눠 보관합니다.' },
 ];
 
 export default function FeaturesPage() {
@@ -72,11 +72,11 @@ export default function FeaturesPage() {
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
         <h1 className="text-3xl font-semibold tracking-tight text-[#17181C] sm:text-4xl">
-          검색·AI가 읽는 사이트,
-          <br className="sm:hidden" /> 이렇게 만듭니다
+          손님이 찾고,
+          <br className="sm:hidden" /> 궁금한 점까지 확인하는 홈페이지
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#5C6068]">
-          예쁜 화면을 넘어, 처음부터 검색엔진과 생성형 AI가 읽을 수 있는 구조로 짓습니다.
+          예쁘게만 만들지 않습니다. 손님이 네이버·구글에서 찾고 AI에 물어볼 때, 가게 정보를 확인하기 쉽게 만듭니다.
         </p>
       </section>
 
@@ -113,8 +113,8 @@ export default function FeaturesPage() {
       {/* AEO/GEO 엔진 (실제 구현 사실만) */}
       <section className="mx-auto max-w-5xl px-6 py-16">
         <SectionHeading
-          title="검색을 넘어, AI에게 물어보는 시대"
-          subtitle="세 관점 모두에서 “읽을 수 있는 상태”로 발행합니다. 아래는 실제로 구현된 기능입니다."
+          title="손님이 가게를 찾는 세 순간을 준비합니다"
+          subtitle="검색하고, 자주 묻는 답을 보고, AI에 물어볼 때 같은 공식 정보를 확인할 수 있게 만듭니다."
         />
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {ENGINE.map((p) => (
@@ -128,7 +128,7 @@ export default function FeaturesPage() {
           ))}
         </div>
         <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-5 text-[#696E76]">
-          제공: 페이지별 제목·설명 · 연결형 JSON-LD · 시맨틱 HTML · crawler 정책 · 페이지별 sitemap · 네이버 IndexNow.
+          기술 항목: 페이지별 제목·설명 · JSON-LD · 시맨틱 HTML · crawler 정책 · 페이지별 sitemap · 네이버 IndexNow.
         </p>
       </section>
 

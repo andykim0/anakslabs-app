@@ -30,9 +30,9 @@ import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
 import { FadeIn } from '@/components/motion/FadeIn';
 
-const PAGE_TITLE = '홈페이지 전문 최적화 AI — SEO·AEO·GEO 기반 제작';
+const PAGE_TITLE = '손님이 찾고 믿을 수 있는 홈페이지 제작 | Daboim';
 const PAGE_DESCRIPTION =
-  '업종에 맞는 홈페이지를 AI가 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 적용합니다. 디자인 3안, 캔버스 편집, 멀티페이지 호스팅과 월간 성과 리포트까지 Daboim 하나로.';
+  '손님이 네이버·구글에서 가게를 찾고 AI에 물을 때 공식 정보를 확인하기 쉬운 홈페이지를 만듭니다. 업종별 설계, 디자인 3안, 직접 편집, 호스팅과 월간 성과 리포트까지 Daboim 하나로 제공합니다.';
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -44,12 +44,12 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: '/',
     siteName: 'Daboim',
-    title: '검색과 AI가 읽을 수 있게 | Daboim 다보임',
+    title: '손님이 찾고 믿을 수 있게 | Daboim 다보임',
     description: PAGE_DESCRIPTION,
   },
   twitter: {
     card: 'summary',
-    title: '검색과 AI가 읽을 수 있게 | Daboim 다보임',
+    title: '손님이 찾고 믿을 수 있게 | Daboim 다보임',
     description: PAGE_DESCRIPTION,
   },
 };
@@ -58,25 +58,25 @@ const ENGINES = [
   {
     no: '01',
     name: 'SEO',
-    label: '검색되는 구조',
+    label: '손님이 검색하면 찾기 쉽게',
     icon: Search,
-    body: '페이지별 제목·설명, 시맨틱 HTML, 사이트맵을 기본으로 구성해 네이버와 구글이 내용을 발견하고 이해할 수 있게 합니다.',
+    body: '가게 이름, 지역, 서비스와 각 페이지 내용을 분명히 적어 네이버와 구글이 찾기 쉽게 만듭니다.',
     detail: 'META · SEMANTIC HTML · SITEMAP',
   },
   {
     no: '02',
     name: 'AEO',
-    label: '답변되는 구조',
+    label: '“주차 되나요?”에 바로 답하게',
     icon: MessageSquareQuote,
-    body: '페이지 성격에 맞는 제목 계층·목록·질문과 페이지별 구조화 데이터를 구성해 답변 경계를 해석하기 쉽게 만듭니다.',
+    body: '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 정리합니다.',
     detail: 'SEMANTIC ANSWERS · ENTITY · JSON-LD',
   },
   {
     no: '03',
     name: 'GEO',
-    label: '인용되는 구조',
+    label: 'AI도 공식 정보를 확인하기 쉽게',
     icon: Bot,
-    body: 'AI 검색 크롤러 접근, 사업 주체·지역·서비스, 근거와 공식 채널을 명확히 표현해 생성형 검색이 검증하기 쉬운 기반을 만듭니다.',
+    body: '가게 이름, 지역, 서비스, 연락처와 공식 채널을 한뜻으로 적어 AI가 정보를 덜 헷갈리게 합니다.',
     detail: 'CRAWLER ACCESS · EVIDENCE · ENTITY',
   },
 ];
@@ -86,7 +86,7 @@ const COMPARISON = [
     label: '잘하는 일',
     builder: '쇼핑·예약 등 폭넓은 운영 도구',
     agency: '사람 중심의 맞춤 기획·디자인',
-    anaks: '업종 홈페이지 최적화의 제품화',
+    anaks: '손님이 찾는 정보까지 업종별로 설계',
   },
   {
     label: '시작 방식',
@@ -95,10 +95,10 @@ const COMPARISON = [
     anaks: '질문 응답 → 구성 확인 → 디자인 3안',
   },
   {
-    label: '검색·AI 구조',
+    label: '손님이 찾는 정보',
     builder: '제공 기능과 가이드를 직접 설정',
     agency: '계약 범위와 업체 역량에 따라 적용',
-    anaks: 'SEO·AEO·GEO가 생성 기본값',
+    anaks: '검색·질문·AI용 기본 구성을 함께 제작',
   },
   {
     label: '오픈 후',
@@ -109,17 +109,17 @@ const COMPARISON = [
 ];
 
 const PROCESS = [
-  { no: '01', title: '업종을 이해', body: '목적·지역·톤·자료를 받아 필요한 페이지와 필수 섹션을 먼저 설계합니다.' },
-  { no: '02', title: '구성을 승인', body: '비용이 드는 생성 전에 텍스트 와이어프레임으로 페이지 구성을 확인합니다.' },
-  { no: '03', title: '3안을 생성', body: '업종과 레퍼런스를 반영한 디자인 후보 중 방향을 고르고 캔버스에서 다듬습니다.' },
-  { no: '04', title: '최적화해 발행', body: '검색·답변·AI 인용 기반을 점검하고 SSL·멀티페이지 호스팅으로 발행합니다.' },
+  { no: '01', title: '장사에 필요한 내용을 묻습니다', body: '업종, 지역, 원하는 분위기와 가진 자료를 받아 필요한 페이지부터 정합니다.' },
+  { no: '02', title: '만들기 전에 구성을 보여드립니다', body: '비용이 드는 생성 전에 어느 페이지에 무엇이 들어갈지 글로 먼저 확인합니다.' },
+  { no: '03', title: '서로 다른 디자인 3안을 만듭니다', body: '마음에 드는 방향을 고른 뒤, 하나로 이어지는 화면에서 직접 다듬을 수 있습니다.' },
+  { no: '04', title: '빠진 정보를 확인하고 엽니다', body: '손님이 찾는 정보와 문의 동선을 점검한 뒤 안전한 주소와 여러 페이지로 발행합니다.' },
 ];
 
 const CORE_FEATURES = [
   '업종별 페이지·섹션 설계',
   'AI 디자인 후보 3안',
   '자유배치 캔버스 에디터',
-  'SEO·AEO·GEO 기본 구조',
+  '네이버·구글·AI가 읽기 쉬운 기본 구성',
   '멀티페이지 + SSL 호스팅',
   `편집 크레딧 ${INITIAL_GRANT.basic}개`,
   SUBSCRIPTION_BENEFIT_COPY.report,
@@ -129,11 +129,11 @@ const CORE_FEATURES = [
 const FAQS: FaqItem[] = [
   {
     q: '일반 템플릿 빌더와 무엇이 다른가요?',
-    a: '범용 빌더는 쇼핑·예약을 포함한 폭넓은 도구를 직접 조합하는 데 강점이 있습니다. Daboim은 비개발자 사업자의 업종 홈페이지에 집중해, 페이지 기획과 SEO·AEO·GEO 구조를 생성 기본값으로 제공하고 호스팅과 사이트 운영 구독까지 한 제품으로 묶습니다.',
+    a: '범용 빌더는 많은 기능을 직접 조립하는 데 강점이 있습니다. Daboim은 사장님 업종에 필요한 페이지와 손님이 찾는 정보를 먼저 정리하고, 디자인 3안부터 호스팅과 매달 성과 리포트까지 한 번에 제공합니다.',
   },
   {
-    q: 'SEO·AEO·GEO를 적용하면 검색 순위나 AI 인용이 보장되나요?',
-    a: '아니요. 검색 순위와 AI 답변 인용은 외부 플랫폼의 판단이므로 보장할 수 없습니다. Daboim은 크롤러와 답변·생성형 AI가 사업 정보를 읽고 이해하기 쉬운 기술적 구조와 콘텐츠 기반을 제공합니다.',
+    q: '검색 순위나 AI 답변 노출을 보장하나요?',
+    a: '아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. Daboim은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.',
   },
   {
     q: '완성된 홈페이지를 직접 수정할 수 있나요?',
@@ -204,11 +204,11 @@ export default function MarketingHome() {
             <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">A NEW WEBSITE CATEGORY</p>
-                <p className="mt-4 text-sm leading-6 text-[#666A73]">예쁜 화면 하나가 아니라<br />발견되는 사업 기반을 만듭니다.</p>
+                <p className="mt-4 text-sm leading-6 text-[#666A73]">예쁘게만 만들지 않습니다.<br />손님이 찾는 정보까지 채웁니다.</p>
               </div>
               <h2 className="max-w-4xl text-3xl leading-[1.16] font-semibold tracking-[-0.045em] text-[#0B1736] sm:text-5xl lg:text-[3.5rem]">
-                홈페이지 제작의 모든 결정을
-                <br className="hidden sm:block" /> 사업자 대신 먼저 최적화합니다.
+                손님이 찾고 궁금해할 내용을
+                <br className="hidden sm:block" /> 홈페이지에 먼저 담아드립니다.
               </h2>
             </div>
           </FadeIn>
@@ -222,9 +222,9 @@ export default function MarketingHome() {
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">ONE SITE · THREE ENGINES</p>
-                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">세 가지 발견 경로를 한 번에.</h2>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">손님이 가게를 찾는 세 순간을 한 번에.</h2>
               </div>
-              <p className="max-w-md text-sm leading-6 text-[#666A73]">기능을 나열하는 데서 끝나지 않고, 실제 발행 문서의 구조로 적용합니다. 순위나 인용을 보장하지는 않습니다.</p>
+              <p className="max-w-md text-sm leading-6 text-[#666A73]">검색 결과에서 찾고, 궁금한 답을 확인하고, AI도 공식 정보를 구분할 수 있게 필요한 내용을 넣습니다. 순위나 노출은 보장하지 않습니다.</p>
             </div>
           </FadeIn>
 
@@ -258,9 +258,9 @@ export default function MarketingHome() {
             <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#08AFC5] uppercase">WHY DABOIM</p>
-                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">빌더도, 일회성 외주도 아닌<br />관리형 홈페이지 제품.</h2>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">직접 만들다 포기하지 않고,<br />맡긴 뒤 기다리기만 하지 않게.</h2>
               </div>
-              <p className="max-w-lg text-sm leading-7 text-[#5F6B7C] lg:justify-self-end">범용 빌더와 제작대행은 각자의 강점이 있습니다. Daboim은 비개발자 사업자가 ‘최적화된 홈페이지를 계속 운영하는 일’에 집중합니다.</p>
+              <p className="max-w-lg text-sm leading-7 text-[#5F6B7C] lg:justify-self-end">Daboim이 먼저 만들고 사장님이 방향을 고릅니다. 문구와 사진은 직접 고칠 수 있고, 운영과 매달 성과 확인까지 이어집니다.</p>
             </div>
           </FadeIn>
 
@@ -294,7 +294,7 @@ export default function MarketingHome() {
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">AGENCY FLOW · PRODUCT SPEED</p>
-                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">전문가의 제작 순서를<br />소프트웨어로 만들었습니다.</h2>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">사장님이 중간마다 고르고,<br />확인한 만큼만 만들어집니다.</h2>
               </div>
               <Link href="/features" className="group inline-flex items-center gap-2 text-sm font-semibold text-[#174DDA]">
                 전체 기능 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -322,7 +322,7 @@ export default function MarketingHome() {
               <div>
                 <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">DIRECTABLE AI</p>
                 <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736]">AI가 시작하고,<br />사장님이 방향을 잡습니다.</h3>
-                <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">결과를 그냥 받는 생성기가 아닙니다. 구성안을 승인하고, 세 가지 디자인에서 고르고, PPT처럼 직접 다듬습니다. 직접 수정은 무제한 무료이고 AI 재생성·다보임 수정 대행에만 크레딧을 사용합니다.</p>
+                <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">먼저 페이지 구성을 확인하고, 서로 다른 디자인 3안에서 방향을 고릅니다. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 요소를 옮기고 크기를 바꿀 수 있습니다. 직접 수정은 횟수 제한 없이 무료입니다.</p>
                 <ul className="mt-7 grid gap-3 text-sm text-[#41444C] sm:grid-cols-2">
                   {['생성 전 구성 확인', '디자인 3안 비교', '드래그·리사이즈 편집', '구조 진단 후 발행'].map((item) => (
                     <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-[#03A995]" />{item}</li>
@@ -350,7 +350,7 @@ export default function MarketingHome() {
           <FadeIn delay={0.08}>
             <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">NICHE-NATIVE DESIGN</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">카페와 병원은<br />같은 홈페이지일 수 없습니다.</h2>
-            <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">업종별로 손님이 찾는 정보, 필요한 페이지, 전환 버튼이 다릅니다. 목적에 맞는 설계 뼈대에서 시작하고 브랜드 톤과 레퍼런스로 인상을 구체화합니다.</p>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-[#666A73]">카페 손님은 메뉴와 위치를, 병원 방문자는 진료 안내와 예약 방법을 먼저 찾습니다. 업종에 맞는 페이지와 버튼부터 다르게 설계합니다.</p>
             <Link href="/cases" className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#174DDA]">업종별 구성 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
           </FadeIn>
         </div>
@@ -362,7 +362,7 @@ export default function MarketingHome() {
           <FadeIn>
             <p className="font-mono text-[10px] tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#0B1736] sm:text-4xl">만들고 끝내지 않고,<br />계속 좋아지게 관리합니다.</h2>
-            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">제작비 1회와 사이트 운영 구독으로 홈페이지를 운영하고, 매달 유입·전화·예약·길찾기 성과를 확인합니다. 실제 영상이 필요한 브랜드만 AI 영상 홈페이지를 선택하세요.</p>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#666A73]">처음 만들 때 제작비를 내고, 운영 중에는 매달 방문·전화·예약·길찾기 결과를 받습니다. 첫 화면에 실제 영상이 필요한 경우에만 AI 영상 홈페이지를 더하면 됩니다.</p>
           </FadeIn>
           <FadeIn delay={0.08}>
             <div className="rounded-[28px] border border-[#173060] bg-gradient-to-br from-[#0B1736] to-[#113E70] p-7 text-white shadow-[0_24px_70px_rgba(11,23,54,.18)] sm:p-9">
@@ -408,7 +408,7 @@ export default function MarketingHome() {
           <FadeIn>
             <p className="font-mono text-[10px] tracking-[0.16em] text-white/82 uppercase">START WITH A SIGNAL CHECK</p>
             <h2 className="mt-5 text-3xl font-semibold tracking-[-0.045em] sm:text-5xl">이미 홈페이지가 있다면,<br />먼저 읽히는 상태부터 확인하세요.</h2>
-            <p className="mx-auto mt-5 max-w-lg text-sm leading-7 text-white/68">주소 하나면 SEO·AEO·GEO 관점의 비어 있는 신호를 확인할 수 있습니다. 가입 없이 무료입니다.</p>
+            <p className="mx-auto mt-5 max-w-lg text-sm leading-7 text-white/68">홈페이지 주소만 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보가 무엇인지 확인할 수 있습니다. 가입 없이 무료입니다.</p>
             <Link href="#hero-scanner" className="group mt-8 inline-flex h-13 items-center gap-2 rounded-xl bg-[#0B1736] px-7 text-sm font-semibold text-white transition-transform hover:-translate-y-1">내 사이트 무료 진단 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
           </FadeIn>
         </div>

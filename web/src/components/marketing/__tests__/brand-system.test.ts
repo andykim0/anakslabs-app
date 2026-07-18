@@ -17,7 +17,7 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
     const scannerSource = read('src/components/landing/LandingScanner.tsx');
     assert.match(scannerSource, /id="hero-scanner"/);
     assert.match(scannerSource, /내 사이트 무료 진단/);
-    assert.match(scannerSource, /내 홈페이지,[\s\S]*검색과 AI가[\s\S]*제대로 읽고 있을까요/);
+    assert.match(scannerSource, /손님이 내 가게를[\s\S]*검색할 때,[\s\S]*홈페이지가 보일까요/);
   });
 
   test('Daboim 로고는 독립 SVG 자산이며 blue→cyan→mint 신호색을 유지한다', () => {
@@ -34,8 +34,8 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
 
   test('SEO/AEO/GEO 주장은 보장이 아니라 읽히는 기반으로 제한한다', () => {
     const page = read('src/app/(marketing)/page.tsx');
-    assert.match(page, /순위나 인용을 보장하지/);
-    assert.match(page, /SEO·AEO·GEO가 생성 기본값/);
+    assert.match(page, /순위나 노출은 보장하지/);
+    assert.match(page, /검색·질문·AI용 기본 구성을 함께 제작/);
     assert.match(page, /application\/ld\+json/);
   });
 
