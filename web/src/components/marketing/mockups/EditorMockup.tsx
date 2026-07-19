@@ -8,7 +8,7 @@ import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { MousePointer2 } from 'lucide-react';
 import { EDITOR_MOCKUP_CSS, editorMockupStyles as styles } from './EditorMockup.styles';
 
-export const EDITOR_DEMO_DURATION_MS = 10_000;
+export const EDITOR_DEMO_DURATION_MS = 8_000;
 
 const SECTIONS = ['히어로', '소개', '메뉴', '문의'] as const;
 

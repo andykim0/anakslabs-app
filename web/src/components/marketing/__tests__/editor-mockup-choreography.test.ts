@@ -17,10 +17,10 @@ describe('L4 — 하나로 이어지는 에디터 데모 안무', () => {
     }
   });
 
-  test('10초 한 타임라인이 선택→드래그→입력→색 변경의 완결된 순서를 갖는다', () => {
+  test('8초 한 타임라인이 선택→드래그→입력→색 변경의 완결된 순서를 갖는다', () => {
     const component = read(componentPath);
     const css = read(stylesPath);
-    assert.match(component, /EDITOR_DEMO_DURATION_MS = 10_000/);
+    assert.match(component, /EDITOR_DEMO_DURATION_MS = 8_000/);
     for (const keyframe of [
       'editor-menu-selection',
       'editor-block-drag',
@@ -32,6 +32,56 @@ describe('L4 — 하나로 이어지는 에디터 데모 안무', () => {
     }
     assert.match(css, /var\(--editor-demo-duration\)/);
     assert.doesNotMatch(component, /framer-motion|setInterval|requestAnimationFrame/);
+  });
+
+  test('이동은 0.4~0.8초 ease-out, 동작 사이 홀드는 0.3~0.5초이며 클릭 피드백이 보인다', () => {
+    const css = read(stylesPath);
+    const durationMs = 8_000;
+    const toMilliseconds = ([from, to]: readonly [number, number]) =>
+      ((to - from) / 100) * durationMs;
+
+    for (const move of [
+      [7, 14],
+      [21, 29],
+      [36, 46],
+      [51, 59],
+      [67, 75],
+      [92, 97],
+    ] as const) {
+      const milliseconds = toMilliseconds(move);
+      assert.ok(milliseconds >= 400 && milliseconds <= 800, `move ${move.join('→')}%: ${milliseconds}ms`);
+    }
+
+    for (const hold of [
+      [16, 21],
+      [31, 36],
+      [46, 51],
+      [61, 67],
+    ] as const) {
+      const milliseconds = toMilliseconds(hold);
+      assert.ok(milliseconds >= 300 && milliseconds <= 500, `hold ${hold.join('→')}%: ${milliseconds}ms`);
+    }
+
+    assert.match(
+      css,
+      /editor-cursor var\(--editor-demo-duration\) cubic-bezier\(0\.16, 1, 0\.3, 1\)/,
+    );
+    assert.doesNotMatch(css, /editor-cursor var\(--editor-demo-duration\) linear/);
+    for (const ripple of ['editor-menu-ripple', 'editor-source-ripple', 'editor-mint-ripple']) {
+      assert.match(css, new RegExp(`@keyframes ${ripple}\\b`));
+    }
+  });
+
+  test('이미지 블록은 중간 좌표를 거치는 곡선 경로로 이동하고 루프 끝은 숨긴 채 원점으로 돌아간다', () => {
+    const css = read(stylesPath);
+    assert.match(
+      css,
+      /@keyframes editor-block-drag[\s\S]*39\.5%[\s\S]*rotate\(-0\.6deg\)[\s\S]*43%[\s\S]*rotate\(0\.35deg\)[\s\S]*46%/,
+    );
+    assert.match(
+      css,
+      /@keyframes editor-cursor[\s\S]*92%[\s\S]*97%, 100% \{ transform: translate3d\(12cqw, 45px, 0\) scale\(1\); opacity: 0; \}/,
+    );
   });
 
   test('화면 밖·숨긴 탭·reduced-motion에서는 반복 작업이 정지하고 cleanup한다', () => {
