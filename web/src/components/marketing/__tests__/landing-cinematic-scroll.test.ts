@@ -21,7 +21,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
 
     const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
     assert.match(showcase, /data-landing-manifesto/);
-    assert.match(showcase, /<LandingScanner consoleMedia="poster" \/>/);
+    assert.match(showcase, /<LandingScanner consoleMedia="film" \/>/);
     assert.match(showcase, /signatureId: 'scrollytelling-manifesto'/);
     assert.match(showcase, /<MotionSignatureRenderer/);
     assert.doesNotMatch(showcase, /data-signature-status=/, 'production renderer 상태를 마케팅 DOM이 흉내 내면 안 됨');
@@ -84,8 +84,8 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film.webm"][media="(max-width: 767.98px)"]').length, 1);
     assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film-scrub.mp4"]').length, 1);
     assert.equal(rootNode.querySelectorAll('[data-signature-status="production-renderer"]').length, 1);
-    assert.equal(rootNode.querySelectorAll('img[data-lcs-hero-poster][loading="lazy"]').length, 0);
-    assert.equal(rootNode.querySelectorAll('img[data-lcs-hero-poster][fetchpriority]').length, 0,
+    assert.equal(rootNode.querySelectorAll('img[data-optimization-poster][loading="lazy"]').length, 0);
+    assert.equal(rootNode.querySelectorAll('img[data-optimization-poster][fetchpriority]').length, 0,
       'Next 16 문서상 preload와 fetchPriority를 함께 쓰면 안 됨');
     assert.match(html, /<noscript>/);
     assert.doesNotMatch(html, /<script\b[^>]*\bsrc=/i);
@@ -96,7 +96,8 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(source, /\.m-scrollytelling-ready \[data-signature-id="scrollytelling-manifesto"\] \[data-ss-copy\]/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
     assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
-    assert.match(source, /data-lcs-hero-poster[\s\S]*preload/);
+    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
+    assert.match(consoleSource, /data-optimization-poster[\s\S]*preload/);
   });
 
   test('reduced-motion과 no-JS는 큰 sticky track 없이 compact 세로 기사로 읽힌다', () => {
@@ -108,11 +109,16 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(source, /<noscript>[\s\S]*NO_JS_STAGE_CSS/);
   });
 
-  test('중복 영상 consumer 없이 hero는 poster-only이고 stage만 영상을 소비한다', () => {
+  test('hero는 재생 성공 뒤 영상으로 전환하고 같은 뷰포트의 배경은 별도 추상 모티프다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
     const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(source, /consoleMedia="poster"/);
+    assert.match(source, /consoleMedia="film"/);
+    assert.match(source, /data-lcs-hero-ambient/);
+    assert.doesNotMatch(source, /data-lcs-hero-poster/);
     assert.match(consoleSource, /mediaMode === 'film'/);
+    assert.match(consoleSource, /onPlaying=\{\(\) => setPlaying\(true\)\}/);
+    assert.match(consoleSource, /playing \? 'opacity-100' : 'opacity-0'/);
+    assert.match(consoleSource, /preload="none"/);
     assert.equal((source.match(/<video\b/g) ?? []).length, 0);
     assert.match(source, /responsiveVideoSources=\{LANDING_VIDEO_SOURCES\}/);
   });

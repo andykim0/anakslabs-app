@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { MousePointer2 } from 'lucide-react';
 import type { ScrollytellingManifestoScene, SiteTheme } from '@/lib/types/site';
 import {
@@ -135,7 +134,6 @@ const LANDING_VIDEO_SOURCES = [
 ] as const;
 
 const STAGE_CSS = `
-.daboim-cinematic [data-lcs-hero-poster] { object-position: center 48%; }
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-copy] {
   padding-inline: clamp(24px, 7vw, 108px);
 }
@@ -195,22 +193,16 @@ export function LandingCinematicShowcase() {
       <style dangerouslySetInnerHTML={{ __html: `${MOTION_CSS}\n${STAGE_CSS}` }} />
 
       <div data-lcs-prelude className="relative isolate overflow-hidden bg-[#F8FBFF]">
-        <Image
-          data-lcs-hero-poster
-          src={POSTER_SRC}
-          alt=""
+        <div
           aria-hidden="true"
-          width={1920}
-          height={1080}
-          preload
-          unoptimized
-          className="absolute inset-0 -z-20 h-full w-full object-cover opacity-70"
+          data-lcs-hero-ambient
+          className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_76%_30%,rgba(3,209,184,.18),transparent_24%),radial-gradient(circle_at_18%_70%,rgba(23,77,218,.13),transparent_32%),linear-gradient(135deg,#F8FBFF_8%,#EEF5FF_54%,#EAFBF7)]"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_82%_42%,rgba(248,251,255,.18),rgba(248,251,255,.68)_42%,rgba(248,251,255,.97)_78%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(23,77,218,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(23,77,218,.045)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]"
         />
-        <LandingScanner consoleMedia="poster" />
+        <LandingScanner consoleMedia="film" />
         <div className="border-t border-[#DCE4F0] bg-white/65 backdrop-blur">
           <div className="mkt-type-support mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
             {TECH_RAIL.map((item) => (

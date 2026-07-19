@@ -15,7 +15,7 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
     assert.ok(engineSection > cinematic, '무료 진단이 후속 설명 섹션보다 뒤로 밀림');
 
     const manifesto = read('src/components/marketing/LandingCinematicShowcase.tsx');
-    assert.match(manifesto, /<LandingScanner consoleMedia="poster" \/>/);
+    assert.match(manifesto, /<LandingScanner consoleMedia="film" \/>/);
     const scannerSource = read('src/components/landing/LandingScanner.tsx');
     assert.match(scannerSource, /id="hero-scanner"/);
     assert.match(scannerSource, /내 사이트 무료 진단/);

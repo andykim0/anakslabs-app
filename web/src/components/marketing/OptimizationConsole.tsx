@@ -10,6 +10,7 @@
  * 모바일·reduced-motion은 포스터만 쓴다.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check, Search, Sparkles } from 'lucide-react';
 
@@ -35,6 +36,8 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion() ?? false;
   const [nearViewport, setNearViewport] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
   const isDesktop = useSyncExternalStore(
     subscribeToDesktopQuery,
     getDesktopSnapshot,
@@ -44,6 +47,10 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      const fallbackId = window.setTimeout(() => setNearViewport(true), 0);
+      return () => window.clearTimeout(fallbackId);
+    }
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setNearViewport(true);
@@ -54,16 +61,23 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
     return () => observer.disconnect();
   }, []);
 
-  const showVideo = mediaMode === 'film' && nearViewport && isDesktop && !reduce;
+  const showVideo = mediaMode === 'film' && nearViewport && isDesktop && !reduce && !failed;
 
   useEffect(() => {
     if (!showVideo) return;
     const el = wrapRef.current;
     const video = videoRef.current;
     if (!el || !video) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      void video.play().catch(() => setPlaying(false));
+      return;
+    }
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) void video.play().catch(() => {});
-      else video.pause();
+      if (entry.isIntersecting) void video.play().catch(() => setPlaying(false));
+      else {
+        video.pause();
+        setPlaying(false);
+      }
     }, { threshold: 0.15 });
     observer.observe(el);
     return () => observer.disconnect();
@@ -78,10 +92,16 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
     >
       <div aria-hidden="true" className="absolute -inset-8 rounded-full bg-[radial-gradient(circle,rgba(8,184,232,.15),transparent_68%)] blur-2xl" />
       <div className="relative aspect-[16/11] overflow-hidden rounded-[28px] border border-[#DCE4F0] bg-white shadow-[0_30px_90px_rgba(11,23,54,.13)]">
-        <div
+        <Image
+          data-optimization-poster
+          src="/daboim-visibility-film-poster.webp"
+          alt=""
           aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/daboim-visibility-film-poster.webp')" }}
+          fill
+          preload
+          unoptimized
+          sizes="(max-width: 767px) 100vw, 640px"
+          className="object-cover object-center"
         />
         {showVideo ? (
           <video
@@ -90,9 +110,15 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             poster="/daboim-visibility-film-poster.webp"
-            className="absolute inset-0 h-full w-full object-cover"
+            onPlaying={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onError={() => {
+              setFailed(true);
+              setPlaying(false);
+            }}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${playing ? 'opacity-100' : 'opacity-0'}`}
           >
             <source src="/daboim-visibility-film.webm" type="video/webm" />
             <source src="/daboim-visibility-film.mp4" type="video/mp4" />
