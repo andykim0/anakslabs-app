@@ -2,6 +2,7 @@
  * [마케팅] 고객사례 카드 (라이트). §7: isDemo면 "데모 사례" 배지, 성과 숫자는 metrics 있을 때만.
  */
 import { ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 import type { Case } from '@/lib/marketing/cases';
 
 export function CaseCard({ item }: { item: Case }) {
@@ -13,7 +14,7 @@ export function CaseCard({ item }: { item: Case }) {
         </span>
         {item.isDemo ? (
           <span className="mkt-type-support rounded-md border border-[#E8E6E0] px-2 py-0.5 font-medium text-[#5C6068]">
-            데모 사례
+            {item.demoLabel ?? '데모 사례'}
           </span>
         ) : null}
       </div>
@@ -56,7 +57,15 @@ export function CaseCard({ item }: { item: Case }) {
         </p>
       ) : null}
 
-      {item.url ? (
+      {item.previewUrl ? (
+        <Link
+          href={item.previewUrl}
+          className="mkt-type-control group mt-5 inline-flex items-center gap-1 font-medium text-[#174DDA] transition-colors hover:text-[#0B1736]"
+        >
+          실제 화면 보기
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      ) : item.url ? (
         <a
           href={item.url}
           target="_blank"

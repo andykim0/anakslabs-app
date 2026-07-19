@@ -29,6 +29,10 @@ export interface Case {
   after?: string;
   /** 실제 발행 사이트 URL (없으면 미표기) */
   url?: string;
+  /** 코드 소유 가상 데모의 내부 production-renderer 미리보기 경로. */
+  previewUrl?: string;
+  /** 가상 시나리오 데모는 이 문구를 축약하거나 일반 고객 사례처럼 표시하지 않는다. */
+  demoLabel?: '데모 예시 · 가상 시나리오';
   /** 사장님 한 줄 (데모는 예시) */
   ownerQuote?: string;
   /** 성과 지표 — 실측 전까지 비움(§7) */
@@ -43,6 +47,26 @@ export interface Case {
  * 라이브 URL·성과 숫자 없이 개념만 보여준다.
  */
 export const CASES: Case[] = [
+  {
+    slug: 'woldam',
+    industryKey: 'restaurant',
+    industryLabel: '파인다이닝',
+    businessName: '월담',
+    summary: '어두운 화면 위에서 한 편의 이야기처럼 이어지는 가상 파인다이닝 데모.',
+    previewUrl: '/cases/demo/woldam',
+    demoLabel: '데모 예시 · 가상 시나리오',
+    isDemo: true,
+  },
+  {
+    slug: 'yeobaek-workshop',
+    industryKey: 'studio',
+    industryLabel: '수공예 브랜드',
+    businessName: '여백공작소',
+    summary: '따뜻한 종이 질감과 스크롤 영상 움직임을 결합한 가상 브랜드 데모.',
+    previewUrl: '/cases/demo/yeobaek-workshop',
+    demoLabel: '데모 예시 · 가상 시나리오',
+    isDemo: true,
+  },
   {
     slug: 'hwarodam',
     industryKey: 'restaurant',

@@ -1,0 +1,25 @@
+{
+  "demoId": "woldam",
+  "fictionalDemo": true,
+  "origin": "ai_generated",
+  "providerCalls": {
+    "image": 1,
+    "video": 1
+  },
+  "model": "veo-3.1-fast-generate-preview",
+  "resolution": "1920x1080",
+  "encoding": {
+    "video": "h264",
+    "gop": 1,
+    "audio": false
+  },
+  "assets": {
+    "poster": "/cases/demos/woldam/poster.webp",
+    "video": "/cases/demos/woldam/hero.mp4",
+    "posterBytes": 38662,
+    "videoBytes": 6563782,
+    "posterSha256": "eab86dd4b9b1900cc3bf0a5c1ada1f182768fc64408f749b4b034de965e86b45",
+    "videoSha256": "ae92cd2784db35f2ed891292832678eee53c43611194810f5a1238f210bf3898"
+  },
+  "estimatedChargedUsd": 0.999
+}
