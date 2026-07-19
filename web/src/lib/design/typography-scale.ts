@@ -32,6 +32,36 @@ export const DABOIM_TYPOGRAPHY = {
 export type MarketingTypographyRole = keyof typeof DABOIM_TYPOGRAPHY.marketing;
 export type GeneratedTypographyRole = keyof typeof DABOIM_TYPOGRAPHY.generatedSite;
 
+export type TextFlowKind = 'heading' | 'body';
+
+/**
+ * Korean line-breaking contract shared by the production renderer and editor mirror.
+ * `anywhere` is only the emergency fallback for an unbroken URL/Latin token; ordinary
+ * Korean still wraps between words because `keep-all` remains authoritative.
+ */
+export const DABOIM_TEXT_FLOW = {
+  heading: {
+    wordBreak: 'keep-all',
+    overflowWrap: 'anywhere',
+    textWrap: 'balance',
+  },
+  body: {
+    wordBreak: 'keep-all',
+    overflowWrap: 'anywhere',
+    textWrap: 'pretty',
+  },
+} as const satisfies Record<
+  TextFlowKind,
+  Pick<CSSProperties, 'wordBreak' | 'overflowWrap' | 'textWrap'>
+>;
+
+export function textFlowFor(fontFamily?: 'heading' | 'body'): Pick<
+  CSSProperties,
+  'wordBreak' | 'overflowWrap' | 'textWrap'
+> {
+  return { ...DABOIM_TEXT_FLOW[fontFamily === 'heading' ? 'heading' : 'body'] };
+}
+
 export interface GeneratedTextRoleRule {
   fragments: readonly string[];
   role: GeneratedTypographyRole;

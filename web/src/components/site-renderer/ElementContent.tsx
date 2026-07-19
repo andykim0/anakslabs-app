@@ -26,7 +26,7 @@ import type {
 } from '@/lib/types/site';
 import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
 import { resolveSolidButton } from '@/lib/design/button-contrast';
-import { resolveRenderedSiteTypography } from '@/lib/design/typography-scale';
+import { resolveRenderedSiteTypography, textFlowFor } from '@/lib/design/typography-scale';
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 import { storyWordWindow } from '@/lib/motion/progress';
@@ -126,8 +126,7 @@ function TextContent({
     letterSpacing: s.letterSpacing != null ? len(s.letterSpacing, variant) : undefined,
     fontStyle: s.italic ? 'italic' : undefined,
     whiteSpace: 'pre-wrap', // \n 줄바꿈 반영
-    wordBreak: 'keep-all', // 한국어 어절 단위 줄바꿈
-    overflowWrap: 'break-word',
+    ...textFlowFor(s.fontFamily),
   };
 
   // [motion 3단계] split-text: 단어 단위 span 분할(렌더 시점 마크업 — 런타임 DOM 재작성 없음).

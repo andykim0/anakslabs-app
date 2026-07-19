@@ -30,6 +30,7 @@ import type {
   VideoElement,
 } from '@/lib/types/site';
 import { safeMapEmbedUrl } from '@/lib/safe-url';
+import { textFlowFor } from '@/lib/design/typography-scale';
 import { useEditorStore, activeSections} from '@/stores/editor';
 import {
   clampFrameToPage,
@@ -349,7 +350,7 @@ function InlineTextEditor({
         letterSpacing: s.letterSpacing != null ? s.letterSpacing * scale : undefined,
         caretColor: s.color ?? theme.palette.text,
         whiteSpace: 'pre-wrap',
-        wordBreak: 'keep-all',
+        ...textFlowFor(s.fontFamily),
       }}
     />
   );
@@ -546,8 +547,7 @@ function TextBody({ el, theme, scale }: { el: TextElement; theme: SiteTheme; sca
         lineHeight: s.lineHeight ?? 1.45,
         letterSpacing: s.letterSpacing != null ? s.letterSpacing * scale : undefined,
         whiteSpace: 'pre-wrap',
-        wordBreak: 'keep-all',
-        overflowWrap: 'break-word',
+        ...textFlowFor(s.fontFamily),
       }}
     >
       {el.text}

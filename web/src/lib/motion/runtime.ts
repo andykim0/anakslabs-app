@@ -72,8 +72,14 @@ export const MOTION_CSS = `
   padding: clamp(48px, 8vw, 120px); color: var(--ss-stack-text); background: var(--ss-stack-bg);
 }
 .anaks-site [data-ss-copy] { width: min(820px, 100%); margin: 0 auto; }
-.anaks-site [data-ss-heading] { margin: 0; font-family: var(--ss-heading-font); font-size: clamp(2rem, 5vw, 5rem); line-height: 1.12; }
-.anaks-site [data-ss-body] { margin: 24px 0 0; max-width: 680px; font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1.75; }
+.anaks-site [data-ss-heading] {
+  margin: 0; font-family: var(--ss-heading-font); font-size: clamp(2rem, 5vw, 5rem); line-height: 1.12;
+  word-break: keep-all; overflow-wrap: anywhere; text-wrap: balance;
+}
+.anaks-site [data-ss-body] {
+  margin: 24px 0 0; max-width: 680px; font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1.75;
+  word-break: keep-all; overflow-wrap: anywhere; text-wrap: pretty;
+}
 .anaks-site [data-ss-word] { display: inline-block; white-space: pre; }
 .anaks-site.m-scrollytelling-ready [data-ss-stage] { height: var(--ss-scroll-height); }
 .anaks-site.m-scrollytelling-ready [data-ss-pin] { position: sticky; top: 0; height: 100svh; overflow: hidden; }

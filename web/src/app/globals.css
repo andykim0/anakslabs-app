@@ -81,4 +81,25 @@ body {
 .daboim-marketing .mkt-type-control {
   font-size: var(--mkt-type-control-size);
   line-height: var(--mkt-type-control-leading);
+  white-space: nowrap;
+}
+
+.daboim-marketing .mkt-type-control > svg {
+  flex: 0 0 auto;
+}
+
+.daboim-marketing .mkt-type-hero,
+.daboim-marketing .mkt-type-page-title,
+.daboim-marketing .mkt-type-section-title,
+.daboim-marketing .mkt-type-card-title {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.daboim-marketing .mkt-type-body,
+.daboim-marketing .mkt-type-support {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+  word-break: keep-all;
 }

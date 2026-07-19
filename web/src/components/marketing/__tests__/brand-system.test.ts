@@ -36,7 +36,7 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
 
   test('스크롤 진단 CTA는 예약 폭 안에서만 나타나 헤더 CLS를 만들지 않는다', () => {
     const header = read('src/components/marketing/MarketingHeader.tsx');
-    assert.match(header, /w-\[88px\] shrink-0/);
+    assert.match(header, /w-\[100px\] shrink-0/);
     assert.match(header, /aria-hidden=\{!showScannerCta\}/);
     assert.match(header, /tabIndex=\{showScannerCta \? undefined : -1\}/);
     assert.doesNotMatch(header, /AnimatePresence/, 'CTA DOM 삽입으로 로그인 버튼을 밀면 안 됨');

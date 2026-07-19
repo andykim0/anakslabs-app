@@ -62,7 +62,7 @@ export function MarketingHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           {/* CTA가 나타날 때 로그인 버튼이 밀려 CLS가 생기지 않도록 폭을 항상 예약한다. */}
-          <div className="w-[88px] shrink-0">
+          <div className="w-[100px] shrink-0">
             <Link
               href="/#hero-scanner"
               aria-hidden={!showScannerCta}

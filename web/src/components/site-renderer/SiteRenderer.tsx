@@ -42,7 +42,10 @@ const BASE_CSS = `
 .anaks-site, .anaks-site *, .anaks-site *::before, .anaks-site *::after { box-sizing: border-box; }
 .anaks-site { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 .anaks-site a { -webkit-tap-highlight-color: transparent; }
-.anaks-btn { transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease; }
+.anaks-btn {
+  white-space: nowrap;
+  transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+}
 .anaks-btn:hover { transform: translateY(-2px); opacity: 0.92; }
 .anaks-btn[data-variant="solid"]:hover { box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.45); }
 .anaks-btn[data-variant="ghost"]:hover { text-decoration: underline; }
