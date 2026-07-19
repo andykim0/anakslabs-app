@@ -22,6 +22,7 @@ import {
 } from '@/lib/pricing';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
+import { LandingStoryContinuation } from '@/components/marketing/LandingStoryContinuation';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
@@ -178,8 +179,10 @@ export default function MarketingHome() {
       {/* 무료 진단 prelude에서 실제 4막 매니페스토 무대로 이어지는 단일 공용 motion runtime. */}
       <LandingCinematicShowcase />
 
+      <LandingStoryContinuation>
+
       {/* 범용 AI 제작이 아니라 홈페이지 전문 최적화 AI라는 카테고리 정의 */}
-      <section className="overflow-hidden bg-[#F8FBFF]">
+      <section data-story-chapter="01" className="overflow-hidden bg-[#F8FBFF]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
             <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
@@ -197,7 +200,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 세 최적화 엔진 */}
-      <section className="border-y border-[#DCE4F0] bg-white">
+      <section data-story-chapter="02" className="border-y border-[#DCE4F0] bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -233,7 +236,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 범용 빌더·대행사와의 공정한 비교 */}
-      <section className="border-y border-[#DCE4F0] bg-[#EEF5FF] text-[#0B1736]">
+      <section data-story-chapter="03" className="border-y border-[#DCE4F0] bg-[#EEF5FF] text-[#0B1736]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
             <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
@@ -269,7 +272,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 에이전시 품질을 제품 흐름으로 */}
-      <section className="bg-[#F8FBFF]">
+      <section data-story-chapter="04" className="bg-[#F8FBFF]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -321,7 +324,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 업종 시스템 + 모션 제품 시연 */}
-      <section className="border-y border-[#DCE4F0] bg-white">
+      <section data-story-chapter="05" className="border-y border-[#DCE4F0] bg-white">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-2">
           <FadeIn>
             <div className="flex min-h-[340px] items-center justify-center rounded-[28px] border border-[#DCE4F0] bg-[#F8FBFF] p-10">
@@ -338,7 +341,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 단일 제품 가격 */}
-      <section className="border-y border-[#DCE4F0] bg-[#F8FBFF]">
+      <section data-story-chapter="06" className="border-y border-[#DCE4F0] bg-[#F8FBFF]">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.82fr_1.18fr] lg:items-center">
           <FadeIn>
             <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
@@ -370,7 +373,7 @@ export default function MarketingHome() {
       </section>
 
       {/* AEO용 실제 질문·답변 */}
-      <section className="bg-white">
+      <section data-story-chapter="07" className="bg-white">
         <div className="mx-auto max-w-5xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
             <div className="text-center">
@@ -383,7 +386,7 @@ export default function MarketingHome() {
       </section>
 
       {/* 최종 CTA */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] text-white">
+      <section data-story-chapter="08" className="relative overflow-hidden bg-[linear-gradient(115deg,#174DDA_0%,#08AFC5_45%,#03BFA9_70%,#0B1736_100%)] text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,.2),transparent_30%),linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px]" />
         <div className="relative mx-auto max-w-5xl px-5 py-20 text-center sm:px-8 md:py-28">
           <FadeIn>
@@ -394,6 +397,7 @@ export default function MarketingHome() {
           </FadeIn>
         </div>
       </section>
+      </LandingStoryContinuation>
     </>
   );
 }

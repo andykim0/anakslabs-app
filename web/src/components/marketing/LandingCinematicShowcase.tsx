@@ -1,4 +1,5 @@
-import { MousePointer2 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, MousePointer2 } from 'lucide-react';
 import type { ScrollytellingManifestoScene, SiteTheme } from '@/lib/types/site';
 import {
   resolveMotionArtDirectionProfile,
@@ -216,9 +217,13 @@ export function LandingCinematicShowcase() {
 
       <div className="relative bg-[#07142F] px-5 pt-12 text-white sm:px-8 md:pt-16">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 pb-8">
-          <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">
-            예시 · AI 영상 홈페이지 적용 시
-          </p>
+          <Link
+            href="/cases"
+            className="mkt-type-eyebrow group inline-flex items-center gap-2 rounded-full border border-[#68E8D8]/35 bg-[#68E8D8]/10 px-3.5 py-2 font-mono tracking-[0.12em] text-[#68E8D8] uppercase transition-colors hover:bg-[#68E8D8]/16"
+          >
+            예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
           <p className="mkt-type-support inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono tracking-[0.11em] text-white/80">
             <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> 컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복
           </p>
