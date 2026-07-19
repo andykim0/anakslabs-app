@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-07-19",
+  "fictionalDemo": true,
+  "providerCalls": {
+    "image": 2,
+    "video": 2,
+    "retries": 0
+  },
+  "estimatedChargedUsd": 1.998,
+  "assets": {
+    "woldam": {
+      "resolution": "1920x1080",
+      "durationSeconds": 8,
+      "videoCodec": "h264",
+      "frames": 192,
+      "keyframes": 192,
+      "audioStreams": 0,
+      "posterBytes": 38662,
+      "videoBytes": 6563782,
+      "posterSha256": "eab86dd4b9b1900cc3bf0a5c1ada1f182768fc64408f749b4b034de965e86b45",
+      "videoSha256": "ae92cd2784db35f2ed891292832678eee53c43611194810f5a1238f210bf3898"
+    },
+    "yeobaek-workshop": {
+      "resolution": "1920x1080",
+      "durationSeconds": 8,
+      "videoCodec": "h264",
+      "frames": 192,
+      "keyframes": 192,
+      "audioStreams": 0,
+      "posterBytes": 297964,
+      "videoBytes": 6625470,
+      "posterSha256": "22ef284a8cd62ca53db7d939ae830fbdd0efc215f2c96713dcd421c5434ee44a",
+      "videoSha256": "1eb6cc280793a4352d198e13bc5d1b5468bb6822d644424b97d359193521cc1b"
+    }
+  }
+}

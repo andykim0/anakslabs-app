@@ -289,6 +289,41 @@ export interface BuiltFictionalDemo {
   assets: FictionalDemoAssetManifest;
 }
 
+/**
+ * Marketing demo routes live below `/cases/demo/:slug`, while a generated tenant stores
+ * ordinary root-relative links such as `/about#sec-about`. Keep the persisted production
+ * meaning intact and adapt only the temporary preview projection. External URLs and hash-only
+ * anchors are never rewritten.
+ */
+export function configForFictionalDemoPreview(demo: BuiltFictionalDemo): SiteConfig {
+  const knownPaths = new Set(demo.config.pages.map((page) => page.slug ? `/${page.slug}` : '/'));
+  const prefix = `/cases/demo/${demo.slug}`;
+  const previewHref = (href: string): string => {
+    if (!href.startsWith('/') || href.startsWith('//')) return href;
+    const match = /^(\/[^?#]*)([?#].*)?$/u.exec(href);
+    if (!match || !knownPaths.has(match[1] || '/')) return href;
+    const pathname = match[1] === '/' ? '' : match[1];
+    return `${prefix}${pathname}${match[2] ?? ''}`;
+  };
+
+  return {
+    ...demo.config,
+    pages: demo.config.pages.map((page) => ({
+      ...page,
+      sections: page.sections.map((section) => ({
+        ...section,
+        elements: section.elements.map((element) => element.kind === 'button'
+          ? { ...element, href: previewHref(element.href) }
+          : element),
+      })),
+    })),
+  };
+}
+
+export function fictionalDemoHref(slug: FictionalDemoSlug, pageSlug = ''): string {
+  return `/cases/demo/${slug}${pageSlug ? `/${pageSlug}` : ''}`;
+}
+
 /** Build through the production deterministic path; never invokes an AI/provider adapter. */
 export function buildFictionalDemo(slug: FictionalDemoSlug): BuiltFictionalDemo {
   const profile = FICTIONAL_DEMO_PROFILES[slug];

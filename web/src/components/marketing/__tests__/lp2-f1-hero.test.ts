@@ -33,6 +33,20 @@ describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
     assert.match(source, /onPlaying=\{\(\) => setPlaying\(true\)\}/);
     assert.match(source, /onError=\{\(\) => \{[\s\S]*setFailed\(true\)/);
     assert.match(source, /isDesktop && !reduce && !failed/);
+    assert.match(source, /useFailClosedReducedMotion/);
+    const reducedSource = read('src/components/marketing/use-fail-closed-reduced-motion.ts');
+    assert.match(reducedSource, /useState\(true\)/,
+      'SSR와 첫 hydration render는 정적으로 fail-closed 해야 함');
+    assert.match(reducedSource, /useEffect\([\s\S]*window\.matchMedia[\s\S]*setReduce\(query\.matches\)/,
+      '실제 모션 허용은 mount 뒤 브라우저 preference를 읽은 후에만 가능해야 함');
     assert.doesNotMatch(source, /preload="auto"/);
+  });
+
+  test('무료 진단 CTA의 조건부 빛 스윕도 SSR·reduced hydration에서 fail-closed 한다', () => {
+    const scanner = read('src/components/landing/LandingScanner.tsx');
+    assert.match(scanner, /useFailClosedReducedMotion\(\)/);
+    assert.doesNotMatch(scanner, /useReducedMotion/,
+      '서버 false·브라우저 true로 갈리는 hook이 조건부 DOM을 바꾸면 hydration이 깨짐');
+    assert.match(scanner, /!reduce && !url && !scanning/);
   });
 });

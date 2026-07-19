@@ -11,8 +11,9 @@
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Check, Search, Sparkles } from 'lucide-react';
+import { useFailClosedReducedMotion } from './use-fail-closed-reduced-motion';
 
 const SIGNALS = [
   { label: 'SEO', sub: '검색 구조' },
@@ -34,7 +35,7 @@ const getDesktopServerSnapshot = () => false;
 export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film' | 'poster' }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reduce = useReducedMotion() ?? false;
+  const reduce = useFailClosedReducedMotion();
   const [nearViewport, setNearViewport] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);

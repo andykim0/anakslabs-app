@@ -10,11 +10,12 @@
  */
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Check, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { guidanceFor } from '@/lib/scan/guidance';
 import { OptimizationConsole } from '@/components/marketing/OptimizationConsole';
+import { useFailClosedReducedMotion } from '@/components/marketing/use-fail-closed-reduced-motion';
 
 const SCAN_MESSAGES = [
   '홈페이지를 여는 중…',
@@ -204,7 +205,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
   const [msgIdx, setMsgIdx] = useState(0);
   const [scan, setScan] = useState<ScanResult | null>(null);
   const [error, setError] = useState('');
-  const reduce = useReducedMotion() ?? false;
+  const reduce = useFailClosedReducedMotion();
   const [phIdx, setPhIdx] = useState(0);
   // 하이드레이션 후에만 로테이션 오버레이 사용 — SSR/no-JS는 native placeholder(가시)로 LCP 보호
   const mounted = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerSnapshot);

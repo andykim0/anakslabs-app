@@ -15,7 +15,15 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  closeSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { generateVeoVideoBytes } from '@/lib/ai/veo-video';
@@ -161,20 +169,33 @@ function writeReceipt(profile: DemoProfile, receipt: PaidReceipt): void {
 }
 
 function beginPaidCall(profile: DemoProfile, kind: 'image' | 'video', unitUsd: number): PaidReceipt {
-  const receipt = readReceipt(profile);
-  if (receipt[kind].status !== 'not-attempted') {
-    throw new Error(
-      `PAID_ATTEMPT_ALREADY_CONSUMED: ${profile.id} ${kind}는 이미 ${receipt[kind].status} 상태입니다. ` +
-      '재시도는 새로 승인된 profile version에서만 가능합니다.',
-    );
+  mkdirSync(RECEIPT_DIR, { recursive: true });
+  const lockPath = `${receiptPath(profile)}.${kind}.lock`;
+  let lock: number;
+  try {
+    lock = openSync(lockPath, 'wx');
+  } catch {
+    throw new Error(`PAID_ATTEMPT_IN_PROGRESS: ${profile.id} ${kind} 유료 호출 잠금이 이미 존재합니다.`);
   }
-  const next: PaidReceipt = {
-    ...receipt,
-    [kind]: { status: 'started', attemptedAt: new Date().toISOString() },
-    estimatedChargedUsd: Number((receipt.estimatedChargedUsd + unitUsd).toFixed(3)),
-  };
-  writeReceipt(profile, next);
-  return next;
+  try {
+    const receipt = readReceipt(profile);
+    if (receipt[kind].status !== 'not-attempted') {
+      throw new Error(
+        `PAID_ATTEMPT_ALREADY_CONSUMED: ${profile.id} ${kind}는 이미 ${receipt[kind].status} 상태입니다. ` +
+        '재시도는 새로 승인된 profile version에서만 가능합니다.',
+      );
+    }
+    const next: PaidReceipt = {
+      ...receipt,
+      [kind]: { status: 'started', attemptedAt: new Date().toISOString() },
+      estimatedChargedUsd: Number((receipt.estimatedChargedUsd + unitUsd).toFixed(3)),
+    };
+    writeReceipt(profile, next);
+    return next;
+  } finally {
+    closeSync(lock);
+    unlinkSync(lockPath);
+  }
 }
 
 function finishPaidCall(
@@ -238,6 +259,14 @@ async function main(): Promise<void> {
 
   const outDir = join(PUBLIC_DIR, profile.id);
   const workDir = join(RECEIPT_DIR, `${profile.id}-work`);
+  const posterPath = join(outDir, 'poster.webp');
+  const videoPath = join(outDir, 'hero.mp4');
+  if (!flag('replace-existing-assets') && (existsSync(posterPath) || existsSync(videoPath))) {
+    throw new Error(
+      `PUBLIC_ASSET_ALREADY_EXISTS: ${profile.id} 자산이 이미 있습니다. ` +
+      '새 승인·새 profile version 없이 유료 생성을 반복하지 않습니다.',
+    );
+  }
   mkdirSync(outDir, { recursive: true });
   mkdirSync(workDir, { recursive: true });
 
@@ -254,7 +283,6 @@ async function main(): Promise<void> {
   const rawImagePath = join(workDir, `source${rawExtension(image.mimeType)}`);
   const rawImageBytes = Buffer.from(image.base64, 'base64');
   writeFileSync(rawImagePath, rawImageBytes);
-  const posterPath = join(outDir, 'poster.webp');
   runFfmpeg([
     '-i', rawImagePath,
     '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2',
@@ -278,7 +306,6 @@ async function main(): Promise<void> {
 
   const rawVideoPath = join(workDir, `source${rawExtension(video.mimeType)}`);
   writeFileSync(rawVideoPath, video.bytes);
-  const videoPath = join(outDir, 'hero.mp4');
   runFfmpeg([
     '-i', rawVideoPath,
     '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2',
@@ -313,7 +340,9 @@ async function main(): Promise<void> {
     },
     estimatedChargedUsd: receipt.estimatedChargedUsd,
   };
-  writeFileSync(join(outDir, 'generation.json'), `${JSON.stringify(summary, null, 2)}\n`);
+  // Operational receipt stays outside `public/`; customer-facing static assets never expose
+  // provider/model identifiers. `scripts/out` is gitignored and server-only by convention.
+  writeFileSync(join(RECEIPT_DIR, `${profile.id}-generation.json`), `${JSON.stringify(summary, null, 2)}\n`);
   console.log(`[lp2-demo] DONE ${JSON.stringify(summary)}`);
 }
 

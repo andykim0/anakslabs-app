@@ -3,17 +3,21 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
-import { SiteRenderer } from '@/components/site-renderer';
+import { SiteRenderer, TenantPageContent } from '@/components/site-renderer';
+import { buildDocumentShell } from '@/lib/export/document-shell';
 import { CASES } from '@/lib/marketing/cases';
+import { auditPublishArtifacts } from '@/lib/publish/artifact-audit';
 import {
   FICTIONAL_DEMO_ASSETS,
   FICTIONAL_DEMO_LABEL,
   FICTIONAL_DEMO_PROFILES,
   FICTIONAL_DEMO_SLUGS,
   buildFictionalDemo,
+  configForFictionalDemoPreview,
+  fictionalDemoHref,
 } from '@/lib/marketing/fictional-demo-sites';
 
 const root = process.cwd();
@@ -87,6 +91,7 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
       assert.ok(html.includes(demo.assets.poster.publicPath));
       assert.ok(html.includes(demo.assets.video.publicPath));
       assert.match(html, /preload="none"/);
+      assert.equal((html.match(/<link[^>]+rel="preload"[^>]+as="image"/g) ?? []).length, 1);
       if (profile.signatureId === 'scrollytelling-manifesto') {
         const scene = demo.config.motion?.signatures?.[0];
         assert.equal(scene?.signatureId, 'scrollytelling-manifesto');
@@ -98,6 +103,50 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
           }
         }
       }
+    }
+  });
+
+  test('정적 발행 셸·publish audit도 모든 데모 페이지에서 blocker 없이 통과한다', () => {
+    for (const slug of FICTIONAL_DEMO_SLUGS) {
+      const demo = buildFictionalDemo(slug);
+      const renderedPages = demo.config.pages.map((page) => {
+        const bodyHtml = renderToStaticMarkup(createElement(TenantPageContent, {
+          config: demo.config,
+          pageSlug: page.slug,
+          tier: 'premium',
+          interactive: true,
+          animate: true,
+        }));
+        return {
+          pageSlug: page.slug,
+          html: buildDocumentShell({
+            config: demo.config,
+            pageSlug: page.slug,
+            headerHtml: '',
+            bodyHtml,
+            siteUrl: `https://${slug}.example.test`,
+          }),
+        };
+      });
+      assert.deepEqual(auditPublishArtifacts(demo.config, 'premium', renderedPages).blockers, []);
+      assert.match(renderedPages[0]!.html, /<link rel="preload" as="image"[^>]+fetchpriority="high">/);
+      assert.match(renderedPages[0]!.html, /<video[^>]+preload="none"/);
+    }
+  });
+
+  test('마케팅 preview adapter만 내부 링크를 데모 하위 route로 바꾸고 production config는 보존한다', () => {
+    for (const slug of FICTIONAL_DEMO_SLUGS) {
+      const demo = buildFictionalDemo(slug);
+      const original = JSON.stringify(demo.config);
+      const preview = configForFictionalDemoPreview(demo);
+      const previewButtons = preview.pages.flatMap((page) => page.sections.flatMap((section) =>
+        section.elements.filter((element) => element.kind === 'button')));
+      assert.ok(previewButtons.some((button) => button.kind === 'button' &&
+        button.href === `${fictionalDemoHref(slug, 'about')}#sec-about`));
+      assert.ok(previewButtons.some((button) => button.kind === 'button' &&
+        button.href === fictionalDemoHref(slug, 'contact')));
+      assert.equal(JSON.stringify(demo.config), original, '저장용 config 링크 의미를 바꾸면 안 된다');
+      assert.equal(siteConfigSchema.safeParse(preview).success, true);
     }
   });
 
@@ -116,11 +165,15 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
     }
 
     const cardSource = read('src/components/marketing/CaseCard.tsx');
-    const routeSource = read('src/app/(marketing)/cases/demo/[slug]/page.tsx');
+    const routeSource = read('src/app/(marketing)/cases/demo/[slug]/_shared.tsx');
+    const subpageSource = read('src/app/(marketing)/cases/demo/[slug]/[...path]/page.tsx');
     assert.match(cardSource, /item\.demoLabel \?\? '데모 사례'/);
     assert.match(cardSource, /href=\{item\.previewUrl\}/);
     assert.match(routeSource, /<SiteRenderer/);
+    assert.match(routeSource, /interactive[\s\S]*animate/);
+    assert.match(routeSource, /<TenantHeader/);
     assert.match(routeSource, /robots: \{ index: false, follow: false \}/);
+    assert.match(subpageSource, /generateStaticParams/);
   });
 
   test('빌더에는 provider 호출·외부 생성 경로가 없다', () => {
@@ -141,6 +194,8 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
     assert.equal((source.match(/await generateGeminiImage\(/g) ?? []).length, 1);
     assert.equal((source.match(/await generateVeoVideoBytes\(/g) ?? []).length, 1);
     assert.match(source, /if \(receipt\[kind\]\.status !== 'not-attempted'\)/);
+    assert.match(source, /openSync\(lockPath, 'wx'\)/);
+    assert.match(source, /PUBLIC_ASSET_ALREADY_EXISTS/);
     assert.match(source, /beginPaidCall\(profile, 'image'[^]*await generateGeminiImage/);
     assert.match(source, /beginPaidCall\(profile, 'video'[^]*await generateVeoVideoBytes/);
     assert.doesNotMatch(source, /for \([^)]*(?:retry|attempt)|while \([^)]*(?:retry|attempt)/i);
@@ -148,28 +203,43 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
     assert.match(source, /'-an'/);
     assert.match(source, /VIDEO_HARD_MAX_BYTES/);
 
-    let total = 0;
+    assert.doesNotMatch(source, /join\(outDir, 'generation\.json'\)/);
     for (const slug of FICTIONAL_DEMO_SLUGS) {
-      const generation = JSON.parse(
-        read(`public/cases/demos/${slug}/generation.json`),
-      ) as {
-        providerCalls: { image: number; video: number };
-        estimatedChargedUsd: number;
-        origin: string;
-        resolution: string;
-        encoding: { video: string; gop: number; audio: boolean };
-        assets: { posterSha256: string; videoSha256: string };
-      };
-      assert.deepEqual(generation.providerCalls, { image: 1, video: 1 });
-      assert.equal(generation.origin, 'ai_generated');
-      assert.equal(generation.resolution, '1920x1080');
-      assert.deepEqual(generation.encoding, { video: 'h264', gop: 1, audio: false });
-      assert.equal(generation.assets.posterSha256, FICTIONAL_DEMO_ASSETS[slug].poster.sha256);
-      assert.equal(generation.assets.videoSha256, FICTIONAL_DEMO_ASSETS[slug].video.sha256);
-      assert.equal(generation.estimatedChargedUsd, 0.999);
-      total += generation.estimatedChargedUsd;
+      assert.equal(
+        existsSync(join(root, `public/cases/demos/${slug}/generation.json`)),
+        false,
+        `${slug}: 내부 provider 영수증은 public 자산이 아니어야 함`,
+      );
     }
-    assert.equal(total, 1.998);
-    assert.ok(total <= 5);
+    const manifest = JSON.parse(read('scripts/lp2-demo-generation-manifest.json')) as {
+      providerCalls: { image: number; video: number; retries: number };
+      estimatedChargedUsd: number;
+      assets: Record<string, {
+        resolution: string;
+        durationSeconds: number;
+        videoCodec: string;
+        frames: number;
+        keyframes: number;
+        audioStreams: number;
+        posterSha256: string;
+        videoSha256: string;
+      }>;
+    };
+    assert.deepEqual(manifest.providerCalls, { image: 2, video: 2, retries: 0 });
+    assert.equal(manifest.estimatedChargedUsd, 1.998);
+
+    for (const slug of FICTIONAL_DEMO_SLUGS) {
+      const generation = manifest.assets[slug];
+      assert.ok(generation);
+      assert.equal(generation.resolution, '1920x1080');
+      assert.equal(generation.durationSeconds, 8);
+      assert.equal(generation.videoCodec, 'h264');
+      assert.equal(generation.frames, 192);
+      assert.equal(generation.keyframes, 192);
+      assert.equal(generation.audioStreams, 0);
+      assert.equal(generation.posterSha256, FICTIONAL_DEMO_ASSETS[slug].poster.sha256);
+      assert.equal(generation.videoSha256, FICTIONAL_DEMO_ASSETS[slug].video.sha256);
+    }
+    assert.ok(manifest.estimatedChargedUsd <= 5);
   });
 });

@@ -9,7 +9,8 @@
  * Daboim 1080p MP4/WebM과 정적 WebP 포스터를 공용으로 사용한다.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useFailClosedReducedMotion } from './use-fail-closed-reduced-motion';
 
 const POSTER_GRADIENT =
   'bg-[radial-gradient(circle_at_72%_28%,rgba(8,184,232,.2),transparent_28%),radial-gradient(circle_at_20%_82%,rgba(3,209,184,.12),transparent_32%),#F8FBFF]';
@@ -28,7 +29,7 @@ const getDesktopServerSnapshot = () => false;
 export function PreviewVideo({ mode, className }: { mode: 'inview' | 'hover'; className?: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reduce = useReducedMotion() ?? false;
+  const reduce = useFailClosedReducedMotion();
   const [failed, setFailed] = useState(false);
   const isDesktop = useSyncExternalStore(
     subscribeToDesktopQuery,

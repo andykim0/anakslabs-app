@@ -96,7 +96,10 @@ export function googleFontUrls(families: string[] | undefined): string[] {
     if (seen.has(key)) continue;
     seen.add(key);
     urls.push(
-      `https://fonts.googleapis.com/css2?family=${encodeFamily(family)}:wght@${weightsFor(family)}&display=swap`,
+      // CWV first: a cold font response must not replace laid-out fallback glyphs and create CLS.
+      // Cached/fast responses still win the short optional block period; slow responses wait for
+      // the next navigation instead of shifting live Korean copy.
+      `https://fonts.googleapis.com/css2?family=${encodeFamily(family)}:wght@${weightsFor(family)}&display=optional`,
     );
   }
   return urls;
