@@ -8,8 +8,10 @@ import { ElementContent } from '@/components/site-renderer/ElementContent';
 import { emptySiteConfig, type TextElement } from '@/lib/types/site';
 import {
   DABOIM_TYPOGRAPHY,
+  DABOIM_TYPOGRAPHY_HIERARCHY,
   GENERATED_TEXT_ROLE_RULES,
   generatedType,
+  isGeneratedSectionTitleId,
   resolveRenderedSiteTypography,
 } from '@/lib/design/typography-scale';
 
@@ -87,6 +89,75 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
       variant: 'stack',
       frameHeight: 24,
     }), { fontSize: 20, lineHeight: 1.3 });
+  });
+
+  test('exact section-title ID만 flow stack에서 30px급으로 승격하고 canvas 저장값은 보존한다', () => {
+    const frame = { x: 116, y: 100, w: 820, h: 42 };
+    const semanticTitle = textElement(22, 1.25, {
+      id: 'el-about-title-42',
+      frameHeight: frame.h,
+    });
+    semanticTitle.style.fontFamily = 'heading';
+    semanticTitle.frame = { ...frame };
+
+    assert.equal(isGeneratedSectionTitleId(semanticTitle.id), true);
+    assert.deepEqual(resolveRenderedSiteTypography({
+      elementId: semanticTitle.id,
+      style: semanticTitle.style,
+      variant: 'canvas',
+      frameHeight: semanticTitle.frame.h,
+    }), { fontSize: 22, lineHeight: 1.25 });
+    assert.deepEqual(resolveRenderedSiteTypography({
+      elementId: semanticTitle.id,
+      style: semanticTitle.style,
+      variant: 'stack',
+      frameHeight: semanticTitle.frame.h,
+    }), generatedType('sectionTitle'));
+
+    const canvas = renderToStaticMarkup(createElement(ElementContent, {
+      element: semanticTitle, theme, variant: 'canvas',
+    }));
+    const stack = renderToStaticMarkup(createElement(ElementContent, {
+      element: semanticTitle, theme, variant: 'stack',
+    }));
+    assert.match(canvas, /font-size:1\.5278cqw/);
+    assert.match(stack, /font-size:30px/);
+    assert.deepEqual(semanticTitle.frame, frame, 'renderer must not mutate persisted geometry');
+    assert.ok(
+      DABOIM_TYPOGRAPHY.generatedSite.sectionTitle.fontSize
+        / DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx
+        >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.sectionTitleMinRatioToBody,
+    );
+  });
+
+  test('team-title·case-title와 unknown *-title은 section heading으로 오분류하지 않는다', () => {
+    for (const id of [
+      'el-team-title-12',
+      'el-case-title-13',
+      'el-feat-title-14',
+      'el-teaser-title-15',
+      'legacy-section-title',
+      'customer-title-99',
+    ]) {
+      assert.equal(isGeneratedSectionTitleId(id), false, id);
+    }
+
+    const unknown = resolveRenderedSiteTypography({
+      elementId: 'legacy-section-title',
+      style: { fontSize: 21, lineHeight: 1.25, fontFamily: 'heading' },
+      variant: 'stack',
+      frameHeight: 34,
+    });
+    assert.deepEqual(unknown, { fontSize: 21, lineHeight: 1.25 });
+
+    const team = resolveRenderedSiteTypography({
+      elementId: 'el-team-title-12',
+      style: { fontSize: 14, lineHeight: 1.45, fontFamily: 'body' },
+      variant: 'stack',
+      frameHeight: 24,
+    });
+    assert.equal(team.fontSize, DABOIM_TYPOGRAPHY.generatedSite.support.fontSize);
+    assert.notEqual(team.fontSize, DABOIM_TYPOGRAPHY.generatedSite.sectionTitle.fontSize);
   });
 
   test('레거시 canvas는 확대된 행 상자를 담지 못하면 저장값을 보존한다', () => {

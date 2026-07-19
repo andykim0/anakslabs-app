@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import {
   DABOIM_TYPOGRAPHY,
+  DABOIM_TYPOGRAPHY_HIERARCHY,
   MARKETING_TYPOGRAPHY_VARS,
 } from '@/lib/design/typography-scale';
 
@@ -14,6 +15,7 @@ const ROLE_NAMES = [
   'page-title',
   'section-title',
   'card-title',
+  'table-title',
   'body',
   'support',
   'eyebrow',
@@ -59,6 +61,27 @@ describe('LP$ L3 공개 마케팅 타이포 계약', () => {
     }
   });
 
+  test('section title은 body의 1.5배 이상이고 card/table title은 body보다 두 type steps 이상 크다', () => {
+    const hierarchy = DABOIM_TYPOGRAPHY_HIERARCHY.marketing;
+    assert.equal(hierarchy.bodyMinPx, 16, '본문을 줄여 위계를 만드는 회귀 금지');
+    assert.equal(hierarchy.bodyMaxPx, 18, '본문 상한은 기존 18px 가독성을 유지한다');
+    assert.ok(
+      hierarchy.sectionTitleMinPx / hierarchy.bodyMaxPx
+        >= hierarchy.sectionTitleMinRatioToBody,
+    );
+    assert.ok(
+      (hierarchy.cardAndTableTitleMinPx - hierarchy.bodyMaxPx) / hierarchy.typeStepPx
+        >= hierarchy.cardAndTableTitleMinStepsAboveBody,
+    );
+    assert.equal(
+      DABOIM_TYPOGRAPHY.marketing.cardTitle.fontSize,
+      DABOIM_TYPOGRAPHY.marketing.tableTitle.fontSize,
+    );
+    assert.match(DABOIM_TYPOGRAPHY.marketing.body.fontSize, /^clamp\(1rem,/u);
+    assert.match(DABOIM_TYPOGRAPHY.marketing.cardTitle.fontSize, /^clamp\(1\.375rem,/u);
+    assert.match(DABOIM_TYPOGRAPHY.marketing.sectionTitle.fontSize, /^clamp\(2\.25rem,/u);
+  });
+
   test('공개 페이지 제목·본문과 공유 컴포넌트가 의미 역할을 사용한다', () => {
     const pagePaths = [
       'src/app/(marketing)/about/page.tsx',
@@ -78,6 +101,7 @@ describe('LP$ L3 공개 마케팅 타이포 계약', () => {
     const home = source('src/app/(marketing)/page.tsx');
     assert.match(home, /mkt-type-section-title/);
     assert.match(home, /mkt-type-body/);
+    assert.match(home, /mkt-type-table-title/);
     assert.match(source('src/components/marketing/ui.tsx'), /mkt-type-control/);
     assert.match(source('src/components/marketing/Faq.tsx'), /mkt-type-card-title/);
   });

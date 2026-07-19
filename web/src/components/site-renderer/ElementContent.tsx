@@ -26,7 +26,11 @@ import type {
 } from '@/lib/types/site';
 import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
 import { resolveSolidButton } from '@/lib/design/button-contrast';
-import { resolveRenderedSiteTypography, textFlowFor } from '@/lib/design/typography-scale';
+import {
+  generatedStackFontFloor,
+  resolveRenderedSiteTypography,
+  textFlowFor,
+} from '@/lib/design/typography-scale';
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 import { storyWordWindow } from '@/lib/motion/progress';
@@ -116,7 +120,9 @@ function TextContent({
   const style: CSSProperties = {
     margin: 0,
     width: '100%',
-    fontSize: variant === 'canvas' ? cqw(typography.fontSize) : `${mobileFontSize(typography.fontSize)}px`,
+    fontSize: variant === 'canvas'
+      ? cqw(typography.fontSize)
+      : `${mobileFontSize(typography.fontSize, generatedStackFontFloor(el.id))}px`,
     fontWeight: s.fontWeight ?? 400,
     fontFamily: s.fontFamily === 'heading' ? theme.fonts.heading : theme.fonts.body,
     color: s.color ?? theme.palette.text,

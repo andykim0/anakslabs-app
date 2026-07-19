@@ -1,6 +1,51 @@
 import type { CSSProperties } from 'react';
 
 /**
+ * Readable hierarchy is a product contract, not a collection of component guesses.
+ * Marketing uses the largest possible body size as the conservative denominator.
+ * Generated sites apply the section-title floor only in flow/stack playback; the
+ * persisted DESIGN_WIDTH canvas remains byte-for-byte faithful to authored geometry.
+ */
+export const DABOIM_TYPOGRAPHY_HIERARCHY = {
+  marketing: {
+    bodyMinPx: 16,
+    bodyMaxPx: 18,
+    typeStepPx: 2,
+    sectionTitleMinPx: 36,
+    sectionTitleMinRatioToBody: 1.5,
+    cardAndTableTitleMinPx: 22,
+    cardAndTableTitleMinStepsAboveBody: 2,
+  },
+  generatedSite: {
+    bodyMaxPx: 18,
+    flowSectionTitleMinPx: 30,
+    sectionTitleMinRatioToBody: 1.5,
+    fixedCanvasPolicy: 'preserve-stored',
+  },
+} as const;
+
+const toRem = (px: number): string => `${px / 16}rem`;
+
+function assertTypographyHierarchyContract(): void {
+  const marketing = DABOIM_TYPOGRAPHY_HIERARCHY.marketing;
+  const generated = DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite;
+  if (marketing.sectionTitleMinPx / marketing.bodyMaxPx < marketing.sectionTitleMinRatioToBody) {
+    throw new Error('Marketing section-title hierarchy must be at least 1.5x body.');
+  }
+  if (
+    (marketing.cardAndTableTitleMinPx - marketing.bodyMaxPx) / marketing.typeStepPx
+    < marketing.cardAndTableTitleMinStepsAboveBody
+  ) {
+    throw new Error('Marketing card/table titles must remain at least two type steps above body.');
+  }
+  if (generated.flowSectionTitleMinPx / generated.bodyMaxPx < generated.sectionTitleMinRatioToBody) {
+    throw new Error('Generated flow section-title hierarchy must be at least 1.5x body.');
+  }
+}
+
+assertTypographyHierarchyContract();
+
+/**
  * LP$ typography source of truth.
  *
  * Marketing roles are fluid CSS values. Generated-site roles are numeric because the
@@ -12,14 +57,31 @@ export const DABOIM_TYPOGRAPHY = {
   marketing: {
     hero: { fontSize: 'clamp(2.75rem, 7vw, 5.25rem)', lineHeight: 1.01 },
     pageTitle: { fontSize: 'clamp(2.25rem, 5vw, 3.25rem)', lineHeight: 1.12 },
-    sectionTitle: { fontSize: 'clamp(2.25rem, 6vw, 3.5rem)', lineHeight: 1.16 },
-    cardTitle: { fontSize: 'clamp(1.125rem, 1.6vw, 1.375rem)', lineHeight: 1.35 },
-    body: { fontSize: 'clamp(1rem, calc(.96rem + .25vw), 1.125rem)', lineHeight: 1.75 },
+    sectionTitle: {
+      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.sectionTitleMinPx)}, 6vw, 3.5rem)`,
+      lineHeight: 1.16,
+    },
+    cardTitle: {
+      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
+      lineHeight: 1.3,
+    },
+    tableTitle: {
+      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
+      lineHeight: 1.3,
+    },
+    body: {
+      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.bodyMinPx)}, calc(.96rem + .25vw), ${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.bodyMaxPx)})`,
+      lineHeight: 1.75,
+    },
     support: { fontSize: 'clamp(.8125rem, .95vw, .875rem)', lineHeight: 1.6 },
     eyebrow: { fontSize: '.8125rem', lineHeight: 1.4 },
     control: { fontSize: '1rem', lineHeight: 1.5 },
   },
   generatedSite: {
+    sectionTitle: {
+      fontSize: DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+      lineHeight: 1.35,
+    },
     heroBody: { fontSize: 18, lineHeight: 1.8 },
     sectionIntro: { fontSize: 18, lineHeight: 1.8 },
     longBody: { fontSize: 18, lineHeight: 1.9 },
@@ -116,6 +178,31 @@ export const GENERATED_TEXT_ROLE_RULES: readonly GeneratedTextRoleRule[] = [
   { fragments: ['hero-chip-label'], role: 'support', lines: 2 },
 ] as const;
 
+/**
+ * Exact deterministic-builder vocabulary for real section headings. Numeric sequence
+ * suffixes are stripped before comparison. This deliberately excludes hero-title and
+ * card/body labels such as feat-title, team-title, case-title, and teaser-title.
+ */
+export const GENERATED_SECTION_TITLE_ID_BASES = [
+  'el-title',
+  'el-about-title',
+  'el-greet-title',
+  'el-links-title',
+  'el-cta-title',
+  'el-custom-title',
+] as const;
+
+export function isGeneratedSectionTitleId(elementId: string): boolean {
+  const base = elementId.replace(/-\d+$/u, '');
+  return GENERATED_SECTION_TITLE_ID_BASES.some((candidate) => candidate === base);
+}
+
+export function generatedStackFontFloor(elementId: string): number | undefined {
+  return isGeneratedSectionTitleId(elementId)
+    ? DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx
+    : undefined;
+}
+
 export function generatedTextRoleFor(elementId: string): GeneratedTextRoleRule | undefined {
   return GENERATED_TEXT_ROLE_RULES.find((rule) =>
     rule.fragments.some((fragment) => elementId.includes(fragment)),
@@ -131,6 +218,8 @@ export const MARKETING_TYPOGRAPHY_VARS = {
   '--mkt-type-section-title-leading': DABOIM_TYPOGRAPHY.marketing.sectionTitle.lineHeight,
   '--mkt-type-card-title-size': DABOIM_TYPOGRAPHY.marketing.cardTitle.fontSize,
   '--mkt-type-card-title-leading': DABOIM_TYPOGRAPHY.marketing.cardTitle.lineHeight,
+  '--mkt-type-table-title-size': DABOIM_TYPOGRAPHY.marketing.tableTitle.fontSize,
+  '--mkt-type-table-title-leading': DABOIM_TYPOGRAPHY.marketing.tableTitle.lineHeight,
   '--mkt-type-body-size': DABOIM_TYPOGRAPHY.marketing.body.fontSize,
   '--mkt-type-body-leading': DABOIM_TYPOGRAPHY.marketing.body.lineHeight,
   '--mkt-type-support-size': DABOIM_TYPOGRAPHY.marketing.support.fontSize,
@@ -191,6 +280,14 @@ export function resolveRenderedSiteTypography({
 }: RenderedSiteTypographyInput): { fontSize: number; lineHeight: number } {
   const storedLineHeight = style.lineHeight ?? 1.45;
   const stored = { fontSize: style.fontSize, lineHeight: storedLineHeight };
+  if (isGeneratedSectionTitleId(elementId)) {
+    if (variant === 'canvas') return stored;
+    const readable = DABOIM_TYPOGRAPHY.generatedSite.sectionTitle;
+    return {
+      fontSize: Math.max(stored.fontSize, readable.fontSize),
+      lineHeight: Math.max(storedLineHeight, readable.lineHeight),
+    };
+  }
   if (style.fontFamily === 'heading') return stored;
 
   const rule = generatedTextRoleFor(elementId);

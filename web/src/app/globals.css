@@ -63,6 +63,11 @@ body {
   line-height: var(--mkt-type-card-title-leading);
 }
 
+.daboim-marketing .mkt-type-table-title {
+  font-size: var(--mkt-type-table-title-size);
+  line-height: var(--mkt-type-table-title-leading);
+}
+
 .daboim-marketing .mkt-type-body {
   font-size: var(--mkt-type-body-size);
   line-height: var(--mkt-type-body-leading);
@@ -91,7 +96,8 @@ body {
 .daboim-marketing .mkt-type-hero,
 .daboim-marketing .mkt-type-page-title,
 .daboim-marketing .mkt-type-section-title,
-.daboim-marketing .mkt-type-card-title {
+.daboim-marketing .mkt-type-card-title,
+.daboim-marketing .mkt-type-table-title {
   overflow-wrap: anywhere;
   text-wrap: balance;
   word-break: keep-all;

@@ -1,8 +1,18 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { DESIGN_WIDTH, emptySiteConfig, type TextElement } from '@/lib/types/site';
-import { generatedType, minTextFrameHeight } from '@/lib/design/typography-scale';
+import { ElementContent } from '@/components/site-renderer/ElementContent';
+import {
+  DABOIM_TYPOGRAPHY,
+  DABOIM_TYPOGRAPHY_HIERARCHY,
+  generatedType,
+  isGeneratedSectionTitleId,
+  minTextFrameHeight,
+  resolveRenderedSiteTypography,
+} from '@/lib/design/typography-scale';
 import {
   pagePlanFromTemplate,
   planFromTemplate,
@@ -168,6 +178,65 @@ describe('LP$ L3 generated-site semantic typography', () => {
             );
           }
         }
+      }
+    }
+  });
+
+  test('대표 6업종은 1440 geometry를 보존하고 exact section title만 stack에서 30px 이상이다', () => {
+    const generatedBodyMax = Math.max(
+      DABOIM_TYPOGRAPHY.generatedSite.heroBody.fontSize,
+      DABOIM_TYPOGRAPHY.generatedSite.sectionIntro.fontSize,
+      DABOIM_TYPOGRAPHY.generatedSite.longBody.fontSize,
+      DABOIM_TYPOGRAPHY.generatedSite.body.fontSize,
+      DABOIM_TYPOGRAPHY.generatedSite.cardBody.fontSize,
+    );
+    assert.equal(generatedBodyMax, DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx);
+
+    for (const [purposeId, industry] of fixtures) {
+      const config = buildSiteConfigFromSurvey(survey(purposeId, industry), candidate, options);
+      const titles = config.pages
+        .flatMap((page) => page.sections)
+        .flatMap((section) => section.elements)
+        .filter((element): element is TextElement =>
+          element.kind === 'text' && isGeneratedSectionTitleId(element.id),
+        );
+      assert.ok(titles.length > 0, `${purposeId}/${industry}: semantic section title missing`);
+
+      for (const title of titles) {
+        const geometry = structuredClone(title.frame);
+        const stored = {
+          fontSize: title.style.fontSize,
+          lineHeight: title.style.lineHeight ?? 1.45,
+        };
+        assert.deepEqual(resolveRenderedSiteTypography({
+          elementId: title.id,
+          style: title.style,
+          variant: 'canvas',
+          frameHeight: title.frame.h,
+        }), stored, `${purposeId}/${industry}/${title.id}: canvas must preserve stored typography`);
+
+        const stack = resolveRenderedSiteTypography({
+          elementId: title.id,
+          style: title.style,
+          variant: 'stack',
+          frameHeight: title.frame.h,
+        });
+        assert.ok(
+          stack.fontSize >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+          `${purposeId}/${industry}/${title.id}: stack title floor`,
+        );
+        const markup = renderToStaticMarkup(createElement(ElementContent, {
+          element: title,
+          theme: config.theme,
+          variant: 'stack',
+        }));
+        const renderedSize = markup.match(/font-size:(\d+)px/u);
+        assert.ok(renderedSize, `${purposeId}/${industry}/${title.id}: stack font size missing`);
+        assert.ok(
+          Number(renderedSize[1]) >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+          `${purposeId}/${industry}/${title.id}: rendered stack title is below 30px`,
+        );
+        assert.deepEqual(title.frame, geometry, `${purposeId}/${industry}/${title.id}: geometry mutated`);
       }
     }
   });

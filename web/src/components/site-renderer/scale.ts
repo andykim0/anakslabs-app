@@ -24,7 +24,7 @@ export function cqw(px: number): string {
  * → 본문 크기(≤18px)는 유지, 그 이상은 압축 곡선 적용.
  *   예) 72px → 42px, 48px → 32px, 32px → 24px, 16px → 16px
  */
-export function mobileFontSize(px: number): number {
-  if (px <= 18) return Math.max(13, Math.round(px));
-  return Math.round(18 + (px - 18) * 0.45);
+export function mobileFontSize(px: number, semanticFloor = 13): number {
+  if (px <= 18) return Math.max(semanticFloor, Math.round(px));
+  return Math.max(semanticFloor, Math.round(18 + (px - 18) * 0.45));
 }

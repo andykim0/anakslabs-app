@@ -44,7 +44,7 @@ describe('LP2$ F3 Korean text flow and no-wrap controls', () => {
   test('마케팅 역할 CSS가 제목과 본문을 중앙에서 나누고 control은 한 줄로 제한한다', () => {
     const css = source('src/app/globals.css');
     const heading = css.match(
-      /\.daboim-marketing \.mkt-type-hero,[\s\S]*?\.mkt-type-card-title\s*\{([^}]+)\}/,
+      /\.daboim-marketing \.mkt-type-hero,[\s\S]*?\.mkt-type-table-title\s*\{([^}]+)\}/,
     );
     const body = css.match(
       /\.daboim-marketing \.mkt-type-body,[\s\S]*?\.mkt-type-support\s*\{([^}]+)\}/,

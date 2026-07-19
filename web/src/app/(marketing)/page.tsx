@@ -256,7 +256,7 @@ export default function MarketingHome() {
           <FadeIn delay={0.08}>
             <div className="mt-12 overflow-x-auto rounded-[28px] border border-[#C8D8EC] bg-white shadow-[0_18px_55px_rgba(11,23,54,.06)]">
               <div className="min-w-[820px]">
-                <div className="mkt-type-body grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#DCE4F0] bg-[#F8FBFF]">
+                <div className="mkt-type-table-title grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#DCE4F0] bg-[#F8FBFF]">
                   <div className="p-5" />
                   <div className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
                   <div className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
