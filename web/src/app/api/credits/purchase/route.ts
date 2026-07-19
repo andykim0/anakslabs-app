@@ -11,6 +11,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { CREDIT_PACKS } from '@/lib/credits/constants';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
@@ -67,7 +68,7 @@ export const POST = withApiHandler(async (request) => {
       provider: 'toss',
       clientKey: process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '',
       orderId,
-      orderName: `Daboim 크레딧 팩 ${pack.label}`,
+      orderName: `${PUBLIC_BRAND_NAMES.brand} 크레딧 팩 ${pack.label}`,
       amount: pack.priceKrw,
       customerKey: client.id,
       successUrl: `${origin}/dashboard?payment=success&orderId=${orderId}`,

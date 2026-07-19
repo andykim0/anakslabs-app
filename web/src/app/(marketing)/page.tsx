@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   CREDIT_CONTRACT_COPY,
   formatKrw,
@@ -29,9 +30,9 @@ import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
 import { FadeIn } from '@/components/motion/FadeIn';
 
-const PAGE_TITLE = '손님이 찾고 믿을 수 있는 홈페이지 제작 | Daboim';
+const PAGE_TITLE = `손님이 찾고 믿을 수 있는 홈페이지 제작 | ${PUBLIC_BRAND_NAMES.brand}`;
 const PAGE_DESCRIPTION =
-  '손님이 네이버·구글에서 가게를 찾고 AI에 물을 때 공식 정보를 확인하기 쉬운 홈페이지를 만듭니다. 업종별 설계, 디자인 3안, 직접 편집, 호스팅과 월간 성과 리포트까지 Daboim 하나로 제공합니다.';
+  `손님이 네이버·구글에서 가게를 찾고 AI에 물을 때 공식 정보를 확인하기 쉬운 홈페이지를 만듭니다. 업종별 설계, 디자인 3안, 직접 편집, 호스팅과 월간 성과 리포트까지 ${PUBLIC_BRAND_NAMES.brand} 하나로 제공합니다.`;
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -42,13 +43,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ko_KR',
     url: '/',
-    siteName: 'Daboim',
-    title: '손님이 찾고 믿을 수 있게 | Daboim 다보임',
+    siteName: PUBLIC_BRAND_NAMES.brandBilingual,
+    title: `손님이 찾고 믿을 수 있게 | ${PUBLIC_BRAND_NAMES.brand}`,
     description: PAGE_DESCRIPTION,
   },
   twitter: {
     card: 'summary',
-    title: '손님이 찾고 믿을 수 있게 | Daboim 다보임',
+    title: `손님이 찾고 믿을 수 있게 | ${PUBLIC_BRAND_NAMES.brand}`,
     description: PAGE_DESCRIPTION,
   },
 };
@@ -128,11 +129,11 @@ const CORE_FEATURES = [
 const FAQS: FaqItem[] = [
   {
     q: '일반 템플릿 빌더와 무엇이 다른가요?',
-    a: '범용 빌더는 많은 기능을 직접 조립하는 데 강점이 있습니다. Daboim은 사장님 업종에 필요한 페이지와 손님이 찾는 정보를 먼저 정리하고, 디자인 3안부터 호스팅과 매달 성과 리포트까지 한 번에 제공합니다.',
+    a: `범용 빌더는 많은 기능을 직접 조립하는 데 강점이 있습니다. ${PUBLIC_BRAND_NAMES.brand}은 사장님 업종에 필요한 페이지와 손님이 찾는 정보를 먼저 정리하고, 디자인 3안부터 호스팅과 매달 성과 리포트까지 한 번에 제공합니다.`,
   },
   {
     q: '검색 순위나 AI 답변 노출을 보장하나요?',
-    a: '아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. Daboim은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.',
+    a: `아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. ${PUBLIC_BRAND_NAMES.brand}은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.`,
   },
   {
     q: '완성된 홈페이지를 직접 수정할 수 있나요?',
@@ -144,7 +145,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
-    a: `기본 모션은 제작비에 포함되어 무료입니다. Daboim AI가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
+    a: `기본 모션은 제작비에 포함되어 무료입니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
   },
 ];
 
@@ -152,7 +153,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'Daboim AI 홈페이지 제작·호스팅',
+    name: `${PUBLIC_BRAND_NAMES.ai} 홈페이지 제작·호스팅`,
     serviceType: 'AI 기반 업종 맞춤 홈페이지 제작 및 관리형 호스팅',
     description: PAGE_DESCRIPTION,
     areaServed: { '@type': 'Country', name: '대한민국' },
@@ -163,7 +164,11 @@ const jsonLd = [
       url: `https://${ROOT_DOMAIN}`,
       logo: `https://${ROOT_DOMAIN}/daboim-mark.svg`,
     },
-    brand: { '@type': 'Brand', name: 'Daboim', alternateName: '다보임' },
+    brand: {
+      '@type': 'Brand',
+      name: PUBLIC_BRAND_NAMES.brand,
+      alternateName: PUBLIC_BRAND_NAMES.brandBilingual,
+    },
   },
   faqJsonLd(FAQS),
 ];
@@ -241,10 +246,10 @@ export default function MarketingHome() {
           <FadeIn>
             <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
               <div>
-                <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#08AFC5] uppercase">WHY DABOIM</p>
+                <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#08AFC5] uppercase">왜 다보임인가</p>
                 <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em]">직접 만들다 포기하지 않고,<br />맡긴 뒤 기다리기만 하지 않게.</h2>
               </div>
-              <p className="mkt-type-body max-w-lg text-[#5F6B7C] lg:justify-self-end">Daboim이 먼저 만들고 사장님이 방향을 고릅니다. 문구와 사진은 직접 고칠 수 있고, 운영과 매달 성과 확인까지 이어집니다.</p>
+              <p className="mkt-type-body max-w-lg text-[#5F6B7C] lg:justify-self-end">{PUBLIC_BRAND_NAMES.brand}이 먼저 만들고 사장님이 방향을 고릅니다. 문구와 사진은 직접 고칠 수 있고, 운영과 매달 성과 확인까지 이어집니다.</p>
             </div>
           </FadeIn>
 
@@ -255,7 +260,7 @@ export default function MarketingHome() {
                   <div className="p-5" />
                   <div className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
                   <div className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
-                  <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">Daboim</div>
+                  <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">{PUBLIC_BRAND_NAMES.brand}</div>
                 </div>
                 {COMPARISON.map((row) => (
                   <div key={row.label} className="mkt-type-body grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#E4EAF2] last:border-b-0">
@@ -363,7 +368,7 @@ export default function MarketingHome() {
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>
               <div className="mt-7 flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-white/[0.045] p-4 sm:flex-row sm:items-center">
-                <p className="mkt-type-support text-white/52">AI 영상 홈페이지<br /><span className="text-white/78">Daboim AI 시네마틱 영상 히어로 · 선택</span></p>
+                <p className="mkt-type-support text-white/52">AI 영상 홈페이지<br /><span className="text-white/78" data-brand-bilingual="core-first">{PUBLIC_BRAND_NAMES.aiBilingual} 시네마틱 영상 히어로 · 선택</span></p>
                 <span className="mkt-type-body font-mono font-semibold text-[#5DE0D0]">+{formatKrw(PRICING.videoHeroAddon)}</span>
               </div>
               <Link href="/pricing" className="mkt-type-control group mt-7 inline-flex items-center gap-2 font-semibold text-white">가격 자세히 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>

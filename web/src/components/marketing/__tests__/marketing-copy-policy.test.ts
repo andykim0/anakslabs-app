@@ -61,11 +61,11 @@ describe('M1 마케팅 비교 카피 폴리시', () => {
   });
 });
 
-describe('M2 Daboim AI 고객 노출 브랜딩', () => {
+describe('M2 다보임 AI 고객 노출 브랜딩', () => {
   test('마케팅 라우트 렌더 결과에 파운데이션 모델명을 노출하지 않는다', () => {
     for (const [name, Page] of MARKETING_PAGES) {
       const html = renderToStaticMarkup(createElement(Page));
-      assert.doesNotMatch(html, /\bVeo\b/i, `${name}: 고객 카피는 Daboim AI로 표기해야 합니다.`);
+      assert.doesNotMatch(html, /\bVeo\b/i, `${name}: 고객 카피는 다보임 AI로 표기해야 합니다.`);
     }
   });
 

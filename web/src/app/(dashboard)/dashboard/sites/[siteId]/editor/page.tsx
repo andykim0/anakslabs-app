@@ -15,7 +15,7 @@ import {
 } from '@/lib/assets/assignment';
 
 export const metadata: Metadata = {
-  title: '에디터 — Daboim',
+  title: '에디터 — 다보임',
 };
 
 export default async function EditorPage({ params }: { params: Promise<{ siteId: string }> }) {

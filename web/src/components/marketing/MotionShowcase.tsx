@@ -18,7 +18,7 @@ export function MotionShowcase() {
           움직임도 브랜드의 언어가 됩니다
         </h2>
         <p className="mkt-type-body mt-4 text-[#5C6068]">
-          기본 모션은 포함·무료입니다. AI 영상 홈페이지를 선택하면 Daboim AI 시네마틱 영상 히어로로 첫 장면을 연출합니다.
+          기본 모션은 포함·무료입니다. AI 영상 홈페이지를 선택하면 다보임 AI 시네마틱 영상 히어로로 첫 장면을 연출합니다.
         </p>
         <Link
           href="/pricing"

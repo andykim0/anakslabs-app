@@ -247,7 +247,7 @@ export function GenerateStep({
             {heroVideo.status === 'applied' ? (
               <span className="font-medium text-ob-success">선택한 사진과 연출로 영상 히어로까지 적용했어요.</span>
             ) : heroVideo.status === 'skipped' && heroVideo.reason === 'not-approved' ? (
-              'AI 영상 홈페이지 승인 전이라 우선 정지 사진+포함·무료 기본 모션으로 완성했어요. 승인 후에만 Daboim AI 영상 생성을 시작합니다.'
+              'AI 영상 홈페이지 승인 전이라 우선 정지 사진+포함·무료 기본 모션으로 완성했어요. 승인 후에만 다보임 AI 영상 생성을 시작합니다.'
             ) : heroVideo.status === 'fallback' ? (
               `사이트는 완성했지만 영상은 준비하지 못해 정지 히어로로 보여요. ${heroVideo.message}`
             ) : (

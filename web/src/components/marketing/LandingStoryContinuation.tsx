@@ -66,7 +66,7 @@ export function LandingStoryContinuation({ children }: { children: ReactNode }) 
         >
           <div className="mx-auto flex max-w-7xl flex-col justify-between gap-7 md:flex-row md:items-end">
             <div>
-              <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">MADE WITH DABOIM</p>
+              <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">다보임으로 제작</p>
               <h2 id="landing-proof-heading" className="mkt-type-section-title mt-4 max-w-4xl font-semibold tracking-[-0.045em]">
                 지금 보고 계신 이 홈페이지가<br className="hidden sm:block" /> 다보임으로 만든 예시입니다.
               </h2>

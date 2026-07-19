@@ -11,11 +11,12 @@ import {
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export const metadata: Metadata = {
   title: '자주 묻는 질문 · 고객센터',
   description:
-    'Daboim 홈페이지 제작·수정·해지·환불·도메인·검색 노출에 대한 자주 묻는 질문. 카카오톡 채널로 문의하세요.',
+    `${PUBLIC_BRAND_NAMES.brand} 홈페이지 제작·수정·해지·환불·도메인·검색 노출에 대한 자주 묻는 질문. 카카오톡 채널로 문의하세요.`,
   alternates: { canonical: '/faq' },
 };
 
@@ -47,7 +48,7 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '스크롤 모션은 실제 영상인가요?',
-    a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임으로, 모든 홈페이지에 무료로 들어갑니다. AI 영상 홈페이지는 Daboim AI가 만든 실제 영상 첫 화면을 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
+    a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임으로, 모든 홈페이지에 무료로 들어갑니다. AI 영상 홈페이지는 ${PUBLIC_BRAND_NAMES.ai}가 만든 실제 영상 첫 화면을 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
     plain: `기본 모션은 사진과 글이 부드럽게 나타나는 무료 움직임입니다. AI 영상 홈페이지는 실제 영상 첫 화면을 더하는 유료 옵션입니다. ${DYNAMIC_FEATURE_NOTICE}`,
   },
   {
@@ -62,7 +63,7 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '검색 순위나 AI 답변 노출을 보장하나요?',
-    a: '아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. Daboim은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.',
+    a: `아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. ${PUBLIC_BRAND_NAMES.brand}은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.`,
     plain: '순위와 AI 답변 노출은 보장하지 않습니다. 가게의 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.',
   },
 ];

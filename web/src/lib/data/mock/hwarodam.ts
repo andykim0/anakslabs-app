@@ -6,6 +6,7 @@
  * 모든 좌표는 DESIGN_WIDTH(1440) 기준.
  */
 import type { SiteConfigV1, Section } from '@/lib/types/site';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const PALETTE = {
   background: '#12100d',
@@ -404,7 +405,7 @@ const contact: Section = {
       kind: 'text',
       frame: { x: 122, y: 654, w: 560, h: 18 },
       z: 2,
-      text: '© 2026 화로담 — 서울 성수. Made with Daboim.',
+      text: `© 2026 화로담 — 서울 성수. ${PUBLIC_BRAND_NAMES.brandBilingual}으로 제작.`,
       style: { fontSize: 12, fontWeight: 400, fontFamily: 'body', color: '#6f675a', align: 'left', letterSpacing: 0.5 },
     },
   ],

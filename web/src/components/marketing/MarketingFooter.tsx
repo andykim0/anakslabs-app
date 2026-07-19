@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const LINKS = [
   { href: '/about', label: '회사소개' },
@@ -21,7 +22,7 @@ export function MarketingFooter() {
           <div>
             <BrandLogo inverse />
             <p className="mkt-type-body mt-5 max-w-sm text-white/52">
-              검색과 AI가 읽을 수 있게, Daboim.
+              검색과 AI가 읽을 수 있게, {PUBLIC_BRAND_NAMES.brand}.
               <br />업종 설계부터 최적화·호스팅까지 하나로.
             </p>
             <p className="mkt-type-eyebrow mt-4 font-mono tracking-[0.12em] text-[#5DE0D0]">A PRODUCT BY ANAKS LABS</p>
@@ -38,7 +39,7 @@ export function MarketingFooter() {
           </div>
         </div>
         <div className="mkt-type-support mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-5 font-mono tracking-[0.08em] text-white/30">
-          <p>© 2026 ANAKS LABS · DABOIM</p>
+          <p data-brand-bilingual="footer">© 2026 ANAKS LABS · {PUBLIC_BRAND_NAMES.brandBilingual}</p>
           <p>SEO · AEO · GEO · WEBSITE GENERATION</p>
         </div>
       </div>

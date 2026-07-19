@@ -4,6 +4,6 @@
   <rect x="21" y="22" width="62" height="57" rx="13" stroke="white" stroke-width="6"/><path d="M23 37h58" stroke="white" stroke-width="5" stroke-linecap="round"/>
   <circle cx="33" cy="29.5" r="3" fill="white"/><circle cx="44" cy="29.5" r="3" fill="white"/>
   <path d="m29 68 15-12 12 6 13-11 13-20" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="m73 32 11-3-2 11" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="126" y="63" fill="#0B1736" font-family="Arial, Helvetica, sans-serif" font-size="47" font-weight="700" letter-spacing="-2">Daboim</text>
-  <text x="127" y="86" fill="#667085" font-family="Arial, sans-serif" font-size="12">다보임 · Website visibility AI</text>
+  <text x="126" y="59" fill="#0B1736" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="-1.2">다보임(Daboim)</text>
+  <text x="127" y="83" fill="#667085" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', Arial, sans-serif" font-size="12">검색에 잘 보이는 홈페이지 AI</text>
 </svg>

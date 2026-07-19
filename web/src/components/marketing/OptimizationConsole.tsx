@@ -87,7 +87,7 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
     <div
       ref={wrapRef}
       role="img"
-      aria-label="Daboim 전용 3D 신호 애니메이션과 SEO, AEO, GEO 최적화 상태"
+      aria-label="다보임 전용 3D 신호 애니메이션과 SEO, AEO, GEO 최적화 상태"
       className="relative mx-auto w-full max-w-[640px]"
     >
       <div aria-hidden="true" className="absolute -inset-8 rounded-full bg-[radial-gradient(circle,rgba(8,184,232,.15),transparent_68%)] blur-2xl" />
@@ -130,7 +130,7 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
 
         <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur">
           <Sparkles className="h-3 w-3 text-[#08AFC5]" />
-          <span className="font-mono text-[9px] font-semibold tracking-[0.12em] text-[#0B1736]">DABOIM VISIBILITY FILM · 1080P</span>
+          <span className="font-mono text-[9px] font-semibold tracking-[0.12em] text-[#0B1736]">다보임 발견 필름 · 1080P</span>
         </div>
 
         <motion.div
@@ -171,7 +171,7 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
         </div>
       </div>
       <p className="mt-3 text-center font-mono text-[8px] tracking-[0.08em] text-[#667085]">
-        DABOIM 3D MOTION · 1920×1080 · MUTED · LAZY-LOADED
+        다보임 3D 모션 · 1920×1080 · MUTED · LAZY-LOADED
       </p>
     </div>
   );

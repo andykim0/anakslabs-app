@@ -26,10 +26,10 @@ describe('W4 — 관리자 승인 후 영상 process 재개 UI', () => {
     assert.doesNotMatch(resume, /useEffect\([\s\S]{0,200}processApprovedHeroVideo/);
   });
 
-  test('적용 뒤 사이트 쿼리를 갱신하고 passive mount가 아닌 명시 버튼으로 Daboim AI 영상 생성을 시작한다', () => {
+  test('적용 뒤 사이트 쿼리를 갱신하고 passive mount가 아닌 명시 버튼으로 다보임 AI 영상 생성을 시작한다', () => {
     const detail = source('src/components/dashboard/site-detail.tsx');
     assert.match(detail, /invalidateQueries\(\{ queryKey: \['site', site\.id\] \}\)/);
-    assert.match(detail, /이 버튼을 누를 때만 Daboim AI 영상 생성을 시작해요/);
+    assert.match(detail, /이 버튼을 누를 때만 다보임 AI 영상 생성을 시작해요/);
     assert.match(detail, /영상 만들기/);
   });
 });

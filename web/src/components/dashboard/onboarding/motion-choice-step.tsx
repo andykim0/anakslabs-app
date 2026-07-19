@@ -348,7 +348,7 @@ export function MotionChoiceStep({
             </button>
           </div>
           <p className="text-[11px] leading-5 text-ob-muted">
-            예시는 최종 Daboim AI 영상이 아닙니다. 실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 시작됩니다.
+            예시는 최종 다보임 AI 영상이 아닙니다. 실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 시작됩니다.
           </p>
         </div>
       ) : null}

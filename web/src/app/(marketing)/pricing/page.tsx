@@ -14,6 +14,7 @@ import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
   CREDIT_CONSUMING_ACTIONS,
@@ -59,8 +60,8 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: 'AI 영상 홈페이지는 무엇인가요?',
-    a: `기본 모션은 모든 홈페이지에 포함되어 무료입니다. Daboim AI가 만드는 시네마틱 영상 히어로는 원하는 분만 +${formatKrw(PRICING.videoHeroAddon)}에 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
-    plain: `기본 모션은 포함·무료입니다. Daboim AI 시네마틱 영상 히어로는 +${formatKrw(PRICING.videoHeroAddon)} 선택 옵션입니다.`,
+    a: `기본 모션은 모든 홈페이지에 포함되어 무료입니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 원하는 분만 +${formatKrw(PRICING.videoHeroAddon)}에 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
+    plain: `기본 모션은 포함·무료입니다. ${PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 +${formatKrw(PRICING.videoHeroAddon)} 선택 옵션입니다.`,
   },
   {
     q: '연간 결제 할인이 있나요?',
@@ -177,7 +178,7 @@ export default function PricingPage() {
               AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
             </span>
             <p className="mkt-type-body mt-3 text-[#5C6068]">
-              기본 모션은 포함·무료입니다. Daboim AI 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
+              기본 모션은 포함·무료입니다. {PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
               재생성에만 크레딧을 사용합니다.
             </p>
           </div>
@@ -234,7 +235,7 @@ export default function PricingPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
-            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA]">Daboim · 다보임</p>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA]">{PUBLIC_BRAND_NAMES.brand}</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
               {formatKrw(basePrice.currentPriceKrw)}부터
             </p>

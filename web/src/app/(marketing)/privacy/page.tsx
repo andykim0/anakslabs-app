@@ -4,10 +4,11 @@ import {
   EXTERNAL_AI_PROCESSING_DISCLOSURE,
 } from '@/lib/legal/templates';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export const metadata: Metadata = {
   title: '개인정보처리방침',
-  description: 'Daboim 개인정보처리방침 요약(운영사 Anaks Labs, 인터림).',
+  description: `${PUBLIC_BRAND_NAMES.brandBilingual} 개인정보처리방침 요약(운영사 Anaks Labs, 인터림).`,
   alternates: { canonical: '/privacy' },
   robots: { index: false },
 };
@@ -45,7 +46,7 @@ export default function PrivacyPage() {
             <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.processors}</p>
             <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.data}</p>
             <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.purpose}</p>
-            <p>{EXTERNAL_AI_PROCESSING_DISCLOSURE.terms}</p>
+            <p data-brand-bilingual="legal">{EXTERNAL_AI_PROCESSING_DISCLOSURE.terms}</p>
             <p className="font-medium text-[#3F4651]">
               {EXTERNAL_AI_PROCESSING_DISCLOSURE.legalReview}
             </p>

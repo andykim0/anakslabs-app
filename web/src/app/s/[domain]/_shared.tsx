@@ -12,6 +12,7 @@ import { getDataServices } from '@/lib/data';
 import { SuspendedNotice, TenantPageContent } from '@/components/site-renderer';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 
@@ -73,12 +74,12 @@ const getOwnerTier = cache(async (clientId: string) => {
  */
 export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   if (!site?.siteConfig) {
-    return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
+    return { title: `사이트를 찾을 수 없습니다 · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   }
   const config = site.siteConfig;
   const page = findPage(config, pageSlug);
   if (!page) {
-    return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
+    return { title: `사이트를 찾을 수 없습니다 · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   }
   const isHome = pageSlug === '';
   const meta = config.meta;

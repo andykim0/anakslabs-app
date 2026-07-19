@@ -24,6 +24,7 @@ import type {
 } from '@/lib/types/site';
 import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/domain';
 import type { AssetRef } from '@/lib/assets/provenance';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { toneText } from '@/lib/onboarding/tone';
 import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
 import { buildNarrativeArc } from './narrative-arc';
@@ -301,14 +302,14 @@ function subtitleEl(ctx: Ctx, text: string, y = 214): CanvasElement {
   };
 }
 
-/** '© ... Made with Daboim' 장식 푸터 (법적 사업자 푸터는 렌더러가 별도 주입) */
+/** 장식 푸터 (법적 사업자 푸터는 렌더러가 별도 주입) */
 function footerEl(ctx: Ctx, y = 560): CanvasElement {
   return {
     id: nextId(ctx, 'el-contact-footer'),
     kind: 'text',
     frame: { x: 122, y, w: 620, h: 18 },
     z: 2,
-    text: `© ${new Date().getFullYear()} ${ctx.survey.businessName}. Made with Daboim.`,
+    text: `© ${new Date().getFullYear()} ${ctx.survey.businessName}. ${PUBLIC_BRAND_NAMES.brandBilingual}으로 제작.`,
     style: { fontSize: 12, fontWeight: 400, fontFamily: 'body', color: ctx.theme.palette.muted, align: 'left', letterSpacing: 0.5 },
   };
 }

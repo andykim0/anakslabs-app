@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { caseIndustries, casesByIndustry, industryLabelOf } from '@/lib/marketing/cases';
 import { CaseCard } from '@/components/marketing/CaseCard';
 import { ScannerCta } from '@/components/marketing/ui';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 interface Props {
   params: Promise<{ industry: string }>;
@@ -18,7 +19,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { industry } = await params;
   const label = industryLabelOf(industry);
-  if (!label) return { title: '고객사례 — Daboim', robots: { index: false } };
+  if (!label) return { title: `고객사례 — ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   return {
     title: `${label} 홈페이지 제작 사례`,
     description: `${label} 홈페이지 제작 사례 — 손님이 먼저 찾는 정보를 담은 ${label} 사이트의 구성과 개편 전후를 확인해 보세요.`,

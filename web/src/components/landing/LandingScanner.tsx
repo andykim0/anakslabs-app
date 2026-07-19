@@ -181,7 +181,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
           {scan.scores.total < 60
             ? '손님이 검색하거나 AI에 물을 때 핵심 정보를 찾기 어려운 상태입니다.'
             : '기본 정보는 있지만 손님이 찾기 어려운 항목이 남아 있습니다.'}{' '}
-          Daboim은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
+          다보임은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
           보완해, 가게 이름·지역·서비스를 네이버·구글·AI가 읽기 쉽게 정리합니다.
         </p>
         <Link

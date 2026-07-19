@@ -127,7 +127,7 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     assert.match(onboarding, /실제 렌더러 티저/);
     assert.match(onboarding, /실제 스크롤 체험/);
     assert.match(onboarding, /고객 최종 자산 아님/);
-    assert.match(onboarding, /예시는 최종 Daboim AI 영상이 아닙니다/);
+    assert.match(onboarding, /예시는 최종 다보임 AI 영상이 아닙니다/);
     assert.match(projection, /daboim-visibility-film-scrub\.mp4/);
     assert.match(projection, /daboim-visibility-film-poster\.webp/);
     assert.doesNotMatch(`${onboarding}\n${projection}`, /fetch\(|\/api\/sites\/|generateVeoVideo|generateHeroVideo/);

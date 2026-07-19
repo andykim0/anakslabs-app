@@ -151,7 +151,7 @@ export default function LoginPage() {
       <main className="relative z-10 flex flex-1 items-center justify-center px-6 pb-24">
         <div className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white/92 p-6 shadow-[0_24px_80px_rgba(11,23,54,.11)] backdrop-blur-xl sm:p-8">
           <p className="text-center font-mono text-[10px] font-semibold tracking-[0.14em] text-[#174DDA] uppercase">
-            Daboim account
+            다보임 계정
           </p>
           <h1 className="mt-3 text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">로그인</h1>
           <p className="mt-2 text-center text-sm text-[#667085]">

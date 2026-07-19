@@ -19,7 +19,7 @@ import type { ReportMetric } from '@/lib/reporting/types';
 import { getCurrentClient } from '@/lib/services/auth';
 import { Badge, Card, EmptyState, PageHeader, cn, formatDate } from '@/components/dashboard/ui';
 
-export const metadata: Metadata = { title: '성과 리포트 — Daboim' };
+export const metadata: Metadata = { title: '성과 리포트 — 다보임' };
 
 const DELIVERY_STATE: Record<
   MonthlyReportDeliveryStatus,

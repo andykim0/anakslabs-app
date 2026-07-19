@@ -17,7 +17,7 @@
   <circle cx="960" cy="520" r="86" fill="none" stroke="#ece5d8" stroke-opacity="0.85" stroke-width="2"/>
   <path d="M938 482 L1006 520 L938 558 Z" fill="#ece5d8" fill-opacity="0.9"/>
   <text x="960" y="680" text-anchor="middle" font-family="Georgia, 'Noto Serif KR', serif" font-size="30" fill="#c9bfad" letter-spacing="6">AI 생성 영상 미리보기</text>
-  <text x="960" y="726" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#8f8578" letter-spacing="4">DABOIM AI — DEMO PLACEHOLDER</text>
+  <text x="960" y="726" text-anchor="middle" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', Helvetica, Arial, sans-serif" font-size="16" fill="#8f8578" letter-spacing="3">다보임 AI — 예시 화면</text>
   <rect x="32" y="32" width="1856" height="1016" fill="none" stroke="#c99b5f" stroke-opacity="0.14" stroke-width="1.5"/>
   <rect width="1920" height="1080" filter="url(#grain)"/>
 </svg>

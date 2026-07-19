@@ -5,7 +5,7 @@ import { getRecentScan, guessBusinessName, summarizeIssues } from '@/lib/service
 import { OnboardingWizard } from '@/components/dashboard/onboarding/wizard';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 
-export const metadata: Metadata = { title: '새 사이트 만들기 — Daboim' };
+export const metadata: Metadata = { title: '새 사이트 만들기 — 다보임' };
 
 export default async function OnboardingPage({
   searchParams,

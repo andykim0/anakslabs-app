@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ROOT_DOMAIN } from "@/lib/env";
+import { PUBLIC_BRAND_NAMES } from "@/lib/brand/public-names";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,10 +18,10 @@ const geistMono = Geist_Mono({
 // 테넌트 서빙(/s/*)이 자체 title을 그대로 쓰도록. 마케팅 접미 브랜딩은 (marketing)/layout.
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${ROOT_DOMAIN}`),
-  applicationName: "Daboim",
-  title: "Daboim 다보임 — 홈페이지 전문 최적화 AI",
+  applicationName: PUBLIC_BRAND_NAMES.brand,
+  title: `${PUBLIC_BRAND_NAMES.brandBilingual} — 홈페이지 전문 최적화 AI`,
   description:
-    "Daboim이 업종에 맞는 홈페이지를 AI로 설계하고 SEO·AEO·GEO 기반부터 호스팅·관리까지 제공합니다. 무료 홈페이지 진단으로 시작하세요.",
+    `${PUBLIC_BRAND_NAMES.brand}이 업종에 맞는 홈페이지를 AI로 설계하고 SEO·AEO·GEO 기반부터 호스팅·관리까지 제공합니다. 무료 홈페이지 진단으로 시작하세요.`,
   category: "AI website builder",
 };
 

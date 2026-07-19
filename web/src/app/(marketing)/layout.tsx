@@ -6,12 +6,13 @@ import type { Metadata } from 'next';
 import { MarketingHeader } from '@/components/marketing/MarketingHeader';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { MARKETING_TYPOGRAPHY_VARS } from '@/lib/design/typography-scale';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 // 마케팅 하위 페이지 제목에만 브랜드 접미 (테넌트/대시보드엔 미적용)
 export const metadata: Metadata = {
   title: {
-    template: '%s | Daboim 다보임',
-    default: 'Daboim 다보임 — 홈페이지 전문 최적화 AI',
+    template: `%s | ${PUBLIC_BRAND_NAMES.brand}`,
+    default: `${PUBLIC_BRAND_NAMES.brandBilingual} — 홈페이지 전문 최적화 AI`,
   },
 };
 

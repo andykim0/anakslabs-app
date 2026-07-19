@@ -6,6 +6,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { findPage } from '@/lib/types/site';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { getSiteByDomain, tenantMetadata, TenantPageBody } from '../_shared';
 
 export const dynamic = 'force-dynamic';
@@ -24,7 +25,7 @@ function resolveSlug(path: string[]): string | null {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain, path } = await params;
   const slug = resolveSlug(path);
-  if (slug === null) return { title: '사이트를 찾을 수 없습니다 · Daboim', robots: { index: false } };
+  if (slug === null) return { title: `사이트를 찾을 수 없습니다 · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   const site = await getSiteByDomain(domain);
   return tenantMetadata(site, slug);
 }

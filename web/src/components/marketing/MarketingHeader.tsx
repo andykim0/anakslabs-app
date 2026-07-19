@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const NAV = [
   { href: '/features', label: '기능' },
@@ -39,7 +40,7 @@ export function MarketingHeader() {
       }`}
     >
       <div className="mx-auto flex h-[68px] max-w-7xl items-center gap-7 px-5 sm:px-8">
-        <Link href="/" aria-label="Daboim 다보임 홈" className="shrink-0">
+        <Link href="/" aria-label={`${PUBLIC_BRAND_NAMES.brand} 홈`} className="shrink-0">
           <BrandLogo />
         </Link>
 

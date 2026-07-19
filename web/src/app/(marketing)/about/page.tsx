@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 import { ScannerCta } from '@/components/marketing/ui';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export const metadata: Metadata = {
-  title: '회사소개 — 왜 Daboim을 만들었나',
+  title: `회사소개 — 왜 ${PUBLIC_BRAND_NAMES.brand}을 만들었나`,
   description:
-    '좋은 가게가 손님에게 더 잘 발견되도록, 업종별 설계부터 직접 편집·호스팅·성과 리포트까지 한 번에 제공하는 Daboim을 만들었습니다.',
+    `좋은 가게가 손님에게 더 잘 발견되도록, 업종별 설계부터 직접 편집·호스팅·성과 리포트까지 한 번에 제공하는 ${PUBLIC_BRAND_NAMES.brand}을 만들었습니다.`,
   alternates: { canonical: '/about' },
 };
 
@@ -14,7 +15,7 @@ export default function AboutPage() {
     <>
       <section className="mx-auto max-w-3xl px-6 pt-16 pb-12">
         <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
-          왜 Daboim을 만들었나
+          왜 {PUBLIC_BRAND_NAMES.brand}을 만들었나
         </h1>
         <div className="mkt-type-body mt-8 space-y-5 text-[#5C6068]">
           <p>
@@ -27,7 +28,7 @@ export default function AboutPage() {
             직접 만들려면 무엇부터 넣어야 하는지 알기 어렵습니다. 그래서 AI가 초안을 만들고 사장님이 방향을 고르는 방식을 생각했습니다.
           </p>
           <p>
-            Daboim은 그 생각에서 시작한 Anaks Labs의 홈페이지 제품입니다. AI가 업종에 맞게 사이트를 설계하고,
+            {PUBLIC_BRAND_NAMES.brand}은 그 생각에서 시작한 Anaks Labs의 홈페이지 제품입니다. AI가 업종에 맞게 사이트를 설계하고,
             사장님이 직접 다듬은 뒤 바로 공개합니다. 손님이 검색하거나 AI에 물을 때 필요한 정보도 처음부터 함께 정리합니다.
           </p>
         </div>

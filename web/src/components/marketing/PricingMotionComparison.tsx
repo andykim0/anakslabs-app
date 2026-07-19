@@ -11,7 +11,7 @@ function Poster({ className = '' }: { className?: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={POSTER_SRC}
-      alt="Daboim AI 시네마틱 연출의 추상 브랜드 장면"
+      alt="다보임 AI 시네마틱 연출의 추상 브랜드 장면"
       width={1920}
       height={1080}
       loading="lazy"
@@ -136,7 +136,7 @@ export function PricingMotionComparison() {
             ) : null}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07142F]/48 via-transparent to-transparent" />
             <span className="mkt-type-support absolute right-3 bottom-3 rounded-full border border-[#68E8D8]/30 bg-[#07142F]/72 px-2.5 py-1 font-mono tracking-[0.1em] text-[#8AF4E7]">
-              DABOIM AI CINEMATIC
+              다보임 AI 시네마틱
             </span>
           </div>
           <div className="p-4">

@@ -74,7 +74,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
     for (const [name, fixture] of Object.entries(demoLabels)) {
       assert.match(fixture.source, fixture.label, `${name}에서 예시 고지가 사라졌다`);
     }
-    assert.match(SOURCES.choice, /예시는 최종 Daboim AI 영상이 아닙니다/);
+    assert.match(SOURCES.choice, /예시는 최종 다보임 AI 영상이 아닙니다/);
     assert.match(SOURCES.immersive, /고객님의 최종 자산이 아닙니다/);
   });
 

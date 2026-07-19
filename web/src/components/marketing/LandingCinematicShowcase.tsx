@@ -77,7 +77,7 @@ const LANDING_SCENE = {
     kind: 'video',
     src: '/daboim-visibility-film-scrub.mp4',
     poster: POSTER_SRC,
-    alt: 'Daboim 홈페이지가 손님에게 발견되는 흐름을 표현한 시네마틱 필름',
+    alt: '다보임 홈페이지가 손님에게 발견되는 흐름을 표현한 시네마틱 필름',
     width: 1920,
     height: 1080,
     focalPoint: { x: 0.5, y: 0.48 },

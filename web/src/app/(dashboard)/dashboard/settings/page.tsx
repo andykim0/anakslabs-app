@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentClient } from '@/lib/services/auth';
 import { SettingsView } from '@/components/dashboard/settings-view';
 
-export const metadata: Metadata = { title: '설정 — Daboim' };
+export const metadata: Metadata = { title: '설정 — 다보임' };
 
 export default async function SettingsPage() {
   const client = await getCurrentClient();

@@ -6,6 +6,7 @@
  * ⚠️ 실제 문안은 시행 전 변호사 검토 필요.
  */
 import type { BusinessInfo, SiteConfig } from '@/lib/types/site';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export interface LegalSection {
   heading: string;
@@ -53,7 +54,7 @@ export const EXTERNAL_AI_PROCESSING_DISCLOSURE = {
   purpose:
     '처리 목적: 고객이 요청한 홈페이지 초안·문구·이미지·영상 생성과 문서 인식 기능을 제공하기 위함이며, 해당 요청에 필요한 범위로만 전송합니다.',
   terms:
-    '외부 AI 사업자의 처리·보관·삭제 조건은 적용되는 공급자 계약과 정책에 따릅니다. AI 처리 여부·삭제·이용 제한에 대한 문의는 Daboim 개인정보 문의처로 접수할 수 있습니다.',
+    `외부 AI 사업자의 처리·보관·삭제 조건은 적용되는 공급자 계약과 정책에 따릅니다. AI 처리 여부·삭제·이용 제한에 대한 문의는 ${PUBLIC_BRAND_NAMES.brandBilingual} 개인정보 문의처로 접수할 수 있습니다.`,
   legalReview:
     '※ 법무 검토 대상: 수탁자의 정확한 법인명, 국외 처리·이전 국가, 보관·삭제 기간과 거부 방법은 정식 방침 확정 전 공급자 계약·운영 설정과 함께 확인해 갱신합니다.',
 } as const;

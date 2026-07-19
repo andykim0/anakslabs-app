@@ -1,3 +1,5 @@
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
+
 /** Daboim 제품 락업 — 웹 프레임과 SEO/AEO/GEO 발견 신호를 결합한다. */
 export function BrandMark({ className = 'h-9 w-9' }: { className?: string }) {
   return (
@@ -39,13 +41,17 @@ export function BrandLogo({
   compact?: boolean;
 }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`} aria-label="Daboim 다보임">
+    <span
+      className={`inline-flex items-center gap-2.5 ${className}`}
+      aria-label={PUBLIC_BRAND_NAMES.brandBilingual}
+      data-brand-bilingual="logo"
+    >
       <BrandMark className="h-8 w-8 shrink-0" />
       {compact ? null : (
         <span className={`flex items-baseline font-semibold leading-none ${inverse ? 'text-white' : 'text-[#0B1736]'}`}>
-          <span className="text-[17px] tracking-[-0.03em]">Daboim</span>
+          <span className="text-[17px] tracking-[-0.03em]">{PUBLIC_BRAND_NAMES.brand}</span>
           <span className={`ml-1.5 text-[9px] tracking-[-0.02em] ${inverse ? 'text-white/55' : 'text-[#667085]'}`}>
-            다보임
+            (Daboim)
           </span>
         </span>
       )}

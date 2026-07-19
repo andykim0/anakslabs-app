@@ -6,10 +6,11 @@ import {
   REFUND_NOTICE,
 } from '@/lib/legal/notices';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
+import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export const metadata: Metadata = {
   title: '이용약관',
-  description: 'Daboim 서비스 이용약관 요약. 운영사 Anaks Labs, 소유권·환불·정적 산출물 고지.',
+  description: `${PUBLIC_BRAND_NAMES.brandBilingual} 서비스 이용약관 요약. 운영사 Anaks Labs, 소유권·환불·정적 산출물 고지.`,
   alternates: { canonical: '/terms' },
   robots: { index: false },
 };
