@@ -1,164 +1,210 @@
 import type { Metadata } from 'next';
-import { Bot, Gauge, Lock, MessageSquareQuote, Search, ShieldCheck } from 'lucide-react';
-import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
-import { MotionShowcase } from '@/components/marketing/MotionShowcase';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  BarChart3,
+  Check,
+  ClipboardCheck,
+  Search,
+  Sparkles,
+} from 'lucide-react';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
-
-/** 단계별 목업 (없는 단계는 스크린샷 placeholder 슬롯 유지) */
-function StepVisual({ no }: { no: string }) {
-  if (no === '02')
-    return (
-      <div className="flex min-h-[172px] items-center justify-center">
-        <SiteExampleMockup />
-      </div>
-    );
-  if (no === '03')
-    return (
-      <BrowserFrame url="editor.anakslabs.com">
-        <EditorMockup />
-      </BrowserFrame>
-    );
-  return (
-    <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-dashed border-[#E8E6E0] bg-[#F6F5F1] text-xs text-[#696E76]">
-      화면 스크린샷 예정
-    </div>
-  );
-}
+import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
+import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { MotionShowcase } from '@/components/marketing/MotionShowcase';
+import { ScannerCta } from '@/components/marketing/ui';
+import { formatKrw, PRICING } from '@/lib/pricing';
 
 export const metadata: Metadata = {
-  title: '기능 — 손님이 찾고 바로 이해하는 홈페이지',
+  title: '기능 — 홈페이지 제작부터 검색 등록·성과 증명까지',
   description:
-    '사장님이 몇 가지 질문에 답하면 디자인 3안을 만들고, 직접 고친 뒤 바로 엽니다. 손님이 검색하거나 AI에 물을 때 필요한 정보, 기본 모션, 호스팅과 보안까지 함께 제공합니다.',
+    '업종에 맞는 홈페이지 제작, 네이버·구글·AI가 확인하기 쉬운 구성, 검색 등록 대행, 월간 성과 리포트와 90일 성과 보장까지 한 흐름으로 제공합니다.',
   alternates: { canonical: '/features' },
 };
 
-const STEPS = [
-  { no: '01', title: '몇 가지 질문에 답합니다', body: '업종, 지역, 원하는 분위기와 참고할 홈페이지를 고르면 필요한 페이지를 먼저 정합니다.' },
-  { no: '02', title: '서로 다른 디자인 3안을 봅니다', body: '사진 배치, 색, 글꼴과 첫 화면이 다른 세 가지 방향을 보고 마음에 드는 안을 고릅니다.' },
-  { no: '03', title: '원하는 곳을 직접 다듬습니다', body: '하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 글과 사진을 끌어 옮기고 크기를 바꿉니다.' },
-  { no: '04', title: '장사 정보를 빠짐없이 채웁니다', body: '문구와 사진을 다듬고, 사업자 정보, 전화·카카오톡·예약 버튼과 지도를 넣습니다.' },
-  { no: '05', title: '버튼 한 번으로 홈페이지를 엽니다', body: '안전한 주소와 보안 연결을 붙여 바로 공개합니다. 손님은 휴대폰과 컴퓨터에서 곧바로 볼 수 있습니다.' },
-];
+const BUILD_STEPS = [
+  ['01', '필요한 내용을 먼저 정합니다', '업종과 고객이 자주 찾는 정보를 받아 필요한 페이지부터 구성합니다.'],
+  ['02', '서로 다른 디자인을 비교합니다', '사진 배치와 색, 글꼴이 다른 세 가지 방향을 보고 하나를 고릅니다.'],
+  ['03', '직접 다듬고 바로 엽니다', '하나로 이어지는 화면에서 글과 사진을 옮긴 뒤 안전한 주소로 발행합니다.'],
+] as const;
 
-const ENGINE = [
-  {
-    icon: <Search className="h-5 w-5" />,
-    name: 'SEO',
-    body: '가게 이름, 지역, 서비스와 페이지 내용을 분명히 적어 네이버와 구글이 찾기 쉽게 합니다.',
-  },
-  {
-    icon: <MessageSquareQuote className="h-5 w-5" />,
-    name: 'AEO',
-    body: '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 정리합니다.',
-  },
-  {
-    icon: <Bot className="h-5 w-5" />,
-    name: 'GEO',
-    body: '가게 이름, 연락처와 공식 채널을 같은 정보로 맞춰 AI가 어느 정보가 공식인지 확인하기 쉽게 합니다.',
-  },
-];
-
-const INFRA = [
-  { icon: <Gauge className="h-5 w-5" />, title: '처음부터 글이 보이는 페이지', body: '손님과 검색 서비스가 기다리지 않고 핵심 글을 바로 읽을 수 있게 제공합니다.' },
-  { icon: <ShieldCheck className="h-5 w-5" />, title: '올린 파일 안전 확인', body: '사진과 그림 파일은 저장하기 전에 위험한 코드가 들어 있는지 확인합니다.' },
-  { icon: <Lock className="h-5 w-5" />, title: '고객별 데이터 분리', body: '사장님의 사이트와 자료는 다른 고객이 열어볼 수 없도록 나눠 보관합니다.' },
-];
+const DISCOVERY_STEPS = [
+  ['검색할 때', '가게 이름과 지역, 서비스를 검색 서비스가 읽기 쉽게 정리합니다.'],
+  ['궁금한 점을 물을 때', '주차와 예약처럼 손님이 자주 묻는 답을 홈페이지 안에 또렷하게 둡니다.'],
+  ['AI에게 물을 때', '가게의 공식 정보와 연락처를 한뜻으로 맞춰 확인하기 쉽게 합니다.'],
+] as const;
 
 export default function FeaturesPage() {
   return (
-    <>
-      {/* 헤더 */}
-      <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
-        <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
-          손님이 찾고,
-          <br className="sm:hidden" /> 궁금한 점까지 확인하는 홈페이지
-        </h1>
-        <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
-          예쁘게만 만들지 않습니다. 손님이 네이버·구글에서 찾고 AI에 물어볼 때, 가게 정보를 확인하기 쉽게 만듭니다.
-        </p>
-      </section>
-
-      {/* 5단계 작동 방식 (스크린샷 슬롯 = placeholder) */}
-      <section className="mx-auto max-w-5xl px-6 py-12">
-        <SectionHeading title="작동 방식 — 설문에서 호스팅까지 5단계" />
-        <div className="mt-12 space-y-5">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.no}
-              className="grid items-center gap-5 rounded-2xl border border-[#E8E6E0] bg-white p-6 md:grid-cols-2"
-            >
-              <div className={i % 2 === 1 ? 'md:order-2' : ''}>
-                <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">STEP {s.no}</p>
-                <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">{s.title}</h3>
-                <p className="mkt-type-body mt-2 text-[#5C6068]">{s.body}</p>
-              </div>
-              {/* 단계별 목업(02·03) 또는 스크린샷 placeholder 슬롯 */}
-              <div className={i % 2 === 1 ? 'md:order-1' : ''}>
-                <StepVisual no={s.no} />
-              </div>
+    <div className="overflow-hidden bg-[#F8FBFF] text-[#0B1736]">
+      <section data-features-section="website" className="border-b border-[#DCE4F0] bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+          <div className="grid items-end gap-10 lg:grid-cols-[1.05fr_.95fr]">
+            <div>
+              <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">
+                Website is the beginning
+              </p>
+              <h1 className="mkt-type-page-title mt-5 max-w-4xl font-semibold tracking-[-0.055em] break-keep">
+                홈페이지는 기본입니다.
+                <br />완성도는 직접 보세요.
+              </h1>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* AI 영상 홈페이지 데모 — 실제 영상(선택) + 기본 모션(포함·무료) */}
-      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <MotionShowcase />
-        </div>
-      </section>
-
-      {/* AEO/GEO 엔진 (실제 구현 사실만) */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <SectionHeading
-          title="손님이 가게를 찾는 세 순간을 준비합니다"
-          subtitle="검색하고, 자주 묻는 답을 보고, AI에 물어볼 때 같은 공식 정보를 확인할 수 있게 만듭니다."
-        />
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {ENGINE.map((p) => (
-            <div key={p.name} className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
-                {p.icon}
-              </span>
-              <h3 className="mkt-type-card-title mt-4 font-semibold text-[#17181C]">{p.name}</h3>
-              <p className="mkt-type-body mt-2 text-[#5C6068]">{p.body}</p>
+            <div className="pb-1">
+              <p className="mkt-type-body max-w-xl text-[#526174] break-keep">
+                업종에 맞는 페이지와 디자인 세 가지를 만들고, 사장님이 직접 다듬어 발행합니다.
+                말로 설명하는 대신 실제로 열린 홈페이지를 보여드립니다.
+              </p>
+              <Link
+                href="/cases"
+                className="mkt-type-control group mt-7 inline-flex h-12 items-center gap-2 rounded-xl bg-[#174DDA] px-7 font-semibold text-white transition-transform hover:-translate-y-0.5"
+              >
+                직접 보세요
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              </Link>
             </div>
-          ))}
-        </div>
-        <p className="mkt-type-support mx-auto mt-8 max-w-2xl text-center text-[#696E76]">
-          기술 항목: 페이지별 제목·설명 · JSON-LD · 시맨틱 HTML · crawler 정책 · 페이지별 sitemap · 네이버 IndexNow.
-        </p>
-      </section>
+          </div>
 
-      {/* 호스팅·보안·속도 */}
-      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <SectionHeading title="호스팅 · 보안 · 속도" />
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {INFRA.map((f) => (
-              <div key={f.title} className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3ECD8] text-[#856A26]">
-                  {f.icon}
-                </span>
-                <h3 className="mkt-type-card-title mt-4 font-semibold text-[#17181C]">{f.title}</h3>
-                <p className="mkt-type-body mt-2 text-[#5C6068]">{f.body}</p>
+          <div className="mt-16 grid items-center gap-12 lg:grid-cols-[.78fr_1.22fr]">
+            <div className="flex min-h-[300px] items-center justify-center border-y border-[#DCE4F0] bg-[#F3F7FC] py-12">
+              <SiteExampleMockup className="scale-125 sm:scale-150" />
+            </div>
+            <BrowserFrame url="editor.anakslabs.com">
+              <div className="p-4 sm:p-7">
+                <EditorMockup />
               </div>
+            </BrowserFrame>
+          </div>
+
+          <ol className="mt-12 grid border-y border-[#DCE4F0] md:grid-cols-3 md:divide-x md:divide-[#DCE4F0]">
+            {BUILD_STEPS.map(([number, title, body]) => (
+              <li key={number} className="px-2 py-7 md:px-7">
+                <span className="mkt-type-eyebrow font-mono text-[#174DDA]">{number}</span>
+                <h2 className="mkt-type-card-title mt-5 font-semibold tracking-[-0.025em]">{title}</h2>
+                <p className="mkt-type-body mt-3 text-[#5F6B7C]">{body}</p>
+              </li>
             ))}
+          </ol>
+        </div>
+      </section>
+
+      <section data-features-section="discovery" className="border-b border-[#DCE4F0]">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
+          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]">
+            <div>
+              <Search className="h-8 w-8 text-[#174DDA]" aria-hidden />
+              <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em] break-keep">
+                만드는 것보다 중요한 건,
+                <br />손님에게 찾아지는 것입니다.
+              </h2>
+              <p className="mkt-type-body mt-5 max-w-lg text-[#526174]">
+                홈페이지를 연 뒤 손님이 검색하고 질문하는 세 순간까지 준비합니다.
+              </p>
+            </div>
+            <div className="grid gap-px border-y border-[#C8D8EC] bg-[#C8D8EC] md:grid-cols-3">
+              {DISCOVERY_STEPS.map(([title, body], index) => (
+                <article key={title} className="bg-[#F8FBFF] px-5 py-7 md:px-6 md:py-9">
+                  <span className="font-mono text-sm font-semibold text-[#03A995]">0{index + 1}</span>
+                  <h3 className="mkt-type-card-title mt-8 font-semibold">{title}</h3>
+                  <p className="mkt-type-body mt-3 text-[#5F6B7C]">{body}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="mx-auto max-w-5xl px-6 py-16 text-center">
-        <h2 className="mkt-type-section-title font-semibold tracking-tight text-[#17181C]">
-          내 사이트는 지금 몇 점일까요?
-        </h2>
-        <div className="mt-8 flex justify-center">
-          <ScannerCta href="/#hero-scanner">무료로 진단받기</ScannerCta>
+      <section data-features-section="registration" className="border-b border-[#DCE4F0] bg-[#0B1736] text-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
+          <div>
+            <ClipboardCheck className="h-8 w-8 text-[#5DE0D0]" aria-hidden />
+            <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em] break-keep">
+              등록까지 저희가 대신합니다.
+            </h2>
+            <p className="mkt-type-body mt-5 max-w-xl text-white/68 break-keep">
+              네이버·구글 검색 등록까지 다보임이 대신합니다. 사장님은 아무것도 안 하셔도 됩니다.
+            </p>
+          </div>
+          <ol className="grid gap-6 border-l border-white/15 pl-7 sm:grid-cols-3">
+            {['확인 정보를 넣고', '검색 서비스에 등록하고', '완료 여부까지 확인합니다'].map((item, index) => (
+              <li key={item}>
+                <span className="font-mono text-sm font-semibold text-[#5DE0D0]">0{index + 1}</span>
+                <p className="mkt-type-body mt-4 font-semibold text-white/88">{item}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
-    </>
+
+      <section data-features-section="report" className="border-b border-[#DCE4F0] bg-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+          <div>
+            <BarChart3 className="h-8 w-8 text-[#174DDA]" aria-hidden />
+            <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em] break-keep">
+              매달 성과를 숫자로 보여드립니다.
+            </h2>
+            <p className="mkt-type-body mt-5 max-w-xl text-[#526174] break-keep">
+              홈페이지를 연 뒤 방문과 전화·예약·길찾기 버튼 반응을 모아 매달 이메일로 보내드립니다.
+            </p>
+          </div>
+          <div className="border-y border-[#DCE4F0] py-8">
+            <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY PROOF</p>
+            <div className="mt-7 grid grid-cols-2 gap-x-8 gap-y-6">
+              {['방문 흐름', '유입 출처', '전화·예약', '길찾기'].map((item) => (
+                <p key={item} className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
+                  <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden /> {item}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-features-section="guarantee" className="border-b border-[#DCE4F0]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+          <div>
+            <Sparkles className="h-8 w-8 text-[#03A995]" aria-hidden />
+            <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em]">
+              90일 성과 보장
+            </h2>
+            <p className="mkt-type-body mt-5 max-w-lg text-[#526174]">
+              만들었다는 말보다 실제로 찾아오는 신호로 판단합니다.
+            </p>
+          </div>
+          <GuaranteeBadge />
+        </div>
+      </section>
+
+      <section data-features-section="motion" className="border-b border-[#DCE4F0] bg-[#F4F7FA]">
+        <div className="mx-auto max-w-5xl px-5 py-20 sm:px-8 md:py-24">
+          <MotionShowcase />
+        </div>
+      </section>
+
+      <section data-features-section="cta" className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">Start with evidence</p>
+            <h2 className="mkt-type-section-title mt-5 max-w-3xl font-semibold tracking-[-0.045em] break-keep">
+              지금 홈페이지가 있다면 먼저 진단하고,
+              <br />없다면 가격부터 확인하세요.
+            </h2>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ScannerCta href="/#hero-scanner">내 사이트 무료 진단</ScannerCta>
+              <Link href="/pricing" className="mkt-type-control inline-flex h-12 items-center gap-2 rounded-xl border border-[#C8D8EC] px-7 font-semibold text-[#0B1736]">
+                가격과 포함 기능 보기 <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+          </div>
+          <div className="min-w-[260px] border-t border-[#DCE4F0] pt-6 lg:text-right">
+            <LaunchPrice align="right" />
+            <p className="mkt-type-support mt-2 text-[#667085]">
+              + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
