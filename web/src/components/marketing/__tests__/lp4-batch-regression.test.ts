@@ -49,17 +49,30 @@ describe('LP4$ batch 통합 회귀', () => {
       row.querySelectorAll(':scope > div').map((cell) => cell.textContent.trim()),
     );
     assert.deepEqual(rows, [
-      ['누가 만드나요', '사장님이 직접', '상담·견적을 거쳐 업체가', '다보임이 처음부터 끝까지'],
-      ['시작하는 법', '템플릿 고르고 직접 조립', '상담→견적→제작', '질문에 답하면 디자인 3안이 도착'],
-      ['검색·AI 노출', '사장님이 직접 설정', '계약 범위에 따라', '기본 포함 — 네이버·구글·AI까지 설계'],
-      ['오픈 후 수정', '사장님이 직접', '요청·계약에 따라', '무제한 무료'],
-      ['성과 확인', '스스로 분석', '별도 관리 계약', '매달 리포트가 숫자로 도착'],
+      ['누가 만드나요', '다보임이 처음부터 끝까지', '사장님이 직접', '상담·견적을 거쳐 업체가'],
+      ['시작하는 법', '질문에 답하면 디자인 3안이 도착', '템플릿 고르고 직접 조립', '상담→견적→제작'],
+      ['검색·AI 노출', '기본 포함 — 네이버·구글·AI까지 설계', '사장님이 직접 설정', '계약 범위에 따라'],
+      ['오픈 후 수정', '무제한 무료', '사장님이 직접', '요청·계약에 따라'],
+      ['성과 확인', '매달 리포트가 숫자로 도착', '스스로 분석', '별도 관리 계약'],
     ]);
-    const competitorCopy = rows.flatMap((row) => row.slice(1, 3)).join(' ');
+    const header = comparison.querySelector('[data-comparison-header]');
+    assert.ok(header);
+    assert.deepEqual(
+      header.querySelectorAll(':scope > div').map((cell) => cell.textContent.trim()),
+      ['', '다보임', '일반 템플릿 빌더', '웹 제작대행사'],
+    );
+    assert.equal(header.querySelectorAll(':scope > div')[1]?.getAttribute('data-comparison-column'), 'daboim');
+    assert.equal(
+      comparison.querySelectorAll('[data-comparison-row]').every((row) =>
+        row.querySelectorAll(':scope > div')[1]?.getAttribute('data-comparison-column') === 'daboim'),
+      true,
+    );
+    const competitorCopy = rows.flatMap((row) => row.slice(2, 4)).join(' ');
     assert.doesNotMatch(competitorCopy, /강점|폭넓|맞춤|전문|고품질|다양|풍부|유연|편리/u);
     assert.equal(comparison.textContent.includes('잘하는 일'), false);
     assert.equal(rows.every((row) => ['누가 만드나요', '시작하는 법', '검색·AI 노출', '오픈 후 수정', '성과 확인'].includes(row[0]!)), true);
     assert.match(read('src/app/(marketing)/page.tsx'), /data-comparison-row[^>]*break-keep/u);
+    assert.match(read('src/app/(marketing)/page.tsx'), /data-comparison-column="daboim"[^>]*bg-gradient-to-r[^>]*font-semibold/u);
   });
 
   test('P8 왜 다보임인가는 두 대안 사이 위치를 말한다', () => {

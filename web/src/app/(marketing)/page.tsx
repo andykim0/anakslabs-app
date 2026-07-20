@@ -264,18 +264,18 @@ export default function MarketingHome() {
           <FadeIn delay={0.08}>
             <div className="mt-12 overflow-x-auto rounded-[28px] border border-[#C8D8EC] bg-white shadow-[0_18px_55px_rgba(11,23,54,.06)]">
               <div className="min-w-[820px]">
-                <div className="mkt-type-table-title grid grid-cols-[.62fr_1fr_1fr_1.12fr] break-keep border-b border-[#DCE4F0] bg-[#F8FBFF]">
+                <div data-comparison-header className="mkt-type-table-title grid grid-cols-[.62fr_1.12fr_1fr_1fr] break-keep border-b border-[#DCE4F0] bg-[#F8FBFF]">
                   <div className="p-5" />
-                  <div className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
-                  <div className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
-                  <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">{PUBLIC_BRAND_NAMES.brand}</div>
+                  <div data-comparison-column="daboim" className="border-x border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">{PUBLIC_BRAND_NAMES.brand}</div>
+                  <div data-comparison-column="builder" className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
+                  <div data-comparison-column="agency" className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
                 </div>
                 {COMPARISON.map((row) => (
-                  <div key={row.label} data-comparison-row className="mkt-type-body grid grid-cols-[.62fr_1fr_1fr_1.12fr] break-keep border-b border-[#E4EAF2] last:border-b-0">
+                  <div key={row.label} data-comparison-row className="mkt-type-body grid grid-cols-[.62fr_1.12fr_1fr_1fr] break-keep border-b border-[#E4EAF2] last:border-b-0">
                     <div className="mkt-type-eyebrow p-5 font-mono tracking-[0.1em] text-[#174DDA]">{row.label}</div>
-                    <div className="p-5 leading-6 text-[#667085]">{row.builder}</div>
-                    <div className="p-5 leading-6 text-[#667085]">{row.agency}</div>
-                    <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 leading-6 font-medium text-[#26354D]">{row.anaks}</div>
+                    <div data-comparison-column="daboim" className="border-x border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 leading-6 font-semibold text-[#26354D]">{row.anaks}</div>
+                    <div data-comparison-column="builder" className="p-5 leading-6 text-[#667085]">{row.builder}</div>
+                    <div data-comparison-column="agency" className="p-5 leading-6 text-[#667085]">{row.agency}</div>
                   </div>
                 ))}
               </div>
