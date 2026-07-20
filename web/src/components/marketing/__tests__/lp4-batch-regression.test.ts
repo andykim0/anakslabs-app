@@ -42,7 +42,27 @@ function videoProbe(path: string) {
 }
 
 describe('LP4$ batch 통합 회귀', () => {
-  test('P8 왜 다보임인가는 두 대안 사이 위치를 말하고 비교표는 그대로 둔다', () => {
+  test('P9 비교표는 경쟁 강점 없이 다보임 우위 축 5행만 렌더한다', () => {
+    const comparison = landing.querySelector('[data-story-chapter="03"]');
+    assert.ok(comparison);
+    const rows = comparison.querySelectorAll('[data-comparison-row]').map((row) =>
+      row.querySelectorAll(':scope > div').map((cell) => cell.textContent.trim()),
+    );
+    assert.deepEqual(rows, [
+      ['누가 만드나요', '사장님이 직접', '상담·견적을 거쳐 업체가', '다보임이 처음부터 끝까지'],
+      ['시작하는 법', '템플릿 고르고 직접 조립', '상담→견적→제작', '질문에 답하면 디자인 3안이 도착'],
+      ['검색·AI 노출', '사장님이 직접 설정', '계약 범위에 따라', '기본 포함 — 네이버·구글·AI까지 설계'],
+      ['오픈 후 수정', '사장님이 직접', '요청·계약에 따라', '무제한 무료'],
+      ['성과 확인', '스스로 분석', '별도 관리 계약', '매달 리포트가 숫자로 도착'],
+    ]);
+    const competitorCopy = rows.flatMap((row) => row.slice(1, 3)).join(' ');
+    assert.doesNotMatch(competitorCopy, /강점|폭넓|맞춤|전문|고품질|다양|풍부|유연|편리/u);
+    assert.equal(comparison.textContent.includes('잘하는 일'), false);
+    assert.equal(rows.every((row) => ['누가 만드나요', '시작하는 법', '검색·AI 노출', '오픈 후 수정', '성과 확인'].includes(row[0]!)), true);
+    assert.match(read('src/app/(marketing)/page.tsx'), /data-comparison-row[^>]*break-keep/u);
+  });
+
+  test('P8 왜 다보임인가는 두 대안 사이 위치를 말한다', () => {
     const comparison = landing.querySelector('[data-story-chapter="03"]');
     assert.ok(comparison);
     const title = comparison.querySelector('[data-comparison-title]');
@@ -56,7 +76,6 @@ describe('LP4$ batch 통합 회귀', () => {
       '다보임이 처음부터 끝까지 만들어 드립니다. 사장님은 원하는 것만 말씀하세요. 오픈 후에는 매달 성과를 숫자로 받아봅니다.',
     );
     assert.doesNotMatch(`${title.textContent} ${support.textContent}`, /다듬|수정|고르/u);
-    assert.equal(comparison.textContent.includes('직접 수정 무제한 무료'), true);
   });
 
   test('P7 무료진단은 장식 레이어와 전문용어를 걷고 한 문장·입력·CTA에 집중한다', () => {

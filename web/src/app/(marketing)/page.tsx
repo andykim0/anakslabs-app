@@ -84,28 +84,34 @@ const ENGINES = [
 
 const COMPARISON = [
   {
-    label: '잘하는 일',
-    builder: '쇼핑·예약 등 폭넓은 운영 도구',
-    agency: '사람 중심의 맞춤 기획·디자인',
-    anaks: '손님이 찾는 정보까지 업종별로 설계',
+    label: '누가 만드나요',
+    builder: '사장님이 직접',
+    agency: '상담·견적을 거쳐 업체가',
+    anaks: '다보임이 처음부터 끝까지',
   },
   {
-    label: '시작 방식',
-    builder: '템플릿·AI 결과를 직접 조립',
-    agency: '상담 → 견적 → 제작',
-    anaks: '질문 응답 → 구성 확인 → 디자인 3안',
+    label: '시작하는 법',
+    builder: '템플릿 고르고 직접 조립',
+    agency: '상담→견적→제작',
+    anaks: '질문에 답하면 디자인 3안이 도착',
   },
   {
-    label: '손님이 찾는 정보',
-    builder: '제공 기능과 가이드를 직접 설정',
-    agency: '계약 범위와 업체 역량에 따라 적용',
-    anaks: '검색·질문·AI용 기본 구성을 함께 제작',
+    label: '검색·AI 노출',
+    builder: '사장님이 직접 설정',
+    agency: '계약 범위에 따라',
+    anaks: '기본 포함 — 네이버·구글·AI까지 설계',
   },
   {
-    label: '오픈 후',
-    builder: '사용자가 직접 운영',
-    agency: '수정 요청 또는 별도 관리 계약',
-    anaks: `${SUBSCRIPTION_BENEFIT_COPY.selfEdit} + ${SUBSCRIPTION_BENEFIT_COPY.report}`,
+    label: '오픈 후 수정',
+    builder: '사장님이 직접',
+    agency: '요청·계약에 따라',
+    anaks: '무제한 무료',
+  },
+  {
+    label: '성과 확인',
+    builder: '스스로 분석',
+    agency: '별도 관리 계약',
+    anaks: '매달 리포트가 숫자로 도착',
   },
 ];
 
@@ -258,14 +264,14 @@ export default function MarketingHome() {
           <FadeIn delay={0.08}>
             <div className="mt-12 overflow-x-auto rounded-[28px] border border-[#C8D8EC] bg-white shadow-[0_18px_55px_rgba(11,23,54,.06)]">
               <div className="min-w-[820px]">
-                <div className="mkt-type-table-title grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#DCE4F0] bg-[#F8FBFF]">
+                <div className="mkt-type-table-title grid grid-cols-[.62fr_1fr_1fr_1.12fr] break-keep border-b border-[#DCE4F0] bg-[#F8FBFF]">
                   <div className="p-5" />
                   <div className="p-5 font-medium text-[#667085]">일반 템플릿 빌더</div>
                   <div className="p-5 font-medium text-[#667085]">웹 제작대행사</div>
                   <div className="border-l border-[#A8DDE2] bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] p-5 font-semibold text-[#0B1736]">{PUBLIC_BRAND_NAMES.brand}</div>
                 </div>
                 {COMPARISON.map((row) => (
-                  <div key={row.label} className="mkt-type-body grid grid-cols-[.62fr_1fr_1fr_1.12fr] border-b border-[#E4EAF2] last:border-b-0">
+                  <div key={row.label} data-comparison-row className="mkt-type-body grid grid-cols-[.62fr_1fr_1fr_1.12fr] break-keep border-b border-[#E4EAF2] last:border-b-0">
                     <div className="mkt-type-eyebrow p-5 font-mono tracking-[0.1em] text-[#174DDA]">{row.label}</div>
                     <div className="p-5 leading-6 text-[#667085]">{row.builder}</div>
                     <div className="p-5 leading-6 text-[#667085]">{row.agency}</div>

@@ -45,7 +45,7 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
   test('SEO/AEO/GEO 주장은 보장이 아니라 읽히는 기반으로 제한한다', () => {
     const page = read('src/app/(marketing)/page.tsx');
     assert.match(page, /순위나 노출은 보장하지/);
-    assert.match(page, /검색·질문·AI용 기본 구성을 함께 제작/);
+    assert.match(page, /기본 포함 — 네이버·구글·AI까지 설계/);
     assert.match(page, /application\/ld\+json/);
   });
 
