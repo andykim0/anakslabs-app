@@ -1,6 +1,4 @@
 import type { CSSProperties, ReactNode } from 'react';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 const STORY_CSS = `
 [data-landing-continuation] {
@@ -17,11 +15,6 @@ const STORY_CSS = `
   display: block; width: 100%; height: 100%; transform: scaleY(var(--story-progress));
   transform-origin: 50% 0; background: linear-gradient(to bottom,#174dda,#08afc5 52%,#03bfa9);
   box-shadow: 0 0 18px rgba(8,175,197,.38);
-}
-[data-story-bridge] { position: relative; isolation: isolate; }
-[data-story-bridge]::after {
-  position: absolute; inset: auto 0 0; z-index: -1; height: 42%; content: '';
-  background: linear-gradient(to bottom,transparent,#f8fbff);
 }
 [data-story-chapter] { position: relative; isolation: isolate; }
 [data-story-chapter]::before {
@@ -59,23 +52,6 @@ export function LandingStoryContinuation({ children }: { children: ReactNode }) 
         style={{ '--scroll-progress': 0 } as CSSProperties}
       >
         <style dangerouslySetInnerHTML={{ __html: STORY_CSS }} />
-        <section
-          data-story-bridge
-          aria-labelledby="landing-proof-heading"
-          className="bg-[linear-gradient(180deg,#07142F_0%,#0B2750_58%,#F8FBFF_100%)] px-5 pt-20 pb-32 text-white sm:px-8 md:pt-28 md:pb-44"
-        >
-          <div data-film-scrim="proof" className="mx-auto flex max-w-7xl flex-col justify-between gap-7 md:flex-row md:items-end">
-            <div>
-              <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">다보임으로 제작</p>
-              <h2 id="landing-proof-heading" className="mkt-type-section-title mt-4 max-w-4xl font-semibold tracking-[-0.045em]">
-                지금 보고 계신 이 홈페이지가<br className="hidden sm:block" /> 다보임으로 만든 예시입니다.
-              </h2>
-            </div>
-            <Link href="/cases" className="mkt-type-control group inline-flex items-center gap-2 font-semibold text-white">
-              적용 사례 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </section>
         <div aria-hidden="true" data-story-progress-rail>
           <span data-story-progress-fill />
         </div>

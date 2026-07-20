@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import Link from 'next/link';
 import type {
   BeforeAfterScrubScene,
   MotionMedia,
@@ -28,6 +29,11 @@ export interface ScrollytellingActComposition {
   entrance: ScrollytellingEntrancePreset;
 }
 
+export interface ScrollytellingActLink {
+  href: `/${string}`;
+  label: string;
+}
+
 interface MotionSignatureRendererProps {
   scene: MotionScene;
   theme: SiteTheme;
@@ -44,6 +50,8 @@ interface MotionSignatureRendererProps {
   pageFilm?: boolean;
   /** 막 순서와 1:1로 대응하는 타이틀 구도·진입 프리셋. */
   scrollytellingCompositions?: readonly ScrollytellingActComposition[];
+  /** 마케팅 등 renderer 소유 내부 경로 CTA. 저장된 tenant 콘텐츠에서는 사용하지 않는다. */
+  scrollytellingActLinks?: readonly (ScrollytellingActLink | null)[];
 }
 
 const copyStyle: CSSProperties = {
@@ -368,7 +376,7 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm, scrollytellingCompositions }: MotionSignatureRendererProps & {
+function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm, scrollytellingCompositions, scrollytellingActLinks }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -410,6 +418,7 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
             const [start, end] = bandFor(index, scene.acts.length, act.band);
             const headingId = `${domId(scene.sectionId)}-act-${index + 1}`;
             const composition = scrollytellingCompositions?.[index];
+            const actLink = scrollytellingActLinks?.[index];
             return (
               <article
                 key={act.id}
@@ -424,6 +433,11 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
                 <div data-ss-copy style={copyStyle}>
                   <h2 id={headingId} data-ss-heading data-signature-heading>{act.heading}</h2>
                   <p data-ss-body data-signature-body>{act.body}</p>
+                  {actLink ? (
+                    <Link data-ss-act-link href={actLink.href}>
+                      {actLink.label} <span aria-hidden="true">→</span>
+                    </Link>
+                  ) : null}
                 </div>
               </article>
             );

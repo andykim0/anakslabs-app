@@ -11,7 +11,7 @@ const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
 
 describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
-  test('무료 진단과 4막 무대가 하나의 공용 runtime 컴포넌트로 이어진다', () => {
+  test('무료 진단과 5막 무대가 하나의 공용 runtime 컴포넌트로 이어진다', () => {
     const page = read('src/app/(marketing)/page.tsx');
     const cinematic = page.indexOf('<LandingCinematicShowcase />');
     const category = page.indexOf('A NEW WEBSITE CATEGORY');
@@ -55,7 +55,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     }
   });
 
-  test('SSR은 LCP poster·무료 진단·4막 전체를 보존하고 영상만 지연한다', () => {
+  test('SSR은 LCP poster·무료 진단·5막 전체를 보존하고 영상만 지연한다', () => {
     const html = renderToStaticMarkup(createElement(LandingCinematicShowcase));
     const rootNode = parse(html);
     const expectedCopy = [
@@ -63,12 +63,13 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
       ['“주차 되나요?”에 홈페이지가 바로 답하게.', '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 적습니다.'],
       ['AI에게 물어봐도, 공식 정보를 확인하기 쉽게.', '가게 이름, 지역, 서비스와 공식 연락처를 한뜻으로 정리해 AI가 정보를 덜 헷갈리게 합니다.'],
       ['이 움직임을 사장님 홈페이지에도.', '컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 움직임을 줄인 기기에서는 사진과 글이 그대로 보입니다.'],
+      ['지금 보고 계신 이 홈페이지가 다보임으로 만든 예시입니다.', '업종마다 필요한 내용과 장면을 어떻게 다르게 담는지 적용 사례에서 확인해 보세요.'],
     ] as const;
 
     assert.equal(rootNode.querySelectorAll('h1').length, 1);
-    assert.equal(rootNode.querySelectorAll('article[data-ss-act]').length, 4);
-    assert.equal(rootNode.querySelectorAll('article[data-ss-act][aria-labelledby]').length, 4);
-    assert.equal(rootNode.querySelectorAll('article[data-ss-act] h2').length, 4);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act]').length, 5);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act][aria-labelledby]').length, 5);
+    assert.equal(rootNode.querySelectorAll('article[data-ss-act] h2').length, 5);
     assert.equal(rootNode.querySelectorAll('[data-motion-signature]').length, 1);
     for (const [heading, body] of expectedCopy) {
       assert.ok(html.includes(heading), `SSR heading 누락: ${heading}`);

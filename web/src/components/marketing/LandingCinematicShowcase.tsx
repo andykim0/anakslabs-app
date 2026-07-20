@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { ArrowRight, MousePointer2 } from 'lucide-react';
 import type { ScrollytellingManifestoScene, SiteTheme } from '@/lib/types/site';
 import {
   resolveMotionArtDirectionProfile,
@@ -10,6 +8,7 @@ import { LandingScanner } from '@/components/landing/LandingScanner';
 import {
   MotionSignatureRenderer,
   type ScrollytellingActComposition,
+  type ScrollytellingActLink,
 } from '@/components/site-renderer/MotionSignatureRenderer';
 import { LandingCinematicRuntime } from './LandingCinematicRuntime';
 
@@ -30,36 +29,45 @@ const ACTS = [
     heading: '손님이 검색하면, 가게를 찾기 쉽게.',
     body: '네이버·구글이 가게 이름, 지역, 서비스와 페이지 내용을 찾을 수 있게 정리합니다.',
     start: 0,
-    end: 0.25,
+    end: 0.2,
     composition: { placement: 'lower-left', entrance: 'from-left' },
   },
   {
     eyebrow: '02 · ANSWER',
     heading: '“주차 되나요?”에 홈페이지가 바로 답하게.',
     body: '영업시간, 주차, 예약처럼 손님이 자주 묻는 내용을 질문과 답으로 또렷하게 적습니다.',
-    start: 0.25,
-    end: 0.5,
+    start: 0.2,
+    end: 0.4,
     composition: { placement: 'right-aligned', entrance: 'from-right' },
   },
   {
     eyebrow: '03 · GENERATIVE',
     heading: 'AI에게 물어봐도, 공식 정보를 확인하기 쉽게.',
     body: '가게 이름, 지역, 서비스와 공식 연락처를 한뜻으로 정리해 AI가 정보를 덜 헷갈리게 합니다.',
-    start: 0.5,
-    end: 0.75,
+    start: 0.4,
+    end: 0.6,
     composition: { placement: 'center-large', entrance: 'fade-scale' },
   },
   {
     eyebrow: '04 · CINEMATIC',
     heading: '이 움직임을 사장님 홈페이지에도.',
     body: '컴퓨터에서는 스크롤에 맞춰 장면이 바뀌고, 휴대폰에서는 부드럽게 반복됩니다. 움직임을 줄인 기기에서는 사진과 글이 그대로 보입니다.',
-    start: 0.75,
-    end: 1,
+    start: 0.6,
+    end: 0.8,
     composition: { placement: 'top-band-bottom-assist', entrance: 'from-bottom' },
+  },
+  {
+    eyebrow: '05 · MADE WITH DABOIM',
+    heading: '지금 보고 계신 이 홈페이지가 다보임으로 만든 예시입니다.',
+    body: '업종마다 필요한 내용과 장면을 어떻게 다르게 담는지 적용 사례에서 확인해 보세요.',
+    start: 0.8,
+    end: 1,
+    composition: { placement: 'center-large', entrance: 'fade-scale' },
   },
 ] as const;
 
 const LANDING_ACT_COMPOSITIONS = ACTS.map((act) => act.composition) satisfies readonly ScrollytellingActComposition[];
+const LANDING_ACT_LINKS = [null, null, null, null, { href: '/cases', label: '적용 사례 보기' }] satisfies readonly (ScrollytellingActLink | null)[];
 
 const LANDING_THEME = {
   fonts: {
@@ -181,10 +189,10 @@ const STAGE_CSS = `
   margin-inline: auto;
 }
 .daboim-cinematic [data-ss-act][data-ss-composition="top-band-bottom-assist"] {
-  align-items: stretch; justify-content: stretch;
+  align-items: stretch; justify-content: stretch; padding-top: max(156px,11vw); padding-bottom: clamp(64px,7vw,96px);
 }
 .daboim-cinematic [data-ss-act][data-ss-composition="top-band-bottom-assist"] [data-ss-copy] {
-  display: flex; min-height: calc(100svh - clamp(96px, 16vw, 240px)); width: 100%; max-width: none !important;
+  display: flex; flex: 1; min-height: 0; width: 100%; max-width: none !important;
   flex-direction: column; justify-content: space-between; gap: 32px; margin: 0; padding: 0;
   border: 0; background: transparent; box-shadow: none; transform-origin: 50% 100%;
 }
@@ -200,6 +208,11 @@ const STAGE_CSS = `
   opacity: var(--ss-act-opacity, 1);
   transform: translate3d(var(--ss-act-x, 0px),var(--ss-act-y, 0px),0) scale(var(--ss-act-scale, 1));
 }
+.daboim-cinematic [data-ss-act-link] {
+  display: inline-flex; width: fit-content; align-items: center; gap: 8px; margin-top: 28px;
+  color: #68e8d8; font-size: clamp(1rem,1.35vw,1.2rem); font-weight: 700; text-decoration: none;
+}
+.daboim-cinematic [data-ss-act][data-ss-composition="center-large"] [data-ss-act-link] { margin-inline: auto; }
 .daboim-cinematic [data-ss-heading] {
   max-width: 860px; color: #fff; font-size: clamp(2.25rem, 5.5vw, 5.5rem);
   letter-spacing: -.055em; text-wrap: balance;
@@ -226,8 +239,11 @@ const STAGE_CSS = `
   .daboim-cinematic [data-ss-act][data-ss-composition="right-aligned"] { align-items: flex-start; justify-content: center; }
   .daboim-cinematic [data-ss-act][data-ss-composition="right-aligned"] [data-ss-copy] { text-align: right; }
   .daboim-cinematic [data-ss-act][data-ss-composition="center-large"] [data-ss-heading] { font-size: clamp(2.7rem, 13vw, 4.4rem); }
+  .daboim-cinematic.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act] {
+    padding: 164px 20px 72px;
+  }
   .daboim-cinematic [data-ss-act][data-ss-composition="top-band-bottom-assist"] [data-ss-copy] {
-    min-height: calc(100svh - 144px); padding: 0;
+    min-height: 0; padding: 0;
   }
   .daboim-cinematic [data-ss-act][data-ss-composition="top-band-bottom-assist"] [data-ss-heading],
   .daboim-cinematic [data-ss-act][data-ss-composition="top-band-bottom-assist"] [data-ss-body] { max-width: 100%; padding: 20px; }
@@ -281,21 +297,6 @@ export function LandingCinematicShowcase() {
         </div>
       </div>
 
-      <div className="relative px-5 pt-12 text-white sm:px-8 md:pt-16">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 pb-8">
-          <Link
-            href="/cases"
-            className="mkt-type-eyebrow group inline-flex items-center gap-2 rounded-full border border-[#68E8D8]/35 bg-[#68E8D8]/10 px-3.5 py-2 font-mono tracking-[0.12em] text-[#68E8D8] uppercase transition-colors hover:bg-[#68E8D8]/16"
-          >
-            예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-          <p className="mkt-type-support inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono tracking-[0.11em] text-white/80">
-            <MousePointer2 className="h-3 w-3 text-[#68E8D8]" /> 컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복
-          </p>
-        </div>
-      </div>
-
       <MotionSignatureRenderer
         scene={LANDING_SCENE}
         theme={LANDING_THEME}
@@ -304,6 +305,7 @@ export function LandingCinematicShowcase() {
         isFirst
         pageFilm
         scrollytellingCompositions={LANDING_ACT_COMPOSITIONS}
+        scrollytellingActLinks={LANDING_ACT_LINKS}
         responsiveVideoSources={LANDING_VIDEO_SOURCES}
       />
       <noscript>

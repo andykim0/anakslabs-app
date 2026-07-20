@@ -86,13 +86,14 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
       '[data-motion-signature="scrollytelling-manifesto"][data-signature-id="scrollytelling-manifesto"]',
     );
     assert.equal(stages.length, 1, '페이지당 관통 시그니처는 하나여야 함');
-    assert.equal(stages[0]!.querySelectorAll('article[data-ss-act][aria-labelledby]').length, 4);
+    assert.equal(stages[0]!.querySelectorAll('article[data-ss-act][aria-labelledby]').length, 5);
 
     for (const copy of [
       '손님이 검색하면, 가게를 찾기 쉽게.',
       '“주차 되나요?”에 홈페이지가 바로 답하게.',
       'AI에게 물어봐도, 공식 정보를 확인하기 쉽게.',
       '이 움직임을 사장님 홈페이지에도.',
+      '지금 보고 계신 이 홈페이지가 다보임으로 만든 예시입니다.',
     ]) {
       assert.ok(stages[0]!.textContent.includes(copy), `정적 핵심 카피 누락: ${copy}`);
     }
