@@ -11,8 +11,9 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Check, ChevronDown, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Copy, GitCompareArrows, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
+import { comparisonHeadline, SCAN_STRUCTURE_SIGNALS, structureSignals } from '@/lib/scan/comparison';
 import { guidanceFor } from '@/lib/scan/guidance';
 import { OptimizationConsole } from '@/components/marketing/OptimizationConsole';
 import { useFailClosedReducedMotion } from '@/components/marketing/use-fail-closed-reduced-motion';
@@ -31,11 +32,11 @@ const subscribeToHydration = () => () => {};
 const getHydratedSnapshot = () => true;
 const getServerSnapshot = () => false;
 
-async function requestScan(url: string): Promise<ScanResult> {
+async function requestScan(url: string, competitorUrls: string[]): Promise<ScanResult> {
   const res = await fetch('/api/scan', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, competitorUrls }),
   });
   const body = (await res.json().catch(() => null)) as { scan?: ScanResult; error?: { message?: string } } | null;
   if (!res.ok || !body?.scan) {
@@ -141,8 +142,68 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
 
 // ---------- 결과 패널 ----------
 
-function ScanResultPanel({ scan }: { scan: ScanResult }) {
+function ComparisonReport({ scan }: { scan: ScanResult }) {
+  const comparisons = scan.comparisons ?? [];
+  if (comparisons.length === 0) return null;
+  const sites = [
+    { label: '내 홈페이지', url: scan.url, signals: structureSignals(scan.issues) },
+    ...comparisons.map((item, index) => ({
+      label: `옆 가게 ${index + 1}`,
+      url: item.url,
+      signals: structureSignals(item.issues),
+    })),
+  ];
+  return (
+    <div className="mt-5 rounded-2xl border border-[#DCE4F0] bg-[#F8FAFD] p-4 sm:p-5">
+      <p className="mkt-type-card-title font-semibold text-[#17181C]">{comparisonHeadline(scan, comparisons)}</p>
+      <p className="mkt-type-support mt-1.5 text-[#5C6068]">
+        구조 신호 기준 비교이며 실제 검색 순위 조회나 순위 보장이 아닙니다.
+      </p>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[620px] border-separate border-spacing-0 text-left">
+          <thead>
+            <tr>
+              <th className="mkt-type-support border-b border-[#DCE4F0] p-3 text-[#5C6068]">확인 항목</th>
+              {sites.map((site) => (
+                <th key={site.url} className="border-b border-[#DCE4F0] p-3 align-bottom">
+                  <span className="mkt-type-body block font-semibold text-[#17181C]">{site.label}</span>
+                  <span className="mkt-type-support block max-w-40 truncate font-normal text-[#697386]">
+                    {new URL(site.url).hostname}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {SCAN_STRUCTURE_SIGNALS.map((signal) => (
+              <tr key={signal.key}>
+                <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">{signal.label}</th>
+                {sites.map((site) => (
+                  <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3">
+                    {site.signals[signal.key] ? (
+                      <span className="inline-flex items-center gap-1 font-semibold text-[#087D70]"><Check className="h-4 w-4" /> 있음</span>
+                    ) : (
+                      <span className="text-[#7A5260]">없음</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; shared?: boolean }) {
   const issueCount = scan.issues.length;
+  const [copied, setCopied] = useState(false);
+  const copyResultLink = async () => {
+    await navigator.clipboard.writeText(`${window.location.origin}/scan/${scan.id}`);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -161,6 +222,11 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
             </span>
           </p>
         </div>
+        {!shared ? (
+          <button type="button" onClick={() => void copyResultLink()} className="mkt-type-control inline-flex h-10 items-center gap-2 rounded-xl border border-[#CAD5E5] px-3 font-semibold text-[#334155] hover:border-[#174DDA] hover:text-[#174DDA]">
+            <Copy className="h-4 w-4" /> {copied ? '링크를 복사했습니다' : '결과 링크 복사'}
+          </button>
+        ) : null}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -175,6 +241,8 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
         </div>
       ) : null}
 
+      <ComparisonReport scan={scan} />
+
       {/* 효과 요약 — 실제 스캔 값 바인딩 */}
       <div className="mt-5 rounded-2xl border border-[#CFEAE7] bg-[#EFFBF9] p-6">
         <p className="mkt-type-body text-[#17181C]">
@@ -184,6 +252,9 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
             : '기본 정보는 있지만 손님이 찾기 어려운 항목이 남아 있습니다.'}{' '}
           다보임은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
           보완해, 가게 이름·지역·서비스를 네이버·구글·AI가 읽기 쉽게 정리합니다.
+        </p>
+        <p className="mkt-type-body mt-3 font-semibold text-[#0B4351]">
+          진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다.
         </p>
         <Link
           href="/login"
@@ -201,6 +272,8 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
 
 export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film' | 'poster' | 'interface' }) {
   const [url, setUrl] = useState('');
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [competitorUrls, setCompetitorUrls] = useState(['', '']);
   const [scanning, setScanning] = useState(false);
   const [msgIdx, setMsgIdx] = useState(0);
   const [scan, setScan] = useState<ScanResult | null>(null);
@@ -226,7 +299,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
     setScan(null);
     const ticker = window.setInterval(() => setMsgIdx((i) => (i + 1) % SCAN_MESSAGES.length), 1500);
     try {
-      const result = await requestScan(target);
+      const result = await requestScan(target, competitorUrls.map((item) => item.trim()).filter(Boolean));
       saveScanCookie(result.id);
       setScan(result);
     } catch (err) {
@@ -256,6 +329,9 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
           </h1>
           <p data-scan-lead className="mkt-type-body mt-7 max-w-xl text-[#334155] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
             홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.
+          </p>
+          <p className="mkt-type-body mt-3 max-w-xl font-semibold text-[#0B4351] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
+            진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다.
           </p>
 
           <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">
@@ -310,6 +386,38 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
                 내 사이트 무료 진단
               </button>
             </div>
+            <button
+              type="button"
+              aria-expanded={compareOpen}
+              onClick={() => setCompareOpen((value) => !value)}
+              className="mkt-type-control mt-2 inline-flex h-10 items-center gap-2 rounded-xl px-3 font-semibold text-[#334155] hover:bg-[#F2F6FC] hover:text-[#174DDA]"
+            >
+              <GitCompareArrows className="h-4 w-4" /> 옆 가게와 비교 <span className="font-normal text-[#697386]">(선택)</span>
+            </button>
+            <p className="mkt-type-support px-3 pb-1 text-[#5C6068]">
+              같은 검사로 구조 신호만 비교합니다. 검색 순위를 조회하거나 보장하지 않습니다.
+            </p>
+            {compareOpen ? (
+              <div className="grid gap-2 border-t border-[#E4EAF2] px-1 pt-3 sm:grid-cols-2">
+                {competitorUrls.map((competitorUrl, index) => (
+                  <div key={index}>
+                    <label htmlFor={`landing-competitor-url-${index}`} className="mkt-type-support mb-1 block font-medium text-[#4F5867]">
+                      옆 가게 홈페이지 {index + 1}
+                    </label>
+                    <input
+                      id={`landing-competitor-url-${index}`}
+                      inputMode="url"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      value={competitorUrl}
+                      onChange={(event) => setCompetitorUrls((items) => items.map((item, itemIndex) => itemIndex === index ? event.target.value : item))}
+                      placeholder="예: nearby-shop.co.kr"
+                      className="mkt-type-control h-11 w-full rounded-xl border border-[#CAD5E5] bg-white px-3 text-[#0B1736] outline-none placeholder:text-[#747780] focus:ring-2 focus:ring-[#08AFC5]"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
           <div className="mkt-type-support mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[#6C7788]">
             {['가입 없이 바로', '검색 · 질문 · AI 정보 확인', '결과 30일 보관'].map((item) => (

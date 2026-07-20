@@ -276,6 +276,14 @@ export interface ScanIssue {
   pillar: 'seo' | 'aeo' | 'geo';
 }
 
+export interface ScanComparisonResult {
+  /** 경쟁 업체로 입력된 URL의 동일 스캐너 결과. 실제 순위 데이터가 아니다. */
+  url: string;
+  scores: { seo: number; aeo: number; geo: number; total: number };
+  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  issues: ScanIssue[];
+}
+
 export interface ScanResult {
   id: string;
   url: string;
@@ -283,6 +291,8 @@ export interface ScanResult {
   scores: { seo: number; aeo: number; geo: number; total: number };
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
   issues: ScanIssue[];
+  /** 선택 입력된 경쟁 URL(최대 2)의 구조 신호 비교 원본. */
+  comparisons?: ScanComparisonResult[];
   /** 익명 스캔은 null, 가입 후 claim */
   clientId: string | null;
   createdAt: string;

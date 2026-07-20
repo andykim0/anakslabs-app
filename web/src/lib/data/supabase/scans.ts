@@ -2,7 +2,7 @@
  * Supabase ScansRepo — SEO/AEO/GEO 진단 스캔 저장 (service role).
  * 실 테이블(scans)은 Phase 6 마이그레이션에서 생성. 여기선 타입 정합 최소 구현.
  */
-import type { ScanIssue, ScanResult, ScansRepo } from '../types';
+import type { ScanComparisonResult, ScanIssue, ScanResult, ScansRepo } from '../types';
 import { getServiceRoleClient } from './client';
 
 interface ScanRow {
@@ -11,6 +11,7 @@ interface ScanRow {
   scores: unknown;
   grade: string;
   issues: unknown;
+  comparisons: unknown;
   client_id: string | null;
   created_at: string;
 }
@@ -22,6 +23,7 @@ function rowToScan(row: ScanRow): ScanResult {
     scores: row.scores as ScanResult['scores'],
     grade: row.grade as ScanResult['grade'],
     issues: (row.issues as ScanIssue[] | null) ?? [],
+    comparisons: (row.comparisons as ScanComparisonResult[] | null) ?? [],
     clientId: row.client_id ?? null,
     createdAt: row.created_at,
   };
@@ -37,6 +39,7 @@ export class SupabaseScansRepo implements ScansRepo {
         scores: input.scores,
         grade: input.grade,
         issues: input.issues,
+        comparisons: input.comparisons ?? [],
         client_id: input.clientId,
       })
       .select('*')

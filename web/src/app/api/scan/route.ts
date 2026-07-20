@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { isMockMode } from '@/lib/env';
 import { getDataServices } from '@/lib/data';
 import { demoFixture, normalizeScanUrl, runScan, ScanError } from '@/lib/scan';
+import { SCAN_COMPARISON_LIMIT, toComparisonResult } from '@/lib/scan/comparison';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { getAuthedClient } from '@/app/api/_lib/guards';
 
@@ -39,7 +40,14 @@ function rateLimited(ip: string): boolean {
 
 const bodySchema = z.object({
   url: z.string().min(1, '진단할 주소를 입력해 주세요.').max(2000),
+  competitorUrls: z.array(z.string().min(1).max(2000)).max(SCAN_COMPARISON_LIMIT).optional(),
 });
+
+async function scanOne(normalized: string) {
+  const hostname = new URL(normalized).hostname;
+  if (isMockMode() && hostname.startsWith('demo.')) return demoFixture(normalized);
+  return runScan(normalized);
+}
 
 export const POST = withApiHandler(async (request: NextRequest) => {
   const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
@@ -55,13 +63,12 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   let core;
   try {
-    const normalized = normalizeScanUrl(body.data.url);
-    const hostname = new URL(normalized).hostname;
-    if (isMockMode() && hostname.startsWith('demo.')) {
-      core = demoFixture(normalized);
-    } else {
-      core = await runScan(normalized);
+    const normalizedUrls = [body.data.url, ...(body.data.competitorUrls ?? [])].map(normalizeScanUrl);
+    if (new Set(normalizedUrls).size !== normalizedUrls.length) {
+      return apiError(400, 'DUPLICATE_SCAN_URL', '같은 홈페이지 주소는 한 번만 입력해 주세요.');
     }
+    const [primary, ...comparisons] = await Promise.all(normalizedUrls.map(scanOne));
+    core = { ...primary, comparisons: comparisons.map(toComparisonResult) };
   } catch (err) {
     if (err instanceof ScanError) {
       return apiError(400, err.code, err.message);
