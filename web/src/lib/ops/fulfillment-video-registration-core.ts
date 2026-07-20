@@ -1,6 +1,7 @@
 import type { AssetRecord } from '@/lib/assets/provenance';
 import {
   VIDEO_HARD_MAX_BYTES,
+  classifyVideoEncodingQuality,
   classifyVideoBytes,
 } from '@/lib/motion/asset-limits';
 
@@ -42,6 +43,7 @@ export interface VerifiedFulfillmentVideoProbe {
   durationSeconds: number;
   frameCount: number;
   keyframeCount: number;
+  averageBitrateBps: number;
 }
 
 export class FulfillmentVideoRegistrationError extends Error {
@@ -281,6 +283,7 @@ function positiveInteger(value: unknown): number | null {
 /** Require the exact browser-compatible 1080p H.264 scrub asset contract. */
 export function verifyFulfillmentVideoProbe(
   probe: FulfillmentVideoProbe,
+  bytes: number,
 ): VerifiedFulfillmentVideoProbe {
   const streams = Array.isArray(probe.streams) ? probe.streams : [];
   const videos = streams.filter((stream) => stream.codec_type === 'video');
@@ -326,6 +329,11 @@ export function verifyFulfillmentVideoProbe(
     );
   }
 
+  const quality = classifyVideoEncodingQuality({ bytes, durationSeconds: duration, width, height });
+  if (quality.blocker) {
+    throw new FulfillmentVideoRegistrationError('OPS_VIDEO_QUALITY_INVALID', quality.blocker);
+  }
+
   const frames = Array.isArray(probe.frames) ? probe.frames : [];
   if (frames.length === 0) {
     throw new FulfillmentVideoRegistrationError(
@@ -347,6 +355,7 @@ export function verifyFulfillmentVideoProbe(
     durationSeconds: duration,
     frameCount: frames.length,
     keyframeCount,
+    averageBitrateBps: quality.averageBitrateBps,
   };
 }
 

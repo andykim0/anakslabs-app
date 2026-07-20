@@ -310,8 +310,8 @@ export function LandingCinematicShowcase() {
         artDirection={LANDING_ART_DIRECTION}
         mode="auto"
         isFirst
-        scrollytellingCompositionPattern={LANDING_COMPOSITION_PATTERN}
-        scrollytellingCompositionOverrides={LANDING_COMPOSITION_OVERRIDES}
+        compositionPattern={LANDING_COMPOSITION_PATTERN}
+        compositionOverrides={LANDING_COMPOSITION_OVERRIDES}
         scrollytellingActLinks={LANDING_ACT_LINKS}
         responsiveVideoSources={LANDING_VIDEO_SOURCES}
       />

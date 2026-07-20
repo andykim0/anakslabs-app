@@ -305,7 +305,7 @@ function ffprobe(filePath: string, args: readonly string[]): string {
   }
 }
 
-function inspectWithFfprobe(filePath: string) {
+function inspectWithFfprobe(filePath: string, bytes: number) {
   const streamPayload = parseProbeJson(ffprobe(filePath, [
     '-v', 'error',
     '-print_format', 'json',
@@ -326,7 +326,7 @@ function inspectWithFfprobe(filePath: string) {
     frames: Array.isArray(framePayload.frames)
       ? framePayload.frames as NonNullable<FulfillmentVideoProbe['frames']>
       : [],
-  });
+  }, bytes);
 }
 
 async function assertReadyQueueSite(siteId: string) {
@@ -386,10 +386,11 @@ async function main(): Promise<void> {
   try {
     const probePath = join(tempDirectory, 'candidate.mp4');
     await writeFile(probePath, source.bytes);
-    const probe = inspectWithFfprobe(probePath);
+    const probe = inspectWithFfprobe(probePath, source.bytes.byteLength);
     console.log(
       `[video-register] 검증 완료 · ${probe.width}x${probe.height} · `
       + `H.264 yuv420p · ${probe.durationSeconds.toFixed(2)}초 · `
+      + `${(probe.averageBitrateBps / 1_000_000).toFixed(2)}Mbps · `
       + `${probe.frameCount}프레임/키프레임 ${probe.keyframeCount} · `
       + `${(source.bytes.byteLength / 1024 / 1024).toFixed(2)}MB · 무음`,
     );

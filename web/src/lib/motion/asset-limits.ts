@@ -18,6 +18,12 @@
 export const VIDEO_TARGET_BYTES = 3 * 1024 * 1024; // 3MB
 /** 히어로 영상 하드 상한 — 초과 시 발행 blocker */
 export const VIDEO_HARD_MAX_BYTES = 8 * 1024 * 1024; // 8MB
+/** GOP 1 1080p에서 블록·밴딩이 두드러지는 과압축을 막는 신규 발행 하한. */
+export const VIDEO_MIN_AVERAGE_BITRATE_BPS = 4_000_000;
+/** 원본보다 크게 보일 수 있는 cover 배율. 초과 시 renderer가 미디어 박스를 원본 근처로 제한한다. */
+export const VIDEO_MAX_COVER_UPSCALE_RATIO = 1.15;
+export const VIDEO_HERO_MIN_WIDTH = 1920;
+export const VIDEO_HERO_MIN_HEIGHT = 1080;
 
 const mb = (n: number): string => (n / 1024 / 1024).toFixed(1);
 
@@ -34,4 +40,42 @@ export function classifyVideoBytes(bytes: number | undefined): { warning?: strin
     return { warning: `히어로 영상 원본 ${mb(bytes)}MB — 목표 ${mb(VIDEO_TARGET_BYTES)}MB 초과. 후처리 압축을 권장합니다.` };
   }
   return {};
+}
+
+export function videoAverageBitrateBps(bytes: number, durationSeconds: number): number {
+  if (!Number.isFinite(bytes) || bytes <= 0 || !Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
+  return bytes * 8 / durationSeconds;
+}
+
+/** 신규 히어로 등록분의 해상도·평균 비트레이트 하드 가드. */
+export function classifyVideoEncodingQuality(input: {
+  bytes: number;
+  durationSeconds: number;
+  width: number;
+  height: number;
+}): { blocker?: string; averageBitrateBps: number } {
+  const averageBitrateBps = videoAverageBitrateBps(input.bytes, input.durationSeconds);
+  if (input.width < VIDEO_HERO_MIN_WIDTH || input.height < VIDEO_HERO_MIN_HEIGHT) {
+    return {
+      blocker: `히어로 영상 ${input.width}x${input.height} — 최소 ${VIDEO_HERO_MIN_WIDTH}x${VIDEO_HERO_MIN_HEIGHT}보다 작아 확대 재생할 수 없습니다.`,
+      averageBitrateBps,
+    };
+  }
+  if (averageBitrateBps < VIDEO_MIN_AVERAGE_BITRATE_BPS) {
+    return {
+      blocker: `히어로 영상 평균 비트레이트 ${(averageBitrateBps / 1_000_000).toFixed(2)}Mbps — 화질 하한 ${(VIDEO_MIN_AVERAGE_BITRATE_BPS / 1_000_000).toFixed(1)}Mbps 미만입니다.`,
+      averageBitrateBps,
+    };
+  }
+  return { averageBitrateBps };
+}
+
+export function videoCoverScale(input: {
+  mediaWidth: number;
+  mediaHeight: number;
+  viewportWidth: number;
+  viewportHeight: number;
+}): number {
+  if (Object.values(input).some((value) => !Number.isFinite(value) || value <= 0)) return 0;
+  return Math.max(input.viewportWidth / input.mediaWidth, input.viewportHeight / input.mediaHeight);
 }

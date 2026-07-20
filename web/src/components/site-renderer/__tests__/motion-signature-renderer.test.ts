@@ -147,7 +147,32 @@ describe('motion signature production renderers', () => {
     const html = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true);
     assert.match(html, /<img[^>]*data-video-poster="true"[^>]*width="1920"[^>]*height="1080"[^>]*fetchPriority="high"/);
     assert.match(html, /<video[^>]*poster="\/motion\/cinematic-poster\.webp"[^>]*width="1920"[^>]*height="1080"[^>]*preload="none"/);
+    assert.match(html, /data-video-quality-guard="true"[^>]*data-source-width="1920"[^>]*data-source-height="1080"/);
+    assert.match(html, /--signature-media-quality-max-width:2208px/);
     assert.doesNotMatch(html, /autoplay/);
+  });
+
+  test('P6 cinematic renderers share deterministic boxless composition presets', () => {
+    const cinematic = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub']);
+    const manifesto = renderScene(X5_RENDERER_FIXTURES['scrollytelling-manifesto']);
+    const portal = renderScene(X5_RENDERER_FIXTURES['portal-zoom']);
+    const curtain = renderScene(X5_RENDERER_FIXTURES['scroll-curtain']);
+    const horizontal = renderScene(X5_RENDERER_FIXTURES['horizontal-story']);
+
+    assert.match(cinematic, /data-composition-pattern="left"/);
+    assert.match(manifesto, /data-ss-composition-pattern="alternate-lr"/);
+    for (const html of [portal, curtain, horizontal]) {
+      assert.match(html, /data-composition-pattern="alternate-lr"/);
+      assert.match(html, /data-cinematic-composition="left"/);
+      assert.match(html, /data-cinematic-composition="right"/);
+      assert.match(html, /data-cinematic-word="true"/);
+    }
+    assert.doesNotMatch(cinematic, /data-cinematic-scrim/);
+    assert.match(MOTION_CSS, /m-scrollytelling-ready \[data-ss-copy\][^{]*\{[^}]*padding: 0;[^}]*border: 0;[^}]*background: none/);
+    assert.match(MOTION_CSS, /portal-zoom"\]\.m-signature-ready \[data-scene-copy\][^{]*\{[^}]*padding: 0;[^}]*border: 0;[^}]*background: none/);
+    assert.doesNotMatch(MOTION_CSS, /data-cinematic-scrim/);
+    assert.match(MOTION_RUNTIME, /refreshVideoQualityGuards[\s\S]*coverScale>1\.15/);
+    assert.match(MOTION_RUNTIME, /syncCinematicWords[\s\S]*data-cinematic-word/);
   });
 
   test('cinematic scrub establishes its heading before the first scroll input', () => {

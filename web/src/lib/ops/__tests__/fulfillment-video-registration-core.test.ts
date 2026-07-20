@@ -14,12 +14,20 @@ import {
   normalizeFulfillmentVideoMime,
   parseRegisterFulfillmentVideoArgs,
   selectPinnedFulfillmentVideoIpv4,
-  verifyFulfillmentVideoProbe,
+  verifyFulfillmentVideoProbe as verifyFulfillmentVideoProbeCore,
 } from '../fulfillment-video-registration-core';
 
 const SITE_ID = '11111111-1111-4111-8111-111111111111';
 const CLIENT_ID = '22222222-2222-4222-8222-222222222222';
 const ASSET_ID = '33333333-3333-4333-8333-333333333333';
+const QUALITY_BYTES = 5 * 1024 * 1024;
+
+function verifyFulfillmentVideoProbe(
+  value: Parameters<typeof verifyFulfillmentVideoProbeCore>[0],
+  bytes = QUALITY_BYTES,
+) {
+  return verifyFulfillmentVideoProbeCore(value, bytes);
+}
 
 function mp4Bytes(): Uint8Array {
   return Uint8Array.from([
@@ -164,6 +172,7 @@ describe('O3 fulfillment video CLI contract', () => {
       durationSeconds: 8,
       frameCount: 192,
       keyframeCount: 192,
+      averageBitrateBps: 5_242_880,
     });
     assert.throws(
       () => verifyFulfillmentVideoProbe(probe({ streams: [] })),
@@ -219,6 +228,10 @@ describe('O3 fulfillment video CLI contract', () => {
     assert.throws(
       () => verifyFulfillmentVideoProbe(probe({ frames: [{ key_frame: 1 }, { key_frame: 0 }] })),
       /OPS_VIDEO_GOP_INVALID/,
+    );
+    assert.throws(
+      () => verifyFulfillmentVideoProbe(probe(), 2 * 1024 * 1024),
+      /OPS_VIDEO_QUALITY_INVALID/,
     );
   });
 

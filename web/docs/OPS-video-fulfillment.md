@@ -13,7 +13,7 @@
 
 승인된 고객별 Daboim AI(Veo) 수동 생성 절차로 6~8초, 1920×1080 원본을 만들고, 고객이 선택한 히어로 소스와 연출인지 눈으로 확인합니다. 다른 가게의 영상이나 제품·시술 결과를 날조한 영상을 사용하지 않습니다.
 
-스크럽용 파일은 해상도를 자동으로 낮추지 않고 MP4/H.264/yuv420p, 무음 all-intra로 인코딩합니다. 등록 검사는 인코더·컨테이너 오차를 고려해 5.5~8.5초만 허용합니다.
+스크럽용 파일은 해상도를 자동으로 낮추지 않고 MP4/H.264/yuv420p, 무음 all-intra로 인코딩합니다. 등록 검사는 인코더·컨테이너 오차를 고려해 5.5~8.5초만 허용하며, 신규 등록분은 1920×1080과 평균 4Mbps 이상을 함께 만족해야 합니다.
 
 ```bash
 ffmpeg -i veo-raw.mp4 \
@@ -24,7 +24,7 @@ ffmpeg -i veo-raw.mp4 \
   cinematic-g1.mp4
 ```
 
-3MiB 초과는 운영 경고이고 8MiB 초과는 등록 차단입니다. 8MiB를 넘으면 CRF를 조금씩 올려 다시 인코딩하고 육안 검수합니다. 해상도 강등은 자동으로 하지 않습니다.
+3MiB 초과는 운영 경고이고 8MiB 초과는 등록 차단입니다. 8MiB를 넘으면 CRF를 조금씩 올려 다시 인코딩하고 육안 검수하되 평균 4Mbps 아래로 내리지 않습니다. 해상도 강등이나 낮은 비트레이트로의 과압축은 자동으로 하지 않습니다.
 
 ## 2. registry 등록
 
@@ -76,6 +76,7 @@ VIDEO_ASSET_ID=22222222-2222-4222-8222-222222222222
 - `OPS_VIDEO_AUDIO_FORBIDDEN`: `-an`으로 다시 인코딩합니다.
 - `OPS_VIDEO_CODEC_INVALID`: H.264/yuv420p로 다시 인코딩합니다.
 - `OPS_VIDEO_GEOMETRY_INVALID`: 1920×1080 원본인지 확인합니다.
+- `OPS_VIDEO_QUALITY_INVALID`: 평균 4Mbps 이상인지 확인하고 과압축 없이 다시 인코딩합니다.
 - `OPS_VIDEO_DURATION_INVALID`: 6~8초 원본을 다시 확인합니다.
 - `OPS_VIDEO_SIZE_BLOCKED`: 8MiB 이하로 다시 인코딩합니다.
 - `OPS_VIDEO_URL_BLOCKED`, `OPS_VIDEO_URL_DNS_FAILED`: URL 호스트가 공개 IPv4로만 해석되는지 확인합니다.

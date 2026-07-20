@@ -9,6 +9,7 @@ import type {
 } from '@/lib/types/site';
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
 import {
+  defaultCinematicCompositionPattern,
   resolveScrollytellingComposition,
   type ScrollytellingCompositionOverride,
   type ScrollytellingCompositionPattern,
@@ -37,12 +38,12 @@ interface MotionSignatureRendererProps {
   }[];
   /** 랜딩 전역 진행도 루트가 이 단일 영상을 소유할 때 시그니처 자체의 seek를 비활성화한다. */
   pageFilm?: boolean;
-  /** 한 설정으로 모든 막에 적용하는 타이틀 구도 패턴. */
-  scrollytellingCompositionPattern?: ScrollytellingCompositionPattern;
+  /** 한 설정으로 시그니처의 모든 막에 적용하는 타이틀 구도 패턴. */
+  compositionPattern?: ScrollytellingCompositionPattern;
   /** 장면 밝기 충돌 등 특정 막만 보정하는 선택적 슬롯. */
-  scrollytellingCompositionOverrides?: readonly (ScrollytellingCompositionOverride | null)[];
+  compositionOverrides?: readonly (ScrollytellingCompositionOverride | null)[];
   /** 개별 override가 없을 때 쓰는 장면 위 타이포 톤. */
-  scrollytellingDefaultTone?: ScrollytellingCopyTone;
+  compositionDefaultTone?: ScrollytellingCopyTone;
   /** 마케팅 등 renderer 소유 내부 경로 CTA. 저장된 tenant 콘텐츠에서는 사용하지 않는다. */
   scrollytellingActLinks?: readonly (ScrollytellingActLink | null)[];
 }
@@ -67,6 +68,19 @@ function ScrollytellingHeading({ heading }: { heading: string }) {
     <>
       {words.map((word, index) => (
         <span key={`${word}-${index}`} data-ss-word aria-hidden="true">
+          {word}{index < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </>
+  );
+}
+
+function CinematicHeading({ heading }: { heading: string }) {
+  const words = heading.trim().split(/\s+/u).filter(Boolean);
+  return (
+    <>
+      {words.map((word, index) => (
+        <span key={`${word}-${index}`} data-cinematic-word aria-hidden="true">
           {word}{index < words.length - 1 ? ' ' : ''}
         </span>
       ))}
@@ -225,9 +239,11 @@ function SignatureMedia({
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
   const poster = safeMediaSrc(media.poster);
-  const geometry: CSSProperties = {
+  const geometry: CSSProperties & Record<`--${string}`, string> = {
     aspectRatio: `${media.width} / ${media.height}`,
     width: '100%',
+    '--signature-media-quality-max-width': `${Math.round(media.width * 1.15)}px`,
+    '--signature-media-quality-max-height': `${Math.round(media.height * 1.15)}px`,
   };
   const commonImageProps = {
     width: media.width,
@@ -241,6 +257,9 @@ function SignatureMedia({
   return (
     <figure
       data-signature-media
+      data-video-quality-guard={media.kind === 'video' ? true : undefined}
+      data-source-width={media.kind === 'video' ? media.width : undefined}
+      data-source-height={media.kind === 'video' ? media.height : undefined}
       className={className}
       style={geometry}
       {...dataAttrs}
@@ -340,11 +359,27 @@ function SignatureRoot({
   );
 }
 
-function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRendererProps & {
+function CinematicScrub({
+  scene,
+  theme,
+  art,
+  mode,
+  isFirst,
+  compositionPattern,
+  compositionOverrides,
+  compositionDefaultTone = 'light',
+}: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'cinematic-scrub' }>;
   art: MotionArtDirectionProfile;
 }) {
   const headingId = `${domId(scene.sectionId)}-cinematic-heading`;
+  const pattern = compositionPattern ?? defaultCinematicCompositionPattern('cinematic-scrub');
+  const composition = resolveScrollytellingComposition(
+    pattern,
+    0,
+    compositionOverrides?.[0],
+    compositionDefaultTone,
+  );
   return (
     <SignatureRoot
       scene={scene}
@@ -354,18 +389,25 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
       label={scene.heading}
       style={{ '--signature-track-height': '300svh' } as CSSProperties}
     >
-      <div data-signature-pin>
+      <div data-signature-pin data-composition-pattern={pattern}>
         <SignatureMedia
           media={scene.media}
           eager={isFirst}
           scrub
           dataAttrs={{ 'data-m-cinematic-media': true, 'data-cinematic-media': true }}
         />
-        <div data-cinematic-scrim aria-hidden="true" />
-        <div data-cinematic-copy style={copyStyle}>
+        <div
+          data-cinematic-copy
+          data-cinematic-composition={composition.placement}
+          data-cinematic-entrance={composition.entrance}
+          data-cinematic-tone={composition.tone}
+          style={copyStyle}
+        >
           {/* Establish the story before the first scroll input. Previously the whole copy was
               progress-hidden at p=0, so a healthy cinematic renderer looked like a plain photo. */}
-          <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
+          <h2 id={headingId} data-signature-heading aria-label={scene.heading}>
+            <CinematicHeading heading={scene.heading} />
+          </h2>
           {scene.body ? (
             <p
               data-signature-body
@@ -390,9 +432,9 @@ function ScrollytellingManifesto({
   isFirst,
   responsiveVideoSources,
   pageFilm,
-  scrollytellingCompositionPattern = 'alternate-lr',
-  scrollytellingCompositionOverrides,
-  scrollytellingDefaultTone = 'light',
+  compositionPattern = defaultCinematicCompositionPattern('scrollytelling-manifesto'),
+  compositionOverrides,
+  compositionDefaultTone = 'light',
   scrollytellingActLinks,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
@@ -431,15 +473,15 @@ function ScrollytellingManifesto({
             dataAttrs={{ 'data-ss-video-wrap': true }}
           />
         </div>
-        <div data-ss-act-list data-ss-composition-pattern={scrollytellingCompositionPattern}>
+        <div data-ss-act-list data-ss-composition-pattern={compositionPattern}>
           {scene.acts.map((act, index) => {
             const [start, end] = bandFor(index, scene.acts.length, act.band);
             const headingId = `${domId(scene.sectionId)}-act-${index + 1}`;
             const composition = resolveScrollytellingComposition(
-              scrollytellingCompositionPattern,
+              compositionPattern,
               index,
-              scrollytellingCompositionOverrides?.[index],
-              scrollytellingDefaultTone,
+              compositionOverrides?.[index],
+              compositionDefaultTone,
             );
             const actLink = scrollytellingActLinks?.[index];
             return (
@@ -561,6 +603,9 @@ function EditorialScenes({
   mode,
   isFirst,
   kind,
+  compositionPattern,
+  compositionOverrides,
+  compositionDefaultTone = 'light',
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'portal-zoom' | 'scroll-curtain' }>;
   art: MotionArtDirectionProfile;
@@ -568,6 +613,9 @@ function EditorialScenes({
 }) {
   const count = scene.scenes.length;
   const firstMedia = scene.scenes.findIndex((item) => Boolean(item.media));
+  const pattern = compositionPattern ?? defaultCinematicCompositionPattern(
+    kind === 'portal' ? 'portal-zoom' : 'scroll-curtain',
+  );
   return (
     <SignatureRoot
       scene={scene}
@@ -577,15 +625,24 @@ function EditorialScenes({
       label={scene.scenes[0]?.heading ?? '브랜드 스토리'}
       style={{ '--signature-track-height': `${count * 100}svh` } as CSSProperties}
     >
-      <div data-signature-pin>
+      <div data-signature-pin data-composition-pattern={pattern}>
         {scene.scenes.map((item, index) => {
           const headingId = `${domId(scene.sectionId)}-${kind}-${index + 1}`;
+          const composition = resolveScrollytellingComposition(
+            pattern,
+            index,
+            compositionOverrides?.[index],
+            compositionDefaultTone,
+          );
           return (
             <section
               key={item.id}
               id={item.sourceSectionId !== scene.sectionId ? item.sourceSectionId : undefined}
               data-signature-panel
               data-scene-index={index}
+              data-cinematic-composition={composition.placement}
+              data-cinematic-entrance={composition.entrance}
+              data-cinematic-tone={composition.tone}
               {...(kind === 'curtain' ? { 'data-curtain-panel': true } : {})}
               aria-labelledby={headingId}
               style={kind === 'curtain' ? { zIndex: count - index } : undefined}
@@ -610,7 +667,9 @@ function EditorialScenes({
               ) : null}
               {kind === 'curtain' ? <span data-curtain-edge aria-hidden="true" /> : null}
               <div data-scene-copy data-curtain-copy={kind === 'curtain' ? true : undefined} style={copyStyle}>
-                <h2 id={headingId} data-signature-heading>{item.heading}</h2>
+                <h2 id={headingId} data-signature-heading aria-label={item.heading}>
+                  <CinematicHeading heading={item.heading} />
+                </h2>
                 <p data-signature-body>{item.body}</p>
               </div>
             </section>
@@ -780,12 +839,22 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
   );
 }
 
-function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRendererProps & {
+function HorizontalStory({
+  scene,
+  theme,
+  art,
+  mode,
+  isFirst,
+  compositionPattern,
+  compositionOverrides,
+  compositionDefaultTone = 'light',
+}: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'horizontal-story' }>;
   art: MotionArtDirectionProfile;
 }) {
   const count = scene.panels.length;
   const firstMedia = scene.panels.findIndex((panel) => Boolean(panel.media));
+  const pattern = compositionPattern ?? defaultCinematicCompositionPattern('horizontal-story');
   return (
     <SignatureRoot
       scene={scene}
@@ -795,7 +864,7 @@ function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRe
       label={scene.heading ?? scene.panels[0]?.heading ?? '가로 스토리'}
       style={{ '--signature-track-height': `${count * 100}svh` } as CSSProperties}
     >
-      <div data-signature-pin>
+      <div data-signature-pin data-composition-pattern={pattern}>
         {scene.heading ? <p data-horizontal-kicker>{scene.heading}</p> : null}
         <span data-signature-progress-rail aria-hidden="true"><span data-signature-progress-fill /></span>
         <ol data-horizontal-indicator aria-hidden="true">
@@ -808,6 +877,12 @@ function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRe
         <div data-horizontal-rail data-panel-count={count}>
           {scene.panels.map((panel, index) => {
             const headingId = `${domId(scene.sectionId)}-panel-${index + 1}`;
+            const composition = resolveScrollytellingComposition(
+              pattern,
+              index,
+              compositionOverrides?.[index],
+              compositionDefaultTone,
+            );
             return (
               <section
                 key={panel.id}
@@ -815,13 +890,18 @@ function HorizontalStory({ scene, theme, art, mode, isFirst }: MotionSignatureRe
                 data-signature-panel
                 data-horizontal-panel
                 data-panel-index={index}
+                data-cinematic-composition={composition.placement}
+                data-cinematic-entrance={composition.entrance}
+                data-cinematic-tone={composition.tone}
                 aria-labelledby={headingId}
               >
                 {panel.media ? (
                   <SignatureMedia media={panel.media} eager={Boolean(isFirst && index === firstMedia)} />
                 ) : null}
                 <div data-panel-copy style={copyStyle}>
-                  <h2 id={headingId} data-signature-heading>{panel.heading}</h2>
+                  <h2 id={headingId} data-signature-heading aria-label={panel.heading}>
+                    <CinematicHeading heading={panel.heading} />
+                  </h2>
                   <p data-signature-body>{panel.body}</p>
                 </div>
               </section>

@@ -8,6 +8,28 @@ export const SCROLLYTELLING_COMPOSITION_PATTERN_IDS = [
 export type ScrollytellingCompositionPattern =
   typeof SCROLLYTELLING_COMPOSITION_PATTERN_IDS[number];
 
+export type CinematicCompositionSignatureId =
+  | 'cinematic-scrub'
+  | 'scrollytelling-manifesto'
+  | 'portal-zoom'
+  | 'scroll-curtain'
+  | 'horizontal-story';
+
+/** Customer renderer defaults; a future editor control only needs to replace the selected pattern. */
+export const CINEMATIC_COMPOSITION_DEFAULTS = {
+  'cinematic-scrub': 'left',
+  'scrollytelling-manifesto': 'alternate-lr',
+  'portal-zoom': 'alternate-lr',
+  'scroll-curtain': 'alternate-lr',
+  'horizontal-story': 'alternate-lr',
+} as const satisfies Record<CinematicCompositionSignatureId, ScrollytellingCompositionPattern>;
+
+export function defaultCinematicCompositionPattern(
+  signatureId: CinematicCompositionSignatureId,
+): ScrollytellingCompositionPattern {
+  return CINEMATIC_COMPOSITION_DEFAULTS[signatureId];
+}
+
 export type ScrollytellingPlacement = 'left' | 'right' | 'center';
 export type ScrollytellingEntrance = 'from-left' | 'from-right' | 'from-bottom' | 'fade-scale';
 export type ScrollytellingCopyTone = 'light' | 'ink';
