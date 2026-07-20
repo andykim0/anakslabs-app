@@ -828,8 +828,6 @@ export const MOTION_RUNTIME = `(function(){
     function syncLandingFullFilm(el,p){
       var wave=Math.sin(clamp(p)*Math.PI),amp0=ampOf(el);
       el.style.setProperty('--landing-film-progress',p.toFixed(4));
-      el.style.setProperty('--landing-film-scale',(1.035+wave*.025*amp0).toFixed(4));
-      el.style.setProperty('--landing-film-y',((.5-p)*14*amp0).toFixed(2)+'px');
       el.style.setProperty('--film-badge-y',(Math.sin(p*Math.PI*8)*2.5*amp0).toFixed(2)+'px');
       el.style.setProperty('--film-badge-opacity',(.86+wave*.1).toFixed(4));
       syncCinematicProgress(el,p);

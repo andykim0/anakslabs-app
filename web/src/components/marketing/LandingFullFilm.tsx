@@ -33,7 +33,7 @@ const FULL_FILM_CSS = `
 [data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-signature-media] > img,
 [data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-signature-media] > video {
   width: 100%; height: 100%; object-fit: cover;
-  transform: scale(var(--landing-film-scale, 1.035)) translate3d(0,var(--landing-film-y,0px),0);
+  transform: translate3d(0,0,0);
   transform-origin: 50% 50%;
 }
 [data-landing-full-film-stage] [data-lcs-prelude]::before,
@@ -92,7 +92,6 @@ const FULL_FILM_CSS = `
   [data-film-example-badge] p { font-size: 8.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-landing-full-film-stage] { --landing-film-scale: 1; --landing-film-y: 0px; }
   [data-landing-full-film-stage] [data-signature-media] > video { display: none !important; }
   [data-landing-full-film-stage] [data-signature-media] > img { transform: none !important; }
 }

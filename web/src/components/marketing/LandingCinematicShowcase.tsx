@@ -138,7 +138,7 @@ const LANDING_ART_DIRECTION = resolveMotionArtDirectionProfile(
 );
 
 const LANDING_VIDEO_SOURCES = [
-  { src: '/daboim-visibility-film.webm', type: 'video/webm', media: '(max-width: 767.98px)' },
+  { src: '/daboim-visibility-film-mobile.mp4', type: 'video/mp4', media: '(max-width: 767.98px)' },
   { src: '/daboim-visibility-film-scrub.mp4', type: 'video/mp4' },
 ] as const;
 

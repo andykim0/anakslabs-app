@@ -83,7 +83,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.equal(rootNode.querySelectorAll('video[preload="none"][muted][playsinline]').length, 1);
     assert.equal(rootNode.querySelectorAll('video[width="1920"][height="1080"]').length, 1);
     assert.equal(rootNode.querySelectorAll('video source').length, 2);
-    assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film.webm"][media="(max-width: 767.98px)"]').length, 1);
+    assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film-mobile.mp4"][media="(max-width: 767.98px)"]').length, 1);
     assert.equal(rootNode.querySelectorAll('source[src="/daboim-visibility-film-scrub.mp4"]').length, 1);
     assert.equal(rootNode.querySelectorAll('[data-signature-status="production-renderer"]').length, 1);
     assert.equal(rootNode.querySelectorAll('img[data-optimization-poster][loading="lazy"]').length, 0);
@@ -129,15 +129,20 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(source, /responsiveVideoSources=\{LANDING_VIDEO_SOURCES\}/);
   });
 
-  test('데스크 scrub MP4는 8MB 이하 all-intra(-g 1) 자산이다', () => {
+  test('데스크 scrub·모바일 loop는 고화질 분기와 각 용량 상한을 지킨다', () => {
     const path = join(root, 'public/daboim-visibility-film-scrub.mp4');
     const bytes = statSync(path).size;
-    assert.ok(bytes > 3 * 1024 * 1024, '스크럽 자산이 예상보다 작아 저화질 재인코딩 가능성');
-    assert.ok(bytes <= 8 * 1024 * 1024, '스크럽 자산 8MB 하드 상한 초과');
+    assert.ok(bytes > 8 * 1024 * 1024, '스크럽 자산이 품질 예산을 사용하지 않음');
+    assert.ok(bytes <= 10_000_000, '스크럽 자산 10MB 하드 상한 초과');
 
     const mp4 = readFileSync(path);
     assert.ok(mp4.includes(Buffer.from('stsz')), 'MP4 sample-size box 누락');
     // ISO BMFF에서 stss(sync sample table)가 없으면 모든 샘플이 sync sample이다.
     assert.equal(mp4.includes(Buffer.from('stss')), false, '일부 프레임만 키프레임인 비스크럽 자산');
+
+    const mobilePath = join(root, 'public/daboim-visibility-film-mobile.mp4');
+    const mobileBytes = statSync(mobilePath).size;
+    assert.ok(mobileBytes > 2 * 1024 * 1024, '모바일 자산이 예상보다 작아 저화질 재인코딩 가능성');
+    assert.ok(mobileBytes <= 4_000_000, '모바일 자산 4MB 하드 상한 초과');
   });
 });
