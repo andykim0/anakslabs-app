@@ -125,6 +125,11 @@ describe('LP4$ batch 통합 회귀', () => {
     assert.equal(VIDEO_MIN_AVERAGE_BITRATE_BPS, 4_000_000);
     assert.equal(VIDEO_MAX_COVER_UPSCALE_RATIO, 1.15);
     assert.match(MOTION_RUNTIME, /refreshVideoQualityGuards[\s\S]*coverScale>1\.15/u);
+    assert.doesNotMatch(MOTION_RUNTIME, /publishDispose\(disposeStatic\);\s*refreshVideoQualityGuards\(\)/u);
+    assert.match(
+      MOTION_RUNTIME,
+      /roots\.forEach\(function\(root\)\{[\s\S]*root\.classList\.toggle\('m-cinematic-ready'[\s\S]*\n    \}\);[\s\S]*Geometry reads must happen after[\s\S]*refreshVideoQualityGuards\(\)/u,
+    );
 
     for (const slug of FICTIONAL_DEMO_SLUGS) {
       const config = configForFictionalDemoPreview(buildFictionalDemo(slug));

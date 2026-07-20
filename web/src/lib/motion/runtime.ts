@@ -810,7 +810,6 @@ export const MOTION_RUNTIME = `(function(){
     function publishDispose(fn){window.__anaksMotionDispose=fn;window.__anaksProgressDispose=fn;window.__anaksCinematicDispose=fn;}
 
     publishDispose(disposeStatic);
-    refreshVideoQualityGuards();
     var mm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mm && mm.matches){ roots.forEach(markStatic); return; }
     var hasIO='IntersectionObserver' in window;
@@ -828,6 +827,9 @@ export const MOTION_RUNTIME = `(function(){
         root.classList.toggle('m-scrollytelling-static',!scrollytellingCapable);
       }
     });
+    /* Geometry reads must happen after the capability classes settle. Reading first would
+       commit fallback geometry, then turn the sticky media transition into a CLS event. */
+    refreshVideoQualityGuards();
     function ampOf(el){ var root=rootOf(el); return root?(parseFloat(getComputedStyle(root).getPropertyValue('--m-amp'))||1):1; }
     function forcedMobile(stage){ return !!(stage&&stage.getAttribute('data-render-mode')==='mobile'); }
     function finePointer(){ return !!(window.matchMedia&&window.matchMedia('(pointer: fine)').matches); }
