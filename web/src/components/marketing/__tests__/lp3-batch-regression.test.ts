@@ -44,13 +44,8 @@ describe('LP3$ batch 통합 회귀', () => {
 
     const acts = stage.querySelectorAll('article[data-ss-act]');
     assert.equal(acts.length, 5);
-    for (let index = 1; index < acts.length; index += 1) {
-      assert.notEqual(
-        acts[index]!.getAttribute('data-ss-composition'),
-        acts[index - 1]!.getAttribute('data-ss-composition'),
-        `연속 막 ${index}/${index + 1} 구도 중복`,
-      );
-    }
+    assert.equal(stage.querySelector('[data-ss-act-list]')?.getAttribute('data-ss-composition-pattern'), 'alternate-lr');
+    assert.deepEqual(acts.map((act) => act.getAttribute('data-ss-composition')), ['left', 'right', 'left', 'right', 'left']);
   });
 
   test('CWV·정적 fallback 계약은 poster-first, geometry 예약, 지연 video, 블로킹 0을 함께 지킨다', () => {

@@ -47,7 +47,8 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(renderer, /decoding: eager \? 'sync' as const : 'async' as const/);
     assert.match(renderer, /preload="none"/);
     assert.match(renderer, /<article/);
-    assert.match(renderer, /<h2 id=\{headingId\} data-ss-heading data-signature-heading>/);
+    assert.match(renderer, /<h2 id=\{headingId\} data-ss-heading data-signature-heading aria-label=\{act\.heading\}>/);
+    assert.match(renderer, /data-ss-word aria-hidden="true"/);
     assert.doesNotMatch(source, /<article|<video/, '마케팅에서 production scene DOM을 복제하면 안 됨');
     assert.doesNotMatch(renderer, /autoPlay|autoplay/);
     for (const forbidden of ['WebGL', 'three.js', 'Lenis', 'preventDefault']) {
@@ -96,7 +97,8 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
   test('막 영상 전체 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
     const fullFilm = read('src/components/marketing/LandingFullFilm.tsx');
-    assert.match(source, /\.m-scrollytelling-ready \[data-signature-id="scrollytelling-manifesto"\] \[data-ss-copy\]/);
+    assert.match(source, /\.daboim-cinematic \[data-ss-copy\]::before/);
+    assert.match(source, /radial-gradient\(ellipse at var\(--ss-scrim-x/);
     assert.match(fullFilm, /\[data-film-scrim\]/);
     assert.match(fullFilm, /\[data-story-chapter\][\s\S]*background: transparent !important/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);

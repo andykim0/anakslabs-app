@@ -43,11 +43,6 @@ const FULL_FILM_CSS = `
 [data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-ss-act] {
   background: transparent !important;
 }
-[data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-ss-copy] {
-  border: 1px solid rgba(255,255,255,.12); border-radius: clamp(22px, 2vw, 30px);
-  background: linear-gradient(108deg,rgba(3,12,31,.84),rgba(3,12,31,.54) 68%,rgba(3,12,31,.16));
-  box-shadow: 0 28px 80px rgba(0,8,28,.24);
-}
 [data-landing-full-film-stage] [data-film-scrim] {
   width: fit-content; max-width: 100%; padding: clamp(22px, 3.2vw, 46px);
   border: 1px solid rgba(255,255,255,.13); border-radius: clamp(22px, 2.4vw, 34px);

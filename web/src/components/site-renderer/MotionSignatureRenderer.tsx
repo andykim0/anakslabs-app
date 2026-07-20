@@ -8,26 +8,15 @@ import type {
   SiteTheme,
 } from '@/lib/types/site';
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
+import {
+  resolveScrollytellingComposition,
+  type ScrollytellingCompositionOverride,
+  type ScrollytellingCompositionPattern,
+  type ScrollytellingCopyTone,
+} from '@/lib/motion/scrollytelling-composition';
 import { safeMediaSrc } from '@/lib/safe-url';
 
 export type MotionSignatureRenderMode = 'desktop' | 'mobile' | 'auto';
-
-export type ScrollytellingCompositionPreset =
-  | 'lower-left'
-  | 'right-aligned'
-  | 'center-large'
-  | 'top-band-bottom-assist';
-
-export type ScrollytellingEntrancePreset =
-  | 'from-left'
-  | 'from-right'
-  | 'from-bottom'
-  | 'fade-scale';
-
-export interface ScrollytellingActComposition {
-  placement: ScrollytellingCompositionPreset;
-  entrance: ScrollytellingEntrancePreset;
-}
 
 export interface ScrollytellingActLink {
   href: `/${string}`;
@@ -48,8 +37,12 @@ interface MotionSignatureRendererProps {
   }[];
   /** 랜딩 전역 진행도 루트가 이 단일 영상을 소유할 때 시그니처 자체의 seek를 비활성화한다. */
   pageFilm?: boolean;
-  /** 막 순서와 1:1로 대응하는 타이틀 구도·진입 프리셋. */
-  scrollytellingCompositions?: readonly ScrollytellingActComposition[];
+  /** 한 설정으로 모든 막에 적용하는 타이틀 구도 패턴. */
+  scrollytellingCompositionPattern?: ScrollytellingCompositionPattern;
+  /** 장면 밝기 충돌 등 특정 막만 보정하는 선택적 슬롯. */
+  scrollytellingCompositionOverrides?: readonly (ScrollytellingCompositionOverride | null)[];
+  /** 개별 override가 없을 때 쓰는 장면 위 타이포 톤. */
+  scrollytellingDefaultTone?: ScrollytellingCopyTone;
   /** 마케팅 등 renderer 소유 내부 경로 CTA. 저장된 tenant 콘텐츠에서는 사용하지 않는다. */
   scrollytellingActLinks?: readonly (ScrollytellingActLink | null)[];
 }
@@ -66,6 +59,19 @@ function domId(value: string): string {
 
 function bandFor(index: number, count: number, band?: [number, number]): [number, number] {
   return band ?? [index / count, index === count - 1 ? 1 : (index + 1) / count];
+}
+
+function ScrollytellingHeading({ heading }: { heading: string }) {
+  const words = heading.trim().split(/\s+/u).filter(Boolean);
+  return (
+    <>
+      {words.map((word, index) => (
+        <span key={`${word}-${index}`} data-ss-word aria-hidden="true">
+          {word}{index < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </>
+  );
 }
 
 /**
@@ -376,7 +382,19 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm, scrollytellingCompositions, scrollytellingActLinks }: MotionSignatureRendererProps & {
+function ScrollytellingManifesto({
+  scene,
+  theme,
+  art,
+  mode,
+  isFirst,
+  responsiveVideoSources,
+  pageFilm,
+  scrollytellingCompositionPattern = 'alternate-lr',
+  scrollytellingCompositionOverrides,
+  scrollytellingDefaultTone = 'light',
+  scrollytellingActLinks,
+}: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -413,11 +431,16 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
             dataAttrs={{ 'data-ss-video-wrap': true }}
           />
         </div>
-        <div data-ss-act-list>
+        <div data-ss-act-list data-ss-composition-pattern={scrollytellingCompositionPattern}>
           {scene.acts.map((act, index) => {
             const [start, end] = bandFor(index, scene.acts.length, act.band);
             const headingId = `${domId(scene.sectionId)}-act-${index + 1}`;
-            const composition = scrollytellingCompositions?.[index];
+            const composition = resolveScrollytellingComposition(
+              scrollytellingCompositionPattern,
+              index,
+              scrollytellingCompositionOverrides?.[index],
+              scrollytellingDefaultTone,
+            );
             const actLink = scrollytellingActLinks?.[index];
             return (
               <article
@@ -426,12 +449,15 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
                 data-act-kind={act.kind ?? 'text'}
                 data-act-start={start.toFixed(4)}
                 data-act-end={end.toFixed(4)}
-                data-ss-composition={composition?.placement}
-                data-ss-entrance={composition?.entrance}
+                data-ss-composition={composition.placement}
+                data-ss-entrance={composition.entrance}
+                data-ss-tone={composition.tone}
                 aria-labelledby={headingId}
               >
                 <div data-ss-copy style={copyStyle}>
-                  <h2 id={headingId} data-ss-heading data-signature-heading>{act.heading}</h2>
+                  <h2 id={headingId} data-ss-heading data-signature-heading aria-label={act.heading}>
+                    <ScrollytellingHeading heading={act.heading} />
+                  </h2>
                   <p data-ss-body data-signature-body>{act.body}</p>
                   {actLink ? (
                     <Link data-ss-act-link href={actLink.href}>
