@@ -525,6 +525,12 @@ export interface SiteMeta {
   sourceScanId?: string;
 }
 
+/** 검색 서비스 소유확인 값. 고객 입력이 아니라 관리자 서버 경계에서만 기록한다. */
+export interface SearchVerification {
+  naver?: string;
+  google?: string;
+}
+
 /**
  * [v3 Phase 0.1] 사업자 정보 — 캔버스 요소가 아니라 사이트 레벨 구조화 데이터.
  * 법적 표기는 자유배치로 지워지면 안 되고 JSON-LD(Phase 7) 원천으로도 재사용하므로
@@ -625,6 +631,8 @@ export interface SiteConfig {
   directions?: SectionDirection[];
   /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */
   businessInfo?: BusinessInfo;
+  /** 관리자 서버가 기록하는 검색 소유확인 메타태그 값. 클라이언트 초안 저장은 변경할 수 없다. */
+  searchVerification?: SearchVerification;
   /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */
   nav?: { enabled?: boolean };
   /**

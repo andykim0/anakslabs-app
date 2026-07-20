@@ -128,6 +128,7 @@ const CORE_FEATURES = [
   'AI 디자인 후보 3안',
   '자유배치 캔버스 에디터',
   '네이버·구글·AI가 읽기 쉬운 기본 구성',
+  '네이버·구글 검색 등록까지 다보임이 대신합니다 — 사장님은 아무것도 안 하셔도 됩니다.',
   '멀티페이지 + SSL 호스팅',
   `편집 크레딧 ${INITIAL_GRANT.basic}개`,
   SUBSCRIPTION_BENEFIT_COPY.report,

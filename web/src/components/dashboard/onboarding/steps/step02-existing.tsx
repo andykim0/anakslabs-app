@@ -270,6 +270,9 @@ export function Step02Existing() {
               className={obInput}
             />
           </Field>
+          <p className="-mt-4 text-[13px] leading-relaxed text-ob-muted">
+            플레이스 등록은 사장님 계정이 필요해요. 가이드를 드리고 같이 진행해 드립니다.
+          </p>
 
           <div className="rounded-ob border border-ob-border bg-ob-bg p-4">
             <label className="flex items-start gap-2.5 text-[15px] text-ob-ink">

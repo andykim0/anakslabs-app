@@ -32,7 +32,7 @@ import type {
   SurveyInput,
   Tier,
 } from '@/lib/types/domain';
-import type { SectionType, SiteConfig } from '@/lib/types/site';
+import type { SearchVerification, SectionType, SiteConfig } from '@/lib/types/site';
 import type { AssetRef } from '@/lib/assets/provenance';
 
 // ---------- 클라이언트(고객) ----------
@@ -81,6 +81,8 @@ export interface SitesRepo {
   }): Promise<Site>;
   /** 에디터 자동저장 대상 */
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;
+  /** 관리자 서버 전용: 발행본·초안에 소유확인 값을 함께 기록한다. */
+  setSearchVerification(siteId: string, verification: SearchVerification | undefined): Promise<void>;
   /** 확정: draft → 발행본 복사, status='live', 서브도메인 미지정 시 할당 */
   publish(siteId: string): Promise<Site>;
   updateStatus(siteId: string, status: Site['status']): Promise<void>;

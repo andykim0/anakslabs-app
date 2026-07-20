@@ -89,6 +89,12 @@ export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   return {
     title,
     description: meta.description,
+    verification: {
+      ...(config.searchVerification?.google ? { google: config.searchVerification.google } : {}),
+      ...(config.searchVerification?.naver
+        ? { other: { 'naver-site-verification': config.searchVerification.naver } }
+        : {}),
+    },
     ...(pageUrl ? { alternates: { canonical: pageUrl } } : {}),
     icons: { icon: '/favicon.ico' },
     openGraph: {

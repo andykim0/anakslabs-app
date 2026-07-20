@@ -651,6 +651,10 @@ export const siteConfigSchema = z
     assetUsages: z.array(assetUsageSchema).max(500).optional(),
     directions: z.array(sectionDirectionSchema).max(100).optional(),
     businessInfo: businessInfoSchema.optional(),
+    searchVerification: z.object({
+      naver: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
+      google: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
+    }).optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),
     motion: motionSchema.optional(),
   })

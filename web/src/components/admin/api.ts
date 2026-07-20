@@ -37,6 +37,7 @@ import type { AdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
 import type { GuaranteeDecision, GuaranteeExceptionCode } from '@/lib/guarantee';
+import type { NaverIndexStatus, SearchRegistrationAccountUsage, SearchRegistrationStatus } from '@/lib/seo/search-registration';
 import type {
   ManualCollectionChannel,
   ManualCollectionDirection,
@@ -73,6 +74,25 @@ export interface AdminGuaranteeRow {
   indexBelowThreshold: boolean | null;
   referralsBelowThreshold: boolean;
   exceptionCode: GuaranteeExceptionCode | null;
+}
+
+export interface AdminSearchRegistrationItem {
+  siteId: string;
+  siteName: string;
+  siteUrl: string;
+  domainType: 'subdomain' | 'custom';
+  status: SearchRegistrationStatus;
+  accountLabel: string | null;
+  naverVerification: string | null;
+  googleVerification: string | null;
+  indexStatus: NaverIndexStatus;
+  completedAt: string | null;
+  updatedAt: string;
+}
+
+export interface AdminSearchRegistrationResponse {
+  items: AdminSearchRegistrationItem[];
+  accounts: SearchRegistrationAccountUsage[];
 }
 
 export interface AdminManualCollectionRow {
@@ -391,6 +411,20 @@ export function rejectQaRequest(id: string, reason: string): Promise<{ ok: true 
 
 export function getInfra(): Promise<AdminInfraStatus> {
   return fetchJson<AdminInfraStatus>('/api/admin/infra');
+}
+
+export function getSearchRegistrationQueue(): Promise<AdminSearchRegistrationResponse> {
+  return fetchJson<AdminSearchRegistrationResponse>('/api/admin/search-registration');
+}
+
+export function updateSearchRegistration(
+  siteId: string,
+  input: Pick<AdminSearchRegistrationItem, 'status' | 'accountLabel' | 'naverVerification' | 'googleVerification' | 'indexStatus'>,
+): Promise<{ item: AdminSearchRegistrationItem }> {
+  return fetchJson<{ item: AdminSearchRegistrationItem }>(
+    `/api/admin/search-registration/${encodeURIComponent(siteId)}`,
+    { method: 'PATCH', body: JSON.stringify(input) },
+  );
 }
 
 export function getVideoQueue(): Promise<AdminVideoQueueResponse> {

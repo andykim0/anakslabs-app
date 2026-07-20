@@ -97,6 +97,12 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
+    config.searchVerification?.naver
+      ? `<meta name="naver-site-verification" content="${escapeAttr(config.searchVerification.naver)}">`
+      : '',
+    config.searchVerification?.google
+      ? `<meta name="google-site-verification" content="${escapeAttr(config.searchVerification.google)}">`
+      : '',
     `<title>${escapeHtml(docTitle)}</title>`,
     meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',

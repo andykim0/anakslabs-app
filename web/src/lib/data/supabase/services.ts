@@ -22,7 +22,8 @@ import type {
   Site,
   Tier,
 } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SearchVerification, SiteConfig } from '@/lib/types/site';
+import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { ClientsRepo, EditRequestsRepo, PaymentsService, SitesRepo } from '../types';
 import { slugifySiteName } from '../slug';
@@ -229,13 +230,31 @@ export class SupabaseSitesRepo implements SitesRepo {
   async saveDraft(siteId: string, config: SiteConfig): Promise<void> {
     // 세션 클라이언트 — RLS(본인 소유) + 트리거(허용 컬럼: name/draft_config/survey) 심층방어
     const supabase = await createSessionClient();
+    const { data: current, error: readError } = await supabase
+      .from('sites')
+      .select('draft_config,site_config')
+      .eq('id', siteId)
+      .single();
+    if (readError) throw new Error(`sites 초안 조회 실패: ${readError.message}`);
+    const persisted = (current?.draft_config ?? current?.site_config ?? null) as SiteConfig | null;
+    const safeConfig = preserveServerSearchVerification(config, persisted);
     const { error } = await supabase
       .from('sites')
-      .update({ draft_config: config })
+      .update({ draft_config: safeConfig })
       .eq('id', siteId)
       .select('id')
       .single();
     if (error) throw new Error(`sites 초안 저장 실패: ${error.message}`);
+  }
+
+  async setSearchVerification(siteId: string, verification: SearchVerification | undefined): Promise<void> {
+    const svc = getServiceRoleClient();
+    const site = await this.getById(siteId);
+    if (!site) throw new Error(`sites.setSearchVerification: 사이트가 없습니다 (${siteId})`);
+    const draftConfig = site.draftConfig ? withServerSearchVerification(site.draftConfig, verification) : null;
+    const siteConfig = site.siteConfig ? withServerSearchVerification(site.siteConfig, verification) : null;
+    const { error } = await svc.from('sites').update({ draft_config: draftConfig, site_config: siteConfig }).eq('id', siteId);
+    if (error) throw new Error(`검색 소유확인 값 저장 실패: ${error.message}`);
   }
 
   async publish(siteId: string, auditedDraft?: SiteConfig): Promise<Site> {
