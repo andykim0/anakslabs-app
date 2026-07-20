@@ -249,9 +249,9 @@ export default function MarketingHome() {
             <div data-story-copy="comparison" className="grid gap-8 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#08AFC5] uppercase">왜 다보임인가</p>
-                <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em]">직접 만들다 포기하지 않고,<br />맡긴 뒤 기다리기만 하지 않게.</h2>
+                <h2 data-comparison-title className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-balance break-keep">직접 만드는 것보다 쉽고,<br />맡기는 것보다 빠릅니다.</h2>
               </div>
-              <p className="mkt-type-body max-w-lg text-[#5F6B7C] lg:justify-self-end">{PUBLIC_BRAND_NAMES.brand}이 먼저 만들고 사장님이 방향을 고릅니다. 문구와 사진은 직접 고칠 수 있고, 운영과 매달 성과 확인까지 이어집니다.</p>
+              <p data-comparison-support className="mkt-type-body max-w-lg break-keep text-[#5F6B7C] lg:justify-self-end">{PUBLIC_BRAND_NAMES.brand}이 처음부터 끝까지 만들어 드립니다. 사장님은 원하는 것만 말씀하세요. 오픈 후에는 매달 성과를 숫자로 받아봅니다.</p>
             </div>
           </FadeIn>
 

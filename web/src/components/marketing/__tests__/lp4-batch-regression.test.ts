@@ -42,6 +42,23 @@ function videoProbe(path: string) {
 }
 
 describe('LP4$ batch 통합 회귀', () => {
+  test('P8 왜 다보임인가는 두 대안 사이 위치를 말하고 비교표는 그대로 둔다', () => {
+    const comparison = landing.querySelector('[data-story-chapter="03"]');
+    assert.ok(comparison);
+    const title = comparison.querySelector('[data-comparison-title]');
+    const support = comparison.querySelector('[data-comparison-support]');
+    assert.ok(title && support);
+    assert.equal(title.textContent, '직접 만드는 것보다 쉽고,\n맡기는 것보다 빠릅니다.');
+    assert.equal(title.querySelectorAll('br').length, 1);
+    assert.match(title.getAttribute('class') ?? '', /text-balance break-keep/u);
+    assert.equal(
+      support.textContent,
+      '다보임이 처음부터 끝까지 만들어 드립니다. 사장님은 원하는 것만 말씀하세요. 오픈 후에는 매달 성과를 숫자로 받아봅니다.',
+    );
+    assert.doesNotMatch(`${title.textContent} ${support.textContent}`, /다듬|수정|고르/u);
+    assert.equal(comparison.textContent.includes('직접 수정 무제한 무료'), true);
+  });
+
   test('P7 무료진단은 장식 레이어와 전문용어를 걷고 한 문장·입력·CTA에 집중한다', () => {
     const scanner = landing.querySelector('#hero-scanner');
     assert.ok(scanner);
