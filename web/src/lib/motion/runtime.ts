@@ -99,7 +99,7 @@ export const MOTION_CSS = `
 .anaks-site [data-ss-word] { display: inline-block; white-space: pre; }
 .anaks-site.m-scrollytelling-ready [data-ss-stage] { height: var(--ss-scroll-height); }
 .anaks-site.m-scrollytelling-ready [data-ss-pin] { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-.anaks-site.m-scrollytelling-ready [data-ss-media] { position: absolute; inset: 0; height: auto; min-height: 0; }
+.anaks-site.m-scrollytelling-ready [data-ss-media] { position: absolute; inset: 0; height: 100svh; min-height: 0; }
 .anaks-site.m-scrollytelling-ready [data-ss-act-list] { position: absolute; inset: 0; }
 .anaks-site.m-scrollytelling-ready [data-ss-act] {
   position: absolute; inset: 0; min-height: 0; opacity: var(--ss-act-opacity, 1);

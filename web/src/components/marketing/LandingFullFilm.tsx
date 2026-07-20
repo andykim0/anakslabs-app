@@ -17,7 +17,7 @@ const FULL_FILM_CSS = `
 [data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-ss-pin] {
   overflow: visible !important;
 }
-[data-landing-full-film-stage] .daboim-cinematic.m-scrollytelling-ready [data-signature-id="scrollytelling-manifesto"] [data-ss-media] {
+[data-landing-full-film-stage] .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media] {
   position: fixed !important; inset: 0 !important; z-index: 0 !important;
   width: 100vw; height: 100svh !important; min-height: 360px; margin: 0 !important;
   opacity: var(--upper-film-opacity,1); pointer-events: none;
@@ -41,6 +41,9 @@ const FULL_FILM_CSS = `
 }
 [data-landing-full-film-stage] [data-story-progress-rail] { z-index: 30; }
 @media (prefers-reduced-motion: reduce) {
+  [data-landing-full-film-stage] .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media] {
+    position: relative !important; inset: auto !important; width: 100%; height: var(--ss-static-height) !important;
+  }
   [data-landing-full-film-stage] [data-signature-media] > video { display: none !important; }
   [data-landing-full-film-stage] [data-signature-media] > img { transform: none !important; }
 }

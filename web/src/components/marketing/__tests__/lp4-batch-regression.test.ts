@@ -95,6 +95,7 @@ describe('LP4$ batch 통합 회귀', () => {
   });
 
   test('P4/P4b 필름 막은 패널 없이 preset대로 움직이고 이후 DOM 모션과 끊김 없이 분리된다', () => {
+    const fullFilm = read('src/components/marketing/LandingFullFilm.tsx');
     const stage = landing.querySelector('[data-landing-full-film-stage]')!;
     const upper = stage.querySelector('[data-landing-manifesto][data-m-progress]');
     const continuation = stage.querySelector('[data-landing-continuation][data-m-progress]');
@@ -108,6 +109,11 @@ describe('LP4$ batch 통합 회귀', () => {
     assert.equal(upper.querySelector('[data-ss-act-list]')?.getAttribute('data-ss-composition-pattern'), 'alternate-lr');
     assert.equal(upper.querySelectorAll('[data-ss-word]').length > acts.length, true);
     assert.match(MOTION_CSS, /m-scrollytelling-ready \[data-ss-copy\][^{]*\{[^}]*padding: 0;[^}]*border: 0;[^}]*background: none/);
+    assert.match(MOTION_CSS, /\[data-ss-media\][^{]*\{[^}]*height: 100svh/);
+    assert.match(MOTION_CSS, /m-scrollytelling-ready \[data-ss-media\][^{]*\{[^}]*height: 100svh/);
+    assert.match(fullFilm, /\.daboim-cinematic \[data-signature-id="scrollytelling-manifesto"\] \[data-ss-media\][^{]*\{[^}]*position: fixed !important/);
+    assert.doesNotMatch(fullFilm, /m-scrollytelling-ready[^\n{]*\[data-ss-media\]/);
+    assert.match(fullFilm, /prefers-reduced-motion: reduce[\s\S]*\[data-ss-media\][^{]*\{[^}]*position: relative !important/);
     assert.doesNotMatch(MOTION_CSS, /data-cinematic-scrim/);
     assert.match(read('src/components/marketing/LandingCinematicShowcase.tsx'), /@media \(prefers-reduced-motion: reduce\)/u);
   });

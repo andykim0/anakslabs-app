@@ -268,7 +268,7 @@ const STAGE_CSS = `
 const NO_JS_STAGE_CSS = `
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"]{height:auto!important;contain:none}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-pin]{height:auto;overflow:visible}
-.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media]{position:relative!important;inset:auto!important;height:var(--ss-static-height);min-height:0}
+[data-landing-full-film-stage] .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media]{position:relative!important;inset:auto!important;width:100%;height:var(--ss-static-height)!important;min-height:0}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-act]{min-height:min(58svh,560px);padding-block:clamp(56px,6vw,88px)}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-video]{display:none!important}
 `;
