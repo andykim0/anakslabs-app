@@ -60,6 +60,7 @@ export interface MotionRenderReport {
   schemaVersion: 1;
   hyperframesVersion: string;
   scene: string;
+  variablesFile?: string;
   output: string;
   fps: number;
   offline: true;
@@ -68,6 +69,11 @@ export interface MotionRenderReport {
   deterministic: boolean | null;
   firstPass: RenderPass;
   secondPass?: RenderPass;
+}
+
+function portablePath(absolutePath: string): string {
+  const relative = path.relative(REPO_ROOT, absolutePath);
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative) ? relative : absolutePath;
 }
 
 function fail(message: string): never {
@@ -319,7 +325,8 @@ export async function renderMotionClip(options: CliOptions): Promise<MotionRende
       schemaVersion: 1,
       hyperframesVersion,
       scene: sceneLabel,
-      output: options.output,
+      ...(options.variablesFile ? { variablesFile: portablePath(options.variablesFile) } : {}),
+      output: portablePath(options.output),
       fps: options.fps,
       offline: true,
       outputContract: 'h264-gop1-muted-yuv420p',

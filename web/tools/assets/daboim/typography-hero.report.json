@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "hyperframesVersion": "0.7.64",
+  "scene": "typography-hero",
+  "variablesFile": "tools/assets/daboim/typography-hero.input.json",
+  "output": "tools/assets/daboim/typography-hero.mp4",
+  "fps": 30,
+  "offline": true,
+  "outputContract": "h264-gop1-muted-yuv420p",
+  "webSizeWarning": true,
+  "deterministic": null,
+  "firstPass": {
+    "hyperframesSeconds": 322.649,
+    "normalizeSeconds": 0.647,
+    "totalSeconds": 323.298,
+    "bytes": 5767506,
+    "frameDigest": "ef91205a3b9c1659a77322812e268bd7b3e51e5900ce46878d034c5073532180",
+    "probe": {
+      "codec": "h264",
+      "width": 1920,
+      "height": 1080,
+      "pixelFormat": "yuv420p",
+      "fps": "30/1",
+      "durationSeconds": 6,
+      "frameCount": 180,
+      "keyFrameCount": 180,
+      "audioStreamCount": 0,
+      "allFramesKeyFrames": true
+    }
+  }
+}
