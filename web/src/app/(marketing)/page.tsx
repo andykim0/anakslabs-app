@@ -26,6 +26,7 @@ import { LandingCinematicShowcase } from '@/components/marketing/LandingCinemati
 import { LandingFullFilm } from '@/components/marketing/LandingFullFilm';
 import { LandingStoryContinuation } from '@/components/marketing/LandingStoryContinuation';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
@@ -376,6 +377,7 @@ export default function MarketingHome() {
               </div>
               <p className="mkt-type-support mt-2 text-right text-white/48">+ 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · 부가세 별도</p>
               <p className="mkt-type-support mt-2 text-right font-medium text-[#5DE0D0]">{SUBSCRIPTION_VALUE_COPY}</p>
+              <GuaranteeBadge tone="dark" />
               <ul className="mkt-type-body mt-8 grid gap-3 border-t border-white/10 pt-7 text-white/68 sm:grid-cols-2">
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>

@@ -14,6 +14,7 @@ import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
@@ -152,6 +153,7 @@ export default function PricingPage() {
               서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
               읽기 쉬운 기본 구성, 초기 편집 크레딧 {INITIAL_GRANT.basic}개가 모두 포함됩니다.
             </p>
+            <GuaranteeBadge />
 
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
               <PricingMotionComparison />

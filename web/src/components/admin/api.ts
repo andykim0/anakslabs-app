@@ -36,6 +36,7 @@ import type {
 import type { AdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
+import type { GuaranteeDecision, GuaranteeExceptionCode } from '@/lib/guarantee';
 import type {
   ManualCollectionChannel,
   ManualCollectionDirection,
@@ -53,7 +54,25 @@ export interface AdminOverview {
   qaPending: number;
   customHostnameCount: number;
   revenue: AdminOpsRevenueMetrics;
+  guarantees: AdminGuaranteeRow[];
   manualCollections: AdminManualCollectionRow[];
+}
+
+export interface AdminGuaranteeRow {
+  siteId: string;
+  siteName: string;
+  domain: string | null;
+  publishedAt: string;
+  dueAt: string;
+  daysRemaining: number;
+  decision: GuaranteeDecision;
+  naverIndexed: boolean | null;
+  naverIndexCheckedAt: string | null;
+  naverReferralCount: number;
+  referralThreshold: number;
+  indexBelowThreshold: boolean | null;
+  referralsBelowThreshold: boolean;
+  exceptionCode: GuaranteeExceptionCode | null;
 }
 
 export interface AdminManualCollectionRow {

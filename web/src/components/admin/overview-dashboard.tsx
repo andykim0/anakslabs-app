@@ -10,6 +10,7 @@ import {
   MonitorCheck,
   ReceiptText,
   Rocket,
+  ShieldCheck,
   Target,
   Users,
   Video,
@@ -19,6 +20,14 @@ import { getOverview } from './api';
 import { formatKrw, formatNumber } from './format';
 import { ManualCollectionPanel } from './manual-collection-panel';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
+
+const GUARANTEE_DECISION_COPY = {
+  'not-due': { label: '판정 전', tone: 'text-slate-600 bg-slate-100' },
+  'needs-index-evidence': { label: '색인 확인 필요', tone: 'text-amber-800 bg-amber-100' },
+  eligible: { label: '환불 대상', tone: 'text-red-700 bg-red-100' },
+  'not-eligible': { label: '기준 충족', tone: 'text-emerald-700 bg-emerald-100' },
+  excluded: { label: '예외 적용', tone: 'text-violet-700 bg-violet-100' },
+} as const;
 
 export function OverviewDashboard() {
   const { data, isPending, isError, error, refetch } = useQuery({
@@ -210,6 +219,59 @@ export function OverviewDashboard() {
             tone={data.revenue.receipts.refundsKrw > 0 ? 'danger' : 'neutral'}
           />
         </div>
+
+        <Card className="mt-3 overflow-x-auto" >
+          <div className="flex items-start gap-2 border-b border-slate-200 px-4 py-3">
+            <ShieldCheck size={16} className="mt-0.5 text-slate-400" aria-hidden />
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">90일 성과 보장 판정</h3>
+              <p className="mt-0.5 text-[11px] text-slate-500">
+                색인 신호는 서치어드바이저/URL 확인 기록만 사용 · 유입은 PII 없는 네이버 pageview 합계
+              </p>
+            </div>
+          </div>
+          {data.guarantees.length ? (
+            <table data-guarantee-admin className="w-full min-w-[880px] text-left text-xs">
+              <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-2.5 font-medium">사이트</th>
+                  <th className="px-4 py-2.5 font-medium">90일 판정일</th>
+                  <th className="px-4 py-2.5 font-medium">네이버 색인</th>
+                  <th className="px-4 py-2.5 font-medium">네이버 유입</th>
+                  <th className="px-4 py-2.5 font-medium">판정</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {data.guarantees.map((row) => {
+                  const decision = GUARANTEE_DECISION_COPY[row.decision];
+                  return (
+                    <tr key={row.siteId}>
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-slate-800">{row.siteName}</p>
+                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? '도메인 대기'}</p>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {new Date(row.dueAt).toLocaleDateString('ko-KR')}
+                        {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining}일 남음)</span> : null}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {row.naverIndexed === null ? '확인 필요' : row.naverIndexed ? '있음' : '없음'}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums text-slate-700">
+                        {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)}회
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded px-2 py-1 text-[11px] font-semibold ${decision.tone}`}>{decision.label}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p className="px-4 py-8 text-center text-xs text-slate-500">발행된 보장 판정 대상 사이트가 없습니다.</p>
+          )}
+        </Card>
 
         <Card className="mt-3 p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">

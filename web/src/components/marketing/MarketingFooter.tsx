@@ -10,6 +10,7 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 const LINKS = [
   { href: '/about', label: '회사소개' },
   { href: '/faq', label: '고객센터' },
+  { href: '/guarantee', label: '90일 성과 보장' },
   { href: '/terms', label: '이용약관' },
   { href: '/privacy', label: '개인정보처리방침' },
 ];

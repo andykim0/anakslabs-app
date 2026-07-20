@@ -10,6 +10,9 @@ import { buildAdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import { getDataServices } from '@/lib/data';
 import { getManualCollectionsRepository } from '@/lib/payments/manual-collections';
 import { manualCollectionReversibleEntryIds } from '@/lib/payments/manual-collection-core';
+import { kstDateString } from '@/lib/analytics/site-event-ingest';
+import { evaluateGuarantee, guaranteeDueAt } from '@/lib/guarantee';
+import { listGuaranteeEvidence } from '@/lib/guarantee/evidence';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
 
@@ -17,7 +20,7 @@ export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
-  const { clients, sites, credits, editRequests, payments, domains } = getDataServices();
+  const { clients, sites, credits, editRequests, payments, domains, siteEvents } = getDataServices();
   const [clientList, siteList, qaQueue, paymentList, customHostnameCount, manualRecords] = await Promise.all([
     clients.listAll(),
     sites.listAll(),
@@ -40,6 +43,38 @@ export const GET = withApiHandler(async () => {
   const reversibleEntryIds = manualCollectionReversibleEntryIds(
     manualRecords.map(({ entry }) => entry),
   );
+  const guaranteeSites = siteList.filter((site) => site.publishedAt && site.siteConfig);
+  const guaranteeEvidence = await listGuaranteeEvidence(guaranteeSites.map((site) => site.id));
+  const guaranteeAsOf = new Date();
+  const guaranteeRows = await Promise.all(guaranteeSites.map(async (site) => {
+    const publishedAt = site.publishedAt!;
+    const dueAt = guaranteeDueAt(publishedAt);
+    const evidence = guaranteeEvidence.get(site.id);
+    const evaluationEnd = new Date(Math.min(guaranteeAsOf.getTime(), Date.parse(dueAt)) + 86_400_000);
+    const events = await siteEvents.listBySiteRange({
+      siteId: site.id,
+      fromDate: kstDateString(new Date(publishedAt)),
+      toDate: kstDateString(evaluationEnd),
+    });
+    const naverReferralCount = events
+      .filter((event) => event.source === 'naver' && event.eventType === 'pageview')
+      .reduce((sum, event) => sum + event.count, 0);
+    const evaluation = evaluateGuarantee({
+      publishedAt,
+      asOf: guaranteeAsOf.toISOString(),
+      naverIndexed: evidence?.naverIndexed ?? null,
+      naverReferralCount,
+      exceptionCode: evidence?.exceptionCode ?? null,
+    });
+    return {
+      siteId: site.id,
+      siteName: site.name,
+      domain: site.domain,
+      publishedAt,
+      naverIndexCheckedAt: evidence?.naverIndexCheckedAt ?? null,
+      ...evaluation,
+    };
+  }));
 
   return NextResponse.json({
     clients: {
@@ -55,6 +90,7 @@ export const GET = withApiHandler(async () => {
       manualEntries: manualRecords.map(({ entry }) => entry),
       sites: siteList,
     }),
+    guarantees: guaranteeRows.sort((left, right) => left.dueAt.localeCompare(right.dueAt)),
     manualCollections: manualRecords.slice(0, 20).map(({ entry }) => ({
       entryId: entry.id,
       paymentId: entry.paymentId,
