@@ -130,7 +130,6 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
         ) : null}
 
         <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-[#174DDA]/5 via-transparent to-[#03D1B8]/16 mix-blend-multiply" />
-        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,.05),rgba(255,255,255,0)_50%,rgba(248,251,255,.82))]" />
 
         <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur">
           <Sparkles className="h-3 w-3 text-[#08AFC5]" />
