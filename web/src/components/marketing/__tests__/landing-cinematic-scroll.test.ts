@@ -108,7 +108,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
     assert.match(source, /\.m-scrollytelling-static \[data-signature-id="scrollytelling-manifesto"\]/);
     assert.match(source, /height: auto !important; contain: none/);
-    assert.match(source, /min-height: 0; padding-block: clamp\(56px, 6vw, 88px\)/);
+    assert.match(source, /min-height: min\(58svh, 560px\); padding-block: clamp\(56px, 6vw, 88px\)/);
     assert.match(source, /const NO_JS_STAGE_CSS/);
     assert.match(source, /<noscript>[\s\S]*NO_JS_STAGE_CSS/);
   });

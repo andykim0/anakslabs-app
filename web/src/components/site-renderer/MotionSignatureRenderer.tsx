@@ -11,6 +11,23 @@ import { safeMediaSrc } from '@/lib/safe-url';
 
 export type MotionSignatureRenderMode = 'desktop' | 'mobile' | 'auto';
 
+export type ScrollytellingCompositionPreset =
+  | 'lower-left'
+  | 'right-aligned'
+  | 'center-large'
+  | 'top-band-bottom-assist';
+
+export type ScrollytellingEntrancePreset =
+  | 'from-left'
+  | 'from-right'
+  | 'from-bottom'
+  | 'fade-scale';
+
+export interface ScrollytellingActComposition {
+  placement: ScrollytellingCompositionPreset;
+  entrance: ScrollytellingEntrancePreset;
+}
+
 interface MotionSignatureRendererProps {
   scene: MotionScene;
   theme: SiteTheme;
@@ -25,6 +42,8 @@ interface MotionSignatureRendererProps {
   }[];
   /** 랜딩 전역 진행도 루트가 이 단일 영상을 소유할 때 시그니처 자체의 seek를 비활성화한다. */
   pageFilm?: boolean;
+  /** 막 순서와 1:1로 대응하는 타이틀 구도·진입 프리셋. */
+  scrollytellingCompositions?: readonly ScrollytellingActComposition[];
 }
 
 const copyStyle: CSSProperties = {
@@ -349,7 +368,7 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm }: MotionSignatureRendererProps & {
+function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm, scrollytellingCompositions }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -390,6 +409,7 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
           {scene.acts.map((act, index) => {
             const [start, end] = bandFor(index, scene.acts.length, act.band);
             const headingId = `${domId(scene.sectionId)}-act-${index + 1}`;
+            const composition = scrollytellingCompositions?.[index];
             return (
               <article
                 key={act.id}
@@ -397,6 +417,8 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
                 data-act-kind={act.kind ?? 'text'}
                 data-act-start={start.toFixed(4)}
                 data-act-end={end.toFixed(4)}
+                data-ss-composition={composition?.placement}
+                data-ss-entrance={composition?.entrance}
                 aria-labelledby={headingId}
               >
                 <div data-ss-copy style={copyStyle}>

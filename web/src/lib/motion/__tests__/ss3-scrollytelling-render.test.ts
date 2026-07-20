@@ -128,7 +128,7 @@ describe('SS3 — 막 진행도 경계 불변식', () => {
     }
     assert.equal(scrollytellingActProgress(-1, { start: 0.25, end: 0.5 }), 0);
     assert.equal(scrollytellingActProgress(2, { start: 0.25, end: 0.5 }), 1);
-    assert.match(MOTION_RUNTIME, /\(1-opacity\)\*320\*\(entering\?1:-1\)/);
+    assert.match(MOTION_RUNTIME, /else actY=offset\*320\*\(entering\?1:-1\)/);
     assert.match(MOTION_CSS, /data-ss-mode="mobile"[\s\S]*min-height: 58svh[\s\S]*opacity: 1 !important; transform: none !important/);
     assert.match(MOTION_CSS, /data-ss-mode="mobile"[\s\S]*\[data-ss-word\][\s\S]*opacity: 1 !important; transform: none !important/);
     assert.match(MOTION_CSS, /data-ss-mode="auto"[\s\S]*padding: clamp\(72px, 12svh, 96px\) 20px/);
