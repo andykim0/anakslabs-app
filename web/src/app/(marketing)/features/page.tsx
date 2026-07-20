@@ -41,14 +41,14 @@ const BUILD_STEPS = [
 const DISCOVERY_STEPS = [
   {
     badge: 'SEO',
-    title: "손님이 네이버에 ‘근처 ○○’를 검색하면 사장님 가게가 나오게 만듭니다.",
+    title: "손님이 네이버에 ‘근처 ○○’를 검색할 때 사장님 가게가 나오기 쉬운 구조로 만듭니다.",
     example: '예: 성수동 세탁소를 찾는 손님에게 지역·서비스·영업 정보를 한 페이지에서 분명히 보여줍니다.',
     question: 'SEO가 뭔가요?',
     href: '/faq#seo',
   },
   {
     badge: 'AEO',
-    title: '“주차 되나요?” 같은 질문에 검색이 사장님 홈페이지로 대신 답하게 합니다.',
+    title: '“주차 되나요?” 같은 질문에 검색이 홈페이지의 답을 보여주기 쉽게 정리합니다.',
     example: '예: 주차 가능 시간, 예약 방법, 쉬는 날을 질문과 바로 이어지는 답으로 정리합니다.',
     question: 'AEO가 뭔가요?',
     href: '/faq#aeo',
@@ -194,7 +194,7 @@ export default function FeaturesPage() {
                 매달 성과를 숫자로 보여드립니다.
               </h2>
               <p className="mkt-type-body mt-5 max-w-xl text-[#526174] break-keep">
-                매달 이메일로 도착합니다. 홈페이지가 열린 횟수, 어디서 왔는지(네이버·구글·인스타그램), 전화·예약·길찾기 버튼이 몇 번 눌렸는지 보여드립니다.
+                매달 이메일로 보내드립니다. 홈페이지가 열린 횟수, 어디서 왔는지(네이버·구글·인스타그램), 전화·예약·길찾기 버튼이 몇 번 눌렸는지 보여드립니다.
               </p>
             </div>
             <MonthlyReportPreview />

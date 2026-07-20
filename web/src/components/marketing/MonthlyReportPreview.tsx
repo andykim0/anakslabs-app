@@ -7,35 +7,41 @@ import {
 
 const METRICS = [
   {
+    id: 'pageviews',
     label: '페이지 조회',
-    value: '1,284',
+    value: 1_284,
     detail: '지난달보다 18% 늘었어요',
     icon: MousePointerClick,
   },
   {
+    id: 'phone',
     label: '전화 클릭',
-    value: '47',
+    value: 47,
     detail: '지난달보다 9건 늘었어요',
     icon: Phone,
   },
   {
+    id: 'reservation',
     label: '예약 클릭',
-    value: '31',
+    value: 31,
     detail: '지난달보다 6건 늘었어요',
     icon: CalendarDays,
   },
   {
+    id: 'directions',
     label: '길찾기 클릭',
-    value: '22',
+    value: 22,
     detail: '지난달보다 4건 늘었어요',
     icon: MapPin,
   },
 ] as const;
 
 const SOURCES = [
-  { label: '네이버', value: '612건 · 48%', width: 'w-[48%]' },
-  { label: '구글', value: '321건 · 25%', width: 'w-1/4' },
-  { label: '인스타그램', value: '193건 · 15%', width: 'w-[15%]' },
+  { id: 'naver', label: '네이버', count: 612, sharePercent: 48 },
+  { id: 'google', label: '구글', count: 321, sharePercent: 25 },
+  { id: 'instagram', label: '인스타그램', count: 193, sharePercent: 15 },
+  { id: 'direct', label: '직접·사이트 내부', count: 102, sharePercent: 8 },
+  { id: 'other', label: '기타', count: 56, sharePercent: 4 },
 ] as const;
 
 export function MonthlyReportPreview() {
@@ -59,14 +65,19 @@ export function MonthlyReportPreview() {
 
       <div className="p-5 sm:p-7">
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-[#DCE4F0] lg:grid-cols-4">
-          {METRICS.map(({ label, value, detail, icon: Icon }) => (
-            <div key={label} className="bg-[#F8FBFF] p-4">
+          {METRICS.map(({ id, label, value, detail, icon: Icon }) => (
+            <div
+              key={id}
+              data-report-metric={id}
+              data-report-count={value}
+              className="bg-[#F8FBFF] p-4"
+            >
               <p className="mkt-type-support flex items-center gap-2 font-semibold text-[#526174]">
                 <Icon className="h-4 w-4 text-[#174DDA]" aria-hidden />
                 {label}
               </p>
               <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#0B1736]">
-                {value}<span className="ml-1 text-xs font-normal text-[#667085]">건</span>
+                {value.toLocaleString('ko-KR')}<span className="ml-1 text-xs font-normal text-[#667085]">건</span>
               </p>
               <p className="mt-1 text-[11px] leading-5 text-[#087D70]">{detail}</p>
             </div>
@@ -80,13 +91,21 @@ export function MonthlyReportPreview() {
             </h4>
             <dl className="mt-4 space-y-4">
               {SOURCES.map((source) => (
-                <div key={source.label}>
+                <div
+                  key={source.id}
+                  data-report-source={source.id}
+                  data-report-count={source.count}
+                  data-report-share={source.sharePercent}
+                >
                   <div className="mkt-type-support mb-1.5 flex justify-between gap-3 text-[#526174]">
                     <dt>{source.label}</dt>
-                    <dd>{source.value}</dd>
+                    <dd>{source.count.toLocaleString('ko-KR')}건 · {source.sharePercent}%</dd>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-[#E8EEF6]">
-                    <div className={`h-full rounded-full bg-[linear-gradient(90deg,#174DDA,#03A995)] ${source.width}`} />
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,#174DDA,#03A995)]"
+                      style={{ width: `${source.sharePercent}%` }}
+                    />
                   </div>
                 </div>
               ))}

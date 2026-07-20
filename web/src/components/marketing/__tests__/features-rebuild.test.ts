@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import { createElement } from 'react';
@@ -7,6 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { parse } from 'node-html-parser';
 import FaqPage from '@/app/(marketing)/faq/page';
 import FeaturesPage from '@/app/(marketing)/features/page';
+import { connectFaqHashOpener } from '@/components/marketing/FaqHashOpener';
 import {
   CREDIT_CONTRACT_COPY,
   formatKrw,
@@ -16,9 +17,21 @@ import {
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');
+const implementationSource = (directory: string): string => readdirSync(join(ROOT, directory), { withFileTypes: true })
+  .filter((entry) => entry.name !== '__tests__')
+  .flatMap((entry) => {
+    const relative = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) return implementationSource(relative);
+    return /\.(?:ts|tsx)$/u.test(entry.name) ? [read(relative)] : [];
+  })
+  .join('\n');
 const featuresSource = read('src/app/(marketing)/features/page.tsx');
 const reportSource = read('src/components/marketing/MonthlyReportPreview.tsx');
 const motionSource = read('src/components/marketing/PricingMotionComparison.tsx');
+const marketingCopySource = [
+  implementationSource('src/app/(marketing)'),
+  implementationSource('src/components/marketing'),
+].join('\n');
 const featuresHtml = renderToStaticMarkup(createElement(FeaturesPage));
 const faqHtml = renderToStaticMarkup(createElement(FaqPage));
 const features = parse(featuresHtml);
@@ -51,13 +64,13 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
       })),
       [
         {
-          lead: '손님이 네이버에 ‘근처 ○○’를 검색하면 사장님 가게가 나오게 만듭니다.',
+          lead: '손님이 네이버에 ‘근처 ○○’를 검색할 때 사장님 가게가 나오기 쉬운 구조로 만듭니다.',
           badge: 'SEO',
           question: 'SEO가 뭔가요?',
           href: '/faq#seo',
         },
         {
-          lead: '“주차 되나요?” 같은 질문에 검색이 사장님 홈페이지로 대신 답하게 합니다.',
+          lead: '“주차 되나요?” 같은 질문에 검색이 홈페이지의 답을 보여주기 쉽게 정리합니다.',
           badge: 'AEO',
           question: 'AEO가 뭔가요?',
           href: '/faq#aeo',
@@ -71,6 +84,7 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
       ],
     );
     assert.match(discovery.textContent, /검색 순위나 AI 답변 노출을 보장하는 말이 아닙니다/);
+    assert.doesNotMatch(marketingCopySource, /나오게\s*만듭니다|검색이[^\n.]*대신\s*답하게\s*합니다/u);
   });
 
   test('FAQ 딥링크는 실재하고 화면 질문·답변과 FAQ JSON-LD가 정확히 일치한다', () => {
@@ -101,20 +115,40 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
       jsonLd.mainEntity.filter((item) => /^(?:SEO|AEO|GEO)가 뭔가요\?$/.test(item.name)).map((item) => item.name),
       ['SEO가 뭔가요?', 'AEO가 뭔가요?', 'GEO가 뭔가요?'],
     );
-    const sharedWords = {
-      seo: ['네이버', '구글', '지역', '서비스'],
-      aeo: ['주차', '예약', '질문', '답'],
-      geo: ['AI', '상호', '주소', '전화번호'],
-    } as const;
-    for (const [id, words] of Object.entries(sharedWords)) {
+    for (const id of ['seo', 'aeo', 'geo']) {
       const visibleItem = visible.find((item) => item.id === id);
       const structuredItem = jsonLd.mainEntity.find((item) => item.name === visibleItem?.name);
       assert.ok(visibleItem && structuredItem);
-      for (const word of words) {
-        assert.ok(visibleItem.text?.includes(word), `${id} 화면 답변 누락: ${word}`);
-        assert.ok(structuredItem.acceptedAnswer.text.includes(word), `${id} JSON-LD 답변 누락: ${word}`);
-      }
+      assert.equal(structuredItem.acceptedAnswer.text, visibleItem.text, `${id} 화면과 JSON-LD 답변 불일치`);
     }
+  });
+
+  test('FAQ 해시 opener는 첫 진입과 hashchange 모두 대상 details를 펼치고 해제한다', () => {
+    const details = new Map([
+      ['seo', { tagName: 'DETAILS', open: false }],
+      ['aeo', { tagName: 'DETAILS', open: false }],
+    ]);
+    let hash = '#seo';
+    let emitHashChange = () => {};
+    let subscriptionRegistered = false;
+    let disconnected = false;
+    const disconnect = connectFaqHashOpener({
+      readHash: () => hash,
+      lookup: (id) => (details.get(id) ?? null) as HTMLElement | null,
+      subscribe: (listener) => {
+        emitHashChange = listener;
+        subscriptionRegistered = true;
+        return () => { disconnected = true; };
+      },
+    });
+
+    assert.equal(details.get('seo')?.open, true, '하드 로드에 해당하는 첫 연결에서 열려야 합니다.');
+    hash = '#aeo';
+    assert.equal(subscriptionRegistered, true);
+    emitHashChange();
+    assert.equal(details.get('aeo')?.open, true, '해시 변경 대상도 열려야 합니다.');
+    disconnect();
+    assert.equal(disconnected, true);
   });
 
   test('T3 리포트는 실제 집계 항목만 쓰고 모든 가상 수치를 예시로 고지한다', () => {
@@ -136,6 +170,16 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
     assert.match(report.textContent, /고유한 사람 수가 아니라 홈페이지 페이지가 열린 횟수/);
     assert.doesNotMatch(report.textContent, /실제 고객 성과|실제 데이터/u);
     assert.match(reportSource, /data-report-preview/);
+    const pageviews = Number(report.querySelector('[data-report-metric="pageviews"]')?.getAttribute('data-report-count'));
+    const sources = report.querySelectorAll('[data-report-source]');
+    assert.equal(
+      sources.reduce((sum, source) => sum + Number(source.getAttribute('data-report-count')), 0),
+      pageviews,
+    );
+    assert.equal(
+      sources.reduce((sum, source) => sum + Number(source.getAttribute('data-report-share')), 0),
+      100,
+    );
   });
 
   test('구독 가격·혜택·크레딧 계약과 영상 애드온 가격은 단일 소스만 소비한다', () => {
