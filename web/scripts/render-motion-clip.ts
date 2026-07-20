@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { isParameterizedSceneId, renderParameterizedScene } from '../tools/scenes/registry';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCENE_ROOT = path.join(REPO_ROOT, 'tools', 'scenes');
@@ -28,6 +29,7 @@ interface CliOptions {
   scene: string;
   output: string;
   report?: string;
+  variablesFile?: string;
   fps: number;
   determinismCheck: boolean;
 }
@@ -93,6 +95,9 @@ export function parseOptions(args: string[]): CliOptions {
     scene,
     output: path.resolve(output),
     report: optionValue(args, '--report') ? path.resolve(optionValue(args, '--report')!) : undefined,
+    variablesFile: optionValue(args, '--variables-file')
+      ? path.resolve(optionValue(args, '--variables-file')!)
+      : undefined,
     fps,
     determinismCheck: args.includes('--determinism-check'),
   };
@@ -103,9 +108,10 @@ function run(
   args: string[],
   label: string,
   extraEnv: Record<string, string | undefined> = {},
+  cwd = REPO_ROOT,
 ): string {
   const result = spawnSync(command, args, {
-    cwd: REPO_ROOT,
+    cwd,
     encoding: 'utf8',
     env: { ...process.env, ...extraEnv },
     maxBuffer: 32 * 1024 * 1024,
@@ -224,7 +230,8 @@ async function renderPass(
 ): Promise<RenderPass> {
   const workDir = await mkdtemp(path.join(tmpdir(), 'daboim-hyperframes-'));
   const rawOutput = path.join(workDir, 'hyperframes-raw.mp4');
-  const compositionPath = path.relative(REPO_ROOT, scenePath);
+  const compositionRoot = path.dirname(scenePath);
+  const compositionPath = path.basename(scenePath);
   const startedAt = performance.now();
   try {
     const hyperframesStartedAt = performance.now();
@@ -243,6 +250,7 @@ async function renderPass(
         HYPERFRAMES_NO_TELEMETRY: '1',
         DO_NOT_TRACK: '1',
       },
+      compositionRoot,
     );
     const hyperframesSeconds = (performance.now() - hyperframesStartedAt) / 1000;
     await mkdir(path.dirname(outputPath), { recursive: true });
@@ -275,39 +283,59 @@ async function renderPass(
 
 export async function renderMotionClip(options: CliOptions): Promise<MotionRenderReport> {
   const { hyperframesVersion, browserPath } = assertEnvironment();
-  const scenePath = resolveScenePath(options.scene);
-  await assertOfflineScene(scenePath);
-  const firstPass = await renderPass(scenePath, options.output, options.fps, browserPath);
-  let secondPass: RenderPass | undefined;
-  let deterministic: boolean | null = null;
-  if (options.determinismCheck) {
-    const verifyDir = await mkdtemp(path.join(tmpdir(), 'daboim-hyperframes-verify-'));
-    try {
-      secondPass = await renderPass(scenePath, path.join(verifyDir, 'second.mp4'), options.fps, browserPath);
-      deterministic = firstPass.frameDigest === secondPass.frameDigest;
-      if (!deterministic) fail(`결정성 검사 실패: ${firstPass.frameDigest} != ${secondPass.frameDigest}`);
-    } finally {
-      await rm(verifyDir, { recursive: true, force: true });
+  const parameterizedScene = isParameterizedSceneId(options.scene) ? options.scene : undefined;
+  const materializedDir = parameterizedScene
+    ? await mkdtemp(path.join(tmpdir(), 'daboim-scene-'))
+    : undefined;
+  try {
+    let scenePath: string;
+    let sceneLabel: string;
+    if (materializedDir) {
+      if (!options.variablesFile) fail('파라미터 씬에는 --variables-file <JSON 경로>가 필요합니다.');
+      const variables = JSON.parse(await readFile(options.variablesFile, 'utf8')) as unknown;
+      scenePath = path.join(materializedDir, `${options.scene}.html`);
+      await writeFile(scenePath, await renderParameterizedScene(parameterizedScene!, variables), 'utf8');
+      sceneLabel = options.scene;
+    } else {
+      if (options.variablesFile) fail('정적 HTML 씬에는 --variables-file을 사용할 수 없습니다.');
+      scenePath = resolveScenePath(options.scene);
+      sceneLabel = path.relative(REPO_ROOT, scenePath);
     }
+    await assertOfflineScene(scenePath);
+    const firstPass = await renderPass(scenePath, options.output, options.fps, browserPath);
+    let secondPass: RenderPass | undefined;
+    let deterministic: boolean | null = null;
+    if (options.determinismCheck) {
+      const verifyDir = await mkdtemp(path.join(tmpdir(), 'daboim-hyperframes-verify-'));
+      try {
+        secondPass = await renderPass(scenePath, path.join(verifyDir, 'second.mp4'), options.fps, browserPath);
+        deterministic = firstPass.frameDigest === secondPass.frameDigest;
+        if (!deterministic) fail(`결정성 검사 실패: ${firstPass.frameDigest} != ${secondPass.frameDigest}`);
+      } finally {
+        await rm(verifyDir, { recursive: true, force: true });
+      }
+    }
+    const report: MotionRenderReport = {
+      schemaVersion: 1,
+      hyperframesVersion,
+      scene: sceneLabel,
+      output: options.output,
+      fps: options.fps,
+      offline: true,
+      outputContract: 'h264-gop1-muted-yuv420p',
+      webSizeWarning: firstPass.bytes > WEB_SIZE_WARNING_BYTES,
+      deterministic,
+      firstPass,
+      ...(secondPass ? { secondPass } : {}),
+    };
+    if (options.report) {
+      await mkdir(path.dirname(options.report), { recursive: true });
+      await writeFile(options.report, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+    }
+    return report;
+  } finally {
+    if (materializedDir) await rm(materializedDir, { recursive: true, force: true });
   }
-  const report: MotionRenderReport = {
-    schemaVersion: 1,
-    hyperframesVersion,
-    scene: path.relative(REPO_ROOT, scenePath),
-    output: options.output,
-    fps: options.fps,
-    offline: true,
-    outputContract: 'h264-gop1-muted-yuv420p',
-    webSizeWarning: firstPass.bytes > WEB_SIZE_WARNING_BYTES,
-    deterministic,
-    firstPass,
-    ...(secondPass ? { secondPass } : {}),
-  };
-  if (options.report) {
-    await mkdir(path.dirname(options.report), { recursive: true });
-    await writeFile(options.report, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  }
-  return report;
 }
 
 async function main(): Promise<void> {

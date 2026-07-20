@@ -1,0 +1,14 @@
+{
+  "businessName": "예시상점",
+  "industry": "업종 입력 예시",
+  "address": "주소 입력 예시",
+  "phone": "전화 입력 예시",
+  "font": "noto-sans-kr",
+  "palette": {
+    "background": "#07142f",
+    "surface": "#102650",
+    "primary": "#174dda",
+    "accent": "#68e8d8",
+    "text": "#ffffff"
+  }
+}

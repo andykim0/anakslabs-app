@@ -1,0 +1,12 @@
+{
+  "businessName": "예시상점",
+  "tagline": "정확한 글자로 시작하는 첫 장면",
+  "font": "noto-sans-kr",
+  "palette": {
+    "background": "#07142f",
+    "surface": "#102650",
+    "primary": "#174dda",
+    "accent": "#68e8d8",
+    "text": "#ffffff"
+  }
+}
