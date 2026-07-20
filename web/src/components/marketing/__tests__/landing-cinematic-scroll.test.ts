@@ -97,10 +97,12 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
   test('막 영상 전체 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
     const fullFilm = read('src/components/marketing/LandingFullFilm.tsx');
+    const continuation = read('src/components/marketing/LandingStoryContinuation.tsx');
     assert.match(source, /\.daboim-cinematic \[data-ss-copy\]::before/);
     assert.match(source, /radial-gradient\(ellipse at var\(--ss-scrim-x/);
-    assert.match(fullFilm, /\[data-film-scrim\]/);
-    assert.match(fullFilm, /\[data-story-chapter\][\s\S]*background: transparent !important/);
+    assert.doesNotMatch(fullFilm, /\[data-film-scrim\]/);
+    assert.match(continuation, /\[data-story-chapter\][\s\S]*background: transparent !important/);
+    assert.match(continuation, /linear-gradient\(180deg,#f8fbff 0%,#eef5ff 36%/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
     assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
     const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');

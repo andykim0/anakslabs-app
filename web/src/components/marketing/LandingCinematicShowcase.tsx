@@ -1,3 +1,6 @@
+import type { CSSProperties } from 'react';
+import Link from 'next/link';
+import { ArrowRight, MousePointer2 } from 'lucide-react';
 import type { ScrollytellingManifestoScene, SiteTheme } from '@/lib/types/site';
 import {
   resolveMotionArtDirectionProfile,
@@ -142,6 +145,25 @@ const LANDING_VIDEO_SOURCES = [
 ] as const;
 
 const STAGE_CSS = `
+[data-landing-manifesto] [data-film-example-badge] {
+  position: fixed; z-index: 40; top: 84px; right: max(18px,calc((100vw - 1340px) / 2));
+  display: flex; align-items: center; gap: 12px; width: fit-content; max-width: min(680px,calc(100vw - 36px));
+  padding: 9px 12px; border: 1px solid rgba(104,232,216,.34); border-radius: 18px;
+  background: rgba(3,12,31,.78); box-shadow: 0 14px 42px rgba(0,8,28,.22); backdrop-filter: blur(14px);
+  transform: translate3d(0,var(--film-badge-y,0px),0); opacity: var(--film-badge-opacity,.9);
+  pointer-events: none;
+}
+[data-landing-manifesto] [data-film-example-badge] > * { pointer-events: auto; }
+[data-landing-manifesto][data-upper-film-ended] [data-film-example-badge] { pointer-events: none; }
+[data-landing-manifesto][data-upper-film-ended] [data-film-example-badge] > * { pointer-events: none; }
+[data-landing-manifesto] [data-film-example-badge] a {
+  display: inline-flex; align-items: center; gap: 6px; color: #68e8d8;
+  font-size: 11px; line-height: 1.35; font-weight: 700; letter-spacing: .06em; word-break: keep-all;
+}
+[data-landing-manifesto] [data-film-example-badge] p {
+  display: inline-flex; align-items: center; gap: 5px; margin: 0; color: rgba(255,255,255,.7);
+  font-size: 10px; line-height: 1.35; letter-spacing: .04em; word-break: keep-all;
+}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-copy] {
   position: relative; isolation: isolate; width: min(800px, 67vw); max-width: none !important;
   margin: 0; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
@@ -217,6 +239,12 @@ const STAGE_CSS = `
   border-top: 1px solid rgba(255,255,255,.08);
 }
 @media (max-width: 767.98px) {
+  [data-landing-manifesto] [data-film-example-badge] {
+    top: 76px; right: 12px; left: 12px; display: grid; width: auto; max-width: none;
+    gap: 3px; padding: 8px 10px; border-radius: 14px;
+  }
+  [data-landing-manifesto] [data-film-example-badge] a { justify-content: space-between; font-size: 9.5px; }
+  [data-landing-manifesto] [data-film-example-badge] p { font-size: 8.5px; }
   .daboim-cinematic [data-ss-heading] { font-size: clamp(2.15rem, 11vw, 4.25rem); }
   .daboim-cinematic [data-ss-act][data-ss-composition] [data-ss-copy] { width: 100%; max-width: 100% !important; }
   .daboim-cinematic [data-ss-act][data-ss-composition="left"] { align-items: flex-end; justify-content: center; }
@@ -240,7 +268,7 @@ const STAGE_CSS = `
 const NO_JS_STAGE_CSS = `
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"]{height:auto!important;contain:none}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-pin]{height:auto;overflow:visible}
-.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media]{position:relative;inset:auto;height:var(--ss-static-height);min-height:0}
+.daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media]{position:relative!important;inset:auto!important;height:var(--ss-static-height);min-height:0}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-act]{min-height:min(58svh,560px);padding-block:clamp(56px,6vw,88px)}
 .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-video]{display:none!important}
 `;
@@ -249,10 +277,19 @@ export function LandingCinematicShowcase() {
   return (
     <div
       data-landing-manifesto
+      data-m-progress
       className="anaks-site daboim-cinematic"
-      style={{ minHeight: 0, backgroundColor: 'transparent' }}
+      style={{ minHeight: 0, backgroundColor: 'transparent', '--scroll-progress': 0 } as CSSProperties}
     >
       <style dangerouslySetInnerHTML={{ __html: `${MOTION_CSS}\n${STAGE_CSS}` }} />
+
+      <aside data-film-example-badge aria-label="AI 영상 홈페이지 예시 안내">
+        <Link href="/cases">
+          <span>예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기</span>
+          <ArrowRight aria-hidden="true" size={13} />
+        </Link>
+        <p><MousePointer2 aria-hidden="true" size={11} /> 컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복</p>
+      </aside>
 
       <div data-lcs-prelude className="relative isolate overflow-hidden">
         <div
@@ -273,7 +310,6 @@ export function LandingCinematicShowcase() {
         artDirection={LANDING_ART_DIRECTION}
         mode="auto"
         isFirst
-        pageFilm
         scrollytellingCompositionPattern={LANDING_COMPOSITION_PATTERN}
         scrollytellingCompositionOverrides={LANDING_COMPOSITION_OVERRIDES}
         scrollytellingActLinks={LANDING_ACT_LINKS}

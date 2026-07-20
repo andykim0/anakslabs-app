@@ -18,7 +18,7 @@ const landingHtml = renderToStaticMarkup(createElement(MarketingHome));
 const landing = parse(landingHtml);
 
 describe('LP3$ batch 통합 회귀', () => {
-  test('랜딩 수명 전체는 단일 필름 stage·단일 video 안에 있고 모든 구간 카피가 SSR된다', () => {
+  test('상단 필름과 후속 DOM 모션은 한 stage 안에서 단일 video·전 구간 SSR 카피를 보존한다', () => {
     const stage = landing.querySelector('[data-landing-full-film-stage]');
     assert.ok(stage);
     assert.equal(landing.querySelectorAll('[data-landing-full-film-stage]').length, 1);
@@ -26,6 +26,10 @@ describe('LP3$ batch 통합 회귀', () => {
     assert.equal(stage.querySelectorAll('video').length, 1);
     assert.equal(stage.querySelectorAll('[data-story-chapter]').length, 8);
     assert.equal(stage.querySelectorAll('[data-film-example-badge] a[href="/cases"]').length, 1);
+    assert.equal(stage.hasAttribute('data-m-progress'), false);
+    assert.ok(stage.querySelector('[data-landing-manifesto][data-m-progress]'));
+    assert.ok(stage.querySelector('[data-landing-continuation][data-m-progress]'));
+    assert.equal(stage.querySelectorAll('[data-page-film-video]').length, 0);
 
     for (const copy of [
       '손님이 내 가게를 검색할 때',

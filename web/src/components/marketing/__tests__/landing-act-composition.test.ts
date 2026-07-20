@@ -49,7 +49,7 @@ describe('P4 시네마틱 타이틀 구도 패턴', () => {
     assert.match(source, /data-ss-composition="left"\][\s\S]*align-items: flex-end/);
     assert.match(source, /data-ss-composition="right"\][\s\S]*align-items: flex-start/);
     assert.doesNotMatch(source, /border: 1px solid rgba\(255,255,255/);
-    assert.doesNotMatch(source, /backdrop-filter: blur/);
+    assert.match(source, /\[data-ss-copy\] \{[\s\S]*backdrop-filter: none !important/);
     assert.match(source, /NO_JS_STAGE_CSS[\s\S]*min-height:min\(58svh,560px\)/);
   });
 

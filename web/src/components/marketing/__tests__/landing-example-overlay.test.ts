@@ -26,10 +26,11 @@ describe('D4 예시 안내의 필름 무대 편입', () => {
     assert.match(badge.textContent, /예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기/);
     assert.match(badge.textContent, /컴퓨터: 스크롤 반응 · 휴대폰: 부드러운 반복/);
 
-    const fullFilm = read('src/components/marketing/LandingFullFilm.tsx');
-    assert.match(fullFilm, /\[data-film-example-badge\] \{[\s\S]*position: fixed/);
-    assert.match(fullFilm, /@media \(max-width: 767\.98px\)[\s\S]*top: 76px; right: 12px; left: 12px/);
+    const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.match(showcase, /\[data-landing-manifesto\] \[data-film-example-badge\] \{[\s\S]*position: fixed/);
+    assert.match(showcase, /@media \(max-width: 767\.98px\)[\s\S]*top: 76px; right: 12px; left: 12px/);
     assert.match(read('src/lib/motion/runtime.ts'), /--film-badge-y[\s\S]*--film-badge-opacity/);
+    assert.match(read('src/lib/motion/runtime.ts'), /data-upper-film-ended/);
   });
 
   test('예시 선언은 다섯 번째 semantic act이고 링크도 그 막 내부에 있다', () => {
@@ -50,6 +51,7 @@ describe('D4 예시 안내의 필름 무대 편입', () => {
     ));
     assert.doesNotMatch(continuation, /data-story-bridge|landing-proof-heading/);
     assert.doesNotMatch(read('src/components/marketing/LandingStoryContinuation.tsx'), /data-story-bridge|landing-proof-heading/);
-    assert.doesNotMatch(read('src/components/marketing/LandingCinematicShowcase.tsx'), /예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기/);
+    assert.doesNotMatch(read('src/components/marketing/LandingFullFilm.tsx'), /예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기/);
+    assert.equal((read('src/components/marketing/LandingCinematicShowcase.tsx').match(/예시 · AI 영상 홈페이지 적용 시 · 적용 사례 보기/g) ?? []).length, 1);
   });
 });

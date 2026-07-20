@@ -183,7 +183,7 @@ export default function MarketingHome() {
       />
 
       <LandingFullFilm>
-        {/* 무료 진단부터 최종 CTA까지 단 하나의 고정 필름과 공용 progress runtime을 사용한다. */}
+        {/* 상단은 필름 스크럽, 후속 구간은 같은 progress runtime의 DOM 안무로 이어진다. */}
         <LandingCinematicShowcase />
 
         <LandingStoryContinuation>
@@ -192,7 +192,7 @@ export default function MarketingHome() {
       <section data-story-chapter="01" className="overflow-hidden bg-[#F8FBFF]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="category" className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
+            <div data-story-copy="category" className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">A NEW WEBSITE CATEGORY</p>
                 <p className="mkt-type-body mt-4 text-[#666A73]">예쁘게만 만들지 않습니다.<br />손님이 찾는 정보까지 채웁니다.</p>
@@ -210,7 +210,7 @@ export default function MarketingHome() {
       <section data-story-chapter="02" className="border-y border-[#DCE4F0] bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="engines" className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div data-story-copy="engines" className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">ONE SITE · THREE ENGINES</p>
                 <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">손님이 가게를 찾는 세 순간을 한 번에.</h2>
@@ -246,7 +246,7 @@ export default function MarketingHome() {
       <section data-story-chapter="03" className="border-y border-[#DCE4F0] bg-[#EEF5FF] text-[#0B1736]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="comparison" className="grid gap-8 lg:grid-cols-2 lg:items-end">
+            <div data-story-copy="comparison" className="grid gap-8 lg:grid-cols-2 lg:items-end">
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#08AFC5] uppercase">왜 다보임인가</p>
                 <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em]">직접 만들다 포기하지 않고,<br />맡긴 뒤 기다리기만 하지 않게.</h2>
@@ -282,7 +282,7 @@ export default function MarketingHome() {
       <section data-story-chapter="04" className="bg-[#F8FBFF]">
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="process" className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div data-story-copy="process" className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">AGENCY FLOW · PRODUCT SPEED</p>
                 <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">사장님이 중간마다 고르고,<br />확인한 만큼만 만들어집니다.</h2>
@@ -310,7 +310,7 @@ export default function MarketingHome() {
 
           <div className="mt-16 grid items-center gap-12 lg:grid-cols-[.88fr_1.12fr]">
             <FadeIn>
-              <div data-film-scrim="editor">
+              <div data-story-copy="editor">
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">DIRECTABLE AI</p>
                 <h3 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">AI가 시작하고,<br />사장님이 방향을 잡습니다.</h3>
                 <p className="mkt-type-body mt-5 max-w-lg text-[#666A73]">먼저 페이지 구성을 확인하고, 서로 다른 디자인 3안에서 방향을 고릅니다. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 요소를 옮기고 크기를 바꿀 수 있습니다. 직접 수정은 횟수 제한 없이 무료입니다.</p>
@@ -339,7 +339,7 @@ export default function MarketingHome() {
             </div>
           </FadeIn>
           <FadeIn delay={0.08}>
-            <div data-film-scrim="industry">
+            <div data-story-copy="industry">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">NICHE-NATIVE DESIGN</p>
               <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">카페와 병원은<br />같은 홈페이지일 수 없습니다.</h2>
               <p className="mkt-type-body mt-5 max-w-lg text-[#666A73]">카페 손님은 메뉴와 위치를, 병원 방문자는 진료 안내와 예약 방법을 먼저 찾습니다. 업종에 맞는 페이지와 버튼부터 다르게 설계합니다.</p>
@@ -353,7 +353,7 @@ export default function MarketingHome() {
       <section data-story-chapter="06" className="border-y border-[#DCE4F0] bg-[#F8FBFF]">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.82fr_1.18fr] lg:items-center">
           <FadeIn>
-            <div data-film-scrim="pricing">
+            <div data-story-copy="pricing">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
               <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">만들고 끝내지 않고,<br />계속 좋아지게 관리합니다.</h2>
               <p className="mkt-type-body mt-5 max-w-md text-[#666A73]">처음 만들 때 제작비를 내고, 운영 중에는 매달 방문·전화·예약·길찾기 결과를 받습니다. 첫 화면에 실제 영상이 필요한 경우에만 AI 영상 홈페이지를 더하면 됩니다.</p>
@@ -387,21 +387,21 @@ export default function MarketingHome() {
       <section data-story-chapter="07" className="bg-white">
         <div className="mx-auto max-w-5xl px-5 py-20 sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="faq" className="mx-auto text-center">
+            <div data-story-copy="faq" className="mx-auto text-center">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">DIRECT ANSWERS</p>
               <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">결정 전에 많이 묻는 질문</h2>
             </div>
-            <div data-film-scrim="faq-list" className="mt-12"><FaqList items={FAQS} /></div>
+            <div data-story-copy="faq-list" className="mt-12"><FaqList items={FAQS} /></div>
           </FadeIn>
         </div>
       </section>
 
       {/* 최종 CTA */}
       <section data-story-chapter="08" className="relative overflow-hidden bg-[linear-gradient(115deg,#174DDA_0%,#08AFC5_45%,#03BFA9_70%,#0B1736_100%)] text-white">
-        <div data-film-decoration className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,.2),transparent_30%),linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px]" />
+        <div data-story-decoration className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,.2),transparent_30%),linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] bg-[size:auto,48px_48px,48px_48px]" />
         <div className="relative mx-auto max-w-5xl px-5 py-20 text-center sm:px-8 md:py-28">
           <FadeIn>
-            <div data-film-scrim="final" className="mx-auto">
+            <div data-story-copy="final" className="mx-auto">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-white/82 uppercase">START WITH A SIGNAL CHECK</p>
               <h2 className="mkt-type-section-title mt-5 font-semibold tracking-[-0.045em]">이미 홈페이지가 있다면,<br />먼저 읽히는 상태부터 확인하세요.</h2>
               <p className="mkt-type-body mx-auto mt-5 max-w-lg text-white/68">홈페이지 주소만 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보가 무엇인지 확인할 수 있습니다. 가입 없이 무료입니다.</p>
