@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test 'src/**/*.test.ts'"
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "motion:render": "tsx scripts/render-motion-clip.ts",
+    "motion:smoke": "tsx scripts/render-motion-clip.ts --scene smoke --output /private/tmp/daboim-hyperframes/smoke.mp4 --report /private/tmp/daboim-hyperframes/smoke-report.json --determinism-check"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
@@ -37,6 +39,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "hyperframes": "0.7.64",
     "server-only": "^0.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
