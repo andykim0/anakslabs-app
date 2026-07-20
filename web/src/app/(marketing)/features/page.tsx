@@ -15,9 +15,15 @@ import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
 import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { MonthlyReportPreview } from '@/components/marketing/MonthlyReportPreview';
 import { MotionShowcase } from '@/components/marketing/MotionShowcase';
 import { ScannerCta } from '@/components/marketing/ui';
-import { formatKrw, PRICING } from '@/lib/pricing';
+import {
+  CREDIT_CONTRACT_COPY,
+  formatKrw,
+  PRICING,
+  SUBSCRIPTION_BENEFIT_COPY,
+} from '@/lib/pricing';
 
 export const metadata: Metadata = {
   title: '기능 — 홈페이지 제작부터 검색 등록·성과 증명까지',
@@ -180,24 +186,59 @@ export default function FeaturesPage() {
       </section>
 
       <section data-features-section="report" className="border-b border-[#DCE4F0] bg-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-          <div>
-            <BarChart3 className="h-8 w-8 text-[#174DDA]" aria-hidden />
-            <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em] break-keep">
-              매달 성과를 숫자로 보여드립니다.
-            </h2>
-            <p className="mkt-type-body mt-5 max-w-xl text-[#526174] break-keep">
-              홈페이지를 연 뒤 방문과 전화·예약·길찾기 버튼 반응을 모아 매달 이메일로 보내드립니다.
-            </p>
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
+          <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:items-start">
+            <div className="lg:sticky lg:top-28">
+              <BarChart3 className="h-8 w-8 text-[#174DDA]" aria-hidden />
+              <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em] break-keep">
+                매달 성과를 숫자로 보여드립니다.
+              </h2>
+              <p className="mkt-type-body mt-5 max-w-xl text-[#526174] break-keep">
+                매달 이메일로 도착합니다. 홈페이지가 열린 횟수, 어디서 왔는지(네이버·구글·인스타그램), 전화·예약·길찾기 버튼이 몇 번 눌렸는지 보여드립니다.
+              </p>
+            </div>
+            <MonthlyReportPreview />
           </div>
-          <div className="border-y border-[#DCE4F0] py-8">
-            <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY PROOF</p>
-            <div className="mt-7 grid grid-cols-2 gap-x-8 gap-y-6">
-              {['방문 흐름', '유입 출처', '전화·예약', '길찾기'].map((item) => (
-                <p key={item} className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
-                  <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden /> {item}
+
+          <div className="mt-16 border-y border-[#C8D8EC] py-9">
+            <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
+              <div>
+                <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY SUBSCRIPTION</p>
+                <p className="mkt-type-card-title mt-3 font-semibold tracking-[-0.025em]">
+                  사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)}
                 </p>
-              ))}
+                <p className="mkt-type-support mt-2 text-[#667085]">VAT 별도</p>
+              </div>
+              <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                <div>
+                  <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
+                    <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
+                    {SUBSCRIPTION_BENEFIT_COPY.report} + 클릭 추적
+                  </p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">방문 흐름과 전화·예약·길찾기 반응을 매달 확인합니다.</p>
+                </div>
+                <div>
+                  <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
+                    <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
+                    {SUBSCRIPTION_BENEFIT_COPY.credits}
+                  </p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">{CREDIT_CONTRACT_COPY}</p>
+                </div>
+                <div>
+                  <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
+                    <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
+                    검색·AI용 기본 구조 업데이트
+                  </p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">검색과 AI가 홈페이지를 읽는 방식이 바뀌면 기본 구조도 함께 점검하고 업데이트합니다.</p>
+                </div>
+                <div>
+                  <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
+                    <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
+                    {SUBSCRIPTION_BENEFIT_COPY.operations}
+                  </p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">사이트를 안전하게 열어두는 운영까지 포함합니다.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
