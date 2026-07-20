@@ -4,6 +4,8 @@
  */
 
 export interface FaqItem {
+  /** 질문형 딥링크용 안정적인 HTML anchor */
+  id?: string;
   q: string;
   /** 화면 렌더용 답변 (JSX 허용) */
   a: React.ReactNode;
@@ -31,7 +33,7 @@ export function FaqList({ items }: { items: FaqItem[] }) {
   return (
     <div className="mx-auto max-w-3xl divide-y divide-[#E8E6E0] border-y border-[#E8E6E0]">
       {items.map((it, i) => (
-        <details key={i} className="group px-1 py-5">
+        <details key={it.id ?? i} id={it.id} className="group scroll-mt-28 px-1 py-5">
           <summary className="mkt-type-card-title flex cursor-pointer list-none items-start justify-between gap-4 font-medium text-[#17181C] marker:content-['']">
             <span>{it.q}</span>
             <span className="mt-0.5 shrink-0 text-[#696E76] transition-transform group-open:rotate-45">

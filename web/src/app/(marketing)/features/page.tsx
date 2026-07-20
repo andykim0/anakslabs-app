@@ -3,8 +3,10 @@ import Link from 'next/link';
 import {
   ArrowRight,
   BarChart3,
+  Bot,
   Check,
   ClipboardCheck,
+  MessageSquareQuote,
   Search,
   Sparkles,
 } from 'lucide-react';
@@ -31,9 +33,27 @@ const BUILD_STEPS = [
 ] as const;
 
 const DISCOVERY_STEPS = [
-  ['검색할 때', '가게 이름과 지역, 서비스를 검색 서비스가 읽기 쉽게 정리합니다.'],
-  ['궁금한 점을 물을 때', '주차와 예약처럼 손님이 자주 묻는 답을 홈페이지 안에 또렷하게 둡니다.'],
-  ['AI에게 물을 때', '가게의 공식 정보와 연락처를 한뜻으로 맞춰 확인하기 쉽게 합니다.'],
+  {
+    badge: 'SEO',
+    title: "손님이 네이버에 ‘근처 ○○’를 검색하면 사장님 가게가 나오게 만듭니다.",
+    example: '예: 성수동 세탁소를 찾는 손님에게 지역·서비스·영업 정보를 한 페이지에서 분명히 보여줍니다.',
+    question: 'SEO가 뭔가요?',
+    href: '/faq#seo',
+  },
+  {
+    badge: 'AEO',
+    title: '“주차 되나요?” 같은 질문에 검색이 사장님 홈페이지로 대신 답하게 합니다.',
+    example: '예: 주차 가능 시간, 예약 방법, 쉬는 날을 질문과 바로 이어지는 답으로 정리합니다.',
+    question: 'AEO가 뭔가요?',
+    href: '/faq#aeo',
+  },
+  {
+    badge: 'GEO',
+    title: '요즘 손님은 AI에게 물어봅니다. AI가 사장님 가게를 인용할 공식 근거를 만듭니다.',
+    example: '예: 상호·주소·전화번호·공식 채널을 같은 정보로 맞춰 AI가 출처를 확인하기 쉽게 합니다.',
+    question: 'GEO가 뭔가요?',
+    href: '/faq#geo',
+  },
 ] as const;
 
 export default function FeaturesPage() {
@@ -102,14 +122,36 @@ export default function FeaturesPage() {
                 홈페이지를 연 뒤 손님이 검색하고 질문하는 세 순간까지 준비합니다.
               </p>
             </div>
-            <div className="grid gap-px border-y border-[#C8D8EC] bg-[#C8D8EC] md:grid-cols-3">
-              {DISCOVERY_STEPS.map(([title, body], index) => (
-                <article key={title} className="bg-[#F8FBFF] px-5 py-7 md:px-6 md:py-9">
-                  <span className="font-mono text-sm font-semibold text-[#03A995]">0{index + 1}</span>
-                  <h3 className="mkt-type-card-title mt-8 font-semibold">{title}</h3>
-                  <p className="mkt-type-body mt-3 text-[#5F6B7C]">{body}</p>
-                </article>
-              ))}
+            <div>
+              <div className="grid gap-px border-y border-[#C8D8EC] bg-[#C8D8EC] md:grid-cols-3">
+                {DISCOVERY_STEPS.map((item, index) => {
+                  const Icon = index === 0 ? Search : index === 1 ? MessageSquareQuote : Bot;
+                  return (
+                    <article key={item.badge} className="flex min-h-full flex-col bg-[#F8FBFF] px-5 py-7 md:px-6 md:py-9">
+                      <div className="flex items-center justify-between gap-4">
+                        <Icon className="h-5 w-5 text-[#174DDA]" aria-hidden />
+                        <span className="mkt-type-eyebrow rounded-full border border-[#AFC6F8] bg-[#EDF4FF] px-2.5 py-1 font-mono font-semibold tracking-[0.12em] text-[#174DDA]">
+                          {item.badge}
+                        </span>
+                      </div>
+                      <h3 className="mkt-type-card-title mt-8 font-semibold tracking-[-0.025em] break-keep">
+                        {item.title}
+                      </h3>
+                      <p className="mkt-type-body mt-4 text-[#5F6B7C]">{item.example}</p>
+                      <Link
+                        href={item.href}
+                        className="mkt-type-control group mt-7 inline-flex items-center gap-1.5 self-start font-semibold text-[#174DDA]"
+                      >
+                        {item.question}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                      </Link>
+                    </article>
+                  );
+                })}
+              </div>
+              <p className="mkt-type-support mt-5 text-[#667085]">
+                검색 순위나 AI 답변 노출을 보장하는 말이 아닙니다. 가게의 공식 정보를 네이버·구글과 AI가 읽고 확인하기 쉬운 구조로 만드는 일입니다.
+              </p>
             </div>
           </div>
         </div>
