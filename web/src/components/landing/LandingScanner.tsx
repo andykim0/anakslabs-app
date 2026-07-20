@@ -244,7 +244,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
         <div data-film-scrim="hero" className="text-left">
           <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/18 bg-[#07142F]/72 px-3 py-1.5 font-mono tracking-[0.14em] text-[#68E8D8] uppercase shadow-sm backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
-            무료 SEO · AEO · GEO 진단
+            가입 없이 무료 홈페이지 진단
           </p>
           <h1 className="mkt-type-hero max-w-2xl font-semibold tracking-[-0.065em] text-[#0B1736]">
             손님이 내 가게를
@@ -254,9 +254,8 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
               홈페이지가 보일까요?
             </span>
           </h1>
-          <p className="mkt-type-body mt-7 max-w-xl text-[#5F6B7C]">
+          <p data-scan-lead className="mkt-type-body mt-7 max-w-xl text-[#334155] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
             홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.
-            결과를 확인한 뒤 업종에 맞는 새 홈페이지 제작까지 이어갈 수 있습니다.
           </p>
 
           <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">
@@ -313,7 +312,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
             </div>
           </div>
           <div className="mkt-type-support mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[#6C7788]">
-            {['가입 없이 바로', '검색 · 질문 · AI 신호 동시 확인', '결과 30일 보관'].map((item) => (
+            {['가입 없이 바로', '검색 · 질문 · AI 정보 확인', '결과 30일 보관'].map((item) => (
               <span key={item} className="inline-flex items-center gap-1.5">
                 <Check className="h-3 w-3 text-[#03A995]" /> {item}
               </span>

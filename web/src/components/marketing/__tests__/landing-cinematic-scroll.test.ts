@@ -123,7 +123,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
     assert.match(source, /consoleMedia="interface"/);
     assert.match(consoleSource, /mediaMode !== 'interface'/);
-    assert.match(source, /data-lcs-hero-ambient/);
+    assert.doesNotMatch(source, /data-lcs-hero-ambient|bg-\[size:56px_56px\]/);
     assert.doesNotMatch(source, /data-lcs-hero-poster/);
     assert.match(consoleSource, /mediaMode === 'film'/);
     assert.match(consoleSource, /onPlaying=\{\(\) => setPlaying\(true\)\}/);

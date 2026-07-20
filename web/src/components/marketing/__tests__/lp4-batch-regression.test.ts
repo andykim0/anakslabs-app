@@ -42,6 +42,27 @@ function videoProbe(path: string) {
 }
 
 describe('LP4$ batch 통합 회귀', () => {
+  test('P7 무료진단은 장식 레이어와 전문용어를 걷고 한 문장·입력·CTA에 집중한다', () => {
+    const scanner = landing.querySelector('#hero-scanner');
+    assert.ok(scanner);
+    const lead = scanner.querySelector('[data-scan-lead]');
+    assert.ok(lead);
+    assert.equal(
+      lead.textContent.trim(),
+      '홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.',
+    );
+    assert.equal(scanner.querySelectorAll('#landing-scan-url').length, 1);
+    assert.equal(scanner.querySelectorAll('button').some((button) => button.textContent.includes('내 사이트 무료 진단')), true);
+    assert.doesNotMatch(scanner.textContent, /\b(?:SEO|AEO|GEO|1080P|MUTED|LAZY-LOADED)\b/u);
+    assert.equal(scanner.textContent.includes('검색 · 질문 · AI 정보 확인'), true);
+
+    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
+    const showcaseSource = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    assert.doesNotMatch(consoleSource, /bg-gradient-to-br from-\[#174DDA\]\/5 via-transparent to-\[#03D1B8\]\/16 mix-blend-multiply/u);
+    assert.doesNotMatch(consoleSource, /absolute -inset-8 rounded-full|absolute inset-y-0 w-24 -skew-x-12/u);
+    assert.doesNotMatch(showcaseSource, /data-lcs-hero-ambient|bg-\[size:56px_56px\]/u);
+  });
+
   test('P1/P2 기술 배지 rail과 죽은 전체 오버레이가 필름 출력에 재등장하지 않는다', () => {
     const film = landing.querySelector('[data-landing-manifesto]');
     assert.ok(film);

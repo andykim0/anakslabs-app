@@ -12,13 +12,13 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Check, Search, Sparkles } from 'lucide-react';
+import { Check, Search } from 'lucide-react';
 import { useFailClosedReducedMotion } from './use-fail-closed-reduced-motion';
 
 const SIGNALS = [
-  { label: 'SEO', sub: '검색 구조' },
-  { label: 'AEO', sub: '답변 구조' },
-  { label: 'GEO', sub: 'AI 인용 구조' },
+  { label: '검색', sub: '가게 정보' },
+  { label: '질문', sub: '자주 묻는 내용' },
+  { label: 'AI', sub: '공식 정보' },
 ];
 
 const DESKTOP_QUERY = '(min-width: 768px)';
@@ -89,11 +89,10 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
     <div
       ref={wrapRef}
       role="img"
-      aria-label="다보임 전용 3D 신호 애니메이션과 SEO, AEO, GEO 최적화 상태"
+      aria-label="홈페이지의 검색, 질문, AI 정보 확인 화면"
       className="relative mx-auto w-full max-w-[640px]"
     >
-      <div aria-hidden="true" className="absolute -inset-8 rounded-full bg-[radial-gradient(circle,rgba(8,184,232,.15),transparent_68%)] blur-2xl" />
-      <div className={`relative aspect-[16/11] overflow-hidden rounded-[28px] border border-[#DCE4F0] shadow-[0_30px_90px_rgba(11,23,54,.13)] ${mediaMode === 'interface' ? 'bg-white/76 backdrop-blur-xl' : 'bg-white'}`}>
+      <div className="relative aspect-[16/11] overflow-hidden rounded-[28px] border border-[#DCE4F0] bg-white shadow-[0_24px_64px_rgba(11,23,54,.1)]">
         {showPoster ? (
           <Image
             data-optimization-poster
@@ -129,29 +128,15 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
           </video>
         ) : null}
 
-        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-[#174DDA]/5 via-transparent to-[#03D1B8]/16 mix-blend-multiply" />
-
-        <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full border border-white/80 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur">
-          <Sparkles className="h-3 w-3 text-[#08AFC5]" />
-          <span className="font-mono text-[9px] font-semibold tracking-[0.12em] text-[#0B1736]">다보임 발견 필름 · 1080P</span>
-        </div>
-
-        <motion.div
-          aria-hidden="true"
-          animate={reduce ? undefined : { x: ['-120%', '220%'] }}
-          transition={{ duration: 4.8, repeat: Infinity, repeatDelay: 2.2, ease: 'easeInOut' }}
-          className="absolute inset-y-0 w-24 -skew-x-12 bg-gradient-to-r from-transparent via-white/45 to-transparent"
-        />
-
-        <div className="absolute right-4 bottom-4 left-4 rounded-2xl border border-white/90 bg-white/88 p-4 shadow-[0_12px_40px_rgba(11,23,54,.12)] backdrop-blur-xl">
+        <div className="absolute right-4 bottom-4 left-4 rounded-2xl border border-[#E2E8F2] bg-white/96 p-4 shadow-[0_10px_28px_rgba(11,23,54,.09)]">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#174DDA] via-[#08B8E8] to-[#03D1B8] text-white">
                 <Search className="h-3.5 w-3.5" />
               </span>
               <span>
-                <span className="block text-[11px] font-semibold text-[#0B1736]">발견 신호 구조화</span>
-                <span className="mt-0.5 block text-[9px] text-[#667085]">검색부터 AI 답변까지 한 번에</span>
+                <span className="block text-[11px] font-semibold text-[#0B1736]">홈페이지 정보 확인</span>
+                <span className="mt-0.5 block text-[9px] text-[#667085]">손님이 찾는 내용까지 한 번에</span>
               </span>
             </div>
             <span className="hidden items-center gap-1 rounded-full bg-[#EAFBF7] px-2.5 py-1 font-mono text-[8px] font-semibold text-[#087D70] sm:inline-flex">
@@ -173,9 +158,6 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
           </div>
         </div>
       </div>
-      <p className="mt-3 text-center font-mono text-[8px] tracking-[0.08em] text-[#667085]">
-        다보임 3D 모션 · 1920×1080 · MUTED · LAZY-LOADED
-      </p>
     </div>
   );
 }

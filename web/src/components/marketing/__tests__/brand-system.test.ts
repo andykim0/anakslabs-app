@@ -63,7 +63,8 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
     assert.match(visual, /Veo 3\.1 Fast/);
     assert.match(visual, /daboim-brand-video-1080-2/);
     assert.match(visual, /기존 Anaks Labs 브랜드 영상과 무관/);
-    assert.match(visual, /1920×1080/);
+    assert.match(visual, /1080p MP4\/WebM/);
+    assert.doesNotMatch(visual, /1920×1080 · MUTED · LAZY-LOADED/);
     assert.match(visual, /IntersectionObserver/);
     assert.match(visual, /useFailClosedReducedMotion/);
     assert.match(visual, /daboim-visibility-film\.webm/);

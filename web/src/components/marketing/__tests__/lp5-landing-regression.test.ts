@@ -117,9 +117,7 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
       '진단 인터페이스가 전역 필름 포스터를 복제함',
     );
     assert.equal(prelude.querySelectorAll('video, picture').length, 0, 'SSR 히어로에 중복 영상 surface가 존재함');
-    const ambient = prelude.querySelector('[data-lcs-hero-ambient]');
-    assert.ok(ambient);
-    assert.equal(ambient.querySelectorAll('img, video, picture').length, 0, 'ambient는 미디어 복제본이 아니어야 함');
+    assert.equal(prelude.querySelectorAll('[aria-hidden].absolute.inset-0').length, 0, '무료진단 배경 장식 레이어 재등장');
     const filmPoster = stages[0]!.querySelector('img[data-video-poster]');
     assert.ok(filmPoster);
     const posterFrame = filmPoster.parentNode;

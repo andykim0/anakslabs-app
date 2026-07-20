@@ -24,7 +24,7 @@ describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
     assert.ok(prelude);
     assert.equal(prelude.querySelectorAll('img[src*="daboim-visibility-film-poster"]').length, 0);
     assert.equal(root.querySelectorAll('img[src*="daboim-visibility-film-poster"]').length, 1);
-    assert.equal(prelude.querySelectorAll('[data-lcs-hero-ambient]').length, 1);
+    assert.equal(prelude.querySelectorAll('[aria-hidden].absolute.inset-0').length, 0);
   });
 
   test('desktop film 경로는 autoplay 정책·poster-first·실패 폴백을 모두 갖는다', () => {

@@ -31,8 +31,6 @@ const FULL_FILM_CSS = `
   transform: translate3d(0,0,0);
   transform-origin: 50% 50%;
 }
-[data-landing-full-film-stage] [data-lcs-prelude]::before,
-[data-landing-full-film-stage] [data-lcs-hero-ambient] { display: none !important; }
 [data-landing-full-film-stage] [data-signature-id="scrollytelling-manifesto"] [data-ss-act] {
   background: transparent !important;
 }

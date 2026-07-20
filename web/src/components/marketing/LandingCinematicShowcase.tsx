@@ -292,15 +292,6 @@ export function LandingCinematicShowcase() {
       </aside>
 
       <div data-lcs-prelude className="relative isolate overflow-hidden">
-        <div
-          aria-hidden="true"
-          data-lcs-hero-ambient
-          className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_76%_30%,rgba(3,209,184,.18),transparent_24%),radial-gradient(circle_at_18%_70%,rgba(23,77,218,.13),transparent_32%),linear-gradient(135deg,#F8FBFF_8%,#EEF5FF_54%,#EAFBF7)]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(23,77,218,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(23,77,218,.045)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]"
-        />
         <LandingScanner consoleMedia="interface" />
       </div>
 
