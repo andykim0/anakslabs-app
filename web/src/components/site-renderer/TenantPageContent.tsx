@@ -26,6 +26,7 @@ export function TenantPageContent({
   privacyHref,
   termsHref,
   analyticsEndpoint,
+  runtimeDelivery = 'client',
 }: {
   config: SiteConfig;
   pageSlug: string;
@@ -44,6 +45,8 @@ export function TenantPageContent({
   termsHref?: string;
   /** 공개 발행본의 first-party 집계 엔드포인트. export는 반드시 절대 플랫폼 URL을 전달한다. */
   analyticsEndpoint?: string;
+  /** App Router는 client, render-static은 inline을 명시한다. */
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   const businessInfo = config.businessInfo ?? null;
   // A legacy config without business information has no reachable tenant
@@ -68,6 +71,7 @@ export function TenantPageContent({
           motionAssets={motionAssets}
           interactive={interactive}
           animate={animate}
+          runtimeDelivery={runtimeDelivery}
         />
       </main>
       {businessInfo ? (

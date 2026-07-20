@@ -653,9 +653,12 @@ export const MOTION_CSS = `
  */
 export const MOTION_RUNTIME = `(function(){
   try{
-    if(window.__anaksMotionDispose){ try{ window.__anaksMotionDispose(); }catch(_){} }
     var roots=Array.prototype.slice.call(document.querySelectorAll('.anaks-site'));
     if(!roots.length) return;
+    var ownedRoots=window.__anaksMotionRuntimeRoots||[];
+    if(window.__anaksMotionRuntimeReady&&window.__anaksMotionDispose&&roots.every(function(root){return ownedRoots.indexOf(root)>=0;}))return;
+    if(window.__anaksMotionDispose){ try{ window.__anaksMotionDispose(); }catch(_){} }
+    window.__anaksMotionRuntimeReady=true;window.__anaksMotionRuntimeRoots=roots;
     var cleanups=[], observers=[], timers=[], disposed=false;
     var q=function(s){ var out=[]; roots.forEach(function(root){ out=out.concat(Array.prototype.slice.call(root.querySelectorAll(s))); }); return out; };
     var rootOf=function(el){ return el&&el.closest?el.closest('.anaks-site'):null; };
@@ -678,7 +681,15 @@ export const MOTION_RUNTIME = `(function(){
       root.classList.remove('m-cinematic-ready'); root.classList.remove('m-scrollytelling-ready'); root.classList.add('m-scrollytelling-static');
       Array.prototype.slice.call(root.querySelectorAll('[data-motion-signature]')).forEach(clearStage);
     }
+    function releaseOwnership(){
+      if(window.__anaksMotionRuntimeRoots!==roots)return;
+      window.__anaksMotionRuntimeReady=false;window.__anaksMotionRuntimeRoots=null;
+      window.__anaksMotionDispose=null;window.__anaksProgressDispose=null;window.__anaksCinematicDispose=null;
+    }
+    function disposeStatic(){roots.forEach(markStatic);releaseOwnership();}
+    function publishDispose(fn){window.__anaksMotionDispose=fn;window.__anaksProgressDispose=fn;window.__anaksCinematicDispose=fn;}
 
+    publishDispose(disposeStatic);
     var mm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mm && mm.matches){ roots.forEach(markStatic); return; }
     var hasIO='IntersectionObserver' in window;
@@ -944,10 +955,8 @@ export const MOTION_RUNTIME = `(function(){
     function disposeAll(){
       if(disposed)return;disposed=true;cleanups.forEach(function(off){try{off();}catch(_){}});observers.forEach(function(io){try{io.disconnect();}catch(_){}});timers.forEach(clearTimeout);removeRootListeners();
       roots.forEach(function(root){root.classList.remove('m-cinematic-ready');root.classList.remove('m-scrollytelling-ready');Array.prototype.slice.call(root.querySelectorAll('[data-motion-signature]')).forEach(clearStage);});
-      q('video').forEach(function(v){if(v.pause)v.pause();});reveals.forEach(function(el){el.classList.remove('m-hide');el.classList.add('m-show');});
+      q('video').forEach(function(v){if(v.pause)v.pause();});reveals.forEach(function(el){el.classList.remove('m-hide');el.classList.add('m-show');});releaseOwnership();
     }
-    window.__anaksMotionDispose=disposeAll;
-    window.__anaksProgressDispose=disposeAll;
-    window.__anaksCinematicDispose=disposeAll;
-  }catch(_){/* 모션 실패는 정적 콘텐츠에 영향 없음 */}
+    publishDispose(disposeAll);
+  }catch(_){window.__anaksMotionRuntimeReady=false;window.__anaksMotionRuntimeRoots=null;/* 모션 실패는 정적 콘텐츠에 영향 없음 */}
 })();`;

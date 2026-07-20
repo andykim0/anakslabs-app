@@ -83,6 +83,7 @@ export function FictionalDemoScreen({ slug, pageSlug = '' }: { slug: string; pag
           tier="premium"
           interactive
           animate
+          runtimeDelivery="client"
         />
       </div>
       <LegalFooter info={businessInfo} theme={previewConfig.theme} disableActions />

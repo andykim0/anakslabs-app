@@ -140,7 +140,7 @@ export function CanvasStage() {
             {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
             <TenantHeader config={config} currentSlug={previewPageSlug} />
             {/* [Q6] key 리마운트 — 토글 시 런타임 재실행으로 모션 처음부터 재생 */}
-            <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="mobile" pageSlug={previewPageSlug} animate={motionOn} />
+            <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="mobile" pageSlug={previewPageSlug} animate={motionOn} runtimeDelivery="client" />
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@ export function CanvasStage() {
           {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
           <TenantHeader config={config} currentSlug={previewPageSlug} />
           {/* [Q6] key 리마운트 — 토글 시 런타임 재실행으로 모션 처음부터 재생 */}
-          <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="desktop" pageSlug={previewPageSlug} animate={motionOn} />
+          <SiteRenderer key={motionOn ? 'motion-on' : 'motion-off'} config={config} mode="desktop" pageSlug={previewPageSlug} animate={motionOn} runtimeDelivery="client" />
         </div>
       </div>
     );

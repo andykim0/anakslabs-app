@@ -17,6 +17,7 @@ import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
 import { resolveMotionPlan, intensityFactors, planIsActive } from '@/lib/motion/apply';
 import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
+import { ANCHOR_RUNTIME } from '@/lib/motion/anchor-runtime';
 import {
   motionContextFromConfig,
   resolveMotionArtDirectionProfile,
@@ -34,6 +35,7 @@ import {
   sceneSourceSectionsAreSafe,
 } from './MotionSignatureRenderer';
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
+import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -56,27 +58,6 @@ const BASE_CSS = `
 `;
 
 /**
- * [T1] 앵커 보정 런타임(의존성 0) — mode 'auto'는 데스크톱/모바일 레이아웃을 모두 렌더하는데
- * 섹션 id는 데스크톱에만 있어, 모바일 뷰포트에서 '#sec-x' 클릭 시 display:none 타깃이 선점돼
- * 스크롤이 무반응이었다(⑤). 같은 해시의 후보(#id, [data-anchor=id]) 중 '보이는' 요소로 스크롤.
- * no-JS: 데스크톱은 네이티브 앵커로 동작(모바일 no-JS만 미지원 — 콘텐츠는 전부 가시).
- */
-const ANCHOR_RUNTIME = `(function(){
-  document.addEventListener('click', function(e){
-    var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
-    if(!a) return;
-    var id = a.getAttribute('href').slice(1);
-    if(!id) return;
-    var sel; try { sel = '#' + CSS.escape(id) + ',[data-anchor="' + id + '"]'; } catch(_) { return; }
-    var els = document.querySelectorAll(sel);
-    for(var i=0;i<els.length;i++){
-      var el = els[i];
-      if(el.getClientRects().length){ e.preventDefault(); el.scrollIntoView({behavior:'smooth',block:'start'}); return; }
-    }
-  });
-})();`;
-
-/**
  * AI 생성 customCss를 사이트 루트 클래스로 스코프.
  * CSS 중첩(nesting)으로 감싸 내부 셀렉터가 전부 `.anaks-site` 하위로 한정된다.
  * `</` 시퀀스는 제거해 <style> 태그 탈출 방지.
@@ -96,6 +77,7 @@ export function SiteRenderer({
   motionOwnerId,
   motionAssets,
   pageSlug = '',
+  runtimeDelivery = 'inline',
 }: {
   config: SiteConfig;
   mode?: SiteRendererMode;
@@ -129,6 +111,8 @@ export function SiteRenderer({
   motionOwnerId?: string;
   /** 저장소에서 현재 사이트 소유권까지 검증한 자산 projection. 기본 빈 배열 = 민감 기능 비활성. */
   motionAssets?: readonly MotionAssetProvenance[];
+  /** 정적 발행은 inline, App Router 문서는 client로 전달해 SPA 내비게이션에서도 실행한다. */
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
@@ -289,11 +273,15 @@ export function SiteRenderer({
           </div>
         )}
       </div>
-      {/* [motion-system 2단계] 의존성 0 바닐라 런타임 — SSR HTML·정적 내보내기 파싱 시 실행.
-          에디터 프리뷰(client)는 animate=false라 미방출. React가 실행 안 하지만 SSR HTML은 브라우저가 파싱 시 실행. */}
-      {motionActive && <script dangerouslySetInnerHTML={{ __html: MOTION_RUNTIME }} />}
-      {/* [T1] auto 모드 앵커 보정 — 보이는 레이아웃의 섹션으로 스크롤(모바일 CTA 무반응 해소) */}
-      {interactive && mode === 'auto' && <script dangerouslySetInnerHTML={{ __html: ANCHOR_RUNTIME }} />}
+      {runtimeDelivery === 'client' ? (
+        <SiteRuntimeBootstrap motion={motionActive} anchors={interactive && mode === 'auto'} />
+      ) : (
+        <>
+          {/* 정적 내보내기는 독립 HTML 파싱 시 실행되는 기존 인라인 계약을 유지한다. */}
+          {motionActive && <script dangerouslySetInnerHTML={{ __html: MOTION_RUNTIME }} />}
+          {interactive && mode === 'auto' && <script dangerouslySetInnerHTML={{ __html: ANCHOR_RUNTIME }} />}
+        </>
+      )}
     </>
   );
 }

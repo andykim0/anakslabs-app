@@ -81,6 +81,7 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
       privacyHref: opts.privacyHref,
       termsHref: opts.termsHref,
       analyticsEndpoint: opts.analyticsEndpoint,
+      runtimeDelivery: 'inline',
     }),
   );
 

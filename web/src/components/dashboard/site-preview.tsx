@@ -177,6 +177,7 @@ export function SitePreview({
               animate={motion || previewAsAddon ? true : interactive ? false : undefined}
               tier={previewAsAddon ? 'premium' : tier}
               siteId={interactive ? PREVIEW_SITE_ID : undefined}
+              runtimeDelivery="client"
             />
           </PreviewErrorBoundary>
         </div>
