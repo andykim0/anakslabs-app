@@ -258,10 +258,10 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
       const page = await FictionalDemoPage({ params: Promise.resolve({ slug }) });
       const detailHtml = renderToStaticMarkup(page);
       const detailRoot = parse(detailHtml);
-      const header = detailRoot.querySelector('header');
-      assert.ok(header?.textContent.includes(FICTIONAL_DEMO_LABEL), `${slug}: 상세 영구 라벨 누락`);
+      const notice = detailRoot.querySelector('aside[aria-label="가상 데모 안내"]');
+      assert.ok(notice?.textContent.includes(FICTIONAL_DEMO_LABEL), `${slug}: 상세 영구 라벨 누락`);
       assert.ok(
-        header?.textContent.includes('실제 고객·매장·제품·성과가 아닌'),
+        notice?.textContent.includes('실제 고객·매장·제품·성과가 아닙니다'),
         `${slug}: 가상 시나리오 설명 누락`,
       );
       assert.ok(detailRoot.querySelector(`[data-fictional-demo-renderer="${slug}"]`));

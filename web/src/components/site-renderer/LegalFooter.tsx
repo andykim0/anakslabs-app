@@ -19,15 +19,18 @@ export function LegalFooter({
   theme,
   privacyHref = '/privacy',
   termsHref = '/terms',
+  disableActions = false,
 }: {
   info: BusinessInfo;
   theme: SiteTheme;
   /** 서빙: '/privacy' · Export: 'privacy.html' */
   privacyHref?: string;
   termsHref?: string;
+  /** Code-owned fictional demos can display layout-safe placeholder values without activating them. */
+  disableActions?: boolean;
 }) {
-  const phoneHref = businessPhoneHref(info.phone);
-  const directionsHref = info.address ? businessDirectionsHref(info.address) : undefined;
+  const phoneHref = disableActions ? undefined : businessPhoneHref(info.phone);
+  const directionsHref = !disableActions && info.address ? businessDirectionsHref(info.address) : undefined;
   type FooterItem = { key: string; label: string; href?: string; external?: boolean };
   const items = [
     info.businessName ? { key: 'business', label: `상호 ${info.businessName}` } : null,

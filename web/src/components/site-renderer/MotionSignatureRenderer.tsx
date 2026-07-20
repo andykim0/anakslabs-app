@@ -324,9 +324,20 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
           dataAttrs={{ 'data-m-cinematic-media': true, 'data-cinematic-media': true }}
         />
         <div data-cinematic-scrim aria-hidden="true" />
-        <div data-cinematic-copy data-m-story data-story-start="0.08" data-story-end="0.68" style={copyStyle}>
+        <div data-cinematic-copy style={copyStyle}>
+          {/* Establish the story before the first scroll input. Previously the whole copy was
+              progress-hidden at p=0, so a healthy cinematic renderer looked like a plain photo. */}
           <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
-          {scene.body ? <p data-signature-body>{scene.body}</p> : null}
+          {scene.body ? (
+            <p
+              data-signature-body
+              data-m-story
+              data-story-start="0.02"
+              data-story-end="0.38"
+            >
+              {scene.body}
+            </p>
+          ) : null}
         </div>
       </div>
     </SignatureRoot>

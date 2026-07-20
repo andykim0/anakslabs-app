@@ -116,11 +116,22 @@ describe('SS3 — 막 진행도 경계 불변식', () => {
     assert.match(MOTION_RUNTIME, /wordIndex===0\?1/);
   });
 
-  test('인접 band 경계는 0.5씩 crossfade하며 막 내부 진행도는 0..1이다', () => {
-    assert.ok(Math.abs(scrollytellingActOpacity(0.25, { start: 0, end: 0.25 }, 0, 4) - 0.5) < 1e-9);
-    assert.ok(Math.abs(scrollytellingActOpacity(0.25, { start: 0.25, end: 0.5 }, 1, 4) - 0.5) < 1e-9);
+  test('인접 band 경계는 공백 없이 합이 1인 공간 handoff며 막 내부 진행도는 0..1이다', () => {
+    const outgoingAtBoundary = scrollytellingActOpacity(0.25, { start: 0, end: 0.25 }, 0, 4);
+    const incomingAtBoundary = scrollytellingActOpacity(0.25, { start: 0.25, end: 0.5 }, 1, 4);
+    assert.ok(Math.abs(outgoingAtBoundary - 0.5) < 1e-9);
+    assert.ok(Math.abs(incomingAtBoundary - 0.5) < 1e-9);
+    for (const progress of [0.24, 0.25, 0.26]) {
+      const outgoing = scrollytellingActOpacity(progress, { start: 0, end: 0.25 }, 0, 4);
+      const incoming = scrollytellingActOpacity(progress, { start: 0.25, end: 0.5 }, 1, 4);
+      assert.ok(Math.abs(outgoing + incoming - 1) < 1e-9, `handoff sum at ${progress}`);
+    }
     assert.equal(scrollytellingActProgress(-1, { start: 0.25, end: 0.5 }), 0);
     assert.equal(scrollytellingActProgress(2, { start: 0.25, end: 0.5 }), 1);
+    assert.match(MOTION_RUNTIME, /\(1-opacity\)\*320\*\(entering\?1:-1\)/);
+    assert.match(MOTION_CSS, /data-ss-mode="mobile"[\s\S]*min-height: 58svh[\s\S]*opacity: 1 !important; transform: none !important/);
+    assert.match(MOTION_CSS, /data-ss-mode="mobile"[\s\S]*\[data-ss-word\][\s\S]*opacity: 1 !important; transform: none !important/);
+    assert.match(MOTION_CSS, /data-ss-mode="auto"[\s\S]*padding: clamp\(72px, 12svh, 96px\) 20px/);
   });
 
   test('런타임에 금지 엔진·스크롤 가로채기가 없다', () => {

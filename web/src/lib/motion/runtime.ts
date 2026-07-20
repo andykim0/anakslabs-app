@@ -90,6 +90,14 @@ export const MOTION_CSS = `
   transform: translate3d(0, var(--ss-act-y, 0px), 0); color: var(--ss-text); background: transparent;
   pointer-events: none;
 }
+.anaks-site.m-scrollytelling-ready [data-ss-copy] {
+  padding: clamp(24px, 4vw, 52px);
+  border-radius: max(var(--signature-radius, 8px), 18px);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--ss-stage-bg) 82%, transparent) 0%,
+    color-mix(in srgb, var(--ss-stage-bg) 54%, transparent) 68%,
+    transparent 100%);
+}
 .anaks-site.m-scrollytelling-ready [data-ss-word] {
   opacity: var(--ss-word-opacity, 1); transform: translate3d(0, var(--ss-word-y, 0px), 0);
 }
@@ -100,17 +108,17 @@ export const MOTION_CSS = `
 }
 .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act-list] { position: relative; inset: auto; }
 .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-act] {
-  position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
+  position: relative; inset: auto; min-height: 58svh; padding: 48px 20px; pointer-events: auto;
+  opacity: 1 !important; transform: none !important;
+}
+.anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="mobile"] [data-ss-word] {
+  opacity: 1 !important; transform: none !important;
 }
 @media (max-width: 767.98px) {
-  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] { height: auto; }
-  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-pin] { position: relative; top: auto; height: auto; overflow: visible; }
-  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-media] {
-    position: sticky; inset: auto; top: 0; height: 100svh; min-height: 0; margin-bottom: -100svh;
-  }
-  .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act-list] { position: relative; inset: auto; }
+  /* 실제 모바일은 같은 sticky 무대에서 loop 영상 + 진행도 카피를 사용한다.
+     video scrub은 capability resolver에서 이미 차단된다. 강제 mode="mobile" 미리보기만 위의 세로 stack이다. */
   .anaks-site.m-scrollytelling-ready [data-ss-stage][data-ss-mode="auto"] [data-ss-act] {
-    position: relative; inset: auto; min-height: 100svh; pointer-events: auto;
+    padding: clamp(72px, 12svh, 96px) 20px;
   }
 }
 .anaks-site.m-scrollytelling-static [data-ss-stage] { height: auto; contain: none; }
@@ -769,9 +777,9 @@ export const MOTION_RUNTIME = `(function(){
       var root=rootOf(el); if(!el.hasAttribute('data-ss-stage')||!root||!root.classList.contains('m-scrollytelling-ready'))return;
       var amp0=ampOf(el),acts=el.__anaksActs||(el.__anaksActs=Array.prototype.slice.call(el.querySelectorAll('[data-ss-act]')));
       acts.forEach(function(act,index){
-        var start=parseFloat(act.getAttribute('data-act-start')||'0'),end=parseFloat(act.getAttribute('data-act-end')||'1'),span=Math.max(.0001,end-start),fade=Math.min(.06,span*.22),opacity=1;
-        if(index===0&&p<=start+fade)opacity=1;else if(index===acts.length-1&&p>=end-fade)opacity=1;else if(p<start-fade||p>end+fade)opacity=0;else if(p<start+fade)opacity=(p-(start-fade))/(fade*2);else if(p>end-fade)opacity=1-(p-(end-fade))/(fade*2);
-        opacity=clamp(opacity);act.style.setProperty('--ss-act-opacity',opacity.toFixed(4));act.style.setProperty('--ss-act-y',((1-opacity)*22*amp0).toFixed(2)+'px');
+        var start=parseFloat(act.getAttribute('data-act-start')||'0'),end=parseFloat(act.getAttribute('data-act-end')||'1'),span=Math.max(.0001,end-start),fade=Math.min(.025,span*.12),opacity=1;
+        if(index===0&&p<=start+fade)opacity=1;else if(index===acts.length-1&&p>=end-fade)opacity=1;else if(p<start-fade||p>end+fade)opacity=0;else if(p<start+fade)opacity=smooth(start-fade,start+fade,p);else if(p>end-fade)opacity=1-smooth(end-fade,end+fade,p);
+        opacity=clamp(opacity);var entering=p<=start;act.style.setProperty('--ss-act-opacity',opacity.toFixed(4));act.style.setProperty('--ss-act-y',(((1-opacity)*320*(entering?1:-1))*amp0).toFixed(2)+'px');
         var local=clamp((p-start)/span),words=act.__anaksWords||(act.__anaksWords=Array.prototype.slice.call(act.querySelectorAll('[data-ss-word]')));
         words.forEach(function(word,wordIndex){var count=Math.max(1,words.length),ws=(wordIndex/count)*.62,we=Math.min(1,ws+.28),wp=wordIndex===0?1:(we<=ws?(local>=ws?1:0):clamp((local-ws)/(we-ws)));word.style.setProperty('--ss-word-opacity',wp.toFixed(4));word.style.setProperty('--ss-word-y',((1-wp)*16*amp0).toFixed(2)+'px');});
         var counter=act.querySelector('[data-ss-count]');if(counter){var to=parseFloat(counter.getAttribute('data-count-to')||'0'),decimals=parseInt(counter.getAttribute('data-count-decimals')||'0',10);if(Number.isFinite(to)){var current=to*local;counter.textContent=decimals>0?current.toLocaleString(undefined,{minimumFractionDigits:decimals,maximumFractionDigits:decimals}):Math.round(current).toLocaleString();}}

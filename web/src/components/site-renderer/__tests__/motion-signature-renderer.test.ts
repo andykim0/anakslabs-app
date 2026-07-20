@@ -150,6 +150,13 @@ describe('motion signature production renderers', () => {
     assert.doesNotMatch(html, /autoplay/);
   });
 
+  test('cinematic scrub establishes its heading before the first scroll input', () => {
+    const html = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true);
+    assert.match(html, /data-cinematic-copy="true"[^>]*><h2/);
+    assert.doesNotMatch(html, /data-cinematic-copy="true"[^>]*data-m-story/);
+    assert.match(html, /<p[^>]*data-signature-body="true"[^>]*data-m-story="true"[^>]*data-story-start="0\.02"/);
+  });
+
   test('curated manifesto preview may select a lightweight mobile source without changing persisted media', () => {
     const scene = X5_RENDERER_FIXTURES['scrollytelling-manifesto'];
     const html = renderToStaticMarkup(createElement(MotionSignatureRenderer, {

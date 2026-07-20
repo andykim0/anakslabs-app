@@ -18,9 +18,12 @@ import {
 import { buildSiteConfigFromSurvey, type SectionCopy } from '@/lib/data/site-templates';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
+import {
+  composeFictionalDemoConfig,
+  FICTIONAL_DEMO_CONTENT,
+} from '@/lib/marketing/fictional-demo-content';
 import type {
   DesignCandidate,
-  SectionPlanItem,
   SurveyInput,
 } from '@/lib/types/domain';
 import type {
@@ -47,6 +50,8 @@ type DemoAsset = {
 
 export interface FictionalDemoAssetManifest {
   poster: DemoAsset;
+  /** Cost-free deterministic frames extracted from the already-paid 1080p clip. */
+  stills: readonly [DemoAsset, DemoAsset, DemoAsset];
   video: DemoAsset & {
     encoding: '1080p-h264-yuv420p-muted-gop1';
     durationSeconds: 8;
@@ -55,7 +60,7 @@ export interface FictionalDemoAssetManifest {
 
 const demoAsset = (
   slug: FictionalDemoSlug,
-  fileName: 'poster.webp' | 'hero.mp4',
+  fileName: 'poster.webp' | 'hero.mp4' | 'still-1.webp' | 'still-2.webp' | 'still-3.webp',
   bytes: number,
   sha256: string,
 ): DemoAsset => ({
@@ -77,6 +82,11 @@ export const FICTIONAL_DEMO_ASSETS = {
       38_662,
       'eab86dd4b9b1900cc3bf0a5c1ada1f182768fc64408f749b4b034de965e86b45',
     ),
+    stills: [
+      demoAsset('woldam', 'still-1.webp', 35_392, '40b0bad279330caffab492ef129924f3dc65ecb44df7573ba6067499b72dc03d'),
+      demoAsset('woldam', 'still-2.webp', 47_726, 'e6f42e9748b8801b4c3e7ed9a590762c8283be2f462637650f31bc94ee64beec'),
+      demoAsset('woldam', 'still-3.webp', 61_522, '5b6731e8cca2962c70860f745df1089db42e0ec5c63f8f47bc7c0ce80e50b938'),
+    ],
     video: {
       ...demoAsset(
         'woldam',
@@ -95,6 +105,11 @@ export const FICTIONAL_DEMO_ASSETS = {
       297_964,
       '22ef284a8cd62ca53db7d939ae830fbdd0efc215f2c96713dcd421c5434ee44a',
     ),
+    stills: [
+      demoAsset('yeobaek-workshop', 'still-1.webp', 150_238, '0c838e43d7658e25b0d14854c565397bce861091beca1e7def274437d4c02836'),
+      demoAsset('yeobaek-workshop', 'still-2.webp', 124_756, 'a5af983ac97e4d1b4d1988ee92ff58f0c691050d3ff5dc6062abb75a6ec1fd09'),
+      demoAsset('yeobaek-workshop', 'still-3.webp', 154_368, '96acf0cc5afaecc3451bada0cf24f0d5219a3c9351ac00cac6b7cbb26509c69d'),
+    ],
     video: {
       ...demoAsset(
         'yeobaek-workshop',
@@ -122,6 +137,7 @@ interface FictionalDemoProfile {
   signatureId: Extract<ProductionMotionSignatureId, 'scrollytelling-manifesto' | 'cinematic-scrub'>;
   motionLabel: string;
   tagline: string;
+  siteGoal: NonNullable<SurveyInput['siteGoal']>;
   providedContent: string;
   highlights: [string, string, string];
   copy: SectionCopy;
@@ -143,12 +159,13 @@ export const FICTIONAL_DEMO_PROFILES = {
     signatureId: 'scrollytelling-manifesto',
     motionLabel: '페이지 관통 시네마틱',
     tagline: '계절의 결을 천천히 보여줍니다',
+    siteGoal: 'reserve',
     providedContent:
-      '[소개]\n월담은 다보임의 시네마틱 연출을 설명하기 위해 만든 가상 파인다이닝 시나리오입니다.\n[안내]\n실제 매장, 셰프, 메뉴, 예약 정보를 나타내지 않습니다.',
+      '[소개]\n월담은 빛과 여백으로 파인다이닝의 긴 호흡을 보여주는 가상 브랜드 시나리오입니다.\n[안내]\n실제 매장, 셰프, 메뉴, 예약 정보를 나타내지 않습니다.',
     highlights: [
-      '가상 파인다이닝 시나리오',
-      '추상 이미지 한 장으로 구성',
-      '실제 메뉴·매장 정보 없음',
+      '빛으로 이어지는 4막 서사',
+      '제품 날조 없는 무드 중심 연출',
+      '다중 페이지 정보 설계',
     ],
     copy: {
       heroKicker: '월담',
@@ -174,12 +191,13 @@ export const FICTIONAL_DEMO_PROFILES = {
     signatureId: 'cinematic-scrub',
     motionLabel: '스크롤 시네마틱',
     tagline: '종이의 결이 빛의 움직임이 됩니다',
+    siteGoal: 'trust',
     providedContent:
-      '[소개]\n여백공작소는 다보임의 시네마틱 연출을 설명하기 위해 만든 가상 수공예 브랜드입니다.\n[안내]\n실제 제품, 작업실, 제작 이력, 판매 정보를 나타내지 않습니다.',
+      '[소개]\n여백공작소는 종이의 결, 빛, 그림자로 따뜻한 브랜드 경험을 보여주는 가상 수공예 시나리오입니다.\n[안내]\n실제 제품, 작업실, 제작 이력, 판매 정보를 나타내지 않습니다.',
     highlights: [
-      '가상 수공예 브랜드 시나리오',
-      '추상 콜라주 한 장으로 구성',
-      '실제 제품·제작 이력 없음',
+      '종이 질감을 살린 시네마틱 스크럽',
+      '한글 가독성을 지키는 안전 폰트',
+      '고객 개입형 제작 흐름',
     ],
     copy: {
       heroKicker: '여백공작소',
@@ -193,28 +211,11 @@ export const FICTIONAL_DEMO_PROFILES = {
   },
 } as const satisfies Record<FictionalDemoSlug, FictionalDemoProfile>;
 
-const DEMO_CONTACT: SectionPlanItem = {
-  type: 'contact',
-  name: '데모 안내',
-  brief: '실제 사업 정보와 문의 기능이 없는 가상 시나리오입니다.',
-  variant: 'contact:form',
-  priority: 'must',
-  source: 'user',
-  pageSlug: 'contact',
-};
-
 function surveyForProfile(profile: FictionalDemoProfile): SurveyInput {
   const template = resolveTemplate(profile.purposeId, profile.industry);
-  const sectionPlan = planFromTemplate(template)
-    .filter((section) => section.type === 'hero' || section.type === 'about')
-    .map((section) => section.type === 'about'
-      ? { ...section, name: '시나리오 소개' }
-      : section);
-  const pagePlan = pagePlanFromTemplate(template)
-    .filter((page) => page.slug === '' || page.slug === 'about' || page.slug === 'contact')
-    .map((page) => page.slug === 'contact'
-      ? { ...page, title: '데모 안내', navLabel: '데모 안내' }
-      : page);
+  const hero = planFromTemplate(template).find((section) => section.type === 'hero');
+  const home = pagePlanFromTemplate(template).find((page) => page.slug === '');
+  if (!hero || !home) throw new Error(`FICTIONAL_DEMO_TEMPLATE_HOME_MISSING:${profile.slug}`);
 
   return canonicalizeSurveyTemplate({
     businessName: profile.businessName,
@@ -225,9 +226,12 @@ function surveyForProfile(profile: FictionalDemoProfile): SurveyInput {
     colorPreference: profile.colorPreference,
     secondaryColor: profile.secondaryColor,
     referenceImageUrls: [],
+    siteGoal: profile.siteGoal,
     highlights: [...profile.highlights],
-    sectionPlan: [...sectionPlan, { ...DEMO_CONTACT }],
-    pagePlan,
+    // The production builder supplies the hero shell and theme. Rich demo pages are composed
+    // afterwards from explicitly authored, fact-safe content instead of generic fake claims.
+    sectionPlan: [{ ...hero }],
+    pagePlan: [{ ...home }],
     templateId: template.id,
     tagline: profile.tagline,
     conceptMode: 'fictional',
@@ -257,7 +261,11 @@ function candidateForProfile(
     style: blueprint.style,
     ...(blueprint.imageDirectionId ? { imageDirectionId: blueprint.imageDirectionId } : {}),
     heroImageUrl: posterPath,
-    theme: blueprint.theme,
+    theme: {
+      ...blueprint.theme,
+      // Avoid Latin-only/synthetic Korean fallback in the public demo routes.
+      fonts: { ...FICTIONAL_DEMO_CONTENT[profile.slug].fonts },
+    },
     description: blueprint.description,
   };
 }
@@ -332,9 +340,10 @@ export function buildFictionalDemo(slug: FictionalDemoSlug): BuiltFictionalDemo 
   const candidate = candidateForProfile(profile, survey, assets.poster.publicPath);
   let config = buildSiteConfigFromSurvey(survey, candidate, {
     heroImageUrl: assets.poster.publicPath,
-    imagePool: [],
+    imagePool: assets.stills.map((asset) => asset.publicPath),
     copy: profile.copy,
   });
+  config = composeFictionalDemoConfig(config, FICTIONAL_DEMO_CONTENT[slug]);
   config = {
     ...config,
     meta: { ...config.meta, description: profile.metaDescription },

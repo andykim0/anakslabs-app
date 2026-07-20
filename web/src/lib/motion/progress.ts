@@ -41,8 +41,11 @@ export function scrollytellingActProgress(progress: number, window: ProgressWind
 }
 
 /**
- * [SS3] 막 crossfade의 경계 규칙.
- * 첫 막은 p=0, 마지막 막은 p=1에서 반드시 완전히 보이고, 인접 band 경계에서는 둘이 0.5씩 겹친다.
+ * [SS3] 막 handoff 경계 규칙.
+ * 첫 막은 p=0, 마지막 막은 p=1에서 반드시 완전히 보인다.
+ * 인접 막의 긴 한글 제목이 같은 좌표에서 겹쳐 읽히거나 화면이 완전히 비는 회귀를 막기 위해,
+ * 경계 양쪽의 짧은 구간에서 opacity 합을 1로 유지한다. 런타임은 두 막을 반대 방향으로
+ * 충분히 벌려 같은 좌표에 포개지지 않게 한다.
  */
 export function scrollytellingActOpacity(
   progress: number,
@@ -52,11 +55,17 @@ export function scrollytellingActOpacity(
 ): number {
   const p = clampProgress(progress);
   const span = Math.max(0.0001, window.end - window.start);
-  const fade = Math.min(0.06, span * 0.22);
+  const fade = Math.min(0.025, span * 0.12);
   if (index === 0 && p <= window.start + fade) return 1;
   if (index === count - 1 && p >= window.end - fade) return 1;
   if (p < window.start - fade || p > window.end + fade) return 0;
-  if (p < window.start + fade) return clampProgress((p - (window.start - fade)) / (fade * 2));
-  if (p > window.end - fade) return clampProgress(1 - (p - (window.end - fade)) / (fade * 2));
+  if (p < window.start + fade) {
+    const local = clampProgress((p - (window.start - fade)) / (fade * 2));
+    return local * local * (3 - 2 * local);
+  }
+  if (p > window.end - fade) {
+    const local = clampProgress((p - (window.end - fade)) / (fade * 2));
+    return 1 - local * local * (3 - 2 * local);
+  }
   return 1;
 }
