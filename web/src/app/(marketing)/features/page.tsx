@@ -16,7 +16,7 @@ import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMoc
 import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import { MonthlyReportPreview } from '@/components/marketing/MonthlyReportPreview';
-import { MotionShowcase } from '@/components/marketing/MotionShowcase';
+import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { ScannerCta } from '@/components/marketing/ui';
 import {
   CREDIT_CONTRACT_COPY,
@@ -260,8 +260,19 @@ export default function FeaturesPage() {
       </section>
 
       <section data-features-section="motion" className="border-b border-[#DCE4F0] bg-[#F4F7FA]">
-        <div className="mx-auto max-w-5xl px-5 py-20 sm:px-8 md:py-24">
-          <MotionShowcase />
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
+          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-start">
+            <div>
+              <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">OPTIONAL VIDEO</p>
+              <h2 className="mkt-type-section-title mt-5 font-semibold tracking-[-0.045em] break-keep">
+                기본 움직임과 영상 첫 화면을 같은 장면으로 비교하세요.
+              </h2>
+              <p className="mkt-type-body mt-5 max-w-lg text-[#526174] break-keep">
+                모든 홈페이지에는 기본 움직임이 포함됩니다. 더 깊은 공간감이 필요할 때만 AI 영상 홈페이지를 추가할 수 있습니다.
+              </p>
+            </div>
+            <PricingMotionComparison />
+          </div>
         </div>
       </section>
 
