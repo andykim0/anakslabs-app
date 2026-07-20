@@ -17,12 +17,13 @@ describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
       '하위 hydration 오류까지 가리는 광범위한 억제를 추가하면 안 됨');
   });
 
-  test('첫 화면은 같은 포스터를 배경과 카드에 이중 렌더하지 않는다', () => {
+  test('첫 화면은 전역 필름의 포스터 하나만 렌더한다', () => {
     const html = renderToStaticMarkup(createElement(LandingCinematicShowcase));
     const root = parse(html);
     const prelude = root.querySelector('[data-lcs-prelude]');
     assert.ok(prelude);
-    assert.equal(prelude.querySelectorAll('img[src*="daboim-visibility-film-poster"]').length, 1);
+    assert.equal(prelude.querySelectorAll('img[src*="daboim-visibility-film-poster"]').length, 0);
+    assert.equal(root.querySelectorAll('img[src*="daboim-visibility-film-poster"]').length, 1);
     assert.equal(prelude.querySelectorAll('[data-lcs-hero-ambient]').length, 1);
   });
 

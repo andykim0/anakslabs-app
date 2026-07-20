@@ -23,6 +23,8 @@ interface MotionSignatureRendererProps {
     type: 'video/webm' | 'video/mp4';
     media?: string;
   }[];
+  /** 랜딩 전역 진행도 루트가 이 단일 영상을 소유할 때 시그니처 자체의 seek를 비활성화한다. */
+  pageFilm?: boolean;
 }
 
 const copyStyle: CSSProperties = {
@@ -176,6 +178,7 @@ function SignatureMedia({
   className,
   dataAttrs = {},
   responsiveVideoSources,
+  pageFilm = false,
 }: {
   media: MotionMedia;
   eager?: boolean;
@@ -184,6 +187,7 @@ function SignatureMedia({
   className?: string;
   dataAttrs?: Record<string, string | number | boolean>;
   responsiveVideoSources?: MotionSignatureRendererProps['responsiveVideoSources'];
+  pageFilm?: boolean;
 }) {
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
@@ -226,6 +230,7 @@ function SignatureMedia({
             data-m-cinematic-video="true"
             data-ss-video={scrollytelling ? true : undefined}
             data-playback={scrub ? 'scrub' : 'loop'}
+            data-page-film-video={pageFilm ? true : undefined}
             src={responsiveVideoSources?.length ? undefined : src}
             poster={poster}
             width={media.width}
@@ -344,7 +349,7 @@ function CinematicScrub({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources }: MotionSignatureRendererProps & {
+function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveVideoSources, pageFilm }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -377,6 +382,7 @@ function ScrollytellingManifesto({ scene, theme, art, mode, isFirst, responsiveV
             scrub
             scrollytelling
             responsiveVideoSources={responsiveVideoSources}
+            pageFilm={pageFilm}
             dataAttrs={{ 'data-ss-video-wrap': true }}
           />
         </div>

@@ -188,12 +188,12 @@ export function LandingCinematicShowcase() {
   return (
     <div
       data-landing-manifesto
-      className="anaks-site daboim-cinematic border-y border-[#DCE4F0]"
-      style={{ minHeight: 0, backgroundColor: '#07142f' }}
+      className="anaks-site daboim-cinematic"
+      style={{ minHeight: 0, backgroundColor: 'transparent' }}
     >
       <style dangerouslySetInnerHTML={{ __html: `${MOTION_CSS}\n${STAGE_CSS}` }} />
 
-      <div data-lcs-prelude className="relative isolate overflow-hidden bg-[#F8FBFF]">
+      <div data-lcs-prelude className="relative isolate overflow-hidden">
         <div
           aria-hidden="true"
           data-lcs-hero-ambient
@@ -203,9 +203,9 @@ export function LandingCinematicShowcase() {
           aria-hidden="true"
           className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(23,77,218,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(23,77,218,.045)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]"
         />
-        <LandingScanner consoleMedia="film" />
-        <div className="border-t border-[#DCE4F0] bg-white/65 backdrop-blur">
-          <div className="mkt-type-support mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono tracking-[0.13em] text-[#718096] sm:px-8 md:justify-between">
+        <LandingScanner consoleMedia="interface" />
+        <div className="border-t border-white/12 bg-[#07142F]/45 backdrop-blur-xl">
+          <div className="mkt-type-support mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 font-mono tracking-[0.13em] text-white/65 sm:px-8 md:justify-between">
             {TECH_RAIL.map((item) => (
               <span key={item} className="inline-flex items-center gap-2">
                 <span className="h-1 w-1 rounded-full bg-[#03BFA9]" /> {item}
@@ -215,7 +215,7 @@ export function LandingCinematicShowcase() {
         </div>
       </div>
 
-      <div className="relative bg-[#07142F] px-5 pt-12 text-white sm:px-8 md:pt-16">
+      <div className="relative px-5 pt-12 text-white sm:px-8 md:pt-16">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 pb-8">
           <Link
             href="/cases"
@@ -235,7 +235,8 @@ export function LandingCinematicShowcase() {
         theme={LANDING_THEME}
         artDirection={LANDING_ART_DIRECTION}
         mode="auto"
-        isFirst={false}
+        isFirst
+        pageFilm
         responsiveVideoSources={LANDING_VIDEO_SOURCES}
       />
       <noscript>

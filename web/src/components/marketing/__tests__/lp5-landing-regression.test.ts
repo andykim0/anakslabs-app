@@ -100,7 +100,7 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
     assert.equal(stages[0]!.querySelectorAll('video[poster][preload="none"][muted][playsinline]').length, 1);
     assert.equal(stages[0]!.querySelectorAll('video[width="1920"][height="1080"] source').length, 2);
     assert.equal(root.querySelectorAll('link[rel="preload"][as="image"][href="/daboim-visibility-film-poster.webp"]').length, 1);
-    assert.equal(stages[0]!.querySelectorAll('img[width="1920"][height="1080"][loading="lazy"][decoding="async"]').length, 1);
+    assert.equal(stages[0]!.querySelectorAll('img[width="1920"][height="1080"][loading="eager"][decoding="sync"][fetchpriority="high"]').length, 1);
 
     const blockingExternal = root.querySelectorAll('script[src]').filter((script) => {
       const type = script.getAttribute('type');
@@ -112,22 +112,19 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
     assert.ok(prelude, '무료 진단 히어로 prelude 누락');
     assert.equal(
       prelude.querySelectorAll('img[data-optimization-poster][src*="daboim-visibility-film-poster"]').length,
-      1,
-      '첫 화면 포스터가 배경과 카드에 중복 렌더됨',
+      0,
+      '진단 인터페이스가 전역 필름 포스터를 복제함',
     );
     assert.equal(prelude.querySelectorAll('video, picture').length, 0, 'SSR 히어로에 중복 영상 surface가 존재함');
     const ambient = prelude.querySelector('[data-lcs-hero-ambient]');
     assert.ok(ambient);
     assert.equal(ambient.querySelectorAll('img, video, picture').length, 0, 'ambient는 미디어 복제본이 아니어야 함');
-    const optimizationPoster = prelude.querySelector('img[data-optimization-poster]');
-    assert.ok(optimizationPoster);
-    const posterFrame = optimizationPoster.parentNode;
+    const filmPoster = stages[0]!.querySelector('img[data-video-poster]');
+    assert.ok(filmPoster);
+    const posterFrame = filmPoster.parentNode;
     assert.ok(posterFrame);
-    assert.match(
-      posterFrame.getAttribute('class') ?? '',
-      /aspect-\[16\/11\]/u,
-      'LCP 포스터 geometry 예약 누락',
-    );
+    assert.match(posterFrame.getAttribute('style') ?? '', /aspect-ratio:1920 \/ 1080/u,
+      'LCP 포스터 geometry 예약 누락');
     assert.equal(
       root.querySelectorAll('link[rel="preload"][as="image"][href="/daboim-visibility-film-poster.webp"]').length,
       1,

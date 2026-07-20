@@ -199,7 +199,7 @@ function ScanResultPanel({ scan }: { scan: ScanResult }) {
 
 // ---------- 히어로 + 스캐너 ----------
 
-export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film' | 'poster' }) {
+export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film' | 'poster' | 'interface' }) {
   const [url, setUrl] = useState('');
   const [scanning, setScanning] = useState(false);
   const [msgIdx, setMsgIdx] = useState(0);
@@ -241,8 +241,8 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
   return (
     <section id="hero-scanner" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-14 pb-20 sm:px-8 md:pt-20 md:pb-28">
       <div className="grid items-center gap-16 lg:grid-cols-[.9fr_1.1fr] lg:gap-12 xl:gap-20">
-        <div className="text-left">
-          <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-[#C8D8F5] bg-white/75 px-3 py-1.5 font-mono tracking-[0.14em] text-[#174DDA] uppercase shadow-sm backdrop-blur">
+        <div data-film-scrim="hero" className="text-left">
+          <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/18 bg-[#07142F]/72 px-3 py-1.5 font-mono tracking-[0.14em] text-[#68E8D8] uppercase shadow-sm backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
             무료 SEO · AEO · GEO 진단
           </p>

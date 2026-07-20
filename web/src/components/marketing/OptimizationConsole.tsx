@@ -32,7 +32,7 @@ function subscribeToDesktopQuery(onStoreChange: () => void) {
 const getDesktopSnapshot = () => window.matchMedia(DESKTOP_QUERY).matches;
 const getDesktopServerSnapshot = () => false;
 
-export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film' | 'poster' }) {
+export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film' | 'poster' | 'interface' }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useFailClosedReducedMotion();
@@ -63,6 +63,7 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
   }, []);
 
   const showVideo = mediaMode === 'film' && nearViewport && isDesktop && !reduce && !failed;
+  const showPoster = mediaMode !== 'interface';
 
   useEffect(() => {
     if (!showVideo) return;
@@ -92,18 +93,20 @@ export function OptimizationConsole({ mediaMode = 'film' }: { mediaMode?: 'film'
       className="relative mx-auto w-full max-w-[640px]"
     >
       <div aria-hidden="true" className="absolute -inset-8 rounded-full bg-[radial-gradient(circle,rgba(8,184,232,.15),transparent_68%)] blur-2xl" />
-      <div className="relative aspect-[16/11] overflow-hidden rounded-[28px] border border-[#DCE4F0] bg-white shadow-[0_30px_90px_rgba(11,23,54,.13)]">
-        <Image
-          data-optimization-poster
-          src="/daboim-visibility-film-poster.webp"
-          alt=""
-          aria-hidden="true"
-          fill
-          preload
-          unoptimized
-          sizes="(max-width: 767px) 100vw, 640px"
-          className="object-cover object-center"
-        />
+      <div className={`relative aspect-[16/11] overflow-hidden rounded-[28px] border border-[#DCE4F0] shadow-[0_30px_90px_rgba(11,23,54,.13)] ${mediaMode === 'interface' ? 'bg-white/76 backdrop-blur-xl' : 'bg-white'}`}>
+        {showPoster ? (
+          <Image
+            data-optimization-poster
+            src="/daboim-visibility-film-poster.webp"
+            alt=""
+            aria-hidden="true"
+            fill
+            preload
+            unoptimized
+            sizes="(max-width: 767px) 100vw, 640px"
+            className="object-cover object-center"
+          />
+        ) : null}
         {showVideo ? (
           <video
             ref={videoRef}

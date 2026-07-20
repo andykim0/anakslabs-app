@@ -18,10 +18,11 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.ok(cinematic >= 0, '페이지 관통 무대가 랜딩 첫 경험에서 사라짐');
     assert.ok(category > cinematic, '스크럽 시연이 후속 제품 설명 뒤로 밀림');
     assert.doesNotMatch(page, /HeroVideo|<LandingScanner/, '별도 히어로 엔진이나 진단 surface가 남아 있음');
+    assert.match(page, /<LandingFullFilm>[\s\S]*<LandingCinematicShowcase \/>[\s\S]*<LandingStoryContinuation>/);
 
     const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
     assert.match(showcase, /data-landing-manifesto/);
-    assert.match(showcase, /<LandingScanner consoleMedia="film" \/>/);
+    assert.match(showcase, /<LandingScanner consoleMedia="interface" \/>/);
     assert.match(showcase, /signatureId: 'scrollytelling-manifesto'/);
     assert.match(showcase, /<MotionSignatureRenderer/);
     assert.doesNotMatch(showcase, /data-signature-status=/, 'production renderer 상태를 마케팅 DOM이 흉내 내면 안 됨');
@@ -76,7 +77,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.equal((html.match(/<video\b/g) ?? []).length, 1);
     assert.equal((html.match(/preload="none"/g) ?? []).length, 1);
     assert.equal((html.match(/poster="\/daboim-visibility-film-poster\.webp"/g) ?? []).length, 1);
-    assert.match(html, /<img[^>]+width="1920"[^>]+height="1080"[^>]+loading="lazy"[^>]+decoding="async"/);
+    assert.equal(rootNode.querySelectorAll('img[width="1920"][height="1080"][loading="eager"][decoding="sync"][fetchpriority="high"]').length, 1);
     assert.match(html, /<link[^>]+rel="preload"[^>]+as="image"[^>]+href="\/daboim-visibility-film-poster\.webp"/);
     assert.equal(rootNode.querySelectorAll('video[preload="none"][muted][playsinline]').length, 1);
     assert.equal(rootNode.querySelectorAll('video[width="1920"][height="1080"]').length, 1);
@@ -93,7 +94,10 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
 
   test('막 영상 전체 워시 없이 카피 뒤에만 국소 스크림을 둔다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    const fullFilm = read('src/components/marketing/LandingFullFilm.tsx');
     assert.match(source, /\.m-scrollytelling-ready \[data-signature-id="scrollytelling-manifesto"\] \[data-ss-copy\]/);
+    assert.match(fullFilm, /\[data-film-scrim\]/);
+    assert.match(fullFilm, /\[data-story-chapter\][\s\S]*background: transparent !important/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
     assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
     const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
@@ -109,10 +113,11 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(source, /<noscript>[\s\S]*NO_JS_STAGE_CSS/);
   });
 
-  test('hero는 재생 성공 뒤 영상으로 전환하고 같은 뷰포트의 배경은 별도 추상 모티프다', () => {
+  test('hero는 중복 미디어 없이 전역 필름 하나만 공유한다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
     const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(source, /consoleMedia="film"/);
+    assert.match(source, /consoleMedia="interface"/);
+    assert.match(consoleSource, /mediaMode !== 'interface'/);
     assert.match(source, /data-lcs-hero-ambient/);
     assert.doesNotMatch(source, /data-lcs-hero-poster/);
     assert.match(consoleSource, /mediaMode === 'film'/);

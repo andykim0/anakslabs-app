@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 const STORY_CSS = `
 [data-landing-continuation] {
   --story-progress: var(--scroll-progress, 0);
-  position: relative; isolation: isolate; overflow: clip; background: #f8fbff;
+  position: relative; isolation: isolate; overflow: clip; background: transparent;
 }
 [data-story-progress-rail] {
   position: absolute; z-index: 20; top: clamp(300px, 28vw, 460px); bottom: 220px;
@@ -64,7 +64,7 @@ export function LandingStoryContinuation({ children }: { children: ReactNode }) 
           aria-labelledby="landing-proof-heading"
           className="bg-[linear-gradient(180deg,#07142F_0%,#0B2750_58%,#F8FBFF_100%)] px-5 pt-20 pb-32 text-white sm:px-8 md:pt-28 md:pb-44"
         >
-          <div className="mx-auto flex max-w-7xl flex-col justify-between gap-7 md:flex-row md:items-end">
+          <div data-film-scrim="proof" className="mx-auto flex max-w-7xl flex-col justify-between gap-7 md:flex-row md:items-end">
             <div>
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#68E8D8] uppercase">다보임으로 제작</p>
               <h2 id="landing-proof-heading" className="mkt-type-section-title mt-4 max-w-4xl font-semibold tracking-[-0.045em]">
