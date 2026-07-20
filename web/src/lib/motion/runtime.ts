@@ -199,6 +199,36 @@ export const MOTION_CSS = `
   width: 100%; height: 100%; aspect-ratio: auto !important; border-radius: 0; box-shadow: none;
 }
 
+/* 시그니처 뒤 일반 섹션도 같은 홈 흐름 안에서 진행도 안무를 이어 간다.
+   기본값은 완성된 정적 문서이며 ready일 때만 예약된 래퍼 안의 transform/opacity를 갱신한다. */
+.anaks-site [data-signature-continuation] {
+  --continuation-x: 0px; --continuation-y: 0px; --continuation-scale: 1;
+  --continuation-opacity: 1; --continuation-light: 0; --continuation-light-x: -18%;
+  position: relative; isolation: isolate; overflow: hidden;
+}
+.anaks-site.m-cinematic-ready [data-signature-continuation] [data-section-type] {
+  opacity: var(--continuation-opacity);
+  transform: translate3d(var(--continuation-x), var(--continuation-y), 0) scale(var(--continuation-scale));
+  transform-origin: 50% 50%;
+}
+.anaks-site.m-cinematic-ready [data-signature-continuation]::after {
+  content: ''; position: absolute; inset: -18%; z-index: 8; pointer-events: none;
+  background: linear-gradient(112deg, transparent 35%, rgba(255,255,255,.16) 49%, transparent 63%);
+  opacity: var(--continuation-light); transform: translate3d(var(--continuation-light-x),0,0);
+  mix-blend-mode: soft-light;
+}
+@media (max-width: 767.98px) {
+  .anaks-site.m-cinematic-ready [data-signature-continuation] [data-section-type] {
+    transform: translate3d(0, var(--continuation-y), 0) scale(var(--continuation-scale));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anaks-site [data-signature-continuation] [data-section-type] {
+    opacity: 1 !important; transform: none !important;
+  }
+  .anaks-site [data-signature-continuation]::after { display: none !important; }
+}
+
 /* sticky-chapters: no-JS는 chapter별 media/text 세로 문서, desktop enhancement만 media sticky. */
 .anaks-site [data-signature-id="sticky-chapters"] [data-signature-chapter] {
   min-height: 70svh; padding: clamp(40px, 7vw, 112px); display: grid; gap: clamp(24px, 5vw, 72px); align-items: start;
@@ -784,6 +814,16 @@ export const MOTION_RUNTIME = `(function(){
       var phase=clamp(p/.32),media=el.__anaksCinematicMedia||(el.__anaksCinematicMedia=Array.prototype.slice.call(el.querySelectorAll('[data-m-cinematic-media]')));
       media.forEach(function(node){node.style.setProperty('--cinematic-scale',(.92+phase*.08).toFixed(4));node.style.setProperty('--cinematic-clip',((1-phase)*4).toFixed(3)+'%');});
     }
+    function syncSignatureContinuation(el,p){
+      var index=parseInt(el.getAttribute('data-continuation-index')||'0',10)||0;
+      var wave=Math.sin(clamp(p)*Math.PI),direction=index%2===0?1:-1,amp0=ampOf(el);
+      el.style.setProperty('--continuation-x',((.5-p)*34*direction*amp0).toFixed(2)+'px');
+      el.style.setProperty('--continuation-y',((.5-p)*18*amp0).toFixed(2)+'px');
+      el.style.setProperty('--continuation-scale',(1+wave*.025*amp0).toFixed(4));
+      el.style.setProperty('--continuation-opacity',(.84+wave*.16).toFixed(4));
+      el.style.setProperty('--continuation-light',(wave*.42).toFixed(4));
+      el.style.setProperty('--continuation-light-x',((-22+p*44)*direction).toFixed(2)+'%');
+    }
     function syncScrollytelling(el,p){
       var root=rootOf(el); if(!el.hasAttribute('data-ss-stage')||!root||!root.classList.contains('m-scrollytelling-ready'))return;
       var amp0=ampOf(el),acts=el.__anaksActs||(el.__anaksActs=Array.prototype.slice.call(el.querySelectorAll('[data-ss-act]')));
@@ -912,7 +952,7 @@ export const MOTION_RUNTIME = `(function(){
     var progressEls = q('[data-m-progress]').filter(function(){return true;});
     var progressActive=[],progressForced=[],progressTick=false,progressRoots=[],progressIo=null;
     function progressWillChange(el,active){
-      var nodes=Array.prototype.slice.call(el.querySelectorAll('[data-m="storyword"],[data-m-story],[data-m-cinematic-layer],[data-m-cinematic-media],[data-ss-act],[data-ss-word],[data-chapter-media],[data-stack-card],[data-portal-media],[data-curtain-panel],[data-mosaic-tile],[data-path-milestone],[data-horizontal-rail],[data-m-depth]'));
+      var nodes=Array.prototype.slice.call(el.querySelectorAll('[data-m="storyword"],[data-m-story],[data-m-cinematic-layer],[data-m-cinematic-media],[data-ss-act],[data-ss-word],[data-chapter-media],[data-stack-card],[data-portal-media],[data-curtain-panel],[data-mosaic-tile],[data-path-milestone],[data-horizontal-rail],[data-m-depth],[data-section-type]'));
       nodes.forEach(function(node){
         if(!active){node.style.willChange='auto';return;}
         var clip=node.hasAttribute('data-m-cinematic-media')||node.hasAttribute('data-portal-media')||node.hasAttribute('data-curtain-panel');
@@ -927,9 +967,12 @@ export const MOTION_RUNTIME = `(function(){
     }
     function readProgress(el){var scrollRoot=el.__anaksScrollRoot,r=el.getBoundingClientRect(),rr=scrollRoot?scrollRoot.getBoundingClientRect():{top:0},vh=scrollRoot?scrollRoot.clientHeight:(window.innerHeight||document.documentElement.clientHeight||1),travel=Math.max(1,r.height-vh),top=r.top-rr.top,p=clamp(-top/travel),viewportP=clamp((vh-top)/(vh+r.height));return{el:el,rect:r,vh:vh,p:p,viewportP:viewportP,width:r.width};}
     function writeProgress(state){
-      var el=state.el,p=el.getAttribute('data-signature-id')==='mosaic-reveal'||el.getAttribute('data-signature-id')==='path-journey'?state.viewportP:state.p;
+      var el=state.el,continuation=el.hasAttribute('data-signature-continuation');
+      var p=continuation||el.getAttribute('data-signature-id')==='mosaic-reveal'||el.getAttribute('data-signature-id')==='path-journey'?state.viewportP:state.p;
       el.style.setProperty('--scroll-progress',p.toFixed(4));
-      if(el.getAttribute('data-m')==='parallax'){
+      if(continuation){
+        syncSignatureContinuation(el,p);
+      }else if(el.getAttribute('data-m')==='parallax'){
         var rel=((state.rect.top+state.rect.height/2)-state.vh/2)/(state.vh/2+state.rect.height/2),amp0=ampOf(el);Array.prototype.slice.call(el.querySelectorAll('[data-m-depth]')).forEach(function(layer){var depth=parseFloat(layer.getAttribute('data-m-depth')||'0');layer.style.transform='translate3d(0,'+(rel*24*depth*amp0*-1).toFixed(2)+'px,0)';});
       }else if(el.getAttribute('data-m')==='scrollscrub'){
         syncCinematicProgress(el,p);

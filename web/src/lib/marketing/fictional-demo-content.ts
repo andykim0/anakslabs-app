@@ -471,6 +471,7 @@ function ctaSection(
   scope: string,
   cta: DemoPageSpec['cta'],
   theme: SiteTheme,
+  backgroundImage?: string,
 ): Section {
   const id = `demo-${slug}-${scope}-cta`;
   return {
@@ -478,9 +479,17 @@ function ctaSection(
     type: 'cta',
     name: '다음 단계',
     height: 420,
-    background: {
-      gradient: `linear-gradient(120deg, ${theme.palette.primary}20 0%, ${theme.palette.surface} 48%, ${theme.palette.accent}18 100%)`,
-    },
+    background: backgroundImage
+      ? {
+          image: {
+            src: backgroundImage,
+            overlayColor: theme.palette.background,
+            overlayOpacity: 0.82,
+          },
+        }
+      : {
+          gradient: `linear-gradient(120deg, ${theme.palette.primary}20 0%, ${theme.palette.surface} 48%, ${theme.palette.accent}18 100%)`,
+        },
     elements: [
       text(`${id}-heading`, cta.heading, { x: 220, y: 94, w: 1000, h: 96 }, theme, {
         heading: true,
@@ -499,51 +508,18 @@ function ctaSection(
 
 function homeIndexSection(spec: FictionalDemoContentSpec, theme: SiteTheme): Section {
   const id = `demo-${spec.slug}-home-index`;
-  const cards = spec.pages.map((page) => ({
-    heading: page.navLabel,
-    body: page.hero.body,
-    href: `/${page.slug}`,
-  }));
-  const elements: CanvasElement[] = cards.flatMap((card, index) => {
-    const x = 120 + (index % 2) * 610;
-    const y = 302 + Math.floor(index / 2) * 256;
-    return [
-      {
-        id: `${id}-surface-${index}`,
-        kind: 'shape' as const,
-        frame: { x, y, w: 570, h: 216 },
-        z: 1,
-        shape: 'rect' as const,
-        style: {
-          fill: theme.palette.surface,
-          borderColor: `${theme.palette.muted}33`,
-          borderWidth: 1,
-          borderRadius: Math.max(16, theme.radius ?? 8),
-        },
-      },
-      text(`${id}-number-${index}`, `0${index + 1}`, { x: x + 30, y: y + 28, w: 72, h: 30 }, theme, {
-        fontSize: 14,
-        fontWeight: 700,
-        color: theme.palette.primary,
-        letterSpacing: 1,
-      }),
-      text(`${id}-heading-${index}`, card.heading, { x: x + 30, y: y + 70, w: 300, h: 48 }, theme, {
-        heading: true,
-        fontSize: 26,
-      }),
-      text(`${id}-body-${index}`, card.body, { x: x + 30, y: y + 124, w: 360, h: 64 }, theme, {
-        fontSize: 14,
-        color: theme.palette.muted,
-      }),
-      button(`${id}-button-${index}`, '페이지 보기', card.href, { x: x + 410, y: y + 128, w: 130, h: 48 }, theme, 'outline'),
-    ];
-  });
   return {
     id,
     type: 'custom',
     name: '사이트 둘러보기',
-    height: 880,
-    background: { color: theme.palette.background },
+    height: 620,
+    background: {
+      image: {
+        src: `/cases/demos/${spec.slug}/still-1.webp`,
+        overlayColor: theme.palette.background,
+        overlayOpacity: 0.84,
+      },
+    },
     elements: [
       text(`${id}-label`, DEMO_LABEL, { x: 120, y: 80, w: 520, h: 28 }, theme, {
         fontSize: 14,
@@ -551,17 +527,68 @@ function homeIndexSection(spec: FictionalDemoContentSpec, theme: SiteTheme): Sec
         color: theme.palette.primary,
         letterSpacing: 1.4,
       }),
-      text(`${id}-heading`, spec.homeIndexHeading, { x: 116, y: 128, w: 980, h: 104 }, theme, {
+      text(`${id}-heading`, spec.homeIndexHeading, { x: 116, y: 168, w: 980, h: 118 }, theme, {
         heading: true,
-        fontSize: 50,
+        fontSize: 56,
       }),
-      text(`${id}-body`, spec.homeIndexBody, { x: 120, y: 238, w: 920, h: 52 }, theme, {
-        fontSize: 17,
+      text(`${id}-body`, spec.homeIndexBody, { x: 120, y: 310, w: 820, h: 72 }, theme, {
+        fontSize: 18,
         color: theme.palette.muted,
       }),
-      ...elements,
     ],
   };
+}
+
+function homeJourneySections(spec: FictionalDemoContentSpec, theme: SiteTheme): Section[] {
+  const stillOrder = [2, 3, 1, 2] as const;
+  return spec.pages.map((page, index) => {
+    const id = `demo-${spec.slug}-home-journey-${page.slug}`;
+    const alignRight = index % 2 === 1;
+    const x = alignRight ? 760 : 120;
+    return {
+      id,
+      type: 'custom',
+      name: `${page.navLabel} 진입`,
+      height: 700,
+      background: {
+        image: {
+          src: `/cases/demos/${spec.slug}/still-${stillOrder[index]}.webp`,
+          overlayColor: theme.palette.background,
+          overlayOpacity: 0.76,
+        },
+      },
+      elements: [
+        text(`${id}-number`, `0${index + 1}`, { x, y: 138, w: 100, h: 32 }, theme, {
+          fontSize: 14,
+          fontWeight: 700,
+          color: theme.palette.primary,
+          letterSpacing: 1.4,
+          align: alignRight ? 'right' : 'left',
+        }),
+        text(`${id}-nav`, page.navLabel, { x, y: 190, w: 560, h: 78 }, theme, {
+          heading: true,
+          fontSize: 52,
+          align: alignRight ? 'right' : 'left',
+        }),
+        text(`${id}-heading`, page.hero.heading, { x, y: 292, w: 560, h: 92 }, theme, {
+          heading: true,
+          fontSize: 31,
+          align: alignRight ? 'right' : 'left',
+        }),
+        text(`${id}-body`, page.hero.body, { x, y: 406, w: 560, h: 94 }, theme, {
+          fontSize: 17,
+          color: theme.palette.muted,
+          align: alignRight ? 'right' : 'left',
+        }),
+        button(`${id}-button`, `${page.navLabel} 보기`, `/${page.slug}`, {
+          x: alignRight ? x + 320 : x,
+          y: 536,
+          w: 240,
+          h: 58,
+        }, theme),
+      ],
+    } satisfies Section;
+  });
 }
 
 function sectionFromSpec(
@@ -625,7 +652,14 @@ export function composeFictionalDemoConfig(
       sections: [
         homeHero,
         homeIndexSection(content, base.theme),
-        ctaSection(content.slug, 'home', content.homeCta, base.theme),
+        ...homeJourneySections(content, base.theme),
+        ctaSection(
+          content.slug,
+          'home',
+          content.homeCta,
+          base.theme,
+          `/cases/demos/${content.slug}/still-3.webp`,
+        ),
       ],
     },
     ...content.pages.map((page) => ({

@@ -14,6 +14,7 @@ import {
   FICTIONAL_DEMO_CONTENT,
 } from '@/lib/marketing/fictional-demo-content';
 import { auditPublishArtifacts } from '@/lib/publish/artifact-audit';
+import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import {
   FICTIONAL_DEMO_ASSETS,
   FICTIONAL_DEMO_LABEL,
@@ -171,6 +172,22 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
       assert.ok(html.includes(demo.assets.video.publicPath));
       assert.match(html, /preload="none"/);
       assert.equal((html.match(/<link[^>]+rel="preload"[^>]+as="image"/g) ?? []).length, 1);
+      assert.equal((html.match(/data-signature-continuation="true"/g) ?? []).length, 6);
+      const home = demo.config.pages.find((page) => page.slug === '');
+      assert.equal(home?.sections.length, 7);
+      assert.deepEqual(
+        [...new Set(home?.sections.flatMap((section) => section.background.image?.src ?? []) ?? [])]
+          .filter((src) => /\/still-[123]\.webp$/.test(src))
+          .sort(),
+        [1, 2, 3].map((index) => `/cases/demos/${slug}/still-${index}.webp`),
+      );
+      for (const page of FICTIONAL_DEMO_CONTENT[slug].pages) {
+        assert.ok(html.includes(page.hero.heading), `${slug}: ${page.slug} 홈 진입 장면 카피 누락`);
+      }
+      const staticMarkup = html
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/g, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '');
+      assert.doesNotMatch(staticMarkup, /data-signature-continuation[^>]+(?:display:\s*none|opacity:\s*0)/);
       if (profile.signatureId === 'scrollytelling-manifesto') {
         const scene = demo.config.motion?.signatures?.[0];
         assert.equal(scene?.signatureId, 'scrollytelling-manifesto');
@@ -183,6 +200,13 @@ describe('F8 — 실제 렌더러를 쓰는 가상 시네마틱 데모', () => {
         }
       }
     }
+  });
+
+  test('D2 continuation은 각 섹션 viewport 진행도만 쓰고 reduced-motion에서 완성 상태로 복원된다', () => {
+    assert.match(MOTION_RUNTIME, /function syncSignatureContinuation\(el,p\)/);
+    assert.match(MOTION_RUNTIME, /continuation\|\|el\.getAttribute\('data-signature-id'\).*\?state\.viewportP:state\.p/);
+    assert.match(MOTION_RUNTIME, /if\(continuation\)\{\s*syncSignatureContinuation\(el,p\)/);
+    assert.match(MOTION_CSS, /prefers-reduced-motion: reduce[\s\S]*\[data-signature-continuation\] \[data-section-type\][\s\S]*opacity: 1 !important; transform: none !important/);
   });
 
   test('정적 발행 셸·publish audit도 모든 데모 페이지에서 blocker 없이 통과한다', () => {

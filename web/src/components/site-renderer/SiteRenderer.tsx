@@ -197,7 +197,7 @@ export function SiteRenderer({
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="anaks-site" style={rootStyle}>
         {signatureScene && signatureArt ? (
-          ordinarySections.map((section) => {
+          ordinarySections.map((section, continuationIndex) => {
             if (section.id === signatureScene.sectionId) {
               return (
                 <MotionSignatureRenderer
@@ -212,7 +212,13 @@ export function SiteRenderer({
             }
             if (signatureConsumed.has(section.id)) return null;
             return (
-              <div key={section.id} data-signature-ordinary-section>
+              <div
+                key={section.id}
+                data-signature-ordinary-section
+                data-signature-continuation
+                data-continuation-index={continuationIndex}
+                data-m-progress
+              >
                 {showDesktop && (
                   <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
                     <SectionCanvas
