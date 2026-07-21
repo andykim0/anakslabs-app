@@ -5,7 +5,7 @@
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, Site, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
@@ -34,6 +34,12 @@ import {
 } from '@/lib/ai/image-generation-policy';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import {
+  accountHasSite,
+  isAccountSiteLimitError,
+  SITE_LIMIT_ERROR_CODE,
+  SITE_LIMIT_MESSAGE,
+} from '@/lib/billing/site-limit';
+import {
   designCandidateSchema,
   extraFeatureSelectionSchema,
   extrasOptionsSchema,
@@ -55,7 +61,7 @@ const bodySchema = z.object({
 /**
  * [멱등] 최근 생성 dedup — `${clientId}:${idempotencyKey}` → {siteId, at}. 프로세스 인메모리(짧은 TTL).
  * StrictMode 이중 발화는 클라 in-flight dedup이 주로 막고, 이건 순차 중복(탭 재시도 등) 백스톱.
- * (완전 동시 요청까지 막으려면 DB 유니크 제약이 필요 — 백로그.)
+ * 완전 동시 요청은 DB의 계정별 사이트 유니크 제약이 최종 저장 경계에서 차단한다.
  */
 const recentGenerations = new Map<string, { siteId: string; at: number }>();
 const GEN_IDEM_TTL_MS = 60_000;
@@ -80,6 +86,13 @@ export const POST = withApiHandler(async (request) => {
         return NextResponse.json({ siteId: existing.id, site: existing, deduped: true }, { status: 200 });
       }
     }
+  }
+
+  // [BILL$] One paid account owns one self-service site. This explicit guard
+  // runs after idempotent retry recovery but before asset checks or AI cost.
+  // A second homepage is handled as a separate production contract.
+  if (accountHasSite(await sites.listByClient(client.id), client.id)) {
+    return apiError(409, SITE_LIMIT_ERROR_CODE, SITE_LIMIT_MESSAGE);
   }
 
   // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
@@ -173,16 +186,26 @@ export const POST = withApiHandler(async (request) => {
     phase: 'generation',
   });
   draftConfig = assetPolicy.config;
-  let site = await sites.create({
-    clientId: client.id,
-    name: survey.businessName,
-    draftConfig,
-    ...(assetPolicyVersion ? { assetPolicyVersion } : {}),
-    ...(draftConfig.assetRefs?.length ? { assetRefsToBind: draftConfig.assetRefs } : {}),
-    ...(truth.directUploadAssetRefs.length && survey.generalAssetAttestationId
-      ? { generalAssetAttestationId: survey.generalAssetAttestationId }
-      : {}),
-  });
+  let site: Site;
+  try {
+    site = await sites.create({
+      clientId: client.id,
+      name: survey.businessName,
+      draftConfig,
+      ...(assetPolicyVersion ? { assetPolicyVersion } : {}),
+      ...(draftConfig.assetRefs?.length ? { assetRefsToBind: draftConfig.assetRefs } : {}),
+      ...(truth.directUploadAssetRefs.length && survey.generalAssetAttestationId
+        ? { generalAssetAttestationId: survey.generalAssetAttestationId }
+        : {}),
+    });
+  } catch (error) {
+    // The DB uniqueness constraint closes the concurrent-request race left
+    // between the early guard and the insert; return the same customer copy.
+    if (isAccountSiteLimitError(error)) {
+      return apiError(409, SITE_LIMIT_ERROR_CODE, SITE_LIMIT_MESSAGE);
+    }
+    throw error;
+  }
 
   let motionWarning: { code: string; message: string } | undefined;
   if (motionChoice?.signatureId === 'before-after-scrub') {

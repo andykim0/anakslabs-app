@@ -27,6 +27,12 @@ export const SUBSCRIPTION_BENEFIT_COPY = {
 export const SUBSCRIPTION_VALUE_COPY =
   `구독비만큼 크레딧으로 돌려받아요(매월 ${PRICING.subscription.creditsPerMonth}개 · ${formatKrw(PRICING.subscription.creditValueKrw)} 상당). 매달 성과 리포트에 호스팅·운영까지 함께합니다.`;
 
+/** 제작비·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
+export const SITE_PRICE_UNIT_COPY = '모든 가격은 홈페이지 1개 기준입니다.';
+
+export const MULTI_SITE_FAQ_ANSWER =
+  '가능합니다. 홈페이지마다 제작비와 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
+
 /**
  * Customer-facing actions that may consume credits.
  * Manual canvas edits and direct image replacement are intentionally absent.

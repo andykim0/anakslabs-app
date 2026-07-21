@@ -22,6 +22,7 @@ import {
   formatKrw,
   getBasePricePresentation,
   PRICING,
+  SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
@@ -140,6 +141,9 @@ export default function PricingPage() {
             <p className="mkt-type-support mt-1 text-[#5C6068]">
               + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
             </p>
+            <p data-site-price-unit className="mkt-type-support mt-1 text-[#696E76]">
+              {SITE_PRICE_UNIT_COPY}
+            </p>
             <p className="mkt-type-support mt-2 font-medium text-[#174DDA]">
               {SUBSCRIPTION_VALUE_COPY}
             </p>
@@ -176,6 +180,9 @@ export default function PricingPage() {
             <p className="mkt-type-body mt-3 text-[#5C6068]">
               기본 모션은 포함·무료입니다. {PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
               재생성에만 크레딧을 사용합니다.
+            </p>
+            <p data-site-price-unit className="mkt-type-support mt-2 text-[#696E76]">
+              {SITE_PRICE_UNIT_COPY}
             </p>
           </div>
         </div>

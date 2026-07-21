@@ -266,6 +266,10 @@ try {
     'asset validation 실패 시 provisional manifest가 든 site row를 남기면 안 된다',
   );
 
+  // The attested-upload and AI-manifest cases are independent one-site
+  // scenarios. Release the first in-memory fixture before exercising the next.
+  getMockStore().sites.delete(factualSite.id);
+
   const site = await sites.create({
     clientId,
     name: survey.businessName,

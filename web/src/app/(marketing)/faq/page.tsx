@@ -6,6 +6,7 @@ import {
 } from '@/lib/legal/notices';
 import { COMPANY_EMAIL, KAKAO_CHANNEL_URL } from '@/lib/marketing/contact';
 import {
+  MULTI_SITE_FAQ_ANSWER,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
@@ -41,6 +42,10 @@ const FAQ: FaqItem[] = [
   {
     q: '사이트 운영 구독에는 무엇이 포함되나요?',
     a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
+  },
+  {
+    q: '홈페이지를 2개 만들 수 있나요?',
+    a: MULTI_SITE_FAQ_ANSWER,
   },
   {
     q: '구독을 해지하면 사이트는 어떻게 되나요?',

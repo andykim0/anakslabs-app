@@ -21,6 +21,7 @@ import { ScannerCta } from '@/components/marketing/ui';
 import {
   formatKrw,
   PRICING,
+  SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
@@ -295,6 +296,9 @@ export default function FeaturesPage() {
             <LaunchPrice align="right" />
             <p className="mkt-type-support mt-2 text-[#667085]">
               + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
+            </p>
+            <p data-site-price-unit className="mkt-type-support mt-1 text-[#667085]">
+              {SITE_PRICE_UNIT_COPY}
             </p>
           </div>
         </div>

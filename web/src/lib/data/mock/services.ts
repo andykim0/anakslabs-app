@@ -5,6 +5,7 @@
 import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PRICING } from '@/lib/pricing';
+import { assertAccountCanCreateSite } from '@/lib/billing/site-limit';
 import { subscriptionGrantIdempotencyKey } from '@/lib/subscriptions/core';
 import {
   assertMockSiteSubscriptionRefundEvidence,
@@ -218,6 +219,7 @@ class MockSitesRepo implements SitesRepo {
     // The production path remains the SQL RPC transaction; this mock sequence
     // only has a residual risk under an injected/concurrent failure between
     // the final asset bind and attestation bind.
+    assertAccountCanCreateSite([...store.sites.values()], input.clientId);
     const site: Site = {
       id: crypto.randomUUID(),
       clientId: input.clientId,
