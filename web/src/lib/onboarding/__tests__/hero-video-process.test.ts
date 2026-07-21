@@ -88,7 +88,7 @@ describe('W4 — process 히어로 영상 게이트', () => {
     }
   });
 
-  test('승인+선택일 때만 시안 1개를 생성하고 즉시 적용한다', async () => {
+  test('승인+선택일 때만 시안 1개를 생성한 뒤 적용한다', async () => {
     const { calls, dependencies } = deps();
     const result = await processApprovedHeroVideo(
       {

@@ -9,7 +9,7 @@ import {
   FULFILLMENT_SLA_BUSINESS_DAYS,
   fulfillmentSlaState,
   waitingBusinessDays,
-} from '@/lib/admin/fulfillment-sla';
+} from '@/lib/fulfillment-sla';
 import { MockCreditsService } from '@/lib/data/mock/credits';
 import {
   DEMO_BASIC_ID,

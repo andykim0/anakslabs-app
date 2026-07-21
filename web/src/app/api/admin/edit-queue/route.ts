@@ -3,7 +3,7 @@ import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
 import { getDataServices } from '@/lib/data';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
-import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
+import { fulfillmentSlaState } from '@/lib/fulfillment-sla';
 
 const HOUR_MS = 3_600_000;
 

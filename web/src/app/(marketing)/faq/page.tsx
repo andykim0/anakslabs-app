@@ -13,6 +13,10 @@ import {
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
+import {
+  SITE_BUILD_SLA_COPY,
+  VIDEO_FULFILLMENT_COPY,
+} from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = {
   title: '자주 묻는 질문 · 고객센터',
@@ -29,7 +33,7 @@ const VISIBILITY_FAQ_ANSWER = '순위나 노출 자체는 네이버·구글·AI�
 const FAQ: FaqItem[] = [
   {
     q: '홈페이지가 완성되기까지 얼마나 걸리나요?',
-    a: '설문(약 5분) 후 AI가 디자인 3안을 생성하고, 캔버스에서 다듬어 바로 발행할 수 있습니다. 대부분 당일에서 수일 내에 라이브가 가능합니다.',
+    a: `${SITE_BUILD_SLA_COPY} 질문에 답하고 디자인 방향을 고르면 제작을 시작하며, 완성된 초안은 대시보드에서 확인할 수 있습니다.`,
   },
   {
     q: '코딩이나 디자인을 몰라도 되나요?',
@@ -54,6 +58,10 @@ const FAQ: FaqItem[] = [
   {
     q: '스크롤 모션은 실제 영상인가요?',
     a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임으로, 모든 홈페이지에 무료로 들어갑니다. AI 영상 홈페이지는 ${PUBLIC_BRAND_NAMES.ai}가 만든 실제 영상 첫 화면을 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
+  },
+  {
+    q: '영상은 언제 적용되나요?',
+    a: VIDEO_FULFILLMENT_COPY,
   },
   {
     q: '환불이 되나요?',

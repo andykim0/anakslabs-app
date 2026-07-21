@@ -9,7 +9,7 @@ import { heroVideoMotionById } from '@/lib/motion/hero-video-motions';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
-import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
+import { fulfillmentSlaState } from '@/lib/fulfillment-sla';
 
 const DAY_MS = 86_400_000;
 

@@ -17,6 +17,7 @@ import { Clapperboard, Coins, ImagePlus, Info, LayoutList, Send, Type } from 'lu
 import type { EditType, Tier } from '@/lib/types/domain';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
 import { hasVideoAddon } from '@/lib/services/entitlements';
+import { EDIT_REQUEST_SLA_COPY } from '@/lib/fulfillment-sla';
 import {
   createEditRequest,
   insufficientInfo,
@@ -189,8 +190,8 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
       toast(
         'success',
         result.isInitialRevision
-          ? `편집 요청이 접수됐어요 — 최초 무료 수정권으로 처리(크레딧 차감 없음, 잔액 ${result.balance}개)`
-          : `편집 요청이 접수됐어요 — 크레딧 ${result.editRequest.creditCost}개 차감 (잔액 ${result.balance}개)`,
+          ? `편집 요청이 접수됐어요 — 최초 무료 수정권으로 처리(크레딧 차감 없음, 잔액 ${result.balance}개). ${EDIT_REQUEST_SLA_COPY}`
+          : `편집 요청이 접수됐어요 — 크레딧 ${result.editRequest.creditCost}개 차감 (잔액 ${result.balance}개). ${EDIT_REQUEST_SLA_COPY}`,
       );
     },
     onError: (err, variables) => {
@@ -244,6 +245,9 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
           </p>
         ) : (
           <form onSubmit={onSubmit} noValidate className="space-y-5">
+            <p className="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs leading-5 text-neutral-400">
+              {EDIT_REQUEST_SLA_COPY}
+            </p>
             {/* 사이트 선택 */}
             <div>
               <div className="mb-2 flex items-baseline justify-between">

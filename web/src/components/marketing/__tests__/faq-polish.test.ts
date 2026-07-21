@@ -86,6 +86,7 @@ describe('FAQ$ 자주 묻는 질문 강화', () => {
   test('무제한 직접 수정과 크레딧 재생성을 실제 가격 계약에서 조립해 세 마케팅 페이지가 공유한다', () => {
     for (const copy of [
       '문구를 고치고, 사진을 교체하고, 배치를 바꾸는 직접 수정',
+      `문구 재생성 ${CREDIT_COSTS.text}크레딧`,
       `이미지 재생성 ${CREDIT_COSTS.image}크레딧`,
       `구성 변경 ${CREDIT_COSTS.structure}크레딧`,
       `영상 재생성 ${CREDIT_COSTS.video}크레딧`,
@@ -101,7 +102,7 @@ describe('FAQ$ 자주 묻는 질문 강화', () => {
       const source = read(path);
       assert.match(source, /@\/lib\/credits\/contract-copy/);
       assert.match(source, /CREDIT_CONTRACT_COPY/);
-      assert.doesNotMatch(source, /이미지 재생성 1크레딧|구성 변경 2크레딧|영상 재생성 3크레딧/u);
+      assert.doesNotMatch(source, /문구 재생성 1크레딧|이미지 재생성 1크레딧|구성 변경 2크레딧|영상 재생성 3크레딧/u);
     }
     assert.equal(visibleFaq().some((item) => item.name === '무제한 수정과 크레딧은 뭐가 다른가요?' && item.text === CREDIT_CONTRACT_COPY), true);
   });

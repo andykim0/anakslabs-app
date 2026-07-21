@@ -17,6 +17,7 @@ import {
   type LaunchOffer,
 } from '@/lib/pricing';
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
+import { CREDIT_COSTS } from '@/lib/credits/constants';
 
 const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
@@ -64,6 +65,7 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     ]);
     assert.equal(CREDIT_CONSUMING_ACTIONS.some((action) => /self|manual|direct/.test(action)), false);
     assert.match(CREDIT_CONTRACT_COPY, /직접 수정은 횟수 제한 없이 무료/);
+    assert.match(CREDIT_CONTRACT_COPY, new RegExp(`문구 재생성 ${CREDIT_COSTS.text}크레딧`));
   });
 
   test('FAQ와 가격 페이지는 동일한 크레딧 카피·사용처 레지스트리를 소비한다', () => {

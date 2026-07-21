@@ -15,6 +15,7 @@ import {
   formatDate,
   PageHeader,
 } from '@/components/dashboard/ui';
+import { SITE_BUILD_SLA_COPY } from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = { title: '내 사이트 — 다보임' };
 
@@ -42,7 +43,7 @@ export default async function DashboardHomePage() {
     <div>
       <PageHeader
         title={`안녕하세요, ${client.name}님`}
-        description="사이트 현황과 편집 요청 진행 상태를 한눈에 확인하세요."
+        description={`사이트 현황과 편집 요청 진행 상태를 한눈에 확인하세요. ${SITE_BUILD_SLA_COPY}`}
         actions={
           <Link
             href="/onboarding"

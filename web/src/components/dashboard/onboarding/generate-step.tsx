@@ -22,8 +22,6 @@ import type { DesignCandidate, ExtraFeatureSelection, SurveyInput, Tier } from '
 import { hasVideoAddon } from '@/lib/services/entitlements';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import {
-  applyHeroVideoDraft,
-  generateHeroVideoDrafts,
   generateSite,
   getSite,
   regenerateSite,
@@ -32,12 +30,17 @@ import {
 } from '../api';
 import { genIdemKey, sharedGenerate } from '@/lib/onboarding/generate-dedup';
 import { heroImageUrlIntent } from '@/lib/onboarding/hero-image-options';
-import { processApprovedHeroVideo } from '@/lib/onboarding/hero-video-process';
+import { heroVideoResumePlan } from '@/lib/onboarding/hero-video-process';
+import {
+  SITE_BUILD_SLA_COPY,
+  VIDEO_FULFILLMENT_COPY,
+  VIDEO_FULFILLMENT_STATUS_LABELS,
+  type VideoFulfillmentStatus,
+} from '@/lib/fulfillment-sla';
 import { sectionDirectionsIntent } from '@/lib/onboarding/section-directions';
 import { Badge, Button, Card, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 import { WireframePreview, pruneSections } from './wireframe-preview';
-import { HeroVideoStudio } from './hero-video-studio';
 import { NextStepsChecklist } from './next-steps-checklist';
 import { PageEnrichmentCards } from './page-enrichment-cards';
 import { SectionReviewStep } from './section-review-step';
@@ -75,7 +78,7 @@ export function GenerateStep({
   /** null=최초 생성 / 값 있으면 해당 사이트 재생성 */
   existingSiteId: string | null;
   freeRegensUsed: number;
-  /** [motion 4단계] 소유자 티어 — Premium이면 AI 영상 히어로 스튜디오 노출 */
+  /** 소유자 티어 — 영상 요청의 접수/검수 상태를 구분한다. */
   tier?: Tier;
   onResult: (siteId: string, freeRegensUsed: number) => void;
   onBack: () => void;
@@ -105,19 +108,8 @@ export function GenerateStep({
           ? regenerateSite({ siteId: existingSiteId, survey: effectiveSurvey, candidate, extras, extrasOptions, motionChoice, idempotencyKey })
           : generateSite({ survey: effectiveSurvey, candidate, extras, extrasOptions, motionChoice, idempotencyKey });
         const site = await generated;
-        // [W4] 사이트를 먼저 완성한 뒤, 선택+승인일 때만 기존 U3 게이트 라우트로 1개를 생성·적용한다.
-        const heroVideo = await processApprovedHeroVideo(
-          {
-            siteId: site.siteId,
-            tier,
-            videoAddon: effectiveSurvey.videoAddon === true,
-            heroImageChoice: effectiveSurvey.heroImageChoice,
-            heroPhotoUrl: effectiveSurvey.heroPhotoUrl,
-            tone: effectiveSurvey.tone,
-          },
-          { generateDrafts: generateHeroVideoDrafts, applyDraft: applyHeroVideoDraft },
-        );
-        // 영상 적용까지 끝난 최신 draft를 검수 게이트의 단일 기준으로 사용한다. GET 실패 시
+        // 영상은 고객 화면에서 즉시 생성하지 않고 관리자 이행 큐가 검수·등록·적용한다.
+        // 최신 draft를 검수 게이트와 영상 상태의 단일 기준으로 사용한다. GET 실패 시
         // generate 응답에 포함된 config로 안전하게 이어가되, config 자체가 없으면 완료로 오인하지 않는다.
         let reviewConfig = site.site?.draftConfig ?? site.site?.siteConfig;
         try {
@@ -129,6 +121,7 @@ export function GenerateStep({
         if (!reviewConfig) {
           throw new Error('생성된 사이트 초안을 불러오지 못했습니다.');
         }
+        const heroVideo = heroVideoResumePlan(reviewConfig);
         return { ...site, heroVideo, reviewConfig };
       }),
     // useMutation은 기본 재시도 없음 → 실패 시 즉시 에러 표면화(무한 스피너 없음).
@@ -203,6 +196,11 @@ export function GenerateStep({
   const regenLeft = Math.max(0, FREE_REGEN_LIMIT - usedNow);
   const canRegen = regenLeft > 0;
   const heroVideo = mutation.data.heroVideo;
+  const videoFulfillmentStatus: VideoFulfillmentStatus = heroVideo.applied
+    ? 'applied'
+    : hasVideoAddon(tier)
+      ? 'reviewing'
+      : 'received';
 
   // [Q$4] 생성 성공은 곧바로 완료가 아니다. 모든 섹션을 사용자가 명시적으로 keep한 뒤에만
   // 기존 완료 카드로 진입한다. adjust/regenerate는 같은 섹션을 다시 보여주는 검수 루프다.
@@ -235,6 +233,9 @@ export function GenerateStep({
             선택하신 <span className="text-ob-ink">{candidate.label}</span> 방향으로 섹션과
             카피를 구성했습니다. 이제 캔버스에서 PPT처럼 자유롭게 다듬고, 준비되면 발행하세요.
           </p>
+          <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-ob-muted">
+            {SITE_BUILD_SLA_COPY}
+          </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Badge tone="gold">{candidate.label}</Badge>
@@ -243,16 +244,14 @@ export function GenerateStep({
         </div>
 
         {survey.videoAddon === true ? (
-          <div className="w-full max-w-md rounded-xl border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
-            {heroVideo.status === 'applied' ? (
-              <span className="font-medium text-ob-success">선택한 사진과 연출로 영상 히어로까지 적용했어요.</span>
-            ) : heroVideo.status === 'skipped' && heroVideo.reason === 'not-approved' ? (
-              'AI 영상 홈페이지 승인 전이라 우선 정지 사진+포함·무료 기본 모션으로 완성했어요. 승인 후에만 다보임 AI 영상 생성을 시작합니다.'
-            ) : heroVideo.status === 'fallback' ? (
-              `사이트는 완성했지만 영상은 준비하지 못해 정지 히어로로 보여요. ${heroVideo.message}`
-            ) : (
-              '선택한 사진을 정지 히어로로 적용했어요.'
-            )}
+          <div className="w-full max-w-md rounded-xl border border-ob-border bg-ob-bg px-4 py-3 text-left text-xs leading-5 text-ob-muted">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="font-medium text-ob-ink">AI 영상 홈페이지</span>
+              <Badge tone={videoFulfillmentStatus === 'applied' ? 'emerald' : 'blue'}>
+                {VIDEO_FULFILLMENT_STATUS_LABELS[videoFulfillmentStatus]}
+              </Badge>
+            </div>
+            <p>{VIDEO_FULFILLMENT_COPY}</p>
           </div>
         ) : null}
 
@@ -305,15 +304,6 @@ export function GenerateStep({
             </p>
           )}
         </div>
-
-        {/* [W4] 선택+승인인데 자동 적용에 실패한 경우만 기존 수동 스튜디오를 재시도 경로로 노출. */}
-        {survey.videoAddon === true && hasVideoAddon(tier) && heroVideo.status !== 'applied' ? (
-          <HeroVideoStudio
-            siteId={siteId}
-            tone={survey.tone}
-            heroPhotoUrl={survey.heroImageChoice === 'upload' ? survey.heroPhotoUrl : undefined}
-          />
-        ) : null}
 
         <p className="text-xs text-ob-muted">
           발행 전까지는 초안 상태예요. 발행하면 서브도메인이 즉시 라이브됩니다.

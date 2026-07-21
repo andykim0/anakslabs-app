@@ -17,6 +17,7 @@ import {
   Video,
 } from 'lucide-react';
 import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credits/constants';
+import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 import { getOverview } from './api';
 import { formatKrw, formatNumber } from './format';
 import { ManualCollectionPanel } from './manual-collection-panel';
@@ -84,7 +85,9 @@ export function OverviewDashboard() {
         >
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
           <div className="text-sm text-amber-900">
-            <p className="font-semibold">대기 2영업일을 넘긴 이행 요청 {formatNumber(data.fulfillmentAlerts.total)}건</p>
+            <p className="font-semibold">
+              대기 {FULFILLMENT_SLA_BUSINESS_DAYS}영업일을 넘긴 이행 요청 {formatNumber(data.fulfillmentAlerts.total)}건
+            </p>
             <p className="mt-0.5 text-xs text-amber-800">
               <Link href="/admin/edit-queue" className="underline underline-offset-2">
                 수정 {formatNumber(data.fulfillmentAlerts.editOverdue)}건

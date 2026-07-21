@@ -5,31 +5,28 @@ import { describe, test } from 'node:test';
 
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
-describe('W4 — 관리자 승인 후 영상 process 재개 UI', () => {
+describe('W4 — 관리자 검수 영상 이행 상태 UI', () => {
   test('서버 페이지의 현재 tier를 상세 화면에 전달한다', () => {
     const page = source('src/app/(dashboard)/dashboard/sites/[siteId]/page.tsx');
     assert.match(page, /<SiteDetail siteId=\{siteId\} tier=\{client\.tier\} \/>/);
   });
 
-  test('상세 화면은 draft 우선 설정과 U3 표시 가드 뒤에서만 process를 실행한다', () => {
+  test('상세 화면은 draft 우선 설정에서 요청·권한·적용 여부를 상태로 표시한다', () => {
     const detail = source('src/components/dashboard/site-detail.tsx');
-    const resume = detail.slice(
-      detail.indexOf('function HeroVideoResumeCard'),
+    const statusCard = detail.slice(
+      detail.indexOf('function HeroVideoStatusCard'),
       detail.indexOf('// ---------- [v3 Phase 3] 문의함'),
     );
-    const config = resume.indexOf('site.draftConfig ?? site.siteConfig');
-    const addon = resume.indexOf('!hasVideoAddon(tier)');
-    const eligible = resume.indexOf('!plan.canResume');
-    const button = resume.indexOf('onClick={() => mutation.mutate()}');
-    assert.ok(config >= 0 && addon > config && eligible > config && button > eligible);
-    assert.match(resume, /processApprovedHeroVideo\(/);
-    assert.doesNotMatch(resume, /useEffect\([\s\S]{0,200}processApprovedHeroVideo/);
+    assert.match(statusCard, /site\.draftConfig \?\? site\.siteConfig/);
+    assert.match(statusCard, /if \(!plan\.requested\) return null/);
+    assert.match(statusCard, /plan\.applied[\s\S]*hasVideoAddon\(tier\)/);
+    assert.match(statusCard, /VIDEO_FULFILLMENT_STATUS_LABELS\[status\]/);
   });
 
-  test('적용 뒤 사이트 쿼리를 갱신하고 passive mount가 아닌 명시 버튼으로 다보임 AI 영상 생성을 시작한다', () => {
+  test('고객 화면에서 즉시 생성·적용하지 않고 관리자 이행 큐의 검수 약속을 보여준다', () => {
     const detail = source('src/components/dashboard/site-detail.tsx');
-    assert.match(detail, /invalidateQueries\(\{ queryKey: \['site', site\.id\] \}\)/);
-    assert.match(detail, /이 버튼을 누를 때만 다보임 AI 영상 생성을 시작해요/);
-    assert.match(detail, /영상 만들기/);
+    assert.match(detail, /VIDEO_FULFILLMENT_COPY/);
+    assert.doesNotMatch(detail, /processApprovedHeroVideo|generateHeroVideoDrafts|applyHeroVideoDraft/);
+    assert.doesNotMatch(detail, /영상 만들기|바로 적용/);
   });
 });

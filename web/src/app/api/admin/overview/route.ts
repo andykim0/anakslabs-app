@@ -18,7 +18,7 @@ import { requireAdminOr403 } from '../../_lib/guards';
 import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
 import { getHeroVideoFulfillmentRepository } from '@/lib/admin/video-fulfillment-repository';
 import { deriveVideoQueueItem } from '@/lib/admin/video-fulfillment-core';
-import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
+import { fulfillmentSlaState } from '@/lib/fulfillment-sla';
 
 export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();

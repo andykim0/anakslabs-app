@@ -19,7 +19,7 @@ import {
   LoadingBlock,
   PageHeader,
 } from './ui';
-import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/admin/fulfillment-sla';
+import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 
 function elapsedLabel(hours: number): string {
   if (hours < 24) return `${formatNumber(hours)}시간 경과`;

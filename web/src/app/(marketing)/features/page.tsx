@@ -25,6 +25,7 @@ import {
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
+import { VIDEO_FULFILLMENT_COPY } from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = {
   title: '기능 — 홈페이지 제작부터 검색 등록·성과 증명까지',
@@ -270,6 +271,9 @@ export default function FeaturesPage() {
               </h2>
               <p className="mkt-type-body mt-5 max-w-lg text-[#526174] break-keep">
                 모든 홈페이지에는 기본 움직임이 포함됩니다. 더 깊은 공간감이 필요할 때만 AI 영상 홈페이지를 추가할 수 있습니다.
+              </p>
+              <p className="mkt-type-support mt-4 max-w-lg text-[#667085] break-keep">
+                {VIDEO_FULFILLMENT_COPY}
               </p>
             </div>
             <PricingMotionComparison />
