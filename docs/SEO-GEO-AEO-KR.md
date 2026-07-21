@@ -220,6 +220,24 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   thresholds as rough guidance rather than a Core Web Vital.
   [web.dev TTFB guide, reviewed 2026-07-21](https://web.dev/articles/ttfb)
 
+#### 2026-07-21 server-HTML diagnostic limitation
+
+- The scanner does not execute page JavaScript. Every result now discloses that
+  it evaluates the HTML initially returned by the server. This aligns with
+  Naver's recommendation to expose important content in server-rendered HTML;
+  Naver can render JavaScript, but resource collection and rendering may be
+  delayed, so the disclosure does not claim that Naver never executes scripts.
+  [Naver JavaScript SEO, reviewed 2026-07-21](https://searchadvisor.naver.com/guide/seo-advanced-javascript)
+- Google crawls, queues eligible pages for rendering, and then uses the rendered
+  HTML for indexing. App-shell sites can therefore expose more content to
+  Google than this scanner observes. Google likewise recommends server-side or
+  pre-rendering because not every bot executes JavaScript.
+  [Google JavaScript SEO basics, reviewed 2026-07-21](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
+- A top warning is raised only when two deterministic signals coincide: fewer
+  than 160 non-space server-text characters and an app-sized JavaScript signal
+  (at least 50 KB inline script, three external bundles, or a hashed main/app/
+  bundle/index asset). The warning is advisory and never changes the score.
+
 ### Generated tenant sites
 
 - Emit page-specific `WebPage` and `BreadcrumbList` nodes connected by stable

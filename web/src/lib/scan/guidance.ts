@@ -38,6 +38,7 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   seo_http_status: G('페이지 응답 상태를 확인해야 해요', '오류·로그인·소프트 404 대신 실제 페이지가 2xx로 열리게 해주세요.', '검색로봇이 정상 문서와 오류 화면을 구분할 수 있어요.', 'system'),
   seo_html_response: G('웹문서 형식으로 응답하지 않아요', '공개 페이지가 HTML 문서로 응답하도록 서버 설정을 확인해주세요.', '네이버·구글이 일반 웹페이지로 해석할 수 있어요.', 'system'),
   seo_html_truncated: G('초기 HTML이 지나치게 커요', '중복 마크업과 큰 인라인 데이터를 줄여주세요.', '검색로봇과 사용자가 핵심 본문을 더 효율적으로 읽을 수 있어요.', 'editor:content'),
+  seo_client_rendered_content: G('브라우저가 실행된 뒤 본문이 나타나는 사이트로 보여요', '현재 점수는 서버가 처음 보낸 HTML 기준으로만 해석해주세요.', '진단 범위 밖의 자바스크립트 본문 때문에 실제보다 낮게 나온 점수를 구분할 수 있어요.', 'system'),
   seo_soft_404: G('오류 화면이 200 상태로 열리고 있어요', '없는 URL은 실제 404 또는 410 상태로 응답하게 해주세요.', '검색엔진이 정상 콘텐츠와 없는 페이지를 정확히 구분할 수 있어요.', 'system'),
   seo_noindex: G('검색 제외(noindex)가 켜져 있어요', '공개할 페이지라면 meta robots와 X-Robots-Tag에서 noindex를 제거해주세요.', '검색엔진이 색인 대상으로 검토할 수 있어요.', 'system'),
   seo_googlebot_blocked: G('Googlebot 수집이 막혀 있어요', 'robots.txt에서 공개 페이지의 Googlebot 차단을 해제해주세요.', 'Google 검색과 생성형 검색 기능이 페이지를 수집할 수 있어요.', 'system'),

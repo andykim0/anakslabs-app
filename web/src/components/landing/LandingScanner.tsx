@@ -16,6 +16,12 @@ import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { comparisonHeadline, SCAN_STRUCTURE_SIGNALS, structureSignals } from '@/lib/scan/comparison';
 import { guidanceFor } from '@/lib/scan/guidance';
 import { actionableIssueCount, groupScanIssues } from '@/lib/scan/issue-groups';
+import {
+  CLIENT_RENDER_RISK_CODE,
+  CLIENT_RENDER_RISK_NOTICE,
+  hasClientRenderRisk,
+  HTML_BASIS_NOTICE,
+} from '@/lib/scan/limitations';
 import { useFailClosedReducedMotion } from '@/components/marketing/use-fail-closed-reduced-motion';
 
 const SCAN_MESSAGES = [
@@ -212,6 +218,8 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
 
 export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; shared?: boolean }) {
   const issueCount = actionableIssueCount(scan.issues);
+  const clientRenderRisk = hasClientRenderRisk(scan.issues);
+  const ordinaryIssues = scan.issues.filter((issue) => issue.code !== CLIENT_RENDER_RISK_CODE);
   const [copied, setCopied] = useState(false);
   const copyResultLink = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/scan/${scan.id}`);
@@ -243,6 +251,16 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
         ) : null}
       </div>
 
+      {clientRenderRisk ? (
+        <div role="alert" className="mb-4 rounded-2xl border border-[#F1C48B] bg-[#FFF8EC] p-4 text-[#744210]">
+          <p className="mkt-type-body flex items-start gap-2 font-semibold">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            진단 범위를 먼저 확인해주세요
+          </p>
+          <p className="mkt-type-support mt-1 pl-6">{CLIENT_RENDER_RISK_NOTICE}</p>
+        </div>
+      ) : null}
+
       <div className="grid gap-3 sm:grid-cols-3">
         {PILLAR_META.map((p) => (
           <Gauge key={p.key} name={p.name} sub={p.sub} score={scan.scores[p.key]} />
@@ -251,9 +269,16 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
 
       {issueCount > 0 ? (
         <div className="mt-4">
-          <IssueList issues={scan.issues} />
+          <IssueList issues={ordinaryIssues} />
         </div>
       ) : null}
+
+      <aside className="mt-4 rounded-xl border border-[#DCE4F0] bg-[#F7F9FC] p-4 text-[#4F5867]" aria-label="진단 범위 안내">
+        <p className="mkt-type-support flex items-start gap-2">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#174DDA]" />
+          <span><span className="font-semibold text-[#334155]">진단 범위 안내.</span> {HTML_BASIS_NOTICE}</span>
+        </p>
+      </aside>
 
       <ComparisonReport scan={scan} />
 

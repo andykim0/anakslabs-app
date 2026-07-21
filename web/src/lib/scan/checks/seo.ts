@@ -7,6 +7,8 @@
  * a passing score guarantees ranking.
  */
 import type { ScanRule, RuleContext } from '../rules';
+import { CLIENT_RENDER_RISK_CODE } from '../limitations';
+import { looksClientRendered } from '../rendering-limit';
 import { parseRobotsTxt, robotsAllows } from '../robots';
 import { sitemapLooksValid } from '../sitemap';
 import {
@@ -88,6 +90,16 @@ export const SEO_RULES: ScanRule[] = [
     label: 'HTML 문서가 지나치게 커서 진단이 일부만 수행되었습니다',
     detail: '초기 HTML이 1MB를 넘어 잘렸습니다. 검색로봇과 사용자가 핵심 본문을 찾기 어렵지 않도록 중복 마크업과 인라인 데이터를 줄이세요.',
     failed: (ctx) => ctx.truncated,
+  },
+  {
+    code: CLIENT_RENDER_RISK_CODE,
+    pillar: 'seo',
+    severity: 'warn',
+    weight: 0,
+    advisory: true,
+    label: '서버 HTML보다 자바스크립트 실행 뒤에 본문이 나타나는 사이트로 보입니다',
+    detail: '서버가 보낸 HTML의 본문은 거의 비어 있고 앱 규모의 자바스크립트 신호가 있습니다. 브라우저 실행 뒤 내용은 이 진단에 포함되지 않아 점수가 실제보다 낮을 수 있습니다.',
+    failed: (ctx) => looksClientRendered(ctx.root, ctx.visibleText),
   },
   {
     code: 'seo_soft_404',
