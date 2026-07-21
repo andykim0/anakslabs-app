@@ -1,4 +1,5 @@
 import type { ScanComparisonResult, ScanIssue, ScanResult } from '@/lib/data/types';
+import { actionableIssueCount } from './issue-groups';
 
 export const SCAN_COMPARISON_LIMIT = 2;
 export const SCAN_REQUEST_URL_LIMIT = 1 + SCAN_COMPARISON_LIMIT;
@@ -13,6 +14,20 @@ export const SCAN_STRUCTURE_SIGNALS = [
 ] as const;
 
 export type ScanStructureSignalKey = (typeof SCAN_STRUCTURE_SIGNALS)[number]['key'];
+
+export function comparisonEngineSummary(
+  scan: Pick<ScanResult, 'scores' | 'grade' | 'issues'>,
+): {
+  scores: ScanResult['scores'];
+  grade: ScanResult['grade'];
+  actionableRootCauses: number;
+} {
+  return {
+    scores: scan.scores,
+    grade: scan.grade,
+    actionableRootCauses: actionableIssueCount(scan.issues),
+  };
+}
 
 export function structureSignals(issues: ScanIssue[]): Record<ScanStructureSignalKey, boolean> {
   const issueCodes = new Set(issues.map((issue) => issue.code));

@@ -13,7 +13,12 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Check, ChevronDown, Copy, GitCompareArrows, Info, Loader2, ScanSearch, TriangleAlert, XCircle } from 'lucide-react';
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
-import { comparisonHeadline, SCAN_STRUCTURE_SIGNALS, structureSignals } from '@/lib/scan/comparison';
+import {
+  comparisonEngineSummary,
+  comparisonHeadline,
+  SCAN_STRUCTURE_SIGNALS,
+  structureSignals,
+} from '@/lib/scan/comparison';
 import { guidanceFor } from '@/lib/scan/guidance';
 import { actionableIssueCount, groupScanIssues } from '@/lib/scan/issue-groups';
 import {
@@ -166,11 +171,17 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
   const comparisons = scan.comparisons ?? [];
   if (comparisons.length === 0) return null;
   const sites = [
-    { label: '내 홈페이지', url: scan.url, signals: structureSignals(scan.issues) },
+    {
+      label: '내 홈페이지',
+      url: scan.url,
+      signals: structureSignals(scan.issues),
+      ...comparisonEngineSummary(scan),
+    },
     ...comparisons.map((item, index) => ({
       label: `옆 가게 ${index + 1}`,
       url: item.url,
       signals: structureSignals(item.issues),
+      ...comparisonEngineSummary(item),
     })),
   ];
   return (
@@ -195,6 +206,22 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">종합 점수</th>
+              {sites.map((site) => (
+                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold tabular-nums text-[#17181C]">
+                  {site.scores.total}점 · {site.grade} 등급
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">고칠 원인</th>
+              {sites.map((site) => (
+                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold text-[#174DDA]">
+                  {site.actionableRootCauses}개 원인
+                </td>
+              ))}
+            </tr>
             {SCAN_STRUCTURE_SIGNALS.map((signal) => (
               <tr key={signal.key}>
                 <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">{signal.label}</th>

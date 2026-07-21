@@ -238,6 +238,17 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   (at least 50 KB inline script, three external bundles, or a hashed main/app/
   bundle/index asset). The warning is advisory and never changes the score.
 
+#### 2026-07-21 comparison-mode parity
+
+- Comparison mode has no scoring or rule fork. Each compared URL is processed
+  by `runScan`, and its calibrated `scores`, `grade`, and complete issue list
+  are projected unchanged into the stored comparison result.
+- The comparison table derives “causes to fix” through the same root-cause
+  grouping helper as the primary report. One robots policy that exposes six
+  crawler-specific states is therefore shown as one actionable cause in every
+  comparison column, while all underlying states remain stored for detail and
+  audit.
+
 ### Generated tenant sites
 
 - Emit page-specific `WebPage` and `BreadcrumbList` nodes connected by stable
