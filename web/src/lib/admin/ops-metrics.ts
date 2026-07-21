@@ -1,5 +1,7 @@
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import {
+  manualCollectionCustomerKey,
+  manualCollectionLaunchCounterKey,
   manualCollectionQuote,
   type ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
@@ -232,6 +234,7 @@ function manualReceiptMatchesPayment(entry: ManualPaymentEntry, payment: Payment
   });
   return entry.direction === 'receipt'
     && entry.paymentId === payment.id
+    && entry.clientId !== null
     && entry.clientId === payment.clientId
     && quote !== null
     && quote.paymentType === payment.type
@@ -290,7 +293,7 @@ export function buildAdminOpsRevenueMetrics(
   const operatingBySource = { provider: 0, manual: 0 };
   const anomalies: AdminPaymentAnomaly[] = [];
   const seenIds = new Set<string>();
-  const launchSiteBalance = new Map<string, number>();
+  const launchContractBalance = new Map<string, number>();
 
   const manualEntries = options.manualEntries ?? [];
   const manualReceiptByPaymentId = new Map(
@@ -300,14 +303,36 @@ export function buildAdminOpsRevenueMetrics(
   const manualReceiptById = new Map(
     manualEntries.filter((entry) => entry.direction === 'receipt').map((entry) => [entry.id, entry]),
   );
+  const launchSitesByCustomer = new Map<string, Set<string>>();
+  for (const entry of manualReceiptById.values()) {
+    if (entry.productKind !== 'launch_build' || !entry.siteId) continue;
+    const customerKey = manualCollectionCustomerKey(entry);
+    if (!customerKey) continue;
+    const sites = launchSitesByCustomer.get(customerKey) ?? new Set<string>();
+    sites.add(entry.siteId);
+    launchSitesByCustomer.set(customerKey, sites);
+  }
 
-  const adjustLaunchSite = (siteId: string | null, delta: number, evidenceId: string) => {
-    if (!siteId) {
+  const resolvedManualLaunchCounterKey = (entry: ManualPaymentEntry): string | null => {
+    const customerKey = manualCollectionCustomerKey(entry);
+    const linkedSites = customerKey ? launchSitesByCustomer.get(customerKey) : undefined;
+    if (linkedSites?.size === 1) return `site:${[...linkedSites][0]}`;
+    return manualCollectionLaunchCounterKey(entry);
+  };
+
+  const adjustLaunchContract = (counterKey: string | null, delta: number, evidenceId: string) => {
+    if (!counterKey) {
       anomalies.push({ paymentId: evidenceId, code: 'launch_site_unresolved' });
       return;
     }
-    launchSiteBalance.set(siteId, (launchSiteBalance.get(siteId) ?? 0) + delta);
+    launchContractBalance.set(
+      counterKey,
+      (launchContractBalance.get(counterKey) ?? 0) + delta,
+    );
   };
+
+  const adjustLaunchSite = (siteId: string | null, delta: number, evidenceId: string) =>
+    adjustLaunchContract(siteId ? `site:${siteId}` : null, delta, evidenceId);
 
   for (const payment of payments) {
     if (seenIds.has(payment.id)) {
@@ -350,7 +375,7 @@ export function buildAdminOpsRevenueMetrics(
         });
       }
       if (manualEntry.productKind === 'launch_build' && entryAt <= nowMs) {
-        adjustLaunchSite(manualEntry.siteId, 1, manualEntry.id);
+        adjustLaunchContract(resolvedManualLaunchCounterKey(manualEntry), 1, manualEntry.id);
       }
       continue;
     }
@@ -416,6 +441,36 @@ export function buildAdminOpsRevenueMetrics(
     }
   }
 
+  // 계정 연결 전 수금은 payments 행이 아직 없지만, 가격표와 일치하는 append-only
+  // 수금 증거 자체로 현금주의 매출에 포함한다. 사후 연결되면 paymentId가 투영되어 위 경로만 탄다.
+  for (const entry of manualEntries.filter((candidate) =>
+    candidate.direction === 'receipt' && candidate.paymentId === null)) {
+    const quote = manualCollectionQuote({
+      productKind: entry.productKind,
+      creditPackCredits: entry.creditPackCredits ?? undefined,
+    });
+    const entryAt = instant(entry.createdAt);
+    if (!quote || quote.amountKrw !== entry.amountKrw || entryAt === null) {
+      anomalies.push({ paymentId: entry.id, code: 'manual_evidence_invalid' });
+      continue;
+    }
+    if (inRangeAsOf(entryAt, start, end, nowMs)) {
+      applyEconomicEvent({
+        allocations: manualAllocations(entry),
+        amount: entry.amountKrw,
+        direction: 'gross',
+        source: 'manual',
+        segments,
+        receipts,
+        sources,
+        operatingBySource,
+      });
+    }
+    if (entry.productKind === 'launch_build' && entryAt <= nowMs) {
+      adjustLaunchContract(resolvedManualLaunchCounterKey(entry), 1, entry.id);
+    }
+  }
+
   for (const reversal of manualEntries.filter((entry) => entry.direction === 'reversal')) {
     const original = reversal.reversesEntryId
       ? manualReceiptById.get(reversal.reversesEntryId)
@@ -446,7 +501,7 @@ export function buildAdminOpsRevenueMetrics(
       });
     }
     if (reversal.productKind === 'launch_build' && reversalAt <= nowMs) {
-      adjustLaunchSite(reversal.siteId, -1, reversal.id);
+      adjustLaunchContract(resolvedManualLaunchCounterKey(reversal), -1, reversal.id);
     }
   }
 
@@ -456,7 +511,7 @@ export function buildAdminOpsRevenueMetrics(
     1,
   );
   const limit = quantityOfferLimit();
-  const launchContracts = [...launchSiteBalance.values()].filter((balance) => balance > 0).length;
+  const launchContracts = [...launchContractBalance.values()].filter((balance) => balance > 0).length;
 
   return {
     month,

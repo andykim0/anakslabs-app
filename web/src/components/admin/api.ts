@@ -99,8 +99,9 @@ export interface AdminSearchRegistrationResponse {
 export interface AdminManualCollectionRow {
   entryId: string;
   paymentId: string | null;
-  clientId: string;
+  clientId: string | null;
   clientName: string;
+  customerContact: string | null;
   siteId: string | null;
   siteName: string | null;
   productKind: ManualCollectionProductKind;
@@ -111,10 +112,29 @@ export interface AdminManualCollectionRow {
   memo: string | null;
   createdAt: string;
   reversible: boolean;
+  cancelled: boolean;
+  reversal: {
+    entryId: string;
+    collectionReference: string;
+    memo: string | null;
+    createdAt: string;
+  } | null;
+  links: Array<{
+    id: string;
+    kind: 'client' | 'site';
+    clientId: string;
+    clientName: string;
+    siteId: string | null;
+    siteName: string | null;
+    memo: string | null;
+    createdAt: string;
+  }>;
 }
 
 export interface RecordManualCollectionInput {
-  clientId: string;
+  clientId?: string | null;
+  customerName?: string | null;
+  customerContact?: string | null;
   siteId?: string | null;
   productKind: ManualCollectionProductKind;
   amountKrw: number;
@@ -378,6 +398,35 @@ export function reverseManualCollection(
 ): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
   return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
     `/api/admin/payments/manual/${encodeURIComponent(entryId)}/reverse`,
+    { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+export function cancelManualCollection(
+  entryId: string,
+): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
+  return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
+    `/api/admin/payments/manual/${encodeURIComponent(entryId)}/cancel`,
+    { method: 'POST', body: JSON.stringify({}) },
+  );
+}
+
+export function linkManualCollectionClient(
+  entryId: string,
+  input: { clientId: string; memo?: string | null },
+): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
+  return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
+    `/api/admin/payments/manual/${encodeURIComponent(entryId)}/link-client`,
+    { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+export function linkManualCollectionSite(
+  entryId: string,
+  input: { siteId: string; memo?: string | null },
+): Promise<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }> {
+  return fetchJson<{ ok: true; duplicated: boolean; entry: ManualPaymentEntry }>(
+    `/api/admin/payments/manual/${encodeURIComponent(entryId)}/link-site`,
     { method: 'POST', body: JSON.stringify(input) },
   );
 }

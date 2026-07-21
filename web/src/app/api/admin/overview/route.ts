@@ -60,6 +60,10 @@ export const GET = withApiHandler(async () => {
   const reversibleEntryIds = manualCollectionReversibleEntryIds(
     manualRecords.map(({ entry }) => entry),
   );
+  const reversalByReceiptId = new Map(manualRecords.flatMap(({ entry }) =>
+    entry.direction === 'reversal' && entry.reversesEntryId
+      ? [[entry.reversesEntryId, entry] as const]
+      : []));
   const guaranteeSites = siteList.filter((site) => site.publishedAt && site.siteConfig);
   const guaranteeEvidence = await listGuaranteeEvidence(guaranteeSites.map((site) => site.id));
   const guaranteeAsOf = new Date();
@@ -113,11 +117,19 @@ export const GET = withApiHandler(async () => {
       sites: siteList,
     }),
     guarantees: guaranteeRows.sort((left, right) => left.dueAt.localeCompare(right.dueAt)),
-    manualCollections: manualRecords.slice(0, 20).map(({ entry }) => ({
+    manualCollections: manualRecords
+      .filter(({ entry }) => entry.direction === 'receipt')
+      .slice(0, 20)
+      .map(({ entry, links }) => {
+      const reversal = reversalByReceiptId.get(entry.id) ?? null;
+      return {
       entryId: entry.id,
       paymentId: entry.paymentId,
       clientId: entry.clientId,
-      clientName: clientById.get(entry.clientId)?.name ?? '알 수 없는 고객',
+      clientName: entry.clientId
+        ? clientById.get(entry.clientId)?.name ?? '알 수 없는 고객'
+        : entry.customerName ?? '미연결 고객',
+      customerContact: entry.customerContact,
       siteId: entry.siteId,
       siteName: entry.siteId ? siteById.get(entry.siteId)?.name ?? '알 수 없는 사이트' : null,
       productKind: entry.productKind,
@@ -128,6 +140,24 @@ export const GET = withApiHandler(async () => {
       memo: entry.memo,
       createdAt: entry.createdAt,
       reversible: reversibleEntryIds.has(entry.id),
-    })),
+      cancelled: reversal !== null,
+      reversal: reversal ? {
+        entryId: reversal.id,
+        collectionReference: reversal.collectionReference,
+        memo: reversal.memo,
+        createdAt: reversal.createdAt,
+      } : null,
+      links: links.map((link) => ({
+        id: link.id,
+        kind: link.kind,
+        clientId: link.clientId,
+        clientName: clientById.get(link.clientId)?.name ?? '알 수 없는 고객',
+        siteId: link.siteId,
+        siteName: link.siteId ? siteById.get(link.siteId)?.name ?? '알 수 없는 사이트' : null,
+        memo: link.memo,
+        createdAt: link.createdAt,
+      })),
+    };
+    }),
   });
 });

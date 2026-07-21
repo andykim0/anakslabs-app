@@ -15,7 +15,10 @@ import type {
   Site,
 } from '@/lib/types/domain';
 import type { FormSubmission, ScanResult, SiteEventAggregate } from '../types';
-import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
+import type {
+  ManualCollectionLink,
+  ManualPaymentEntry,
+} from '@/lib/payments/manual-collection-core';
 import type { EditRequestEvent } from '@/lib/admin/edit-fulfillment-core';
 import { buildSeed } from './seed';
 
@@ -53,6 +56,8 @@ export interface MockStore {
   paymentKeys: Map<string, string>;
   /** [OPS$] append-only manual collection companion ledger (lazy, seed unchanged). */
   manualPaymentEntries?: Map<string, ManualPaymentEntry>;
+  /** [OPS2$] 계정·사이트 사후 연결 append-only 이력 (lazy, seed unchanged). */
+  manualPaymentLinks?: ManualCollectionLink[];
   /** siteId → 커스텀 도메인 검증 상태 */
   domainStates: Map<string, MockDomainState>;
   /** Cloudflare custom hostname 총수 (시드 7) */

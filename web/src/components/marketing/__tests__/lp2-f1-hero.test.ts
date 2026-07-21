@@ -27,20 +27,16 @@ describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
     assert.equal(prelude.querySelectorAll('[aria-hidden].absolute.inset-0').length, 0);
   });
 
-  test('desktop film 경로는 autoplay 정책·poster-first·실패 폴백을 모두 갖는다', () => {
-    const source = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(source, /autoPlay[\s\S]*muted[\s\S]*loop[\s\S]*playsInline/);
-    assert.match(source, /poster="\/daboim-visibility-film-poster\.webp"/);
-    assert.match(source, /onPlaying=\{\(\) => setPlaying\(true\)\}/);
-    assert.match(source, /onError=\{\(\) => \{[\s\S]*setFailed\(true\)/);
-    assert.match(source, /isDesktop && !reduce && !failed/);
-    assert.match(source, /useFailClosedReducedMotion/);
-    const reducedSource = read('src/components/marketing/use-fail-closed-reduced-motion.ts');
-    assert.match(reducedSource, /useState\(true\)/,
-      'SSR와 첫 hydration render는 정적으로 fail-closed 해야 함');
-    assert.match(reducedSource, /useEffect\([\s\S]*window\.matchMedia[\s\S]*setReduce\(query\.matches\)/,
-      '실제 모션 허용은 mount 뒤 브라우저 preference를 읽은 후에만 가능해야 함');
-    assert.doesNotMatch(source, /preload="auto"/);
+  test('film 경로는 poster-first·지연 영상·공용 reduced-motion 런타임을 갖는다', () => {
+    const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    const renderer = read('src/components/site-renderer/MotionSignatureRenderer.tsx');
+    const runtime = read('src/components/marketing/LandingCinematicRuntime.tsx');
+    assert.match(showcase, /poster: POSTER_SRC/);
+    assert.match(showcase, /daboim-visibility-film-poster\.webp/);
+    assert.match(renderer, /data-video-poster/);
+    assert.match(renderer, /preload="none"/);
+    assert.match(runtime, /usePreviewMotion/);
+    assert.doesNotMatch(renderer, /autoPlay|autoplay|preload="auto"/);
   });
 
   test('무료 진단 CTA의 조건부 빛 스윕도 SSR·reduced hydration에서 fail-closed 한다', () => {

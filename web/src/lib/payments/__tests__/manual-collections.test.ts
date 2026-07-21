@@ -32,7 +32,7 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(manualCollectionQuote({ productKind: 'credit_pack', creditPackCredits: 2 }), null);
   });
 
-  test('rejects arbitrary money and requires site evidence for build/video receipts', () => {
+  test('rejects arbitrary money and ambiguous customers while allowing collection before a site exists', () => {
     assert.throws(() => normalizeRecordManualCollectionInput({
       clientId: DEMO_PREMIUM_ID,
       siteId: HWARODAM_SITE_ID,
@@ -41,21 +41,37 @@ describe('OPS O1 manual collection contract', () => {
       channel: 'kmong',
       collectionReference: 'order-bad-price',
     }), /AMOUNT_MISMATCH/);
-    assert.throws(() => normalizeRecordManualCollectionInput({
+    const withoutSite = normalizeRecordManualCollectionInput({
       clientId: DEMO_PREMIUM_ID,
       productKind: 'video_addon',
       amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'order-no-site',
-    }), /SITE_REQUIRED/);
+    });
+    assert.equal(withoutSite.siteId, null);
+    assert.throws(() => normalizeRecordManualCollectionInput({
+      productKind: 'launch_build',
+      amountKrw: PRICING.base.launch,
+      channel: 'kmong',
+      collectionReference: 'order-no-customer',
+    }), /CUSTOMER_REQUIRED/);
+    assert.throws(() => normalizeRecordManualCollectionInput({
+      clientId: DEMO_PREMIUM_ID,
+      customerName: '중복 고객',
+      customerContact: '010-0000-0000',
+      productKind: 'launch_build',
+      amountKrw: PRICING.base.launch,
+      channel: 'kmong',
+      collectionReference: 'order-ambiguous-customer',
+    }), /CUSTOMER_AMBIGUOUS/);
   });
 
-  test('mock receipt/retry/reversal preserves one payment row and immutable companion history', async () => {
+  test('site-less mock receipt/retry/reversal preserves one payment row and immutable companion history', async () => {
     resetMockStore();
     const repository = new MockManualCollectionsRepository();
     const input = {
       clientId: DEMO_PREMIUM_ID,
-      siteId: HWARODAM_SITE_ID,
+      siteId: null,
       productKind: 'launch_build' as const,
       amountKrw: PRICING.base.launch,
       channel: 'kmong' as const,
@@ -70,7 +86,6 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(retry.record.entry.id, first.record.entry.id);
     assert.equal(getMockStore().payments.size, before + 1);
 
-    await assert.rejects(repository.record({ ...input, siteId: null }), /SITE_REQUIRED/);
     const reversed = await repository.reverse({
       entryId: first.record.entry.id,
       collectionReference: 'KMONG-OPS-001-CORRECTION',
@@ -86,6 +101,93 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(reversedRetry.duplicated, true);
     assert.equal(getMockStore().payments.size, before + 1, 'correction must not forge a positive payment');
     assert.equal((await repository.listAll()).length, 2);
+  });
+
+  test('accountless receipt links account then site without mutating its original evidence', async () => {
+    resetMockStore();
+    const repository = new MockManualCollectionsRepository();
+    const store = getMockStore();
+    const paymentsBefore = store.payments.size;
+    const receipt = await repository.record({
+      customerName: '크몽 고객',
+      customerContact: 'kmong:owner-1024',
+      productKind: 'launch_build',
+      amountKrw: PRICING.base.launch,
+      channel: 'kmong',
+      collectionReference: 'KMONG-OPS2-ACCOUNTLESS-001',
+      memo: '가입 전 선입금',
+    });
+
+    assert.equal(receipt.record.payment, null);
+    assert.equal(receipt.record.entry.clientId, null);
+    assert.equal(receipt.record.entry.siteId, null);
+    assert.equal(store.payments.size, paymentsBefore);
+    const original = store.manualPaymentEntries?.get(receipt.record.entry.id);
+    assert.ok(original);
+    assert.equal(original.clientId, null);
+    assert.equal(original.siteId, null);
+
+    const clientLink = await repository.linkClient({
+      entryId: receipt.record.entry.id,
+      clientId: DEMO_PREMIUM_ID,
+      memo: '가입 완료 후 계정 연결',
+    });
+    assert.equal(clientLink.duplicated, false);
+    assert.equal(clientLink.record.entry.clientId, DEMO_PREMIUM_ID);
+    assert.ok(clientLink.record.payment);
+    assert.equal(clientLink.record.links.length, 1);
+    assert.equal(store.payments.size, paymentsBefore + 1);
+    const clientRetry = await repository.linkClient({
+      entryId: receipt.record.entry.id,
+      clientId: DEMO_PREMIUM_ID,
+    });
+    assert.equal(clientRetry.duplicated, true);
+    assert.equal(store.payments.size, paymentsBefore + 1);
+    assert.equal(clientRetry.record.links.length, 1);
+
+    const siteLink = await repository.linkSite({
+      entryId: receipt.record.entry.id,
+      siteId: HWARODAM_SITE_ID,
+      memo: '제작 시작 후 사이트 연결',
+    });
+    assert.equal(siteLink.duplicated, false);
+    assert.equal(siteLink.record.entry.siteId, HWARODAM_SITE_ID);
+    assert.equal(siteLink.record.links.length, 2);
+    const siteRetry = await repository.linkSite({
+      entryId: receipt.record.entry.id,
+      siteId: HWARODAM_SITE_ID,
+    });
+    assert.equal(siteRetry.duplicated, true);
+    assert.equal(siteRetry.record.links.length, 2);
+    assert.equal(original.clientId, null, 'append-only receipt must not be rewritten after linking');
+    assert.equal(original.siteId, null, 'append-only receipt must not be rewritten after linking');
+  });
+
+  test('one-click cancellation is idempotent and retains the receipt plus one reversal', async () => {
+    resetMockStore();
+    const repository = new MockManualCollectionsRepository();
+    const receipt = await repository.record({
+      customerName: '취소 고객',
+      customerContact: 'kmong:cancel-owner',
+      productKind: 'launch_build',
+      amountKrw: PRICING.base.launch,
+      channel: 'kmong',
+      collectionReference: 'KMONG-OPS2-CANCEL-001',
+    });
+    const cancellation = {
+      entryId: receipt.record.entry.id,
+      collectionReference: `cancel:${receipt.record.entry.id}`,
+      memo: '관리자 원클릭 취소',
+    };
+    const first = await repository.reverse(cancellation);
+    const retry = await repository.reverse(cancellation);
+    assert.equal(first.duplicated, false);
+    assert.equal(retry.duplicated, true);
+    assert.equal(retry.record.entry.id, first.record.entry.id);
+    const rows = await repository.listAll();
+    assert.equal(rows.length, 2);
+    assert.ok(rows.some(({ entry }) => entry.id === receipt.record.entry.id));
+    assert.equal(rows.filter(({ entry }) => entry.reversesEntryId === receipt.record.entry.id).length, 1);
   });
 
   test('mock rejects another client site and reverses only the unused purchased credit lot', async () => {
@@ -337,5 +439,32 @@ describe('OPS O1 manual collection contract', () => {
       sql,
       /grant execute on function public\.reverse_manual_collection\([\s\S]*?\) to service_role;/,
     );
+  });
+
+  test('0040 keeps account/site links append-only and obeys migration parser safeguards', () => {
+    const sql = readFileSync(
+      join(process.cwd(), '../supabase/migrations/0040_manual_payment_entries_flexible.sql'),
+      'utf8',
+    );
+    assert.match(sql, /create table public\.manual_payment_entry_links/);
+    assert.match(sql, /manual_payment_entry_links_append_only[\s\S]*before update or delete/);
+    assert.match(sql, /alter column client_id drop not null/);
+    assert.match(sql, /record_manual_collection_v2/);
+    assert.match(sql, /link_manual_collection_client/);
+    assert.match(sql, /link_manual_collection_site/);
+    assert.match(sql, /reverse_manual_collection_v2/);
+    for (const amount of [
+      PRICING.base.launch,
+      PRICING.base.list,
+      PRICING.videoHeroAddon,
+      PRICING.subscription.monthly,
+      ...CREDIT_PACKS.map((pack) => pack.priceKrw),
+    ]) {
+      assert.match(sql, new RegExp(`${amount}::numeric`), `SQL price snapshot missing ${amount}`);
+    }
+    for (const comment of sql.split('\n').filter((line) => line.trimStart().startsWith('--'))) {
+      assert.doesNotMatch(comment, /\$/, `migration comment contains forbidden dollar sign: ${comment}`);
+    }
+    assert.doesNotMatch(sql, /\bif\b[^;\n]*\bcase\b/i, 'IF conditions must precompute CASE values');
   });
 });

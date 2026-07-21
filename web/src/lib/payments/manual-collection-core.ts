@@ -12,6 +12,7 @@ export const MANUAL_COLLECTION_PRODUCT_KINDS = [
 
 export type ManualCollectionProductKind = (typeof MANUAL_COLLECTION_PRODUCT_KINDS)[number];
 export type ManualCollectionDirection = 'receipt' | 'reversal';
+export type ManualCollectionLinkKind = 'client' | 'site';
 
 export const MANUAL_COLLECTION_CHANNELS = ['kmong', 'bank_transfer', 'other'] as const;
 export type ManualCollectionChannel = (typeof MANUAL_COLLECTION_CHANNELS)[number];
@@ -25,8 +26,11 @@ export interface ManualCollectionQuote {
 export interface ManualPaymentEntry {
   id: string;
   paymentId: string | null;
-  clientId: string;
+  clientId: string | null;
   siteId: string | null;
+  customerName: string | null;
+  customerContact: string | null;
+  creditPackCredits: number | null;
   productKind: ManualCollectionProductKind;
   direction: ManualCollectionDirection;
   amountKrw: number;
@@ -37,13 +41,27 @@ export interface ManualPaymentEntry {
   createdAt: string;
 }
 
+export interface ManualCollectionLink {
+  id: string;
+  entryId: string;
+  kind: ManualCollectionLinkKind;
+  clientId: string;
+  siteId: string | null;
+  paymentId: string | null;
+  memo: string | null;
+  createdAt: string;
+}
+
 export interface ManualPaymentRecord {
   payment: Payment | null;
   entry: ManualPaymentEntry;
+  links: ManualCollectionLink[];
 }
 
 export interface RecordManualCollectionInput {
-  clientId: string;
+  clientId?: string | null;
+  customerName?: string | null;
+  customerContact?: string | null;
   siteId?: string | null;
   productKind: ManualCollectionProductKind;
   amountKrw: number;
@@ -59,6 +77,18 @@ export interface ReverseManualCollectionInput {
   memo: string;
 }
 
+export interface LinkManualCollectionClientInput {
+  entryId: string;
+  clientId: string;
+  memo?: string | null;
+}
+
+export interface LinkManualCollectionSiteInput {
+  entryId: string;
+  siteId: string;
+  memo?: string | null;
+}
+
 export interface ManualCollectionMutationResult {
   duplicated: boolean;
   record: ManualPaymentRecord;
@@ -68,28 +98,8 @@ export interface ManualCollectionsRepository {
   listAll(): Promise<ManualPaymentRecord[]>;
   record(input: RecordManualCollectionInput): Promise<ManualCollectionMutationResult>;
   reverse(input: ReverseManualCollectionInput): Promise<ManualCollectionMutationResult>;
-}
-
-export function manualCollectionNeedsSite(kind: ManualCollectionProductKind): boolean {
-  return kind === 'launch_build' || kind === 'list_build' || kind === 'video_addon';
-}
-
-/**
- * Resolve the admin form's site value without turning an explicit "no site"
- * choice back into the client's first site. `selectedSiteId === null` means the
- * operator has not made a choice for the current client yet; an empty string is
- * an intentional optional-site choice.
- */
-export function resolveManualCollectionSiteChoice(input: {
-  selectedSiteId: string | null;
-  availableSiteIds: readonly string[];
-  siteRequired: boolean;
-}): string {
-  const firstSiteId = input.availableSiteIds[0] ?? '';
-  if (input.selectedSiteId && input.availableSiteIds.includes(input.selectedSiteId)) {
-    return input.selectedSiteId;
-  }
-  return input.siteRequired ? firstSiteId : '';
+  linkClient(input: LinkManualCollectionClientInput): Promise<ManualCollectionMutationResult>;
+  linkSite(input: LinkManualCollectionSiteInput): Promise<ManualCollectionMutationResult>;
 }
 
 /**
@@ -105,7 +115,7 @@ export function manualCollectionReversibleEntryIds(
     entry.direction === 'reversal' && entry.reversesEntryId
       ? [entry.reversesEntryId]
       : []));
-  const latestSubscriptionByClient = new Map<string, ManualPaymentEntry>();
+  const latestSubscriptionByCustomer = new Map<string, ManualPaymentEntry>();
 
   for (const entry of entries) {
     if (
@@ -114,18 +124,45 @@ export function manualCollectionReversibleEntryIds(
       || reversedReceiptIds.has(entry.id)
       || !Number.isFinite(Date.parse(entry.createdAt))
     ) continue;
-    const current = latestSubscriptionByClient.get(entry.clientId);
+    const customerKey = manualCollectionCustomerKey(entry);
+    if (!customerKey) continue;
+    const current = latestSubscriptionByCustomer.get(customerKey);
     if (!current || entry.createdAt > current.createdAt
       || (entry.createdAt === current.createdAt && entry.id > current.id)) {
-      latestSubscriptionByClient.set(entry.clientId, entry);
+      latestSubscriptionByCustomer.set(customerKey, entry);
     }
   }
 
   return new Set(entries.flatMap((entry) => {
     if (entry.direction !== 'receipt' || reversedReceiptIds.has(entry.id)) return [];
     if (entry.productKind !== 'subscription') return [entry.id];
-    return latestSubscriptionByClient.get(entry.clientId)?.id === entry.id ? [entry.id] : [];
+    const customerKey = manualCollectionCustomerKey(entry);
+    return customerKey && latestSubscriptionByCustomer.get(customerKey)?.id === entry.id
+      ? [entry.id]
+      : [];
   }));
+}
+
+function normalizedCustomerContact(value: string | null): string | null {
+  if (!value) return null;
+  const normalized = value.toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
+  return normalized || null;
+}
+
+/** 사이트 미지정 런칭 수금의 중복 방지 키. 직접 입력 고객은 연결 뒤에도 같은 키를 유지한다. */
+export function manualCollectionCustomerKey(
+  entry: Pick<ManualPaymentEntry, 'clientId' | 'customerContact'>,
+): string | null {
+  const contact = normalizedCustomerContact(entry.customerContact);
+  if (contact) return `manual:${contact}`;
+  return entry.clientId ? `client:${entry.clientId}` : null;
+}
+
+/** 선착순 카운터 키: 지정 사이트 우선, 미지정은 고객 단위로 한 번만 센다. */
+export function manualCollectionLaunchCounterKey(
+  entry: Pick<ManualPaymentEntry, 'siteId' | 'clientId' | 'customerContact'>,
+): string | null {
+  return entry.siteId ? `site:${entry.siteId}` : manualCollectionCustomerKey(entry);
 }
 
 export function manualCollectionQuote(input: {
@@ -167,7 +204,10 @@ function nullableText(value: string | null | undefined): string | null {
 
 export function normalizeRecordManualCollectionInput(
   input: RecordManualCollectionInput,
-): Required<Omit<RecordManualCollectionInput, 'siteId' | 'memo' | 'creditPackCredits'>> & {
+): Omit<Required<RecordManualCollectionInput>, 'clientId' | 'customerName' | 'customerContact' | 'siteId' | 'memo' | 'creditPackCredits'> & {
+  clientId: string | null;
+  customerName: string | null;
+  customerContact: string | null;
   siteId: string | null;
   memo: string | null;
   creditPackCredits: number | null;
@@ -178,12 +218,23 @@ export function normalizeRecordManualCollectionInput(
   if (!Number.isSafeInteger(input.amountKrw) || input.amountKrw !== quote.amountKrw) {
     throw new Error('MANUAL_COLLECTION_AMOUNT_MISMATCH');
   }
+  const clientId = nullableText(input.clientId);
+  const customerName = nullableText(input.customerName);
+  const customerContact = nullableText(input.customerContact);
+  if (clientId && (customerName || customerContact)) {
+    throw new Error('MANUAL_COLLECTION_CUSTOMER_AMBIGUOUS');
+  }
+  if (!clientId && (!customerName || !customerContact)) {
+    throw new Error('MANUAL_COLLECTION_CUSTOMER_REQUIRED');
+  }
   const siteId = nullableText(input.siteId);
-  if (manualCollectionNeedsSite(input.productKind) && !siteId) {
-    throw new Error('MANUAL_COLLECTION_SITE_REQUIRED');
+  if (siteId && !clientId) {
+    throw new Error('MANUAL_COLLECTION_SITE_WITHOUT_CLIENT');
   }
   return {
-    clientId: required(input.clientId, 'MANUAL_COLLECTION_CLIENT_REQUIRED'),
+    clientId,
+    customerName,
+    customerContact,
     siteId,
     productKind: input.productKind,
     amountKrw: input.amountKrw,
@@ -197,6 +248,26 @@ export function normalizeRecordManualCollectionInput(
       ? (input.creditPackCredits ?? null)
       : null,
     quote,
+  };
+}
+
+export function normalizeLinkManualCollectionClientInput(
+  input: LinkManualCollectionClientInput,
+): Required<Omit<LinkManualCollectionClientInput, 'memo'>> & { memo: string | null } {
+  return {
+    entryId: required(input.entryId, 'MANUAL_COLLECTION_ENTRY_REQUIRED'),
+    clientId: required(input.clientId, 'MANUAL_COLLECTION_CLIENT_REQUIRED'),
+    memo: nullableText(input.memo),
+  };
+}
+
+export function normalizeLinkManualCollectionSiteInput(
+  input: LinkManualCollectionSiteInput,
+): Required<Omit<LinkManualCollectionSiteInput, 'memo'>> & { memo: string | null } {
+  return {
+    entryId: required(input.entryId, 'MANUAL_COLLECTION_ENTRY_REQUIRED'),
+    siteId: required(input.siteId, 'MANUAL_COLLECTION_SITE_REQUIRED'),
+    memo: nullableText(input.memo),
   };
 }
 

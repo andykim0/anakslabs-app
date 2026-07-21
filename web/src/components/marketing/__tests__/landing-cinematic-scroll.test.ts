@@ -105,8 +105,8 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
     assert.match(continuation, /linear-gradient\(180deg,#f8fbff 0%,#eef5ff 36%/);
     assert.doesNotMatch(source, /linear-gradient\(90deg,rgba\(3,12,31/);
     assert.doesNotMatch(source, /linear-gradient\(to_bottom,rgba\(7,20,47/);
-    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(consoleSource, /data-optimization-poster[\s\S]*preload/);
+    const renderer = read('src/components/site-renderer/MotionSignatureRenderer.tsx');
+    assert.match(renderer, /data-video-poster[\s\S]*preload="none"/);
   });
 
   test('reduced-motion과 no-JS는 큰 sticky track 없이 compact 세로 기사로 읽힌다', () => {

@@ -49,7 +49,7 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
     assert.match(page, /application\/ld\+json/);
   });
 
-  test('Veo 3D 필름은 웹 최적화 자산 + 지연 로드 + reduced-motion 폴백을 갖는다', () => {
+  test('랜딩 필름은 웹 최적화 자산 + 지연 로드 + reduced-motion 폴백을 갖는다', () => {
     for (const asset of [
       'public/daboim-visibility-film.mp4',
       'public/daboim-visibility-film.webm',
@@ -59,15 +59,13 @@ describe('Daboim 브랜드·랜딩 불변조건', () => {
       assert.ok(bytes > 0, `${asset} 비어 있음`);
       assert.ok(bytes < 2 * 1024 * 1024, `${asset} 2MB 초과`);
     }
-    const visual = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(visual, /Veo 3\.1 Fast/);
-    assert.match(visual, /daboim-brand-video-1080-2/);
-    assert.match(visual, /기존 Anaks Labs 브랜드 영상과 무관/);
-    assert.match(visual, /1080p MP4\/WebM/);
-    assert.doesNotMatch(visual, /1920×1080 · MUTED · LAZY-LOADED/);
-    assert.match(visual, /IntersectionObserver/);
-    assert.match(visual, /useFailClosedReducedMotion/);
-    assert.match(visual, /daboim-visibility-film\.webm/);
+    const visual = read('src/components/marketing/LandingCinematicShowcase.tsx');
+    const renderer = read('src/components/site-renderer/MotionSignatureRenderer.tsx');
+    assert.match(visual, /daboim-visibility-film-scrub\.mp4/);
+    assert.match(visual, /daboim-visibility-film-mobile\.mp4/);
     assert.match(visual, /daboim-visibility-film-poster\.webp/);
+    assert.match(renderer, /preload="none"/);
+    assert.match(renderer, /data-video-poster/);
+    assert.doesNotMatch(renderer, /autoPlay|autoplay/);
   });
 });

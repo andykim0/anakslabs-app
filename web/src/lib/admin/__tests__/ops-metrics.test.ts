@@ -41,6 +41,9 @@ function manualEntry(
     paymentId,
     clientId: `client-${paymentId ?? id}`,
     siteId: `site-${paymentId ?? id}`,
+    customerName: null,
+    customerContact: null,
+    creditPackCredits: null,
     productKind: 'launch_build',
     direction: paymentId ? 'receipt' : 'reversal',
     amountKrw: PRICING.base.launch,
@@ -363,5 +366,53 @@ describe('ADM4 admin revenue metrics', () => {
     assert.deepEqual(result.anomalies, [
       { paymentId: unknown.id, code: 'manual_metadata_missing' },
     ]);
+  });
+
+  test('counts accountless site-less cash and deduplicates launch slots by customer contact', () => {
+    const first = manualEntry('accountless-one', null, {
+      clientId: null,
+      siteId: 'site-owner-77',
+      customerName: '크몽 고객',
+      customerContact: ' KMONG:OWNER-77 ',
+      direction: 'receipt',
+      collectionReference: 'kmong-accountless-one',
+    });
+    const second = manualEntry('accountless-two', null, {
+      clientId: null,
+      siteId: null,
+      customerName: '크몽 고객',
+      customerContact: 'kmong:owner-77',
+      direction: 'receipt',
+      collectionReference: 'kmong-accountless-two',
+    });
+    const reversal = manualEntry('accountless-reversal', null, {
+      clientId: null,
+      siteId: first.siteId,
+      customerName: first.customerName,
+      customerContact: first.customerContact,
+      direction: 'reversal',
+      reversesEntryId: first.id,
+      collectionReference: 'cancel-accountless-one',
+    });
+    const active = buildAdminOpsRevenueMetrics([], NOW, {
+      manualEntries: [first, second],
+      sites: [],
+    });
+    assert.equal(
+      active.launchOffer.contracts,
+      1,
+      'a later site link must not double-count an earlier site-less receipt for the same contact',
+    );
+
+    const result = buildAdminOpsRevenueMetrics([], NOW, {
+      manualEntries: [first, second, reversal],
+      sites: [],
+    });
+
+    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.sources.manual.refundsKrw, PRICING.base.launch);
+    assert.equal(result.sources.manual.netKrw, PRICING.base.launch);
+    assert.equal(result.launchOffer.contracts, 1, 'one contact consumes at most one launch slot');
+    assert.deepEqual(result.anomalies, []);
   });
 });
