@@ -6,10 +6,10 @@ import {
 } from '@/lib/legal/notices';
 import { COMPANY_EMAIL, KAKAO_CHANNEL_URL } from '@/lib/marketing/contact';
 import {
-  CREDIT_CONTRACT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
@@ -20,73 +20,62 @@ export const metadata: Metadata = {
   alternates: { canonical: '/faq' },
 };
 
-const SEO_FAQ_ANSWER = '손님이 네이버나 구글에서 지역과 서비스를 검색할 때 가게 홈페이지를 찾을 수 있도록 준비하는 일입니다. 페이지마다 가게 이름·지역·서비스를 분명히 쓰고, 검색 서비스가 읽을 제목과 설명을 맞춥니다.';
-const AEO_FAQ_ANSWER = '“주차 되나요?”, “예약은 어떻게 하나요?”처럼 손님이 자주 묻는 질문에 검색 화면이 홈페이지의 답을 바로 보여주기 쉽게 만드는 일입니다. 실제 영업 정보가 있는 질문과 답을 또렷하게 짝지어 둡니다.';
-const GEO_FAQ_ANSWER = '손님이 AI에게 가게를 물었을 때 AI가 확인할 공식 근거를 홈페이지에 갖추는 일입니다. 상호·주소·전화번호·서비스와 공식 채널 정보를 한뜻으로 맞추고, 출처로 인용하기 쉬운 문장으로 정리합니다.';
+const SEO_FAQ_ANSWER = 'SEO는 손님이 네이버나 구글에서 지역과 서비스를 검색할 때 가게 홈페이지를 찾고 이해하기 쉽게 정리하는 검색 최적화입니다. 다보임은 페이지별 제목과 설명을 작성하고, 상호·지역·서비스가 본문과 구조화 데이터에 같은 뜻으로 담기게 합니다. 검색 서비스가 모든 페이지를 발견할 수 있도록 사이트맵과 검색 등록도 준비합니다. 그 결과 손님이 필요한 정보를 찾고 사장님 가게를 확인할 수 있는 기본 조건이 더 탄탄해집니다.';
+const AEO_FAQ_ANSWER = 'AEO는 “주차 되나요?”, “예약은 어떻게 하나요?”처럼 손님의 질문에 홈페이지의 답이 바로 연결되기 쉽게 만드는 답변 최적화입니다. 다보임은 주차·예약·영업시간·휴무일처럼 실제 문의가 많은 정보를 질문과 답 콘텐츠로 구성합니다. 각 질문에 답이 또렷하게 이어지도록 제목 구조를 잡고 FAQ 구조화 데이터도 함께 작성합니다. 손님은 필요한 답을 빠르게 확인하고, 사장님은 반복되는 문의를 줄일 수 있습니다.';
+const GEO_FAQ_ANSWER = 'GEO는 손님이 AI에게 가게를 물었을 때 AI가 공식 출처를 확인하고 인용하기 쉽게 만드는 AI 검색 최적화입니다. 다보임은 상호·주소·전화번호·영업시간을 홈페이지와 공식 채널에서 같게 맞추고, 운영 주체를 밝히는 구조화 데이터를 작성합니다. 서비스와 지역, 예약 방법 같은 핵심 정보도 출처로 인용하기 쉬운 문장으로 정리합니다. 그러면 AI가 사장님 가게를 혼동하지 않고 공식 근거를 확인할 수 있는 기반이 강해집니다.';
+const VISIBILITY_FAQ_ANSWER = '순위나 노출 자체는 네이버·구글·AI가 결정하기 때문에 누구도 보장할 수 없습니다. 다보임이 하는 일은 검색과 AI가 사장님 가게를 이해하고 공식 정보를 확인할 가능성을 구조적으로 높이는 것입니다. 검색과 AI가 읽기 쉬운 페이지 구조, 질문에 바로 답하는 콘텐츠, 상호·주소·전화번호 같은 공식 정보의 일치를 함께 갖춥니다. 발행 뒤 결과는 매달 성과 리포트의 페이지 조회, 네이버·구글 유입, 전화·예약·길찾기 반응 숫자로 확인할 수 있습니다.';
 
 const FAQ: FaqItem[] = [
   {
     q: '홈페이지가 완성되기까지 얼마나 걸리나요?',
     a: '설문(약 5분) 후 AI가 디자인 3안을 생성하고, 캔버스에서 다듬어 바로 발행할 수 있습니다. 대부분 당일에서 수일 내에 라이브가 가능합니다.',
-    plain: '설문 후 디자인 3안 생성 → 캔버스 편집 → 발행. 대부분 당일~수일 내 라이브.',
   },
   {
     q: '코딩이나 디자인을 몰라도 되나요?',
     a: '네. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 글과 사진을 끌어 옮기고 크기를 바꿀 수 있습니다. 문구와 이미지는 AI가 먼저 채워 두므로 마음에 걸리는 부분만 손보면 됩니다.',
-    plain: '네. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 글과 사진을 직접 옮기고 크기를 바꿀 수 있습니다.',
   },
   {
-    q: '발행 후 수정은 어떻게 하나요?',
+    q: '무제한 수정과 크레딧은 뭐가 다른가요?',
     a: CREDIT_CONTRACT_COPY,
-    plain: CREDIT_CONTRACT_COPY,
   },
   {
     q: '사이트 운영 구독에는 무엇이 포함되나요?',
     a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
-    plain: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits} 포함. ${SUBSCRIPTION_VALUE_COPY}`,
   },
   {
     q: '구독을 해지하면 사이트는 어떻게 되나요?',
     a: `${OWNERSHIP_SUMMARY} 해지 시에는 정적 HTML 백업을 제공해, 콘텐츠·이미지 자산을 가져갈 수 있습니다.`,
-    plain: `${OWNERSHIP_SUMMARY} 해지 시 정적 HTML 백업을 제공합니다.`,
   },
   {
     q: '스크롤 모션은 실제 영상인가요?',
     a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임으로, 모든 홈페이지에 무료로 들어갑니다. AI 영상 홈페이지는 ${PUBLIC_BRAND_NAMES.ai}가 만든 실제 영상 첫 화면을 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
-    plain: `기본 모션은 사진과 글이 부드럽게 나타나는 무료 움직임입니다. AI 영상 홈페이지는 실제 영상 첫 화면을 더하는 유료 옵션입니다. ${DYNAMIC_FEATURE_NOTICE}`,
   },
   {
     q: '환불이 되나요?',
     a: REFUND_NOTICE,
-    plain: REFUND_NOTICE,
   },
   {
     q: '제 도메인을 연결할 수 있나요?',
     a: '기본으로 xxx.anakslabs.com 서브도메인과 SSL이 제공됩니다. 보유하신 커스텀 도메인 연결도 지원합니다.',
-    plain: '기본 서브도메인+SSL 제공, 커스텀 도메인 연결도 지원합니다.',
   },
   {
     id: 'seo',
     q: 'SEO가 뭔가요?',
     a: SEO_FAQ_ANSWER,
-    plain: SEO_FAQ_ANSWER,
   },
   {
     id: 'aeo',
     q: 'AEO가 뭔가요?',
     a: AEO_FAQ_ANSWER,
-    plain: AEO_FAQ_ANSWER,
   },
   {
     id: 'geo',
     q: 'GEO가 뭔가요?',
     a: GEO_FAQ_ANSWER,
-    plain: GEO_FAQ_ANSWER,
   },
   {
     q: '검색 순위나 AI 답변 노출을 보장하나요?',
-    a: `아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. ${PUBLIC_BRAND_NAMES.brand}은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.`,
-    plain: '순위와 AI 답변 노출은 보장하지 않습니다. 가게의 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.',
+    a: VISIBILITY_FAQ_ANSWER,
   },
 ];
 

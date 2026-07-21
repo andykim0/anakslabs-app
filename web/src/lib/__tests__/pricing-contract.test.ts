@@ -7,7 +7,6 @@ import { describe, test } from 'node:test';
 import { LaunchPrice } from '@/components/marketing/LaunchPrice';
 import {
   CREDIT_CONSUMING_ACTIONS,
-  CREDIT_CONTRACT_COPY,
   getBasePricePresentation,
   isLaunchOfferActive,
   LAUNCH_OFFER,
@@ -17,6 +16,7 @@ import {
   SUBSCRIPTION_VALUE_COPY,
   type LaunchOffer,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 
 const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
@@ -41,7 +41,7 @@ const noOffer: LaunchOffer = {
 };
 
 describe('P$ — 가격·크레딧 단일 계약', () => {
-  test('출시 확정 금액과 직접 수정 무료 계약은 pricing.ts 한 곳에 있다', () => {
+  test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
     assert.deepEqual(PRICING, {
       base: { list: 590_000, launch: 390_000 },
       videoHeroAddon: 200_000,
@@ -69,8 +69,8 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
   test('FAQ와 가격 페이지는 동일한 크레딧 카피·사용처 레지스트리를 소비한다', () => {
     const faq = read('src/app/(marketing)/faq/page.tsx');
     const pricing = read('src/app/(marketing)/pricing/page.tsx');
-    assert.match(faq, /a: CREDIT_CONTRACT_COPY,\s*plain: CREDIT_CONTRACT_COPY/);
-    assert.match(pricing, /a: CREDIT_CONTRACT_COPY,\s*plain: CREDIT_CONTRACT_COPY/);
+    assert.match(faq, /a: CREDIT_CONTRACT_COPY/);
+    assert.match(pricing, /a: CREDIT_CONTRACT_COPY/);
     assert.match(pricing, /CREDIT_CONSUMING_ACTIONS\.map/);
     assert.doesNotMatch(`${faq}\n${pricing}`, /CREDIT_COSTS/);
   });

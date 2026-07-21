@@ -15,12 +15,12 @@ import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
-  CREDIT_CONTRACT_COPY,
   formatKrw,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
 import { LandingFullFilm } from '@/components/marketing/LandingFullFilm';
@@ -145,7 +145,7 @@ const FAQS: FaqItem[] = [
     a: `아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. ${PUBLIC_BRAND_NAMES.brand}은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.`,
   },
   {
-    q: '완성된 홈페이지를 직접 수정할 수 있나요?',
+    q: '무제한 수정과 크레딧은 뭐가 다른가요?',
     a: CREDIT_CONTRACT_COPY,
   },
   {
@@ -322,6 +322,9 @@ export default function MarketingHome() {
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">DIRECTABLE AI</p>
                 <h3 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">AI가 시작하고,<br />사장님이 방향을 잡습니다.</h3>
                 <p className="mkt-type-body mt-5 max-w-lg text-[#666A73]">먼저 페이지 구성을 확인하고, 서로 다른 디자인 3안에서 방향을 고릅니다. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 요소를 옮기고 크기를 바꿀 수 있습니다. 직접 수정은 횟수 제한 없이 무료입니다.</p>
+                <p data-credit-contract className="mkt-type-support mt-4 max-w-lg border-l-2 border-[#08AFC5] pl-4 text-[#526174]">
+                  {CREDIT_CONTRACT_COPY}
+                </p>
                 <ul className="mkt-type-body mt-7 grid gap-3 text-[#41444C] sm:grid-cols-2">
                   {['생성 전 구성 확인', '디자인 3안 비교', '드래그·리사이즈 편집', '구조 진단 후 발행'].map((item) => (
                     <li key={item} className="flex items-center gap-2"><Check className="h-4 w-4 text-[#03A995]" />{item}</li>

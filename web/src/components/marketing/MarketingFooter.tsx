@@ -9,7 +9,7 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const LINKS = [
   { href: '/about', label: '회사소개' },
-  { href: '/faq', label: '고객센터' },
+  { href: '/faq', label: '자주 묻는 질문' },
   { href: '/guarantee', label: '90일 성과 보장' },
   { href: '/terms', label: '이용약관' },
   { href: '/privacy', label: '개인정보처리방침' },
@@ -30,7 +30,7 @@ export function MarketingFooter() {
           </div>
           <div className="mkt-type-control flex max-w-xl flex-wrap content-start gap-x-6 gap-y-3 text-white/52">
             {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="transition-colors hover:text-white">
+              <Link key={l.href} href={l.href} className="whitespace-nowrap transition-colors hover:text-white">
                 {l.label}
               </Link>
             ))}

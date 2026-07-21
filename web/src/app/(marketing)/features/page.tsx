@@ -19,11 +19,11 @@ import { MonthlyReportPreview } from '@/components/marketing/MonthlyReportPrevie
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { ScannerCta } from '@/components/marketing/ui';
 import {
-  CREDIT_CONTRACT_COPY,
   formatKrw,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 
 export const metadata: Metadata = {
   title: '기능 — 홈페이지 제작부터 검색 등록·성과 증명까지',
@@ -222,7 +222,7 @@ export default function FeaturesPage() {
                     <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
                     {SUBSCRIPTION_BENEFIT_COPY.credits}
                   </p>
-                  <p className="mkt-type-support mt-2 text-[#667085]">{CREDIT_CONTRACT_COPY}</p>
+                  <p data-credit-contract className="mkt-type-support mt-2 text-[#667085]">{CREDIT_CONTRACT_COPY}</p>
                 </div>
                 <div>
                   <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">

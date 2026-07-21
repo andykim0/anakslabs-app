@@ -47,9 +47,6 @@ export const CREDIT_CONSUMING_ACTION_LABELS = {
   'daboim-edit-service': '다보임 수정 대행',
 } as const satisfies Record<CreditConsumingAction, string>;
 
-export const CREDIT_CONTRACT_COPY =
-  '직접 수정은 횟수 제한 없이 무료입니다. 크레딧은 AI 재생성(이미지·영상·섹션)과 다보임 수정 대행에만 사용됩니다.';
-
 export type LaunchOffer = {
   display: 'strikethrough' | 'none';
   kind: 'quantity' | 'deadline' | 'none';

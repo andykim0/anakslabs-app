@@ -19,13 +19,13 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
   CREDIT_CONSUMING_ACTIONS,
-  CREDIT_CONTRACT_COPY,
   formatKrw,
   getBasePricePresentation,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 
 export const metadata: Metadata = {
   title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
@@ -53,37 +53,30 @@ const PRICING_FAQ: FaqItem[] = [
   {
     q: '왜 제작비와 월 구독으로 나뉘나요?',
     a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 사이트 운영 구독에는 ${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${CREDIT_CONTRACT_COPY}`,
-    plain: `제작비는 1회 비용이고 사이트 운영 구독에는 ${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${CREDIT_CONTRACT_COPY}`,
   },
   {
-    q: '편집 크레딧은 어떻게 쓰이나요?',
+    q: '무제한 수정과 크레딧은 뭐가 다른가요?',
     a: CREDIT_CONTRACT_COPY,
-    plain: CREDIT_CONTRACT_COPY,
   },
   {
     q: 'AI 영상 홈페이지는 무엇인가요?',
     a: `기본 모션은 모든 홈페이지에 포함되어 무료입니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 원하는 분만 +${formatKrw(PRICING.videoHeroAddon)}에 추가합니다. 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
-    plain: `기본 모션은 포함·무료입니다. ${PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 +${formatKrw(PRICING.videoHeroAddon)} 선택 옵션입니다.`,
   },
   {
     q: '연간 결제 할인이 있나요?',
     a: '연간 결제는 준비 중입니다. 현재는 월 구독만 제공하며, 도입되면 이 페이지에 정확한 할인율과 함께 안내합니다.',
-    plain: '연간 결제는 준비 중입니다. 현재는 월 구독만 제공합니다.',
   },
   {
     q: '해지하면 사이트는 어떻게 되나요?',
     a: OWNERSHIP_SUMMARY + ' 해지 시에는 정적 HTML 백업을 제공합니다.',
-    plain: OWNERSHIP_SUMMARY + ' 해지 시에는 정적 HTML 백업을 제공합니다.',
   },
   {
     q: '환불 규정은 어떻게 되나요?',
     a: REFUND_NOTICE,
-    plain: REFUND_NOTICE,
   },
   {
     q: '크레딧에 유효기간이 있나요?',
     a: `초기 지급 크레딧은 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매한 크레딧은 ${CREDIT_EXPIRY_DAYS.purchase}일, 구독으로 매월 지급되는 크레딧은 ${CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다. 소진은 만료가 임박한 것부터 자동 차감됩니다.`,
-    plain: `초기 지급 크레딧 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧 ${CREDIT_EXPIRY_DAYS.purchase}일, 월 구독 크레딧 ${CREDIT_EXPIRY_DAYS.subscription_grant}일 유효. 만료 임박분부터 소진됩니다.`,
   },
 ];
 
@@ -189,7 +182,7 @@ export default function PricingPage() {
       </section>
 
       {/* 편집 크레딧 정책 (상수 렌더) */}
-      <section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
+      <section data-credit-contract-section className="border-t border-[#E8E6E0] bg-[#F6F5F1]">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <SectionHeading
             title="AI·대행 크레딧"

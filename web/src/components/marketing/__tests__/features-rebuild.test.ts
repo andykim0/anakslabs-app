@@ -9,11 +9,11 @@ import FaqPage from '@/app/(marketing)/faq/page';
 import FeaturesPage from '@/app/(marketing)/features/page';
 import { connectFaqHashOpener } from '@/components/marketing/FaqHashOpener';
 import {
-  CREDIT_CONTRACT_COPY,
   formatKrw,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');

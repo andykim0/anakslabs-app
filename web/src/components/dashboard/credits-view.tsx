@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Clock3, Coins, ShoppingCart } from 'lucide-react';
 import type { CreditLedgerEntry, Tier } from '@/lib/types/domain';
 import { CREDIT_PACKS, CREDIT_PURCHASE_COOLING_OFF_DAYS } from '@/lib/credits/constants';
-import { CREDIT_CONTRACT_COPY } from '@/lib/pricing';
+import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { DYNAMIC_FEATURE_NOTICE } from '@/lib/legal/notices';
 import { getCredits, purchaseCreditPack } from './api';
 import { EditRequestForm } from './edit-request-form';
