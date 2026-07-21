@@ -5,12 +5,14 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isMockMode } from '@/lib/env';
+import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { MOCK_CLIENT_IDS, MOCK_SESSION_COOKIE } from '../../_lib/guards';
 import { claimPendingScan } from '../../_lib/scan-claim';
 
 const bodySchema = z.object({
   as: z.enum(['premium', 'basic', 'admin']),
+  next: z.string().max(2_048).nullish(),
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -22,10 +24,14 @@ export const POST = withApiHandler(async (request) => {
   if (!body.ok) return body.res;
 
   const clientId = MOCK_CLIENT_IDS[body.data.as];
+  const redirect = resolvePostLoginRedirect(
+    { app_metadata: { role: body.data.as === 'admin' ? 'admin' : 'client' } },
+    body.data.next,
+  );
   const res = NextResponse.json({
     ok: true,
     clientId,
-    redirect: body.data.as === 'admin' ? '/admin' : '/dashboard',
+    redirect,
   });
   res.cookies.set(MOCK_SESSION_COOKIE, clientId, {
     httpOnly: true,

@@ -148,8 +148,8 @@ export interface MockLoginResult {
   redirect: string;
 }
 
-export async function mockLogin(as: MockRole): Promise<MockLoginResult> {
-  return post<MockLoginResult>('/api/auth/mock-login', { as });
+export async function mockLogin(as: MockRole, next?: string | null): Promise<MockLoginResult> {
+  return post<MockLoginResult>('/api/auth/mock-login', { as, next });
 }
 
 export async function logout(): Promise<void> {

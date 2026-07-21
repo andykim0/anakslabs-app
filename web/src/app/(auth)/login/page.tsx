@@ -74,12 +74,14 @@ export default function LoginPage() {
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailPending, setEmailPending] = useState(false);
 
+  const requestedNext = () => new URLSearchParams(window.location.search).get('next');
+
   const handleMockLogin = async (role: MockRole) => {
     setError(null);
     setPendingRole(role);
     try {
       // 계약: POST /api/auth/mock-login { as } → { ok, clientId, redirect }
-      const result = await mockLogin(role);
+      const result = await mockLogin(role, requestedNext());
       router.push(result.redirect || '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
@@ -92,9 +94,12 @@ export default function LoginPage() {
     setOauthPending(provider);
     try {
       const supabase = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
+      const callbackUrl = new URL('/api/auth/callback', window.location.origin);
+      const next = requestedNext();
+      if (next) callbackUrl.searchParams.set('next', next);
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/api/auth/callback` },
+        options: { redirectTo: callbackUrl.toString() },
       });
       if (oauthError) throw oauthError;
     } catch (err) {
@@ -103,7 +108,7 @@ export default function LoginPage() {
     }
   };
 
-  // [임시·삭제가능] 이메일 signup/signin → 세션 쿠키 세팅 → /dashboard
+  // [임시·삭제가능] 이메일 signup/signin → 세션 쿠키 세팅 → 역할별 앱
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -112,7 +117,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/email-login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...emailForm, mode: emailMode }),
+        body: JSON.stringify({ ...emailForm, mode: emailMode, next: requestedNext() }),
       });
       const data = (await res.json().catch(() => null)) as
         | { ok?: boolean; redirect?: string; message?: string; error?: { message?: string } }

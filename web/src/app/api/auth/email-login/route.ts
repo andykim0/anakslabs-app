@@ -9,6 +9,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { isEmailLoginEnabled, isMockMode } from '@/lib/env';
+import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { createSupabaseRouteClient } from '../../_lib/supabase';
 import { completePostLogin } from '../../_lib/post-login';
@@ -36,6 +37,7 @@ const bodySchema = z.object({
   email: z.string().email('올바른 이메일 형식이 아닙니다.').max(200),
   password: z.string().min(6, '비밀번호는 6자 이상이어야 합니다.').max(200),
   mode: z.enum(['signin', 'signup']),
+  next: z.string().max(2_048).nullish(),
 });
 
 export const POST = withApiHandler(async (request: NextRequest) => {
@@ -54,7 +56,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { email, password, mode } = body.data;
+  const { email, password, mode, next } = body.data;
 
   const supabase = await createSupabaseRouteClient();
   const result =
@@ -81,7 +83,8 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     });
   }
 
-  const res = NextResponse.json({ ok: true, redirect: '/dashboard' });
+  const redirect = resolvePostLoginRedirect(result.data.user, next);
+  const res = NextResponse.json({ ok: true, redirect });
   // 세션 성립 후에만: clients row 보장 + 로그인 전 익명 스캔 귀속 (OAuth 콜백과 동일 공용 헬퍼)
   await completePostLogin(request, res, result.data.user);
   return res;

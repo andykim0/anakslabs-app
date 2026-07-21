@@ -105,7 +105,7 @@ describe('ADM5 admin operations construction invariants', () => {
     assert.equal(existsSync(join(process.cwd(), layoutPath)), true);
     const layout = read(layoutPath);
     const adminCheckAt = layout.indexOf('const admin = await isAdmin()');
-    const redirectAt = layout.indexOf("if (!admin) redirect('/login')");
+    const redirectAt = layout.indexOf("if (!admin) redirect('/login?next=/admin')");
     assert.ok(adminCheckAt >= 0, 'the shared admin layout must resolve server-side admin status');
     assert.ok(redirectAt > adminCheckAt, 'non-admins must be redirected before rendering children');
     assert.match(layout, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);

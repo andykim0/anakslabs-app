@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /** /admin 전체 가드 — 관리자가 아니면 로그인으로 보낸다. */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const admin = await isAdmin();
-  if (!admin) redirect('/login');
+  if (!admin) redirect('/login?next=/admin');
 
   return (
     <AdminQueryProvider>

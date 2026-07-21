@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation';
-import { getCurrentClient } from '@/lib/services/auth';
+import { getCurrentClient, isAdmin } from '@/lib/services/auth';
 import { Providers } from '@/components/dashboard/providers';
 import { DashboardShell } from '@/components/dashboard/shell';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const client = await getCurrentClient();
-  if (!client) redirect('/login');
+  if (!client) {
+    if (await isAdmin()) redirect('/admin');
+    redirect('/login?next=/dashboard');
+  }
 
   return (
     <Providers>
