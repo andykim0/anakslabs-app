@@ -102,6 +102,7 @@ export function BusinessInfoForm({
     defaultValues: toDefaults(initial),
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- React Hook Form owns this reactive field subscription.
   const isPersonal = watch('isPersonal') === true;
 
   return (

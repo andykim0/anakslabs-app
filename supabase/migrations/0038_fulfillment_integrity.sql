@@ -47,18 +47,21 @@ declare
   v_request public.edit_requests%rowtype;
   v_site public.sites%rowtype;
   v_balance numeric;
+  v_expected_reason text;
 begin
+  -- plpgsql IF 조건식 안의 CASE...THEN은 IF의 THEN과 충돌하므로 변수로 선계산한다.
+  v_expected_reason := case p_type
+    when 'text' then 'edit_text'
+    when 'image' then 'edit_image'
+    when 'video' then 'edit_video'
+    when 'structure' then 'edit_structure'
+  end;
   if p_client_id is null or p_site_id is null
      or p_type not in ('text', 'image', 'video', 'structure')
      or p_credit_cost is null or p_credit_cost < 0
      or length(btrim(coalesce(p_requested_content, ''))) < 1
      or length(p_requested_content) > 4000
-     or p_reason <> case p_type
-       when 'text' then 'edit_text'
-       when 'image' then 'edit_image'
-       when 'video' then 'edit_video'
-       when 'structure' then 'edit_structure'
-     end then
+     or p_reason is distinct from v_expected_reason then
     raise exception 'edit request input is invalid' using errcode = '23514';
   end if;
   select * into v_site from public.sites

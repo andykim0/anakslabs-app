@@ -13,7 +13,7 @@
 import type { CandidateStyle } from '@/lib/types/domain';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { SectionType } from '@/lib/types/site';
-import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
+import { FONT_PAIRINGS } from '@/lib/ai/design-knowledge-data';
 import {
   ambientSubjectFor,
   moodPromptForTone,

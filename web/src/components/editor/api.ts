@@ -11,7 +11,7 @@
  *    · 409 INSUFFICIENT_CREDITS (error.balance, error.required)
  *    · 502 AI_GENERATION_FAILED (자동 환불됨)
  */
-import type { CreditLedgerEntry, EditRequest, EditType, Site } from '@/lib/types/domain';
+import type { CreditLedgerEntry, EditRequest, EditType } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';

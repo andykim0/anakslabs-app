@@ -6,10 +6,11 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import { emptySiteConfig } from '@/lib/types/site';
+import { emptySiteConfig, normalizeSiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
+import { HWARODAM_SITE_CONFIG } from '@/lib/data/mock/hwarodam';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
-import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { applyGeneratedMotion, ensureMotion } from '@/lib/motion/validate';
 import { resolveMotionPlan } from '@/lib/motion/apply';
 import { scrimPassesAA } from '@/lib/design/scrim';
 import { checkPublish } from '@/lib/publish/preflight';
@@ -144,6 +145,12 @@ describe('Q-batch 통합 — 소소한자리 시드', () => {
 
   test('발행 게이트 — 생성물이 blocker 없이 통과(밀도 등은 경고만)', () => {
     const r = checkPublish(cfg, 'basic');
+    assert.deepEqual(r.blockers, [], r.blockers.join(' / '));
+  });
+
+  test('발행된 화로담 mock도 수정 이행 전 현재 발행 게이트를 통과한다', () => {
+    const config = ensureMotion(normalizeSiteConfig(structuredClone(HWARODAM_SITE_CONFIG)));
+    const r = checkPublish(config, 'premium');
     assert.deepEqual(r.blockers, [], r.blockers.join(' / '));
   });
 });

@@ -41,7 +41,7 @@ import { findPov, type PovKit } from '@/lib/design/quality-standards';
 import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhythm';
 import type { HeroVariant } from './skeletons';
 import { teaserSummary } from './teaser-summary';
-import { parseAddress, parseBusinessHours, parseMenuItems, resolveContentItems } from './content-parse';
+import { parseAddress, parseBusinessHours, resolveContentItems } from './content-parse';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -349,7 +349,7 @@ function applyGeneratedTypography(pages: readonly SitePage[]): void {
 
 // ---------- 섹션 빌더 (ctx, item) => Section ----------
 
-function buildHero(ctx: Ctx, _item: SectionPlanItem): Section {
+function buildHero(ctx: Ctx): Section {
   const { theme, survey, opts } = ctx;
   // [Q1] 히어로는 이미지 배경 위 텍스트 — 최악 배경 가정 스크림으로 AA 보장(고정 opacity 폐기).
   const scrim = resolveScrim(theme.palette);
@@ -1065,7 +1065,7 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
   };
 }
 
-function buildTestimonials(ctx: Ctx, _item: SectionPlanItem): Section {
+function buildTestimonials(ctx: Ctx): Section {
   const { theme, survey } = ctx;
   const sectionBg = ctx.dark ? theme.palette.background : theme.palette.surface;
   const cardFill = sectionBg.toLowerCase() === theme.palette.surface.toLowerCase() ? theme.palette.background : theme.palette.surface;
@@ -1374,7 +1374,7 @@ function buildContactDefault(ctx: Ctx, item: SectionPlanItem): Section {
 
 /** contact:map — 지도 자리표시 + 주소·전화 텍스트 (실 MapElement 는 Phase3 주입) */
 function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
-  const { theme, survey } = ctx;
+  const { theme } = ctx;
   const rows = [
     { label: '주소', value: '주소를 입력해주세요' },
     { label: '연락처', value: '연락처를 입력해주세요' },

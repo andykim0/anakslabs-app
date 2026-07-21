@@ -9,7 +9,7 @@
  * 정합 검증 (seed.sql과 동일해야 하는 값):
  *  - premium 잔액 6 = initial_grant +3(180일) + purchase +5(365일) - 소모 3 + 환불 1
  *  - basic 잔액 1 = initial_grant +1(180일)
- *  - 결제 4건: 화로담 build_fee 1,290,000 / credit_pack 65,000(+5) / maintenance 49,000, 민트 build_fee 490,000
+ *  - 결제 4건: 화로담 build_fee 1,290,000 / credit_pack 65,000(+5) / maintenance 29,900, 민트 build_fee 490,000
  *  - 편집 요청 3건: applied(text) / qa_review(image) / rejected(image, 환불됨)
  */
 import type { Client, CreditLedgerEntry, EditRequest, Payment, Site } from '@/lib/types/domain';
@@ -143,7 +143,7 @@ export function buildSeed(): MockStore {
         id: PAY_HWA_MAINT_ID,
         clientId: DEMO_PREMIUM_ID,
         type: 'maintenance_subscription',
-        amount: 49_000,
+        amount: 29_900,
         creditsGranted: 0,
         providerPaymentKey: KEY_HWA_MAINT,
         createdAt: daysAgoIso(8),

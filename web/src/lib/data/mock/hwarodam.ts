@@ -27,7 +27,7 @@ const hero: Section = {
   height: 900,
   background: {
     color: PALETTE.background,
-    image: { src: '/mock/hero-hwarodam.svg', overlayColor: '#0b0906', overlayOpacity: 0.45 },
+    image: { src: '/mock/hero-hwarodam.svg', overlayColor: '#0b0906', overlayOpacity: 0.72 },
   },
   elements: [
     {

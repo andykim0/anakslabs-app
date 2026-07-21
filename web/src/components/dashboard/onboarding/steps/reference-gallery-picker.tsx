@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element -- Runtime reference URLs intentionally bypass the Next image optimizer. */
+
 /**
  * [R5] 레퍼런스 갤러리 피커 — 컴맹 소상공인은 참고 URL을 못 가져온다. 그래서 우리가 큐레이션한
  * 조합(REFERENCE_GALLERY, 뼈대×팔레트×폰트×모션)을 실제 미리보기 이미지로 보여주고 고르기만

@@ -24,7 +24,7 @@ export const POST = withApiHandler(async (request) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { clientId, amount, memo } = body.data;
+  const { clientId, amount } = body.data;
 
   const { clients, credits } = getDataServices();
   const client = await clients.getById(clientId);

@@ -3,7 +3,7 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { DesignCandidate, LivePurposeId, SurveyInput } from '@/lib/types/domain';
+import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig } from '@/lib/types/site';
 import { LIVE_PURPOSE_IDS } from '@/lib/data/purpose-taxonomy';
 import { CONTENT_REQUIREMENTS, contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';

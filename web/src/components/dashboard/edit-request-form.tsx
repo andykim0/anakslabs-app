@@ -136,6 +136,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
     defaultValues: { siteId: '', type: 'text', requestedContent: '' },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- React Hook Form owns this reactive field subscription.
   const selectedType = watch('type');
   const cost = CREDIT_COSTS[selectedType];
 
