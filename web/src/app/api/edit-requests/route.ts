@@ -5,9 +5,8 @@
  *   - 잔액 부족 → 409 INSUFFICIENT_CREDITS + balance
  * GET /api/edit-requests — 내 편집 요청 목록 (?siteId= 필터 지원)
  *
- * 처리 순서 주의: 원장 차감 행의 referenceId(=편집요청 id)가 있어야 반려 시
- * credits.refund({ referenceId })가 동작하므로, pending 생성 → 원자적 차감 순서로 처리한다.
- * 차감 실패(잔액 부족) 시 방금 만든 요청은 즉시 rejected 처리되어 과금이 남지 않는다.
+ * 요청 row + 원장 차감 + 최초 감사 이벤트는 DB RPC 한 트랜잭션이다.
+ * 부족/저장 실패 시 세 가지 모두 0건으로 롤백된다.
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -22,6 +21,11 @@ import {
   assertAiImageGenerationPolicy,
   isAssetTruthGenerationError,
 } from '@/lib/ai/image-generation-policy';
+import {
+  EditRequestWorkflowError,
+  getEditRequestWorkflowRepository,
+} from '@/lib/fulfillment/edit-request-workflow-repository';
+import { completeEditFulfillment } from '@/lib/admin/edit-fulfillment-service';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -35,6 +39,11 @@ const bodySchema = z.object({
   type: z.enum(['text', 'image', 'video', 'structure']),
   requestedContent: z.string().min(1, '요청 내용을 입력해 주세요.').max(4000),
   confirmUpsell: z.boolean().optional(),
+  target: z.object({
+    pageId: z.string().min(1).max(120),
+    sectionId: z.string().min(1).max(120).optional(),
+    elementId: z.string().min(1).max(120).optional(),
+  }).strict(),
 });
 
 /** VIDEO_GEN typed prefix를 기존 API 에러 계약으로 변환한다. unknown이면 공통 500 경계로 보낸다. */
@@ -62,7 +71,7 @@ export const POST = withApiHandler(async (request) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { siteId, type, requestedContent } = body.data;
+  const { siteId, type, requestedContent, target } = body.data;
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
@@ -122,73 +131,87 @@ export const POST = withApiHandler(async (request) => {
   );
   const isInitialRevision = type !== 'video' && withinFreeWindow && priorForSite.length === 0;
 
-  const editRequest = await editRequests.create({
-    clientId: client.id,
-    siteId,
-    type,
-    creditCost: isInitialRevision ? 0 : creditCost,
-    requestedContent,
-    isInitialRevision,
-    autoApproved: autoApprove,
-  });
-
+  const workflow = getEditRequestWorkflowRepository();
+  let editRequest;
   let balance: number;
-  if (isInitialRevision) {
-    // 무료 — 원장 미기록(실변동 없음, 불변식 유지)
-    balance = (await credits.getBalance(client.id)).balance;
-  } else {
-    // 원자적 차감 — 부족 시 어떤 원장 기록도 남지 않는다 (서비스 계약)
-    const consumed = await credits.consume({
+  try {
+    const submitted = await workflow.submit({
       clientId: client.id,
-      amount: creditCost,
+      siteId,
+      type,
+      creditCost,
       reason: EDIT_REASONS[type],
-      referenceId: editRequest.id,
+      requestedContent,
+      isInitialRevision,
+      autoApproved: autoApprove,
     });
-    if (!consumed.ok) {
-      await editRequests.update(editRequest.id, { status: 'rejected' });
+    editRequest = submitted.request;
+    balance = submitted.balance;
+  } catch (error) {
+    if (error instanceof EditRequestWorkflowError && error.code === 'INSUFFICIENT_CREDITS') {
       return apiError(
         409,
         'INSUFFICIENT_CREDITS',
-        `크레딧이 부족합니다. (필요 ${creditCost}개 / 보유 ${consumed.balance}개)`,
-        { balance: consumed.balance, required: creditCost },
+        `크레딧이 부족합니다. (필요 ${creditCost}개 / 보유 ${error.balance ?? 0}개)`,
+        { balance: error.balance ?? 0, required: creditCost },
       );
     }
-    balance = consumed.newBalance;
+    if (error instanceof EditRequestWorkflowError) {
+      return apiError(
+        503,
+        'EDIT_REQUEST_SAVE_FAILED',
+        '수정 요청을 저장하지 못했습니다. 크레딧은 차감되지 않았습니다. 잠시 후 다시 시도해 주세요.',
+      );
+    }
+    throw error;
   }
 
-  await editRequests.update(editRequest.id, { status: 'ai_processing' });
+  await workflow.transition({
+    editRequestId: editRequest.id,
+    expectedStatuses: ['pending'],
+    nextStatus: 'ai_processing',
+    actorType: 'system',
+    actorId: 'system:ai-generator',
+  });
 
   let aiOutput: unknown;
   try {
     switch (type) {
       case 'text':
-        aiOutput = { text: await ai.generateText({ prompt: requestedContent }) };
+        aiOutput = { text: await ai.generateText({ prompt: requestedContent }), fulfillmentTarget: target };
         break;
       case 'image':
-        aiOutput = await ai.generateImage(
+        aiOutput = {
+          ...await ai.generateImage(
           { prompt: requestedContent },
           {
             clientId: client.id,
             siteId,
             ...(site.assetPolicyVersion === 2 ? { assetPolicyVersion: 2 as const } : {}),
           },
-        );
+          ),
+          fulfillmentTarget: target,
+        };
         break;
       case 'video':
-        aiOutput = await generateGuardedVideo({
-          clientId: client.id,
-          siteId,
-          tier: client.tier,
-          prompt: requestedContent,
-          model: STANDARD_MODEL,
-          stage: 'final',
-        });
+        aiOutput = {
+          ...await generateGuardedVideo({
+            clientId: client.id,
+            siteId,
+            tier: client.tier,
+            prompt: requestedContent,
+            model: STANDARD_MODEL,
+            stage: 'final',
+          }),
+          fulfillmentTarget: target,
+        };
         break;
       case 'structure':
         aiOutput = {
           text: await ai.generateText({
             prompt: `다음 사이트 구조 변경 요청에 대한 적용 계획을 정리해줘: ${requestedContent}`,
           }),
+          fulfillmentTarget: target,
         };
         break;
     }
@@ -198,7 +221,14 @@ export const POST = withApiHandler(async (request) => {
     if (!isInitialRevision) {
       await credits.refund({ clientId: client.id, referenceId: editRequest.id });
     }
-    await editRequests.update(editRequest.id, { status: 'rejected' });
+    await workflow.transition({
+      editRequestId: editRequest.id,
+      expectedStatuses: ['ai_processing'],
+      nextStatus: 'rejected',
+      actorType: 'system',
+      actorId: 'system:ai-generator',
+      qaNote: 'AI_GENERATION_FAILED',
+    });
     return apiError(
       502,
       'AI_GENERATION_FAILED',
@@ -208,23 +238,39 @@ export const POST = withApiHandler(async (request) => {
     );
   }
 
-  if (autoApprove) {
-    // [§2] 자동 승인 — QA 큐를 건너 applied 직행. sampleAuditRate 확률로 감사 플래그(qa_note='audit').
-    const audit = Math.random() < (qaRule?.sampleAuditRate ?? 0);
-    await editRequests.update(editRequest.id, {
-      aiOutput,
-      status: 'applied',
-      appliedAt: new Date().toISOString(),
-      reviewedAt: new Date().toISOString(),
-      qaNote: audit ? 'audit' : null,
-    });
-  } else {
-    await editRequests.update(editRequest.id, { aiOutput, status: 'qa_review' });
+  const audit = autoApprove && Math.random() < (qaRule?.sampleAuditRate ?? 0);
+  await workflow.transition({
+    editRequestId: editRequest.id,
+    expectedStatuses: ['ai_processing'],
+    nextStatus: 'qa_review',
+    actorType: 'system',
+    actorId: 'system:ai-generator',
+    aiOutput,
+    qaNote: audit ? 'AUTO_APPROVAL_AUDIT_REQUIRED' : null,
+  });
+  let autoApprovalDeferred = false;
+  if (autoApprove && !audit) {
+    try {
+      await completeEditFulfillment({
+        editRequestId: editRequest.id,
+        actorType: 'system',
+        actorId: 'system:auto-approval',
+      });
+    } catch (error) {
+      console.error('[edit-requests] auto approval application deferred:', error);
+      autoApprovalDeferred = true;
+    }
   }
   const updated = await editRequests.getById(editRequest.id);
 
   return NextResponse.json(
-    { editRequest: updated ?? editRequest, balance, isInitialRevision, autoApproved: autoApprove },
+    {
+      editRequest: updated ?? editRequest,
+      balance,
+      isInitialRevision,
+      autoApproved: autoApprove && !audit && !autoApprovalDeferred,
+      autoApprovalDeferred,
+    },
     { status: 201 },
   );
 });

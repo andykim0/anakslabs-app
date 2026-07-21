@@ -19,6 +19,7 @@ import {
   PageHeader,
   SITE_STATUS_TONES,
 } from './ui';
+import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/admin/fulfillment-sla';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -80,6 +81,7 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
                 <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
                 <Badge tone={SITE_STATUS_TONES[item.siteStatus]}>{item.siteStatus}</Badge>
                 {blockedCopy ? <Badge tone="red">{blockedCopy.badge}</Badge> : <Badge tone="amber">이행 대기</Badge>}
+                {item.overdue ? <Badge tone="red">대기 {FULFILLMENT_SLA_BUSINESS_DAYS}영업일 초과</Badge> : null}
               </div>
               <p className="mt-1 text-xs text-slate-500">
                 {item.clientName} · {item.industryClass}
@@ -169,6 +171,13 @@ export function VideoQueue() {
           </button>
         }
       />
+
+      {query.data?.integrity.missingCount ? (
+        <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          원천 영상 요청 {formatNumber(query.data.integrity.sourceCount)}건 중 큐에서 누락된 요청이{' '}
+          {formatNumber(query.data.integrity.missingCount)}건 있습니다.
+        </p>
+      ) : null}
 
       {query.isPending ? (
         <LoadingBlock label="영상 이행 큐를 불러오는 중…" />

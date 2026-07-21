@@ -9,12 +9,10 @@ describe('V5 edit-request VIDEO_GEN 비용 안전 순서', () => {
   test('가드가 편집요청 생성과 크레딧 차감보다 먼저 실행된다', () => {
     const route = source('src/app/api/edit-requests/route.ts');
     const guard = route.indexOf('await assertVideoGenAllowed(siteId, client.tier)');
-    const create = route.indexOf('await editRequests.create');
-    const consume = route.indexOf('await credits.consume');
+    const atomicSubmit = route.indexOf('await workflow.submit');
 
     assert.ok(guard >= 0, 'VIDEO_GEN 사전 가드 없음');
-    assert.ok(guard < create, '가드보다 편집요청 생성이 먼저 실행됨');
-    assert.ok(guard < consume, '가드보다 크레딧 차감이 먼저 실행됨');
+    assert.ok(guard < atomicSubmit, '가드보다 요청+크레딧 원자 제출이 먼저 실행됨');
   });
 
   test('허용된 영상 호출도 공용 guard → log → AI 순서를 통과한다', () => {
@@ -50,12 +48,11 @@ describe('V5 edit-request VIDEO_GEN 비용 안전 순서', () => {
     const route = source('src/app/api/edit-requests/route.ts');
     const mapping = route.indexOf("code === 'VIDEO_GEN_SYNC_UNSAFE'");
     const guard = route.indexOf('await assertVideoGenAllowed(siteId, client.tier)');
-    const create = route.indexOf('await editRequests.create');
-    const consume = route.indexOf('await credits.consume');
+    const atomicSubmit = route.indexOf('await workflow.submit');
 
     assert.ok(mapping >= 0, 'VIDEO_GEN_SYNC_UNSAFE 503 매핑 없음');
     assert.match(route.slice(mapping, mapping + 100), /apiError\(503/);
-    assert.ok(guard >= 0 && guard < create && guard < consume, 'sync 가드가 요청 생성·크레딧 차감보다 늦음');
+    assert.ok(guard >= 0 && guard < atomicSubmit, 'sync 가드가 요청+크레딧 원자 제출보다 늦음');
   });
 
   test('hero POST도 이미지 fetch·비용 로그·AI 전에 sync 가드를 503으로 매핑한다', () => {

@@ -3,6 +3,7 @@ import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
 import { getDataServices } from '@/lib/data';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
+import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
 
 const HOUR_MS = 3_600_000;
 
@@ -18,8 +19,9 @@ export const GET = withApiHandler(async () => {
 
   const repository = getAdminEditQueueRepository();
   const { clients, sites } = getDataServices();
-  const [queue, allClients, allSites] = await Promise.all([
+  const [queue, sourceCount, allClients, allSites] = await Promise.all([
     repository.listNonterminal(),
+    repository.countNonterminal(),
     clients.listAll(),
     sites.listAll(),
   ]);
@@ -27,9 +29,9 @@ export const GET = withApiHandler(async () => {
   const siteById = new Map(allSites.map((site) => [site.id, site] as const));
   const nowMs = Date.now();
 
-  return NextResponse.json({
-    items: queue.map((item) => {
+  const items = queue.map((item) => {
       const site = siteById.get(item.siteId);
+      const sla = fulfillmentSlaState(item.createdAt);
       return {
         id: item.id,
         clientId: item.clientId,
@@ -42,11 +44,19 @@ export const GET = withApiHandler(async () => {
         requestedContent: item.requestedContent,
         createdAt: item.createdAt,
         waitingHours: waitingHours(item.createdAt, nowMs),
+        ...sla,
         isInitialRevision: item.isInitialRevision ?? false,
         netCreditCharge: item.netCreditCharge,
         creditCharged: item.creditCharged,
         ledgerEntryCount: item.ledgerEntryCount,
       };
-    }),
+    });
+  return NextResponse.json({
+    items,
+    integrity: {
+      sourceCount,
+      queueCount: items.length,
+      missingCount: Math.max(0, sourceCount - items.length),
+    },
   });
 });

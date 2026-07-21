@@ -4,7 +4,6 @@ import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { rowToEditRequest, rowToLedgerEntry, type EditRequestRow, type LedgerRow } from '@/lib/data/supabase/mappers';
 import { MockAdminEditQueueRepository } from './edit-queue-repository-mock';
 import {
-  ADMIN_EDIT_COMPLETION_STATUSES,
   ADMIN_EDIT_QUEUE_STATUSES,
   AdminEditQueueError,
   deriveAdminEditQueueItem,
@@ -17,6 +16,15 @@ import {
 } from './edit-queue-core';
 
 export class SupabaseAdminEditQueueRepository implements AdminEditQueueRepository {
+  async countNonterminal(): Promise<number> {
+    const { count, error } = await getServiceRoleClient()
+      .from('edit_requests')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ADMIN_EDIT_QUEUE_STATUSES);
+    if (error) throw new Error(`admin edit queue count failed: ${error.message}`);
+    return count ?? 0;
+  }
+
   async listNonterminal(limit?: number): Promise<AdminEditQueueItem[]> {
     const { data, error } = await getServiceRoleClient()
       .from('edit_requests')
@@ -45,50 +53,48 @@ export class SupabaseAdminEditQueueRepository implements AdminEditQueueRepositor
   ): Promise<CompleteAdminEditRequestResult> {
     const input = normalizeCompleteAdminEditInput(rawInput);
     const client = getServiceRoleClient();
-    const { data, error } = await client
-      .from('edit_requests')
-      .update({
-        status: 'applied',
-        applied_at: input.completedAt,
-        reviewed_at: input.completedAt,
-        qa_note: 'ADMIN_CONFIRMED_SITE_APPLIED',
-      })
-      .eq('id', input.editRequestId)
-      .in('status', ADMIN_EDIT_COMPLETION_STATUSES)
-      .select('*')
-      .maybeSingle();
-    if (error) throw new Error(`admin edit request completion failed: ${error.message}`);
-    if (data) {
-      return { record: rowToEditRequest(data as EditRequestRow), duplicated: false };
+    const { data, error } = await client.rpc('complete_edit_request_fulfillment', {
+      p_edit_request_id: input.editRequestId,
+      p_actor_type: input.actorType,
+      p_actor_id: input.actorId,
+      p_completed_at: input.completedAt,
+      p_expected_draft_config: input.expectedDraftConfig,
+      p_expected_site_config: input.expectedSiteConfig,
+      p_next_draft_config: input.nextDraftConfig,
+      p_next_site_config: input.nextSiteConfig,
+    });
+    if (error) {
+      const detail = `${error.message} ${error.details ?? ''}`;
+      if (/not found/i.test(detail)) {
+        throw new AdminEditQueueError(
+          'ADMIN_EDIT_REQUEST_NOT_FOUND',
+          'The edit request does not exist.',
+        );
+      }
+      if (/config changed|config columns/i.test(detail)) {
+        throw new AdminEditQueueError(
+          'ADMIN_EDIT_REQUEST_CONFIG_CONFLICT',
+          'The site changed while the request was being applied.',
+        );
+      }
+      if (/state conflict/i.test(detail)) {
+        throw new AdminEditQueueError(
+          'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
+          detail,
+        );
+      }
+      throw new Error(`admin edit request completion failed: ${error.message}`);
     }
-
-    // A concurrent completion makes the conditional UPDATE affect zero rows.
-    // Re-read the authoritative state to distinguish an idempotent retry from
-    // rejected/not-found conflicts without overwriting either state.
-    const { data: currentRow, error: currentError } = await client
-      .from('edit_requests')
-      .select('*')
-      .eq('id', input.editRequestId)
-      .maybeSingle();
-    if (currentError) throw new Error(`admin edit request state lookup failed: ${currentError.message}`);
-    if (!currentRow) {
+    const value = Array.isArray(data) ? data[0] : data;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
       throw new AdminEditQueueError(
-        'ADMIN_EDIT_REQUEST_NOT_FOUND',
-        'The edit request does not exist.',
+        'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
+        'The completion result is invalid.',
       );
     }
-    const current = rowToEditRequest(currentRow as EditRequestRow);
-    if (current.status === 'applied') return { record: current, duplicated: true };
-    if (current.status === 'rejected') {
-      throw new AdminEditQueueError(
-        'ADMIN_EDIT_REQUEST_REJECTED',
-        'A rejected edit request cannot be completed.',
-      );
-    }
-    throw new AdminEditQueueError(
-      'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
-      `The edit request stayed in an unexpected state: ${current.status}.`,
-    );
+    const result = value as { request?: EditRequestRow; duplicated?: boolean };
+    if (!result.request) throw new Error('admin edit request completion result missing request');
+    return { record: rowToEditRequest(result.request), duplicated: result.duplicated === true };
   }
 }
 

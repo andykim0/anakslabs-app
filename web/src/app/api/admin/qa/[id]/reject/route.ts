@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
+import { getCurrentAdminActorId } from '@/lib/services/auth';
+import { getEditRequestWorkflowRepository } from '@/lib/fulfillment/edit-request-workflow-repository';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -20,6 +22,8 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   if (forbidden) return forbidden;
 
   const { id } = await params;
+  const actorId = await getCurrentAdminActorId();
+  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
@@ -40,7 +44,15 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   // 반려 재시도가 가능하다(refund는 'refund:{referenceId}' 멱등키라 재시도·이중 반려에도 1회만 환불).
   // 반대 순서면 rejected 상태에서 31행 INVALID_STATUS 가드에 막혀 환불 경로가 영구 차단된다.
   await credits.refund({ clientId: editRequest.clientId, referenceId: editRequest.id });
-  await editRequests.update(id, { status: 'rejected' });
+  await getEditRequestWorkflowRepository().transition({
+    editRequestId: id,
+    expectedStatuses: ['pending', 'ai_processing', 'qa_review'],
+    nextStatus: 'rejected',
+    actorType: 'admin',
+    actorId,
+    qaNote: body.data.reason,
+    reviewedAt: new Date().toISOString(),
+  });
 
   return NextResponse.json({ ok: true });
 });

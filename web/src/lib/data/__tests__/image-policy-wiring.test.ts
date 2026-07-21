@@ -45,11 +45,10 @@ describe('v2 image policy provider wiring', () => {
     const policy = route.indexOf('assertAiImageGenerationPolicy({');
     const errorResponse = route.indexOf('apiError(error.status, error.code, error.message', policy);
     const services = route.indexOf('getDataServices()', policy);
-    const create = route.indexOf('editRequests.create({', policy);
-    const credit = route.indexOf('credits.consume({', policy);
+    const atomicSubmit = route.indexOf('workflow.submit({', policy);
     const provider = route.indexOf('ai.generateImage(', policy);
     assert.ok(cohort >= 0 && policy > cohort && errorResponse > policy);
-    assert.ok(errorResponse < services && services < create && create < credit && credit < provider);
+    assert.ok(errorResponse < services && services < atomicSubmit && atomicSubmit < provider);
     assert.match(route.slice(policy, services), /guidance: error\.guidance/);
     assert.match(
       route.slice(provider),

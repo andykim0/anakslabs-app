@@ -20,7 +20,7 @@
  *  - GET   /api/admin/video-queue             → AdminVideoQueueResponse
  *  - POST  /api/admin/video-queue/:siteId/complete body { videoAssetId } → idempotent completion
  *  - GET   /api/admin/edit-queue              → AdminEditQueueResponse
- *  - POST  /api/admin/edit-queue/:id/complete → 요청 상태를 멱등하게 applied로 종료
+ *  - POST  /api/admin/edit-queue/:id/complete → 초안·발행본 적용과 상태 전환을 원자적으로 완료
  */
 import type {
   Client,
@@ -53,6 +53,7 @@ export interface AdminOverview {
   /** granted = 지급 합계(양수 행), consumed = 소모 합계(음수 행 절대값), circulating = granted - consumed */
   credits: { granted: number; consumed: number; circulating: number };
   qaPending: number;
+  fulfillmentAlerts: { editOverdue: number; videoOverdue: number; total: number };
   customHostnameCount: number;
   revenue: AdminOpsRevenueMetrics;
   guarantees: AdminGuaranteeRow[];
@@ -206,6 +207,8 @@ export interface AdminVideoQueueItem {
   requestedAt: string;
   timingSource: AdminVideoQueueTimingSource;
   waitingDays: number;
+  waitingBusinessDays: number;
+  overdue: boolean;
   blockedReason:
     | 'hero-source-missing'
     | 'asset-policy-v2-required'
@@ -228,7 +231,14 @@ export interface AdminVideoFulfillmentHistoryItem {
 
 export interface AdminVideoQueueResponse {
   items: AdminVideoQueueItem[];
+  integrity: AdminFulfillmentQueueIntegrity;
   recentCompletions: AdminVideoFulfillmentHistoryItem[];
+}
+
+export interface AdminFulfillmentQueueIntegrity {
+  sourceCount: number;
+  queueCount: number;
+  missingCount: number;
 }
 
 export interface AdminSubscriptionReportItem {
@@ -283,6 +293,8 @@ export interface AdminEditQueueItem {
   requestedContent: string;
   createdAt: string;
   waitingHours: number;
+  waitingBusinessDays: number;
+  overdue: boolean;
   isInitialRevision: boolean;
   /** 같은 request id를 referenceId로 가진 append-only 원장의 차감·환불 순액. */
   netCreditCharge: number;
@@ -292,6 +304,7 @@ export interface AdminEditQueueItem {
 
 export interface AdminEditQueueResponse {
   items: AdminEditQueueItem[];
+  integrity: AdminFulfillmentQueueIntegrity;
 }
 
 // ---------- fetch 헬퍼 ----------

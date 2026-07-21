@@ -208,9 +208,21 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
     },
   });
 
-  const onSubmit = handleSubmit((values) => mutation.mutate(values));
-
   const sites = sitesQuery.data ?? [];
+  const onSubmit = handleSubmit((values) => {
+    const site = sites.find((candidate) => candidate.id === values.siteId);
+    const config = site?.draftConfig ?? site?.siteConfig;
+    const page = config?.pages[0];
+    const section = page?.sections[0];
+    if (!page || !section) {
+      toast('error', '수정할 사이트의 첫 페이지를 확인할 수 없습니다. 에디터에서 먼저 섹션을 만들어 주세요.');
+      return;
+    }
+    mutation.mutate({
+      ...values,
+      target: { pageId: page.id, sectionId: section.id },
+    });
+  });
 
   return (
     <>

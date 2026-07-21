@@ -16,6 +16,7 @@ import type {
 } from '@/lib/types/domain';
 import type { FormSubmission, ScanResult, SiteEventAggregate } from '../types';
 import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
+import type { EditRequestEvent } from '@/lib/admin/edit-fulfillment-core';
 import { buildSeed } from './seed';
 
 /** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
@@ -45,6 +46,8 @@ export interface MockStore {
   /** grant idempotencyKey dedup */
   grantKeys: Set<string>;
   editRequests: Map<string, EditRequest>;
+  /** [FUL$] append-only status/actor audit trail (lazy, seed unchanged). */
+  editRequestEvents?: EditRequestEvent[];
   payments: Map<string, Payment>;
   /** providerPaymentKey → payment.id (웹훅 멱등) */
   paymentKeys: Map<string, string>;

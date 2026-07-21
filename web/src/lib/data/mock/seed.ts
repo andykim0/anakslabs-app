@@ -303,6 +303,7 @@ export function buildSeed(): MockStore {
         aiOutput: {
           url: '/mock/gen-texture-1.svg',
           prompt: 'moody charcoal-grilled galbi closeup, dark editorial food photography',
+          fulfillmentTarget: { pageId: 'home', sectionId: 'sec-menu' },
         },
         createdAt: daysAgoIso(2),
         appliedAt: null,

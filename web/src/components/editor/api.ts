@@ -169,6 +169,7 @@ export interface CreateEditRequestInput {
   siteId: string;
   type: EditType;
   requestedContent: string;
+  target: { pageId: string; sectionId?: string; elementId?: string };
   /** @deprecated 영상 애드온 권한은 일반 크레딧으로 우회할 수 없음. */
   confirmUpsell?: boolean;
 }

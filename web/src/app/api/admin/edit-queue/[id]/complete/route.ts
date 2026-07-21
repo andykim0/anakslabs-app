@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { AdminEditQueueError } from '@/lib/admin/edit-queue-core';
-import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
+import { completeEditFulfillment } from '@/lib/admin/edit-fulfillment-service';
+import { getCurrentAdminActorId } from '@/lib/services/auth';
 import { apiError, parseBody, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
 
@@ -27,8 +28,10 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   if (!body.ok) return body.res;
 
   const { id } = await params;
+  const actorId = await getCurrentAdminActorId();
+  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
   try {
-    const result = await getAdminEditQueueRepository().complete({ editRequestId: id });
+    const result = await completeEditFulfillment({ editRequestId: id, actorType: 'admin', actorId });
     return NextResponse.json({ ok: true, duplicated: result.duplicated });
   } catch (error) {
     if (error instanceof AdminEditQueueError) return errorResponse(error);

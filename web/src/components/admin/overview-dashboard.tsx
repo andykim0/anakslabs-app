@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import {
   AlertTriangle,
   CircleDollarSign,
@@ -71,6 +72,28 @@ export function OverviewDashboard() {
               커스텀 호스트네임 {formatNumber(data.customHostnameCount)}/
               {formatNumber(CF_FREE_HOSTNAME_LIMIT)}개 사용 중입니다. 한도 초과분은 호스트네임당 월
               $0.10이 과금됩니다. 인프라 탭에서 상세를 확인하세요.
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      {data.fulfillmentAlerts.total > 0 ? (
+        <div
+          role="alert"
+          className="mb-4 flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3"
+        >
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
+          <div className="text-sm text-amber-900">
+            <p className="font-semibold">대기 2영업일을 넘긴 이행 요청 {formatNumber(data.fulfillmentAlerts.total)}건</p>
+            <p className="mt-0.5 text-xs text-amber-800">
+              <Link href="/admin/edit-queue" className="underline underline-offset-2">
+                수정 {formatNumber(data.fulfillmentAlerts.editOverdue)}건
+              </Link>
+              {' · '}
+              <Link href="/admin/video-queue" className="underline underline-offset-2">
+                영상 {formatNumber(data.fulfillmentAlerts.videoOverdue)}건
+              </Link>
+              이 조용히 누락되지 않도록 우선 확인해 주세요.
             </p>
           </div>
         </div>

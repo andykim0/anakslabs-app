@@ -280,6 +280,48 @@ describe('ADM1 video fulfillment repository parity', () => {
     assert.equal(await repository.getBySite(untrusted.site.id), null);
   });
 
+  test('a registered UUID bound to another site is rejected without applying either snapshot', async () => {
+    const fixture = await repositoryFixture();
+    const registry = createMemoryAssetRegistry({
+      ownsSite: async () => true,
+      idFactory: () => '22222222-2222-4222-8222-222222222222',
+    });
+    const foreign = await registry.register({
+      origin: 'ai_generated',
+      mediaType: 'video',
+      clientId: fixture.client.id,
+      siteId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      storageBucket: 'generated-assets',
+      storageKey: 'videos/foreign-site.mp4',
+      canonicalUrl: '/generated/foreign-site.mp4',
+    });
+    const input = {
+      ...fixture.input,
+      videoAssetId: foreign.id,
+      canonicalVideoUrl: foreign.canonicalUrl,
+      nextDraftConfig: applyHeroVideoToConfig(
+        fixture.input.expectedDraftConfig!,
+        foreign.canonicalUrl,
+        POSTER_URL,
+        toAssetRef(foreign),
+      ),
+      nextSiteConfig: applyHeroVideoToConfig(
+        fixture.input.expectedSiteConfig!,
+        foreign.canonicalUrl,
+        POSTER_URL,
+        toAssetRef(foreign),
+      ),
+    };
+    const repository = new MockHeroVideoFulfillmentRepository(
+      fixture.store,
+      () => '2026-07-17T00:00:00.000Z',
+      registry,
+    );
+    await assert.rejects(repository.complete(input), /ASSET_PROVENANCE_MISMATCH/);
+    assert.equal(await repository.getBySite(fixture.site.id), null);
+    assert.equal(fixture.store.sites.get(fixture.site.id)?.draftConfig?.pages[0].sections[0].background.video, undefined);
+  });
+
   test('conflicting retry cannot rewrite immutable completion history', async () => {
     const fixture = await repositoryFixture();
     await fixture.repository.complete(fixture.input);

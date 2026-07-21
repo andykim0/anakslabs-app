@@ -19,6 +19,7 @@ import {
   LoadingBlock,
   PageHeader,
 } from './ui';
+import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/admin/fulfillment-sla';
 
 function elapsedLabel(hours: number): string {
   if (hours < 24) return `${formatNumber(hours)}시간 경과`;
@@ -49,6 +50,7 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
             <Badge tone={EDIT_STATUS_TONES[item.status]}>{EDIT_STATUS_LABELS[item.status]}</Badge>
             <Badge tone="blue">{EDIT_TYPE_LABELS[item.type]}</Badge>
+            {item.overdue ? <Badge tone="red">대기 {FULFILLMENT_SLA_BUSINESS_DAYS}영업일 초과</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">{item.clientName}</p>
         </div>
@@ -90,7 +92,7 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
                 onChange={(event) => setSiteAppliedConfirmed(event.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-slate-900"
               />
-              사이트에 실제 반영한 내용을 확인했습니다
+              AI 결과와 적용 대상을 확인했습니다
             </label>
           ) : (
             <p className="text-[11px] text-amber-700">처리·QA 준비가 끝난 요청만 완료할 수 있습니다.</p>
@@ -106,12 +108,12 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             ) : (
               <CheckCircle2 size={13} aria-hidden />
             )}
-            실제 반영 확인·완료
+            발행본 반영·완료
           </button>
         </div>
       </div>
       <p className="mt-1.5 text-right text-[11px] text-slate-400">
-        이 버튼은 새 배포를 실행하지 않습니다. 운영자가 사이트에 실제 반영한 사실을 확인한 뒤 기록합니다.
+        버튼을 누르면 검증된 결과를 초안과 현재 발행본에 원자적으로 반영한 뒤에만 완료로 기록합니다.
       </p>
       {completion.isError ? (
         <p role="alert" className="mt-2 text-right text-xs text-red-600">
@@ -145,6 +147,13 @@ export function EditQueue() {
           </button>
         }
       />
+
+      {query.data?.integrity.missingCount ? (
+        <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          원천 요청 {formatNumber(query.data.integrity.sourceCount)}건 중 큐에서 누락된 요청이{' '}
+          {formatNumber(query.data.integrity.missingCount)}건 있습니다.
+        </p>
+      ) : null}
 
       {query.isPending ? (
         <LoadingBlock label="수정 대행 큐를 불러오는 중…" />

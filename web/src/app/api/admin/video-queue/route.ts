@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getDataServices } from '@/lib/data';
-import { deriveVideoQueueItem } from '@/lib/admin/video-fulfillment-core';
+import {
+  deriveVideoQueueItem,
+  siteVideoFulfillmentState,
+} from '@/lib/admin/video-fulfillment-core';
 import { getHeroVideoFulfillmentRepository } from '@/lib/admin/video-fulfillment-repository';
 import { heroVideoMotionById } from '@/lib/motion/hero-video-motions';
 import { findVideoConcept } from '@/lib/motion/video-concepts';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
+import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
 
 const DAY_MS = 86_400_000;
 
@@ -37,21 +41,26 @@ export const GET = withApiHandler(async () => {
   const completionBySite = new Map(completionsBySite);
   const nowMs = Date.now();
 
-  const items = allSites.flatMap((site) => {
+  const queueSources = allSites.flatMap((site) => {
     const client = clientById.get(site.clientId);
     if (!client) return [];
+    return [{ site, client, completion: completionBySite.get(site.id) }];
+  });
+  const sourceCount = queueSources.filter((source) => (
+    siteVideoFulfillmentState(source).pending
+  )).length;
+  const items = queueSources.flatMap((source) => {
     const item = deriveVideoQueueItem({
-      site,
-      client,
-      completion: completionBySite.get(site.id),
+      ...source,
     });
     if (!item) return [];
+    const sla = fulfillmentSlaState(item.requestedAt);
     return [{
       siteId: item.siteId,
       clientId: item.clientId,
       clientName: item.clientName,
       siteName: item.siteName,
-      siteStatus: site.status,
+      siteStatus: source.site.status,
       industryClass: item.industryClass,
       heroImageUrl: item.heroImageUrl,
       motionLabel: heroVideoMotionById(item.heroMotionId ?? undefined)?.label
@@ -61,6 +70,7 @@ export const GET = withApiHandler(async () => {
       requestedAt: item.requestedAt,
       timingSource: item.requestedAtSource,
       waitingDays: waitingDays(item.requestedAt, nowMs),
+      ...sla,
       blockedReason: item.blockedReason === 'missing-hero-image'
         ? 'hero-source-missing' as const
         : item.blockedReason === 'asset-policy-v2-required'
@@ -73,6 +83,11 @@ export const GET = withApiHandler(async () => {
 
   return NextResponse.json({
     items,
+    integrity: {
+      sourceCount,
+      queueCount: items.length,
+      missingCount: Math.max(0, sourceCount - items.length),
+    },
     recentCompletions: recentCompletions.map((row) => ({
       ...row,
       siteName: siteById.get(row.siteId)?.name ?? '(삭제된 사이트)',

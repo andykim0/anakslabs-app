@@ -152,7 +152,7 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     assert.ok(candidates.indexOf('assetProvenanceConfig();') < candidates.indexOf('rateLimited(client.id'));
     const edits = source('src/app/api/edit-requests/route.ts');
     const preflight = edits.indexOf("if (type === 'image' || type === 'video') assetProvenanceConfig();");
-    assert.ok(preflight >= 0 && preflight < edits.indexOf('await editRequests.create') && preflight < edits.indexOf('await credits.consume'));
+    assert.ok(preflight >= 0 && preflight < edits.indexOf('await workflow.submit'));
     const hero = source('src/app/api/sites/[siteId]/hero-video/route.ts');
     const heroPreflight = hero.indexOf('assetProvenanceConfig();', hero.indexOf('export const POST'));
     assert.ok(heroPreflight >= 0 && heroPreflight < hero.indexOf('await assertVideoGenAllowed', heroPreflight));

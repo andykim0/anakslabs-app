@@ -107,3 +107,13 @@ export async function isAdmin(): Promise<boolean> {
   const user = await getSupabaseUser();
   return user !== null && isAdminUser(user);
 }
+
+/** Stable audit identity for server-side admin actions. Null means unauthenticated/non-admin. */
+export async function getCurrentAdminActorId(): Promise<string | null> {
+  if (isMockMode()) {
+    const session = await readMockSession();
+    return session === MOCK_CLIENT_IDS.admin ? MOCK_CLIENT_IDS.admin : null;
+  }
+  const user = await getSupabaseUser();
+  return user && isAdminUser(user) ? user.id : null;
+}

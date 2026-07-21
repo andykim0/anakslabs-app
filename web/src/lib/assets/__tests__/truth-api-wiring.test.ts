@@ -60,8 +60,7 @@ test('v2 image edit policy rejects factual prompts before mutation while legacy 
   const route = source('src/app/api/edit-requests/route.ts');
   before(route, "if (type === 'image' && site.assetPolicyVersion === 2)", 'assertAiImageGenerationPolicy({', 'only the server-owned v2 cohort may enter the new policy');
   before(route, 'assertAiImageGenerationPolicy({', 'getDataServices()', 'policy must precede service access');
-  before(route, 'assertAiImageGenerationPolicy({', 'editRequests.create({', 'policy must precede request mutation');
-  before(route, 'assertAiImageGenerationPolicy({', 'credits.consume({', 'policy must precede credits');
+  before(route, 'assertAiImageGenerationPolicy({', 'workflow.submit({', 'policy must precede atomic request+credit mutation');
   before(route, 'assertAiImageGenerationPolicy({', 'ai.generateImage(', 'policy must precede provider');
   assert.match(route, /apiError\(error\.status, error\.code, error\.message/);
   assert.match(

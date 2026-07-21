@@ -59,7 +59,7 @@ const GUARDED_ROUTES = [
   },
   {
     path: 'src/app/api/admin/edit-queue/[id]/complete/route.ts',
-    markers: ['await parseBody(', 'await params', 'getAdminEditQueueRepository().complete('],
+    markers: ['await parseBody(', 'await params', 'await getCurrentAdminActorId()', 'await completeEditFulfillment('],
   },
   {
     path: 'src/app/api/admin/overview/route.ts',

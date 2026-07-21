@@ -15,16 +15,21 @@ import { evaluateGuarantee, guaranteeDueAt } from '@/lib/guarantee';
 import { listGuaranteeEvidence } from '@/lib/guarantee/evidence';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
+import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
+import { getHeroVideoFulfillmentRepository } from '@/lib/admin/video-fulfillment-repository';
+import { deriveVideoQueueItem } from '@/lib/admin/video-fulfillment-core';
+import { fulfillmentSlaState } from '@/lib/admin/fulfillment-sla';
 
 export const GET = withApiHandler(async () => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 
   const { clients, sites, credits, editRequests, payments, domains, siteEvents } = getDataServices();
-  const [clientList, siteList, qaQueue, paymentList, customHostnameCount, manualRecords] = await Promise.all([
+  const [clientList, siteList, qaQueue, editQueue, paymentList, customHostnameCount, manualRecords] = await Promise.all([
     clients.listAll(),
     sites.listAll(),
     editRequests.listQaQueue(),
+    getAdminEditQueueRepository().listNonterminal(),
     payments.listAll(),
     domains.countHostnames(),
     getManualCollectionsRepository().listAll(),
@@ -40,6 +45,18 @@ export const GET = withApiHandler(async () => {
 
   const clientById = new Map(clientList.map((client) => [client.id, client]));
   const siteById = new Map(siteList.map((site) => [site.id, site]));
+  const videoRepository = getHeroVideoFulfillmentRepository();
+  const videoCompletions = new Map(await Promise.all(
+    siteList.map(async (site) => [site.id, await videoRepository.getBySite(site.id)] as const),
+  ));
+  const videoQueue = siteList.flatMap((site) => {
+    const owner = clientById.get(site.clientId);
+    if (!owner) return [];
+    const item = deriveVideoQueueItem({ site, client: owner, completion: videoCompletions.get(site.id) });
+    return item ? [item] : [];
+  });
+  const editOverdue = editQueue.filter((item) => fulfillmentSlaState(item.createdAt).overdue).length;
+  const videoOverdue = videoQueue.filter((item) => fulfillmentSlaState(item.requestedAt).overdue).length;
   const reversibleEntryIds = manualCollectionReversibleEntryIds(
     manualRecords.map(({ entry }) => entry),
   );
@@ -85,6 +102,11 @@ export const GET = withApiHandler(async () => {
     liveSites: siteList.filter((s) => s.status === 'live').length,
     credits: { granted, consumed, circulating: granted - consumed },
     qaPending: qaQueue.length,
+    fulfillmentAlerts: {
+      editOverdue,
+      videoOverdue,
+      total: editOverdue + videoOverdue,
+    },
     customHostnameCount,
     revenue: buildAdminOpsRevenueMetrics(paymentList, new Date(), {
       manualEntries: manualRecords.map(({ entry }) => entry),

@@ -1,4 +1,6 @@
 import type { CreditLedgerEntry, EditRequest, EditStatus } from '@/lib/types/domain';
+import type { SiteConfig } from '@/lib/types/site';
+import type { FulfillmentActorType } from './edit-fulfillment-core';
 
 export const ADMIN_EDIT_QUEUE_STATUSES = [
   'pending',
@@ -25,6 +27,12 @@ export interface AdminEditQueueItem extends EditRequest, EditCreditAudit {
 
 export interface CompleteAdminEditRequestInput {
   editRequestId: string;
+  actorType: Extract<FulfillmentActorType, 'admin' | 'system'>;
+  actorId: string;
+  expectedDraftConfig: SiteConfig | null;
+  expectedSiteConfig: SiteConfig | null;
+  nextDraftConfig: SiteConfig | null;
+  nextSiteConfig: SiteConfig | null;
   completedAt?: string;
 }
 
@@ -35,6 +43,7 @@ export interface CompleteAdminEditRequestResult {
 
 export interface AdminEditQueueRepository {
   listNonterminal(limit?: number): Promise<AdminEditQueueItem[]>;
+  countNonterminal(): Promise<number>;
   complete(input: CompleteAdminEditRequestInput): Promise<CompleteAdminEditRequestResult>;
 }
 
@@ -43,6 +52,7 @@ export const ADMIN_EDIT_QUEUE_ERROR_CODES = [
   'ADMIN_EDIT_REQUEST_REJECTED',
   'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
   'ADMIN_EDIT_REQUEST_INPUT_INVALID',
+  'ADMIN_EDIT_REQUEST_CONFIG_CONFLICT',
 ] as const;
 
 export type AdminEditQueueErrorCode = (typeof ADMIN_EDIT_QUEUE_ERROR_CODES)[number];
@@ -109,14 +119,19 @@ export function normalizeAdminEditQueueLimit(limit = 200): number {
 export function normalizeCompleteAdminEditInput(
   input: CompleteAdminEditRequestInput,
   now: () => string = () => new Date().toISOString(),
-): Required<CompleteAdminEditRequestInput> {
+): CompleteAdminEditRequestInput & { completedAt: string } {
   const editRequestId = input.editRequestId.trim();
+  const actorId = input.actorId.trim();
   const completedAt = input.completedAt?.trim() || now();
-  if (!editRequestId || !Number.isFinite(Date.parse(completedAt))) {
+  if (!editRequestId || !actorId || !['admin', 'system'].includes(input.actorType)
+    || !Number.isFinite(Date.parse(completedAt))
+    || (!input.nextDraftConfig && !input.nextSiteConfig)
+    || ((input.expectedDraftConfig === null) !== (input.nextDraftConfig === null))
+    || ((input.expectedSiteConfig === null) !== (input.nextSiteConfig === null))) {
     throw new AdminEditQueueError(
       'ADMIN_EDIT_REQUEST_INPUT_INVALID',
       'A request id and valid completion timestamp are required.',
     );
   }
-  return { editRequestId, completedAt };
+  return { ...input, editRequestId, actorId, completedAt };
 }

@@ -3,7 +3,9 @@
  * 응답: { ok: true } (components/admin/api.ts 계약). 바디는 사용하지 않는다.
  */
 import { NextResponse } from 'next/server';
-import { getDataServices } from '@/lib/data';
+import { AdminEditQueueError } from '@/lib/admin/edit-queue-core';
+import { completeEditFulfillment } from '@/lib/admin/edit-fulfillment-service';
+import { getCurrentAdminActorId } from '@/lib/services/auth';
 import { apiError, withApiHandler } from '../../../../_lib/http';
 import { requireAdminOr403 } from '../../../../_lib/guards';
 
@@ -14,23 +16,17 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   if (forbidden) return forbidden;
 
   const { id } = await params;
-  const { editRequests } = getDataServices();
-  const editRequest = await editRequests.getById(id);
-  if (!editRequest) {
-    return apiError(404, 'EDIT_REQUEST_NOT_FOUND', '편집 요청을 찾을 수 없습니다.');
+  const actorId = await getCurrentAdminActorId();
+  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  try {
+    await completeEditFulfillment({ editRequestId: id, actorType: 'admin', actorId });
+  } catch (error) {
+    if (error instanceof AdminEditQueueError) {
+      const status = error.code === 'ADMIN_EDIT_REQUEST_NOT_FOUND' ? 404 : 409;
+      return apiError(status, error.code, '발행본 반영까지 완료할 수 없어 요청 상태를 유지했습니다.');
+    }
+    throw error;
   }
-  if (editRequest.status !== 'qa_review' && editRequest.status !== 'ai_processing') {
-    return apiError(
-      409,
-      'INVALID_STATUS',
-      `승인할 수 없는 상태입니다. (현재: ${editRequest.status})`,
-    );
-  }
-
-  await editRequests.update(id, {
-    status: 'applied',
-    appliedAt: new Date().toISOString(),
-  });
 
   return NextResponse.json({ ok: true });
 });

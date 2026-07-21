@@ -15,9 +15,8 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Coins, Loader2, Sparkles, Wand2 } from 'lucide-react';
 import type { EditRequest, EditType } from '@/lib/types/domain';
-import type { CanvasElement } from '@/lib/types/site';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
-import { findElementLocation, useEditorStore, activeSections} from '@/stores/editor';
+import { useEditorStore, activeSections } from '@/stores/editor';
 import { Modal } from '@/components/dashboard/modal';
 import { useToast } from '@/components/dashboard/toast';
 import { Button, cn } from '@/components/dashboard/ui';
@@ -36,62 +35,6 @@ interface AiOutput {
   poster?: string;
 }
 
-/** aiOutput을 캔버스 초안에 즉시 반영 — 선택 요소 우선, 없으면 새 요소/섹션 추가 */
-function applyAiOutputToCanvas(editRequest: EditRequest): boolean {
-  const out = (editRequest.aiOutput ?? {}) as AiOutput;
-  const store = () => useEditorStore.getState();
-
-  const ensureSectionId = (): string => {
-    const s = store();
-    if (s.selectedSectionId && activeSections(s.config).some((sec) => sec.id === s.selectedSectionId)) {
-      return s.selectedSectionId;
-    }
-    return activeSections(s.config)[0]?.id ?? s.addSection('custom');
-  };
-
-  const applyToSelectedOrNew = (
-    kind: 'text' | 'image' | 'video',
-    patch: Partial<CanvasElement>,
-  ): boolean => {
-    const s = store();
-    const loc = findElementLocation(s.config, s.selectedElementId);
-    if (loc && loc.element.kind === kind) {
-      s.updateElement(loc.element.id, patch);
-      return true;
-    }
-    const sectionId = ensureSectionId();
-    const newId = store().addElement(sectionId, kind);
-    if (!newId) return false;
-    store().updateElement(newId, patch);
-    return true;
-  };
-
-  switch (editRequest.type) {
-    case 'text':
-      if (!out.text) return false;
-      return applyToSelectedOrNew('text', { text: out.text });
-    case 'image':
-      if (!out.url) return false;
-      return applyToSelectedOrNew('image', { src: out.url });
-    case 'video':
-      if (!out.url) return false;
-      return applyToSelectedOrNew('video', { src: out.url, poster: out.poster });
-    case 'structure': {
-      if (!out.text) return false;
-      const sectionId = store().addSection('custom');
-      store().updateSection(sectionId, { name: 'AI 제안 섹션' });
-      const newId = store().addElement(sectionId, 'text');
-      if (newId) {
-        store().updateElement(newId, { text: out.text });
-        store().updateElementFrame(newId, { x: 160, y: 120, w: 1120, h: 320 });
-      }
-      return true;
-    }
-    default:
-      return false;
-  }
-}
-
 export function AiPanel({ siteId }: { siteId: string }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -101,7 +44,6 @@ export function AiPanel({ siteId }: { siteId: string }) {
   const [upsellRequest, setUpsellRequest] = useState<CreateEditRequestInput | null>(null);
   const [shortage, setShortage] = useState<{ balance: number; required: number } | null>(null);
   const [result, setResult] = useState<EditRequest | null>(null);
-  const [applied, setApplied] = useState(false);
 
   // 인스펙터의 "AI로 생성" 버튼(aiIntent) → 액션 프리셀렉트 (렌더 중 상태 조정 패턴)
   const aiIntent = useEditorStore((s) => s.aiIntent);
@@ -122,7 +64,6 @@ export function AiPanel({ siteId }: { siteId: string }) {
     onSuccess: ({ editRequest }) => {
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
       setResult(editRequest);
-      setApplied(false);
       setUpsellRequest(null);
       setPrompt('');
       toast('success', '편집 요청이 접수되었습니다. QA 검수 후 반영됩니다.');
@@ -158,18 +99,23 @@ export function AiPanel({ siteId }: { siteId: string }) {
       toast('info', '요청 내용을 입력해 주세요.');
       return;
     }
-    mutation.mutate({ siteId, type, requestedContent: content });
-  };
-
-  const handleApply = () => {
-    if (!result) return;
-    const ok = applyAiOutputToCanvas(result);
-    if (ok) {
-      setApplied(true);
-      toast('success', '캔버스 초안에 적용했습니다. 발행 전까지 라이브에는 반영되지 않습니다.');
-    } else {
-      toast('error', '적용할 수 있는 AI 결과물이 없습니다.');
+    const state = useEditorStore.getState();
+    const pageId = state.selectedPageId || state.config.pages[0]?.id;
+    const sectionId = state.selectedSectionId ?? activeSections(state.config)[0]?.id;
+    if (!pageId || !sectionId) {
+      toast('error', '수정할 페이지와 섹션을 먼저 선택해 주세요.');
+      return;
     }
+    mutation.mutate({
+      siteId,
+      type,
+      requestedContent: content,
+      target: {
+        pageId,
+        sectionId,
+        ...(state.selectedElementId ? { elementId: state.selectedElementId } : {}),
+      },
+    });
   };
 
   const resultOutput = (result?.aiOutput ?? {}) as AiOutput;
@@ -271,15 +217,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
               </p>
             ) : null}
 
-            <div className="flex gap-1.5">
-              <button
-                type="button"
-                onClick={handleApply}
-                disabled={applied}
-                className="h-8 flex-1 rounded-md bg-sky-700 text-xs font-medium text-white transition-colors hover:bg-sky-600 disabled:opacity-50"
-              >
-                {applied ? '적용됨' : '바로 적용'}
-              </button>
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setResult(null)}
@@ -289,7 +227,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
               </button>
             </div>
             <p className="mt-1.5 text-[10px] leading-4 text-[#667085]">
-              바로 적용 시 선택한 요소에 반영되며, 선택이 없으면 새 요소로 추가됩니다.
+              검수가 끝나면 서버가 초안과 발행본에 함께 반영합니다. 완료 전에는 라이브 사이트가 바뀌지 않습니다.
             </p>
           </div>
         ) : null}

@@ -91,6 +91,19 @@ function mockRepository() {
   return { store, repository };
 }
 
+function completionInput(store: ReturnType<typeof getMockStore>, editRequestId: string) {
+  const site = store.sites.get(SITE_ID)!;
+  return {
+    editRequestId,
+    actorType: 'admin' as const,
+    actorId: 'admin-test',
+    expectedDraftConfig: structuredClone(site.draftConfig),
+    expectedSiteConfig: structuredClone(site.siteConfig),
+    nextDraftConfig: structuredClone(site.draftConfig),
+    nextSiteConfig: structuredClone(site.siteConfig),
+  };
+}
+
 describe('ADM3 admin edit queue repository', () => {
   test('lists every nonterminal state oldest-first and audits actual net charges', async () => {
     const { store, repository } = mockRepository();
@@ -107,6 +120,7 @@ describe('ADM3 admin edit queue repository', () => {
     );
 
     const queue = await repository.listNonterminal();
+    assert.equal(await repository.countNonterminal(), 3);
     assert.deepEqual(queue.map((item) => item.id), ['processing-id', 'review-id', 'pending-id']);
     assert.deepEqual(queue.map((item) => item.status), ['ai_processing', 'qa_review', 'pending']);
     assert.equal(queue.find((item) => item.id === pending.id)?.netCreditCharge, 2);
@@ -119,15 +133,16 @@ describe('ADM3 admin edit queue repository', () => {
     store.editRequests.set(edit.id, edit);
     store.ledger.push(ledger('race-charge', edit.id, -1));
     const ledgerBefore = structuredClone(store.ledger);
+    const input = completionInput(store, edit.id);
     const [first, second] = await Promise.all([
-      repository.complete({ editRequestId: edit.id }),
-      repository.complete({ editRequestId: edit.id }),
+      repository.complete(input),
+      repository.complete(input),
     ]);
     assert.deepEqual([first.duplicated, second.duplicated].sort(), [false, true]);
     assert.equal(first.record.appliedAt, '2026-07-17T12:00:00.000Z');
     assert.equal(second.record.appliedAt, first.record.appliedAt);
     assert.equal(store.editRequests.get(edit.id)?.status, 'applied');
-    assert.equal(store.editRequests.get(edit.id)?.qaNote, 'ADMIN_CONFIRMED_SITE_APPLIED');
+    assert.equal(store.editRequests.get(edit.id)?.qaNote, 'ADMIN_APPLIED_TO_PUBLISHED_SITE');
     assert.deepEqual(store.ledger, ledgerBefore, 'completion only closes the request; it never rewrites credits');
   });
 
@@ -135,23 +150,23 @@ describe('ADM3 admin edit queue repository', () => {
     const { store, repository } = mockRepository();
     const ready = request('open-qa_review', 'qa_review', '2026-07-01T00:00:00.000Z');
     store.editRequests.set(ready.id, ready);
-    assert.equal((await repository.complete({ editRequestId: ready.id })).record.status, 'applied');
+    assert.equal((await repository.complete(completionInput(store, ready.id))).record.status, 'applied');
     for (const status of ADMIN_EDIT_QUEUE_STATUSES.filter((value) => value !== 'qa_review')) {
       const edit = request(`in-flight-${status}`, status, '2026-07-01T00:00:00.000Z');
       store.editRequests.set(edit.id, edit);
       await assert.rejects(
-        repository.complete({ editRequestId: edit.id }),
+        repository.complete(completionInput(store, edit.id)),
         (error) => error instanceof AdminEditQueueError && error.code === 'ADMIN_EDIT_REQUEST_STATE_CONFLICT',
       );
     }
     const rejected = request('rejected-id', 'rejected', '2026-07-01T00:00:00.000Z');
     store.editRequests.set(rejected.id, rejected);
     await assert.rejects(
-      repository.complete({ editRequestId: rejected.id }),
+      repository.complete(completionInput(store, rejected.id)),
       (error) => error instanceof AdminEditQueueError && error.code === 'ADMIN_EDIT_REQUEST_REJECTED',
     );
     await assert.rejects(
-      repository.complete({ editRequestId: 'missing-id' }),
+      repository.complete(completionInput(store, 'missing-id')),
       (error) => error instanceof AdminEditQueueError && error.code === 'ADMIN_EDIT_REQUEST_NOT_FOUND',
     );
   });
@@ -169,12 +184,9 @@ describe('ADM3 Supabase repository wiring', () => {
     assert.match(source, /deriveAdminEditQueueItem\(request, ledger\)/);
   });
 
-  test('completion is a conditional state transition followed by authoritative race reread', () => {
-    const update = source.indexOf('.update({');
-    const conditional = source.indexOf(".in('status', ADMIN_EDIT_COMPLETION_STATUSES)", update);
-    const reread = source.indexOf(".from('edit_requests')", conditional);
-    const duplicate = source.indexOf("current.status === 'applied'", reread);
-    const rejected = source.indexOf("current.status === 'rejected'", duplicate);
-    assert.ok(update >= 0 && update < conditional && conditional < reread && reread < duplicate && duplicate < rejected);
+  test('completion delegates site application and terminal state to one transactional RPC', () => {
+    assert.match(source, /rpc\('complete_edit_request_fulfillment'/);
+    assert.match(source, /p_expected_draft_config: input\.expectedDraftConfig/);
+    assert.match(source, /p_next_site_config: input\.nextSiteConfig/);
   });
 });
