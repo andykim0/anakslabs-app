@@ -352,7 +352,7 @@ export default function MarketingHome() {
           <FadeIn delay={0.08}>
             <div data-story-copy="industry">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">NICHE-NATIVE DESIGN</p>
-              <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">카페와 병원은<br />같은 홈페이지일 수 없습니다.</h2>
+              <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">업종이 다르면,<br />홈페이지 구성도 달라야 합니다.</h2>
               <p className="mkt-type-body mt-5 max-w-lg text-[#666A73]">카페 손님은 메뉴와 위치를, 병원 방문자는 진료 안내와 예약 방법을 먼저 찾습니다. 업종에 맞는 페이지와 버튼부터 다르게 설계합니다.</p>
               <Link href="/cases" className="mkt-type-control group mt-7 inline-flex items-center gap-2 font-semibold text-[#174DDA]">업종별 구성 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
             </div>
