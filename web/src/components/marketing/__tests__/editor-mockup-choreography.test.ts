@@ -34,7 +34,7 @@ describe('L4 — 하나로 이어지는 에디터 데모 안무', () => {
     assert.doesNotMatch(component, /framer-motion|setInterval|requestAnimationFrame/);
   });
 
-  test('이동은 0.4~0.8초 ease-out, 동작 사이 홀드는 0.3~0.5초이며 클릭 피드백이 보인다', () => {
+  test('이동·정착·누름·리플이 8초 타임라인에서 순차로 동기화된다', () => {
     const css = read(stylesPath);
     const durationMs = 8_000;
     const toMilliseconds = ([from, to]: readonly [number, number]) =>
@@ -53,13 +53,22 @@ describe('L4 — 하나로 이어지는 에디터 데모 안무', () => {
     }
 
     for (const hold of [
-      [16, 21],
-      [31, 36],
+      [16.5, 21],
+      [31.5, 36],
       [46, 51],
-      [61, 67],
+      [61.5, 67],
     ] as const) {
       const milliseconds = toMilliseconds(hold);
       assert.ok(milliseconds >= 300 && milliseconds <= 500, `hold ${hold.join('→')}%: ${milliseconds}ms`);
+    }
+
+    for (const settle of [
+      [14, 15.5],
+      [29, 30.5],
+      [59, 60.5],
+      [75, 76.5],
+    ] as const) {
+      assert.equal(toMilliseconds(settle), 120, `settle ${settle.join('→')}%`);
     }
 
     assert.match(
@@ -70,6 +79,32 @@ describe('L4 — 하나로 이어지는 에디터 데모 안무', () => {
     for (const ripple of ['editor-menu-ripple', 'editor-source-ripple', 'editor-mint-ripple']) {
       assert.match(css, new RegExp(`@keyframes ${ripple}\\b`));
     }
+    for (const press of ['15.5', '30.5', '60.5', '76.5']) {
+      assert.match(
+        css,
+        new RegExp(`${press.replace('.', '\\.')}% \\{ transform: translate3d\\([^}]+scale\\(0\\.86\\)`),
+      );
+    }
+    assert.match(css, /@keyframes editor-menu-ripple[\s\S]*15\.5% \{[^}]*opacity: 0\.42/);
+    assert.match(css, /@keyframes editor-source-ripple[\s\S]*30\.5% \{[^}]*opacity: 0\.42/);
+    assert.match(css, /@keyframes editor-mint-ripple[\s\S]*76\.5% \{[^}]*opacity: 0\.48/);
+  });
+
+  test('커서 끝점을 클릭 좌표로 삼고 데스크톱·모바일 타깃 중심을 각각 선언한다', () => {
+    const css = read(stylesPath);
+    assert.match(css, /\.dbe-cursor\s*\{[^}]*transform-origin: 2\.86px 3\.32px;/);
+    for (const variable of [
+      '--dbe-rail-hit-x',
+      '--dbe-menu-hit-y',
+      '--dbe-source-hit-y',
+      '--dbe-copy-hit-x',
+      '--dbe-copy-hit-y',
+      '--dbe-mint-hit-x',
+      '--dbe-mint-hit-y',
+    ]) {
+      assert.equal(css.match(new RegExp(`${variable}:`, 'g'))?.length, 2, `${variable} desktop/mobile`);
+    }
+    assert.equal(css.match(/@keyframes editor-cursor\b/g)?.length, 1, '컨테이너별 중복 키프레임 금지');
   });
 
   test('이미지 블록은 중간 좌표를 거치는 곡선 경로로 이동하고 루프 끝은 숨긴 채 원점으로 돌아간다', () => {
