@@ -91,9 +91,11 @@ describe('LP4$ batch 통합 회귀', () => {
     assert.doesNotMatch(`${title.textContent} ${support.textContent}`, /다듬|수정|고르/u);
   });
 
-  test('P7 무료진단은 장식 레이어와 전문용어를 걷고 한 문장·입력·CTA에 집중한다', () => {
+  test('P7/P10 무료진단은 장식·빈 목업 없이 한 문장·입력·CTA 단일 컬럼에 집중한다', () => {
     const scanner = landing.querySelector('#hero-scanner');
     assert.ok(scanner);
+    const entry = scanner.querySelector('[data-scan-entry]');
+    assert.ok(entry);
     const lead = scanner.querySelector('[data-scan-lead]');
     assert.ok(lead);
     assert.equal(
@@ -104,11 +106,15 @@ describe('LP4$ batch 통합 회귀', () => {
     assert.equal(scanner.querySelectorAll('button').some((button) => button.textContent.includes('내 사이트 무료 진단')), true);
     assert.doesNotMatch(scanner.textContent, /\b(?:SEO|AEO|GEO|1080P|MUTED|LAZY-LOADED)\b/u);
     assert.equal(scanner.textContent.includes('검색 · 질문 · AI 정보 확인'), true);
+    assert.equal(scanner.textContent.includes('홈페이지 정보 확인'), false);
+    assert.equal(scanner.textContent.includes('READY'), false);
+    assert.match(entry.getAttribute('class') ?? '', /max-w-3xl/u);
+    assert.doesNotMatch(entry.getAttribute('class') ?? '', /grid|grid-cols/u);
 
-    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
+    const scannerSource = read('src/components/landing/LandingScanner.tsx');
     const showcaseSource = read('src/components/marketing/LandingCinematicShowcase.tsx');
-    assert.doesNotMatch(consoleSource, /bg-gradient-to-br from-\[#174DDA\]\/5 via-transparent to-\[#03D1B8\]\/16 mix-blend-multiply/u);
-    assert.doesNotMatch(consoleSource, /absolute -inset-8 rounded-full|absolute inset-y-0 w-24 -skew-x-12/u);
+    assert.doesNotMatch(scannerSource, /OptimizationConsole|consoleMedia|lg:grid-cols-\[\.9fr_1\.1fr\]/u);
+    assert.match(scannerSource, /\{scan \? <ScanResultPanel scan=\{scan\} \/> : null\}/u);
     assert.doesNotMatch(showcaseSource, /data-lcs-hero-ambient|bg-\[size:56px_56px\]/u);
   });
 

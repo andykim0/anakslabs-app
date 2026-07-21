@@ -15,7 +15,6 @@ import { ArrowRight, Check, ChevronDown, Copy, GitCompareArrows, Info, Loader2, 
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { comparisonHeadline, SCAN_STRUCTURE_SIGNALS, structureSignals } from '@/lib/scan/comparison';
 import { guidanceFor } from '@/lib/scan/guidance';
-import { OptimizationConsole } from '@/components/marketing/OptimizationConsole';
 import { useFailClosedReducedMotion } from '@/components/marketing/use-fail-closed-reduced-motion';
 
 const SCAN_MESSAGES = [
@@ -270,7 +269,7 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
 
 // ---------- 히어로 + 스캐너 ----------
 
-export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film' | 'poster' | 'interface' }) {
+export function LandingScanner() {
   const [url, setUrl] = useState('');
   const [compareOpen, setCompareOpen] = useState(false);
   const [competitorUrls, setCompetitorUrls] = useState(['', '']);
@@ -313,7 +312,7 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
 
   return (
     <section id="hero-scanner" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-14 pb-20 sm:px-8 md:pt-20 md:pb-28">
-      <div className="grid items-center gap-16 lg:grid-cols-[.9fr_1.1fr] lg:gap-12 xl:gap-20">
+      <div data-scan-entry className="mx-auto max-w-3xl">
         <div data-film-scrim="hero" className="text-left">
           <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/18 bg-[#07142F]/72 px-3 py-1.5 font-mono tracking-[0.14em] text-[#68E8D8] uppercase shadow-sm backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
@@ -451,8 +450,6 @@ export function LandingScanner({ consoleMedia = 'film' }: { consoleMedia?: 'film
             <p className="mkt-type-support mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">{error}</p>
           ) : null}
         </div>
-
-        <OptimizationConsole mediaMode={consoleMedia} />
       </div>
 
       {scan ? <ScanResultPanel scan={scan} /> : null}

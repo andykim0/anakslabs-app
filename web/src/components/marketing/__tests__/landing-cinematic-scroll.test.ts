@@ -22,7 +22,7 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
 
     const showcase = read('src/components/marketing/LandingCinematicShowcase.tsx');
     assert.match(showcase, /data-landing-manifesto/);
-    assert.match(showcase, /<LandingScanner consoleMedia="interface" \/>/);
+    assert.match(showcase, /<LandingScanner \/>/);
     assert.match(showcase, /signatureId: 'scrollytelling-manifesto'/);
     assert.match(showcase, /<MotionSignatureRenderer/);
     assert.doesNotMatch(showcase, /data-signature-status=/, 'production renderer 상태를 마케팅 DOM이 흉내 내면 안 됨');
@@ -120,15 +120,11 @@ describe('LP$ L2 랜딩 매니페스토 페이지 관통 무대', () => {
 
   test('hero는 중복 미디어 없이 전역 필름 하나만 공유한다', () => {
     const source = read('src/components/marketing/LandingCinematicShowcase.tsx');
-    const consoleSource = read('src/components/marketing/OptimizationConsole.tsx');
-    assert.match(source, /consoleMedia="interface"/);
-    assert.match(consoleSource, /mediaMode !== 'interface'/);
+    const scannerSource = read('src/components/landing/LandingScanner.tsx');
+    assert.doesNotMatch(source, /consoleMedia/);
+    assert.doesNotMatch(scannerSource, /OptimizationConsole|data-optimization-poster/);
     assert.doesNotMatch(source, /data-lcs-hero-ambient|bg-\[size:56px_56px\]/);
     assert.doesNotMatch(source, /data-lcs-hero-poster/);
-    assert.match(consoleSource, /mediaMode === 'film'/);
-    assert.match(consoleSource, /onPlaying=\{\(\) => setPlaying\(true\)\}/);
-    assert.match(consoleSource, /playing \? 'opacity-100' : 'opacity-0'/);
-    assert.match(consoleSource, /preload="none"/);
     assert.equal((source.match(/<video\b/g) ?? []).length, 0);
     assert.match(source, /responsiveVideoSources=\{LANDING_VIDEO_SOURCES\}/);
   });

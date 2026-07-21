@@ -111,6 +111,9 @@ describe('LP$ L5 공개 랜딩 통합 회귀', () => {
 
     const prelude = root.querySelector('[data-lcs-prelude]');
     assert.ok(prelude, '무료 진단 히어로 prelude 누락');
+    assert.equal(prelude.textContent.includes('홈페이지 정보 확인'), false, '빈 진단 목업 카드 재등장');
+    assert.equal(prelude.textContent.includes('READY'), false, '빈 진단 목업 상태 배지 재등장');
+    assert.equal(prelude.querySelectorAll('[data-scan-entry] [role="img"]').length, 0, '진단 전 빈 시각 목업 재등장');
     assert.equal(
       prelude.querySelectorAll('img[data-optimization-poster][src*="daboim-visibility-film-poster"]').length,
       0,

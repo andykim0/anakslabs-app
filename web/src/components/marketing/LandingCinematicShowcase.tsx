@@ -292,7 +292,7 @@ export function LandingCinematicShowcase() {
       </aside>
 
       <div data-lcs-prelude className="relative isolate overflow-hidden">
-        <LandingScanner consoleMedia="interface" />
+        <LandingScanner />
       </div>
 
       <MotionSignatureRenderer
