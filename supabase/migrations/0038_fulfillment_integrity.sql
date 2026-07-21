@@ -1,4 +1,4 @@
--- FUL$: atomic edit submission/completion and append-only actor audit.
+-- FUL: atomic edit submission/completion and append-only actor audit.
 
 create table public.edit_request_events (
   id uuid primary key default gen_random_uuid(),
