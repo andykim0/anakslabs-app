@@ -58,6 +58,7 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   seo_korean_encoding: G('한글 인코딩 선언이 불명확해요', AUTO, '네이버와 브라우저에서 한글이 깨질 위험을 줄여요.', 'system'),
   seo_hash_navigation: G('해시 기반 페이지 주소가 있어요', '독립 콘텐츠는 # 대신 실제 경로와 일반 링크로 연결해주세요.', '네이버가 각 콘텐츠를 별도 URL로 발견하기 쉬워져요.', 'editor:content'),
   seo_robots_txt: G('크롤러 안내(robots.txt)를 확인할 수 없어요', AUTO, '검색·AI 크롤러 정책과 사이트맵 위치를 한곳에서 안내할 수 있어요.', 'system'),
+  seo_robots_temporarily_unavailable: G('크롤러 안내를 잠시 확인할 수 없어요', '서버가 바쁘거나 요청을 제한한 상태일 수 있어요. 잠시 뒤 다시 진단해주세요.', '일시 오류와 실제 차단을 구분해서 확인할 수 있어요.', 'system'),
   seo_robots_invalid: G('robots.txt 형식이 올바르지 않아요', AUTO, '오류 페이지를 정책 파일로 오해하는 상황을 막아요.', 'system'),
   seo_robots_sitemap: G('robots.txt에 사이트맵 위치가 없어요', AUTO, '네이버·구글·빙이 사이트맵을 더 쉽게 찾을 수 있어요.', 'system'),
   seo_sitemap: G('사이트맵을 확인할 수 없어요', AUTO, '대표 페이지와 수정 시점을 검색엔진에 전달할 수 있어요.', 'system'),

@@ -47,6 +47,7 @@ const RESOLUTION_OVERRIDE: Record<string, ResolutionKind> = {
   seo_html_truncated: 'manual',
   seo_speed_slow: 'manual',
   seo_speed_very_slow: 'manual',
+  seo_robots_temporarily_unavailable: 'manual',
 };
 
 export function resolutionOf(code: string): ResolutionKind {

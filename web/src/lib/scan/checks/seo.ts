@@ -19,12 +19,13 @@ function metaContent(ctx: RuleContext, selector: string): string {
 }
 
 function crawlerBlocked(ctx: RuleContext, crawler: string): boolean {
-  // Search engines treat rate-limited/server-error robots responses as temporarily unavailable.
-  if (ctx.robots.status === 429 || (ctx.robots.status !== null && ctx.robots.status >= 500)) {
-    return true;
-  }
+  // 일시 오류는 명시적 Disallow와 구분해 별도 규칙 한 건으로 알린다.
   if (!ctx.robots.ok) return false;
   return !robotsAllows(ctx.robots.body, crawler, ctx.url);
+}
+
+function robotsTemporarilyUnavailable(ctx: RuleContext): boolean {
+  return ctx.robots.status === 429 || (ctx.robots.status !== null && ctx.robots.status >= 500);
 }
 
 function robotsLooksValid(ctx: RuleContext): boolean {
@@ -110,6 +111,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 20,
     label: '페이지에 noindex가 설정되어 있습니다',
     detail: 'meta robots 또는 X-Robots-Tag가 검색결과 색인을 명시적으로 차단하고 있습니다.',
+    rootCause: 'index-directive',
     failed: (ctx) => hasNoIndex(ctx.root, ctx.xRobotsTag),
   },
   {
@@ -119,6 +121,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 18,
     label: 'robots.txt가 Googlebot 수집을 막고 있습니다',
     detail: 'Google 검색과 Google의 생성형 검색 기능에 필요한 기본 수집 경로가 차단된 상태입니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'Googlebot'),
   },
   {
@@ -128,6 +131,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 20,
     label: 'robots.txt가 네이버 Yeti 수집을 막고 있습니다',
     detail: '한국 서비스의 핵심 검색로봇인 네이버 Yeti가 현재 URL을 수집할 수 없습니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'Yeti'),
   },
   {
@@ -137,6 +141,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 14,
     label: 'robots.txt가 다음(Daum) 수집을 막고 있습니다',
     detail: '다음 검색의 공식 robots 토큰인 Daum이 현재 URL을 수집할 수 없습니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'Daum'),
   },
   {
@@ -146,6 +151,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 12,
     label: 'robots.txt가 Bingbot 수집을 막고 있습니다',
     detail: 'Bing 검색과 Copilot의 웹 검색 기반이 되는 Bing 색인 수집 경로가 차단된 상태입니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'bingbot'),
   },
   {
@@ -194,6 +200,9 @@ export const SEO_RULES: ScanRule[] = [
     weight: 7,
     label: '대표 제목(H1) 구조에 문제가 있습니다',
     detail: '네이버 기준으로 H1이 없거나 여러 개면 페이지의 대표 주제를 해석하기 어려울 수 있습니다.',
+    rootCause: (ctx) => ctx.root.querySelectorAll('h1').length === 0
+      ? 'heading-root-missing'
+      : 'heading-root-multiple',
     failed: (ctx) => ctx.root.querySelectorAll('h1').length !== 1,
   },
   {
@@ -287,13 +296,23 @@ export const SEO_RULES: ScanRule[] = [
         .some((anchor) => /^#!|\/#!/.test(anchor.getAttribute('href')?.trim() ?? '')),
   },
   {
+    code: 'seo_robots_temporarily_unavailable',
+    pillar: 'seo',
+    severity: 'warn',
+    weight: 3,
+    label: 'robots.txt를 일시적으로 확인할 수 없습니다',
+    detail: '짧게 기다려 한 번 더 확인했지만 서버가 429 또는 5xx로 응답했습니다. 명시적 차단으로 단정하지 않으며 잠시 후 재진단이 필요합니다.',
+    rootCause: 'robots-temporary-unavailable',
+    failed: robotsTemporarilyUnavailable,
+  },
+  {
     code: 'seo_robots_txt',
     pillar: 'seo',
     severity: 'warn',
     weight: 4,
     label: 'robots.txt를 확인할 수 없습니다',
     detail: 'robots.txt가 없어도 기본 수집은 가능하지만, 사이트맵과 검색·AI 크롤러 정책을 명시적으로 관리하기 어렵습니다.',
-    failed: (ctx) => !ctx.robots.ok,
+    failed: (ctx) => !ctx.robots.ok && !robotsTemporarilyUnavailable(ctx),
   },
   {
     code: 'seo_robots_invalid',

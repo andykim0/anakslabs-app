@@ -180,6 +180,9 @@ export const AEO_RULES: ScanRule[] = [
     weight: 10,
     label: '제목 계층(H1→H2→H3)이 어긋나 있습니다',
     detail: '대표 제목이 없거나 제목 레벨을 건너뛰어 문서의 질문·답변 구조를 순서대로 해석하기 어렵습니다.',
+    rootCause: (ctx) => ctx.root.querySelectorAll('h1').length === 0
+      ? 'heading-root-missing'
+      : 'heading-hierarchy',
     failed: (ctx) => {
       const headings = ctx.root.querySelectorAll('h1, h2, h3, h4, h5, h6');
       if (headings.length === 0) return true;

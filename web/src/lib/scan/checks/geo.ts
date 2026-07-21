@@ -14,6 +14,7 @@ import {
   hasKoreanText,
   hasLocalBusinessType,
   hasNaverSourceInfoRestriction,
+  hasNoIndex,
   hasPhone,
   hasSnippetRestriction,
   hasUnsourcedClaimSignals,
@@ -25,9 +26,6 @@ import {
 } from '../signals';
 
 function crawlerBlocked(ctx: RuleContext, crawler: string): boolean {
-  if (ctx.robots.status === 429 || (ctx.robots.status !== null && ctx.robots.status >= 500)) {
-    return true;
-  }
   if (!ctx.robots.ok) return false;
   return !robotsAllows(ctx.robots.body, crawler, ctx.url);
 }
@@ -91,6 +89,7 @@ export const GEO_RULES: ScanRule[] = [
     weight: 16,
     label: 'robots.txt가 OAI-SearchBot 수집을 막고 있습니다',
     detail: 'ChatGPT 검색의 요약·인용 대상이 되려면 OpenAI의 검색 전용 크롤러가 공개 페이지를 수집할 수 있어야 합니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'OAI-SearchBot'),
   },
   {
@@ -100,6 +99,7 @@ export const GEO_RULES: ScanRule[] = [
     weight: 14,
     label: 'robots.txt가 PerplexityBot 수집을 막고 있습니다',
     detail: 'Perplexity 검색 응답에서 페이지를 검색·인용하려면 PerplexityBot의 공개 콘텐츠 수집 경로가 열려 있어야 합니다.',
+    rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'PerplexityBot'),
   },
   {
@@ -109,6 +109,9 @@ export const GEO_RULES: ScanRule[] = [
     weight: 16,
     label: '검색 요약과 AI 인용에 사용할 본문 발췌가 차단되어 있습니다',
     detail: 'nosnippet, max-snippet:0, noindex 같은 지시어는 검색결과 요약과 생성형 검색의 본문 사용을 제한합니다.',
+    rootCause: (ctx) => hasNoIndex(ctx.root, ctx.xRobotsTag)
+      ? 'index-directive'
+      : 'snippet-directive',
     failed: (ctx) => hasSnippetRestriction(ctx.root, ctx.xRobotsTag),
   },
   {
@@ -127,6 +130,7 @@ export const GEO_RULES: ScanRule[] = [
     weight: 18,
     label: 'AI가 읽을 본문 텍스트가 거의 없습니다',
     detail: '보이는 텍스트가 200자 미만입니다. 핵심 정보가 이미지나 클라이언트 실행 뒤에만 있으면 검색·답변 시스템이 읽지 못할 수 있습니다.',
+    rootCause: 'insufficient-server-html',
     failed: (ctx) => ctx.visibleText.replace(/\s+/g, '').length < 200,
   },
   {
@@ -232,6 +236,7 @@ export const GEO_RULES: ScanRule[] = [
     weight: 10,
     label: '페이지가 사실상 비어 있습니다',
     detail: '본문 요소가 거의 없어 질문에 답하거나 인용할 콘텐츠 자체가 없는 상태입니다.',
+    rootCause: 'insufficient-server-html',
     failed: (ctx) => ctx.root.querySelectorAll('p, li, h1, h2, h3, td, dd').length < 3,
   },
 ];

@@ -276,6 +276,10 @@ export interface ScanIssue {
   label: string;
   detail: string;
   pillar: 'seo' | 'aeo' | 'geo';
+  /** 같은 수정으로 해결되는 규칙을 하나의 고객 행동으로 묶는 결정적 키. */
+  rootCause?: string;
+  /** false면 상태 상세/권고로만 노출하며 점수와 "고칠 것" 개수에서 제외한다. */
+  scoreDeducted?: boolean;
 }
 
 export interface ScanComparisonResult {

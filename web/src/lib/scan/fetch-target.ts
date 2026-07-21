@@ -6,6 +6,7 @@
  */
 import 'server-only';
 import { assertPublicHttpUrl, ScanError } from './ssrf';
+import { retryTransientProbe } from './probe-retry';
 
 const TIMEOUT_MS = 5_000;
 const MAX_BYTES = 1_000_000; // 1MB
@@ -182,6 +183,25 @@ export async function probeResource(origin: string, path: string): Promise<Probe
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * robots.txt 429/5xx는 일시 오류일 수 있으므로 한 번만 짧게 기다렸다 재확인한다.
+ * 재시도도 같은 probeResource 경계를 사용해 redirect hop SSRF 검증을 유지한다.
+ */
+export async function probeResourceWithRetry(
+  origin: string,
+  path: string,
+  options: {
+    probe?: typeof probeResource;
+    wait?: (milliseconds: number) => Promise<void>;
+  } = {},
+): Promise<ProbedResource> {
+  const probe = options.probe ?? probeResource;
+  const wait = options.wait ?? ((milliseconds: number) => new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  }));
+  return retryTransientProbe(() => probe(origin, path), wait);
 }
 
 /** 이전 호출부 호환용 boolean wrapper. */

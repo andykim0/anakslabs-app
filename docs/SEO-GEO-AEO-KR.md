@@ -1,6 +1,6 @@
 # SEO · GEO · AEO optimization model for South Korea
 
-Last reviewed: 2026-07-16
+Last reviewed: 2026-07-21
 
 This document is the research basis for the deterministic optimization engine in
 `web/src/lib/scan/` and the tenant publishing layer in `web/src/lib/seo/`.
@@ -167,6 +167,26 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   topic divergence.
 - Does not score `llms.txt`. The optional tenant route remains only for tools
   that voluntarily consume the emerging format.
+
+#### 2026-07-21 score-calibration and robots error hardening
+
+- Raw rule weights are normalized against a fixed 100-point budget per pillar
+  (SEO 268, AEO 107, GEO 148), then use a deterministic square-root deduction
+  curve. This keeps the first material defect visible while preventing a long
+  list of correlated heuristics from collapsing many different sites to zero.
+  The curve is a product calibration model, not a platform ranking formula.
+- One root cause is charged once. The currently audited cross-rule groups are:
+  one robots policy across Googlebot/Yeti/Daum/bingbot/OAI-SearchBot/
+  PerplexityBot; `noindex` across SEO indexing and GEO snippet eligibility;
+  missing H1 across SEO and AEO heading order; and sparse server HTML across
+  GEO low-content and empty-page rules. Secondary crawler/pillar states remain
+  visible as zero-deduction details.
+- A `429` or `5xx` robots response is retried once after 120 ms. A repeated
+  transient failure becomes one reduced “temporarily unavailable” diagnostic,
+  never six explicit crawler-block findings. Google documents that `429` is
+  excluded from ordinary `4xx` handling and that `5xx` robots failures trigger
+  retry/cache behavior rather than proving an authored `Disallow` policy.
+  [Google robots.txt status handling, reviewed 2026-07-21](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec#handling-of-errors-and-http-status-codes)
 
 ### Generated tenant sites
 

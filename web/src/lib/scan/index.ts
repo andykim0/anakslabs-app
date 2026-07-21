@@ -11,8 +11,8 @@ import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { SEO_RULES } from './checks/seo';
-import { fetchTarget, normalizeScanUrl, probeResource } from './fetch-target';
-import { runRules, type RuleContext } from './rules';
+import { fetchTarget, normalizeScanUrl, probeResource, probeResourceWithRetry } from './fetch-target';
+import { createRuleRunState, runRules, type RuleContext } from './rules';
 import { buildScores } from './score';
 
 export { ScanError } from './ssrf';
@@ -34,7 +34,7 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
 
   // 보조 리소스 존재 확인 (병렬, 실패는 '없음')
   const [robots, sitemap] = await Promise.all([
-    probeResource(origin, '/robots.txt'),
+    probeResourceWithRetry(origin, '/robots.txt'),
     probeResource(origin, '/sitemap.xml'),
   ]);
 
@@ -53,9 +53,10 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
     sitemap,
   };
 
-  const seo = runRules(SEO_RULES, ctx);
-  const aeo = runRules(AEO_RULES, ctx);
-  const geo = runRules(GEO_RULES, ctx);
+  const runState = createRuleRunState();
+  const seo = runRules(SEO_RULES, ctx, runState);
+  const aeo = runRules(AEO_RULES, ctx, runState);
+  const geo = runRules(GEO_RULES, ctx, runState);
 
   const issues: ScanIssue[] = [...seo.issues, ...aeo.issues, ...geo.issues];
   const { scores, grade } = buildScores({ seo: seo.deducted, aeo: aeo.deducted, geo: geo.deducted });

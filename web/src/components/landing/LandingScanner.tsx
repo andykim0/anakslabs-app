@@ -15,6 +15,7 @@ import { ArrowRight, Check, ChevronDown, Copy, GitCompareArrows, Info, Loader2, 
 import type { ScanIssue, ScanResult } from '@/lib/data/types';
 import { comparisonHeadline, SCAN_STRUCTURE_SIGNALS, structureSignals } from '@/lib/scan/comparison';
 import { guidanceFor } from '@/lib/scan/guidance';
+import { actionableIssueCount, groupScanIssues } from '@/lib/scan/issue-groups';
 import { useFailClosedReducedMotion } from '@/components/marketing/use-fail-closed-reduced-motion';
 
 const SCAN_MESSAGES = [
@@ -97,12 +98,15 @@ const SEVERITY_META: Record<ScanIssue['severity'], { icon: React.ReactNode; tone
 
 function IssueList({ issues }: { issues: ScanIssue[] }) {
   const [open, setOpen] = useState(false);
-  const shown = open ? issues : issues.slice(0, 4);
+  const groups = groupScanIssues(issues);
+  const shown = open ? groups : groups.slice(0, 4);
   return (
     <div className="rounded-xl border border-[#E8E6E0] bg-white">
       <ul className="divide-y divide-[#EDEBE4]">
-        {shown.map((issue) => (
-          <li key={issue.code} className="px-4 py-4">
+        {shown.map((group) => {
+          const issue = group.primary;
+          return (
+          <li key={group.key} className="px-4 py-4">
             <div className="flex items-start gap-2">
               <span className={SEVERITY_META[issue.severity].tone}>{SEVERITY_META[issue.severity].icon}</span>
               <span className="mkt-type-body font-medium text-[#17181C]">{guidanceFor(issue.code)?.title ?? issue.label}</span>
@@ -122,16 +126,27 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
                 <p className="mt-1">{issue.label} — {issue.detail}</p>
               </details>
             ) : null}
+            {group.details.length > 0 ? (
+              <details className="mkt-type-support mt-2 pl-5.5 text-[#697386]">
+                <summary className="cursor-pointer select-none">같은 원인의 세부 상태 {group.details.length}건</summary>
+                <ul className="mt-1 list-disc space-y-1 pl-4">
+                  {group.details.map((detail) => (
+                    <li key={detail.code}>{detail.label}</li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
           </li>
-        ))}
+          );
+        })}
       </ul>
-      {issues.length > 4 ? (
+      {groups.length > 4 ? (
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="mkt-type-control flex h-10 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-[#5C6068] transition-colors hover:text-[#17181C]"
         >
-          {open ? '접기' : `문제 ${issues.length - 4}개 더 보기`}
+          {open ? '접기' : `항목 ${groups.length - 4}개 더 보기`}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
       ) : null}
@@ -196,7 +211,7 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
 }
 
 export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; shared?: boolean }) {
-  const issueCount = scan.issues.length;
+  const issueCount = actionableIssueCount(scan.issues);
   const [copied, setCopied] = useState(false);
   const copyResultLink = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/scan/${scan.id}`);

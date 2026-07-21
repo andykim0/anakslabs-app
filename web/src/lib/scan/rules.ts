@@ -32,12 +32,28 @@ export interface ScanRule {
   weight: number;
   label: string;
   detail: string;
+  /** 같은 원인이 여러 규칙을 발화할 때 대표 한 건만 차감하기 위한 키. */
+  rootCause?: string | ((ctx: RuleContext) => string | undefined);
+  /** 상태는 알리되 점수에는 반영하지 않는 권고 규칙. */
+  advisory?: boolean;
   /** true = 문제 있음(이슈 생성) */
   failed: (ctx: RuleContext) => boolean;
 }
 
+export interface RuleRunState {
+  seenRootCauses: Set<string>;
+}
+
+export function createRuleRunState(): RuleRunState {
+  return { seenRootCauses: new Set<string>() };
+}
+
 /** 규칙 목록 실행 → 실패한 규칙을 이슈로 */
-export function runRules(rules: ScanRule[], ctx: RuleContext): { issues: ScanIssue[]; deducted: number } {
+export function runRules(
+  rules: ScanRule[],
+  ctx: RuleContext,
+  state: RuleRunState = createRuleRunState(),
+): { issues: ScanIssue[]; deducted: number } {
   const issues: ScanIssue[] = [];
   let deducted = 0;
   for (const rule of rules) {
@@ -48,14 +64,20 @@ export function runRules(rules: ScanRule[], ctx: RuleContext): { issues: ScanIss
       bad = false; // 규칙 자체 오류는 스캔을 막지 않는다
     }
     if (bad) {
+      const rootCause = typeof rule.rootCause === 'function' ? rule.rootCause(ctx) : rule.rootCause;
+      const isRootCauseDetail = Boolean(rootCause && state.seenRootCauses.has(rootCause));
+      const scoreDeducted = !rule.advisory && rule.weight > 0 && !isRootCauseDetail;
+      if (rootCause && scoreDeducted) state.seenRootCauses.add(rootCause);
       issues.push({
         code: rule.code,
-        severity: rule.severity,
+        severity: scoreDeducted ? rule.severity : 'info',
         label: rule.label,
         detail: rule.detail,
         pillar: rule.pillar,
+        rootCause,
+        scoreDeducted,
       });
-      deducted += rule.weight;
+      if (scoreDeducted) deducted += rule.weight;
     }
   }
   return { issues, deducted };
