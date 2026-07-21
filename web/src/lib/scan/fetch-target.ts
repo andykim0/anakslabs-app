@@ -2,11 +2,12 @@
  * [v3 Phase 6] 스캔 대상 fetch — URL 정규화 + SSRF 방어 + 제한된 다운로드.
  *  - 전체 5s 타임아웃, 본문 1MB 캡(스트림 절단), redirect 최대 3회
  *  - redirect 각 hop마다 assertPublicHttpUrl 재검증 (사설망 우회 차단)
- *  - TTFB(응답 헤더 도착까지) 측정 — SEO 응답속도 등급용
+ *  - SSRF 검증 시간을 제외한 TTFB 2회 측정 중 빠른 값 — 참고 SEO 지표용
  */
 import 'server-only';
 import { assertPublicHttpUrl, ScanError } from './ssrf';
 import { retryTransientProbe } from './probe-retry';
+import { fastestTtfb } from './ttfb';
 
 const TIMEOUT_MS = 5_000;
 const MAX_BYTES = 1_000_000; // 1MB
@@ -86,22 +87,27 @@ async function readCapped(
   return { text: new TextDecoder('utf-8', { fatal: false }).decode(merged), truncated };
 }
 
-/** 대상 HTML 문서 fetch (SSRF hop 재검증 포함) */
-export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
+/**
+ * 대상 HTML 문서 1회 fetch. SSRF/DNS 검증은 각 hop에서 그대로 수행하되
+ * 진단기 자체 검증 시간은 TTFB 시계에 넣지 않는다.
+ */
+async function fetchTargetSample(rawUrl: string, includeBody: boolean): Promise<FetchedTarget> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const started = Date.now();
 
   try {
     let current = await assertPublicHttpUrl(rawUrl);
+    let responseMs = 0;
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
       let res: Response;
       try {
+        const requestStarted = performance.now();
         res = await fetch(current.toString(), {
           redirect: 'manual',
           signal: controller.signal,
           headers: { 'user-agent': UA, accept: 'text/html,application/xhtml+xml,*/*;q=0.8' },
         });
+        responseMs += performance.now() - requestStarted;
       } catch (err) {
         if (controller.signal.aborted) throw new ScanError('TIMEOUT', '응답이 너무 느립니다 (5초 초과).');
         throw new ScanError('FETCH_FAILED', `사이트에 접속할 수 없습니다. (${err instanceof Error ? err.message : '연결 실패'})`);
@@ -117,14 +123,16 @@ export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
         continue;
       }
 
-      const ttfbMs = Date.now() - started;
-      const { text, truncated } = await readCapped(res, controller.signal);
+      const body = includeBody
+        ? await readCapped(res, controller.signal)
+        : { text: '', truncated: false };
+      if (!includeBody) await res.body?.cancel().catch(() => undefined);
       return {
         finalUrl: current,
         status: res.status,
-        html: text,
-        ttfbMs,
-        truncated,
+        html: body.text,
+        ttfbMs: Math.round(responseMs),
+        truncated: body.truncated,
         contentType: res.headers.get('content-type') ?? '',
         xRobotsTag: res.headers.get('x-robots-tag') ?? '',
       };
@@ -133,6 +141,21 @@ export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * 본문을 읽는 첫 요청과 헤더만 재확인하는 둘째 요청 중 빠른 값을 쓴다.
+ * 둘째 요청의 일시 오류는 진단 전체를 막지 않고 첫 측정값을 유지한다.
+ */
+export async function fetchTarget(rawUrl: string): Promise<FetchedTarget> {
+  const first = await fetchTargetSample(rawUrl, true);
+  let secondTtfb = first.ttfbMs;
+  try {
+    secondTtfb = (await fetchTargetSample(rawUrl, false)).ttfbMs;
+  } catch {
+    // 추가 샘플은 참고값 보정용이므로 첫 실제 문서 결과를 버리지 않는다.
+  }
+  return { ...first, ttfbMs: fastestTtfb([first.ttfbMs, secondTtfb]) };
 }
 
 /**

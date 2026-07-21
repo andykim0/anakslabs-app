@@ -14,6 +14,7 @@ import { SEO_RULES } from './checks/seo';
 import { fetchTarget, normalizeScanUrl, probeResource, probeResourceWithRetry } from './fetch-target';
 import { createRuleRunState, runRules, type RuleContext } from './rules';
 import { buildScores } from './score';
+import { probeDeclaredSitemap } from './sitemap';
 
 export { ScanError } from './ssrf';
 export { normalizeScanUrl } from './fetch-target';
@@ -32,11 +33,9 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
   const target = await fetchTarget(normalized);
   const origin = target.finalUrl.origin;
 
-  // 보조 리소스 존재 확인 (병렬, 실패는 '없음')
-  const [robots, sitemap] = await Promise.all([
-    probeResourceWithRetry(origin, '/robots.txt'),
-    probeResource(origin, '/sitemap.xml'),
-  ]);
+  // robots의 Sitemap 지시자를 먼저 읽어 맞춤 경로를 확인한다. 지시자가 없을 때만 기본 경로 폴백.
+  const robots = await probeResourceWithRetry(origin, '/robots.txt');
+  const sitemap = await probeDeclaredSitemap(origin, robots, probeResource);
 
   const root = parse(target.html);
   const ctx: RuleContext = {

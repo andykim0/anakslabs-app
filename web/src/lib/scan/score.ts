@@ -9,7 +9,7 @@ import type { ScanResult } from '@/lib/data/types';
  * 실제 합과 이 계약의 불일치를 차단한다.
  */
 export const SCAN_SCORE_CAPACITY = {
-  seo: 268,
+  seo: 261,
   aeo: 107,
   geo: 148,
 } as const;

@@ -56,21 +56,30 @@ function comparable(value: string): string {
 
 function visibleIdentityMismatch(
   node: Record<string, unknown>,
-  visibleText: string,
+  ctx: Parameters<ScanRule['failed']>[0],
 ): boolean {
-  const visible = comparable(visibleText);
-  const values: string[] = [];
-  if (typeof node.name === 'string') values.push(node.name);
-  if (typeof node.telephone === 'string') values.push(node.telephone);
+  const visible = comparable(ctx.visibleText);
+  const accessibleIdentity = comparable([
+    ctx.visibleText,
+    ...ctx.root.querySelectorAll('img[alt]').map((image) => image.getAttribute('alt') ?? ''),
+    ...ctx.root.querySelectorAll('[aria-label]').map((element) => element.getAttribute('aria-label') ?? ''),
+    ctx.root.querySelector('meta[property="og:site_name"]')?.getAttribute('content') ?? '',
+  ].join(' '));
+  if (typeof node.name === 'string') {
+    const name = comparable(node.name);
+    if (name.length >= 2 && !accessibleIdentity.includes(name)) return true;
+  }
+  const visibleValues: string[] = [];
+  if (typeof node.telephone === 'string') visibleValues.push(node.telephone);
   if (typeof node.address === 'string') {
-    values.push(node.address);
+    visibleValues.push(node.address);
   } else if (node.address && typeof node.address === 'object' && !Array.isArray(node.address)) {
     const address = node.address as Record<string, unknown>;
     for (const key of ['streetAddress', 'addressLocality', 'addressRegion', 'postalCode']) {
-      if (typeof address[key] === 'string') values.push(address[key] as string);
+      if (typeof address[key] === 'string') visibleValues.push(address[key] as string);
     }
   }
-  return values
+  return visibleValues
     .map(comparable)
     .filter((value) => value.length >= 2)
     .some((value) => !visible.includes(value));
@@ -154,7 +163,7 @@ export const AEO_RULES: ScanRule[] = [
     failed: (ctx) =>
       identityNodes(ctx)
         .filter((node) => !isReferenceOnly(node))
-        .some((node) => visibleIdentityMismatch(node, ctx.visibleText)),
+        .some((node) => visibleIdentityMismatch(node, ctx)),
   },
   {
     code: 'aeo_local_business_details',

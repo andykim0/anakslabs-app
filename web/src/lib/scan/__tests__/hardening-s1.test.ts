@@ -201,7 +201,7 @@ describe('SE$ S1 점수 보정과 루트 원인', () => {
         after: {
           healthy: { seo: 100, aeo: 100, geo: 100, total: 100 },
           partial: { seo: 78, aeo: 74, geo: 74, total: 75 },
-          serious: { seo: 47, aeo: 52, geo: 57, total: 52 },
+          serious: { seo: 49, aeo: 52, geo: 57, total: 53 },
         },
       },
     );

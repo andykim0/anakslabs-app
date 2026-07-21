@@ -8,6 +8,7 @@
  */
 import type { ScanRule, RuleContext } from '../rules';
 import { parseRobotsTxt, robotsAllows } from '../robots';
+import { sitemapLooksValid } from '../sitemap';
 import {
   canonicalHref,
   hasKoreanText,
@@ -33,13 +34,6 @@ function robotsLooksValid(ctx: RuleContext): boolean {
   if (/text\/html/i.test(ctx.robots.contentType)) return false;
   const parsed = parseRobotsTxt(ctx.robots.body);
   return !ctx.robots.truncated && parsed.recognizedDirectives > 0;
-}
-
-function sitemapLooksValid(ctx: RuleContext): boolean {
-  if (!ctx.sitemap.ok || ctx.sitemap.truncated) return false;
-  if (/text\/html/i.test(ctx.sitemap.contentType)) return false;
-  const body = ctx.sitemap.body.replace(/^\uFEFF/, '').trim();
-  return /<(?:urlset|sitemapindex)\b/i.test(body) && /<loc>\s*https?:\/\//i.test(body);
 }
 
 function canonicalInvalid(ctx: RuleContext): boolean {
@@ -170,7 +164,7 @@ export const SEO_RULES: ScanRule[] = [
     weight: 5,
     label: 'title 요소가 여러 개 있습니다',
     detail: '네이버를 포함한 검색엔진이 어느 제목을 대표 제목으로 사용할지 추가 판단해야 하는 구조입니다.',
-    failed: (ctx) => ctx.root.querySelectorAll('title').length > 1,
+    failed: (ctx) => ctx.root.querySelectorAll('head > title').length > 1,
   },
   {
     code: 'seo_title_length',
@@ -348,24 +342,24 @@ export const SEO_RULES: ScanRule[] = [
     weight: 10,
     label: 'sitemap.xml 형식이 올바르지 않습니다',
     detail: '2xx 응답이어도 HTML 오류 페이지이거나 urlset/sitemapindex와 절대 loc가 없으면 유효한 사이트맵이 아닙니다.',
-    failed: (ctx) => ctx.sitemap.ok && !sitemapLooksValid(ctx),
+    failed: (ctx) => ctx.sitemap.ok && !sitemapLooksValid(ctx.sitemap),
   },
   {
     code: 'seo_speed_slow',
     pillar: 'seo',
     severity: 'warn',
-    weight: 4,
+    weight: 2,
     label: '서버 첫 응답이 느립니다 (1.5초 초과)',
-    detail: '첫 응답까지 1.5초가 넘어 사용자와 크롤러 모두 대기하는 상태입니다.',
+    detail: '다보임 진단 서버 위치에서 2회 측정한 빠른 응답이 1.5초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표입니다.',
     failed: (ctx) => ctx.ttfbMs > 1500 && ctx.ttfbMs <= 3000,
   },
   {
     code: 'seo_speed_very_slow',
     pillar: 'seo',
     severity: 'critical',
-    weight: 8,
+    weight: 3,
     label: '서버 첫 응답이 매우 느립니다 (3초 초과)',
-    detail: '첫 응답까지 3초가 넘습니다. 사용자 경험과 제한된 크롤 예산 모두에 부담이 됩니다.',
+    detail: '다보임 진단 서버 위치에서 2회 측정한 빠른 응답이 3초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표이므로 반복 측정으로 확인하세요.',
     failed: (ctx) => ctx.ttfbMs > 3000,
   },
   {

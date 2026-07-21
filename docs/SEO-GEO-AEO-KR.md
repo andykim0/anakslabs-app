@@ -171,7 +171,7 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
 #### 2026-07-21 score-calibration and robots error hardening
 
 - Raw rule weights are normalized against a fixed 100-point budget per pillar
-  (SEO 268, AEO 107, GEO 148), then use a deterministic square-root deduction
+  (SEO 261, AEO 107, GEO 148), then use a deterministic square-root deduction
   curve. This keeps the first material defect visible while preventing a long
   list of correlated heuristics from collapsing many different sites to zero.
   The curve is a product calibration model, not a platform ranking formula.
@@ -187,6 +187,38 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   excluded from ordinary `4xx` handling and that `5xx` robots failures trigger
   retry/cache behavior rather than proving an authored `Disallow` policy.
   [Google robots.txt status handling, reviewed 2026-07-21](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec#handling-of-errors-and-http-status-codes)
+
+#### 2026-07-21 false-positive and response-time hardening
+
+- Document-title multiplicity is scoped to direct `head > title` children.
+  SVG's child `<title>` is an accessible name for the graphic, not a second
+  document title, so it must not trigger the SEO rule.
+- Sitemap probing follows up to the first three absolute `Sitemap:` locations
+  declared by robots.txt and uses `/sitemap.xml` only when no location is
+  declared. Google documents `Sitemap:` as a supported robots field and
+  requires an absolute URL; following the declared location avoids rejecting a
+  valid custom sitemap because the conventional path is absent.
+  [Google robots.txt fields, reviewed 2026-07-21](https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec#sitemap)
+  [Google sitemap discovery, reviewed 2026-07-21](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
+- Numerical/research-claim citations are now local evidence: a citation or
+  absolute source link must be in the claim block or its nearest semantic
+  `section`/`article`. An unrelated footer link no longer clears the finding.
+  This remains a deterministic product heuristic rather than a platform
+  ranking claim, grounded in the GEO evidence interpretation in section 3.
+- A structured entity name may be corroborated by visible text, a logo
+  `img[alt]`, an `aria-label`, or `og:site_name`. Phone and address still have
+  to appear in readable page text, preserving Google's requirement that
+  structured data represent page content rather than hidden facts.
+  [Google structured-data policies, reviewed 2026-07-21](https://developers.google.com/search/docs/appearance/structured-data/sd-policies)
+- TTFB is measured twice and the faster valid response-header sample is used.
+  Scanner URL/DNS safety-validation time is outside the stopwatch, while every
+  redirect hop is still revalidated against SSRF. Slow/very-slow deductions
+  were reduced from 4/8 to 2/3 because this is a lab observation from the
+  Daboim scanner region, not a field metric from the visitor's location.
+  web.dev describes TTFB as including connection and server latency, notes that
+  values vary by architecture and measurement context, and treats its numeric
+  thresholds as rough guidance rather than a Core Web Vital.
+  [web.dev TTFB guide, reviewed 2026-07-21](https://web.dev/articles/ttfb)
 
 ### Generated tenant sites
 
