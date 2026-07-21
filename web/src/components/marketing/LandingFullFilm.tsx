@@ -37,7 +37,7 @@ const FULL_FILM_CSS = `
 [data-landing-full-film-stage] [data-landing-story-root] {
   position: relative; z-index: 6; background: #f8fbff;
 }
-[data-landing-full-film-stage] [data-story-progress-rail] { z-index: 30; }
+[data-landing-full-film-stage] [data-story-progress-rail] { z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   [data-landing-full-film-stage] .daboim-cinematic [data-signature-id="scrollytelling-manifesto"] [data-ss-media] {
     position: relative !important; inset: auto !important; width: 100%; height: var(--ss-static-height) !important;
