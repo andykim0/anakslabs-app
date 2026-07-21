@@ -14,7 +14,7 @@ import {
   type PublishArtifactAudit,
   type RenderedPublishPage,
 } from '@/lib/publish/artifact-audit';
-import { runRules, type RuleContext } from './rules';
+import { createRuleRunState, runRules, type RuleContext } from './rules';
 import { SEO_RULES } from './checks/seo';
 import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
@@ -88,9 +88,11 @@ export function preflightScan(
       },
     };
 
-    const seo = runRules(SEO_RULES, ctx);
-    const aeo = runRules(AEO_RULES, ctx);
-    const geo = runRules(GEO_RULES, ctx);
+    // 라이브 runScan과 동일하게 한 페이지의 필러 간 루트 원인을 공유해 이중 차감을 막는다.
+    const runState = createRuleRunState();
+    const seo = runRules(SEO_RULES, ctx, runState);
+    const aeo = runRules(AEO_RULES, ctx, runState);
+    const geo = runRules(GEO_RULES, ctx, runState);
     worst.seo = Math.max(worst.seo, seo.deducted);
     worst.aeo = Math.max(worst.aeo, aeo.deducted);
     worst.geo = Math.max(worst.geo, geo.deducted);
