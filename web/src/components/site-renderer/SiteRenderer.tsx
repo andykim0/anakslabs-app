@@ -119,6 +119,20 @@ const SITE_CINEMATIC_CSS = `
 .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter] {
   position: relative; isolation: isolate; z-index: 2;
 }
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter]::before {
+  position: absolute; z-index: 3; inset: 0; content: ''; pointer-events: none;
+  opacity: var(--story-chapter-light,.5);
+  background: radial-gradient(
+    circle at var(--story-light-x,18%) var(--story-light-y,42%),
+    color-mix(in srgb,var(--site-cine-accent) 12%,transparent),transparent 26%
+  );
+  mix-blend-mode: soft-light;
+}
+.anaks-site[data-site-cinematic].m-cinematic-ready [data-site-cinematic-continuation] > [data-story-chapter] > * {
+  opacity: var(--story-chapter-opacity,1);
+  transform: translate3d(var(--story-chapter-x,0px),var(--story-chapter-y,0px),0) scale(var(--story-chapter-scale,1));
+  transform-origin: 50% 50%; will-change: transform,opacity;
+}
 .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter]::after {
   position: absolute; z-index: 4; top: clamp(30px,4vw,58px);
   left: calc(max(14px,calc((100% - 1400px) / 2 + 20px)) - 17px);
@@ -140,6 +154,10 @@ const SITE_CINEMATIC_CSS = `
 }
 @media (prefers-reduced-motion: reduce) {
   .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] [data-story-progress-fill] { transform: scaleY(1); }
+  .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter] > * {
+    opacity: 1 !important; transform: none !important; will-change: auto;
+  }
+  .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter]::before { opacity: .34; }
 }
 `;
 
@@ -153,7 +171,11 @@ function SiteCinematicSequence({ children }: { children: ReactNode }) {
 }
 
 function SiteCinematicChapter({ index, children }: { index: number; children: ReactNode }) {
-  return <div data-story-chapter={String(index + 1).padStart(2, '0')}>{children}</div>;
+  return (
+    <div data-story-chapter={String(index + 1).padStart(2, '0')} data-site-cine-quiet-section>
+      {children}
+    </div>
+  );
 }
 
 /**
