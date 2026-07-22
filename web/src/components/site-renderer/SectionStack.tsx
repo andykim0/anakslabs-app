@@ -33,6 +33,8 @@ interface SectionStackProps {
   siteId?: string;
   /** SITECINE v1 only. Legacy configs omit it and keep the exact image path. */
   proceduralHero?: boolean;
+  /** Scene-integrated hero copy. Additive and enabled only by the SITECINE contract. */
+  integratedTypography?: boolean;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -86,7 +88,16 @@ function itemStyle(el: CanvasElement): CSSProperties {
   }
 }
 
-export function SectionStack({ section, theme, isFirst, interactive = true, plan, siteId, proceduralHero = false }: SectionStackProps) {
+export function SectionStack({
+  section,
+  theme,
+  isFirst,
+  interactive = true,
+  plan,
+  siteId,
+  proceduralHero = false,
+  integratedTypography = false,
+}: SectionStackProps) {
   const bg = section.background;
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
   const elements = stackOrder(section.elements.filter(stackable));
@@ -195,6 +206,9 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           return (
             <div
               key={el.id}
+              {...(integratedTypography && section.type === 'hero' && el.kind === 'text'
+                ? { 'data-site-cine-hero-copy': true }
+                : {})}
               {...(hasAssetFallback(el) ? { 'data-asset-fallback': 'true' } : {})}
               {...(dataM ? { 'data-m': dataM } : {})}
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}

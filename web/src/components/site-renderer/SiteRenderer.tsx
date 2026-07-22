@@ -103,6 +103,32 @@ const SITE_CINEMATIC_CSS = `
   background: color-mix(in srgb,var(--site-cine-primary) 24%,transparent);
   filter: blur(64px);
 }
+.anaks-site[data-site-cinematic] [data-site-cine-integrated-typography]
+  :is([data-cinematic-copy],[data-ss-copy],[data-scene-copy],[data-curtain-copy],[data-panel-copy],[data-chapter-copy]),
+.anaks-site[data-site-cinematic] [data-site-cine-hero-copy] {
+  position: relative; isolation: isolate;
+  padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none;
+}
+.anaks-site[data-site-cinematic] [data-site-cine-integrated-typography]
+  :is([data-cinematic-copy],[data-ss-copy],[data-scene-copy],[data-curtain-copy],[data-panel-copy],[data-chapter-copy])::before,
+.anaks-site[data-site-cinematic] [data-site-cine-hero-copy]::before {
+  position: absolute; z-index: -1; inset: -18% -9%; content: ''; pointer-events: none;
+  border: 0; border-radius: 50%;
+  background: radial-gradient(ellipse at center,var(--site-cine-local-scrim,color-mix(in srgb,var(--site-cine-bg) 58%,transparent)) 0,transparent 72%);
+  filter: blur(14px);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-integrated-typography]
+  :is([data-cinematic-tone="light"],[data-ss-tone="light"]) {
+  --site-cine-local-scrim: rgba(2,8,24,.64);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-integrated-typography]
+  :is([data-cinematic-tone="ink"],[data-ss-tone="ink"]) {
+  --site-cine-local-scrim: rgba(255,255,255,.68);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-hero-copy] {
+  text-shadow: 0 1px 2px color-mix(in srgb,var(--site-cine-bg) 72%,transparent),
+    0 12px 34px color-mix(in srgb,var(--site-cine-bg) 62%,transparent);
+}
 .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] {
   --story-progress: var(--scroll-progress,0); position: relative; isolation: isolate; overflow: clip;
 }
@@ -172,7 +198,11 @@ function SiteCinematicSequence({ children }: { children: ReactNode }) {
 
 function SiteCinematicChapter({ index, children }: { index: number; children: ReactNode }) {
   return (
-    <div data-story-chapter={String(index + 1).padStart(2, '0')} data-site-cine-quiet-section>
+    <div
+      data-story-chapter={String(index + 1).padStart(2, '0')}
+      data-site-cine-quiet-section
+      data-site-cine-integrated-typography
+    >
       {children}
     </div>
   );
@@ -375,12 +405,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
                         </div>
                       )}
                     </div>
@@ -455,12 +485,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -481,7 +511,7 @@ export function SiteRenderer({
               <SiteCinematicSequence>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
@@ -504,6 +534,7 @@ export function SiteRenderer({
                       plan={plan}
                       siteId={siteId}
                       proceduralHero={section.type === 'hero' && !section.background.video?.src}
+                      integratedTypography={section.type === 'hero'}
                     />
                   </SiteCinematicChapter>
                 ))}

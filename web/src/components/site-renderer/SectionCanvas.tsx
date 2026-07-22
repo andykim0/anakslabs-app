@@ -42,6 +42,8 @@ interface SectionCanvasProps {
   siteId?: string;
   /** SITECINE v1 only. Legacy configs omit it and keep the exact image path. */
   proceduralHero?: boolean;
+  /** Scene-integrated hero copy. Additive and enabled only by the SITECINE contract. */
+  integratedTypography?: boolean;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -68,6 +70,7 @@ function StandardSection({
   pinned = false,
   cinematicPlayback = false,
   proceduralHero = false,
+  integratedTypography = false,
 }: SectionCanvasProps & { pinned?: boolean; cinematicPlayback?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -194,6 +197,9 @@ function StandardSection({
         return (
           <div
             key={el.id}
+            {...(integratedTypography && section.type === 'hero' && el.kind === 'text'
+              ? { 'data-site-cine-hero-copy': true }
+              : {})}
             {...(dataM ? { 'data-m': dataM } : {})}
             {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
             {...(depth != null ? { 'data-m-depth': String(depth) } : {})}
