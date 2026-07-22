@@ -205,6 +205,7 @@ const textElementSchema = z.object({
     letterSpacing: z.number().optional(),
     italic: z.boolean().optional(),
     appearance: z.literal('outline-tag').optional(),
+    readabilityGuard: z.literal('long-hero').optional(),
   }),
 });
 

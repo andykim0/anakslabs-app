@@ -72,12 +72,11 @@ describe('M7 같은 사진, 다른 옷 후보 실렌더', () => {
       const config = buildCandidatePreviewConfig(pinnedInput, item, HERO);
       const variant = heroVariantForSurvey(pinnedInput.referenceDesignId, pinnedInput.purposeId, item.id);
       const hero = config.pages[0]?.sections.find((section) => section.type === 'hero');
-      const aligns = new Set(hero?.elements.flatMap((element) =>
-        element.kind === 'text' && element.id.includes('hero-') && !element.id.includes('chip-label')
-          ? [element.style.align]
-          : []));
+      const title = hero?.elements.find((element) => element.kind === 'text' && element.id.includes('hero-title'));
+      const sub = hero?.elements.find((element) => element.kind === 'text' && element.id.includes('hero-sub'));
       assert.equal(variant, 'split');
-      assert.deepEqual(aligns, new Set(['right']));
+      assert.equal(title?.kind === 'text' && title.style.align, 'right');
+      assert.equal(sub?.kind === 'text' && sub.style.align, 'left');
     }
   });
 

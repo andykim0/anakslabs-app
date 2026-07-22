@@ -176,6 +176,8 @@ export interface TextElement extends ElementBase {
     italic?: boolean;
     /** 생성기가 명시한 소형 윤곽 태그. 미지정 텍스트는 기존 렌더 계약을 그대로 사용한다. */
     appearance?: 'outline-tag';
+    /** 3줄 이상 히어로에만 적용하는 크기·줄 수 가드. 미지정 기존 문서는 픽셀 동일하다. */
+    readabilityGuard?: 'long-hero';
   };
 }
 

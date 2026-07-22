@@ -43,6 +43,12 @@ describe('D2 — 히어로 리치화', () => {
     assert.ok(chipElements.every((element) => (
       element.kind === 'text' && element.style.appearance === 'outline-tag'
     )));
+    assert.ok(chipElements.every((element) => element.frame.w < 260), '태그가 카드 폭으로 부풀어 있음');
+    for (let index = 1; index < chipElements.length; index += 1) {
+      const previous = chipElements[index - 1];
+      const current = chipElements[index];
+      assert.equal(current.frame.x - (previous.frame.x + previous.frame.w), 16, '태그가 인라인 묶음이 아님');
+    }
     assert.equal(hero.elements.some((element) => (
       element.kind === 'shape' && element.id.includes('hero-chip')
     )), false);

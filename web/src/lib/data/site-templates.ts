@@ -142,6 +142,16 @@ function heroChips(survey: SurveyInput): string[] {
   return (survey.highlights ?? []).map((highlight) => highlight.trim()).filter(Boolean).slice(0, 3);
 }
 
+/** 아웃라인 태그의 실제 문구 폭만큼만 프레임을 예약해 카드처럼 부풀거나 흩어지지 않게 한다. */
+function heroChipFrameWidth(text: string): number {
+  const units = Array.from(text).reduce((width, character) => {
+    if (/\s/u.test(character)) return width + 0.34;
+    if (/[\u3131-\u318e\uac00-\ud7a3]/u.test(character)) return width + 1;
+    return width + 0.58;
+  }, 0);
+  return Math.min(260, Math.max(104, Math.ceil(units * 13 + 32)));
+}
+
 /**
  * [D2] 자랑거리(highlights) 카드의 본문 프레이밍 — 자랑거리 제목을 '가치'로 서술(2문장).
  * 새 사실(시간·수치·고객반응)을 만들지 않고, 그것이 우리가 지키는 원칙이라는 틀만 결정적으로 부여한다.
@@ -408,12 +418,13 @@ function buildHero(ctx: Ctx): Section {
     },
   );
   // [D2/H1] 소형 인라인 아웃라인 태그. 별도 shape를 두지 않아 DNA surface가 카드처럼 채우지 못한다.
-  chips.forEach((chip, i) => {
-    const cx = 122 + i * 384;
+  let chipX = 122;
+  chips.forEach((chip) => {
+    const chipWidth = heroChipFrameWidth(chip);
     elements.push({
       id: nextId(ctx, 'el-hero-chip-label'),
       kind: 'text',
-      frame: { x: cx, y: 612, w: 360, h: 40 },
+      frame: { x: chipX, y: 612, w: chipWidth, h: 40 },
       z: 4,
       text: chip,
       style: {
@@ -425,6 +436,7 @@ function buildHero(ctx: Ctx): Section {
         appearance: 'outline-tag',
       },
     });
+    chipX += chipWidth + 16;
   });
   elements.push(
     {
@@ -454,7 +466,7 @@ function buildHero(ctx: Ctx): Section {
   );
 
   // [R2] 뼈대 히어로 형태 적용 — 좌(fullbleed)/중앙(centered)/우앵커(split). 이미지 배경·스크림 공통.
-  applyHeroVariant(elements, opts.heroVariant ?? 'fullbleed', chips.length);
+  applyHeroVariant(elements, opts.heroVariant ?? 'fullbleed');
 
   return {
     id: 'sec-hero',
@@ -474,14 +486,65 @@ function buildHero(ctx: Ctx): Section {
 }
 
 /**
- * [R2] 히어로 형태 후처리 — 텍스트 정렬·수평 위치만 조정(이미지 배경·스크림·수직 위치 불변 = AA 안전).
- * fullbleed=좌(무변경) · centered=중앙 정렬+수평 중앙 · split=우측 앵커(우정렬). 로고는 고정.
+ * 한글 글자 폭을 1em으로 본 보수적인 줄 수 추정. 명시 줄바꿈과 자동 줄바꿈을 함께 센다.
+ * 실제 렌더는 keep-all이라 단어 경계가 더 일찍 꺾일 수 있으므로 0.92 안전 계수를 둔다.
  */
-function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant, chipCount: number): void {
+function estimatedHeroTitleLines(text: string, frameWidth: number, fontSize: number): number {
+  const capacity = Math.max(1, (frameWidth / Math.max(1, fontSize)) * 0.92);
+  return text.split('\n').reduce((total, line) => {
+    const units = Array.from(line).reduce((width, character) => {
+      if (/\s/u.test(character)) return width + 0.34;
+      if (/[\u3131-\u318e\uac00-\ud7a3]/u.test(character)) return width + 1;
+      return width + 0.58;
+    }, 0);
+    return total + Math.max(1, Math.ceil(units / capacity));
+  }, 0);
+}
+
+/**
+ * [R2/H2] 히어로 형태 후처리. fullbleed/centered는 종전 그대로이며 split만 한글 가독성 가드를 둔다.
+ * 짧은 제목은 우측 변주를 유지하지만, 서브카피와 예상 3줄 이상 제목은 우측 앵커 안에서 좌정렬한다.
+ */
+function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant): void {
   if (variant === 'fullbleed') return;
   const RIGHT_MARGIN = 120;
   const centerX = (w: number) => Math.round((1440 - w) / 2);
   const rightX = (w: number) => 1440 - w - RIGHT_MARGIN;
+  const chipElements = elements.filter((element) => element.id.includes('hero-chip-label'));
+  const heroTitle = elements.find((element) => (
+    element.kind === 'text' && element.id.includes('hero-title')
+  ));
+  const initialTitleLines = heroTitle?.kind === 'text'
+    ? estimatedHeroTitleLines(heroTitle.text, heroTitle.frame.w, heroTitle.style.fontSize)
+    : 0;
+  const longHeroTitle = initialTitleLines >= 3;
+  const readableStart = rightX(1120);
+  if (heroTitle?.kind === 'text' && longHeroTitle) {
+    const lineHeight = 1.16;
+    const maxTitleHeight = chipElements.length > 0 ? 292 : 338;
+    heroTitle.frame.w = 1120;
+    heroTitle.style.lineHeight = lineHeight;
+    heroTitle.style.readabilityGuard = 'long-hero';
+    for (let fontSize = 66; fontSize >= 48; fontSize -= 2) {
+      const lines = estimatedHeroTitleLines(heroTitle.text, heroTitle.frame.w, fontSize);
+      if (lines * fontSize * lineHeight <= maxTitleHeight) {
+        heroTitle.style.fontSize = fontSize;
+        heroTitle.frame.h = Math.ceil(lines * fontSize * lineHeight);
+        break;
+      }
+    }
+    const heroSub = elements.find((element) => (
+      element.kind === 'text' && element.id.includes('hero-sub')
+    ));
+    if (heroSub) heroSub.frame.y = heroTitle.frame.y + heroTitle.frame.h + 16;
+    const chipY = heroSub ? heroSub.frame.y + heroSub.frame.h + 14 : heroTitle.frame.y + heroTitle.frame.h + 16;
+    for (const chip of chipElements) chip.frame.y = chipY;
+    const ctaY = chipElements.length > 0 ? chipY + 64 : chipY + 32;
+    const cta = elements.find((element) => element.id.includes('hero-cta') && !element.id.includes('cta2'));
+    const cta2 = elements.find((element) => element.id.includes('hero-cta2'));
+    if (cta) cta.frame.y = ctaY;
+    if (cta2) cta2.frame.y = ctaY;
+  }
   for (const el of elements) {
     if (el.id.includes('hero-logo')) continue;
     if (el.kind === 'text' && !el.id.includes('chip-label')) {
@@ -490,26 +553,27 @@ function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant, chipC
         el.frame.w = 1200;
         el.style.align = 'center';
       } else {
-        el.frame.x = rightX(el.frame.w);
-        el.style.align = 'right';
+        el.frame.x = longHeroTitle ? readableStart : rightX(el.frame.w);
+        const needsReadableAlignment = el.id.includes('hero-sub') || (
+          el.id.includes('hero-title') && longHeroTitle
+        );
+        el.style.align = needsReadableAlignment ? 'left' : 'right';
       }
     }
   }
-  // 칩 행(shape+label 쌍) — 그룹 중앙/우측 정렬
-  const chipW = 360;
-  const gap = 24;
-  const rowW = chipCount > 0 ? chipCount * chipW + (chipCount - 1) * gap : 0;
-  const rowStart = variant === 'centered' ? centerX(rowW) : rightX(rowW);
-  let chipIndex = 0;
-  for (const el of elements) {
-    if (el.id.includes('hero-chip-label')) {
-      el.frame.x = rowStart + chipIndex * (chipW + gap);
-      chipIndex += 1;
-    }
+  // 소형 인라인 칩 행 — 그룹 중앙/우측 정렬
+  const gap = 16;
+  const rowW = chipElements.reduce((width, element) => width + element.frame.w, 0) +
+    Math.max(0, chipElements.length - 1) * gap;
+  const rowStart = variant === 'centered' ? centerX(rowW) : longHeroTitle ? readableStart : rightX(rowW);
+  let nextChipX = rowStart;
+  for (const element of chipElements) {
+    element.frame.x = nextChipX;
+    nextChipX += element.frame.w + gap;
   }
   // CTA 쌍 — 그룹 정렬(각각 독립 중앙 정렬 시 겹침 방지)
   const pairW = 172 + 16 + 172;
-  const pairStart = variant === 'centered' ? centerX(pairW) : rightX(pairW);
+  const pairStart = variant === 'centered' ? centerX(pairW) : longHeroTitle ? readableStart : rightX(pairW);
   const cta = elements.find((e) => e.id.includes('hero-cta') && !e.id.includes('cta2'));
   const cta2 = elements.find((e) => e.id.includes('hero-cta2'));
   if (cta) cta.frame.x = pairStart;

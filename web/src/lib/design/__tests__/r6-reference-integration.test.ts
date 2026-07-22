@@ -33,7 +33,6 @@ function heroFor(purpose: LivePurposeId, heroVariant: 'fullbleed' | 'centered' |
   const cfg = buildSiteConfigFromSurvey(survey, cand, { heroImageUrl: '/mock/h.svg', imagePool: ['/mock/a.svg'], heroVariant });
   return cfg.pages[0].sections.find((s) => s.type === 'hero')!;
 }
-const ALIGN: Record<string, string> = { fullbleed: 'left', centered: 'center', split: 'right' };
 const heroTextAligns = (els: CanvasElement[]) =>
   new Set(els.filter((e) => e.kind === 'text' && e.id.includes('hero-') && !e.id.includes('chip-label')).map((e) => (e.kind === 'text' ? e.style.align : '')));
 
@@ -44,7 +43,15 @@ describe('R6 — 레퍼런스 풀 통합', () => {
       const hv = heroVariantForSurvey(design.id, p, 'cand-any');
       assert.equal(hv, skeletonById(design.skeletonId)!.heroVariant, `${p}: 선택 뼈대 미반영`);
       const hero = heroFor(p, hv);
-      assert.deepEqual(heroTextAligns(hero.elements), new Set([ALIGN[hv]]), `${p}: 히어로 정렬 미반영`);
+      if (hv === 'split') {
+        const title = hero.elements.find((element) => element.kind === 'text' && element.id.includes('hero-title'));
+        const sub = hero.elements.find((element) => element.kind === 'text' && element.id.includes('hero-sub'));
+        assert.equal(title?.kind === 'text' && title.style.align, 'right', `${p}: 짧은 제목 split 변주 미반영`);
+        assert.equal(sub?.kind === 'text' && sub.style.align, 'left', `${p}: split 서브카피 가독성 가드 미반영`);
+      } else {
+        const expected = hv === 'centered' ? 'center' : 'left';
+        assert.deepEqual(heroTextAligns(hero.elements), new Set([expected]), `${p}: 히어로 정렬 미반영`);
+      }
     }
   });
 

@@ -254,6 +254,7 @@ interface RenderedSiteTypographyInput {
     fontSize: number;
     lineHeight?: number;
     fontFamily?: 'heading' | 'body';
+    readabilityGuard?: 'long-hero';
   };
   variant: 'canvas' | 'stack';
   /** Persisted DESIGN_WIDTH frame height. Required for the fixed canvas safety gate. */
@@ -326,8 +327,15 @@ type DnaTypographyRole = keyof SiteThemeTokens['typography']['size'];
 function dnaTypographyRole(
   elementId: string,
   style: RenderedSiteTypographyInput['style'],
+  frameHeight: number,
 ): { role: DnaTypographyRole; lines: number } {
-  if (elementId.includes('hero-title')) return { role: 'display', lines: 2 };
+  if (elementId.includes('hero-title')) {
+    const storedLineHeight = style.lineHeight ?? 1.45;
+    const authoredLines = style.readabilityGuard === 'long-hero'
+      ? Math.max(3, Math.round(frameHeight / (style.fontSize * storedLineHeight)))
+      : 2;
+    return { role: 'display', lines: authoredLines };
+  }
   if (isGeneratedSectionTitleId(elementId)) return { role: 'title', lines: 2 };
   const generatedRule = generatedTextRoleFor(elementId);
   if (generatedRule?.role === 'support') return { role: 'caption', lines: generatedRule.lines };
@@ -350,7 +358,7 @@ export function resolveRenderedSiteTypography(input: RenderedSiteTypographyInput
   const tokens = input.tokens;
   if (!tokens) return legacy;
 
-  const { role, lines } = dnaTypographyRole(input.elementId, input.style);
+  const { role, lines } = dnaTypographyRole(input.elementId, input.style, input.frameHeight);
   const ratioFactor = tokens.ratio / 1.2;
   const tokenSize = tokenRemToPx(tokens.size[role]);
   const fontSize = role === 'display'
@@ -368,7 +376,10 @@ export function resolveRenderedSiteTypography(input: RenderedSiteTypographyInput
     lineHeight,
   };
 
-  if (input.variant === 'stack') return candidate;
+  if (input.variant === 'stack') {
+    // H2: 3줄 이상 히어로는 DNA display 비율을 다시 곱하면 모바일에서 과대해진다.
+    return role === 'display' && lines >= 3 ? legacy : candidate;
+  }
   if (candidate.fontSize <= legacy.fontSize && candidate.lineHeight <= legacy.lineHeight) return candidate;
   const requiredHeight = candidate.fontSize * candidate.lineHeight * lines;
   return requiredHeight <= input.frameHeight + 0.01 ? candidate : legacy;

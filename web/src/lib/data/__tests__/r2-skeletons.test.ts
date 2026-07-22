@@ -14,14 +14,17 @@ import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/d
 const cand: DesignCandidate = { id: 'cand-warm-cozy', label: 'x', style: 'photo', heroImageUrl: '/mock/h.svg', theme: emptySiteConfig('t').theme, description: '' };
 const opts = { heroImageUrl: '/mock/h.svg', imagePool: ['/mock/a.svg'] };
 
-function heroTextEls(heroVariant?: 'fullbleed' | 'centered' | 'split'): CanvasElement[] {
+function heroTextEls(
+  heroVariant?: 'fullbleed' | 'centered' | 'split',
+  copy?: { heroTitle?: string; heroSub?: string },
+): CanvasElement[] {
   const t = resolveTemplate('local_store', '카페');
   const survey = {
     businessName: '소소한자리', purposeId: 'local_store', purpose: '음식점', industry: '카페', region: '서울',
     tone: ['친근한'], colorPreference: '#c98a5e', referenceImageUrls: [],
     sectionPlan: planFromTemplate(t), pagePlan: pagePlanFromTemplate(t), templateId: t.id,
   } as SurveyInput;
-  const cfg = buildSiteConfigFromSurvey(survey, cand, { ...opts, heroVariant });
+  const cfg = buildSiteConfigFromSurvey(survey, cand, { ...opts, heroVariant, copy });
   const hero = cfg.pages[0].sections.find((s) => s.type === 'hero')!;
   return hero.elements.filter((e) => e.kind === 'text' && e.id.includes('hero-') && !e.id.includes('chip-label'));
 }
@@ -61,12 +64,31 @@ describe('R2 — heroVariant 히어로 정렬/앵커', () => {
     }
   });
 
-  test('split: 우측 앵커(우정렬 + 우측 여백 120)', () => {
+  test('split: 짧은 제목은 우측 변주를 유지하고 서브카피는 좌정렬한다', () => {
     const els = heroTextEls('split');
-    assert.deepEqual(alignsOf(els), new Set(['right']), '우정렬 아님');
+    const title = els.find((element) => element.id.includes('hero-title'))!;
+    const sub = els.find((element) => element.id.includes('hero-sub'))!;
+    assert.equal(title.kind === 'text' && title.style.align, 'right');
+    assert.equal(sub.kind === 'text' && sub.style.align, 'left');
+    assert.equal(title.kind === 'text' && title.style.readabilityGuard, undefined);
+    assert.deepEqual(title.frame, { x: 440, y: 300, w: 880, h: 220 }, '짧은 제목 프레임 회귀');
     for (const e of els) {
       assert.equal(e.frame.x + e.frame.w, 1440 - 120, `${e.id} 우측 앵커 아님`);
     }
+  });
+
+  test('split: 예상 3줄 이상 한글 제목은 우측정렬하지 않는다', () => {
+    const copy = {
+      heroTitle: '계절의 흐름과 재료의 이야기를 한 접시에 정성껏 담아 전하는 다이닝',
+      heroSub: '오늘 준비한 재료와 식사 순서를 차분하게 안내해 드립니다.',
+    };
+    const els = heroTextEls('split', copy);
+    const title = els.find((element) => element.id.includes('hero-title'))!;
+    const sub = els.find((element) => element.id.includes('hero-sub'))!;
+    assert.equal(title.kind === 'text' && title.style.align, 'left');
+    assert.equal(sub.kind === 'text' && sub.style.align, 'left');
+    assert.ok(title.frame.y + title.frame.h < sub.frame.y, '긴 제목과 서브카피가 겹침');
+    assert.equal(title.frame.x, sub.frame.x, '긴 제목과 서브카피의 읽기 축이 다름');
   });
 
   test('전 변형 요소가 히어로 높이(820) 안에 유지', () => {
