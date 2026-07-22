@@ -398,10 +398,19 @@ function customerIntroduction(survey: SurveyInput): string[] {
 }
 
 function uniqueCustomerGalleryImages(survey: SurveyInput): string[] {
+  // URL이나 ref 단독은 권리 증거가 아니다. 신규 CONTENT 경로는 서버 검증을 거친
+  // 일반 확약 ID와 URL-ref 쌍이 모두 보존된 사진만 factual 갤러리에 넣는다.
+  if (!survey.generalAssetAttestationId) return [];
+  const pairedUrls = new Set([
+    ...(survey.storePhotoAssetRefs ?? []),
+    ...(survey.importedPhotoAssetRefs ?? []),
+    ...(survey.contentItems ?? []).flatMap((item) => item.photoAssetRef ? [item.photoAssetRef] : []),
+  ].map((asset) => asset.url));
   const candidates = [
-    ...(survey.storePhotoUrls ?? []),
-    ...(survey.contentItems ?? []).flatMap((item) => item.photoUrl ? [item.photoUrl] : []),
-    ...(survey.importedPhotoAssetRefs ?? []).map((asset) => asset.url),
+    ...(survey.storePhotoUrls ?? []).filter((url) => pairedUrls.has(url)),
+    ...(survey.contentItems ?? []).flatMap((item) => (
+      item.photoUrl && item.photoAssetRef?.url === item.photoUrl ? [item.photoUrl] : []
+    )),
   ];
   return [...new Set(candidates.map((url) => url.trim()).filter(Boolean))].slice(0, 8);
 }

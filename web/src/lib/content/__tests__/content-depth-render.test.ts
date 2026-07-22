@@ -72,6 +72,13 @@ function richSurvey(): SurveyInput {
       { name: '쿠키', price: '3,500', description: '고객이 적은 구움과자 안내' },
     ],
     storePhotoUrls: ['/customer/a.webp', '/customer/b.webp', '/customer/c.webp', '/customer/d.webp'],
+    storePhotoAssetRefs: [
+      { assetId: 'upload-a', url: '/customer/a.webp' },
+      { assetId: 'upload-b', url: '/customer/b.webp' },
+      { assetId: 'upload-c', url: '/customer/c.webp' },
+      { assetId: 'upload-d', url: '/customer/d.webp' },
+    ],
+    generalAssetAttestationId: 'attestation-content-depth',
     contentDepth: {
       version: 1,
       imports: [{
