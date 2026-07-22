@@ -9,6 +9,7 @@ import type { DesignCandidate, Site, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
@@ -163,10 +164,12 @@ export const POST = withApiHandler(async (request) => {
   }
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  // SITECINE is server-authored only: old stored configs stay absent/pixel-identical, every new site is pinned.
+  const withCinematicDefault = withSiteCinematicDefault(withExtras);
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 주입 → [Q7] 사용자 선택 병합 → sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
   let draftConfig = applyGeneratedMotion(
-    withExtras,
+    withCinematicDefault,
     survey.purposeId,
     client.tier,
     motionChoice,
@@ -218,7 +221,7 @@ export const POST = withApiHandler(async (request) => {
     });
     if (provenance.ok) {
       draftConfig = applyGeneratedMotion(
-        withExtras,
+        withCinematicDefault,
         survey.purposeId,
         client.tier,
         motionChoice,

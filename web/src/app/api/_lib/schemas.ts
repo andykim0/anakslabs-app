@@ -731,6 +731,13 @@ export const siteConfigSchema = z
     version: z.literal(2),
     theme: siteThemeSchema,
     designDna: designDnaSelectionSchema.optional(),
+    siteCinematic: z.object({
+      version: z.literal(1),
+      heroBackdrop: z.literal('dna-procedural'),
+      sectionSpine: z.literal(true),
+      quietSections: z.literal(true),
+      integratedTypography: z.literal(true),
+    }).strict().optional(),
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
     assetRefs: z.array(assetRefSchema).max(100).optional(),

@@ -40,6 +40,8 @@ interface SectionCanvasProps {
   plan?: MotionPlan;
   /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
   siteId?: string;
+  /** SITECINE v1 only. Legacy configs omit it and keep the exact image path. */
+  proceduralHero?: boolean;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -65,6 +67,7 @@ function StandardSection({
   siteId,
   pinned = false,
   cinematicPlayback = false,
+  proceduralHero = false,
 }: SectionCanvasProps & { pinned?: boolean; cinematicPlayback?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -77,7 +80,7 @@ function StandardSection({
   const densityDelta = themeSectionBlockDelta(theme);
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
-  const imgScrim = bg.image
+  const imgScrim = !proceduralHero && bg.image
     ? bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
@@ -140,6 +143,8 @@ function StandardSection({
         cinematicPlayback ? (
           <div data-m-cinematic-media style={coverStyle}>{videoBackdrop}</div>
         ) : videoBackdrop
+      ) : proceduralHero ? (
+        <div aria-hidden data-site-cine-procedural-hero />
       ) : (
         bg.image && (
           // eslint-disable-next-line @next/next/no-img-element

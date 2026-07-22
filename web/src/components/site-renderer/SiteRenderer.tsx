@@ -37,6 +37,7 @@ import {
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { themeColor } from '@/lib/design/site-theme-tokens';
+import { siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -75,6 +76,31 @@ const THEME_TOKEN_CSS = `
 .anaks-site[data-theme-tokens] [data-stack-card] {
   border-radius: var(--signature-radius);
   box-shadow: var(--theme-shadow-medium);
+}
+`;
+
+/** New-site-only palette world. It has no URL or product-brand asset to leak into a tenant artifact. */
+const SITE_CINEMATIC_CSS = `
+.anaks-site[data-site-cinematic] [data-site-cine-procedural-hero] {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb,var(--site-cine-primary) 54%,transparent) 0,transparent 34%),
+    radial-gradient(circle at 82% 30%, color-mix(in srgb,var(--site-cine-accent) 44%,transparent) 0,transparent 31%),
+    linear-gradient(142deg,var(--site-cine-bg) 4%,var(--site-cine-surface) 55%,color-mix(in srgb,var(--site-cine-primary) 24%,var(--site-cine-bg)) 100%);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-procedural-hero]::before,
+.anaks-site[data-site-cinematic] [data-site-cine-procedural-hero]::after {
+  position: absolute; content: ''; pointer-events: none; border-radius: 50%; filter: blur(1px);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-procedural-hero]::before {
+  width: 58%; aspect-ratio: 1; right: -8%; top: -24%;
+  border: 1px solid color-mix(in srgb,var(--site-cine-text) 15%,transparent);
+  box-shadow: inset 0 0 0 8vw color-mix(in srgb,var(--site-cine-accent) 7%,transparent);
+}
+.anaks-site[data-site-cinematic] [data-site-cine-procedural-hero]::after {
+  width: 42%; aspect-ratio: 1; left: -10%; bottom: -26%;
+  background: color-mix(in srgb,var(--site-cine-primary) 24%,transparent);
+  filter: blur(64px);
 }
 `;
 
@@ -137,6 +163,7 @@ export function SiteRenderer({
 }) {
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
+  const siteCinematic = siteCinematicIsEnabled(config);
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
   const sections = page.sections.filter((s) => !s.hidden);
@@ -177,7 +204,7 @@ export function SiteRenderer({
   const motionCssNeeded = baseMotionActive || Boolean(signatureScene);
   const signatureMotionEnabled = Boolean(signatureScene) && config.motion?.intensity !== 'off';
   const motionActive = shouldAnimate && (baseMotionActive || signatureMotionEnabled);
-  const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') +
+  const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
@@ -199,6 +226,14 @@ export function SiteRenderer({
     tokenStyle['--theme-shadow-low'] = theme.tokens.shadow.low;
     tokenStyle['--theme-shadow-medium'] = theme.tokens.shadow.medium;
     tokenStyle['--theme-shadow-high'] = theme.tokens.shadow.high;
+  }
+  if (siteCinematic) {
+    const cinematicStyle = rootStyle as Record<string, string | number>;
+    cinematicStyle['--site-cine-bg'] = theme.palette.background;
+    cinematicStyle['--site-cine-surface'] = theme.palette.surface;
+    cinematicStyle['--site-cine-text'] = theme.palette.text;
+    cinematicStyle['--site-cine-primary'] = theme.palette.primary;
+    cinematicStyle['--site-cine-accent'] = theme.palette.accent;
   }
   if (motionCssNeeded) {
     const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
@@ -232,6 +267,7 @@ export function SiteRenderer({
       <div
         className="anaks-site"
         {...(theme.tokens ? { 'data-theme-tokens': '1' } : {})}
+        {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
         style={rootStyle}
       >
         {signatureScene && signatureArt ? (
@@ -266,6 +302,7 @@ export function SiteRenderer({
                       interactive={interactive}
                       plan={plan}
                       siteId={siteId}
+                      proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
                     />
                   </div>
                 )}
@@ -279,6 +316,7 @@ export function SiteRenderer({
                       interactive={interactive}
                       plan={plan}
                       siteId={siteId}
+                      proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
                     />
                   </div>
                 )}
@@ -296,7 +334,7 @@ export function SiteRenderer({
         {!signatureScene && showDesktop && (
           <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
             {ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
             ))}
           </div>
         )}
@@ -312,6 +350,7 @@ export function SiteRenderer({
                 interactive={interactive}
                 plan={plan}
                 siteId={siteId}
+                proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
               />
             ))}
           </div>

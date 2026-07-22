@@ -680,6 +680,17 @@ export interface SiteConfig {
   theme: SiteTheme;
   /** DNA rollout ON에서 고른 카탈로그 id·hue·enum override. 재렌더 시 재선택하지 않는 핀. */
   designDna?: DesignDnaSelection;
+  /**
+   * [SITECINE] 신규 생성본에만 서버가 기록하는 시네마틱 연속성 계약.
+   * 미지정 레거시 발행본은 기존 DOM·CSS·픽셀을 그대로 보존한다.
+   */
+  siteCinematic?: {
+    version: 1;
+    heroBackdrop: 'dna-procedural';
+    sectionSpine: true;
+    quietSections: true;
+    integratedTypography: true;
+  };
   meta: SiteMeta;
   pages: SitePage[];
   /**

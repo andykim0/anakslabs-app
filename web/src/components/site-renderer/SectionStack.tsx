@@ -31,6 +31,8 @@ interface SectionStackProps {
   plan?: MotionPlan;
   /** [v3 Phase 3] 문의 폼 제출 대상 — 실서빙에서만 전달 */
   siteId?: string;
+  /** SITECINE v1 only. Legacy configs omit it and keep the exact image path. */
+  proceduralHero?: boolean;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -84,7 +86,7 @@ function itemStyle(el: CanvasElement): CSSProperties {
   }
 }
 
-export function SectionStack({ section, theme, isFirst, interactive = true, plan, siteId }: SectionStackProps) {
+export function SectionStack({ section, theme, isFirst, interactive = true, plan, siteId, proceduralHero = false }: SectionStackProps) {
   const bg = section.background;
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
   const elements = stackOrder(section.elements.filter(stackable));
@@ -92,9 +94,9 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
   const cinematic = (plan?.cinematicHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
   // 일반 video-hero는 모바일 poster 정적. cinematic만 IO 진입 시 pinned loop로 향상한다.
   const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;
-  const bgImgSrc = videoHero ? bg.video!.poster! : bg.image?.src;
+  const bgImgSrc = proceduralHero ? undefined : videoHero ? bg.video!.poster! : bg.image?.src;
   // [Q1] overlayColor 없으면 팔레트 기반 기본 스크림(레거시 보호) + 이미지 배경 텍스트 미세 그림자
-  const imgScrim = bg.image
+  const imgScrim = !proceduralHero && bg.image
     ? bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
@@ -105,7 +107,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
     ? imgScrim ?? ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
     : null;
 
-  if (elements.length === 0 && !bgImgSrc) return null;
+  if (elements.length === 0 && !bgImgSrc && !proceduralHero) return null;
 
   const contentSection = (
     <section
@@ -129,6 +131,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
         zIndex: cinematic ? 1 : undefined,
       }}
     >
+      {!cinematic && proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
       {!cinematic && bgImgSrc && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
