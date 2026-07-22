@@ -22,7 +22,7 @@ const BUSINESS_FACT_KEYS = [
   'phone', 'openingHours', 'address', 'parking', 'reservation', 'paymentMethods',
   'accessibility', 'pets', 'wifi', 'directions', 'signature', 'seating', 'outlets',
   'groupSeating', 'specialties', 'credentials', 'insurance', 'services', 'duration',
-  'classes', 'materials',
+  'classes', 'materials', 'caseStudies',
 ] as const;
 const assetRefSchema = z.object({
   assetId: z.string().uuid(),

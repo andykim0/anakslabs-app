@@ -7,6 +7,7 @@ import { emptySiteConfig } from '@/lib/types/site';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { buildSitePlan } from '@/lib/content/site-plan';
+import { buildJsonLd } from '@/lib/seo/jsonld';
 
 const candidate: DesignCandidate = {
   id: 'plan-contract', label: '계획 계약', style: 'photo', heroImageUrl: '/mock/hero.svg',
@@ -46,6 +47,7 @@ function surveyFor(purposeId: LivePurposeId, industry: string): SurveyInput {
         { key: 'services', value: '고객이 입력한 업무·서비스', source: 'customer' },
         { key: 'specialties', value: '고객이 입력한 전문 분야', source: 'customer' },
         { key: 'credentials', value: '고객이 입력한 경력·자격', source: 'customer' },
+        { key: 'caseStudies', value: '고객이 입력한 주요 실적·사례', source: 'customer' },
         { key: 'classes', value: '고객이 입력한 과정 구성', source: 'customer' },
       ],
       faqAnswers: [{ questionId: 'hours', answer: '평일 오전 10시부터 오후 6시까지 운영합니다.' }],
@@ -133,5 +135,49 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     assert.match(output, /고객이 직접 입력한 브랜드 이야기/u);
     assert.match(output, /고객이 입력한 업무·서비스/u);
     assert.match(output, /고객이 입력한 경력·자격/u);
+  });
+
+  test('전문서비스 특화 섹션은 홈 티저와 /team·/cases 풀 페이지를 함께 갖는다', () => {
+    const survey = surveyFor('company_brand', '법률 법인');
+    const plan = buildSitePlan(survey);
+    assert.equal(plan.templateId, 'company_brand.professional_firm');
+    assert.ok(plan.pages.some((page) => page.slug === 'team'));
+    assert.ok(plan.pages.some((page) => page.slug === 'cases'));
+    assert.ok(plan.sections.some((section) => section.id === 'sec-home-team-teaser'));
+    assert.ok(plan.sections.some((section) => section.id === 'sec-home-cases-teaser'));
+    const config = buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl: '/mock/hero.svg', imagePool: [] });
+    const homeButtons = config.pages.find((page) => page.slug === '')?.sections
+      .flatMap((section) => section.elements)
+      .flatMap((element) => element.kind === 'button' ? [element.href] : []) ?? [];
+    assert.ok(homeButtons.includes('/team'));
+    assert.ok(homeButtons.includes('/cases'));
+  });
+
+  test('오시는 길은 홈 티저와 /directions 풀 페이지, 문의 폼은 홈에 유지된다', () => {
+    const survey = surveyFor('booking_service', '의원');
+    const plan = buildSitePlan(survey);
+    assert.equal(plan.templateId, 'booking_service.clinic');
+    assert.ok(plan.sections.some((section) => section.id === 'sec-home-directions-teaser' && section.pageSlug === ''));
+    assert.ok(plan.sections.some((section) => section.id === 'sec-directions' && section.pageSlug === 'directions'));
+    assert.ok(plan.sections.some((section) => section.id === 'sec-contact' && section.pageSlug === ''));
+  });
+
+  test('resume와 one_page는 티저 복제 없이 모든 보유 콘텐츠를 홈 한 장에 둔다', () => {
+    for (const survey of [surveyFor('portfolio', '이력서 CV'), surveyFor('one_page', '링크인바이오')]) {
+      const plan = buildSitePlan(survey);
+      assert.equal(plan.singlePage, true);
+      assert.deepEqual(plan.pages.map((page) => page.slug), ['']);
+      assert.equal(plan.sections.some((section) => section.mode === 'teaser'), false);
+    }
+  });
+
+  test('FAQ 티저는 구조화 FAQ를 소유하지 않고 전체 /faq만 고객 답변 JSON-LD를 갖는다', () => {
+    const survey = surveyFor('local_store', '카페');
+    const config = buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl: '/mock/hero.svg', imagePool: [] });
+    assert.equal(buildJsonLd(config, 'https://plan.example.com', '').some((node) => node['@type'] === 'FAQPage'), false);
+    const faq = buildJsonLd(config, 'https://plan.example.com', 'faq').find((node) => node['@type'] === 'FAQPage') as {
+      mainEntity?: Array<{ acceptedAnswer?: { text?: string } }>;
+    } | undefined;
+    assert.equal(faq?.mainEntity?.[0]?.acceptedAnswer?.text, '평일 오전 10시부터 오후 6시까지 운영합니다.');
   });
 });

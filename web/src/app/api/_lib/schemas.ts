@@ -981,7 +981,7 @@ export const surveySchema = z.object({
         'phone', 'openingHours', 'address', 'parking', 'reservation', 'paymentMethods',
         'accessibility', 'pets', 'wifi', 'directions', 'signature', 'seating', 'outlets',
         'groupSeating', 'specialties', 'credentials', 'insurance', 'services', 'duration',
-        'classes', 'materials',
+        'classes', 'materials', 'caseStudies',
       ]),
       value: z.string().min(1).max(500),
       source: z.enum(['customer', 'customer_import']),

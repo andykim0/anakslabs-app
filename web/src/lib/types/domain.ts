@@ -219,6 +219,7 @@ export type BusinessFactKey =
   | 'groupSeating'
   | 'specialties'
   | 'credentials'
+  | 'caseStudies'
   | 'insurance'
   | 'services'
   | 'duration'

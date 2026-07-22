@@ -94,7 +94,9 @@ const INPUT_HINTS: Readonly<Partial<Record<SectionType, string>>> = {
 function pageSlugFor(item: Pick<SectionPlanItem, 'type' | 'variant'>): string {
   if (item.type === 'contact') {
     if (item.variant === 'contact:map') return 'directions';
-    return 'contact';
+    // Conversion forms stay on the home journey. Only map/directions content
+    // becomes a complete subpage with a concise home teaser.
+    return '';
   }
   if (item.type === 'faq') return 'faq';
   if (item.type === 'cases') return 'cases';
@@ -135,9 +137,12 @@ function sourceValuesFor(
     case 'team':
       return facts.credentials ? [facts.credentials] : [];
     case 'cases':
-      return survey.purposeId === 'portfolio'
-        ? model.contentItems.map((entry) => [entry.name, entry.description].filter(Boolean).join(' · '))
-        : [];
+      return [
+        ...(facts.caseStudies ? [facts.caseStudies] : []),
+        ...(survey.purposeId === 'portfolio'
+          ? model.contentItems.map((entry) => [entry.name, entry.description].filter(Boolean).join(' · '))
+          : []),
+      ];
     case 'gallery':
       return model.galleryImages;
     case 'testimonials':
@@ -204,7 +209,7 @@ function addProjection(
     : item.type === 'cta'
       ? 'links'
       : 'content';
-  if (!singlePage && !['contact'].includes(item.type)) {
+  if (!singlePage && slug !== '') {
     sections.push({
       id: `sec-home-${base}-teaser`,
       type: item.type === 'faq' ? 'custom' : item.type,

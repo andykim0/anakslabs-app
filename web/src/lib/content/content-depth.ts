@@ -75,6 +75,7 @@ const FACT_LABELS: Readonly<Partial<Record<BusinessFactKey, string>>> = {
   pets: '반려동물',
   wifi: '와이파이',
   directions: '찾아오는 길',
+  caseStudies: '주요 실적·사례',
 };
 
 const COMMON_FACT_QUESTIONS: readonly BusinessFactQuestion[] = [
@@ -125,6 +126,7 @@ const INDUSTRY_FACT_QUESTIONS: Record<ContentIndustryGroup, readonly BusinessFac
   legal: [
     { key: 'services', label: '상담 분야', hint: '실제 다루는 업무 분야', placeholder: '예: 민사·상속·부동산' },
     { key: 'credentials', label: '자격·약력', hint: '고객이 제공한 검증 가능한 자격·경력만', placeholder: '예: 등록 자격과 실제 경력' },
+    { key: 'caseStudies', label: '주요 실적·사례', hint: '공개할 수 있는 실제 수행 내용만', placeholder: '예: 고객이 확인한 프로젝트·자문 범위' },
     { key: 'duration', label: '상담 시간', hint: '실제 상담 단위', placeholder: '예: 첫 상담 50분' },
   ],
   retail: [
@@ -134,6 +136,7 @@ const INDUSTRY_FACT_QUESTIONS: Record<ContentIndustryGroup, readonly BusinessFac
   ],
   generic: [
     { key: 'services', label: '주요 서비스', hint: '실제로 제공하는 일', placeholder: '예: 브랜드 상담·제작' },
+    { key: 'caseStudies', label: '주요 실적·프로젝트', hint: '공개할 수 있는 실제 수행 내용만', placeholder: '예: 고객이 직접 확인한 프로젝트와 역할' },
     { key: 'duration', label: '진행 시간', hint: '상담·서비스에 걸리는 실제 시간', placeholder: '예: 첫 상담 약 1시간' },
     { key: 'specialties', label: '집중 분야', hint: '실제로 집중하는 분야', placeholder: '예: 소규모 매장 브랜딩' },
   ],
