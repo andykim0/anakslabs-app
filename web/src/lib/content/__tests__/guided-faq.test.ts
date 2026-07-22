@@ -40,11 +40,12 @@ function survey(faqAnswers: NonNullable<SurveyInput['contentDepth']>['faqAnswers
   };
 }
 
-test('업종별 질문은 표준 질문과 카페 질문을 중복 없이 제시한다', () => {
+test('업종별 질문은 사실 입력으로 커버되지 않는 유도형 질문만 제시한다', () => {
   const questions = faqQuestionsForIndustry('카페·디저트');
-  assert.ok(questions.some((item) => item.id === 'parking'));
-  assert.ok(questions.some((item) => item.id === 'wifi'));
-  assert.ok(questions.some((item) => item.id === 'group'));
+  assert.ok(questions.some((item) => item.id === 'takeout'));
+  assert.ok(!questions.some((item) => item.id === 'parking'));
+  assert.ok(!questions.some((item) => item.id === 'wifi'));
+  assert.ok(!questions.some((item) => item.id === 'group'));
   assert.equal(new Set(questions.map((item) => item.id)).size, questions.length);
 });
 
@@ -57,7 +58,24 @@ test('답한 질문만 카탈로그 순서로 해석하고 미등록·빈 답변
     questionId: 'wifi',
     question: '와이파이와 콘센트를 사용할 수 있나요?',
     answer: '무료 와이파이를 제공합니다.',
-  }]);
+}]);
+});
+
+test('신규 브리프는 사실 한 번 입력으로 FAQ를 파생하고 구 중복 답변은 명시 답변을 보존한다', () => {
+  assert.deepEqual(resolveGuidedFaqAnswers('카페', [], [
+    { key: 'openingHours', value: '매일 10:00–20:00', source: 'customer' },
+    { key: 'parking', value: '주차 불가', source: 'customer' },
+  ]), [
+    { questionId: 'hours', question: '영업시간과 쉬는 날은 언제인가요?', answer: '매일 10:00–20:00' },
+    { questionId: 'parking', question: '주차할 수 있나요?', answer: '주차 불가' },
+  ]);
+  assert.deepEqual(resolveGuidedFaqAnswers('카페', [
+    { questionId: 'parking', answer: '기존 고객 답변' },
+  ], [
+    { key: 'parking', value: '새 사실 값', source: 'customer' },
+  ]), [
+    { questionId: 'parking', question: '주차할 수 있나요?', answer: '기존 고객 답변' },
+  ]);
 });
 
 test('고객 답변 하나가 화면 FAQ와 FAQPage JSON-LD의 같은 문자열이 된다', () => {

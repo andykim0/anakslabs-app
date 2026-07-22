@@ -1002,6 +1002,9 @@ export const surveySchema = z.object({
       origin: z.string().min(1).max(2000).optional(),
       philosophy: z.string().min(1).max(2000).optional(),
     }).optional(),
+    surveyBrief: z.object({
+      version: z.literal(1),
+    }).optional(),
   }).optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
   siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'trust']).optional(),

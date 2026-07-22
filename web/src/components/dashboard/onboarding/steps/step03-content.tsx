@@ -149,7 +149,7 @@ export function Step03Content() {
   const filledCount = watchedItems.filter((it) => (it?.name ?? '').trim().length > 0).length;
   const gate = contentGateStatus(purposeId, filledCount);
   const factualAnswers = watch('factualAnswers') ?? [];
-  const factQuestions = factQuestionsForIndustry(industry);
+  const factQuestions = factQuestionsForIndustry(industry, purposeId);
   const factsByKey = new Map(factualAnswers.map((answer) => [answer.key, answer]));
   const answeredFactCount = factQuestions.filter((question) => factsByKey.get(question.key)?.value.trim()).length;
   const factProgress = Math.round((answeredFactCount / factQuestions.length) * 100);
@@ -303,7 +303,7 @@ export function Step03Content() {
               가게 사실을 알려주세요
             </h3>
             <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
-              연락처와 영업시간만 필수예요. 나머지는 있으면 답하고, 없으면 건너뛰세요.
+              별표가 있는 핵심 정보만 필수예요. 나머지는 있으면 답하고, 없으면 건너뛰세요.
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-ob-accent-soft px-3 py-1.5 text-[12px] font-medium text-ob-accent-strong">

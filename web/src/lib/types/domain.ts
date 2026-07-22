@@ -256,6 +256,15 @@ export interface MainStorytellingInput {
   philosophy?: string;
 }
 
+/**
+ * SURVEY v1 additive gate. Missing keeps every existing CONTENT v2 payload on the
+ * exact legacy rendering path; new survey submissions may opt into deduplicated
+ * fact-derived FAQ and the later core-brief fields.
+ */
+export interface SurveyBriefInput {
+  version: 1;
+}
+
 /** Additive gate: v1 retains CONTENT/MAIN output; v2 enables the approved SitePlan contract. */
 export interface ContentDepthInput {
   version: 1 | 2;
@@ -264,6 +273,8 @@ export interface ContentDepthInput {
   imports: ImportedContentSource[];
   /** Additive MAIN contract. Missing means the CONTENT v1 single-page render stays unchanged. */
   mainStorytelling?: MainStorytellingInput;
+  /** Additive SURVEY contract. Missing preserves existing v1/v2 output byte-for-byte. */
+  surveyBrief?: SurveyBriefInput;
 }
 
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */

@@ -126,12 +126,12 @@ export function SurveyStep({
       return;
     }
     if (step === 3) {
-      const missingFacts = missingRequiredFacts(getValues('factualAnswers') ?? []);
+      const pid = ((getValues('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
+      const missingFacts = missingRequiredFacts(pid, getValues('factualAnswers') ?? []);
       if (missingFacts.length) {
-        toast('info', '연락처와 영업시간을 입력해 주세요.');
+        toast('info', '별표로 표시된 핵심 정보를 입력해 주세요.');
         return;
       }
-      const pid = ((getValues('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
       const items = (getValues('contentItems') ?? []).filter((i) => i.name?.trim());
       if (!contentGateStatus(pid, items.length).ok) {
         toast('info', `${requirementOf(pid).itemLabel} 항목을 1개 이상 입력해 주세요.`);
@@ -257,6 +257,7 @@ export function SurveyStep({
           ...(clean(values.brandOrigin) ? { origin: clean(values.brandOrigin) } : {}),
           ...(clean(values.brandPhilosophy) ? { philosophy: clean(values.brandPhilosophy) } : {}),
         },
+        surveyBrief: { version: 1 as const },
       },
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,

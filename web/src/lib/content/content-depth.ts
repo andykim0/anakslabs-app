@@ -2,6 +2,7 @@ import type {
   BusinessFactAnswer,
   BusinessFactKey,
   GuidedFaqAnswer,
+  LivePurposeId,
   SurveyInput,
 } from '@/lib/types/domain';
 
@@ -62,7 +63,19 @@ export interface MainStorytellingModel {
   values: readonly { title: string; description: string }[];
 }
 
-export const REQUIRED_BUSINESS_FACT_KEYS = ['phone', 'openingHours'] as const satisfies readonly BusinessFactKey[];
+const REQUIRED_FACT_KEYS_BY_PURPOSE = {
+  local_store: ['phone', 'openingHours'],
+  booking_service: ['phone', 'openingHours'],
+  edu_membership: ['phone'],
+  company_brand: ['phone'],
+  portfolio: [],
+  one_page: [],
+} as const satisfies Record<LivePurposeId, readonly BusinessFactKey[]>;
+
+/** 목적과 실제 전환 구조에 필요한 최소 사실만 필수로 둔다. */
+export function requiredFactKeysFor(purpose: LivePurposeId): readonly BusinessFactKey[] {
+  return REQUIRED_FACT_KEYS_BY_PURPOSE[purpose];
+}
 
 const FACT_LABELS: Readonly<Partial<Record<BusinessFactKey, string>>> = {
   phone: '연락처',
@@ -79,8 +92,8 @@ const FACT_LABELS: Readonly<Partial<Record<BusinessFactKey, string>>> = {
 };
 
 const COMMON_FACT_QUESTIONS: readonly BusinessFactQuestion[] = [
-  { key: 'phone', label: '연락처', hint: '손님에게 공개할 전화번호나 문의 채널', placeholder: '예: 02-123-4567', required: true },
-  { key: 'openingHours', label: '영업시간', hint: '요일별 운영시간과 쉬는 날', placeholder: '예: 화–일 10:00–20:00, 월요일 휴무', required: true },
+  { key: 'phone', label: '연락처', hint: '손님에게 공개할 전화번호나 문의 채널', placeholder: '예: 02-123-4567' },
+  { key: 'openingHours', label: '영업시간', hint: '요일별 운영시간과 쉬는 날', placeholder: '예: 화–일 10:00–20:00, 월요일 휴무' },
   { key: 'address', label: '정확한 주소', hint: '건물명·층까지 알려주면 찾아오기 쉬워요', placeholder: '예: 서울 성동구 연무장길 00, 2층' },
   { key: 'parking', label: '주차', hint: '가능·불가와 이용 조건을 사실대로', placeholder: '예: 주차 불가 / 건물 주차 1시간 가능' },
   { key: 'reservation', label: '예약 방법', hint: '전화·메시지·예약 링크 등 실제 방법', placeholder: '예: 전화 또는 네이버 예약' },
@@ -212,9 +225,81 @@ export function contentIndustryGroup(industry: string): ContentIndustryGroup {
   return 'generic';
 }
 
-export function factQuestionsForIndustry(industry: string): BusinessFactQuestion[] {
+export function factQuestionsForIndustry(
+  industry: string,
+  purpose: LivePurposeId = 'local_store',
+): BusinessFactQuestion[] {
   const questions = [...COMMON_FACT_QUESTIONS, ...INDUSTRY_FACT_QUESTIONS[contentIndustryGroup(industry)]];
-  return [...new Map(questions.map((question) => [question.key, question])).values()];
+  const required = new Set(requiredFactKeysFor(purpose));
+  return [...new Map(questions.map((question) => [question.key, question])).values()]
+    .map((question) => ({ ...question, required: required.has(question.key) }));
+}
+
+interface FactFaqRule {
+  factKey: BusinessFactKey;
+  outputQuestionId: string;
+  coveredQuestionIds: readonly string[];
+}
+
+const COMMON_FACT_FAQ_RULES: readonly FactFaqRule[] = [
+  { factKey: 'openingHours', outputQuestionId: 'hours', coveredQuestionIds: ['hours'] },
+  { factKey: 'parking', outputQuestionId: 'parking', coveredQuestionIds: ['parking'] },
+  { factKey: 'paymentMethods', outputQuestionId: 'payment', coveredQuestionIds: ['payment'] },
+  { factKey: 'accessibility', outputQuestionId: 'accessibility', coveredQuestionIds: ['accessibility'] },
+  { factKey: 'pets', outputQuestionId: 'pets', coveredQuestionIds: ['pets'] },
+];
+
+const INDUSTRY_FACT_FAQ_RULES: Record<ContentIndustryGroup, readonly FactFaqRule[]> = {
+  cafe: [
+    { factKey: 'reservation', outputQuestionId: 'reservation', coveredQuestionIds: ['reservation'] },
+    { factKey: 'wifi', outputQuestionId: 'wifi', coveredQuestionIds: ['wifi'] },
+    { factKey: 'groupSeating', outputQuestionId: 'group', coveredQuestionIds: ['group'] },
+  ],
+  food: [
+    { factKey: 'reservation', outputQuestionId: 'reservation', coveredQuestionIds: ['reservation'] },
+    { factKey: 'groupSeating', outputQuestionId: 'group', coveredQuestionIds: ['group'] },
+    { factKey: 'services', outputQuestionId: 'takeout', coveredQuestionIds: ['takeout'] },
+  ],
+  medical: [
+    { factKey: 'reservation', outputQuestionId: 'appointment', coveredQuestionIds: ['reservation', 'appointment'] },
+    { factKey: 'insurance', outputQuestionId: 'insurance', coveredQuestionIds: ['insurance'] },
+  ],
+  beauty: [
+    { factKey: 'reservation', outputQuestionId: 'appointment', coveredQuestionIds: ['reservation', 'appointment'] },
+    { factKey: 'duration', outputQuestionId: 'duration', coveredQuestionIds: ['duration'] },
+  ],
+  workshop: [
+    { factKey: 'reservation', outputQuestionId: 'reservation', coveredQuestionIds: ['reservation'] },
+    { factKey: 'materials', outputQuestionId: 'materials', coveredQuestionIds: ['materials'] },
+    { factKey: 'duration', outputQuestionId: 'duration', coveredQuestionIds: ['duration'] },
+    { factKey: 'groupSeating', outputQuestionId: 'group', coveredQuestionIds: ['group'] },
+  ],
+  education: [
+    { factKey: 'reservation', outputQuestionId: 'reservation', coveredQuestionIds: ['reservation'] },
+    { factKey: 'duration', outputQuestionId: 'duration', coveredQuestionIds: ['duration'] },
+    { factKey: 'materials', outputQuestionId: 'materials', coveredQuestionIds: ['materials'] },
+  ],
+  legal: [
+    { factKey: 'reservation', outputQuestionId: 'appointment', coveredQuestionIds: ['reservation', 'appointment'] },
+    { factKey: 'duration', outputQuestionId: 'duration', coveredQuestionIds: ['duration'] },
+  ],
+  retail: [
+    { factKey: 'reservation', outputQuestionId: 'reservation', coveredQuestionIds: ['reservation'] },
+    { factKey: 'services', outputQuestionId: 'delivery', coveredQuestionIds: ['delivery'] },
+  ],
+  generic: [
+    { factKey: 'reservation', outputQuestionId: 'appointment', coveredQuestionIds: ['reservation', 'appointment'] },
+    { factKey: 'duration', outputQuestionId: 'duration', coveredQuestionIds: ['duration'] },
+  ],
+};
+
+function allFaqQuestionsForIndustry(industry: string): GuidedFaqQuestion[] {
+  const questions = [...COMMON_FAQ_QUESTIONS, ...INDUSTRY_FAQ_QUESTIONS[contentIndustryGroup(industry)]];
+  return [...new Map(questions.map((question) => [question.id, question])).values()];
+}
+
+function factFaqRulesForIndustry(industry: string): readonly FactFaqRule[] {
+  return [...COMMON_FACT_FAQ_RULES, ...INDUSTRY_FACT_FAQ_RULES[contentIndustryGroup(industry)]];
 }
 
 /**
@@ -222,21 +307,33 @@ export function factQuestionsForIndustry(industry: string): BusinessFactQuestion
  * 인덱싱·질문 매칭·AI 인용을 위한 가시 콘텐츠와 FAQPage 데이터에 계속 사용한다.
  */
 export function faqQuestionsForIndustry(industry: string): GuidedFaqQuestion[] {
-  const questions = [...COMMON_FAQ_QUESTIONS, ...INDUSTRY_FAQ_QUESTIONS[contentIndustryGroup(industry)]];
-  return [...new Map(questions.map((question) => [question.id, question])).values()];
+  const factCovered = new Set(
+    factFaqRulesForIndustry(industry).flatMap((rule) => [...rule.coveredQuestionIds]),
+  );
+  return allFaqQuestionsForIndustry(industry).filter((question) => !factCovered.has(question.id));
 }
 
 export function resolveGuidedFaqAnswers(
   industry: string,
   answers: readonly GuidedFaqAnswer[],
+  facts?: readonly BusinessFactAnswer[],
 ): { questionId: string; question: string; answer: string }[] {
   const answerById = new Map<string, string>();
   for (const item of answers) {
     const answer = item.answer.trim();
     if (answer) answerById.set(item.questionId, answer);
   }
-  return faqQuestionsForIndustry(industry).flatMap((question) => {
-    const answer = answerById.get(question.id);
+  const derivedById = new Map<string, string>();
+  if (facts) {
+    const factValues = resolveBusinessFacts(facts);
+    for (const rule of factFaqRulesForIndustry(industry)) {
+      const hasLegacyAnswer = rule.coveredQuestionIds.some((questionId) => answerById.has(questionId));
+      const value = factValues[rule.factKey];
+      if (!hasLegacyAnswer && value) derivedById.set(rule.outputQuestionId, value);
+    }
+  }
+  return allFaqQuestionsForIndustry(industry).flatMap((question) => {
+    const answer = answerById.get(question.id) ?? derivedById.get(question.id);
     return answer ? [{ questionId: question.id, question: question.question, answer }] : [];
   });
 }
@@ -535,7 +632,11 @@ export function buildContentDepthHomeModel(survey: SurveyInput): ContentDepthHom
     strengths,
     contentItems,
     galleryImages: uniqueCustomerGalleryImages(survey),
-    faq: resolveGuidedFaqAnswers(survey.industry, survey.contentDepth?.faqAnswers ?? [])
+    faq: resolveGuidedFaqAnswers(
+      survey.industry,
+      survey.contentDepth?.faqAnswers ?? [],
+      survey.contentDepth?.surveyBrief ? survey.contentDepth.facts : undefined,
+    )
       .map(({ question, answer }) => ({ question, answer })),
     directions: [
       ...factRow('address'),
@@ -554,9 +655,12 @@ export function buildContentDepthHomeModel(survey: SurveyInput): ContentDepthHom
   };
 }
 
-export function missingRequiredFacts(facts: readonly BusinessFactAnswer[]): BusinessFactKey[] {
+export function missingRequiredFacts(
+  purpose: LivePurposeId,
+  facts: readonly BusinessFactAnswer[],
+): BusinessFactKey[] {
   const answered = new Set(facts.filter((fact) => fact.value.trim()).map((fact) => fact.key));
-  return REQUIRED_BUSINESS_FACT_KEYS.filter((key) => !answered.has(key));
+  return requiredFactKeysFor(purpose).filter((key) => !answered.has(key));
 }
 
 /** Extras UI와 MAIN 빌더가 같은 사실 슬롯으로 /directions 존재 여부를 판단한다. */

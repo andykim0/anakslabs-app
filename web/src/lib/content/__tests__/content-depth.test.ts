@@ -7,6 +7,7 @@ import {
   contentIndustryGroup,
   factQuestionsForIndustry,
   missingRequiredFacts,
+  requiredFactKeysFor,
 } from '@/lib/content/content-depth';
 
 test('업종 카탈로그는 카페·의료·미용·공방·교육·법률·리테일을 결정적으로 분류한다', () => {
@@ -21,22 +22,31 @@ test('업종 카탈로그는 카페·의료·미용·공방·교육·법률·리
   assert.equal(contentIndustryGroup('알 수 없는 자유 업종'), 'generic');
 });
 
-test('모든 기존 업종 칩은 연락처·영업시간과 중복 없는 선택 질문을 받는다', () => {
+test('모든 기존 업종 칩은 목적별 필수와 중복 없는 사실 질문을 받는다', () => {
   for (const industry of PURPOSES.flatMap((purpose) => purpose.industries)) {
-    const questions = factQuestionsForIndustry(industry);
+    const questions = factQuestionsForIndustry(industry, 'local_store');
     assert.ok(questions.some((question) => question.key === 'phone' && question.required), industry);
     assert.ok(questions.some((question) => question.key === 'openingHours' && question.required), industry);
     assert.equal(new Set(questions.map((question) => question.key)).size, questions.length, industry);
   }
 });
 
+test('6개 목적은 실제 구조에 필요한 사실만 필수로 두고 포트폴리오·원페이지를 강제하지 않는다', () => {
+  assert.deepEqual(requiredFactKeysFor('local_store'), ['phone', 'openingHours']);
+  assert.deepEqual(requiredFactKeysFor('booking_service'), ['phone', 'openingHours']);
+  assert.deepEqual(requiredFactKeysFor('edu_membership'), ['phone']);
+  assert.deepEqual(requiredFactKeysFor('company_brand'), ['phone']);
+  assert.deepEqual(requiredFactKeysFor('portfolio'), []);
+  assert.deepEqual(requiredFactKeysFor('one_page'), []);
+});
+
 test('필수 사실은 빈 문자열을 답변으로 세지 않고 고객·가져오기 출처 모두 수용한다', () => {
-  assert.deepEqual(missingRequiredFacts([]), ['phone', 'openingHours']);
-  assert.deepEqual(missingRequiredFacts([
+  assert.deepEqual(missingRequiredFacts('local_store', []), ['phone', 'openingHours']);
+  assert.deepEqual(missingRequiredFacts('local_store', [
     { key: 'phone', value: '  ', source: 'customer' },
     { key: 'openingHours', value: '화–일 10:00–20:00', source: 'customer_import' },
   ]), ['phone']);
-  assert.deepEqual(missingRequiredFacts([
+  assert.deepEqual(missingRequiredFacts('local_store', [
     { key: 'phone', value: '02-123-4567', source: 'customer' },
     { key: 'openingHours', value: '화–일 10:00–20:00', source: 'customer_import' },
   ]), []);

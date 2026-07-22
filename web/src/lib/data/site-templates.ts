@@ -1846,7 +1846,11 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
 function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
   const items = survey.contentDepth
-    ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
+    ? resolveGuidedFaqAnswers(
+      survey.industry,
+      survey.contentDepth.faqAnswers,
+      survey.contentDepth.surveyBrief ? survey.contentDepth.facts : undefined,
+    )
       .map((item) => ({ q: item.question, a: item.answer }))
     : [
         { q: '이용 방법이 어떻게 되나요?', a: '문의 주시면 상황에 맞춰 안내해 드립니다.' },
@@ -2781,7 +2785,11 @@ export function buildSiteConfigFromSurvey(
 
       const seen = new Set<string>();
       const guidedFaqItems = survey.contentDepth
-        ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
+        ? resolveGuidedFaqAnswers(
+          survey.industry,
+          survey.contentDepth.faqAnswers,
+          survey.contentDepth.surveyBrief ? survey.contentDepth.facts : undefined,
+        )
         : null;
       const deduped = legacyPlan.filter((item) => {
         if (survey.contentDepth && item.type !== 'hero') return false;
