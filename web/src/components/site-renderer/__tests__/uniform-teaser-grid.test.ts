@@ -101,11 +101,26 @@ describe('FIXCARD — 홈 티저 카드 그룹 통일', () => {
     assert.doesNotMatch(render(config, 'mobile'), /data-uniform-teaser-section/);
   });
 
-  test('반응형 grid 계약은 auto-fit 320px 하한으로 1440 3열·768 2열·390 1열을 만든다', () => {
+  test('반응형 grid 계약은 1440 고정 행·768 균일 행·390 내용 높이를 구분한다', () => {
     const desktop = render(mixedConfig(), 'desktop');
     const mobile = render(mixedConfig(), 'mobile');
     assert.match(desktop, /grid-template-columns:repeat\(auto-fit, minmax\(min\(100%, 320px\), 1fr\)\)/);
     assert.match(desktop, /grid-auto-rows:23\.6111[^;]*cqw/);
-    assert.match(mobile, /grid-auto-rows:420px/);
+    assert.match(mobile, /grid-auto-rows:var\(--uniform-teaser-row, auto\)/);
+    assert.match(mobile, /height:var\(--uniform-teaser-card-height, auto\)/);
+    assert.match(mobile, /@container \(min-width: 640px\)/);
+    assert.match(mobile, /--uniform-teaser-row: 360px/);
+    assert.doesNotMatch(mobile, /grid-auto-rows:420px/);
+  });
+
+  test('반응형 CTA는 본문 바로 아래 12px이며 1440 캔버스의 바닥 정렬은 유지한다', () => {
+    const desktop = parse(render(mixedConfig(), 'desktop'));
+    const mobile = parse(render(mixedConfig(), 'mobile'));
+    for (const cta of mobile.querySelectorAll('[data-uniform-teaser-cta]')) {
+      assert.match(cta.getAttribute('style') ?? '', /margin-top:12px/);
+    }
+    for (const cta of desktop.querySelectorAll('[data-uniform-teaser-cta]')) {
+      assert.match(cta.getAttribute('style') ?? '', /margin-top:auto/);
+    }
   });
 });

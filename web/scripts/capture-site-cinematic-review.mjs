@@ -199,6 +199,7 @@ async function metrics(cdp, sessionId) {
     const fill=document.querySelector('[data-story-progress-fill]');
     const chapters=[...document.querySelectorAll('[data-story-chapter]')];
     const teaserCards=[...document.querySelectorAll('[data-uniform-teaser-card]')];
+    const teaserGrid=document.querySelector('[data-uniform-teaser-grid]');
     const teaserThumbs=[...document.querySelectorAll('[data-uniform-teaser-thumbnail]')];
     const teaserCtas=[...document.querySelectorAll('[data-uniform-teaser-cta]')];
     const cardRects=teaserCards.map((card)=>card.getBoundingClientRect());
@@ -206,6 +207,15 @@ async function metrics(cdp, sessionId) {
     const uniqueColumns=[...new Set(cardRects.map((rect)=>Math.round(rect.left)))].length;
     const cardHeights=cardRects.map((rect)=>rect.height);
     const thumbRatios=thumbRects.map((rect)=>rect.width/Math.max(1,rect.height));
+    const textCtaGaps=teaserCards.map((card)=>{
+      const description=card.querySelector('[data-uniform-teaser-description]');
+      const cta=card.querySelector('[data-uniform-teaser-cta]');
+      return description&&cta?cta.getBoundingClientRect().top-description.getBoundingClientRect().bottom:null;
+    }).filter((value)=>Number.isFinite(value));
+    const cardBottomGaps=teaserCards.map((card)=>{
+      const cta=card.querySelector('[data-uniform-teaser-cta]');
+      return cta?card.getBoundingClientRect().bottom-cta.getBoundingClientRect().bottom:null;
+    }).filter((value)=>Number.isFinite(value));
     return {
       width:innerWidth,height:innerHeight,scrollY,maxScroll:Math.max(0,document.documentElement.scrollHeight-innerHeight),
       scrollWidth:document.documentElement.scrollWidth,cls:Number(window.__reviewCls||0),clsSources:window.__reviewShifts||[],
@@ -222,6 +232,9 @@ async function metrics(cdp, sessionId) {
         unfilledThumbs:teaserThumbs.filter((thumb)=>!thumb.querySelector('img')&&!thumb.querySelector('[data-teaser-procedural-thumbnail]')).length,
         cardHeightDelta:Math.max(...cardHeights)-Math.min(...cardHeights),
         thumbRatioDelta:Math.max(...thumbRatios)-Math.min(...thumbRatios),
+        gridAutoRows:teaserGrid?getComputedStyle(teaserGrid).gridAutoRows:null,
+        textCtaGapMin:Math.min(...textCtaGaps),textCtaGapMax:Math.max(...textCtaGaps),
+        cardBottomGapMin:Math.min(...cardBottomGaps),cardBottomGapMax:Math.max(...cardBottomGaps),
       }:null,
       errors:[...(window.__reviewErrors||[])],
     };
@@ -361,11 +374,20 @@ async function main() {
 
     const failed = audits.filter((audit) => {
       const expectedColumns = audit.viewport[0] >= 1280 ? 3 : audit.viewport[0] >= 640 ? 2 : 1;
+      const responsiveGapFailed = audit.viewport[0] <= 768 && (
+        audit.teaser?.textCtaGapMin < 8 || audit.teaser?.textCtaGapMax > 16
+      );
+      const rowStrategyFailed = audit.viewport[0] === 768
+        ? audit.teaser?.gridAutoRows !== '360px'
+        : audit.viewport[0] === 390
+          ? audit.teaser?.gridAutoRows !== 'auto'
+          : false;
       return audit.overflow || audit.cls !== 0 || audit.errors.length > 0 || !audit.monotonic ||
         audit.deadSteps > 0 || audit.chapterCount !== audit.quietCount || !audit.teaser ||
         audit.teaser.columns !== expectedColumns || audit.teaser.orphanCtas !== 0 ||
         audit.teaser.unfilledThumbs !== 0 || audit.teaser.ctaCount !== audit.teaser.cardCount ||
-        audit.teaser.cardHeightDelta > 1 || audit.teaser.thumbRatioDelta > .02;
+        (expectedColumns > 1 && audit.teaser.cardHeightDelta > 1) || audit.teaser.thumbRatioDelta > .02 ||
+        responsiveGapFailed || rowStrategyFailed;
     });
     if (failed.length > 0 || errors.length > 0) throw new Error(`Browser audit failed: ${JSON.stringify({ failed, errors }, null, 2)}`);
     if (video.count !== 1 || !video.ssrPreloadNone || !video.poster || video.posterFetchPriority !== 'high') {

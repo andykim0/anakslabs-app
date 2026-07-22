@@ -25,6 +25,15 @@ interface UniformTeaserCard {
 
 const ROLE_PATTERN = /(?:^|-)teaser-(card|thumb|title|desc|link)-v2-(\d+)(?:-|$)/u;
 
+const RESPONSIVE_GRID_CSS = `
+@container (min-width: 640px) {
+  [data-uniform-teaser-section][data-uniform-teaser-layout="responsive"] {
+    --uniform-teaser-row: 360px;
+    --uniform-teaser-card-height: 100%;
+  }
+}
+`;
+
 function roleOf(element: CanvasElement): { role: TeaserRole; index: number } | undefined {
   const match = ROLE_PATTERN.exec(element.id);
   if (!match) return undefined;
@@ -128,9 +137,11 @@ export function UniformTeaserGrid({
       {...(canvas ? { id: section.id } : { 'data-anchor': section.id })}
       data-section-type={section.type}
       data-uniform-teaser-section="true"
+      data-uniform-teaser-layout={canvas ? 'canvas' : 'responsive'}
       aria-label={section.name}
       style={sectionStyle}
     >
+      {!canvas && <style>{RESPONSIVE_GRID_CSS}</style>}
       <div style={{ width: '100%', maxWidth: canvas ? cqw(1200) : '960px', margin: '0 auto' }}>
         <div
           style={{
@@ -150,7 +161,7 @@ export function UniformTeaserGrid({
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
-            gridAutoRows: canvas ? cqw(340) : '420px',
+            gridAutoRows: canvas ? cqw(340) : 'var(--uniform-teaser-row, auto)',
             gap: canvas ? cqw(38) : '24px',
             alignItems: 'stretch',
           }}
@@ -165,7 +176,7 @@ export function UniformTeaserGrid({
               } : {})}
               style={{
                 minWidth: 0,
-                height: '100%',
+                height: canvas ? '100%' : 'var(--uniform-teaser-card-height, auto)',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
@@ -199,12 +210,19 @@ export function UniformTeaserGrid({
                 <div style={{ width: '100%', minHeight: canvas ? cqw(32) : '32px' }}>
                   <ElementContent element={card.title} theme={theme} variant={variant} interactive={interactive} />
                 </div>
-                <div style={{ width: '100%', minHeight: canvas ? cqw(46) : '48px', marginTop: canvas ? cqw(6) : '6px' }}>
+                <div
+                  data-uniform-teaser-description="true"
+                  style={{ width: '100%', minHeight: canvas ? cqw(46) : '48px', marginTop: canvas ? cqw(6) : '6px' }}
+                >
                   <ElementContent element={card.desc} theme={theme} variant={variant} interactive={interactive} />
                 </div>
                 <div
                   data-uniform-teaser-cta="true"
-                  style={{ width: canvas ? cqw(150) : 'fit-content', height: canvas ? cqw(40) : undefined, marginTop: 'auto' }}
+                  style={{
+                    width: canvas ? cqw(150) : 'fit-content',
+                    height: canvas ? cqw(40) : undefined,
+                    marginTop: canvas ? 'auto' : '12px',
+                  }}
                 >
                   <ElementContent element={card.link} theme={theme} variant={variant} interactive={interactive} />
                 </div>
