@@ -21,6 +21,7 @@ import {
 import { safeMediaSrc } from '@/lib/safe-url';
 import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
+import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 
 interface SectionStackProps {
   section: Section;
@@ -36,6 +37,8 @@ interface SectionStackProps {
   proceduralHero?: boolean;
   /** Scene-integrated hero copy. Additive and enabled only by the SITECINE contract. */
   integratedTypography?: boolean;
+  /** FLOW opt-in only. Existing SITECINE and legacy configs omit it. */
+  continuousFlow?: boolean;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -98,6 +101,7 @@ export function SectionStack({
   siteId,
   proceduralHero = false,
   integratedTypography = false,
+  continuousFlow = false,
 }: SectionStackProps) {
   if (isUniformTeaserSection(section)) {
     return <UniformTeaserGrid section={section} theme={theme} variant="stack" interactive={interactive} animate={Boolean(plan)} />;
@@ -183,7 +187,7 @@ export function SectionStack({
           gap: theme.tokens?.spacing.elementGap ?? '20px',
         }}
       >
-        {elements.map((el) => {
+        {elements.map((el, elementIndex) => {
           const m = plan ? motionFor(plan, section.id, el.id) : undefined;
           const countup = m === 'countup' && el.kind === 'text' ? parseStatParts(el.text) ?? undefined : undefined;
           // 모바일 hover-video: hover 불가 → autoplay 끄고 poster 정적 유지(대역폭 절약)
@@ -193,6 +197,7 @@ export function SectionStack({
           const splitText = cinematic && plan ? isSplitText(plan, section.id, el.id) : false;
           const storyWindow = cinematic && plan ? cinematicStoryWindowFor(plan, section.id, el.id) : undefined;
           const cinematicDepth = cinematic && plan ? cinematicParallaxDepthFor(plan, section.id, el.id) : undefined;
+          const flowRole = continuousFlow ? continuousFlowLayerRoleFor(el) : undefined;
           const content = (
             <ElementContent
               element={el}
@@ -218,7 +223,23 @@ export function SectionStack({
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
               style={el.kind === 'text' && imgTextShadow ? { ...itemStyle(el), textShadow: imgTextShadow } : itemStyle(el)}
             >
-              {cinematicDepth != null || storyWindow ? (
+              {flowRole ? (
+                <div data-flow-layer={flowRole} data-flow-order={elementIndex}>
+                  {cinematicDepth != null || storyWindow ? (
+                    <div
+                      {...(cinematicDepth != null
+                        ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }
+                        : {})}
+                      {...(storyWindow
+                        ? { 'data-m-story': 'true', 'data-story-start': storyWindow.start.toFixed(4), 'data-story-end': storyWindow.end.toFixed(4) }
+                        : {})}
+                      style={{ width: '100%', height: '100%' }}
+                    >
+                      {content}
+                    </div>
+                  ) : content}
+                </div>
+              ) : cinematicDepth != null || storyWindow ? (
                 <div
                   {...(cinematicDepth != null
                     ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }

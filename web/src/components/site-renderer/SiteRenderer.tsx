@@ -37,7 +37,7 @@ import {
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { themeColor } from '@/lib/design/site-theme-tokens';
-import { siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
+import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
@@ -187,23 +187,130 @@ const SITE_CINEMATIC_CSS = `
 }
 `;
 
-function SiteCinematicSequence({ children }: { children: ReactNode }) {
+/** FLOW is opt-in inside SITECINE. The old v1 selector tree never sees these rules. */
+const CONTINUOUS_CANVAS_CSS = `
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas] {
+  --flow-canvas-top: color-mix(in srgb,var(--site-cine-bg) 84%,var(--site-cine-primary));
+  --flow-canvas-mid: color-mix(in srgb,var(--site-cine-surface) 91%,var(--site-cine-accent));
+  --flow-canvas-low: color-mix(in srgb,var(--site-cine-bg) 94%,var(--site-cine-surface));
+  position: relative; isolation: isolate; overflow: clip;
+  background: linear-gradient(180deg,
+    var(--flow-canvas-top) 0%,
+    color-mix(in srgb,var(--flow-canvas-top) 42%,var(--flow-canvas-mid)) 28%,
+    var(--flow-canvas-mid) 58%,
+    var(--flow-canvas-low) 100%);
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas-field] {
+  position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none;
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas-field]::before {
+  position: absolute; inset: 0; content: '';
+  background:
+    radial-gradient(circle at calc(18% + var(--story-motif-x,0%)) 20%,color-mix(in srgb,var(--site-cine-primary) 18%,transparent),transparent 31%),
+    radial-gradient(circle at calc(82% - var(--story-motif-x,0%)) 54%,color-mix(in srgb,var(--site-cine-accent) 14%,transparent),transparent 29%),
+    radial-gradient(circle at 32% 88%,color-mix(in srgb,var(--site-cine-primary) 9%,transparent),transparent 25%);
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas-field]::after {
+  position: absolute; width: min(58vw,760px); aspect-ratio: 1; right: -18%; top: 12%; content: '';
+  border: 1px solid color-mix(in srgb,var(--site-cine-text) 8%,transparent); border-radius: 50%;
+  box-shadow: inset 0 0 0 8vw color-mix(in srgb,var(--site-cine-accent) 3%,transparent);
+  transform: translate3d(0,var(--flow-field-y,0px),0) rotate(var(--flow-field-rotate,0deg));
+}
+.anaks-site[data-continuous-canvas-root].m-cinematic-ready
+  [data-continuous-canvas][data-flow-depth="long"] > [data-continuous-canvas-field] {
+  position: sticky; inset: auto 0; top: 0; height: 100svh; margin-bottom: -100svh;
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas] > [data-story-chapter] {
+  background: transparent;
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas] > [data-flow-hero] {
+  z-index: 3; overflow: visible;
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas] > [data-flow-hero] + [data-story-chapter]::before {
+  -webkit-mask-image: linear-gradient(to bottom,transparent 0%,#000 clamp(120px,18svh,220px));
+  mask-image: linear-gradient(to bottom,transparent 0%,#000 clamp(120px,18svh,220px));
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-canvas] > [data-story-chapter]:not([data-flow-hero])
+  :is(section[data-section-type],[data-motion-signature]) {
+  background-color: transparent !important; background-image: none !important;
+}
+.anaks-site[data-continuous-canvas-root] [data-continuous-hero-bridge] {
+  position: absolute; z-index: 5; right: 0; bottom: clamp(-140px,-12svh,-76px); left: 0; height: clamp(300px,52svh,520px);
+  pointer-events: none;
+  background: linear-gradient(to bottom,transparent 0%,color-mix(in srgb,var(--flow-canvas-top) 28%,transparent) 36%,var(--flow-canvas-top) 70%,transparent 100%);
+}
+.anaks-site[data-continuous-canvas-root].m-cinematic-ready [data-flow-layer] {
+  opacity: var(--flow-layer-opacity,1);
+  transform: translate3d(var(--flow-layer-x,0px),var(--flow-layer-y,0px),0) scale(var(--flow-layer-scale,1));
+  transform-origin: 50% 50%; will-change: transform,opacity;
+}
+.anaks-site[data-continuous-canvas-root] [data-flow-layer] { width: 100%; height: 100%; }
+@media (max-width: 767.98px) {
+  .anaks-site[data-continuous-canvas-root] [data-continuous-canvas-field]::after { width: 92vw; right: -42%; top: 28%; opacity: .62; }
+  .anaks-site[data-continuous-canvas-root] [data-continuous-hero-bridge] {
+    bottom: clamp(-96px,-9svh,-64px); height: clamp(220px,38svh,340px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anaks-site[data-continuous-canvas-root] [data-continuous-canvas][data-flow-depth="long"] > [data-continuous-canvas-field] {
+    position: absolute; inset: 0; height: auto; margin: 0;
+  }
+  .anaks-site[data-continuous-canvas-root] [data-flow-layer] {
+    opacity: 1 !important; transform: none !important; will-change: auto;
+  }
+}
+`;
+
+function SiteCinematicSequence({
+  children,
+  continuous = false,
+  chapterCount = 0,
+}: {
+  children: ReactNode;
+  continuous?: boolean;
+  chapterCount?: number;
+}) {
+  const hasLongStage = continuous && chapterCount >= 3;
   return (
-    <div data-site-cinematic-continuation data-m-progress style={{ '--scroll-progress': 0 } as CSSProperties}>
+    <div
+      data-site-cinematic-continuation
+      data-m-progress
+      {...(continuous ? {
+        'data-continuous-canvas': 'true',
+        'data-flow-depth': hasLongStage ? 'long' : 'short',
+        'data-flow-chapter-count': String(chapterCount),
+      } : {})}
+      style={{ '--scroll-progress': 0 } as CSSProperties}
+    >
+      {continuous && <div aria-hidden="true" data-continuous-canvas-field />}
       <StoryProgressRail />
       {children}
     </div>
   );
 }
 
-function SiteCinematicChapter({ index, children }: { index: number; children: ReactNode }) {
+function SiteCinematicChapter({
+  index,
+  sectionType,
+  continuous = false,
+  children,
+}: {
+  index: number;
+  sectionType?: string;
+  continuous?: boolean;
+  children: ReactNode;
+}) {
+  const hero = continuous && sectionType === 'hero';
   return (
     <div
       data-story-chapter={String(index + 1).padStart(2, '0')}
       data-site-cine-quiet-section
       data-site-cine-integrated-typography
+      {...(continuous ? { 'data-flow-section': 'true' } : {})}
+      {...(hero ? { 'data-flow-hero': 'true' } : {})}
     >
       {children}
+      {hero && <div aria-hidden="true" data-continuous-hero-bridge />}
     </div>
   );
 }
@@ -270,6 +377,7 @@ export function SiteRenderer({
   const siteCinematic = siteCinematicIsEnabled(config);
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
+  const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter((s) => !s.hidden);
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
 
@@ -311,6 +419,7 @@ export function SiteRenderer({
     baseMotionActive || signatureMotionEnabled || (siteCinematic && config.motion?.intensity !== 'off')
   );
   const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
+    (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
@@ -359,6 +468,11 @@ export function SiteRenderer({
     ? sections.filter((section) => section.id !== scrollytellingSection.id)
     : sections;
   const signatureConsumed = signatureScene ? consumedSectionIds(signatureScene) : new Set<string>();
+  const signatureSequenceSections = signatureScene
+    ? ordinarySections.filter((section) => (
+      section.id === signatureScene.sectionId || !signatureConsumed.has(section.id)
+    ))
+    : ordinarySections;
 
   return (
     <>
@@ -374,17 +488,16 @@ export function SiteRenderer({
         className="anaks-site"
         {...(theme.tokens ? { 'data-theme-tokens': '1' } : {})}
         {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
+        {...(continuousCanvas ? { 'data-continuous-canvas-root': '1' } : {})}
         style={rootStyle}
       >
         {signatureScene && signatureArt ? (
           siteCinematic ? (
-            <SiteCinematicSequence>
-              {ordinarySections.filter((section) => (
-                section.id === signatureScene.sectionId || !signatureConsumed.has(section.id)
-              )).map((section, continuationIndex) => {
+            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={signatureSequenceSections.length}>
+              {signatureSequenceSections.map((section, continuationIndex) => {
                 if (section.id === signatureScene.sectionId) {
                   return (
-                    <SiteCinematicChapter key={`signature:${signatureScene.signatureId}:${section.id}`} index={continuationIndex}>
+                    <SiteCinematicChapter key={`signature:${signatureScene.signatureId}:${section.id}`} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas}>
                       <MotionSignatureRenderer
                         scene={signatureScene}
                         theme={theme}
@@ -396,7 +509,7 @@ export function SiteRenderer({
                   );
                 }
                 return (
-                  <SiteCinematicChapter key={section.id} index={continuationIndex}>
+                  <SiteCinematicChapter key={section.id} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas}>
                     <div
                       data-signature-ordinary-section
                       data-signature-continuation
@@ -405,12 +518,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                         </div>
                       )}
                     </div>
@@ -472,8 +585,8 @@ export function SiteRenderer({
           })
         ) : scrollytellingSection ? (
           siteCinematic ? (
-            <SiteCinematicSequence>
-              <SiteCinematicChapter index={0}>
+            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length + 1}>
+              <SiteCinematicChapter index={0} sectionType={scrollytellingSection.type} continuous={continuousCanvas}>
                 <ScrollytellingStage
                   section={scrollytellingSection}
                   theme={theme}
@@ -482,15 +595,15 @@ export function SiteRenderer({
                 />
               </SiteCinematicChapter>
               {ordinarySections.map((section, index) => (
-                <SiteCinematicChapter key={section.id} index={index + 1}>
+                <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -508,10 +621,10 @@ export function SiteRenderer({
         {!signatureScene && !(siteCinematic && scrollytellingSection) && showDesktop && (
           <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
             {siteCinematic ? (
-              <SiteCinematicSequence>
+              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length}>
                 {ordinarySections.map((section, index) => (
-                  <SiteCinematicChapter key={section.id} index={index}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} />
+                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas}>
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
@@ -523,9 +636,9 @@ export function SiteRenderer({
         {!signatureScene && !(siteCinematic && scrollytellingSection) && showMobile && (
           <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
             {siteCinematic ? (
-              <SiteCinematicSequence>
+              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length}>
                 {ordinarySections.map((section, index) => (
-                  <SiteCinematicChapter key={section.id} index={index}>
+                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas}>
                     <SectionStack
                       section={section}
                       theme={theme}
@@ -535,6 +648,7 @@ export function SiteRenderer({
                       siteId={siteId}
                       proceduralHero={section.type === 'hero' && !section.background.video?.src}
                       integratedTypography={section.type === 'hero'}
+                      continuousFlow={continuousCanvas}
                     />
                   </SiteCinematicChapter>
                 ))}

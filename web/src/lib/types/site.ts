@@ -690,6 +690,16 @@ export interface SiteConfig {
     sectionSpine: true;
     quietSections: true;
     integratedTypography: true;
+    /**
+     * [FLOW] 긴 MAIN 홈에만 서버가 기록하는 연속 캔버스 계약.
+     * 미지정이면 기존 SITECINE DOM·CSS·픽셀을 그대로 보존한다.
+     */
+    continuousCanvas?: {
+      version: 1;
+      toneField: 'palette-bridge';
+      immersiveScroll: true;
+      minimumContentChapters: 3;
+    };
   };
   meta: SiteMeta;
   pages: SitePage[];

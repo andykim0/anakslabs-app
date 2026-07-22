@@ -10,9 +10,14 @@ import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
+import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 
 const MAIN_REVIEW = process.env.MAIN_REVIEW === '1';
-const OUTPUT = MAIN_REVIEW
+const FLOW_REVIEW = process.env.FLOW_REVIEW === '1';
+const STORY_REVIEW = MAIN_REVIEW || FLOW_REVIEW;
+const OUTPUT = FLOW_REVIEW
+  ? '/private/tmp/daboim-continuous-canvas-review'
+  : MAIN_REVIEW
   ? '/private/tmp/daboim-main-storytelling-review'
   : '/private/tmp/daboim-content-depth-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -81,7 +86,7 @@ function survey(photos: string[]): SurveyInput {
         { questionId: 'reservation', answer: '단체석은 전화로 예약해 주세요.' },
         { questionId: 'wifi', answer: '손님용 와이파이와 창가 콘센트를 이용할 수 있습니다.' },
       ],
-      ...(MAIN_REVIEW ? {
+      ...(STORY_REVIEW ? {
         mainStorytelling: {
           version: 1,
           brandStory: '온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음을 담았습니다.',
@@ -93,6 +98,62 @@ function survey(photos: string[]): SurveyInput {
   };
 }
 
+function representativeSurvey(photos: string[], kind: 'cafe' | 'medical' | 'workshop'): SurveyInput {
+  const input = structuredClone(survey(photos));
+  if (kind === 'cafe') return input;
+  if (kind === 'medical') {
+    input.businessName = '다온의원';
+    input.purposeId = 'booking_service';
+    input.purpose = '병원·예약 서비스';
+    input.industry = '의료·클리닉';
+    input.region = '서울 마포구';
+    input.tone = ['차분한', '신뢰감 있는'];
+    input.templateId = 'booking_service.clinic';
+    input.tagline = '방문 전 필요한 진료 정보를 차분하게 안내합니다.';
+    input.providedContent = '[소개]\n진료 항목과 예약 방법을 방문 전에 확인할 수 있도록 정리합니다.';
+    input.highlights = ['진료 항목 안내', '예약 방법 안내', '방문 전 확인 사항'];
+    input.contentItems = [
+      { name: '초진 안내', description: '처음 방문할 때 필요한 내용을 안내합니다.' },
+      { name: '예약 진료', description: '예약 방법과 준비 사항을 확인할 수 있습니다.' },
+      { name: '진료 후 안내', description: '진료 뒤 확인할 내용을 정리해 드립니다.' },
+    ];
+    if (input.contentDepth) {
+      input.contentDepth.facts = input.contentDepth.facts.filter((fact) => fact.key !== 'wifi');
+      input.contentDepth.mainStorytelling = {
+        version: 1,
+        brandStory: '다온의원은 방문 전의 걱정을 줄이고 필요한 정보를 분명하게 전하고자 합니다.',
+        origin: '진료실 안의 설명이 홈페이지에서도 같은 결로 이어져야 한다는 생각에서 시작했습니다.',
+        philosophy: '차분한 안내와 확인하기 쉬운 정보로 진료의 전후를 연결합니다.',
+      };
+    }
+    return input;
+  }
+  input.businessName = '여백공방';
+  input.purposeId = 'local_store';
+  input.purpose = '공방·클래스';
+  input.industry = '공방·클래스';
+  input.region = '서울 서촌';
+  input.tone = ['따뜻한', '자연스러운'];
+  input.templateId = 'local_store.default';
+  input.tagline = '손으로 만드는 시간과 클래스 정보를 한곳에 담았습니다.';
+  input.providedContent = '[소개]\n클래스 과정과 준비물, 예약 방법을 천천히 살펴볼 수 있도록 안내합니다.';
+  input.highlights = ['소규모 클래스', '과정별 준비물 안내', '예약 일정 확인'];
+  input.contentItems = [
+    { name: '흙 빚기 클래스', price: '60,000', description: '기초 성형 과정을 함께 익히는 수업' },
+    { name: '유약 색 고르기', price: '45,000', description: '색과 질감을 살펴보는 짧은 수업' },
+    { name: '주말 집중 클래스', price: '90,000', description: '한 작품을 완성하는 주말 과정' },
+  ];
+  if (input.contentDepth) {
+    input.contentDepth.mainStorytelling = {
+      version: 1,
+      brandStory: '여백공방은 손을 움직이는 동안 생각도 천천히 정돈되는 시간을 나누고 싶습니다.',
+      origin: '완성한 물건보다 만드는 과정이 오래 남는 수업을 꾸리고 싶어 시작했습니다.',
+      philosophy: '처음 만드는 사람도 자기 속도로 과정에 머물 수 있는 수업을 지향합니다.',
+    };
+  }
+  return input;
+}
+
 function textLength(config: SiteConfig, pageSlug?: string): number {
   const pages = pageSlug === undefined ? config.pages : config.pages.filter((page) => page.slug === pageSlug);
   return pages.flatMap((page) => page.sections)
@@ -101,9 +162,9 @@ function textLength(config: SiteConfig, pageSlug?: string): number {
     .join('').replace(/\s/gu, '').length;
 }
 
-function document(config: SiteConfig, mode: 'desktop' | 'mobile', pageSlug = ''): string {
+function document(config: SiteConfig, mode: 'desktop' | 'mobile', pageSlug = '', animate = false): string {
   const markup = renderToStaticMarkup(createElement(SiteRenderer, {
-    config, pageSlug, mode, interactive: false, animate: false, runtimeDelivery: 'client',
+    config, pageSlug, mode, interactive: animate, animate, runtimeDelivery: animate ? 'inline' : 'client',
   })).replace(/<link[^>]*>/gu, '');
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;overflow-x:hidden;background:${config.theme.palette.background}}</style></head><body>${markup}</body></html>`;
 }
@@ -200,12 +261,32 @@ async function main(): Promise<void> {
     'public/cases/demos/woldam/still-1.webp', 'public/cases/demos/woldam/still-2.webp',
     'public/cases/demos/yeobaek-workshop/still-1.webp', 'public/cases/demos/yeobaek-workshop/still-2.webp',
   ].map((file) => dataUrl(file, 'image/webp')));
-  const input = survey(photos);
+  const input = representativeSurvey(photos, 'cafe');
   const candidate: DesignCandidate = {
     id: 'content-review', label: '콘텐츠 심화', style: 'photo', heroImageUrl: hero,
     theme: tokenSetToSiteTheme(expandTokens('cafe-warm-editorial', 44)), description: '',
   };
-  const after = buildSiteConfigFromSurvey(input, candidate, { heroImageUrl: hero, imagePool: [] });
+  const builtAfter = buildSiteConfigFromSurvey(input, candidate, { heroImageUrl: hero, imagePool: [] });
+  const after = FLOW_REVIEW
+    ? withContinuousCanvasDefault(withSiteCinematicDefault(builtAfter))
+    : builtAfter;
+  const representativeConfigs = FLOW_REVIEW ? (['medical', 'workshop'] as const).map((kind) => {
+    const representativeInput = representativeSurvey(photos, kind);
+    const dnaId = kind === 'medical' ? 'medical-clinical-clarity' : 'workshop-tactile-heritage';
+    const hue = kind === 'medical' ? 188 : 32;
+    const representativeCandidate: DesignCandidate = {
+      id: `flow-${kind}`, label: kind, style: 'photo', heroImageUrl: hero,
+      theme: tokenSetToSiteTheme(expandTokens(dnaId, hue)), description: '',
+    };
+    return {
+      kind,
+      config: withContinuousCanvasDefault(withSiteCinematicDefault(buildSiteConfigFromSurvey(
+        representativeInput,
+        representativeCandidate,
+        { heroImageUrl: hero, imagePool: [] },
+      ))),
+    };
+  }) : [];
   const contentDepthBeforeInput = structuredClone(input);
   if (contentDepthBeforeInput.contentDepth) delete contentDepthBeforeInput.contentDepth.mainStorytelling;
   const contentDepthBefore = buildSiteConfigFromSurvey(
@@ -222,7 +303,16 @@ async function main(): Promise<void> {
     { type: 'contact', name: '문의', brief: '', source: 'template', pageSlug: '' },
   ];
   const before = buildSiteConfigFromSurvey(beforeInput, candidate, { heroImageUrl: hero, imagePool: photos });
-  const jobs = MAIN_REVIEW ? [
+  const flowBefore = FLOW_REVIEW ? withSiteCinematicDefault(builtAfter) : contentDepthBefore;
+  const jobs = FLOW_REVIEW ? [
+    { id: 'flow-after-1440', config: after, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'flow-after-768', config: after, pageSlug: '', mode: 'mobile' as const, width: 768, height: 900 },
+    { id: 'flow-after-390', config: after, pageSlug: '', mode: 'mobile' as const, width: 390, height: 844 },
+    { id: 'flow-before-1440', config: flowBefore, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
+    ...representativeConfigs.map(({ kind, config }) => ({
+      id: `flow-${kind}-1440`, config, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900,
+    })),
+  ] : MAIN_REVIEW ? [
     { id: 'main-after-1440', config: after, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
     { id: 'main-after-390', config: after, pageSlug: '', mode: 'mobile' as const, width: 390, height: 844 },
     { id: 'menu-1440', config: after, pageSlug: 'menu', mode: 'desktop' as const, width: 1440, height: 900 },
@@ -242,13 +332,18 @@ async function main(): Promise<void> {
     await writeFile(html, document(job.config, job.mode, job.pageSlug), 'utf8');
     screenshots.push({ id: job.id, file: png, ...(await capture(html, png, job.width, job.height)), bytes: (await stat(png)).size });
   }
-  const reviewBefore = MAIN_REVIEW ? contentDepthBefore : before;
+  if (FLOW_REVIEW) {
+    await writeFile(path.join(OUTPUT, 'fixtures', 'flow-live-1440.html'), document(after, 'desktop', '', true), 'utf8');
+    await writeFile(path.join(OUTPUT, 'fixtures', 'flow-live-390.html'), document(after, 'mobile', '', true), 'utf8');
+    await writeFile(path.join(OUTPUT, 'fixtures', 'flow-before-live-390.html'), document(flowBefore, 'mobile', '', true), 'utf8');
+  }
+  const reviewBefore = FLOW_REVIEW ? flowBefore : MAIN_REVIEW ? contentDepthBefore : before;
   const beforeLength = textLength(reviewBefore, '');
   const afterLength = textLength(after, '');
   const afterSiteLength = textLength(after);
   await writeFile(path.join(OUTPUT, 'manifest.json'), JSON.stringify({
     generatedAt: new Date().toISOString(), generatedAssetCalls: 0,
-    reviewMode: MAIN_REVIEW ? 'main-storytelling' : 'content-depth',
+    reviewMode: FLOW_REVIEW ? 'continuous-canvas' : MAIN_REVIEW ? 'main-storytelling' : 'content-depth',
     reusedAssets: ['public/mock/candidate-light.svg', 'public/cases/demos/*/still-{1,2}.webp'],
     pages: after.pages.map((page) => ({
       slug: page.slug,
@@ -264,7 +359,7 @@ async function main(): Promise<void> {
     },
     screenshots,
   }, null, 2), 'utf8');
-  process.stdout.write(`${MAIN_REVIEW ? 'MAIN' : 'CONTENT'} review -> ${OUTPUT}\n`);
+  process.stdout.write(`${FLOW_REVIEW ? 'FLOW' : MAIN_REVIEW ? 'MAIN' : 'CONTENT'} review -> ${OUTPUT}\n`);
 }
 
 main().catch((error) => {

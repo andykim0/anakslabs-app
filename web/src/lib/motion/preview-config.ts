@@ -2,7 +2,7 @@ import type { DesignCandidate, SurveyInput, Tier } from '@/lib/types/domain';
 import type { ProductionMotionSignatureId, SiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { applyGeneratedMotion } from './validate';
-import { withSiteCinematicDefault } from './site-cinematic';
+import { withContinuousCanvasDefault, withSiteCinematicDefault } from './site-cinematic';
 
 const DEMO_VIDEO = '/daboim-visibility-film-scrub.mp4';
 const DEMO_POSTER = '/daboim-visibility-film-poster.webp';
@@ -29,10 +29,13 @@ export function buildMotionSignaturePreviewConfig(
     ...(survey.storePhotoUrls ?? []),
     ...((survey.contentItems ?? []).map((item) => item.photoUrl).filter((src): src is string => Boolean(src))),
   ].filter((src, index, all) => src !== heroImageUrl && all.indexOf(src) === index);
-  const config = withSiteCinematicDefault(buildSiteConfigFromSurvey(survey, candidate, {
+  const cinematicBase = withSiteCinematicDefault(buildSiteConfigFromSurvey(survey, candidate, {
     heroImageUrl,
     imagePool: mediaPool,
   }));
+  const config = survey.contentDepth?.mainStorytelling
+    ? withContinuousCanvasDefault(cinematicBase)
+    : cinematicBase;
   const videoRequired = signatureId === 'cinematic-scrub' || signatureId === 'scrollytelling-manifesto';
   let source = config;
   if (videoRequired) {

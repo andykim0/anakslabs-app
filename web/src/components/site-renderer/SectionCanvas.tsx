@@ -29,6 +29,7 @@ import {
   type MotionPlan,
 } from '@/lib/motion/apply';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
+import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 
 interface SectionCanvasProps {
   section: Section;
@@ -45,6 +46,8 @@ interface SectionCanvasProps {
   proceduralHero?: boolean;
   /** Scene-integrated hero copy. Additive and enabled only by the SITECINE contract. */
   integratedTypography?: boolean;
+  /** FLOW opt-in only. Existing SITECINE and legacy configs omit it. */
+  continuousFlow?: boolean;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -75,6 +78,7 @@ function StandardSection({
   cinematicPlayback = false,
   proceduralHero = false,
   integratedTypography = false,
+  continuousFlow = false,
 }: SectionCanvasProps & { pinned?: boolean; cinematicPlayback?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -169,7 +173,7 @@ function StandardSection({
       {imgScrim && (
         <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: imgScrim.overlayColor, opacity: imgScrim.overlayOpacity }} />
       )}
-      {elements.map((el) => {
+      {elements.map((el, elementIndex) => {
         const m = plan ? motionFor(plan, section.id, el.id) : undefined;
         const countup = m === 'countup' && el.kind === 'text' ? parseStatParts(el.text) ?? undefined : undefined;
         const splitText = plan ? isSplitText(plan, section.id, el.id) : false;
@@ -184,6 +188,7 @@ function StandardSection({
         const depth = parallax && plan ? parallaxDepthFor(plan, section.id, el.id) : undefined;
         const cinematicDepth = cinematicPlayback && plan ? cinematicParallaxDepthFor(plan, section.id, el.id) : undefined;
         const storyWindow = cinematicPlayback && plan ? cinematicStoryWindowFor(plan, section.id, el.id) : undefined;
+        const flowRole = continuousFlow ? continuousFlowLayerRoleFor(el) : undefined;
         const content = (
           <ElementContent
             element={el}
@@ -219,7 +224,23 @@ function StandardSection({
               textShadow: el.kind === 'text' ? imgTextShadow : undefined,
             }}
           >
-            {cinematicDepth != null || storyWindow ? (
+            {flowRole ? (
+              <div data-flow-layer={flowRole} data-flow-order={elementIndex}>
+                {cinematicDepth != null || storyWindow ? (
+                  <div
+                    {...(cinematicDepth != null
+                      ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }
+                      : {})}
+                    {...(storyWindow
+                      ? { 'data-m-story': 'true', 'data-story-start': storyWindow.start.toFixed(4), 'data-story-end': storyWindow.end.toFixed(4) }
+                      : {})}
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    {content}
+                  </div>
+                ) : content}
+              </div>
+            ) : cinematicDepth != null || storyWindow ? (
               <div
                 {...(cinematicDepth != null
                   ? { 'data-m-cinematic-layer': 'true', 'data-m-depth': String(cinematicDepth) }

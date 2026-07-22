@@ -737,6 +737,12 @@ export const siteConfigSchema = z
       sectionSpine: z.literal(true),
       quietSections: z.literal(true),
       integratedTypography: z.literal(true),
+      continuousCanvas: z.object({
+        version: z.literal(1),
+        toneField: z.literal('palette-bridge'),
+        immersiveScroll: z.literal(true),
+        minimumContentChapters: z.literal(3),
+      }).strict().optional(),
     }).strict().optional(),
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
