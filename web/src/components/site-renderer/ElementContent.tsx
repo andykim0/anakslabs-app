@@ -127,9 +127,11 @@ function TextContent({
     frameHeight: el.frame.h,
     tokens: theme.tokens?.typography,
   });
+  const outlineTag = s.appearance === 'outline-tag';
   const style: CSSProperties = {
-    margin: 0,
-    width: '100%',
+    margin: outlineTag ? '0 auto' : 0,
+    width: outlineTag ? 'fit-content' : '100%',
+    maxWidth: outlineTag ? '100%' : undefined,
     fontSize: variant === 'canvas'
       ? cqw(typography.fontSize)
       : `${mobileFontSize(typography.fontSize, generatedStackFontFloor(el.id))}px`,
@@ -137,10 +139,20 @@ function TextContent({
     fontFamily: s.fontFamily === 'heading' ? theme.fonts.heading : theme.fonts.body,
     color: resolveThemePaint(theme, s.color ?? theme.palette.text, 'muted'),
     // 모바일 스택은 중앙 정렬 보정 (자유배치 좌표 의미가 사라지므로)
-    textAlign: variant === 'stack' ? 'center' : (s.align ?? 'left'),
+    textAlign: outlineTag || variant === 'stack' ? 'center' : (s.align ?? 'left'),
     lineHeight: typography.lineHeight,
     letterSpacing: s.letterSpacing != null ? len(s.letterSpacing, variant) : undefined,
     fontStyle: s.italic ? 'italic' : undefined,
+    display: outlineTag ? 'inline-flex' : undefined,
+    alignItems: outlineTag ? 'center' : undefined,
+    justifyContent: outlineTag ? 'center' : undefined,
+    boxSizing: outlineTag ? 'border-box' : undefined,
+    padding: outlineTag
+      ? variant === 'canvas' ? `${cqw(7)} ${cqw(16)}` : '7px 14px'
+      : undefined,
+    border: outlineTag ? '1px solid currentColor' : undefined,
+    borderRadius: outlineTag ? '999px' : undefined,
+    backgroundColor: outlineTag ? 'transparent' : undefined,
     whiteSpace: 'pre-wrap', // \n 줄바꿈 반영
     ...textFlowFor(s.fontFamily),
   };

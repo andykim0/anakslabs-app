@@ -3,9 +3,10 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, test } from 'node:test';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
+import { ElementContent } from '@/components/site-renderer/ElementContent';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
-import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
+import { emptySiteConfig, type SiteConfig, type TextElement } from '@/lib/types/site';
 
 function fixture(theme: SiteConfig['theme']): SiteConfig {
   return {
@@ -117,5 +118,40 @@ describe('DNA3 SiteTheme renderer tokens', () => {
         tokens: { ...theme.tokens, arbitraryHex: '#ffffff' },
       },
     }).success, false);
+  });
+
+  test('outline-tag 텍스트는 DNA surface·radius와 분리된 투명 인라인 태그다', () => {
+    const theme = tokenSetToSiteTheme(expandTokens('cafe-warm-editorial', 31));
+    const element: TextElement = {
+      id: 'el-hero-chip-label-1',
+      kind: 'text',
+      frame: { x: 122, y: 612, w: 360, h: 40 },
+      z: 4,
+      text: '매일 직접 굽는 빵',
+      style: {
+        fontSize: 13,
+        fontFamily: 'body',
+        color: '#ffffff',
+        align: 'center',
+        appearance: 'outline-tag',
+      },
+    };
+    const tag = renderToStaticMarkup(createElement(ElementContent, {
+      element,
+      theme,
+      variant: 'canvas',
+    }));
+    const legacy = renderToStaticMarkup(createElement(ElementContent, {
+      element: { ...element, style: { ...element.style, appearance: undefined } },
+      theme,
+      variant: 'canvas',
+    }));
+
+    assert.match(tag, /display:inline-flex/u);
+    assert.match(tag, /width:fit-content/u);
+    assert.match(tag, /background-color:transparent/u);
+    assert.match(tag, /border:1px solid currentColor/u);
+    assert.match(tag, /border-radius:999px/u);
+    assert.doesNotMatch(legacy, /display:inline-flex|border-radius:999px|max-width/u);
   });
 });

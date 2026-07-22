@@ -57,12 +57,16 @@ describe('D4 — D2 배경 통일 + 히어로 리치', () => {
     }
   });
 
-  test('히어로 뷰포트감 — 칩 ≥1 + 서브카피 리치 + 요소 수 상향', () => {
+  test('히어로 뷰포트감 — 실제 자랑거리 태그 + 서브카피 리치', () => {
     const hero = home.sections.find((s) => s.type === 'hero')!;
-    assert.ok(hero.elements.filter((e) => e.id.includes('hero-chip-label')).length >= 1, '히어로 칩 없음');
+    const chips = hero.elements.filter((e) => e.id.includes('hero-chip-label'));
+    assert.equal(chips.length, 3, '입력한 자랑거리 태그가 모두 보이지 않음');
+    assert.ok(chips.every((element) => (
+      element.kind === 'text' && element.style.appearance === 'outline-tag'
+    )), '히어로 칩이 소형 아웃라인 태그가 아님');
     const sub = hero.elements.find((e) => e.id.includes('hero-sub'))!;
     assert.ok(sub.kind === 'text' && sub.text !== '소소한자리 · 카페·베이커리' && sub.text.length >= 20, '서브카피 빈약');
-    assert.ok(hero.elements.length >= 9, `히어로 요소 ${hero.elements.length}(<9)`);
+    assert.ok(hero.elements.length >= 6, `히어로 요소 ${hero.elements.length}(<6)`);
   });
 });
 

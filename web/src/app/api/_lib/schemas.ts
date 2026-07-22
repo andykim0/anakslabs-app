@@ -204,6 +204,7 @@ const textElementSchema = z.object({
     lineHeight: z.number().optional(),
     letterSpacing: z.number().optional(),
     italic: z.boolean().optional(),
+    appearance: z.literal('outline-tag').optional(),
   }),
 });
 

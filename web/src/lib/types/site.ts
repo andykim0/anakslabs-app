@@ -174,6 +174,8 @@ export interface TextElement extends ElementBase {
     lineHeight?: number;
     letterSpacing?: number;
     italic?: boolean;
+    /** 생성기가 명시한 소형 윤곽 태그. 미지정 텍스트는 기존 렌더 계약을 그대로 사용한다. */
+    appearance?: 'outline-tag';
   };
 }
 

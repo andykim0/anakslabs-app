@@ -135,14 +135,11 @@ function toneHeroSub(tone: string, industry: string, businessName: string): stri
 }
 
 /**
- * [D2] 히어로 핵심 포인트 칩 — 자랑거리(highlights)가 있으면 그대로 최대 3개, 없으면 사실(업종·지역·목적)만.
- * 지어내지 않는다 — 제공되지 않은 값은 칩으로 만들지 않는다.
+ * [D2/H1] 히어로 핵심 포인트 칩 — 고객이 직접 적은 자랑거리만 최대 3개 노출한다.
+ * 업종·지역·목적은 eyebrow/본문과 중복되므로 칩으로 대체하지 않는다.
  */
 function heroChips(survey: SurveyInput): string[] {
-  const hi = survey.highlights?.map((h) => h.trim()).filter(Boolean) ?? [];
-  if (hi.length) return hi.slice(0, 3);
-  const facts = [survey.industry, survey.region, survey.purpose].map((v) => (v ?? '').trim()).filter(Boolean);
-  return Array.from(new Set(facts)).slice(0, 3);
+  return (survey.highlights ?? []).map((highlight) => highlight.trim()).filter(Boolean).slice(0, 3);
 }
 
 /**
@@ -358,7 +355,7 @@ function buildHero(ctx: Ctx): Section {
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용. [D2] 없으면 톤 기반 2문장(‘상호·업종’ 한 줄 탈피).
   const sub = copy.heroSub ?? survey.tagline ?? toneHeroSub(toneText(survey.tone), survey.industry, survey.businessName);
   const kicker = copy.heroKicker ?? survey.purpose;
-  // [D2] 핵심 포인트 칩 — 자랑거리 우선, 없으면 사실(업종·지역·목적). 히어로 밀도·뷰포트 높이감.
+  // [D2/H1] 고객이 실제로 입력한 자랑거리만 소형 태그로 노출한다.
   const chips = heroChips(survey);
   // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
   const ctaLabel = ctaLabelForGoal(survey.siteGoal) ?? '문의하기';
@@ -410,27 +407,24 @@ function buildHero(ctx: Ctx): Section {
       style: { fontSize: 17, fontWeight: 400, fontFamily: 'body', color: scrim.textColor, align: 'left', lineHeight: 1.8 },
     },
   );
-  // [D2] 핵심 포인트 칩 — 아웃라인 필(스크림 텍스트색 보더), 최대 3개. 사실만(heroChips는 지어내지 않음).
+  // [D2/H1] 소형 인라인 아웃라인 태그. 별도 shape를 두지 않아 DNA surface가 카드처럼 채우지 못한다.
   chips.forEach((chip, i) => {
     const cx = 122 + i * 384;
-    elements.push(
-      {
-        id: nextId(ctx, 'el-hero-chip'),
-        kind: 'shape',
-        frame: { x: cx, y: 612, w: 360, h: 60 },
-        z: 3,
-        shape: 'rect',
-        style: { borderColor: scrim.textColor, borderWidth: 1, borderRadius: 17 },
+    elements.push({
+      id: nextId(ctx, 'el-hero-chip-label'),
+      kind: 'text',
+      frame: { x: cx, y: 612, w: 360, h: 40 },
+      z: 4,
+      text: chip,
+      style: {
+        fontSize: 13,
+        fontWeight: 500,
+        fontFamily: 'body',
+        color: scrim.textColor,
+        align: 'center',
+        appearance: 'outline-tag',
       },
-      {
-        id: nextId(ctx, 'el-hero-chip-label'),
-        kind: 'text',
-        frame: { x: cx, y: 620, w: 360, h: 45 },
-        z: 4,
-        text: chip,
-        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: scrim.textColor, align: 'center' },
-      },
-    );
+    });
   });
   elements.push(
     {
@@ -506,11 +500,11 @@ function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant, chipC
   const gap = 24;
   const rowW = chipCount > 0 ? chipCount * chipW + (chipCount - 1) * gap : 0;
   const rowStart = variant === 'centered' ? centerX(rowW) : rightX(rowW);
-  let ci = 0;
+  let chipIndex = 0;
   for (const el of elements) {
-    if (el.id.includes('hero-chip')) {
-      el.frame.x = rowStart + Math.floor(ci / 2) * (chipW + gap);
-      ci += 1;
+    if (el.id.includes('hero-chip-label')) {
+      el.frame.x = rowStart + chipIndex * (chipW + gap);
+      chipIndex += 1;
     }
   }
   // CTA 쌍 — 그룹 정렬(각각 독립 중앙 정렬 시 겹침 방지)

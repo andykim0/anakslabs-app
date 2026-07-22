@@ -1,6 +1,6 @@
 /**
  * [D2] 페이지 밀도·히어로 리치화 + 텍스트 결정적 확장 불변식.
- * - 히어로: 서브카피(톤 2문장, ‘상호·업종’ 한 줄 탈피) + 핵심 포인트 칩(자랑거리 우선, 없으면 사실).
+ * - 히어로: 서브카피(톤 2문장, ‘상호·업종’ 한 줄 탈피) + 고객이 입력한 자랑거리 태그.
  * - about: 값-포인트 ≥3(자랑거리 그대로 = 지어내지 않음).
  * - features(있으면): 자랑거리 카드 desc 비어있지 않음. testimonials(있으면): 3카드.
  * 확장은 입력(상호·업종·자랑거리·지역·목적) 범위 — 없는 사실 생성 금지.
@@ -39,13 +39,19 @@ describe('D2 — 히어로 리치화', () => {
     const hero = heroOf(gen('local_store', '카페', HIGHLIGHTS));
     const chips = txt(hero, 'hero-chip-label');
     assert.deepEqual(chips, HIGHLIGHTS.slice(0, 3));
+    const chipElements = hero.elements.filter((element) => element.id.includes('hero-chip'));
+    assert.ok(chipElements.every((element) => (
+      element.kind === 'text' && element.style.appearance === 'outline-tag'
+    )));
+    assert.equal(hero.elements.some((element) => (
+      element.kind === 'shape' && element.id.includes('hero-chip')
+    )), false);
   });
 
-  test('자랑거리 없으면 칩 = 사실(업종·지역·목적)만 — 없는 값 생성 안 함', () => {
+  test('자랑거리 없으면 업종·지역·목적 폴백 없이 칩 영역 전체를 생략한다', () => {
     const hero = heroOf(gen('local_store', '카페'));
-    const chips = txt(hero, 'hero-chip-label');
-    assert.ok(chips.length >= 1 && chips.length <= 3);
-    for (const c of chips) assert.ok(['카페', '서울 연희동', '음식점'].includes(c), `사실 아닌 칩: ${c}`);
+    assert.deepEqual(txt(hero, 'hero-chip-label'), []);
+    assert.equal(hero.elements.some((element) => element.id.includes('hero-chip')), false);
   });
 
   test('서브카피는 톤 기반 2문장 — 빈약한 ‘상호 · 업종’ 한 줄이 아님', () => {
