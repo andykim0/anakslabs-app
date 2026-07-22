@@ -3,7 +3,7 @@ import {
   ACTIVE_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
 import { DABOIM_TYPOGRAPHY } from '@/lib/design/typography-scale';
-import { designDnaById, type DesignDnaId } from './catalog';
+import { designDnaById } from './catalog';
 import {
   chromaAtLightness,
   ensureContrast,
@@ -15,6 +15,7 @@ import {
 import {
   DNA_FONT_PAIR_IDS,
   type DesignDNA,
+  type DesignDnaId,
   type DesignDnaOverrides,
   type DnaChroma,
   type DnaColorRamp,

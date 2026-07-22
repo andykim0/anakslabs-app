@@ -13,6 +13,7 @@ import type {
 } from './site';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
+import type { DesignDnaSelection } from '@/lib/design/dna/types';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -463,6 +464,8 @@ export interface DesignCandidate {
   heroAssetRef?: AssetRef;
   theme: SiteTheme;
   description: string;
+  /** DNA rollout ON에서 서버가 선택해 반환한 enum-only 핀. */
+  designDna?: DesignDnaSelection;
 }
 
 // ---------- 커스텀 도메인 ----------

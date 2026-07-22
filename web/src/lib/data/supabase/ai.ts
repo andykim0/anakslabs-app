@@ -17,7 +17,11 @@ import type { SectionType, SiteConfig } from '@/lib/types/site';
 import type { AssetRef } from '@/lib/assets/provenance';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import type { GeminiAspectRatio } from '@/lib/ai/gemini-image-request';
-import { generateClaudeText, CLAUDE_COPYWRITER_SYSTEM } from '@/lib/ai/claude-text';
+import {
+  generateClaudeText,
+  generateClaudeToolInputs,
+  CLAUDE_COPYWRITER_SYSTEM,
+} from '@/lib/ai/claude-text';
 import { generateVeoVideo } from '@/lib/ai/veo-video';
 import { DESIGN_PRINCIPLES_PROMPT } from '@/lib/ai/design-knowledge';
 import { povImagePrompt, v2ImagePrompt } from '@/lib/ai/image-prompt';
@@ -36,7 +40,7 @@ import type {
   SuggestSectionContext,
 } from '../types';
 import {
-  buildCandidateBlueprints,
+  buildCandidateBlueprintsForPipeline,
   matchBlueprintForCandidate,
   type CandidateBlueprint,
 } from '../design-candidates';
@@ -247,7 +251,17 @@ export class SupabaseAiService implements AiService {
     assertAiAssetProvenanceReady();
     const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
     const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
-    const blueprints = buildCandidateBlueprints(generationSurvey);
+    const blueprints = await buildCandidateBlueprintsForPipeline(generationSurvey, {
+      invoke: ({ prompt, system, tool }) => generateClaudeToolInputs({
+        prompt,
+        system,
+        tool: {
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        },
+      }),
+    });
     if (v2Plan?.kind === 'reuse_customer_upload') {
       return blueprints.map((bp) => ({
         id: bp.id,
@@ -258,6 +272,7 @@ export class SupabaseAiService implements AiService {
         heroAssetRef: { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl },
         theme: bp.theme,
         description: bp.description,
+        ...(bp.designDna ? { designDna: bp.designDna } : {}),
       }));
     }
     // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
@@ -271,10 +286,13 @@ export class SupabaseAiService implements AiService {
         heroImageUrl: heroPhotoUrl,
         theme: bp.theme,
         description: bp.description,
+        ...(bp.designDna ? { designDna: bp.designDna } : {}),
       }));
     }
     // Claude 1회 호출로 3안 텍스트를 다듬는다 (실패 시 빈 Map → 결정적 텍스트)
-    const refined = await refineCandidateTexts(generationSurvey, blueprints);
+    const refined = blueprints.some((bp) => bp.designDna)
+      ? new Map<string, RefinedCandidateText>()
+      : await refineCandidateTexts(generationSurvey, blueprints);
 
     return Promise.all(
       blueprints.map(async (bp) => {
@@ -307,6 +325,7 @@ export class SupabaseAiService implements AiService {
           // 테마는 항상 결정적(buildThemeFromBrief 산출) — LLM 이 hex 를 만들지 않는다
           theme: bp.theme,
           description: text?.description ?? bp.description,
+          ...(bp.designDna ? { designDna: bp.designDna } : {}),
         };
       }),
     );

@@ -30,6 +30,13 @@ import {
   povForStyle,
 } from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
+import {
+  designDnaById,
+  dnaPipelineEnabled,
+  selectDesignDnaCandidates,
+  type DesignDnaSelection,
+  type DnaSelectionToolInvoker,
+} from '@/lib/design/dna';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 
 export interface CandidateBlueprint {
@@ -50,6 +57,8 @@ export interface CandidateBlueprint {
   sectionImageFragment: string;
   /** 이 안을 만든 디자인 브리프 원본 (스타일·팔레트·폰트·랜딩 패턴) */
   brief: DesignBrief;
+  /** DNA rollout ON에서만 존재하는 enum-only 선택 핀. */
+  designDna?: DesignDnaSelection;
 }
 
 // ---------- 설문 전처리 ----------
@@ -187,31 +196,57 @@ function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteThe
   });
 }
 
-export function buildCandidateBlueprints(survey: SurveyInput): CandidateBlueprint[] {
+export function buildCandidateBlueprints(
+  survey: SurveyInput,
+  dnaSelections: readonly DesignDnaSelection[] = [],
+): CandidateBlueprint[] {
   // [온보딩] 이미지 스타일은 고객 선택 축 — 3안 전부 이 스타일로 고정하고 차별화는 POV(무드)로만.
   // 미설정 시 업종 기본값 폴백(기존 데이터 호환). 렌더 스타일은 candidateStyle이 결정(buildImagePrompt·mock).
   const imageStyle = survey.imageDirectionId
     ? imageDirectionToLegacyCandidateStyle(survey.imageDirectionId)
     : resolveImageStyle({ imageStyle: survey.imageStyle, industry: survey.industry });
   const briefs = selectDesignBriefs(surveyForBriefs(survey));
-  return briefs.map((brief) => {
+  return briefs.map((brief, index) => {
     // 공유 StyleDirection을 변형하지 않도록 candidateStyle만 imageStyle로 덮은 복사본을 만든다.
     const styled: DesignBrief = { ...brief, style: { ...brief.style, candidateStyle: imageStyle } };
     const theme = themeForBrief(survey, brief);
+    const designDna = dnaSelections[index];
+    const dna = designDna ? designDnaById(designDna.dnaId) : undefined;
     return {
       id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
-      label: brief.label,
+      label: dna?.description.split(' — ')[0] ?? brief.label,
       style: imageStyle, // 후보 표시 스타일 = 고정 imageStyle
       ...(survey.imageDirectionId ? { imageDirectionId: survey.imageDirectionId } : {}),
-      description: brief.description,
+      description: dna?.description ?? brief.description,
       theme,
       heroImagePrompt: buildHeroPrompt(survey, styled, theme),
       mockHeroUrl: mockHeroFor(styled),
       heroImageFragment: brief.style.heroImageFragment,
       sectionImageFragment: brief.style.sectionImageFragment,
       brief: styled,
+      ...(designDna
+        ? { designDna: { ...designDna, overrides: { ...designDna.overrides } } }
+        : {}),
     };
   });
+}
+
+/**
+ * Feature-gated async entry point used by both real and mock AI services.
+ * OFF is the byte-for-byte legacy builder; ON selects only catalog ids and then
+ * feeds the same blueprint/image pipeline. Token projection is added in E2.
+ */
+export async function buildCandidateBlueprintsForPipeline(
+  survey: SurveyInput,
+  options: {
+    enabled?: boolean;
+    invoke?: DnaSelectionToolInvoker;
+  } = {},
+): Promise<CandidateBlueprint[]> {
+  const enabled = options.enabled ?? dnaPipelineEnabled();
+  if (!enabled) return buildCandidateBlueprints(survey);
+  const result = await selectDesignDnaCandidates(survey, options.invoke);
+  return buildCandidateBlueprints(survey, result.selections);
 }
 
 // ---------- 후보 → 블루프린트 역참조 (2차 단계에서 재사용) ----------

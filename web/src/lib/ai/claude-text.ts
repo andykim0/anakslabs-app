@@ -64,3 +64,38 @@ export async function generateClaudeText(input: {
   }
   return text;
 }
+
+/** Named tool output only. Callers still validate every input against their runtime schema. */
+export async function generateClaudeToolInputs(input: {
+  prompt: string;
+  system: string;
+  tool: {
+    name: string;
+    description: string;
+    inputSchema: Anthropic.Tool['input_schema'];
+  };
+  maxTokens?: number;
+  model?: string;
+}): Promise<readonly unknown[]> {
+  const client = getClient();
+  const response = await client.messages.create({
+    model: input.model ?? DEFAULT_MODEL,
+    max_tokens: input.maxTokens ?? 1200,
+    system: input.system,
+    messages: [{ role: 'user', content: input.prompt }],
+    tools: [{
+      name: input.tool.name,
+      description: input.tool.description,
+      input_schema: input.tool.inputSchema,
+      strict: true,
+    }],
+    tool_choice: { type: 'tool', name: input.tool.name, disable_parallel_tool_use: false },
+  });
+  if (response.stop_reason === 'refusal') {
+    throw new Error('Claude 구조화 선택이 거부됐습니다.');
+  }
+  return response.content
+    .filter((block): block is Anthropic.ToolUseBlock =>
+      block.type === 'tool_use' && block.name === input.tool.name)
+    .map((block) => block.input);
+}

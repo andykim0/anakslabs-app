@@ -172,12 +172,14 @@ describe('DNA pipeline static invariants', () => {
     assert.doesNotMatch(dnaSources, /\b[\w$]*(?:hex|px)[\w$]*\??\s*:/iu);
   });
 
-  test('DNA1은 기존 후보 생성·SiteConfig 경로에 배선되지 않는다', () => {
-    const legacySources = [
-      'src/lib/data/design-candidates.ts',
-      'src/lib/types/site.ts',
-    ].map((file) => readFileSync(resolve(process.cwd(), file), 'utf8')).join('\n');
-
-    assert.doesNotMatch(legacySources, /design\/dna/iu);
+  test('DNA2 선택 분기는 기본 OFF이며 SiteConfig 배선은 E2 전까지 열리지 않는다', () => {
+    const candidateSource = readFileSync(
+      resolve(process.cwd(), 'src/lib/data/design-candidates.ts'),
+      'utf8',
+    );
+    const siteSource = readFileSync(resolve(process.cwd(), 'src/lib/types/site.ts'), 'utf8');
+    assert.match(candidateSource, /dnaPipelineEnabled/iu);
+    assert.match(candidateSource, /if \(!enabled\) return buildCandidateBlueprints\(survey\)/u);
+    assert.doesNotMatch(siteSource, /designDna/iu);
   });
 });

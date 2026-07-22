@@ -11,10 +11,20 @@ import {
 import { MOTION_PRESETS } from '@/lib/motion/presets';
 import { HERO_VIDEO_MOTION_IDS } from '@/lib/motion/hero-video-motions';
 import {
+  ACTIVE_MOTION_SIGNATURE_IDS,
   PRODUCTION_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
 import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
 import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import {
+  DESIGN_DNA_IDS,
+  DNA_CHROMA_NAMES,
+  DNA_COLOR_STRATEGIES,
+  DNA_DENSITIES,
+  DNA_FONT_PAIR_IDS,
+  DNA_RADII,
+  DNA_TYPE_RATIOS,
+} from '@/lib/design/dna/types';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -80,6 +90,21 @@ export const siteThemeSchema = z.object({
   radius: z.number().optional(),
   customCss: z.string().optional(),
 });
+
+export const designDnaSelectionSchema = z.object({
+  catalogVersion: z.literal(1),
+  dnaId: z.enum(DESIGN_DNA_IDS),
+  hueSeed: z.number().int().min(0).max(360),
+  overrides: z.object({
+    typePair: z.enum(DNA_FONT_PAIR_IDS).optional(),
+    typeRatio: z.enum(DNA_TYPE_RATIOS).optional(),
+    colorStrategy: z.enum(DNA_COLOR_STRATEGIES).optional(),
+    colorChroma: z.enum(DNA_CHROMA_NAMES).optional(),
+    density: z.enum(DNA_DENSITIES).optional(),
+    radius: z.enum(DNA_RADII).optional(),
+    motionDefault: z.enum(ACTIVE_MOTION_SIGNATURE_IDS).optional(),
+  }).strict(),
+}).strict();
 
 // ---------- 캔버스 요소 ----------
 
@@ -952,6 +977,7 @@ export const designCandidateSchema = z.object({
   heroAssetRef: assetRefSchema.optional(),
   theme: siteThemeSchema,
   description: z.string(),
+  designDna: designDnaSelectionSchema.optional(),
 });
 
 // ---------- 커스텀 도메인 ----------

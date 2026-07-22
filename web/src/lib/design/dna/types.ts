@@ -3,6 +3,26 @@ import type {
   MotionIndustryClass,
 } from '@/lib/types/site';
 
+export const DESIGN_DNA_IDS = [
+  'cafe-warm-editorial',
+  'dining-refined-contrast',
+  'beauty-soft-wellness',
+  'medical-clinical-clarity',
+  'legal-authoritative-editorial',
+  'workshop-tactile-heritage',
+  'academy-structured-friendly',
+  'retail-bold-geometric',
+] as const;
+
+export type DesignDnaId = (typeof DESIGN_DNA_IDS)[number];
+
+export type DnaMoodFamily =
+  | 'warm-tactile'
+  | 'refined-editorial'
+  | 'soft-organic'
+  | 'structured-clarity'
+  | 'bold-geometric';
+
 /** Existing FONT_PAIRINGS ids that have Korean heading/body fallbacks in the renderer. */
 export const DNA_FONT_PAIR_IDS = [
   'hahmlet-editorial',
@@ -18,16 +38,22 @@ export const DNA_FONT_PAIR_IDS = [
 export type DnaFontPairId = (typeof DNA_FONT_PAIR_IDS)[number];
 
 /** Named scale choices keep arbitrary numeric values outside the model-facing contract. */
-export type DnaTypeRatio =
-  | 'major-second'
-  | 'minor-third'
-  | 'major-third'
-  | 'perfect-fourth';
+export const DNA_TYPE_RATIOS = [
+  'major-second',
+  'minor-third',
+  'major-third',
+  'perfect-fourth',
+] as const;
+export const DNA_COLOR_STRATEGIES = ['mono', 'neutral-accent', 'duotone'] as const;
+export const DNA_CHROMA_NAMES = ['muted', 'balanced', 'vivid'] as const;
+export const DNA_DENSITIES = ['compact', 'balanced', 'airy'] as const;
+export const DNA_RADII = ['square', 'soft', 'rounded'] as const;
 
-export type DnaColorStrategy = 'mono' | 'neutral-accent' | 'duotone';
-export type DnaChroma = 'muted' | 'balanced' | 'vivid';
-export type DnaDensity = 'compact' | 'balanced' | 'airy';
-export type DnaRadius = 'square' | 'soft' | 'rounded';
+export type DnaTypeRatio = (typeof DNA_TYPE_RATIOS)[number];
+export type DnaColorStrategy = (typeof DNA_COLOR_STRATEGIES)[number];
+export type DnaChroma = (typeof DNA_CHROMA_NAMES)[number];
+export type DnaDensity = (typeof DNA_DENSITIES)[number];
+export type DnaRadius = (typeof DNA_RADII)[number];
 
 /** GEN/STK batches extend this placeholder; DNA1 does not select or generate assets. */
 export interface DesignDnaAssetRecipe {
@@ -35,7 +61,11 @@ export interface DesignDnaAssetRecipe {
 }
 
 export interface DesignDNA {
-  id: string;
+  id: DesignDnaId;
+  /** 후보 선택 프롬프트에 공개하는 한 줄 설명. 토큰 구현 세부는 포함하지 않는다. */
+  description: string;
+  /** 코드가 후보 3안의 인접 무드 중복을 거르는 내부 분류. */
+  moodFamily: DnaMoodFamily;
   type: {
     pair: DnaFontPairId;
     ratio: DnaTypeRatio;
@@ -59,6 +89,14 @@ export interface DesignDnaOverrides {
   density?: DnaDensity;
   radius?: DnaRadius;
   motionDefault?: ActiveMotionSignatureId;
+}
+
+/** 후보 선택부터 SiteConfig까지 그대로 고정되는 모델 출력의 정규형. */
+export interface DesignDnaSelection {
+  catalogVersion: 1;
+  dnaId: DesignDnaId;
+  hueSeed: number;
+  overrides: DesignDnaOverrides;
 }
 
 export type DnaRampStep = '50' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | '950';

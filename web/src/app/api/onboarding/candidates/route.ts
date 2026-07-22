@@ -10,6 +10,7 @@ import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { heroImageGenConfig } from '@/lib/onboarding/hero-image-cost';
 import { surveyForHeroCandidates } from '@/lib/onboarding/hero-image-options';
+import { dnaPipelineEnabled } from '@/lib/design/dna/flags';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import {
   AssetTruthRequestError,
@@ -74,7 +75,8 @@ function candidateDedupKey(
   siteId?: string,
 ): string | null {
   if (!requestKey) return null;
-  return `${clientId}:${siteId ?? 'new'}:${requestKey}:${surveySignature(survey)}`;
+  const designPipeline = dnaPipelineEnabled() ? 'dna' : 'legacy';
+  return `${clientId}:${siteId ?? 'new'}:${designPipeline}:${requestKey}:${surveySignature(survey)}`;
 }
 
 function getDedupStore(): Map<string, DedupEntry> {

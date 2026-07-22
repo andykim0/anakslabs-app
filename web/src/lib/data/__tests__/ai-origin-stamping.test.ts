@@ -137,7 +137,7 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
   test('flag 의존성은 AI 비용·rate·credit·provider보다 앞에서 검증된다', () => {
     const real = source('src/lib/data/supabase/ai.ts');
     for (const [method, firstCost] of [
-      ['async generateCandidates', 'buildCandidateBlueprints(generationSurvey)'],
+      ['async generateCandidates', 'await buildCandidateBlueprintsForPipeline(generationSurvey'],
       ['async generateSiteConfig', 'generateSectionCopy(generationSurvey, blueprint)'],
       ['async generateImage', "buildV2ImagePrompt('editorial'"],
       ['async generateVideo', 'generateVeoVideo(input, owner)'],

@@ -7,7 +7,7 @@ import type { AiAssetOwnerContext, AiService, SuggestSectionContext } from '../t
 import { buildImagePool } from '../image-pool';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SectionType, SiteConfig } from '@/lib/types/site';
-import { buildCandidateBlueprints } from '../design-candidates';
+import { buildCandidateBlueprintsForPipeline } from '../design-candidates';
 import { mapCustomSectionType } from '../section-suggest';
 import { buildSiteConfigFromSurvey } from '../site-templates';
 import { heroVariantForSurvey } from '@/lib/design/reference-gallery';
@@ -132,7 +132,7 @@ export class MockAiService implements AiService {
     assertAiAssetProvenanceReady();
     const generationSurvey = surveyWithResolvedV2ImageDirection(survey);
     const v2Plan = await resolveSurveyV2ImageGenerationPlan(generationSurvey, owner);
-    const blueprints = buildCandidateBlueprints(generationSurvey);
+    const blueprints = await buildCandidateBlueprintsForPipeline(generationSurvey);
     if (v2Plan?.kind === 'reuse_customer_upload') {
       return blueprints.map((bp) => ({
         id: bp.id,
@@ -143,6 +143,7 @@ export class MockAiService implements AiService {
         heroAssetRef: { assetId: v2Plan.asset.id, url: v2Plan.asset.canonicalUrl },
         theme: bp.theme,
         description: bp.description,
+        ...(bp.designDna ? { designDna: bp.designDna } : {}),
       }));
     }
     await simulateLatency(1300);
@@ -163,6 +164,7 @@ export class MockAiService implements AiService {
         ...(hero.assetId ? { heroAssetRef: { assetId: hero.assetId, url: hero.url } } : {}),
         theme: bp.theme,
         description: bp.description,
+        ...(bp.designDna ? { designDna: bp.designDna } : {}),
       };
     }));
   }
