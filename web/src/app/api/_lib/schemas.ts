@@ -975,7 +975,7 @@ export const surveySchema = z.object({
     .max(5)
     .optional(),
   contentDepth: z.object({
-    version: z.literal(1),
+    version: z.union([z.literal(1), z.literal(2)]),
     facts: z.array(z.object({
       key: z.enum([
         'phone', 'openingHours', 'address', 'parking', 'reservation', 'paymentMethods',

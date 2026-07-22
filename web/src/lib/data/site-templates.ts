@@ -49,6 +49,13 @@ import type { HeroVariant } from './skeletons';
 import { teaserSummary } from './teaser-summary';
 import { parseAddress, parseBusinessHours, resolveContentItems } from './content-parse';
 import { isSafeHref } from '@/lib/safe-url';
+import {
+  buildSitePlan,
+  sitePlanSectionSourceLines,
+  sitePlanV2Enabled,
+  type SitePlan,
+  type SitePlanSection,
+} from '@/lib/content/site-plan';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -2606,6 +2613,97 @@ function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSl
   return output;
 }
 
+function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
+  const lines = sitePlanSectionSourceLines(ctx.survey, planned);
+  const elements = mainTopicIntro(
+    ctx,
+    `el-plan-${planned.id}`,
+    planned.mode === 'teaser' ? '미리보기' : '확인된 정보',
+    planned.name,
+    planned.mode === 'teaser'
+      ? '사장님이 알려주신 내용 가운데 대표 항목만 먼저 보여드립니다.'
+      : '사장님이 직접 입력하거나 확인한 내용만 빠짐없이 정리했습니다.',
+  );
+  if (planned.role === 'links') {
+    lines.forEach((href, index) => {
+      elements.push({
+        id: nextId(ctx, `el-plan-link-${index + 1}`), kind: 'button',
+        frame: { x: 120, y: 274 + index * 68, w: 520, h: 48 }, z: 3,
+        label: `공식 채널 ${index + 1}`, href,
+        style: {
+          variant: 'outline', color: ctx.theme.palette.primary,
+          textColor: ctx.theme.palette.primary, fontSize: 15,
+          borderRadius: ctx.theme.radius ?? 4,
+        },
+      });
+    });
+  } else {
+    lines.forEach((line, index) => {
+      elements.push({
+        id: nextId(ctx, `el-plan-line-${index + 1}`), kind: 'text',
+        frame: { x: 120, y: 274 + index * 82, w: 1200, h: 62 }, z: 2, text: line,
+        style: {
+          fontSize: index === 0 ? 21 : 18, fontWeight: index === 0 ? 500 : 400,
+          fontFamily: index === 0 ? 'heading' : 'body', color: ctx.theme.palette.text,
+          align: 'left', lineHeight: 1.7,
+        },
+      });
+    });
+  }
+  if (planned.mode === 'teaser' && planned.pageSlug === '') {
+    const target = planned.id.replace(/^sec-home-|-teaser$/gu, '');
+    elements.push(mainTopicButton(ctx, `el-plan-${planned.id}-link`, 304 + lines.length * 82, `/${target}`));
+  }
+  return {
+    id: planned.id,
+    type: planned.type,
+    name: planned.name,
+    height: Math.max(520, 386 + lines.length * 82),
+    background: { color: ctx.theme.palette.background },
+    elements,
+  };
+}
+
+/** SitePlan v2 is the only authority for both section presence and projection. */
+function buildSitePlanSections(ctx: Ctx, plan: SitePlan): { section: Section; pageSlug: string }[] {
+  const narrative = buildMainStorytellingHomeSections(ctx);
+  const honestDepth = buildContentDepthHomeSections(ctx);
+  return plan.sections.map((planned) => {
+    let section: Section | undefined;
+    if (planned.role === 'hero') {
+      section = buildHero(ctx);
+    } else if (planned.role === 'story') {
+      section = narrative[0];
+    } else if (planned.role === 'values') {
+      section = narrative[1];
+    } else if (planned.id.includes('menu')) {
+      const hasStructuredItems = buildContentDepthHomeModel(ctx.survey).contentItems.length > 0;
+      section = hasStructuredItems
+        ? planned.mode === 'teaser' ? buildMainMenuTeaser(ctx) : buildMainMenuFull(ctx)
+        : buildSitePlanTextSection(ctx, planned);
+    } else if (planned.id.includes('gallery')) {
+      section = planned.mode === 'teaser' ? buildMainGalleryTeaser(ctx) : buildMainGalleryFull(ctx);
+    } else if (planned.id.includes('faq')) {
+      if (planned.mode === 'teaser') section = buildMainFaqTeaser(ctx);
+      else section = buildFaq(ctx, {
+        type: 'faq', name: planned.name, brief: planned.brief,
+        source: 'template', pageSlug: planned.pageSlug,
+      });
+    } else if (planned.id.includes('directions')) {
+      section = planned.mode === 'teaser'
+        ? buildMainDirectionsTeaser(ctx)
+        : honestDepth.find((candidate) => candidate.id === 'sec-contact-directions');
+    } else if (planned.role === 'contact') {
+      section = honestDepth.find((candidate) => candidate.id === 'sec-contact');
+    }
+    section ??= buildSitePlanTextSection(ctx, planned);
+    section.id = planned.id;
+    section.name = planned.name;
+    section.type = planned.type;
+    return { section, pageSlug: planned.pageSlug };
+  });
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx, item: SectionPlanItem) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -2653,6 +2751,7 @@ export function buildSiteConfigFromSurvey(
     imageReuse: 0,
     kit: findPov(povId).kit,
   };
+  const approvedSitePlan = sitePlanV2Enabled(survey) ? buildSitePlan(survey) : null;
 
   // 1) 계획표 확보 + hero/contact 최소 요건 합성 (pageSlug 보존)
   const plan: SectionPlanItem[] = survey.sectionPlan.map((it) => ({ ...it }));
@@ -2717,7 +2816,14 @@ export function buildSiteConfigFromSurvey(
     return { section, pageSlug: item.pageSlug ?? '' };
   });
 
-  if (survey.contentDepth) {
+  if (approvedSitePlan) {
+    built.splice(0, built.length, ...buildSitePlanSections(ctx, approvedSitePlan));
+    usedIds.clear();
+    for (const { section } of built) {
+      if (usedIds.has(section.id)) throw new Error(`SitePlan v2 section id collision: ${section.id}`);
+      usedIds.add(section.id);
+    }
+  } else if (survey.contentDepth) {
     const sections = survey.contentDepth.mainStorytelling
       ? buildMainStorytellingSiteSections(ctx)
       : buildContentDepthHomeSections(ctx).map((section) => ({ section, pageSlug: '' }));
@@ -2750,11 +2856,11 @@ export function buildSiteConfigFromSurvey(
     if (!slugOrder.includes(s)) slugOrder.push(s);
   };
   pushSlug('');
-  for (const p of survey.pagePlan ?? []) pushSlug(p.slug);
+  for (const p of approvedSitePlan?.pages ?? survey.pagePlan ?? []) pushSlug(p.slug);
   for (const b of built) pushSlug(b.pageSlug);
 
   const metaOf = (slug: string): { title: string; navLabel?: string; showInNav?: boolean } => {
-    const fromPlan = survey.pagePlan?.find((p) => p.slug === slug);
+    const fromPlan = (approvedSitePlan?.pages ?? survey.pagePlan)?.find((p) => p.slug === slug);
     if (fromPlan) return { title: fromPlan.title, navLabel: fromPlan.navLabel, showInNav: fromPlan.showInNav };
     return { title: DEFAULT_PAGE_TITLES[slug] ?? (slug || '홈') };
   };

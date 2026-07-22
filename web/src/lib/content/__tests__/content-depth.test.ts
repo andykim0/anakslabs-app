@@ -53,7 +53,7 @@ test('온보딩은 답한 사실만 저장하고 신규 제출에 contentDepth �
   assert.match(step, /next\[index\] = \{ key, value, source: 'customer' \}/);
   assert.doesNotMatch(step, /예상 답변|자동 답변|placeholder.*value=/);
   assert.match(host, /missingRequiredFacts/);
-  assert.match(host, /contentDepth: \{\s*version: 1 as const,/);
+  assert.match(host, /contentDepth: \{\s*version: 2 as const,/);
   assert.match(host, /mainStorytelling: \{\s*version: 1 as const,/);
   assert.match(step, /가게의 이야기를 들려주세요/);
   assert.match(step, /register\('brandStory'\)/);

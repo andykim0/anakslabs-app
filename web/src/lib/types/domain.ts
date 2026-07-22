@@ -255,9 +255,9 @@ export interface MainStorytellingInput {
   philosophy?: string;
 }
 
-/** Additive gate: configs built from surveys without this field retain the legacy output. */
+/** Additive gate: v1 retains CONTENT/MAIN output; v2 enables the approved SitePlan contract. */
 export interface ContentDepthInput {
-  version: 1;
+  version: 1 | 2;
   facts: BusinessFactAnswer[];
   faqAnswers: GuidedFaqAnswer[];
   imports: ImportedContentSource[];

@@ -247,7 +247,7 @@ export function SurveyStep({
       referenceDesignId: clean(values.referenceDesignId),
       existingPresence: presence.length ? presence : undefined,
       contentDepth: {
-        version: 1 as const,
+        version: 2 as const,
         facts: factualAnswers,
         faqAnswers,
         imports: importedContentSources,

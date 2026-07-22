@@ -10,6 +10,7 @@
  */
 import { Check, GripVertical, Lock } from 'lucide-react';
 import type { SurveyInput } from '@/lib/types/domain';
+import { buildSitePlan, sitePlanV2Enabled } from '@/lib/content/site-plan';
 import { cn } from '../ui';
 
 /** 섹션 식별 키 — 페이지+타입+이름 */
@@ -39,11 +40,14 @@ export function WireframePreview({
   removed: Set<string>;
   onToggle: (key: string) => void;
 }) {
+  const sitePlan = sitePlanV2Enabled(survey) ? buildSitePlan(survey) : null;
   // 페이지 순서(pagePlan) → 그 안의 섹션(sectionPlan, pageSlug로 그룹)
-  const pages = survey.pagePlan?.length
+  const pages = sitePlan?.pages ?? (survey.pagePlan?.length
     ? survey.pagePlan
-    : [{ slug: '', title: '홈', priority: 'must' as const }];
-  const byPage = (slug: string) => survey.sectionPlan.filter((s) => (s.pageSlug ?? '') === slug);
+    : [{ slug: '', title: '홈', priority: 'must' as const }]);
+  const byPage = (slug: string) => sitePlan
+    ? sitePlan.sections.filter((section) => section.pageSlug === slug)
+    : survey.sectionPlan.filter((section) => (section.pageSlug ?? '') === slug);
 
   return (
     <div className="space-y-4">
@@ -67,13 +71,17 @@ export function WireframePreview({
               </div>
               <ul className="divide-y divide-ob-border">
                 {sections.map((s) => {
-                  const key = sectionKey(s);
-                  const isRemoved = removed.has(key);
-                  const must = s.priority !== 'nice' || s.required;
-                  const canRemove = !must;
+                  const isPlanned = 'id' in s;
+                  const approvalKey = isPlanned ? s.approvalKey : sectionKey(s);
+                  const renderKey = isPlanned ? s.id : sectionKey(s);
+                  const isRemoved = approvalKey ? removed.has(approvalKey) : false;
+                  const must = isPlanned
+                    ? s.required || !approvalKey
+                    : s.priority !== 'nice' || s.required;
+                  const canRemove = !must && Boolean(approvalKey);
                   return (
                     <li
-                      key={key}
+                      key={renderKey}
                       className={cn('flex items-start gap-3 px-4 py-2.5', isRemoved && 'opacity-40')}
                     >
                       <GripVertical className="mt-0.5 h-4 w-4 shrink-0 text-ob-border" aria-hidden />
@@ -92,7 +100,7 @@ export function WireframePreview({
                       {canRemove ? (
                         <button
                           type="button"
-                          onClick={() => onToggle(key)}
+                          onClick={() => approvalKey && onToggle(approvalKey)}
                           aria-pressed={!isRemoved}
                           aria-label={isRemoved ? '이 섹션 넣기' : '이 섹션 빼기'}
                           className={cn(
@@ -113,8 +121,22 @@ export function WireframePreview({
           );
         })}
       </div>
+      {sitePlan?.absentSections.length ? (
+        <div className="rounded-ob border border-dashed border-ob-border bg-ob-bg px-4 py-3">
+          <p className="text-xs font-semibold text-ob-ink">아직 넣지 않은 구성</p>
+          <ul className="mt-2 space-y-1.5">
+            {sitePlan.absentSections.map((section) => (
+              <li key={`${section.type}:${section.name}`} className="text-[11px] leading-4 text-ob-muted">
+                <span className="font-medium text-ob-ink">{section.name}</span> — {section.inputHint}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       <p className="text-[11px] leading-4 text-ob-muted">
-        필수 섹션은 그대로 두고, 선택 섹션만 체크를 해제해 뺄 수 있어요. 이미지·글은 다음 단계에서 채워져요.
+        {sitePlan
+          ? '지금 확인한 구성과 실제로 만들어지는 구성이 같습니다. 답하지 않은 내용은 지어내지 않아요.'
+          : '필수 섹션은 그대로 두고, 선택 섹션만 체크를 해제해 뺄 수 있어요. 이미지·글은 다음 단계에서 채워져요.'}
       </p>
     </div>
   );
