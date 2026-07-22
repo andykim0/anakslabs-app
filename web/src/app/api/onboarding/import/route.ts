@@ -6,7 +6,7 @@
  *    naver_place/instagram=폴백 안내(견고한 파서 부재 — naver-place.ts 참조).
  *  - { ingestImageUrls: string[] } → 고객이 '선택한' 외부 이미지를 서버가 다운로드해 재업로드.
  *    provenance WRITE flag OFF에서는 기존 {imageUrls}, ON에서는 {imageUrls, assetRefs}를 반환한다.
- *    customer_import는 customer_upload 증거가 아니며 신규 factual 슬롯 자격도 부여하지 않는다.
+ *    customer_import는 customer_upload와 구분되며 권리확약 전에는 factual 슬롯 자격이 없다.
  *
  * 인증: 기존 온보딩 라우트와 동일(getAuthedClient). 남용 방지: 클라이언트당 분당 5회.
  */
@@ -49,8 +49,8 @@ const presenceUrl = z.string().max(500).refine((u) => /^https?:\/\//i.test(u), '
 const bodySchema = z
   .object({
     urls: z
-      .array(z.object({ kind: z.enum(['website', 'instagram', 'naver_place', 'other']), url: presenceUrl }))
-      .max(3)
+      .array(z.object({ kind: z.enum(['website', 'naver_blog', 'instagram', 'naver_place', 'other']), url: presenceUrl }))
+      .max(5)
       .optional(),
     ingestImageUrls: z.array(presenceUrl).max(12).optional(),
     siteId: z.string().uuid().optional(),
@@ -112,7 +112,17 @@ export const POST = withApiHandler(async (request) => {
         if (kind === 'naver_place') return { kind, url, ok: true, ...naverPlaceFallback() };
         if (kind === 'instagram') return { kind, url, ok: true, ...instagramFallback() };
         const extracted = await extractFromUrl(url);
-        return { kind, url, ok: true, extracted };
+        return {
+          kind,
+          url,
+          ok: true,
+          extracted,
+          provenance: {
+            origin: 'customer_import' as const,
+            sourceUrl: extracted.sourceUrl,
+            extractedAt: new Date().toISOString(),
+          },
+        };
       } catch (err) {
         const message = err instanceof ImportError ? err.message : '가져오지 못했어요.';
         return { kind, url, ok: false, fallbackMessage: message };

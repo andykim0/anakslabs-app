@@ -41,7 +41,7 @@ describe('asset-policy v2 image directions', () => {
     assert.equal(legacyCandidateStyleToImageDirection('illustration', false), 'illustration_collage');
   });
 
-  test('real_photo는 직접 업로드 ref와 서버 확인 ID를 모두 요구하며 raw/import URL은 증거가 아니다', () => {
+  test('real_photo는 서버 등록 ref와 확인 ID를 모두 요구하며 raw URL은 증거가 아니다', () => {
     const urlOnly = {
       heroPhotoUrl: 'https://external.example/hero.jpg',
       storePhotoUrls: ['https://external.example/menu.jpg'],
@@ -53,6 +53,15 @@ describe('asset-policy v2 image directions', () => {
       nonPersonPhotoAssetIds: ['11111111-1111-4111-8111-111111111111'],
     };
     assert.equal(canSelectRealPhoto(urlOnly), false);
+    assert.equal(canSelectRealPhoto({
+      storePhotoUrls: ['/imports/menu.jpg'],
+      importedPhotoAssetRefs: [{
+        assetId: '11111111-1111-4111-8111-111111111111',
+        url: '/imports/menu.jpg',
+      }],
+      generalAssetAttestationId: '22222222-2222-4222-8222-222222222222',
+      nonPersonPhotoAssetIds: ['11111111-1111-4111-8111-111111111111'],
+    }), true, '서버 등록 가져오기 사진은 권리 확인 뒤 사용할 수 있다');
     assert.equal(canSelectRealPhoto({
       heroPhotoAssetRef: { assetId: '11111111-1111-4111-8111-111111111111' },
     }), false, 'attestation 없이 ref만으로는 부족');

@@ -122,10 +122,10 @@ async function assertEligibleUploads(input: {
     );
   });
   for (const record of records) {
-    if (record.origin !== 'customer_upload') {
+    if (record.origin !== 'customer_upload' && record.origin !== 'customer_import') {
       throw new AssetAttestationError(
         'ATTESTATION_ASSET_ORIGIN_INVALID',
-        'Only server-registered customer uploads may receive an asset attestation.',
+        'Only server-registered customer uploads or imports may receive an asset attestation.',
       );
     }
     if (input.siteId === null && record.siteId !== null) {

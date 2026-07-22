@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * S2 이미 있는 걸 알려주세요 — 기존 채널(인스타/홈페이지/네이버 플레이스) 입력 → 소유 확인 →
+ * S1 이미 있는 걸 알려주세요 — 기존 채널(홈페이지/블로그/플레이스/인스타그램) 입력 → 소유 확인 →
  * 가져오기(POST /api/onboarding/import) → 추출 텍스트 요약 + 이미지 후보 선택 → ingest.
  * 추출 텍스트는 S3 providedContent 프리필, 선택 이미지는 storePhotoUrls에 추가(S4 반영).
  */
@@ -16,22 +16,38 @@ import { useToast } from '../../toast';
 import { Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 interface ImportExtracted {
+  sourceUrl: string;
   title?: string;
   description?: string;
   headings: string[];
   text: string;
   imageUrls: string[];
+  structured: {
+    businessName?: string;
+    description?: string;
+    phone?: string;
+    address?: string;
+    openingHours?: string;
+    commercialPhrases: string[];
+    contentItems: { name: string; price?: string }[];
+  };
 }
 interface ImportResult {
   kind: PresenceKind;
   url: string;
   ok: boolean;
   extracted?: ImportExtracted;
+  provenance?: {
+    origin: 'customer_import';
+    sourceUrl: string;
+    extractedAt: string;
+  };
   fallbackMessage?: string;
 }
 
 const KIND_LABEL: Record<PresenceKind, string> = {
   website: '홈페이지',
+  naver_blog: '네이버 블로그',
   instagram: '인스타그램',
   naver_place: '네이버 플레이스',
   other: '기타',
@@ -73,6 +89,9 @@ export function Step02Existing() {
   const [naverUrl, setNaverUrl] = useState(
     () => presence.find((item) => item.kind === 'naver_place')?.url ?? '',
   );
+  const [naverBlogUrl, setNaverBlogUrl] = useState(
+    () => presence.find((item) => item.kind === 'naver_blog')?.url ?? '',
+  );
   const [skip, setSkip] = useState(false);
 
   const [owned, setOwned] = useState(false);
@@ -90,8 +109,10 @@ export function Step02Existing() {
     if (isWebUrl(web)) out.push({ kind: 'website', url: web });
     const nav = normalizeWebUrl(naverUrl);
     if (isWebUrl(nav)) out.push({ kind: 'naver_place', url: nav });
-    return out.slice(0, 3);
-  }, [instaHandle, websiteUrl, naverUrl]);
+    const blog = normalizeWebUrl(naverBlogUrl);
+    if (isWebUrl(blog)) out.push({ kind: 'naver_blog', url: blog });
+    return out.slice(0, 5);
+  }, [instaHandle, websiteUrl, naverBlogUrl, naverUrl]);
 
   // 입력한 원천을 form.existingPresence에 저장 (가져오기 없이도)
   useEffect(() => {
@@ -125,11 +146,74 @@ export function Step02Existing() {
       const list = Array.isArray(data?.results) ? data.results : [];
       setResults(list);
 
+      const extracted = list.filter(
+        (result): result is ImportResult & { extracted: ImportExtracted } => Boolean(result.extracted),
+      );
+
+      // 검증 가능한 구조화 사실만 해당 필드에 자동 채운다. 기존 고객 입력은 덮어쓰지 않는다.
+      const firstStructured = extracted.map((result) => result.extracted.structured);
+      const businessName = firstStructured.find((facts) => facts.businessName)?.businessName;
+      const description = firstStructured.find((facts) => facts.description)?.description;
+      if (businessName && !(getValues('businessName') ?? '').trim()) {
+        setValue('businessName', businessName.slice(0, 60), { shouldValidate: false });
+      }
+      if (description && !(getValues('tagline') ?? '').trim()) {
+        setValue('tagline', description.slice(0, 80), { shouldValidate: false });
+      }
+
+      const importedFacts = firstStructured.flatMap((facts) => [
+        facts.phone ? { key: 'phone' as const, value: facts.phone } : null,
+        facts.address ? { key: 'address' as const, value: facts.address } : null,
+        facts.openingHours ? { key: 'openingHours' as const, value: facts.openingHours } : null,
+      ]).filter((fact): fact is NonNullable<typeof fact> => Boolean(fact));
+      const factsByKey = new Map((getValues('factualAnswers') ?? []).map((fact) => [fact.key, fact]));
+      for (const fact of importedFacts) {
+        if (!factsByKey.get(fact.key)?.value.trim()) {
+          factsByKey.set(fact.key, { ...fact, value: fact.value.slice(0, 500), source: 'customer_import' });
+        }
+      }
+      setValue('factualAnswers', [...factsByKey.values()], { shouldValidate: false });
+
+      const importedItems = firstStructured.flatMap((facts) => facts.contentItems);
+      const itemKey = (item: { name: string; price?: string }) => `${item.name.trim()}\u0000${item.price?.trim() ?? ''}`;
+      const itemsByKey = new Map((getValues('contentItems') ?? []).map((item) => [itemKey(item), item]));
+      for (const item of importedItems) {
+        if (!item.name.trim()) continue;
+        const normalized = {
+          name: item.name.trim(),
+          ...(item.price?.trim() ? { price: item.price.trim() } : {}),
+        };
+        if (!itemsByKey.has(itemKey(normalized))) itemsByKey.set(itemKey(normalized), normalized);
+      }
+      setValue('contentItems', [...itemsByKey.values()].slice(0, 20), { shouldValidate: false });
+
+      const importedSourceByUrl = new Map(
+        (getValues('importedContentSources') ?? []).map((source) => [source.url, source]),
+      );
+      for (const result of extracted) {
+        if (!result.provenance) continue;
+        const fields = Object.entries(result.extracted.structured)
+          .filter(([key, value]) => key !== 'commercialPhrases'
+            && key !== 'contentItems'
+            && (Array.isArray(value) ? value.length > 0 : Boolean(value)))
+          .map(([key]) => key);
+        if (result.extracted.structured.commercialPhrases.length) fields.push('commercialPhrases');
+        if (result.extracted.structured.contentItems.length) fields.push('contentItems');
+        importedSourceByUrl.set(result.provenance.sourceUrl, {
+          url: result.provenance.sourceUrl,
+          origin: 'customer_import',
+          extractedAt: result.provenance.extractedAt,
+          fields,
+        });
+      }
+      setValue('importedContentSources', [...importedSourceByUrl.values()].slice(0, 5), {
+        shouldValidate: false,
+      });
+
       // 추출 텍스트 → S3 providedContent 프리필
-      const parts = list
-        .filter((r) => r.extracted)
+      const parts = extracted
         .map((r) => {
-          const e = r.extracted!;
+          const e = r.extracted;
           return [e.title, e.description, ...(e.headings ?? []).slice(0, 8), e.text]
             .filter(Boolean)
             .join('\n');
@@ -141,7 +225,7 @@ export function Step02Existing() {
         const merged = cur ? `${cur}\n\n${importedText}`.slice(0, 5000) : importedText;
         setValue('providedContent', merged, { shouldValidate: false });
         setImportedBadge(true);
-        toast('success', '가져온 내용을 다음 단계 원문 칸에 담았어요.');
+        toast('success', '가져온 사실을 해당 입력칸에 채웠어요. 확인하고 고쳐주세요.');
       } else {
         toast('info', '자동으로 가져올 텍스트가 없어요. 원문을 직접 붙여넣어 주세요.');
       }
@@ -201,7 +285,7 @@ export function Step02Existing() {
       toast(
         'success',
         assetPolicyV2Ready
-          ? `사진 ${got.length}장을 담았어요. 가져온 사진은 실사 사진 자격으로 자동 전환되지 않아요.`
+          ? `사진 ${got.length}장을 담았어요. 사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요.`
           : `사진 ${got.length}장을 담았어요. 다음 사진 단계에서 확인할 수 있어요.`,
       );
     } catch {
@@ -214,7 +298,7 @@ export function Step02Existing() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        가지고 계신 채널을 알려주시면, 소개 글과 사진을 가져와 다음 단계 입력을 채워드려요. 없으면 건너뛰어도 돼요.
+        이미 홈페이지·블로그·플레이스가 있으세요? 주소를 알려주시면 확인 가능한 소개·메뉴·가격·영업 정보를 그대로 옮겨드려요. 못 가져온 내용은 다음 단계에서 직접 적을 수 있어요.
       </StepIntro>
 
       {!skip ? (
@@ -238,6 +322,22 @@ export function Step02Existing() {
                 className="w-full bg-transparent px-3 py-2.5 text-[16px] text-ob-ink outline-none placeholder:text-ob-muted/70"
               />
             </div>
+          </Field>
+
+          <Field
+            label={
+              <span className="inline-flex items-center gap-1.5">
+                <Globe className="h-4 w-4 text-ob-muted" /> 네이버 블로그 <span className="font-normal text-ob-muted">(선택)</span>
+              </span>
+            }
+            hint="가게를 소개하는 블로그 주소를 붙여넣어 주세요. 공개 페이지에서 확인되는 내용만 가져와요."
+          >
+            <input
+              value={naverBlogUrl}
+              onChange={(e) => setNaverBlogUrl(e.target.value)}
+              placeholder="https://blog.naver.com/..."
+              className={obInput}
+            />
           </Field>
 
           <Field
@@ -328,6 +428,21 @@ export function Step02Existing() {
                       {r.extracted.text ? (
                         <p className="line-clamp-3 text-[13px] leading-relaxed text-ob-muted">
                           {r.extracted.text}
+                        </p>
+                      ) : null}
+                      {[
+                        r.extracted.structured.phone && '연락처',
+                        r.extracted.structured.address && '주소',
+                        r.extracted.structured.openingHours && '영업시간',
+                        r.extracted.structured.contentItems.length > 0 && '메뉴·서비스',
+                      ].filter(Boolean).length ? (
+                        <p className="pt-1 text-[12px] font-medium text-ob-accent-strong">
+                          자동 채움: {[
+                            r.extracted.structured.phone && '연락처',
+                            r.extracted.structured.address && '주소',
+                            r.extracted.structured.openingHours && '영업시간',
+                            r.extracted.structured.contentItems.length > 0 && '메뉴·서비스',
+                          ].filter(Boolean).join(' · ')}
                         </p>
                       ) : null}
                     </div>

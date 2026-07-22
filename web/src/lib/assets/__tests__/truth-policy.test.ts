@@ -101,7 +101,7 @@ test('slot truth registry is exhaustive and separates factual from non-factual o
   for (const purpose of ASSET_SLOT_PURPOSES) {
     assert.equal(ASSET_SLOT_POLICY_MAP[purpose].purpose, purpose);
   }
-  assert.deepEqual(ASSET_SLOT_POLICY_MAP.actual_product.allowedOrigins, ['customer_upload']);
+  assert.deepEqual(ASSET_SLOT_POLICY_MAP.actual_product.allowedOrigins, ['customer_upload', 'customer_import']);
   assert.ok(ASSET_SLOT_POLICY_MAP.brand_atmosphere.allowedOrigins.includes('ai_generated'));
   assert.ok(ASSET_SLOT_POLICY_MAP.decorative_art.allowedOrigins.includes('customer_import'));
 });
@@ -117,11 +117,10 @@ test('general customer upload with current scoped attestation is factual; missin
   })), 'MISSING_GENERAL_ATTESTATION');
 });
 
-test('URL equality never promotes AI, import, or legacy origin into a factual slot', () => {
+test('URL equality never promotes AI or legacy origin, while attested server imports are factual', () => {
   const canonicalUrl = asset().canonicalUrl;
   for (const [origin, expected] of [
     ['ai_generated', 'AI_NOT_ALLOWED_IN_FACTUAL_SLOT'],
-    ['customer_import', 'IMPORT_NOT_VERIFIED_FOR_FACTUAL_SLOT'],
     ['legacy_unknown', 'LEGACY_ORIGIN_NOT_FACTUAL'],
   ] as const) {
     assert.equal(reason(factualInput({
@@ -130,6 +129,14 @@ test('URL equality never promotes AI, import, or legacy origin into a factual sl
       generalAttestation: general(),
     })), expected);
   }
+  assert.equal(reason(factualInput({
+    asset: { ...asset('customer_import'), canonicalUrl },
+    generalAttestation: null,
+  })), 'MISSING_GENERAL_ATTESTATION');
+  assert.equal(reason(factualInput({
+    asset: { ...asset('customer_import'), canonicalUrl },
+    generalAttestation: general(),
+  })), null);
 });
 
 test('missing, cross-owner, cross-site, and mismatched slot records fail closed', () => {
@@ -261,5 +268,6 @@ test('rollout mode never conflates observation or legacy bypass with factual eli
     assetPolicyVersion: null,
     flags: { ...factualInput().flags, enforceNewSites: false },
     asset: asset('customer_import'),
-  })), 'IMPORT_NOT_VERIFIED_FOR_FACTUAL_SLOT');
+    generalAttestation: null,
+  })), 'MISSING_GENERAL_ATTESTATION');
 });

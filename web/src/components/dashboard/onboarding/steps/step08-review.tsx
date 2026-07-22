@@ -25,6 +25,7 @@ import { Field, StepIntro, deriveColors, obInput, useSurveyUx, type SurveyForm }
 
 const KIND_LABEL: Record<PresenceKind, string> = {
   website: '홈페이지',
+  naver_blog: '네이버 블로그',
   instagram: '인스타그램',
   naver_place: '네이버 플레이스',
   other: '기타',
@@ -88,18 +89,18 @@ export function Step08Review() {
       <StepIntro>맞으면 아래 생성 시작을 눌러주세요. 각 항목은 언제든 수정할 수 있어요.</StepIntro>
 
       <div className="rounded-ob border border-ob-border bg-ob-surface px-4">
-        <Row title="목적 · 업종" step={1} goTo={goTo}>
+        <Row title="목적 · 업종" step={2} goTo={goTo}>
           {purpose?.label ?? <Empty />}
           {v.industry ? ` · ${v.industry}` : ''}
         </Row>
-        <Row title="상호명" step={1} goTo={goTo}>
+        <Row title="상호명" step={2} goTo={goTo}>
           {v.businessName || <Empty />}
           {v.region ? <span className="text-ob-muted"> · {v.region}</span> : null}
         </Row>
-        <Row title="한 줄 소개" step={1} goTo={goTo}>
+        <Row title="한 줄 소개" step={2} goTo={goTo}>
           {v.tagline || <span className="text-ob-muted">AI가 지어드려요</span>}
         </Row>
-        <Row title="기존 채널" step={2} goTo={goTo}>
+        <Row title="기존 채널" step={1} goTo={goTo}>
           {v.existingPresence.length ? (
             v.existingPresence.map((p) => KIND_LABEL[p.kind]).join(' · ')
           ) : (
@@ -132,8 +133,8 @@ export function Step08Review() {
             : <Empty />}
         </Row>
         {assetPolicyV2Ready && v.importedPhotoAssetRefs.length ? (
-          <Row title="외부 채널에서 가져온 사진" step={2} goTo={goTo}>
-            <span className="text-ob-muted">{v.importedPhotoAssetRefs.length}장 · 실사 사진 근거로 자동 사용 안 함</span>
+          <Row title="외부 채널에서 가져온 사진" step={1} goTo={goTo}>
+            <span className="text-ob-muted">{v.importedPhotoAssetRefs.length}장 · 사진 단계의 사용 권리 확인 대상</span>
           </Row>
         ) : null}
         {assetPolicyV2Ready ? (

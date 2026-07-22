@@ -66,7 +66,7 @@ describe('asset-policy v2 onboarding wiring', () => {
     assert.match(STEP04, /nonPersonPhotoAssetIds/);
     assert.match(STEP04, /projectPersonPhotoClassification/);
     assert.match(STEP04, /인물이 들어간 사진만 체크해 주세요/);
-    assert.match(STEP04, /체크하지 않은 직접 업로드 사진은 식별 가능한 인물이 없는 사진으로 기록합니다/);
+    assert.match(STEP04, /체크하지 않은 사진은 식별 가능한 인물이 없는 사진으로 기록합니다/);
     assert.match(STEP04, /type="checkbox"[\s\S]*?checked=\{checked\}[\s\S]*?handlePersonPhotoCheck\(ref\.assetId, event\.target\.checked\)/);
     assert.doesNotMatch(STEP04, /type="radio"|value="non-person"|value="person"/);
     const personCheck = block(STEP04, 'const handlePersonPhotoCheck', 'return (');
@@ -85,15 +85,15 @@ describe('asset-policy v2 onboarding wiring', () => {
     assert.doesNotMatch(DASHBOARD_API, /clientId: input\.clientId/);
   });
 
-  test('외부 ingest refs는 importedPhotoAssetRefs에만 격리되고 real_photo 근거 배열에 쓰지 않는다', () => {
+  test('외부 ingest refs는 별도 출처로 보존되고 사진 권리확약 집합에 포함된다', () => {
     assert.match(STEP02, /setValue\('importedPhotoAssetRefs'/);
     assert.doesNotMatch(STEP02, /setValue\('storePhotoAssetRefs'/);
-    assert.match(STEP02, /assetPolicyV2Ready[\s\S]*?실사 사진 자격으로 자동 전환되지 않아요/);
+    assert.match(STEP02, /assetPolicyV2Ready[\s\S]*?사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요/);
     const attestationSet = STEP04.slice(
       STEP04.indexOf('const registeredAssetRefs'),
       STEP04.indexOf('const unregisteredPhotoCount'),
     );
-    assert.doesNotMatch(attestationSet, /importedPhotoAssetRefs/);
+    assert.match(attestationSet, /importedPhotoAssetRefs/);
   });
 
   test('submit은 ASSIGN 준비 시에만 신규 방향·refs를 전달하고 improve raw URLs는 예술 방향으로 고정한다', () => {

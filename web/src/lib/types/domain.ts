@@ -195,10 +195,61 @@ export type ContentMode = 'ai' | 'provided';
 export type ConceptMode = 'real' | 'fictional';
 
 /** [v4] 기존 온라인 채널 — URL 가져오기 원천 */
-export type PresenceKind = 'website' | 'instagram' | 'naver_place' | 'other';
+export type PresenceKind = 'website' | 'naver_blog' | 'instagram' | 'naver_place' | 'other';
 export interface ExistingPresence {
   kind: PresenceKind;
   url: string;
+}
+
+/** CONTENT v1 factual fields. Values are copied only from customer-confirmed input or imports. */
+export type BusinessFactKey =
+  | 'phone'
+  | 'openingHours'
+  | 'address'
+  | 'parking'
+  | 'reservation'
+  | 'paymentMethods'
+  | 'accessibility'
+  | 'pets'
+  | 'wifi'
+  | 'directions'
+  | 'signature'
+  | 'seating'
+  | 'outlets'
+  | 'groupSeating'
+  | 'specialties'
+  | 'credentials'
+  | 'insurance'
+  | 'services'
+  | 'duration'
+  | 'classes'
+  | 'materials';
+
+export interface BusinessFactAnswer {
+  key: BusinessFactKey;
+  value: string;
+  source: 'customer' | 'customer_import';
+}
+
+export interface GuidedFaqAnswer {
+  questionId: string;
+  answer: string;
+}
+
+/** Server extraction receipt. It is provenance metadata, never independent factual authority. */
+export interface ImportedContentSource {
+  url: string;
+  origin: 'customer_import';
+  extractedAt: string;
+  fields: string[];
+}
+
+/** Additive gate: configs built from surveys without this field retain the legacy output. */
+export interface ContentDepthInput {
+  version: 1;
+  facts: BusinessFactAnswer[];
+  faqAnswers: GuidedFaqAnswer[];
+  imports: ImportedContentSource[];
 }
 
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */
@@ -332,8 +383,10 @@ export interface SurveyInput {
    * 필드 자체는 유지하나 새 코드에서 참조 금지. onSubmit은 항상 [] 전송.
    */
   referenceImageUrls: string[];
-  /** [v4] 기존 온라인 채널(홈페이지·인스타·네이버 플레이스) — URL 가져오기 원천. 최대 3 */
+  /** 기존 온라인 채널(홈페이지·블로그·인스타·플레이스) — URL 가져오기 원천. 최대 5 */
   existingPresence?: ExistingPresence[];
+  /** CONTENT v1 interview/import evidence. Missing means legacy generation contract. */
+  contentDepth?: ContentDepthInput;
   /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA 문구·섹션 강조에 배선 */
   siteGoal?: SiteGoalId;
   /** [v4] 자랑거리 1~3개 — 생성 프롬프트(창작 금지, 이 표현 살릴 것)·차별화 섹션 소스 */
@@ -350,6 +403,7 @@ export interface SurveyInput {
   storePhotoAssetRefs?: AssetRef[];
   /**
    * [asset policy v2] 외부 채널 이미지를 서버 ingest한 customer_import 참조.
+   * 단독 증거가 아니며 고객 권리확약과 서버 검증을 모두 통과해야 factual 슬롯에 쓰인다.
    * 호환·추적용이며 신규 factual 슬롯 또는 real_photo 자격으로 자동 승격되지 않는다.
    */
   importedPhotoAssetRefs?: AssetRef[];

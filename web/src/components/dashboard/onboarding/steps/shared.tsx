@@ -17,7 +17,13 @@ import { cn } from '../../ui';
 
 // ---------- 폼 스키마 (RHF 전용 — 내부 필드 포함. 서버 계약은 호스트 onComplete에서 조립) ----------
 
-const PRESENCE_KINDS = ['website', 'instagram', 'naver_place', 'other'] as const;
+const PRESENCE_KINDS = ['website', 'naver_blog', 'instagram', 'naver_place', 'other'] as const;
+const BUSINESS_FACT_KEYS = [
+  'phone', 'openingHours', 'address', 'parking', 'reservation', 'paymentMethods',
+  'accessibility', 'pets', 'wifi', 'directions', 'signature', 'seating', 'outlets',
+  'groupSeating', 'specialties', 'credentials', 'insurance', 'services', 'duration',
+  'classes', 'materials',
+] as const;
 const assetRefSchema = z.object({
   assetId: z.string().uuid(),
   url: z.string().min(1),
@@ -33,7 +39,19 @@ export const surveyFormSchema = z.object({
   region: z.string().max(60).optional(),
   tagline: z.string().max(80, '한 줄 소개는 80자 이내로 입력해주세요.').optional(),
   industry: z.string().min(1, '업종을 고르거나 입력해주세요.').max(100),
-  existingPresence: z.array(z.object({ kind: z.enum(PRESENCE_KINDS), url: z.string() })).max(3),
+  existingPresence: z.array(z.object({ kind: z.enum(PRESENCE_KINDS), url: z.string() })).max(5),
+  factualAnswers: z.array(z.object({
+    key: z.enum(BUSINESS_FACT_KEYS),
+    value: z.string().max(500),
+    source: z.enum(['customer', 'customer_import']),
+  })).max(40),
+  faqAnswers: z.array(z.object({ questionId: z.string(), answer: z.string().max(1000) })).max(30),
+  importedContentSources: z.array(z.object({
+    url: z.string(),
+    origin: z.literal('customer_import'),
+    extractedAt: z.string(),
+    fields: z.array(z.string()),
+  })).max(5),
   providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
   /** [H1] 히어로에 크게 쓰는 고객 실사 1장. storePhotoUrls(본문·갤러리)와 별도. */
   heroPhotoUrl: z.string().optional(),
@@ -83,8 +101,8 @@ export type SurveyForm = z.infer<typeof surveyFormSchema>;
 
 /** 각 스텝을 떠날 때 검증할 필수 필드 (나머지는 선택·수동 검증) */
 export const STEP_REQUIRED_FIELDS: Record<number, (keyof SurveyForm)[]> = {
-  1: ['purposeId', 'businessName', 'industry'],
-  2: [],
+  1: [],
+  2: ['purposeId', 'businessName', 'industry'],
   3: [],
   4: [],
   5: [],
@@ -120,6 +138,9 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
       tagline: '',
       industry: '',
       existingPresence: [],
+      factualAnswers: [],
+      faqAnswers: [],
+      importedContentSources: [],
       providedContent: '',
       heroPhotoUrl: '',
       heroPhotoAssetRef: undefined,
@@ -168,6 +189,9 @@ export function toFormDefaults(initial: SurveyInput | null, defaultBusinessName?
     tagline: initial.tagline ?? '',
     industry: initial.industry,
     existingPresence: (initial.existingPresence ?? []).map((p) => ({ kind: p.kind, url: p.url })),
+    factualAnswers: initial.contentDepth?.facts ?? [],
+    faqAnswers: initial.contentDepth?.faqAnswers ?? [],
+    importedContentSources: initial.contentDepth?.imports ?? [],
     providedContent: initial.providedContent ?? '',
     heroPhotoUrl: initial.heroPhotoUrl ?? '',
     heroPhotoAssetRef,

@@ -53,6 +53,7 @@ export function Step04Photos() {
   const heroPhotoAssetRef = watch('heroPhotoAssetRef');
   const photos = watch('storePhotoUrls') ?? [];
   const storePhotoAssetRefs = watch('storePhotoAssetRefs') ?? EMPTY_ASSET_REFS;
+  const importedPhotoAssetRefs = watch('importedPhotoAssetRefs') ?? EMPTY_ASSET_REFS;
   const contentItems = watch('contentItems') ?? EMPTY_CONTENT_ITEMS;
   const generalAssetAttestationId = watch('generalAssetAttestationId');
   const personPhotoAssetIds = watch('personPhotoAssetIds') ?? EMPTY_ASSET_IDS;
@@ -62,10 +63,12 @@ export function Step04Photos() {
   const registeredAssetRefs = useMemo<AssetRef[]>(() => [...new Map([
     ...(heroPhotoAssetRef ? [heroPhotoAssetRef] : []),
     ...storePhotoAssetRefs,
+    ...importedPhotoAssetRefs,
     ...contentItems.flatMap((item) => item.photoAssetRef ? [item.photoAssetRef] : []),
   ].map((ref) => [ref.assetId, ref] as const)).values()], [
     contentItems,
     heroPhotoAssetRef,
+    importedPhotoAssetRefs,
     storePhotoAssetRefs,
   ]);
   const contentPhotoCount = contentItems.filter((item) => Boolean(item.photoUrl)).length;
@@ -252,7 +255,11 @@ export function Step04Photos() {
       currentImportedRefs.filter((ref) => ref.url !== url),
       { shouldValidate: false },
     );
-    const removedIds = new Set(currentRefs.filter((ref) => ref.url === url).map((ref) => ref.assetId));
+    const removedIds = new Set(
+      [...currentRefs, ...currentImportedRefs]
+        .filter((ref) => ref.url === url)
+        .map((ref) => ref.assetId),
+    );
     if (removedIds.size) {
       setValue(
         'personPhotoAssetIds',
@@ -277,7 +284,7 @@ export function Step04Photos() {
       return;
     }
     if (!registeredAssetRefs.length) {
-      setPhotoError('서버에 등록된 직접 업로드 사진이 없습니다. 사진을 다시 올려주세요.');
+      setPhotoError('서버에 등록된 사진이 없습니다. 사진을 다시 올리거나 가져와 주세요.');
       return;
     }
     if (personAttestingAssetId) {
@@ -485,7 +492,7 @@ export function Step04Photos() {
             인물이 들어간 사진만 체크해 주세요
           </legend>
           <p id="person-asset-consent-help" className="mb-3 text-[13px] leading-5 text-ob-muted">
-            체크하지 않은 직접 업로드 사진은 식별 가능한 인물이 없는 사진으로 기록합니다.
+            체크하지 않은 사진은 식별 가능한 인물이 없는 사진으로 기록합니다.
             체크하면 해당 사진에 다음 공개·홍보 사용 확인을 자산별로 기록합니다: {PERSON_ASSET_CONSENT_TEXT}
             이 확인은 법적 검토를 대신하지 않습니다.
           </p>
@@ -581,7 +588,7 @@ export function Step04Photos() {
 
       {assetPolicyV2Ready && unregisteredPhotoCount > 0 ? (
         <p className="rounded-ob border border-ob-border bg-ob-bg px-3 py-2 text-[13px] leading-5 text-ob-muted">
-          직접 업로드 참조가 없는 URL·가져온 사진 {unregisteredPhotoCount}장은 실사 사진 방향의 근거로 사용되지 않아요.
+          서버 출처 기록이 없는 사진 {unregisteredPhotoCount}장은 실사 사진 방향의 근거로 사용되지 않아요.
         </p>
       ) : null}
 

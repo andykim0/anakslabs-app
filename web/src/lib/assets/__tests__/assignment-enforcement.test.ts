@@ -199,10 +199,9 @@ function run(input: {
   });
 }
 
-test('AI/import/unknown cannot persist in factual menu or portfolio slots and fallback preserves geometry/copy', () => {
+test('AI/unknown cannot persist in factual menu or portfolio slots and fallback preserves geometry/copy', () => {
   for (const [origin, reason] of [
     ['ai_generated', 'AI_NOT_ALLOWED_IN_FACTUAL_SLOT'],
-    ['customer_import', 'IMPORT_NOT_VERIFIED_FOR_FACTUAL_SLOT'],
     ['legacy_unknown', 'LEGACY_ORIGIN_NOT_FACTUAL'],
   ] as const) {
     const site = config({ refs: [{ assetId: ASSET_ID, url: URL }] });
@@ -406,7 +405,7 @@ test('authoritative AI hero mood is atmospheric, while client-tampered motion pr
       }),
     ],
   });
-  assert.equal(result.violations[0]?.reason, 'IMPORT_NOT_VERIFIED_FOR_FACTUAL_SLOT');
+  assert.equal(result.violations[0]?.reason, 'MISSING_GENERAL_ATTESTATION');
   assert.deepEqual(result.config.motion?.signatures, []);
   assert.deepEqual(result.assetUsages, [], 'one denied media drops every usage from the signature unit');
 });

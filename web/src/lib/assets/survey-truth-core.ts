@@ -109,7 +109,10 @@ function normalizedSurvey(
   const heroRef = refForUrl(records, survey.heroPhotoUrl);
   const storeUrls = (survey.storePhotoUrls ?? []).filter((url) => allowedUrls.has(url));
   const storeRefs = records
-    .filter((record) => storeUrls.includes(record.canonicalUrl))
+    .filter((record) => record.origin === 'customer_upload' && storeUrls.includes(record.canonicalUrl))
+    .map(toAssetRef);
+  const importedPhotoAssetRefs = records
+    .filter((record) => record.origin === 'customer_import' && storeUrls.includes(record.canonicalUrl))
     .map(toAssetRef);
   const contentItems = survey.contentItems?.map((item) => {
     const photoRef = refForUrl(records, item.photoUrl);
@@ -132,6 +135,7 @@ function normalizedSurvey(
     ...(heroRef ? { heroPhotoUrl: heroRef.url, heroPhotoAssetRef: heroRef } : {}),
     storePhotoUrls: storeUrls,
     storePhotoAssetRefs: storeRefs,
+    importedPhotoAssetRefs,
     personPhotoAssetIds: (survey.personPhotoAssetIds ?? []).filter((assetId) =>
       records.some((record) => record.id === assetId)),
     nonPersonPhotoAssetIds: (survey.nonPersonPhotoAssetIds ?? []).filter((assetId) =>
@@ -169,14 +173,14 @@ export function verifySurveyAssetTruthRecords(input: {
     expectedOrigin: 'customer_upload',
   });
 
-  const directIds = new Set(directRefs.map((ref) => ref.assetId));
+  const verifiedCandidateIds = new Set([...directRefs, ...importedRefs].map((ref) => ref.assetId));
   const personAssetIds = [...new Set(input.survey.personPhotoAssetIds ?? [])];
   const nonPersonAssetIds = [...new Set(input.survey.nonPersonPhotoAssetIds ?? [])];
-  if (personAssetIds.some((assetId) => !directIds.has(assetId))
-    || nonPersonAssetIds.some((assetId) => !directIds.has(assetId))) {
+  if (personAssetIds.some((assetId) => !verifiedCandidateIds.has(assetId))
+    || nonPersonAssetIds.some((assetId) => !verifiedCandidateIds.has(assetId))) {
     throw new AssetTruthRequestError(
       'FACTUAL_ASSET_REF_INVALID',
-      '인물 여부 분류는 현재 직접 업로드한 사진에만 연결할 수 있습니다.',
+      '인물 여부 분류는 현재 서버에 등록된 사진에만 연결할 수 있습니다.',
     );
   }
   assertRecordsMatch({
@@ -187,7 +191,8 @@ export function verifySurveyAssetTruthRecords(input: {
     expectedOrigin: 'customer_import',
   });
 
-  const directIdSet = new Set(input.directRecords.map((record) => record.id));
+  const verifiedCandidateRecords = [...input.directRecords, ...input.importedRecords];
+  const directIdSet = new Set(verifiedCandidateRecords.map((record) => record.id));
   const attestationCoversExactSet = Boolean(input.attestation)
     && input.attestation?.assetIds.length === directIdSet.size
     && input.attestation.assetIds.every((assetId) => directIdSet.has(assetId));
@@ -218,17 +223,17 @@ export function verifySurveyAssetTruthRecords(input: {
     }
   }
   const verifiedRecords = attestationCoversExactSet
-    ? input.directRecords.filter((record) =>
+    ? verifiedCandidateRecords.filter((record) =>
       isCurrentGeneralAssetAttestation(input.attestation, {
         clientId: input.clientId,
         siteId: input.targetSiteId ?? null,
         assetId: record.id,
       }))
     : [];
-  if (direction === 'real_photo' && input.directRecords.length === 0) {
+  if (direction === 'real_photo' && verifiedCandidateRecords.length === 0) {
     throw new AssetTruthRequestError('REAL_PHOTO_UPLOAD_REQUIRED', REAL_PHOTO_REQUIRED_GUIDANCE);
   }
-  if (direction === 'real_photo' && verifiedRecords.length !== input.directRecords.length) {
+  if (direction === 'real_photo' && verifiedRecords.length !== verifiedCandidateRecords.length) {
     throw new AssetTruthRequestError(
       'FACTUAL_ASSET_ATTESTATION_REQUIRED',
       '실제 사진 사용 확인을 완료해야 실사 사진 방향으로 만들 수 있습니다.',

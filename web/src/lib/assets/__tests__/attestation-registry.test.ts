@@ -92,23 +92,30 @@ test('general attestation is server-stamped, asset-bound, and idempotent only fo
   );
 });
 
-test('general attestation rejects imported, generated, cross-owner, and URL-only-like evidence', async () => {
+test('general attestation accepts owned imports but rejects generated, cross-owner, and URL-only-like evidence', async () => {
   const { assets, attestations } = harness();
   const imported = await upload(assets, { origin: 'customer_import' });
   const generated = await upload(assets, { origin: 'ai_generated' });
-  for (const record of [imported, generated]) {
-    await assert.rejects(
-      attestations.recordGeneral({
-        clientId: 'client-1',
-        statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
-        assetIds: [record.id],
-        personAssetIds: [],
-        nonPersonAssetIds: [record.id],
-        idempotencyKey: `retry-${record.id}`,
-      }),
-      (error) => errorCode(error) === 'ATTESTATION_ASSET_ORIGIN_INVALID',
-    );
-  }
+  const importedAttestation = await attestations.recordGeneral({
+    clientId: 'client-1',
+    statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
+    assetIds: [imported.id],
+    personAssetIds: [],
+    nonPersonAssetIds: [imported.id],
+    idempotencyKey: `retry-${imported.id}`,
+  });
+  assert.deepEqual(importedAttestation.assetIds, [imported.id]);
+  await assert.rejects(
+    attestations.recordGeneral({
+      clientId: 'client-1',
+      statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
+      assetIds: [generated.id],
+      personAssetIds: [],
+      nonPersonAssetIds: [generated.id],
+      idempotencyKey: `retry-${generated.id}`,
+    }),
+    (error) => errorCode(error) === 'ATTESTATION_ASSET_ORIGIN_INVALID',
+  );
   await assert.rejects(
     attestations.recordGeneral({
       clientId: 'client-2',
@@ -311,7 +318,7 @@ test('general attestation rejects missing, overlapping, and out-of-scope classif
   }
 });
 
-test('person consent is per owned customer upload, versioned, retry-safe, and revocable', async () => {
+test('person consent is per owned customer source, versioned, retry-safe, and revocable', async () => {
   const { assets, attestations } = harness();
   const record = await upload(assets);
   const created = await attestations.recordPerson({
@@ -346,14 +353,14 @@ test('person consent is per owned customer upload, versioned, retry-safe, and re
   assert.notEqual(replacement.id, created.id);
 
   const imported = await upload(assets, { origin: 'customer_import' });
-  await assert.rejects(
-    attestations.recordPerson({
-      clientId: 'client-1',
-      assetId: imported.id,
-      statementVersion: PERSON_ASSET_CONSENT_VERSION,
-    }),
-    (error) => errorCode(error) === 'ATTESTATION_ASSET_ORIGIN_INVALID',
-  );
+  const importedConsent = await attestations.recordPerson({
+    clientId: 'client-1',
+    assetId: imported.id,
+    statementVersion: PERSON_ASSET_CONSENT_VERSION,
+  });
+  assert.ok(isCurrentPersonAssetConsent(importedConsent, {
+    clientId: 'client-1', assetId: imported.id,
+  }));
 });
 
 test('0011 migration is additive, immutable, RLS-protected, and keeps 0010 RPC intact', () => {

@@ -7,13 +7,26 @@
  * 순수 로직은 fetch/DNS 주입으로 네트워크 없이 테스트 가능(extractFromUrl opts).
  */
 import { parse } from 'node-html-parser';
+import { parseMenuItems } from '@/lib/data/content-parse';
+
+export interface StructuredImportFacts {
+  businessName?: string;
+  description?: string;
+  phone?: string;
+  address?: string;
+  openingHours?: string;
+  commercialPhrases: string[];
+  contentItems: { name: string; price?: string }[];
+}
 
 export interface ExtractResult {
+  sourceUrl: string;
   title?: string;
   description?: string;
   headings: string[];
   text: string;
   imageUrls: string[];
+  structured: StructuredImportFacts;
 }
 
 export type ImportErrorCode =
@@ -124,6 +137,126 @@ function isContentImage(src: string): boolean {
   return true;
 }
 
+function jsonLdObjects(root: ReturnType<typeof parse>): Record<string, unknown>[] {
+  const objects: Record<string, unknown>[] = [];
+  const visit = (value: unknown) => {
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    const object = value as Record<string, unknown>;
+    objects.push(object);
+    if (Array.isArray(object['@graph'])) object['@graph'].forEach(visit);
+  };
+  for (const script of root.querySelectorAll('script[type="application/ld+json"]')) {
+    try {
+      visit(JSON.parse(script.text));
+    } catch {
+      // Invalid JSON-LD is ignored; visible text extraction remains available.
+    }
+  }
+  return objects;
+}
+
+function schemaTypeIncludes(object: Record<string, unknown>, pattern: RegExp): boolean {
+  const raw = object['@type'];
+  const types = Array.isArray(raw) ? raw : [raw];
+  return types.some((type) => typeof type === 'string' && pattern.test(type));
+}
+
+function schemaAddress(value: unknown): string | undefined {
+  if (typeof value === 'string') return value.trim() || undefined;
+  if (!value || typeof value !== 'object') return undefined;
+  const address = value as Record<string, unknown>;
+  const joined = ['streetAddress', 'addressLocality', 'addressRegion', 'postalCode']
+    .map((key) => typeof address[key] === 'string' ? address[key].trim() : '')
+    .filter(Boolean)
+    .join(' ');
+  return joined || undefined;
+}
+
+function schemaHours(value: unknown): string | undefined {
+  if (typeof value === 'string') return value.trim() || undefined;
+  if (Array.isArray(value)) {
+    const rows = value.flatMap((item) => {
+      if (typeof item === 'string') return item.trim() ? [item.trim()] : [];
+      if (!item || typeof item !== 'object') return [];
+      const row = item as Record<string, unknown>;
+      const days = Array.isArray(row.dayOfWeek) ? row.dayOfWeek : [row.dayOfWeek];
+      const dayText = days.filter((day): day is string => typeof day === 'string')
+        .map((day) => day.replace(/^https?:\/\/schema\.org\//i, ''))
+        .join(', ');
+      const opens = typeof row.opens === 'string' ? row.opens : '';
+      const closes = typeof row.closes === 'string' ? row.closes : '';
+      const text = [dayText, opens && closes ? `${opens}-${closes}` : opens || closes].filter(Boolean).join(' ');
+      return text ? [text] : [];
+    });
+    return rows.length ? rows.join(' · ') : undefined;
+  }
+  return undefined;
+}
+
+function shortVisibleBlock(root: ReturnType<typeof parse>, pattern: RegExp): string | undefined {
+  const candidates = root.querySelectorAll('p, li, dd, address, span, div')
+    .map((element) => element.text.replace(/\s+/g, ' ').trim())
+    .filter((value) => value.length >= 3 && value.length <= 180 && pattern.test(value))
+    .sort((a, b) => a.length - b.length);
+  return candidates[0];
+}
+
+function structuredFacts(input: {
+  root: ReturnType<typeof parse>;
+  title?: string;
+  description?: string;
+  headings: string[];
+  text: string;
+}): StructuredImportFacts {
+  const entities = jsonLdObjects(input.root);
+  const business = entities.find((object) => schemaTypeIncludes(
+    object,
+    /(LocalBusiness|Organization|Store|Restaurant|Cafe|Medical|Beauty|ProfessionalService|EducationalOrganization)/i,
+  ));
+  const stringField = (key: string): string | undefined => {
+    const value = business?.[key];
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  };
+  const phone = stringField('telephone')
+    ?? input.root.querySelector('a[href^="tel:"]')?.getAttribute('href')?.replace(/^tel:/i, '').trim()
+    ?? shortVisibleBlock(input.root, /(?:전화|문의|연락처)\s*[:：]/u)?.replace(/^.*?(?:전화|문의|연락처)\s*[:：]\s*/u, '').trim();
+  const address = schemaAddress(business?.address)
+    ?? input.root.querySelector('address')?.text.replace(/\s+/g, ' ').trim()
+    ?? shortVisibleBlock(input.root, /(?:주소|오시는 길)\s*[:：]/u)?.replace(/^.*?(?:주소|오시는 길)\s*[:：]\s*/u, '').trim();
+  const openingHours = schemaHours(business?.openingHoursSpecification)
+    ?? schemaHours(business?.openingHours)
+    ?? shortVisibleBlock(input.root, /(?:영업|운영|진료|상담)\s*시간/u);
+  const businessName = stringField('name')
+    ?? input.root.querySelector('meta[property="og:site_name"]')?.getAttribute('content')?.trim()
+    ?? input.title;
+  const description = stringField('description') ?? input.description;
+  const commercialPhrases = [description, ...input.headings]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .map((value) => value.trim())
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .slice(0, 12);
+  const menuSource = input.root.querySelectorAll('p, li, dd, td')
+    .map((element) => element.text.replace(/\s+/g, ' ').trim())
+    .filter((value) => /\d[\d,]{1,}\s*원?~?$/u.test(value))
+    .join('\n');
+  return {
+    ...(businessName ? { businessName } : {}),
+    ...(description ? { description } : {}),
+    ...(phone ? { phone } : {}),
+    ...(address ? { address } : {}),
+    ...(openingHours ? { openingHours } : {}),
+    commercialPhrases,
+    contentItems: parseMenuItems(menuSource).slice(0, 10).map((item) => ({
+      name: item.name,
+      ...(item.price ? { price: item.price } : {}),
+    })),
+  };
+}
+
 export function parseHtml(html: string, finalUrl: string): ExtractResult {
   const root = parse(html);
   const metaContent = (sel: string): string | undefined => {
@@ -170,7 +303,15 @@ export function parseHtml(html: string, finalUrl: string): ExtractResult {
     push(img.getAttribute('src') || img.getAttribute('data-src'));
   }
 
-  return { title, description, headings, text, imageUrls: urls.slice(0, 12) };
+  return {
+    sourceUrl: finalUrl,
+    title,
+    description,
+    headings,
+    text,
+    imageUrls: urls.slice(0, 12),
+    structured: structuredFacts({ root, title, description, headings, text }),
+  };
 }
 
 // ---------- 추출 (fetch + 리다이렉트 SSRF 재검사) ----------

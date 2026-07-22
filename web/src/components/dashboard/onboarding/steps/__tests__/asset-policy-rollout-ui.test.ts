@@ -80,7 +80,7 @@ describe('asset-policy v2 rollout UI', () => {
     assert.match(STEP02, /const \{ setImportedBadge, assetPolicyV2Ready \} = useSurveyUx\(\)/);
     assert.match(
       STEP02,
-      /assetPolicyV2Ready[\s\S]*?가져온 사진은 실사 사진 자격으로 자동 전환되지 않아요\.[\s\S]*?: `사진 \$\{got\.length\}장을 담았어요\. 다음 사진 단계에서 확인할 수 있어요\.`/,
+      /assetPolicyV2Ready[\s\S]*?사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요\.[\s\S]*?: `사진 \$\{got\.length\}장을 담았어요\. 다음 사진 단계에서 확인할 수 있어요\.`/,
     );
 
     assert.match(STEP03, /const \{ siteId, assetPolicyV2Ready \} = useSurveyUx\(\)/);

@@ -27,8 +27,8 @@ async function resolveRecords(input: {
 }
 
 /**
- * New v2 request boundary. URLs and imported refs are never evidence. Direct
- * upload records plus a current server attestation are the only factual input.
+ * New v2 request boundary. URLs alone are never evidence. Server-registered
+ * customer uploads/imports plus a current rights attestation are factual input.
  * Legacy requests without imageDirectionId remain on their compatibility path.
  */
 export async function verifySurveyAssetTruth(input: {
@@ -48,7 +48,7 @@ export async function verifySurveyAssetTruth(input: {
       clientId: input.clientId,
       siteId: input.targetSiteId ?? null,
       generalAttestationId: input.survey.generalAssetAttestationId,
-      assetIds: directRefs.map((ref) => ref.assetId),
+      assetIds: [...directRefs, ...importedRefs].map((ref) => ref.assetId),
     }),
   ]);
   return verifySurveyAssetTruthRecords({

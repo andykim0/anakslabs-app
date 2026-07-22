@@ -55,7 +55,7 @@ async function directUpload(key: string) {
   });
 }
 
-test('real_photo rejects URL-only, import-only, and unattested direct uploads before generation', async () => {
+test('real_photo rejects URL-only and unattested customer sources before generation', async () => {
   await assert.rejects(
     verifySurveyAssetTruth({
       clientId: CLIENT_ID,
@@ -79,7 +79,7 @@ test('real_photo rejects URL-only, import-only, and unattested direct uploads be
         importedPhotoAssetRefs: [{ assetId: imported.id, url: imported.canonicalUrl }],
       }),
     }),
-    hasCode('REAL_PHOTO_UPLOAD_REQUIRED'),
+    hasCode('FACTUAL_ASSET_ATTESTATION_REQUIRED'),
   );
 
   const upload = await directUpload('missing-attestation');
@@ -93,6 +93,38 @@ test('real_photo rejects URL-only, import-only, and unattested direct uploads be
     }),
     hasCode('FACTUAL_ASSET_ATTESTATION_REQUIRED'),
   );
+});
+
+test('current rights attestation admits a canonical customer import into factual photos', async () => {
+  const imported = await registerCustomerImportAsset({
+    clientId: CLIENT_ID,
+    storageBucket: 'client-imports',
+    storageKey: 'truth/attested-import.webp',
+    canonicalUrl: 'https://assets.example/truth/attested-import.webp',
+    mediaType: 'image',
+  });
+  const attestation = await recordGeneralAssetAttestation({
+    clientId: CLIENT_ID,
+    statementVersion: GENERAL_ASSET_ATTESTATION_VERSION,
+    assetIds: [imported.id],
+    personAssetIds: [],
+    nonPersonAssetIds: [imported.id],
+    idempotencyKey: crypto.randomUUID(),
+  });
+  const verified = await verifySurveyAssetTruth({
+    clientId: CLIENT_ID,
+    survey: survey({
+      storePhotoUrls: [imported.canonicalUrl],
+      importedPhotoAssetRefs: [{ assetId: imported.id, url: imported.canonicalUrl }],
+      generalAssetAttestationId: attestation.id,
+      nonPersonPhotoAssetIds: [imported.id],
+    }),
+  });
+  assert.deepEqual(verified.survey.storePhotoUrls, [imported.canonicalUrl]);
+  assert.deepEqual(verified.directUploadAssetRefs, [{
+    assetId: imported.id,
+    url: imported.canonicalUrl,
+  }]);
 });
 
 test('current server attestation admits canonical direct uploads and strips raw/import projections', async () => {

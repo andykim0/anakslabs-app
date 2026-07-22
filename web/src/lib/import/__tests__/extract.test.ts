@@ -77,6 +77,7 @@ describe('parseHtml', () => {
       <body><h1>대표 메뉴</h1><h2>영업시간</h2><p>연희동 카페입니다.</p>
       <img src="/img/logo.png"><img src="/img/coffee.jpg"><img src="/vec/art.svg"></body></html>`;
     const r = parseHtml(html, 'https://cafe.example.com/');
+    assert.equal(r.sourceUrl, 'https://cafe.example.com/');
     assert.equal(r.title, '가게 이름');
     assert.equal(r.description, '맛있는 카페');
     assert.ok(r.headings.includes('대표 메뉴') && r.headings.includes('영업시간'));
@@ -85,6 +86,45 @@ describe('parseHtml', () => {
     assert.ok(r.imageUrls.includes('https://cafe.example.com/img/coffee.jpg'), '콘텐츠 이미지');
     assert.ok(!r.imageUrls.some((u) => u.includes('logo')), '로고 제외');
     assert.ok(!r.imageUrls.some((u) => u.includes('.svg')), 'svg 제외');
+  });
+
+  test('JSON-LD와 가시 원문에서 사실 필드·메뉴를 창작 없이 구조화한다', () => {
+    const html = `<html><head><title>원문 제목</title>
+      <script type="application/ld+json">{
+        "@type":"CafeOrCoffeeShop",
+        "name":"연남 커피실",
+        "telephone":"02-123-4567",
+        "address":{"@type":"PostalAddress","streetAddress":"서울 마포구 동교로 1","addressLocality":"연남동"},
+        "openingHours":["Mo-Fr 09:00-18:00"],
+        "description":"천천히 머무는 동네 커피집"
+      }</script></head><body>
+      <h1>오늘의 메뉴</h1><p>필터 커피 6,000원</p><p>바닐라 라테 6,500원</p>
+      </body></html>`;
+    const result = parseHtml(html, 'https://cafe.example.com/about');
+    assert.deepEqual(result.structured, {
+      businessName: '연남 커피실',
+      description: '천천히 머무는 동네 커피집',
+      phone: '02-123-4567',
+      address: '서울 마포구 동교로 1 연남동',
+      openingHours: 'Mo-Fr 09:00-18:00',
+      commercialPhrases: ['천천히 머무는 동네 커피집', '오늘의 메뉴'],
+      contentItems: [
+        { name: '필터 커피', price: '6,000' },
+        { name: '바닐라 라테', price: '6,500' },
+      ],
+    });
+  });
+
+  test('원문에 없는 전화·주소·영업시간은 구조화 결과에도 만들지 않는다', () => {
+    const result = parseHtml(
+      '<html><head><title>이름만 있는 가게</title></head><body><p>편안한 공간을 지향합니다.</p></body></html>',
+      'https://minimal.example.com/',
+    );
+    assert.equal(result.structured.businessName, '이름만 있는 가게');
+    assert.equal(result.structured.phone, undefined);
+    assert.equal(result.structured.address, undefined);
+    assert.equal(result.structured.openingHours, undefined);
+    assert.deepEqual(result.structured.contentItems, []);
   });
 });
 

@@ -120,6 +120,7 @@ export function canSelectRealPhoto(input: {
   heroPhotoAssetRef?: { assetId: string; url?: string } | null;
   storePhotoUrls?: readonly string[] | null;
   storePhotoAssetRefs?: readonly { assetId: string; url?: string }[] | null;
+  importedPhotoAssetRefs?: readonly { assetId: string; url?: string }[] | null;
   contentItems?: readonly {
     photoUrl?: string | null;
     photoAssetRef?: { assetId: string; url?: string } | null;
@@ -135,6 +136,8 @@ export function canSelectRealPhoto(input: {
   const hasUploadRef = heroRefMatchesProjection
     || Boolean(input.storePhotoAssetRefs?.some((ref) =>
       Boolean(ref.assetId && ref.url && input.storePhotoUrls?.includes(ref.url))))
+    || Boolean(input.importedPhotoAssetRefs?.some((ref) =>
+      Boolean(ref.assetId && ref.url && input.storePhotoUrls?.includes(ref.url))))
     || Boolean(input.contentItems?.some((item) =>
       Boolean(item.photoAssetRef?.assetId
         && item.photoAssetRef.url
@@ -142,6 +145,7 @@ export function canSelectRealPhoto(input: {
   const directAssetIds = new Set([
     ...(input.heroPhotoAssetRef?.assetId ? [input.heroPhotoAssetRef.assetId] : []),
     ...(input.storePhotoAssetRefs ?? []).map((ref) => ref.assetId),
+    ...(input.importedPhotoAssetRefs ?? []).map((ref) => ref.assetId),
     ...(input.contentItems ?? []).flatMap((item) =>
       item.photoAssetRef?.assetId ? [item.photoAssetRef.assetId] : []),
   ]);

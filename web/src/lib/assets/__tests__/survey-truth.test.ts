@@ -88,7 +88,7 @@ function hasCode(code: AssetTruthRequestError['code']) {
     && error.code === code;
 }
 
-test('real_photo rejects URL-only, import-only, and unattested direct uploads before generation', () => {
+test('real_photo rejects URL-only and unattested customer sources before generation', () => {
   assert.throws(
     () => verify({ survey: survey({ heroPhotoUrl: 'https://external.example/raw.webp' }) }),
     hasCode('REAL_PHOTO_UPLOAD_REQUIRED'),
@@ -103,7 +103,7 @@ test('real_photo rejects URL-only, import-only, and unattested direct uploads be
       }),
       importedRecords: [imported],
     }),
-    hasCode('REAL_PHOTO_UPLOAD_REQUIRED'),
+    hasCode('FACTUAL_ASSET_ATTESTATION_REQUIRED'),
   );
 
   const upload = asset('missing-attestation');
@@ -117,6 +117,25 @@ test('real_photo rejects URL-only, import-only, and unattested direct uploads be
     }),
     hasCode('FACTUAL_ASSET_ATTESTATION_REQUIRED'),
   );
+});
+
+test('current rights attestation admits a canonical customer import into factual photos', () => {
+  const imported = asset('attested-import', 'customer_import');
+  const verified = verify({
+    survey: survey({
+      storePhotoUrls: [imported.canonicalUrl],
+      importedPhotoAssetRefs: [{ assetId: imported.id, url: imported.canonicalUrl }],
+      generalAssetAttestationId: 'attestation-truth',
+      nonPersonPhotoAssetIds: [imported.id],
+    }),
+    importedRecords: [imported],
+    attestation: attestation([imported.id]),
+  });
+  assert.deepEqual(verified.survey.storePhotoUrls, [imported.canonicalUrl]);
+  assert.deepEqual(verified.directUploadAssetRefs, [{
+    assetId: imported.id,
+    url: imported.canonicalUrl,
+  }]);
 });
 
 test('current server attestation admits canonical direct uploads and strips raw/import projections', () => {

@@ -56,8 +56,8 @@ import { Step08Review } from './steps/step08-review';
 const TOTAL_STEPS = 8;
 
 const STEP_TITLES: Record<number, string> = {
-  1: '무엇을 하는 곳인가요?',
-  2: '이미 있는 걸 알려주세요',
+  1: '이미 홈페이지·블로그·플레이스가 있으세요?',
+  2: '무엇을 하는 곳인가요?',
   3: '소개·메뉴 원문을 알려주세요',
   4: '사진을 올려주세요',
   5: '이미지 느낌을 골라주세요',
@@ -176,6 +176,13 @@ export function SurveyStep({
       return t ? t : undefined;
     };
     const highlights = (values.highlights ?? []).map((h) => h.trim()).filter(Boolean).slice(0, 3);
+    const factualAnswers = (values.factualAnswers ?? [])
+      .map((answer) => ({ ...answer, value: answer.value.trim() }))
+      .filter((answer) => answer.value.length > 0);
+    const faqAnswers = (values.faqAnswers ?? [])
+      .map((answer) => ({ ...answer, answer: answer.answer.trim() }))
+      .filter((answer) => answer.answer.length > 0);
+    const importedContentSources = values.importedContentSources ?? [];
     const presence = values.existingPresence ?? [];
     const recommended = recommendedImageDirection({
       industry: values.industry,
@@ -229,6 +236,16 @@ export function SurveyStep({
       referenceStyleIds: values.moodIds.length ? styleIdsForSamples(values.moodIds) : undefined,
       referenceDesignId: clean(values.referenceDesignId),
       existingPresence: presence.length ? presence : undefined,
+      ...(factualAnswers.length || faqAnswers.length || importedContentSources.length
+        ? {
+            contentDepth: {
+              version: 1 as const,
+              facts: factualAnswers,
+              faqAnswers,
+              imports: importedContentSources,
+            },
+          }
+        : {}),
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),
@@ -287,8 +304,8 @@ export function SurveyStep({
           {/* 스텝 본문 */}
           <div className="px-5 py-6 sm:px-7">
             <StepFade key={step}>
-              {step === 1 ? <Step01Basics /> : null}
-              {step === 2 ? <Step02Existing /> : null}
+              {step === 1 ? <Step02Existing /> : null}
+              {step === 2 ? <Step01Basics /> : null}
               {step === 3 ? <Step03Content /> : null}
               {step === 4 ? <Step04Photos /> : null}
               {step === 5 ? <Step05ImageStyle assetPolicyV2Ready={assetPolicyV2Ready} /> : null}

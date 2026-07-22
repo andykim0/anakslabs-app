@@ -911,7 +911,7 @@ export const surveySchema = z.object({
   storePhotoUrls: z.array(safeMediaSrcSchema).max(12).optional(),
   // [asset policy v2] URL은 projection일 뿐이다. 서버 registry가 각 참조의 owner/origin을 재검증한다.
   storePhotoAssetRefs: z.array(assetRefSchema).max(12).optional(),
-  // customer_import 추적 전용. 이 필드는 factual/real_photo 권한을 부여하지 않는다.
+  // customer_import 추적 전용. 단독으로 권한을 주지 않으며 서버 권리확약을 함께 검증한다.
   importedPhotoAssetRefs: z.array(assetRefSchema).max(12).optional(),
   // [히어로 소스] 고객이 직접 고른 대표 사진 1장 — 실제 사진을 AI 무드 생성물보다 우선
   heroPhotoUrl: safeMediaSrcSchema.optional(),
@@ -962,12 +962,35 @@ export const surveySchema = z.object({
   existingPresence: z
     .array(
       z.object({
-        kind: z.enum(['website', 'instagram', 'naver_place', 'other']),
+        kind: z.enum(['website', 'naver_blog', 'instagram', 'naver_place', 'other']),
         url: z.string().max(500).refine((u) => /^https?:\/\//i.test(u), 'http(s):// 주소여야 합니다.'),
       }),
     )
-    .max(3)
+    .max(5)
     .optional(),
+  contentDepth: z.object({
+    version: z.literal(1),
+    facts: z.array(z.object({
+      key: z.enum([
+        'phone', 'openingHours', 'address', 'parking', 'reservation', 'paymentMethods',
+        'accessibility', 'pets', 'wifi', 'directions', 'signature', 'seating', 'outlets',
+        'groupSeating', 'specialties', 'credentials', 'insurance', 'services', 'duration',
+        'classes', 'materials',
+      ]),
+      value: z.string().min(1).max(500),
+      source: z.enum(['customer', 'customer_import']),
+    })).max(40),
+    faqAnswers: z.array(z.object({
+      questionId: z.string().min(1).max(80),
+      answer: z.string().min(1).max(1000),
+    })).max(30),
+    imports: z.array(z.object({
+      url: z.string().max(500).refine((u) => /^https?:\/\//i.test(u), 'http(s):// 주소여야 합니다.'),
+      origin: z.literal('customer_import'),
+      extractedAt: z.string().datetime(),
+      fields: z.array(z.string().min(1).max(80)).max(40),
+    })).max(5),
+  }).optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
   siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'trust']).optional(),
   // 자랑거리 1~3개 (항목당 40자) — 생성 프롬프트·차별화 섹션 소스
