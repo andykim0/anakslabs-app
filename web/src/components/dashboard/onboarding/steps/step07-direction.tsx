@@ -5,13 +5,13 @@
  */
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import type { SiteGoalId, SitePurposeId } from '@/lib/types/domain';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { goalsForGroup } from '@/lib/onboarding/site-goal';
 import { cn } from '../../ui';
 import { useToast } from '../../toast';
-import { Chip, Field, StepIntro, obInput, type SurveyForm } from './shared';
+import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 const TONE_CHIPS = ['고급스러운', '미니멀', '친근한', '대담한', '차분한', '러스틱', '모던'];
 
@@ -24,17 +24,31 @@ const HIGHLIGHT_EXAMPLES: Record<string, string[]> = {
 };
 
 export function Step07Direction() {
-  const { watch, setValue, formState } = useFormContext<SurveyForm>();
+  const { watch, setValue, register, formState } = useFormContext<SurveyForm>();
   const { toast } = useToast();
+  const { goTo } = useSurveyUx();
   const purposeId = watch('purposeId') as SitePurposeId | '';
   const siteGoal = watch('siteGoal');
   const highlights = watch('highlights') ?? [];
   const tone = watch('tone') ?? [];
+  const facts = watch('factualAnswers') ?? [];
+  const conversionKind = watch('conversionKind');
+  const conversionUrl = watch('conversionUrl') ?? '';
   const [draft, setDraft] = useState('');
 
   const group = purposeId ? findPurpose(purposeId)?.group : undefined;
   const goals = group ? goalsForGroup(group) : [];
   const examples = group ? HIGHLIGHT_EXAMPLES[group] ?? [] : [];
+  const phone = facts.find((fact) => fact.key === 'phone' && fact.value.trim())?.value.trim();
+
+  const chooseGoal = (goal: SiteGoalId) => {
+    setValue('siteGoal', goal, { shouldValidate: true });
+    if (goal === 'call') setValue('conversionKind', 'phone_fact');
+    else if (goal === 'reserve') setValue('conversionKind', 'reservation_url');
+    else if (goal === 'kakao_inquiry') setValue('conversionKind', 'contact_form');
+    else setValue('conversionKind', undefined);
+    if (goal !== 'reserve' && goal !== 'kakao_inquiry') setValue('conversionUrl', '');
+  };
 
   const addHighlight = (value: string) => {
     const v = value.trim().slice(0, 40);
@@ -66,6 +80,36 @@ export function Step07Direction() {
         방문자가 할 행동과 강조할 장점, 분위기를 정해요. 이걸로 주 버튼 문구와 강조 섹션이 정해져요.
       </StepIntro>
 
+      <div className="grid gap-4 rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5">
+        <Field label={<>누구를 설득하는 홈페이지인가요? <span className="font-normal text-ob-muted">(선택)</span></>}>
+          <textarea
+            {...register('targetCustomer')}
+            rows={2}
+            placeholder="예: 복잡한 문제를 처음 상담하려는 소상공인에게 필요한 내용을 전합니다."
+            className={cn(obInput, 'resize-y leading-relaxed')}
+          />
+        </Field>
+        <Field label={<>방문자는 무엇을 가장 알고 싶어 하나요? <span className="font-normal text-ob-muted">(선택)</span></>}>
+          <textarea
+            {...register('visitorNeed')}
+            rows={2}
+            placeholder="예: 상담 가능한 업무와 준비할 자료를 먼저 알고 싶어 합니다."
+            className={cn(obInput, 'resize-y leading-relaxed')}
+          />
+        </Field>
+        <Field
+          label={<>왜 이곳이어야 하나요? <span className="font-normal text-ob-muted">(선택)</span></>}
+          hint="수상·수치 같은 증명 가능한 사실 대신, 지키고 싶은 태도와 가치를 적어주세요."
+        >
+          <textarea
+            {...register('valueProposition')}
+            rows={2}
+            placeholder="예: 어려운 내용을 이해하기 쉬운 말로 차분히 안내합니다."
+            className={cn(obInput, 'resize-y leading-relaxed')}
+          />
+        </Field>
+      </div>
+
       <Field label="방문자가 뭘 해주면 성공인가요?">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {goals.map(({ id, def }) => {
@@ -74,7 +118,7 @@ export function Step07Direction() {
               <button
                 key={id}
                 type="button"
-                onClick={() => setValue('siteGoal', id as SiteGoalId, { shouldValidate: true })}
+                onClick={() => chooseGoal(id as SiteGoalId)}
                 aria-pressed={selected}
                 className={cn(
                   'flex flex-col rounded-ob border p-3.5 text-left transition-colors',
@@ -97,6 +141,68 @@ export function Step07Direction() {
           })}
         </div>
       </Field>
+
+      {siteGoal === 'call' ? (
+        <div className="rounded-ob border border-ob-border bg-ob-bg p-4 text-[13px] leading-relaxed text-ob-muted">
+          {phone ? (
+            <>주 버튼을 앞에서 입력한 연락처 <strong className="text-ob-ink">{phone}</strong>에 연결합니다. 다시 입력할 필요가 없어요.</>
+          ) : (
+            <button type="button" onClick={() => goTo(3)} className="inline-flex items-center gap-1 font-medium text-ob-accent-strong">
+              연락처를 입력해야 전화 버튼이 작동해요 · 입력하러 가기 <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      ) : null}
+
+      {siteGoal === 'reserve' ? (
+        <Field label="실제 예약 페이지 주소" hint="네이버 예약·카카오 채널·캐치테이블·테이블링 등의 https 주소를 연결합니다.">
+          <input
+            value={conversionUrl}
+            onChange={(event) => setValue('conversionUrl', event.target.value, { shouldValidate: false })}
+            placeholder="https://booking.naver.com/..."
+            inputMode="url"
+            autoComplete="url"
+            className={obInput}
+          />
+        </Field>
+      ) : null}
+
+      {siteGoal === 'kakao_inquiry' ? (
+        <Field label="문의받을 곳">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {([
+              ['contact_form', '홈페이지 문의 폼'],
+              ['messenger_url', '메신저 링크'],
+            ] as const).map(([kind, label]) => (
+              <button
+                key={kind}
+                type="button"
+                onClick={() => {
+                  setValue('conversionKind', kind);
+                  if (kind === 'contact_form') setValue('conversionUrl', '');
+                }}
+                aria-pressed={conversionKind === kind}
+                className={cn(
+                  'rounded-ob border px-4 py-3 text-left text-[14px]',
+                  conversionKind === kind ? 'border-ob-accent-strong bg-ob-accent-soft text-ob-accent-strong' : 'border-ob-border bg-ob-surface text-ob-ink',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {conversionKind === 'messenger_url' ? (
+            <input
+              value={conversionUrl}
+              onChange={(event) => setValue('conversionUrl', event.target.value, { shouldValidate: false })}
+              placeholder="https://pf.kakao.com/..."
+              inputMode="url"
+              autoComplete="url"
+              className={cn(obInput, 'mt-3')}
+            />
+          ) : null}
+        </Field>
+      ) : null}
 
       <Field
         label={

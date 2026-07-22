@@ -263,6 +263,18 @@ export interface MainStorytellingInput {
  */
 export interface SurveyBriefInput {
   version: 1;
+  /** 누구를 설득할지 고객이 직접 적은 문장. */
+  targetCustomer?: string;
+  /** 방문자가 무엇을 찾는지 고객이 직접 적은 문장. */
+  visitorNeed?: string;
+  /** 검증 가능한 성과 주장이 아닌 고객 작성 가치·태도 문장. */
+  valueProposition?: string;
+  /** 전화는 facts.phone을 참조하므로 값을 중복 저장하지 않는다. */
+  conversionDestination?:
+    | { kind: 'phone_fact' }
+    | { kind: 'reservation_url'; url: string }
+    | { kind: 'contact_form' }
+    | { kind: 'messenger_url'; url: string };
 }
 
 /** Additive gate: v1 retains CONTENT/MAIN output; v2 enables the approved SitePlan contract. */

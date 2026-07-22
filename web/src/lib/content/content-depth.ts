@@ -556,7 +556,10 @@ export function buildMainStorytellingModel(survey: SurveyInput): MainStorytellin
   const paragraphs = customerStory.length > 0
     ? [...customerStory, ...customerIntroduction, ...base.branding.paragraphs.slice(0, 2), ...continuations]
     : [...customerIntroduction, ...base.branding.paragraphs, ...continuations];
-  const valuesLead = input?.philosophy?.trim() || base.branding.paragraphs.at(-1) || base.branding.heroSub;
+  const valuesLead = survey.contentDepth?.surveyBrief?.valueProposition?.trim()
+    || input?.philosophy?.trim()
+    || base.branding.paragraphs.at(-1)
+    || base.branding.heroSub;
 
   return {
     kicker: customerStory.length > 0 ? '우리의 이야기' : base.branding.kicker,
@@ -570,6 +573,9 @@ export function buildMainStorytellingModel(survey: SurveyInput): MainStorytellin
 
 function customerIntroduction(survey: SurveyInput): string[] {
   const accepted: string[] = [];
+  const brief = survey.contentDepth?.surveyBrief;
+  if (brief?.targetCustomer?.trim()) accepted.push(brief.targetCustomer.trim());
+  if (brief?.visitorNeed?.trim()) accepted.push(brief.visitorNeed.trim());
   if (survey.tagline?.trim()) accepted.push(survey.tagline.trim());
   const sourceLines = survey.providedContent?.split(/\r?\n/u)
     .map((line) => line.trim())
@@ -606,7 +612,11 @@ function uniqueCustomerGalleryImages(survey: SurveyInput): string[] {
  */
 export function buildContentDepthHomeModel(survey: SurveyInput): ContentDepthHomeModel {
   const facts = resolveBusinessFacts(survey.contentDepth?.facts ?? []);
-  const branding = honestBrandingForIndustry(survey.industry);
+  const baseBranding = honestBrandingForIndustry(survey.industry);
+  const valueProposition = survey.contentDepth?.surveyBrief?.valueProposition?.trim();
+  const branding = valueProposition
+    ? { ...baseBranding, heroSub: valueProposition }
+    : baseBranding;
   const customerStrengths = (survey.highlights ?? []).map((item) => item.trim()).filter(Boolean).slice(0, 3);
   const strengths = customerStrengths.length > 0
     ? customerStrengths.map((title) => ({

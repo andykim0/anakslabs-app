@@ -34,6 +34,8 @@ import { styleIdsForSamples } from '@/lib/design/reference-samples';
 import { defaultImageStyle } from '@/lib/onboarding/image-style';
 import { missingRequiredFacts } from '@/lib/content/content-depth';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
+import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import { isHttpsUrl } from '@/lib/safe-url';
 import { useToast } from '../toast';
 import { cn } from '../ui';
 import {
@@ -165,9 +167,34 @@ export function SurveyStep({
         return;
       }
     }
-    if (step === 7 && !getValues('siteGoal')) {
-      toast('info', '방문자가 뭘 해주면 좋을지 하나 골라주세요.');
-      return;
+    if (step === 7) {
+      const goal = getValues('siteGoal');
+      if (!goal) {
+        toast('info', '방문자가 뭘 해주면 좋을지 하나 골라주세요.');
+        return;
+      }
+      if (goal === 'call') {
+        const phone = (getValues('factualAnswers') ?? []).find(
+          (fact) => fact.key === 'phone' && fact.value.trim(),
+        );
+        if (!phone) {
+          toast('info', '전화 버튼에 연결할 연락처를 먼저 입력해 주세요.');
+          goTo(3);
+          return;
+        }
+      }
+      if (goal === 'reserve' && !isRecognizedReservationUrl(getValues('conversionUrl') ?? '')) {
+        toast('info', '실제 예약 페이지의 https 주소를 입력해 주세요.');
+        return;
+      }
+      if (
+        goal === 'kakao_inquiry' &&
+        getValues('conversionKind') === 'messenger_url' &&
+        !isHttpsUrl(getValues('conversionUrl') ?? '')
+      ) {
+        toast('info', '실제 메신저의 https 주소를 입력해 주세요.');
+        return;
+      }
     }
     goTo(step + 1);
   };
@@ -205,6 +232,21 @@ export function SurveyStep({
       return;
     }
     const heroPhotoUrl = clean(values.heroPhotoUrl);
+    const conversionDestination = (() => {
+      if (values.siteGoal === 'call') return { kind: 'phone_fact' as const };
+      if (values.siteGoal === 'reserve') {
+        const url = clean(values.conversionUrl);
+        return url && isRecognizedReservationUrl(url) ? { kind: 'reservation_url' as const, url } : undefined;
+      }
+      if (values.siteGoal === 'kakao_inquiry') {
+        if (values.conversionKind === 'messenger_url') {
+          const url = clean(values.conversionUrl);
+          return url && isHttpsUrl(url) ? { kind: 'messenger_url' as const, url } : undefined;
+        }
+        return { kind: 'contact_form' as const };
+      }
+      return undefined;
+    })();
     // A matching URL cannot establish provenance, but a mismatch must drop a stale ref.
     const heroPhotoAssetRef = values.heroPhotoAssetRef?.url === heroPhotoUrl
       ? values.heroPhotoAssetRef
@@ -257,9 +299,18 @@ export function SurveyStep({
           ...(clean(values.brandOrigin) ? { origin: clean(values.brandOrigin) } : {}),
           ...(clean(values.brandPhilosophy) ? { philosophy: clean(values.brandPhilosophy) } : {}),
         },
-        surveyBrief: { version: 1 as const },
+        surveyBrief: {
+          version: 1 as const,
+          ...(clean(values.targetCustomer) ? { targetCustomer: clean(values.targetCustomer) } : {}),
+          ...(clean(values.visitorNeed) ? { visitorNeed: clean(values.visitorNeed) } : {}),
+          ...(clean(values.valueProposition) ? { valueProposition: clean(values.valueProposition) } : {}),
+          ...(conversionDestination ? { conversionDestination } : {}),
+        },
       },
       siteGoal: values.siteGoal as SiteGoalId | undefined,
+      ...(values.siteGoal === 'reserve' && conversionDestination?.kind === 'reservation_url'
+        ? { reservationMode: 'external_link' as const, reservationUrl: conversionDestination.url }
+        : {}),
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),
       mode: values.mode === 'improve' ? 'improve' : undefined,

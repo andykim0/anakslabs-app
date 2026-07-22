@@ -26,7 +26,7 @@ import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/
 import type { AssetRef } from '@/lib/assets/provenance';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { toneText } from '@/lib/onboarding/tone';
-import { SITE_GOALS, ctaLabelForGoal } from '@/lib/onboarding/site-goal';
+import { SITE_GOALS, conversionHrefForSurvey, ctaLabelForSurvey } from '@/lib/onboarding/site-goal';
 import { buildNarrativeArc } from './narrative-arc';
 import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion/scrollytelling';
 import { regionOf } from '@/lib/onboarding/region';
@@ -390,7 +390,7 @@ function buildHero(ctx: Ctx): Section {
   // [D2/H1] 고객이 실제로 입력한 자랑거리만 소형 태그로 노출한다.
   const chips = heroChips(survey);
   // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
-  const ctaLabel = ctaLabelForGoal(survey.siteGoal) ?? '문의하기';
+  const ctaLabel = ctaLabelForSurvey(survey) ?? '문의하기';
   // [T1] CTA 타깃 = 목표의 강조 섹션(sectionEmphasis) 중 계획에 '단일 존재'하는 첫 타입
   //      (purchase→상품 진열, trust→실적 등). contact이거나 매칭 없으면 기본 '#sec-contact'
   //      (variant 분화 시 앵커 재해소 패스가 첫 contact id로 교체 — 무배선 버튼 0 보장).
@@ -398,9 +398,9 @@ function buildHero(ctx: Ctx): Section {
   const ctaTarget = goalDef?.sectionEmphasis.find(
     (t) => t !== 'hero' && (t === 'contact' || survey.sectionPlan.filter((i) => i.type === t).length === 1),
   );
-  const ctaHref = depthModel
+  const ctaHref = conversionHrefForSurvey(survey) ?? (depthModel
     ? depthModel.contact.length > 0 ? '#sec-contact' : '#sec-about'
-    : ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
+    : ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact');
 
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치

@@ -4,8 +4,10 @@
  * 목적 그룹(PurposeGroup: 손님 받기/알리기)에 따라 노출 목표를 필터링(goalsForGroup).
  */
 import type { PurposeGroup } from '@/lib/data/purpose-taxonomy';
-import type { SiteGoalId } from '@/lib/types/domain';
+import type { SiteGoalId, SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
+import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import { isHttpsUrl } from '@/lib/safe-url';
 
 export interface SiteGoalDef {
   /** 고객이 고르는 문장 */
@@ -68,4 +70,43 @@ export function goalsForGroup(group: PurposeGroup): { id: SiteGoalId; def: SiteG
 /** 목표 → 주 CTA 문구 (buildHero 배선용). 미설정이면 undefined */
 export function ctaLabelForGoal(goal: SiteGoalId | undefined): string | undefined {
   return goal ? SITE_GOALS[goal].ctaLabel : undefined;
+}
+
+/** 실제 목적지가 홈페이지 폼이면 카카오톡으로 오인시키지 않는다. */
+export function ctaLabelForSurvey(survey: SurveyInput): string | undefined {
+  if (
+    survey.siteGoal === 'kakao_inquiry' &&
+    survey.contentDepth?.surveyBrief?.conversionDestination?.kind === 'contact_form'
+  ) return '문의하기';
+  return ctaLabelForGoal(survey.siteGoal);
+}
+
+function phoneHref(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const compact = value.trim().replace(/(?!^\+)[^0-9]/gu, '');
+  return compact.replace(/\D/gu, '').length >= 7 ? `tel:${compact}` : undefined;
+}
+
+/**
+ * 신규 SURVEY 계약에서 고객이 확정한 실제 전환 목적지만 href로 승격한다.
+ * surveyBrief가 없는 기존 payload는 undefined라 기존 앵커 계산을 그대로 탄다.
+ */
+export function conversionHrefForSurvey(survey: SurveyInput): string | undefined {
+  const brief = survey.contentDepth?.surveyBrief;
+  if (!brief || !survey.siteGoal) return undefined;
+  const destination = brief.conversionDestination;
+  if (survey.siteGoal === 'call' && destination?.kind === 'phone_fact') {
+    const phone = survey.contentDepth?.facts.find((fact) => fact.key === 'phone' && fact.value.trim())?.value;
+    return phoneHref(phone);
+  }
+  if (
+    survey.siteGoal === 'reserve' &&
+    destination?.kind === 'reservation_url' &&
+    isRecognizedReservationUrl(destination.url)
+  ) return destination.url;
+  if (survey.siteGoal === 'kakao_inquiry') {
+    if (destination?.kind === 'contact_form') return '#sec-contact';
+    if (destination?.kind === 'messenger_url' && isHttpsUrl(destination.url)) return destination.url;
+  }
+  return undefined;
 }

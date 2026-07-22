@@ -1004,6 +1004,18 @@ export const surveySchema = z.object({
     }).optional(),
     surveyBrief: z.object({
       version: z.literal(1),
+      targetCustomer: z.string().trim().min(1).max(300).optional(),
+      visitorNeed: z.string().trim().min(1).max(300).optional(),
+      valueProposition: z.string().trim().min(1).max(300).optional(),
+      conversionDestination: z.discriminatedUnion('kind', [
+        z.object({ kind: z.literal('phone_fact') }),
+        z.object({
+          kind: z.literal('reservation_url'),
+          url: z.string().refine(isRecognizedReservationUrl, '지원하는 예약 서비스의 https:// 주소여야 합니다.'),
+        }),
+        z.object({ kind: z.literal('contact_form') }),
+        z.object({ kind: z.literal('messenger_url'), url: z.string().refine(isHttpsUrl, '메신저 링크는 https:// 주소여야 합니다.') }),
+      ]).optional(),
     }).optional(),
   }).optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선

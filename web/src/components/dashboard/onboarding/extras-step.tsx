@@ -114,8 +114,10 @@ export function ExtrasStep({
 
   // 실제 외부 예약 링크 — 예약이 목표일 때만 추천으로 켜고, URL은 사용자가 직접 확정한다.
   // 레거시 survey.reservationUrl은 같은 엄격한 allowlist를 통과할 때만 편의상 프리필한다.
-  const initialReservationUrl = survey.reservationUrl && isRecognizedReservationUrl(survey.reservationUrl)
-    ? survey.reservationUrl
+  const briefDestination = survey.contentDepth?.surveyBrief?.conversionDestination;
+  const briefReservationUrl = briefDestination?.kind === 'reservation_url' ? briefDestination.url : undefined;
+  const initialReservationUrl = (briefReservationUrl ?? survey.reservationUrl) && isRecognizedReservationUrl(briefReservationUrl ?? survey.reservationUrl ?? '')
+    ? (briefReservationUrl ?? survey.reservationUrl ?? '')
     : '';
   const [reservationOn, setReservationOn] = useState(
     survey.siteGoal === 'reserve' || Boolean(initialReservationUrl),
@@ -124,7 +126,9 @@ export function ExtrasStep({
   const reservationInvalid = reservationUrl.trim() !== '' && !isRecognizedReservationUrl(reservationUrl);
 
   // 문의 폼
-  const [formOn, setFormOn] = useState(recommended.has('contactForm'));
+  const [formOn, setFormOn] = useState(
+    briefDestination?.kind === 'contact_form' || recommended.has('contactForm'),
+  );
   const [formFields, setFormFields] = useState<FormFieldKey[]>(['name', 'phone', 'message']);
   const [formTarget, setFormTarget] = useState<SectionType>(formRow?.type ?? 'contact');
 
