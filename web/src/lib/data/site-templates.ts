@@ -48,6 +48,7 @@ import { applyRhythmToPages, povForCandidateId } from '@/lib/design/section-rhyt
 import type { HeroVariant } from './skeletons';
 import { teaserSummary } from './teaser-summary';
 import { parseAddress, parseBusinessHours, resolveContentItems } from './content-parse';
+import { isSafeHref } from '@/lib/safe-url';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -2581,6 +2582,21 @@ function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSl
   }
   const fullDirections = legacyTopics.find((section) => section.id === 'sec-contact-directions');
   if (model.directions.length > 0 && fullDirections) {
+    const place = ctx.survey.existingPresence?.find(
+      (presence) => presence.kind === 'naver_place' && isSafeHref(presence.url),
+    );
+    if (place) {
+      fullDirections.elements.push({
+        id: nextId(ctx, 'el-main-directions-place-link'), kind: 'button',
+        frame: { x: 120, y: fullDirections.height - 34, w: 220, h: 48 }, z: 3,
+        label: '네이버 지도에서 보기', href: place.url,
+        style: {
+          variant: 'outline', color: ctx.theme.palette.primary, textColor: ctx.theme.palette.primary,
+          fontSize: 15, borderRadius: ctx.theme.radius ?? 4,
+        },
+      });
+      fullDirections.height += 90;
+    }
     output.push(
       { section: buildMainDirectionsTeaser(ctx), pageSlug: '' },
       { section: fullDirections, pageSlug: 'directions' },

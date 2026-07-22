@@ -276,7 +276,14 @@ test('답한 하위 주제가 없으면 MAIN도 빈 서브페이지·티저·죽
 });
 
 test('오시는 길 서브페이지는 실제 지도 URL을 같은 페이지에 배치하고 플레이스홀더 문구를 만들지 않는다', () => {
-  const base = buildSiteConfigFromSurvey(mainSurvey(), candidate, opts);
+  const input = mainSurvey();
+  input.existingPresence = [{ kind: 'naver_place', url: 'https://map.naver.com/p/entry/place/customer-confirmed' }];
+  const base = buildSiteConfigFromSurvey(input, candidate, opts);
+  const directionsBase = base.pages.find((page) => page.slug === 'directions')!;
+  const placeLink = directionsBase.sections.flatMap((section) => section.elements)
+    .find((element) => element.kind === 'button' && element.label === '네이버 지도에서 보기');
+  assert.ok(placeLink?.kind === 'button');
+  assert.equal(placeLink.href, 'https://map.naver.com/p/entry/place/customer-confirmed');
   const config = applyExtraFeatures(base, {
     mapEmbed: {
       embedUrl: 'https://www.google.com/maps/embed?pb=customer-confirmed',
