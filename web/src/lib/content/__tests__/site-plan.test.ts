@@ -215,4 +215,15 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     const hash = createHash('sha256').update(normalized).digest('hex');
     assert.equal(hash, '1eda9d4c95205d29df6fb90610d9eaf67735328313d809eedb1c5fc91686ab27');
   });
+
+  test('신규 브리프 필드가 없는 기존 v2 발행 결과는 고정 SHA를 유지한다', () => {
+    const survey = surveyFor('company_brand', '법률 법인');
+    assert.equal(survey.contentDepth?.surveyBrief, undefined);
+    const config = buildSiteConfigFromSurvey(survey, candidate, {
+      heroImageUrl: '/mock/hero.svg', imagePool: [], heroVariant: 'fullbleed',
+    });
+    const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
+    const hash = createHash('sha256').update(normalized).digest('hex');
+    assert.equal(hash, '7a483ecc5b924b10e909bc393e2991873715ea2d6e594cecf8808e42ebc03e61');
+  });
 });

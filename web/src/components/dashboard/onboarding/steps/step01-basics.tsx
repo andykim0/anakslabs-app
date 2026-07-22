@@ -135,7 +135,7 @@ export function Step01Basics() {
           </>
         }
         error={errors.tagline?.message}
-        hint="비워두시면 AI가 지어드려요."
+        hint="비워두면 타깃·가치제안과 업종에 맞는 정직한 소개 문장을 사용해요."
       >
         <input {...register('tagline')} placeholder="예: 매일의 균형을 만드는 시간" className={obInput} />
       </Field>
