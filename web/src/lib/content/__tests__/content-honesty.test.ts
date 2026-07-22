@@ -6,6 +6,7 @@ import test from 'node:test';
 import type { BusinessFactKey, DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import {
   buildContentDepthHomeModel,
+  buildMainStorytellingModel,
   honestBrandingForIndustry,
 } from '@/lib/content/content-depth';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
@@ -135,4 +136,40 @@ test('contentDepth가 없는 레거시 생성 출력은 고정 해시를 유지�
   const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
   const hash = createHash('sha256').update(normalized).digest('hex');
   assert.equal(hash, 'dcf04d5cca7b27d006db5cb67dc9a0368cca478e92956eafd83421b3e2fdd929');
+});
+
+test('MAIN 필드가 없는 CONTENT v1 발행 출력도 고정 해시를 유지한다', () => {
+  const config = buildSiteConfigFromSurvey(survey({
+    tagline: '확인된 한 줄 소개',
+    providedContent: '[소개]\n고객이 직접 적은 소개입니다.',
+    highlights: ['고객이 직접 적은 기준'],
+    contentItems: [{ name: '확인 메뉴', price: '5,000', description: '고객이 적은 설명' }],
+    contentDepth: {
+      version: 1,
+      facts: [
+        { key: 'phone', value: '02-123-4567', source: 'customer' },
+        { key: 'openingHours', value: '화–일 10:00–20:00', source: 'customer' },
+      ],
+      faqAnswers: [],
+      imports: [],
+    },
+  }), candidate, { heroImageUrl: '/mock/hero.svg', imagePool: ['/mock/generated.svg'] });
+  const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
+  const hash = createHash('sha256').update(normalized).digest('hex');
+  assert.equal(hash, 'f922b3f058284f5f20a76d28ef654b84d19892c9598887966566e7cbb82f9292');
+});
+
+test('고객 스토리가 비어 있는 MAIN 폴백은 검증 가능한 이력·수치·시설·후기를 만들지 않는다', () => {
+  const input = survey({
+    contentDepth: {
+      version: 1,
+      facts: [],
+      faqAnswers: [],
+      imports: [],
+      mainStorytelling: { version: 1 },
+    },
+  });
+  const copy = JSON.stringify(buildMainStorytellingModel(input));
+  assert.doesNotMatch(copy, /(?:19|20)\d{2}|\d+\s*(?:년|명|대|개|회|%|평|석)|수상|인증|후기|단골|재방문|누적|최고|최초|유일|1위|경력|주차\s*(?:가능|완비)/u);
+  assert.doesNotMatch(copy, /입력해주세요|예상 답변|가상의 이야기/u);
 });

@@ -11,7 +11,10 @@ import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT = '/private/tmp/daboim-content-depth-review';
+const MAIN_REVIEW = process.env.MAIN_REVIEW === '1';
+const OUTPUT = MAIN_REVIEW
+  ? '/private/tmp/daboim-main-storytelling-review'
+  : '/private/tmp/daboim-content-depth-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 async function dataUrl(file: string, mime: string): Promise<string> {
@@ -35,6 +38,7 @@ function survey(photos: string[]): SurveyInput {
   return {
     businessName: '온담카페', purposeId: 'local_store', purpose: '음식점·로컬 매장', industry: '카페·디저트',
     region: '서울 성수동', tone: ['따뜻한', '차분한'], colorPreference: '브라운', referenceImageUrls: [],
+    existingPresence: [{ kind: 'naver_place', url: 'https://map.naver.com/p/entry/place/ondam-review' }],
     sectionPlan: sectionPlan(),
     pagePlan: [
       { slug: '', title: '홈' }, { slug: 'about', title: '소개' }, { slug: 'menu', title: '메뉴' },
@@ -77,20 +81,29 @@ function survey(photos: string[]): SurveyInput {
         { questionId: 'reservation', answer: '단체석은 전화로 예약해 주세요.' },
         { questionId: 'wifi', answer: '손님용 와이파이와 창가 콘센트를 이용할 수 있습니다.' },
       ],
+      ...(MAIN_REVIEW ? {
+        mainStorytelling: {
+          version: 1,
+          brandStory: '온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음을 담았습니다.',
+          origin: '동네에서 오래 머물 수 있는 작은 공간을 직접 꾸리고 싶어 시작했습니다.',
+          philosophy: '메뉴를 고르는 순간부터 자리를 나설 때까지 편안한 결을 지키고 싶습니다.',
+        },
+      } : {}),
     },
   };
 }
 
-function textLength(config: SiteConfig): number {
-  return config.pages.find((page) => page.slug === '')?.sections
+function textLength(config: SiteConfig, pageSlug?: string): number {
+  const pages = pageSlug === undefined ? config.pages : config.pages.filter((page) => page.slug === pageSlug);
+  return pages.flatMap((page) => page.sections)
     .flatMap((section) => section.elements)
     .flatMap((element) => element.kind === 'text' ? [element.text] : element.kind === 'button' ? [element.label] : [])
-    .join('').replace(/\s/gu, '').length ?? 0;
+    .join('').replace(/\s/gu, '').length;
 }
 
-function document(config: SiteConfig, mode: 'desktop' | 'mobile'): string {
+function document(config: SiteConfig, mode: 'desktop' | 'mobile', pageSlug = ''): string {
   const markup = renderToStaticMarkup(createElement(SiteRenderer, {
-    config, mode, interactive: false, animate: false, runtimeDelivery: 'client',
+    config, pageSlug, mode, interactive: false, animate: false, runtimeDelivery: 'client',
   })).replace(/<link[^>]*>/gu, '');
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;width:100%;overflow-x:hidden;background:${config.theme.palette.background}}</style></head><body>${markup}</body></html>`;
 }
@@ -193,6 +206,13 @@ async function main(): Promise<void> {
     theme: tokenSetToSiteTheme(expandTokens('cafe-warm-editorial', 44)), description: '',
   };
   const after = buildSiteConfigFromSurvey(input, candidate, { heroImageUrl: hero, imagePool: [] });
+  const contentDepthBeforeInput = structuredClone(input);
+  if (contentDepthBeforeInput.contentDepth) delete contentDepthBeforeInput.contentDepth.mainStorytelling;
+  const contentDepthBefore = buildSiteConfigFromSurvey(
+    contentDepthBeforeInput,
+    candidate,
+    { heroImageUrl: hero, imagePool: [] },
+  );
   const beforeInput = structuredClone(input);
   delete beforeInput.contentDepth;
   beforeInput.pagePlan = undefined;
@@ -202,28 +222,49 @@ async function main(): Promise<void> {
     { type: 'contact', name: '문의', brief: '', source: 'template', pageSlug: '' },
   ];
   const before = buildSiteConfigFromSurvey(beforeInput, candidate, { heroImageUrl: hero, imagePool: photos });
-  const jobs = [
-    { id: 'after-1440', config: after, mode: 'desktop' as const, width: 1440, height: 900 },
-    { id: 'after-390', config: after, mode: 'mobile' as const, width: 390, height: 844 },
-    { id: 'before-1440', config: before, mode: 'desktop' as const, width: 1440, height: 900 },
+  const jobs = MAIN_REVIEW ? [
+    { id: 'main-after-1440', config: after, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'main-after-390', config: after, pageSlug: '', mode: 'mobile' as const, width: 390, height: 844 },
+    { id: 'menu-1440', config: after, pageSlug: 'menu', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'gallery-1440', config: after, pageSlug: 'gallery', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'faq-1440', config: after, pageSlug: 'faq', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'directions-1440', config: after, pageSlug: 'directions', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'main-before-1440', config: contentDepthBefore, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
+  ] : [
+    { id: 'after-1440', config: after, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
+    { id: 'after-390', config: after, pageSlug: '', mode: 'mobile' as const, width: 390, height: 844 },
+    { id: 'before-1440', config: before, pageSlug: '', mode: 'desktop' as const, width: 1440, height: 900 },
   ];
   const screenshots = [];
   for (const job of jobs) {
     const html = path.join(OUTPUT, 'fixtures', `${job.id}.html`);
     const png = path.join(OUTPUT, 'screenshots', `${job.id}-full.png`);
-    await writeFile(html, document(job.config, job.mode), 'utf8');
+    await writeFile(html, document(job.config, job.mode, job.pageSlug), 'utf8');
     screenshots.push({ id: job.id, file: png, ...(await capture(html, png, job.width, job.height)), bytes: (await stat(png)).size });
   }
-  const beforeLength = textLength(before);
-  const afterLength = textLength(after);
+  const reviewBefore = MAIN_REVIEW ? contentDepthBefore : before;
+  const beforeLength = textLength(reviewBefore, '');
+  const afterLength = textLength(after, '');
+  const afterSiteLength = textLength(after);
   await writeFile(path.join(OUTPUT, 'manifest.json'), JSON.stringify({
     generatedAt: new Date().toISOString(), generatedAssetCalls: 0,
+    reviewMode: MAIN_REVIEW ? 'main-storytelling' : 'content-depth',
     reusedAssets: ['public/mock/candidate-light.svg', 'public/cases/demos/*/still-{1,2}.webp'],
-    sectionIds: after.pages[0].sections.map((section) => section.id),
-    indexedText: { before: beforeLength, after: afterLength, ratio: afterLength / beforeLength },
+    pages: after.pages.map((page) => ({
+      slug: page.slug,
+      sectionIds: page.sections.map((section) => section.id),
+      indexedText: textLength(after, page.slug),
+    })),
+    indexedText: {
+      beforeHome: beforeLength,
+      beforeSite: textLength(reviewBefore),
+      afterHome: afterLength,
+      afterSite: afterSiteLength,
+      homeRatio: afterLength / beforeLength,
+    },
     screenshots,
   }, null, 2), 'utf8');
-  process.stdout.write(`CONTENT review -> ${OUTPUT}\n`);
+  process.stdout.write(`${MAIN_REVIEW ? 'MAIN' : 'CONTENT'} review -> ${OUTPUT}\n`);
 }
 
 main().catch((error) => {
