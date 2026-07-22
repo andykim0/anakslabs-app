@@ -180,6 +180,9 @@ async function generateSectionCopy(
   survey: SurveyInput,
   blueprint: CandidateBlueprint,
 ): Promise<SectionCopy | undefined> {
+  // CONTENT v1은 고객 사실과 고정된 정직 브랜딩 카탈로그만 렌더한다.
+  // 자유 카피 호출을 건너뛰어 검증 가능한 사실이 새로 생길 가능성을 구조적으로 없앤다.
+  if (survey.contentDepth) return undefined;
   const style = blueprint.brief.style;
   // [F4] contentMode 토글 제거 — providedContent가 있으면(원료) 항상 다듬어 사용
   const provided = survey.providedContent?.trim();

@@ -2,6 +2,7 @@ import type {
   BusinessFactAnswer,
   BusinessFactKey,
   GuidedFaqAnswer,
+  SurveyInput,
 } from '@/lib/types/domain';
 
 export type ContentIndustryGroup =
@@ -29,7 +30,43 @@ export interface GuidedFaqQuestion {
   hint: string;
 }
 
+export interface HonestBrandingCopy {
+  kicker: string;
+  title: string;
+  heroSub: string;
+  paragraphs: readonly string[];
+  principles: readonly { title: string; description: string }[];
+}
+
+export interface ContentDepthHomeModel {
+  branding: HonestBrandingCopy;
+  customerIntroduction: readonly string[];
+  strengths: readonly { title: string; description: string }[];
+  contentItems: readonly {
+    name: string;
+    price?: string;
+    description?: string;
+  }[];
+  galleryImages: readonly string[];
+  faq: readonly { question: string; answer: string }[];
+  directions: readonly { label: string; value: string }[];
+  contact: readonly { label: string; value: string }[];
+}
+
 export const REQUIRED_BUSINESS_FACT_KEYS = ['phone', 'openingHours'] as const satisfies readonly BusinessFactKey[];
+
+const FACT_LABELS: Readonly<Partial<Record<BusinessFactKey, string>>> = {
+  phone: '연락처',
+  openingHours: '영업시간',
+  address: '주소',
+  parking: '주차',
+  reservation: '예약',
+  paymentMethods: '결제수단',
+  accessibility: '접근성',
+  pets: '반려동물',
+  wifi: '와이파이',
+  directions: '찾아오는 길',
+};
 
 const COMMON_FACT_QUESTIONS: readonly BusinessFactQuestion[] = [
   { key: 'phone', label: '연락처', hint: '손님에게 공개할 전화번호나 문의 채널', placeholder: '예: 02-123-4567', required: true },
@@ -190,6 +227,234 @@ export function resolveGuidedFaqAnswers(
     const answer = answerById.get(question.id);
     return answer ? [{ questionId: question.id, question: question.question, answer }] : [];
   });
+}
+
+/** 고객이 확인한 답변만 키별로 하나씩 남긴다. 마지막 답변 우선은 폼 수정 결과와 같다. */
+export function resolveBusinessFacts(
+  facts: readonly BusinessFactAnswer[],
+): Readonly<Partial<Record<BusinessFactKey, string>>> {
+  const resolved: Partial<Record<BusinessFactKey, string>> = {};
+  for (const fact of facts) {
+    const value = fact.value.trim();
+    if (value) resolved[fact.key] = value;
+  }
+  return resolved;
+}
+
+const BRANDING_BY_GROUP: Record<ContentIndustryGroup, HonestBrandingCopy> = {
+  cafe: {
+    kicker: '머무는 시간의 기준',
+    title: '한 잔을 고르는 순간부터\n편안한 경험으로',
+    heroSub: '메뉴를 고르고 머무는 시간이 편안하도록, 필요한 이야기를 차분히 전합니다.',
+    paragraphs: [
+      '한 잔을 고르는 순간부터 머무는 시간까지, 편안한 경험을 지향합니다.',
+      '메뉴와 방문 정보를 한곳에서 살펴보고 자신에게 맞는 선택을 할 수 있도록 안내합니다.',
+      '가게가 중요하게 생각하는 분위기와 태도를 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '알기 쉬운 안내', description: '메뉴와 방문 정보를 찾기 쉬운 순서로 전하고자 합니다.' },
+      { title: '편안한 선택', description: '서두르지 않고 자신에게 맞는 한 잔과 시간을 고를 수 있기를 바랍니다.' },
+      { title: '한결같은 분위기', description: '가게가 지향하는 인상이 화면과 방문 경험으로 자연스럽게 이어지길 바랍니다.' },
+    ],
+  },
+  food: {
+    kicker: '한 끼를 고르는 기준',
+    title: '메뉴를 만나는 순간부터\n기분 좋은 식사로',
+    heroSub: '무엇을 먹을지 고르는 순간부터 방문까지, 필요한 이야기를 차분히 전합니다.',
+    paragraphs: [
+      '한 끼를 고르는 순간부터 식사를 마치는 시간까지, 편안한 경험을 지향합니다.',
+      '메뉴와 이용 정보를 한곳에서 살펴보고 자신의 취향에 맞게 선택할 수 있도록 안내합니다.',
+      '가게가 중요하게 생각하는 태도와 분위기를 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '분명한 메뉴 안내', description: '이름과 가격, 설명을 한눈에 살펴볼 수 있도록 전하고자 합니다.' },
+      { title: '편안한 선택', description: '방문 전에 궁금한 내용을 확인하고 자신에게 맞는 식사를 고를 수 있기를 바랍니다.' },
+      { title: '이어지는 분위기', description: '화면에서 느낀 인상이 실제 식사의 기대와 자연스럽게 이어지길 바랍니다.' },
+    ],
+  },
+  medical: {
+    kicker: '안심할 수 있는 안내',
+    title: '궁금한 내용을 분명하게\n찾기 쉬운 안내로',
+    heroSub: '필요한 진료 정보를 차분히 살펴보고 다음 행동을 정할 수 있도록 안내합니다.',
+    paragraphs: [
+      '의료 정보를 찾는 순간에는 화려한 표현보다 분명하고 차분한 안내가 중요합니다.',
+      '진료 항목과 예약 방법, 방문 전에 확인할 내용을 찾기 쉬운 순서로 전하고자 합니다.',
+      '확인된 정보만 보여주고, 판단이 필요한 내용은 직접 문의할 수 있도록 돕습니다.',
+    ],
+    principles: [
+      { title: '확인된 정보', description: '고객이 직접 알려준 진료와 이용 정보만 분명하게 전합니다.' },
+      { title: '쉬운 탐색', description: '궁금한 내용을 빠르게 찾고 다음 행동을 정할 수 있도록 구성합니다.' },
+      { title: '차분한 소통', description: '과장 없이 이해하기 쉬운 말로 안내하는 태도를 지향합니다.' },
+    ],
+  },
+  beauty: {
+    kicker: '나에게 맞는 선택',
+    title: '원하는 모습을 고르는 일부터\n편안한 경험으로',
+    heroSub: '시술과 예약 정보를 충분히 살펴보고 자신에게 맞는 선택을 할 수 있도록 안내합니다.',
+    paragraphs: [
+      '변화를 고르는 일은 충분한 정보와 편안한 대화에서 시작된다고 생각합니다.',
+      '시술과 소요시간, 예약 전에 궁금한 내용을 찾기 쉬운 순서로 전하고자 합니다.',
+      '공간이 지향하는 분위기와 태도를 과장 없이 보여드립니다.',
+    ],
+    principles: [
+      { title: '충분한 안내', description: '시술과 이용 정보를 미리 살펴볼 수 있도록 전하고자 합니다.' },
+      { title: '편안한 선택', description: '자신에게 맞는 방향을 서두르지 않고 고를 수 있기를 바랍니다.' },
+      { title: '섬세한 분위기', description: '화면의 인상부터 방문까지 편안한 흐름이 이어지길 바랍니다.' },
+    ],
+  },
+  workshop: {
+    kicker: '만드는 시간의 가치',
+    title: '손으로 만드는 즐거움을\n차분히 만나는 곳',
+    heroSub: '클래스와 준비 정보를 살펴보고 자신에게 맞는 만드는 시간을 고를 수 있도록 안내합니다.',
+    paragraphs: [
+      '직접 만드는 시간에는 결과만큼 과정의 즐거움도 중요합니다.',
+      '클래스와 재료, 준비할 내용을 한곳에서 살펴보고 편안하게 선택할 수 있도록 안내합니다.',
+      '공방이 지향하는 분위기와 태도를 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '과정의 즐거움', description: '처음부터 완성까지 만드는 시간을 편안하게 상상할 수 있도록 돕습니다.' },
+      { title: '분명한 준비', description: '클래스와 재료, 준비 정보를 찾기 쉬운 순서로 전하고자 합니다.' },
+      { title: '나만의 속도', description: '서두르지 않고 자신에게 맞는 경험을 고를 수 있기를 바랍니다.' },
+    ],
+  },
+  education: {
+    kicker: '배움의 다음 걸음',
+    title: '배우는 과정을 이해하고\n나에게 맞는 선택으로',
+    heroSub: '수업과 등록 정보를 충분히 살펴보고 다음 배움을 정할 수 있도록 안내합니다.',
+    paragraphs: [
+      '배움을 고르는 일은 과정과 방향을 이해하는 데서 시작됩니다.',
+      '수업과 일정, 준비할 내용을 한곳에서 살펴보고 자신에게 맞는 선택을 할 수 있도록 안내합니다.',
+      '교육이 지향하는 태도와 기준을 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '이해하기 쉬운 과정', description: '수업의 순서와 준비 정보를 찾기 쉽게 전하고자 합니다.' },
+      { title: '스스로 하는 선택', description: '필요한 정보를 충분히 보고 자신에게 맞는 배움을 고를 수 있기를 바랍니다.' },
+      { title: '꾸준한 방향', description: '짧은 약속보다 배움의 과정을 차분히 안내하는 태도를 지향합니다.' },
+    ],
+  },
+  legal: {
+    kicker: '복잡한 일을 분명하게',
+    title: '어려운 내용을 차분하게\n다음 행동은 분명하게',
+    heroSub: '상담 분야와 준비 정보를 살펴보고 필요한 다음 행동을 정할 수 있도록 안내합니다.',
+    paragraphs: [
+      '복잡한 문제일수록 화려한 표현보다 정확하고 이해하기 쉬운 안내가 중요합니다.',
+      '상담 분야와 준비할 내용을 찾기 쉬운 순서로 전하고자 합니다.',
+      '확인된 정보만 보여주고, 구체적인 판단은 상담으로 이어질 수 있도록 돕습니다.',
+    ],
+    principles: [
+      { title: '분명한 정보', description: '고객이 직접 알려준 상담 분야와 이용 정보만 전합니다.' },
+      { title: '이해하기 쉬운 말', description: '어려운 내용을 처음 보는 사람도 따라갈 수 있도록 안내하고자 합니다.' },
+      { title: '차분한 다음 단계', description: '필요한 내용을 확인하고 상담 여부를 정할 수 있도록 돕습니다.' },
+    ],
+  },
+  retail: {
+    kicker: '취향을 고르는 시간',
+    title: '좋아하는 것을 발견하고\n편안하게 고르는 곳',
+    heroSub: '상품과 구매 정보를 충분히 살펴보고 자신의 취향에 맞게 고를 수 있도록 안내합니다.',
+    paragraphs: [
+      '좋아하는 물건을 발견하고 고르는 시간 자체가 편안한 경험이 되기를 바랍니다.',
+      '상품과 구매 정보를 한곳에서 살펴보고 자신의 취향에 맞게 선택할 수 있도록 안내합니다.',
+      '가게가 지향하는 분위기와 태도를 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '발견의 즐거움', description: '상품을 천천히 살펴보고 취향에 맞는 선택을 할 수 있기를 바랍니다.' },
+      { title: '분명한 안내', description: '상품과 구매 정보를 찾기 쉬운 순서로 전하고자 합니다.' },
+      { title: '이어지는 취향', description: '화면에서 느낀 인상이 실제 선택의 경험으로 자연스럽게 이어지길 바랍니다.' },
+    ],
+  },
+  generic: {
+    kicker: '필요한 정보를 한곳에',
+    title: '무엇을 하는지 분명하게\n선택은 더 편안하게',
+    heroSub: '서비스와 이용 정보를 충분히 살펴보고 자신에게 맞는 다음 행동을 정할 수 있도록 안내합니다.',
+    paragraphs: [
+      '처음 만나는 사람도 무엇을 하는 곳인지 편안하게 이해할 수 있기를 바랍니다.',
+      '서비스와 이용 정보를 한곳에서 살펴보고 자신에게 맞는 선택을 할 수 있도록 안내합니다.',
+      '브랜드가 지향하는 분위기와 태도를 과장 없이 전하고자 합니다.',
+    ],
+    principles: [
+      { title: '알기 쉬운 안내', description: '필요한 정보를 찾기 쉬운 순서로 전하고자 합니다.' },
+      { title: '편안한 선택', description: '충분히 살펴보고 자신에게 맞는 다음 행동을 고를 수 있기를 바랍니다.' },
+      { title: '일관된 인상', description: '브랜드가 지향하는 분위기가 화면 전체에 자연스럽게 이어지길 바랍니다.' },
+    ],
+  },
+};
+
+export function honestBrandingForIndustry(industry: string): HonestBrandingCopy {
+  return BRANDING_BY_GROUP[contentIndustryGroup(industry)];
+}
+
+function customerIntroduction(survey: SurveyInput): string[] {
+  const accepted: string[] = [];
+  if (survey.tagline?.trim()) accepted.push(survey.tagline.trim());
+  const sourceLines = survey.providedContent?.split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line && !/^\[[^\]]+\]$/u.test(line) && line !== survey.businessName) ?? [];
+  for (const line of sourceLines) {
+    if (accepted.includes(line) || line.length > 240) continue;
+    accepted.push(line);
+    if (accepted.length >= 3) break;
+  }
+  return accepted;
+}
+
+function uniqueCustomerGalleryImages(survey: SurveyInput): string[] {
+  const candidates = [
+    ...(survey.storePhotoUrls ?? []),
+    ...(survey.contentItems ?? []).flatMap((item) => item.photoUrl ? [item.photoUrl] : []),
+    ...(survey.importedPhotoAssetRefs ?? []).map((asset) => asset.url),
+  ];
+  return [...new Set(candidates.map((url) => url.trim()).filter(Boolean))].slice(0, 8);
+}
+
+/**
+ * CONTENT v1의 홈 모델. 입력 사실과 고객 원문은 그대로 소비하고, 빈 슬롯은 만들지 않는다.
+ * 나머지 문장은 검증 가능한 성과가 아니라 태도·탐색 경험만 말하는 고정 카탈로그다.
+ */
+export function buildContentDepthHomeModel(survey: SurveyInput): ContentDepthHomeModel {
+  const facts = resolveBusinessFacts(survey.contentDepth?.facts ?? []);
+  const branding = honestBrandingForIndustry(survey.industry);
+  const customerStrengths = (survey.highlights ?? []).map((item) => item.trim()).filter(Boolean).slice(0, 3);
+  const strengths = customerStrengths.length > 0
+    ? customerStrengths.map((title) => ({
+        title,
+        description: `사장님이 직접 알려주신 ‘${title}’을 중심으로 소개합니다.`,
+      }))
+    : [...branding.principles];
+  const contentItems = (survey.contentItems ?? [])
+    .map((item) => ({
+      name: item.name.trim(),
+      ...(item.price?.trim() ? { price: item.price.trim() } : {}),
+      ...(item.description?.trim() ? { description: item.description.trim() } : {}),
+    }))
+    .filter((item) => item.name);
+  const factRow = (key: BusinessFactKey): { label: string; value: string }[] => {
+    const label = FACT_LABELS[key];
+    const value = facts[key];
+    return label && value ? [{ label, value }] : [];
+  };
+  return {
+    branding,
+    customerIntroduction: customerIntroduction(survey),
+    strengths,
+    contentItems,
+    galleryImages: uniqueCustomerGalleryImages(survey),
+    faq: resolveGuidedFaqAnswers(survey.industry, survey.contentDepth?.faqAnswers ?? [])
+      .map(({ question, answer }) => ({ question, answer })),
+    directions: [
+      ...factRow('address'),
+      ...factRow('directions'),
+      ...factRow('parking'),
+      ...factRow('accessibility'),
+    ],
+    contact: [
+      ...factRow('phone'),
+      ...factRow('openingHours'),
+      ...factRow('reservation'),
+      ...factRow('paymentMethods'),
+      ...factRow('pets'),
+      ...factRow('wifi'),
+    ],
+  };
 }
 
 export function missingRequiredFacts(facts: readonly BusinessFactAnswer[]): BusinessFactKey[] {

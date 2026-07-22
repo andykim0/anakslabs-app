@@ -31,7 +31,11 @@ import { buildNarrativeArc } from './narrative-arc';
 import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion/scrollytelling';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
-import { resolveGuidedFaqAnswers } from '@/lib/content/content-depth';
+import {
+  buildContentDepthHomeModel,
+  contentIndustryGroup,
+  resolveGuidedFaqAnswers,
+} from '@/lib/content/content-depth';
 import { pickButtonTextColor } from '@/lib/design/button-contrast';
 import {
   generatedTextRoleFor,
@@ -361,10 +365,16 @@ function buildHero(ctx: Ctx): Section {
   const { theme, survey, opts } = ctx;
   // [Q1] 히어로는 이미지 배경 위 텍스트 — 최악 배경 가정 스크림으로 AA 보장(고정 opacity 폐기).
   const scrim = resolveScrim(theme.palette);
-  const copy = opts.copy ?? {};
-  const title = copy.heroTitle ?? toneHeadline(toneText(survey.tone), survey.businessName);
+  // CONTENT v1에서는 LLM 카피를 소비하지 않는다. 이름·고객 태그라인·검증 불필요 태도 카탈로그만 사용한다.
+  const depthModel = survey.contentDepth ? buildContentDepthHomeModel(survey) : null;
+  const copy = depthModel ? {} : (opts.copy ?? {});
+  const title = depthModel
+    ? `${survey.businessName}\n${depthModel.branding.title.split('\n')[0]}`
+    : copy.heroTitle ?? toneHeadline(toneText(survey.tone), survey.businessName);
   // [§7] 태그라인이 있으면 히어로 서브카피로 사용. [D2] 없으면 톤 기반 2문장(‘상호·업종’ 한 줄 탈피).
-  const sub = copy.heroSub ?? survey.tagline ?? toneHeroSub(toneText(survey.tone), survey.industry, survey.businessName);
+  const sub = depthModel
+    ? survey.tagline ?? depthModel.branding.heroSub
+    : copy.heroSub ?? survey.tagline ?? toneHeroSub(toneText(survey.tone), survey.industry, survey.businessName);
   const kicker = copy.heroKicker ?? survey.purpose;
   // [D2/H1] 고객이 실제로 입력한 자랑거리만 소형 태그로 노출한다.
   const chips = heroChips(survey);
@@ -377,7 +387,9 @@ function buildHero(ctx: Ctx): Section {
   const ctaTarget = goalDef?.sectionEmphasis.find(
     (t) => t !== 'hero' && (t === 'contact' || survey.sectionPlan.filter((i) => i.type === t).length === 1),
   );
-  const ctaHref = ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
+  const ctaHref = depthModel
+    ? depthModel.contact.length > 0 ? '#sec-contact' : '#sec-about'
+    : ctaTarget && ctaTarget !== 'contact' ? `#sec-${ctaTarget}` : '#sec-contact';
 
   const elements: Section['elements'] = [];
   // [§7] 로고 업로드 시 히어로 좌상단에 배치
@@ -456,7 +468,7 @@ function buildHero(ctx: Ctx): Section {
       z: 4,
       label: '더 알아보기',
       // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
-      href: (() => {
+      href: depthModel ? '#sec-about' : (() => {
         const aboutish = (['about', 'features', 'menu', 'gallery'] as SectionType[]).find(
           (t) => survey.sectionPlan.filter((i) => i.type === t).length === 1,
         );
@@ -2003,6 +2015,227 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
   };
 }
 
+/** 신규 CONTENT v1 홈은 고객 사실·고객 문구·태도 카탈로그만 소비한다. */
+function buildContentDepthHomeSections(ctx: Ctx): Section[] {
+  const { theme, survey } = ctx;
+  const model = buildContentDepthHomeModel(survey);
+  const sections: Section[] = [];
+  const aboutBody = [...model.customerIntroduction, ...model.branding.paragraphs];
+
+  sections.push({
+    id: 'sec-about',
+    type: 'about',
+    name: '소개',
+    height: 680,
+    background: { color: theme.palette.background },
+    elements: [
+      {
+        id: nextId(ctx, 'el-depth-about-kicker'), kind: 'text',
+        frame: { x: 122, y: 104, w: 420, h: 24 }, z: 2,
+        text: model.branding.kicker,
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      {
+        id: nextId(ctx, 'el-depth-about-title'), kind: 'text',
+        frame: { x: 116, y: 154, w: 520, h: 180 }, z: 2,
+        text: model.branding.title,
+        style: { fontSize: 48, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.35 },
+      },
+      {
+        id: nextId(ctx, 'el-depth-about-source'), kind: 'text',
+        frame: { x: 120, y: 370, w: 470, h: 68 }, z: 2,
+        text: model.customerIntroduction.length > 0
+          ? '사장님이 확인한 소개와 가게가 지향하는 태도를 함께 담았습니다.'
+          : '확인되지 않은 이력이나 수치를 보태지 않고, 가게가 지향하는 태도만 담았습니다.',
+        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
+      },
+      {
+        id: nextId(ctx, 'el-depth-about-body'), kind: 'text',
+        frame: { x: 720, y: 142, w: 600, h: 410 }, z: 2,
+        text: aboutBody.join('\n\n'),
+        style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.9 },
+      },
+    ],
+  });
+
+  const strengthElements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-depth-strength-kicker'), kind: 'text',
+      frame: { x: 122, y: 100, w: 360, h: 22 }, z: 2,
+      text: '중요하게 생각하는 것',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+    },
+    titleEl(ctx, '세 가지 방향', 142),
+  ];
+  model.strengths.forEach((strength, index) => {
+    const x = 120 + index * 420;
+    strengthElements.push(
+      {
+        id: nextId(ctx, 'el-depth-strength-number'), kind: 'text',
+        frame: { x, y: 300, w: 90, h: 48 }, z: 2, text: `0${index + 1}`,
+        style: { fontSize: 30, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-depth-strength-title'), kind: 'text',
+        frame: { x, y: 374, w: 360, h: 68 }, z: 2, text: strength.title,
+        style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.45 },
+      },
+      {
+        id: nextId(ctx, 'el-depth-strength-body'), kind: 'text',
+        frame: { x, y: 466, w: 360, h: 112 }, z: 2, text: strength.description,
+        style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.8 },
+      },
+    );
+  });
+  sections.push({
+    id: 'sec-features', type: 'features', name: '강점', height: 680,
+    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
+    elements: strengthElements,
+  });
+
+  if (model.contentItems.length > 0) {
+    const group = contentIndustryGroup(survey.industry);
+    const title = group === 'cafe' || group === 'food' ? '메뉴 자세히 보기'
+      : group === 'education' || group === 'workshop' ? '수업·클래스 자세히 보기'
+        : '서비스 자세히 보기';
+    const elements: CanvasElement[] = [
+      {
+        id: nextId(ctx, 'el-depth-menu-kicker'), kind: 'text',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2,
+        text: '사장님이 알려주신 구성',
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      titleEl(ctx, title, 138),
+    ];
+    model.contentItems.slice(0, 14).forEach((item, index) => {
+      const y = 252 + index * 112;
+      elements.push({
+        id: nextId(ctx, 'el-depth-menu-name'), kind: 'text',
+        frame: { x: 120, y, w: 520, h: 38 }, z: 2, text: item.name,
+        style: { fontSize: 23, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
+      });
+      if (item.description) elements.push({
+        id: nextId(ctx, 'el-depth-menu-description'), kind: 'text',
+        frame: { x: 120, y: y + 44, w: 780, h: 42 }, z: 2, text: item.description,
+        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.65 },
+      });
+      if (item.price) elements.push({
+        id: nextId(ctx, 'el-depth-menu-price'), kind: 'text',
+        frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}원`,
+        style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
+      });
+      elements.push({
+        id: nextId(ctx, 'el-depth-menu-divider'), kind: 'divider',
+        frame: { x: 120, y: y + 92, w: 1200, h: 1 }, z: 1,
+        style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
+      });
+    });
+    sections.push({
+      id: 'sec-menu', type: 'menu', name: '메뉴·서비스',
+      height: 252 + Math.min(14, model.contentItems.length) * 112 + 44,
+      background: { color: theme.palette.background }, elements,
+    });
+  }
+
+  if (model.galleryImages.length > 0) {
+    const elements: CanvasElement[] = [
+      {
+        id: nextId(ctx, 'el-depth-gallery-kicker'), kind: 'text',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2,
+        text: '사장님이 확인한 사진',
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      titleEl(ctx, '사진으로 둘러보기', 138),
+    ];
+    model.galleryImages.slice(0, 6).forEach((src, index) => {
+      elements.push({
+        id: nextId(ctx, 'el-depth-gallery-image'), kind: 'image',
+        frame: { x: 120 + (index % 3) * 420, y: 252 + Math.floor(index / 3) * 300, w: 380, h: 260 },
+        z: 2, src, alt: `${survey.businessName} 고객 제공 사진 ${index + 1}`,
+        style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+      });
+    });
+    sections.push({
+      id: 'sec-gallery', type: 'gallery', name: '갤러리',
+      height: 252 + Math.ceil(Math.min(6, model.galleryImages.length) / 3) * 300 + 40,
+      background: { color: ctx.dark ? theme.palette.surface : theme.palette.background }, elements,
+    });
+  }
+
+  if (model.faq.length > 0) {
+    const faq = buildFaq(ctx, { type: 'faq', name: '자주 묻는 질문', brief: '', source: 'template', pageSlug: '' });
+    faq.id = 'sec-faq';
+    faq.name = '자주 묻는 질문';
+    sections.push(faq);
+  }
+
+  if (model.directions.length > 0) {
+    const elements: CanvasElement[] = [
+      {
+        id: nextId(ctx, 'el-depth-directions-kicker'), kind: 'text',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: '방문 전에 확인하세요',
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      titleEl(ctx, '오시는 길', 138),
+    ];
+    model.directions.forEach((row, index) => {
+      const y = 252 + index * 84;
+      elements.push(
+        {
+          id: nextId(ctx, 'el-depth-directions-label'), kind: 'text',
+          frame: { x: 120, y, w: 220, h: 24 }, z: 2, text: row.label,
+          style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 2 },
+        },
+        {
+          id: nextId(ctx, 'el-depth-directions-value'), kind: 'text',
+          frame: { x: 360, y: y - 3, w: 920, h: 54 }, z: 2, text: row.value,
+          style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: theme.palette.text, align: 'left', lineHeight: 1.7 },
+        },
+      );
+    });
+    sections.push({
+      id: 'sec-contact-directions', type: 'contact', name: '오시는 길',
+      height: 252 + model.directions.length * 84 + 50,
+      background: { color: theme.palette.background }, elements,
+    });
+  }
+
+  if (model.contact.length > 0) {
+    const elements: CanvasElement[] = [
+      {
+        id: nextId(ctx, 'el-depth-contact-kicker'), kind: 'text',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: '연락과 이용 안내',
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      titleEl(ctx, `${survey.businessName}에 문의하기`, 138),
+    ];
+    model.contact.forEach((row, index) => {
+      const x = 120 + (index % 2) * 620;
+      const y = 260 + Math.floor(index / 2) * 112;
+      elements.push(
+        {
+          id: nextId(ctx, 'el-depth-contact-label'), kind: 'text',
+          frame: { x, y, w: 240, h: 22 }, z: 2, text: row.label,
+          style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 2 },
+        },
+        {
+          id: nextId(ctx, 'el-depth-contact-value'), kind: 'text',
+          frame: { x, y: y + 32, w: 560, h: 58 }, z: 2, text: row.value,
+          style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: theme.palette.text, align: 'left', lineHeight: 1.7 },
+        },
+      );
+    });
+    const height = 260 + Math.ceil(model.contact.length / 2) * 112 + 120;
+    elements.push(footerEl(ctx, height - 52));
+    sections.push({
+      id: 'sec-contact', type: 'contact', name: '문의', height,
+      background: { color: ctx.dark ? theme.palette.surface : theme.palette.background }, elements,
+    });
+  }
+
+  return sections;
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx, item: SectionPlanItem) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -2077,6 +2310,8 @@ export function buildSiteConfigFromSurvey(
     ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
     : null;
   const deduped = plan.filter((item) => {
+    // 신규 CONTENT v1은 아래 전용 홈 빌더가 소유한다. 레거시 샘플 후기·수치·경력을 섞지 않는다.
+    if (survey.contentDepth && item.type !== 'hero') return false;
     if (item.type === 'faq' && guidedFaqItems?.length === 0) return false;
     if (item.type === 'custom') return true;
     const key = `${item.type}|${item.variant ?? ''}`;
@@ -2111,6 +2346,14 @@ export function buildSiteConfigFromSurvey(
     section.id = uniqueId;
     return { section, pageSlug: item.pageSlug ?? '' };
   });
+
+  if (survey.contentDepth) {
+    for (const section of buildContentDepthHomeSections(ctx)) {
+      if (usedIds.has(section.id)) throw new Error(`CONTENT v1 section id collision: ${section.id}`);
+      usedIds.add(section.id);
+      built.push({ section, pageSlug: '' });
+    }
+  }
 
   // [v3 Phase 3] 앵커 재해소 — contact가 variant id(sec-contact-map/-form)로 갈라져
   // 'sec-contact'가 없으면, 빌더가 만든 '#sec-contact' href를 첫 contact 섹션 id로 교체.
