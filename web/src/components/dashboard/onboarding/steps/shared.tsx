@@ -102,7 +102,7 @@ export type SurveyForm = z.infer<typeof surveyFormSchema>;
 /** 각 스텝을 떠날 때 검증할 필수 필드 (나머지는 선택·수동 검증) */
 export const STEP_REQUIRED_FIELDS: Record<number, (keyof SurveyForm)[]> = {
   1: [],
-  2: ['purposeId', 'businessName', 'industry'],
+  2: ['purposeId', 'businessName', 'industry', 'region'],
   3: [],
   4: [],
   5: [],

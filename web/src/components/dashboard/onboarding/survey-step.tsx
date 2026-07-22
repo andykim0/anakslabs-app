@@ -32,6 +32,7 @@ import {
 } from '@/lib/assets/image-directions';
 import { styleIdsForSamples } from '@/lib/design/reference-samples';
 import { defaultImageStyle } from '@/lib/onboarding/image-style';
+import { missingRequiredFacts } from '@/lib/content/content-depth';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { useToast } from '../toast';
 import { cn } from '../ui';
@@ -120,7 +121,16 @@ export function SurveyStep({
       const ok = await trigger(required);
       if (!ok) return;
     }
+    if (step === 2 && !(getValues('region') ?? '').trim()) {
+      toast('info', '지역을 입력해 주세요.');
+      return;
+    }
     if (step === 3) {
+      const missingFacts = missingRequiredFacts(getValues('factualAnswers') ?? []);
+      if (missingFacts.length) {
+        toast('info', '연락처와 영업시간을 입력해 주세요.');
+        return;
+      }
       const pid = ((getValues('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
       const items = (getValues('contentItems') ?? []).filter((i) => i.name?.trim());
       if (!contentGateStatus(pid, items.length).ok) {
@@ -236,16 +246,12 @@ export function SurveyStep({
       referenceStyleIds: values.moodIds.length ? styleIdsForSamples(values.moodIds) : undefined,
       referenceDesignId: clean(values.referenceDesignId),
       existingPresence: presence.length ? presence : undefined,
-      ...(factualAnswers.length || faqAnswers.length || importedContentSources.length
-        ? {
-            contentDepth: {
-              version: 1 as const,
-              facts: factualAnswers,
-              faqAnswers,
-              imports: importedContentSources,
-            },
-          }
-        : {}),
+      contentDepth: {
+        version: 1 as const,
+        facts: factualAnswers,
+        faqAnswers,
+        imports: importedContentSources,
+      },
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,
       region: clean(values.region),

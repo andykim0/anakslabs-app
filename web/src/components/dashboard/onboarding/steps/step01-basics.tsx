@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * S1 무엇을 하는 곳인가요 — 목적(4묶음+특수) → 업종(칩/자유입력) → 상호명 → 지역(선택) → 한 줄 소개(선택).
+ * S2 무엇을 하는 곳인가요 — 목적 → 업종 → 상호명 → 지역 → 한 줄 소개.
  */
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -121,11 +121,8 @@ export function Step01Basics() {
       </Field>
 
       <Field
-        label={
-          <>
-            지역 <span className="font-normal text-ob-muted">(선택)</span>
-          </>
-        }
+        label={<>지역 <span className="text-ob-danger">*</span></>}
+        error={errors.region?.message}
         hint="동네·도시를 적어주시면 지역 손님을 겨냥한 문구에 반영돼요."
       >
         <input {...register('region')} placeholder="예: 서울 성수동, 부산 해운대" className={obInput} />

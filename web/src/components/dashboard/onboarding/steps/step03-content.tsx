@@ -7,8 +7,9 @@
  */
 import { useRef, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { ImagePlus, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
+import { CheckCircle2, ImagePlus, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
 import type { LivePurposeId } from '@/lib/types/domain';
+import { factQuestionsForIndustry } from '@/lib/content/content-depth';
 import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { cn } from '../../ui';
 import { extractMenuFromImage, uploadImage, uploadImageWithAssetRef } from '../../api';
@@ -137,6 +138,7 @@ export function Step03Content() {
   const { importedBadge } = useSurveyUx();
 
   const purposeId = ((watch('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
+  const industry = watch('industry') ?? '';
   const req = requirementOf(purposeId);
   const itemLabel = req.itemLabel;
   const showPrice = req.fields.price !== 'hidden';
@@ -146,6 +148,22 @@ export function Step03Content() {
   const watchedItems = watch('contentItems') ?? [];
   const filledCount = watchedItems.filter((it) => (it?.name ?? '').trim().length > 0).length;
   const gate = contentGateStatus(purposeId, filledCount);
+  const factualAnswers = watch('factualAnswers') ?? [];
+  const factQuestions = factQuestionsForIndustry(industry);
+  const factsByKey = new Map(factualAnswers.map((answer) => [answer.key, answer]));
+  const answeredFactCount = factQuestions.filter((question) => factsByKey.get(question.key)?.value.trim()).length;
+  const factProgress = Math.round((answeredFactCount / factQuestions.length) * 100);
+
+  const setFactAnswer = (key: (typeof factQuestions)[number]['key'], value: string) => {
+    const next = [...(getValues('factualAnswers') ?? [])];
+    const index = next.findIndex((answer) => answer.key === key);
+    if (index >= 0) {
+      next[index] = { key, value, source: 'customer' };
+    } else {
+      next.push({ key, value, source: 'customer' });
+    }
+    setValue('factualAnswers', next, { shouldValidate: false });
+  };
 
   const removeItem = (index: number) => {
     const removedRef = watchedItems[index]?.photoAssetRef;
@@ -224,8 +242,68 @@ export function Step03Content() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        실제 {josa(itemLabel, '이', '가')} 있어야 네이버·AI 검색에 나옵니다. 없는 정보는 지어내지 않아요.
+        실제 정보를 많이 알려주실수록 손님과 검색이 읽을 내용이 풍부해져요. 답하지 않은 내용은 지어내지 않습니다.
       </StepIntro>
+
+      <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="factual-interview-title">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 id="factual-interview-title" className="text-[17px] font-semibold text-ob-ink">
+              가게 사실을 알려주세요
+            </h3>
+            <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
+              연락처와 영업시간만 필수예요. 나머지는 있으면 답하고, 없으면 건너뛰세요.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full bg-ob-accent-soft px-3 py-1.5 text-[12px] font-medium text-ob-accent-strong">
+            {answeredFactCount}/{factQuestions.length}개 답변
+          </span>
+        </div>
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-ob-bg" aria-hidden="true">
+          <span
+            className="block h-full rounded-full bg-ob-accent-strong transition-[width] duration-300"
+            style={{ width: `${factProgress}%` }}
+          />
+        </div>
+        <p className="mt-2 inline-flex items-center gap-1.5 text-[12px] leading-relaxed text-ob-muted">
+          <CheckCircle2 className="h-3.5 w-3.5 text-ob-accent-strong" aria-hidden="true" />
+          답할수록 내 홈페이지에 사실 기반 안내와 섹션이 더해져요.
+        </p>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {factQuestions.map((question) => {
+            const answer = factsByKey.get(question.key);
+            return (
+              <Field
+                key={question.key}
+                label={
+                  <>
+                    {question.label}{' '}
+                    {question.required ? (
+                      <span className="text-ob-danger">*</span>
+                    ) : (
+                      <span className="font-normal text-ob-muted">(선택)</span>
+                    )}
+                  </>
+                }
+                hint={question.hint}
+              >
+                <input
+                  value={answer?.value ?? ''}
+                  onChange={(event) => setFactAnswer(question.key, event.target.value)}
+                  placeholder={question.placeholder}
+                  className={obInput}
+                />
+                {answer?.source === 'customer_import' ? (
+                  <span className="mt-1.5 block text-[11px] font-medium text-ob-accent-strong">
+                    기존 채널에서 가져온 내용 · 확인하고 고쳐주세요
+                  </span>
+                ) : null}
+              </Field>
+            );
+          })}
+        </div>
+      </section>
 
       {/* ── 구조화 항목 입력 ── */}
       <div className="space-y-3">
