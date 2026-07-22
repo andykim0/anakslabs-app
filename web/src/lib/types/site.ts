@@ -4,6 +4,7 @@
  * 에디터(components/editor)와 렌더러(components/site-renderer)가 공유하는 단일 진실.
  */
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
+import type { DesignDnaSelection } from '@/lib/design/dna/types';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -615,6 +616,8 @@ export interface SectionDirection {
 export interface SiteConfig {
   version: 2;
   theme: SiteTheme;
+  /** DNA rollout ON에서 고른 카탈로그 id·hue·enum override. 재렌더 시 재선택하지 않는 핀. */
+  designDna?: DesignDnaSelection;
   meta: SiteMeta;
   pages: SitePage[];
   /**

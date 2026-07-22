@@ -172,7 +172,7 @@ describe('DNA pipeline static invariants', () => {
     assert.doesNotMatch(dnaSources, /\b[\w$]*(?:hex|px)[\w$]*\??\s*:/iu);
   });
 
-  test('DNA2 선택 분기는 기본 OFF이며 SiteConfig 배선은 E2 전까지 열리지 않는다', () => {
+  test('DNA2 선택 분기는 기본 OFF이며 SiteConfig 핀은 additive 계약이다', () => {
     const candidateSource = readFileSync(
       resolve(process.cwd(), 'src/lib/data/design-candidates.ts'),
       'utf8',
@@ -180,6 +180,6 @@ describe('DNA pipeline static invariants', () => {
     const siteSource = readFileSync(resolve(process.cwd(), 'src/lib/types/site.ts'), 'utf8');
     assert.match(candidateSource, /dnaPipelineEnabled/iu);
     assert.match(candidateSource, /if \(!enabled\) return buildCandidateBlueprints\(survey\)/u);
-    assert.doesNotMatch(siteSource, /designDna/iu);
+    assert.match(siteSource, /designDna\?: DesignDnaSelection/u);
   });
 });

@@ -33,7 +33,9 @@ import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import {
   designDnaById,
   dnaPipelineEnabled,
+  expandTokens,
   selectDesignDnaCandidates,
+  tokenSetToSiteTheme,
   type DesignDnaSelection,
   type DnaSelectionToolInvoker,
 } from '@/lib/design/dna';
@@ -209,9 +211,11 @@ export function buildCandidateBlueprints(
   return briefs.map((brief, index) => {
     // 공유 StyleDirection을 변형하지 않도록 candidateStyle만 imageStyle로 덮은 복사본을 만든다.
     const styled: DesignBrief = { ...brief, style: { ...brief.style, candidateStyle: imageStyle } };
-    const theme = themeForBrief(survey, brief);
     const designDna = dnaSelections[index];
     const dna = designDna ? designDnaById(designDna.dnaId) : undefined;
+    const theme = designDna
+      ? tokenSetToSiteTheme(expandTokens(designDna.dnaId, designDna.hueSeed, designDna.overrides))
+      : themeForBrief(survey, brief);
     return {
       id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
       label: dna?.description.split(' — ')[0] ?? brief.label,

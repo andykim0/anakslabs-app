@@ -670,6 +670,7 @@ export const siteConfigSchema = z
   .object({
     version: z.literal(2),
     theme: siteThemeSchema,
+    designDna: designDnaSelectionSchema.optional(),
     meta: siteMetaSchema,
     pages: z.array(sitePageSchema).min(1, '페이지가 최소 1개 필요합니다.'),
     assetRefs: z.array(assetRefSchema).max(100).optional(),

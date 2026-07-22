@@ -2156,6 +2156,9 @@ export function buildSiteConfigFromSurvey(
   return {
     version: 2,
     theme,
+    ...(candidate.designDna
+      ? { designDna: { ...candidate.designDna, overrides: { ...candidate.designDna.overrides } } }
+      : {}),
     meta: {
       title: region
         ? `${survey.businessName} — ${survey.industry} · ${region}`

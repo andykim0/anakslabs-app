@@ -3,4 +3,5 @@ export * from './color';
 export * from './expand-tokens';
 export * from './flags';
 export * from './selection';
+export * from './site-theme-adapter';
 export * from './types';
