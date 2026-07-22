@@ -244,12 +244,25 @@ export interface ImportedContentSource {
   fields: string[];
 }
 
+/**
+ * MAIN v1 opt-in. Every sentence is optional customer-authored source material.
+ * Missing values authorize only the fixed, non-factual attitude copy catalog.
+ */
+export interface MainStorytellingInput {
+  version: 1;
+  brandStory?: string;
+  origin?: string;
+  philosophy?: string;
+}
+
 /** Additive gate: configs built from surveys without this field retain the legacy output. */
 export interface ContentDepthInput {
   version: 1;
   facts: BusinessFactAnswer[];
   faqAnswers: GuidedFaqAnswer[];
   imports: ImportedContentSource[];
+  /** Additive MAIN contract. Missing means the CONTENT v1 single-page render stays unchanged. */
+  mainStorytelling?: MainStorytellingInput;
 }
 
 /** [v4] 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선 */

@@ -187,3 +187,29 @@ test('대표 카페 시드의 인덱싱 본문은 얇은 레거시 홈보다 최
   })).replace(/\s/gu, '');
   assert.ok(rich.length >= shallow.length * 3, `${shallow.length} → ${rich.length}`);
 });
+
+test('MAIN opt-in은 고객 실제 이야기를 중심으로 소개를 두껍게 하고 철학을 별도 흐름으로 잇는다', () => {
+  const before = richSurvey();
+  const after = richSurvey();
+  after.contentDepth!.mainStorytelling = {
+    version: 1,
+    brandStory: '온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음을 담았습니다.',
+    origin: '동네에서 오래 머물 수 있는 작은 공간을 직접 꾸리고 싶어 시작했습니다.',
+    philosophy: '메뉴를 고르는 순간부터 자리를 나설 때까지 편안한 결을 지키고 싶습니다.',
+  };
+  const beforeConfig = buildSiteConfigFromSurvey(before, candidate, opts);
+  const afterConfig = buildSiteConfigFromSurvey(after, candidate, opts);
+  const storyText = (config: typeof afterConfig) => config.pages[0].sections
+    .filter((section) => section.id === 'sec-about' || section.id === 'sec-features')
+    .flatMap((section) => section.elements)
+    .flatMap((element) => element.kind === 'text' ? [element.text] : [])
+    .join(' ');
+  const afterText = storyText(afterConfig);
+  assert.match(afterText, /온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음/);
+  assert.match(afterText, /동네에서 오래 머물 수 있는 작은 공간을 직접 꾸리고 싶어 시작/);
+  assert.match(afterText, /메뉴를 고르는 순간부터 자리를 나설 때까지 편안한 결/);
+  assert.ok(afterText.replace(/\s/gu, '').length > storyText(beforeConfig).replace(/\s/gu, '').length);
+  assert.deepEqual(afterConfig.pages[0].sections.slice(0, 3).map((section) => section.id), [
+    'sec-hero', 'sec-about', 'sec-features',
+  ]);
+});

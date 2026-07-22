@@ -33,6 +33,7 @@ import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
 import {
   buildContentDepthHomeModel,
+  buildMainStorytellingModel,
   contentIndustryGroup,
   resolveGuidedFaqAnswers,
 } from '@/lib/content/content-depth';
@@ -2236,6 +2237,103 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
   return sections;
 }
 
+function narrativeTextHeight(paragraphs: readonly string[]): number {
+  const lines = paragraphs.reduce((total, paragraph) => total + Math.max(1, Math.ceil(paragraph.length / 38)), 0);
+  return Math.max(420, lines * 35 + Math.max(0, paragraphs.length - 1) * 22);
+}
+
+/** MAIN v1 상단. 신규 opt-in만 CONTENT 소개·강점 두 섹션을 스토리→철학 흐름으로 교체한다. */
+function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
+  const { theme, survey } = ctx;
+  const model = buildMainStorytellingModel(survey);
+  const legacy = buildContentDepthHomeSections(ctx);
+  const bodyHeight = narrativeTextHeight(model.paragraphs);
+  const storyHeight = Math.max(760, 170 + bodyHeight + 100);
+  const story: Section = {
+    id: 'sec-about',
+    type: 'about',
+    name: '브랜드 스토리',
+    height: storyHeight,
+    background: { color: theme.palette.background },
+    elements: [
+      {
+        id: nextId(ctx, 'el-main-story-kicker'), kind: 'text',
+        frame: { x: 122, y: 104, w: 420, h: 24 }, z: 2,
+        text: model.kicker,
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+      },
+      {
+        id: nextId(ctx, 'el-main-story-title'), kind: 'text',
+        frame: { x: 116, y: 154, w: 520, h: 220 }, z: 2,
+        text: model.title,
+        style: { fontSize: 48, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.35 },
+      },
+      {
+        id: nextId(ctx, 'el-main-story-lead'), kind: 'text',
+        frame: { x: 120, y: 410, w: 470, h: 110 }, z: 2,
+        text: model.hasCustomerStory
+          ? '처음 품었던 마음과 지금 지향하는 태도가 한 흐름으로 이어집니다.'
+          : '지어낸 이력 대신, 이 공간이 지향하는 태도와 경험을 이야기합니다.',
+        style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.8 },
+      },
+      {
+        id: nextId(ctx, 'el-main-story-body'), kind: 'text',
+        frame: { x: 720, y: 142, w: 600, h: bodyHeight }, z: 2,
+        text: model.paragraphs.join('\n\n'),
+        style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.9 },
+      },
+    ],
+  };
+
+  const valueElements: CanvasElement[] = [
+    {
+      id: nextId(ctx, 'el-main-values-kicker'), kind: 'text',
+      frame: { x: 122, y: 100, w: 380, h: 22 }, z: 2,
+      text: '가치 · 철학 · 지향',
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
+    },
+    {
+      id: nextId(ctx, 'el-main-values-title'), kind: 'text',
+      frame: { x: 116, y: 142, w: 520, h: 130 }, z: 2,
+      text: '우리가 중요하게\n생각하는 것',
+      style: { fontSize: 45, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.35 },
+    },
+    {
+      id: nextId(ctx, 'el-main-values-lead'), kind: 'text',
+      frame: { x: 720, y: 146, w: 600, h: Math.max(110, Math.ceil(model.valuesLead.length / 42) * 34) }, z: 2,
+      text: model.valuesLead,
+      style: { fontSize: 21, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.7 },
+    },
+  ];
+  model.values.forEach((value, index) => {
+    const x = 120 + index * 420;
+    valueElements.push(
+      {
+        id: nextId(ctx, 'el-main-value-number'), kind: 'text',
+        frame: { x, y: 356, w: 90, h: 44 }, z: 2, text: `0${index + 1}`,
+        style: { fontSize: 28, fontWeight: 400, fontFamily: 'heading', color: theme.palette.primary, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-main-value-title'), kind: 'text',
+        frame: { x, y: 420, w: 360, h: 68 }, z: 2, text: value.title,
+        style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.45 },
+      },
+      {
+        id: nextId(ctx, 'el-main-value-body'), kind: 'text',
+        frame: { x, y: 504, w: 360, h: 126 }, z: 2, text: value.description,
+        style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.8 },
+      },
+    );
+  });
+  const values: Section = {
+    id: 'sec-features', type: 'features', name: '가치와 철학', height: 720,
+    background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
+    elements: valueElements,
+  };
+
+  return [story, values, ...legacy.slice(2)];
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx, item: SectionPlanItem) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -2348,7 +2446,10 @@ export function buildSiteConfigFromSurvey(
   });
 
   if (survey.contentDepth) {
-    for (const section of buildContentDepthHomeSections(ctx)) {
+    const sections = survey.contentDepth.mainStorytelling
+      ? buildMainStorytellingHomeSections(ctx)
+      : buildContentDepthHomeSections(ctx);
+    for (const section of sections) {
       if (usedIds.has(section.id)) throw new Error(`CONTENT v1 section id collision: ${section.id}`);
       usedIds.add(section.id);
       built.push({ section, pageSlug: '' });

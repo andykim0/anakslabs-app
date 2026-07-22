@@ -990,6 +990,12 @@ export const surveySchema = z.object({
       extractedAt: z.string().datetime(),
       fields: z.array(z.string().min(1).max(80)).max(40),
     })).max(5),
+    mainStorytelling: z.object({
+      version: z.literal(1),
+      brandStory: z.string().min(1).max(2000).optional(),
+      origin: z.string().min(1).max(2000).optional(),
+      philosophy: z.string().min(1).max(2000).optional(),
+    }).optional(),
   }).optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
   siteGoal: z.enum(['call', 'reserve', 'directions', 'kakao_inquiry', 'trust']).optional(),

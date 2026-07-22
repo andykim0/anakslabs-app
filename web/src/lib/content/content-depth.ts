@@ -53,6 +53,15 @@ export interface ContentDepthHomeModel {
   contact: readonly { label: string; value: string }[];
 }
 
+export interface MainStorytellingModel {
+  kicker: string;
+  title: string;
+  paragraphs: readonly string[];
+  hasCustomerStory: boolean;
+  valuesLead: string;
+  values: readonly { title: string; description: string }[];
+}
+
 export const REQUIRED_BUSINESS_FACT_KEYS = ['phone', 'openingHours'] as const satisfies readonly BusinessFactKey[];
 
 const FACT_LABELS: Readonly<Partial<Record<BusinessFactKey, string>>> = {
@@ -381,6 +390,82 @@ const BRANDING_BY_GROUP: Record<ContentIndustryGroup, HonestBrandingCopy> = {
 
 export function honestBrandingForIndustry(industry: string): HonestBrandingCopy {
   return BRANDING_BY_GROUP[contentIndustryGroup(industry)];
+}
+
+const STORY_CONTINUATION_BY_GROUP: Record<ContentIndustryGroup, readonly string[]> = {
+  cafe: [
+    '한 잔을 고르고 머무는 시간이 서두르지 않아도 되는 경험이기를 바랍니다.',
+    '메뉴를 만나는 순간부터 자리를 나서는 순간까지 편안한 결이 이어지길 지향합니다.',
+  ],
+  food: [
+    '무엇을 먹을지 고르는 순간부터 식사를 마치는 순간까지 편안한 흐름을 지향합니다.',
+    '메뉴의 매력은 과장된 말보다 분명한 안내와 한결같은 태도에서 전해진다고 믿습니다.',
+  ],
+  medical: [
+    '처음 정보를 찾는 순간의 걱정을 덜고, 필요한 다음 행동을 차분히 정할 수 있기를 바랍니다.',
+    '어려운 표현을 덜어내고 확인된 내용을 분명하게 전하는 태도를 중요하게 생각합니다.',
+  ],
+  beauty: [
+    '원하는 모습을 이야기하고 자신에게 맞는 선택을 해가는 시간이 편안하기를 바랍니다.',
+    '화려한 약속보다 충분히 살펴보고 결정할 수 있는 경험을 지향합니다.',
+  ],
+  workshop: [
+    '손으로 만들며 자신의 속도에 집중하는 시간이 자연스럽게 이어지기를 바랍니다.',
+    '완성된 결과뿐 아니라 재료를 만나고 과정을 익히는 순간도 소중하게 생각합니다.',
+  ],
+  education: [
+    '배움의 시작과 과정을 이해하고 스스로 다음 단계를 고를 수 있기를 바랍니다.',
+    '빠른 약속보다 꾸준히 따라갈 수 있는 분명한 안내와 태도를 지향합니다.',
+  ],
+  legal: [
+    '복잡한 상황에서도 필요한 내용을 차근차근 이해하고 다음 행동을 정할 수 있기를 바랍니다.',
+    '과장된 확신보다 확인된 정보와 이해하기 쉬운 설명을 중요하게 생각합니다.',
+  ],
+  retail: [
+    '좋아하는 것을 발견하고 자신의 취향에 맞게 고르는 시간이 편안하기를 바랍니다.',
+    '상품을 둘러보는 순간부터 선택을 마치는 순간까지 같은 분위기가 이어지길 지향합니다.',
+  ],
+  generic: [
+    '처음 만나는 사람도 무엇을 하는 곳인지 편안하게 이해할 수 있기를 바랍니다.',
+    '필요한 내용을 살펴보고 자신에게 맞는 다음 행동을 고를 수 있는 경험을 지향합니다.',
+  ],
+};
+
+function narrativeParagraphs(value: string | undefined): string[] {
+  return (value ?? '')
+    .split(/\n\s*\n|\r?\n/u)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+/**
+ * MAIN v1 narrative model. Customer-authored story is copied verbatim after whitespace
+ * normalization; empty slots are filled only with fixed attitude/aspiration copy.
+ */
+export function buildMainStorytellingModel(survey: SurveyInput): MainStorytellingModel {
+  const base = buildContentDepthHomeModel(survey);
+  const input = survey.contentDepth?.mainStorytelling;
+  const customerStory = [
+    ...narrativeParagraphs(input?.brandStory),
+    ...narrativeParagraphs(input?.origin),
+  ];
+  const customerIntroduction = base.customerIntroduction.filter(
+    (paragraph) => !customerStory.includes(paragraph),
+  );
+  const continuations = STORY_CONTINUATION_BY_GROUP[contentIndustryGroup(survey.industry)];
+  const paragraphs = customerStory.length > 0
+    ? [...customerStory, ...customerIntroduction, ...base.branding.paragraphs.slice(0, 2), ...continuations]
+    : [...customerIntroduction, ...base.branding.paragraphs, ...continuations];
+  const valuesLead = input?.philosophy?.trim() || base.branding.paragraphs.at(-1) || base.branding.heroSub;
+
+  return {
+    kicker: customerStory.length > 0 ? '우리의 이야기' : base.branding.kicker,
+    title: customerStory.length > 0 ? `${survey.businessName}의 마음이\n공간의 태도가 되기까지` : base.branding.title,
+    paragraphs,
+    hasCustomerStory: customerStory.length > 0,
+    valuesLead,
+    values: base.strengths,
+  };
 }
 
 function customerIntroduction(survey: SurveyInput): string[] {

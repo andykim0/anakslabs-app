@@ -251,6 +251,12 @@ export function SurveyStep({
         facts: factualAnswers,
         faqAnswers,
         imports: importedContentSources,
+        mainStorytelling: {
+          version: 1 as const,
+          ...(clean(values.brandStory) ? { brandStory: clean(values.brandStory) } : {}),
+          ...(clean(values.brandOrigin) ? { origin: clean(values.brandOrigin) } : {}),
+          ...(clean(values.brandPhilosophy) ? { philosophy: clean(values.brandPhilosophy) } : {}),
+        },
       },
       siteGoal: values.siteGoal as SiteGoalId | undefined,
       highlights: highlights.length ? highlights : undefined,

@@ -257,6 +257,45 @@ export function Step03Content() {
         실제 정보를 많이 알려주실수록 손님과 검색이 읽을 내용이 풍부해져요. 답하지 않은 내용은 지어내지 않습니다.
       </StepIntro>
 
+      <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="brand-story-title">
+        <div>
+          <h3 id="brand-story-title" className="text-[17px] font-semibold text-ob-ink">
+            가게의 이야기를 들려주세요
+          </h3>
+          <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
+            사장님이 적어주신 실제 이야기는 메인 소개의 중심이 됩니다. 비워두면 지어낸 일화 대신 가게가 지향하는 태도만 담아요.
+          </p>
+        </div>
+        <div className="mt-5 grid gap-4">
+          <Field label={<>브랜드 스토리 <span className="font-normal text-ob-muted">(선택)</span></>} hint="손님에게 들려주고 싶은 가게의 이야기">
+            <textarea
+              {...register('brandStory')}
+              rows={3}
+              placeholder="예: 이 공간에서 손님이 어떤 시간을 보내길 바라는지 적어주세요."
+              className={cn(obInput, 'resize-y leading-relaxed')}
+            />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={<>시작한 계기 <span className="font-normal text-ob-muted">(선택)</span></>} hint="실제로 가게를 시작하게 된 이유나 계기">
+              <textarea
+                {...register('brandOrigin')}
+                rows={3}
+                placeholder="실제로 있었던 계기만 적어주세요."
+                className={cn(obInput, 'resize-y leading-relaxed')}
+              />
+            </Field>
+            <Field label={<>철학과 지향 <span className="font-normal text-ob-muted">(선택)</span></>} hint="운영하며 중요하게 생각하는 태도">
+              <textarea
+                {...register('brandPhilosophy')}
+                rows={3}
+                placeholder="가게가 지키고 싶은 태도와 방향을 적어주세요."
+                className={cn(obInput, 'resize-y leading-relaxed')}
+              />
+            </Field>
+          </div>
+        </div>
+      </section>
+
       <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="factual-interview-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

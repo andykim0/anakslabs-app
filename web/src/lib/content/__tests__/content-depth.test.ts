@@ -53,5 +53,11 @@ test('온보딩은 답한 사실만 저장하고 신규 제출에 contentDepth �
   assert.doesNotMatch(step, /예상 답변|자동 답변|placeholder.*value=/);
   assert.match(host, /missingRequiredFacts/);
   assert.match(host, /contentDepth: \{\s*version: 1 as const,/);
+  assert.match(host, /mainStorytelling: \{\s*version: 1 as const,/);
+  assert.match(step, /가게의 이야기를 들려주세요/);
+  assert.match(step, /register\('brandStory'\)/);
+  assert.match(step, /register\('brandOrigin'\)/);
+  assert.match(step, /register\('brandPhilosophy'\)/);
+  assert.match(step, /비워두면 지어낸 일화 대신 가게가 지향하는 태도만 담아요/);
   assert.match(shared, /2: \['purposeId', 'businessName', 'industry', 'region'\]/);
 });
