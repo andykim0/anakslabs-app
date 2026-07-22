@@ -191,7 +191,11 @@ async function runChrome(
     '--hide-scrollbars', '--mute-audio', '--force-device-scale-factor=1', '--allow-file-access-from-files',
     '--run-all-compositor-stages-before-draw', '--virtual-time-budget=3500',
     ...(options.offline
-      ? ['--disable-gpu', '--host-resolver-rules=MAP fonts.googleapis.com 0.0.0.0, MAP fonts.gstatic.com 0.0.0.0']
+      ? [
+          '--disable-gpu',
+          '--force-prefers-reduced-motion',
+          '--host-resolver-rules=MAP fonts.googleapis.com 0.0.0.0, MAP fonts.gstatic.com 0.0.0.0',
+        ]
       : []),
     `--user-data-dir=${profile}`, `--window-size=${size.width},${size.height}`,
     `--screenshot=${outputFile}`, pathToFileURL(htmlFile).href,
@@ -474,7 +478,9 @@ async function main(): Promise<void> {
   await writeFile(beforeAfterHtml, beforeAfterDocument(), 'utf8');
   await runChrome(beforeAfterHtml, beforeAfterPng, { width: 1840, height: 1580 });
 
-  if (legacyParity.some((item) => !item.htmlByteIdentical || !item.raster.equivalent)) {
+  if (legacyParity.some((item) => (
+    !item.htmlByteIdentical || !item.pixelFileIdentical || !item.raster.equivalent
+  ))) {
     throw new Error('Legacy OFF renderer parity failed.');
   }
   if (viewportAudits.some((item) => item.overflow || item.cls !== 0)) {
