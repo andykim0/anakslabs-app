@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
@@ -12,10 +12,11 @@ import {
   surveyForHeroCandidates,
 } from '@/lib/onboarding/hero-image-options';
 import { genIdemKey } from '@/lib/onboarding/generate-dedup';
+import { buildCandidatePreviewConfig } from '@/lib/onboarding/candidate-preview';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
 import { generateCandidates } from '../api';
+import { SitePreview } from '../site-preview';
 import { Badge, Button, Card, cn, ErrorState } from '../ui';
-import { CandidateThemePreview } from './CandidateThemePreview';
 
 const STYLE_LABELS: Record<CandidateStyle, string> = {
   photo: '실사 포토',
@@ -78,24 +79,6 @@ function firstFontName(fontFamily: string): string {
   return first.replaceAll("'", '').replaceAll('"', '').trim();
 }
 
-/** [G1] 후보 히어로 이미지에 선택한 heroTechnique을 CSS로 체감시키는 클래스(로컬 keyframes). */
-const HERO_MOTION_CLASS: Record<string, string> = {
-  'ken-burns': 'cand-hero-kenburns',
-  'mask-reveal': 'cand-hero-mask',
-  'video-hero': 'cand-hero-pan',
-};
-
-const CANDIDATE_MOTION_CSS = `
-.cand-hero-kenburns { animation: cand-kb 7s ease-in-out infinite alternate; transform-origin: 50% 50%; }
-@keyframes cand-kb { from { transform: scale(1); } to { transform: scale(1.08); } }
-.cand-hero-pan { animation: cand-pan 8s ease-in-out infinite alternate; transform-origin: 50% 50%; }
-@keyframes cand-pan { from { transform: scale(1.05) translateX(-2%); } to { transform: scale(1.05) translateX(2%); } }
-.cand-hero-mask { animation: cand-mask 3s ease-in-out infinite; }
-@keyframes cand-mask { 0% { clip-path: inset(0 100% 0 0); } 45%,100% { clip-path: inset(0 0 0 0); } }
-@media (prefers-reduced-motion: reduce) {
-  .cand-hero-kenburns, .cand-hero-pan, .cand-hero-mask { animation: none !important; clip-path: none !important; transform: none !important; }
-}`;
-
 function CandidateCard({
   candidate,
   heroImageUrl,
@@ -111,37 +94,42 @@ function CandidateCard({
   heroTechnique?: string;
   onSelect: () => void;
 }) {
-  const [imgFailed, setImgFailed] = useState(false);
   const { palette } = candidate.theme;
   const swatches = [palette.background, palette.surface, palette.primary, palette.accent, palette.text];
-  const motionClass = heroTechnique ? HERO_MOTION_CLASS[heroTechnique] : undefined;
+  const previewConfig = useMemo(
+    () => buildCandidatePreviewConfig(survey, candidate, heroImageUrl, heroTechnique),
+    [candidate, heroImageUrl, heroTechnique, survey],
+  );
 
   return (
-    <button
-      type="button"
+    <div
+      role="radio"
+      tabIndex={0}
+      aria-checked={selected}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        onSelect();
+      }}
       className={cn(
-        'group overflow-hidden rounded-xl border text-left transition-all',
+        'group cursor-pointer overflow-hidden rounded-xl border text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ob-accent-strong',
         selected
           ? 'border-ob-accent-strong ring-1 ring-ob-accent'
           : 'border-ob-border hover:border-ob-muted',
       )}
     >
       <div className="relative overflow-hidden bg-ob-bg p-2">
-        <CandidateThemePreview
-          candidate={candidate}
-          heroImageUrl={heroImageUrl}
-          businessName={survey.businessName}
-          tagline={survey.tagline}
-          purposeId={survey.purposeId}
-          referenceDesignId={survey.referenceDesignId}
-          sectionPlan={survey.sectionPlan}
-          imageFailed={imgFailed}
-          motionClass={motionClass ?? 'motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03] motion-reduce:transform-none'}
-          onImageError={() => setImgFailed(true)}
-        />
+        <div className="pointer-events-none overflow-hidden rounded-lg motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.015] motion-reduce:transform-none">
+          <SitePreview
+            config={previewConfig}
+            mode="mobile"
+            maxHeight={220}
+            motion={Boolean(heroTechnique)}
+          />
+        </div>
         {selected ? (
-          <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
+          <span aria-hidden="true" className="absolute top-2 right-2 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
             ✓
           </span>
         ) : null}
@@ -168,7 +156,7 @@ function CandidateCard({
           </span>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -244,10 +232,6 @@ export function CandidateStep({
 
   return (
     <div>
-      {/* [G1] 후보 히어로 이미지에 선택한 움직임을 CSS로 재생(비용 0, reduced-motion 존중) */}
-      {heroTechnique && HERO_MOTION_CLASS[heroTechnique] ? (
-        <style dangerouslySetInnerHTML={{ __html: CANDIDATE_MOTION_CSS }} />
-      ) : null}
       {loadPretendard ? <link rel="stylesheet" href={PRETENDARD_CSS_URL} /> : null}
       {candidateFontUrls.map((url) => <link key={url} rel="stylesheet" href={url} />)}
       <div className="mb-5">
@@ -257,7 +241,7 @@ export function CandidateStep({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3" role="radiogroup" aria-label="디자인 방향">
         {candidates.map((c) => (
           <CandidateCard
             key={c.id}
