@@ -497,7 +497,7 @@ function uniqueCustomerGalleryImages(survey: SurveyInput): string[] {
       item.photoUrl && item.photoAssetRef?.url === item.photoUrl ? [item.photoUrl] : []
     )),
   ];
-  return [...new Set(candidates.map((url) => url.trim()).filter(Boolean))].slice(0, 8);
+  return [...new Set(candidates.map((url) => url.trim()).filter(Boolean))].slice(0, 12);
 }
 
 /**

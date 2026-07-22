@@ -5,6 +5,7 @@ import test from 'node:test';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { emptySiteConfig } from '@/lib/types/site';
+import { buildJsonLd } from '@/lib/seo/jsonld';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 
 const candidate: DesignCandidate = {
@@ -115,6 +116,17 @@ function visibleText(config: ReturnType<typeof buildSiteConfigFromSurvey>): stri
     .join(' ');
 }
 
+function mainSurvey(): SurveyInput {
+  const input = richSurvey();
+  input.contentDepth!.mainStorytelling = {
+    version: 1,
+    brandStory: '온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음을 담았습니다.',
+    origin: '동네에서 오래 머물 수 있는 작은 공간을 직접 꾸리고 싶어 시작했습니다.',
+    philosophy: '메뉴를 고르는 순간부터 자리를 나설 때까지 편안한 결을 지키고 싶습니다.',
+  };
+  return input;
+}
+
 test('신규 깊이 경로는 홈 하나에 소개→강점→메뉴→갤러리→FAQ→길→문의 순서를 만든다', () => {
   const config = buildSiteConfigFromSurvey(richSurvey(), candidate, opts);
   assert.deepEqual(config.pages.map((page) => page.slug), ['']);
@@ -190,13 +202,7 @@ test('대표 카페 시드의 인덱싱 본문은 얇은 레거시 홈보다 최
 
 test('MAIN opt-in은 고객 실제 이야기를 중심으로 소개를 두껍게 하고 철학을 별도 흐름으로 잇는다', () => {
   const before = richSurvey();
-  const after = richSurvey();
-  after.contentDepth!.mainStorytelling = {
-    version: 1,
-    brandStory: '온담은 커피를 서두르지 않고 즐길 수 있는 자리를 만들고 싶다는 마음을 담았습니다.',
-    origin: '동네에서 오래 머물 수 있는 작은 공간을 직접 꾸리고 싶어 시작했습니다.',
-    philosophy: '메뉴를 고르는 순간부터 자리를 나설 때까지 편안한 결을 지키고 싶습니다.',
-  };
+  const after = mainSurvey();
   const beforeConfig = buildSiteConfigFromSurvey(before, candidate, opts);
   const afterConfig = buildSiteConfigFromSurvey(after, candidate, opts);
   const storyText = (config: typeof afterConfig) => config.pages[0].sections
@@ -212,4 +218,58 @@ test('MAIN opt-in은 고객 실제 이야기를 중심으로 소개를 두껍게
   assert.deepEqual(afterConfig.pages[0].sections.slice(0, 3).map((section) => section.id), [
     'sec-hero', 'sec-about', 'sec-features',
   ]);
+});
+
+test('MAIN은 하위 주제를 홈 미리보기와 완결된 서브페이지 쌍으로만 만든다', () => {
+  const config = buildSiteConfigFromSurvey(mainSurvey(), candidate, opts);
+  assert.deepEqual(config.pages.map((page) => page.slug), ['', 'menu', 'gallery', 'faq', 'directions']);
+  const home = config.pages[0];
+  assert.deepEqual(home.sections.map((section) => section.id), [
+    'sec-hero', 'sec-about', 'sec-features',
+    'sec-home-menu-teaser', 'sec-home-gallery-teaser', 'sec-home-faq-teaser',
+    'sec-home-directions-teaser', 'sec-contact',
+  ]);
+  const teaserLinks = home.sections.flatMap((section) => section.elements)
+    .flatMap((element) => element.kind === 'button' && element.label === '자세히 보기' ? [element.href] : []);
+  assert.deepEqual(teaserLinks, ['/menu', '/gallery', '/faq', '/directions']);
+
+  const menu = config.pages.find((page) => page.slug === 'menu')!;
+  const gallery = config.pages.find((page) => page.slug === 'gallery')!;
+  const faq = config.pages.find((page) => page.slug === 'faq')!;
+  const directions = config.pages.find((page) => page.slug === 'directions')!;
+  assert.equal(menu.sections[0].elements.filter((element) => element.id.includes('menu-full-name')).length, 5);
+  assert.equal(gallery.sections[0].elements.filter((element) => element.kind === 'image').length, 4);
+  assert.equal(faq.sections[0].elements.filter((element) => element.id.includes('faq-q')).length, 4);
+  assert.deepEqual(directions.sections.map((section) => section.id), ['sec-contact-directions']);
+  assert.equal(config.pages.filter((page) => page.slug !== '').every((page) => page.sections.length > 0), true);
+});
+
+test('FAQ 구조화 데이터는 미리보기 홈이 아니라 전체 답변이 보이는 FAQ 서브페이지에만 유지된다', () => {
+  const config = buildSiteConfigFromSurvey(mainSurvey(), candidate, opts);
+  assert.equal(buildJsonLd(config, 'https://ondam.example.com', '').some((node) => node['@type'] === 'FAQPage'), false);
+  const faq = buildJsonLd(config, 'https://ondam.example.com', 'faq').find((node) => node['@type'] === 'FAQPage') as {
+    mainEntity: unknown[];
+  };
+  assert.equal(faq.mainEntity.length, 4);
+});
+
+test('MAIN으로 나눈 사이트의 전체 인덱싱 텍스트는 CONTENT 단일 홈보다 줄지 않는다', () => {
+  const before = visibleText(buildSiteConfigFromSurvey(richSurvey(), candidate, opts)).replace(/\s/gu, '');
+  const after = visibleText(buildSiteConfigFromSurvey(mainSurvey(), candidate, opts)).replace(/\s/gu, '');
+  assert.ok(after.length >= before.length, `${before.length} → ${after.length}`);
+});
+
+test('답한 하위 주제가 없으면 MAIN도 빈 서브페이지·티저·죽은 자세히 보기 링크를 만들지 않는다', () => {
+  const input = mainSurvey();
+  input.contentItems = [];
+  input.storePhotoUrls = [];
+  input.storePhotoAssetRefs = [];
+  input.generalAssetAttestationId = undefined;
+  input.contentDepth!.facts = [];
+  input.contentDepth!.faqAnswers = [];
+  const config = buildSiteConfigFromSurvey(input, candidate, opts);
+  assert.deepEqual(config.pages.map((page) => page.slug), ['']);
+  assert.deepEqual(config.pages[0].sections.map((section) => section.id), ['sec-hero', 'sec-about', 'sec-features']);
+  assert.equal(config.pages[0].sections.flatMap((section) => section.elements)
+    .some((element) => element.kind === 'button' && element.label === '자세히 보기'), false);
 });

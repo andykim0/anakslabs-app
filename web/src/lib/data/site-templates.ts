@@ -61,6 +61,8 @@ const DEFAULT_PAGE_TITLES: Record<string, string> = {
   pricing: '요금',
   work: '실적',
   guide: '이용안내',
+  faq: '자주 묻는 질문',
+  directions: '오시는 길',
   contact: '문의',
   more: '더보기',
 };
@@ -2334,6 +2336,260 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
   return [story, values, ...legacy.slice(2)];
 }
 
+function mainTopicButton(ctx: Ctx, id: string, y: number, href: string): CanvasElement {
+  return {
+    id: nextId(ctx, id), kind: 'button',
+    frame: { x: 120, y, w: 176, h: 48 }, z: 3,
+    label: '자세히 보기', href,
+    style: {
+      variant: 'outline', color: ctx.theme.palette.primary, textColor: ctx.theme.palette.primary,
+      fontSize: 15, borderRadius: ctx.theme.radius ?? 4,
+    },
+  };
+}
+
+function mainTopicIntro(
+  ctx: Ctx,
+  id: string,
+  kicker: string,
+  title: string,
+  description: string,
+): CanvasElement[] {
+  return [
+    {
+      id: nextId(ctx, `${id}-kicker`), kind: 'text',
+      frame: { x: 122, y: 96, w: 420, h: 22 }, z: 2, text: kicker,
+      style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: ctx.theme.palette.primary, align: 'left', letterSpacing: 4 },
+    },
+    {
+      id: nextId(ctx, `${id}-title`), kind: 'text',
+      frame: { x: 116, y: 138, w: 620, h: 82 }, z: 2, text: title,
+      style: { fontSize: 42, fontWeight: 400, fontFamily: 'heading', color: ctx.theme.palette.text, align: 'left', lineHeight: 1.35 },
+    },
+    {
+      id: nextId(ctx, `${id}-description`), kind: 'text',
+      frame: { x: 780, y: 148, w: 540, h: 70 }, z: 2, text: description,
+      style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
+    },
+  ];
+}
+
+function mainMenuTitle(industry: string): string {
+  const group = contentIndustryGroup(industry);
+  if (group === 'cafe' || group === 'food') return '메뉴';
+  if (group === 'education' || group === 'workshop') return '수업·클래스';
+  return '서비스';
+}
+
+function buildMainMenuTeaser(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const label = mainMenuTitle(ctx.survey.industry);
+  const elements = mainTopicIntro(
+    ctx, 'el-main-menu-teaser', `대표 ${label}`, `${label}를 먼저 만나보세요`,
+    `사장님이 알려주신 ${label} 가운데 대표 항목을 골라 보여드립니다. 전체 구성은 자세히 보기에서 확인할 수 있습니다.`,
+  );
+  model.contentItems.slice(0, 3).forEach((item, index) => {
+    const x = 120 + index * 420;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-main-menu-teaser-name'), kind: 'text',
+        frame: { x, y: 292, w: 360, h: 38 }, z: 2, text: item.name,
+        style: { fontSize: 23, fontWeight: 500, fontFamily: 'heading', color: ctx.theme.palette.text, align: 'left' },
+      },
+      ...(item.description ? [{
+        id: nextId(ctx, 'el-main-menu-teaser-body'), kind: 'text' as const,
+        frame: { x, y: 344, w: 360, h: 86 }, z: 2, text: item.description,
+        style: { fontSize: 15, fontWeight: 400 as const, fontFamily: 'body' as const, color: ctx.softText, align: 'left' as const, lineHeight: 1.65 },
+      }] : []),
+      ...(item.price ? [{
+        id: nextId(ctx, 'el-main-menu-teaser-price'), kind: 'text' as const,
+        frame: { x, y: 444, w: 360, h: 34 }, z: 2, text: `${item.price}원`,
+        style: { fontSize: 19, fontWeight: 500 as const, fontFamily: 'heading' as const, color: ctx.theme.palette.primary, align: 'left' as const },
+      }] : []),
+    );
+  });
+  elements.push(mainTopicButton(ctx, 'el-main-menu-teaser-link', 520, '/menu'));
+  return {
+    id: 'sec-home-menu-teaser', type: 'menu', name: `${label} 미리보기`, height: 640,
+    background: { color: ctx.theme.palette.background }, elements,
+  };
+}
+
+function buildMainMenuFull(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const label = mainMenuTitle(ctx.survey.industry);
+  const elements: CanvasElement[] = mainTopicIntro(
+    ctx, 'el-main-menu-full', `전체 ${label}`, `${label} 자세히 보기`,
+    `사장님이 확인한 ${label} 이름과 설명, 가격을 한곳에 모았습니다.`,
+  );
+  model.contentItems.forEach((item, index) => {
+    const y = 276 + index * 112;
+    elements.push({
+      id: nextId(ctx, 'el-main-menu-full-name'), kind: 'text',
+      frame: { x: 120, y, w: 520, h: 38 }, z: 2, text: item.name,
+      style: { fontSize: 23, fontWeight: 500, fontFamily: 'heading', color: ctx.theme.palette.text, align: 'left' },
+    });
+    if (item.description) elements.push({
+      id: nextId(ctx, 'el-main-menu-full-description'), kind: 'text',
+      frame: { x: 120, y: y + 44, w: 780, h: 42 }, z: 2, text: item.description,
+      style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.65 },
+    });
+    if (item.price) elements.push({
+      id: nextId(ctx, 'el-main-menu-full-price'), kind: 'text',
+      frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}원`,
+      style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: ctx.theme.palette.primary, align: 'right' },
+    });
+    elements.push({
+      id: nextId(ctx, 'el-main-menu-full-divider'), kind: 'divider',
+      frame: { x: 120, y: y + 92, w: 1200, h: 1 }, z: 1,
+      style: { color: ctx.theme.palette.muted, thickness: ctx.kit.dividerThickness },
+    });
+  });
+  return {
+    id: 'sec-menu', type: 'menu', name: label,
+    height: 276 + model.contentItems.length * 112 + 60,
+    background: { color: ctx.theme.palette.background }, elements,
+  };
+}
+
+function buildMainGalleryTeaser(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const elements = mainTopicIntro(
+    ctx, 'el-main-gallery-teaser', '사진 미리보기', '공간과 메뉴를 사진으로',
+    '사장님이 사용 권리를 확인한 실제 사진만 보여드립니다. 더 많은 모습은 갤러리에서 이어집니다.',
+  );
+  model.galleryImages.slice(0, 3).forEach((src, index) => elements.push({
+    id: nextId(ctx, 'el-main-gallery-teaser-image'), kind: 'image',
+    frame: { x: 120 + index * 420, y: 274, w: 380, h: 250 }, z: 2,
+    src, alt: `${ctx.survey.businessName} 고객 제공 사진 ${index + 1}`,
+    style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+  }));
+  elements.push(mainTopicButton(ctx, 'el-main-gallery-teaser-link', 566, '/gallery'));
+  return {
+    id: 'sec-home-gallery-teaser', type: 'gallery', name: '갤러리 미리보기', height: 680,
+    background: { color: ctx.dark ? ctx.theme.palette.surface : ctx.theme.palette.background }, elements,
+  };
+}
+
+function buildMainGalleryFull(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const elements = mainTopicIntro(
+    ctx, 'el-main-gallery-full', '전체 갤러리', '사진으로 둘러보기',
+    '사장님이 사용 권리를 확인한 실제 사진을 빠짐없이 모았습니다.',
+  );
+  model.galleryImages.forEach((src, index) => elements.push({
+    id: nextId(ctx, 'el-main-gallery-full-image'), kind: 'image',
+    frame: { x: 120 + (index % 3) * 420, y: 270 + Math.floor(index / 3) * 300, w: 380, h: 260 },
+    z: 2, src, alt: `${ctx.survey.businessName} 고객 제공 사진 ${index + 1}`,
+    style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
+  }));
+  return {
+    id: 'sec-gallery', type: 'gallery', name: '갤러리',
+    height: 270 + Math.ceil(model.galleryImages.length / 3) * 300 + 60,
+    background: { color: ctx.theme.palette.background }, elements,
+  };
+}
+
+function buildMainFaqTeaser(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const elements = mainTopicIntro(
+    ctx, 'el-main-faq-teaser', '미리 답해드려요', '자주 묻는 질문',
+    '방문 전에 많이 궁금해하는 내용을 먼저 확인하세요. 사장님이 직접 답한 내용만 담았습니다.',
+  );
+  let rowTop = 270;
+  model.faq.slice(0, 3).forEach((item) => {
+    const answerHeight = Math.max(48, Math.ceil(item.answer.length / 66) * 27);
+    elements.push(
+      {
+        id: nextId(ctx, 'el-main-faq-teaser-q'), kind: 'text',
+        frame: { x: 120, y: rowTop, w: 1200, h: 34 }, z: 2, text: `Q. ${item.question}`,
+        style: { fontSize: 20, fontWeight: 500, fontFamily: 'heading', color: ctx.theme.palette.text, align: 'left' },
+      },
+      {
+        id: nextId(ctx, 'el-main-faq-teaser-a'), kind: 'text',
+        frame: { x: 120, y: rowTop + 42, w: 1200, h: answerHeight }, z: 2, text: item.answer,
+        style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
+      },
+    );
+    rowTop += 42 + answerHeight + 34;
+  });
+  elements.push(mainTopicButton(ctx, 'el-main-faq-teaser-link', rowTop + 12, '/faq'));
+  return {
+    // FAQPage는 전체 답변이 보이는 /faq만 소유한다. 홈 미리보기는 구조화 FAQ로 오인하지 않는다.
+    id: 'sec-home-faq-teaser', type: 'custom', name: '자주 묻는 질문 미리보기', height: rowTop + 112,
+    background: { color: ctx.dark ? ctx.theme.palette.background : ctx.theme.palette.surface }, elements,
+  };
+}
+
+function buildMainDirectionsTeaser(ctx: Ctx): Section {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const elements = mainTopicIntro(
+    ctx, 'el-main-directions-teaser', '방문 안내', '찾아오는 길을 미리 확인하세요',
+    '주소와 이동 방법, 주차·접근성처럼 방문 전에 필요한 내용을 간단히 정리했습니다.',
+  );
+  model.directions.slice(0, 3).forEach((row, index) => {
+    const y = 278 + index * 78;
+    elements.push(
+      {
+        id: nextId(ctx, 'el-main-directions-teaser-label'), kind: 'text',
+        frame: { x: 120, y, w: 220, h: 24 }, z: 2, text: row.label,
+        style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: ctx.theme.palette.primary, align: 'left', letterSpacing: 2 },
+      },
+      {
+        id: nextId(ctx, 'el-main-directions-teaser-value'), kind: 'text',
+        frame: { x: 360, y: y - 3, w: 920, h: 54 }, z: 2, text: row.value,
+        style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: ctx.theme.palette.text, align: 'left', lineHeight: 1.7 },
+      },
+    );
+  });
+  const buttonY = 294 + Math.min(3, model.directions.length) * 78;
+  elements.push(mainTopicButton(ctx, 'el-main-directions-teaser-link', buttonY, '/directions'));
+  return {
+    id: 'sec-home-directions-teaser', type: 'contact', name: '오시는 길 미리보기', height: buttonY + 120,
+    background: { color: ctx.theme.palette.background }, elements,
+  };
+}
+
+/** MAIN v1 topics become concise home teasers plus complete, data-backed subpages. */
+function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSlug: string }[] {
+  const model = buildContentDepthHomeModel(ctx.survey);
+  const [story, values, ...legacyTopics] = buildMainStorytellingHomeSections(ctx);
+  const contact = legacyTopics.find((section) => section.id === 'sec-contact');
+  const output: { section: Section; pageSlug: string }[] = [
+    { section: story, pageSlug: '' },
+    { section: values, pageSlug: '' },
+  ];
+  if (model.contentItems.length > 0) {
+    output.push(
+      { section: buildMainMenuTeaser(ctx), pageSlug: '' },
+      { section: buildMainMenuFull(ctx), pageSlug: 'menu' },
+    );
+  }
+  if (model.galleryImages.length > 0) {
+    output.push(
+      { section: buildMainGalleryTeaser(ctx), pageSlug: '' },
+      { section: buildMainGalleryFull(ctx), pageSlug: 'gallery' },
+    );
+  }
+  if (model.faq.length > 0) {
+    const fullFaq = buildFaq(ctx, { type: 'faq', name: '자주 묻는 질문', brief: '', source: 'template', pageSlug: 'faq' });
+    fullFaq.id = 'sec-faq';
+    output.push(
+      { section: buildMainFaqTeaser(ctx), pageSlug: '' },
+      { section: fullFaq, pageSlug: 'faq' },
+    );
+  }
+  const fullDirections = legacyTopics.find((section) => section.id === 'sec-contact-directions');
+  if (model.directions.length > 0 && fullDirections) {
+    output.push(
+      { section: buildMainDirectionsTeaser(ctx), pageSlug: '' },
+      { section: fullDirections, pageSlug: 'directions' },
+    );
+  }
+  if (contact) output.push({ section: contact, pageSlug: '' });
+  return output;
+}
+
 const BUILDERS: Record<SectionType, (ctx: Ctx, item: SectionPlanItem) => Section> = {
   hero: buildHero,
   about: buildAbout,
@@ -2447,12 +2703,12 @@ export function buildSiteConfigFromSurvey(
 
   if (survey.contentDepth) {
     const sections = survey.contentDepth.mainStorytelling
-      ? buildMainStorytellingHomeSections(ctx)
-      : buildContentDepthHomeSections(ctx);
-    for (const section of sections) {
+      ? buildMainStorytellingSiteSections(ctx)
+      : buildContentDepthHomeSections(ctx).map((section) => ({ section, pageSlug: '' }));
+    for (const { section, pageSlug } of sections) {
       if (usedIds.has(section.id)) throw new Error(`CONTENT v1 section id collision: ${section.id}`);
       usedIds.add(section.id);
-      built.push({ section, pageSlug: '' });
+      built.push({ section, pageSlug });
     }
   }
 
@@ -2506,7 +2762,7 @@ export function buildSiteConfigFromSurvey(
   //      singlePage(콘텐츠 페이지 0개)면 미주입 = 무회귀.
   const homePg = pages.find((p) => p.slug === '');
   const contentPgs = pages.filter((p) => p.slug !== '' && p.showInNav !== false);
-  if (homePg && contentPgs.length > 0) {
+  if (homePg && contentPgs.length > 0 && !survey.contentDepth?.mainStorytelling) {
     const firstImageSrc = (p: SitePage): string | undefined => {
       for (const s of p.sections) {
         const img = s.elements.find((el) => el.kind === 'image' && !!el.src);
