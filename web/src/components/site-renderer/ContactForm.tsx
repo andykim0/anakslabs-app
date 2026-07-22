@@ -11,6 +11,7 @@
 import { useState, type CSSProperties } from 'react';
 import type { FormElement, SiteTheme } from '@/lib/types/site';
 import { announceSuccessfulSiteForm } from '@/lib/analytics/site-beacon';
+import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 
 type FormFieldKey = FormElement['fields'][number];
 
@@ -42,7 +43,12 @@ export function ContactForm({
 
   const enabled = interactive && !!siteId;
   const s = el.style;
-  const radius = s.borderRadius ?? theme.radius ?? 8;
+  const radius = theme.tokens
+    ? themeRadius(theme, 'soft', 8)
+    : (s.borderRadius ?? theme.radius ?? 8);
+  const controlRadius = theme.tokens
+    ? themeRadius(theme, 'sharp', 8)
+    : Math.min(radius as number, 12);
   const accent = s.color ?? theme.palette.primary;
 
   const wrap: CSSProperties = {
@@ -53,7 +59,7 @@ export function ContactForm({
     gap: compact ? 10 : 12,
     fontFamily: theme.fonts.body,
     padding: s.variant === 'card' ? (compact ? 16 : 24) : 0,
-    backgroundColor: s.variant === 'card' ? theme.palette.surface : 'transparent',
+    backgroundColor: s.variant === 'card' ? themeColor(theme, 'surfaceStrong') : 'transparent',
     borderRadius: s.variant === 'card' ? radius : undefined,
     boxSizing: 'border-box',
     overflow: 'hidden',
@@ -65,9 +71,11 @@ export function ContactForm({
     fontSize: compact ? 15 : 15,
     fontFamily: theme.fonts.body,
     color: theme.palette.text,
-    backgroundColor: theme.palette.background,
-    border: `1px solid ${theme.palette.muted}55`,
-    borderRadius: Math.min(radius, 12),
+    backgroundColor: themeColor(theme, 'backgroundSubtle'),
+    border: theme.tokens
+      ? `1px solid ${themeColor(theme, 'border')}`
+      : `1px solid ${theme.palette.muted}55`,
+    borderRadius: controlRadius,
     outline: 'none',
     boxSizing: 'border-box',
   };
@@ -150,7 +158,7 @@ export function ContactForm({
           color: theme.palette.background,
           backgroundColor: accent,
           border: 'none',
-          borderRadius: Math.min(radius, 12),
+          borderRadius: controlRadius,
           cursor: enabled ? 'pointer' : 'default',
           opacity: status === 'sending' ? 0.7 : 1,
         }}

@@ -58,9 +58,38 @@ describe('DNA2 TokenSet → SiteTheme adapter', () => {
       'typography.heading/body/googleFonts',
       'color.semantic.background/surface/text/textMuted/primary/accent',
       'radius.medium',
+      'tokens.radius sharp/soft/pill',
+      'tokens.spacing sectionBlock/sectionInline/elementGap',
+      'tokens.typography ratio/sizes/line-heights',
+      'tokens.color ramp-derived surface/border/muted',
+      'tokens.shadow low/medium/high',
+      'tokens.motion duration/easing',
     ]);
-    assert.equal(DNA_SITE_THEME_PROJECTION_REPORT.losses.length, 7);
+    assert.deepEqual(DNA_SITE_THEME_PROJECTION_REPORT.losses, [
+      'color focus/link/on-colors and full 11-step ramps: no component role consumes them yet',
+      'motion signature id: motion selection remains the separate SiteConfig.motion contract',
+      'OKLCH gamut precision: the existing renderer contract consumes 8-bit sRGB colors',
+    ]);
     assert.equal(tokenSetToSiteTheme(expandTokens(selection.dnaId, selection.hueSeed)).customCss, undefined);
+  });
+
+  test('확장 토큰은 임의 단위 없이 결정적 SiteTheme 슬롯으로 투영된다', () => {
+    const tokens = expandTokens(selection.dnaId, selection.hueSeed, selection.overrides);
+    const theme = tokenSetToSiteTheme(tokens);
+    assert.deepEqual(theme.tokens?.radius, {
+      sharp: tokens.radius.small,
+      soft: tokens.radius.large,
+      pill: tokens.radius.pill,
+    });
+    assert.equal(theme.tokens?.typography.ratio, tokens.typography.ratio);
+    assert.equal(theme.tokens?.color.surfaceStrong, tokens.color.ramps.neutral['200']);
+    assert.match(theme.tokens?.spacing.sectionBlock ?? '', /^\d+(?:\.\d+)?rem$/u);
+    assert.equal(siteConfigSchema.safeParse({
+      version: 2,
+      theme,
+      meta: { title: '토큰 저장 경계' },
+      pages: [{ id: 'home', title: '홈', slug: '', sections: [] }],
+    }).success, true);
   });
 
   test('ON 블루프린트는 어댑터 테마를 소비하고 선택 핀을 SiteConfig에 그대로 저장한다', () => {

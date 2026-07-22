@@ -115,19 +115,19 @@ function mosaicMediaShape(media: MotionMedia): 'wide' | 'square' | 'portrait' {
 
 function sceneVars(theme: SiteTheme, art: MotionArtDirectionProfile): CSSProperties {
   return {
-    '--signature-bg': theme.palette.background,
-    '--signature-surface': theme.palette.surface,
+    '--signature-bg': theme.tokens?.color.backgroundSubtle ?? theme.palette.background,
+    '--signature-surface': theme.tokens?.color.surfaceStrong ?? theme.palette.surface,
     '--signature-text': theme.palette.text,
-    '--signature-muted': theme.palette.muted,
+    '--signature-muted': theme.tokens?.color.muted ?? theme.palette.muted,
     '--signature-primary': theme.palette.primary,
     '--signature-accent': theme.palette.accent,
     '--signature-heading-font': theme.fonts.heading,
     '--signature-body-font': theme.fonts.body,
     '--signature-duration': `${art.durationMs}ms`,
-    '--signature-easing': art.cssEasing,
+    '--signature-easing': theme.tokens?.motion.easing.enter ?? art.cssEasing,
     '--signature-max-scale': art.maxScale,
     '--signature-max-translation': `${art.maxTranslationPx}px`,
-    '--signature-radius': `${theme.radius ?? 8}px`,
+    '--signature-radius': theme.tokens?.radius.soft ?? `${theme.radius ?? 8}px`,
   } as CSSProperties;
 }
 

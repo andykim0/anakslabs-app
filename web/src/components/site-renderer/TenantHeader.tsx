@@ -9,6 +9,7 @@
  * 링크: navLabel ?? title, href '/'+slug (홈은 '/'), 현재 페이지 강조. theme 폰트/팔레트 적용.
  */
 import type { SiteConfig, SitePage } from '@/lib/types/site';
+import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 
 const NAV_MAX_INLINE = 6;
 
@@ -51,10 +52,12 @@ export function TenantHeader({
     top: '100%',
     marginTop: 8,
     minWidth: 176,
-    backgroundColor: theme.palette.surface,
-    border: `1px solid ${theme.palette.muted}33`,
-    borderRadius: theme.radius ?? 6,
-    boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+    backgroundColor: themeColor(theme, 'surfaceStrong'),
+    border: theme.tokens
+      ? `1px solid ${themeColor(theme, 'border')}`
+      : `1px solid ${theme.palette.muted}33`,
+    borderRadius: theme.tokens ? themeRadius(theme, 'soft', 6) : (theme.radius ?? 6),
+    boxShadow: theme.tokens?.shadow.medium ?? '0 8px 24px rgba(0,0,0,0.18)',
     padding: '6px 0',
     zIndex: 60,
   };
@@ -82,8 +85,10 @@ export function TenantHeader({
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        backgroundColor: theme.palette.surface,
-        borderBottom: `1px solid ${theme.palette.muted}22`,
+        backgroundColor: themeColor(theme, 'surfaceSubtle'),
+        borderBottom: theme.tokens
+          ? `1px solid ${themeColor(theme, 'border')}`
+          : `1px solid ${theme.palette.muted}22`,
         fontFamily: theme.fonts.body,
         backdropFilter: 'saturate(1.2)',
       }}

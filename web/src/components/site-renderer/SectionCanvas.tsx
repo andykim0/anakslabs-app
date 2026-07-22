@@ -15,6 +15,10 @@ import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
 import { resolveScrim } from '@/lib/design/scrim';
 import {
+  resolveThemePaint,
+  themeSectionBlockDelta,
+} from '@/lib/design/site-theme-tokens';
+import {
   cinematicParallaxDepthFor,
   cinematicStoryWindowFor,
   motionFor,
@@ -70,6 +74,7 @@ function StandardSection({
   const stacking = plan?.stackingSections.has(section.id) ?? false;
   const spotlight = plan?.spotlightSections.has(section.id) ?? false;
   const sectionDataM = spotlight ? 'spotlight' : parallax ? 'parallax' : stacking ? 'stacking' : undefined;
+  const densityDelta = themeSectionBlockDelta(theme);
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
   const imgScrim = bg.image
@@ -87,9 +92,9 @@ function StandardSection({
 
   const sectionStyle: CSSProperties = {
     position: 'relative',
-    height: pinned ? '100%' : cqw(section.height),
+    height: pinned ? '100%' : cqw(section.height + densityDelta * 2),
     overflow: 'hidden',
-    backgroundColor: bg.color ?? theme.palette.background,
+    backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
     backgroundImage: bg.gradient,
   };
 
@@ -190,7 +195,7 @@ function StandardSection({
             style={{
               position: 'absolute',
               left: cqw(el.frame.x),
-              top: cqw(el.frame.y),
+              top: cqw(el.frame.y + densityDelta),
               width: cqw(el.frame.w),
               height: cqw(el.frame.h),
               zIndex: el.z, // spotlight ::before(z:0)는 DOM 순서상 요소보다 먼저 → 요소가 위
@@ -224,7 +229,8 @@ function StandardSection({
  * 실제 영상 scrub/모바일 loop/서사 변환은 V3·V4에서 같은 --scroll-progress를 소비한다.
  */
 function CinematicProgressSection(props: SectionCanvasProps) {
-  const { section } = props;
+  const { section, theme } = props;
+  const densityDelta = themeSectionBlockDelta(theme);
   return (
     <div
       data-m="cinematic"
@@ -234,8 +240,8 @@ function CinematicProgressSection(props: SectionCanvasProps) {
         position: 'relative',
         height: 'var(--cinematic-static-height)',
         '--scroll-progress': 0,
-        '--cinematic-static-height': cqw(section.height),
-        '--cinematic-scroll-height': cqw(section.height * 3),
+        '--cinematic-static-height': cqw(section.height + densityDelta * 2),
+        '--cinematic-scroll-height': cqw((section.height + densityDelta * 2) * 3),
       } as CSSProperties}
     >
       <div
@@ -254,6 +260,7 @@ function CinematicProgressSection(props: SectionCanvasProps) {
  */
 function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, animate }: SectionCanvasProps & { animate: boolean }) {
   const items = [...section.elements].sort((a, b) => a.frame.x - b.frame.x || a.frame.y - b.frame.y);
+  const densityDelta = themeSectionBlockDelta(theme);
   const group = (clone: boolean) => (
     <div className="anaks-mq-group" aria-hidden={clone || undefined} style={{ display: 'flex', alignItems: 'center', gap: cqw(56), paddingRight: cqw(56) }}>
       {items.map((el) => (
@@ -271,11 +278,11 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
       {...(animate ? { 'data-m': 'marquee' } : {})}
       style={{
         position: 'relative',
-        minHeight: cqw(Math.min(section.height, 240)),
+        minHeight: cqw(Math.min(section.height + densityDelta * 2, 240 + densityDelta * 2)),
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        backgroundColor: section.background.color ?? theme.palette.background,
+        backgroundColor: resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
         backgroundImage: section.background.gradient,
       }}
     >
@@ -303,19 +310,20 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
 function ScrubSection({ section, theme, interactive = true, siteId, isFirst }: SectionCanvasProps) {
   const v = section.background.video!;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
+  const densityDelta = themeSectionBlockDelta(theme);
   return (
-    <div data-m="scrollscrub" style={{ position: 'relative', height: cqw(section.height * 3) }}>
+    <div data-m="scrollscrub" style={{ position: 'relative', height: cqw((section.height + densityDelta * 2) * 3) }}>
       <section
         id={section.id}
         data-section-type={section.type}
         aria-label={section.name}
-        style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', backgroundColor: section.background.color ?? theme.palette.background }}
+        style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', backgroundColor: resolveThemePaint(theme, section.background.color, 'backgroundSubtle') }}
       >
         <video data-m-scrub src={safeMediaSrc(v.src)} poster={safeMediaSrc(v.poster)} muted playsInline preload="none" aria-hidden style={coverStyle} />
         {elements.map((el) => (
           <div
             key={el.id}
-            style={{ position: 'absolute', left: cqw(el.frame.x), top: cqw(el.frame.y), width: cqw(el.frame.w), height: cqw(el.frame.h), zIndex: el.z, opacity: el.opacity }}
+            style={{ position: 'absolute', left: cqw(el.frame.x), top: cqw(el.frame.y + densityDelta), width: cqw(el.frame.w), height: cqw(el.frame.h), zIndex: el.z, opacity: el.opacity }}
           >
             <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} />
           </div>

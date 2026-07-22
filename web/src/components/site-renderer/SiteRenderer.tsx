@@ -36,6 +36,7 @@ import {
 } from './MotionSignatureRenderer';
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
+import { themeColor } from '@/lib/design/site-theme-tokens';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -54,6 +55,26 @@ const BASE_CSS = `
 @media (prefers-reduced-motion: reduce) {
   .anaks-btn { transition: none; }
   .anaks-btn:hover { transform: none; }
+}
+`;
+
+/** DNA configs only. Keeping this block conditional preserves legacy/OFF markup and pixels. */
+const THEME_TOKEN_CSS = `
+.anaks-site[data-theme-tokens] .anaks-btn {
+  transition-duration: var(--theme-duration-normal);
+  transition-timing-function: var(--theme-easing-standard);
+}
+.anaks-site[data-theme-tokens] .anaks-btn[data-variant="solid"]:hover {
+  box-shadow: var(--theme-shadow-high);
+}
+.anaks-site[data-theme-tokens] [data-signature-media] {
+  border-radius: var(--signature-radius);
+  box-shadow: var(--theme-shadow-high);
+}
+.anaks-site[data-theme-tokens] [data-signature-card],
+.anaks-site[data-theme-tokens] [data-stack-card] {
+  border-radius: var(--signature-radius);
+  box-shadow: var(--theme-shadow-medium);
 }
 `;
 
@@ -156,16 +177,29 @@ export function SiteRenderer({
   const motionCssNeeded = baseMotionActive || Boolean(signatureScene);
   const signatureMotionEnabled = Boolean(signatureScene) && config.motion?.intensity !== 'off';
   const motionActive = shouldAnimate && (baseMotionActive || signatureMotionEnabled);
-  const css = BASE_CSS + scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
+  const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') +
+    scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
     containerType: 'inline-size',
     width: '100%',
     minHeight: '100dvh',
-    backgroundColor: theme.palette.background,
+    backgroundColor: themeColor(theme, 'backgroundSubtle'),
     color: theme.palette.text,
     fontFamily: theme.fonts.body,
   };
+  if (theme.tokens) {
+    const tokenStyle = rootStyle as Record<string, string | number>;
+    tokenStyle['--theme-duration-fast'] = theme.tokens.motion.duration.fast;
+    tokenStyle['--theme-duration-normal'] = theme.tokens.motion.duration.normal;
+    tokenStyle['--theme-duration-slow'] = theme.tokens.motion.duration.slow;
+    tokenStyle['--theme-easing-enter'] = theme.tokens.motion.easing.enter;
+    tokenStyle['--theme-easing-exit'] = theme.tokens.motion.easing.exit;
+    tokenStyle['--theme-easing-standard'] = theme.tokens.motion.easing.standard;
+    tokenStyle['--theme-shadow-low'] = theme.tokens.shadow.low;
+    tokenStyle['--theme-shadow-medium'] = theme.tokens.shadow.medium;
+    tokenStyle['--theme-shadow-high'] = theme.tokens.shadow.high;
+  }
   if (motionCssNeeded) {
     const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
     (rootStyle as Record<string, string | number>)['--m-amp'] = f.amp;
@@ -195,7 +229,11 @@ export function SiteRenderer({
       ))}
       {needsPretendard(theme) && <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />}
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div className="anaks-site" style={rootStyle}>
+      <div
+        className="anaks-site"
+        {...(theme.tokens ? { 'data-theme-tokens': '1' } : {})}
+        style={rootStyle}
+      >
         {signatureScene && signatureArt ? (
           ordinarySections.map((section, continuationIndex) => {
             if (section.id === signatureScene.sectionId) {

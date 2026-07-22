@@ -27,6 +27,11 @@ import type {
 import { isHttpsUrl, safeHref, safeMapEmbedUrl, safeMediaSrc } from '@/lib/safe-url';
 import { resolveSolidButton } from '@/lib/design/button-contrast';
 import {
+  resolveThemePaint,
+  themeColor,
+  themeRadius,
+} from '@/lib/design/site-theme-tokens';
+import {
   generatedStackFontFloor,
   resolveRenderedSiteTypography,
   textFlowFor,
@@ -66,6 +71,10 @@ function len(px: number, variant: RenderVariant): string {
   return variant === 'canvas' ? cqw(px) : `${px}px`;
 }
 
+function themeLen(value: string | number, variant: RenderVariant): string {
+  return typeof value === 'string' ? value : len(value, variant);
+}
+
 export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup, splitText, splitTextMode = 'io', hoverVideo }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
@@ -79,7 +88,7 @@ export function ElementContent({ element, theme, variant, eager, interactive = t
     case 'divider':
       return <DividerContent el={element} theme={theme} variant={variant} />;
     case 'video':
-      return <VideoContent el={element} variant={variant} eager={eager} hoverVideo={hoverVideo} />;
+      return <VideoContent el={element} theme={theme} variant={variant} eager={eager} hoverVideo={hoverVideo} />;
     case 'form':
       return (
         <ContactForm el={element} theme={theme} siteId={siteId} interactive={interactive} compact={variant === 'stack'} />
@@ -116,6 +125,7 @@ function TextContent({
     style: s,
     variant,
     frameHeight: el.frame.h,
+    tokens: theme.tokens?.typography,
   });
   const style: CSSProperties = {
     margin: 0,
@@ -125,7 +135,7 @@ function TextContent({
       : `${mobileFontSize(typography.fontSize, generatedStackFontFloor(el.id))}px`,
     fontWeight: s.fontWeight ?? 400,
     fontFamily: s.fontFamily === 'heading' ? theme.fonts.heading : theme.fonts.body,
-    color: s.color ?? theme.palette.text,
+    color: resolveThemePaint(theme, s.color ?? theme.palette.text, 'muted'),
     // 모바일 스택은 중앙 정렬 보정 (자유배치 좌표 의미가 사라지므로)
     textAlign: variant === 'stack' ? 'center' : (s.align ?? 'left'),
     lineHeight: typography.lineHeight,
@@ -185,7 +195,7 @@ function ImageContent({
   eager?: boolean;
 }) {
   const s = el.style;
-  const radius = s.borderRadius ?? 0;
+  const radius = theme.tokens ? themeRadius(theme, 'soft', 0) : (s.borderRadius ?? 0);
   return (
     // 고객 콘텐츠 이미지는 next/image 대신 plain <img> (규약)
     // eslint-disable-next-line @next/next/no-img-element
@@ -200,9 +210,11 @@ function ImageContent({
         width: '100%',
         height: '100%',
         objectFit: s.objectFit ?? 'cover',
-        borderRadius: radius ? len(radius, variant) : undefined,
-        boxShadow: s.shadow ? '0 24px 48px -16px rgba(0, 0, 0, 0.4)' : undefined,
-        backgroundColor: theme.palette.surface,
+        borderRadius: radius ? themeLen(radius, variant) : undefined,
+        boxShadow: s.shadow
+          ? (theme.tokens?.shadow.high ?? '0 24px 48px -16px rgba(0, 0, 0, 0.4)')
+          : undefined,
+        backgroundColor: themeColor(theme, 'surfaceSubtle'),
       }}
     />
   );
@@ -223,7 +235,9 @@ function ButtonContent({
 }) {
   const s = el.style;
   const color = s.color ?? theme.palette.primary;
-  const radius = s.borderRadius ?? theme.radius ?? 8;
+  const radius = theme.tokens
+    ? themeRadius(theme, 'sharp', 8)
+    : (s.borderRadius ?? theme.radius ?? 8);
   const fontSize = s.fontSize ?? 16;
   // [G2] 솔리드 버튼 글자색 방어선 — 지정색(또는 기본 background)이 fill과 AA 미달이면 자동 교정
   //      (레거시/편집 config 보호. 신규 생성물은 이미 pickButtonTextColor로 안전).
@@ -265,13 +279,13 @@ function ButtonContent({
           width: '100%',
           height: '100%',
           fontSize: cqw(fontSize),
-          borderRadius: cqw(radius),
+          borderRadius: themeLen(radius, variant),
         }
       : {
           padding: '14px 30px',
           minHeight: '48px', // 모바일 탭 타깃
           fontSize: `${Math.min(Math.max(fontSize, 15), 18)}px`,
-          borderRadius: `${radius}px`,
+          borderRadius: themeLen(radius, variant),
         };
 
   const style = { ...base, ...variants[s.variant], ...sizing };
@@ -306,22 +320,33 @@ function ShapeContent({ el, theme, variant }: { el: ShapeElement; theme: SiteThe
           style={{
             width: '100%',
             height: `${thickness}px`,
-            backgroundColor: s.borderColor ?? s.fill ?? theme.palette.muted,
+            backgroundColor: resolveThemePaint(theme, s.borderColor ?? s.fill, 'muted'),
           }}
         />
       </div>
     );
   }
 
-  const radius = el.shape === 'ellipse' ? '50%' : s.borderRadius != null ? len(s.borderRadius, variant) : len(theme.radius ?? 0, variant);
+  const radius = el.shape === 'ellipse'
+    ? '50%'
+    : theme.tokens
+      ? themeLen(themeRadius(theme, 'soft', 0), variant)
+      : s.borderRadius != null
+        ? len(s.borderRadius, variant)
+        : len(theme.radius ?? 0, variant);
+  const borderColor = theme.tokens && (!s.borderColor || s.borderColor === theme.palette.muted)
+    ? themeColor(theme, 'border')
+    : (s.borderColor ?? theme.palette.muted);
+  const isCardSurface = el.id.includes('-card') || el.id.includes('placeholder');
   return (
     <div
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: s.fill ?? theme.palette.surface,
-        border: s.borderWidth ? `${s.borderWidth}px solid ${s.borderColor ?? theme.palette.muted}` : undefined,
+        backgroundColor: resolveThemePaint(theme, s.fill, 'surfaceStrong'),
+        border: s.borderWidth ? `${s.borderWidth}px solid ${borderColor}` : undefined,
         borderRadius: radius,
+        boxShadow: theme.tokens && isCardSurface ? theme.tokens.shadow.low : undefined,
       }}
     />
   );
@@ -339,7 +364,7 @@ function DividerContent({ el, theme, variant }: { el: DividerElement; theme: Sit
         style={{
           width: '100%',
           height: `${thickness}px`,
-          backgroundColor: el.style.color ?? theme.palette.muted,
+          backgroundColor: resolveThemePaint(theme, el.style.color, 'muted'),
         }}
       />
     </div>
@@ -361,7 +386,9 @@ function MapContent({
   variant: RenderVariant;
   interactive: boolean;
 }) {
-  const radius = el.style.borderRadius ?? theme.radius ?? 8;
+  const radius = theme.tokens
+    ? themeRadius(theme, 'soft', 8)
+    : (el.style.borderRadius ?? theme.radius ?? 8);
   // 화이트리스트 재검증 — zod(저장)와 별개의 렌더 방어선
   const src = safeMapEmbedUrl(el.embedUrl);
 
@@ -377,10 +404,12 @@ function MapContent({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 6,
-          backgroundColor: theme.palette.surface,
-          color: theme.palette.muted,
-          border: `1px dashed ${theme.palette.muted}66`,
-          borderRadius: len(radius, variant),
+          backgroundColor: themeColor(theme, 'surfaceStrong'),
+          color: themeColor(theme, 'muted'),
+          border: theme.tokens
+            ? `1px dashed ${themeColor(theme, 'border')}`
+            : `1px dashed ${theme.palette.muted}66`,
+          borderRadius: themeLen(radius, variant),
           fontFamily: theme.fonts.body,
           fontSize: variant === 'canvas' ? cqw(13) : '13px',
         }}
@@ -404,8 +433,8 @@ function MapContent({
         width: '100%',
         height: '100%',
         border: 'none',
-        borderRadius: len(radius, variant),
-        backgroundColor: theme.palette.surface,
+        borderRadius: themeLen(radius, variant),
+        backgroundColor: themeColor(theme, 'surfaceStrong'),
       }}
     />
   );
@@ -455,7 +484,7 @@ function SocialLinksContent({
     width: boxPx,
     height: boxPx,
     color,
-    border: `1px solid ${color}44`,
+    border: theme.tokens ? `1px solid ${themeColor(theme, 'border')}` : `1px solid ${color}44`,
     borderRadius: '50%',
     textDecoration: 'none',
   };
@@ -485,9 +514,9 @@ function SocialLinksContent({
 
 // ---------- video ----------
 
-function VideoContent({ el, variant, eager, hoverVideo }: { el: VideoElement; variant: RenderVariant; eager?: boolean; hoverVideo?: boolean }) {
+function VideoContent({ el, theme, variant, eager, hoverVideo }: { el: VideoElement; theme: SiteTheme; variant: RenderVariant; eager?: boolean; hoverVideo?: boolean }) {
   const s = el.style;
-  const radius = s.borderRadius ?? 0;
+  const radius = theme.tokens ? themeRadius(theme, 'soft', 0) : (s.borderRadius ?? 0);
   // [motion 3단계] hover-video: autoplay 끄고 preload none — 런타임이 hover 시 재생(데스크톱만). poster가 정지 화면.
   const m = hoverVideo ? { 'data-m': 'hovervideo' } : {};
   return (
@@ -507,7 +536,7 @@ function VideoContent({ el, variant, eager, hoverVideo }: { el: VideoElement; va
         width: '100%',
         height: '100%',
         objectFit: s.objectFit ?? 'cover',
-        borderRadius: radius ? len(radius, variant) : undefined,
+        borderRadius: radius ? themeLen(radius, variant) : undefined,
         backgroundColor: '#000',
       }}
     />

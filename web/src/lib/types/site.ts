@@ -15,6 +15,62 @@ export const DESIGN_WIDTH = 1440;
 /** 모바일 자동 스택 전환 기준(px). 미만이면 요소를 y좌표 순으로 세로 스택. */
 export const MOBILE_BREAKPOINT = 768;
 
+/**
+ * DNA 확장기가 만든 렌더 전용 토큰. 모델 선택 계약에는 노출하지 않고, 서버의
+ * TokenSet -> SiteTheme 어댑터만 기록한다. optional이라 기존 발행본은 종전 계약을 그대로 탄다.
+ */
+export interface SiteThemeTokens {
+  version: 1;
+  radius: {
+    sharp: string;
+    soft: string;
+    pill: string;
+  };
+  spacing: {
+    sectionBlock: string;
+    sectionInline: string;
+    elementGap: string;
+  };
+  typography: {
+    ratio: number;
+    size: {
+      caption: string;
+      body: string;
+      lead: string;
+      title: string;
+      display: string;
+    };
+    lineHeight: {
+      body: number;
+      heading: number;
+    };
+  };
+  color: {
+    backgroundSubtle: string;
+    surfaceSubtle: string;
+    surfaceStrong: string;
+    border: string;
+    muted: string;
+  };
+  shadow: {
+    low: string;
+    medium: string;
+    high: string;
+  };
+  motion: {
+    duration: {
+      fast: string;
+      normal: string;
+      slow: string;
+    };
+    easing: {
+      enter: string;
+      exit: string;
+      standard: string;
+    };
+  };
+}
+
 export interface SiteTheme {
   fonts: {
     /** CSS font-family 값 (예: "'Noto Serif KR', serif") */
@@ -33,6 +89,8 @@ export interface SiteTheme {
   };
   /** 기본 radius(px) */
   radius?: number;
+  /** DNA 경로에서만 기록되는 additive 렌더 토큰. 미지정이면 legacy 픽셀 계약 유지. */
+  tokens?: SiteThemeTokens;
   /** 사이트 스코프 커스텀 CSS (AI 생성). 렌더 시 <style>로 주입 */
   customCss?: string;
 }

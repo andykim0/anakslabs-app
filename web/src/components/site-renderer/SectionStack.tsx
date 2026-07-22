@@ -19,6 +19,7 @@ import {
   type MotionPlan,
 } from '@/lib/motion/apply';
 import { safeMediaSrc } from '@/lib/safe-url';
+import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 
 interface SectionStackProps {
   section: Section;
@@ -116,9 +117,13 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
       style={{
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: cinematic ? 'transparent' : (bg.color ?? theme.palette.background),
+        backgroundColor: cinematic
+          ? 'transparent'
+          : resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
         backgroundImage: cinematic ? undefined : bg.gradient,
-        padding: '64px 24px',
+        padding: theme.tokens
+          ? `${theme.tokens.spacing.sectionBlock} ${theme.tokens.spacing.sectionInline}`
+          : '64px 24px',
         // 요소 없이 배경 이미지만 있는 섹션은 이미지 밴드로
         minHeight: elements.length === 0 ? '52vw' : undefined,
         zIndex: cinematic ? 1 : undefined,
@@ -157,7 +162,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '20px',
+          gap: theme.tokens?.spacing.elementGap ?? '20px',
         }}
       >
         {elements.map((el) => {
@@ -222,7 +227,7 @@ export function SectionStack({ section, theme, isFirst, interactive = true, plan
       style={{
         position: 'relative',
         overflow: 'clip',
-        backgroundColor: bg.color ?? theme.palette.background,
+        backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
         backgroundImage: bg.gradient,
         '--scroll-progress': 0,
       } as CSSProperties}

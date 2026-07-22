@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react';
+import type { SiteThemeTokens } from '@/lib/types/site';
+import { tokenRemToPx } from '@/lib/design/site-theme-tokens';
 
 /**
  * Readable hierarchy is a product contract, not a collection of component guesses.
@@ -256,6 +258,8 @@ interface RenderedSiteTypographyInput {
   variant: 'canvas' | 'stack';
   /** Persisted DESIGN_WIDTH frame height. Required for the fixed canvas safety gate. */
   frameHeight: number;
+  /** DNA 경로에서만 주입. 미지정이면 기존 발행본 계산을 한 줄도 바꾸지 않는다. */
+  tokens?: SiteThemeTokens['typography'];
 }
 
 function inferredLegacyRole(style: RenderedSiteTypographyInput['style']): GeneratedTypographyRole | undefined {
@@ -272,7 +276,7 @@ function inferredLegacyRole(style: RenderedSiteTypographyInput['style']): Genera
  * height, so it can always consume the semantic token. This keeps the intended visual
  * uplift while making legacy overflow fail closed.
  */
-export function resolveRenderedSiteTypography({
+function resolveLegacyRenderedSiteTypography({
   elementId,
   style,
   variant,
@@ -315,4 +319,57 @@ export function resolveRenderedSiteTypography({
   // playback keeps the stored values. Newly generated configs reserve this geometry.
   const requiredHeight = candidate.fontSize * candidate.lineHeight * rule.lines;
   return requiredHeight <= frameHeight + 0.01 ? candidate : stored;
+}
+
+type DnaTypographyRole = keyof SiteThemeTokens['typography']['size'];
+
+function dnaTypographyRole(
+  elementId: string,
+  style: RenderedSiteTypographyInput['style'],
+): { role: DnaTypographyRole; lines: number } {
+  if (elementId.includes('hero-title')) return { role: 'display', lines: 2 };
+  if (isGeneratedSectionTitleId(elementId)) return { role: 'title', lines: 2 };
+  const generatedRule = generatedTextRoleFor(elementId);
+  if (generatedRule?.role === 'support') return { role: 'caption', lines: generatedRule.lines };
+  if (generatedRule?.role === 'heroBody' || generatedRule?.role === 'sectionIntro') {
+    return { role: 'lead', lines: generatedRule.lines };
+  }
+  if (style.fontFamily === 'heading') return { role: 'title', lines: 1 };
+  return { role: 'body', lines: generatedRule?.lines ?? 1 };
+}
+
+/**
+ * DNA는 별도 타이포 엔진을 만들지 않는다. 기존 semantic-role/readability/fixed-canvas
+ * 안전 계산을 먼저 통과한 뒤, 선택된 modular ratio를 같은 결과에 제한적으로 적용한다.
+ */
+export function resolveRenderedSiteTypography(input: RenderedSiteTypographyInput): {
+  fontSize: number;
+  lineHeight: number;
+} {
+  const legacy = resolveLegacyRenderedSiteTypography(input);
+  const tokens = input.tokens;
+  if (!tokens) return legacy;
+
+  const { role, lines } = dnaTypographyRole(input.elementId, input.style);
+  const ratioFactor = tokens.ratio / 1.2;
+  const tokenSize = tokenRemToPx(tokens.size[role]);
+  const fontSize = role === 'display'
+    ? legacy.fontSize * ratioFactor ** 2
+    : role === 'title'
+      ? legacy.fontSize * ratioFactor
+      : tokenSize;
+  const lineHeight = role === 'caption'
+    ? legacy.lineHeight
+    : input.style.fontFamily === 'heading' || role === 'display' || role === 'title'
+      ? tokens.lineHeight.heading
+      : tokens.lineHeight.body;
+  const candidate = {
+    fontSize: Number(fontSize.toFixed(4)),
+    lineHeight,
+  };
+
+  if (input.variant === 'stack') return candidate;
+  if (candidate.fontSize <= legacy.fontSize && candidate.lineHeight <= legacy.lineHeight) return candidate;
+  const requiredHeight = candidate.fontSize * candidate.lineHeight * lines;
+  return requiredHeight <= input.frameHeight + 0.01 ? candidate : legacy;
 }

@@ -73,6 +73,63 @@ const motionIndustryClassSchema = z.enum([
 
 // ---------- 사이트 테마 ----------
 
+const dnaRemTokenSchema = z.string().regex(/^\d+(?:\.\d+)?rem$/u);
+const dnaOklchTokenSchema = z.string().regex(
+  /^oklch\(\d+(?:\.\d+)? \d+(?:\.\d+)? \d+(?:\.\d+)?(?: \/ \d+(?:\.\d+)?)?\)$/u,
+);
+
+const siteThemeTokensSchema = z.object({
+  version: z.literal(1),
+  radius: z.object({
+    sharp: dnaRemTokenSchema,
+    soft: dnaRemTokenSchema,
+    pill: dnaRemTokenSchema,
+  }).strict(),
+  spacing: z.object({
+    sectionBlock: dnaRemTokenSchema,
+    sectionInline: dnaRemTokenSchema,
+    elementGap: dnaRemTokenSchema,
+  }).strict(),
+  typography: z.object({
+    ratio: z.number().min(1).max(1.5),
+    size: z.object({
+      caption: dnaRemTokenSchema,
+      body: dnaRemTokenSchema,
+      lead: dnaRemTokenSchema,
+      title: dnaRemTokenSchema,
+      display: dnaRemTokenSchema,
+    }).strict(),
+    lineHeight: z.object({
+      body: z.number().min(1).max(2.5),
+      heading: z.number().min(1).max(2.5),
+    }).strict(),
+  }).strict(),
+  color: z.object({
+    backgroundSubtle: dnaOklchTokenSchema,
+    surfaceSubtle: dnaOklchTokenSchema,
+    surfaceStrong: dnaOklchTokenSchema,
+    border: dnaOklchTokenSchema,
+    muted: dnaOklchTokenSchema,
+  }).strict(),
+  shadow: z.object({
+    low: z.string().min(1).max(160),
+    medium: z.string().min(1).max(160),
+    high: z.string().min(1).max(160),
+  }).strict(),
+  motion: z.object({
+    duration: z.object({
+      fast: z.string().regex(/^\d+ms$/u),
+      normal: z.string().regex(/^\d+ms$/u),
+      slow: z.string().regex(/^\d+ms$/u),
+    }).strict(),
+    easing: z.object({
+      enter: z.string().regex(/^cubic-bezier\([\d., ]+\)$/u),
+      exit: z.string().regex(/^cubic-bezier\([\d., ]+\)$/u),
+      standard: z.string().regex(/^cubic-bezier\([\d., ]+\)$/u),
+    }).strict(),
+  }).strict(),
+}).strict();
+
 export const siteThemeSchema = z.object({
   fonts: z.object({
     heading: z.string().min(1),
@@ -88,6 +145,7 @@ export const siteThemeSchema = z.object({
     accent: z.string().min(1),
   }),
   radius: z.number().optional(),
+  tokens: siteThemeTokensSchema.optional(),
   customCss: z.string().optional(),
 });
 

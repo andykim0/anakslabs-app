@@ -13,6 +13,7 @@ import {
   businessDirectionsHref,
   businessPhoneHref,
 } from '@/lib/analytics/trackable-actions';
+import { themeColor } from '@/lib/design/site-theme-tokens';
 
 export function LegalFooter({
   info,
@@ -54,9 +55,11 @@ export function LegalFooter({
     <footer
       className="anaks-legal-footer"
       style={{
-        backgroundColor: theme.palette.surface,
-        color: theme.palette.muted,
-        borderTop: `1px solid ${theme.palette.muted}22`,
+        backgroundColor: themeColor(theme, 'surfaceSubtle'),
+        color: themeColor(theme, 'muted'),
+        borderTop: theme.tokens
+          ? `1px solid ${themeColor(theme, 'border')}`
+          : `1px solid ${theme.palette.muted}22`,
         padding: '28px 24px',
         fontFamily: theme.fonts.body,
         fontSize: 12,
