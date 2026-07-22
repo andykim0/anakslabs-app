@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 
 const STORY_CSS = `
 [data-landing-story-root] {
@@ -88,9 +89,7 @@ export function LandingStoryContinuation({ children }: { children: ReactNode }) 
         style={{ '--scroll-progress': 0 } as CSSProperties}
       >
         <style dangerouslySetInnerHTML={{ __html: STORY_CSS }} />
-        <div aria-hidden="true" data-story-progress-rail>
-          <span data-story-progress-fill />
-        </div>
+        <StoryProgressRail />
         {children}
       </div>
     </div>

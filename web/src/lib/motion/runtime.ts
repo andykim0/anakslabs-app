@@ -1097,7 +1097,7 @@ export const MOTION_RUNTIME = `(function(){
     }
     function readProgress(el){var scrollRoot=el.__anaksScrollRoot,r=el.getBoundingClientRect(),rr=scrollRoot?scrollRoot.getBoundingClientRect():{top:0},vh=scrollRoot?scrollRoot.clientHeight:(window.innerHeight||document.documentElement.clientHeight||1),travel=Math.max(1,r.height-vh),top=r.top-rr.top,p=clamp(-top/travel),viewportP=clamp((vh-top)/(vh+r.height));return{el:el,rect:r,vh:vh,p:p,viewportP:viewportP,width:r.width};}
     function writeProgress(state){
-      var el=state.el,continuation=el.hasAttribute('data-signature-continuation'),landingUpper=el.hasAttribute('data-landing-manifesto'),landingStory=el.hasAttribute('data-landing-continuation');
+      var el=state.el,continuation=el.hasAttribute('data-signature-continuation'),landingUpper=el.hasAttribute('data-landing-manifesto'),landingStory=el.hasAttribute('data-landing-continuation')||el.hasAttribute('data-site-cinematic-continuation');
       var p=continuation||el.getAttribute('data-signature-id')==='mosaic-reveal'||el.getAttribute('data-signature-id')==='path-journey'?state.viewportP:state.p;
       el.style.setProperty('--scroll-progress',p.toFixed(4));
       if(landingUpper){

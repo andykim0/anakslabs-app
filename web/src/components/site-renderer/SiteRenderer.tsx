@@ -12,7 +12,7 @@
  *  - 'auto'(기본): 두 레이아웃을 모두 렌더하고 Tailwind 브레이크포인트로 전환.
  *    1440 고정 캔버스가 읽기 어려울 만큼 축소되지 않도록 <1280px는 세로 스택 재배치.
  */
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
 import { resolveMotionPlan, intensityFactors, planIsActive } from '@/lib/motion/apply';
@@ -38,6 +38,7 @@ import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
+import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -102,7 +103,58 @@ const SITE_CINEMATIC_CSS = `
   background: color-mix(in srgb,var(--site-cine-primary) 24%,transparent);
   filter: blur(64px);
 }
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] {
+  --story-progress: var(--scroll-progress,0); position: relative; isolation: isolate; overflow: clip;
+}
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-progress-rail] {
+  position: absolute; z-index: 1; top: clamp(120px,12svh,180px); bottom: clamp(96px,10svh,160px);
+  left: max(14px,calc((100% - 1400px) / 2 + 20px)); width: 2px; overflow: hidden;
+  border-radius: 999px; background: color-mix(in srgb,var(--site-cine-text) 14%,transparent); pointer-events: none;
+}
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] [data-story-progress-fill] {
+  display: block; width: 100%; height: 100%; transform: scaleY(var(--story-progress)); transform-origin: 50% 0;
+  background: linear-gradient(to bottom,var(--site-cine-primary),var(--site-cine-accent));
+  box-shadow: 0 0 16px color-mix(in srgb,var(--site-cine-accent) 42%,transparent);
+}
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter] {
+  position: relative; isolation: isolate; z-index: 2;
+}
+.anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter]::after {
+  position: absolute; z-index: 4; top: clamp(30px,4vw,58px);
+  left: calc(max(14px,calc((100% - 1400px) / 2 + 20px)) - 17px);
+  display: grid; width: 36px; height: 36px; place-items: center; content: attr(data-story-chapter);
+  border: 1px solid color-mix(in srgb,var(--site-cine-primary) 40%,transparent); border-radius: 999px;
+  background: var(--site-cine-bg); color: var(--site-cine-text);
+  font: 650 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing: .08em;
+  box-shadow: 0 0 0 4px var(--site-cine-bg),0 8px 24px color-mix(in srgb,var(--site-cine-text) 14%,transparent);
+  pointer-events: none;
+}
+@media (max-width: 767.98px) {
+  .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-progress-rail] {
+    right: 12px; left: auto; opacity: .72;
+  }
+  .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] > [data-story-chapter]::after {
+    top: 14px; right: 0; left: auto; width: 28px; height: 28px; font-size: 8px;
+    box-shadow: 0 0 0 3px var(--site-cine-bg),0 6px 18px color-mix(in srgb,var(--site-cine-text) 12%,transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anaks-site[data-site-cinematic] [data-site-cinematic-continuation] [data-story-progress-fill] { transform: scaleY(1); }
+}
 `;
+
+function SiteCinematicSequence({ children }: { children: ReactNode }) {
+  return (
+    <div data-site-cinematic-continuation data-m-progress style={{ '--scroll-progress': 0 } as CSSProperties}>
+      <StoryProgressRail />
+      {children}
+    </div>
+  );
+}
+
+function SiteCinematicChapter({ index, children }: { index: number; children: ReactNode }) {
+  return <div data-story-chapter={String(index + 1).padStart(2, '0')}>{children}</div>;
+}
 
 /**
  * AI 생성 customCss를 사이트 루트 클래스로 스코프.
@@ -201,9 +253,11 @@ export function SiteRenderer({
     ? resolveMotionArtDirectionProfile(signatureScene.signatureId, signatureContext, signatureScene)
     : undefined;
   // Signature CSS is also its complete no-JS/reduced static layout; runtime remains optional enhancement.
-  const motionCssNeeded = baseMotionActive || Boolean(signatureScene);
+  const motionCssNeeded = baseMotionActive || Boolean(signatureScene) || siteCinematic;
   const signatureMotionEnabled = Boolean(signatureScene) && config.motion?.intensity !== 'off';
-  const motionActive = shouldAnimate && (baseMotionActive || signatureMotionEnabled);
+  const motionActive = shouldAnimate && (
+    baseMotionActive || signatureMotionEnabled || (siteCinematic && config.motion?.intensity !== 'off')
+  );
   const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
@@ -271,7 +325,48 @@ export function SiteRenderer({
         style={rootStyle}
       >
         {signatureScene && signatureArt ? (
-          ordinarySections.map((section, continuationIndex) => {
+          siteCinematic ? (
+            <SiteCinematicSequence>
+              {ordinarySections.filter((section) => (
+                section.id === signatureScene.sectionId || !signatureConsumed.has(section.id)
+              )).map((section, continuationIndex) => {
+                if (section.id === signatureScene.sectionId) {
+                  return (
+                    <SiteCinematicChapter key={`signature:${signatureScene.signatureId}:${section.id}`} index={continuationIndex}>
+                      <MotionSignatureRenderer
+                        scene={signatureScene}
+                        theme={theme}
+                        artDirection={signatureArt}
+                        mode={mode}
+                        isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
+                      />
+                    </SiteCinematicChapter>
+                  );
+                }
+                return (
+                  <SiteCinematicChapter key={section.id} index={continuationIndex}>
+                    <div
+                      data-signature-ordinary-section
+                      data-signature-continuation
+                      data-continuation-index={continuationIndex}
+                      data-m-progress
+                    >
+                      {showDesktop && (
+                        <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
+                        </div>
+                      )}
+                      {showMobile && (
+                        <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
+                        </div>
+                      )}
+                    </div>
+                  </SiteCinematicChapter>
+                );
+              })}
+            </SiteCinematicSequence>
+          ) : ordinarySections.map((section, continuationIndex) => {
             if (section.id === signatureScene.sectionId) {
               return (
                 <MotionSignatureRenderer
@@ -324,33 +419,82 @@ export function SiteRenderer({
             );
           })
         ) : scrollytellingSection ? (
-          <ScrollytellingStage
-            section={scrollytellingSection}
-            theme={theme}
-            isFirst={sections[0]?.id === scrollytellingSection.id}
-            mode={mode}
-          />
+          siteCinematic ? (
+            <SiteCinematicSequence>
+              <SiteCinematicChapter index={0}>
+                <ScrollytellingStage
+                  section={scrollytellingSection}
+                  theme={theme}
+                  isFirst={sections[0]?.id === scrollytellingSection.id}
+                  mode={mode}
+                />
+              </SiteCinematicChapter>
+              {ordinarySections.map((section, index) => (
+                <SiteCinematicChapter key={section.id} index={index + 1}>
+                  {showDesktop && (
+                    <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                    </div>
+                  )}
+                  {showMobile && (
+                    <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                    </div>
+                  )}
+                </SiteCinematicChapter>
+              ))}
+            </SiteCinematicSequence>
+          ) : (
+            <ScrollytellingStage
+              section={scrollytellingSection}
+              theme={theme}
+              isFirst={sections[0]?.id === scrollytellingSection.id}
+              mode={mode}
+            />
+          )
         ) : null}
-        {!signatureScene && showDesktop && (
+        {!signatureScene && !(siteCinematic && scrollytellingSection) && showDesktop && (
           <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-            {ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} />
+            {siteCinematic ? (
+              <SiteCinematicSequence>
+                {ordinarySections.map((section, index) => (
+                  <SiteCinematicChapter key={section.id} index={index}>
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} />
+                  </SiteCinematicChapter>
+                ))}
+              </SiteCinematicSequence>
+            ) : ordinarySections.map((section) => (
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
             ))}
           </div>
         )}
-        {!signatureScene && showMobile && (
+        {!signatureScene && !(siteCinematic && scrollytellingSection) && showMobile && (
           <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-            {ordinarySections.map((section) => (
+            {siteCinematic ? (
+              <SiteCinematicSequence>
+                {ordinarySections.map((section, index) => (
+                  <SiteCinematicChapter key={section.id} index={index}>
+                    <SectionStack
+                      section={section}
+                      theme={theme}
+                      isFirst={mode === 'mobile' && sections[0]?.id === section.id}
+                      interactive={interactive}
+                      plan={plan}
+                      siteId={siteId}
+                      proceduralHero={section.type === 'hero' && !section.background.video?.src}
+                    />
+                  </SiteCinematicChapter>
+                ))}
+              </SiteCinematicSequence>
+            ) : ordinarySections.map((section) => (
               <SectionStack
                 key={section.id}
                 section={section}
                 theme={theme}
-                // auto already rendered the desktop LCP image; never create a second eager/high candidate.
                 isFirst={mode === 'mobile' && sections[0]?.id === section.id}
                 interactive={interactive}
                 plan={plan}
                 siteId={siteId}
-                proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
               />
             ))}
           </div>
