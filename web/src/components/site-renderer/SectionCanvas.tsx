@@ -28,6 +28,7 @@ import {
   isSplitText,
   type MotionPlan,
 } from '@/lib/motion/apply';
+import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 
 interface SectionCanvasProps {
   section: Section;
@@ -53,6 +54,9 @@ const STACK_MAX = 5; // stacking-cards: 카드 3~5장, 초과분 일반 나열
 
 export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
+  if (isUniformTeaserSection(section)) {
+    return <UniformTeaserGrid section={section} theme={props.theme} variant="canvas" interactive={props.interactive ?? true} animate={Boolean(plan)} />;
+  }
   // 레이아웃이 발산하는 두 기법은 별도 렌더 분기
   if (section.layout === 'marquee') return <MarqueeSection {...props} animate={plan?.marqueeSections.has(section.id) ?? false} />;
   if (plan?.cinematicHeroSections.has(section.id) && section.background.video?.src) return <CinematicProgressSection {...props} />;

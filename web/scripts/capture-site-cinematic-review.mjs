@@ -198,6 +198,14 @@ async function metrics(cdp, sessionId) {
     const root=document.querySelector('.anaks-site');
     const fill=document.querySelector('[data-story-progress-fill]');
     const chapters=[...document.querySelectorAll('[data-story-chapter]')];
+    const teaserCards=[...document.querySelectorAll('[data-uniform-teaser-card]')];
+    const teaserThumbs=[...document.querySelectorAll('[data-uniform-teaser-thumbnail]')];
+    const teaserCtas=[...document.querySelectorAll('[data-uniform-teaser-cta]')];
+    const cardRects=teaserCards.map((card)=>card.getBoundingClientRect());
+    const thumbRects=teaserThumbs.map((thumb)=>thumb.getBoundingClientRect());
+    const uniqueColumns=[...new Set(cardRects.map((rect)=>Math.round(rect.left)))].length;
+    const cardHeights=cardRects.map((rect)=>rect.height);
+    const thumbRatios=thumbRects.map((rect)=>rect.width/Math.max(1,rect.height));
     return {
       width:innerWidth,height:innerHeight,scrollY,maxScroll:Math.max(0,document.documentElement.scrollHeight-innerHeight),
       scrollWidth:document.documentElement.scrollWidth,cls:Number(window.__reviewCls||0),clsSources:window.__reviewShifts||[],
@@ -208,6 +216,13 @@ async function metrics(cdp, sessionId) {
         id:chapter.getAttribute('data-story-chapter'),opacity:style?.opacity??null,transform:style?.transform??null,
       }}),
       copy:root?.innerText??'',videoCount:document.querySelectorAll('video').length,
+      teaser:teaserCards.length?{
+        cardCount:teaserCards.length,columns:uniqueColumns,ctaCount:teaserCtas.length,
+        orphanCtas:teaserCtas.filter((cta)=>!cta.closest('[data-uniform-teaser-card]')).length,
+        unfilledThumbs:teaserThumbs.filter((thumb)=>!thumb.querySelector('img')&&!thumb.querySelector('[data-teaser-procedural-thumbnail]')).length,
+        cardHeightDelta:Math.max(...cardHeights)-Math.min(...cardHeights),
+        thumbRatioDelta:Math.max(...thumbRatios)-Math.min(...thumbRatios),
+      }:null,
       errors:[...(window.__reviewErrors||[])],
     };
   })()`);
@@ -293,6 +308,7 @@ async function main() {
         id: fixture.id, viewport: [fixture.width, fixture.height], screenshot: path.relative(ROOT, full),
         overflow: finalMetrics.scrollWidth > fixture.width, cls: finalMetrics.cls, clsSources: finalMetrics.clsSources, errors: finalMetrics.errors,
         chapterCount: finalMetrics.chapterCount, quietCount: finalMetrics.quietCount,
+        teaser: finalMetrics.teaser,
         monotonic: scroll.monotonic, changingSteps: scroll.changingSteps, deadSteps: scroll.deadSteps,
       });
     }
@@ -343,7 +359,14 @@ async function main() {
     currentFixture = 'recording-mobile';
     recordings.push(await record(cdp, sessionId, 'fixtures/cafe-390.html', 390, 844, 'cafe-full-scroll-390'));
 
-    const failed = audits.filter((audit) => audit.overflow || audit.cls !== 0 || audit.errors.length > 0 || !audit.monotonic || audit.deadSteps > 0 || audit.chapterCount !== audit.quietCount);
+    const failed = audits.filter((audit) => {
+      const expectedColumns = audit.viewport[0] >= 1280 ? 3 : audit.viewport[0] >= 640 ? 2 : 1;
+      return audit.overflow || audit.cls !== 0 || audit.errors.length > 0 || !audit.monotonic ||
+        audit.deadSteps > 0 || audit.chapterCount !== audit.quietCount || !audit.teaser ||
+        audit.teaser.columns !== expectedColumns || audit.teaser.orphanCtas !== 0 ||
+        audit.teaser.unfilledThumbs !== 0 || audit.teaser.ctaCount !== audit.teaser.cardCount ||
+        audit.teaser.cardHeightDelta > 1 || audit.teaser.thumbRatioDelta > .02;
+    });
     if (failed.length > 0 || errors.length > 0) throw new Error(`Browser audit failed: ${JSON.stringify({ failed, errors }, null, 2)}`);
     if (video.count !== 1 || !video.ssrPreloadNone || !video.poster || video.posterFetchPriority !== 'high') {
       throw new Error(`Video performance contract failed: ${JSON.stringify(video)}`);

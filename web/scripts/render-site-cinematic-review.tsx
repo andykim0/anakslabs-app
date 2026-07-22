@@ -18,7 +18,7 @@ import { withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import type { DesignCandidate, SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-site-cinematic-review';
+const OUTPUT_DIR = process.env.SITECINE_REVIEW_OUTPUT ?? '/private/tmp/daboim-site-cinematic-review';
 const HERO_SOURCE = path.resolve('public/mock/candidate-light.svg');
 const VIDEO_SOURCE = path.resolve('public/mock/clip-ember.mp4');
 

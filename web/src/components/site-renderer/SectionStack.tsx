@@ -20,6 +20,7 @@ import {
 } from '@/lib/motion/apply';
 import { safeMediaSrc } from '@/lib/safe-url';
 import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
+import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 
 interface SectionStackProps {
   section: Section;
@@ -98,6 +99,9 @@ export function SectionStack({
   proceduralHero = false,
   integratedTypography = false,
 }: SectionStackProps) {
+  if (isUniformTeaserSection(section)) {
+    return <UniformTeaserGrid section={section} theme={theme} variant="stack" interactive={interactive} animate={Boolean(plan)} />;
+  }
   const bg = section.background;
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
   const elements = stackOrder(section.elements.filter(stackable));

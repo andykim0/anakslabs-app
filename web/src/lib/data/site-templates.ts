@@ -1910,7 +1910,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
   const { theme } = ctx;
   const cards = entries.slice(0, 6); // 홈 티저는 최대 6장(내비 상한과 정합)
   const rows = Math.ceil(cards.length / 3);
-  const ROW_GAP = 360;
+  const ROW_GAP = 380;
   const elements: CanvasElement[] = [
     {
       id: nextId(ctx, 'el-teaser-kicker'),
@@ -1928,18 +1928,17 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
     const blurb = entry.blurb || TEASER_BLURB[entry.slug] || `${entry.title} 페이지로 이동합니다.`;
     // 카드 배경
     elements.push({
-      id: nextId(ctx, 'el-teaser-card'),
+      id: nextId(ctx, `el-teaser-card-v2-${i + 1}`),
       kind: 'shape',
-      frame: { x, y, w: 360, h: 320 },
+      frame: { x, y, w: 360, h: 340 },
       z: 1,
       shape: 'rect',
       style: { fill: theme.palette.surface, borderRadius: theme.radius ?? 4 },
     });
-    // 대상 페이지 대표 이미지(있으면 상단 밴드)
-    let textTop = y + 36;
+    // 모든 카드가 같은 썸네일 슬롯을 갖는다. 사진이 없으면 렌더러가 사이트 팔레트로 채운다.
     if (entry.thumb) {
       elements.push({
-        id: nextId(ctx, 'el-teaser-thumb'),
+        id: nextId(ctx, `el-teaser-thumb-v2-${i + 1}`),
         kind: 'image',
         frame: { x, y, w: 360, h: 150 },
         z: 2,
@@ -1947,11 +1946,20 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
         alt: entry.title,
         style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       });
-      textTop = y + 168;
+    } else {
+      elements.push({
+        id: nextId(ctx, `el-teaser-thumb-v2-${i + 1}`),
+        kind: 'shape',
+        frame: { x, y, w: 360, h: 150 },
+        z: 2,
+        shape: 'rect',
+        style: { fill: theme.palette.surface, borderRadius: ctx.kit.imageRadius },
+      });
     }
+    const textTop = y + 174;
     elements.push(
       {
-        id: nextId(ctx, 'el-teaser-title'),
+        id: nextId(ctx, `el-teaser-title-v2-${i + 1}`),
         kind: 'text',
         frame: { x: x + 28, y: textTop, w: 304, h: 32 },
         z: 3,
@@ -1959,7 +1967,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
         style: { fontSize: 22, fontWeight: 500, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
       },
       {
-        id: nextId(ctx, 'el-teaser-desc'),
+        id: nextId(ctx, `el-teaser-desc-v2-${i + 1}`),
         kind: 'text',
         frame: { x: x + 28, y: textTop + 38, w: 304, h: 44 },
         z: 3,
@@ -1967,9 +1975,9 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
         style: { fontSize: 14, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.6 },
       },
       {
-        id: nextId(ctx, 'el-teaser-link'),
+        id: nextId(ctx, `el-teaser-link-v2-${i + 1}`),
         kind: 'button',
-        frame: { x: x + 28, y: y + 272, w: 150, h: 40 },
+        frame: { x: x + 28, y: y + 284, w: 150, h: 40 },
         z: 3,
         label: '자세히 보기',
         href: `/${entry.slug}`,
