@@ -8,9 +8,13 @@
  * 필수(must)·해제불가(required) 섹션은 잠금, 있으면-좋음(nice) 섹션만 빼기(toggle) 가능 —
  * 컴맹 배려: 목적별 기본 구성이 이미 합리적, 고객은 '빼기'만.
  */
-import { Check, GripVertical, Lock } from 'lucide-react';
+import { ArrowRight, Check, GripVertical, Lock } from 'lucide-react';
 import type { SurveyInput } from '@/lib/types/domain';
-import { buildSitePlan, sitePlanV2Enabled } from '@/lib/content/site-plan';
+import {
+  buildSitePlan,
+  sitePlanV2Enabled,
+  type AbsentSitePlanSection,
+} from '@/lib/content/site-plan';
 import { cn } from '../ui';
 
 /** 섹션 식별 키 — 페이지+타입+이름 */
@@ -34,11 +38,14 @@ export function WireframePreview({
   survey,
   removed,
   onToggle,
+  onMissingSection,
 }: {
   survey: SurveyInput;
   /** 제외된 nice 섹션 키 집합 */
   removed: Set<string>;
   onToggle: (key: string) => void;
+  /** 조기 와이어프레임에서 부재 구성을 해당 입력으로 연결한다. 기존 승인 화면은 생략 가능. */
+  onMissingSection?: (section: AbsentSitePlanSection) => void;
 }) {
   const sitePlan = sitePlanV2Enabled(survey) ? buildSitePlan(survey) : null;
   // 페이지 순서(pagePlan) → 그 안의 섹션(sectionPlan, pageSlug로 그룹)
@@ -127,7 +134,20 @@ export function WireframePreview({
           <ul className="mt-2 space-y-1.5">
             {sitePlan.absentSections.map((section) => (
               <li key={`${section.type}:${section.name}`} className="text-[11px] leading-4 text-ob-muted">
-                <span className="font-medium text-ob-ink">{section.name}</span> — {section.inputHint}
+                {onMissingSection ? (
+                  <button
+                    type="button"
+                    onClick={() => onMissingSection(section)}
+                    className="group flex w-full items-start justify-between gap-3 rounded-ob px-2 py-1.5 text-left hover:bg-ob-surface"
+                  >
+                    <span>
+                      <span className="font-medium text-ob-ink">{section.name}</span> — {section.inputHint}
+                    </span>
+                    <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ob-accent-strong transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                ) : (
+                  <><span className="font-medium text-ob-ink">{section.name}</span> — {section.inputHint}</>
+                )}
               </li>
             ))}
           </ul>

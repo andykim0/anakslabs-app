@@ -32,7 +32,86 @@ const PROOF_SOURCE_STATUSES: readonly {
   { value: 'publication_permission', label: '게시 허락받음' },
 ];
 
-export function Step07Direction() {
+export function ProofFields() {
+  const { watch, setValue } = useFormContext<SurveyForm>();
+  const proofItems = watch('proofItems') ?? [];
+
+  return (
+    <Field
+      label={<>출처 있는 신뢰 요소 <span className="font-normal text-ob-muted">(선택)</span></>}
+      hint="자격·경력·수상·후기·수치·사례는 고객님이 확인한 내용만 넣습니다. 출처 상태는 내부 확인용이며 홈페이지에는 내용만 표시돼요."
+    >
+      <div className="space-y-3">
+        {proofItems.map((proof, index) => (
+          <div key={`${index}-${proof.kind}`} className="rounded-ob border border-ob-border bg-ob-bg p-3">
+            <div className="grid gap-2 sm:grid-cols-[140px_1fr_160px_44px]">
+              <select
+                value={proof.kind}
+                onChange={(event) => setValue(
+                  'proofItems',
+                  proofItems.map((item, itemIndex) => itemIndex === index
+                    ? { ...item, kind: event.target.value as SurveyForm['proofItems'][number]['kind'] }
+                    : item),
+                )}
+                aria-label={`신뢰 요소 ${index + 1} 종류`}
+                className={obInput}
+              >
+                {PROOF_KINDS.map((kind) => <option key={kind.value} value={kind.value}>{kind.label}</option>)}
+              </select>
+              <input
+                value={proof.content}
+                onChange={(event) => setValue(
+                  'proofItems',
+                  proofItems.map((item, itemIndex) => itemIndex === index
+                    ? { ...item, content: event.target.value }
+                    : item),
+                )}
+                maxLength={500}
+                placeholder="고객님이 확인한 실제 내용"
+                className={obInput}
+              />
+              <select
+                value={proof.sourceStatus}
+                onChange={(event) => setValue(
+                  'proofItems',
+                  proofItems.map((item, itemIndex) => itemIndex === index
+                    ? { ...item, sourceStatus: event.target.value as SurveyForm['proofItems'][number]['sourceStatus'] }
+                    : item),
+                )}
+                aria-label={`신뢰 요소 ${index + 1} 출처 상태`}
+                className={obInput}
+              >
+                {PROOF_SOURCE_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
+              </select>
+              <button
+                type="button"
+                onClick={() => setValue('proofItems', proofItems.filter((_, itemIndex) => itemIndex !== index))}
+                aria-label={`신뢰 요소 ${index + 1} 삭제`}
+                className="flex h-11 w-11 items-center justify-center rounded-ob border border-ob-border text-ob-muted hover:border-ob-danger hover:text-ob-danger"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setValue('proofItems', [
+            ...proofItems,
+            { kind: 'qualification', content: '', sourceStatus: 'customer_confirmed' },
+          ])}
+          disabled={proofItems.length >= 20}
+          className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted hover:border-ob-muted hover:text-ob-ink disabled:opacity-50"
+        >
+          <Plus className="h-4 w-4" />
+          신뢰 요소 추가
+        </button>
+      </div>
+    </Field>
+  );
+}
+
+export function Step07Direction({ mode = 'all' }: { mode?: 'all' | 'core' | 'proof' }) {
   const { watch, setValue, register, formState } = useFormContext<SurveyForm>();
   const { toast } = useToast();
   const { goTo } = useSurveyUx();
@@ -42,7 +121,8 @@ export function Step07Direction() {
   const facts = watch('factualAnswers') ?? [];
   const conversionKind = watch('conversionKind');
   const conversionUrl = watch('conversionUrl') ?? '';
-  const proofItems = watch('proofItems') ?? [];
+  const showCore = mode !== 'proof';
+  const showProof = mode !== 'core';
 
   const group = purposeId ? findPurpose(purposeId)?.group : undefined;
   const goals = group ? goalsForGroup(group) : [];
@@ -69,11 +149,13 @@ export function Step07Direction() {
 
   return (
     <div className="space-y-8">
-      <StepIntro>
-        방문자가 할 행동과 강조할 장점, 분위기를 정해요. 이걸로 주 버튼 문구와 강조 섹션이 정해져요.
-      </StepIntro>
+      {showCore ? (
+        <StepIntro>
+          누구를 설득하고 어떤 행동으로 이어갈지 정해요. 핵심 답만으로 먼저 홈페이지 구성을 보여드릴게요.
+        </StepIntro>
+      ) : null}
 
-      <div className="grid gap-4 rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5">
+      {showCore ? <><div className="grid gap-4 rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5">
         <Field label={<>누구를 설득하는 홈페이지인가요? <span className="font-normal text-ob-muted">(선택)</span></>}>
           <textarea
             {...register('targetCustomer')}
@@ -198,78 +280,6 @@ export function Step07Direction() {
       ) : null}
 
       <Field
-        label={<>출처 있는 신뢰 요소 <span className="font-normal text-ob-muted">(선택)</span></>}
-        hint="자격·경력·수상·후기·수치·사례는 고객님이 확인한 내용만 넣습니다. 출처 상태는 내부 확인용이며 홈페이지에는 내용만 표시돼요."
-      >
-        <div className="space-y-3">
-          {proofItems.map((proof, index) => (
-            <div key={`${index}-${proof.kind}`} className="rounded-ob border border-ob-border bg-ob-bg p-3">
-              <div className="grid gap-2 sm:grid-cols-[140px_1fr_160px_44px]">
-                <select
-                  value={proof.kind}
-                  onChange={(event) => setValue(
-                    'proofItems',
-                    proofItems.map((item, itemIndex) => itemIndex === index
-                      ? { ...item, kind: event.target.value as SurveyForm['proofItems'][number]['kind'] }
-                      : item),
-                  )}
-                  aria-label={`신뢰 요소 ${index + 1} 종류`}
-                  className={obInput}
-                >
-                  {PROOF_KINDS.map((kind) => <option key={kind.value} value={kind.value}>{kind.label}</option>)}
-                </select>
-                <input
-                  value={proof.content}
-                  onChange={(event) => setValue(
-                    'proofItems',
-                    proofItems.map((item, itemIndex) => itemIndex === index
-                      ? { ...item, content: event.target.value }
-                      : item),
-                  )}
-                  maxLength={500}
-                  placeholder="고객님이 확인한 실제 내용"
-                  className={obInput}
-                />
-                <select
-                  value={proof.sourceStatus}
-                  onChange={(event) => setValue(
-                    'proofItems',
-                    proofItems.map((item, itemIndex) => itemIndex === index
-                      ? { ...item, sourceStatus: event.target.value as SurveyForm['proofItems'][number]['sourceStatus'] }
-                      : item),
-                  )}
-                  aria-label={`신뢰 요소 ${index + 1} 출처 상태`}
-                  className={obInput}
-                >
-                  {PROOF_SOURCE_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setValue('proofItems', proofItems.filter((_, itemIndex) => itemIndex !== index))}
-                  aria-label={`신뢰 요소 ${index + 1} 삭제`}
-                  className="flex h-11 w-11 items-center justify-center rounded-ob border border-ob-border text-ob-muted hover:border-ob-danger hover:text-ob-danger"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => setValue('proofItems', [
-              ...proofItems,
-              { kind: 'qualification', content: '', sourceStatus: 'customer_confirmed' },
-            ])}
-            disabled={proofItems.length >= 20}
-            className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted hover:border-ob-muted hover:text-ob-ink disabled:opacity-50"
-          >
-            <Plus className="h-4 w-4" />
-            신뢰 요소 추가
-          </button>
-        </div>
-      </Field>
-
-      <Field
         label={
           <>
             분위기(톤) <span className="font-normal text-ob-muted">(최대 2개)</span>
@@ -284,7 +294,9 @@ export function Step07Direction() {
             </Chip>
           ))}
         </div>
-      </Field>
+      </Field></> : null}
+
+      {showProof ? <ProofFields /> : null}
     </div>
   );
 }

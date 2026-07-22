@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * [survey v4] 8스텝 서브위저드 공용 계약·프리미티브 (라이트 테마).
+ * [survey v5] 9스텝 서브위저드 공용 계약·프리미티브 (라이트 테마).
  * survey-step.tsx(호스트)와 step01~08이 공유한다. 폼 상태 스키마·타입, 색/무드 파생,
  * initialValues→폼 기본값 매핑, 라이트 토큰 UI 조각, 스텝 전환 페이드를 모은다.
  */
@@ -116,12 +116,13 @@ export type SurveyForm = z.infer<typeof surveyFormSchema>;
 export const STEP_REQUIRED_FIELDS: Record<number, (keyof SurveyForm)[]> = {
   1: [],
   2: ['purposeId', 'businessName', 'industry', 'region'],
-  3: [],
+  3: ['tone'],
   4: [],
   5: [],
   6: [],
-  7: ['tone'],
+  7: [],
   8: [],
+  9: [],
 };
 
 // ---------- 색/무드 파생 (순수) ----------

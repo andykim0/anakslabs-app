@@ -9,6 +9,7 @@ import { useRef, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { CheckCircle2, ImagePlus, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
 import type { LivePurposeId } from '@/lib/types/domain';
+import type { SectionType } from '@/lib/types/site';
 import { factQuestionsForIndustry, faqQuestionsForIndustry } from '@/lib/content/content-depth';
 import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { cn } from '../../ui';
@@ -132,7 +133,26 @@ function ContentRowPhoto({ index }: { index: number }) {
   );
 }
 
-export function Step03Content() {
+type ContentStepMode = 'all' | 'core' | 'deepening';
+
+const FACT_KEYS_BY_SECTION: Readonly<Partial<Record<SectionType, readonly string[]>>> = {
+  about: ['credentials', 'specialties'],
+  features: ['services', 'specialties', 'signature'],
+  menu: ['services', 'classes', 'signature', 'duration', 'materials', 'specialties'],
+  pricing: ['services', 'classes', 'duration'],
+  team: ['credentials', 'specialties'],
+  cases: ['caseStudies'],
+  faq: ['parking', 'reservation', 'paymentMethods', 'accessibility', 'pets', 'wifi'],
+  contact: ['phone', 'openingHours', 'address', 'parking', 'reservation', 'directions'],
+};
+
+export function Step03Content({
+  mode = 'all',
+  focusType,
+}: {
+  mode?: ContentStepMode;
+  focusType?: SectionType;
+}) {
   const { control, register, watch, setValue, getValues, formState } = useFormContext<SurveyForm>();
   const { toast } = useToast();
   const { importedBadge } = useSurveyUx();
@@ -149,14 +169,27 @@ export function Step03Content() {
   const filledCount = watchedItems.filter((it) => (it?.name ?? '').trim().length > 0).length;
   const gate = contentGateStatus(purposeId, filledCount);
   const factualAnswers = watch('factualAnswers') ?? [];
-  const factQuestions = factQuestionsForIndustry(industry, purposeId);
+  const allFactQuestions = factQuestionsForIndustry(industry, purposeId);
+  const focusFactKeys = focusType ? FACT_KEYS_BY_SECTION[focusType] ?? [] : [];
+  const factQuestions = mode === 'core'
+    ? allFactQuestions.filter((question) => question.required)
+    : mode === 'deepening'
+      ? allFactQuestions.filter((question) => focusFactKeys.includes(question.key))
+      : allFactQuestions;
   const factsByKey = new Map(factualAnswers.map((answer) => [answer.key, answer]));
   const answeredFactCount = factQuestions.filter((question) => factsByKey.get(question.key)?.value.trim()).length;
-  const factProgress = Math.round((answeredFactCount / factQuestions.length) * 100);
+  const factProgress = factQuestions.length
+    ? Math.round((answeredFactCount / factQuestions.length) * 100)
+    : 0;
   const faqAnswers = watch('faqAnswers') ?? [];
   const faqQuestions = faqQuestionsForIndustry(industry);
   const faqAnswersById = new Map(faqAnswers.map((answer) => [answer.questionId, answer.answer]));
   const answeredFaqCount = faqQuestions.filter((question) => faqAnswersById.get(question.id)?.trim()).length;
+  const showStory = mode === 'all' || (mode === 'deepening' && focusType === 'about');
+  const showFacts = factQuestions.length > 0;
+  const showFaq = mode === 'all' || (mode === 'deepening' && focusType === 'faq');
+  const showItems = mode === 'all' || (mode === 'deepening' && ['menu', 'pricing', 'cases'].includes(focusType ?? ''));
+  const showProvidedContent = mode === 'all' || (mode === 'deepening' && ['about', 'features'].includes(focusType ?? ''));
 
   const setFactAnswer = (key: (typeof factQuestions)[number]['key'], value: string) => {
     const next = [...(getValues('factualAnswers') ?? [])];
@@ -254,10 +287,12 @@ export function Step03Content() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        실제 정보를 많이 알려주실수록 손님과 검색이 읽을 내용이 풍부해져요. 답하지 않은 내용은 지어내지 않습니다.
+        {mode === 'core'
+          ? '먼저 목적에 꼭 필요한 핵심 정보만 받아요. 나머지는 홈페이지 구성을 본 뒤 원하는 만큼 더할 수 있어요.'
+          : '선택한 구성을 만들 수 있는 실제 정보만 물어요. 답하지 않은 내용은 지어내지 않습니다.'}
       </StepIntro>
 
-      <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="brand-story-title">
+      {showStory ? <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="brand-story-title">
         <div>
           <h3 id="brand-story-title" className="text-[17px] font-semibold text-ob-ink">
             가게의 이야기를 들려주세요
@@ -294,16 +329,18 @@ export function Step03Content() {
             </Field>
           </div>
         </div>
-      </section>
+      </section> : null}
 
-      <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="factual-interview-title">
+      {showFacts ? <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="factual-interview-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 id="factual-interview-title" className="text-[17px] font-semibold text-ob-ink">
               가게 사실을 알려주세요
             </h3>
             <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
-              별표가 있는 핵심 정보만 필수예요. 나머지는 있으면 답하고, 없으면 건너뛰세요.
+              {mode === 'core'
+                ? '지금 고른 홈페이지 목적에 필요한 정보예요. 같은 내용은 뒤에서 다시 묻지 않아요.'
+                : '있으면 답하고, 없으면 건너뛰세요. 답한 정보가 있는 구성만 생깁니다.'}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-ob-accent-soft px-3 py-1.5 text-[12px] font-medium text-ob-accent-strong">
@@ -354,9 +391,9 @@ export function Step03Content() {
             );
           })}
         </div>
-      </section>
+      </section> : null}
 
-      <section className="rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5" aria-labelledby="guided-faq-title">
+      {showFaq ? <section className="rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5" aria-labelledby="guided-faq-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 id="guided-faq-title" className="text-[17px] font-semibold text-ob-ink">
@@ -383,13 +420,13 @@ export function Step03Content() {
             </Field>
           ))}
         </div>
-      </section>
+      </section> : null}
 
       {/* ── 구조화 항목 입력 ── */}
-      <div className="space-y-3">
+      {showItems ? <div className="space-y-3">
         <div className="flex items-baseline justify-between gap-2">
           <label className="text-[15px] font-medium text-ob-ink">
-            {itemLabel} 목록 <span className="text-ob-danger">*</span>
+            {itemLabel} 목록 <span className="font-normal text-ob-muted">(선택)</span>
           </label>
           <span className="shrink-0 text-[13px] text-ob-muted">{filledCount}개 입력됨</span>
         </div>
@@ -465,20 +502,20 @@ export function Step03Content() {
           {itemLabel} 추가
         </button>
 
-        {/* 게이트 안내 */}
+        {/* 입력하면 계획에 반영된다는 안내 — 심화 단계는 진행을 막지 않는다. */}
         {gate.needMore > 0 ? (
-          <p className="rounded-ob border border-ob-border bg-ob-bg px-3.5 py-2.5 text-[13px] leading-relaxed text-ob-danger">
-            {josa(itemLabel, '을', '를')} 1개 이상 입력해야 다음으로 넘어갈 수 있어요.
+          <p className="rounded-ob border border-ob-border bg-ob-bg px-3.5 py-2.5 text-[13px] leading-relaxed text-ob-muted">
+            {josa(itemLabel, '을', '를')} 1개 이상 입력하면 이 구성이 홈페이지에 추가돼요.
           </p>
         ) : gate.recommendedShort > 0 ? (
           <p className="text-[13px] leading-relaxed text-ob-muted">
             {josa(itemLabel, '이', '가')} {gate.recommendedItems}개 이상이면 검색 노출에 훨씬 유리해요.
           </p>
         ) : null}
-      </div>
+      </div> : null}
 
       {/* ── 자유 원문 ── */}
-      <div className="border-t border-ob-border pt-6">
+      {showProvidedContent ? <div className="border-t border-ob-border pt-6">
         {importedBadge ? (
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-ob-border bg-ob-accent-soft px-3 py-1.5 text-[13px] text-ob-accent-strong">
             <Sparkles className="h-3.5 w-3.5" />
@@ -505,7 +542,7 @@ export function Step03Content() {
             className={cn(obInput, 'resize-y leading-relaxed')}
           />
         </Field>
-      </div>
+      </div> : null}
     </div>
   );
 }

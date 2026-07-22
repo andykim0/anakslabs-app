@@ -90,7 +90,7 @@ export function GenerateStep({
 }) {
   const queryClient = useQueryClient();
   // [A3] 와이어프레임 승인 게이트 — 첫 생성만(이미지·최종카피 원가 발생 전). 재생성은 이미 확정이라 스킵.
-  const [confirmed, setConfirmed] = useState(Boolean(existingSiteId));
+  const [confirmed, setConfirmed] = useState(Boolean(existingSiteId || survey.contentDepth?.surveyBrief));
   // [A3] 구성 바꾸기 — 제외한 nice 섹션 키. 승인 시 survey.sectionPlan에서 필터.
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [reviewComplete, setReviewComplete] = useState(false);
