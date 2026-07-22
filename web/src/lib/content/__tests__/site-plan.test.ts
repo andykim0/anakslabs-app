@@ -1,26 +1,34 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import type { DesignCandidate, LivePurposeId, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig } from '@/lib/types/site';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { buildSitePlan } from '@/lib/content/site-plan';
 import { buildJsonLd } from '@/lib/seo/jsonld';
+import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 
 const candidate: DesignCandidate = {
   id: 'plan-contract', label: '계획 계약', style: 'photo', heroImageUrl: '/mock/hero.svg',
   theme: emptySiteConfig('계획 계약').theme, description: '',
 };
 
-const CASES: readonly [LivePurposeId, string][] = [
-  ['local_store', '카페'],
-  ['booking_service', '미용실'],
-  ['edu_membership', '학원'],
-  ['company_brand', '컨설팅'],
-  ['portfolio', '디자이너 포트폴리오'],
-  ['one_page', '링크인바이오'],
+const CASES: readonly { purposeId: LivePurposeId; industry: string; templateId: string }[] = [
+  { purposeId: 'local_store', industry: '카페', templateId: 'local_store.default' },
+  { purposeId: 'booking_service', industry: '미용실', templateId: 'booking_service.default' },
+  { purposeId: 'edu_membership', industry: '학원', templateId: 'edu_membership.default' },
+  { purposeId: 'company_brand', industry: '컨설팅', templateId: 'company_brand.default' },
+  { purposeId: 'portfolio', industry: '디자이너 포트폴리오', templateId: 'portfolio.default' },
+  { purposeId: 'one_page', industry: '링크인바이오', templateId: 'one_page.default' },
+  { purposeId: 'company_brand', industry: '법률 법인', templateId: 'company_brand.professional_firm' },
+  { purposeId: 'booking_service', industry: '의원', templateId: 'booking_service.clinic' },
+  { purposeId: 'local_store', industry: '파인다이닝', templateId: 'local_store.fine_dining' },
+  { purposeId: 'portfolio', industry: '이력서 CV', templateId: 'portfolio.resume' },
 ];
 
 function surveyFor(purposeId: LivePurposeId, industry: string): SurveyInput {
@@ -78,11 +86,12 @@ function generatedText(survey: SurveyInput, copy?: { aboutTitle?: string; aboutB
 }
 
 describe('PLAN P1 단일 생성 계획 계약', () => {
-  for (const [purposeId, industry] of CASES) {
-    test(`${purposeId} 승인 SitePlan section id 집합은 생성 결과와 같다`, () => {
+  for (const { purposeId, industry, templateId } of CASES) {
+    test(`${templateId} 승인 SitePlan section id 집합은 생성 결과와 같다`, () => {
       const survey = surveyFor(purposeId, industry);
       const plan = buildSitePlan(survey);
       assert.deepEqual(generatedSectionIds(survey), plan.sections.map((section) => section.id).sort());
+      assert.equal(plan.templateId, templateId);
       assert.equal(plan.templateId, survey.templateId);
       assert.equal(new Set(plan.sections.map((section) => section.id)).size, plan.sections.length);
     });
@@ -179,5 +188,31 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
       mainEntity?: Array<{ acceptedAnswer?: { text?: string } }>;
     } | undefined;
     assert.equal(faq?.mainEntity?.[0]?.acceptedAnswer?.text, '평일 오전 10시부터 오후 6시까지 운영합니다.');
+  });
+
+  test('대표 10개 계약의 실제 렌더 출력은 고객 표면 금지 표기를 만들지 않는다', () => {
+    const prohibited = /\bVeo\b|슬라이드|아임웹|\bWix\b|윅스|식스샵|카페24|\bCafe24\b|워드프레스|\bWordPress\b/iu;
+    for (const { purposeId, industry, templateId } of CASES) {
+      const survey = surveyFor(purposeId, industry);
+      const config = buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl: '/mock/hero.svg', imagePool: [] });
+      for (const page of config.pages) {
+        const html = renderToStaticMarkup(createElement(SiteRenderer, {
+          config, pageSlug: page.slug, mode: 'auto', interactive: false, animate: false,
+        }));
+        assert.doesNotMatch(html, prohibited, `${templateId}/${page.slug || 'home'}`);
+      }
+    }
+  });
+
+  test('contentDepth v1 발행 결과는 v2 계약 추가 뒤에도 고정 SHA를 유지한다', () => {
+    const survey = surveyFor('local_store', '카페');
+    if (!survey.contentDepth) throw new Error('fixture requires contentDepth');
+    survey.contentDepth.version = 1;
+    const config = buildSiteConfigFromSurvey(survey, candidate, {
+      heroImageUrl: '/mock/hero.svg', imagePool: [], heroVariant: 'fullbleed',
+    });
+    const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
+    const hash = createHash('sha256').update(normalized).digest('hex');
+    assert.equal(hash, '1eda9d4c95205d29df6fb90610d9eaf67735328313d809eedb1c5fc91686ab27');
   });
 });
