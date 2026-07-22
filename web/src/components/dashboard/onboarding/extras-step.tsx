@@ -14,6 +14,7 @@ import { ArrowLeft, ArrowRight, CalendarCheck, FormInput, Map as MapIcon, Plus, 
 import type { ExtraFeatureSelection, SectionPlanItem, SnsKind, SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
+import { mainDirectionsPageEnabled } from '@/lib/content/content-depth';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 import { SNS_BASES, hasHandleBase, snsUrlFromHandle } from '@/lib/onboarding/sns';
 import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
@@ -109,6 +110,7 @@ export function ExtrasStep({
 
   const formRow = targets.find((t) => t.variant === 'contact:form');
   const mapRow = targets.find((t) => t.variant === 'contact:map');
+  const hasMainDirectionsPage = mainDirectionsPageEnabled(survey);
 
   // 실제 외부 예약 링크 — 예약이 목표일 때만 추천으로 켜고, URL은 사용자가 직접 확정한다.
   // 레거시 survey.reservationUrl은 같은 엄격한 allowlist를 통과할 때만 편의상 프리필한다.
@@ -172,7 +174,12 @@ export function ExtrasStep({
         setError('지도 URL을 확인해 주세요 — 네이버/카카오/구글 지도 embed 주소만 사용할 수 있어요.');
         return;
       }
-      extras.mapEmbed = { embedUrl: url, targetSection: mapTarget };
+      extras.mapEmbed = {
+        embedUrl: url,
+        targetSection: mapTarget,
+        // MAIN v1은 전체 지도와 방문 정보를 홈 요약이 아닌 완결된 오시는 길 페이지에 둔다.
+        ...(hasMainDirectionsPage && mapTarget === 'contact' ? { targetPageSlug: 'directions' } : {}),
+      };
     }
     if (snsOn) {
       // [v4 #6c] 핸들/풀URL 어느 쪽이든 snsUrlFromHandle로 정규화(계약=풀URL 저장 불변).

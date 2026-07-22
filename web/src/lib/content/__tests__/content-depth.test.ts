@@ -47,6 +47,7 @@ test('온보딩은 답한 사실만 저장하고 신규 제출에 contentDepth �
   const step = readFileSync(join(root, 'src/components/dashboard/onboarding/steps/step03-content.tsx'), 'utf8');
   const host = readFileSync(join(root, 'src/components/dashboard/onboarding/survey-step.tsx'), 'utf8');
   const shared = readFileSync(join(root, 'src/components/dashboard/onboarding/steps/shared.tsx'), 'utf8');
+  const extras = readFileSync(join(root, 'src/components/dashboard/onboarding/extras-step.tsx'), 'utf8');
   assert.match(step, /답하지 않은 내용은 지어내지 않습니다/);
   assert.match(step, /답할수록 내 홈페이지에 사실 기반 안내와 섹션이 더해져요/);
   assert.match(step, /next\[index\] = \{ key, value, source: 'customer' \}/);
@@ -59,5 +60,7 @@ test('온보딩은 답한 사실만 저장하고 신규 제출에 contentDepth �
   assert.match(step, /register\('brandOrigin'\)/);
   assert.match(step, /register\('brandPhilosophy'\)/);
   assert.match(step, /비워두면 지어낸 일화 대신 가게가 지향하는 태도만 담아요/);
+  assert.match(extras, /mainDirectionsPageEnabled\(survey\)/);
+  assert.match(extras, /targetPageSlug: 'directions'/);
   assert.match(shared, /2: \['purposeId', 'businessName', 'industry', 'region'\]/);
 });

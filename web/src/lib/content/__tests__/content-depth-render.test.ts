@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
+import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { emptySiteConfig } from '@/lib/types/site';
 import { buildJsonLd } from '@/lib/seo/jsonld';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
@@ -272,4 +273,25 @@ test('답한 하위 주제가 없으면 MAIN도 빈 서브페이지·티저·죽
   assert.deepEqual(config.pages[0].sections.map((section) => section.id), ['sec-hero', 'sec-about', 'sec-features']);
   assert.equal(config.pages[0].sections.flatMap((section) => section.elements)
     .some((element) => element.kind === 'button' && element.label === '자세히 보기'), false);
+});
+
+test('오시는 길 서브페이지는 실제 지도 URL을 같은 페이지에 배치하고 플레이스홀더 문구를 만들지 않는다', () => {
+  const base = buildSiteConfigFromSurvey(mainSurvey(), candidate, opts);
+  const config = applyExtraFeatures(base, {
+    mapEmbed: {
+      embedUrl: 'https://www.google.com/maps/embed?pb=customer-confirmed',
+      targetSection: 'contact',
+      targetPageSlug: 'directions',
+    },
+  });
+  const directions = config.pages.find((page) => page.slug === 'directions')!;
+  assert.equal(directions.sections.flatMap((section) => section.elements)
+    .filter((element) => element.kind === 'map').length, 1);
+  assert.equal(config.pages.find((page) => page.slug === '')!.sections.flatMap((section) => section.elements)
+    .some((element) => element.kind === 'map'), false);
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config, pageSlug: 'directions', mode: 'desktop', interactive: true, animate: false,
+  }));
+  assert.match(html, /<iframe[^>]+title="지도"/u);
+  assert.doesNotMatch(html, /주소를 입력해주세요|지도를 입력|URL을 입력하면|지도 \(URL/u);
 });

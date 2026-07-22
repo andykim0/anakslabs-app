@@ -555,3 +555,10 @@ export function missingRequiredFacts(facts: readonly BusinessFactAnswer[]): Busi
   const answered = new Set(facts.filter((fact) => fact.value.trim()).map((fact) => fact.key));
   return REQUIRED_BUSINESS_FACT_KEYS.filter((key) => !answered.has(key));
 }
+
+/** Extras UI와 MAIN 빌더가 같은 사실 슬롯으로 /directions 존재 여부를 판단한다. */
+export function mainDirectionsPageEnabled(survey: SurveyInput): boolean {
+  if (!survey.contentDepth?.mainStorytelling) return false;
+  const facts = resolveBusinessFacts(survey.contentDepth.facts);
+  return ['address', 'directions', 'parking', 'accessibility'].some((key) => Boolean(facts[key as BusinessFactKey]));
+}
