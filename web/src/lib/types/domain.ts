@@ -275,6 +275,27 @@ export interface SurveyBriefInput {
     | { kind: 'reservation_url'; url: string }
     | { kind: 'contact_form' }
     | { kind: 'messenger_url'; url: string };
+  /** 검증 가능한 신뢰 문구는 내용과 고객이 확인한 출처 상태를 한 쌍으로 저장한다. */
+  proofs?: SurveyProofInput[];
+}
+
+export type SurveyProofKind =
+  | 'qualification'
+  | 'experience'
+  | 'award'
+  | 'testimonial'
+  | 'metric'
+  | 'case';
+
+export type SurveyProofSourceStatus =
+  | 'customer_confirmed'
+  | 'evidence_available'
+  | 'publication_permission';
+
+export interface SurveyProofInput {
+  kind: SurveyProofKind;
+  content: string;
+  sourceStatus: SurveyProofSourceStatus;
 }
 
 /** Additive gate: v1 retains CONTENT/MAIN output; v2 enables the approved SitePlan contract. */

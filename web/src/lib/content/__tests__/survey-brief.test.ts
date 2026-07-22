@@ -100,3 +100,37 @@ test('서버 스키마는 브리프를 왕복하고 안전하지 않은 전환 U
   };
   assert.equal(surveySchema.safeParse(valid).success, false);
 });
+
+test('출처 상태가 붙은 증거만 SitePlan 신뢰 섹션을 활성화하고 내부 상태는 렌더하지 않는다', () => {
+  const survey = makeSurvey('trust');
+  const before = buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl: '/mock/hero.svg', imagePool: [] });
+  assert.equal(before.pages.flatMap((page) => page.sections).some((section) => section.type === 'team'), false);
+  assert.equal(before.pages.flatMap((page) => page.sections).some((section) => section.type === 'cases'), false);
+
+  survey.contentDepth!.surveyBrief!.proofs = [
+    { kind: 'qualification', content: '고객이 확인한 등록 자격', sourceStatus: 'evidence_available' },
+    { kind: 'case', content: '고객이 게시를 허락한 실제 자문 사례', sourceStatus: 'publication_permission' },
+  ];
+  const after = buildSiteConfigFromSurvey(survey, candidate, { heroImageUrl: '/mock/hero.svg', imagePool: [] });
+  const sections = after.pages.flatMap((page) => page.sections);
+  assert.ok(sections.some((section) => section.type === 'team'));
+  assert.ok(sections.some((section) => section.type === 'cases'));
+  const text = sections.flatMap((section) => section.elements)
+    .flatMap((element) => element.kind === 'text' ? [element.text] : []).join(' ');
+  assert.match(text, /고객이 확인한 등록 자격/u);
+  assert.match(text, /고객이 게시를 허락한 실제 자문 사례/u);
+  assert.doesNotMatch(text, /customer_confirmed|evidence_available|publication_permission/u);
+});
+
+test('검증 가능한 증거는 종류·내용·출처 상태가 모두 있어야 서버 경계를 통과한다', () => {
+  const survey = makeSurvey('trust');
+  survey.contentDepth!.surveyBrief!.proofs = [
+    { kind: 'award', content: '고객이 확인한 수상', sourceStatus: 'evidence_available' },
+  ];
+  assert.equal(surveySchema.safeParse(survey).success, true);
+  const malformed = structuredClone(survey) as unknown as {
+    contentDepth: { surveyBrief: { proofs: Array<Record<string, unknown>> } };
+  };
+  delete malformed.contentDepth.surveyBrief.proofs[0].sourceStatus;
+  assert.equal(surveySchema.safeParse(malformed).success, false);
+});

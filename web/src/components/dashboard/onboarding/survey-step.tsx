@@ -220,6 +220,9 @@ export function SurveyStep({
       .map((answer) => ({ ...answer, answer: answer.answer.trim() }))
       .filter((answer) => answer.answer.length > 0);
     const importedContentSources = values.importedContentSources ?? [];
+    const proofs = (values.proofItems ?? [])
+      .map((proof) => ({ ...proof, content: proof.content.trim() }))
+      .filter((proof) => proof.content.length > 0);
     const presence = values.existingPresence ?? [];
     const recommended = recommendedImageDirection({
       industry: values.industry,
@@ -305,6 +308,7 @@ export function SurveyStep({
           ...(clean(values.visitorNeed) ? { visitorNeed: clean(values.visitorNeed) } : {}),
           ...(clean(values.valueProposition) ? { valueProposition: clean(values.valueProposition) } : {}),
           ...(conversionDestination ? { conversionDestination } : {}),
+          ...(proofs.length ? { proofs } : {}),
         },
       },
       siteGoal: values.siteGoal as SiteGoalId | undefined,

@@ -115,11 +115,19 @@ function sourceValuesFor(
 ): readonly string[] {
   const model = buildContentDepthHomeModel(survey);
   const facts = resolveBusinessFacts(survey.contentDepth?.facts ?? []);
+  const proofs = survey.contentDepth?.surveyBrief?.proofs ?? [];
+  const proofLines = (...kinds: readonly (typeof proofs)[number]['kind'][]) => proofs
+    .filter((proof) => kinds.includes(proof.kind))
+    .map((proof) => proof.content.trim())
+    .filter(Boolean);
   switch (item.type) {
     case 'hero':
       return [survey.businessName];
     case 'about':
-      if (item.variant === 'about:resume') return facts.credentials ? [facts.credentials] : [];
+      if (item.variant === 'about:resume') return [
+        ...(facts.credentials ? [facts.credentials] : []),
+        ...proofLines('qualification', 'experience'),
+      ];
       return buildMainStorytellingModel(survey).paragraphs;
     case 'features':
       return [
@@ -135,10 +143,14 @@ function sourceValuesFor(
         ...(facts.specialties ? [facts.specialties] : []),
       ];
     case 'team':
-      return facts.credentials ? [facts.credentials] : [];
+      return [
+        ...(facts.credentials ? [facts.credentials] : []),
+        ...proofLines('qualification', 'experience'),
+      ];
     case 'cases':
       return [
         ...(facts.caseStudies ? [facts.caseStudies] : []),
+        ...proofLines('award', 'metric', 'case'),
         ...(survey.purposeId === 'portfolio'
           ? model.contentItems.map((entry) => [entry.name, entry.description].filter(Boolean).join(' · '))
           : []),
@@ -146,7 +158,7 @@ function sourceValuesFor(
     case 'gallery':
       return model.galleryImages;
     case 'testimonials':
-      return [];
+      return proofLines('testimonial');
     case 'pricing':
       return model.contentItems
         .filter((entry) => entry.price)

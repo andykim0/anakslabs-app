@@ -1,11 +1,10 @@
 'use client';
 
 /**
- * S7 방향 잡기 — siteGoal(goalsForGroup 카드 택1) + highlights(1~3, 예시 칩+자유입력) + tone(최대 2).
+ * S7 방향 잡기 — 전략 브리프 + 실제 전환 목적지 + 출처 있는 증거 + tone(최대 2).
  */
-import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowRight, Plus, X } from 'lucide-react';
 import type { SiteGoalId, SitePurposeId } from '@/lib/types/domain';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { goalsForGroup } from '@/lib/onboarding/site-goal';
@@ -15,13 +14,23 @@ import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from '.
 
 const TONE_CHIPS = ['고급스러운', '미니멀', '친근한', '대담한', '차분한', '러스틱', '모던'];
 
-/** 자랑거리 예시 칩 — 목적 그룹별 살짝 다른 예시(레지스트리 없음 → 로컬 큐레이션) */
-const HIGHLIGHT_EXAMPLES: Record<string, string[]> = {
-  sell: ['전 제품 국내산', '당일 발송', '100% 수제', '리뷰 4.9점'],
-  serve: ['20년 경력', '예약 필수 맛집', '주차 가능', '반려동물 동반 가능'],
-  promote: ['업력 15년', '누적 500건 시공', '대기업 납품 이력', '특허 보유'],
-  content: ['수강생 만족도 98%', '누적 1만 명 수강', '평생 소장', '1:1 피드백'],
-};
+const PROOF_KINDS: readonly { value: SurveyForm['proofItems'][number]['kind']; label: string }[] = [
+  { value: 'qualification', label: '자격' },
+  { value: 'experience', label: '경력' },
+  { value: 'award', label: '수상' },
+  { value: 'testimonial', label: '후기' },
+  { value: 'metric', label: '수치' },
+  { value: 'case', label: '사례' },
+];
+
+const PROOF_SOURCE_STATUSES: readonly {
+  value: SurveyForm['proofItems'][number]['sourceStatus'];
+  label: string;
+}[] = [
+  { value: 'customer_confirmed', label: '직접 입력 확인' },
+  { value: 'evidence_available', label: '보유 자료 있음' },
+  { value: 'publication_permission', label: '게시 허락받음' },
+];
 
 export function Step07Direction() {
   const { watch, setValue, register, formState } = useFormContext<SurveyForm>();
@@ -29,16 +38,14 @@ export function Step07Direction() {
   const { goTo } = useSurveyUx();
   const purposeId = watch('purposeId') as SitePurposeId | '';
   const siteGoal = watch('siteGoal');
-  const highlights = watch('highlights') ?? [];
   const tone = watch('tone') ?? [];
   const facts = watch('factualAnswers') ?? [];
   const conversionKind = watch('conversionKind');
   const conversionUrl = watch('conversionUrl') ?? '';
-  const [draft, setDraft] = useState('');
+  const proofItems = watch('proofItems') ?? [];
 
   const group = purposeId ? findPurpose(purposeId)?.group : undefined;
   const goals = group ? goalsForGroup(group) : [];
-  const examples = group ? HIGHLIGHT_EXAMPLES[group] ?? [] : [];
   const phone = facts.find((fact) => fact.key === 'phone' && fact.value.trim())?.value.trim();
 
   const chooseGoal = (goal: SiteGoalId) => {
@@ -49,20 +56,6 @@ export function Step07Direction() {
     else setValue('conversionKind', undefined);
     if (goal !== 'reserve' && goal !== 'kakao_inquiry') setValue('conversionUrl', '');
   };
-
-  const addHighlight = (value: string) => {
-    const v = value.trim().slice(0, 40);
-    if (!v) return;
-    if (highlights.includes(v)) return;
-    if (highlights.length >= 3) {
-      toast('info', '자랑거리는 최대 3개까지 넣을 수 있어요.');
-      return;
-    }
-    setValue('highlights', [...highlights, v], { shouldValidate: true });
-  };
-
-  const removeHighlight = (value: string) =>
-    setValue('highlights', highlights.filter((h) => h !== value), { shouldValidate: true });
 
   const toggleTone = (chip: string) => {
     if (tone.includes(chip)) {
@@ -205,65 +198,73 @@ export function Step07Direction() {
       ) : null}
 
       <Field
-        label={
-          <>
-            우리 가게 자랑거리 <span className="font-normal text-ob-muted">(1~3개)</span>
-          </>
-        }
-        hint="사실만 적어주세요. AI가 지어내지 않고 이 표현을 살려서 써요."
+        label={<>출처 있는 신뢰 요소 <span className="font-normal text-ob-muted">(선택)</span></>}
+        hint="자격·경력·수상·후기·수치·사례는 고객님이 확인한 내용만 넣습니다. 출처 상태는 내부 확인용이며 홈페이지에는 내용만 표시돼요."
       >
-        {examples.length > 0 ? (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {examples.map((ex) => (
-              <Chip key={ex} selected={highlights.includes(ex)} onClick={() => addHighlight(ex)}>
-                + {ex}
-              </Chip>
-            ))}
-          </div>
-        ) : null}
-
-        {highlights.length > 0 ? (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {highlights.map((h) => (
-              <span
-                key={h}
-                className="inline-flex items-center gap-1.5 rounded-full border border-ob-accent-strong bg-ob-accent-soft px-3 py-1.5 text-[13px] text-ob-accent-strong"
-              >
-                {h}
-                <button type="button" onClick={() => removeHighlight(h)} aria-label={`${h} 제거`}>
-                  <X className="h-3 w-3" />
+        <div className="space-y-3">
+          {proofItems.map((proof, index) => (
+            <div key={`${index}-${proof.kind}`} className="rounded-ob border border-ob-border bg-ob-bg p-3">
+              <div className="grid gap-2 sm:grid-cols-[140px_1fr_160px_44px]">
+                <select
+                  value={proof.kind}
+                  onChange={(event) => setValue(
+                    'proofItems',
+                    proofItems.map((item, itemIndex) => itemIndex === index
+                      ? { ...item, kind: event.target.value as SurveyForm['proofItems'][number]['kind'] }
+                      : item),
+                  )}
+                  aria-label={`신뢰 요소 ${index + 1} 종류`}
+                  className={obInput}
+                >
+                  {PROOF_KINDS.map((kind) => <option key={kind.value} value={kind.value}>{kind.label}</option>)}
+                </select>
+                <input
+                  value={proof.content}
+                  onChange={(event) => setValue(
+                    'proofItems',
+                    proofItems.map((item, itemIndex) => itemIndex === index
+                      ? { ...item, content: event.target.value }
+                      : item),
+                  )}
+                  maxLength={500}
+                  placeholder="고객님이 확인한 실제 내용"
+                  className={obInput}
+                />
+                <select
+                  value={proof.sourceStatus}
+                  onChange={(event) => setValue(
+                    'proofItems',
+                    proofItems.map((item, itemIndex) => itemIndex === index
+                      ? { ...item, sourceStatus: event.target.value as SurveyForm['proofItems'][number]['sourceStatus'] }
+                      : item),
+                  )}
+                  aria-label={`신뢰 요소 ${index + 1} 출처 상태`}
+                  className={obInput}
+                >
+                  {PROOF_SOURCE_STATUSES.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setValue('proofItems', proofItems.filter((_, itemIndex) => itemIndex !== index))}
+                  aria-label={`신뢰 요소 ${index + 1} 삭제`}
+                  className="flex h-11 w-11 items-center justify-center rounded-ob border border-ob-border text-ob-muted hover:border-ob-danger hover:text-ob-danger"
+                >
+                  <X className="h-4 w-4" />
                 </button>
-              </span>
-            ))}
-          </div>
-        ) : null}
-
-        <div className="flex gap-2">
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addHighlight(draft);
-                setDraft('');
-              }
-            }}
-            maxLength={40}
-            placeholder="예: 3대째 이어온 손맛"
-            className={obInput}
-            disabled={highlights.length >= 3}
-          />
+              </div>
+            </div>
+          ))}
           <button
             type="button"
-            onClick={() => {
-              addHighlight(draft);
-              setDraft('');
-            }}
-            disabled={!draft.trim() || highlights.length >= 3}
-            className="shrink-0 rounded-ob border border-ob-border bg-ob-surface px-4 text-[15px] text-ob-ink transition-colors hover:border-ob-muted disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => setValue('proofItems', [
+              ...proofItems,
+              { kind: 'qualification', content: '', sourceStatus: 'customer_confirmed' },
+            ])}
+            disabled={proofItems.length >= 20}
+            className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted hover:border-ob-muted hover:text-ob-ink disabled:opacity-50"
           >
-            추가
+            <Plus className="h-4 w-4" />
+            신뢰 요소 추가
           </button>
         </div>
       </Field>

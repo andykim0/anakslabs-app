@@ -1016,6 +1016,11 @@ export const surveySchema = z.object({
         z.object({ kind: z.literal('contact_form') }),
         z.object({ kind: z.literal('messenger_url'), url: z.string().refine(isHttpsUrl, '메신저 링크는 https:// 주소여야 합니다.') }),
       ]).optional(),
+      proofs: z.array(z.object({
+        kind: z.enum(['qualification', 'experience', 'award', 'testimonial', 'metric', 'case']),
+        content: z.string().trim().min(1).max(500),
+        sourceStatus: z.enum(['customer_confirmed', 'evidence_available', 'publication_permission']),
+      })).max(20).optional(),
     }).optional(),
   }).optional(),
   // 방문자에게 바라는 행동 1개 — 주 CTA·섹션 강조에 배선
