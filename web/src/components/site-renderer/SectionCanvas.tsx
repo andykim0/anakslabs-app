@@ -89,6 +89,7 @@ function StandardSection({
   const spotlight = plan?.spotlightSections.has(section.id) ?? false;
   const sectionDataM = spotlight ? 'spotlight' : parallax ? 'parallax' : stacking ? 'stacking' : undefined;
   const densityDelta = themeSectionBlockDelta(theme);
+  const continuousHero = continuousFlow && section.type === 'hero';
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
   const imgScrim = !proceduralHero && bg.image
@@ -107,7 +108,7 @@ function StandardSection({
   const sectionStyle: CSSProperties = {
     position: 'relative',
     height: pinned ? '100%' : cqw(section.height + densityDelta * 2),
-    overflow: 'hidden',
+    overflow: continuousHero ? 'visible' : 'hidden',
     backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
     backgroundImage: bg.gradient,
   };
@@ -146,6 +147,7 @@ function StandardSection({
     <section
       id={section.id}
       data-section-type={section.type}
+      {...(continuousHero ? { 'data-continuous-hero-stage': 'true' } : {})}
       aria-label={section.name}
       {...(sectionDataM ? { 'data-m': sectionDataM } : {})}
       style={sectionStyle}
@@ -173,6 +175,7 @@ function StandardSection({
       {imgScrim && (
         <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: imgScrim.overlayColor, opacity: imgScrim.overlayOpacity }} />
       )}
+      {continuousHero && <div aria-hidden="true" data-continuous-hero-bridge />}
       {elements.map((el, elementIndex) => {
         const m = plan ? motionFor(plan, section.id, el.id) : undefined;
         const countup = m === 'countup' && el.kind === 'text' ? parseStatParts(el.text) ?? undefined : undefined;
@@ -189,6 +192,7 @@ function StandardSection({
         const cinematicDepth = cinematicPlayback && plan ? cinematicParallaxDepthFor(plan, section.id, el.id) : undefined;
         const storyWindow = cinematicPlayback && plan ? cinematicStoryWindowFor(plan, section.id, el.id) : undefined;
         const flowRole = continuousFlow ? continuousFlowLayerRoleFor(el) : undefined;
+        const heroForeground = continuousHero && (flowRole === 'copy' || flowRole === 'action');
         const content = (
           <ElementContent
             element={el}
@@ -209,6 +213,7 @@ function StandardSection({
             {...(integratedTypography && section.type === 'hero' && el.kind === 'text'
               ? { 'data-site-cine-hero-copy': true }
               : {})}
+            {...(heroForeground ? { 'data-continuous-hero-foreground': flowRole } : {})}
             {...(dataM ? { 'data-m': dataM } : {})}
             {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
             {...(depth != null ? { 'data-m-depth': String(depth) } : {})}
@@ -218,7 +223,9 @@ function StandardSection({
               top: cqw(el.frame.y + densityDelta),
               width: cqw(el.frame.w),
               height: cqw(el.frame.h),
-              zIndex: el.z, // spotlight ::before(z:0)는 DOM 순서상 요소보다 먼저 → 요소가 위
+              // FLOW bridge is a background transition at z:5. Copy/actions stay
+              // structurally above it regardless of customer-editable element z.
+              zIndex: heroForeground ? Math.max(el.z, 6) : el.z,
               opacity: el.opacity,
               transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
               textShadow: el.kind === 'text' ? imgTextShadow : undefined,

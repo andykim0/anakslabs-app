@@ -310,7 +310,6 @@ function SiteCinematicChapter({
       {...(hero ? { 'data-flow-hero': 'true' } : {})}
     >
       {children}
-      {hero && <div aria-hidden="true" data-continuous-hero-bridge />}
     </div>
   );
 }

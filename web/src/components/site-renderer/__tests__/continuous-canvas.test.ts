@@ -40,6 +40,11 @@ function flowConfig(chapterCount = 5, continuous = true): SiteConfig {
         frame: { x: 920, y: 150, w: 360, h: 260 }, z: 2,
         style: { objectFit: 'cover' as const },
       },
+      ...(index === 0 ? [{
+        id: 'hero-cta', kind: 'button' as const, label: '문의하기', href: '/contact',
+        frame: { x: 120, y: 330, w: 220, h: 64 }, z: 1,
+        style: { variant: 'solid' as const, fontSize: 18 },
+      }] : []),
     ],
   }));
   return config;
@@ -71,6 +76,31 @@ describe('FLOW 연속 애니메이션 캔버스', () => {
     assert.match(home, /background-color:\s*transparent !important; background-image:\s*none !important/);
     assert.match(home, /bottom:\s*clamp\(-140px,-12svh,-76px\)/);
     assert.match(home, /mask-image:\s*linear-gradient\(to bottom,transparent 0%/);
+
+    const heroStage = root.querySelector('[data-flow-hero] [data-continuous-hero-stage]');
+    const bridge = heroStage?.querySelector('[data-continuous-hero-bridge]');
+    const foreground = heroStage?.querySelectorAll('[data-continuous-hero-foreground]') ?? [];
+    assert.ok(heroStage);
+    assert.ok(bridge);
+    assert.equal(bridge.parentNode, heroStage);
+    assert.equal(bridge.getAttribute('aria-hidden'), 'true');
+    assert.ok(foreground.length >= 2);
+    assert.ok(foreground.some((node) => node.getAttribute('data-continuous-hero-foreground') === 'copy'));
+    assert.ok(foreground.some((node) => node.getAttribute('data-continuous-hero-foreground') === 'action'));
+    for (const node of foreground) {
+      assert.equal(node.closest('[data-continuous-hero-stage]'), heroStage);
+      assert.match(node.getAttribute('style') ?? '', /z-index:6/);
+    }
+    assert.match(home, /\[data-continuous-hero-bridge\]\s*\{[\s\S]+?z-index:\s*5[\s\S]+?pointer-events:\s*none/);
+
+    const mobileRoot = parse(render(config, 'mobile'));
+    const mobileStage = mobileRoot.querySelector('[data-flow-hero] [data-continuous-hero-stage]');
+    const mobileBridge = mobileStage?.querySelector('[data-continuous-hero-bridge]');
+    const mobileForeground = mobileStage?.querySelector('[data-continuous-hero-foreground="stack"]');
+    assert.ok(mobileStage);
+    assert.equal(mobileBridge?.parentNode, mobileStage);
+    assert.equal(mobileForeground?.parentNode, mobileStage);
+    assert.match(mobileForeground?.getAttribute('style') ?? '', /z-index:6/);
 
     const subpage = renderToStaticMarkup(createElement(SiteRenderer, {
       config, pageSlug: 'menu', mode: 'desktop', interactive: true, animate: true,

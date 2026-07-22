@@ -125,6 +125,7 @@ export function SectionStack({
   const cinematicScrim = cinematic
     ? imgScrim ?? ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
     : null;
+  const continuousHero = continuousFlow && section.type === 'hero';
 
   if (elements.length === 0 && !bgImgSrc && !proceduralHero) return null;
 
@@ -135,9 +136,10 @@ export function SectionStack({
       // data-anchor 중 '보이는' 요소로 스크롤해 해소.
       data-anchor={section.id}
       data-section-type={section.type}
+      {...(continuousHero ? { 'data-continuous-hero-stage': 'true' } : {})}
       style={{
         position: 'relative',
-        overflow: 'hidden',
+        overflow: continuousHero ? 'visible' : 'hidden',
         backgroundColor: cinematic
           ? 'transparent'
           : resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
@@ -174,10 +176,12 @@ export function SectionStack({
           }}
         />
       )}
+      {continuousHero && <div aria-hidden="true" data-continuous-hero-bridge />}
       <div
+        {...(continuousHero ? { 'data-continuous-hero-foreground': 'stack' } : {})}
         style={{
           position: 'relative',
-          zIndex: 1,
+          zIndex: continuousHero ? 6 : 1,
           width: '100%',
           maxWidth: '560px',
           margin: '0 auto',
