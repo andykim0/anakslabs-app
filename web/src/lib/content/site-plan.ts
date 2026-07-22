@@ -127,7 +127,7 @@ function sourceValuesFor(
       ];
     case 'menu':
       return [
-        ...model.contentItems.map((entry) => entry.name),
+        ...model.contentItems.map((entry) => [entry.name, entry.description, entry.price].filter(Boolean).join(' · ')),
         ...(facts.services ? [facts.services] : []),
         ...(facts.classes ? [facts.classes] : []),
         ...(facts.specialties ? [facts.specialties] : []),
@@ -136,14 +136,16 @@ function sourceValuesFor(
       return facts.credentials ? [facts.credentials] : [];
     case 'cases':
       return survey.purposeId === 'portfolio'
-        ? model.contentItems.map((entry) => entry.name)
+        ? model.contentItems.map((entry) => [entry.name, entry.description].filter(Boolean).join(' · '))
         : [];
     case 'gallery':
       return model.galleryImages;
     case 'testimonials':
       return [];
     case 'pricing':
-      return model.contentItems.filter((entry) => entry.price).map((entry) => entry.name);
+      return model.contentItems
+        .filter((entry) => entry.price)
+        .map((entry) => `${entry.name} · ${entry.price}`);
     case 'faq':
       return model.faq.map((entry) => entry.answer);
     case 'contact':

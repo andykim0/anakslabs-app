@@ -2666,16 +2666,20 @@ function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
 
 /** SitePlan v2 is the only authority for both section presence and projection. */
 function buildSitePlanSections(ctx: Ctx, plan: SitePlan): { section: Section; pageSlug: string }[] {
-  const narrative = buildMainStorytellingHomeSections(ctx);
-  const honestDepth = buildContentDepthHomeSections(ctx);
+  let narrative: Section[] | undefined;
+  let honestDepth: Section[] | undefined;
+  const narrativeSections = () => (narrative ??= buildMainStorytellingHomeSections(ctx));
+  const contentDepthSections = () => (honestDepth ??= buildContentDepthHomeSections(ctx));
   return plan.sections.map((planned) => {
     let section: Section | undefined;
     if (planned.role === 'hero') {
+      // v2 may reuse the factual hero primitive, but never dispatches through the
+      // legacy BUILDERS table where sample section builders live.
       section = buildHero(ctx);
     } else if (planned.role === 'story') {
-      section = narrative[0];
+      section = narrativeSections()[0];
     } else if (planned.role === 'values') {
-      section = narrative[1];
+      section = narrativeSections()[1];
     } else if (planned.id.includes('menu')) {
       const hasStructuredItems = buildContentDepthHomeModel(ctx.survey).contentItems.length > 0;
       section = hasStructuredItems
@@ -2692,9 +2696,9 @@ function buildSitePlanSections(ctx: Ctx, plan: SitePlan): { section: Section; pa
     } else if (planned.id.includes('directions')) {
       section = planned.mode === 'teaser'
         ? buildMainDirectionsTeaser(ctx)
-        : honestDepth.find((candidate) => candidate.id === 'sec-contact-directions');
+        : contentDepthSections().find((candidate) => candidate.id === 'sec-contact-directions');
     } else if (planned.role === 'contact') {
-      section = honestDepth.find((candidate) => candidate.id === 'sec-contact');
+      section = contentDepthSections().find((candidate) => candidate.id === 'sec-contact');
     }
     section ??= buildSitePlanTextSection(ctx, planned);
     section.id = planned.id;
@@ -2752,73 +2756,70 @@ export function buildSiteConfigFromSurvey(
     kit: findPov(povId).kit,
   };
   const approvedSitePlan = sitePlanV2Enabled(survey) ? buildSitePlan(survey) : null;
-
-  // 1) 계획표 확보 + hero/contact 최소 요건 합성 (pageSlug 보존)
-  const plan: SectionPlanItem[] = survey.sectionPlan.map((it) => ({ ...it }));
-  if (!plan.some((i) => i.type === 'hero')) {
-    // 히어로는 항상 홈
-    plan.unshift({ type: 'hero', name: SECTION_NAMES.hero, brief: '', required: true, source: 'ai', pageSlug: '' });
-  }
-  if (!plan.some((i) => i.type === 'contact')) {
-    // contact 페이지가 계획에 선언돼 있으면 거기, 아니면 홈
-    const hasContactPage =
-      (survey.pagePlan ?? []).some((p) => p.slug === 'contact') ||
-      plan.some((i) => (i.pageSlug ?? '') === 'contact');
-    plan.push({
-      type: 'contact',
-      name: SECTION_NAMES.contact,
-      brief: '',
-      source: 'ai',
-      pageSlug: hasContactPage ? 'contact' : '',
-    });
-  }
-
-  // 2) 동일 (type, variant) 중복 제거 (custom 제외)
-  const seen = new Set<string>();
-  const guidedFaqItems = survey.contentDepth
-    ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
-    : null;
-  const deduped = plan.filter((item) => {
-    // 신규 CONTENT v1은 아래 전용 홈 빌더가 소유한다. 레거시 샘플 후기·수치·경력을 섞지 않는다.
-    if (survey.contentDepth && item.type !== 'hero') return false;
-    if (item.type === 'faq' && guidedFaqItems?.length === 0) return false;
-    if (item.type === 'custom') return true;
-    const key = `${item.type}|${item.variant ?? ''}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  // 3) type 별 등장 횟수 → id 접미 결정 (id 는 사이트 전역 유일 — 앵커 안정성)
-  const typeCounts = new Map<SectionType, number>();
-  for (const it of deduped) typeCounts.set(it.type, (typeCounts.get(it.type) ?? 0) + 1);
-
   const usedIds = new Set<string>();
-  const built: { section: Section; pageSlug: string }[] = deduped.map((item) => {
-    const section = BUILDERS[item.type](ctx, item);
-    section.name = item.name?.trim() || SECTION_NAMES[item.type];
+  const built: { section: Section; pageSlug: string }[] = approvedSitePlan
+    ? buildSitePlanSections(ctx, approvedSitePlan)
+    : (() => {
+      // v1/OFF compatibility path. Keeping the complete legacy planner inside this
+      // branch makes BUILDERS structurally unreachable from the v2 contract.
+      const legacyPlan: SectionPlanItem[] = survey.sectionPlan.map((it) => ({ ...it }));
+      if (!legacyPlan.some((i) => i.type === 'hero')) {
+        legacyPlan.unshift({ type: 'hero', name: SECTION_NAMES.hero, brief: '', required: true, source: 'ai', pageSlug: '' });
+      }
+      if (!legacyPlan.some((i) => i.type === 'contact')) {
+        const hasContactPage =
+          (survey.pagePlan ?? []).some((p) => p.slug === 'contact') ||
+          legacyPlan.some((i) => (i.pageSlug ?? '') === 'contact');
+        legacyPlan.push({
+          type: 'contact',
+          name: SECTION_NAMES.contact,
+          brief: '',
+          source: 'ai',
+          pageSlug: hasContactPage ? 'contact' : '',
+        });
+      }
 
-    let baseId: string;
-    if ((typeCounts.get(item.type) ?? 1) <= 1) {
-      baseId = `sec-${item.type}`;
-    } else {
-      const suf = variantSuffix(item.variant);
-      baseId = suf ? `sec-${item.type}-${suf}` : `sec-${item.type}`;
-    }
-    let uniqueId = baseId;
-    let n = 2;
-    while (usedIds.has(uniqueId)) {
-      uniqueId = `${baseId}-${n}`;
-      n += 1;
-    }
-    usedIds.add(uniqueId);
-    section.id = uniqueId;
-    return { section, pageSlug: item.pageSlug ?? '' };
-  });
+      const seen = new Set<string>();
+      const guidedFaqItems = survey.contentDepth
+        ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
+        : null;
+      const deduped = legacyPlan.filter((item) => {
+        if (survey.contentDepth && item.type !== 'hero') return false;
+        if (item.type === 'faq' && guidedFaqItems?.length === 0) return false;
+        if (item.type === 'custom') return true;
+        const key = `${item.type}|${item.variant ?? ''}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      const typeCounts = new Map<SectionType, number>();
+      for (const item of deduped) typeCounts.set(item.type, (typeCounts.get(item.type) ?? 0) + 1);
+
+      return deduped.map((item) => {
+        const section = BUILDERS[item.type](ctx, item);
+        section.name = item.name?.trim() || SECTION_NAMES[item.type];
+
+        let baseId: string;
+        if ((typeCounts.get(item.type) ?? 1) <= 1) {
+          baseId = `sec-${item.type}`;
+        } else {
+          const suffix = variantSuffix(item.variant);
+          baseId = suffix ? `sec-${item.type}-${suffix}` : `sec-${item.type}`;
+        }
+        let uniqueId = baseId;
+        let sequence = 2;
+        while (usedIds.has(uniqueId)) {
+          uniqueId = `${baseId}-${sequence}`;
+          sequence += 1;
+        }
+        usedIds.add(uniqueId);
+        section.id = uniqueId;
+        return { section, pageSlug: item.pageSlug ?? '' };
+      });
+    })();
 
   if (approvedSitePlan) {
-    built.splice(0, built.length, ...buildSitePlanSections(ctx, approvedSitePlan));
-    usedIds.clear();
     for (const { section } of built) {
       if (usedIds.has(section.id)) throw new Error(`SitePlan v2 section id collision: ${section.id}`);
       usedIds.add(section.id);

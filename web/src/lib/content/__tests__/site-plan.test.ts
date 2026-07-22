@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import type { DesignCandidate, LivePurposeId, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig } from '@/lib/types/site';
@@ -63,6 +65,16 @@ function generatedSectionIds(survey: SurveyInput): string[] {
   return config.pages.flatMap((page) => page.sections.map((section) => section.id)).sort();
 }
 
+function generatedText(survey: SurveyInput, copy?: { aboutTitle?: string; aboutBody?: string }): string {
+  const config = buildSiteConfigFromSurvey(survey, candidate, {
+    heroImageUrl: '/mock/hero.svg', imagePool: [], copy,
+  });
+  return config.pages.flatMap((page) => page.sections)
+    .flatMap((section) => section.elements)
+    .flatMap((element) => element.kind === 'text' ? [element.text] : element.kind === 'button' ? [element.label] : [])
+    .join(' ');
+}
+
 describe('PLAN P1 단일 생성 계획 계약', () => {
   for (const [purposeId, industry] of CASES) {
     test(`${purposeId} 승인 SitePlan section id 집합은 생성 결과와 같다`, () => {
@@ -94,5 +106,32 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     const plan = buildSitePlan(survey);
     assert.ok(!plan.sections.some((section) => section.id.includes('menu')));
     assert.ok(!generatedSectionIds(survey).some((id) => id.includes('menu')));
+  });
+
+  test('v2 생성은 레거시 샘플 BUILDERS 디스패치를 구조적으로 우회한다', () => {
+    const source = readFileSync(join(process.cwd(), 'src/lib/data/site-templates.ts'), 'utf8');
+    const v2Builder = source.slice(
+      source.indexOf('function buildSitePlanSections'),
+      source.indexOf('const BUILDERS:'),
+    );
+    const configBuilder = source.slice(source.indexOf('export function buildSiteConfigFromSurvey'));
+    assert.doesNotMatch(v2Builder, /BUILDERS\[/u);
+    assert.match(
+      configBuilder,
+      /const built:[\s\S]+approvedSitePlan\s*\? buildSitePlanSections\(ctx, approvedSitePlan\)\s*:\s*\(\(\) =>/u,
+    );
+    assert.ok(configBuilder.indexOf('? buildSitePlanSections(ctx, approvedSitePlan)') < configBuilder.indexOf('BUILDERS[item.type](ctx, item)'));
+  });
+
+  test('v2 특화 섹션은 고객 소스만 소비하고 레거시 카피 오버라이드를 무시한다', () => {
+    const survey = surveyFor('company_brand', '법률 법인');
+    const output = generatedText(survey, {
+      aboutTitle: '입력하지 않은 20년 경력과 수상 실적',
+      aboutBody: '누적 고객 1만 명과 성공률 99퍼센트',
+    });
+    assert.doesNotMatch(output, /입력하지 않은|20년 경력|수상 실적|누적 고객|성공률/u);
+    assert.match(output, /고객이 직접 입력한 브랜드 이야기/u);
+    assert.match(output, /고객이 입력한 업무·서비스/u);
+    assert.match(output, /고객이 입력한 경력·자격/u);
   });
 });
