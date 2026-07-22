@@ -31,6 +31,7 @@ import { buildNarrativeArc } from './narrative-arc';
 import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion/scrollytelling';
 import { regionOf } from '@/lib/onboarding/region';
 import { resolveScrim } from '@/lib/design/scrim';
+import { resolveGuidedFaqAnswers } from '@/lib/content/content-depth';
 import { pickButtonTextColor } from '@/lib/design/button-contrast';
 import {
   generatedTextRoleFor,
@@ -1820,12 +1821,15 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
 }
 
 function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
-  const { theme } = ctx;
-  const items = [
-    { q: '이용 방법이 어떻게 되나요?', a: '문의 주시면 상황에 맞춰 안내해 드립니다.' },
-    { q: '예약·상담은 어떻게 하나요?', a: '전화 또는 문의 폼으로 편하게 연락 주세요.' },
-    { q: '운영 시간이 궁금해요.', a: '기본 운영 시간 내 상담·방문이 가능합니다.' },
-  ];
+  const { theme, survey } = ctx;
+  const items = survey.contentDepth
+    ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
+      .map((item) => ({ q: item.question, a: item.answer }))
+    : [
+        { q: '이용 방법이 어떻게 되나요?', a: '문의 주시면 상황에 맞춰 안내해 드립니다.' },
+        { q: '예약·상담은 어떻게 하나요?', a: '전화 또는 문의 폼으로 편하게 연락 주세요.' },
+        { q: '운영 시간이 궁금해요.', a: '기본 운영 시간 내 상담·방문이 가능합니다.' },
+      ];
   const subText = briefToSubtitle(item.brief);
   const hasSub = Boolean(subText);
   const listTop = hasSub ? 300 : 260;
@@ -1841,8 +1845,11 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
     titleEl(ctx, headingOf(item, '자주 묻는 질문'), 142),
   ];
   if (hasSub) elements.push(subtitleEl(ctx, subText));
-  items.forEach((it, i) => {
-    const y = listTop + i * 150;
+  let rowTop = listTop;
+  items.forEach((it) => {
+    const answerHeight = Math.max(56, Math.ceil(it.a.length / 66) * 28);
+    const rowHeight = 44 + answerHeight + 50;
+    const y = rowTop;
     elements.push(
       {
         id: nextId(ctx, 'el-faq-q'),
@@ -1855,7 +1862,7 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-faq-a'),
         kind: 'text',
-        frame: { x: 120, y: y + 44, w: 1200, h: 56 },
+        frame: { x: 120, y: y + 44, w: 1200, h: answerHeight },
         z: 2,
         text: it.a,
         style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.7 },
@@ -1863,17 +1870,18 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
       {
         id: nextId(ctx, 'el-faq-div'),
         kind: 'divider',
-        frame: { x: 120, y: y + 116, w: 1200, h: 1 },
+        frame: { x: 120, y: y + rowHeight - 24, w: 1200, h: 1 },
         z: 1,
         style: { color: theme.palette.muted, thickness: ctx.kit.dividerThickness },
       },
     );
+    rowTop += rowHeight;
   });
   return {
     id: 'sec-faq',
     type: 'faq',
     name: SECTION_NAMES.faq,
-    height: listTop + items.length * 150 + 40,
+    height: rowTop + 40,
     background: { color: theme.palette.background },
     elements,
   };
@@ -2065,7 +2073,11 @@ export function buildSiteConfigFromSurvey(
 
   // 2) 동일 (type, variant) 중복 제거 (custom 제외)
   const seen = new Set<string>();
+  const guidedFaqItems = survey.contentDepth
+    ? resolveGuidedFaqAnswers(survey.industry, survey.contentDepth.faqAnswers)
+    : null;
   const deduped = plan.filter((item) => {
+    if (item.type === 'faq' && guidedFaqItems?.length === 0) return false;
     if (item.type === 'custom') return true;
     const key = `${item.type}|${item.variant ?? ''}`;
     if (seen.has(key)) return false;

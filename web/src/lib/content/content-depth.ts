@@ -1,4 +1,8 @@
-import type { BusinessFactAnswer, BusinessFactKey } from '@/lib/types/domain';
+import type {
+  BusinessFactAnswer,
+  BusinessFactKey,
+  GuidedFaqAnswer,
+} from '@/lib/types/domain';
 
 export type ContentIndustryGroup =
   | 'cafe'
@@ -17,6 +21,12 @@ export interface BusinessFactQuestion {
   hint: string;
   placeholder: string;
   required?: boolean;
+}
+
+export interface GuidedFaqQuestion {
+  id: string;
+  question: string;
+  hint: string;
 }
 
 export const REQUIRED_BUSINESS_FACT_KEYS = ['phone', 'openingHours'] as const satisfies readonly BusinessFactKey[];
@@ -83,6 +93,63 @@ const INDUSTRY_FACT_QUESTIONS: Record<ContentIndustryGroup, readonly BusinessFac
   ],
 };
 
+const COMMON_FAQ_QUESTIONS: readonly GuidedFaqQuestion[] = [
+  { id: 'hours', question: '영업시간과 쉬는 날은 언제인가요?', hint: '요일별 시간과 휴무일을 답해주세요.' },
+  { id: 'parking', question: '주차할 수 있나요?', hint: '가능·불가와 시간·비용 조건을 답해주세요.' },
+  { id: 'reservation', question: '예약은 어떻게 하나요?', hint: '전화·메시지·예약 링크 등 실제 방법을 답해주세요.' },
+  { id: 'payment', question: '어떤 결제수단을 사용할 수 있나요?', hint: '실제로 받는 결제수단만 답해주세요.' },
+  { id: 'accessibility', question: '엘리베이터나 휠체어 진입이 가능한가요?', hint: '층·엘리베이터·문턱 등 실제 상태를 답해주세요.' },
+  { id: 'pets', question: '반려동물과 함께 들어갈 수 있나요?', hint: '가능 여부와 이동장 같은 조건을 답해주세요.' },
+];
+
+const INDUSTRY_FAQ_QUESTIONS: Record<ContentIndustryGroup, readonly GuidedFaqQuestion[]> = {
+  cafe: [
+    { id: 'wifi', question: '와이파이와 콘센트를 사용할 수 있나요?', hint: '제공 여부와 이용 가능한 좌석을 답해주세요.' },
+    { id: 'group', question: '단체로 이용할 수 있나요?', hint: '가능 인원과 예약 조건을 답해주세요.' },
+    { id: 'takeout', question: '포장 주문이 가능한가요?', hint: '가능한 메뉴나 주문 방법을 답해주세요.' },
+  ],
+  food: [
+    { id: 'group', question: '단체 예약이 가능한가요?', hint: '가능 인원과 예약 조건을 답해주세요.' },
+    { id: 'corkage', question: '콜키지가 가능한가요?', hint: '가능 여부와 병수·비용 조건을 답해주세요.' },
+    { id: 'takeout', question: '포장이나 배달이 가능한가요?', hint: '실제 운영 방식을 답해주세요.' },
+  ],
+  medical: [
+    { id: 'appointment', question: '진료 예약이 필요한가요?', hint: '예약·당일 접수 방법을 답해주세요.' },
+    { id: 'insurance', question: '보험 적용 여부는 어떻게 확인하나요?', hint: '확인 가능한 범위와 문의 방법을 답해주세요.' },
+    { id: 'documents', question: '방문할 때 준비할 것이 있나요?', hint: '신분증·의뢰서 등 실제 준비물만 답해주세요.' },
+  ],
+  beauty: [
+    { id: 'duration', question: '시술은 얼마나 걸리나요?', hint: '시술별 실제 예상 시간을 답해주세요.' },
+    { id: 'appointment', question: '당일 예약도 가능한가요?', hint: '예약 가능 시점과 방법을 답해주세요.' },
+    { id: 'aftercare', question: '시술 후 관리 방법이 있나요?', hint: '실제로 안내하는 관리법만 답해주세요.' },
+  ],
+  workshop: [
+    { id: 'materials', question: '재료와 준비물이 포함되나요?', hint: '포함 품목과 직접 가져올 것을 답해주세요.' },
+    { id: 'duration', question: '클래스는 얼마나 걸리나요?', hint: '클래스별 실제 시간을 답해주세요.' },
+    { id: 'group', question: '단체 클래스도 가능한가요?', hint: '가능 인원과 예약 조건을 답해주세요.' },
+  ],
+  education: [
+    { id: 'enrollment', question: '수업은 어떻게 등록하나요?', hint: '상담·레벨 확인·등록 순서를 답해주세요.' },
+    { id: 'duration', question: '수업 시간과 횟수는 어떻게 되나요?', hint: '회당 시간과 주간 횟수를 답해주세요.' },
+    { id: 'materials', question: '교재나 준비물이 필요한가요?', hint: '실제 사용하는 교재와 준비물을 답해주세요.' },
+  ],
+  legal: [
+    { id: 'appointment', question: '상담은 예약해야 하나요?', hint: '예약 방법과 가능한 시간을 답해주세요.' },
+    { id: 'documents', question: '상담 전에 어떤 자료를 준비해야 하나요?', hint: '업무별로 공통 준비 자료가 있다면 답해주세요.' },
+    { id: 'duration', question: '첫 상담은 얼마나 걸리나요?', hint: '실제 상담 시간 단위를 답해주세요.' },
+  ],
+  retail: [
+    { id: 'delivery', question: '택배나 매장 픽업이 가능한가요?', hint: '실제 구매·수령 방법을 답해주세요.' },
+    { id: 'exchange', question: '교환이나 반품은 어떻게 하나요?', hint: '실제 적용하는 기준과 방법을 답해주세요.' },
+    { id: 'stock', question: '상품 재고는 어떻게 확인하나요?', hint: '전화·메시지 등 실제 확인 방법을 답해주세요.' },
+  ],
+  generic: [
+    { id: 'appointment', question: '상담은 어떻게 신청하나요?', hint: '실제 문의·예약 방법을 답해주세요.' },
+    { id: 'duration', question: '상담이나 서비스는 얼마나 걸리나요?', hint: '실제 예상 시간을 답해주세요.' },
+    { id: 'documents', question: '미리 준비할 것이 있나요?', hint: '필요한 자료나 준비물만 답해주세요.' },
+  ],
+};
+
 export function contentIndustryGroup(industry: string): ContentIndustryGroup {
   const value = industry.trim();
   if (/카페|커피|베이커리|디저트|제과|제빵/u.test(value)) return 'cafe';
@@ -99,6 +166,30 @@ export function contentIndustryGroup(industry: string): ContentIndustryGroup {
 export function factQuestionsForIndustry(industry: string): BusinessFactQuestion[] {
   const questions = [...COMMON_FACT_QUESTIONS, ...INDUSTRY_FACT_QUESTIONS[contentIndustryGroup(industry)]];
   return [...new Map(questions.map((question) => [question.key, question])).values()];
+}
+
+/**
+ * 네이버 FAQ 리치 결과는 2026-07-08 종료됐지만, 명시적 질문-답 구조는
+ * 인덱싱·질문 매칭·AI 인용을 위한 가시 콘텐츠와 FAQPage 데이터에 계속 사용한다.
+ */
+export function faqQuestionsForIndustry(industry: string): GuidedFaqQuestion[] {
+  const questions = [...COMMON_FAQ_QUESTIONS, ...INDUSTRY_FAQ_QUESTIONS[contentIndustryGroup(industry)]];
+  return [...new Map(questions.map((question) => [question.id, question])).values()];
+}
+
+export function resolveGuidedFaqAnswers(
+  industry: string,
+  answers: readonly GuidedFaqAnswer[],
+): { questionId: string; question: string; answer: string }[] {
+  const answerById = new Map<string, string>();
+  for (const item of answers) {
+    const answer = item.answer.trim();
+    if (answer) answerById.set(item.questionId, answer);
+  }
+  return faqQuestionsForIndustry(industry).flatMap((question) => {
+    const answer = answerById.get(question.id);
+    return answer ? [{ questionId: question.id, question: question.question, answer }] : [];
+  });
 }
 
 export function missingRequiredFacts(facts: readonly BusinessFactAnswer[]): BusinessFactKey[] {

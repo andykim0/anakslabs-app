@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { CheckCircle2, ImagePlus, Loader2, Plus, Sparkles, Wand2, X } from 'lucide-react';
 import type { LivePurposeId } from '@/lib/types/domain';
-import { factQuestionsForIndustry } from '@/lib/content/content-depth';
+import { factQuestionsForIndustry, faqQuestionsForIndustry } from '@/lib/content/content-depth';
 import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requirements';
 import { cn } from '../../ui';
 import { extractMenuFromImage, uploadImage, uploadImageWithAssetRef } from '../../api';
@@ -153,6 +153,10 @@ export function Step03Content() {
   const factsByKey = new Map(factualAnswers.map((answer) => [answer.key, answer]));
   const answeredFactCount = factQuestions.filter((question) => factsByKey.get(question.key)?.value.trim()).length;
   const factProgress = Math.round((answeredFactCount / factQuestions.length) * 100);
+  const faqAnswers = watch('faqAnswers') ?? [];
+  const faqQuestions = faqQuestionsForIndustry(industry);
+  const faqAnswersById = new Map(faqAnswers.map((answer) => [answer.questionId, answer.answer]));
+  const answeredFaqCount = faqQuestions.filter((question) => faqAnswersById.get(question.id)?.trim()).length;
 
   const setFactAnswer = (key: (typeof factQuestions)[number]['key'], value: string) => {
     const next = [...(getValues('factualAnswers') ?? [])];
@@ -163,6 +167,14 @@ export function Step03Content() {
       next.push({ key, value, source: 'customer' });
     }
     setValue('factualAnswers', next, { shouldValidate: false });
+  };
+
+  const setFaqAnswer = (questionId: string, answer: string) => {
+    const next = [...(getValues('faqAnswers') ?? [])];
+    const index = next.findIndex((item) => item.questionId === questionId);
+    if (index >= 0) next[index] = { questionId, answer };
+    else next.push({ questionId, answer });
+    setValue('faqAnswers', next, { shouldValidate: false });
   };
 
   const removeItem = (index: number) => {
@@ -302,6 +314,35 @@ export function Step03Content() {
               </Field>
             );
           })}
+        </div>
+      </section>
+
+      <section className="rounded-ob border border-ob-border bg-ob-bg p-4 sm:p-5" aria-labelledby="guided-faq-title">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 id="guided-faq-title" className="text-[17px] font-semibold text-ob-ink">
+              손님이 자주 묻는 질문
+            </h3>
+            <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
+              질문은 준비해 두었어요. 사장님이 답한 질문만 홈페이지와 검색용 질문·답에 들어갑니다.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full bg-ob-surface px-3 py-1.5 text-[12px] font-medium text-ob-muted">
+            {answeredFaqCount}/{faqQuestions.length}개 답변 · 모두 선택
+          </span>
+        </div>
+        <div className="mt-5 space-y-4">
+          {faqQuestions.map((question) => (
+            <Field key={question.id} label={question.question} hint={question.hint}>
+              <textarea
+                value={faqAnswersById.get(question.id) ?? ''}
+                onChange={(event) => setFaqAnswer(question.id, event.target.value)}
+                rows={2}
+                placeholder="실제 운영 기준에 맞는 답을 적어주세요. 답하지 않으면 홈페이지에 나오지 않아요."
+                className={cn(obInput, 'resize-y leading-relaxed')}
+              />
+            </Field>
+          ))}
         </div>
       </section>
 
