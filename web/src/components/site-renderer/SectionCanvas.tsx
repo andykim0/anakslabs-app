@@ -64,6 +64,16 @@ function coverStyleFor(point?: { x: number; y: number }): CSSProperties {
   };
 }
 
+function canvasFrameStyle(frame: { x: number; y: number; w: number; h: number }): CSSProperties {
+  return {
+    position: 'absolute',
+    left: cqw(frame.x),
+    top: cqw(frame.y),
+    width: cqw(frame.w),
+    height: cqw(frame.h),
+  };
+}
+
 export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
   if (isUniformTeaserSection(section)) {
@@ -92,7 +102,11 @@ function StandardSection({
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
-  const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
+  const heroLayout = section.heroLayout;
+  const videoHero = (
+    (plan?.videoHeroSections.has(section.id) ?? false)
+    || heroLayout?.mediaKind === 'video'
+  ) && !!bg.video?.src && !!bg.video.poster;
   const parallax = plan?.parallaxSections.has(section.id) ?? false;
   const stacking = plan?.stackingSections.has(section.id) ?? false;
   const spotlight = plan?.spotlightSections.has(section.id) ?? false;
@@ -100,6 +114,7 @@ function StandardSection({
   const densityDelta = themeSectionBlockDelta(theme);
   const continuousHero = continuousFlow && section.type === 'hero';
   const responsivePhoto = bg.image?.responsivePromotion;
+  const heroLayoutBand = heroLayout?.bands.wide;
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
   const imgScrim = (!proceduralHero || responsivePhoto) && bg.image
@@ -153,6 +168,45 @@ function StandardSection({
     </>
   ) : null;
 
+  const imageBackdrop = (
+    <>
+      {proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
+      {bg.image && (responsivePhoto ? (
+        <ResponsiveHeroPhoto
+          src={bg.image.src}
+          alt=""
+          promotion={responsivePhoto}
+          focalPoint={bg.image.focalPoint}
+          compactFocalPoint={bg.image.compactFocalPoint}
+          mobileFocalPoint={bg.image.mobileFocalPoint}
+          loading={isFirst ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={isFirst ? 'high' : undefined}
+          imageData={kenBurns ? { 'data-m': 'kenburns' } : undefined}
+        />
+      ) : !proceduralHero ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={bg.image.src}
+          alt=""
+          aria-hidden
+          loading={isFirst ? 'eager' : 'lazy'}
+          decoding="async"
+          {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
+          style={coverStyleFor(bg.image.focalPoint)}
+        />
+      ) : null)}
+    </>
+  );
+  const backdrop = videoBackdrop
+    ? cinematicPlayback
+      ? <div data-m-cinematic-media style={coverStyle}>{videoBackdrop}</div>
+      : videoBackdrop
+    : imageBackdrop;
+  const heroLayoutScrim = heroLayout
+    ? heroLayout.scrim === 'subtle-scrim' ? imgScrim : null
+    : null;
+
   return (
     <section
       id={section.id}
@@ -162,41 +216,47 @@ function StandardSection({
       {...(sectionDataM ? { 'data-m': sectionDataM } : {})}
       style={sectionStyle}
     >
-      {videoBackdrop ? (
-        cinematicPlayback ? (
-          <div data-m-cinematic-media style={coverStyle}>{videoBackdrop}</div>
-        ) : videoBackdrop
-      ) : (
-        <>
-          {proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
-          {bg.image && (responsivePhoto ? (
-            <ResponsiveHeroPhoto
-              src={bg.image.src}
-              alt=""
-              promotion={responsivePhoto}
-              focalPoint={bg.image.focalPoint}
-              compactFocalPoint={bg.image.compactFocalPoint}
-              mobileFocalPoint={bg.image.mobileFocalPoint}
-              loading={isFirst ? 'eager' : 'lazy'}
-              decoding="async"
-              fetchPriority={isFirst ? 'high' : undefined}
-              imageData={kenBurns ? { 'data-m': 'kenburns' } : undefined}
+      {heroLayoutBand?.panelFrame ? (
+        <div
+          aria-hidden
+          data-hero-layout-panel
+          style={{
+            ...canvasFrameStyle(heroLayoutBand.panelFrame),
+            zIndex: 1,
+            backgroundColor: resolveThemePaint(theme, theme.palette.surface, 'surfaceStrong'),
+            borderRadius: theme.tokens?.radius.soft ?? cqw(theme.radius ?? 0),
+          }}
+        />
+      ) : null}
+      {heroLayoutBand?.mediaFrame ? (
+        <div
+          data-hero-layout-media
+          style={{
+            ...canvasFrameStyle(heroLayoutBand.mediaFrame),
+            zIndex: 0,
+            overflow: 'hidden',
+            borderRadius: heroLayout?.resolvedId.includes('fullbleed')
+              || heroLayout?.resolvedId === 'hero.overlay-bottom-left'
+              || heroLayout?.resolvedId === 'hero.video-scrim'
+              ? undefined
+              : theme.tokens?.radius.soft ?? cqw(theme.radius ?? 0),
+          }}
+        >
+          {backdrop}
+          {heroLayoutScrim && (
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: heroLayoutScrim.overlayColor,
+                opacity: heroLayoutScrim.overlayOpacity,
+              }}
             />
-          ) : !proceduralHero ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={bg.image.src}
-            alt=""
-            aria-hidden
-            loading={isFirst ? 'eager' : 'lazy'}
-            decoding="async"
-            {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
-            style={coverStyleFor(bg.image.focalPoint)}
-          />
-          ) : null)}
-        </>
-      )}
-      {imgScrim && (
+          )}
+        </div>
+      ) : backdrop}
+      {!heroLayout && imgScrim && (
         <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: imgScrim.overlayColor, opacity: imgScrim.overlayOpacity }} />
       )}
       {continuousHero && <div aria-hidden="true" data-continuous-hero-bridge />}

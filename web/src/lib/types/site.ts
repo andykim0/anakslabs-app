@@ -5,6 +5,7 @@
  */
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
 import type { DesignDnaSelection } from '@/lib/design/dna/types';
+import type { HeroLayoutProjection } from '@/lib/layout/types';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -368,6 +369,11 @@ export interface Section {
   layout?: 'canvas' | 'marquee' | 'scrollytelling';
   /** [SS1] scrollytelling 무대의 3~5막. 일반 canvas 강등 때도 승인 후 복원을 위해 보존한다. */
   acts?: ScrollytellingAct[];
+  /**
+   * LIB v1 신규 생성본 전용 히어로 배열 핀. wide는 elements.frame에도 투영되고,
+   * compact/mobile은 이 밴드별 서버 컴파일 결과를 기존 렌더 경계가 소비한다.
+   */
+  heroLayout?: HeroLayoutProjection;
   hidden?: boolean;
 }
 

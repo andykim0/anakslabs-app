@@ -99,6 +99,233 @@ function itemStyle(el: CanvasElement): CSSProperties {
   }
 }
 
+const HERO_LAYOUT_STACK_CSS = `
+[data-hero-layout-stack]{container-type:inline-size;height:var(--hero-layout-height-compact)}
+[data-hero-layout-frame],[data-hero-layout-media],[data-hero-layout-panel]{position:absolute;left:var(--hero-layout-x-compact);top:var(--hero-layout-y-compact);width:var(--hero-layout-w-compact);height:var(--hero-layout-h-compact)}
+[data-hero-layout-media]>img,[data-hero-layout-media]>video,[data-hero-layout-media]>[data-site-cine-procedural-hero]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+@media(max-width:767.98px){
+  [data-hero-layout-stack]{height:var(--hero-layout-height-mobile)}
+  [data-hero-layout-frame],[data-hero-layout-media],[data-hero-layout-panel]{left:var(--hero-layout-x-mobile);top:var(--hero-layout-y-mobile);width:var(--hero-layout-w-mobile);height:var(--hero-layout-h-mobile)}
+}
+`;
+
+type HeroLayoutVariables = CSSProperties & Record<`--hero-layout-${string}`, string>;
+
+function bandLength(value: number, width: number): string {
+  return `${Number(((value / width) * 100).toFixed(5))}cqw`;
+}
+
+function heroLayoutVariables(
+  compact: { x: number; y: number; w: number; h: number },
+  mobile: { x: number; y: number; w: number; h: number },
+): HeroLayoutVariables {
+  return {
+    '--hero-layout-x-compact': bandLength(compact.x, 768),
+    '--hero-layout-y-compact': bandLength(compact.y, 768),
+    '--hero-layout-w-compact': bandLength(compact.w, 768),
+    '--hero-layout-h-compact': bandLength(compact.h, 768),
+    '--hero-layout-x-mobile': bandLength(mobile.x, 390),
+    '--hero-layout-y-mobile': bandLength(mobile.y, 390),
+    '--hero-layout-w-mobile': bandLength(mobile.w, 390),
+    '--hero-layout-h-mobile': bandLength(mobile.h, 390),
+  };
+}
+
+function HeroLayoutStackSection({
+  section,
+  theme,
+  isFirst,
+  interactive = true,
+  plan,
+  siteId,
+  proceduralHero = false,
+  integratedTypography = false,
+  continuousFlow = false,
+}: SectionStackProps) {
+  const projection = section.heroLayout!;
+  const bg = section.background;
+  const compact = projection.bands.compact;
+  const mobile = projection.bands.mobile;
+  const mediaFrameCompact = compact.mediaFrame;
+  const mediaFrameMobile = mobile.mediaFrame;
+  const panelFrameCompact = compact.panelFrame;
+  const panelFrameMobile = mobile.panelFrame;
+  const responsivePhoto = bg.image?.responsivePromotion;
+  const scrim = projection.scrim === 'subtle-scrim'
+    ? bg.image?.overlayColor
+      ? {
+          overlayColor: bg.image.overlayColor,
+          overlayOpacity: bg.image.overlayOpacity ?? 0.45,
+        }
+      : resolveScrim(theme.palette)
+    : null;
+  const textShadow = scrim ? `0 1px 2px ${scrim.overlayColor}` : undefined;
+  const stageVariables = {
+    '--hero-layout-height-compact': bandLength(compact.sectionHeight, compact.width),
+    '--hero-layout-height-mobile': bandLength(mobile.sectionHeight, mobile.width),
+  } as CSSProperties;
+
+  return (
+    <section
+      data-anchor={section.id}
+      data-section-type={section.type}
+      data-hero-layout-stack={projection.resolvedId}
+      aria-label={section.name}
+      style={{
+        ...stageVariables,
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
+        backgroundImage: bg.gradient,
+      }}
+    >
+      <style dangerouslySetInnerHTML={{ __html: HERO_LAYOUT_STACK_CSS }} />
+      {panelFrameCompact && panelFrameMobile ? (
+        <div
+          aria-hidden
+          data-hero-layout-panel
+          style={{
+            ...heroLayoutVariables(panelFrameCompact, panelFrameMobile),
+            zIndex: 1,
+            backgroundColor: resolveThemePaint(theme, theme.palette.surface, 'surfaceStrong'),
+            borderRadius: theme.tokens?.radius.soft ?? `${theme.radius ?? 0}px`,
+          }}
+        />
+      ) : null}
+      {mediaFrameCompact && mediaFrameMobile ? (
+        <div
+          aria-hidden
+          data-hero-layout-media
+          style={{
+            ...heroLayoutVariables(mediaFrameCompact, mediaFrameMobile),
+            zIndex: 0,
+            overflow: 'hidden',
+            borderRadius: projection.resolvedId.includes('fullbleed')
+              || projection.resolvedId === 'hero.overlay-bottom-left'
+              || projection.resolvedId === 'hero.video-scrim'
+              ? undefined
+              : theme.tokens?.radius.soft ?? `${theme.radius ?? 0}px`,
+          }}
+        >
+          {projection.mediaKind === 'video' && bg.video?.src && bg.video.poster ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={safeMediaSrc(bg.video.poster)}
+                alt=""
+                loading={isFirst ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={isFirst ? 'high' : undefined}
+              />
+              <video
+                src={safeMediaSrc(bg.video.src)}
+                poster={safeMediaSrc(bg.video.poster)}
+                muted
+                loop
+                playsInline
+                preload="none"
+              />
+            </>
+          ) : proceduralHero && !responsivePhoto ? (
+            <div aria-hidden data-site-cine-procedural-hero />
+          ) : bg.image && responsivePhoto ? (
+            <ResponsiveHeroPhoto
+              src={bg.image.src}
+              alt=""
+              promotion={responsivePhoto}
+              focalPoint={bg.image.focalPoint}
+              compactFocalPoint={bg.image.compactFocalPoint}
+              mobileFocalPoint={bg.image.mobileFocalPoint}
+              loading={isFirst ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={isFirst ? 'high' : undefined}
+            />
+          ) : bg.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={safeMediaSrc(bg.image.src)}
+              alt=""
+              loading={isFirst ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={isFirst ? 'high' : undefined}
+              style={{
+                objectPosition: imageObjectPosition(
+                  bg.image.mobileFocalPoint ?? bg.image.compactFocalPoint ?? bg.image.focalPoint,
+                ),
+              }}
+            />
+          ) : null}
+          {scrim ? (
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: scrim.overlayColor,
+                opacity: scrim.overlayOpacity,
+              }}
+            />
+          ) : null}
+        </div>
+      ) : proceduralHero ? (
+        <div aria-hidden data-site-cine-procedural-hero />
+      ) : null}
+      {continuousFlow ? <div aria-hidden="true" data-continuous-hero-bridge /> : null}
+      {[...section.elements].sort((left, right) => left.z - right.z).map((element) => {
+        const compactFrame = compact.frames[element.id];
+        const mobileFrame = mobile.frames[element.id];
+        if (!compactFrame || !mobileFrame) return null;
+        const motion = plan ? motionFor(plan, section.id, element.id) : undefined;
+        const dataM = motion === 'reveal' || motion === 'mask' ? motion : undefined;
+        const delay = motion === 'reveal' && plan
+          ? revealDelayFor(plan, section.id, element.id)
+          : undefined;
+        const countup = motion === 'countup' && element.kind === 'text'
+          ? parseStatParts(element.text) ?? undefined
+          : undefined;
+        const splitText = plan ? isSplitText(plan, section.id, element.id) : false;
+        const fontSizeCompact = compact.fontSizes[element.id];
+        const fontSizeMobile = mobile.fontSizes[element.id];
+        const fontSize = fontSizeCompact && fontSizeMobile
+          ? `clamp(${fontSizeMobile}px,${bandLength(fontSizeCompact, 768)},${fontSizeCompact}px)`
+          : undefined;
+        return (
+          <div
+            key={element.id}
+            data-hero-layout-frame
+            {...(integratedTypography && element.kind === 'text'
+              ? { 'data-site-cine-hero-copy': true }
+              : {})}
+            {...(dataM ? { 'data-m': dataM } : {})}
+            {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
+            style={{
+              ...heroLayoutVariables(compactFrame, mobileFrame),
+              zIndex: Math.max(element.z, continuousFlow ? 6 : 2),
+              minWidth: 0,
+              maxWidth: '100%',
+              textShadow: element.kind === 'text' ? textShadow : undefined,
+            }}
+          >
+            <ElementContent
+              element={element}
+              theme={theme}
+              variant="stack"
+              eager={isFirst}
+              interactive={interactive}
+              siteId={siteId}
+              countup={countup}
+              splitText={splitText}
+              layoutFontSize={fontSize}
+              layoutAlign={compact.align}
+              layoutFillFrame={element.kind === 'button'}
+            />
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
 export function SectionStack({
   section,
   theme,
@@ -112,6 +339,21 @@ export function SectionStack({
 }: SectionStackProps) {
   if (isUniformTeaserSection(section)) {
     return <UniformTeaserGrid section={section} theme={theme} variant="stack" interactive={interactive} animate={Boolean(plan)} />;
+  }
+  if (section.heroLayout) {
+    return (
+      <HeroLayoutStackSection
+        section={section}
+        theme={theme}
+        isFirst={isFirst}
+        interactive={interactive}
+        plan={plan}
+        siteId={siteId}
+        proceduralHero={proceduralHero}
+        integratedTypography={integratedTypography}
+        continuousFlow={continuousFlow}
+      />
+    );
   }
   const bg = section.background;
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)

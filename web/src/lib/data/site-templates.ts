@@ -56,6 +56,10 @@ import {
   type SitePlan,
   type SitePlanSection,
 } from '@/lib/content/site-plan';
+import {
+  resolveHeroLayoutVariant,
+  type HeroLayoutVariantId,
+} from '@/lib/layout';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -94,6 +98,10 @@ export interface BuildOptions {
   copy?: SectionCopy;
   /** [R2] 히어로 형태(뼈대) — 미지정=fullbleed(기존, 무회귀). centered/split은 정렬·앵커만 다름 */
   heroVariant?: HeroVariant;
+  /** LIB 신규 생성 전용. 미지정이면 위 레거시 3종 분기와 바이트가 동일하다. */
+  heroLayoutVariantId?: HeroLayoutVariantId;
+  /** 실제 영상과 poster가 모두 있을 때만 hero.video-scrim이 성립한다. */
+  heroVideo?: { src: string; poster: string };
 }
 
 /** hex 색상의 밝기(0~255). 팔레트가 다크/라이트인지 판단용 */
@@ -491,9 +499,13 @@ function buildHero(ctx: Ctx): Section {
 
   // [R2/HERO2] 뼈대 히어로 형태 적용 뒤 실제 한글 줄 수에 맞춰 카피 흐름을 확정한다.
   // 1~2행은 기존 좌표를 그대로 두고, 3행 이상만 프레임과 후속 요소를 아래로 확장한다.
-  const heroVariant = opts.heroVariant ?? 'fullbleed';
-  applyHeroVariant(elements, heroVariant);
-  const heroHeight = applyLongHeroHeadlineFlow(elements);
+  const heroHeight = opts.heroLayoutVariantId
+    ? 840
+    : (() => {
+        const heroVariant = opts.heroVariant ?? 'fullbleed';
+        applyHeroVariant(elements, heroVariant);
+        return applyLongHeroHeadlineFlow(elements);
+      })();
 
   return {
     id: 'sec-hero',
@@ -503,10 +515,11 @@ function buildHero(ctx: Ctx): Section {
     background: {
       color: theme.palette.background,
       image: {
-        src: opts.heroImageUrl,
+        src: opts.heroImageUrl || opts.heroVideo?.poster || '',
         overlayColor: scrim.overlayColor,
         overlayOpacity: scrim.overlayOpacity,
       },
+      ...(opts.heroVideo ? { video: opts.heroVideo } : {}),
     },
     elements,
   };
@@ -2974,6 +2987,44 @@ export function buildSiteConfigFromSurvey(
   // [LP$ L3] Reserve fixed canvas geometry from the shared semantic scale. This runs
   // after home-teaser injection so every generated section follows one source of truth.
   applyGeneratedTypography(pages);
+
+  // LIB 신규 생성만 카탈로그를 컴파일한다. 레거시 HeroVariant와 장문 가드는 위 buildHero
+  // 분기에서 완전히 격리되어 미지정/OFF 발행본의 요소 JSON을 건드리지 않는다.
+  if (opts.heroLayoutVariantId) {
+    const hero = pages
+      .find((page) => page.slug === '')
+      ?.sections.find((section) => section.type === 'hero');
+    if (hero) {
+      const resolved = resolveHeroLayoutVariant({
+        requestedId: opts.heroLayoutVariantId,
+        section: hero,
+        theme,
+        availableMedia: {
+          image: Boolean(opts.heroImageUrl),
+          video: Boolean(opts.heroVideo?.src),
+          poster: Boolean(opts.heroVideo?.poster),
+        },
+      });
+      hero.elements = resolved.elements;
+      hero.height = resolved.height;
+      hero.heroLayout = resolved.projection;
+      if (resolved.projection.mediaKind === 'none') {
+        delete hero.background.image;
+        delete hero.background.video;
+      } else if (
+        resolved.projection.mediaKind === 'image'
+        && !opts.heroImageUrl
+        && opts.heroVideo?.poster
+      ) {
+        hero.background.image = {
+          src: opts.heroVideo.poster,
+          overlayColor: hero.background.image?.overlayColor,
+          overlayOpacity: hero.background.image?.overlayOpacity,
+        };
+        delete hero.background.video;
+      }
+    }
+  }
 
   // 4.7) [Q5] 배경 리듬 + 악센트 밴드 — POV 키트가 페이지의 배경 시퀀스를 결정(흰 배경 연속 해소).
   //      홈은 밴드 필수(one_page 목적 제외), 미디어 배경(hero)은 미개입(Q1 스크림 담당).

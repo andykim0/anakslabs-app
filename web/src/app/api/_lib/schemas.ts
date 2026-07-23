@@ -25,6 +25,7 @@ import {
   DNA_RADII,
   DNA_TYPE_RATIOS,
 } from '@/lib/design/dna/types';
+import { HERO_LAYOUT_VARIANT_IDS } from '@/lib/layout/types';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -418,6 +419,36 @@ const scrollytellingActSchema = z.object({
   band: scrollytellingBandSchema.optional(),
 });
 
+const heroLayoutCompiledFrameSchema = z.object({
+  x: z.number().finite(),
+  y: z.number().finite(),
+  w: z.number().positive().finite(),
+  h: z.number().positive().finite(),
+});
+
+const heroLayoutBandProjectionSchema = z.object({
+  width: z.union([z.literal(1440), z.literal(768), z.literal(390)]),
+  sectionHeight: z.number().positive().finite(),
+  align: z.enum(['start', 'center']),
+  frames: z.record(z.string(), heroLayoutCompiledFrameSchema),
+  fontSizes: z.record(z.string(), z.number().positive().finite()),
+  mediaFrame: heroLayoutCompiledFrameSchema.optional(),
+  panelFrame: heroLayoutCompiledFrameSchema.optional(),
+});
+
+const heroLayoutProjectionSchema = z.object({
+  catalogVersion: z.literal(1),
+  requestedId: z.enum(HERO_LAYOUT_VARIANT_IDS),
+  resolvedId: z.enum(HERO_LAYOUT_VARIANT_IDS),
+  mediaKind: z.enum(['none', 'image', 'video']),
+  scrim: z.enum(['none', 'subtle-scrim']),
+  bands: z.object({
+    wide: heroLayoutBandProjectionSchema,
+    compact: heroLayoutBandProjectionSchema,
+    mobile: heroLayoutBandProjectionSchema,
+  }),
+});
+
 const sectionSchema = z.object({
   id: z.string().min(1),
   type: sectionTypeSchema,
@@ -429,6 +460,7 @@ const sectionSchema = z.object({
   layout: z.enum(['canvas', 'marquee', 'scrollytelling']).optional(),
   // [SS1] 정적 HTML에 직접 렌더할 다막 서사. scrollytelling일 때만 활성화되며 3~5막으로 절제한다.
   acts: z.array(scrollytellingActSchema).min(3).max(5).optional(),
+  heroLayout: heroLayoutProjectionSchema.optional(),
   hidden: z.boolean().optional(),
 }).superRefine((section, ctx) => {
   if (section.layout === 'scrollytelling' && !section.acts) {

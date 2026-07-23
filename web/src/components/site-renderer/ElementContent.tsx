@@ -64,6 +64,10 @@ interface ElementContentProps {
   splitTextMode?: 'io' | 'progress';
   /** [motion 3단계] hover-video 대상(썸네일) — autoplay 끄고 hover 재생(preload none) */
   hoverVideo?: boolean;
+  /** LIB 신규 히어로 밴드 projection. 미지정 레거시 렌더는 종전 분기를 그대로 탄다. */
+  layoutFontSize?: string;
+  layoutAlign?: 'start' | 'center';
+  layoutFillFrame?: boolean;
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -75,14 +79,48 @@ function themeLen(value: string | number, variant: RenderVariant): string {
   return typeof value === 'string' ? value : len(value, variant);
 }
 
-export function ElementContent({ element, theme, variant, eager, interactive = true, siteId, countup, splitText, splitTextMode = 'io', hoverVideo }: ElementContentProps) {
+export function ElementContent({
+  element,
+  theme,
+  variant,
+  eager,
+  interactive = true,
+  siteId,
+  countup,
+  splitText,
+  splitTextMode = 'io',
+  hoverVideo,
+  layoutFontSize,
+  layoutAlign,
+  layoutFillFrame = false,
+}: ElementContentProps) {
   switch (element.kind) {
     case 'text':
-      return <TextContent el={element} theme={theme} variant={variant} countup={countup} splitText={splitText} splitTextMode={splitTextMode} />;
+      return (
+        <TextContent
+          el={element}
+          theme={theme}
+          variant={variant}
+          countup={countup}
+          splitText={splitText}
+          splitTextMode={splitTextMode}
+          layoutFontSize={layoutFontSize}
+          layoutAlign={layoutAlign}
+        />
+      );
     case 'image':
       return <ImageContent el={element} theme={theme} variant={variant} eager={eager} />;
     case 'button':
-      return <ButtonContent el={element} theme={theme} variant={variant} interactive={interactive} />;
+      return (
+        <ButtonContent
+          el={element}
+          theme={theme}
+          variant={variant}
+          interactive={interactive}
+          layoutFontSize={layoutFontSize}
+          layoutFillFrame={layoutFillFrame}
+        />
+      );
     case 'shape':
       return <ShapeContent el={element} theme={theme} variant={variant} />;
     case 'divider':
@@ -111,6 +149,8 @@ function TextContent({
   countup,
   splitText,
   splitTextMode,
+  layoutFontSize,
+  layoutAlign,
 }: {
   el: TextElement;
   theme: SiteTheme;
@@ -118,6 +158,8 @@ function TextContent({
   countup?: { to: number; prefix: string; suffix: string };
   splitText?: boolean;
   splitTextMode: 'io' | 'progress';
+  layoutFontSize?: string;
+  layoutAlign?: 'start' | 'center';
 }) {
   const s = el.style;
   const typography = resolveRenderedSiteTypography({
@@ -129,17 +171,19 @@ function TextContent({
   });
   const outlineTag = s.appearance === 'outline-tag';
   const style: CSSProperties = {
-    margin: outlineTag ? '0 auto' : 0,
+    margin: outlineTag ? (layoutAlign === 'start' ? 0 : '0 auto') : 0,
     width: outlineTag ? 'fit-content' : '100%',
     maxWidth: outlineTag ? '100%' : undefined,
-    fontSize: variant === 'canvas'
+    fontSize: layoutFontSize ?? (variant === 'canvas'
       ? cqw(typography.fontSize)
-      : `${mobileFontSize(typography.fontSize, generatedStackFontFloor(el.id))}px`,
+      : `${mobileFontSize(typography.fontSize, generatedStackFontFloor(el.id))}px`),
     fontWeight: s.fontWeight ?? 400,
     fontFamily: s.fontFamily === 'heading' ? theme.fonts.heading : theme.fonts.body,
     color: resolveThemePaint(theme, s.color ?? theme.palette.text, 'muted'),
     // 모바일 스택은 중앙 정렬 보정 (자유배치 좌표 의미가 사라지므로)
-    textAlign: outlineTag || variant === 'stack' ? 'center' : (s.align ?? 'left'),
+    textAlign: layoutAlign
+      ? layoutAlign === 'center' ? 'center' : 'left'
+      : outlineTag || variant === 'stack' ? 'center' : (s.align ?? 'left'),
     lineHeight: typography.lineHeight,
     letterSpacing: s.letterSpacing != null ? len(s.letterSpacing, variant) : undefined,
     fontStyle: s.italic ? 'italic' : undefined,
@@ -239,11 +283,15 @@ function ButtonContent({
   theme,
   variant,
   interactive,
+  layoutFontSize,
+  layoutFillFrame,
 }: {
   el: ButtonElement;
   theme: SiteTheme;
   variant: RenderVariant;
   interactive: boolean;
+  layoutFontSize?: string;
+  layoutFillFrame: boolean;
 }) {
   const s = el.style;
   const color = s.color ?? theme.palette.primary;
@@ -286,7 +334,15 @@ function ButtonContent({
   };
 
   const sizing: CSSProperties =
-    variant === 'canvas'
+    layoutFillFrame
+      ? {
+          width: '100%',
+          height: '100%',
+          minHeight: '48px',
+          fontSize: layoutFontSize ?? `${Math.min(Math.max(fontSize, 15), 18)}px`,
+          borderRadius: themeLen(radius, variant),
+        }
+      : variant === 'canvas'
       ? {
           width: '100%',
           height: '100%',

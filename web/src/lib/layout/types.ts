@@ -131,3 +131,35 @@ export interface HeroLayoutVariant {
   compatibility: HeroLayoutCompatibility;
 }
 
+export interface HeroLayoutCompiledFrame {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface HeroLayoutBandProjection {
+  /** The authored canvas width this projection was compiled against. */
+  width: 1440 | 768 | 390;
+  sectionHeight: number;
+  align: HeroLayoutAlignment;
+  frames: Readonly<Record<string, HeroLayoutCompiledFrame>>;
+  fontSizes: Readonly<Record<string, number>>;
+  mediaFrame?: HeroLayoutCompiledFrame;
+  panelFrame?: HeroLayoutCompiledFrame;
+}
+
+export interface HeroLayoutProjection {
+  catalogVersion: 1;
+  requestedId: HeroLayoutVariantId;
+  resolvedId: HeroLayoutVariantId;
+  mediaKind: 'none' | 'image' | 'video';
+  scrim: HeroLayoutScrim;
+  bands: Readonly<Record<HeroLayoutBreakpointBand, HeroLayoutBandProjection>>;
+}
+
+export interface HeroLayoutAvailableMedia {
+  image: boolean;
+  video: boolean;
+  poster: boolean;
+}
