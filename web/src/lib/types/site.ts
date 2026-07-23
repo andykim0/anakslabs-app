@@ -7,7 +7,7 @@ import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
 import type { DesignDnaSelection } from '@/lib/design/dna/types';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
-export type HeroImageChoice = 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
+export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
 
 /** 캔버스 좌표계 기준 폭(px). 에디터·렌더러 공통. 렌더 시 뷰포트 폭에 비례 스케일. */
 export const DESIGN_WIDTH = 1440;
@@ -301,6 +301,10 @@ export interface SectionBackground {
     overlayColor?: string;
     /** 0~1 */
     overlayOpacity?: number;
+    /** IMG 신규 승격본 전용. 미지정 레거시는 기존 center crop을 그대로 사용한다. */
+    focalPoint?: { x: number; y: number };
+    /** 모바일 텍스트 안전지대를 피하는 별도 정규화 포커스. */
+    mobileFocalPoint?: { x: number; y: number };
   };
   /**
    * [motion 3단계] video-hero 배경 영상 소스. 렌더러는 플랜이 video-hero인 히어로에만 방출한다.
@@ -420,6 +424,8 @@ export interface MotionMedia {
   height: number;
   /** 원본 피사체를 크롭에서 보존하기 위한 정규화 좌표(0..1). */
   focalPoint?: { x: number; y: number };
+  /** IMG 신규 승격본 전용 모바일 포커스. 미지정이면 focalPoint를 그대로 쓴다. */
+  mobileFocalPoint?: { x: number; y: number };
   provenance: MotionMediaProvenance;
   assetId?: string;
 }
@@ -686,7 +692,7 @@ export interface SiteConfig {
    */
   siteCinematic?: {
     version: 1;
-    heroBackdrop: 'dna-procedural';
+    heroBackdrop: 'dna-procedural' | 'promoted-photo';
     sectionSpine: true;
     quietSections: true;
     integratedTypography: true;

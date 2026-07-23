@@ -99,10 +99,10 @@ const heroVideoSourceValues = exhaustiveValues<HeroVideoSource>()(
   ['ambient-ai', 'uploaded-photo'] as const,
 );
 const heroImageChoiceValues = exhaustiveValues<HeroImageChoice>()(
-  exhaustiveValues<HeroImageChoiceId>()(['upload', 'ai-1', 'ai-2', 'ai-3'] as const),
+  exhaustiveValues<HeroImageChoiceId>()(['system', 'upload', 'ai-1', 'ai-2', 'ai-3'] as const),
 );
 const heroImageSelectionSourceValues = exhaustiveValues<HeroImageSelection['source']>()(
-  ['upload', 'ai'] as const,
+  ['system', 'upload', 'ai'] as const,
 );
 
 /** Every provenance-like legacy vocabulary remains explicit and compile-time exhaustive. */
@@ -143,12 +143,14 @@ const CLAIMED_ORIGINS = {
     'uploaded-photo': ASSET_ORIGINS,
   },
   heroImageChoice: {
+    system: ASSET_ORIGINS,
     upload: ASSET_ORIGINS,
     'ai-1': ASSET_ORIGINS,
     'ai-2': ASSET_ORIGINS,
     'ai-3': ASSET_ORIGINS,
   },
   heroImageSelectionSource: {
+    system: ASSET_ORIGINS,
     upload: ASSET_ORIGINS,
     ai: ASSET_ORIGINS,
   },

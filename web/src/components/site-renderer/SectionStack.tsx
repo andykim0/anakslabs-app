@@ -54,6 +54,12 @@ function hasAssetFallback(el: CanvasElement): boolean {
   return el.kind === 'shape' && el.assetFallback === true;
 }
 
+function imageObjectPosition(point?: { x: number; y: number }): string | undefined {
+  return point
+    ? `${Math.round(point.x * 10000) / 100}% ${Math.round(point.y * 10000) / 100}%`
+    : undefined;
+}
+
 /** 요소 종류별 스택 아이템 래퍼 스타일 */
 function itemStyle(el: CanvasElement): CSSProperties {
   const base: CSSProperties = { opacity: el.opacity };
@@ -162,7 +168,16 @@ export function SectionStack({
           loading={isFirst ? 'eager' : 'lazy'}
           decoding="async"
           {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            ...(bg.image?.mobileFocalPoint || bg.image?.focalPoint
+              ? { objectPosition: imageObjectPosition(bg.image.mobileFocalPoint ?? bg.image.focalPoint) }
+              : {}),
+          }}
         />
       )}
       {!cinematic && imgScrim && (

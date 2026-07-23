@@ -55,6 +55,14 @@ const coverStyle: CSSProperties = { position: 'absolute', inset: 0, width: '100%
 
 const STACK_MAX = 5; // stacking-cards: 카드 3~5장, 초과분 일반 나열
 
+function coverStyleFor(point?: { x: number; y: number }): CSSProperties {
+  if (!point) return coverStyle;
+  return {
+    ...coverStyle,
+    objectPosition: `${Math.round(point.x * 10000) / 100}% ${Math.round(point.y * 10000) / 100}%`,
+  };
+}
+
 export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
   if (isUniformTeaserSection(section)) {
@@ -168,7 +176,7 @@ function StandardSection({
             loading={isFirst ? 'eager' : 'lazy'}
             decoding="async"
             {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
-            style={coverStyle}
+            style={coverStyleFor(bg.image.focalPoint)}
           />
         )
       )}

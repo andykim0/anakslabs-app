@@ -52,7 +52,11 @@ const assetUsageSchema = z.object({
 });
 
 /** [W4] 히어로 이미지·영상 선택 계약 — UI 자유 문자열이 저장 경계로 새지 않게 정확히 열거한다. */
-const heroImageChoiceSchema = z.enum(['upload', 'ai-1', 'ai-2', 'ai-3']);
+const heroImageChoiceSchema = z.enum(['system', 'upload', 'ai-1', 'ai-2', 'ai-3']);
+const normalizedFocalPointSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+});
 const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
 const productionMotionSignatureIdSchema = z.enum(PRODUCTION_MOTION_SIGNATURE_IDS);
 const motionIndustryClassSchema = z.enum([
@@ -367,6 +371,8 @@ const sectionBackgroundSchema = z.object({
       src: safeMediaSrcSchema,
       overlayColor: z.string().optional(),
       overlayOpacity: z.number().min(0).max(1).optional(),
+      focalPoint: normalizedFocalPointSchema.optional(),
+      mobileFocalPoint: normalizedFocalPointSchema.optional(),
     })
     .optional(),
   // [motion 3단계] video-hero 배경 영상 (src/poster는 safeMediaSrc 화이트리스트)
@@ -509,11 +515,6 @@ const sitePageSchema = z.object({
 
 // ---------- [motion signatures v2] 구조화 scene 계약 ----------
 
-const focalPointSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-});
-
 const motionImageMediaSchema = z.object({
   id: z.string().min(1).max(100),
   kind: z.literal('image'),
@@ -523,7 +524,8 @@ const motionImageMediaSchema = z.object({
   caption: z.string().trim().max(300).optional(),
   width: z.number().int().positive().max(16384),
   height: z.number().int().positive().max(16384),
-  focalPoint: focalPointSchema.optional(),
+  focalPoint: normalizedFocalPointSchema.optional(),
+  mobileFocalPoint: normalizedFocalPointSchema.optional(),
   provenance: z.enum(['customer-provided', 'ai-generated', 'curated', 'unknown']),
   assetId: z.string().max(100).optional(),
 });
@@ -538,7 +540,8 @@ const motionVideoMediaSchema = z.object({
   caption: z.string().trim().max(300).optional(),
   width: z.number().int().positive().max(16384),
   height: z.number().int().positive().max(16384),
-  focalPoint: focalPointSchema.optional(),
+  focalPoint: normalizedFocalPointSchema.optional(),
+  mobileFocalPoint: normalizedFocalPointSchema.optional(),
   provenance: z.enum(['customer-provided', 'ai-generated', 'curated', 'unknown']),
   assetId: z.string().max(100).optional(),
 });
@@ -733,7 +736,7 @@ export const siteConfigSchema = z
     designDna: designDnaSelectionSchema.optional(),
     siteCinematic: z.object({
       version: z.literal(1),
-      heroBackdrop: z.literal('dna-procedural'),
+      heroBackdrop: z.enum(['dna-procedural', 'promoted-photo']),
       sectionSpine: z.literal(true),
       quietSections: z.literal(true),
       integratedTypography: z.literal(true),
@@ -1098,6 +1101,30 @@ export const designCandidateSchema = z.object({
   imageDirectionId: z.enum(IMAGE_DIRECTION_IDS).optional(),
   heroImageUrl: z.string().min(1),
   heroAssetRef: assetRefSchema.optional(),
+  heroPresentation: z.enum(['system', 'promoted_customer_photo']).optional(),
+  heroPhotoQuality: z.object({
+    algorithmVersion: z.literal('hero-photo-v1'),
+    inputSha256: z.string().regex(/^[0-9a-f]{64}$/u),
+    passed: z.boolean(),
+    reasons: z.array(z.enum([
+      'resolution_too_small',
+      'aspect_ratio_unsupported',
+      'focus_too_soft',
+      'exposure_too_dark',
+      'exposure_too_bright',
+    ])),
+    metrics: z.object({
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+      aspectRatio: z.number().finite(),
+      focusScore: z.number().finite(),
+      meanLuminance: z.number().finite(),
+      darkPixelRatio: z.number().finite(),
+      brightPixelRatio: z.number().finite(),
+    }),
+    guidance: z.string(),
+    stampSha256: z.string().regex(/^[0-9a-f]{64}$/u),
+  }).optional(),
   theme: siteThemeSchema,
   description: z.string(),
   designDna: designDnaSelectionSchema.optional(),

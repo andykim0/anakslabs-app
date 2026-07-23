@@ -32,6 +32,7 @@ import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
   isAssetTruthGenerationError,
+  selectRealPhotoAssetRef,
 } from '@/lib/ai/image-generation-policy';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import {
@@ -47,6 +48,7 @@ import {
   motionChoiceSchema,
   surveySchema,
 } from '../../_lib/schemas';
+import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -139,6 +141,9 @@ export const POST = withApiHandler(async (request) => {
       clientId: client.id,
       expectedImageDirectionId: survey.imageDirectionId,
       allowedCustomerUploadAssetIds: truth.directUploadAssetRefs.map((ref) => ref.assetId),
+      ...(survey.imageDirectionId === 'real_photo'
+        ? { expectedRealPhotoAssetRef: selectRealPhotoAssetRef(survey).ref ?? undefined }
+        : {}),
     });
   } catch (error) {
     if (error instanceof CandidateAssetTruthError) {
@@ -179,6 +184,16 @@ export const POST = withApiHandler(async (request) => {
     survey,
     { customerUploadAssetRefs: truth.directUploadAssetRefs, ownerId: client.id },
   );
+  const selectedRealPhoto = survey.imageDirectionId === 'real_photo'
+    ? selectRealPhotoAssetRef(survey).ref
+    : null;
+  if (selectedRealPhoto) {
+    draftConfig = applyHeroPhotoPromotion({
+      config: draftConfig,
+      candidate,
+      customerPhotoRef: selectedRealPhoto,
+    });
+  }
   draftConfig = {
     ...draftConfig,
     assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
@@ -234,6 +249,13 @@ export const POST = withApiHandler(async (request) => {
           customerUploadAssetRefs: truth.directUploadAssetRefs,
         },
       );
+      if (selectedRealPhoto) {
+        draftConfig = applyHeroPhotoPromotion({
+          config: draftConfig,
+          candidate,
+          customerPhotoRef: selectedRealPhoto,
+        });
+      }
       draftConfig = {
         ...draftConfig,
         assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),

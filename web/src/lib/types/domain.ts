@@ -14,6 +14,7 @@ import type {
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { DesignDnaSelection } from '@/lib/design/dna/types';
+import type { HeroPhotoQualityStamp } from '@/lib/assets/hero-photo-quality';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -574,6 +575,10 @@ export interface DesignCandidate {
   heroImageUrl: string;
   /** provenance WRITE 모드에서만 서버가 붙이는 히어로 AI 자산 참조. URL만으로 생성하지 않는다. */
   heroAssetRef?: AssetRef;
+  /** IMG 신규 생성 경계가 서버 품질 스탬프로만 확정하는 히어로 처리. */
+  heroPresentation?: 'system' | 'promoted_customer_photo';
+  /** 고객 안내용 projection. 생성 경계에서 registry 값으로 덮어써 클라이언트 주장을 신뢰하지 않는다. */
+  heroPhotoQuality?: HeroPhotoQualityStamp;
   theme: SiteTheme;
   description: string;
   /** DNA rollout ON에서 서버가 선택해 반환한 enum-only 핀. */

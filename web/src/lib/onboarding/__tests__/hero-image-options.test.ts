@@ -91,6 +91,40 @@ describe('buildHeroImageOptions', () => {
     );
   });
 
+  test('품질 미통과 real_photo는 서버가 정한 시스템 히어로와 안내만 노출한다', () => {
+    const systemCandidate: DesignCandidate = {
+      ...candidate(0),
+      imageDirectionId: 'real_photo',
+      heroPresentation: 'system',
+      heroImageUrl: '/mock/candidate-light.svg',
+      heroPhotoQuality: {
+        algorithmVersion: 'hero-photo-v1',
+        inputSha256: 'a'.repeat(64),
+        passed: false,
+        reasons: ['focus_too_soft'],
+        metrics: {
+          width: 1920,
+          height: 1080,
+          aspectRatio: 1.777778,
+          focusScore: 0.0001,
+          meanLuminance: 0.5,
+          darkPixelRatio: 0,
+          brightPixelRatio: 0,
+        },
+        guidance: '사진의 초점이 조금 흐려 시스템 히어로를 사용합니다.',
+        stampSha256: 'b'.repeat(64),
+      },
+    };
+    const options = buildHeroImageOptions([systemCandidate], undefined, undefined, 'real_photo');
+    assert.deepEqual(options, [{
+      id: 'system',
+      url: '/mock/candidate-light.svg',
+      source: 'system',
+      candidateId: 'candidate-1',
+      guidance: '사진의 초점이 조금 흐려 시스템 히어로를 사용합니다.',
+    }]);
+  });
+
   test('명시적 artistic 방향은 고객 실사를 AI 후보와 섞지 않고, legacy만 기존 선택을 보존한다', () => {
     const options = buildHeroImageOptions(
       [candidate(0), candidate(1), candidate(2)],

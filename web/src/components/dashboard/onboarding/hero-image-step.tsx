@@ -30,6 +30,12 @@ const REAL_PHOTO_LOADING_MESSAGES = [
 ];
 
 function optionCopy(option: HeroImageSelection): { label: string; description: string } {
+  if (option.source === 'system') {
+    return {
+      label: '다보임이 준비한 첫 화면',
+      description: '사진 대신 사이트 색과 디자인에 맞춘 안전한 무대를 사용해요.',
+    };
+  }
   if (option.source === 'upload') {
     return {
       label: '내가 올린 대표 사진',
@@ -99,6 +105,7 @@ export function HeroImageStep({
     survey.imageDirectionId,
   );
   const selected = options.find((option) => option.id === selectedId) ?? null;
+  const qualityGuidance = options.find((option) => option.source === 'system')?.guidance;
 
   if (isRealPhoto && options.length === 0) {
     return (
@@ -123,7 +130,7 @@ export function HeroImageStep({
         </div>
         <p className="mt-1 text-sm leading-6 text-ob-muted">
           {isRealPhoto
-            ? '서버에서 확인한 고객님의 실제 사진만 사용합니다. AI로 제품·공간·사람을 다시 만들지 않아요.'
+            ? '첫 화면은 다보임이 준비한 무대가 기본입니다. 품질 확인을 통과한 실제 사진만 원본 그대로 승격해요.'
             : '사진을 요구하지 않아요. 다보임이 준비한 무드 3안 중 하나를 고르면, 이후 움직임과 최종 첫 화면이 이 비주얼을 사용해요.'}
         </p>
       </div>
@@ -167,9 +174,18 @@ export function HeroImageStep({
         })}
       </div>
 
+      {isRealPhoto && qualityGuidance ? (
+        <div
+          data-hero-photo-quality-guidance
+          className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted"
+        >
+          {qualityGuidance}
+        </div>
+      ) : null}
+
       <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
         {isRealPhoto
-          ? '실제 사진은 원본 픽셀을 유지한 채 크롭·배치·색감과 CSS 모션만 연출합니다.'
+          ? '통과한 사진도 AI로 보정하거나 다시 만들지 않습니다. 원본은 유지하고 크롭·배치·포커스만 연출합니다.'
           : 'AI 이미지는 특정 메뉴·상품·시술 결과를 만들지 않고, 선택한 톤의 공간·빛·질감만 표현합니다.'}
       </div>
 

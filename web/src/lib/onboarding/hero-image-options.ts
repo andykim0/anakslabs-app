@@ -5,7 +5,7 @@ import type { ImageDirectionId } from '@/lib/assets/image-directions';
 /** W1에서 생성하는 AI 무드 히어로 안의 수. 비용 상한과 UI 카드 수가 이 값에 종속된다. */
 export const HERO_AI_OPTION_COUNT = 3 as const;
 
-export const HERO_IMAGE_CHOICE_IDS = ['upload', 'ai-1', 'ai-2', 'ai-3'] as const;
+export const HERO_IMAGE_CHOICE_IDS = ['system', 'upload', 'ai-1', 'ai-2', 'ai-3'] as const;
 
 export type HeroImageChoiceId = (typeof HERO_IMAGE_CHOICE_IDS)[number];
 
@@ -13,10 +13,12 @@ export type HeroImageChoiceId = (typeof HERO_IMAGE_CHOICE_IDS)[number];
 export type HeroImageSelection = {
   id: HeroImageChoiceId;
   url: string;
-  source: 'upload' | 'ai';
+  source: 'system' | 'upload' | 'ai';
   candidateId?: string;
   /** URL과 함께 왕복하는 비권위 projection. 서버 registry가 generation 경계에서 재검증한다. */
   assetRef?: AssetRef;
+  /** 서버 registry 품질 스탬프에서 온 고객 안내. 클라이언트 판정값이 아니다. */
+  guidance?: string;
 };
 
 /** public/mock에 실제 존재하는, 제품을 날조하지 않는 대표 무드 자산. */
@@ -62,6 +64,27 @@ export function buildHeroImageOptions(
   const uploadUrl = presentUrl(heroPhotoUrl);
 
   if (imageDirectionId === 'real_photo') {
+    const resolvedCandidate = candidates.find((candidate) => candidate.heroPresentation);
+    if (resolvedCandidate?.heroPresentation === 'system') {
+      return [{
+        id: 'system',
+        url: resolvedCandidate.heroImageUrl,
+        source: 'system',
+        candidateId: resolvedCandidate.id,
+        guidance: resolvedCandidate.heroPhotoQuality?.guidance
+          ?? '사진 품질 기록을 아직 확인할 수 없어 이번엔 다보임이 준비한 화면을 사용했어요. 사진을 다시 올리면 자동으로 확인해 드려요.',
+      }];
+    }
+    if (resolvedCandidate?.heroPresentation === 'promoted_customer_photo'
+      && resolvedCandidate.heroAssetRef) {
+      return [{
+        id: 'upload',
+        url: resolvedCandidate.heroImageUrl,
+        source: 'upload',
+        candidateId: resolvedCandidate.id,
+        assetRef: resolvedCandidate.heroAssetRef,
+      }];
+    }
     if (uploadUrl && heroPhotoAssetRef?.url === uploadUrl) {
       return [{ id: 'upload', url: uploadUrl, source: 'upload', assetRef: heroPhotoAssetRef }];
     }

@@ -35,7 +35,7 @@ import {
 import { buildMotionSceneFromSurvey } from './scenes';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
-const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['upload', 'ai-1', 'ai-2', 'ai-3'];
+const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['system', 'upload', 'ai-1', 'ai-2', 'ai-3'];
 
 function isHeroImageChoice(value: unknown): value is HeroImageChoice {
   return typeof value === 'string' && (HERO_IMAGE_CHOICES as readonly string[]).includes(value);

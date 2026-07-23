@@ -241,6 +241,10 @@ function focalPosition(media: MotionMedia): string {
   return `${Math.round(point.x * 10000) / 100}% ${Math.round(point.y * 10000) / 100}%`;
 }
 
+function normalizedFocalPosition(point: { x: number; y: number }): string {
+  return `${Math.round(point.x * 10000) / 100}% ${Math.round(point.y * 10000) / 100}%`;
+}
+
 function SignatureMedia({
   media,
   eager = false,
@@ -263,6 +267,9 @@ function SignatureMedia({
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
   const poster = safeMediaSrc(media.poster);
+  const responsiveFocalId = media.mobileFocalPoint
+    ? `${domId(media.id)}-${Math.round(media.mobileFocalPoint.x * 1000)}-${Math.round(media.mobileFocalPoint.y * 1000)}`
+    : undefined;
   const geometry: CSSProperties & Record<`--${string}`, string> = {
     aspectRatio: `${media.width} / ${media.height}`,
     width: '100%',
@@ -281,6 +288,7 @@ function SignatureMedia({
   return (
     <figure
       data-signature-media
+      {...(responsiveFocalId ? { 'data-responsive-focal': responsiveFocalId } : {})}
       data-video-quality-guard={media.kind === 'video' ? true : undefined}
       data-source-width={media.kind === 'video' ? media.width : undefined}
       data-source-height={media.kind === 'video' ? media.height : undefined}
@@ -288,6 +296,13 @@ function SignatureMedia({
       style={geometry}
       {...dataAttrs}
     >
+      {responsiveFocalId && media.mobileFocalPoint ? (
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `@media(max-width:767px){[data-responsive-focal="${responsiveFocalId}"]>img,[data-responsive-focal="${responsiveFocalId}"]>video{object-position:${normalizedFocalPosition(media.mobileFocalPoint)}!important}}`,
+          }}
+        />
+      ) : null}
       {media.kind === 'image' ? (
         // eslint-disable-next-line @next/next/no-img-element -- arbitrary tenant/export URLs need plain reserved-size img.
         <img src={src} alt={media.alt} {...commonImageProps} />

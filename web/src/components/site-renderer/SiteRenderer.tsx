@@ -13,7 +13,7 @@
  *    1440 고정 캔버스가 읽기 어려울 만큼 축소되지 않도록 <1280px는 세로 스택 재배치.
  */
 import type { CSSProperties, ReactNode } from 'react';
-import type { MotionTier, SiteConfig } from '@/lib/types/site';
+import type { MotionTier, Section, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
 import { resolveMotionPlan, intensityFactors, planIsActive } from '@/lib/motion/apply';
 import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
@@ -379,6 +379,10 @@ export function SiteRenderer({
   const page = findPage(config, pageSlug) ?? homePage(config);
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter((s) => !s.hidden);
+  const usesProceduralHero = (section: Section) => siteCinematic
+    && config.siteCinematic?.heroBackdrop === 'dna-procedural'
+    && section.type === 'hero'
+    && !section.background.video?.src;
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);
 
   // v2 signature는 저장값을 곧바로 신뢰하지 않는다. 렌더 진입에서도 업종·tier·target·자산 소유권을
@@ -520,12 +524,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                         </div>
                       )}
                     </div>
@@ -565,7 +569,7 @@ export function SiteRenderer({
                       interactive={interactive}
                       plan={plan}
                       siteId={siteId}
-                      proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
+                      proceduralHero={usesProceduralHero(section)}
                     />
                   </div>
                 )}
@@ -579,7 +583,7 @@ export function SiteRenderer({
                       interactive={interactive}
                       plan={plan}
                       siteId={siteId}
-                      proceduralHero={siteCinematic && section.type === 'hero' && !section.background.video?.src}
+                      proceduralHero={usesProceduralHero(section)}
                     />
                   </div>
                 )}
@@ -601,12 +605,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -627,7 +631,7 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={section.type === 'hero' && !section.background.video?.src} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
@@ -649,7 +653,7 @@ export function SiteRenderer({
                       interactive={interactive}
                       plan={plan}
                       siteId={siteId}
-                      proceduralHero={section.type === 'hero' && !section.background.video?.src}
+                      proceduralHero={usesProceduralHero(section)}
                       integratedTypography={section.type === 'hero'}
                       continuousFlow={continuousCanvas}
                     />

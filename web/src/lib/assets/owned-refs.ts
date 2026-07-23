@@ -14,6 +14,7 @@ import { preserveServerAssetUsagesForSave } from './assignment-core';
 import type { DesignCandidate } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { ImageDirectionId } from './image-directions';
+import { resolveHeroPhotoCandidate } from './hero-photo-promotion';
 
 export const CANDIDATE_ASSET_TRUTH_ERROR_CODES = [
   'CANDIDATE_ASSET_REF_REQUIRED',
@@ -54,6 +55,8 @@ export async function validateCandidateAssetRef(input: {
   expectedImageDirectionId?: ImageDirectionId;
   /** v2 truth boundary가 이미 owner·origin·attestation을 검증한 직접 업로드 ID만 허용한다. */
   allowedCustomerUploadAssetIds?: readonly string[];
+  /** real_photo에서 서버가 선택한 대표 자산. 후보 body의 URL/ref보다 항상 우선한다. */
+  expectedRealPhotoAssetRef?: AssetRef;
 }): Promise<DesignCandidate> {
   const config = assetProvenanceConfig();
   const supplied = input.candidate.heroAssetRef;
@@ -67,6 +70,45 @@ export async function validateCandidateAssetRef(input: {
       'CANDIDATE_IMAGE_DIRECTION_MISMATCH',
       '선택한 이미지 방향과 디자인 후보의 이미지 방향이 일치하지 않습니다. 후보를 다시 골라주세요.',
     );
+  }
+  if (input.expectedImageDirectionId === 'real_photo' && input.expectedRealPhotoAssetRef) {
+    const expected = input.expectedRealPhotoAssetRef;
+    if (!input.allowedCustomerUploadAssetIds?.includes(expected.assetId)) {
+      throw new CandidateAssetTruthError(
+        'CANDIDATE_ASSET_REF_REQUIRED',
+        '대표 사진의 서버 자산 기록을 확인할 수 없습니다. 사진을 다시 선택해 주세요.',
+      );
+    }
+    let record;
+    try {
+      [record] = await resolveOwnedAssetRecords({
+        assetIds: [expected.assetId],
+        clientId: input.clientId,
+      });
+    } catch (error) {
+      if (!(error instanceof AssetProvenanceError)) throw error;
+      throw new CandidateAssetTruthError(
+        'CANDIDATE_ASSET_INVALID',
+        '대표 사진의 소유권을 확인할 수 없습니다. 사진을 다시 선택해 주세요.',
+      );
+    }
+    const validBinding = input.targetSiteId
+      ? record?.siteId === input.targetSiteId
+      : record?.siteId === null;
+    const suppliedMatchesExpected = !supplied
+      || (supplied.assetId === expected.assetId && supplied.url === expected.url);
+    if (!record
+      || record.origin !== 'customer_upload'
+      || record.mediaType !== 'image'
+      || record.canonicalUrl !== expected.url
+      || !validBinding
+      || !suppliedMatchesExpected) {
+      throw new CandidateAssetTruthError(
+        'CANDIDATE_ASSET_INVALID',
+        '대표 사진이 서버 자산 기록과 일치하지 않습니다. 사진을 다시 선택해 주세요.',
+      );
+    }
+    return resolveHeroPhotoCandidate(input.candidate, record);
   }
   if (!supplied) {
     if (input.expectedImageDirectionId) {

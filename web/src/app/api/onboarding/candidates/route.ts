@@ -23,6 +23,7 @@ import {
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
   isAssetTruthGenerationError,
+  selectRealPhotoAssetRef,
 } from '@/lib/ai/image-generation-policy';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
@@ -194,6 +195,9 @@ export const POST = withApiHandler(async (request) => {
       ...(targetSiteId ? { targetSiteId } : {}),
       expectedImageDirectionId: verifiedDirection,
       allowedCustomerUploadAssetIds: verified.directUploadAssetRefs.map((ref) => ref.assetId),
+      ...(verifiedDirection === 'real_photo'
+        ? { expectedRealPhotoAssetRef: selectRealPhotoAssetRef(verified.survey).ref ?? undefined }
+        : {}),
     })));
   });
   if (dedupKey) dedupStore.set(dedupKey, { at: Date.now(), promise: generation });

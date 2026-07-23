@@ -21,6 +21,7 @@ export const MOTION_LINT_VIOLATION_CODES = [
   'horizontal-overflow',
   'cls-budget-exceeded',
   'no-js-content-missing',
+  'media-focus-inside-text-safe-zone',
 ] as const;
 
 export type MotionLintViolationCode = typeof MOTION_LINT_VIOLATION_CODES[number];
@@ -57,7 +58,42 @@ export interface MotionLintMatrixResult {
   violations: MotionLintViolation[];
 }
 
+export interface MotionLintMediaFocusMeasurement {
+  signatureId: ActiveMotionSignatureId;
+  phase: SignatureContractPhaseId;
+  breakpoint: SignatureBreakpointBand;
+  sectionIndex: number;
+  focalPoint: { x: number; y: number };
+}
+
 const EPSILON = 0.000_001;
+
+/** IMG promotion gate: the authored focus point must stay out of the exact copy zone. */
+export function lintMotionMediaFocus(
+  measurement: MotionLintMediaFocusMeasurement,
+): MotionLintViolation[] {
+  const placement = resolvePlacement(
+    measurement.signatureId,
+    measurement.sectionIndex,
+    measurement.breakpoint,
+    { phase: measurement.phase },
+  );
+  const point = measurement.focalPoint;
+  const zone = placement.normalized;
+  const overlaps = point.x + EPSILON >= zone.x
+    && point.x <= zone.x + zone.width + EPSILON
+    && point.y + EPSILON >= zone.y
+    && point.y <= zone.y + zone.height + EPSILON;
+  return overlaps
+    ? [{
+        code: 'media-focus-inside-text-safe-zone',
+        signatureId: measurement.signatureId,
+        phase: measurement.phase,
+        breakpoint: measurement.breakpoint,
+        detail: `media focus overlaps ${placement.zone}`,
+      }]
+    : [];
+}
 
 function boxIsInside(outer: NormalizedSignatureZone, inner: NormalizedSignatureZone): boolean {
   return inner.x + EPSILON >= outer.x &&
