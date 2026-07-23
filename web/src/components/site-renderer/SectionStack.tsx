@@ -23,6 +23,7 @@ import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
+import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 
 interface SectionStackProps {
   section: Section;
@@ -151,6 +152,9 @@ function HeroLayoutStackSection({
   const panelFrameCompact = compact.panelFrame;
   const panelFrameMobile = mobile.panelFrame;
   const responsivePhoto = bg.image?.responsivePromotion;
+  // role 미지정 저장본은 legacy 동작을 보존한다. 신규 figure 슬롯만 공급 추상을 차단한다.
+  const effectiveProceduralHero = proceduralHero
+    && projection.mediaSlotRole !== 'referential-figure';
   const scrim = projection.scrim === 'subtle-scrim'
     ? bg.image?.overlayColor
       ? {
@@ -226,7 +230,7 @@ function HeroLayoutStackSection({
                 preload="none"
               />
             </>
-          ) : proceduralHero && !responsivePhoto ? (
+          ) : effectiveProceduralHero && !responsivePhoto ? (
             <div aria-hidden data-site-cine-procedural-hero />
           ) : bg.image && responsivePhoto ? (
             <ResponsiveHeroPhoto
@@ -267,7 +271,7 @@ function HeroLayoutStackSection({
             />
           ) : null}
         </div>
-      ) : proceduralHero ? (
+      ) : effectiveProceduralHero ? (
         <div aria-hidden data-site-cine-procedural-hero />
       ) : null}
       {continuousFlow ? <div aria-hidden="true" data-continuous-hero-bridge /> : null}
@@ -337,6 +341,19 @@ export function SectionStack({
   integratedTypography = false,
   continuousFlow = false,
 }: SectionStackProps) {
+  if (section.sectionLayout) {
+    return (
+      <SectionLayoutProjectionRenderer
+        section={section}
+        theme={theme}
+        variant="stack"
+        isFirst={isFirst}
+        interactive={interactive}
+        plan={plan}
+        siteId={siteId}
+      />
+    );
+  }
   if (isUniformTeaserSection(section)) {
     return <UniformTeaserGrid section={section} theme={theme} variant="stack" interactive={interactive} animate={Boolean(plan)} />;
   }

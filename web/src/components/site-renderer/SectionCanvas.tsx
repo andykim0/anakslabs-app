@@ -31,6 +31,7 @@ import {
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
+import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 
 interface SectionCanvasProps {
   section: Section;
@@ -76,6 +77,19 @@ function canvasFrameStyle(frame: { x: number; y: number; w: number; h: number })
 
 export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
+  if (section.sectionLayout) {
+    return (
+      <SectionLayoutProjectionRenderer
+        section={section}
+        theme={props.theme}
+        variant="canvas"
+        isFirst={props.isFirst}
+        interactive={props.interactive}
+        plan={props.plan}
+        siteId={props.siteId}
+      />
+    );
+  }
   if (isUniformTeaserSection(section)) {
     return <UniformTeaserGrid section={section} theme={props.theme} variant="canvas" interactive={props.interactive ?? true} animate={Boolean(plan)} />;
   }
@@ -115,9 +129,13 @@ function StandardSection({
   const continuousHero = continuousFlow && section.type === 'hero';
   const responsivePhoto = bg.image?.responsivePromotion;
   const heroLayoutBand = heroLayout?.bands.wide;
+  // LIB2: 공급 추상은 atmosphere이지 figure가 아니다. role이 없는 저장본은
+  // 종전 procedural 경로를 유지해 기존 발행본의 픽셀을 바꾸지 않는다.
+  const effectiveProceduralHero = proceduralHero
+    && heroLayout?.mediaSlotRole !== 'referential-figure';
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
-  const imgScrim = (!proceduralHero || responsivePhoto) && bg.image
+  const imgScrim = (!effectiveProceduralHero || responsivePhoto) && bg.image
     ? bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
@@ -170,7 +188,7 @@ function StandardSection({
 
   const imageBackdrop = (
     <>
-      {proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
+      {effectiveProceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
       {bg.image && (responsivePhoto ? (
         <ResponsiveHeroPhoto
           src={bg.image.src}
@@ -184,7 +202,7 @@ function StandardSection({
           fetchPriority={isFirst ? 'high' : undefined}
           imageData={kenBurns ? { 'data-m': 'kenburns' } : undefined}
         />
-      ) : !proceduralHero ? (
+      ) : !effectiveProceduralHero ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={bg.image.src}

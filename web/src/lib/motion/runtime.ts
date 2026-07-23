@@ -848,6 +848,39 @@ export const MOTION_RUNTIME = `(function(){
     var reportedCores=navigator.hardwareConcurrency;
     var cores0=typeof reportedCores==='number'&&Number.isFinite(reportedCores)?reportedCores:0;
     var scrollytellingCapable=!saveData0&&cores0>=4;
+    /* LIB2 carousel is progressive enhancement. SSR/no-JS/reduced remains the
+       complete uniform grid; this only reuses the existing runtime lifecycle. */
+    q('[data-section-layout-carousel]').forEach(function(stage){
+      var nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-section-layout-item]'));
+      var indexes=nodes.map(function(node){return parseInt(node.getAttribute('data-section-layout-item')||'0',10);});
+      var count=indexes.length?Math.max.apply(Math,indexes)+1:0;
+      if(count<2)return;
+      var active=0;
+      function syncCarousel(){
+        nodes.forEach(function(node){
+          var index=parseInt(node.getAttribute('data-section-layout-item')||'0',10);
+          node.toggleAttribute('data-layout-active',index===active);
+        });
+        stage.setAttribute('data-layout-carousel-index',String(active));
+      }
+      stage.setAttribute('data-layout-carousel-enhanced','true');
+      syncCarousel();
+      Array.prototype.slice.call(stage.querySelectorAll('[data-carousel-step]')).forEach(function(button){
+        listen(button,'click',function(){
+          var step=parseInt(button.getAttribute('data-carousel-step')||'0',10);
+          active=(active+step+count)%count;
+          syncCarousel();
+        });
+      });
+      cleanups.push(function(){
+        stage.removeAttribute('data-layout-carousel-enhanced');
+        stage.removeAttribute('data-layout-carousel-index');
+        nodes.forEach(function(node){
+          var index=parseInt(node.getAttribute('data-section-layout-item')||'0',10);
+          node.toggleAttribute('data-layout-active',index===0);
+        });
+      });
+    });
     roots.forEach(function(root){
       var hasScrollytelling=root.querySelectorAll('[data-ss-stage]').length>0;
       root.classList.toggle('m-cinematic-ready',!saveData0);

@@ -126,15 +126,23 @@ function mediaAvailableFor(
   variant: HeroLayoutVariant,
   available: HeroLayoutAvailableMedia,
 ): boolean {
+  const imageForRole = variant.mediaContract.role === 'referential-figure'
+    ? available.referentialImage ?? available.image
+    : variant.mediaContract.role === 'atmospheric-background'
+      ? (available.atmosphericBackdrop ?? available.image) || available.image
+      : false;
   switch (variant.mediaContract.requirement) {
     case 'none':
       return false;
     case 'required-video-poster':
       return available.video && available.poster;
     case 'optional-image':
-      return available.image;
+      return imageForRole;
     case 'required-image':
-      return available.image || available.poster;
+      return imageForRole || (
+        variant.mediaContract.role === 'atmospheric-background'
+        && available.poster
+      );
   }
 }
 
@@ -144,12 +152,22 @@ function resolveVariant(
 ): HeroLayoutVariant {
   const requested = heroLayoutById(requestedId);
   if (!requested) return HERO_LAYOUT_CATALOG[0];
+  const roleImageAvailable = requested.mediaContract.role === 'referential-figure'
+    ? available.referentialImage ?? available.image
+    : (available.atmosphericBackdrop ?? available.image) || available.image;
   if (requested.mediaContract.requirement === 'required-video-poster') {
     if (available.video && available.poster) return requested;
     if (available.poster) return heroLayoutById('hero.fullbleed-centered')!;
     return heroLayoutById('hero.text-only-bold')!;
   }
-  if (requested.mediaContract.requirement === 'required-image' && !available.image && !available.poster) {
+  if (
+    requested.mediaContract.requirement === 'required-image'
+    && !roleImageAvailable
+    && !(
+      requested.mediaContract.role === 'atmospheric-background'
+      && available.poster
+    )
+  ) {
     return heroLayoutById('hero.text-only-bold')!;
   }
   return requested;
@@ -530,6 +548,7 @@ export function resolveHeroLayoutVariant({
       mediaKind: mediaAvailable
         ? resolved.mediaContract.requirement === 'required-video-poster' ? 'video' : 'image'
         : 'none',
+      mediaSlotRole: resolved.mediaContract.role,
       scrim: overlayCopy ? resolved.scrim : 'none',
       bands,
     },

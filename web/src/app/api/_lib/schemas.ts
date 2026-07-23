@@ -26,6 +26,11 @@ import {
   DNA_TYPE_RATIOS,
 } from '@/lib/design/dna/types';
 import { HERO_LAYOUT_VARIANT_IDS } from '@/lib/layout/types';
+import {
+  ABOUT_LAYOUT_VARIANT_IDS,
+  FEATURE_LAYOUT_VARIANT_IDS,
+  GALLERY_LAYOUT_VARIANT_IDS,
+} from '@/lib/layout/section-layout-types';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -441,12 +446,55 @@ const heroLayoutProjectionSchema = z.object({
   requestedId: z.enum(HERO_LAYOUT_VARIANT_IDS),
   resolvedId: z.enum(HERO_LAYOUT_VARIANT_IDS),
   mediaKind: z.enum(['none', 'image', 'video']),
+  mediaSlotRole: z.enum(['atmospheric-background', 'referential-figure', 'none']).optional(),
   scrim: z.enum(['none', 'subtle-scrim']),
   bands: z.object({
     wide: heroLayoutBandProjectionSchema,
     compact: heroLayoutBandProjectionSchema,
     mobile: heroLayoutBandProjectionSchema,
   }),
+});
+
+const sectionLayoutVariantIdSchema = z.union([
+  z.enum(FEATURE_LAYOUT_VARIANT_IDS),
+  z.enum(ABOUT_LAYOUT_VARIANT_IDS),
+  z.enum(GALLERY_LAYOUT_VARIANT_IDS),
+]);
+
+const sectionLayoutBandProjectionSchema = z.object({
+  width: z.union([z.literal(1440), z.literal(768), z.literal(390)]),
+  sectionHeight: z.number().positive().finite(),
+  frames: z.record(z.string(), heroLayoutCompiledFrameSchema),
+  fontSizes: z.record(z.string(), z.number().positive().finite()),
+  itemOrder: z.array(z.string()),
+  mediaFrame: heroLayoutCompiledFrameSchema.optional(),
+});
+
+const sectionLayoutProjectionSchema = z.object({
+  catalogVersion: z.literal(1),
+  kind: z.enum(['features', 'about', 'gallery']),
+  requestedId: sectionLayoutVariantIdSchema,
+  resolvedId: sectionLayoutVariantIdSchema,
+  mediaRole: z.enum(['atmospheric-background', 'referential-figure', 'none']),
+  enhancement: z.enum(['none', 'carousel']),
+  staticFallbackId: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
+  items: z.array(z.object({
+    id: z.string().min(1),
+    elementIds: z.array(z.string().min(1)),
+    mediaElementId: z.string().min(1).optional(),
+    orientation: z.enum(['portrait', 'square', 'landscape']).optional(),
+    focalPoint: normalizedFocalPointSchema.optional(),
+  })),
+  bands: z.object({
+    wide: sectionLayoutBandProjectionSchema,
+    compact: sectionLayoutBandProjectionSchema,
+    mobile: sectionLayoutBandProjectionSchema,
+  }),
+  fallbackBands: z.object({
+    wide: sectionLayoutBandProjectionSchema,
+    compact: sectionLayoutBandProjectionSchema,
+    mobile: sectionLayoutBandProjectionSchema,
+  }).optional(),
 });
 
 const sectionSchema = z.object({
@@ -461,6 +509,7 @@ const sectionSchema = z.object({
   // [SS1] 정적 HTML에 직접 렌더할 다막 서사. scrollytelling일 때만 활성화되며 3~5막으로 절제한다.
   acts: z.array(scrollytellingActSchema).min(3).max(5).optional(),
   heroLayout: heroLayoutProjectionSchema.optional(),
+  sectionLayout: sectionLayoutProjectionSchema.optional(),
   hidden: z.boolean().optional(),
 }).superRefine((section, ctx) => {
   if (section.layout === 'scrollytelling' && !section.acts) {

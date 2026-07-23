@@ -158,4 +158,8 @@ export interface HeroLayoutAvailableMedia {
   image: boolean;
   video: boolean;
   poster: boolean;
+  /** LIB2 figure 슬롯은 서버가 확인한 고객 referential만 사용한다. */
+  referentialImage?: boolean;
+  /** 팔레트 기반 절차적 무대처럼 사실 주장이 없는 배경 공급원. */
+  atmosphericBackdrop?: boolean;
 }

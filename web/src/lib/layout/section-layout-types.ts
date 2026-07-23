@@ -41,6 +41,12 @@ export type SectionLayoutVariantId =
 export type SectionLayoutKind = 'features' | 'about' | 'gallery';
 export type SectionLayoutBreakpointBand = SignatureBreakpointBand;
 
+export interface SectionLayoutSelection {
+  features?: FeatureLayoutVariantId;
+  about?: AboutLayoutVariantId;
+  gallery?: GalleryLayoutVariantId;
+}
+
 /**
  * Ordered media source policy. A provider may only be inserted at a declared position;
  * the resolver never invents an unregistered source.

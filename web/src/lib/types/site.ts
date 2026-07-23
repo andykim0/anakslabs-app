@@ -6,6 +6,7 @@
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
 import type { DesignDnaSelection } from '@/lib/design/dna/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
+import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -374,6 +375,11 @@ export interface Section {
    * compact/mobile은 이 밴드별 서버 컴파일 결과를 기존 렌더 경계가 소비한다.
    */
   heroLayout?: HeroLayoutProjection;
+  /**
+   * LIB2 신규 생성본 전용 섹션 배열 핀. 기존 frame은 편집 계약으로 보존하고,
+   * 렌더 경계가 이 결정적 3밴드 projection을 우선 소비한다.
+   */
+  sectionLayout?: SectionLayoutProjection;
   hidden?: boolean;
 }
 

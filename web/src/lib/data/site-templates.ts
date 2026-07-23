@@ -57,8 +57,10 @@ import {
   type SitePlanSection,
 } from '@/lib/content/site-plan';
 import {
+  applySectionLayoutVariants,
   resolveHeroLayoutVariant,
   type HeroLayoutVariantId,
+  type SectionLayoutSelection,
 } from '@/lib/layout';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
@@ -102,6 +104,8 @@ export interface BuildOptions {
   heroLayoutVariantId?: HeroLayoutVariantId;
   /** 실제 영상과 poster가 모두 있을 때만 hero.video-scrim이 성립한다. */
   heroVideo?: { src: string; poster: string };
+  /** LIB2 신규 생성 전용. 미지정이면 모든 비히어로 섹션은 기존 frame을 그대로 쓴다. */
+  sectionLayoutVariantIds?: SectionLayoutSelection;
 }
 
 /** hex 색상의 밝기(0~255). 팔레트가 다크/라이트인지 판단용 */
@@ -3003,6 +3007,15 @@ export function buildSiteConfigFromSurvey(
           image: Boolean(opts.heroImageUrl),
           video: Boolean(opts.heroVideo?.src),
           poster: Boolean(opts.heroVideo?.poster),
+          referentialImage: (
+            candidate.heroPresentation === undefined
+              ? Boolean(opts.heroImageUrl)
+              : candidate.heroPresentation === 'promoted_customer_photo'
+            && Boolean(opts.heroImageUrl)
+          ),
+          atmosphericBackdrop: candidate.heroPresentation === 'system'
+            ? true
+            : Boolean(opts.heroImageUrl),
         },
       });
       hero.elements = resolved.elements;
@@ -3024,6 +3037,14 @@ export function buildSiteConfigFromSurvey(
         delete hero.background.video;
       }
     }
+  }
+
+  if (opts.sectionLayoutVariantIds) {
+    applySectionLayoutVariants({
+      pages,
+      theme,
+      selection: opts.sectionLayoutVariantIds,
+    });
   }
 
   // 4.7) [Q5] 배경 리듬 + 악센트 밴드 — POV 키트가 페이지의 배경 시퀀스를 결정(흰 배경 연속 해소).
