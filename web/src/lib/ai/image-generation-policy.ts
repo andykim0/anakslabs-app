@@ -59,7 +59,7 @@ export function isAssetTruthGenerationError(
   return error instanceof AssetTruthGenerationError;
 }
 
-export type AiImageDirection = Exclude<ImageDirectionId, 'real_photo'>;
+export type AiImageDirection = Exclude<ImageDirectionId, 'real_photo' | 'realistic'>;
 
 export type V2ImageGenerationPlan =
   | {
@@ -77,6 +77,18 @@ export type V2ImageGenerationPlan =
       role: 'atmospheric' | 'decorative';
       subject: 'abstract';
     };
+
+export type PreparedImageDirection =
+  | { kind: 'customer-photo'; direction: 'real_photo' }
+  | { kind: 'licensed-stock'; direction: 'realistic' }
+  | { kind: 'generated-art'; direction: AiImageDirection };
+
+/** Provider-independent policy classification used by the future stock adapter. */
+export function preparedImageDirection(direction: ImageDirectionId): PreparedImageDirection {
+  if (direction === 'real_photo') return { kind: 'customer-photo', direction };
+  if (direction === 'realistic') return { kind: 'licensed-stock', direction };
+  return { kind: 'generated-art', direction };
+}
 
 export const DEFAULT_V2_IMAGE_DIRECTION = 'abstract_editorial' as const;
 
@@ -201,6 +213,12 @@ export function resolveV2ImageGenerationPlan(input: {
   role?: 'atmospheric' | 'decorative';
 }): V2ImageGenerationPlan {
   const direction = input.direction ?? DEFAULT_V2_IMAGE_DIRECTION;
+  if (direction === 'realistic') {
+    throw new AssetTruthGenerationError(
+      'AI_HYPERREAL_REQUEST_FORBIDDEN',
+      '실사 이미지 공급 기능은 아직 준비 중입니다. 현재는 추상 에디토리얼 또는 3D 브랜드 월드를 선택해 주세요.',
+    );
+  }
   if (direction === 'real_photo') {
     if (!input.trustedCustomerUpload) {
       throw new AssetTruthGenerationError('REAL_PHOTO_UPLOAD_REQUIRED');

@@ -182,6 +182,7 @@ export function SurveyStep({
   improveSeed,
   existingSiteId,
   assetPolicyV2Ready = false,
+  realisticImageSupplyReady = false,
   onComplete,
 }: {
   defaultBusinessName?: string;
@@ -192,6 +193,8 @@ export function SurveyStep({
   existingSiteId?: string;
   /** Server-derived rollout readiness. False preserves the legacy request contract. */
   assetPolicyV2Ready?: boolean;
+  /** Server-derived licensed-stock supply readiness. */
+  realisticImageSupplyReady?: boolean;
   onComplete: (values: SurveyInput) => void;
 }) {
   const { toast } = useToast();
@@ -563,7 +566,12 @@ export function SurveyStep({
                 />
               ) : null}
               {step === 6 ? <Step04Photos /> : null}
-              {step === 7 ? <Step05ImageStyle assetPolicyV2Ready={assetPolicyV2Ready} /> : null}
+              {step === 7 ? (
+                <Step05ImageStyle
+                  assetPolicyV2Ready={assetPolicyV2Ready}
+                  realisticImageSupplyReady={realisticImageSupplyReady}
+                />
+              ) : null}
               {step === 8 ? <Step06MoodColor /> : null}
               {step === 9 ? <Step08Review /> : null}
             </StepFade>

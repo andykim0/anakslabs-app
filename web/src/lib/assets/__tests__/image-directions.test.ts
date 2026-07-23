@@ -3,23 +3,35 @@ import { describe, test } from 'node:test';
 import {
   IMAGE_DIRECTIONS,
   IMAGE_DIRECTION_IDS,
+  IMAGE_DIRECTION_OPTIONS,
+  NEW_IMAGE_DIRECTION_IDS,
   REAL_PHOTO_REQUIRED_GUIDANCE,
   canSelectRealPhoto,
   imageDirectionToLegacyCandidateStyle,
   legacyCandidateStyleToImageDirection,
   recommendedImageDirection,
+  selectableImageDirectionOptions,
 } from '@/lib/assets/image-directions';
+import { realisticImageSupplyEnabled } from '@/lib/assets/image-supply-flags';
 
 describe('asset-policy v2 image directions', () => {
-  test('신규 선택 카탈로그는 정확히 네 방향이며 legacy photo 의미를 바꾸지 않는다', () => {
+  test('저장 카탈로그는 legacy 일러스트와 준비 중 실사를 수용하되 신규 기본 선택은 세 방향이다', () => {
     assert.deepEqual(IMAGE_DIRECTION_IDS, [
       'real_photo',
+      'realistic',
       '3d_brand_world',
       'illustration_collage',
       'abstract_editorial',
     ]);
-    assert.equal(Object.keys(IMAGE_DIRECTIONS).length, 4);
+    assert.equal(Object.keys(IMAGE_DIRECTIONS).length, 5);
+    assert.deepEqual(NEW_IMAGE_DIRECTION_IDS, [
+      'real_photo',
+      '3d_brand_world',
+      'abstract_editorial',
+    ]);
+    assert.deepEqual(IMAGE_DIRECTION_OPTIONS.map((option) => option.id), NEW_IMAGE_DIRECTION_IDS);
     assert.equal(imageDirectionToLegacyCandidateStyle('real_photo'), 'photo');
+    assert.equal(imageDirectionToLegacyCandidateStyle('realistic'), 'photo');
     assert.equal(imageDirectionToLegacyCandidateStyle('3d_brand_world'), '3d_render');
     assert.equal(imageDirectionToLegacyCandidateStyle('illustration_collage'), 'illustration');
     assert.equal(imageDirectionToLegacyCandidateStyle('abstract_editorial'), 'illustration');
@@ -30,8 +42,24 @@ describe('asset-policy v2 image directions', () => {
       assert.notEqual(recommendedImageDirection({ industry }), 'real_photo', industry);
     }
     assert.equal(recommendedImageDirection({ industry: 'SaaS 플랫폼' }), '3d_brand_world');
-    assert.equal(recommendedImageDirection({ industry: '아동 미술 공방' }), 'illustration_collage');
+    assert.equal(recommendedImageDirection({ industry: '아동 미술 공방' }), 'abstract_editorial');
     assert.equal(recommendedImageDirection({ industry: '카페' }), 'abstract_editorial');
+  });
+
+  test('illustration은 신규 UI에서 차단되고 realistic은 정확한 서버 공급 플래그 뒤에만 보인다', () => {
+    assert.equal(realisticImageSupplyEnabled({}), false);
+    assert.equal(realisticImageSupplyEnabled({ REALISTIC_IMAGE_SUPPLY_ENABLED: 'true' }), false);
+    assert.equal(realisticImageSupplyEnabled({ REALISTIC_IMAGE_SUPPLY_ENABLED: '1' }), true);
+    assert.deepEqual(
+      selectableImageDirectionOptions({ realisticSupplyReady: false }).map((option) => option.id),
+      ['real_photo', '3d_brand_world', 'abstract_editorial'],
+    );
+    assert.deepEqual(
+      selectableImageDirectionOptions({ realisticSupplyReady: true }).map((option) => option.id),
+      ['real_photo', 'realistic', '3d_brand_world', 'abstract_editorial'],
+    );
+    assert.ok(!selectableImageDirectionOptions({ realisticSupplyReady: true })
+      .some((option) => option.id === 'illustration_collage'));
   });
 
   test('legacy photo는 verified+attested upload가 없으면 신규 재생성에서 안전하게 강등한다', () => {

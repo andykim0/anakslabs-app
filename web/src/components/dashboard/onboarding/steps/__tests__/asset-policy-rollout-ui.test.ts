@@ -31,7 +31,10 @@ describe('asset-policy v2 rollout UI', () => {
   });
 
   test('ASSIGN OFF renders the exact legacy three-card catalog and industry defaults', () => {
-    assert.match(STEP05, /return assetPolicyV2Ready \? <V2ImageStyle \/> : <LegacyImageStyle \/>/);
+    assert.match(
+      STEP05,
+      /return assetPolicyV2Ready[\s\S]*?<V2ImageStyle realisticImageSupplyReady=\{realisticImageSupplyReady\} \/>[\s\S]*?: <LegacyImageStyle \/>/,
+    );
 
     const legacy = between(STEP05, 'function LegacyImageStyle()', 'function DirectionSample(');
     assert.match(legacy, /IMAGE_STYLE_OPTIONS\.map/);

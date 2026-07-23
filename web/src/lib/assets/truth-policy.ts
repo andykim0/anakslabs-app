@@ -245,6 +245,7 @@ export function resolveHeroAssetSlotPurpose(input: {
   if (input.imageDirectionId === 'real_photo') {
     return input.claimedSubject ? HERO_FACTUAL_SLOT[input.claimedSubject] : 'actual_ambiguous';
   }
+  if (input.imageDirectionId === 'realistic') return 'brand_atmosphere';
   if (input.representsActualBusiness === true) {
     return input.claimedSubject ? HERO_FACTUAL_SLOT[input.claimedSubject] : 'actual_ambiguous';
   }

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * S5 이미지 방향 — asset-policy v2의 네 방향만 신규 선택에 노출한다.
+ * S5 이미지 방향 — 신규 허용 방향만 노출하며 legacy 일러스트는 저장 호환으로만 남긴다.
  * legacy imageStyle은 저장 호환을 위해 호스트가 projection으로 유지하지만 이 UI의 선택 축은 아니다.
  */
 import { useState } from 'react';
@@ -10,12 +10,12 @@ import { ImagePlus, LockKeyhole } from 'lucide-react';
 import type { CandidateStyle } from '@/lib/types/domain';
 import { IMAGE_STYLE_OPTIONS, defaultImageStyle } from '@/lib/onboarding/image-style';
 import {
-  IMAGE_DIRECTION_OPTIONS,
   REFERENTIAL_IMAGE_POLICY_COPY,
   REAL_PHOTO_REQUIRED_GUIDANCE,
   canSelectRealPhoto,
   imageDirectionToLegacyCandidateStyle,
   recommendedImageDirection,
+  selectableImageDirectionOptions,
   type ImageDirectionId,
 } from '@/lib/assets/image-directions';
 import { cn } from '../../ui';
@@ -138,14 +138,19 @@ function DirectionSample({
 
 export function Step05ImageStyle({
   assetPolicyV2Ready,
+  realisticImageSupplyReady = false,
 }: {
   /** Server-derived ASSIGN readiness; form values cannot activate policy. */
   assetPolicyV2Ready: boolean;
+  /** Server-derived licensed-stock readiness; missing/false keeps realistic hidden. */
+  realisticImageSupplyReady?: boolean;
 }) {
-  return assetPolicyV2Ready ? <V2ImageStyle /> : <LegacyImageStyle />;
+  return assetPolicyV2Ready
+    ? <V2ImageStyle realisticImageSupplyReady={realisticImageSupplyReady} />
+    : <LegacyImageStyle />;
 }
 
-function V2ImageStyle() {
+function V2ImageStyle({ realisticImageSupplyReady }: { realisticImageSupplyReady: boolean }) {
   const { watch, setValue } = useFormContext<SurveyForm>();
   const { goTo } = useSurveyUx();
   const industry = watch('industry');
@@ -172,6 +177,9 @@ function V2ImageStyle() {
   });
   const realPhotoPreview = heroPhotoAssetRef?.url ?? storePhotoAssetRefs[0]?.url;
   const blockedSelection = selected === 'real_photo' && !realPhotoEligible;
+  const directionOptions = selectableImageDirectionOptions({
+    realisticSupplyReady: realisticImageSupplyReady,
+  });
 
   const choose = (direction: ImageDirectionId) => {
     if (direction === 'real_photo' && !realPhotoEligible) return;
@@ -193,7 +201,7 @@ function V2ImageStyle() {
       <fieldset aria-describedby="image-direction-policy">
         <legend className="sr-only">사이트 이미지 방향</legend>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {IMAGE_DIRECTION_OPTIONS.map((option) => {
+          {directionOptions.map((option) => {
             const isRealPhoto = option.id === 'real_photo';
             const disabled = isRealPhoto && !realPhotoEligible;
             const isSelected = selected === option.id;

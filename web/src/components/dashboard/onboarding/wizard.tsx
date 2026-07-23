@@ -63,6 +63,7 @@ export function OnboardingWizard({
   tier = 'basic',
   existingSiteId,
   assetPolicyV2Ready = false,
+  realisticImageSupplyReady = false,
 }: {
   defaultBusinessName?: string;
   scanContext?: ScanContext;
@@ -74,6 +75,8 @@ export function OnboardingWizard({
   existingSiteId?: string;
   /** Server-derived ASSIGN readiness; not an entitlement or client authority. */
   assetPolicyV2Ready?: boolean;
+  /** Server-derived licensed-stock supply readiness. */
+  realisticImageSupplyReady?: boolean;
 }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
@@ -171,6 +174,7 @@ export function OnboardingWizard({
             improveSeed={undefined}
             existingSiteId={siteId ?? undefined}
             assetPolicyV2Ready={assetPolicyV2Ready}
+            realisticImageSupplyReady={realisticImageSupplyReady}
             onComplete={(values) => {
               setSurvey(values);
               // 설문이 바뀌었을 수 있으므로 이전 선택 초기화

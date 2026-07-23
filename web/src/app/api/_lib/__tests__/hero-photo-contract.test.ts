@@ -78,6 +78,8 @@ describe('SurveyInput asset-policy v2 additive contract', () => {
 
   test('legacy 설문은 신규 필드 없이 계속 통과하고 임의 direction/asset UUID는 거부한다', () => {
     assert.equal(surveySchema.safeParse(survey({ imageStyle: 'photo' })).success, true);
+    assert.equal(surveySchema.safeParse(survey({ imageDirectionId: 'realistic' })).success, true);
+    assert.equal(surveySchema.safeParse(survey({ imageDirectionId: 'illustration_collage' })).success, true);
     assert.equal(surveySchema.safeParse({ ...survey(), imageDirectionId: 'photorealistic' }).success, false);
     assert.equal(surveySchema.safeParse({
       ...survey(),

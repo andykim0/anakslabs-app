@@ -46,7 +46,7 @@ export function v2ImagePrompt(
   bp: CandidateBlueprint,
   survey: SurveyInput,
   section: string,
-  imageDirectionId: Exclude<ImageDirectionId, 'real_photo'>,
+  imageDirectionId: Exclude<ImageDirectionId, 'real_photo' | 'realistic'>,
 ): string {
   return buildV2ImagePrompt(povForStyle(bp.brief.style.id), section, {
     imageDirectionId,

@@ -23,17 +23,21 @@ function block(source: string, start: string, end?: string): string {
 }
 
 describe('asset-policy v2 onboarding wiring', () => {
-  test('ASSIGN 준비 시 Step05는 네 방향 native radio를, 준비 전에는 기존 3스타일을 렌더한다', () => {
-    assert.match(STEP05, /return assetPolicyV2Ready \? <V2ImageStyle \/> : <LegacyImageStyle \/>/);
+  test('ASSIGN 준비 시 Step05는 신규 허용 방향 native radio를, 준비 전에는 기존 3스타일을 렌더한다', () => {
+    assert.match(
+      STEP05,
+      /return assetPolicyV2Ready[\s\S]*?<V2ImageStyle realisticImageSupplyReady=\{realisticImageSupplyReady\} \/>[\s\S]*?: <LegacyImageStyle \/>/,
+    );
     const legacy = block(STEP05, 'function LegacyImageStyle()', 'function DirectionSample(');
-    const v2 = block(STEP05, 'function V2ImageStyle()');
+    const v2 = block(STEP05, 'function V2ImageStyle(');
 
     assert.match(legacy, /IMAGE_STYLE_OPTIONS\.map/);
     assert.match(legacy, /defaultImageStyle\(industry\)/);
     assert.match(legacy, /sm:grid-cols-3/);
     assert.doesNotMatch(legacy, /IMAGE_DIRECTION_OPTIONS|real_photo|canSelectRealPhoto/);
 
-    assert.match(v2, /IMAGE_DIRECTION_OPTIONS\.map/);
+    assert.match(v2, /selectableImageDirectionOptions/);
+    assert.match(v2, /directionOptions\.map/);
     assert.match(v2, /<fieldset/);
     assert.match(v2, /type="radio"/);
     assert.match(v2, /const disabled = isRealPhoto && !realPhotoEligible/);

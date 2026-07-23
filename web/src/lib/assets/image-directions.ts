@@ -8,12 +8,14 @@
 
 export const IMAGE_DIRECTION_IDS = [
   'real_photo',
+  'realistic',
   '3d_brand_world',
   'illustration_collage',
   'abstract_editorial',
 ] as const;
 
 export type ImageDirectionId = (typeof IMAGE_DIRECTION_IDS)[number];
+export type NewSelectableImageDirectionId = Exclude<ImageDirectionId, 'illustration_collage'>;
 
 export type LegacyCandidateStyle = 'photo' | '3d_render' | 'illustration';
 
@@ -24,6 +26,7 @@ export interface ImageDirectionOption {
   detail: string;
   requiresVerifiedCustomerUpload: boolean;
   usesAiGeneration: boolean;
+  requiresLicensedStockSupply: boolean;
   legacyStyle: LegacyCandidateStyle;
 }
 
@@ -55,6 +58,17 @@ export const IMAGE_DIRECTIONS = {
     detail: 'AI로 제품·장소·사람을 새로 만들지 않고 크롭, 배치, 색감과 기본 모션만 연출합니다.',
     requiresVerifiedCustomerUpload: true,
     usesAiGeneration: false,
+    requiresLicensedStockSupply: false,
+    legacyStyle: 'photo',
+  },
+  realistic: {
+    id: 'realistic',
+    label: '실사 이미지',
+    description: '실제 사업을 주장하지 않는 사물·질감 중심의 라이선스 이미지를 사용해요.',
+    detail: '다보임이 사용 범위를 확인한 실사 자산만 공급하며, 실제 매장·제품·인물을 지어내지 않습니다.',
+    requiresVerifiedCustomerUpload: false,
+    usesAiGeneration: false,
+    requiresLicensedStockSupply: true,
     legacyStyle: 'photo',
   },
   '3d_brand_world': {
@@ -64,6 +78,7 @@ export const IMAGE_DIRECTIONS = {
     detail: '실제 판매 제품·매장·사람·결과처럼 보이지 않는 스타일드 브랜드 장면입니다.',
     requiresVerifiedCustomerUpload: false,
     usesAiGeneration: true,
+    requiresLicensedStockSupply: false,
     legacyStyle: '3d_render',
   },
   illustration_collage: {
@@ -73,6 +88,7 @@ export const IMAGE_DIRECTIONS = {
     detail: '실제 사업을 기록한 사진인 척하지 않고 가짜 인물·상품·실적을 만들지 않습니다.',
     requiresVerifiedCustomerUpload: false,
     usesAiGeneration: true,
+    requiresLicensedStockSupply: false,
     legacyStyle: 'illustration',
   },
   abstract_editorial: {
@@ -82,13 +98,38 @@ export const IMAGE_DIRECTIONS = {
     detail: '실제 제품·사람·장소·결과를 만들지 않는 안전한 기본 방향입니다.',
     requiresVerifiedCustomerUpload: false,
     usesAiGeneration: true,
+    requiresLicensedStockSupply: false,
     // Legacy generation has no abstract vocabulary. Illustration is the
     // conservative, visibly non-photographic compatibility projection.
     legacyStyle: 'illustration',
   },
 } as const satisfies Record<ImageDirectionId, ImageDirectionOption>;
 
-export const IMAGE_DIRECTION_OPTIONS = IMAGE_DIRECTION_IDS.map((id) => IMAGE_DIRECTIONS[id]);
+/**
+ * New selection catalog. `illustration_collage` remains readable for legacy
+ * surveys and published sites but cannot be selected for a new generation.
+ * `realistic` joins only after the separately controlled licensed supply exists.
+ */
+export const NEW_IMAGE_DIRECTION_IDS = [
+  'real_photo',
+  '3d_brand_world',
+  'abstract_editorial',
+] as const satisfies readonly NewSelectableImageDirectionId[];
+
+export const IMAGE_DIRECTION_OPTIONS = NEW_IMAGE_DIRECTION_IDS.map((id) => IMAGE_DIRECTIONS[id]);
+
+export function selectableImageDirectionOptions(input: {
+  realisticSupplyReady: boolean;
+}): readonly ImageDirectionOption[] {
+  return input.realisticSupplyReady
+    ? [
+        IMAGE_DIRECTIONS.real_photo,
+        IMAGE_DIRECTIONS.realistic,
+        IMAGE_DIRECTIONS['3d_brand_world'],
+        IMAGE_DIRECTIONS.abstract_editorial,
+      ]
+    : IMAGE_DIRECTION_OPTIONS;
+}
 
 /**
  * A recommendation is never an authorization decision. It intentionally
@@ -98,13 +139,10 @@ export const IMAGE_DIRECTION_OPTIONS = IMAGE_DIRECTION_IDS.map((id) => IMAGE_DIR
 export function recommendedImageDirection(input: {
   industry?: string;
   tone?: readonly string[];
-}): Exclude<ImageDirectionId, 'real_photo'> {
+}): Exclude<NewSelectableImageDirectionId, 'real_photo' | 'realistic'> {
   const context = `${input.industry ?? ''} ${(input.tone ?? []).join(' ')}`.toLowerCase();
   if (/saas|테크|기술|소프트웨어|앱|플랫폼|it|스타트업|미래|대담/.test(context)) {
     return '3d_brand_world';
-  }
-  if (/키즈|아동|공방|수공예|일러스트|친근|따뜻|유쾌|놀이/.test(context)) {
-    return 'illustration_collage';
   }
   return 'abstract_editorial';
 }

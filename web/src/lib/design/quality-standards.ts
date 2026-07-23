@@ -664,7 +664,7 @@ export function buildImagePrompt(
   );
 }
 
-type GenerativeImageDirection = Exclude<ImageDirectionId, 'real_photo'>;
+type GenerativeImageDirection = Exclude<ImageDirectionId, 'real_photo' | 'realistic'>;
 
 const V2_DIRECTION_TREATMENT: Record<GenerativeImageDirection, string> = {
   '3d_brand_world':

@@ -181,7 +181,7 @@ function themeForBrief(survey: SurveyInput, brief: DesignBrief): SiteTheme {
 function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteTheme): string {
   if (survey.imageDirectionId) {
     // real_photo is a reuse-only plan. No image-generation prompt exists by design.
-    if (survey.imageDirectionId === 'real_photo') return '';
+    if (survey.imageDirectionId === 'real_photo' || survey.imageDirectionId === 'realistic') return '';
     return buildV2ImagePrompt(povForStyle(brief.style.id), 'hero', {
       imageDirectionId: survey.imageDirectionId,
       palettePrimary: theme.palette.primary,
