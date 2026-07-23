@@ -19,6 +19,7 @@ import { SEO_RULES } from './checks/seo';
 import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { buildScores } from './score';
+import { extractVisibleText } from './document';
 import type { ScanCore } from './index';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 
@@ -56,14 +57,11 @@ export function preflightScan(
     });
     renderedPages.push({ pageSlug: page.slug, html });
     const root = parse(html);
-    const clone = parse(root.toString());
-    for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
-    const visibleText = clone.text.replace(/\s+/g, ' ').trim();
 
     const ctx: RuleContext = {
       root,
       rawHtml: html,
-      visibleText,
+      visibleText: extractVisibleText(root),
       url: new URL(page.slug === '' ? siteUrl : `${siteUrl}/${page.slug}`),
       status: 200,
       contentType: 'text/html; charset=utf-8',

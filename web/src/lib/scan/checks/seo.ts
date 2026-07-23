@@ -66,6 +66,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_http_status',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 18,
     label: '페이지가 정상 HTTP 상태로 응답하지 않습니다',
@@ -75,6 +76,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_html_response',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 10,
     label: 'HTML 문서로 응답하지 않습니다',
@@ -85,6 +87,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_html_truncated',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 3,
     label: 'HTML 문서가 지나치게 커서 진단이 일부만 수행되었습니다',
@@ -94,6 +97,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: CLIENT_RENDER_RISK_CODE,
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 0,
     advisory: true,
@@ -104,6 +108,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_soft_404',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 15,
     label: '오류 화면이 정상 페이지 상태로 응답하는 소프트 404로 보입니다',
@@ -113,6 +118,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_noindex',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 20,
     label: '페이지에 noindex가 설정되어 있습니다',
@@ -123,6 +129,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_googlebot_blocked',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 18,
     label: 'robots.txt가 Googlebot 수집을 막고 있습니다',
@@ -133,6 +140,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_naver_yeti_blocked',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 20,
     label: 'robots.txt가 네이버 Yeti 수집을 막고 있습니다',
@@ -143,6 +151,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_daum_blocked',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 14,
     label: 'robots.txt가 다음(Daum) 수집을 막고 있습니다',
@@ -153,6 +162,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_bingbot_blocked',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 12,
     label: 'robots.txt가 Bingbot 수집을 막고 있습니다',
@@ -163,6 +173,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_title_missing',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 12,
     label: '페이지 제목(title)이 없습니다',
@@ -172,6 +183,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_title_multiple',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 5,
     label: 'title 요소가 여러 개 있습니다',
@@ -181,6 +193,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_title_length',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 3,
     label: '페이지 제목이 지나치게 짧거나 깁니다',
@@ -193,6 +206,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_meta_description',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 8,
     label: '메타 설명(description)이 없습니다',
@@ -202,6 +216,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_h1',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 7,
     label: '대표 제목(H1) 구조에 문제가 있습니다',
@@ -214,6 +229,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_canonical',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 5,
     label: '표준 URL(canonical)이 지정되지 않았습니다',
@@ -223,6 +239,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_canonical_invalid',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 8,
     label: '표준 URL(canonical)이 현재 페이지와 맞지 않습니다',
@@ -232,6 +249,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_og',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 5,
     label: 'Open Graph 공유 정보가 불완전합니다',
@@ -244,6 +262,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_img_alt',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 6,
     label: 'alt 속성이 빠진 이미지가 많습니다',
@@ -258,6 +277,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_https',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 12,
     label: 'HTTPS가 아닙니다',
@@ -267,6 +287,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_viewport',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 8,
     label: '모바일 뷰포트 설정이 없습니다',
@@ -276,6 +297,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_korean_encoding',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 5,
     label: '한국어 문서의 문자 인코딩 선언이 불명확합니다',
@@ -292,6 +314,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_hash_navigation',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 6,
     label: '해시 기반 페이지 이동이 발견되었습니다',
@@ -304,6 +327,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_robots_temporarily_unavailable',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 3,
     label: 'robots.txt를 일시적으로 확인할 수 없습니다',
@@ -314,6 +338,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_robots_txt',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 4,
     label: 'robots.txt를 확인할 수 없습니다',
@@ -323,6 +348,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_robots_invalid',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 10,
     label: 'robots.txt 응답 형식이 올바르지 않습니다',
@@ -332,6 +358,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_robots_sitemap',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'info',
     weight: 2,
     label: 'robots.txt에 사이트맵 위치가 없습니다',
@@ -341,6 +368,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_sitemap',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'warn',
     weight: 6,
     label: 'sitemap.xml을 확인할 수 없습니다',
@@ -350,6 +378,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_sitemap_invalid',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'critical',
     weight: 10,
     label: 'sitemap.xml 형식이 올바르지 않습니다',
@@ -359,6 +388,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_speed_slow',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 2,
     label: '서버 첫 응답이 느립니다 (1.5초 초과)',
@@ -368,6 +398,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_speed_very_slow',
     pillar: 'seo',
+    ownership: 'shared',
     severity: 'critical',
     weight: 3,
     label: '서버 첫 응답이 매우 느립니다 (3초 초과)',
@@ -377,6 +408,7 @@ export const SEO_RULES: ScanRule[] = [
   {
     code: 'seo_favicon',
     pillar: 'seo',
+    ownership: 'system',
     severity: 'info',
     weight: 1,
     label: '파비콘이 지정되지 않았습니다',

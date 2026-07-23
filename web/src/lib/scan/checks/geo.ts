@@ -7,6 +7,7 @@
  * content patterns that make a faithful citation possible.
  */
 import type { ScanRule, RuleContext } from '../rules';
+import { contentMarkupLength } from '../document';
 import { robotsAllows } from '../robots';
 import {
   hasBusinessNumber,
@@ -85,6 +86,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_oai_search_blocked',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'critical',
     weight: 16,
     label: 'robots.txt가 OAI-SearchBot 수집을 막고 있습니다',
@@ -95,6 +97,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_perplexity_blocked',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'critical',
     weight: 14,
     label: 'robots.txt가 PerplexityBot 수집을 막고 있습니다',
@@ -105,6 +108,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_snippet_restricted',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'critical',
     weight: 16,
     label: '검색 요약과 AI 인용에 사용할 본문 발췌가 차단되어 있습니다',
@@ -117,6 +121,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_naver_sourceinfo_disabled',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'info',
     weight: 3,
     label: '네이버 AI 출처 설명이 비활성화되어 있습니다',
@@ -126,6 +131,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_no_text',
     pillar: 'geo',
+    ownership: 'shared',
     severity: 'critical',
     weight: 18,
     label: 'AI가 읽을 본문 텍스트가 거의 없습니다',
@@ -136,20 +142,23 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_low_text_ratio',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'warn',
     weight: 8,
     label: '마크업 대비 본문 비율이 낮습니다',
     detail: '코드 대비 실제 텍스트가 적어 페이지의 핵심 설명과 근거를 빠르게 구분하기 어려운 구조입니다.',
     failed: (ctx) => {
-      if (ctx.rawHtml.length === 0) return true;
+      const denominator = contentMarkupLength(ctx.root);
+      if (denominator === 0) return true;
       const visibleLength = ctx.visibleText.length;
       if (visibleLength < 200) return false;
-      return visibleLength / ctx.rawHtml.length < 0.05 && visibleLength < 1200;
+      return visibleLength / denominator < 0.05 && visibleLength < 1200;
     },
   },
   {
     code: 'geo_business_info',
     pillar: 'geo',
+    ownership: 'customer',
     severity: 'warn',
     weight: 12,
     label: '지역 업체의 연락처 또는 주소가 불완전합니다',
@@ -160,6 +169,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_dates',
     pillar: 'geo',
+    ownership: 'customer',
     severity: 'warn',
     weight: 7,
     label: '콘텐츠의 작성·수정 날짜가 없습니다',
@@ -169,6 +179,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_lang',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'critical',
     weight: 10,
     label: '문서 언어 선언(lang)이 없습니다',
@@ -178,6 +189,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_korean_lang_mismatch',
     pillar: 'geo',
+    ownership: 'system',
     severity: 'warn',
     weight: 6,
     label: '한국어 본문과 문서 언어 선언이 맞지 않습니다',
@@ -191,6 +203,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_author',
     pillar: 'geo',
+    ownership: 'customer',
     severity: 'warn',
     weight: 7,
     label: '콘텐츠 작성자 또는 검토 주체가 없습니다',
@@ -200,6 +213,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_channel_identity',
     pillar: 'geo',
+    ownership: 'shared',
     severity: 'info',
     weight: 5,
     label: '공식 채널 링크가 구조화된 엔티티와 연결되지 않았습니다',
@@ -214,6 +228,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_unsourced_claims',
     pillar: 'geo',
+    ownership: 'customer',
     severity: 'warn',
     weight: 9,
     label: '수치·연구 주장에 확인 가능한 출처가 없습니다',
@@ -223,6 +238,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_topic_alignment',
     pillar: 'geo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 7,
     label: '페이지 제목과 대표 제목의 주제가 연결되지 않습니다',
@@ -232,6 +248,7 @@ export const GEO_RULES: ScanRule[] = [
   {
     code: 'geo_empty_page',
     pillar: 'geo',
+    ownership: 'shared',
     severity: 'critical',
     weight: 10,
     label: '페이지가 사실상 비어 있습니다',

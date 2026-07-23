@@ -8,6 +8,10 @@
  */
 import type { ScanRule } from '../rules';
 import {
+  extractMainVisibleText,
+  mainContentRoot,
+} from '../document';
+import {
   hasLocalBusinessType,
   hasUnlabelledControls,
   isLocalBusinessType,
@@ -102,7 +106,7 @@ function isReferenceOnly(node: Record<string, unknown>): boolean {
 }
 
 function hasQuestionHeading(ctx: Parameters<ScanRule['failed']>[0]): boolean {
-  return ctx.root.querySelectorAll('h2, h3, h4').some((heading) => {
+  return mainContentRoot(ctx.root).querySelectorAll('h2, h3, h4').some((heading) => {
     const text = heading.text.trim();
     return /(?:[?？]|인가요|하나요|되나요|있나요|무엇인가요|어떻게\s*하나요)\s*$/.test(text);
   });
@@ -112,6 +116,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_jsonld_missing',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 7,
     label: '구조화 데이터(JSON-LD)가 없습니다',
@@ -121,6 +126,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_jsonld_invalid',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'critical',
     weight: 12,
     label: '해석할 수 없는 JSON-LD가 있습니다',
@@ -130,6 +136,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_jsonld_type',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 5,
     label: '구조화 데이터에 페이지 의미를 설명하는 타입이 없습니다',
@@ -142,6 +149,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_entity_identity',
     pillar: 'aeo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 10,
     label: '운영 주체의 엔티티 정보가 불완전합니다',
@@ -156,6 +164,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_jsonld_visibility',
     pillar: 'aeo',
+    ownership: 'shared',
     severity: 'warn',
     weight: 8,
     label: '구조화된 업체 정보가 화면 내용과 일치하지 않습니다',
@@ -168,6 +177,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_local_business_details',
     pillar: 'aeo',
+    ownership: 'customer',
     severity: 'warn',
     weight: 12,
     label: '지역 업체 구조화 정보가 불완전합니다',
@@ -185,6 +195,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_heading_order',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 10,
     label: '제목 계층(H1→H2→H3)이 어긋나 있습니다',
@@ -208,15 +219,20 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_question_headings',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 7,
     label: 'FAQ 내용이 질문 제목으로 구분되지 않았습니다',
     detail: 'FAQ가 있는 페이지라면 각 질문을 명확한 제목으로 표시해 답변 경계를 기계와 사용자 모두가 알 수 있게 하세요.',
-    failed: (ctx) => isFaqLike(ctx.root, ctx.visibleText) && !hasQuestionHeading(ctx),
+    failed: (ctx) => {
+      const main = mainContentRoot(ctx.root);
+      return isFaqLike(main, extractMainVisibleText(ctx.root)) && !hasQuestionHeading(ctx);
+    },
   },
   {
     code: 'aeo_main_landmark',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'critical',
     weight: 12,
     label: '본문 랜드마크(<main>)가 없습니다',
@@ -226,6 +242,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_semantic_structure',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 6,
     label: '시맨틱 구역 구조가 부족합니다',
@@ -240,15 +257,21 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_lists_tables',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 6,
     label: '목록형 정보를 구조적으로 표시하지 않았습니다',
     detail: '가격·메뉴·절차·비교 내용이 있는 페이지는 ul·ol·dl·table로 항목 경계를 표시해야 정확히 발췌하기 쉽습니다.',
-    failed: (ctx) => isListWorthy(ctx.visibleText) && !ctx.root.querySelector('ul, ol, table, dl'),
+    failed: (ctx) => {
+      const main = mainContentRoot(ctx.root);
+      return isListWorthy(extractMainVisibleText(ctx.root))
+        && !main.querySelector('ul, ol, table, dl');
+    },
   },
   {
     code: 'aeo_accessible_controls',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'warn',
     weight: 8,
     label: '이름 없는 버튼 또는 입력 요소가 있습니다',
@@ -258,6 +281,7 @@ export const AEO_RULES: ScanRule[] = [
   {
     code: 'aeo_breadcrumb',
     pillar: 'aeo',
+    ownership: 'system',
     severity: 'info',
     weight: 4,
     label: '하위 페이지의 경로 구조가 명시되지 않았습니다',

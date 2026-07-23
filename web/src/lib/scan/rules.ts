@@ -27,6 +27,8 @@ export interface RuleContext {
 export interface ScanRule {
   code: string;
   pillar: ScanIssue['pillar'];
+  /** 이 신호를 개선하는 주체. NUDGE와 진단 UI가 같은 단일 분류를 소비한다. */
+  ownership: 'system' | 'shared' | 'customer';
   severity: ScanIssue['severity'];
   /** 실패 시 해당 축 점수에서 차감 */
   weight: number;

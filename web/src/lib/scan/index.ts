@@ -12,6 +12,7 @@ import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { SEO_RULES } from './checks/seo';
 import { fetchTarget, normalizeScanUrl, probeResource, probeResourceWithRetry } from './fetch-target';
+import { extractVisibleText } from './document';
 import { createRuleRunState, runRules, type RuleContext } from './rules';
 import { buildScores } from './score';
 import { probeDeclaredSitemap } from './sitemap';
@@ -20,13 +21,6 @@ export { ScanError } from './ssrf';
 export { normalizeScanUrl } from './fetch-target';
 
 export type ScanCore = Omit<ScanResult, 'id' | 'createdAt' | 'clientId'>;
-
-/** script/style/noscript 제거 후 보이는 텍스트 */
-function extractVisibleText(root: ReturnType<typeof parse>): string {
-  const clone = parse(root.toString());
-  for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
-  return clone.text.replace(/\s+/g, ' ').trim();
-}
 
 export async function runScan(rawUrl: string): Promise<ScanCore> {
   const normalized = normalizeScanUrl(rawUrl);

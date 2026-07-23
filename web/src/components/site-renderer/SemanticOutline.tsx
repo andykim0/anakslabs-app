@@ -21,6 +21,15 @@ const SR_ONLY: React.CSSProperties = {
   border: 0,
 };
 
+const LIST_OUTLINE_SECTION_TYPES: ReadonlySet<Section['type']> = new Set([
+  'menu',
+  'features',
+  'pricing',
+  'team',
+  'cases',
+  'gallery',
+]);
+
 function texts(section: Section): string[] {
   return section.elements
     .filter((el) => el.kind === 'text')
@@ -46,7 +55,10 @@ function SectionOutline({ section }: { section: Section }) {
     );
   }
   // 섹션명 = h2 (첫 텍스트가 섹션명과 겹치면 중복 노출은 무방)
-  if (section.type === 'faq') {
+  const faqLike = section.type === 'faq'
+    || section.id.includes('faq')
+    || /(?:FAQ|자주\s*묻는\s*질문)/iu.test(section.name);
+  if (faqLike) {
     const items: React.ReactNode[] = [];
     for (let i = 0; i < body.length; i++) {
       if (/[?？]\s*$/.test(body[i])) {
@@ -67,7 +79,7 @@ function SectionOutline({ section }: { section: Section }) {
     );
   }
 
-  if (section.type === 'menu' && body.length > 0) {
+  if (LIST_OUTLINE_SECTION_TYPES.has(section.type) && body.length > 0) {
     return (
       <section aria-label={section.name}>
         <h2>{section.name}</h2>
