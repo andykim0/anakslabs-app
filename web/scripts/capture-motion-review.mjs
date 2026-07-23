@@ -347,12 +347,12 @@ async function captureMode(cdp, sessionId, fixture, mode, requestLog) {
   };
 }
 
-async function recordFixture(cdp, sessionId, fixture) {
-  const frameDir = path.join(ROOT, 'recordings', `${fixture.id}-frames`);
-  const output = path.join(ROOT, 'recordings', `${fixture.id}.mp4`);
+async function recordViewport(cdp, sessionId, fixture, viewport) {
+  const frameDir = path.join(ROOT, 'recordings', `${fixture.id}-${viewport.id}-frames`);
+  const output = path.join(ROOT, 'recordings', `${fixture.id}-${viewport.id}.mp4`);
   await rm(frameDir, { recursive: true, force: true });
   await mkdir(frameDir, { recursive: true });
-  await setViewport(cdp, sessionId, 1024, 640, 1);
+  await setViewport(cdp, sessionId, viewport.width, viewport.height, 1);
   await navigate(cdp, sessionId, `http://127.0.0.1:${PORT}/${fixture.html}`, { settleMs: 700 });
   const frameCount = 21;
   for (let index = 0; index < frameCount; index += 1) {
@@ -367,6 +367,17 @@ async function recordFixture(cdp, sessionId, fixture) {
   await waitForExit(ffmpeg, `ffmpeg ${fixture.id}`);
   await rm(frameDir, { recursive: true, force: true });
   return path.relative(ROOT, output);
+}
+
+async function recordFixture(cdp, sessionId, fixture) {
+  return {
+    desktop1440: await recordViewport(cdp, sessionId, fixture, {
+      id: 'desktop-1440', width: 1440, height: 900,
+    }),
+    mobile390: await recordViewport(cdp, sessionId, fixture, {
+      id: 'mobile-390', width: 390, height: 844,
+    }),
+  };
 }
 
 async function stabilityAudit(cdp, sessionId, fixture) {

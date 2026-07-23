@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -12,6 +13,7 @@ import {
   signatureContractEnabled,
 } from '@/lib/motion/signature-contract';
 import {
+  SCROLLYTELLING_COMPOSITION_PATTERN_IDS,
   defaultCinematicCompositionPattern,
   resolveScrollytellingComposition,
 } from '@/lib/motion/scrollytelling-composition';
@@ -100,4 +102,16 @@ test('resolvePlacement는 기존 컴포지션 선호를 계약 안전지대 안�
       }
     }
   }
+});
+
+test('OFF 기준 legacy composition 출력은 확장 전 고정 SHA와 바이트 동일하다', () => {
+  const legacyMatrix = SCROLLYTELLING_COMPOSITION_PATTERN_IDS.flatMap((pattern) =>
+    Array.from({ length: 8 }, (_, index) => ({
+      pattern,
+      index,
+      value: resolveScrollytellingComposition(pattern, index),
+    })),
+  );
+  const sha = createHash('sha256').update(JSON.stringify(legacyMatrix)).digest('hex');
+  assert.equal(sha, '5a43c7f1ef694916714fd6243187626647d42acb0809f14c77d48395590db4ef');
 });

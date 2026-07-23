@@ -1,5 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type {
@@ -195,6 +196,13 @@ describe('motion signature production renderers', () => {
         id,
       );
     }
+
+    const baseline = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true);
+    const explicitOff = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true, false);
+    const sha = (value: string) => createHash('sha256').update(value).digest('hex');
+    assert.equal(sha(baseline), 'c9923de96e5c2fa1e9f012685a5c828a8c6f9edc7a69453535c438c4751d34ea');
+    assert.equal(sha(explicitOff), sha(baseline));
+    assert.doesNotMatch(explicitOff, /data-signature-contract/);
   });
 
   test('SignatureContract ON은 active 5종의 대비·렌더·정적 폴백 계약을 SSR에 고정한다', () => {
