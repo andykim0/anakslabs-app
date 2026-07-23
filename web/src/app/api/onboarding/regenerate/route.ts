@@ -14,6 +14,7 @@ import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { authoritativeHeroVideoChoice } from '@/lib/onboarding/hero-video-selection';
 import { canonicalizeSurveyTemplate } from '@/lib/onboarding/site-classification';
@@ -36,7 +37,10 @@ import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
   isAssetTruthGenerationError,
+  selectRealPhotoAssetRef,
 } from '@/lib/ai/image-generation-policy';
+import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
+import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
   designCandidateSchema,
@@ -147,10 +151,14 @@ export const POST = withApiHandler(async (request) => {
   }
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withCinematicBase = withSiteCinematicDefault(withExtras);
+  const withCinematicDefault = survey.contentDepth?.mainStorytelling
+    ? withContinuousCanvasDefault(withCinematicBase)
+    : withCinematicBase;
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
   let draftConfig = applyGeneratedMotion(
-    withExtras,
+    withCinematicDefault,
     survey.purposeId,
     client.tier,
     motionChoice,
@@ -161,6 +169,16 @@ export const POST = withApiHandler(async (request) => {
       siteId,
     },
   );
+  const selectedRealPhoto = survey.imageDirectionId === 'real_photo'
+    ? selectRealPhotoAssetRef(survey).ref
+    : null;
+  if (selectedRealPhoto) {
+    draftConfig = applyHeroPhotoPromotion({
+      config: draftConfig,
+      candidate,
+      customerPhotoRef: selectedRealPhoto,
+    });
+  }
   draftConfig = {
     ...draftConfig,
     assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
@@ -176,7 +194,7 @@ export const POST = withApiHandler(async (request) => {
     });
     if (provenance.ok) {
       draftConfig = applyGeneratedMotion(
-        withExtras,
+        withCinematicDefault,
         survey.purposeId,
         client.tier,
         motionChoice,
@@ -186,6 +204,13 @@ export const POST = withApiHandler(async (request) => {
           customerUploadAssetRefs: truth.directUploadAssetRefs,
         },
       );
+      if (selectedRealPhoto) {
+        draftConfig = applyHeroPhotoPromotion({
+          config: draftConfig,
+          candidate,
+          customerPhotoRef: selectedRealPhoto,
+        });
+      }
       draftConfig = {
         ...draftConfig,
         assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
@@ -207,7 +232,7 @@ export const POST = withApiHandler(async (request) => {
     assetPolicyVersion: site.assetPolicyVersion,
     phase: 'regeneration',
   });
-  draftConfig = assetPolicy.config;
+  draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

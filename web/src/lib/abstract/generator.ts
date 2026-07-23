@@ -1,5 +1,4 @@
-import { designDnaById } from '@/lib/design/dna/catalog';
-import type { DesignDnaSelection } from '@/lib/design/dna/types';
+import { parseOklch } from '@/lib/design/dna/color';
 import type { SiteTheme } from '@/lib/types/site';
 import {
   SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY,
@@ -46,7 +45,6 @@ export interface GenerateAbsBackgroundInput {
   spec: ProceduralBackgroundSpec;
   band: SignatureBreakpointBand;
   theme: SiteTheme;
-  designDna: DesignDnaSelection;
 }
 
 function remToPixels(value: string | undefined, fallback: number): number {
@@ -77,14 +75,20 @@ function guardedZone(
   };
 }
 
-function dnaShape(selection: DesignDnaSelection): ResolvedDnaShape {
-  const catalog = designDnaById(selection.dnaId);
-  if (!catalog) throw new Error(`Unknown DesignDNA id: ${selection.dnaId}`);
+function dnaShape(theme: SiteTheme, ramps: RampSet): ResolvedDnaShape {
+  const primary = parseOklch(ramps.primary['500']);
+  const accent = parseOklch(ramps.accent['500']);
+  const hueDistance = Math.min(
+    Math.abs(primary.h - accent.h),
+    360 - Math.abs(primary.h - accent.h),
+  );
+  const elementGap = remToPixels(theme.tokens?.spacing.elementGap, 20) / 16;
+  const softRadius = remToPixels(theme.tokens?.radius.soft, 14) / 16;
   return {
-    strategy: selection.overrides.colorStrategy ?? catalog.color.strategy,
-    chroma: selection.overrides.colorChroma ?? catalog.color.chroma,
-    density: selection.overrides.density ?? catalog.density,
-    radius: selection.overrides.radius ?? catalog.radius,
+    strategy: hueDistance < 8 ? 'mono' : hueDistance > 72 ? 'duotone' : 'neutral-accent',
+    chroma: primary.c < 0.095 ? 'muted' : primary.c > 0.15 ? 'vivid' : 'balanced',
+    density: elementGap < 1 ? 'compact' : elementGap > 1.45 ? 'airy' : 'balanced',
+    radius: softRadius < 0.5 ? 'square' : softRadius > 1.15 ? 'rounded' : 'soft',
   };
 }
 
@@ -258,13 +262,11 @@ function authoredProjection(
   quietZone: AbsNormalizedZone,
   guardedQuietZone: AbsNormalizedZone,
 ): AbsBackgroundProjection {
-  const { spec, band, theme, designDna } = input;
+  const { spec, band, theme } = input;
   const bandContract = spec.bands[band];
-  const shape = dnaShape(designDna);
+  const shape = dnaShape(theme, ramps);
   const canonicalSeed = [
     spec.familyId,
-    designDna.dnaId,
-    designDna.hueSeed,
     spec.seed,
     spec.slotId,
     band,
@@ -347,7 +349,7 @@ function authoredProjection(
           ? shape.density === 'compact' ? '0.72' : '0.54'
           : shape.density === 'compact' ? '0.58' : '0.42',
         octaves: shape.chroma === 'vivid' ? 3 : 2,
-        opacity: designDna.dnaId === 'medical-clinical-clarity' ? 0.05 : traceOpacity(shape),
+        opacity: shape.chroma === 'muted' ? 0.05 : traceOpacity(shape),
       },
     };
   }

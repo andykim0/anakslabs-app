@@ -419,6 +419,9 @@ export function SiteRenderer({
     sceneSourceSectionsAreSafe(signatureCandidate, sections)
     ? signatureCandidate
     : undefined;
+  const signatureSourceSection = signatureScene
+    ? sections.find((section) => section.id === signatureScene.sectionId)
+    : undefined;
   const useSignatureContract = signatureContractEnabled();
   const signatureArt = signatureScene
     ? resolveMotionArtDirectionProfile(signatureScene.signatureId, signatureContext, signatureScene)
@@ -516,6 +519,7 @@ export function SiteRenderer({
                         mode={mode}
                         isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
                         signatureContractEnabled={useSignatureContract}
+                        proceduralBackground={signatureSourceSection?.proceduralBackground}
                       />
                     </SiteCinematicChapter>
                   );
@@ -554,6 +558,7 @@ export function SiteRenderer({
                   mode={mode}
                   isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
                   signatureContractEnabled={useSignatureContract}
+                  proceduralBackground={signatureSourceSection?.proceduralBackground}
                 />
               );
             }

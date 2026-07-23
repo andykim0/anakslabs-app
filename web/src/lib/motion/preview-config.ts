@@ -3,6 +3,7 @@ import type { ProductionMotionSignatureId, SiteConfig } from '@/lib/types/site';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { applyGeneratedMotion } from './validate';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from './site-cinematic';
+import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 
 const DEMO_VIDEO = '/daboim-visibility-film-scrub.mp4';
 const DEMO_POSTER = '/daboim-visibility-film-poster.webp';
@@ -68,8 +69,9 @@ export function buildMotionSignaturePreviewConfig(
     signatureId,
     ...(videoRequired ? { videoAddon: true, heroTechnique: 'video-hero' } : {}),
   }, survey);
+  const withAtmosphere = applyProceduralBackgroundDefaults(next);
   return {
-    config: next,
+    config: withAtmosphere,
     contentFit: next.motion?.signatures?.some((scene) => scene.signatureId === signatureId) ?? false,
     usesRepresentativeMedia: videoRequired,
   };

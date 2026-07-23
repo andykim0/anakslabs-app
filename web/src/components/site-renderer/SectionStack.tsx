@@ -24,6 +24,7 @@ import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
+import { ProceduralBackground } from './ProceduralBackground';
 
 interface SectionStackProps {
   section: Section;
@@ -211,6 +212,13 @@ function HeroLayoutStackSection({
               : theme.tokens?.radius.soft ?? `${theme.radius ?? 0}px`,
           }}
         >
+          {effectiveProceduralHero && section.proceduralBackground ? (
+            <ProceduralBackground
+              spec={section.proceduralBackground}
+              theme={theme}
+              band="responsive"
+            />
+          ) : null}
           {projection.mediaKind === 'video' && bg.video?.src && bg.video.poster ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -231,7 +239,9 @@ function HeroLayoutStackSection({
               />
             </>
           ) : effectiveProceduralHero && !responsivePhoto ? (
-            <div aria-hidden data-site-cine-procedural-hero />
+            section.proceduralBackground
+              ? null
+              : <div aria-hidden data-site-cine-procedural-hero />
           ) : bg.image && responsivePhoto ? (
             <ResponsiveHeroPhoto
               src={bg.image.src}
@@ -272,7 +282,13 @@ function HeroLayoutStackSection({
           ) : null}
         </div>
       ) : effectiveProceduralHero ? (
-        <div aria-hidden data-site-cine-procedural-hero />
+        section.proceduralBackground ? (
+          <ProceduralBackground
+            spec={section.proceduralBackground}
+            theme={theme}
+            band="responsive"
+          />
+        ) : <div aria-hidden data-site-cine-procedural-hero />
       ) : null}
       {continuousFlow ? <div aria-hidden="true" data-continuous-hero-bridge /> : null}
       {[...section.elements].sort((left, right) => left.z - right.z).map((element) => {
@@ -434,7 +450,15 @@ export function SectionStack({
         zIndex: cinematic ? 1 : undefined,
       }}
     >
-      {!cinematic && proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
+      {!cinematic && proceduralHero && (
+        section.proceduralBackground ? (
+          <ProceduralBackground
+            spec={section.proceduralBackground}
+            theme={theme}
+            band="responsive"
+          />
+        ) : <div aria-hidden data-site-cine-procedural-hero />
+      )}
       {!cinematic && bgImgSrc && responsivePhoto && bg.image ? (
         <ResponsiveHeroPhoto
           src={bg.image.src}

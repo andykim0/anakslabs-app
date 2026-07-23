@@ -7,6 +7,7 @@ import type {
   Section,
   SiteTheme,
 } from '@/lib/types/site';
+import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
 import {
@@ -24,6 +25,7 @@ import {
   type ScrollytellingCopyTone,
 } from '@/lib/motion/scrollytelling-composition';
 import { safeMediaSrc } from '@/lib/safe-url';
+import { ProceduralBackground } from './ProceduralBackground';
 
 export type MotionSignatureRenderMode = 'desktop' | 'mobile' | 'auto';
 
@@ -56,6 +58,8 @@ interface MotionSignatureRendererProps {
   scrollytellingActLinks?: readonly (ScrollytellingActLink | null)[];
   /** Server-owned rollout projection. False preserves the pre-contract renderer byte-for-byte. */
   signatureContractEnabled?: boolean;
+  /** ABS 신규 생성본의 시그니처 미디어 하부 atmospheric fallback. */
+  proceduralBackground?: ProceduralBackgroundSpec;
 }
 
 const copyStyle: CSSProperties = {
@@ -255,6 +259,9 @@ function SignatureMedia({
   dataAttrs = {},
   responsiveVideoSources,
   pageFilm = false,
+  proceduralBackground,
+  theme,
+  renderMode = 'auto',
 }: {
   media: MotionMedia;
   eager?: boolean;
@@ -264,6 +271,9 @@ function SignatureMedia({
   dataAttrs?: Record<string, string | number | boolean>;
   responsiveVideoSources?: MotionSignatureRendererProps['responsiveVideoSources'];
   pageFilm?: boolean;
+  proceduralBackground?: ProceduralBackgroundSpec;
+  theme?: SiteTheme;
+  renderMode?: MotionSignatureRenderMode;
 }) {
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
@@ -297,6 +307,13 @@ function SignatureMedia({
       style={geometry}
       {...dataAttrs}
     >
+      {proceduralBackground && theme ? (
+        <ProceduralBackground
+          spec={proceduralBackground}
+          theme={theme}
+          band={renderMode === 'desktop' ? 'wide' : renderMode === 'mobile' ? 'mobile' : 'responsive'}
+        />
+      ) : null}
       {responsiveFocalId && media.mobileFocalPoint ? (
         <style
           dangerouslySetInnerHTML={{
@@ -306,7 +323,9 @@ function SignatureMedia({
       ) : null}
       {media.kind === 'image' && media.responsivePromotion ? (
         <>
-          <div aria-hidden data-site-cine-procedural-hero />
+          {!proceduralBackground || !theme ? (
+            <div aria-hidden data-site-cine-procedural-hero />
+          ) : null}
           <ResponsiveHeroPhoto
             src={media.src}
             alt={media.alt}
@@ -454,6 +473,7 @@ function CinematicScrub({
   compositionOverrides,
   compositionDefaultTone = 'light',
   signatureContractEnabled,
+  proceduralBackground,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'cinematic-scrub' }>;
   art: MotionArtDirectionProfile;
@@ -495,6 +515,9 @@ function CinematicScrub({
           eager={isFirst}
           scrub
           dataAttrs={{ 'data-m-cinematic-media': true, 'data-cinematic-media': true }}
+          proceduralBackground={proceduralBackground}
+          theme={theme}
+          renderMode={mode}
         />
         <div
           data-cinematic-copy
@@ -541,6 +564,7 @@ function ScrollytellingManifesto({
   compositionDefaultTone = 'light',
   scrollytellingActLinks,
   signatureContractEnabled,
+  proceduralBackground,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
@@ -584,6 +608,9 @@ function ScrollytellingManifesto({
             responsiveVideoSources={responsiveVideoSources}
             pageFilm={pageFilm}
             dataAttrs={{ 'data-ss-video-wrap': true }}
+            proceduralBackground={proceduralBackground}
+            theme={theme}
+            renderMode={mode}
           />
         </div>
         <div data-ss-act-list data-ss-composition-pattern={compositionPattern}>

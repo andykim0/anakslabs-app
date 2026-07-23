@@ -16,6 +16,7 @@ import { resolveScrim } from '@/lib/design/scrim';
 import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { ElementContent } from './ElementContent';
 import { cqw } from './scale';
+import { ProceduralBackground } from './ProceduralBackground';
 
 const SECTION_LAYOUT_CSS = `
 [data-section-layout-stage]{container-type:inline-size;position:relative;overflow:hidden}
@@ -164,10 +165,18 @@ export function SectionLayoutProjectionRenderer({
     >
       <style dangerouslySetInnerHTML={{ __html: SECTION_LAYOUT_CSS }} />
       {atmospheric ? (
-        <>
-          <div aria-hidden data-section-layout-atmosphere />
-          <div aria-hidden data-section-layout-atmosphere-scrim />
-        </>
+        section.proceduralBackground ? (
+          <ProceduralBackground
+            spec={section.proceduralBackground}
+            theme={theme}
+            band={variant === 'canvas' ? 'wide' : 'responsive'}
+          />
+        ) : (
+          <>
+            <div aria-hidden data-section-layout-atmosphere />
+            <div aria-hidden data-section-layout-atmosphere-scrim />
+          </>
+        )
       ) : null}
       {[...section.elements].sort((left, right) => left.z - right.z).map((element) => {
         const fallbackFrame = frameFor(projection, fallbackBand, element.id);

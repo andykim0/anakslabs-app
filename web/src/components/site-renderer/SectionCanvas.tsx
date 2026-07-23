@@ -32,6 +32,7 @@ import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
+import { ProceduralBackground } from './ProceduralBackground';
 
 interface SectionCanvasProps {
   section: Section;
@@ -158,6 +159,13 @@ function StandardSection({
 
   const videoBackdrop = videoHero && bg.video ? (
     <>
+      {effectiveProceduralHero && section.proceduralBackground ? (
+        <ProceduralBackground
+          spec={section.proceduralBackground}
+          theme={theme}
+          band="wide"
+        />
+      ) : null}
       {/* poster = 기저 레이어(항상 표시); 영상 로드 실패/reduced-motion 시 그대로 노출 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -188,7 +196,17 @@ function StandardSection({
 
   const imageBackdrop = (
     <>
-      {effectiveProceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
+      {effectiveProceduralHero && (
+        section.proceduralBackground
+          ? (
+              <ProceduralBackground
+                spec={section.proceduralBackground}
+                theme={theme}
+                band="wide"
+              />
+            )
+          : <div aria-hidden data-site-cine-procedural-hero />
+      )}
       {bg.image && (responsivePhoto ? (
         <ResponsiveHeroPhoto
           src={bg.image.src}

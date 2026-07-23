@@ -50,6 +50,7 @@ import {
   surveySchema,
 } from '../../_lib/schemas';
 import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
+import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -214,7 +215,7 @@ export const POST = withApiHandler(async (request) => {
     generalAttestationId: survey.generalAssetAttestationId,
     phase: 'generation',
   });
-  draftConfig = assetPolicy.config;
+  draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
   let site: Site;
   try {
     site = await sites.create({
@@ -276,7 +277,7 @@ export const POST = withApiHandler(async (request) => {
         assetPolicyVersion,
         phase: 'generation',
       });
-      draftConfig = assetPolicy.config;
+      draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
       await sites.saveDraft(site.id, draftConfig);
       site = await sites.getById(site.id) ?? site;
     } else {

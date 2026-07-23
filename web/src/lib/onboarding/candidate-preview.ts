@@ -5,6 +5,7 @@ import { resolvePresetForIndustry } from '@/lib/motion/presets';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
+import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 
 /**
  * 후보 카드도 최종 생성과 같은 builder 계약을 사용한다. 390px 축소는 SitePreview가 담당한다.
@@ -30,10 +31,11 @@ export function buildCandidatePreviewConfig(
   const config = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(cinematicBase)
     : cinematicBase;
+  const withAtmosphere = applyProceduralBackgroundDefaults(config);
 
-  if (!heroTechnique || !isTechniqueId(heroTechnique)) return config;
+  if (!heroTechnique || !isTechniqueId(heroTechnique)) return withAtmosphere;
   return {
-    ...config,
+    ...withAtmosphere,
     motion: {
       presetId: resolvePresetForIndustry(survey.purposeId, 'basic'),
       intensity: 'subtle',
