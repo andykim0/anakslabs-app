@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -146,6 +148,16 @@ describe('FIXHERO2 헤드라인 길이 × 뷰포트 밴드', () => {
         assert.match(secondary.getAttribute('style') ?? '', /white-space:nowrap/);
 
         if (length === 'three') {
+          const safeWrapper = section.querySelector(
+            '[data-hero-copy-safe-inline="dna-element-gap"]',
+          );
+          assert.ok(safeWrapper);
+          const safeWrapperStyle = safeWrapper.getAttribute('style') ?? '';
+          assert.match(
+            safeWrapperStyle,
+            new RegExp(`padding-inline:${theme.tokens!.spacing.elementGap}`),
+          );
+          assert.match(safeWrapperStyle, /box-sizing:border-box/);
           const wrapperStyle = [
             titleNode.parentNode?.getAttribute('style'),
             titleNode.parentNode?.parentNode?.getAttribute('style'),
@@ -200,4 +212,19 @@ test('1~2행 생성 설정은 HERO2 분기를 타지 않고 기준 바이트를 
     createHash('sha256').update(JSON.stringify(shortProjection)).digest('hex'),
     '0cd89deb668cce00a28f894c81fae4cacc7d559ab55e56c1b60f8aed863cab2c',
   );
+});
+
+test('증빙 캡처는 정확한 CSS 뷰포트와 8px 글리프 가장자리 밴드를 영구 검사한다', () => {
+  const source = readFileSync(
+    path.join(process.cwd(), 'scripts/render-image-promotion-review.tsx'),
+    'utf8',
+  );
+  assert.match(source, /const GLYPH_EDGE_BAND_PX = 8/);
+  assert.match(source, /await page\.setViewport\(/);
+  assert.match(source, /measured\.innerWidth !== size\.width/);
+  assert.match(source, /measured\.clientWidth !== size\.width/);
+  assert.match(source, /glyphEdgeMetrics\(textMask, GLYPH_EDGE_BAND_PX\)/);
+  assert.match(source, /leftBandGlyphPixels > 0 \|\| glyphEdge\.rightBandGlyphPixels > 0/);
+  assert.doesNotMatch(source, /--window-size=/);
+  assert.doesNotMatch(source, /--screenshot=/);
 });

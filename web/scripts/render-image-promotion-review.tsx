@@ -5,11 +5,11 @@
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-image-promotion-review.tsx
  * Out: /private/tmp/daboim-image-promotion-review
  */
-import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import puppeteer from 'puppeteer-core';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import sharp from 'sharp';
@@ -46,6 +46,12 @@ const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const ASSET_ID = '11111111-1111-4111-8111-111111111111';
 const PASS_SOURCE = 'scripts/out/demo-cinematic/gyeol-beauty/poster.webp';
+const GLYPH_EDGE_BAND_PX = 8;
+const HEADLINE_MATRIX = {
+  one: '오늘의 결을 만납니다',
+  two: '원하는 모습을\n차분하게 고릅니다',
+  three: '온결 살롱\n원하는 모습을 고르는 일부터',
+} as const;
 
 const QUALITY_SOURCES = [
   // Existing photo-like visual fixtures exercise the four quality dimensions.
@@ -145,6 +151,39 @@ function heroConfig(photoUrl: string): SiteConfig {
   );
 }
 
+function headlineMatrixConfig(photoUrl: string, title: string): SiteConfig {
+  const survey = representativeSurvey();
+  survey.contentDepth = undefined;
+  const darkTheme = tokenSetToSiteTheme(expandTokens('dining-refined-contrast', 28));
+  const matrixCandidate: DesignCandidate = {
+    id: 'review-dark-headline-matrix',
+    label: '다크 DNA 헤드라인 매트릭스',
+    style: 'photo',
+    imageDirectionId: 'real_photo',
+    heroImageUrl: photoUrl,
+    heroAssetRef: { assetId: ASSET_ID, url: photoUrl },
+    theme: darkTheme,
+    designDna: {
+      catalogVersion: 1,
+      dnaId: 'dining-refined-contrast',
+      hueSeed: 28,
+      overrides: {},
+    },
+    description: '실제 생성 빌더와 SiteRenderer를 통과하는 헤드라인 매트릭스',
+  };
+  const built = buildSiteConfigFromSurvey(survey, matrixCandidate, {
+    heroImageUrl: photoUrl,
+    imagePool: [],
+    heroVariant: 'fullbleed',
+    copy: {
+      heroKicker: '예약·서비스업',
+      heroTitle: title,
+      heroSub: survey.tagline,
+    },
+  });
+  return withContinuousCanvasDefault(withSiteCinematicDefault(built));
+}
+
 function candidate(photoUrl: string, config: SiteConfig): DesignCandidate {
   return {
     id: 'review-real-photo',
@@ -226,60 +265,162 @@ async function runChrome(
   htmlFile: string,
   outputFile: string,
   size: { width: number; height: number },
-): Promise<void> {
-  const profile = path.join(
-    OUTPUT_DIR,
-    `.chrome-${process.pid}-${path.basename(outputFile, '.png')}`,
-  );
-  await mkdir(profile, { recursive: true });
+): Promise<{
+  viewport: {
+    requestedWidth: number;
+    requestedHeight: number;
+    innerWidth: number;
+    innerHeight: number;
+    clientWidth: number;
+    clientHeight: number;
+    devicePixelRatio: number;
+  };
+  textMask: string;
+  glyphEdge: Awaited<ReturnType<typeof glyphEdgeMetrics>>;
+}> {
   await rm(outputFile, { force: true });
-  const args = [
-    '--headless=new',
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-background-networking',
-    '--disable-component-update',
-    '--disable-default-apps',
-    '--disable-sync',
-    '--disable-extensions',
-    '--hide-scrollbars',
-    '--mute-audio',
-    '--force-device-scale-factor=1',
-    '--allow-file-access-from-files',
-    '--run-all-compositor-stages-before-draw',
-    '--force-prefers-reduced-motion',
-    '--virtual-time-budget=2500',
-    `--user-data-dir=${profile}`,
-    `--window-size=${size.width},${size.height}`,
-    `--screenshot=${outputFile}`,
-    pathToFileURL(htmlFile).href,
-  ];
-  const chrome = spawn(CHROME, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-  let stderr = '';
-  chrome.stderr.on('data', (chunk) => { stderr += String(chunk); });
-  const exited = new Promise<number | null>((resolve, reject) => {
-    chrome.once('error', reject);
-    chrome.once('exit', resolve);
+  const textMask = outputFile.replace(/\.png$/u, '.text-mask.png');
+  await rm(textMask, { force: true });
+  const browser = await puppeteer.launch({
+    executablePath: CHROME,
+    headless: true,
+    args: [
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-background-networking',
+      '--disable-component-update',
+      '--disable-default-apps',
+      '--disable-sync',
+      '--disable-extensions',
+      '--hide-scrollbars',
+      '--mute-audio',
+      '--allow-file-access-from-files',
+    ],
   });
-  let captured = false;
-  for (let attempt = 0; attempt < 400; attempt += 1) {
-    try {
-      if ((await stat(outputFile)).size > 0) {
-        captured = true;
-        break;
-      }
-    } catch {}
-    if (chrome.exitCode !== null) break;
-    await new Promise((resolve) => setTimeout(resolve, 50));
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({
+      width: size.width,
+      height: size.height,
+      deviceScaleFactor: 1,
+    });
+    await page.emulateMediaFeatures([
+      { name: 'prefers-reduced-motion', value: 'reduce' },
+    ]);
+    await page.goto(pathToFileURL(htmlFile).href, { waitUntil: 'load' });
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+    });
+    const measured = await page.evaluate(() => ({
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+      clientWidth: document.documentElement.clientWidth,
+      clientHeight: document.documentElement.clientHeight,
+      devicePixelRatio: window.devicePixelRatio,
+    }));
+    const viewport = {
+      requestedWidth: size.width,
+      requestedHeight: size.height,
+      ...measured,
+    };
+    if (
+      measured.innerWidth !== size.width
+      || measured.clientWidth !== size.width
+      || measured.innerHeight !== size.height
+      || measured.clientHeight !== size.height
+      || measured.devicePixelRatio !== 1
+    ) {
+      throw new Error(`Capture viewport mismatch: ${JSON.stringify(viewport)}`);
+    }
+    await page.screenshot({
+      path: outputFile,
+      type: 'png',
+      captureBeyondViewport: false,
+    });
+    await page.addStyleTag({
+      content: `
+        html, body, .anaks-site, .anaks-site main, .anaks-site section {
+          background: #fff !important;
+          background-image: none !important;
+        }
+        .anaks-site *, .anaks-site *::before, .anaks-site *::after {
+          color: transparent !important;
+          background: transparent !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          outline: 0 !important;
+        }
+        .anaks-site img, .anaks-site video, .anaks-site svg {
+          visibility: hidden !important;
+        }
+        .anaks-site section[data-section-type="hero"] p,
+        .anaks-site section[data-section-type="hero"] p *,
+        .anaks-site section[data-section-type="hero"] .anaks-btn,
+        .anaks-site section[data-section-type="hero"] .anaks-btn * {
+          color: #000 !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          filter: none !important;
+        }
+      `,
+    });
+    await page.screenshot({
+      path: textMask,
+      type: 'png',
+      captureBeyondViewport: false,
+    });
+    const glyphEdge = await glyphEdgeMetrics(textMask, GLYPH_EDGE_BAND_PX);
+    if (glyphEdge.leftBandGlyphPixels > 0 || glyphEdge.rightBandGlyphPixels > 0) {
+      throw new Error(
+        `Hero text entered the ${GLYPH_EDGE_BAND_PX}px edge band: ${JSON.stringify(glyphEdge)}`,
+      );
+    }
+    return { viewport, textMask, glyphEdge };
+  } finally {
+    await browser.close();
   }
-  if (!captured) {
-    if (chrome.exitCode === null) chrome.kill('SIGTERM');
-    const code = await exited;
-    throw new Error(`Chrome screenshot failed (${code}): ${stderr.slice(-2_000)}`);
+}
+
+async function glyphEdgeMetrics(file: string, bandPx: number) {
+  const sample = await sharp(file)
+    .flatten({ background: '#ffffff' })
+    .greyscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = sample.info;
+  let glyphPixels = 0;
+  let leftBandGlyphPixels = 0;
+  let rightBandGlyphPixels = 0;
+  let minX = width;
+  let maxX = -1;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const value = sample.data[(y * width + x) * channels];
+      if (value >= 200) continue;
+      glyphPixels += 1;
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      if (x < bandPx) leftBandGlyphPixels += 1;
+      if (x >= width - bandPx) rightBandGlyphPixels += 1;
+    }
   }
-  await new Promise((resolve) => setTimeout(resolve, 250));
-  if (chrome.exitCode === null) chrome.kill('SIGTERM');
-  await exited;
+  if (glyphPixels === 0 || maxX < 0) {
+    throw new Error(`Hero glyph mask contained no text pixels: ${file}`);
+  }
+  return {
+    bandPx,
+    glyphPixels,
+    leftBandGlyphPixels,
+    rightBandGlyphPixels,
+    minGlyphX: minX,
+    maxGlyphX: maxX,
+    leftMarginPx: minX,
+    rightMarginPx: width - 1 - maxX,
+  };
 }
 
 async function lowerHalfSettleMetrics(file: string) {
@@ -339,10 +480,10 @@ async function captureSettled(
 ) {
   let lastMetrics: Awaited<ReturnType<typeof lowerHalfSettleMetrics>> | undefined;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    await runChrome(htmlFile, outputFile, size);
+    const capture = await runChrome(htmlFile, outputFile, size);
     lastMetrics = await lowerHalfSettleMetrics(outputFile);
     if (!lastMetrics.nearSolid) {
-      return { attempt, ...lastMetrics };
+      return { attempt, ...lastMetrics, ...capture };
     }
   }
   throw new Error(
@@ -429,6 +570,37 @@ async function main(): Promise<void> {
     });
   }
 
+  const headlineMatrix = [];
+  for (const [lineCount, title] of Object.entries(HEADLINE_MATRIX)) {
+    const config = headlineMatrixConfig(photoUrl, title);
+    for (const viewport of [
+      { band: 'wide', mode: 'desktop' as const, width: 1440, height: 900 },
+      { band: 'compact', mode: 'mobile' as const, width: 768, height: 900 },
+      { band: 'mobile', mode: 'mobile' as const, width: 390, height: 844 },
+    ]) {
+      const id = `headline-${lineCount}-${viewport.width}`;
+      const fixture = path.join(OUTPUT_DIR, 'fixtures', `${id}.html`);
+      const screenshot = path.join(OUTPUT_DIR, 'screenshots', `${id}.png`);
+      await writeFile(fixture, fixtureDocument(config, viewport.mode), 'utf8');
+      const settleCheck = await captureSettled(fixture, screenshot, {
+        width: viewport.width,
+        height: viewport.height,
+      });
+      headlineMatrix.push({
+        lineCount,
+        title,
+        band: viewport.band,
+        width: viewport.width,
+        height: viewport.height,
+        mode: viewport.mode,
+        fixture,
+        screenshot,
+        settleCheck,
+        passed: true,
+      });
+    }
+  }
+
   const compatibility = [
     {
       kind: 'illustration',
@@ -495,6 +667,7 @@ async function main(): Promise<void> {
           page.sections.map((section) => `${page.slug || 'home'}:${section.id}`)),
       },
       captures,
+      headlineMatrix,
     },
     compatibility,
   };
@@ -504,7 +677,7 @@ async function main(): Promise<void> {
     'utf8',
   );
   process.stdout.write(
-    `IMG review: ${qualityMatrix.length} existing samples + ${captures.length} settled captures -> ${OUTPUT_DIR}\n`,
+    `IMG review: ${qualityMatrix.length} existing samples + ${captures.length} settled captures + ${headlineMatrix.length} headline checks -> ${OUTPUT_DIR}\n`,
   );
 }
 
