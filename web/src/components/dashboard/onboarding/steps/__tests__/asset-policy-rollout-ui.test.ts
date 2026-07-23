@@ -91,7 +91,7 @@ describe('asset-policy v2 rollout UI', () => {
     assert.match(STEP04, /assetPolicyV2Ready \? \([\s\S]*?aria-live="polite"/);
 
     assert.match(STEP08, /const \{ goTo, assetPolicyV2Ready \} = useSurveyUx\(\)/);
-    assert.match(STEP08, /!assetPolicyV2Ready \? \([\s\S]*?1장 · 히어로에 사용[\s\S]*?AI가 분위기에 맞춰 연출/);
+    assert.match(STEP08, /!assetPolicyV2Ready \? \([\s\S]*?1장 · 히어로에 사용[\s\S]*?REFERENTIAL_IMAGE_POLICY_COPY\.suppliedVisualsShort/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.importedPhotoAssetRefs\.length/);
     assert.match(STEP08, /assetPolicyV2Ready \? \([\s\S]*?title="실제 사진 사용 확인"/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.personPhotoAssetIds\.length/);

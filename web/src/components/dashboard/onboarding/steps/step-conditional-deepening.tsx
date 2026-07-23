@@ -104,6 +104,20 @@ export function StepConditionalDeepening({
         <Step03Content mode="deepening" focusType={target.type} />
       ) : null}
       {PROOF_SECTION_TYPES.has(target.type) ? <ProofFields /> : null}
+      {target.type === 'team' ? (
+        <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-[13px] leading-6 text-ob-muted">
+          구성원 얼굴을 보여주려면 사장님이 제공하고 공개 사용을 확인한 실제 인물 사진만 사용해요.
+          사진이 없어도 경력·자격 정보 중심으로 구성할 수 있어요.
+          <button
+            type="button"
+            onClick={() => goTo(6)}
+            className="ml-2 inline-flex min-h-9 items-center gap-1 font-semibold text-ob-accent-strong"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            실제 인물 사진 올리기(선택)
+          </button>
+        </div>
+      ) : null}
       <button
         type="button"
         onClick={onBackToPlan}

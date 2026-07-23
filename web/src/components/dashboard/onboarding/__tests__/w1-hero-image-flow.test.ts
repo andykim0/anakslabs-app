@@ -12,13 +12,13 @@ const candidatePreview = source('src/lib/onboarding/candidate-preview.ts');
 const dashboardApi = source('src/components/dashboard/api.ts');
 
 describe('W1 — 히어로 사진 선택 플로우', () => {
-  test('히어로 사진 뒤 디자인을 확정한 다음 고객 팔레트로 실제 모션을 미리본다', () => {
+  test('첫 화면 비주얼 뒤 디자인을 확정한 다음 고객 팔레트로 실제 모션을 미리본다', () => {
     const heroAt = wizard.indexOf('<HeroImageStep');
     const motionAt = wizard.indexOf('<MotionChoiceStep');
     const candidateAt = wizard.indexOf('<CandidateStep');
 
     assert.ok(heroAt >= 0 && candidateAt > heroAt && motionAt > candidateAt);
-    assert.match(wizard, /\{ no: 2, label: '히어로 사진' \}/);
+    assert.match(wizard, /\{ no: 2, label: '첫 화면 비주얼' \}/);
     assert.match(wizard, /\{ no: 3, label: '디자인 방향' \}/);
     assert.match(wizard, /\{ no: 4, label: '움직임' \}/);
     assert.match(wizard, /heroImageUrl=\{heroImage\.url\}/);
@@ -40,9 +40,11 @@ describe('W1 — 히어로 사진 선택 플로우', () => {
     assert.match(dashboardApi, /\.\.\.\(siteId \? \{ siteId \} : \{\}\)/);
   });
 
-  test('업로드·AI 무드 선택을 구분하고 제품 날조 금지를 고지한다', () => {
+  test('업로드·다보임 공급 무드를 구분하고 제품 날조 금지를 고지한다', () => {
     assert.match(heroStep, /내가 올린 대표 사진/);
     assert.match(heroStep, /무드 3안/);
+    assert.match(heroStep, /사진을 요구하지 않아요/);
+    assert.match(heroStep, /다보임 준비/);
     assert.match(heroStep, /특정 메뉴·상품·시술 결과를 만들지 않고/);
     assert.match(heroStep, /공간·빛·질감/);
   });

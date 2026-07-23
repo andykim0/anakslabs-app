@@ -14,6 +14,7 @@ import type {
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import {
   IMAGE_DIRECTIONS,
+  REFERENTIAL_IMAGE_POLICY_COPY,
   canSelectRealPhoto,
   legacyCandidateStyleToImageDirection,
 } from '@/lib/assets/image-directions';
@@ -114,18 +115,18 @@ export function Step08Review() {
             <span className="text-ob-muted">추가 입력 없음</span>
           )}
         </Row>
-        <Row title="대표 사진" step={6} goTo={goTo}>
+        <Row title="대표 실제 사진" step={6} goTo={goTo}>
           {!assetPolicyV2Ready ? (
             v.heroPhotoUrl
               ? '1장 · 히어로에 사용'
-              : <span className="text-ob-muted">AI가 분위기에 맞춰 연출</span>
+              : <span className="text-ob-muted">{REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisualsShort}</span>
           ) : v.heroPhotoUrl ? (
             v.heroPhotoAssetRef
               ? '1장 · 직접 업로드 등록'
               : <span className="text-ob-muted">1장 · URL 이미지(실사 근거 아님)</span>
-          ) : <span className="text-ob-muted">AI가 예술적인 방향으로 연출</span>}
+          ) : <span className="text-ob-muted">{REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisualsShort}</span>}
         </Row>
-        <Row title="가게·메뉴 사진" step={6} goTo={goTo}>
+        <Row title="제품·공간·인물 사진" step={6} goTo={goTo}>
           {!assetPolicyV2Ready
             ? (v.storePhotoUrls.length ? `${v.storePhotoUrls.length}장` : <Empty />)
             : v.storePhotoUrls.length

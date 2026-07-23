@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * [W1] 히어로 이미지 선택 — 고객 대표 사진(선택) + 안전한 AI 무드 이미지 3안 중 하나를 고른다.
+ * [W1] 첫 화면 비주얼 선택 — 고객 대표 사진(선택) + 다보임이 준비한 안전한 무드 3안.
  * 후보 요청은 CandidateStep과 동일 query key/requestKey를 공유해 한 온보딩에서 AI 3안을 한 번만 만든다.
  */
 import { useState } from 'react';
@@ -38,8 +38,8 @@ function optionCopy(option: HeroImageSelection): { label: string; description: s
   }
   const index = Number(option.id.replace('ai-', '')) || 1;
   return {
-    label: `AI 무드 ${index}`,
-    description: '선택한 느낌을 공간·빛·질감 중심으로 연출한 이미지예요.',
+    label: `다보임 무드 ${index}`,
+    description: '선택한 느낌을 공간·빛·질감 중심으로 다보임이 준비한 비주얼이에요.',
   };
 }
 
@@ -124,7 +124,7 @@ export function HeroImageStep({
         <p className="mt-1 text-sm leading-6 text-ob-muted">
           {isRealPhoto
             ? '서버에서 확인한 고객님의 실제 사진만 사용합니다. AI로 제품·공간·사람을 다시 만들지 않아요.'
-            : '선택한 예술 방향으로 만든 무드 3안 중 하나를 고르면, 이후 움직임과 최종 히어로가 모두 이 이미지를 사용해요.'}
+            : '사진을 요구하지 않아요. 다보임이 준비한 무드 3안 중 하나를 고르면, 이후 움직임과 최종 첫 화면이 이 비주얼을 사용해요.'}
         </p>
       </div>
 
@@ -150,7 +150,7 @@ export function HeroImageStep({
                 <img src={option.url} alt={copy.label} className="h-full w-full object-cover" />
                 <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-medium text-white">
                   {option.source === 'upload' ? <Upload className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                  {option.source === 'upload' ? '실제 사진' : 'AI 무드'}
+                  {option.source === 'upload' ? '실제 사진' : '다보임 준비'}
                 </span>
                 {active ? (
                   <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">

@@ -11,6 +11,7 @@ import type { CandidateStyle } from '@/lib/types/domain';
 import { IMAGE_STYLE_OPTIONS, defaultImageStyle } from '@/lib/onboarding/image-style';
 import {
   IMAGE_DIRECTION_OPTIONS,
+  REFERENTIAL_IMAGE_POLICY_COPY,
   REAL_PHOTO_REQUIRED_GUIDANCE,
   canSelectRealPhoto,
   imageDirectionToLegacyCandidateStyle,
@@ -50,7 +51,7 @@ function LegacyImageStyle() {
   return (
     <div className="space-y-6">
       <StepIntro>
-        사이트에 들어갈 이미지의 전체 분위기를 정해요. 이 스타일로 디자인 후보가 만들어져요.
+        사이트의 전체 분위기를 정해요. {REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisuals}
       </StepIntro>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -185,8 +186,8 @@ function V2ImageStyle() {
   return (
     <div className="space-y-6">
       <StepIntro>
-        실제 사진을 정확하게 보여줄지, 명백히 예술적인 AI 아트디렉션을 사용할지 정해요.
-        실제 사업·제품·사람을 AI로 지어내지 않습니다.
+        사장님이 올린 실제 사진을 그대로 보여줄지, 다보임이 준비하는 명백히 예술적인 방향을 사용할지 정해요.
+        업로드가 없어도 실제 사업·제품·사람을 지어내지 않고 완주할 수 있어요.
       </StepIntro>
 
       <fieldset aria-describedby="image-direction-policy">

@@ -24,6 +24,7 @@ import type {
 } from '@/lib/types/domain';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import {
+  REFERENTIAL_IMAGE_POLICY_COPY,
   REAL_PHOTO_REQUIRED_GUIDANCE,
   canSelectRealPhoto,
   imageDirectionToLegacyCandidateStyle,
@@ -70,7 +71,7 @@ const STEP_TITLES: Record<number, string> = {
   3: '3~5분 핵심 브리프를 완성해요',
   4: '먼저 홈페이지 구성을 확인해주세요',
   5: '원하는 구성만 더 채워주세요',
-  6: '사진을 올려주세요',
+  6: REFERENTIAL_IMAGE_POLICY_COPY.stepTitle,
   7: '이미지 느낌을 골라주세요',
   8: '마음에 드는 느낌을 골라주세요',
   9: '입력하신 내용을 확인해주세요',

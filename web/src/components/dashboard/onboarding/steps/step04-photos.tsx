@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { ImagePlus, Loader2, ShieldCheck, X } from 'lucide-react';
 import type { AssetRef } from '@/lib/assets/provenance';
+import { REFERENTIAL_IMAGE_POLICY_COPY } from '@/lib/assets/image-directions';
 import {
   GENERAL_ASSET_ATTESTATION_TEXT,
   PERSON_ASSET_CONSENT_TEXT,
@@ -368,17 +369,17 @@ export function Step04Photos() {
   return (
     <div className="space-y-6">
       <StepIntro>
-        대표 사진은 첫 화면에 크게, 가게·메뉴 사진은 본문과 갤러리에 사용해요.
+        {REFERENTIAL_IMAGE_POLICY_COPY.intro}
       </StepIntro>
 
       <div className="rounded-ob border border-ob-accent/50 bg-ob-accent-soft/30 p-4">
         <Field
           label={
             <>
-              대표 사진 <span className="font-normal text-ob-muted">(히어로에 크게 쓰여요 · 선택)</span>
+              대표 실제 사진 <span className="font-normal text-ob-muted">(첫 화면용 · 선택)</span>
             </>
           }
-          hint="가장 보여주고 싶은 사진 한 장을 올리면, 그 사진으로 시네마틱하게 만들어드려요. 없으면 분위기에 맞춰 AI가 연출해요."
+          hint={REFERENTIAL_IMAGE_POLICY_COPY.heroHint}
         >
           <div className="flex flex-wrap items-center gap-3">
             {heroPhotoUrl ? (
@@ -431,10 +432,10 @@ export function Step04Photos() {
       <Field
         label={
           <>
-            가게·메뉴 사진 <span className="font-normal text-ob-muted">(본문·갤러리용 · 선택 · 최대 {MAX}장)</span>
+            제품·공간·인물 사진 <span className="font-normal text-ob-muted">(본문·갤러리용 · 선택 · 최대 {MAX}장)</span>
           </>
         }
-        hint="직접 촬영했거나 사용 권한이 있는 사진만 올려주세요."
+        hint={REFERENTIAL_IMAGE_POLICY_COPY.collectionHint}
       >
         <div className="flex flex-wrap items-center gap-2.5">
           {photos.map((url) => (

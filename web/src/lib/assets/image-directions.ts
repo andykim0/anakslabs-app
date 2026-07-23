@@ -27,8 +27,25 @@ export interface ImageDirectionOption {
   legacyStyle: LegacyCandidateStyle;
 }
 
+/**
+ * SURVEY image-intake contract. Customers provide only referential evidence;
+ * atmospheric stage visuals are a Daboim responsibility and never an upload gate.
+ */
+export const REFERENTIAL_IMAGE_POLICY_COPY = {
+  stepTitle: '실제 자료가 있다면 더해주세요',
+  intro:
+    '사장님의 제품·공간·인물·로고처럼 실제 모습을 보여줘야 하는 자료만 올려주세요. 배경·무드·애니메이션용 비주얼은 다보임이 준비해 드려요. 업로드가 0장이어도 생성을 막지 않아요.',
+  heroHint:
+    '실제 제품·공간·인물 중 첫 화면에 크게 보여줄 사진이 있을 때만 올려주세요. 없으면 건너뛰어도 무대 비주얼은 다보임이 준비해 드려요.',
+  collectionHint:
+    '실제 제품·공간·인물·작업을 보여줄 사진 중 직접 찍었거나 사용 권한이 있는 자료만 올려주세요.',
+  suppliedVisuals:
+    '사진을 올리지 않아도 추상·그래픽 무대와 움직임은 다보임이 준비해 드려요.',
+  suppliedVisualsShort: '업로드 없음 · 무대 비주얼은 다보임이 준비',
+} as const;
+
 export const REAL_PHOTO_REQUIRED_GUIDANCE =
-  '사실적인 이미지는 실제 사업장을 보여줘야 합니다. 실제 사진을 올리거나, 명백히 예술적인 AI 방향을 선택하세요.';
+  '실사 방향은 사장님이 제공하고 사용을 확인한 실제 제품·공간·인물 사진이 필요해요. 사진이 없으면 다보임이 준비하는 추상·3D·일러스트 방향을 선택해 주세요.';
 
 export const IMAGE_DIRECTIONS = {
   real_photo: {

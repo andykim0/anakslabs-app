@@ -6,6 +6,7 @@ import {
   surveyFormSchema,
   toFormDefaults,
 } from '@/components/dashboard/onboarding/steps/shared';
+import { REFERENTIAL_IMAGE_POLICY_COPY } from '@/lib/assets/image-directions';
 
 const STEP04 = readFileSync(
   'src/components/dashboard/onboarding/steps/step04-photos.tsx',
@@ -83,7 +84,7 @@ describe('H4 — 대표 사진 폼 계약', () => {
 });
 
 describe('H4 — 대표 사진 UI·제출 배선', () => {
-  test('S4 상단 슬롯이 단일 래스터 업로드·교체·삭제·AI 폴백 카피를 제공한다', () => {
+  test('S4 상단 슬롯이 referential 래스터 업로드·교체·삭제·무업로드 안내를 제공한다', () => {
     assert.match(STEP04, /watch\('heroPhotoUrl'\)/);
     assert.match(STEP04, /setValue\('heroPhotoUrl', result\.url/);
     assert.match(STEP04, /setValue\('heroPhotoUrl', ''/);
@@ -92,10 +93,11 @@ describe('H4 — 대표 사진 UI·제출 배선', () => {
     assert.match(STEP04, /accept="image\/png,image\/jpeg,image\/webp"/);
     assert.match(STEP04, /대표 사진 올리기/);
     assert.match(STEP04, /사진 교체/);
-    assert.match(
-      STEP04,
-      /가장 보여주고 싶은 사진 한 장을 올리면, 그 사진으로 시네마틱하게 만들어드려요\. 없으면 분위기에 맞춰 AI가 연출해요\./,
-    );
+    assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.intro/);
+    assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.heroHint/);
+    assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.collectionHint/);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /제품·공간·인물·로고/);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /업로드가 0장이어도 생성을 막지 않아요/);
   });
 
   test('호스트는 공백을 정리한 heroPhotoUrl을 SurveyInput으로 전달한다', () => {
@@ -110,8 +112,8 @@ describe('H4 — 대표 사진 UI·제출 배선', () => {
   });
 
   test('확인 화면은 대표 사진과 일반 사진을 별도 행으로 보여준다', () => {
-    assert.match(REVIEW, /Row title="대표 사진"/);
-    assert.match(REVIEW, /Row title="가게·메뉴 사진"/);
+    assert.match(REVIEW, /Row title="대표 실제 사진"/);
+    assert.match(REVIEW, /Row title="제품·공간·인물 사진"/);
     assert.match(REVIEW, /v\.heroPhotoAssetRef/);
     assert.match(REVIEW, /URL 이미지\(실사 근거 아님\)/);
   });

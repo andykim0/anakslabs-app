@@ -49,7 +49,7 @@ function motionChoiceWithHeroVideoSelection(
 // [A4] 승인 프레이밍 — 각 단계는 '확인하고 넘어가는' 게이트. 라벨을 승인 축으로.
 const STEPS = [
   { no: 1, label: '내용' },
-  { no: 2, label: '히어로 사진' },
+  { no: 2, label: '첫 화면 비주얼' },
   { no: 3, label: '디자인 방향' },
   { no: 4, label: '움직임' },
   { no: 5, label: '부가기능' },
