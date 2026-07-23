@@ -116,6 +116,11 @@ export function SectionStack({
   const bg = section.background;
   // [F2a] 카드 단위(시각적 클러스터)를 보존한 세로 스택 순서 (전역 y정렬로 인한 유형별 분리 방지)
   const elements = stackOrder(section.elements.filter(stackable));
+  const longHeroFlow = section.type === 'hero' && elements.some((element) => (
+    element.kind === 'text'
+    && element.id.includes('hero-title')
+    && element.style.readabilityGuard === 'long-hero'
+  ));
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
   const cinematic = (plan?.cinematicHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
   // 일반 video-hero는 모바일 poster 정적. cinematic만 IO 진입 시 pinned loop로 향상한다.
@@ -259,7 +264,16 @@ export function SectionStack({
               {...(hasAssetFallback(el) ? { 'data-asset-fallback': 'true' } : {})}
               {...(dataM ? { 'data-m': dataM } : {})}
               {...(delay != null ? { 'data-m-delay': String(delay) } : {})}
-              style={el.kind === 'text' && imgTextShadow ? { ...itemStyle(el), textShadow: imgTextShadow } : itemStyle(el)}
+              style={longHeroFlow
+                ? {
+                    ...itemStyle(el),
+                    minWidth: 0,
+                    maxWidth: '100%',
+                    ...(el.kind === 'text' && imgTextShadow ? { textShadow: imgTextShadow } : {}),
+                  }
+                : el.kind === 'text' && imgTextShadow
+                  ? { ...itemStyle(el), textShadow: imgTextShadow }
+                  : itemStyle(el)}
             >
               {flowRole ? (
                 <div data-flow-layer={flowRole} data-flow-order={elementIndex}>

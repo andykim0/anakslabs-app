@@ -377,8 +377,18 @@ export function resolveRenderedSiteTypography(input: RenderedSiteTypographyInput
   };
 
   if (input.variant === 'stack') {
-    // H2: 3줄 이상 히어로는 DNA display 비율을 다시 곱하면 모바일에서 과대해진다.
-    return role === 'display' && lines >= 3 ? legacy : candidate;
+    // HERO2 H2: 3줄 이상 히어로는 모바일에서 DNA display를 title 단계로
+    // 낮춘다. 임의 크기를 만들지 않고 선택된 DNA의 모듈러 스케일 안에서만 축소한다.
+    if (role === 'display' && lines >= 3) {
+      return {
+        fontSize: Number(Math.min(
+          legacy.fontSize,
+          tokenRemToPx(tokens.size.title),
+        ).toFixed(4)),
+        lineHeight: tokens.lineHeight.heading,
+      };
+    }
+    return candidate;
   }
   if (candidate.fontSize <= legacy.fontSize && candidate.lineHeight <= legacy.lineHeight) return candidate;
   const requiredHeight = candidate.fontSize * candidate.lineHeight * lines;
