@@ -62,11 +62,12 @@ describe('DNA2 TokenSet → SiteTheme adapter', () => {
       'tokens.spacing sectionBlock/sectionInline/elementGap',
       'tokens.typography ratio/sizes/line-heights',
       'tokens.color ramp-derived surface/border/muted',
+      'tokens.color full 11-step neutral/primary/accent ramps',
       'tokens.shadow low/medium/high',
       'tokens.motion duration/easing',
     ]);
     assert.deepEqual(DNA_SITE_THEME_PROJECTION_REPORT.losses, [
-      'color focus/link/on-colors and full 11-step ramps: no component role consumes them yet',
+      'color focus/link/on-colors: no component role consumes them yet',
       'motion signature id: motion selection remains the separate SiteConfig.motion contract',
       'OKLCH gamut precision: the existing renderer contract consumes 8-bit sRGB colors',
     ]);
@@ -83,6 +84,7 @@ describe('DNA2 TokenSet → SiteTheme adapter', () => {
     });
     assert.equal(theme.tokens?.typography.ratio, tokens.typography.ratio);
     assert.equal(theme.tokens?.color.surfaceStrong, tokens.color.ramps.neutral['200']);
+    assert.deepEqual(theme.tokens?.color.ramps, tokens.color.ramps);
     assert.match(theme.tokens?.spacing.sectionBlock ?? '', /^\d+(?:\.\d+)?rem$/u);
     assert.equal(siteConfigSchema.safeParse({
       version: 2,

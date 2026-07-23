@@ -4,7 +4,8 @@
  * 에디터(components/editor)와 렌더러(components/site-renderer)가 공유하는 단일 진실.
  */
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
-import type { DesignDnaSelection } from '@/lib/design/dna/types';
+import type { DesignDnaSelection, DnaColorRamp } from '@/lib/design/dna/types';
+import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
 import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
 
@@ -53,6 +54,15 @@ export interface SiteThemeTokens {
     surfaceStrong: string;
     border: string;
     muted: string;
+    /**
+     * ABS 신규 생성본 전용 11단계 램프. optional이라 기존 theme은 저장·렌더가
+     * 그대로이며, 부재 시 절차적 배경은 semantic 단색으로 fail-closed한다.
+     */
+    ramps?: {
+      neutral: DnaColorRamp;
+      primary: DnaColorRamp;
+      accent: DnaColorRamp;
+    };
   };
   shadow: {
     low: string;
@@ -380,6 +390,11 @@ export interface Section {
    * 렌더 경계가 이 결정적 3밴드 projection을 우선 소비한다.
    */
   sectionLayout?: SectionLayoutProjection;
+  /**
+   * ABS 신규 생성본 전용 배경형 슬롯 핀. 색·좌표는 저장하지 않고 서버가 선택한
+   * 패밀리·시드와 SIG 안전지대 참조만 보존한다.
+   */
+  proceduralBackground?: ProceduralBackgroundSpec;
   hidden?: boolean;
 }
 

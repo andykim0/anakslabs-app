@@ -1,7 +1,7 @@
 import type { SiteTheme, SiteThemeTokens } from '@/lib/types/site';
 
 export type ThemeRadiusRole = 'sharp' | 'soft' | 'pill';
-export type ThemeColorRole = keyof SiteThemeTokens['color'];
+export type ThemeColorRole = Exclude<keyof SiteThemeTokens['color'], 'ramps'>;
 
 const ROOT_FONT_SIZE = 16;
 

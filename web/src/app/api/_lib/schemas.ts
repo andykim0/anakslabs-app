@@ -31,6 +31,12 @@ import {
   FEATURE_LAYOUT_VARIANT_IDS,
   GALLERY_LAYOUT_VARIANT_IDS,
 } from '@/lib/layout/section-layout-types';
+import {
+  ABS_ATMOSPHERIC_SLOT_IDS,
+  ABS_FAMILY_IDS,
+  ABS_WEIGHT_ZONE_IDS,
+} from '@/lib/abstract/types';
+import { SIGNATURE_TEXT_SAFE_ZONE_IDS } from '@/lib/motion/signature-contract';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -106,6 +112,19 @@ const dnaRemTokenSchema = z.string().regex(/^\d+(?:\.\d+)?rem$/u);
 const dnaOklchTokenSchema = z.string().regex(
   /^oklch\(\d+(?:\.\d+)? \d+(?:\.\d+)? \d+(?:\.\d+)?(?: \/ \d+(?:\.\d+)?)?\)$/u,
 );
+const dnaColorRampSchema = z.object({
+  '50': dnaOklchTokenSchema,
+  '100': dnaOklchTokenSchema,
+  '200': dnaOklchTokenSchema,
+  '300': dnaOklchTokenSchema,
+  '400': dnaOklchTokenSchema,
+  '500': dnaOklchTokenSchema,
+  '600': dnaOklchTokenSchema,
+  '700': dnaOklchTokenSchema,
+  '800': dnaOklchTokenSchema,
+  '900': dnaOklchTokenSchema,
+  '950': dnaOklchTokenSchema,
+}).strict();
 
 const siteThemeTokensSchema = z.object({
   version: z.literal(1),
@@ -139,6 +158,11 @@ const siteThemeTokensSchema = z.object({
     surfaceStrong: dnaOklchTokenSchema,
     border: dnaOklchTokenSchema,
     muted: dnaOklchTokenSchema,
+    ramps: z.object({
+      neutral: dnaColorRampSchema,
+      primary: dnaColorRampSchema,
+      accent: dnaColorRampSchema,
+    }).strict().optional(),
   }).strict(),
   shadow: z.object({
     low: z.string().min(1).max(160),
@@ -497,6 +521,24 @@ const sectionLayoutProjectionSchema = z.object({
   }).optional(),
 });
 
+const proceduralBackgroundBandSchema = z.object({
+  textSafeZoneId: z.enum(SIGNATURE_TEXT_SAFE_ZONE_IDS),
+  weightZone: z.enum(ABS_WEIGHT_ZONE_IDS),
+  scrim: z.enum(['none', 'subtle-scrim']),
+}).strict();
+
+const proceduralBackgroundSpecSchema = z.object({
+  version: z.literal(1),
+  familyId: z.enum(ABS_FAMILY_IDS),
+  seed: z.string().regex(/^[0-9a-f]{8}$/u),
+  slotId: z.enum(ABS_ATMOSPHERIC_SLOT_IDS),
+  bands: z.object({
+    wide: proceduralBackgroundBandSchema,
+    compact: proceduralBackgroundBandSchema,
+    mobile: proceduralBackgroundBandSchema,
+  }).strict(),
+}).strict();
+
 const sectionSchema = z.object({
   id: z.string().min(1),
   type: sectionTypeSchema,
@@ -510,6 +552,7 @@ const sectionSchema = z.object({
   acts: z.array(scrollytellingActSchema).min(3).max(5).optional(),
   heroLayout: heroLayoutProjectionSchema.optional(),
   sectionLayout: sectionLayoutProjectionSchema.optional(),
+  proceduralBackground: proceduralBackgroundSpecSchema.optional(),
   hidden: z.boolean().optional(),
 }).superRefine((section, ctx) => {
   if (section.layout === 'scrollytelling' && !section.acts) {

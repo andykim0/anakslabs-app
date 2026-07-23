@@ -6,6 +6,7 @@
  * 순수 모듈이라 이미지/Veo 빌더와 node:test가 함께 소비한다.
  */
 import type { CandidateStyle } from '@/lib/types/domain';
+import { stableIndex } from '@/lib/abstract/seed';
 
 export type MoodSubjectId = 'elegant' | 'warm' | 'calm' | 'modern' | 'natural' | 'energetic';
 
@@ -217,15 +218,6 @@ export function resolveMoodSubjectId(
     if (hit) return hit.id;
   }
   return 'calm';
-}
-
-function stableIndex(seed: string, size: number): number {
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0) % size;
 }
 
 /** 같은 설문·슬롯은 항상 같은 ambient 피사체를 얻는다(Math.random 금지). */

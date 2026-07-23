@@ -35,11 +35,12 @@ export const DNA_SITE_THEME_PROJECTION_REPORT = Object.freeze({
     'tokens.spacing sectionBlock/sectionInline/elementGap',
     'tokens.typography ratio/sizes/line-heights',
     'tokens.color ramp-derived surface/border/muted',
+    'tokens.color full 11-step neutral/primary/accent ramps',
     'tokens.shadow low/medium/high',
     'tokens.motion duration/easing',
   ]),
   losses: Object.freeze([
-    'color focus/link/on-colors and full 11-step ramps: no component role consumes them yet',
+    'color focus/link/on-colors: no component role consumes them yet',
     'motion signature id: motion selection remains the separate SiteConfig.motion contract',
     'OKLCH gamut precision: the existing renderer contract consumes 8-bit sRGB colors',
   ]),
@@ -88,6 +89,11 @@ export function tokenSetToSiteTheme(tokens: TokenSet): SiteTheme {
         surfaceStrong: tokens.color.ramps.neutral['200'],
         border: tokens.color.semantic.border,
         muted: tokens.color.semantic.textMuted,
+        ramps: {
+          neutral: { ...tokens.color.ramps.neutral },
+          primary: { ...tokens.color.ramps.primary },
+          accent: { ...tokens.color.ramps.accent },
+        },
       },
       shadow: { ...tokens.shadow },
       motion: {

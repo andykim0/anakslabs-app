@@ -9,6 +9,7 @@
  * It never calls Qwen/DashScope and never accepts untrusted free-form subjects.
  */
 import type { MoodSubjectId } from '@/lib/design/image-subjects';
+import { stableIndex } from '@/lib/abstract/seed';
 
 interface EnvironmentScene {
   setting: string;
@@ -152,15 +153,6 @@ const LIGHTING: Readonly<Record<MoodSubjectId, string>> = {
   energetic:
     'strong low-angle daylight creating purposeful diagonal shadows, controlled contrast, and retained highlight detail',
 };
-
-function stableIndex(seed: string, size: number): number {
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0) % size;
-}
 
 function shotRecipe(role: string): ShotRecipe {
   if (role.startsWith('hero')) {
