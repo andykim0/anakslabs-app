@@ -193,6 +193,7 @@ const DIRECT_METRICS = `(() => {
   const rail=stage&&stage.querySelector('[data-horizontal-rail]');
   const video=stage&&stage.querySelector('video');
   const poster=stage&&stage.querySelector('[data-video-poster]');
+  const contractCopies=stage?[...stage.querySelectorAll('[data-signature-contract-copy]')]:[];
   const core=stage?[...stage.querySelectorAll('[data-signature-heading],[data-signature-body],[data-signature-caption],a,button')]:[];
   const hiddenCore=core.filter((node)=>{const s=getComputedStyle(node);const r=node.getBoundingClientRect();return s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0||r.width===0||r.height===0;}).length;
   const state=window.__motionReviewMetrics||{};
@@ -219,6 +220,13 @@ const DIRECT_METRICS = `(() => {
     pathProgress:stage?getComputedStyle(stage).getPropertyValue('--path-progress').trim():null,
     activeMilestones:stage?stage.querySelectorAll('[data-path-milestone][data-active]').length:0,
     activeMosaicTiles:stage?stage.querySelectorAll('[data-mosaic-tile][data-active]').length:0,
+    signatureContract:Boolean(stage?.hasAttribute('data-signature-contract')),
+    signatureContractPhase:stage?.getAttribute('data-signature-contract-phase')||null,
+    signatureContractToken:stage?.getAttribute('data-signature-contract-text-token')||null,
+    signatureContractScrim:stage?.getAttribute('data-signature-contract-scrim')||null,
+    signatureContractFallbackZone:stage?.getAttribute('data-signature-contract-fallback-zone')||null,
+    signatureContractZones:stage?stage.querySelectorAll('[data-signature-contract-zone]').length:0,
+    signatureContractCopies:contractCopies.length,
     cls:Number(state.cls||0),
     layoutShifts:Array.isArray(state.layoutShifts)?state.layoutShifts:[],
     longTaskCount:Number(state.longTaskCount||0),
@@ -295,6 +303,18 @@ async function collectMetrics(cdp, sessionId) {
   return evaluate(cdp, sessionId, DIRECT_METRICS);
 }
 
+function browserMotionLintViolations(fixture, mode, metrics) {
+  if (!fixture.motionLint) return [];
+  const violations = [];
+  if (!metrics.signatureContract) violations.push('signature-contract-missing');
+  if (metrics.signatureContractZones < 1) violations.push('safe-zone-projection-missing');
+  if (metrics.signatureContractCopies < 1) violations.push('contract-copy-missing');
+  if (metrics.horizontalOverflow > 0) violations.push(`horizontal-overflow:${metrics.horizontalOverflow}`);
+  if (metrics.cls > 0.001) violations.push(`cls-budget-exceeded:${metrics.cls}`);
+  if ((mode.reduced || mode.noJs) && metrics.hiddenCore > 0) violations.push(`static-content-hidden:${metrics.hiddenCore}`);
+  return violations;
+}
+
 async function captureMode(cdp, sessionId, fixture, mode, requestLog) {
   const output = path.join(ROOT, 'screenshots', fixture.id);
   await mkdir(output, { recursive: true });
@@ -322,6 +342,7 @@ async function captureMode(cdp, sessionId, fixture, mode, requestLog) {
     reduced: Boolean(mode.reduced),
     noJs: Boolean(mode.noJs),
     metrics,
+    motionLintViolations: browserMotionLintViolations(fixture, mode, metrics),
     assetRequests: requestLog.slice(startRequest).map((entry) => entry.path).filter((value) => value.startsWith('/assets/')),
   };
 }
@@ -528,6 +549,12 @@ async function main() {
     const partName = `browser-review.part.${fixtures.map((fixture) => fixture.id).join('__')}.json`;
     await writeFile(path.join(ROOT, partName), JSON.stringify(report, null, 2), 'utf8');
     process.stdout.write(`Browser review written to ${path.join(ROOT, partName)}\n`);
+    const motionLintFailures = results.flatMap((fixture) => fixture.captures.flatMap((capture) =>
+      capture.motionLintViolations.map((code) => `${fixture.id}/${capture.id}:${code}`),
+    ));
+    if (motionLintFailures.length) {
+      throw new Error(`MotionLint browser review failed: ${motionLintFailures.join(', ')}`);
+    }
   } finally {
     cdp.close();
     chrome.kill('SIGTERM');

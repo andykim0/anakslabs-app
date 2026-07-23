@@ -9,6 +9,8 @@
 import { copyFile, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { renderStaticDocument } from '@/lib/export/render-static';
+import { runMotionLintContractMatrix } from '@/lib/motion/motion-lint';
+import { isActiveSignatureContractId } from '@/lib/motion/signature-contract';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 import {
   emptySiteConfig,
@@ -24,6 +26,7 @@ import {
 } from '@/lib/types/site';
 
 const OUTPUT_DIR = process.env.MOTION_REVIEW_OUTPUT ?? '/private/tmp/daboim-motion-review';
+const CONTRACT_REVIEW_ENABLED = process.env.SIGNATURE_CONTRACT_ENABLED === '1';
 const OWNER_ID = 'motion-review-owner';
 const SITE_ID = 'motion-review-site';
 const CASE_ID = '11111111-1111-4111-8111-111111111111';
@@ -605,6 +608,9 @@ function assertRendered(fixture: ReviewFixture, html: string): void {
   if (!html.includes('<main')) {
     throw new Error(`${fixture.id}: static document is missing its semantic main`);
   }
+  if (CONTRACT_REVIEW_ENABLED && isActiveSignatureContractId(fixture.signatureId) && !html.includes('data-signature-contract="1"')) {
+    throw new Error(`${fixture.id}: enabled SignatureContract projection is missing`);
+  }
 }
 
 async function main(): Promise<void> {
@@ -618,6 +624,8 @@ async function main(): Promise<void> {
   }
 
   const manifest = [];
+  let motionLintChecked = 0;
+  let motionLintViolations = 0;
   for (const value of FIXTURES) {
     const poster = value.signatureId === 'cinematic-scrub'
       ? cinematicMedia.poster
@@ -636,6 +644,18 @@ async function main(): Promise<void> {
       bodyAppendHtml: reviewBadge(value),
     });
     assertRendered(value, html);
+    const motionLint = CONTRACT_REVIEW_ENABLED && isActiveSignatureContractId(value.signatureId)
+      ? runMotionLintContractMatrix({
+          signatureId: value.signatureId,
+          palette: value.config.theme.palette,
+          representativeContent: `${value.label} ${value.config.meta.description}`,
+        })
+      : undefined;
+    motionLintChecked += motionLint?.checked ?? 0;
+    motionLintViolations += motionLint?.violations.length ?? 0;
+    if (motionLint?.violations.length) {
+      throw new Error(`${value.id}: MotionLint failed: ${JSON.stringify(motionLint.violations)}`);
+    }
     await writeFile(path.join(OUTPUT_DIR, `${value.id}.html`), html, 'utf8');
     manifest.push({
       id: value.id,
@@ -646,6 +666,7 @@ async function main(): Promise<void> {
       tier: value.tier,
       notes: value.notes,
       html: `${value.id}.html`,
+      ...(motionLint ? { motionLint } : {}),
     });
   }
 
@@ -672,6 +693,12 @@ async function main(): Promise<void> {
   await writeFile(path.join(OUTPUT_DIR, 'manifest.json'), JSON.stringify({
     generatedAt: new Date().toISOString(),
     rendererPath: 'renderStaticDocument -> TenantPageContent -> SiteRenderer -> MotionSignatureRenderer',
+    motionLint: {
+      enabled: CONTRACT_REVIEW_ENABLED,
+      integration: 'src/lib/motion/motion-lint.ts via existing render-motion-review.tsx corpus',
+      checked: motionLintChecked,
+      violations: motionLintViolations,
+    },
     outputDir: OUTPUT_DIR,
     fixtures: manifest,
     networkProbe: 'mosaic-network-probe.html',
