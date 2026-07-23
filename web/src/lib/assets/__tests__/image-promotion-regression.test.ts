@@ -112,4 +112,16 @@ describe('IMG I4 — 이미지 방향·게이트·승격 통합 회귀', () => {
     assert.match(lint, /media-focus-inside-text-safe-zone/u);
     assert.match(lint, /SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY/u);
   });
+
+  test('R1 증빙은 SitePlan v2 다크 실사진 시드와 하단 단색 실패·재시도를 영구 강제한다', () => {
+    const review = source('scripts/render-image-promotion-review.tsx');
+    assert.match(review, /buildSiteConfigFromSurvey\(survey, candidate/u);
+    assert.match(review, /contentDepth:\s*\{\s*version:\s*2/u);
+    assert.match(review, /dining-refined-contrast/u);
+    assert.match(review, /imageDirectionId:\s*'real_photo'/u);
+    assert.match(review, /homeSectionIds\.length < 3/u);
+    assert.match(review, /for \(let attempt = 1; attempt <= 3; attempt \+= 1\)/u);
+    assert.match(review, /nearSolid: standardDeviation < 0\.018 && edgeDensity < 0\.006/u);
+    assert.match(review, /Settled capture lower half remained near-solid/u);
+  });
 });
