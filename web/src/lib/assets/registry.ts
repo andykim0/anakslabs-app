@@ -19,6 +19,7 @@ import {
   adaptBeforeAfterAssetRecord,
   reconcileGenericAndBeforeAfterRecords,
 } from './before-after-adapter';
+import { isHeroPhotoQualityStamp } from './hero-photo-quality';
 
 interface AssetRecordRow {
   id: string;
@@ -30,6 +31,7 @@ interface AssetRecordRow {
   storage_key: string | null;
   canonical_url: string;
   created_at: string;
+  image_quality: unknown;
 }
 
 function rowToAssetRecord(row: AssetRecordRow): AssetRecord {
@@ -43,6 +45,7 @@ function rowToAssetRecord(row: AssetRecordRow): AssetRecord {
     createdAt: row.created_at,
     ownerId: row.client_id,
     siteId: row.site_id,
+    ...(isHeroPhotoQualityStamp(row.image_quality) ? { imageQuality: row.image_quality } : {}),
   };
 }
 
@@ -89,6 +92,7 @@ class SupabaseAssetRegistry implements AssetRegistry {
         storage_bucket: input.storageBucket,
         storage_key: input.storageKey,
         canonical_url: input.canonicalUrl,
+        image_quality: input.imageQuality ?? null,
       })
       .select('*')
       .single();

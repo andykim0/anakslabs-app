@@ -20,6 +20,11 @@ import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { registerCustomerUploadAsset, toAssetRef } from '@/lib/assets/registry';
 import { projectAssetIngressResponse } from '@/lib/assets/compatibility';
 import { resolveBeforeAfterUploadPolicy } from '@/lib/uploads/before-after-upload-policy';
+import {
+  assessHeroPhotoQuality,
+  HeroPhotoQualityError,
+  type HeroPhotoQualityStamp,
+} from '@/lib/assets/hero-photo-quality';
 
 export const runtime = 'nodejs';
 
@@ -148,6 +153,7 @@ export const POST = withApiHandler(async (request) => {
 
   let bytes = Buffer.from(await file.arrayBuffer());
   let contentType = mime;
+  let imageQuality: HeroPhotoQualityStamp | undefined;
 
   if (beforeAfterMode) {
     if (!beforeAfterContext || !beforeAfterCaseId) {
@@ -210,6 +216,17 @@ export const POST = withApiHandler(async (request) => {
     }, { status: 201 });
   }
 
+  if (mime !== 'image/svg+xml') {
+    try {
+      imageQuality = await assessHeroPhotoQuality(bytes);
+    } catch (error) {
+      if (error instanceof HeroPhotoQualityError) {
+        return apiError(400, error.code, error.message);
+      }
+      throw error;
+    }
+  }
+
   // SVG: 저장 전 sanitize (스크립트/이벤트핸들러/위험 스킴 제거)
   if (mime === 'image/svg+xml') {
     const sanitized = sanitizeSvg(bytes.toString('utf8'));
@@ -238,6 +255,7 @@ export const POST = withApiHandler(async (request) => {
       storageKey: `mock/uploads/${client.id}/${crypto.randomUUID()}.${ext}`,
       canonicalUrl: url,
       mediaType: 'image',
+      imageQuality,
     });
     return NextResponse.json(
       projectAssetIngressResponse({ url, assetRef: toAssetRef(record) }, true),
@@ -260,6 +278,7 @@ export const POST = withApiHandler(async (request) => {
     storageKey: uploaded.objectPath,
     canonicalUrl: uploaded.url,
     mediaType: 'image',
+    imageQuality,
   });
   return NextResponse.json(
     projectAssetIngressResponse({ url: uploaded.url, assetRef: toAssetRef(record) }, true),

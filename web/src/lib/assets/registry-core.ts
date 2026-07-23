@@ -5,6 +5,7 @@ import {
   type AssetOrigin,
   type AssetRecord,
 } from './provenance';
+import type { HeroPhotoQualityStamp } from './hero-photo-quality';
 
 export interface RegisterStoredAssetInput {
   /** Must come from an authenticated server guard, never from a form/survey URL. */
@@ -15,6 +16,8 @@ export interface RegisterStoredAssetInput {
   storageKey: string;
   canonicalUrl: string;
   mediaType: AssetMediaType;
+  /** Server-computed only; client forms cannot submit this object. */
+  imageQuality?: HeroPhotoQualityStamp;
 }
 
 export interface ServerAssetRegistration extends RegisterStoredAssetInput {
@@ -59,6 +62,12 @@ export interface ServerAssetOriginStamper {
 export function createServerAssetOriginStamper(registry: AssetRegistry): ServerAssetOriginStamper {
   const stamp = (origin: AssetOrigin, input: RegisterStoredAssetInput) => {
     assertNoClientProvenanceClaims(input);
+    if (input.imageQuality && origin !== 'customer_upload') {
+      throw new AssetProvenanceError(
+        'ASSET_REGISTRATION_INVALID',
+        'Image quality stamps are reserved for server-verified customer uploads.',
+      );
+    }
     return registry.register({ ...input, origin });
   };
   return {
@@ -69,7 +78,18 @@ export function createServerAssetOriginStamper(registry: AssetRegistry): ServerA
 }
 
 function clone(record: AssetRecord): AssetRecord {
-  return { ...record };
+  return {
+    ...record,
+    ...(record.imageQuality
+      ? {
+          imageQuality: {
+            ...record.imageQuality,
+            reasons: [...record.imageQuality.reasons],
+            metrics: { ...record.imageQuality.metrics },
+          },
+        }
+      : {}),
+  };
 }
 
 function required(value: string, label: string): string {
@@ -106,7 +126,8 @@ export function assertAssetRegistrationRetryCompatible(
   }
   if (existing.origin !== input.origin
     || existing.mediaType !== input.mediaType
-    || existing.canonicalUrl !== input.canonicalUrl) {
+    || existing.canonicalUrl !== input.canonicalUrl
+    || existing.imageQuality?.stampSha256 !== input.imageQuality?.stampSha256) {
     throw new AssetProvenanceError(
       'ASSET_PROVENANCE_CONFLICT',
       'Storage identity was already registered with conflicting immutable provenance',
@@ -172,6 +193,7 @@ export function createMemoryAssetRegistry(options: {
         createdAt: now(),
         ownerId: input.clientId,
         siteId: input.siteId ?? null,
+        ...(input.imageQuality ? { imageQuality: input.imageQuality } : {}),
       };
       byId.set(record.id, record);
       byStorage.set(identity, record.id);

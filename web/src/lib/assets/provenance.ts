@@ -10,6 +10,7 @@ import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 import type { HeroImageSelection, HeroImageChoiceId } from '@/lib/onboarding/hero-image-options';
 import type { MotionMediaProvenance, HeroImageChoice } from '@/lib/types/site';
 import type { CustomerAssetSource } from '@/lib/uploads/asset-provenance';
+import type { HeroPhotoQualityStamp } from './hero-photo-quality';
 
 export const ASSET_ORIGINS = [
   'customer_upload',
@@ -37,6 +38,8 @@ export interface AssetRecord {
   ownerId: string;
   /** Provisional assets may be bound to one owned site exactly once. */
   siteId: string | null;
+  /** Server-computed immutable assessment for customer raster uploads only. */
+  imageQuality?: HeroPhotoQualityStamp;
 }
 
 export interface AssetUsage {
