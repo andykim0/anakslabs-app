@@ -86,6 +86,21 @@ function clone(record: AssetRecord): AssetRecord {
             ...record.imageQuality,
             reasons: [...record.imageQuality.reasons],
             metrics: { ...record.imageQuality.metrics },
+            ...(record.imageQuality.viewportCrops
+              ? {
+                  viewportCrops: Object.fromEntries(
+                    Object.entries(record.imageQuality.viewportCrops).map(([band, crops]) => [
+                      band,
+                      crops.map((crop) => ({
+                        ...crop,
+                        focalPoint: { ...crop.focalPoint },
+                        reasons: [...crop.reasons],
+                        metrics: { ...crop.metrics },
+                      })),
+                    ]),
+                  ) as NonNullable<typeof record.imageQuality.viewportCrops>,
+                }
+              : {}),
           },
         }
       : {}),

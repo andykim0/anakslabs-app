@@ -8,6 +8,16 @@ import type {
 } from '@/lib/types/site';
 import type { AssetRecord, AssetRef } from './provenance';
 import {
+  HERO_PHOTO_FOCAL_MAX,
+  HERO_PHOTO_FOCAL_MIN,
+  HERO_PHOTO_SAFE_FOCAL_POINTS,
+  HERO_PHOTO_VIEWPORT_BANDS,
+  viewportCropGuidance,
+  type HeroPhotoCropAssessment,
+  type HeroPhotoQualityStamp,
+  type HeroPhotoViewportBand,
+} from './hero-photo-quality';
+import {
   SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY,
   isActiveSignatureContractId,
   resolvePlacement,
@@ -24,11 +34,17 @@ export const SYSTEM_HERO_PREVIEW_URLS = {
 export interface HeroPhotoFocusPlan {
   signatureId?: ActiveMotionSignatureId;
   wideSafeZone: SignatureTextSafeZoneId;
+  compactSafeZone: SignatureTextSafeZoneId;
   mobileSafeZone: SignatureTextSafeZoneId;
   wideSafeGeometry: NormalizedSignatureZone;
+  compactSafeGeometry: NormalizedSignatureZone;
   mobileSafeGeometry: NormalizedSignatureZone;
   focalPoint: { x: number; y: number };
+  compactFocalPoint: { x: number; y: number };
   mobileFocalPoint: { x: number; y: number };
+  responsivePromotion: NonNullable<
+    NonNullable<Section['background']['image']>['responsivePromotion']
+  >;
 }
 
 function channel(value: string): number | null {
@@ -94,28 +110,32 @@ function distanceFromZone(zone: NormalizedSignatureZone, point: { x: number; y: 
   return Math.hypot(dx, dy);
 }
 
-/** Deterministically reserves the opposite quiet area; no pixel crop or image mutation is involved. */
-export function focalPointOutsideTextZone(
+export function clampHeroPhotoFocalPoint(point: { x: number; y: number }) {
+  return {
+    x: Math.min(HERO_PHOTO_FOCAL_MAX, Math.max(HERO_PHOTO_FOCAL_MIN, point.x)),
+    y: Math.min(HERO_PHOTO_FOCAL_MAX, Math.max(HERO_PHOTO_FOCAL_MIN, point.y)),
+  };
+}
+
+function orderedFocalPointsOutsideTextZone(
   zone: NormalizedSignatureZone,
-): { x: number; y: number } {
-  const candidates = [
-    { x: 0.82, y: 0.5 },
-    { x: 0.18, y: 0.5 },
-    { x: 0.5, y: 0.82 },
-    { x: 0.5, y: 0.18 },
-    { x: 0.97, y: 0.5 },
-    { x: 0.03, y: 0.5 },
-    { x: 0.5, y: 0.97 },
-    { x: 0.5, y: 0.03 },
-  ] as const;
-  return [...candidates]
+): { x: number; y: number }[] {
+  return HERO_PHOTO_SAFE_FOCAL_POINTS
+    .map(clampHeroPhotoFocalPoint)
     .sort((left, right) => {
       const outsideDelta = Number(pointInside(zone, left)) - Number(pointInside(zone, right));
       return outsideDelta
         || distanceFromZone(zone, right) - distanceFromZone(zone, left)
         || left.x - right.x
         || left.y - right.y;
-    })[0]!;
+    });
+}
+
+/** Deterministically reserves the opposite quiet area; no pixel crop or image mutation is involved. */
+export function focalPointOutsideTextZone(
+  zone: NormalizedSignatureZone,
+): { x: number; y: number } {
+  return orderedFocalPointsOutsideTextZone(zone)[0]!;
 }
 
 function heroSignature(config: SiteConfig, hero: Section): ActiveMotionSignatureId | undefined {
@@ -123,7 +143,46 @@ function heroSignature(config: SiteConfig, hero: Section): ActiveMotionSignature
   return id && isActiveSignatureContractId(id) ? id : undefined;
 }
 
-export function resolveHeroPhotoFocusPlan(config: SiteConfig, hero: Section): HeroPhotoFocusPlan {
+function samePoint(
+  left: { x: number; y: number },
+  right: { x: number; y: number },
+): boolean {
+  return Math.abs(left.x - right.x) < 0.000_001 && Math.abs(left.y - right.y) < 0.000_001;
+}
+
+function resolveBandFocus(
+  band: HeroPhotoViewportBand,
+  zone: NormalizedSignatureZone,
+  quality?: HeroPhotoQualityStamp,
+) {
+  const ordered = orderedFocalPointsOutsideTextZone(zone);
+  const assessments = quality?.viewportCrops?.[band] ?? [];
+  const matching = (point: { x: number; y: number }): HeroPhotoCropAssessment | undefined =>
+    assessments.find((assessment) => samePoint(assessment.focalPoint, point));
+  const selected = ordered.find((point) =>
+    matching(point)?.passed && !pointInside(zone, point)) ?? ordered[0]!;
+  const assessment = matching(selected);
+  const safeForCopy = !pointInside(zone, selected);
+  const reasons = assessment
+    ? [...assessment.reasons, ...(safeForCopy ? [] : ['text_safe_zone_conflict'] as const)]
+    : ['crop_evidence_missing'] as const;
+  return {
+    focalPoint: selected,
+    status: {
+      promoted: assessment?.passed === true && safeForCopy,
+      reasons: [...reasons],
+      guidance: safeForCopy
+        ? assessment?.guidance ?? viewportCropGuidance(band, ['crop_information_too_low'])
+        : viewportCropGuidance(band, ['crop_boundary_cut_risk']),
+    },
+  };
+}
+
+export function resolveHeroPhotoFocusPlan(
+  config: SiteConfig,
+  hero: Section,
+  quality?: HeroPhotoQualityStamp,
+): HeroPhotoFocusPlan {
   const signatureId = heroSignature(config, hero);
   const widePlacement = signatureId
     ? resolvePlacement(signatureId, 0, 'wide', { phase: 'hold' })
@@ -131,20 +190,39 @@ export function resolveHeroPhotoFocusPlan(config: SiteConfig, hero: Section): He
         zone: 'start-middle' as const,
         normalized: SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY.wide['start-middle'],
       };
+  const compactPlacement = signatureId
+    ? resolvePlacement(signatureId, 0, 'compact', { phase: 'hold' })
+    : {
+        zone: 'start-middle' as const,
+        normalized: SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY.compact['start-middle'],
+      };
   const mobilePlacement = signatureId
     ? resolvePlacement(signatureId, 0, 'mobile', { phase: 'hold' })
     : {
         zone: 'center-middle' as const,
         normalized: SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY.mobile['center-middle'],
       };
+  const wide = resolveBandFocus('wide', widePlacement.normalized, quality);
+  const compact = resolveBandFocus('compact', compactPlacement.normalized, quality);
+  const mobile = resolveBandFocus('mobile', mobilePlacement.normalized, quality);
   return {
     ...(signatureId ? { signatureId } : {}),
     wideSafeZone: widePlacement.zone,
+    compactSafeZone: compactPlacement.zone,
     mobileSafeZone: mobilePlacement.zone,
     wideSafeGeometry: widePlacement.normalized,
+    compactSafeGeometry: compactPlacement.normalized,
     mobileSafeGeometry: mobilePlacement.normalized,
-    focalPoint: focalPointOutsideTextZone(widePlacement.normalized),
-    mobileFocalPoint: focalPointOutsideTextZone(mobilePlacement.normalized),
+    focalPoint: wide.focalPoint,
+    compactFocalPoint: compact.focalPoint,
+    mobileFocalPoint: mobile.focalPoint,
+    responsivePromotion: {
+      version: 1,
+      sourceStampSha256: quality?.stampSha256 ?? '0'.repeat(64),
+      wide: wide.status,
+      compact: compact.status,
+      mobile: mobile.status,
+    },
   };
 }
 
@@ -160,7 +238,9 @@ function rewriteMedia(
     return {
       ...media,
       focalPoint: focus.focalPoint,
+      compactFocalPoint: focus.compactFocalPoint,
       mobileFocalPoint: focus.mobileFocalPoint,
+      responsivePromotion: focus.responsivePromotion,
     };
   }
   const fallback: MotionMedia = {
@@ -168,6 +248,7 @@ function rewriteMedia(
     src: systemUrl,
     provenance: 'curated',
     focalPoint: { x: 0.5, y: 0.5 },
+    compactFocalPoint: { x: 0.5, y: 0.5 },
     mobileFocalPoint: { x: 0.5, y: 0.5 },
   };
   delete fallback.assetId;
@@ -257,8 +338,15 @@ export function applyHeroPhotoPromotion(input: {
     && input.candidate.heroAssetRef?.assetId === input.customerPhotoRef.assetId
     && input.candidate.heroAssetRef.url === input.customerPhotoRef.url;
   const systemUrl = systemHeroPreviewForCandidate(input.candidate);
-  const focus = resolveHeroPhotoFocusPlan(input.config, hero);
-  const nextHero: Section = promoted
+  const focus = resolveHeroPhotoFocusPlan(
+    input.config,
+    hero,
+    promoted ? input.candidate.heroPhotoQuality : undefined,
+  );
+  const promotedInAnyBand = promoted && HERO_PHOTO_VIEWPORT_BANDS.some(
+    (band) => focus.responsivePromotion[band].promoted,
+  );
+  const nextHero: Section = promotedInAnyBand
     ? {
         ...hero,
         background: {
@@ -267,7 +355,9 @@ export function applyHeroPhotoPromotion(input: {
             ...(hero.background.image ?? { src: input.customerPhotoRef.url }),
             src: input.customerPhotoRef.url,
             focalPoint: focus.focalPoint,
+            compactFocalPoint: focus.compactFocalPoint,
             mobileFocalPoint: focus.mobileFocalPoint,
+            responsivePromotion: focus.responsivePromotion,
           },
         },
       }
@@ -284,11 +374,11 @@ export function applyHeroPhotoPromotion(input: {
     ...withHero,
     siteCinematic: {
       ...withHero.siteCinematic!,
-      heroBackdrop: promoted ? 'promoted-photo' : 'dna-procedural',
+      heroBackdrop: promotedInAnyBand ? 'promoted-photo' : 'dna-procedural',
     },
     meta: {
       ...withHero.meta,
-      ogImage: promoted ? input.customerPhotoRef.url : systemUrl,
+      ogImage: promotedInAnyBand ? input.customerPhotoRef.url : systemUrl,
     },
     ...(withHero.motion?.signatures
       ? {
@@ -301,7 +391,7 @@ export function applyHeroPhotoPromotion(input: {
                 input.customerPhotoRef.url,
                 systemUrl,
                 focus,
-                promoted,
+                promotedInAnyBand,
               )),
           },
         }

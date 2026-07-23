@@ -7,6 +7,7 @@ import type {
   Section,
   SiteTheme,
 } from '@/lib/types/site';
+import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
 import {
   resolvePlacement,
@@ -267,7 +268,7 @@ function SignatureMedia({
   if (!mediaIsSafe(media)) return null;
   const src = safeMediaSrc(media.src);
   const poster = safeMediaSrc(media.poster);
-  const responsiveFocalId = media.mobileFocalPoint
+  const responsiveFocalId = !media.responsivePromotion && media.mobileFocalPoint
     ? `${domId(media.id)}-${Math.round(media.mobileFocalPoint.x * 1000)}-${Math.round(media.mobileFocalPoint.y * 1000)}`
     : undefined;
   const geometry: CSSProperties & Record<`--${string}`, string> = {
@@ -303,7 +304,25 @@ function SignatureMedia({
           }}
         />
       ) : null}
-      {media.kind === 'image' ? (
+      {media.kind === 'image' && media.responsivePromotion ? (
+        <>
+          <div aria-hidden data-site-cine-procedural-hero />
+          <ResponsiveHeroPhoto
+            src={media.src}
+            alt={media.alt}
+            width={media.width}
+            height={media.height}
+            promotion={media.responsivePromotion}
+            focalPoint={media.focalPoint}
+            compactFocalPoint={media.compactFocalPoint}
+            mobileFocalPoint={media.mobileFocalPoint}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding={eager ? 'sync' : 'async'}
+            fetchPriority={eager ? 'high' : undefined}
+            imageStyle={commonImageProps.style}
+          />
+        </>
+      ) : media.kind === 'image' ? (
         // eslint-disable-next-line @next/next/no-img-element -- arbitrary tenant/export URLs need plain reserved-size img.
         <img src={src} alt={media.alt} {...commonImageProps} />
       ) : (

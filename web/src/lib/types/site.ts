@@ -303,8 +303,12 @@ export interface SectionBackground {
     overlayOpacity?: number;
     /** IMG 신규 승격본 전용. 미지정 레거시는 기존 center crop을 그대로 사용한다. */
     focalPoint?: { x: number; y: number };
+    /** 768~1279px 크롭 포커스. 미지정 레거시는 기존 포커스를 유지한다. */
+    compactFocalPoint?: { x: number; y: number };
     /** 모바일 텍스트 안전지대를 피하는 별도 정규화 포커스. */
     mobileFocalPoint?: { x: number; y: number };
+    /** IMG-R1 신규 생성본에서만 기록되는 뷰포트별 서버 승격 판정. */
+    responsivePromotion?: HeroPhotoResponsivePromotion;
   };
   /**
    * [motion 3단계] video-hero 배경 영상 소스. 렌더러는 플랜이 video-hero인 히어로에만 방출한다.
@@ -314,6 +318,25 @@ export interface SectionBackground {
    * 현재 미설정(후처리 파이프라인 도입 시 측정값 기록 → 게이트 활성).
    */
   video?: { src: string; poster?: string; bytes?: number };
+}
+
+export interface HeroPhotoPromotionBand {
+  promoted: boolean;
+  guidance: string;
+  reasons: (
+    | 'crop_information_too_low'
+    | 'crop_boundary_cut_risk'
+    | 'crop_evidence_missing'
+    | 'text_safe_zone_conflict'
+  )[];
+}
+
+export interface HeroPhotoResponsivePromotion {
+  version: 1;
+  sourceStampSha256: string;
+  wide: HeroPhotoPromotionBand;
+  compact: HeroPhotoPromotionBand;
+  mobile: HeroPhotoPromotionBand;
 }
 
 /**
@@ -424,8 +447,12 @@ export interface MotionMedia {
   height: number;
   /** 원본 피사체를 크롭에서 보존하기 위한 정규화 좌표(0..1). */
   focalPoint?: { x: number; y: number };
+  /** IMG-R1 신규 승격본 전용 768~1279px 포커스. */
+  compactFocalPoint?: { x: number; y: number };
   /** IMG 신규 승격본 전용 모바일 포커스. 미지정이면 focalPoint를 그대로 쓴다. */
   mobileFocalPoint?: { x: number; y: number };
+  /** 미통과 밴드는 같은 사이트 팔레트의 시스템 히어로를 유지한다. */
+  responsivePromotion?: HeroPhotoResponsivePromotion;
   provenance: MotionMediaProvenance;
   assetId?: string;
 }

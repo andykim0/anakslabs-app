@@ -30,6 +30,7 @@ import {
 } from '@/lib/motion/apply';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
+import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 
 interface SectionCanvasProps {
   section: Section;
@@ -98,9 +99,10 @@ function StandardSection({
   const sectionDataM = spotlight ? 'spotlight' : parallax ? 'parallax' : stacking ? 'stacking' : undefined;
   const densityDelta = themeSectionBlockDelta(theme);
   const continuousHero = continuousFlow && section.type === 'hero';
+  const responsivePhoto = bg.image?.responsivePromotion;
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
-  const imgScrim = !proceduralHero && bg.image
+  const imgScrim = (!proceduralHero || responsivePhoto) && bg.image
     ? bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
@@ -164,10 +166,23 @@ function StandardSection({
         cinematicPlayback ? (
           <div data-m-cinematic-media style={coverStyle}>{videoBackdrop}</div>
         ) : videoBackdrop
-      ) : proceduralHero ? (
-        <div aria-hidden data-site-cine-procedural-hero />
       ) : (
-        bg.image && (
+        <>
+          {proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
+          {bg.image && (responsivePhoto ? (
+            <ResponsiveHeroPhoto
+              src={bg.image.src}
+              alt=""
+              promotion={responsivePhoto}
+              focalPoint={bg.image.focalPoint}
+              compactFocalPoint={bg.image.compactFocalPoint}
+              mobileFocalPoint={bg.image.mobileFocalPoint}
+              loading={isFirst ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchPriority={isFirst ? 'high' : undefined}
+              imageData={kenBurns ? { 'data-m': 'kenburns' } : undefined}
+            />
+          ) : !proceduralHero ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={bg.image.src}
@@ -178,7 +193,8 @@ function StandardSection({
             {...(kenBurns ? { 'data-m': 'kenburns' } : {})}
             style={coverStyleFor(bg.image.focalPoint)}
           />
-        )
+          ) : null)}
+        </>
       )}
       {imgScrim && (
         <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundColor: imgScrim.overlayColor, opacity: imgScrim.overlayOpacity }} />

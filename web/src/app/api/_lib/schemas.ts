@@ -57,6 +57,25 @@ const normalizedFocalPointSchema = z.object({
   x: z.number().min(0).max(1),
   y: z.number().min(0).max(1),
 });
+
+const heroPhotoPromotionBandSchema = z.object({
+  promoted: z.boolean(),
+  guidance: z.string(),
+  reasons: z.array(z.enum([
+    'crop_information_too_low',
+    'crop_boundary_cut_risk',
+    'crop_evidence_missing',
+    'text_safe_zone_conflict',
+  ])),
+});
+
+const heroPhotoResponsivePromotionSchema = z.object({
+  version: z.literal(1),
+  sourceStampSha256: z.string().regex(/^[0-9a-f]{64}$/u),
+  wide: heroPhotoPromotionBandSchema,
+  compact: heroPhotoPromotionBandSchema,
+  mobile: heroPhotoPromotionBandSchema,
+});
 const heroVideoMotionIdSchema = z.enum(HERO_VIDEO_MOTION_IDS);
 const productionMotionSignatureIdSchema = z.enum(PRODUCTION_MOTION_SIGNATURE_IDS);
 const motionIndustryClassSchema = z.enum([
@@ -372,7 +391,9 @@ const sectionBackgroundSchema = z.object({
       overlayColor: z.string().optional(),
       overlayOpacity: z.number().min(0).max(1).optional(),
       focalPoint: normalizedFocalPointSchema.optional(),
+      compactFocalPoint: normalizedFocalPointSchema.optional(),
       mobileFocalPoint: normalizedFocalPointSchema.optional(),
+      responsivePromotion: heroPhotoResponsivePromotionSchema.optional(),
     })
     .optional(),
   // [motion 3단계] video-hero 배경 영상 (src/poster는 safeMediaSrc 화이트리스트)
@@ -525,7 +546,9 @@ const motionImageMediaSchema = z.object({
   width: z.number().int().positive().max(16384),
   height: z.number().int().positive().max(16384),
   focalPoint: normalizedFocalPointSchema.optional(),
+  compactFocalPoint: normalizedFocalPointSchema.optional(),
   mobileFocalPoint: normalizedFocalPointSchema.optional(),
+  responsivePromotion: heroPhotoResponsivePromotionSchema.optional(),
   provenance: z.enum(['customer-provided', 'ai-generated', 'curated', 'unknown']),
   assetId: z.string().max(100).optional(),
 });
@@ -1123,6 +1146,28 @@ export const designCandidateSchema = z.object({
       brightPixelRatio: z.number().finite(),
     }),
     guidance: z.string(),
+    viewportCrops: z.record(
+      z.enum(['wide', 'compact', 'mobile']),
+      z.array(z.object({
+        focalPoint: normalizedFocalPointSchema,
+        passed: z.boolean(),
+        reasons: z.array(z.enum([
+          'crop_information_too_low',
+          'crop_boundary_cut_risk',
+        ])),
+        metrics: z.object({
+          sourceX: z.number().finite().nonnegative(),
+          sourceY: z.number().finite().nonnegative(),
+          sourceWidth: z.number().finite().positive(),
+          sourceHeight: z.number().finite().positive(),
+          sourceCoverage: z.number().finite().min(0).max(1),
+          informationScore: z.number().finite().nonnegative(),
+          edgeDensity: z.number().finite().nonnegative(),
+          boundaryEdgeRatio: z.number().finite().nonnegative(),
+        }),
+        guidance: z.string(),
+      })).length(4),
+    ).optional(),
     stampSha256: z.string().regex(/^[0-9a-f]{64}$/u),
   }).optional(),
   theme: siteThemeSchema,

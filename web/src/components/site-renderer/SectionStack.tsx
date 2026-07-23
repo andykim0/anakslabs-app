@@ -22,6 +22,7 @@ import { safeMediaSrc } from '@/lib/safe-url';
 import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
+import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 
 interface SectionStackProps {
   section: Section;
@@ -119,9 +120,14 @@ export function SectionStack({
   const cinematic = (plan?.cinematicHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
   // 일반 video-hero는 모바일 poster 정적. cinematic만 IO 진입 시 pinned loop로 향상한다.
   const videoHero = (plan?.videoHeroSections.has(section.id) ?? false) && !!bg.video?.poster;
-  const bgImgSrc = proceduralHero ? undefined : videoHero ? bg.video!.poster! : bg.image?.src;
+  const responsivePhoto = bg.image?.responsivePromotion;
+  const bgImgSrc = proceduralHero && !responsivePhoto
+    ? undefined
+    : videoHero
+      ? bg.video!.poster!
+      : bg.image?.src;
   // [Q1] overlayColor 없으면 팔레트 기반 기본 스크림(레거시 보호) + 이미지 배경 텍스트 미세 그림자
-  const imgScrim = !proceduralHero && bg.image
+  const imgScrim = (!proceduralHero || responsivePhoto) && bg.image
     ? bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
@@ -159,7 +165,20 @@ export function SectionStack({
       }}
     >
       {!cinematic && proceduralHero && <div aria-hidden data-site-cine-procedural-hero />}
-      {!cinematic && bgImgSrc && (
+      {!cinematic && bgImgSrc && responsivePhoto && bg.image ? (
+        <ResponsiveHeroPhoto
+          src={bg.image.src}
+          alt=""
+          promotion={responsivePhoto}
+          focalPoint={bg.image.focalPoint}
+          compactFocalPoint={bg.image.compactFocalPoint}
+          mobileFocalPoint={bg.image.mobileFocalPoint}
+          loading={isFirst ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={isFirst ? 'high' : undefined}
+          imageData={kenBurns ? { 'data-m': 'kenburns' } : undefined}
+        />
+      ) : !cinematic && bgImgSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={bgImgSrc}
@@ -179,7 +198,7 @@ export function SectionStack({
               : {}),
           }}
         />
-      )}
+      ) : null}
       {!cinematic && imgScrim && (
         <div
           aria-hidden

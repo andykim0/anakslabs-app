@@ -81,6 +81,29 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     assert.equal(JSON.stringify(second), JSON.stringify(first));
   });
 
+  test('1440·768·390 실제 cover 크롭 4개 포커스 후보를 결정적으로 스탬프한다', async () => {
+    const result = await assessHeroPhotoQuality(await detailedPhoto());
+    assert.deepEqual(Object.keys(result.viewportCrops ?? {}), ['wide', 'compact', 'mobile']);
+    for (const band of ['wide', 'compact', 'mobile'] as const) {
+      const crops = result.viewportCrops?.[band] ?? [];
+      assert.equal(crops.length, 4);
+      assert.ok(crops.every((crop) =>
+        crop.focalPoint.x >= 0.2
+        && crop.focalPoint.x <= 0.8
+        && crop.focalPoint.y >= 0.2
+        && crop.focalPoint.y <= 0.8));
+      assert.ok(crops.every((crop) => crop.metrics.sourceCoverage > 0));
+    }
+  });
+
+  test('정보가 없는 크롭은 밴드별 승격 불가 사유와 비난 없는 안내를 남긴다', async () => {
+    const result = await assessHeroPhotoQuality(await solidPhoto(128));
+    const mobile = result.viewportCrops?.mobile ?? [];
+    assert.ok(mobile.every((crop) => !crop.passed));
+    assert.ok(mobile.every((crop) => crop.reasons.includes('crop_information_too_low')));
+    assert.ok(mobile.every((crop) => /다보임이 준비한 화면/u.test(crop.guidance)));
+  });
+
   test('판정은 customer_upload provenance 레코드에 서버 전용 immutable stamp로 저장된다', async () => {
     const imageQuality = await assessHeroPhotoQuality(await detailedPhoto());
     const registry = createMemoryAssetRegistry({

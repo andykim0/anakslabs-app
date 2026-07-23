@@ -380,7 +380,13 @@ export function SiteRenderer({
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter((s) => !s.hidden);
   const usesProceduralHero = (section: Section) => siteCinematic
-    && config.siteCinematic?.heroBackdrop === 'dna-procedural'
+    && (config.siteCinematic?.heroBackdrop === 'dna-procedural'
+      || (section.background.image?.responsivePromotion
+        && [
+          section.background.image.responsivePromotion.wide,
+          section.background.image.responsivePromotion.compact,
+          section.background.image.responsivePromotion.mobile,
+        ].some((band) => !band.promoted)))
     && section.type === 'hero'
     && !section.background.video?.src;
   const fontUrls = googleFontUrls(theme.fonts.googleFonts);

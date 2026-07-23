@@ -22,6 +22,7 @@ export const MOTION_LINT_VIOLATION_CODES = [
   'cls-budget-exceeded',
   'no-js-content-missing',
   'media-focus-inside-text-safe-zone',
+  'media-crop-subject-cut-risk',
 ] as const;
 
 export type MotionLintViolationCode = typeof MOTION_LINT_VIOLATION_CODES[number];
@@ -66,6 +67,12 @@ export interface MotionLintMediaFocusMeasurement {
   focalPoint: { x: number; y: number };
 }
 
+export interface MotionLintPromotedCropMeasurement extends MotionLintMediaFocusMeasurement {
+  promoted: boolean;
+  cropPassed: boolean;
+  cropReasons: readonly string[];
+}
+
 const EPSILON = 0.000_001;
 
 /** IMG promotion gate: the authored focus point must stay out of the exact copy zone. */
@@ -93,6 +100,24 @@ export function lintMotionMediaFocus(
         detail: `media focus overlaps ${placement.zone}`,
       }]
     : [];
+}
+
+/** IMG-R1 promotion gate: a promoted band must pass crop heuristics and copy-zone separation. */
+export function lintPromotedHeroPhotoCrop(
+  measurement: MotionLintPromotedCropMeasurement,
+): MotionLintViolation[] {
+  if (!measurement.promoted) return [];
+  const violations = lintMotionMediaFocus(measurement);
+  if (!measurement.cropPassed) {
+    violations.push({
+      code: 'media-crop-subject-cut-risk',
+      signatureId: measurement.signatureId,
+      phase: measurement.phase,
+      breakpoint: measurement.breakpoint,
+      detail: `promoted crop failed: ${measurement.cropReasons.join(', ') || 'unknown'}`,
+    });
+  }
+  return violations;
 }
 
 function boxIsInside(outer: NormalizedSignatureZone, inner: NormalizedSignatureZone): boolean {
