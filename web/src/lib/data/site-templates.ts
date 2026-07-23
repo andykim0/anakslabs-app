@@ -489,14 +489,17 @@ function buildHero(ctx: Ctx): Section {
     },
   );
 
-  // [R2] 뼈대 히어로 형태 적용 — 좌(fullbleed)/중앙(centered)/우앵커(split). 이미지 배경·스크림 공통.
-  applyHeroVariant(elements, opts.heroVariant ?? 'fullbleed');
+  // [R2/HERO2] 뼈대 히어로 형태 적용 뒤 실제 한글 줄 수에 맞춰 카피 흐름을 확정한다.
+  // 1~2행은 기존 좌표를 그대로 두고, 3행 이상만 프레임과 후속 요소를 아래로 확장한다.
+  const heroVariant = opts.heroVariant ?? 'fullbleed';
+  applyHeroVariant(elements, heroVariant);
+  const heroHeight = applyLongHeroHeadlineFlow(elements);
 
   return {
     id: 'sec-hero',
     type: 'hero',
     name: SECTION_NAMES.hero,
-    height: 840,
+    height: heroHeight,
     background: {
       color: theme.palette.background,
       image: {
@@ -511,10 +514,15 @@ function buildHero(ctx: Ctx): Section {
 
 /**
  * 한글 글자 폭을 1em으로 본 보수적인 줄 수 추정. 명시 줄바꿈과 자동 줄바꿈을 함께 센다.
- * 실제 렌더는 keep-all이라 단어 경계가 더 일찍 꺾일 수 있으므로 0.92 안전 계수를 둔다.
+ * 기존 변형은 0.92 안전 계수를, fullbleed 장문 가드는 실제 프레임 용량(1)을 사용한다.
  */
-function estimatedHeroTitleLines(text: string, frameWidth: number, fontSize: number): number {
-  const capacity = Math.max(1, (frameWidth / Math.max(1, fontSize)) * 0.92);
+function estimatedHeroTitleLines(
+  text: string,
+  frameWidth: number,
+  fontSize: number,
+  capacityFactor = 0.92,
+): number {
+  const capacity = Math.max(1, (frameWidth / Math.max(1, fontSize)) * capacityFactor);
   return text.split('\n').reduce((total, line) => {
     const units = Array.from(line).reduce((width, character) => {
       if (/\s/u.test(character)) return width + 0.34;
@@ -523,6 +531,64 @@ function estimatedHeroTitleLines(text: string, frameWidth: number, fontSize: num
     }, 0);
     return total + Math.max(1, Math.ceil(units / capacity));
   }, 0);
+}
+
+/**
+ * 실제 브라우저 측정 없이 제목의 결정적 줄 수로 고정 캔버스 흐름을 예약한다.
+ * 1~2행은 바이트 호환을 위해 어떤 값도 바꾸지 않고, 3행 이상만 제목 아래 카피를 재배치한다.
+ */
+function applyLongHeroHeadlineFlow(elements: CanvasElement[]): number {
+  const heroTitle = elements.find((element) => (
+    element.kind === 'text' && element.id.includes('hero-title')
+  ));
+  if (heroTitle?.kind !== 'text') return 840;
+
+  const fontSize = heroTitle.style.fontSize;
+  const lineHeight = heroTitle.style.lineHeight ?? 1.45;
+  // 기존 split/centered 가드는 0.92 안전 계수를 이미 소비한다. 새 fullbleed
+  // 경로는 실제 프레임 용량으로 판정해 종전 1~2행 발행본을 과대 분류하지 않는다.
+  const capacityFactor = heroTitle.style.readabilityGuard === 'long-hero' ? 0.92 : 1;
+  const lines = estimatedHeroTitleLines(
+    heroTitle.text,
+    heroTitle.frame.w,
+    fontSize,
+    capacityFactor,
+  );
+  if (lines < 3 && heroTitle.style.readabilityGuard !== 'long-hero') return 840;
+
+  heroTitle.style.readabilityGuard = 'long-hero';
+  heroTitle.frame.h = Math.max(
+    heroTitle.frame.h,
+    Math.ceil(lines * fontSize * lineHeight),
+  );
+
+  const heroSub = elements.find((element) => (
+    element.kind === 'text' && element.id.includes('hero-sub')
+  ));
+  if (heroSub) heroSub.frame.y = heroTitle.frame.y + heroTitle.frame.h + 16;
+
+  const chipElements = elements.filter((element) => element.id.includes('hero-chip-label'));
+  const chipY = heroSub
+    ? heroSub.frame.y + heroSub.frame.h + 14
+    : heroTitle.frame.y + heroTitle.frame.h + 16;
+  for (const chip of chipElements) chip.frame.y = chipY;
+
+  const ctaY = chipElements.length > 0 ? chipY + 64 : chipY + 32;
+  const cta = elements.find((element) => (
+    element.id.includes('hero-cta') && !element.id.includes('cta2')
+  ));
+  const cta2 = elements.find((element) => element.id.includes('hero-cta2'));
+  if (cta) cta.frame.y = ctaY;
+  if (cta2) cta2.frame.y = ctaY;
+
+  const contentBottom = Math.max(
+    heroTitle.frame.y + heroTitle.frame.h,
+    heroSub ? heroSub.frame.y + heroSub.frame.h : 0,
+    ...chipElements.map((chip) => chip.frame.y + chip.frame.h),
+    cta ? cta.frame.y + cta.frame.h : 0,
+    cta2 ? cta2.frame.y + cta2.frame.h : 0,
+  );
+  return Math.max(840, contentBottom + 36);
 }
 
 /**
@@ -538,10 +604,9 @@ function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant): void
   const heroTitle = elements.find((element) => (
     element.kind === 'text' && element.id.includes('hero-title')
   ));
-  const initialTitleLines = heroTitle?.kind === 'text'
-    ? estimatedHeroTitleLines(heroTitle.text, heroTitle.frame.w, heroTitle.style.fontSize)
-    : 0;
-  const longHeroTitle = initialTitleLines >= 3;
+  const longHeroTitle = heroTitle?.kind === 'text'
+    ? estimatedHeroTitleLines(heroTitle.text, heroTitle.frame.w, heroTitle.style.fontSize) >= 3
+    : false;
   const readableStart = rightX(1120);
   if (heroTitle?.kind === 'text' && longHeroTitle) {
     const lineHeight = 1.16;
@@ -557,17 +622,6 @@ function applyHeroVariant(elements: CanvasElement[], variant: HeroVariant): void
         break;
       }
     }
-    const heroSub = elements.find((element) => (
-      element.kind === 'text' && element.id.includes('hero-sub')
-    ));
-    if (heroSub) heroSub.frame.y = heroTitle.frame.y + heroTitle.frame.h + 16;
-    const chipY = heroSub ? heroSub.frame.y + heroSub.frame.h + 14 : heroTitle.frame.y + heroTitle.frame.h + 16;
-    for (const chip of chipElements) chip.frame.y = chipY;
-    const ctaY = chipElements.length > 0 ? chipY + 64 : chipY + 32;
-    const cta = elements.find((element) => element.id.includes('hero-cta') && !element.id.includes('cta2'));
-    const cta2 = elements.find((element) => element.id.includes('hero-cta2'));
-    if (cta) cta.frame.y = ctaY;
-    if (cta2) cta2.frame.y = ctaY;
   }
   for (const el of elements) {
     if (el.id.includes('hero-logo')) continue;
