@@ -1,2 +1,11 @@
 .DS_Store
 .claude/worktrees/
+
+# Local Supabase work state
+supabase/.temp/
+supabase/.branches/
+
+# Regenerable demo media
+web/public/hero.mp4
+web/public/hero.webm
+web/public/hero-poster.webp
