@@ -184,22 +184,21 @@ export function heroLayoutSelectionPrompt(
   survey: SurveyInput,
   candidates: readonly HeroLayoutSelectionCandidate[],
 ): string {
-  const catalog = HERO_LAYOUT_CATALOG.map((layout) => ({
-    id: layout.id,
-    description: layout.description,
-    allowedCondition: intrinsicAllowedCondition(layout.id),
-  }));
   const targets = candidates.map((candidate, index) => ({
     candidateIndex: index,
-    industry: runtimeIndustry(survey),
-    dnaId: candidate.designDnaId ?? null,
-    allowedIds: allowedHeroLayoutsForCandidate(survey, candidate),
+    allowedLayouts: allowedHeroLayoutsForCandidate(survey, candidate).map((id) => {
+      const layout = heroLayoutById(id)!;
+      return {
+        id,
+        description: layout.description,
+        allowedCondition: intrinsicAllowedCondition(id),
+      };
+    }),
   }));
   return [
     '각 후보에 허용된 ID 중 히어로 배열 하나를 고르세요.',
     'select_hero_layout 도구를 candidate_index 0, 1, 2에 정확히 한 번씩 호출하세요.',
     `[선택 대상] ${JSON.stringify(targets)}`,
-    `[카탈로그] ${JSON.stringify(catalog)}`,
   ].join('\n');
 }
 

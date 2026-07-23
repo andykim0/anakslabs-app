@@ -289,6 +289,11 @@ function StandardSection({
             splitText={splitText}
             splitTextMode={cinematicPlayback ? 'progress' : 'io'}
             hoverVideo={hoverVideo}
+            layoutFontSize={heroLayoutBand?.fontSizes[el.id] != null
+              ? cqw(heroLayoutBand.fontSizes[el.id])
+              : undefined}
+            layoutAlign={heroLayoutBand?.align}
+            layoutFillFrame={Boolean(heroLayoutBand && el.kind === 'button')}
           />
         );
         return (

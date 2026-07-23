@@ -176,10 +176,71 @@ function compileBand({
   const zone = SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY[band][zoneId];
   const spacing = themeSpacing(theme, band);
   const align = fallbackFlow ? 'start' : recipe.align;
-  const contentX = zone.x * width;
-  const contentWidth = zone.width * width;
+  let contentX = zone.x * width;
+  let contentWidth = zone.width * width;
   const frames: Record<string, HeroLayoutCompiledFrame> = {};
   const fontSizes: Record<string, number> = {};
+  let mediaFrame: HeroLayoutCompiledFrame | undefined;
+  let offsetPanelBounds: {
+    x: number;
+    y: number;
+    right: number;
+  } | undefined;
+
+  if (mediaAvailable && recipe.media.placement === 'fixed' && recipe.media.frame) {
+    const authored = recipe.media.frame;
+    const mediaWidth = authored.width * width;
+    mediaFrame = frame(
+      authored.x * width,
+      authored.y * baseHeight,
+      mediaWidth,
+      mediaWidth / aspectRatio(recipe.media.aspect),
+    );
+  } else if (
+    mediaAvailable
+    && recipe.flow === 'offset-surface'
+    && recipe.media.placement === 'fixed'
+    && recipe.media.columns
+  ) {
+    const [start, end] = recipe.media.columns;
+    const columnWidth = (zone.width * width) / recipe.gridColumns;
+    const mediaWidth = (end - start + 1) * columnWidth;
+    mediaFrame = frame(
+      zone.x * width + (start - 1) * columnWidth,
+      zone.y * baseHeight,
+      mediaWidth,
+      mediaWidth / aspectRatio(recipe.media.aspect),
+    );
+  }
+
+  if (mediaAvailable && recipe.flow === 'offset-surface' && mediaFrame) {
+    const zoneRight = (zone.x + zone.width) * width;
+    const panelX = band === 'mobile'
+      ? zone.x * width + (zone.width * width) / recipe.gridColumns / 2
+      : Math.max(
+          ((recipe.contentColumns[0] - 1) / recipe.gridColumns) * width,
+          mediaFrame.x + mediaFrame.w + spacing.elementGap,
+        );
+    const panelY = band === 'mobile'
+      ? mediaFrame.y + mediaFrame.h + spacing.elementGap
+      : Math.max(
+          mediaFrame.y + spacing.elementGap * 2,
+          zone.y * baseHeight - spacing.sectionInline,
+        );
+    offsetPanelBounds = {
+      x: panelX,
+      y: panelY,
+      right: zoneRight,
+    };
+    contentX = Math.max(
+      zone.x * width,
+      panelX + spacing.sectionInline,
+    );
+    contentWidth = Math.max(
+      spacing.sectionInline * 4,
+      zoneRight - contentX - spacing.sectionInline,
+    );
+  }
 
   const logo = elementFor(elements, 'hero-logo');
   const eyebrow = asText(elementFor(elements, 'hero-kicker'));
@@ -197,7 +258,13 @@ function compileBand({
     ? themeFontSize(theme, 'title', 38)
     : themeFontSize(theme, 'display', band === 'wide' ? 76 : 56);
   const titleSize = themeFontSize(theme, 'title', band === 'mobile' ? 36 : 48);
-  const headingLineHeight = theme.tokens?.typography.lineHeight.heading ?? 1.3;
+  // ElementContent can retain the stored leading when a DNA role would not fit the
+  // compiled frame. Reserve the larger of both contracts so the server projection
+  // cannot make the renderer fall back into an overlapping line box.
+  const headingLineHeight = Math.max(
+    theme.tokens?.typography.lineHeight.heading ?? 1.3,
+    headline?.style.lineHeight ?? 1.3,
+  );
   let headingSize = displaySize;
   let headingLines = headline
     ? estimatedHeroHeadlineLines(headline.text, contentWidth, headingSize)
@@ -211,10 +278,16 @@ function compileBand({
 
   const eyebrowSize = themeFontSize(theme, 'caption', band === 'mobile' ? 13 : 14);
   const leadSize = themeFontSize(theme, 'lead', band === 'mobile' ? 16 : 18);
-  const bodyLineHeight = theme.tokens?.typography.lineHeight.body ?? 1.65;
+  const bodyLineHeight = Math.max(
+    theme.tokens?.typography.lineHeight.body ?? 1.65,
+    eyebrow?.style.lineHeight ?? 1.6,
+    lead?.style.lineHeight ?? 1.65,
+  );
   const chipSize = themeFontSize(theme, 'caption', 13);
   const buttonSize = themeFontSize(theme, 'body', 15);
-  let cursorY = zone.y * baseHeight;
+  let cursorY = offsetPanelBounds
+    ? offsetPanelBounds.y + spacing.sectionInline
+    : zone.y * baseHeight;
   const flowItems: HeroLayoutCompiledFrame[] = [];
 
   const place = (
@@ -331,17 +404,7 @@ function compileBand({
   const finalContentBottom = Object.values(frames).length > 0
     ? Math.max(...Object.values(frames).map((item) => item.y + item.h))
     : 0;
-  let mediaFrame: HeroLayoutCompiledFrame | undefined;
-  if (mediaAvailable && recipe.media.placement === 'fixed' && recipe.media.frame) {
-    const authored = recipe.media.frame;
-    const mediaWidth = authored.width * width;
-    mediaFrame = frame(
-      authored.x * width,
-      authored.y * baseHeight,
-      mediaWidth,
-      mediaWidth / aspectRatio(recipe.media.aspect),
-    );
-  } else if (mediaAvailable && recipe.media.placement === 'after-flow') {
+  if (mediaAvailable && recipe.media.placement === 'after-flow') {
     const mediaWidth = contentWidth;
     mediaFrame = frame(
       contentX,
@@ -366,12 +429,21 @@ function compileBand({
 
   let panelFrame: HeroLayoutCompiledFrame | undefined;
   if (recipe.panel === 'surface-offset' && finalContentBottom > contentTop) {
-    panelFrame = frame(
-      Math.max(0, contentX - spacing.sectionInline),
-      Math.max(0, contentTop - spacing.sectionInline),
-      Math.min(width, contentWidth + spacing.sectionInline * 2),
-      finalContentBottom - contentTop + spacing.sectionInline * 2,
-    );
+    if (offsetPanelBounds) {
+      panelFrame = frame(
+        offsetPanelBounds.x,
+        offsetPanelBounds.y,
+        offsetPanelBounds.right - offsetPanelBounds.x,
+        finalContentBottom - offsetPanelBounds.y + spacing.sectionInline,
+      );
+    } else {
+      panelFrame = frame(
+        Math.max(0, contentX - spacing.sectionInline),
+        Math.max(0, contentTop - spacing.sectionInline),
+        Math.min(width, contentWidth + spacing.sectionInline * 2),
+        finalContentBottom - contentTop + spacing.sectionInline * 2,
+      );
+    }
   }
 
   return {

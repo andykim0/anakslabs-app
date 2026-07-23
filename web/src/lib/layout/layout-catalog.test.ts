@@ -112,6 +112,12 @@ describe('LayoutVariant hero catalog', () => {
           assert.ok(start >= 1 && start <= end && end <= recipe.gridColumns, `${variant.id}/${band}`);
         }
         const mediaFrame = recipe.media.frame;
+        if (recipe.media.placement === 'fixed') {
+          assert.ok(
+            mediaFrame || (recipe.flow === 'offset-surface' && recipe.media.columns),
+            `${variant.id}/${band}: fixed media requires a frame or offset grid span`,
+          );
+        }
         if (mediaFrame) {
           assert.ok(mediaFrame.x >= 0 && mediaFrame.y >= 0);
           assert.ok(mediaFrame.width > 0 && mediaFrame.height > 0);
@@ -130,4 +136,3 @@ describe('LayoutVariant hero catalog', () => {
     assert.doesNotMatch(source, /\b[\w$]*(?:hex|px)[\w$]*\??\s*:/iu);
   });
 });
-

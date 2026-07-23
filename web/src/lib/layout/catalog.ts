@@ -577,4 +577,3 @@ export function heroLayoutById(
   if (!variant) throw new Error(`Unknown hero layout variant: ${id}`);
   return variant;
 }
-

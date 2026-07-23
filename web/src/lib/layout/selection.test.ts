@@ -111,12 +111,21 @@ describe('LIB L3 select_hero_layout structured tool', () => {
       imageCandidate,
       imageCandidate,
     ]);
-    const catalogLine = prompt.split('\n').find((line) => line.startsWith('[카탈로그] '))!;
-    const catalog = JSON.parse(catalogLine.slice('[카탈로그] '.length)) as Array<Record<string, unknown>>;
-    for (const entry of catalog) {
-      assert.deepEqual(Object.keys(entry), ['id', 'description', 'allowedCondition']);
+    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[선택 대상] '))!;
+    const targets = JSON.parse(targetsLine.slice('[선택 대상] '.length)) as Array<{
+      candidateIndex: number;
+      allowedLayouts: Array<Record<string, unknown>>;
+    }>;
+    for (const target of targets) {
+      assert.deepEqual(Object.keys(target), ['candidateIndex', 'allowedLayouts']);
+      for (const entry of target.allowedLayouts) {
+        assert.deepEqual(Object.keys(entry), ['id', 'description', 'allowedCondition']);
+      }
     }
-    assert.doesNotMatch(prompt, /"score"|"x"|"y"|"media"|"posterAvailable"|"videoAvailable"/u);
+    assert.doesNotMatch(
+      prompt,
+      /"score"|"x"|"y"|"media"|"posterAvailable"|"videoAvailable"|"dnaId"|"industry"|"allowedIds"/u,
+    );
   });
 
   test('strict enum 뒤 서버 allowlist 재검증을 통과한 3개만 순서대로 핀한다', async () => {
