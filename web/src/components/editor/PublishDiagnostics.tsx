@@ -137,12 +137,25 @@ export function PublishDiagnostics({
       {actionable.length > 0 ? (
         <ul className="space-y-2">
           {actionable.map((iss) => (
-            <li key={iss.code} className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] p-3">
+            <li
+              key={iss.code}
+              className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] p-3"
+              data-input-to-perfect={iss.guidance?.presentation === 'input-to-perfect' ? iss.code : undefined}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-1.5 text-xs font-medium text-[#0B1736]">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#174DDA]" />
+                    {iss.guidance?.presentation === 'input-to-perfect' ? (
+                      <Sparkles className="h-3.5 w-3.5 shrink-0 text-emerald-700" />
+                    ) : (
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#174DDA]" />
+                    )}
                     {iss.guidance!.title}
+                    {iss.guidance?.presentation === 'input-to-perfect' ? (
+                      <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[9px] text-emerald-700">
+                        입력하면 만점
+                      </span>
+                    ) : null}
                     <span className="rounded bg-[#E8EDF5] px-1.5 py-0.5 text-[9px] text-[#5F6B7C]">
                       {PILLAR_LABEL[iss.pillar]}
                     </span>

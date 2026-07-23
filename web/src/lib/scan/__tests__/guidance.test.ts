@@ -4,6 +4,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SCAN_GUIDANCE, allScanCodes, guidanceFor, type GuidanceAnchor } from '@/lib/scan/guidance';
+import { scanRuleFor } from '@/lib/scan/rule-registry';
 
 const VALID_ANCHORS: GuidanceAnchor[] = [
   'editor:content',
@@ -32,5 +33,28 @@ describe('SCAN_GUIDANCE 완전성', () => {
     const codes = new Set(allScanCodes());
     const extra = Object.keys(SCAN_GUIDANCE).filter((c) => !codes.has(c));
     assert.deepEqual(extra, [], `규칙에 없는 잉여 guidance: ${extra.join(', ')}`);
+  });
+
+  test('입력하면 만점 안내는 단순 고객 입력 부재에만 쓰고 출처 없는 주장은 감점으로 유지한다', () => {
+    const inputToPerfect = Object.entries(SCAN_GUIDANCE)
+      .filter(([, guidance]) => guidance.presentation === 'input-to-perfect')
+      .map(([code]) => code)
+      .sort();
+
+    assert.deepEqual(inputToPerfect, [
+      'aeo_local_business_details',
+      'geo_author',
+      'geo_business_info',
+      'geo_dates',
+    ]);
+    for (const code of inputToPerfect) {
+      assert.equal(scanRuleFor(code)?.ownership, 'customer', `${code}는 고객 입력 규칙이어야 한다`);
+      assert.match(guidanceFor(code)?.title ?? '', /입력하면 이 항목이 만점이 돼요$/);
+    }
+
+    const unsourcedClaims = scanRuleFor('geo_unsourced_claims');
+    assert.equal(unsourcedClaims?.weight, 9);
+    assert.equal(unsourcedClaims?.ownership, 'customer');
+    assert.equal(guidanceFor('geo_unsourced_claims')?.presentation, undefined);
   });
 });

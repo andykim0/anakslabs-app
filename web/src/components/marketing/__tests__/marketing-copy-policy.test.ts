@@ -111,8 +111,10 @@ describe('LP$ L1 지식 0 눈높이 카피', () => {
 
   test('진단 결과는 기술 원문보다 고객용 조치 안내를 먼저 사용한다', () => {
     const scanner = readFileSync(join(process.cwd(), 'src/components/landing/LandingScanner.tsx'), 'utf8');
-    assert.match(scanner, /guidanceFor\(issue\.code\)\?\.title \?\? issue\.label/);
-    assert.match(scanner, /guidanceFor\(issue\.code\)\?\.action \?\? issue\.detail/);
+    assert.match(scanner, /const guidance = guidanceFor\(issue\.code\)/);
+    assert.match(scanner, /guidance\?\.title \?\? issue\.label/);
+    assert.match(scanner, /guidance\?\.action \?\? issue\.detail/);
+    assert.match(scanner, /data-input-to-perfect=/);
     assert.match(scanner, /기술 설명 보기/);
   });
 });

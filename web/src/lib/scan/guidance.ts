@@ -2,9 +2,7 @@
  * 발행 전 진단 가이드 — 모든 scan 이슈를 고객 언어의 실행 가능한 코칭으로 매핑한다.
  * 카피는 검색 노출이나 AI 인용을 보장하지 않고, 실제로 개선되는 해석·수집·접근 조건만 설명한다.
  */
-import { AEO_RULES } from './checks/aeo';
-import { GEO_RULES } from './checks/geo';
-import { SEO_RULES } from './checks/seo';
+import { ALL_SCAN_RULES } from './rule-registry';
 
 /** 딥링크 대상 — 고객이 '어디를 채우면 되는지'. system=발행 시 자동 처리(고객 조치 불필요) */
 export type GuidanceAnchor =
@@ -22,13 +20,22 @@ export interface ScanGuidance {
   /** 예상 효과 한 줄 */
   effect: string;
   anchor: GuidanceAnchor;
+  /** 단순 고객 정보 부재는 오류 대신 채우면 만점이 되는 항목으로 안내한다. */
+  presentation?: 'input-to-perfect';
 }
 
-const G = (title: string, action: string, effect: string, anchor: GuidanceAnchor): ScanGuidance => ({
+const G = (
+  title: string,
+  action: string,
+  effect: string,
+  anchor: GuidanceAnchor,
+  presentation?: ScanGuidance['presentation'],
+): ScanGuidance => ({
   title,
   action,
   effect,
   anchor,
+  ...(presentation ? { presentation } : {}),
 });
 
 const AUTO = '발행하면 자동으로 처리돼요 — 따로 하실 일은 없어요.';
@@ -73,7 +80,13 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   aeo_jsonld_type: G('페이지 의미를 설명하는 타입이 부족해요', AUTO, '업체·인물·페이지·상품의 역할을 더 분명히 전달해요.', 'system'),
   aeo_entity_identity: G('운영 주체 정보가 불완전해요', '공식 이름과 URL을 확인해주세요.', '브랜드·업체·인물을 하나의 엔티티로 연결하기 쉬워져요.', 'editor:business-info'),
   aeo_jsonld_visibility: G('구조화 정보와 화면 내용이 달라요', '이름·전화·주소가 화면과 JSON-LD에서 같은 값인지 확인해주세요.', '검색엔진과 사용자가 동일한 업체 정보를 확인할 수 있어요.', 'editor:business-info'),
-  aeo_local_business_details: G('지역 업체 정보가 불완전해요', '실제 주소와 전화번호를 정확히 채워주세요.', '네이버·구글이 매장 정보를 교차 확인하기 쉬워져요.', 'editor:business-info'),
+  aeo_local_business_details: G(
+    '주소와 전화번호를 입력하면 이 항목이 만점이 돼요',
+    '사장님이 확인한 실제 주소와 전화번호를 입력해주세요.',
+    '네이버·구글이 매장 정보를 교차 확인하기 쉬워져요.',
+    'editor:business-info',
+    'input-to-perfect',
+  ),
   aeo_heading_order: G('제목 순서가 뒤섞였어요', '대표 제목 아래에 큰 주제→세부 주제 순서로 정리해주세요.', '질문과 답변의 문맥 경계를 파악하기 쉬워져요.', 'editor:content'),
   aeo_question_headings: G('FAQ 질문 경계가 불명확해요', '각 질문을 소제목으로 표시하고 바로 아래에 답을 적어주세요.', '답변 시스템이 질문별 내용을 정확히 분리하기 쉬워져요.', 'editor:content'),
   aeo_main_landmark: G('본문 영역 표시가 없어요', AUTO, '검색 에이전트와 스크린리더가 핵심 본문을 찾기 쉬워져요.', 'system'),
@@ -88,11 +101,29 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   geo_naver_sourceinfo_disabled: G('네이버 AI 출처 설명이 꺼져 있어요', 'AI 출처 설명을 원한다면 robots meta의 nosourceinfo를 제거해주세요.', '네이버가 허용된 화면에서 페이지를 출처로 설명할 수 있어요.', 'system'),
   geo_no_text: G('읽을 본문 텍스트가 거의 없어요', '서비스·제품·절차·이용 정보를 실제 텍스트로 채워주세요.', '검색·답변 시스템이 요약하고 확인할 근거가 생겨요.', 'editor:content'),
   geo_low_text_ratio: G('핵심 설명이 마크업에 묻혀 있어요', '첫 화면과 주요 섹션에 구체적인 설명을 보강해주세요.', '페이지의 중심 정보와 근거를 찾기 쉬워져요.', 'editor:content'),
-  geo_business_info: G('지역 업체의 주소·연락처가 불완전해요', '실제 전화번호와 도로명 주소를 같은 표기로 채워주세요.', '매장 질문에 답할 수 있는 확인 가능한 근거가 생겨요.', 'editor:business-info'),
-  geo_dates: G('콘텐츠 날짜가 없어요', '기사·가이드의 작성일과 실제 수정일을 표시해주세요.', '사용자와 답변 시스템이 최신성을 판단할 수 있어요.', 'editor:content'),
+  geo_business_info: G(
+    '주소와 전화번호를 입력하면 이 항목이 만점이 돼요',
+    '실제 전화번호와 도로명 주소를 같은 표기로 입력해주세요.',
+    '매장 질문에 답할 수 있는 확인 가능한 근거가 생겨요.',
+    'editor:business-info',
+    'input-to-perfect',
+  ),
+  geo_dates: G(
+    '작성일과 수정일을 입력하면 이 항목이 만점이 돼요',
+    '기사·가이드의 실제 작성일과 수정일을 입력해주세요.',
+    '사용자와 답변 시스템이 최신성을 판단할 수 있어요.',
+    'editor:content',
+    'input-to-perfect',
+  ),
   geo_lang: G('언어 설정이 없어요', AUTO, '한국어 문서와 지역 문맥을 더 정확히 구분할 수 있어요.', 'system'),
   geo_korean_lang_mismatch: G('본문과 언어 설정이 맞지 않아요', AUTO, '한국어 검색·음성·답변 처리의 언어 신호가 일치해요.', 'system'),
-  geo_author: G('콘텐츠 책임 주체가 없어요', '작성자 또는 검토자와 관련 경험을 밝혀주세요.', '독자가 정보의 출처와 책임을 확인할 수 있어요.', 'editor:content'),
+  geo_author: G(
+    '작성자나 검토자를 입력하면 이 항목이 만점이 돼요',
+    '실제 작성자 또는 검토자와 관련 경험을 입력해주세요.',
+    '독자가 정보의 출처와 책임을 확인할 수 있어요.',
+    'editor:content',
+    'input-to-perfect',
+  ),
   geo_channel_identity: G('공식 채널이 엔티티와 연결되지 않았어요', AUTO, '네이버·카카오·SNS 채널을 같은 공식 주체로 해석하기 쉬워져요.', 'system'),
   geo_unsourced_claims: G('수치·연구 주장에 출처가 없어요', '원문 링크와 발행 주체·기준 날짜를 함께 표시해주세요.', '사람과 생성형 검색이 주장을 검증하고 정확히 인용하기 쉬워져요.', 'editor:content'),
   geo_topic_alignment: G('페이지 제목과 대표 제목의 주제가 달라요', 'title과 H1이 같은 핵심 주제를 설명하도록 다듬어주세요.', '페이지의 대표 질문과 답을 일관되게 해석할 수 있어요.', 'editor:meta'),
@@ -106,5 +137,5 @@ export function guidanceFor(code: string): ScanGuidance | undefined {
 
 /** 전 scan 규칙 코드 목록 (guidance 완전성 테스트·전수 검증용) */
 export function allScanCodes(): string[] {
-  return [...SEO_RULES, ...AEO_RULES, ...GEO_RULES].map((r) => r.code);
+  return ALL_SCAN_RULES.map((rule) => rule.code);
 }

@@ -131,6 +131,7 @@ export interface ScanIssueGuidance {
   action: string;
   effect: string;
   anchor: 'editor:content' | 'editor:business-info' | 'editor:meta' | 'editor:images' | 'system';
+  presentation?: 'input-to-perfect';
 }
 export interface PreflightIssue {
   code: string;

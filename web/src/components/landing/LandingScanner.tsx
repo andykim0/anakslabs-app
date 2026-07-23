@@ -116,22 +116,35 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
       <ul className="divide-y divide-[#EDEBE4]">
         {shown.map((group) => {
           const issue = group.primary;
+          const guidance = guidanceFor(issue.code);
+          const isInputToPerfect = guidance?.presentation === 'input-to-perfect';
           return (
-          <li key={group.key} className="px-4 py-4">
+          <li
+            key={group.key}
+            className="px-4 py-4"
+            data-input-to-perfect={isInputToPerfect ? issue.code : undefined}
+          >
             <div className="flex items-start gap-2">
-              <span className={SEVERITY_META[issue.severity].tone}>{SEVERITY_META[issue.severity].icon}</span>
-              <span className="mkt-type-body font-medium text-[#17181C]">{guidanceFor(issue.code)?.title ?? issue.label}</span>
+              <span className={isInputToPerfect ? 'text-[#087D70]' : SEVERITY_META[issue.severity].tone}>
+                {isInputToPerfect ? <Info className="h-3.5 w-3.5" /> : SEVERITY_META[issue.severity].icon}
+              </span>
+              <span className="mkt-type-body font-medium text-[#17181C]">{guidance?.title ?? issue.label}</span>
+              {isInputToPerfect ? (
+                <span className="mkt-type-support shrink-0 rounded-full bg-[#EAFBF7] px-2 py-0.5 text-[#087D70]">
+                  입력하면 만점
+                </span>
+              ) : null}
               <span className="mkt-type-support ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 uppercase tracking-wider text-[#5C6068]">
                 {issue.pillar}
               </span>
             </div>
             <p className="mkt-type-support mt-1.5 pl-5.5 text-[#4F5867]">
-              {guidanceFor(issue.code)?.action ?? issue.detail}
+              {guidance?.action ?? issue.detail}
             </p>
-            {guidanceFor(issue.code)?.effect ? (
-              <p className="mkt-type-support mt-1 pl-5.5 text-[#087D70]">바뀌는 점: {guidanceFor(issue.code)?.effect}</p>
+            {guidance?.effect ? (
+              <p className="mkt-type-support mt-1 pl-5.5 text-[#087D70]">바뀌는 점: {guidance.effect}</p>
             ) : null}
-            {guidanceFor(issue.code) ? (
+            {guidance ? (
               <details className="mkt-type-support mt-2 pl-5.5 text-[#697386]">
                 <summary className="cursor-pointer select-none">기술 설명 보기</summary>
                 <p className="mt-1">{issue.label} — {issue.detail}</p>
