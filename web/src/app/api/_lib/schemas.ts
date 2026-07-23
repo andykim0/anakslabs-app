@@ -1205,6 +1205,7 @@ export const designCandidateSchema = z.object({
   theme: siteThemeSchema,
   description: z.string(),
   designDna: designDnaSelectionSchema.optional(),
+  heroLayoutVariantId: z.enum(HERO_LAYOUT_VARIANT_IDS).optional(),
 });
 
 // ---------- 커스텀 도메인 ----------

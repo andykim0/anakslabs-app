@@ -40,6 +40,12 @@ import {
   type DnaSelectionToolInvoker,
 } from '@/lib/design/dna';
 import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
+import {
+  layoutVariantsEnabled,
+  selectHeroLayouts,
+  type HeroLayoutSelectionToolInvoker,
+  type HeroLayoutVariantId,
+} from '@/lib/layout';
 
 export interface CandidateBlueprint {
   id: string;
@@ -61,6 +67,8 @@ export interface CandidateBlueprint {
   brief: DesignBrief;
   /** DNA rollout ON에서만 존재하는 enum-only 선택 핀. */
   designDna?: DesignDnaSelection;
+  /** LIB rollout ON에서만 존재하는 enum-only 배열 핀. */
+  heroLayoutVariantId?: HeroLayoutVariantId;
 }
 
 // ---------- 설문 전처리 ----------
@@ -245,12 +253,35 @@ export async function buildCandidateBlueprintsForPipeline(
   options: {
     enabled?: boolean;
     invoke?: DnaSelectionToolInvoker;
+    layoutEnabled?: boolean;
+    layoutInvoke?: HeroLayoutSelectionToolInvoker;
   } = {},
 ): Promise<CandidateBlueprint[]> {
   const enabled = options.enabled ?? dnaPipelineEnabled();
-  if (!enabled) return buildCandidateBlueprints(survey);
-  const result = await selectDesignDnaCandidates(survey, options.invoke);
-  return buildCandidateBlueprints(survey, result.selections);
+  const blueprints = enabled
+    ? buildCandidateBlueprints(
+        survey,
+        (await selectDesignDnaCandidates(survey, options.invoke)).selections,
+      )
+    : buildCandidateBlueprints(survey);
+  const layoutEnabled = options.layoutEnabled ?? layoutVariantsEnabled();
+  if (!layoutEnabled) return blueprints;
+  const selections = await selectHeroLayouts(
+    survey,
+    blueprints.map((blueprint) => ({
+      ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
+      media: {
+        image: Boolean(blueprint.mockHeroUrl),
+        video: false,
+        poster: false,
+      },
+    })),
+    options.layoutInvoke,
+  );
+  return blueprints.map((blueprint, index) => ({
+    ...blueprint,
+    heroLayoutVariantId: selections[index],
+  }));
 }
 
 // ---------- 후보 → 블루프린트 역참조 (2차 단계에서 재사용) ----------

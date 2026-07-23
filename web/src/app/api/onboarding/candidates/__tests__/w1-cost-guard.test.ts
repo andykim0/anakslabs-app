@@ -63,7 +63,8 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
     const configAt = routeSource.indexOf('const cfg = heroImageGenConfig()');
     const rateAt = routeSource.indexOf('if (requiresAiMedia && rateLimited(client.id, cfg.maxBatchesPerClient))');
     assert.ok(cachedAt >= 0 && configAt > cachedAt && rateAt > configAt);
-    assert.match(routeSource, /const designPipeline = dnaPipelineEnabled\(\) \? 'dna' : 'legacy'/);
+    assert.match(routeSource, /dnaPipelineEnabled\(\) \? 'dna' : 'legacy'/);
+    assert.match(routeSource, /layoutVariantsEnabled\(\) \? '-layout' : ''/);
     assert.match(routeSource, /`\$\{clientId\}:\$\{siteId \?\? 'new'\}:\$\{designPipeline\}:\$\{requestKey\}:\$\{surveySignature\(survey\)\}`/);
     assert.match(routeSource, /createHash\('sha256'\)/);
     assert.match(routeSource, /10 \* 60_000/);

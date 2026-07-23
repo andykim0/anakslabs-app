@@ -20,6 +20,7 @@ import {
   CandidateAssetTruthError,
   validateCandidateAssetRef,
 } from '@/lib/assets/owned-refs';
+import { pinnedHeroLayoutIsAllowed } from '@/lib/layout/selection';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { assetPolicyVersionForNewSite } from '@/lib/assets/provenance-flags-core';
 import {
@@ -150,6 +151,13 @@ export const POST = withApiHandler(async (request) => {
       return apiError(error.status, error.code, error.message);
     }
     throw error;
+  }
+  if (!pinnedHeroLayoutIsAllowed(survey, candidate)) {
+    return apiError(
+      400,
+      'INVALID_HERO_LAYOUT',
+      '선택한 디자인의 첫 화면 구성을 확인할 수 없습니다. 디자인 후보를 다시 골라주세요.',
+    );
   }
 
   // [v4 #3e] providedContent 내 URL 텍스트 흡수 (실모드만 — mock은 providedContent 미소비)

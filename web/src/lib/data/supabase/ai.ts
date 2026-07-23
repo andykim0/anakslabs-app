@@ -264,6 +264,15 @@ export class SupabaseAiService implements AiService {
           inputSchema: tool.inputSchema,
         },
       }),
+      layoutInvoke: ({ prompt, system, tool }) => generateClaudeToolInputs({
+        prompt,
+        system,
+        tool: {
+          name: tool.name,
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        },
+      }),
     });
     if (v2Plan?.kind === 'reuse_customer_upload') {
       return blueprints.map((bp) => ({
@@ -276,6 +285,7 @@ export class SupabaseAiService implements AiService {
         theme: bp.theme,
         description: bp.description,
         ...(bp.designDna ? { designDna: bp.designDna } : {}),
+        ...(bp.heroLayoutVariantId ? { heroLayoutVariantId: bp.heroLayoutVariantId } : {}),
       }));
     }
     // [H3] 고객이 고른 실제 대표 사진이 있으면 이미지 AI를 호출하지 않는다. 세 후보는 같은 진짜 사진을
@@ -290,6 +300,7 @@ export class SupabaseAiService implements AiService {
         theme: bp.theme,
         description: bp.description,
         ...(bp.designDna ? { designDna: bp.designDna } : {}),
+        ...(bp.heroLayoutVariantId ? { heroLayoutVariantId: bp.heroLayoutVariantId } : {}),
       }));
     }
     // Claude 1회 호출로 3안 텍스트를 다듬는다 (실패 시 빈 Map → 결정적 텍스트)
@@ -329,6 +340,7 @@ export class SupabaseAiService implements AiService {
           theme: bp.theme,
           description: text?.description ?? bp.description,
           ...(bp.designDna ? { designDna: bp.designDna } : {}),
+          ...(bp.heroLayoutVariantId ? { heroLayoutVariantId: bp.heroLayoutVariantId } : {}),
         };
       }),
     );
@@ -440,6 +452,9 @@ export class SupabaseAiService implements AiService {
       imagePool,
       copy,
       heroVariant,
+      ...(candidate.heroLayoutVariantId
+        ? { heroLayoutVariantId: candidate.heroLayoutVariantId }
+        : {}),
       ...(assetRefs.length ? { assetRefs } : {}),
     });
   }

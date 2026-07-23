@@ -20,6 +20,9 @@ export function buildCandidatePreviewConfig(
     heroImageUrl,
     imagePool: [heroImageUrl],
     heroVariant: heroVariantForSurvey(survey.referenceDesignId, survey.purposeId, candidate.id),
+    ...(candidate.heroLayoutVariantId
+      ? { heroLayoutVariantId: candidate.heroLayoutVariantId }
+      : {}),
   }));
   const config = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(cinematicBase)

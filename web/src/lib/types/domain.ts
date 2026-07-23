@@ -15,6 +15,7 @@ import type { AssetRef } from '@/lib/assets/provenance';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { DesignDnaSelection } from '@/lib/design/dna/types';
 import type { HeroPhotoQualityStamp } from '@/lib/assets/hero-photo-quality';
+import type { HeroLayoutVariantId } from '@/lib/layout/types';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -583,6 +584,8 @@ export interface DesignCandidate {
   description: string;
   /** DNA rollout ON에서 서버가 선택해 반환한 enum-only 핀. */
   designDna?: DesignDnaSelection;
+  /** LIB rollout ON에서만 서버가 발급하는 enum-only 히어로 배열 핀. */
+  heroLayoutVariantId?: HeroLayoutVariantId;
 }
 
 // ---------- 커스텀 도메인 ----------

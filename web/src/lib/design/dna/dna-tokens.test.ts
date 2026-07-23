@@ -179,7 +179,7 @@ describe('DNA pipeline static invariants', () => {
     );
     const siteSource = readFileSync(resolve(process.cwd(), 'src/lib/types/site.ts'), 'utf8');
     assert.match(candidateSource, /dnaPipelineEnabled/iu);
-    assert.match(candidateSource, /if \(!enabled\) return buildCandidateBlueprints\(survey\)/u);
+    assert.match(candidateSource, /const blueprints = enabled[\s\S]*?: buildCandidateBlueprints\(survey\)/u);
     assert.match(siteSource, /designDna\?: DesignDnaSelection/u);
   });
 });
