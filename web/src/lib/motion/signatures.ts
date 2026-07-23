@@ -8,6 +8,10 @@
  */
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import { hasVideoAddon } from '@/lib/services/entitlements';
+import {
+  ACTIVE_SIGNATURE_CONTRACTS,
+  type SignatureContract,
+} from '@/lib/motion/signature-contract';
 import type { SitePurposeId, SurveyInput } from '@/lib/types/domain';
 import type {
   ActiveMotionSignatureId,
@@ -97,6 +101,8 @@ export interface MotionSignatureSpec {
   basicTierFallback: string;
   signatureUnits: 1;
   sticky: boolean;
+  /** Active entries author this contract; candidate/legacy entries only accept the schema for later promotion. */
+  contract?: SignatureContract;
 }
 
 const ANY_POLICY: MotionSignaturePurposePolicy = {
@@ -120,7 +126,7 @@ export const MOTION_SIGNATURES = {
     mobileFallback: 'poster-first muted pinned loop without seeking',
     reducedMotionFallback: 'static poster and immediately visible copy',
     noJsFallback: 'static poster and semantic hero copy', basicTierFallback: 'ken-burns',
-    signatureUnits: 1, sticky: true,
+    signatureUnits: 1, sticky: true, contract: ACTIVE_SIGNATURE_CONTRACTS['cinematic-scrub'],
   }),
   'scrollytelling-manifesto': spec({
     id: 'scrollytelling-manifesto', status: 'active', label: '매니페스토',
@@ -142,7 +148,7 @@ export const MOTION_SIGNATURES = {
     mobileFallback: 'pinned loop with normal vertical act reading',
     reducedMotionFallback: 'poster followed by a normal semantic article stack',
     noJsFallback: 'poster followed by all acts in document order', basicTierFallback: 'ken-burns',
-    signatureUnits: 1, sticky: true,
+    signatureUnits: 1, sticky: true, contract: ACTIVE_SIGNATURE_CONTRACTS['scrollytelling-manifesto'],
   }),
   'sticky-chapters': spec({
     id: 'sticky-chapters', status: 'candidate', label: '스티키 챕터',
@@ -176,6 +182,7 @@ export const MOTION_SIGNATURES = {
     mobileFallback: 'normal vertical card list in DOM and focus order',
     reducedMotionFallback: 'normal vertical card list', noJsFallback: 'normal vertical card list',
     basicTierFallback: 'scroll-reveal', signatureUnits: 1, sticky: true,
+    contract: ACTIVE_SIGNATURE_CONTRACTS['true-card-stack'],
   }),
   'portal-zoom': spec({
     id: 'portal-zoom', status: 'candidate', label: '포털 줌',
@@ -207,6 +214,7 @@ export const MOTION_SIGNATURES = {
     mobileFallback: 'vertical scenes with optional one-shot mask reveal',
     reducedMotionFallback: 'fully open vertical scenes', noJsFallback: 'fully visible semantic scene stack',
     basicTierFallback: 'mask-reveal', signatureUnits: 1, sticky: true,
+    contract: ACTIVE_SIGNATURE_CONTRACTS['scroll-curtain'],
   }),
   'mosaic-reveal': spec({
     id: 'mosaic-reveal', status: 'candidate', label: '모자이크 리빌',
@@ -238,7 +246,7 @@ export const MOTION_SIGNATURES = {
     desktopPlayback: 'semantic ordered timeline with transform-only progress line',
     mobileFallback: 'single-column ordered timeline', reducedMotionFallback: 'static ordered timeline',
     noJsFallback: 'semantic ol/li timeline', basicTierFallback: 'scroll-reveal',
-    signatureUnits: 1, sticky: false,
+    signatureUnits: 1, sticky: false, contract: ACTIVE_SIGNATURE_CONTRACTS['path-journey'],
   }),
   'before-after-scrub': spec({
     id: 'before-after-scrub', status: 'candidate', label: '실제 사례 전후 비교',
