@@ -39,6 +39,7 @@ import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
+import { signatureContractEnabled } from '@/lib/motion/signature-contract';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -408,6 +409,7 @@ export function SiteRenderer({
     sceneSourceSectionsAreSafe(signatureCandidate, sections)
     ? signatureCandidate
     : undefined;
+  const useSignatureContract = signatureContractEnabled();
   const signatureArt = signatureScene
     ? resolveMotionArtDirectionProfile(signatureScene.signatureId, signatureContext, signatureScene)
     : undefined;
@@ -503,6 +505,7 @@ export function SiteRenderer({
                         artDirection={signatureArt}
                         mode={mode}
                         isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
+                        signatureContractEnabled={useSignatureContract}
                       />
                     </SiteCinematicChapter>
                   );
@@ -540,6 +543,7 @@ export function SiteRenderer({
                   artDirection={signatureArt}
                   mode={mode}
                   isFirst={sections[0]?.id === section.id && motionSceneMayOwnLcp(signatureScene)}
+                  signatureContractEnabled={useSignatureContract}
                 />
               );
             }

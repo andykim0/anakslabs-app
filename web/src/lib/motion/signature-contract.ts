@@ -2,6 +2,12 @@ import type {
   ActiveMotionSignatureId,
   SectionType,
 } from '@/lib/types/site';
+import {
+  defaultCinematicCompositionPattern,
+  resolveScrollytellingComposition,
+  type ScrollytellingEntrance,
+  type ScrollytellingPlacement,
+} from '@/lib/motion/scrollytelling-composition';
 
 export const SIGNATURE_CONTRACT_PHASE_IDS = [
   'enter',
@@ -109,6 +115,30 @@ export interface SignatureContract {
   contrastPolicy: Readonly<Record<SignatureContractPhaseId, SignatureContrastPolicy>>;
   renderContract: SignatureRenderContract;
   contentShape: SignatureContentShape;
+}
+
+export interface SignatureContractEnvironment {
+  [key: string]: string | undefined;
+  SIGNATURE_CONTRACT_ENABLED?: string;
+}
+
+/** Server-owned rollout switch. Missing, blank, and malformed values are OFF. */
+export function signatureContractEnabled(
+  environment: SignatureContractEnvironment = process.env,
+): boolean {
+  return environment.SIGNATURE_CONTRACT_ENABLED === '1';
+}
+
+export interface SignaturePlacementContent {
+  phase?: SignatureContractPhaseId;
+  textLength?: number;
+}
+
+export interface ResolvedSignaturePlacement {
+  zone: SignatureTextSafeZoneId;
+  normalized: NormalizedSignatureZone;
+  placement: ScrollytellingPlacement;
+  entrance: ScrollytellingEntrance;
 }
 
 const phases = (
@@ -253,3 +283,75 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
     },
   },
 } as const satisfies Record<ActiveMotionSignatureId, SignatureContract>;
+
+const CINEMATIC_ACTIVE_SIGNATURES = [
+  'cinematic-scrub',
+  'scrollytelling-manifesto',
+  'scroll-curtain',
+] as const;
+
+function isCinematicActiveSignature(
+  signatureId: ActiveMotionSignatureId,
+): signatureId is typeof CINEMATIC_ACTIVE_SIGNATURES[number] {
+  return (CINEMATIC_ACTIVE_SIGNATURES as readonly string[]).includes(signatureId);
+}
+
+function placementForZone(
+  zone: SignatureTextSafeZoneId,
+  index: number,
+): ScrollytellingPlacement {
+  if (zone.startsWith('end-')) return 'right';
+  if (zone.startsWith('center-')) return 'center';
+  if (zone === 'flow-alternate') return index % 2 === 0 ? 'left' : 'right';
+  return 'left';
+}
+
+function entranceForZone(
+  zone: SignatureTextSafeZoneId,
+  placement: ScrollytellingPlacement,
+): ScrollytellingEntrance {
+  if (zone.endsWith('-lower')) return 'from-bottom';
+  if (placement === 'right') return 'from-right';
+  if (placement === 'center') return 'fade-scale';
+  return 'from-left';
+}
+
+/**
+ * Deterministic contract placement. The existing composition resolver remains the cinematic
+ * preference source; this function constrains that preference to authored safe zones.
+ */
+export function resolvePlacement(
+  signatureId: ActiveMotionSignatureId,
+  sectionIndex: number,
+  breakpointBand: SignatureBreakpointBand,
+  content: SignaturePlacementContent = {},
+): ResolvedSignaturePlacement {
+  const contract = ACTIVE_SIGNATURE_CONTRACTS[signatureId];
+  const phase = content.phase ?? 'hold';
+  const zones = contract.textSafeZones[phase][breakpointBand];
+  const normalizedIndex = Math.abs(Math.trunc(sectionIndex));
+  const preferred = isCinematicActiveSignature(signatureId)
+    ? resolveScrollytellingComposition(
+        defaultCinematicCompositionPattern(signatureId),
+        normalizedIndex,
+      ).placement
+    : undefined;
+  const preferredZone = preferred
+    ? zones.find((zone) => placementForZone(zone, normalizedIndex) === preferred)
+    : undefined;
+  const longestFirst = (content.textLength ?? 0) > 240
+    ? [...zones].sort((left, right) => {
+        const leftGeometry = SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY[breakpointBand][left];
+        const rightGeometry = SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY[breakpointBand][right];
+        return rightGeometry.width * rightGeometry.height - leftGeometry.width * leftGeometry.height;
+      })
+    : zones;
+  const zone = preferredZone ?? longestFirst[normalizedIndex % longestFirst.length]!;
+  const placement = placementForZone(zone, normalizedIndex);
+  return {
+    zone,
+    normalized: SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY[breakpointBand][zone],
+    placement,
+    entrance: entranceForZone(zone, placement),
+  };
+}

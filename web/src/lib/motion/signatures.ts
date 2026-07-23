@@ -594,6 +594,19 @@ function sceneItemCount(scene: MotionScene): number {
 
 function contentFits(id: ProductionMotionSignatureId, context: MotionContext, scene?: MotionScene): boolean {
   const specValue: MotionSignatureSpec = MOTION_SIGNATURES[id];
+  const authoredShape = specValue.contract?.contentShape;
+  if (authoredShape) {
+    const matchingSections = context.availableSections.filter((section) => (
+      authoredShape.suitableSectionTypes.includes(section.type)
+    ));
+    const sectionCount = scene
+      ? specValue.target === 'page' ? sceneItemCount(scene) : matchingSections.length > 0 ? 1 : 0
+      : specValue.target === 'page'
+        ? matchingSections.filter((section) => section.itemCount > 0).length
+        : matchingSections.length > 0 ? 1 : 0;
+    if (sectionCount < authoredShape.minSections) return false;
+    if (scene && sectionCount > authoredShape.maxSections) return false;
+  }
   if (scene) {
     const count = sceneItemCount(scene);
     return count >= specValue.minItems && count <= specValue.maxItems;

@@ -149,6 +149,20 @@ describe('motion signature catalog', () => {
 });
 
 describe('canonical industry and eligibility', () => {
+  test('contentShape 최소 섹션을 못 채우는 시그니처는 선택하지 않고 적합한 fallback만 남긴다', () => {
+    const thin = motionContextFromSurvey(survey({
+      sectionPlan: [{ type: 'hero', name: '첫 화면', brief: '', source: 'user' }],
+    }), 'premium');
+    assert.equal(canUseMotionSignature('scrollytelling-manifesto', thin).allowed, false);
+    assert.equal(canUseMotionSignature('scroll-curtain', thin).allowed, false);
+    assert.ok(motionSignaturesForContext(thin).every((entry) => (
+      entry.id !== 'scrollytelling-manifesto' && entry.id !== 'scroll-curtain'
+    )));
+
+    const rich = motionContextFromSurvey(survey(), 'premium');
+    assert.equal(canUseMotionSignature('scrollytelling-manifesto', rich).allowed, true);
+  });
+
   test('medical exact template wins over beauty-looking text and sensitive classes never come from free text', () => {
     assert.equal(canonicalIndustryClass('booking_service', 'booking_service.clinic', '피부·에스테틱'), 'medical');
     assert.equal(canonicalIndustryClass('booking_service', 'booking_service.default', '피부·에스테틱'), 'other');

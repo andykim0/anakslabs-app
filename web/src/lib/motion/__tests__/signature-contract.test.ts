@@ -4,11 +4,17 @@ import { join } from 'node:path';
 import test from 'node:test';
 import {
   ACTIVE_SIGNATURE_CONTRACTS,
+  resolvePlacement,
   SIGNATURE_BREAKPOINT_BANDS,
   SIGNATURE_CONTRACT_PHASE_IDS,
   SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY,
   SIGNATURE_TEXT_SAFE_ZONE_IDS,
+  signatureContractEnabled,
 } from '@/lib/motion/signature-contract';
+import {
+  defaultCinematicCompositionPattern,
+  resolveScrollytellingComposition,
+} from '@/lib/motion/scrollytelling-composition';
 import {
   ACTIVE_MOTION_SIGNATURE_IDS,
   CANDIDATE_MOTION_SIGNATURE_IDS,
@@ -64,4 +70,34 @@ test('안전지대 기하는 0..1 정규화 분수이며 계약 소스에는 hex
   const source = readFileSync(join(process.cwd(), 'src/lib/motion/signature-contract.ts'), 'utf8');
   assert.doesNotMatch(source, /#[0-9a-f]{3,8}\b/iu);
   assert.doesNotMatch(source, /["'`]\s*-?\d+(?:\.\d+)?px\b/iu);
+});
+
+test('SIGNATURE_CONTRACT_ENABLED는 정확히 1일 때만 켜진다', () => {
+  assert.equal(signatureContractEnabled({}), false);
+  assert.equal(signatureContractEnabled({ SIGNATURE_CONTRACT_ENABLED: '' }), false);
+  assert.equal(signatureContractEnabled({ SIGNATURE_CONTRACT_ENABLED: 'true' }), false);
+  assert.equal(signatureContractEnabled({ SIGNATURE_CONTRACT_ENABLED: '1' }), true);
+});
+
+test('resolvePlacement는 기존 컴포지션 선호를 계약 안전지대 안에서 결정적으로 제한한다', () => {
+  const pattern = defaultCinematicCompositionPattern('scrollytelling-manifesto');
+  for (const breakpoint of SIGNATURE_BREAKPOINT_BANDS) {
+    for (let index = 0; index < 5; index += 1) {
+      const first = resolvePlacement('scrollytelling-manifesto', index, breakpoint, {
+        phase: 'hold',
+        textLength: index === 4 ? 280 : 80,
+      });
+      const second = resolvePlacement('scrollytelling-manifesto', index, breakpoint, {
+        phase: 'hold',
+        textLength: index === 4 ? 280 : 80,
+      });
+      assert.deepEqual(first, second);
+      assert.ok(ACTIVE_SIGNATURE_CONTRACTS['scrollytelling-manifesto']
+        .textSafeZones.hold[breakpoint].includes(first.zone));
+      assert.deepEqual(first.normalized, SIGNATURE_TEXT_SAFE_ZONE_GEOMETRY[breakpoint][first.zone]);
+      if (breakpoint === 'wide') {
+        assert.equal(first.placement, resolveScrollytellingComposition(pattern, index).placement);
+      }
+    }
+  }
 });

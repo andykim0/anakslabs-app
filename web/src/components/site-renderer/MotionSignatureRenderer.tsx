@@ -9,6 +9,11 @@ import type {
 } from '@/lib/types/site';
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
 import {
+  resolvePlacement,
+  type ResolvedSignaturePlacement,
+  type SignatureBreakpointBand,
+} from '@/lib/motion/signature-contract';
+import {
   defaultCinematicCompositionPattern,
   resolveScrollytellingComposition,
   type ScrollytellingCompositionOverride,
@@ -46,6 +51,8 @@ interface MotionSignatureRendererProps {
   compositionDefaultTone?: ScrollytellingCopyTone;
   /** 마케팅 등 renderer 소유 내부 경로 CTA. 저장된 tenant 콘텐츠에서는 사용하지 않는다. */
   scrollytellingActLinks?: readonly (ScrollytellingActLink | null)[];
+  /** Server-owned rollout projection. False preserves the pre-contract renderer byte-for-byte. */
+  signatureContractEnabled?: boolean;
 }
 
 const copyStyle: CSSProperties = {
@@ -60,6 +67,21 @@ function domId(value: string): string {
 
 function bandFor(index: number, count: number, band?: [number, number]): [number, number] {
   return band ?? [index / count, index === count - 1 ? 1 : (index + 1) / count];
+}
+
+function breakpointBandFor(mode: MotionSignatureRenderMode): SignatureBreakpointBand {
+  return mode === 'mobile' ? 'mobile' : 'wide';
+}
+
+function contractPlacement(
+  props: Pick<MotionSignatureRendererProps, 'signatureContractEnabled' | 'mode'>,
+  signatureId: 'cinematic-scrub' | 'scrollytelling-manifesto' | 'scroll-curtain',
+  index: number,
+  textLength: number,
+): ResolvedSignaturePlacement | undefined {
+  return props.signatureContractEnabled
+    ? resolvePlacement(signatureId, index, breakpointBandFor(props.mode), { textLength })
+    : undefined;
 }
 
 function ScrollytellingHeading({ heading }: { heading: string }) {
@@ -368,18 +390,28 @@ function CinematicScrub({
   compositionPattern,
   compositionOverrides,
   compositionDefaultTone = 'light',
+  signatureContractEnabled,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'cinematic-scrub' }>;
   art: MotionArtDirectionProfile;
 }) {
   const headingId = `${domId(scene.sectionId)}-cinematic-heading`;
   const pattern = compositionPattern ?? defaultCinematicCompositionPattern('cinematic-scrub');
-  const composition = resolveScrollytellingComposition(
+  const legacyComposition = resolveScrollytellingComposition(
     pattern,
     0,
     compositionOverrides?.[0],
     compositionDefaultTone,
   );
+  const resolvedContractPlacement = contractPlacement(
+    { signatureContractEnabled, mode },
+    'cinematic-scrub',
+    0,
+    scene.heading.length + (scene.body?.length ?? 0),
+  );
+  const composition = resolvedContractPlacement
+    ? { ...legacyComposition, ...resolvedContractPlacement }
+    : legacyComposition;
   return (
     <SignatureRoot
       scene={scene}
@@ -401,6 +433,9 @@ function CinematicScrub({
           data-cinematic-composition={composition.placement}
           data-cinematic-entrance={composition.entrance}
           data-cinematic-tone={composition.tone}
+          {...(resolvedContractPlacement
+            ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
+            : {})}
           style={copyStyle}
         >
           {/* Establish the story before the first scroll input. Previously the whole copy was
@@ -436,6 +471,7 @@ function ScrollytellingManifesto({
   compositionOverrides,
   compositionDefaultTone = 'light',
   scrollytellingActLinks,
+  signatureContractEnabled,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
@@ -477,12 +513,21 @@ function ScrollytellingManifesto({
           {scene.acts.map((act, index) => {
             const [start, end] = bandFor(index, scene.acts.length, act.band);
             const headingId = `${domId(scene.sectionId)}-act-${index + 1}`;
-            const composition = resolveScrollytellingComposition(
+            const legacyComposition = resolveScrollytellingComposition(
               compositionPattern,
               index,
               compositionOverrides?.[index],
               compositionDefaultTone,
             );
+            const resolvedContractPlacement = contractPlacement(
+              { signatureContractEnabled, mode },
+              'scrollytelling-manifesto',
+              index,
+              act.heading.length + act.body.length,
+            );
+            const composition = resolvedContractPlacement
+              ? { ...legacyComposition, ...resolvedContractPlacement }
+              : legacyComposition;
             const actLink = scrollytellingActLinks?.[index];
             return (
               <article
@@ -494,6 +539,9 @@ function ScrollytellingManifesto({
                 data-ss-composition={composition.placement}
                 data-ss-entrance={composition.entrance}
                 data-ss-tone={composition.tone}
+                {...(resolvedContractPlacement
+                  ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
+                  : {})}
                 aria-labelledby={headingId}
               >
                 <div data-ss-copy style={copyStyle}>
@@ -560,7 +608,14 @@ function StickyChapters({ scene, theme, art, mode, isFirst }: MotionSignatureRen
   );
 }
 
-function TrueCardStack({ scene, theme, art, mode, isFirst }: MotionSignatureRendererProps & {
+function TrueCardStack({
+  scene,
+  theme,
+  art,
+  mode,
+  isFirst,
+  signatureContractEnabled,
+}: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'true-card-stack' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -574,10 +629,18 @@ function TrueCardStack({ scene, theme, art, mode, isFirst }: MotionSignatureRend
       <ol data-card-list aria-labelledby={headingId}>
         {scene.cards.map((card, index) => {
           const cardHeadingId = `${domId(scene.sectionId)}-card-${index + 1}`;
+          const resolvedContractPlacement = signatureContractEnabled
+            ? resolvePlacement('true-card-stack', index, breakpointBandFor(mode), {
+                textLength: card.heading.length + card.body.length + (card.caption?.length ?? 0),
+              })
+            : undefined;
           return (
             <li
               key={card.id}
               data-stack-card
+              {...(resolvedContractPlacement
+                ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
+                : {})}
               style={{ '--card-index': index, '--card-bg': index % 2 ? theme.palette.background : theme.palette.surface } as CSSProperties}
             >
               <article aria-labelledby={cardHeadingId}>
@@ -606,6 +669,7 @@ function EditorialScenes({
   compositionPattern,
   compositionOverrides,
   compositionDefaultTone = 'light',
+  signatureContractEnabled,
 }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'portal-zoom' | 'scroll-curtain' }>;
   art: MotionArtDirectionProfile;
@@ -628,12 +692,23 @@ function EditorialScenes({
       <div data-signature-pin data-composition-pattern={pattern}>
         {scene.scenes.map((item, index) => {
           const headingId = `${domId(scene.sectionId)}-${kind}-${index + 1}`;
-          const composition = resolveScrollytellingComposition(
+          const legacyComposition = resolveScrollytellingComposition(
             pattern,
             index,
             compositionOverrides?.[index],
             compositionDefaultTone,
           );
+          const resolvedContractPlacement = kind === 'curtain'
+            ? contractPlacement(
+                { signatureContractEnabled, mode },
+                'scroll-curtain',
+                index,
+                item.heading.length + item.body.length,
+              )
+            : undefined;
+          const composition = resolvedContractPlacement
+            ? { ...legacyComposition, ...resolvedContractPlacement }
+            : legacyComposition;
           return (
             <section
               key={item.id}
@@ -643,6 +718,9 @@ function EditorialScenes({
               data-cinematic-composition={composition.placement}
               data-cinematic-entrance={composition.entrance}
               data-cinematic-tone={composition.tone}
+              {...(resolvedContractPlacement
+                ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
+                : {})}
               {...(kind === 'curtain' ? { 'data-curtain-panel': true } : {})}
               aria-labelledby={headingId}
               style={kind === 'curtain' ? { zIndex: count - index } : undefined}
@@ -714,7 +792,7 @@ function MosaicReveal({ scene, theme, art, mode }: MotionSignatureRendererProps 
   );
 }
 
-function PathJourney({ scene, theme, art, mode }: MotionSignatureRendererProps & {
+function PathJourney({ scene, theme, art, mode, signatureContractEnabled }: MotionSignatureRendererProps & {
   scene: Extract<MotionScene, { signatureId: 'path-journey' }>;
   art: MotionArtDirectionProfile;
 }) {
@@ -729,8 +807,20 @@ function PathJourney({ scene, theme, art, mode }: MotionSignatureRendererProps &
         <ol data-path-list aria-labelledby={headingId}>
           {scene.milestones.map((milestone, index) => {
             const milestoneId = `${domId(scene.sectionId)}-milestone-${index + 1}`;
+            const resolvedContractPlacement = signatureContractEnabled
+              ? resolvePlacement('path-journey', index, breakpointBandFor(mode), {
+                  textLength: milestone.heading.length + milestone.body.length + (milestone.caption?.length ?? 0),
+                })
+              : undefined;
             return (
-              <li key={milestone.id} data-path-milestone data-milestone-index={index}>
+              <li
+                key={milestone.id}
+                data-path-milestone
+                data-milestone-index={index}
+                {...(resolvedContractPlacement
+                  ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
+                  : {})}
+              >
                 <span data-path-marker aria-hidden="true" />
                 <article aria-labelledby={milestoneId} style={copyStyle}>
                   <span data-path-index aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>

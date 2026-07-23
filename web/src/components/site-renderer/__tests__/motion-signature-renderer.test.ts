@@ -110,13 +110,14 @@ function art(signatureId: ProductionMotionSignatureId): MotionArtDirectionProfil
   };
 }
 
-function renderScene(scene: MotionScene, isFirst = false): string {
+function renderScene(scene: MotionScene, isFirst = false, signatureContractEnabled?: boolean): string {
   return renderToStaticMarkup(createElement(MotionSignatureRenderer, {
     scene,
     theme,
     artDirection: art(scene.signatureId),
     mode: 'auto',
     isFirst,
+    ...(signatureContractEnabled === undefined ? {} : { signatureContractEnabled }),
   }));
 }
 
@@ -173,6 +174,27 @@ describe('motion signature production renderers', () => {
     assert.doesNotMatch(MOTION_CSS, /data-cinematic-scrim/);
     assert.match(MOTION_RUNTIME, /refreshVideoQualityGuards[\s\S]*coverScale>1\.15/);
     assert.match(MOTION_RUNTIME, /syncCinematicWords[\s\S]*data-cinematic-word/);
+  });
+
+  test('SignatureContract ON은 active 5종만 안전지대 배치를 방출하고 candidate는 그대로 둔다', () => {
+    for (const id of ['cinematic-scrub', 'scrollytelling-manifesto', 'true-card-stack', 'scroll-curtain', 'path-journey'] as const) {
+      const html = renderScene(X5_RENDERER_FIXTURES[id], false, true);
+      assert.match(html, /data-signature-contract-zone=/, id);
+    }
+    for (const id of ['portal-zoom', 'horizontal-story', 'mosaic-reveal'] as const) {
+      const html = renderScene(X5_RENDERER_FIXTURES[id], false, true);
+      assert.doesNotMatch(html, /data-signature-contract-zone=/, id);
+    }
+  });
+
+  test('SignatureContract OFF는 기존 composition SSR 바이트를 보존한다', () => {
+    for (const id of ['cinematic-scrub', 'scrollytelling-manifesto', 'true-card-stack', 'scroll-curtain', 'path-journey'] as const) {
+      assert.equal(
+        renderScene(X5_RENDERER_FIXTURES[id]),
+        renderScene(X5_RENDERER_FIXTURES[id], false, false),
+        id,
+      );
+    }
   });
 
   test('cinematic scrub establishes its heading before the first scroll input', () => {
