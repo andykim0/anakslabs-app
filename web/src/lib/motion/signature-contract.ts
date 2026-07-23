@@ -284,6 +284,20 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
   },
 } as const satisfies Record<ActiveMotionSignatureId, SignatureContract>;
 
+export function isActiveSignatureContractId(
+  signatureId: string,
+): signatureId is ActiveMotionSignatureId {
+  return Object.prototype.hasOwnProperty.call(ACTIVE_SIGNATURE_CONTRACTS, signatureId);
+}
+
+export function signatureContractFor(
+  signatureId: string,
+): SignatureContract | undefined {
+  return isActiveSignatureContractId(signatureId)
+    ? ACTIVE_SIGNATURE_CONTRACTS[signatureId]
+    : undefined;
+}
+
 const CINEMATIC_ACTIVE_SIGNATURES = [
   'cinematic-scrub',
   'scrollytelling-manifesto',

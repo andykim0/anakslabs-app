@@ -10,8 +10,10 @@ import type {
 import type { MotionArtDirectionProfile } from '@/lib/motion/signatures';
 import {
   resolvePlacement,
+  signatureContractFor,
   type ResolvedSignaturePlacement,
   type SignatureBreakpointBand,
+  type SignatureContract,
 } from '@/lib/motion/signature-contract';
 import {
   defaultCinematicCompositionPattern,
@@ -340,6 +342,7 @@ function SignatureRoot({
   children,
   style,
   label,
+  signatureContract,
 }: {
   scene: MotionScene;
   theme: SiteTheme;
@@ -348,7 +351,14 @@ function SignatureRoot({
   children: ReactNode;
   style?: CSSProperties;
   label?: string;
+  signatureContract?: SignatureContract;
 }) {
+  const fallbackPhase = 'settle' as const;
+  const fallbackContrast = signatureContract?.contrastPolicy[fallbackPhase];
+  const policy = (phase: keyof SignatureContract['contrastPolicy']) => {
+    const value = signatureContract?.contrastPolicy[phase];
+    return value ? `${value.textColorToken},${value.scrim}` : undefined;
+  };
   return (
     <section
       id={scene.sectionId}
@@ -369,6 +379,25 @@ function SignatureRoot({
       data-phase-progress={art.progressWindows.progress.join(',')}
       data-phase-focal={art.progressWindows.focal.join(',')}
       data-phase-settle={art.progressWindows.settle.join(',')}
+      {...(signatureContract ? {
+        'data-signature-contract': '1',
+        'data-signature-contract-phase': fallbackPhase,
+        'data-signature-contract-text-token': fallbackContrast?.textColorToken,
+        'data-signature-contract-scrim': fallbackContrast?.scrim,
+        'data-signature-contract-fallback-zone': signatureContract.renderContract.reducedMotionFallbackZone,
+        'data-signature-contract-pinned': String(signatureContract.renderContract.needsPinnedStage),
+        'data-signature-contract-scroll-depth': String(signatureContract.renderContract.scrollDepthActs),
+        'data-signature-contract-poster': String(signatureContract.renderContract.posterRequired),
+        'data-signature-contract-no-js-readable': String(signatureContract.renderContract.noJsReadable),
+        'data-signature-contract-window-enter': signatureContract.phases[0].visibilityRatio.join(','),
+        'data-signature-contract-window-hold': signatureContract.phases[1].visibilityRatio.join(','),
+        'data-signature-contract-window-settle': signatureContract.phases[2].visibilityRatio.join(','),
+        'data-signature-contract-window-exit': signatureContract.phases[3].visibilityRatio.join(','),
+        'data-signature-contract-policy-enter': policy('enter'),
+        'data-signature-contract-policy-hold': policy('hold'),
+        'data-signature-contract-policy-settle': policy('settle'),
+        'data-signature-contract-policy-exit': policy('exit'),
+      } : {})}
       data-render-mode={mode}
       data-ss-stage={scene.signatureId === 'scrollytelling-manifesto' ? true : undefined}
       data-ss-mode={scene.signatureId === 'scrollytelling-manifesto' ? mode : undefined}
@@ -412,6 +441,10 @@ function CinematicScrub({
   const composition = resolvedContractPlacement
     ? { ...legacyComposition, ...resolvedContractPlacement }
     : legacyComposition;
+  const signatureContract = signatureContractEnabled
+    ? signatureContractFor('cinematic-scrub')
+    : undefined;
+  const trackDepth = signatureContract?.renderContract.scrollDepthActs ?? 3;
   return (
     <SignatureRoot
       scene={scene}
@@ -419,7 +452,8 @@ function CinematicScrub({
       art={art}
       mode={mode}
       label={scene.heading}
-      style={{ '--signature-track-height': '300svh' } as CSSProperties}
+      signatureContract={signatureContract}
+      style={{ '--signature-track-height': `${trackDepth * 100}svh` } as CSSProperties}
     >
       <div data-signature-pin data-composition-pattern={pattern}>
         <SignatureMedia
@@ -437,6 +471,7 @@ function CinematicScrub({
             ? { 'data-signature-contract-zone': resolvedContractPlacement.zone }
             : {})}
           style={copyStyle}
+          data-signature-contract-copy={signatureContract ? true : undefined}
         >
           {/* Establish the story before the first scroll input. Previously the whole copy was
               progress-hidden at p=0, so a healthy cinematic renderer looked like a plain photo. */}
@@ -476,6 +511,13 @@ function ScrollytellingManifesto({
   scene: Extract<MotionScene, { signatureId: 'scrollytelling-manifesto' }>;
   art: MotionArtDirectionProfile;
 }) {
+  const signatureContract = signatureContractEnabled
+    ? signatureContractFor('scrollytelling-manifesto')
+    : undefined;
+  const trackDepth = Math.max(
+    signatureContract?.renderContract.scrollDepthActs ?? 3,
+    scene.acts.length,
+  );
   return (
     <SignatureRoot
       scene={scene}
@@ -483,9 +525,10 @@ function ScrollytellingManifesto({
       art={art}
       mode={mode}
       label={scene.acts[0]?.heading ?? '스크롤 스토리'}
+      signatureContract={signatureContract}
       style={{
-        '--signature-track-height': `${Math.max(3, scene.acts.length) * 100}svh`,
-        '--ss-scroll-height': `${Math.max(3, scene.acts.length) * 100}svh`,
+        '--signature-track-height': `${trackDepth * 100}svh`,
+        '--ss-scroll-height': `${trackDepth * 100}svh`,
         '--ss-static-height': `${Math.round(scene.media.height / scene.media.width * 100)}vw`,
         '--ss-stage-bg': theme.palette.background,
         '--ss-stack-bg': theme.palette.surface,
@@ -544,7 +587,11 @@ function ScrollytellingManifesto({
                   : {})}
                 aria-labelledby={headingId}
               >
-                <div data-ss-copy style={copyStyle}>
+                <div
+                  data-ss-copy
+                  data-signature-contract-copy={signatureContract ? true : undefined}
+                  style={copyStyle}
+                >
                   <h2 id={headingId} data-ss-heading data-signature-heading aria-label={act.heading}>
                     <ScrollytellingHeading heading={act.heading} />
                   </h2>
@@ -621,8 +668,18 @@ function TrueCardStack({
 }) {
   const headingId = `${domId(scene.sectionId)}-stack-heading`;
   const firstMedia = scene.cards.findIndex((card) => Boolean(card.media));
+  const signatureContract = signatureContractEnabled
+    ? signatureContractFor('true-card-stack')
+    : undefined;
   return (
-    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label={scene.heading}>
+    <SignatureRoot
+      scene={scene}
+      theme={theme}
+      art={art}
+      mode={mode}
+      label={scene.heading}
+      signatureContract={signatureContract}
+    >
       <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(40px, 7vw, 104px) clamp(24px, 8vw, 120px) 0' }}>
         <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
       </header>
@@ -645,7 +702,11 @@ function TrueCardStack({
             >
               <article aria-labelledby={cardHeadingId}>
                 {card.media ? <SignatureMedia media={card.media} eager={Boolean(isFirst && index === firstMedia)} /> : null}
-                <div data-card-copy style={{ ...copyStyle, marginTop: card.media ? '1.5rem' : undefined }}>
+                <div
+                  data-card-copy
+                  data-signature-contract-copy={signatureContract ? true : undefined}
+                  style={{ ...copyStyle, marginTop: card.media ? '1.5rem' : undefined }}
+                >
                   <h3 id={cardHeadingId} data-signature-heading>{card.heading}</h3>
                   <p data-signature-body>{card.body}</p>
                   {card.caption ? <p data-signature-caption>{card.caption}</p> : null}
@@ -680,6 +741,13 @@ function EditorialScenes({
   const pattern = compositionPattern ?? defaultCinematicCompositionPattern(
     kind === 'portal' ? 'portal-zoom' : 'scroll-curtain',
   );
+  const signatureContract = kind === 'curtain' && signatureContractEnabled
+    ? signatureContractFor('scroll-curtain')
+    : undefined;
+  const trackDepth = Math.max(
+    signatureContract?.renderContract.scrollDepthActs ?? count,
+    count,
+  );
   return (
     <SignatureRoot
       scene={scene}
@@ -687,7 +755,8 @@ function EditorialScenes({
       art={art}
       mode={mode}
       label={scene.scenes[0]?.heading ?? '브랜드 스토리'}
-      style={{ '--signature-track-height': `${count * 100}svh` } as CSSProperties}
+      signatureContract={signatureContract}
+      style={{ '--signature-track-height': `${trackDepth * 100}svh` } as CSSProperties}
     >
       <div data-signature-pin data-composition-pattern={pattern}>
         {scene.scenes.map((item, index) => {
@@ -744,7 +813,12 @@ function EditorialScenes({
                 )
               ) : null}
               {kind === 'curtain' ? <span data-curtain-edge aria-hidden="true" /> : null}
-              <div data-scene-copy data-curtain-copy={kind === 'curtain' ? true : undefined} style={copyStyle}>
+              <div
+                data-scene-copy
+                data-curtain-copy={kind === 'curtain' ? true : undefined}
+                data-signature-contract-copy={signatureContract ? true : undefined}
+                style={copyStyle}
+              >
                 <h2 id={headingId} data-signature-heading aria-label={item.heading}>
                   <CinematicHeading heading={item.heading} />
                 </h2>
@@ -797,8 +871,18 @@ function PathJourney({ scene, theme, art, mode, signatureContractEnabled }: Moti
   art: MotionArtDirectionProfile;
 }) {
   const headingId = `${domId(scene.sectionId)}-path-heading`;
+  const signatureContract = signatureContractEnabled
+    ? signatureContractFor('path-journey')
+    : undefined;
   return (
-    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label={scene.heading}>
+    <SignatureRoot
+      scene={scene}
+      theme={theme}
+      art={art}
+      mode={mode}
+      label={scene.heading}
+      signatureContract={signatureContract}
+    >
       <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(40px, 7vw, 104px) clamp(24px, 8vw, 120px) 0' }}>
         <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
       </header>
@@ -822,7 +906,11 @@ function PathJourney({ scene, theme, art, mode, signatureContractEnabled }: Moti
                   : {})}
               >
                 <span data-path-marker aria-hidden="true" />
-                <article aria-labelledby={milestoneId} style={copyStyle}>
+                <article
+                  aria-labelledby={milestoneId}
+                  data-signature-contract-copy={signatureContract ? true : undefined}
+                  style={copyStyle}
+                >
                   <span data-path-index aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                   <h3 id={milestoneId} data-signature-heading>{milestone.heading}</h3>
                   <p data-signature-body>{milestone.body}</p>

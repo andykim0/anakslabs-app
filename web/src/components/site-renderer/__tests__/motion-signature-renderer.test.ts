@@ -197,6 +197,60 @@ describe('motion signature production renderers', () => {
     }
   });
 
+  test('SignatureContract ON은 active 5종의 대비·렌더·정적 폴백 계약을 SSR에 고정한다', () => {
+    const active = [
+      'cinematic-scrub',
+      'scrollytelling-manifesto',
+      'true-card-stack',
+      'scroll-curtain',
+      'path-journey',
+    ] as const;
+
+    for (const id of active) {
+      const html = renderScene(X5_RENDERER_FIXTURES[id], false, true);
+      assert.match(html, /data-signature-contract="1"/, id);
+      assert.match(html, /data-signature-contract-phase="settle"/, id);
+      assert.match(html, /data-signature-contract-policy-enter="(?:text|background|surface),(?:none|subtle-scrim)"/, id);
+      assert.match(html, /data-signature-contract-policy-exit="(?:text|background|surface),(?:none|subtle-scrim)"/, id);
+      assert.match(html, /data-signature-contract-fallback-zone="[a-z-]+"/, id);
+      assert.match(html, /data-signature-contract-scroll-depth="[1-9][0-9]*"/, id);
+      assert.match(html, /data-signature-contract-no-js-readable="true"/, id);
+      assert.match(html, /data-signature-contract-copy="true"/, id);
+    }
+
+    for (const id of ['portal-zoom', 'horizontal-story', 'mosaic-reveal'] as const) {
+      const html = renderScene(X5_RENDERER_FIXTURES[id], false, true);
+      assert.doesNotMatch(html, /data-signature-contract="1"/, id);
+      assert.doesNotMatch(html, /data-signature-contract-copy=/, id);
+    }
+  });
+
+  test('render contract는 기존 pin·poster 구조를 선언과 일치시키고 텍스트는 패널 없이 읽힌다', () => {
+    const cinematic = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true, true);
+    const stack = renderScene(X5_RENDERER_FIXTURES['true-card-stack'], false, true);
+
+    assert.match(cinematic, /data-signature-contract-pinned="true"/);
+    assert.match(cinematic, /data-signature-contract-poster="true"/);
+    assert.match(cinematic, /<img[^>]*data-video-poster="true"/);
+    assert.match(cinematic, /data-signature-pin="true"/);
+    assert.match(stack, /data-signature-contract-pinned="false"/);
+    assert.match(stack, /data-signature-contract-poster="false"/);
+    assert.doesNotMatch(stack, /data-video-poster=/);
+
+    assert.match(MOTION_CSS, /\[data-signature-contract-copy\] \{ position: relative; isolation: isolate; \}/);
+    assert.match(MOTION_CSS, /data-signature-contract-scrim="subtle-scrim"[^{]*\[data-signature-contract-copy\]::before/);
+    assert.match(MOTION_CSS, /radial-gradient\(ellipse at center/);
+  });
+
+  test('runtime은 visibility-ratio 국면에 따라 대비 정책을 적용하고 해제 시 정적 settle 상태로 복원한다', () => {
+    assert.match(MOTION_RUNTIME, /function applySignatureContractPhase\(stage,phase\)/);
+    assert.match(MOTION_RUNTIME, /data-signature-contract-policy-/);
+    assert.match(MOTION_RUNTIME, /function syncSignatureContract\(stage,p\)/);
+    assert.match(MOTION_RUNTIME, /syncSignatureContract\(stage,motionP\)/);
+    assert.match(MOTION_RUNTIME, /applySignatureContractPhase\(stage,'settle'\)/);
+    assert.match(MOTION_CSS, /prefers-reduced-motion: reduce[\s\S]*\[data-motion-signature\] \{ height: auto !important; \}/);
+  });
+
   test('cinematic scrub establishes its heading before the first scroll input', () => {
     const html = renderScene(X5_RENDERER_FIXTURES['cinematic-scrub'], true);
     assert.match(html, /data-cinematic-copy="true"[^>]*><h2/);

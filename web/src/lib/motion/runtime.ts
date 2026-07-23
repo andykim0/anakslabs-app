@@ -155,6 +155,21 @@ export const MOTION_CSS = `
   color: var(--signature-text, inherit); background: var(--signature-bg, transparent);
   font-family: var(--signature-body-font, inherit);
 }
+.anaks-site [data-motion-signature][data-signature-contract-text-token="text"] [data-signature-contract-copy] {
+  color: var(--signature-text);
+}
+.anaks-site [data-motion-signature][data-signature-contract-text-token="background"] [data-signature-contract-copy] {
+  color: var(--signature-bg);
+}
+.anaks-site [data-motion-signature][data-signature-contract-text-token="surface"] [data-signature-contract-copy] {
+  color: var(--signature-surface);
+}
+.anaks-site [data-motion-signature] [data-signature-contract-copy] { position: relative; isolation: isolate; }
+.anaks-site [data-motion-signature][data-signature-contract-scrim="subtle-scrim"] [data-signature-contract-copy]::before {
+  content: ''; position: absolute; inset: -18% -12%; z-index: -1; pointer-events: none;
+  border-radius: 50%; filter: blur(12px);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--signature-bg) 76%, transparent), transparent 72%);
+}
 .anaks-site [data-signature-heading] {
   margin: 0; font-family: var(--signature-heading-font, inherit); font-size: clamp(2rem, 5vw, 5.5rem);
   line-height: 1.08; letter-spacing: -.035em; word-break: keep-all; overflow-wrap: anywhere; text-wrap: balance;
@@ -787,10 +802,24 @@ export const MOTION_RUNTIME = `(function(){
     function later(fn,ms){ var id=setTimeout(fn,ms); timers.push(id); return id; }
     function clamp(p){ return Math.min(1,Math.max(0,Number.isFinite(p)?p:0)); }
     function smooth(a,b,p){ if(b<=a)return p>=b?1:0; var t=clamp((p-a)/(b-a)); return t*t*(3-2*t); }
+    function applySignatureContractPhase(stage,phase){
+      if(!stage.hasAttribute('data-signature-contract'))return;
+      var policy=(stage.getAttribute('data-signature-contract-policy-'+phase)||'text,none').split(',');
+      stage.setAttribute('data-signature-contract-phase',phase);
+      stage.setAttribute('data-signature-contract-text-token',policy[0]||'text');
+      stage.setAttribute('data-signature-contract-scrim',policy[1]||'none');
+    }
+    function syncSignatureContract(stage,p){
+      if(!stage.hasAttribute('data-signature-contract'))return;
+      var phase='exit',ids=['enter','hold','settle','exit'];
+      for(var i=0;i<ids.length;i+=1){var id=ids[i],band=(stage.getAttribute('data-signature-contract-window-'+id)||'').split(',').map(Number);if(band.length===2&&p>=band[0]&&(p<band[1]||band[1]===1&&p<=1)){phase=id;break;}}
+      applySignatureContractPhase(stage,phase);
+    }
     function clearStage(stage){
       stage.classList.remove('m-signature-ready'); stage.removeAttribute('data-signature-active');
       ['--signature-progress','--phase-establish','--phase-progress','--phase-focal','--phase-settle','--horizontal-x','--horizontal-progress','--path-progress','--before-after-clip'].forEach(function(k){stage.style.removeProperty(k);});
       stage.__anaksPhaseWindows=null;
+      applySignatureContractPhase(stage,'settle');
       stage.__anaksRangeControlled=false;stage.__anaksComparePending=null;stage.__anaksCompareRect=null;stage.__anaksComparePointer=null;
       progressWillChange(stage,false);
       Array.prototype.slice.call(stage.querySelectorAll('[data-active],[data-current],[data-ss-act],[data-ss-word],[data-cinematic-copy],[data-cinematic-word],[data-signature-chapter],[data-chapter-indicator-item],[data-stack-card],[data-signature-panel],[data-portal-aperture],[data-portal-media],[data-scene-copy],[data-curtain-media],[data-curtain-edge],[data-mosaic-tile],[data-path-milestone],[data-horizontal-step],[data-horizontal-panel] [data-signature-media],[data-panel-copy]')).forEach(function(node){
@@ -1027,7 +1056,7 @@ export const MOTION_RUNTIME = `(function(){
       if(output)output.textContent=rounded+'%';
     }
     function syncSignature(stage,p,measure){
-      if(!stage.classList.contains('m-signature-ready'))return; var phases=phaseVars(stage,p),motionP=phases.travel;
+      if(!stage.classList.contains('m-signature-ready'))return; var phases=phaseVars(stage,p),motionP=phases.travel;syncSignatureContract(stage,motionP);
       var id=stage.getAttribute('data-signature-id')||'',nodes,index,count,local,opacity;
       if(id==='sticky-chapters'){
         nodes=Array.prototype.slice.call(stage.querySelectorAll('[data-signature-chapter]'));count=Math.max(1,nodes.length);
