@@ -440,7 +440,7 @@ export function generateAbsBackground(input: GenerateAbsBackgroundInput): AbsBac
   const guardedQuietZone = guardedZone(
     quietZone,
     input.band,
-    input.theme.tokens?.spacing.sectionInline,
+    input.theme.tokens?.spacing?.sectionInline,
   );
   const ramps = input.theme.tokens?.color.ramps;
   if (!ramps) {

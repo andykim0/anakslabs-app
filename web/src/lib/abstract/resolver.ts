@@ -26,6 +26,19 @@ function eligible(input: ResolveAbsFamilyInput) {
   ));
 }
 
+/**
+ * C5 stability seam. Candidate ordering is normalized here so an equivalent server table
+ * produces the same authored family for the lifetime of a stored site seed.
+ */
+export function selectAbsFamilyFromPool(
+  candidates: readonly AbsFamilyId[],
+  canonicalSeed: string,
+): AbsFamilyId {
+  const pool = [...new Set(candidates)].sort();
+  if (pool.length === 0) return ABS_FAMILY_FALLBACK_ID;
+  return pool[stableIndex(canonicalSeed, pool.length)] ?? ABS_FAMILY_FALLBACK_ID;
+}
+
 /** Server-only table resolver. It never accepts model scores, colors, coordinates, or media claims. */
 export function resolveAbsFamily(input: ResolveAbsFamilyInput): AbsFamilyId {
   if (input.requestedFamilyId) {
@@ -51,10 +64,8 @@ export function resolveAbsFamily(input: ResolveAbsFamilyInput): AbsFamilyId {
     : dnaRecommended.length > 0
       ? dnaRecommended
       : allowed)
-    .map((family) => family.id)
-    .sort();
+    .map((family) => family.id);
 
-  if (pool.length === 0) return ABS_FAMILY_FALLBACK_ID;
   const seed = `${input.siteSeed}|${input.sectionId}|${input.slotId}`;
-  return pool[stableIndex(seed, pool.length)] ?? ABS_FAMILY_FALLBACK_ID;
+  return selectAbsFamilyFromPool(pool, seed);
 }
