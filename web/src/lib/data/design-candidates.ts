@@ -43,8 +43,12 @@ import { SITE_TEMPLATES, planFromTemplate } from './site-blueprints';
 import {
   layoutVariantsEnabled,
   selectHeroLayouts,
+  selectSectionLayouts,
+  sectionLayoutAvailabilityForSurvey,
   type HeroLayoutSelectionToolInvoker,
   type HeroLayoutVariantId,
+  type SectionLayoutSelection,
+  type SectionLayoutSelectionToolInvoker,
 } from '@/lib/layout';
 
 export interface CandidateBlueprint {
@@ -69,6 +73,8 @@ export interface CandidateBlueprint {
   designDna?: DesignDnaSelection;
   /** LIB rollout ON에서만 존재하는 enum-only 배열 핀. */
   heroLayoutVariantId?: HeroLayoutVariantId;
+  /** LIB2 rollout ON에서만 존재하는 enum-only 섹션 배열 핀. */
+  sectionLayoutVariantIds?: SectionLayoutSelection;
 }
 
 // ---------- 설문 전처리 ----------
@@ -255,6 +261,7 @@ export async function buildCandidateBlueprintsForPipeline(
     invoke?: DnaSelectionToolInvoker;
     layoutEnabled?: boolean;
     layoutInvoke?: HeroLayoutSelectionToolInvoker;
+    sectionLayoutInvoke?: SectionLayoutSelectionToolInvoker;
   } = {},
 ): Promise<CandidateBlueprint[]> {
   const enabled = options.enabled ?? dnaPipelineEnabled();
@@ -266,21 +273,35 @@ export async function buildCandidateBlueprintsForPipeline(
     : buildCandidateBlueprints(survey);
   const layoutEnabled = options.layoutEnabled ?? layoutVariantsEnabled();
   if (!layoutEnabled) return blueprints;
-  const selections = await selectHeroLayouts(
-    survey,
-    blueprints.map((blueprint) => ({
-      ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
-      media: {
-        image: Boolean(blueprint.mockHeroUrl),
-        video: false,
-        poster: false,
-      },
-    })),
-    options.layoutInvoke,
-  );
+  const sectionAvailability = sectionLayoutAvailabilityForSurvey(survey);
+  const [heroSelections, sectionSelections] = await Promise.all([
+    selectHeroLayouts(
+      survey,
+      blueprints.map((blueprint) => ({
+        ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
+        media: {
+          image: Boolean(blueprint.mockHeroUrl),
+          video: false,
+          poster: false,
+        },
+      })),
+      options.layoutInvoke,
+    ),
+    selectSectionLayouts(
+      survey,
+      blueprints.map((blueprint) => ({
+        ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
+        availability: sectionAvailability,
+      })),
+      options.sectionLayoutInvoke,
+    ),
+  ]);
   return blueprints.map((blueprint, index) => ({
     ...blueprint,
-    heroLayoutVariantId: selections[index],
+    heroLayoutVariantId: heroSelections[index],
+    ...(Object.keys(sectionSelections[index]).length > 0
+      ? { sectionLayoutVariantIds: sectionSelections[index] }
+      : {}),
   }));
 }
 

@@ -32,6 +32,12 @@ export function buildMotionSignaturePreviewConfig(
   const cinematicBase = withSiteCinematicDefault(buildSiteConfigFromSurvey(survey, candidate, {
     heroImageUrl,
     imagePool: mediaPool,
+    ...(candidate.heroLayoutVariantId
+      ? { heroLayoutVariantId: candidate.heroLayoutVariantId }
+      : {}),
+    ...(candidate.sectionLayoutVariantIds
+      ? { sectionLayoutVariantIds: candidate.sectionLayoutVariantIds }
+      : {}),
   }));
   const config = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(cinematicBase)

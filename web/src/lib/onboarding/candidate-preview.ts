@@ -23,6 +23,9 @@ export function buildCandidatePreviewConfig(
     ...(candidate.heroLayoutVariantId
       ? { heroLayoutVariantId: candidate.heroLayoutVariantId }
       : {}),
+    ...(candidate.sectionLayoutVariantIds
+      ? { sectionLayoutVariantIds: candidate.sectionLayoutVariantIds }
+      : {}),
   }));
   const config = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(cinematicBase)

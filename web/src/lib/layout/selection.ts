@@ -5,14 +5,29 @@ import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import type { MotionIndustryClass } from '@/lib/types/site';
 import type { DesignDnaId } from '@/lib/design/dna/types';
 import { HERO_LAYOUT_CATALOG, heroLayoutById } from './catalog';
+import { ABOUT_LAYOUT_CATALOG, aboutLayoutById } from './about-catalog';
+import { FEATURE_LAYOUT_CATALOG, featureLayoutById } from './feature-catalog';
+import { GALLERY_LAYOUT_CATALOG, galleryLayoutById } from './gallery-catalog';
 import {
   HERO_LAYOUT_VARIANT_IDS,
   type HeroLayoutAvailableMedia,
   type HeroLayoutAuthoredIndustry,
   type HeroLayoutVariantId,
 } from './types';
+import {
+  ABOUT_LAYOUT_VARIANT_IDS,
+  FEATURE_LAYOUT_VARIANT_IDS,
+  GALLERY_LAYOUT_VARIANT_IDS,
+  type AboutLayoutVariantId,
+  type FeatureLayoutVariantId,
+  type GalleryLayoutVariantId,
+  type SectionLayoutKind,
+  type SectionLayoutSelection,
+  type SectionLayoutVariantId,
+} from './section-layout-types';
 
 const TOOL_NAME = 'select_hero_layout';
+const SECTION_TOOL_NAME = 'select_section_layouts';
 const MAX_SELECTION_ATTEMPTS = 2;
 
 export const HERO_LAYOUT_OTHER_ALLOWED_IDS = [
@@ -240,6 +255,291 @@ export async function selectHeroLayouts(
   for (let attempt = 0; attempt < MAX_SELECTION_ATTEMPTS; attempt += 1) {
     try {
       const parsed = parseSelections(survey, candidates, await invoke(request));
+      if (parsed) return parsed;
+    } catch {
+      // Provider errors and invalid payloads share one bounded deterministic fallback.
+    }
+  }
+  return fallback;
+}
+
+export interface SectionLayoutAvailability {
+  features: number;
+  about: boolean;
+  gallery: number;
+}
+
+export interface SectionLayoutSelectionCandidate {
+  designDnaId?: DesignDnaId;
+  availability: SectionLayoutAvailability;
+}
+
+export const SECTION_LAYOUT_FALLBACK_ORDER = {
+  features: [...FEATURE_LAYOUT_VARIANT_IDS],
+  about: [...ABOUT_LAYOUT_VARIANT_IDS],
+  gallery: [...GALLERY_LAYOUT_VARIANT_IDS],
+} as const satisfies Readonly<Record<SectionLayoutKind, readonly SectionLayoutVariantId[]>>;
+
+const sectionToolInputSchema = z.object({
+  candidate_index: z.number().int().min(0).max(2),
+  feature_layout_id: z.enum(FEATURE_LAYOUT_VARIANT_IDS).optional(),
+  about_layout_id: z.enum(ABOUT_LAYOUT_VARIANT_IDS).optional(),
+  gallery_layout_id: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
+}).strict();
+
+export interface SectionLayoutSelectionToolDefinition {
+  name: typeof SECTION_TOOL_NAME;
+  description: string;
+  inputSchema: {
+    type: 'object';
+    additionalProperties: false;
+    properties: Record<string, unknown>;
+    required: string[];
+  };
+}
+
+export const SECTION_LAYOUT_SELECTION_TOOL: SectionLayoutSelectionToolDefinition = {
+  name: SECTION_TOOL_NAME,
+  description: 'Choose server-registered feature, about, and gallery layouts for each candidate.',
+  inputSchema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      candidate_index: { type: 'integer', minimum: 0, maximum: 2 },
+      feature_layout_id: { type: 'string', enum: [...FEATURE_LAYOUT_VARIANT_IDS] },
+      about_layout_id: { type: 'string', enum: [...ABOUT_LAYOUT_VARIANT_IDS] },
+      gallery_layout_id: { type: 'string', enum: [...GALLERY_LAYOUT_VARIANT_IDS] },
+    },
+    required: ['candidate_index'],
+  },
+};
+
+export interface SectionLayoutSelectionToolRequest {
+  prompt: string;
+  system: string;
+  tool: SectionLayoutSelectionToolDefinition;
+  expectedCalls: 3;
+}
+
+export type SectionLayoutSelectionToolInvoker = (
+  request: SectionLayoutSelectionToolRequest,
+) => Promise<readonly unknown[]>;
+
+export function sectionLayoutAvailabilityForSurvey(
+  survey: SurveyInput,
+): SectionLayoutAvailability {
+  const honestV2 = Boolean(survey.contentDepth);
+  const galleryCount = survey.generalAssetAttestationId
+    ? Math.min(
+        12,
+        new Set((survey.storePhotoAssetRefs ?? []).map((asset) => asset.url)).size,
+      )
+    : 0;
+  return {
+    features: honestV2 ? 3 : 0,
+    about: honestV2,
+    gallery: galleryCount >= 2 ? galleryCount : 0,
+  };
+}
+
+function itemCountFor(
+  kind: SectionLayoutKind,
+  availability: SectionLayoutAvailability,
+): number {
+  if (kind === 'features') return availability.features;
+  if (kind === 'about') return availability.about ? 1 : 0;
+  return availability.gallery;
+}
+
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: 'features',
+): readonly FeatureLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: 'about',
+): readonly AboutLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: 'gallery',
+): readonly GalleryLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: SectionLayoutKind,
+): readonly SectionLayoutVariantId[] {
+  const count = itemCountFor(kind, candidate.availability);
+  if (count === 0) return [];
+  const authored = authoredIndustry(runtimeIndustry(survey));
+  const layoutFits = (
+    layout:
+      | (typeof FEATURE_LAYOUT_CATALOG)[number]
+      | (typeof ABOUT_LAYOUT_CATALOG)[number]
+      | (typeof GALLERY_LAYOUT_CATALOG)[number],
+  ): boolean => {
+    if (count < layout.content.minimumItems || count > layout.content.maximumItems) return false;
+    if (authored && layout.compatibility.industry[authored] === 'discouraged') return false;
+    if (
+      candidate.designDnaId
+      && !layout.compatibility.preferredDna.includes(candidate.designDnaId)
+    ) return false;
+    return true;
+  };
+  if (kind === 'features') {
+    return FEATURE_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+  }
+  if (kind === 'about') {
+    return ABOUT_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+  }
+  return GALLERY_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+}
+
+export function allowedSectionLayoutsForCandidate(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+): {
+  features: readonly FeatureLayoutVariantId[];
+  about: readonly AboutLayoutVariantId[];
+  gallery: readonly GalleryLayoutVariantId[];
+} {
+  return {
+    features: allowedForKind(survey, candidate, 'features'),
+    about: allowedForKind(survey, candidate, 'about'),
+    gallery: allowedForKind(survey, candidate, 'gallery'),
+  };
+}
+
+function sectionFallbackFor(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+): SectionLayoutSelection {
+  const allowed = allowedSectionLayoutsForCandidate(survey, candidate);
+  const first = <T extends SectionLayoutVariantId>(
+    kind: SectionLayoutKind,
+    ids: readonly T[],
+  ): T | undefined => SECTION_LAYOUT_FALLBACK_ORDER[kind].find(
+    (id): id is T => ids.includes(id as T),
+  );
+  return {
+    ...(first('features', allowed.features)
+      ? { features: first('features', allowed.features) }
+      : {}),
+    ...(first('about', allowed.about)
+      ? { about: first('about', allowed.about) }
+      : {}),
+    ...(first('gallery', allowed.gallery)
+      ? { gallery: first('gallery', allowed.gallery) }
+      : {}),
+  };
+}
+
+function sectionIntrinsicAllowedCondition(
+  kind: SectionLayoutKind,
+  id: SectionLayoutVariantId,
+): string {
+  const layout = kind === 'features'
+    ? featureLayoutById(id as FeatureLayoutVariantId)
+    : kind === 'about'
+      ? aboutLayoutById(id as AboutLayoutVariantId)
+      : galleryLayoutById(id as GalleryLayoutVariantId);
+  const recommended = Object.entries(layout.compatibility.industry)
+    .filter(([, affinity]) => affinity === 'recommended')
+    .map(([industry]) => industry)
+    .join(',');
+  return `추천 업종 ${recommended}; 실제 콘텐츠 수 범위 ${layout.content.minimumItems}-${layout.content.maximumItems}; 등록 DNA 궁합만 허용`;
+}
+
+export function sectionLayoutSelectionPrompt(
+  survey: SurveyInput,
+  candidates: readonly SectionLayoutSelectionCandidate[],
+): string {
+  const targets = candidates.map((candidate, index) => {
+    const allowed = allowedSectionLayoutsForCandidate(survey, candidate);
+    const entries = <T extends SectionLayoutVariantId>(
+      kind: SectionLayoutKind,
+      values: readonly T[],
+    ) => values.map((id) => {
+      const layout = kind === 'features'
+        ? featureLayoutById(id as FeatureLayoutVariantId)
+        : kind === 'about'
+          ? aboutLayoutById(id as AboutLayoutVariantId)
+          : galleryLayoutById(id as GalleryLayoutVariantId);
+      return {
+        id,
+        description: layout.description,
+        allowedCondition: sectionIntrinsicAllowedCondition(kind, id),
+      };
+    });
+    return {
+      candidateIndex: index,
+      allowedLayouts: {
+        features: entries('features', allowed.features),
+        about: entries('about', allowed.about),
+        gallery: entries('gallery', allowed.gallery),
+      },
+    };
+  });
+  return [
+    '각 후보에 허용된 섹션 배열 ID를 고르세요. 비어 있는 종류는 필드를 생략하세요.',
+    'select_section_layouts 도구를 candidate_index 0, 1, 2에 정확히 한 번씩 호출하세요.',
+    `[선택 대상] ${JSON.stringify(targets)}`,
+  ].join('\n');
+}
+
+function parseSectionSelections(
+  survey: SurveyInput,
+  candidates: readonly SectionLayoutSelectionCandidate[],
+  raw: readonly unknown[],
+): readonly SectionLayoutSelection[] | null {
+  if (raw.length !== candidates.length || candidates.length !== 3) return null;
+  const parsed = raw.map((value) => sectionToolInputSchema.safeParse(value));
+  if (parsed.some((result) => !result.success)) return null;
+  const selections = new Array<SectionLayoutSelection>(3);
+  const seen = new Set<number>();
+  for (const result of parsed) {
+    if (!result.success) return null;
+    const index = result.data.candidate_index;
+    if (seen.has(index)) return null;
+    seen.add(index);
+    const allowed = allowedSectionLayoutsForCandidate(survey, candidates[index]);
+    const selected: SectionLayoutSelection = {};
+    const pairs = [
+      ['features', result.data.feature_layout_id, allowed.features],
+      ['about', result.data.about_layout_id, allowed.about],
+      ['gallery', result.data.gallery_layout_id, allowed.gallery],
+    ] as const;
+    for (const [kind, id, ids] of pairs) {
+      if (ids.length === 0) {
+        if (id !== undefined) return null;
+        continue;
+      }
+      if (!id || !(ids as readonly string[]).includes(id)) return null;
+      selected[kind] = id as never;
+    }
+    selections[index] = selected;
+  }
+  return seen.size === 3 && selections.every(Boolean) ? selections : null;
+}
+
+export async function selectSectionLayouts(
+  survey: SurveyInput,
+  candidates: readonly SectionLayoutSelectionCandidate[],
+  invoke?: SectionLayoutSelectionToolInvoker,
+): Promise<readonly SectionLayoutSelection[]> {
+  const fallback = candidates.map((candidate) => sectionFallbackFor(survey, candidate));
+  if (!invoke || candidates.length !== 3) return fallback;
+  const request: SectionLayoutSelectionToolRequest = {
+    prompt: sectionLayoutSelectionPrompt(survey, candidates),
+    system: '등록된 ID만 선택하세요. 색·크기·좌표를 만들지 말고 지정 도구만 정확히 세 번 호출하세요.',
+    tool: SECTION_LAYOUT_SELECTION_TOOL,
+    expectedCalls: 3,
+  };
+  for (let attempt = 0; attempt < MAX_SELECTION_ATTEMPTS; attempt += 1) {
+    try {
+      const parsed = parseSectionSelections(survey, candidates, await invoke(request));
       if (parsed) return parsed;
     } catch {
       // Provider errors and invalid payloads share one bounded deterministic fallback.

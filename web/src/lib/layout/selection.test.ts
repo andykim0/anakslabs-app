@@ -5,14 +5,20 @@ import {
   buildCandidateBlueprints,
   buildCandidateBlueprintsForPipeline,
 } from '@/lib/data/design-candidates';
+import { designCandidateSchema } from '@/app/api/_lib/schemas';
 import {
+  SECTION_LAYOUT_SELECTION_TOOL,
   HERO_LAYOUT_OTHER_ALLOWED_IDS,
   HERO_LAYOUT_SELECTION_TOOL,
   allowedHeroLayoutsForCandidate,
+  allowedSectionLayoutsForCandidate,
   heroLayoutSelectionPrompt,
   layoutVariantsEnabled,
   pinnedHeroLayoutIsAllowed,
   selectHeroLayouts,
+  selectSectionLayouts,
+  sectionLayoutAvailabilityForSurvey,
+  sectionLayoutSelectionPrompt,
 } from '.';
 
 function survey(overrides: Partial<SurveyInput> = {}): SurveyInput {
@@ -35,6 +41,29 @@ const imageCandidate = {
   media: { image: true, video: false, poster: false },
 } as const;
 
+function sectionSurvey(): SurveyInput {
+  return survey({
+    highlights: ['차분한 안내', '정돈된 경험', '고객이 적은 강점'],
+    storePhotoUrls: ['/customer/a.webp', '/customer/b.webp', '/customer/c.webp'],
+    storePhotoAssetRefs: [
+      { assetId: 'photo-a', url: '/customer/a.webp' },
+      { assetId: 'photo-b', url: '/customer/b.webp' },
+      { assetId: 'photo-c', url: '/customer/c.webp' },
+    ],
+    generalAssetAttestationId: 'attestation-lib2-selection',
+    contentDepth: {
+      version: 2,
+      facts: [],
+      faqAnswers: [],
+      imports: [],
+      mainStorytelling: {
+        version: 1,
+        brandStory: '고객이 직접 적은 이야기입니다.',
+      },
+    },
+  });
+}
+
 describe('LIB L3 feature flag and server allowlist', () => {
   test('LAYOUT_VARIANTS_ENABLED는 정확히 1일 때만 ON이다', () => {
     assert.equal(layoutVariantsEnabled({}), false);
@@ -52,6 +81,7 @@ describe('LIB L3 feature flag and server allowlist', () => {
     });
     assert.equal(JSON.stringify(off), JSON.stringify(legacy));
     assert.ok(off.every((candidate) => candidate.heroLayoutVariantId === undefined));
+    assert.ok(off.every((candidate) => candidate.sectionLayoutVariantIds === undefined));
   });
 
   test('academy의 현재 other 라우팅은 승인된 3종만 허용한다', () => {
@@ -92,6 +122,159 @@ describe('LIB L3 feature flag and server allowlist', () => {
     assert.ok(allowed.length > 0);
     assert.ok(!allowed.includes('hero.text-only-bold'));
     assert.ok(allowed.includes('hero.fullbleed-centered'));
+  });
+});
+
+describe('LIB2 M3b select_section_layouts structured tool', () => {
+  test('도구는 후보 index와 섹션별 catalog enum만 받고 자유 필드를 거부한다', () => {
+    assert.equal(SECTION_LAYOUT_SELECTION_TOOL.name, 'select_section_layouts');
+    assert.deepEqual(
+      Object.keys(SECTION_LAYOUT_SELECTION_TOOL.inputSchema.properties),
+      [
+        'candidate_index',
+        'feature_layout_id',
+        'about_layout_id',
+        'gallery_layout_id',
+      ],
+    );
+    assert.equal(SECTION_LAYOUT_SELECTION_TOOL.inputSchema.additionalProperties, false);
+  });
+
+  test('프롬프트는 ID·한 줄 설명·허용 조건만 노출하고 점수·좌표·실미디어 상태를 숨긴다', () => {
+    const input = sectionSurvey();
+    const availability = sectionLayoutAvailabilityForSurvey(input);
+    const candidates = [
+      { availability },
+      { availability },
+      { availability },
+    ] as const;
+    const prompt = sectionLayoutSelectionPrompt(input, candidates);
+    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[선택 대상] '))!;
+    const targets = JSON.parse(targetsLine.slice('[선택 대상] '.length)) as Array<{
+      candidateIndex: number;
+      allowedLayouts: Record<string, Array<Record<string, unknown>>>;
+    }>;
+    for (const target of targets) {
+      assert.deepEqual(Object.keys(target), ['candidateIndex', 'allowedLayouts']);
+      for (const entries of Object.values(target.allowedLayouts)) {
+        for (const entry of entries) {
+          assert.deepEqual(Object.keys(entry), ['id', 'description', 'allowedCondition']);
+        }
+      }
+    }
+    assert.doesNotMatch(
+      prompt,
+      /"score"|"x"|"y"|"media"|"posterAvailable"|"videoAvailable"|"dnaId"|"allowedIds"/u,
+    );
+  });
+
+  test('실제 콘텐츠 수·업종·DNA 교집합 밖 ID는 allowlist에 들어오지 않는다', () => {
+    const input = sectionSurvey();
+    const available = allowedSectionLayoutsForCandidate(input, {
+      designDnaId: 'cafe-warm-editorial',
+      availability: sectionLayoutAvailabilityForSurvey(input),
+    });
+    assert.ok(available.features.length > 0);
+    assert.ok(available.about.length > 0);
+    assert.ok(available.gallery.length > 0);
+
+    const noGallery = allowedSectionLayoutsForCandidate(input, {
+      availability: { features: 3, about: true, gallery: 1 },
+    });
+    assert.deepEqual(noGallery.gallery, []);
+  });
+
+  test('strict enum과 서버 allowlist를 통과한 3개만 후보 순서대로 핀한다', async () => {
+    const input = sectionSurvey();
+    const availability = sectionLayoutAvailabilityForSurvey(input);
+    const candidates = [
+      { availability },
+      { availability },
+      { availability },
+    ] as const;
+    const allowed = allowedSectionLayoutsForCandidate(input, candidates[0]);
+    const selected = await selectSectionLayouts(input, candidates, async (request) => {
+      assert.equal(request.expectedCalls, 3);
+      return [2, 0, 1].map((candidateIndex) => ({
+        candidate_index: candidateIndex,
+        feature_layout_id: allowed.features[candidateIndex],
+        about_layout_id: allowed.about[candidateIndex],
+        gallery_layout_id: allowed.gallery[candidateIndex],
+      }));
+    });
+    assert.deepEqual(selected, [0, 1, 2].map((index) => ({
+      features: allowed.features[index],
+      about: allowed.about[index],
+      gallery: allowed.gallery[index],
+    })));
+  });
+
+  test('미허용·중복·추가 필드는 bounded retry 뒤 결정적 폴백한다', async () => {
+    const input = sectionSurvey();
+    const availability = sectionLayoutAvailabilityForSurvey(input);
+    const candidates = [
+      { availability },
+      { availability },
+      { availability },
+    ] as const;
+    let attempts = 0;
+    const rejected = await selectSectionLayouts(input, candidates, async () => {
+      attempts += 1;
+      return [
+        { candidate_index: 0, feature_layout_id: 'features.unknown', score: 99 },
+        { candidate_index: 0, feature_layout_id: 'features.unknown' },
+        { candidate_index: 2, feature_layout_id: 'features.unknown' },
+      ];
+    });
+    assert.equal(attempts, 2);
+    assert.deepEqual(rejected, await selectSectionLayouts(input, candidates));
+  });
+
+  test('ON pipeline은 세 후보에 섹션 배열을 pin하고 OFF는 발급하지 않는다', async () => {
+    const input = sectionSurvey();
+    const on = await buildCandidateBlueprintsForPipeline(input, {
+      enabled: false,
+      layoutEnabled: true,
+    });
+    assert.ok(on.every((candidate) => candidate.sectionLayoutVariantIds));
+    const rerun = await buildCandidateBlueprintsForPipeline(input, {
+      enabled: false,
+      layoutEnabled: true,
+    });
+    assert.deepEqual(
+      on.map((candidate) => candidate.sectionLayoutVariantIds),
+      rerun.map((candidate) => candidate.sectionLayoutVariantIds),
+    );
+
+    const off = await buildCandidateBlueprintsForPipeline(input, {
+      enabled: false,
+      layoutEnabled: false,
+    });
+    assert.ok(off.every((candidate) => candidate.sectionLayoutVariantIds === undefined));
+  });
+
+  test('후보 API 스키마가 섹션 배열 pin을 strict enum으로 왕복한다', async () => {
+    const blueprint = (await buildCandidateBlueprintsForPipeline(sectionSurvey(), {
+      enabled: false,
+      layoutEnabled: true,
+    }))[0];
+    const candidate = {
+      id: blueprint.id,
+      label: blueprint.label,
+      style: blueprint.style,
+      heroImageUrl: blueprint.mockHeroUrl,
+      theme: blueprint.theme,
+      description: blueprint.description,
+      sectionLayoutVariantIds: blueprint.sectionLayoutVariantIds,
+    };
+    assert.deepEqual(
+      designCandidateSchema.parse(candidate).sectionLayoutVariantIds,
+      blueprint.sectionLayoutVariantIds,
+    );
+    assert.equal(designCandidateSchema.safeParse({
+      ...candidate,
+      sectionLayoutVariantIds: { features: 'features.unknown' },
+    }).success, false);
   });
 });
 

@@ -145,6 +145,9 @@ export class MockAiService implements AiService {
         description: bp.description,
         ...(bp.designDna ? { designDna: bp.designDna } : {}),
         ...(bp.heroLayoutVariantId ? { heroLayoutVariantId: bp.heroLayoutVariantId } : {}),
+        ...(bp.sectionLayoutVariantIds
+          ? { sectionLayoutVariantIds: bp.sectionLayoutVariantIds }
+          : {}),
       }));
     }
     await simulateLatency(1300);
@@ -167,6 +170,9 @@ export class MockAiService implements AiService {
         description: bp.description,
         ...(bp.designDna ? { designDna: bp.designDna } : {}),
         ...(bp.heroLayoutVariantId ? { heroLayoutVariantId: bp.heroLayoutVariantId } : {}),
+        ...(bp.sectionLayoutVariantIds
+          ? { sectionLayoutVariantIds: bp.sectionLayoutVariantIds }
+          : {}),
       };
     }));
   }
@@ -224,6 +230,9 @@ export class MockAiService implements AiService {
       heroVariant,
       ...(candidate.heroLayoutVariantId
         ? { heroLayoutVariantId: candidate.heroLayoutVariantId }
+        : {}),
+      ...(candidate.sectionLayoutVariantIds
+        ? { sectionLayoutVariantIds: candidate.sectionLayoutVariantIds }
         : {}),
       ...(assetRefs.length ? { assetRefs } : {}),
     });

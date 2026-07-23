@@ -1255,6 +1255,11 @@ export const designCandidateSchema = z.object({
   description: z.string(),
   designDna: designDnaSelectionSchema.optional(),
   heroLayoutVariantId: z.enum(HERO_LAYOUT_VARIANT_IDS).optional(),
+  sectionLayoutVariantIds: z.object({
+    features: z.enum(FEATURE_LAYOUT_VARIANT_IDS).optional(),
+    about: z.enum(ABOUT_LAYOUT_VARIANT_IDS).optional(),
+    gallery: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
+  }).strict().optional(),
 });
 
 // ---------- 커스텀 도메인 ----------
