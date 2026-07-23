@@ -121,6 +121,12 @@ export function SectionStack({
     && element.id.includes('hero-title')
     && element.style.readabilityGuard === 'long-hero'
   ));
+  // HERO2 R1: sectionInline 바깥 여백에 더해 장문 카피 자체에도 DNA 간격 한
+  // 단계를 안전영역으로 예약한다. 아래 공용 foreground는 일반·continuous·
+  // cinematic 모바일 경로가 모두 소비하므로 특정 무대에서만 빠질 수 없다.
+  const longHeroSafeInline = longHeroFlow
+    ? theme.tokens?.spacing.elementGap
+    : undefined;
   const kenBurns = plan?.kenBurnsSections.has(section.id) ?? false;
   const cinematic = (plan?.cinematicHeroSections.has(section.id) ?? false) && !!bg.video?.src && !!bg.video.poster;
   // 일반 video-hero는 모바일 poster 정적. cinematic만 IO 진입 시 pinned loop로 향상한다.
@@ -218,12 +224,15 @@ export function SectionStack({
       {continuousHero && <div aria-hidden="true" data-continuous-hero-bridge />}
       <div
         {...(continuousHero ? { 'data-continuous-hero-foreground': 'stack' } : {})}
+        {...(longHeroSafeInline ? { 'data-hero-copy-safe-inline': 'dna-element-gap' } : {})}
         style={{
           position: 'relative',
           zIndex: continuousHero ? 6 : 1,
           width: '100%',
           maxWidth: '560px',
           margin: '0 auto',
+          paddingInline: longHeroSafeInline,
+          boxSizing: longHeroSafeInline ? 'border-box' : undefined,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
