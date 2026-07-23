@@ -26,14 +26,14 @@ const EXPECTED_ZONES = {
 } as const;
 
 const EXPECTED_MEDIA = {
-  'hero.fullbleed-centered': ['required-image', 'hero.text-only-bold'],
-  'hero.split-left': ['optional-image', 'self-without-media'],
-  'hero.split-right': ['optional-image', 'self-without-media'],
-  'hero.overlay-bottom-left': ['required-image', 'hero.text-only-bold'],
-  'hero.video-scrim': ['required-video-poster', 'hero.text-only-bold'],
-  'hero.text-only-bold': ['none', 'self-without-media'],
-  'hero.image-below': ['optional-image', 'self-without-media'],
-  'hero.asymmetric-offset': ['optional-image', 'self-without-media'],
+  'hero.fullbleed-centered': ['required-image', 'atmospheric-background', 'customer-referential,system-atmospheric'],
+  'hero.split-left': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
+  'hero.split-right': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
+  'hero.overlay-bottom-left': ['required-image', 'atmospheric-background', 'customer-referential,system-atmospheric'],
+  'hero.video-scrim': ['required-video-poster', 'atmospheric-background', 'customer-video-poster,system-atmospheric'],
+  'hero.text-only-bold': ['none', 'none', ''],
+  'hero.image-below': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
+  'hero.asymmetric-offset': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
 } as const;
 
 const EXPECTED_DISCOURAGED = {
@@ -70,16 +70,12 @@ describe('LayoutVariant hero catalog', () => {
       assert.ok(variant.slots.some((slot) => slot.id === 'headline' && slot.requirement === 'required'));
       assert.ok(variant.slots.some((slot) => slot.id === 'primary-cta' && slot.requirement === 'required'));
       assert.ok(variant.slots.every((slot) => knownSlots.has(slot.id)));
-      assert.deepEqual(
-        [variant.mediaContract.requirement, variant.mediaContract.noMediaFallback],
-        EXPECTED_MEDIA[variant.id],
-      );
+      assert.deepEqual([
+        variant.mediaContract.requirement,
+        variant.mediaContract.role,
+        variant.mediaContract.fallbackLadder.join(','),
+      ], EXPECTED_MEDIA[variant.id]);
     }
-    assert.equal(
-      HERO_LAYOUT_CATALOG.find((variant) => variant.id === 'hero.video-scrim')
-        ?.mediaContract.posterOnlyFallback,
-      'hero.fullbleed-centered',
-    );
   });
 
   test('업종 10열과 DNA 어울림·회피가 enum 단일 소스만 참조한다', () => {

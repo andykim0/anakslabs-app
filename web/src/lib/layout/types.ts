@@ -3,6 +3,7 @@ import type {
   SignatureBreakpointBand,
   SignatureTextSafeZoneId,
 } from '@/lib/motion/signature-contract';
+import type { LayoutMediaContract } from './section-layout-types';
 
 export const HERO_LAYOUT_VARIANT_IDS = [
   'hero.fullbleed-centered',
@@ -84,15 +85,8 @@ export type HeroLayoutMediaRequirement =
   | 'required-image'
   | 'required-video-poster';
 
-export type HeroLayoutFallback =
-  | 'self-without-media'
-  | 'hero.text-only-bold'
-  | 'hero.fullbleed-centered';
-
-export interface HeroLayoutMediaContract {
+export interface HeroLayoutMediaContract extends LayoutMediaContract {
   requirement: HeroLayoutMediaRequirement;
-  noMediaFallback: HeroLayoutFallback;
-  posterOnlyFallback?: HeroLayoutFallback;
   preferredAspect: Readonly<Partial<Record<HeroLayoutBreakpointBand, HeroLayoutAspect>>>;
   focusPolicy: 'none' | 'clamped-safe-zone-aware';
 }
@@ -154,6 +148,8 @@ export interface HeroLayoutProjection {
   requestedId: HeroLayoutVariantId;
   resolvedId: HeroLayoutVariantId;
   mediaKind: 'none' | 'image' | 'video';
+  /** LIB2 신규 생성본만 기록. 미지정 v1 저장본은 기존 렌더 동작을 그대로 유지한다. */
+  mediaSlotRole?: LayoutMediaContract['role'];
   scrim: HeroLayoutScrim;
   bands: Readonly<Record<HeroLayoutBreakpointBand, HeroLayoutBandProjection>>;
 }
