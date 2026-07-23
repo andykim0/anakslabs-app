@@ -22,7 +22,7 @@ const SHA = 'a'.repeat(64);
 
 function quality(passed: boolean): HeroPhotoQualityStamp {
   return {
-    algorithmVersion: 'hero-photo-v1',
+    algorithmVersion: 'hero-photo-v2',
     inputSha256: SHA,
     passed,
     reasons: passed ? [] : ['focus_too_soft'],

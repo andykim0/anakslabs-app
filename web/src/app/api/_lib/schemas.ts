@@ -1103,7 +1103,7 @@ export const designCandidateSchema = z.object({
   heroAssetRef: assetRefSchema.optional(),
   heroPresentation: z.enum(['system', 'promoted_customer_photo']).optional(),
   heroPhotoQuality: z.object({
-    algorithmVersion: z.literal('hero-photo-v1'),
+    algorithmVersion: z.literal('hero-photo-v2'),
     inputSha256: z.string().regex(/^[0-9a-f]{64}$/u),
     passed: z.boolean(),
     reasons: z.array(z.enum([

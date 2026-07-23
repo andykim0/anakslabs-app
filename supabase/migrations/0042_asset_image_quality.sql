@@ -9,7 +9,7 @@ alter table public.asset_records
     or (
       origin = 'customer_upload'
       and media_type = 'image'
-      and image_quality ->> 'algorithmVersion' = 'hero-photo-v1'
+      and image_quality ->> 'algorithmVersion' = 'hero-photo-v2'
       and jsonb_typeof(image_quality -> 'passed') = 'boolean'
       and jsonb_typeof(image_quality -> 'reasons') = 'array'
       and jsonb_typeof(image_quality -> 'metrics') = 'object'

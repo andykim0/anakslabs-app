@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 
-export const HERO_PHOTO_QUALITY_VERSION = 'hero-photo-v1' as const;
+export const HERO_PHOTO_QUALITY_VERSION = 'hero-photo-v2' as const;
 
 export const HERO_PHOTO_QUALITY_REASON_CODES = [
   'resolution_too_small',
@@ -39,7 +39,8 @@ export const HERO_PHOTO_QUALITY_LIMITS = {
   minimumHeight: 900,
   minimumAspectRatio: 1.2,
   maximumAspectRatio: 2.4,
-  minimumFocusScore: 0.0024,
+  // 160px normalized sample: calibrated against the existing 1920px cinematic photo fixture.
+  minimumFocusScore: 0.0008,
   minimumMeanLuminance: 0.16,
   maximumMeanLuminance: 0.86,
   maximumClippedPixelRatio: 0.42,

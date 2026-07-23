@@ -98,7 +98,7 @@ describe('buildHeroImageOptions', () => {
       heroPresentation: 'system',
       heroImageUrl: '/mock/candidate-light.svg',
       heroPhotoQuality: {
-        algorithmVersion: 'hero-photo-v1',
+        algorithmVersion: 'hero-photo-v2',
         inputSha256: 'a'.repeat(64),
         passed: false,
         reasons: ['focus_too_soft'],

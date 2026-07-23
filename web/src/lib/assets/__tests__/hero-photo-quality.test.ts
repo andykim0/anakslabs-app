@@ -67,6 +67,13 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     assert.equal(isHeroPhotoQualityStamp(result), true);
   });
 
+  test('1920px 실제 시네마틱 래스터 기준으로 초점 하한을 과도하게 잡지 않는다', async () => {
+    const bytes = readFileSync('public/cases/demos/yeobaek-workshop/poster.webp');
+    const result = await assessHeroPhotoQuality(bytes);
+    assert.equal(result.passed, true, JSON.stringify(result));
+    assert.equal(result.reasons.includes('focus_too_soft'), false);
+  });
+
   test('같은 원본 바이트는 판정·사유·서버 stamp까지 바이트 동일하다', async () => {
     const bytes = await detailedPhoto();
     const first = await assessHeroPhotoQuality(bytes);
