@@ -13,6 +13,7 @@ import { manualCollectionReversibleEntryIds } from '@/lib/payments/manual-collec
 import { kstDateString } from '@/lib/analytics/site-event-ingest';
 import { evaluateGuarantee, guaranteeDueAt } from '@/lib/guarantee';
 import { listGuaranteeEvidence } from '@/lib/guarantee/evidence';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 import { withApiHandler } from '../../_lib/http';
 import { requireAdminOr403 } from '../../_lib/guards';
 import { getAdminEditQueueRepository } from '@/lib/admin/edit-queue-repository';
@@ -64,8 +65,13 @@ export const GET = withApiHandler(async () => {
     entry.direction === 'reversal' && entry.reversesEntryId
       ? [[entry.reversesEntryId, entry] as const]
       : []));
-  const guaranteeSites = siteList.filter((site) => site.publishedAt && site.siteConfig);
-  const guaranteeEvidence = await listGuaranteeEvidence(guaranteeSites.map((site) => site.id));
+  const guaranteeEnabled = guaranteeProgramEnabled();
+  const guaranteeSites = guaranteeEnabled
+    ? siteList.filter((site) => site.publishedAt && site.siteConfig)
+    : [];
+  const guaranteeEvidence = guaranteeEnabled
+    ? await listGuaranteeEvidence(guaranteeSites.map((site) => site.id))
+    : new Map();
   const guaranteeAsOf = new Date();
   const guaranteeRows = await Promise.all(guaranteeSites.map(async (site) => {
     const publishedAt = site.publishedAt!;
@@ -116,6 +122,7 @@ export const GET = withApiHandler(async () => {
       manualEntries: manualRecords.map(({ entry }) => entry),
       sites: siteList,
     }),
+    guaranteeProgramEnabled: guaranteeEnabled,
     guarantees: guaranteeRows.sort((left, right) => left.dueAt.localeCompare(right.dueAt)),
     manualCollections: manualRecords
       .filter(({ entry }) => entry.direction === 'receipt')

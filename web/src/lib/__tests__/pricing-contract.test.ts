@@ -4,17 +4,14 @@ import { join } from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, test } from 'node:test';
-import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { PublishPrice } from '@/components/marketing/PublishPrice';
 import {
   CREDIT_CONSUMING_ACTIONS,
-  getBasePricePresentation,
-  isLaunchOfferActive,
-  LAUNCH_OFFER,
-  LAUNCH_OFFER_AVAILABILITY,
+  INCLUDED_ZERO_COST_ASSET_COPY,
   PRICING,
+  PUBLISH_PAYMENT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
-  type LaunchOffer,
 } from '@/lib/pricing';
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { CREDIT_COSTS } from '@/lib/credits/constants';
@@ -26,20 +23,6 @@ function sourceFiles(path: string): string[] {
   if (!statSync(absolute).isDirectory()) return [path];
   return readdirSync(absolute).flatMap((entry) => sourceFiles(join(path, entry)));
 }
-
-const quantityOffer: LaunchOffer = {
-  display: 'strikethrough',
-  kind: 'quantity',
-  limitCount: 50,
-  deadline: null,
-};
-
-const noOffer: LaunchOffer = {
-  display: 'none',
-  kind: 'none',
-  limitCount: null,
-  deadline: null,
-};
 
 describe('P$ — 가격·크레딧 단일 계약', () => {
   test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
@@ -74,6 +57,7 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     assert.equal(CREDIT_CONSUMING_ACTIONS.some((action) => /self|manual|direct/.test(action)), false);
     assert.match(CREDIT_CONTRACT_COPY, /직접 수정은 횟수 제한 없이 무료/);
     assert.match(CREDIT_CONTRACT_COPY, new RegExp(`문구 재생성 ${CREDIT_COSTS.text}크레딧`));
+    assert.ok(CREDIT_CONTRACT_COPY.includes(INCLUDED_ZERO_COST_ASSET_COPY));
   });
 
   test('FAQ와 가격 페이지는 동일한 크레딧 카피·사용처 레지스트리를 소비한다', () => {
@@ -107,78 +91,13 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
       assert.match(source, /SUBSCRIPTION_VALUE_COPY/);
     }
   });
-});
 
-describe('P$ — 런칭 offer fail-closed', () => {
-  test('기본 offer는 실재 조건인 선착순 50곳 + 운영 소진 플래그에 묶인다', () => {
-    assert.deepEqual(LAUNCH_OFFER, quantityOffer);
-    assert.equal(LAUNCH_OFFER_AVAILABILITY.quantitySoldOut, false);
-    assert.equal(isLaunchOfferActive(), true);
-    assert.equal(isLaunchOfferActive({ quantitySoldOut: true }), false);
-  });
-
-  test('기한형은 한국 날짜 종료 전만 active이고 경계부터 즉시 꺼진다', () => {
-    const offer: LaunchOffer = {
-      display: 'strikethrough',
-      kind: 'deadline',
-      limitCount: null,
-      deadline: '2026-09-30',
-    };
-    const endExclusive = Date.parse('2026-09-30T15:00:00.000Z');
-    assert.equal(isLaunchOfferActive({ offer, nowMs: endExclusive - 1 }), true);
-    assert.equal(isLaunchOfferActive({ offer, nowMs: endExclusive }), false);
-    assert.equal(isLaunchOfferActive({ offer, nowMs: endExclusive + 1 }), false);
-  });
-
-  test('none·잘못된 조건·잘못된 display는 모두 비교 가격을 fail-closed한다', () => {
-    assert.equal(isLaunchOfferActive({ offer: noOffer }), false);
-    assert.equal(isLaunchOfferActive({ offer: { ...quantityOffer, limitCount: null } }), false);
-    assert.equal(isLaunchOfferActive({ offer: { ...quantityOffer, display: 'none' } }), false);
-  });
-
-  test('offer kind에는 반드시 해당 수량 또는 기한 조건이 하나만 존재한다', () => {
-    const offer: LaunchOffer = LAUNCH_OFFER;
-    if (offer.kind === 'quantity') {
-      assert.ok((offer.limitCount ?? 0) > 0);
-      assert.equal(offer.deadline, null);
-    } else if (offer.kind === 'deadline') {
-      assert.equal(offer.limitCount, null);
-      assert.match(offer.deadline ?? '', /^\d{4}-\d{2}-\d{2}$/);
-    } else {
-      assert.equal(offer.limitCount, null);
-      assert.equal(offer.deadline, null);
-    }
-  });
-
-  test('활성일 때만 del·조건 라벨을 렌더하고 소진 시 정가만 남긴다', () => {
-    const active = renderToStaticMarkup(
-      createElement(LaunchPrice, {
-        evaluation: { offer: quantityOffer, quantitySoldOut: false },
-      }),
-    );
-    assert.match(active, /<del[^>]*data-launch-compare/);
-    assert.match(active, /590,000원/);
-    assert.match(active, /390,000원/);
-    assert.match(active, /런칭 선착순 50곳 한정/);
-
-    const soldOut = renderToStaticMarkup(
-      createElement(LaunchPrice, {
-        evaluation: { offer: quantityOffer, quantitySoldOut: true },
-      }),
-    );
-    assert.doesNotMatch(soldOut, /<del|data-launch-compare|런칭 선착순/);
-    assert.match(soldOut, /590,000원/);
-    assert.doesNotMatch(soldOut, /390,000원/);
-  });
-
-  test("kind:'none'은 취소선 없이 제작비 390,000원만 렌더한다", () => {
-    const markup = renderToStaticMarkup(
-      createElement(LaunchPrice, { evaluation: { offer: noOffer } }),
-    );
-    assert.doesNotMatch(markup, /<del|data-launch-compare|런칭/);
-    assert.match(markup, /390,000원/);
-    assert.doesNotMatch(markup, /590,000원/);
-    assert.equal(getBasePricePresentation({ offer: noOffer }).compareAtPriceKrw, null);
+  test('발행 가격은 연간 단일가만 렌더하고 비교가·희소성·취소선이 없다', () => {
+    const markup = renderToStaticMarkup(createElement(PublishPrice));
+    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.firstYear));
+    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.term));
+    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.renewal));
+    assert.doesNotMatch(markup, /<del|data-launch|선착순|한정/u);
   });
 });
 

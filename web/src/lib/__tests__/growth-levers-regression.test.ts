@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import { evaluateGuarantee } from '@/lib/guarantee';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 import { SCAN_COMPARISON_LIMIT, SCAN_REQUEST_URL_LIMIT } from '@/lib/scan/comparison';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import { emptySiteConfig } from '@/lib/types/site';
@@ -44,11 +45,14 @@ describe('GT$ G4 통합 회귀', () => {
     assert.match(sql, /revoke all on table public\.search_registration_queue from anon, authenticated/);
   });
 
-  test('보장·비교·검색 등록의 정직성 카피가 고객 화면의 정적 소스에 남는다', () => {
+  test('보장 판정 로직은 보존하되 프로그램은 기본 OFF이고 비교·검색 등록 카피는 유지한다', () => {
     const guarantee = read('src/app/(marketing)/guarantee/page.tsx');
     const scanner = read('src/components/landing/LandingScanner.tsx');
     const landing = read('src/app/(marketing)/page.tsx');
-    assert.match(guarantee, /시행 전 법무 검토 필요/);
+    assert.equal(guaranteeProgramEnabled({}), false);
+    assert.equal(guaranteeProgramEnabled({ GUARANTEE_PROGRAM_ENABLED: '1' }), true);
+    assert.match(guarantee, /if \(!guaranteeProgramEnabled\(\)\) notFound\(\)/);
+    assert.doesNotMatch(landing, /GuaranteeBadge|90일 성과 보장/u);
     assert.match(scanner, /실제 검색 순위 조회나 순위 보장이 아닙니다/);
     assert.match(scanner, /진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다/);
     assert.match(landing, /네이버·구글 검색 등록까지 다보임이 대신합니다/);

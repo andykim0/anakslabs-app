@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
-import { LAUNCH_OFFER, LEGACY_PRICING, PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment } from '@/lib/types/domain';
 import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
 import {
@@ -229,13 +229,9 @@ describe('ADM4 admin revenue metrics', () => {
       payment('ambiguous', { amount: launchVideo, creditsGranted: 2 }),
     ], NOW);
 
-    assert.equal(LAUNCH_OFFER.kind, 'quantity');
     assert.equal(result.launchOffer.contracts, 3);
-    assert.equal(result.launchOffer.limit, LAUNCH_OFFER.limitCount);
-    assert.equal(
-      result.launchOffer.remaining,
-      (LAUNCH_OFFER.limitCount ?? 0) - result.launchOffer.contracts,
-    );
+    assert.equal(result.launchOffer.limit, null);
+    assert.equal(result.launchOffer.remaining, null);
     assert.equal(result.launchOffer.reachedLimit, false);
   });
 

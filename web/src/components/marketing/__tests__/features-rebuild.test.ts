@@ -10,8 +10,8 @@ import FeaturesPage from '@/app/(marketing)/features/page';
 import { connectFaqHashOpener } from '@/components/marketing/FaqHashOpener';
 import {
   formatKrw,
-  LEGACY_PRICING,
   PRICING,
+  PUBLISH_PAYMENT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
 import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
@@ -39,18 +39,18 @@ const features = parse(featuresHtml);
 const faq = parse(faqHtml);
 
 describe('FT$ /features 전면 재구성 통합 회귀', () => {
-  test('T1 서사는 제작부터 검색 등록·성과 증명·보장·선택 영상·CTA까지 한 흐름이다', () => {
+  test('T1 서사는 제작부터 검색 등록·성과 증명·선택 영상·CTA까지 한 흐름이다', () => {
     assert.deepEqual(
       features.querySelectorAll('[data-features-section]').map((section) =>
         section.getAttribute('data-features-section')),
-      ['website', 'discovery', 'registration', 'report', 'guarantee', 'motion', 'cta'],
+      ['website', 'discovery', 'registration', 'report', 'motion', 'cta'],
     );
     assert.match(features.textContent, /홈페이지는 기본입니다/);
     assert.equal(features.querySelector('a[href="/cases"]')?.textContent.trim(), '직접 보세요');
     assert.match(featuresSource, /<SiteExampleMockup/);
     assert.match(featuresSource, /<EditorMockup/);
-    assert.match(featuresSource, /<GuaranteeBadge/);
-    assert.ok(features.querySelector('a[href="/guarantee"]'));
+    assert.doesNotMatch(featuresSource, /<GuaranteeBadge|data-features-section="guarantee"/);
+    assert.equal(features.querySelector('a[href="/guarantee"]'), null);
   });
 
   test('T2 세 장은 쉬운 시나리오를 먼저 말하고 질문형 FAQ 앵커로 연결한다', () => {
@@ -184,12 +184,14 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
   });
 
   test('구독 가격·혜택·크레딧 계약과 영상 애드온 가격은 단일 소스만 소비한다', () => {
-    assert.match(featuresSource, /formatKrw\(LEGACY_PRICING\.subscriptionMonthly\)/);
+    assert.match(featuresSource, /formatKrw\(PRICING\.subscription\.annual\)/);
+    assert.match(featuresSource, /PUBLISH_PAYMENT_COPY\.term/);
     assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.report/);
     assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.credits/);
     assert.match(featuresSource, /CREDIT_CONTRACT_COPY/);
     assert.doesNotMatch(`${featuresSource}\n${reportSource}`, /(?:29[,_]?900|200[,_]?000|20만원)/u);
-    assert.ok(featuresHtml.includes(formatKrw(LEGACY_PRICING.subscriptionMonthly)));
+    assert.ok(featuresHtml.includes(formatKrw(PRICING.subscription.annual)));
+    assert.ok(featuresHtml.includes(PUBLISH_PAYMENT_COPY.term));
     assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.report));
     assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.credits));
     assert.ok(featuresHtml.includes(CREDIT_CONTRACT_COPY));
@@ -215,7 +217,6 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
       '홈페이지는 기본입니다.',
       '등록까지 저희가 대신합니다.',
       '매달 성과를 숫자로 보여드립니다.',
-      '90일 성과 보장',
       '기본 움직임과 영상 첫 화면을 같은 장면으로 비교하세요.',
       '내 사이트 무료 진단',
     ]) {

@@ -143,7 +143,7 @@ describe('ADM5 admin operations construction invariants', () => {
     }
   });
 
-  test('admin surfaces derive current product prices and launch quantity from pricing.ts', () => {
+  test('admin surfaces derive current and historical product prices without an active scarcity limit', () => {
     const files = [
       'src/app/(admin)',
       'src/app/api/admin',
@@ -168,7 +168,6 @@ describe('ADM5 admin operations construction invariants', () => {
       'LEGACY_PRICING.build.launch',
       'LEGACY_PRICING.build.list',
       'PRICING.videoHeroAddon',
-      'LAUNCH_OFFER.limitCount',
     ]) {
       assert.ok(metrics.includes(source), `revenue metrics must consume ${source}`);
     }
@@ -178,11 +177,8 @@ describe('ADM5 admin operations construction invariants', () => {
       ),
       'subscription MRR must consume PRICING.subscription.monthlyEquivalent',
     );
-    assert.doesNotMatch(
-      metrics,
-      /(?:^|[^\w-])50(?:[^\w-]|$)/,
-      'the launch limit must come from LAUNCH_OFFER instead of a local 50 literal',
-    );
+    assert.match(metrics, /function quantityOfferLimit\(\): number \| null \{[\s\S]*return null;/);
+    assert.doesNotMatch(metrics, /LAUNCH_OFFER|선착순/u);
   });
 
   test('remote admin timestamps are rendered in explicit KST, not the browser timezone', () => {

@@ -246,7 +246,7 @@ export function OverviewDashboard() {
           />
         </div>
 
-        <Card className="mt-3 overflow-x-auto" >
+        {data.guaranteeProgramEnabled ? <Card className="mt-3 overflow-x-auto" >
           <div className="flex items-start gap-2 border-b border-slate-200 px-4 py-3">
             <ShieldCheck size={16} className="mt-0.5 text-slate-400" aria-hidden />
             <div>
@@ -297,13 +297,13 @@ export function OverviewDashboard() {
           ) : (
             <p className="px-4 py-8 text-center text-xs text-slate-500">발행된 보장 판정 대상 사이트가 없습니다.</p>
           )}
-        </Card>
+        </Card> : null}
 
         <Card className="mt-3 p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                런칭가 고유 사이트 카운터
+                과거 런칭가 수금 사이트
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
                 {formatNumber(data.revenue.launchOffer.contracts)}
@@ -316,7 +316,7 @@ export function OverviewDashboard() {
             </div>
             <p className="max-w-lg text-right text-[11px] leading-5 text-slate-500">
               PG는 고객 소유 사이트가 하나로 확인될 때만, 수동 수금은 원장에 귀속된 사이트만 집계합니다.
-              동일 사이트의 PG·수동 중복은 1곳이며 소진 플래그는 자동 변경하지 않습니다.
+              동일 사이트의 PG·수동 중복은 1곳으로 계산하며, 신규 계약에는 수량 제한이 없습니다.
             </p>
           </div>
           {data.revenue.launchOffer.limit !== null ? (
@@ -333,7 +333,7 @@ export function OverviewDashboard() {
               </p>
             </>
           ) : (
-            <p className="mt-2 text-xs text-slate-500">현재 수량형 런칭 오퍼가 아닙니다.</p>
+            <p className="mt-2 text-xs text-slate-500">과거 장부 재현용 집계이며 신규 판매에는 사용하지 않습니다.</p>
           )}
         </Card>
 

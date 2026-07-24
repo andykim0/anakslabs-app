@@ -40,9 +40,12 @@ export const LEGACY_PRICING = {
 
 export const PUBLISH_PAYMENT_COPY = {
   lead: '먼저 만들어 보여드립니다. 발행할 때만 결제하세요.',
+  decision: '완성된 결과를 확인한 뒤 발행을 결정합니다.',
   firstYear: `첫해 ${formatKrw(PRICING.subscription.annual)}`,
+  term: `홈페이지 ${PRICING.siteCount}개 · ${PRICING.subscription.periodMonths}개월 선결제`,
   renewal: `이후 매년 ${formatKrw(PRICING.subscription.annual)} 자동 갱신`,
   noBuildFee: '별도 제작비 없음',
+  vat: '부가세 별도',
 } as const;
 
 /**
@@ -59,7 +62,10 @@ export const SUBSCRIPTION_BENEFIT_COPY = {
 export const SUBSCRIPTION_VALUE_COPY =
   `매월 ${PRICING.subscription.creditsPerMonth}개 크레딧과 성과 리포트, 호스팅·운영을 함께 제공합니다. 크레딧은 외부 생성비가 드는 프리미엄 작업에만 사용합니다.`;
 
-/** 제작비·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
+export const INCLUDED_ZERO_COST_ASSET_COPY =
+  '레이아웃 선택, 절차적 배경, 제공 스톡처럼 외부 생성비가 들지 않는 기본 자산은 크레딧 없이 포함됩니다.';
+
+/** 연간 이용료·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
 export const SITE_PRICE_UNIT_COPY = '모든 가격은 홈페이지 1개 기준입니다.';
 
 export const MULTI_SITE_FAQ_ANSWER =
@@ -84,124 +90,6 @@ export const CREDIT_CONSUMING_ACTION_LABELS = {
   'ai-section-redesign': 'AI 전체 섹션 재디자인',
   'daboim-edit-service': '다보임 수정 대행',
 } as const satisfies Record<CreditConsumingAction, string>;
-
-export type LaunchOffer = {
-  display: 'strikethrough' | 'none';
-  kind: 'quantity' | 'deadline' | 'none';
-  limitCount: number | null;
-  deadline: string | null;
-};
-
-export const LAUNCH_OFFER = {
-  display: 'strikethrough',
-  kind: 'quantity',
-  limitCount: 50,
-  deadline: null,
-} as const satisfies LaunchOffer;
-
-/**
- * There is no authoritative launch-customer counter yet. Operations flips this
- * flag and redeploys when the first 50 paid customers have been accepted.
- */
-export const LAUNCH_OFFER_AVAILABILITY = {
-  quantitySoldOut: false,
-} as const;
-
-export type LaunchOfferEvaluationInput = {
-  offer?: LaunchOffer;
-  quantitySoldOut?: boolean;
-  nowMs?: number;
-};
-
-export type BasePricePresentation = {
-  active: boolean;
-  currentPriceKrw: number;
-  compareAtPriceKrw: number | null;
-  conditionLabel: string | null;
-};
-
-const KST_OFFSET_MS = 9 * 60 * 60 * 1_000;
-
-function deadlineEndExclusiveMs(deadline: string): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(deadline);
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const dateStartUtc = Date.UTC(year, month - 1, day);
-  const parsed = new Date(dateStartUtc);
-  if (
-    parsed.getUTCFullYear() !== year ||
-    parsed.getUTCMonth() !== month - 1 ||
-    parsed.getUTCDate() !== day
-  ) {
-    return null;
-  }
-
-  // The offer remains active through the stated calendar day in Korea.
-  return Date.UTC(year, month - 1, day + 1) - KST_OFFSET_MS;
-}
-
-export function isLaunchOfferActive(input: LaunchOfferEvaluationInput = {}): boolean {
-  const offer = input.offer ?? LAUNCH_OFFER;
-  if (offer.display !== 'strikethrough') return false;
-
-  if (offer.kind === 'quantity') {
-    return (
-      Number.isInteger(offer.limitCount) &&
-      (offer.limitCount ?? 0) > 0 &&
-      offer.deadline === null &&
-      (input.quantitySoldOut ?? LAUNCH_OFFER_AVAILABILITY.quantitySoldOut) === false
-    );
-  }
-
-  if (offer.kind === 'deadline') {
-    if (offer.limitCount !== null || typeof offer.deadline !== 'string') return false;
-    const endExclusiveMs = deadlineEndExclusiveMs(offer.deadline);
-    if (endExclusiveMs === null) return false;
-    const nowMs = input.nowMs ?? Date.now();
-    return Number.isFinite(nowMs) && nowMs < endExclusiveMs;
-  }
-
-  return false;
-}
-
-export function getLaunchOfferLabel(offer: LaunchOffer = LAUNCH_OFFER): string | null {
-  if (offer.display !== 'strikethrough') return null;
-  if (offer.kind === 'quantity' && Number.isInteger(offer.limitCount) && (offer.limitCount ?? 0) > 0) {
-    return `런칭 선착순 ${offer.limitCount}곳 한정`;
-  }
-  if (offer.kind === 'deadline' && offer.deadline && deadlineEndExclusiveMs(offer.deadline) !== null) {
-    return `런칭 ${offer.deadline}까지`;
-  }
-  return null;
-}
-
-export function getBasePricePresentation(
-  input: LaunchOfferEvaluationInput = {},
-): BasePricePresentation {
-  const offer = input.offer ?? LAUNCH_OFFER;
-  const active = isLaunchOfferActive(input);
-
-  if (active) {
-    return {
-      active: true,
-      currentPriceKrw: LEGACY_PRICING.build.launch,
-      compareAtPriceKrw: LEGACY_PRICING.build.list,
-      conditionLabel: getLaunchOfferLabel(offer),
-    };
-  }
-
-  return {
-    active: false,
-    currentPriceKrw: offer.kind === 'none'
-      ? LEGACY_PRICING.build.launch
-      : LEGACY_PRICING.build.list,
-    compareAtPriceKrw: null,
-    conditionLabel: null,
-  };
-}
 
 export function formatKrw(value: number): string {
   return `${new Intl.NumberFormat('ko-KR').format(value)}원`;

@@ -3,7 +3,6 @@ import { Check } from 'lucide-react';
 import {
   CREDIT_EXPIRY_DAYS,
   CREDIT_PACKS,
-  INITIAL_GRANT,
 } from '@/lib/credits/constants';
 import {
   HOSTING_ONLY_FOOTNOTE,
@@ -13,16 +12,15 @@ import {
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { ScannerCta, SectionHeading } from '@/components/marketing/ui';
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
-import { LaunchPrice } from '@/components/marketing/LaunchPrice';
-import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
+import { PublishPrice } from '@/components/marketing/PublishPrice';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   CREDIT_CONSUMING_ACTION_LABELS,
   CREDIT_CONSUMING_ACTIONS,
   formatKrw,
-  getBasePricePresentation,
-  LEGACY_PRICING,
+  INCLUDED_ZERO_COST_ASSET_COPY,
   PRICING,
+  PUBLISH_PAYMENT_COPY,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
@@ -31,9 +29,9 @@ import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { VIDEO_FULFILLMENT_COPY } from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = {
-  title: '홈페이지 제작 비용 — 제작비와 월 구독, 숨은 비용 없이',
+  title: '홈페이지 이용료 — 결과를 보고 발행할 때 결제',
   description:
-    '소상공인 홈페이지 제작 비용을 투명하게: 1회 제작비 + 월간 성과 리포트와 크레딧이 포함된 사이트 운영 구독. 기본 모션과 AI 영상 홈페이지의 차이, 크레딧 팩·환불 규정까지.',
+    `완성된 홈페이지를 먼저 확인하고 발행할 때 첫해 이용료를 결제합니다. 연 ${formatKrw(PRICING.subscription.annual)}에 호스팅, 운영, 성과 리포트와 월 ${PRICING.subscription.creditsPerMonth}크레딧이 포함됩니다.`,
   alternates: { canonical: '/pricing' },
 };
 
@@ -46,16 +44,20 @@ const INCLUDED_FEATURES: string[] = [
   '다중 페이지(홈·소개·문의) + 자동 헤더 내비',
   '네이버·구글·AI가 읽기 쉬운 기본 구성',
   '네이버·구글 검색 등록까지 다보임이 대신합니다 — 사장님은 아무것도 안 하셔도 됩니다.',
-  `초기 편집 크레딧 ${INITIAL_GRANT.basic}개`,
   '기본 모션(포함·무료) — 스크롤 등장 효과',
+  INCLUDED_ZERO_COST_ASSET_COPY,
   '폼·예약 등 동적 기능(당사 호스팅에서 작동)',
   '커스텀 도메인 연결',
 ];
 
 const PRICING_FAQ: FaqItem[] = [
   {
-    q: '왜 제작비와 월 구독으로 나뉘나요?',
-    a: `제작비는 사이트를 처음 설계·생성하는 1회 비용이고, 사이트 운영 구독에는 ${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${CREDIT_CONTRACT_COPY}`,
+    q: '언제 결제하나요?',
+    a: `${PUBLISH_PAYMENT_COPY.lead} 만드는 동안에는 결제가 없고, 완성된 결과를 확인한 뒤 발행할 때 첫해 이용료 ${formatKrw(PRICING.subscription.annual)}를 결제합니다. ${PUBLISH_PAYMENT_COPY.term}이며 ${PUBLISH_PAYMENT_COPY.noBuildFee}입니다.`,
+  },
+  {
+    q: '첫해 이용료에는 무엇이 포함되나요?',
+    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${INCLUDED_ZERO_COST_ASSET_COPY}`,
   },
   {
     q: '무제한 수정과 크레딧은 뭐가 다른가요?',
@@ -66,8 +68,8 @@ const PRICING_FAQ: FaqItem[] = [
     a: `기본 모션은 모든 홈페이지에 포함되어 무료입니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 원하는 분만 +${formatKrw(PRICING.videoHeroAddon)}에 추가합니다. ${VIDEO_FULFILLMENT_COPY} 완성 후 AI 영상 재생성에는 크레딧을 사용합니다.`,
   },
   {
-    q: '연간 결제 할인이 있나요?',
-    a: '연간 결제는 준비 중입니다. 현재는 월 구독만 제공하며, 도입되면 이 페이지에 정확한 할인율과 함께 안내합니다.',
+    q: '자동 갱신과 해지는 어떻게 되나요?',
+    a: `${PUBLISH_PAYMENT_COPY.renewal} 방식입니다. 해지 시점과 환불 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 결제 화면과 약관에 같은 문구로 명확히 안내합니다. 현재는 실제 결제가 진행되지 않습니다.`,
   },
   {
     q: '해지하면 사이트는 어떻게 되나요?',
@@ -79,12 +81,11 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: '크레딧에 유효기간이 있나요?',
-    a: `초기 지급 크레딧은 ${CREDIT_EXPIRY_DAYS.initial_grant}일, 구매한 크레딧은 ${CREDIT_EXPIRY_DAYS.purchase}일, 구독으로 매월 지급되는 크레딧은 ${CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다. 소진은 만료가 임박한 것부터 자동 차감됩니다.`,
+    a: `구매한 크레딧은 ${CREDIT_EXPIRY_DAYS.purchase}일, 구독으로 매월 지급되는 크레딧은 ${CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다. 소진은 만료가 임박한 것부터 자동 차감됩니다.`,
   },
 ];
 
 export default function PricingPage() {
-  const basePrice = getBasePricePresentation();
   return (
     <>
       <script
@@ -98,7 +99,7 @@ export default function PricingPage() {
           홈페이지 제작 비용
         </h1>
         <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
-          처음 만들 때 한 번, 운영은 매달 냅니다. AI에게 다시 만들라고 하거나 다보임에 맡길 때만 크레딧을 쓰고, 직접 수정은 무료입니다.
+          {PUBLISH_PAYMENT_COPY.lead} 첫해 이용료에는 운영과 성과 확인까지 함께 들어갑니다.
         </p>
       </section>
 
@@ -106,18 +107,17 @@ export default function PricingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-16">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">1회</p>
-            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">제작비</h3>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">먼저 확인</p>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">완성된 결과</h3>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              사이트를 처음 설계·생성하고 발행하는 비용. 결제 시 초기 편집 크레딧이 자동 지급됩니다.
+              업종에 맞는 구성과 디자인 3안을 먼저 만들고 보여드립니다. 발행 전에는 결제하지 않습니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">매월</p>
-            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">사이트 운영 구독</h3>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">발행할 때</p>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">첫해 이용료</h3>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              {SUBSCRIPTION_BENEFIT_COPY.report}와 {SUBSCRIPTION_BENEFIT_COPY.credits}, {SUBSCRIPTION_BENEFIT_COPY.operations}을
-              한 번에 제공합니다.
+              {PUBLISH_PAYMENT_COPY.term}. {SUBSCRIPTION_BENEFIT_COPY.report}, {SUBSCRIPTION_BENEFIT_COPY.credits}, {SUBSCRIPTION_BENEFIT_COPY.operations}을 한 번에 제공합니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
@@ -135,13 +135,13 @@ export default function PricingPage() {
         <div className="mx-auto max-w-4xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
             <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26] uppercase">
-              홈페이지 제작 + 호스팅
+              홈페이지 발행 + 1년 운영
             </h2>
             <div className="mt-4">
-              <LaunchPrice />
+              <PublishPrice />
             </div>
             <p className="mkt-type-support mt-1 text-[#5C6068]">
-              + 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · VAT 별도
+              {PUBLISH_PAYMENT_COPY.noBuildFee} · {PUBLISH_PAYMENT_COPY.vat}
             </p>
             <p data-site-price-unit className="mkt-type-support mt-1 text-[#696E76]">
               {SITE_PRICE_UNIT_COPY}
@@ -151,9 +151,8 @@ export default function PricingPage() {
             </p>
             <p className="mkt-type-body mt-4 text-[#5C6068]">
               서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
-              읽기 쉬운 기본 구성, 초기 편집 크레딧 {INITIAL_GRANT.basic}개가 모두 포함됩니다.
+              읽기 쉬운 기본 구성과 1년 운영이 모두 포함됩니다.
             </p>
-            <GuaranteeBadge />
 
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
               <PricingMotionComparison />
@@ -223,8 +222,8 @@ export default function PricingPage() {
                 ))}
               </ul>
               <p className="mkt-type-support mt-4 text-[#696E76]">
-                초기 지급 크레딧은 {CREDIT_EXPIRY_DAYS.initial_grant}일, 구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일,
-                월 구독 크레딧은 {CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다.
+                구매 크레딧은 {CREDIT_EXPIRY_DAYS.purchase}일,
+                구독 크레딧은 {CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효합니다.
               </p>
             </div>
           </div>
@@ -236,24 +235,24 @@ export default function PricingPage() {
         <SectionHeading title="왜 이 방식이 더 합리적일까요" />
         <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#5C6068]">일반 제작 에이전시</p>
-            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">평균 430만원<sup className="mkt-type-support ml-1 text-[#696E76]">1</sup></p>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#5C6068]">일회성 외주 방식</p>
+            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">결과를 보기 전에 큰 비용부터</p>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              외주 디자인·개발 1회 비용입니다. 수정할 때마다 추가 견적이 생기거나, 손님이 찾는 정보 정리가 별도일 수 있습니다.
+              수백만 원대 견적을 먼저 결제하고 결과를 기다리는 경우가 많습니다. 검색과 AI의 읽는 방식이 바뀐 뒤의 관리는 별도 계약일 수 있습니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
             <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA]">{PUBLIC_BRAND_NAMES.brand}</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
-              {formatKrw(basePrice.currentPriceKrw)}부터
+              결과 확인 후 {PUBLISH_PAYMENT_COPY.firstYear}
             </p>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              제작비 + 사이트 운영 구독. 손님이 찾는 정보까지 기본으로 정리하고, 직접 수정은 횟수 제한 없이 무료입니다.
+              발행과 1년 운영을 함께 시작합니다. 손님이 찾는 정보, 성과 리포트, 기본 구조 업데이트와 직접 수정이 포함됩니다.
             </p>
           </div>
         </div>
         <p className="mkt-type-support mx-auto mt-4 max-w-3xl text-[#696E76]">
-          1) 자체 조사 기준의 참고 수치입니다. 실제 견적은 업체·범위에 따라 달라집니다.
+          외주 비용과 범위는 업체마다 다릅니다. 비교의 핵심은 결과를 보기 전 선결제인지, 발행 뒤 운영까지 이어지는지입니다.
         </p>
       </section>
 
@@ -266,6 +265,7 @@ export default function PricingPage() {
           <div className="mkt-type-body mt-8 space-y-4 text-[#5C6068]">
             <p>{OWNERSHIP_SUMMARY}</p>
             <p>{REFUND_NOTICE}</p>
+            <p>자동 갱신 해지·환불 조건은 결제 기능 오픈 전 법률 검토 후 결제 화면과 약관에 동일하게 고지합니다.</p>
             <p className="mkt-type-support text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
           </div>
         </div>

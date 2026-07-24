@@ -6,7 +6,7 @@ import {
   missingPublishHumanChecks,
   PUBLISH_HUMAN_CHECKS,
 } from '@/lib/publish/human-checks';
-import { formatKrw, getBasePricePresentation } from '@/lib/pricing';
+import { PUBLISH_PAYMENT_COPY } from '@/lib/pricing';
 
 describe('발행 휴먼 3체크', () => {
   test('확정된 세 문구와 안정적인 id를 단일 레지스트리로 제공한다', () => {
@@ -15,7 +15,7 @@ describe('발행 휴먼 3체크', () => {
       { id: 'copyIsFactual', label: '문구가 사실인가' },
       {
         id: 'worthThePrice',
-        label: `이 화면을 ${formatKrw(getBasePricePresentation().currentPriceKrw)}에 살 만한가`,
+        label: `이 화면을 ${PUBLISH_PAYMENT_COPY.firstYear}에 발행할 만한가`,
       },
     ]);
   });

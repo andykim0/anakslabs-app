@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { ShieldCheck } from 'lucide-react';
 import { GUARANTEE_CRITERIA_COPY, GUARANTEE_MARKETING_COPY } from '@/lib/guarantee';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 
 export function GuaranteeBadge({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
+  if (!guaranteeProgramEnabled()) return null;
   const dark = tone === 'dark';
   return (
     <div

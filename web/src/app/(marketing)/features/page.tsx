@@ -8,19 +8,18 @@ import {
   ClipboardCheck,
   MessageSquareQuote,
   Search,
-  Sparkles,
 } from 'lucide-react';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
-import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
-import { LaunchPrice } from '@/components/marketing/LaunchPrice';
+import { PublishPrice } from '@/components/marketing/PublishPrice';
 import { MonthlyReportPreview } from '@/components/marketing/MonthlyReportPreview';
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { ScannerCta } from '@/components/marketing/ui';
 import {
   formatKrw,
-  LEGACY_PRICING,
+  PUBLISH_PAYMENT_COPY,
+  PRICING,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
@@ -30,7 +29,7 @@ import { VIDEO_FULFILLMENT_COPY } from '@/lib/fulfillment-sla';
 export const metadata: Metadata = {
   title: '기능 — 홈페이지 제작부터 검색 등록·성과 증명까지',
   description:
-    '업종에 맞는 홈페이지 제작, 네이버·구글·AI가 확인하기 쉬운 구성, 검색 등록 대행, 월간 성과 리포트와 90일 성과 보장까지 한 흐름으로 제공합니다.',
+    '업종에 맞는 홈페이지 제작, 네이버·구글·AI가 확인하기 쉬운 구성, 검색 등록 대행과 월간 성과 리포트까지 한 흐름으로 제공합니다.',
   alternates: { canonical: '/features' },
 };
 
@@ -205,11 +204,13 @@ export default function FeaturesPage() {
           <div className="mt-16 border-y border-[#C8D8EC] py-9">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
               <div>
-                <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY SUBSCRIPTION</p>
+                <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">ANNUAL SUBSCRIPTION</p>
                 <p className="mkt-type-card-title mt-3 font-semibold tracking-[-0.025em]">
-                  사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)}
+                  첫해 이용료 {formatKrw(PRICING.subscription.annual)}
                 </p>
-                <p className="mkt-type-support mt-2 text-[#667085]">VAT 별도</p>
+                <p className="mkt-type-support mt-2 text-[#667085]">
+                  {PUBLISH_PAYMENT_COPY.term} · {PUBLISH_PAYMENT_COPY.renewal} · {PUBLISH_PAYMENT_COPY.vat}
+                </p>
               </div>
               <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                 <div>
@@ -243,21 +244,6 @@ export default function FeaturesPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section data-features-section="guarantee" className="border-b border-[#DCE4F0]">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
-          <div>
-            <Sparkles className="h-8 w-8 text-[#03A995]" aria-hidden />
-            <h2 className="mkt-type-section-title mt-6 font-semibold tracking-[-0.045em]">
-              90일 성과 보장
-            </h2>
-            <p className="mkt-type-body mt-5 max-w-lg text-[#526174]">
-              만들었다는 말보다 실제로 찾아오는 신호로 판단합니다.
-            </p>
-          </div>
-          <GuaranteeBadge />
         </div>
       </section>
 
@@ -297,9 +283,9 @@ export default function FeaturesPage() {
             </div>
           </div>
           <div className="min-w-[260px] border-t border-[#DCE4F0] pt-6 lg:text-right">
-            <LaunchPrice align="right" />
+            <PublishPrice align="right" />
             <p className="mkt-type-support mt-2 text-[#667085]">
-              + 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · VAT 별도
+              {PUBLISH_PAYMENT_COPY.noBuildFee} · {PUBLISH_PAYMENT_COPY.vat}
             </p>
             <p data-site-price-unit className="mkt-type-support mt-1 text-[#667085]">
               {SITE_PRICE_UNIT_COPY}

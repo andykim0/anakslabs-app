@@ -5,7 +5,7 @@ import {
   manualCollectionQuote,
   type ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
-import { LAUNCH_OFFER, LEGACY_PRICING, PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment, Site } from '@/lib/types/domain';
 
 /** Internal operating target, not a customer-facing product price. */
@@ -228,11 +228,9 @@ function inRangeAsOf(value: number, start: number, end: number, nowMs: number): 
 }
 
 function quantityOfferLimit(): number | null {
-  return LAUNCH_OFFER.kind === 'quantity'
-    && Number.isSafeInteger(LAUNCH_OFFER.limitCount)
-    && (LAUNCH_OFFER.limitCount ?? 0) > 0
-    ? LAUNCH_OFFER.limitCount
-    : null;
+  // PRICE v2 has no quantity scarcity. Historical launch receipts remain
+  // classified for ledger reconstruction, but no active customer limit exists.
+  return null;
 }
 
 function manualReceiptMatchesPayment(entry: ManualPaymentEntry, payment: Payment): boolean {

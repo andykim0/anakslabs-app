@@ -56,6 +56,7 @@ export interface AdminOverview {
   fulfillmentAlerts: { editOverdue: number; videoOverdue: number; total: number };
   customHostnameCount: number;
   revenue: AdminOpsRevenueMetrics;
+  guaranteeProgramEnabled: boolean;
   guarantees: AdminGuaranteeRow[];
   manualCollections: AdminManualCollectionRow[];
 }

@@ -153,7 +153,7 @@ function PaymentsTable() {
         <EmptyState
           icon={<ReceiptText className="h-8 w-8" />}
           title="결제 이력이 없습니다"
-          description="제작비, 사이트 운영 구독, 크레딧 팩 결제 내역이 이곳에 표시됩니다."
+          description="과거 제작비, 연간 사이트 운영 구독, 애드온과 크레딧 팩 결제 내역이 이곳에 표시됩니다."
         />
       ) : (
         <Card className="overflow-x-auto p-0">

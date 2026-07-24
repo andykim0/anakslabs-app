@@ -11,13 +11,12 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
-import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   formatKrw,
-  LEGACY_PRICING,
   PRICING,
+  PUBLISH_PAYMENT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
@@ -26,8 +25,7 @@ import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
 import { LandingFullFilm } from '@/components/marketing/LandingFullFilm';
 import { LandingStoryContinuation } from '@/components/marketing/LandingStoryContinuation';
-import { LaunchPrice } from '@/components/marketing/LaunchPrice';
-import { GuaranteeBadge } from '@/components/marketing/GuaranteeBadge';
+import { PublishPrice } from '@/components/marketing/PublishPrice';
 import { BrowserFrame } from '@/components/marketing/mockups/BrowserFrame';
 import { EditorMockup } from '@/components/marketing/mockups/EditorMockup';
 import { SiteExampleMockup } from '@/components/marketing/mockups/SiteExampleMockup';
@@ -131,7 +129,6 @@ const CORE_FEATURES = [
   '네이버·구글·AI가 읽기 쉬운 기본 구성',
   '네이버·구글 검색 등록까지 다보임이 대신합니다 — 사장님은 아무것도 안 하셔도 됩니다.',
   '멀티페이지 + SSL 호스팅',
-  `편집 크레딧 ${INITIAL_GRANT.basic}개`,
   SUBSCRIPTION_BENEFIT_COPY.report,
   SUBSCRIPTION_BENEFIT_COPY.credits,
 ];
@@ -155,7 +152,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
-    a: `기본 모션은 제작비에 포함되어 무료입니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
+    a: `기본 모션은 첫해 이용료에 포함됩니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
   },
 ];
 
@@ -367,8 +364,8 @@ export default function MarketingHome() {
           <FadeIn>
             <div data-story-copy="pricing">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
-              <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">만들고 끝내지 않고,<br />계속 좋아지게 관리합니다.</h2>
-              <p className="mkt-type-body mt-5 max-w-md text-[#666A73]">처음 만들 때 제작비를 내고, 운영 중에는 매달 방문·전화·예약·길찾기 결과를 받습니다. 첫 화면에 실제 영상이 필요한 경우에만 AI 영상 홈페이지를 더하면 됩니다.</p>
+              <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">먼저 결과를 보고,<br />발행할 때 시작합니다.</h2>
+              <p className="mkt-type-body mt-5 max-w-md text-[#666A73]">{PUBLISH_PAYMENT_COPY.lead} 검색과 AI의 읽는 방식은 계속 바뀌므로, 발행 뒤에도 성과 숫자와 기본 구조를 함께 관리합니다.</p>
             </div>
           </FadeIn>
           <FadeIn delay={0.08}>
@@ -376,13 +373,12 @@ export default function MarketingHome() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#5DE0D0]">WEBSITE + MANAGED HOSTING</p>
-                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 제작 + 호스팅</h3>
+                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 발행 + 1년 운영</h3>
                 </div>
-                <LaunchPrice tone="dark" align="right" />
+                <PublishPrice tone="dark" align="right" />
               </div>
-              <p className="mkt-type-support mt-2 text-right text-white/48">+ 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · 부가세 별도</p>
+              <p className="mkt-type-support mt-2 text-right text-white/48">{PUBLISH_PAYMENT_COPY.noBuildFee} · {PUBLISH_PAYMENT_COPY.vat}</p>
               <p className="mkt-type-support mt-2 text-right font-medium text-[#5DE0D0]">{SUBSCRIPTION_VALUE_COPY}</p>
-              <GuaranteeBadge tone="dark" />
               <ul className="mkt-type-body mt-8 grid gap-3 border-t border-white/10 pt-7 text-white/68 sm:grid-cols-2">
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>

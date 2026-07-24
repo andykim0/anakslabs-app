@@ -6,16 +6,19 @@ import Link from 'next/link';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 
-const LINKS = [
+const BASE_LINKS = [
   { href: '/about', label: '회사소개' },
   { href: '/faq', label: '자주 묻는 질문' },
-  { href: '/guarantee', label: '90일 성과 보장' },
   { href: '/terms', label: '이용약관' },
   { href: '/privacy', label: '개인정보처리방침' },
 ];
 
 export function MarketingFooter() {
+  const links = guaranteeProgramEnabled()
+    ? [...BASE_LINKS.slice(0, 2), { href: '/guarantee', label: '90일 성과 보장' }, ...BASE_LINKS.slice(2)]
+    : BASE_LINKS;
   return (
     <footer className="border-t border-white/8 bg-[#0B1736] text-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
@@ -29,7 +32,7 @@ export function MarketingFooter() {
             <p className="mkt-type-eyebrow mt-4 font-mono tracking-[0.12em] text-[#5DE0D0]">A PRODUCT BY ANAKS LABS</p>
           </div>
           <div className="mkt-type-control flex max-w-xl flex-wrap content-start gap-x-6 gap-y-3 text-white/52">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <Link key={l.href} href={l.href} className="whitespace-nowrap transition-colors hover:text-white">
                 {l.label}
               </Link>

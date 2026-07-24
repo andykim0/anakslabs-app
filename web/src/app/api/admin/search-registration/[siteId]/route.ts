@@ -4,6 +4,7 @@ import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { requireAdminOr403 } from '@/app/api/_lib/guards';
 import { listGuaranteeEvidence, recordGuaranteeEvidence } from '@/lib/guarantee/evidence';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 import {
   NAVER_ACCOUNT_SITE_LIMIT,
   SEARCH_REGISTRATION_ACCOUNT_PATTERN,
@@ -58,12 +59,14 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
     completedAt: current?.completedAt ?? null,
   });
 
-  const existingEvidence = (await listGuaranteeEvidence([siteId])).get(siteId);
-  await recordGuaranteeEvidence(siteId, {
-    naverIndexed: input.indexStatus === 'unchecked' ? null : input.indexStatus === 'present',
-    naverIndexCheckedAt: input.indexStatus === 'unchecked' ? null : new Date().toISOString(),
-    exceptionCode: existingEvidence?.exceptionCode ?? null,
-  });
+  if (guaranteeProgramEnabled()) {
+    const existingEvidence = (await listGuaranteeEvidence([siteId])).get(siteId);
+    await recordGuaranteeEvidence(siteId, {
+      naverIndexed: input.indexStatus === 'unchecked' ? null : input.indexStatus === 'present',
+      naverIndexCheckedAt: input.indexStatus === 'unchecked' ? null : new Date().toISOString(),
+      exceptionCode: existingEvidence?.exceptionCode ?? null,
+    });
+  }
 
   return NextResponse.json({ item: saved });
 });

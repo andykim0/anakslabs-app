@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import {
@@ -7,6 +8,7 @@ import {
   GUARANTEE_NAVER_REFERRAL_THRESHOLD,
   GUARANTEE_WINDOW_DAYS,
 } from '@/lib/guarantee';
+import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 
 export const metadata: Metadata = {
   title: '90일 성과 보장 조건',
@@ -21,6 +23,8 @@ const STEPS = [
 ] as const;
 
 export default function GuaranteePage() {
+  if (!guaranteeProgramEnabled()) notFound();
+
   return (
     <div className="bg-[#F8FBFF] text-[#0B1736]">
       <section className="mx-auto max-w-4xl px-5 py-16 sm:px-8 md:py-24">
