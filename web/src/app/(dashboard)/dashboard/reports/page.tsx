@@ -4,6 +4,7 @@ import {
   CalendarDays,
   ExternalLink,
   MapPin,
+  MessageCircle,
   MousePointerClick,
   Phone,
   TrendingDown,
@@ -15,7 +16,7 @@ import type {
   MonthlyReportDeliveryStatus,
   MonthlyReportRecord,
 } from '@/lib/reporting/repository-core';
-import type { ReportMetric } from '@/lib/reporting/types';
+import { v2Metrics, type ReportMetric } from '@/lib/reporting/types';
 import { getCurrentClient } from '@/lib/services/auth';
 import { Badge, Card, EmptyState, PageHeader, cn, formatDate } from '@/components/dashboard/ui';
 
@@ -103,6 +104,7 @@ function ReportCard({
 }) {
   const { report } = record;
   const sourcesWithTraffic = report.sources.filter((source) => source.count > 0);
+  const connectorMetrics = v2Metrics(report);
   const headingId = `report-${record.id}`;
 
   return (
@@ -159,9 +161,13 @@ function ReportCard({
                 icon={<Phone className="h-4 w-4" aria-hidden="true" />}
               />
               <MetricCard
-                label="예약 클릭"
-                metric={report.metrics.reservationClicks}
-                icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
+                label={connectorMetrics ? '상담 행동' : '예약 클릭'}
+                metric={connectorMetrics?.consultationActions ?? report.metrics.reservationClicks}
+                icon={
+                  connectorMetrics
+                    ? <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    : <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                }
               />
               <MetricCard
                 label="길찾기 클릭"
@@ -169,9 +175,21 @@ function ReportCard({
                 icon={<MapPin className="h-4 w-4" aria-hidden="true" />}
               />
             </div>
-            <p className="mt-3 text-xs text-[#667085]">
-              문의 폼 제출 {formatCount(report.metrics.formSubmissions.current)}건
-            </p>
+            {connectorMetrics ? (
+              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#667085]">
+                <span>카카오 상담 클릭 {formatCount(connectorMetrics.chatClicks.current)}건</span>
+                <span>문의 폼 제출 {formatCount(report.metrics.formSubmissions.current)}건</span>
+                <span>예약 클릭 {formatCount(report.metrics.reservationClicks.current)}건</span>
+                <span className="inline-flex items-center gap-1">
+                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                  인스타그램 클릭 {formatCount(connectorMetrics.instagramClicks.current)}건
+                </span>
+              </p>
+            ) : (
+              <p className="mt-3 text-xs text-[#667085]">
+                문의 폼 제출 {formatCount(report.metrics.formSubmissions.current)}건
+              </p>
+            )}
           </section>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)]">

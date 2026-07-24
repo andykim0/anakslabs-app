@@ -4,6 +4,7 @@ import {
   type KstMonthRange,
   type MonthlyPerformanceReport,
   type MonthlyReportMetrics,
+  type MonthlyReportMetricsV2,
   type ReportEventType,
   type ReportMetric,
   type ReportReferrerSource,
@@ -22,12 +23,37 @@ export const REPORT_SOURCE_LABELS = {
   other: '기타',
 } as const satisfies Record<ReportReferrerSource, string>;
 
-const ACTION_INSIGHT_ORDER = [
+const LEGACY_ACTION_INSIGHT_ORDER = [
   ['reservationClicks', '예약 클릭'],
   ['phoneClicks', '전화 클릭'],
   ['directionsClicks', '길찾기 클릭'],
   ['formSubmissions', '폼 제출'],
 ] as const satisfies ReadonlyArray<readonly [keyof MonthlyReportMetrics, string]>;
+
+const V2_ACTION_INSIGHT_ORDER = [
+  ['consultationActions', '상담 행동'],
+  ['reservationClicks', '예약 클릭'],
+  ['phoneClicks', '전화 클릭'],
+  ['directionsClicks', '길찾기 클릭'],
+  ['instagramClicks', '인스타그램 클릭'],
+] as const satisfies ReadonlyArray<readonly [keyof MonthlyReportMetricsV2, string]>;
+
+function actionInsightEntries(
+  metrics: MonthlyReportMetrics | MonthlyReportMetricsV2,
+): ReadonlyArray<{ label: string; index: number; metric: ReportMetric }> {
+  if ('consultationActions' in metrics) {
+    return V2_ACTION_INSIGHT_ORDER.map(([key, label], index) => ({
+      label,
+      index,
+      metric: metrics[key],
+    }));
+  }
+  return LEGACY_ACTION_INSIGHT_ORDER.map(([key, label], index) => ({
+    label,
+    index,
+    metric: metrics[key],
+  }));
+}
 
 function safeAggregateCount(value: number): number {
   if (!Number.isSafeInteger(value) || value < 0) {
@@ -126,7 +152,7 @@ function buildSourceComposition(
 }
 
 export function deriveMonthlyInsight(
-  metrics: MonthlyReportMetrics,
+  metrics: MonthlyReportMetrics | MonthlyReportMetricsV2,
   sources: readonly ReportSourceComposition[],
 ): string {
   const growingSource = sources
@@ -147,12 +173,8 @@ export function deriveMonthlyInsight(
     return `${growingSource.label} 유입이 전월보다 ${growingSource.changePercent}% 늘었어요.`;
   }
 
-  const growingAction = ACTION_INSIGHT_ORDER.map(([key, label], index) => ({
-    key,
-    label,
-    index,
-    metric: metrics[key],
-  }))
+  const actions = actionInsightEntries(metrics);
+  const growingAction = actions
     .filter(
       (action) =>
         action.metric.previous > 0 &&
@@ -175,11 +197,13 @@ export function deriveMonthlyInsight(
     return `전체 유입이 전월보다 ${metrics.pageviews.changePercent}% 늘었어요.`;
   }
 
-  const leadingAction = ACTION_INSIGHT_ORDER.map(([key, label], index) => ({
-    label,
-    index,
-    count: metrics[key].current,
-  })).sort((a, b) => b.count - a.count || a.index - b.index)[0];
+  const leadingAction = actions
+    .map(({ label, index, metric: actionMetric }) => ({
+      label,
+      index,
+      count: actionMetric.current,
+    }))
+    .sort((a, b) => b.count - a.count || a.index - b.index)[0];
   if (leadingAction.count > 0) {
     return `이번 달에는 ${leadingAction.label}이 ${leadingAction.count.toLocaleString('ko-KR')}건 집계됐어요.`;
   }
@@ -201,16 +225,22 @@ export function buildMonthlyPerformanceReport(input: {
   if (!siteId) throw new TypeError('A siteId is required to build a monthly report');
   const current = countEvents(input.current);
   const previous = countEvents(input.previous);
-  const metrics: MonthlyReportMetrics = {
+  const metrics: MonthlyReportMetricsV2 = {
     pageviews: metric(current.pageview, previous.pageview),
     phoneClicks: metric(current.tel, previous.tel),
     reservationClicks: metric(current.reserve, previous.reserve),
     directionsClicks: metric(current.directions, previous.directions),
     formSubmissions: metric(current.form, previous.form),
+    chatClicks: metric(current.chat, previous.chat),
+    instagramClicks: metric(current.instagram, previous.instagram),
+    consultationActions: metric(
+      safeAggregateCount(current.form + current.chat),
+      safeAggregateCount(previous.form + previous.chat),
+    ),
   };
   const sources = buildSourceComposition(input.current, input.previous);
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     siteId,
     period: input.period,
     comparisonPeriod: input.comparisonPeriod,

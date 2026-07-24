@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import { buildMonthlyReportEmail } from '../email';
 import {
@@ -7,7 +8,13 @@ import {
   reportChangePercent,
 } from '../monthly-report';
 import { previousMonthRangesKst } from '../period';
-import type { MonthlyReportMetrics, ReportSourceComposition, SiteEventAggregate } from '../types';
+import { monthlyPerformanceReportSchema } from '../repository-core';
+import type {
+  MonthlyPerformanceReportV1,
+  MonthlyReportMetrics,
+  ReportSourceComposition,
+  SiteEventAggregate,
+} from '../types';
 
 describe('RPT2 monthly report core', () => {
   test('resolves completed KST month ranges across a year boundary', () => {
@@ -39,7 +46,7 @@ describe('RPT2 monthly report core', () => {
     );
   });
 
-  test('aggregates four headline actions, keeps form supporting data, and uses pageviews for sources', () => {
+  test('groups consultation actions while preserving raw connector metrics and pageview sources', () => {
     const periods = previousMonthRangesKst(new Date('2026-07-17T00:00:00.000Z'));
     const current: SiteEventAggregate[] = [
       { eventType: 'pageview', source: 'naver', count: 61 },
@@ -49,6 +56,8 @@ describe('RPT2 monthly report core', () => {
       { eventType: 'reserve', source: 'naver', count: 13 },
       { eventType: 'directions', source: 'google', count: 4 },
       { eventType: 'form', source: 'direct', count: 2 },
+      { eventType: 'chat', source: 'direct', count: 3 },
+      { eventType: 'instagram', source: 'instagram', count: 5 },
     ];
     const previous: SiteEventAggregate[] = [
       { eventType: 'pageview', source: 'naver', count: 50 },
@@ -56,6 +65,7 @@ describe('RPT2 monthly report core', () => {
       { eventType: 'pageview', source: 'direct', count: 10 },
       { eventType: 'tel', source: 'naver', count: 3 },
       { eventType: 'reserve', source: 'naver', count: 10 },
+      { eventType: 'chat', source: 'direct', count: 1 },
     ];
     const report = buildMonthlyPerformanceReport({
       siteId: 'site-1',
@@ -70,10 +80,47 @@ describe('RPT2 monthly report core', () => {
     assert.equal(report.metrics.reservationClicks.current, 13);
     assert.equal(report.metrics.directionsClicks.current, 4);
     assert.equal(report.metrics.formSubmissions.current, 2);
+    assert.equal(report.schemaVersion, 2);
+    assert.equal(report.metrics.chatClicks.current, 3);
+    assert.equal(report.metrics.instagramClicks.current, 5);
+    assert.deepEqual(report.metrics.consultationActions, {
+      current: 5,
+      previous: 1,
+      changePercent: 400,
+    });
     assert.equal(report.hasComparisonData, true);
     assert.equal(report.sources.reduce((sum, source) => sum + source.sharePercent, 0), 100);
     assert.equal(report.sources.find((source) => source.source === 'naver')?.sharePercent, 60);
     assert.equal(report.insight, '직접·사이트 내부 유입이 전월보다 100% 늘었어요.');
+  });
+
+  test('reads legacy v1 reports without inventing connector metrics', () => {
+    const periods = previousMonthRangesKst(new Date('2026-07-17T00:00:00.000Z'));
+    const report: MonthlyPerformanceReportV1 = {
+      schemaVersion: 1,
+      siteId: 'legacy-site',
+      period: periods.report,
+      comparisonPeriod: periods.comparison,
+      metrics: {
+        pageviews: { current: 4, previous: 0, changePercent: null },
+        phoneClicks: { current: 1, previous: 0, changePercent: null },
+        reservationClicks: { current: 0, previous: 0, changePercent: null },
+        directionsClicks: { current: 0, previous: 0, changePercent: null },
+        formSubmissions: { current: 0, previous: 0, changePercent: null },
+      },
+      sources: [],
+      hasCurrentData: true,
+      hasComparisonData: false,
+      insight: '이번 달 방문(페이지뷰) 4건이 처음 집계됐어요.',
+    };
+    assert.equal(monthlyPerformanceReportSchema.safeParse(report).success, true);
+    const email = buildMonthlyReportEmail({
+      siteName: '기존 사이트',
+      dashboardUrl: 'https://daboim.com/dashboard/reports/legacy-site',
+      report,
+    });
+    assert.match(email.text, /예약: 0건/);
+    assert.doesNotMatch(email.text, /카카오 상담 클릭/);
   });
 
   test('never invents a percentage from a zero baseline and rejects invalid aggregates', () => {
@@ -112,7 +159,12 @@ describe('RPT2 monthly report core', () => {
       siteId: 'site-1',
       period: periods.report,
       comparisonPeriod: periods.comparison,
-      current: [{ eventType: 'pageview', source: 'naver', count: 3 }],
+      current: [
+        { eventType: 'pageview', source: 'naver', count: 3 },
+        { eventType: 'chat', source: 'direct', count: 2 },
+        { eventType: 'form', source: 'direct', count: 1 },
+        { eventType: 'instagram', source: 'instagram', count: 4 },
+      ],
       previous: [],
     });
     const email = buildMonthlyReportEmail({
@@ -126,6 +178,27 @@ describe('RPT2 monthly report core', () => {
     assert.match(email.html, /고유 방문자가 아니라 이 사이트에서 수집된 페이지 조회/);
     assert.match(email.html, /첫 리포트예요/);
     assert.match(email.text, /유입\(페이지뷰\): 3건 · 신규 집계/);
+    assert.match(email.text, /상담 행동: 3건/);
+    assert.match(email.text, /카카오 상담 클릭 2건 · 문의 폼 제출 1건/);
+    assert.match(email.text, /인스타그램 클릭 4건/);
+    assert.doesNotMatch(email.text, /상담 완료/);
     assert.equal('to' in email, false);
+  });
+
+  test('dashboard uses customer-facing connector labels and never claims completion', () => {
+    const source = readFileSync(
+      new URL('../../../app/(dashboard)/dashboard/reports/page.tsx', import.meta.url),
+      'utf8',
+    );
+    for (const copy of [
+      '상담 행동',
+      '카카오 상담 클릭',
+      '문의 폼 제출',
+      '예약 클릭',
+      '인스타그램 클릭',
+    ]) {
+      assert.match(source, new RegExp(copy));
+    }
+    assert.doesNotMatch(source, /상담 완료/);
   });
 });

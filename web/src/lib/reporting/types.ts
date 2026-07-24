@@ -65,6 +65,15 @@ export interface MonthlyReportMetrics {
   formSubmissions: ReportMetric;
 }
 
+export interface MonthlyReportMetricsV2 extends MonthlyReportMetrics {
+  /** 카카오 채널로 이동한 클릭. 상담 완료가 아니라 종착점 클릭만 뜻한다. */
+  chatClicks: ReportMetric;
+  /** 공식 Instagram 프로필/게시물로 이동한 클릭. */
+  instagramClicks: ReportMetric;
+  /** 고객이 상담 내용을 남길 수 있는 카카오 클릭 + 성공한 문의 폼 제출의 합. */
+  consultationActions: ReportMetric;
+}
+
 export interface ReportSourceComposition {
   source: ReportReferrerSource;
   label: string;
@@ -74,18 +83,35 @@ export interface ReportSourceComposition {
   changePercent: number | null;
 }
 
-export interface MonthlyPerformanceReport {
-  schemaVersion: 1;
+interface MonthlyPerformanceReportBase {
   siteId: string;
   period: KstMonthRange;
   comparisonPeriod: KstMonthRange;
-  metrics: MonthlyReportMetrics;
   sources: readonly ReportSourceComposition[];
   hasCurrentData: boolean;
   /** False on the first collected month; callers show the collection-start state instead of a false trend. */
   hasComparisonData: boolean;
   /** Korean sentence derived only from the aggregate values in this object. */
   insight: string;
+}
+
+export interface MonthlyPerformanceReportV1 extends MonthlyPerformanceReportBase {
+  schemaVersion: 1;
+  metrics: MonthlyReportMetrics;
+}
+
+export interface MonthlyPerformanceReportV2 extends MonthlyPerformanceReportBase {
+  schemaVersion: 2;
+  metrics: MonthlyReportMetricsV2;
+}
+
+/** 저장소는 v1을 계속 읽고, 신규 생성은 v2를 쓴다. */
+export type MonthlyPerformanceReport =
+  | MonthlyPerformanceReportV1
+  | MonthlyPerformanceReportV2;
+
+export function v2Metrics(report: MonthlyPerformanceReport): MonthlyReportMetricsV2 | null {
+  return report.schemaVersion === 2 ? report.metrics : null;
 }
 
 export interface MonthlyReportEmailMessage {

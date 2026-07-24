@@ -39,38 +39,62 @@ const metricSchema = z
   })
   .strict();
 
-export const monthlyPerformanceReportSchema = z
+const reportSourceSchema = z
   .object({
-    schemaVersion: z.literal(1),
-    siteId: z.string().trim().min(1),
-    period: monthRangeSchema,
-    comparisonPeriod: monthRangeSchema,
-    metrics: z
-      .object({
-        pageviews: metricSchema,
-        phoneClicks: metricSchema,
-        reservationClicks: metricSchema,
-        directionsClicks: metricSchema,
-        formSubmissions: metricSchema,
-      })
-      .strict(),
-    sources: z.array(
-      z
-        .object({
-          source: z.enum(['naver', 'google', 'instagram', 'direct', 'other']),
-          label: z.string().min(1),
-          count: COUNT,
-          previousCount: COUNT,
-          sharePercent: z.number().int().min(0).max(100),
-          changePercent: z.number().int().nullable(),
-        })
-        .strict(),
-    ),
-    hasCurrentData: z.boolean(),
-    hasComparisonData: z.boolean(),
-    insight: z.string().trim().min(1),
+    source: z.enum(['naver', 'google', 'instagram', 'direct', 'other']),
+    label: z.string().min(1),
+    count: COUNT,
+    previousCount: COUNT,
+    sharePercent: z.number().int().min(0).max(100),
+    changePercent: z.number().int().nullable(),
   })
   .strict();
+
+const commonReportShape = {
+  siteId: z.string().trim().min(1),
+  period: monthRangeSchema,
+  comparisonPeriod: monthRangeSchema,
+  sources: z.array(reportSourceSchema),
+  hasCurrentData: z.boolean(),
+  hasComparisonData: z.boolean(),
+  insight: z.string().trim().min(1),
+};
+
+const legacyMetricsSchema = z
+  .object({
+    pageviews: metricSchema,
+    phoneClicks: metricSchema,
+    reservationClicks: metricSchema,
+    directionsClicks: metricSchema,
+    formSubmissions: metricSchema,
+  })
+  .strict();
+
+const monthlyPerformanceReportV1Schema = z
+  .object({
+    ...commonReportShape,
+    schemaVersion: z.literal(1),
+    metrics: legacyMetricsSchema,
+  })
+  .strict();
+
+const monthlyPerformanceReportV2Schema = z
+  .object({
+    ...commonReportShape,
+    schemaVersion: z.literal(2),
+    metrics: legacyMetricsSchema.extend({
+      chatClicks: metricSchema,
+      instagramClicks: metricSchema,
+      consultationActions: metricSchema,
+    }).strict(),
+  })
+  .strict();
+
+/** 저장된 v1은 그대로 읽고, 신규 v2만 추가로 허용한다. */
+export const monthlyPerformanceReportSchema = z.discriminatedUnion('schemaVersion', [
+  monthlyPerformanceReportV1Schema,
+  monthlyPerformanceReportV2Schema,
+]);
 
 export interface MonthlyReportRecord {
   id: string;
