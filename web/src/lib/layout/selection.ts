@@ -16,8 +16,11 @@ import {
 } from './types';
 import {
   ABOUT_LAYOUT_VARIANT_IDS,
+  CTA_LAYOUT_VARIANT_IDS,
+  DIRECTIONS_LAYOUT_VARIANT_IDS,
   FEATURE_LAYOUT_VARIANT_IDS,
   GALLERY_LAYOUT_VARIANT_IDS,
+  TESTIMONIAL_LAYOUT_VARIANT_IDS,
   type AboutLayoutVariantId,
   type FeatureLayoutVariantId,
   type GalleryLayoutVariantId,
@@ -278,6 +281,9 @@ export const SECTION_LAYOUT_FALLBACK_ORDER = {
   features: [...FEATURE_LAYOUT_VARIANT_IDS],
   about: [...ABOUT_LAYOUT_VARIANT_IDS],
   gallery: [...GALLERY_LAYOUT_VARIANT_IDS],
+  cta: [...CTA_LAYOUT_VARIANT_IDS],
+  testimonial: [...TESTIMONIAL_LAYOUT_VARIANT_IDS],
+  directions: [...DIRECTIONS_LAYOUT_VARIANT_IDS],
 } as const satisfies Readonly<Record<SectionLayoutKind, readonly SectionLayoutVariantId[]>>;
 
 const sectionToolInputSchema = z.object({

@@ -31,20 +31,53 @@ export const GALLERY_LAYOUT_VARIANT_IDS = [
   'gallery.asymmetric-two-one',
 ] as const;
 
+export const CTA_LAYOUT_VARIANT_IDS = [
+  'cta.fullwidth-band',
+  'cta.split-action',
+  'cta.surface-card',
+] as const;
+
+export const TESTIMONIAL_LAYOUT_VARIANT_IDS = [
+  'testimonial.single-quote',
+  'testimonial.card-grid',
+  'testimonial.quote-photo',
+] as const;
+
+export const DIRECTIONS_LAYOUT_VARIANT_IDS = [
+  'directions.map-info-split',
+  'directions.info-card-stack',
+  'directions.full-map-overlay',
+] as const;
+
 export type FeatureLayoutVariantId = (typeof FEATURE_LAYOUT_VARIANT_IDS)[number];
 export type AboutLayoutVariantId = (typeof ABOUT_LAYOUT_VARIANT_IDS)[number];
 export type GalleryLayoutVariantId = (typeof GALLERY_LAYOUT_VARIANT_IDS)[number];
+export type CtaLayoutVariantId = (typeof CTA_LAYOUT_VARIANT_IDS)[number];
+export type TestimonialLayoutVariantId = (typeof TESTIMONIAL_LAYOUT_VARIANT_IDS)[number];
+export type DirectionsLayoutVariantId = (typeof DIRECTIONS_LAYOUT_VARIANT_IDS)[number];
 export type SectionLayoutVariantId =
   | FeatureLayoutVariantId
   | AboutLayoutVariantId
-  | GalleryLayoutVariantId;
-export type SectionLayoutKind = 'features' | 'about' | 'gallery';
+  | GalleryLayoutVariantId
+  | CtaLayoutVariantId
+  | TestimonialLayoutVariantId
+  | DirectionsLayoutVariantId;
+export type SectionLayoutKind =
+  | 'features'
+  | 'about'
+  | 'gallery'
+  | 'cta'
+  | 'testimonial'
+  | 'directions';
 export type SectionLayoutBreakpointBand = SignatureBreakpointBand;
 
 export interface SectionLayoutSelection {
   features?: FeatureLayoutVariantId;
   about?: AboutLayoutVariantId;
   gallery?: GalleryLayoutVariantId;
+  cta?: CtaLayoutVariantId;
+  testimonial?: TestimonialLayoutVariantId;
+  directions?: DirectionsLayoutVariantId;
 }
 
 /**
@@ -87,7 +120,16 @@ export type SectionLayoutFlow =
   | 'masonry'
   | 'uniform-grid'
   | 'carousel'
-  | 'asymmetric-two-one';
+  | 'asymmetric-two-one'
+  | 'fullwidth-band'
+  | 'split-action'
+  | 'surface-card'
+  | 'single-quote'
+  | 'testimonial-card-grid'
+  | 'quote-photo'
+  | 'map-info-split'
+  | 'info-card-stack'
+  | 'full-map-overlay';
 
 export interface SectionLayoutBandRecipe {
   gridColumns: 12 | 8 | 4;
@@ -148,6 +190,20 @@ export interface SectionLayoutBandProjection {
   fontSizes: Readonly<Record<string, number>>;
   itemOrder: readonly string[];
   mediaFrame?: SectionLayoutCompiledFrame;
+  /** LIB3-only visual groups. Existing projections omit this field byte-for-byte. */
+  groupFrames?: Readonly<Record<string, SectionLayoutCompiledFrame>>;
+}
+
+export type SectionLayoutGroupAppearance =
+  | 'surface'
+  | 'testimonial-card'
+  | 'directions-card'
+  | 'map-surface';
+
+export interface SectionLayoutGroupProjection {
+  id: string;
+  appearance: SectionLayoutGroupAppearance;
+  itemId?: string;
 }
 
 export interface SectionLayoutProjection {
@@ -159,6 +215,8 @@ export interface SectionLayoutProjection {
   enhancement: 'none' | 'carousel';
   staticFallbackId?: GalleryLayoutVariantId;
   items: readonly SectionLayoutItemProjection[];
+  /** Additive LIB3 decoration geometry; it never changes element semantics or content. */
+  groups?: readonly SectionLayoutGroupProjection[];
   bands: Readonly<Record<SectionLayoutBreakpointBand, SectionLayoutBandProjection>>;
   fallbackBands?: Readonly<Record<SectionLayoutBreakpointBand, SectionLayoutBandProjection>>;
 }
@@ -212,4 +270,42 @@ export interface AboutLayoutContent {
 export interface GalleryLayoutContent {
   intro: SectionLayoutIntroBinding;
   items: readonly GalleryLayoutItemBinding[];
+}
+
+export interface CtaLayoutContent {
+  intro: SectionLayoutIntroBinding;
+  primaryActionId: string;
+  secondaryActionId?: string;
+}
+
+export interface TestimonialLayoutItemBinding {
+  id: string;
+  quoteId: string;
+  sourceId?: string;
+  sourceLinkId?: string;
+  photoId?: string;
+  /** Only a future server-owned proof↔photo consent binding may set this true. */
+  photoConsentBound?: boolean;
+}
+
+export interface TestimonialLayoutContent {
+  intro?: SectionLayoutIntroBinding;
+  items: readonly TestimonialLayoutItemBinding[];
+}
+
+export type DirectionsLayoutMode = 'teaser' | 'full';
+
+export interface DirectionsLayoutRowBinding {
+  id: string;
+  labelId: string;
+  valueId: string;
+}
+
+export interface DirectionsLayoutContent {
+  intro?: SectionLayoutIntroBinding;
+  mode: DirectionsLayoutMode;
+  rows: readonly DirectionsLayoutRowBinding[];
+  mapId?: string;
+  placeLinkId?: string;
+  detailLinkId?: string;
 }
