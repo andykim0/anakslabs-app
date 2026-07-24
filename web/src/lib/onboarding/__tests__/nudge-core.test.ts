@@ -22,6 +22,7 @@ import {
 } from '@/lib/onboarding/nudge-mapping';
 import { siteConfigSchema, surveySchema } from '@/app/api/_lib/schemas';
 import { TenantPageContent } from '@/components/site-renderer';
+import { NudgeMeter } from '@/components/dashboard/onboarding/onboarding-nudge';
 import { buildDocumentShell } from '@/lib/export/document-shell';
 import { extractVisibleText } from '@/lib/scan/document';
 import { createRuleRunState, runRules, type RuleContext } from '@/lib/scan/rules';
@@ -270,7 +271,13 @@ test('기존 config는 공개 연락처 projection에서 객체·JSON 바이트�
   assert.equal(after, before);
   assert.equal(
     createHash('sha256').update(after).digest('hex'),
-    createHash('sha256').update(before).digest('hex'),
+    '51e9bf8fde9c146c6307a816eb9608e07123eebd740269c85661caf2aa1d66d9',
+  );
+  assert.equal(
+    createHash('sha256')
+      .update(renderDocument(legacy, '', 'https://legacy.example.kr'))
+      .digest('hex'),
+    'f7792ff5dd00e5a1c970324c557f4103ffa515f0b2fae99e21df7090df9cb6d3',
   );
 });
 
@@ -281,4 +288,24 @@ test('온보딩 preflight API는 인증·레이트리밋 뒤 임시 config만 �
   assert.ok(handler.indexOf('getAuthedClient()') < handler.indexOf('preflightOnboardingSurvey'));
   assert.ok(handler.indexOf('limiter().allow(client.id)') < handler.indexOf('preflightOnboardingSurvey'));
   assert.doesNotMatch(source, /saveDraft|sites\.create|\.insert\(|\.update\(/u);
+});
+
+test('미터는 같은 입력을 실제 스캐너로 계산한 네 점수를 변형 없이 표시한다', () => {
+  const scanned = scannerScores(build(survey([
+    { key: 'phone', value: '02-1234-5678', source: 'customer' },
+    { key: 'address', value: '서울특별시 성동구 연무장길 10', source: 'customer' },
+  ])));
+  const html = renderToStaticMarkup(createElement(NudgeMeter, {
+    result: {
+      scores: scanned.scores,
+      grade: scanned.grade,
+      issueCodes: [...scanned.issueCodes],
+      nudges: [],
+    },
+    loading: false,
+  }));
+  assert.match(html, new RegExp(`>${scanned.scores.total}</strong>`));
+  for (const score of [scanned.scores.seo, scanned.scores.aeo, scanned.scores.geo]) {
+    assert.match(html, new RegExp(`>${score}점</span>`));
+  }
 });
