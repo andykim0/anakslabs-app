@@ -84,13 +84,9 @@ describe('CONN C1 — idempotent anonymous conversion collection', () => {
     assert.doesNotMatch(route, /request\.ip|x-forwarded-for|referer/iu);
   });
 
-  test('0045 reserves encrypted Instagram credentials and report v2 compatibility', () => {
-    assert.match(MIGRATION, /create table public\.site_connector_credentials/);
-    assert.match(MIGRATION, /key_version\s+integer/);
-    assert.match(MIGRATION, /ciphertext\s+text/);
-    assert.match(MIGRATION, /initialization_iv\s+text/);
-    assert.match(MIGRATION, /auth_tag\s+text/);
-    assert.match(MIGRATION, /create table public\.site_connector_cache/);
+  test('0045 keeps report v2 compatibility without Instagram account or cache tables', () => {
+    assert.doesNotMatch(MIGRATION, /site_connector_(?:credentials|cache)/);
+    assert.doesNotMatch(MIGRATION, /ciphertext|initialization_iv|auth_tag|key_version/);
     assert.match(MIGRATION, /schemaVersion'\)::integer in \(1, 2\)/);
   });
 

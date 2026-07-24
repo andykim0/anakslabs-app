@@ -1,5 +1,5 @@
--- CONN: idempotent anonymous conversion collection, connector credentials/cache,
--- and additive monthly report schema compatibility.
+-- CONN: idempotent anonymous conversion collection and additive monthly
+-- report schema compatibility.
 --
 -- Visitor events remain aggregate-only in site_events. The short-lived receipt
 -- nonce is scoped to one delivery attempt and is never a visitor or session id.
@@ -184,62 +184,6 @@ revoke execute on function public.purge_site_event_receipts(timestamptz)
   from public, anon, authenticated;
 grant execute on function public.purge_site_event_receipts(timestamptz)
   to service_role;
-
--- Instagram credentials are site-specific. Ciphertext is AES-256-GCM output;
--- the key itself lives only in server environment configuration. key_version
--- makes rotation additive without ever exposing plaintext to SQL or clients.
-create table public.site_connector_credentials (
-  site_id           uuid not null references public.sites (id) on delete cascade,
-  connector_type    text not null check (connector_type = 'instagram'),
-  key_version       integer not null check (key_version > 0),
-  ciphertext        text not null check (length(ciphertext) > 0),
-  initialization_iv text not null check (length(initialization_iv) > 0),
-  auth_tag          text not null check (length(auth_tag) > 0),
-  token_expires_at  timestamptz,
-  status            text not null default 'active' check (
-                      status in ('active', 'reauthorization_required', 'disabled')
-                    ),
-  created_at        timestamptz not null default now(),
-  updated_at        timestamptz not null default now(),
-  primary key (site_id, connector_type)
-);
-
-comment on table public.site_connector_credentials is
-  'Server-only encrypted connector credentials. Plaintext tokens are forbidden in database rows, logs, SiteConfig, and client responses.';
-
-alter table public.site_connector_credentials enable row level security;
-revoke all on table public.site_connector_credentials from public, anon, authenticated, service_role;
-grant select, insert, update, delete on table public.site_connector_credentials to service_role;
-
-create table public.site_connector_cache (
-  site_id          uuid not null references public.sites (id) on delete cascade,
-  connector_type   text not null check (connector_type = 'instagram'),
-  cache_payload    jsonb not null default '{"items":[]}'::jsonb,
-  fetched_at       timestamptz not null,
-  expires_at       timestamptz not null,
-  last_error_code  text check (
-                     last_error_code is null
-                     or (
-                       length(last_error_code) between 1 and 80
-                       and last_error_code ~ '^[A-Z0-9_:-]+$'
-                     )
-                   ),
-  updated_at       timestamptz not null default now(),
-  primary key (site_id, connector_type),
-  constraint site_connector_cache_expiry_check check (expires_at > fetched_at),
-  constraint site_connector_cache_payload_check check (
-    jsonb_typeof(cache_payload) = 'object'
-    and cache_payload ? 'items'
-    and jsonb_typeof(cache_payload -> 'items') = 'array'
-  )
-);
-
-comment on table public.site_connector_cache is
-  'Sanitized server cache for connector presentation. Tokens and raw provider errors are forbidden.';
-
-alter table public.site_connector_cache enable row level security;
-revoke all on table public.site_connector_cache from public, anon, authenticated, service_role;
-grant select, insert, update, delete on table public.site_connector_cache to service_role;
 
 alter table public.monthly_site_reports
   drop constraint if exists monthly_site_reports_payload_shape;

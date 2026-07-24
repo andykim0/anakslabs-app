@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -14,12 +14,6 @@ import {
   preserveServerConnectorManifest,
 } from '@/lib/connectors/application';
 import { CONNECTOR_CATALOG, connectorCatalogEntry } from '@/lib/connectors/catalog';
-import { absoluteInstagramConnectorEndpoint } from '@/lib/connectors/endpoint';
-import {
-  decryptInstagramTokenWithKeyring,
-  encryptInstagramTokenWithKeyring,
-  type InstagramTokenKeyring,
-} from '@/lib/connectors/instagram-crypto-core';
 
 const root = process.cwd();
 const source = (relative: string) => readFileSync(`${root}/${relative}`, 'utf8');
@@ -99,7 +93,6 @@ describe('CONN C2 — native connector catalog and rendering', () => {
       siteId: 'f00d0000-0000-4000-8000-000000000001',
       interactive: true,
       animate: false,
-      connectorEndpoint: 'https://daboim.example/api/connectors/instagram/site',
     }));
     const dom = parse(html);
     assert.equal(dom.querySelectorAll('.anaks-connector').length, 5);
@@ -107,11 +100,11 @@ describe('CONN C2 — native connector catalog and rendering', () => {
     assert.equal(dom.querySelectorAll('script[src]').length, 0);
     assert.ok(dom.querySelector(`a[href="${RESERVATION}"]`));
     assert.ok(dom.querySelector(`a[href="${KAKAO}"]`));
-    assert.ok(dom.querySelector(`a[href="${INSTAGRAM}"]`));
-    assert.equal(
-      dom.querySelector('[data-instagram-feed-endpoint]')?.getAttribute('data-instagram-feed-endpoint'),
-      'https://daboim.example/api/connectors/instagram/site',
-    );
+    const instagram = dom.querySelector(`a[href="${INSTAGRAM}"]`);
+    assert.ok(instagram);
+    assert.equal(instagram.getAttribute('target'), '_blank');
+    assert.equal(instagram.getAttribute('rel'), 'noopener noreferrer');
+    assert.equal(dom.querySelectorAll('[data-instagram-feed-endpoint]').length, 0);
   });
 
   test('new connector cohort suppresses legacy map/SNS embeds; legacy request is byte-compatible', () => {
@@ -167,57 +160,36 @@ describe('CONN C2 — native connector catalog and rendering', () => {
     assert.equal(JSON.stringify(preserveServerConnectorManifest(config(), null)), JSON.stringify(config()));
   });
 
-  test('static export endpoint is absolute and deterministic', () => {
-    assert.equal(
-      absoluteInstagramConnectorEndpoint('anakslabs.com', 'site-1'),
-      'https://anakslabs.com/api/connectors/instagram/site-1',
-    );
+  test('static export keeps Instagram as a direct profile redirect', () => {
     const exporter = source('src/lib/export/exporter.ts');
-    assert.match(exporter, /connectorEndpoint:\s*absoluteInstagramConnectorEndpoint\(ROOT_DOMAIN,\s*site\.id\)/u);
+    const renderStatic = source('src/lib/export/render-static.ts');
+    assert.doesNotMatch(exporter, /InstagramConnectorEndpoint|connectorEndpoint/u);
+    assert.doesNotMatch(renderStatic, /Instagram 캐시|connectorEndpoint/u);
   });
 });
 
-describe('CONN C2 — encrypted Instagram server cache', () => {
-  test('AES-256-GCM round trip and key-version rotation are explicit', () => {
-    const keyV1 = Buffer.alloc(32, 1);
-    const keyV2 = Buffer.alloc(32, 2);
-    const first: InstagramTokenKeyring = { currentVersion: 1, keys: new Map([[1, keyV1]]) };
-    const encrypted = encryptInstagramTokenWithKeyring('secret-token-value', first);
-    assert.equal(encrypted.keyVersion, 1);
-    assert.notEqual(encrypted.ciphertext, 'secret-token-value');
-    const rotating: InstagramTokenKeyring = {
-      currentVersion: 2,
-      keys: new Map([[1, keyV1], [2, keyV2]]),
-    };
-    assert.equal(decryptInstagramTokenWithKeyring(encrypted, rotating), 'secret-token-value');
-    assert.throws(
-      () => decryptInstagramTokenWithKeyring(
-        encrypted,
-        { currentVersion: 2, keys: new Map([[2, keyV2]]) },
-      ),
-      /KEY_VERSION_UNAVAILABLE/u,
-    );
-  });
-
-  test('plaintext and raw provider media never cross DB or client boundaries', () => {
+describe('CONN R1 — Instagram redirect-only connector', () => {
+  test('feed, credential, cache, and account routes do not exist', () => {
     const migration = source('../supabase/migrations/0045_connectors.sql');
-    const repository = source('src/lib/connectors/instagram-repository.ts');
-    const service = source('src/lib/connectors/instagram-service.ts');
-    const publicRoute = source('src/app/api/connectors/instagram/[siteId]/route.ts');
-    assert.match(migration, /ciphertext[\s\S]*initialization_iv[\s\S]*auth_tag/u);
-    assert.match(migration, /key_version/u);
-    assert.doesNotMatch(migration, /access_token/u);
-    assert.match(repository, /encryptInstagramToken\(input\.accessToken\)/u);
-    assert.match(service, /if \(!rendition\.assetRef\) continue/u);
-    assert.match(service, /map\(\(\{ id, renditionUrl, permalink, alt \}\)/u);
-    assert.doesNotMatch(publicRoute, /accessToken|ciphertext|authTag/u);
+    const removed = [
+      'src/lib/connectors/instagram-crypto-core.ts',
+      'src/lib/connectors/instagram-crypto.ts',
+      'src/lib/connectors/instagram-repository.ts',
+      'src/lib/connectors/instagram-service.ts',
+      'src/lib/connectors/endpoint.ts',
+      'src/app/api/admin/connectors/instagram/route.ts',
+      'src/app/api/connectors/instagram/[siteId]/route.ts',
+    ];
+    removed.forEach((path) => assert.equal(existsSync(`${root}/${path}`), false, path));
+    assert.doesNotMatch(migration, /site_connector_(?:credentials|cache)/u);
+    assert.doesNotMatch(migration, /ciphertext|initialization_iv|auth_tag|key_version/u);
   });
 
-  test('third-party SDKs and Instagram feed are interaction/intersection loaded only', () => {
+  test('only Kakao and Naver load SDKs; Instagram performs no fetch or feed rendering', () => {
     const runtime = source('src/components/site-renderer/ConnectorRuntime.tsx');
     assert.match(runtime, /closest<HTMLAnchorElement>\('a\[data-kakao-channel-id\]/u);
     assert.match(runtime, /closest<HTMLButtonElement>\('button\[data-naver-map-preview\]'\)/u);
-    assert.match(runtime, /IntersectionObserver/u);
-    assert.match(runtime, /image\.loading = 'lazy'/u);
+    assert.doesNotMatch(runtime, /Instagram|instagram|IntersectionObserver|fetch\(/u);
+    assert.doesNotMatch(source('src/components/site-renderer/ConnectorPanel.tsx'), /instagram-feed/u);
   });
 });

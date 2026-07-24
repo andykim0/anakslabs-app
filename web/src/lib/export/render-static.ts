@@ -57,8 +57,6 @@ export interface RenderDocumentOptions {
   motionAssets?: readonly MotionAssetProvenance[];
   /** 외부 호스트 ZIP에서도 플랫폼으로 전송하도록 절대 URL을 전달한다. */
   analyticsEndpoint?: string;
-  /** 외부 호스트 ZIP에서도 플랫폼 Instagram 캐시를 읽는 절대 URL. */
-  connectorEndpoint?: string;
 }
 
 /** 발행본 SiteConfig → `<!doctype html>` 완전 문서 문자열 */
@@ -83,7 +81,6 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
       privacyHref: opts.privacyHref,
       termsHref: opts.termsHref,
       analyticsEndpoint: opts.analyticsEndpoint,
-      connectorEndpoint: opts.connectorEndpoint,
       runtimeDelivery: 'inline',
     }),
   );

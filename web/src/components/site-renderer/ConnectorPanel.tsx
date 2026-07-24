@@ -21,12 +21,8 @@ a.anaks-connector:hover{transform:translateY(-2px);border-color:color-mix(in srg
 .anaks-connector__map{grid-column:span 2}
 .anaks-connector__map-preview{width:100%;height:15rem;margin-top:1rem;border:0;border-radius:calc(var(--connector-radius) * .72);overflow:hidden}
 .anaks-connector__preview-button{align-self:flex-start;margin-top:.8rem;border:0;padding:.6rem .85rem;border-radius:999px;background:var(--connector-primary);color:var(--connector-bg);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
-.anaks-connector__instagram{grid-column:span 2}
-.anaks-connector__instagram-feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin-top:1rem}
-.anaks-connector__instagram-item{display:block;aspect-ratio:1;overflow:hidden;border-radius:calc(var(--connector-radius) * .65);background:color-mix(in srgb,var(--connector-primary) 8%,var(--connector-bg))}
-.anaks-connector__instagram-item img{width:100%;height:100%;object-fit:cover}
 @media(max-width:64rem){.anaks-connectors__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:47.99rem){.anaks-connectors{padding-block:3.75rem}.anaks-connectors__grid{grid-template-columns:1fr}.anaks-connector,.anaks-connector__map,.anaks-connector__instagram{grid-column:auto;min-height:8.75rem}.anaks-connector__instagram-feed{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:47.99rem){.anaks-connectors{padding-block:3.75rem}.anaks-connectors__grid{grid-template-columns:1fr}.anaks-connector,.anaks-connector__map{grid-column:auto;min-height:8.75rem}}
 @media(prefers-reduced-motion:reduce){a.anaks-connector{transition:none}a.anaks-connector:hover{transform:none}}
 `;
 
@@ -81,13 +77,11 @@ export function ConnectorPanel({
   manifest,
   theme,
   siteId,
-  instagramEndpoint,
   interactive,
 }: {
   manifest: SiteConnectorManifest;
   theme: SiteTheme;
   siteId?: string;
-  instagramEndpoint?: string;
   interactive: boolean;
 }) {
   const style = {
@@ -116,15 +110,11 @@ export function ConnectorPanel({
         <div className="anaks-connectors__grid">
           {manifest.items.map((item) => {
             const isMap = item.id === 'naver-map';
-            const isInstagram = item.id === 'instagram';
             const mapId = `anaks-map-${siteId ?? 'preview'}`;
             return (
               <div
                 key={item.id}
-                className={[
-                  isMap ? 'anaks-connector__map' : '',
-                  isInstagram ? 'anaks-connector__instagram' : '',
-                ].filter(Boolean).join(' ') || undefined}
+                className={isMap ? 'anaks-connector__map' : undefined}
               >
                 <ActionRoot
                   item={item}
@@ -156,18 +146,6 @@ export function ConnectorPanel({
                     </button>
                     <div id={mapId} className="anaks-connector__map-preview" hidden aria-label="네이버 지도 미리보기" />
                   </>
-                ) : null}
-                {isInstagram ? (
-                  <div
-                    className="anaks-connector__instagram-feed"
-                    aria-label="최근 인스타그램 게시물"
-                    {...(interactive && (instagramEndpoint || siteId)
-                      ? {
-                          'data-instagram-feed-endpoint':
-                            instagramEndpoint ?? `/api/connectors/instagram/${siteId}`,
-                        }
-                      : {})}
-                  />
                 ) : null}
               </div>
             );

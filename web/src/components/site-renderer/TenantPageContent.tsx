@@ -29,7 +29,6 @@ export function TenantPageContent({
   privacyHref,
   termsHref,
   analyticsEndpoint,
-  connectorEndpoint,
   runtimeDelivery = 'client',
 }: {
   config: SiteConfig;
@@ -49,8 +48,6 @@ export function TenantPageContent({
   termsHref?: string;
   /** 공개 발행본의 first-party 집계 엔드포인트. export는 반드시 절대 플랫폼 URL을 전달한다. */
   analyticsEndpoint?: string;
-  /** 외부 정적 호스트에서 읽을 플랫폼 Instagram 캐시 절대 URL. */
-  connectorEndpoint?: string;
   /** App Router는 client, render-static은 inline을 명시한다. */
   runtimeDelivery?: 'inline' | 'client';
 }) {
@@ -79,7 +76,6 @@ export function TenantPageContent({
           motionAssets={motionAssets}
           interactive={interactive}
           animate={animate}
-          connectorEndpoint={connectorEndpoint}
           runtimeDelivery={runtimeDelivery}
         />
       </main>

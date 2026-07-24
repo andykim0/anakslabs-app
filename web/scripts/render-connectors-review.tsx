@@ -168,7 +168,6 @@ function documentFor(
     interactive: true,
     animate: false,
     runtimeDelivery: 'client',
-    connectorEndpoint: `https://daboim.example/api/connectors/instagram/${SITE_ID}`,
   })).replace(/<link[^>]*>/gu, '');
   return [
     '<!doctype html><html lang="ko" data-review-settled="true"><head>',

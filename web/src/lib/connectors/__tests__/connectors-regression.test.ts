@@ -193,13 +193,16 @@ describe('CONN C4 — connector, tracking, and reporting round trip', () => {
     assert.equal(dom.querySelectorAll('script[src]').length, 0);
     assert.equal(dom.querySelectorAll('img[src^="http"]').length, 0);
     assert.ok(dom.querySelector('a[href^="https://map.naver.com/"]'));
-    assert.ok(dom.querySelector('a[href^="https://www.instagram.com/"]'));
+    const instagram = dom.querySelector('a[href^="https://www.instagram.com/"]');
+    assert.ok(instagram);
+    assert.equal(instagram.getAttribute('target'), '_blank');
+    assert.equal(instagram.getAttribute('rel'), 'noopener noreferrer');
+    assert.equal(dom.querySelectorAll('[data-instagram-feed-endpoint]').length, 0);
 
     const runtime = source('src/components/site-renderer/ConnectorRuntime.tsx');
     assert.match(runtime, /script\.async = true/u);
     assert.match(runtime, /script\.defer = true/u);
-    assert.match(runtime, /IntersectionObserver/u);
-    assert.match(runtime, /image\.loading = 'lazy'/u);
+    assert.doesNotMatch(runtime, /IntersectionObserver|instagram|fetch\(/iu);
     assert.doesNotMatch(runtime, /document\.write|<iframe/iu);
   });
 
