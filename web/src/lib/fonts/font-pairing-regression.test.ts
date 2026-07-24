@@ -33,6 +33,20 @@ function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function charactersFromUnicodeRange(value: string): string {
+  const output: string[] = [];
+  for (const token of value.split(/,\s*/u)) {
+    const match = /^U\+([0-9a-f]+)(?:-([0-9a-f]+))?$/iu.exec(token.trim());
+    assert.ok(match, token);
+    const start = Number.parseInt(match[1], 16);
+    const end = Number.parseInt(match[2] ?? match[1], 16);
+    for (let codePoint = start; codePoint <= end; codePoint += 1) {
+      output.push(String.fromCodePoint(codePoint));
+    }
+  }
+  return output.join('');
+}
+
 function legacyFixture(): SiteConfig {
   const config = emptySiteConfig('기존 폰트 핀');
   const section: Section = {
@@ -117,8 +131,9 @@ describe('FNT F4 — additive SHA·로딩 회귀', () => {
       assert.ok(resources, id);
       assert.ok(resources.familyCount <= 2, `${id}: ${resources.familyCount} families`);
       assert.ok(resources.faceCount <= 4, `${id}: ${resources.faceCount} faces`);
-      assert.equal((resources.css.match(/@font-face/gu) ?? []).length, resources.faceCount);
-      assert.equal((resources.css.match(/font-display:optional/gu) ?? []).length, resources.faceCount);
+      assert.equal((resources.css.match(/@font-face/gu) ?? []).length, resources.assets.length);
+      assert.equal((resources.css.match(/font-display:optional/gu) ?? []).length, resources.assets.length);
+      assert.equal((resources.css.match(/unicode-range:/gu) ?? []).length, resources.assets.length);
       assert.doesNotMatch(resources.css, /@import|rel=.preload|fonts\.googleapis|fonts\.gstatic/iu);
     }
   });
@@ -132,12 +147,21 @@ describe('FNT F4 — additive SHA·로딩 회귀', () => {
     }
   });
 
-  test('같은 원본 subset과 같은 문자 집합은 재실행해도 같은 checksum이다', async () => {
-    const source = await readFile(new URL('../../../public/fonts/korean/pretendard-variable-core.woff2', import.meta.url));
-    const characters = '다보임 한글 페어링 결정성 123 ABC';
-    const first = Buffer.from(await subsetFont(source, characters, { targetFormat: 'woff2' }));
-    const second = Buffer.from(await subsetFont(source, characters, { targetFormat: 'woff2' }));
-    assert.equal(sha256(first), sha256(second));
+  test('모든 unicode-range 청크는 같은 입력 재실행 checksum이 결정적이다', async () => {
+    const manifest = productionFontAssetManifest();
+    assert.equal(manifest.chunking.deterministicRunsPerAsset, 2);
+    for (const chunk of manifest.chunks) {
+      const asset = manifest.assets.find((candidate) => (
+        candidate.faceId === 'pretendard-variable'
+        && candidate.chunkId === chunk.id
+      ));
+      assert.ok(asset, chunk.id);
+      const source = await readFile(new URL(`../../../public${asset.path}`, import.meta.url));
+      const characters = charactersFromUnicodeRange(chunk.unicodeRange);
+      const first = Buffer.from(await subsetFont(source, characters, { targetFormat: 'woff2' }));
+      const second = Buffer.from(await subsetFont(source, characters, { targetFormat: 'woff2' }));
+      assert.equal(sha256(first), sha256(second), chunk.id);
+    }
   });
 
   test('subset 도구는 devDependency이고 production src에서 import하지 않는다', async () => {

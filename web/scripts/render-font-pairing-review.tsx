@@ -17,6 +17,8 @@ import type { DesignDnaId } from '@/lib/design/dna/types';
 import {
   applyKoreanFontPairing,
   fontPairingResources,
+  fontPairingResourcesForText,
+  KOREAN_FONT_PERFORMANCE_BUDGETS,
 } from '@/lib/fonts';
 import type {
   ProductionKoreanFontPairId,
@@ -65,6 +67,20 @@ const CASES = [
   hueSeed: number;
   business: string;
 }[];
+
+const BEFORE_R1_FIRST_SCREEN_BYTES = {
+  'kr-pretendard-neutral': 444_468,
+  'kr-nanum-myeongjo-readable': 810_012,
+  'kr-gmarket-noto-structured': 617_176,
+  'kr-nanum-square-round-friendly': 604_960,
+} as const satisfies Record<ProductionKoreanFontPairId, number>;
+
+const BEFORE_R1_EXPORT_PAIR_BYTES = {
+  'kr-pretendard-neutral': 444_468,
+  'kr-nanum-myeongjo-readable': 1_284_252,
+  'kr-gmarket-noto-structured': 863_496,
+  'kr-nanum-square-round-friendly': 760_376,
+} as const satisfies Record<ProductionKoreanFontPairId, number>;
 
 function hero(theme: SiteConfig['theme'], business: string): Section {
   return {
@@ -276,10 +292,20 @@ async function main() {
   const records = [];
   try {
     for (const reviewCase of CASES) {
-      const resources = fontPairingResources(reviewConfig(reviewCase).theme);
+      const config = reviewConfig(reviewCase);
+      const resources = fontPairingResources(config.theme);
+      const exportResources = fontPairingResourcesForText(
+        config.theme,
+        JSON.stringify(config),
+      );
       if (!resources) throw new Error(`Missing resources: ${reviewCase.id}`);
+      if (!exportResources) throw new Error(`Missing export resources: ${reviewCase.id}`);
+      if (exportResources.bytes > KOREAN_FONT_PERFORMANCE_BUDGETS.exportPairBytes) {
+        throw new Error(`${reviewCase.id}: export ${exportResources.bytes}`);
+      }
       for (const viewport of VIEWPORTS) {
         const page = await browser.newPage();
+        await page.setCacheEnabled(false);
         await page.setViewport({
           width: viewport.width,
           height: viewport.height,
@@ -287,12 +313,26 @@ async function main() {
           isMobile: viewport.band === 'mobile',
         });
         const consoleErrors: string[] = [];
+        const fontResponseBodies: Promise<{ url: string; bytes: number }>[] = [];
         page.on('console', (message) => {
           if (message.type() === 'error') consoleErrors.push(message.text());
         });
         page.on('pageerror', (error) => consoleErrors.push(
           error instanceof Error ? error.message : String(error),
         ));
+        page.on('response', (response) => {
+          if (
+            response.request().resourceType() === 'font'
+            && response.url().includes('/fonts/korean/')
+          ) {
+            fontResponseBodies.push(
+              response.buffer().then((body) => ({
+                url: response.url(),
+                bytes: body.byteLength,
+              })),
+            );
+          }
+        });
         await page.goto(`http://127.0.0.1:${PORT}/${reviewCase.id}-${viewport.band}.html`, {
           waitUntil: 'networkidle0',
         });
@@ -300,6 +340,7 @@ async function main() {
           await document.fonts.ready;
           await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
         });
+        const fontTransfers = await Promise.all(fontResponseBodies);
         const metrics = await page.evaluate(() => {
           const title = document.querySelector<HTMLElement>('[data-font-role="display"]');
           const lead = document.querySelector<HTMLElement>('[data-font-role="lead"]');
@@ -314,6 +355,10 @@ async function main() {
               return [];
             }
           });
+          const logicalFaces = new Set(faceRules.map((rule) => {
+            const declaration = (rule as CSSFontFaceRule).style;
+            return `${declaration.getPropertyValue('font-family')}|${declaration.getPropertyValue('font-weight')}`;
+          }));
           return {
             viewport: { width: innerWidth, height: innerHeight },
             scrollWidth: document.documentElement.scrollWidth,
@@ -341,7 +386,8 @@ async function main() {
                   whiteSpace: buttonStyle?.whiteSpace,
                 }
               : null,
-            faceCount: faceRules.length,
+            fontFaceRuleCount: faceRules.length,
+            faceCount: logicalFaces.size,
             loadedFonts: [...document.fonts].map((face) => ({
               family: face.family,
               weight: face.weight,
@@ -349,9 +395,16 @@ async function main() {
             })),
           };
         });
+        const firstScreenFontBytes = fontTransfers.reduce(
+          (sum, transfer) => sum + transfer.bytes,
+          0,
+        );
         const minimumInlineMargin = viewport.band === 'mobile' ? 16 : 24;
         if (metrics.scrollWidth > viewport.width) throw new Error(`${reviewCase.id}/${viewport.band}: overflow`);
         if (metrics.cls !== 0) throw new Error(`${reviewCase.id}/${viewport.band}: CLS ${metrics.cls}`);
+        if (firstScreenFontBytes > KOREAN_FONT_PERFORMANCE_BUDGETS.firstScreenBytes) {
+          throw new Error(`${reviewCase.id}/${viewport.band}: first screen ${firstScreenFontBytes}`);
+        }
         if (!metrics.title || metrics.title.left < minimumInlineMargin || metrics.title.right > viewport.width - minimumInlineMargin) {
           throw new Error(`${reviewCase.id}/${viewport.band}: title edge ${JSON.stringify(metrics.title)}`);
         }
@@ -375,9 +428,18 @@ async function main() {
           resources: {
             familyCount: resources.familyCount,
             faceCount: resources.faceCount,
-            bytes: resources.bytes,
+            chunkCount: resources.chunkCount,
+            catalogBytes: resources.bytes,
           },
           metrics,
+          performance: {
+            beforeR1FirstScreenFontBytes: BEFORE_R1_FIRST_SCREEN_BYTES[reviewCase.id],
+            firstScreenFontBytes,
+            fontTransfers,
+            beforeR1ExportPairBytes: BEFORE_R1_EXPORT_PAIR_BYTES[reviewCase.id],
+            exportPairBytes: exportResources.bytes,
+            exportChunks: [...new Set(exportResources.assets.map((asset) => asset.chunkId))],
+          },
           screenshot,
           consoleErrors,
         });
@@ -390,7 +452,11 @@ async function main() {
   }
   await writeFile(
     path.join(OUTPUT_DIR, 'manifest.json'),
-    `${JSON.stringify({ generatedAt: new Date().toISOString(), records }, null, 2)}\n`,
+    `${JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      budgets: KOREAN_FONT_PERFORMANCE_BUDGETS,
+      records,
+    }, null, 2)}\n`,
   );
 }
 

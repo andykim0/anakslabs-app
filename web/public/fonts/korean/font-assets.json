@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "generator": {
     "package": "subset-font",
     "version": "2.5.0",
@@ -10,15 +10,148 @@
     "codePoints": 2475,
     "sha256": "eaa4ce7ac5f1d34bbc7ff8c3ad8325b0788f6d2c66195595ccff33aee17b704f"
   },
+  "chunking": {
+    "strategy": "Pretendard v1.3.9 frequency order + pinned small-business common corpus",
+    "source": {
+      "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css",
+      "sha256": "2973bcae80262dcb630cfb793fbf6af29bd986c769ee54953fb3e5b3e32323ca"
+    },
+    "priorityRankedCodePoints": 384,
+    "tailChunkCodePoints": 128,
+    "deterministicRunsPerAsset": 2
+  },
+  "chunks": [
+    {
+      "id": "common",
+      "priority": true,
+      "codePoints": 454,
+      "sha256": "e32b28075d5e5ff553ac2c5fefa45b3f2f96c4e230dadc727049c09ef02f8ab4",
+      "unicodeRange": "U+20-7e, U+b7, U+d7, U+2013-2014, U+2018-2019, U+201c-201d, U+2026, U+20a9, U+2103, U+2190-2193, U+25cb, U+25cf, U+2713, U+3008-3011, U+321c, U+33a1, U+ac00-ac01, U+ac04, U+ac10, U+ac15, U+ac19, U+ac1c-ac1d, U+ac24, U+ac70, U+ac74, U+ac80, U+ac83, U+ac8c, U+aca0, U+aca9, U+acb0, U+acbd, U+acc4, U+ace0, U+acf5, U+acfc, U+ad00, U+ad11, U+ad50, U+ad6c-ad6d, U+ad8c, U+adf8, U+adfc, U+ae00, U+ae08-ae09, U+ae30, U+ae34, U+ae38, U+ae40, U+ae4c, U+aed8, U+b04a, U+b098, U+b09c, U+b0a0, U+b0a8, U+b0b1, U+b0b4, U+b108, U+b124, U+b144, U+b178, U+b204, U+b208, U+b274, U+b294, U+b298, U+b2a5, U+b2c8, U+b2d8, U+b2dd, U+b2e4, U+b2e8, U+b2eb-b2ec, U+b2f4-b2f5, U+b2f9, U+b2ff-b300, U+b313, U+b354, U+b358, U+b370, U+b3c4, U+b3d9, U+b418, U+b41c, U+b450, U+b4dc, U+b4e0, U+b4e4, U+b4f1, U+b514, U+b530, U+b54c, U+b610, U+b73b, U+b77c, U+b780, U+b78c, U+b791, U+b798, U+b79c, U+b7a8, U+b7ec, U+b808, U+b824-b825, U+b840, U+b85c-b85d, U+b871, U+b8b0, U+b8cc, U+b8e8, U+b958, U+b960, U+b974, U+b978, U+b97c, U+b984, U+b9ac, U+b9b0, U+b9bc-b9bd, U+b9c8, U+b9cc, U+b9ce, U+b9d0, U+b9e4, U+ba38, U+ba54, U+ba70, U+ba74, U+ba85, U+baa8-baa9, U+bb34, U+bb38, U+bb3b-bb3c, U+bbf8, U+bbfc, U+bc0f, U+bc14-bc15, U+bc18, U+bc1b-bc1c, U+bc29, U+bc30-bc31, U+bc84, U+bc88, U+bc95, U+bcc0, U+bcc4, U+bcd1, U+bcf4-bcf5, U+bcf8, U+bd80-bd81, U+bd84, U+bd88, U+be0c, U+be14, U+be44, U+c0ac, U+c0b0, U+c0b4, U+c0c1, U+c0c8-c0c9, U+c0dd, U+c11c-c11d, U+c120, U+c124, U+c131, U+c138, U+c13c, U+c158, U+c18c-c18d, U+c190, U+c1a1, U+c218, U+c21c, U+c26c, U+c2a4, U+c2b5, U+c2dc-c2dd, U+c2e0, U+c2e4, U+c2ec, U+c4f0, U+c544, U+c548, U+c54a, U+c54c, U+c560, U+c57c-c57d, U+c591, U+c5b4-c5b5, U+c5b8, U+c5c5-c5c6, U+c5c8, U+c5d0, U+c5ec-c5ed, U+c5f0, U+c5f4, U+c601, U+c608, U+c624, U+c628, U+c62c, U+c640, U+c678, U+c694, U+c6a9, U+c6b0, U+c6b4, U+c6b8, U+c6cc, U+c6d0, U+c6d4, U+c704, U+c720-c721, U+c73c, U+c740, U+c744, U+c74c, U+c758, U+c774, U+c778, U+c77c-c77d, U+c784-c785, U+c788, U+c790-c791, U+c794, U+c7a5, U+c7ac, U+c800-c801, U+c804, U+c808, U+c810-c811, U+c815, U+c81c, U+c870, U+c885, U+c88b, U+c8fc, U+c900, U+c911, U+c988, U+c99d, U+c9c0-c9c1, U+c9c4, U+c9c8, U+c9d1, U+c9e7, U+cc28, U+cc3d-cc3e, U+cc45, U+cc98, U+cc9c, U+cca0, U+ccab, U+ccad, U+ccb4, U+cd08, U+cd5c, U+cd94, U+cd9c, U+cde8, U+ce20, U+ce58, U+ce5c, U+ce68, U+ce74, U+cee4, U+cf13, U+cf54, U+d06c, U+d074, U+d0a4, U+d0c0, U+d0dc-d0dd, U+d130, U+d14c, U+d1a0, U+d1b5, U+d2b8-d2b9, U+d2f0, U+d30c, U+d310, U+d398, U+d3b8, U+d3c9, U+d3ec, U+d3f4, U+d45c, U+d488, U+d504, U+d50c, U+d53c, U+d544, U+d558-d559, U+d55c, U+d560, U+d568-d569, U+d574, U+d589, U+d5d8, U+d604, U+d638, U+d648, U+d654-d655, U+d68c, U+d6c4, U+d788"
+    },
+    {
+      "id": "tail-01",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "794260d6f5a4c96f3651490fb6c47cbf7d7d0110d93fc8ca91444b3d00b33450",
+      "unicodeRange": "U+ac08, U+ac11, U+ac78, U+aca8, U+acac, U+ace8, U+acf3, U+ad70, U+ad74, U+ad81, U+adc0, U+addc, U+adf9, U+af43, U+afb8, U+b05d, U+b07c, U+b110, U+b118, U+b137, U+b140, U+b17c, U+b180, U+b18d, U+b192, U+b290, U+b2cc, U+b355, U+b378, U+b3c5, U+b3cc, U+b420, U+b429, U+b4a4, U+b4ef, U+b529, U+b77d, U+b78d, U+b799, U+b7a9, U+b7c9, U+b7f0, U+b7fc-b7fd, U+b807, U+b80c, U+b828, U+b839, U+b860, U+b9ad, U+b9b4, U+b9c1, U+b9c9, U+b9db, U+b9dd-b9de, U+b9e8, U+ba39, U+ba3c, U+bab0, U+babb, U+bba4, U+bc00, U+bc8c, U+bc94, U+bca0, U+bca4, U+bcfc, U+bd09, U+bdf0, U+be4c, U+be60, U+c0ad, U+c0bc, U+c154, U+c1c4, U+c1fc, U+c220, U+c288, U+c2ac, U+c2b9, U+c2ed, U+c2f6, U+c4f4, U+c528, U+c545, U+c558, U+c55e, U+c561, U+c5bc, U+c5d4, U+c600, U+c644, U+c6c0, U+c6c3, U+c798, U+c7a1, U+c838, U+c871, U+c904, U+c990, U+c9dc, U+cc38, U+cc44, U+cd1d, U+cd95, U+cda9, U+cf00, U+cf58, U+d150, U+d22c, U+d305, U+d328, U+d37c, U+d3f0, U+d551, U+d56d, U+d588, U+d5a5, U+d5c8, U+d615, U+d63c, U+d64d, U+d658, U+d65c, U+d669, U+d734, U+d76c"
+    },
+    {
+      "id": "tail-02",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "9c83b8d7d302b1e35addf27ce1c1b31ed548edcdac385e59876d5658c965e262",
+      "unicodeRange": "U+ace1, U+ace4, U+ae68, U+af2d, U+b0d0, U+b0e5, U+b150, U+b155, U+b193, U+b2c9, U+b3c8, U+b3fc, U+b410, U+b458, U+b4dd, U+b5a0, U+b5a4, U+b5bb, U+b7b5, U+b838, U+b86f, U+b8f9, U+b9e5, U+bab8, U+bb50, U+bc1d, U+bc24-bc25, U+bca8, U+bcbd, U+bd04, U+bd10, U+bd24, U+be48, U+be5b, U+be68, U+c05c, U+c12c, U+c140, U+c15c, U+c168, U+c194, U+c219, U+c27d, U+c2a8, U+c2f1, U+c2f8, U+c368, U+c554-c555, U+c559, U+c564, U+c571, U+c5c4, U+c5d8, U+c5fc, U+c625, U+c654-c655, U+c65c, U+c695, U+c6b1, U+c6e8, U+c6f9, U+c724, U+c728, U+c751, U+c775, U+c7a0, U+c7c1, U+c84c, U+c874, U+c880, U+c88c, U+c8e0, U+c8fd, U+c998, U+c9d5, U+c9dd, U+c9f8, U+cabd, U+cc0d, U+cc29, U+cc2c, U+cc30, U+cca8, U+ccd0, U+ce21, U+ce35, U+ce7c, U+ce90, U+cee8, U+ceec, U+cef4, U+cf1c, U+cf5c, U+cfe0, U+d050, U+d070, U+d07c, U+d0a8, U+d0b9, U+d0c1, U+d0c4, U+d0c8, U+d134, U+d138, U+d154, U+d15c, U+d1a1, U+d1f4, U+d2bc, U+d2c0, U+d300, U+d314, U+d329, U+d3ed, U+d478, U+d480, U+d48d, U+d508, U+d53d, U+d5e4, U+d611, U+d61c, U+d68d, U+d6a8, U+d798"
+    },
+    {
+      "id": "tail-03",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "5731aa036b26a3ee9528e45105b3c72e7194b660f828b19d1ae8081b4e13ae6f",
+      "unicodeRange": "U+ac12, U+ac14, U+ac16, U+ac81, U+acaa, U+acbc, U+ad1c, U+ad34, U+ade0, U+ae4a, U+ae54, U+ae5c, U+aebc, U+af2c, U+afc0, U+afc8, U+b044, U+b04c, U+b054, U+b08c, U+b099, U+b0a9, U+b0ac, U+b0ae, U+b0b8, U+b0c8-b0c9, U+b123, U+b179, U+b2a6, U+b2d0, U+b2e5, U+b2f7, U+b35c, U+b364, U+b428, U+b454, U+b465, U+b4b7, U+b4c0, U+b4e3, U+b51c, U+b531, U+b538, U+b545, U+b550, U+b5a1, U+b5a8, U+b6f0, U+b728, U+b784, U+b790, U+b7ab, U+b7ad, U+b7ed, U+b7f4, U+b809, U+b82c, U+b864, U+b86d, U+b9bf, U+b9f5, U+ba40, U+ba4b, U+ba58, U+ba87, U+baac, U+bbc0, U+bc16, U+bc34, U+bd07, U+bd99, U+be59, U+bfd0, U+c058, U+c0e4, U+c0f5, U+c12d, U+c139, U+c228, U+c529, U+c5c7, U+c635, U+c637, U+c735, U+c787, U+c789, U+c8c4, U+c989, U+c98c, U+c9d0, U+c9d3, U+cc0c, U+cc99, U+cd0c, U+cd2c, U+cd98, U+cda4, U+ce59, U+ce60, U+ce6d, U+cea0, U+d0d0-d0d1, U+d0d5, U+d14d, U+d1a4, U+d29c, U+d2f1, U+d301, U+d32c, U+d39c, U+d3bc, U+d3d0, U+d3fc, U+d4e8, U+d540, U+d56b, U+d5cc, U+d5ec, U+d600-d601, U+d639, U+d640, U+d6c8, U+d750, U+d754, U+d765"
+    },
+    {
+      "id": "tail-04",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "6354c34e71e8fb2ad06c354b8ab88cab4e81f8b9e5ca6bb11cd4deb6da96e7e4",
+      "unicodeRange": "U+ac13, U+ac71, U+ac90, U+acb8, U+ace7, U+ad7f, U+ae50, U+aef4, U+af34, U+afbc, U+b048, U+b09a, U+b0ad, U+b0bc, U+b113, U+b125, U+b141, U+b20c, U+b2d9, U+b2ed, U+b367, U+b369, U+b374, U+b3cb, U+b4ec, U+b611, U+b760, U+b81b, U+b834-b835, U+b8e1, U+b8e9, U+b8f8, U+b989, U+b9d1, U+b9d8, U+b9e1, U+b9f9-b9fa, U+ba4d, U+ba5c, U+ba64, U+ba78, U+babd, U+bb18, U+bb35, U+bb54, U+bbf9, U+bbff, U+bc0d, U+bc11, U+bc45, U+bc97, U+bcb3, U+bcbc, U+bd05, U+bd95, U+bdd4, U+be10, U+be45, U+be75, U+be7c, U+bed0, U+bf51, U+bfcc, U+c0b6, U+c0d8, U+c0f7, U+c14b, U+c232, U+c2b4, U+c2b7, U+c2eb, U+c30d, U+c378, U+c4f8, U+c500, U+c52c, U+c549, U+c568, U+c598, U+c5bb, U+c5c9, U+c5d1, U+c5e0, U+c5ee, U+c5fd, U+c606, U+c61b, U+c639, U+c67c, U+c6c5, U+c6e0, U+c708, U+c717, U+c78a, U+c80a, U+c81d, U+c820, U+c824, U+c878, U+c918, U+c96c, U+c9e4, U+c9f1, U+cc2e, U+cd09, U+cea1, U+cef5, U+cef7, U+cf64, U+cf69, U+cfe8, U+d035, U+d0ac, U+d230, U+d234, U+d2f4, U+d31d, U+d575, U+d578, U+d608, U+d614, U+d718, U+d751, U+d761, U+d78c, U+d790"
+    },
+    {
+      "id": "tail-05",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "4a4b4aab715763638e4a1a89ecfdb540689ea1fa86ed2114b96edc2e281deb78",
+      "unicodeRange": "U+ac31, U+ac77, U+ac9f, U+acb9, U+acf0-acf1, U+acfd, U+ad49, U+ad73, U+ae0b, U+ae0d, U+ae43, U+ae5d, U+aecf, U+af3c-af3d, U+af64, U+afd4, U+b00c, U+b057, U+b080, U+b084, U+b0c4-b0c5, U+b10c, U+b188, U+b1cc, U+b1e8, U+b214, U+b2ac, U+b2db, U+b2ee, U+b304, U+b36e, U+b451, U+b4ed, U+b515, U+b518, U+b540, U+b561, U+b5bc, U+b625, U+b69c-b69d, U+b6ab, U+b6b1, U+b72c, U+b730, U+b744, U+b7ac, U+b801, U+b86c, U+b959, U+b95c, U+b985, U+ba48, U+bb58, U+bc0c, U+bc38, U+bc85, U+bc9a, U+bf40, U+c068, U+c0bd, U+c0cc, U+c12f, U+c149, U+c1e0, U+c22b, U+c22d, U+c250, U+c2fc, U+c300, U+c313, U+c370, U+c3d8, U+c557, U+c580, U+c5e3, U+c62e, U+c634, U+c6f0, U+c74d, U+c783, U+c78e, U+c796, U+c7bc, U+c90c-c90d, U+c92c, U+c950, U+ca4c, U+cbe4, U+cc1c, U+cc54, U+cc59, U+cca9, U+cce4, U+cdb0, U+ce04, U+ce78, U+ce94, U+ce98, U+cf30, U+cf8c, U+cfc4, U+d018, U+d034, U+d0f1, U+d140, U+d1b1, U+d280, U+d2f8, U+d321, U+d338, U+d380, U+d38c, U+d399, U+d3b4, U+d54f, U+d587, U+d5d0, U+d610, U+d69f, U+d6e8, U+d6fc, U+d758, U+d770"
+    },
+    {
+      "id": "tail-06",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "a863db07b3dad7304209e73f26d1384950b318bf98f181172981be66dc0edc86",
+      "unicodeRange": "U+ac89, U+ac9c, U+acc1, U+ad04, U+ad75, U+ad7d, U+ae45, U+ae61, U+af42, U+b0ab, U+b0af, U+b0b3, U+b12c, U+b194, U+b1a8, U+b220, U+b258, U+b284, U+b315, U+b371, U+b3d4-b3d5, U+b460, U+b527, U+b534, U+b800, U+b810, U+b818, U+b8ec, U+b8f0, U+b904, U+b968, U+b96d, U+b987, U+b98e, U+b9d9, U+ba55, U+bb36, U+bb49, U+bbac, U+bc0b, U+bc2d, U+bc40, U+bc43, U+bca1, U+bccd, U+bcf6, U+bd89, U+bd93, U+be54, U+be57, U+be5a, U+be61, U+bed4, U+bf08, U+bf50, U+bf55, U+bfdc, U+c090, U+c0c0, U+c0d0, U+c0f4, U+c100, U+c11e, U+c130, U+c148, U+c170, U+c19c, U+c20d, U+c274, U+c290, U+c2f9, U+c308, U+c369, U+c36c, U+c37c, U+c384, U+c3df, U+c539, U+c575, U+c584, U+c587, U+c5ff, U+c660, U+c6ec, U+c70c, U+c719, U+c7ad, U+c7c8, U+c816, U+c83c, U+c881, U+ca4d, U+ca54, U+cabc, U+cb48-cb49, U+cc14, U+cc60, U+ce69, U+ce6b, U+ce75, U+cf04, U+cf08, U+cf55, U+cf70, U+cff5, U+cffc, U+d004, U+d038, U+d0b4, U+d0b7, U+d0d3, U+d0e0, U+d0ed, U+d131, U+d1b0, U+d31f, U+d33d, U+d3a0, U+d3ab, U+d514, U+d584, U+d6a1, U+d6cc, U+d749, U+d760, U+d799"
+    },
+    {
+      "id": "tail-07",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "c820f98e9d482c144ec02e870e9c266fc9536619d2932dbfa292df7f9a5bece6",
+      "unicodeRange": "U+ac2f, U+ac4d, U+ac94, U+adc4, U+ade4, U+ae41, U+ae4d-ae4e, U+aebe, U+aecd, U+aed1, U+af08, U+af41, U+af49, U+afb9, U+b010, U+b053, U+b0e0, U+b109, U+b11b, U+b128, U+b154, U+b291, U+b299, U+b2e6, U+b301, U+b365, U+b385, U+b46c, U+b480, U+b4c8, U+b525, U+b5b4, U+b729, U+b72f, U+b738, U+b7b4, U+b7ff, U+b819, U+b837, U+b918, U+b975, U+ba67, U+baab, U+bab9, U+bb47, U+bc1f, U+bd90, U+be8f, U+bed7, U+bfd4, U+c0ec, U+c19f, U+c1a5, U+c27c, U+c324, U+c379, U+c3d9, U+c3e0, U+c464-c465, U+c53b, U+c53d, U+c553, U+c570, U+c58c, U+c5cc, U+c610, U+c633, U+c653, U+c6a4, U+c6cd, U+c7a3, U+c7a6, U+c813, U+c82f, U+c886, U+c999, U+c9d9-c9da, U+c9e0, U+c9ec, U+ca0c, U+cac4, U+cad3, U+cbd4, U+cc10, U+cc21-cc22, U+ccb8, U+ccbc, U+cd1b, U+cd78, U+cda5, U+cdc4, U+ce84, U+cea3, U+cef8, U+cf67, U+cfe1, U+cfe4, U+d0a5, U+d0b5, U+d0ec, U+d15d, U+d188, U+d1a8, U+d23c, U+d241, U+d2ac, U+d2c8, U+d30d, U+d31c, U+d384, U+d391, U+d401, U+d479, U+d47c, U+d48b, U+d5c9, U+d5db, U+d5dd, U+d5e8, U+d649, U+d6d4, U+d720, U+d729, U+d759"
+    },
+    {
+      "id": "tail-08",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "0651e43b80192466a3a65369ab956d0dec698b527d0303ed544a09f3d7307c96",
+      "unicodeRange": "U+ac07, U+ac1a, U+ac20, U+ac38, U+ac40, U+acf6, U+ad0c, U+ad76, U+ad88, U+ad90, U+ada4, U+ae01, U+ae65, U+ae84, U+aebd, U+aec4, U+aecc, U+af5d, U+af80, U+afcd, U+afe8, U+aff0, U+b07d, U+b0a1, U+b0b5, U+b139, U+b1fd, U+b205, U+b215, U+b2a0, U+b310, U+b380, U+b383, U+b38c, U+b3d7, U+b461, U+b51b, U+b52a, U+b55c, U+b5b3, U+b618, U+b775, U+b78f, U+b797, U+b8fb, U+b8fd, U+b93c, U+b9f4, U+b9f7, U+bafc, U+bb44, U+bc08, U+bc27, U+bc49, U+bc99, U+bcd5, U+bd59, U+be55, U+be64, U+be80, U+bea8, U+bed1, U+bed8, U+bee4-bee5, U+bfb0, U+bfc5, U+bfcd, U+c060, U+c0bf, U+c0f9, U+c167, U+c178, U+c204, U+c20f, U+c21f, U+c22f, U+c258, U+c298, U+c2ef, U+c314, U+c329, U+c388, U+c3dc, U+c4f1, U+c501, U+c50c, U+c58d, U+c597, U+c5b9, U+c5bd, U+c5ce, U+c5e5, U+c641, U+c648, U+c698, U+c69c, U+c6a7, U+c6c1, U+c73d, U+c9d6, U+c9ed, U+ca29, U+ca50, U+ca5c, U+ca61, U+ca84, U+cac0, U+cacc, U+cc39, U+cc3b, U+cc4c, U+ce89, U+ceac, U+cee5, U+cf65, U+cf85, U+d058, U+d0d4, U+d145, U+d22d, U+d325, U+d37d, U+d3ad, U+d5f7, U+d6d7, U+d769, U+d79b"
+    },
+    {
+      "id": "tail-09",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "fc0ac6d6ec3727068e6903ef59cc446262f9146825ab0f787d11f564d6ac880f",
+      "unicodeRange": "U+ac09-ac0a, U+ac17, U+ac1b, U+ac2c-ac2d, U+ac30, U+ac39, U+ac3c, U+ac4b, U+ac54, U+ac58, U+ac5c, U+ac7a, U+ac84-ac86, U+ac8a-ac8b, U+ac9d, U+aca1, U+acaf, U+acbb, U+acc8, U+accc, U+acd5, U+acd7, U+acea, U+acec, U+acef, U+ad06, U+ad0d, U+ad0f, U+ad18, U+ad20, U+ad29, U+ad2c-ad2d, U+ad35, U+ad38, U+ad3c, U+ad44-ad45, U+ad47, U+ad54, U+ad58, U+ad61, U+ad63, U+ad7b-ad7c, U+ad82, U+adc8, U+add3, U+ae14, U+ae6c, U+aec0, U+af48, U+afc7, U+afc9, U+b014, U+b01c, U+b028, U+b134-b135, U+b158, U+b2aa, U+b308, U+b311, U+b314, U+b31c, U+b35f, U+b524, U+b560, U+b6a4, U+b764, U+b920, U+b9cf, U+b9e3, U+bb63, U+bd48, U+be7d, U+be91, U+c0db, U+c231, U+c270, U+c29b, U+c2e3, U+c37d, U+c3ed, U+c3f4, U+c42c, U+c530, U+c573, U+c58f, U+c6a5, U+c6dc, U+c7a4, U+c7dd, U+c8f5, U+c954, U+c974, U+cad1, U+cad9, U+cc48, U+ccb5, U+cdcc, U+cf10, U+cf20, U+d000, U+d03c, U+d07d, U+d0e4, U+d143, U+d2a0, U+d30e, U+d320, U+d330, U+d38d, U+d3a8, U+d3c8, U+d54d, U+d565, U+d5e5, U+d5f9, U+d667, U+d6c5, U+d6e4, U+d79d"
+    },
+    {
+      "id": "tail-10",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "6d6687b0ae1a652f16a25f00497e46bf0c32d6b8cb3938b995c40a3055ab047c",
+      "unicodeRange": "U+ad89, U+ad9c-ad9d, U+adb7, U+adc1, U+add0-add1, U+adff, U+ae31, U+ae37, U+ae3a, U+ae46, U+ae56, U+ae5f-ae60, U+ae69, U+ae70, U+ae78-ae79, U+ae7b-ae7d, U+ae85, U+ae8c, U+aed0, U+aed9, U+aedc, U+aee8, U+aeeb, U+aeed, U+aef8, U+aefc, U+af07, U+af0d, U+af10, U+af30, U+af32, U+af3f, U+af50, U+af5c, U+af65, U+af79, U+af84, U+af88, U+af90-af91, U+af95, U+af9c, U+afcb, U+afce, U+afdc, U+afe9, U+aff1, U+aff4, U+aff8, U+b000-b001, U+b004, U+b01d, U+b045, U+b04e, U+b055, U+b059, U+b08d, U+b08f, U+b091, U+b09f, U+b0a2, U+b0c7, U+b0d1, U+b0d4, U+b0d8, U+b10b, U+b112, U+b119, U+b11c-b11d, U+b138, U+b148, U+b151, U+b15c, U+b160, U+b182, U+b189, U+b18b, U+b198, U+b19c, U+b1d0, U+b1d4, U+b1dc-b1dd, U+b1df, U+b1e9, U+b1ec, U+b1f0, U+b1f9, U+b1fb, U+b20b, U+b217, U+b219, U+b234, U+b23c, U+b25c, U+b260, U+b268-b269, U+b275, U+b27c, U+b285, U+b289, U+b29a, U+b2a1, U+b2a3, U+b2b0, U+b2b4, U+b2d2, U+b2e2, U+b2ef, U+b2f3, U+b2f8, U+b2fa-b2fb, U+b356, U+b35b, U+b35e, U+b36b, U+b381, U+b384"
+    },
+    {
+      "id": "tail-11",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "d1ed1edd3876a9d862a8f774efaf65f175cc8ddd0791a27d0f755d42963082ea",
+      "unicodeRange": "U+b390, U+b394, U+b3a0-b3a1, U+b3a8, U+b3ac, U+b3ce, U+b3d0, U+b3db, U+b3dd, U+b3e0, U+b3e4, U+b3e8, U+b42b, U+b434, U+b463, U+b488, U+b49d, U+b4a8, U+b4ac, U+b4b5, U+b4b9, U+b4c4, U+b4d0, U+b4d5, U+b4e6, U+b4f8, U+b528, U+b541, U+b543-b544, U+b54b, U+b54d, U+b554, U+b55d, U+b55f, U+b5aa-b5ab, U+b5b0-b5b1, U+b5b5, U+b5bd, U+b5c0, U+b5c4, U+b5cc-b5cd, U+b5cf-b5d1, U+b5d8, U+b5ec, U+b614, U+b62c, U+b634, U+b648, U+b664, U+b668, U+b6a0, U+b6ac, U+b6d4, U+b6f4, U+b6f8, U+b700-b701, U+b705, U+b739, U+b748, U+b74c, U+b754-b755, U+b768, U+b770-b771, U+b773, U+b792, U+b796, U+b7a0, U+b7b8, U+b7c7, U+b81d, U+b844, U+b851, U+b853, U+b878, U+b87c, U+b88d, U+b8a8, U+b8b4, U+b8b8, U+b8c0-b8c1, U+b8c3, U+b8c5, U+b8d0, U+b8d4, U+b8dd, U+b8df, U+b93d, U+b940, U+b944, U+b94c, U+b94f, U+b951, U+b969, U+b96b, U+b98a, U+b98d, U+b9d2, U+b9ec, U+b9f8, U+ba00-ba01, U+ba08, U+ba15, U+ba42, U+ba49, U+ba4e, U+ba53, U+ba65, U+ba68-ba69, U+ba71, U+ba83-ba84, U+ba8c, U+bab2, U+bac4, U+bac8"
+    },
+    {
+      "id": "tail-12",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "d3ef3ef9717400b490c846b03a7f7d4dd4dfdbca47fb8d949cdfd631a7256ea7",
+      "unicodeRange": "U+bad8-bad9, U+bb00, U+bb04, U+bb0d, U+bb0f, U+bb11, U+bb1c, U+bb20, U+bb29, U+bb2b, U+bb3d-bb3e, U+bb45, U+bb4d, U+bb4f, U+bb61, U+bb6c, U+bb88, U+bb8c, U+bb90, U+bba8, U+bbb4, U+bbb7, U+bbc4, U+bbc8, U+bbd0, U+bbd3, U+bc02, U+bc09, U+bc17, U+bc1e, U+bc41, U+bc44, U+bc4c-bc4d, U+bc50, U+bc5d, U+bc8b, U+bc8e, U+bca7, U+bcb0-bcb1, U+bcb4-bcb5, U+bccf-bcd0, U+bcd8, U+bcdc, U+bd14, U+bd2c, U+bd40, U+bd49, U+bd4c, U+bd50, U+bd58, U+bd64, U+bd68, U+bd87, U+bd8a, U+bd91, U+bd9a, U+bd9c, U+bda4, U+bdb0, U+bdb8, U+bdd5, U+bdd8, U+bddc, U+bde9, U+bdf4, U+bdf8, U+be00, U+be03, U+be05, U+be0d, U+be1c-be1d, U+be1f, U+be4e, U+be6a, U+be70-be71, U+be73-be74, U+be7b, U+be84, U+be8c-be8d, U+be90, U+be98-be99, U+bee0, U+bee3, U+beec, U+bf01, U+bf09, U+bf18-bf19, U+bf1b-bf1d, U+bf41, U+bf44, U+bf48, U+bf94, U+bfdf, U+bfe1, U+c03c, U+c051, U+c069, U+c091, U+c094, U+c098, U+c0a0-c0a1, U+c0a3, U+c0a5, U+c0af, U+c0b3, U+c0b5, U+c0c5, U+c0d9, U+c0dc, U+c0e5, U+c0e8, U+c104, U+c108"
+    },
+    {
+      "id": "tail-13",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "2eb1af7afa60ac218b60b33af223dbb1b3845ccc1157942943b4981871556f5f",
+      "unicodeRange": "U+c110, U+c115, U+c11f, U+c123, U+c126-c127, U+c136, U+c14c-c14d, U+c155, U+c164-c165, U+c169, U+c174, U+c185, U+c18e, U+c196, U+c19d, U+c1a8-c1a9, U+c1ac, U+c1b0, U+c1bd, U+c1c8, U+c1cc, U+c1d4, U+c1d7-c1d8, U+c1e4, U+c1e8, U+c1f0-c1f1, U+c1f3, U+c1fd, U+c200, U+c20c, U+c211, U+c229, U+c234, U+c248, U+c251, U+c254, U+c260, U+c265, U+c26d, U+c27f, U+c281, U+c289, U+c29d, U+c2a5, U+c2ad, U+c2fb, U+c309, U+c30c, U+c315, U+c318, U+c31c, U+c325, U+c328, U+c345, U+c372, U+c38c, U+c3c0, U+c3e2, U+c3e8-c3e9, U+c3f5, U+c3f8, U+c408, U+c410, U+c424, U+c430, U+c434, U+c43c-c43d, U+c448, U+c468, U+c46c, U+c474-c475, U+c479, U+c480, U+c494, U+c49c, U+c4b8, U+c4bc, U+c4e9, U+c4fa, U+c4ff, U+c510, U+c514, U+c51c, U+c538, U+c54d-c54e, U+c55d, U+c574, U+c595, U+c59c, U+c5a0, U+c5a9, U+c5be, U+c5ca, U+c5e1, U+c5f6-c5f7, U+c5fe, U+c605, U+c607, U+c60c, U+c618-c619, U+c61c, U+c62d, U+c630, U+c63b, U+c650-c651, U+c65d, U+c66c, U+c66f, U+c671, U+c679, U+c680, U+c688-c689, U+c68b, U+c68d"
+    },
+    {
+      "id": "tail-14",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "1c943bd58198e802d707f0e4dacf9ee720c73845253bbeb289d305502c0c698b",
+      "unicodeRange": "U+c6b9-c6ba, U+c6dd, U+c6e1, U+c6e9, U+c6f8, U+c6fd, U+c705, U+c714-c715, U+c730-c731, U+c733, U+c737, U+c74a, U+c74f, U+c752-c757, U+c75c, U+c760, U+c768, U+c76b, U+c77e, U+c797, U+c79a, U+c7b0, U+c7b4, U+c7bd, U+c7bf-c7c0, U+c7c9, U+c7cc, U+c7ce, U+c7d0, U+c7d8, U+c7e4, U+c7e8, U+c7ec, U+c82c-c82d, U+c831, U+c840, U+c848-c849, U+c84d, U+c854, U+c87a, U+c883, U+c887, U+c88d, U+c894, U+c89d, U+c89f, U+c8a1, U+c8a8, U+c8bc-c8bd, U+c8c8, U+c8cc, U+c8d4-c8d5, U+c8d7, U+c8d9, U+c8e1, U+c8e4, U+c905-c906, U+c90f, U+c934, U+c951, U+c958, U+c960-c961, U+c963, U+c970, U+c97c, U+c99b, U+c9c7, U+c9ca, U+c9e2, U+c9ef-c9f0, U+c9f9, U+c9fc, U+ca00, U+ca08-ca09, U+ca0b, U+ca0d, U+ca14, U+ca18, U+ca5d, U+ca5f-ca60, U+ca68, U+ca7d, U+ca98, U+cacd, U+cacf, U+cad8, U+cae0, U+caec, U+caf4, U+cb08, U+cb10, U+cb14, U+cb18, U+cb20-cb21, U+cb41, U+cb4c, U+cb50, U+cb58-cb59, U+cb5d, U+cb64, U+cb78-cb79, U+cb9c, U+cbb8, U+cbe7, U+cbe9, U+cc1d, U+cc27"
+    },
+    {
+      "id": "tail-15",
+      "priority": false,
+      "codePoints": 128,
+      "sha256": "6b3bbb1ae477a3f7f64fa57e737ca6f08101721b704e7dca58836d79d16dc890",
+      "unicodeRange": "U+cc3c, U+cc55, U+cc57-cc58, U+cc64, U+cc66, U+cc68, U+cc70, U+cc75, U+ccac, U+ccc4-ccc5, U+ccc7, U+ccc9, U+ccd4, U+ccec, U+ccf0, U+cd01, U+cd10, U+cd18-cd19, U+cd24, U+cd28, U+cd39, U+cd60, U+cd64, U+cd6c-cd6d, U+cd6f, U+cd71, U+cd88, U+cda7, U+cdd0, U+cdec, U+cdf0, U+cdf8-cdf9, U+cdfb, U+cdfd, U+ce08, U+ce0c, U+ce14, U+ce19, U+ce24, U+ce28, U+ce30-ce31, U+ce33, U+ce5f, U+ce61, U+ce85, U+ce87, U+ce91, U+cea4-cea5, U+cead, U+cec1, U+ceeb, U+cef9, U+cf01, U+cf11, U+cf15, U+cf24, U+cf2c-cf2d, U+cf2f, U+cf31, U+cf38, U+cf71, U+cf74, U+cf78, U+cf80, U+cfa1, U+cfa8, U+cfb0, U+cff0-cff1, U+cff3, U+d011, U+d02d, U+d044-d045, U+d047, U+d049, U+d054, U+d060, U+d06d, U+d081, U+d0c9, U+d0ef-d0f0, U+d0f8, U+d10d, U+d13a, U+d141, U+d144, U+d15f, U+d161, U+d168, U+d16c, U+d17c, U+d184, U+d1b3, U+d1ba, U+d1bc, U+d1c0, U+d1d8, U+d1f8, U+d207, U+d209, U+d210, U+d23d, U+d23f, U+d248, U+d25c, U+d264, U+d281, U+d284, U+d288, U+d290-d291, U+d295, U+d2a4, U+d2b1, U+d2bf, U+d2c2, U+d2c9, U+d2cb"
+    },
+    {
+      "id": "tail-16",
+      "priority": false,
+      "codePoints": 101,
+      "sha256": "3c359146a8e0f5fab0dd7bbd7d705b6f4618e26ec15df124cb94905cba843955",
+      "unicodeRange": "U+d2d4, U+d2d8, U+d2dc, U+d2e4-d2e5, U+d303, U+d316, U+d339, U+d33b-d33c, U+d344-d345, U+d38f-d390, U+d3a9, U+d3c4-d3c5, U+d3d8, U+d3e1, U+d3e3, U+d3fd, U+d3ff, U+d408, U+d41d, U+d440, U+d444, U+d460, U+d464, U+d46d, U+d46f, U+d47f, U+d482, U+d489, U+d494, U+d4a9, U+d4cc, U+d4d0, U+d4d4, U+d4dc, U+d4df, U+d4ec, U+d4f0, U+d4f8, U+d4fb, U+d4fd, U+d515, U+d517, U+d54c, U+d57c, U+d585, U+d590, U+d5d2, U+d5d9, U+d5f4-d5f5, U+d613, U+d620, U+d624, U+d62d, U+d645, U+d64b, U+d651, U+d670-d671, U+d674, U+d683, U+d685, U+d690, U+d694, U+d69d, U+d6ac, U+d6b0, U+d6b9, U+d6bb, U+d6d1, U+d6d9, U+d6e0, U+d6f0, U+d6f5, U+d6fd, U+d700, U+d704, U+d711, U+d719, U+d71c, U+d728, U+d72b, U+d72d, U+d735, U+d738, U+d73c, U+d744, U+d747, U+d756-d757, U+d763, U+d774, U+d77c-d77d, U+d781, U+d789"
+    }
+  ],
   "assets": [
     {
-      "id": "pretendard-variable",
+      "id": "pretendard-variable:common",
+      "faceId": "pretendard-variable",
+      "chunkId": "common",
       "family": "Pretendard Variable",
       "weight": "45 920",
       "style": "normal",
-      "path": "/fonts/korean/pretendard-variable-core.woff2",
-      "bytes": 444468,
-      "sha256": "84c6d59f26748f1bd6eb540638f4bff191efc608bc67ca0aa669c446fc88f932",
+      "path": "/fonts/korean/pretendard-variable-common.woff2",
+      "bytes": 97396,
+      "sha256": "9b94ed65613a2ac46b1877208ca03c711864c5c1c8f16780a5861677a857f5fb",
       "source": {
         "id": "pretendard-v1.3.9-official",
         "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
@@ -26,13 +159,271 @@
       }
     },
     {
-      "id": "nanum-myeongjo-700",
+      "id": "pretendard-variable:tail-01",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-01",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-01.woff2",
+      "bytes": 27584,
+      "sha256": "dbcd45bc157d082d2e045ca551da1050ed891c5f0799544fed106b64fd64adff",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-02",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-02",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-02.woff2",
+      "bytes": 28624,
+      "sha256": "6de9ea32ae022efa51f10b0e99c706d8b2e34fcfc32873831ee3875ca9cf3401",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-03",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-03",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-03.woff2",
+      "bytes": 28632,
+      "sha256": "19de125b597e7987b4bec4f454b78dd483e944a28493d4d2422d6e05b3d731c1",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-04",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-04",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-04.woff2",
+      "bytes": 29944,
+      "sha256": "881c3fdeb2d157a33e20b2478bd056cc385b8fdfbf5691c0027be5d934d931a4",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-05",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-05",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-05.woff2",
+      "bytes": 31552,
+      "sha256": "a5b21fb24de8ff6de7f393392157b031c06d26bde544c99f50a2a7776b4aa959",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-06",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-06",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-06.woff2",
+      "bytes": 30496,
+      "sha256": "f23f8bdbfbb37ed847c2b64546b274614274352ee36e8dfb271f717c0b7e5f56",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-07",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-07",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-07.woff2",
+      "bytes": 33852,
+      "sha256": "10ea24bc3f2ec6826ad201379c2f5ac3359f1703c21d9174b24261a5f5aff344",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-08",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-08",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-08.woff2",
+      "bytes": 32712,
+      "sha256": "aed55c5fb841f4cd37617599bd659a3ab2ce5a3ff6ed7fcc9b7a452aca442529",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-09",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-09",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-09.woff2",
+      "bytes": 34068,
+      "sha256": "8e65b30ee5e81e9df31edf4748dd69dd437406a986f425c5a2d8742d97e98503",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-10",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-10",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-10.woff2",
+      "bytes": 31468,
+      "sha256": "4ffd9a3e0b9cc894f17dadf5abfdeb3ba87ef39662d6a649d9600fa5fb3e2a26",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-11",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-11",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-11.woff2",
+      "bytes": 28952,
+      "sha256": "097cfde409fd6e43246af7c6a939a971c502e8e038746ccccb887be9693c3176",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-12",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-12",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-12.woff2",
+      "bytes": 23724,
+      "sha256": "769ee9165fe284c63eb77554febc4921160730f5c74a0d52204c35fc8e089b29",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-13",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-13",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-13.woff2",
+      "bytes": 37152,
+      "sha256": "1f8d0ff31efd7bac0ac563aeec5d1d0c3934806fe5316c0f9577ca0fc9833a1c",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-14",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-14",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-14.woff2",
+      "bytes": 38324,
+      "sha256": "32fe5035dcdb221604c9cff65416aaf486301a782520febff4e5f09a886cd411",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-15",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-15",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-15.woff2",
+      "bytes": 30188,
+      "sha256": "52177341975b58bfe884a8b861404b49a1d1028e6eddfda3979b022c15363ac1",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "pretendard-variable:tail-16",
+      "faceId": "pretendard-variable",
+      "chunkId": "tail-16",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-tail-16.woff2",
+      "bytes": 25308,
+      "sha256": "c76366fa12a9dc084add5306422fb780b631bbd9d2ffe6f07f3345da39704d22",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:common",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "common",
       "family": "Nanum Myeongjo",
       "weight": 700,
       "style": "normal",
-      "path": "/fonts/korean/nanum-myeongjo-700-core.woff2",
-      "bytes": 365544,
-      "sha256": "04bcb637d73c3a9e61329013f380c801c884ebd11a6c246c0787b047956b893d",
+      "path": "/fonts/korean/nanum-myeongjo-700-common.woff2",
+      "bytes": 78336,
+      "sha256": "b5097002ba9e1733a0dd136c429b8ebf6ebcd63af0919f9339efc39484450de1",
       "source": {
         "id": "nanum-myeongjo-official",
         "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
@@ -40,13 +431,271 @@
       }
     },
     {
-      "id": "nanum-myeongjo-800",
+      "id": "nanum-myeongjo-700:tail-01",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-01",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-01.woff2",
+      "bytes": 29304,
+      "sha256": "ad978a979216ddf3ff7a0b919d9bf0684a03d709e8528c8be88bc7d67669df07",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-02",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-02",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-02.woff2",
+      "bytes": 31200,
+      "sha256": "6e16ab65d4e3396fd3adf177e6b9ad426f12576390e07e6b84fa6bfdd6d47e0c",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-03",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-03",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-03.woff2",
+      "bytes": 30328,
+      "sha256": "1df24af3b8f55aff46cf89cf0aa71bcf7121aef04b88cc529c50c2101d4005d8",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-04",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-04",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-04.woff2",
+      "bytes": 33164,
+      "sha256": "cbabdcfbf7ad0f8a9d8a5bf9af6004fbfa5a5154e8d8924e4343874a0aad7a91",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-05",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-05",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-05.woff2",
+      "bytes": 33032,
+      "sha256": "b0222300b21789d7ab4387dd81f57746b3a82deb0e103ea5f8e82e3bd5fc5c9a",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-06",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-06",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-06.woff2",
+      "bytes": 33212,
+      "sha256": "0c01f5dc3d74d094ccfc0b3720e391ca842984608a9bf33787f314119e5d241b",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-07",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-07",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-07.woff2",
+      "bytes": 34004,
+      "sha256": "870fb1145d8b996ccc258409a786ab4d7540cb5d7feeac3af6a6fff0cb61af82",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-08",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-08",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-08.woff2",
+      "bytes": 34736,
+      "sha256": "ea37749d20c3b207a00da5ecb501b3c03a4c0b42ba3baeced89dd8840c274541",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-09",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-09",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-09.woff2",
+      "bytes": 33420,
+      "sha256": "74c67d65c30c8062ad45eb5299b7f41fcad4ee50c1d90a9e2032affbaadb1054",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-10",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-10",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-10.woff2",
+      "bytes": 29224,
+      "sha256": "34ba34473ed4652869c09b41e8ed701cb84dcf1426927f0d5c832fc9b4fa3e9d",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-11",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-11",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-11.woff2",
+      "bytes": 29408,
+      "sha256": "dd47721f1a03972e5fcbc18bd4f6a9d076bf582c799524dc60ad09a1a7b0d877",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-12",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-12",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-12.woff2",
+      "bytes": 31908,
+      "sha256": "53b7bce8f7c602f5f4e049612bacce349e32cae14bdd021814e08ca0e03629a0",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-13",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-13",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-13.woff2",
+      "bytes": 31316,
+      "sha256": "09f3994eef32e6f8d86413725670a827f63bad602c6e5de0322d734a652c2ddf",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-14",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-14",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-14.woff2",
+      "bytes": 31588,
+      "sha256": "11c4a23f75d118f227eacbde2b826774f3d4b4429b9a562a973d286c3731460b",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-15",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-15",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-15.woff2",
+      "bytes": 30380,
+      "sha256": "9616a3dc63741832b234ab9a4aebace8133895e5c26e492a5f43d80fd0359087",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700:tail-16",
+      "faceId": "nanum-myeongjo-700",
+      "chunkId": "tail-16",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-tail-16.woff2",
+      "bytes": 28404,
+      "sha256": "75d633a5dafa84bdb3d0d85516fc0226270dbf6eda0ad1cbcb34bf39daa88e2a",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:common",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "common",
       "family": "Nanum Myeongjo",
       "weight": 800,
       "style": "normal",
-      "path": "/fonts/korean/nanum-myeongjo-800-core.woff2",
-      "bytes": 474240,
-      "sha256": "a5ab1f3a27182bbe6042f0ef29e0ed5e4416669b89d56ccdf45eca85d9ef1a69",
+      "path": "/fonts/korean/nanum-myeongjo-800-common.woff2",
+      "bytes": 87696,
+      "sha256": "c3520e0f834a008134ab6f0e92e4b6be49273dcea061f2442abc44750af9fcad",
       "source": {
         "id": "nanum-myeongjo-official",
         "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
@@ -54,13 +703,271 @@
       }
     },
     {
-      "id": "noto-sans-kr-variable",
+      "id": "nanum-myeongjo-800:tail-01",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-01",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-01.woff2",
+      "bytes": 34496,
+      "sha256": "dfda951aa117e0259e3021cbf2c1751b6b1503011580b654d0c060c9deddcf37",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-02",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-02",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-02.woff2",
+      "bytes": 36632,
+      "sha256": "7a81d70b65345cac4d67235a76997166e2de4bbb44fdebd87ea45f2b31515033",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-03",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-03",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-03.woff2",
+      "bytes": 35900,
+      "sha256": "a531e2cec340ade5714df5d1ab940c5e30ddf1618d864e0aab099272ea8c7ea3",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-04",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-04",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-04.woff2",
+      "bytes": 38256,
+      "sha256": "05df66ad006e20f36fb907452bf88028c97f2591607dc5370aa2c3c80150ec1c",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-05",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-05",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-05.woff2",
+      "bytes": 37832,
+      "sha256": "317519650b89cfdac559777ede2d63c47e5aac65209919af261ce0d319fa2b51",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-06",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-06",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-06.woff2",
+      "bytes": 38884,
+      "sha256": "3646138ef1569fb9b4b77b0a1a93c02f15ef96d0c55ed71542711fb6ff6c7643",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-07",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-07",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-07.woff2",
+      "bytes": 39840,
+      "sha256": "6ba1430dea5f4b8ce70b97f7f694a468e231759c3775c4cc8ae5cbc91985d794",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-08",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-08",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-08.woff2",
+      "bytes": 40688,
+      "sha256": "cc959e5a345d99a52ca8f1ab8df19ec99983c4dd522ba09463f935fa22a50395",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-09",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-09",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-09.woff2",
+      "bytes": 39388,
+      "sha256": "5a634d9bc22a7eeebc67f68adbe30dd1e1889ce121d7e399fcfc0ed915042aba",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-10",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-10",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-10.woff2",
+      "bytes": 35176,
+      "sha256": "27578378b2c9575928292c258cb6ede13018b4190cc6866a8d881c96c1549fd8",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-11",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-11",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-11.woff2",
+      "bytes": 38280,
+      "sha256": "574f17d983fe1413763dd97e7faff54ca7ef6116933ecb5967dfd44b1d7e5391",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-12",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-12",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-12.woff2",
+      "bytes": 40616,
+      "sha256": "8c6a65a4aa6df165aad0ecfd170cb7d15f19d393baca05d0147dd0cce9e00faf",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-13",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-13",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-13.woff2",
+      "bytes": 38336,
+      "sha256": "7b99ff341f1726beff02704b6bf344bb84903e1c58a2852465e8401133deb2d8",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-14",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-14",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-14.woff2",
+      "bytes": 40232,
+      "sha256": "c8a018232bf7d910bd3f992b9f56deaa0ace70b7a8fecf9f28d7c8f13c5dc6f8",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-15",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-15",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-15.woff2",
+      "bytes": 37260,
+      "sha256": "a944f14c0aeac5fbf49029a531157a44ce6dd58f68c272846ed14ea21780432f",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800:tail-16",
+      "faceId": "nanum-myeongjo-800",
+      "chunkId": "tail-16",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-tail-16.woff2",
+      "bytes": 38036,
+      "sha256": "a231d1d62cce2a86c7432fbef6e26e334f0b420408ee5ade3cc3b4869bfe4e4b",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:common",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "common",
       "family": "Noto Sans KR",
       "weight": "100 900",
       "style": "normal",
-      "path": "/fonts/korean/noto-sans-kr-variable-core.woff2",
-      "bytes": 307828,
-      "sha256": "fa9d806dd4aedbfac5cfde7a2c54b046e024745cdaf802dc2091ca171f8c6f8e",
+      "path": "/fonts/korean/noto-sans-kr-variable-common.woff2",
+      "bytes": 90220,
+      "sha256": "5b5bcb035f95f457315a4a9ea62812457a4e6542001884487cd2e250f147668e",
       "source": {
         "id": "noto-sans-kr-official",
         "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
@@ -68,13 +975,271 @@
       }
     },
     {
-      "id": "gmarket-sans-500",
+      "id": "noto-sans-kr-variable:tail-01",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-01",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-01.woff2",
+      "bytes": 19108,
+      "sha256": "4f4b90df4fd75a38e35456f50c5b55ffe0c9d9f576af939b4847c23bc80f2b3c",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-02",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-02",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-02.woff2",
+      "bytes": 20036,
+      "sha256": "523d550a87887a28cc1dc45405ed7e6192fa4a9e4a9ef04863399738c2651216",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-03",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-03",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-03.woff2",
+      "bytes": 20068,
+      "sha256": "6b422c52ae6f44c51d0afd80b037c57cee36a36ec00dfe048d3b0466b4ad4a1b",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-04",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-04",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-04.woff2",
+      "bytes": 20996,
+      "sha256": "c87f1a9c4150284fea0772926100e8563f7858918d8ad2253a04fc07b1fb58ad",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-05",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-05",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-05.woff2",
+      "bytes": 22188,
+      "sha256": "d47a9ebe27ebdac6e5aabb9888dff615ad71d54b5af643b07983087831531444",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-06",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-06",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-06.woff2",
+      "bytes": 21440,
+      "sha256": "d2ac2459ddc8d38f401569e359bf70c3f76f4225f9f825344180665aee380def",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-07",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-07",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-07.woff2",
+      "bytes": 23436,
+      "sha256": "4a999359e1c58c262066e1772f7e9b0f738fc42473ff64979056ba59eebc92df",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-08",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-08",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-08.woff2",
+      "bytes": 22996,
+      "sha256": "eb7c38c2c49ce26228aceda527bd7a45d8658372fb8d9be388a1c89eef336850",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-09",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-09",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-09.woff2",
+      "bytes": 23664,
+      "sha256": "c1ca2e52c5478a06f56acc7859dc13ad98fa4e9ec50ab50c3e889d93bbb7b4fc",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-10",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-10",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-10.woff2",
+      "bytes": 21680,
+      "sha256": "e1b844493a9942446fd1696c4e65c54587b7a715e8481f3d641fbeaf3be54697",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-11",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-11",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-11.woff2",
+      "bytes": 19768,
+      "sha256": "16284d78f3ef518c0d070efc65403f2a5948824c72ee9793fd6ec1a69f215500",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-12",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-12",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-12.woff2",
+      "bytes": 16528,
+      "sha256": "5451d2ed9c35dcd2a7a8fab006cc95d0099e59882736fc7c67109852f284a9d8",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-13",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-13",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-13.woff2",
+      "bytes": 25000,
+      "sha256": "f3ea4b7394cd5e9aa4d689d3d83f37881b61ff2811aad90640371a31be2ebf16",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-14",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-14",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-14.woff2",
+      "bytes": 26280,
+      "sha256": "a4917305234984ab242b48d1ff1725190adb5bef2152adbc3274d3fbcdb8f355",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-15",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-15",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-15.woff2",
+      "bytes": 20544,
+      "sha256": "b774c3bd9991daa8654ae59ca607b0c564a57f4749bde63d4a7a21fe75242e6f",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable:tail-16",
+      "faceId": "noto-sans-kr-variable",
+      "chunkId": "tail-16",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-tail-16.woff2",
+      "bytes": 15928,
+      "sha256": "f4dabaeceb5e43101f589786e3f876a4975ff77dca341b11093def1903be3220",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:common",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "common",
       "family": "Gmarket Sans",
       "weight": 500,
       "style": "normal",
-      "path": "/fonts/korean/gmarket-sans-500-core.woff2",
-      "bytes": 246320,
-      "sha256": "46027bed09f356b7ac13c2e510a2984b2155d1e2be7b288bf7b0b22723a268a0",
+      "path": "/fonts/korean/gmarket-sans-500-common.woff2",
+      "bytes": 46768,
+      "sha256": "3a1aeb4dca28bf15f90f4391518cb091b9c604aaebf9fb5890286b0448d0e9d9",
       "source": {
         "id": "gmarket-sans-official",
         "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
@@ -83,13 +1248,287 @@
       }
     },
     {
-      "id": "gmarket-sans-700",
+      "id": "gmarket-sans-500:tail-01",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-01",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-01.woff2",
+      "bytes": 19312,
+      "sha256": "90aafff50f18e95f25db76c5e16fd615ccf22ac9e14aa660c548cbe18f57016c",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-02",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-02",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-02.woff2",
+      "bytes": 19812,
+      "sha256": "64ba86cef339c449af1cdf1b1d3732ff49bb32a310521a4b6fd932db5cc86bee",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-03",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-03",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-03.woff2",
+      "bytes": 19284,
+      "sha256": "4b9d1ea94214caaa6835f9d5de8dc6abd9d2449813bd360310decda13e9b300f",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-04",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-04",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-04.woff2",
+      "bytes": 20524,
+      "sha256": "d13ad7a76259193d627f1323c0d3d2b44d7cebbeec930810c600e1d2d084cf2a",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-05",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-05",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-05.woff2",
+      "bytes": 21092,
+      "sha256": "ef819c740bc780449832209d5ccdf2e6c7f86298d53034b77944628309868f96",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-06",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-06",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-06.woff2",
+      "bytes": 21200,
+      "sha256": "fb4780d446620e3fcd44beff8a6d497a1656a518a67e1f4a4d9e9e838b69d0b3",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-07",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-07",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-07.woff2",
+      "bytes": 22632,
+      "sha256": "ec31bc88f3f5bf752b3cc3ded61f48961a09aa71f444f55ee6500a488674a657",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-08",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-08",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-08.woff2",
+      "bytes": 21172,
+      "sha256": "4df040fa07799f65a7919053e14e68ebabe5de720d8d1060e14eb048141a43b5",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-09",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-09",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-09.woff2",
+      "bytes": 20848,
+      "sha256": "c7171249d8960a17154cd3626d38949b800034c49cd2d6956350a088c18fa6a0",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-10",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-10",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-10.woff2",
+      "bytes": 19156,
+      "sha256": "74b5f054dd03f86a8f3352ea6bf556ed8ee34b659adc101dfca03a2651c445e5",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-11",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-11",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-11.woff2",
+      "bytes": 21392,
+      "sha256": "935b4c78d57ffaa1acb48ecb8e4f9c55c01613389cca5b24d3f7fafdd849a582",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-12",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-12",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-12.woff2",
+      "bytes": 19020,
+      "sha256": "beea959aea575b9eadc4fd0a5d12d1e1d833b6db1151e03065d8700aacf77cd3",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-13",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-13",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-13.woff2",
+      "bytes": 21984,
+      "sha256": "7daa5e7052d4f0e5d3c7613c18d8cac9b0c9c35e117ad3a42ad4a17abbeea58e",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-14",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-14",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-14.woff2",
+      "bytes": 22084,
+      "sha256": "4d9f3b724ddad9bc50383fb2925582cb6cb854fe90d7c044e19cc372ec317705",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-15",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-15",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-15.woff2",
+      "bytes": 21684,
+      "sha256": "d5f2ff3e42b56018bb7f6c0352f4d15f874f9457078abcd6a9334fbedce8ee9f",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-500:tail-16",
+      "faceId": "gmarket-sans-500",
+      "chunkId": "tail-16",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-tail-16.woff2",
+      "bytes": 22340,
+      "sha256": "2256450500bc849da4e1146b0609fd63e44936c94a543c0131feb91f0215dd97",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:common",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "common",
       "family": "Gmarket Sans",
       "weight": 700,
       "style": "normal",
-      "path": "/fonts/korean/gmarket-sans-700-core.woff2",
-      "bytes": 309348,
-      "sha256": "4d9f4603b2cff50669d6f92ba6084cf3cc1555656b91492c0009e65357361592",
+      "path": "/fonts/korean/gmarket-sans-700-common.woff2",
+      "bytes": 52224,
+      "sha256": "445a47d313c5419a805299dc46f951474811faa4a55a7857665dae5a63d317dc",
       "source": {
         "id": "gmarket-sans-official",
         "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
@@ -98,13 +1537,287 @@
       }
     },
     {
-      "id": "nanum-square-round-700",
+      "id": "gmarket-sans-700:tail-01",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-01",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-01.woff2",
+      "bytes": 22644,
+      "sha256": "82367c2ec3bb4e2f4765d893feaeec42fe7f952b1af56b3215f18288e6297860",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-02",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-02",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-02.woff2",
+      "bytes": 23944,
+      "sha256": "151c7e947a71520ebc55d91c626d5f1c02cb65675fb556bb2b2070a19c046da1",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-03",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-03",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-03.woff2",
+      "bytes": 23160,
+      "sha256": "1338dfc1dccbe7d59b521ae9aa494e96cb783f42d11df46bf765861bfd856e9f",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-04",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-04",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-04.woff2",
+      "bytes": 24772,
+      "sha256": "7e733397e497aeb82a98c0a2ba73bc71892deb9b632b41565bdecb8dd5253ee1",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-05",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-05",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-05.woff2",
+      "bytes": 24672,
+      "sha256": "20358c72677aea8cace5cf808775c1b830d9208bf6112e5e9dab4cd9bc78ab76",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-06",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-06",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-06.woff2",
+      "bytes": 25320,
+      "sha256": "b0e0de8dffba2094c1252e936f1cd1bb42142fe3c60f2e639ab8aa29a8c10065",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-07",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-07",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-07.woff2",
+      "bytes": 26936,
+      "sha256": "5bf03022a1b0f51c656fd4b67e076b217f1dd8aecc94a770e2945ff4daf0edac",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-08",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-08",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-08.woff2",
+      "bytes": 25296,
+      "sha256": "d86ef07763b4a92ffb7d21cc60a24d09f4eda1a29c917ff4f9568469af28ed71",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-09",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-09",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-09.woff2",
+      "bytes": 25348,
+      "sha256": "86a79adb1a00ca144db6f0d039275588a52c682cd9eba5a1f90a764c1326415c",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-10",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-10",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-10.woff2",
+      "bytes": 22924,
+      "sha256": "83f658b6938f0c1b3ed826269cb520dffc4cbaf995bcec52724db20c3611a20c",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-11",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-11",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-11.woff2",
+      "bytes": 23720,
+      "sha256": "58718639c386a56a1bed340eae828ea55b1ded8b43d8b0e729d1c60ea1847c9e",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-12",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-12",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-12.woff2",
+      "bytes": 23800,
+      "sha256": "7e30b3ed8ea9f0929ea6a754a02ba197c53153891e74d954a1b523162764a22c",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-13",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-13",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-13.woff2",
+      "bytes": 27456,
+      "sha256": "1e2f3748a8eb6b1f4c6f16e84014037e81b5609be9a34bea1c5cacf7d1b31a26",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-14",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-14",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-14.woff2",
+      "bytes": 29432,
+      "sha256": "255a788674da0e4ff258ca46071cb54cf034553172ed8e26dd9fdea0dc82371e",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-15",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-15",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-15.woff2",
+      "bytes": 30060,
+      "sha256": "8d6cdb3b9f24503f03dd14b0bd9c0b2cf528cbb0745a69823a1f074a2254cb59",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700:tail-16",
+      "faceId": "gmarket-sans-700",
+      "chunkId": "tail-16",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-tail-16.woff2",
+      "bytes": 28156,
+      "sha256": "a6386b4ce72cce184f2e29b8404ad8f64b21f0d1857524f5a57ac03ea9384ea4",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:common",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "common",
       "family": "NanumSquareRound",
       "weight": 700,
       "style": "normal",
-      "path": "/fonts/korean/nanum-square-round-700-core.woff2",
-      "bytes": 160492,
-      "sha256": "7385faa1dcedee1925768bf0b72873156018355529a7aebb1dd2d3cfe73f289e",
+      "path": "/fonts/korean/nanum-square-round-700-common.woff2",
+      "bytes": 56232,
+      "sha256": "5593a55b265d822afbbbb56fa1916014bb3510a414ab4269f8a99ea1279a71d1",
       "source": {
         "id": "nanum-square-round-official",
         "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
@@ -112,13 +1825,527 @@
       }
     },
     {
-      "id": "nanum-square-round-800",
+      "id": "nanum-square-round-700:tail-01",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-01",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-01.woff2",
+      "bytes": 19404,
+      "sha256": "3aa68cd158f084b9776f3867f415d5032a36a30093d85ea8450f450a6946c86d",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-02",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-02",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-02.woff2",
+      "bytes": 20508,
+      "sha256": "b842ea50c5e47a1d5f1fc8a3bb49b21239484631a83962751ff299a9c01ad5b4",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-03",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-03",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-03.woff2",
+      "bytes": 20028,
+      "sha256": "f9a8a85fb2eaed173df3ab8f5db48e04faa6d5023b65aecd7facbc75574c63c3",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-04",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-04",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-04.woff2",
+      "bytes": 21024,
+      "sha256": "ea23e8bacb34af4a96a773b26c701a75328560c3dceecfa1643a50f7f25c9a36",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-05",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-05",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-05.woff2",
+      "bytes": 23016,
+      "sha256": "432c93394064c7a7c79f9ef920225109c0ed094d94149abe50024eb7a5e9aa5c",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-06",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-06",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-06.woff2",
+      "bytes": 22368,
+      "sha256": "bc4606b8b1528fb7edec6c8d2b0c7fb52b2be39f285ae4930224ffb35da1f064",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-07",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-07",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-07.woff2",
+      "bytes": 24068,
+      "sha256": "1410868f280c5461c33a93d47603a042a33a700d9b3587e087d6ef672f197c5d",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-08",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-08",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-08.woff2",
+      "bytes": 23336,
+      "sha256": "7a4fe5dec87fddc5f3becf9a54d861091a0c4b34b87e74ac97a94fed21aaa760",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-09",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-09",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-09.woff2",
+      "bytes": 22860,
+      "sha256": "bc258044d1aaaecd03515be8b62e387cf6d69c9b9c395e6b3803fc856be97d0e",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-10",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-10",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-10.woff2",
+      "bytes": 19384,
+      "sha256": "a93e993a85eb3c71f4f9b8a726436ee4ac599f56ba133e4cd70e8429e0c0979d",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-11",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-11",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-11.woff2",
+      "bytes": 20084,
+      "sha256": "f6070011d392d537bf5126523430ee8a03338a259091652940ca133ac10aa256",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-12",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-12",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-12.woff2",
+      "bytes": 18412,
+      "sha256": "723455b8ae86d98177accf9bbc23db0011b203216e866a0158193d4f65189b8e",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-13",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-13",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-13.woff2",
+      "bytes": 20900,
+      "sha256": "82f360798509c47881ba1dd91dda6fa5bb2bbc9e3692fc5b04000e0b632f5b97",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-14",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-14",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-14.woff2",
+      "bytes": 21916,
+      "sha256": "8417c342d603c5815b4d7f494c3a90a103fc01892e8b86ac07ac144192cbbca6",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-15",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-15",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-15.woff2",
+      "bytes": 20616,
+      "sha256": "268f11c4b8b33e43084a6b7f8d4caa83239c7620f62ed527f40a9e18f0008979",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-700:tail-16",
+      "faceId": "nanum-square-round-700",
+      "chunkId": "tail-16",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-tail-16.woff2",
+      "bytes": 17976,
+      "sha256": "6ee9eaf21c523163f0aa1ae1db420bc87a8f729bac1edfbf062337fc4df5b198",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:common",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "common",
       "family": "NanumSquareRound",
       "weight": 800,
       "style": "normal",
-      "path": "/fonts/korean/nanum-square-round-800-core.woff2",
-      "bytes": 155416,
-      "sha256": "dca833c40f744f7a2889b05118e01de4eb453510722766ecec909fc97b8b50f8",
+      "path": "/fonts/korean/nanum-square-round-800-common.woff2",
+      "bytes": 54496,
+      "sha256": "0b817211266ce9c46c15163863ba50333defcb76ef9d2aa41f5d532d12d9945f",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-01",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-01",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-01.woff2",
+      "bytes": 19484,
+      "sha256": "b8dc14cf939f7f1ef0658c3a7c01e425dfdaffceb05ca8828abb3a23e8fa9528",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-02",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-02",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-02.woff2",
+      "bytes": 20860,
+      "sha256": "829045082cfb80ec5c68d0ca7298f8a3f6034eb168913e540b15077270f82290",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-03",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-03",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-03.woff2",
+      "bytes": 20164,
+      "sha256": "ddbfa7af94fb7bdf5a1a31e43adc40b4e5973ad52181c96369f844b776b1c8e7",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-04",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-04",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-04.woff2",
+      "bytes": 20988,
+      "sha256": "121bce446939d1a1be8f6395e8a3f46b175c3d69e2bd198b7bc65a4ca21307bd",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-05",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-05",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-05.woff2",
+      "bytes": 23176,
+      "sha256": "e83f963d9451cdc17156982dbec11515f527f8406408a18fdfa69023ec6176b0",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-06",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-06",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-06.woff2",
+      "bytes": 22388,
+      "sha256": "89b8027333474239464b1c945c3276e08951e738fff2d2af2f62b06a689b8224",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-07",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-07",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-07.woff2",
+      "bytes": 24408,
+      "sha256": "4935d41376ea08738b9c54448d3628b037e7c1be5fdcaeec8ff03d310cc66bca",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-08",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-08",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-08.woff2",
+      "bytes": 23368,
+      "sha256": "23852cfba456228b7d46eaddf2934a1849a8be8700f886af92e01c1591aeeacb",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-09",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-09",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-09.woff2",
+      "bytes": 22504,
+      "sha256": "fd2df74dbc8a4ca72325903e409f26fd23b378144ee9559d92b45a766ff2db28",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-10",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-10",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-10.woff2",
+      "bytes": 18920,
+      "sha256": "2acae548828069e71cae3ec4a23dec370815e4f206a668f2fdd43c579f0e7c53",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-11",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-11",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-11.woff2",
+      "bytes": 19500,
+      "sha256": "2a6575dfcefa410ea54edfba7c719f6e3057c8a5607959de8a709673ca208f69",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-12",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-12",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-12.woff2",
+      "bytes": 18116,
+      "sha256": "64453075cf67b3272f59888680ed834175ac7beeb2e08351717db2628466b6bf",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-13",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-13",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-13.woff2",
+      "bytes": 20772,
+      "sha256": "bd0ddb63a51f0943ff1995d22b255489fbcaf2c6a861190631db3a0ac999acc4",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-14",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-14",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-14.woff2",
+      "bytes": 21556,
+      "sha256": "33d97b9184ac58d421ee3a4e2fe26b167631f90edbe50deb72ff12710bb7abfd",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-15",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-15",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-15.woff2",
+      "bytes": 20816,
+      "sha256": "af38ffe1b5b10465534a74a67af8f285b36efcebeb9da281cee1db7a00fb57df",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    },
+    {
+      "id": "nanum-square-round-800:tail-16",
+      "faceId": "nanum-square-round-800",
+      "chunkId": "tail-16",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-tail-16.woff2",
+      "bytes": 17872,
+      "sha256": "ff2f3185ab8030725dff81fd9f488d48d9d5fb67d23aff7f7a63a7998eff7acb",
       "source": {
         "id": "nanum-square-round-official",
         "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",

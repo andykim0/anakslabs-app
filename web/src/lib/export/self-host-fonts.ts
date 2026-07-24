@@ -13,7 +13,7 @@ import { readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { SiteConfig } from '@/lib/types/site';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
-import { fontPairingResources } from '@/lib/fonts/resources';
+import { fontPairingResourcesForText } from '@/lib/fonts/resources';
 
 export interface SelfHostedFonts {
   /** 인라인할 @font-face CSS (url()이 assets/fonts/로 재작성됨). 실패 시 '' */
@@ -80,7 +80,7 @@ async function inlineCssFonts(
 export async function selfHostFonts(config: SiteConfig): Promise<SelfHostedFonts> {
   const fontAssets = new Map<string, Buffer>();
   const warnings: string[] = [];
-  const pinned = fontPairingResources(config.theme);
+  const pinned = fontPairingResourcesForText(config.theme, JSON.stringify(config));
   if (pinned) {
     try {
       let fontFaceCss = pinned.css;

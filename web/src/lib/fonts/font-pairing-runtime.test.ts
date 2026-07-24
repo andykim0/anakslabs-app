@@ -107,8 +107,9 @@ describe('FNT F3 — 신규 생성 선택·pin 배선', () => {
     assert.equal(resources.id, 'kr-nanum-myeongjo-readable');
     assert.equal(resources.familyCount, 2);
     assert.equal(resources.faceCount, 3);
-    assert.equal((resources.css.match(/@font-face/gu) ?? []).length, 3);
-    assert.equal((resources.css.match(/font-display:optional/gu) ?? []).length, 3);
+    assert.equal((resources.css.match(/@font-face/gu) ?? []).length, resources.assets.length);
+    assert.equal((resources.css.match(/font-display:optional/gu) ?? []).length, resources.assets.length);
+    assert.equal((resources.css.match(/unicode-range:/gu) ?? []).length, resources.assets.length);
     assert.doesNotMatch(resources.css, /fonts\.googleapis|cdn\.jsdelivr|preload/iu);
   });
 

@@ -9,6 +9,8 @@ import {
 
 interface FontAsset {
   id: string;
+  faceId: string;
+  chunkId: string;
   family: string;
   weight: number | string;
   style: 'normal';
@@ -17,9 +19,18 @@ interface FontAsset {
   sha256: string;
 }
 
-const FONT_ASSETS = fontAssetManifest.assets as readonly FontAsset[];
+interface FontChunk {
+  id: string;
+  priority: boolean;
+  codePoints: number;
+  sha256: string;
+  unicodeRange: string;
+}
 
-const PAIRING_ASSET_IDS = {
+const FONT_ASSETS = fontAssetManifest.assets as readonly FontAsset[];
+const FONT_CHUNKS = fontAssetManifest.chunks as readonly FontChunk[];
+
+const PAIRING_FACE_IDS = {
   'kr-pretendard-neutral': ['pretendard-variable'],
   'kr-nanum-myeongjo-readable': [
     'nanum-myeongjo-700',
@@ -44,6 +55,7 @@ export interface FontPairingResources {
   assets: readonly FontAsset[];
   familyCount: number;
   faceCount: number;
+  chunkCount: number;
   bytes: number;
 }
 
@@ -67,29 +79,86 @@ function typographyCss(id: ProductionKoreanFontPairId): string {
   ].join('');
 }
 
-export function fontPairingResources(theme: SiteTheme): FontPairingResources | null {
+function chunkCss(asset: FontAsset): string {
+  const chunk = FONT_CHUNKS.find((candidate) => candidate.id === asset.chunkId);
+  if (!chunk) throw new Error(`Unknown Korean font chunk: ${asset.chunkId}`);
+  return (
+    `@font-face{font-family:"${cssString(asset.family)}";src:url("${cssString(asset.path)}") format("woff2");`
+    + `font-style:${asset.style};font-weight:${asset.weight};font-display:optional;unicode-range:${chunk.unicodeRange};}`
+  );
+}
+
+function resourcesFor(
+  theme: SiteTheme,
+  selectedChunks: ReadonlySet<string> | null,
+): FontPairingResources | null {
   const id = theme.fontPairing?.id;
   if (!id) return null;
-  const assetIds = PAIRING_ASSET_IDS[id];
-  const assets = assetIds.map((assetId) => FONT_ASSETS.find((asset) => asset.id === assetId));
-  if (assets.some((asset) => !asset)) return null;
-  const resolved = assets as FontAsset[];
-  const faces = resolved.map((asset) => (
-    `@font-face{font-family:"${cssString(asset.family)}";src:url("${cssString(asset.path)}") format("woff2");font-style:${asset.style};font-weight:${asset.weight};font-display:optional;}`
+  const faceIds = PAIRING_FACE_IDS[id];
+  const assets = FONT_ASSETS.filter((asset) => (
+    (faceIds as readonly string[]).includes(asset.faceId)
+    && (!selectedChunks || selectedChunks.has(asset.chunkId))
   ));
+  const faceCount = new Set(assets.map((asset) => asset.faceId)).size;
+  if (faceCount !== faceIds.length) return null;
   return {
     id,
-    css: `${faces.join('')}${typographyCss(id)}`,
-    assets: resolved,
-    familyCount: new Set(resolved.map((asset) => asset.family)).size,
-    faceCount: resolved.length,
-    bytes: resolved.reduce((sum, asset) => sum + asset.bytes, 0),
+    css: `${assets.map(chunkCss).join('')}${typographyCss(id)}`,
+    assets,
+    familyCount: new Set(assets.map((asset) => asset.family)).size,
+    faceCount,
+    chunkCount: new Set(assets.map((asset) => asset.chunkId)).size,
+    bytes: assets.reduce((sum, asset) => sum + asset.bytes, 0),
   };
 }
 
+export function fontPairingResources(theme: SiteTheme): FontPairingResources | null {
+  return resourcesFor(theme, null);
+}
+
+function codePointsInRange(unicodeRange: string): Set<number> {
+  const output = new Set<number>();
+  for (const token of unicodeRange.split(/,\s*/u)) {
+    const match = /^U\+([0-9a-f]+)(?:-([0-9a-f]+))?$/iu.exec(token.trim());
+    if (!match) continue;
+    const start = Number.parseInt(match[1], 16);
+    const end = Number.parseInt(match[2] ?? match[1], 16);
+    for (let codePoint = start; codePoint <= end; codePoint += 1) output.add(codePoint);
+  }
+  return output;
+}
+
+const CHUNK_CODE_POINTS = new Map(
+  FONT_CHUNKS.map((chunk) => [chunk.id, codePointsInRange(chunk.unicodeRange)]),
+);
+
+/**
+ * Static export projection: the common first-paint chunk is always retained for renderer-owned
+ * labels, while tail chunks are copied only when the site's actual text intersects their range.
+ */
+export function fontPairingResourcesForText(
+  theme: SiteTheme,
+  text: string,
+): FontPairingResources | null {
+  const codePoints = new Set([...text].map((character) => character.codePointAt(0)!));
+  const selectedChunks = new Set(
+    FONT_CHUNKS
+      .filter((chunk) => (
+        chunk.priority
+        || [...(CHUNK_CODE_POINTS.get(chunk.id) ?? [])].some((codePoint) => codePoints.has(codePoint))
+      ))
+      .map((chunk) => chunk.id),
+  );
+  return resourcesFor(theme, selectedChunks);
+}
+
 export function fontPairingAssetsAvailable(id: ProductionKoreanFontPairId): boolean {
-  const assetIds = PAIRING_ASSET_IDS[id];
-  return assetIds.every((assetId) => FONT_ASSETS.some((asset) => asset.id === assetId));
+  const faceIds = PAIRING_FACE_IDS[id];
+  return faceIds.every((faceId) => (
+    FONT_CHUNKS.every((chunk) => (
+      FONT_ASSETS.some((asset) => asset.faceId === faceId && asset.chunkId === chunk.id)
+    ))
+  ));
 }
 
 export function fontRoleForTextElement(

@@ -43,7 +43,6 @@ interface FaceSpec {
   family: string;
   weight: number | string;
   style: 'normal';
-  output: string;
 }
 
 const SOURCES = {
@@ -91,6 +90,12 @@ const SOURCES = {
   },
 } as const satisfies Record<string, SourceSpec>;
 
+const DYNAMIC_PARTITION_SOURCE = {
+  id: 'pretendard-v1.3.9-official',
+  url: 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css',
+  sha256: '2973bcae80262dcb630cfb793fbf6af29bd986c769ee54953fb3e5b3e32323ca',
+} as const satisfies SourceSpec;
+
 const FACES: readonly FaceSpec[] = [
   {
     id: 'pretendard-variable',
@@ -98,7 +103,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Pretendard Variable',
     weight: '45 920',
     style: 'normal',
-    output: 'pretendard-variable-core.woff2',
   },
   {
     id: 'nanum-myeongjo-700',
@@ -106,7 +110,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Nanum Myeongjo',
     weight: 700,
     style: 'normal',
-    output: 'nanum-myeongjo-700-core.woff2',
   },
   {
     id: 'nanum-myeongjo-800',
@@ -114,7 +117,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Nanum Myeongjo',
     weight: 800,
     style: 'normal',
-    output: 'nanum-myeongjo-800-core.woff2',
   },
   {
     id: 'noto-sans-kr-variable',
@@ -122,7 +124,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Noto Sans KR',
     weight: '100 900',
     style: 'normal',
-    output: 'noto-sans-kr-variable-core.woff2',
   },
   {
     id: 'gmarket-sans-500',
@@ -130,7 +131,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Gmarket Sans',
     weight: 500,
     style: 'normal',
-    output: 'gmarket-sans-500-core.woff2',
   },
   {
     id: 'gmarket-sans-700',
@@ -138,7 +138,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'Gmarket Sans',
     weight: 700,
     style: 'normal',
-    output: 'gmarket-sans-700-core.woff2',
   },
   {
     id: 'nanum-square-round-700',
@@ -146,7 +145,6 @@ const FACES: readonly FaceSpec[] = [
     family: 'NanumSquareRound',
     weight: 700,
     style: 'normal',
-    output: 'nanum-square-round-700-core.woff2',
   },
   {
     id: 'nanum-square-round-800',
@@ -154,9 +152,37 @@ const FACES: readonly FaceSpec[] = [
     family: 'NanumSquareRound',
     weight: 800,
     style: 'normal',
-    output: 'nanum-square-round-800-core.woff2',
   },
 ] as const;
+
+interface FontChunk {
+  id: string;
+  characters: string;
+  unicodeRange: string;
+  priority: boolean;
+}
+
+const PRIORITY_RANKED_CODE_POINTS = 384;
+const TAIL_CHUNK_CODE_POINTS = 128;
+
+/**
+ * Pinned, representative Korean small-business UI/editorial corpus. It promotes the characters
+ * most likely to appear above the fold into one small request. It is not customer copy and never
+ * enters the generated site.
+ */
+const COMMON_SITE_CORPUS = `
+홈 첫 화면 소개 브랜드 스토리 가치 철학 메뉴 서비스 상품 가격 갤러리 자주 묻는 질문 답변
+오시는 길 문의 예약 전화 주소 영업시간 주차 결제 접근성 반려동물 와이파이 대표 강점 과정
+구성원 사례 실적 자격 경력 수상 후기 이용 안내 자세히 보기 방문 전에 확인하기 지금 상담하기
+신청하기 더 알아보기 사장님 고객 손님 가게 매장 공간 제품 사람 사진 공식 정보 검색 지역
+편안한 따뜻한 차분한 명료한 친근한 전문적인 신뢰할 수 있는 경험을 전합니다 필요한 내용을
+한눈에 읽고 다음 행동을 고를 수 있도록 안내합니다 머무는 순간이 차분한 기억으로 이어지도록
+읽기 편한 순서로 필요한 안내를 전합니다 제목은 짧고 분명하게 긴 설명은 여유 있는 행간으로
+정리합니다 한글 낱말이 중간에서 어색하게 끊기지 않고 작은 화면에서도 가장자리에 닿지 않습니다
+카페 식당 음식점 미용실 병원 의원 치과 법률 세무 회계 공방 학원 교육 리테일 포트폴리오 회사
+다이닝 클래스 예약 가능 쉬는 날 운영 시간 네이버 구글 인스타그램 오브제 마켓 살롱 고요한 잔
+바른결 온결
+`;
 
 function sha256(bytes: Uint8Array): string {
   return createHash('sha256').update(bytes).digest('hex');
@@ -185,6 +211,91 @@ export function coreCharacterSet(): string {
   const ascii = Array.from({ length: 95 }, (_, index) => String.fromCodePoint(0x20 + index)).join('');
   const punctuation = '·—–“”‘’…〈〉《》「」『』【】㈜₩℃㎡×→←↑↓○●✓';
   return `${ascii}${punctuation}${ksX1001Hangul()}`;
+}
+
+function charactersFromUnicodeRange(value: string): string {
+  const characters: string[] = [];
+  for (const token of value.split(/,\s*/u)) {
+    const match = /^U\+([0-9a-f]+)(?:-([0-9a-f]+))?$/iu.exec(token.trim());
+    if (!match) continue;
+    const start = Number.parseInt(match[1], 16);
+    const end = Number.parseInt(match[2] ?? match[1], 16);
+    for (let codePoint = start; codePoint <= end; codePoint += 1) {
+      characters.push(String.fromCodePoint(codePoint));
+    }
+  }
+  return characters.join('');
+}
+
+function unicodeRangeFor(characters: string): string {
+  const codePoints = [...new Set([...characters].map((character) => character.codePointAt(0)!))]
+    .sort((left, right) => left - right);
+  const ranges: string[] = [];
+  for (let index = 0; index < codePoints.length;) {
+    const start = codePoints[index];
+    let end = start;
+    while (codePoints[index + 1] === end + 1) {
+      index += 1;
+      end = codePoints[index];
+    }
+    ranges.push(start === end
+      ? `U+${start.toString(16)}`
+      : `U+${start.toString(16)}-${end.toString(16)}`);
+    index += 1;
+  }
+  return ranges.join(', ');
+}
+
+function frequencyRankedCharacters(dynamicSubsetCss: string): string {
+  const blocks = [...dynamicSubsetCss.matchAll(
+    /\/\* \[(\d+)\] \*\/[\s\S]*?unicode-range:\s*([^;]+);/gu,
+  )]
+    .map((match) => ({
+      index: Number.parseInt(match[1], 10),
+      characters: charactersFromUnicodeRange(match[2]),
+    }))
+    .sort((left, right) => right.index - left.index);
+  if (blocks.length !== 92) {
+    throw new Error(`Pretendard dynamic partition must contain 92 chunks, got ${blocks.length}`);
+  }
+  return [...new Set(blocks.flatMap((block) => [...block.characters]))].join('');
+}
+
+function buildFontChunks(dynamicSubsetCss: string, coreText: string): FontChunk[] {
+  const core = new Set([...coreText]);
+  const ranked = [...frequencyRankedCharacters(dynamicSubsetCss)]
+    .filter((character) => core.has(character));
+  const rankedSet = new Set(ranked);
+  const stableRemainder = [...coreText]
+    .filter((character) => !rankedSet.has(character))
+    .sort((left, right) => left.codePointAt(0)! - right.codePointAt(0)!);
+  const completeRanking = [...ranked, ...stableRemainder];
+  const priorityCharacters = new Set([
+    ...completeRanking.slice(0, PRIORITY_RANKED_CODE_POINTS),
+    ...[...COMMON_SITE_CORPUS].filter((character) => core.has(character)),
+    ...[...coreText].filter((character) => !/[\uac00-\ud7a3]/u.test(character)),
+  ]);
+  const remaining = completeRanking.filter((character) => !priorityCharacters.has(character));
+  const chunks: FontChunk[] = [{
+    id: 'common',
+    characters: [...priorityCharacters].join(''),
+    unicodeRange: unicodeRangeFor([...priorityCharacters].join('')),
+    priority: true,
+  }];
+  for (let index = 0; index < remaining.length; index += TAIL_CHUNK_CODE_POINTS) {
+    const characters = remaining.slice(index, index + TAIL_CHUNK_CODE_POINTS).join('');
+    chunks.push({
+      id: `tail-${String(index / TAIL_CHUNK_CODE_POINTS + 1).padStart(2, '0')}`,
+      characters,
+      unicodeRange: unicodeRangeFor(characters),
+      priority: false,
+    });
+  }
+  const assigned = new Set(chunks.flatMap((chunk) => [...chunk.characters]));
+  if (assigned.size !== core.size || [...core].some((character) => !assigned.has(character))) {
+    throw new Error('Unicode-range chunks must cover the complete core character set exactly once');
+  }
+  return chunks;
 }
 
 async function download(source: SourceSpec, directory: string): Promise<Buffer> {
@@ -216,43 +327,86 @@ async function main() {
   const text = coreCharacterSet();
   if (ksX1001Hangul().length !== 2350) throw new Error('KS X 1001 Hangul set must contain 2,350 characters');
 
+  let previousAssetPaths: string[] = [];
+  try {
+    const previous = JSON.parse(
+      await readFile(join(OUTPUT_DIR, 'font-assets.json'), 'utf8'),
+    ) as { assets?: { path?: string }[] };
+    previousAssetPaths = (previous.assets ?? [])
+      .map((asset) => asset.path)
+      .filter((path): path is string => typeof path === 'string');
+  } catch {
+    // First generation has no prior manifest.
+  }
   const assets = [];
   try {
+    const dynamicSubsetCss = (
+      await download(DYNAMIC_PARTITION_SOURCE, sourceCache)
+    ).toString('utf8');
+    const chunks = buildFontChunks(dynamicSubsetCss, text);
     for (const face of FACES) {
       const source = await download(face.source, sourceCache);
-      const first = Buffer.from(await subsetFont(source, text, { targetFormat: 'woff2' }));
-      const second = Buffer.from(await subsetFont(source, text, { targetFormat: 'woff2' }));
-      if (sha256(first) !== sha256(second)) {
-        throw new Error(`Non-deterministic subset output: ${face.id}`);
+      for (const chunk of chunks) {
+        const first = Buffer.from(await subsetFont(source, chunk.characters, { targetFormat: 'woff2' }));
+        const second = Buffer.from(await subsetFont(source, chunk.characters, { targetFormat: 'woff2' }));
+        if (sha256(first) !== sha256(second)) {
+          throw new Error(`Non-deterministic subset output: ${face.id}/${chunk.id}`);
+        }
+        const output = `${face.id}-${chunk.id}.woff2`;
+        await writeFile(join(OUTPUT_DIR, output), first);
+        assets.push({
+          id: `${face.id}:${chunk.id}`,
+          faceId: face.id,
+          chunkId: chunk.id,
+          family: face.family,
+          weight: face.weight,
+          style: face.style,
+          path: `/fonts/korean/${output}`,
+          bytes: first.byteLength,
+          sha256: sha256(first),
+          source: {
+            id: face.source.id,
+            url: face.source.url,
+            sha256: face.source.sha256,
+            ...(face.source.archiveMember ? { archiveMember: face.source.archiveMember } : {}),
+          },
+        });
       }
-      await writeFile(join(OUTPUT_DIR, face.output), first);
-      assets.push({
-        id: face.id,
-        family: face.family,
-        weight: face.weight,
-        style: face.style,
-        path: `/fonts/korean/${face.output}`,
-        bytes: first.byteLength,
-        sha256: sha256(first),
-        source: {
-          id: face.source.id,
-          url: face.source.url,
-          sha256: face.source.sha256,
-          ...(face.source.archiveMember ? { archiveMember: face.source.archiveMember } : {}),
-        },
-      });
     }
     const manifest = {
-      version: 1,
+      version: 2,
       generator: { package: 'subset-font', version: '2.5.0', targetFormat: 'woff2' },
       characterSet: {
         strategy: 'KS X 1001 Hangul 2350 + printable ASCII + Korean UI punctuation',
         codePoints: [...text].length,
         sha256: sha256(Buffer.from(text)),
       },
+      chunking: {
+        strategy: 'Pretendard v1.3.9 frequency order + pinned small-business common corpus',
+        source: {
+          url: DYNAMIC_PARTITION_SOURCE.url,
+          sha256: DYNAMIC_PARTITION_SOURCE.sha256,
+        },
+        priorityRankedCodePoints: PRIORITY_RANKED_CODE_POINTS,
+        tailChunkCodePoints: TAIL_CHUNK_CODE_POINTS,
+        deterministicRunsPerAsset: 2,
+      },
+      chunks: chunks.map((chunk) => ({
+        id: chunk.id,
+        priority: chunk.priority,
+        codePoints: [...chunk.characters].length,
+        sha256: sha256(Buffer.from(chunk.characters)),
+        unicodeRange: chunk.unicodeRange,
+      })),
       assets,
     };
     await writeFile(join(OUTPUT_DIR, 'font-assets.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    const currentPaths = new Set(assets.map((asset) => asset.path));
+    for (const stalePath of previousAssetPaths) {
+      if (!currentPaths.has(stalePath) && stalePath.startsWith('/fonts/korean/')) {
+        await rm(join(ROOT, 'public', stalePath), { force: true });
+      }
+    }
     await writeFile(
       join(OUTPUT_DIR, 'FONT-LICENSES.md'),
       `# Korean font asset notices
