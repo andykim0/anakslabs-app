@@ -14,7 +14,10 @@ import { preserveServerAssetUsagesForSave } from './assignment-core';
 import type { DesignCandidate } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { ImageDirectionId } from './image-directions';
-import { resolveHeroPhotoCandidate } from './hero-photo-promotion';
+import {
+  resolveHeroPhotoCandidate,
+  systemHeroPreviewForCandidate,
+} from './hero-photo-promotion';
 
 export const CANDIDATE_ASSET_TRUTH_ERROR_CODES = [
   'CANDIDATE_ASSET_REF_REQUIRED',
@@ -111,6 +114,14 @@ export async function validateCandidateAssetRef(input: {
     return resolveHeroPhotoCandidate(input.candidate, record);
   }
   if (!supplied) {
+    if (
+      input.expectedImageDirectionId
+      && input.expectedImageDirectionId !== 'real_photo'
+      && input.candidate.heroPresentation === 'system'
+      && input.candidate.heroImageUrl === systemHeroPreviewForCandidate(input.candidate)
+    ) {
+      return input.candidate;
+    }
     if (input.expectedImageDirectionId) {
       throw new CandidateAssetTruthError(
         'CANDIDATE_ASSET_REF_REQUIRED',

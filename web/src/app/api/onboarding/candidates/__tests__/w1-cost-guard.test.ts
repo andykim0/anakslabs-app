@@ -51,18 +51,16 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
     const truthAt = routeSource.indexOf('verifySurveyAssetTruth({');
     const branchAt = routeSource.indexOf("verified.direction === 'real_photo'");
     const stripAt = routeSource.indexOf('surveyForHeroCandidates(verified.survey)');
-    const callAt = routeSource.indexOf('ai.generateCandidates(');
-    const trustedOwnerAt = routeSource.indexOf('{ clientId: client.id, ...(targetSiteId ? { siteId: targetSiteId } : {}) }', callAt);
+    const callAt = routeSource.indexOf('buildZeroCostCandidates(survey)');
     assert.ok(truthAt >= 0 && branchAt > truthAt && stripAt > branchAt && callAt > stripAt);
-    assert.ok(trustedOwnerAt > callAt, '후보 AI에는 인증된 서버 clientId를 별도 소유자 컨텍스트로 전달한다');
+    assert.doesNotMatch(routeSource, /ai\.generateCandidates\(/);
     assert.doesNotMatch(routeSource, /delete\s+(?:body\.data\.)?survey\.heroPhotoUrl/);
   });
 
-  test('캐시 조회가 킬스위치·rate 차감보다 먼저이고 client+pipeline+requestKey+survey 서명을 쓴다', () => {
+  test('캐시 조회가 rate 차감보다 먼저이고 client+pipeline+requestKey+survey 서명을 쓴다', () => {
     const cachedAt = routeSource.indexOf('const cached = dedupKey ? dedupStore.get(dedupKey)');
-    const configAt = routeSource.indexOf('const cfg = heroImageGenConfig()');
-    const rateAt = routeSource.indexOf('if (requiresAiMedia && rateLimited(client.id, cfg.maxBatchesPerClient))');
-    assert.ok(cachedAt >= 0 && configAt > cachedAt && rateAt > configAt);
+    const rateAt = routeSource.indexOf('if (rateLimited(client.id, 12))');
+    assert.ok(cachedAt >= 0 && rateAt > cachedAt);
     assert.match(routeSource, /dnaPipelineEnabled\(\) \? 'dna' : 'legacy'/);
     assert.match(routeSource, /layoutVariantsEnabled\(\) \? '-layout' : ''/);
     assert.match(routeSource, /`\$\{clientId\}:\$\{siteId \?\? 'new'\}:\$\{designPipeline\}:\$\{requestKey\}:\$\{surveySignature\(survey\)\}`/);
@@ -78,7 +76,7 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
 
   test('진행 중 중복 요청도 자산 정책 실패를 동일한 422로 매핑한다', () => {
     const cachedAt = routeSource.indexOf('if (cached) {');
-    const generationAt = routeSource.indexOf('const generation = getDataServices()');
+    const generationAt = routeSource.indexOf('const generation = buildZeroCostCandidates');
     const cachedBlock = routeSource.slice(cachedAt, generationAt);
     assert.match(cachedBlock, /try\s*\{/);
     assert.match(cachedBlock, /dedupStore\.delete\(dedupKey\)/);
@@ -88,7 +86,7 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
   });
 
   test('v2 후보는 선택 전에 owner·canonical·direction을 서버 registry로 재검증한다', () => {
-    const providerAt = routeSource.indexOf('ai.generateCandidates(');
+    const providerAt = routeSource.indexOf('buildZeroCostCandidates(survey)');
     const validateAt = routeSource.indexOf('validateCandidateAssetRef({', providerAt);
     const responseAt = routeSource.indexOf('return NextResponse.json({ candidates })', validateAt);
     assert.ok(providerAt >= 0 && validateAt > providerAt && responseAt > validateAt);
@@ -104,7 +102,7 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
     const rolloutAt = routeSource.indexOf("'ASSET_POLICY_V2_NOT_ACTIVE'");
     const cacheAt = routeSource.indexOf('const cached = dedupKey ?');
     const rateAt = routeSource.indexOf('rateLimited(client.id');
-    const providerAt = routeSource.indexOf('ai.generateCandidates(');
+    const providerAt = routeSource.indexOf('buildZeroCostCandidates(survey)');
     assert.ok(rolloutAt >= 0 && truthAt > rolloutAt);
     assert.ok(rolloutAt < cacheAt && rolloutAt < rateAt && rolloutAt < providerAt);
     assert.match(routeSource, /submittedSurvey\.imageDirectionId && !provenance\.assign/);
@@ -118,10 +116,11 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
     assert.match(routeSource, /candidateDedupKey\(client\.id, body\.data\.requestKey, survey, targetSiteId\)/);
   });
 
-  test('킬스위치는 mock을 우회하고 globalThis rate cap과 실제 신규 호출 로그가 있다', () => {
-    assert.match(routeSource, /if \(requiresAiMedia && !cfg\.enabled && !isMockMode\(\)\)/);
+  test('표준 후보는 플래그로 외부 생성을 재개할 수 없고 globalThis rate cap과 로그가 있다', () => {
+    assert.match(routeSource, /PREPUBLISH_GENERATION_POLICY\.id/);
+    assert.doesNotMatch(routeSource, /heroImageGenConfig|generateCandidates\(/);
     assert.match(routeSource, /__anaksHeroImageBatchRateLimit__/);
     assert.match(routeSource, /globalThis as GlobalWithCandidateGuards/);
-    assert.match(routeSource, /console\.info\(`\[hero-image-candidates\]/);
+    assert.match(routeSource, /console\.info\([\s\S]*\[hero-image-candidates\]/);
   });
 });

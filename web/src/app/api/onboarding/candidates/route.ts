@@ -6,9 +6,6 @@ import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import { getDataServices } from '@/lib/data';
-import { isMockMode } from '@/lib/env';
-import { heroImageGenConfig } from '@/lib/onboarding/hero-image-cost';
 import { surveyForHeroCandidates } from '@/lib/onboarding/hero-image-options';
 import { dnaPipelineEnabled } from '@/lib/design/dna/flags';
 import { layoutVariantsEnabled } from '@/lib/layout/flags';
@@ -29,6 +26,10 @@ import {
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import { surveySchema } from '../../_lib/schemas';
+import {
+  buildZeroCostCandidates,
+  PREPUBLISH_GENERATION_POLICY,
+} from '@/lib/billing/prepublish-cost-policy';
 
 export const runtime = 'nodejs';
 
@@ -169,22 +170,13 @@ export const POST = withApiHandler(async (request) => {
     }
   }
 
-  const cfg = heroImageGenConfig();
-  const requiresAiMedia = verified.direction !== 'real_photo';
-  // (a) 프로덕션 킬스위치 — mock은 외부 AI 비용이 없으므로 우회
-  if (requiresAiMedia && !cfg.enabled && !isMockMode()) {
-    return apiError(503, 'HERO_IMAGE_GEN_DISABLED', '히어로 이미지 만들기가 잠시 꺼져 있어요. 잠시 후 다시 시도해 주세요.');
-  }
-  // (b) 클라이언트당 10분 신규 배치 상한. dedup 조회 뒤에 있어 중복 요청은 횟수를 쓰지 않는다.
-  if (requiresAiMedia && rateLimited(client.id, cfg.maxBatchesPerClient)) {
+  // Standard candidates are catalog projections only. This route has no switch
+  // that can reopen Claude/Gemini before the first publish payment.
+  if (rateLimited(client.id, 12)) {
     return apiError(429, 'HERO_IMAGE_RATE_LIMITED', '히어로 이미지 요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
   }
 
-  const generation = getDataServices().ai.generateCandidates(
-    survey,
-    // 서버 인증 결과만 신뢰한다. 설문/request body는 자산 소유권 입력으로 사용하지 않는다.
-    { clientId: client.id, ...(targetSiteId ? { siteId: targetSiteId } : {}) },
-  ).then(async (items) => {
+  const generation = buildZeroCostCandidates(survey).then(async (items) => {
     const limited = items.slice(0, HERO_CANDIDATE_LIMIT);
     const verifiedDirection = verified.direction;
     if (!verifiedDirection) return limited;
@@ -220,7 +212,10 @@ export const POST = withApiHandler(async (request) => {
   }
 
   // (c) 실제 신규 배치 호출 로그. requestKey 원문은 로그 인젝션·개인정보 방지를 위해 남기지 않는다.
-  console.info(`[hero-image-candidates] client=${client.id} direction=${verified.direction ?? 'legacy'} generated=${candidates.length} mock=${isMockMode()}`);
+  console.info(
+    `[hero-image-candidates] client=${client.id} direction=${verified.direction ?? 'legacy'} ` +
+    `generated=${candidates.length} policy=${PREPUBLISH_GENERATION_POLICY.id}`,
+  );
 
   return NextResponse.json({ candidates });
 });

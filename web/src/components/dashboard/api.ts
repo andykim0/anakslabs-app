@@ -40,6 +40,7 @@ import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { OnboardingPreflightDto } from '@/lib/onboarding/nudge-contract';
+import type { PublishPaymentQuote } from '@/lib/billing/publish-payment-contract';
 import {
   GENERAL_ASSET_ATTESTATION_VERSION,
   type GeneralAssetAttestation,
@@ -179,6 +180,15 @@ export async function publishSite(
   return post<PublishResult>(`/api/sites/${encodeURIComponent(siteId)}/publish`, {
     businessInfoConfirmed: true,
     humanChecks,
+  });
+}
+
+export function confirmPublishPayment(
+  siteId: string,
+  quote: PublishPaymentQuote,
+): Promise<{ paid: true; duplicated: boolean; quote: PublishPaymentQuote }> {
+  return post(`/api/sites/${encodeURIComponent(siteId)}/publish-payment`, {
+    quoteId: quote.quoteId,
   });
 }
 

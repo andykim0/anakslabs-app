@@ -15,14 +15,14 @@ function before(text: string, first: string, second: string, message: string): v
   assert.ok(firstIndex < secondIndex, message);
 }
 
-test('candidate factual truth checks run before rate mutation and image providers', () => {
+test('candidate factual truth checks run before rate mutation and the zero-cost compiler', () => {
   const route = source('src/app/api/onboarding/candidates/route.ts');
   before(route, 'verifySurveyAssetTruth({', 'rateLimited(client.id', 'truth must precede rate accounting');
-  before(route, 'verifySurveyAssetTruth({', 'ai.generateCandidates(', 'truth must precede candidate providers');
-  assert.match(route, /requiresAiMedia && !cfg\.enabled/);
+  before(route, 'verifySurveyAssetTruth({', 'buildZeroCostCandidates(survey)', 'truth must precede candidate compilation');
+  assert.doesNotMatch(route, /ai\.generateCandidates\(/);
   assert.match(route, /verified\.direction === 'real_photo'/);
   before(route, 'submittedSurvey.imageDirectionId && !provenance.assign', 'rateLimited(client.id', 'rollout gate must precede rate accounting');
-  before(route, 'submittedSurvey.imageDirectionId && !provenance.assign', 'ai.generateCandidates(', 'rollout gate must precede providers');
+  before(route, 'submittedSurvey.imageDirectionId && !provenance.assign', 'buildZeroCostCandidates(survey)', 'rollout gate must precede compilation');
   assert.match(route, /imageDirectionId: DEFAULT_V2_IMAGE_DIRECTION/);
   assert.match(route, /getOwnedSite\(targetSiteId, client\.id\)/);
   const candidateValidation = route.indexOf('validateCandidateAssetRef({');
@@ -33,9 +33,9 @@ test('candidate factual truth checks run before rate mutation and image provider
   assert.match(route, /error instanceof CandidateAssetTruthError/);
 });
 
-test('generate and regenerate verify truth before AI, mutation, or free-regen accounting', () => {
+test('generate and regenerate verify truth before compilation, mutation, or free-regen accounting', () => {
   const generate = source('src/app/api/onboarding/generate/route.ts');
-  before(generate, 'verifySurveyAssetTruth({', 'ai.generateSiteConfig(', 'truth must precede generation');
+  before(generate, 'verifySurveyAssetTruth({', 'buildZeroCostSiteConfig(', 'truth must precede generation');
   before(generate, 'verifySurveyAssetTruth({', 'sites.create({', 'truth must precede site creation');
   assert.match(generate, /mergeCanonicalAssetRefs\(draftConfig\.assetRefs, truth\.directUploadAssetRefs\)/);
   before(generate, 'resolveSiteAssetPolicy({', 'sites.create({', 'slot assignment must precede site creation');
@@ -47,7 +47,7 @@ test('generate and regenerate verify truth before AI, mutation, or free-regen ac
 
   const regenerate = source('src/app/api/onboarding/regenerate/route.ts');
   before(regenerate, 'verifySurveyAssetTruth({', 'const used = site.freeRegensUsed', 'truth must precede regen accounting');
-  before(regenerate, 'verifySurveyAssetTruth({', 'ai.generateSiteConfig(', 'truth must precede regeneration');
+  before(regenerate, 'verifySurveyAssetTruth({', 'buildZeroCostSiteConfig(', 'truth must precede regeneration');
   before(regenerate, 'verifySurveyAssetTruth({', 'incrementFreeRegens(', 'truth must precede counter mutation');
   assert.match(regenerate, /site\.assetPolicyVersion === 2 && !submittedSurvey\.imageDirectionId/);
   assert.match(regenerate, /expectedImageDirectionId: survey\.imageDirectionId/);

@@ -119,12 +119,9 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
     ]) {
       const code = source(route);
       const canonical = code.indexOf('canonicalizeSurveyTemplate(body.data.survey');
-      const generate = code.indexOf('ai.generateSiteConfig(');
+      const generate = code.indexOf('buildZeroCostSiteConfig(');
       assert.ok(canonical >= 0 && canonical < generate, route);
-      assert.match(code.slice(generate, generate + 300), /clientId:\s*client\.id/);
-      if (route.includes('regenerate')) {
-        assert.match(code.slice(generate, generate + 300), /siteId/);
-      }
+      assert.doesNotMatch(code, /ai\.generateSiteConfig\(/);
     }
 
     const patch = source('src/app/api/sites/[siteId]/route.ts');

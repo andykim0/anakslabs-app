@@ -38,6 +38,7 @@ import {
 } from '@/lib/fulfillment-sla';
 import {
   ApiError,
+  confirmPublishPayment,
   createExport,
   getSite,
   listEditRequests,
@@ -47,6 +48,11 @@ import {
 import { DomainSection } from './domain-connect';
 import { Modal } from './modal';
 import { HumanPublishChecklist } from '@/components/publish/HumanPublishChecklist';
+import { PublishPaymentDialog } from '@/components/publish/PublishPaymentDialog';
+import {
+  publishPaymentQuoteFromExtra,
+  type PublishPaymentQuote,
+} from '@/lib/billing/publish-payment-contract';
 import { SitePreview } from './site-preview';
 import { useToast } from './toast';
 import {
@@ -438,6 +444,9 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const [bizConfirmed, setBizConfirmed] = useState(false);
   const [humanChecks, setHumanChecks] = useState<PublishHumanChecks>(emptyPublishHumanChecks);
+  const [publishQuote, setPublishQuote] = useState<PublishPaymentQuote | null>(null);
+  const [pendingHumanChecks, setPendingHumanChecks] = useState<PublishHumanChecks | null>(null);
+  const [paying, setPaying] = useState(false);
 
   const siteQuery = useQuery({
     queryKey: ['site', siteId],
@@ -460,10 +469,42 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
             : '발행이 완료되었습니다.',
       );
     },
-    onError: (err) => {
+    onError: (err, checks) => {
+      if (err instanceof ApiError && err.code === 'PUBLISH_PAYMENT_REQUIRED') {
+        const quote = publishPaymentQuoteFromExtra(err.extra);
+        if (quote) {
+          setPendingHumanChecks(checks);
+          setPublishQuote(quote);
+          setPublishConfirmOpen(false);
+          return;
+        }
+      }
       toast('error', err instanceof Error ? err.message : '발행에 실패했습니다.');
     },
   });
+
+  const handlePublishPayment = async () => {
+    if (!publishQuote || !pendingHumanChecks || paying) return;
+    setPaying(true);
+    try {
+      await confirmPublishPayment(siteId, publishQuote);
+      const result = await publishSite(siteId, pendingHumanChecks);
+      setPublishQuote(null);
+      setPendingHumanChecks(null);
+      queryClient.invalidateQueries({ queryKey: ['site', siteId] });
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      toast(
+        'success',
+        result.url
+          ? `결제 확인·발행 완료 — ${result.url.replace(/^https?:\/\//, '')}`
+          : '결제 확인 후 발행이 완료되었습니다.',
+      );
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '결제 확인에 실패했습니다.');
+    } finally {
+      setPaying(false);
+    }
+  };
 
   if (siteQuery.isPending) return <DetailSkeleton />;
 
@@ -645,6 +686,15 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
           </p>
         )}
       </Modal>
+      <PublishPaymentDialog
+        quote={publishQuote}
+        paying={paying}
+        onClose={() => {
+          setPublishQuote(null);
+          setPendingHumanChecks(null);
+        }}
+        onConfirm={() => void handlePublishPayment()}
+      />
     </div>
   );
 }

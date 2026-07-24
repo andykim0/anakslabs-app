@@ -37,11 +37,11 @@ import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
-  isAssetTruthGenerationError,
   selectRealPhotoAssetRef,
 } from '@/lib/ai/image-generation-policy';
 import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
+import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
   designCandidateSchema,
@@ -135,21 +135,13 @@ export const POST = withApiHandler(async (request) => {
     );
   }
 
-  const { ai, sites } = getDataServices();
+  const { sites } = getDataServices();
   // [v4 #3e] providedContent 내 URL 텍스트 흡수 (실모드만)
   if (!isMockMode() && survey.providedContent) {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
-  // 생성 성공 후에만 카운터 증가 (AI 실패 시 무료 기회 보존)
-  let generatedByAi;
-  try {
-    generatedByAi = await ai.generateSiteConfig(survey, candidate, { clientId: client.id, siteId });
-  } catch (error) {
-    if (isAssetTruthGenerationError(error)) {
-      return apiError(error.status, error.code, error.message, { guidance: error.guidance });
-    }
-    throw error;
-  }
+  // 결제 전 재구성도 같은 결정적 표준 빌더만 소비한다.
+  const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   const withCinematicBase = withSiteCinematicDefault(withExtras);

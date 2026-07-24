@@ -15,7 +15,11 @@ import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import { initializeEditor, useEditorStore } from '@/stores/editor';
 import { useToast } from '@/components/dashboard/toast';
 import { cn } from '@/components/dashboard/ui';
-import { EditorApiError, publishSiteRequest } from './api';
+import {
+  confirmPublishPaymentRequest,
+  EditorApiError,
+  publishSiteRequest,
+} from './api';
 import { Toolbar } from './Toolbar';
 import { SectionListPanel } from './SectionListPanel';
 import { CanvasStage } from './CanvasStage';
@@ -25,6 +29,11 @@ import { PrePublishDialog } from './PrePublishDialog';
 import { PublishDialog, type PublishResult } from './PublishDialog';
 import { useAutosave } from './useAutosave';
 import { useEditorHotkeys } from './useEditorHotkeys';
+import { PublishPaymentDialog } from '@/components/publish/PublishPaymentDialog';
+import {
+  publishPaymentQuoteFromExtra,
+  type PublishPaymentQuote,
+} from '@/lib/billing/publish-payment-contract';
 
 interface EditorShellProps {
   siteId: string;
@@ -68,6 +77,9 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
   const [publishing, setPublishing] = useState(false);
   const [preparingPublish, setPreparingPublish] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
+  const [publishQuote, setPublishQuote] = useState<PublishPaymentQuote | null>(null);
+  const [pendingHumanChecks, setPendingHumanChecks] = useState<PublishHumanChecks | null>(null);
+  const [paying, setPaying] = useState(false);
   // [v3 Phase 4] 발행 전 2단계 확인 다이얼로그 (사업자 정보 확인 → 발행 확인)
   const [prePublishOpen, setPrePublishOpen] = useState(false);
 
@@ -102,10 +114,35 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
       setPrePublishOpen(false);
       setPublishResult(result);
     } catch (err) {
+      if (err instanceof EditorApiError && err.code === 'PUBLISH_PAYMENT_REQUIRED') {
+        const quote = publishPaymentQuoteFromExtra(err.extra);
+        if (quote) {
+          setPendingHumanChecks(humanChecks);
+          setPublishQuote(quote);
+          setPrePublishOpen(false);
+          return;
+        }
+      }
       if (err instanceof EditorApiError) toast('error', err.message);
       else toast('error', '발행에 실패했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setPublishing(false);
+    }
+  };
+
+  const handlePublishPayment = async () => {
+    if (!publishQuote || !pendingHumanChecks || paying) return;
+    setPaying(true);
+    try {
+      await confirmPublishPaymentRequest(siteId, publishQuote);
+      const result = await publishSiteRequest(siteId, pendingHumanChecks);
+      setPublishQuote(null);
+      setPendingHumanChecks(null);
+      setPublishResult(result);
+    } catch (err) {
+      toast('error', err instanceof Error ? err.message : '결제 확인에 실패했습니다.');
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -149,6 +186,15 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
         />
       ) : null}
       <PublishDialog result={publishResult} onClose={() => setPublishResult(null)} />
+      <PublishPaymentDialog
+        quote={publishQuote}
+        paying={paying}
+        onClose={() => {
+          setPublishQuote(null);
+          setPendingHumanChecks(null);
+        }}
+        onConfirm={() => void handlePublishPayment()}
+      />
     </div>
   );
 }

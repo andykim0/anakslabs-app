@@ -232,6 +232,7 @@ class MockSitesRepo implements SitesRepo {
       status: 'draft',
       siteConfig: null,
       draftConfig: structuredClone(input.draftConfig),
+      draftExpiresAt: new Date(Date.now() + 30 * 86_400_000).toISOString(),
       publishedAt: null,
       createdAt: nowIso(),
       ...(input.assetPolicyVersion ? { assetPolicyVersion: input.assetPolicyVersion } : {}),
@@ -270,6 +271,9 @@ class MockSitesRepo implements SitesRepo {
     site.draftConfig = structuredClone(
       preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
     );
+    if (site.draftExpiresAt) {
+      site.draftExpiresAt = new Date(Date.now() + 30 * 86_400_000).toISOString();
+    }
   }
 
   async setSearchVerification(siteId: string, verification: SearchVerification | undefined): Promise<void> {
@@ -304,6 +308,7 @@ class MockSitesRepo implements SitesRepo {
     // Q$6: 현재 draft를 다시 읽지 않고 route가 진단한 snapshot만 발행한다.
     site.siteConfig = structuredClone(auditedDraft);
     site.status = 'live';
+    site.draftExpiresAt = null;
     site.publishedAt = nowIso();
     return structuredClone(site);
   }

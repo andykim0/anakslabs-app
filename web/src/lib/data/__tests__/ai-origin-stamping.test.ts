@@ -26,16 +26,19 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     }
   });
 
-  test('인증/owned-site route만 clientId·siteId를 별도 인자로 공급하고 client body schema에는 받지 않는다', () => {
+  test('결제 전은 provider owner가 필요 없는 결정적 경로이고 유료 provider만 서버 owner를 받는다', () => {
     const candidates = source('src/app/api/onboarding/candidates/route.ts');
     const generate = source('src/app/api/onboarding/generate/route.ts');
     const regenerate = source('src/app/api/onboarding/regenerate/route.ts');
     const edits = source('src/app/api/edit-requests/route.ts');
     const heroVideo = source('src/app/api/sites/[siteId]/hero-video/route.ts');
 
-    assert.match(candidates, /getAuthedClient\(\)[\s\S]*getOwnedSite\(targetSiteId, client\.id\)[\s\S]*generateCandidates\([\s\S]*\{ clientId: client\.id, \.\.\.\(targetSiteId \? \{ siteId: targetSiteId \} : \{\}\) \}/);
-    assert.match(generate, /getAuthedClient\(\)[\s\S]*generateSiteConfig\([\s\S]*\{ clientId: client\.id \}/);
-    assert.match(regenerate, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateSiteConfig\([\s\S]*\{ clientId: client\.id, siteId \}/);
+    assert.match(candidates, /getAuthedClient\(\)[\s\S]*getOwnedSite\(targetSiteId, client\.id\)[\s\S]*buildZeroCostCandidates\(survey\)/);
+    assert.match(generate, /getAuthedClient\(\)[\s\S]*buildZeroCostSiteConfig\(survey, candidate\)/);
+    assert.match(regenerate, /getOwnedSite\(siteId, client\.id\)[\s\S]*buildZeroCostSiteConfig\(survey, candidate\)/);
+    for (const route of [candidates, generate, regenerate]) {
+      assert.doesNotMatch(route, /ai\.generate(?:Candidates|SiteConfig)\(/);
+    }
     assert.match(edits, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateImage\([\s\S]*clientId: client\.id,[\s\S]*siteId,/);
     assert.match(edits, /generateGuardedVideo\(\{[\s\S]*clientId: client\.id,[\s\S]*siteId,/);
     assert.match(heroVideo, /getOwnedSite\(siteId, client\.id\)[\s\S]*generateHeroVideo\(\{[\s\S]*clientId: client\.id/);

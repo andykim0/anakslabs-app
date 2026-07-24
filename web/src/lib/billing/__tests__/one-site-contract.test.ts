@@ -40,9 +40,12 @@ describe('BILL$ one payment equals one site', () => {
     const dedupe = source.indexOf('recentGenerations.get(idemK)');
     const guard = source.indexOf('accountHasSite(await sites.listByClient(client.id)');
     const assetPolicy = source.indexOf('assetProvenanceConfig()');
-    const aiCost = source.indexOf('ai.generateSiteConfig(');
+    const standardBuild = source.indexOf('buildZeroCostSiteConfig(');
     assert.ok(dedupe >= 0 && dedupe < guard, 'same generation retry must return its first site');
-    assert.ok(guard >= 0 && guard < assetPolicy && guard < aiCost, 'second-site guard must run before cost');
+    assert.ok(
+      guard >= 0 && guard < assetPolicy && guard < standardBuild,
+      'second-site guard must run before the deterministic build',
+    );
     assert.equal(
       source.match(/apiError\(409, SITE_LIMIT_ERROR_CODE, SITE_LIMIT_MESSAGE\)/g)?.length,
       2,

@@ -7,8 +7,7 @@ import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
-import { isMockMode, menuOcrConfig } from '@/lib/env';
-import { extractMenuFromImageUrl } from '@/lib/ai/menu-ocr';
+import { menuOcrConfig } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
@@ -40,10 +39,7 @@ export const POST = withApiHandler(async (request) => {
   if (!client) return unauthorized();
 
   const cfg = menuOcrConfig();
-  // (a) 킬스위치 — 실모드에서 끄면 차단(mock은 실호출·실비용 없어 우회)
-  if (!cfg.enabled && !isMockMode()) {
-    return apiError(503, 'MENU_OCR_DISABLED', '메뉴판 인식 기능이 잠시 꺼져 있어요. 직접 입력해 주세요.');
-  }
+  void cfg.enabled;
   // (b) 클라이언트당 상한
   if (rateLimited(client.id, cfg.maxPerClient)) {
     return apiError(429, 'RATE_LIMITED', '메뉴판 인식 요청이 너무 잦아요. 잠시 후 다시 시도하거나 직접 입력해 주세요.');
@@ -52,9 +48,12 @@ export const POST = withApiHandler(async (request) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
-  const items = await extractMenuFromImageUrl(body.data.imageUrl);
-  // (c) 호출 로그
-  console.info(`[menu-ocr] client=${client.id} extracted=${items.length} mock=${isMockMode()}`);
-  // 추출 0건이면 UI가 "직접 입력해 주세요" 안내 — 지어내지 않는다
-  return NextResponse.json({ items });
+  void body.data.imageUrl;
+  // Pay-at-publish standard builds never call a vision provider. The image stays
+  // available to the customer, while facts are entered and confirmed manually.
+  return NextResponse.json({
+    items: [],
+    manualEntryRequired: true,
+    message: '메뉴와 가격은 확인한 내용만 직접 입력해 주세요.',
+  });
 });

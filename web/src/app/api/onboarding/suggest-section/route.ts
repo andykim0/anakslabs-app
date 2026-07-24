@@ -5,9 +5,9 @@
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getDataServices } from '@/lib/data';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
+import { mapCustomSectionType } from '@/lib/data/section-suggest';
 
 const bodySchema = z.object({
   name: z.string().min(1, '원하는 섹션을 입력해 주세요.').max(60),
@@ -31,11 +31,12 @@ export const POST = withApiHandler(async (request) => {
   if (!body.ok) return body.res;
   const { name, description, context, targetPageSlug } = body.data;
 
-  const result = await getDataServices().ai.suggestCustomSection({
+  void context;
+  const result = {
+    mappedType: mapCustomSectionType(`${name} ${description ?? ''}`),
     name,
-    description,
-    context,
-    targetPageSlug,
-  });
+    copySeed: description?.trim() || name,
+    ...(targetPageSlug !== undefined ? { pageSlug: targetPageSlug } : {}),
+  };
   return NextResponse.json(result);
 });

@@ -187,10 +187,11 @@ describe('W5 — 히어로 사진→영상 애드온 통합 상태 전이', () =
     const post = videoRoute.slice(videoRoute.indexOf('export const POST'), videoRoute.indexOf('/** PATCH'));
 
     assert.match(candidates, /const HERO_CANDIDATE_LIMIT = 3/);
-    assert.match(candidates, /heroImageGenConfig\(\)/);
-    assert.match(candidates, /rateLimited\(client\.id, cfg\.maxBatchesPerClient\)/);
+    assert.match(candidates, /buildZeroCostCandidates\(survey\)/);
+    assert.match(candidates, /rateLimited\(client\.id, 12\)/);
+    assert.doesNotMatch(candidates, /ai\.generateCandidates\(/);
     assert.match(candidates, /items\.slice\(0, HERO_CANDIDATE_LIMIT\)/);
-    assert.match(candidates, /console\.info\(`\[hero-image-candidates\]/);
+    assert.match(candidates, /console\.info\([\s\S]*\[hero-image-candidates\]/);
 
     assert.match(preview, /실제 렌더러 티저/);
     assert.match(preview, /동일한 scene 계약·런타임/);

@@ -23,6 +23,13 @@ import {
   safeAuditErrorName,
   shouldBlockAssetPolicy,
 } from '@/lib/publish/asset-policy-feedback';
+import { isMockMode } from '@/lib/env';
+import {
+  needsPublishPayment,
+  PUBLISH_PAYMENT_ERROR_CODE,
+  publishPaymentQuote,
+} from '@/lib/billing/publish-payment';
+import { resolveSiteSubscription } from '@/lib/subscriptions/service';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -154,6 +161,19 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, 'PUBLISH_QUALITY_BLOCKED', preflight.blockers.join(' '), {
       blockers: preflight.blockers,
     });
+  }
+
+  // Pay-at-publish runs only after every existing legal, provenance and quality
+  // audit has passed. Existing live sites can republish without another charge.
+  const subscription = await resolveSiteSubscription(client.id);
+  if (needsPublishPayment(site, subscription.active)) {
+    const quote = publishPaymentQuote({ clientId: client.id, siteId, mock: isMockMode() });
+    return apiError(
+      402,
+      PUBLISH_PAYMENT_ERROR_CODE,
+      '발행할 때 첫 해 이용료를 결제해 주세요. 별도 제작비는 없습니다.',
+      { quote },
+    );
   }
 
   // provenance와 품질 검사를 통과한 exact snapshot만 라이브로 복사한다.

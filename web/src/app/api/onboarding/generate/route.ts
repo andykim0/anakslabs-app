@@ -33,7 +33,6 @@ import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import {
   DEFAULT_V2_IMAGE_DIRECTION,
-  isAssetTruthGenerationError,
   selectRealPhotoAssetRef,
 } from '@/lib/ai/image-generation-policy';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
@@ -52,6 +51,8 @@ import {
 } from '../../_lib/schemas';
 import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
+import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
+import { recordZeroCostBuild } from '@/lib/economics/events';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -72,6 +73,20 @@ const bodySchema = z.object({
 const recentGenerations = new Map<string, { siteId: string; at: number }>();
 const GEN_IDEM_TTL_MS = 60_000;
 
+async function recordBuildEvidence(input: {
+  clientId: string;
+  siteId: string;
+  buildAttemptId?: string;
+}): Promise<void> {
+  try {
+    await recordZeroCostBuild(input);
+  } catch (error) {
+    console.warn('[build-economics] build completion evidence failed:', {
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+    });
+  }
+}
+
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
@@ -79,7 +94,7 @@ export const POST = withApiHandler(async (request) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
-  const { ai, sites } = getDataServices();
+  const { sites } = getDataServices();
 
   // [멱등] 같은 키로 최근 생성된 사이트가 있으면 그대로 반환한다. 첫 요청에서 onboarding
   // attestation이 site scope로 원자 결합된 뒤에도 안전하게 재시도할 수 있어야 한다.
@@ -89,6 +104,11 @@ export const POST = withApiHandler(async (request) => {
     if (prev && Date.now() - prev.at < GEN_IDEM_TTL_MS) {
       const existing = await sites.getById(prev.siteId);
       if (existing && existing.clientId === client.id) {
+        await recordBuildEvidence({
+          clientId: client.id,
+          siteId: existing.id,
+          buildAttemptId: body.data.idempotencyKey,
+        });
         return NextResponse.json({ siteId: existing.id, site: existing, deduped: true }, { status: 200 });
       }
     }
@@ -167,16 +187,7 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
 
-  let generatedByAi;
-  try {
-    // 사이트 row 생성 전 단계라 siteId는 아직 없다. 인증된 clientId만 provenance owner로 전달한다.
-    generatedByAi = await ai.generateSiteConfig(survey, candidate, { clientId: client.id });
-  } catch (error) {
-    if (isAssetTruthGenerationError(error)) {
-      return apiError(error.status, error.code, error.message, { guidance: error.guidance });
-    }
-    throw error;
-  }
+  const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   // SITECINE is server-authored only: old stored configs stay absent/pixel-identical, every new site is pinned.
@@ -288,6 +299,11 @@ export const POST = withApiHandler(async (request) => {
   }
 
   if (idemK) recentGenerations.set(idemK, { siteId: site.id, at: Date.now() });
+  await recordBuildEvidence({
+    clientId: client.id,
+    siteId: site.id,
+    buildAttemptId: body.data.idempotencyKey,
+  });
 
   return NextResponse.json({
     siteId: site.id,

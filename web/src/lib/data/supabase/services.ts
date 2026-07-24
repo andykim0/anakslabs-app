@@ -297,6 +297,7 @@ export class SupabaseSitesRepo implements SitesRepo {
         site_config: auditedDraft,
         status: 'live',
         domain,
+        draft_expires_at: null,
         published_at: new Date().toISOString(),
       })
       .eq('id', siteId)
