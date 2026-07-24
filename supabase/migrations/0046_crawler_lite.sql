@@ -32,6 +32,7 @@ create table public.shared_site_previews (
   id                 uuid primary key default gen_random_uuid(),
   crawl_artifact_id  uuid not null references public.crawl_artifacts (id) on delete cascade,
   token_hash         text not null unique,
+  source_url         text not null,
   site_config        jsonb not null,
   notice_version     integer not null default 1,
   created_by         text not null,

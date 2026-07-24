@@ -1,5 +1,6 @@
 import type { StructuredImportFacts } from '@/lib/import/extract';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
+import type { SiteConfig } from '@/lib/types/site';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
 export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
@@ -107,4 +108,17 @@ export interface CrawlArtifactRecord {
   createdBy: string;
   createdAt: string;
   expiresAt: string;
+}
+
+export interface SharedSitePreviewRecord {
+  id: string;
+  crawlArtifactId: string;
+  tokenHash: string;
+  sourceUrl: string;
+  siteConfig: SiteConfig;
+  noticeVersion: 1;
+  createdBy: string;
+  createdAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
 }

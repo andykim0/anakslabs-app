@@ -8,7 +8,7 @@ import { ROOT_DOMAIN } from '@/lib/env';
 export default function robots(): MetadataRoute.Robots {
   const base = `https://${ROOT_DOMAIN}`;
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/dashboard/', '/api/'] },
+    rules: { userAgent: '*', allow: '/', disallow: ['/dashboard/', '/api/', '/preview/'] },
     sitemap: `${base}/sitemap.xml`,
     host: base,
   };
