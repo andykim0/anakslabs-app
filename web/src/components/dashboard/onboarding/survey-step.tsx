@@ -61,6 +61,7 @@ import {
   type DeepeningTarget,
 } from './steps/step-conditional-deepening';
 import { WireframePreview, sectionKey } from './wireframe-preview';
+import { NudgeMeter, useOnboardingPreflight } from './onboarding-nudge';
 
 const TOTAL_STEPS = 9;
 const SURVEY_DRAFT_PREFIX = 'daboim:survey-brief:draft:';
@@ -226,6 +227,12 @@ export function SurveyStep({
   const { trigger, getValues, handleSubmit, setValue, reset } = methods;
   const watchedValues = useWatch({ control: methods.control }) as SurveyForm;
   const earlySurvey = surveyForEarlySitePlan(watchedValues);
+  const nudgeEnabled = step >= 3 && Boolean(
+    watchedValues.purposeId
+    && watchedValues.businessName?.trim()
+    && watchedValues.industry?.trim(),
+  );
+  const nudge = useOnboardingPreflight(earlySurvey, nudgeEnabled);
   const earlyPlan = buildSitePlan(earlySurvey);
   const plannedDeepeningTargets = [...new Map(
     earlyPlan.sections
@@ -518,6 +525,8 @@ export function SurveyStep({
         setImportedBadge,
         siteId: existingSiteId,
         assetPolicyV2Ready,
+        nudgeResult: nudge.result,
+        nudgeLoading: nudge.loading,
       }}>
         <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface text-ob-ink shadow-sm">
           {/* 진행바 + 스텝 제목 */}
@@ -539,6 +548,11 @@ export function SurveyStep({
             <p className="mt-2 text-[11px] text-ob-muted" aria-live="polite">
               작성 중인 답변은 이 브라우저에 자동 저장되고, 다시 들어오면 이어서 쓸 수 있어요.
             </p>
+            {step >= 3 ? (
+              <div className="mt-3 sm:hidden">
+                <NudgeMeter result={nudge.result} loading={nudge.loading} error={nudge.error} compact />
+              </div>
+            ) : null}
           </div>
 
           {/* 스텝 본문 */}
@@ -546,12 +560,34 @@ export function SurveyStep({
             <StepFade key={step}>
               {step === 1 ? <Step02Existing /> : null}
               {step === 2 ? <Step01Basics /> : null}
-              {step === 3 ? <div className="space-y-8"><Step03Content mode="core" /><Step07Direction mode="core" /></div> : null}
+              {step === 3 ? (
+                <div className="space-y-8">
+                  <div className="hidden sm:block">
+                    <NudgeMeter result={nudge.result} loading={nudge.loading} error={nudge.error} />
+                  </div>
+                  <Step03Content mode="core" />
+                  <Step07Direction mode="core" />
+                </div>
+              ) : null}
               {step === 4 ? (
                 <div className="space-y-5">
                   <p className="text-[14px] leading-relaxed text-ob-muted">
                     지금 답한 내용으로 실제 생성될 구성이에요. 빠진 구성은 아래에서 골라 바로 채울 수 있어요.
                   </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3">
+                      <p className="text-[13px] font-semibold text-ob-ink">자동으로 준비하는 것</p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-ob-muted">
+                        검색이 읽는 기본 구조와 질문·답의 연결은 다보임이 준비해요.
+                      </p>
+                    </div>
+                    <div className="rounded-ob border border-ob-border bg-ob-surface px-4 py-3">
+                      <p className="text-[13px] font-semibold text-ob-ink">입력한 값만 쓰는 것</p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-ob-muted">
+                        전화·주소·수치와 출처는 사장님이 확인한 값만 반영해요.
+                      </p>
+                    </div>
+                  </div>
                   <WireframePreview
                     survey={earlySurvey}
                     removed={removedSections}
@@ -582,7 +618,12 @@ export function SurveyStep({
                 />
               ) : null}
               {step === 8 ? <Step06MoodColor /> : null}
-              {step === 9 ? <Step08Review /> : null}
+              {step === 9 ? (
+                <div className="space-y-6">
+                  <NudgeMeter result={nudge.result} loading={nudge.loading} error={nudge.error} />
+                  <Step08Review />
+                </div>
+              ) : null}
             </StepFade>
           </div>
 

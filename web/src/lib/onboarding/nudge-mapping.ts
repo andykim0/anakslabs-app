@@ -1,7 +1,8 @@
 import type { SurveyInput } from '@/lib/types/domain';
 import { scanRuleFor } from '@/lib/scan/rule-registry';
+import type { OnboardingNudgeId } from './nudge-contract';
 
-export type OnboardingNudgeId = 'public-contact' | 'metric-source';
+export type { OnboardingNudgeId } from './nudge-contract';
 
 export interface OnboardingNudgeDefinition {
   id: OnboardingNudgeId;
@@ -58,4 +59,3 @@ export function nudgeInputComplete(survey: SurveyInput, id: OnboardingNudgeId): 
     .filter((proof) => proof.kind === 'metric' && proof.content.trim());
   return metrics.length > 0 && metrics.every((proof) => Boolean(proof.sourceUrl?.trim()));
 }
-

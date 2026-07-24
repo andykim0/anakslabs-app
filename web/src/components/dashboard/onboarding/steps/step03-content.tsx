@@ -15,6 +15,7 @@ import { contentGateStatus, requirementOf } from '@/lib/onboarding/content-requi
 import { cn } from '../../ui';
 import { extractMenuFromImage, uploadImage, uploadImageWithAssetRef } from '../../api';
 import { useToast } from '../../toast';
+import { NudgeBadge } from '../onboarding-nudge';
 import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 const TEMPLATES: { label: string; heading: string }[] = [
@@ -155,7 +156,7 @@ export function Step03Content({
 }) {
   const { control, register, watch, setValue, getValues, formState } = useFormContext<SurveyForm>();
   const { toast } = useToast();
-  const { importedBadge } = useSurveyUx();
+  const { importedBadge, nudgeResult } = useSurveyUx();
 
   const purposeId = ((watch('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
   const industry = watch('industry') ?? '';
@@ -386,6 +387,9 @@ export function Step03Content({
                   <span className="mt-1.5 block text-[11px] font-medium text-ob-accent-strong">
                     기존 채널에서 가져온 내용 · 확인하고 고쳐주세요
                   </span>
+                ) : null}
+                {question.key === 'phone' || question.key === 'address' ? (
+                  <NudgeBadge id="public-contact" result={nudgeResult} />
                 ) : null}
               </Field>
             );

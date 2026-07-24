@@ -13,6 +13,7 @@ import { REFERENCE_SAMPLES } from '@/lib/design/reference-samples';
 import { normalizeTone } from '@/lib/onboarding/tone';
 import { regionOf } from '@/lib/onboarding/region';
 import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
+import type { OnboardingPreflightDto } from '@/lib/onboarding/nudge-contract';
 import { cn } from '../../ui';
 
 // ---------- 폼 스키마 (RHF 전용 — 내부 필드 포함. 서버 계약은 호스트 onComplete에서 조립) ----------
@@ -349,6 +350,9 @@ export interface SurveyUx {
   siteId?: string;
   /** Server-derived ASSIGN readiness. This controls UX only and grants no authority. */
   assetPolicyV2Ready: boolean;
+  /** 서버가 실제 생성·진단 경로로 계산한 표시 전용 결과. 점수 산식은 포함하지 않는다. */
+  nudgeResult: OnboardingPreflightDto | null;
+  nudgeLoading: boolean;
 }
 
 const SurveyUxContext = createContext<SurveyUx | null>(null);

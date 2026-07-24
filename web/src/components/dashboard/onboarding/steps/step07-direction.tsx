@@ -10,6 +10,7 @@ import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import { goalsForGroup } from '@/lib/onboarding/site-goal';
 import { cn } from '../../ui';
 import { useToast } from '../../toast';
+import { NudgeBadge } from '../onboarding-nudge';
 import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 const TONE_CHIPS = ['고급스러운', '미니멀', '친근한', '대담한', '차분한', '러스틱', '모던'];
@@ -34,12 +35,13 @@ const PROOF_SOURCE_STATUSES: readonly {
 
 export function ProofFields() {
   const { watch, setValue } = useFormContext<SurveyForm>();
+  const { nudgeResult } = useSurveyUx();
   const proofItems = watch('proofItems') ?? [];
 
   return (
     <Field
       label={<>출처 있는 신뢰 요소 <span className="font-normal text-ob-muted">(선택)</span></>}
-      hint="자격·경력·수상·후기·수치·사례는 고객님이 확인한 내용만 넣습니다. 출처 상태는 내부 확인용이며 홈페이지에는 내용만 표시돼요."
+      hint="고객님이 확인한 내용만 넣습니다. 출처 상태는 내부 확인용이고, 원문·발행 주체·기준일은 입력하면 홈페이지에 함께 표시돼요."
     >
       <div className="space-y-3">
         {proofItems.map((proof, index) => (
@@ -92,6 +94,52 @@ export function ProofFields() {
                 <X className="h-4 w-4" />
               </button>
             </div>
+            {proof.kind === 'metric' ? (
+              <>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <input
+                    type="url"
+                    value={proof.sourceUrl ?? ''}
+                    onChange={(event) => setValue(
+                      'proofItems',
+                      proofItems.map((item, itemIndex) => itemIndex === index
+                        ? { ...item, sourceUrl: event.target.value }
+                        : item),
+                    )}
+                    maxLength={1000}
+                    placeholder="원문 https 주소"
+                    aria-label={`수치 ${index + 1} 원문 주소`}
+                    className={obInput}
+                  />
+                  <input
+                    value={proof.publisher ?? ''}
+                    onChange={(event) => setValue(
+                      'proofItems',
+                      proofItems.map((item, itemIndex) => itemIndex === index
+                        ? { ...item, publisher: event.target.value }
+                        : item),
+                    )}
+                    maxLength={120}
+                    placeholder="발행 주체"
+                    aria-label={`수치 ${index + 1} 발행 주체`}
+                    className={obInput}
+                  />
+                  <input
+                    type="date"
+                    value={proof.asOfDate ?? ''}
+                    onChange={(event) => setValue(
+                      'proofItems',
+                      proofItems.map((item, itemIndex) => itemIndex === index
+                        ? { ...item, asOfDate: event.target.value }
+                        : item),
+                    )}
+                    aria-label={`수치 ${index + 1} 기준일`}
+                    className={obInput}
+                  />
+                </div>
+                <NudgeBadge id="metric-source" result={nudgeResult} />
+              </>
+            ) : null}
           </div>
         ))}
         <button

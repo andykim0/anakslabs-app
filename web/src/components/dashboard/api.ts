@@ -39,6 +39,7 @@ import type { HeroVideoMotionId } from '@/lib/motion/hero-video-motions';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
 import type { AssetRef } from '@/lib/assets/provenance';
+import type { OnboardingPreflightDto } from '@/lib/onboarding/nudge-contract';
 import {
   GENERAL_ASSET_ATTESTATION_VERSION,
   type GeneralAssetAttestation,
@@ -558,6 +559,11 @@ export async function getDomainStatus(siteId: string): Promise<CustomDomainStatu
 }
 
 // ---------- 온보딩 ----------
+
+/** 점수 산식은 서버 스캐너에만 남기고 클라이언트에는 계산이 끝난 표시값만 전달한다. */
+export async function preflightOnboarding(survey: SurveyInput): Promise<OnboardingPreflightDto> {
+  return post<OnboardingPreflightDto>('/api/onboarding/preflight', { survey });
+}
 
 /** [v3 Phase 2] 커스텀 섹션 요청 → 섹션 계획 항목 (mock 결정적 / 실모드 Claude) */
 export async function suggestSection(input: {

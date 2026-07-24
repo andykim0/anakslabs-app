@@ -8,8 +8,11 @@ import {
   assertNudgeMappingUsesScanRegistry,
   nudgeInputComplete,
   ONBOARDING_NUDGE_MAPPING,
-  type OnboardingNudgeId,
 } from './nudge-mapping';
+import type {
+  OnboardingNudgeStatus,
+  OnboardingPreflightDto,
+} from './nudge-contract';
 
 const NUDGE_CANDIDATE: DesignCandidate = {
   id: 'onboarding-preflight',
@@ -21,21 +24,7 @@ const NUDGE_CANDIDATE: DesignCandidate = {
   description: '',
 };
 
-export interface OnboardingNudgeStatus {
-  id: OnboardingNudgeId;
-  fieldPaths: readonly string[];
-  ruleCodes: readonly string[];
-  pillars: readonly ('seo' | 'aeo' | 'geo')[];
-  badge: string;
-  state: 'complete' | 'incomplete';
-  message: string;
-}
-
-export interface OnboardingPreflightResult {
-  scores: PreflightScanResult['scores'];
-  grade: PreflightScanResult['grade'];
-  issueCodes: readonly string[];
-  nudges: readonly OnboardingNudgeStatus[];
+export interface OnboardingPreflightResult extends OnboardingPreflightDto {
   /** 테스트·서버 내부 검증용. API 응답에는 포함하지 않는다. */
   config: SiteConfig;
 }
