@@ -8,6 +8,7 @@
 import type { Section, SiteConfig } from '@/lib/types/site';
 import { allSections, findPage, homePage } from '@/lib/types/site';
 import type { LivePurposeId } from '@/lib/types/domain';
+import { resolvePublicContact } from './public-contact';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -180,6 +181,7 @@ function organizationTypeFor(
 export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''): JsonLdNode[] {
   const nodes: JsonLdNode[] = [];
   const info = config.businessInfo;
+  const publicContact = resolvePublicContact(config);
   const name = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
   const baseUrl = normalizeSiteUrl(siteUrl);
   const currentPage = findPage(config, pageSlug) ?? homePage(config);
@@ -209,23 +211,23 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   if (sameAs.length > 0) identity.sameAs = sameAs;
 
   if (region) identity.areaServed = region;
-  if (info?.address || region) {
+  if (publicContact?.address || region) {
     const address: JsonLdNode = { '@type': 'PostalAddress', addressCountry: 'KR' };
-    if (info?.address) address.streetAddress = info.address;
+    if (publicContact?.address) address.streetAddress = publicContact.address;
     if (region) address.addressLocality = region;
     identity.address = address;
   }
-  if (info) {
-    if (info.phone) identity.telephone = info.phone;
-    if (info.email) identity.email = info.email;
-    if (info.businessNumber) identity.taxID = info.businessNumber;
-    if (info.phone || info.email) {
+  if (info || publicContact) {
+    if (publicContact?.phone) identity.telephone = publicContact.phone;
+    if (info?.email) identity.email = info.email;
+    if (info?.businessNumber) identity.taxID = info.businessNumber;
+    if (publicContact?.phone || info?.email) {
       identity.contactPoint = {
         '@type': 'ContactPoint',
         contactType: 'customer service',
         availableLanguage: ['ko'],
-        ...(info.phone ? { telephone: info.phone } : {}),
-        ...(info.email ? { email: info.email } : {}),
+        ...(publicContact?.phone ? { telephone: publicContact.phone } : {}),
+        ...(info?.email ? { email: info.email } : {}),
       };
     }
   }

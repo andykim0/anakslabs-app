@@ -24,6 +24,7 @@ import type {
 } from '@/lib/types/domain';
 import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
+import { preserveServerPublicContact } from '@/lib/seo/public-contact';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { ClientsRepo, EditRequestsRepo, PaymentsService, SitesRepo } from '../types';
 import { slugifySiteName } from '../slug';
@@ -237,7 +238,10 @@ export class SupabaseSitesRepo implements SitesRepo {
       .single();
     if (readError) throw new Error(`sites 초안 조회 실패: ${readError.message}`);
     const persisted = (current?.draft_config ?? current?.site_config ?? null) as SiteConfig | null;
-    const safeConfig = preserveServerSearchVerification(config, persisted);
+    const safeConfig = preserveServerPublicContact(
+      preserveServerSearchVerification(config, persisted),
+      persisted,
+    );
     const { error } = await supabase
       .from('sites')
       .update({ draft_config: safeConfig })

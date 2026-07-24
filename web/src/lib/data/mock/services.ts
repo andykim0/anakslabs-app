@@ -28,6 +28,7 @@ import type {
 } from '@/lib/types/domain';
 import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
+import { preserveServerPublicContact } from '@/lib/seo/public-contact';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type {
   ClientsRepo,
@@ -265,7 +266,10 @@ class MockSitesRepo implements SitesRepo {
   async saveDraft(siteId: string, config: SiteConfig): Promise<void> {
     const site = getMockStore().sites.get(siteId);
     if (!site) throw new Error(`sites.saveDraft: 사이트가 없습니다 (${siteId})`);
-    site.draftConfig = structuredClone(preserveServerSearchVerification(config, site.draftConfig ?? site.siteConfig));
+    const persisted = site.draftConfig ?? site.siteConfig;
+    site.draftConfig = structuredClone(
+      preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
+    );
   }
 
   async setSearchVerification(siteId: string, verification: SearchVerification | undefined): Promise<void> {

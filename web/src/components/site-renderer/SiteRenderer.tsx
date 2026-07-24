@@ -41,6 +41,7 @@ import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 import { signatureContractEnabled } from '@/lib/motion/signature-contract';
 import { fontPairingResources } from '@/lib/fonts/resources';
+import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -327,7 +328,7 @@ function scopeCustomCss(customCss: string | undefined): string {
 }
 
 export function SiteRenderer({
-  config,
+  config: inputConfig,
   mode = 'auto',
   interactive = true,
   animate,
@@ -373,6 +374,7 @@ export function SiteRenderer({
   /** 정적 발행은 inline, App Router 문서는 client로 전달해 SPA 내비게이션에서도 실행한다. */
   runtimeDelivery?: 'inline' | 'client';
 }) {
+  const config = projectAuthoritativePublicContact(inputConfig);
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
   const siteCinematic = siteCinematicIsEnabled(config);

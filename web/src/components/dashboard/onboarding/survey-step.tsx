@@ -86,6 +86,19 @@ function cleanOptional(value?: string): string | undefined {
   return cleaned || undefined;
 }
 
+function normalizedProofs(values: SurveyForm) {
+  return (values.proofItems ?? [])
+    .map((proof) => ({
+      kind: proof.kind,
+      content: proof.content.trim(),
+      sourceStatus: proof.sourceStatus,
+      ...(cleanOptional(proof.sourceUrl) ? { sourceUrl: cleanOptional(proof.sourceUrl) } : {}),
+      ...(cleanOptional(proof.publisher) ? { publisher: cleanOptional(proof.publisher) } : {}),
+      ...(cleanOptional(proof.asOfDate) ? { asOfDate: cleanOptional(proof.asOfDate) } : {}),
+    }))
+    .filter((proof) => proof.content.length > 0);
+}
+
 export function parseSurveyDraft(raw: string): SurveyForm | null {
   try {
     const value: unknown = JSON.parse(raw);
@@ -123,9 +136,7 @@ export function surveyForEarlySitePlan(values: SurveyForm): SurveyInput {
   const faqAnswers = (values.faqAnswers ?? [])
     .map((answer) => ({ ...answer, answer: answer.answer.trim() }))
     .filter((answer) => answer.answer.length > 0);
-  const proofs = (values.proofItems ?? [])
-    .map((proof) => ({ ...proof, content: proof.content.trim() }))
-    .filter((proof) => proof.content.length > 0);
+  const proofs = normalizedProofs(values);
   const contentItems = (values.contentItems ?? [])
     .map((item) => ({
       name: item.name.trim(),
@@ -364,9 +375,7 @@ export function SurveyStep({
       .map((answer) => ({ ...answer, answer: answer.answer.trim() }))
       .filter((answer) => answer.answer.length > 0);
     const importedContentSources = values.importedContentSources ?? [];
-    const proofs = (values.proofItems ?? [])
-      .map((proof) => ({ ...proof, content: proof.content.trim() }))
-      .filter((proof) => proof.content.length > 0);
+    const proofs = normalizedProofs(values);
     const presence = values.existingPresence ?? [];
     const recommended = recommendedImageDirection({
       industry: values.industry,

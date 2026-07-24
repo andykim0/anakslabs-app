@@ -41,6 +41,14 @@ function texts(section: Section): string[] {
 
 function SectionOutline({ section }: { section: Section }) {
   const body = texts(section);
+  const sources = section.elements.filter(
+    (element) => element.kind === 'button' && /^https:\/\//iu.test(element.href) && /^출처\s*·/u.test(element.label),
+  );
+  const sourceNodes = sources.map((source) => source.kind === 'button' ? (
+    <cite key={source.id}>
+      <a href={source.href}>{source.label}</a>
+    </cite>
+  ) : null);
   if (section.acts?.length) {
     return (
       <section aria-label={section.name}>
@@ -51,6 +59,7 @@ function SectionOutline({ section }: { section: Section }) {
             <p>{act.body}</p>
           </article>
         ))}
+        {sourceNodes}
       </section>
     );
   }
@@ -75,6 +84,7 @@ function SectionOutline({ section }: { section: Section }) {
       <section aria-label={section.name}>
         <h2>{section.name}</h2>
         {items}
+        {sourceNodes}
       </section>
     );
   }
@@ -88,6 +98,7 @@ function SectionOutline({ section }: { section: Section }) {
             <li key={i}>{t}</li>
           ))}
         </ul>
+        {sourceNodes}
       </section>
     );
   }
@@ -98,6 +109,7 @@ function SectionOutline({ section }: { section: Section }) {
       {body.map((t, i) => (
         <p key={i}>{t}</p>
       ))}
+      {sourceNodes}
     </section>
   );
 }

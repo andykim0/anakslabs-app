@@ -908,6 +908,13 @@ export const siteConfigSchema = z
     assetUsages: z.array(assetUsageSchema).max(500).optional(),
     directions: z.array(sectionDirectionSchema).max(100).optional(),
     businessInfo: businessInfoSchema.optional(),
+    publicContact: z.object({
+      version: z.literal(1),
+      phone: z.string().trim().min(1).max(100).optional(),
+      address: z.string().trim().min(1).max(300).optional(),
+    }).strict().refine((value) => Boolean(value.phone || value.address), {
+      message: '공개 연락처에는 전화 또는 주소가 필요합니다.',
+    }).optional(),
     searchVerification: z.object({
       naver: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
       google: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
@@ -1178,6 +1185,11 @@ export const surveySchema = z.object({
         kind: z.enum(['qualification', 'experience', 'award', 'testimonial', 'metric', 'case']),
         content: z.string().trim().min(1).max(500),
         sourceStatus: z.enum(['customer_confirmed', 'evidence_available', 'publication_permission']),
+        sourceUrl: z.string().trim().max(1000)
+          .refine(isHttpsUrl, '출처 링크는 https:// 주소여야 합니다.')
+          .optional(),
+        publisher: z.string().trim().min(1).max(120).optional(),
+        asOfDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u, '기준일은 YYYY-MM-DD 형식이어야 합니다.').optional(),
       })).max(20).optional(),
     }).optional(),
   }).optional(),

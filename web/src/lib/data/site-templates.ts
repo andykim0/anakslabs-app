@@ -51,6 +51,7 @@ import { parseAddress, parseBusinessHours, resolveContentItems } from './content
 import { isSafeHref } from '@/lib/safe-url';
 import {
   buildSitePlan,
+  sitePlanSectionProofSources,
   sitePlanSectionSourceLines,
   sitePlanV2Enabled,
   type SitePlan,
@@ -62,6 +63,7 @@ import {
   type HeroLayoutVariantId,
   type SectionLayoutSelection,
 } from '@/lib/layout';
+import { publicContactFromFacts } from '@/lib/seo/public-contact';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -2690,6 +2692,7 @@ function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSl
 
 function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
   const lines = sitePlanSectionSourceLines(ctx.survey, planned);
+  const proofSources = sitePlanSectionProofSources(ctx.survey, planned);
   const elements = mainTopicIntro(
     ctx,
     `el-plan-${planned.id}`,
@@ -2725,15 +2728,35 @@ function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
       });
     });
   }
+  const sourceTop = 286 + lines.length * 82;
+  proofSources.forEach((source, index) => {
+    elements.push({
+      id: nextId(ctx, `el-plan-source-${index + 1}`), kind: 'button',
+      frame: { x: 120, y: sourceTop + index * 58, w: 520, h: 42 }, z: 3,
+      label: source.label,
+      href: source.url,
+      style: {
+        variant: 'ghost', color: ctx.theme.palette.primary,
+        textColor: ctx.theme.palette.primary, fontSize: 13,
+        borderRadius: ctx.theme.radius ?? 4,
+      },
+    });
+  });
+  const sourceHeight = proofSources.length * 58;
   if (planned.mode === 'teaser' && planned.pageSlug === '') {
     const target = planned.id.replace(/^sec-home-|-teaser$/gu, '');
-    elements.push(mainTopicButton(ctx, `el-plan-${planned.id}-link`, 304 + lines.length * 82, `/${target}`));
+    elements.push(mainTopicButton(
+      ctx,
+      `el-plan-${planned.id}-link`,
+      304 + lines.length * 82 + sourceHeight,
+      `/${target}`,
+    ));
   }
   return {
     id: planned.id,
     type: planned.type,
     name: planned.name,
-    height: Math.max(520, 386 + lines.length * 82),
+    height: Math.max(520, 386 + lines.length * 82 + sourceHeight),
     background: { color: ctx.theme.palette.background },
     elements,
   };
@@ -3085,6 +3108,9 @@ export function buildSiteConfigFromSurvey(
 
   // [v4.5] 지역(1급 필드 ∪ 레거시 [지역] extraNotes) → SEO 메타 결합(지역 검색 = 제품 핵심 약속)
   const region = regionOf(survey);
+  const publicContact = survey.contentDepth?.version === 2 && survey.contentDepth.surveyBrief
+    ? publicContactFromFacts(survey.contentDepth.facts)
+    : undefined;
   const assetRefs = opts.assetRefs?.filter(
     (ref, index, refs) => refs.findIndex((candidate) => candidate.assetId === ref.assetId) === index,
   );
@@ -3110,6 +3136,7 @@ export function buildSiteConfigFromSurvey(
       // [I1] 개선 모드 진단 원본 — 발행 전 진단 화면 전후 대조(scans.getById)에 사용
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),
     },
+    ...(publicContact ? { publicContact } : {}),
     pages,
     ...(assetRefs?.length ? { assetRefs: assetRefs.map((ref) => ({ ...ref })) } : {}),
     // [Q$3] 생성 파이프라인은 사용자 디렉션을 해석하거나 재작성하지 않고 저장 계약까지 보존한다.

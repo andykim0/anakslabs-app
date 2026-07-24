@@ -299,6 +299,11 @@ export interface SurveyProofInput {
   kind: SurveyProofKind;
   content: string;
   sourceStatus: SurveyProofSourceStatus;
+  /** 화면에 함께 표시할 원문 출처. 제공된 값만 사용하며 생성·추측하지 않는다. */
+  sourceUrl?: string;
+  publisher?: string;
+  /** 고객이 확인한 출처의 기준일(YYYY-MM-DD). */
+  asOfDate?: string;
 }
 
 /** Additive gate: v1 retains CONTENT/MAIN output; v2 enables the approved SitePlan contract. */

@@ -12,6 +12,9 @@ import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
 import { buildSiteBeaconRuntime, SITE_EVENT_INGEST_PATH } from '@/lib/analytics/site-beacon';
+import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
+import { resolvePublicContact } from '@/lib/seo/public-contact';
+import { PublicContactBar } from './PublicContactBar';
 
 export function TenantPageContent({
   config,
@@ -48,7 +51,9 @@ export function TenantPageContent({
   /** App Router는 client, render-static은 inline을 명시한다. */
   runtimeDelivery?: 'inline' | 'client';
 }) {
+  const renderedConfig = projectAuthoritativePublicContact(config);
   const businessInfo = config.businessInfo ?? null;
+  const publicContact = resolvePublicContact(renderedConfig);
   // A legacy config without business information has no reachable tenant
   // privacy page. Tracking therefore fails closed until the disclosure exists.
   const analyticsRuntime = siteId && businessInfo
@@ -57,12 +62,12 @@ export function TenantPageContent({
   return (
     <>
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}
-      <TenantHeader config={config} currentSlug={pageSlug} hrefForSlug={hrefForSlug} />
+      <TenantHeader config={renderedConfig} currentSlug={pageSlug} hrefForSlug={hrefForSlug} />
       <main>
         {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조(h1·헤딩 위계·목록) */}
-        <SemanticOutline config={config} pageSlug={pageSlug} />
+        <SemanticOutline config={renderedConfig} pageSlug={pageSlug} />
         <SiteRenderer
-          config={config}
+          config={renderedConfig}
           mode="auto"
           siteId={siteId}
           pageSlug={pageSlug}
@@ -74,6 +79,9 @@ export function TenantPageContent({
           runtimeDelivery={runtimeDelivery}
         />
       </main>
+      {!businessInfo && publicContact ? (
+        <PublicContactBar contact={publicContact} theme={config.theme} />
+      ) : null}
       {businessInfo ? (
         <LegalFooter info={businessInfo} theme={config.theme} privacyHref={privacyHref} termsHref={termsHref} />
       ) : null}

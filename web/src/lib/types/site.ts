@@ -661,6 +661,18 @@ export interface SearchVerification {
 }
 
 /**
+ * [NUDGE] 설문에서 고객이 입력·확인한 공개 연락처.
+ *
+ * 전자상거래법 표기와 발행 게이트를 소유하는 BusinessInfo와 분리한다. 신규 생성 서버만
+ * 이 슬롯을 기록하며, 렌더 시 BusinessInfo에 같은 필드가 있으면 그 값이 우선한다.
+ */
+export interface PublicContact {
+  version: 1;
+  phone?: string;
+  address?: string;
+}
+
+/**
  * [v3 Phase 0.1] 사업자 정보 — 캔버스 요소가 아니라 사이트 레벨 구조화 데이터.
  * 법적 표기는 자유배치로 지워지면 안 되고 JSON-LD(Phase 7) 원천으로도 재사용하므로
  * 렌더러가 항상 맨 아래 고정 푸터로 렌더한다. 캔버스 undo/redo 대상 제외(에디터 별도 폼).
@@ -783,6 +795,8 @@ export interface SiteConfig {
   directions?: SectionDirection[];
   /** [v3] 없으면 발행 게이트에서 입력 요구. 렌더러가 맨 아래 고정 푸터로 렌더 */
   businessInfo?: BusinessInfo;
+  /** 신규 생성 서버가 기록한 AEO/GEO용 공개 연락처. 법적 businessInfo와 별도 계약. */
+  publicContact?: PublicContact;
   /** 관리자 서버가 기록하는 검색 소유확인 메타태그 값. 클라이언트 초안 저장은 변경할 수 없다. */
   searchVerification?: SearchVerification;
   /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */

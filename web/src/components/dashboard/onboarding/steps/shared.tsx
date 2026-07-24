@@ -64,6 +64,9 @@ export const surveyFormSchema = z.object({
     kind: z.enum(['qualification', 'experience', 'award', 'testimonial', 'metric', 'case']),
     content: z.string().max(500),
     sourceStatus: z.enum(['customer_confirmed', 'evidence_available', 'publication_permission']),
+    sourceUrl: z.string().max(1000).optional(),
+    publisher: z.string().max(120).optional(),
+    asOfDate: z.string().max(10).optional(),
   })).max(20),
   providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
   /** [H1] 히어로에 크게 쓰는 고객 실사 1장. storePhotoUrls(본문·갤러리)와 별도. */

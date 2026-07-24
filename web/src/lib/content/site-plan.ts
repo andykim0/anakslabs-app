@@ -1,6 +1,7 @@
 import type {
   PagePlanItem,
   SectionPlanItem,
+  SurveyProofInput,
   SurveyInput,
 } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
@@ -116,7 +117,7 @@ function sourceValuesFor(
   const model = buildContentDepthHomeModel(survey);
   const facts = resolveBusinessFacts(survey.contentDepth?.facts ?? []);
   const proofs = survey.contentDepth?.surveyBrief?.proofs ?? [];
-  const proofLines = (...kinds: readonly (typeof proofs)[number]['kind'][]) => proofs
+  const proofLines = (...kinds: readonly SurveyProofInput['kind'][]) => proofs
     .filter((proof) => kinds.includes(proof.kind))
     .map((proof) => proof.content.trim())
     .filter(Boolean);
@@ -174,6 +175,54 @@ function sourceValuesFor(
     case 'custom':
       return [];
   }
+}
+
+function proofKindsFor(
+  item: Pick<SectionPlanItem, 'type' | 'variant'>,
+): readonly SurveyProofInput['kind'][] {
+  if (item.type === 'about' && item.variant === 'about:resume') {
+    return ['qualification', 'experience'];
+  }
+  if (item.type === 'team') return ['qualification', 'experience'];
+  if (item.type === 'cases') return ['award', 'metric', 'case'];
+  if (item.type === 'testimonials') return ['testimonial'];
+  return [];
+}
+
+export interface SitePlanProofSource {
+  url: string;
+  label: string;
+}
+
+/**
+ * 증거 문구와 같은 섹션에 실제 원문 링크를 배치하기 위한 정직 소스 projection.
+ * 출처 상태(sourceStatus)는 내부 감사값이라 방문자 표면으로 내보내지 않는다.
+ */
+export function sitePlanSectionProofSources(
+  survey: SurveyInput,
+  section: Pick<SitePlanSection, 'type' | 'variant' | 'mode'>,
+): readonly SitePlanProofSource[] {
+  const kinds = proofKindsFor(section);
+  if (kinds.length === 0) return [];
+  const proofs = (survey.contentDepth?.surveyBrief?.proofs ?? [])
+    .filter((proof) => kinds.includes(proof.kind) && Boolean(proof.sourceUrl?.trim()));
+  const scoped = section.mode === 'teaser' ? proofs.slice(0, 3) : proofs;
+  return scoped.flatMap((proof) => {
+    const raw = proof.sourceUrl?.trim();
+    if (!raw) return [];
+    try {
+      const url = new URL(raw);
+      if (url.protocol !== 'https:') return [];
+      const sourceName = proof.publisher?.trim() || url.hostname.replace(/^www\./u, '');
+      const date = proof.asOfDate?.trim();
+      return [{
+        url: url.toString(),
+        label: `출처 · ${sourceName}${date ? ` · ${date}` : ''}`,
+      }];
+    } catch {
+      return [];
+    }
+  });
 }
 
 export function sitePlanSectionSourceLines(
