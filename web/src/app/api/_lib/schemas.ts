@@ -37,6 +37,10 @@ import {
   ABS_WEIGHT_ZONE_IDS,
 } from '@/lib/abstract/types';
 import { SIGNATURE_TEXT_SAFE_ZONE_IDS } from '@/lib/motion/signature-contract';
+import {
+  KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  PRODUCTION_KOREAN_FONT_PAIR_IDS,
+} from '@/lib/fonts/types';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -199,6 +203,10 @@ export const siteThemeSchema = z.object({
   }),
   radius: z.number().optional(),
   tokens: siteThemeTokensSchema.optional(),
+  fontPairing: z.object({
+    catalogVersion: z.literal(KOREAN_FONT_PAIRING_CATALOG_VERSION),
+    id: z.enum(PRODUCTION_KOREAN_FONT_PAIR_IDS),
+  }).strict().optional(),
   customCss: z.string().optional(),
 });
 

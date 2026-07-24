@@ -15,6 +15,7 @@ import type { SurveyInput } from '@/lib/types/domain';
 import {
   CURATED_PALETTES,
   FONT_PAIRINGS,
+  LEGACY_FONT_PAIRINGS,
   STYLE_DIRECTIONS,
   LANDING_PATTERNS,
   type CuratedPalette,
@@ -29,6 +30,7 @@ import { toneText } from '@/lib/onboarding/tone';
 export {
   CURATED_PALETTES,
   FONT_PAIRINGS,
+  LEGACY_FONT_PAIRINGS,
   STYLE_DIRECTIONS,
   LANDING_PATTERNS,
   type CuratedPalette,
@@ -159,7 +161,7 @@ function rankFonts(
   style: StyleDirection,
   seed: string,
 ): Array<{ f: FontPairing; score: number }> {
-  return FONT_PAIRINGS.map((f) => ({
+  return LEGACY_FONT_PAIRINGS.map((f) => ({
     f,
     score:
       overlapCount(style.fontMood, f.mood) * 3 +
@@ -269,7 +271,7 @@ export function selectDesignBriefs(survey: SurveyInput, count = 3): DesignBrief[
       CURATED_PALETTES[0];
     usedPalettes.add(palette.id);
     const fonts =
-      rankFonts(text, style, seed).find((r) => !usedFonts.has(r.f.id))?.f ?? FONT_PAIRINGS[0];
+      rankFonts(text, style, seed).find((r) => !usedFonts.has(r.f.id))?.f ?? LEGACY_FONT_PAIRINGS[0];
     usedFonts.add(fonts.id);
     return { style, palette, fonts };
   });

@@ -14,6 +14,10 @@
  */
 import type { SiteTheme, SectionType } from '@/lib/types/site';
 import type { CandidateStyle } from '@/lib/types/domain';
+import {
+  KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  type ProductionKoreanFontManifest,
+} from '@/lib/fonts/types';
 
 // ---------- 타입 ----------
 
@@ -34,6 +38,11 @@ export interface CuratedPalette {
 /** 한국어 렌더링을 보장하는 폰트 페어링 (라틴 디스플레이 + 한글 폴백 체인) */
 export interface FontPairing {
   id: string;
+  /**
+   * 기존 미지정 항목은 legacy 생성·에디터에서 계속 소비한다. FNT 신규 세트는 명시적 opt-in
+   * 경로에서만 발급하며 기존 자유 pair enum에 섞지 않는다.
+   */
+  availability?: 'new-opt-in';
   /** 한국어 표시명 */
   name: string;
   /** 무드 어휘 — StyleDirection.fontMood 와 정확히 일치하는 어휘 사용 */
@@ -49,6 +58,8 @@ export interface FontPairing {
    * 주의: Pretendard 는 Google Fonts 에 없다 — 렌더러가 CDN 에서 자동 로드하므로 여기 넣지 않는다.
    */
   googleFonts: string[];
+  /** FNT 역할·조판·라이선스 계약. legacy 항목에는 없으며 기존 동작을 바꾸지 않는다. */
+  productionManifest?: ProductionKoreanFontManifest;
 }
 
 /** 스타일 방향 — 1차 가공(AI 디자인 후보)의 비주얼 방향성 */
@@ -704,7 +715,251 @@ export const FONT_PAIRINGS: FontPairing[] = [
     body: "'Pretendard', 'Noto Sans KR', sans-serif",
     googleFonts: ['Hahmlet', 'Noto Serif KR', 'Noto Sans KR'],
   },
+  {
+    id: 'kr-pretendard-neutral',
+    availability: 'new-opt-in',
+    name: '프리텐다드 뉴트럴',
+    mood: ['중립', '명료', '현대적', '빠른 판독'],
+    bestFor: ['의료', '법률', '컨설팅', '교육', '리테일', '포트폴리오'],
+    heading: "'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif",
+    body: "'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif",
+    googleFonts: [],
+    productionManifest: {
+      catalogVersion: KOREAN_FONT_PAIRING_CATALOG_VERSION,
+      status: 'production-ready',
+      description: '한 가족의 굵기 대비만으로 빠르고 중립적인 정보 위계를 만드는 범용 기본값.',
+      heading: {
+        family: 'Pretendard Variable',
+        weights: [700, 800],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      body: {
+        family: 'Pretendard Variable',
+        weights: [400, 500],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      control: {
+        family: 'Pretendard Variable',
+        weights: [600],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      typography: {
+        display: { tracking: 'tracking.kr-tight-2', leading: 'leading.display-compact' },
+        heading: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-compact' },
+        lead: { tracking: 'tracking.kr-body-snug', leading: 'leading.lead-readable' },
+        body: { tracking: 'tracking.kr-body-snug', leading: 'leading.body-readable' },
+        control: { tracking: 'tracking.control-snug', leading: 'leading.control-single' },
+      },
+      dnaAffinity: {
+        'cafe-warm-editorial': 'allowed',
+        'dining-refined-contrast': 'blocked',
+        'beauty-soft-wellness': 'allowed',
+        'medical-clinical-clarity': 'recommended',
+        'legal-authoritative-editorial': 'recommended',
+        'workshop-tactile-heritage': 'blocked',
+        'academy-structured-friendly': 'recommended',
+        'retail-bold-geometric': 'allowed',
+      },
+      industryRouting: {
+        primary: ['medical', 'legal', 'consulting', 'academy'],
+        secondary: ['beauty', 'retail', 'portfolio'],
+        blocked: ['fine_dining', 'workshop'],
+      },
+      // Official license: https://github.com/orioncactus/pretendard/blob/main/LICENSE
+      licenseAssetIds: ['license-pretendard-ofl-1.1'],
+    },
+  },
+  {
+    id: 'kr-nanum-myeongjo-readable',
+    availability: 'new-opt-in',
+    name: '나눔명조 리더블',
+    mood: ['차분', '인문적', '신뢰', '따뜻한 편집감'],
+    bestFor: ['카페', '파인다이닝', '법률', '공방', '컨설팅', '뷰티'],
+    heading: "'Nanum Myeongjo', 'Noto Serif KR', serif",
+    body: "'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif",
+    googleFonts: [],
+    productionManifest: {
+      catalogVersion: KOREAN_FONT_PAIRING_CATALOG_VERSION,
+      status: 'production-ready',
+      description: '한국어 명조 제목의 신뢰와 온기를 Pretendard 본문의 현대적 판독성으로 받친다.',
+      heading: {
+        family: 'Nanum Myeongjo',
+        weights: [700, 800],
+        source: 'nanum-myeongjo-official',
+        fallbackChain: ['Noto Serif KR', 'serif'],
+      },
+      body: {
+        family: 'Pretendard Variable',
+        weights: [400, 500],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      control: {
+        family: 'Pretendard Variable',
+        weights: [600],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      typography: {
+        display: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-comfort' },
+        heading: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-comfort' },
+        lead: { tracking: 'tracking.kr-neutral', leading: 'leading.lead-readable' },
+        body: { tracking: 'tracking.kr-body-snug', leading: 'leading.body-editorial' },
+        control: { tracking: 'tracking.control-snug', leading: 'leading.control-single' },
+      },
+      dnaAffinity: {
+        'cafe-warm-editorial': 'recommended',
+        'dining-refined-contrast': 'recommended',
+        'beauty-soft-wellness': 'allowed',
+        'medical-clinical-clarity': 'blocked',
+        'legal-authoritative-editorial': 'recommended',
+        'workshop-tactile-heritage': 'recommended',
+        'academy-structured-friendly': 'blocked',
+        'retail-bold-geometric': 'blocked',
+      },
+      industryRouting: {
+        primary: ['cafe', 'fine_dining', 'legal', 'workshop'],
+        secondary: ['consulting', 'beauty', 'portfolio'],
+        blocked: ['medical', 'retail', 'academy'],
+      },
+      // Official licenses:
+      // https://hangeul.naver.com/font
+      // https://github.com/orioncactus/pretendard/blob/main/LICENSE
+      licenseAssetIds: ['license-naver-nanum', 'license-pretendard-ofl-1.1'],
+    },
+  },
+  {
+    id: 'kr-gmarket-noto-structured',
+    availability: 'new-opt-in',
+    name: 'G마켓 구조형',
+    mood: ['구조적', '기하학적', '밝음', '선명한 상업성'],
+    bestFor: ['리테일', '교육', '카페', '포트폴리오', '컨설팅'],
+    heading: "'Gmarket Sans', 'Noto Sans KR', system-ui, sans-serif",
+    body: "'Noto Sans KR', system-ui, sans-serif",
+    googleFonts: [],
+    productionManifest: {
+      catalogVersion: KOREAN_FONT_PAIRING_CATALOG_VERSION,
+      status: 'production-ready',
+      description: '직선적인 Gmarket Sans 제목과 Noto Sans KR 본문으로 선택지를 빠르게 스캔하게 한다.',
+      heading: {
+        family: 'Gmarket Sans',
+        weights: [500, 700],
+        source: 'gmarket-sans-official',
+        fallbackChain: ['Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      body: {
+        family: 'Noto Sans KR',
+        weights: [400, 500],
+        source: 'noto-sans-kr-official',
+        fallbackChain: ['system-ui', 'sans-serif'],
+      },
+      control: {
+        family: 'Gmarket Sans',
+        weights: [500],
+        source: 'gmarket-sans-official',
+        fallbackChain: ['Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      typography: {
+        display: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-compact' },
+        heading: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-compact' },
+        lead: { tracking: 'tracking.kr-neutral', leading: 'leading.body-readable' },
+        body: { tracking: 'tracking.kr-neutral', leading: 'leading.body-readable' },
+        control: { tracking: 'tracking.control-snug', leading: 'leading.control-single' },
+      },
+      dnaAffinity: {
+        'cafe-warm-editorial': 'allowed',
+        'dining-refined-contrast': 'blocked',
+        'beauty-soft-wellness': 'blocked',
+        'medical-clinical-clarity': 'allowed',
+        'legal-authoritative-editorial': 'blocked',
+        'workshop-tactile-heritage': 'blocked',
+        'academy-structured-friendly': 'recommended',
+        'retail-bold-geometric': 'recommended',
+      },
+      industryRouting: {
+        primary: ['retail', 'academy'],
+        secondary: ['portfolio', 'consulting'],
+        blocked: ['cafe', 'fine_dining', 'beauty', 'legal', 'workshop'],
+      },
+      // Official licenses:
+      // https://corp.gmarket.com/fonts/
+      // https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE
+      licenseAssetIds: ['license-gmarket-sans-ofl-1.1', 'license-noto-cjk-ofl-1.1'],
+    },
+  },
+  {
+    id: 'kr-nanum-square-round-friendly',
+    availability: 'new-opt-in',
+    name: '나눔스퀘어라운드 프렌들리',
+    mood: ['친근', '구조적', '부드러운 현대성', '안정'],
+    bestFor: ['교육', '뷰티', '카페', '의료', '리테일', '컨설팅'],
+    heading: "'NanumSquareRound', 'NanumSquare', 'Noto Sans KR', system-ui, sans-serif",
+    body: "'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif",
+    googleFonts: [],
+    productionManifest: {
+      catalogVersion: KOREAN_FONT_PAIRING_CATALOG_VERSION,
+      status: 'production-ready',
+      description: '둥근 모서리와 반듯한 골격으로 서비스 정보를 친근하지만 유아적이지 않게 구조화한다.',
+      heading: {
+        family: 'NanumSquareRound',
+        weights: [700, 800],
+        source: 'nanum-square-round-official',
+        fallbackChain: ['NanumSquare', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      body: {
+        family: 'Pretendard Variable',
+        weights: [400, 500],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      control: {
+        family: 'Pretendard Variable',
+        weights: [600],
+        source: 'pretendard-v1.3.9-official',
+        fallbackChain: ['Pretendard', 'Noto Sans KR', 'system-ui', 'sans-serif'],
+      },
+      typography: {
+        display: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-comfort' },
+        heading: { tracking: 'tracking.kr-tight-1', leading: 'leading.heading-comfort' },
+        lead: { tracking: 'tracking.kr-body-snug', leading: 'leading.lead-readable' },
+        body: { tracking: 'tracking.kr-body-snug', leading: 'leading.body-readable' },
+        control: { tracking: 'tracking.control-snug', leading: 'leading.control-single' },
+      },
+      dnaAffinity: {
+        'cafe-warm-editorial': 'allowed',
+        'dining-refined-contrast': 'blocked',
+        'beauty-soft-wellness': 'recommended',
+        'medical-clinical-clarity': 'allowed',
+        'legal-authoritative-editorial': 'blocked',
+        'workshop-tactile-heritage': 'blocked',
+        'academy-structured-friendly': 'recommended',
+        'retail-bold-geometric': 'allowed',
+      },
+      industryRouting: {
+        primary: ['academy', 'beauty'],
+        secondary: ['cafe', 'medical', 'retail', 'consulting'],
+        blocked: ['fine_dining', 'legal', 'workshop'],
+      },
+      // Official licenses:
+      // https://hangeul.naver.com/font
+      // https://github.com/orioncactus/pretendard/blob/main/LICENSE
+      licenseAssetIds: ['license-naver-nanum', 'license-pretendard-ofl-1.1'],
+    },
+  },
 ];
+
+/** 기존 AI·에디터·DNA pair enum이 소비하는 완전 격리 view. 순서와 객체 값은 종전과 동일하다. */
+export const LEGACY_FONT_PAIRINGS = FONT_PAIRINGS.filter(
+  (pairing) => pairing.availability !== 'new-opt-in',
+);
+
+/**
+ * 에스코어드림은 공식 파일 수정 금지 조건이 WOFF2 변환·서브셋과 충돌한다.
+ * 웹 임베딩·재배포에 대한 사람·법무 승인 전에는 enum·카탈로그·UI에 식별자를 만들지 않는다.
+ */
 
 // ---------- 스타일 방향 (styles.csv 큐레이션 — 소상공인 웹사이트에 유효한 방향만) ----------
 

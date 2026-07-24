@@ -5,6 +5,7 @@
  */
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
 import type { DesignDnaSelection, DnaColorRamp } from '@/lib/design/dna/types';
+import type { SiteFontPairingPin } from '@/lib/fonts/types';
 import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
 import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
@@ -103,6 +104,11 @@ export interface SiteTheme {
   radius?: number;
   /** DNA 경로에서만 기록되는 additive 렌더 토큰. 미지정이면 legacy 픽셀 계약 유지. */
   tokens?: SiteThemeTokens;
+  /**
+   * FNT 신규 생성본만 갖는 독립 typography 축. 기존 `fonts` 값은 정적/no-JS 폴백으로 계속
+   * 저장하며, 이 pin이 있을 때만 역할별 manifest와 조판 토큰을 추가 소비한다.
+   */
+  fontPairing?: SiteFontPairingPin;
   /** 사이트 스코프 커스텀 CSS (AI 생성). 렌더 시 <style>로 주입 */
   customCss?: string;
 }

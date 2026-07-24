@@ -5,15 +5,15 @@
  * 이 파일의 순수 함수가, generation-data는 DESIGN_POVS/기존 design-knowledge가, qa-audit는
  * qaAuditChecklist()가 담당한다(QA 화면과 규칙이 어긋날 수 없는 단일 소스).
  *
- * [프롬프트-실제 코드 조정] ① FONT_PAIRINGS는 신규 생성 금지 — 기존 lib/ai/design-knowledge-data.ts를
- * 단일 소스로 재사용(POV.allowedPairings가 기존 id 참조). ② design-candidates에 정적 후보 목록이
+ * [프롬프트-실제 코드 조정] ① FONT_PAIRINGS는 단일 소스 — POV와 기존 생성은 legacy view만,
+ * FNT 신규 세트는 독립 SiteTheme.fontPairing pin만 소비한다. ② design-candidates에 정적 후보 목록이
  * 없어 povId를 후보에 심는 대신, 기존 StyleDirection → POV 매핑(povForStyle, 완전성 테스트로 강제)으로
  * 유도. ③ CandidateStyle(photo|3d_render|illustration)은 POV와 직교(렌더 방식) — buildImagePrompt 파라미터로만 사용.
  */
 import type { CandidateStyle } from '@/lib/types/domain';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { SectionType } from '@/lib/types/site';
-import { FONT_PAIRINGS } from '@/lib/ai/design-knowledge-data';
+import { LEGACY_FONT_PAIRINGS } from '@/lib/ai/design-knowledge-data';
 import {
   ambientSubjectFor,
   moodPromptForTone,
@@ -157,7 +157,7 @@ export interface DesignPov {
   bestFor: string[];
   /** 금지 표현 */
   avoid: string[];
-  /** 허용 폰트 페어링 — 기존 FONT_PAIRINGS id만(신규 레지스트리 금지) */
+  /** 허용 폰트 페어링 — FONT_PAIRINGS의 legacy view id만(병렬 레지스트리 금지) */
   allowedPairings: string[];
   /** [Q5] 개성 키트 — 배경 리듬·장식 축 */
   kit: PovKit;
@@ -322,8 +322,8 @@ export const FONT_SCALE = [16, 20, 25, 31, 39, 49, 61] as const;
 /** 스페이싱 토큰 (확정값) */
 export const SPACING_SCALE = [4, 8, 12, 16, 24, 32, 48, 64, 96] as const;
 
-/** 기존 FONT_PAIRINGS id 집합 — 폰트는 pairingId로만 설정 가능(자유 조합 차단) */
-const PAIRING_IDS = new Set<string>(FONT_PAIRINGS.map((f) => f.id));
+/** 기존 생성 경로 id 집합 — FNT 독립 typography pin을 자유 pair enum에 섞지 않는다. */
+const PAIRING_IDS = new Set<string>(LEGACY_FONT_PAIRINGS.map((f) => f.id));
 export function validateFontPairing(pairingId: string): boolean {
   return PAIRING_IDS.has(pairingId);
 }

@@ -3,7 +3,7 @@
  * 1차 가공(AI 디자인 후보)과 에디터가 같은 폰트 어휘를 쓰도록 목록 소스를 통일한다.
  * 각 옵션의 css 는 한글 폴백 체인을 포함한 전체 font-family 값이다.
  */
-import { FONT_PAIRINGS } from '@/lib/ai/design-knowledge';
+import { LEGACY_FONT_PAIRINGS } from '@/lib/ai/design-knowledge';
 
 export interface FontOption {
   /** 셀렉트 표시명 */
@@ -82,7 +82,7 @@ export const FONT_OPTIONS: FontOption[] = (() => {
     seen.add(key);
     options.push(opt);
   };
-  for (const pairing of FONT_PAIRINGS) {
+  for (const pairing of LEGACY_FONT_PAIRINGS) {
     push(pairing.heading);
     push(pairing.body);
   }
