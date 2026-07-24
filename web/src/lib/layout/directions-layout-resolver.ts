@@ -248,9 +248,12 @@ function compileBand({
 
   const mapHeight = band === 'mobile' ? 620 : band === 'compact' ? 560 : 640;
   putFrame(frames, content.mapId, 0, 0, band === 'wide' ? 1440 : band === 'compact' ? 768 : 390, mapHeight);
-  const surfaceWidth = zone.w * (band === 'mobile' ? 1 : 0.48);
+  const surfaceWidth = zone.w * (band === 'wide' ? 0.48 : 1);
   const surfaceX = zone.x;
-  const surfaceY = Math.max(zone.y, mapHeight * (band === 'mobile' ? 0.36 : 0.34));
+  const surfaceY = Math.max(
+    intro.bottom + (content.intro ? spacing.elementGap * 2 : 0),
+    mapHeight * (band === 'mobile' ? 0.36 : 0.34),
+  );
   let surfaceBottom = placeRows({
     rows: content.rows,
     elements,

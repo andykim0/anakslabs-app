@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { DesignCandidate, Site, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { recompileDirectionsSectionLayouts } from '@/lib/layout';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
@@ -183,10 +184,11 @@ export const POST = withApiHandler(async (request) => {
   const withCinematicDefault = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(withCinematicBase)
     : withCinematicBase;
+  const withRecompiledDirections = recompileDirectionsSectionLayouts(withCinematicDefault);
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 주입 → [Q7] 사용자 선택 병합 → sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
   let draftConfig = applyGeneratedMotion(
-    withCinematicDefault,
+    withRecompiledDirections,
     survey.purposeId,
     client.tier,
     motionChoice,

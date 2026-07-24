@@ -72,13 +72,16 @@ export function ctaLabelForGoal(goal: SiteGoalId | undefined): string | undefine
   return goal ? SITE_GOALS[goal].ctaLabel : undefined;
 }
 
-/** 실제 목적지가 홈페이지 폼이면 카카오톡으로 오인시키지 않는다. */
-export function ctaLabelForSurvey(survey: SurveyInput): string | undefined {
-  if (
-    survey.siteGoal === 'kakao_inquiry' &&
-    survey.contentDepth?.surveyBrief?.conversionDestination?.kind === 'contact_form'
-  ) return '문의하기';
-  return ctaLabelForGoal(survey.siteGoal);
+export type ConversionDestinationKind =
+  | 'phone'
+  | 'reservation'
+  | 'contact-form'
+  | 'messenger';
+
+export interface ConversionDestination {
+  label: string;
+  href: string;
+  kind: ConversionDestinationKind;
 }
 
 function phoneHref(value: string | undefined): string | undefined {
@@ -87,26 +90,43 @@ function phoneHref(value: string | undefined): string | undefined {
   return compact.replace(/\D/gu, '').length >= 7 ? `tel:${compact}` : undefined;
 }
 
-/**
- * 신규 SURVEY 계약에서 고객이 확정한 실제 전환 목적지만 href로 승격한다.
- * surveyBrief가 없는 기존 payload는 undefined라 기존 앵커 계산을 그대로 탄다.
- */
-export function conversionHrefForSurvey(survey: SurveyInput): string | undefined {
+/** 히어로와 일반 CTA가 함께 소비하는 고객 확인 전환 목적지 단일 소스. */
+export function resolveConversionDestination(
+  survey: SurveyInput,
+): ConversionDestination | undefined {
   const brief = survey.contentDepth?.surveyBrief;
   if (!brief || !survey.siteGoal) return undefined;
   const destination = brief.conversionDestination;
   if (survey.siteGoal === 'call' && destination?.kind === 'phone_fact') {
     const phone = survey.contentDepth?.facts.find((fact) => fact.key === 'phone' && fact.value.trim())?.value;
-    return phoneHref(phone);
+    const href = phoneHref(phone);
+    return href ? { label: '전화 문의', href, kind: 'phone' } : undefined;
   }
   if (
     survey.siteGoal === 'reserve' &&
     destination?.kind === 'reservation_url' &&
     isRecognizedReservationUrl(destination.url)
-  ) return destination.url;
+  ) return { label: '예약하기', href: destination.url, kind: 'reservation' };
   if (survey.siteGoal === 'kakao_inquiry') {
-    if (destination?.kind === 'contact_form') return '#sec-contact';
-    if (destination?.kind === 'messenger_url' && isHttpsUrl(destination.url)) return destination.url;
+    if (destination?.kind === 'contact_form') {
+      return { label: '문의하기', href: '#sec-contact', kind: 'contact-form' };
+    }
+    if (destination?.kind === 'messenger_url' && isHttpsUrl(destination.url)) {
+      return { label: '카카오톡 문의', href: destination.url, kind: 'messenger' };
+    }
   }
   return undefined;
+}
+
+/** 실제 목적지가 홈페이지 폼이면 카카오톡으로 오인시키지 않는다. */
+export function ctaLabelForSurvey(survey: SurveyInput): string | undefined {
+  return resolveConversionDestination(survey)?.label ?? ctaLabelForGoal(survey.siteGoal);
+}
+
+/**
+ * 신규 SURVEY 계약에서 고객이 확정한 실제 전환 목적지만 href로 승격한다.
+ * surveyBrief가 없는 기존 payload는 undefined라 기존 앵커 계산을 그대로 탄다.
+ */
+export function conversionHrefForSurvey(survey: SurveyInput): string | undefined {
+  return resolveConversionDestination(survey)?.href;
 }

@@ -26,7 +26,12 @@ import type { DesignCandidate, SectionPlanItem, SurveyInput } from '@/lib/types/
 import type { AssetRef } from '@/lib/assets/provenance';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { toneText } from '@/lib/onboarding/tone';
-import { SITE_GOALS, conversionHrefForSurvey, ctaLabelForSurvey } from '@/lib/onboarding/site-goal';
+import {
+  SITE_GOALS,
+  conversionHrefForSurvey,
+  ctaLabelForSurvey,
+  resolveConversionDestination,
+} from '@/lib/onboarding/site-goal';
 import { buildNarrativeArc } from './narrative-arc';
 import { isScrollytellingTemplate, SCROLLYTELLING_MOTION_ID } from '@/lib/motion/scrollytelling';
 import { regionOf } from '@/lib/onboarding/region';
@@ -57,6 +62,7 @@ import {
   type SitePlan,
   type SitePlanSection,
 } from '@/lib/content/site-plan';
+import { permittedTestimonials } from '@/lib/content/testimonial-policy';
 import {
   applySectionLayoutVariants,
   resolveHeroLayoutVariant,
@@ -2762,6 +2768,139 @@ function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
   };
 }
 
+function testimonialSourceLabel(
+  proof: ReturnType<typeof permittedTestimonials>[number],
+): string {
+  const publisher = proof.publisher?.trim();
+  const date = proof.asOfDate?.trim();
+  return [publisher || '고객 제공 후기', date].filter(Boolean).join(' · ');
+}
+
+/** 게시 허락된 고객 원문과 출처를 한 덩어리로 보존하는 v2 전용 후기 빌더. */
+function buildSitePlanTestimonialSection(ctx: Ctx, planned: SitePlanSection): Section {
+  const permitted = permittedTestimonials(ctx.survey);
+  const proofs = planned.mode === 'teaser' ? permitted.slice(0, 3) : permitted;
+  const elements = mainTopicIntro(
+    ctx,
+    `el-plan-${planned.id}`,
+    '고객의 이야기',
+    planned.name,
+    '게시를 허락받은 실제 고객의 문장만 출처와 함께 보여드립니다.',
+  );
+  let cursor = 282;
+  proofs.forEach((proof, index) => {
+    const quoteId = nextId(ctx, `el-testimonial-quote-${index + 1}`);
+    const sourceId = nextId(ctx, `el-testimonial-source-${index + 1}`);
+    const quoteHeight = Math.max(92, Math.ceil(Array.from(proof.content).length / 38) * 34);
+    elements.push(
+      {
+        id: quoteId,
+        kind: 'text',
+        frame: { x: 120, y: cursor, w: 940, h: quoteHeight },
+        z: 2,
+        text: proof.content,
+        style: {
+          fontSize: 24,
+          fontWeight: 400,
+          fontFamily: 'heading',
+          color: ctx.theme.palette.text,
+          align: 'left',
+          lineHeight: 1.6,
+          ...(ctx.kit.quoteItalic ? { italic: true } : {}),
+        },
+      },
+      {
+        id: sourceId,
+        kind: 'text',
+        frame: { x: 120, y: cursor + quoteHeight + 12, w: 620, h: 28 },
+        z: 2,
+        text: testimonialSourceLabel(proof),
+        style: {
+          fontSize: 13,
+          fontWeight: 400,
+          fontFamily: 'body',
+          color: ctx.softText,
+          align: 'left',
+          lineHeight: 1.5,
+        },
+      },
+    );
+    if (proof.sourceUrl) {
+      elements.push({
+        id: nextId(ctx, `el-testimonial-source-link-${index + 1}`),
+        kind: 'button',
+        frame: { x: 780, y: cursor + quoteHeight + 4, w: 280, h: 42 },
+        z: 3,
+        label: `출처 · ${testimonialSourceLabel(proof)}`,
+        href: proof.sourceUrl,
+        style: {
+          variant: 'ghost',
+          color: ctx.theme.palette.primary,
+          textColor: ctx.theme.palette.primary,
+          fontSize: 13,
+          borderRadius: ctx.theme.radius ?? 4,
+        },
+      });
+    }
+    cursor += quoteHeight + 92;
+  });
+  if (planned.mode === 'teaser' && planned.pageSlug === '') {
+    elements.push(mainTopicButton(
+      ctx,
+      `el-plan-${planned.id}-link`,
+      cursor,
+      '/testimonials',
+    ));
+    cursor += 70;
+  }
+  return {
+    id: planned.id,
+    type: 'testimonials',
+    name: planned.name,
+    height: Math.max(540, cursor + 80),
+    background: { color: ctx.theme.palette.background },
+    elements,
+  };
+}
+
+/** 링크 허브와 구분되는 SitePlan의 실제 일반 CTA만 빌드한다. */
+function buildSitePlanCtaSection(ctx: Ctx, planned: SitePlanSection): Section {
+  const destination = resolveConversionDestination(ctx.survey);
+  if (!destination) {
+    throw new Error(`SitePlan CTA '${planned.id}' has no verified conversion destination`);
+  }
+  const elements = mainTopicIntro(
+    ctx,
+    `el-plan-${planned.id}`,
+    '다음 행동',
+    planned.name,
+    '사장님이 확인한 실제 목적지로 바로 연결합니다.',
+  );
+  elements.push({
+    id: nextId(ctx, 'el-plan-cta-primary'),
+    kind: 'button',
+    frame: { x: 120, y: 286, w: 260, h: 56 },
+    z: 3,
+    label: destination.label,
+    href: destination.href,
+    style: {
+      variant: 'solid',
+      color: ctx.theme.palette.primary,
+      textColor: pickButtonTextColor(ctx.theme.palette.primary, ctx.theme.palette),
+      fontSize: 15,
+      borderRadius: ctx.theme.radius ?? 4,
+    },
+  });
+  return {
+    id: planned.id,
+    type: 'cta',
+    name: planned.name,
+    height: 440,
+    background: { color: ctx.theme.palette.background },
+    elements,
+  };
+}
+
 /** SitePlan v2 is the only authority for both section presence and projection. */
 function buildSitePlanSections(ctx: Ctx, plan: SitePlan): { section: Section; pageSlug: string }[] {
   let narrative: Section[] | undefined;
@@ -2795,6 +2934,10 @@ function buildSitePlanSections(ctx: Ctx, plan: SitePlan): { section: Section; pa
       section = planned.mode === 'teaser'
         ? buildMainDirectionsTeaser(ctx)
         : contentDepthSections().find((candidate) => candidate.id === 'sec-contact-directions');
+    } else if (planned.type === 'testimonials') {
+      section = buildSitePlanTestimonialSection(ctx, planned);
+    } else if (planned.type === 'cta' && planned.variant !== 'cta:links') {
+      section = buildSitePlanCtaSection(ctx, planned);
     } else if (planned.role === 'contact') {
       section = contentDepthSections().find((candidate) => candidate.id === 'sec-contact');
     }

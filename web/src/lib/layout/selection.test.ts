@@ -135,6 +135,9 @@ describe('LIB2 M3b select_section_layouts structured tool', () => {
         'feature_layout_id',
         'about_layout_id',
         'gallery_layout_id',
+        'cta_layout_id',
+        'testimonial_layout_id',
+        'directions_layout_id',
       ],
     );
     assert.equal(SECTION_LAYOUT_SELECTION_TOOL.inputSchema.additionalProperties, false);

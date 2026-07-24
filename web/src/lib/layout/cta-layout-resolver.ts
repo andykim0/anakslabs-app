@@ -18,12 +18,16 @@ import type {
 
 const BANDS = ['wide', 'compact', 'mobile'] as const satisfies readonly SectionLayoutBreakpointBand[];
 
-function actionWidth(label: string, available: number, mobile: boolean): number {
-  if (mobile) return available;
-  const estimated = Array.from(label).reduce(
+function estimatedActionWidth(label: string): number {
+  return Array.from(label).reduce(
     (total, character) => total + (/[가-힣]/u.test(character) ? 16 : 9),
     0,
   ) + 52;
+}
+
+function actionWidth(label: string, available: number, mobile: boolean): number {
+  if (mobile) return available;
+  const estimated = estimatedActionWidth(label);
   return Math.min(available, Math.max(132, estimated));
 }
 
@@ -50,10 +54,15 @@ function compileBand({
   const actionIds = [content.primaryActionId, content.secondaryActionId]
     .filter((id): id is string => Boolean(id));
 
-  if (requestedId === 'cta.split-action' && !mobile) {
+  const splitActionX = zone.x + zone.w * (band === 'wide' ? 0.74 : 0.68);
+  const splitActionWidthLimit = zone.x + zone.w - splitActionX;
+  const splitActionsFit = actionIds.every((id) => {
+    const action = buttonById(elements, id);
+    return Boolean(action && estimatedActionWidth(action.label) <= splitActionWidthLimit);
+  });
+
+  if (requestedId === 'cta.split-action' && !mobile && splitActionsFit) {
     const copyWidth = zone.w * (band === 'wide' ? 0.64 : 0.6);
-    const actionX = zone.x + zone.w * (band === 'wide' ? 0.74 : 0.68);
-    const actionWidthLimit = zone.x + zone.w - actionX;
     const intro = layoutSectionIntro({
       band,
       elements,
@@ -75,9 +84,9 @@ function compileBand({
       putFrame(
         frames,
         id,
-        actionX,
+        splitActionX,
         actionY,
-        actionWidth(action.label, actionWidthLimit, false),
+        actionWidth(action.label, splitActionWidthLimit, false),
         actionHeight,
       );
       actionY += actionHeight + actionGap;
@@ -96,7 +105,14 @@ function compileBand({
   const innerX = zone.x + outerInset;
   const innerY = zone.y + outerInset;
   const innerWidth = zone.w - outerInset * 2;
-  const copyWidth = !mobile && surface ? innerWidth * 0.62 : innerWidth;
+  const surfaceActionX = innerX + innerWidth * 0.7;
+  const surfaceActionWidthLimit = innerX + innerWidth - surfaceActionX;
+  const surfaceActionsFit = actionIds.every((id) => {
+    const action = buttonById(elements, id);
+    return Boolean(action && estimatedActionWidth(action.label) <= surfaceActionWidthLimit);
+  });
+  const surfaceSideBySide = !mobile && surface && surfaceActionsFit;
+  const copyWidth = surfaceSideBySide ? innerWidth * 0.62 : innerWidth;
   const intro = layoutSectionIntro({
     band,
     elements,
@@ -111,16 +127,21 @@ function compileBand({
   Object.assign(fontSizes, intro.fontSizes);
   const actionHeight = 48;
 
-  if (!mobile && surface) {
-    const actionX = innerX + innerWidth * 0.7;
-    const actionWidthLimit = innerX + innerWidth - actionX;
+  if (surfaceSideBySide) {
     const totalActionHeight = actionIds.length * actionHeight
       + Math.max(0, actionIds.length - 1) * spacing.elementGap;
     let actionY = innerY + Math.max(0, (intro.bottom - innerY - totalActionHeight) / 2);
     for (const id of actionIds) {
       const action = buttonById(elements, id);
       if (!action) continue;
-      putFrame(frames, id, actionX, actionY, actionWidth(action.label, actionWidthLimit, false), actionHeight);
+      putFrame(
+        frames,
+        id,
+        surfaceActionX,
+        actionY,
+        actionWidth(action.label, surfaceActionWidthLimit, false),
+        actionHeight,
+      );
       actionY += actionHeight + spacing.elementGap;
     }
     const surfaceBottom = Math.max(intro.bottom, actionY - spacing.elementGap) + outerInset;

@@ -8,12 +8,18 @@
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import type { SurveyInput } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { MotionIndustryClass, SiteConfig } from '@/lib/types/site';
+
+/** 자유문장 업종을 직접 소비하지 않는 서버 권위 설문 분류 단일 소스. */
+export function surveyIndustryClass(survey: SurveyInput): MotionIndustryClass {
+  const templateId = resolveTemplate(survey.purposeId, survey.industry).id;
+  return canonicalIndustryClass(survey.purposeId, templateId, survey.industry);
+}
 
 /** templateId와 industryClass는 모두 서버 계산값으로 덮어써 민감 기능의 자유문장 우회를 막는다. */
 export function canonicalizeSurveyTemplate(survey: SurveyInput): SurveyInput {
   const templateId = resolveTemplate(survey.purposeId, survey.industry).id;
-  const industryClass = canonicalIndustryClass(survey.purposeId, templateId, survey.industry);
+  const industryClass = surveyIndustryClass(survey);
   return survey.templateId === templateId && survey.industryClass === industryClass
     ? survey
     : { ...survey, templateId, industryClass };

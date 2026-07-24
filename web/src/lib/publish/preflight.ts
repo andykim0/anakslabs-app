@@ -17,6 +17,10 @@ import { scrimPassesAA } from '@/lib/design/scrim';
 import { solidButtonPassesAA } from '@/lib/design/button-contrast';
 import { isThinSection } from '@/lib/design/section-density';
 import { resolveSectionPriority } from '@/lib/data/site-blueprints';
+import {
+  sectionIsTestimonial,
+  testimonialExposurePolicyForConfig,
+} from '@/lib/content/testimonial-policy';
 import type { PublishArtifactAudit } from './artifact-audit';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
@@ -55,6 +59,14 @@ export function checkPublish(
   const warnings: string[] = [];
 
   for (const blocker of opts?.artifact?.blockers ?? []) blockers.push(blocker.message);
+
+  const testimonialPolicy = testimonialExposurePolicyForConfig(config);
+  if (
+    !testimonialPolicy.allowed
+    && allSections(config).some((section) => sectionIsTestimonial(section))
+  ) {
+    blockers.push('이 업종에서는 고객 후기 섹션을 자동 발행할 수 없습니다.');
+  }
 
   // ② 모션 무결성 — 저장 시 sanitize되므로 정상 draft는 무변경. 변경 발생 = 저장 우회/오염 → 차단.
   const { changes } = sanitizeMotion(config, tier);

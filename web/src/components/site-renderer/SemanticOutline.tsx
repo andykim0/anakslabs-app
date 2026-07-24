@@ -8,6 +8,7 @@
  */
 import type { Section, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
+import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
 
 const SR_ONLY: React.CSSProperties = {
   position: 'absolute',
@@ -122,7 +123,9 @@ export function SemanticOutline({ config, pageSlug = '' }: { config: SiteConfig;
   const title = isHome
     ? info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트'
     : page.title;
-  const sections = page.sections.filter((s) => !s.hidden);
+  const sections = page.sections.filter(
+    (section) => !section.hidden && testimonialSectionIsPublic(config, section),
+  );
 
   return (
     <div style={SR_ONLY} aria-hidden={false}>

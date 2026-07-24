@@ -13,6 +13,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { recompileDirectionsSectionLayouts } from '@/lib/layout';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
@@ -155,10 +156,11 @@ export const POST = withApiHandler(async (request) => {
   const withCinematicDefault = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(withCinematicBase)
     : withCinematicBase;
+  const withRecompiledDirections = recompileDirectionsSectionLayouts(withCinematicDefault);
   // [motion-system] LLM 출력 motion 무시 → 업종+플랜 매핑 프리셋 + 이중 방벽 sanitize
   const motionChoice = authoritativeHeroVideoChoice(survey, body.data.motionChoice);
   let draftConfig = applyGeneratedMotion(
-    withCinematicDefault,
+    withRecompiledDirections,
     survey.purposeId,
     client.tier,
     motionChoice,

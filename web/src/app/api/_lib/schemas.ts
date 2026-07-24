@@ -28,8 +28,11 @@ import {
 import { HERO_LAYOUT_VARIANT_IDS } from '@/lib/layout/types';
 import {
   ABOUT_LAYOUT_VARIANT_IDS,
+  CTA_LAYOUT_VARIANT_IDS,
+  DIRECTIONS_LAYOUT_VARIANT_IDS,
   FEATURE_LAYOUT_VARIANT_IDS,
   GALLERY_LAYOUT_VARIANT_IDS,
+  TESTIMONIAL_LAYOUT_VARIANT_IDS,
 } from '@/lib/layout/section-layout-types';
 import {
   ABS_ATMOSPHERIC_SLOT_IDS,
@@ -491,6 +494,9 @@ const sectionLayoutVariantIdSchema = z.union([
   z.enum(FEATURE_LAYOUT_VARIANT_IDS),
   z.enum(ABOUT_LAYOUT_VARIANT_IDS),
   z.enum(GALLERY_LAYOUT_VARIANT_IDS),
+  z.enum(CTA_LAYOUT_VARIANT_IDS),
+  z.enum(TESTIMONIAL_LAYOUT_VARIANT_IDS),
+  z.enum(DIRECTIONS_LAYOUT_VARIANT_IDS),
 ]);
 
 const sectionLayoutBandProjectionSchema = z.object({
@@ -500,11 +506,12 @@ const sectionLayoutBandProjectionSchema = z.object({
   fontSizes: z.record(z.string(), z.number().positive().finite()),
   itemOrder: z.array(z.string()),
   mediaFrame: heroLayoutCompiledFrameSchema.optional(),
+  groupFrames: z.record(z.string(), heroLayoutCompiledFrameSchema).optional(),
 });
 
 const sectionLayoutProjectionSchema = z.object({
   catalogVersion: z.literal(1),
-  kind: z.enum(['features', 'about', 'gallery']),
+  kind: z.enum(['features', 'about', 'gallery', 'cta', 'testimonial', 'directions']),
   requestedId: sectionLayoutVariantIdSchema,
   resolvedId: sectionLayoutVariantIdSchema,
   mediaRole: z.enum(['atmospheric-background', 'referential-figure', 'none']),
@@ -517,6 +524,11 @@ const sectionLayoutProjectionSchema = z.object({
     orientation: z.enum(['portrait', 'square', 'landscape']).optional(),
     focalPoint: normalizedFocalPointSchema.optional(),
   })),
+  groups: z.array(z.object({
+    id: z.string().min(1),
+    appearance: z.enum(['surface', 'testimonial-card', 'directions-card', 'map-surface']),
+    itemId: z.string().min(1).optional(),
+  })).optional(),
   bands: z.object({
     wide: sectionLayoutBandProjectionSchema,
     compact: sectionLayoutBandProjectionSchema,
@@ -1322,6 +1334,9 @@ export const designCandidateSchema = z.object({
     features: z.enum(FEATURE_LAYOUT_VARIANT_IDS).optional(),
     about: z.enum(ABOUT_LAYOUT_VARIANT_IDS).optional(),
     gallery: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
+    cta: z.enum(CTA_LAYOUT_VARIANT_IDS).optional(),
+    testimonial: z.enum(TESTIMONIAL_LAYOUT_VARIANT_IDS).optional(),
+    directions: z.enum(DIRECTIONS_LAYOUT_VARIANT_IDS).optional(),
   }).strict().optional(),
 });
 

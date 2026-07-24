@@ -1,13 +1,25 @@
 import { z } from 'zod';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
-import { resolveTemplate } from '@/lib/data/site-blueprints';
-import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import type { MotionIndustryClass } from '@/lib/types/site';
 import type { DesignDnaId } from '@/lib/design/dna/types';
+import { buildContentDepthHomeModel } from '@/lib/content/content-depth';
+import { buildSitePlan, sitePlanV2Enabled } from '@/lib/content/site-plan';
+import {
+  permittedTestimonials,
+  testimonialExposurePolicyForSurvey,
+} from '@/lib/content/testimonial-policy';
+import { resolveConversionDestination } from '@/lib/onboarding/site-goal';
+import { surveyIndustryClass } from '@/lib/onboarding/site-classification';
 import { HERO_LAYOUT_CATALOG, heroLayoutById } from './catalog';
 import { ABOUT_LAYOUT_CATALOG, aboutLayoutById } from './about-catalog';
+import { CTA_LAYOUT_CATALOG, ctaLayoutById } from './cta-catalog';
+import { DIRECTIONS_LAYOUT_CATALOG, directionsLayoutById } from './directions-catalog';
 import { FEATURE_LAYOUT_CATALOG, featureLayoutById } from './feature-catalog';
 import { GALLERY_LAYOUT_CATALOG, galleryLayoutById } from './gallery-catalog';
+import {
+  TESTIMONIAL_LAYOUT_CATALOG,
+  testimonialLayoutById,
+} from './testimonial-catalog';
 import {
   HERO_LAYOUT_VARIANT_IDS,
   type HeroLayoutAvailableMedia,
@@ -22,11 +34,14 @@ import {
   GALLERY_LAYOUT_VARIANT_IDS,
   TESTIMONIAL_LAYOUT_VARIANT_IDS,
   type AboutLayoutVariantId,
+  type CtaLayoutVariantId,
+  type DirectionsLayoutVariantId,
   type FeatureLayoutVariantId,
   type GalleryLayoutVariantId,
   type SectionLayoutKind,
   type SectionLayoutSelection,
   type SectionLayoutVariantId,
+  type TestimonialLayoutVariantId,
 } from './section-layout-types';
 
 const TOOL_NAME = 'select_hero_layout';
@@ -102,11 +117,6 @@ export interface HeroLayoutSelectionCandidate {
   media: HeroLayoutAvailableMedia;
 }
 
-function runtimeIndustry(survey: SurveyInput): MotionIndustryClass {
-  const template = resolveTemplate(survey.purposeId, survey.industry);
-  return canonicalIndustryClass(survey.purposeId, template.id, survey.industry);
-}
-
 function authoredIndustry(industry: MotionIndustryClass): HeroLayoutAuthoredIndustry | null {
   switch (industry) {
     case 'remodeling':
@@ -136,7 +146,7 @@ export function allowedHeroLayoutsForCandidate(
   survey: SurveyInput,
   candidate: HeroLayoutSelectionCandidate,
 ): readonly HeroLayoutVariantId[] {
-  const industry = runtimeIndustry(survey);
+  const industry = surveyIndustryClass(survey);
   if (industry === 'other') {
     return HERO_LAYOUT_OTHER_ALLOWED_IDS.filter((id) => {
       const layout = heroLayoutById(id)!;
@@ -179,7 +189,7 @@ function fallbackFor(
   candidate: HeroLayoutSelectionCandidate,
 ): HeroLayoutVariantId {
   const allowed = new Set(allowedHeroLayoutsForCandidate(survey, candidate));
-  const industry = runtimeIndustry(survey);
+  const industry = surveyIndustryClass(survey);
   return HERO_LAYOUT_FALLBACK_ORDER[industry].find((id) => allowed.has(id))
     ?? HERO_LAYOUT_CATALOG.find((layout) => allowed.has(layout.id))?.id
     ?? 'hero.text-only-bold';
@@ -270,6 +280,9 @@ export interface SectionLayoutAvailability {
   features: number;
   about: boolean;
   gallery: number;
+  cta?: boolean;
+  testimonials?: number;
+  directions?: number;
 }
 
 export interface SectionLayoutSelectionCandidate {
@@ -291,6 +304,9 @@ const sectionToolInputSchema = z.object({
   feature_layout_id: z.enum(FEATURE_LAYOUT_VARIANT_IDS).optional(),
   about_layout_id: z.enum(ABOUT_LAYOUT_VARIANT_IDS).optional(),
   gallery_layout_id: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
+  cta_layout_id: z.enum(CTA_LAYOUT_VARIANT_IDS).optional(),
+  testimonial_layout_id: z.enum(TESTIMONIAL_LAYOUT_VARIANT_IDS).optional(),
+  directions_layout_id: z.enum(DIRECTIONS_LAYOUT_VARIANT_IDS).optional(),
 }).strict();
 
 export interface SectionLayoutSelectionToolDefinition {
@@ -306,7 +322,7 @@ export interface SectionLayoutSelectionToolDefinition {
 
 export const SECTION_LAYOUT_SELECTION_TOOL: SectionLayoutSelectionToolDefinition = {
   name: SECTION_TOOL_NAME,
-  description: 'Choose server-registered feature, about, and gallery layouts for each candidate.',
+  description: 'Choose server-registered section layouts for each candidate.',
   inputSchema: {
     type: 'object',
     additionalProperties: false,
@@ -315,6 +331,9 @@ export const SECTION_LAYOUT_SELECTION_TOOL: SectionLayoutSelectionToolDefinition
       feature_layout_id: { type: 'string', enum: [...FEATURE_LAYOUT_VARIANT_IDS] },
       about_layout_id: { type: 'string', enum: [...ABOUT_LAYOUT_VARIANT_IDS] },
       gallery_layout_id: { type: 'string', enum: [...GALLERY_LAYOUT_VARIANT_IDS] },
+      cta_layout_id: { type: 'string', enum: [...CTA_LAYOUT_VARIANT_IDS] },
+      testimonial_layout_id: { type: 'string', enum: [...TESTIMONIAL_LAYOUT_VARIANT_IDS] },
+      directions_layout_id: { type: 'string', enum: [...DIRECTIONS_LAYOUT_VARIANT_IDS] },
     },
     required: ['candidate_index'],
   },
@@ -341,10 +360,31 @@ export function sectionLayoutAvailabilityForSurvey(
         new Set((survey.storePhotoAssetRefs ?? []).map((asset) => asset.url)).size,
       )
     : 0;
+  let plan: ReturnType<typeof buildSitePlan> | null = null;
+  if (sitePlanV2Enabled(survey)) {
+    try {
+      plan = buildSitePlan(survey);
+    } catch {
+      // Legacy/incomplete drafts may carry v2 data before their approved hero key is restored.
+      // They retain the pre-LIB3 availability projection and receive no new L3 section IDs.
+      plan = null;
+    }
+  }
+  const hasNormalCta = Boolean(plan?.sections.some(
+    (section) => section.type === 'cta' && section.variant !== 'cta:links',
+  ));
+  const hasDirections = Boolean(plan?.sections.some(
+    (section) => section.type === 'contact' && section.variant === 'contact:map',
+  ));
   return {
     features: honestV2 ? 3 : 0,
     about: honestV2,
     gallery: galleryCount >= 2 ? galleryCount : 0,
+    cta: hasNormalCta && Boolean(resolveConversionDestination(survey)),
+    testimonials: permittedTestimonials(survey).length,
+    directions: hasDirections
+      ? buildContentDepthHomeModel(survey).directions.length
+      : 0,
   };
 }
 
@@ -354,7 +394,10 @@ function itemCountFor(
 ): number {
   if (kind === 'features') return availability.features;
   if (kind === 'about') return availability.about ? 1 : 0;
-  return availability.gallery;
+  if (kind === 'gallery') return availability.gallery;
+  if (kind === 'cta') return availability.cta ? 1 : 0;
+  if (kind === 'testimonial') return availability.testimonials ?? 0;
+  return availability.directions ?? 0;
 }
 
 function allowedForKind(
@@ -375,16 +418,37 @@ function allowedForKind(
 function allowedForKind(
   survey: SurveyInput,
   candidate: SectionLayoutSelectionCandidate,
+  kind: 'cta',
+): readonly CtaLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: 'testimonial',
+): readonly TestimonialLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
+  kind: 'directions',
+): readonly DirectionsLayoutVariantId[];
+function allowedForKind(
+  survey: SurveyInput,
+  candidate: SectionLayoutSelectionCandidate,
   kind: SectionLayoutKind,
 ): readonly SectionLayoutVariantId[] {
   const count = itemCountFor(kind, candidate.availability);
   if (count === 0) return [];
-  const authored = authoredIndustry(runtimeIndustry(survey));
+  if (kind === 'testimonial' && !testimonialExposurePolicyForSurvey(survey).allowed) {
+    return [];
+  }
+  const authored = authoredIndustry(surveyIndustryClass(survey));
   const layoutFits = (
     layout:
       | (typeof FEATURE_LAYOUT_CATALOG)[number]
       | (typeof ABOUT_LAYOUT_CATALOG)[number]
-      | (typeof GALLERY_LAYOUT_CATALOG)[number],
+      | (typeof GALLERY_LAYOUT_CATALOG)[number]
+      | (typeof CTA_LAYOUT_CATALOG)[number]
+      | (typeof TESTIMONIAL_LAYOUT_CATALOG)[number]
+      | (typeof DIRECTIONS_LAYOUT_CATALOG)[number],
   ): boolean => {
     if (count < layout.content.minimumItems || count > layout.content.maximumItems) return false;
     if (authored && layout.compatibility.industry[authored] === 'discouraged') return false;
@@ -400,7 +464,19 @@ function allowedForKind(
   if (kind === 'about') {
     return ABOUT_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
   }
-  return GALLERY_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+  if (kind === 'gallery') {
+    return GALLERY_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+  }
+  if (kind === 'cta') {
+    return CTA_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
+  }
+  if (kind === 'testimonial') {
+    // quote-photo needs a future proof↔person-photo publication-consent binding.
+    return TESTIMONIAL_LAYOUT_CATALOG
+      .filter((layout) => layout.id !== 'testimonial.quote-photo' && layoutFits(layout))
+      .map((layout) => layout.id);
+  }
+  return DIRECTIONS_LAYOUT_CATALOG.filter(layoutFits).map((layout) => layout.id);
 }
 
 export function allowedSectionLayoutsForCandidate(
@@ -410,11 +486,17 @@ export function allowedSectionLayoutsForCandidate(
   features: readonly FeatureLayoutVariantId[];
   about: readonly AboutLayoutVariantId[];
   gallery: readonly GalleryLayoutVariantId[];
+  cta: readonly CtaLayoutVariantId[];
+  testimonial: readonly TestimonialLayoutVariantId[];
+  directions: readonly DirectionsLayoutVariantId[];
 } {
   return {
     features: allowedForKind(survey, candidate, 'features'),
     about: allowedForKind(survey, candidate, 'about'),
     gallery: allowedForKind(survey, candidate, 'gallery'),
+    cta: allowedForKind(survey, candidate, 'cta'),
+    testimonial: allowedForKind(survey, candidate, 'testimonial'),
+    directions: allowedForKind(survey, candidate, 'directions'),
   };
 }
 
@@ -439,6 +521,13 @@ function sectionFallbackFor(
     ...(first('gallery', allowed.gallery)
       ? { gallery: first('gallery', allowed.gallery) }
       : {}),
+    ...(first('cta', allowed.cta) ? { cta: first('cta', allowed.cta) } : {}),
+    ...(first('testimonial', allowed.testimonial)
+      ? { testimonial: first('testimonial', allowed.testimonial) }
+      : {}),
+    ...(first('directions', allowed.directions)
+      ? { directions: first('directions', allowed.directions) }
+      : {}),
   };
 }
 
@@ -446,16 +535,23 @@ function sectionIntrinsicAllowedCondition(
   kind: SectionLayoutKind,
   id: SectionLayoutVariantId,
 ): string {
-  const layout = kind === 'features'
-    ? featureLayoutById(id as FeatureLayoutVariantId)
-    : kind === 'about'
-      ? aboutLayoutById(id as AboutLayoutVariantId)
-      : galleryLayoutById(id as GalleryLayoutVariantId);
+  const layout = layoutByKind(kind, id);
   const recommended = Object.entries(layout.compatibility.industry)
     .filter(([, affinity]) => affinity === 'recommended')
     .map(([industry]) => industry)
     .join(',');
   return `추천 업종 ${recommended}; 실제 콘텐츠 수 범위 ${layout.content.minimumItems}-${layout.content.maximumItems}; 등록 DNA 궁합만 허용`;
+}
+
+function layoutByKind(kind: SectionLayoutKind, id: SectionLayoutVariantId) {
+  if (kind === 'features') return featureLayoutById(id as FeatureLayoutVariantId);
+  if (kind === 'about') return aboutLayoutById(id as AboutLayoutVariantId);
+  if (kind === 'gallery') return galleryLayoutById(id as GalleryLayoutVariantId);
+  if (kind === 'cta') return ctaLayoutById(id as CtaLayoutVariantId);
+  if (kind === 'testimonial') {
+    return testimonialLayoutById(id as TestimonialLayoutVariantId);
+  }
+  return directionsLayoutById(id as DirectionsLayoutVariantId);
 }
 
 export function sectionLayoutSelectionPrompt(
@@ -468,11 +564,7 @@ export function sectionLayoutSelectionPrompt(
       kind: SectionLayoutKind,
       values: readonly T[],
     ) => values.map((id) => {
-      const layout = kind === 'features'
-        ? featureLayoutById(id as FeatureLayoutVariantId)
-        : kind === 'about'
-          ? aboutLayoutById(id as AboutLayoutVariantId)
-          : galleryLayoutById(id as GalleryLayoutVariantId);
+      const layout = layoutByKind(kind, id);
       return {
         id,
         description: layout.description,
@@ -485,6 +577,9 @@ export function sectionLayoutSelectionPrompt(
         features: entries('features', allowed.features),
         about: entries('about', allowed.about),
         gallery: entries('gallery', allowed.gallery),
+        cta: entries('cta', allowed.cta),
+        testimonial: entries('testimonial', allowed.testimonial),
+        directions: entries('directions', allowed.directions),
       },
     };
   });
@@ -516,6 +611,9 @@ function parseSectionSelections(
       ['features', result.data.feature_layout_id, allowed.features],
       ['about', result.data.about_layout_id, allowed.about],
       ['gallery', result.data.gallery_layout_id, allowed.gallery],
+      ['cta', result.data.cta_layout_id, allowed.cta],
+      ['testimonial', result.data.testimonial_layout_id, allowed.testimonial],
+      ['directions', result.data.directions_layout_id, allowed.directions],
     ] as const;
     for (const [kind, id, ids] of pairs) {
       if (ids.length === 0) {

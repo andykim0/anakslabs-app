@@ -40,6 +40,17 @@ const SECTION_LAYOUT_CSS = `
 }
 `;
 
+const LIB3_GROUP_CSS = `
+[data-section-layout-group]{position:absolute;left:var(--section-layout-x);top:var(--section-layout-y);width:var(--section-layout-w);height:var(--section-layout-h);z-index:1;pointer-events:none}
+[data-section-layout-group-appearance="surface"],
+[data-section-layout-group-appearance="testimonial-card"],
+[data-section-layout-group-appearance="directions-card"]{background:var(--section-layout-surface);border:1px solid var(--section-layout-border);border-radius:var(--section-layout-radius);box-shadow:var(--section-layout-shadow)}
+[data-section-layout-group-appearance="map-surface"]{background:var(--section-layout-surface);border:1px solid var(--section-layout-border);border-radius:var(--section-layout-radius);box-shadow:var(--section-layout-shadow);opacity:.96}
+@media(max-width:767.98px){
+  [data-section-layout-group]{left:var(--section-layout-x-mobile);top:var(--section-layout-y-mobile);width:var(--section-layout-w-mobile);height:var(--section-layout-h-mobile)}
+}
+`;
+
 type LayoutVariables = CSSProperties & Record<`--section-layout-${string}`, string>;
 
 function bandLength(value: number, width: number): string {
@@ -143,6 +154,13 @@ export function SectionLayoutProjectionRenderer({
     '--section-layout-surface': theme.palette.surface,
     '--section-layout-background': theme.palette.background,
     '--section-layout-scrim': scrim.overlayColor,
+    ...(projection.groups?.length
+      ? {
+          '--section-layout-border': theme.tokens?.color.border ?? theme.palette.muted,
+          '--section-layout-radius': theme.tokens?.radius.soft ?? `${theme.radius ?? 8}px`,
+          '--section-layout-shadow': theme.tokens?.shadow.low ?? 'none',
+        }
+      : {}),
   } as LayoutVariables;
   const atmospheric = projection.mediaRole === 'atmospheric-background';
 
@@ -164,6 +182,9 @@ export function SectionLayoutProjectionRenderer({
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: SECTION_LAYOUT_CSS }} />
+      {projection.groups?.length
+        ? <style dangerouslySetInnerHTML={{ __html: LIB3_GROUP_CSS }} />
+        : null}
       {atmospheric ? (
         section.proceduralBackground ? (
           <ProceduralBackground
@@ -178,6 +199,25 @@ export function SectionLayoutProjectionRenderer({
           </>
         )
       ) : null}
+      {projection.groups?.map((group) => {
+        const wideFrame = projection.bands.wide.groupFrames?.[group.id];
+        const compactFrame = projection.bands.compact.groupFrames?.[group.id];
+        const mobileFrame = projection.bands.mobile.groupFrames?.[group.id];
+        if (!wideFrame || !compactFrame || !mobileFrame) return null;
+        const variables = variant === 'canvas'
+          ? canvasFrameVariables(wideFrame, wideFrame)
+          : stackFrameVariables(compactFrame, mobileFrame, compactFrame, mobileFrame);
+        return (
+          <div
+            key={group.id}
+            aria-hidden
+            data-section-layout-group={group.id}
+            data-section-layout-group-appearance={group.appearance}
+            {...(group.itemId ? { 'data-section-layout-group-item': group.itemId } : {})}
+            style={variables}
+          />
+        );
+      })}
       {[...section.elements].sort((left, right) => left.z - right.z).map((element) => {
         const fallbackFrame = frameFor(projection, fallbackBand, element.id);
         const primaryFrame = frameFor(projection, primaryBand, element.id);

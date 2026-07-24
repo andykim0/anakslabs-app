@@ -1,12 +1,27 @@
-import type { CanvasElement, Section, SitePage, SiteTheme, TextElement } from '@/lib/types/site';
+import type {
+  ButtonElement,
+  CanvasElement,
+  Section,
+  SiteConfig,
+  SitePage,
+  SiteTheme,
+  TextElement,
+} from '@/lib/types/site';
 import { resolveAboutLayoutVariant } from './about-layout-resolver';
+import { resolveCtaLayoutVariant } from './cta-layout-resolver';
+import { resolveDirectionsLayoutVariant } from './directions-layout-resolver';
 import { resolveFeatureLayoutVariant } from './feature-layout-resolver';
 import { resolveGalleryLayoutVariant } from './gallery-layout-resolver';
+import { resolveTestimonialLayoutVariant } from './testimonial-layout-resolver';
 import type {
   AboutLayoutContent,
+  CtaLayoutContent,
+  DirectionsLayoutVariantId,
+  DirectionsLayoutContent,
   FeatureLayoutContent,
   GalleryLayoutContent,
   SectionLayoutSelection,
+  TestimonialLayoutContent,
 } from './section-layout-types';
 
 function textElements(section: Section): TextElement[] {
@@ -120,6 +135,90 @@ function galleryContent(section: Section): GalleryLayoutContent | null {
   };
 }
 
+function buttonElements(section: Section): ButtonElement[] {
+  return section.elements.filter(
+    (element): element is ButtonElement => element.kind === 'button',
+  );
+}
+
+function ctaContent(section: Section): CtaLayoutContent | null {
+  // cta:links는 링크 허브이며 일반 CTA 변형의 대상이 아니다.
+  const primary = buttonElements(section).find((element) => /plan-cta-primary/u.test(element.id));
+  const intro = introFor(section);
+  if (!intro || !primary) return null;
+  const secondary = buttonElements(section).find((element) => (
+    element.id !== primary.id && /cta-(?:secondary|action)/u.test(element.id)
+  ));
+  return {
+    intro,
+    primaryActionId: primary.id,
+    ...(secondary ? { secondaryActionId: secondary.id } : {}),
+  };
+}
+
+function testimonialContent(section: Section): TestimonialLayoutContent | null {
+  const quotes = section.elements.filter(
+    (element): element is TextElement => (
+      element.kind === 'text' && /testimonial-quote/u.test(element.id)
+    ),
+  );
+  if (quotes.length === 0) return null;
+  const sources = section.elements.filter(
+    (element): element is TextElement => (
+      element.kind === 'text' && /testimonial-source-\d+/u.test(element.id)
+    ),
+  );
+  const sourceLinks = buttonElements(section).filter((element) => (
+    /testimonial-source-link/u.test(element.id)
+  ));
+  const intro = introFor(section);
+  return {
+    ...(intro ? { intro } : {}),
+    items: quotes.map((quote, index) => ({
+      id: `testimonial-${index + 1}`,
+      quoteId: quote.id,
+      ...(sources[index] ? { sourceId: sources[index].id } : {}),
+      ...(sourceLinks[index] ? { sourceLinkId: sourceLinks[index].id } : {}),
+      // No proof↔person-photo consent contract exists yet; quote-photo must resolve down.
+      photoConsentBound: false,
+    })),
+  };
+}
+
+function directionsContent(section: Section): DirectionsLayoutContent | null {
+  const labels = section.elements.filter(
+    (element): element is TextElement => (
+      element.kind === 'text' && /directions-(?:teaser-)?label/u.test(element.id)
+    ),
+  );
+  const values = section.elements.filter(
+    (element): element is TextElement => (
+      element.kind === 'text' && /directions-(?:teaser-)?value/u.test(element.id)
+    ),
+  );
+  if (labels.length === 0 || labels.length !== values.length) return null;
+  const map = section.elements.find((element) => element.kind === 'map');
+  const placeLink = buttonElements(section).find((element) => (
+    /directions-place-link/u.test(element.id)
+  ));
+  const detailLink = buttonElements(section).find((element) => (
+    /directions-teaser-link/u.test(element.id)
+  ));
+  const intro = introFor(section);
+  return {
+    ...(intro ? { intro } : {}),
+    mode: section.id.includes('teaser') ? 'teaser' : 'full',
+    rows: labels.map((label, index) => ({
+      id: `direction-${index + 1}`,
+      labelId: label.id,
+      valueId: values[index].id,
+    })),
+    ...(map ? { mapId: map.id } : {}),
+    ...(placeLink ? { placeLinkId: placeLink.id } : {}),
+    ...(detailLink ? { detailLinkId: detailLink.id } : {}),
+  };
+}
+
 export function applySectionLayoutVariants({
   pages,
   theme,
@@ -169,7 +268,68 @@ export function applySectionLayoutVariants({
             })
           : null;
         if (projection) section.sectionLayout = projection;
+      } else if (section.type === 'cta' && selection.cta) {
+        const content = ctaContent(section);
+        const projection = content
+          ? resolveCtaLayoutVariant({
+              requestedId: selection.cta,
+              elements: section.elements,
+              theme,
+              content,
+            })
+          : null;
+        if (projection) section.sectionLayout = projection;
+      } else if (section.type === 'testimonials' && selection.testimonial) {
+        const content = testimonialContent(section);
+        const projection = content
+          ? resolveTestimonialLayoutVariant({
+              requestedId: selection.testimonial,
+              elements: section.elements,
+              theme,
+              content,
+            })
+          : null;
+        if (projection) section.sectionLayout = projection;
+      } else if (
+        section.type === 'contact'
+        && section.id.includes('directions')
+        && selection.directions
+      ) {
+        const content = directionsContent(section);
+        const projection = content
+          ? resolveDirectionsLayoutVariant({
+              requestedId: selection.directions,
+              elements: section.elements,
+              theme,
+              content,
+            })
+          : null;
+        if (projection) section.sectionLayout = projection;
       }
     }
   }
+}
+
+/**
+ * extras가 MapElement를 주입한 뒤 directions projection만 다시 컴파일한다.
+ * 저장된 requestedId는 바꾸지 않으며 URL 추정·geocode를 하지 않는다.
+ */
+export function recompileDirectionsSectionLayouts(input: SiteConfig): SiteConfig {
+  const config = structuredClone(input);
+  for (const page of config.pages) {
+    for (const section of page.sections) {
+      const projection = section.sectionLayout;
+      if (projection?.kind !== 'directions') continue;
+      const content = directionsContent(section);
+      if (!content) continue;
+      const next = resolveDirectionsLayoutVariant({
+        requestedId: projection.requestedId as DirectionsLayoutVariantId,
+        elements: section.elements,
+        theme: config.theme,
+        content,
+      });
+      if (next) section.sectionLayout = next;
+    }
+  }
+  return config;
 }

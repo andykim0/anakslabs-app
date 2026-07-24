@@ -10,7 +10,12 @@ import {
   buildMainStorytellingModel,
   resolveBusinessFacts,
 } from './content-depth';
+import {
+  permittedTestimonials,
+  testimonialExposurePolicyForSurvey,
+} from './testimonial-policy';
 import { resolveTemplate, type SiteTemplateDef } from '@/lib/data/site-blueprints';
+import { resolveConversionDestination } from '@/lib/onboarding/site-goal';
 
 export type SitePlanSectionMode = 'full' | 'teaser';
 export type SitePlanSectionRole =
@@ -85,11 +90,11 @@ const INPUT_HINTS: Readonly<Partial<Record<SectionType, string>>> = {
   team: '구성원 경력·자격을 입력하면 추가돼요. 얼굴을 보여줄 때는 실제 인물 사진만 사용해요',
   cases: '실적·프로젝트 정보를 입력하면 추가돼요',
   gallery: '사용 권리를 확인한 실제 제품·공간·작업 사진을 올리면 추가돼요',
-  testimonials: '실제 고객 후기를 입력하면 추가돼요',
+  testimonials: '게시 허락을 받은 실제 고객 후기를 입력하면 추가돼요',
   pricing: '가격이 포함된 항목을 입력하면 추가돼요',
   faq: '자주 묻는 질문에 답하면 추가돼요',
   contact: '주소·전화·영업시간 같은 이용 정보를 입력하면 추가돼요',
-  cta: '공식 채널 링크를 입력하면 추가돼요',
+  cta: '실제로 연결할 예약·전화·문의 목적지를 입력하면 추가돼요',
 };
 
 function pageSlugFor(item: Pick<SectionPlanItem, 'type' | 'variant'>): string {
@@ -102,7 +107,7 @@ function pageSlugFor(item: Pick<SectionPlanItem, 'type' | 'variant'>): string {
   if (item.type === 'faq') return 'faq';
   if (item.type === 'cases') return 'cases';
   if (item.type === 'features') return 'services';
-  if (item.type === 'cta') return 'links';
+  if (item.type === 'cta') return item.variant === 'cta:links' ? 'links' : '';
   return item.type;
 }
 
@@ -159,7 +164,7 @@ function sourceValuesFor(
     case 'gallery':
       return model.galleryImages;
     case 'testimonials':
-      return proofLines('testimonial');
+      return permittedTestimonials(survey).map((proof) => proof.content.trim()).filter(Boolean);
     case 'pricing':
       return model.contentItems
         .filter((entry) => entry.price)
@@ -171,7 +176,13 @@ function sourceValuesFor(
         ? model.directions.map((entry) => entry.value)
         : model.contact.map((entry) => entry.value);
     case 'cta':
-      return (survey.existingPresence ?? []).map((presence) => presence.url).filter(Boolean);
+      if (item.variant === 'cta:links') {
+        return (survey.existingPresence ?? []).map((presence) => presence.url).filter(Boolean);
+      }
+      {
+        const destination = resolveConversionDestination(survey);
+        return destination ? [destination.href] : [];
+      }
     case 'custom':
       return [];
   }
@@ -185,7 +196,7 @@ function proofKindsFor(
   }
   if (item.type === 'team') return ['qualification', 'experience'];
   if (item.type === 'cases') return ['award', 'metric', 'case'];
-  if (item.type === 'testimonials') return ['testimonial'];
+  if (item.type === 'testimonials') return [];
   return [];
 }
 
@@ -203,9 +214,11 @@ export function sitePlanSectionProofSources(
   section: Pick<SitePlanSection, 'type' | 'variant' | 'mode'>,
 ): readonly SitePlanProofSource[] {
   const kinds = proofKindsFor(section);
-  if (kinds.length === 0) return [];
-  const proofs = (survey.contentDepth?.surveyBrief?.proofs ?? [])
-    .filter((proof) => kinds.includes(proof.kind) && Boolean(proof.sourceUrl?.trim()));
+  if (kinds.length === 0 && section.type !== 'testimonials') return [];
+  const proofs = section.type === 'testimonials'
+    ? permittedTestimonials(survey).filter((proof) => Boolean(proof.sourceUrl?.trim()))
+    : (survey.contentDepth?.surveyBrief?.proofs ?? [])
+      .filter((proof) => kinds.includes(proof.kind) && Boolean(proof.sourceUrl?.trim()));
   const scoped = section.mode === 'teaser' ? proofs.slice(0, 3) : proofs;
   return scoped.flatMap((proof) => {
     const raw = proof.sourceUrl?.trim();
@@ -267,7 +280,7 @@ function addProjection(
   const base = idPart(slug || item.type);
   const role: SitePlanSectionRole = item.type === 'contact'
     ? 'contact'
-    : item.type === 'cta'
+    : item.type === 'cta' && item.variant === 'cta:links'
       ? 'links'
       : 'content';
   if (!singlePage && slug !== '') {
@@ -333,6 +346,15 @@ export function buildSitePlan(survey: SurveyInput): SitePlan {
 
   for (const entry of approved) {
     if (entry.item.type === 'hero') continue;
+    // Testimonial policy is enforced at the plan boundary independently from
+    // selection, rendering, and publishing. Blocked industries do not receive
+    // an input nudge for content that cannot be published.
+    if (
+      entry.item.type === 'testimonials'
+      && !testimonialExposurePolicyForSurvey(survey).allowed
+    ) {
+      continue;
+    }
     if (entry.item.type === 'about' && entry.item.variant !== 'about:resume' && survey.contentDepth?.mainStorytelling) {
       continue;
     }

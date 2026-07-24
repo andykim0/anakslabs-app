@@ -42,6 +42,7 @@ import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 import { signatureContractEnabled } from '@/lib/motion/signature-contract';
 import { fontPairingResources } from '@/lib/fonts/resources';
 import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
+import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -381,7 +382,9 @@ export function SiteRenderer({
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
-  const sections = page.sections.filter((s) => !s.hidden);
+  const sections = page.sections.filter(
+    (section) => !section.hidden && testimonialSectionIsPublic(config, section),
+  );
   const usesProceduralHero = (section: Section) => siteCinematic
     && (config.siteCinematic?.heroBackdrop === 'dna-procedural'
       || (section.background.image?.responsivePromotion
