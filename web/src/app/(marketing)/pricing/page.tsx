@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Check } from 'lucide-react';
 import {
   CREDIT_EXPIRY_DAYS,
@@ -21,6 +22,8 @@ import {
   INCLUDED_ZERO_COST_ASSET_COPY,
   PRICING,
   PUBLISH_PAYMENT_COPY,
+  RETAINER_COMPLEMENT_COPY,
+  RETAINER_SCOPE_COPY,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
@@ -36,19 +39,6 @@ export const metadata: Metadata = {
 };
 
 const won = (n: number) => n.toLocaleString('ko-KR');
-
-/** 기본 포함 기능 — 단일 제품이라 전부 ✓ (실제 AI 영상은 선택 옵션으로 분리) */
-const INCLUDED_FEATURES: string[] = [
-  '서브도메인 + SSL (xxx.anakslabs.com)',
-  'AI 디자인 3안 + 캔버스 에디터',
-  '다중 페이지(홈·소개·문의) + 자동 헤더 내비',
-  '네이버·구글·AI가 읽기 쉬운 기본 구성',
-  '네이버·구글 검색 등록까지 다보임이 대신합니다 — 사장님은 아무것도 안 하셔도 됩니다.',
-  '기본 모션(포함·무료) — 스크롤 등장 효과',
-  INCLUDED_ZERO_COST_ASSET_COPY,
-  '폼·예약 등 동적 기능(당사 호스팅에서 작동)',
-  '커스텀 도메인 연결',
-];
 
 const PRICING_FAQ: FaqItem[] = [
   {
@@ -69,7 +59,7 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: '자동 갱신과 해지는 어떻게 되나요?',
-    a: `${PUBLISH_PAYMENT_COPY.renewal} 방식입니다. 해지 시점과 환불 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 결제 화면과 약관에 같은 문구로 명확히 안내합니다. 현재는 실제 결제가 진행되지 않습니다.`,
+    a: `${PUBLISH_PAYMENT_COPY.renewal} 방식이며, 스탠다드는 ${PUBLISH_PAYMENT_COPY.annualOption} 선택지도 있습니다. 해지 시점과 환불 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 결제 화면과 약관에 같은 문구로 명확히 안내합니다. 현재는 실제 결제가 진행되지 않습니다.`,
   },
   {
     q: '해지하면 사이트는 어떻게 되나요?',
@@ -130,12 +120,15 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 단일 제품 카드 + AI 영상 홈페이지 */}
+      {/* 스탠다드·프리미엄 티어 — 범위와 표시는 pricing.ts 계약만 소비 */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
-        <div className="mx-auto max-w-4xl">
-          <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
+        <div className="grid gap-5 md:grid-cols-2">
+          <div
+            data-pricing-tier={PRICING.tiers.standard.id}
+            className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7"
+          >
             <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26] uppercase">
-              홈페이지 발행 + 매월 성과 관리
+              {PRICING.tiers.standard.label} · 홈페이지 발행 + 매월 성과 관리
             </h2>
             <div className="mt-4">
               <PublishPrice />
@@ -149,46 +142,67 @@ export default function PricingPage() {
             <p className="mkt-type-support mt-2 font-medium text-[#174DDA]">
               {SUBSCRIPTION_VALUE_COPY}
             </p>
-            <p className="mkt-type-body mt-4 text-[#5C6068]">
-              서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
-              읽기 쉬운 기본 구성과 지속적인 운영이 모두 포함됩니다.
-            </p>
+            <ul className="mkt-type-body mt-6 space-y-3 text-[#5C6068]">
+              {PRICING.tiers.standard.included.map((feature) => (
+                <li key={feature.id} className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
+                  {feature.label}
+                </li>
+              ))}
+            </ul>
 
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
               <PricingMotionComparison />
             </div>
+          </div>
 
+          <div
+            data-pricing-tier={PRICING.tiers.premium.id}
+            className="relative flex flex-col rounded-2xl border border-[#D9E3F5] bg-white p-7"
+          >
+            <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA] uppercase">
+              {PRICING.tiers.premium.label} · 지속적인 검색·전환 관리
+            </h2>
+            <p className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#17181C] sm:text-4xl">
+              문의
+            </p>
+            <p className="mkt-type-support mt-2 text-[#5C6068]">
+              범위와 시작 시점은 상담 후 안내합니다. 현재 가격은 공개하지 않습니다.
+            </p>
+            <ul className="mkt-type-body mt-6 space-y-3 text-[#5C6068]">
+              {PRICING.tiers.premium.included.map((feature) => (
+                <li key={feature.id} className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#174DDA]" />
+                  {feature.label}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/#hero-scanner"
+              className="mkt-type-control mt-8 inline-flex h-11 w-fit items-center justify-center whitespace-nowrap rounded-xl bg-[#174DDA] px-5 font-semibold text-white"
+            >
+              프리미엄 문의
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 기본 포함 기능 체크리스트 */}
+      {/* AI 영상 홈페이지 */}
       <section className="mx-auto max-w-5xl px-6 py-16">
-        <SectionHeading title="기본 포함 기능" subtitle="요금제 구분 없이 모든 사이트에 기본으로 들어갑니다." />
-        <div className="mx-auto mt-10 max-w-3xl">
-          <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
-            {INCLUDED_FEATURES.map((f) => (
-              <li key={f} className="mkt-type-body flex items-start gap-2 text-[#5C6068]">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
-                {f}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8 rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
-            <span className="mkt-type-support rounded-full bg-[#F3ECD8] px-3 py-1 font-semibold text-[#7A5E1E]">
-              AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
-            </span>
-            <p className="mkt-type-body mt-3 text-[#5C6068]">
-              기본 모션은 포함·무료입니다. {PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
-              재생성에만 크레딧을 사용합니다.
-            </p>
-            <p className="mkt-type-support mt-3 text-[#5C6068] break-keep">
-              {VIDEO_FULFILLMENT_COPY}
-            </p>
-            <p data-site-price-unit className="mkt-type-support mt-2 text-[#696E76]">
-              {SITE_PRICE_UNIT_COPY}
-            </p>
-          </div>
+        <div className="mx-auto max-w-3xl rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
+          <span className="mkt-type-support rounded-full bg-[#F3ECD8] px-3 py-1 font-semibold text-[#7A5E1E]">
+            AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
+          </span>
+          <p className="mkt-type-body mt-3 text-[#5C6068]">
+            기본 모션은 포함·무료입니다. {PUBLIC_BRAND_NAMES.ai} 시네마틱 영상 히어로는 선택 옵션이며, 완성 후 AI 영상
+            재생성에만 크레딧을 사용합니다.
+          </p>
+          <p className="mkt-type-support mt-3 text-[#5C6068] break-keep">
+            {VIDEO_FULFILLMENT_COPY}
+          </p>
+          <p data-site-price-unit className="mkt-type-support mt-2 text-[#696E76]">
+            {SITE_PRICE_UNIT_COPY}
+          </p>
         </div>
       </section>
 
@@ -254,6 +268,10 @@ export default function PricingPage() {
         <p className="mkt-type-support mx-auto mt-4 max-w-3xl text-[#696E76]">
           마케팅 관리 비용과 범위는 업체마다 다릅니다. 다보임의 월 이용료에는 광고 매체 집행비가 포함되지 않습니다.
         </p>
+        <div className="mkt-type-support mx-auto mt-3 max-w-3xl space-y-1 text-[#696E76]">
+          <p>{RETAINER_SCOPE_COPY}</p>
+          <p>{RETAINER_COMPLEMENT_COPY}</p>
+        </div>
       </section>
 
       {/* 해지·소유권·환불 */}

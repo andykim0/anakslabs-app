@@ -1,4 +1,4 @@
-export const PRICING_MODEL_VERSION = 'monthly-retainer-v3-2026-07' as const;
+export const PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
 
 export interface SubscriptionPriceContract {
   modelVersion: string;
@@ -8,18 +8,104 @@ export interface SubscriptionPriceContract {
   automaticRenewal: true;
 }
 
+export interface SubscriptionTierContract {
+  id: 'standard' | 'premium';
+  label: string;
+  availability: 'public' | 'contact';
+  monthlyPrice:
+    | SubscriptionPriceContract
+    | {
+      modelVersion: string;
+      amountKrw: null;
+      inquiryRangeKrw: {
+        min: number;
+        max: number;
+      };
+      billingInterval: 'month';
+    };
+  included: readonly {
+    id: string;
+    label: string;
+  }[];
+}
+
 /**
- * 신규 견적이 소비하는 버전별 가격표. 파일럿 WTP 반영은 새 버전 항목을
- * 추가하고 PRICING_MODEL_VERSION을 올리는 작업으로만 이루어진다.
+ * 신규 견적과 마케팅 티어 표가 함께 소비하는 버전별 가격표. 파일럿 WTP
+ * 반영은 새 버전 항목을 추가하고 PRICING_MODEL_VERSION을 올리는 작업으로만
+ * 이루어진다. premium 범위는 서버 판단 자료이며 문의 UI에는 숫자를 노출하지 않는다.
  */
-export const SUBSCRIPTION_PRICE_CATALOG = {
+export const PRICING_TABLE_CATALOG = {
   [PRICING_MODEL_VERSION]: {
     modelVersion: PRICING_MODEL_VERSION,
-    amountKrw: 150_000,
-    periodMonths: 1,
-    billingInterval: 'month',
-    automaticRenewal: true,
+    tiers: {
+      standard: {
+        id: 'standard',
+        label: '스탠다드',
+        availability: 'public',
+        monthlyPrice: {
+          modelVersion: PRICING_MODEL_VERSION,
+          amountKrw: 150_000,
+          periodMonths: 1,
+          billingInterval: 'month',
+          automaticRenewal: true,
+        },
+        included: [
+          { id: 'done-for-you-site', label: '다보임이 만드는 사이트·커넥터' },
+          { id: 'conversion-tracking', label: '문의·예약 전환 추적' },
+          { id: 'monthly-report', label: '월간 성과 리포트' },
+          { id: 'basic-search-schema', label: '기초 검색·AI 대비와 구조화 정보' },
+          { id: 'hosting-operations', label: '호스팅·SSL·백업·운영' },
+          { id: 'zero-cost-assets', label: '레이아웃·절차적 배경·제공 스톡 기본 포함' },
+          { id: 'monthly-credits', label: '매월 2크레딧' },
+        ],
+      },
+      premium: {
+        id: 'premium',
+        label: '프리미엄',
+        availability: 'contact',
+        monthlyPrice: {
+          modelVersion: PRICING_MODEL_VERSION,
+          amountKrw: null,
+          inquiryRangeKrw: {
+            min: 390_000,
+            max: 490_000,
+          },
+          billingInterval: 'month',
+        },
+        included: [
+          { id: 'standard-scope', label: '스탠다드의 모든 관리 범위' },
+          { id: 'advanced-aeo', label: '고급 AEO 설계' },
+          { id: 'ongoing-aeo-content', label: '지속 AEO 콘텐츠 · Phase 2' },
+          { id: 'premium-credits', label: '프리미엄 생성 크레딧 포함' },
+          { id: 'expanded-edit-service', label: '더 넉넉한 편집 의뢰 범위' },
+        ],
+      },
+    },
+    annualOptions: {
+      standard: {
+        status: 'available',
+        amountKrw: 1_500_000,
+        periodMonths: 12,
+        freeMonths: 2,
+        billingInterval: 'year',
+        automaticRenewal: true,
+      },
+      premium: {
+        status: 'hidden',
+      },
+    },
   },
+} as const;
+
+export const CURRENT_PRICING_TABLE =
+  PRICING_TABLE_CATALOG[PRICING_MODEL_VERSION];
+
+/**
+ * 기존 발행 결제 경계가 소비하는 스탠다드 월 가격 호환 view.
+ * 금액은 PRICING_TABLE_CATALOG에만 존재한다.
+ */
+export const SUBSCRIPTION_PRICE_CATALOG = {
+  [PRICING_MODEL_VERSION]: CURRENT_PRICING_TABLE.tiers.standard.monthlyPrice,
 } as const satisfies Record<string, SubscriptionPriceContract>;
 
 export function subscriptionPriceForVersion(
@@ -51,13 +137,9 @@ export const PRICING = {
     creditsPerMonth: 2,
     creditValueKrw: 30_000,
     reportFrequency: 'monthly',
-    annualCommitment: {
-      status: 'hidden',
-      periodMonths: 12,
-      discountRate: null,
-      amountKrw: null,
-    },
+    annualCommitment: CURRENT_PRICING_TABLE.annualOptions.standard,
   },
+  tiers: CURRENT_PRICING_TABLE.tiers,
   selfEdit: 'unlimited-free',
 } as const;
 
@@ -79,6 +161,8 @@ export const PUBLISH_PAYMENT_COPY = {
   monthlyRetainer: `월 ${formatKrw(PRICING.subscription.amountKrw)}`,
   term: `홈페이지 ${PRICING.siteCount}개 · ${PRICING.subscription.periodMonths}개월 이용`,
   renewal: '매월 같은 금액으로 자동 갱신',
+  annualOption:
+    `연납 시 ${PRICING.subscription.annualCommitment.freeMonths}개월 무료 · 연 ${formatKrw(PRICING.subscription.annualCommitment.amountKrw)}`,
   noBuildFee: '별도 제작비 없음',
   vat: '부가세 별도',
 } as const;
@@ -98,6 +182,12 @@ export const SUBSCRIPTION_BENEFIT_COPY = {
 
 export const SUBSCRIPTION_VALUE_COPY =
   `검색·AI 노출 최적화와 전환 리포팅, 호스팅·운영, 매월 ${PRICING.subscription.creditsPerMonth}개 크레딧을 함께 제공합니다. 크레딧은 외부 생성비가 드는 프리미엄 작업에만 사용합니다.`;
+
+export const RETAINER_SCOPE_COPY =
+  '전환 흐름과 AI 검색 대비, 사이트 품질을 매달 확인하고 관리합니다. 검색 순위나 노출 자체를 약속하지 않습니다.';
+
+export const RETAINER_COMPLEMENT_COPY =
+  '블로그·광고 운영을 대신하는 상품이 아니라, 그 활동이 연결될 공식 사이트와 전환 기반을 보완합니다.';
 
 export const INCLUDED_ZERO_COST_ASSET_COPY =
   '레이아웃 선택, 절차적 배경, 제공 스톡처럼 외부 생성비가 들지 않는 기본 자산은 크레딧 없이 포함됩니다.';

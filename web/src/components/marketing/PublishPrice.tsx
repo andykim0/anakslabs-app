@@ -18,6 +18,9 @@ export function PublishPrice({
       </span>
       <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.term}</span>
       <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.renewal}</span>
+      <span className={`mkt-type-support font-medium ${detailColor}`}>
+        {PUBLISH_PAYMENT_COPY.annualOption}
+      </span>
     </div>
   );
 }
