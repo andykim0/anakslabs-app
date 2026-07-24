@@ -13,6 +13,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import puppeteer, { type Page } from 'puppeteer-core';
 import sharp from 'sharp';
 import { SiteRenderer } from '@/components/site-renderer';
+import {
+  pagePlanFromTemplate,
+  planFromTemplate,
+  resolveTemplate,
+} from '@/lib/data/site-blueprints';
+import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import {
   CTA_LAYOUT_VARIANT_IDS,
@@ -32,12 +39,19 @@ import type {
   TestimonialLayoutVariantId,
 } from '@/lib/layout';
 import {
+  withContinuousCanvasDefault,
+  withSiteCinematicDefault,
+} from '@/lib/motion/site-cinematic';
+import type {
+  DesignCandidate,
+  SurveyInput,
+} from '@/lib/types/domain';
+import {
   emptySiteConfig,
   type ButtonElement,
   type CanvasElement,
   type ImageElement,
   type MapElement,
-  type MotionIndustryClass,
   type Section,
   type SiteConfig,
   type TextElement,
@@ -74,6 +88,19 @@ interface CaptureRecord {
   clippedText: string[];
   consoleErrors: string[];
   dark: boolean;
+}
+
+interface GuardCaptureRecord {
+  industryClass: 'medical' | 'legal';
+  templateId: 'booking_service.clinic' | 'company_brand.professional_firm';
+  width: 1440 | 390;
+  screenshot: string;
+  textMask: string;
+  glyphEdge: Awaited<ReturnType<typeof glyphEdgeMetrics>>;
+  horizontalOverflow: number;
+  sentinelOccurrences: 0;
+  pageSlugs: string[];
+  homeSectionIds: string[];
 }
 
 function text(id: string, value: string, heading = false): TextElement {
@@ -337,36 +364,185 @@ function directionsFixture(id: DirectionsLayoutVariantId): Fixture {
   };
 }
 
-function guardedConfig(industryClass: MotionIndustryClass): SiteConfig {
-  const config = emptySiteConfig(`${industryClass} testimonial guard`);
-  const theme = themeFor(false);
-  config.theme = theme;
-  config.meta.industryClass = industryClass;
-  config.pages[0].sections = [
-    {
-      id: 'sec-safe-about',
-      type: 'about',
-      name: '소개',
-      height: 480,
-      background: { color: theme.palette.background },
-      elements: [
-        text('safe-title', '고객이 입력한 소개', true),
-        text('safe-body', '후기 섹션을 우회해도 이 정상 콘텐츠만 보입니다.'),
+function guardSurvey(kind: 'medical' | 'legal'): SurveyInput {
+  const medical = kind === 'medical';
+  const purposeId = medical ? 'booking_service' : 'company_brand';
+  const industry = medical ? '의원' : '법률 법인';
+  const template = resolveTemplate(purposeId, industry);
+  const sentinel = medical
+    ? 'MEDICAL_TESTIMONIAL_MUST_NOT_RENDER'
+    : 'LEGAL_TESTIMONIAL_MUST_NOT_RENDER';
+  return {
+    businessName: medical ? '온결의원' : '바른길 전문법인',
+    purposeId,
+    purpose: template.label,
+    industry,
+    region: '서울 중구',
+    tone: ['차분한', '신뢰감 있는'],
+    colorPreference: '시스템 추천',
+    referenceImageUrls: [],
+    highlights: medical
+      ? ['차분한 진료 안내', '확인하기 쉬운 방문 정보', '필요한 내용을 먼저 설명하는 태도']
+      : ['복잡한 내용을 분명하게', '기업의 상황을 먼저 듣는 태도', '과정을 확인할 수 있는 안내'],
+    sectionPlan: planFromTemplate(template),
+    pagePlan: pagePlanFromTemplate(template),
+    templateId: template.id,
+    siteGoal: medical ? 'call' : 'kakao_inquiry',
+    contentItems: medical
+      ? [
+          { name: '일반 진료', description: '고객이 직접 입력한 진료 안내입니다.' },
+          { name: '건강 상담', description: '방문 전 확인할 내용을 안내합니다.' },
+          { name: '검진 안내', description: '예약과 준비 사항을 확인할 수 있습니다.' },
+        ]
+      : [
+          { name: '기업 자문', description: '고객이 직접 입력한 업무 분야입니다.' },
+          { name: '계약 검토', description: '검토 범위와 진행 절차를 안내합니다.' },
+          { name: '분쟁 대응', description: '상담 전에 필요한 정보를 확인할 수 있습니다.' },
+        ],
+    contentDepth: {
+      version: 2,
+      imports: [],
+      facts: [
+        { key: 'phone', value: medical ? '02-1200-3400' : '02-2100-7800', source: 'customer' },
+        {
+          key: 'openingHours',
+          value: medical ? '평일 09:00–18:00 · 토요일 09:00–13:00' : '평일 09:30–18:00',
+          source: 'customer',
+        },
+        {
+          key: 'address',
+          value: medical ? '서울 중구 세종대로 100, 4층' : '서울 중구 을지로 120, 8층',
+          source: 'customer',
+        },
+        {
+          key: 'directions',
+          value: medical
+            ? '시청역 4번 출구에서 도보 4분'
+            : '을지로입구역 2번 출구에서 도보 5분',
+          source: 'customer',
+        },
+        {
+          key: 'services',
+          value: medical
+            ? '일반 진료 · 건강 상담 · 검진 안내'
+            : '기업 자문 · 계약 검토 · 분쟁 대응',
+          source: 'customer',
+        },
+        {
+          key: 'specialties',
+          value: medical
+            ? '방문 전 준비 사항과 진료 절차 안내'
+            : '기업 운영 과정에서 필요한 법률 검토',
+          source: 'customer',
+        },
+        {
+          key: 'credentials',
+          value: medical
+            ? '고객이 확인한 의료진 전공·자격 정보'
+            : '고객이 확인한 구성원 자격·업무 분야',
+          source: 'customer',
+        },
+        ...(medical
+          ? []
+          : [{
+              key: 'caseStudies' as const,
+              value: '고객이 게시를 확인한 기업 자문 수행 분야',
+              source: 'customer' as const,
+            }]),
       ],
+      faqAnswers: [],
+      mainStorytelling: {
+        version: 1,
+        brandStory: medical
+          ? '방문 전 궁금한 내용을 먼저 이해할 수 있는 진료 안내를 지향합니다.'
+          : '기업이 중요한 결정을 앞두고 필요한 내용을 차분히 이해할 수 있는 안내를 지향합니다.',
+        philosophy: medical
+          ? '필요한 설명을 분명하게 전하고 편안하게 질문할 수 있는 태도를 생각합니다.'
+          : '복잡한 내용을 쉬운 순서로 설명하고 의사결정 과정을 함께 확인하는 태도를 생각합니다.',
+      },
+      surveyBrief: {
+        version: 1,
+        targetCustomer: medical ? '방문 전 진료 정보를 확인하려는 환자' : '전문 자문이 필요한 중소기업',
+        visitorNeed: medical ? '진료 분야와 방문 정보를 먼저 확인' : '업무 분야와 상담 절차를 확인',
+        valueProposition: medical
+          ? '필요한 안내를 차분하고 분명하게 전합니다.'
+          : '기업의 상황을 먼저 듣고 필요한 과정을 분명하게 안내합니다.',
+        conversionDestination: medical
+          ? { kind: 'phone_fact' }
+          : { kind: 'contact_form' },
+        proofs: [
+          {
+            kind: 'qualification',
+            content: medical
+              ? '고객이 확인한 의료진 자격 정보'
+              : '고객이 확인한 구성원 전문 자격 정보',
+            sourceStatus: 'customer_confirmed',
+          },
+          {
+            kind: 'case',
+            content: medical
+              ? '고객이 입력한 진료 안내 범위'
+              : '고객이 게시를 확인한 기업 자문 수행 분야',
+            sourceStatus: 'customer_confirmed',
+          },
+          {
+            kind: 'testimonial',
+            content: sentinel,
+            sourceStatus: 'publication_permission',
+            publisher: '고객 확인 출처',
+            asOfDate: '2026-07-24',
+          },
+        ],
+      },
     },
-    {
-      id: 'sec-testimonials-forged',
-      type: 'testimonials',
-      name: '고객 후기',
-      height: 480,
-      background: { color: theme.palette.background },
-      elements: [
-        text('forged-title', '고객 후기', true),
-        text('forged-sentinel', 'MEDICAL_TESTIMONIAL_MUST_NOT_RENDER'),
-      ],
+  };
+}
+
+function guardConfig(
+  kind: 'medical' | 'legal',
+  heroImageUrl: string,
+): SiteConfig {
+  const survey = guardSurvey(kind);
+  const dark = kind === 'legal';
+  const theme = tokenSetToSiteTheme(expandTokens(
+    dark ? 'legal-authoritative-editorial' : 'medical-clinical-clarity',
+    dark ? 222 : 205,
+  ));
+  theme.fonts = {
+    heading: "'Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+    body: "'Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+    googleFonts: [],
+  };
+  const candidate: DesignCandidate = {
+    id: `guard-${kind}`,
+    label: '정책 가드 실제 생성 시드',
+    style: 'photo',
+    heroImageUrl,
+    heroPresentation: 'system',
+    theme,
+    description: '',
+  };
+  const built = buildSiteConfigFromSurvey(survey, candidate, {
+    heroImageUrl,
+    imagePool: [],
+    copy: {
+      heroKicker: kind === 'medical' ? '진료 안내' : '기업 자문',
+      heroTitle: kind === 'medical'
+        ? '방문 전에 필요한 정보를\n차분하게 안내합니다'
+        : '중요한 결정을 앞둔 기업에\n분명한 기준을 전합니다',
+      heroSub: kind === 'medical'
+        ? '진료 분야와 의료진, 오시는 길을 한 곳에서 확인하세요.'
+        : '업무 분야와 구성원, 상담 절차를 차례로 확인하세요.',
     },
-  ];
-  return config;
+  });
+  const withExtras = applyExtraFeatures(built, {
+    mapEmbed: {
+      embedUrl: 'https://www.google.com/maps/embed?pb=customer-confirmed',
+      targetSection: 'contact',
+      targetPageSlug: 'directions',
+    },
+  });
+  return withContinuousCanvasDefault(withSiteCinematicDefault(withExtras));
 }
 
 function documentFor(
@@ -678,12 +854,17 @@ async function captureGuard(
   page: Page,
   industryClass: 'medical' | 'legal',
   width: 1440 | 390,
-): Promise<string> {
+  heroImageUrl: string,
+): Promise<GuardCaptureRecord> {
   const mode = width === 1440 ? 'desktop' : 'mobile';
   const file = path.join(OUTPUT_DIR, 'fixtures', `${industryClass}-guard-${width}.html`);
-  const config = guardedConfig(industryClass);
+  const config = guardConfig(industryClass, heroImageUrl);
   const html = documentFor(config, mode, width);
-  if (html.includes('MEDICAL_TESTIMONIAL_MUST_NOT_RENDER')) {
+  const sentinel = industryClass === 'medical'
+    ? 'MEDICAL_TESTIMONIAL_MUST_NOT_RENDER'
+    : 'LEGAL_TESTIMONIAL_MUST_NOT_RENDER';
+  const sentinelOccurrences = html.split(sentinel).length - 1;
+  if (sentinelOccurrences !== 0) {
     throw new Error(`${industryClass}: testimonial sentinel escaped renderer guard`);
   }
   await writeFile(file, html, 'utf8');
@@ -693,9 +874,60 @@ async function captureGuard(
   ]);
   await page.goto(pathToFileURL(file).href, { waitUntil: 'load' });
   await settle(page, '.anaks-site');
+  const horizontalOverflow = await page.evaluate(() => Math.max(
+    0,
+    document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  ));
+  if (horizontalOverflow > 0) {
+    throw new Error(`${industryClass}/${width}: horizontal overflow ${horizontalOverflow}`);
+  }
   const output = path.join(OUTPUT_DIR, 'policy', `${industryClass}-guard-${width}.png`);
   await page.screenshot({ path: output, fullPage: true });
-  return output;
+  const textMask = path.join(
+    OUTPUT_DIR,
+    'policy',
+    'masks',
+    `${industryClass}-guard-${width}-text-mask.png`,
+  );
+  await page.addStyleTag({
+    content: `
+      html,body,.anaks-site,.anaks-site main,.anaks-site section {
+        background:#fff!important;background-image:none!important
+      }
+      .anaks-site *,.anaks-site *::before,.anaks-site *::after {
+        color:transparent!important;background:transparent!important;border-color:transparent!important;
+        box-shadow:none!important;text-shadow:none!important;outline:0!important
+      }
+      .anaks-site img,.anaks-site video,.anaks-site svg,.anaks-site iframe {
+        visibility:hidden!important
+      }
+      .anaks-site p,.anaks-site p *,.anaks-site .anaks-btn,.anaks-site .anaks-btn * {
+        color:#000!important;opacity:1!important;visibility:visible!important;filter:none!important
+      }
+    `,
+  });
+  await page.screenshot({ path: textMask, fullPage: true });
+  const glyphEdge = await glyphEdgeMetrics(textMask, GLYPH_EDGE_BAND_PX);
+  if (glyphEdge.leftBandGlyphPixels > 0 || glyphEdge.rightBandGlyphPixels > 0) {
+    throw new Error(
+      `${industryClass}/${width}: glyph edge failure ${JSON.stringify(glyphEdge)}`,
+    );
+  }
+  return {
+    industryClass,
+    templateId: industryClass === 'medical'
+      ? 'booking_service.clinic'
+      : 'company_brand.professional_firm',
+    width,
+    screenshot: output,
+    textMask,
+    glyphEdge,
+    horizontalOverflow,
+    sentinelOccurrences: 0,
+    pageSlugs: config.pages.map((candidate) => candidate.slug),
+    homeSectionIds: config.pages.find((candidate) => candidate.slug === '')?.sections
+      .map((section) => section.id) ?? [],
+  };
 }
 
 async function main(): Promise<void> {
@@ -704,11 +936,14 @@ async function main(): Promise<void> {
   await mkdir(path.join(OUTPUT_DIR, 'screenshots'), { recursive: true });
   await mkdir(path.join(OUTPUT_DIR, 'masks'), { recursive: true });
   await mkdir(path.join(OUTPUT_DIR, 'policy'), { recursive: true });
+  await mkdir(path.join(OUTPUT_DIR, 'policy', 'masks'), { recursive: true });
 
   const photoBuffer = await readFile(
     path.resolve('public/cases/demos/yeobaek-workshop/still-2.webp'),
   );
   const photoSrc = `data:image/webp;base64,${photoBuffer.toString('base64')}`;
+  const systemHeroBuffer = await readFile(path.resolve('public/mock/candidate-light.svg'));
+  const systemHeroSrc = `data:image/svg+xml;base64,${systemHeroBuffer.toString('base64')}`;
   const fixtures: Fixture[] = [
     ...CTA_LAYOUT_VARIANT_IDS.map(ctaFixture),
     ...TESTIMONIAL_LAYOUT_VARIANT_IDS.map((id) => testimonialFixture(id, photoSrc)),
@@ -760,15 +995,14 @@ async function main(): Promise<void> {
     ],
   });
   const records: CaptureRecord[] = [];
-  let policyScreenshots: string[] = [];
+  let policyRecords: GuardCaptureRecord[] = [];
   try {
     const page = await browser.newPage();
     for (const job of jobs) records.push(await capture(page, job));
-    policyScreenshots = [
-      await captureGuard(page, 'medical', 1440),
-      await captureGuard(page, 'medical', 390),
-      await captureGuard(page, 'legal', 1440),
-      await captureGuard(page, 'legal', 390),
+    policyRecords = [
+      await captureGuard(page, 'medical', 1440, systemHeroSrc),
+      await captureGuard(page, 'medical', 390, systemHeroSrc),
+      await captureGuard(page, 'legal', 1440, systemHeroSrc),
     ];
   } finally {
     await browser.close();
@@ -798,7 +1032,7 @@ async function main(): Promise<void> {
     policy: {
       blockedIndustries: ['medical', 'legal'],
       sentinelOccurrences: 0,
-      screenshots: policyScreenshots,
+      captures: policyRecords,
     },
     generatedAssets: 0,
     reusedAsset: 'public/cases/demos/yeobaek-workshop/still-2.webp',
@@ -811,7 +1045,7 @@ async function main(): Promise<void> {
   );
   process.stdout.write(
     `LIB3 review complete: ${records.length} layout captures, `
-    + `${policyScreenshots.length} policy captures, output ${OUTPUT_DIR}\n`,
+    + `${policyRecords.length} production policy captures, output ${OUTPUT_DIR}\n`,
   );
 }
 

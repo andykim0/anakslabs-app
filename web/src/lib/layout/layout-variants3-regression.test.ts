@@ -255,6 +255,16 @@ function overlap(
   return width * height;
 }
 
+function containsFrame(
+  outer: SectionLayoutCompiledFrame,
+  inner: SectionLayoutCompiledFrame,
+): boolean {
+  return inner.x >= outer.x
+    && inner.y >= outer.y
+    && inner.x + inner.w <= outer.x + outer.w
+    && inner.y + inner.h <= outer.y + outer.h;
+}
+
 function assertProjectionGeometry(
   label: string,
   projection: SectionLayoutProjection,
@@ -448,6 +458,63 @@ describe('LIB3 L3 — 9종 × 3밴드 콘텐츠 가변 회귀', () => {
       assert.deepEqual(first, second);
       assert.equal(first.requestedId, requestedId);
       assertProjectionGeometry(requestedId, first);
+      if (requestedId === 'directions.full-map-overlay') {
+        for (const band of BANDS) {
+          const compiled = first.bands[band];
+          const surface = compiled.groupFrames?.['directions-map-surface'];
+          const mapFrame = compiled.frames['directions-map'];
+          assert.ok(surface, `${band}: overlay surface missing`);
+          assert.ok(mapFrame, `${band}: map frame missing`);
+          const foreground = Object.entries(compiled.frames)
+            .filter(([elementId]) => elementId !== 'directions-map');
+          assert.ok(foreground.length > 0);
+          for (const [elementId, frame] of foreground) {
+            assert.ok(
+              containsFrame(surface, frame),
+              `${band}/${elementId}: text bbox crosses the surface background boundary`,
+            );
+          }
+          const mapBoundary = mapFrame.y + mapFrame.h;
+          const boundaryCrossers = foreground.filter(([, frame]) => (
+            frame.y < mapBoundary && frame.y + frame.h > mapBoundary
+          ));
+          for (const [elementId, frame] of boundaryCrossers) {
+            assert.ok(
+              surface.y <= frame.y && surface.y + surface.h >= frame.y + frame.h,
+              `${band}/${elementId}: map boundary is not masked by one continuous surface`,
+            );
+          }
+        }
+
+        const config = emptySiteConfig('full map overlay stacking');
+        config.theme = theme;
+        config.pages[0].sections = [{
+          id: 'sec-directions-full-map-overlay',
+          type: 'contact',
+          name: '오시는 길',
+          height: first.bands.wide.sectionHeight,
+          background: { color: theme.palette.background },
+          elements: fixture.elements,
+          sectionLayout: first,
+        }];
+        const html = renderToStaticMarkup(createElement(SiteRenderer, {
+          config,
+          mode: 'auto',
+          interactive: false,
+          animate: false,
+        }));
+        const surfaceIndex = html.indexOf(
+          'data-section-layout-group="directions-map-surface"',
+        );
+        const backdropIndex = html.indexOf('z-index:0');
+        assert.ok(surfaceIndex >= 0, 'map surface must render');
+        assert.ok(backdropIndex > surfaceIndex, 'map backdrop must render behind the surface');
+        assert.match(
+          html,
+          /\[data-section-layout-group\]\{[^}]*z-index:1/u,
+          'surface layer must stay above the map backdrop',
+        );
+      }
     });
   });
 });

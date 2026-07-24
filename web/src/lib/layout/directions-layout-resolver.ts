@@ -275,15 +275,27 @@ function compileBand({
     width: surfaceWidth - spacing.sectionInline * 2,
     gap: spacing.elementGap,
   }) + spacing.sectionInline;
+  const foregroundFrames = Object.entries(frames)
+    .filter(([id]) => id !== content.mapId)
+    .map(([, frame]) => frame);
+  const foregroundLeft = Math.min(...foregroundFrames.map((frame) => frame.x));
+  const foregroundTop = Math.min(...foregroundFrames.map((frame) => frame.y));
+  const foregroundRight = Math.max(...foregroundFrames.map((frame) => frame.x + frame.w));
+  const foregroundBottom = Math.max(...foregroundFrames.map((frame) => frame.y + frame.h));
+  const stageWidth = band === 'wide' ? 1440 : band === 'compact' ? 768 : 390;
+  const groupX = Math.max(0, foregroundLeft - spacing.sectionInline);
+  const groupY = Math.max(0, foregroundTop - spacing.sectionInline);
+  const groupRight = Math.min(stageWidth, foregroundRight + spacing.sectionInline);
+  const groupBottom = foregroundBottom + spacing.sectionInline;
   groupFrames['directions-map-surface'] = {
-    x: surfaceX,
-    y: surfaceY,
-    w: surfaceWidth,
-    h: surfaceBottom - surfaceY,
+    x: groupX,
+    y: groupY,
+    w: groupRight - groupX,
+    h: groupBottom - groupY,
   };
   return {
-    width: band === 'wide' ? 1440 : band === 'compact' ? 768 : 390,
-    sectionHeight: Math.ceil(Math.max(mapHeight, surfaceBottom) + spacing.sectionBlock),
+    width: stageWidth,
+    sectionHeight: Math.ceil(Math.max(mapHeight, surfaceBottom, groupBottom) + spacing.sectionBlock),
     frames,
     fontSizes,
     itemOrder: content.rows.map((row) => row.id),

@@ -233,6 +233,9 @@ export function SectionLayoutProjectionRenderer({
         const itemIndex = itemIndexFor(projection, element.id);
         const isAtmosphericMedia = atmospheric
           && projection.items.some((item) => item.mediaElementId === element.id);
+        const isLayoutBackdrop = projection.kind === 'directions'
+          && projection.resolvedId === 'directions.full-map-overlay'
+          && element.kind === 'map';
         const fontSize = primaryBand.fontSizes[element.id];
         const mobileFontSize = mobilePrimary.fontSizes[element.id];
         const layoutFontSize = variant === 'canvas'
@@ -260,7 +263,7 @@ export function SectionLayoutProjectionRenderer({
               : {})}
             style={{
               ...frameVariables,
-              zIndex: isAtmosphericMedia ? 0 : Math.max(2, element.z),
+              zIndex: isAtmosphericMedia || isLayoutBackdrop ? 0 : Math.max(2, element.z),
               opacity: element.opacity,
               transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
               textShadow: atmospheric && element.kind === 'text'
