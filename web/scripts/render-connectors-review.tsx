@@ -6,8 +6,9 @@
  * Out: /private/tmp/daboim-connectors-review
  */
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import puppeteer, { type Page } from 'puppeteer-core';
@@ -33,7 +34,7 @@ import type {
   ExtraFeatureSelection,
   SurveyInput,
 } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SiteConfig, SiteTheme } from '@/lib/types/site';
 
 const OUTPUT = '/private/tmp/daboim-connectors-review';
 const CHROME = process.env.CHROME_PATH
@@ -43,6 +44,12 @@ const VIEWPORTS = [
   { band: 'wide', width: 1440, height: 900, mode: 'desktop' },
   { band: 'compact', width: 768, height: 900, mode: 'mobile' },
   { band: 'mobile', width: 390, height: 844, mode: 'mobile' },
+] as const;
+const BRAND_CONNECTOR_IDS = [
+  'kakao-channel',
+  'naver-booking',
+  'naver-map',
+  'instagram',
 ] as const;
 
 async function dataUrl(file: string, mime: string): Promise<string> {
@@ -168,10 +175,12 @@ function documentFor(
     interactive: true,
     animate: false,
     runtimeDelivery: 'client',
-  })).replace(/<link[^>]*>/gu, '');
+  }))
+    .replace(/<link[^>]*>/gu, '');
   return [
     '<!doctype html><html lang="ko" data-review-settled="true"><head>',
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
+    '<link rel="icon" href="data:,">',
     `<style>html,body{margin:0;width:100%;overflow-x:hidden;background:${config.theme.palette.background}}</style>`,
     `</head><body>${markup}</body></html>`,
   ].join('');
@@ -186,6 +195,15 @@ async function settle(page: Page): Promise<void> {
   await page.waitForSelector('.anaks-connectors');
   await page.evaluate(async () => {
     await document.fonts.ready;
+    await Promise.all([...document.images].map(async (image) => {
+      if (!image.complete) {
+        await new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        });
+      }
+      await image.decode().catch(() => undefined);
+    }));
     const maximum = Math.max(0, document.documentElement.scrollHeight - innerHeight);
     for (let index = 0; index <= 12; index += 1) {
       scrollTo(0, maximum * index / 12);
@@ -201,8 +219,9 @@ async function settle(page: Page): Promise<void> {
 async function capture(
   browser: Awaited<ReturnType<typeof puppeteer.launch>>,
   input: {
-    file: string;
+    url: string;
     band: 'wide' | 'compact' | 'mobile';
+    tone: 'light' | 'dark';
     width: number;
     height: number;
   },
@@ -240,6 +259,7 @@ async function capture(
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
   const externalRequests: string[] = [];
+  const failedResources: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
@@ -247,9 +267,20 @@ async function capture(
     error instanceof Error ? error.message : String(error),
   ));
   page.on('request', (request) => {
-    if (/^https?:/u.test(request.url())) externalRequests.push(request.url());
+    const requestUrl = request.url();
+    if (
+      /^https?:/u.test(requestUrl)
+      && new URL(requestUrl).origin !== new URL(input.url).origin
+    ) {
+      externalRequests.push(requestUrl);
+    }
   });
-  await page.goto(pathToFileURL(input.file).href, { waitUntil: 'load' });
+  page.on('response', (response) => {
+    if (response.status() >= 400) {
+      failedResources.push(`${response.status()} ${response.url()}`);
+    }
+  });
+  await page.goto(input.url, { waitUntil: 'load' });
   await settle(page);
   const metrics = await page.evaluate(() => ({
     viewport: {
@@ -258,6 +289,13 @@ async function capture(
       devicePixelRatio,
     },
     connectorCount: document.querySelectorAll('.anaks-connector').length,
+    brandMarkCount: document.querySelectorAll('[data-connector-brand]').length,
+    brokenBrandMarkCount: [...document.querySelectorAll<HTMLImageElement>(
+      '[data-connector-brand] img',
+    )].filter((image) => image.naturalWidth === 0 || image.naturalHeight === 0).length,
+    brandSources: [...document.querySelectorAll<HTMLImageElement>(
+      '[data-connector-brand] img',
+    )].map((image) => image.src),
     iframeCount: document.querySelectorAll('iframe').length,
     externalScriptCount: document.querySelectorAll('script[src]').length,
     horizontalOverflow: Math.max(
@@ -274,6 +312,8 @@ async function capture(
   }
   if (
     metrics.connectorCount !== 5
+    || metrics.brandMarkCount !== 4
+    || metrics.brokenBrandMarkCount !== 0
     || metrics.iframeCount !== 0
     || metrics.externalScriptCount !== 0
     || metrics.horizontalOverflow !== 0
@@ -281,21 +321,47 @@ async function capture(
     || consoleErrors.length > 0
     || pageErrors.length > 0
     || externalRequests.length > 0
+    || failedResources.length > 0
   ) {
     throw new Error(`${input.band}: review guard failed ${JSON.stringify({
       metrics,
       consoleErrors,
       pageErrors,
       externalRequests,
+      failedResources,
     })}`);
   }
 
-  const fullPage = path.join(OUTPUT, 'screenshots', `workshop-full-${input.width}.png`);
-  const connectors = path.join(OUTPUT, 'screenshots', `workshop-connectors-${input.width}.png`);
+  const fullPage = path.join(
+    OUTPUT,
+    'screenshots',
+    `workshop-${input.tone}-full-${input.width}.png`,
+  );
+  const connectors = path.join(
+    OUTPUT,
+    'screenshots',
+    `workshop-${input.tone}-connectors-${input.width}.png`,
+  );
   await page.screenshot({ path: fullPage, fullPage: true });
   const panel = await page.$('.anaks-connectors');
   if (!panel) throw new Error(`${input.band}: connector panel missing`);
   await panel.screenshot({ path: connectors });
+  const brandMarkImageStdev: Record<string, number> = {};
+  for (const connectorId of BRAND_CONNECTOR_IDS) {
+    const brandMark = await page.$(`[data-connector-brand="${connectorId}"]`);
+    if (!brandMark) throw new Error(`${input.band}: ${connectorId} brand mark missing`);
+    const brandCheck = path.join(
+      OUTPUT,
+      'brand-checks',
+      `${input.tone}-${input.width}-${connectorId}.png`,
+    );
+    await brandMark.screenshot({ path: brandCheck });
+    const brandStdev = await nonEmptyImage(brandCheck);
+    if (brandStdev < 3) {
+      throw new Error(`${input.band}: ${connectorId} brand mark is effectively blank`);
+    }
+    brandMarkImageStdev[connectorId] = Number(brandStdev.toFixed(2));
+  }
   const stdev = await nonEmptyImage(connectors);
   if (stdev < 8) throw new Error(`${input.band}: connector evidence is effectively blank`);
   const result = {
@@ -305,13 +371,62 @@ async function capture(
     fullPageBytes: (await stat(fullPage)).size,
     connectorBytes: (await stat(connectors)).size,
     connectorImageStdev: Number(stdev.toFixed(2)),
+    brandMarkImageStdev,
     ...metrics,
     consoleErrors,
     pageErrors,
     externalRequests,
+    failedResources,
   };
   await page.close();
   return result;
+}
+
+async function startReviewServer() {
+  const server = createServer(async (request, response) => {
+    try {
+      const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://127.0.0.1').pathname);
+      const requestedFile = pathname.startsWith('/fixtures/')
+        ? path.join(OUTPUT, pathname)
+        : pathname.startsWith('/brand/')
+          ? path.join(process.cwd(), 'public', pathname)
+          : '';
+      const allowedRoot = pathname.startsWith('/fixtures/')
+        ? path.join(OUTPUT, 'fixtures')
+        : path.join(process.cwd(), 'public', 'brand');
+      const resolved = path.resolve(requestedFile);
+      if (!requestedFile || (resolved !== allowedRoot && !resolved.startsWith(`${allowedRoot}${path.sep}`))) {
+        response.writeHead(404).end();
+        return;
+      }
+      const content = await readFile(resolved);
+      const contentType = resolved.endsWith('.html')
+        ? 'text/html; charset=utf-8'
+        : resolved.endsWith('.svg')
+          ? 'image/svg+xml'
+          : resolved.endsWith('.png')
+            ? 'image/png'
+            : 'application/octet-stream';
+      response.writeHead(200, {
+        'content-type': contentType,
+        'cache-control': 'no-store',
+      });
+      response.end(content);
+    } catch {
+      response.writeHead(404).end();
+    }
+  });
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve());
+  });
+  const address = server.address() as AddressInfo;
+  return {
+    origin: `http://127.0.0.1:${address.port}`,
+    close: () => new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    }),
+  };
 }
 
 async function roundTripEvidence(config: SiteConfig) {
@@ -393,60 +508,100 @@ async function main(): Promise<void> {
   await rm(OUTPUT, { recursive: true, force: true });
   await mkdir(path.join(OUTPUT, 'fixtures'), { recursive: true });
   await mkdir(path.join(OUTPUT, 'screenshots'), { recursive: true });
+  await mkdir(path.join(OUTPUT, 'brand-checks'), { recursive: true });
   const photos = await Promise.all([
     'public/cases/demos/yeobaek-workshop/still-1.webp',
     'public/cases/demos/yeobaek-workshop/still-2.webp',
     'public/cases/demos/yeobaek-workshop/still-3.webp',
   ].map((file) => dataUrl(file, 'image/webp')));
   const survey = workshopSurvey(photos);
-  const theme = tokenSetToSiteTheme(expandTokens('workshop-tactile-heritage', 31));
-  theme.fonts = {
+  const lightTheme = tokenSetToSiteTheme(expandTokens('workshop-tactile-heritage', 31));
+  lightTheme.fonts = {
     heading: "'Apple SD Gothic Neo','Noto Sans KR',sans-serif",
     body: "'Apple SD Gothic Neo','Noto Sans KR',sans-serif",
     googleFonts: [],
   };
-  const candidate: DesignCandidate = {
-    id: 'connectors-workshop',
-    label: '온결 공간연구소',
-    style: 'photo',
-    heroImageUrl: photos[0],
-    heroPresentation: 'system',
-    theme,
-    description: '',
+  const darkTheme: SiteTheme = {
+    ...lightTheme,
+    fonts: { ...lightTheme.fonts },
+    palette: {
+      background: '#07111f',
+      surface: '#10233c',
+      text: '#f7fbff',
+      muted: '#b7cbe0',
+      primary: '#60ded7',
+      accent: '#75adff',
+    },
   };
-  const built = buildSiteConfigFromSurvey(survey, candidate, {
-    heroImageUrl: photos[0],
-    imagePool: [...photos],
-    copy: {
-      heroKicker: '공간 설계',
-      heroTitle: '일하는 방식과\n머무는 시간을\n함께 설계합니다',
-      heroSub: '업무 공간과 소규모 상업 공간의 쓰임을 먼저 듣습니다.',
-    },
-  });
-  const withContact = applyExtraFeatures(built, extras());
-  const withConnectors = applyConnectorManifest({
-    ...withContact,
-    publicContact: {
-      version: 1,
-      phone: '02-1234-5678',
-      address: '서울특별시 성동구 연무장길 1',
-    },
-  }, survey, extras());
-  const config = withContinuousCanvasDefault(withSiteCinematicDefault(withConnectors));
-  if (config.connectors?.items.length !== 5) {
-    throw new Error(`Expected five connectors, got ${config.connectors?.items.length ?? 0}`);
+  const buildConfig = (theme: SiteTheme, tone: 'light' | 'dark'): SiteConfig => {
+    const candidate: DesignCandidate = {
+      id: `connectors-workshop-${tone}`,
+      label: `온결 공간연구소 ${tone}`,
+      style: 'photo',
+      heroImageUrl: photos[0],
+      heroPresentation: 'system',
+      theme,
+      description: '',
+      designDna: {
+        catalogVersion: 1,
+        dnaId: 'workshop-tactile-heritage',
+        hueSeed: 31,
+        overrides: {},
+      },
+    };
+    const built = buildSiteConfigFromSurvey(survey, candidate, {
+      heroImageUrl: photos[0],
+      imagePool: [...photos],
+      copy: {
+        heroKicker: '공간 설계',
+        heroTitle: '일하는 방식과\n머무는 시간을\n함께 설계합니다',
+        heroSub: '업무 공간과 소규모 상업 공간의 쓰임을 먼저 듣습니다.',
+      },
+    });
+    const withContact = applyExtraFeatures(built, extras());
+    const withConnectors = applyConnectorManifest({
+      ...withContact,
+      publicContact: {
+        version: 1,
+        phone: '02-1234-5678',
+        address: '서울특별시 성동구 연무장길 1',
+      },
+    }, survey, extras());
+    return withContinuousCanvasDefault(withSiteCinematicDefault(withConnectors));
+  };
+  const reviewConfigs = [
+    { tone: 'light' as const, config: buildConfig(lightTheme, 'light') },
+    { tone: 'dark' as const, config: buildConfig(darkTheme, 'dark') },
+  ];
+  for (const review of reviewConfigs) {
+    if (review.config.connectors?.items.length !== 5) {
+      throw new Error(
+        `${review.tone}: expected five connectors, got ${review.config.connectors?.items.length ?? 0}`,
+      );
+    }
   }
-  const roundTrip = await roundTripEvidence(config);
+  const roundTrip = await roundTripEvidence(reviewConfigs[0].config);
   const roundTripFile = path.join(OUTPUT, 'click-to-report-roundtrip.json');
   await writeFile(roundTripFile, JSON.stringify(roundTrip, null, 2), 'utf8');
 
+  const reviewServer = await startReviewServer();
   const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
   try {
     const captures = [];
-    for (const viewport of VIEWPORTS) {
-      const file = path.join(OUTPUT, 'fixtures', `workshop-${viewport.width}.html`);
-      await writeFile(file, documentFor(config, viewport.mode), 'utf8');
-      captures.push(await capture(browser, { file, ...viewport }));
+    for (const review of reviewConfigs) {
+      for (const viewport of VIEWPORTS) {
+        const file = path.join(
+          OUTPUT,
+          'fixtures',
+          `workshop-${review.tone}-${viewport.width}.html`,
+        );
+        await writeFile(file, documentFor(review.config, viewport.mode), 'utf8');
+        captures.push(await capture(browser, {
+          url: `${reviewServer.origin}/fixtures/${path.basename(file)}`,
+          tone: review.tone,
+          ...viewport,
+        }));
+      }
     }
     await writeFile(path.join(OUTPUT, 'manifest.json'), JSON.stringify({
       generatedAt: new Date().toISOString(),
@@ -456,8 +611,15 @@ async function main(): Promise<void> {
         templateId: survey.templateId,
         industry: survey.industry,
         homeSectionIds:
-          config.pages.find((page) => page.slug === '')?.sections.map((section) => section.id) ?? [],
-        connectorIds: config.connectors.items.map((item) => item.id),
+          reviewConfigs[0].config.pages
+            .find((page) => page.slug === '')
+            ?.sections.map((section) => section.id) ?? [],
+        connectorIds: reviewConfigs[0].config.connectors?.items.map((item) => item.id) ?? [],
+        designDna: reviewConfigs.map(({ tone, config }) => ({
+          tone,
+          designDna: config.designDna,
+          palette: config.theme.palette,
+        })),
       },
       roundTripFile,
       roundTrip,
@@ -465,6 +627,7 @@ async function main(): Promise<void> {
     }, null, 2), 'utf8');
   } finally {
     await browser.close();
+    await reviewServer.close();
   }
   process.stdout.write(`CONN review -> ${OUTPUT}\n`);
 }

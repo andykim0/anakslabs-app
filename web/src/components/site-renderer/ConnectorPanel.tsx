@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { SiteTheme } from '@/lib/types/site';
 import type { SiteConnector, SiteConnectorManifest } from '@/lib/connectors/types';
 import { connectorCatalogEntry } from '@/lib/connectors/catalog';
+import { ConnectorBrandMark } from './ConnectorBrandMark';
 import { ConnectorRuntime } from './ConnectorRuntime';
 
 const CONNECTOR_CSS = `
@@ -15,6 +16,11 @@ const CONNECTOR_CSS = `
 a.anaks-connector:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--connector-primary) 52%,var(--connector-border))}
 .anaks-connector__top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .anaks-connector__icon{display:grid;width:2.4rem;height:2.4rem;place-items:center;border-radius:999px;color:var(--connector-primary);background:color-mix(in srgb,var(--connector-primary) 12%,transparent);font-weight:800}
+.anaks-connector__brand{display:flex;min-width:2.75rem;min-height:3rem;align-items:center;justify-content:flex-start;flex:none}
+.anaks-connector__brand-image{display:block;max-width:100%;object-fit:contain;filter:none}
+.anaks-connector__brand--kakao-channel{width:6.5rem}
+.anaks-connector__brand--naver-booking{width:6.25rem;padding-inline:.2rem}
+.anaks-connector__brand--naver-map,.anaks-connector__brand--instagram{width:3rem;justify-content:center}
 .anaks-connector__arrow{color:var(--connector-muted);font-size:1.15rem}
 .anaks-connector__label{display:block;margin:1.15rem 0 0;font-weight:750;font-size:1.04rem;word-break:keep-all}
 .anaks-connector__detail{display:block;margin:.35rem 0 0;color:var(--connector-muted);font-size:.86rem;line-height:1.55;word-break:keep-all}
@@ -25,14 +31,6 @@ a.anaks-connector:hover{transform:translateY(-2px);border-color:color-mix(in srg
 @media(max-width:47.99rem){.anaks-connectors{padding-block:3.75rem}.anaks-connectors__grid{grid-template-columns:1fr}.anaks-connector,.anaks-connector__map{grid-column:auto;min-height:8.75rem}}
 @media(prefers-reduced-motion:reduce){a.anaks-connector{transition:none}a.anaks-connector:hover{transform:none}}
 `;
-
-const ICONS: Record<SiteConnector['id'], string> = {
-  tel: '☎',
-  'kakao-channel': 'K',
-  'naver-booking': 'N',
-  'naver-map': '⌖',
-  instagram: '◎',
-};
 
 function connectorDetail(item: SiteConnector): string {
   if (item.id === 'tel') return item.displayPhone;
@@ -123,7 +121,14 @@ export function ConnectorPanel({
                   className="anaks-connector"
                 >
                   <span className="anaks-connector__top">
-                    <span className="anaks-connector__icon" aria-hidden="true">{ICONS[item.id]}</span>
+                    {item.id === 'tel' ? (
+                      <span className="anaks-connector__icon" aria-hidden="true">☎</span>
+                    ) : (
+                      <ConnectorBrandMark
+                        connectorId={item.id}
+                        surface={theme.palette.surface}
+                      />
+                    )}
                     <span className="anaks-connector__arrow" aria-hidden="true">↗</span>
                   </span>
                   <span>

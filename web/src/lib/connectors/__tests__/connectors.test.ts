@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import { createElement } from 'react';
@@ -20,6 +21,20 @@ const source = (relative: string) => readFileSync(`${root}/${relative}`, 'utf8')
 const RESERVATION = 'https://booking.naver.com/booking/6/bizes/12345';
 const KAKAO = 'https://pf.kakao.com/_daboim';
 const INSTAGRAM = 'https://www.instagram.com/daboim.official/';
+const OFFICIAL_BRAND_ASSET_SHA256 = {
+  'public/brand/connectors/instagram-glyph-gradient.png':
+    '0c2b3e84f9c7057b4cc3c656624562f8367592374de30ffc657153e3e969fb45',
+  'public/brand/connectors/instagram-glyph-white.svg':
+    'f3901980fc9788148a1df6a035bd597186f31224bfeb7cc5e67007249209b5c6',
+  'public/brand/connectors/kakao-channel-consult.png':
+    'd85c9db73eb62933db04867d719de39ffd062b50626daf20afb0a804644d4d32',
+  'public/brand/connectors/naver-logotype-green.svg':
+    '089fe7c5467bb05f0bc1ac1585ffa6386ae53945f14c7733ae1bf5d7f60763f5',
+  'public/brand/connectors/naver-logotype-white.svg':
+    '3bb254d6f0d92ce3f7bc1948001802dcbda5c35cf76e67ffa0735d85a90e2209',
+  'public/brand/connectors/naver-map.png':
+    'e801ce5d438d6a0c36809139a7150bbf2dc7c9861cd27b306b7962bc5425b5b1',
+} as const;
 
 function survey(): SurveyInput {
   return {
@@ -105,6 +120,105 @@ describe('CONN C2 — native connector catalog and rendering', () => {
     assert.equal(instagram.getAttribute('target'), '_blank');
     assert.equal(instagram.getAttribute('rel'), 'noopener noreferrer');
     assert.equal(dom.querySelectorAll('[data-instagram-feed-endpoint]').length, 0);
+  });
+
+  test('official local brand marks replace monograms and select provided dark variants', () => {
+    const output = applyConnectorManifest(config(), survey(), {
+      connectorCatalogVersion: 1,
+      reservationLink: { url: RESERVATION },
+      snsLinks: [
+        { kind: 'kakao_channel', url: KAKAO },
+        { kind: 'instagram', url: INSTAGRAM },
+      ],
+    });
+    const render = (site: SiteConfig) => parse(renderToStaticMarkup(createElement(SiteRenderer, {
+      config: site,
+      mode: 'auto',
+      interactive: false,
+      animate: false,
+    })));
+    const light = render({
+      ...output,
+      theme: {
+        ...output.theme,
+        palette: {
+          background: '#f7f8fb',
+          surface: '#ffffff',
+          text: '#142239',
+          muted: '#536279',
+          primary: '#164eca',
+          accent: '#007f79',
+        },
+      },
+    });
+    assert.equal(light.querySelectorAll('[data-connector-brand]').length, 4);
+    assert.equal(light.querySelectorAll('.anaks-connector__icon').length, 1);
+    assert.equal(light.querySelector('.anaks-connector__icon')?.textContent, '☎');
+    assert.equal(
+      light.querySelector('[data-connector-brand="naver-booking"] img')?.getAttribute('src'),
+      '/brand/connectors/naver-logotype-green.svg',
+    );
+    assert.equal(
+      light.querySelector('[data-connector-brand="instagram"] img')?.getAttribute('src'),
+      '/brand/connectors/instagram-glyph-gradient.svg',
+    );
+    assert.equal(light.querySelectorAll('img[src^="http"]').length, 0);
+
+    const dark = render({
+      ...output,
+      theme: {
+        ...output.theme,
+        palette: {
+          background: '#07111f',
+          surface: '#10233c',
+          text: '#f7fbff',
+          muted: '#b7cbe0',
+          primary: '#60ded7',
+          accent: '#75adff',
+        },
+      },
+    });
+    assert.equal(
+      dark.querySelector('[data-connector-brand="naver-booking"] img')?.getAttribute('src'),
+      '/brand/connectors/naver-logotype-white.svg',
+    );
+    assert.equal(
+      dark.querySelector('[data-connector-brand="instagram"] img')?.getAttribute('src'),
+      '/brand/connectors/instagram-glyph-white.svg',
+    );
+    assert.equal(
+      dark.querySelector('[data-connector-brand="kakao-channel"]')?.getAttribute('data-connector-brand-variant'),
+      'full-color',
+    );
+    assert.equal(
+      dark.querySelector('[data-connector-brand="naver-map"]')?.getAttribute('data-connector-brand-variant'),
+      'full-color',
+    );
+
+    for (const [file, expected] of Object.entries(OFFICIAL_BRAND_ASSET_SHA256)) {
+      const actual = createHash('sha256').update(readFileSync(`${root}/${file}`)).digest('hex');
+      assert.equal(actual, expected, file);
+    }
+    const embeddedOfficialRasters = {
+      'public/brand/connectors/kakao-channel-consult.png':
+        'public/brand/connectors/kakao-channel.svg',
+      'public/brand/connectors/naver-map.png':
+        'public/brand/connectors/naver-map.svg',
+      'public/brand/connectors/instagram-glyph-gradient.png':
+        'public/brand/connectors/instagram-glyph-gradient.svg',
+    } as const;
+    for (const [raster, wrapper] of Object.entries(embeddedOfficialRasters)) {
+      const encoded = readFileSync(`${root}/${raster}`).toString('base64');
+      const wrapperSource = source(wrapper);
+      assert.equal(wrapperSource.includes(`data:image/png;base64,${encoded}`), true, wrapper);
+      assert.doesNotMatch(wrapperSource, /(?:filter|mask|transform)=/u, wrapper);
+    }
+    const brandSource = source('src/components/site-renderer/ConnectorBrandMark.tsx');
+    assert.match(brandSource, /확인 필요 요약/u);
+    assert.match(brandSource, /navercorp\.com\/company\/brandGuide/u);
+    assert.match(brandSource, /developers\.kakao\.com\/tool\/social-plugin\/channel\/chat/u);
+    assert.match(brandSource, /about\.instagram\.com\/brand/u);
+    assert.doesNotMatch(brandSource, /filter:\s*(?:invert|grayscale|hue-rotate)/u);
   });
 
   test('new connector cohort suppresses legacy map/SNS embeds; legacy request is byte-compatible', () => {
