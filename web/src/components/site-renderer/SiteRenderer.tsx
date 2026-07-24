@@ -40,6 +40,7 @@ import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 import { signatureContractEnabled } from '@/lib/motion/signature-contract';
+import { fontPairingResources } from '@/lib/fonts/resources';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -389,7 +390,8 @@ export function SiteRenderer({
         ].some((band) => !band.promoted)))
     && section.type === 'hero'
     && !section.background.video?.src;
-  const fontUrls = googleFontUrls(theme.fonts.googleFonts);
+  const pinnedFontResources = fontPairingResources(theme);
+  const fontUrls = pinnedFontResources ? [] : googleFontUrls(theme.fonts.googleFonts);
 
   // v2 signature는 저장값을 곧바로 신뢰하지 않는다. 렌더 진입에서도 업종·tier·target·자산 소유권을
   // 재검증한다. tier/권위 자산이 빠진 호출은 basic/empty로 fail-closed 하되 ordinary sections는 보존한다.
@@ -432,7 +434,8 @@ export function SiteRenderer({
   const motionActive = shouldAnimate && (
     baseMotionActive || signatureMotionEnabled || (siteCinematic && config.motion?.intensity !== 'off')
   );
-  const css = BASE_CSS + (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
+  const css = BASE_CSS + (pinnedFontResources?.css ?? '') +
+    (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
@@ -490,17 +493,20 @@ export function SiteRenderer({
 
   return (
     <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      {!pinnedFontResources ? <link rel="preconnect" href="https://fonts.googleapis.com" /> : null}
+      {!pinnedFontResources ? <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /> : null}
       {fontUrls.map((href) => (
         // React 19: precedence 지정 시 <head>로 호이스팅 + 중복 제거
         <link key={href} rel="stylesheet" href={href} precedence="default" />
       ))}
-      {needsPretendard(theme) && <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />}
+      {!pinnedFontResources && needsPretendard(theme)
+        ? <link rel="stylesheet" href={PRETENDARD_CSS_URL} precedence="default" />
+        : null}
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div
         className="anaks-site"
         {...(theme.tokens ? { 'data-theme-tokens': '1' } : {})}
+        {...(pinnedFontResources ? { 'data-font-pairing': pinnedFontResources.id } : {})}
         {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
         {...(continuousCanvas ? { 'data-continuous-canvas-root': '1' } : {})}
         style={rootStyle}

@@ -39,6 +39,7 @@ import {
 import { ContactForm } from './ContactForm';
 import { cqw, mobileFontSize } from './scale';
 import { storyWordWindow } from '@/lib/motion/progress';
+import { fontRoleForTextElement } from '@/lib/fonts/resources';
 
 export type RenderVariant = 'canvas' | 'stack';
 
@@ -170,6 +171,7 @@ function TextContent({
     tokens: theme.tokens?.typography,
   });
   const outlineTag = s.appearance === 'outline-tag';
+  const fontRole = theme.fontPairing ? fontRoleForTextElement(el) : undefined;
   const style: CSSProperties = {
     margin: outlineTag ? (layoutAlign === 'start' ? 0 : '0 auto') : 0,
     width: outlineTag ? 'fit-content' : '100%',
@@ -206,7 +208,7 @@ function TextContent({
   if (splitText && (variant === 'canvas' || splitTextMode === 'progress') && el.text.trim()) {
     const tokens = el.text.match(/\S+\s*/g) ?? [el.text];
     return (
-      <p style={style} aria-label={el.text}>
+      <p style={style} aria-label={el.text} {...(fontRole ? { 'data-font-role': fontRole } : {})}>
         {tokens.map((tok, i) => {
           const window = storyWordWindow(i, tokens.length);
           return (
@@ -231,7 +233,7 @@ function TextContent({
     ? { 'data-m': 'countup', 'data-m-to': String(countup.to), 'data-m-prefix': countup.prefix, 'data-m-suffix': countup.suffix }
     : {};
   return (
-    <p style={style} {...m}>
+    <p style={style} {...m} {...(fontRole ? { 'data-font-role': fontRole } : {})}>
       {el.text}
     </p>
   );

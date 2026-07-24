@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "generator": {
+    "package": "subset-font",
+    "version": "2.5.0",
+    "targetFormat": "woff2"
+  },
+  "characterSet": {
+    "strategy": "KS X 1001 Hangul 2350 + printable ASCII + Korean UI punctuation",
+    "codePoints": 2475,
+    "sha256": "eaa4ce7ac5f1d34bbc7ff8c3ad8325b0788f6d2c66195595ccff33aee17b704f"
+  },
+  "assets": [
+    {
+      "id": "pretendard-variable",
+      "family": "Pretendard Variable",
+      "weight": "45 920",
+      "style": "normal",
+      "path": "/fonts/korean/pretendard-variable-core.woff2",
+      "bytes": 444468,
+      "sha256": "84c6d59f26748f1bd6eb540638f4bff191efc608bc67ca0aa669c446fc88f932",
+      "source": {
+        "id": "pretendard-v1.3.9-official",
+        "url": "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2",
+        "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-700",
+      "family": "Nanum Myeongjo",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-700-core.woff2",
+      "bytes": 365544,
+      "sha256": "04bcb637d73c3a9e61329013f380c801c884ebd11a6c246c0787b047956b893d",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-Bold.ttf",
+        "sha256": "bc9ed8e60d93fe6db054b8fb988481b625f2eef8cb2317ad0e9834681b8fe3f3"
+      }
+    },
+    {
+      "id": "nanum-myeongjo-800",
+      "family": "Nanum Myeongjo",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-myeongjo-800-core.woff2",
+      "bytes": 474240,
+      "sha256": "a5ab1f3a27182bbe6042f0ef29e0ed5e4416669b89d56ccdf45eca85d9ef1a69",
+      "source": {
+        "id": "nanum-myeongjo-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/nanummyeongjo/NanumMyeongjo-ExtraBold.ttf",
+        "sha256": "60c0077fce069ba90ae97c0a3679f6eb3712e0ca637bdd0c15b72d335ec46db7"
+      }
+    },
+    {
+      "id": "noto-sans-kr-variable",
+      "family": "Noto Sans KR",
+      "weight": "100 900",
+      "style": "normal",
+      "path": "/fonts/korean/noto-sans-kr-variable-core.woff2",
+      "bytes": 307828,
+      "sha256": "fa9d806dd4aedbfac5cfde7a2c54b046e024745cdaf802dc2091ca171f8c6f8e",
+      "source": {
+        "id": "noto-sans-kr-official",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+        "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+      }
+    },
+    {
+      "id": "gmarket-sans-500",
+      "family": "Gmarket Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-500-core.woff2",
+      "bytes": 246320,
+      "sha256": "46027bed09f356b7ac13c2e510a2984b2155d1e2be7b288bf7b0b22723a268a0",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFMedium.ttf"
+      }
+    },
+    {
+      "id": "gmarket-sans-700",
+      "family": "Gmarket Sans",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/gmarket-sans-700-core.woff2",
+      "bytes": 309348,
+      "sha256": "4d9f4603b2cff50669d6f92ba6084cf3cc1555656b91492c0009e65357361592",
+      "source": {
+        "id": "gmarket-sans-official",
+        "url": "https://corp.gmarket.com/fonts/GmarketSansTTF.zip",
+        "sha256": "a2cc0ab9eb3bc868a6f2affd89fa1d4718cb6e1226dcb695b05d0d2ff417ae02",
+        "archiveMember": "GmarketSansTTFBold.ttf"
+      }
+    },
+    {
+      "id": "nanum-square-round-700",
+      "family": "NanumSquareRound",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-700-core.woff2",
+      "bytes": 160492,
+      "sha256": "7385faa1dcedee1925768bf0b72873156018355529a7aebb1dd2d3cfe73f289e",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2",
+        "sha256": "4e8692a08d6c323f1bffb3641c7276d9c4bc8fa2891d78b02acc972776228600"
+      }
+    },
+    {
+      "id": "nanum-square-round-800",
+      "family": "NanumSquareRound",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/korean/nanum-square-round-800-core.woff2",
+      "bytes": 155416,
+      "sha256": "dca833c40f744f7a2889b05118e01de4eb453510722766ecec909fc97b8b50f8",
+      "source": {
+        "id": "nanum-square-round-official",
+        "url": "https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2",
+        "sha256": "31257cefdd0cec677b8278086e1d43fdfffb004ab40f96bd1aceda2e8d2f8e42"
+      }
+    }
+  ]
+}

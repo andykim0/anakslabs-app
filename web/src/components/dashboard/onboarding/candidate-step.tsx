@@ -14,6 +14,7 @@ import {
 import { genIdemKey } from '@/lib/onboarding/generate-dedup';
 import { buildCandidatePreviewConfig } from '@/lib/onboarding/candidate-preview';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
+import { fontPairingResources } from '@/lib/fonts/resources';
 import { generateCandidates } from '../api';
 import { SitePreview } from '../site-preview';
 import { Badge, Button, Card, cn, ErrorState } from '../ui';
@@ -225,13 +226,26 @@ export function CandidateStep({
 
   const candidates = data ?? [];
   const selected = candidates.find((c) => c.id === selectedId) ?? null;
+  const pinnedFontResources = candidates
+    .map((candidate) => fontPairingResources(candidate.theme))
+    .filter((resources): resources is NonNullable<typeof resources> => resources !== null);
+  const pinnedFontCss = [...new Map(
+    pinnedFontResources.map((resources) => [resources.id, resources.css]),
+  ).values()].join('');
   const candidateFontUrls = googleFontUrls(
-    candidates.flatMap((candidate) => (candidate.theme.fonts.googleFonts ?? []).filter((family) => !/pretendard/i.test(family))),
+    candidates.flatMap((candidate) => (
+      candidate.theme.fontPairing
+        ? []
+        : (candidate.theme.fonts.googleFonts ?? []).filter((family) => !/pretendard/i.test(family))
+    )),
   );
-  const loadPretendard = candidates.some((candidate) => needsPretendard(candidate.theme));
+  const loadPretendard = candidates.some(
+    (candidate) => !candidate.theme.fontPairing && needsPretendard(candidate.theme),
+  );
 
   return (
     <div>
+      {pinnedFontCss ? <style dangerouslySetInnerHTML={{ __html: pinnedFontCss }} /> : null}
       {loadPretendard ? <link rel="stylesheet" href={PRETENDARD_CSS_URL} /> : null}
       {candidateFontUrls.map((url) => <link key={url} rel="stylesheet" href={url} />)}
       <div className="mb-5">

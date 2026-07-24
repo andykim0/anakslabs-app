@@ -8,8 +8,13 @@
  */
 import type { SiteTheme } from '@/lib/types/site';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
+import { fontPairingResources } from '@/lib/fonts/resources';
 
 export function ThemeFonts({ theme }: { theme: SiteTheme }) {
+  const pinned = fontPairingResources(theme);
+  if (pinned) {
+    return <style dangerouslySetInnerHTML={{ __html: pinned.css }} />;
+  }
   const urls = googleFontUrls(theme.fonts.googleFonts);
   return (
     <>

@@ -9,8 +9,11 @@
  */
 import 'server-only';
 import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import type { SiteConfig } from '@/lib/types/site';
 import { googleFontUrls, needsPretendard, PRETENDARD_CSS_URL } from '@/components/site-renderer/fonts';
+import { fontPairingResources } from '@/lib/fonts/resources';
 
 export interface SelfHostedFonts {
   /** 인라인할 @font-face CSS (url()이 assets/fonts/로 재작성됨). 실패 시 '' */
@@ -77,6 +80,25 @@ async function inlineCssFonts(
 export async function selfHostFonts(config: SiteConfig): Promise<SelfHostedFonts> {
   const fontAssets = new Map<string, Buffer>();
   const warnings: string[] = [];
+  const pinned = fontPairingResources(config.theme);
+  if (pinned) {
+    try {
+      let fontFaceCss = pinned.css;
+      for (const asset of pinned.assets) {
+        const fileName = basename(asset.path);
+        const relativePath = `assets/fonts/${fileName}`;
+        const bytes = await readFile(join(process.cwd(), 'public', asset.path));
+        fontAssets.set(relativePath, bytes);
+        fontFaceCss = fontFaceCss.split(asset.path).join(relativePath);
+      }
+      return { fontFaceCss, fontAssets, warnings };
+    } catch (error) {
+      warnings.push(
+        `고정 한글 폰트 자산을 읽지 못해 저장된 폴백 체인을 사용합니다: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return { fontFaceCss: '', fontAssets: new Map(), warnings };
+    }
+  }
   const cssUrls = [...googleFontUrls(config.theme.fonts.googleFonts)];
   if (needsPretendard(config.theme)) cssUrls.push(PRETENDARD_CSS_URL);
 

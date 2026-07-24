@@ -44,6 +44,8 @@ interface ThemePatch {
   palette?: Partial<SiteTheme['palette']>;
   radius?: number;
   customCss?: string;
+  /** Manual family editing leaves the generated manifest stale, so the editor clears the pin. */
+  clearFontPairing?: boolean;
 }
 
 export interface EditorState {
@@ -647,6 +649,7 @@ export const useEditorStore = create<EditorState>()(
             fonts: patch.fonts ? { ...theme.fonts, ...patch.fonts } : theme.fonts,
             palette: patch.palette ? { ...theme.palette, ...patch.palette } : theme.palette,
           };
+          if (patch.clearFontPairing) delete next.fontPairing;
           return { config: { ...state.config, theme: next }, dirty: true };
         }),
 

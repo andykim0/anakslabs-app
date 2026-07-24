@@ -88,6 +88,9 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   if (opts.fontFaceCss) {
     // 셀프호스트: CDN 폰트 링크 제거 (외부 요청 0 보장)
     body = body.replace(CDN_FONT_LINK_RE, '');
+    // FNT pin markup carries the same checked-in asset paths for live serving. Static bundles
+    // place those files under assets/fonts; rewrite only that additive namespace.
+    body = body.replaceAll('/fonts/korean/', 'assets/fonts/');
   }
 
   return buildDocumentShell({

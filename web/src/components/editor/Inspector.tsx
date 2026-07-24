@@ -940,6 +940,7 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
     const googleFonts = computeGoogleFonts(headingCss, bodyCss);
     store().updateTheme({
       fonts: slot === 'heading' ? { heading: opt.css, googleFonts } : { body: opt.css, googleFonts },
+      clearFontPairing: true,
     });
   };
 

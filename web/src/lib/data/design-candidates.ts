@@ -50,6 +50,12 @@ import {
   type SectionLayoutSelection,
   type SectionLayoutSelectionToolInvoker,
 } from '@/lib/layout';
+import { fontPairingsEnabled } from '@/lib/fonts/flags';
+import {
+  applyKoreanFontPairing,
+  fontIndustryClassForSurvey,
+  resolveKoreanFontPairingId,
+} from '@/lib/fonts/selection';
 
 export interface CandidateBlueprint {
   id: string;
@@ -262,6 +268,7 @@ export async function buildCandidateBlueprintsForPipeline(
     layoutEnabled?: boolean;
     layoutInvoke?: HeroLayoutSelectionToolInvoker;
     sectionLayoutInvoke?: SectionLayoutSelectionToolInvoker;
+    fontPairingEnabled?: boolean;
   } = {},
 ): Promise<CandidateBlueprint[]> {
   const enabled = options.enabled ?? dnaPipelineEnabled();
@@ -271,13 +278,26 @@ export async function buildCandidateBlueprintsForPipeline(
         (await selectDesignDnaCandidates(survey, options.invoke)).selections,
       )
     : buildCandidateBlueprints(survey);
+  const useFontPairings = options.fontPairingEnabled ?? fontPairingsEnabled();
+  const industryClass = fontIndustryClassForSurvey(survey);
+  const fontResolvedBlueprints = useFontPairings
+    ? blueprints.map((blueprint) => {
+        if (!blueprint.designDna) return blueprint;
+        const id = resolveKoreanFontPairingId({
+          dnaId: blueprint.designDna.dnaId,
+          industryClass,
+        });
+        const theme = applyKoreanFontPairing(blueprint.theme, id);
+        return theme === blueprint.theme ? blueprint : { ...blueprint, theme };
+      })
+    : blueprints;
   const layoutEnabled = options.layoutEnabled ?? layoutVariantsEnabled();
-  if (!layoutEnabled) return blueprints;
+  if (!layoutEnabled) return fontResolvedBlueprints;
   const sectionAvailability = sectionLayoutAvailabilityForSurvey(survey);
   const [heroSelections, sectionSelections] = await Promise.all([
     selectHeroLayouts(
       survey,
-      blueprints.map((blueprint) => ({
+      fontResolvedBlueprints.map((blueprint) => ({
         ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
         media: {
           image: Boolean(blueprint.mockHeroUrl),
@@ -289,14 +309,14 @@ export async function buildCandidateBlueprintsForPipeline(
     ),
     selectSectionLayouts(
       survey,
-      blueprints.map((blueprint) => ({
+      fontResolvedBlueprints.map((blueprint) => ({
         ...(blueprint.designDna ? { designDnaId: blueprint.designDna.dnaId } : {}),
         availability: sectionAvailability,
       })),
       options.sectionLayoutInvoke,
     ),
   ]);
-  return blueprints.map((blueprint, index) => ({
+  return fontResolvedBlueprints.map((blueprint, index) => ({
     ...blueprint,
     heroLayoutVariantId: heroSelections[index],
     ...(Object.keys(sectionSelections[index]).length > 0
