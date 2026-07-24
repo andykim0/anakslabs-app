@@ -1,6 +1,6 @@
 # SEO · GEO · AEO optimization model for South Korea
 
-Last reviewed: 2026-07-21
+Last reviewed: 2026-07-24
 
 This document is the research basis for the deterministic optimization engine in
 `web/src/lib/scan/` and the tenant publishing layer in `web/src/lib/seo/`.
@@ -248,6 +248,25 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   crawler-specific states is therefore shown as one actionable cause in every
   comparison column, while all underlying states remain stored for detail and
   audit.
+
+#### 2026-07-24 advisory decay signals
+
+- The separate `decayScore` is not part of the SEO/AEO/GEO score. It reuses
+  rule definitions through adjacent `decaySlot` and `decayWeight` metadata,
+  and reports “improvement-needed signals” rather than ranking or business
+  performance. A score of 100 means only that this bounded set found no signal.
+- HTTPS, viewport, structured meaning, and response time reuse existing rules.
+  Footer copyright age, an old `Last-Modified` header, a strict allowlist of
+  legacy-builder fingerprints, and social URLs returning an unambiguous 404 or
+  410 are advisory additions. Missing headers, malformed dates, request
+  throttling, authentication requirements, and transient/server failures are
+  “unknown” and deduct nothing.
+- `Last-Modified` describes the origin server's claimed modification time; it
+  is not proof that a business stopped operating. Likewise, a 404/410 indicates
+  that the linked resource is unavailable, not why it is unavailable. The
+  product therefore exposes both only as review prompts.
+  [RFC 9110 Last-Modified, reviewed 2026-07-24](https://www.rfc-editor.org/rfc/rfc9110.html#name-last-modified)
+  [RFC 9110 404 and 410 semantics, reviewed 2026-07-24](https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found)
 
 ### Generated tenant sites
 

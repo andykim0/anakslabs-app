@@ -110,11 +110,12 @@ describe('SE$ S5 통합 회귀', () => {
 
   test('연구 문서는 S1~S4 근거·날짜와 진단 범위를 공개한다', () => {
     const research = read('../docs/SEO-GEO-AEO-KR.md');
-    assert.match(research, /Last reviewed: 2026-07-21/u);
+    assert.match(research, /Last reviewed: 2026-07-24/u);
     assert.match(research, /score-calibration and robots error hardening/u);
     assert.match(research, /false-positive and response-time hardening/u);
     assert.match(research, /server-HTML diagnostic limitation/u);
     assert.match(research, /comparison-mode parity/u);
+    assert.match(research, /advisory decay signals/u);
     assert.match(research, /developers\.google\.com\/crawling\/docs\/robots-txt/u);
     assert.match(research, /searchadvisor\.naver\.com\/guide\/seo-advanced-javascript/u);
     assert.match(research, /web\.dev\/articles\/ttfb/u);

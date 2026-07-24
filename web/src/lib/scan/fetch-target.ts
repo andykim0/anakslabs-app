@@ -26,6 +26,7 @@ export interface FetchedTarget {
   truncated: boolean;
   contentType: string;
   xRobotsTag: string;
+  lastModified: string;
 }
 
 export interface ProbedResource {
@@ -135,6 +136,7 @@ async function fetchTargetSample(rawUrl: string, includeBody: boolean): Promise<
         truncated: body.truncated,
         contentType: res.headers.get('content-type') ?? '',
         xRobotsTag: res.headers.get('x-robots-tag') ?? '',
+        lastModified: res.headers.get('last-modified') ?? '',
       };
     }
     throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다.');

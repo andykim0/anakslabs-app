@@ -16,6 +16,9 @@ import { extractVisibleText } from './document';
 import { createRuleRunState, runRules, type RuleContext } from './rules';
 import { buildScores } from './score';
 import { probeDeclaredSitemap } from './sitemap';
+import { evaluateDecayScore } from './decay';
+import { probeSocialLinks } from './social-probe';
+import { socialLinkUrls } from './social-links';
 
 export { ScanError } from './ssrf';
 export { normalizeScanUrl } from './fetch-target';
@@ -32,6 +35,8 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
   const sitemap = await probeDeclaredSitemap(origin, robots, probeResource);
 
   const root = parse(target.html);
+  const observedAt = new Date().toISOString();
+  const socialLinks = await probeSocialLinks(socialLinkUrls(root, target.finalUrl));
   const ctx: RuleContext = {
     root,
     rawHtml: target.html,
@@ -44,6 +49,9 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
     ttfbMs: target.ttfbMs,
     robots,
     sitemap,
+    observedAt,
+    lastModified: target.lastModified,
+    socialLinks,
   };
 
   const runState = createRuleRunState();
@@ -53,8 +61,9 @@ export async function runScan(rawUrl: string): Promise<ScanCore> {
 
   const issues: ScanIssue[] = [...seo.issues, ...aeo.issues, ...geo.issues];
   const { scores, grade } = buildScores({ seo: seo.deducted, aeo: aeo.deducted, geo: geo.deducted });
+  const decay = evaluateDecayScore(ctx);
 
-  return { url: target.finalUrl.toString(), scores, grade, issues };
+  return { url: target.finalUrl.toString(), scores, grade, issues, decay };
 }
 
 /**

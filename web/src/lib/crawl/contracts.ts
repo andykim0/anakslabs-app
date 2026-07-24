@@ -1,4 +1,5 @@
 import type { StructuredImportFacts } from '@/lib/import/extract';
+import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
 export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
@@ -62,6 +63,7 @@ export interface CrawlPageArtifact {
   structured: StructuredImportFacts;
   images: CrawlImageCandidate[];
   connectors: CrawlConnectorCandidate[];
+  decay: DecayScoreResult;
 }
 
 export interface CrawlTlsObservation {
@@ -101,7 +103,7 @@ export interface CrawlArtifactRecord {
   seedUrl: string;
   finalOrigin: string;
   artifact: CrawlArtifactPayload;
-  decayResult: unknown | null;
+  decayResult: DecayScoreResult | null;
   createdBy: string;
   createdAt: string;
   expiresAt: string;

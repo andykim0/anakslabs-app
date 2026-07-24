@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { assertPublicHttpUrl } from '@/lib/scan/ssrf';
+import { probeSocialLinks } from '@/lib/scan/social-probe';
 import {
   crawlDesignatedSite as crawlDesignatedSiteCore,
   type CrawlDependencies,
@@ -19,5 +20,6 @@ export function crawlDesignatedSite(
   return crawlDesignatedSiteCore(input, {
     ...dependencies,
     validateUrl: dependencies.validateUrl ?? assertPublicHttpUrl,
+    probeSocialLinks: dependencies.probeSocialLinks ?? probeSocialLinks,
   });
 }

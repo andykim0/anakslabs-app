@@ -7,6 +7,7 @@ import {
   type CrawlArtifactPayload,
   type CrawlArtifactRecord,
 } from './contracts';
+import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 
 const MOCK_KEY = '__daboimCrawlArtifacts__' as const;
 type GlobalWithArtifacts = typeof globalThis & {
@@ -23,7 +24,7 @@ interface CrawlArtifactRow {
   seed_url: string;
   final_origin: string;
   artifact: CrawlArtifactPayload;
-  decay_result: unknown | null;
+  decay_result: DecayScoreResult | null;
   created_by: string;
   created_at: string;
   expires_at: string;
@@ -44,6 +45,7 @@ function rowToRecord(row: CrawlArtifactRow): CrawlArtifactRecord {
 
 export async function createCrawlArtifact(input: {
   artifact: CrawlArtifactPayload;
+  decayResult: DecayScoreResult;
   createdBy: string;
   now?: Date;
 }): Promise<CrawlArtifactRecord> {
@@ -57,7 +59,7 @@ export async function createCrawlArtifact(input: {
       seedUrl: input.artifact.seedUrl,
       finalOrigin: input.artifact.finalOrigin,
       artifact: structuredClone(input.artifact),
-      decayResult: null,
+      decayResult: structuredClone(input.decayResult),
       createdBy: input.createdBy,
       createdAt: createdAt.toISOString(),
       expiresAt: expiresAt.toISOString(),
@@ -71,6 +73,7 @@ export async function createCrawlArtifact(input: {
       seed_url: input.artifact.seedUrl,
       final_origin: input.artifact.finalOrigin,
       artifact: input.artifact,
+      decay_result: input.decayResult,
       created_by: input.createdBy,
       expires_at: expiresAt.toISOString(),
     })
@@ -93,4 +96,3 @@ export async function getCrawlArtifact(id: string): Promise<CrawlArtifactRecord 
   if (error) throw new Error(`crawl artifact lookup failed: ${error.message}`);
   return data ? rowToRecord(data as CrawlArtifactRow) : null;
 }
-

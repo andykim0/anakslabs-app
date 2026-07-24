@@ -7,6 +7,8 @@
 import type { HTMLElement as ParsedElement } from 'node-html-parser';
 import type { ScanIssue } from '@/lib/data/types';
 import type { ProbedResource } from './fetch-target';
+import type { DecaySlot } from './decay-contract';
+import type { SocialLinkObservation } from './social-links';
 
 export interface RuleContext {
   /** node-html-parser 루트 */
@@ -22,6 +24,10 @@ export interface RuleContext {
   ttfbMs: number;
   robots: ProbedResource;
   sitemap: ProbedResource;
+  /** decay advisory의 기준 시각. 호출자가 고정해 같은 입력의 판정을 결정적으로 만든다. */
+  observedAt?: string;
+  lastModified?: string;
+  socialLinks?: SocialLinkObservation[];
 }
 
 export interface ScanRule {
@@ -38,6 +44,9 @@ export interface ScanRule {
   rootCause?: string | ((ctx: RuleContext) => string | undefined);
   /** 상태는 알리되 점수에는 반영하지 않는 권고 규칙. */
   advisory?: boolean;
+  /** SEO/AEO/GEO와 분리된 개선 필요 신호 점수의 단일 소스 메타데이터. */
+  decaySlot?: DecaySlot;
+  decayWeight?: number;
   /** true = 문제 있음(이슈 생성) */
   failed: (ctx: RuleContext) => boolean;
 }

@@ -128,6 +128,11 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   geo_unsourced_claims: G('수치·연구 주장에 출처가 없어요', '원문 링크와 발행 주체·기준 날짜를 함께 표시해주세요.', '사람과 생성형 검색이 주장을 검증하고 정확히 인용하기 쉬워져요.', 'editor:content'),
   geo_topic_alignment: G('페이지 제목과 대표 제목의 주제가 달라요', 'title과 H1이 같은 핵심 주제를 설명하도록 다듬어주세요.', '페이지의 대표 질문과 답을 일관되게 해석할 수 있어요.', 'editor:meta'),
   geo_empty_page: G('페이지가 사실상 비어 있어요', '고유한 설명·항목·근거가 없는 페이지는 내용을 채우거나 공개하지 마세요.', '검색 대상 페이지의 품질과 주제 집중도를 유지할 수 있어요.', 'editor:content'),
+  // ---------- 별도 개선 필요 신호(decay advisory) ----------
+  decay_footer_year_stale: G('푸터 연도를 확인해 주세요', '실제 운영 상태와 맞다면 현재 연도로 갱신해주세요.', '방문자가 최근에도 관리되는 사이트인지 판단하기 쉬워져요.', 'editor:content'),
+  decay_last_modified_stale: G('수정 시점을 다시 확인해 주세요', '실제 콘텐츠 수정 이력과 서버의 Last-Modified 설정을 함께 점검해주세요.', '단순 서버 설정과 실제 장기 미수정을 구분할 수 있어요.', 'system'),
+  decay_legacy_builder_fingerprint: G('오래된 제작 도구 흔적을 점검해 주세요', '표시된 파일이 아직 필요한지 확인하고 지원되는 버전으로 바꿔주세요.', '오래된 코드의 유지보수 부담을 줄일 수 있어요.', 'system'),
+  decay_social_link_dead: G('연결되지 않는 공식 채널이 있어요', '404·410으로 확인된 링크를 현재 공식 채널 주소로 바꿔주세요.', '손님이 끊긴 링크에서 이탈하는 일을 막을 수 있어요.', 'editor:business-info'),
 };
 
 /** guidance 조회 — 미매핑 코드는 undefined(테스트가 누락 0을 강제하므로 실사용엔 항상 존재) */

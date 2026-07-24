@@ -5,6 +5,7 @@ import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { getCurrentAdminActorId } from '@/lib/services/auth';
 import { crawlDesignatedSite, CrawlError } from '@/lib/crawl/crawler';
 import { createCrawlArtifact } from '@/lib/crawl/repository';
+import { aggregateDecayScores } from '@/lib/scan/decay';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -66,7 +67,11 @@ export const POST = withApiHandler(async (request) => {
   active.add(origin);
   try {
     const artifact = await crawlDesignatedSite(body.data);
-    const record = await createCrawlArtifact({ artifact, createdBy: actorId });
+    const decayResult = aggregateDecayScores(
+      artifact.pages.map((page) => page.decay),
+      artifact.observedAt,
+    );
+    const record = await createCrawlArtifact({ artifact, decayResult, createdBy: actorId });
     return NextResponse.json({
       artifact: {
         id: record.id,
@@ -75,6 +80,7 @@ export const POST = withApiHandler(async (request) => {
         pageCount: record.artifact.pages.length,
         tls: record.artifact.tls,
         observedAt: record.artifact.observedAt,
+        decay: record.decayResult,
         expiresAt: record.expiresAt,
       },
     }, { status: 201 });

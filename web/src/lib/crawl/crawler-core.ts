@@ -19,6 +19,10 @@ import {
   safeSkippedUrl,
   unsafeCrawlUrlReason,
 } from './safety';
+import { evaluateDecayScore } from '@/lib/scan/decay';
+import { extractVisibleText } from '@/lib/scan/document';
+import { socialLinkUrls, type SocialLinkObservation } from '@/lib/scan/social-links';
+import type { ProbedResource } from '@/lib/scan/fetch-target';
 
 const PLATFORM_MULTI_PAGE_HOSTS = new Set([
   'blog.naver.com',
@@ -67,11 +71,13 @@ export interface CrawlDependencies {
   validateUrl?: ValidateUrl;
   wait?: (milliseconds: number) => Promise<void>;
   now?: () => Date;
+  probeSocialLinks?: (urls: readonly string[]) => Promise<SocialLinkObservation[]>;
 }
 
 interface FetchedDocument {
   response: Response;
   finalUrl: URL;
+  ttfbMs: number;
 }
 
 function normalizedHost(hostname: string): string {
@@ -116,6 +122,7 @@ async function fetchWithRedirects(
   },
 ): Promise<FetchedDocument> {
   let current = await input.validateUrl(rawUrl);
+  let responseMs = 0;
   for (let hop = 0; hop <= DESIGNATED_CRAWL_POLICY.maxRedirects; hop += 1) {
     if (input.requiredOrigin && current.origin !== input.requiredOrigin) {
       throw new CrawlError('CROSS_ORIGIN_REDIRECT', '지정한 사이트 밖으로 이동해 크롤을 중단했습니다.');
@@ -124,6 +131,7 @@ async function fetchWithRedirects(
     const timeout = setTimeout(() => controller.abort(), DESIGNATED_CRAWL_POLICY.requestTimeoutMs);
     let response: Response;
     try {
+      const startedAt = performance.now();
       response = await input.fetchFn(current.toString(), {
         method: input.method ?? 'GET',
         redirect: 'manual',
@@ -135,6 +143,7 @@ async function fetchWithRedirects(
           accept: input.accept,
         },
       });
+      responseMs += performance.now() - startedAt;
     } finally {
       clearTimeout(timeout);
     }
@@ -151,7 +160,7 @@ async function fetchWithRedirects(
       current = await input.validateUrl(target.toString());
       continue;
     }
-    return { response, finalUrl: current };
+    return { response, finalUrl: current, ttfbMs: Math.round(responseMs) };
   }
   throw new CrawlError('FETCH_FAILED', '리다이렉트가 너무 많습니다.');
 }
@@ -357,7 +366,7 @@ function removeFormsAndAuthenticationUi(root: HTMLElement): void {
 }
 
 function pageArtifact(html: string, fetched: FetchedDocument): {
-  page: CrawlPageArtifact;
+  page: Omit<CrawlPageArtifact, 'decay'>;
   links: string[];
   skipped: CrawlSkippedUrl[];
 } {
@@ -416,6 +425,7 @@ export async function crawlDesignatedSite(
     setTimeout(resolve, milliseconds);
   }));
   const now = dependencies.now ?? (() => new Date());
+  const observedAt = now().toISOString();
 
   let seed: URL;
   try {
@@ -498,6 +508,14 @@ export async function crawlDesignatedSite(
     .map((url) => normalizeCandidate(url))
     .filter((url): url is URL => Boolean(url && url.origin === origin))
     .slice(0, DESIGNATED_CRAWL_POLICY.maxSitemaps);
+  let sitemapProbe: ProbedResource = {
+    url: declaredSitemaps[0]?.toString() ?? new URL('/sitemap.xml', origin).toString(),
+    status: null,
+    ok: false,
+    body: '',
+    contentType: '',
+    truncated: false,
+  };
   for (const sitemap of declaredSitemaps) {
     try {
       const fetched = await throttledFetch(sitemap.toString(), {
@@ -506,6 +524,14 @@ export async function crawlDesignatedSite(
       });
       if (fetched.response.ok) {
         const body = await readLimited(fetched.response);
+        sitemapProbe = {
+          url: fetched.finalUrl.toString(),
+          status: fetched.response.status,
+          ok: true,
+          body,
+          contentType: fetched.response.headers.get('content-type') ?? '',
+          truncated: false,
+        };
         for (const url of sitemapLocations(body, origin)) {
           if (!queued.has(url)) {
             queued.add(url);
@@ -513,6 +539,14 @@ export async function crawlDesignatedSite(
           }
         }
       } else {
+        sitemapProbe = {
+          url: fetched.finalUrl.toString(),
+          status: fetched.response.status,
+          ok: false,
+          body: '',
+          contentType: fetched.response.headers.get('content-type') ?? '',
+          truncated: false,
+        };
         await fetched.response.body?.cancel().catch(() => undefined);
       }
     } catch {
@@ -564,7 +598,34 @@ export async function crawlDesignatedSite(
     }
     const html = await readLimited(fetched.response);
     const projected = pageArtifact(html, fetched);
-    pages.push(projected.page);
+    const root = parse(html);
+    const socialLinks = dependencies.probeSocialLinks
+      ? await dependencies.probeSocialLinks(socialLinkUrls(root, fetched.finalUrl))
+      : [];
+    const decay = evaluateDecayScore({
+      root,
+      rawHtml: html,
+      visibleText: extractVisibleText(root),
+      url: fetched.finalUrl,
+      status: fetched.response.status,
+      contentType,
+      xRobotsTag: fetched.response.headers.get('x-robots-tag') ?? '',
+      truncated: false,
+      ttfbMs: fetched.ttfbMs,
+      robots: {
+        url: robotsFetch.finalUrl.toString(),
+        status: robotsFetch.response.status,
+        ok: true,
+        body: robotsBody,
+        contentType: robotsFetch.response.headers.get('content-type') ?? '',
+        truncated: false,
+      },
+      sitemap: sitemapProbe,
+      observedAt,
+      lastModified: fetched.response.headers.get('last-modified') ?? '',
+      socialLinks,
+    });
+    pages.push({ ...projected.page, decay });
     projected.skipped.forEach(addSkipped);
     for (const link of projected.links) {
       if (visited.has(link) || queued.has(link)) continue;
@@ -580,7 +641,7 @@ export async function crawlDesignatedSite(
     schemaVersion: CRAWL_ARTIFACT_SCHEMA_VERSION,
     seedUrl: input.url,
     finalOrigin: origin,
-    observedAt: now().toISOString(),
+    observedAt,
     tls,
     robots: {
       url: robotsFetch.finalUrl.toString(),

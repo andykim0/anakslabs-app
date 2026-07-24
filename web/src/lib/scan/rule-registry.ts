@@ -1,6 +1,7 @@
 import { AEO_RULES } from './checks/aeo';
 import { GEO_RULES } from './checks/geo';
 import { SEO_RULES } from './checks/seo';
+import { DECAY_RULES } from './checks/decay';
 import type { ScanRule } from './rules';
 
 /** NUDGE·진단·도그푸딩이 공유하는 규칙 레지스트리. 소유권 자체는 각 규칙 정의에만 기록한다. */
@@ -8,6 +9,7 @@ export const ALL_SCAN_RULES: readonly ScanRule[] = [
   ...SEO_RULES,
   ...AEO_RULES,
   ...GEO_RULES,
+  ...DECAY_RULES,
 ];
 
 export function scanRuleFor(code: string): ScanRule | undefined {

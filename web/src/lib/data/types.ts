@@ -34,6 +34,7 @@ import type {
 } from '@/lib/types/domain';
 import type { SearchVerification, SectionType, SiteConfig } from '@/lib/types/site';
 import type { AssetRef } from '@/lib/assets/provenance';
+import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 
 // ---------- 클라이언트(고객) ----------
 
@@ -299,6 +300,8 @@ export interface ScanResult {
   scores: { seo: number; aeo: number; geo: number; total: number };
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
   issues: ScanIssue[];
+  /** 기존 SEO/AEO/GEO와 격리된 사이트 개선 필요 신호 참고 점수. */
+  decay?: DecayScoreResult;
   /** 선택 입력된 경쟁 URL(최대 2)의 구조 신호 비교 원본. */
   comparisons?: ScanComparisonResult[];
   /** 익명 스캔은 null, 가입 후 claim */
