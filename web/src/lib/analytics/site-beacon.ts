@@ -1,5 +1,7 @@
 import {
+  CHAT_HOSTS,
   DIRECTIONS_HOSTS,
+  INSTAGRAM_HOSTS,
   RESERVATION_HOSTS,
   classifyTrackableHref,
   isHostOrSubdomain,
@@ -22,6 +24,8 @@ export const SITE_EVENT_NAMES = [
   'reserve',
   'directions',
   'form',
+  'chat',
+  'instagram',
 ] as const;
 export type SiteEventName = (typeof SITE_EVENT_NAMES)[number];
 
@@ -106,8 +110,10 @@ export function buildSiteBeaconRuntime(input: SiteBeaconRuntimeInput): string {
   const endpoint = JSON.stringify(safeBeaconEndpoint(input.endpoint ?? SITE_EVENT_INGEST_PATH)).replace(/</g, '\\u003c');
   const reserveHosts = JSON.stringify(RESERVATION_HOSTS);
   const directionsHosts = JSON.stringify(DIRECTIONS_HOSTS);
+  const chatHosts = JSON.stringify(CHAT_HOSTS);
+  const instagramHosts = JSON.stringify(INSTAGRAM_HOSTS);
 
-  const runtime = `!function(d,l,n){var I=${siteId},U=${endpoint},R=${reserveHosts},D=${directionsHosts},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(h(a,'naver.com'))return'naver';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var b=JSON.stringify({siteId:I,event:e,source:S});try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var t,x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';else if(R.some(function(v){return h(o,v)})||h(o,'place.naver.com')&&/\\/(booking|reserve)(\\/|$)/i.test(q))t='reserve';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='complete'?setTimeout(i,0):d.addEventListener('DOMContentLoaded',i,{once:true})}(document,location,navigator);`;
+  const runtime = `!function(d,l,n){var I=${siteId},U=${endpoint},R=${reserveHosts},D=${directionsHosts},C=${chatHosts},G=${instagramHosts},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(h(a,'naver.com'))return'naver';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var v={siteId:I,event:e,source:S},k=globalThis.crypto&&globalThis.crypto.randomUUID&&globalThis.crypto.randomUUID();if(k)v.eventId=k;var b=JSON.stringify(v);try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var t,x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';else if(R.some(function(v){return h(o,v)})||h(o,'place.naver.com')&&/\\/(booking|reserve)(\\/|$)/i.test(q))t='reserve';else if(C.some(function(v){return h(o,v)}))t='chat';else if(G.some(function(v){return h(o,v)}))t='instagram';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='complete'?setTimeout(i,0):d.addEventListener('DOMContentLoaded',i,{once:true})}(document,location,navigator);`;
   if (new TextEncoder().encode(runtime).byteLength > SITE_BEACON_MAX_BYTES) {
     throw new Error(`SITE_BEACON_TOO_LARGE: runtime exceeds ${SITE_BEACON_MAX_BYTES} UTF-8 bytes`);
   }

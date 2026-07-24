@@ -7,9 +7,10 @@ import { reportingRetentionCutoff } from './retention';
 /** Service-role only; invoked by the authenticated reporting cron. */
 export async function purgeExpiredReportingData(now: Date = new Date()) {
   const cutoff = reportingRetentionCutoff(now);
-  const [siteEvents, reports] = await Promise.all([
+  const [siteEvents, eventReceipts, reports] = await Promise.all([
     getDataServices().siteEvents.purgeBeforeDate(cutoff.eventBeforeDate),
+    getDataServices().siteEvents.purgeExpiredReceipts(now.toISOString()),
     getMonthlyReportsRepository().purgeOlderThan(cutoff.reportCutoffIso),
   ]);
-  return { ...cutoff, siteEvents, reports };
+  return { ...cutoff, siteEvents, eventReceipts, reports };
 }

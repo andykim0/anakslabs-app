@@ -22,6 +22,8 @@ const payloadSchema = z.object({
   siteId: z.string().min(1).max(80).regex(/^[A-Za-z0-9_-]+$/),
   event: z.enum(SITE_EVENT_TYPES),
   source: z.enum(TRAFFIC_SOURCES),
+  /** 신규 비콘은 재시도 멱등 nonce를 보낸다. optional은 기존 정적 발행본 호환용. */
+  eventId: z.string().uuid().optional(),
 }).strict();
 
 const CORS_HEADERS = {
@@ -88,6 +90,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     eventType: parsed.data.event,
     source: parsed.data.source,
     eventDate: kstDateString(),
+    eventId: parsed.data.eventId,
   });
   return new Response(null, { status: 202, headers: CORS_HEADERS });
 });

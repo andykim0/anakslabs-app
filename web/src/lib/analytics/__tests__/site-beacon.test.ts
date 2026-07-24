@@ -15,6 +15,7 @@ import {
 import { TenantPageContent } from '@/components/site-renderer/TenantPageContent';
 import { emptySiteConfig } from '@/lib/types/site';
 import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import { isRecognizedChatUrl } from '@/lib/analytics/trackable-actions';
 
 describe('RPT1 — aggregate-only first-party site beacon', () => {
   test('raw referrer는 브라우저에서 유한 source enum으로만 분류한다', () => {
@@ -27,12 +28,14 @@ describe('RPT1 — aggregate-only first-party site beacon', () => {
     assert.equal(classifySiteReferrer('not a url', 'shop.example.com'), 'other');
   });
 
-  test('전화·예약·길찾기 링크만 결정적으로 분류하고 일반 링크는 버린다', () => {
+  test('실제 전환 종착점을 결정적으로 분류하고 일반 링크는 버린다', () => {
     const base = 'https://shop.example.com/menu';
     assert.equal(classifySiteClick('tel:02-1234-5678', base), 'tel');
     assert.equal(classifySiteClick('https://booking.naver.com/booking/6/bizes/1', base), 'reserve');
     assert.equal(classifySiteClick('https://m.place.naver.com/restaurant/1/booking', base), 'reserve');
-    assert.equal(classifySiteClick('https://pf.kakao.com/_channel', base), 'reserve');
+    assert.equal(classifySiteClick('https://pf.kakao.com/_channel', base), 'chat');
+    assert.equal(classifySiteClick('https://pf.kakao.com/_channel/chat', base), 'chat');
+    assert.equal(classifySiteClick('https://www.instagram.com/interior_studio/', base), 'instagram');
     assert.equal(classifySiteClick('https://map.naver.com/p/directions/1', base), 'directions');
     assert.equal(classifySiteClick('https://www.google.co.kr/maps/dir/a/b', base), 'directions');
     assert.equal(classifySiteClick('/about', base), null);
@@ -42,6 +45,9 @@ describe('RPT1 — aggregate-only first-party site beacon', () => {
     assert.equal(isRecognizedReservationUrl('https://m.place.naver.com/restaurant/1/booking'), true);
     assert.equal(isRecognizedReservationUrl('http://booking.naver.com/booking/1'), false, '신규 CTA는 HTTPS만');
     assert.equal(isRecognizedReservationUrl('https://example.com/booking.naver.com'), false);
+    assert.equal(isRecognizedReservationUrl('https://pf.kakao.com/_channel'), false);
+    assert.equal(isRecognizedChatUrl('https://pf.kakao.com/_channel'), true);
+    assert.equal(isRecognizedChatUrl('https://example.com/_channel'), false);
   });
 
   test('runtime은 2KB 이하이고 DOM 이후·sendBeacon 우선·keepalive fallback 계약을 지킨다', () => {
@@ -62,7 +68,9 @@ describe('RPT1 — aggregate-only first-party site beacon', () => {
     assert.doesNotMatch(runtime, /data-daboim-action/, '행동 이름 속성을 실제 외부 클릭으로 신뢰하면 안 됨');
     assert.ok(runtime.includes(SITE_FORM_SUCCESS_EVENT));
     assert.doesNotMatch(runtime, /cookie|localStorage|sessionStorage|userAgent|performance|preventDefault|gtag|GoogleAnalyticsObject/i);
-    assert.match(runtime, /JSON\.stringify\(\{siteId:I,event:e,source:S\}\)/);
+    assert.match(runtime, /randomUUID/);
+    assert.match(runtime, /v\.eventId=k/);
+    assert.doesNotMatch(runtime, /localStorage|sessionStorage|visitorId|sessionId/);
   });
 
   test('endpoint와 public site id를 fail-closed 검증하고 ZIP endpoint는 절대 URL이다', () => {

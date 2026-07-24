@@ -4,6 +4,8 @@ export const REPORT_EVENT_TYPES = [
   'reserve',
   'directions',
   'form',
+  'chat',
+  'instagram',
 ] as const;
 
 export type ReportEventType = (typeof REPORT_EVENT_TYPES)[number];

@@ -330,7 +330,14 @@ export interface FormSubmissionsRepo {
 // ---------- [RPT$] 익명 사이트 성과 집계 ----------
 
 /** 비콘이 전송할 수 있는 성과 이벤트. 자유 문자열은 저장하지 않는다. */
-export type SiteEventType = 'pageview' | 'tel' | 'reserve' | 'directions' | 'form';
+export type SiteEventType =
+  | 'pageview'
+  | 'tel'
+  | 'reserve'
+  | 'directions'
+  | 'form'
+  | 'chat'
+  | 'instagram';
 /** raw referrer 대신 저장하는 고정 유입 분류. */
 export type TrafficSource = 'naver' | 'google' | 'instagram' | 'direct' | 'other';
 
@@ -345,12 +352,17 @@ export interface SiteEventAggregate {
 }
 
 export interface SiteEventsRepo {
-  /** 서버가 검증한 공개 비콘 이벤트를 원자적으로 +1 한다. */
+  /**
+   * 서버가 검증한 공개 비콘 이벤트를 원자적으로 +1 한다.
+   * eventId가 있으면 48시간 receipt로 네트워크 재시도를 멱등 처리한다.
+   * 미지정은 배포 전 정적 발행본의 레거시 비콘 호환 경로다.
+   */
   increment(input: {
     siteId: string;
     eventType: SiteEventType;
     source: TrafficSource;
     eventDate: string;
+    eventId?: string;
   }): Promise<void>;
   /** half-open 날짜 범위 [fromDate, toDate) 집계. */
   listBySiteRange(input: {
@@ -360,6 +372,8 @@ export interface SiteEventsRepo {
   }): Promise<SiteEventAggregate[]>;
   /** 24개월 보관 정책 집행. beforeDate 미만의 일별 익명 집계를 삭제한다. */
   purgeBeforeDate(beforeDate: string): Promise<number>;
+  /** 전송 재시도용 nonce receipt를 만료 시각 기준으로 삭제한다. */
+  purgeExpiredReceipts(beforeIso: string): Promise<number>;
 }
 
 // ---------- [§2] QA 자동화 ----------

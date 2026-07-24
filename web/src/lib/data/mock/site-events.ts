@@ -23,6 +23,14 @@ export class MockSiteEventsRepo implements SiteEventsRepo {
     ) {
       throw new Error('increment_site_event: 발행 중인 사이트가 아닙니다.');
     }
+    if (input.eventId) {
+      const receipts = (store.siteEventReceipts ??= new Map());
+      if (receipts.has(input.eventId)) return;
+      receipts.set(input.eventId, {
+        siteId: input.siteId,
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1_000).toISOString(),
+      });
+    }
     const key = keyOf(input);
     const current = store.siteEvents.get(key);
     if (current) {
@@ -63,6 +71,21 @@ export class MockSiteEventsRepo implements SiteEventsRepo {
     for (const [key, row] of store.siteEvents) {
       if (row.eventDate >= beforeDate) continue;
       store.siteEvents.delete(key);
+      deleted += 1;
+    }
+    return deleted;
+  }
+
+  async purgeExpiredReceipts(beforeIso: string): Promise<number> {
+    const cutoff = Date.parse(beforeIso);
+    if (!Number.isFinite(cutoff)) {
+      throw new TypeError('site event receipt cutoff must be ISO-8601');
+    }
+    const receipts = (getMockStore().siteEventReceipts ??= new Map());
+    let deleted = 0;
+    for (const [eventId, receipt] of receipts) {
+      if (Date.parse(receipt.expiresAt) > cutoff) continue;
+      receipts.delete(eventId);
       deleted += 1;
     }
     return deleted;

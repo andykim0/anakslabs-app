@@ -15,6 +15,7 @@ import {
   businessDirectionsHref,
   businessPhoneHref,
   classifyTrackableHref,
+  isRecognizedChatUrl,
   isRecognizedReservationUrl,
 } from '@/lib/analytics/trackable-actions';
 
@@ -65,7 +66,8 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
         url,
       );
     }
-    assert.equal(isRecognizedReservationUrl('https://pf.kakao.com/_shop'), true);
+    assert.equal(isRecognizedReservationUrl('https://pf.kakao.com/_shop'), false);
+    assert.equal(isRecognizedChatUrl('https://pf.kakao.com/_shop'), true);
   });
 
   test('생성 config → extras 주입 → zod 저장 → 공용 hosted/static renderer에 실제 CTA가 남는다', () => {

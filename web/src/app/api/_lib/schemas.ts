@@ -15,7 +15,10 @@ import {
   PRODUCTION_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
 import { IMAGE_DIRECTION_IDS } from '@/lib/assets/image-directions';
-import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import {
+  isRecognizedChatUrl,
+  isRecognizedReservationUrl,
+} from '@/lib/analytics/trackable-actions';
 import {
   DESIGN_DNA_IDS,
   DNA_CHROMA_NAMES,
@@ -1191,7 +1194,13 @@ export const surveySchema = z.object({
           url: z.string().refine(isRecognizedReservationUrl, '지원하는 예약 서비스의 https:// 주소여야 합니다.'),
         }),
         z.object({ kind: z.literal('contact_form') }),
-        z.object({ kind: z.literal('messenger_url'), url: z.string().refine(isHttpsUrl, '메신저 링크는 https:// 주소여야 합니다.') }),
+        z.object({
+          kind: z.literal('messenger_url'),
+          url: z.string().refine(
+            isRecognizedChatUrl,
+            '카카오 채널의 https://pf.kakao.com/ 주소여야 합니다.',
+          ),
+        }),
       ]).optional(),
       proofs: z.array(z.object({
         kind: z.enum(['qualification', 'experience', 'award', 'testimonial', 'metric', 'case']),

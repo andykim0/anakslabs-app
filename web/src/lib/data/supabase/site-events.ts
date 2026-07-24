@@ -25,12 +25,21 @@ function toAggregate(row: SiteEventRow): SiteEventAggregate {
 
 export class SupabaseSiteEventsRepo implements SiteEventsRepo {
   async increment(input: Parameters<SiteEventsRepo['increment']>[0]): Promise<void> {
-    const { error } = await getServiceRoleClient().rpc('increment_site_event', {
-      p_site_id: input.siteId,
-      p_event_type: input.eventType,
-      p_referrer_source: input.source,
-      p_event_date: input.eventDate,
-    });
+    const client = getServiceRoleClient();
+    const { error } = input.eventId
+      ? await client.rpc('record_site_event', {
+          p_site_id: input.siteId,
+          p_event_type: input.eventType,
+          p_referrer_source: input.source,
+          p_event_date: input.eventDate,
+          p_event_id: input.eventId,
+        })
+      : await client.rpc('increment_site_event', {
+          p_site_id: input.siteId,
+          p_event_type: input.eventType,
+          p_referrer_source: input.source,
+          p_event_date: input.eventDate,
+        });
     if (error) throw new Error(`site_events 집계 실패: ${error.message}`);
   }
 
@@ -57,6 +66,22 @@ export class SupabaseSiteEventsRepo implements SiteEventsRepo {
     const deleted = Number(data);
     if (!Number.isSafeInteger(deleted) || deleted < 0) {
       throw new Error('site_events 보관기간 삭제 결과가 올바르지 않습니다.');
+    }
+    return deleted;
+  }
+
+  async purgeExpiredReceipts(beforeIso: string): Promise<number> {
+    const parsed = new Date(beforeIso);
+    if (!Number.isFinite(parsed.getTime())) {
+      throw new TypeError('site event receipt cutoff must be ISO-8601');
+    }
+    const { data, error } = await getServiceRoleClient().rpc('purge_site_event_receipts', {
+      p_before: parsed.toISOString(),
+    });
+    if (error) throw new Error(`site event receipts 정리 실패: ${error.message}`);
+    const deleted = Number(data);
+    if (!Number.isSafeInteger(deleted) || deleted < 0) {
+      throw new Error('site event receipts 정리 결과가 올바르지 않습니다.');
     }
     return deleted;
   }

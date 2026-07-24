@@ -9,7 +9,6 @@
 
 export const RESERVATION_HOSTS = [
   'booking.naver.com',
-  'pf.kakao.com',
   'baemin.com',
   'baemin.me',
   'yogiyo.co.kr',
@@ -24,7 +23,15 @@ export const DIRECTIONS_HOSTS = [
   'maps.app.goo.gl',
 ] as const;
 
-export type TrackableLinkAction = 'tel' | 'reserve' | 'directions';
+export const CHAT_HOSTS = ['pf.kakao.com'] as const;
+export const INSTAGRAM_HOSTS = ['instagram.com'] as const;
+
+export type TrackableLinkAction =
+  | 'tel'
+  | 'reserve'
+  | 'directions'
+  | 'chat'
+  | 'instagram';
 
 export function isHostOrSubdomain(hostname: string, domain: string): boolean {
   return hostname === domain || hostname.endsWith(`.${domain}`);
@@ -51,6 +58,9 @@ export function classifyTrackableHref(rawHref: string, baseUrl: string): Trackab
     if (!['http:', 'https:'].includes(url.protocol)) return null;
     if (isDirectionsUrl(url)) return 'directions';
     if (isReservationUrl(url)) return 'reserve';
+    const hostname = url.hostname.toLowerCase();
+    if (CHAT_HOSTS.some((domain) => isHostOrSubdomain(hostname, domain))) return 'chat';
+    if (INSTAGRAM_HOSTS.some((domain) => isHostOrSubdomain(hostname, domain))) return 'instagram';
     return null;
   } catch {
     return null;
@@ -65,6 +75,21 @@ export function isRecognizedReservationUrl(rawHref: string): boolean {
   try {
     const url = new URL(rawHref.trim());
     return url.protocol === 'https:' && isReservationUrl(url);
+  } catch {
+    return false;
+  }
+}
+
+/** New Kakao consultation destinations are restricted to the official channel host. */
+export function isRecognizedChatUrl(rawHref: string): boolean {
+  try {
+    const url = new URL(rawHref.trim());
+    if (url.protocol !== 'https:') return false;
+    if (!CHAT_HOSTS.some((domain) => isHostOrSubdomain(url.hostname.toLowerCase(), domain))) {
+      return false;
+    }
+    const [channelId] = url.pathname.split('/').filter(Boolean);
+    return Boolean(channelId && /^_[A-Za-z0-9_-]{2,80}$/u.test(channelId));
   } catch {
     return false;
   }

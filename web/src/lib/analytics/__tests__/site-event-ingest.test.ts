@@ -12,7 +12,15 @@ import {
 
 describe('RPT1 site event ingest invariants', () => {
   test('uses closed event/source enums and no identifying fields', () => {
-    assert.deepEqual(SITE_EVENT_TYPES, ['pageview', 'tel', 'reserve', 'directions', 'form']);
+    assert.deepEqual(SITE_EVENT_TYPES, [
+      'pageview',
+      'tel',
+      'reserve',
+      'directions',
+      'form',
+      'chat',
+      'instagram',
+    ]);
     assert.deepEqual(TRAFFIC_SOURCES, ['naver', 'google', 'instagram', 'direct', 'other']);
     const serialized = JSON.stringify({ SITE_EVENT_TYPES, TRAFFIC_SOURCES });
     assert.doesNotMatch(serialized, /ip|email|phone|name|session|cookie|referrerUrl/i);

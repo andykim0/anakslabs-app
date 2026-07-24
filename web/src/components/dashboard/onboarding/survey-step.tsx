@@ -34,7 +34,10 @@ import { styleIdsForSamples } from '@/lib/design/reference-samples';
 import { defaultImageStyle } from '@/lib/onboarding/image-style';
 import { missingRequiredFacts } from '@/lib/content/content-depth';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
-import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import {
+  isRecognizedChatUrl,
+  isRecognizedReservationUrl,
+} from '@/lib/analytics/trackable-actions';
 import { isHttpsUrl } from '@/lib/safe-url';
 import { buildSitePlan } from '@/lib/content/site-plan';
 import { useToast } from '../toast';
@@ -404,7 +407,9 @@ export function SurveyStep({
       if (values.siteGoal === 'kakao_inquiry') {
         if (values.conversionKind === 'messenger_url') {
           const url = clean(values.conversionUrl);
-          return url && isHttpsUrl(url) ? { kind: 'messenger_url' as const, url } : undefined;
+          return url && isRecognizedChatUrl(url)
+            ? { kind: 'messenger_url' as const, url }
+            : undefined;
         }
         return { kind: 'contact_form' as const };
       }

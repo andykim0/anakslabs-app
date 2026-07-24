@@ -51,6 +51,19 @@ describe('RPT4 reporting retention', () => {
     await assert.rejects(repo.purgeBeforeDate('2024-13-01'), /calendar date/);
   });
 
+  test('event delivery receipts expire after their bounded retry window', async () => {
+    resetMockStore();
+    const store = getMockStore();
+    store.siteEventReceipts = new Map([
+      ['expired', { siteId: HWARODAM_SITE_ID, expiresAt: '2026-07-16T00:00:00.000Z' }],
+      ['active', { siteId: HWARODAM_SITE_ID, expiresAt: '2026-07-18T00:00:00.000Z' }],
+    ]);
+    const repo = new MockSiteEventsRepo();
+    assert.equal(await repo.purgeExpiredReceipts('2026-07-17T00:00:00.000Z'), 1);
+    assert.deepEqual([...store.siteEventReceipts.keys()], ['active']);
+    await assert.rejects(repo.purgeExpiredReceipts('not-a-date'), /ISO-8601/);
+  });
+
   test('cutoff validator accepts leap dates and rejects impossible calendar dates', () => {
     assert.doesNotThrow(() => assertReportingCalendarDate('2024-02-29'));
     assert.throws(() => assertReportingCalendarDate('2023-02-29'), /calendar date/);

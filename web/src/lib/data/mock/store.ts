@@ -72,6 +72,8 @@ export interface MockStore {
   formSubmissions: Map<string, FormSubmission>;
   /** [RPT$] site/date/event/source별 PII 없는 누적 카운트 */
   siteEvents: Map<string, SiteEventAggregate>;
+  /** [CONN] 전송 재시도 중복 방지용 event nonce → 만료 시각 */
+  siteEventReceipts?: Map<string, { siteId: string; expiresAt: string }>;
   /** [motion 4단계] 영상 생성 로그 (비용 가드 카운트 + 프롬프트 튜닝). optional=lazy init(시드 무변경) */
   videoGenLog?: { siteId: string; tier: string; model: string; stage: string; prompt?: string; detail?: string; at: number }[];
   counters: { id: number; text: number; image: number };

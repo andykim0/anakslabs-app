@@ -6,8 +6,10 @@
 import type { PurposeGroup } from '@/lib/data/purpose-taxonomy';
 import type { SiteGoalId, SurveyInput } from '@/lib/types/domain';
 import type { SectionType } from '@/lib/types/site';
-import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
-import { isHttpsUrl } from '@/lib/safe-url';
+import {
+  isRecognizedChatUrl,
+  isRecognizedReservationUrl,
+} from '@/lib/analytics/trackable-actions';
 
 export interface SiteGoalDef {
   /** 고객이 고르는 문장 */
@@ -111,7 +113,7 @@ export function resolveConversionDestination(
     if (destination?.kind === 'contact_form') {
       return { label: '문의하기', href: '#sec-contact', kind: 'contact-form' };
     }
-    if (destination?.kind === 'messenger_url' && isHttpsUrl(destination.url)) {
+    if (destination?.kind === 'messenger_url' && isRecognizedChatUrl(destination.url)) {
       return { label: '카카오톡 문의', href: destination.url, kind: 'messenger' };
     }
   }
