@@ -47,7 +47,7 @@ async function addMockMaintenancePayment(input: {
     id: input.id,
     clientId: DEMO_BASIC_ID,
     type: 'maintenance_subscription',
-    amount: PRICING.subscription.annual,
+    amount: PRICING.subscription.amountKrw,
     creditsGranted: PRICING.subscription.creditsPerMonth,
     providerPaymentKey: input.providerPaymentKey,
     createdAt: paidAt.toISOString(),
@@ -414,10 +414,11 @@ describe('RPT$ mock renewal/credit parity', () => {
 });
 
 describe('RPT$ contract and SQL invariants', () => {
-  test('연간 구독은 12개월 선결제이고 기존 크레딧 비용·팩은 유지한다', () => {
-    assert.equal(PRICING.subscription.annual, 390_000);
-    assert.equal(PRICING.subscription.periodMonths, 12);
+  test('신규 구독은 월 리테이너이고 기존 크레딧 비용·팩은 유지한다', () => {
+    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'hidden');
     assert.equal(PRICING.subscription.creditsPerMonth, 2);
     assert.equal(PRICING.subscription.creditValueKrw, 30_000);
     assert.equal(CREDIT_EXPIRY_DAYS.subscription_grant, 90);
@@ -479,8 +480,11 @@ describe('RPT$ contract and SQL invariants', () => {
       join(process.cwd(), 'src/lib/data/mock/services.ts'),
       'utf8',
     );
-    assert.match(mockPayments, /payload\.amount !== PRICING\.subscription\.annual/);
-    assert.match(mockPayments, /periodMonths: PRICING\.subscription\.periodMonths/);
+    assert.match(mockPayments, /payload\.amount !== PRICING\.subscription\.amountKrw/);
+    assert.match(
+      mockPayments,
+      /periodMonths: payload\.periodMonths \?\? PRICING\.subscription\.periodMonths/,
+    );
     assert.match(mockPayments, /renewMockSiteSubscription\(\{/);
     assert.match(mockPayments, /reason: 'subscription_grant'/);
     assert.match(mockPayments, /input\.amount > payment\.amount/);

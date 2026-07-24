@@ -173,9 +173,9 @@ describe('ADM5 admin operations construction invariants', () => {
     }
     assert.ok(
       read('src/app/api/admin/subscriptions/route.ts').includes(
-        'PRICING.subscription.monthlyEquivalent',
+        'PRICING.subscription.amountKrw',
       ),
-      'subscription MRR must consume PRICING.subscription.monthlyEquivalent',
+      'subscription MRR must consume PRICING.subscription.amountKrw',
     );
     assert.match(metrics, /function quantityOfferLimit\(\): number \| null \{[\s\S]*return null;/);
     assert.doesNotMatch(metrics, /LAUNCH_OFFER|선착순/u);

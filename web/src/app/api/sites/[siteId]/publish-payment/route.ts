@@ -61,7 +61,9 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     providerPaymentKey: mockPublishPaymentKey(siteId),
     clientId: client.id,
     type: 'maintenance_subscription',
-    amount: PRICING.subscription.annual,
+    amount: PRICING.subscription.amountKrw,
+    pricingModelVersion: PRICING.modelVersion,
+    periodMonths: PRICING.subscription.periodMonths,
   });
   try {
     await recordBuildEconomicsEvent({
@@ -71,7 +73,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       costUsdMicros: 0,
       idempotencyKey: `publish-payment:${PRICING_MODEL_VERSION}:${siteId}`,
       metadata: {
-        amountKrw: PRICING.subscription.annual,
+        amountKrw: PRICING.subscription.amountKrw,
         periodMonths: PRICING.subscription.periodMonths,
         mode: 'mock',
       },

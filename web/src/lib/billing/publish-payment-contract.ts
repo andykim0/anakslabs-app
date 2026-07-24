@@ -3,6 +3,7 @@ export interface PublishPaymentQuote {
   pricingModelVersion: string;
   amountKrw: number;
   periodMonths: number;
+  billingInterval: 'month';
   automaticRenewal: true;
   siteCount: 1;
   vatIncluded: false;
@@ -20,6 +21,7 @@ export function publishPaymentQuoteFromExtra(
     || typeof value.pricingModelVersion !== 'string'
     || typeof value.amountKrw !== 'number'
     || typeof value.periodMonths !== 'number'
+    || value.billingInterval !== 'month'
     || value.automaticRenewal !== true
     || value.siteCount !== 1
     || value.vatIncluded !== false

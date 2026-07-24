@@ -14,7 +14,7 @@ export function PublishPrice({
   return (
     <div data-publish-price className={`flex flex-col gap-1.5 ${alignment}`}>
       <span className={`text-3xl font-semibold tracking-[-0.04em] sm:text-4xl ${currentColor}`}>
-        {PUBLISH_PAYMENT_COPY.firstYear}
+        {PUBLISH_PAYMENT_COPY.monthlyRetainer}
       </span>
       <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.term}</span>
       <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.renewal}</span>

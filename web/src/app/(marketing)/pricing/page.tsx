@@ -29,9 +29,9 @@ import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { VIDEO_FULFILLMENT_COPY } from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = {
-  title: '홈페이지 이용료 — 결과를 보고 발행할 때 결제',
+  title: '홈페이지 성과 관리 이용료 — 결과를 보고 발행할 때 시작',
   description:
-    `완성된 홈페이지를 먼저 확인하고 발행할 때 첫해 이용료를 결제합니다. 연 ${formatKrw(PRICING.subscription.annual)}에 호스팅, 운영, 성과 리포트와 월 ${PRICING.subscription.creditsPerMonth}크레딧이 포함됩니다.`,
+    `완성된 홈페이지를 먼저 확인하고 발행할 때 월 ${formatKrw(PRICING.subscription.amountKrw)} 구독을 시작합니다. 검색·AI 노출 최적화, 전환 리포팅, 호스팅과 월 ${PRICING.subscription.creditsPerMonth}크레딧이 포함됩니다.`,
   alternates: { canonical: '/pricing' },
 };
 
@@ -53,10 +53,10 @@ const INCLUDED_FEATURES: string[] = [
 const PRICING_FAQ: FaqItem[] = [
   {
     q: '언제 결제하나요?',
-    a: `${PUBLISH_PAYMENT_COPY.lead} 만드는 동안에는 결제가 없고, 완성된 결과를 확인한 뒤 발행할 때 첫해 이용료 ${formatKrw(PRICING.subscription.annual)}를 결제합니다. ${PUBLISH_PAYMENT_COPY.term}이며 ${PUBLISH_PAYMENT_COPY.noBuildFee}입니다.`,
+    a: `${PUBLISH_PAYMENT_COPY.lead} 만드는 동안에는 결제가 없고, 완성된 결과를 확인한 뒤 발행할 때 월 구독 ${formatKrw(PRICING.subscription.amountKrw)}를 시작합니다. ${PUBLISH_PAYMENT_COPY.term}이며 ${PUBLISH_PAYMENT_COPY.noBuildFee}입니다.`,
   },
   {
-    q: '첫해 이용료에는 무엇이 포함되나요?',
+    q: '월 이용료에는 무엇이 포함되나요?',
     a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY} ${INCLUDED_ZERO_COST_ASSET_COPY}`,
   },
   {
@@ -96,10 +96,10 @@ export default function PricingPage() {
       {/* 헤더 */}
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
         <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">
-          홈페이지 제작 비용
+          검색·전환 성과 관리 이용료
         </h1>
         <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5C6068]">
-          {PUBLISH_PAYMENT_COPY.lead} 첫해 이용료에는 운영과 성과 확인까지 함께 들어갑니다.
+          {PUBLISH_PAYMENT_COPY.lead} 월 이용료에는 검색·AI 노출 관리와 전환 확인, 호스팅이 함께 들어갑니다.
         </p>
       </section>
 
@@ -115,7 +115,7 @@ export default function PricingPage() {
           </div>
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
             <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26]">발행할 때</p>
-            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">첫해 이용료</h3>
+            <h3 className="mkt-type-card-title mt-2 font-semibold text-[#17181C]">월 성과 관리 시작</h3>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
               {PUBLISH_PAYMENT_COPY.term}. {SUBSCRIPTION_BENEFIT_COPY.report}, {SUBSCRIPTION_BENEFIT_COPY.credits}, {SUBSCRIPTION_BENEFIT_COPY.operations}을 한 번에 제공합니다.
             </p>
@@ -135,7 +135,7 @@ export default function PricingPage() {
         <div className="mx-auto max-w-4xl">
           <div className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7">
             <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26] uppercase">
-              홈페이지 발행 + 1년 운영
+              홈페이지 발행 + 매월 성과 관리
             </h2>
             <div className="mt-4">
               <PublishPrice />
@@ -151,7 +151,7 @@ export default function PricingPage() {
             </p>
             <p className="mkt-type-body mt-4 text-[#5C6068]">
               서로 다른 디자인 3안, 직접 고치는 편집 화면, 여러 페이지, 손님이 검색하거나 AI에 물을 때
-              읽기 쉬운 기본 구성과 1년 운영이 모두 포함됩니다.
+              읽기 쉬운 기본 구성과 지속적인 운영이 모두 포함됩니다.
             </p>
 
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
@@ -230,29 +230,29 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 에이전시 비교 */}
+      {/* 마케팅 대행 비용 앵커 */}
       <section className="mx-auto max-w-5xl px-6 py-16">
-        <SectionHeading title="왜 이 방식이 더 합리적일까요" />
+        <SectionHeading title="광고비와 함께, 발견되고 전환되는 상태를 관리합니다" />
         <div className="mx-auto mt-10 grid max-w-3xl gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[#E8E6E0] bg-white p-6">
-            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#5C6068]">일회성 외주 방식</p>
-            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">결과를 보기 전에 큰 비용부터</p>
+            <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#5C6068]">마케팅 대행 관리</p>
+            <p className="mt-3 text-2xl font-semibold text-[#5C6068]">월 수십만 원에서 수백만 원까지</p>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              수백만 원대 견적을 먼저 결제하고 결과를 기다리는 경우가 많습니다. 검색과 AI의 읽는 방식이 바뀐 뒤의 관리는 별도 계약일 수 있습니다.
+              검색·광고 운영을 외부에 맡길 때는 관리 범위에 따라 매달 비용이 달라집니다. 광고 집행비와 홈페이지 운영비가 따로 붙기도 합니다.
             </p>
           </div>
           <div className="rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-6">
             <p className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA]">{PUBLIC_BRAND_NAMES.brand}</p>
             <p className="mt-3 text-2xl font-semibold text-[#17181C]">
-              결과 확인 후 {PUBLISH_PAYMENT_COPY.firstYear}
+              광고비 옆의 {PUBLISH_PAYMENT_COPY.monthlyRetainer} 성과 관리비
             </p>
             <p className="mkt-type-body mt-2 text-[#5C6068]">
-              발행과 1년 운영을 함께 시작합니다. 손님이 찾는 정보, 성과 리포트, 기본 구조 업데이트와 직접 수정이 포함됩니다.
+              홈페이지 발행부터 검색·AI 노출 최적화, 전환 리포팅, 호스팅까지 한 구독으로 이어집니다.
             </p>
           </div>
         </div>
         <p className="mkt-type-support mx-auto mt-4 max-w-3xl text-[#696E76]">
-          외주 비용과 범위는 업체마다 다릅니다. 비교의 핵심은 결과를 보기 전 선결제인지, 발행 뒤 운영까지 이어지는지입니다.
+          마케팅 관리 비용과 범위는 업체마다 다릅니다. 다보임의 월 이용료에는 광고 매체 집행비가 포함되지 않습니다.
         </p>
       </section>
 

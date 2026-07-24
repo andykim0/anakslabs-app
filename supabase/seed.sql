@@ -59,7 +59,12 @@ select public.handle_build_fee_payment(
 select public.handle_credit_pack_payment(
   '11111111-1111-1111-1111-111111111111', 'mock_toss_hwarodam_pack5_001', 65000, 5);
 select public.handle_maintenance_payment(
-  '11111111-1111-1111-1111-111111111111', 'mock_toss_hwarodam_maint_2026_07', 390000);
+  '11111111-1111-1111-1111-111111111111',
+  'mock_toss_hwarodam_maint_2026_07',
+  390000,
+  'annual-v2-2026-07',
+  12
+);
 select public.handle_build_fee_payment(
   '22222222-2222-2222-2222-222222222222', 'mock_toss_mintwash_build_001', 490000, 'basic');
 

@@ -15,10 +15,10 @@ describe('PRICE P1 webhook amount policy', () => {
     assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
   });
 
-  test('연간 구독·프리미엄 애드온·크레딧 팩만 서버 가격과 정확히 일치한다', () => {
+  test('월 구독·프리미엄 애드온·크레딧 팩만 서버 가격과 정확히 일치한다', () => {
     assert.equal(validatePaymentAmount(
       { type: 'maintenance_subscription' },
-      PRICING.subscription.annual,
+      PRICING.subscription.amountKrw,
     ).ok, true);
     assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 29_900).ok, false);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), [

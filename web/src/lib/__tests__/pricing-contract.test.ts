@@ -27,7 +27,7 @@ function sourceFiles(path: string): string[] {
 describe('P$ — 가격·크레딧 단일 계약', () => {
   test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
     assert.deepEqual(PRICING, {
-      modelVersion: 'annual-v2-2026-07',
+      modelVersion: 'monthly-retainer-v3-2026-07',
       siteCount: 1,
       build: {
         amountKrw: 0,
@@ -35,13 +35,20 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
       },
       videoHeroAddon: 200_000,
       subscription: {
-        annual: 390_000,
-        periodMonths: 12,
-        monthlyEquivalent: 32_500,
+        modelVersion: 'monthly-retainer-v3-2026-07',
+        amountKrw: 150_000,
+        periodMonths: 1,
+        billingInterval: 'month',
         automaticRenewal: true,
         creditsPerMonth: 2,
         creditValueKrw: 30_000,
         reportFrequency: 'monthly',
+        annualCommitment: {
+          status: 'hidden',
+          periodMonths: 12,
+          discountRate: null,
+          amountKrw: null,
+        },
       },
       selfEdit: 'unlimited-free',
     });
@@ -74,6 +81,8 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
       report: '매월 성과 리포트',
       credits: `매월 ${PRICING.subscription.creditsPerMonth}크레딧`,
       operations: '호스팅·SSL·백업·운영',
+      visibility: '검색·AI 노출 최적화',
+      conversion: '전환 리포팅',
       selfEdit: '직접 수정 무제한 무료',
     });
     assert.match(SUBSCRIPTION_VALUE_COPY, /프리미엄 작업에만 사용/);
@@ -92,9 +101,9 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     }
   });
 
-  test('발행 가격은 연간 단일가만 렌더하고 비교가·희소성·취소선이 없다', () => {
+  test('발행 가격은 월 리테이너만 렌더하고 비교가·희소성·취소선이 없다', () => {
     const markup = renderToStaticMarkup(createElement(PublishPrice));
-    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.firstYear));
+    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.monthlyRetainer));
     assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.term));
     assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.renewal));
     assert.doesNotMatch(markup, /<del|data-launch|선착순|한정/u);
@@ -115,7 +124,7 @@ describe('P$ — 표시 금액 하드코딩 방지', () => {
       .flatMap(sourceFiles)
       .filter((path) => /\.tsx?$/.test(path) && !path.includes('/__tests__/'));
     const forbiddenAmounts =
-      /(?:590_?000|390_?000|200_?000|29_?900|19_?900|590,000|390,000|200,000|29,900|19,900|59만원|39만원|20만원)/;
+      /(?:590_?000|390_?000|200_?000|150_?000|29_?900|19_?900|590,000|390,000|200,000|150,000|29,900|19,900|59만원|39만원|20만원|15만원)/;
 
     for (const file of files) {
       const source = read(file);

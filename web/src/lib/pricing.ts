@@ -1,9 +1,41 @@
-export const PRICING_MODEL_VERSION = 'annual-v2-2026-07' as const;
+export const PRICING_MODEL_VERSION = 'monthly-retainer-v3-2026-07' as const;
+
+export interface SubscriptionPriceContract {
+  modelVersion: string;
+  amountKrw: number;
+  periodMonths: number;
+  billingInterval: 'month';
+  automaticRenewal: true;
+}
+
+/**
+ * 신규 견적이 소비하는 버전별 가격표. 파일럿 WTP 반영은 새 버전 항목을
+ * 추가하고 PRICING_MODEL_VERSION을 올리는 작업으로만 이루어진다.
+ */
+export const SUBSCRIPTION_PRICE_CATALOG = {
+  [PRICING_MODEL_VERSION]: {
+    modelVersion: PRICING_MODEL_VERSION,
+    amountKrw: 150_000,
+    periodMonths: 1,
+    billingInterval: 'month',
+    automaticRenewal: true,
+  },
+} as const satisfies Record<string, SubscriptionPriceContract>;
+
+export function subscriptionPriceForVersion(
+  modelVersion: string,
+): SubscriptionPriceContract | null {
+  return (SUBSCRIPTION_PRICE_CATALOG as Record<string, SubscriptionPriceContract>)[modelVersion]
+    ?? null;
+}
+
+export const CURRENT_SUBSCRIPTION_PRICE =
+  SUBSCRIPTION_PRICE_CATALOG[PRICING_MODEL_VERSION];
 
 /**
  * 신규 계약의 단일 가격 소스.
  *
- * 제작 중에는 결제가 없고, 발행할 때 첫해 이용료를 결제한다. 기존 제작비·
+ * 제작 중에는 결제가 없고, 발행할 때 월 리테이너를 시작한다. 기존 제작비·
  * 월 구독 행은 LEGACY_PRICING으로만 해석하며 새 주문에는 사용하지 않는다.
  */
 export const PRICING = {
@@ -15,13 +47,16 @@ export const PRICING = {
   },
   videoHeroAddon: 200_000,
   subscription: {
-    annual: 390_000,
-    periodMonths: 12,
-    monthlyEquivalent: 32_500,
-    automaticRenewal: true,
+    ...CURRENT_SUBSCRIPTION_PRICE,
     creditsPerMonth: 2,
     creditValueKrw: 30_000,
     reportFrequency: 'monthly',
+    annualCommitment: {
+      status: 'hidden',
+      periodMonths: 12,
+      discountRate: null,
+      amountKrw: null,
+    },
   },
   selfEdit: 'unlimited-free',
 } as const;
@@ -41,9 +76,9 @@ export const LEGACY_PRICING = {
 export const PUBLISH_PAYMENT_COPY = {
   lead: '먼저 만들어 보여드립니다. 발행할 때만 결제하세요.',
   decision: '완성된 결과를 확인한 뒤 발행을 결정합니다.',
-  firstYear: `첫해 ${formatKrw(PRICING.subscription.annual)}`,
-  term: `홈페이지 ${PRICING.siteCount}개 · ${PRICING.subscription.periodMonths}개월 선결제`,
-  renewal: `이후 매년 ${formatKrw(PRICING.subscription.annual)} 자동 갱신`,
+  monthlyRetainer: `월 ${formatKrw(PRICING.subscription.amountKrw)}`,
+  term: `홈페이지 ${PRICING.siteCount}개 · ${PRICING.subscription.periodMonths}개월 이용`,
+  renewal: '매월 같은 금액으로 자동 갱신',
   noBuildFee: '별도 제작비 없음',
   vat: '부가세 별도',
 } as const;
@@ -56,20 +91,22 @@ export const SUBSCRIPTION_BENEFIT_COPY = {
   report: '매월 성과 리포트',
   credits: `매월 ${PRICING.subscription.creditsPerMonth}크레딧`,
   operations: '호스팅·SSL·백업·운영',
+  visibility: '검색·AI 노출 최적화',
+  conversion: '전환 리포팅',
   selfEdit: '직접 수정 무제한 무료',
 } as const;
 
 export const SUBSCRIPTION_VALUE_COPY =
-  `매월 ${PRICING.subscription.creditsPerMonth}개 크레딧과 성과 리포트, 호스팅·운영을 함께 제공합니다. 크레딧은 외부 생성비가 드는 프리미엄 작업에만 사용합니다.`;
+  `검색·AI 노출 최적화와 전환 리포팅, 호스팅·운영, 매월 ${PRICING.subscription.creditsPerMonth}개 크레딧을 함께 제공합니다. 크레딧은 외부 생성비가 드는 프리미엄 작업에만 사용합니다.`;
 
 export const INCLUDED_ZERO_COST_ASSET_COPY =
   '레이아웃 선택, 절차적 배경, 제공 스톡처럼 외부 생성비가 들지 않는 기본 자산은 크레딧 없이 포함됩니다.';
 
-/** 연간 이용료·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
+/** 월 리테이너·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
 export const SITE_PRICE_UNIT_COPY = '모든 가격은 홈페이지 1개 기준입니다.';
 
 export const MULTI_SITE_FAQ_ANSWER =
-  '가능합니다. 홈페이지마다 첫해 이용료와 연간 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
+  '가능합니다. 홈페이지마다 월 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
 
 /**
  * Customer-facing actions that may consume credits.

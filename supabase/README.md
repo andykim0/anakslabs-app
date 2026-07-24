@@ -89,7 +89,7 @@ npx supabase db push        # migrations만 적용 (seed 미적용)
 | `expire_credits(now?)` | 만료 배치 | 만료 lot 잔여분 `expired` 상쇄, 처리 lot 수 반환, 멱등 |
 | `handle_build_fee_payment(client, pay_key, amount, tier)` | 빌드비 웹훅 | 결제기록 + tier 반영 + 초기 크레딧(basic 1/premium 3, 180일). `pay_key` 중복 시 `{duplicated: true}` |
 | `handle_credit_pack_payment(client, pay_key, amount, credits)` | 크레딧 팩 웹훅 | 결제기록 + 구매 크레딧(365일). 멱등 |
-| `handle_maintenance_payment(client, pay_key, amount)` | 유지보수 웹훅 | 결제기록만. 멱등 |
+| `handle_maintenance_payment(client, pay_key, amount, pricing_version, period_months)` | 월 리테이너 웹훅 | 가격표 버전·기간을 결제 행에 고정하고 구독 갱신·월 크레딧을 원자 처리. 멱등 |
 
 만료/소진 모델: 차감 행은 단순 음수 기록이고, lot별 잔여는
 `지급 lot 용량(amount - expired 상쇄) - 총 소진량의 FIFO(expires_at asc) 배분`으로

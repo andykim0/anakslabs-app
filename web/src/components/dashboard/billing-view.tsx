@@ -104,7 +104,7 @@ function SubscriptionCard({
             {mock ? <Badge tone="blue">데모 결제</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            연 {PRICING.subscription.annual.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
+            월 {PRICING.subscription.amountKrw.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
             {SUBSCRIPTION_BENEFIT_COPY.credits} · {SUBSCRIPTION_BENEFIT_COPY.operations}
           </p>
           <p className="mt-1 text-[11px] leading-5 text-blue-300/80">
@@ -153,7 +153,7 @@ function PaymentsTable() {
         <EmptyState
           icon={<ReceiptText className="h-8 w-8" />}
           title="결제 이력이 없습니다"
-          description="과거 제작비, 연간 사이트 운영 구독, 애드온과 크레딧 팩 결제 내역이 이곳에 표시됩니다."
+          description="과거 제작비, 월 사이트 운영 구독, 애드온과 크레딧 팩 결제 내역이 이곳에 표시됩니다."
         />
       ) : (
         <Card className="overflow-x-auto p-0">

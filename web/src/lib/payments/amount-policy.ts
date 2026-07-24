@@ -16,7 +16,7 @@ export interface PaymentAmountValidation {
 /** Exact current product combinations, derived only from the pricing contract. */
 export function acceptedPaymentAmounts(subject: PaymentAmountSubject): readonly number[] {
   if (subject.type === 'maintenance_subscription') {
-    return [PRICING.subscription.annual];
+    return [PRICING.subscription.amountKrw];
   }
   if (subject.type === 'premium_addon') {
     return [PRICING.videoHeroAddon];

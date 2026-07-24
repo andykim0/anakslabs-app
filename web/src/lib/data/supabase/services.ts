@@ -10,6 +10,7 @@
  */
 import { INITIAL_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
+import { PRICING } from '@/lib/pricing';
 import type {
   Client,
   ClientStatus,
@@ -460,6 +461,8 @@ export class SupabasePaymentsService implements PaymentsService {
     amount: number;
     tier?: Tier;
     creditsGranted?: number;
+    pricingModelVersion?: string;
+    periodMonths?: number;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const svc = getServiceRoleClient();
 
@@ -506,6 +509,8 @@ export class SupabasePaymentsService implements PaymentsService {
           p_client_id: payload.clientId,
           p_provider_payment_key: payload.providerPaymentKey,
           p_amount: payload.amount,
+          p_pricing_model_version: payload.pricingModelVersion ?? PRICING.modelVersion,
+          p_period_months: payload.periodMonths ?? PRICING.subscription.periodMonths,
         };
         break;
       }

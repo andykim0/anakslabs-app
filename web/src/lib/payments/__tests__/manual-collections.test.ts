@@ -18,7 +18,7 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(manualCollectionQuote({ productKind: 'launch_build' })?.amountKrw, LEGACY_PRICING.build.launch);
     assert.equal(manualCollectionQuote({ productKind: 'list_build' })?.amountKrw, LEGACY_PRICING.build.list);
     assert.equal(manualCollectionQuote({ productKind: 'video_addon' })?.amountKrw, PRICING.videoHeroAddon);
-    assert.equal(manualCollectionQuote({ productKind: 'subscription' })?.amountKrw, PRICING.subscription.annual);
+    assert.equal(manualCollectionQuote({ productKind: 'subscription' })?.amountKrw, PRICING.subscription.amountKrw);
     for (const pack of CREDIT_PACKS) {
       assert.deepEqual(manualCollectionQuote({
         productKind: 'credit_pack',
@@ -239,7 +239,7 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.annual,
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'KMONG-SUB-001',
     });
@@ -271,7 +271,7 @@ describe('OPS O1 manual collection contract', () => {
     const recordSubscription = (reference: string) => repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.annual,
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: reference,
     });
@@ -333,7 +333,7 @@ describe('OPS O1 manual collection contract', () => {
     const recordSubscription = (reference: string) => repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.annual,
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: reference,
     });
@@ -457,7 +457,7 @@ describe('OPS O1 manual collection contract', () => {
       LEGACY_PRICING.build.launch,
       LEGACY_PRICING.build.list,
       PRICING.videoHeroAddon,
-      PRICING.subscription.annual,
+      LEGACY_PRICING.subscriptionMonthly,
       ...CREDIT_PACKS.map((pack) => pack.priceKrw),
     ]) {
       assert.match(sql, new RegExp(`${amount}::numeric`), `SQL price snapshot missing ${amount}`);

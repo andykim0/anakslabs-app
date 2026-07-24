@@ -55,12 +55,13 @@ function companySurvey(): SurveyInput {
 }
 
 describe('PRICE P4 — 모델 개정 통합 회귀', () => {
-  test('고객 화면은 연 39만원·12개월·자동 갱신·사이트 1개 단일 계약만 표시한다', () => {
-    assert.equal(PRICING.subscription.annual, 390_000);
-    assert.equal(PRICING.subscription.periodMonths, 12);
+  test('고객 화면은 월 15만원·1개월·자동 갱신·사이트 1개 단일 계약만 표시한다', () => {
+    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.periodMonths, 1);
+    assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.siteCount, 1);
-    assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.firstYear));
+    assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.monthlyRetainer));
     assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.term));
     assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.renewal));
     assert.match(MARKETING_OUTPUT, /모든 가격은 홈페이지 1개 기준/);
@@ -112,8 +113,9 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     assert.deepEqual(quote, {
       quoteId: quote.quoteId,
       pricingModelVersion: PRICING_MODEL_VERSION,
-      amountKrw: PRICING.subscription.annual,
-      periodMonths: 12,
+      amountKrw: PRICING.subscription.amountKrw,
+      periodMonths: 1,
+      billingInterval: 'month',
       automaticRenewal: true,
       siteCount: 1,
       vatIncluded: false,
@@ -137,26 +139,27 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
       'real checkout must fail before any payment mutation',
     );
     assert.match(payment, /type: 'maintenance_subscription'/);
-    assert.match(payment, /amount: PRICING\.subscription\.annual/);
+    assert.match(payment, /amount: PRICING\.subscription\.amountKrw/);
   });
 
-  test('0043은 과거 장부를 보존하면서 신규 build_fee만 막고 월 2크레딧을 정확히 한 번 지급한다', () => {
-    const migration = read('../supabase/migrations/0043_pricing_v2.sql');
-    assert.match(migration, /'build_fee', 'maintenance_subscription', 'premium_addon', 'credit_pack'/);
-    assert.match(migration, /New maintenance receipts use the annual contract/);
-    assert.match(migration, /retired build products cannot be recorded/);
+  test('0043·0044는 과거 장부를 보존하면서 신규 build_fee만 막고 월 2크레딧을 정확히 한 번 지급한다', () => {
+    const base = read('../supabase/migrations/0043_pricing_v2.sql');
+    const migration = read('../supabase/migrations/0044_monthly_retainer_pricing.sql');
+    assert.match(base, /'build_fee', 'maintenance_subscription', 'premium_addon', 'credit_pack'/);
+    assert.match(base, /retired build products cannot be recorded/);
+    assert.match(migration, /Existing payment and subscription rows are historical evidence/);
 
-    const annualHandler = migration.match(
+    const monthlyHandler = migration.match(
       /create or replace function public\.handle_maintenance_payment\([\s\S]*?\n\$\$;/,
     )?.[0];
-    assert.ok(annualHandler);
+    assert.ok(monthlyHandler);
     assert.equal(
-      annualHandler.match(/grant_subscription_month_credits/g)?.length,
+      monthlyHandler.match(/grant_subscription_month_credits/g)?.length,
       1,
-      'annual checkout must grant the monthly credit lot exactly once',
+      'monthly checkout must grant the monthly credit lot exactly once',
     );
-    assert.match(annualHandler, /'payment_webhook',\s*12,/);
-    assert.match(annualHandler, /credits_granted', case when v_granted then 2 else 0 end/);
+    assert.match(monthlyHandler, /'payment_webhook',\s*p_period_months,/);
+    assert.match(monthlyHandler, /credits_granted', case when v_granted then 2 else 0 end/);
   });
 
   test('30일 soft-expire와 비용 이벤트 원장은 신규·서버 소유·append-only다', () => {
@@ -184,6 +187,7 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     assert.match(terms, /성과 보장 프로그램.*잠정 제외/);
     assert.match(terms, /부가세 별도[\s\S]{0,100}검토/);
     assert.match(terms, /자동 갱신.*법률 검토/);
+    assert.match(terms, /월 150,000원·월 자동 갱신/);
     assert.match(terms, /신규 계약에는 초기 지급 크레딧이 없으며/);
     assert.match(terms, /과거 계약의 초기 지급 크레딧은 기존 만료 조건을 유지/);
     assert.match(notices, /실제 결제 기능을 열기 전 법률 검토/);

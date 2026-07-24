@@ -204,9 +204,9 @@ export default function FeaturesPage() {
           <div className="mt-16 border-y border-[#C8D8EC] py-9">
             <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
               <div>
-                <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">ANNUAL SUBSCRIPTION</p>
+                <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY RETAINER</p>
                 <p className="mkt-type-card-title mt-3 font-semibold tracking-[-0.025em]">
-                  첫해 이용료 {formatKrw(PRICING.subscription.annual)}
+                  월 성과 관리 {formatKrw(PRICING.subscription.amountKrw)}
                 </p>
                 <p className="mkt-type-support mt-2 text-[#667085]">
                   {PUBLISH_PAYMENT_COPY.term} · {PUBLISH_PAYMENT_COPY.renewal} · {PUBLISH_PAYMENT_COPY.vat}

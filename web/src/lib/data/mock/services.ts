@@ -434,6 +434,8 @@ class MockPaymentsService implements PaymentsService {
     amount: number;
     tier?: Tier;
     creditsGranted?: number;
+    pricingModelVersion?: string;
+    periodMonths?: number;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const store = getMockStore();
 
@@ -460,10 +462,17 @@ class MockPaymentsService implements PaymentsService {
       }
       creditsGranted = payload.creditsGranted;
     } else if (payload.type === 'maintenance_subscription') {
-      if (payload.amount !== PRICING.subscription.annual) {
+      if (payload.amount !== PRICING.subscription.amountKrw) {
         throw new Error(
-          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.annual}`,
+          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.amountKrw}`,
         );
+      }
+      if (
+        (payload.pricingModelVersion ?? PRICING.modelVersion) !== PRICING.modelVersion
+        || (payload.periodMonths ?? PRICING.subscription.periodMonths)
+          !== PRICING.subscription.periodMonths
+      ) {
+        throw new Error('payments.handleWebhook: maintenance pricing contract is stale');
       }
       // Freeze the one-time legacy projection before inserting this new
       // payment, exactly as an already-applied migration would in real mode.
@@ -498,7 +507,7 @@ class MockPaymentsService implements PaymentsService {
           idempotencyKey: `payment:${payload.providerPaymentKey}`,
           source: 'payment_webhook',
           paymentId: payment.id,
-          periodMonths: PRICING.subscription.periodMonths,
+          periodMonths: payload.periodMonths ?? PRICING.subscription.periodMonths,
           at: processedAt,
         });
       } catch (error) {

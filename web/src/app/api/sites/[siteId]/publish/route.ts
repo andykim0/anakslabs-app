@@ -171,7 +171,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(
       402,
       PUBLISH_PAYMENT_ERROR_CODE,
-      '발행할 때 첫 해 이용료를 결제해 주세요. 별도 제작비는 없습니다.',
+      '발행할 때 월 구독을 시작해 주세요. 별도 제작비는 없습니다.',
       { quote },
     );
   }

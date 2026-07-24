@@ -4,6 +4,7 @@ import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { rowToPayment, type PaymentRow } from '@/lib/data/supabase/mappers';
 import { isMockMode } from '@/lib/env';
 import type { Payment } from '@/lib/types/domain';
+import { PRICING } from '@/lib/pricing';
 import {
   normalizeRecordManualCollectionInput,
   normalizeReverseManualCollectionInput,
@@ -156,7 +157,7 @@ class SupabaseManualCollectionsRepository implements ManualCollectionsRepository
 
   async record(rawInput: RecordManualCollectionInput): Promise<ManualCollectionMutationResult> {
     const input = normalizeRecordManualCollectionInput(rawInput);
-    const { data, error } = await getServiceRoleClient().rpc('record_manual_collection_v2', {
+    const { data, error } = await getServiceRoleClient().rpc('record_manual_collection_v3', {
       p_client_id: input.clientId,
       p_customer_name: input.customerName,
       p_customer_contact: input.customerContact,
@@ -167,6 +168,8 @@ class SupabaseManualCollectionsRepository implements ManualCollectionsRepository
       p_collection_reference: input.collectionReference,
       p_memo: input.memo,
       p_credit_pack_credits: input.creditPackCredits,
+      p_pricing_model_version: PRICING.modelVersion,
+      p_subscription_period_months: PRICING.subscription.periodMonths,
     });
     if (error) throw new Error(`record manual collection failed: ${error.message}`);
     const result = data as { duplicated?: boolean; entry_id?: string } | null;

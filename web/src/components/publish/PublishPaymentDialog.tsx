@@ -32,12 +32,12 @@ export function PublishPaymentDialog({
           결과를 확인하셨다면 발행하세요
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5F6B7C]">
-          첫 해 이용료는 {won(quote.amountKrw)}이며 홈페이지 1개, {quote.periodMonths}개월 이용 기준입니다.
-          별도 제작비는 없고 다음 기간부터 자동 갱신됩니다.
+          월 이용료는 {won(quote.amountKrw)}이며 홈페이지 1개 기준입니다.
+          별도 제작비는 없고 매월 자동 갱신됩니다.
         </p>
         <div className="mt-5 rounded-xl bg-[#F3F7FF] px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-[#5F6B7C]">첫 해 선결제</span>
+            <span className="text-sm text-[#5F6B7C]">월 리테이너</span>
             <strong className="text-lg">{won(quote.amountKrw)}</strong>
           </div>
           <p className="mt-1 text-[11px] text-[#7A8699]">부가세 별도 · 홈페이지 1개 기준</p>

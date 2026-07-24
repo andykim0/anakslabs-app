@@ -64,7 +64,7 @@ export interface Site {
   siteConfig: SiteConfig | null;
   /** 편집 중 초안 (에디터 저장 대상) */
   draftConfig: SiteConfig | null;
-  /** 신규 연간 모델 초안의 soft-expiry. null은 기존 사이트로 만료 정책 비적용. */
+  /** 신규 pay-at-publish 모델 초안의 soft-expiry. null은 기존 사이트로 만료 정책 비적용. */
   draftExpiresAt?: string | null;
   publishedAt: string | null;
   createdAt: string;

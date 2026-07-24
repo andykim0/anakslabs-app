@@ -152,7 +152,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
-    a: `기본 모션은 첫해 이용료에 포함됩니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
+    a: `기본 모션은 월 이용료에 포함됩니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
   },
 ];
 
@@ -373,7 +373,7 @@ export default function MarketingHome() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#5DE0D0]">WEBSITE + MANAGED HOSTING</p>
-                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 발행 + 1년 운영</h3>
+                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 발행 + 매월 성과 관리</h3>
                 </div>
                 <PublishPrice tone="dark" align="right" />
               </div>

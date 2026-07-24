@@ -180,6 +180,8 @@ export interface PaymentsService {
     amount: number;
     tier?: Tier;
     creditsGranted?: number;
+    pricingModelVersion?: string;
+    periodMonths?: number;
   }): Promise<{ processed: boolean; duplicated: boolean }>;
   listByClient(clientId: string): Promise<Payment[]>;
   /** 관리자 전용 */

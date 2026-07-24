@@ -198,7 +198,7 @@ export function manualCollectionQuote(input: {
     case 'subscription':
       return {
         paymentType: 'maintenance_subscription',
-        amountKrw: PRICING.subscription.annual,
+        amountKrw: PRICING.subscription.amountKrw,
         creditsGranted: PRICING.subscription.creditsPerMonth,
       };
     case 'credit_pack': {
