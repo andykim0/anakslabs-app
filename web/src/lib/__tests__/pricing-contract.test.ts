@@ -44,10 +44,18 @@ const noOffer: LaunchOffer = {
 describe('P$ — 가격·크레딧 단일 계약', () => {
   test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
     assert.deepEqual(PRICING, {
-      base: { list: 590_000, launch: 390_000 },
+      modelVersion: 'annual-v2-2026-07',
+      siteCount: 1,
+      build: {
+        amountKrw: 0,
+        paymentTiming: 'publish',
+      },
       videoHeroAddon: 200_000,
       subscription: {
-        monthly: 29_900,
+        annual: 390_000,
+        periodMonths: 12,
+        monthlyEquivalent: 32_500,
+        automaticRenewal: true,
         creditsPerMonth: 2,
         creditValueKrw: 30_000,
         reportFrequency: 'monthly',
@@ -84,12 +92,8 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
       operations: '호스팅·SSL·백업·운영',
       selfEdit: '직접 수정 무제한 무료',
     });
-    assert.match(SUBSCRIPTION_VALUE_COPY, /구독비만큼 크레딧으로 돌려받아요/);
+    assert.match(SUBSCRIPTION_VALUE_COPY, /프리미엄 작업에만 사용/);
     assert.match(SUBSCRIPTION_VALUE_COPY, new RegExp(`${PRICING.subscription.creditsPerMonth}개`));
-    assert.match(
-      SUBSCRIPTION_VALUE_COPY,
-      new RegExp(PRICING.subscription.creditValueKrw.toLocaleString('ko-KR')),
-    );
 
     for (const path of [
       'src/app/(marketing)/page.tsx',

@@ -71,7 +71,7 @@ describe('BILL$ one payment equals one site', () => {
   test('the two-homepage FAQ uses one string for visible HTML and JSON-LD', () => {
     assert.equal(
       MULTI_SITE_FAQ_ANSWER,
-      '가능합니다. 홈페이지마다 제작비와 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.',
+      '가능합니다. 홈페이지마다 첫해 이용료와 연간 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.',
     );
     const html = parse(renderToStaticMarkup(createElement(FaqPage)));
     const visible = html.querySelectorAll('details').map((details) => ({

@@ -12,6 +12,7 @@ import { Fragment, useMemo, useState } from 'react';
 import { CREDIT_PACKS } from '@/lib/credits/constants';
 import {
   MANUAL_COLLECTION_LABELS,
+  RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS,
   manualCollectionQuote,
   type ManualCollectionChannel,
   type ManualCollectionProductKind,
@@ -28,7 +29,7 @@ import {
 import { formatDateTime, formatKrw } from './format';
 import { Badge, Card } from './ui';
 
-const PRODUCT_KINDS = Object.keys(MANUAL_COLLECTION_LABELS) as ManualCollectionProductKind[];
+const PRODUCT_KINDS = RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS;
 const CHANNEL_LABELS: Record<ManualCollectionChannel, string> = {
   kmong: '크몽',
   bank_transfer: '계좌이체',
@@ -48,7 +49,7 @@ export function ManualCollectionPanel({ rows }: { rows: AdminManualCollectionRow
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [siteId, setSiteId] = useState('');
-  const [productKind, setProductKind] = useState<ManualCollectionProductKind>('launch_build');
+  const [productKind, setProductKind] = useState<ManualCollectionProductKind>('subscription');
   const [creditPackCredits, setCreditPackCredits] = useState(CREDIT_PACKS[0]?.credits ?? 1);
   const [channel, setChannel] = useState<ManualCollectionChannel>('kmong');
   const [reference, setReference] = useState('');

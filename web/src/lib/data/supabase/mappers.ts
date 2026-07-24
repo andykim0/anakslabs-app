@@ -65,6 +65,7 @@ export interface SiteRow {
   status: string;
   site_config: unknown;
   draft_config: unknown;
+  draft_expires_at?: string | null;
   published_at: string | null;
   created_at: string;
   free_regens_used?: number | null;
@@ -87,6 +88,7 @@ export function rowToSite(row: SiteRow): Site {
     // [v4] read 경계 단일 정규화 — 앱 코드는 v2만 본다 (v1 저장분도 여기서 승격)
     siteConfig: normalizeConfigCol(row.site_config),
     draftConfig: normalizeConfigCol(row.draft_config),
+    draftExpiresAt: row.draft_expires_at ?? null,
     publishedAt: row.published_at,
     createdAt: row.created_at,
     freeRegensUsed: row.free_regens_used ?? 0,

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
-import { LAUNCH_OFFER, PRICING } from '@/lib/pricing';
+import { LAUNCH_OFFER, LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment } from '@/lib/types/domain';
 import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
 import {
@@ -21,7 +21,7 @@ function payment(
     id,
     clientId: `client-${id}`,
     type: 'build_fee',
-    amount: PRICING.base.launch,
+    amount: LEGACY_PRICING.build.launch,
     creditsGranted: INITIAL_GRANT.basic,
     providerPaymentKey: `provider-${id}`,
     createdAt: '2026-07-10T03:00:00.000Z',
@@ -46,7 +46,7 @@ function manualEntry(
     creditPackCredits: null,
     productKind: 'launch_build',
     direction: paymentId ? 'receipt' : 'reversal',
-    amountKrw: PRICING.base.launch,
+    amountKrw: LEGACY_PRICING.build.launch,
     channel: 'kmong',
     collectionReference: `kmong-${id}`,
     memo: null,
@@ -72,7 +72,7 @@ describe('ADM4 admin revenue metrics', () => {
       payment('end', { createdAt: '2026-07-31T15:00:00.000Z' }),
     ], NOW);
 
-    assert.equal(result.segments.launchBuild.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.segments.launchBuild.grossKrw, LEGACY_PRICING.build.launch * 2);
   });
 
   test('classifies only exact current-price contracts from immutable payment fields', () => {
@@ -81,31 +81,31 @@ describe('ADM4 admin revenue metrics', () => {
       videoAddon: false,
     });
     assert.deepEqual(classifyBuildContract(payment('list-basic', {
-      amount: PRICING.base.list,
+      amount: LEGACY_PRICING.build.list,
     })), { base: 'list', videoAddon: false });
     assert.deepEqual(classifyBuildContract(payment('launch-video', {
-      amount: PRICING.base.launch + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.launch + PRICING.videoHeroAddon,
       creditsGranted: INITIAL_GRANT.premium,
     })), { base: 'launch', videoAddon: true });
     assert.deepEqual(classifyBuildContract(payment('list-video', {
-      amount: PRICING.base.list + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.list + PRICING.videoHeroAddon,
       creditsGranted: INITIAL_GRANT.premium,
     })), { base: 'list', videoAddon: true });
     assert.deepEqual(classifyBuildContract(payment('ambiguous', {
-      amount: PRICING.base.launch + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.launch + PRICING.videoHeroAddon,
       creditsGranted: 2,
     })), { base: 'unclassified', videoAddon: false });
   });
 
   test('keeps exact base, add-on, subscription, credit-pack and ambiguous receipts separate', () => {
-    const launchVideo = PRICING.base.launch + PRICING.videoHeroAddon;
-    const listVideo = PRICING.base.list + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
+    const listVideo = LEGACY_PRICING.build.list + PRICING.videoHeroAddon;
     const historicalBuild = 1_290_000;
     const historicalSubscription = 49_000;
     const creditPack = 65_000;
     const result = buildAdminOpsRevenueMetrics([
       payment('launch-basic'),
-      payment('list-basic', { amount: PRICING.base.list }),
+      payment('list-basic', { amount: LEGACY_PRICING.build.list }),
       payment('launch-video', {
         amount: launchVideo,
         creditsGranted: INITIAL_GRANT.premium,
@@ -130,16 +130,16 @@ describe('ADM4 admin revenue metrics', () => {
       }),
     ], NOW);
 
-    assert.equal(result.segments.launchBuild.grossKrw, PRICING.base.launch * 2);
-    assert.equal(result.segments.listBuild.grossKrw, PRICING.base.list * 2);
+    assert.equal(result.segments.launchBuild.grossKrw, LEGACY_PRICING.build.launch * 2);
+    assert.equal(result.segments.listBuild.grossKrw, LEGACY_PRICING.build.list * 2);
     assert.equal(result.segments.videoAddon.grossKrw, PRICING.videoHeroAddon * 2);
     assert.equal(result.segments.unclassifiedBuild.grossKrw, historicalBuild);
     assert.equal(result.segments.subscription.grossKrw, historicalSubscription);
     assert.equal(result.segments.creditPack.grossKrw, creditPack);
     assert.equal(
       result.receipts.grossKrw,
-      PRICING.base.launch
-        + PRICING.base.list
+      LEGACY_PRICING.build.launch
+        + LEGACY_PRICING.build.list
         + launchVideo
         + listVideo
         + historicalBuild
@@ -153,7 +153,7 @@ describe('ADM4 admin revenue metrics', () => {
   });
 
   test('uses cash-basis refunds and does not invent a partial composite allocation', () => {
-    const launchVideo = PRICING.base.launch + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
     const result = buildAdminOpsRevenueMetrics([
       payment('old-full-refund', {
         amount: launchVideo,
@@ -173,8 +173,8 @@ describe('ADM4 admin revenue metrics', () => {
     assert.equal(result.receipts.grossKrw, launchVideo);
     assert.equal(result.receipts.refundsKrw, launchVideo + 100_000);
     assert.equal(result.receipts.netKrw, -100_000);
-    assert.equal(result.segments.launchBuild.grossKrw, PRICING.base.launch);
-    assert.equal(result.segments.launchBuild.refundsKrw, PRICING.base.launch);
+    assert.equal(result.segments.launchBuild.grossKrw, LEGACY_PRICING.build.launch);
+    assert.equal(result.segments.launchBuild.refundsKrw, LEGACY_PRICING.build.launch);
     assert.equal(result.segments.videoAddon.grossKrw, PRICING.videoHeroAddon);
     assert.equal(result.segments.videoAddon.refundsKrw, PRICING.videoHeroAddon);
     assert.equal(result.segments.unclassifiedBuild.refundsKrw, 100_000);
@@ -188,16 +188,16 @@ describe('ADM4 admin revenue metrics', () => {
     const futureRefund = payment('future-refund', {
       createdAt: '2026-07-01T03:00:00.000Z',
       refundedAt: '2026-07-18T03:00:00.000Z',
-      refundAmount: PRICING.base.launch,
+      refundAmount: LEGACY_PRICING.build.launch,
     });
     const impossible = payment('impossible-refund', {
       createdAt: '2026-07-10T03:00:00.000Z',
       refundedAt: '2026-07-09T03:00:00.000Z',
-      refundAmount: PRICING.base.launch,
+      refundAmount: LEGACY_PRICING.build.launch,
     });
     const result = buildAdminOpsRevenueMetrics([futurePayment, futureRefund, impossible], NOW);
 
-    assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.receipts.grossKrw, LEGACY_PRICING.build.launch * 2);
     assert.equal(result.receipts.refundsKrw, 0);
     assert.equal(result.launchOffer.contracts, 1);
     assert.deepEqual(result.anomalies, [
@@ -206,11 +206,11 @@ describe('ADM4 admin revenue metrics', () => {
   });
 
   test('counts cumulative exact launch contracts, excludes full refunds, and uses the offer limit', () => {
-    const launchVideo = PRICING.base.launch + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
     const fullRefund = payment('full-refund', {
       createdAt: '2026-01-05T03:00:00.000Z',
       refundedAt: '2026-02-05T03:00:00.000Z',
-      refundAmount: PRICING.base.launch,
+      refundAmount: LEGACY_PRICING.build.launch,
     });
     const result = buildAdminOpsRevenueMetrics([
       payment('launch-old', { createdAt: '2025-12-01T03:00:00.000Z' }),
@@ -225,7 +225,7 @@ describe('ADM4 admin revenue metrics', () => {
         refundAmount: 10_000,
       }),
       fullRefund,
-      payment('list', { amount: PRICING.base.list }),
+      payment('list', { amount: LEGACY_PRICING.build.list }),
       payment('ambiguous', { amount: launchVideo, creditsGranted: 2 }),
     ], NOW);
 
@@ -257,7 +257,7 @@ describe('ADM4 admin revenue metrics', () => {
       { paymentId: 'bad-refund', code: 'invalid_refund' },
     ]);
     assert.equal(result.anomalyPaymentCount, 5);
-    assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
+    assert.equal(result.receipts.grossKrw, LEGACY_PRICING.build.launch * 2);
   });
 
   test('uses a named operations target and clamps its gauge progress', () => {
@@ -294,11 +294,11 @@ describe('ADM4 admin revenue metrics', () => {
       },
     );
 
-    assert.equal(result.sources.provider.grossKrw, PRICING.base.launch);
-    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch);
-    assert.equal(result.receipts.grossKrw, PRICING.base.launch * 2);
-    assert.equal(result.operatingRevenueBySourceKrw.provider, PRICING.base.launch);
-    assert.equal(result.operatingRevenueBySourceKrw.manual, PRICING.base.launch);
+    assert.equal(result.sources.provider.grossKrw, LEGACY_PRICING.build.launch);
+    assert.equal(result.sources.manual.grossKrw, LEGACY_PRICING.build.launch);
+    assert.equal(result.receipts.grossKrw, LEGACY_PRICING.build.launch * 2);
+    assert.equal(result.operatingRevenueBySourceKrw.provider, LEGACY_PRICING.build.launch);
+    assert.equal(result.operatingRevenueBySourceKrw.manual, LEGACY_PRICING.build.launch);
     assert.equal(result.launchOffer.contracts, 2);
   });
 
@@ -339,8 +339,8 @@ describe('ADM4 admin revenue metrics', () => {
     );
 
     assert.equal(result.launchOffer.contracts, 1, 'one site must never consume several launch slots');
-    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch * 2);
-    assert.equal(result.sources.manual.refundsKrw, PRICING.base.launch);
+    assert.equal(result.sources.manual.grossKrw, LEGACY_PRICING.build.launch * 2);
+    assert.equal(result.sources.manual.refundsKrw, LEGACY_PRICING.build.launch);
   });
 
   test('fails closed when a provider launch payment cannot be bound to one site', () => {
@@ -352,7 +352,7 @@ describe('ADM4 admin revenue metrics', () => {
       ],
     });
 
-    assert.equal(result.sources.provider.grossKrw, PRICING.base.launch);
+    assert.equal(result.sources.provider.grossKrw, LEGACY_PRICING.build.launch);
     assert.equal(result.launchOffer.contracts, 0);
     assert.deepEqual(result.anomalies, [
       { paymentId: provider.id, code: 'launch_site_unresolved' },
@@ -409,9 +409,9 @@ describe('ADM4 admin revenue metrics', () => {
       sites: [],
     });
 
-    assert.equal(result.sources.manual.grossKrw, PRICING.base.launch * 2);
-    assert.equal(result.sources.manual.refundsKrw, PRICING.base.launch);
-    assert.equal(result.sources.manual.netKrw, PRICING.base.launch);
+    assert.equal(result.sources.manual.grossKrw, LEGACY_PRICING.build.launch * 2);
+    assert.equal(result.sources.manual.refundsKrw, LEGACY_PRICING.build.launch);
+    assert.equal(result.sources.manual.netKrw, LEGACY_PRICING.build.launch);
     assert.equal(result.launchOffer.contracts, 1, 'one contact consumes at most one launch slot');
     assert.deepEqual(result.anomalies, []);
   });

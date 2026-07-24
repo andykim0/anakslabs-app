@@ -5,6 +5,7 @@ import {
   reconcileMockSiteSubscriptionManualReversal,
   renewMockSiteSubscription,
 } from '@/lib/subscriptions/mock';
+import { PRICING } from '@/lib/pricing';
 import { subscriptionGrantIdempotencyKey } from '@/lib/subscriptions/core';
 import type { Payment } from '@/lib/types/domain';
 import {
@@ -162,6 +163,7 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
         clientId,
         idempotencyKey: manualCollectionIdempotencyKey(entry),
         source: 'admin_manual',
+        periodMonths: PRICING.subscription.periodMonths,
         at,
       });
       subscriptionPeriodEnd = renewal.state.currentPeriodEnd;

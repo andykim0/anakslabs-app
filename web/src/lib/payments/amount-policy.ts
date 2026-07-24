@@ -1,10 +1,10 @@
 import { CREDIT_PACKS } from '@/lib/credits/constants';
 import { PRICING } from '@/lib/pricing';
-import type { PaymentType, Tier } from '@/lib/types/domain';
+import type { PaymentType } from '@/lib/types/domain';
 
 export type PaymentAmountSubject =
-  | { type: 'build_fee'; tier: Tier }
   | { type: 'maintenance_subscription' }
+  | { type: 'premium_addon' }
   | { type: 'credit_pack'; credits: number };
 
 export interface PaymentAmountValidation {
@@ -12,26 +12,20 @@ export interface PaymentAmountValidation {
   expectedKrw: readonly number[];
   message: string | null;
 }
-function uniqueSorted(values: readonly number[]): readonly number[] {
-  return [...new Set(values)].sort((left, right) => left - right);
-}
 
 /** Exact current product combinations, derived only from the pricing contract. */
 export function acceptedPaymentAmounts(subject: PaymentAmountSubject): readonly number[] {
   if (subject.type === 'maintenance_subscription') {
-    return [PRICING.subscription.monthly];
+    return [PRICING.subscription.annual];
+  }
+  if (subject.type === 'premium_addon') {
+    return [PRICING.videoHeroAddon];
   }
   if (subject.type === 'credit_pack') {
     const pack = CREDIT_PACKS.find((candidate) => candidate.credits === subject.credits);
     return pack ? [pack.priceKrw] : [];
   }
-  if (subject.tier === 'basic') {
-    return uniqueSorted([PRICING.base.launch, PRICING.base.list]);
-  }
-  return uniqueSorted([
-    PRICING.base.launch + PRICING.videoHeroAddon,
-    PRICING.base.list + PRICING.videoHeroAddon,
-  ]);
+  return [];
 }
 
 export function validatePaymentAmount(
@@ -60,15 +54,15 @@ export function validatePaymentAmount(
 
 export function paymentAmountSubject(input: {
   type: PaymentType;
-  tier?: Tier;
   creditsGranted?: number;
 }): PaymentAmountSubject | null {
-  if (input.type === 'build_fee') {
-    return input.tier ? { type: 'build_fee', tier: input.tier } : null;
-  }
   if (input.type === 'maintenance_subscription') {
     return { type: 'maintenance_subscription' };
   }
+  if (input.type === 'premium_addon') {
+    return { type: 'premium_addon' };
+  }
+  if (input.type === 'build_fee') return null;
   return Number.isSafeInteger(input.creditsGranted) && (input.creditsGranted ?? 0) > 0
     ? { type: 'credit_pack', credits: input.creditsGranted! }
     : null;

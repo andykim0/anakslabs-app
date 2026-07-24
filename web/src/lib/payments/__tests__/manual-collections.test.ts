@@ -5,7 +5,7 @@ import { describe, test } from 'node:test';
 import { CREDIT_PACKS } from '@/lib/credits/constants';
 import { DEMO_BASIC_ID, DEMO_PREMIUM_ID, HWARODAM_SITE_ID } from '@/lib/data/mock/seed';
 import { getMockStore, resetMockStore } from '@/lib/data/mock/store';
-import { PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import { getMockSiteSubscription } from '@/lib/subscriptions/mock';
 import {
   manualCollectionQuote,
@@ -15,10 +15,10 @@ import { MockManualCollectionsRepository } from '../manual-collections-mock';
 
 describe('OPS O1 manual collection contract', () => {
   test('derives every accepted amount from pricing and credit-pack sources', () => {
-    assert.equal(manualCollectionQuote({ productKind: 'launch_build' })?.amountKrw, PRICING.base.launch);
-    assert.equal(manualCollectionQuote({ productKind: 'list_build' })?.amountKrw, PRICING.base.list);
+    assert.equal(manualCollectionQuote({ productKind: 'launch_build' })?.amountKrw, LEGACY_PRICING.build.launch);
+    assert.equal(manualCollectionQuote({ productKind: 'list_build' })?.amountKrw, LEGACY_PRICING.build.list);
     assert.equal(manualCollectionQuote({ productKind: 'video_addon' })?.amountKrw, PRICING.videoHeroAddon);
-    assert.equal(manualCollectionQuote({ productKind: 'subscription' })?.amountKrw, PRICING.subscription.monthly);
+    assert.equal(manualCollectionQuote({ productKind: 'subscription' })?.amountKrw, PRICING.subscription.annual);
     for (const pack of CREDIT_PACKS) {
       assert.deepEqual(manualCollectionQuote({
         productKind: 'credit_pack',
@@ -36,8 +36,8 @@ describe('OPS O1 manual collection contract', () => {
     assert.throws(() => normalizeRecordManualCollectionInput({
       clientId: DEMO_PREMIUM_ID,
       siteId: HWARODAM_SITE_ID,
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch + 1,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon + 1,
       channel: 'kmong',
       collectionReference: 'order-bad-price',
     }), /AMOUNT_MISMATCH/);
@@ -50,8 +50,8 @@ describe('OPS O1 manual collection contract', () => {
     });
     assert.equal(withoutSite.siteId, null);
     assert.throws(() => normalizeRecordManualCollectionInput({
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'order-no-customer',
     }), /CUSTOMER_REQUIRED/);
@@ -59,8 +59,8 @@ describe('OPS O1 manual collection contract', () => {
       clientId: DEMO_PREMIUM_ID,
       customerName: '중복 고객',
       customerContact: '010-0000-0000',
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'order-ambiguous-customer',
     }), /CUSTOMER_AMBIGUOUS/);
@@ -72,11 +72,11 @@ describe('OPS O1 manual collection contract', () => {
     const input = {
       clientId: DEMO_PREMIUM_ID,
       siteId: null,
-      productKind: 'launch_build' as const,
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon' as const,
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong' as const,
       collectionReference: 'KMONG-OPS-001',
-      memo: '런칭 고객 수금',
+      memo: '영상 옵션 수금',
     };
     const before = getMockStore().payments.size;
     const first = await repository.record(input);
@@ -111,8 +111,8 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       customerName: '크몽 고객',
       customerContact: 'kmong:owner-1024',
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'KMONG-OPS2-ACCOUNTLESS-001',
       memo: '가입 전 선입금',
@@ -169,8 +169,8 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       customerName: '취소 고객',
       customerContact: 'kmong:cancel-owner',
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'KMONG-OPS2-CANCEL-001',
     });
@@ -196,8 +196,8 @@ describe('OPS O1 manual collection contract', () => {
     await assert.rejects(repository.record({
       clientId: DEMO_BASIC_ID,
       siteId: HWARODAM_SITE_ID,
-      productKind: 'launch_build',
-      amountKrw: PRICING.base.launch,
+      productKind: 'video_addon',
+      amountKrw: PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'KMONG-WRONG-OWNER',
     }), /SITE_OWNERSHIP_MISMATCH/);
@@ -239,7 +239,7 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.monthly,
+      amountKrw: PRICING.subscription.annual,
       channel: 'kmong',
       collectionReference: 'KMONG-SUB-001',
     });
@@ -271,7 +271,7 @@ describe('OPS O1 manual collection contract', () => {
     const recordSubscription = (reference: string) => repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.monthly,
+      amountKrw: PRICING.subscription.annual,
       channel: 'kmong',
       collectionReference: reference,
     });
@@ -333,7 +333,7 @@ describe('OPS O1 manual collection contract', () => {
     const recordSubscription = (reference: string) => repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'subscription',
-      amountKrw: PRICING.subscription.monthly,
+      amountKrw: PRICING.subscription.annual,
       channel: 'kmong',
       collectionReference: reference,
     });
@@ -454,10 +454,10 @@ describe('OPS O1 manual collection contract', () => {
     assert.match(sql, /link_manual_collection_site/);
     assert.match(sql, /reverse_manual_collection_v2/);
     for (const amount of [
-      PRICING.base.launch,
-      PRICING.base.list,
+      LEGACY_PRICING.build.launch,
+      LEGACY_PRICING.build.list,
       PRICING.videoHeroAddon,
-      PRICING.subscription.monthly,
+      PRICING.subscription.annual,
       ...CREDIT_PACKS.map((pack) => pack.priceKrw),
     ]) {
       assert.match(sql, new RegExp(`${amount}::numeric`), `SQL price snapshot missing ${amount}`);

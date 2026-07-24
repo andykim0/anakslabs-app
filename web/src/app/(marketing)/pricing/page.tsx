@@ -21,6 +21,7 @@ import {
   CREDIT_CONSUMING_ACTIONS,
   formatKrw,
   getBasePricePresentation,
+  LEGACY_PRICING,
   PRICING,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
@@ -140,7 +141,7 @@ export default function PricingPage() {
               <LaunchPrice />
             </div>
             <p className="mkt-type-support mt-1 text-[#5C6068]">
-              + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
+              + 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · VAT 별도
             </p>
             <p data-site-price-unit className="mkt-type-support mt-1 text-[#696E76]">
               {SITE_PRICE_UNIT_COPY}

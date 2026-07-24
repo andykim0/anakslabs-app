@@ -47,7 +47,7 @@ async function addMockMaintenancePayment(input: {
     id: input.id,
     clientId: DEMO_BASIC_ID,
     type: 'maintenance_subscription',
-    amount: PRICING.subscription.monthly,
+    amount: PRICING.subscription.annual,
     creditsGranted: PRICING.subscription.creditsPerMonth,
     providerPaymentKey: input.providerPaymentKey,
     createdAt: paidAt.toISOString(),
@@ -414,8 +414,10 @@ describe('RPT$ mock renewal/credit parity', () => {
 });
 
 describe('RPT$ contract and SQL invariants', () => {
-  test('subscription benefit is additive and existing costs/packs remain unchanged', () => {
-    assert.equal(PRICING.subscription.monthly, 29_900);
+  test('연간 구독은 12개월 선결제이고 기존 크레딧 비용·팩은 유지한다', () => {
+    assert.equal(PRICING.subscription.annual, 390_000);
+    assert.equal(PRICING.subscription.periodMonths, 12);
+    assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.subscription.creditsPerMonth, 2);
     assert.equal(PRICING.subscription.creditValueKrw, 30_000);
     assert.equal(CREDIT_EXPIRY_DAYS.subscription_grant, 90);
@@ -428,10 +430,15 @@ describe('RPT$ contract and SQL invariants', () => {
   });
 
   test('migration makes state authoritative, service-only, atomic and ledger-based', () => {
-    const sql = readFileSync(
+    const legacySql = readFileSync(
       join(process.cwd(), '../supabase/migrations/0013_site_subscriptions.sql'),
       'utf8',
     );
+    const pricingSql = readFileSync(
+      join(process.cwd(), '../supabase/migrations/0043_pricing_v2.sql'),
+      'utf8',
+    );
+    const sql = `${legacySql}\n${pricingSql}`;
     assert.match(sql, /create table public\.site_subscriptions/);
     assert.match(sql, /current_period_end timestamptz not null/);
     assert.match(sql, /create or replace function public\.is_site_subscription_active/);
@@ -472,7 +479,8 @@ describe('RPT$ contract and SQL invariants', () => {
       join(process.cwd(), 'src/lib/data/mock/services.ts'),
       'utf8',
     );
-    assert.match(mockPayments, /payload\.amount !== PRICING\.subscription\.monthly/);
+    assert.match(mockPayments, /payload\.amount !== PRICING\.subscription\.annual/);
+    assert.match(mockPayments, /periodMonths: PRICING\.subscription\.periodMonths/);
     assert.match(mockPayments, /renewMockSiteSubscription\(\{/);
     assert.match(mockPayments, /reason: 'subscription_grant'/);
     assert.match(mockPayments, /input\.amount > payment\.amount/);

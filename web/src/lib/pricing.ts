@@ -1,16 +1,48 @@
+export const PRICING_MODEL_VERSION = 'annual-v2-2026-07' as const;
+
+/**
+ * 신규 계약의 단일 가격 소스.
+ *
+ * 제작 중에는 결제가 없고, 발행할 때 첫해 이용료를 결제한다. 기존 제작비·
+ * 월 구독 행은 LEGACY_PRICING으로만 해석하며 새 주문에는 사용하지 않는다.
+ */
 export const PRICING = {
-  base: {
-    list: 590_000,
-    launch: 390_000,
+  modelVersion: PRICING_MODEL_VERSION,
+  siteCount: 1,
+  build: {
+    amountKrw: 0,
+    paymentTiming: 'publish',
   },
   videoHeroAddon: 200_000,
   subscription: {
-    monthly: 29_900,
+    annual: 390_000,
+    periodMonths: 12,
+    monthlyEquivalent: 32_500,
+    automaticRenewal: true,
     creditsPerMonth: 2,
     creditValueKrw: 30_000,
     reportFrequency: 'monthly',
   },
   selfEdit: 'unlimited-free',
+} as const;
+
+/**
+ * 이미 기록된 제작비·월 구독 증거를 읽고 환불·운영 지표를 재현하기 위한
+ * 불변 스냅샷. 신규 주문·고객 가격 표시에 사용하면 안 된다.
+ */
+export const LEGACY_PRICING = {
+  build: {
+    list: 590_000,
+    launch: 390_000,
+  },
+  subscriptionMonthly: 29_900,
+} as const;
+
+export const PUBLISH_PAYMENT_COPY = {
+  lead: '먼저 만들어 보여드립니다. 발행할 때만 결제하세요.',
+  firstYear: `첫해 ${formatKrw(PRICING.subscription.annual)}`,
+  renewal: `이후 매년 ${formatKrw(PRICING.subscription.annual)} 자동 갱신`,
+  noBuildFee: '별도 제작비 없음',
 } as const;
 
 /**
@@ -25,13 +57,13 @@ export const SUBSCRIPTION_BENEFIT_COPY = {
 } as const;
 
 export const SUBSCRIPTION_VALUE_COPY =
-  `구독비만큼 크레딧으로 돌려받아요(매월 ${PRICING.subscription.creditsPerMonth}개 · ${formatKrw(PRICING.subscription.creditValueKrw)} 상당). 매달 성과 리포트에 호스팅·운영까지 함께합니다.`;
+  `매월 ${PRICING.subscription.creditsPerMonth}개 크레딧과 성과 리포트, 호스팅·운영을 함께 제공합니다. 크레딧은 외부 생성비가 드는 프리미엄 작업에만 사용합니다.`;
 
 /** 제작비·영상 옵션·사이트 운영 구독에 공통으로 붙는 가격 단위 고지. */
 export const SITE_PRICE_UNIT_COPY = '모든 가격은 홈페이지 1개 기준입니다.';
 
 export const MULTI_SITE_FAQ_ANSWER =
-  '가능합니다. 홈페이지마다 제작비와 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
+  '가능합니다. 홈페이지마다 첫해 이용료와 연간 구독이 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
 
 /**
  * Customer-facing actions that may consume credits.
@@ -155,15 +187,17 @@ export function getBasePricePresentation(
   if (active) {
     return {
       active: true,
-      currentPriceKrw: PRICING.base.launch,
-      compareAtPriceKrw: PRICING.base.list,
+      currentPriceKrw: LEGACY_PRICING.build.launch,
+      compareAtPriceKrw: LEGACY_PRICING.build.list,
       conditionLabel: getLaunchOfferLabel(offer),
     };
   }
 
   return {
     active: false,
-    currentPriceKrw: offer.kind === 'none' ? PRICING.base.launch : PRICING.base.list,
+    currentPriceKrw: offer.kind === 'none'
+      ? LEGACY_PRICING.build.launch
+      : LEGACY_PRICING.build.list,
     compareAtPriceKrw: null,
     conditionLabel: null,
   };

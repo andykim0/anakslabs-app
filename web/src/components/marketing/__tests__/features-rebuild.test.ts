@@ -10,6 +10,7 @@ import FeaturesPage from '@/app/(marketing)/features/page';
 import { connectFaqHashOpener } from '@/components/marketing/FaqHashOpener';
 import {
   formatKrw,
+  LEGACY_PRICING,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
@@ -183,12 +184,12 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
   });
 
   test('구독 가격·혜택·크레딧 계약과 영상 애드온 가격은 단일 소스만 소비한다', () => {
-    assert.match(featuresSource, /formatKrw\(PRICING\.subscription\.monthly\)/);
+    assert.match(featuresSource, /formatKrw\(LEGACY_PRICING\.subscriptionMonthly\)/);
     assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.report/);
     assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.credits/);
     assert.match(featuresSource, /CREDIT_CONTRACT_COPY/);
     assert.doesNotMatch(`${featuresSource}\n${reportSource}`, /(?:29[,_]?900|200[,_]?000|20만원)/u);
-    assert.ok(featuresHtml.includes(formatKrw(PRICING.subscription.monthly)));
+    assert.ok(featuresHtml.includes(formatKrw(LEGACY_PRICING.subscriptionMonthly)));
     assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.report));
     assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.credits));
     assert.ok(featuresHtml.includes(CREDIT_CONTRACT_COPY));

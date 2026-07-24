@@ -78,7 +78,7 @@ export const GET = withApiHandler(async () => {
       pastDue: listing.items.filter((item) => item.state.status === 'past_due').length,
       suspended: listing.items.filter((item) => item.state.status === 'suspended').length,
       cancelled: listing.items.filter((item) => item.state.status === 'cancelled').length,
-      mrrKrw: activeCount * PRICING.subscription.monthly,
+      mrrKrw: activeCount * PRICING.subscription.monthlyEquivalent,
       newThisMonth: listing.summary.newCount,
       cancelledThisMonth: listing.summary.cancelledCount,
       reportAccepted: allReportRows.filter((row) => row.deliveryStatus === 'sent').length,

@@ -10,50 +10,25 @@ import {
   validatePaymentAmount,
 } from '../amount-policy';
 
-describe('OPS O2 webhook amount policy', () => {
-  test('accepts only the four current build-price and tier combinations', () => {
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'build_fee', tier: 'basic' }), [
-      PRICING.base.launch,
-      PRICING.base.list,
-    ]);
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'build_fee', tier: 'premium' }), [
-      PRICING.base.launch + PRICING.videoHeroAddon,
-      PRICING.base.list + PRICING.videoHeroAddon,
-    ]);
-
-    for (const [tier, amount] of [
-      ['basic', PRICING.base.launch],
-      ['basic', PRICING.base.list],
-      ['premium', PRICING.base.launch + PRICING.videoHeroAddon],
-      ['premium', PRICING.base.list + PRICING.videoHeroAddon],
-    ] as const) {
-      assert.equal(validatePaymentAmount({ type: 'build_fee', tier }, amount).ok, true);
-    }
+describe('PRICE P1 webhook amount policy', () => {
+  test('신규 build_fee는 가격 계약을 얻지 못해 발급이 중단된다', () => {
+    assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
   });
 
-  test('rejects the legacy premium range and arbitrary amounts instead of using a minimum', () => {
-    for (const amount of [890_000, 1_490_000, 600_000, 900_000]) {
-      assert.equal(
-        validatePaymentAmount({ type: 'build_fee', tier: 'premium' }, amount).ok,
-        false,
-        `premium ${amount} must not pass the current exact-price contract`,
-      );
-    }
-    for (const amount of [390_001, 400_000, 590_001]) {
-      assert.equal(
-        validatePaymentAmount({ type: 'build_fee', tier: 'basic' }, amount).ok,
-        false,
-        `basic ${amount} must not pass the current exact-price contract`,
-      );
-    }
-  });
-
-  test('keeps subscription and credit packs on exact server-derived prices', () => {
+  test('연간 구독·프리미엄 애드온·크레딧 팩만 서버 가격과 정확히 일치한다', () => {
     assert.equal(validatePaymentAmount(
       { type: 'maintenance_subscription' },
-      PRICING.subscription.monthly,
+      PRICING.subscription.annual,
     ).ok, true);
-    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 19_900).ok, false);
+    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 29_900).ok, false);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), [
+      PRICING.videoHeroAddon,
+    ]);
+    assert.equal(
+      validatePaymentAmount({ type: 'premium_addon' }, PRICING.videoHeroAddon).ok,
+      true,
+    );
+    assert.equal(validatePaymentAmount({ type: 'premium_addon' }, 200_001).ok, false);
 
     for (const pack of CREDIT_PACKS) {
       const subject = { type: 'credit_pack' as const, credits: pack.credits };
@@ -63,14 +38,9 @@ describe('OPS O2 webhook amount policy', () => {
     assert.equal(validatePaymentAmount({ type: 'credit_pack', credits: 2 }, 30_000).ok, false);
   });
 
-  test('fails closed when an order lacks tier or credit-pack identity', () => {
-    assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
+  test('크레딧 팩 식별값이 없으면 fail-closed한다', () => {
     assert.equal(paymentAmountSubject({ type: 'credit_pack' }), null);
     assert.equal(paymentAmountSubject({ type: 'credit_pack', creditsGranted: 0 }), null);
-    assert.deepEqual(
-      paymentAmountSubject({ type: 'build_fee', tier: 'premium' }),
-      { type: 'build_fee', tier: 'premium' },
-    );
   });
 
   test('wires the same exact validator before both mock-internal and Toss processing', () => {

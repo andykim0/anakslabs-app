@@ -11,8 +11,8 @@
  *    토스 결제조회 API(GET /v1/payments/{paymentKey})를 호출해 status=DONE·orderId·totalAmount를
  *    재검증한 뒤에만 지급한다. 검증 실패 시 4xx 거부.
  *  - 지급량은 orderId 파싱값(공격자 통제 가능)만으로 결정하지 않는다:
- *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액이 정확히 일치해야 하고, bf_ 주문도
- *    pricing.ts에서 파생한 현재 티어별 제작비 조합과 정확히 일치해야 한다.
+ *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액이 정확히 일치해야 하고,
+ *    연간 구독과 프리미엄 애드온도 pricing.ts의 현재 계약과 정확히 일치해야 한다.
  *    불일치 = 지급 거부(수동 확인 로그).
  *
  * 지원 페이로드:
@@ -21,12 +21,12 @@
  *     - status === 'DONE' 만 처리, 그 외는 200 + ignored.
  *     - orderId 인코딩 규약 (구매 라우트와 공유):
  *         cp_{credits}_{clientId}_{nonce}  → credit_pack
- *         bf_{tier}_{clientId}_{nonce}     → build_fee (tier 기반 초기 크레딧 자동 지급)
  *         ms_{clientId}_{nonce}            → maintenance_subscription
+ *         pa_{clientId}_{nonce}            → premium_addon
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import type { PaymentType, Tier } from '@/lib/types/domain';
+import type { PaymentType } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { env, isMockMode } from '@/lib/env';
 import {
@@ -38,7 +38,7 @@ import { apiError, withApiHandler } from '../../_lib/http';
 const internalPayloadSchema = z.object({
   providerPaymentKey: z.string().min(1),
   clientId: z.string().min(1),
-  type: z.enum(['build_fee', 'maintenance_subscription', 'credit_pack']),
+  type: z.enum(['maintenance_subscription', 'premium_addon', 'credit_pack']),
   amount: z.number().nonnegative(),
   tier: z.enum(['basic', 'premium']).optional(),
   creditsGranted: z.number().int().nonnegative().optional(),
@@ -57,7 +57,6 @@ const tossPayloadSchema = z.object({
 interface ParsedOrder {
   type: PaymentType;
   clientId: string;
-  tier?: Tier;
   creditsGranted?: number;
 }
 
@@ -70,13 +69,11 @@ function parseOrderId(orderId: string): ParsedOrder | null {
     if (!Number.isInteger(credits) || credits <= 0) return null;
     return { type: 'credit_pack', clientId: parts[2], creditsGranted: credits };
   }
-  if (parts[0] === 'bf' && parts.length >= 4) {
-    const tier = parts[1];
-    if (tier !== 'basic' && tier !== 'premium') return null;
-    return { type: 'build_fee', clientId: parts[2], tier };
-  }
   if (parts[0] === 'ms') {
     return { type: 'maintenance_subscription', clientId: parts[1] };
+  }
+  if (parts[0] === 'pa') {
+    return { type: 'premium_addon', clientId: parts[1] };
   }
   return null;
 }
@@ -210,7 +207,6 @@ export const POST = withApiHandler(async (request) => {
       clientId: order.clientId,
       type: order.type,
       amount: totalAmount,
-      tier: order.tier,
       creditsGranted: order.creditsGranted,
     });
     return NextResponse.json({ received: true, ...result });

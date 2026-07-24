@@ -20,7 +20,7 @@ import { PricingMotionComparison } from '@/components/marketing/PricingMotionCom
 import { ScannerCta } from '@/components/marketing/ui';
 import {
   formatKrw,
-  PRICING,
+  LEGACY_PRICING,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
@@ -207,7 +207,7 @@ export default function FeaturesPage() {
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY SUBSCRIPTION</p>
                 <p className="mkt-type-card-title mt-3 font-semibold tracking-[-0.025em]">
-                  사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)}
+                  사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)}
                 </p>
                 <p className="mkt-type-support mt-2 text-[#667085]">VAT 별도</p>
               </div>
@@ -299,7 +299,7 @@ export default function FeaturesPage() {
           <div className="min-w-[260px] border-t border-[#DCE4F0] pt-6 lg:text-right">
             <LaunchPrice align="right" />
             <p className="mkt-type-support mt-2 text-[#667085]">
-              + 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · VAT 별도
+              + 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · VAT 별도
             </p>
             <p data-site-price-unit className="mkt-type-support mt-1 text-[#667085]">
               {SITE_PRICE_UNIT_COPY}

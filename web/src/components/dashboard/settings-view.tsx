@@ -135,7 +135,7 @@ export function SettingsView({
           <ul className="mt-4 space-y-1.5 rounded-lg bg-neutral-800/40 px-4 py-3 text-xs leading-5 text-neutral-400">
             <li>· 기본 스크롤 모션 포함 · 추가 비용 없음</li>
             <li>· AI 영상 히어로 +{PRICING.videoHeroAddon.toLocaleString()}원 (1회)</li>
-            <li>· 사이트 운영 구독 월 {PRICING.subscription.monthly.toLocaleString()}원 (단일)</li>
+            <li>· 사이트 운영 구독 연 {PRICING.subscription.annual.toLocaleString()}원 (사이트 1개)</li>
             <li>· {SUBSCRIPTION_BENEFIT_COPY.report} · {SUBSCRIPTION_BENEFIT_COPY.credits}</li>
             <li>· {SUBSCRIPTION_BENEFIT_COPY.selfEdit}</li>
           </ul>

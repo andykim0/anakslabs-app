@@ -107,7 +107,8 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
 };
 
 export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
-  build_fee: '빌드비',
+  build_fee: '빌드비(과거)',
   maintenance_subscription: '사이트 운영 구독',
+  premium_addon: 'AI 영상 애드온',
   credit_pack: '크레딧 팩',
 };

@@ -508,6 +508,15 @@ export class SupabasePaymentsService implements PaymentsService {
         };
         break;
       }
+      case 'premium_addon': {
+        rpcName = 'handle_premium_addon_payment';
+        rpcArgs = {
+          p_client_id: payload.clientId,
+          p_provider_payment_key: payload.providerPaymentKey,
+          p_amount: payload.amount,
+        };
+        break;
+      }
     }
 
     const { data, error } = await svc.rpc(rpcName, rpcArgs);

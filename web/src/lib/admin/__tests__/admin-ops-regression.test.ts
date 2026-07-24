@@ -165,16 +165,18 @@ describe('ADM5 admin operations construction invariants', () => {
 
     const metrics = read('src/lib/admin/ops-metrics.ts');
     for (const source of [
-      'PRICING.base.launch',
-      'PRICING.base.list',
+      'LEGACY_PRICING.build.launch',
+      'LEGACY_PRICING.build.list',
       'PRICING.videoHeroAddon',
       'LAUNCH_OFFER.limitCount',
     ]) {
       assert.ok(metrics.includes(source), `revenue metrics must consume ${source}`);
     }
     assert.ok(
-      read('src/app/api/admin/subscriptions/route.ts').includes('PRICING.subscription.monthly'),
-      'subscription MRR must consume PRICING.subscription.monthly',
+      read('src/app/api/admin/subscriptions/route.ts').includes(
+        'PRICING.subscription.monthlyEquivalent',
+      ),
+      'subscription MRR must consume PRICING.subscription.monthlyEquivalent',
     );
     assert.doesNotMatch(
       metrics,

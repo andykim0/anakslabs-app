@@ -104,7 +104,12 @@ export async function renewSiteSubscriptionManually(input: {
 }): Promise<{ duplicated: boolean; state: SiteSubscriptionState }> {
   const at = input.at ?? new Date();
   if (isMockMode()) {
-    const result = renewMockSiteSubscription({ ...input, source: 'admin_manual', at });
+    const result = renewMockSiteSubscription({
+      ...input,
+      periodMonths: input.periodMonths ?? PRICING.subscription.periodMonths,
+      source: 'admin_manual',
+      at,
+    });
     await new MockCreditsService().grant({
       clientId: input.clientId,
       amount: PRICING.subscription.creditsPerMonth,
@@ -116,7 +121,7 @@ export async function renewSiteSubscriptionManually(input: {
   const { data, error } = await getServiceRoleClient().rpc('admin_renew_site_subscription', {
     p_client_id: input.clientId,
     p_idempotency_key: input.idempotencyKey,
-    p_period_months: input.periodMonths ?? 1,
+    p_period_months: input.periodMonths ?? PRICING.subscription.periodMonths,
     p_as_of: at.toISOString(),
   });
   if (error) throw new Error(`manual site subscription renewal failed: ${error.message}`);

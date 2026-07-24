@@ -5,7 +5,7 @@ import {
   manualCollectionQuote,
   type ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
-import { LAUNCH_OFFER, PRICING } from '@/lib/pricing';
+import { LAUNCH_OFFER, LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment, Site } from '@/lib/types/domain';
 
 /** Internal operating target, not a customer-facing product price. */
@@ -131,21 +131,23 @@ export function currentKstRevenueMonth(now: Date = new Date()): KstRevenueMonth 
 
 /** Exact provider build combinations. Historical/negotiated rows fail closed. */
 export function classifyBuildContract(payment: Pick<Payment, 'amount' | 'creditsGranted'>): BuildContract {
-  if (payment.creditsGranted === INITIAL_GRANT.basic && payment.amount === PRICING.base.launch) {
+  if (payment.creditsGranted === INITIAL_GRANT.basic
+    && payment.amount === LEGACY_PRICING.build.launch) {
     return { base: 'launch', videoAddon: false };
   }
-  if (payment.creditsGranted === INITIAL_GRANT.basic && payment.amount === PRICING.base.list) {
+  if (payment.creditsGranted === INITIAL_GRANT.basic
+    && payment.amount === LEGACY_PRICING.build.list) {
     return { base: 'list', videoAddon: false };
   }
   if (
     payment.creditsGranted === INITIAL_GRANT.premium
-    && payment.amount === PRICING.base.launch + PRICING.videoHeroAddon
+    && payment.amount === LEGACY_PRICING.build.launch + PRICING.videoHeroAddon
   ) {
     return { base: 'launch', videoAddon: true };
   }
   if (
     payment.creditsGranted === INITIAL_GRANT.premium
-    && payment.amount === PRICING.base.list + PRICING.videoHeroAddon
+    && payment.amount === LEGACY_PRICING.build.list + PRICING.videoHeroAddon
   ) {
     return { base: 'list', videoAddon: true };
   }
@@ -169,7 +171,7 @@ function buildAllocations(payment: Pick<Payment, 'amount'>, classification: Buil
   const baseSegment = classification.base === 'launch' ? 'launchBuild' : 'listBuild';
   return classification.videoAddon
     ? [
-        { segment: baseSegment, amount: PRICING.base[classification.base] },
+        { segment: baseSegment, amount: LEGACY_PRICING.build[classification.base] },
         { segment: 'videoAddon', amount: PRICING.videoHeroAddon },
       ]
     : [{ segment: baseSegment, amount: payment.amount }];
@@ -182,6 +184,9 @@ function providerGrossAllocations(payment: Payment, classification: BuildContrac
   if (payment.type === 'maintenance_subscription') {
     return [{ segment: 'subscription', amount: payment.amount }];
   }
+  if (payment.type === 'premium_addon') {
+    return [{ segment: 'videoAddon', amount: payment.amount }];
+  }
   return [{ segment: 'creditPack', amount: payment.amount }];
 }
 
@@ -192,6 +197,9 @@ function providerRefundAllocations(
 ): Allocation[] {
   if (payment.type === 'maintenance_subscription') {
     return [{ segment: 'subscription', amount: refundAmount }];
+  }
+  if (payment.type === 'premium_addon') {
+    return [{ segment: 'videoAddon', amount: refundAmount }];
   }
   if (payment.type === 'credit_pack') return [{ segment: 'creditPack', amount: refundAmount }];
   if (refundAmount === payment.amount) {

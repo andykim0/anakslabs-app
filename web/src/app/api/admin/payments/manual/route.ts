@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import {
   MANUAL_COLLECTION_CHANNELS,
-  MANUAL_COLLECTION_PRODUCT_KINDS,
+  RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS,
 } from '@/lib/payments/manual-collection-core';
 import { getManualCollectionsRepository } from '@/lib/payments/manual-collections';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
@@ -14,7 +14,7 @@ const schema = z.object({
   customerName: z.string().trim().min(1).max(100).nullable().optional(),
   customerContact: z.string().trim().min(1).max(200).nullable().optional(),
   siteId: z.string().trim().min(1).max(80).nullable().optional(),
-  productKind: z.enum(MANUAL_COLLECTION_PRODUCT_KINDS),
+  productKind: z.enum(RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS),
   amountKrw: z.number().int().positive(),
   channel: z.enum(MANUAL_COLLECTION_CHANNELS),
   collectionReference: z.string().trim().min(1).max(160),

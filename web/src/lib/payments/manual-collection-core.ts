@@ -1,5 +1,5 @@
 import { CREDIT_PACKS } from '@/lib/credits/constants';
-import { PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment, PaymentType } from '@/lib/types/domain';
 
 export const MANUAL_COLLECTION_PRODUCT_KINDS = [
@@ -9,6 +9,13 @@ export const MANUAL_COLLECTION_PRODUCT_KINDS = [
   'subscription',
   'credit_pack',
 ] as const;
+
+/** 새 수금에 허용되는 상품. 제작비 2종은 과거 장부 해석·취소를 위해서만 남긴다. */
+export const RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS = [
+  'video_addon',
+  'subscription',
+  'credit_pack',
+] as const satisfies readonly ManualCollectionProductKind[];
 
 export type ManualCollectionProductKind = (typeof MANUAL_COLLECTION_PRODUCT_KINDS)[number];
 export type ManualCollectionDirection = 'receipt' | 'reversal';
@@ -171,15 +178,27 @@ export function manualCollectionQuote(input: {
 }): ManualCollectionQuote | null {
   switch (input.productKind) {
     case 'launch_build':
-      return { paymentType: 'build_fee', amountKrw: PRICING.base.launch, creditsGranted: 0 };
+      return {
+        paymentType: 'build_fee',
+        amountKrw: LEGACY_PRICING.build.launch,
+        creditsGranted: 0,
+      };
     case 'list_build':
-      return { paymentType: 'build_fee', amountKrw: PRICING.base.list, creditsGranted: 0 };
+      return {
+        paymentType: 'build_fee',
+        amountKrw: LEGACY_PRICING.build.list,
+        creditsGranted: 0,
+      };
     case 'video_addon':
-      return { paymentType: 'build_fee', amountKrw: PRICING.videoHeroAddon, creditsGranted: 0 };
+      return {
+        paymentType: 'premium_addon',
+        amountKrw: PRICING.videoHeroAddon,
+        creditsGranted: 0,
+      };
     case 'subscription':
       return {
         paymentType: 'maintenance_subscription',
-        amountKrw: PRICING.subscription.monthly,
+        amountKrw: PRICING.subscription.annual,
         creditsGranted: PRICING.subscription.creditsPerMonth,
       };
     case 'credit_pack': {
@@ -213,6 +232,11 @@ export function normalizeRecordManualCollectionInput(
   creditPackCredits: number | null;
   quote: ManualCollectionQuote;
 } {
+  if (!(RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS as readonly string[]).includes(
+    input.productKind,
+  )) {
+    throw new Error('MANUAL_COLLECTION_PRODUCT_RETIRED');
+  }
   const quote = manualCollectionQuote(input);
   if (!quote) throw new Error('MANUAL_COLLECTION_PRODUCT_INVALID');
   if (!Number.isSafeInteger(input.amountKrw) || input.amountKrw !== quote.amountKrw) {
@@ -295,8 +319,8 @@ export function normalizeReverseManualCollectionInput(
 }
 
 export const MANUAL_COLLECTION_LABELS = {
-  launch_build: '런칭가 제작',
-  list_build: '정가 제작',
+  launch_build: '런칭가 제작(과거)',
+  list_build: '정가 제작(과거)',
   video_addon: 'AI 영상 애드온',
   subscription: '사이트 운영 구독',
   credit_pack: '크레딧 팩',

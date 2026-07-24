@@ -29,14 +29,16 @@ import {
 } from './ui';
 
 const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
-  build_fee: '제작비 (1회)',
-  maintenance_subscription: '사이트 운영 구독 (월)',
+  build_fee: '제작비 (과거 결제)',
+  maintenance_subscription: '사이트 운영 구독',
+  premium_addon: 'AI 영상 애드온',
   credit_pack: '크레딧 팩',
 };
 
 const PAYMENT_TYPE_TONES: Record<PaymentType, 'gold' | 'blue' | 'emerald'> = {
   build_fee: 'gold',
   maintenance_subscription: 'blue',
+  premium_addon: 'gold',
   credit_pack: 'emerald',
 };
 
@@ -102,7 +104,7 @@ function SubscriptionCard({
             {mock ? <Badge tone="blue">데모 결제</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            월 {PRICING.subscription.monthly.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
+            연 {PRICING.subscription.annual.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
             {SUBSCRIPTION_BENEFIT_COPY.credits} · {SUBSCRIPTION_BENEFIT_COPY.operations}
           </p>
           <p className="mt-1 text-[11px] leading-5 text-blue-300/80">

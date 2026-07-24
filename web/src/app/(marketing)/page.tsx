@@ -16,6 +16,7 @@ import { ROOT_DOMAIN } from '@/lib/env';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
   formatKrw,
+  LEGACY_PRICING,
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
@@ -379,7 +380,7 @@ export default function MarketingHome() {
                 </div>
                 <LaunchPrice tone="dark" align="right" />
               </div>
-              <p className="mkt-type-support mt-2 text-right text-white/48">+ 사이트 운영 구독 월 {formatKrw(PRICING.subscription.monthly)} · 부가세 별도</p>
+              <p className="mkt-type-support mt-2 text-right text-white/48">+ 사이트 운영 구독 월 {formatKrw(LEGACY_PRICING.subscriptionMonthly)} · 부가세 별도</p>
               <p className="mkt-type-support mt-2 text-right font-medium text-[#5DE0D0]">{SUBSCRIPTION_VALUE_COPY}</p>
               <GuaranteeBadge tone="dark" />
               <ul className="mkt-type-body mt-8 grid gap-3 border-t border-white/10 pt-7 text-white/68 sm:grid-cols-2">

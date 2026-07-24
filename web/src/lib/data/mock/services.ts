@@ -455,9 +455,9 @@ class MockPaymentsService implements PaymentsService {
       }
       creditsGranted = payload.creditsGranted;
     } else if (payload.type === 'maintenance_subscription') {
-      if (payload.amount !== PRICING.subscription.monthly) {
+      if (payload.amount !== PRICING.subscription.annual) {
         throw new Error(
-          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.monthly}`,
+          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.annual}`,
         );
       }
       // Freeze the one-time legacy projection before inserting this new
@@ -465,6 +465,13 @@ class MockPaymentsService implements PaymentsService {
       getMockSiteSubscription(payload.clientId);
       subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
       creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
+    } else if (payload.type === 'premium_addon') {
+      if (payload.amount !== PRICING.videoHeroAddon) {
+        throw new Error(
+          `payments.handleWebhook: premium addon amount must equal ${PRICING.videoHeroAddon}`,
+        );
+      }
+      client.tier = 'premium';
     }
 
     const payment: Payment = {
@@ -486,6 +493,7 @@ class MockPaymentsService implements PaymentsService {
           idempotencyKey: `payment:${payload.providerPaymentKey}`,
           source: 'payment_webhook',
           paymentId: payment.id,
+          periodMonths: PRICING.subscription.periodMonths,
           at: processedAt,
         });
       } catch (error) {
