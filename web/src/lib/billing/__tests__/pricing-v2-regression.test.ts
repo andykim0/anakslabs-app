@@ -186,7 +186,7 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     const kmong = read('docs/kmong-product-copy.md');
     assert.match(terms, /성과 보장 프로그램.*잠정 제외/);
     assert.match(terms, /부가세 별도[\s\S]{0,100}검토/);
-    assert.match(terms, /자동 갱신.*법률 검토/);
+    assert.match(terms, /자동 갱신[\s\S]*법률 검토/);
     assert.match(terms, /월 150,000원·월 자동 갱신/);
     assert.match(terms, /신규 계약에는 초기 지급 크레딧이 없으며/);
     assert.match(terms, /과거 계약의 초기 지급 크레딧은 기존 만료 조건을 유지/);

@@ -32,8 +32,9 @@ describe('PRICE R1 — 월 리테이너 백본·가격표 버전', () => {
     assert.equal(quote.periodMonths, 1);
     assert.equal(quote.billingInterval, 'month');
     assert.equal(quote.pricingModelVersion, PRICING_MODEL_VERSION);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'hidden');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, null);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
+    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 1_500_000);
+    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
   });
 
   test('가격표 버전을 올리면 신규 견적만 바뀌고 현재 가격표 견적은 바이트 동일하다', () => {

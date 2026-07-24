@@ -418,7 +418,9 @@ describe('RPT$ contract and SQL invariants', () => {
     assert.equal(PRICING.subscription.amountKrw, 150_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'hidden');
+    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
+    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 1_500_000);
+    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
     assert.equal(PRICING.subscription.creditsPerMonth, 2);
     assert.equal(PRICING.subscription.creditValueKrw, 30_000);
     assert.equal(CREDIT_EXPIRY_DAYS.subscription_grant, 90);

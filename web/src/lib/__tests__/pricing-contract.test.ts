@@ -26,32 +26,26 @@ function sourceFiles(path: string): string[] {
 
 describe('P$ — 가격·크레딧 단일 계약', () => {
   test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
-    assert.deepEqual(PRICING, {
-      modelVersion: 'monthly-retainer-v3-2026-07',
-      siteCount: 1,
-      build: {
-        amountKrw: 0,
-        paymentTiming: 'publish',
-      },
-      videoHeroAddon: 200_000,
-      subscription: {
-        modelVersion: 'monthly-retainer-v3-2026-07',
-        amountKrw: 150_000,
-        periodMonths: 1,
-        billingInterval: 'month',
-        automaticRenewal: true,
-        creditsPerMonth: 2,
-        creditValueKrw: 30_000,
-        reportFrequency: 'monthly',
-        annualCommitment: {
-          status: 'hidden',
-          periodMonths: 12,
-          discountRate: null,
-          amountKrw: null,
-        },
-      },
-      selfEdit: 'unlimited-free',
+    assert.equal(PRICING.modelVersion, 'retainer-two-tier-v4-2026-07');
+    assert.deepEqual(PRICING.build, { amountKrw: 0, paymentTiming: 'publish' });
+    assert.equal(PRICING.siteCount, 1);
+    assert.equal(PRICING.videoHeroAddon, 200_000);
+    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.periodMonths, 1);
+    assert.equal(PRICING.subscription.billingInterval, 'month');
+    assert.equal(PRICING.subscription.automaticRenewal, true);
+    assert.equal(PRICING.subscription.creditsPerMonth, 2);
+    assert.deepEqual(PRICING.subscription.annualCommitment, {
+      status: 'available',
+      amountKrw: 1_500_000,
+      periodMonths: 12,
+      freeMonths: 2,
+      billingInterval: 'year',
+      automaticRenewal: true,
     });
+    assert.deepEqual(Object.keys(PRICING.tiers), ['standard', 'premium']);
+    assert.equal(PRICING.tiers.premium.availability, 'contact');
+    assert.equal(PRICING.selfEdit, 'unlimited-free');
   });
 
   test('크레딧 사용처는 확정된 네 항목뿐이고 직접 수정은 포함하지 않는다', () => {
@@ -101,11 +95,12 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
     }
   });
 
-  test('발행 가격은 월 리테이너만 렌더하고 비교가·희소성·취소선이 없다', () => {
+  test('발행 가격은 월 리테이너와 확정 연납 보조 옵션만 렌더하고 희소성·취소선이 없다', () => {
     const markup = renderToStaticMarkup(createElement(PublishPrice));
     assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.monthlyRetainer));
     assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.term));
     assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.renewal));
+    assert.ok(markup.includes(PUBLISH_PAYMENT_COPY.annualOption));
     assert.doesNotMatch(markup, /<del|data-launch|선착순|한정/u);
   });
 });

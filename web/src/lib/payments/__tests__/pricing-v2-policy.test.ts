@@ -15,7 +15,9 @@ describe('PRICE R1 monthly-retainer publish-payment contract', () => {
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'hidden');
+    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
+    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 1_500_000);
+    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
     assert.equal(PRICING.siteCount, 1);
   });
 
