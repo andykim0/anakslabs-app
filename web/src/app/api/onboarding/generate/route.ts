@@ -53,6 +53,7 @@ import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
 import { recordZeroCostBuild } from '@/lib/economics/events';
+import { applyConnectorManifest } from '@/lib/connectors/application';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -189,7 +190,8 @@ export const POST = withApiHandler(async (request) => {
 
   const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
   const generated = applySectionDirections(generatedByAi, survey.directions);
-  const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withLegacyExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withExtras = applyConnectorManifest(withLegacyExtras, survey, body.data.extras);
   // SITECINE is server-authored only: old stored configs stay absent/pixel-identical, every new site is pinned.
   const withCinematicBase = withSiteCinematicDefault(withExtras);
   const withCinematicDefault = survey.contentDepth?.mainStorytelling

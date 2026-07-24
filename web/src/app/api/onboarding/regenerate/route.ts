@@ -42,6 +42,7 @@ import {
 import { applyHeroPhotoPromotion } from '@/lib/assets/hero-photo-promotion';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
+import { applyConnectorManifest } from '@/lib/connectors/application';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '../../_lib/guards';
 import {
   designCandidateSchema,
@@ -143,7 +144,8 @@ export const POST = withApiHandler(async (request) => {
   // 결제 전 재구성도 같은 결정적 표준 빌더만 소비한다.
   const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
   const generated = applySectionDirections(generatedByAi, survey.directions);
-  const withExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withLegacyExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
+  const withExtras = applyConnectorManifest(withLegacyExtras, survey, body.data.extras);
   const withCinematicBase = withSiteCinematicDefault(withExtras);
   const withCinematicDefault = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(withCinematicBase)

@@ -18,6 +18,7 @@ import { motionAssetsForStaticRender } from './motion-scene-assets';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { absoluteSiteEventEndpoint } from '@/lib/analytics/site-beacon';
+import { absoluteInstagramConnectorEndpoint } from '@/lib/connectors/endpoint';
 
 export interface BuildExportOptions {
   /** true(기본): 폰트를 zip에 포함해 외부 요청 0. 실패 시 CDN 링크로 폴백 */
@@ -106,6 +107,7 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
       motionAssets: exportMotionAssets,
       // ZIP은 고객이 어느 origin에서 열어도 플랫폼의 first-party 수집 API로 전송한다.
       analyticsEndpoint: absoluteSiteEventEndpoint(ROOT_DOMAIN),
+      connectorEndpoint: absoluteInstagramConnectorEndpoint(ROOT_DOMAIN, site.id),
     }),
   }));
 

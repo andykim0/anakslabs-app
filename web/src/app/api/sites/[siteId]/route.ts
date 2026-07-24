@@ -17,6 +17,7 @@ import {
   preservePersistedAssetUsagesInPreview,
   resolveSiteAssetPolicy,
 } from '@/lib/assets/assignment';
+import { preserveServerConnectorManifest } from '@/lib/connectors/application';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -74,7 +75,10 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
 
   // [SS5] 목적/템플릿은 생성 시 확정된 서버 분류다. PATCH body로 바꿔 절제 게이트를 우회할 수 없다.
   const persistedConfig = site.draftConfig ?? site.siteConfig;
-  const classified = preserveSiteClassification(body.data.draftConfig as SiteConfig, persistedConfig);
+  const classified = preserveServerConnectorManifest(
+    preserveSiteClassification(body.data.draftConfig as SiteConfig, persistedConfig),
+    persistedConfig,
+  );
   const assetValidated = await validateConfigAssetRefsForSave({
     config: classified,
     persistedConfig,

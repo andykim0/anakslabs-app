@@ -36,6 +36,7 @@ import {
 } from './MotionSignatureRenderer';
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
+import { ConnectorPanel } from './ConnectorPanel';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
@@ -339,6 +340,7 @@ export function SiteRenderer({
   motionAssets,
   pageSlug = '',
   runtimeDelivery = 'inline',
+  connectorEndpoint,
 }: {
   config: SiteConfig;
   mode?: SiteRendererMode;
@@ -374,6 +376,8 @@ export function SiteRenderer({
   motionAssets?: readonly MotionAssetProvenance[];
   /** 정적 발행은 inline, App Router 문서는 client로 전달해 SPA 내비게이션에서도 실행한다. */
   runtimeDelivery?: 'inline' | 'client';
+  /** 정적 export가 플랫폼 Instagram 캐시를 읽을 때 쓰는 절대 URL. */
+  connectorEndpoint?: string;
 }) {
   const config = projectAuthoritativePublicContact(inputConfig);
   const shouldAnimate = animate ?? interactive;
@@ -695,6 +699,15 @@ export function SiteRenderer({
             ))}
           </div>
         )}
+        {page.slug === '' && config.connectors ? (
+          <ConnectorPanel
+            manifest={config.connectors}
+            theme={theme}
+            siteId={siteId}
+            instagramEndpoint={connectorEndpoint}
+            interactive={interactive}
+          />
+        ) : null}
       </div>
       {runtimeDelivery === 'client' ? (
         <SiteRuntimeBootstrap motion={motionActive} anchors={interactive && mode === 'auto'} />

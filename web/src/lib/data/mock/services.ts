@@ -29,6 +29,7 @@ import type {
 import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
+import { preserveServerConnectorManifest } from '@/lib/connectors/application';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type {
   ClientsRepo,
@@ -269,7 +270,10 @@ class MockSitesRepo implements SitesRepo {
     if (!site) throw new Error(`sites.saveDraft: 사이트가 없습니다 (${siteId})`);
     const persisted = site.draftConfig ?? site.siteConfig;
     site.draftConfig = structuredClone(
-      preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
+      preserveServerConnectorManifest(
+        preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
+        persisted,
+      ),
     );
     if (site.draftExpiresAt) {
       site.draftExpiresAt = new Date(Date.now() + 30 * 86_400_000).toISOString();

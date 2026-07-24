@@ -143,7 +143,11 @@ export function applyExtraFeatures(
   }
 
   // 지도 — contact:map 섹션 우선
-  if (extras.mapEmbed && isSafeMapEmbedUrl(extras.mapEmbed.embedUrl)) {
+  if (
+    extras.connectorCatalogVersion !== 1 &&
+    extras.mapEmbed &&
+    isSafeMapEmbedUrl(extras.mapEmbed.embedUrl)
+  ) {
     const target =
       findTarget(config, extras.mapEmbed.targetSection, 'map', extras.mapEmbed.targetPageSlug) ??
       ensureContactSection(config);
@@ -180,7 +184,9 @@ export function applyExtraFeatures(
   }
 
   // SNS — contact류 마지막 섹션(없으면 마지막 섹션)에 배치
-  const validSns = (extras.snsLinks ?? []).filter((l) => isHttpsUrl(l.url));
+  const validSns = extras.connectorCatalogVersion === 1
+    ? []
+    : (extras.snsLinks ?? []).filter((l) => isHttpsUrl(l.url));
   if (validSns.length > 0) {
     const allSecs = allSections(config);
     const target =

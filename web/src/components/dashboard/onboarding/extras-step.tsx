@@ -199,7 +199,10 @@ export function ExtrasStep({
     }
 
     const any = extras.reservationLink || extras.contactForm || extras.mapEmbed || extras.snsLinks;
-    onComplete(any ? extras : undefined, any ? options : undefined);
+    // 신규 온보딩은 네이티브 커넥터 manifest를 서버가 계산하도록 버전만 요청한다.
+    // 실제 connector URL·종류는 이 클라이언트 값이 아니라 검증된 survey/config에서 파생된다.
+    extras.connectorCatalogVersion = 1;
+    onComplete(extras, any ? options : undefined);
   };
 
   const targetSelect = (value: SectionType, onChange: (t: SectionType) => void, auto?: { label: string }) => (

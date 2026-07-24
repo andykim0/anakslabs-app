@@ -9,6 +9,7 @@ import type { SiteFontPairingPin } from '@/lib/fonts/types';
 import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
 import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
+import type { SiteConnectorManifest } from '@/lib/connectors/types';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -797,6 +798,8 @@ export interface SiteConfig {
   businessInfo?: BusinessInfo;
   /** 신규 생성 서버가 기록한 AEO/GEO용 공개 연락처. 법적 businessInfo와 별도 계약. */
   publicContact?: PublicContact;
+  /** 신규 생성 서버가 고른 네이티브 커넥터 manifest. 미지정 레거시는 기존 DOM을 유지한다. */
+  connectors?: SiteConnectorManifest;
   /** 관리자 서버가 기록하는 검색 소유확인 메타태그 값. 클라이언트 초안 저장은 변경할 수 없다. */
   searchVerification?: SearchVerification;
   /** [v4] header 내비. 미지정 = 자동(내비 노출 페이지 ≥ 2일 때만 표시) */

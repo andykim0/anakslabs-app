@@ -899,6 +899,62 @@ export const sectionDirectionSchema = z.object({
   guided: z.array(z.enum(SECTION_DIRECTION_GUIDES)).max(SECTION_DIRECTION_GUIDES.length).optional(),
 });
 
+const connectorBaseShape = {
+  label: z.string().trim().min(1).max(40),
+  href: z.string().trim().min(1).max(2_000),
+};
+
+const siteConnectorManifestSchema = z.object({
+  catalogVersion: z.literal(1),
+  items: z.array(z.discriminatedUnion('id', [
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('tel'),
+      href: z.string().regex(/^tel:\+?[0-9]{7,15}$/u),
+      displayPhone: z.string().trim().min(1).max(100),
+    }).strict(),
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('kakao-channel'),
+      href: z.string().refine(isRecognizedChatUrl),
+      channelId: z.string().regex(/^_[A-Za-z0-9_-]{2,80}$/u),
+    }).strict(),
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('naver-booking'),
+      href: z.string().refine(isRecognizedReservationUrl),
+    }).strict(),
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('naver-map'),
+      href: z.string().url().refine((value) => value.startsWith('https://map.naver.com/')),
+      address: z.string().trim().min(1).max(300),
+      coordinates: z.object({
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+      }).strict().optional(),
+    }).strict(),
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('instagram'),
+      href: z.string().url().refine((value) => /^https:\/\/(?:www\.)?instagram\.com\//iu.test(value)),
+      username: z.string().regex(/^[A-Za-z0-9._]{1,30}$/u),
+    }).strict(),
+  ])).min(1).max(5).superRefine((items, ctx) => {
+    const ids = new Set<string>();
+    items.forEach((item, index) => {
+      if (ids.has(item.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [index, 'id'],
+          message: '커넥터 종류는 한 번씩만 저장할 수 있습니다.',
+        });
+      }
+      ids.add(item.id);
+    });
+  }),
+}).strict();
+
 export const siteConfigSchema = z
   .object({
     version: z.literal(2),
@@ -934,6 +990,7 @@ export const siteConfigSchema = z
       naver: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
       google: z.string().trim().regex(/^[A-Za-z0-9_-]{6,200}$/).optional(),
     }).optional(),
+    connectors: siteConnectorManifestSchema.optional(),
     nav: z.object({ enabled: z.boolean().optional() }).optional(),
     motion: motionSchema.optional(),
   })
@@ -1241,6 +1298,7 @@ export const surveySchema = z.object({
 
 /** [v3 Phase 3] 부가기능 선택 — 온보딩 4단계에서 생성 요청에 동봉 */
 export const extraFeatureSelectionSchema = z.object({
+  connectorCatalogVersion: z.literal(1).optional(),
   reservationLink: z
     .object({
       url: z.string().max(2_000).refine(

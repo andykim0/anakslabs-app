@@ -415,6 +415,8 @@ export interface PagePlanItem {
  * [v4 Phase 4] targetPageSlug: 대상 섹션을 특정 페이지에서 찾도록 한정 (없으면 전 페이지 탐색).
  */
 export interface ExtraFeatureSelection {
+  /** 신규 생성만 네이티브 커넥터 카탈로그를 pin한다. 미지정 레거시는 기존 요소 주입 경로다. */
+  connectorCatalogVersion?: 1;
   /** 실제 외부 예약 서비스로 이동하는 히어로 주 CTA. 내부 앵커/임의 URL은 허용하지 않는다. */
   reservationLink?: { url: string };
   contactForm?: { targetSection: SectionType; targetPageSlug?: string };
