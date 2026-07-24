@@ -1,0 +1,89 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { requireAdminOr403 } from '@/app/api/_lib/guards';
+import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
+import { getCurrentAdminActorId } from '@/lib/services/auth';
+import { crawlDesignatedSite, CrawlError } from '@/lib/crawl/crawler';
+import { createCrawlArtifact } from '@/lib/crawl/repository';
+
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
+const RATE_LIMIT = 2;
+const RATE_WINDOW_MS = 60_000;
+const RL_KEY = '__daboimAdminCrawlRateLimit__' as const;
+const ACTIVE_KEY = '__daboimAdminActiveCrawlOrigins__' as const;
+type GlobalWithCrawlGuard = typeof globalThis & {
+  [RL_KEY]?: Map<string, number[]>;
+  [ACTIVE_KEY]?: Set<string>;
+};
+
+function rateLimited(actorId: string): boolean {
+  const globalStore = globalThis as GlobalWithCrawlGuard;
+  const buckets = (globalStore[RL_KEY] ??= new Map());
+  const now = Date.now();
+  const active: number[] = (buckets.get(actorId) ?? [])
+    .filter((at: number) => now - at < RATE_WINDOW_MS);
+  if (active.length >= RATE_LIMIT) {
+    buckets.set(actorId, active);
+    return true;
+  }
+  active.push(now);
+  buckets.set(actorId, active);
+  return false;
+}
+
+function originFor(rawUrl: string): string | null {
+  try {
+    return new URL(rawUrl).origin;
+  } catch {
+    return null;
+  }
+}
+
+const bodySchema = z.object({
+  url: z.string().url().max(2_000),
+  allowTlsHttpFallback: z.boolean().optional(),
+});
+
+export const POST = withApiHandler(async (request) => {
+  const forbidden = await requireAdminOr403();
+  if (forbidden) return forbidden;
+  const actorId = await getCurrentAdminActorId();
+  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 식별 정보를 확인할 수 없습니다.');
+  const body = await parseBody(request, bodySchema);
+  if (!body.ok) return body.res;
+  if (rateLimited(actorId)) {
+    return apiError(429, 'RATE_LIMITED', '지정 URL 수집 요청이 너무 잦습니다.');
+  }
+  const origin = originFor(body.data.url);
+  if (!origin) return apiError(400, 'INVALID_URL', '올바른 URL을 입력해 주세요.');
+  const globalStore = globalThis as GlobalWithCrawlGuard;
+  const active = (globalStore[ACTIVE_KEY] ??= new Set());
+  if (active.has(origin)) {
+    return apiError(409, 'CRAWL_ALREADY_RUNNING', '같은 사이트를 이미 수집하고 있습니다.');
+  }
+  active.add(origin);
+  try {
+    const artifact = await crawlDesignatedSite(body.data);
+    const record = await createCrawlArtifact({ artifact, createdBy: actorId });
+    return NextResponse.json({
+      artifact: {
+        id: record.id,
+        seedUrl: record.seedUrl,
+        finalOrigin: record.finalOrigin,
+        pageCount: record.artifact.pages.length,
+        tls: record.artifact.tls,
+        observedAt: record.artifact.observedAt,
+        expiresAt: record.expiresAt,
+      },
+    }, { status: 201 });
+  } catch (error) {
+    if (error instanceof CrawlError) {
+      return apiError(400, error.code, error.message);
+    }
+    throw error;
+  } finally {
+    active.delete(origin);
+  }
+});
