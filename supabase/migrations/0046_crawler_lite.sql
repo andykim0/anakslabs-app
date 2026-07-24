@@ -67,3 +67,39 @@ grant select, insert, update, delete on table public.crawl_artifacts
   to service_role;
 grant select, insert, update, delete on table public.shared_site_previews
   to service_role;
+
+create or replace function public.purge_expired_crawler_records(
+  p_before timestamptz default now()
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $function$
+declare
+  v_previews bigint;
+  v_artifacts bigint;
+begin
+  if p_before is null then
+    raise exception 'purge_expired_crawler_records: cutoff is required';
+  end if;
+
+  delete from public.shared_site_previews
+   where expires_at <= p_before;
+  get diagnostics v_previews = row_count;
+
+  delete from public.crawl_artifacts
+   where expires_at <= p_before;
+  get diagnostics v_artifacts = row_count;
+
+  return jsonb_build_object(
+    'previews', v_previews,
+    'artifacts', v_artifacts
+  );
+end;
+$function$;
+
+revoke execute on function public.purge_expired_crawler_records(timestamptz)
+  from public, anon, authenticated;
+grant execute on function public.purge_expired_crawler_records(timestamptz)
+  to service_role;

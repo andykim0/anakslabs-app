@@ -5,6 +5,7 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  DESIGNATED_CRAWL_DISCLOSURE,
   EXTERNAL_AI_PROCESSING_DISCLOSURE,
   privacyPolicy,
   siteCollectsPersonalData,
@@ -96,5 +97,19 @@ describe('M2 — 외부 AI 처리 위탁 고지', () => {
     assert.match(html, /비밀번호와 결제정보는 AI 생성 요청에 전송하지 않/);
     assert.match(html, /수탁자의 정확한 법인명/);
     assert.match(html, /※ 법무 검토 대상/);
+  });
+});
+
+describe('CRAWL W4 — 지정 공개 페이지 처리 고지', () => {
+  test('고정 템플릿의 처리 범위·보관 기간·공유 위험·이미지 권리를 실제 HTML에 표시한다', () => {
+    const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
+    for (const line of Object.values(DESIGNATED_CRAWL_DISCLOSURE)) {
+      assert.ok(html.includes(line), `지정 페이지 처리 고지 누락: ${line}`);
+    }
+    assert.match(html, /로그인하거나 회원 전용 영역에 들어가지 않/);
+    assert.match(html, /최대 30일/);
+    assert.match(html, /최대 14일/);
+    assert.match(html, /공유 링크를 받은 사람/);
+    assert.match(html, /사용 권리를 확인하기 전에는/);
   });
 });

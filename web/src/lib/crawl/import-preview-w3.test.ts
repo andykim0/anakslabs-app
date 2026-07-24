@@ -41,7 +41,7 @@ function artifact(): CrawlArtifactPayload {
       contentType: 'text/html',
       lastModified: 'Fri, 24 Jul 2026 00:00:00 GMT',
       title: '아이아이디자인',
-      description: '업무 공간과 주거 공간을 설계합니다.',
+      description: '업무 공간과 주거 공간을 설계하고 여러 유형의 프로젝트를 긴 목록으로 안내하는 원문 검색 설명입니다.',
       headings: ['회사 소개', '사업 분야'],
       text: '아이아이디자인은 업무 공간과 주거 공간을 설계합니다. 프로젝트의 목적과 이용 흐름을 먼저 살핍니다.',
       structured: {
@@ -89,6 +89,9 @@ describe('CRAWL W3 — honest read-only import preview', () => {
       )), false);
     }
     const serialized = JSON.stringify(built.config);
+    const hero = allSections(built.config).find((section) => section.type === 'hero');
+    assert.ok(hero);
+    assert.equal(JSON.stringify(hero).includes('긴 목록으로 안내하는 원문 검색 설명'), false);
     assert.equal(serialized.includes(sourceImage), false);
     assert.equal(serialized.includes('instagram.com/iidgn'), false);
     assert.equal(serialized.includes('/login'), false);

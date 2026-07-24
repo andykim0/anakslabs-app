@@ -23,6 +23,10 @@ export const BLOCKED_CRAWL_PATH_SEGMENTS = [
   '주문',
 ] as const;
 
+const BLOCKED_CRAWL_QUERY_TERMS = BLOCKED_CRAWL_PATH_SEGMENTS.filter(
+  (term) => term !== 'order' && term !== '주문',
+);
+
 const SIDE_EFFECT_QUERY_KEYS = new Set([
   'action',
   'do',
@@ -65,6 +69,17 @@ function decoded(value: string): string {
   }
 }
 
+function containsBlockedQueryTerm(value: string): boolean {
+  const normalized = decoded(value).trim().toLowerCase();
+  if (BLOCKED_CRAWL_QUERY_TERMS.some((blocked) => (
+    normalized.includes(blocked.toLowerCase())
+  ))) {
+    return true;
+  }
+  return /(?:^|[^a-z0-9])order(?:$|[^a-z0-9])/iu.test(normalized)
+    || normalized.includes('주문');
+}
+
 export function unsafeCrawlUrlReason(url: URL): UnsafeCrawlReason | null {
   const segments = decoded(url.pathname)
     .split('/')
@@ -81,9 +96,7 @@ export function unsafeCrawlUrlReason(url: URL): UnsafeCrawlReason | null {
     const value = decoded(rawValue).trim().toLowerCase();
     if (SIDE_EFFECT_QUERY_KEYS.has(key)) return 'side_effect';
     if (key === 'mode' && SIDE_EFFECT_QUERY_VALUES.has(value)) return 'side_effect';
-    if (BLOCKED_CRAWL_PATH_SEGMENTS.some((blocked) => (
-      key === blocked.toLowerCase() || value === blocked.toLowerCase()
-    ))) {
+    if (containsBlockedQueryTerm(key) || containsBlockedQueryTerm(value)) {
       return 'auth_or_account';
     }
     if (SIDE_EFFECT_QUERY_VALUES.has(value)) return 'side_effect';

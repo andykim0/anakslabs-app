@@ -43,6 +43,9 @@ describe('CRAWL W1 — designated crawl', () => {
         return response(html('홈', [
           '<a href="/about">소개</a>',
           '<a href="/login">로그인</a>',
+          '<a href="/index.php?mid=home&act=dispMemberLoginForm">회원 로그인</a>',
+          '<a href="/index.php?mid=home&act=dispMemberSignUpForm">회원가입</a>',
+          '<a href="/index.php?mid=home&act=dispMemberFindAccount">계정 찾기</a>',
           '<a href="/work?action=delete">삭제</a>',
           '<a href="https://outside.example/x">외부</a>',
           '<form method="post" action="/member/join"><p>회원가입 전용 문구</p></form>',
@@ -71,9 +74,10 @@ describe('CRAWL W1 — designated crawl', () => {
     assert.equal(result.pages[0].text.includes('회원가입 전용 문구'), false);
     assert.deepEqual(result.skippedUrls, [
       { url: 'http://example.com/login', reason: 'auth_or_account' },
+      { url: 'http://example.com/index.php', reason: 'auth_or_account' },
       { url: 'http://example.com/work', reason: 'side_effect' },
     ]);
-    assert.equal(calls.some((url) => /login|action=delete/u.test(url)), false);
+    assert.equal(calls.some((url) => /login|member|action=delete/iu.test(url)), false);
   });
 
   test('robots denial and platform multi-page targets fail closed', async () => {
@@ -190,6 +194,40 @@ describe('CRAWL W1 — designated crawl', () => {
       { url: 'http://example.com/private', reason: 'auth_redirect' },
     ]);
     assert.equal(calls.includes('http://example.com/login'), false);
+  });
+
+  test('sitemap-discovered authentication query actions are rejected before fetch', async () => {
+    const calls: string[] = [];
+    const fetchFn: typeof fetch = async (input, init) => {
+      const url = String(input);
+      calls.push(url);
+      if (init?.method === 'HEAD') return response('');
+      if (url.endsWith('/robots.txt')) {
+        return response('User-agent: *\nAllow: /\nSitemap: http://example.com/sitemap.xml', {
+          headers: { 'content-type': 'text/plain' },
+        });
+      }
+      if (url.endsWith('/sitemap.xml')) {
+        return response([
+          '<urlset>',
+          '<url><loc>http://example.com/</loc></url>',
+          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberLoginForm</loc></url>',
+          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberSignUpForm</loc></url>',
+          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberFindAccount</loc></url>',
+          '</urlset>',
+        ].join(''), { headers: { 'content-type': 'application/xml' } });
+      }
+      return response(html('홈'));
+    };
+    const result = await crawlDesignatedSite(
+      { url: 'http://example.com/' },
+      { fetchFn, validateUrl: validated, wait: async () => undefined },
+    );
+    assert.deepEqual(result.pages.map((page) => page.url), ['http://example.com/']);
+    assert.deepEqual(result.skippedUrls, [
+      { url: 'http://example.com/index.php', reason: 'auth_or_account' },
+    ]);
+    assert.equal(calls.some((url) => /dispMember/iu.test(url)), false);
   });
 
   test('migration and admin boundary keep artifacts service-role only', () => {

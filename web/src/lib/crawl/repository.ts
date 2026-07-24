@@ -221,3 +221,41 @@ export async function revokeSharedSitePreview(id: string, now = new Date()): Pro
     .is('revoked_at', null);
   if (error) throw new Error(`shared preview revoke failed: ${error.message}`);
 }
+
+export async function purgeExpiredCrawlerRecords(
+  now = new Date(),
+): Promise<{ artifacts: number; previews: number }> {
+  if (!Number.isFinite(now.getTime())) throw new TypeError('A valid crawler retention date is required');
+  if (isMockMode()) {
+    let previews = 0;
+    let artifacts = 0;
+    for (const [hash, record] of mockPreviews()) {
+      if (new Date(record.expiresAt) > now) continue;
+      mockPreviews().delete(hash);
+      previews += 1;
+    }
+    for (const [id, record] of mockArtifacts()) {
+      if (new Date(record.expiresAt) > now) continue;
+      mockArtifacts().delete(id);
+      artifacts += 1;
+    }
+    return { artifacts, previews };
+  }
+  const { data, error } = await getServiceRoleClient().rpc(
+    'purge_expired_crawler_records',
+    { p_before: now.toISOString() },
+  );
+  if (error) throw new Error(`crawler retention purge failed: ${error.message}`);
+  const value = data as { artifacts?: unknown; previews?: unknown } | null;
+  const artifacts = Number(value?.artifacts);
+  const previews = Number(value?.previews);
+  if (
+    !Number.isSafeInteger(artifacts)
+    || artifacts < 0
+    || !Number.isSafeInteger(previews)
+    || previews < 0
+  ) {
+    throw new Error('CRAWLER_RETENTION_PURGE_RESULT_INVALID');
+  }
+  return { artifacts, previews };
+}

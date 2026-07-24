@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  DESIGNATED_CRAWL_DISCLOSURE,
   EXTERNAL_AI_PROCESSING_DISCLOSURE,
 } from '@/lib/legal/templates';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
@@ -63,6 +64,20 @@ export default function PrivacyPage() {
             <p>{ANONYMOUS_SITE_EVENT_DISCLOSURE.retention}</p>
             <p className="font-medium text-[#3F4651]">
               {ANONYMOUS_SITE_EVENT_DISCLOSURE.legalReview}
+            </p>
+          </div>
+        </div>
+        <div>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">
+            {DESIGNATED_CRAWL_DISCLOSURE.heading}
+          </h2>
+          <div className="mt-2 space-y-2">
+            <p>{DESIGNATED_CRAWL_DISCLOSURE.collected}</p>
+            <p>{DESIGNATED_CRAWL_DISCLOSURE.purpose}</p>
+            <p>{DESIGNATED_CRAWL_DISCLOSURE.retention}</p>
+            <p>{DESIGNATED_CRAWL_DISCLOSURE.imageRights}</p>
+            <p className="font-medium text-[#3F4651]">
+              {DESIGNATED_CRAWL_DISCLOSURE.legalReview}
             </p>
           </div>
         </div>

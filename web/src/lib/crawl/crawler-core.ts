@@ -568,6 +568,12 @@ export async function crawlDesignatedSite(
     const next = queue.shift()!;
     if (visited.has(next)) continue;
     const nextUrl = new URL(next);
+    const unsafeReason = unsafeCrawlUrlReason(nextUrl);
+    if (unsafeReason) {
+      addSkipped({ url: safeSkippedUrl(nextUrl), reason: unsafeReason });
+      visited.add(next);
+      continue;
+    }
     if (!isPathAllowed(parsedRobots, 'DaboimCrawler', `${nextUrl.pathname}${nextUrl.search}`)) {
       visited.add(next);
       continue;

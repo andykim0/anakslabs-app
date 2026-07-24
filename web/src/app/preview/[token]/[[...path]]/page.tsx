@@ -36,12 +36,12 @@ export default async function SharedImportPreviewPage({
     slug ? `/preview/${token}/${slug}` : `/preview/${token}`
   );
   return (
-    <div data-shared-import-preview="1">
+    <div data-shared-import-preview="1" className="max-w-full overflow-x-clip">
       <aside
         role="status"
         className="sticky top-0 z-[1000] border-b border-amber-300 bg-amber-50 px-4 py-3 text-[#382B05]"
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 text-sm leading-relaxed">
+        <div className="mx-auto flex min-w-0 max-w-6xl flex-col gap-1 break-all text-sm leading-relaxed">
           <strong className="font-bold">확인용 이전 초안 · 발행되지 않음</strong>
           <span>{IMPORT_PREVIEW_NOTICE}</span>
           <span className="text-xs text-[#6B5310]">

@@ -23,7 +23,10 @@ import type { CrawlArtifactPayload, CrawlPageArtifact } from './contracts';
 const FACT_KEYS = ['phone', 'address', 'openingHours'] as const;
 
 function unique(values: readonly (string | undefined)[]): string[] {
-  return [...new Set(values.map((value) => value?.replace(/\s+/gu, ' ').trim()).filter(Boolean) as string[])];
+  return [...new Set(values.map((value) => value
+    ?.replace(/,(?!\s)/gu, ', ')
+    .replace(/\s+/gu, ' ')
+    .trim()).filter(Boolean) as string[])];
 }
 
 function importedFacts(pages: readonly CrawlPageArtifact[]): BusinessFactAnswer[] {
@@ -151,7 +154,12 @@ function sectionSourceLines(
     [item.name, item.price].filter(Boolean).join(' · ')
   ));
   const source = sourceTextChunks(artifact.pages);
-  if (section.type === 'hero') return unique([survey.businessName, artifact.pages[0]?.description]);
+  if (section.type === 'hero') {
+    // The existing hero geometry has a bounded display slot. Repeating the
+    // source-owned business name is safer than promoting arbitrary imported
+    // headings, which can be long navigation labels and overflow on mobile.
+    return [survey.businessName, survey.businessName];
+  }
   if (section.type === 'contact') return unique([section.name, ...facts]);
   if (section.type === 'menu' || section.type === 'features' || section.type === 'cases') {
     return unique([section.name, ...items, ...source.slice(0, 3)]);
@@ -174,7 +182,10 @@ function projectSection(
   if (section.type !== 'hero' && sourceLines.length <= 1) return null;
   const assigned = new Map<string, string>();
   textSlots.slice(0, sourceLines.length).forEach((element, index) => {
-    assigned.set(element.id, sourceLines[index]);
+    const text = element.style.fontSize >= 32
+      ? section.type === 'hero' ? survey.businessName : section.name
+      : sourceLines[index];
+    assigned.set(element.id, text);
   });
   const elements: CanvasElement[] = [];
   for (const element of section.elements) {
