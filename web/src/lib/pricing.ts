@@ -140,6 +140,32 @@ export const PRICING_TABLE_CATALOG = {
           { id: 'monthly-credits', label: '매월 2크레딧' },
         ],
       },
+      clinic: {
+        id: 'clinic',
+        label: '의원·클리닉',
+        availability: 'gated',
+        monthlyKrw: 790_000,
+        annualKrw: 7_900_000,
+        postsPerMonth: 0,
+        schemaType: 'MedicalClinic',
+        contentRules: [
+          '의료광고 금지표현 필터가 배포되기 전에는 공개·발행·결제를 허용하지 않는다.',
+        ],
+        keywordSets: [
+          { id: 'region', label: '지역', source: 'region' },
+          { id: 'medical-specialty', label: '진료과목', source: 'business_fact' },
+        ],
+        included: [
+          { id: 'done-for-you-site', label: '다보임이 만드는 홈페이지' },
+          { id: 'connectors', label: '예약·전화·길찾기 연결' },
+          { id: 'conversion-tracking', label: '문의 행동 추적' },
+          { id: 'monthly-report', label: '월간 성과 리포트' },
+          { id: 'search-foundation', label: '검색·AI가 읽기 쉬운 기본 구조' },
+          { id: 'hosting-operations', label: '호스팅·SSL·백업·운영' },
+          { id: 'zero-cost-assets', label: '레이아웃·절차적 배경 등 기본 자산' },
+          { id: 'monthly-credits', label: '매월 2크레딧' },
+        ],
+      },
     },
   },
 } as const satisfies Record<string, {

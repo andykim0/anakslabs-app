@@ -11,11 +11,11 @@ import {
   industryProfile,
 } from '@/lib/pricing';
 
-describe('INDUSTRY M1 — 업종 단일가·레거시 가격표 격리', () => {
-  test('신규 가격표는 인테리어 프로파일 한 축으로 49만원·VAT 포함 계약을 소유한다', () => {
+describe('INDUSTRY M1·M2 — 업종 단일가·레거시 가격표 격리', () => {
+  test('신규 가격표는 인테리어 공개·clinic gated 프로파일과 VAT 포함 계약을 소유한다', () => {
     assert.equal(PRICING_MODEL_VERSION, 'industry-single-2026-07');
     assert.equal(CURRENT_PRICING_TABLE.modelVersion, PRICING_MODEL_VERSION);
-    assert.deepEqual(Object.keys(CURRENT_PRICING_TABLE.profiles), ['interior']);
+    assert.deepEqual(Object.keys(CURRENT_PRICING_TABLE.profiles), ['interior', 'clinic']);
     assert.deepEqual(industryProfile('interior'), {
       id: 'interior',
       label: '인테리어·공간',

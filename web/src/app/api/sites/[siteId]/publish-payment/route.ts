@@ -18,6 +18,10 @@ import {
   siteNotFound,
   unauthorized,
 } from '../../../_lib/guards';
+import {
+  blockedIndustryPublishPolicy,
+  industryPublishPolicy,
+} from '@/lib/industry/publish-policy';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -34,10 +38,18 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   if (!site.draftConfig) {
     return apiError(409, 'NO_DRAFT', '결제할 발행 초안이 없습니다.');
   }
+  const industryPolicy = industryPublishPolicy(site);
+  const blockedIndustryPolicy = blockedIndustryPublishPolicy(industryPolicy);
+  if (blockedIndustryPolicy) {
+    return apiError(409, blockedIndustryPolicy.code, blockedIndustryPolicy.message);
+  }
+  const pricing = industryPolicy.status === 'available'
+    ? industryPolicy.pricing
+    : undefined;
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  if (!quoteMatchesSite(body.data.quoteId, { clientId: client.id, siteId })) {
+  if (!quoteMatchesSite(body.data.quoteId, { clientId: client.id, siteId, pricing })) {
     return apiError(409, 'PUBLISH_QUOTE_STALE', '발행 견적이 달라졌습니다. 다시 확인해 주세요.');
   }
 
@@ -46,7 +58,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return NextResponse.json({
       paid: true,
       duplicated: true,
-      quote: publishPaymentQuote({ clientId: client.id, siteId, mock: isMockMode() }),
+      quote: publishPaymentQuote({ clientId: client.id, siteId, mock: isMockMode(), pricing }),
     });
   }
   if (!isMockMode()) {
@@ -87,6 +99,6 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   return NextResponse.json({
     paid: true,
     duplicated: result.duplicated,
-    quote: publishPaymentQuote({ clientId: client.id, siteId, mock: true }),
+    quote: publishPaymentQuote({ clientId: client.id, siteId, mock: true, pricing }),
   });
 });

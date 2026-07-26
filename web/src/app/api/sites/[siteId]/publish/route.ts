@@ -30,6 +30,10 @@ import {
   publishPaymentQuote,
 } from '@/lib/billing/publish-payment';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
+import {
+  blockedIndustryPublishPolicy,
+  industryPublishPolicy,
+} from '@/lib/industry/publish-policy';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -43,6 +47,13 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
 
   if (!site.draftConfig) {
     return apiError(409, 'NO_DRAFT', '발행할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
+  }
+
+  // 업종 계약 가드는 결제 견적보다 먼저 같은 정책 소스로 fail-closed한다.
+  const industryPolicy = industryPublishPolicy(site);
+  const blockedIndustryPolicy = blockedIndustryPublishPolicy(industryPolicy);
+  if (blockedIndustryPolicy) {
+    return apiError(409, blockedIndustryPolicy.code, blockedIndustryPolicy.message);
   }
 
   // 요청 본문은 한 번만 읽고 사업자 확인과 휴먼 3체크를 각각 검증한다.
@@ -167,7 +178,14 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   // audit has passed. Existing live sites can republish without another charge.
   const subscription = await resolveSiteSubscription(client.id);
   if (needsPublishPayment(site, subscription.active)) {
-    const quote = publishPaymentQuote({ clientId: client.id, siteId, mock: isMockMode() });
+    const quote = publishPaymentQuote({
+      clientId: client.id,
+      siteId,
+      mock: isMockMode(),
+      ...(industryPolicy.status === 'available'
+        ? { pricing: industryPolicy.pricing }
+        : {}),
+    });
     return apiError(
       402,
       PUBLISH_PAYMENT_ERROR_CODE,

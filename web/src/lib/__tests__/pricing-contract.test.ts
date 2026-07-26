@@ -45,8 +45,9 @@ describe('P$ — 가격·크레딧 단일 계약', () => {
       billingInterval: 'year',
       automaticRenewal: true,
     });
-    assert.deepEqual(Object.keys(PRICING.profiles), ['interior']);
+    assert.deepEqual(Object.keys(PRICING.profiles), ['interior', 'clinic']);
     assert.equal(PRICING.profiles.interior.availability, 'public');
+    assert.equal(PRICING.profiles.clinic.availability, 'gated');
     assert.equal(PRICING.selfEdit, 'unlimited-free');
   });
 
