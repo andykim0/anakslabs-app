@@ -31,19 +31,21 @@ describe('INDUSTRY M3 — 업종 랜딩·발행 결제 배선', () => {
     assert.doesNotMatch(landing, /월\s*\d+건|순위.*보장|상위.*올려/);
   });
 
-  test('/interior만 공개 탐색 경로에 있고 clinic은 라우트·sitemap·내부 링크가 없다', () => {
+  test('/interior는 항상 공개되고 clinic은 단일 런타임 가용성 뒤에서만 탐색된다', () => {
     const sitemap = read('src/app/sitemap.ts');
+    const layout = read('src/app/(marketing)/layout.tsx');
     const header = read('src/components/marketing/MarketingHeader.tsx');
     const footer = read('src/components/marketing/MarketingFooter.tsx');
+    const clinic = read('src/app/(marketing)/clinic/page.tsx');
 
     for (const source of [sitemap, header, footer]) {
       assert.match(source, /\/interior/);
-      assert.doesNotMatch(source, /\/clinic/);
     }
-    assert.throws(
-      () => read('src/app/(marketing)/clinic/page.tsx'),
-      /ENOENT/,
-    );
+    assert.match(sitemap, /clinicAvailability\(\)\.available/u);
+    assert.match(layout, /clinicAvailability\(\)\.available/u);
+    assert.match(clinic, /clinicAvailability\(\)\.available[\s\S]*notFound\(\)/u);
+    assert.match(header, /clinicAvailable/u);
+    assert.match(footer, /clinicAvailable/u);
   });
 
   test('402 견적과 결제 mutation은 사이트에 고정된 업종 가격 증거를 같은 값으로 소비한다', () => {

@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import {
@@ -27,8 +26,9 @@ describe('INDUSTRY M2 clinic 프로파일·게이트', () => {
       annualKrw: 7_900_000,
       postsPerMonth: 0,
       schemaType: 'MedicalClinic',
+      requiredMedicalAdPolicyVersion: 'medical-ad-2026-07-v1',
       contentRules: [
-        '의료광고 금지표현 필터가 배포되기 전에는 공개·발행·결제를 허용하지 않는다.',
+        '현재 의료광고 정책 검사와 공개 활성화 게이트를 모두 통과해야 공개·발행·결제를 허용한다.',
       ],
       keywordSets: [
         { id: 'region', label: '지역', source: 'region' },
@@ -72,13 +72,16 @@ describe('INDUSTRY M2 clinic 프로파일·게이트', () => {
     assert.ok(payment.indexOf('industryPublishPolicy(site)') < payment.indexOf('getDataServices().payments.handleWebhook'));
   });
 
-  test('/clinic 공개 페이지·sitemap·마케팅 내비 링크는 존재하지 않는다', () => {
-    assert.equal(existsSync(join(process.cwd(), 'src/app/(marketing)/clinic/page.tsx')), false);
+  test('/clinic 공개 페이지·sitemap·마케팅 내비 링크는 같은 가용성 함수 뒤에 있다', () => {
+    const page = source('src/app/(marketing)/clinic/page.tsx');
     const sitemap = source('src/app/sitemap.ts');
+    const layout = source('src/app/(marketing)/layout.tsx');
     const header = source('src/components/marketing/MarketingHeader.tsx');
     const footer = source('src/components/marketing/MarketingFooter.tsx');
-    assert.doesNotMatch(sitemap, /['"]\/clinic['"]/u);
-    assert.doesNotMatch(header, /href:\s*['"]\/clinic['"]/u);
-    assert.doesNotMatch(footer, /href:\s*['"]\/clinic['"]/u);
+    assert.match(page, /clinicAvailability\(\)\.available[\s\S]*notFound\(\)/u);
+    assert.match(sitemap, /clinicAvailability\(\)\.available[\s\S]*['"]\/clinic['"]/u);
+    assert.match(layout, /clinicAvailability\(\)\.available/u);
+    assert.match(header, /clinicAvailable[\s\S]*href: ['"]\/clinic['"]/u);
+    assert.match(footer, /clinicAvailable[\s\S]*href: ['"]\/clinic['"]/u);
   });
 });

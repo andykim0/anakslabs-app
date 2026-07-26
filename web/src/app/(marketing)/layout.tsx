@@ -7,6 +7,7 @@ import { MarketingHeader } from '@/components/marketing/MarketingHeader';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { MARKETING_TYPOGRAPHY_VARS } from '@/lib/design/typography-scale';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
+import { clinicAvailability } from '@/lib/industry/clinic-availability';
 
 // 마케팅 하위 페이지 제목에만 브랜드 접미 (테넌트/대시보드엔 미적용)
 export const metadata: Metadata = {
@@ -17,14 +18,15 @@ export const metadata: Metadata = {
 };
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const clinicAvailable = clinicAvailability().available;
   return (
     <div
       className="daboim-marketing flex min-h-screen flex-col bg-[#F8FBFF] text-[#0B1736] antialiased"
       style={MARKETING_TYPOGRAPHY_VARS}
     >
-      <MarketingHeader />
+      <MarketingHeader clinicAvailable={clinicAvailable} />
       <main className="flex-1">{children}</main>
-      <MarketingFooter />
+      <MarketingFooter clinicAvailable={clinicAvailable} />
     </div>
   );
 }

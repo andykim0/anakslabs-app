@@ -32,7 +32,7 @@ function visibleFaq() {
 describe('FAQ$ 자주 묻는 질문 강화', () => {
   test('헤더의 단일 내비 소스가 데스크톱과 모바일에 FAQ를 제공하고 푸터도 같은 라벨을 쓴다', () => {
     assert.match(headerSource, /\{ href: '\/faq', label: '자주 묻는 질문' \}/);
-    assert.equal(headerSource.match(/NAV\.map/g)?.length, 2, '데스크톱·모바일이 같은 NAV를 소비해야 합니다.');
+    assert.equal(headerSource.match(/nav\.map/g)?.length, 2, '데스크톱·모바일이 같은 런타임 내비를 소비해야 합니다.');
     assert.match(headerSource, /id="marketing-mobile-nav"/);
     assert.match(headerSource, /aria-expanded=\{mobileOpen\}/);
     const footer = parse(footerHtml);

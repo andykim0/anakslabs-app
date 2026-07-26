@@ -20,7 +20,7 @@ const NAV = [
   { href: '/faq', label: '자주 묻는 질문' },
 ];
 
-export function MarketingHeader() {
+export function MarketingHeader({ clinicAvailable = false }: { clinicAvailable?: boolean }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,6 +37,9 @@ export function MarketingHeader() {
   }, []);
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const showScannerCta = pathname !== '/' || heroPassed;
+  const nav = clinicAvailable
+    ? [NAV[0], { href: '/clinic', label: '의원·클리닉' }, ...NAV.slice(1)]
+    : NAV;
 
   return (
     <header
@@ -50,7 +53,7 @@ export function MarketingHeader() {
         </Link>
 
         <nav aria-label="주요 메뉴" className="mkt-type-control hidden items-center gap-5 md:flex">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -107,7 +110,7 @@ export function MarketingHeader() {
         className="mkt-type-control absolute inset-x-0 top-full border-t border-[#DCE4F0] bg-white px-5 py-3 shadow-[0_16px_30px_rgba(11,23,54,0.12)] md:hidden"
       >
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}

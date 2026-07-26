@@ -2,6 +2,8 @@ import type { IndustryProfileId } from '@/lib/industry/profiles';
 
 export const PRICING_MODEL_VERSION = 'industry-single-2026-07' as const;
 export const LEGACY_PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
+/** clinic 계약이 요구하는 배포 의료광고 정책. 실제 린터 버전과 일치할 때만 런타임 게이트가 열린다. */
+export const CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION = 'medical-ad-2026-07-v1' as const;
 
 export interface SubscriptionPriceContract {
   modelVersion: string;
@@ -123,6 +125,7 @@ export interface IndustryProfile {
   annualKrw: number;
   postsPerMonth: number;
   schemaType: IndustrySchemaType;
+  requiredMedicalAdPolicyVersion?: string;
   contentRules: readonly string[];
   keywordSets: readonly IndustryKeywordSet[];
   included: readonly {
@@ -172,8 +175,9 @@ export const PRICING_TABLE_CATALOG = {
         annualKrw: 7_900_000,
         postsPerMonth: 0,
         schemaType: 'MedicalClinic',
+        requiredMedicalAdPolicyVersion: CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION,
         contentRules: [
-          '의료광고 금지표현 필터가 배포되기 전에는 공개·발행·결제를 허용하지 않는다.',
+          '현재 의료광고 정책 검사와 공개 활성화 게이트를 모두 통과해야 공개·발행·결제를 허용한다.',
         ],
         keywordSets: [
           { id: 'region', label: '지역', source: 'region' },

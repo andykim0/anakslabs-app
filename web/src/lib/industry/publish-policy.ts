@@ -8,11 +8,16 @@ import {
   type SubscriptionPriceContract,
   type LegacySubscriptionPriceContract,
 } from '@/lib/pricing';
+import {
+  clinicAvailability,
+  type ClinicAvailabilityReason,
+} from './clinic-availability';
 
 export const INDUSTRY_PROFILE_GATED = 'INDUSTRY_PROFILE_GATED' as const;
 export const INDUSTRY_PROFILE_NOT_AVAILABLE = 'INDUSTRY_PROFILE_NOT_AVAILABLE' as const;
 
-type SiteIndustryContract = Pick<Site, 'industryProfileId' | 'pricingModelVersion'>;
+type SiteIndustryContract = Pick<Site, 'industryProfileId' | 'pricingModelVersion'>
+  & Partial<Pick<Site, 'draftConfig'>>;
 
 export type IndustryPublishPolicy =
   | {
@@ -27,6 +32,7 @@ export type IndustryPublishPolicy =
       status: 'gated';
       code: typeof INDUSTRY_PROFILE_GATED;
       message: string;
+      reason?: ClinicAvailabilityReason;
     }
   | {
       status: 'unavailable';
@@ -66,11 +72,26 @@ export function industryPublishPolicy(site: SiteIndustryContract): IndustryPubli
       message: '현재 이 업종의 발행 요금은 준비 중입니다. 추가 홈페이지 제작을 문의해 주세요.',
     };
   }
-  if (profile.availability === 'gated') {
+  if (profile.id === 'clinic') {
+    const availability = clinicAvailability({
+      config: site.draftConfig,
+      requireDraft: true,
+    });
+    if (!availability.available) {
+      return {
+        status: 'gated',
+        code: INDUSTRY_PROFILE_GATED,
+        message: availability.reason === 'review-required'
+          ? '의료광고 문구에 사람 검토가 필요한 항목이 있어 아직 발행할 수 없습니다.'
+          : '현재 의료광고 정책 검사를 통과한 의원 홈페이지만 발행할 수 있습니다.',
+        reason: availability.reason,
+      };
+    }
+  } else if (profile.availability === 'gated') {
     return {
       status: 'gated',
       code: INDUSTRY_PROFILE_GATED,
-      message: '의료광고 표현 검수 체계를 준비 중이라 의원 홈페이지는 아직 발행할 수 없습니다.',
+      message: '현재 공개 검수 체계를 준비 중이라 이 업종 홈페이지는 아직 발행할 수 없습니다.',
     };
   }
 

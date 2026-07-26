@@ -175,21 +175,27 @@ describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
     resetMockStore();
   });
 
-  test('clinic은 공개·탐색·발행·결제 여섯 경계에서 닫힌다', () => {
+  test('clinic은 기본 OFF이며 공개·탐색·발행·결제가 단일 가용성 함수 뒤에 있다', () => {
     const clinic = industryPublishPolicy({
       industryProfileId: 'clinic',
       pricingModelVersion: PRICING_MODEL_VERSION,
     });
     assert.equal(INDUSTRY_PROFILES.clinic.availability, 'gated');
     assert.equal(clinic.status, 'gated');
-    assert.equal(existsSync(join(process.cwd(), 'src/app/(marketing)/clinic/page.tsx')), false);
+    assert.equal(existsSync(join(process.cwd(), 'src/app/(marketing)/clinic/page.tsx')), true);
 
+    const page = read('src/app/(marketing)/clinic/page.tsx');
     const sitemap = read('src/app/sitemap.ts');
+    const layout = read('src/app/(marketing)/layout.tsx');
     const header = read('src/components/marketing/MarketingHeader.tsx');
     const footer = read('src/components/marketing/MarketingFooter.tsx');
     const publish = read('src/app/api/sites/[siteId]/publish/route.ts');
     const payment = read('src/app/api/sites/[siteId]/publish-payment/route.ts');
-    assert.doesNotMatch(`${sitemap}\n${header}\n${footer}`, /href:\s*['"]\/clinic['"]|['"]\/clinic['"]/u);
+    assert.match(page, /clinicAvailability\(\)\.available/u);
+    assert.match(sitemap, /clinicAvailability\(\)\.available/u);
+    assert.match(layout, /clinicAvailability\(\)\.available/u);
+    assert.match(header, /clinicAvailable/u);
+    assert.match(footer, /clinicAvailable/u);
     assert.ok(
       publish.indexOf('industryPublishPolicy(site)')
         < publish.indexOf('publishPaymentQuote({'),

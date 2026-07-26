@@ -17,10 +17,13 @@ const BASE_LINKS = [
   { href: '/privacy', label: '개인정보처리방침' },
 ];
 
-export function MarketingFooter() {
-  const links = guaranteeProgramEnabled()
-    ? [...BASE_LINKS.slice(0, 2), { href: '/guarantee', label: '90일 성과 보장' }, ...BASE_LINKS.slice(2)]
+export function MarketingFooter({ clinicAvailable = false }: { clinicAvailable?: boolean }) {
+  const industryLinks = clinicAvailable
+    ? [BASE_LINKS[0], { href: '/clinic', label: '의원·클리닉' }, ...BASE_LINKS.slice(1)]
     : BASE_LINKS;
+  const links = guaranteeProgramEnabled()
+    ? [...industryLinks.slice(0, 2), { href: '/guarantee', label: '90일 성과 보장' }, ...industryLinks.slice(2)]
+    : industryLinks;
   return (
     <footer className="border-t border-white/8 bg-[#0B1736] text-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
