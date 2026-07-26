@@ -22,10 +22,16 @@ import {
   resolveTemplate,
 } from '@/lib/data/site-blueprints';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
+import { contrastRatio } from '@/lib/design/quality-standards';
 import {
   NAMED_TEMPLATE_CATALOG,
   resolveNamedTemplate,
 } from '@/lib/design/templates';
+import {
+  applyModernKoreanFontPairing,
+  fontIndustryClassForSurvey,
+  resolveKoreanFontPairingId,
+} from '@/lib/fonts/selection';
 import {
   withContinuousCanvasDefault,
   withSiteCinematicDefault,
@@ -68,6 +74,15 @@ interface CaptureRecord {
   consoleErrors: string[];
   heroForegroundCount: number;
   heroForegroundOverlaps: string[];
+  buttonNowrapViolations: string[];
+  imageContrastMeasurements: Array<{
+    id: string;
+    ratio: number;
+    required: number;
+    color: string;
+  }>;
+  fontPairingId: string | null;
+  fontSelectionPolicy: string | null;
   sectionIds: string[];
   configSha: string;
   htmlSha: string;
@@ -143,6 +158,18 @@ function candidateFor(
   const resolved = resolveNamedTemplate(template, survey);
   if (!resolved) throw new Error(`${template.id}: catalog contract did not resolve`);
   const realPhoto = template.recipe.imageDirectionId === 'real_photo';
+  const baseTheme = tokenSetToSiteTheme(expandTokens(
+    resolved.designDna.dnaId,
+    resolved.designDna.hueSeed,
+    resolved.designDna.overrides,
+  ));
+  const theme = applyModernKoreanFontPairing(
+    baseTheme,
+    resolveKoreanFontPairingId({
+      dnaId: resolved.designDna.dnaId,
+      industryClass: fontIndustryClassForSurvey(survey),
+    }),
+  );
   return {
     id: `tpl-${template.id}`,
     label: template.name,
@@ -150,11 +177,7 @@ function candidateFor(
     imageDirectionId: template.recipe.imageDirectionId,
     heroImageUrl: realPhoto ? projectPhotos[0] : template.previewImage,
     heroPresentation: realPhoto ? 'promoted_customer_photo' : 'system',
-    theme: tokenSetToSiteTheme(expandTokens(
-      resolved.designDna.dnaId,
-      resolved.designDna.hueSeed,
-      resolved.designDna.overrides,
-    )),
+    theme,
     description: template.description,
     designDna: resolved.designDna,
     heroLayoutVariantId: resolved.heroLayoutVariantId,
@@ -287,6 +310,26 @@ async function settledMetrics(page: Page) {
         }
       }
     }
+    const buttonNowrapViolations = [...document.querySelectorAll<HTMLElement>('.anaks-btn')]
+      .filter((button) => getComputedStyle(button).whiteSpace !== 'nowrap')
+      .map((button) => (button.textContent ?? '').trim().replace(/\s+/gu, ' '));
+    const imageContrastForegrounds = [...document.querySelectorAll<HTMLElement>(
+      '[data-section-type="hero"] [data-image-contrast-foreground]',
+    )].map((frame) => {
+      const text = frame.querySelector<HTMLElement>('p') ?? frame;
+      const rect = text.getBoundingClientRect();
+      const style = getComputedStyle(text);
+      return {
+        id: frame.dataset.imageContrastForeground ?? 'unknown',
+        x: rect.left,
+        y: rect.top + scrollY,
+        width: rect.width,
+        height: rect.height,
+        color: style.color,
+        fontSize: Number.parseFloat(style.fontSize),
+        fontWeight: Number.parseInt(style.fontWeight, 10) || 400,
+      };
+    }).filter((item) => item.width > 0 && item.height > 0);
     return {
       pageHeight: document.documentElement.scrollHeight,
       horizontalOverflow: Math.max(
@@ -299,6 +342,73 @@ async function settledMetrics(page: Page) {
       ],
       heroForegroundCount: foreground.length,
       heroForegroundOverlaps: overlaps,
+      buttonNowrapViolations,
+      imageContrastForegrounds,
+    };
+  });
+}
+
+function cssColor(value: string): string {
+  const channels = value.match(/\d+(?:\.\d+)?/gu)?.slice(0, 3).map(Number);
+  if (!channels || channels.length !== 3) throw new Error(`Unsupported color: ${value}`);
+  return `#${channels.map((channel) =>
+    Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+async function measureImageTextContrast(
+  page: Page,
+  foregrounds: ReadonlyArray<{
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    color: string;
+    fontSize: number;
+    fontWeight: number;
+  }>,
+) {
+  if (foregrounds.length === 0) return [];
+  await page.evaluate(() => {
+    for (const element of document.querySelectorAll<HTMLElement>(
+      '[data-image-contrast-foreground]',
+    )) {
+      element.style.visibility = 'hidden';
+    }
+  });
+  const background = await page.screenshot({ fullPage: true, type: 'png' });
+  const raw = await sharp(background)
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  return foregrounds.map((foreground) => {
+    const textColor = cssColor(foreground.color);
+    const left = Math.max(0, Math.floor(foreground.x));
+    const top = Math.max(0, Math.floor(foreground.y));
+    const right = Math.min(raw.info.width, Math.ceil(foreground.x + foreground.width));
+    const bottom = Math.min(raw.info.height, Math.ceil(foreground.y + foreground.height));
+    let minimum = Number.POSITIVE_INFINITY;
+    for (let y = top; y < bottom; y += 2) {
+      for (let x = left; x < right; x += 2) {
+        const offset = (y * raw.info.width + x) * raw.info.channels;
+        const backgroundColor = `#${[
+          raw.data[offset],
+          raw.data[offset + 1],
+          raw.data[offset + 2],
+        ].map((channel) => channel!.toString(16).padStart(2, '0')).join('')}`;
+        minimum = Math.min(minimum, contrastRatio(textColor, backgroundColor));
+      }
+    }
+    const required = foreground.fontSize >= 24
+      || (foreground.fontSize >= 18.66 && foreground.fontWeight >= 700)
+      ? 3
+      : 4.5;
+    return {
+      id: foreground.id,
+      ratio: Number(minimum.toFixed(2)),
+      required,
+      color: textColor,
     };
   });
 }
@@ -479,6 +589,10 @@ async function main() {
           `${item.template.id}-${viewport.width}.png`,
         );
         await page.screenshot({ path: screenshot, fullPage: true });
+        const imageContrastMeasurements = await measureImageTextContrast(
+          page,
+          metrics.imageContrastForegrounds,
+        );
         const pageSectionIds = item.config.pages.flatMap((sitePage) =>
           sitePage.sections.map((section) => section.id));
         const record: CaptureRecord = {
@@ -495,6 +609,10 @@ async function main() {
           consoleErrors: [...consoleErrors, ...metrics.errors],
           heroForegroundCount: metrics.heroForegroundCount,
           heroForegroundOverlaps: metrics.heroForegroundOverlaps,
+          buttonNowrapViolations: metrics.buttonNowrapViolations,
+          imageContrastMeasurements,
+          fontPairingId: item.config.theme.fontPairing?.id ?? null,
+          fontSelectionPolicy: item.config.theme.fontPairing?.selectionPolicy ?? null,
           sectionIds: pageSectionIds,
           configSha: await sha256(JSON.stringify(item.config)),
           htmlSha: await sha256(item.html[viewport.band]),
@@ -514,6 +632,24 @@ async function main() {
         if (record.heroForegroundOverlaps.length > 0) {
           throw new Error(
             `${item.template.id}/${viewport.band}: hero foreground overlap ${record.heroForegroundOverlaps.join(' | ')}`,
+          );
+        }
+        if (record.buttonNowrapViolations.length > 0) {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: button nowrap ${record.buttonNowrapViolations.join(' | ')}`,
+          );
+        }
+        const contrastFailures = record.imageContrastMeasurements.filter(
+          (measurement) => measurement.ratio + 0.01 < measurement.required,
+        );
+        if (contrastFailures.length > 0) {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: image text contrast ${JSON.stringify(contrastFailures)}`,
+          );
+        }
+        if (!record.fontPairingId || record.fontSelectionPolicy !== 'modern-sans-v1') {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: modern font policy was not rendered`,
           );
         }
         records.push(record);
@@ -561,7 +697,7 @@ async function main() {
     }, null, 2)}\n`,
   );
   process.stdout.write(
-    `TPL review: ${records.length} captures, hero foreground overlaps 0, overflow 0, CLS 0, console errors 0\n`,
+    `TPL review: ${records.length} captures, modern fonts ready, hero foreground overlaps 0, image text AA pass, button nowrap pass, overflow 0, CLS 0, console errors 0\n`,
   );
 }
 

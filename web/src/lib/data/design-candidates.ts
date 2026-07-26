@@ -28,6 +28,7 @@ import {
   buildV2ImagePrompt,
   derivePalette,
   povForStyle,
+  validateModernFontPairing,
 } from '@/lib/design/quality-standards';
 import { resolveImageStyle } from '@/lib/onboarding/image-style';
 import {
@@ -306,13 +307,13 @@ export async function buildCandidateBlueprintsForPipeline(
       let theme = themeForDnaSelection(resolved.designDna);
       const useFontPairings = options.fontPairingEnabled ?? fontPairingsEnabled();
       if (useFontPairings) {
-        theme = applyModernKoreanFontPairing(
-          theme,
-          resolveKoreanFontPairingId({
-            dnaId: resolved.designDna.dnaId,
-            industryClass: fontIndustryClassForSurvey(survey),
-          }),
-        );
+        const id = resolveKoreanFontPairingId({
+          dnaId: resolved.designDna.dnaId,
+          industryClass: fontIndustryClassForSurvey(survey),
+        });
+        if (id && validateModernFontPairing(resolved.designDna.dnaId, id)) {
+          theme = applyModernKoreanFontPairing(theme, id);
+        }
       }
       return [{
         id: `tpl-${template.id}`,
@@ -352,6 +353,9 @@ export async function buildCandidateBlueprintsForPipeline(
           dnaId: blueprint.designDna.dnaId,
           industryClass,
         });
+        if (!id || !validateModernFontPairing(blueprint.designDna.dnaId, id)) {
+          return blueprint;
+        }
         const theme = applyModernKoreanFontPairing(blueprint.theme, id);
         return theme === blueprint.theme ? blueprint : { ...blueprint, theme };
       })

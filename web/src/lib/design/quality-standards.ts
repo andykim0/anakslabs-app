@@ -14,6 +14,9 @@ import type { CandidateStyle } from '@/lib/types/domain';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
 import type { SectionType } from '@/lib/types/site';
 import { LEGACY_FONT_PAIRINGS } from '@/lib/ai/design-knowledge-data';
+import { PRODUCTION_KOREAN_FONT_PAIRINGS } from '@/lib/fonts/catalog';
+import { MODERN_DNA_FONT_PAIRING_MAP } from '@/lib/fonts/selection';
+import type { DesignDnaId } from '@/lib/design/dna/types';
 import {
   ambientSubjectFor,
   moodPromptForTone,
@@ -326,6 +329,38 @@ export const SPACING_SCALE = [4, 8, 12, 16, 24, 32, 48, 64, 96] as const;
 const PAIRING_IDS = new Set<string>(LEGACY_FONT_PAIRINGS.map((f) => f.id));
 export function validateFontPairing(pairingId: string): boolean {
   return PAIRING_IDS.has(pairingId);
+}
+
+const KOREAN_SERIF_FAMILY_PATTERN =
+  /(?<!-)\bserif\b|명조|myeongjo|바탕|batang|songmyung/iu;
+
+function isModernKoreanSansStack(stack: string): boolean {
+  return !KOREAN_SERIF_FAMILY_PATTERN.test(stack)
+    && /sans|pretendard|nanumsquare|system-ui/iu.test(stack);
+}
+
+/**
+ * FONTMOD 신규 생성 전용 검증. 기존 자유 pair validator는 OFF 경로 호환을 위해 그대로 두고,
+ * 신규 pin만 승인된 DNA 결정표와 한글 산세리프 계약을 동시에 만족해야 한다.
+ */
+export function validateModernFontPairing(
+  dnaId: DesignDnaId,
+  pairingId: string,
+): boolean {
+  if (pairingId === 'kr-nanum-myeongjo-readable') return false;
+  if (MODERN_DNA_FONT_PAIRING_MAP[dnaId] !== pairingId) return false;
+  const pairing = PRODUCTION_KOREAN_FONT_PAIRINGS.find(
+    (candidate) => candidate.id === pairingId,
+  );
+  if (!pairing) return false;
+  return [
+    pairing.heading,
+    pairing.body,
+    pairing.productionManifest.heading.family,
+    pairing.productionManifest.body.family,
+    ...pairing.productionManifest.heading.fallbackChain,
+    ...pairing.productionManifest.body.fallbackChain,
+  ].every(isModernKoreanSansStack);
 }
 
 // ---------- 색상 검증 ----------

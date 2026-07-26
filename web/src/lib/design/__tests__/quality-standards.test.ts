@@ -12,6 +12,7 @@ import {
   hasPovMapping,
   isPovId,
   validateFontPairing,
+  validateModernFontPairing,
   validatePalette,
   contrastRatio,
   buildImagePrompt,
@@ -24,6 +25,7 @@ import {
 } from '@/lib/design/quality-standards';
 import { FONT_PAIRINGS, STYLE_DIRECTIONS } from '@/lib/ai/design-knowledge-data';
 import { matchFontOption } from '@/components/editor/fonts';
+import { MODERN_DNA_FONT_PAIRING_MAP } from '@/lib/fonts/selection';
 
 const pairingIds = new Set(FONT_PAIRINGS.map((f) => f.id));
 
@@ -73,6 +75,25 @@ describe('폰트', () => {
   test('validateFontPairing: 기존 id만 허용', () => {
     assert.ok(validateFontPairing('playfair-classic'));
     assert.ok(!validateFontPairing('made-up-pairing'));
+  });
+  test('validateModernFontPairing: 승인된 8 DNA 산세리프 매핑만 허용', () => {
+    for (const [dnaId, pairingId] of Object.entries(MODERN_DNA_FONT_PAIRING_MAP)) {
+      assert.ok(
+        validateModernFontPairing(
+          dnaId as keyof typeof MODERN_DNA_FONT_PAIRING_MAP,
+          pairingId,
+        ),
+        `${dnaId}: ${pairingId}`,
+      );
+    }
+    assert.equal(
+      validateModernFontPairing('workshop-tactile-heritage', 'kr-nanum-myeongjo-readable'),
+      false,
+    );
+    assert.equal(
+      validateModernFontPairing('workshop-tactile-heritage', 'kr-nanum-square-round-friendly'),
+      false,
+    );
   });
 });
 
