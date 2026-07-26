@@ -109,6 +109,21 @@ function chipWidth(text: string, fontSize: number, maxWidth: number): number {
   return Math.min(maxWidth, Math.max(72, Math.ceil(measured + 32)));
 }
 
+function chipHeight(
+  text: string,
+  width: number,
+  fontSize: number,
+  lineHeight: number,
+): number {
+  // outline-tag renders 14px inline and 7px block padding on each side.
+  // Reserve the real inner width and every wrapped line instead of assuming the
+  // old single-line 40px box; compact two-column chips can otherwise overflow
+  // their authored row and cross the following chip/CTA frame.
+  const contentWidth = Math.max(1, width - 28);
+  const lines = estimatedBodyLines(text, contentWidth, fontSize);
+  return Math.max(40, Math.ceil(lines * fontSize * lineHeight + 14));
+}
+
 function buttonWidth(button: ButtonElement, fontSize: number, maxWidth: number): number {
   return Math.min(maxWidth, Math.max(132, Math.ceil(button.label.length * fontSize + 56)));
 }
@@ -302,6 +317,10 @@ function compileBand({
     lead?.style.lineHeight ?? 1.65,
   );
   const chipSize = themeFontSize(theme, 'caption', 13);
+  const chipLineHeight = Math.max(
+    theme.tokens?.typography.lineHeight.body ?? 1.6,
+    ...chips.map((chip) => chip.style.lineHeight ?? 1.6),
+  );
   const buttonSize = themeFontSize(theme, 'body', 15);
   let cursorY = offsetPanelBounds
     ? offsetPanelBounds.y + spacing.sectionInline
@@ -350,25 +369,45 @@ function compileBand({
     const perRow = Math.min(recipe.chipItemsPerRow, chips.length);
     const cellWidth = (contentWidth - spacing.elementGap * (perRow - 1)) / perRow;
     const rows = Math.ceil(chips.length / perRow);
-    chips.forEach((chip, index) => {
+    const rowHeights = Array.from({ length: rows }, () => 40);
+    const compiledChips = chips.map((chip, index) => {
+      const widthForChip = recipe.chipItemsPerRow === 1
+        ? contentWidth
+        : chipWidth(chip.text, chipSize, cellWidth);
       const row = Math.floor(index / perRow);
+      const heightForChip = chipHeight(
+        chip.text,
+        widthForChip,
+        chipSize,
+        chipLineHeight,
+      );
+      rowHeights[row] = Math.max(rowHeights[row], heightForChip);
+      return { chip, index, row, widthForChip, heightForChip };
+    });
+    const rowOffset = (row: number) => rowHeights
+      .slice(0, row)
+      .reduce((sum, height) => sum + height + spacing.elementGap, 0);
+    compiledChips.forEach(({ chip, index, row, widthForChip, heightForChip }) => {
       const column = index % perRow;
       const rowCount = Math.min(perRow, chips.length - row * perRow);
       const rowWidth = rowCount * cellWidth + (rowCount - 1) * spacing.elementGap;
       const rowX = align === 'center' ? contentX + (contentWidth - rowWidth) / 2 : contentX;
-      const widthForChip = recipe.chipItemsPerRow === 1
-        ? contentWidth
-        : chipWidth(chip.text, chipSize, cellWidth);
       const cellX = rowX + column * (cellWidth + spacing.elementGap);
       frames[chip.id] = frame(
         align === 'center' ? cellX + (cellWidth - widthForChip) / 2 : cellX,
-        cursorY + row * (40 + spacing.elementGap),
+        cursorY + rowOffset(row),
         widthForChip,
-        40,
+        heightForChip,
       );
       fontSizes[chip.id] = chipSize;
     });
-    const chipsFrame = frame(contentX, cursorY, contentWidth, rows * 40 + (rows - 1) * spacing.elementGap);
+    const chipsFrame = frame(
+      contentX,
+      cursorY,
+      contentWidth,
+      rowHeights.reduce((sum, height) => sum + height, 0)
+        + (rows - 1) * spacing.elementGap,
+    );
     flowItems.push(chipsFrame);
     cursorY += chipsFrame.h;
   }

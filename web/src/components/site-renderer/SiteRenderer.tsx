@@ -192,6 +192,20 @@ const SITE_CINEMATIC_CSS = `
 }
 `;
 
+/**
+ * LIB hero projections already own absolute foreground frames. The integrated
+ * typography selector above must not turn those frames into relative-flow items:
+ * doing so adds each chip's normal-flow offset to its compiled top and lets chips
+ * cross the independently positioned CTA row. Keep this conditional so configs
+ * without an additive heroLayout retain byte-identical CSS and HTML.
+ */
+const HERO_LAYOUT_CINEMATIC_CSS = `
+.anaks-site[data-site-cinematic] [data-hero-layout-stack]
+  [data-hero-layout-frame][data-site-cine-hero-copy] {
+  position: absolute;
+}
+`;
+
 /** FLOW is opt-in inside SITECINE. The old v1 selector tree never sees these rules. */
 const CONTINUOUS_CANVAS_CSS = `
 .anaks-site[data-continuous-canvas-root] [data-continuous-canvas] {
@@ -386,6 +400,7 @@ export function SiteRenderer({
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),
   );
+  const hasProjectedHero = sections.some((section) => Boolean(section.heroLayout));
   const usesProceduralHero = (section: Section) => siteCinematic
     && (config.siteCinematic?.heroBackdrop === 'dna-procedural'
       || (section.background.image?.responsivePromotion
@@ -442,6 +457,7 @@ export function SiteRenderer({
   );
   const css = BASE_CSS + (pinnedFontResources?.css ?? '') +
     (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
+    (siteCinematic && hasProjectedHero ? HERO_LAYOUT_CINEMATIC_CSS : '') +
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
