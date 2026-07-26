@@ -9,12 +9,10 @@ import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import { LandingStoryContinuation } from '@/components/marketing/LandingStoryContinuation';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
+import { ACTIVE_SIGNATURE_CONTRACTS } from '@/lib/motion/signature-contract';
 import {
-  ACTIVE_SIGNATURE_CONTRACTS,
-  signatureContractFor,
-} from '@/lib/motion/signature-contract';
-import {
-  withSignatureProgressRail,
+  GENERATED_SITE_PROGRESS_RAIL,
+  withGeneratedSiteProgressRail,
   withSiteCinematicDefault,
 } from '@/lib/motion/site-cinematic';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
@@ -74,84 +72,47 @@ function render(config: SiteConfig, mode: 'desktop' | 'mobile' = 'desktop'): str
   }));
 }
 
-describe('RAIL R2 — 시그니처 안무 계약과 신규 pin', () => {
-  test('액티브 5종 매핑과 인테리어 24종 12/12 분리를 고정한다', () => {
-    assert.deepEqual(
-      Object.fromEntries(Object.entries(ACTIVE_SIGNATURE_CONTRACTS).map(([id, contract]) => [
-        id,
-        contract.renderContract.progressRail,
-      ])),
-      {
-        'cinematic-scrub': 'none',
-        'scrollytelling-manifesto': 'numbered',
-        'true-card-stack': 'none',
-        'scroll-curtain': 'none',
-        'path-journey': 'numbered',
-      },
-    );
-    const split = NAMED_TEMPLATE_CATALOG.reduce(
-      (counts, template) => {
-        const rail = signatureContractFor(
-          template.recipe.motionSignatureId,
-        )?.renderContract.progressRail;
-        assert.ok(rail, template.id);
-        counts[rail] += 1;
-        return counts;
-      },
-      { numbered: 0, none: 0 },
-    );
-    assert.deepEqual(split, { numbered: 12, none: 12 });
+describe('RAIL R1b — 생성 사이트 진행 표시 전면 제거', () => {
+  test('시그니처 계약은 레일을 소유하지 않고 신규 생성 정책은 none 단일값이다', () => {
+    assert.equal(GENERATED_SITE_PROGRESS_RAIL, 'none');
+    for (const contract of Object.values(ACTIVE_SIGNATURE_CONTRACTS)) {
+      assert.equal('progressRail' in contract.renderContract, false);
+    }
   });
 
-  test('템플릿 기본과 고객 override 모두 최종 선택 시그니처를 따라 on↔off한다', () => {
-    const base = fixture();
-    const templateOn = withSignatureProgressRail(base, 'path-journey');
-    const templateOff = withSignatureProgressRail(base, 'true-card-stack');
-    assert.equal(templateOn.siteCinematic?.progressRail, 'numbered');
-    assert.equal(templateOff.siteCinematic?.progressRail, 'none');
-
-    const customerOff = applyGeneratedMotion(
-      templateOn,
-      'company_brand',
-      'premium',
-      { signatureId: 'true-card-stack' },
-    );
-    const customerOn = applyGeneratedMotion(
-      templateOff,
-      'company_brand',
-      'premium',
-      { signatureId: 'path-journey' },
-    );
-    assert.equal(customerOff.motion?.requestedSignatureId, 'true-card-stack');
-    assert.equal(customerOff.siteCinematic?.progressRail, 'none');
-    assert.equal(customerOn.motion?.requestedSignatureId, 'path-journey');
-    assert.equal(customerOn.siteCinematic?.progressRail, 'numbered');
+  test('인테리어 24개 템플릿의 모든 시그니처 선택이 신규 생성에서 none으로 pin된다', () => {
+    assert.equal(NAMED_TEMPLATE_CATALOG.length, 24);
+    for (const template of NAMED_TEMPLATE_CATALOG) {
+      const generated = applyGeneratedMotion(
+        fixture(),
+        'company_brand',
+        'premium',
+        { signatureId: template.recipe.motionSignatureId },
+      );
+      assert.equal(generated.siteCinematic?.progressRail, 'none', template.id);
+    }
   });
 
-  test('실 scene 우선·requested 차순이며 계약 없는 candidate/legacy는 none이다', () => {
-    const base = fixture();
-    const sceneWins = withSignatureProgressRail({
-      ...base,
-      motion: {
-        presetId: 'base-calm-v2',
-        intensity: 'normal',
-        requestedSignatureId: 'path-journey',
-        signatures: [{ signatureId: 'true-card-stack' } as NonNullable<
-          NonNullable<SiteConfig['motion']>['signatures']
-        >[number]],
-      },
-    });
-    assert.equal(sceneWins.siteCinematic?.progressRail, 'none');
-    assert.equal(
-      withSignatureProgressRail(base, 'portal-zoom').siteCinematic?.progressRail,
-      'none',
-    );
-    assert.equal(withSignatureProgressRail(base).siteCinematic?.progressRail, 'none');
+  test('고객 모션 override와 기존 numbered 입력도 생성 경계를 통과하면 항상 none이다', () => {
+    const numbered: SiteConfig = {
+      ...fixture(),
+      siteCinematic: { ...fixture().siteCinematic!, progressRail: 'numbered' },
+    };
+    for (const signatureId of ['path-journey', 'true-card-stack'] as const) {
+      const generated = applyGeneratedMotion(
+        numbered,
+        'company_brand',
+        'premium',
+        { signatureId },
+      );
+      assert.equal(generated.motion?.requestedSignatureId, signatureId);
+      assert.equal(generated.siteCinematic?.progressRail, 'none');
+    }
   });
 
   test('SiteConfig 저장 경계가 optional pin을 보존하고 기존 미지정도 허용한다', () => {
     const missing = fixture();
-    const pinned = withSignatureProgressRail(missing, 'true-card-stack');
+    const pinned = withGeneratedSiteProgressRail(missing);
     assert.equal(siteConfigSchema.parse(missing).siteCinematic?.progressRail, undefined);
     assert.equal(siteConfigSchema.parse(pinned).siteCinematic?.progressRail, 'none');
   });
@@ -182,7 +143,7 @@ describe('RAIL R2 — 기존 SHA·랜딩·no-rail 시각 흔적', () => {
   });
 
   test('none은 선·번호를 제거하고 별도 모바일 좌측 gutter 없이 챕터 계약을 유지한다', () => {
-    const none = withSignatureProgressRail(fixture(), 'true-card-stack');
+    const none = withGeneratedSiteProgressRail(fixture());
     const html = render(none, 'mobile');
     assert.doesNotMatch(html, /data-story-progress-rail="true"/u);
     assert.equal((html.match(/data-story-spine-hidden="true"/gu) ?? []).length, 3);
@@ -204,12 +165,14 @@ describe('RAIL R2 — 기존 SHA·랜딩·no-rail 시각 흔적', () => {
     assert.equal((html.match(/data-story-progress-rail="true"/gu) ?? []).length, 1);
   });
 
-  test('72렌더 harness가 fonts.ready 뒤 양쪽 레일과 기존 품질 게이트를 함께 강제한다', () => {
+  test('72렌더 harness가 fonts.ready 뒤 전면 제거와 기존 품질 게이트를 함께 강제한다', () => {
     const source = readFileSync(
       join(process.cwd(), 'scripts/render-template-gallery-review.tsx'),
       'utf8',
     );
     assert.match(source, /document\.fonts\.ready/u);
+    assert.match(source, /progressRail !== 'none'/u);
+    assert.doesNotMatch(source, /signatureContractFor/u);
     assert.match(source, /renderedRailCount/u);
     assert.match(source, /visibleChapterNumberCount/u);
     assert.match(source, /maximumChapterContentPaddingLeft/u);

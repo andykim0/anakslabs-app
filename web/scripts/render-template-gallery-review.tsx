@@ -36,7 +36,6 @@ import {
   withContinuousCanvasDefault,
   withSiteCinematicDefault,
 } from '@/lib/motion/site-cinematic';
-import { signatureContractFor } from '@/lib/motion/signature-contract';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import type {
@@ -643,12 +642,9 @@ async function main() {
           metrics.imageContrastForegrounds,
         );
         const progressRail = item.config.siteCinematic?.progressRail ?? 'numbered';
-        const contractRail = signatureContractFor(
-          item.template.recipe.motionSignatureId,
-        )?.renderContract.progressRail;
-        if (progressRail !== contractRail) {
+        if (progressRail !== 'none') {
           throw new Error(
-            `${item.template.id}/${viewport.band}: stored rail ${progressRail} != contract ${contractRail}`,
+            `${item.template.id}/${viewport.band}: new generated site retained ${progressRail} rail`,
           );
         }
         const pageSectionIds = item.config.pages.flatMap((sitePage) =>
@@ -703,13 +699,7 @@ async function main() {
             `${item.template.id}/${viewport.band}: button nowrap ${record.buttonNowrapViolations.join(' | ')}`,
           );
         }
-        if (record.progressRail === 'numbered') {
-          if (record.renderedRailCount !== 1 || record.visibleChapterNumberCount === 0) {
-            throw new Error(
-              `${item.template.id}/${viewport.band}: numbered rail was not fully rendered`,
-            );
-          }
-        } else if (
+        if (
           record.renderedRailCount !== 0
           || record.visibleChapterNumberCount !== 0
           || record.hiddenSpineChapterCount === 0
@@ -804,8 +794,7 @@ async function main() {
   );
   process.stdout.write(
     `TPL review: ${records.length} captures, ${FONTMOD_REVIEW_MODE} fonts ready, `
-    + `progress rail ${records.filter((record) => record.progressRail === 'numbered').length / 3}/`
-    + `${records.filter((record) => record.progressRail === 'none').length / 3}, `
+    + `generated-site progress rail none ${records.filter((record) => record.progressRail === 'none').length / 3}/24, `
     + `hero foreground overlaps 0, ${imageContrastSampleCount} image text AA samples pass, `
     + 'button nowrap pass, overflow 0, CLS 0, console errors 0\n',
   );
