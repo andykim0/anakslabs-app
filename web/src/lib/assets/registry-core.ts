@@ -4,6 +4,7 @@ import {
   type AssetMediaType,
   type AssetOrigin,
   type AssetRecord,
+  type StockAttribution,
 } from './provenance';
 import type { HeroPhotoQualityStamp } from './hero-photo-quality';
 
@@ -18,11 +19,29 @@ export interface RegisterStoredAssetInput {
   mediaType: AssetMediaType;
   /** Server-computed only; client forms cannot submit this object. */
   imageQuality?: HeroPhotoQualityStamp;
+  /** Server-decoded immutable raster dimensions. */
+  width?: number;
+  height?: number;
 }
 
 export interface ServerAssetRegistration extends RegisterStoredAssetInput {
   /** Set only by fixed server boundary helpers. */
   origin: AssetOrigin;
+}
+
+export interface RegisterLicensedStockInput {
+  /** Deterministic UUID stored separately from the provider key. */
+  assetId: string;
+  storageBucket: string;
+  storageKey: string;
+  canonicalUrl: string;
+  mediaType: 'image';
+  width: number;
+  height: number;
+  stockKey: string;
+  provider: 'pexels';
+  providerAssetId: string;
+  attribution: StockAttribution;
 }
 
 export interface AssetRegistry {
@@ -43,7 +62,14 @@ export interface AssetRegistry {
     assetIds: readonly string[];
     clientId: string;
   }): Promise<AssetRecord[]>;
+  /** Server-only union resolver: owned customer rows plus global licensed stock. */
+  resolveAvailable(input: {
+    assetIds: readonly string[];
+    clientId: string;
+    siteId?: string | null;
+  }): Promise<AssetRecord[]>;
   bindToSite(input: { assetId: string; clientId: string; siteId: string }): Promise<AssetRecord>;
+  registerLicensedStock(input: RegisterLicensedStockInput): Promise<AssetRecord>;
 }
 
 type OwnsSite = (input: { siteId: string; clientId: string }) => boolean | Promise<boolean>;
@@ -56,6 +82,7 @@ export interface ServerAssetOriginStamper {
   registerCustomerUploadAsset(input: RegisterStoredAssetInput): Promise<AssetRecord>;
   registerCustomerImportAsset(input: RegisterStoredAssetInput): Promise<AssetRecord>;
   registerAiGeneratedAsset(input: RegisterStoredAssetInput): Promise<AssetRecord>;
+  registerLicensedStockAsset(input: RegisterLicensedStockInput): Promise<AssetRecord>;
 }
 
 /** Injectable pure seam proving that callers cannot choose canonical origin. */
@@ -74,6 +101,7 @@ export function createServerAssetOriginStamper(registry: AssetRegistry): ServerA
     registerCustomerUploadAsset: (input) => stamp('customer_upload', input),
     registerCustomerImportAsset: (input) => stamp('customer_import', input),
     registerAiGeneratedAsset: (input) => stamp('ai_generated', input),
+    registerLicensedStockAsset: (input) => registry.registerLicensedStock(input),
   };
 }
 
@@ -104,6 +132,7 @@ function clone(record: AssetRecord): AssetRecord {
           },
         }
       : {}),
+    ...(record.attribution ? { attribution: { ...record.attribution } } : {}),
   };
 }
 
@@ -142,7 +171,9 @@ export function assertAssetRegistrationRetryCompatible(
   if (existing.origin !== input.origin
     || existing.mediaType !== input.mediaType
     || existing.canonicalUrl !== input.canonicalUrl
-    || existing.imageQuality?.stampSha256 !== input.imageQuality?.stampSha256) {
+    || existing.imageQuality?.stampSha256 !== input.imageQuality?.stampSha256
+    || existing.width !== input.width
+    || existing.height !== input.height) {
     throw new AssetProvenanceError(
       'ASSET_PROVENANCE_CONFLICT',
       'Storage identity was already registered with conflicting immutable provenance',
@@ -209,6 +240,8 @@ export function createMemoryAssetRegistry(options: {
         ownerId: input.clientId,
         siteId: input.siteId ?? null,
         ...(input.imageQuality ? { imageQuality: input.imageQuality } : {}),
+        ...(input.width ? { width: input.width } : {}),
+        ...(input.height ? { height: input.height } : {}),
       };
       byId.set(record.id, record);
       byStorage.set(identity, record.id);
@@ -249,6 +282,74 @@ export function createMemoryAssetRegistry(options: {
         if (record?.ownerId === clientId) result.push(clone(record));
       }
       return result;
+    },
+
+    async resolveAvailable({ assetIds, clientId, siteId }) {
+      const result: AssetRecord[] = [];
+      for (const id of [...new Set(assetIds)]) {
+        const record = byId.get(id);
+        if (!record) continue;
+        if (record.origin === 'licensed_stock') {
+          if (record.ownerId === null && record.siteId === null) result.push(clone(record));
+          continue;
+        }
+        if (record.ownerId !== clientId) continue;
+        if (siteId !== undefined && siteId !== null && record.siteId !== siteId) continue;
+        result.push(clone(record));
+      }
+      return result;
+    },
+
+    async registerLicensedStock(rawInput) {
+      const input: RegisterLicensedStockInput = {
+        ...rawInput,
+        assetId: required(rawInput.assetId, 'assetId'),
+        storageBucket: required(rawInput.storageBucket, 'storageBucket'),
+        storageKey: required(rawInput.storageKey, 'storageKey'),
+        canonicalUrl: required(rawInput.canonicalUrl, 'canonicalUrl'),
+        stockKey: required(rawInput.stockKey, 'stockKey'),
+        providerAssetId: required(rawInput.providerAssetId, 'providerAssetId'),
+      };
+      const identity = storageIdentity(input.storageBucket, input.storageKey);
+      const existingId = byStorage.get(identity);
+      const existing = existingId ? byId.get(existingId) : byId.get(input.assetId);
+      if (existing) {
+        if (existing.origin !== 'licensed_stock'
+          || existing.ownerId !== null
+          || existing.siteId !== null
+          || existing.stockKey !== input.stockKey
+          || existing.provider !== input.provider
+          || existing.providerAssetId !== input.providerAssetId
+          || existing.width !== input.width
+          || existing.height !== input.height
+          || existing.canonicalUrl !== input.canonicalUrl) {
+          throw new AssetProvenanceError(
+            'ASSET_PROVENANCE_CONFLICT',
+            'Licensed stock identity conflicts with an existing immutable record',
+          );
+        }
+        return clone(existing);
+      }
+      const record: AssetRecord = {
+        id: input.assetId,
+        origin: 'licensed_stock',
+        mediaType: input.mediaType,
+        storageBucket: input.storageBucket,
+        storageKey: input.storageKey,
+        canonicalUrl: input.canonicalUrl,
+        createdAt: now(),
+        ownerId: null,
+        siteId: null,
+        width: input.width,
+        height: input.height,
+        stockKey: input.stockKey,
+        provider: input.provider,
+        providerAssetId: input.providerAssetId,
+        attribution: { ...input.attribution },
+      };
+      byId.set(record.id, record);
+      byStorage.set(identity, record.id);
+      return clone(record);
     },
 
     async bindToSite({ assetId, clientId, siteId }) {

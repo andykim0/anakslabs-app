@@ -9,6 +9,7 @@ import { uploadClientAsset } from '@/lib/data/supabase/storage';
 import { isMockMode } from '@/lib/env';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { registerCustomerImportAsset, toAssetRef } from '@/lib/assets/registry';
+import { readRasterDimensions } from '@/lib/uploads/raster-dimensions';
 
 const IMG_MIME_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -64,6 +65,7 @@ async function ingestExternalImageInternal(
   const bytes = await readLimitedBytes(res, MAX_IMG_BYTES);
   const buf = Buffer.from(bytes);
   const mimeType = ct === 'image/jpg' ? 'image/jpeg' : ct;
+  const dimensions = readRasterDimensions(buf, mimeType);
   if (isMockMode()) {
     const url = `data:${mimeType};base64,${buf.toString('base64')}`;
     if (!provenance.write) return { url };
@@ -81,6 +83,8 @@ async function ingestExternalImageInternal(
         storageKey: `mock/imported/${owner.clientId}/${crypto.randomUUID()}.${ext}`,
         canonicalUrl: url,
         mediaType: 'image',
+        width: dimensions.width,
+        height: dimensions.height,
       });
       return { url, assetRef: toAssetRef(record) };
     } catch (error) {
@@ -112,6 +116,8 @@ async function ingestExternalImageInternal(
       storageKey: uploaded.objectPath,
       canonicalUrl: uploaded.url,
       mediaType: 'image',
+      width: dimensions.width,
+      height: dimensions.height,
     });
     return { url: uploaded.url, assetRef: toAssetRef(record) };
   } catch (error) {

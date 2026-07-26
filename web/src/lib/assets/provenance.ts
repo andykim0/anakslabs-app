@@ -16,6 +16,7 @@ export const ASSET_ORIGINS = [
   'customer_upload',
   'customer_import',
   'ai_generated',
+  'licensed_stock',
   'legacy_unknown',
 ] as const;
 
@@ -35,11 +36,23 @@ export interface AssetRecord {
   /** Display projection. Never use this value to prove ownership or origin. */
   canonicalUrl: string;
   createdAt: string;
-  ownerId: string;
+  /**
+   * Customer assets always have an owner. Only licensed_stock may be global
+   * (ownerId/siteId both null) and it is resolved exclusively by server code.
+   */
+  ownerId: string | null;
   /** Provisional assets may be bound to one owned site exactly once. */
   siteId: string | null;
   /** Server-computed immutable assessment for customer raster uploads only. */
   imageQuality?: HeroPhotoQualityStamp;
+  /** Immutable raster dimensions. Unknown/legacy/SVG/video records remain unset. */
+  width?: number;
+  height?: number;
+  /** Stable provider-neutral key; separate from the UUID registry identity. */
+  stockKey?: string;
+  provider?: 'pexels';
+  providerAssetId?: string;
+  attribution?: StockAttribution;
 }
 
 export interface AssetUsage {
@@ -52,6 +65,17 @@ export interface AssetUsage {
 export interface AssetRef {
   assetId: string;
   url: string;
+  width?: number;
+  height?: number;
+  attribution?: StockAttribution;
+}
+
+export interface StockAttribution {
+  provider: 'pexels';
+  photographer: string;
+  photographerUrl: string;
+  sourceUrl: string;
+  licenseUrl: 'https://www.pexels.com/license/';
 }
 
 export const ASSET_PROVENANCE_ERROR_CODES = [
@@ -211,7 +235,13 @@ export function toLegacyMotionAssetSource(origin: AssetOrigin): LegacyMotionAsse
 }
 
 export function toAssetRef(record: AssetRecord): AssetRef {
-  return { assetId: record.id, url: record.canonicalUrl };
+  return {
+    assetId: record.id,
+    url: record.canonicalUrl,
+    ...(record.width ? { width: record.width } : {}),
+    ...(record.height ? { height: record.height } : {}),
+    ...(record.attribution ? { attribution: { ...record.attribution } } : {}),
+  };
 }
 
 /** Call at API boundaries before extracting allowed fields from a client payload. */

@@ -66,7 +66,16 @@ const safeMediaSrcSchema = z
 const assetRefSchema = z.object({
   assetId: z.string().uuid(),
   url: safeMediaSrcSchema,
-});
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+  attribution: z.object({
+    provider: z.literal('pexels'),
+    photographer: z.string().trim().min(1).max(200),
+    photographerUrl: z.string().url().refine((value) => /^https:\/\/(?:www\.)?pexels\.com\//iu.test(value)),
+    sourceUrl: z.string().url().refine((value) => /^https:\/\/(?:www\.)?pexels\.com\/photo\//iu.test(value)),
+    licenseUrl: z.literal('https://www.pexels.com/license/'),
+  }).strict().optional(),
+}).strict();
 
 const assetUsageSchema = z.object({
   assetId: z.string().uuid(),

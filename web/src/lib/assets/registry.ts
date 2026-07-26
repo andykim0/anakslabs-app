@@ -23,7 +23,7 @@ import { isHeroPhotoQualityStamp } from './hero-photo-quality';
 
 interface AssetRecordRow {
   id: string;
-  client_id: string;
+  client_id: string | null;
   site_id: string | null;
   origin: AssetRecord['origin'];
   media_type: AssetRecord['mediaType'];
@@ -32,6 +32,22 @@ interface AssetRecordRow {
   canonical_url: string;
   created_at: string;
   image_quality: unknown;
+  width: number | null;
+  height: number | null;
+  stock_key: string | null;
+  provider: string | null;
+  provider_asset_id: string | null;
+  attribution: unknown;
+}
+
+function isStockAttribution(value: unknown): value is NonNullable<AssetRecord['attribution']> {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return record.provider === 'pexels'
+    && typeof record.photographer === 'string'
+    && typeof record.photographerUrl === 'string'
+    && typeof record.sourceUrl === 'string'
+    && record.licenseUrl === 'https://www.pexels.com/license/';
 }
 
 function rowToAssetRecord(row: AssetRecordRow): AssetRecord {
@@ -46,6 +62,12 @@ function rowToAssetRecord(row: AssetRecordRow): AssetRecord {
     ownerId: row.client_id,
     siteId: row.site_id,
     ...(isHeroPhotoQualityStamp(row.image_quality) ? { imageQuality: row.image_quality } : {}),
+    ...(row.width ? { width: row.width } : {}),
+    ...(row.height ? { height: row.height } : {}),
+    ...(row.stock_key ? { stockKey: row.stock_key } : {}),
+    ...(row.provider === 'pexels' ? { provider: row.provider } : {}),
+    ...(row.provider_asset_id ? { providerAssetId: row.provider_asset_id } : {}),
+    ...(isStockAttribution(row.attribution) ? { attribution: row.attribution } : {}),
   };
 }
 
@@ -93,6 +115,8 @@ class SupabaseAssetRegistry implements AssetRegistry {
         storage_key: input.storageKey,
         canonical_url: input.canonicalUrl,
         image_quality: input.imageQuality ?? null,
+        width: input.width ?? null,
+        height: input.height ?? null,
       })
       .select('*')
       .single();
@@ -183,6 +207,92 @@ class SupabaseAssetRegistry implements AssetRegistry {
     });
   }
 
+  async resolveAvailable(input: {
+    assetIds: readonly string[];
+    clientId: string;
+    siteId?: string | null;
+  }): Promise<AssetRecord[]> {
+    const ids = [...new Set(input.assetIds)];
+    if (ids.length === 0) return [];
+    const svc = getServiceRoleClient();
+    const { data, error } = await svc
+      .from('asset_records')
+      .select('*')
+      .in('id', ids)
+      .or(`client_id.eq.${input.clientId},and(origin.eq.licensed_stock,client_id.is.null,site_id.is.null)`);
+    if (error) throw new Error(`asset availability lookup failed: ${error.message}`);
+    const records = ((data ?? []) as AssetRecordRow[]).map(rowToAssetRecord);
+    const byId = new Map(records.map((record) => [record.id, record] as const));
+    return ids.flatMap((id) => {
+      const record = byId.get(id);
+      if (!record) return [];
+      if (record.origin === 'licensed_stock') return [record];
+      if (input.siteId !== undefined && input.siteId !== null && record.siteId !== input.siteId) return [];
+      return [record];
+    });
+  }
+
+  async registerLicensedStock(input: import('./registry-core').RegisterLicensedStockInput): Promise<AssetRecord> {
+    if (!input.assetId.trim() || !input.storageBucket.trim() || !input.storageKey.trim()
+      || !input.canonicalUrl.trim() || !input.stockKey.trim() || !input.providerAssetId.trim()
+      || !Number.isInteger(input.width) || input.width <= 0
+      || !Number.isInteger(input.height) || input.height <= 0) {
+      throw new AssetProvenanceError(
+        'ASSET_REGISTRATION_INVALID',
+        'Licensed stock requires complete immutable provider and raster metadata.',
+      );
+    }
+    const svc = getServiceRoleClient();
+    const row = {
+      id: input.assetId,
+      client_id: null,
+      site_id: null,
+      origin: 'licensed_stock',
+      media_type: input.mediaType,
+      storage_bucket: input.storageBucket,
+      storage_key: input.storageKey,
+      canonical_url: input.canonicalUrl,
+      width: input.width,
+      height: input.height,
+      stock_key: input.stockKey,
+      provider: input.provider,
+      provider_asset_id: input.providerAssetId,
+      attribution: input.attribution,
+    };
+    const { data, error } = await svc
+      .from('asset_records')
+      .insert(row)
+      .select('*')
+      .single();
+    if (!error && data) return rowToAssetRecord(data as AssetRecordRow);
+    if (error?.code !== '23505') {
+      throw new Error(`licensed stock registration failed: ${error?.message ?? 'missing row'}`);
+    }
+    const { data: existingData, error: existingError } = await svc
+      .from('asset_records')
+      .select('*')
+      .eq('stock_key', input.stockKey)
+      .maybeSingle();
+    if (existingError) throw new Error(`licensed stock retry lookup failed: ${existingError.message}`);
+    if (!existingData) throw new Error('licensed stock conflicted without a readable registry row');
+    const existing = rowToAssetRecord(existingData as AssetRecordRow);
+    if (existing.id !== input.assetId
+      || existing.origin !== 'licensed_stock'
+      || existing.ownerId !== null
+      || existing.siteId !== null
+      || existing.provider !== input.provider
+      || existing.providerAssetId !== input.providerAssetId
+      || existing.canonicalUrl !== input.canonicalUrl
+      || existing.width !== input.width
+      || existing.height !== input.height) {
+      throw new AssetProvenanceError(
+        'ASSET_PROVENANCE_CONFLICT',
+        'Licensed stock retry does not match immutable registry authority.',
+      );
+    }
+    return existing;
+  }
+
   async bindToSite(input: { assetId: string; clientId: string; siteId: string }): Promise<AssetRecord> {
     const current = await this.getById(input.assetId);
     if (!current) throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${input.assetId}`);
@@ -242,6 +352,12 @@ export function registerAiGeneratedAsset(input: RegisterStoredAssetInput): Promi
   return createServerAssetOriginStamper(getAssetRegistry()).registerAiGeneratedAsset(input);
 }
 
+export function registerLicensedStockAsset(
+  input: import('./registry-core').RegisterLicensedStockInput,
+): Promise<AssetRecord> {
+  return createServerAssetOriginStamper(getAssetRegistry()).registerLicensedStockAsset(input);
+}
+
 export function bindAssetToOwnedSite(input: {
   assetId: string;
   clientId: string;
@@ -263,6 +379,43 @@ export function resolveAvailableOwnedAssetRecords(input: {
   clientId: string;
 }): Promise<AssetRecord[]> {
   return getAssetRegistry().resolveOwnedAvailable(input);
+}
+
+export function resolveAvailableAssetRecords(input: {
+  assetIds: readonly string[];
+  clientId: string;
+  siteId?: string | null;
+}): Promise<AssetRecord[]> {
+  return getAssetRegistry().resolveAvailable(input);
+}
+
+export async function validateAvailableAssetRefs(input: {
+  refs: readonly { assetId: string; url: string }[];
+  clientId: string;
+  siteId?: string | null;
+}): Promise<AssetRef[]> {
+  const ids = input.refs.map((ref) => ref.assetId);
+  if (new Set(ids).size !== ids.length) {
+    throw new AssetProvenanceError('ASSET_PROVENANCE_CONFLICT', 'Duplicate asset references are not allowed');
+  }
+  const records = await resolveAvailableAssetRecords({
+    assetIds: ids,
+    clientId: input.clientId,
+    ...(input.siteId !== undefined ? { siteId: input.siteId } : {}),
+  });
+  const byId = new Map(records.map((record) => [record.id, record] as const));
+  return ids.map((id, index) => {
+    const record = byId.get(id);
+    if (!record) throw new AssetProvenanceError('ASSET_NOT_FOUND', `Asset not found: ${id}`);
+    const canonical = toAssetRef(record);
+    if (canonical.url !== input.refs[index]?.url) {
+      throw new AssetProvenanceError(
+        'ASSET_PROVENANCE_CONFLICT',
+        `Asset URL does not match its canonical registry record: ${canonical.assetId}`,
+      );
+    }
+    return canonical;
+  });
 }
 
 /**

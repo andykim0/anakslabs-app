@@ -256,6 +256,9 @@ export const POST = withApiHandler(async (request) => {
       canonicalUrl: url,
       mediaType: 'image',
       imageQuality,
+      ...(imageQuality
+        ? { width: imageQuality.metrics.width, height: imageQuality.metrics.height }
+        : {}),
     });
     return NextResponse.json(
       projectAssetIngressResponse({ url, assetRef: toAssetRef(record) }, true),
@@ -279,6 +282,9 @@ export const POST = withApiHandler(async (request) => {
     canonicalUrl: uploaded.url,
     mediaType: 'image',
     imageQuality,
+    ...(imageQuality
+      ? { width: imageQuality.metrics.width, height: imageQuality.metrics.height }
+      : {}),
   });
   return NextResponse.json(
     projectAssetIngressResponse({ url: uploaded.url, assetRef: toAssetRef(record) }, true),

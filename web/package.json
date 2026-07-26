@@ -11,7 +11,9 @@
     "motion:audit": "tsx scripts/audit-hyperframes-isolation.ts",
     "motion:render": "tsx scripts/render-motion-clip.ts",
     "motion:smoke": "tsx scripts/render-motion-clip.ts --scene smoke --output /private/tmp/daboim-hyperframes/smoke.mp4 --report /private/tmp/daboim-hyperframes/smoke-report.json --determinism-check",
-    "fonts:subset": "tsx scripts/build-korean-font-subsets.ts"
+    "fonts:subset": "tsx scripts/build-korean-font-subsets.ts",
+    "stock:sync": "tsx scripts/sync-pexels-stock.ts",
+    "assets:backfill-dimensions": "tsx scripts/backfill-asset-dimensions.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
