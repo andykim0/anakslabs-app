@@ -64,6 +64,12 @@ function quality(passed: boolean): HeroPhotoQualityStamp {
     },
     guidance: passed ? '통과' : '사진의 초점이 조금 흐려 이번엔 다보임이 준비한 화면을 사용했어요.',
     viewportCrops,
+    contrastProfile: {
+      algorithmVersion: 'image-channel-range-v1',
+      darkestColor: '#222222',
+      brightestColor: '#dddddd',
+      meanLuminance: 0.5,
+    },
     stampSha256: 'b'.repeat(64),
   };
 }
@@ -189,6 +195,10 @@ describe('IMG I3 — 실사진 히어로 승격', () => {
     assert.deepEqual(promotedHero.background.image?.focalPoint, focus.focalPoint);
     assert.deepEqual(promotedHero.background.image?.compactFocalPoint, focus.compactFocalPoint);
     assert.deepEqual(promotedHero.background.image?.mobileFocalPoint, focus.mobileFocalPoint);
+    assert.equal(promotedHero.background.image?.adaptiveScrim?.source, 'customer-photo');
+    assert.ok(
+      (promotedHero.background.image?.adaptiveScrim?.mobile.minimumContrast ?? 0) >= 4.5,
+    );
     for (const point of [focus.focalPoint, focus.compactFocalPoint, focus.mobileFocalPoint]) {
       assert.ok(point.x >= 0.2 && point.x <= 0.8);
       assert.ok(point.y >= 0.2 && point.y <= 0.8);

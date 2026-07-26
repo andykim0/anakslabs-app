@@ -9,6 +9,9 @@ import { SiteRenderer } from '@/components/site-renderer';
 import { resolveSiteAssetPolicyCore } from '@/lib/assets/assignment-core';
 import type { AssetRecord } from '@/lib/assets/provenance';
 import { heroLayoutById } from '@/lib/layout/catalog';
+import { NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
+import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
+import { resolveAdaptiveImageScrim } from '@/lib/design/scrim';
 import { resolveHeroLayoutVariant } from '@/lib/layout/hero-layout-resolver';
 import { applySectionLayoutVariants } from '@/lib/layout/section-layout-application';
 import type { HeroLayoutVariantId } from '@/lib/layout/types';
@@ -243,6 +246,45 @@ test('stock credit is local, static-export readable and links to official Pexels
   assert.match(html, /https:\/\/www\.pexels\.com\/photo\//u);
   assert.match(html, /target="_blank"/u);
   assert.doesNotMatch(html, /<script[^>]+pexels/iu);
+  assert.match(html, /data-adaptive-image-scrim="wide"/u);
+  assert.match(html, /data-minimum-contrast="4\.[5-9]|data-minimum-contrast="[5-9]/u);
+});
+
+test('STK-R1 24 templates × 3 bands pin image-derived AA scrims', () => {
+  const asset = workshopStockManifest().assets.find((item) => (
+    item.review.passed && item.contrastProfile
+  ));
+  assert.ok(asset?.contrastProfile);
+  let checked = 0;
+  for (const template of NAMED_TEMPLATE_CATALOG) {
+    const templateTheme = tokenSetToSiteTheme(expandTokens(
+      template.recipe.designDna.dnaId,
+      template.recipe.designDna.hueSeed,
+      template.recipe.designDna.overrides,
+    ));
+    const resolved = resolveAdaptiveImageScrim(
+      templateTheme.palette,
+      asset.contrastProfile,
+    );
+    for (const band of ['wide', 'compact', 'mobile'] as const) {
+      assert.ok(
+        resolved.minimumContrast >= 4.5,
+        `${template.id}/${band}: ${resolved.minimumContrast}`,
+      );
+      checked += 1;
+    }
+  }
+  assert.equal(checked, 24 * 3);
+});
+
+test('STK-R1 review gate measures computed text against the rendered image-plus-scrim pixels', () => {
+  const review = readFileSync(path.join(ROOT, 'scripts/render-stock-review.tsx'), 'utf8');
+  assert.match(review, /data-image-contrast-foreground/u);
+  assert.match(review, /element\.style\.visibility = 'hidden'/u);
+  assert.match(review, /contrastRatio\(textColor, backgroundColor\)/u);
+  assert.match(review, /foreground\.fontSize >= 24/u);
+  assert.match(review, /item\.ratio \+ 0\.01 < item\.required/u);
+  assert.match(review, /contrastMeasurements/u);
 });
 
 test('deterministic page traversal minimizes adjacent stock reuse until pool exhaustion', () => {

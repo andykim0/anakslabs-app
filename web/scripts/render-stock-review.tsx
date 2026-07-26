@@ -25,6 +25,8 @@ import {
   resolveTemplate,
 } from '@/lib/data/site-blueprints';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
+import { contrastRatio } from '@/lib/design/quality-standards';
+import { compositeScrimColor } from '@/lib/design/scrim';
 import {
   applySectionLayoutVariants,
   recompileGallerySectionLayouts,
@@ -42,6 +44,7 @@ const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const VIEWPORTS = [
   { band: 'wide', width: 1440, height: 900, mode: 'desktop' },
+  { band: 'compact', width: 768, height: 1024, mode: 'mobile' },
   { band: 'mobile', width: 390, height: 844, mode: 'mobile' },
 ] as const;
 const CUSTOMER_PHOTOS = [
@@ -365,7 +368,7 @@ async function capture(
   input: {
     fixture: string;
     variant: 'system-before' | 'stock-after' | 'customer-priority';
-    band: 'wide' | 'mobile';
+    band: 'wide' | 'compact' | 'mobile';
     width: number;
     height: number;
     gallery?: boolean;
@@ -402,12 +405,32 @@ async function capture(
   });
   await page.goto(`${origin}/review/fixtures/${input.fixture}`, { waitUntil: 'networkidle0' });
   await settle(page);
-  const metrics = await page.evaluate(() => ({
-    overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth),
-    stockImages: document.querySelectorAll('img[src^="/stock/pexels/"]').length,
-    credits: document.querySelectorAll('[data-stock-attribution]').length,
-    pageHeight: document.documentElement.scrollHeight,
-  }));
+  const metrics = await page.evaluate(() => {
+    const foregrounds = [...document.querySelectorAll<HTMLElement>(
+      '[data-section-type="hero"] [data-image-contrast-foreground]',
+    )].map((frame) => {
+      const text = frame.querySelector<HTMLElement>('p') ?? frame;
+      const rect = text.getBoundingClientRect();
+      const style = getComputedStyle(text);
+      return {
+        id: frame.dataset.imageContrastForeground ?? 'unknown',
+        x: rect.left,
+        y: rect.top + scrollY,
+        width: rect.width,
+        height: rect.height,
+        color: style.color,
+        fontSize: Number.parseFloat(style.fontSize),
+        fontWeight: Number.parseInt(style.fontWeight, 10) || 400,
+      };
+    }).filter((item) => item.width > 0 && item.height > 0);
+    return {
+      overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth),
+      stockImages: document.querySelectorAll('img[src^="/stock/pexels/"]').length,
+      credits: document.querySelectorAll('[data-stock-attribution]').length,
+      pageHeight: document.documentElement.scrollHeight,
+      foregrounds,
+    };
+  });
   const suffix = input.gallery ? '-masonry' : '';
   const screenshot = path.join(
     OUTPUT,
@@ -421,6 +444,66 @@ async function capture(
   } else {
     await page.screenshot({ path: screenshot, fullPage: true });
   }
+  let contrastMeasurements: Array<{
+    id: string;
+    ratio: number;
+    required: number;
+    color: string;
+  }> = [];
+  if (metrics.foregrounds.length > 0) {
+    await page.evaluate(() => {
+      for (const element of document.querySelectorAll<HTMLElement>(
+        '[data-image-contrast-foreground]',
+      )) {
+        element.style.visibility = 'hidden';
+      }
+    });
+    const background = await page.screenshot({ fullPage: true, type: 'png' });
+    const raw = await sharp(background)
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const cssColor = (value: string): string => {
+      const channels = value.match(/\d+(?:\.\d+)?/gu)?.slice(0, 3).map(Number);
+      if (!channels || channels.length !== 3) throw new Error(`Unsupported color: ${value}`);
+      return `#${channels.map((channel) =>
+        Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0'))
+        .join('')}`;
+    };
+    contrastMeasurements = metrics.foregrounds.map((foreground) => {
+      const textColor = cssColor(foreground.color);
+      const left = Math.max(0, Math.floor(foreground.x));
+      const top = Math.max(0, Math.floor(foreground.y));
+      const right = Math.min(raw.info.width, Math.ceil(foreground.x + foreground.width));
+      const bottom = Math.min(raw.info.height, Math.ceil(foreground.y + foreground.height));
+      let minimum = Number.POSITIVE_INFINITY;
+      for (let y = top; y < bottom; y += 2) {
+        for (let x = left; x < right; x += 2) {
+          const offset = (y * raw.info.width + x) * raw.info.channels;
+          const backgroundColor = `#${[
+            raw.data[offset],
+            raw.data[offset + 1],
+            raw.data[offset + 2],
+          ].map((channel) => channel!.toString(16).padStart(2, '0')).join('')}`;
+          minimum = Math.min(minimum, contrastRatio(textColor, backgroundColor));
+        }
+      }
+      const required = foreground.fontSize >= 24
+        || (foreground.fontSize >= 18.66 && foreground.fontWeight >= 700)
+        ? 3
+        : 4.5;
+      return {
+        id: foreground.id,
+        ratio: Number(minimum.toFixed(2)),
+        required,
+        color: textColor,
+      };
+    });
+    const failures = contrastMeasurements.filter((item) => item.ratio + 0.01 < item.required);
+    if (failures.length) {
+      throw new Error(`${input.variant}/${input.width}: image text contrast ${JSON.stringify(failures)}`);
+    }
+  }
   await page.close();
   if (errors.length || externalRequests.length || failedResources.length || metrics.overflow > 0) {
     throw new Error(`${input.variant}/${input.width} failed: ${JSON.stringify({
@@ -430,7 +513,15 @@ async function capture(
       metrics,
     })}`);
   }
-  return { ...input, screenshot, metrics, errors, externalRequests, failedResources };
+  return {
+    ...input,
+    screenshot,
+    metrics,
+    contrastMeasurements,
+    errors,
+    externalRequests,
+    failedResources,
+  };
 }
 
 function sha(config: SiteConfig): string {
@@ -538,6 +629,30 @@ async function main() {
     .flatMap((page) => page.sections)
     .find((section) => section.sectionLayout?.resolvedId === 'gallery.masonry');
   const masonryFrames = gallery?.sectionLayout?.bands.wide.frames ?? {};
+  const selectedHero = noUpload.selections[0]?.asset;
+  const adaptive = noUpload.after.pages[0]?.sections
+    .find((section) => section.type === 'hero')
+    ?.background.image?.adaptiveScrim;
+  const oldFixedContrast = selectedHero?.contrastProfile
+    ? Math.min(
+        contrastRatio(
+          noUpload.after.theme.palette.text,
+          compositeScrimColor(
+            selectedHero.contrastProfile.darkestColor,
+            noUpload.after.theme.palette.background,
+            0.3,
+          ),
+        ),
+        contrastRatio(
+          noUpload.after.theme.palette.text,
+          compositeScrimColor(
+            selectedHero.contrastProfile.brightestColor,
+            noUpload.after.theme.palette.background,
+            0.3,
+          ),
+        ),
+      )
+    : null;
 
   await writeFile(path.join(OUTPUT, 'report.json'), `${JSON.stringify({
     generatedAt: new Date().toISOString(),
@@ -559,6 +674,22 @@ async function main() {
         width: selection.asset.width,
         height: selection.asset.height,
       })),
+      contrast: {
+        priorFixedOverlayOpacity: 0.3,
+        priorFixedOverlayMinimumContrast: oldFixedContrast == null
+          ? null
+          : Number(oldFixedContrast.toFixed(2)),
+        adaptiveScrim: adaptive ?? null,
+        renderedMeasurements: captures
+          .filter((capture) => capture.variant === 'stock-after')
+          .map((capture) => ({
+            width: capture.width,
+            items: capture.contrastMeasurements,
+            minimum: Math.min(
+              ...capture.contrastMeasurements.map((item) => item.ratio),
+            ),
+          })),
+      },
     },
     customerPriority: {
       stockRefs: customer.assetRefs?.filter((ref) => ref.attribution).length ?? 0,

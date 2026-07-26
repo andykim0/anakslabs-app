@@ -3,7 +3,12 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { minOverlayOpacityForAA, resolveScrim, scrimPassesAA } from '@/lib/design/scrim';
+import {
+  minOverlayOpacityForAA,
+  resolveAdaptiveImageScrim,
+  resolveScrim,
+  scrimPassesAA,
+} from '@/lib/design/scrim';
 import { derivePalette } from '@/lib/design/quality-standards';
 import { REFERENCE_SAMPLES } from '@/lib/design/reference-samples';
 
@@ -46,5 +51,34 @@ describe('scrimPassesAA', () => {
   test('resolveScrim이 낸 opacity면 통과', () => {
     const scrim = resolveScrim(derivePalette('#c98a5e', '#f7ede2', { dark: false }));
     assert.ok(scrimPassesAA(scrim.overlayColor, scrim.overlayOpacity, scrim.textColor));
+  });
+});
+
+describe('STK-R1 adaptive image scrim', () => {
+  test('실제 이미지 채널 범위에서 AA를 만족하는 첫 0.01 step을 결정적으로 고른다', () => {
+    const palette = derivePalette('#8b725d', '#d6cab9', { dark: false });
+    const profile = {
+      algorithmVersion: 'image-channel-range-v1' as const,
+      darkestColor: '#343331',
+      brightestColor: '#d7d4cd',
+      meanLuminance: 0.46,
+    };
+    const first = resolveAdaptiveImageScrim(palette, profile);
+    const second = resolveAdaptiveImageScrim(palette, profile);
+    assert.deepEqual(first, second);
+    assert.equal(first.usedSourceProfile, true);
+    assert.ok(first.minimumContrast >= 4.5);
+    assert.ok(first.overlayOpacity > 0.3, 'STK 고정 0.3 회귀');
+  });
+
+  test('고객 사진 프로필이 없으면 black/white 최악 배경 기준으로 AA를 보장한다', () => {
+    const palette = derivePalette('#8b725d', '#d6cab9', { dark: false });
+    const result = resolveAdaptiveImageScrim(palette);
+    assert.equal(result.usedSourceProfile, false);
+    assert.ok(result.minimumContrast >= 4.5);
+    assert.equal(
+      scrimPassesAA(result.overlayColor, result.overlayOpacity, result.textColor),
+      true,
+    );
   });
 });
