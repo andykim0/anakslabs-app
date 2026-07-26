@@ -26,14 +26,14 @@ const EXPECTED_ZONES = {
 } as const;
 
 const EXPECTED_MEDIA = {
-  'hero.fullbleed-centered': ['required-image', 'atmospheric-background', 'customer-referential,system-atmospheric'],
-  'hero.split-left': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
-  'hero.split-right': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
-  'hero.overlay-bottom-left': ['required-image', 'atmospheric-background', 'customer-referential,system-atmospheric'],
+  'hero.fullbleed-centered': ['required-image', 'atmospheric-background', 'customer-referential,categorical-stock,system-atmospheric'],
+  'hero.split-left': ['optional-image', 'referential-figure', 'customer-referential,categorical-stock,collapse-slot'],
+  'hero.split-right': ['optional-image', 'referential-figure', 'customer-referential,categorical-stock,collapse-slot'],
+  'hero.overlay-bottom-left': ['required-image', 'atmospheric-background', 'customer-referential,categorical-stock,system-atmospheric'],
   'hero.video-scrim': ['required-video-poster', 'atmospheric-background', 'customer-video-poster,system-atmospheric'],
   'hero.text-only-bold': ['none', 'none', ''],
-  'hero.image-below': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
-  'hero.asymmetric-offset': ['optional-image', 'referential-figure', 'customer-referential,collapse-slot'],
+  'hero.image-below': ['optional-image', 'referential-figure', 'customer-referential,categorical-stock,collapse-slot'],
+  'hero.asymmetric-offset': ['optional-image', 'referential-figure', 'customer-referential,categorical-stock,collapse-slot'],
 } as const;
 
 const EXPECTED_DISCOURAGED = {

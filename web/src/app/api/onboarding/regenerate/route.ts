@@ -52,6 +52,8 @@ import {
   motionChoiceSchema,
   surveySchema,
 } from '../../_lib/schemas';
+import { applyCategoricalStockSupply } from '@/lib/stock/application';
+import { ensureLicensedStockAssetRefs } from '@/lib/stock/registry';
 
 const bodySchema = z.object({
   siteId: z.string().min(1),
@@ -223,6 +225,8 @@ export const POST = withApiHandler(async (request) => {
       motionWarning = { code: provenance.code, message: provenance.message };
     }
   }
+  draftConfig = applyCategoricalStockSupply(draftConfig).config;
+  await ensureLicensedStockAssetRefs(draftConfig.assetRefs);
   draftConfig = await bindGeneratedConfigAssetRefs({
     config: draftConfig,
     clientId: client.id,

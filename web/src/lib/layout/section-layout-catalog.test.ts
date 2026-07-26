@@ -146,7 +146,14 @@ describe('LIB2 M2 — 14종 catalog', () => {
     for (const variant of all) {
       const contract = variant.mediaContract;
       if (contract.role === 'referential-figure') {
-        assert.deepEqual(contract.fallbackLadder, ['customer-referential', 'collapse-slot']);
+        if (contract.categoricalEligible) {
+          assert.deepEqual(
+            contract.fallbackLadder,
+            ['customer-referential', 'categorical-stock', 'collapse-slot'],
+          );
+        } else {
+          assert.deepEqual(contract.fallbackLadder, ['customer-referential', 'collapse-slot']);
+        }
         assert.ok(!contract.fallbackLadder.includes('system-atmospheric'));
       }
     }

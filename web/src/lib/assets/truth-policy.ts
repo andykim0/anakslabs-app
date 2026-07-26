@@ -43,6 +43,7 @@ const NON_FACTUAL_ORIGINS = [
   'customer_upload',
   'customer_import',
   'ai_generated',
+  'licensed_stock',
   'legacy_unknown',
 ] as const satisfies readonly AssetOrigin[];
 
@@ -161,8 +162,13 @@ function denied(reason: AssetTruthPolicyDenialReason): AssetPolicyDecision {
 export function evaluateAssetTruthPolicy(input: AssetTruthPolicyInput): AssetPolicyDecision {
   const asset = input.asset;
   if (!asset) return denied('MISSING_ASSET_RECORD');
-  if (asset.ownerId !== input.clientId) return denied('ASSET_OWNER_MISMATCH');
-  if (input.siteId !== undefined && asset.siteId !== input.siteId) {
+  const globalLicensedStock = asset.origin === 'licensed_stock'
+    && asset.ownerId === null
+    && asset.siteId === null;
+  if (!globalLicensedStock && asset.ownerId !== input.clientId) {
+    return denied('ASSET_OWNER_MISMATCH');
+  }
+  if (!globalLicensedStock && input.siteId !== undefined && asset.siteId !== input.siteId) {
     return denied('ASSET_SITE_MISMATCH');
   }
 

@@ -2,8 +2,9 @@ import 'server-only';
 import { assetProvenanceConfig } from './provenance-flags';
 import {
   bindAssetToOwnedSite,
+  resolveAvailableAssetRecords,
   resolveOwnedAssetRecords,
-  validateOwnedAssetRefs,
+  validateAvailableAssetRefs,
 } from './registry';
 import {
   AssetProvenanceError,
@@ -191,16 +192,23 @@ export async function bindGeneratedConfigAssetRefs(input: {
   }
   if (!input.config.assetRefs?.length) return input.config;
 
-  const provisional = await validateOwnedAssetRefs({
+  const provisional = await validateAvailableAssetRefs({
     refs: input.config.assetRefs,
     clientId: input.clientId,
   });
-  await Promise.all(provisional.map((ref) => bindAssetToOwnedSite({
-    assetId: ref.assetId,
+  const records = await resolveAvailableAssetRecords({
+    assetIds: provisional.map((ref) => ref.assetId),
     clientId: input.clientId,
-    siteId: input.siteId,
-  })));
-  const canonical = await validateOwnedAssetRefs({
+  });
+  const byId = new Map(records.map((record) => [record.id, record] as const));
+  await Promise.all(provisional
+    .filter((ref) => byId.get(ref.assetId)?.origin !== 'licensed_stock')
+    .map((ref) => bindAssetToOwnedSite({
+      assetId: ref.assetId,
+      clientId: input.clientId,
+      siteId: input.siteId,
+    })));
+  const canonical = await validateAvailableAssetRefs({
     refs: provisional,
     clientId: input.clientId,
     siteId: input.siteId,
@@ -264,7 +272,7 @@ export async function validateConfigAssetRefsForSave(input: {
       );
     }
   }
-  const canonical = await validateOwnedAssetRefs({
+  const canonical = await validateAvailableAssetRefs({
     refs: persisted,
     clientId: input.clientId,
     siteId: input.siteId,

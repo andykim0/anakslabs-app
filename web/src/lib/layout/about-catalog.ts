@@ -9,12 +9,12 @@ const recipe = (value: SectionLayoutBandRecipe): SectionLayoutBandRecipe => valu
 const figureMedia = {
   role: 'referential-figure',
   categoricalEligible: true,
-  fallbackLadder: ['customer-referential', 'collapse-slot'],
+  fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
 } as const;
 const atmosphericMedia = {
   role: 'atmospheric-background',
   categoricalEligible: false,
-  // STK may intentionally insert categorical-stock between referential and system-atmospheric.
+  // About fullbleed remains authored-story atmosphere and rejects stock.
   fallbackLadder: ['customer-referential', 'system-atmospheric'],
 } as const;
 const noMedia = {

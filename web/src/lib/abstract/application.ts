@@ -14,6 +14,7 @@ import type {
   AbsWeightZone,
   ProceduralBackgroundSpec,
 } from './types';
+import { isCategoricalStockUrl } from '@/lib/stock/application';
 
 const DNA_INDUSTRY_ADAPTER = Object.freeze({
   'cafe-warm-editorial': 'cafe',
@@ -57,6 +58,7 @@ function industryFor(config: SiteConfig): AbsIndustryId {
 }
 
 function slotFor(section: Section): SlotProjection | undefined {
+  if (isCategoricalStockUrl(section.background.image?.src)) return undefined;
   if (section.type === 'hero') {
     if (section.heroLayout?.mediaSlotRole === 'referential-figure'
       || section.heroLayout?.mediaSlotRole === 'none') {
@@ -187,4 +189,3 @@ export function applyProceduralBackgroundDefaults(config: SiteConfig): SiteConfi
   });
   return changed ? { ...config, pages } : config;
 }
-

@@ -115,7 +115,7 @@ export const HERO_LAYOUT_CATALOG = [
       role: 'atmospheric-background',
       categoricalEligible: false,
       // STK may add categorical-stock between the two authored steps.
-      fallbackLadder: ['customer-referential', 'system-atmospheric'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'system-atmospheric'],
       requirement: 'required-image',
       preferredAspect: { wide: '16:10', compact: '4:3', mobile: '4:5' },
       focusPolicy: 'clamped-safe-zone-aware',
@@ -177,7 +177,7 @@ export const HERO_LAYOUT_CATALOG = [
     mediaContract: {
       role: 'referential-figure',
       categoricalEligible: true,
-      fallbackLadder: ['customer-referential', 'collapse-slot'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
       requirement: 'optional-image',
       preferredAspect: { wide: '4:5', compact: '4:5', mobile: '4:3' },
       focusPolicy: 'clamped-safe-zone-aware',
@@ -239,7 +239,7 @@ export const HERO_LAYOUT_CATALOG = [
     mediaContract: {
       role: 'referential-figure',
       categoricalEligible: true,
-      fallbackLadder: ['customer-referential', 'collapse-slot'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
       requirement: 'optional-image',
       preferredAspect: { wide: '4:5', compact: '4:5', mobile: '4:3' },
       focusPolicy: 'clamped-safe-zone-aware',
@@ -302,7 +302,7 @@ export const HERO_LAYOUT_CATALOG = [
       role: 'atmospheric-background',
       categoricalEligible: false,
       // Atmospheric categorical eligibility is a separate STK axis from figure eligibility.
-      fallbackLadder: ['customer-referential', 'system-atmospheric'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'system-atmospheric'],
       requirement: 'required-image',
       preferredAspect: { wide: '16:10', compact: '4:3', mobile: '4:5' },
       focusPolicy: 'clamped-safe-zone-aware',
@@ -504,7 +504,7 @@ export const HERO_LAYOUT_CATALOG = [
     mediaContract: {
       role: 'referential-figure',
       categoricalEligible: true,
-      fallbackLadder: ['customer-referential', 'collapse-slot'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
       requirement: 'optional-image',
       preferredAspect: { wide: '3:1', compact: '16:9', mobile: '4:3' },
       focusPolicy: 'clamped-safe-zone-aware',
@@ -566,7 +566,7 @@ export const HERO_LAYOUT_CATALOG = [
     mediaContract: {
       role: 'referential-figure',
       categoricalEligible: true,
-      fallbackLadder: ['customer-referential', 'collapse-slot'],
+      fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
       requirement: 'optional-image',
       preferredAspect: { wide: '4:5', compact: '4:5', mobile: '4:3' },
       focusPolicy: 'clamped-safe-zone-aware',

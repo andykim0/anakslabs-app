@@ -9,7 +9,7 @@ const recipe = (value: SectionLayoutBandRecipe): SectionLayoutBandRecipe => valu
 const figureMedia = {
   role: 'referential-figure',
   categoricalEligible: true,
-  fallbackLadder: ['customer-referential', 'collapse-slot'],
+  fallbackLadder: ['customer-referential', 'categorical-stock', 'collapse-slot'],
 } as const;
 const noMedia = {
   role: 'none',

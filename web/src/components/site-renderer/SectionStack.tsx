@@ -25,6 +25,7 @@ import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 import { ProceduralBackground } from './ProceduralBackground';
+import { StockAttributionCredit } from './StockAttributionCredit';
 
 interface SectionStackProps {
   section: Section;
@@ -342,6 +343,7 @@ function HeroLayoutStackSection({
           </div>
         );
       })}
+      <StockAttributionCredit source={bg.image?.src} />
     </section>
   );
 }

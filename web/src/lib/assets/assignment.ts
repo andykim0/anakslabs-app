@@ -2,11 +2,11 @@ import 'server-only';
 import { resolveAssetAttestationSnapshot } from './attestation-registry';
 import { createSiteAssetPolicyResolver } from './assignment-core';
 import { assetProvenanceConfig } from './provenance-flags';
-import { resolveAvailableOwnedAssetRecords } from './registry';
+import { resolveAvailableAssetRecords } from './registry';
 
 export const resolveSiteAssetPolicy = createSiteAssetPolicyResolver({
   flags: assetProvenanceConfig,
-  resolveRecords: resolveAvailableOwnedAssetRecords,
+  resolveRecords: resolveAvailableAssetRecords,
   resolveAttestations: resolveAssetAttestationSnapshot,
 });
 

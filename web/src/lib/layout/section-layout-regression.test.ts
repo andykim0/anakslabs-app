@@ -285,7 +285,8 @@ describe('LIB2 M4 — 14종 × 3밴드 × 콘텐츠 가변 회귀', () => {
     assert.ok(figure.length > 0);
     assert.ok(figure.every((variant) => (
       variant.mediaContract.categoricalEligible
-      && variant.mediaContract.fallbackLadder.join('>') === 'customer-referential>collapse-slot'
+      && variant.mediaContract.fallbackLadder.join('>')
+        === 'customer-referential>categorical-stock>collapse-slot'
     )));
 
     const atmospheric = ABOUT_LAYOUT_CATALOG.find(

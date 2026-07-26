@@ -57,6 +57,8 @@ import { applyConnectorManifest } from '@/lib/connectors/application';
 import { candidateMatchesNamedTemplate } from '@/lib/design/templates';
 import { industryProfileIdForSurvey } from '@/lib/industry/profiles';
 import { industryProfile, PRICING_MODEL_VERSION } from '@/lib/pricing';
+import { applyCategoricalStockSupply } from '@/lib/stock/application';
+import { ensureLicensedStockAssetRefs } from '@/lib/stock/registry';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -232,6 +234,10 @@ export const POST = withApiHandler(async (request) => {
     ...draftConfig,
     assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
   };
+  if (provenance.assign) {
+    draftConfig = applyCategoricalStockSupply(draftConfig).config;
+    await ensureLicensedStockAssetRefs(draftConfig.assetRefs);
+  }
   let assetPolicy = await resolveSiteAssetPolicy({
     operation: 'assign',
     config: draftConfig,

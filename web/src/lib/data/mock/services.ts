@@ -183,15 +183,16 @@ class MockSitesRepo implements SitesRepo {
       if (!sameManifest) {
         throw new Error('sites.create: draft asset manifest와 binding 요청이 일치하지 않습니다.');
       }
-      const { resolveOwnedAssetRecords } = await import('@/lib/assets/registry');
-      const records = await resolveOwnedAssetRecords({
+      const { resolveAvailableAssetRecords } = await import('@/lib/assets/registry');
+      const records = await resolveAvailableAssetRecords({
         assetIds: bindingAssetIds,
         clientId: input.clientId,
       });
-      const invalid = records.some((record, index) => (
-        record.siteId !== null
-        || record.canonicalUrl !== input.assetRefsToBind?.[index]?.url
-      ));
+      const invalid = records.length !== bindingAssetIds.length
+        || records.some((record, index) => (
+          (record.origin !== 'licensed_stock' && record.siteId !== null)
+          || record.canonicalUrl !== input.assetRefsToBind?.[index]?.url
+        ));
       if (invalid) throw new Error('sites.create: provisional asset ownership 또는 URL이 일치하지 않습니다.');
       attestedCustomerUploadIds = records
         .filter((record) => record.origin === 'customer_upload')
@@ -259,7 +260,15 @@ class MockSitesRepo implements SitesRepo {
     if (input.assetRefsToBind?.length) {
       try {
         const { bindAssetToOwnedSite } = await import('@/lib/assets/registry');
-        for (const ref of input.assetRefsToBind) {
+        const { resolveAvailableAssetRecords } = await import('@/lib/assets/registry');
+        const records = await resolveAvailableAssetRecords({
+          assetIds: input.assetRefsToBind.map((ref) => ref.assetId),
+          clientId: input.clientId,
+        });
+        const stockIds = new Set(records
+          .filter((record) => record.origin === 'licensed_stock')
+          .map((record) => record.id));
+        for (const ref of input.assetRefsToBind.filter((item) => !stockIds.has(item.assetId))) {
           await bindAssetToOwnedSite({ assetId: ref.assetId, clientId: input.clientId, siteId: site.id });
         }
         if (input.generalAssetAttestationId) {

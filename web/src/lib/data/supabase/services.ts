@@ -190,11 +190,14 @@ export class SupabaseSitesRepo implements SitesRepo {
       if (!sameManifest) {
         throw new Error('sites 생성 실패: draft asset manifest와 binding 요청이 일치하지 않습니다.');
       }
-      const { resolveOwnedAssetRecords } = await import('@/lib/assets/registry');
-      const records = await resolveOwnedAssetRecords({
+      const { resolveAvailableAssetRecords } = await import('@/lib/assets/registry');
+      const records = await resolveAvailableAssetRecords({
         assetIds: bindingAssetIds,
         clientId: input.clientId,
       });
+      if (records.length !== bindingAssetIds.length) {
+        throw new Error('sites 생성 실패: 자산 원장 또는 전역 스톡 등록을 확인할 수 없습니다.');
+      }
       const hasCustomerUpload = records.some((record) => record.origin === 'customer_upload');
       if (hasCustomerUpload
         && (input.assetPolicyVersion !== 2 || !input.generalAssetAttestationId)) {

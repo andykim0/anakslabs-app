@@ -25,6 +25,9 @@ import type {
   SiteConfig,
 } from '@/lib/types/site';
 import { contrastRatio } from '@/lib/design/quality-standards';
+import { heroLayoutById } from '@/lib/layout/catalog';
+import { featureLayoutById } from '@/lib/layout/feature-catalog';
+import { aboutLayoutById } from '@/lib/layout/about-catalog';
 
 export const SITE_ASSET_POLICY_PHASES = [
   'generation',
@@ -457,6 +460,44 @@ function effectivePolicy(
   config: SiteConfig,
   attestations: AssetAttestationSnapshot,
 ): Pick<AssetSlot, 'purpose' | 'subject'> {
+  if (record?.origin === 'licensed_stock' && config.meta.industryId === 'interior') {
+    if (slot.target.kind === 'background-image') {
+      const section = config.pages[slot.target.pageIndex]?.sections[slot.target.sectionIndex];
+      const resolvedId = section?.type === 'hero' ? section.heroLayout?.resolvedId : undefined;
+      const contract = resolvedId ? heroLayoutById(resolvedId)?.mediaContract : undefined;
+      if (
+        contract?.role === 'atmospheric-background'
+        && contract.fallbackLadder.includes('categorical-stock')
+      ) {
+        return policy('brand_atmosphere', 'abstract');
+      }
+      if (
+        contract?.role === 'referential-figure'
+        && contract.categoricalEligible
+        && contract.fallbackLadder.includes('categorical-stock')
+      ) {
+        return policy('decorative_art', 'abstract');
+      }
+    }
+    if (slot.target.kind === 'element') {
+      const section = config.pages[slot.target.pageIndex]?.sections[slot.target.sectionIndex];
+      const resolvedId = section?.sectionLayout?.resolvedId;
+      const contract = section?.type === 'hero' && section.heroLayout?.resolvedId
+        ? heroLayoutById(section.heroLayout.resolvedId)?.mediaContract
+        : section?.type === 'features' && resolvedId?.startsWith('features.')
+          ? featureLayoutById(resolvedId as Parameters<typeof featureLayoutById>[0]).mediaContract
+          : section?.type === 'about' && resolvedId?.startsWith('about.')
+            ? aboutLayoutById(resolvedId as Parameters<typeof aboutLayoutById>[0]).mediaContract
+            : undefined;
+      if (
+        contract?.role === 'referential-figure'
+        && contract.categoricalEligible
+        && contract.fallbackLadder.includes('categorical-stock')
+      ) {
+        return policy('decorative_art', 'abstract');
+      }
+    }
+  }
   if (slot.target.kind === 'background-image') {
     const section = config.pages[slot.target.pageIndex]?.sections[slot.target.sectionIndex];
     if (section?.type === 'hero' && record?.origin === 'ai_generated') {
