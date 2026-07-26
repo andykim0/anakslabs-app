@@ -98,8 +98,6 @@ export interface SignatureRenderContract {
   posterRequired: boolean;
   reducedMotionFallbackZone: SignatureTextSafeZoneId;
   noJsReadable: boolean;
-  /** Numbered page spine is reserved for signatures whose choreography is explicitly sequential. */
-  progressRail: 'numbered' | 'none';
 }
 
 export interface SignatureContentShape {
@@ -193,7 +191,6 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
       posterRequired: true,
       reducedMotionFallbackZone: 'start-lower',
       noJsReadable: true,
-      progressRail: 'none',
     },
     contentShape: { minSections: 1, maxSections: 1, suitableSectionTypes: ['hero'] },
   },
@@ -212,7 +209,6 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
       posterRequired: true,
       reducedMotionFallbackZone: 'flow-full',
       noJsReadable: true,
-      progressRail: 'numbered',
     },
     contentShape: {
       minSections: 3,
@@ -235,7 +231,6 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
       posterRequired: false,
       reducedMotionFallbackZone: 'flow-full',
       noJsReadable: true,
-      progressRail: 'none',
     },
     contentShape: {
       minSections: 1,
@@ -258,7 +253,6 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
       posterRequired: true,
       reducedMotionFallbackZone: 'flow-full',
       noJsReadable: true,
-      progressRail: 'none',
     },
     contentShape: {
       minSections: 2,
@@ -281,7 +275,6 @@ export const ACTIVE_SIGNATURE_CONTRACTS = {
       posterRequired: false,
       reducedMotionFallbackZone: 'flow-full',
       noJsReadable: true,
-      progressRail: 'numbered',
     },
     contentShape: {
       minSections: 1,

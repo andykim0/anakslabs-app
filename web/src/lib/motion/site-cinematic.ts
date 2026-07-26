@@ -1,5 +1,4 @@
-import type { CanvasElement, MotionSignatureId, SiteConfig } from '@/lib/types/site';
-import { signatureContractFor } from './signature-contract';
+import type { CanvasElement, SiteConfig } from '@/lib/types/site';
 
 /** Server-authored rollout contract. Absence is the permanent legacy pixel-parity path. */
 export const SITE_CINEMATIC_DEFAULT: NonNullable<SiteConfig['siteCinematic']> = Object.freeze({
@@ -29,31 +28,23 @@ export function siteCinematicIsEnabled(config: SiteConfig): boolean {
   return config.siteCinematic?.version === SITE_CINEMATIC_DEFAULT.version;
 }
 
-export type SiteProgressRail = NonNullable<
-  NonNullable<SiteConfig['siteCinematic']>['progressRail']
->;
+export const GENERATED_SITE_PROGRESS_RAIL = 'none' as const;
 
 /**
- * 신규 생성 경계의 단일 pin 함수. 실제 scene이 있으면 그것이 우선이고, sanitizer가 정적
- * 폴백으로 낮춘 경우에는 검증된 requested ID, 후보 미리보기는 서버 카탈로그 ID를 소비한다.
- * 계약 없는 candidate/legacy와 시그니처 부재는 보수적으로 레일을 만들지 않는다.
+ * 신규 생성 경계의 단일 pin 함수. 생성 사이트에는 시그니처와 무관하게 진행 레일을 만들지
+ * 않는다. 저장된 legacy/numbered config는 이 생성 경계를 다시 통과하지 않는 한 렌더러가
+ * 그대로 보존하며, 다보임 랜딩의 독립 StoryProgressRail 계약에는 관여하지 않는다.
  */
-export function withSignatureProgressRail(
+export function withGeneratedSiteProgressRail(
   config: SiteConfig,
-  previewSignatureId?: MotionSignatureId,
 ): SiteConfig {
   if (!config.siteCinematic) return config;
-  const signatureId = config.motion?.signatures?.[0]?.signatureId
-    ?? config.motion?.requestedSignatureId
-    ?? previewSignatureId;
-  const progressRail: SiteProgressRail =
-    signatureContractFor(signatureId ?? '')?.renderContract.progressRail ?? 'none';
-  if (config.siteCinematic.progressRail === progressRail) return config;
+  if (config.siteCinematic.progressRail === GENERATED_SITE_PROGRESS_RAIL) return config;
   return {
     ...config,
     siteCinematic: {
       ...config.siteCinematic,
-      progressRail,
+      progressRail: GENERATED_SITE_PROGRESS_RAIL,
     },
   };
 }

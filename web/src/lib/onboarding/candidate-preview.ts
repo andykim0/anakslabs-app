@@ -6,7 +6,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import {
   withContinuousCanvasDefault,
-  withSignatureProgressRail,
+  withGeneratedSiteProgressRail,
   withSiteCinematicDefault,
 } from '@/lib/motion/site-cinematic';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
@@ -37,9 +37,8 @@ export function buildCandidatePreviewConfig(
     ? withContinuousCanvasDefault(cinematicBase)
     : cinematicBase;
   const withStock = applyCategoricalStockSupply(config).config;
-  const withAtmosphere = withSignatureProgressRail(
+  const withAtmosphere = withGeneratedSiteProgressRail(
     applyProceduralBackgroundDefaults(withStock),
-    candidate.recommendedMotionSignatureId,
   );
 
   if (!heroTechnique || !isTechniqueId(heroTechnique)) return withAtmosphere;

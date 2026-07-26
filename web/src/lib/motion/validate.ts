@@ -33,7 +33,7 @@ import {
   type MotionContextOptions,
 } from './signatures';
 import { buildMotionSceneFromSurvey } from './scenes';
-import { withSignatureProgressRail } from './site-cinematic';
+import { withGeneratedSiteProgressRail } from './site-cinematic';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['system', 'upload', 'ai-1', 'ai-2', 'ai-3'];
@@ -385,7 +385,7 @@ export function applyGeneratedMotion(
     siteId: options.siteId,
     theme: nextConfig.theme,
   }).config;
-  return withSignatureProgressRail(sanitized);
+  return withGeneratedSiteProgressRail(sanitized);
 }
 
 /**
