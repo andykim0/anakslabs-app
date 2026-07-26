@@ -280,14 +280,21 @@ const CONTINUOUS_CANVAS_CSS = `
 }
 `;
 
+/** New no-rail configs only. Legacy/numbered output never includes this block, preserving HTML SHA. */
+const NO_PROGRESS_RAIL_CSS = `
+[data-story-spine-hidden]::after { display: none !important; }
+`;
+
 function SiteCinematicSequence({
   children,
   continuous = false,
   chapterCount = 0,
+  progressRail = 'numbered',
 }: {
   children: ReactNode;
   continuous?: boolean;
   chapterCount?: number;
+  progressRail?: 'numbered' | 'none';
 }) {
   const hasLongStage = continuous && chapterCount >= 3;
   return (
@@ -302,7 +309,7 @@ function SiteCinematicSequence({
       style={{ '--scroll-progress': 0 } as CSSProperties}
     >
       {continuous && <div aria-hidden="true" data-continuous-canvas-field />}
-      <StoryProgressRail />
+      {progressRail === 'numbered' ? <StoryProgressRail /> : null}
       {children}
     </div>
   );
@@ -312,11 +319,13 @@ function SiteCinematicChapter({
   index,
   sectionType,
   continuous = false,
+  progressRail = 'numbered',
   children,
 }: {
   index: number;
   sectionType?: string;
   continuous?: boolean;
+  progressRail?: 'numbered' | 'none';
   children: ReactNode;
 }) {
   const hero = continuous && sectionType === 'hero';
@@ -327,6 +336,7 @@ function SiteCinematicChapter({
       data-site-cine-integrated-typography
       {...(continuous ? { 'data-flow-section': 'true' } : {})}
       {...(hero ? { 'data-flow-hero': 'true' } : {})}
+      {...(progressRail === 'none' ? { 'data-story-spine-hidden': 'true' } : {})}
     >
       {children}
     </div>
@@ -394,6 +404,7 @@ export function SiteRenderer({
   const shouldAnimate = animate ?? interactive;
   const { theme } = config;
   const siteCinematic = siteCinematicIsEnabled(config);
+  const progressRail = config.siteCinematic?.progressRail ?? 'numbered';
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
@@ -459,6 +470,7 @@ export function SiteRenderer({
     (theme.tokens ? THEME_TOKEN_CSS : '') + (siteCinematic ? SITE_CINEMATIC_CSS : '') +
     (siteCinematic && hasProjectedHero ? HERO_LAYOUT_CINEMATIC_CSS : '') +
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
+    (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
@@ -535,11 +547,11 @@ export function SiteRenderer({
       >
         {signatureScene && signatureArt ? (
           siteCinematic ? (
-            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={signatureSequenceSections.length}>
+            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={signatureSequenceSections.length} progressRail={progressRail}>
               {signatureSequenceSections.map((section, continuationIndex) => {
                 if (section.id === signatureScene.sectionId) {
                   return (
-                    <SiteCinematicChapter key={`signature:${signatureScene.signatureId}:${section.id}`} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas}>
+                    <SiteCinematicChapter key={`signature:${signatureScene.signatureId}:${section.id}`} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                       <MotionSignatureRenderer
                         scene={signatureScene}
                         theme={theme}
@@ -553,7 +565,7 @@ export function SiteRenderer({
                   );
                 }
                 return (
-                  <SiteCinematicChapter key={section.id} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas}>
+                  <SiteCinematicChapter key={section.id} index={continuationIndex} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                     <div
                       data-signature-ordinary-section
                       data-signature-continuation
@@ -631,8 +643,8 @@ export function SiteRenderer({
           })
         ) : scrollytellingSection ? (
           siteCinematic ? (
-            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length + 1}>
-              <SiteCinematicChapter index={0} sectionType={scrollytellingSection.type} continuous={continuousCanvas}>
+            <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length + 1} progressRail={progressRail}>
+              <SiteCinematicChapter index={0} sectionType={scrollytellingSection.type} continuous={continuousCanvas} progressRail={progressRail}>
                 <ScrollytellingStage
                   section={scrollytellingSection}
                   theme={theme}
@@ -641,7 +653,7 @@ export function SiteRenderer({
                 />
               </SiteCinematicChapter>
               {ordinarySections.map((section, index) => (
-                <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas}>
+                <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
                       <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
@@ -667,9 +679,9 @@ export function SiteRenderer({
         {!signatureScene && !(siteCinematic && scrollytellingSection) && showDesktop && (
           <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
             {siteCinematic ? (
-              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length}>
+              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
-                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas}>
+                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                     <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
                   </SiteCinematicChapter>
                 ))}
@@ -682,9 +694,9 @@ export function SiteRenderer({
         {!signatureScene && !(siteCinematic && scrollytellingSection) && showMobile && (
           <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
             {siteCinematic ? (
-              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length}>
+              <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
-                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas}>
+                  <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                     <SectionStack
                       section={section}
                       theme={theme}

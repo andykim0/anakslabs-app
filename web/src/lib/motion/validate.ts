@@ -33,6 +33,7 @@ import {
   type MotionContextOptions,
 } from './signatures';
 import { buildMotionSceneFromSurvey } from './scenes';
+import { withSignatureProgressRail } from './site-cinematic';
 
 const INTENSITIES: readonly MotionIntensity[] = ['off', 'subtle', 'normal'];
 const HERO_IMAGE_CHOICES: readonly HeroImageChoice[] = ['system', 'upload', 'ai-1', 'ai-2', 'ai-3'];
@@ -378,12 +379,13 @@ export function applyGeneratedMotion(
     }
   }
 
-  return sanitizeMotion(nextConfig, tier, {
+  const sanitized = sanitizeMotion(nextConfig, tier, {
     assets: options.assets,
     ownerId: options.ownerId,
     siteId: options.siteId,
     theme: nextConfig.theme,
   }).config;
+  return withSignatureProgressRail(sanitized);
 }
 
 /**

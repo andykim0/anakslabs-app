@@ -4,7 +4,11 @@ import { isTechniqueId } from '@/lib/motion/registry';
 import { resolvePresetForIndustry } from '@/lib/motion/presets';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
-import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
+import {
+  withContinuousCanvasDefault,
+  withSignatureProgressRail,
+  withSiteCinematicDefault,
+} from '@/lib/motion/site-cinematic';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 
@@ -33,7 +37,10 @@ export function buildCandidatePreviewConfig(
     ? withContinuousCanvasDefault(cinematicBase)
     : cinematicBase;
   const withStock = applyCategoricalStockSupply(config).config;
-  const withAtmosphere = applyProceduralBackgroundDefaults(withStock);
+  const withAtmosphere = withSignatureProgressRail(
+    applyProceduralBackgroundDefaults(withStock),
+    candidate.recommendedMotionSignatureId,
+  );
 
   if (!heroTechnique || !isTechniqueId(heroTechnique)) return withAtmosphere;
   return {

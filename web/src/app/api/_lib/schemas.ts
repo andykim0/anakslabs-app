@@ -1012,6 +1012,7 @@ export const siteConfigSchema = z
       version: z.literal(1),
       heroBackdrop: z.enum(['dna-procedural', 'promoted-photo']),
       sectionSpine: z.literal(true),
+      progressRail: z.enum(['numbered', 'none']).optional(),
       quietSections: z.literal(true),
       integratedTypography: z.literal(true),
       continuousCanvas: z.object({

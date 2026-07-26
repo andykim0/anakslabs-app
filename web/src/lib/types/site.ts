@@ -791,6 +791,11 @@ export interface SiteConfig {
     version: 1;
     heroBackdrop: 'dna-procedural' | 'promoted-photo';
     sectionSpine: true;
+    /**
+     * [RAIL] 신규 생성본이 시그니처 안무 계약에서 pin한 번호 척추 표시.
+     * 미지정은 SITECINE 기존 발행본의 `numbered` 동작을 영구 보존한다.
+     */
+    progressRail?: 'numbered' | 'none';
     quietSections: true;
     integratedTypography: true;
     /**
