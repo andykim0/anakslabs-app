@@ -10,6 +10,7 @@ import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 
 const BASE_LINKS = [
   { href: '/about', label: '회사소개' },
+  { href: '/templates', label: '템플릿' },
   { href: '/faq', label: '자주 묻는 질문' },
   { href: '/terms', label: '이용약관' },
   { href: '/privacy', label: '개인정보처리방침' },

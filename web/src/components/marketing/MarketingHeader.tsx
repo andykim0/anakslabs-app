@@ -13,6 +13,7 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const NAV = [
   { href: '/features', label: '기능' },
+  { href: '/templates', label: '템플릿' },
   { href: '/pricing', label: '가격' },
   { href: '/cases', label: '고객사례' },
   { href: '/faq', label: '자주 묻는 질문' },

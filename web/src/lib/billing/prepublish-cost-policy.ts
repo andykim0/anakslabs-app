@@ -17,8 +17,11 @@ export const PREPUBLISH_GENERATION_POLICY = {
  * The standard pre-publish build is server-authored from catalog data only.
  * No environment flag can reopen a provider call from this path.
  */
-export async function buildZeroCostCandidates(survey: SurveyInput): Promise<DesignCandidate[]> {
-  const blueprints = await buildCandidateBlueprintsForPipeline(survey);
+export async function buildZeroCostCandidates(
+  survey: SurveyInput,
+  options: { templateGalleryEnabled?: boolean } = {},
+): Promise<DesignCandidate[]> {
+  const blueprints = await buildCandidateBlueprintsForPipeline(survey, options);
   const selectedPhoto = selectedHeroPhotoUrl(survey);
   return blueprints.map((blueprint) => {
     const base: DesignCandidate = {
@@ -67,7 +70,7 @@ export function buildZeroCostSiteConfig(
     heroFallback: candidate.heroImageUrl,
   });
   const heroVariant = heroVariantForSurvey(
-    survey.referenceDesignId,
+    candidate.namedTemplate ? undefined : survey.referenceDesignId,
     survey.purposeId,
     candidate.id,
   );

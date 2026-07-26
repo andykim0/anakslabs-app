@@ -198,6 +198,7 @@ export function SurveyStep({
   existingSiteId,
   assetPolicyV2Ready = false,
   realisticImageSupplyReady = false,
+  namedTemplatesEnabled = false,
   onComplete,
 }: {
   defaultBusinessName?: string;
@@ -210,6 +211,8 @@ export function SurveyStep({
   assetPolicyV2Ready?: boolean;
   /** Server-derived licensed-stock supply readiness. */
   realisticImageSupplyReady?: boolean;
+  /** 레거시 36장 대신 다음 CandidateStep에서 업종 큐레이션을 보여준다. */
+  namedTemplatesEnabled?: boolean;
   onComplete: (values: SurveyInput) => void;
 }) {
   const { toast } = useToast();
@@ -457,7 +460,7 @@ export function SurveyStep({
       logoUrl: clean(values.logoUrl),
       referenceImageUrls: [], // [v4] 수집 중단 — 항상 빈 배열
       referenceStyleIds: values.moodIds.length ? styleIdsForSamples(values.moodIds) : undefined,
-      referenceDesignId: clean(values.referenceDesignId),
+      referenceDesignId: namedTemplatesEnabled ? undefined : clean(values.referenceDesignId),
       existingPresence: presence.length ? presence : undefined,
       contentDepth: {
         version: 2 as const,
@@ -622,7 +625,9 @@ export function SurveyStep({
                   realisticImageSupplyReady={realisticImageSupplyReady}
                 />
               ) : null}
-              {step === 8 ? <Step06MoodColor /> : null}
+              {step === 8 ? (
+                <Step06MoodColor namedTemplatesEnabled={namedTemplatesEnabled} />
+              ) : null}
               {step === 9 ? (
                 <div className="space-y-6">
                   <NudgeMeter result={nudge.result} loading={nudge.loading} error={nudge.error} />

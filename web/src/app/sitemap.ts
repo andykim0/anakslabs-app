@@ -9,7 +9,7 @@ import { caseIndustries } from '@/lib/marketing/cases';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = `https://${ROOT_DOMAIN}`;
-  const staticPaths = ['', '/pricing', '/features', '/cases', '/faq', '/about'];
+  const staticPaths = ['', '/pricing', '/features', '/templates', '/cases', '/faq', '/about'];
   const industryPaths = caseIndustries().map((i) => `/cases/${i.key}`);
   return [...staticPaths, ...industryPaths].map((path) => ({
     url: `${base}${path}`,

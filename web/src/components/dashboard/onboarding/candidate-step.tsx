@@ -26,10 +26,10 @@ const STYLE_LABELS: Record<CandidateStyle, string> = {
 };
 
 const LOADING_MESSAGES = [
-  'AI가 디자인 방향을 잡고 있습니다…',
-  '레퍼런스와 톤을 분석하고 있어요',
-  '팔레트와 타이포그래피를 조합하는 중…',
-  '히어로 비주얼을 스케치하고 있습니다',
+  '업종에 맞는 구성을 고르고 있습니다…',
+  '입력한 내용과 분위기를 맞추고 있어요',
+  '팔레트와 글꼴을 조합하는 중…',
+  '실제 홈페이지 미리보기를 준비하고 있습니다',
 ];
 
 export function LoadingScreen({ messages }: { messages: string[] }) {
@@ -225,6 +225,7 @@ export function CandidateStep({
   }
 
   const candidates = data ?? [];
+  const namedTemplates = candidates.some((candidate) => candidate.namedTemplate);
   const selected = candidates.find((c) => c.id === selectedId) ?? null;
   const pinnedFontResources = candidates
     .map((candidate) => fontPairingResources(candidate.theme))
@@ -251,11 +252,20 @@ export function CandidateStep({
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-ob-ink">디자인 방향을 골라주세요</h2>
         <p className="mt-1 text-sm text-ob-muted">
-          설문을 바탕으로 AI가 제안한 3가지 방향입니다. 선택 후에도 캔버스에서 자유롭게 다듬을 수 있어요.
+          {namedTemplates
+            ? `업종에 맞춰 고른 ${candidates.length}가지입니다. 같은 내용이 구성과 분위기에 따라 어떻게 달라지는지 비교해 보세요.`
+            : '설문을 바탕으로 제안한 3가지 방향입니다. 선택 후에도 캔버스에서 자유롭게 다듬을 수 있어요.'}
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3" role="radiogroup" aria-label="디자인 방향">
+      <div
+        className={cn(
+          'grid gap-4',
+          namedTemplates ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-3',
+        )}
+        role="radiogroup"
+        aria-label="디자인 방향"
+      >
         {candidates.map((c) => (
           <CandidateCard
             key={c.id}

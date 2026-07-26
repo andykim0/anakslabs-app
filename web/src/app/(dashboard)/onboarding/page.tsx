@@ -5,6 +5,7 @@ import { getRecentScan, guessBusinessName, summarizeIssues } from '@/lib/service
 import { OnboardingWizard } from '@/components/dashboard/onboarding/wizard';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { realisticImageSupplyEnabled } from '@/lib/assets/image-supply-flags';
+import { templateGalleryEnabled } from '@/lib/design/templates';
 
 export const metadata: Metadata = { title: '새 사이트 만들기 — 다보임' };
 
@@ -33,6 +34,7 @@ export default async function OnboardingPage({
       tier={client.tier}
       assetPolicyV2Ready={assetPolicyV2Ready}
       realisticImageSupplyReady={realisticImageSupplyEnabled()}
+      templateGalleryReady={templateGalleryEnabled()}
       scanContext={
         scan
           ? { url: scan.url, total: scan.scores.total, issueCount: scan.issues.length, notes: summarizeIssues(scan) }

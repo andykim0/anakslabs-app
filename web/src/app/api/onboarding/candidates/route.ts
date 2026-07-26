@@ -30,6 +30,11 @@ import {
   buildZeroCostCandidates,
   PREPUBLISH_GENERATION_POLICY,
 } from '@/lib/billing/prepublish-cost-policy';
+import {
+  NAMED_TEMPLATE_CATALOG_VERSION,
+  NAMED_TEMPLATE_RECOMMENDATION_MAX,
+  templateGalleryEnabled,
+} from '@/lib/design/templates';
 
 export const runtime = 'nodejs';
 
@@ -78,7 +83,10 @@ function candidateDedupKey(
   siteId?: string,
 ): string | null {
   if (!requestKey) return null;
-  const designPipeline = `${dnaPipelineEnabled() ? 'dna' : 'legacy'}${layoutVariantsEnabled() ? '-layout' : ''}`;
+  const namedTemplates = templateGalleryEnabled() && !siteId;
+  const designPipeline = namedTemplates
+    ? `templates-v${NAMED_TEMPLATE_CATALOG_VERSION}`
+    : `${dnaPipelineEnabled() ? 'dna' : 'legacy'}${layoutVariantsEnabled() ? '-layout' : ''}`;
   return `${clientId}:${siteId ?? 'new'}:${designPipeline}:${requestKey}:${surveySignature(survey)}`;
 }
 
@@ -176,8 +184,15 @@ export const POST = withApiHandler(async (request) => {
     return apiError(429, 'HERO_IMAGE_RATE_LIMITED', '히어로 이미지 요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
   }
 
-  const generation = buildZeroCostCandidates(survey).then(async (items) => {
-    const limited = items.slice(0, HERO_CANDIDATE_LIMIT);
+  const namedTemplates = templateGalleryEnabled() && !targetSiteId;
+  const generation = (
+    namedTemplates
+      ? buildZeroCostCandidates(survey, { templateGalleryEnabled: true })
+      : buildZeroCostCandidates(survey)
+  ).then(async (items) => {
+    const limited = namedTemplates
+      ? items.slice(0, NAMED_TEMPLATE_RECOMMENDATION_MAX)
+      : items.slice(0, HERO_CANDIDATE_LIMIT);
     const verifiedDirection = verified.direction;
     if (!verifiedDirection) return limited;
     // 후보 선택 전에도 registry owner·canonical URL·site binding을 다시 확인한다.

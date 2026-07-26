@@ -131,9 +131,12 @@ export function MotionChoiceStep({
   }, [candidate, demoContext, heroImageUrl, survey, tier]);
 
   const initialId = initial?.signatureId;
+  const recommendedId = candidate.recommendedMotionSignatureId;
   const defaultId = previewOptions.some(({ spec }) => spec.id === initialId)
     ? initialId
-    : previewOptions[0]?.spec.id;
+    : previewOptions.some(({ spec }) => spec.id === recommendedId)
+      ? recommendedId
+      : previewOptions[0]?.spec.id;
   const [signatureId, setSignatureId] = useState<ProductionMotionSignatureId | undefined>(defaultId);
   const [previewingSignatureId, setPreviewingSignatureId] = useState<ProductionMotionSignatureId>();
   const selected = previewOptions.find(({ spec }) => spec.id === signatureId);

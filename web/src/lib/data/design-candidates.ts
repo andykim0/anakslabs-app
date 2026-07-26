@@ -291,9 +291,10 @@ export async function buildCandidateBlueprintsForPipeline(
   } = {},
 ): Promise<CandidateBlueprint[]> {
   const useNamedTemplates = options.templateGalleryEnabled ?? templateGalleryEnabled();
-  if (useNamedTemplates) {
+  const recommendedTemplates = useNamedTemplates ? namedTemplatesForSurvey(survey) : [];
+  if (recommendedTemplates.length) {
     const legacyBriefs = selectDesignBriefs(surveyForBriefs(survey));
-    return namedTemplatesForSurvey(survey).flatMap((template, index) => {
+    return recommendedTemplates.flatMap((template, index) => {
       const resolved = resolveNamedTemplate(template, survey);
       if (!resolved) return [];
       const brief = legacyBriefs[index % legacyBriefs.length];

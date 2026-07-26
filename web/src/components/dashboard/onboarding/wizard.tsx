@@ -64,6 +64,7 @@ export function OnboardingWizard({
   existingSiteId,
   assetPolicyV2Ready = false,
   realisticImageSupplyReady = false,
+  templateGalleryReady = false,
 }: {
   defaultBusinessName?: string;
   scanContext?: ScanContext;
@@ -77,7 +78,10 @@ export function OnboardingWizard({
   assetPolicyV2Ready?: boolean;
   /** Server-derived licensed-stock supply readiness. */
   realisticImageSupplyReady?: boolean;
+  /** 신규 설문에서만 기존 CandidateStep 공급원을 명명 템플릿으로 교체한다. */
+  templateGalleryReady?: boolean;
 }) {
+  const namedTemplatesEnabled = templateGalleryReady && !existingSiteId;
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [survey, setSurvey] = useState<SurveyInput | null>(null);
   const [heroImage, setHeroImage] = useState<HeroImageSelection | undefined>(undefined);
@@ -175,6 +179,7 @@ export function OnboardingWizard({
             existingSiteId={siteId ?? undefined}
             assetPolicyV2Ready={assetPolicyV2Ready}
             realisticImageSupplyReady={realisticImageSupplyReady}
+            namedTemplatesEnabled={namedTemplatesEnabled}
             onComplete={(values) => {
               setSurvey(values);
               // 설문이 바뀌었을 수 있으므로 이전 선택 초기화

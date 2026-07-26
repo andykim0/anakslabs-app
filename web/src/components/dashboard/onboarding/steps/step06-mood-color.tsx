@@ -196,7 +196,11 @@ function ReferenceSiteSection() {
   );
 }
 
-export function Step06MoodColor() {
+export function Step06MoodColor({
+  namedTemplatesEnabled = false,
+}: {
+  namedTemplatesEnabled?: boolean;
+}) {
   const { watch, setValue } = useFormContext<SurveyForm>();
   const { toast } = useToast();
   const purposeIdRaw = watch('purposeId');
@@ -235,20 +239,23 @@ export function Step06MoodColor() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        마음에 드는 미리보기를 하나 고르면, 그 조합(구성·색·글꼴)으로 디자인 후보를 만들어요. 딱 맞는 게
-        없으면 아래 직접 고르기로 색과 느낌만 따로 정해도 돼요.
+        {namedTemplatesEnabled
+          ? '업종에 맞는 구성을 다음 단계에서 실제 내용으로 보여드려요. 여기서는 참고할 색과 느낌만 알려주시면 돼요.'
+          : '마음에 드는 미리보기를 하나 고르면, 그 조합(구성·색·글꼴)으로 디자인 후보를 만들어요. 딱 맞는 게 없으면 아래 직접 고르기로 색과 느낌만 따로 정해도 돼요.'}
       </StepIntro>
 
       {/* [R5] 주 선택: 레퍼런스 갤러리 — 실제 미리보기로 고르기 */}
-      <div>
-        <div className="mb-2.5 flex items-baseline gap-2">
-          <span className="text-[15px] font-medium text-ob-ink">미리보기로 고르기</span>
-          <span className="rounded-full bg-ob-accent-soft px-2 py-0.5 text-[11px] font-semibold text-ob-accent-strong">
-            추천
-          </span>
+      {!namedTemplatesEnabled ? (
+        <div>
+          <div className="mb-2.5 flex items-baseline gap-2">
+            <span className="text-[15px] font-medium text-ob-ink">미리보기로 고르기</span>
+            <span className="rounded-full bg-ob-accent-soft px-2 py-0.5 text-[11px] font-semibold text-ob-accent-strong">
+              추천
+            </span>
+          </div>
+          <ReferenceGalleryPicker purposeId={purposeId} value={referenceDesignId} onSelect={selectDesign} />
         </div>
-        <ReferenceGalleryPicker purposeId={purposeId} value={referenceDesignId} onSelect={selectDesign} />
-      </div>
+      ) : null}
 
       {/* 보조 선택: 참고 사이트(URL) — 색 신호만 추출 */}
       <ReferenceSiteSection />
