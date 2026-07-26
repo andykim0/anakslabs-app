@@ -57,6 +57,13 @@ import {
 } from '../../_lib/schemas';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import { ensureLicensedStockAssetRefs } from '@/lib/stock/registry';
+import {
+  enforceGeneratedMedicalConfig,
+  MEDICAL_AD_COPY_BLOCKED,
+  medicalPolicyErrorDetails,
+  screenMedicalCustomerCopy,
+} from '@/lib/content/medical-ad-enforcement';
+import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
 
 const bodySchema = z.object({
   siteId: z.string().min(1),
@@ -78,6 +85,34 @@ export const POST = withApiHandler(async (request) => {
   const { siteId } = body.data;
   // [SS5] 재생성도 최초 생성과 같은 서버 권위 템플릿 분류를 사용한다.
   const submittedSurvey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
+  const customerMedicalViolations = screenMedicalCustomerCopy(
+    submittedSurvey,
+    body.data.extras?.snsLinks?.flatMap((link, index) => (
+      link.label
+        ? [{
+            path: `extras.snsLinks[${index}].label`,
+            text: link.label,
+            scope: 'social' as const,
+          }]
+        : []
+    )) ?? [],
+  );
+  if (customerMedicalViolations.length) {
+    return apiError(
+      422,
+      MEDICAL_AD_COPY_BLOCKED,
+      '의료광고에 사용할 수 없는 표현이 있습니다. 안내된 항목을 사실 중심 문장으로 바꿔 주세요.',
+      {
+        policyVersion: MEDICAL_AD_POLICY_VERSION,
+        violations: customerMedicalViolations.map((violation) => ({
+          path: violation.path,
+          severity: violation.severity,
+          ruleId: violation.ruleId,
+          safeReplacementHint: violation.safeReplacementHint,
+        })),
+      },
+    );
+  }
   const candidateInput: DesignCandidate = body.data.candidate;
 
   const site = await getOwnedSite(siteId, client.id);
@@ -245,6 +280,16 @@ export const POST = withApiHandler(async (request) => {
     phase: 'regeneration',
   });
   draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
+  const medicalEnforcement = enforceGeneratedMedicalConfig(draftConfig);
+  if (!medicalEnforcement.result.ok) {
+    return apiError(
+      503,
+      'MEDICAL_AD_SYSTEM_COPY_BLOCKED',
+      '의료광고 안전 검사를 통과하는 초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      medicalPolicyErrorDetails(medicalEnforcement.result),
+    );
+  }
+  draftConfig = medicalEnforcement.config;
   await sites.saveDraft(siteId, draftConfig);
   await sites.incrementFreeRegens(siteId);
 

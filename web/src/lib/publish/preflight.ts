@@ -22,6 +22,7 @@ import {
   testimonialExposurePolicyForConfig,
 } from '@/lib/content/testimonial-policy';
 import type { PublishArtifactAudit } from './artifact-audit';
+import { screenMedicalSiteConfig } from '@/lib/content/medical-ad-enforcement';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
 
@@ -66,6 +67,18 @@ export function checkPublish(
     && allSections(config).some((section) => sectionIsTestimonial(section))
   ) {
     blockers.push('이 업종에서는 고객 후기 섹션을 자동 발행할 수 없습니다.');
+  }
+
+  const medicalPolicy = screenMedicalSiteConfig(config);
+  for (const violation of medicalPolicy.violations) {
+    if (violation.kind === 'classification') {
+      blockers.push(`의료 업종 분류 오류: ${violation.message}`);
+      continue;
+    }
+    const disposition = violation.severity === 'warn' ? '사람 검토 필요' : '발행 차단';
+    blockers.push(
+      `의료광고 ${disposition}(${violation.path}): ${violation.safeReplacementHint}`,
+    );
   }
 
   // ② 모션 무결성 — 저장 시 sanitize되므로 정상 draft는 무변경. 변경 발생 = 저장 우회/오염 → 차단.

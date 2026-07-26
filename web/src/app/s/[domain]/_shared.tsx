@@ -15,6 +15,7 @@ import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
+import { screenMedicalSiteConfig } from '@/lib/content/medical-ad-enforcement';
 
 export { siteUrlOf };
 
@@ -55,9 +56,13 @@ export const getSiteByDomain = cache(async (rawDomain: string): Promise<Site | n
 
   // Legacy-bypass/observe preserve the original object and exact DOM contract.
   // Enforced v2 sites receive the server-projected config with honest fallbacks.
-  return policy.config === site.siteConfig
+  const projectedSite = policy.config === site.siteConfig
     ? site
     : { ...site, siteConfig: policy.config };
+  // 공개 tenant는 문장 일부를 숨기지 않는다. 저장 우회·레거시 오염이 있으면 사이트 전체를
+  // fail-closed해 금지 표현이 HTML·JSON-LD·SemanticOutline 어디에도 도달하지 못하게 한다.
+  if (!screenMedicalSiteConfig(policy.config).ok) return null;
+  return projectedSite;
 });
 
 /**

@@ -62,6 +62,13 @@ import { industryProfileIdForSurvey } from '@/lib/industry/profiles';
 import { industryProfile, PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import { ensureLicensedStockAssetRefs } from '@/lib/stock/registry';
+import {
+  enforceGeneratedMedicalConfig,
+  MEDICAL_AD_COPY_BLOCKED,
+  medicalPolicyErrorDetails,
+  screenMedicalCustomerCopy,
+} from '@/lib/content/medical-ad-enforcement';
+import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -132,6 +139,34 @@ export const POST = withApiHandler(async (request) => {
 
   // [SS5] templateId는 클라이언트 힌트일 뿐. purpose+industry의 서버 레지스트리 결과가 권위다.
   const submittedSurvey: SurveyInput = canonicalizeSurveyTemplate(body.data.survey as SurveyInput);
+  const customerMedicalViolations = screenMedicalCustomerCopy(
+    submittedSurvey,
+    body.data.extras?.snsLinks?.flatMap((link, index) => (
+      link.label
+        ? [{
+            path: `extras.snsLinks[${index}].label`,
+            text: link.label,
+            scope: 'social' as const,
+          }]
+        : []
+    )) ?? [],
+  );
+  if (customerMedicalViolations.length) {
+    return apiError(
+      422,
+      MEDICAL_AD_COPY_BLOCKED,
+      '의료광고에 사용할 수 없는 표현이 있습니다. 안내된 항목을 사실 중심 문장으로 바꿔 주세요.',
+      {
+        policyVersion: MEDICAL_AD_POLICY_VERSION,
+        violations: customerMedicalViolations.map((violation) => ({
+          path: violation.path,
+          severity: violation.severity,
+          ruleId: violation.ruleId,
+          safeReplacementHint: violation.safeReplacementHint,
+        })),
+      },
+    );
+  }
   // Cohort membership is derived exclusively from server-owned launch flags.
   // Invalid WRITE -> ASSIGN -> ENFORCE dependencies throw here before any AI
   // generation or site mutation; they must never silently downgrade to legacy.
@@ -251,6 +286,16 @@ export const POST = withApiHandler(async (request) => {
     phase: 'generation',
   });
   draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
+  const medicalEnforcement = enforceGeneratedMedicalConfig(draftConfig);
+  if (!medicalEnforcement.result.ok) {
+    return apiError(
+      503,
+      'MEDICAL_AD_SYSTEM_COPY_BLOCKED',
+      '의료광고 안전 검사를 통과하는 초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      medicalPolicyErrorDetails(medicalEnforcement.result),
+    );
+  }
+  draftConfig = medicalEnforcement.config;
   let site: Site;
   const selectedIndustryProfileId = industryProfileIdForSurvey(survey);
   const selectedIndustryProfile = selectedIndustryProfileId
@@ -326,6 +371,16 @@ export const POST = withApiHandler(async (request) => {
         phase: 'generation',
       });
       draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
+      const medicalMotionEnforcement = enforceGeneratedMedicalConfig(draftConfig);
+      if (!medicalMotionEnforcement.result.ok) {
+        return apiError(
+          503,
+          'MEDICAL_AD_SYSTEM_COPY_BLOCKED',
+          '의료광고 안전 검사를 통과하는 초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
+          medicalPolicyErrorDetails(medicalMotionEnforcement.result),
+        );
+      }
+      draftConfig = medicalMotionEnforcement.config;
       await sites.saveDraft(site.id, draftConfig);
       site = await sites.getById(site.id) ?? site;
     } else {

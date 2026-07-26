@@ -721,6 +721,7 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
     templateId: 'ignore',
     industryClass: 'ignore',
     industryId: 'ignore',
+    medicalAdPolicyVersion: 'ignore',
     imageDirectionId: 'ignore',
     region: 'collect',
     sourceScanId: 'ignore',

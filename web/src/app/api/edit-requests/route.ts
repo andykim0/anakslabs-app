@@ -26,6 +26,14 @@ import {
   getEditRequestWorkflowRepository,
 } from '@/lib/fulfillment/edit-request-workflow-repository';
 import { completeEditFulfillment } from '@/lib/admin/edit-fulfillment-service';
+import {
+  generateMedicalSafeCopy,
+  MEDICAL_AD_COPY_BLOCKED,
+} from '@/lib/content/medical-ad-enforcement';
+import {
+  MEDICAL_AD_POLICY_VERSION,
+  screenMedicalCopy,
+} from '@/lib/content/medical-ad-policy';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -77,6 +85,26 @@ export const POST = withApiHandler(async (request) => {
   if (!site) return siteNotFound();
 
   const creditCost = CREDIT_COSTS[type];
+  const industryClass = site.draftConfig?.meta.industryClass ?? site.siteConfig?.meta.industryClass;
+  if (industryClass === 'medical' && (type === 'text' || type === 'structure')) {
+    const customerCopy = screenMedicalCopy(requestedContent, { scope: 'body' });
+    if (customerCopy.violations.length) {
+      return apiError(
+        422,
+        MEDICAL_AD_COPY_BLOCKED,
+        '의료광고에 사용할 수 없는 표현이 있습니다. 사실 중심 문장으로 바꿔 주세요.',
+        {
+          policyVersion: MEDICAL_AD_POLICY_VERSION,
+          violations: customerCopy.violations.map((violation) => ({
+            path: 'requestedContent',
+            severity: violation.severity,
+            ruleId: violation.ruleId,
+            safeReplacementHint: violation.safeReplacementHint,
+          })),
+        },
+      );
+    }
+  }
 
   // 이미지/영상 산출물 provenance flag 오류는 요청 row·크레딧 차감·provider 호출 전에 중단한다.
   if (type === 'image' || type === 'video') assetProvenanceConfig();
@@ -177,9 +205,20 @@ export const POST = withApiHandler(async (request) => {
   let aiOutput: unknown;
   try {
     switch (type) {
-      case 'text':
-        aiOutput = { text: await ai.generateText({ prompt: requestedContent }), fulfillmentTarget: target };
+      case 'text': {
+        const generated = await generateMedicalSafeCopy({
+          industryClass,
+          prompt: requestedContent,
+          scope: 'body',
+          generate: (prompt) => ai.generateText({ prompt }),
+        });
+        aiOutput = {
+          text: generated.text,
+          medicalSafetyResolution: generated.resolution,
+          fulfillmentTarget: target,
+        };
         break;
+      }
       case 'image':
         aiOutput = {
           ...await ai.generateImage(
@@ -206,14 +245,20 @@ export const POST = withApiHandler(async (request) => {
           fulfillmentTarget: target,
         };
         break;
-      case 'structure':
+      case 'structure': {
+        const generated = await generateMedicalSafeCopy({
+          industryClass,
+          prompt: `다음 사이트 구조 변경 요청에 대한 적용 계획을 정리해줘: ${requestedContent}`,
+          scope: 'body',
+          generate: (prompt) => ai.generateText({ prompt }),
+        });
         aiOutput = {
-          text: await ai.generateText({
-            prompt: `다음 사이트 구조 변경 요청에 대한 적용 계획을 정리해줘: ${requestedContent}`,
-          }),
+          text: generated.text,
+          medicalSafetyResolution: generated.resolution,
           fulfillmentTarget: target,
         };
         break;
+      }
     }
   } catch (err) {
     console.error('[edit-requests] AI 생성 실패:', err);

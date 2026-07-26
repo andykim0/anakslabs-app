@@ -8,6 +8,10 @@ import { NextResponse } from 'next/server';
 import { isMockMode } from '@/lib/env';
 import { getDataServices } from '@/lib/data';
 import { runSiteExport } from '@/lib/export/run-export';
+import {
+  MedicalAdPublicBoundaryError,
+  medicalPolicyErrorDetails,
+} from '@/lib/content/medical-ad-enforcement';
 import { apiError, withApiHandler } from '@/app/api/_lib/http';
 import { getAuthedClient, getOwnedSite, siteNotFound, unauthorized } from '@/app/api/_lib/guards';
 
@@ -33,7 +37,20 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
     return apiError(400, 'PUBLISH_REQUIRED', '발행본이 있는 사이트만 백업할 수 있습니다. 먼저 발행해 주세요.');
   }
 
-  const result = await runSiteExport(site);
+  let result;
+  try {
+    result = await runSiteExport(site);
+  } catch (error) {
+    if (error instanceof MedicalAdPublicBoundaryError) {
+      return apiError(
+        409,
+        error.code,
+        '의료광고 안전 검사를 통과한 발행본만 백업할 수 있습니다.',
+        medicalPolicyErrorDetails(error.result),
+      );
+    }
+    throw error;
+  }
   const downloadUrl = await downloadUrlFor(siteId, result.objectPath);
   return NextResponse.json({ status: 'ready', warnings: result.warnings, downloadUrl });
 });

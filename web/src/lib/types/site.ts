@@ -666,6 +666,11 @@ export interface SiteMeta {
    * 가격·계약 정보는 포함하지 않으며 미지정 레거시 config는 종전 렌더를 유지한다.
    */
   industryId?: SiteIndustryId;
+  /**
+   * 신규 medical 생성본이 마지막으로 통과한 의료광고 정책 버전 감사값.
+   * 공개·발행 경계는 이 값을 신뢰해 검사를 생략하지 않고 항상 현재 config를 다시 검사한다.
+   */
+  medicalAdPolicyVersion?: string;
   /** New-generation image supply intent. Legacy configs omit it and never receive stock. */
   imageDirectionId?: ImageDirectionId;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */

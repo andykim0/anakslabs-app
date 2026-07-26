@@ -50,6 +50,7 @@ import {
   PRODUCTION_KOREAN_FONT_PAIR_IDS,
 } from '@/lib/fonts/types';
 import { SITE_INDUSTRY_IDS } from '@/lib/industry/profiles';
+import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -667,6 +668,7 @@ const siteMetaSchema = z.object({
   // [motion signatures v2] 서버 택소노미가 확정한 값만 저장. 자유 업종 문자열은 이 필드를 권한으로 만들 수 없다.
   industryClass: motionIndustryClassSchema.optional(),
   industryId: z.enum(SITE_INDUSTRY_IDS).optional(),
+  medicalAdPolicyVersion: z.literal(MEDICAL_AD_POLICY_VERSION).optional(),
   imageDirectionId: z.enum(IMAGE_DIRECTION_IDS).optional(),
   region: z.string().max(60).optional(),
   sourceScanId: z.string().max(100).optional(),
