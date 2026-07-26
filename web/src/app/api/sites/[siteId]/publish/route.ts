@@ -30,10 +30,7 @@ import {
   publishPaymentQuote,
 } from '@/lib/billing/publish-payment';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
-import {
-  blockedIndustryPublishPolicy,
-  industryPublishPolicy,
-} from '@/lib/industry/publish-policy';
+import { industryPublishPolicy } from '@/lib/industry/publish-policy';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -51,9 +48,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
 
   // 업종 계약 가드는 결제 견적보다 먼저 같은 정책 소스로 fail-closed한다.
   const industryPolicy = industryPublishPolicy(site);
-  const blockedIndustryPolicy = blockedIndustryPublishPolicy(industryPolicy);
-  if (blockedIndustryPolicy) {
-    return apiError(409, blockedIndustryPolicy.code, blockedIndustryPolicy.message);
+  if (industryPolicy.status === 'gated' || industryPolicy.status === 'unavailable') {
+    return apiError(409, industryPolicy.code, industryPolicy.message);
   }
 
   // 요청 본문은 한 번만 읽고 사업자 확인과 휴먼 3체크를 각각 검증한다.
@@ -182,9 +178,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       clientId: client.id,
       siteId,
       mock: isMockMode(),
-      ...(industryPolicy.status === 'available'
-        ? { pricing: industryPolicy.pricing }
-        : {}),
+      pricing: industryPolicy.pricing,
     });
     return apiError(
       402,

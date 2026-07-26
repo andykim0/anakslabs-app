@@ -111,6 +111,9 @@ export function renewMockSiteSubscription(input: {
   source: MockSubscriptionRenewalSource;
   paymentId?: string;
   periodMonths?: number;
+  siteId?: string;
+  industryProfileId?: 'interior' | 'clinic';
+  pricingModelVersion?: string;
   at?: Date;
 }): { duplicated: boolean; state: SiteSubscriptionState } {
   const store = getMockStore();
@@ -167,6 +170,9 @@ export function renewMockSiteSubscription(input: {
   const nowIso = at.toISOString();
   const state: SiteSubscriptionState = {
     clientId: input.clientId,
+    ...(input.siteId ? { siteId: input.siteId } : {}),
+    ...(input.industryProfileId ? { industryProfileId: input.industryProfileId } : {}),
+    ...(input.pricingModelVersion ? { pricingModelVersion: input.pricingModelVersion } : {}),
     status: 'active',
     currentPeriodEnd: nextEnd.toISOString(),
     updatedAt: nowIso,

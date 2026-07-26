@@ -482,7 +482,7 @@ describe('RPT$ contract and SQL invariants', () => {
       join(process.cwd(), 'src/lib/data/mock/services.ts'),
       'utf8',
     );
-    assert.match(mockPayments, /payload\.amount !== PRICING\.subscription\.amountKrw/);
+    assert.match(mockPayments, /payload\.amount !== expectedPricing\.amountKrw/);
     assert.match(
       mockPayments,
       /periodMonths: payload\.periodMonths \?\? PRICING\.subscription\.periodMonths/,

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { Site } from '@/lib/types/domain';
 import {
   CURRENT_SUBSCRIPTION_PRICE,
-  type SubscriptionPriceContract,
+  type PublishSubscriptionPriceContract,
 } from '@/lib/pricing';
 import type { PublishPaymentQuote } from './publish-payment-contract';
 
@@ -11,11 +11,11 @@ export const PUBLISH_PAYMENT_ERROR_CODE = 'PUBLISH_PAYMENT_REQUIRED' as const;
 function quoteDigest(
   clientId: string,
   siteId: string,
-  pricing: SubscriptionPriceContract,
+  pricing: PublishSubscriptionPriceContract,
 ): string {
   return createHash('sha256')
     .update(
-      `${pricing.modelVersion}|${pricing.industryProfileId}|${clientId}|${siteId}|${pricing.amountKrw}|${pricing.periodMonths}|vat-included`,
+      `${pricing.modelVersion}|${'industryProfileId' in pricing ? pricing.industryProfileId : 'legacy'}|${clientId}|${siteId}|${pricing.amountKrw}|${pricing.periodMonths}|vat-${pricing.vatIncluded ? 'included' : 'separate'}`,
     )
     .digest('hex')
     .slice(0, 32);
@@ -25,13 +25,15 @@ export function publishPaymentQuote(input: {
   clientId: string;
   siteId: string;
   mock: boolean;
-  pricing?: SubscriptionPriceContract;
+  pricing?: PublishSubscriptionPriceContract;
 }): PublishPaymentQuote {
   const pricing = input.pricing ?? CURRENT_SUBSCRIPTION_PRICE;
   return {
     quoteId: quoteDigest(input.clientId, input.siteId, pricing),
     pricingModelVersion: pricing.modelVersion,
-    industryProfileId: pricing.industryProfileId,
+    ...('industryProfileId' in pricing
+      ? { industryProfileId: pricing.industryProfileId }
+      : {}),
     amountKrw: pricing.amountKrw,
     periodMonths: pricing.periodMonths,
     billingInterval: pricing.billingInterval,
@@ -47,7 +49,7 @@ export function quoteMatchesSite(
   input: {
     clientId: string;
     siteId: string;
-    pricing?: SubscriptionPriceContract;
+    pricing?: PublishSubscriptionPriceContract;
   },
 ): boolean {
   return quoteId === quoteDigest(
@@ -64,7 +66,7 @@ export function needsPublishPayment(site: Pick<Site, 'publishedAt'>, subscriptio
 
 export function mockPublishPaymentKey(
   siteId: string,
-  pricing: SubscriptionPriceContract = CURRENT_SUBSCRIPTION_PRICE,
+  pricing: PublishSubscriptionPriceContract = CURRENT_SUBSCRIPTION_PRICE,
 ): string {
   return `mock-publish:${pricing.modelVersion}:${siteId}`;
 }

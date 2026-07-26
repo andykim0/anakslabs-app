@@ -140,7 +140,7 @@ describe('PRICE R1 — 월 리테이너 백본·가격표 버전', () => {
     const guaranteeRoute = read('src/app/(marketing)/guarantee/page.tsx');
     const prepublishPolicy = read('src/lib/billing/prepublish-cost-policy.ts');
 
-    assert.match(marketing, /150,000|formatKrw\(PRICING\.subscription\.amountKrw\)/);
+    assert.match(marketing, /490,000|formatKrw\(PRICING\.subscription\.amountKrw\)/);
     assert.match(marketing, /성과 관리비|전환 리포팅|성과 리포트/);
     assert.doesNotMatch(marketing, /무료 제작|1년 이용|연 390,000원/);
     assert.doesNotMatch(marketing, /아임웹|윅스|Wix|Squarespace/);

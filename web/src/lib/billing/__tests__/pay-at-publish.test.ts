@@ -68,7 +68,8 @@ describe('PRICE P2 publish payment contract', () => {
     const payment = read('src/app/api/sites/[siteId]/publish-payment/route.ts');
     assert.match(payment, /if \(!isMockMode\(\)\) \{[\s\S]*PUBLISH_PAYMENT_UNAVAILABLE/);
     assert.match(payment, /type: 'maintenance_subscription'/);
-    assert.match(payment, /amount: PRICING\.subscription\.amountKrw/);
+    assert.match(payment, /amount: pricing\.amountKrw/);
+    assert.match(payment, /industryPublishPolicy\(site\)/);
     assert.ok(
       payment.indexOf('if (!isMockMode())') < payment.indexOf('payments.handleWebhook'),
       'real mode must fail before a payment mutation',
@@ -123,6 +124,6 @@ describe('PRICE P2 publish payment contract', () => {
     assert.match(events, /eventKind: 'build_completed'/);
     assert.match(generate, /recordBuildEvidence\(\{/);
     assert.match(payment, /eventKind: 'publish_payment'/);
-    assert.match(payment, /amountKrw: PRICING\.subscription\.amountKrw/);
+    assert.match(payment, /amountKrw: pricing\.amountKrw/);
   });
 });

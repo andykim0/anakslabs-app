@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
-import { PRICING, PRICING_MODEL_VERSION } from '@/lib/pricing';
 import {
   mockPublishPaymentKey,
   needsPublishPayment,
@@ -18,10 +17,7 @@ import {
   siteNotFound,
   unauthorized,
 } from '../../../_lib/guards';
-import {
-  blockedIndustryPublishPolicy,
-  industryPublishPolicy,
-} from '@/lib/industry/publish-policy';
+import { industryPublishPolicy } from '@/lib/industry/publish-policy';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -39,13 +35,10 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, 'NO_DRAFT', '결제할 발행 초안이 없습니다.');
   }
   const industryPolicy = industryPublishPolicy(site);
-  const blockedIndustryPolicy = blockedIndustryPublishPolicy(industryPolicy);
-  if (blockedIndustryPolicy) {
-    return apiError(409, blockedIndustryPolicy.code, blockedIndustryPolicy.message);
+  if (industryPolicy.status === 'gated' || industryPolicy.status === 'unavailable') {
+    return apiError(409, industryPolicy.code, industryPolicy.message);
   }
-  const pricing = industryPolicy.status === 'available'
-    ? industryPolicy.pricing
-    : undefined;
+  const pricing = industryPolicy.pricing;
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
@@ -70,12 +63,18 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   }
 
   const result = await getDataServices().payments.handleWebhook({
-    providerPaymentKey: mockPublishPaymentKey(siteId),
+    providerPaymentKey: mockPublishPaymentKey(siteId, pricing),
     clientId: client.id,
     type: 'maintenance_subscription',
-    amount: PRICING.subscription.amountKrw,
-    pricingModelVersion: PRICING.modelVersion,
-    periodMonths: PRICING.subscription.periodMonths,
+    amount: pricing.amountKrw,
+    pricingModelVersion: pricing.modelVersion,
+    periodMonths: pricing.periodMonths,
+    ...('industryProfileId' in pricing
+      ? {
+          siteId,
+          industryProfileId: pricing.industryProfileId,
+        }
+      : {}),
   });
   try {
     await recordBuildEconomicsEvent({
@@ -83,10 +82,13 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       clientId: client.id,
       siteId,
       costUsdMicros: 0,
-      idempotencyKey: `publish-payment:${PRICING_MODEL_VERSION}:${siteId}`,
+      idempotencyKey: `publish-payment:${pricing.modelVersion}:${siteId}`,
       metadata: {
-        amountKrw: PRICING.subscription.amountKrw,
-        periodMonths: PRICING.subscription.periodMonths,
+        amountKrw: pricing.amountKrw,
+        periodMonths: pricing.periodMonths,
+        ...('industryProfileId' in pricing
+          ? { industryProfileId: pricing.industryProfileId }
+          : {}),
         mode: 'mock',
       },
     });

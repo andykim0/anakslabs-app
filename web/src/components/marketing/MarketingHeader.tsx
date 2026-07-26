@@ -12,6 +12,7 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 const NAV = [
+  { href: '/interior', label: '인테리어' },
   { href: '/features', label: '기능' },
   { href: '/templates', label: '템플릿' },
   { href: '/pricing', label: '가격' },

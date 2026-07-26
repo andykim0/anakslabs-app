@@ -4,7 +4,12 @@
  */
 import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constants';
 import { ROOT_DOMAIN } from '@/lib/env';
-import { PRICING } from '@/lib/pricing';
+import {
+  LEGACY_PRICING_MODEL_VERSION,
+  LEGACY_V4_SUBSCRIPTION_PRICE,
+  PRICING,
+  subscriptionPriceForProfile,
+} from '@/lib/pricing';
 import { assertAccountCanCreateSite } from '@/lib/billing/site-limit';
 import { subscriptionGrantIdempotencyKey } from '@/lib/subscriptions/core';
 import {
@@ -448,6 +453,8 @@ class MockPaymentsService implements PaymentsService {
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
+    siteId?: string;
+    industryProfileId?: IndustryProfileId;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const store = getMockStore();
 
@@ -474,15 +481,39 @@ class MockPaymentsService implements PaymentsService {
       }
       creditsGranted = payload.creditsGranted;
     } else if (payload.type === 'maintenance_subscription') {
-      if (payload.amount !== PRICING.subscription.amountKrw) {
+      const industryPricing = payload.industryProfileId
+        ? subscriptionPriceForProfile(
+            payload.industryProfileId,
+            payload.pricingModelVersion,
+          )
+        : null;
+      const expectedPricing = industryPricing
+        ?? (payload.pricingModelVersion === LEGACY_PRICING_MODEL_VERSION
+          ? LEGACY_V4_SUBSCRIPTION_PRICE
+          : PRICING.subscription);
+      if (payload.industryProfileId && !industryPricing) {
+        throw new Error('payments.handleWebhook: industry pricing contract is unavailable');
+      }
+      if (payload.siteId || payload.industryProfileId) {
+        const site = payload.siteId ? store.sites.get(payload.siteId) : null;
+        if (
+          !site
+          || site.clientId !== payload.clientId
+          || site.industryProfileId !== payload.industryProfileId
+          || site.pricingModelVersion !== payload.pricingModelVersion
+        ) {
+          throw new Error('payments.handleWebhook: site industry contract mismatch');
+        }
+      }
+      if (payload.amount !== expectedPricing.amountKrw) {
         throw new Error(
-          `payments.handleWebhook: maintenance amount must equal ${PRICING.subscription.amountKrw}`,
+          `payments.handleWebhook: maintenance amount must equal ${expectedPricing.amountKrw}`,
         );
       }
       if (
-        (payload.pricingModelVersion ?? PRICING.modelVersion) !== PRICING.modelVersion
-        || (payload.periodMonths ?? PRICING.subscription.periodMonths)
-          !== PRICING.subscription.periodMonths
+        (payload.pricingModelVersion ?? expectedPricing.modelVersion) !== expectedPricing.modelVersion
+        || (payload.periodMonths ?? expectedPricing.periodMonths)
+          !== expectedPricing.periodMonths
       ) {
         throw new Error('payments.handleWebhook: maintenance pricing contract is stale');
       }
@@ -507,6 +538,7 @@ class MockPaymentsService implements PaymentsService {
       amount: payload.amount,
       creditsGranted,
       providerPaymentKey: payload.providerPaymentKey,
+      industryProfileId: payload.industryProfileId ?? null,
       createdAt: nowIso(),
     };
     store.payments.set(payment.id, payment);
@@ -520,6 +552,9 @@ class MockPaymentsService implements PaymentsService {
           source: 'payment_webhook',
           paymentId: payment.id,
           periodMonths: payload.periodMonths ?? PRICING.subscription.periodMonths,
+          siteId: payload.siteId,
+          industryProfileId: payload.industryProfileId,
+          pricingModelVersion: payload.pricingModelVersion,
           at: processedAt,
         });
       } catch (error) {

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Check } from 'lucide-react';
 import {
   CREDIT_EXPIRY_DAYS,
@@ -59,7 +58,7 @@ const PRICING_FAQ: FaqItem[] = [
   },
   {
     q: '자동 갱신과 해지는 어떻게 되나요?',
-    a: `${PUBLISH_PAYMENT_COPY.renewal} 방식이며, 스탠다드는 ${PUBLISH_PAYMENT_COPY.annualOption} 선택지도 있습니다. 해지 시점과 환불 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 결제 화면과 약관에 같은 문구로 명확히 안내합니다. 현재는 실제 결제가 진행되지 않습니다.`,
+    a: `${PUBLISH_PAYMENT_COPY.renewal} 방식이며, ${PUBLISH_PAYMENT_COPY.annualOption} 선택지도 있습니다. 해지 시점과 환불 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 결제 화면과 약관에 같은 문구로 명확히 안내합니다. 현재는 실제 결제가 진행되지 않습니다.`,
   },
   {
     q: '해지하면 사이트는 어떻게 되나요?',
@@ -120,15 +119,15 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 스탠다드·프리미엄 티어 — 범위와 표시는 pricing.ts 계약만 소비 */}
+      {/* 공개 단일가는 pricing.ts의 업종 계약만 소비한다. */}
       <section className="mx-auto max-w-5xl px-6 pb-8">
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="mx-auto max-w-3xl">
           <div
-            data-pricing-tier={PRICING.tiers.standard.id}
+            data-industry-profile={PRICING.profiles.interior.id}
             className="relative flex flex-col rounded-2xl border border-[#E4D9BF] bg-[#FBF8F1] p-7"
           >
             <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#856A26] uppercase">
-              {PRICING.tiers.standard.label} · 홈페이지 발행 + 매월 성과 관리
+              {PRICING.profiles.interior.label} · 홈페이지 발행 + 매월 성과 관리
             </h2>
             <div className="mt-4">
               <PublishPrice />
@@ -143,7 +142,7 @@ export default function PricingPage() {
               {SUBSCRIPTION_VALUE_COPY}
             </p>
             <ul className="mkt-type-body mt-6 space-y-3 text-[#5C6068]">
-              {PRICING.tiers.standard.included.map((feature) => (
+              {PRICING.profiles.interior.included.map((feature) => (
                 <li key={feature.id} className="flex items-start gap-2">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#856A26]" />
                   {feature.label}
@@ -154,35 +153,6 @@ export default function PricingPage() {
             <div className="mt-6 rounded-xl border border-[#D9E3F5] bg-white p-5">
               <PricingMotionComparison />
             </div>
-          </div>
-
-          <div
-            data-pricing-tier={PRICING.tiers.premium.id}
-            className="relative flex flex-col rounded-2xl border border-[#D9E3F5] bg-white p-7"
-          >
-            <h2 className="mkt-type-eyebrow font-semibold tracking-widest text-[#174DDA] uppercase">
-              {PRICING.tiers.premium.label} · 지속적인 검색·전환 관리
-            </h2>
-            <p className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#17181C] sm:text-4xl">
-              문의
-            </p>
-            <p className="mkt-type-support mt-2 text-[#5C6068]">
-              범위와 시작 시점은 상담 후 안내합니다. 현재 가격은 공개하지 않습니다.
-            </p>
-            <ul className="mkt-type-body mt-6 space-y-3 text-[#5C6068]">
-              {PRICING.tiers.premium.included.map((feature) => (
-                <li key={feature.id} className="flex items-start gap-2">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#174DDA]" />
-                  {feature.label}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/#hero-scanner"
-              className="mkt-type-control mt-8 inline-flex h-11 w-fit items-center justify-center whitespace-nowrap rounded-xl bg-[#174DDA] px-5 font-semibold text-white"
-            >
-              프리미엄 문의
-            </Link>
           </div>
         </div>
       </section>

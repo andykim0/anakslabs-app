@@ -9,6 +9,7 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 
 const BASE_LINKS = [
+  { href: '/interior', label: '인테리어' },
   { href: '/about', label: '회사소개' },
   { href: '/templates', label: '템플릿' },
   { href: '/faq', label: '자주 묻는 질문' },

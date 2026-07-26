@@ -13,6 +13,19 @@ export interface SubscriptionPriceContract {
   vatIncluded: true;
 }
 
+export interface LegacySubscriptionPriceContract {
+  modelVersion: typeof LEGACY_PRICING_MODEL_VERSION;
+  amountKrw: number;
+  periodMonths: number;
+  billingInterval: 'month';
+  automaticRenewal: true;
+  vatIncluded: false;
+}
+
+export type PublishSubscriptionPriceContract =
+  | SubscriptionPriceContract
+  | LegacySubscriptionPriceContract;
+
 /**
  * 머지된 과거 v4 결제·이벤트를 해석하기 위한 동결 스냅샷. 신규 견적이나
  * 고객 UI에서 소비하면 안 된다. 머지되지 않은 v5 항목은 만들지 않는다.
@@ -79,6 +92,17 @@ export const LEGACY_PRICING_TABLE_CATALOG = {
     },
   },
 } as const;
+
+export const LEGACY_V4_SUBSCRIPTION_PRICE: LegacySubscriptionPriceContract = {
+  modelVersion: LEGACY_PRICING_MODEL_VERSION,
+  amountKrw:
+    LEGACY_PRICING_TABLE_CATALOG[LEGACY_PRICING_MODEL_VERSION].tiers.standard.monthlyPrice.amountKrw,
+  periodMonths:
+    LEGACY_PRICING_TABLE_CATALOG[LEGACY_PRICING_MODEL_VERSION].tiers.standard.monthlyPrice.periodMonths,
+  billingInterval: 'month',
+  automaticRenewal: true,
+  vatIncluded: false,
+};
 
 export type IndustryProfileAvailability = 'public' | 'gated';
 export type IndustrySchemaType =
@@ -250,11 +274,6 @@ export const PRICING = {
     },
   },
   profiles: INDUSTRY_PROFILES,
-  /**
-   * M3 마케팅 단일가 전환 전까지만 기존 페이지를 컴파일하는 동결 view.
-   * 신규 견적·결제는 이 값을 소비하지 않으며 M3에서 제거한다.
-   */
-  tiers: LEGACY_PRICING_TABLE_CATALOG[LEGACY_PRICING_MODEL_VERSION].tiers,
   selfEdit: 'unlimited-free',
 } as const;
 

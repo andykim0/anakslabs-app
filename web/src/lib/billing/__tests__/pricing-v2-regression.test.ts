@@ -140,7 +140,7 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
       'real checkout must fail before any payment mutation',
     );
     assert.match(payment, /type: 'maintenance_subscription'/);
-    assert.match(payment, /amount: PRICING\.subscription\.amountKrw/);
+    assert.match(payment, /amount: pricing\.amountKrw/);
   });
 
   test('0043·0044는 과거 장부를 보존하면서 신규 build_fee만 막고 월 2크레딧을 정확히 한 번 지급한다', () => {
@@ -186,9 +186,9 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     const notices = read('src/lib/legal/notices.ts');
     const kmong = read('docs/kmong-product-copy.md');
     assert.match(terms, /성과 보장 프로그램.*잠정 제외/);
-    assert.match(terms, /부가세 별도[\s\S]{0,100}검토/);
     assert.match(terms, /자동 갱신[\s\S]*법률 검토/);
-    assert.match(terms, /월 150,000원·월 자동 갱신/);
+    assert.match(terms, /인테리어 홈페이지 1개 기준 월 490,000원/);
+    assert.match(terms, /부가세 포함/);
     assert.match(terms, /신규 계약에는 초기 지급 크레딧이 없으며/);
     assert.match(terms, /과거 계약의 초기 지급 크레딧은 기존 만료 조건을 유지/);
     assert.match(notices, /실제 결제 기능을 열기 전 법률 검토/);

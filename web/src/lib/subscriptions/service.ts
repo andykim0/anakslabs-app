@@ -24,6 +24,9 @@ import {
 
 type SubscriptionRow = {
   client_id: string;
+  site_id?: string | null;
+  industry_profile_id?: 'interior' | 'clinic' | null;
+  pricing_model_version?: string | null;
   status: SiteSubscriptionStatus;
   current_period_end: string;
   updated_at: string;
@@ -38,6 +41,11 @@ type SubscriptionRenewalRow = {
 function rowToState(row: SubscriptionRow): SiteSubscriptionState {
   return {
     clientId: row.client_id,
+    ...(row.site_id ? { siteId: row.site_id } : {}),
+    ...(row.industry_profile_id ? { industryProfileId: row.industry_profile_id } : {}),
+    ...(row.pricing_model_version
+      ? { pricingModelVersion: row.pricing_model_version }
+      : {}),
     status: row.status,
     currentPeriodEnd: row.current_period_end,
     updatedAt: row.updated_at,
@@ -48,7 +56,7 @@ export async function getSiteSubscription(clientId: string): Promise<SiteSubscri
   if (isMockMode()) return getMockSiteSubscription(clientId);
   const { data, error } = await getServiceRoleClient()
     .from('site_subscriptions')
-    .select('client_id,status,current_period_end,updated_at')
+    .select('client_id,site_id,industry_profile_id,pricing_model_version,status,current_period_end,updated_at')
     .eq('client_id', clientId)
     .maybeSingle();
   if (error) throw new Error(`site subscription lookup failed: ${error.message}`);
@@ -74,7 +82,7 @@ export async function listSiteSubscriptionsForAdmin(
   const [statesResult, renewalsResult] = await Promise.all([
     service
       .from('site_subscriptions')
-      .select('client_id,status,current_period_end,updated_at'),
+      .select('client_id,site_id,industry_profile_id,pricing_model_version,status,current_period_end,updated_at'),
     service
       .from('site_subscription_renewals')
       .select('client_id,period_start,reversed_at'),

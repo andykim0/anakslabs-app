@@ -245,3 +245,108 @@ revoke all on function public.create_industry_site_with_asset_bindings_and_attes
 grant execute on function public.create_industry_site_with_asset_bindings_and_attestation(
   uuid, text, jsonb, smallint, uuid[], uuid, text, text
 ) to service_role;
+
+create or replace function public.handle_industry_maintenance_payment(
+  p_site_id uuid,
+  p_client_id uuid,
+  p_provider_payment_key text,
+  p_amount numeric,
+  p_industry_profile_id text,
+  p_pricing_model_version text,
+  p_period_months integer
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_site public.sites%rowtype;
+  v_payment_id uuid;
+  v_payment public.payments%rowtype;
+  v_result jsonb;
+begin
+  if p_industry_profile_id is null or length(btrim(p_industry_profile_id)) = 0 then
+    raise exception 'industry profile is required' using errcode = '23514';
+  end if;
+  if p_pricing_model_version is null or length(btrim(p_pricing_model_version)) = 0 then
+    raise exception 'pricing model version is required' using errcode = '23514';
+  end if;
+
+  select * into v_site
+  from public.sites s
+  where s.id = p_site_id
+  for update;
+  if not found
+     or v_site.client_id <> p_client_id
+     or v_site.industry_profile_id is distinct from btrim(p_industry_profile_id)
+     or v_site.pricing_model_version is distinct from btrim(p_pricing_model_version) then
+    raise exception 'site industry contract mismatch' using errcode = '42501';
+  end if;
+
+  v_result := public.handle_maintenance_payment(
+    p_client_id,
+    p_provider_payment_key,
+    p_amount,
+    p_pricing_model_version,
+    p_period_months
+  );
+  v_payment_id := nullif(v_result ->> 'payment_id', '')::uuid;
+  if v_payment_id is null then
+    select id into v_payment_id
+    from public.payments
+    where provider_payment_key = p_provider_payment_key;
+  end if;
+
+  select * into v_payment
+  from public.payments p
+  where p.id = v_payment_id
+  for update;
+  if not found
+     or v_payment.client_id <> p_client_id
+     or v_payment.type <> 'maintenance_subscription'
+     or v_payment.amount <> p_amount
+     or v_payment.pricing_model_version is distinct from btrim(p_pricing_model_version)
+     or (
+       v_payment.industry_profile_id is not null
+       and v_payment.industry_profile_id is distinct from btrim(p_industry_profile_id)
+     ) then
+    raise exception 'payment industry contract mismatch' using errcode = '42501';
+  end if;
+
+  update public.payments
+  set industry_profile_id = btrim(p_industry_profile_id)
+  where id = v_payment_id
+    and industry_profile_id is null;
+
+  update public.site_subscriptions
+  set site_id = p_site_id,
+      industry_profile_id = btrim(p_industry_profile_id),
+      pricing_model_version = btrim(p_pricing_model_version)
+  where client_id = p_client_id
+    and (site_id is null or site_id = p_site_id)
+    and (
+      industry_profile_id is null
+      or industry_profile_id = btrim(p_industry_profile_id)
+    )
+    and (
+      pricing_model_version is null
+      or pricing_model_version = btrim(p_pricing_model_version)
+    );
+  if not found then
+    raise exception 'subscription industry contract mismatch' using errcode = '42501';
+  end if;
+
+  return v_result || jsonb_build_object(
+    'site_id', p_site_id,
+    'industry_profile_id', btrim(p_industry_profile_id)
+  );
+end;
+$$;
+
+revoke all on function public.handle_industry_maintenance_payment(
+  uuid, uuid, text, numeric, text, text, integer
+) from public, anon, authenticated;
+grant execute on function public.handle_industry_maintenance_payment(
+  uuid, uuid, text, numeric, text, text, integer
+) to service_role;

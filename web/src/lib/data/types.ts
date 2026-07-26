@@ -187,6 +187,8 @@ export interface PaymentsService {
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
+    siteId?: string;
+    industryProfileId?: IndustryProfileId;
   }): Promise<{ processed: boolean; duplicated: boolean }>;
   listByClient(clientId: string): Promise<Payment[]>;
   /** 관리자 전용 */

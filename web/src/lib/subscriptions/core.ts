@@ -16,6 +16,10 @@ export type SiteSubscriptionStatus = (typeof SITE_SUBSCRIPTION_STATUSES)[number]
 
 export interface SiteSubscriptionState {
   clientId: string;
+  /** 0047 이전 상태는 null/미지정. 신규 업종 계약은 사이트 단위 증거를 고정한다. */
+  siteId?: string | null;
+  industryProfileId?: 'interior' | 'clinic' | null;
+  pricingModelVersion?: string | null;
   status: SiteSubscriptionStatus;
   currentPeriodEnd: string;
   updatedAt: string;

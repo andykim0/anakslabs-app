@@ -486,6 +486,8 @@ export class SupabasePaymentsService implements PaymentsService {
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
+    siteId?: string;
+    industryProfileId?: IndustryProfileId;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const svc = getServiceRoleClient();
 
@@ -527,14 +529,31 @@ export class SupabasePaymentsService implements PaymentsService {
         break;
       }
       case 'maintenance_subscription': {
-        rpcName = 'handle_maintenance_payment';
-        rpcArgs = {
-          p_client_id: payload.clientId,
-          p_provider_payment_key: payload.providerPaymentKey,
-          p_amount: payload.amount,
-          p_pricing_model_version: payload.pricingModelVersion ?? PRICING.modelVersion,
-          p_period_months: payload.periodMonths ?? PRICING.subscription.periodMonths,
-        };
+        const hasIndustryContract = Boolean(
+          payload.siteId
+          && payload.industryProfileId
+          && payload.pricingModelVersion,
+        );
+        rpcName = hasIndustryContract
+          ? 'handle_industry_maintenance_payment'
+          : 'handle_maintenance_payment';
+        rpcArgs = hasIndustryContract
+          ? {
+              p_site_id: payload.siteId,
+              p_client_id: payload.clientId,
+              p_provider_payment_key: payload.providerPaymentKey,
+              p_amount: payload.amount,
+              p_industry_profile_id: payload.industryProfileId,
+              p_pricing_model_version: payload.pricingModelVersion,
+              p_period_months: payload.periodMonths ?? PRICING.subscription.periodMonths,
+            }
+          : {
+              p_client_id: payload.clientId,
+              p_provider_payment_key: payload.providerPaymentKey,
+              p_amount: payload.amount,
+              p_pricing_model_version: payload.pricingModelVersion ?? PRICING.modelVersion,
+              p_period_months: payload.periodMonths ?? PRICING.subscription.periodMonths,
+            };
         break;
       }
       case 'premium_addon': {

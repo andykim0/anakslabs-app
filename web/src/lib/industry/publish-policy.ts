@@ -2,9 +2,11 @@ import type { Site } from '@/lib/types/domain';
 import {
   industryProfile,
   LEGACY_PRICING_MODEL_VERSION,
+  LEGACY_V4_SUBSCRIPTION_PRICE,
   PRICING_MODEL_VERSION,
   subscriptionPriceForProfile,
   type SubscriptionPriceContract,
+  type LegacySubscriptionPriceContract,
 } from '@/lib/pricing';
 
 export const INDUSTRY_PROFILE_GATED = 'INDUSTRY_PROFILE_GATED' as const;
@@ -19,6 +21,7 @@ export type IndustryPublishPolicy =
     }
   | {
       status: 'legacy';
+      pricing: LegacySubscriptionPriceContract;
     }
   | {
       status: 'gated';
@@ -39,10 +42,10 @@ export type IndustryPublishPolicy =
  */
 export function industryPublishPolicy(site: SiteIndustryContract): IndustryPublishPolicy {
   if (!site.pricingModelVersion && !site.industryProfileId) {
-    return { status: 'legacy' };
+    return { status: 'legacy', pricing: LEGACY_V4_SUBSCRIPTION_PRICE };
   }
   if (site.pricingModelVersion === LEGACY_PRICING_MODEL_VERSION && !site.industryProfileId) {
-    return { status: 'legacy' };
+    return { status: 'legacy', pricing: LEGACY_V4_SUBSCRIPTION_PRICE };
   }
   if (
     site.pricingModelVersion !== PRICING_MODEL_VERSION
