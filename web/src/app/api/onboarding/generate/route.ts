@@ -8,7 +8,10 @@ import { z } from 'zod';
 import type { DesignCandidate, Site, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
-import { recompileDirectionsSectionLayouts } from '@/lib/layout';
+import {
+  recompileDirectionsSectionLayouts,
+  recompileGallerySectionLayouts,
+} from '@/lib/layout';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
@@ -234,6 +237,7 @@ export const POST = withApiHandler(async (request) => {
     ...draftConfig,
     assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
   };
+  draftConfig = recompileGallerySectionLayouts(draftConfig);
   if (provenance.assign) {
     draftConfig = applyCategoricalStockSupply(draftConfig).config;
     await ensureLicensedStockAssetRefs(draftConfig.assetRefs);
@@ -278,14 +282,14 @@ export const POST = withApiHandler(async (request) => {
 
   let motionWarning: { code: string; message: string } | undefined;
   if (motionChoice?.signatureId === 'before-after-scrub') {
-    const provenance = await resolveBeforeAfterMotionOptions({
+    const beforeAfterProvenance = await resolveBeforeAfterMotionOptions({
       survey,
       choice: motionChoice,
       clientId: client.id,
       siteId: site.id,
       industryClass: draftConfig.meta.industryClass ?? 'other',
     });
-    if (provenance.ok) {
+    if (beforeAfterProvenance.ok) {
       draftConfig = applyGeneratedMotion(
         withCinematicDefault,
         survey.purposeId,
@@ -293,7 +297,7 @@ export const POST = withApiHandler(async (request) => {
         motionChoice,
         survey,
         {
-          ...provenance.options,
+          ...beforeAfterProvenance.options,
           customerUploadAssetRefs: truth.directUploadAssetRefs,
         },
       );
@@ -308,6 +312,11 @@ export const POST = withApiHandler(async (request) => {
         ...draftConfig,
         assetRefs: mergeCanonicalAssetRefs(draftConfig.assetRefs, truth.directUploadAssetRefs),
       };
+      draftConfig = recompileGallerySectionLayouts(draftConfig);
+      if (provenance.assign) {
+        draftConfig = applyCategoricalStockSupply(draftConfig).config;
+        await ensureLicensedStockAssetRefs(draftConfig.assetRefs);
+      }
       assetPolicy = await resolveSiteAssetPolicy({
         operation: 'assign',
         config: draftConfig,
@@ -320,7 +329,10 @@ export const POST = withApiHandler(async (request) => {
       await sites.saveDraft(site.id, draftConfig);
       site = await sites.getById(site.id) ?? site;
     } else {
-      motionWarning = { code: provenance.code, message: provenance.message };
+      motionWarning = {
+        code: beforeAfterProvenance.code,
+        message: beforeAfterProvenance.message,
+      };
     }
   }
 

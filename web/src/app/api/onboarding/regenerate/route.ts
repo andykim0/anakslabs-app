@@ -13,7 +13,10 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
-import { recompileDirectionsSectionLayouts } from '@/lib/layout';
+import {
+  recompileDirectionsSectionLayouts,
+  recompileGallerySectionLayouts,
+} from '@/lib/layout';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { withContinuousCanvasDefault, withSiteCinematicDefault } from '@/lib/motion/site-cinematic';
 import { resolveBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
@@ -225,6 +228,7 @@ export const POST = withApiHandler(async (request) => {
       motionWarning = { code: provenance.code, message: provenance.message };
     }
   }
+  draftConfig = recompileGallerySectionLayouts(draftConfig);
   draftConfig = applyCategoricalStockSupply(draftConfig).config;
   await ensureLicensedStockAssetRefs(draftConfig.assetRefs);
   draftConfig = await bindGeneratedConfigAssetRefs({

@@ -166,7 +166,11 @@ export function applyCategoricalStockSupply(
     manifest?: FrozenStockManifest;
   } = {},
 ): CategoricalStockSupplyResult {
-  if (!realisticImageSupplyEnabled(options.environment) || config.meta.industryId !== 'interior') {
+  if (
+    !realisticImageSupplyEnabled(options.environment)
+    || config.meta.industryId !== 'interior'
+    || config.meta.imageDirectionId !== 'realistic'
+  ) {
     return { config, selections: [] };
   }
   const manifest = options.manifest ?? workshopStockManifest();

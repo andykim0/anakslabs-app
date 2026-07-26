@@ -5,10 +5,12 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { test } from 'node:test';
 import { SectionCanvas } from '@/components/site-renderer/SectionCanvas';
+import { SiteRenderer } from '@/components/site-renderer';
 import { resolveSiteAssetPolicyCore } from '@/lib/assets/assignment-core';
 import type { AssetRecord } from '@/lib/assets/provenance';
 import { heroLayoutById } from '@/lib/layout/catalog';
 import { resolveHeroLayoutVariant } from '@/lib/layout/hero-layout-resolver';
+import { applySectionLayoutVariants } from '@/lib/layout/section-layout-application';
 import type { HeroLayoutVariantId } from '@/lib/layout/types';
 import type { Section, SiteConfig } from '@/lib/types/site';
 import {
@@ -101,6 +103,7 @@ function config(sections = [hero('hero-home')]): SiteConfig {
       purposeId: 'company_brand',
       industryClass: 'workshop',
       industryId: 'interior',
+      imageDirectionId: 'realistic',
     },
     pages: [{
       id: 'home',
@@ -125,6 +128,12 @@ test('categorical supply flag is additive and only exact 1 issues new stock refs
   const after = applyCategoricalStockSupply(before, { environment: ON });
   assert.equal(after.selections.length, 1);
   assert.equal(after.config.assetRefs?.length, 1);
+  const abstractChoice = config();
+  abstractChoice.meta.imageDirectionId = 'abstract_editorial';
+  assert.equal(
+    applyCategoricalStockSupply(abstractChoice, { environment: ON }).config,
+    abstractChoice,
+  );
 });
 
 test('same site and slot selects the same sorted Pexels asset without randomness', () => {
@@ -237,10 +246,210 @@ test('stock credit is local, static-export readable and links to official Pexels
 });
 
 test('deterministic page traversal minimizes adjacent stock reuse until pool exhaustion', () => {
-  const sections = Array.from({ length: 8 }, (_, index) => hero(`hero-${index + 1}`));
+  const sections = Array.from({ length: 24 }, (_, index) => hero(`hero-${index + 1}`));
   const result = applyCategoricalStockSupply(config(sections), { environment: ON });
   const ids = result.selections.map((selection) => selection.asset.providerAssetId);
-  assert.equal(ids.length, 8);
-  assert.equal(new Set(ids).size, ids.length);
+  const eligibleLandscape = workshopStockManifest().assets.filter((asset) => (
+    asset.review.passed && ['HC', 'HL', 'HP', 'ML'].includes(asset.bucket)
+  )).length;
+  assert.equal(ids.length, 24);
+  assert.equal(new Set(ids).size, Math.min(ids.length, eligibleLandscape));
   assert.ok(ids.every((id, index) => index === 0 || id !== ids[index - 1]));
+});
+
+test('licensed stock never enters a referential gallery even with a forged ref', () => {
+  const supplied = applyCategoricalStockSupply(config(), { environment: ON }).config;
+  const ref = supplied.assetRefs![0]!;
+  const manifest = workshopStockManifest().assets.find((asset) => asset.assetId === ref.assetId)!;
+  const gallerySection: Section = {
+    id: 'gallery-full',
+    type: 'gallery',
+    name: '시공 사진',
+    height: 800,
+    background: { color: theme.palette.background },
+    elements: [
+      {
+        id: 'gallery-title',
+        kind: 'text',
+        frame: { x: 120, y: 100, w: 900, h: 80 },
+        z: 2,
+        text: '고객이 확인한 시공 사진',
+        style: {
+          fontSize: 44,
+          fontWeight: 700,
+          fontFamily: 'heading',
+          color: theme.palette.text,
+          align: 'left',
+          lineHeight: 1.2,
+        },
+      },
+      ...[1, 2].map((index) => ({
+        id: `gallery-image-${index}`,
+        kind: 'image' as const,
+        frame: { x: 120 + (index - 1) * 500, y: 240, w: 440, h: 360 },
+        z: 1,
+        src: manifest.renditionUrl,
+        alt: '시공 사진',
+        style: { objectFit: 'cover' as const, borderRadius: 12 },
+      })),
+    ],
+  };
+  const forged = config([gallerySection]);
+  forged.assetRefs = [ref];
+  const record: AssetRecord = {
+    id: manifest.assetId,
+    origin: 'licensed_stock',
+    mediaType: 'image',
+    storageBucket: 'public-assets',
+    storageKey: manifest.renditionUrl.slice(1),
+    canonicalUrl: manifest.renditionUrl,
+    createdAt: '2026-07-26T00:00:00.000Z',
+    ownerId: null,
+    siteId: null,
+    width: manifest.width,
+    height: manifest.height,
+    stockKey: manifest.stockKey,
+    provider: 'pexels',
+    providerAssetId: manifest.providerAssetId,
+    attribution: manifest.attribution,
+  };
+  const result = resolveSiteAssetPolicyCore({
+    operation: 'assign',
+    config: forged,
+    clientId: '22222222-2222-4222-8222-222222222222',
+    assetPolicyVersion: 2,
+    phase: 'generation',
+    flags: {
+      write: true,
+      assign: true,
+      enforceNewSites: true,
+      enforceLegacy: false,
+      beforeAfterEnabled: false,
+      beforeAfterApprovedIndustries: [],
+    },
+    records: [record],
+    attestations: {
+      generalAttestation: null,
+      personConsentsByAssetId: new Map(),
+    },
+  });
+  assert.ok(result.violations.length > 0);
+  assert.equal(result.assetUsages.some((usage) => usage.assetId === ref.assetId), false);
+});
+
+test('customer raster dimensions drive masonry ratios without permitting stock in gallery', () => {
+  const gallerySection: Section = {
+    id: 'gallery-full',
+    type: 'gallery',
+    name: '작업 사진',
+    height: 900,
+    background: { color: theme.palette.background },
+    elements: [
+      {
+        id: 'main-gallery-full-title',
+        kind: 'text',
+        frame: { x: 120, y: 100, w: 900, h: 80 },
+        z: 2,
+        text: '공간과 재료를 살펴보세요',
+        style: {
+          fontSize: 44,
+          fontWeight: 700,
+          fontFamily: 'heading',
+          color: theme.palette.text,
+          align: 'left',
+          lineHeight: 1.2,
+        },
+      },
+      {
+        id: 'gallery-image-portrait',
+        kind: 'image',
+        frame: { x: 120, y: 240, w: 440, h: 360 },
+        z: 1,
+        src: '/uploads/portrait.webp',
+        alt: '고객이 올린 세로 사진',
+        style: { objectFit: 'cover', borderRadius: 12 },
+      },
+      {
+        id: 'gallery-image-landscape',
+        kind: 'image',
+        frame: { x: 620, y: 240, w: 440, h: 360 },
+        z: 1,
+        src: '/uploads/landscape.webp',
+        alt: '고객이 올린 가로 사진',
+        style: { objectFit: 'cover', borderRadius: 12 },
+      },
+    ],
+  };
+  const pages = [{ id: 'home', slug: '', title: '홈', sections: [gallerySection] }];
+  applySectionLayoutVariants({
+    pages,
+    theme,
+    selection: { gallery: 'gallery.masonry' },
+    assetRefs: [
+      {
+        assetId: '11111111-1111-4111-8111-111111111111',
+        url: '/uploads/portrait.webp',
+        width: 900,
+        height: 1400,
+      },
+      {
+        assetId: '22222222-2222-4222-8222-222222222222',
+        url: '/uploads/landscape.webp',
+        width: 1600,
+        height: 900,
+      },
+    ],
+  });
+  const projection = gallerySection.sectionLayout;
+  assert.equal(projection?.resolvedId, 'gallery.masonry');
+  const wide = projection?.bands.wide;
+  assert.ok(wide);
+  assert.ok(
+    wide.frames['gallery-image-portrait']!.h
+      > wide.frames['gallery-image-landscape']!.h,
+  );
+});
+
+test('production renderer keeps stock local and credits it without a paid generation path', () => {
+  const supplied = applyCategoricalStockSupply(config(), { environment: ON }).config;
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: supplied,
+    mode: 'desktop',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /data-stock-attribution="stk\.workshop\./u);
+  assert.match(html, /src="\/stock\/pexels\/interior-materials\//u);
+  assert.doesNotMatch(html, /api\.pexels\.com|PEXELS_API_KEY|credit(?:s)?[_-](?:debit|deduct)/iu);
+});
+
+test('0048 accepts mixed manifests but binds only customer-owned rows', () => {
+  const sql = readFileSync(
+    path.join(ROOT, '..', 'supabase', 'migrations', '0048_licensed_stock_and_asset_dimensions.sql'),
+    'utf8',
+  );
+  assert.match(sql, /ar\.origin = 'licensed_stock'[\s\S]*ar\.site_id is null/u);
+  assert.match(
+    sql,
+    /update public\.asset_records ar[\s\S]*set site_id = v_site_id[\s\S]*ar\.client_id = p_client_id/u,
+  );
+  assert.doesNotMatch(sql, /update public\.asset_records[\s\S]{0,240}origin = 'licensed_stock'/iu);
+});
+
+test('initial and before-after generation both recompile dimensions and preserve stock supply', () => {
+  const generate = readFileSync(
+    path.join(ROOT, 'src/app/api/onboarding/generate/route.ts'),
+    'utf8',
+  );
+  const regenerate = readFileSync(
+    path.join(ROOT, 'src/app/api/onboarding/regenerate/route.ts'),
+    'utf8',
+  );
+  assert.ok((generate.match(/recompileGallerySectionLayouts\(draftConfig\)/gu) ?? []).length >= 2);
+  assert.ok((generate.match(/applyCategoricalStockSupply\(draftConfig\)/gu) ?? []).length >= 2);
+  assert.ok((generate.match(/ensureLicensedStockAssetRefs\(draftConfig\.assetRefs\)/gu) ?? []).length >= 2);
+  assert.ok(
+    regenerate.indexOf('recompileGallerySectionLayouts(draftConfig)')
+      < regenerate.indexOf('applyCategoricalStockSupply(draftConfig)'),
+  );
 });

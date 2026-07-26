@@ -7,6 +7,7 @@ import type {
   SiteTheme,
   TextElement,
 } from '@/lib/types/site';
+import type { AssetRef } from '@/lib/assets/provenance';
 import { resolveAboutLayoutVariant } from './about-layout-resolver';
 import { resolveCtaLayoutVariant } from './cta-layout-resolver';
 import { resolveDirectionsLayoutVariant } from './directions-layout-resolver';
@@ -20,6 +21,7 @@ import type {
   DirectionsLayoutContent,
   FeatureLayoutContent,
   GalleryLayoutContent,
+  GalleryLayoutVariantId,
   SectionLayoutSelection,
   TestimonialLayoutContent,
 } from './section-layout-types';
@@ -117,7 +119,10 @@ function aboutContent(section: Section): AboutLayoutContent | null {
   };
 }
 
-function galleryContent(section: Section): GalleryLayoutContent | null {
+function galleryContent(
+  section: Section,
+  assetRefs: readonly AssetRef[] | undefined,
+): GalleryLayoutContent | null {
   const intro = introFor(section);
   if (!intro) return null;
   const media = section.elements.filter((element) => element.kind === 'image');
@@ -127,11 +132,17 @@ function galleryContent(section: Section): GalleryLayoutContent | null {
   ));
   return {
     intro,
-    items: media.map((element, index) => ({
-      id: `gallery-${index + 1}`,
-      mediaId: element.id,
-      ...(captions[index] ? { captionId: captions[index].id } : {}),
-    })),
+    items: media.map((element, index) => {
+      const ref = assetRefs?.find((candidate) => candidate.url === element.src);
+      return {
+        id: `gallery-${index + 1}`,
+        mediaId: element.id,
+        ...(captions[index] ? { captionId: captions[index].id } : {}),
+        ...(ref?.width && ref.height
+          ? { sourceWidth: ref.width, sourceHeight: ref.height }
+          : {}),
+      };
+    }),
   };
 }
 
@@ -223,10 +234,12 @@ export function applySectionLayoutVariants({
   pages,
   theme,
   selection,
+  assetRefs,
 }: {
   pages: readonly SitePage[];
   theme: SiteTheme;
   selection: SectionLayoutSelection;
+  assetRefs?: readonly AssetRef[];
 }): void {
   for (const page of pages) {
     for (const section of page.sections) {
@@ -258,7 +271,7 @@ export function applySectionLayoutVariants({
           : null;
         if (projection) section.sectionLayout = projection;
       } else if (section.type === 'gallery' && selection.gallery) {
-        const content = galleryContent(section);
+        const content = galleryContent(section, assetRefs);
         const projection = content
           ? resolveGalleryLayoutVariant({
               requestedId: selection.gallery,
@@ -324,6 +337,32 @@ export function recompileDirectionsSectionLayouts(input: SiteConfig): SiteConfig
       if (!content) continue;
       const next = resolveDirectionsLayoutVariant({
         requestedId: projection.requestedId as DirectionsLayoutVariantId,
+        elements: section.elements,
+        theme: config.theme,
+        content,
+      });
+      if (next) section.sectionLayout = next;
+    }
+  }
+  return config;
+}
+
+/**
+ * Upload registration adds immutable raster dimensions after the initial
+ * content build. Recompile only existing gallery projections so masonry can
+ * consume those server-owned dimensions without inventing a gallery or
+ * changing its requested layout.
+ */
+export function recompileGallerySectionLayouts(input: SiteConfig): SiteConfig {
+  const config = structuredClone(input);
+  for (const page of config.pages) {
+    for (const section of page.sections) {
+      const projection = section.sectionLayout;
+      if (projection?.kind !== 'gallery') continue;
+      const content = galleryContent(section, config.assetRefs);
+      if (!content) continue;
+      const next = resolveGalleryLayoutVariant({
+        requestedId: projection.requestedId as GalleryLayoutVariantId,
         elements: section.elements,
         theme: config.theme,
         content,

@@ -11,6 +11,7 @@ import type { HeroLayoutProjection } from '@/lib/layout/types';
 import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
 import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import type { SiteIndustryId } from '@/lib/industry/profiles';
+import type { ImageDirectionId } from '@/lib/assets/image-directions';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -652,6 +653,8 @@ export interface SiteMeta {
    * 가격·계약 정보는 포함하지 않으며 미지정 레거시 config는 종전 렌더를 유지한다.
    */
   industryId?: SiteIndustryId;
+  /** New-generation image supply intent. Legacy configs omit it and never receive stock. */
+  imageDirectionId?: ImageDirectionId;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */
   region?: string;
   /**

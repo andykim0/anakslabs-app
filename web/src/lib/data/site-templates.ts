@@ -3211,6 +3211,7 @@ export function buildSiteConfigFromSurvey(
       pages,
       theme,
       selection: opts.sectionLayoutVariantIds,
+      assetRefs: opts.assetRefs,
     });
   }
 
@@ -3281,6 +3282,7 @@ export function buildSiteConfigFromSurvey(
       // [SS1] broad purpose로 구분할 수 없는 파인다이닝/카페·법무/병원 절제 게이트의 결정적 원천.
       templateId: survey.templateId,
       ...(industryId ? { industryId } : {}),
+      ...(survey.imageDirectionId ? { imageDirectionId: survey.imageDirectionId } : {}),
       ...(region ? { region } : {}),
       // [I1] 개선 모드 진단 원본 — 발행 전 진단 화면 전후 대조(scans.getById)에 사용
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),
