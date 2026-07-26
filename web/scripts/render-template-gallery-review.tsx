@@ -37,6 +37,7 @@ import {
   withSiteCinematicDefault,
 } from '@/lib/motion/site-cinematic';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
+import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import type {
   DesignCandidate,
   SurveyInput,
@@ -49,6 +50,9 @@ const PUBLIC_DIR = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.TEMPLATE_REVIEW_PORT ?? 4198);
+const FONTMOD_REVIEW_MODE = process.env.FONTMOD_REVIEW_MODE === 'legacy'
+  ? 'legacy'
+  : 'modern';
 const VIEWPORTS = [
   { band: 'wide', width: 1440, height: 900, mode: 'desktop' },
   { band: 'compact', width: 768, height: 900, mode: 'mobile' },
@@ -163,13 +167,15 @@ function candidateFor(
     resolved.designDna.hueSeed,
     resolved.designDna.overrides,
   ));
-  const theme = applyModernKoreanFontPairing(
-    baseTheme,
-    resolveKoreanFontPairingId({
-      dnaId: resolved.designDna.dnaId,
-      industryClass: fontIndustryClassForSurvey(survey),
-    }),
-  );
+  const theme = FONTMOD_REVIEW_MODE === 'modern'
+    ? applyModernKoreanFontPairing(
+        baseTheme,
+        resolveKoreanFontPairingId({
+          dnaId: resolved.designDna.dnaId,
+          industryClass: fontIndustryClassForSurvey(survey),
+        }),
+      )
+    : baseTheme;
   return {
     id: `tpl-${template.id}`,
     label: template.name,
@@ -195,8 +201,20 @@ function configFor(
   const base = buildZeroCostSiteConfig(survey, candidate);
   const cinematic = withContinuousCanvasDefault(withSiteCinematicDefault(base));
   const atmosphere = applyProceduralBackgroundDefaults(cinematic);
+  // FONTMOD verification must exercise the production STK-R1 image+adaptive-scrim path,
+  // not report an empty contrast sample set. Both before/after modes receive the same
+  // frozen local stock input, so the evidence difference remains typography-only.
+  const reviewMedia = applyCategoricalStockSupply({
+    ...atmosphere,
+    meta: {
+      ...atmosphere.meta,
+      imageDirectionId: 'realistic',
+    },
+  }, {
+    environment: { REALISTIC_IMAGE_SUPPLY_ENABLED: '1' },
+  }).config;
   return applyGeneratedMotion(
-    atmosphere,
+    reviewMedia,
     survey.purposeId,
     'premium',
     {
@@ -647,7 +665,10 @@ async function main() {
             `${item.template.id}/${viewport.band}: image text contrast ${JSON.stringify(contrastFailures)}`,
           );
         }
-        if (!record.fontPairingId || record.fontSelectionPolicy !== 'modern-sans-v1') {
+        if (
+          FONTMOD_REVIEW_MODE === 'modern'
+          && (!record.fontPairingId || record.fontSelectionPolicy !== 'modern-sans-v1')
+        ) {
           throw new Error(
             `${item.template.id}/${viewport.band}: modern font policy was not rendered`,
           );
@@ -686,10 +707,18 @@ async function main() {
       `${record.templateId}\t${record.band}\titems=${record.heroForegroundCount}\toverlaps=${record.heroForegroundOverlaps.length}`
     )).join('\n')}\n`,
   );
+  const imageContrastSampleCount = records.reduce(
+    (sum, record) => sum + record.imageContrastMeasurements.length,
+    0,
+  );
+  if (imageContrastSampleCount === 0) {
+    throw new Error('TPL review did not exercise any STK-R1 rendered image contrast samples');
+  }
   await writeFile(
     path.join(OUTPUT_DIR, 'manifest.json'),
     `${JSON.stringify({
       generatedAt: new Date().toISOString(),
+      fontMode: FONTMOD_REVIEW_MODE,
       catalogCount: NAMED_TEMPLATE_CATALOG.length,
       captureCount: records.length,
       viewports: VIEWPORTS,
@@ -697,7 +726,7 @@ async function main() {
     }, null, 2)}\n`,
   );
   process.stdout.write(
-    `TPL review: ${records.length} captures, modern fonts ready, hero foreground overlaps 0, image text AA pass, button nowrap pass, overflow 0, CLS 0, console errors 0\n`,
+    `TPL review: ${records.length} captures, ${FONTMOD_REVIEW_MODE} fonts ready, hero foreground overlaps 0, ${imageContrastSampleCount} image text AA samples pass, button nowrap pass, overflow 0, CLS 0, console errors 0\n`,
   );
 }
 

@@ -71,6 +71,7 @@ import {
 } from '@/lib/layout';
 import { publicContactFromFacts } from '@/lib/seo/public-contact';
 import { siteIndustryIdForSurvey } from '@/lib/industry/profiles';
+import { MODERN_KOREAN_FONT_SELECTION_POLICY } from '@/lib/fonts/types';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -115,6 +116,16 @@ export interface BuildOptions {
   heroVideo?: { src: string; poster: string };
   /** LIB2 신규 생성 전용. 미지정이면 모든 비히어로 섹션은 기존 frame을 그대로 쓴다. */
   sectionLayoutVariantIds?: SectionLayoutSelection;
+}
+
+/**
+ * 기존 저장·OFF 생성은 authored role을 그대로 보존한다. FONTMOD 신규 pin만, 읽는 길이가 긴
+ * 문장을 display heading 역할에서 본문 역할로 내려 한글 조판과 폴백 모두 산세리프로 고정한다.
+ */
+function longCopyFontRole(theme: SiteTheme): 'heading' | 'body' {
+  return theme.fontPairing?.selectionPolicy === MODERN_KOREAN_FONT_SELECTION_POLICY
+    ? 'body'
+    : 'heading';
 }
 
 /** hex 색상의 밝기(0~255). 팔레트가 다크/라이트인지 판단용 */
@@ -1274,7 +1285,7 @@ function buildTestimonials(ctx: Ctx): Section {
         frame: { x: x + 32, y: 356, w: 316, h: 84 },
         z: 2,
         text: q.body,
-        style: { fontSize: 17, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.7, ...(ctx.kit.quoteItalic ? { italic: true } : {}) },
+        style: { fontSize: 17, fontWeight: 400, fontFamily: longCopyFontRole(theme), color: theme.palette.text, align: 'left', lineHeight: 1.7, ...(ctx.kit.quoteItalic ? { italic: true } : {}) },
       },
       {
         id: nextId(ctx, 'el-tm-attr'),
@@ -2396,7 +2407,7 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
       id: nextId(ctx, 'el-main-values-lead'), kind: 'text',
       frame: { x: 720, y: 146, w: 600, h: Math.max(110, Math.ceil(model.valuesLead.length / 42) * 34) }, z: 2,
       text: model.valuesLead,
-      style: { fontSize: 21, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.7 },
+      style: { fontSize: 21, fontWeight: 400, fontFamily: longCopyFontRole(theme), color: theme.palette.text, align: 'left', lineHeight: 1.7 },
     },
   ];
   model.values.forEach((value, index) => {
@@ -2803,7 +2814,7 @@ function buildSitePlanTestimonialSection(ctx: Ctx, planned: SitePlanSection): Se
         style: {
           fontSize: 24,
           fontWeight: 400,
-          fontFamily: 'heading',
+          fontFamily: longCopyFontRole(ctx.theme),
           color: ctx.theme.palette.text,
           align: 'left',
           lineHeight: 1.6,

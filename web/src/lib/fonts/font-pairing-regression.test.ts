@@ -28,6 +28,8 @@ const subsetFont = require('subset-font') as (
 
 const LEGACY_JSON_SHA256 = '9951ee7857e60f9fd5e52f0488fb85f9df357f53606f831f74200cff8a909373';
 const LEGACY_HTML_SHA256 = 'f7692fa8bed2ff907a30254f81d1529b6ff5b5cf59b13245057337149fd5974d';
+const LEGACY_PIN_JSON_SHA256 = '965bfe74ca098a52f9e4b89bd73f4c6fa7c3f586acbc3185b9a0f02ae962a03a';
+const LEGACY_PIN_HTML_SHA256 = '8fc2220d1b11ab082d3d6c6d1ec11ef36df37cd58c6361210488eb9e5c0aa4b9';
 
 function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex');
@@ -123,6 +125,24 @@ describe('FNT F4 — additive SHA·로딩 회귀', () => {
     else process.env.FONT_PAIRINGS_ENABLED = previous;
     assert.equal(disabled, enabled);
     assert.match(disabled, /data-font-pairing="kr-nanum-square-round-friendly"/u);
+  });
+
+  test('선택정책 필드가 없던 기존 pin의 JSON·HTML SHA는 그대로 고정된다', () => {
+    const config = emptySiteConfig('기존 저장 핀');
+    config.theme = applyKoreanFontPairing(
+      config.theme,
+      'kr-nanum-square-round-friendly',
+    );
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config,
+      mode: 'auto',
+      interactive: false,
+      animate: false,
+      runtimeDelivery: 'client',
+    }));
+    assert.equal(config.theme.fontPairing?.selectionPolicy, undefined);
+    assert.equal(sha256(JSON.stringify(config)), LEGACY_PIN_JSON_SHA256);
+    assert.equal(sha256(html), LEGACY_PIN_HTML_SHA256);
   });
 
   test('4세트 모두 한글 가족 2개 이하·face 4개 이하·preload와 블로킹 CSS 0이다', () => {
