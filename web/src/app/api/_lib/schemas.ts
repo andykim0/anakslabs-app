@@ -46,6 +46,7 @@ import {
 import { SIGNATURE_TEXT_SAFE_ZONE_IDS } from '@/lib/motion/signature-contract';
 import {
   KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  MODERN_KOREAN_FONT_SELECTION_POLICY,
   PRODUCTION_KOREAN_FONT_PAIR_IDS,
 } from '@/lib/fonts/types';
 import { SITE_INDUSTRY_IDS } from '@/lib/industry/profiles';
@@ -223,6 +224,7 @@ export const siteThemeSchema = z.object({
   fontPairing: z.object({
     catalogVersion: z.literal(KOREAN_FONT_PAIRING_CATALOG_VERSION),
     id: z.enum(PRODUCTION_KOREAN_FONT_PAIR_IDS),
+    selectionPolicy: z.literal(MODERN_KOREAN_FONT_SELECTION_POLICY).optional(),
   }).strict().optional(),
   customCss: z.string().optional(),
 });

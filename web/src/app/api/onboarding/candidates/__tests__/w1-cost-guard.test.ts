@@ -63,7 +63,7 @@ describe('candidates route — W1 비용·멱등 불변식', () => {
     assert.ok(cachedAt >= 0 && rateAt > cachedAt);
     assert.match(routeSource, /dnaPipelineEnabled\(\) \? 'dna' : 'legacy'/);
     assert.match(routeSource, /layoutVariantsEnabled\(\) \? '-layout' : ''/);
-    assert.match(routeSource, /`\$\{clientId\}:\$\{siteId \?\? 'new'\}:\$\{designPipeline\}:\$\{requestKey\}:\$\{surveySignature\(survey\)\}`/);
+    assert.match(routeSource, /`\$\{clientId\}:\$\{siteId \?\? 'new'\}:\$\{designPipeline\}\$\{fontPolicy\}:\$\{requestKey\}:\$\{surveySignature\(survey\)\}`/);
     assert.match(routeSource, /createHash\('sha256'\)/);
     assert.match(routeSource, /10 \* 60_000/);
   });

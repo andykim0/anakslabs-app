@@ -12,9 +12,17 @@ export const PRODUCTION_KOREAN_FONT_PAIR_IDS = [
 
 export type ProductionKoreanFontPairId = (typeof PRODUCTION_KOREAN_FONT_PAIR_IDS)[number];
 
+export const MODERN_KOREAN_FONT_SELECTION_POLICY = 'modern-sans-v1' as const;
+export type KoreanFontSelectionPolicy = typeof MODERN_KOREAN_FONT_SELECTION_POLICY;
+
 export interface SiteFontPairingPin {
   catalogVersion: typeof KOREAN_FONT_PAIRING_CATALOG_VERSION;
   id: ProductionKoreanFontPairId;
+  /**
+   * 신규 생성 시 어떤 서버 선택표가 이 pin을 발급했는지 기록한다.
+   * 기존 FNT pin에는 필드가 없으며 렌더러는 저장된 family 의미를 다시 선택하지 않는다.
+   */
+  selectionPolicy?: KoreanFontSelectionPolicy;
 }
 
 export const KOREAN_TRACKING_TOKEN_VALUES = {

@@ -35,6 +35,10 @@ import {
   NAMED_TEMPLATE_RECOMMENDATION_MAX,
   templateGalleryEnabled,
 } from '@/lib/design/templates';
+import {
+  fontPairingsEnabled,
+  MODERN_KOREAN_FONT_SELECTION_POLICY,
+} from '@/lib/fonts';
 
 export const runtime = 'nodejs';
 
@@ -87,7 +91,10 @@ function candidateDedupKey(
   const designPipeline = namedTemplates
     ? `templates-v${NAMED_TEMPLATE_CATALOG_VERSION}`
     : `${dnaPipelineEnabled() ? 'dna' : 'legacy'}${layoutVariantsEnabled() ? '-layout' : ''}`;
-  return `${clientId}:${siteId ?? 'new'}:${designPipeline}:${requestKey}:${surveySignature(survey)}`;
+  const fontPolicy = fontPairingsEnabled()
+    ? `-${MODERN_KOREAN_FONT_SELECTION_POLICY}`
+    : '';
+  return `${clientId}:${siteId ?? 'new'}:${designPipeline}${fontPolicy}:${requestKey}:${surveySignature(survey)}`;
 }
 
 function getDedupStore(): Map<string, DedupEntry> {

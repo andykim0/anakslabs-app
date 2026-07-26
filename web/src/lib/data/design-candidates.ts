@@ -52,7 +52,7 @@ import {
 } from '@/lib/layout';
 import { fontPairingsEnabled } from '@/lib/fonts/flags';
 import {
-  applyKoreanFontPairing,
+  applyModernKoreanFontPairing,
   fontIndustryClassForSurvey,
   resolveKoreanFontPairingId,
 } from '@/lib/fonts/selection';
@@ -306,7 +306,7 @@ export async function buildCandidateBlueprintsForPipeline(
       let theme = themeForDnaSelection(resolved.designDna);
       const useFontPairings = options.fontPairingEnabled ?? fontPairingsEnabled();
       if (useFontPairings) {
-        theme = applyKoreanFontPairing(
+        theme = applyModernKoreanFontPairing(
           theme,
           resolveKoreanFontPairingId({
             dnaId: resolved.designDna.dnaId,
@@ -352,7 +352,7 @@ export async function buildCandidateBlueprintsForPipeline(
           dnaId: blueprint.designDna.dnaId,
           industryClass,
         });
-        const theme = applyKoreanFontPairing(blueprint.theme, id);
+        const theme = applyModernKoreanFontPairing(blueprint.theme, id);
         return theme === blueprint.theme ? blueprint : { ...blueprint, theme };
       })
     : blueprints;

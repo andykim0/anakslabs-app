@@ -7,6 +7,8 @@ import { initializeEditor, useEditorStore } from '@/stores/editor';
 import {
   applyKoreanFontPairing,
   fontPairingResources,
+  MODERN_DNA_FONT_PAIRING_MAP,
+  MODERN_KOREAN_FONT_SELECTION_POLICY,
   resolveKoreanFontPairingId,
 } from '.';
 
@@ -73,23 +75,27 @@ describe('FNT F3 — 신규 생성 선택·pin 배선', () => {
     });
     assert.ok(off.every((candidate) => candidate.theme.fontPairing === undefined));
     assert.ok(on.every((candidate) => candidate.theme.fontPairing !== undefined));
+    assert.ok(on.every((candidate) => (
+      candidate.theme.fontPairing?.selectionPolicy
+        === MODERN_KOREAN_FONT_SELECTION_POLICY
+    )));
     assert.deepEqual(on, rerun);
   });
 
-  test('other는 학원 추측 없이 neutral로 가고, 결정표는 DNA·업종 궁합을 함께 지킨다', () => {
+  test('현대화 선택표는 8 DNA를 산세리프 기반 세트로 결정하고 명조를 자동 발급하지 않는다', () => {
     assert.equal(
       resolveKoreanFontPairingId({
         dnaId: 'academy-structured-friendly',
         industryClass: 'other',
       }),
-      'kr-pretendard-neutral',
+      'kr-nanum-square-round-friendly',
     );
     assert.equal(
       resolveKoreanFontPairingId({
         dnaId: 'dining-refined-contrast',
         industryClass: 'fine_dining',
       }),
-      'kr-nanum-myeongjo-readable',
+      'kr-pretendard-neutral',
     );
     assert.equal(
       resolveKoreanFontPairingId({
@@ -97,6 +103,12 @@ describe('FNT F3 — 신규 생성 선택·pin 배선', () => {
         industryClass: 'retail',
       }),
       'kr-gmarket-noto-structured',
+    );
+    assert.equal(Object.keys(MODERN_DNA_FONT_PAIRING_MAP).length, 8);
+    assert.equal(
+      (Object.values(MODERN_DNA_FONT_PAIRING_MAP) as readonly string[])
+        .includes('kr-nanum-myeongjo-readable'),
+      false,
     );
   });
 
