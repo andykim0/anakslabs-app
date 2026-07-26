@@ -36,6 +36,7 @@ import {
   withContinuousCanvasDefault,
   withSiteCinematicDefault,
 } from '@/lib/motion/site-cinematic';
+import { signatureContractFor } from '@/lib/motion/signature-contract';
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import type {
@@ -87,6 +88,12 @@ interface CaptureRecord {
   }>;
   fontPairingId: string | null;
   fontSelectionPolicy: string | null;
+  progressRail: 'numbered' | 'none';
+  renderedRailCount: number;
+  visibleChapterNumberCount: number;
+  hiddenSpineChapterCount: number;
+  maximumChapterContentPaddingLeft: number;
+  maximumChapterContentPaddingImbalance: number;
   sectionIds: string[];
   configSha: string;
   htmlSha: string;
@@ -348,6 +355,17 @@ async function settledMetrics(page: Page) {
         fontWeight: Number.parseInt(style.fontWeight, 10) || 400,
       };
     }).filter((item) => item.width > 0 && item.height > 0);
+    const chapters = [...document.querySelectorAll<HTMLElement>('[data-story-chapter]')];
+    const chapterContent = chapters.flatMap((chapter) =>
+      [...chapter.children].filter((child): child is HTMLElement =>
+        child instanceof HTMLElement && !child.hasAttribute('data-story-decoration')));
+    const chapterContentPaddings = chapterContent.map((child) => {
+      const style = getComputedStyle(child);
+      return {
+        left: Number.parseFloat(style.paddingLeft) || 0,
+        right: Number.parseFloat(style.paddingRight) || 0,
+      };
+    });
     return {
       pageHeight: document.documentElement.scrollHeight,
       horizontalOverflow: Math.max(
@@ -362,6 +380,19 @@ async function settledMetrics(page: Page) {
       heroForegroundOverlaps: overlaps,
       buttonNowrapViolations,
       imageContrastForegrounds,
+      renderedRailCount: document.querySelectorAll('[data-story-progress-rail]').length,
+      visibleChapterNumberCount: chapters.filter((chapter) =>
+        getComputedStyle(chapter, '::after').display !== 'none').length,
+      hiddenSpineChapterCount: chapters.filter((chapter) =>
+        chapter.hasAttribute('data-story-spine-hidden')).length,
+      maximumChapterContentPaddingLeft: Math.max(
+        0,
+        ...chapterContentPaddings.map((padding) => padding.left),
+      ),
+      maximumChapterContentPaddingImbalance: Math.max(
+        0,
+        ...chapterContentPaddings.map((padding) => Math.abs(padding.left - padding.right)),
+      ),
     };
   });
 }
@@ -611,6 +642,15 @@ async function main() {
           page,
           metrics.imageContrastForegrounds,
         );
+        const progressRail = item.config.siteCinematic?.progressRail ?? 'numbered';
+        const contractRail = signatureContractFor(
+          item.template.recipe.motionSignatureId,
+        )?.renderContract.progressRail;
+        if (progressRail !== contractRail) {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: stored rail ${progressRail} != contract ${contractRail}`,
+          );
+        }
         const pageSectionIds = item.config.pages.flatMap((sitePage) =>
           sitePage.sections.map((section) => section.id));
         const record: CaptureRecord = {
@@ -631,6 +671,12 @@ async function main() {
           imageContrastMeasurements,
           fontPairingId: item.config.theme.fontPairing?.id ?? null,
           fontSelectionPolicy: item.config.theme.fontPairing?.selectionPolicy ?? null,
+          progressRail,
+          renderedRailCount: metrics.renderedRailCount,
+          visibleChapterNumberCount: metrics.visibleChapterNumberCount,
+          hiddenSpineChapterCount: metrics.hiddenSpineChapterCount,
+          maximumChapterContentPaddingLeft: metrics.maximumChapterContentPaddingLeft,
+          maximumChapterContentPaddingImbalance: metrics.maximumChapterContentPaddingImbalance,
           sectionIds: pageSectionIds,
           configSha: await sha256(JSON.stringify(item.config)),
           htmlSha: await sha256(item.html[viewport.band]),
@@ -655,6 +701,26 @@ async function main() {
         if (record.buttonNowrapViolations.length > 0) {
           throw new Error(
             `${item.template.id}/${viewport.band}: button nowrap ${record.buttonNowrapViolations.join(' | ')}`,
+          );
+        }
+        if (record.progressRail === 'numbered') {
+          if (record.renderedRailCount !== 1 || record.visibleChapterNumberCount === 0) {
+            throw new Error(
+              `${item.template.id}/${viewport.band}: numbered rail was not fully rendered`,
+            );
+          }
+        } else if (
+          record.renderedRailCount !== 0
+          || record.visibleChapterNumberCount !== 0
+          || record.hiddenSpineChapterCount === 0
+          || (viewport.band !== 'wide' && record.maximumChapterContentPaddingImbalance > 0.1)
+        ) {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: no-rail left a rail, number, or mobile gutter `
+              + `(rail=${record.renderedRailCount}, numbers=${record.visibleChapterNumberCount}, `
+              + `hidden=${record.hiddenSpineChapterCount}, `
+              + `left-padding=${record.maximumChapterContentPaddingLeft}, `
+              + `padding-imbalance=${record.maximumChapterContentPaddingImbalance})`,
           );
         }
         const contrastFailures = record.imageContrastMeasurements.filter(
@@ -707,6 +773,17 @@ async function main() {
       `${record.templateId}\t${record.band}\titems=${record.heroForegroundCount}\toverlaps=${record.heroForegroundOverlaps.length}`
     )).join('\n')}\n`,
   );
+  await writeFile(
+    path.join(OUTPUT_DIR, 'progress-rail.log'),
+    `${records.map((record) => (
+      `${record.templateId}\t${record.band}\t${record.progressRail}`
+      + `\trail=${record.renderedRailCount}`
+      + `\tnumbers=${record.visibleChapterNumberCount}`
+      + `\thidden=${record.hiddenSpineChapterCount}`
+      + `\tleft-padding=${record.maximumChapterContentPaddingLeft}`
+      + `\tpadding-imbalance=${record.maximumChapterContentPaddingImbalance}`
+    )).join('\n')}\n`,
+  );
   const imageContrastSampleCount = records.reduce(
     (sum, record) => sum + record.imageContrastMeasurements.length,
     0,
@@ -726,7 +803,11 @@ async function main() {
     }, null, 2)}\n`,
   );
   process.stdout.write(
-    `TPL review: ${records.length} captures, ${FONTMOD_REVIEW_MODE} fonts ready, hero foreground overlaps 0, ${imageContrastSampleCount} image text AA samples pass, button nowrap pass, overflow 0, CLS 0, console errors 0\n`,
+    `TPL review: ${records.length} captures, ${FONTMOD_REVIEW_MODE} fonts ready, `
+    + `progress rail ${records.filter((record) => record.progressRail === 'numbered').length / 3}/`
+    + `${records.filter((record) => record.progressRail === 'none').length / 3}, `
+    + `hero foreground overlaps 0, ${imageContrastSampleCount} image text AA samples pass, `
+    + 'button nowrap pass, overflow 0, CLS 0, console errors 0\n',
   );
 }
 
