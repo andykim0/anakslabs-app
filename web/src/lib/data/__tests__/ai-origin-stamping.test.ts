@@ -174,7 +174,7 @@ describe('AI asset provenance — server-owned origin/owner wiring', () => {
     );
 
     const services = source('src/lib/data/supabase/services.ts');
-    const rpcName = services.indexOf("const rpcName = input.generalAssetAttestationId");
+    const rpcName = services.indexOf('const hasPricingCohort = Boolean');
     const rpc = services.indexOf('.rpc(rpcName, rpcArgs)', rpcName);
     const ordinaryInsert = services.indexOf(".from('sites')", rpc);
     assert.ok(rpcName >= 0 && rpc > rpcName && ordinaryInsert > rpc, 'asset manifest가 있으면 atomic RPC를 먼저 사용해야 한다');

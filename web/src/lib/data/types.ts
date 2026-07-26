@@ -35,6 +35,7 @@ import type {
 import type { SearchVerification, SectionType, SiteConfig } from '@/lib/types/site';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
+import type { IndustryProfileId } from '@/lib/industry/profiles';
 
 // ---------- 클라이언트(고객) ----------
 
@@ -79,6 +80,9 @@ export interface SitesRepo {
      * 같은 저장 경계에서 현재 site에 한 번만 귀속한다.
      */
     generalAssetAttestationId?: string;
+    /** 서버가 검증한 업종 단일가 계약 핀. 두 필드는 함께만 기록한다. */
+    industryProfileId?: IndustryProfileId;
+    pricingModelVersion?: string;
   }): Promise<Site>;
   /** 에디터 자동저장 대상 */
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;

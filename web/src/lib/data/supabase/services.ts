@@ -28,6 +28,7 @@ import { preserveServerSearchVerification, withServerSearchVerification } from '
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
 import { preserveServerConnectorManifest } from '@/lib/connectors/application';
 import type { AssetRef } from '@/lib/assets/provenance';
+import type { IndustryProfileId } from '@/lib/industry/profiles';
 import type { ClientsRepo, EditRequestsRepo, PaymentsService, SitesRepo } from '../types';
 import { slugifySiteName } from '../slug';
 import { createSessionClient, getServiceRoleClient } from './client';
@@ -159,8 +160,13 @@ export class SupabaseSitesRepo implements SitesRepo {
     assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
     assetRefsToBind?: readonly AssetRef[];
     generalAssetAttestationId?: string;
+    industryProfileId?: IndustryProfileId;
+    pricingModelVersion?: string;
   }): Promise<Site> {
     const svc = getServiceRoleClient();
+    if (input.industryProfileId && !input.pricingModelVersion) {
+      throw new Error('sites 생성 실패: 업종 프로파일에는 가격표 버전이 필요합니다.');
+    }
     if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
       throw new Error('sites 생성 실패: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
     }
@@ -196,9 +202,14 @@ export class SupabaseSitesRepo implements SitesRepo {
           'sites 생성 실패: 새 customer upload manifest에는 asset policy v2와 일반 자산 확인서가 모두 필요합니다.',
         );
       }
-      const rpcName = input.generalAssetAttestationId
-        ? 'create_site_with_asset_bindings_and_attestation'
-        : 'create_site_with_asset_bindings';
+      const hasPricingCohort = Boolean(input.pricingModelVersion);
+      const rpcName = hasPricingCohort
+        ? input.generalAssetAttestationId
+          ? 'create_industry_site_with_asset_bindings_and_attestation'
+          : 'create_industry_site_with_asset_bindings'
+        : input.generalAssetAttestationId
+          ? 'create_site_with_asset_bindings_and_attestation'
+          : 'create_site_with_asset_bindings';
       const rpcArgs = {
           p_client_id: input.clientId,
           p_name: input.name,
@@ -207,6 +218,12 @@ export class SupabaseSitesRepo implements SitesRepo {
           p_asset_ids: bindingAssetIds,
           ...(input.generalAssetAttestationId
             ? { p_general_attestation_id: input.generalAssetAttestationId }
+            : {}),
+          ...(hasPricingCohort
+            ? {
+                p_industry_profile_id: input.industryProfileId ?? null,
+                p_pricing_model_version: input.pricingModelVersion,
+              }
             : {}),
         };
       const { data, error } = await svc
@@ -222,6 +239,8 @@ export class SupabaseSitesRepo implements SitesRepo {
         name: input.name,
         draft_config: input.draftConfig,
         status: 'draft',
+        ...(input.industryProfileId ? { industry_profile_id: input.industryProfileId } : {}),
+        ...(input.pricingModelVersion ? { pricing_model_version: input.pricingModelVersion } : {}),
         ...(input.assetPolicyVersion ? { asset_policy_version: input.assetPolicyVersion } : {}),
       })
       .select('*')

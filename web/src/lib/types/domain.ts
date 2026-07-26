@@ -18,6 +18,7 @@ import type { DesignDnaSelection } from '@/lib/design/dna/types';
 import type { HeroPhotoQualityStamp } from '@/lib/assets/hero-photo-quality';
 import type { HeroLayoutVariantId } from '@/lib/layout/types';
 import type { SectionLayoutSelection } from '@/lib/layout/section-layout-types';
+import type { IndustryProfileId } from '@/lib/industry/profiles';
 
 export type Tier = 'basic' | 'premium';
 export type AuthProvider = 'kakao' | 'google' | 'email';
@@ -67,6 +68,10 @@ export interface Site {
   draftConfig: SiteConfig | null;
   /** 신규 pay-at-publish 모델 초안의 soft-expiry. null은 기존 사이트로 만료 정책 비적용. */
   draftExpiresAt?: string | null;
+  /** 신규 업종 단일가 사이트에 서버가 고정한 계약 프로파일. null은 기존 발행본. */
+  industryProfileId?: IndustryProfileId | null;
+  /** 업종 프로파일과 함께 고정된 가격표 버전. */
+  pricingModelVersion?: string | null;
   publishedAt: string | null;
   createdAt: string;
   /** [asset provenance v2] 서버 소유 cohort marker. 기존 사이트는 null/미정의. */
@@ -183,6 +188,8 @@ export interface Payment {
   creditsGranted: number;
   /** PG사 결제 키 — 웹훅 멱등성 기준 */
   providerPaymentKey: string | null;
+  /** 신규 업종 단일가 구독 결제의 계약 프로파일 증거. */
+  industryProfileId?: IndustryProfileId | null;
   createdAt: string;
   /** [§3] 환불 처리 시각 */
   refundedAt?: string | null;

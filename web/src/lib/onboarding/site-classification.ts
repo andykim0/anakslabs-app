@@ -9,6 +9,7 @@ import { resolveTemplate } from '@/lib/data/site-blueprints';
 import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { MotionIndustryClass, SiteConfig } from '@/lib/types/site';
+import { siteIndustryIdForSurvey } from '@/lib/industry/profiles';
 
 /** 자유문장 업종을 직접 소비하지 않는 서버 권위 설문 분류 단일 소스. */
 export function surveyIndustryClass(survey: SurveyInput): MotionIndustryClass {
@@ -25,6 +26,8 @@ export function canonicalizeSurveyTemplate(survey: SurveyInput): SurveyInput {
     : { ...survey, templateId, industryClass };
 }
 
+export { siteIndustryIdForSurvey };
+
 /**
  * 에디터 PATCH는 콘텐츠·SEO 설명을 수정할 수 있지만 생성 시 확정된 purpose/template 분류는
  * 바꿀 수 없다. 저장값에 분류가 없던 레거시는 요청값을 채택하지 않아 fail-closed한다.
@@ -37,9 +40,11 @@ export function preserveSiteClassification(
   Reflect.deleteProperty(mutableMeta, 'purposeId');
   Reflect.deleteProperty(mutableMeta, 'templateId');
   Reflect.deleteProperty(mutableMeta, 'industryClass');
+  Reflect.deleteProperty(mutableMeta, 'industryId');
   const purposeId = persisted?.meta.purposeId;
   const templateId = persisted?.meta.templateId;
   const industryClass = persisted?.meta.industryClass;
+  const industryId = persisted?.meta.industryId;
 
   return {
     ...submitted,
@@ -48,6 +53,7 @@ export function preserveSiteClassification(
       ...(purposeId !== undefined ? { purposeId } : {}),
       ...(templateId !== undefined ? { templateId } : {}),
       ...(industryClass !== undefined ? { industryClass } : {}),
+      ...(industryId !== undefined ? { industryId } : {}),
     },
   };
 }

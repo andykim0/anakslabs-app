@@ -415,11 +415,11 @@ describe('RPT$ mock renewal/credit parity', () => {
 
 describe('RPT$ contract and SQL invariants', () => {
   test('신규 구독은 월 리테이너이고 기존 크레딧 비용·팩은 유지한다', () => {
-    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.amountKrw, 490_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.subscription.annualCommitment.status, 'available');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 1_500_000);
+    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
     assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
     assert.equal(PRICING.subscription.creditsPerMonth, 2);
     assert.equal(PRICING.subscription.creditValueKrw, 30_000);

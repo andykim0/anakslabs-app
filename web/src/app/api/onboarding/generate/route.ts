@@ -55,6 +55,8 @@ import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
 import { recordZeroCostBuild } from '@/lib/economics/events';
 import { applyConnectorManifest } from '@/lib/connectors/application';
 import { candidateMatchesNamedTemplate } from '@/lib/design/templates';
+import { industryProfileIdForSurvey } from '@/lib/industry/profiles';
+import { industryProfile, PRICING_MODEL_VERSION } from '@/lib/pricing';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -240,6 +242,10 @@ export const POST = withApiHandler(async (request) => {
   });
   draftConfig = applyProceduralBackgroundDefaults(assetPolicy.config);
   let site: Site;
+  const selectedIndustryProfileId = industryProfileIdForSurvey(survey);
+  const selectedIndustryProfile = selectedIndustryProfileId
+    ? industryProfile(selectedIndustryProfileId)
+    : null;
   try {
     site = await sites.create({
       clientId: client.id,
@@ -249,6 +255,10 @@ export const POST = withApiHandler(async (request) => {
       ...(draftConfig.assetRefs?.length ? { assetRefsToBind: draftConfig.assetRefs } : {}),
       ...(truth.directUploadAssetRefs.length && survey.generalAssetAttestationId
         ? { generalAssetAttestationId: survey.generalAssetAttestationId }
+        : {}),
+      pricingModelVersion: PRICING_MODEL_VERSION,
+      ...(selectedIndustryProfile
+        ? { industryProfileId: selectedIndustryProfile.id }
         : {}),
     });
   } catch (error) {

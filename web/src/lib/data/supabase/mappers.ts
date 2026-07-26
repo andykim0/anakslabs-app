@@ -23,6 +23,7 @@ import type {
 import type { SiteConfig, SiteConfigV1 } from '@/lib/types/site';
 import { normalizeSiteConfig } from '@/lib/types/site';
 import { ensureMotion } from '@/lib/motion/validate';
+import type { IndustryProfileId } from '@/lib/industry/profiles';
 
 /** [v4] jsonb site_config → v2 정규화 (v1이면 홈 페이지 1개로 승격) + motion 기본값 주입. null 유지. */
 function normalizeConfigCol(raw: unknown): SiteConfig | null {
@@ -73,6 +74,8 @@ export interface SiteRow {
   export_requested_at?: string | null;
   export_url?: string | null;
   asset_policy_version?: number | null;
+  industry_profile_id?: string | null;
+  pricing_model_version?: string | null;
 }
 
 export function rowToSite(row: SiteRow): Site {
@@ -96,6 +99,8 @@ export function rowToSite(row: SiteRow): Site {
     exportRequestedAt: row.export_requested_at ?? null,
     exportUrl: row.export_url ?? null,
     ...(row.asset_policy_version === 2 ? { assetPolicyVersion: 2 as const } : {}),
+    industryProfileId: (row.industry_profile_id as IndustryProfileId | null | undefined) ?? null,
+    pricingModelVersion: row.pricing_model_version ?? null,
   };
 }
 
@@ -178,6 +183,7 @@ export interface PaymentRow {
   amount: number | string;
   credits_granted: number | string;
   provider_payment_key: string | null;
+  industry_profile_id?: string | null;
   created_at: string;
   refunded_at?: string | null;
   refund_amount?: number | string | null;
@@ -191,6 +197,7 @@ export function rowToPayment(row: PaymentRow): Payment {
     amount: Number(row.amount),
     creditsGranted: Number(row.credits_granted),
     providerPaymentKey: row.provider_payment_key,
+    industryProfileId: (row.industry_profile_id as IndustryProfileId | null | undefined) ?? null,
     createdAt: row.created_at,
     refundedAt: row.refunded_at ?? null,
     refundAmount: row.refund_amount === null || row.refund_amount === undefined ? null : Number(row.refund_amount),

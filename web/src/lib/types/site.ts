@@ -10,6 +10,7 @@ import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
 import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
 import type { SiteConnectorManifest } from '@/lib/connectors/types';
+import type { SiteIndustryId } from '@/lib/industry/profiles';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -646,6 +647,11 @@ export interface SiteMeta {
   templateId?: string;
   /** [motion signatures v2] 서버가 purpose/template/등록 택소노미로 확정한 업종 분류. */
   industryClass?: MotionIndustryClass;
+  /**
+   * 신규 생성 서버가 정확한 업종 택소노미에서 고정한 렌더용 식별자.
+   * 가격·계약 정보는 포함하지 않으며 미지정 레거시 config는 종전 렌더를 유지한다.
+   */
+  industryId?: SiteIndustryId;
   /** [제품 확정] 지역(regionOf 결과) — JSON-LD addressLocality/areaServed에 반영(지역 검색 해자) */
   region?: string;
   /**

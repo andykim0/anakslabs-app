@@ -26,25 +26,27 @@ function sourceFiles(path: string): string[] {
 
 describe('P$ — 가격·크레딧 단일 계약', () => {
   test('출시 확정 금액과 직접 수정 무료 계약은 각각의 단일 소스에 있다', () => {
-    assert.equal(PRICING.modelVersion, 'retainer-two-tier-v4-2026-07');
+    assert.equal(PRICING.modelVersion, 'industry-single-2026-07');
     assert.deepEqual(PRICING.build, { amountKrw: 0, paymentTiming: 'publish' });
     assert.equal(PRICING.siteCount, 1);
     assert.equal(PRICING.videoHeroAddon, 200_000);
-    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.amountKrw, 490_000);
+    assert.equal(PRICING.subscription.industryProfileId, 'interior');
+    assert.equal(PRICING.subscription.vatIncluded, true);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.subscription.creditsPerMonth, 2);
     assert.deepEqual(PRICING.subscription.annualCommitment, {
       status: 'available',
-      amountKrw: 1_500_000,
+      amountKrw: 4_900_000,
       periodMonths: 12,
       freeMonths: 2,
       billingInterval: 'year',
       automaticRenewal: true,
     });
-    assert.deepEqual(Object.keys(PRICING.tiers), ['standard', 'premium']);
-    assert.equal(PRICING.tiers.premium.availability, 'contact');
+    assert.deepEqual(Object.keys(PRICING.profiles), ['interior']);
+    assert.equal(PRICING.profiles.interior.availability, 'public');
     assert.equal(PRICING.selfEdit, 'unlimited-free');
   });
 

@@ -31,6 +31,7 @@ import { preserveServerSearchVerification, withServerSearchVerification } from '
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
 import { preserveServerConnectorManifest } from '@/lib/connectors/application';
 import type { AssetRef } from '@/lib/assets/provenance';
+import type { IndustryProfileId } from '@/lib/industry/profiles';
 import type {
   ClientsRepo,
   DataServices,
@@ -146,8 +147,13 @@ class MockSitesRepo implements SitesRepo {
     assetPolicyVersion?: NonNullable<Site['assetPolicyVersion']>;
     assetRefsToBind?: readonly AssetRef[];
     generalAssetAttestationId?: string;
+    industryProfileId?: IndustryProfileId;
+    pricingModelVersion?: string;
   }): Promise<Site> {
     const store = getMockStore();
+    if (input.industryProfileId && !input.pricingModelVersion) {
+      throw new Error('sites.create: 업종 프로파일에는 가격표 버전이 필요합니다.');
+    }
     let attestedCustomerUploadIds: string[] = [];
     if (input.draftConfig.assetRefs?.length && !input.assetRefsToBind?.length) {
       throw new Error('sites.create: asset manifest는 atomic binding 요청 없이 저장할 수 없습니다.');
@@ -234,6 +240,8 @@ class MockSitesRepo implements SitesRepo {
       siteConfig: null,
       draftConfig: structuredClone(input.draftConfig),
       draftExpiresAt: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+      industryProfileId: input.industryProfileId ?? null,
+      pricingModelVersion: input.pricingModelVersion ?? null,
       publishedAt: null,
       createdAt: nowIso(),
       ...(input.assetPolicyVersion ? { assetPolicyVersion: input.assetPolicyVersion } : {}),

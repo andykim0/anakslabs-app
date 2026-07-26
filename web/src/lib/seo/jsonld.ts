@@ -154,7 +154,9 @@ function organizationTypeFor(
     purposeId === 'booking_service' ||
     purposeId === 'edu_membership' ||
     (purposeId === 'company_brand' &&
-      ['legal', 'remodeling'].includes(config.meta.industryClass ?? ''));
+      ['legal', 'remodeling'].includes(config.meta.industryClass ?? ''))
+    || config.meta.industryId === 'interior'
+    || config.meta.industryId === 'clinic';
   if (!localPurpose) return broadType;
 
   const subtypeByIndustry: Partial<Record<NonNullable<typeof config.meta.industryClass>, string>> = {
@@ -169,9 +171,13 @@ function organizationTypeFor(
     photography: 'ProfessionalService',
     remodeling: 'HomeAndConstructionBusiness',
   };
-  const subtype = config.meta.industryClass
-    ? subtypeByIndustry[config.meta.industryClass]
-    : undefined;
+  const subtype = config.meta.industryId === 'interior'
+    ? 'HomeAndConstructionBusiness'
+    : config.meta.industryId === 'clinic'
+      ? 'MedicalClinic'
+      : config.meta.industryClass
+        ? subtypeByIndustry[config.meta.industryClass]
+        : undefined;
   if (!subtype) return broadType;
 
   const broadTypes = Array.isArray(broadType) ? broadType : [broadType];

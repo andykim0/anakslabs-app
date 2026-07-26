@@ -8,22 +8,22 @@ import { acceptedPaymentAmounts, paymentAmountSubject } from '../amount-policy';
 const read = (path: string): string => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('PRICE R1 monthly-retainer publish-payment contract', () => {
-  test('신규 가격은 제작비 0·월 15만원·1개월·자동 갱신·1사이트다', () => {
+  test('신규 인테리어 가격은 제작비 0·월 49만원·1개월·자동 갱신·1사이트다', () => {
     assert.equal(PRICING.modelVersion, PRICING_MODEL_VERSION);
     assert.deepEqual(PRICING.build, { amountKrw: 0, paymentTiming: 'publish' });
-    assert.equal(PRICING.subscription.amountKrw, 150_000);
+    assert.equal(PRICING.subscription.amountKrw, 490_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.subscription.annualCommitment.status, 'available');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 1_500_000);
+    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
     assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
     assert.equal(PRICING.siteCount, 1);
   });
 
   test('신규 제작비 주문은 fail-closed하고 월 구독·애드온만 현재 가격을 갖는다', () => {
     assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [150_000]);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [490_000]);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), [200_000]);
   });
 

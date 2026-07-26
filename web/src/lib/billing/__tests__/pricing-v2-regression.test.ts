@@ -55,8 +55,8 @@ function companySurvey(): SurveyInput {
 }
 
 describe('PRICE P4 — 모델 개정 통합 회귀', () => {
-  test('고객 화면은 월 15만원·1개월·자동 갱신·사이트 1개 단일 계약만 표시한다', () => {
-    assert.equal(PRICING.subscription.amountKrw, 150_000);
+  test('고객 화면은 인테리어 월 49만원·1개월·자동 갱신·사이트 1개 계약을 표시한다', () => {
+    assert.equal(PRICING.subscription.amountKrw, 490_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
@@ -113,12 +113,13 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     assert.deepEqual(quote, {
       quoteId: quote.quoteId,
       pricingModelVersion: PRICING_MODEL_VERSION,
+      industryProfileId: 'interior',
       amountKrw: PRICING.subscription.amountKrw,
       periodMonths: 1,
       billingInterval: 'month',
       automaticRenewal: true,
       siteCount: 1,
-      vatIncluded: false,
+      vatIncluded: true,
       checkoutMode: 'mock',
     });
     assert.equal(needsPublishPayment({ publishedAt: null }, false), true);

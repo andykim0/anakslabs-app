@@ -70,6 +70,7 @@ import {
   type SectionLayoutSelection,
 } from '@/lib/layout';
 import { publicContactFromFacts } from '@/lib/seo/public-contact';
+import { siteIndustryIdForSurvey } from '@/lib/industry/profiles';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
@@ -3251,6 +3252,7 @@ export function buildSiteConfigFromSurvey(
 
   // [v4.5] 지역(1급 필드 ∪ 레거시 [지역] extraNotes) → SEO 메타 결합(지역 검색 = 제품 핵심 약속)
   const region = regionOf(survey);
+  const industryId = siteIndustryIdForSurvey(survey);
   const publicContact = survey.contentDepth?.version === 2 && survey.contentDepth.surveyBrief
     ? publicContactFromFacts(survey.contentDepth.facts)
     : undefined;
@@ -3278,6 +3280,7 @@ export function buildSiteConfigFromSurvey(
       purposeId: survey.purposeId,
       // [SS1] broad purpose로 구분할 수 없는 파인다이닝/카페·법무/병원 절제 게이트의 결정적 원천.
       templateId: survey.templateId,
+      ...(industryId ? { industryId } : {}),
       ...(region ? { region } : {}),
       // [I1] 개선 모드 진단 원본 — 발행 전 진단 화면 전후 대조(scans.getById)에 사용
       ...(survey.mode === 'improve' && survey.sourceScanId ? { sourceScanId: survey.sourceScanId } : {}),

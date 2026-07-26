@@ -1,49 +1,32 @@
-export const PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
+import type { IndustryProfileId } from '@/lib/industry/profiles';
+
+export const PRICING_MODEL_VERSION = 'industry-single-2026-07' as const;
+export const LEGACY_PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
 
 export interface SubscriptionPriceContract {
   modelVersion: string;
+  industryProfileId: IndustryProfileId;
   amountKrw: number;
   periodMonths: number;
   billingInterval: 'month';
   automaticRenewal: true;
-}
-
-export interface SubscriptionTierContract {
-  id: 'standard' | 'premium';
-  label: string;
-  availability: 'public' | 'contact';
-  monthlyPrice:
-    | SubscriptionPriceContract
-    | {
-      modelVersion: string;
-      amountKrw: null;
-      inquiryRangeKrw: {
-        min: number;
-        max: number;
-      };
-      billingInterval: 'month';
-    };
-  included: readonly {
-    id: string;
-    label: string;
-  }[];
+  vatIncluded: true;
 }
 
 /**
- * 신규 견적과 마케팅 티어 표가 함께 소비하는 버전별 가격표. 파일럿 WTP
- * 반영은 새 버전 항목을 추가하고 PRICING_MODEL_VERSION을 올리는 작업으로만
- * 이루어진다. premium 범위는 서버 판단 자료이며 문의 UI에는 숫자를 노출하지 않는다.
+ * 머지된 과거 v4 결제·이벤트를 해석하기 위한 동결 스냅샷. 신규 견적이나
+ * 고객 UI에서 소비하면 안 된다. 머지되지 않은 v5 항목은 만들지 않는다.
  */
-export const PRICING_TABLE_CATALOG = {
-  [PRICING_MODEL_VERSION]: {
-    modelVersion: PRICING_MODEL_VERSION,
+export const LEGACY_PRICING_TABLE_CATALOG = {
+  [LEGACY_PRICING_MODEL_VERSION]: {
+    modelVersion: LEGACY_PRICING_MODEL_VERSION,
     tiers: {
       standard: {
         id: 'standard',
         label: '스탠다드',
         availability: 'public',
         monthlyPrice: {
-          modelVersion: PRICING_MODEL_VERSION,
+          modelVersion: LEGACY_PRICING_MODEL_VERSION,
           amountKrw: 150_000,
           periodMonths: 1,
           billingInterval: 'month',
@@ -64,7 +47,7 @@ export const PRICING_TABLE_CATALOG = {
         label: '프리미엄',
         availability: 'contact',
         monthlyPrice: {
-          modelVersion: PRICING_MODEL_VERSION,
+          modelVersion: LEGACY_PRICING_MODEL_VERSION,
           amountKrw: null,
           inquiryRangeKrw: {
             min: 390_000,
@@ -97,26 +80,120 @@ export const PRICING_TABLE_CATALOG = {
   },
 } as const;
 
+export type IndustryProfileAvailability = 'public' | 'gated';
+export type IndustrySchemaType =
+  | 'HomeAndConstructionBusiness'
+  | 'MedicalClinic';
+
+export interface IndustryKeywordSet {
+  id: string;
+  label: string;
+  source: 'region' | 'business_fact';
+}
+
+export interface IndustryProfile {
+  id: IndustryProfileId;
+  label: string;
+  availability: IndustryProfileAvailability;
+  monthlyKrw: number;
+  annualKrw: number;
+  postsPerMonth: number;
+  schemaType: IndustrySchemaType;
+  contentRules: readonly string[];
+  keywordSets: readonly IndustryKeywordSet[];
+  included: readonly {
+    id: string;
+    label: string;
+  }[];
+}
+
+/**
+ * 신규 계약의 버전별 업종 단일가 카탈로그. 프로파일은 가격뿐 아니라
+ * 계약 범위·스키마·키워드 입력 축을 함께 고정하며 렌더러에는 전달하지 않는다.
+ */
+export const PRICING_TABLE_CATALOG = {
+  [PRICING_MODEL_VERSION]: {
+    modelVersion: PRICING_MODEL_VERSION,
+    vatIncluded: true,
+    profiles: {
+      interior: {
+        id: 'interior',
+        label: '인테리어·공간',
+        availability: 'public',
+        monthlyKrw: 490_000,
+        annualKrw: 4_900_000,
+        postsPerMonth: 0,
+        schemaType: 'HomeAndConstructionBusiness',
+        contentRules: [],
+        keywordSets: [
+          { id: 'region', label: '지역', source: 'region' },
+          { id: 'area-size', label: '평형', source: 'business_fact' },
+        ],
+        included: [
+          { id: 'done-for-you-site', label: '다보임이 만드는 홈페이지' },
+          { id: 'connectors', label: '상담·전화·길찾기 연결' },
+          { id: 'conversion-tracking', label: '문의 행동 추적' },
+          { id: 'monthly-report', label: '월간 성과 리포트' },
+          { id: 'search-foundation', label: '검색·AI가 읽기 쉬운 기본 구조' },
+          { id: 'hosting-operations', label: '호스팅·SSL·백업·운영' },
+          { id: 'zero-cost-assets', label: '레이아웃·절차적 배경 등 기본 자산' },
+          { id: 'monthly-credits', label: '매월 2크레딧' },
+        ],
+      },
+    },
+  },
+} as const satisfies Record<string, {
+  modelVersion: string;
+  vatIncluded: true;
+  profiles: Partial<Record<IndustryProfileId, IndustryProfile>>;
+}>;
+
 export const CURRENT_PRICING_TABLE =
   PRICING_TABLE_CATALOG[PRICING_MODEL_VERSION];
 
-/**
- * 기존 발행 결제 경계가 소비하는 스탠다드 월 가격 호환 view.
- * 금액은 PRICING_TABLE_CATALOG에만 존재한다.
- */
-export const SUBSCRIPTION_PRICE_CATALOG = {
-  [PRICING_MODEL_VERSION]: CURRENT_PRICING_TABLE.tiers.standard.monthlyPrice,
-} as const satisfies Record<string, SubscriptionPriceContract>;
+export const INDUSTRY_PROFILES = CURRENT_PRICING_TABLE.profiles;
 
-export function subscriptionPriceForVersion(
-  modelVersion: string,
-): SubscriptionPriceContract | null {
-  return (SUBSCRIPTION_PRICE_CATALOG as Record<string, SubscriptionPriceContract>)[modelVersion]
+export function industryProfile(
+  profileId: IndustryProfileId,
+  modelVersion: string = PRICING_MODEL_VERSION,
+): IndustryProfile | null {
+  if (modelVersion !== PRICING_MODEL_VERSION) return null;
+  return (INDUSTRY_PROFILES as Partial<Record<IndustryProfileId, IndustryProfile>>)[profileId]
     ?? null;
 }
 
-export const CURRENT_SUBSCRIPTION_PRICE =
-  SUBSCRIPTION_PRICE_CATALOG[PRICING_MODEL_VERSION];
+export function subscriptionPriceForProfile(
+  profileId: IndustryProfileId,
+  modelVersion: string = PRICING_MODEL_VERSION,
+): SubscriptionPriceContract | null {
+  const profile = industryProfile(profileId, modelVersion);
+  if (!profile) return null;
+  return {
+    modelVersion,
+    industryProfileId: profile.id,
+    amountKrw: profile.monthlyKrw,
+    periodMonths: 1,
+    billingInterval: 'month',
+    automaticRenewal: true,
+    vatIncluded: true,
+  };
+}
+
+/** @deprecated 신규 계약은 프로파일 ID 없이 버전만으로 가격을 해석하지 않는다. */
+export function subscriptionPriceForVersion(
+  modelVersion: string,
+  profileId: IndustryProfileId = 'interior',
+): SubscriptionPriceContract | null {
+  return subscriptionPriceForProfile(profileId, modelVersion);
+}
+
+function requireSubscriptionPrice(profileId: IndustryProfileId): SubscriptionPriceContract {
+  const pricing = subscriptionPriceForProfile(profileId);
+  if (!pricing) throw new Error(`현재 ${profileId} 가격 프로파일이 없습니다.`);
+  return pricing;
+}
+
+export const CURRENT_SUBSCRIPTION_PRICE = requireSubscriptionPrice('interior');
 
 /**
  * 신규 계약의 단일 가격 소스.
@@ -137,9 +214,21 @@ export const PRICING = {
     creditsPerMonth: 2,
     creditValueKrw: 30_000,
     reportFrequency: 'monthly',
-    annualCommitment: CURRENT_PRICING_TABLE.annualOptions.standard,
+    annualCommitment: {
+      status: 'available',
+      amountKrw: INDUSTRY_PROFILES.interior.annualKrw,
+      periodMonths: 12,
+      freeMonths: 2,
+      billingInterval: 'year',
+      automaticRenewal: true,
+    },
   },
-  tiers: CURRENT_PRICING_TABLE.tiers,
+  profiles: INDUSTRY_PROFILES,
+  /**
+   * M3 마케팅 단일가 전환 전까지만 기존 페이지를 컴파일하는 동결 view.
+   * 신규 견적·결제는 이 값을 소비하지 않으며 M3에서 제거한다.
+   */
+  tiers: LEGACY_PRICING_TABLE_CATALOG[LEGACY_PRICING_MODEL_VERSION].tiers,
   selfEdit: 'unlimited-free',
 } as const;
 
@@ -164,7 +253,7 @@ export const PUBLISH_PAYMENT_COPY = {
   annualOption:
     `연납 시 ${PRICING.subscription.annualCommitment.freeMonths}개월 무료 · 연 ${formatKrw(PRICING.subscription.annualCommitment.amountKrw)}`,
   noBuildFee: '별도 제작비 없음',
-  vat: '부가세 별도',
+  vat: '부가세 포함 총액',
 } as const;
 
 /**
