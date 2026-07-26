@@ -35,7 +35,14 @@ import type {
   SurveyInput,
   SurveyProofInput,
 } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type {
+  CanvasElement,
+  SiteConfig,
+} from '@/lib/types/site';
+import type {
+  HeroLayoutBreakpointBand,
+  HeroLayoutCompiledFrame,
+} from '@/lib/layout/types';
 import {
   NAMED_TEMPLATE_CATALOG,
   resolveNamedTemplate,
@@ -179,6 +186,30 @@ function sha(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function isHeroForeground(element: CanvasElement): boolean {
+  return element.id.includes('hero-logo')
+    || element.id.includes('hero-kicker')
+    || element.id.includes('hero-title')
+    || element.id.includes('hero-sub')
+    || element.id.includes('hero-chip-label')
+    || element.id.includes('hero-cta');
+}
+
+function frameOverlap(
+  left: HeroLayoutCompiledFrame,
+  right: HeroLayoutCompiledFrame,
+): number {
+  const width = Math.max(
+    0,
+    Math.min(left.x + left.w, right.x + right.w) - Math.max(left.x, right.x),
+  );
+  const height = Math.max(
+    0,
+    Math.min(left.y + left.h, right.y + right.h) - Math.max(left.y, right.y),
+  );
+  return width * height;
+}
+
 describe('TPL T3 — 24종 실제 생성·정직성', () => {
   test('24개 큐레이션 조합 모두 실제 SiteRenderer까지 완주하고 빈 사실 섹션을 만들지 않는다', () => {
     const renderedIds: string[] = [];
@@ -208,6 +239,61 @@ describe('TPL T3 — 24종 실제 생성·정직성', () => {
     assert.doesNotMatch(catalog, /\.flatMap\(|flatMap\(\s*(?:dna|signature|layout)/u);
   });
 });
+
+describe('TPL-R1 — 24종 히어로 전경 3밴드 비겹침', () => {
+  test('24 템플릿 × wide/compact/mobile의 아이브로·제목·리드·칩·CTA 프레임이 상호 교차하지 않는다', () => {
+    const bands: HeroLayoutBreakpointBand[] = ['wide', 'compact', 'mobile'];
+    let checked = 0;
+    for (const template of NAMED_TEMPLATE_CATALOG) {
+      const survey = surveyForTemplate(template);
+      const config = completeConfig(survey, candidateForTemplate(template, survey));
+      const hero = config.pages[0]?.sections.find((section) => section.type === 'hero');
+      if (!hero?.heroLayout) throw new Error(`${template.id}: projected hero missing`);
+      const foreground = hero.elements.filter(isHeroForeground);
+      for (const band of bands) {
+        const bandProjection = hero.heroLayout.bands[band];
+        const frames: Array<{ id: string; frame: HeroLayoutCompiledFrame | undefined }> = foreground.map((element) => ({
+          id: element.id,
+          frame: bandProjection.frames[element.id],
+        }));
+        assert.ok(
+          frames.every(({ frame }) => Boolean(frame)),
+          `${template.id}/${band}: foreground frame missing`,
+        );
+        for (let left = 0; left < frames.length; left += 1) {
+          for (let right = left + 1; right < frames.length; right += 1) {
+            assert.equal(
+              frameOverlap(frames[left].frame!, frames[right].frame!),
+              0,
+              `${template.id}/${band}: ${frames[left].id} overlaps ${frames[right].id}`,
+            );
+          }
+        }
+        checked += 1;
+      }
+    }
+    assert.equal(checked, 24 * 3);
+  });
+
+  test('통합 타이포가 heroLayout 절대 프레임을 상대 흐름으로 덮지 않고 캡처도 실측 bbox를 강제한다', () => {
+    const template = NAMED_TEMPLATE_CATALOG[0];
+    const survey = surveyForTemplate(template);
+    const html = render(completeConfig(survey, candidateForTemplate(template, survey)));
+    assert.match(
+      html,
+      /\[data-hero-layout-frame\]\[data-site-cine-hero-copy\]\s*\{\s*position:\s*absolute/u,
+    );
+
+    const reviewScript = source('scripts/render-template-gallery-review.tsx');
+    assert.match(reviewScript, /\{ band: 'compact', width: 768/u);
+    assert.match(reviewScript, /heroForegroundOverlaps/u);
+    assert.match(reviewScript, /intersectionWidth > 0\.5 && intersectionHeight > 0\.5/u);
+    assert.match(reviewScript, /hero-foreground-overlap\.log/u);
+    assert.match(reviewScript, /hero foreground overlaps 0/u);
+    assert.doesNotMatch(reviewScript, /gallery-sheet-390\.png/u);
+  });
+});
+
 describe('TPL T3 — ON/OFF·저장 핀 불변', () => {
   test('ON 설문은 referenceDesignId 없이 검증·6안 생성까지 완주한다', async () => {
     const survey = interiorSurvey({ referenceDesignId: undefined });

@@ -3,7 +3,7 @@
  * production SiteRenderer with customer-supplied content and checked-in media.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-template-gallery-review.tsx
- * Out: /private/tmp/daboim-template-review
+ * Out: TEMPLATE_REVIEW_OUTPUT or /private/tmp/daboim-template-review
  */
 import { createServer } from 'node:http';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -37,13 +37,15 @@ import type {
 } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-template-review';
+const OUTPUT_DIR = process.env.TEMPLATE_REVIEW_OUTPUT
+  ?? '/private/tmp/daboim-template-review';
 const PUBLIC_DIR = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.TEMPLATE_REVIEW_PORT ?? 4198);
 const VIEWPORTS = [
   { band: 'wide', width: 1440, height: 900, mode: 'desktop' },
+  { band: 'compact', width: 768, height: 900, mode: 'mobile' },
   { band: 'mobile', width: 390, height: 844, mode: 'mobile' },
 ] as const;
 const projectPhotos = [
@@ -57,13 +59,15 @@ interface CaptureRecord {
   templateName: string;
   dnaId: string;
   signatureId: string;
-  band: 'wide' | 'mobile';
+  band: 'wide' | 'compact' | 'mobile';
   screenshot: string;
   viewport: { width: number; height: number };
   pageHeight: number;
   horizontalOverflow: number;
   cls: number;
   consoleErrors: string[];
+  heroForegroundCount: number;
+  heroForegroundOverlaps: string[];
   sectionIds: string[];
   configSha: string;
   htmlSha: string;
@@ -244,22 +248,59 @@ function startServer() {
 
 async function settledMetrics(page: Page) {
   await page.evaluate(async () => {
+    await document.fonts.ready;
     window.scrollTo(0, document.documentElement.scrollHeight);
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     window.scrollTo(0, 0);
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   });
-  return page.evaluate(() => ({
-    pageHeight: document.documentElement.scrollHeight,
-    horizontalOverflow: Math.max(
-      0,
-      document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    ),
-    cls: Number((window as typeof window & { __reviewCls?: number }).__reviewCls ?? 0),
-    errors: [
-      ...((window as typeof window & { __reviewErrors?: string[] }).__reviewErrors ?? []),
-    ],
-  }));
+  return page.evaluate(() => {
+    const hero = document.querySelector<HTMLElement>('section[data-section-type="hero"]');
+    const targets = hero
+      ? [
+          ...[...hero.querySelectorAll<HTMLElement>('[data-site-cine-hero-copy]')]
+            .map((wrapper) => wrapper.querySelector<HTMLElement>('p') ?? wrapper),
+          ...hero.querySelectorAll<HTMLElement>('.anaks-btn'),
+        ]
+      : [];
+    const foreground = targets.map((node, index) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        id: `${index}:${(node.textContent ?? '').trim().replace(/\s+/gu, ' ')}`,
+        x: rect.x,
+        y: rect.y,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      };
+    }).filter((item) => item.width > 0 && item.height > 0);
+    const overlaps: string[] = [];
+    for (let left = 0; left < foreground.length; left += 1) {
+      for (let right = left + 1; right < foreground.length; right += 1) {
+        const a = foreground[left];
+        const b = foreground[right];
+        const intersectionWidth = Math.min(a.right, b.right) - Math.max(a.x, b.x);
+        const intersectionHeight = Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y);
+        if (intersectionWidth > 0.5 && intersectionHeight > 0.5) {
+          overlaps.push(`${a.id} <> ${b.id}`);
+        }
+      }
+    }
+    return {
+      pageHeight: document.documentElement.scrollHeight,
+      horizontalOverflow: Math.max(
+        0,
+        document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+      cls: Number((window as typeof window & { __reviewCls?: number }).__reviewCls ?? 0),
+      errors: [
+        ...((window as typeof window & { __reviewErrors?: string[] }).__reviewErrors ?? []),
+      ],
+      heroForegroundCount: foreground.length,
+      heroForegroundOverlaps: overlaps,
+    };
+  });
 }
 
 async function makeContactSheet(
@@ -268,9 +309,9 @@ async function makeContactSheet(
   output: string,
 ) {
   const selected = records.filter((record) => record.band === band);
-  const columns = band === 'wide' ? 4 : 3;
-  const tileWidth = band === 'wide' ? 330 : 250;
-  const tileHeight = band === 'wide' ? 440 : 520;
+  const columns = band === 'wide' ? 4 : band === 'compact' ? 3 : 2;
+  const tileWidth = band === 'wide' ? 330 : band === 'compact' ? 250 : 195;
+  const tileHeight = band === 'wide' ? 440 : band === 'compact' ? 520 : 460;
   const rows = Math.ceil(selected.length / columns);
   const composites: sharp.OverlayOptions[] = [];
   for (const [index, record] of selected.entries()) {
@@ -309,8 +350,8 @@ async function makeRecommendationSheet(
   output: string,
 ) {
   const selected = records.filter((record) => record.band === band).slice(0, 6);
-  const width = band === 'wide' ? 1440 : 390;
-  const columns = band === 'wide' ? 3 : 1;
+  const width = band === 'wide' ? 1440 : band === 'compact' ? 768 : 390;
+  const columns = band === 'wide' ? 3 : band === 'compact' ? 2 : 1;
   const gap = band === 'wide' ? 24 : 14;
   const margin = band === 'wide' ? 56 : 18;
   const header = band === 'wide' ? 150 : 170;
@@ -370,6 +411,7 @@ async function main() {
       config,
       html: {
         wide: documentFor(config, 'desktop'),
+        compact: documentFor(config, 'mobile'),
         mobile: documentFor(config, 'mobile'),
       },
     };
@@ -451,6 +493,8 @@ async function main() {
           horizontalOverflow: metrics.horizontalOverflow,
           cls: metrics.cls,
           consoleErrors: [...consoleErrors, ...metrics.errors],
+          heroForegroundCount: metrics.heroForegroundCount,
+          heroForegroundOverlaps: metrics.heroForegroundOverlaps,
           sectionIds: pageSectionIds,
           configSha: await sha256(JSON.stringify(item.config)),
           htmlSha: await sha256(item.html[viewport.band]),
@@ -463,6 +507,14 @@ async function main() {
         }
         if (record.consoleErrors.length) {
           throw new Error(`${item.template.id}/${viewport.band}: ${record.consoleErrors.join(' | ')}`);
+        }
+        if (record.heroForegroundCount < 5) {
+          throw new Error(`${item.template.id}/${viewport.band}: incomplete hero foreground ${record.heroForegroundCount}`);
+        }
+        if (record.heroForegroundOverlaps.length > 0) {
+          throw new Error(
+            `${item.template.id}/${viewport.band}: hero foreground overlap ${record.heroForegroundOverlaps.join(' | ')}`,
+          );
         }
         records.push(record);
         await page.close();
@@ -480,11 +532,8 @@ async function main() {
     'wide',
     path.join(OUTPUT_DIR, 'gallery-sheet-1440.png'),
   );
-  await makeContactSheet(
-    records,
-    'mobile',
-    path.join(OUTPUT_DIR, 'gallery-sheet-390.png'),
-  );
+  // Do not compress 24 full pages into a short mobile sheet: that composite can
+  // manufacture optical overlaps. The 24 settled full-page captures are the gate.
   await makeRecommendationSheet(
     records,
     'wide',
@@ -494,6 +543,12 @@ async function main() {
     records,
     'mobile',
     path.join(OUTPUT_DIR, 'recommendations-390.png'),
+  );
+  await writeFile(
+    path.join(OUTPUT_DIR, 'hero-foreground-overlap.log'),
+    `${records.map((record) => (
+      `${record.templateId}\t${record.band}\titems=${record.heroForegroundCount}\toverlaps=${record.heroForegroundOverlaps.length}`
+    )).join('\n')}\n`,
   );
   await writeFile(
     path.join(OUTPUT_DIR, 'manifest.json'),
@@ -506,7 +561,7 @@ async function main() {
     }, null, 2)}\n`,
   );
   process.stdout.write(
-    `TPL review: ${records.length} captures, overflow 0, CLS 0, console errors 0\n`,
+    `TPL review: ${records.length} captures, hero foreground overlaps 0, overflow 0, CLS 0, console errors 0\n`,
   );
 }
 
