@@ -36,6 +36,10 @@ export async function buildZeroCostCandidates(survey: SurveyInput): Promise<Desi
       ...(blueprint.sectionLayoutVariantIds
         ? { sectionLayoutVariantIds: blueprint.sectionLayoutVariantIds }
         : {}),
+      ...(blueprint.namedTemplate ? { namedTemplate: blueprint.namedTemplate } : {}),
+      ...(blueprint.recommendedMotionSignatureId
+        ? { recommendedMotionSignatureId: blueprint.recommendedMotionSignatureId }
+        : {}),
     };
     if (survey.imageDirectionId === 'real_photo' && selectedPhoto) return base;
     return {

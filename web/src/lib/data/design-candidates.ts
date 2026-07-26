@@ -56,6 +56,13 @@ import {
   fontIndustryClassForSurvey,
   resolveKoreanFontPairingId,
 } from '@/lib/fonts/selection';
+import {
+  namedTemplatesForSurvey,
+  resolveNamedTemplate,
+  templateGalleryEnabled,
+  type NamedTemplateSelection,
+} from '@/lib/design/templates';
+import type { ActiveMotionSignatureId } from '@/lib/types/site';
 
 export interface CandidateBlueprint {
   id: string;
@@ -81,6 +88,10 @@ export interface CandidateBlueprint {
   heroLayoutVariantId?: HeroLayoutVariantId;
   /** LIB2 rollout ON에서만 존재하는 enum-only 섹션 배열 핀. */
   sectionLayoutVariantIds?: SectionLayoutSelection;
+  /** TPL rollout ON에서만 존재하는 손 큐레이션 카탈로그 핀. */
+  namedTemplate?: NamedTemplateSelection;
+  /** 다음 모션 단계의 결정적 초기값. */
+  recommendedMotionSignatureId?: ActiveMotionSignatureId;
 }
 
 // ---------- 설문 전처리 ----------
@@ -218,6 +229,13 @@ function buildHeroPrompt(survey: SurveyInput, brief: DesignBrief, theme: SiteThe
   });
 }
 
+/** TokenSet → SiteTheme runtime projection stays centralized at this one adapter seam. */
+function themeForDnaSelection(selection: DesignDnaSelection): SiteTheme {
+  return tokenSetToSiteTheme(
+    expandTokens(selection.dnaId, selection.hueSeed, selection.overrides),
+  );
+}
+
 export function buildCandidateBlueprints(
   survey: SurveyInput,
   dnaSelections: readonly DesignDnaSelection[] = [],
@@ -234,7 +252,7 @@ export function buildCandidateBlueprints(
     const designDna = dnaSelections[index];
     const dna = designDna ? designDnaById(designDna.dnaId) : undefined;
     const theme = designDna
-      ? tokenSetToSiteTheme(expandTokens(designDna.dnaId, designDna.hueSeed, designDna.overrides))
+      ? themeForDnaSelection(designDna)
       : themeForBrief(survey, brief);
     return {
       id: `cand-${brief.style.id}`, // POV/매칭용 style.id 유지
@@ -269,8 +287,54 @@ export async function buildCandidateBlueprintsForPipeline(
     layoutInvoke?: HeroLayoutSelectionToolInvoker;
     sectionLayoutInvoke?: SectionLayoutSelectionToolInvoker;
     fontPairingEnabled?: boolean;
+    templateGalleryEnabled?: boolean;
   } = {},
 ): Promise<CandidateBlueprint[]> {
+  const useNamedTemplates = options.templateGalleryEnabled ?? templateGalleryEnabled();
+  if (useNamedTemplates) {
+    const legacyBriefs = selectDesignBriefs(surveyForBriefs(survey));
+    return namedTemplatesForSurvey(survey).flatMap((template, index) => {
+      const resolved = resolveNamedTemplate(template, survey);
+      if (!resolved) return [];
+      const brief = legacyBriefs[index % legacyBriefs.length];
+      const imageStyle = imageDirectionToLegacyCandidateStyle(template.recipe.imageDirectionId);
+      const styled: DesignBrief = {
+        ...brief,
+        style: { ...brief.style, candidateStyle: imageStyle },
+      };
+      let theme = themeForDnaSelection(resolved.designDna);
+      const useFontPairings = options.fontPairingEnabled ?? fontPairingsEnabled();
+      if (useFontPairings) {
+        theme = applyKoreanFontPairing(
+          theme,
+          resolveKoreanFontPairingId({
+            dnaId: resolved.designDna.dnaId,
+            industryClass: fontIndustryClassForSurvey(survey),
+          }),
+        );
+      }
+      return [{
+        id: `tpl-${template.id}`,
+        label: template.name,
+        style: imageStyle,
+        imageDirectionId: template.recipe.imageDirectionId,
+        description: template.description,
+        theme,
+        heroImagePrompt: buildHeroPrompt(survey, styled, theme),
+        mockHeroUrl: mockHeroFor(styled),
+        heroImageFragment: brief.style.heroImageFragment,
+        sectionImageFragment: brief.style.sectionImageFragment,
+        brief: styled,
+        designDna: resolved.designDna,
+        heroLayoutVariantId: resolved.heroLayoutVariantId,
+        ...(Object.keys(resolved.sectionLayoutVariantIds).length
+          ? { sectionLayoutVariantIds: resolved.sectionLayoutVariantIds }
+          : {}),
+        namedTemplate: resolved.selection,
+        recommendedMotionSignatureId: resolved.recommendedMotionSignatureId,
+      }];
+    });
+  }
   const enabled = options.enabled ?? dnaPipelineEnabled();
   const blueprints = enabled
     ? buildCandidateBlueprints(

@@ -6,6 +6,7 @@
 import type {
   BeforeAfterAssetSelection,
   HeroImageChoice,
+  ActiveMotionSignatureId,
   MotionIndustryClass,
   ProductionMotionSignatureId,
   SectionDirection,
@@ -602,6 +603,10 @@ export interface DesignCandidate {
   heroLayoutVariantId?: HeroLayoutVariantId;
   /** LIB2 rollout ON에서만 서버가 발급하는 enum-only 섹션 배열 핀. */
   sectionLayoutVariantIds?: SectionLayoutSelection;
+  /** TPL rollout ON에서만 서버가 발급하는 손 큐레이션 조합 핀. */
+  namedTemplate?: import('@/lib/design/templates/types').NamedTemplateSelection;
+  /** 템플릿이 권하는 기본값. 고객이 다음 단계에서 고른 motionChoice가 최종 권위다. */
+  recommendedMotionSignatureId?: ActiveMotionSignatureId;
 }
 
 // ---------- 커스텀 도메인 ----------

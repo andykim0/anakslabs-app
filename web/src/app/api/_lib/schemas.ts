@@ -28,6 +28,7 @@ import {
   DNA_RADII,
   DNA_TYPE_RATIOS,
 } from '@/lib/design/dna/types';
+import { NAMED_TEMPLATE_CATALOG_VERSION } from '@/lib/design/templates/types';
 import { HERO_LAYOUT_VARIANT_IDS } from '@/lib/layout/types';
 import {
   ABOUT_LAYOUT_VARIANT_IDS,
@@ -229,6 +230,11 @@ export const designDnaSelectionSchema = z.object({
     radius: z.enum(DNA_RADII).optional(),
     motionDefault: z.enum(ACTIVE_MOTION_SIGNATURE_IDS).optional(),
   }).strict(),
+}).strict();
+
+export const namedTemplateSelectionSchema = z.object({
+  catalogVersion: z.literal(NAMED_TEMPLATE_CATALOG_VERSION),
+  templateId: z.string().min(1).max(100),
 }).strict();
 
 // ---------- 캔버스 요소 ----------
@@ -960,6 +966,7 @@ export const siteConfigSchema = z
     version: z.literal(2),
     theme: siteThemeSchema,
     designDna: designDnaSelectionSchema.optional(),
+    namedTemplate: namedTemplateSelectionSchema.optional(),
     siteCinematic: z.object({
       version: z.literal(1),
       heroBackdrop: z.enum(['dna-procedural', 'promoted-photo']),
@@ -1396,6 +1403,8 @@ export const designCandidateSchema = z.object({
   theme: siteThemeSchema,
   description: z.string(),
   designDna: designDnaSelectionSchema.optional(),
+  namedTemplate: namedTemplateSelectionSchema.optional(),
+  recommendedMotionSignatureId: z.enum(ACTIVE_MOTION_SIGNATURE_IDS).optional(),
   heroLayoutVariantId: z.enum(HERO_LAYOUT_VARIANT_IDS).optional(),
   sectionLayoutVariantIds: z.object({
     features: z.enum(FEATURE_LAYOUT_VARIANT_IDS).optional(),

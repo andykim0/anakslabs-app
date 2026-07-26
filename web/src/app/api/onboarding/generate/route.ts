@@ -54,6 +54,7 @@ import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
 import { recordZeroCostBuild } from '@/lib/economics/events';
 import { applyConnectorManifest } from '@/lib/connectors/application';
+import { candidateMatchesNamedTemplate } from '@/lib/design/templates';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -180,6 +181,13 @@ export const POST = withApiHandler(async (request) => {
       400,
       'INVALID_HERO_LAYOUT',
       '선택한 디자인의 첫 화면 구성을 확인할 수 없습니다. 디자인 후보를 다시 골라주세요.',
+    );
+  }
+  if (!candidateMatchesNamedTemplate(candidate, survey)) {
+    return apiError(
+      400,
+      'INVALID_NAMED_TEMPLATE',
+      '선택한 템플릿 조합을 확인할 수 없습니다. 업종에 맞는 후보를 다시 골라주세요.',
     );
   }
 
