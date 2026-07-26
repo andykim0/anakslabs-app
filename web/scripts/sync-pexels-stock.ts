@@ -17,6 +17,7 @@ import {
   type FrozenStockAsset,
   type FrozenStockManifest,
 } from '../src/lib/stock/types';
+import { assessImageContrastProfile } from '../src/lib/assets/image-contrast-profile';
 
 loadEnvConfig(process.cwd());
 
@@ -105,6 +106,7 @@ async function main() {
       width: output.info.width,
       height: output.info.height,
       renditionUrl: `/stock/pexels/interior-materials/${photo.id}.webp`,
+      contrastProfile: await assessImageContrastProfile(output.data),
       attribution: {
         provider: 'pexels',
         photographer: photo.photographer,

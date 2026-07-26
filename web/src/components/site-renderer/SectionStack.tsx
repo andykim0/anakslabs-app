@@ -106,9 +106,11 @@ const HERO_LAYOUT_STACK_CSS = `
 [data-hero-layout-stack]{container-type:inline-size;height:var(--hero-layout-height-compact)}
 [data-hero-layout-frame],[data-hero-layout-media],[data-hero-layout-panel]{position:absolute;left:var(--hero-layout-x-compact);top:var(--hero-layout-y-compact);width:var(--hero-layout-w-compact);height:var(--hero-layout-h-compact)}
 [data-hero-layout-media]>img,[data-hero-layout-media]>video,[data-hero-layout-media]>[data-site-cine-procedural-hero]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+[data-adaptive-image-scrim]{background-color:var(--adaptive-scrim-color-compact)!important;opacity:var(--adaptive-scrim-opacity-compact)!important}
 @media(max-width:767.98px){
   [data-hero-layout-stack]{height:var(--hero-layout-height-mobile)}
   [data-hero-layout-frame],[data-hero-layout-media],[data-hero-layout-panel]{left:var(--hero-layout-x-mobile);top:var(--hero-layout-y-mobile);width:var(--hero-layout-w-mobile);height:var(--hero-layout-h-mobile)}
+  [data-adaptive-image-scrim]{background-color:var(--adaptive-scrim-color-mobile)!important;opacity:var(--adaptive-scrim-opacity-mobile)!important}
 }
 `;
 
@@ -157,8 +159,14 @@ function HeroLayoutStackSection({
   // role 미지정 저장본은 legacy 동작을 보존한다. 신규 figure 슬롯만 공급 추상을 차단한다.
   const effectiveProceduralHero = proceduralHero
     && projection.mediaSlotRole !== 'referential-figure';
+  const adaptiveScrim = bg.image?.adaptiveScrim;
   const scrim = projection.scrim === 'subtle-scrim'
-    ? bg.image?.overlayColor
+    ? adaptiveScrim
+      ? {
+          overlayColor: adaptiveScrim.compact.overlayColor,
+          overlayOpacity: adaptiveScrim.compact.overlayOpacity,
+        }
+      : bg.image?.overlayColor
       ? {
           overlayColor: bg.image.overlayColor,
           overlayOpacity: bg.image.overlayOpacity ?? 0.45,
@@ -169,6 +177,14 @@ function HeroLayoutStackSection({
   const stageVariables = {
     '--hero-layout-height-compact': bandLength(compact.sectionHeight, compact.width),
     '--hero-layout-height-mobile': bandLength(mobile.sectionHeight, mobile.width),
+    ...(adaptiveScrim
+      ? {
+          '--adaptive-scrim-color-compact': adaptiveScrim.compact.overlayColor,
+          '--adaptive-scrim-opacity-compact': String(adaptiveScrim.compact.overlayOpacity),
+          '--adaptive-scrim-color-mobile': adaptiveScrim.mobile.overlayColor,
+          '--adaptive-scrim-opacity-mobile': String(adaptiveScrim.mobile.overlayOpacity),
+        }
+      : {}),
   } as CSSProperties;
 
   return (
@@ -273,6 +289,13 @@ function HeroLayoutStackSection({
           {scrim ? (
             <div
               aria-hidden
+              {...(adaptiveScrim
+                ? {
+                    'data-adaptive-image-scrim': 'responsive',
+                    'data-minimum-contrast-compact': adaptiveScrim.compact.minimumContrast.toFixed(2),
+                    'data-minimum-contrast-mobile': adaptiveScrim.mobile.minimumContrast.toFixed(2),
+                  }
+                : {})}
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -314,6 +337,9 @@ function HeroLayoutStackSection({
           <div
             key={element.id}
             data-hero-layout-frame
+            {...(adaptiveScrim && element.kind === 'text'
+              ? { 'data-image-contrast-foreground': element.id }
+              : {})}
             {...(integratedTypography && element.kind === 'text'
               ? { 'data-site-cine-hero-copy': true }
               : {})}

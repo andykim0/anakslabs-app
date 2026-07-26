@@ -442,6 +442,13 @@ export const sectionTypeSchema = z.enum([
   'faq',
 ]);
 
+const imageContrastProfileSchema = z.object({
+  algorithmVersion: z.literal('image-channel-range-v1'),
+  darkestColor: z.string().regex(/^#[0-9a-f]{6}$/iu),
+  brightestColor: z.string().regex(/^#[0-9a-f]{6}$/iu),
+  meanLuminance: z.number().min(0).max(1),
+});
+
 const sectionBackgroundSchema = z.object({
   color: z.string().optional(),
   gradient: z.string().optional(),
@@ -454,6 +461,26 @@ const sectionBackgroundSchema = z.object({
       compactFocalPoint: normalizedFocalPointSchema.optional(),
       mobileFocalPoint: normalizedFocalPointSchema.optional(),
       responsivePromotion: heroPhotoResponsivePromotionSchema.optional(),
+      adaptiveScrim: z.object({
+        version: z.literal(1),
+        source: z.enum(['licensed-stock', 'customer-photo']),
+        sourceProfile: imageContrastProfileSchema.optional(),
+        wide: z.object({
+          overlayColor: z.string(),
+          overlayOpacity: z.number().min(0).max(1),
+          minimumContrast: z.number().min(0),
+        }),
+        compact: z.object({
+          overlayColor: z.string(),
+          overlayOpacity: z.number().min(0).max(1),
+          minimumContrast: z.number().min(0),
+        }),
+        mobile: z.object({
+          overlayColor: z.string(),
+          overlayOpacity: z.number().min(0).max(1),
+          minimumContrast: z.number().min(0),
+        }),
+      }).optional(),
     })
     .optional(),
   // [motion 3단계] video-hero 배경 영상 (src/poster는 safeMediaSrc 화이트리스트)
@@ -1410,6 +1437,7 @@ export const designCandidateSchema = z.object({
         guidance: z.string(),
       })).length(4),
     ).optional(),
+    contrastProfile: imageContrastProfileSchema.optional(),
     stampSha256: z.string().regex(/^[0-9a-f]{64}$/u),
   }).optional(),
   theme: siteThemeSchema,

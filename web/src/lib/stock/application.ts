@@ -5,6 +5,7 @@ import { heroLayoutById } from '@/lib/layout/catalog';
 import { resolveHeroLayoutVariant } from '@/lib/layout/hero-layout-resolver';
 import type { HeroLayoutBreakpointBand } from '@/lib/layout/types';
 import type { Section, SiteConfig } from '@/lib/types/site';
+import { resolveAdaptiveImageScrim } from '@/lib/design/scrim';
 import { workshopStockManifest } from './manifest';
 import { stockAssetRef, type FrozenStockAsset, type FrozenStockManifest, type StockBucket } from './types';
 
@@ -117,6 +118,15 @@ function applyHeroStock(input: {
   if (!asset) return { section: input.section };
 
   input.usedProviderAssetIds.add(asset.providerAssetId);
+  const adaptive = resolveAdaptiveImageScrim(
+    input.config.theme.palette,
+    asset.contrastProfile,
+  );
+  const adaptiveBand = {
+    overlayColor: adaptive.overlayColor,
+    overlayOpacity: adaptive.overlayOpacity,
+    minimumContrast: adaptive.minimumContrast,
+  };
   const compiled = resolveHeroLayoutVariant({
     requestedId: projection.requestedId,
     section: input.section,
@@ -137,8 +147,24 @@ function applyHeroStock(input: {
       ...input.section.background,
       image: {
         src: asset.renditionUrl,
-        overlayColor: input.config.theme.palette.background,
-        overlayOpacity: contract.role === 'atmospheric-background' ? 0.3 : 0,
+        overlayColor: adaptive.overlayColor,
+        overlayOpacity: contract.role === 'atmospheric-background'
+          ? adaptive.overlayOpacity
+          : 0,
+        ...(contract.role === 'atmospheric-background'
+          ? {
+              adaptiveScrim: {
+                version: 1 as const,
+                source: 'licensed-stock' as const,
+                ...(asset.contrastProfile
+                  ? { sourceProfile: { ...asset.contrastProfile } }
+                  : {}),
+                wide: { ...adaptiveBand },
+                compact: { ...adaptiveBand },
+                mobile: { ...adaptiveBand },
+              },
+            }
+          : {}),
         focalPoint: { x: 0.5, y: 0.5 },
         compactFocalPoint: { x: 0.5, y: 0.5 },
         mobileFocalPoint: { x: 0.5, y: 0.5 },

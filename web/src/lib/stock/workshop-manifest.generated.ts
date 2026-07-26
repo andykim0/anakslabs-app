@@ -28,6 +28,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#f0f6ff",
+        "meanLuminance": 0.113599
       }
     },
     {
@@ -52,6 +58,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#010208",
+        "brightestColor": "#f9fbff",
+        "meanLuminance": 0.45408
       }
     },
     {
@@ -76,6 +88,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#0a120c",
+        "brightestColor": "#fceaee",
+        "meanLuminance": 0.082161
       }
     },
     {
@@ -100,6 +118,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#262221",
+        "brightestColor": "#e2e6f3",
+        "meanLuminance": 0.235044
       }
     },
     {
@@ -124,6 +148,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#080000",
+        "brightestColor": "#f3cad3",
+        "meanLuminance": 0.074886
       }
     },
     {
@@ -148,6 +178,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#636a68",
+        "brightestColor": "#f8f6f5",
+        "meanLuminance": 0.526639
       }
     },
     {
@@ -172,6 +208,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#475641",
+        "brightestColor": "#f2f5f1",
+        "meanLuminance": 0.479044
       }
     },
     {
@@ -196,6 +238,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#473225",
+        "brightestColor": "#fcfdf8",
+        "meanLuminance": 0.50144
       }
     },
     {
@@ -220,6 +268,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#473227",
+        "brightestColor": "#fcfdf7",
+        "meanLuminance": 0.501894
       }
     },
     {
@@ -244,6 +298,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#656661",
+        "brightestColor": "#f9f5f1",
+        "meanLuminance": 0.71548
       }
     },
     {
@@ -268,6 +328,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#060403",
+        "brightestColor": "#e7ebee",
+        "meanLuminance": 0.524834
       }
     },
     {
@@ -294,6 +360,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "reasons": [
           "person-or-body-metadata"
         ]
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#030306",
+        "brightestColor": "#e8ecee",
+        "meanLuminance": 0.54531
       }
     },
     {
@@ -318,6 +390,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#706f69",
+        "brightestColor": "#e2e6e9",
+        "meanLuminance": 0.594238
       }
     },
     {
@@ -344,6 +422,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "reasons": [
           "person-or-body-metadata"
         ]
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#040502",
+        "brightestColor": "#e8e8eb",
+        "meanLuminance": 0.426651
       }
     },
     {
@@ -368,6 +452,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#020907",
+        "brightestColor": "#ebf3f7",
+        "meanLuminance": 0.275965
       }
     },
     {
@@ -394,6 +484,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "reasons": [
           "person-or-body-metadata"
         ]
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#010100",
+        "brightestColor": "#e0d4d4",
+        "meanLuminance": 0.072681
       }
     },
     {
@@ -418,6 +514,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#010200",
+        "brightestColor": "#f3f3f7",
+        "meanLuminance": 0.377114
       }
     },
     {
@@ -444,6 +546,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "reasons": [
           "person-or-body-metadata"
         ]
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#030401",
+        "brightestColor": "#f1f1f3",
+        "meanLuminance": 0.36175
       }
     },
     {
@@ -468,6 +576,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#020200",
+        "brightestColor": "#ffffff",
+        "meanLuminance": 0.369373
       }
     },
     {
@@ -494,6 +608,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "reasons": [
           "person-or-body-metadata"
         ]
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000100",
+        "brightestColor": "#f1f1f5",
+        "meanLuminance": 0.393935
       }
     },
     {
@@ -518,6 +638,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#020902",
+        "brightestColor": "#f3f5f9",
+        "meanLuminance": 0.342095
       }
     },
     {
@@ -542,6 +668,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#654920",
+        "brightestColor": "#f7efe3",
+        "meanLuminance": 0.468772
       }
     },
     {
@@ -566,6 +698,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#3b2f0a",
+        "brightestColor": "#eae3db",
+        "meanLuminance": 0.343683
       }
     },
     {
@@ -590,6 +728,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000406",
+        "brightestColor": "#e4e2df",
+        "meanLuminance": 0.369728
       }
     },
     {
@@ -614,6 +758,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#0b070b",
+        "brightestColor": "#b786b2",
+        "meanLuminance": 0.189309
       }
     },
     {
@@ -638,6 +788,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000706",
+        "brightestColor": "#ddc2d8",
+        "meanLuminance": 0.376865
       }
     },
     {
@@ -662,6 +818,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000500",
+        "brightestColor": "#c7c1be",
+        "meanLuminance": 0.212114
       }
     },
     {
@@ -686,6 +848,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#131412",
+        "brightestColor": "#aba5a8",
+        "meanLuminance": 0.060291
       }
     },
     {
@@ -710,6 +878,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#2c2920",
+        "brightestColor": "#c2b0ab",
+        "meanLuminance": 0.099825
       }
     },
     {
@@ -734,6 +908,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#120801",
+        "brightestColor": "#fffbd9",
+        "meanLuminance": 0.30957
       }
     },
     {
@@ -758,6 +938,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000f00",
+        "brightestColor": "#cdcbd9",
+        "meanLuminance": 0.299299
       }
     },
     {
@@ -782,6 +968,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#292929",
+        "brightestColor": "#ffffff",
+        "meanLuminance": 0.430563
       }
     },
     {
@@ -806,6 +998,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000001",
+        "brightestColor": "#dbd5c5",
+        "meanLuminance": 0.158207
       }
     },
     {
@@ -830,6 +1028,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#050604",
+        "brightestColor": "#fbf9f8",
+        "meanLuminance": 0.391889
       }
     },
     {
@@ -854,6 +1058,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#110b0e",
+        "brightestColor": "#e5e8e1",
+        "meanLuminance": 0.297734
       }
     },
     {
@@ -878,6 +1088,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#ffffff",
+        "meanLuminance": 0.247272
       }
     },
     {
@@ -902,6 +1118,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#0e0802",
+        "brightestColor": "#d9dce4",
+        "meanLuminance": 0.285501
       }
     },
     {
@@ -926,6 +1148,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#060908",
+        "brightestColor": "#ffffff",
+        "meanLuminance": 0.159696
       }
     },
     {
@@ -950,6 +1178,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#1c0e00",
+        "brightestColor": "#ffcb9a",
+        "meanLuminance": 0.076025
       }
     },
     {
@@ -974,6 +1208,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#010200",
+        "brightestColor": "#fefaff",
+        "meanLuminance": 0.457362
       }
     },
     {
@@ -998,6 +1238,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#ceb195",
+        "meanLuminance": 0.070065
       }
     },
     {
@@ -1022,6 +1268,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#010101",
+        "brightestColor": "#d3dbe5",
+        "meanLuminance": 0.199426
       }
     },
     {
@@ -1046,6 +1298,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#090802",
+        "brightestColor": "#caced2",
+        "meanLuminance": 0.184214
       }
     },
     {
@@ -1070,6 +1328,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#fcd5a6",
+        "meanLuminance": 0.094927
       }
     },
     {
@@ -1094,6 +1358,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#e4d2c7",
+        "meanLuminance": 0.333721
       }
     },
     {
@@ -1118,6 +1388,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#110e0a",
+        "brightestColor": "#eaecef",
+        "meanLuminance": 0.216826
       }
     },
     {
@@ -1142,6 +1418,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#050c0d",
+        "brightestColor": "#eec4af",
+        "meanLuminance": 0.136245
       }
     },
     {
@@ -1166,6 +1448,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#000000",
+        "brightestColor": "#988e91",
+        "meanLuminance": 0.043385
       }
     },
     {
@@ -1190,6 +1478,12 @@ export const WORKSHOP_STOCK_MANIFEST = {
         "algorithmVersion": "pexels-curated-metadata-v1",
         "passed": true,
         "reasons": []
+      },
+      "contrastProfile": {
+        "algorithmVersion": "image-channel-range-v1",
+        "darkestColor": "#2f0100",
+        "brightestColor": "#ffffce",
+        "meanLuminance": 0.190313
       }
     }
   ]

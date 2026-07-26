@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
+import type { ImageContrastProfile } from '@/lib/design/scrim';
+import { assessImageContrastProfile } from './image-contrast-profile';
 
 export const HERO_PHOTO_QUALITY_VERSION = 'hero-photo-v2' as const;
 
@@ -81,6 +83,8 @@ export interface HeroPhotoQualityStamp {
   guidance: string;
   /** New uploads only. Legacy v2 stamps remain valid without viewport crop evidence. */
   viewportCrops?: HeroPhotoViewportCrops;
+  /** STK-R1 이후 업로드만 갖는 실제 래스터 채널 범위. 기존 stamp는 무손실 수용한다. */
+  contrastProfile?: ImageContrastProfile;
   stampSha256: string;
 }
 
@@ -175,6 +179,7 @@ function stableStampPayload(input: Omit<HeroPhotoQualityStamp, 'stampSha256'>): 
           ])),
         }
       : {}),
+    ...(input.contrastProfile ? { contrastProfile: input.contrastProfile } : {}),
   });
 }
 
@@ -412,6 +417,7 @@ export async function assessHeroPhotoQuality(bytes: Buffer): Promise<HeroPhotoQu
       metrics,
       guidance: guidanceFor(reasons),
       viewportCrops: await assessViewportCrops(source, width, height),
+      contrastProfile: await assessImageContrastProfile(bytes),
     };
     return {
       ...payload,
@@ -466,6 +472,12 @@ export function isHeroPhotoQualityStamp(value: unknown): value is HeroPhotoQuali
       metrics?.brightPixelRatio,
   ].every((metric) => typeof metric === 'number' && Number.isFinite(metric))
     && typeof stamp.guidance === 'string'
+    && (stamp.contrastProfile === undefined
+      || (stamp.contrastProfile.algorithmVersion === 'image-channel-range-v1'
+        && /^#[0-9a-f]{6}$/iu.test(stamp.contrastProfile.darkestColor)
+        && /^#[0-9a-f]{6}$/iu.test(stamp.contrastProfile.brightestColor)
+        && typeof stamp.contrastProfile.meanLuminance === 'number'
+        && Number.isFinite(stamp.contrastProfile.meanLuminance)))
     && viewportCropsValid;
   if (!shapeValid) return false;
   const complete = stamp as HeroPhotoQualityStamp;
@@ -477,6 +489,7 @@ export function isHeroPhotoQualityStamp(value: unknown): value is HeroPhotoQuali
     metrics: complete.metrics,
     guidance: complete.guidance,
     ...(complete.viewportCrops ? { viewportCrops: complete.viewportCrops } : {}),
+    ...(complete.contrastProfile ? { contrastProfile: complete.contrastProfile } : {}),
   };
   return createHash('sha256').update(stableStampPayload(payload)).digest('hex')
     === complete.stampSha256;

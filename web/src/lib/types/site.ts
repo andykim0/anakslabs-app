@@ -12,6 +12,7 @@ import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types'
 import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import type { SiteIndustryId } from '@/lib/industry/profiles';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
+import type { ImageContrastProfile } from '@/lib/design/scrim';
 
 /** [W4] 고객이 최종 히어로 소스로 고른 카드. URL 자체가 아니라 선택 출처를 기록한다. */
 export type HeroImageChoice = 'system' | 'upload' | 'ai-1' | 'ai-2' | 'ai-3';
@@ -330,6 +331,18 @@ export interface SectionBackground {
     mobileFocalPoint?: { x: number; y: number };
     /** IMG-R1 신규 생성본에서만 기록되는 뷰포트별 서버 승격 판정. */
     responsivePromotion?: HeroPhotoResponsivePromotion;
+    /**
+     * STK-R1 신규 이미지 무대 전용. 프로필 없는 기존 발행본은 기존 overlay 필드만 소비해
+     * 바이트/픽셀이 그대로이며, 신규 생성본만 밴드별 AA 스크림을 고정한다.
+     */
+    adaptiveScrim?: {
+      version: 1;
+      source: 'licensed-stock' | 'customer-photo';
+      sourceProfile?: ImageContrastProfile;
+      wide: { overlayColor: string; overlayOpacity: number; minimumContrast: number };
+      compact: { overlayColor: string; overlayOpacity: number; minimumContrast: number };
+      mobile: { overlayColor: string; overlayOpacity: number; minimumContrast: number };
+    };
   };
   /**
    * [motion 3단계] video-hero 배경 영상 소스. 렌더러는 플랜이 video-hero인 히어로에만 방출한다.

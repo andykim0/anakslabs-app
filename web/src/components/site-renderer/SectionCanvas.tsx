@@ -135,10 +135,16 @@ function StandardSection({
   // 종전 procedural 경로를 유지해 기존 발행본의 픽셀을 바꾸지 않는다.
   const effectiveProceduralHero = proceduralHero
     && heroLayout?.mediaSlotRole !== 'referential-figure';
+  const adaptiveWideScrim = bg.image?.adaptiveScrim?.wide;
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
   const imgScrim = (!effectiveProceduralHero || responsivePhoto) && bg.image
-    ? bg.image.overlayColor
+    ? adaptiveWideScrim
+      ? {
+          overlayColor: adaptiveWideScrim.overlayColor,
+          overlayOpacity: adaptiveWideScrim.overlayOpacity,
+        }
+      : bg.image.overlayColor
       ? { overlayColor: bg.image.overlayColor, overlayOpacity: bg.image.overlayOpacity ?? 0.45 }
       : ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
     : null;
@@ -283,6 +289,12 @@ function StandardSection({
           {heroLayoutScrim && (
             <div
               aria-hidden
+              {...(adaptiveWideScrim
+                ? {
+                    'data-adaptive-image-scrim': 'wide',
+                    'data-minimum-contrast': adaptiveWideScrim.minimumContrast.toFixed(2),
+                  }
+                : {})}
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -336,6 +348,9 @@ function StandardSection({
         return (
           <div
             key={el.id}
+            {...(bg.image?.adaptiveScrim && el.kind === 'text'
+              ? { 'data-image-contrast-foreground': el.id }
+              : {})}
             {...(integratedTypography && section.type === 'hero' && el.kind === 'text'
               ? { 'data-site-cine-hero-copy': true }
               : {})}

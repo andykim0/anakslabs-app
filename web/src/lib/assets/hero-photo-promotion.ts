@@ -24,6 +24,7 @@ import {
   type NormalizedSignatureZone,
   type SignatureTextSafeZoneId,
 } from '@/lib/motion/signature-contract';
+import { resolveAdaptiveImageScrim } from '@/lib/design/scrim';
 
 export const SYSTEM_HERO_PREVIEW_URLS = {
   light: '/mock/candidate-light.svg',
@@ -346,6 +347,15 @@ export function applyHeroPhotoPromotion(input: {
   const promotedInAnyBand = promoted && HERO_PHOTO_VIEWPORT_BANDS.some(
     (band) => focus.responsivePromotion[band].promoted,
   );
+  const adaptive = resolveAdaptiveImageScrim(
+    input.config.theme.palette,
+    promoted ? input.candidate.heroPhotoQuality?.contrastProfile : undefined,
+  );
+  const adaptiveBand = {
+    overlayColor: adaptive.overlayColor,
+    overlayOpacity: adaptive.overlayOpacity,
+    minimumContrast: adaptive.minimumContrast,
+  };
   const nextHero: Section = promotedInAnyBand
     ? {
         ...hero,
@@ -358,6 +368,18 @@ export function applyHeroPhotoPromotion(input: {
             compactFocalPoint: focus.compactFocalPoint,
             mobileFocalPoint: focus.mobileFocalPoint,
             responsivePromotion: focus.responsivePromotion,
+            overlayColor: adaptive.overlayColor,
+            overlayOpacity: adaptive.overlayOpacity,
+            adaptiveScrim: {
+              version: 1,
+              source: 'customer-photo',
+              ...(input.candidate.heroPhotoQuality?.contrastProfile
+                ? { sourceProfile: { ...input.candidate.heroPhotoQuality.contrastProfile } }
+                : {}),
+              wide: { ...adaptiveBand },
+              compact: { ...adaptiveBand },
+              mobile: { ...adaptiveBand },
+            },
           },
         },
       }
