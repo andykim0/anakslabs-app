@@ -21,6 +21,9 @@ const BLOG_CSS = `
 .anaks-content-blog__card{min-width:0}
 .anaks-content-blog__article{width:min(100% - 48px,760px);margin:0 auto;padding:clamp(72px,10vw,144px) 0}
 .anaks-content-blog__article p,.anaks-content-blog__article li{word-break:keep-all;overflow-wrap:break-word}
+.anaks-content-blog__table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;margin-top:28px}
+.anaks-content-blog__table{width:100%;min-width:560px;border-collapse:collapse}
+.anaks-content-blog__table th,.anaks-content-blog__table td{padding:14px 16px;text-align:left;vertical-align:top}
 @media(max-width:767px){
   .anaks-content-blog__inner,.anaks-content-blog__article{width:min(100% - 32px,760px);padding:64px 0 88px}
   .anaks-content-blog__grid{grid-template-columns:1fr;gap:14px;margin-top:32px}
@@ -131,8 +134,62 @@ function PostDocument({
                   marginTop: 20,
                 }}
               >
-                {block.items.map((item) => <li key={item}>{item}</li>)}
+                {block.items.map((item, itemIndex) => (
+                  <li key={`${typeof item === 'string' ? item : item.text}-${itemIndex}`}>
+                    {typeof item === 'string' ? item : item.text}
+                  </li>
+                ))}
               </List>
+            );
+          }
+          if (block.type === 'table') {
+            const border = themeColor(config.theme, 'border');
+            return (
+              <div className="anaks-content-blog__table-wrap" key={index}>
+                <table
+                  className="anaks-content-blog__table"
+                  style={{
+                    border: `1px solid ${border}`,
+                    color: text,
+                    fontFamily: config.theme.fonts.body,
+                    fontSize: 16,
+                    lineHeight: 1.65,
+                  }}
+                >
+                  {block.caption ? (
+                    <caption style={{ captionSide: 'top', color: muted, paddingBottom: 12, textAlign: 'left' }}>
+                      {block.caption}
+                    </caption>
+                  ) : null}
+                  <thead>
+                    <tr>
+                      {block.columns.map((column) => (
+                        <th
+                          key={column.key}
+                          scope="col"
+                          style={{ background: themeColor(config.theme, 'surfaceStrong'), borderBottom: `1px solid ${border}` }}
+                        >
+                          {column.header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {block.rows.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`${cellIndex}-${cell.text}`}
+                            style={{ borderBottom: `1px solid ${border}` }}
+                          >
+                            {cell.text}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             );
           }
           return (

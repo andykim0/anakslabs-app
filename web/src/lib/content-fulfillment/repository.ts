@@ -1,4 +1,5 @@
 import 'server-only';
+import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import { isMockMode } from '@/lib/env';
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import type {
@@ -8,6 +9,7 @@ import type {
 import { MockPublishedContentPostsRepository } from './repository-mock';
 import type { PublishedContentPostsRepository } from './repository-core';
 import { projectPublishedRows } from './repository-core';
+import { filterPublicContentPostsForConfig } from './public-integrity';
 
 const POST_COLUMNS = [
   'id',
@@ -28,9 +30,30 @@ const VERSION_COLUMNS = [
   'summary',
   'tags',
   'document',
+  'source_snapshot',
+  'source_snapshot_sha256',
+  'source_refs',
+  'policy_versions',
+  'validation_evidence',
+  'generation_metadata',
 ].join(',');
 
 class SupabasePublishedContentPostsRepository implements PublishedContentPostsRepository {
+  private async enforceCurrentPublicPolicy(
+    siteId: string,
+    posts: ReturnType<typeof projectPublishedRows>,
+  ) {
+    if (!posts.some((post) => post.integrity)) return posts;
+    const { data, error } = await getServiceRoleClient()
+      .from('sites')
+      .select('site_config')
+      .eq('id', siteId)
+      .maybeSingle();
+    if (error || !data) return [];
+    const parsed = siteConfigSchema.safeParse((data as { site_config?: unknown }).site_config);
+    return parsed.success ? filterPublicContentPostsForConfig(posts, parsed.data) : [];
+  }
+
   async listPublishedBySite(siteId: string) {
     const svc = getServiceRoleClient();
     const { data: postData, error: postError } = await svc
@@ -55,10 +78,11 @@ class SupabasePublishedContentPostsRepository implements PublishedContentPostsRe
       .in('id', versionIds);
     if (versionError) throw new Error(`published content version list failed: ${versionError.message}`);
 
-    return projectPublishedRows(
+    const projected = projectPublishedRows(
       posts,
       (versionData ?? []) as unknown as ContentPostVersionRow[],
     );
+    return this.enforceCurrentPublicPolicy(siteId, projected);
   }
 
   async getPublishedBySiteAndSlug(siteId: string, slug: string) {
@@ -83,10 +107,11 @@ class SupabasePublishedContentPostsRepository implements PublishedContentPostsRe
       .maybeSingle();
     if (versionError) throw new Error(`published content version lookup failed: ${versionError.message}`);
     if (!versionData) return null;
-    return projectPublishedRows(
+    const projected = projectPublishedRows(
       [post],
       [versionData as unknown as ContentPostVersionRow],
-    )[0] ?? null;
+    );
+    return (await this.enforceCurrentPublicPolicy(siteId, projected))[0] ?? null;
   }
 }
 

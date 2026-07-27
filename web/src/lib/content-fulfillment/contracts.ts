@@ -13,6 +13,56 @@ export const CONTENT_POST_STATUSES = [
 export type ContentPostStatus = (typeof CONTENT_POST_STATUSES)[number];
 
 const plainText = z.string().trim().min(1).max(8_000);
+const sourceRefId = z.string().trim().min(1).max(240).regex(/^[A-Za-z0-9][A-Za-z0-9:._-]*$/u);
+const sourceRefs = z.array(sourceRefId).max(30).optional();
+
+export const contentSourceRefSchema = z.object({
+  id: sourceRefId,
+  kind: z.enum([
+    'business-identity',
+    'business-fact',
+    'customer-content',
+    'customer-faq',
+    'customer-proof',
+    'customer-import',
+  ]),
+  path: z.string().trim().min(1).max(300),
+  text: plainText.max(5_000),
+  sourceUrl: z.string().url().optional(),
+  publisher: z.string().trim().min(1).max(200).optional(),
+  asOfDate: z.string().date().optional(),
+}).strict();
+
+export type ContentSourceRef = z.infer<typeof contentSourceRefSchema>;
+
+export const contentSourceSnapshotSchema = z.object({
+  version: z.literal(1),
+  siteId: z.string().uuid(),
+  clientId: z.string().uuid(),
+  capturedAt: z.string().datetime({ offset: true }),
+  surveyVersion: z.union([z.literal(1), z.literal(2)]).nullable(),
+  industryId: z.string().trim().min(1).max(100).nullable(),
+  industryClass: z.string().trim().min(1).max(80).nullable(),
+  sources: z.array(contentSourceRefSchema).max(300),
+}).strict();
+
+export type ContentSourceSnapshot = z.infer<typeof contentSourceSnapshotSchema>;
+
+const sourcedText = z.object({
+  text: plainText.max(1_000),
+  sourceRefs,
+}).strict();
+
+const tableCell = z.object({
+  text: plainText.max(1_000),
+  sourceRef: sourceRefId,
+}).strict();
+
+const tableColumn = z.object({
+  key: z.string().trim().min(1).max(80).regex(/^[a-z][a-z0-9_-]*$/u),
+  header: plainText.max(120),
+  sourceRef: sourceRefId,
+}).strict();
 
 /**
  * P1의 공개 투영 최소 계약. P2가 표·출처 참조·정직성 검사를 이 버전 계약에
@@ -25,18 +75,42 @@ export const contentPostDocumentSchema = z.object({
       type: z.literal('heading'),
       level: z.union([z.literal(2), z.literal(3)]),
       text: plainText.max(240),
+      sourceRefs,
     }).strict(),
     z.object({
       type: z.literal('paragraph'),
       text: plainText,
+      sourceRefs,
     }).strict(),
     z.object({
       type: z.literal('list'),
       ordered: z.boolean(),
-      items: z.array(plainText.max(1_000)).min(1).max(30),
+      items: z.array(z.union([plainText.max(1_000), sourcedText])).min(1).max(30),
+    }).strict(),
+    z.object({
+      type: z.literal('table'),
+      caption: plainText.max(240).optional(),
+      captionSourceRefs: sourceRefs,
+      columns: z.array(tableColumn).min(2).max(6),
+      rows: z.array(z.object({
+        cells: z.array(tableCell).min(2).max(6),
+      }).strict()).min(1).max(50),
     }).strict(),
   ])).min(1).max(100),
-}).strict();
+}).strict().superRefine((document, context) => {
+  for (const [blockIndex, block] of document.blocks.entries()) {
+    if (block.type !== 'table') continue;
+    for (const [rowIndex, row] of block.rows.entries()) {
+      if (row.cells.length !== block.columns.length) {
+        context.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'rows', rowIndex, 'cells'],
+          message: '표의 모든 행은 헤더와 같은 열 수여야 합니다.',
+        });
+      }
+    }
+  }
+});
 
 export type ContentPostDocument = z.infer<typeof contentPostDocumentSchema>;
 
@@ -52,6 +126,14 @@ export interface PublishedContentPost {
   document: ContentPostDocument;
   publishedAt: string;
   updatedAt: string;
+  /** P2+ immutable versions carry enough evidence for current-policy tenant/export revalidation. */
+  integrity?: {
+    sourceSnapshot: ContentSourceSnapshot;
+    sourceSnapshotSha256: string;
+    sourceRefs: readonly string[];
+    validationEvidence: Record<string, unknown>;
+    generationMetadata: Record<string, unknown>;
+  };
 }
 
 export interface ContentPostRow {
@@ -73,6 +155,12 @@ export interface ContentPostVersionRow {
   summary: string;
   tags: unknown;
   document: unknown;
+  source_snapshot?: unknown;
+  source_snapshot_sha256?: string;
+  source_refs?: unknown;
+  policy_versions?: unknown;
+  validation_evidence?: unknown;
+  generation_metadata?: unknown;
 }
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120);
@@ -125,5 +213,28 @@ export function projectPublishedContentPost(
     updatedAt: post.updated_at,
   });
 
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  const metadata = version.generation_metadata;
+  if (
+    !metadata
+    || typeof metadata !== 'object'
+    || Array.isArray(metadata)
+    || (metadata as { pipelineVersion?: unknown }).pipelineVersion !== 'content-post-generator-2026-07-v1'
+  ) {
+    return parsed.data;
+  }
+  const integrity = z.object({
+    sourceSnapshot: contentSourceSnapshotSchema,
+    sourceSnapshotSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+    sourceRefs: z.array(sourceRefId).max(300),
+    validationEvidence: z.record(z.string(), z.unknown()),
+    generationMetadata: z.record(z.string(), z.unknown()),
+  }).strict().safeParse({
+    sourceSnapshot: version.source_snapshot,
+    sourceSnapshotSha256: version.source_snapshot_sha256,
+    sourceRefs: version.source_refs,
+    validationEvidence: version.validation_evidence,
+    generationMetadata: metadata,
+  });
+  return integrity.success ? { ...parsed.data, integrity: integrity.data } : null;
 }
