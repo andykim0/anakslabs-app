@@ -51,6 +51,22 @@ const SECTION_LAYOUT_CSS = `
 }
 `;
 
+const BODY_STOCK_TINT = {
+  desktop: { minimum: 0.06, maximum: 0.16, multiplier: 0.18 },
+  mobile: { minimum: 0.05, maximum: 0.12, multiplier: 0.14 },
+} as const;
+
+function bodyStockTintOpacity(
+  overlayOpacity: number,
+  band: keyof typeof BODY_STOCK_TINT,
+): number {
+  const rule = BODY_STOCK_TINT[band];
+  return Math.max(
+    rule.minimum,
+    Math.min(rule.maximum, overlayOpacity * rule.multiplier),
+  );
+}
+
 const LIB3_GROUP_CSS = `
 [data-section-layout-group]{position:absolute;left:var(--section-layout-x);top:var(--section-layout-y);width:var(--section-layout-w);height:var(--section-layout-h);z-index:1;pointer-events:none}
 [data-section-layout-group-appearance="surface"],
@@ -197,10 +213,10 @@ export function SectionLayoutProjectionRenderer({
           '--section-layout-stock-scrim-mobile': adaptiveScrim.mobile.overlayColor,
           '--section-layout-stock-opacity-mobile': String(adaptiveScrim.mobile.overlayOpacity),
           '--section-layout-stock-tint-opacity': String(
-            Math.max(0.24, Math.min(0.38, responsiveScrim.overlayOpacity * 0.42)),
+            bodyStockTintOpacity(responsiveScrim.overlayOpacity, 'desktop'),
           ),
           '--section-layout-stock-tint-opacity-mobile': String(
-            Math.max(0.2, Math.min(0.3, adaptiveScrim.mobile.overlayOpacity * 0.32)),
+            bodyStockTintOpacity(adaptiveScrim.mobile.overlayOpacity, 'mobile'),
           ),
         }
       : {}),
