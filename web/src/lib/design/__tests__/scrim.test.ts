@@ -81,4 +81,24 @@ describe('STK-R1 adaptive image scrim', () => {
       true,
     );
   });
+
+  test('본문 atmospheric 역할은 DNA 선호색과 시각 안정도 하한을 함께 지킨다', () => {
+    const palette = derivePalette('#b45f3f', '#e8ddd5', { dark: false });
+    const result = resolveAdaptiveImageScrim(
+      palette,
+      {
+        algorithmVersion: 'image-channel-range-v1',
+        darkestColor: '#111111',
+        brightestColor: '#f5f5f5',
+        meanLuminance: 0.48,
+      },
+      {
+        minimumOverlayOpacity: 0.78,
+        preferredOverlayColor: '#f1e7e3',
+      },
+    );
+    assert.equal(result.overlayColor, '#f1e7e3');
+    assert.ok(result.overlayOpacity >= 0.78);
+    assert.ok(result.minimumContrast >= 4.5);
+  });
 });

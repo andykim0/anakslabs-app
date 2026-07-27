@@ -5,6 +5,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { test } from 'node:test';
 import { SectionCanvas } from '@/components/site-renderer/SectionCanvas';
+import { SectionLayoutProjectionRenderer } from '@/components/site-renderer/SectionLayoutProjectionRenderer';
 import { SiteRenderer } from '@/components/site-renderer';
 import { resolveSiteAssetPolicyCore } from '@/lib/assets/assignment-core';
 import type { AssetRecord } from '@/lib/assets/provenance';
@@ -18,6 +19,9 @@ import type { HeroLayoutVariantId } from '@/lib/layout/types';
 import type { Section, SiteConfig } from '@/lib/types/site';
 import {
   applyCategoricalStockSupply,
+  BODY_ATMOSPHERIC_SCRIM_FLOOR,
+  bodyAtmosphericOverlayColor,
+  HERO_ATMOSPHERIC_SCRIM_FLOOR,
   selectCategoricalStock,
 } from './application';
 import { workshopStockManifest } from './manifest';
@@ -117,6 +121,82 @@ function config(sections = [hero('hero-home')]): SiteConfig {
   };
 }
 
+function about(
+  id: string,
+  layout: 'about.fullbleed-overlay' | 'about.split-left' = 'about.fullbleed-overlay',
+): Section {
+  const section: Section = {
+    id,
+    type: 'about',
+    name: '소개',
+    height: 760,
+    background: { color: theme.palette.background },
+    elements: [
+      {
+        id: `${id}-img`,
+        kind: 'image',
+        frame: { x: 80, y: 120, w: 520, h: 420 },
+        z: 1,
+        src: '/mock/candidate-light.svg',
+        alt: '',
+        style: { objectFit: 'cover', borderRadius: 12 },
+      },
+      {
+        id: `${id}-kicker`,
+        kind: 'text',
+        frame: { x: 680, y: 140, w: 240, h: 30 },
+        z: 2,
+        text: '공간을 바라보는 기준',
+        style: {
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: 'body',
+          color: theme.palette.primary,
+          align: 'left',
+        },
+      },
+      {
+        id: `${id}-title`,
+        kind: 'text',
+        frame: { x: 680, y: 190, w: 600, h: 110 },
+        z: 2,
+        text: '쓰임에서 시작하는 공간',
+        style: {
+          fontSize: 44,
+          fontWeight: 700,
+          fontFamily: 'heading',
+          color: theme.palette.text,
+          align: 'left',
+          lineHeight: 1.2,
+        },
+      },
+      {
+        id: `${id}-about-body`,
+        kind: 'text',
+        frame: { x: 680, y: 330, w: 560, h: 160 },
+        z: 2,
+        text: '고객이 입력한 실제 작업 태도와 공간을 바라보는 기준입니다.',
+        style: {
+          fontSize: 18,
+          fontWeight: 400,
+          fontFamily: 'body',
+          color: theme.palette.text,
+          align: 'left',
+          lineHeight: 1.7,
+        },
+      },
+    ],
+  };
+  const pages = [{ id: 'home', slug: '', title: '홈', sections: [section] }];
+  applySectionLayoutVariants({
+    pages,
+    theme,
+    selection: { about: layout },
+  });
+  assert.equal(section.sectionLayout?.resolvedId, layout);
+  return section;
+}
+
 const ON = { REALISTIC_IMAGE_SUPPLY_ENABLED: '1' };
 
 test('categorical supply flag is additive and only exact 1 issues new stock refs', () => {
@@ -183,6 +263,105 @@ test('video-scrim and gallery reject stock while about fullbleed declares atmosp
   assert.match(
     about.slice(about.indexOf('const atmosphericMedia'), about.indexOf('const noMedia')),
     /categorical-stock/u,
+  );
+});
+
+test('body supply fills only atmospheric about and shares the hero duplicate-avoidance set', () => {
+  const source = config([
+    hero('hero-home'),
+    about('about-home'),
+    about('about-split', 'about.split-left'),
+  ]);
+  const result = applyCategoricalStockSupply(source, { environment: ON });
+  assert.deepEqual(
+    result.selections.map(({ sectionId }) => sectionId),
+    ['hero-home', 'about-home'],
+  );
+  assert.notEqual(
+    result.selections[0]?.asset.providerAssetId,
+    result.selections[1]?.asset.providerAssetId,
+  );
+  const fullbleed = result.config.pages[0]!.sections[1]!;
+  const split = result.config.pages[0]!.sections[2]!;
+  assert.equal(fullbleed.background.image?.adaptiveScrim?.source, 'licensed-stock');
+  assert.ok(
+    (fullbleed.background.image?.adaptiveScrim?.wide.overlayOpacity ?? 0)
+      >= BODY_ATMOSPHERIC_SCRIM_FLOOR,
+  );
+  assert.equal(
+    fullbleed.background.image?.adaptiveScrim?.wide.overlayColor,
+    bodyAtmosphericOverlayColor(theme),
+  );
+  assert.notEqual(result.selections[1]?.asset.mood, 'dark');
+  assert.equal(fullbleed.proceduralBackground, undefined);
+  assert.equal(split.background.image, undefined);
+  assert.equal(result.config.assetRefs?.length, 2);
+});
+
+test('body atmospheric customer image wins while the independent hero may still use stock', () => {
+  const customerAbout = about('about-customer');
+  const customerImage = customerAbout.elements.find(
+    (element) => element.kind === 'image',
+  );
+  assert.ok(customerImage?.kind === 'image');
+  customerImage.src = '/uploads/customer-about.webp';
+  const source = config([hero('hero-home'), customerAbout]);
+  source.assetRefs = [{
+    assetId: '33333333-3333-4333-8333-333333333333',
+    url: customerImage.src,
+  }];
+  const result = applyCategoricalStockSupply(source, { environment: ON });
+  assert.deepEqual(
+    result.selections.map(({ sectionId }) => sectionId),
+    ['hero-home'],
+  );
+  assert.equal(
+    result.config.pages[0]!.sections[1]!.background.image,
+    undefined,
+  );
+});
+
+test('body stock renderer emits a lazy local backdrop, adaptive AA marks and Pexels credit', () => {
+  const supplied = applyCategoricalStockSupply(
+    config([about('about-home')]),
+    { environment: ON },
+  ).config;
+  const section = supplied.pages[0]!.sections[0]!;
+  for (const variant of ['canvas', 'stack'] as const) {
+    const html = renderToStaticMarkup(createElement(SectionLayoutProjectionRenderer, {
+      section,
+      theme,
+      variant,
+      interactive: false,
+    }));
+    assert.match(html, /data-section-layout-stock-image/u);
+    assert.match(html, /loading="lazy"/u);
+    assert.match(html, /data-section-layout-stock-tint/u);
+    assert.match(html, /data-section-layout-stock-scrim/u);
+    assert.match(html, /data-section-layout-stock-text-zone="left"/u);
+    assert.match(html, /linear-gradient\(90deg,var\(--section-layout-stock-scrim\)/u);
+    assert.match(html, /data-section-layout-adaptive-scrim/u);
+    assert.match(html, /data-image-contrast-foreground/u);
+    assert.doesNotMatch(html, /color:#694f38/u);
+    assert.match(html, /color:#211d18/u);
+    assert.match(html, /data-stock-attribution="stk\.workshop\./u);
+    assert.doesNotMatch(html, /src="\/mock\/candidate-light\.svg"/u);
+  }
+});
+
+test('light DNA selects palette-compatible hero stock and keeps an atmospheric readability floor', () => {
+  const result = applyCategoricalStockSupply(config(), { environment: ON });
+  const selected = result.selections[0];
+  const section = result.config.pages[0]!.sections[0]!;
+  assert.ok(selected);
+  assert.notEqual(selected.asset.mood, 'dark');
+  assert.ok(
+    (section.background.image?.adaptiveScrim?.wide.overlayOpacity ?? 0)
+      >= HERO_ATMOSPHERIC_SCRIM_FLOOR,
+  );
+  assert.equal(
+    section.background.image?.adaptiveScrim?.wide.overlayColor,
+    bodyAtmosphericOverlayColor(theme),
   );
 });
 
@@ -279,6 +458,10 @@ test('STK-R1 24 templates × 3 bands pin image-derived AA scrims', () => {
 
 test('STK-R1 review gate measures computed text against the rendered image-plus-scrim pixels', () => {
   const review = readFileSync(path.join(ROOT, 'scripts/render-stock-review.tsx'), 'utf8');
+  assert.match(review, /buildCandidateBlueprintsForPipeline/u);
+  assert.match(review, /fontPairingEnabled: true/u);
+  assert.match(review, /REALISTIC_IMAGE_SUPPLY_ENABLED: '1'/u);
+  assert.match(review, /requireBodyStock: variant\.id\.startsWith\('named-'\)/u);
   assert.match(review, /data-image-contrast-foreground/u);
   assert.match(review, /element\.style\.visibility = 'hidden'/u);
   assert.match(review, /contrastRatio\(textColor, backgroundColor\)/u);

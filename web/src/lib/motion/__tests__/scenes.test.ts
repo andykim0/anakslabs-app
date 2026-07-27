@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import type { SurveyInput } from '@/lib/types/domain';
+import { applySectionLayoutVariants } from '@/lib/layout/section-layout-application';
 import { buildMotionSceneFromSurvey, MOTION_SCENE_ORDER_SOURCE } from '@/lib/motion/scenes';
 import { emptySiteConfig, type CustomerCaseMedia, type Section, type SiteConfig } from '@/lib/types/site';
 
@@ -139,6 +140,32 @@ describe('buildMotionSceneFromSurvey', () => {
     input.highlights = ['하나', '둘', '셋'];
     assert.equal(buildMotionSceneFromSurvey(config(), input, 'true-card-stack'), null);
     assert.equal(buildMotionSceneFromSurvey(config(), input, 'path-journey'), null);
+  });
+
+  test('realistic path journey preserves a layout-owned atmospheric about section', () => {
+    const cfg = config();
+    const about = cfg.pages[0].sections.find((candidate) => candidate.id === 'about');
+    assert.ok(about);
+    about.elements = about.elements.filter((element) => element.kind !== 'image');
+    const aboutTitle = about.elements.find((element) => element.kind === 'text');
+    assert.ok(aboutTitle && aboutTitle.kind === 'text');
+    aboutTitle.style = { ...aboutTitle.style, fontFamily: 'heading' };
+    applySectionLayoutVariants({
+      pages: cfg.pages,
+      theme: cfg.theme,
+      selection: { about: 'about.fullbleed-overlay' },
+    });
+    const legacy = buildMotionSceneFromSurvey(cfg, survey(), 'path-journey');
+    const realistic = buildMotionSceneFromSurvey(
+      cfg,
+      { ...survey(), imageDirectionId: 'realistic' },
+      'path-journey',
+    );
+
+    assert.ok(legacy && legacy.signatureId === 'path-journey');
+    assert.equal(legacy.sectionId, 'about');
+    assert.ok(realistic && realistic.signatureId === 'path-journey');
+    assert.equal(realistic.sectionId, 'features');
   });
 
   test('image-or-video editorial signatures consume the selected hero video as their first real scene', () => {

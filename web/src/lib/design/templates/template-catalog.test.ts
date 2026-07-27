@@ -133,6 +133,35 @@ describe('TPL T1 — 인테리어 명명 템플릿 카탈로그', () => {
     assert.equal(verifiedPhoto.length, NAMED_TEMPLATE_RECOMMENDATION_MAX);
   });
 
+  test('realistic은 atmospheric 히어로와 fullbleed about을 함께 가진 4종만 손 큐레이션한다', async () => {
+    const survey = interiorSurvey({
+      imageDirectionId: 'realistic',
+      contentItems: [
+        { name: '주거 공간 설계', description: '고객이 입력한 실제 업무' },
+        { name: '상업 공간 설계', description: '고객이 입력한 실제 업무' },
+        { name: '현장 관리', description: '고객이 입력한 실제 업무' },
+      ],
+    });
+    const ids = namedTemplatesForSurvey(survey).map(({ id }) => id);
+    assert.deepEqual(ids, [
+      'material-grain',
+      'tactile-chapters',
+      'deep-manifesto',
+      'spatial-portfolio',
+    ]);
+    const blueprints = await buildCandidateBlueprintsForPipeline(survey, {
+      fontPairingEnabled: false,
+      templateGalleryEnabled: true,
+    });
+    assert.equal(blueprints.length, 4);
+    assert.ok(blueprints.every((blueprint) => (
+      blueprint.imageDirectionId === 'realistic'
+      && blueprint.namedTemplate
+      && blueprint.heroLayoutVariantId !== 'hero.asymmetric-offset'
+      && blueprint.sectionLayoutVariantIds?.about === 'about.fullbleed-overlay'
+    )));
+  });
+
   test('정확한 목적·업종만 추천하고 레거시 36장 ID는 TPL 랭킹을 고정하지 않는다', () => {
     assert.deepEqual(
       namedTemplatesForSurvey(interiorSurvey({ industry: 'B2B 제조업' })),

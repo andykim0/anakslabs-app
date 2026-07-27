@@ -19,6 +19,7 @@ import { SiteRenderer } from '@/components/site-renderer';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { systemHeroPreviewForCandidate } from '@/lib/assets/hero-photo-promotion';
 import { buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
+import { buildCandidateBlueprintsForPipeline } from '@/lib/data/design-candidates';
 import {
   pagePlanFromTemplate,
   planFromTemplate,
@@ -29,8 +30,14 @@ import { contrastRatio } from '@/lib/design/quality-standards';
 import { compositeScrimColor } from '@/lib/design/scrim';
 import {
   applySectionLayoutVariants,
+  heroLayoutById,
   recompileGallerySectionLayouts,
 } from '@/lib/layout';
+import {
+  withContinuousCanvasDefault,
+  withSiteCinematicDefault,
+} from '@/lib/motion/site-cinematic';
+import { applyGeneratedMotion } from '@/lib/motion/validate';
 import {
   applyCategoricalStockSupply,
 } from '@/lib/stock/application';
@@ -38,7 +45,8 @@ import { workshopStockManifest } from '@/lib/stock/manifest';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT = '/private/tmp/daboim-stock-review';
+const OUTPUT = process.env.STOCK_REVIEW_OUTPUT
+  ?? '/private/tmp/daboim-stock-body-review';
 const PUBLIC = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -193,6 +201,56 @@ function noUploadConfigs() {
   return { before, after: supplied.config, selections: supplied.selections };
 }
 
+async function namedRealisticConfig(templateId: string) {
+  const source = survey();
+  const blueprints = await buildCandidateBlueprintsForPipeline(source, {
+    fontPairingEnabled: true,
+    templateGalleryEnabled: true,
+  });
+  const blueprint = blueprints.find(
+    (candidate) => candidate.namedTemplate?.templateId === templateId,
+  );
+  if (!blueprint || blueprint.imageDirectionId !== 'realistic') {
+    throw new Error(`${templateId}: realistic recipe did not resolve`);
+  }
+  const baseCandidate: DesignCandidate = {
+    id: blueprint.id,
+    label: blueprint.label,
+    style: blueprint.style,
+    imageDirectionId: blueprint.imageDirectionId,
+    heroImageUrl: blueprint.mockHeroUrl,
+    heroPresentation: 'system',
+    theme: blueprint.theme,
+    description: blueprint.description,
+    designDna: blueprint.designDna,
+    heroLayoutVariantId: blueprint.heroLayoutVariantId,
+    sectionLayoutVariantIds: blueprint.sectionLayoutVariantIds,
+    namedTemplate: blueprint.namedTemplate,
+    recommendedMotionSignatureId: blueprint.recommendedMotionSignatureId,
+  };
+  baseCandidate.heroImageUrl = systemHeroPreviewForCandidate(baseCandidate);
+  const generated = buildZeroCostSiteConfig(source, baseCandidate);
+  const cinematic = withContinuousCanvasDefault(withSiteCinematicDefault(generated));
+  const motion = applyGeneratedMotion(
+    cinematic,
+    source.purposeId,
+    'premium',
+    {
+      intensity: 'subtle',
+      heroTechnique: 'ken-burns',
+      signatureId: blueprint.recommendedMotionSignatureId,
+    },
+    source,
+  );
+  const supplied = applyCategoricalStockSupply(motion, {
+    environment: { REALISTIC_IMAGE_SUPPLY_ENABLED: '1' },
+  });
+  return {
+    config: applyProceduralBackgroundDefaults(supplied.config),
+    selections: supplied.selections,
+  };
+}
+
 async function customerConfig(): Promise<SiteConfig> {
   const source = survey(CUSTOMER_PHOTOS);
   const base = buildZeroCostSiteConfig(source, candidate(source));
@@ -289,6 +347,7 @@ function documentFor(config: SiteConfig, mode: 'desktop' | 'mobile'): string {
     '<!doctype html><html lang="ko"><head>',
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
     '<link rel="icon" href="data:,">',
+    '<script>window.__reviewCls=0;new PerformanceObserver(function(list){list.getEntries().forEach(function(entry){if(!entry.hadRecentInput)window.__reviewCls+=entry.value})}).observe({type:"layout-shift",buffered:true})</script>',
     '<style>html,body{margin:0;width:100%;overflow-x:hidden}img{color:transparent}</style>',
     '</head><body>',
     markup,
@@ -367,11 +426,12 @@ async function capture(
   origin: string,
   input: {
     fixture: string;
-    variant: 'system-before' | 'stock-after' | 'customer-priority';
+    variant: string;
     band: 'wide' | 'compact' | 'mobile';
     width: number;
     height: number;
     gallery?: boolean;
+    requireBodyStock?: boolean;
   },
 ) {
   const page = await browser.newPage();
@@ -407,7 +467,7 @@ async function capture(
   await settle(page);
   const metrics = await page.evaluate(() => {
     const foregrounds = [...document.querySelectorAll<HTMLElement>(
-      '[data-section-type="hero"] [data-image-contrast-foreground]',
+      '[data-image-contrast-foreground]',
     )].map((frame) => {
       const text = frame.querySelector<HTMLElement>('p') ?? frame;
       const rect = text.getBoundingClientRect();
@@ -423,11 +483,71 @@ async function capture(
         fontWeight: Number.parseInt(style.fontWeight, 10) || 400,
       };
     }).filter((item) => item.width > 0 && item.height > 0);
+    const hero = document.querySelector<HTMLElement>('section[data-section-type="hero"]');
+    const heroTargets = hero
+      ? [
+          ...[...hero.querySelectorAll<HTMLElement>('[data-site-cine-hero-copy]')]
+            .map((wrapper) => wrapper.querySelector<HTMLElement>('p') ?? wrapper),
+          ...hero.querySelectorAll<HTMLElement>('.anaks-btn'),
+        ]
+      : [];
+    const heroForeground = heroTargets.map((node, index) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        id: `${index}:${(node.textContent ?? '').trim().replace(/\s+/gu, ' ')}`,
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      };
+    }).filter((item) => item.width > 0 && item.height > 0);
+    const heroOverlaps: string[] = [];
+    for (let left = 0; left < heroForeground.length; left += 1) {
+      for (let right = left + 1; right < heroForeground.length; right += 1) {
+        const a = heroForeground[left]!;
+        const b = heroForeground[right]!;
+        if (
+          Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5
+          && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5
+        ) {
+          heroOverlaps.push(`${a.id} <> ${b.id}`);
+        }
+      }
+    }
     return {
       overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth),
       stockImages: document.querySelectorAll('img[src^="/stock/pexels/"]').length,
+      bodyStockImages: document.querySelectorAll('[data-section-layout-stock-image]').length,
       credits: document.querySelectorAll('[data-stock-attribution]').length,
       pageHeight: document.documentElement.scrollHeight,
+      cls: Number((window as typeof window & { __reviewCls?: number }).__reviewCls ?? 0),
+      heroOverlaps,
+      buttonNowrapViolations: [...document.querySelectorAll<HTMLElement>('.anaks-btn')]
+        .filter((button) => getComputedStyle(button).whiteSpace !== 'nowrap')
+        .map((button) => (button.textContent ?? '').trim()),
+      bodyStockStyles: [...document.querySelectorAll<HTMLElement>(
+        '[data-section-layout-stock-scrim]',
+      )].map((scrim) => {
+        const style = getComputedStyle(scrim);
+        return {
+          opacity: style.opacity,
+          background: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          zIndex: style.zIndex,
+        };
+      }),
+      bodyStockTintStyles: [...document.querySelectorAll<HTMLElement>(
+        '[data-section-layout-stock-tint]',
+      )].map((tint) => {
+        const style = getComputedStyle(tint);
+        return {
+          opacity: style.opacity,
+          background: style.backgroundColor,
+          zIndex: style.zIndex,
+        };
+      }),
       foregrounds,
     };
   });
@@ -446,6 +566,10 @@ async function capture(
   }
   let contrastMeasurements: Array<{
     id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
     ratio: number;
     required: number;
     color: string;
@@ -459,6 +583,12 @@ async function capture(
       }
     });
     const background = await page.screenshot({ fullPage: true, type: 'png' });
+    if (process.env.STOCK_REVIEW_DEBUG_CONTRAST === '1') {
+      await writeFile(
+        path.join(OUTPUT, 'screenshots', `${input.variant}-${input.width}-contrast-background.png`),
+        background,
+      );
+    }
     const raw = await sharp(background)
       .removeAlpha()
       .raw()
@@ -494,6 +624,10 @@ async function capture(
         : 4.5;
       return {
         id: foreground.id,
+        x: Number(foreground.x.toFixed(2)),
+        y: Number(foreground.y.toFixed(2)),
+        width: Number(foreground.width.toFixed(2)),
+        height: Number(foreground.height.toFixed(2)),
         ratio: Number(minimum.toFixed(2)),
         required,
         color: textColor,
@@ -501,11 +635,23 @@ async function capture(
     });
     const failures = contrastMeasurements.filter((item) => item.ratio + 0.01 < item.required);
     if (failures.length) {
-      throw new Error(`${input.variant}/${input.width}: image text contrast ${JSON.stringify(failures)}`);
+      throw new Error(`${input.variant}/${input.width}: image text contrast ${JSON.stringify({
+        failures,
+        bodyStockStyles: metrics.bodyStockStyles,
+      })}`);
     }
   }
   await page.close();
-  if (errors.length || externalRequests.length || failedResources.length || metrics.overflow > 0) {
+  if (
+    errors.length
+    || externalRequests.length
+    || failedResources.length
+    || metrics.overflow > 0
+    || metrics.cls > 0
+    || metrics.heroOverlaps.length > 0
+    || metrics.buttonNowrapViolations.length > 0
+    || (input.requireBodyStock && metrics.bodyStockImages < 1)
+  ) {
     throw new Error(`${input.variant}/${input.width} failed: ${JSON.stringify({
       errors,
       externalRequests,
@@ -528,11 +674,16 @@ function sha(config: SiteConfig): string {
   return createHash('sha256').update(JSON.stringify(config)).digest('hex');
 }
 
+function textSha(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
+}
+
 async function main() {
   await rm(OUTPUT, { recursive: true, force: true });
   await mkdir(path.join(OUTPUT, 'fixtures'), { recursive: true });
   await mkdir(path.join(OUTPUT, 'screenshots'), { recursive: true });
   await mkdir(path.join(OUTPUT, 'assets'), { recursive: true });
+  await mkdir(path.join(OUTPUT, 'configs'), { recursive: true });
   await sharp(path.join(PUBLIC, 'cases/demos/yeobaek-workshop/still-2.webp'))
     .resize({ width: 900, height: 1400, fit: 'cover' })
     .webp({ quality: 88 })
@@ -544,11 +695,43 @@ async function main() {
 
   const noUpload = noUploadConfigs();
   const customer = await customerConfig();
+  const flagOff = applyCategoricalStockSupply(noUpload.before, {
+    environment: { REALISTIC_IMAGE_SUPPLY_ENABLED: '0' },
+  });
+  const abstractDirection = structuredClone(noUpload.before);
+  abstractDirection.meta.imageDirectionId = 'abstract_editorial';
+  const abstractResult = applyCategoricalStockSupply(abstractDirection, {
+    environment: { REALISTIC_IMAGE_SUPPLY_ENABLED: '1' },
+  });
+  const nonInterior = structuredClone(noUpload.before);
+  nonInterior.meta.industryId = 'clinic';
+  const nonInteriorResult = applyCategoricalStockSupply(nonInterior, {
+    environment: { REALISTIC_IMAGE_SUPPLY_ENABLED: '1' },
+  });
+  const namedTemplateIds = [
+    'material-grain',
+    'tactile-chapters',
+    'deep-manifesto',
+    'spatial-portfolio',
+  ] as const;
+  const named = await Promise.all(namedTemplateIds.map(async (templateId) => ({
+    id: `named-${templateId}`,
+    templateId,
+    ...await namedRealisticConfig(templateId),
+  })));
   const variants = [
     { id: 'system-before', config: noUpload.before },
     { id: 'stock-after', config: noUpload.after },
     { id: 'customer-priority', config: customer },
+    ...named.map(({ id, config }) => ({ id, config })),
   ] as const;
+  for (const item of named) {
+    await writeFile(
+      path.join(OUTPUT, 'configs', `${item.templateId}.json`),
+      `${JSON.stringify(item.config, null, 2)}\n`,
+      'utf8',
+    );
+  }
   for (const variant of variants) {
     for (const viewport of VIEWPORTS) {
       await writeFile(
@@ -587,6 +770,7 @@ async function main() {
           band: viewport.band,
           width: viewport.width,
           height: viewport.height,
+          requireBodyStock: variant.id.startsWith('named-'),
         }));
       }
     }
@@ -662,6 +846,7 @@ async function main() {
       eligibleCount: eligible.length,
       rejectedCount: manifest.assets.length - eligible.length,
       landscapeCount: eligibleLandscape.length,
+      trueWideCount: eligible.filter((asset) => asset.orientation === 'landscape-wide').length,
     },
     noUpload: {
       beforeConfigSha: sha(noUpload.before),
@@ -701,6 +886,45 @@ async function main() {
           .map(([id, frame]) => [id, { width: frame.w, height: frame.h }]),
       ),
     },
+    compatibility: {
+      sourceConfigSha: sha(noUpload.before),
+      flagOffConfigSha: sha(flagOff.config),
+      flagOffSameReference: flagOff.config === noUpload.before,
+      sourceHtmlSha: textSha(documentFor(noUpload.before, 'desktop')),
+      flagOffHtmlSha: textSha(documentFor(flagOff.config, 'desktop')),
+      abstractSameReference: abstractResult.config === abstractDirection,
+      nonInteriorSameReference: nonInteriorResult.config === nonInterior,
+    },
+    namedRealistic: named.map(({ templateId, config: namedConfig, selections }) => {
+      const sections = namedConfig.pages.flatMap((page) => page.sections);
+      return {
+        templateId,
+        configSha: sha(namedConfig),
+        fontPairingId: namedConfig.theme.fontPairing?.id ?? null,
+        sectionIds: sections.map((section) => section.id),
+        selections: selections.map((selection) => {
+          const section = sections.find((candidate) => candidate.id === selection.sectionId);
+          const scrim = section?.background.image?.adaptiveScrim?.wide;
+          return {
+            sectionId: selection.sectionId,
+            slotKey: selection.slotKey,
+            mediaRole: section?.heroLayout
+              ? heroLayoutById(section.heroLayout.requestedId).mediaContract.role
+              : section?.sectionLayout?.mediaRole ?? null,
+            providerAssetId: selection.asset.providerAssetId,
+            stockKey: selection.asset.stockKey,
+            mood: selection.asset.mood,
+            meanLuminance: selection.asset.contrastProfile?.meanLuminance ?? null,
+            overlayColor: scrim?.overlayColor ?? null,
+            overlayOpacity: scrim?.overlayOpacity ?? null,
+          };
+        }),
+        adjacentDuplicates: selections.filter((selection, index) => (
+          index > 0
+          && selection.asset.providerAssetId === selections[index - 1]!.asset.providerAssetId
+        )).length,
+      };
+    }),
     landscapeReuseProbe: {
       assignments: reusedIds.length,
       unique: uniqueIds.size,
