@@ -205,6 +205,28 @@ export async function getSharedSitePreviewByToken(
   return record;
 }
 
+/** Service-only lookup used by the first-party US demo heartbeat ingest. */
+export async function getSharedSitePreviewById(
+  id: string,
+  now = new Date(),
+): Promise<SharedSitePreviewRecord | null> {
+  let record: SharedSitePreviewRecord | null;
+  if (isMockMode()) {
+    const found = [...mockPreviews().values()].find((preview) => preview.id === id);
+    record = found ? structuredClone(found) : null;
+  } else {
+    const { data, error } = await getServiceRoleClient()
+      .from('shared_site_previews')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw new Error(`shared preview lookup failed: ${error.message}`);
+    record = data ? previewRowToRecord(data as SharedSitePreviewRow) : null;
+  }
+  if (!record || record.revokedAt || new Date(record.expiresAt) <= now) return null;
+  return record;
+}
+
 export async function revokeSharedSitePreview(id: string, now = new Date()): Promise<void> {
   if (isMockMode()) {
     for (const [hash, record] of mockPreviews()) {

@@ -3,6 +3,7 @@ import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
   DESIGNATED_CRAWL_DISCLOSURE,
   EXTERNAL_AI_PROCESSING_DISCLOSURE,
+  US_DEMO_VIEW_DISCLOSURE,
 } from '@/lib/legal/templates';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
@@ -78,6 +79,20 @@ export default function PrivacyPage() {
             <p>{DESIGNATED_CRAWL_DISCLOSURE.imageRights}</p>
             <p className="font-medium text-[#3F4651]">
               {DESIGNATED_CRAWL_DISCLOSURE.legalReview}
+            </p>
+          </div>
+        </div>
+        <div>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">
+            {US_DEMO_VIEW_DISCLOSURE.heading}
+          </h2>
+          <div className="mt-2 space-y-2">
+            <p>{US_DEMO_VIEW_DISCLOSURE.collected}</p>
+            <p>{US_DEMO_VIEW_DISCLOSURE.purpose}</p>
+            <p>{US_DEMO_VIEW_DISCLOSURE.excluded}</p>
+            <p>{US_DEMO_VIEW_DISCLOSURE.retention}</p>
+            <p className="font-medium text-[#3F4651]">
+              {US_DEMO_VIEW_DISCLOSURE.legalReview}
             </p>
           </div>
         </div>

@@ -79,6 +79,26 @@ export const DESIGNATED_CRAWL_DISCLOSURE = {
     '※ 법무 검토 대상: 공개 연락처·인물명 보관, 공유 링크 전달 위험, 원문 사진 권리 확인 절차는 정식 방침 확정 전에 검토합니다.',
 } as const;
 
+/**
+ * US-DEMO — expiring outreach-demo view measurement exception.
+ *
+ * This is a fixed interim draft for Daboim's own privacy page, not a tenant-site disclosure.
+ * Andy and legal counsel must confirm the wording before the outreach demo goes live.
+ */
+export const US_DEMO_VIEW_DISCLOSURE = {
+  heading: '미국 병원 비공개 데모 열람 측정 예외',
+  collected:
+    '14일 한시 비공개 데모에서는 열람 횟수, 열람 시각대·시간대, 활성 시간, 최대 스크롤 위치, 살펴본 구간과 기기 구분을 1차 당사자 방식으로 측정할 수 있습니다. 재방문 구분을 위해 브라우저·세션 식별자를 서버에서 다시 익명화해 저장하며, 접속 IP는 원문을 저장하지 않고 버전이 붙은 비밀키로 만든 HMAC-SHA-256 해시만 보관합니다.',
+  purpose:
+    '측정 정보는 데모 품질 점검, 관심 구간 확인, 후속 연락 시점 판단에만 사용합니다. 재방문은 강한 재관심 또는 전달 가능성 신호일 뿐 공유·구매를 확정하지 않습니다.',
+  excluded:
+    '원본 IP 주소, 브라우저 user-agent 문자열, 전체 방문 경로가 포함된 리퍼러, 환자 정보와 문의·예약 내용은 저장하지 않습니다. 제3자 분석 스크립트도 사용하지 않습니다.',
+  retention:
+    '데모 열람 행과 알림 기록은 수신 후 최대 30일 보관한 뒤 삭제합니다. 내부 품질검수와 자동화된 봇 열람은 저장 전에 제외합니다.',
+  legalReview:
+    '※ 법무 검토 전 초안: 라이브 운영 전에 미국 대상 고지 범위, HMAC 식별자 처리, 보관 기간과 이용자 권리 문구를 Andy와 법무가 최종 확인해야 합니다.',
+} as const;
+
 /** 실제 발행 config에 다보임 수신 폼이 있을 때만 개인정보 수집으로 고지한다. */
 export function siteCollectsPersonalData(config: SiteConfig): boolean {
   return config.pages.some((page) =>

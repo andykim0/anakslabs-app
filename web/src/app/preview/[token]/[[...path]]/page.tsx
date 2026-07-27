@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { TenantPageContent } from '@/components/site-renderer/TenantPageContent';
 import {
@@ -9,7 +10,10 @@ import {
 import { getSharedSitePreviewByToken } from '@/lib/crawl/repository';
 import { getCrawlArtifact } from '@/lib/crawl/repository';
 import { AiStructureDiff } from '@/components/us-demo/AiStructureDiff';
+import { DemoViewTracker } from '@/components/us-demo/DemoViewTracker';
 import { buildUsDemoStructureComparison } from '@/lib/us-demo/publish-hypothesis';
+import { DEMO_VIEW_QA_COOKIE } from '@/lib/us-demo/view-tracking-contract';
+import { isDemoQaCookieValue } from '@/lib/us-demo/view-tracking-server';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +47,9 @@ export default async function SharedImportPreviewPage({
   const structure = artifact
     ? buildUsDemoStructureComparison(artifact.artifact, preview.siteConfig).comparison
     : null;
+  const internalQa = isUsMedicalDemo
+    ? isDemoQaCookieValue((await cookies()).get(DEMO_VIEW_QA_COOKIE)?.value)
+    : false;
   const pageSlug = path.join('/');
   if (!preview.siteConfig.pages.some((page) => page.slug === pageSlug)) notFound();
   const hrefForSlug = (slug: string) => (
@@ -91,6 +98,7 @@ export default async function SharedImportPreviewPage({
           hrefForSlug={hrefForSlug}
         />
       </div>
+      {isUsMedicalDemo && !internalQa ? <DemoViewTracker slug={preview.id} /> : null}
     </div>
   );
 }
