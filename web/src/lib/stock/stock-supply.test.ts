@@ -168,7 +168,7 @@ test('customer upload always wins and the stock selector is not reached', () => 
   assert.deepEqual(result.config.assetRefs, [customerRef]);
 });
 
-test('video-scrim, gallery and about fullbleed remain outside categorical supply', () => {
+test('video-scrim and gallery reject stock while about fullbleed declares atmospheric stock', () => {
   const source = config([hero('video-hero', 'hero.video-scrim')]);
   const result = applyCategoricalStockSupply(source, { environment: ON });
   assert.equal(result.selections.length, 0);
@@ -180,7 +180,7 @@ test('video-scrim, gallery and about fullbleed remain outside categorical supply
   const about = readFileSync(path.join(ROOT, 'src/lib/layout/about-catalog.ts'), 'utf8');
   assert.match(gallery, /categoricalEligible:\s*false/u);
   assert.match(about, /about\.fullbleed-overlay[\s\S]*mediaContract:\s*atmosphericMedia/u);
-  assert.doesNotMatch(
+  assert.match(
     about.slice(about.indexOf('const atmosphericMedia'), about.indexOf('const noMedia')),
     /categorical-stock/u,
   );

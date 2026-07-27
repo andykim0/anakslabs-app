@@ -30,6 +30,9 @@ const template = (input: TemplateInput): NamedTemplate => ({
   route: { ...INTERIOR_ROUTE, recommendationRank: input.rank },
   recipe: input.recipe,
   mediaRequirement: input.mediaRequirement,
+  ...(input.additionalImageDirections
+    ? { additionalImageDirections: input.additionalImageDirections }
+    : {}),
   visualFingerprint: {
     heroComposition: input.recipe.heroLayoutId,
     informationRhythm: input.recipe.sectionLayoutIds.features!,
@@ -67,6 +70,10 @@ export const NAMED_TEMPLATE_CATALOG = [
       imageDirectionId: 'abstract_editorial',
     },
     mediaRequirement: 'system-ready',
+    additionalImageDirections: [{
+      imageDirectionId: 'realistic',
+      mediaRequirement: 'system-ready',
+    }],
   }),
   template({
     rank: 2,
@@ -254,6 +261,10 @@ export const NAMED_TEMPLATE_CATALOG = [
       imageDirectionId: 'abstract_editorial',
     },
     mediaRequirement: 'video-option',
+    additionalImageDirections: [{
+      imageDirectionId: 'realistic',
+      mediaRequirement: 'system-ready',
+    }],
   }),
   template({
     rank: 11,
@@ -274,6 +285,10 @@ export const NAMED_TEMPLATE_CATALOG = [
       imageDirectionId: 'abstract_editorial',
     },
     mediaRequirement: 'video-option',
+    additionalImageDirections: [{
+      imageDirectionId: 'realistic',
+      mediaRequirement: 'system-ready',
+    }],
   }),
   template({
     rank: 12,
@@ -440,6 +455,13 @@ export const NAMED_TEMPLATE_CATALOG = [
       imageDirectionId: 'real_photo',
     },
     mediaRequirement: 'verified-referential',
+    additionalImageDirections: [{
+      imageDirectionId: 'realistic',
+      mediaRequirement: 'system-ready',
+      // scroll-curtain은 공급 전 선택 경계에서 실미디어 2막을 요구한다.
+      // 신규 realistic 조합은 빈 슬롯을 꾸미지 않는 path-journey로 안전하게 핀한다.
+      motionSignatureId: 'path-journey',
+    }],
   }),
   template({
     rank: 20,

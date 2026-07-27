@@ -299,7 +299,7 @@ export async function buildCandidateBlueprintsForPipeline(
       const resolved = resolveNamedTemplate(template, survey);
       if (!resolved) return [];
       const brief = legacyBriefs[index % legacyBriefs.length];
-      const imageStyle = imageDirectionToLegacyCandidateStyle(template.recipe.imageDirectionId);
+      const imageStyle = imageDirectionToLegacyCandidateStyle(resolved.imageDirectionId);
       const styled: DesignBrief = {
         ...brief,
         style: { ...brief.style, candidateStyle: imageStyle },
@@ -319,7 +319,7 @@ export async function buildCandidateBlueprintsForPipeline(
         id: `tpl-${template.id}`,
         label: template.name,
         style: imageStyle,
-        imageDirectionId: template.recipe.imageDirectionId,
+        imageDirectionId: resolved.imageDirectionId,
         description: template.description,
         theme,
         heroImagePrompt: buildHeroPrompt(survey, styled, theme),

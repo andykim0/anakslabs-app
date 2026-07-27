@@ -295,13 +295,8 @@ describe('LIB2 M4 — 14종 × 3밴드 × 콘텐츠 가변 회귀', () => {
     assert.equal(atmospheric.mediaContract.role, 'atmospheric-background');
     assert.deepEqual(
       atmospheric.mediaContract.fallbackLadder,
-      ['customer-referential', 'system-atmospheric'],
+      ['customer-referential', 'categorical-stock', 'system-atmospheric'],
     );
-    assert.doesNotThrow(() => {
-      // STK may intentionally insert categorical-stock before system-atmospheric.
-      const future = ['customer-referential', 'categorical-stock', 'system-atmospheric'];
-      assert.equal(future[1], 'categorical-stock');
-    });
 
     assert.ok(GALLERY_LAYOUT_CATALOG.every((variant) => (
       variant.mediaContract.role === 'referential-figure'

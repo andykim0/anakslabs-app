@@ -19,6 +19,13 @@ export type NamedTemplateMediaRequirement =
   | 'verified-referential'
   | 'video-option';
 
+export interface NamedTemplateImageDirectionRecipe {
+  imageDirectionId: ImageDirectionId;
+  mediaRequirement: NamedTemplateMediaRequirement;
+  /** 공급 전 단계에서도 contentFit을 정직하게 만족하는 additive 모션 핀. */
+  motionSignatureId?: ActiveMotionSignatureId;
+}
+
 export interface NamedTemplateVisualFingerprint {
   heroComposition: HeroLayoutVariantId;
   informationRhythm: NonNullable<SectionLayoutSelection['features']>;
@@ -54,6 +61,8 @@ export interface NamedTemplate {
   route: NamedTemplateRoute;
   recipe: NamedTemplateRecipe;
   mediaRequirement: NamedTemplateMediaRequirement;
+  /** 기존 조합은 불변으로 두고, 손 큐레이션한 공급 방향만 additive로 연다. */
+  additionalImageDirections?: readonly NamedTemplateImageDirectionRecipe[];
   visualFingerprint: NamedTemplateVisualFingerprint;
   previewImage: string;
 }
@@ -65,4 +74,6 @@ export interface ResolvedNamedTemplate {
   heroLayoutVariantId: HeroLayoutVariantId;
   sectionLayoutVariantIds: SectionLayoutSelection;
   recommendedMotionSignatureId: ActiveMotionSignatureId;
+  imageDirectionId: ImageDirectionId;
+  mediaRequirement: NamedTemplateMediaRequirement;
 }

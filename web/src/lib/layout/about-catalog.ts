@@ -14,8 +14,8 @@ const figureMedia = {
 const atmosphericMedia = {
   role: 'atmospheric-background',
   categoricalEligible: false,
-  // About fullbleed remains authored-story atmosphere and rejects stock.
-  fallbackLadder: ['customer-referential', 'system-atmospheric'],
+  // 공급 실사는 atmosphere로만 소비한다. 고객 실제 사진이 언제나 먼저다.
+  fallbackLadder: ['customer-referential', 'categorical-stock', 'system-atmospheric'],
 } as const;
 const noMedia = {
   role: 'none',

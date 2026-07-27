@@ -8,8 +8,12 @@ import type { SiteTheme } from '@/lib/types/site';
 import { contrastRatio, relLuminance } from './quality-standards';
 
 const AA = 4.5;
-/** 브라우저 8-bit 합성·색공간 반올림 뒤에도 실픽셀 4.5를 지키는 서버 계산 여유. */
-export const IMAGE_SCRIM_AA_TARGET = 4.8;
+/**
+ * 브라우저 8-bit 합성·리사이즈 보간 뒤에도 실픽셀 4.5를 지키는 서버 계산 여유.
+ * 본문 fullbleed는 원본을 4:3·4:5로 더 크게 재표본화하므로 히어로보다 보간 오차가 컸고,
+ * 실제 3밴드 픽셀 게이트의 최악 편차를 흡수하도록 5.2에 고정한다.
+ */
+export const IMAGE_SCRIM_AA_TARGET = 5.2;
 
 /**
  * 서버가 원본 래스터에서 계산해 고정하는 채널 범위. darkest/brightest는 실제 한 픽셀이
@@ -27,6 +31,19 @@ export interface AdaptiveImageScrimResult extends ScrimResult {
   minimumContrast: number;
   /** 프로필 부재 시 black/white 최악 배경으로 fail-closed했는지 표시한다. */
   usedSourceProfile: boolean;
+}
+
+export interface AdaptiveImageScrimOptions {
+  /**
+   * 긴 본문이 사진 위에 앉는 atmospheric 슬롯은 WCAG 임계만 맞춘 투명도로는
+   * 질감이 글자와 경쟁할 수 있다. 호출부가 역할에 맞는 최소 시각 안정도를 선언한다.
+   */
+  minimumOverlayOpacity?: number;
+  /**
+   * DNA 색 세계에 사진을 흡수시키는 선호 오버레이. 이 색 자체가 목표 대비를
+   * 만족하지 못하면 기존 팔레트 스크림으로 결정적으로 강등한다.
+   */
+  preferredOverlayColor?: string;
 }
 
 function validImageContrastProfile(
@@ -105,6 +122,7 @@ function profileContrast(
 export function resolveAdaptiveImageScrim(
   palette: SiteTheme['palette'],
   profile?: ImageContrastProfile,
+  options: AdaptiveImageScrimOptions = {},
 ): AdaptiveImageScrimResult {
   const fallback = resolveScrim(palette);
   const usedSourceProfile = validImageContrastProfile(profile);
@@ -116,15 +134,22 @@ export function resolveAdaptiveImageScrim(
         brightestColor: '#ffffff',
         meanLuminance: 0.5,
       };
-  const overlayColor = contrastRatio(fallback.textColor, fallback.overlayColor)
+  const preferredOverlayColor = options.preferredOverlayColor;
+  const overlayColor = preferredOverlayColor
+    && contrastRatio(fallback.textColor, preferredOverlayColor) >= IMAGE_SCRIM_AA_TARGET
+    ? preferredOverlayColor
+    : contrastRatio(fallback.textColor, fallback.overlayColor)
     >= IMAGE_SCRIM_AA_TARGET
     ? fallback.overlayColor
     : contrastRatio(fallback.textColor, '#ffffff')
       >= contrastRatio(fallback.textColor, '#000000')
       ? '#ffffff'
       : '#000000';
+  const minimumStep = Math.ceil(
+    Math.max(0, Math.min(1, options.minimumOverlayOpacity ?? 0)) * 100,
+  );
 
-  for (let step = 0; step <= 100; step += 1) {
+  for (let step = minimumStep; step <= 100; step += 1) {
     const opacity = step / 100;
     const minimumContrast = profileContrast(
       effectiveProfile,

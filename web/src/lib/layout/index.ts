@@ -12,6 +12,7 @@ export * from './flags';
 export * from './gallery-catalog';
 export * from './gallery-layout-resolver';
 export * from './hero-layout-resolver';
+export * from './media-contract';
 export * from './section-layout-types';
 export * from './section-layout-application';
 export * from './selection';

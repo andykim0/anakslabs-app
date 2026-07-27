@@ -6,6 +6,7 @@
  * SurveyInput fields. Section.elements remain untouched as the editor/static fallback.
  */
 import { buildNarrativeArc } from '@/lib/data/narrative-arc';
+import { acceptsAtmosphericCategoricalStock } from '@/lib/layout/media-contract';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type {
@@ -350,7 +351,20 @@ function buildMosaic(
 
 function buildJourney(config: SiteConfig, survey: SurveyInput): MotionScene | null {
   const page = homePage(config);
-  const section = page && targetSection(page, ['about', 'features', 'custom', 'faq']);
+  // A realistic named template may give an about section a layout-owned atmospheric
+  // backdrop. Path Journey does not render SectionLayoutProjectionRenderer, so using
+  // that same section as its scene source would silently discard the honest stock
+  // atmosphere. This exclusion is limited to the new realistic recipe path; legacy
+  // and non-stock scene selection remains byte-identical.
+  const section = page && (
+    survey.imageDirectionId === 'realistic'
+      ? page.sections.find((candidate) => (
+          !candidate.hidden
+          && ['about', 'features', 'custom', 'faq'].includes(candidate.type)
+          && !acceptsAtmosphericCategoricalStock(candidate)
+        ))
+      : targetSection(page, ['about', 'features', 'custom', 'faq'])
+  );
   if (!page || !section) return null;
   const structured = survey.contentItems
     ?.filter((item) => item.name.trim() && Boolean(item.description?.trim()))

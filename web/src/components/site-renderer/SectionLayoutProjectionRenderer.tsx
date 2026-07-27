@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { Section, SiteTheme } from '@/lib/types/site';
+import { safeMediaSrc } from '@/lib/safe-url';
+import { isCategoricalStockUrl } from '@/lib/stock/application';
 import type {
   SectionLayoutBandProjection,
   SectionLayoutCompiledFrame,
@@ -17,6 +19,7 @@ import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { ElementContent } from './ElementContent';
 import { cqw } from './scale';
 import { ProceduralBackground } from './ProceduralBackground';
+import { StockAttributionCredit } from './StockAttributionCredit';
 
 const SECTION_LAYOUT_CSS = `
 [data-section-layout-stage]{container-type:inline-size;position:relative;overflow:hidden}
@@ -28,10 +31,19 @@ const SECTION_LAYOUT_CSS = `
 [data-section-layout-control]{display:inline-flex;align-items:center;justify-content:center;min-width:2.75rem;min-height:2.75rem;border:1px solid currentColor;border-radius:999px;background:transparent;color:inherit;font:inherit;cursor:pointer}
 [data-section-layout-atmosphere]{position:absolute;inset:0;background:radial-gradient(circle at 18% 24%,var(--section-layout-accent),transparent 44%),linear-gradient(145deg,var(--section-layout-surface),var(--section-layout-background));opacity:.82}
 [data-section-layout-atmosphere-scrim]{position:absolute;inset:0;background:linear-gradient(90deg,var(--section-layout-scrim),transparent 72%);opacity:.52}
+[data-section-layout-stock-tint],
+[data-section-layout-stock-scrim]{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+[data-section-layout-stock-tint]{z-index:1;background:var(--section-layout-stock-scrim);opacity:var(--section-layout-stock-tint-opacity)}
+[data-section-layout-stock-scrim]{z-index:1;opacity:var(--section-layout-stock-opacity)}
+[data-section-layout-stock-scrim][data-section-layout-stock-text-zone="left"]{background:linear-gradient(90deg,var(--section-layout-stock-scrim) 0%,var(--section-layout-stock-scrim) 48%,transparent 78%)}
+[data-section-layout-stock-scrim][data-section-layout-stock-text-zone="right"]{background:linear-gradient(270deg,var(--section-layout-stock-scrim) 0%,var(--section-layout-stock-scrim) 48%,transparent 78%)}
+[data-section-layout-stock-scrim][data-section-layout-stock-text-zone="center"]{background:linear-gradient(90deg,transparent 4%,var(--section-layout-stock-scrim) 26%,var(--section-layout-stock-scrim) 74%,transparent 96%)}
 @media(max-width:767.98px){
   [data-section-layout-stage]{height:var(--section-layout-height-mobile)!important}
   [data-section-layout-frame]{left:var(--section-layout-x-mobile);top:var(--section-layout-y-mobile);width:var(--section-layout-w-mobile);height:var(--section-layout-h-mobile)}
   [data-section-layout-stage][data-layout-carousel-enhanced] [data-section-layout-frame]{left:var(--section-layout-enhanced-x-mobile);top:var(--section-layout-enhanced-y-mobile);width:var(--section-layout-enhanced-w-mobile);height:var(--section-layout-enhanced-h-mobile)}
+  [data-section-layout-stock-tint]{opacity:var(--section-layout-stock-tint-opacity-mobile)}
+  [data-section-layout-stock-scrim][data-section-layout-stock-text-zone]{background:var(--section-layout-stock-scrim-mobile);opacity:var(--section-layout-stock-opacity-mobile)}
 }
 @media(prefers-reduced-motion:reduce){
   [data-section-layout-stage][data-layout-carousel-enhanced]{height:var(--section-layout-height)!important}
@@ -117,6 +129,23 @@ function itemIndexFor(projection: SectionLayoutProjection, elementId: string): n
   return index >= 0 ? index : undefined;
 }
 
+function stockTextZone(
+  section: Section,
+  band: SectionLayoutBandProjection,
+): 'left' | 'center' | 'right' {
+  const frames = section.elements
+    .filter((element) => element.kind === 'text')
+    .map((element) => frameFor(section.sectionLayout!, band, element.id))
+    .filter((frame): frame is SectionLayoutCompiledFrame => Boolean(frame));
+  if (frames.length === 0) return 'center';
+  const left = Math.min(...frames.map((frame) => frame.x));
+  const right = Math.max(...frames.map((frame) => frame.x + frame.w));
+  const centerRatio = ((left + right) / 2) / band.width;
+  if (centerRatio <= 0.42) return 'left';
+  if (centerRatio >= 0.58) return 'right';
+  return 'center';
+}
+
 interface SectionLayoutProjectionRendererProps {
   section: Section;
   theme: SiteTheme;
@@ -143,6 +172,14 @@ export function SectionLayoutProjectionRenderer({
   const mobilePrimary = projection.bands.mobile;
   const mobileFallback = fallback.mobile;
   const scrim = resolveScrim(theme.palette);
+  const adaptiveScrim = section.background.image?.adaptiveScrim;
+  const atmosphericStock = projection.mediaRole === 'atmospheric-background'
+    && adaptiveScrim?.source === 'licensed-stock'
+    && isCategoricalStockUrl(section.background.image?.src);
+  const responsiveScrim = variant === 'canvas'
+    ? adaptiveScrim?.wide
+    : adaptiveScrim?.compact;
+  const responsiveStockTextZone = stockTextZone(section, primaryBand);
   const stageVariables = {
     '--section-layout-height': variant === 'canvas'
       ? cqw(fallbackBand.sectionHeight)
@@ -154,6 +191,20 @@ export function SectionLayoutProjectionRenderer({
     '--section-layout-surface': theme.palette.surface,
     '--section-layout-background': theme.palette.background,
     '--section-layout-scrim': scrim.overlayColor,
+    ...(atmosphericStock && responsiveScrim && adaptiveScrim
+      ? {
+          '--section-layout-stock-scrim': responsiveScrim.overlayColor,
+          '--section-layout-stock-opacity': String(responsiveScrim.overlayOpacity),
+          '--section-layout-stock-scrim-mobile': adaptiveScrim.mobile.overlayColor,
+          '--section-layout-stock-opacity-mobile': String(adaptiveScrim.mobile.overlayOpacity),
+          '--section-layout-stock-tint-opacity': String(
+            Math.max(0.24, Math.min(0.38, responsiveScrim.overlayOpacity * 0.42)),
+          ),
+          '--section-layout-stock-tint-opacity-mobile': String(
+            Math.max(0.2, Math.min(0.3, adaptiveScrim.mobile.overlayOpacity * 0.32)),
+          ),
+        }
+      : {}),
     ...(projection.groups?.length
       ? {
           '--section-layout-border': theme.tokens?.color.border ?? theme.palette.muted,
@@ -185,7 +236,41 @@ export function SectionLayoutProjectionRenderer({
       {projection.groups?.length
         ? <style dangerouslySetInnerHTML={{ __html: LIB3_GROUP_CSS }} />
         : null}
-      {atmospheric ? (
+      {atmosphericStock && adaptiveScrim ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            aria-hidden
+            data-section-layout-stock-image
+            src={safeMediaSrc(section.background.image?.src)}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: '50% 50%',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            aria-hidden
+            data-section-layout-stock-tint
+          />
+          <div
+            aria-hidden
+            data-section-layout-stock-scrim
+            data-section-layout-stock-text-zone={responsiveStockTextZone}
+            data-section-layout-adaptive-scrim={variant === 'canvas' ? 'wide' : 'responsive'}
+            data-minimum-contrast={responsiveScrim?.minimumContrast.toFixed(2)}
+            data-minimum-contrast-mobile={adaptiveScrim.mobile.minimumContrast.toFixed(2)}
+          />
+        </>
+      ) : atmospheric ? (
         section.proceduralBackground ? (
           <ProceduralBackground
             spec={section.proceduralBackground}
@@ -233,6 +318,7 @@ export function SectionLayoutProjectionRenderer({
         const itemIndex = itemIndexFor(projection, element.id);
         const isAtmosphericMedia = atmospheric
           && projection.items.some((item) => item.mediaElementId === element.id);
+        if (atmosphericStock && isAtmosphericMedia) return null;
         const isLayoutBackdrop = projection.kind === 'directions'
           && projection.resolvedId === 'directions.full-map-overlay'
           && element.kind === 'map';
@@ -243,6 +329,19 @@ export function SectionLayoutProjectionRenderer({
           : fontSize != null && mobileFontSize != null
             ? `clamp(${mobileFontSize}px,${bandLength(fontSize, 768)},${fontSize}px)`
             : undefined;
+        // The adaptive scrim is solved against the semantic text token. Accent-colored
+        // kickers can fall below AA on real photographs even when the main copy passes,
+        // so every text foreground in this new atmospheric-stock path consumes the same
+        // contrast-safe token. Non-stock and persisted legacy markup remain untouched.
+        const renderedElement = atmosphericStock && element.kind === 'text'
+          ? {
+              ...element,
+              style: {
+                ...element.style,
+                color: theme.palette.text,
+              },
+            }
+          : element;
         const frameVariables = variant === 'canvas'
           ? canvasFrameVariables(fallbackFrame, primaryFrame)
           : stackFrameVariables(
@@ -261,18 +360,21 @@ export function SectionLayoutProjectionRenderer({
             {...(motion === 'reveal' && plan
               ? { 'data-m-delay': String(revealDelayFor(plan, section.id, element.id)) }
               : {})}
+            {...(atmosphericStock && element.kind === 'text'
+              ? { 'data-image-contrast-foreground': element.id }
+              : {})}
             style={{
               ...frameVariables,
               zIndex: isAtmosphericMedia || isLayoutBackdrop ? 0 : Math.max(2, element.z),
               opacity: element.opacity,
               transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
               textShadow: atmospheric && element.kind === 'text'
-                ? `0 1px 2px ${scrim.overlayColor}`
+                ? `0 1px 2px ${responsiveScrim?.overlayColor ?? scrim.overlayColor}`
                 : undefined,
             }}
           >
             <ElementContent
-              element={element}
+              element={renderedElement}
               theme={theme}
               variant={variant}
               eager={isFirst}
@@ -292,6 +394,9 @@ export function SectionLayoutProjectionRenderer({
           <button type="button" data-section-layout-control data-carousel-step="1" aria-label="다음 사진">→</button>
         </div>
       ) : null}
+      {atmosphericStock
+        ? <StockAttributionCredit source={section.background.image?.src} />
+        : null}
     </section>
   );
 }

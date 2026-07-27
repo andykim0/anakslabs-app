@@ -25,9 +25,7 @@ import type {
   SiteConfig,
 } from '@/lib/types/site';
 import { contrastRatio } from '@/lib/design/quality-standards';
-import { heroLayoutById } from '@/lib/layout/catalog';
-import { featureLayoutById } from '@/lib/layout/feature-catalog';
-import { aboutLayoutById } from '@/lib/layout/about-catalog';
+import { mediaContractForSection } from '@/lib/layout/media-contract';
 
 export const SITE_ASSET_POLICY_PHASES = [
   'generation',
@@ -463,8 +461,7 @@ function effectivePolicy(
   if (record?.origin === 'licensed_stock' && config.meta.industryId === 'interior') {
     if (slot.target.kind === 'background-image') {
       const section = config.pages[slot.target.pageIndex]?.sections[slot.target.sectionIndex];
-      const resolvedId = section?.type === 'hero' ? section.heroLayout?.resolvedId : undefined;
-      const contract = resolvedId ? heroLayoutById(resolvedId)?.mediaContract : undefined;
+      const contract = section ? mediaContractForSection(section)?.contract : undefined;
       if (
         contract?.role === 'atmospheric-background'
         && contract.fallbackLadder.includes('categorical-stock')
@@ -472,30 +469,21 @@ function effectivePolicy(
         return policy('brand_atmosphere', 'abstract');
       }
       if (
-        contract?.role === 'referential-figure'
+        section?.type === 'hero'
+        && contract?.role === 'referential-figure'
         && contract.categoricalEligible
         && contract.fallbackLadder.includes('categorical-stock')
       ) {
         return policy('decorative_art', 'abstract');
+      }
+      // 본문 licensed stock은 카탈로그가 atmosphere로 선언한 배경 슬롯만 허용한다.
+      // figure/gallery 등 고객 사실을 암시하는 위치로 위조된 ref는 fail-closed다.
+      if (section?.type !== 'hero') {
+        return policy('actual_ambiguous', 'place');
       }
     }
     if (slot.target.kind === 'element') {
-      const section = config.pages[slot.target.pageIndex]?.sections[slot.target.sectionIndex];
-      const resolvedId = section?.sectionLayout?.resolvedId;
-      const contract = section?.type === 'hero' && section.heroLayout?.resolvedId
-        ? heroLayoutById(section.heroLayout.resolvedId)?.mediaContract
-        : section?.type === 'features' && resolvedId?.startsWith('features.')
-          ? featureLayoutById(resolvedId as Parameters<typeof featureLayoutById>[0]).mediaContract
-          : section?.type === 'about' && resolvedId?.startsWith('about.')
-            ? aboutLayoutById(resolvedId as Parameters<typeof aboutLayoutById>[0]).mediaContract
-            : undefined;
-      if (
-        contract?.role === 'referential-figure'
-        && contract.categoricalEligible
-        && contract.fallbackLadder.includes('categorical-stock')
-      ) {
-        return policy('decorative_art', 'abstract');
-      }
+      return policy('actual_ambiguous', 'place');
     }
   }
   if (slot.target.kind === 'background-image') {

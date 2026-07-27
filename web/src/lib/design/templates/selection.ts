@@ -13,6 +13,7 @@ import { rankDesignDnaForSurvey } from '@/lib/design/dna';
 import { NAMED_TEMPLATE_CATALOG, namedTemplateById } from './catalog';
 import type {
   NamedTemplate,
+  NamedTemplateImageDirectionRecipe,
   NamedTemplateSelection,
   ResolvedNamedTemplate,
 } from './types';
@@ -25,9 +26,25 @@ function exactRouteMatches(template: NamedTemplate, survey: SurveyInput): boolea
     && template.route.exactIndustryIds.includes(survey.industry);
 }
 
+function imageDirectionRecipeForSurvey(
+  template: NamedTemplate,
+  survey: SurveyInput,
+): NamedTemplateImageDirectionRecipe | undefined {
+  if (template.recipe.imageDirectionId === survey.imageDirectionId) {
+    return {
+      imageDirectionId: template.recipe.imageDirectionId,
+      mediaRequirement: template.mediaRequirement,
+    };
+  }
+  return template.additionalImageDirections?.find(
+    (recipe) => recipe.imageDirectionId === survey.imageDirectionId,
+  );
+}
+
 function mediaRequirementMatches(template: NamedTemplate, survey: SurveyInput): boolean {
-  if (template.recipe.imageDirectionId !== survey.imageDirectionId) return false;
-  if (template.mediaRequirement !== 'verified-referential') return true;
+  const recipe = imageDirectionRecipeForSurvey(template, survey);
+  if (!recipe) return false;
+  if (recipe.mediaRequirement !== 'verified-referential') return true;
   return Boolean(
     survey.generalAssetAttestationId
     && survey.heroPhotoAssetRef?.assetId
@@ -61,7 +78,9 @@ function layoutContractMatches(template: NamedTemplate, survey: SurveyInput): bo
 
 function motionContractMatches(template: NamedTemplate, survey: SurveyInput): boolean {
   const context = motionContextFromSurvey(survey, 'premium');
-  return canUseMotionSignature(template.recipe.motionSignatureId, context).allowed;
+  const signatureId = imageDirectionRecipeForSurvey(template, survey)?.motionSignatureId
+    ?? template.recipe.motionSignatureId;
+  return canUseMotionSignature(signatureId, context).allowed;
 }
 
 function compatibilityMatches(template: NamedTemplate, survey: SurveyInput): boolean {
@@ -145,6 +164,8 @@ export function resolveNamedTemplate(
   survey: SurveyInput,
 ): ResolvedNamedTemplate | null {
   if (!compatibilityMatches(template, survey)) return null;
+  const imageRecipe = imageDirectionRecipeForSurvey(template, survey);
+  if (!imageRecipe) return null;
   const allowed = allowedSectionLayoutsForCandidate(survey, {
     designDnaId: template.recipe.designDna.dnaId,
     availability: sectionLayoutAvailabilityForSurvey(survey),
@@ -161,7 +182,10 @@ export function resolveNamedTemplate(
     designDna: resolvedDesignDna(template, survey),
     heroLayoutVariantId: template.recipe.heroLayoutId,
     sectionLayoutVariantIds,
-    recommendedMotionSignatureId: template.recipe.motionSignatureId,
+    recommendedMotionSignatureId: imageRecipe.motionSignatureId
+      ?? template.recipe.motionSignatureId,
+    imageDirectionId: imageRecipe.imageDirectionId,
+    mediaRequirement: imageRecipe.mediaRequirement,
   };
 }
 
@@ -191,7 +215,7 @@ export function candidateMatchesNamedTemplate(
   const resolved = validateNamedTemplateSelection(candidate.namedTemplate, survey);
   return Boolean(
     resolved
-    && candidate.imageDirectionId === resolved.template.recipe.imageDirectionId
+    && candidate.imageDirectionId === resolved.imageDirectionId
     && sameJson(candidate.designDna, resolved.designDna)
     && candidate.heroLayoutVariantId === resolved.heroLayoutVariantId
     && sameJson(candidate.sectionLayoutVariantIds ?? {}, resolved.sectionLayoutVariantIds)
