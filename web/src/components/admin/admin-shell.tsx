@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   FilePenLine,
   LayoutDashboard,
+  Newspaper,
   ReceiptText,
   SearchCheck,
   Server,
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: '/admin/video-queue', label: '영상 이행', icon: Clapperboard, exact: false },
   { href: '/admin/subscriptions', label: '구독·리포트', icon: ReceiptText, exact: false },
   { href: '/admin/edit-queue', label: '수정 대행', icon: FilePenLine, exact: false },
+  { href: '/admin/content-queue', label: '콘텐츠 승인', icon: Newspaper, exact: false },
   { href: '/admin/search-registration', label: '검색 등록', icon: SearchCheck, exact: false },
   { href: '/admin/infra', label: '인프라', icon: Server, exact: false },
 ] as const;

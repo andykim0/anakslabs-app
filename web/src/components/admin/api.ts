@@ -21,6 +21,9 @@
  *  - POST  /api/admin/video-queue/:siteId/complete body { videoAssetId } → idempotent completion
  *  - GET   /api/admin/edit-queue              → AdminEditQueueResponse
  *  - POST  /api/admin/edit-queue/:id/complete → 초안·발행본 적용과 상태 전환을 원자적으로 완료
+ *  - GET   /api/admin/content-queue           → AdminContentQueueResponse
+ *  - POST  /api/admin/content-queue/:id/generate|regenerate|reject|approve
+ *                                               → immutable 버전 생성·원자적 승인 발행
  */
 import type {
   Client,
@@ -328,6 +331,44 @@ export interface AdminEditQueueResponse {
   integrity: AdminFulfillmentQueueIntegrity;
 }
 
+export type AdminContentQueueStatus =
+  | 'draft'
+  | 'generating'
+  | 'pending_approval'
+  | 'rejected';
+
+export interface AdminContentQueueVersion {
+  id: string;
+  versionNumber: number;
+  title: string;
+  summary: string;
+  tags: string[];
+  sourceRefs: string[];
+  policyVersions: Record<string, unknown>;
+  generationMetadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface AdminContentQueueItem {
+  id: string;
+  clientId: string;
+  siteId: string;
+  pricingModelVersion: string;
+  periodMonth: string;
+  ordinal: number;
+  slug: string;
+  status: AdminContentQueueStatus;
+  currentVersionId: string | null;
+  currentVersion: AdminContentQueueVersion | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminContentQueueResponse {
+  items: AdminContentQueueItem[];
+  integrity: AdminFulfillmentQueueIntegrity;
+}
+
 // ---------- fetch 헬퍼 ----------
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -535,6 +576,49 @@ export function completeAdminEditRequest(
     {
       method: 'POST',
       body: JSON.stringify({ siteAppliedConfirmed: true }),
+    },
+  );
+}
+
+export function getAdminContentQueue(): Promise<AdminContentQueueResponse> {
+  return fetchJson<AdminContentQueueResponse>('/api/admin/content-queue');
+}
+
+export function generateAdminContent(
+  id: string,
+  topic: string,
+  regeneration = false,
+): Promise<{ ok: true; item: AdminContentQueueItem }> {
+  const action = regeneration ? 'regenerate' : 'generate';
+  return fetchJson<{ ok: true; item: AdminContentQueueItem }>(
+    `/api/admin/content-queue/${encodeURIComponent(id)}/${action}`,
+    { method: 'POST', body: JSON.stringify({ topic }) },
+  );
+}
+
+export function rejectAdminContent(
+  id: string,
+  expectedVersionId: string,
+  reason: string,
+): Promise<{ ok: true; duplicated: boolean }> {
+  return fetchJson<{ ok: true; duplicated: boolean }>(
+    `/api/admin/content-queue/${encodeURIComponent(id)}/reject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ expectedVersionId, reason }),
+    },
+  );
+}
+
+export function approveAdminContent(
+  id: string,
+  expectedVersionId: string,
+): Promise<{ ok: true; duplicated: boolean }> {
+  return fetchJson<{ ok: true; duplicated: boolean }>(
+    `/api/admin/content-queue/${encodeURIComponent(id)}/approve`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ expectedVersionId, approvalConfirmed: true }),
     },
   );
 }
