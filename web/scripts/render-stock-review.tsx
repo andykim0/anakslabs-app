@@ -651,6 +651,7 @@ async function capture(
     || metrics.heroOverlaps.length > 0
     || metrics.buttonNowrapViolations.length > 0
     || (input.requireBodyStock && metrics.bodyStockImages < 1)
+    || metrics.visibleStockCredits > 0
   ) {
     throw new Error(`${input.variant}/${input.width} failed: ${JSON.stringify({
       errors,

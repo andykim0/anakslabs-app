@@ -340,6 +340,10 @@ test('body stock renderer emits a lazy local backdrop and adaptive AA marks with
     assert.match(html, /data-section-layout-stock-scrim/u);
     assert.match(html, /data-section-layout-stock-text-zone="left"/u);
     assert.match(html, /linear-gradient\(90deg,var\(--section-layout-stock-scrim\)/u);
+    assert.match(html, /--section-layout-stock-tint-opacity:0\.1404/u);
+    assert.match(html, /--section-layout-stock-tint-opacity-mobile:0\.1092/u);
+    assert.match(html, /--section-layout-stock-opacity:0\.78/u);
+    assert.match(html, /--section-layout-stock-opacity-mobile:0\.78/u);
     assert.match(html, /data-section-layout-adaptive-scrim/u);
     assert.match(html, /data-image-contrast-foreground/u);
     assert.doesNotMatch(html, /color:#694f38/u);
