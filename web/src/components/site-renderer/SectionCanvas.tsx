@@ -33,7 +33,6 @@ import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 import { ProceduralBackground } from './ProceduralBackground';
-import { StockAttributionCredit } from './StockAttributionCredit';
 
 interface SectionCanvasProps {
   section: Section;
@@ -404,7 +403,6 @@ function StandardSection({
           </div>
         );
       })}
-      <StockAttributionCredit source={bg.image?.src} />
     </section>
   );
 }

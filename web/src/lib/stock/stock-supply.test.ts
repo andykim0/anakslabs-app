@@ -321,7 +321,7 @@ test('body atmospheric customer image wins while the independent hero may still 
   );
 });
 
-test('body stock renderer emits a lazy local backdrop, adaptive AA marks and Pexels credit', () => {
+test('body stock renderer emits a lazy local backdrop and adaptive AA marks without visible stock credit', () => {
   const supplied = applyCategoricalStockSupply(
     config([about('about-home')]),
     { environment: ON },
@@ -344,7 +344,7 @@ test('body stock renderer emits a lazy local backdrop, adaptive AA marks and Pex
     assert.match(html, /data-image-contrast-foreground/u);
     assert.doesNotMatch(html, /color:#694f38/u);
     assert.match(html, /color:#211d18/u);
-    assert.match(html, /data-stock-attribution="stk\.workshop\./u);
+    assert.doesNotMatch(html, /data-stock-attribution|Photo by|on Pexels/u);
     assert.doesNotMatch(html, /src="\/mock\/candidate-light\.svg"/u);
   }
 });
@@ -411,19 +411,19 @@ test('licensed stock receives decorative or atmospheric policy without customer 
   assert.equal(result.assetUsages[0]?.role, 'atmospheric');
 });
 
-test('stock credit is local, static-export readable and links to official Pexels records', () => {
+test('stock provenance stays server-owned while public rendering omits optional Pexels credit', () => {
   const supplied = applyCategoricalStockSupply(config(), { environment: ON }).config;
   const section = supplied.pages[0]!.sections[0]!;
+  const stockRef = supplied.assetRefs?.find((ref) => ref.attribution?.provider === 'pexels');
   const html = renderToStaticMarkup(createElement(SectionCanvas, {
     section,
     theme,
     isFirst: true,
     interactive: false,
   }));
-  assert.match(html, /data-stock-attribution="stk\.workshop\./u);
-  assert.match(html, /Photo by/u);
-  assert.match(html, /https:\/\/www\.pexels\.com\/photo\//u);
-  assert.match(html, /target="_blank"/u);
+  assert.equal(stockRef?.attribution?.provider, 'pexels');
+  assert.match(stockRef?.attribution?.licenseUrl ?? '', /pexels\.com\/license/u);
+  assert.doesNotMatch(html, /data-stock-attribution|Photo by|on Pexels|pexels\.com\/photo/u);
   assert.doesNotMatch(html, /<script[^>]+pexels/iu);
   assert.match(html, /data-adaptive-image-scrim="wide"/u);
   assert.match(html, /data-minimum-contrast="4\.[5-9]|data-minimum-contrast="[5-9]/u);
@@ -635,7 +635,7 @@ test('customer raster dimensions drive masonry ratios without permitting stock i
   );
 });
 
-test('production renderer keeps stock local and credits it without a paid generation path', () => {
+test('production renderer keeps stock local and omits optional credit without a paid generation path', () => {
   const supplied = applyCategoricalStockSupply(config(), { environment: ON }).config;
   const html = renderToStaticMarkup(createElement(SiteRenderer, {
     config: supplied,
@@ -643,7 +643,7 @@ test('production renderer keeps stock local and credits it without a paid genera
     interactive: false,
     animate: false,
   }));
-  assert.match(html, /data-stock-attribution="stk\.workshop\./u);
+  assert.doesNotMatch(html, /data-stock-attribution|Photo by|on Pexels/u);
   assert.match(html, /src="\/stock\/pexels\/interior-materials\//u);
   assert.doesNotMatch(html, /api\.pexels\.com|PEXELS_API_KEY|credit(?:s)?[_-](?:debit|deduct)/iu);
 });

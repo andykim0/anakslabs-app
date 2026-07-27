@@ -19,7 +19,6 @@ import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
 import { ElementContent } from './ElementContent';
 import { cqw } from './scale';
 import { ProceduralBackground } from './ProceduralBackground';
-import { StockAttributionCredit } from './StockAttributionCredit';
 
 const SECTION_LAYOUT_CSS = `
 [data-section-layout-stage]{container-type:inline-size;position:relative;overflow:hidden}
@@ -394,9 +393,6 @@ export function SectionLayoutProjectionRenderer({
           <button type="button" data-section-layout-control data-carousel-step="1" aria-label="다음 사진">→</button>
         </div>
       ) : null}
-      {atmosphericStock
-        ? <StockAttributionCredit source={section.background.image?.src} />
-        : null}
     </section>
   );
 }

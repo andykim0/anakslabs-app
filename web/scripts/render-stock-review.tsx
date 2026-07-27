@@ -520,7 +520,7 @@ async function capture(
       overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth),
       stockImages: document.querySelectorAll('img[src^="/stock/pexels/"]').length,
       bodyStockImages: document.querySelectorAll('[data-section-layout-stock-image]').length,
-      credits: document.querySelectorAll('[data-stock-attribution]').length,
+      visibleStockCredits: document.querySelectorAll('[data-stock-attribution]').length,
       pageHeight: document.documentElement.scrollHeight,
       cls: Number((window as typeof window & { __reviewCls?: number }).__reviewCls ?? 0),
       heroOverlaps,
