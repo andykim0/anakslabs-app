@@ -6,6 +6,7 @@ import {
   crawlDesignatedSite as crawlDesignatedSiteCore,
   type CrawlDependencies,
 } from './crawler-core';
+import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
 
 export {
   CrawlError,
@@ -14,7 +15,11 @@ export {
 } from './crawler-core';
 
 export function crawlDesignatedSite(
-  input: { url: string; allowTlsHttpFallback?: boolean },
+  input: {
+    url: string;
+    allowTlsHttpFallback?: boolean;
+    scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
+  },
   dependencies: CrawlDependencies = {},
 ) {
   return crawlDesignatedSiteCore(input, {

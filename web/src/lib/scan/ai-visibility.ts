@@ -102,6 +102,58 @@ export interface AiVisibilitySnapshot {
   score: number;
 }
 
+/**
+ * Persistable sales-diff projection. Public names, phone numbers, addresses and URLs stay in the
+ * short-lived crawl artifact source blocks, never in this diagnostic summary.
+ */
+export interface AiVisibilitySummary {
+  profileId: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
+  source: AiVisibilitySource;
+  framing: typeof AI_VISIBILITY_SERVER_HTML_LABEL;
+  schema: AiVisibilitySnapshot['schema'];
+  entity: Pick<
+    AiVisibilitySnapshot['entity'],
+    | 'identityNodeCount'
+    | 'providerCount'
+    | 'visiblePhoneDetected'
+    | 'visibleAddressDetected'
+  > & { specialtyCount: number };
+  evidence: AiVisibilitySnapshot['evidence'];
+  answerExtraction: AiVisibilitySnapshot['answerExtraction'];
+  access: AiVisibilitySnapshot['access'];
+  technicalBaseline: AiVisibilitySnapshot['technicalBaseline'];
+  signals: AiVisibilitySnapshot['signals'];
+  groups: AiVisibilitySnapshot['groups'];
+  score: number;
+}
+
+export function summarizeAiVisibilitySnapshot(
+  snapshot: AiVisibilitySnapshot,
+): AiVisibilitySummary {
+  return {
+    profileId: snapshot.profileId,
+    source: snapshot.source,
+    framing: snapshot.framing,
+    schema: { ...snapshot.schema, types: [...snapshot.schema.types] },
+    entity: {
+      identityNodeCount: snapshot.entity.identityNodeCount,
+      providerCount: snapshot.entity.providerCount,
+      specialtyCount: snapshot.entity.specialties.length,
+      visiblePhoneDetected: snapshot.entity.visiblePhoneDetected,
+      visibleAddressDetected: snapshot.entity.visibleAddressDetected,
+    },
+    evidence: { ...snapshot.evidence },
+    answerExtraction: { ...snapshot.answerExtraction },
+    access: { ...snapshot.access },
+    technicalBaseline: { ...snapshot.technicalBaseline },
+    signals: snapshot.signals.map((signal) => ({ ...signal })),
+    groups: Object.fromEntries(
+      Object.entries(snapshot.groups).map(([group, score]) => [group, { ...score }]),
+    ) as AiVisibilitySummary['groups'],
+    score: snapshot.score,
+  };
+}
+
 export interface HtmlRuleContextInput {
   html: string;
   url: string;

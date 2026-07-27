@@ -1,6 +1,8 @@
 import type { StructuredImportFacts } from '@/lib/import/extract';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 import type { SiteConfig } from '@/lib/types/site';
+import type { AiVisibilitySummary } from '@/lib/scan/ai-visibility';
+import type { ScanProfileId } from '@/lib/scan/rules';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
 export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
@@ -64,6 +66,8 @@ export interface CrawlPageArtifact {
   structured: StructuredImportFacts;
   images: CrawlImageCandidate[];
   connectors: CrawlConnectorCandidate[];
+  /** US outreach crawl only: minimized signal projection computed while source HTML is in memory. */
+  aiVisibilitySummary?: AiVisibilitySummary;
   decay: DecayScoreResult;
 }
 
@@ -92,6 +96,8 @@ export interface CrawlArtifactPayload {
   seedUrl: string;
   finalOrigin: string;
   observedAt: string;
+  /** Additive profile marker. Omission preserves the existing designated-crawl artifact bytes. */
+  scanProfileId?: ScanProfileId;
   tls: CrawlTlsObservation;
   robots: CrawlRobotsObservation;
   pages: CrawlPageArtifact[];

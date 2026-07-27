@@ -86,6 +86,9 @@ export function buildDocumentShell(input: DocumentShellInput): string {
   const page = findPage(config, pageSlug);
   const isHome = pageSlug === '';
   const meta = config.meta;
+  const isUsEnglish = meta.locale === 'en-US'
+    && meta.market === 'US-CA'
+    && meta.jurisdiction === 'US';
   // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
   const docTitle = input.documentTitle ?? (isHome || !page ? meta.title : `${page.title} · ${meta.title}`);
   const description = input.documentDescription ?? meta.description;
@@ -124,7 +127,7 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     posterPreload,
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
     `<meta property="og:type" content="${input.openGraphType ?? 'website'}">`,
-    '<meta property="og:locale" content="ko_KR">',
+    `<meta property="og:locale" content="${isUsEnglish ? 'en_US' : 'ko_KR'}">`,
     `<meta property="og:site_name" content="${escapeAttr(meta.title)}">`,
     canonical ? `<meta property="og:url" content="${escapeAttr(canonical)}">` : '',
     description ? `<meta property="og:description" content="${escapeAttr(description)}">` : '',

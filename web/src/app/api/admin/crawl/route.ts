@@ -6,6 +6,7 @@ import { getCurrentAdminActorId } from '@/lib/services/auth';
 import { crawlDesignatedSite, CrawlError } from '@/lib/crawl/crawler';
 import { createCrawlArtifact } from '@/lib/crawl/repository';
 import { aggregateDecayScores } from '@/lib/scan/decay';
+import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -45,6 +46,7 @@ function originFor(rawUrl: string): string | null {
 const bodySchema = z.object({
   url: z.string().url().max(2_000),
   allowTlsHttpFallback: z.boolean().optional(),
+  scanProfileId: z.literal(US_MEDICAL_OUTREACH_PROFILE_ID).optional(),
 });
 
 export const POST = withApiHandler(async (request) => {

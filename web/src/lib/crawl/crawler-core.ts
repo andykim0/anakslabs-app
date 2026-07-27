@@ -15,6 +15,15 @@ import {
   type CrawlTlsObservation,
 } from './contracts';
 import {
+  buildAiVisibilitySnapshot,
+  ruleContextFromServerHtml,
+  summarizeAiVisibilitySnapshot,
+} from '@/lib/scan/ai-visibility';
+import {
+  US_MEDICAL_OUTREACH_LOCALE,
+  US_MEDICAL_OUTREACH_PROFILE_ID,
+} from '@/lib/scan/profiles';
+import {
   isAuthenticationWidget,
   safeSkippedUrl,
   unsafeCrawlUrlReason,
@@ -413,7 +422,11 @@ function sitemapLocations(xml: string, origin: string): string[] {
  * request IP/user-agent, or image bytes.
  */
 export async function crawlDesignatedSite(
-  input: { url: string; allowTlsHttpFallback?: boolean },
+  input: {
+    url: string;
+    allowTlsHttpFallback?: boolean;
+    scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
+  },
   dependencies: CrawlDependencies = {},
 ): Promise<CrawlArtifactPayload> {
   const fetchFn = dependencies.fetchFn ?? fetch;
@@ -631,7 +644,27 @@ export async function crawlDesignatedSite(
       lastModified: fetched.response.headers.get('last-modified') ?? '',
       socialLinks,
     });
-    pages.push({ ...projected.page, decay });
+    const aiVisibilitySummary = input.scanProfileId === US_MEDICAL_OUTREACH_PROFILE_ID
+      ? summarizeAiVisibilitySnapshot(buildAiVisibilitySnapshot(
+          ruleContextFromServerHtml({
+            html,
+            url: fetched.finalUrl.toString(),
+            source: 'source-html',
+            locale: US_MEDICAL_OUTREACH_LOCALE,
+            status: fetched.response.status,
+            contentType,
+            xRobotsTag: fetched.response.headers.get('x-robots-tag') ?? '',
+            ttfbMs: fetched.ttfbMs,
+            robotsBody,
+          }),
+          'source-html',
+        ))
+      : undefined;
+    pages.push({
+      ...projected.page,
+      ...(aiVisibilitySummary ? { aiVisibilitySummary } : {}),
+      decay,
+    });
     projected.skipped.forEach(addSkipped);
     for (const link of projected.links) {
       if (visited.has(link) || queued.has(link)) continue;
@@ -648,6 +681,7 @@ export async function crawlDesignatedSite(
     seedUrl: input.url,
     finalOrigin: origin,
     observedAt,
+    ...(input.scanProfileId ? { scanProfileId: input.scanProfileId } : {}),
     tls,
     robots: {
       url: robotsFetch.finalUrl.toString(),
