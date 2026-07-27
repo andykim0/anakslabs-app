@@ -2,6 +2,7 @@ import type { DesignDnaId } from '@/lib/design/dna/types';
 import type { MotionIndustryClass } from '@/lib/types/site';
 
 export const KOREAN_FONT_PAIRING_CATALOG_VERSION = 1 as const;
+export const LATIN_FONT_PAIRING_CATALOG_VERSION = 1 as const;
 
 export const PRODUCTION_KOREAN_FONT_PAIR_IDS = [
   'kr-pretendard-neutral',
@@ -15,7 +16,12 @@ export type ProductionKoreanFontPairId = (typeof PRODUCTION_KOREAN_FONT_PAIR_IDS
 export const MODERN_KOREAN_FONT_SELECTION_POLICY = 'modern-sans-v1' as const;
 export type KoreanFontSelectionPolicy = typeof MODERN_KOREAN_FONT_SELECTION_POLICY;
 
-export interface SiteFontPairingPin {
+export const LATIN_FONT_PAIRING_SLOT_IDS = ['us-clinical-neutral'] as const;
+export type LatinFontPairingSlotId = (typeof LATIN_FONT_PAIRING_SLOT_IDS)[number];
+export const US_LATIN_FONT_SELECTION_POLICY = 'us-latin-v1' as const;
+export type LatinFontSelectionPolicy = typeof US_LATIN_FONT_SELECTION_POLICY;
+
+export interface SiteKoreanFontPairingPin {
   catalogVersion: typeof KOREAN_FONT_PAIRING_CATALOG_VERSION;
   id: ProductionKoreanFontPairId;
   /**
@@ -24,6 +30,20 @@ export interface SiteFontPairingPin {
    */
   selectionPolicy?: KoreanFontSelectionPolicy;
 }
+
+export interface SiteLatinFontPairingPin {
+  catalogVersion: typeof LATIN_FONT_PAIRING_CATALOG_VERSION;
+  locale: 'en-US';
+  id: LatinFontPairingSlotId;
+  /**
+   * Version 0 is the immutable system-font fallback. Checked-in designer assets start at version 1,
+   * so a later catalog promotion cannot silently change an already stored fallback pin.
+   */
+  assetVersion: number;
+  selectionPolicy: LatinFontSelectionPolicy;
+}
+
+export type SiteFontPairingPin = SiteKoreanFontPairingPin | SiteLatinFontPairingPin;
 
 export const KOREAN_TRACKING_TOKEN_VALUES = {
   'tracking.kr-tight-2': '-0.025em',
@@ -113,4 +133,29 @@ export interface ProductionKoreanFontManifest {
     blocked: readonly FontRoutingIndustry[];
   };
   licenseAssetIds: readonly FontLicenseAssetId[];
+}
+
+export interface LatinFontPairingSlotManifest {
+  catalogVersion: typeof LATIN_FONT_PAIRING_CATALOG_VERSION;
+  locale: 'en-US';
+  status: 'asset-pending' | 'production-ready';
+  selectionPolicy: LatinFontSelectionPolicy;
+  assetVersion: number;
+  description: string;
+  heading: { family: string; fallbackChain: readonly string[] };
+  body: { family: string; fallbackChain: readonly string[] };
+  control: { family: string; fallbackChain: readonly string[] };
+  /**
+   * Only the medical slot is active for the August MVP. The remaining DNA values deliberately
+   * stay deferred until designer curation.
+   */
+  dnaAffinity: Readonly<Record<DesignDnaId, 'recommended' | 'deferred'>>;
+  performanceBudget: {
+    firstScreenTargetBytes: 122880;
+    firstScreenMaxBytes: 204800;
+    exportTargetBytes: 307200;
+    exportMaxBytes: 614400;
+    familyMax: 2;
+    faceMax: 4;
+  };
 }

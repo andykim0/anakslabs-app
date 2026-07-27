@@ -1,4 +1,6 @@
 import type { HTMLElement } from 'node-html-parser';
+import { claimSourceReport } from './locale-signals';
+import type { ScanLocaleContext } from './rules';
 
 export type JsonLdNode = Record<string, unknown>;
 
@@ -312,38 +314,10 @@ export function titleHeadingAligned(root: HTMLElement): boolean {
   return [...titleTokens].some((token) => headingTokens.has(token));
 }
 
-const CLAIM_SIGNAL_RE = /(?:통계|연구|조사|보고서|자료|에 따르면|\d+(?:\.\d+)?\s*%|퍼센트|배 증가|명 중)/;
-const LOCAL_SOURCE_SELECTOR = 'cite, a[href^="http://"], a[href^="https://"]';
-
-function hasClaimSourceInSameBlock(block: HTMLElement): boolean {
-  if (block.querySelector(LOCAL_SOURCE_SELECTOR)) return true;
-  let parent = block.parentNode;
-  while (parent && 'tagName' in parent) {
-    const element = parent as HTMLElement;
-    const tagName = element.tagName.toLowerCase();
-    if (tagName === 'section' || tagName === 'article') {
-      return Boolean(element.querySelector(LOCAL_SOURCE_SELECTOR));
-    }
-    if (tagName === 'main' || tagName === 'body') break;
-    parent = element.parentNode;
-  }
-  return false;
-}
-
-export function hasUnsourcedClaimSignals(root: HTMLElement, visibleText: string): boolean {
-  if (!CLAIM_SIGNAL_RE.test(visibleText)) return false;
-  const claimBlocks = root
-    .querySelectorAll('p, li, blockquote, dd, td')
-    .filter((block) => CLAIM_SIGNAL_RE.test(block.text));
-  if (claimBlocks.length > 0) {
-    return claimBlocks.some((block) => !hasClaimSourceInSameBlock(block));
-  }
-
-  const semanticBlocks = root
-    .querySelectorAll('section, article')
-    .filter((block) => CLAIM_SIGNAL_RE.test(block.text));
-  if (semanticBlocks.length > 0) {
-    return semanticBlocks.some((block) => !block.querySelector(LOCAL_SOURCE_SELECTOR));
-  }
-  return true;
+export function hasUnsourcedClaimSignals(
+  root: HTMLElement,
+  visibleText: string,
+  locale?: ScanLocaleContext,
+): boolean {
+  return claimSourceReport(root, visibleText, locale).unsourcedClaimBlocks > 0;
 }

@@ -11,6 +11,7 @@ import {
   extractMainVisibleText,
   mainContentRoot,
 } from '../document';
+import { isListWorthyForScanLocale } from '../locale-signals';
 import {
   hasLocalBusinessType,
   hasUnlabelledControls,
@@ -270,7 +271,8 @@ export const AEO_RULES: ScanRule[] = [
     detail: '가격·메뉴·절차·비교 내용이 있는 페이지는 ul·ol·dl·table로 항목 경계를 표시해야 정확히 발췌하기 쉽습니다.',
     failed: (ctx) => {
       const main = mainContentRoot(ctx.root);
-      return isListWorthy(extractMainVisibleText(ctx.root))
+      const visibleText = extractMainVisibleText(ctx.root);
+      return (ctx.scanLocale ? isListWorthyForScanLocale(visibleText, ctx) : isListWorthy(visibleText))
         && !main.querySelector('ul, ol, table, dl');
     },
   },

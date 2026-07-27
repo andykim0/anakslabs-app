@@ -3,11 +3,21 @@ import type { MotionIndustryClass, SiteTheme } from '@/lib/types/site';
 import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import type { DesignDnaId } from '@/lib/design/dna/types';
-import { productionKoreanFontPairingById } from './catalog';
-import { fontPairingAssetsAvailable } from './resources';
+import {
+  latinFontPairingSlotById,
+  productionKoreanFontPairingById,
+} from './catalog';
+import {
+  fontPairingAssetsAvailable,
+  latinFontPairingAssetsAvailable,
+} from './resources';
+import { latinFontPairingsEnabled } from './flags';
 import {
   KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  LATIN_FONT_PAIRING_CATALOG_VERSION,
   MODERN_KOREAN_FONT_SELECTION_POLICY,
+  US_LATIN_FONT_SELECTION_POLICY,
+  type LatinFontPairingSlotId,
   type KoreanFontSelectionPolicy,
   type ProductionKoreanFontPairId,
 } from './types';
@@ -16,6 +26,19 @@ export interface KoreanFontPairingSelectionContext {
   dnaId: DesignDnaId;
   industryClass: MotionIndustryClass;
 }
+
+export interface LocaleFontPairingSelectionContext extends KoreanFontPairingSelectionContext {
+  locale?: 'ko-KR' | 'en-US';
+}
+
+export type LocaleFontPairingSelection =
+  | { locale: 'ko-KR'; id: ProductionKoreanFontPairId }
+  | {
+      locale: 'en-US';
+      id: LatinFontPairingSlotId;
+      assetVersion: number;
+      systemFallback: boolean;
+    };
 
 /**
  * FONTMOD 신규 생성의 단일 서버 선택표. DNA1 `type.pair`와 FNT append-only 카탈로그는
@@ -46,6 +69,31 @@ export function resolveKoreanFontPairingId(
 export function fontIndustryClassForSurvey(survey: SurveyInput): MotionIndustryClass {
   const template = resolveTemplate(survey.purposeId, survey.industry);
   return canonicalIndustryClass(survey.purposeId, template.id, survey.industry);
+}
+
+export function resolveFontPairingForLocale(
+  context: LocaleFontPairingSelectionContext,
+  options: {
+    latinEnabled?: boolean;
+    allowSystemFallback?: boolean;
+  } = {},
+): LocaleFontPairingSelection | null {
+  if (context.locale !== 'en-US') {
+    const id = resolveKoreanFontPairingId(context);
+    return id ? { locale: 'ko-KR', id } : null;
+  }
+  const latinEnabled = options.latinEnabled ?? latinFontPairingsEnabled();
+  if (!latinEnabled || context.dnaId !== 'medical-clinical-clarity') return null;
+  const id: LatinFontPairingSlotId = 'us-clinical-neutral';
+  const slot = latinFontPairingSlotById(id);
+  const assetsAvailable = latinFontPairingAssetsAvailable(id);
+  if (!assetsAvailable && options.allowSystemFallback !== true) return null;
+  return {
+    locale: 'en-US',
+    id,
+    assetVersion: slot.latinProductionManifest.assetVersion,
+    systemFallback: !assetsAvailable,
+  };
 }
 
 /**
@@ -85,4 +133,28 @@ export function applyModernKoreanFontPairing(
   return applyKoreanFontPairing(theme, id, {
     selectionPolicy: MODERN_KOREAN_FONT_SELECTION_POLICY,
   });
+}
+
+export function applyLatinFontPairing(
+  theme: SiteTheme,
+  selection: Extract<LocaleFontPairingSelection, { locale: 'en-US' }> | null,
+): SiteTheme {
+  if (!selection) return theme;
+  const pairing = latinFontPairingSlotById(selection.id);
+  if (!selection.systemFallback && !latinFontPairingAssetsAvailable(selection.id)) return theme;
+  return {
+    ...theme,
+    fonts: {
+      heading: pairing.heading,
+      body: pairing.body,
+      googleFonts: [],
+    },
+    fontPairing: {
+      catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
+      locale: 'en-US',
+      id: selection.id,
+      assetVersion: selection.assetVersion,
+      selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
+    },
+  };
 }

@@ -46,8 +46,11 @@ import {
 import { SIGNATURE_TEXT_SAFE_ZONE_IDS } from '@/lib/motion/signature-contract';
 import {
   KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  LATIN_FONT_PAIRING_CATALOG_VERSION,
+  LATIN_FONT_PAIRING_SLOT_IDS,
   MODERN_KOREAN_FONT_SELECTION_POLICY,
   PRODUCTION_KOREAN_FONT_PAIR_IDS,
+  US_LATIN_FONT_SELECTION_POLICY,
 } from '@/lib/fonts/types';
 import { SITE_INDUSTRY_IDS } from '@/lib/industry/profiles';
 import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
@@ -222,11 +225,20 @@ export const siteThemeSchema = z.object({
   }),
   radius: z.number().optional(),
   tokens: siteThemeTokensSchema.optional(),
-  fontPairing: z.object({
-    catalogVersion: z.literal(KOREAN_FONT_PAIRING_CATALOG_VERSION),
-    id: z.enum(PRODUCTION_KOREAN_FONT_PAIR_IDS),
-    selectionPolicy: z.literal(MODERN_KOREAN_FONT_SELECTION_POLICY).optional(),
-  }).strict().optional(),
+  fontPairing: z.union([
+    z.object({
+      catalogVersion: z.literal(KOREAN_FONT_PAIRING_CATALOG_VERSION),
+      id: z.enum(PRODUCTION_KOREAN_FONT_PAIR_IDS),
+      selectionPolicy: z.literal(MODERN_KOREAN_FONT_SELECTION_POLICY).optional(),
+    }).strict(),
+    z.object({
+      catalogVersion: z.literal(LATIN_FONT_PAIRING_CATALOG_VERSION),
+      locale: z.literal('en-US'),
+      id: z.enum(LATIN_FONT_PAIRING_SLOT_IDS),
+      assetVersion: z.number().int().min(0),
+      selectionPolicy: z.literal(US_LATIN_FONT_SELECTION_POLICY),
+    }).strict(),
+  ]).optional(),
   customCss: z.string().optional(),
 });
 
@@ -662,6 +674,10 @@ const siteMetaSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   ogImage: z.string().optional(),
+  // US-DEMO additive only. Omission preserves the exact existing Korea document contract.
+  locale: z.literal('en-US').optional(),
+  market: z.literal('US-CA').optional(),
+  jurisdiction: z.literal('US').optional(),
   // [제품 확정/I1] 목적·지역·진단원본 — JSON-LD @type·지역·전후 대조에 쓰이므로 저장 시 보존(strip 방지)
   purposeId: z.string().max(40).optional(),
   templateId: z.string().max(80).optional(),

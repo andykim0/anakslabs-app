@@ -10,6 +10,10 @@ import type { ScanRule, RuleContext } from '../rules';
 import { contentMarkupLength } from '../document';
 import { robotsAllows } from '../robots';
 import {
+  hasAddressForScanLocale,
+  hasPhoneForScanLocale,
+} from '../locale-signals';
+import {
   hasBusinessNumber,
   hasKoreanAddress,
   hasKoreanText,
@@ -61,8 +65,8 @@ function isLocalPage(ctx: RuleContext): boolean {
   const report = jsonLdReport(ctx.root);
   return (
     hasLocalBusinessType(report) ||
-    hasPhone(ctx.visibleText) ||
-    hasKoreanAddress(ctx.visibleText) ||
+    (ctx.scanLocale ? hasPhoneForScanLocale(ctx.visibleText, ctx) : hasPhone(ctx.visibleText)) ||
+    (ctx.scanLocale ? hasAddressForScanLocale(ctx.visibleText, ctx) : hasKoreanAddress(ctx.visibleText)) ||
     hasBusinessNumber(ctx.visibleText) ||
     Boolean(
       ctx.root.querySelector(
@@ -164,7 +168,11 @@ export const GEO_RULES: ScanRule[] = [
     label: '지역 업체의 연락처 또는 주소가 불완전합니다',
     detail: '방문형·지역형 서비스 페이지라면 실제 화면에 일관된 전화번호와 한국 주소를 함께 제공해 업체 정보를 검증할 수 있게 하세요.',
     failed: (ctx) =>
-      isLocalPage(ctx) && (!hasPhone(ctx.visibleText) || !hasKoreanAddress(ctx.visibleText)),
+      isLocalPage(ctx) && (
+        ctx.scanLocale
+          ? (!hasPhoneForScanLocale(ctx.visibleText, ctx) || !hasAddressForScanLocale(ctx.visibleText, ctx))
+          : (!hasPhone(ctx.visibleText) || !hasKoreanAddress(ctx.visibleText))
+      ),
   },
   {
     code: 'geo_dates',
@@ -233,7 +241,7 @@ export const GEO_RULES: ScanRule[] = [
     weight: 9,
     label: '수치·연구 주장에 확인 가능한 출처가 없습니다',
     detail: '통계·조사·연구 결과를 인용한다면 원문 링크, 발행 주체와 기준 시점을 함께 밝혀 생성형 검색이 근거를 검증할 수 있게 하세요.',
-    failed: (ctx) => hasUnsourcedClaimSignals(ctx.root, ctx.visibleText),
+    failed: (ctx) => hasUnsourcedClaimSignals(ctx.root, ctx.visibleText, ctx.scanLocale),
   },
   {
     code: 'geo_topic_alignment',

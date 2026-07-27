@@ -5,6 +5,30 @@ export const KOREAN_FONT_PERFORMANCE_BUDGETS = {
   exportPairBytes: 600 * 1024,
 } as const;
 
+export const LATIN_FONT_PERFORMANCE_BUDGETS = {
+  firstScreenTargetBytes: 120 * 1024,
+  firstScreenMaxBytes: 200 * 1024,
+  exportTargetBytes: 300 * 1024,
+  exportMaxBytes: 600 * 1024,
+  familyMax: 2,
+  faceMax: 4,
+} as const;
+
+export const LATIN_FONT_APPROVED_GATE_CHECKLIST = [
+  'korean-pin-json-sha',
+  'korean-pin-html-sha',
+  'korean-flag-off-sha',
+  'stored-pin-flag-independent',
+  'en-us-only-latin-issuance',
+  'editor-manual-change-clears-either-pin',
+  'external-font-request-zero',
+  'export-local-woff2-only',
+  'font-loaded-three-band-layout',
+  'first-screen-transfer-max',
+  'actual-character-export-max',
+  'korean-render-latin-reference-zero',
+] as const;
+
 /**
  * Owner-report checklist. Keeping the approved gates enumerable prevents a passing implementation
  * from silently omitting a measured item in a later completion report.

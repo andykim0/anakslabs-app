@@ -1,13 +1,23 @@
 import fontAssetManifest from '../../../public/fonts/korean/font-assets.json';
 import type { SiteTheme, TextElement } from '@/lib/types/site';
-import { productionKoreanFontPairingById } from './catalog';
+import {
+  latinFontPairingSlotById,
+  productionKoreanFontPairingById,
+} from './catalog';
 import {
   KOREAN_LEADING_TOKEN_VALUES,
   KOREAN_TRACKING_TOKEN_VALUES,
+  type LatinFontPairingSlotId,
   type ProductionKoreanFontPairId,
+  type SiteLatinFontPairingPin,
 } from './types';
+import {
+  latinFontManifest,
+  latinFontManifestIsProductionReady,
+  type LatinFontAsset,
+} from './latin-manifest';
 
-interface FontAsset {
+interface KoreanFontAsset {
   id: string;
   faceId: string;
   chunkId: string;
@@ -19,6 +29,8 @@ interface FontAsset {
   sha256: string;
 }
 
+type FontAsset = KoreanFontAsset | LatinFontAsset;
+
 interface FontChunk {
   id: string;
   priority: boolean;
@@ -27,7 +39,7 @@ interface FontChunk {
   unicodeRange: string;
 }
 
-const FONT_ASSETS = fontAssetManifest.assets as readonly FontAsset[];
+const FONT_ASSETS = fontAssetManifest.assets as readonly KoreanFontAsset[];
 const FONT_CHUNKS = fontAssetManifest.chunks as readonly FontChunk[];
 
 const PAIRING_FACE_IDS = {
@@ -50,13 +62,19 @@ const PAIRING_FACE_IDS = {
 } as const satisfies Readonly<Record<ProductionKoreanFontPairId, readonly string[]>>;
 
 export interface FontPairingResources {
-  id: ProductionKoreanFontPairId;
+  id: ProductionKoreanFontPairId | LatinFontPairingSlotId;
   css: string;
   assets: readonly FontAsset[];
   familyCount: number;
   faceCount: number;
   chunkCount: number;
   bytes: number;
+}
+
+function isLatinPin(
+  pin: SiteTheme['fontPairing'],
+): pin is SiteLatinFontPairingPin {
+  return Boolean(pin && 'locale' in pin && pin.locale === 'en-US');
 }
 
 function cssString(value: string): string {
@@ -79,7 +97,7 @@ function typographyCss(id: ProductionKoreanFontPairId): string {
   ].join('');
 }
 
-function chunkCss(asset: FontAsset): string {
+function chunkCss(asset: KoreanFontAsset): string {
   const chunk = FONT_CHUNKS.find((candidate) => candidate.id === asset.chunkId);
   if (!chunk) throw new Error(`Unknown Korean font chunk: ${asset.chunkId}`);
   return (
@@ -88,12 +106,13 @@ function chunkCss(asset: FontAsset): string {
   );
 }
 
-function resourcesFor(
+function koreanResourcesFor(
   theme: SiteTheme,
   selectedChunks: ReadonlySet<string> | null,
 ): FontPairingResources | null {
-  const id = theme.fontPairing?.id;
-  if (!id) return null;
+  const pin = theme.fontPairing;
+  if (!pin || isLatinPin(pin)) return null;
+  const id = pin.id;
   const faceIds = PAIRING_FACE_IDS[id];
   const assets = FONT_ASSETS.filter((asset) => (
     (faceIds as readonly string[]).includes(asset.faceId)
@@ -112,8 +131,83 @@ function resourcesFor(
   };
 }
 
+function latinSystemFallbackResources(pin: SiteLatinFontPairingPin): FontPairingResources {
+  const pairing = latinFontPairingSlotById(pin.id);
+  const stack = pairing.body;
+  const root = `.anaks-site[data-font-pairing="${pin.id}"]`;
+  const css = [
+    `${root}{font-family:${stack}!important;}`,
+    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${pairing.heading}!important;}`,
+    `${root} [data-font-role="lead"],${root} [data-font-role="body"],${root} .anaks-btn{font-family:${pairing.body}!important;}`,
+  ].join('');
+  return {
+    id: pin.id,
+    css,
+    assets: [],
+    familyCount: 1,
+    faceCount: 0,
+    chunkCount: 0,
+    bytes: 0,
+  };
+}
+
+function codePointSet(text: string): Set<number> {
+  return new Set([...text].map((character) => character.codePointAt(0)!));
+}
+
+function unicodeRangeIntersects(unicodeRange: string, codePoints: ReadonlySet<number>): boolean {
+  const ranges = codePointsInRange(unicodeRange);
+  return [...ranges].some((codePoint) => codePoints.has(codePoint));
+}
+
+function latinAssetCss(asset: LatinFontAsset): string {
+  return (
+    `@font-face{font-family:"${cssString(asset.family)}";src:url("${cssString(asset.path)}") format("woff2");`
+    + `font-style:${asset.style};font-weight:${asset.weight};font-display:optional;unicode-range:${asset.unicodeRange};}`
+  );
+}
+
+function latinProductionResources(
+  pin: SiteLatinFontPairingPin,
+  text: string | null,
+): FontPairingResources | null {
+  if (!latinFontManifestIsProductionReady()) return null;
+  const manifest = latinFontManifest();
+  if (manifest.assetVersion !== pin.assetVersion || manifest.pairingId !== pin.id) return null;
+  const selectedChunkIds = text === null
+    ? new Set(manifest.chunks.map((chunk) => chunk.id))
+    : new Set(
+        manifest.chunks
+          .filter((chunk) => (
+            chunk.priority || unicodeRangeIntersects(chunk.unicodeRange, codePointSet(text))
+          ))
+          .map((chunk) => chunk.id),
+      );
+  const assets = manifest.assets.filter((asset) => selectedChunkIds.has(asset.chunkId));
+  const pairing = latinFontPairingSlotById(pin.id);
+  const root = `.anaks-site[data-font-pairing="${pin.id}"]`;
+  const familyCss = [
+    `${root}{font-family:${pairing.body}!important;}`,
+    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${pairing.heading}!important;}`,
+    `${root} [data-font-role="lead"],${root} [data-font-role="body"],${root} .anaks-btn{font-family:${pairing.body}!important;}`,
+  ].join('');
+  return {
+    id: pin.id,
+    css: `${assets.map(latinAssetCss).join('')}${familyCss}`,
+    assets,
+    familyCount: new Set(assets.map((asset) => asset.family)).size,
+    faceCount: new Set(assets.map((asset) => asset.faceId)).size,
+    chunkCount: new Set(assets.map((asset) => asset.chunkId)).size,
+    bytes: assets.reduce((sum, asset) => sum + asset.bytes, 0),
+  };
+}
+
 export function fontPairingResources(theme: SiteTheme): FontPairingResources | null {
-  return resourcesFor(theme, null);
+  const pin = theme.fontPairing;
+  if (isLatinPin(pin)) {
+    return latinProductionResources(pin, null) ?? latinSystemFallbackResources(pin);
+  }
+  return koreanResourcesFor(theme, null);
 }
 
 function codePointsInRange(unicodeRange: string): Set<number> {
@@ -140,7 +234,11 @@ export function fontPairingResourcesForText(
   theme: SiteTheme,
   text: string,
 ): FontPairingResources | null {
-  const codePoints = new Set([...text].map((character) => character.codePointAt(0)!));
+  if (isLatinPin(theme.fontPairing)) {
+    return latinProductionResources(theme.fontPairing, text)
+      ?? latinSystemFallbackResources(theme.fontPairing);
+  }
+  const codePoints = codePointSet(text);
   const selectedChunks = new Set(
     FONT_CHUNKS
       .filter((chunk) => (
@@ -149,7 +247,7 @@ export function fontPairingResourcesForText(
       ))
       .map((chunk) => chunk.id),
   );
-  return resourcesFor(theme, selectedChunks);
+  return koreanResourcesFor(theme, selectedChunks);
 }
 
 export function fontPairingAssetsAvailable(id: ProductionKoreanFontPairId): boolean {
@@ -159,6 +257,14 @@ export function fontPairingAssetsAvailable(id: ProductionKoreanFontPairId): bool
       FONT_ASSETS.some((asset) => asset.faceId === faceId && asset.chunkId === chunk.id)
     ))
   ));
+}
+
+/** Asset checkpoint seam. Version 0 is an explicit no-network system-font fallback. */
+export function latinFontPairingAssetsAvailable(id: LatinFontPairingSlotId): boolean {
+  return (
+    latinFontPairingSlotById(id).latinProductionManifest.status === 'production-ready'
+    && latinFontManifestIsProductionReady()
+  );
 }
 
 export function fontRoleForTextElement(

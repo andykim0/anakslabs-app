@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "catalogVersion": 1,
+  "locale": "en-US",
+  "pairingId": "us-clinical-neutral",
+  "assetVersion": 0,
+  "status": "asset-pending",
+  "characterSet": {
+    "strategy": "Basic Latin + Latin-1 Supplement + common punctuation; actual-character export adds approved tail chunks",
+    "codePoints": 0,
+    "sha256": null
+  },
+  "budgets": {
+    "firstScreenTargetBytes": 122880,
+    "firstScreenMaxBytes": 204800,
+    "exportTargetBytes": 307200,
+    "exportMaxBytes": 614400,
+    "familyMax": 2,
+    "faceMax": 4
+  },
+  "chunks": [],
+  "assets": [],
+  "licenseNotices": []
+}

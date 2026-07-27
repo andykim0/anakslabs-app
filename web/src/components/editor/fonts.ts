@@ -103,6 +103,17 @@ export function matchFontOption(css: string): FontOption | null {
     if (exact) return exact;
   }
   const lower = css.toLowerCase();
+  // US-DEMO locale pins may intentionally use the approved no-network system fallback while
+  // designer WOFF2 assets are pending. It is recognized but not added to the Korean editor menu.
+  if (/(?:^|,\s*)system-ui(?:,|$)/u.test(lower)) {
+    return {
+      label: 'System UI',
+      family: 'system-ui',
+      css,
+      googleFamily: null,
+      googleFamilies: [],
+    };
+  }
   return FONT_OPTIONS.find((opt) => lower.includes(opt.family.toLowerCase())) ?? null;
 }
 

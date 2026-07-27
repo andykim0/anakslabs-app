@@ -16,6 +16,9 @@ import type { SiteTheme, SectionType } from '@/lib/types/site';
 import type { CandidateStyle } from '@/lib/types/domain';
 import {
   KOREAN_FONT_PAIRING_CATALOG_VERSION,
+  LATIN_FONT_PAIRING_CATALOG_VERSION,
+  US_LATIN_FONT_SELECTION_POLICY,
+  type LatinFontPairingSlotManifest,
   type ProductionKoreanFontManifest,
 } from '@/lib/fonts/types';
 
@@ -42,7 +45,7 @@ export interface FontPairing {
    * 기존 미지정 항목은 legacy 생성·에디터에서 계속 소비한다. FNT 신규 세트는 명시적 opt-in
    * 경로에서만 발급하며 기존 자유 pair enum에 섞지 않는다.
    */
-  availability?: 'new-opt-in';
+  availability?: 'new-opt-in' | 'locale-opt-in';
   /** 한국어 표시명 */
   name: string;
   /** 무드 어휘 — StyleDirection.fontMood 와 정확히 일치하는 어휘 사용 */
@@ -60,6 +63,8 @@ export interface FontPairing {
   googleFonts: string[];
   /** FNT 역할·조판·라이선스 계약. legacy 항목에는 없으며 기존 동작을 바꾸지 않는다. */
   productionManifest?: ProductionKoreanFontManifest;
+  /** US-DEMO locale slot. Asset-pending entries are not issued without an approved fallback. */
+  latinProductionManifest?: LatinFontPairingSlotManifest;
 }
 
 /** 스타일 방향 — 1차 가공(AI 디자인 후보)의 비주얼 방향성 */
@@ -554,6 +559,54 @@ export const CURATED_PALETTES: CuratedPalette[] = [
 
 export const FONT_PAIRINGS: FontPairing[] = [
   {
+    id: 'us-clinical-neutral',
+    availability: 'locale-opt-in',
+    name: 'US Clinical Neutral',
+    mood: ['clinical', 'neutral', 'professional', 'legible'],
+    bestFor: ['US medical demo'],
+    heading: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    body: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    googleFonts: [],
+    latinProductionManifest: {
+      catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
+      locale: 'en-US',
+      status: 'asset-pending',
+      selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
+      assetVersion: 0,
+      description: 'August MVP slot for a designer-curated clinical neutral Latin pairing.',
+      heading: {
+        family: 'system-ui',
+        fallbackChain: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      body: {
+        family: 'system-ui',
+        fallbackChain: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      control: {
+        family: 'system-ui',
+        fallbackChain: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      dnaAffinity: {
+        'cafe-warm-editorial': 'deferred',
+        'dining-refined-contrast': 'deferred',
+        'beauty-soft-wellness': 'deferred',
+        'medical-clinical-clarity': 'recommended',
+        'legal-authoritative-editorial': 'deferred',
+        'workshop-tactile-heritage': 'deferred',
+        'academy-structured-friendly': 'deferred',
+        'retail-bold-geometric': 'deferred',
+      },
+      performanceBudget: {
+        firstScreenTargetBytes: 122880,
+        firstScreenMaxBytes: 204800,
+        exportTargetBytes: 307200,
+        exportMaxBytes: 614400,
+        familyMax: 2,
+        faceMax: 4,
+      },
+    },
+  },
+  {
     id: 'playfair-classic',
     name: '플레이페어 클래식',
     mood: ['고급', '우아', '클래식', '에디토리얼', '럭셔리'],
@@ -953,7 +1006,7 @@ export const FONT_PAIRINGS: FontPairing[] = [
 
 /** 기존 AI·에디터·DNA pair enum이 소비하는 완전 격리 view. 순서와 객체 값은 종전과 동일하다. */
 export const LEGACY_FONT_PAIRINGS = FONT_PAIRINGS.filter(
-  (pairing) => pairing.availability !== 'new-opt-in',
+  (pairing) => pairing.availability === undefined,
 );
 
 /**

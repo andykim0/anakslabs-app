@@ -10,6 +10,16 @@ import type { ProbedResource } from './fetch-target';
 import type { DecaySlot } from './decay-contract';
 import type { SocialLinkObservation } from './social-links';
 
+export const SCAN_PROFILE_IDS = ['us-medical-outreach-v1'] as const;
+export type ScanProfileId = (typeof SCAN_PROFILE_IDS)[number];
+
+export interface ScanLocaleContext {
+  profileId: ScanProfileId;
+  locale: 'en-US';
+  market: 'US-CA';
+  jurisdiction: 'US';
+}
+
 export interface RuleContext {
   /** node-html-parser 루트 */
   root: ParsedElement;
@@ -28,6 +38,11 @@ export interface RuleContext {
   observedAt?: string;
   lastModified?: string;
   socialLinks?: SocialLinkObservation[];
+  /**
+   * Omitted for the existing Korea scanner. Profile-aware helpers may consume this additive
+   * context, while the default path keeps the exact predicates and score output it had before.
+   */
+  scanLocale?: ScanLocaleContext;
 }
 
 export interface ScanRule {
@@ -59,6 +74,15 @@ export function createRuleRunState(): RuleRunState {
   return { seenRootCauses: new Set<string>() };
 }
 
+/** Shared fail-soft predicate boundary for the scanner and profile snapshot projection. */
+export function scanRuleFailed(rule: ScanRule, ctx: RuleContext): boolean {
+  try {
+    return rule.failed(ctx);
+  } catch {
+    return false;
+  }
+}
+
 /** 규칙 목록 실행 → 실패한 규칙을 이슈로 */
 export function runRules(
   rules: ScanRule[],
@@ -68,12 +92,7 @@ export function runRules(
   const issues: ScanIssue[] = [];
   let deducted = 0;
   for (const rule of rules) {
-    let bad = false;
-    try {
-      bad = rule.failed(ctx);
-    } catch {
-      bad = false; // 규칙 자체 오류는 스캔을 막지 않는다
-    }
+    const bad = scanRuleFailed(rule, ctx);
     if (bad) {
       const rootCause = typeof rule.rootCause === 'function' ? rule.rootCause(ctx) : rule.rootCause;
       const isRootCauseDetail = Boolean(rootCause && state.seenRootCauses.has(rootCause));
