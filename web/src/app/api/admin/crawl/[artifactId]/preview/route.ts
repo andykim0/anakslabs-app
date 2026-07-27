@@ -18,8 +18,7 @@ import {
   INSUFFICIENT_ENGLISH_SOURCE,
   UsDemoCompileError,
 } from '@/lib/us-demo/contracts';
-import { compileUsMedicalDemo } from '@/lib/us-demo/source-compiler';
-import { sourceAiVisibilitySummary } from '@/lib/us-demo/structure-diff';
+import { prepareUsMedicalPreview } from '@/lib/us-demo/admin-workflow';
 
 export const runtime = 'nodejs';
 
@@ -72,18 +71,12 @@ export const POST = withApiHandler(async (
     | undefined;
   if (body.data.previewKind === 'us-medical-outreach') {
     try {
-      // Fail before compilation if the original HTML was not measured in crawler memory.
-      sourceAiVisibilitySummary(artifactRecord.artifact);
-      const compiled = compileUsMedicalDemo(artifactRecord.artifact, {
+      const prepared = prepareUsMedicalPreview({
+        artifact: artifactRecord.artifact,
         manualFinish: body.data.manualFinish,
       });
-      config = compiled.config;
-      sourceReport = {
-        origin: compiled.sourceManifest.origin,
-        totalBlocks: compiled.sourceManifest.blocks.length,
-        usedBlocks: compiled.sourceManifest.usedBlockIds.length,
-        excludedBlocks: compiled.sourceManifest.excluded.length,
-      };
+      config = prepared.config;
+      sourceReport = prepared.sourceReport;
     } catch (error) {
       if (error instanceof UsDemoCompileError) {
         return apiError(

@@ -47,6 +47,13 @@ import type {
   ManualCollectionProductKind,
   ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
+import type { AiVisibilitySummary } from '@/lib/scan/ai-visibility';
+import type {
+  ProspectPublicSourceBlock,
+  UsDemoManualFinish,
+  UsMedicalAdViolation,
+} from '@/lib/us-demo/contracts';
+import type { UsDemoSourceDisposition } from '@/lib/us-demo/source-curation';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -369,6 +376,60 @@ export interface AdminContentQueueResponse {
   integrity: AdminFulfillmentQueueIntegrity;
 }
 
+export interface AdminUsDemoCrawlResponse {
+  artifact: {
+    id: string;
+    seedUrl: string;
+    finalOrigin: string;
+    pageCount: number;
+    observedAt: string;
+    expiresAt: string;
+  };
+}
+
+export interface AdminUsDemoSourceBlock extends ProspectPublicSourceBlock {
+  disposition: UsDemoSourceDisposition;
+  violations: readonly UsMedicalAdViolation[];
+}
+
+export interface AdminUsDemoArtifactResponse {
+  artifact: {
+    id: string;
+    seedUrl: string;
+    finalOrigin: string;
+    observedAt: string;
+    expiresAt: string;
+    visitedUrls: string[];
+    pageSummaries: Array<{
+      url: string;
+      title?: string;
+      extractedCharacterCount: number;
+      structuredFields: string[];
+    }>;
+    stoppedReason?: string;
+    usDemo: {
+      sourceVisibility: AiVisibilitySummary;
+      englishSourceReady: boolean;
+      blocks: readonly AdminUsDemoSourceBlock[];
+    };
+  };
+}
+
+export interface AdminUsDemoPreviewResponse {
+  preview: {
+    id: string;
+    url: string;
+    expiresAt: string;
+    warning: string;
+    sourceReport: {
+      origin: 'prospect_public_source';
+      totalBlocks: number;
+      usedBlocks: number;
+      excludedBlocks: number;
+    };
+  };
+}
+
 // ---------- fetch 헬퍼 ----------
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -621,4 +682,49 @@ export function approveAdminContent(
       body: JSON.stringify({ expectedVersionId, approvalConfirmed: true }),
     },
   );
+}
+
+export function crawlUsMedicalDemo(
+  url: string,
+  allowTlsHttpFallback = false,
+): Promise<AdminUsDemoCrawlResponse> {
+  return fetchJson<AdminUsDemoCrawlResponse>('/api/admin/crawl', {
+    method: 'POST',
+    body: JSON.stringify({
+      url,
+      allowTlsHttpFallback,
+      scanProfileId: 'us-medical-outreach-v1',
+    }),
+  });
+}
+
+export function getUsMedicalDemoArtifact(
+  artifactId: string,
+): Promise<AdminUsDemoArtifactResponse> {
+  return fetchJson<AdminUsDemoArtifactResponse>(
+    `/api/admin/crawl/${encodeURIComponent(artifactId)}`,
+  );
+}
+
+export function createUsMedicalDemoPreview(
+  artifactId: string,
+  manualFinish: UsDemoManualFinish,
+): Promise<AdminUsDemoPreviewResponse> {
+  return fetchJson<AdminUsDemoPreviewResponse>(
+    `/api/admin/crawl/${encodeURIComponent(artifactId)}/preview`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        previewKind: 'us-medical-outreach',
+        manualFinish,
+      }),
+    },
+  );
+}
+
+export function enableUsDemoQaExclusion(): Promise<{ ok: true; expiresAt: string }> {
+  return fetchJson<{ ok: true; expiresAt: string }>('/api/admin/demo-track/qa-cookie', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
 }

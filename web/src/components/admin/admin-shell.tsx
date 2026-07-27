@@ -5,6 +5,7 @@ import {
   Clapperboard,
   ClipboardCheck,
   FilePenLine,
+  Globe2,
   LayoutDashboard,
   Newspaper,
   ReceiptText,
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { href: '/admin/subscriptions', label: '구독·리포트', icon: ReceiptText, exact: false },
   { href: '/admin/edit-queue', label: '수정 대행', icon: FilePenLine, exact: false },
   { href: '/admin/content-queue', label: '콘텐츠 승인', icon: Newspaper, exact: false },
+  { href: '/admin/us-demos', label: '미국 병원 데모', icon: Globe2, exact: false },
   { href: '/admin/search-registration', label: '검색 등록', icon: SearchCheck, exact: false },
   { href: '/admin/infra', label: '인프라', icon: Server, exact: false },
 ] as const;

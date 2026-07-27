@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAdminOr403 } from '@/app/api/_lib/guards';
 import { apiError, withApiHandler } from '@/app/api/_lib/http';
 import { getCrawlArtifact } from '@/lib/crawl/repository';
+import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
+import { buildUsDemoCurationProjection } from '@/lib/us-demo/source-curation';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +18,9 @@ export const GET = withApiHandler(async (
   if (!record || new Date(record.expiresAt) <= new Date()) {
     return apiError(404, 'CRAWL_ARTIFACT_NOT_FOUND', '수집 자료가 없거나 보관 기간이 끝났습니다.');
   }
+  const usDemo = record.artifact.scanProfileId === US_MEDICAL_OUTREACH_PROFILE_ID
+    ? buildUsDemoCurationProjection(record.artifact)
+    : undefined;
   return NextResponse.json({
     artifact: {
       id: record.id,
@@ -42,6 +47,7 @@ export const GET = withApiHandler(async (
       tls: record.artifact.tls,
       robots: record.artifact.robots,
       decay: record.decayResult,
+      ...(usDemo ? { usDemo } : {}),
     },
   });
 });
