@@ -4,19 +4,22 @@ import type { PublicContact, SiteTheme } from '@/lib/types/site';
 export function PublicContactBar({
   contact,
   theme,
+  locale,
 }: {
   contact: PublicContact;
   theme: SiteTheme;
+  locale?: 'en-US';
 }) {
+  const english = locale === 'en-US';
   const entries = [
-    contact.phone ? ['전화', contact.phone] : null,
-    contact.address ? ['주소', contact.address] : null,
+    contact.phone ? [english ? 'Phone' : '전화', contact.phone] : null,
+    contact.address ? [english ? 'Address' : '주소', contact.address] : null,
   ].filter((entry): entry is [string, string] => Boolean(entry));
   if (entries.length === 0) return null;
   return (
     <aside
       data-public-contact-surface="survey"
-      aria-label="연락처와 주소"
+      aria-label={english ? 'Contact and address' : '연락처와 주소'}
       style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -31,9 +34,11 @@ export function PublicContactBar({
       }}
     >
       <span style={{ flexBasis: '100%' }}>
-        <strong>연락처와 찾아오는 길</strong>
+        <strong>{english ? 'Contact and visit information' : '연락처와 찾아오는 길'}</strong>
         <span style={{ marginLeft: 8 }}>
-          사장님이 직접 확인한 정보입니다. 방문이나 문의 전에 아래 전화번호와 주소를 확인해 주세요.
+          {english
+            ? 'Public information reproduced from the clinic source for this private preview.'
+            : '사장님이 직접 확인한 정보입니다. 방문이나 문의 전에 아래 전화번호와 주소를 확인해 주세요.'}
         </span>
       </span>
       {entries.map(([label, value]) => (

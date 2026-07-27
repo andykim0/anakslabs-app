@@ -203,6 +203,9 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   const hasMenu = allSections(config).some((section) => section.type === 'menu');
   const orgType = organizationTypeFor(config, spec, hasMenu);
   const region = config.meta.region?.trim();
+  const isUsEnglish = config.meta.locale === 'en-US'
+    && config.meta.market === 'US-CA'
+    && config.meta.jurisdiction === 'US';
 
   const identity: JsonLdNode = {
     '@context': 'https://schema.org',
@@ -218,7 +221,10 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
 
   if (region) identity.areaServed = region;
   if (publicContact?.address || region) {
-    const address: JsonLdNode = { '@type': 'PostalAddress', addressCountry: 'KR' };
+    const address: JsonLdNode = {
+      '@type': 'PostalAddress',
+      addressCountry: isUsEnglish ? 'US' : 'KR',
+    };
     if (publicContact?.address) address.streetAddress = publicContact.address;
     if (region) address.addressLocality = region;
     identity.address = address;
@@ -231,7 +237,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
       identity.contactPoint = {
         '@type': 'ContactPoint',
         contactType: 'customer service',
-        availableLanguage: ['ko'],
+        availableLanguage: [isUsEnglish ? 'en' : 'ko'],
         ...(publicContact?.phone ? { telephone: publicContact.phone } : {}),
         ...(info?.email ? { email: info.email } : {}),
       };
@@ -241,7 +247,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
 
   // 목적별 부가 엔티티는 대표 페이지에서만 방출한다.
   if (currentPage.slug === '') {
-    for (const kind of spec?.extra ?? []) {
+    for (const kind of isUsEnglish ? [] : spec?.extra ?? []) {
       if (kind === 'Service') {
         nodes.push({
           '@context': 'https://schema.org',
@@ -280,7 +286,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     '@type': 'WebSite',
     name,
     url: baseUrl,
-    inLanguage: 'ko-KR',
+    inLanguage: isUsEnglish ? 'en-US' : 'ko-KR',
     publisher: ref(identityId),
   });
 
@@ -295,7 +301,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
         ? config.meta.title
         : `${currentPage.title} · ${config.meta.title}`,
     url: currentUrl,
-    inLanguage: 'ko-KR',
+    inLanguage: isUsEnglish ? 'en-US' : 'ko-KR',
     isPartOf: ref(websiteId),
     about: ref(identityId),
     ...(spec?.profilePage && currentPage.slug === '' ? { mainEntity: ref(identityId) } : {}),

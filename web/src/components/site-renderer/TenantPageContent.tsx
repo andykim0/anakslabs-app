@@ -89,7 +89,11 @@ export function TenantPageContent({
         />
       </main>
       {!businessInfo && publicContact ? (
-        <PublicContactBar contact={publicContact} theme={config.theme} />
+        <PublicContactBar
+          contact={publicContact}
+          theme={config.theme}
+          locale={config.meta.locale}
+        />
       ) : null}
       {businessInfo ? (
         <LegalFooter info={businessInfo} theme={config.theme} privacyHref={privacyHref} termsHref={termsHref} />
