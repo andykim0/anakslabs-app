@@ -16,6 +16,7 @@ export const ASSET_ORIGINS = [
   'customer_upload',
   'customer_import',
   'ai_generated',
+  'system_generated',
   'licensed_stock',
   'legacy_unknown',
 ] as const;
@@ -37,7 +38,7 @@ export interface AssetRecord {
   canonicalUrl: string;
   createdAt: string;
   /**
-   * Customer assets always have an owner. Only licensed_stock may be global
+   * Customer and deterministic system assets always have an owner. Only licensed_stock may be global
    * (ownerId/siteId both null) and it is resolved exclusively by server code.
    */
   ownerId: string | null;

@@ -16,6 +16,9 @@ import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 // [S-batch] canonical·JSON-LD 단일 소스 — 정적 발행물(render-static)과 동일 함수 공유
 import { canonicalUrlFor, jsonLdScriptContent, siteUrlOf } from '@/lib/seo/structured-data';
 import { screenMedicalSiteConfig } from '@/lib/content/medical-ad-enforcement';
+import { getPublishedContentPostsRepository } from '@/lib/content-fulfillment/repository';
+import { CONTENT_BLOG_NAV_ITEM } from '@/lib/content-fulfillment/public-projection';
+import type { PublishedContentPost } from '@/lib/content-fulfillment/contracts';
 
 export { siteUrlOf };
 
@@ -72,6 +75,12 @@ export const getSiteByDomain = cache(async (rawDomain: string): Promise<Site | n
 const getOwnerTier = cache(async (clientId: string) => {
   return (await getDataServices().clients.getById(clientId))?.tier;
 });
+
+/** 공개 상태 + published pointer가 모두 유효한 포스트만 요청 단위로 공유한다. */
+export const getPublishedPostsForSite = cache(
+  async (siteId: string): Promise<PublishedContentPost[]> =>
+    getPublishedContentPostsRepository().listPublishedBySite(siteId),
+);
 
 /**
  * 페이지 단위 메타데이터. pageSlug=''(홈)은 사이트 제목, 서브페이지는 "페이지명 · 사이트명".
@@ -155,6 +164,7 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
     clientId: site.clientId,
     siteId: site.id,
   });
+  const publishedPosts = await getPublishedPostsForSite(site.id);
 
   return (
     <>
@@ -171,6 +181,7 @@ export async function TenantPageBody({ site, pageSlug }: { site: Site; pageSlug:
         tier={tier}
         motionOwnerId={site.clientId}
         motionAssets={provenance.ok ? provenance.options.assets : undefined}
+        additionalNavItems={publishedPosts.length > 0 ? [CONTENT_BLOG_NAV_ITEM] : undefined}
       />
     </>
   );

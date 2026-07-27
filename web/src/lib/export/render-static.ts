@@ -18,6 +18,7 @@ import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { TenantPageContent } from '@/components/site-renderer';
 import { buildDocumentShell } from './document-shell';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
+import type { TenantNavigationItem } from '@/components/site-renderer/TenantHeader';
 
 /** CDN 폰트 <link>(구글폰트/제이에스딜리버 Pretendard)와 preconnect 제거 — 셀프호스트 시 */
 const CDN_FONT_LINK_RE =
@@ -57,6 +58,8 @@ export interface RenderDocumentOptions {
   motionAssets?: readonly MotionAssetProvenance[];
   /** 외부 호스트 ZIP에서도 플랫폼으로 전송하도록 절대 URL을 전달한다. */
   analyticsEndpoint?: string;
+  /** SiteConfig 바깥의 published 표면이 실제 있을 때만 전달한다. */
+  additionalNavItems?: readonly TenantNavigationItem[];
 }
 
 /** 발행본 SiteConfig → `<!doctype html>` 완전 문서 문자열 */
@@ -81,6 +84,7 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
       privacyHref: opts.privacyHref,
       termsHref: opts.termsHref,
       analyticsEndpoint: opts.analyticsEndpoint,
+      additionalNavItems: opts.additionalNavItems,
       runtimeDelivery: 'inline',
     }),
   );

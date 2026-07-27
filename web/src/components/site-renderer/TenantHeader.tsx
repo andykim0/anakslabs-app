@@ -13,17 +13,29 @@ import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 
 const NAV_MAX_INLINE = 6;
 
+export interface TenantNavigationItem {
+  id: string;
+  slug: string;
+  title: string;
+  navLabel?: string;
+}
+
 export function TenantHeader({
   config,
   currentSlug,
   /** Export: 링크를 상대 파일명('./about.html')으로 재작성 (홈은 './index.html') */
   hrefForSlug,
+  /** 별도 published 레코드가 실제 존재할 때만 파생되는 내비 항목. */
+  additionalItems,
 }: {
   config: SiteConfig;
   currentSlug: string;
   hrefForSlug?: (slug: string) => string;
+  additionalItems?: readonly TenantNavigationItem[];
 }) {
-  const navPages = config.pages.filter((p) => p.showInNav !== false);
+  const navPages: (SitePage | TenantNavigationItem)[] = additionalItems?.length
+    ? [...config.pages.filter((p) => p.showInNav !== false), ...additionalItems]
+    : config.pages.filter((p) => p.showInNav !== false);
   const enabled = config.nav?.enabled !== false && navPages.length >= 2;
   if (!enabled) return null;
 
@@ -33,7 +45,7 @@ export function TenantHeader({
   const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
   const siteName = rawName.split('—')[0].trim() || rawName;
   const linkFor = (slug: string) => (hrefForSlug ? hrefForSlug(slug) : slug === '' ? '/' : `/${slug}`);
-  const labelOf = (p: SitePage) => p.navLabel ?? p.title;
+  const labelOf = (p: SitePage | TenantNavigationItem) => p.navLabel ?? p.title;
 
   const inline = navPages.slice(0, NAV_MAX_INLINE);
   const overflow = navPages.slice(NAV_MAX_INLINE);

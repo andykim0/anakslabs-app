@@ -43,6 +43,7 @@ const NON_FACTUAL_ORIGINS = [
   'customer_upload',
   'customer_import',
   'ai_generated',
+  'system_generated',
   'licensed_stock',
   'legacy_unknown',
 ] as const satisfies readonly AssetOrigin[];
@@ -194,7 +195,9 @@ export function evaluateAssetTruthPolicy(input: AssetTruthPolicyInput): AssetPol
 
   if (spec.role === 'factual') {
     if (asset.origin === 'legacy_unknown') return denied('LEGACY_ORIGIN_NOT_FACTUAL');
-    if (asset.origin === 'ai_generated') return denied('AI_NOT_ALLOWED_IN_FACTUAL_SLOT');
+    if (!(spec.allowedOrigins as readonly AssetOrigin[]).includes(asset.origin)) {
+      return denied('AI_NOT_ALLOWED_IN_FACTUAL_SLOT');
+    }
   } else if (!(spec.allowedOrigins as readonly AssetOrigin[]).includes(asset.origin)) {
     return denied('SLOT_POLICY_MISMATCH');
   }

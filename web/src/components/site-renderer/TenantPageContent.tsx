@@ -15,6 +15,7 @@ import { buildSiteBeaconRuntime, SITE_EVENT_INGEST_PATH } from '@/lib/analytics/
 import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 import { resolvePublicContact } from '@/lib/seo/public-contact';
 import { PublicContactBar } from './PublicContactBar';
+import type { TenantNavigationItem } from './TenantHeader';
 
 export function TenantPageContent({
   config,
@@ -26,6 +27,7 @@ export function TenantPageContent({
   interactive,
   animate,
   hrefForSlug,
+  additionalNavItems,
   privacyHref,
   termsHref,
   analyticsEndpoint,
@@ -43,6 +45,8 @@ export function TenantPageContent({
   animate?: boolean;
   /** 내비·정적 export 상대 링크 매핑(미지정=절대 '/slug') */
   hrefForSlug?: (slug: string) => string;
+  /** published 별도 표면(예: 블로그)이 실제 있을 때만 전달한다. */
+  additionalNavItems?: readonly TenantNavigationItem[];
   /** 법적 페이지 링크(export는 상대 파일명, 미지정=서빙 '/privacy'·'/terms') */
   privacyHref?: string;
   termsHref?: string;
@@ -62,7 +66,12 @@ export function TenantPageContent({
   return (
     <>
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}
-      <TenantHeader config={renderedConfig} currentSlug={pageSlug} hrefForSlug={hrefForSlug} />
+      <TenantHeader
+        config={renderedConfig}
+        currentSlug={pageSlug}
+        hrefForSlug={hrefForSlug}
+        additionalItems={additionalNavItems}
+      />
       <main>
         {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조(h1·헤딩 위계·목록) */}
         <SemanticOutline config={renderedConfig} pageSlug={pageSlug} />

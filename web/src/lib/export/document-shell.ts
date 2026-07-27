@@ -53,6 +53,12 @@ export interface DocumentShellInput {
   headExtraHtml?: string;
   bodyAppendHtml?: string;
   lang?: string;
+  /** SiteConfig page 바깥의 별도 published 표면만 사용한다. 미지정 시 기존 계산 바이트 불변. */
+  documentTitle?: string;
+  documentDescription?: string;
+  canonicalOverride?: string | null;
+  jsonLdOverride?: string | null;
+  openGraphType?: 'website' | 'article';
 }
 
 /** 페이지의 단 하나뿐인 hero/signature 이미지 LCP 후보를 먼저 가져오게 한다. */
@@ -81,13 +87,20 @@ export function buildDocumentShell(input: DocumentShellInput): string {
   const isHome = pageSlug === '';
   const meta = config.meta;
   // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
-  const docTitle = isHome || !page ? meta.title : `${page.title} · ${meta.title}`;
+  const docTitle = input.documentTitle ?? (isHome || !page ? meta.title : `${page.title} · ${meta.title}`);
+  const description = input.documentDescription ?? meta.description;
 
   // [S-batch] 서빙 레이어 — canonical + JSON-LD (단일 소스, siteUrl 없으면 생략)
-  const canonical = input.siteUrl ? canonicalUrlFor(input.siteUrl, pageSlug) : null;
-  const jsonLd = input.siteUrl
-    ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, ''), pageSlug)
-    : null;
+  const canonical = input.canonicalOverride !== undefined
+    ? input.canonicalOverride
+    : input.siteUrl
+      ? canonicalUrlFor(input.siteUrl, pageSlug)
+      : null;
+  const jsonLd = input.jsonLdOverride !== undefined
+    ? input.jsonLdOverride
+    : input.siteUrl
+      ? jsonLdScriptContent(config, input.siteUrl.replace(/\/+$/, ''), pageSlug)
+      : null;
   const poster = pageLcpImageSrc(config, pageSlug);
   const posterPreload = heroPosterPreloadHtml(config, pageSlug);
   const bodyHtml = stripDuplicateLcpPreload(input.bodyHtml, poster);
@@ -104,17 +117,17 @@ export function buildDocumentShell(input: DocumentShellInput): string {
       ? `<meta name="google-site-verification" content="${escapeAttr(config.searchVerification.google)}">`
       : '',
     `<title>${escapeHtml(docTitle)}</title>`,
-    meta.description ? `<meta name="description" content="${escapeAttr(meta.description)}">` : '',
+    description ? `<meta name="description" content="${escapeAttr(description)}">` : '',
     canonical ? `<link rel="canonical" href="${escapeAttr(canonical)}">` : '',
     // [P1] 파비콘 — 라이브 tenantMetadata(icons)와 파리티(seo_favicon)
     '<link rel="icon" href="/favicon.ico">',
     posterPreload,
     `<meta property="og:title" content="${escapeAttr(docTitle)}">`,
-    '<meta property="og:type" content="website">',
+    `<meta property="og:type" content="${input.openGraphType ?? 'website'}">`,
     '<meta property="og:locale" content="ko_KR">',
     `<meta property="og:site_name" content="${escapeAttr(meta.title)}">`,
     canonical ? `<meta property="og:url" content="${escapeAttr(canonical)}">` : '',
-    meta.description ? `<meta property="og:description" content="${escapeAttr(meta.description)}">` : '',
+    description ? `<meta property="og:description" content="${escapeAttr(description)}">` : '',
     ogImage ? `<meta property="og:image" content="${escapeAttr(ogImage)}">` : '',
     jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : '',
     `<style>${BASE_DOC_CSS}</style>`,

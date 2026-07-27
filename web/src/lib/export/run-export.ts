@@ -12,6 +12,7 @@ import { privacyPolicy, siteCollectsPersonalData, termsOfService } from '@/lib/l
 import { buildExportZip, type BuildExportOptions } from './exporter';
 import { renderLegalDocHtml } from './legal-html';
 import { assertMedicalPublicConfig } from '@/lib/content/medical-ad-enforcement';
+import { getPublishedContentPostsRepository } from '@/lib/content-fulfillment/repository';
 
 export interface RunExportResult {
   objectPath: string;
@@ -48,6 +49,8 @@ export async function runSiteExport(site: Site, opts?: BuildExportOptions): Prom
         };
       }
     }
+    const contentPosts = await getPublishedContentPostsRepository().listPublishedBySite(site.id);
+    if (contentPosts.length > 0) legalOpts.contentPosts = contentPosts;
 
     const { buffer, warnings } = await buildExportZip(site, legalOpts);
     const filename = `${slugifySiteName(site.name) || 'site'}-backup.zip`;

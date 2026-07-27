@@ -1,0 +1,50 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { SuspendedNotice } from '@/components/site-renderer';
+import { TenantContentBlog } from '@/components/content-posts/TenantContentBlog';
+import {
+  contentBlogMetadata,
+  contentPostJsonLd,
+} from '@/lib/content-fulfillment/public-projection';
+import { getPublishedContentPostsRepository } from '@/lib/content-fulfillment/repository';
+import { getSiteByDomain, getPublishedPostsForSite } from '../../_shared';
+
+export const dynamic = 'force-dynamic';
+
+interface Props {
+  params: Promise<{ domain: string; slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { domain, slug } = await params;
+  const site = await getSiteByDomain(domain);
+  if (!site?.siteConfig || !site.domain) {
+    return { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+  }
+  const post = await getPublishedContentPostsRepository()
+    .getPublishedBySiteAndSlug(site.id, slug);
+  return post
+    ? contentBlogMetadata(site, post)
+    : { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+}
+
+export default async function TenantBlogPostPage({ params }: Props) {
+  const { domain, slug } = await params;
+  const site = await getSiteByDomain(domain);
+  if (!site?.siteConfig || !site.domain) notFound();
+  const [posts, post] = await Promise.all([
+    getPublishedPostsForSite(site.id),
+    getPublishedContentPostsRepository().getPublishedBySiteAndSlug(site.id, slug),
+  ]);
+  if (!post) notFound();
+  if (site.status === 'suspended') return <SuspendedNotice siteName={site.name} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: contentPostJsonLd(site, post) }}
+      />
+      <TenantContentBlog config={site.siteConfig} posts={posts} post={post} />
+    </>
+  );
+}

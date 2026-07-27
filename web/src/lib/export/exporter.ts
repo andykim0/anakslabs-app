@@ -18,6 +18,13 @@ import { motionAssetsForStaticRender } from './motion-scene-assets';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { absoluteSiteEventEndpoint } from '@/lib/analytics/site-beacon';
+import type { PublishedContentPost } from '@/lib/content-fulfillment/contracts';
+import {
+  buildTenantLlmsText,
+  buildTenantSitemapXml,
+  CONTENT_BLOG_NAV_ITEM,
+} from '@/lib/content-fulfillment/public-projection';
+import { renderStaticContentPostFiles } from '@/lib/content-fulfillment/render-static';
 
 export interface BuildExportOptions {
   /** true(기본): 폰트를 zip에 포함해 외부 요청 0. 실패 시 CDN 링크로 폴백 */
@@ -26,6 +33,8 @@ export interface BuildExportOptions {
   legalPages?: { privacyHtml?: string; termsHtml?: string };
   /** [motion 3단계] 소유자 티어 — 모션 티어 방어(defense-in-depth). 상위 서비스가 client.tier 전달 */
   tier?: MotionTier;
+  /** 공개 승인까지 완료된 immutable version projection. 빈 배열/미지정은 기존 export 바이트 계약. */
+  contentPosts?: readonly PublishedContentPost[];
 }
 
 export interface BuildExportResult {
@@ -87,6 +96,7 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
   //    헤더 내비는 파일 간 상대 링크(홈 ./index.html)로 재작성.
   const navHrefForSlug = (slug: string) => (slug === '' ? './index.html' : `./${slug}.html`);
   const pages = collected.config.pages;
+  const contentPosts = opts.contentPosts?.length ? opts.contentPosts : undefined;
   const pageFiles: { name: string; html: string }[] = pages.map((page) => ({
     name: page.slug === '' ? 'index.html' : `${page.slug}.html`,
     html: renderStaticDocument({
@@ -106,12 +116,35 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
       motionAssets: exportMotionAssets,
       // ZIP은 고객이 어느 origin에서 열어도 플랫폼의 first-party 수집 API로 전송한다.
       analyticsEndpoint: absoluteSiteEventEndpoint(ROOT_DOMAIN),
+      additionalNavItems: contentPosts ? [CONTENT_BLOG_NAV_ITEM] : undefined,
     }),
   }));
 
   // 4. 파일 맵 구성
   const files = new Map<string, Buffer | string>();
   for (const pf of pageFiles) files.set(pf.name, pf.html);
+  if (contentPosts) {
+    for (const file of renderStaticContentPostFiles({
+      site: { ...site, siteConfig: collected.config },
+      posts: contentPosts,
+      fontFaceCss: fontFaceCss || undefined,
+    })) {
+      files.set(file.name, file.html);
+    }
+    if (site.domain) {
+      const projectedSite = { ...site, siteConfig: collected.config };
+      files.set('sitemap.xml', buildTenantSitemapXml({
+        host: site.domain,
+        site: projectedSite,
+        posts: contentPosts,
+      }));
+      files.set('llms.txt', buildTenantLlmsText({
+        host: site.domain,
+        site: projectedSite,
+        posts: contentPosts,
+      }));
+    }
+  }
   for (const [rel, buf] of collected.assets) files.set(rel, buf);
   for (const [rel, buf] of fontAssets) files.set(rel, buf);
   if (opts.legalPages?.privacyHtml) files.set('privacy.html', opts.legalPages.privacyHtml);
