@@ -14,12 +14,17 @@ import {
   clinicServiceCategory,
   orderClinicServices,
 } from './focus-recipe';
+import type { ClinicMasterExperience } from './live-contract';
 
-type ClinicMasterSourceKind =
+export type ClinicMasterSourceKind =
   | 'business_name'
   | 'introduction'
   | 'service'
+  | 'provider_name'
+  | 'provider_credential'
   | 'provider_bio'
+  | 'insurance'
+  | 'price_or_financing'
   | 'faq_question'
   | 'faq_answer'
   | 'phone'
@@ -30,6 +35,7 @@ export interface ClinicMasterSourceBlock {
   id: string;
   kind: ClinicMasterSourceKind;
   text: string;
+  sourceUrl: string;
 }
 
 /**
@@ -54,6 +60,13 @@ const DEMO_DISCLOSURES = Object.freeze({
     'Consented cases can be added after the practice completes privacy and advertising-claim review.',
   providerImageAlt:
     "Portrait placeholder — replace with the doctor's approved photo",
+} as const);
+
+const PROVIDER_CARD = Object.freeze({
+  sectionPadding: 136,
+  contentHeight: 602,
+  gap: 88,
+  stride: 690,
 } as const);
 
 function sourceTextElement(
@@ -154,6 +167,172 @@ function disclosureSection(input: {
   }, input.palette, input.surface ? 'surface' : 'plain');
 }
 
+function providerCardElements(input: {
+  bio: ClinicMasterSourceBlock;
+  name?: ClinicMasterSourceBlock;
+  credential?: ClinicMasterSourceBlock;
+  index: number;
+  theme: SiteTheme;
+  experience: ClinicMasterExperience;
+}): CanvasElement[] {
+  const yOffset = input.index * PROVIDER_CARD.stride;
+  const longNameOffset = input.name && input.name.text.length > 28 ? 44 : 0;
+  const photo = input.experience.mode === 'live'
+    ? input.experience.providerPhotos?.find(
+        (candidate) => candidate.providerBioBlockId === input.bio.id
+          && candidate.origin === 'customer_upload',
+      )
+    : undefined;
+  const suffix = input.index === 0 ? '' : `-${input.index}`;
+  return [
+    {
+      id: `clinic-provider-photo-placeholder${suffix}`,
+      kind: 'image',
+      src: photo?.src ?? '/clinic/provider-placeholder.svg',
+      alt: photo?.alt ?? DEMO_DISCLOSURES.providerImageAlt,
+      frame: { x: 150, y: 136 + yOffset, w: 476, h: 602 },
+      z: 1,
+      style: {
+        objectFit: 'cover',
+        borderRadius: CLINIC_RADIUS_TOKENS.md,
+        shadow: false,
+      },
+      entrance: { effect: 'none' },
+    },
+    productTextElement(
+      `clinic-provider-kicker${suffix}`,
+      'MEET THE DOCTOR',
+      { x: 714, y: 180 + yOffset, w: 576, h: 22 },
+      {
+        fontSize: 14,
+        fontWeight: 700,
+        fontFamily: 'body',
+        color: input.theme.palette.primary,
+        lineHeight: 1.2,
+        letterSpacing: 1.68,
+      },
+    ),
+    ...(input.name
+      ? [sourceTextElement(
+          input.name,
+          `provider-name-${input.index}`,
+          { x: 714, y: 218 + yOffset, w: 576, h: longNameOffset ? 96 : 52 },
+          {
+            fontSize: 40,
+            fontWeight: 600,
+            fontFamily: 'heading',
+            color: input.theme.palette.text,
+            lineHeight: 1.15,
+            letterSpacing: -0.4,
+          },
+        )]
+      : []),
+    ...(input.credential
+      ? [sourceTextElement(
+          input.credential,
+          `provider-credential-${input.index}`,
+          { x: 714, y: 286 + yOffset + longNameOffset, w: 576, h: 28 },
+          {
+            fontSize: 19,
+            fontWeight: 600,
+            fontFamily: 'body',
+            color: input.theme.palette.muted,
+            lineHeight: 1.4,
+          },
+        )]
+      : []),
+    {
+      id: `clinic-provider-divider${suffix}`,
+      kind: 'shape',
+      frame: { x: 714, y: 342 + yOffset + longNameOffset, w: 64, h: 3 },
+      z: 2,
+      shape: 'rect',
+      style: {
+        fill: input.theme.palette.primary,
+        borderRadius: CLINIC_RADIUS_TOKENS.sm,
+      },
+      entrance: { effect: 'none' },
+    },
+    sourceTextElement(
+      input.bio,
+      `provider-bio-${input.index}`,
+      { x: 714, y: 382 + yOffset + longNameOffset, w: 576, h: 280 },
+      {
+        fontSize: 18,
+        fontWeight: 400,
+        fontFamily: 'body',
+        color: input.theme.palette.text,
+        lineHeight: 1.7,
+      },
+    ),
+  ];
+}
+
+function ratingAggregateSection(input: {
+  palette: SiteTheme['palette'];
+  experience: ClinicMasterExperience;
+}): Section {
+  const aggregate = input.experience.mode === 'live'
+    ? input.experience.ratingAggregate
+    : undefined;
+  if (!aggregate) {
+    return disclosureSection({
+      id: 'clinic-rating-aggregate',
+      name: 'Patient Reviews',
+      text: DEMO_DISCLOSURES.ratingAggregate,
+      palette: input.palette,
+    });
+  }
+  return section({
+    id: 'clinic-rating-aggregate',
+    type: 'custom',
+    name: 'Patient Reviews',
+    height: 520,
+    elements: [
+      productTextElement(
+        'clinic-rating-aggregate-label',
+        'Patient Reviews',
+        { x: 220, y: 164, w: 1000, h: 72 },
+        {
+          fontSize: 34,
+          fontWeight: 600,
+          fontFamily: 'heading',
+          color: input.palette.text,
+          lineHeight: 1.2,
+        },
+      ),
+      productTextElement(
+        'clinic-rating-aggregate-value',
+        `${aggregate.rating.toFixed(1)} · ${aggregate.userRatingCount.toLocaleString('en-US')} Google reviews`,
+        { x: 220, y: 258, w: 740, h: 80 },
+        {
+          fontSize: 28,
+          fontWeight: 600,
+          fontFamily: 'body',
+          color: input.palette.text,
+          lineHeight: 1.4,
+        },
+      ),
+      {
+        id: 'clinic-rating-aggregate-attribution',
+        kind: 'button',
+        label: 'View on Google',
+        href: aggregate.googleMapsUri,
+        frame: { x: 980, y: 258, w: 240, h: 56 },
+        z: 2,
+        style: {
+          variant: 'outline',
+          color: input.palette.primary,
+          textColor: input.palette.primary,
+          fontSize: 16,
+          borderRadius: CLINIC_RADIUS_TOKENS.md,
+        },
+        entrance: { effect: 'none' },
+      },
+    ],
+  }, input.palette);
+}
+
 /**
  * source-only US 의료 데모를 premium-dental-v1 구조로 컴파일한다.
  * factual string은 source block에서만 오며, 제품 disclosure는 명시적인 별도 id를 쓴다.
@@ -162,8 +341,10 @@ export function compilePremiumDentalMaster(input: {
   blocks: readonly ClinicMasterSourceBlock[];
   theme: SiteTheme;
   pin: ClinicMasterPin;
+  experience?: ClinicMasterExperience;
 }): Section[] {
   const { blocks, theme, pin } = input;
+  const experience = input.experience ?? { mode: 'demo' };
   const typography = CLINIC_TYPOGRAPHY_TOKENS[pin.typographyPreset];
   const businessName = blocks.find((block) => block.kind === 'business_name');
   if (!businessName) throw new Error('PREMIUM_DENTAL_BUSINESS_NAME_REQUIRED');
@@ -173,6 +354,9 @@ export function compilePremiumDentalMaster(input: {
     pin.focus,
   ).slice(0, 8);
   const providers = blocks.filter((block) => block.kind === 'provider_bio').slice(0, 4);
+  const insurancePricing = blocks.filter((block) => (
+    block.kind === 'insurance' || block.kind === 'price_or_financing'
+  )).slice(0, 12);
   const locationAndFaq = blocks.filter((block) => (
     ['phone', 'address', 'opening_hours', 'faq_question', 'faq_answer'].includes(block.kind)
   ));
@@ -240,52 +424,30 @@ export function compilePremiumDentalMaster(input: {
       id: 'us-demo-providers',
       type: 'team',
       name: 'Meet the Doctor',
-      height: Math.max(620, 220 + providers.length * 220),
-      elements: [
-        productTextElement('clinic-label-meet-the-doctor', 'Meet the Doctor', {
-          x: 560, y: 90, w: 700, h: 64,
-        }, {
-          fontSize: 36,
-          fontWeight: typography.headingWeight,
-          fontFamily: 'heading',
-          color: theme.palette.text,
-          lineHeight: 1.2,
-        }),
-        {
-          id: 'clinic-provider-photo-placeholder',
-          kind: 'image',
-          src: '/clinic/provider-placeholder.svg',
-          alt: DEMO_DISCLOSURES.providerImageAlt,
-          frame: { x: 140, y: 90, w: 340, h: 430 },
-          z: 2,
-          style: {
-            objectFit: 'cover',
-            borderRadius: CLINIC_RADIUS_TOKENS.md,
-            shadow: false,
-          },
-          entrance: { effect: 'none' },
-        },
-        ...providers.map((block, index) => sourceTextElement(
-          block,
-          `provider-${index}`,
-          { x: 560, y: 180 + index * 180, w: 700, h: 130 },
-          {
-            fontSize: 25,
-            fontWeight: typography.bodyWeight,
-            fontFamily: 'body',
-            color: theme.palette.text,
-            lineHeight: 1.55,
-          },
-        )),
-      ],
-    }, theme.palette, 'surface'));
+      height: (
+        PROVIDER_CARD.sectionPadding * 2
+        + providers.length * PROVIDER_CARD.contentHeight
+        + Math.max(0, providers.length - 1) * PROVIDER_CARD.gap
+      ),
+      elements: providers.flatMap((bio, index) => providerCardElements({
+        bio,
+        name: blocks.filter((block) => (
+          block.kind === 'provider_name' && block.sourceUrl === bio.sourceUrl
+        ))[providers.slice(0, index).filter(
+          (candidate) => candidate.sourceUrl === bio.sourceUrl,
+        ).length],
+        credential: blocks.filter((block) => (
+          block.kind === 'provider_credential' && block.sourceUrl === bio.sourceUrl
+        ))[providers.slice(0, index).filter(
+          (candidate) => candidate.sourceUrl === bio.sourceUrl,
+        ).length],
+        index,
+        theme,
+        experience,
+      })),
+    }, theme.palette));
   }
-  result.push(disclosureSection({
-    id: 'clinic-rating-aggregate',
-    name: 'Patient Reviews',
-    text: DEMO_DISCLOSURES.ratingAggregate,
-    palette: theme.palette,
-  }));
+  result.push(ratingAggregateSection({ palette: theme.palette, experience }));
   result.push(disclosureSection({
     id: 'clinic-before-after-placeholder',
     name: 'Before & After',
@@ -293,15 +455,15 @@ export function compilePremiumDentalMaster(input: {
     palette: theme.palette,
     surface: true,
   }));
-  if (locationAndFaq.length > 0) {
+  if (insurancePricing.length > 0) {
     result.push(section({
-      id: 'us-demo-contact',
-      type: 'contact',
-      name: 'Location & FAQ',
-      height: Math.max(420, 160 + locationAndFaq.length * 100),
-      elements: locationAndFaq.map((block, index) => sourceTextElement(
+      id: 'clinic-insurance-pricing',
+      type: 'pricing',
+      name: 'Insurance & Financing',
+      height: Math.max(420, 160 + insurancePricing.length * 100),
+      elements: insurancePricing.map((block, index) => sourceTextElement(
         block,
-        `contact-${index}`,
+        `insurance-pricing-${index}`,
         { x: 180, y: 120 + index * 100, w: 1080, h: 72 },
         {
           fontSize: 24,
@@ -311,6 +473,57 @@ export function compilePremiumDentalMaster(input: {
           lineHeight: 1.4,
         },
       )),
+    }, theme.palette));
+  }
+  if (locationAndFaq.length > 0) {
+    const googleMapsUrl = experience.mode === 'live'
+      ? experience.destination?.googleMapsUrl
+      : undefined;
+    result.push(section({
+      id: 'us-demo-contact',
+      type: 'contact',
+      name: 'Location & FAQ',
+      height: Math.max(
+        420,
+        160 + locationAndFaq.length * 100 + (googleMapsUrl ? 80 : 0),
+      ),
+      elements: [
+        ...locationAndFaq.map((block, index) => sourceTextElement(
+          block,
+          `contact-${index}`,
+          { x: 180, y: 120 + index * 100, w: 1080, h: 72 },
+          {
+            fontSize: 24,
+            fontWeight: typography.bodyWeight,
+            fontFamily: 'body',
+            color: theme.palette.text,
+            lineHeight: 1.4,
+          },
+        )),
+        ...(googleMapsUrl
+          ? [{
+              id: 'clinic-us-google-maps-destination',
+              kind: 'button' as const,
+              label: 'View on Google Maps',
+              href: googleMapsUrl,
+              frame: {
+                x: 180,
+                y: 140 + locationAndFaq.length * 100,
+                w: 300,
+                h: 56,
+              },
+              z: 2,
+              style: {
+                variant: 'outline' as const,
+                color: theme.palette.primary,
+                textColor: theme.palette.primary,
+                fontSize: 16,
+                borderRadius: CLINIC_RADIUS_TOKENS.md,
+              },
+              entrance: { effect: 'none' as const },
+            }]
+          : []),
+      ],
     }, theme.palette));
   }
   return result;

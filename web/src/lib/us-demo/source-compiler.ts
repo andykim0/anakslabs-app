@@ -6,6 +6,8 @@ import {
 import type { ClinicMasterPin, SiteConfig } from '@/lib/types/site';
 import {
   compilePremiumDentalMaster,
+  applyDentalStockToClinicMaster,
+  dentalStockCategoryForSource,
   resolveClinicFocus,
   resolveClinicMasterTheme,
 } from '@/lib/clinic-master';
@@ -177,7 +179,7 @@ export function compileUsMedicalDemo(
   const introduction = curated.accepted.find((block) => block.kind === 'introduction');
   const phone = curated.accepted.find((block) => block.kind === 'phone')?.text;
   const address = curated.accepted.find((block) => block.kind === 'address')?.text;
-  const config: SiteConfig = {
+  const configWithoutStock: SiteConfig = {
     version: 2,
     theme,
     designDna: {
@@ -215,6 +217,19 @@ export function compileUsMedicalDemo(
       : {}),
     nav: { enabled: false },
   };
+  const config = applyDentalStockToClinicMaster(configWithoutStock, {
+    hospitalStableId: createHash('sha256')
+      .update(artifact.finalOrigin, 'utf8')
+      .digest('hex'),
+    category: dentalStockCategoryForSource(
+      clinicMaster.focus,
+      curated.accepted
+        .filter((block) => block.kind === 'service')
+        .map((block) => block.text)
+        .join(' '),
+    ),
+    slot: 'hero',
+  });
   const usedBlockIds = config.pages
     .flatMap((page) => page.sections)
     .flatMap((item) => item.elements)

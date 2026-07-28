@@ -14,6 +14,7 @@
     "fonts:subset": "tsx scripts/build-korean-font-subsets.ts",
     "fonts:latin:subset": "tsx scripts/build-latin-font-subsets.ts",
     "stock:sync": "tsx scripts/sync-pexels-stock.ts",
+    "stock:dental:sync": "tsx scripts/sync-pexels-dental-stock.ts",
     "assets:backfill-dimensions": "tsx scripts/backfill-asset-dimensions.ts"
   },
   "dependencies": {

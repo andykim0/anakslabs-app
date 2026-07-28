@@ -141,7 +141,6 @@ describe('CLINIC$ P1 — spec-locked master contract', () => {
     const html = renderToStaticMarkup(createElement(ClinicStickyBooking, {
       pin,
       interactive: false,
-      confirmedPhone: '+1 213 555 0142',
     }));
     assert.match(html, /data-clinic-booking-state="deactivated"/u);
     assert.match(html, /aria-disabled="true"/u);

@@ -46,6 +46,7 @@ interface SectionStackProps {
 
 function stackable(el: CanvasElement): boolean {
   if (el.hiddenOnMobile) return false;
+  if (el.kind === 'shape' && el.id.startsWith('clinic-provider-divider')) return true;
   // Provenance enforcement replaces a denied factual image with an intentional
   // CSS shape that occupies the original media frame. Keep that shape in the
   // mobile stack; ordinary decorative shapes remain omitted as before.
@@ -66,6 +67,9 @@ function imageObjectPosition(point?: { x: number; y: number }): string | undefin
 /** 요소 종류별 스택 아이템 래퍼 스타일 */
 function itemStyle(el: CanvasElement): CSSProperties {
   const base: CSSProperties = { opacity: el.opacity };
+  if (el.kind === 'shape' && el.id.startsWith('clinic-provider-divider')) {
+    return { ...base, width: '64px', height: '3px', margin: '0 auto' };
+  }
   switch (el.kind) {
     case 'image':
     case 'video':

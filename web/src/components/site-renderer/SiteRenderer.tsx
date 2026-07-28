@@ -39,6 +39,7 @@ import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { ConnectorPanel } from './ConnectorPanel';
 import { ClinicStickyBooking } from './ClinicStickyBooking';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
+import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
@@ -373,6 +374,7 @@ export function SiteRenderer({
   siteId,
   motionOwnerId,
   motionAssets,
+  clinicExperience,
   pageSlug = '',
   runtimeDelivery = 'inline',
 }: {
@@ -408,6 +410,8 @@ export function SiteRenderer({
   motionOwnerId?: string;
   /** 저장소에서 현재 사이트 소유권까지 검증한 자산 projection. 기본 빈 배열 = 민감 기능 비활성. */
   motionAssets?: readonly MotionAssetProvenance[];
+  /** premium-dental live 전용 검증 projection. 미지정은 언제나 deactivated demo 셸이다. */
+  clinicExperience?: ClinicMasterExperience;
   /** 정적 발행은 inline, App Router 문서는 client로 전달해 SPA 내비게이션에서도 실행한다. */
   runtimeDelivery?: 'inline' | 'client';
 }) {
@@ -768,6 +772,9 @@ export function SiteRenderer({
           <ClinicStickyBooking
             pin={config.clinicMaster}
             interactive={interactive}
+            destination={clinicExperience?.mode === 'live'
+              ? clinicExperience.destination
+              : undefined}
           />
         ) : null}
       </div>

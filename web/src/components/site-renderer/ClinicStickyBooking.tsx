@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { ClinicMasterPin } from '@/lib/types/site';
+import type { ClinicUsDestination } from '@/lib/clinic-master/live-contract';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
 
 const CLINIC_STICKY_BOOKING_CSS = `
@@ -91,24 +92,25 @@ function Action({
 
 /**
  * 서버 DOM-only persistent booking surface. Preview/demo calls set interactive=false,
- * which guarantees no href and no connector issuance. A future US destination contract
- * can provide bookingUrl without changing the static fallback.
+ * which guarantees no href and no connector issuance. Live calls may pass only the
+ * separately verified US destination projection; CONN$ manifests are not accepted here.
  */
 export function ClinicStickyBooking({
   pin,
   interactive,
-  confirmedPhone,
-  bookingUrl,
+  destination,
 }: {
   pin: ClinicMasterPin;
   interactive: boolean;
-  /** P3 US destination 계약이 고객 확인을 기록한 뒤에만 전달한다. */
-  confirmedPhone?: string;
-  /** P3 US destination 계약이 고객 확인을 기록한 HTTPS URL만 전달한다. */
-  bookingUrl?: string;
+  /** 고객 확인 factory를 통과한 별도 US destination. 기존 CONN$ manifest는 받지 않는다. */
+  destination?: ClinicUsDestination;
 }) {
-  const callHref = interactive ? telephoneHref(confirmedPhone) : undefined;
-  const bookHref = interactive && bookingUrl?.startsWith('https://') ? bookingUrl : undefined;
+  const callHref = interactive && destination?.validated
+    ? telephoneHref(destination.phone)
+    : undefined;
+  const bookHref = interactive && destination?.validated
+    ? destination.bookingUrl
+    : undefined;
   const deactivated = !bookHref && !callHref;
   const tokens = clinicMasterRenderTokens(pin);
   return (

@@ -12,8 +12,16 @@ const PORTAL_OR_BOOKING_RE =
   /(?:patientportal|patient-portal|portal|book|booking|appointment-request|schedule-online)/iu;
 const PROVIDER_PATH_RE = /\/(?:about|doctor|doctors|provider|providers|team|our-team)(?:\/|$)/iu;
 const SERVICE_PATH_RE = /\/(?:service|services|treatment|treatments|procedure|procedures)(?:\/|$)/iu;
+const INSURANCE_PATH_RE = /\/(?:insurance|accepted-insurance)(?:\/|$)/iu;
+const FINANCING_PATH_RE =
+  /\/(?:payment|payments|financing|financial|fees|pricing|membership)(?:\/|$)/iu;
+const FAQ_PATH_RE = /\/(?:faq|faqs|frequently-asked-questions)(?:\/|$)/iu;
+const PROVIDER_CREDENTIAL_RE =
+  /\b(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD)\b/iu;
+const PROVIDER_NAME_RE =
+  /^(?:Dr\.?\s+)?(?:[A-Z][\p{L}'’-]+(?:\s+|$)){2,5}(?:,?\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))?$/u;
 const GENERIC_HEADING_RE =
-  /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more)$/iu;
+  /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
 
 function clean(value: string | undefined): string | null {
   const text = value?.replace(/\s+/gu, ' ').trim();
@@ -71,6 +79,35 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
 
   const url = new URL(page.url);
   if (url.pathname === '/' || PROVIDER_PATH_RE.test(url.pathname)) {
+    const providerHeadings = PROVIDER_PATH_RE.test(url.pathname)
+      ? page.headings
+          .map(clean)
+          .filter((value): value is string => Boolean(
+            value
+            && !GENERIC_HEADING_RE.test(value)
+            && value.length <= 160,
+          ))
+      : [];
+    const providerName = providerHeadings.find((heading) => PROVIDER_NAME_RE.test(heading));
+    if (providerName) {
+      add(
+        'provider_name',
+        providerName,
+        'headings',
+        page.headings.findIndex((heading) => clean(heading) === providerName),
+      );
+    }
+    const providerCredential = providerHeadings.find(
+      (heading) => heading !== providerName && PROVIDER_CREDENTIAL_RE.test(heading),
+    );
+    if (providerCredential) {
+      add(
+        'provider_credential',
+        providerCredential,
+        'headings',
+        page.headings.findIndex((heading) => clean(heading) === providerCredential),
+      );
+    }
     add(
       PROVIDER_PATH_RE.test(url.pathname) ? 'provider_bio' : 'introduction',
       page.structured.description ?? page.description,
@@ -87,6 +124,36 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
       ))
       .slice(0, 12)
       .forEach((heading, index) => add('service', heading, 'headings', index));
+  }
+  if (INSURANCE_PATH_RE.test(url.pathname) || FINANCING_PATH_RE.test(url.pathname)) {
+    const kind: ProspectPublicSourceKind = INSURANCE_PATH_RE.test(url.pathname)
+      ? 'insurance'
+      : 'price_or_financing';
+    add(
+      kind,
+      page.structured.description ?? page.description,
+      page.structured.description ? 'structured.description' : 'description',
+    );
+    page.headings
+      .map(clean)
+      .filter((value): value is string => Boolean(
+        value
+        && !GENERIC_HEADING_RE.test(value)
+        && value.length <= 160,
+      ))
+      .slice(0, 8)
+      .forEach((heading, index) => add(kind, heading, 'headings', index));
+    page.structured.contentItems.slice(0, 12).forEach((item, index) => {
+      add(kind, item.name, 'structured.contentItems.name', index);
+      add('price_or_financing', item.price, 'structured.contentItems.price', index);
+    });
+  }
+  if (FAQ_PATH_RE.test(url.pathname)) {
+    page.headings
+      .map(clean)
+      .filter((value): value is string => Boolean(value?.endsWith('?') && value.length <= 240))
+      .slice(0, 12)
+      .forEach((heading, index) => add('faq_question', heading, 'headings', index));
   }
   return blocks;
 }
