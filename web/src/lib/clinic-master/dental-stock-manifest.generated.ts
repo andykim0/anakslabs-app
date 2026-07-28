@@ -75,29 +75,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "55489fb5-d710-5e63-82cf-60149b875eb1",
-      "stockKey": "stk.clinic.dental.implant.5355706",
-      "origin": "licensed_stock",
-      "providerAssetId": "5355706",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/5355706.webp",
-      "alt": "Close-up of a dental cast and red protective glasses on a white dental tray.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Tima Miroshnichenko",
-        "photographerUrl": "https://www.pexels.com/@tima-miroshnichenko",
-        "sourceUrl": "https://www.pexels.com/photo/a-dental-cast-and-protective-glasses-over-a-white-table-5355706/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "d310ad3aed28694f6bc97603ae76c80e2ce639fdcd5df43ef66e6877269060f9"
-      }
-    },
-    {
       "assetId": "1d03b744-7492-5858-8c54-57d37e9656d4",
       "stockKey": "stk.clinic.dental.implant.5355826",
       "origin": "licensed_stock",
@@ -118,29 +95,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "bc8f0658b25842480c962eb8ada245785702ded4b573c543f12711aab056a0b0"
-      }
-    },
-    {
-      "assetId": "a1ed994a-c7fb-5943-811f-919e352a5e28",
-      "stockKey": "stk.clinic.dental.implant.5355838",
-      "origin": "licensed_stock",
-      "providerAssetId": "5355838",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/5355838.webp",
-      "alt": "Close-up of a dental model on a clinic table, showcasing teeth anatomy.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Tima Miroshnichenko",
-        "photographerUrl": "https://www.pexels.com/@tima-miroshnichenko",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-a-dental-cast-5355838/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "082ae8e2355855510a88a4f6ff25f49baa3561ea2f3eb0552f5cf077b2fe695d"
       }
     },
     {
@@ -282,190 +236,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "d9610f0a-e428-5014-b95b-5b6bddc4a44f",
-      "stockKey": "stk.clinic.dental.implant.6529216",
-      "origin": "licensed_stock",
-      "providerAssetId": "6529216",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6529216.webp",
-      "alt": "Close-up of a dental professional using tools on a teeth model with braces.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "cottonbro studio",
-        "photographerUrl": "https://www.pexels.com/@cottonbro",
-        "sourceUrl": "https://www.pexels.com/photo/cast-model-of-dentures-6529216/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "bbb2fa9332e637faf0956cfaa9515d1acb9ae4f60f9c1c4a6d76fa8c7c4ed5ea"
-      }
-    },
-    {
-      "assetId": "1e92d31f-784d-50f4-bb63-a127f537a86f",
-      "stockKey": "stk.clinic.dental.implant.6627277",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627277",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627277.webp",
-      "alt": "Dental professional in scrubs demonstrates proper brushing on a model in a clinic setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/a-dentist-demonstrating-how-to-brush-teeth-6627277/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "a03f3d84e45c120bc1ce48347adca872f779d8a1d256c1a68cc3cddd76416ae1"
-      }
-    },
-    {
-      "assetId": "fdbd1c59-f3b3-56e5-a236-566fa96dc584",
-      "stockKey": "stk.clinic.dental.implant.6627279",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627279",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627279.webp",
-      "alt": "Close-up of a dental cast held with latex gloves in a clinical setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/a-dentist-holding-a-dental-cast-6627279/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "3d3cd565f71e0f934cb61a882ef582bd8d4bf8f949230b970511de9d9ecdb133"
-      }
-    },
-    {
-      "assetId": "4144b260-8119-5e80-ada3-d86648a9e403",
-      "stockKey": "stk.clinic.dental.implant.6627290",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627290",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627290.webp",
-      "alt": "A close-up of hands in latex gloves holding a dental cast in a dental office.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/a-dentist-holding-a-dental-cast-6627290/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "378e3b68058e69a0c67741117146a68a6ed5e53f8058e85610930f823022858c"
-      }
-    },
-    {
-      "assetId": "97c734fd-685a-55f7-9801-0ee3469fe46b",
-      "stockKey": "stk.clinic.dental.implant.6627313",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627313",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627313.webp",
-      "alt": "A dental professional demonstrating proper toothbrush technique with a dental model.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/photo-of-a-dentist-demonstrating-how-to-brush-teeth-6627313/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "8e248c8725ac57d821e80fd84ae6cb87b8a11ee09d333ca7d71869c5799f403d"
-      }
-    },
-    {
-      "assetId": "d9229902-cadf-5e41-a632-4d64dfe975ee",
-      "stockKey": "stk.clinic.dental.implant.6627326",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627326",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627326.webp",
-      "alt": "Dentist in gloves presenting a dental cast in a clinic setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-cast-6627326/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "09af159c3c6a9faa128c9c209f65d7e51e049297cb5b0637267bb1aeaa214f19"
-      }
-    },
-    {
-      "assetId": "348cc207-6fc1-594c-8e7c-f5c79b73b04e",
-      "stockKey": "stk.clinic.dental.implant.6627329",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627329",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627329.webp",
-      "alt": "Dentist holding a dental cast with green gloves, representing dental care and prosthetics.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-cast-6627329/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "8d80495e66f8a641e488b6f63140cf32d6c80955fe79d39f8c1b06a9384858ef"
-      }
-    },
-    {
-      "assetId": "52d23919-e4c6-5555-8cc8-b1489113a92b",
-      "stockKey": "stk.clinic.dental.implant.6627330",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627330",
-      "category": "implant",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627330.webp",
-      "alt": "Teenager learning dental hygiene from dentist using a dental model.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/dentist-holding-a-dental-model-6627330/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "b54fa8f53f75fa2a30c813a3666a555261031bb241699016f5707a6008542f20"
-      }
-    },
-    {
       "assetId": "ce7db2de-a5aa-595d-85fb-02f765c2084c",
       "stockKey": "stk.clinic.dental.orthodontic.6528865",
       "origin": "licensed_stock",
@@ -486,121 +256,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "c1b02a790faf6188b4a0288ac0ae4ae65f7a78b21b9b889f6e975d07efe09da2"
-      }
-    },
-    {
-      "assetId": "beea9d48-95ba-5988-945a-e5994d025745",
-      "stockKey": "stk.clinic.dental.orthodontic.6627331",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627331",
-      "category": "orthodontic",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627331.webp",
-      "alt": "Dentist holding dental model in gloved hands, ideal for healthcare and dentistry themes.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-cast-6627331/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "75e24299163de082cc9b3fbec65adb1993f280f7269814c82c4a7589d1af615b"
-      }
-    },
-    {
-      "assetId": "bbd2024a-a811-5531-96bb-7533c2c53cfd",
-      "stockKey": "stk.clinic.dental.orthodontic.6627349",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627349",
-      "category": "orthodontic",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627349.webp",
-      "alt": "Dentist holding a detailed dental model, showcasing dental anatomy and care.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-model-6627349/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "e26a96dc657519ea7ccaec80d6c392939b23dd8385a7f07eeb140a58e7e05b45"
-      }
-    },
-    {
-      "assetId": "4201f14d-3799-529a-a570-7e653c685dad",
-      "stockKey": "stk.clinic.dental.orthodontic.6627351",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627351",
-      "category": "orthodontic",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627351.webp",
-      "alt": "Close-up of a dental professional wearing gloves holding a dental cast model.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-model-6627351/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "96dc1c78864bb183143e12209ce841fae97f3a3abce7176687cefe63298b76ce"
-      }
-    },
-    {
-      "assetId": "c7d53c62-1fc9-50c2-a198-d6a57112f1dc",
-      "stockKey": "stk.clinic.dental.orthodontic.6627355",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627355",
-      "category": "orthodontic",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627355.webp",
-      "alt": "Close-up view of a dental model held by a professional with green gloves in a clinic setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-model-6627355/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "359eab3511b926d89aa8e7369e387db06336db66afc52ed159632d1cbf55174b"
-      }
-    },
-    {
-      "assetId": "a9459173-d0aa-56e1-8f79-e395af5f80ac",
-      "stockKey": "stk.clinic.dental.orthodontic.6627360",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627360",
-      "category": "orthodontic",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627360.webp",
-      "alt": "A dentist in gloves holds a detailed dental cast, showcasing dental care precision.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-photo-of-dental-model-6627360/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "bcde619a3dd5561998f65b8a2b93aac9ed74156653abbec74d1ac97cbc782ff1"
       }
     },
     {
@@ -972,75 +627,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "6f1664d2-aa40-54de-8f47-081e403907c9",
-      "stockKey": "stk.clinic.dental.preventive-general.3881436",
-      "origin": "licensed_stock",
-      "providerAssetId": "3881436",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/3881436.webp",
-      "alt": "Serious female dentist in medical mask and latex gloves wearing white uniform preparing instruments for treatment in light modern dental room in clinic",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Andrea Piacquadio",
-        "photographerUrl": "https://www.pexels.com/@olly",
-        "sourceUrl": "https://www.pexels.com/photo/serious-female-dentist-preparing-medical-equipment-for-treatment-in-clinic-3881436/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "bdfdd1b4d071a75f544ee99be728b8effeab9fdca7da20543d7665dd0718a7f3"
-      }
-    },
-    {
-      "assetId": "0e2f9593-608c-52ef-b7c1-e601d7a0d781",
-      "stockKey": "stk.clinic.dental.preventive-general.3884083",
-      "origin": "licensed_stock",
-      "providerAssetId": "3884083",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/3884083.webp",
-      "alt": "Anonymous crop doctor in latex gloves taking metal medical instruments from table while preparing for treatment in modern clinic",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Andrea Piacquadio",
-        "photographerUrl": "https://www.pexels.com/@olly",
-        "sourceUrl": "https://www.pexels.com/photo/unrecognizable-crop-doctor-in-latex-gloves-taking-instruments-from-table-3884083/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "f0197f078fc218a0b7673328039ecfdc6adfaedda8934e9bd799e165adae6dcc"
-      }
-    },
-    {
-      "assetId": "0b667f50-cded-548c-b059-c79473751b5b",
-      "stockKey": "stk.clinic.dental.preventive-general.3884085",
-      "origin": "licensed_stock",
-      "providerAssetId": "3884085",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/3884085.webp",
-      "alt": "From above view of various modern medical instruments placed on tray near chair in modern room in clinic",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Andrea Piacquadio",
-        "photographerUrl": "https://www.pexels.com/@olly",
-        "sourceUrl": "https://www.pexels.com/photo/medical-tools-placed-on-tray-in-modern-clinic-3884085/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "116a57664a66a381ba4593e966fbce99ed41525901abd2ec9f5ff9afaf40d85d"
-      }
-    },
-    {
       "assetId": "584df011-a844-5fcb-9181-fd1086905fb6",
       "stockKey": "stk.clinic.dental.preventive-general.4269356",
       "origin": "licensed_stock",
@@ -1317,75 +903,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "a67f0e73-cac6-5235-9a59-21468d134f96",
-      "stockKey": "stk.clinic.dental.preventive-general.6502743",
-      "origin": "licensed_stock",
-      "providerAssetId": "6502743",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6502743.webp",
-      "alt": "Dental tools arranged neatly on a blue dental cloth. Ideal for dental care concepts.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "cottonbro studio",
-        "photographerUrl": "https://www.pexels.com/@cottonbro",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-shot-of-a-dental-syringe-6502743/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "8334aa1f891f9f757d16b84474386fdd1349d61429dd101e7a63b3533f580539"
-      }
-    },
-    {
-      "assetId": "4fea9168-d389-5b6f-881e-67ee1b92ec0a",
-      "stockKey": "stk.clinic.dental.preventive-general.6627449",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627449",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627449.webp",
-      "alt": "Dentist wearing mask and scrubs using dental instruments in a sterile clinic.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/doctor-holding-a-dental-instrument-in-a-medical-examination-room-6627449/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "f78e27db47508016155f40787e4ce5bcad229305b98a3c143b59083566ac1e63"
-      }
-    },
-    {
-      "assetId": "95676f4e-7328-5de3-942e-0c8e097523d2",
-      "stockKey": "stk.clinic.dental.preventive-general.6627461",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627461",
-      "category": "preventive-general",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627461.webp",
-      "alt": "Close-up of a dental professional unpacking sterile instruments in a clinic.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/doctor-in-rubber-gloves-unpacking-sterile-instruments-6627461/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "e26e761a54f5e5e0b43864bac306765cb3146400d7257d84a53c35cefdc9914f"
-      }
-    },
-    {
       "assetId": "8b899fd2-a1cf-5d34-89c1-4c88fd94a05d",
       "stockKey": "stk.clinic.dental.cosmetic-restorative.4562896",
       "origin": "licensed_stock",
@@ -1429,52 +946,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "bf6dc7655af9957b2a9e5db5061d0f221a4faa28b480ba3a6039b90f0f6bfd63"
-      }
-    },
-    {
-      "assetId": "e943a021-963f-5c0e-9694-af8b0e9f5db5",
-      "stockKey": "stk.clinic.dental.cosmetic-restorative.6627292",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627292",
-      "category": "cosmetic-restorative",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627292.webp",
-      "alt": "Close-up of dentist using a tooth shade guide for accurate dental matching in clinic.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/a-dentist-holding-a-dental-shade-guide-6627292/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "37a4f147307c6f0506866868e61322583a85beea275178dfb619c251dc5a9e44"
-      }
-    },
-    {
-      "assetId": "03201c8b-a7b2-5196-ba81-764b4511664f",
-      "stockKey": "stk.clinic.dental.cosmetic-restorative.6627593",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627593",
-      "category": "cosmetic-restorative",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627593.webp",
-      "alt": "Close-up of a dentist polishing dentures with precision in a sterile clinic.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-of-doctor-hands-with-denture-6627593/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "9ee3b2328cf899c2492c76cbc3d59a4046658307aa385b40704d82c594c1c6f2"
       }
     },
     {
@@ -1567,29 +1038,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "09d32a4691f298c669b32b6f65ab24f252132dd8dc6893865a176cbc18da7f9f"
-      }
-    },
-    {
-      "assetId": "056eb577-50ee-5589-a2b4-f7c55bed0bfe",
-      "stockKey": "stk.clinic.dental.cosmetic-restorative.6627667",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627667",
-      "category": "cosmetic-restorative",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627667.webp",
-      "alt": "A healthcare professional operates a centrifuge machine in a laboratory, ensuring sterile medical procedures.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/doctor-using-a-centrifuge-machine-6627667/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "2d394fa8262ebe1e468181bf189d5039275d927881afd1e0abe51872a53bd026"
       }
     },
     {
@@ -1731,29 +1179,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "15927207-0030-5d2e-9d93-b7c02ae67244",
-      "stockKey": "stk.clinic.dental.cosmetic-restorative.6629387",
-      "origin": "licensed_stock",
-      "providerAssetId": "6629387",
-      "category": "cosmetic-restorative",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6629387.webp",
-      "alt": "Close-up of a dental professional operating a modern medical instrument in a clinic setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-of-a-doctor-with-a-medical-instrument-6629387/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "dd63f6d04e5628a0c207ce5aaabad7266ad0b09854c93716966bf33052dcf2e4"
-      }
-    },
-    {
       "assetId": "a3ade947-0d50-571a-8a05-15cd18f35b0c",
       "stockKey": "stk.clinic.dental.cosmetic-restorative.6629388",
       "origin": "licensed_stock",
@@ -1797,29 +1222,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "71c4d7f4d0912a5a8df277ba82b52886175ad923216c2f6fdfbae2cdb3bccac5"
-      }
-    },
-    {
-      "assetId": "f1f7472f-a8fb-51fe-b425-27d7ee3891c3",
-      "stockKey": "stk.clinic.dental.cosmetic-restorative.6629392",
-      "origin": "licensed_stock",
-      "providerAssetId": "6629392",
-      "category": "cosmetic-restorative",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6629392.webp",
-      "alt": "Healthcare professional holding blood vials next to a laboratory centrifuge, indoors.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/nurse-holding-blood-vials-6629392/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "d07e34034a3a993bb973eb706104fca1f42a1c643351a63e92c2f8590eddd6de"
       }
     },
     {
@@ -1961,29 +1363,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "cd8bb2e6-ac78-5de9-b244-876683cbd299",
-      "stockKey": "stk.clinic.dental.bright-interior.5355897",
-      "origin": "licensed_stock",
-      "providerAssetId": "5355897",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/5355897.webp",
-      "alt": "A female dentist in protective gear, focused and ready for a dental procedure in a modern clinic.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Tima Miroshnichenko",
-        "photographerUrl": "https://www.pexels.com/@tima-miroshnichenko",
-        "sourceUrl": "https://www.pexels.com/photo/low-angle-shot-of-a-female-dentist-5355897/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "50de3e0d11fe7bd0fe2aeddb9345c7fb683254d92d787e2d9ac61808173ece6a"
-      }
-    },
-    {
       "assetId": "1abf7d7e-85ce-5fda-bdb0-e94162468f19",
       "stockKey": "stk.clinic.dental.bright-interior.6501859",
       "origin": "licensed_stock",
@@ -2053,52 +1432,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "25a75a90-4481-5d90-af70-7ea8813a325a",
-      "stockKey": "stk.clinic.dental.bright-interior.6627731",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627731",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627731.webp",
-      "alt": "Sterile drawer with medical instruments and syringes in a clinic setting.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/medical-instruments-in-drawer-6627731/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "e5e934e236c4fc55566f6c128b3378d5768451ec58573340a2ed36c30ab760fa"
-      }
-    },
-    {
-      "assetId": "9394ca8f-c885-52c3-b310-96fe2a3d70d2",
-      "stockKey": "stk.clinic.dental.bright-interior.6627838",
-      "origin": "licensed_stock",
-      "providerAssetId": "6627838",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6627838.webp",
-      "alt": "Close-up of dental tools with a blurred dentist in scrubs in the background.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/medical-instrument-in-dentist-office-6627838/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "ced6ade957eaf1f484fd84abf7138ad8b5af2e0fc7e6d63d19ae0ca380ee7cf8"
-      }
-    },
-    {
       "assetId": "89dd0503-cac7-5f1a-ab80-7549ff733531",
       "stockKey": "stk.clinic.dental.bright-interior.6629405",
       "origin": "licensed_stock",
@@ -2122,121 +1455,6 @@ export const DENTAL_STOCK_MANIFEST = {
       }
     },
     {
-      "assetId": "9f055717-4ab6-570e-88d7-08e126613e45",
-      "stockKey": "stk.clinic.dental.bright-interior.6629414",
-      "origin": "licensed_stock",
-      "providerAssetId": "6629414",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6629414.webp",
-      "alt": "Close-up of a dental professional organizing tools in a drawer.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/doctor-taking-medical-tools-from-drawer-6629414/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "6bbdc734f98c8e874a8151eeb31f6014f2f55da8ec7df89ce52ed819ddb33aec"
-      }
-    },
-    {
-      "assetId": "c2d84fbb-871f-57fa-983a-69b86567ff20",
-      "stockKey": "stk.clinic.dental.bright-interior.6629415",
-      "origin": "licensed_stock",
-      "providerAssetId": "6629415",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6629415.webp",
-      "alt": "Close-up of dental equipment in a modern, sterile dentist office, highlighting advanced healthcare technology.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-of-dental-equipment-6629415/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "dac5e0d0260a52b5399d33ac60165431e98ae8569fd95b375ff8ace663f0a499"
-      }
-    },
-    {
-      "assetId": "54fa350c-2e32-50e8-a5dc-7acfe268fbea",
-      "stockKey": "stk.clinic.dental.bright-interior.6629416",
-      "origin": "licensed_stock",
-      "providerAssetId": "6629416",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/6629416.webp",
-      "alt": "A dentist arranges dental tools in a clinic drawer, showing modern equipment.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "www.kaboompics.com",
-        "photographerUrl": "https://www.pexels.com/@karola-g",
-        "sourceUrl": "https://www.pexels.com/photo/doctor-holding-medical-tool-6629416/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "0c2ee63386e6b0ca03e5d4d94e3e67adaed6a1cae895213c0978850407ef3b7d"
-      }
-    },
-    {
-      "assetId": "b1ca5cab-1dab-539a-be1e-a324b76f5f60",
-      "stockKey": "stk.clinic.dental.bright-interior.34007082",
-      "origin": "licensed_stock",
-      "providerAssetId": "34007082",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/34007082.webp",
-      "alt": "A dentist in a white coat sits in a modern dental clinic, surrounded by equipment and assistants.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "khezez  | خزاز",
-        "photographerUrl": "https://www.pexels.com/@khezez",
-        "sourceUrl": "https://www.pexels.com/photo/middle-eastern-dentist-in-modern-clinic-setting-34007082/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "42fed77865b6f3d24df4c7e3be9580e4e7827b78947357e794a8ff70366a7837"
-      }
-    },
-    {
-      "assetId": "fbe92f4d-8ebd-5b63-af5b-565b9deabf46",
-      "stockKey": "stk.clinic.dental.bright-interior.34007083",
-      "origin": "licensed_stock",
-      "providerAssetId": "34007083",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/34007083.webp",
-      "alt": "Professional female dentist standing in a modern dental clinic, Baghdad, Iraq.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "khezez  | خزاز",
-        "photographerUrl": "https://www.pexels.com/@khezez",
-        "sourceUrl": "https://www.pexels.com/photo/modern-dental-clinic-with-female-dentist-34007083/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "3c93004e72552524bb1f57e5bcc332a56392d3f63920da447d82d1391225fb45"
-      }
-    },
-    {
       "assetId": "9fa22094-7386-5302-ae74-723e98d13f28",
       "stockKey": "stk.clinic.dental.bright-interior.38055771",
       "origin": "licensed_stock",
@@ -2257,52 +1475,6 @@ export const DENTAL_STOCK_MANIFEST = {
         "algorithmVersion": "clinic-dental-atmosphere-v1",
         "passed": true,
         "metadataSha256": "0a6cfdf0f122082d553a0ea1f2f9e555adc6232c9ed4056ba3f050a6e6d0e5bd"
-      }
-    },
-    {
-      "assetId": "2af173c9-1209-5be9-9de5-9fdc2897ad0d",
-      "stockKey": "stk.clinic.dental.bright-interior.38055772",
-      "origin": "licensed_stock",
-      "providerAssetId": "38055772",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/38055772.webp",
-      "alt": "Spacious dental office reception with contemporary design in Beverly Hills.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Marc Chemla",
-        "photographerUrl": "https://www.pexels.com/@marc-chemla-2162200115",
-        "sourceUrl": "https://www.pexels.com/photo/modern-dental-office-in-beverly-hills-reception-area-38055772/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "c0dfeafcd26fb084ba2908749106b4996d6bb6da75f2ed86e398b2bee50b08a2"
-      }
-    },
-    {
-      "assetId": "95eceb2e-bebf-51d3-9635-901009b67c00",
-      "stockKey": "stk.clinic.dental.bright-interior.38055773",
-      "origin": "licensed_stock",
-      "providerAssetId": "38055773",
-      "category": "bright-interior",
-      "width": 1600,
-      "height": 1200,
-      "renditionUrl": "/stock/pexels/dental-atmosphere/38055773.webp",
-      "alt": "Clean and modern reception area in a Beverly Hills dental office with staff at the desk.",
-      "attribution": {
-        "provider": "pexels",
-        "photographer": "Marc Chemla",
-        "photographerUrl": "https://www.pexels.com/@marc-chemla-2162200115",
-        "sourceUrl": "https://www.pexels.com/photo/modern-dental-office-reception-in-beverly-hills-38055773/",
-        "licenseUrl": "https://www.pexels.com/license/"
-      },
-      "review": {
-        "algorithmVersion": "clinic-dental-atmosphere-v1",
-        "passed": true,
-        "metadataSha256": "d7d0f9e90618e6b33acaeadabc566a169c332e2e27816b210a0efe49e1858af9"
       }
     }
   ]

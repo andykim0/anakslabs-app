@@ -30,6 +30,45 @@ import {
 } from '.';
 import { DENTAL_STOCK_MANIFEST } from './dental-stock-manifest.generated';
 
+const REMOVED_PERSON_STOCK_IDS = [
+  '34007082',
+  '34007083',
+  '38055772',
+  '38055773',
+  '3881436',
+  '5355897',
+  '6502743',
+  '6627277',
+  '6627329',
+  '6627449',
+  '6627838',
+  '3884083',
+  '3884085',
+  '5355706',
+  '5355838',
+  '6529216',
+  '6627279',
+  '6627290',
+  '6627292',
+  '6627313',
+  '6627326',
+  '6627330',
+  '6627331',
+  '6627349',
+  '6627351',
+  '6627355',
+  '6627360',
+  '6627461',
+  '6627593',
+  '6627667',
+  '6627731',
+  '6629387',
+  '6629392',
+  '6629414',
+  '6629415',
+  '6629416',
+] as const;
+
 const pin: ClinicMasterPin = {
   version: 1,
   masterId: 'premium-dental-v1',
@@ -282,13 +321,20 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     assert.equal(blocks.find((source) => source.kind === 'provider_credential')?.text, 'DMD, FAGD');
   });
 
-  test('frozen dental manifest는 5×20이고 결정적 selector는 hero/atmosphere 외 슬롯을 거부한다', () => {
+  test('frozen dental manifest는 검수된 64장이고 결정적 selector는 hero/atmosphere 외 슬롯을 거부한다', () => {
+    const expectedCategoryCounts = {
+      implant: 10,
+      orthodontic: 15,
+      'preventive-general': 14,
+      'cosmetic-restorative': 15,
+      'bright-interior': 10,
+    } as const;
     assert.equal(DENTAL_STOCK_MANIFEST.version, 1);
-    assert.equal(DENTAL_STOCK_MANIFEST.assets.length, 100);
+    assert.equal(DENTAL_STOCK_MANIFEST.assets.length, 64);
     for (const category of DENTAL_STOCK_CATEGORIES) {
       assert.equal(
         DENTAL_STOCK_MANIFEST.assets.filter((asset) => asset.category === category).length,
-        20,
+        expectedCategoryCounts[category],
         category,
       );
     }
@@ -321,6 +367,23 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     assert.equal(dentalStockSlotIsAllowed('atmosphere'), true);
     for (const forbidden of ['provider', 'real-hospital', 'patient-result', 'before-after']) {
       assert.equal(dentalStockSlotIsAllowed(forbidden), false, forbidden);
+    }
+  });
+
+  test('사람·얼굴 시각 검수 탈락 36개 provider ID는 manifest와 파일에 재유입되지 않는다', () => {
+    assert.equal(REMOVED_PERSON_STOCK_IDS.length, 36);
+    const manifestIds = new Set<string>(
+      DENTAL_STOCK_MANIFEST.assets.map((asset) => asset.providerAssetId),
+    );
+    for (const providerAssetId of REMOVED_PERSON_STOCK_IDS) {
+      assert.equal(manifestIds.has(providerAssetId), false, providerAssetId);
+      assert.equal(
+        existsSync(
+          `${process.cwd()}/public/stock/pexels/dental-atmosphere/${providerAssetId}.webp`,
+        ),
+        false,
+        providerAssetId,
+      );
     }
   });
 
