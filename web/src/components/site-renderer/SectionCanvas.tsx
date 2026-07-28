@@ -37,6 +37,7 @@ import {
   ClinicInsuranceStrip,
   isClinicInsuranceStripSection,
 } from './ClinicInsuranceStrip';
+import { ClinicFlowSection } from './ClinicFlowSection';
 
 interface SectionCanvasProps {
   section: Section;
@@ -55,6 +56,8 @@ interface SectionCanvasProps {
   integratedTypography?: boolean;
   /** FLOW opt-in only. Existing SITECINE and legacy configs omit it. */
   continuousFlow?: boolean;
+  /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
+  clinicFlow?: boolean;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -86,6 +89,17 @@ export function SectionCanvas(props: SectionCanvasProps) {
     return <ClinicInsuranceStrip section={section} theme={props.theme} variant="canvas" />;
   }
   if (section.sectionLayout) {
+    if (props.clinicFlow && section.sectionLayout.kind === 'features') {
+      return (
+        <ClinicFlowSection
+          section={section}
+          theme={props.theme}
+          isFirst={props.isFirst}
+          interactive={props.interactive}
+          siteId={props.siteId}
+        />
+      );
+    }
     return (
       <SectionLayoutProjectionRenderer
         section={section}

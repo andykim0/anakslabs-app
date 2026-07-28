@@ -29,6 +29,7 @@ import {
   ClinicInsuranceStrip,
   isClinicInsuranceStripSection,
 } from './ClinicInsuranceStrip';
+import { ClinicFlowSection } from './ClinicFlowSection';
 
 interface SectionStackProps {
   section: Section;
@@ -46,6 +47,8 @@ interface SectionStackProps {
   integratedTypography?: boolean;
   /** FLOW opt-in only. Existing SITECINE and legacy configs omit it. */
   continuousFlow?: boolean;
+  /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
+  clinicFlow?: boolean;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -390,11 +393,23 @@ export function SectionStack({
   proceduralHero = false,
   integratedTypography = false,
   continuousFlow = false,
+  clinicFlow = false,
 }: SectionStackProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
   }
   if (section.sectionLayout) {
+    if (clinicFlow && section.sectionLayout.kind === 'features') {
+      return (
+        <ClinicFlowSection
+          section={section}
+          theme={theme}
+          isFirst={isFirst}
+          interactive={interactive}
+          siteId={siteId}
+        />
+      );
+    }
     return (
       <SectionLayoutProjectionRenderer
         section={section}

@@ -610,12 +610,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
                         </div>
                       )}
                     </div>
@@ -657,6 +657,7 @@ export function SiteRenderer({
                       plan={plan}
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
+                      clinicFlow={Boolean(config.clinicMaster)}
                     />
                   </div>
                 )}
@@ -671,6 +672,7 @@ export function SiteRenderer({
                       plan={plan}
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
+                      clinicFlow={Boolean(config.clinicMaster)}
                     />
                   </div>
                 )}
@@ -692,12 +694,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -718,12 +720,12 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
             ) : ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} />
             ))}
           </div>
         )}
@@ -743,6 +745,7 @@ export function SiteRenderer({
                       proceduralHero={usesProceduralHero(section)}
                       integratedTypography={section.type === 'hero'}
                       continuousFlow={continuousCanvas}
+                      clinicFlow={Boolean(config.clinicMaster)}
                     />
                   </SiteCinematicChapter>
                 ))}
@@ -756,6 +759,7 @@ export function SiteRenderer({
                 interactive={interactive}
                 plan={plan}
                 siteId={siteId}
+                clinicFlow={Boolean(config.clinicMaster)}
               />
             ))}
           </div>
