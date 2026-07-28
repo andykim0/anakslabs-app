@@ -106,7 +106,57 @@ function compileBand({
   const fontSizes: Record<string, number> = {};
   const allBodyIds = [...content.about.bodyIds, ...content.about.factIds];
 
-  if (recipe.flow === 'split' && band !== 'mobile') {
+  if (recipe.flow === 'split' && band === 'mobile') {
+    const hasFigure = mediaAvailable && Boolean(
+      content.about.mediaId && elementById(elements, content.about.mediaId),
+    );
+    let introY = zone.y;
+    if (hasFigure && content.about.mediaId) {
+      const mediaHeight = zone.w / (4 / 3);
+      putFrame(frames, content.about.mediaId, zone.x, zone.y, zone.w, mediaHeight);
+      introY += mediaHeight + spacing.elementGap * 2;
+    }
+    const intro = layoutSectionIntro({
+      band,
+      elements,
+      theme,
+      frames,
+      ...content.intro,
+      x: zone.x,
+      y: introY,
+      width: zone.w,
+    });
+    Object.assign(fontSizes, intro.fontSizes);
+    let cursor = placeBody({
+      band,
+      elements,
+      theme,
+      ids: [
+        ...(content.about.statementId ? [content.about.statementId] : []),
+        ...allBodyIds,
+      ],
+      frames,
+      fontSizes,
+      x: zone.x,
+      y: intro.bottom + spacing.elementGap * 2,
+      width: zone.w,
+    });
+    const cta = buttonById(elements, content.about.ctaId);
+    if (cta && content.about.ctaId) {
+      cursor += spacing.elementGap;
+      putFrame(frames, content.about.ctaId, zone.x, cursor, zone.w, 48);
+      cursor += 48;
+    }
+    return {
+      width: 390,
+      sectionHeight: Math.ceil(cursor + spacing.sectionBlock),
+      frames,
+      fontSizes,
+      itemOrder: [content.about.id],
+    };
+  }
+
+  if (recipe.flow === 'split') {
     const hasFigure = mediaAvailable && Boolean(
       content.about.mediaId && elementById(elements, content.about.mediaId),
     );

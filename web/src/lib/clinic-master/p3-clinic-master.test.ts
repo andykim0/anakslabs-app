@@ -5,7 +5,6 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, test } from 'node:test';
 import { SiteRenderer } from '@/components/site-renderer';
-import { stackOrder } from '@/components/site-renderer/stack-order';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { INTERIOR_NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
 import {
@@ -129,7 +128,7 @@ function siteConfig(
 }
 
 describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live boundary', () => {
-  test('Meet the Doctor는 확정 frame과 source verbatim으로 카드마다 반복된다', () => {
+  test('Meet the Doctor는 about resolver의 3밴드 projection과 source verbatim으로 반복된다', () => {
     const firstUrl = 'https://practice.example/team/jane-park';
     const secondUrl = firstUrl;
     const config = siteConfig([
@@ -146,82 +145,40 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
       block('credential-2', 'provider_credential', 'DMD, FAGD', secondUrl),
       block('bio-2', 'provider_bio', 'Her public biography remains verbatim.', secondUrl),
     ]);
-    const provider = config.pages[0]!.sections.find((section) => section.id === 'us-demo-providers');
-    assert.ok(provider);
-    assert.equal(provider.background.color, '#FFFFFF');
-    assert.equal(provider.height, 1_564);
-
-    const photo = provider.elements.find(
-      (element) => element.id === 'clinic-provider-photo-placeholder',
+    const providers = config.pages[0]!.sections.filter(
+      (section) => section.id.startsWith('us-demo-providers'),
     );
-    assert.deepEqual(photo?.frame, { x: 150, y: 136, w: 476, h: 602 });
-    assert.equal(photo?.z, 1);
-    assert.ok(photo?.kind === 'image');
-    assert.equal(photo.style.objectFit, 'cover');
-    assert.equal(photo.style.borderRadius, 4);
-
-    const kicker = provider.elements.find((element) => element.id === 'clinic-provider-kicker');
-    assert.deepEqual(kicker?.frame, { x: 714, y: 180, w: 576, h: 22 });
-    assert.ok(kicker?.kind === 'text');
-    assert.equal(kicker.text, 'MEET THE DOCTOR');
-    assert.deepEqual(
-      {
-        fontSize: kicker.style.fontSize,
-        fontWeight: kicker.style.fontWeight,
-        color: kicker.style.color,
-        letterSpacing: kicker.style.letterSpacing,
-      },
-      { fontSize: 14, fontWeight: 700, color: '#1466A5', letterSpacing: 1.68 },
-    );
-
-    const name = provider.elements.find((element) => element.id.includes('name-1-provider-name'));
-    const credential = provider.elements.find(
-      (element) => element.id.includes('credential-1-provider-credential'),
-    );
-    const divider = provider.elements.find((element) => element.id === 'clinic-provider-divider');
-    const bio = provider.elements.find((element) => element.id.includes('bio-1-provider-bio'));
-    assert.deepEqual(name?.frame, { x: 714, y: 218, w: 576, h: 52 });
-    assert.deepEqual(credential?.frame, { x: 714, y: 286, w: 576, h: 28 });
-    assert.deepEqual(divider?.frame, { x: 714, y: 342, w: 64, h: 3 });
-    assert.deepEqual(bio?.frame, { x: 714, y: 382, w: 576, h: 280 });
-    assert.ok(divider?.kind === 'shape');
-    assert.equal(divider.style.fill, '#1466A5');
-    assert.equal(divider.style.borderRadius, 2);
-
-    const secondPhoto = provider.elements.find(
-      (element) => element.id === 'clinic-provider-photo-placeholder-1',
-    );
-    const secondName = provider.elements.find(
-      (element) => element.id.includes('name-2-provider-name'),
-    );
-    const secondCredential = provider.elements.find(
-      (element) => element.id.includes('credential-2-provider-credential'),
-    );
-    const secondBio = provider.elements.find(
-      (element) => element.id.includes('bio-2-provider-bio'),
-    );
-    assert.deepEqual(secondPhoto?.frame, { x: 150, y: 826, w: 476, h: 602 });
-    assert.deepEqual(secondName?.frame, { x: 714, y: 908, w: 576, h: 96 });
-    assert.deepEqual(secondCredential?.frame, { x: 714, y: 1_020, w: 576, h: 28 });
-    assert.deepEqual(secondBio?.frame, { x: 714, y: 1_116, w: 576, h: 280 });
-
-    assert.deepEqual(
-      stackOrder(provider.elements).map((element) => element.id),
-      [
-        'clinic-provider-photo-placeholder',
-        'clinic-provider-kicker',
-        'source-name-1-provider-name-0',
-        'source-credential-1-provider-credential-0',
-        'clinic-provider-divider',
-        'source-bio-1-provider-bio-0',
-        'clinic-provider-photo-placeholder-1',
-        'clinic-provider-kicker-1',
-        'source-name-2-provider-name-1',
-        'source-credential-2-provider-credential-1',
-        'clinic-provider-divider-1',
-        'source-bio-2-provider-bio-1',
-      ],
-    );
+    assert.equal(providers.length, 2);
+    for (const provider of providers) {
+      assert.equal(provider.type, 'about');
+      assert.equal(provider.background.color, '#FFFFFF');
+      assert.equal(provider.sectionLayout?.requestedId, 'about.split-left');
+      assert.equal(provider.sectionLayout?.resolvedId, 'about.split-left');
+      assert.deepEqual(
+        Object.keys(provider.sectionLayout?.bands ?? {}),
+        ['wide', 'compact', 'mobile'],
+      );
+      const photo = provider.elements.find((element) => element.kind === 'image');
+      assert.ok(photo?.kind === 'image');
+      assert.equal(photo.src, '/clinic/provider-placeholder.svg');
+      assert.equal(photo.style.objectFit, 'cover');
+      assert.equal(photo.style.borderRadius, 4);
+      assert.ok(provider.sectionLayout?.bands.wide.frames[photo.id]);
+      assert.ok(provider.sectionLayout?.bands.mobile.frames[photo.id]);
+    }
+    const providerText = providers.flatMap((provider) => (
+      provider.elements.flatMap((element) => element.kind === 'text' ? [element.text] : [])
+    ));
+    assert.deepEqual(providerText, [
+      'Meet the Doctor',
+      'Jane Park, DMD',
+      'Dr. Park provides preventive and restorative care.',
+      'Doctor of Dental Medicine',
+      'Meet the Doctor',
+      'Alexandria Katherine Montgomery, DMD',
+      'Her public biography remains verbatim.',
+      'DMD, FAGD',
+    ]);
   });
 
   test('credential·insurance 원문이 없으면 요소/섹션을 만들지 않고 있으면 그대로 소비한다', () => {
@@ -256,9 +213,12 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     );
     assert.ok(insurance);
     assert.deepEqual(
-      insurance.elements.flatMap((element) => element.kind === 'text' ? [element.text] : []),
+      insurance.elements.flatMap((element) => (
+        element.kind === 'text' && element.id.startsWith('source-') ? [element.text] : []
+      )),
       [insuranceText, priceText],
     );
+    assert.equal(insurance.sectionLayout?.resolvedId, 'about.heading-body-columns');
   });
 
   test('crawl projection은 새 factual kind의 URL·원문 위치·SHA를 보존한다', () => {
@@ -407,6 +367,9 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     assert.notEqual(after, before);
     const hero = after.pages[0]!.sections.find((section) => section.type === 'hero');
     assert.match(hero?.background.image?.src ?? '', /^\/stock\/pexels\/dental-atmosphere\//u);
+    assert.equal(hero?.heroLayout?.resolvedId, 'hero.split-left');
+    assert.equal(hero?.heroLayout?.mediaKind, 'image');
+    assert.ok(hero?.heroLayout?.bands.wide.mediaFrame);
     assert.equal(
       hero?.elements.some((element) => (
         element.kind === 'text' && element.text === CLINIC_STOCK_DISCLOSURE
@@ -521,6 +484,10 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     assert.equal(
       fileSha('public/fonts/latin/font-assets.json'),
       'efdb1ea48b91100b3fcc66a47d66c26aad3deae841eff2b491a7c6b093097825',
+    );
+    assert.equal(
+      fileSha('src/lib/clinic-master/dental-stock-manifest.generated.ts'),
+      'd542055847e571f6f2851cfa1982ad386d2014d502d9d7d3b9bb6380e741bee5',
     );
     assert.equal(
       fileSha('src/lib/stock/workshop-manifest.generated.ts'),

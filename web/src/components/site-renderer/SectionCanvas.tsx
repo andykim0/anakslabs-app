@@ -33,6 +33,10 @@ import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 import { ProceduralBackground } from './ProceduralBackground';
+import {
+  ClinicInsuranceStrip,
+  isClinicInsuranceStripSection,
+} from './ClinicInsuranceStrip';
 
 interface SectionCanvasProps {
   section: Section;
@@ -78,6 +82,9 @@ function canvasFrameStyle(frame: { x: number; y: number; w: number; h: number })
 
 export function SectionCanvas(props: SectionCanvasProps) {
   const { section, plan } = props;
+  if (isClinicInsuranceStripSection(section)) {
+    return <ClinicInsuranceStrip section={section} theme={props.theme} variant="canvas" />;
+  }
   if (section.sectionLayout) {
     return (
       <SectionLayoutProjectionRenderer

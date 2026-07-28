@@ -1,5 +1,6 @@
 import { stableIndex } from '@/lib/abstract/seed';
 import type { AssetRef, AssetUsage } from '@/lib/assets/provenance';
+import { resolveHeroLayoutVariant } from '@/lib/layout';
 import type { ClinicAccentPreset, ClinicMasterPin, SiteConfig } from '@/lib/types/site';
 import { DENTAL_STOCK_MANIFEST } from './dental-stock-manifest.generated';
 import {
@@ -112,7 +113,7 @@ export function applyDentalStockToClinicMaster(
     const sections = page.sections.map((section) => {
       if (changed || section.type !== 'hero') return section;
       changed = true;
-      return {
+      const next = {
         ...section,
         background: {
           ...section.background,
@@ -140,6 +141,25 @@ export function applyDentalStockToClinicMaster(
             entrance: { effect: 'none' as const },
           },
         ],
+      };
+      if (!next.heroLayout) return next;
+      const resolved = resolveHeroLayoutVariant({
+        requestedId: next.heroLayout.requestedId,
+        section: next,
+        theme: config.theme,
+        availableMedia: {
+          image: true,
+          video: false,
+          poster: false,
+          referentialImage: true,
+          atmosphericBackdrop: true,
+        },
+      });
+      return {
+        ...next,
+        height: resolved.height,
+        elements: resolved.elements,
+        heroLayout: resolved.projection,
       };
     });
     return changed ? { ...page, sections } : page;

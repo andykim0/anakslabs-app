@@ -25,6 +25,10 @@ import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
 import { SectionLayoutProjectionRenderer } from './SectionLayoutProjectionRenderer';
 import { ProceduralBackground } from './ProceduralBackground';
+import {
+  ClinicInsuranceStrip,
+  isClinicInsuranceStripSection,
+} from './ClinicInsuranceStrip';
 
 interface SectionStackProps {
   section: Section;
@@ -387,6 +391,9 @@ export function SectionStack({
   integratedTypography = false,
   continuousFlow = false,
 }: SectionStackProps) {
+  if (isClinicInsuranceStripSection(section)) {
+    return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
+  }
   if (section.sectionLayout) {
     return (
       <SectionLayoutProjectionRenderer

@@ -33,6 +33,7 @@ const BLOCK_KIND_LABELS = {
   business_name: '병원명',
   introduction: '소개',
   service: '진료 항목',
+  service_detail: '진료 본문',
   provider_name: '의료진 이름',
   provider_credential: '의료진 자격',
   provider_bio: '의료진 약력',

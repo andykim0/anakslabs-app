@@ -13,6 +13,7 @@ export type ProspectPublicSourceKind =
   | 'business_name'
   | 'introduction'
   | 'service'
+  | 'service_detail'
   | 'provider_name'
   | 'provider_credential'
   | 'provider_bio'

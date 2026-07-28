@@ -2,24 +2,29 @@ import { createHash } from 'node:crypto';
 import {
   isValidPageSlug,
   type CanvasElement,
-  type Frame,
   type Section,
   type SiteConfig,
   type SitePage,
   type SiteTheme,
-  type TextElement,
 } from '@/lib/types/site';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import {
   applyDentalStockToClinicMaster,
+  buildClinicCtaSection,
+  buildClinicFaqSection,
+  buildClinicFeatureSections,
+  buildClinicGallerySections,
+  buildClinicHeroSection,
+  CLINIC_RADIUS_TOKENS,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
+  orderClinicServices,
   verifyClinicUsDestination,
+  type ClinicLayoutContentUnit,
+  type ClinicLayoutImage,
   type ClinicMasterExperience,
-  type ClinicMasterSourceBlock,
   type DentalStockCategory,
 } from '@/lib/clinic-master';
-import { CLINIC_RADIUS_TOKENS } from '@/lib/clinic-master/tokens';
 import type {
   ProspectPublicSourceBlock,
   ProspectPublicSourceImage,
@@ -27,9 +32,14 @@ import type {
 import {
   prospectPublicSourceImages,
   sourceImageIsBeforeAfter,
+  sourceImageIsInsuranceLogo,
   sourceImageIsProvider,
   type ProjectedUsDemoSourceImage,
 } from './source-images';
+import {
+  prospectPublicSourceContentUnits,
+  type ProspectPublicSourceContentUnit,
+} from './source-extraction';
 
 export type ClinicProcedureCategory =
   | 'implant'
@@ -252,23 +262,6 @@ function procedureSlug(
   return slug;
 }
 
-function sourceTextElement(
-  block: ClinicMasterSourceBlock,
-  suffix: string,
-  frame: Frame,
-  style: TextElement['style'],
-): TextElement {
-  return {
-    id: `source-${block.id}-${suffix}`,
-    kind: 'text',
-    frame,
-    z: 2,
-    text: block.text,
-    style,
-    entrance: { effect: 'none' },
-  };
-}
-
 function section(input: {
   id: string;
   type: Section['type'];
@@ -277,7 +270,6 @@ function section(input: {
   elements: CanvasElement[];
   theme: SiteTheme;
   surface?: boolean;
-  heroImage?: ProspectPublicSourceImage;
 }): Section {
   return {
     id: input.id,
@@ -287,91 +279,215 @@ function section(input: {
     layout: 'canvas',
     background: {
       color: input.surface ? input.theme.palette.surface : input.theme.palette.background,
-      ...(input.heroImage
-        ? {
-            image: {
-              src: input.heroImage.url,
-              overlayColor: input.theme.palette.background,
-              overlayOpacity: 0.78,
-            },
-          }
-        : {}),
     },
     elements: input.elements,
   };
 }
 
-function heroSection(input: {
+function layoutImage(image: ProjectedUsDemoSourceImage): ClinicLayoutImage {
+  return {
+    id: image.source.id,
+    src: image.source.url,
+    alt: image.source.alt,
+    ...(image.candidate.declaredWidth && image.candidate.declaredHeight
+      ? {
+          sourceWidth: image.candidate.declaredWidth,
+          sourceHeight: image.candidate.declaredHeight,
+        }
+      : {}),
+  };
+}
+
+function sourceLayoutImage(image: ProspectPublicSourceImage | undefined): ClinicLayoutImage | undefined {
+  return image
+    ? {
+        id: image.id,
+        src: image.url,
+        alt: image.alt,
+      }
+    : undefined;
+}
+
+function insuranceStripSection(input: {
   id: string;
-  title: ClinicMasterSourceBlock;
-  lead?: ClinicMasterSourceBlock;
+  images: readonly ProjectedUsDemoSourceImage[];
   theme: SiteTheme;
-  image?: ProspectPublicSourceImage;
-}): Section {
+}): Section | null {
+  const images = input.images.slice(0, 12);
+  if (images.length === 0) return null;
   return section({
     id: input.id,
-    type: 'hero',
-    name: 'Introduction',
-    height: 760,
+    type: 'custom',
+    name: 'Accepted Insurance',
+    height: 300,
     theme: input.theme,
-    heroImage: input.image,
+    surface: true,
     elements: [
-      sourceTextElement(input.title, 'page-title', { x: 110, y: 190, w: 1050, h: 190 }, {
-        fontSize: 76,
-        fontWeight: 600,
-        fontFamily: 'heading',
-        color: input.theme.palette.text,
-        lineHeight: 1.08,
-        readabilityGuard: 'long-hero',
-      }),
-      ...(input.lead
-        ? [sourceTextElement(input.lead, 'page-lead', { x: 116, y: 430, w: 820, h: 150 }, {
-            fontSize: 25,
-            fontWeight: 400,
-            fontFamily: 'body',
-            color: input.theme.palette.muted,
-            lineHeight: 1.55,
-          })]
-        : []),
+      {
+        id: `${input.id}-title`,
+        kind: 'text',
+        text: 'Accepted Insurance',
+        frame: { x: 0, y: 0, w: 1, h: 1 },
+        z: 2,
+        style: {
+          fontSize: 40,
+          fontWeight: 600,
+          fontFamily: 'heading',
+          color: input.theme.palette.text,
+          lineHeight: 1.2,
+        },
+        entrance: { effect: 'none' },
+      },
+      ...images.map((image, index) => ({
+        id: `source-image-${image.source.id}-insurance-${index}`,
+        kind: 'image' as const,
+        src: image.source.url,
+        alt: image.source.alt,
+        frame: { x: 0, y: 0, w: 1, h: 1 },
+        z: 1,
+        style: {
+          objectFit: 'contain' as const,
+          borderRadius: CLINIC_RADIUS_TOKENS.md,
+          shadow: false,
+        },
+        entrance: { effect: 'none' as const },
+      })),
     ],
   });
 }
 
-function sourceGallerySection(input: {
+const PROCESS_RE =
+  /\b(?:step|process|consultation|placement|healing|recovery|procedure|what to expect)\b/iu;
+const BENEFIT_RE =
+  /\b(?:benefits?|advantages?|why choose|candidates?|improve|restore|comfort|confidence)\b/iu;
+const LONG_PROSE_MINIMUM = 420;
+
+function unitContext(unit: ProspectPublicSourceContentUnit): string {
+  return `${unit.title.text} ${unit.body?.text ?? ''}`;
+}
+
+function clinicLayoutUnit(
+  unit: ProspectPublicSourceContentUnit,
+  image: ProjectedUsDemoSourceImage | undefined,
+  href?: string,
+): ClinicLayoutContentUnit {
+  return {
+    id: unit.id,
+    title: unit.title,
+    ...(unit.body ? { body: unit.body } : {}),
+    ...(image ? { image: layoutImage(image) } : {}),
+    ...(href ? { href } : {}),
+  };
+}
+
+function procedureContentSections(input: {
   id: string;
   name: string;
+  blocks: readonly ProspectPublicSourceBlock[];
   images: readonly ProjectedUsDemoSourceImage[];
   theme: SiteTheme;
-}): Section | null {
-  const images = input.images.slice(0, 8);
-  if (images.length === 0) return null;
-  return section({
-    id: input.id,
-    type: 'gallery',
-    name: input.name,
-    height: Math.max(620, 160 + Math.ceil(images.length / 2) * 360),
+  bookingUrl?: string;
+  phone?: string;
+}): { sections: Section[]; usedImageIds: Set<string> } {
+  const sourceUnits = prospectPublicSourceContentUnits(input.blocks);
+  const images = input.images.filter((image) => !sourceImageIsInsuranceLogo(image));
+  const usedImageIds = new Set<string>();
+  const imageByUnit = new Map<string, ProjectedUsDemoSourceImage>();
+  sourceUnits.forEach((unit, index) => {
+    const image = images[index];
+    if (!image) return;
+    imageByUnit.set(unit.id, image);
+    usedImageIds.add(image.source.id);
+  });
+  const buckets = {
+    overview: [] as ProspectPublicSourceContentUnit[],
+    process: [] as ProspectPublicSourceContentUnit[],
+    benefits: [] as ProspectPublicSourceContentUnit[],
+    long: [] as ProspectPublicSourceContentUnit[],
+  };
+  for (const unit of sourceUnits) {
+    const context = unitContext(unit);
+    if (PROCESS_RE.test(context)) buckets.process.push(unit);
+    else if ((unit.body?.text.length ?? 0) >= LONG_PROSE_MINIMUM) buckets.long.push(unit);
+    else if (BENEFIT_RE.test(context)) buckets.benefits.push(unit);
+    else buckets.overview.push(unit);
+  }
+  const sections: Section[] = [];
+  const append = (
+    key: keyof typeof buckets,
+    name: string,
+    candidates: Parameters<typeof buildClinicFeatureSections>[0]['candidates'],
+    numbered = false,
+  ) => {
+    const units = buckets[key].map((unit) => clinicLayoutUnit(
+      unit,
+      imageByUnit.get(unit.id),
+    ));
+    sections.push(...buildClinicFeatureSections({
+      id: `${input.id}-${key}`,
+      name,
+      units,
+      theme: input.theme,
+      candidates,
+      titleSourceIdPrefix: 'procedure-service',
+      numbered,
+      surface: sections.length % 2 === 1,
+    }));
+  };
+  append(
+    'overview',
+    `${input.name} Overview`,
+    ['features.zigzag-media', 'features.three-column-cards', 'features.icon-grid'],
+  );
+  append(
+    'process',
+    'Treatment Process',
+    ['features.numbered-list', 'features.sticky-heading-two-column', 'features.icon-grid'],
+    true,
+  );
+  append(
+    'benefits',
+    'Treatment Benefits',
+    buckets.benefits.some((unit) => imageByUnit.has(unit.id))
+      ? ['features.three-column-cards', 'features.icon-grid']
+      : ['features.icon-grid', 'features.three-column-cards'],
+  );
+  append(
+    'long',
+    `${input.name} Details`,
+    ['features.sticky-heading-two-column', 'features.numbered-list', 'features.icon-grid'],
+  );
+
+  const questions = input.blocks.filter((block) => block.kind === 'faq_question');
+  const answers = input.blocks.filter((block) => block.kind === 'faq_answer');
+  const faq = buildClinicFaqSection({
+    id: `${input.id}-faq`,
+    name: 'Frequently Asked Questions',
     theme: input.theme,
-    surface: true,
-    elements: images.map((image, index) => ({
-      id: `source-image-${image.source.id}-gallery-${index}`,
-      kind: 'image' as const,
-      src: image.source.url,
-      alt: image.source.alt,
-      frame: {
-        x: index % 2 === 0 ? 140 : 760,
-        y: 100 + Math.floor(index / 2) * 360,
-        w: 540,
-        h: 320,
-      },
-      z: 1,
-      style: {
-        objectFit: 'cover' as const,
-        borderRadius: CLINIC_RADIUS_TOKENS.md,
-        shadow: false,
-      },
-      entrance: { effect: 'none' as const },
+    items: questions.map((question) => ({
+      question,
+      answer: answers.find((answer) => (
+        answer.sourceUrl === question.sourceUrl
+        && answer.sourceLocation.ordinal === question.sourceLocation.ordinal
+      )),
     })),
   });
+  if (faq) sections.push(faq);
+  if (input.bookingUrl) {
+    const ctaTitle = sourceUnits[0]?.title
+      ?? input.blocks.find((block) => block.kind === 'service');
+    if (ctaTitle) {
+      sections.push(buildClinicCtaSection({
+        id: `${input.id}-cta`,
+        name: 'Book Appointment',
+        theme: input.theme,
+        title: ctaTitle,
+        href: input.bookingUrl,
+        ...(input.phone ? { phoneHref: `tel:${input.phone}` } : {}),
+      }));
+    }
+  }
+  return { sections, usedImageIds };
 }
 
 function sourceImageContext(image: ProjectedUsDemoSourceImage): string {
@@ -395,13 +511,19 @@ function firstHomeImage(
 ): ProjectedUsDemoSourceImage | undefined {
   const home = artifact.pages.find((page) => new URL(page.url).pathname === '/')
     ?? artifact.pages[0];
-  const homeImages = images.filter((image) => image.page.url === home?.url);
+  const homeImages = images.filter((image) => (
+    image.page.url === home?.url
+    && !sourceImageIsProvider(image)
+    && !sourceImageIsBeforeAfter(image)
+    && !sourceImageIsInsuranceLogo(image)
+  ));
   return homeImages.find((image) => image.candidate.role === 'atmosphere')
     ?? homeImages[0]
     ?? images.find((image) => (
       image.candidate.role === 'atmosphere'
       && !sourceImageIsProvider(image)
       && !sourceImageIsBeforeAfter(image)
+      && !sourceImageIsInsuranceLogo(image)
     ));
 }
 
@@ -495,51 +617,6 @@ export function compileUsMedicalFullPreview(input: {
   const businessName = blocks.find((block) => block.kind === 'business_name')!;
   const introduction = blocks.find((block) => block.kind === 'introduction');
   const homeImage = firstHomeImage(artifact, projectedImages);
-  const masterSections = compilePremiumDentalMaster({
-    blocks,
-    theme,
-    pin,
-    experience,
-  }).map((candidate) => (
-    candidate.type === 'hero' && homeImage
-      ? {
-          ...candidate,
-          background: {
-            ...candidate.background,
-            image: {
-              src: homeImage.source.url,
-              overlayColor: theme.palette.background,
-              overlayOpacity: 0.78,
-            },
-          },
-        }
-      : candidate
-  ));
-  const reservedImages = new Set([
-    homeImage?.source.id,
-    ...(experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []),
-    ...(experience.beforeAfterImages?.map((image) => image.sourceImageId) ?? []),
-  ].filter((id): id is string => Boolean(id)));
-  const homeGallery = sourceGallerySection({
-    id: 'clinic-practice-gallery',
-    name: 'Practice Gallery',
-    images: projectedImages.filter((image) => !reservedImages.has(image.source.id)),
-    theme,
-  });
-  const homeSections = homeGallery
-    ? [
-        ...masterSections.slice(0, 2),
-        homeGallery,
-        ...masterSections.slice(2),
-      ]
-    : masterSections;
-  const pages: SitePage[] = [{
-    id: 'clinic-home-v2',
-    title: 'Home',
-    slug: '',
-    sections: homeSections,
-  }];
-
   const services = blocks.filter((block) => block.kind === 'service');
   const procedurePlan = planProcedurePages(blocks);
   const procedureCategoryCounts = new Map(CATEGORY_ORDER.map((category) => [
@@ -547,50 +624,168 @@ export function compileUsMedicalFullPreview(input: {
     procedurePlan.pages.filter((page) => page.category === category).length,
   ]));
   const usedProcedureSlugs = new Set<string>(['', 'about', 'contact']);
-  for (const planned of procedurePlan.pages) {
+  const plannedPages = procedurePlan.pages.map((planned) => ({
+    planned,
+    slug: procedureSlug(planned, usedProcedureSlugs),
+  }));
+  const masterSections = compilePremiumDentalMaster({
+    blocks,
+    theme,
+    pin,
+    experience,
+  }).map((candidate) => (
+    candidate.type === 'hero' && homeImage
+      ? buildClinicHeroSection({
+          id: candidate.id,
+          name: candidate.name,
+          title: businessName,
+          ...(introduction ? { lead: introduction } : {}),
+          theme,
+          image: sourceLayoutImage(homeImage.source),
+          requestedId: 'hero.split-left',
+        })
+      : candidate
+  ));
+  const reservedImages = new Set([
+    homeImage?.source.id,
+    ...(experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []),
+    ...(experience.beforeAfterImages?.map((image) => image.sourceImageId) ?? []),
+  ].filter((id): id is string => Boolean(id)));
+  const sourceUnits = prospectPublicSourceContentUnits(blocks);
+  const orderedServiceTitles = orderClinicServices(
+    sourceUnits.map((unit) => unit.title),
+    pin.focus,
+  );
+  const orderedUnits = orderedServiceTitles.flatMap((title) => {
+    const unit = sourceUnits.find((candidate) => candidate.title.id === title.id);
+    return unit ? [unit] : [];
+  });
+  const homeServiceImageIds = new Set<string>();
+  const homeServiceUnits = orderedUnits.map((unit) => {
+    const occurrence = orderedUnits.slice(0, orderedUnits.indexOf(unit)).filter(
+      (candidate) => candidate.sourceUrl === unit.sourceUrl,
+    ).length;
+    const image = projectedImages.filter((candidate) => (
+      candidate.page.url === unit.sourceUrl
+      && !sourceImageIsProvider(candidate)
+      && !sourceImageIsBeforeAfter(candidate)
+      && !sourceImageIsInsuranceLogo(candidate)
+    ))[occurrence];
+    if (image) homeServiceImageIds.add(image.source.id);
+    const exactPage = plannedPages.find(({ planned }) => planned.sourceUrls.has(unit.sourceUrl));
+    const categoryPage = plannedPages.find(({ planned }) => (
+      planned.category === procedureCategory(unitContext(unit))
+    ));
+    const destination = exactPage ?? categoryPage;
+    return clinicLayoutUnit(
+      unit,
+      image,
+      destination ? `/${destination.slug}` : undefined,
+    );
+  });
+  const homeServiceSections = buildClinicFeatureSections({
+    id: 'us-demo-services',
+    name: 'Services',
+    units: homeServiceUnits,
+    theme,
+    candidates: homeServiceUnits.some((unit) => unit.image)
+      ? ['features.three-column-cards', 'features.icon-grid']
+      : ['features.icon-grid', 'features.three-column-cards'],
+  });
+  const homeSections = masterSections.filter(
+    (candidate) => !candidate.id.startsWith('us-demo-services'),
+  );
+  const serviceInsertIndex = Math.max(
+    1,
+    homeSections.findIndex((candidate) => candidate.id.startsWith('us-demo-providers')),
+  );
+  homeSections.splice(serviceInsertIndex, 0, ...homeServiceSections);
+  const gallerySections = buildClinicGallerySections({
+    id: 'clinic-practice-gallery',
+    name: 'Practice Gallery',
+    images: projectedImages
+      .filter((image) => (
+        !reservedImages.has(image.source.id)
+        && !homeServiceImageIds.has(image.source.id)
+        && !sourceImageIsInsuranceLogo(image)
+      ))
+      .slice(0, 12)
+      .map(layoutImage),
+    theme,
+    surface: true,
+    candidates: ['gallery.uniform-grid'],
+  });
+  homeSections.splice(
+    serviceInsertIndex + homeServiceSections.length,
+    0,
+    ...gallerySections,
+  );
+  const insuranceLogos = projectedImages.filter(sourceImageIsInsuranceLogo);
+  const homeInsuranceStrip = insuranceStripSection({
+    id: 'clinic-accepted-insurance',
+    images: insuranceLogos,
+    theme,
+  });
+  if (homeInsuranceStrip) {
+    const insuranceIndex = homeSections.findIndex(
+      (candidate) => candidate.id === 'clinic-insurance-pricing',
+    );
+    homeSections.splice(
+      insuranceIndex >= 0 ? insuranceIndex : homeSections.length,
+      0,
+      homeInsuranceStrip,
+    );
+  }
+  const pages: SitePage[] = [{
+    id: 'clinic-home-v2',
+    title: 'Home',
+    slug: '',
+    sections: homeSections,
+  }];
+
+  for (const { planned, slug } of plannedPages) {
     const { category, blocks: pageSourceBlocks, sourceUrls } = planned;
     const categoryServices = pageSourceBlocks.filter((block) => block.kind === 'service');
     const meta = CATEGORY_META[category];
     const displayTitle = categoryServices.find((block) => block.text.length <= 60)?.text
       ?? meta.navLabel;
-    const slug = procedureSlug(planned, usedProcedureSlugs);
     const exactImages = exactPageImages(projectedImages, sourceUrls)
-      .filter((image) => !sourceImageIsProvider(image) && !sourceImageIsBeforeAfter(image));
+      .filter((image) => (
+        !sourceImageIsProvider(image)
+        && !sourceImageIsBeforeAfter(image)
+        && !sourceImageIsInsuranceLogo(image)
+      ));
     const contextualImages = projectedImages.filter((image) => (
       procedureCategory(sourceImageContext(image)) === category
       && !sourceImageIsProvider(image)
       && !sourceImageIsBeforeAfter(image)
+      && !sourceImageIsInsuranceLogo(image)
     ));
     const categoryImages = [...new Map(
       [...exactImages, ...contextualImages].map((image) => [image.source.id, image]),
     ).values()];
     const heroImage = categoryImages[0];
-    const detail = section({
+    const detail = procedureContentSections({
       id: `clinic-procedure-${category}-details`,
-      type: 'features',
       name: meta.navLabel,
-      height: Math.max(560, 180 + pageSourceBlocks.length * 120),
-      theme,
-      elements: pageSourceBlocks.map((block, index) => sourceTextElement(
-        block,
-        block.kind === 'service'
-          ? `procedure-service-${category}-${index}`
-          : `procedure-source-${category}-${index}`,
-        { x: 180, y: 120 + index * 120, w: 1080, h: 88 },
-        {
-          fontSize: 28,
-          fontWeight: 600,
-          fontFamily: 'heading',
-          color: theme.palette.text,
-          lineHeight: 1.35,
-        },
-      )),
-    });
-    const gallery = sourceGallerySection({
-      id: `clinic-procedure-${category}-gallery`,
-      name: `${meta.navLabel} Gallery`,
+      blocks: pageSourceBlocks,
       images: categoryImages.slice(1),
       theme,
+      ...(experience.destination?.bookingUrl
+        ? { bookingUrl: experience.destination.bookingUrl }
+        : {}),
+      ...(experience.destination?.phone ? { phone: experience.destination.phone } : {}),
+    });
+    const galleryImages = categoryImages.slice(1).filter(
+      (image) => !detail.usedImageIds.has(image.source.id),
+    );
+    const gallery = buildClinicGallerySections({
+      id: `clinic-procedure-${category}-gallery`,
+      name: `${meta.navLabel} Gallery`,
+      images: galleryImages.map(layoutImage),
+      theme,
+      surface: true,
+      candidates: ['gallery.uniform-grid'],
     });
     pages.push({
       id: `clinic-procedure-${category}-${createHash('sha256')
@@ -603,22 +798,25 @@ export function compileUsMedicalFullPreview(input: {
         : meta.navLabel,
       slug,
       sections: [
-        heroSection({
+        buildClinicHeroSection({
           id: `clinic-procedure-${category}-hero`,
           title: categoryServices[0],
-          lead: categoryServices[1],
+          ...(categoryServices[1] ? { lead: categoryServices[1] } : {}),
           theme,
-          image: heroImage?.source,
+          image: sourceLayoutImage(heroImage?.source),
+          requestedId: 'hero.split-left',
         }),
-        detail,
-        ...(gallery ? [gallery] : []),
+        ...detail.sections,
+        ...gallery,
       ],
     });
   }
 
-  const providerSection = masterSections.find((candidate) => candidate.id === 'us-demo-providers');
+  const providerSections = masterSections.filter(
+    (candidate) => candidate.id.startsWith('us-demo-providers'),
+  );
   const providerTitle = blocks.find((block) => block.kind === 'provider_name') ?? businessName;
-  if (providerSection) {
+  if (providerSections.length > 0) {
     const providerImage = projectedImages.find((image) => (
       experience.providerPhotos?.some((photo) => photo.sourceImageId === image.source.id)
     ));
@@ -627,20 +825,25 @@ export function compileUsMedicalFullPreview(input: {
       title: 'About',
       slug: 'about',
       sections: [
-        heroSection({
+        buildClinicHeroSection({
           id: 'clinic-about-hero',
           title: providerTitle,
-          lead: blocks.find((block) => block.kind === 'provider_bio'),
+          ...(blocks.find((block) => block.kind === 'provider_bio')
+            ? { lead: blocks.find((block) => block.kind === 'provider_bio') }
+            : {}),
           theme,
-          image: providerImage?.source,
+          image: sourceLayoutImage(providerImage?.source),
+          requestedId: 'hero.split-left',
         }),
-        providerSection,
+        ...providerSections,
       ],
     });
   }
 
   const contactSections = masterSections.filter((candidate) => (
-    candidate.id === 'clinic-insurance-pricing' || candidate.id === 'us-demo-contact'
+    candidate.id === 'clinic-insurance-pricing'
+    || candidate.id === 'us-demo-contact'
+    || candidate.id === 'clinic-faq'
   ));
   if (contactSections.length > 0) {
     const contactTitle = blocks.find((block) => block.kind === 'address') ?? businessName;
@@ -653,19 +856,30 @@ export function compileUsMedicalFullPreview(input: {
         .map((block) => block.sourceUrl),
     );
     const contactImage = exactPageImages(projectedImages, contactPageUrls)
-      .find((image) => !sourceImageIsProvider(image) && !sourceImageIsBeforeAfter(image));
+      .find((image) => (
+        !sourceImageIsProvider(image)
+        && !sourceImageIsBeforeAfter(image)
+        && !sourceImageIsInsuranceLogo(image)
+      ));
+    const contactInsuranceStrip = insuranceStripSection({
+      id: 'clinic-accepted-insurance',
+      images: insuranceLogos,
+      theme,
+    });
     pages.push({
       id: 'clinic-contact',
       title: 'Contact',
       slug: 'contact',
       sections: [
-        heroSection({
+        buildClinicHeroSection({
           id: 'clinic-contact-hero',
           title: contactTitle,
-          lead: introduction,
+          ...(introduction ? { lead: introduction } : {}),
           theme,
-          image: contactImage?.source,
+          image: sourceLayoutImage(contactImage?.source),
+          requestedId: 'hero.split-left',
         }),
+        ...(contactInsuranceStrip ? [contactInsuranceStrip] : []),
         ...contactSections,
       ],
     });

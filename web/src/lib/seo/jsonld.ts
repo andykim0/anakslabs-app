@@ -387,7 +387,9 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   }
 
   if (providerPage) {
-    const providerSection = currentPage.sections.find((section) => section.type === 'team');
+    const providerSection = currentPage.sections.find(
+      (section) => section.id.startsWith('us-demo-providers'),
+    );
     const providerName = firstSourceText(providerSection, 'provider-name');
     const providerCredential = firstSourceText(providerSection, 'provider-credential');
     const providerBio = firstSourceText(providerSection, 'provider-bio');

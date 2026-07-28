@@ -176,7 +176,10 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       interactive: false,
       animate: false,
     }));
-    assert.match(html, /<section[^>]+data-section-type="team"/u);
+    assert.match(
+      html,
+      /<section[^>]+data-section-type="about"[^>]+data-section-layout-stage="about\.split-left"/u,
+    );
     assert.match(html, /<img[^>]+Portrait placeholder/u);
     assert.match(html, /data-clinic-sticky-booking="1"/u);
     assert.match(html, /data-clinic-booking-state="deactivated"/u);
@@ -295,13 +298,26 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     assert.equal(first.config.clinicMaster?.paletteSource.kind, 'css');
     assert.equal(first.config.clinicMaster?.paletteSource.sourceSha256, 'b'.repeat(64));
     assert.equal(first.config.clinicMaster?.focus, 'implant');
-    const serviceElements = first.config.pages[0]?.sections
+    const serviceSection = first.config.pages[0]?.sections
       .find((section) => section.id === 'us-demo-services')
-      ?.elements.filter((element) => element.kind === 'text') ?? [];
+    assert.equal(serviceSection?.sectionLayout?.resolvedId, 'features.icon-grid');
+    assert.deepEqual(Object.keys(serviceSection?.sectionLayout?.bands ?? {}), [
+      'wide',
+      'compact',
+      'mobile',
+    ]);
+    const serviceElements = serviceSection?.elements.filter(
+      (element) => element.kind === 'text' && element.id.startsWith('source-'),
+    ) ?? [];
     assert.equal(serviceElements[0]?.kind, 'text');
-    assert.equal(serviceElements[0]?.kind === 'text' ? serviceElements[0].text : '', 'Dental implants');
-    assert.equal(serviceElements[0]?.frame.w, 1140);
-    assert.ok(serviceElements.slice(1).every((element) => element.frame.w === 520));
+    assert.equal(
+      serviceElements[0]?.kind === 'text' ? serviceElements[0].text : '',
+      'Dental implants',
+    );
+    assert.ok(serviceElements.every((element) => (
+      serviceSection?.sectionLayout?.bands.wide.frames[element.id]
+      && serviceSection.sectionLayout.bands.mobile.frames[element.id]
+    )));
   });
 
   test('flag ON 신규 clinic 발급은 self-host pin이고 저장 pin 렌더는 flag 독립이다', () => {

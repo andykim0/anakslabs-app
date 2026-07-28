@@ -7,13 +7,17 @@ import { SiteRenderer } from '@/components/site-renderer';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import { buildJsonLd } from '@/lib/seo/jsonld';
 import { heroPosterPreloadHtml } from '@/lib/export/document-shell';
+import { clinicFeatureGroups } from '@/lib/clinic-master/layout-sections';
 import { compileUsMedicalDemo } from './source-compiler';
 import {
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
   planProcedurePages,
   previewFullExperienceFromArtifact,
 } from './full-preview';
-import { prospectPublicSourceBlocks } from './source-extraction';
+import {
+  prospectPublicSourceBlocks,
+  prospectPublicSourceContentUnits,
+} from './source-extraction';
 import type { ProspectPublicSourceBlock } from './contracts';
 import { sourcePageUrlForDemoPage } from './structure-diff';
 
@@ -204,6 +208,18 @@ function sourceBlock(input: {
 }
 
 describe('CLINIC$ master v2 — preview-full multipage', () => {
+  test('feature resolver 입력은 2~6개 그룹으로 결정적으로 분할한다', () => {
+    assert.deepEqual(clinicFeatureGroups([0, 1]), [[0, 1]]);
+    assert.deepEqual(
+      clinicFeatureGroups([0, 1, 2, 3, 4, 5, 6]),
+      [[0, 1, 2, 3, 4], [5, 6]],
+    );
+    assert.deepEqual(
+      clinicFeatureGroups(Array.from({ length: 13 }, (_, index) => index)),
+      [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12]],
+    );
+  });
+
   test('outreach-safe default remains the exact single-page/deactivated output', () => {
     const artifact = fixtureArtifact();
     const implicit = compileUsMedicalDemo(artifact);
@@ -323,6 +339,153 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       first.homeBlocks.filter((block) => block.kind === 'service').map((block) => block.text),
       ['Porcelain veneers'],
     );
+  });
+
+  test('본문 유닛은 feature/gallery/FAQ/CTA resolver로 3밴드 배치되고 목차 덤프를 만들지 않는다', () => {
+    const artifact = fixtureArtifact();
+    const implant = artifact.pages.find((entry) => entry.url.endsWith('/services/implants'))!;
+    implant.headings = [
+      'Dental implants',
+      'Implant-supported restorations',
+      'Consultation and planning',
+      'Implant placement process',
+      'Treatment candidates',
+      'Candidate considerations',
+      'How long does healing take?',
+    ];
+    const bodies = [
+      'The treatment replaces missing teeth with a restoration described by the practice on this page.',
+      'The practice explains the treatment choices available for implant-supported restorations.',
+      'The evaluation begins with the planning steps published by the practice.',
+      'The placement sequence follows the steps described on the original treatment page.',
+      'The practice describes who may be a treatment candidate while comparing choices.',
+      'The original practice page lists considerations for patients comparing options.',
+      'The treatment sequence on this page explains how healing time may vary.',
+    ];
+    implant.text = [
+      implant.headings.join(' '),
+      implant.headings.map((heading, index) => (
+        `${heading} ${bodies[index]}`
+      )).join(' '),
+    ].join(' ');
+    implant.images = Array.from({ length: 10 }, (_, index) => ({
+      url: `https://cdn.clinic.example/implant-${index + 1}.jpg`,
+      alt: `Implant treatment room ${index + 1}`,
+      role: 'figure' as const,
+      declaredWidth: 1200,
+      declaredHeight: 800,
+    }));
+    artifact.pages.push(page({
+      url: 'https://clinic.example/insurance',
+      title: 'Accepted Insurance',
+      description: 'The practice lists accepted insurance plans on this page.',
+      headings: ['Accepted Insurance'],
+      text: 'Accepted Insurance The practice lists accepted insurance plans on this page.',
+      images: [
+        {
+          url: 'https://cdn.clinic.example/insurance/delta-dental-logo.svg',
+          alt: 'Delta Dental insurance logo',
+          role: 'unknown',
+          declaredWidth: 240,
+          declaredHeight: 80,
+        },
+        {
+          url: 'https://cdn.clinic.example/insurance/consultation-room.jpg',
+          alt: 'Insurance consultation room',
+          role: 'atmosphere',
+          declaredWidth: 1200,
+          declaredHeight: 800,
+        },
+      ],
+    }));
+
+    const source = prospectPublicSourceBlocks(artifact);
+    const units = prospectPublicSourceContentUnits(source).filter(
+      (unit) => unit.sourceUrl === implant.url,
+    );
+    assert.equal(units.length, 6);
+    assert.deepEqual(
+      units.map((unit) => unit.body?.text),
+      bodies.slice(0, 6),
+    );
+
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const implantPage = compiled.config.pages.find((entry) => entry.slug === 'implants')!;
+    for (const entry of compiled.config.pages) {
+      const hero = entry.sections.find((section) => section.type === 'hero');
+      assert.equal(hero?.heroLayout?.resolvedId, 'hero.split-left');
+      assert.deepEqual(
+        Object.keys(hero?.heroLayout?.bands ?? {}),
+        ['wide', 'compact', 'mobile'],
+      );
+    }
+    const projections = implantPage.sections
+      .map((section) => section.sectionLayout)
+      .filter((projection) => projection?.kind === 'features');
+    assert.ok(projections.some((projection) => (
+      projection?.resolvedId === 'features.zigzag-media'
+    )));
+    assert.ok(projections.some((projection) => (
+      projection?.resolvedId === 'features.numbered-list'
+    )));
+    assert.ok(projections.some((projection) => (
+      projection?.resolvedId === 'features.three-column-cards'
+    )), JSON.stringify(projections.map((projection) => projection?.resolvedId)));
+    for (const projection of projections) {
+      assert.deepEqual(Object.keys(projection?.bands ?? {}), ['wide', 'compact', 'mobile']);
+      for (const item of projection?.items ?? []) {
+        assert.ok(item.elementIds.some((id) => id.includes('procedure-service')));
+        assert.ok(item.elementIds.some((id) => id.includes('layout-body')));
+      }
+    }
+    assert.equal(
+      implantPage.sections.find((section) => section.type === 'gallery')
+        ?.sectionLayout?.resolvedId,
+      'gallery.uniform-grid',
+    );
+    const faq = implantPage.sections.find((section) => section.type === 'faq');
+    assert.ok(faq);
+    assert.match(
+      JSON.stringify(faq.elements),
+      /The treatment sequence on this page explains how healing time may vary\./u,
+    );
+    assert.equal(
+      implantPage.sections.find((section) => section.type === 'cta')
+        ?.sectionLayout?.resolvedId,
+      'cta.split-action',
+    );
+
+    const homeServices = compiled.config.pages[0].sections.find(
+      (section) => section.id === 'us-demo-services',
+    );
+    assert.equal(homeServices?.sectionLayout?.resolvedId, 'features.three-column-cards');
+    const strip = compiled.config.pages[0].sections.find(
+      (section) => section.id === 'clinic-accepted-insurance',
+    );
+    assert.ok(strip);
+    assert.ok(strip.elements.filter((element) => element.kind === 'image').every(
+      (element) => element.kind === 'image' && element.style.objectFit === 'contain',
+    ));
+    assert.equal(
+      compiled.config.pages.flatMap((entry) => entry.sections)
+        .filter((section) => section.type === 'gallery')
+        .flatMap((section) => section.elements)
+        .some((element) => (
+          element.kind === 'image' && element.src.includes('delta-dental-logo')
+        )),
+      false,
+    );
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      clinicExperience: previewFullExperienceFromArtifact({ artifact, blocks: source }),
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: true,
+      animate: false,
+    }));
+    assert.match(html, /data-clinic-insurance-strip/u);
+    assert.match(html, /data-clinic-insurance-logo-box[^]*?object-fit:contain/u);
+    assert.doesNotMatch(html, /<canvas\b/u);
   });
 
   test('병원 실이미지가 우선이고 junk는 제외하며 stock은 빈 hero에만 폴백한다', () => {
