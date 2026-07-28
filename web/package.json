@@ -12,6 +12,7 @@
     "motion:render": "tsx scripts/render-motion-clip.ts",
     "motion:smoke": "tsx scripts/render-motion-clip.ts --scene smoke --output /private/tmp/daboim-hyperframes/smoke.mp4 --report /private/tmp/daboim-hyperframes/smoke-report.json --determinism-check",
     "fonts:subset": "tsx scripts/build-korean-font-subsets.ts",
+    "fonts:latin:subset": "tsx scripts/build-latin-font-subsets.ts",
     "stock:sync": "tsx scripts/sync-pexels-stock.ts",
     "assets:backfill-dimensions": "tsx scripts/backfill-asset-dimensions.ts"
   },

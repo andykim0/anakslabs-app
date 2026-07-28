@@ -265,4 +265,56 @@ describe('US-DEMO P2 — source-only English compiler', () => {
         && error.code === 'INVALID_MANUAL_FINISH',
     );
   });
+
+  test('palette projection과 focus recipe를 pin·서비스 비중에 결정적으로 반영한다', () => {
+    const input = englishArtifact('Dental implants');
+    input.clinicPaletteProjection = {
+      version: 1,
+      kind: 'css',
+      sourceSha256: 'b'.repeat(64),
+      accentPreset: 'clean-teal',
+    };
+    const first = compileUsMedicalDemo(input);
+    const second = compileUsMedicalDemo(input);
+    assert.deepEqual(second, first);
+    assert.equal(first.config.clinicMaster?.accentPreset, 'clean-teal');
+    assert.equal(first.config.clinicMaster?.paletteSource.kind, 'css');
+    assert.equal(first.config.clinicMaster?.paletteSource.sourceSha256, 'b'.repeat(64));
+    assert.equal(first.config.clinicMaster?.focus, 'implant');
+    const serviceElements = first.config.pages[0]?.sections
+      .find((section) => section.id === 'us-demo-services')
+      ?.elements.filter((element) => element.kind === 'text') ?? [];
+    assert.equal(serviceElements[0]?.kind, 'text');
+    assert.equal(serviceElements[0]?.kind === 'text' ? serviceElements[0].text : '', 'Dental implants');
+    assert.equal(serviceElements[0]?.frame.w, 1140);
+    assert.ok(serviceElements.slice(1).every((element) => element.frame.w === 520));
+  });
+
+  test('flag ON 신규 clinic 발급은 self-host pin이고 저장 pin 렌더는 flag 독립이다', () => {
+    const previous = process.env.LATIN_FONT_PAIRINGS_ENABLED;
+    try {
+      process.env.LATIN_FONT_PAIRINGS_ENABLED = '1';
+      const compiled = compileUsMedicalDemo(englishArtifact());
+      assert.deepEqual(compiled.config.theme.fontPairing, {
+        catalogVersion: 1,
+        locale: 'en-US',
+        id: 'us-clinical-neutral',
+        assetVersion: 1,
+        selectionPolicy: 'us-latin-v1',
+        typographyPreset: 'clinic-editorial',
+      });
+      process.env.LATIN_FONT_PAIRINGS_ENABLED = '0';
+      const html = renderToStaticMarkup(createElement(SiteRenderer, {
+        config: compiled.config,
+        mode: 'desktop',
+        interactive: false,
+        animate: false,
+      }));
+      assert.match(html, /\/fonts\/latin\/schibsted-grotesk-600-latin-core\.woff2/u);
+      assert.doesNotMatch(html, /fonts\.googleapis|fonts\.gstatic|cdn\.jsdelivr/iu);
+    } finally {
+      if (previous === undefined) delete process.env.LATIN_FONT_PAIRINGS_ENABLED;
+      else process.env.LATIN_FONT_PAIRINGS_ENABLED = previous;
+    }
+  });
 });

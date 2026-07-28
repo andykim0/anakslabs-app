@@ -570,10 +570,11 @@ export const FONT_PAIRINGS: FontPairing[] = [
     latinProductionManifest: {
       catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
       locale: 'en-US',
-      status: 'asset-pending',
+      status: 'production-ready',
       selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
-      assetVersion: 0,
-      description: 'August MVP slot for a designer-curated clinical neutral Latin pairing.',
+      assetVersion: 1,
+      description:
+        'Self-hosted premium-dental Latin presets with an immutable system fallback at asset version 0.',
       heading: {
         family: 'system-ui',
         fallbackChain: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],

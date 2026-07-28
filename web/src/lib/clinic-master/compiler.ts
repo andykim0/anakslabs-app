@@ -10,6 +10,10 @@ import {
   CLINIC_RADIUS_TOKENS,
   CLINIC_TYPOGRAPHY_TOKENS,
 } from './tokens';
+import {
+  clinicServiceCategory,
+  orderClinicServices,
+} from './focus-recipe';
 
 type ClinicMasterSourceKind =
   | 'business_name'
@@ -164,7 +168,10 @@ export function compilePremiumDentalMaster(input: {
   const businessName = blocks.find((block) => block.kind === 'business_name');
   if (!businessName) throw new Error('PREMIUM_DENTAL_BUSINESS_NAME_REQUIRED');
   const introduction = blocks.find((block) => block.kind === 'introduction');
-  const services = blocks.filter((block) => block.kind === 'service').slice(0, 8);
+  const services = orderClinicServices(
+    blocks.filter((block) => block.kind === 'service'),
+    pin.focus,
+  ).slice(0, 8);
   const providers = blocks.filter((block) => block.kind === 'provider_bio').slice(0, 4);
   const locationAndFaq = blocks.filter((block) => (
     ['phone', 'address', 'opening_hours', 'faq_question', 'faq_answer'].includes(block.kind)
@@ -197,20 +204,27 @@ export function compilePremiumDentalMaster(input: {
     }, theme.palette, 'hero'),
   ];
   if (services.length > 0) {
+    const featuredService = pin.focus !== 'balanced'
+      && clinicServiceCategory(services[0].text) === pin.focus;
     result.push(section({
       id: 'us-demo-services',
       type: 'features',
       name: 'Services',
-      height: Math.max(620, 240 + Math.ceil(services.length / 2) * 150),
+      height: featuredService
+        ? Math.max(680, 390 + Math.ceil(Math.max(services.length - 1, 0) / 2) * 150)
+        : Math.max(620, 240 + Math.ceil(services.length / 2) * 150),
       elements: services.map((block, index) => sourceTextElement(
         block,
         `service-${index}`,
-        {
-          x: index % 2 === 0 ? 140 : 760,
-          y: 150 + Math.floor(index / 2) * 150,
-          w: 520,
-          h: 96,
-        },
+        featuredService && index === 0
+          ? { x: 140, y: 140, w: 1140, h: 112 }
+          : {
+              x: (featuredService ? index - 1 : index) % 2 === 0 ? 140 : 760,
+              y: (featuredService ? 300 : 150)
+                + Math.floor((featuredService ? index - 1 : index) / 2) * 150,
+              w: 520,
+              h: 96,
+            },
         {
           fontSize: 28,
           fontWeight: typography.headingWeight,

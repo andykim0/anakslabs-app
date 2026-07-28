@@ -92,8 +92,8 @@ describe('CLINIC$ P1 — spec-locked master contract', () => {
       accent: '#1466A5',
     });
     assert.deepEqual(theme.fonts, {
-      heading: "'Schibsted Grotesk', sans-serif",
-      body: "'Hanken Grotesk', sans-serif",
+      heading: "'Schibsted Grotesk', Arial, sans-serif",
+      body: "'Hanken Grotesk', Arial, sans-serif",
       googleFonts: [],
     });
     assert.equal(theme.radius, 4);

@@ -4,6 +4,7 @@ import type {
   ClinicTypographyPreset,
   SiteTheme,
 } from '@/lib/types/site';
+import { CLINIC_LATIN_FONT_PRESETS } from '@/lib/fonts/latin-presets';
 
 export const CLINIC_ACCENT_TOKENS = Object.freeze({
   'clean-blue': '#1466A5',
@@ -23,32 +24,32 @@ export const CLINIC_NEUTRAL_TOKENS = Object.freeze({
 
 export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
   'clinic-editorial': {
-    headingFamily: "'Schibsted Grotesk', sans-serif",
-    headingWeight: 600,
-    bodyFamily: "'Hanken Grotesk', sans-serif",
-    bodyWeight: 400,
-    controlFamily: "'Hanken Grotesk', sans-serif",
-    controlWeight: 600,
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].headingWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].controlWeight,
     familyCount: 2,
     faceCount: 3,
   },
   'clinic-geometric': {
-    headingFamily: "'Albert Sans', sans-serif",
-    headingWeight: 600,
-    bodyFamily: "'Public Sans', sans-serif",
-    bodyWeight: 400,
-    controlFamily: "'Public Sans', sans-serif",
-    controlWeight: 600,
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].headingWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].controlWeight,
     familyCount: 2,
     faceCount: 3,
   },
   'clinic-neutral': {
-    headingFamily: "'IBM Plex Sans', sans-serif",
-    headingWeight: 600,
-    bodyFamily: "'IBM Plex Sans', sans-serif",
-    bodyWeight: 400,
-    controlFamily: "'IBM Plex Sans', sans-serif",
-    controlWeight: 500,
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].headingWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].controlWeight,
     familyCount: 1,
     faceCount: 3,
   },

@@ -1,5 +1,5 @@
 import type { DesignDnaId } from '@/lib/design/dna/types';
-import type { MotionIndustryClass } from '@/lib/types/site';
+import type { ClinicTypographyPreset, MotionIndustryClass } from '@/lib/types/site';
 
 export const KOREAN_FONT_PAIRING_CATALOG_VERSION = 1 as const;
 export const LATIN_FONT_PAIRING_CATALOG_VERSION = 1 as const;
@@ -31,17 +31,30 @@ export interface SiteKoreanFontPairingPin {
   selectionPolicy?: KoreanFontSelectionPolicy;
 }
 
-export interface SiteLatinFontPairingPin {
+export interface SiteLatinSystemFontPairingPin {
   catalogVersion: typeof LATIN_FONT_PAIRING_CATALOG_VERSION;
   locale: 'en-US';
   id: LatinFontPairingSlotId;
   /**
-   * Version 0 is the immutable system-font fallback. Checked-in designer assets start at version 1,
-   * so a later catalog promotion cannot silently change an already stored fallback pin.
+   * Version 0 is the immutable system-font fallback. It remains an exact accepted shape so a
+   * later asset promotion cannot silently change an already stored fallback pin.
    */
-  assetVersion: number;
+  assetVersion: 0;
   selectionPolicy: LatinFontSelectionPolicy;
 }
+
+export interface SiteLatinAssetFontPairingPin {
+  catalogVersion: typeof LATIN_FONT_PAIRING_CATALOG_VERSION;
+  locale: 'en-US';
+  id: LatinFontPairingSlotId;
+  assetVersion: 1;
+  selectionPolicy: LatinFontSelectionPolicy;
+  typographyPreset: ClinicTypographyPreset;
+}
+
+export type SiteLatinFontPairingPin =
+  | SiteLatinSystemFontPairingPin
+  | SiteLatinAssetFontPairingPin;
 
 export type SiteFontPairingPin = SiteKoreanFontPairingPin | SiteLatinFontPairingPin;
 

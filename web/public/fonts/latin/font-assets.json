@@ -3,12 +3,18 @@
   "catalogVersion": 1,
   "locale": "en-US",
   "pairingId": "us-clinical-neutral",
-  "assetVersion": 0,
-  "status": "asset-pending",
+  "assetVersion": 1,
+  "status": "production-ready",
+  "generator": {
+    "package": "subset-font",
+    "version": "2.5.0",
+    "targetFormat": "woff2",
+    "deterministicRunsPerAsset": 2
+  },
   "characterSet": {
-    "strategy": "Basic Latin + Latin-1 Supplement + common punctuation; actual-character export adds approved tail chunks",
-    "codePoints": 0,
-    "sha256": null
+    "strategy": "Printable Basic Latin + Latin-1 Supplement + common US editorial punctuation",
+    "codePoints": 213,
+    "sha256": "64ce4ea0208f00f414540f051fc2a1043fccce9eede14ccb5e4d927891adfb01"
   },
   "budgets": {
     "firstScreenTargetBytes": 122880,
@@ -18,7 +24,202 @@
     "familyMax": 2,
     "faceMax": 4
   },
-  "chunks": [],
-  "assets": [],
-  "licenseNotices": []
+  "chunks": [
+    {
+      "id": "latin-core",
+      "priority": true,
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "codePoints": 213,
+      "sha256": "64ce4ea0208f00f414540f051fc2a1043fccce9eede14ccb5e4d927891adfb01"
+    }
+  ],
+  "assets": [
+    {
+      "id": "schibsted-grotesk-600:latin-core",
+      "faceId": "schibsted-grotesk-600",
+      "chunkId": "latin-core",
+      "family": "Schibsted Grotesk",
+      "weight": 600,
+      "style": "normal",
+      "path": "/fonts/latin/schibsted-grotesk-600-latin-core.woff2",
+      "bytes": 24936,
+      "sha256": "c9007a256218dc4a2aee005ad16cbf83601312074ae6b81f69861dbbe05a53a5",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "schibsted-grotesk-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/schibstedgrotesk/SchibstedGrotesk%5Bwght%5D.ttf",
+        "sha256": "6ceeadf6be8e1fd7687011c7fa38ed0edd1abe967a0b73d97caec183552e823d",
+        "variationAxes": {
+          "wght": 600
+        }
+      }
+    },
+    {
+      "id": "hanken-grotesk-400:latin-core",
+      "faceId": "hanken-grotesk-400",
+      "chunkId": "latin-core",
+      "family": "Hanken Grotesk",
+      "weight": 400,
+      "style": "normal",
+      "path": "/fonts/latin/hanken-grotesk-400-latin-core.woff2",
+      "bytes": 12884,
+      "sha256": "0159a716de1b661cefc9b54e84dfe926dc895086efcaad28d9250ece829179fe",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "hanken-grotesk-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/hankengrotesk/HankenGrotesk%5Bwght%5D.ttf",
+        "sha256": "813b3f8fa0965405669a89b38e51bbefd95eef6b8e20d1cb2d8c10cce062662f",
+        "variationAxes": {
+          "wght": 400
+        }
+      }
+    },
+    {
+      "id": "hanken-grotesk-600:latin-core",
+      "faceId": "hanken-grotesk-600",
+      "chunkId": "latin-core",
+      "family": "Hanken Grotesk",
+      "weight": 600,
+      "style": "normal",
+      "path": "/fonts/latin/hanken-grotesk-600-latin-core.woff2",
+      "bytes": 13196,
+      "sha256": "1512468867c62b2a18652d554d633437f137b0c1b9af78f39b697b0c89150411",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "hanken-grotesk-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/hankengrotesk/HankenGrotesk%5Bwght%5D.ttf",
+        "sha256": "813b3f8fa0965405669a89b38e51bbefd95eef6b8e20d1cb2d8c10cce062662f",
+        "variationAxes": {
+          "wght": 600
+        }
+      }
+    },
+    {
+      "id": "albert-sans-600:latin-core",
+      "faceId": "albert-sans-600",
+      "chunkId": "latin-core",
+      "family": "Albert Sans",
+      "weight": 600,
+      "style": "normal",
+      "path": "/fonts/latin/albert-sans-600-latin-core.woff2",
+      "bytes": 10416,
+      "sha256": "b5147df898a44ee1a1c73155add5d3bda5a2bc797b650b5483ed1736c8bfc96a",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "albert-sans-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/albertsans/AlbertSans%5Bwght%5D.ttf",
+        "sha256": "8fe5d4cf5822d7096d4d17ad781c90f97c745ac13a22be619db74966fba45fda",
+        "variationAxes": {
+          "wght": 600
+        }
+      }
+    },
+    {
+      "id": "public-sans-400-600:latin-core",
+      "faceId": "public-sans-400-600",
+      "chunkId": "latin-core",
+      "family": "Public Sans",
+      "weight": "400 600",
+      "style": "normal",
+      "path": "/fonts/latin/public-sans-400-600-latin-core.woff2",
+      "bytes": 22028,
+      "sha256": "b9faa52e7463a7357c9636e07caa23f0df0cf6e5831d11c40ea51fe8de556c4a",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "public-sans-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/publicsans/PublicSans%5Bwght%5D.ttf",
+        "sha256": "d75a7dc1a27eb9e336d5b33f55489d2ecb5621bf694d5c43b2415bce2ca830a8",
+        "variationAxes": {
+          "wght": {
+            "min": 400,
+            "max": 600,
+            "default": 400
+          }
+        }
+      }
+    },
+    {
+      "id": "ibm-plex-sans-400:latin-core",
+      "faceId": "ibm-plex-sans-400",
+      "chunkId": "latin-core",
+      "family": "IBM Plex Sans",
+      "weight": 400,
+      "style": "normal",
+      "path": "/fonts/latin/ibm-plex-sans-400-latin-core.woff2",
+      "bytes": 19216,
+      "sha256": "29af1f959783d990d74b8ff4683e07d20f1f51935cb05bfeb64f0f675c47166d",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "ibm-plex-sans-official-400",
+        "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-Regular.ttf",
+        "sha256": "975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5"
+      }
+    },
+    {
+      "id": "ibm-plex-sans-500:latin-core",
+      "faceId": "ibm-plex-sans-500",
+      "chunkId": "latin-core",
+      "family": "IBM Plex Sans",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/latin/ibm-plex-sans-500-latin-core.woff2",
+      "bytes": 20064,
+      "sha256": "feb553a4010e32b0c0e03cd5544b3c5bf36b788d6b78a299230e2da11414112a",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "ibm-plex-sans-official-500",
+        "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-Medium.ttf",
+        "sha256": "331c8639d7598b2cde62a911a71db195e30cb655cd6bdf2e324a7e984955f907"
+      }
+    },
+    {
+      "id": "ibm-plex-sans-600:latin-core",
+      "faceId": "ibm-plex-sans-600",
+      "chunkId": "latin-core",
+      "family": "IBM Plex Sans",
+      "weight": 600,
+      "style": "normal",
+      "path": "/fonts/latin/ibm-plex-sans-600-latin-core.woff2",
+      "bytes": 20548,
+      "sha256": "0f7a4c64866839fcc0f55593defc2db357e91ac0c650f8568da39dc3f3299f52",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "ibm-plex-sans-official-600",
+        "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-SemiBold.ttf",
+        "sha256": "a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1"
+      }
+    }
+  ],
+  "licenseNotices": [
+    {
+      "name": "Schibsted Grotesk",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/schibstedgrotesk",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Hanken Grotesk",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/hankengrotesk",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Albert Sans",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/albertsans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Public Sans",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/publicsans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "IBM Plex Sans",
+      "sourceUrl": "https://github.com/IBM/plex/tree/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    }
+  ]
 }

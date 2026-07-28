@@ -7,6 +7,7 @@ import {
   DESIGNATED_CRAWL_POLICY,
 } from './contracts';
 import { crawlDesignatedSite, CrawlError } from './crawler-core';
+import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
 
 const ROOT = process.cwd();
 const html = (body: string, links = '') => `<!doctype html><html><head>
@@ -166,6 +167,37 @@ describe('CRAWL W1 — designated crawl', () => {
       assert.equal(serialized.includes(forbidden), false, forbidden);
     }
     assert.equal(result.pages[0].images[0].url, 'http://example.com/room.jpg');
+  });
+
+  test('US medical crawl stores only deterministic palette preset + source hash projection', async () => {
+    const source = html(
+      '<style>:root{--practice-accent:#0e7a80}</style><p>Dental services and appointment information.</p>',
+    );
+    const fetchFn: typeof fetch = async (input, init) => {
+      if (init?.method === 'HEAD') return response('');
+      if (String(input).endsWith('/robots.txt')) {
+        return response('User-agent: *\nAllow: /', {
+          headers: { 'content-type': 'text/plain' },
+        });
+      }
+      return response(source);
+    };
+    const result = await crawlDesignatedSite(
+      {
+        url: 'http://example.com/',
+        scanProfileId: US_MEDICAL_OUTREACH_PROFILE_ID,
+      },
+      { fetchFn, validateUrl: validated, wait: async () => undefined },
+    );
+    assert.deepEqual(result.clinicPaletteProjection, {
+      version: 1,
+      kind: 'css',
+      sourceSha256: result.clinicPaletteProjection?.sourceSha256,
+      accentPreset: 'clean-teal',
+    });
+    assert.match(result.clinicPaletteProjection?.sourceSha256 ?? '', /^[a-f0-9]{64}$/u);
+    const serialized = JSON.stringify(result.clinicPaletteProjection);
+    assert.doesNotMatch(serialized, /#0e7a80|--practice-accent|colors/iu);
   });
 
   test('protected redirects are recorded without following the login target', async () => {

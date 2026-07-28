@@ -1,6 +1,6 @@
 import type { StructuredImportFacts } from '@/lib/import/extract';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
-import type { SiteConfig } from '@/lib/types/site';
+import type { ClinicAccentPreset, SiteConfig } from '@/lib/types/site';
 import type { AiVisibilitySummary } from '@/lib/scan/ai-visibility';
 import type { ScanProfileId } from '@/lib/scan/rules';
 
@@ -98,6 +98,16 @@ export interface CrawlArtifactPayload {
   observedAt: string;
   /** Additive profile marker. Omission preserves the existing designated-crawl artifact bytes. */
   scanProfileId?: ScanProfileId;
+  /**
+   * US medical crawl only. Computed while HTML is in memory; no raw CSS, logo bytes, or color
+   * list is retained.
+   */
+  clinicPaletteProjection?: {
+    version: 1;
+    kind: 'css' | 'logo';
+    sourceSha256: string;
+    accentPreset: ClinicAccentPreset;
+  };
   tls: CrawlTlsObservation;
   robots: CrawlRobotsObservation;
   pages: CrawlPageArtifact[];

@@ -1,5 +1,9 @@
 import fontAssetManifest from '../../../public/fonts/korean/font-assets.json';
-import type { SiteTheme, TextElement } from '@/lib/types/site';
+import type {
+  ClinicTypographyPreset,
+  SiteTheme,
+  TextElement,
+} from '@/lib/types/site';
 import {
   latinFontPairingSlotById,
   productionKoreanFontPairingById,
@@ -16,6 +20,7 @@ import {
   latinFontManifestIsProductionReady,
   type LatinFontAsset,
 } from './latin-manifest';
+import { CLINIC_LATIN_FONT_PRESETS } from './latin-presets';
 
 interface KoreanFontAsset {
   id: string;
@@ -133,12 +138,18 @@ function koreanResourcesFor(
 
 function latinSystemFallbackResources(pin: SiteLatinFontPairingPin): FontPairingResources {
   const pairing = latinFontPairingSlotById(pin.id);
-  const stack = pairing.body;
+  const preset = pin.assetVersion === 1
+    ? CLINIC_LATIN_FONT_PRESETS[pin.typographyPreset]
+    : null;
+  const heading = preset?.heading ?? pairing.heading;
+  const body = preset?.body ?? pairing.body;
+  const control = preset?.control ?? pairing.body;
   const root = `.anaks-site[data-font-pairing="${pin.id}"]`;
   const css = [
-    `${root}{font-family:${stack}!important;}`,
-    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${pairing.heading}!important;}`,
-    `${root} [data-font-role="lead"],${root} [data-font-role="body"],${root} .anaks-btn{font-family:${pairing.body}!important;}`,
+    `${root}{font-family:${body}!important;}`,
+    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${heading}!important;}`,
+    `${root} [data-font-role="lead"],${root} [data-font-role="body"]{font-family:${body}!important;}`,
+    `${root} .anaks-btn{font-family:${control}!important;}`,
   ].join('');
   return {
     id: pin.id,
@@ -171,9 +182,11 @@ function latinProductionResources(
   pin: SiteLatinFontPairingPin,
   text: string | null,
 ): FontPairingResources | null {
+  if (pin.assetVersion !== 1) return null;
   if (!latinFontManifestIsProductionReady()) return null;
   const manifest = latinFontManifest();
   if (manifest.assetVersion !== pin.assetVersion || manifest.pairingId !== pin.id) return null;
+  const preset = CLINIC_LATIN_FONT_PRESETS[pin.typographyPreset];
   const selectedChunkIds = text === null
     ? new Set(manifest.chunks.map((chunk) => chunk.id))
     : new Set(
@@ -183,20 +196,25 @@ function latinProductionResources(
           ))
           .map((chunk) => chunk.id),
       );
-  const assets = manifest.assets.filter((asset) => selectedChunkIds.has(asset.chunkId));
-  const pairing = latinFontPairingSlotById(pin.id);
+  const assets = manifest.assets.filter((asset) => (
+    selectedChunkIds.has(asset.chunkId)
+    && (preset.faceIds as readonly string[]).includes(asset.faceId)
+  ));
+  const faceCount = new Set(assets.map((asset) => asset.faceId)).size;
+  if (faceCount !== preset.faceIds.length) return null;
   const root = `.anaks-site[data-font-pairing="${pin.id}"]`;
   const familyCss = [
-    `${root}{font-family:${pairing.body}!important;}`,
-    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${pairing.heading}!important;}`,
-    `${root} [data-font-role="lead"],${root} [data-font-role="body"],${root} .anaks-btn{font-family:${pairing.body}!important;}`,
+    `${root}{font-family:${preset.body}!important;}`,
+    `${root} [data-font-role="display"],${root} [data-font-role="heading"],${root} [data-signature-heading]{font-family:${preset.heading}!important;}`,
+    `${root} [data-font-role="lead"],${root} [data-font-role="body"]{font-family:${preset.body}!important;}`,
+    `${root} .anaks-btn{font-family:${preset.control}!important;}`,
   ].join('');
   return {
     id: pin.id,
     css: `${assets.map(latinAssetCss).join('')}${familyCss}`,
     assets,
     familyCount: new Set(assets.map((asset) => asset.family)).size,
-    faceCount: new Set(assets.map((asset) => asset.faceId)).size,
+    faceCount,
     chunkCount: new Set(assets.map((asset) => asset.chunkId)).size,
     bytes: assets.reduce((sum, asset) => sum + asset.bytes, 0),
   };
@@ -260,11 +278,21 @@ export function fontPairingAssetsAvailable(id: ProductionKoreanFontPairId): bool
 }
 
 /** Asset checkpoint seam. Version 0 is an explicit no-network system-font fallback. */
-export function latinFontPairingAssetsAvailable(id: LatinFontPairingSlotId): boolean {
-  return (
-    latinFontPairingSlotById(id).latinProductionManifest.status === 'production-ready'
-    && latinFontManifestIsProductionReady()
-  );
+export function latinFontPairingAssetsAvailable(
+  id: LatinFontPairingSlotId,
+  typographyPreset?: ClinicTypographyPreset,
+): boolean {
+  if (
+    latinFontPairingSlotById(id).latinProductionManifest.status !== 'production-ready'
+    || !latinFontManifestIsProductionReady()
+  ) return false;
+  const assets = latinFontManifest().assets;
+  const requiredFaceIds = typographyPreset
+    ? CLINIC_LATIN_FONT_PRESETS[typographyPreset].faceIds
+    : Object.values(CLINIC_LATIN_FONT_PRESETS).flatMap((preset) => preset.faceIds);
+  return [...new Set(requiredFaceIds)].every((faceId) => (
+    assets.some((asset) => asset.faceId === faceId)
+  ));
 }
 
 export function fontRoleForTextElement(

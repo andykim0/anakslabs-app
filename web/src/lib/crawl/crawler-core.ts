@@ -32,6 +32,10 @@ import { evaluateDecayScore } from '@/lib/scan/decay';
 import { extractVisibleText } from '@/lib/scan/document';
 import { socialLinkUrls, type SocialLinkObservation } from '@/lib/scan/social-links';
 import type { ProbedResource } from '@/lib/scan/fetch-target';
+import {
+  projectClinicPaletteFromHtml,
+  type ClinicPaletteProjection,
+} from '@/lib/clinic-master/palette-routing';
 
 const PLATFORM_MULTI_PAGE_HOSTS = new Set([
   'blog.naver.com',
@@ -568,6 +572,7 @@ export async function crawlDesignatedSite(
   }
 
   const pages: CrawlPageArtifact[] = [];
+  let clinicPaletteProjection: ClinicPaletteProjection | null = null;
   const skippedUrls: CrawlSkippedUrl[] = [];
   const skippedKeys = new Set<string>();
   const addSkipped = (item: CrawlSkippedUrl) => {
@@ -616,6 +621,18 @@ export async function crawlDesignatedSite(
       continue;
     }
     const html = await readLimited(fetched.response);
+    if (input.scanProfileId === US_MEDICAL_OUTREACH_PROFILE_ID) {
+      const candidate = projectClinicPaletteFromHtml(html);
+      if (
+        candidate
+        && (
+          !clinicPaletteProjection
+          || (candidate.kind === 'logo' && clinicPaletteProjection.kind === 'css')
+        )
+      ) {
+        clinicPaletteProjection = candidate;
+      }
+    }
     const projected = pageArtifact(html, fetched);
     const root = parse(html);
     const socialLinks = dependencies.probeSocialLinks
@@ -682,6 +699,7 @@ export async function crawlDesignatedSite(
     finalOrigin: origin,
     observedAt,
     ...(input.scanProfileId ? { scanProfileId: input.scanProfileId } : {}),
+    ...(clinicPaletteProjection ? { clinicPaletteProjection } : {}),
     tls,
     robots: {
       url: robotsFetch.finalUrl.toString(),

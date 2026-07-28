@@ -6,8 +6,13 @@ import {
 import type { ClinicMasterPin, SiteConfig } from '@/lib/types/site';
 import {
   compilePremiumDentalMaster,
+  resolveClinicFocus,
   resolveClinicMasterTheme,
 } from '@/lib/clinic-master';
+import {
+  applyLatinFontPairing,
+  resolveFontPairingForLocale,
+} from '@/lib/fonts';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import {
   INSUFFICIENT_ENGLISH_SOURCE,
@@ -106,19 +111,24 @@ function curateSourceBlocks(
   return { accepted, excluded };
 }
 
-function clinicMasterPinForArtifact(artifact: CrawlArtifactPayload): ClinicMasterPin {
+function clinicMasterPinForArtifact(
+  artifact: CrawlArtifactPayload,
+  blocks: readonly ProspectPublicSourceBlock[],
+): ClinicMasterPin {
+  const palette = artifact.clinicPaletteProjection;
   return {
     version: 1,
     masterId: 'premium-dental-v1',
-    accentPreset: 'clean-blue',
+    accentPreset: palette?.accentPreset ?? 'clean-blue',
     typographyPreset: 'clinic-editorial',
     density: 'airy',
-    focus: 'balanced',
+    focus: resolveClinicFocus(blocks.filter((block) => block.kind === 'service')),
     demoPitchLocale: 'en',
     paletteSource: {
       version: 1,
-      kind: 'neutral',
-      sourceSha256: createHash('sha256').update(artifact.finalOrigin, 'utf8').digest('hex'),
+      kind: palette?.kind ?? 'neutral',
+      sourceSha256: palette?.sourceSha256
+        ?? createHash('sha256').update(artifact.finalOrigin, 'utf8').digest('hex'),
     },
     stockManifestVersion: 1,
   };
@@ -152,8 +162,18 @@ export function compileUsMedicalDemo(
     US_DEMO_DNA_ID,
     US_DEMO_HUE_SEED,
   ));
-  const clinicMaster = clinicMasterPinForArtifact(artifact);
-  const theme = resolveClinicMasterTheme(baseTheme, clinicMaster);
+  const clinicMaster = clinicMasterPinForArtifact(artifact, curated.accepted);
+  const clinicTheme = resolveClinicMasterTheme(baseTheme, clinicMaster);
+  const fontSelection = resolveFontPairingForLocale({
+    locale: 'en-US',
+    dnaId: US_DEMO_DNA_ID,
+    industryClass: 'medical',
+    clinicTypographyPreset: clinicMaster.typographyPreset,
+  });
+  const theme = applyLatinFontPairing(
+    clinicTheme,
+    fontSelection?.locale === 'en-US' ? fontSelection : null,
+  );
   const introduction = curated.accepted.find((block) => block.kind === 'introduction');
   const phone = curated.accepted.find((block) => block.kind === 'phone')?.text;
   const address = curated.accepted.find((block) => block.kind === 'address')?.text;

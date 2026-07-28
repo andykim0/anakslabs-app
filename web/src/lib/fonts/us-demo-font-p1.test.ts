@@ -20,12 +20,12 @@ import {
 } from '.';
 
 describe('US-DEMO P1 — additive Latin font seam', () => {
-  test('단일 카탈로그의 clinical neutral 슬롯만 열고 나머지 7 DNA는 보류한다', () => {
+  test('단일 카탈로그의 clinical neutral 슬롯만 production으로 열고 나머지 7 DNA는 보류한다', () => {
     assert.equal(LATIN_FONT_PAIRING_SLOTS.length, 1);
-    assert.equal(PRODUCTION_LATIN_FONT_PAIRINGS.length, 0);
+    assert.equal(PRODUCTION_LATIN_FONT_PAIRINGS.length, 1);
     const slot = LATIN_FONT_PAIRING_SLOTS[0];
     assert.equal(slot.id, 'us-clinical-neutral');
-    assert.equal(slot.latinProductionManifest.status, 'asset-pending');
+    assert.equal(slot.latinProductionManifest.status, 'production-ready');
     assert.deepEqual(Object.keys(slot.latinProductionManifest.dnaAffinity), [...DESIGN_DNA_IDS]);
     assert.equal(
       slot.latinProductionManifest.dnaAffinity['medical-clinical-clarity'],
@@ -39,7 +39,7 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     );
   });
 
-  test('LATIN_FONT_PAIRINGS_ENABLED는 정확히 1만 허용하고 자산 미완성은 기본 실패한다', () => {
+  test('LATIN_FONT_PAIRINGS_ENABLED는 정확히 1만 허용하고 preset 없는 자동 발급은 실패한다', () => {
     assert.equal(latinFontPairingsEnabled({}), false);
     assert.equal(latinFontPairingsEnabled({ LATIN_FONT_PAIRINGS_ENABLED: 'true' }), false);
     assert.equal(latinFontPairingsEnabled({ LATIN_FONT_PAIRINGS_ENABLED: '1' }), true);
@@ -162,9 +162,9 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
 
   test('asset checkpoint manifest와 성능·검수 임계는 완화 없이 고정된다', () => {
     const manifest = latinFontManifest();
-    assert.equal(manifest.status, 'asset-pending');
-    assert.equal(manifest.assetVersion, 0);
-    assert.deepEqual(manifest.assets, []);
+    assert.equal(manifest.status, 'production-ready');
+    assert.equal(manifest.assetVersion, 1);
+    assert.equal(manifest.assets.length, 8);
     assert.deepEqual(manifest.budgets, LATIN_FONT_PERFORMANCE_BUDGETS);
     assert.deepEqual(LATIN_FONT_PERFORMANCE_BUDGETS, {
       firstScreenTargetBytes: 122880,

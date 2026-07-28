@@ -1,5 +1,9 @@
 import type { SurveyInput } from '@/lib/types/domain';
-import type { MotionIndustryClass, SiteTheme } from '@/lib/types/site';
+import type {
+  ClinicTypographyPreset,
+  MotionIndustryClass,
+  SiteTheme,
+} from '@/lib/types/site';
 import { canonicalIndustryClass } from '@/lib/motion/signatures';
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import type { DesignDnaId } from '@/lib/design/dna/types';
@@ -11,6 +15,7 @@ import {
   fontPairingAssetsAvailable,
   latinFontPairingAssetsAvailable,
 } from './resources';
+import { CLINIC_LATIN_FONT_PRESETS } from './latin-presets';
 import { latinFontPairingsEnabled } from './flags';
 import {
   KOREAN_FONT_PAIRING_CATALOG_VERSION,
@@ -29,6 +34,8 @@ export interface KoreanFontPairingSelectionContext {
 
 export interface LocaleFontPairingSelectionContext extends KoreanFontPairingSelectionContext {
   locale?: 'ko-KR' | 'en-US';
+  /** premium-dental-v1만 발급하는 정규화된 local-asset preset. */
+  clinicTypographyPreset?: ClinicTypographyPreset;
 }
 
 export type LocaleFontPairingSelection =
@@ -36,8 +43,15 @@ export type LocaleFontPairingSelection =
   | {
       locale: 'en-US';
       id: LatinFontPairingSlotId;
-      assetVersion: number;
-      systemFallback: boolean;
+      assetVersion: 0;
+      systemFallback: true;
+    }
+  | {
+      locale: 'en-US';
+      id: LatinFontPairingSlotId;
+      assetVersion: 1;
+      systemFallback: false;
+      typographyPreset: ClinicTypographyPreset;
     };
 
 /**
@@ -85,14 +99,25 @@ export function resolveFontPairingForLocale(
   const latinEnabled = options.latinEnabled ?? latinFontPairingsEnabled();
   if (!latinEnabled || context.dnaId !== 'medical-clinical-clarity') return null;
   const id: LatinFontPairingSlotId = 'us-clinical-neutral';
-  const slot = latinFontPairingSlotById(id);
-  const assetsAvailable = latinFontPairingAssetsAvailable(id);
-  if (!assetsAvailable && options.allowSystemFallback !== true) return null;
+  const typographyPreset = context.clinicTypographyPreset;
+  if (
+    typographyPreset
+    && latinFontPairingAssetsAvailable(id, typographyPreset)
+  ) {
+    return {
+      locale: 'en-US',
+      id,
+      assetVersion: 1,
+      systemFallback: false,
+      typographyPreset,
+    };
+  }
+  if (options.allowSystemFallback !== true) return null;
   return {
     locale: 'en-US',
     id,
-    assetVersion: slot.latinProductionManifest.assetVersion,
-    systemFallback: !assetsAvailable,
+    assetVersion: 0,
+    systemFallback: true,
   };
 }
 
@@ -141,20 +166,36 @@ export function applyLatinFontPairing(
 ): SiteTheme {
   if (!selection) return theme;
   const pairing = latinFontPairingSlotById(selection.id);
-  if (!selection.systemFallback && !latinFontPairingAssetsAvailable(selection.id)) return theme;
+  if (
+    !selection.systemFallback
+    && !latinFontPairingAssetsAvailable(selection.id, selection.typographyPreset)
+  ) return theme;
+  const preset = selection.systemFallback
+    ? null
+    : CLINIC_LATIN_FONT_PRESETS[selection.typographyPreset];
+  const fontPairing = selection.systemFallback
+    ? {
+        catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
+        locale: 'en-US' as const,
+        id: selection.id,
+        assetVersion: 0 as const,
+        selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
+      }
+    : {
+        catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
+        locale: 'en-US' as const,
+        id: selection.id,
+        assetVersion: 1 as const,
+        selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
+        typographyPreset: selection.typographyPreset,
+      };
   return {
     ...theme,
     fonts: {
-      heading: pairing.heading,
-      body: pairing.body,
+      heading: preset?.heading ?? pairing.heading,
+      body: preset?.body ?? pairing.body,
       googleFonts: [],
     },
-    fontPairing: {
-      catalogVersion: LATIN_FONT_PAIRING_CATALOG_VERSION,
-      locale: 'en-US',
-      id: selection.id,
-      assetVersion: selection.assetVersion,
-      selectionPolicy: US_LATIN_FONT_SELECTION_POLICY,
-    },
+    fontPairing,
   };
 }
