@@ -27,6 +27,7 @@ export function ClinicInsuranceStrip(input: {
       data-anchor={compact ? input.section.id : undefined}
       data-section-type={input.section.type}
       data-clinic-insurance-strip
+      data-clinic-archetype="insurance.logo-bar"
       aria-label={input.section.name}
       style={{
         backgroundColor: resolveThemePaint(

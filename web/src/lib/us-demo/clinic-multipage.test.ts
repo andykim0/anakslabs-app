@@ -488,6 +488,7 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       animate: false,
     }));
     assert.match(html, /data-clinic-insurance-strip/u);
+    assert.match(html, /data-clinic-archetype="insurance\.logo-bar"/u);
     assert.match(html, /data-clinic-insurance-logo-box[^]*?object-fit:contain/u);
     assert.doesNotMatch(html, /<canvas\b/u);
   });
