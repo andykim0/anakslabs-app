@@ -49,6 +49,8 @@ interface SectionStackProps {
   continuousFlow?: boolean;
   /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
   clinicFlow?: boolean;
+  /** Visible page-level heading for clinic flow hero. */
+  clinicPageHeading?: string;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -394,22 +396,24 @@ export function SectionStack({
   integratedTypography = false,
   continuousFlow = false,
   clinicFlow = false,
+  clinicPageHeading,
 }: SectionStackProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
   }
+  if (clinicFlow) {
+    return (
+      <ClinicFlowSection
+        section={section}
+        theme={theme}
+        isFirst={isFirst}
+        interactive={interactive}
+        siteId={siteId}
+        pageHeading={clinicPageHeading}
+      />
+    );
+  }
   if (section.sectionLayout) {
-    if (clinicFlow && section.sectionLayout.kind === 'features') {
-      return (
-        <ClinicFlowSection
-          section={section}
-          theme={theme}
-          isFirst={isFirst}
-          interactive={interactive}
-          siteId={siteId}
-        />
-      );
-    }
     return (
       <SectionLayoutProjectionRenderer
         section={section}

@@ -58,6 +58,8 @@ interface SectionCanvasProps {
   continuousFlow?: boolean;
   /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
   clinicFlow?: boolean;
+  /** Visible page-level heading for clinic flow hero. */
+  clinicPageHeading?: string;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -88,18 +90,19 @@ export function SectionCanvas(props: SectionCanvasProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={props.theme} variant="canvas" />;
   }
+  if (props.clinicFlow) {
+    return (
+      <ClinicFlowSection
+        section={section}
+        theme={props.theme}
+        isFirst={props.isFirst}
+        interactive={props.interactive}
+        siteId={props.siteId}
+        pageHeading={props.clinicPageHeading}
+      />
+    );
+  }
   if (section.sectionLayout) {
-    if (props.clinicFlow && section.sectionLayout.kind === 'features') {
-      return (
-        <ClinicFlowSection
-          section={section}
-          theme={props.theme}
-          isFirst={props.isFirst}
-          interactive={props.interactive}
-          siteId={props.siteId}
-        />
-      );
-    }
     return (
       <SectionLayoutProjectionRenderer
         section={section}

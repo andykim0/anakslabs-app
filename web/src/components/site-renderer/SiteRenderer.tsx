@@ -47,6 +47,7 @@ import { signatureContractEnabled } from '@/lib/motion/signature-contract';
 import { fontPairingResources } from '@/lib/fonts/resources';
 import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
+import { CLINIC_FLOW_CSS } from './ClinicFlowSection';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -422,6 +423,12 @@ export function SiteRenderer({
   const progressRail = config.siteCinematic?.progressRail ?? 'numbered';
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
+  const clinicPageHeading = page.slug === ''
+    ? config.businessInfo?.businessName?.trim()
+      || config.meta.title
+      || config.businessInfo?.ownerName
+      || page.title
+    : page.title;
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),
@@ -486,11 +493,11 @@ export function SiteRenderer({
     (siteCinematic && hasProjectedHero ? HERO_LAYOUT_CINEMATIC_CSS : '') +
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
-    (config.clinicMaster ? CLINIC_MASTER_CSS : '') +
+    (config.clinicMaster ? CLINIC_MASTER_CSS + CLINIC_FLOW_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
-    containerType: 'inline-size',
+    containerType: config.clinicMaster ? undefined : 'inline-size',
     width: '100%',
     minHeight: '100dvh',
     backgroundColor: themeColor(theme, 'backgroundSubtle'),
@@ -526,6 +533,16 @@ export function SiteRenderer({
     clinicStyle['--clinic-stack-rhythm'] = clinicTokens.stackRhythm;
     clinicStyle['--clinic-heading-gap'] = clinicTokens.stackHeadingGap;
     clinicStyle['--clinic-grid-gutter'] = clinicTokens.gridGutter;
+    clinicStyle['--clinic-heading-family'] = theme.fonts.heading;
+    clinicStyle['--clinic-heading-weight'] = 600;
+    clinicStyle['--clinic-background'] = theme.palette.background;
+    clinicStyle['--clinic-surface'] = theme.palette.surface;
+    clinicStyle['--clinic-text'] = theme.palette.text;
+    clinicStyle['--clinic-muted'] = theme.palette.muted;
+    clinicStyle['--clinic-accent'] = theme.palette.accent;
+    clinicStyle['--clinic-accent-contrast'] = '#FFFFFF';
+    clinicStyle['--clinic-border'] = '#E3E8EE';
+    clinicStyle['--clinic-radius-md'] = clinicTokens.radiusMd;
   }
   if (motionCssNeeded) {
     const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
@@ -610,12 +627,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
                         </div>
                       )}
                     </div>
@@ -658,6 +675,7 @@ export function SiteRenderer({
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
                       clinicFlow={Boolean(config.clinicMaster)}
+                      clinicPageHeading={clinicPageHeading}
                     />
                   </div>
                 )}
@@ -673,6 +691,7 @@ export function SiteRenderer({
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
                       clinicFlow={Boolean(config.clinicMaster)}
+                      clinicPageHeading={clinicPageHeading}
                     />
                   </div>
                 )}
@@ -694,12 +713,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -720,12 +739,12 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
             ) : ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} />
             ))}
           </div>
         )}
@@ -746,6 +765,7 @@ export function SiteRenderer({
                       integratedTypography={section.type === 'hero'}
                       continuousFlow={continuousCanvas}
                       clinicFlow={Boolean(config.clinicMaster)}
+                      clinicPageHeading={clinicPageHeading}
                     />
                   </SiteCinematicChapter>
                 ))}
@@ -760,6 +780,7 @@ export function SiteRenderer({
                 plan={plan}
                 siteId={siteId}
                 clinicFlow={Boolean(config.clinicMaster)}
+                clinicPageHeading={clinicPageHeading}
               />
             ))}
           </div>
