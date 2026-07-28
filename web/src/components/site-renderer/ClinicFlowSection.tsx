@@ -94,7 +94,7 @@ export const CLINIC_FLOW_CSS = `
   gap: var(--clinic-grid-gutter);
   align-items: center;
 }
-[data-clinic-flow-section="features.zigzag-media"] [data-clinic-flow-item]:nth-child(even) [data-clinic-flow-media] {
+[data-clinic-flow-section="features.zigzag-media"] [data-clinic-flow-item]:nth-child(even) [data-clinic-flow-item-copy] {
   order: 2;
 }
 [data-clinic-flow-section="features.numbered-list"] [data-clinic-flow-items],
@@ -126,6 +126,7 @@ export const CLINIC_FLOW_CSS = `
 }
 [data-clinic-flow-section^="about."] [data-clinic-flow-media] {
   aspect-ratio: 34 / 43;
+  order: -1;
 }
 [data-clinic-flow-section^="gallery."] [data-clinic-flow-items] {
   grid-template-columns: repeat(4,minmax(0,1fr));
@@ -268,7 +269,7 @@ export const CLINIC_FLOW_CSS = `
   [data-clinic-flow-section^="gallery."] [data-clinic-flow-items] {
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
-  [data-clinic-flow-section="features.zigzag-media"] [data-clinic-flow-item]:nth-child(even) [data-clinic-flow-media] {
+  [data-clinic-flow-section="features.zigzag-media"] [data-clinic-flow-item]:nth-child(even) [data-clinic-flow-item-copy] {
     order: initial;
   }
   [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item]:first-child {
@@ -448,17 +449,6 @@ function FlowItem({
       data-clinic-flow-has-media={media.length > 0 ? 'true' : 'false'}
       style={listItem ? { listStyle: 'none' } : undefined}
     >
-      {media.map((element) => (
-        <FlowElement
-          key={element.id}
-          element={element}
-          theme={theme}
-          isFirst={isFirst}
-          interactive={interactive}
-          siteId={siteId}
-          hrefForPageSlug={hrefForPageSlug}
-        />
-      ))}
       <div data-clinic-flow-item-copy>
         {heading?.kind === 'text' ? (
           <FlowText element={heading} theme={theme} role="heading" />
@@ -475,6 +465,17 @@ function FlowItem({
           />
         ))}
       </div>
+      {media.map((element) => (
+        <FlowElement
+          key={element.id}
+          element={element}
+          theme={theme}
+          isFirst={isFirst}
+          interactive={interactive}
+          siteId={siteId}
+          hrefForPageSlug={hrefForPageSlug}
+        />
+      ))}
     </ItemTag>
   );
 }
