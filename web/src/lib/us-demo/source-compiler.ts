@@ -24,6 +24,7 @@ import {
   type ProspectPublicSourceBlock,
   type UsDemoManualFinish,
   type UsMedicalDemoCompilation,
+  type UsDemoRenderMode,
 } from './contracts';
 import {
   prospectPublicSourceBlocks,
@@ -31,6 +32,7 @@ import {
   sourceLooksEnglish,
 } from './source-extraction';
 import { screenUsMedicalDemoCopy } from './us-medical-ad-guard';
+import { compileUsMedicalFullPreview } from './full-preview';
 
 const US_DEMO_DNA_ID = 'medical-clinical-clarity' as const;
 const US_DEMO_HUE_SEED = 207;
@@ -143,7 +145,10 @@ function clinicMasterPinForArtifact(
  */
 export function compileUsMedicalDemo(
   artifact: CrawlArtifactPayload,
-  options: { manualFinish?: UsDemoManualFinish } = {},
+  options: {
+    manualFinish?: UsDemoManualFinish;
+    renderMode?: UsDemoRenderMode;
+  } = {},
 ): UsMedicalDemoCompilation {
   const sourceBlocks = prospectPublicSourceBlocks(artifact);
   const curated = curateSourceBlocks(sourceBlocks, options.manualFinish);
@@ -217,10 +222,19 @@ export function compileUsMedicalDemo(
       : {}),
     nav: { enabled: false },
   };
-  const config = applyDentalStockToClinicMaster(configWithoutStock, {
-    hospitalStableId: createHash('sha256')
-      .update(artifact.finalOrigin, 'utf8')
-      .digest('hex'),
+  const hospitalStableId = createHash('sha256')
+    .update(artifact.finalOrigin, 'utf8')
+    .digest('hex');
+  const fullPreview = options.renderMode === 'preview-full'
+    ? compileUsMedicalFullPreview({
+        artifact,
+        blocks: curated.accepted,
+        baseConfig: configWithoutStock,
+        hospitalStableId,
+      })
+    : null;
+  const config = fullPreview?.config ?? applyDentalStockToClinicMaster(configWithoutStock, {
+    hospitalStableId,
     category: dentalStockCategoryForSource(
       clinicMaster.focus,
       curated.accepted
@@ -252,6 +266,13 @@ export function compileUsMedicalDemo(
       blocks: sourceBlocks,
       usedBlockIds: [...new Set([...usedBlockIds, ...metaBlockIds, ...publicContactBlockIds])],
       excluded: curated.excluded,
+      ...(fullPreview
+        ? {
+            images: fullPreview.sourceImages,
+            usedImageIds: fullPreview.usedImageIds,
+          }
+        : {}),
     },
+    ...(fullPreview ? { renderMode: 'preview-full' as const } : {}),
   };
 }

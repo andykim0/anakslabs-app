@@ -1,6 +1,8 @@
 import type { SiteConfig } from '@/lib/types/site';
 
 export const US_DEMO_SOURCE_ORIGIN = 'prospect_public_source' as const;
+export const US_DEMO_RENDER_MODES = ['outreach-safe', 'preview-full'] as const;
+export type UsDemoRenderMode = (typeof US_DEMO_RENDER_MODES)[number];
 export const US_DEMO_LOCALE_CONTRACT = Object.freeze({
   locale: 'en-US',
   market: 'US-CA',
@@ -71,11 +73,30 @@ export interface UsDemoSourceManifest {
     reason: 'policy-block' | 'review-required' | 'manual-exclusion' | 'unsupported-slot';
     violations?: readonly UsMedicalAdViolation[];
   }[];
+  /** preview-full only. Omission preserves the outreach-safe manifest bytes. */
+  images?: readonly ProspectPublicSourceImage[];
+  /** preview-full only. IDs are derived from the immutable crawl projection. */
+  usedImageIds?: readonly string[];
+}
+
+export interface ProspectPublicSourceImage {
+  id: string;
+  origin: typeof US_DEMO_SOURCE_ORIGIN;
+  url: string;
+  alt: string;
+  sourcePageUrl: string;
+  sourceLocation: {
+    field: 'images';
+    ordinal: number;
+  };
+  originalSha256: string;
 }
 
 export interface UsMedicalDemoCompilation {
   config: SiteConfig;
   sourceManifest: UsDemoSourceManifest;
+  /** Additive output marker; the default outreach-safe output omits it for byte compatibility. */
+  renderMode?: 'preview-full';
 }
 
 export const INSUFFICIENT_ENGLISH_SOURCE = 'INSUFFICIENT_ENGLISH_SOURCE' as const;

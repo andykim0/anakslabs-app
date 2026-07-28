@@ -3,6 +3,7 @@ import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 import type { ClinicAccentPreset, SiteConfig } from '@/lib/types/site';
 import type { AiVisibilitySummary } from '@/lib/scan/ai-visibility';
 import type { ScanProfileId } from '@/lib/scan/rules';
+import type { UsDemoRenderMode } from '@/lib/us-demo/contracts';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
 export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
@@ -38,7 +39,9 @@ export type CrawlConnectorKind =
   | 'naver_booking'
   | 'kakao_channel'
   | 'instagram'
-  | 'other_social';
+  | 'other_social'
+  | 'us_booking'
+  | 'google_maps';
 
 export interface CrawlImageCandidate {
   url: string;
@@ -132,6 +135,7 @@ export interface SharedSitePreviewRecord {
   tokenHash: string;
   sourceUrl: string;
   siteConfig: SiteConfig;
+  renderMode: 'standard' | UsDemoRenderMode;
   noticeVersion: 1;
   createdBy: string;
   createdAt: string;

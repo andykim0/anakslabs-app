@@ -1,0 +1,438 @@
+import assert from 'node:assert/strict';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, test } from 'node:test';
+import { siteConfigSchema } from '@/app/api/_lib/schemas';
+import { SiteRenderer } from '@/components/site-renderer';
+import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
+import { buildJsonLd } from '@/lib/seo/jsonld';
+import { heroPosterPreloadHtml } from '@/lib/export/document-shell';
+import { compileUsMedicalDemo } from './source-compiler';
+import {
+  MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
+  planProcedurePages,
+  previewFullExperienceFromArtifact,
+} from './full-preview';
+import { prospectPublicSourceBlocks } from './source-extraction';
+import type { ProspectPublicSourceBlock } from './contracts';
+import { sourcePageUrlForDemoPage } from './structure-diff';
+
+function page(input: Partial<CrawlPageArtifact> & Pick<CrawlPageArtifact, 'url'>): CrawlPageArtifact {
+  return {
+    status: 200,
+    contentType: 'text/html; charset=utf-8',
+    headings: [],
+    text: '',
+    structured: { commercialPhrases: [], contentItems: [] },
+    images: [],
+    connectors: [],
+    decay: {} as CrawlPageArtifact['decay'],
+    ...input,
+  };
+}
+
+function fixtureArtifact(): CrawlArtifactPayload {
+  const pages = [
+    page({
+      url: 'https://clinic.example/',
+      title: 'Wilshire Dental Arts',
+      description:
+        'Wilshire Dental Arts explains treatment choices and appointment preparation for patients visiting the Los Angeles practice.',
+      headings: ['Wilshire Dental Arts'],
+      structured: {
+        businessName: 'Wilshire Dental Arts',
+        description:
+          'Wilshire Dental Arts explains treatment choices and appointment preparation for patients visiting the Los Angeles practice.',
+        phone: '(213) 555-0142',
+        address: '123 Wilshire Boulevard, Los Angeles, CA 90010',
+        openingHours: 'Monday through Friday, 9 AM to 5 PM',
+        commercialPhrases: [],
+        contentItems: [],
+      },
+      images: [
+        {
+          url: 'https://cdn.clinic.example/practice-lobby.jpg',
+          alt: 'Wilshire Dental Arts reception area',
+          role: 'atmosphere',
+          declaredWidth: 1600,
+          declaredHeight: 1000,
+        },
+        {
+          url: 'https://cdn.clinic.example/logo.png',
+          alt: 'logo',
+          role: 'unknown',
+          declaredWidth: 120,
+          declaredHeight: 40,
+        },
+      ],
+      connectors: [
+        {
+          kind: 'us_booking',
+          url: 'https://clinic.example/appointments/request',
+          label: 'Book Appointment',
+        },
+        {
+          kind: 'google_maps',
+          url: 'https://www.google.com/maps/place/Wilshire+Dental+Arts',
+          label: 'Directions',
+        },
+      ],
+    }),
+    page({
+      url: 'https://clinic.example/services/implants',
+      title: 'Dental Implants',
+      headings: ['Dental implants', 'Full-arch implant care'],
+      images: [{
+        url: 'https://cdn.clinic.example/implant-room.jpg',
+        alt: 'Implant consultation room',
+        role: 'figure',
+        declaredWidth: 1200,
+        declaredHeight: 800,
+      }],
+    }),
+    page({
+      url: 'https://clinic.example/services/orthodontics',
+      title: 'Orthodontics',
+      headings: ['Orthodontic treatment', 'Clear aligners'],
+      images: [{
+        url: 'https://cdn.clinic.example/orthodontic-room.jpg',
+        alt: 'Orthodontic treatment room',
+        role: 'figure',
+        declaredWidth: 1200,
+        declaredHeight: 800,
+      }],
+    }),
+    page({
+      url: 'https://clinic.example/services/cosmetic',
+      title: 'Cosmetic Dentistry',
+      headings: ['Cosmetic dentistry', 'Porcelain veneers'],
+      images: [{
+        url: 'https://cdn.clinic.example/cosmetic-suite.jpg',
+        alt: 'Cosmetic dentistry suite',
+        role: 'figure',
+        declaredWidth: 1200,
+        declaredHeight: 800,
+      }],
+    }),
+    page({
+      url: 'https://clinic.example/services/preventive',
+      title: 'Preventive Dentistry',
+      headings: ['Preventive dental visits', 'Dental cleanings'],
+      images: [{
+        url: 'https://cdn.clinic.example/preventive-room.jpg',
+        alt: 'Preventive care room',
+        role: 'figure',
+        declaredWidth: 1200,
+        declaredHeight: 800,
+      }],
+    }),
+    page({
+      url: 'https://clinic.example/about/doctor',
+      title: 'Dr. Jane Park',
+      description:
+        'Dr. Jane Park provides restorative and preventive care and lists her professional background for patients considering an appointment.',
+      headings: ['Dr. Jane Park', 'DDS'],
+      structured: {
+        description:
+          'Dr. Jane Park provides restorative and preventive care and lists her professional background for patients considering an appointment.',
+        commercialPhrases: [],
+        contentItems: [],
+      },
+      images: [{
+        url: 'https://cdn.clinic.example/team/dr-jane-park.jpg',
+        alt: 'Dr. Jane Park',
+        role: 'figure',
+        declaredWidth: 800,
+        declaredHeight: 1000,
+      }],
+    }),
+    page({
+      url: 'https://clinic.example/before-after',
+      title: 'Before and After',
+      images: [
+        {
+          url: 'https://cdn.clinic.example/cases/before-01.jpg',
+          alt: 'Before',
+          role: 'figure',
+          declaredWidth: 900,
+          declaredHeight: 600,
+        },
+        {
+          url: 'https://cdn.clinic.example/cases/after-01.jpg',
+          alt: 'After',
+          role: 'figure',
+          declaredWidth: 900,
+          declaredHeight: 600,
+        },
+      ],
+    }),
+  ];
+  return {
+    schemaVersion: 1,
+    seedUrl: pages[0].url,
+    finalOrigin: 'https://clinic.example',
+    observedAt: '2026-07-28T00:00:00.000Z',
+    tls: {
+      httpsUrl: pages[0].url,
+      status: 'valid',
+      httpFallbackApproved: false,
+      httpFallbackUsed: false,
+    },
+    robots: {
+      url: 'https://clinic.example/robots.txt',
+      status: 200,
+      sitemaps: [],
+      crawlerAllowed: true,
+    },
+    pages,
+    skippedUrls: [],
+  };
+}
+
+function sourceBlock(input: {
+  id: string;
+  kind: ProspectPublicSourceBlock['kind'];
+  text: string;
+  sourceUrl: string;
+}): ProspectPublicSourceBlock {
+  return {
+    ...input,
+    origin: 'prospect_public_source',
+    sourceLocation: { field: 'fixture', ordinal: 0 },
+    originalSha256: 'a'.repeat(64),
+  };
+}
+
+describe('CLINIC$ master v2 — preview-full multipage', () => {
+  test('outreach-safe default remains the exact single-page/deactivated output', () => {
+    const artifact = fixtureArtifact();
+    const implicit = compileUsMedicalDemo(artifact);
+    const explicit = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
+    assert.deepEqual(explicit, implicit);
+    assert.equal(implicit.config.pages.length, 1);
+    assert.deepEqual(implicit.config.nav, { enabled: false });
+    assert.equal(implicit.renderMode, undefined);
+    assert.equal(implicit.sourceManifest.images, undefined);
+    assert.match(JSON.stringify(implicit.config), /Consented cases can be added/u);
+  });
+
+  test('preview-full도 검증불가 자격·최상급·보장을 수동 승인과 무관하게 제외한다', () => {
+    const artifact = fixtureArtifact();
+    artifact.pages[1].headings.push(
+      'Harvard-trained board-certified implant team',
+      'Best guaranteed implant results',
+    );
+    const first = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const blockedIds = first.sourceManifest.excluded
+      .filter((item) => item.reason === 'policy-block')
+      .map((item) => item.blockId);
+    assert.ok(blockedIds.length >= 2);
+    const approved = compileUsMedicalDemo(artifact, {
+      renderMode: 'preview-full',
+      manualFinish: { approvedReviewBlockIds: blockedIds },
+    });
+    assert.doesNotMatch(
+      JSON.stringify(approved.config),
+      /Harvard|board-certified|Best guaranteed/iu,
+    );
+  });
+
+  test('preview-full은 원문이 있는 4개 시술+about+contact만 결정적으로 만든다', () => {
+    const artifact = fixtureArtifact();
+    const first = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const second = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    assert.deepEqual(second, first);
+    assert.equal(first.renderMode, 'preview-full');
+    assert.deepEqual(siteConfigSchema.parse(first.config), first.config);
+    assert.equal(first.config.nav?.enabled, true);
+    assert.deepEqual(
+      first.config.pages.map((entry) => entry.slug),
+      [
+        '',
+        'implants',
+        'orthodontics',
+        'cosmetic',
+        'preventive',
+        'about',
+        'contact',
+      ],
+    );
+    assert.ok(first.config.pages
+      .filter((entry) => entry.id.startsWith('clinic-procedure-'))
+      .every((entry) => entry.sections
+        .flatMap((section) => section.elements)
+        .some((element) => element.kind === 'text' && element.id.startsWith('source-'))));
+    assert.doesNotMatch(
+      JSON.stringify(first.config),
+      /Consented cases can be added|rating and review count can appear|provider-placeholder\.svg/iu,
+    );
+  });
+
+  test('source page 3-block 임계값과 parent→category→Home 병합이 결정적이다', () => {
+    assert.equal(MIN_BLOCKS_FOR_INDIVIDUAL_PAGE, 3);
+    const blocks = [
+      sourceBlock({
+        id: 'parent-title',
+        kind: 'business_name',
+        text: 'Implant Services',
+        sourceUrl: 'https://clinic.example/services',
+      }),
+      sourceBlock({
+        id: 'parent-service',
+        kind: 'service',
+        text: 'Dental implants',
+        sourceUrl: 'https://clinic.example/services',
+      }),
+      sourceBlock({
+        id: 'child-title',
+        kind: 'business_name',
+        text: 'Full Arch',
+        sourceUrl: 'https://clinic.example/services/full-arch',
+      }),
+      sourceBlock({
+        id: 'child-service',
+        kind: 'service',
+        text: 'Full-arch implant care',
+        sourceUrl: 'https://clinic.example/services/full-arch',
+      }),
+      sourceBlock({
+        id: 'cosmetic-title',
+        kind: 'business_name',
+        text: 'Veneers',
+        sourceUrl: 'https://clinic.example/veneers',
+      }),
+      sourceBlock({
+        id: 'cosmetic-service',
+        kind: 'service',
+        text: 'Porcelain veneers',
+        sourceUrl: 'https://clinic.example/veneers',
+      }),
+    ];
+    const first = planProcedurePages(blocks);
+    const second = planProcedurePages(blocks);
+    assert.deepEqual(second, first);
+    assert.equal(first.pages.length, 1);
+    assert.equal(first.pages[0].sourceUrl, 'https://clinic.example/services');
+    assert.deepEqual(
+      first.pages[0].blocks
+        .filter((block) => block.kind === 'service')
+        .map((block) => block.text),
+      ['Dental implants', 'Full-arch implant care'],
+    );
+    assert.deepEqual(
+      first.homeBlocks.filter((block) => block.kind === 'service').map((block) => block.text),
+      ['Porcelain veneers'],
+    );
+  });
+
+  test('병원 실이미지가 우선이고 junk는 제외하며 stock은 빈 hero에만 폴백한다', () => {
+    const compiled = compileUsMedicalDemo(fixtureArtifact(), { renderMode: 'preview-full' });
+    const homeHero = compiled.config.pages[0].sections.find((section) => section.type === 'hero');
+    assert.equal(homeHero?.background.image?.src, 'https://cdn.clinic.example/practice-lobby.jpg');
+    const serialized = JSON.stringify(compiled.config);
+    assert.match(serialized, /dr-jane-park\.jpg/u);
+    assert.match(serialized, /before-01\.jpg/u);
+    assert.match(serialized, /after-01\.jpg/u);
+    assert.doesNotMatch(serialized, /logo\.png/u);
+    assert.ok(compiled.sourceManifest.images);
+    assert.ok(compiled.sourceManifest.usedImageIds);
+    assert.equal(
+      compiled.sourceManifest.images.some((image) => image.url.endsWith('/logo.png')),
+      false,
+    );
+    const stockUsages = compiled.config.assetUsages ?? [];
+    assert.ok(stockUsages.every((usage) => (
+      usage.role === 'atmospheric'
+      && !/(?:provider|before-after|patient-result)/u.test(usage.slotKey)
+    )));
+    for (const entry of compiled.config.pages) {
+      assert.match(
+        heroPosterPreloadHtml(compiled.config, entry.slug),
+        /^<link rel="preload" as="image" href="[^"]+" fetchpriority="high">$/u,
+        entry.slug || 'home',
+      );
+    }
+    assert.equal(compiled.config.motion, undefined);
+  });
+
+  test('preview-full CTA는 crawl의 실제 HTTPS/전화만 활성화하고 DOM/PE를 유지한다', () => {
+    const artifact = fixtureArtifact();
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const experience = previewFullExperienceFromArtifact({
+      artifact,
+      blocks: prospectPublicSourceBlocks(artifact),
+    });
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      clinicExperience: experience,
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: true,
+      animate: false,
+    }));
+    assert.match(html, /href="https:\/\/clinic\.example\/appointments\/request"/u);
+    assert.match(html, /href="tel:\+12135550142"/u);
+    assert.match(html, /data-clinic-booking-state="active"/u);
+    assert.match(html, /<section\b/u);
+    assert.match(html, /<img\b[^>]*alt=/u);
+    assert.doesNotMatch(html, /<canvas\b/u);
+    const procedureHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      clinicExperience: experience,
+      pageSlug: 'implants',
+      mode: 'desktop',
+      interactive: true,
+      animate: false,
+    }));
+    assert.match(procedureHtml, /data-clinic-booking-state="active"/u);
+  });
+
+  test('페이지별 JSON-LD는 source fact만으로 dental/procedure/provider/contact 타입을 낸다', () => {
+    const { config } = compileUsMedicalDemo(fixtureArtifact(), { renderMode: 'preview-full' });
+    const home = buildJsonLd(config, 'https://preview.example', '');
+    const identity = home.find((node) => node['@id'] === 'https://preview.example#identity');
+    assert.deepEqual(identity?.['@type'], ['Dentist', 'MedicalClinic', 'LocalBusiness']);
+    assert.ok(home.some((node) => node['@type'] === 'WebSite'));
+
+    const implant = buildJsonLd(config, 'https://preview.example', 'implants');
+    assert.ok(implant.some((node) => (
+      Array.isArray(node['@type']) && node['@type'].includes('MedicalWebPage')
+    )));
+    const procedure = implant.find((node) => node['@type'] === 'MedicalProcedure');
+    assert.equal(procedure?.name, 'Dental implants');
+    assert.deepEqual(
+      implant
+        .filter((node) => node['@type'] === 'MedicalProcedure')
+        .map((node) => node.name),
+      ['Dental implants', 'Full-arch implant care'],
+    );
+
+    const about = buildJsonLd(config, 'https://preview.example', 'about');
+    const provider = about.find((node) => node['@type'] === 'Person');
+    assert.equal(provider?.name, 'Dr. Jane Park');
+    assert.equal(provider?.honorificSuffix, 'DDS');
+
+    const contact = buildJsonLd(config, 'https://preview.example', 'contact');
+    assert.ok(contact.some((node) => (
+      Array.isArray(node['@type']) && node['@type'].includes('ContactPage')
+    )));
+    assert.ok(contact.some((node) => (
+      Array.isArray(node['@type']) && node['@type'].includes('LocalBusiness')
+    )));
+    assert.doesNotMatch(JSON.stringify([home, implant, about, contact]), /best|guarantee/iu);
+  });
+
+  test('diff 패널은 각 demo page를 해당 원본 page와 결정적으로 짝짓는다', () => {
+    const artifact = fixtureArtifact();
+    const { config } = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const sourceUrls = new Map(config.pages.map((entry) => [
+      entry.slug,
+      sourcePageUrlForDemoPage(artifact, entry),
+    ]));
+    assert.equal(sourceUrls.get(''), 'https://clinic.example/');
+    assert.equal(sourceUrls.get('implants'), 'https://clinic.example/services/implants');
+    assert.equal(sourceUrls.get('orthodontics'), 'https://clinic.example/services/orthodontics');
+    assert.equal(sourceUrls.get('about'), 'https://clinic.example/about/doctor');
+    assert.equal(sourceUrls.get('contact'), 'https://clinic.example/');
+  });
+});

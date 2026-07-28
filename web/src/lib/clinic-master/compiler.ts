@@ -182,23 +182,30 @@ function providerCardElements(input: {
         (candidate) => candidate.providerBioBlockId === input.bio.id
           && candidate.origin === 'customer_upload',
       )
+    : input.experience.mode === 'preview-full'
+      ? input.experience.providerPhotos?.find(
+          (candidate) => candidate.providerBioBlockId === input.bio.id
+            && candidate.origin === 'prospect_public_source',
+        )
     : undefined;
   const suffix = input.index === 0 ? '' : `-${input.index}`;
   return [
-    {
-      id: `clinic-provider-photo-placeholder${suffix}`,
-      kind: 'image',
-      src: photo?.src ?? '/clinic/provider-placeholder.svg',
-      alt: photo?.alt ?? DEMO_DISCLOSURES.providerImageAlt,
-      frame: { x: 150, y: 136 + yOffset, w: 476, h: 602 },
-      z: 1,
-      style: {
-        objectFit: 'cover',
-        borderRadius: CLINIC_RADIUS_TOKENS.md,
-        shadow: false,
-      },
-      entrance: { effect: 'none' },
-    },
+    ...(input.experience.mode === 'preview-full' && !photo
+      ? []
+      : [{
+          id: `clinic-provider-photo-placeholder${suffix}`,
+          kind: 'image' as const,
+          src: photo?.src ?? '/clinic/provider-placeholder.svg',
+          alt: photo?.alt ?? DEMO_DISCLOSURES.providerImageAlt,
+          frame: { x: 150, y: 136 + yOffset, w: 476, h: 602 },
+          z: 1,
+          style: {
+            objectFit: 'cover' as const,
+            borderRadius: CLINIC_RADIUS_TOKENS.md,
+            shadow: false,
+          },
+          entrance: { effect: 'none' as const },
+        }]),
     productTextElement(
       `clinic-provider-kicker${suffix}`,
       'MEET THE DOCTOR',
@@ -271,11 +278,12 @@ function providerCardElements(input: {
 function ratingAggregateSection(input: {
   palette: SiteTheme['palette'];
   experience: ClinicMasterExperience;
-}): Section {
+}): Section | null {
   const aggregate = input.experience.mode === 'live'
     ? input.experience.ratingAggregate
     : undefined;
   if (!aggregate) {
+    if (input.experience.mode === 'preview-full') return null;
     return disclosureSection({
       id: 'clinic-rating-aggregate',
       name: 'Patient Reviews',
@@ -331,6 +339,41 @@ function ratingAggregateSection(input: {
       },
     ],
   }, input.palette);
+}
+
+function previewBeforeAfterSection(input: {
+  palette: SiteTheme['palette'];
+  images: NonNullable<Extract<
+    ClinicMasterExperience,
+    { mode: 'preview-full' }
+  >['beforeAfterImages']>;
+}): Section {
+  const images = input.images.slice(0, 8);
+  return section({
+    id: 'clinic-before-after-preview-full',
+    type: 'cases',
+    name: 'Before & After',
+    height: Math.max(620, 180 + Math.ceil(images.length / 2) * 360),
+    elements: images.map((image, index) => ({
+      id: `source-image-${image.sourceImageId}-before-after-${index}`,
+      kind: 'image' as const,
+      src: image.src,
+      alt: image.alt,
+      frame: {
+        x: index % 2 === 0 ? 140 : 760,
+        y: 120 + Math.floor(index / 2) * 360,
+        w: 540,
+        h: 320,
+      },
+      z: 1,
+      style: {
+        objectFit: 'cover' as const,
+        borderRadius: CLINIC_RADIUS_TOKENS.md,
+        shadow: false,
+      },
+      entrance: { effect: 'none' as const },
+    })),
+  }, input.palette, 'surface');
 }
 
 /**
@@ -447,14 +490,24 @@ export function compilePremiumDentalMaster(input: {
       })),
     }, theme.palette));
   }
-  result.push(ratingAggregateSection({ palette: theme.palette, experience }));
-  result.push(disclosureSection({
-    id: 'clinic-before-after-placeholder',
-    name: 'Before & After',
-    text: DEMO_DISCLOSURES.beforeAfter,
-    palette: theme.palette,
-    surface: true,
-  }));
+  const ratingAggregate = ratingAggregateSection({ palette: theme.palette, experience });
+  if (ratingAggregate) result.push(ratingAggregate);
+  if (experience.mode === 'preview-full') {
+    if ((experience.beforeAfterImages?.length ?? 0) >= 2) {
+      result.push(previewBeforeAfterSection({
+        palette: theme.palette,
+        images: experience.beforeAfterImages!,
+      }));
+    }
+  } else {
+    result.push(disclosureSection({
+      id: 'clinic-before-after-placeholder',
+      name: 'Before & After',
+      text: DEMO_DISCLOSURES.beforeAfter,
+      palette: theme.palette,
+      surface: true,
+    }));
+  }
   if (insurancePricing.length > 0) {
     result.push(section({
       id: 'clinic-insurance-pricing',
@@ -476,7 +529,7 @@ export function compilePremiumDentalMaster(input: {
     }, theme.palette));
   }
   if (locationAndFaq.length > 0) {
-    const googleMapsUrl = experience.mode === 'live'
+    const googleMapsUrl = experience.mode === 'live' || experience.mode === 'preview-full'
       ? experience.destination?.googleMapsUrl
       : undefined;
     result.push(section({

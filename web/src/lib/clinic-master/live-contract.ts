@@ -25,8 +25,28 @@ export interface ClinicProviderPhotoProjection {
   readonly origin: 'customer_upload';
 }
 
+/** Internal preview-only photo projected from the immutable public crawl artifact. */
+export interface ClinicPreviewProviderPhotoProjection {
+  readonly version: 1;
+  readonly providerBioBlockId: string;
+  readonly src: string;
+  readonly alt: string;
+  readonly origin: 'prospect_public_source';
+  readonly sourceImageId: string;
+}
+
 export type ClinicMasterExperience =
   | { readonly mode: 'demo' }
+  | {
+      readonly mode: 'preview-full';
+      readonly destination?: ClinicUsDestination;
+      readonly providerPhotos?: readonly ClinicPreviewProviderPhotoProjection[];
+      readonly beforeAfterImages?: readonly {
+        sourceImageId: string;
+        src: string;
+        alt: string;
+      }[];
+    }
   | {
       readonly mode: 'live';
       readonly destination?: ClinicUsDestination;

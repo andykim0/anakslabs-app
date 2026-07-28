@@ -231,8 +231,10 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       violation.category === 'comparative-superiority' && violation.severity === 'block'
     )));
 
-    const review = screenUsMedicalDemoCopy('Our board-certified team reports a 92% success rate.');
+    const review = screenUsMedicalDemoCopy('Our success rate is reported as 92%.');
     assert.ok(review.violations.every((violation) => violation.severity === 'review'));
+    const credential = screenUsMedicalDemoCopy('Our Harvard-trained board-certified team.');
+    assert.ok(credential.violations.every((violation) => violation.severity === 'block'));
     assert.equal(screenUsMedicalDemoCopy('Call today to request an appointment.').ok, true);
   });
 
@@ -243,17 +245,29 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     assert.doesNotMatch(JSON.stringify(compiled.config), /best clinic|100% cure/iu);
     assert.ok(compiled.sourceManifest.excluded.some((item) => item.reason === 'policy-block'));
 
-    const reviewArtifact = englishArtifact('Board-certified preventive care');
+    const credentialArtifact = englishArtifact('Board-certified preventive care');
+    const credential = compileUsMedicalDemo(credentialArtifact);
+    const credentialExclusion = credential.sourceManifest.excluded.find(
+      (item) => item.violations?.some((violation) => violation.category === 'unverified-credential'),
+    );
+    assert.ok(credentialExclusion);
+    assert.doesNotMatch(JSON.stringify(credential.config), /board-certified/iu);
+    const credentialApproved = compileUsMedicalDemo(credentialArtifact, {
+      manualFinish: { approvedReviewBlockIds: [credentialExclusion.blockId] },
+    });
+    assert.doesNotMatch(JSON.stringify(credentialApproved.config), /board-certified/iu);
+
+    const reviewArtifact = englishArtifact('Clinically proven preventive care');
     const first = compileUsMedicalDemo(reviewArtifact);
     const reviewExclusion = first.sourceManifest.excluded.find(
       (item) => item.reason === 'review-required',
     );
     assert.ok(reviewExclusion);
-    assert.doesNotMatch(JSON.stringify(first.config), /board-certified/iu);
+    assert.doesNotMatch(JSON.stringify(first.config), /clinically proven/iu);
     const approved = compileUsMedicalDemo(reviewArtifact, {
       manualFinish: { approvedReviewBlockIds: [reviewExclusion.blockId] },
     });
-    assert.match(JSON.stringify(approved.config), /Board-certified preventive care/u);
+    assert.match(JSON.stringify(approved.config), /Clinically proven preventive care/u);
   });
 
   test('수동 마감은 수집 블록 ID만 허용하고 자유 카피 seam을 제공하지 않는다', () => {

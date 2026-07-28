@@ -709,6 +709,7 @@ export function getUsMedicalDemoArtifact(
 export function createUsMedicalDemoPreview(
   artifactId: string,
   manualFinish: UsDemoManualFinish,
+  renderMode: 'outreach-safe' | 'preview-full' = 'outreach-safe',
 ): Promise<AdminUsDemoPreviewResponse> {
   return fetchJson<AdminUsDemoPreviewResponse>(
     `/api/admin/crawl/${encodeURIComponent(artifactId)}/preview`,
@@ -716,6 +717,7 @@ export function createUsMedicalDemoPreview(
       method: 'POST',
       body: JSON.stringify({
         previewKind: 'us-medical-outreach',
+        renderMode,
         manualFinish,
       }),
     },

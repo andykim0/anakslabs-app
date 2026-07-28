@@ -85,6 +85,8 @@ export function applyDentalStockToClinicMaster(
     hospitalStableId: string;
     category: DentalStockCategory;
     slot: DentalStockSlot;
+    /** Additive multipage seam. Omission preserves the original home-only output bytes. */
+    pageSlug?: string;
     manifest?: DentalStockManifest;
   },
 ): SiteConfig {
@@ -106,7 +108,7 @@ export function applyDentalStockToClinicMaster(
   if (!asset) return config;
   let changed = false;
   const pages = config.pages.map((page) => {
-    if (changed || page.slug !== '') return page;
+    if (changed || page.slug !== (input.pageSlug ?? '')) return page;
     const sections = page.sections.map((section) => {
       if (changed || section.type !== 'hero') return section;
       changed = true;
@@ -151,7 +153,9 @@ export function applyDentalStockToClinicMaster(
       assetId: asset.assetId,
       role: 'atmospheric',
       subject: asset.category === 'bright-interior' ? 'place' : 'abstract',
-      slotKey: `clinic:${input.slot}`,
+      slotKey: input.pageSlug === undefined
+        ? `clinic:${input.slot}`
+        : `clinic:${input.pageSlug || 'home'}:${input.slot}`,
     }),
   };
 }

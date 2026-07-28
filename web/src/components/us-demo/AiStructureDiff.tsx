@@ -78,8 +78,10 @@ function ScoreCard({
 
 export function AiStructureDiff({
   comparison,
+  pageLabel,
 }: {
   comparison: UsDemoStructureComparison;
+  pageLabel?: string;
 }) {
   return (
     <section
@@ -89,6 +91,11 @@ export function AiStructureDiff({
     >
       <div className="mx-auto max-w-6xl">
         <p className="text-sm font-bold text-cyan-300">디자인이 아니라 읽히는 구조를 비교합니다</p>
+        {pageLabel ? (
+          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+            Page · {pageLabel}
+          </p>
+        ) : null}
         <h2
           id="us-demo-structure-title"
           className="mt-3 max-w-3xl text-3xl font-black leading-tight sm:text-5xl"

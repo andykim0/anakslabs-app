@@ -202,15 +202,18 @@ describe('CLINIC$ P1 — spec-locked master contract', () => {
       `${process.cwd()}/src/app/preview/[token]/[[...path]]/page.tsx`,
       'utf8',
     );
-    const inertIndex = previewSource.indexOf('<div data-private-preview-inert="1">');
+    const inertIndex = previewSource.indexOf(
+      "<div {...(!previewFull && isUsMedicalDemo ? { 'data-private-preview-inert': '1' } : {})}>",
+    );
     const rendererIndex = previewSource.indexOf('<TenantPageContent', inertIndex);
     const diffIndex = previewSource.indexOf(
-      "{structure && pageSlug === '' ? <AiStructureDiff",
+      '{structure && (previewFull || pageSlug === \'\')',
       rendererIndex,
     );
     assert.ok(inertIndex >= 0);
     assert.ok(rendererIndex > inertIndex);
     assert.ok(diffIndex > rendererIndex);
+    assert.match(previewSource, /previewFull \? \([\s\S]*interactive[\s\S]*interactive=\{false\}/u);
     assert.doesNotMatch(
       readFileSync(`${process.cwd()}/src/lib/us-demo/source-compiler.ts`, 'utf8'),
       /AiStructureDiff/u,

@@ -184,6 +184,46 @@ function organizationTypeFor(
   return [...new Set([subtype, ...broadTypes])];
 }
 
+function clinicMasterV2(config: SiteConfig): boolean {
+  return Boolean(
+    config.clinicMaster?.masterId === 'premium-dental-v1'
+    && config.pages.some((page) => page.id === 'clinic-home-v2'),
+  );
+}
+
+function firstSourceText(
+  section: Section | undefined,
+  idFragment?: string,
+): string | undefined {
+  if (!section) return undefined;
+  const element = section.elements.find((candidate) => (
+    candidate.kind === 'text'
+    && candidate.id.startsWith('source-')
+    && (!idFragment || candidate.id.includes(idFragment))
+  ));
+  return element?.kind === 'text' ? element.text.trim() || undefined : undefined;
+}
+
+function allSourceTexts(
+  sections: readonly Section[],
+  idFragment: string,
+): string[] {
+  const seen = new Set<string>();
+  return sections.flatMap((section) => section.elements).flatMap((element) => {
+    if (
+      element.kind !== 'text'
+      || !element.id.startsWith('source-')
+      || !element.id.includes(idFragment)
+    ) {
+      return [];
+    }
+    const text = element.text.trim();
+    if (!text || seen.has(text)) return [];
+    seen.add(text);
+    return [text];
+  });
+}
+
 export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''): JsonLdNode[] {
   const nodes: JsonLdNode[] = [];
   const info = config.businessInfo;
@@ -201,7 +241,10 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   // 목적(meta.purposeId)이 엔티티 타입을 결정. 레거시는 섹션 휴리스틱으로 폴백한다.
   const spec = schemaSpecFor(config.meta.purposeId);
   const hasMenu = allSections(config).some((section) => section.type === 'menu');
-  const orgType = organizationTypeFor(config, spec, hasMenu);
+  const isClinicMasterV2 = clinicMasterV2(config);
+  const orgType = isClinicMasterV2
+    ? ['Dentist', 'MedicalClinic', 'LocalBusiness']
+    : organizationTypeFor(config, spec, hasMenu);
   const region = config.meta.region?.trim();
   const isUsEnglish = config.meta.locale === 'en-US'
     && config.meta.market === 'US-CA'
@@ -290,9 +333,19 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     publisher: ref(identityId),
   });
 
-  const webPageType =
-    spec?.profilePage && currentPage.slug === '' ? ['WebPage', 'ProfilePage'] : 'WebPage';
-  nodes.push({
+  const procedurePage = isClinicMasterV2 && currentPage.id.startsWith('clinic-procedure-');
+  const providerPage = isClinicMasterV2 && currentPage.id === 'clinic-about';
+  const contactPage = isClinicMasterV2 && currentPage.id === 'clinic-contact';
+  const webPageType = procedurePage
+    ? ['WebPage', 'MedicalWebPage']
+    : providerPage
+      ? ['WebPage', 'ProfilePage']
+      : contactPage
+        ? ['WebPage', 'ContactPage']
+        : spec?.profilePage && currentPage.slug === ''
+          ? ['WebPage', 'ProfilePage']
+          : 'WebPage';
+  const pageNode: JsonLdNode = {
     '@context': 'https://schema.org',
     '@id': webPageId,
     '@type': webPageType,
@@ -310,7 +363,48 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
       ? { primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl } }
       : {}),
     ...(currentPage.slug ? { breadcrumb: ref(breadcrumbId) } : {}),
-  });
+  };
+  nodes.push(pageNode);
+
+  if (procedurePage) {
+    const procedureNames = allSourceTexts(
+      currentPage.sections,
+      'procedure-service-',
+    );
+    const procedureRefs = procedureNames.map((procedureName, index) => {
+      const procedureId = `${currentUrl}#procedure-${index + 1}`;
+      nodes.push({
+        '@context': 'https://schema.org',
+        '@id': procedureId,
+        '@type': 'MedicalProcedure',
+        name: procedureName,
+        url: currentUrl,
+      });
+      return ref(procedureId);
+    });
+    if (procedureRefs.length === 1) pageNode.mainEntity = procedureRefs[0];
+    if (procedureRefs.length > 1) pageNode.mainEntity = procedureRefs;
+  }
+
+  if (providerPage) {
+    const providerSection = currentPage.sections.find((section) => section.type === 'team');
+    const providerName = firstSourceText(providerSection, 'provider-name');
+    const providerCredential = firstSourceText(providerSection, 'provider-credential');
+    const providerBio = firstSourceText(providerSection, 'provider-bio');
+    if (providerName || providerBio) {
+      const providerId = `${currentUrl}#provider`;
+      nodes.push({
+        '@context': 'https://schema.org',
+        '@id': providerId,
+        '@type': 'Person',
+        ...(providerName ? { name: providerName } : {}),
+        ...(providerCredential ? { honorificSuffix: providerCredential } : {}),
+        ...(providerBio ? { description: providerBio } : {}),
+        memberOf: ref(identityId),
+      });
+      pageNode.mainEntity = ref(providerId);
+    }
+  }
 
   const navPages = config.pages.filter((page) => page.showInNav !== false);
   if (

@@ -16,6 +16,7 @@ import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 import { resolvePublicContact } from '@/lib/seo/public-contact';
 import { PublicContactBar } from './PublicContactBar';
 import type { TenantNavigationItem } from './TenantHeader';
+import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 
 export function TenantPageContent({
   config,
@@ -32,6 +33,7 @@ export function TenantPageContent({
   termsHref,
   analyticsEndpoint,
   runtimeDelivery = 'client',
+  clinicExperience,
 }: {
   config: SiteConfig;
   pageSlug: string;
@@ -54,6 +56,8 @@ export function TenantPageContent({
   analyticsEndpoint?: string;
   /** App Router는 client, render-static은 inline을 명시한다. */
   runtimeDelivery?: 'inline' | 'client';
+  /** Private CLINIC preview/live projection; never persisted inside SiteConfig. */
+  clinicExperience?: ClinicMasterExperience;
 }) {
   const renderedConfig = projectAuthoritativePublicContact(config);
   const businessInfo = config.businessInfo ?? null;
@@ -86,6 +90,7 @@ export function TenantPageContent({
           interactive={interactive}
           animate={animate}
           runtimeDelivery={runtimeDelivery}
+          clinicExperience={clinicExperience}
         />
       </main>
       {!businessInfo && publicContact ? (

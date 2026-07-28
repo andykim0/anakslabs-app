@@ -24,6 +24,7 @@ export const runtime = 'nodejs';
 
 const createSchema = z.object({
   previewKind: z.enum(['import', 'us-medical-outreach']).default('import'),
+  renderMode: z.enum(['outreach-safe', 'preview-full']).default('outreach-safe'),
   purposeId: z.enum([
     'local_store',
     'booking_service',
@@ -74,6 +75,7 @@ export const POST = withApiHandler(async (
       const prepared = prepareUsMedicalPreview({
         artifact: artifactRecord.artifact,
         manualFinish: body.data.manualFinish,
+        renderMode: body.data.renderMode,
       });
       config = prepared.config;
       sourceReport = prepared.sourceReport;
@@ -107,6 +109,9 @@ export const POST = withApiHandler(async (
     sourceUrl: artifactRecord.seedUrl,
     token,
     siteConfig: storedConfig,
+    renderMode: body.data.previewKind === 'us-medical-outreach'
+      ? body.data.renderMode
+      : 'standard',
     createdBy: actorId,
   });
   return NextResponse.json({

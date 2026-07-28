@@ -299,7 +299,10 @@ function pageImages(root: HTMLElement, pageUrl: URL): CrawlImageCandidate[] {
   return images;
 }
 
-function connectorKind(url: URL): CrawlConnectorCandidate['kind'] | null {
+function connectorKind(
+  url: URL,
+  label: string,
+): CrawlConnectorCandidate['kind'] | null {
   const host = normalizedHost(url.hostname);
   if (host === 'map.naver.com' || host === 'm.place.naver.com' || host === 'place.naver.com') {
     return 'naver_map';
@@ -309,6 +312,19 @@ function connectorKind(url: URL): CrawlConnectorCandidate['kind'] | null {
   if (host === 'instagram.com' || host === 'www.instagram.com') return 'instagram';
   if (['facebook.com', 'www.facebook.com', 'youtube.com', 'www.youtube.com', 'x.com'].includes(host)) {
     return 'other_social';
+  }
+  if (
+    ['google.com', 'www.google.com', 'maps.google.com', 'maps.app.goo.gl'].includes(host)
+    && (host === 'maps.app.goo.gl' || url.pathname.startsWith('/maps'))
+  ) {
+    return 'google_maps';
+  }
+  if (
+    /\b(?:book|booking|appointment|schedule)\b/iu.test(
+      `${label} ${url.pathname.replace(/[-_/]+/gu, ' ')}`,
+    )
+  ) {
+    return 'us_booking';
   }
   return null;
 }
@@ -329,13 +345,14 @@ function pageConnectors(root: HTMLElement, pageUrl: URL): CrawlConnectorCandidat
     }
     const url = normalizeCandidate(raw, pageUrl);
     if (!url) continue;
-    const kind = connectorKind(url);
+    const label = anchor.text.trim().slice(0, 100);
+    const kind = connectorKind(url, label);
     if (!kind || seen.has(url.toString())) continue;
     seen.add(url.toString());
     candidates.push({
       kind,
       url: url.toString(),
-      ...(anchor.text.trim() ? { label: anchor.text.trim().slice(0, 100) } : {}),
+      ...(label ? { label } : {}),
     });
     if (candidates.length >= 20) break;
   }

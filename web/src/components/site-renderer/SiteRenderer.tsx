@@ -768,11 +768,15 @@ export function SiteRenderer({
             interactive={interactive}
           />
         ) : null}
-        {page.slug === '' && config.clinicMaster ? (
+        {config.clinicMaster && (
+          page.slug === ''
+          || clinicExperience?.mode === 'live'
+          || clinicExperience?.mode === 'preview-full'
+        ) ? (
           <ClinicStickyBooking
             pin={config.clinicMaster}
             interactive={interactive}
-            destination={clinicExperience?.mode === 'live'
+            destination={clinicExperience?.mode === 'live' || clinicExperience?.mode === 'preview-full'
               ? clinicExperience.destination
               : undefined}
           />

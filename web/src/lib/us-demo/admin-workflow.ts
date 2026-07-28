@@ -1,12 +1,13 @@
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import type { SiteConfig } from '@/lib/types/site';
-import type { UsDemoManualFinish } from './contracts';
+import type { UsDemoManualFinish, UsDemoRenderMode } from './contracts';
 import { compileUsMedicalDemo } from './source-compiler';
 import { sourceAiVisibilitySummary } from './structure-diff';
 
 export interface PreparedUsMedicalPreview {
   config: SiteConfig;
+  renderMode: UsDemoRenderMode;
   sourceReport: {
     origin: 'prospect_public_source';
     totalBlocks: number;
@@ -23,13 +24,17 @@ export interface PreparedUsMedicalPreview {
 export function prepareUsMedicalPreview(input: {
   artifact: CrawlArtifactPayload;
   manualFinish?: UsDemoManualFinish;
+  renderMode?: UsDemoRenderMode;
 }): PreparedUsMedicalPreview {
+  const renderMode = input.renderMode ?? 'outreach-safe';
   sourceAiVisibilitySummary(input.artifact);
   const compiled = compileUsMedicalDemo(input.artifact, {
     manualFinish: input.manualFinish,
+    renderMode,
   });
   return {
     config: siteConfigSchema.parse(compiled.config),
+    renderMode,
     sourceReport: {
       origin: compiled.sourceManifest.origin,
       totalBlocks: compiled.sourceManifest.blocks.length,

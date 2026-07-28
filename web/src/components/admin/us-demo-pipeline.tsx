@@ -71,6 +71,7 @@ export function UsDemoPipeline() {
   const [includedIds, setIncludedIds] = useState<Set<string>>(new Set());
   const [approvedReviewIds, setApprovedReviewIds] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<AdminUsDemoPreviewResponse['preview'] | null>(null);
+  const [renderMode, setRenderMode] = useState<'preview-full' | 'outreach-safe'>('outreach-safe');
   const [error, setError] = useState<string | null>(null);
 
   const blocksById = new Map(
@@ -129,11 +130,15 @@ export function UsDemoPipeline() {
     setStatus('publishing');
     setError(null);
     try {
-      const response = await createUsMedicalDemoPreview(detail.artifact.id, {
-        includeBlockIds: orderedIds.filter((id) => includedIds.has(id)),
-        orderedBlockIds: orderedIds.filter((id) => includedIds.has(id)),
-        approvedReviewBlockIds: orderedIds.filter((id) => approvedReviewIds.has(id)),
-      });
+      const response = await createUsMedicalDemoPreview(
+        detail.artifact.id,
+        {
+          includeBlockIds: orderedIds.filter((id) => includedIds.has(id)),
+          orderedBlockIds: orderedIds.filter((id) => includedIds.has(id)),
+          approvedReviewBlockIds: orderedIds.filter((id) => approvedReviewIds.has(id)),
+        },
+        renderMode,
+      );
       setPreview(response.preview);
       setStatus('ready');
     } catch (reason) {
@@ -350,11 +355,26 @@ export function UsDemoPipeline() {
               ))}
             </ol>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#E8EEF6] pt-4">
-              <p className="flex items-center gap-2 text-xs text-[#667085]">
-                <LockKeyhole size={14} aria-hidden />
-                프리뷰는 색인 차단·비활성 상태이며 14일 뒤 404가 됩니다.
-              </p>
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-3 border-t border-[#E8EEF6] pt-4">
+              <div className="space-y-2">
+                <p className="flex items-center gap-2 text-xs text-[#667085]">
+                  <LockKeyhole size={14} aria-hidden />
+                  두 모드 모두 색인 차단되며 14일 뒤 404가 됩니다.
+                </p>
+                <label className="block text-xs font-semibold text-[#22304A]">
+                  렌더 모드
+                  <select
+                    value={renderMode}
+                    onChange={(event) => setRenderMode(
+                      event.target.value as 'preview-full' | 'outreach-safe',
+                    )}
+                    className="ml-2 rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+                  >
+                    <option value="preview-full">내부 평가 · full 멀티페이지</option>
+                    <option value="outreach-safe">발송용 · safe 단일페이지</option>
+                  </select>
+                </label>
+              </div>
               <button
                 type="button"
                 disabled={

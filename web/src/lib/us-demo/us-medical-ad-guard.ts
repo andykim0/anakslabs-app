@@ -39,10 +39,10 @@ export const US_MEDICAL_DEMO_AD_RULES = Object.freeze([
   },
   {
     category: 'unverified-credential',
-    severity: 'review',
+    severity: 'block',
     pattern:
-      /\b(?:board[- ]certified|certified specialist|award[- ]winning|accredited|fellowship[- ]trained)\b/iu,
-    rationale: '자격·인증 표기는 공개 원문 외 별도 검증이 필요합니다.',
+      /\b(?:board[- ]certified|certified specialist|award[- ]winning|accredited|fellowship[- ]trained|harvard(?:[- ]trained| university| medical school)?)\b/iu,
+    rationale: '별도 검증되지 않은 자격·인증·학력 표기는 모든 데모 모드에서 제외합니다.',
   },
 ] as const satisfies readonly UsMedicalAdRule[]);
 

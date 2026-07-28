@@ -47,7 +47,7 @@ const SITE_PAGES = {
   </head><body><main>
     <h1>Dental services</h1>
     <h2>Preventive dental visits</h2>
-    <h2>Board-certified restorative care</h2>
+    <h2>Clinically proven restorative care</h2>
     <h2>The best clinic guarantees a 100% cure</h2>
   </main></body></html>`,
   '/about/doctor': `<!doctype html><html lang="en"><head>
@@ -137,7 +137,7 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
       },
     });
     const serializedConfig = JSON.stringify(prepared.config);
-    assert.match(serializedConfig, /Board-certified restorative care/u);
+    assert.match(serializedConfig, /Clinically proven restorative care/u);
     assert.doesNotMatch(serializedConfig, /best clinic|100% cure|patient stor/iu);
     assert.equal(prepared.sourceReport.origin, 'prospect_public_source');
     assert.equal(prepared.config.meta.locale, 'en-US');
@@ -209,6 +209,10 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.match(ui, /getUsMedicalDemoArtifact/u);
     assert.match(ui, /createUsMedicalDemoPreview/u);
     assert.match(ui, /enableUsDemoQaExclusion/u);
+    assert.match(
+      ui,
+      /useState<['"]preview-full['"] \| ['"]outreach-safe['"]>\(['"]outreach-safe['"]\)/u,
+    );
     assert.doesNotMatch(ui, /<textarea|freeCopy|translatedCopy/u);
     assert.match(api, /scanProfileId:\s*['"]us-medical-outreach-v1['"]/u);
     assert.match(detailRoute, /buildUsDemoCurationProjection/u);

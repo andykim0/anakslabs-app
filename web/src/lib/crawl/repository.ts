@@ -117,6 +117,7 @@ interface SharedSitePreviewRow {
   token_hash: string;
   source_url: string;
   site_config: SiteConfig;
+  render_mode: SharedSitePreviewRecord['renderMode'];
   notice_version: 1;
   created_by: string;
   created_at: string;
@@ -131,6 +132,7 @@ function previewRowToRecord(row: SharedSitePreviewRow): SharedSitePreviewRecord 
     tokenHash: row.token_hash,
     sourceUrl: row.source_url,
     siteConfig: row.site_config,
+    renderMode: row.render_mode,
     noticeVersion: row.notice_version,
     createdBy: row.created_by,
     createdAt: row.created_at,
@@ -144,6 +146,7 @@ export async function createSharedSitePreview(input: {
   sourceUrl: string;
   token: string;
   siteConfig: SiteConfig;
+  renderMode?: SharedSitePreviewRecord['renderMode'];
   createdBy: string;
   now?: Date;
 }): Promise<SharedSitePreviewRecord> {
@@ -157,6 +160,7 @@ export async function createSharedSitePreview(input: {
       tokenHash,
       sourceUrl: input.sourceUrl,
       siteConfig: structuredClone(input.siteConfig),
+      renderMode: input.renderMode ?? 'standard',
       noticeVersion: IMPORT_PREVIEW_NOTICE_VERSION,
       createdBy: input.createdBy,
       createdAt: createdAt.toISOString(),
@@ -173,6 +177,7 @@ export async function createSharedSitePreview(input: {
       token_hash: tokenHash,
       source_url: input.sourceUrl,
       site_config: input.siteConfig,
+      render_mode: input.renderMode ?? 'standard',
       notice_version: IMPORT_PREVIEW_NOTICE_VERSION,
       created_by: input.createdBy,
       expires_at: expiresAt.toISOString(),

@@ -3,7 +3,10 @@ import 'server-only';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import type { SiteConfig } from '@/lib/types/site';
 import { renderStaticDocument } from '@/lib/export/render-static';
-import { compareUsDemoStructure } from './structure-diff';
+import {
+  compareUsDemoStructure,
+  sourcePageUrlForDemoPage,
+} from './structure-diff';
 
 const PUBLISH_HYPOTHESIS_ORIGIN = 'https://publish-hypothesis.invalid';
 
@@ -25,4 +28,35 @@ export function buildUsDemoStructureComparison(
     }),
     publishHypothesisHtml,
   };
+}
+
+/** preview-full diff projection. Each demo page is compared with its nearest factual source page. */
+export function buildUsDemoStructureComparisons(
+  artifact: CrawlArtifactPayload,
+  config: SiteConfig,
+  pageSlugs?: ReadonlySet<string>,
+) {
+  return config.pages.filter((page) => !pageSlugs || pageSlugs.has(page.slug)).map((page) => {
+    const publishHypothesisHtml = renderStaticDocument({
+      config,
+      pageSlug: page.slug,
+      siteUrl: PUBLISH_HYPOTHESIS_ORIGIN,
+      lang: 'en-US',
+    });
+    const sourcePageUrl = sourcePageUrlForDemoPage(artifact, page);
+    return {
+      pageSlug: page.slug,
+      pageTitle: page.title,
+      sourcePageUrl,
+      comparison: compareUsDemoStructure({
+        artifact,
+        publishHypothesisHtml,
+        hypothesisUrl: page.slug
+          ? `${PUBLISH_HYPOTHESIS_ORIGIN}/${page.slug}`
+          : `${PUBLISH_HYPOTHESIS_ORIGIN}/`,
+        sourcePageUrl,
+      }),
+      publishHypothesisHtml,
+    };
+  });
 }
