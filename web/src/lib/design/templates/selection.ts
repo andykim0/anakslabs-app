@@ -10,7 +10,10 @@ import {
 } from '@/lib/motion/signatures';
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import { rankDesignDnaForSurvey } from '@/lib/design/dna';
-import { NAMED_TEMPLATE_CATALOG, namedTemplateById } from './catalog';
+import {
+  NAMED_TEMPLATE_RECOMMENDATION_CATALOG,
+  namedTemplateById,
+} from './catalog';
 import type {
   NamedTemplate,
   NamedTemplateImageDirectionRecipe,
@@ -146,7 +149,7 @@ export function namedTemplatesForSurvey(
   limit = NAMED_TEMPLATE_RECOMMENDATION_MAX,
 ): readonly NamedTemplate[] {
   const dnaRanks = signalRank(survey);
-  return NAMED_TEMPLATE_CATALOG
+  return NAMED_TEMPLATE_RECOMMENDATION_CATALOG
     .filter((template) => compatibilityMatches(template, survey))
     .map((template) => ({
       template,

@@ -8,7 +8,9 @@ import { describe, test } from 'node:test';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import { LandingStoryContinuation } from '@/components/marketing/LandingStoryContinuation';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
-import { NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
+import {
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
+} from '@/lib/design/templates';
 import { ACTIVE_SIGNATURE_CONTRACTS } from '@/lib/motion/signature-contract';
 import {
   GENERATED_SITE_PROGRESS_RAIL,

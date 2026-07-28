@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, test } from 'node:test';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
+import { SiteRenderer } from '@/components/site-renderer';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import { buildJsonLd } from '@/lib/seo/jsonld';
 import {
@@ -120,9 +123,28 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       industryClass: 'medical',
       industryId: 'clinic',
     });
-    assert.equal(first.config.theme.fontPairing && 'locale' in first.config.theme.fontPairing
-      ? first.config.theme.fontPairing.locale
-      : null, 'en-US');
+    assert.deepEqual(first.config.namedTemplate, {
+      catalogVersion: 1,
+      templateId: 'premium-dental-v1',
+    });
+    assert.deepEqual(first.config.clinicMaster, {
+      version: 1,
+      masterId: 'premium-dental-v1',
+      accentPreset: 'clean-blue',
+      typographyPreset: 'clinic-editorial',
+      density: 'airy',
+      focus: 'balanced',
+      demoPitchLocale: 'en',
+      paletteSource: {
+        version: 1,
+        kind: 'neutral',
+        sourceSha256: first.config.clinicMaster?.paletteSource.sourceSha256,
+      },
+      stockManifestVersion: 1,
+    });
+    assert.match(first.config.clinicMaster?.paletteSource.sourceSha256 ?? '', /^[a-f0-9]{64}$/u);
+    assert.equal(first.config.theme.fontPairing, undefined);
+    assert.deepEqual(first.config.theme.fonts.googleFonts, []);
     assert.ok(first.sourceManifest.blocks.every(sourceBlockHashIsValid));
     assert.equal(first.sourceManifest.origin, 'prospect_public_source');
     assert.ok(first.sourceManifest.usedBlockIds.length > 0);
@@ -130,9 +152,36 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     const renderedFactualText = first.config.pages
       .flatMap((entry) => entry.sections)
       .flatMap((section) => section.elements)
-      .flatMap((element) => element.kind === 'text' ? [element.text] : []);
+      .flatMap((element) => (
+        element.kind === 'text' && element.id.startsWith('source-') ? [element.text] : []
+      ));
     assert.ok(renderedFactualText.every((text) => sourceTexts.has(text)));
+    const sections = first.config.pages[0]?.sections ?? [];
+    assert.equal(sections.find((section) => section.id === 'clinic-rating-aggregate')?.type, 'custom');
+    assert.equal(sections.some((section) => section.type === 'testimonials'), false);
+    assert.equal(
+      sections.find((section) => section.id === 'clinic-before-after-placeholder')
+        ?.elements.some((element) => element.kind === 'image'),
+      false,
+    );
+    const providerImage = sections
+      .find((section) => section.id === 'us-demo-providers')
+      ?.elements.find((element) => element.kind === 'image');
+    assert.equal(providerImage?.kind, 'image');
+    assert.match(providerImage?.kind === 'image' ? providerImage.alt ?? '' : '', /placeholder/iu);
     assert.doesNotMatch(JSON.stringify(first.config), /patient says|testimonial/iu);
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: first.config,
+      mode: 'desktop',
+      interactive: false,
+      animate: false,
+    }));
+    assert.match(html, /<section[^>]+data-section-type="team"/u);
+    assert.match(html, /<img[^>]+Portrait placeholder/u);
+    assert.match(html, /data-clinic-sticky-booking="1"/u);
+    assert.match(html, /data-clinic-booking-state="deactivated"/u);
+    assert.doesNotMatch(html, /<canvas\b|fonts\.googleapis\.com|fonts\.gstatic\.com/iu);
+    assert.doesNotMatch(html, /data-clinic-sticky-booking[^]*?<a\b/iu);
 
     const graph = buildJsonLd(first.config, 'https://published-hypothesis.example');
     const identity = graph.find((node) => node['@id'] === 'https://published-hypothesis.example#identity');

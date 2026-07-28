@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
+import {
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
+} from '@/lib/design/templates';
 
 export const metadata: Metadata = {
   title: '홈페이지 템플릿 — 인테리어 업종 디자인',

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 860" role="img" aria-labelledby="title description">
+  <title id="title">Doctor portrait placeholder</title>
+  <desc id="description">A neutral silhouette reserved for a practice-approved portrait.</desc>
+  <rect width="680" height="860" fill="#F4F7FA"/>
+  <path d="M0 656c96-94 209-141 340-141s244 47 340 141v204H0Z" fill="#E3E8EE"/>
+  <circle cx="340" cy="303" r="132" fill="#D6DEE6"/>
+  <path d="M221 274c13-100 67-151 162-151 70 0 119 36 147 108-42-20-91-30-147-30-66 0-120 24-162 73Z" fill="#59636E" opacity=".28"/>
+  <path d="M220 590c37-43 77-65 120-65s83 22 120 65l-42 87-78-48-78 48Z" fill="#FFFFFF"/>
+  <path d="M340 629v118" stroke="#1466A5" stroke-width="8"/>
+  <rect x="176" y="760" width="328" height="2" fill="#C7D1DB"/>
+  <text x="340" y="806" text-anchor="middle" fill="#59636E" font-family="Arial, sans-serif" font-size="20" letter-spacing="2">APPROVED PORTRAIT</text>
+</svg>

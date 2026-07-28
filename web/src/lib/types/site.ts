@@ -751,6 +751,41 @@ export interface SitePage {
   navLabel?: string;
 }
 
+/** premium-dental-v1이 서버에서만 발급하는 정규화된 클린 의료 팔레트 선택. */
+export type ClinicAccentPreset =
+  | 'clean-blue'
+  | 'clean-teal'
+  | 'clean-green'
+  | 'clean-warm-neutral';
+
+/** premium-dental-v1이 서버에서만 발급하는 self-host typography 선택. */
+export type ClinicTypographyPreset =
+  | 'clinic-editorial'
+  | 'clinic-geometric'
+  | 'clinic-neutral';
+
+/**
+ * CLINIC 신규 발급분의 결정적 마스터 핀.
+ *
+ * 색·좌표·서체 이름 같은 자유값은 저장하지 않는다. 서버 카탈로그가 이 enum을
+ * 실제 토큰으로 확장하며, 원본 팔레트 자산은 보관하지 않고 해시만 남긴다.
+ */
+export interface ClinicMasterPin {
+  version: 1;
+  masterId: 'premium-dental-v1';
+  accentPreset: ClinicAccentPreset;
+  typographyPreset: ClinicTypographyPreset;
+  density: 'airy' | 'balanced';
+  focus: 'implant' | 'orthodontic' | 'balanced';
+  demoPitchLocale: 'en' | 'ko-owner';
+  paletteSource: {
+    version: 1;
+    kind: 'css' | 'logo' | 'neutral';
+    sourceSha256: string;
+  };
+  stockManifestVersion: number;
+}
+
 /** [motion-system] 요금제 티어 — 모션 기법 접근 범위 결정 (registry가 기법별 tier 보유) */
 export type MotionTier = 'basic' | 'premium';
 
@@ -795,6 +830,11 @@ export interface SiteConfig {
   designDna?: DesignDnaSelection;
   /** TPL 신규 생성본의 손 큐레이션 원본. 실제 DNA·레이아웃·모션은 각 핀을 권위로 렌더한다. */
   namedTemplate?: import('@/lib/design/templates/types').NamedTemplateSelection;
+  /**
+   * CLINIC 신규 premium-dental-v1 발급분만 갖는 서버 핀.
+   * 부재한 기존 config는 렌더·직렬화 경로에서 완전한 no-op이다.
+   */
+  clinicMaster?: ClinicMasterPin;
   /**
    * [SITECINE] 신규 생성본에만 서버가 기록하는 시네마틱 연속성 계약.
    * 미지정 레거시 발행본은 기존 DOM·CSS·픽셀을 그대로 보존한다.

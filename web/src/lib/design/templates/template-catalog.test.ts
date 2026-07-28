@@ -11,7 +11,7 @@ import {
 } from '@/lib/data/site-blueprints';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import {
-  NAMED_TEMPLATE_CATALOG,
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
   NAMED_TEMPLATE_NO_UPLOAD_MIN,
   NAMED_TEMPLATE_RECOMMENDATION_MAX,
   candidateMatchesNamedTemplate,

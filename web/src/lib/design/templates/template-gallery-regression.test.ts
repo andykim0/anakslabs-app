@@ -44,7 +44,7 @@ import type {
   HeroLayoutCompiledFrame,
 } from '@/lib/layout/types';
 import {
-  NAMED_TEMPLATE_CATALOG,
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
   resolveNamedTemplate,
 } from '.';
 

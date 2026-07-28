@@ -37,6 +37,8 @@ import {
 import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { ConnectorPanel } from './ConnectorPanel';
+import { ClinicStickyBooking } from './ClinicStickyBooking';
+import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
@@ -285,6 +287,15 @@ const NO_PROGRESS_RAIL_CSS = `
 [data-story-spine-hidden]::after { display: none !important; }
 `;
 
+/** premium-dental-v1 only. Inline mobile legacy spacing stays byte-identical when the pin is absent. */
+const CLINIC_MASTER_CSS = `
+@media (max-width: 767.98px) {
+  .anaks-site[data-clinic-master] section[data-section-type] {
+    padding-block: var(--clinic-section-block-mobile) !important;
+  }
+}
+`;
+
 function SiteCinematicSequence({
   children,
   continuous = false,
@@ -471,6 +482,7 @@ export function SiteRenderer({
     (siteCinematic && hasProjectedHero ? HERO_LAYOUT_CINEMATIC_CSS : '') +
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
+    (config.clinicMaster ? CLINIC_MASTER_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {
@@ -501,6 +513,16 @@ export function SiteRenderer({
     cinematicStyle['--site-cine-primary'] = theme.palette.primary;
     cinematicStyle['--site-cine-accent'] = theme.palette.accent;
   }
+  if (config.clinicMaster) {
+    const clinicTokens = clinicMasterRenderTokens(config.clinicMaster);
+    const clinicStyle = rootStyle as Record<string, string | number>;
+    clinicStyle['--clinic-section-block-desktop'] = clinicTokens.sectionPaddingBlockDesktop;
+    clinicStyle['--clinic-section-block-mobile'] = clinicTokens.sectionPaddingBlockMobile;
+    clinicStyle['--clinic-container-max'] = clinicTokens.containerMaxWidth;
+    clinicStyle['--clinic-stack-rhythm'] = clinicTokens.stackRhythm;
+    clinicStyle['--clinic-heading-gap'] = clinicTokens.stackHeadingGap;
+    clinicStyle['--clinic-grid-gutter'] = clinicTokens.gridGutter;
+  }
   if (motionCssNeeded) {
     const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
     (rootStyle as Record<string, string | number>)['--m-amp'] = f.amp;
@@ -527,8 +549,12 @@ export function SiteRenderer({
 
   return (
     <>
-      {!pinnedFontResources ? <link rel="preconnect" href="https://fonts.googleapis.com" /> : null}
-      {!pinnedFontResources ? <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /> : null}
+      {!pinnedFontResources && !config.clinicMaster
+        ? <link rel="preconnect" href="https://fonts.googleapis.com" />
+        : null}
+      {!pinnedFontResources && !config.clinicMaster
+        ? <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        : null}
       {fontUrls.map((href) => (
         // React 19: precedence 지정 시 <head>로 호이스팅 + 중복 제거
         <link key={href} rel="stylesheet" href={href} precedence="default" />
@@ -541,6 +567,12 @@ export function SiteRenderer({
         className="anaks-site"
         {...(theme.tokens ? { 'data-theme-tokens': '1' } : {})}
         {...(pinnedFontResources ? { 'data-font-pairing': pinnedFontResources.id } : {})}
+        {...(config.clinicMaster ? {
+          'data-clinic-master': config.clinicMaster.masterId,
+          'data-clinic-accent': config.clinicMaster.accentPreset,
+          'data-clinic-typography': config.clinicMaster.typographyPreset,
+          'data-clinic-density': config.clinicMaster.density,
+        } : {})}
         {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
         {...(continuousCanvas ? { 'data-continuous-canvas-root': '1' } : {})}
         style={rootStyle}
@@ -729,6 +761,12 @@ export function SiteRenderer({
             manifest={config.connectors}
             theme={theme}
             siteId={siteId}
+            interactive={interactive}
+          />
+        ) : null}
+        {page.slug === '' && config.clinicMaster ? (
+          <ClinicStickyBooking
+            pin={config.clinicMaster}
             interactive={interactive}
           />
         ) : null}

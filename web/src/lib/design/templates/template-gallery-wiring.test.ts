@@ -13,7 +13,9 @@ import {
   resolveTemplate,
 } from '@/lib/data/site-blueprints';
 import type { SurveyInput } from '@/lib/types/domain';
-import { NAMED_TEMPLATE_CATALOG } from '.';
+import {
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
+} from '.';
 
 const source = (path: string): string => readFileSync(join(process.cwd(), path), 'utf8');
 

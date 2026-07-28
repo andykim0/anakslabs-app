@@ -262,6 +262,31 @@ export const namedTemplateSelectionSchema = z.object({
   templateId: z.string().min(1).max(100),
 }).strict();
 
+export const clinicMasterPinSchema = z.object({
+  version: z.literal(1),
+  masterId: z.literal('premium-dental-v1'),
+  accentPreset: z.enum([
+    'clean-blue',
+    'clean-teal',
+    'clean-green',
+    'clean-warm-neutral',
+  ]),
+  typographyPreset: z.enum([
+    'clinic-editorial',
+    'clinic-geometric',
+    'clinic-neutral',
+  ]),
+  density: z.enum(['airy', 'balanced']),
+  focus: z.enum(['implant', 'orthodontic', 'balanced']),
+  demoPitchLocale: z.enum(['en', 'ko-owner']),
+  paletteSource: z.object({
+    version: z.literal(1),
+    kind: z.enum(['css', 'logo', 'neutral']),
+    sourceSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+  }).strict(),
+  stockManifestVersion: z.number().int().min(1),
+}).strict();
+
 // ---------- 캔버스 요소 ----------
 
 const frameSchema = z.object({
@@ -1026,6 +1051,7 @@ export const siteConfigSchema = z
     theme: siteThemeSchema,
     designDna: designDnaSelectionSchema.optional(),
     namedTemplate: namedTemplateSelectionSchema.optional(),
+    clinicMaster: clinicMasterPinSchema.optional(),
     siteCinematic: z.object({
       version: z.literal(1),
       heroBackdrop: z.enum(['dna-procedural', 'promoted-photo']),

@@ -1,17 +1,13 @@
-import {
-  applyLatinFontPairing,
-  resolveFontPairingForLocale,
-} from '@/lib/fonts';
+import { createHash } from 'node:crypto';
 import {
   expandTokens,
   tokenSetToSiteTheme,
 } from '@/lib/design/dna';
-import type {
-  Frame,
-  Section,
-  SiteConfig,
-  TextElement,
-} from '@/lib/types/site';
+import type { ClinicMasterPin, SiteConfig } from '@/lib/types/site';
+import {
+  compilePremiumDentalMaster,
+  resolveClinicMasterTheme,
+} from '@/lib/clinic-master';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import {
   INSUFFICIENT_ENGLISH_SOURCE,
@@ -110,163 +106,22 @@ function curateSourceBlocks(
   return { accepted, excluded };
 }
 
-function textElement(
-  block: ProspectPublicSourceBlock,
-  suffix: string,
-  frame: Frame,
-  style: TextElement['style'],
-): TextElement {
+function clinicMasterPinForArtifact(artifact: CrawlArtifactPayload): ClinicMasterPin {
   return {
-    id: `source-${block.id}-${suffix}`,
-    kind: 'text',
-    frame,
-    z: 2,
-    text: block.text,
-    style,
-    entrance: { effect: 'none' },
+    version: 1,
+    masterId: 'premium-dental-v1',
+    accentPreset: 'clean-blue',
+    typographyPreset: 'clinic-editorial',
+    density: 'airy',
+    focus: 'balanced',
+    demoPitchLocale: 'en',
+    paletteSource: {
+      version: 1,
+      kind: 'neutral',
+      sourceSha256: createHash('sha256').update(artifact.finalOrigin, 'utf8').digest('hex'),
+    },
+    stockManifestVersion: 1,
   };
-}
-
-function section(
-  input: Pick<Section, 'id' | 'type' | 'name' | 'height' | 'elements'>,
-  palette: SiteConfig['theme']['palette'],
-  variant: 'hero' | 'surface' | 'plain' = 'plain',
-): Section {
-  return {
-    ...input,
-    layout: 'canvas',
-    background: variant === 'hero'
-      ? {
-          color: palette.background,
-          gradient:
-            `linear-gradient(135deg, ${palette.background} 0%, ${palette.surface} 58%, ${palette.primary} 150%)`,
-        }
-      : { color: variant === 'surface' ? palette.surface : palette.background },
-  };
-}
-
-function sourceSections(
-  blocks: readonly ProspectPublicSourceBlock[],
-  theme: SiteConfig['theme'],
-): Section[] {
-  const businessName = blocks.find((block) => block.kind === 'business_name')!;
-  const introduction = blocks.find((block) => block.kind === 'introduction');
-  const services = blocks.filter((block) => block.kind === 'service').slice(0, 8);
-  const providers = blocks.filter((block) => block.kind === 'provider_bio').slice(0, 4);
-  const contact = blocks.filter((block) => (
-    ['phone', 'address', 'opening_hours'].includes(block.kind)
-  ));
-  const result: Section[] = [
-    section({
-      id: 'us-demo-hero',
-      type: 'hero',
-      name: 'Introduction',
-      height: 760,
-      elements: [
-        textElement(businessName, 'hero-title', { x: 110, y: 190, w: 1050, h: 190 }, {
-          fontSize: 84,
-          fontWeight: 700,
-          fontFamily: 'heading',
-          color: theme.palette.text,
-          lineHeight: 1.08,
-          readabilityGuard: 'long-hero',
-        }),
-        ...(introduction
-          ? [textElement(introduction, 'hero-lead', { x: 116, y: 430, w: 820, h: 150 }, {
-              fontSize: 25,
-              fontWeight: 400,
-              fontFamily: 'body',
-              color: theme.palette.muted,
-              lineHeight: 1.55,
-            })]
-          : []),
-      ],
-    }, theme.palette, 'hero'),
-  ];
-  if (introduction) {
-    result.push(section({
-      id: 'us-demo-about',
-      type: 'about',
-      name: 'About',
-      height: 560,
-      elements: [
-        textElement(introduction, 'about-copy', { x: 180, y: 140, w: 1080, h: 260 }, {
-          fontSize: 34,
-          fontWeight: 500,
-          fontFamily: 'body',
-          color: theme.palette.text,
-          lineHeight: 1.5,
-          align: 'left',
-        }),
-      ],
-    }, theme.palette, 'surface'));
-  }
-  if (services.length > 0) {
-    result.push(section({
-      id: 'us-demo-services',
-      type: 'features',
-      name: 'Services',
-      height: Math.max(620, 240 + Math.ceil(services.length / 2) * 150),
-      elements: services.map((block, index) => textElement(
-        block,
-        `service-${index}`,
-        {
-          x: index % 2 === 0 ? 140 : 760,
-          y: 150 + Math.floor(index / 2) * 150,
-          w: 520,
-          h: 96,
-        },
-        {
-          fontSize: 28,
-          fontWeight: 600,
-          fontFamily: 'heading',
-          color: theme.palette.text,
-          lineHeight: 1.25,
-        },
-      )),
-    }, theme.palette));
-  }
-  if (providers.length > 0) {
-    result.push(section({
-      id: 'us-demo-providers',
-      type: 'team',
-      name: 'Care Team',
-      height: Math.max(520, 220 + providers.length * 180),
-      elements: providers.map((block, index) => textElement(
-        block,
-        `provider-${index}`,
-        { x: 180, y: 130 + index * 180, w: 1080, h: 130 },
-        {
-          fontSize: 25,
-          fontWeight: 400,
-          fontFamily: 'body',
-          color: theme.palette.text,
-          lineHeight: 1.55,
-        },
-      )),
-    }, theme.palette, 'surface'));
-  }
-  if (contact.length > 0) {
-    result.push(section({
-      id: 'us-demo-contact',
-      type: 'contact',
-      name: 'Visit Information',
-      height: Math.max(420, 160 + contact.length * 100),
-      elements: contact.map((block, index) => textElement(
-        block,
-        `contact-${index}`,
-        { x: 180, y: 120 + index * 100, w: 1080, h: 72 },
-        {
-          fontSize: 24,
-          fontWeight: 500,
-          fontFamily: 'body',
-          color: theme.palette.text,
-          lineHeight: 1.4,
-        },
-      )),
-    }, theme.palette));
-  }
-  return result;
 }
 
 /**
@@ -297,18 +152,8 @@ export function compileUsMedicalDemo(
     US_DEMO_DNA_ID,
     US_DEMO_HUE_SEED,
   ));
-  const latinSelection = resolveFontPairingForLocale({
-    locale: 'en-US',
-    dnaId: US_DEMO_DNA_ID,
-    industryClass: 'medical',
-  }, {
-    latinEnabled: true,
-    allowSystemFallback: true,
-  });
-  if (!latinSelection || latinSelection.locale !== 'en-US') {
-    throw new Error('US_DEMO_LATIN_FONT_CONTRACT_UNAVAILABLE');
-  }
-  const theme = applyLatinFontPairing(baseTheme, latinSelection);
+  const clinicMaster = clinicMasterPinForArtifact(artifact);
+  const theme = resolveClinicMasterTheme(baseTheme, clinicMaster);
   const introduction = curated.accepted.find((block) => block.kind === 'introduction');
   const phone = curated.accepted.find((block) => block.kind === 'phone')?.text;
   const address = curated.accepted.find((block) => block.kind === 'address')?.text;
@@ -321,6 +166,11 @@ export function compileUsMedicalDemo(
       hueSeed: US_DEMO_HUE_SEED,
       overrides: {},
     },
+    namedTemplate: {
+      catalogVersion: 1,
+      templateId: 'premium-dental-v1',
+    },
+    clinicMaster,
     meta: {
       title: businessName.text,
       ...(introduction ? { description: introduction.text } : {}),
@@ -334,7 +184,11 @@ export function compileUsMedicalDemo(
       id: 'home',
       title: 'Home',
       slug: '',
-      sections: sourceSections(curated.accepted, theme),
+      sections: compilePremiumDentalMaster({
+        blocks: curated.accepted,
+        theme,
+        pin: clinicMaster,
+      }),
     }],
     ...(phone || address
       ? { publicContact: { version: 1, ...(phone ? { phone } : {}), ...(address ? { address } : {}) } }

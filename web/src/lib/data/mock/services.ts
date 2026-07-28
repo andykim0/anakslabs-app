@@ -35,6 +35,7 @@ import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
 import { preserveServerConnectorManifest } from '@/lib/connectors/application';
+import { preserveServerClinicMaster } from '@/lib/clinic-master/application';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { IndustryProfileId } from '@/lib/industry/profiles';
 import type {
@@ -293,7 +294,10 @@ class MockSitesRepo implements SitesRepo {
     const persisted = site.draftConfig ?? site.siteConfig;
     site.draftConfig = structuredClone(
       preserveServerConnectorManifest(
-        preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
+        preserveServerClinicMaster(
+          preserveServerPublicContact(preserveServerSearchVerification(config, persisted), persisted),
+          persisted,
+        ),
         persisted,
       ),
     );

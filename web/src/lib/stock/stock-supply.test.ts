@@ -10,7 +10,9 @@ import { SiteRenderer } from '@/components/site-renderer';
 import { resolveSiteAssetPolicyCore } from '@/lib/assets/assignment-core';
 import type { AssetRecord } from '@/lib/assets/provenance';
 import { heroLayoutById } from '@/lib/layout/catalog';
-import { NAMED_TEMPLATE_CATALOG } from '@/lib/design/templates';
+import {
+  INTERIOR_NAMED_TEMPLATE_CATALOG as NAMED_TEMPLATE_CATALOG,
+} from '@/lib/design/templates';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import { resolveAdaptiveImageScrim } from '@/lib/design/scrim';
 import { resolveHeroLayoutVariant } from '@/lib/layout/hero-layout-resolver';

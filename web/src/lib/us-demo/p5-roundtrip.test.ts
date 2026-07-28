@@ -146,7 +146,15 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.equal(prepared.config.pages
       .flatMap((page) => page.sections)
       .flatMap((section) => section.elements)
-      .some((element) => ['form', 'map', 'image', 'video', 'socialLinks'].includes(element.kind)), false);
+      .some((element) => ['form', 'map', 'video', 'socialLinks'].includes(element.kind)), false);
+    assert.ok(prepared.config.pages
+      .flatMap((page) => page.sections)
+      .flatMap((section) => section.elements)
+      .filter((element) => element.kind === 'image')
+      .every((element) => (
+        element.kind === 'image'
+        && element.src === '/clinic/provider-placeholder.svg'
+      )));
 
     const token = createPreviewBearerToken();
     const tokenHash = hashPreviewBearerToken(token);

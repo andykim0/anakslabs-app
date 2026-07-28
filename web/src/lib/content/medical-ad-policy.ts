@@ -700,6 +700,7 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
     theme: 'ignore',
     designDna: 'ignore',
     namedTemplate: 'ignore',
+    clinicMaster: 'ignore',
     siteCinematic: 'ignore',
     meta: 'collect',
     pages: 'collect',

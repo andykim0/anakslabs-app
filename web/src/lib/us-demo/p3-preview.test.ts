@@ -226,6 +226,11 @@ describe('US-DEMO P3 — private structure diff preview', () => {
     assert.doesNotMatch(result.publishHypothesisHtml, /<meta name="robots" content="noindex/iu);
     const root = parse(result.publishHypothesisHtml);
     assert.equal(root.querySelectorAll('script[src], img[src^="http"], link[rel="stylesheet"]').length, 0);
+    assert.equal(root.querySelectorAll('[data-clinic-sticky-booking] a[href]').length, 0);
+    assert.equal(
+      root.querySelector('[data-clinic-sticky-booking]')?.getAttribute('aria-disabled'),
+      'true',
+    );
     const source = readFileSync(`${ROOT}/src/lib/us-demo/structure-diff.ts`, 'utf8');
     assert.doesNotMatch(source, /fetch\s*\(|\/preview\//u);
   });
@@ -281,8 +286,14 @@ describe('US-DEMO P3 — private structure diff preview', () => {
     const { config } = compileUsMedicalDemo(fixtureArtifact());
     const elements = config.pages.flatMap((entry) => entry.sections).flatMap((entry) => entry.elements);
     assert.equal(elements.some((element) => (
-      ['button', 'form', 'map', 'socialLinks', 'image', 'video'].includes(element.kind)
+      ['button', 'form', 'map', 'socialLinks', 'video'].includes(element.kind)
     )), false);
+    const images = elements.filter((element) => element.kind === 'image');
+    assert.ok(images.every((element) => (
+      element.kind === 'image'
+      && element.src === '/clinic/provider-placeholder.svg'
+      && /placeholder/iu.test(element.alt ?? '')
+    )));
     assert.equal(config.connectors, undefined);
     assert.equal(config.meta.ogImage, undefined);
     assert.equal(config.motion, undefined);

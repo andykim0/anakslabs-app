@@ -81,7 +81,6 @@ export default async function SharedImportPreviewPage({
           </span>
         </div>
       </aside>
-      {structure && pageSlug === '' ? <AiStructureDiff comparison={structure} /> : null}
       <div data-private-preview-inert="1">
         {isUsMedicalDemo ? (
           <style>{`
@@ -98,6 +97,7 @@ export default async function SharedImportPreviewPage({
           hrefForSlug={hrefForSlug}
         />
       </div>
+      {structure && pageSlug === '' ? <AiStructureDiff comparison={structure} /> : null}
       {isUsMedicalDemo && !internalQa ? <DemoViewTracker slug={preview.id} /> : null}
     </div>
   );

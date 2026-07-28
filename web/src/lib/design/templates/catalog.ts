@@ -5,6 +5,11 @@ const INTERIOR_ROUTE = {
   exactIndustryIds: ['건설·인테리어 시공'],
 } as const;
 
+const PREMIUM_DENTAL_ROUTE = {
+  purposeId: 'booking_service',
+  exactIndustryIds: ['치과'],
+} as const;
+
 const dna = (
   dnaId: NamedTemplate['recipe']['designDna']['dnaId'],
   hueSeed: number,
@@ -22,12 +27,24 @@ type TemplateInput = Omit<
   rank: number;
 };
 
-const template = (input: TemplateInput): NamedTemplate => ({
+interface CuratedTemplateCollection {
+  route: Omit<NamedTemplate['route'], 'recommendationRank'>;
+  previewDirectory: string;
+}
+
+/**
+ * 업종에 종속되지 않는 명명 템플릿 레코드 빌더.
+ * 컬렉션은 route와 preview namespace만 주고, 레시피는 각 손 큐레이션 레코드가 소유한다.
+ */
+const curatedTemplate = (
+  collection: CuratedTemplateCollection,
+  input: TemplateInput,
+): NamedTemplate => ({
   catalogVersion: 1,
   id: input.id,
   name: input.name,
   description: input.description,
-  route: { ...INTERIOR_ROUTE, recommendationRank: input.rank },
+  route: { ...collection.route, recommendationRank: input.rank },
   recipe: input.recipe,
   mediaRequirement: input.mediaRequirement,
   ...(input.additionalImageDirections
@@ -40,16 +57,22 @@ const template = (input: TemplateInput): NamedTemplate => ({
     motionSignature: input.recipe.motionSignatureId,
     imageDirection: input.recipe.imageDirectionId,
   },
-  previewImage: `/templates/interior/${input.id}.webp`,
+  previewImage: `${collection.previewDirectory}/${input.id}.webp`,
 });
 
+const template = (input: TemplateInput): NamedTemplate => curatedTemplate({
+  route: INTERIOR_ROUTE,
+  previewDirectory: '/templates/interior',
+}, input);
+
 const plan = ['company_brand.default'] as const;
+const clinicPlan = ['booking_service.clinic'] as const;
 
 /**
  * 인테리어 24종 손 큐레이션 카탈로그.
  * 자동 곱집합을 만들지 않으며, 각 레코드는 기존 DNA·시그니처·레이아웃 enum만 참조한다.
  */
-export const NAMED_TEMPLATE_CATALOG = [
+export const INTERIOR_NAMED_TEMPLATE_CATALOG = [
   template({
     rank: 1,
     id: 'material-grain',
@@ -567,6 +590,44 @@ export const NAMED_TEMPLATE_CATALOG = [
     mediaRequirement: 'verified-referential',
   }),
 ] as const satisfies readonly NamedTemplate[];
+
+export const PREMIUM_DENTAL_NAMED_TEMPLATE = curatedTemplate({
+  route: PREMIUM_DENTAL_ROUTE,
+  previewDirectory: '/templates/clinic',
+}, {
+  rank: 1,
+  id: 'premium-dental-v1',
+  name: 'Premium Dental',
+  description: '실제 진료 정보와 승인된 사진을 넉넉한 여백의 클린 의료 구조로 편집합니다.',
+  recipe: {
+    sitePlanTemplateIds: clinicPlan,
+    designDna: dna('medical-clinical-clarity', 207),
+    motionSignatureId: 'path-journey',
+    heroLayoutId: 'hero.split-left',
+    sectionLayoutIds: {
+      features: 'features.featured-first',
+      about: 'about.split-left',
+      gallery: 'gallery.uniform-grid',
+      cta: 'cta.split-action',
+      directions: 'directions.info-card-stack',
+    },
+    imageDirectionId: 'realistic',
+  },
+  mediaRequirement: 'system-ready',
+});
+
+/** 모든 업종의 손 큐레이션 레코드. 일반 온보딩 추천 풀은 별도로 명시한다. */
+export const NAMED_TEMPLATE_CATALOG = [
+  ...INTERIOR_NAMED_TEMPLATE_CATALOG,
+  PREMIUM_DENTAL_NAMED_TEMPLATE,
+] as const satisfies readonly NamedTemplate[];
+
+/**
+ * 기존 TPL 일반 온보딩은 인테리어 24종만 추천한다.
+ * premium-dental-v1은 US 의료 마스터 컴파일러가 source-only 경계에서 명시 발급한다.
+ */
+export const NAMED_TEMPLATE_RECOMMENDATION_CATALOG =
+  INTERIOR_NAMED_TEMPLATE_CATALOG;
 
 export function namedTemplateById(id: string): NamedTemplate | undefined {
   return NAMED_TEMPLATE_CATALOG.find((candidate) => candidate.id === id);
