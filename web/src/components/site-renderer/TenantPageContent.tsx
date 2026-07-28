@@ -91,6 +91,7 @@ export function TenantPageContent({
           animate={animate}
           runtimeDelivery={runtimeDelivery}
           clinicExperience={clinicExperience}
+          hrefForPageSlug={hrefForSlug}
         />
       </main>
       {!businessInfo && publicContact ? (

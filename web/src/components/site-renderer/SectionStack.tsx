@@ -51,6 +51,8 @@ interface SectionStackProps {
   clinicFlow?: boolean;
   /** Visible page-level heading for clinic flow hero. */
   clinicPageHeading?: string;
+  /** Route-aware page link mapping for preview and static export. */
+  hrefForPageSlug?: (slug: string) => string;
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -397,6 +399,7 @@ export function SectionStack({
   continuousFlow = false,
   clinicFlow = false,
   clinicPageHeading,
+  hrefForPageSlug,
 }: SectionStackProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
@@ -410,6 +413,7 @@ export function SectionStack({
         interactive={interactive}
         siteId={siteId}
         pageHeading={clinicPageHeading}
+        hrefForPageSlug={hrefForPageSlug}
       />
     );
   }

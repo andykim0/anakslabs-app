@@ -128,7 +128,7 @@ export const CLINIC_FLOW_CSS = `
   aspect-ratio: 34 / 43;
 }
 [data-clinic-flow-section^="gallery."] [data-clinic-flow-items] {
-  grid-template-columns: repeat(3,minmax(0,1fr));
+  grid-template-columns: repeat(4,minmax(0,1fr));
   gap: 1rem;
 }
 [data-clinic-flow-section^="gallery."] [data-clinic-flow-item] {
@@ -165,6 +165,13 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section^="hero."] {
   padding-block: 0;
   background: var(--clinic-background);
+}
+[data-clinic-flow-section^="features."],
+[data-clinic-flow-section^="gallery."],
+[data-clinic-flow-section^="directions."],
+[data-clinic-flow-section^="cta."],
+[data-clinic-flow-section="faq.compact"] {
+  padding-block: 88px;
 }
 [data-clinic-flow-hero-media] {
   position: relative;
@@ -214,6 +221,14 @@ export const CLINIC_FLOW_CSS = `
   font-size: clamp(1.05rem,1.5vw,1.3rem);
   line-height: 1.7;
 }
+[data-clinic-hero-kicker] {
+  color: var(--clinic-accent) !important;
+  font-family: var(--clinic-control-family);
+  font-size: .875rem !important;
+  font-weight: var(--clinic-control-weight);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
 [data-clinic-hero-cta] {
   display: inline-flex;
   min-height: 3.25rem;
@@ -230,6 +245,13 @@ export const CLINIC_FLOW_CSS = `
 @media (max-width: 767.98px) {
   [data-clinic-flow-section] {
     padding-block: var(--clinic-section-block-mobile);
+  }
+  [data-clinic-flow-section^="features."],
+  [data-clinic-flow-section^="gallery."],
+  [data-clinic-flow-section^="directions."],
+  [data-clinic-flow-section^="cta."],
+  [data-clinic-flow-section="faq.compact"] {
+    padding-block: 56px;
   }
   [data-clinic-flow-inner] {
     width: min(calc(100% - 3rem), var(--clinic-container-max));
@@ -299,7 +321,7 @@ function FlowText({
         style={textStyle(element, theme)}
         {...attributes}
       >
-        {element.text}
+        {element.text}{' '}
       </h3>
     );
   }
@@ -310,7 +332,7 @@ function FlowText({
         style={textStyle(element, theme)}
         {...attributes}
       >
-        {element.text}
+        {element.text}{' '}
       </span>
     );
   }
@@ -322,7 +344,7 @@ function FlowText({
       style={textStyle(element, theme)}
       {...attributes}
     >
-      {element.text}
+      {element.text}{' '}
     </p>
   );
 }
@@ -337,12 +359,14 @@ function FlowElement({
   isFirst,
   interactive,
   siteId,
+  hrefForPageSlug,
 }: {
   element: CanvasElement;
   theme: SiteTheme;
   isFirst?: boolean;
   interactive: boolean;
   siteId?: string;
+  hrefForPageSlug?: (slug: string) => string;
 }) {
   if (element.kind === 'text') {
     return (
@@ -368,10 +392,16 @@ function FlowElement({
     );
   }
   if (element.kind === 'shape' || element.kind === 'divider') return null;
+  const pageSlug = element.kind === 'button'
+    ? /^\/([a-z0-9]+(?:-[a-z0-9]+)*)$/u.exec(element.href)?.[1]
+    : undefined;
+  const renderedElement = element.kind === 'button' && pageSlug && hrefForPageSlug
+    ? { ...element, href: hrefForPageSlug(pageSlug) }
+    : element;
   return (
     <div data-clinic-flow-control>
       <ElementContent
-        element={element}
+        element={renderedElement}
         theme={theme}
         variant="stack"
         eager={isFirst}
@@ -388,12 +418,14 @@ function FlowItem({
   isFirst,
   interactive,
   siteId,
+  hrefForPageSlug,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
   isFirst?: boolean;
   interactive: boolean;
   siteId?: string;
+  hrefForPageSlug?: (slug: string) => string;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -420,6 +452,7 @@ function FlowItem({
           isFirst={isFirst}
           interactive={interactive}
           siteId={siteId}
+          hrefForPageSlug={hrefForPageSlug}
         />
       ))}
       <div data-clinic-flow-item-copy>
@@ -434,6 +467,7 @@ function FlowItem({
             isFirst={isFirst}
             interactive={interactive}
             siteId={siteId}
+            hrefForPageSlug={hrefForPageSlug}
           />
         ))}
       </div>
@@ -448,6 +482,7 @@ export function ClinicFlowSection({
   interactive = true,
   siteId,
   pageHeading,
+  hrefForPageSlug,
 }: {
   section: Section;
   theme: SiteTheme;
@@ -455,6 +490,7 @@ export function ClinicFlowSection({
   interactive?: boolean;
   siteId?: string;
   pageHeading?: string;
+  hrefForPageSlug?: (slug: string) => string;
 }) {
   const projection = section.sectionLayout;
   if (section.type === 'hero') {
@@ -487,14 +523,15 @@ export function ClinicFlowSection({
             />
           ) : null}
           <div data-clinic-flow-hero-copy>
-            <h1 data-font-role="heading">{heading}</h1>
+            <p data-clinic-hero-kicker>{section.name}{' '}</p>
+            <h1 data-font-role="heading">{heading}{' '}</h1>
             {remainingText.map((element) => (
               <p
                 key={element.id}
                 style={textStyle(element, theme)}
                 {...fontRole(element, theme)}
               >
-                {element.text}
+                {element.text}{' '}
               </p>
             ))}
             <span aria-disabled="true" data-clinic-hero-cta>
@@ -611,6 +648,7 @@ export function ClinicFlowSection({
         isFirst={isFirst}
         interactive={interactive}
         siteId={siteId}
+        hrefForPageSlug={hrefForPageSlug}
       />,
     );
   }
@@ -653,6 +691,7 @@ export function ClinicFlowSection({
               isFirst={isFirst}
               interactive={interactive}
               siteId={siteId}
+              hrefForPageSlug={hrefForPageSlug}
             />
           ))}
         </div>

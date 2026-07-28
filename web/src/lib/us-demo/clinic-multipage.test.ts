@@ -450,9 +450,13 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       /The treatment sequence on this page explains how healing time may vary\./u,
     );
     assert.equal(
-      implantPage.sections.find((section) => section.type === 'cta')
+      implantPage.sections.some((section) => section.type === 'cta'),
+      false,
+    );
+    assert.equal(
+      compiled.config.pages[0].sections.find((section) => section.id === 'clinic-home-cta')
         ?.sectionLayout?.resolvedId,
-      'cta.split-action',
+      'cta.fullwidth-band',
     );
 
     const homeServices = compiled.config.pages[0].sections.find(
@@ -518,7 +522,7 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.equal(compiled.config.motion, undefined);
   });
 
-  test('preview-full CTA는 crawl의 실제 HTTPS/전화만 활성화하고 DOM/PE를 유지한다', () => {
+  test('preview-full CTA는 demo-internal/deactivated이고 prospect 외부 예약 URL을 방출하지 않는다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
     const experience = previewFullExperienceFromArtifact({
@@ -533,9 +537,10 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       interactive: true,
       animate: false,
     }));
-    assert.match(html, /href="https:\/\/clinic\.example\/appointments\/request"/u);
-    assert.match(html, /href="tel:\+12135550142"/u);
-    assert.match(html, /data-clinic-booking-state="active"/u);
+    assert.doesNotMatch(html, /href="https:\/\/clinic\.example\/appointments\/request"/u);
+    assert.doesNotMatch(html, /href="tel:\+12135550142"/u);
+    assert.match(html, /href="#clinic-home-faq"/u);
+    assert.match(html, /data-clinic-booking-state="deactivated"/u);
     assert.match(html, /<section\b/u);
     assert.match(html, /<img\b[^>]*alt=/u);
     assert.doesNotMatch(html, /<canvas\b/u);
@@ -547,7 +552,8 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       interactive: true,
       animate: false,
     }));
-    assert.match(procedureHtml, /data-clinic-booking-state="active"/u);
+    assert.match(procedureHtml, /data-clinic-booking-state="deactivated"/u);
+    assert.doesNotMatch(procedureHtml, /href="https:\/\/clinic\.example\/appointments\/request"/u);
   });
 
   test('페이지별 JSON-LD는 source fact만으로 dental/procedure/provider/contact 타입을 낸다', () => {

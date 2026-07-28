@@ -18,7 +18,6 @@ import {
   CLINIC_RADIUS_TOKENS,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
-  orderClinicServices,
   verifyClinicUsDestination,
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
@@ -651,37 +650,29 @@ export function compileUsMedicalFullPreview(input: {
     ...(experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []),
     ...(experience.beforeAfterImages?.map((image) => image.sourceImageId) ?? []),
   ].filter((id): id is string => Boolean(id)));
-  const sourceUnits = prospectPublicSourceContentUnits(blocks);
-  const orderedServiceTitles = orderClinicServices(
-    sourceUnits.map((unit) => unit.title),
-    pin.focus,
-  );
-  const orderedUnits = orderedServiceTitles.flatMap((title) => {
-    const unit = sourceUnits.find((candidate) => candidate.title.id === title.id);
-    return unit ? [unit] : [];
-  });
   const homeServiceImageIds = new Set<string>();
-  const homeServiceUnits = orderedUnits.map((unit) => {
-    const occurrence = orderedUnits.slice(0, orderedUnits.indexOf(unit)).filter(
-      (candidate) => candidate.sourceUrl === unit.sourceUrl,
-    ).length;
-    const image = projectedImages.filter((candidate) => (
-      candidate.page.url === unit.sourceUrl
+  const homeServiceUnits = plannedPages.slice(0, 12).flatMap(({ planned, slug }) => {
+    const title = planned.blocks.find((block) => (
+      block.kind === 'service' && block.text.length <= 72
+    )) ?? planned.blocks.find((block) => block.kind === 'service');
+    if (!title) return [];
+    const body = planned.blocks.find((block) => (
+      block.kind === 'service_detail' && block.sourceUrl === title.sourceUrl
+    ));
+    const image = projectedImages.find((candidate) => (
+      planned.sourceUrls.has(candidate.page.url)
       && !sourceImageIsProvider(candidate)
       && !sourceImageIsBeforeAfter(candidate)
       && !sourceImageIsInsuranceLogo(candidate)
-    ))[occurrence];
-    if (image) homeServiceImageIds.add(image.source.id);
-    const exactPage = plannedPages.find(({ planned }) => planned.sourceUrls.has(unit.sourceUrl));
-    const categoryPage = plannedPages.find(({ planned }) => (
-      planned.category === procedureCategory(unitContext(unit))
     ));
-    const destination = exactPage ?? categoryPage;
-    return clinicLayoutUnit(
-      unit,
-      image,
-      destination ? `/${destination.slug}` : undefined,
-    );
+    if (image) homeServiceImageIds.add(image.source.id);
+    return [{
+      id: `clinic-home-summary-${slug}`,
+      title,
+      ...(body ? { body } : {}),
+      ...(image ? { image: layoutImage(image) } : {}),
+      href: `/${slug}`,
+    }];
   });
   const homeServiceSections = buildClinicFeatureSections({
     id: 'us-demo-services',
@@ -692,14 +683,6 @@ export function compileUsMedicalFullPreview(input: {
       ? ['features.three-column-cards', 'features.icon-grid']
       : ['features.icon-grid', 'features.three-column-cards'],
   });
-  const homeSections = masterSections.filter(
-    (candidate) => !candidate.id.startsWith('us-demo-services'),
-  );
-  const serviceInsertIndex = Math.max(
-    1,
-    homeSections.findIndex((candidate) => candidate.id.startsWith('us-demo-providers')),
-  );
-  homeSections.splice(serviceInsertIndex, 0, ...homeServiceSections);
   const gallerySections = buildClinicGallerySections({
     id: 'clinic-practice-gallery',
     name: 'Practice Gallery',
@@ -715,27 +698,70 @@ export function compileUsMedicalFullPreview(input: {
     surface: true,
     candidates: ['gallery.uniform-grid'],
   });
-  homeSections.splice(
-    serviceInsertIndex + homeServiceSections.length,
-    0,
-    ...gallerySections,
-  );
   const insuranceLogos = projectedImages.filter(sourceImageIsInsuranceLogo);
   const homeInsuranceStrip = insuranceStripSection({
     id: 'clinic-accepted-insurance',
     images: insuranceLogos,
     theme,
   });
-  if (homeInsuranceStrip) {
-    const insuranceIndex = homeSections.findIndex(
-      (candidate) => candidate.id === 'clinic-insurance-pricing',
-    );
-    homeSections.splice(
-      insuranceIndex >= 0 ? insuranceIndex : homeSections.length,
-      0,
-      homeInsuranceStrip,
-    );
-  }
+  const homeFaqQuestions = blocks
+    .filter((block) => block.kind === 'faq_question')
+    .slice(0, 4);
+  const allFaqQuestions = blocks.filter((block) => block.kind === 'faq_question');
+  const allFaqAnswers = blocks.filter((block) => block.kind === 'faq_answer');
+  const homeFaq = buildClinicFaqSection({
+    id: 'clinic-home-faq',
+    name: 'Frequently Asked Questions',
+    theme,
+    items: homeFaqQuestions.map((question) => {
+      const originalIndex = allFaqQuestions.indexOf(question);
+      const occurrence = allFaqQuestions.slice(0, originalIndex).filter(
+        (candidate) => candidate.sourceUrl === question.sourceUrl,
+      ).length;
+      return {
+        question,
+        answer: allFaqAnswers.filter(
+          (candidate) => candidate.sourceUrl === question.sourceUrl,
+        )[occurrence],
+      };
+    }),
+  });
+  const homeCta = buildClinicCtaSection({
+    id: 'clinic-home-cta',
+    name: 'Book Appointment',
+    theme,
+    title: introduction ?? businessName,
+    href: '#clinic-home-faq',
+    candidates: ['cta.fullwidth-band'],
+  });
+  const homeHero = masterSections.find((candidate) => candidate.type === 'hero');
+  const providerTeaser = masterSections.find(
+    (candidate) => candidate.id === 'us-demo-providers',
+  );
+  const beforeAfter = masterSections.filter(
+    (candidate) => candidate.id.startsWith('clinic-before-after-preview-full'),
+  );
+  const insurancePricing = masterSections.find(
+    (candidate) => candidate.id === 'clinic-insurance-pricing',
+  );
+  const homeLocation = masterSections.find(
+    (candidate) => candidate.id === 'us-demo-contact',
+  );
+  const homeSections = [
+    ...(homeHero ? [homeHero] : []),
+    ...homeServiceSections,
+    ...(providerTeaser ? [providerTeaser] : []),
+    ...gallerySections.slice(0, 1),
+    ...beforeAfter.slice(0, 1),
+    ...(homeInsuranceStrip
+      ? [homeInsuranceStrip]
+      : insurancePricing
+        ? [insurancePricing]
+        : []),
+    ...(homeLocation ? [homeLocation] : []),
+    ...(homeFaq ? [homeFaq] : []),
+    homeCta,
+  ];
   const pages: SitePage[] = [{
     id: 'clinic-home-v2',
     title: 'Home',
@@ -771,10 +797,6 @@ export function compileUsMedicalFullPreview(input: {
       blocks: pageSourceBlocks,
       images: categoryImages.slice(1),
       theme,
-      ...(experience.destination?.bookingUrl
-        ? { bookingUrl: experience.destination.bookingUrl }
-        : {}),
-      ...(experience.destination?.phone ? { phone: experience.destination.phone } : {}),
     });
     const galleryImages = categoryImages.slice(1).filter(
       (image) => !detail.usedImageIds.has(image.source.id),

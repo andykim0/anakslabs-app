@@ -176,6 +176,10 @@ export function compileUsMedicalDemo(
     dnaId: US_DEMO_DNA_ID,
     industryClass: 'medical',
     clinicTypographyPreset: clinicMaster.typographyPreset,
+  }, {
+    // US medical demos and P4 generation always use the pinned self-hosted Latin slot.
+    // Stored non-clinic configs and the global issuance flag contract remain unchanged.
+    latinEnabled: true,
   });
   const theme = applyLatinFontPairing(
     clinicTheme,

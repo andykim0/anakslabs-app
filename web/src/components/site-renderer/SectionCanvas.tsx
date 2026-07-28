@@ -60,6 +60,8 @@ interface SectionCanvasProps {
   clinicFlow?: boolean;
   /** Visible page-level heading for clinic flow hero. */
   clinicPageHeading?: string;
+  /** Route-aware page link mapping for preview and static export. */
+  hrefForPageSlug?: (slug: string) => string;
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -99,6 +101,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         interactive={props.interactive}
         siteId={props.siteId}
         pageHeading={props.clinicPageHeading}
+        hrefForPageSlug={props.hrefForPageSlug}
       />
     );
   }
