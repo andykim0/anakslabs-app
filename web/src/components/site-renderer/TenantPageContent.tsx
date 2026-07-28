@@ -77,8 +77,10 @@ export function TenantPageContent({
         additionalItems={additionalNavItems}
       />
       <main>
-        {/* 화면 비표시 시맨틱 개요 — 크롤러·AI·스크린리더용 문서 구조(h1·헤딩 위계·목록) */}
-        <SemanticOutline config={renderedConfig} pageSlug={pageSlug} />
+        {/* Clinic flow owns visible semantics. Legacy canvas sites retain the byte-identical mirror. */}
+        {!renderedConfig.clinicMaster ? (
+          <SemanticOutline config={renderedConfig} pageSlug={pageSlug} />
+        ) : null}
         <SiteRenderer
           config={renderedConfig}
           mode="auto"

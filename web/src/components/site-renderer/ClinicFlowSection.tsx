@@ -419,6 +419,7 @@ function FlowItem({
   interactive,
   siteId,
   hrefForPageSlug,
+  listItem = false,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -426,6 +427,7 @@ function FlowItem({
   interactive: boolean;
   siteId?: string;
   hrefForPageSlug?: (slug: string) => string;
+  listItem?: boolean;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -439,10 +441,12 @@ function FlowItem({
   const content = remainder.filter(
     (element) => element.kind !== 'image' && element.kind !== 'video',
   );
+  const ItemTag = listItem ? 'li' : 'article';
   return (
-    <article
+    <ItemTag
       data-clinic-flow-item
       data-clinic-flow-has-media={media.length > 0 ? 'true' : 'false'}
+      style={listItem ? { listStyle: 'none' } : undefined}
     >
       {media.map((element) => (
         <FlowElement
@@ -471,7 +475,7 @@ function FlowItem({
           />
         ))}
       </div>
-    </article>
+    </ItemTag>
   );
 }
 
@@ -652,6 +656,7 @@ export function ClinicFlowSection({
       />,
     );
   }
+  const ItemsTag = projection.kind === 'features' ? 'ul' : 'div';
 
   return (
     <section
@@ -679,7 +684,10 @@ export function ClinicFlowSection({
           {sectionTitle}
         </h2>
         {introNodes}
-        <div data-clinic-flow-items>
+        <ItemsTag
+          data-clinic-flow-items
+          style={projection.kind === 'features' ? { margin: 0, padding: 0 } : undefined}
+        >
           {projection.items.map((item) => (
             <FlowItem
               key={item.id}
@@ -692,9 +700,10 @@ export function ClinicFlowSection({
               interactive={interactive}
               siteId={siteId}
               hrefForPageSlug={hrefForPageSlug}
+              listItem={projection.kind === 'features'}
             />
           ))}
-        </div>
+        </ItemsTag>
       </div>
     </section>
   );
