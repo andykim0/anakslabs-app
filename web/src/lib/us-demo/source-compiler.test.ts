@@ -143,7 +143,14 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       stockManifestVersion: 1,
     });
     assert.match(first.config.clinicMaster?.paletteSource.sourceSha256 ?? '', /^[a-f0-9]{64}$/u);
-    assert.equal(first.config.theme.fontPairing, undefined);
+    assert.deepEqual(first.config.theme.fontPairing, {
+      catalogVersion: 1,
+      locale: 'en-US',
+      id: 'us-clinical-neutral',
+      assetVersion: 1,
+      selectionPolicy: 'us-latin-v1',
+      typographyPreset: 'clinic-editorial',
+    });
     assert.deepEqual(first.config.theme.fonts.googleFonts, []);
     assert.ok(first.sourceManifest.blocks.every(sourceBlockHashIsValid));
     assert.equal(first.sourceManifest.origin, 'prospect_public_source');
@@ -178,8 +185,10 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     }));
     assert.match(
       html,
-      /<section[^>]+data-section-type="about"[^>]+data-section-layout-stage="about\.split-left"/u,
+      /<section[^>]+data-section-type="about"[^>]+data-clinic-flow-section="about\.split-left"/u,
     );
+    assert.match(html, /<h1\b[^>]*>[^<]+<\/h1>/u);
+    assert.match(html, /<h2\b[^>]*>Meet the Doctor<\/h2>/u);
     assert.match(html, /<img[^>]+Portrait placeholder/u);
     assert.match(html, /data-clinic-sticky-booking="1"/u);
     assert.match(html, /data-clinic-booking-state="deactivated"/u);
