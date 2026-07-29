@@ -23,6 +23,7 @@ import {
   selectDentalStock,
   verifyClinicProviderPhoto,
   verifyClinicRatingAggregate,
+  verifyClinicSourcePhone,
   verifyClinicUsDestination,
   type ClinicMasterSourceBlock,
   type ClinicMasterExperience,
@@ -406,6 +407,17 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
   test('demo는 비활성·assetless 사실 셸이고 live는 검증된 US destination/projection만 활성화한다', () => {
     assert.equal(verifyClinicUsDestination({ bookingUrl: 'http://practice.example/book' }), null);
     assert.equal(verifyClinicUsDestination({ phone: '111-111-1111' }), null);
+    assert.equal(verifyClinicSourcePhone({
+      sourceBlockId: 'phone-source',
+      sourceText: '(213) 555-0142',
+      sourceSha256: '0'.repeat(64),
+    }), null);
+    const sourcePhoneText = '(213) 555-0142';
+    assert.equal(verifyClinicSourcePhone({
+      sourceBlockId: 'phone-source',
+      sourceText: sourcePhoneText,
+      sourceSha256: createHash('sha256').update(sourcePhoneText, 'utf8').digest('hex'),
+    })?.sourceText, sourcePhoneText);
     assert.equal(verifyClinicRatingAggregate({
       rating: 6,
       userRatingCount: 12,

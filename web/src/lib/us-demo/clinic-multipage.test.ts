@@ -576,13 +576,14 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.equal(compiled.config.motion, undefined);
   });
 
-  test('preview-full CTA는 demo-internal/deactivated이고 prospect 외부 예약 URL을 방출하지 않는다', () => {
+  test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
     const experience = previewFullExperienceFromArtifact({
       artifact,
       blocks: prospectPublicSourceBlocks(artifact),
     });
+    assert.equal(experience.sourcePhone?.sourceText, '(213) 555-0142');
     const html = renderToStaticMarkup(createElement(SiteRenderer, {
       config: compiled.config,
       clinicExperience: experience,
@@ -592,9 +593,22 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       animate: false,
     }));
     assert.doesNotMatch(html, /href="https:\/\/clinic\.example\/appointments\/request"/u);
-    assert.doesNotMatch(html, /href="tel:\+12135550142"/u);
+    assert.match(html, /href="tel:\+12135550142"/u);
+    assert.match(
+      html,
+      /data-clinic-phone-source-text="\(213\) 555-0142"/u,
+    );
+    assert.match(
+      html,
+      /<span aria-disabled="true" data-clinic-booking-action="book">Book Appointment<\/span>/u,
+    );
+    assert.match(html, /Booking activates when you connect your system\./u);
+    assert.doesNotMatch(
+      html,
+      /(?:예약|연결하면|활성화|시스템을)/u,
+    );
     assert.match(html, /href="#clinic-home-faq"/u);
-    assert.match(html, /data-clinic-booking-state="deactivated"/u);
+    assert.match(html, /data-clinic-booking-state="call-only"/u);
     assert.match(html, /<section\b/u);
     assert.match(html, /<img\b[^>]*alt=/u);
     assert.doesNotMatch(html, /<canvas\b/u);
@@ -606,7 +620,8 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       interactive: true,
       animate: false,
     }));
-    assert.match(procedureHtml, /data-clinic-booking-state="deactivated"/u);
+    assert.match(procedureHtml, /data-clinic-booking-state="call-only"/u);
+    assert.match(procedureHtml, /href="tel:\+12135550142"/u);
     assert.doesNotMatch(procedureHtml, /href="https:\/\/clinic\.example\/appointments\/request"/u);
   });
 

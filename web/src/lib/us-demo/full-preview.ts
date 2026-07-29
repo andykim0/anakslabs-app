@@ -20,6 +20,7 @@ import {
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
   verifyClinicUsDestination,
+  verifyClinicSourcePhone,
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
   type ClinicMasterExperience,
@@ -610,6 +611,14 @@ function previewExperience(input: {
   blocks: readonly ProspectPublicSourceBlock[];
   images: readonly ProjectedUsDemoSourceImage[];
 }): ClinicMasterExperience {
+  const sourcePhoneBlock = input.blocks.find((block) => block.kind === 'phone');
+  const sourcePhone = sourcePhoneBlock
+    ? verifyClinicSourcePhone({
+        sourceBlockId: sourcePhoneBlock.id,
+        sourceText: sourcePhoneBlock.text,
+        sourceSha256: sourcePhoneBlock.originalSha256,
+      }) ?? undefined
+    : undefined;
   const bookingUrl = input.artifact.pages
     .flatMap((page) => page.connectors)
     .find((connector) => connector.kind === 'us_booking')?.url;
@@ -618,7 +627,7 @@ function previewExperience(input: {
     .find((connector) => connector.kind === 'google_maps')?.url;
   const destination = verifyClinicUsDestination({
     ...(bookingUrl ? { bookingUrl } : {}),
-    phone: input.blocks.find((block) => block.kind === 'phone')?.text,
+    ...(sourcePhone ? { phone: sourcePhone.sourceText } : {}),
     ...(googleMapsUrl ? { googleMapsUrl } : {}),
   }) ?? undefined;
   const providers = input.blocks.filter((block) => block.kind === 'provider_bio');
@@ -655,6 +664,7 @@ function previewExperience(input: {
   return {
     mode: 'preview-full',
     ...(destination ? { destination } : {}),
+    ...(sourcePhone ? { sourcePhone } : {}),
     ...(providerPhotos.length > 0 ? { providerPhotos } : {}),
     ...(beforeAfterImages.length >= 2 ? { beforeAfterImages } : {}),
   };

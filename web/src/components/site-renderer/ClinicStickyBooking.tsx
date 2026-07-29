@@ -1,6 +1,9 @@
 import type { CSSProperties } from 'react';
 import type { ClinicMasterPin } from '@/lib/types/site';
-import type { ClinicUsDestination } from '@/lib/clinic-master/live-contract';
+import type {
+  ClinicSourcePhoneProjection,
+  ClinicUsDestination,
+} from '@/lib/clinic-master/live-contract';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
 
 const CLINIC_STICKY_BOOKING_CSS = `
@@ -40,6 +43,19 @@ const CLINIC_STICKY_BOOKING_CSS = `
 }
 [data-clinic-sticky-booking] [aria-disabled="true"] {
   cursor: default;
+  opacity: .64;
+}
+[data-clinic-booking-disclosure] {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 8px 14px 10px;
+  border-top: 1px solid var(--clinic-border);
+  color: #59636e;
+  background: #fff;
+  font-family: var(--clinic-control-family);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 @media (max-width: 767.98px) {
   [data-clinic-sticky-booking] {
@@ -78,13 +94,26 @@ function Action({
   href,
   kind,
   children,
+  sourcePhone,
 }: {
   href?: string;
   kind: 'book' | 'call';
   children: string;
+  sourcePhone?: ClinicSourcePhoneProjection;
 }) {
   return href ? (
-    <a href={href} data-clinic-booking-action={kind}>{children}</a>
+    <a
+      href={href}
+      data-clinic-booking-action={kind}
+      {...(sourcePhone
+        ? {
+            'data-clinic-phone-source-block': sourcePhone.sourceBlockId,
+            'data-clinic-phone-source-text': sourcePhone.sourceText,
+          }
+        : {})}
+    >
+      {children}
+    </a>
   ) : (
     <span aria-disabled="true" data-clinic-booking-action={kind}>{children}</span>
   );
@@ -99,16 +128,28 @@ export function ClinicStickyBooking({
   pin,
   interactive,
   destination,
+  bookingEnabled = false,
+  sourcePhone,
 }: {
   pin: ClinicMasterPin;
   interactive: boolean;
   /** 고객 확인 factory를 통과한 별도 US destination. 기존 CONN$ manifest는 받지 않는다. */
   destination?: ClinicUsDestination;
+  /** Live only. Preview-full may expose a source-verified Call but never the booking URL. */
+  bookingEnabled?: boolean;
+  /** Exact crawl-source proof for a preview-full Call action. */
+  sourcePhone?: ClinicSourcePhoneProjection;
 }) {
-  const callHref = interactive && destination?.validated
-    ? telephoneHref(destination.phone)
+  const sourceCallHref = sourcePhone
+    ? telephoneHref(sourcePhone.phone)
     : undefined;
-  const bookHref = interactive && destination?.validated
+  const callHref = interactive
+    ? sourceCallHref
+      ?? (bookingEnabled && destination?.validated
+        ? telephoneHref(destination.phone)
+        : undefined)
+    : undefined;
+  const bookHref = interactive && bookingEnabled && destination?.validated
     ? destination.bookingUrl
     : undefined;
   const deactivated = !bookHref && !callHref;
@@ -131,7 +172,14 @@ export function ClinicStickyBooking({
         } as CSSProperties}
       >
         <Action href={bookHref} kind="book">Book Appointment</Action>
-        <Action href={callHref} kind="call">Call</Action>
+        <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
+          Call
+        </Action>
+        {!bookHref ? (
+          <p data-clinic-booking-disclosure>
+            Booking activates when you connect your system.
+          </p>
+        ) : null}
       </aside>
     </>
   );

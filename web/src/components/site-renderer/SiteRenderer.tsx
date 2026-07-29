@@ -809,7 +809,12 @@ export function SiteRenderer({
             pin={config.clinicMaster}
             interactive={interactive}
             destination={clinicExperience?.mode === 'live'
+              || clinicExperience?.mode === 'preview-full'
               ? clinicExperience.destination
+              : undefined}
+            bookingEnabled={clinicExperience?.mode === 'live'}
+            sourcePhone={clinicExperience?.mode === 'preview-full'
+              ? clinicExperience.sourcePhone
               : undefined}
           />
         ) : null}

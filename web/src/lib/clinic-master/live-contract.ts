@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { isHttpsUrl, isSafeMediaSrc } from '@/lib/safe-url';
 
 export interface ClinicUsDestination {
@@ -6,6 +7,15 @@ export interface ClinicUsDestination {
   readonly bookingUrl?: string;
   readonly phone?: string;
   readonly googleMapsUrl?: string;
+}
+
+export interface ClinicSourcePhoneProjection {
+  readonly version: 1;
+  readonly sourceBlockId: string;
+  /** Exact normalized crawl-source string; never inferred from a phone-shaped value. */
+  readonly sourceText: string;
+  readonly sourceSha256: string;
+  readonly phone: string;
 }
 
 export interface ClinicRatingAggregateProjection {
@@ -40,6 +50,7 @@ export type ClinicMasterExperience =
   | {
       readonly mode: 'preview-full';
       readonly destination?: ClinicUsDestination;
+      readonly sourcePhone?: ClinicSourcePhoneProjection;
       readonly providerPhotos?: readonly ClinicPreviewProviderPhotoProjection[];
       readonly beforeAfterImages?: readonly {
         sourceImageId: string;
@@ -76,6 +87,34 @@ function normalizedUsPhone(raw: string | undefined): string | undefined {
   const national = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
   if (!/^[2-9]\d{2}[2-9]\d{6}$/u.test(national)) return undefined;
   return `+1${national}`;
+}
+
+/** A preview Call action requires a hash-valid verbatim source block, not format inference. */
+export function verifyClinicSourcePhone(input: {
+  sourceBlockId: string;
+  sourceText: string;
+  sourceSha256: string;
+}): ClinicSourcePhoneProjection | null {
+  const sourceBlockId = input.sourceBlockId.trim();
+  const sourceText = input.sourceText;
+  const sourceSha256 = input.sourceSha256.toLowerCase();
+  const actualSha256 = createHash('sha256').update(sourceText, 'utf8').digest('hex');
+  const phone = normalizedUsPhone(sourceText);
+  if (
+    !sourceBlockId
+    || sourceText.trim() !== sourceText
+    || sourceSha256 !== actualSha256
+    || !phone
+  ) {
+    return null;
+  }
+  return Object.freeze({
+    version: 1,
+    sourceBlockId,
+    sourceText,
+    sourceSha256,
+    phone,
+  });
 }
 
 /** 고객 확인을 마친 US 예약 목적지만 live 렌더 경계로 투영한다. */
