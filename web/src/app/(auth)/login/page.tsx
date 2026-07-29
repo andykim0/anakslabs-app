@@ -62,6 +62,10 @@ function GoogleIcon() {
   );
 }
 
+const INPUT_CLASS =
+  'h-11 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#174DDA] focus:ring-1 focus:ring-[#174DDA]';
+const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#0B1736]';
+
 export default function LoginPage() {
   const router = useRouter();
   const mock = isMockMode();
@@ -122,7 +126,6 @@ export default function LoginPage() {
         | { ok?: boolean; redirect?: string; message?: string; error?: { message?: string } }
         | null;
       if (!res.ok) throw new Error(data?.error?.message ?? '이메일 로그인에 실패했습니다.');
-      // 세션 미생성(이메일 확인 필요 등)이면 리다이렉트 대신 안내만
       if (data?.ok && data?.redirect) {
         router.push(data.redirect);
       } else {
@@ -154,103 +157,122 @@ export default function LoginPage() {
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-6 pb-24">
         <div className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white/92 p-6 shadow-[0_24px_80px_rgba(11,23,54,.11)] backdrop-blur-xl sm:p-8">
-          <p className="text-center font-mono text-[10px] font-semibold tracking-[0.14em] text-[#174DDA] uppercase">
-            다보임 계정
-          </p>
-          <h1 className="mt-3 text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">로그인</h1>
-          <p className="mt-2 text-center text-sm text-[#667085]">
-            {mock ? '데모 모드 — 계정을 골라 전체 플로우를 체험해보세요.' : '소셜 계정으로 3초 만에 시작하세요.'}
-          </p>
+          <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">로그인</h1>
 
-          <div className="mt-8 space-y-3">
-            {mock ? (
-              MOCK_BUTTONS.map((b) => (
-                <button
-                  key={b.role}
-                  type="button"
-                  onClick={() => handleMockLogin(b.role)}
-                  disabled={pendingRole !== null}
-                  className="flex w-full items-center gap-3 rounded-xl border border-[#DCE4F0] bg-white px-4 py-3.5 text-left transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EEF5FF]">
-                    {pendingRole === b.role ? <Spinner className="text-[#174DDA]" /> : b.icon}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium text-[#0B1736]">{b.label}</span>
-                    <span className="block text-xs text-[#667085]">{b.description}</span>
-                  </span>
-                </button>
-              ))
-            ) : (
-              <>
+          {mock ? (
+            <>
+              <p className="mt-2 text-center text-sm text-[#667085]">
+                데모 모드 — 계정을 골라 전체 플로우를 체험해보세요.
+              </p>
+              <div className="mt-8 space-y-3">
+                {MOCK_BUTTONS.map((b) => (
+                  <button
+                    key={b.role}
+                    type="button"
+                    onClick={() => handleMockLogin(b.role)}
+                    disabled={pendingRole !== null}
+                    className="flex w-full items-center gap-3 rounded-xl border border-[#DCE4F0] bg-white px-4 py-3.5 text-left transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EEF5FF]">
+                      {pendingRole === b.role ? <Spinner className="text-[#174DDA]" /> : b.icon}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-[#0B1736]">{b.label}</span>
+                      <span className="block text-xs text-[#667085]">{b.description}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              {emailLoginOn ? (
+                <form onSubmit={handleEmailLogin} className="mt-8 space-y-4">
+                  <div>
+                    <label htmlFor="login-email" className={LABEL_CLASS}>
+                      이메일
+                    </label>
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={emailForm.email}
+                      onChange={(ev) => setEmailForm((f) => ({ ...f, email: ev.target.value }))}
+                      placeholder="example@daboim.com"
+                      className={INPUT_CLASS}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="login-password" className={LABEL_CLASS}>
+                      비밀번호
+                    </label>
+                    <input
+                      id="login-password"
+                      type="password"
+                      required
+                      minLength={6}
+                      autoComplete="current-password"
+                      value={emailForm.password}
+                      onChange={(ev) => setEmailForm((f) => ({ ...f, password: ev.target.value }))}
+                      placeholder="••••••••"
+                      className={INPUT_CLASS}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={emailPending}
+                    className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {emailPending ? <Spinner className="text-white" /> : null}
+                    로그인
+                  </button>
+                </form>
+              ) : null}
+
+              <div className={`${emailLoginOn ? 'mt-6' : 'mt-8'} flex items-center gap-3`}>
+                <span className="h-px flex-1 bg-[#DCE4F0]" />
+                <span className="text-[11px] text-[#98A2B3]">또는</span>
+                <span className="h-px flex-1 bg-[#DCE4F0]" />
+              </div>
+
+              <div className="mt-5 flex items-center justify-center gap-4">
                 <button
                   type="button"
                   onClick={() => handleOAuth('kakao')}
                   disabled={oauthPending !== null}
-                  className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-[#FEE500] text-sm font-semibold text-[#191919] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label="카카오로 로그인"
+                  title="카카오로 로그인"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FEE500] text-[#191919] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {oauthPending === 'kakao' ? <Spinner className="text-[#191919]" /> : <KakaoIcon />}
-                  카카오로 시작하기
                 </button>
                 <button
                   type="button"
                   onClick={() => handleOAuth('google')}
                   disabled={oauthPending !== null}
-                  className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-[#DCE4F0] bg-white text-sm font-semibold text-[#0B1736] transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label="Google로 로그인"
+                  title="Google로 로그인"
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DCE4F0] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {oauthPending === 'google' ? <Spinner className="text-[#0B1736]" /> : <GoogleIcon />}
-                  Google로 시작하기
                 </button>
-              </>
-            )}
-          </div>
-
-          {/* 이메일 로그인 폼 — 실모드 + NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 일 때만. 가입은 /signup */}
-          {!mock && emailLoginOn ? (
-            <form onSubmit={handleEmailLogin} className="mt-4 space-y-2.5 rounded-xl border border-[#DCE4F0] bg-[#F8FBFF] p-4">
-              <p className="text-[11px] text-[#667085]">이메일 로그인</p>
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                value={emailForm.email}
-                onChange={(ev) => setEmailForm((f) => ({ ...f, email: ev.target.value }))}
-                placeholder="이메일"
-                className="h-10 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-[#174DDA] focus:ring-1 focus:ring-[#174DDA]"
-              />
-              <input
-                type="password"
-                required
-                minLength={6}
-                autoComplete="current-password"
-                value={emailForm.password}
-                onChange={(ev) => setEmailForm((f) => ({ ...f, password: ev.target.value }))}
-                placeholder="비밀번호 (6자 이상)"
-                className="h-10 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-[#174DDA] focus:ring-1 focus:ring-[#174DDA]"
-              />
-              <button
-                type="submit"
-                disabled={emailPending}
-                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {emailPending ? <Spinner className="text-white" /> : null}
-                이메일로 로그인
-              </button>
-            </form>
-          ) : null}
-
-          {!mock ? (
-            <p className="mt-6 text-center text-xs text-[#667085]">
-              계정이 없으신가요?{' '}
-              <Link href="/signup" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
-                회원가입 하러가기
-              </Link>
-            </p>
-          ) : null}
+              </div>
+            </>
+          )}
 
           {error ? (
             <p className="mt-4 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-center text-xs text-[#B42318]">
               {error}
+            </p>
+          ) : null}
+
+          {!mock ? (
+            <p className="mt-8 text-center text-[13px] text-[#667085]">
+              아직 다보임 회원이 아니신가요?{' '}
+              <Link href="/signup" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
+                회원가입
+              </Link>
             </p>
           ) : null}
 

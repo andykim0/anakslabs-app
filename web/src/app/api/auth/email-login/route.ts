@@ -46,11 +46,20 @@ const bodySchema = z
       .trim()
       .regex(/^0\d{1,2}-?\d{3,4}-?\d{4}$/u, '올바른 전화번호 형식이 아닙니다.')
       .optional(),
+    marketingEmail: z.boolean().optional(),
   })
   .superRefine((value, ctx) => {
     if (value.mode !== 'signup') return;
     if (!value.name) ctx.addIssue({ code: 'custom', path: ['name'], message: '이름을 입력해 주세요.' });
     if (!value.phone) ctx.addIssue({ code: 'custom', path: ['phone'], message: '전화번호를 입력해 주세요.' });
+    // 가입 비밀번호는 영문+숫자+특수문자 8-20자(로그인은 기존 계정 호환 위해 min 6 유지)
+    if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^\dA-Za-z\s]).{8,20}$/u.test(value.password)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['password'],
+        message: '비밀번호는 영문, 숫자, 특수문자가 모두 들어간 8-20자여야 합니다.',
+      });
+    }
   });
 
 export const POST = withApiHandler(async (request: NextRequest) => {
@@ -69,7 +78,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { email, password, mode, next, name, phone } = body.data;
+  const { email, password, mode, next, name, phone, marketingEmail } = body.data;
 
   const supabase = await createSupabaseRouteClient();
   // 가입: 이름·전화는 auth user_metadata 로 보관, 이메일 확인 링크는 기존 OAuth 콜백으로 착지시켜
@@ -82,7 +91,13 @@ export const POST = withApiHandler(async (request: NextRequest) => {
           email,
           password,
           options: {
-            data: { full_name: name, phone },
+            // 마케팅 수신 동의(선택)는 동의 시각과 함께 기록 — 개인정보처리방침 제11조 별도 동의 근거.
+            data: {
+              full_name: name,
+              phone,
+              marketing_email_opt_in: marketingEmail === true,
+              ...(marketingEmail === true ? { marketing_email_opt_in_at: new Date().toISOString() } : {}),
+            },
             emailRedirectTo: confirmRedirect.toString(),
           },
         })
