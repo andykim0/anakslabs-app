@@ -235,6 +235,34 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     )));
   });
 
+  test('same verbatim item in separate source-local lists is never globally deduplicated', () => {
+    const sharedItem = 'Preserves jawbone and facial structure';
+    const first = page({
+      url: 'https://clinic.example/services/first',
+      title: 'First',
+      headings: ['First Benefits'],
+      text: `First Benefits Keeps adjacent teeth intact${sharedItem}Restores chewing strength`,
+    });
+    const second = page({
+      url: 'https://clinic.example/services/second',
+      title: 'Second',
+      headings: ['Second Benefits'],
+      text: `Second Benefits Uses fewer implants${sharedItem}Offers a stable fit`,
+    });
+    const localCopies = prospectPublicSourceBlocks(artifact([first, second])).filter(
+      (block) => (
+        block.kind === 'service_detail'
+        && block.text === sharedItem
+        && block.sourceLocation.field.startsWith('text.list-item.')
+      ),
+    );
+    assert.equal(localCopies.length, 2);
+    assert.deepEqual(
+      localCopies.map((block) => block.sourceUrl),
+      [first.url, second.url],
+    );
+  });
+
   test('CTA/contact/hours tail is split before source blocks and never becomes an FAQ item', () => {
     const service = page({
       url: 'https://clinic.example/services/emergency-dentistry',

@@ -489,8 +489,16 @@ export function prospectPublicSourceBlocks(
 ): ProspectPublicSourceBlock[] {
   const seen = new Set<string>();
   return artifact.pages.flatMap(pageBlocks).filter((block) => {
-    const key = block.kind === 'cta'
-      ? `${block.kind}:${block.sourceUrl}:${block.sourceLocation.ordinal}:${block.text}`
+    const sourceLocal = block.kind === 'cta'
+      || block.sourceLocation.field.startsWith('text.list-item.');
+    const key = sourceLocal
+      ? [
+          block.kind,
+          block.sourceUrl,
+          block.sourceLocation.ordinal,
+          block.sourceLocation.field,
+          block.text,
+        ].join(':')
       : `${block.kind}:${block.text.toLocaleLowerCase('en-US')}`;
     if (seen.has(key)) return false;
     seen.add(key);
