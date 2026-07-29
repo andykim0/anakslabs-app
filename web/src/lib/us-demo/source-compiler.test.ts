@@ -350,6 +350,7 @@ describe('US-DEMO P2 — source-only English compiler', () => {
         animate: false,
       }));
       assert.match(html, /\/fonts\/latin\/schibsted-grotesk-600-latin-core\.woff2/u);
+      assert.match(html, /\/fonts\/latin\/schibsted-grotesk-700-latin-core\.woff2/u);
       assert.doesNotMatch(html, /fonts\.googleapis|fonts\.gstatic|cdn\.jsdelivr/iu);
     } finally {
       if (previous === undefined) delete process.env.LATIN_FONT_PAIRINGS_ENABLED;

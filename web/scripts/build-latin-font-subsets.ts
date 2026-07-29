@@ -41,7 +41,7 @@ interface FaceSpec {
   id: string;
   source: SourceSpec;
   family: string;
-  weight: 400 | 500 | 600 | '400 600';
+  weight: 400 | 500 | 600 | 700 | '400 600';
   variationAxes?: Readonly<Record<
     string,
     number | { min: number; max: number; default: number }
@@ -107,6 +107,7 @@ const SOURCES = {
 
 const FACES: readonly FaceSpec[] = [
   { id: 'schibsted-grotesk-600', source: SOURCES.schibsted, family: 'Schibsted Grotesk', weight: 600, variationAxes: { wght: 600 } },
+  { id: 'schibsted-grotesk-700', source: SOURCES.schibsted, family: 'Schibsted Grotesk', weight: 700, variationAxes: { wght: 700 } },
   { id: 'hanken-grotesk-400', source: SOURCES.hanken, family: 'Hanken Grotesk', weight: 400, variationAxes: { wght: 400 } },
   { id: 'hanken-grotesk-600', source: SOURCES.hanken, family: 'Hanken Grotesk', weight: 600, variationAxes: { wght: 600 } },
   { id: 'albert-sans-600', source: SOURCES.albert, family: 'Albert Sans', weight: 600, variationAxes: { wght: 600 } },

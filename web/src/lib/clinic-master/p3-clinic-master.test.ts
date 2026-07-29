@@ -535,7 +535,7 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     );
     assert.equal(
       fileSha('public/fonts/latin/font-assets.json'),
-      'efdb1ea48b91100b3fcc66a47d66c26aad3deae841eff2b491a7c6b093097825',
+      '9fd1e6ca1957cc54ce4e91e5772ea7dba8d528c6ff8290d8e5090f923331a47e',
     );
     assert.equal(
       fileSha('src/lib/clinic-master/dental-stock-manifest.generated.ts'),

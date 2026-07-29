@@ -537,7 +537,8 @@ export function SiteRenderer({
     clinicStyle['--clinic-heading-gap'] = clinicTokens.stackHeadingGap;
     clinicStyle['--clinic-grid-gutter'] = clinicTokens.gridGutter;
     clinicStyle['--clinic-heading-family'] = theme.fonts.heading;
-    clinicStyle['--clinic-heading-weight'] = 600;
+    clinicStyle['--clinic-display-weight'] = clinicTokens.displayWeight;
+    clinicStyle['--clinic-heading-weight'] = clinicTokens.headingWeight;
     clinicStyle['--clinic-background'] = theme.palette.background;
     clinicStyle['--clinic-surface'] = theme.palette.surface;
     clinicStyle['--clinic-text'] = theme.palette.text;

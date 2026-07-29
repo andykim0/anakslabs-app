@@ -25,7 +25,7 @@ import {
 } from '.';
 
 const EXPECTED_PRESET_BYTES = Object.freeze({
-  'clinic-editorial': 51_016,
+  'clinic-editorial': 75_988,
   'clinic-geometric': 32_444,
   'clinic-neutral': 59_828,
 } as const satisfies Record<ClinicTypographyPreset, number>);
@@ -33,8 +33,8 @@ const EXPECTED_PRESET_BYTES = Object.freeze({
 describe('CLINIC$ P2 — local fonts, palette routing, focus recipe', () => {
   test('3 preset은 local WOFF2만 사용하며 실전송·export 예산과 family/face 상한을 지킨다', () => {
     const manifest = latinFontManifest();
-    assert.equal(manifest.assets.length, 8);
-    assert.equal(new Set(manifest.assets.map((asset) => asset.faceId)).size, 8);
+    assert.equal(manifest.assets.length, 9);
+    assert.equal(new Set(manifest.assets.map((asset) => asset.faceId)).size, 9);
     assert.ok(manifest.licenseNotices.every((notice) => notice.licenseId === 'OFL-1.1'));
 
     for (const typographyPreset of Object.keys(
@@ -61,6 +61,12 @@ describe('CLINIC$ P2 — local fonts, palette routing, focus recipe', () => {
       assert.ok(exported);
       assert.equal(firstScreen.bytes, EXPECTED_PRESET_BYTES[typographyPreset]);
       assert.equal(exported.bytes, EXPECTED_PRESET_BYTES[typographyPreset]);
+      if (typographyPreset === 'clinic-editorial') {
+        assert.equal(firstScreen.faceCount, 4);
+        assert.ok(firstScreen.assets.some(
+          (asset) => asset.faceId === 'schibsted-grotesk-700',
+        ));
+      }
       assert.ok(firstScreen.bytes <= LATIN_FONT_PERFORMANCE_BUDGETS.firstScreenMaxBytes);
       assert.ok(exported.bytes <= LATIN_FONT_PERFORMANCE_BUDGETS.exportMaxBytes);
       assert.ok(firstScreen.familyCount <= LATIN_FONT_PERFORMANCE_BUDGETS.familyMax);

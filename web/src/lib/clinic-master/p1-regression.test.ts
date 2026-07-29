@@ -80,7 +80,7 @@ describe('CLINIC$ P1 — spec-locked master contract', () => {
       gridGutter: 40,
     });
     assert.equal(CLINIC_TYPOGRAPHY_TOKENS['clinic-editorial'].familyCount, 2);
-    assert.equal(CLINIC_TYPOGRAPHY_TOKENS['clinic-editorial'].faceCount, 3);
+    assert.equal(CLINIC_TYPOGRAPHY_TOKENS['clinic-editorial'].faceCount, 4);
 
     const theme = resolveClinicMasterTheme(emptySiteConfig('legacy').theme, pin);
     assert.deepEqual(theme.palette, {

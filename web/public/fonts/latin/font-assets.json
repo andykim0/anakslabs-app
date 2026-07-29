@@ -55,6 +55,26 @@
       }
     },
     {
+      "id": "schibsted-grotesk-700:latin-core",
+      "faceId": "schibsted-grotesk-700",
+      "chunkId": "latin-core",
+      "family": "Schibsted Grotesk",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/latin/schibsted-grotesk-700-latin-core.woff2",
+      "bytes": 24972,
+      "sha256": "6ac9b13d7ca37087dd9e81bf7096c05742f35c64ac7fe937326088749cb906a1",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "schibsted-grotesk-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/schibstedgrotesk/SchibstedGrotesk%5Bwght%5D.ttf",
+        "sha256": "6ceeadf6be8e1fd7687011c7fa38ed0edd1abe967a0b73d97caec183552e823d",
+        "variationAxes": {
+          "wght": 700
+        }
+      }
+    },
+    {
       "id": "hanken-grotesk-400:latin-core",
       "faceId": "hanken-grotesk-400",
       "chunkId": "latin-core",

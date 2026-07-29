@@ -26,16 +26,18 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
   'clinic-editorial': {
     headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].heading,
     headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].displayWeight,
     bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].body,
     bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].bodyWeight,
     controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].control,
     controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-editorial'].controlWeight,
     familyCount: 2,
-    faceCount: 3,
+    faceCount: 4,
   },
   'clinic-geometric': {
     headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].heading,
     headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].displayWeight,
     bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].body,
     bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].bodyWeight,
     controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-geometric'].control,
@@ -46,6 +48,7 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
   'clinic-neutral': {
     headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].heading,
     headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].displayWeight,
     bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].body,
     bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].bodyWeight,
     controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-neutral'].control,
@@ -56,12 +59,13 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
 } as const satisfies Record<ClinicTypographyPreset, {
   headingFamily: string;
   headingWeight: number;
+  displayWeight: number;
   bodyFamily: string;
   bodyWeight: number;
   controlFamily: string;
   controlWeight: number;
   familyCount: 1 | 2;
-  faceCount: 3;
+  faceCount: 3 | 4;
 }>);
 
 export const CLINIC_DENSITY_TOKENS = Object.freeze({
@@ -142,6 +146,8 @@ export function clinicMasterRenderTokens(pin: ClinicMasterPin) {
     gridGutter: `${density.gridGutter}px`,
     controlFamily: typography.controlFamily,
     controlWeight: typography.controlWeight,
+    displayWeight: typography.displayWeight,
+    headingWeight: typography.headingWeight,
     radiusSm: `${CLINIC_RADIUS_TOKENS.sm}px`,
     radiusMd: `${CLINIC_RADIUS_TOKENS.md}px`,
     radiusLg: `${CLINIC_RADIUS_TOKENS.lg}px`,

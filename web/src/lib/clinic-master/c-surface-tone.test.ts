@@ -2,12 +2,16 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ClinicFlowSection } from '@/components/site-renderer/ClinicFlowSection';
+import {
+  CLINIC_FLOW_CSS,
+  ClinicFlowSection,
+} from '@/components/site-renderer/ClinicFlowSection';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import {
   resolveSectionSurfaceTone,
   sectionSurfaceLightnessDelta,
 } from '@/lib/design/site-theme-tokens';
+import { resolveTypographyTracking } from '@/lib/design/typography-tracking';
 import type { Section, SitePage } from '@/lib/types/site';
 import type { ProspectPublicSourceBlock } from '@/lib/us-demo/contracts';
 import { applyClinicSurfaceCadence } from '@/lib/us-demo/full-preview';
@@ -136,5 +140,36 @@ describe('CLINIC C surface-tone policy', () => {
     assert.match(html, /data-section-surface-tone="dark"/u);
     assert.match(html, /data-clinic-flow-section="features\.dark-value-band"/u);
     assert.match(html, /Implant treatment planning starts with a detailed consultation\./u);
+    assert.match(html, /data-clinic-typography-tier="display"/u);
+    assert.match(html, /letter-spacing:-0\.025em/u);
+  });
+
+  test('tracking은 공통 size×uppercase 함수 하나로 음수·양수·body 범위를 결정한다', () => {
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 88,
+      uppercase: false,
+      role: 'display',
+    }), '-0.025em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 52,
+      uppercase: false,
+      role: 'heading',
+    }), '-0.01em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 14,
+      uppercase: true,
+      role: 'eyebrow',
+    }), '0.12em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 16,
+      uppercase: false,
+      role: 'body',
+    }), '0em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 16,
+      uppercase: false,
+      role: 'button',
+    }), '0em');
+    assert.doesNotMatch(CLINIC_FLOW_CSS, /letter-spacing\s*:/u);
   });
 });

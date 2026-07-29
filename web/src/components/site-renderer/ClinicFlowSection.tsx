@@ -11,6 +11,10 @@ import {
   resolveThemePaint,
   type SectionSurfacePaint,
 } from '@/lib/design/site-theme-tokens';
+import {
+  resolveTypographyTracking,
+  type TypographyTrackingRole,
+} from '@/lib/design/typography-tracking';
 import { ElementContent } from './ElementContent';
 
 export const CLINIC_FLOW_CSS = `
@@ -31,7 +35,6 @@ export const CLINIC_FLOW_CSS = `
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: var(--clinic-heading-weight);
   line-height: 1.12;
-  letter-spacing: -.01em;
   color: var(--clinic-section-text,var(--clinic-text));
 }
 [data-clinic-flow-intro] {
@@ -65,6 +68,15 @@ export const CLINIC_FLOW_CSS = `
   font-weight: var(--clinic-heading-weight);
   line-height: 1.25;
 }
+[data-clinic-flow-section="features.dark-value-band"] [data-clinic-flow-items] {
+  grid-template-columns: 1fr;
+}
+[data-clinic-flow-section="features.dark-value-band"] [data-clinic-flow-item-heading] {
+  max-width: 54rem;
+  font-size: clamp(2.25rem,5vw,4rem);
+  font-weight: var(--clinic-display-weight);
+  line-height: 1.08;
+}
 [data-clinic-flow-copy] {
   margin: 0;
   font-size: clamp(1rem, 1.25vw, 1.125rem);
@@ -75,7 +87,6 @@ export const CLINIC_FLOW_CSS = `
   font-family: var(--clinic-control-family);
   font-size: .875rem;
   font-weight: var(--clinic-control-weight);
-  letter-spacing: .12em;
 }
 [data-clinic-flow-media] {
   width: 100%;
@@ -138,7 +149,6 @@ export const CLINIC_FLOW_CSS = `
 }
 [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-marker] {
   font-size: clamp(1rem,1.5vw,1.25rem);
-  letter-spacing: 0;
 }
 [data-clinic-flow-section^="about."] [data-clinic-flow-items] {
   grid-template-columns: 1fr;
@@ -237,9 +247,8 @@ export const CLINIC_FLOW_CSS = `
   color: var(--clinic-section-text,var(--clinic-text));
   font-family: var(--clinic-heading-family);
   font-size: clamp(2.75rem,6vw,5.5rem);
-  font-weight: var(--clinic-heading-weight);
+  font-weight: var(--clinic-display-weight);
   line-height: 1.02;
-  letter-spacing: -.025em;
 }
 [data-clinic-flow-hero-copy] p {
   max-width: 42rem;
@@ -253,7 +262,6 @@ export const CLINIC_FLOW_CSS = `
   font-family: var(--clinic-control-family);
   font-size: .875rem !important;
   font-weight: var(--clinic-control-weight);
-  letter-spacing: .12em;
   text-transform: uppercase;
 }
 [data-clinic-article-evidence] {
@@ -329,7 +337,13 @@ export const CLINIC_FLOW_CSS = `
 }
 `;
 
-function textStyle(element: TextElement, theme: SiteTheme): CSSProperties {
+function textStyle(
+  element: TextElement,
+  theme: SiteTheme,
+  trackingRole: TypographyTrackingRole = 'body',
+  uppercase = false,
+  trackingFontSizePx = element.style.fontSize,
+): CSSProperties {
   return {
     color: 'var(--clinic-section-text,var(--clinic-text))',
     fontFamily: element.style.fontFamily === 'heading'
@@ -339,6 +353,11 @@ function textStyle(element: TextElement, theme: SiteTheme): CSSProperties {
     fontStyle: element.style.italic ? 'italic' : undefined,
     textAlign: element.style.align,
     whiteSpace: 'pre-wrap',
+    letterSpacing: resolveTypographyTracking({
+      fontSizePx: trackingFontSizePx,
+      uppercase,
+      role: trackingRole,
+    }),
   };
 }
 
@@ -377,25 +396,40 @@ function FlowText({
 }: {
   element: TextElement;
   theme: SiteTheme;
-  role: 'intro' | 'heading' | 'copy' | 'marker';
+  role: 'intro' | 'heading' | 'display-heading' | 'copy' | 'marker' | 'stat-marker';
 }) {
   const attributes = fontRole(element, theme);
-  if (role === 'heading') {
+  if (role === 'heading' || role === 'display-heading') {
     return (
       <h3
         data-clinic-flow-item-heading
-        style={textStyle(element, theme)}
+        data-clinic-typography-tier={role === 'display-heading' ? 'display' : 'subhead'}
+        data-clinic-tracking-role={role === 'display-heading' ? 'display' : 'heading'}
+        style={textStyle(
+          element,
+          theme,
+          role === 'display-heading' ? 'display' : 'heading',
+          false,
+          role === 'display-heading' ? 64 : 28,
+        )}
         {...attributes}
       >
         {element.text}{' '}
       </h3>
     );
   }
-  if (role === 'marker') {
+  if (role === 'marker' || role === 'stat-marker') {
     return (
       <span
         data-clinic-flow-marker
-        style={textStyle(element, theme)}
+        data-clinic-tracking-role={role === 'stat-marker' ? 'stat-number' : 'eyebrow'}
+        style={textStyle(
+          element,
+          theme,
+          role === 'stat-marker' ? 'stat-number' : 'eyebrow',
+          role === 'marker',
+          role === 'stat-marker' ? 20 : 14,
+        )}
         {...attributes}
       >
         {element.text}{' '}
@@ -407,7 +441,8 @@ function FlowText({
       {...(role === 'intro'
         ? { 'data-clinic-flow-intro': true }
         : { 'data-clinic-flow-copy': true })}
-      style={textStyle(element, theme)}
+      data-clinic-tracking-role="body"
+      style={textStyle(element, theme, 'body')}
       {...attributes}
     >
       {element.text}{' '}
@@ -426,6 +461,7 @@ function FlowElement({
   interactive,
   siteId,
   hrefForPageSlug,
+  markerRole = 'marker',
 }: {
   element: CanvasElement;
   theme: SiteTheme;
@@ -433,13 +469,14 @@ function FlowElement({
   interactive: boolean;
   siteId?: string;
   hrefForPageSlug?: (slug: string) => string;
+  markerRole?: 'marker' | 'stat-marker';
 }) {
   if (element.kind === 'text') {
     return (
       <FlowText
         element={element}
         theme={theme}
-        role={isMarker(element) ? 'marker' : 'copy'}
+        role={isMarker(element) ? markerRole : 'copy'}
       />
     );
   }
@@ -486,6 +523,7 @@ function FlowItem({
   siteId,
   hrefForPageSlug,
   listItem = false,
+  variantId,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -494,6 +532,7 @@ function FlowItem({
   siteId?: string;
   hrefForPageSlug?: (slug: string) => string;
   listItem?: boolean;
+  variantId?: string;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -516,7 +555,13 @@ function FlowItem({
     >
       <div data-clinic-flow-item-copy>
         {heading?.kind === 'text' ? (
-          <FlowText element={heading} theme={theme} role="heading" />
+          <FlowText
+            element={heading}
+            theme={theme}
+            role={variantId === 'features.dark-value-band'
+              ? 'display-heading'
+              : 'heading'}
+          />
         ) : null}
         {content.map((element) => (
           <FlowElement
@@ -527,6 +572,7 @@ function FlowItem({
             interactive={interactive}
             siteId={siteId}
             hrefForPageSlug={hrefForPageSlug}
+            markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
           />
         ))}
       </div>
@@ -606,8 +652,33 @@ export function ClinicFlowSection({
             />
           ) : null}
           <div data-clinic-flow-hero-copy>
-            <p data-clinic-hero-kicker>{section.name}{' '}</p>
-            <h1 data-font-role="heading">{heading}{' '}</h1>
+            <p
+              data-clinic-hero-kicker
+              data-clinic-tracking-role="eyebrow"
+              style={{
+                letterSpacing: resolveTypographyTracking({
+                  fontSizePx: 14,
+                  uppercase: true,
+                  role: 'eyebrow',
+                }),
+              }}
+            >
+              {section.name}{' '}
+            </p>
+            <h1
+              data-font-role="heading"
+              data-clinic-typography-tier="display"
+              data-clinic-tracking-role="display"
+              style={{
+                letterSpacing: resolveTypographyTracking({
+                  fontSizePx: 88,
+                  uppercase: false,
+                  role: 'display',
+                }),
+              }}
+            >
+              {heading}{' '}
+            </h1>
             {remainingText.map((element) => (
               <p
                 key={element.id}
@@ -629,7 +700,18 @@ export function ClinicFlowSection({
                 </p>
               </div>
             ) : null}
-            <span aria-disabled="true" data-clinic-hero-cta>
+            <span
+              aria-disabled="true"
+              data-clinic-hero-cta
+              data-clinic-tracking-role="button"
+              style={{
+                letterSpacing: resolveTypographyTracking({
+                  fontSizePx: 16,
+                  uppercase: false,
+                  role: 'button',
+                }),
+              }}
+            >
               Book Appointment
             </span>
           </div>
@@ -676,7 +758,16 @@ export function ClinicFlowSection({
           <h2
             data-clinic-flow-heading
             data-font-role="heading"
-            style={{ color: 'var(--clinic-section-text,var(--clinic-text))' }}
+            data-clinic-typography-tier="section"
+            data-clinic-tracking-role="heading"
+            style={{
+              color: 'var(--clinic-section-text,var(--clinic-text))',
+              letterSpacing: resolveTypographyTracking({
+                fontSizePx: 52,
+                uppercase: false,
+                role: 'heading',
+              }),
+            }}
           >
             {section.name}
           </h2>
@@ -795,7 +886,16 @@ export function ClinicFlowSection({
         <h2
           data-clinic-flow-heading
           data-font-role="heading"
-          style={{ color: 'var(--clinic-section-text,var(--clinic-text))' }}
+          data-clinic-typography-tier="section"
+          data-clinic-tracking-role="heading"
+          style={{
+            color: 'var(--clinic-section-text,var(--clinic-text))',
+            letterSpacing: resolveTypographyTracking({
+              fontSizePx: 52,
+              uppercase: false,
+              role: 'heading',
+            }),
+          }}
         >
           {sectionTitle}
         </h2>
@@ -817,6 +917,7 @@ export function ClinicFlowSection({
               siteId={siteId}
               hrefForPageSlug={hrefForPageSlug}
               listItem={projection.kind === 'features'}
+              variantId={projection.resolvedId}
             />
           ))}
         </ItemsTag>

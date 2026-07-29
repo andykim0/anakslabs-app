@@ -164,7 +164,7 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     const manifest = latinFontManifest();
     assert.equal(manifest.status, 'production-ready');
     assert.equal(manifest.assetVersion, 1);
-    assert.equal(manifest.assets.length, 8);
+    assert.equal(manifest.assets.length, 9);
     assert.deepEqual(manifest.budgets, LATIN_FONT_PERFORMANCE_BUDGETS);
     assert.deepEqual(LATIN_FONT_PERFORMANCE_BUDGETS, {
       firstScreenTargetBytes: 122880,

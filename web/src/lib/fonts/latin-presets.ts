@@ -5,6 +5,7 @@ export interface ClinicLatinFontPreset {
   body: string;
   control: string;
   headingWeight: 600;
+  displayWeight: 600 | 700;
   bodyWeight: 400;
   controlWeight: 500 | 600;
   faceIds: readonly string[];
@@ -21,10 +22,12 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
     body: "'Hanken Grotesk', Arial, sans-serif",
     control: "'Hanken Grotesk', Arial, sans-serif",
     headingWeight: 600,
+    displayWeight: 700,
     bodyWeight: 400,
     controlWeight: 600,
     faceIds: [
       'schibsted-grotesk-600',
+      'schibsted-grotesk-700',
       'hanken-grotesk-400',
       'hanken-grotesk-600',
     ],
@@ -35,6 +38,7 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
     body: "'Public Sans', Arial, sans-serif",
     control: "'Public Sans', Arial, sans-serif",
     headingWeight: 600,
+    displayWeight: 600,
     bodyWeight: 400,
     controlWeight: 600,
     faceIds: [
@@ -48,6 +52,7 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
     body: "'IBM Plex Sans', Arial, sans-serif",
     control: "'IBM Plex Sans', Arial, sans-serif",
     headingWeight: 600,
+    displayWeight: 600,
     bodyWeight: 400,
     controlWeight: 500,
     faceIds: [
