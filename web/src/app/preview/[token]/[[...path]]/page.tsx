@@ -18,7 +18,10 @@ import { isDemoQaCookieValue } from '@/lib/us-demo/view-tracking-server';
 import { jsonLdScriptContent } from '@/lib/seo/structured-data';
 import { pageLcpImageSrc } from '@/lib/export/motion-scene-assets';
 import { prospectPublicSourceBlocks } from '@/lib/us-demo/source-extraction';
-import { previewFullExperienceFromArtifact } from '@/lib/us-demo/full-preview';
+import {
+  outreachSafeExperienceFromArtifact,
+  previewFullExperienceFromArtifact,
+} from '@/lib/us-demo/full-preview';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,11 +68,15 @@ export default async function SharedImportPreviewPage({
       : buildUsDemoStructureComparison(artifact.artifact, preview.siteConfig).comparison
     : null;
   const currentPage = preview.siteConfig.pages.find((page) => page.slug === pageSlug)!;
-  const clinicExperience = previewFull && artifact
-    ? previewFullExperienceFromArtifact({
-        artifact: artifact.artifact,
-        blocks: prospectPublicSourceBlocks(artifact.artifact),
-      })
+  const clinicExperience = isUsMedicalDemo && artifact
+    ? previewFull
+      ? previewFullExperienceFromArtifact({
+          artifact: artifact.artifact,
+          blocks: prospectPublicSourceBlocks(artifact.artifact),
+        })
+      : outreachSafeExperienceFromArtifact({
+          blocks: prospectPublicSourceBlocks(artifact.artifact),
+        })
     : undefined;
   const lcpImage = pageLcpImageSrc(preview.siteConfig, pageSlug);
   const previewJsonLd = previewFull
@@ -119,7 +126,9 @@ export default async function SharedImportPreviewPage({
       <div {...(!previewFull && isUsMedicalDemo ? { 'data-private-preview-inert': '1' } : {})}>
         {isUsMedicalDemo && !previewFull ? (
           <style>{`
-            [data-private-preview-inert] :is(a,button,form,iframe,[role="button"]){
+            [data-private-preview-inert] :is(a,button,form,iframe,[role="button"]):not(
+              [data-clinic-booking-action="call"][data-clinic-phone-source-block][data-clinic-phone-source-sha]
+            ){
               pointer-events:none!important;
             }
           `}</style>
@@ -140,6 +149,7 @@ export default async function SharedImportPreviewPage({
             interactive={false}
             animate={false}
             hrefForSlug={hrefForSlug}
+            clinicExperience={clinicExperience}
           />
         )}
       </div>

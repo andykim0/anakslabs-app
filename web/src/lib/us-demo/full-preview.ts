@@ -24,6 +24,7 @@ import {
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
   type ClinicMasterExperience,
+  type ClinicSourcePhoneProjection,
   type DentalStockCategory,
 } from '@/lib/clinic-master';
 import type {
@@ -606,19 +607,27 @@ function rotateSourceOrder<T>(items: readonly T[], offset: number): T[] {
   return [...items.slice(normalized), ...items.slice(0, normalized)];
 }
 
+function sourcePhoneFromBlocks(
+  blocks: readonly ProspectPublicSourceBlock[],
+): ClinicSourcePhoneProjection | undefined {
+  for (const block of blocks) {
+    if (block.kind !== 'phone') continue;
+    const verified = verifyClinicSourcePhone({
+      sourceBlockId: block.id,
+      sourceText: block.text,
+      sourceSha256: block.originalSha256,
+    });
+    if (verified) return verified;
+  }
+  return undefined;
+}
+
 function previewExperience(input: {
   artifact: CrawlArtifactPayload;
   blocks: readonly ProspectPublicSourceBlock[];
   images: readonly ProjectedUsDemoSourceImage[];
 }): ClinicMasterExperience {
-  const sourcePhoneBlock = input.blocks.find((block) => block.kind === 'phone');
-  const sourcePhone = sourcePhoneBlock
-    ? verifyClinicSourcePhone({
-        sourceBlockId: sourcePhoneBlock.id,
-        sourceText: sourcePhoneBlock.text,
-        sourceSha256: sourcePhoneBlock.originalSha256,
-      }) ?? undefined
-    : undefined;
+  const sourcePhone = sourcePhoneFromBlocks(input.blocks);
   const bookingUrl = input.artifact.pages
     .flatMap((page) => page.connectors)
     .find((connector) => connector.kind === 'us_booking')?.url;
@@ -1092,4 +1101,14 @@ export function previewFullExperienceFromArtifact(input: {
     ...input,
     images: prospectPublicSourceImages(input.artifact),
   }) as Extract<ClinicMasterExperience, { mode: 'preview-full' }>;
+}
+
+export function outreachSafeExperienceFromArtifact(input: {
+  blocks: readonly ProspectPublicSourceBlock[];
+}): Extract<ClinicMasterExperience, { mode: 'outreach-safe' }> {
+  const sourcePhone = sourcePhoneFromBlocks(input.blocks);
+  return {
+    mode: 'outreach-safe',
+    ...(sourcePhone ? { sourcePhone } : {}),
+  };
 }

@@ -814,6 +814,7 @@ export function SiteRenderer({
               : undefined}
             bookingEnabled={clinicExperience?.mode === 'live'}
             sourcePhone={clinicExperience?.mode === 'preview-full'
+              || clinicExperience?.mode === 'outreach-safe'
               ? clinicExperience.sourcePhone
               : undefined}
           />

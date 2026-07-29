@@ -15,6 +15,7 @@ import { compileUsMedicalDemo } from './source-compiler';
 import {
   clinicMaximumConsecutiveProseSections,
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
+  outreachSafeExperienceFromArtifact,
   planProcedurePages,
   previewFullExperienceFromArtifact,
 } from './full-preview';
@@ -262,6 +263,67 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.equal(implicit.renderMode, undefined);
     assert.equal(implicit.sourceManifest.images, undefined);
     assert.match(JSON.stringify(implicit.config), /Consented cases can be added/u);
+  });
+
+  test('outreach-safe는 SHA-verbatim phone 보유 페이지와 정확히 같은 수의 Call만 활성화한다', () => {
+    const artifact = fixtureArtifact();
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const experience = outreachSafeExperienceFromArtifact({ blocks });
+    const renderedPages = compiled.config.pages.map((entry) => renderToStaticMarkup(createElement(
+      SiteRenderer,
+      {
+        config: compiled.config,
+        clinicExperience: experience,
+        pageSlug: entry.slug,
+        mode: 'desktop',
+        interactive: false,
+        animate: false,
+      },
+    )));
+    const activeCallPages = renderedPages.filter((html) => (
+      /<a\b[^>]*data-clinic-booking-action="call"/u.test(html)
+    )).length;
+    const pagesWithVerifiedPhone = experience.sourcePhone ? compiled.config.pages.length : 0;
+    assert.equal(activeCallPages, pagesWithVerifiedPhone);
+    assert.equal(activeCallPages, 1);
+    assert.match(renderedPages[0]!, /href="tel:\+12135550142"/u);
+    assert.match(renderedPages[0]!, /data-clinic-phone-source-text="\(213\) 555-0142"/u);
+    assert.match(
+      renderedPages[0]!,
+      new RegExp(`data-clinic-phone-source-sha="${experience.sourcePhone?.sourceSha256}"`, 'u'),
+    );
+    assert.match(
+      renderedPages[0]!,
+      /<span aria-disabled="true" data-clinic-booking-action="book">Book Appointment<\/span>/u,
+    );
+    assert.match(
+      renderedPages[0]!,
+      /Booking activates when you connect your system\./u,
+    );
+    assert.doesNotMatch(renderedPages[0]!, /href="https:\/\/clinic\.example\/appointments\/request"/u);
+    assert.doesNotMatch(renderedPages[0]!, /(?:예약|연결하면|활성화|시스템을)/u);
+
+    const tampered = blocks.map((block) => (
+      block.kind === 'phone'
+        ? { ...block, originalSha256: '0'.repeat(64) }
+        : block
+    ));
+    const rejected = outreachSafeExperienceFromArtifact({ blocks: tampered });
+    const rejectedHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      clinicExperience: rejected,
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: false,
+      animate: false,
+    }));
+    assert.equal(rejected.sourcePhone, undefined);
+    assert.doesNotMatch(rejectedHtml, /href="tel:/u);
+    assert.match(
+      rejectedHtml,
+      /<span aria-disabled="true" data-clinic-booking-action="call">Call<\/span>/u,
+    );
   });
 
   test('preview-full도 검증불가 자격·최상급·보장을 수동 승인과 무관하게 제외한다', () => {

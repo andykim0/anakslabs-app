@@ -48,6 +48,10 @@ export interface ClinicPreviewProviderPhotoProjection {
 export type ClinicMasterExperience =
   | { readonly mode: 'demo' }
   | {
+      readonly mode: 'outreach-safe';
+      readonly sourcePhone?: ClinicSourcePhoneProjection;
+    }
+  | {
       readonly mode: 'preview-full';
       readonly destination?: ClinicUsDestination;
       readonly sourcePhone?: ClinicSourcePhoneProjection;

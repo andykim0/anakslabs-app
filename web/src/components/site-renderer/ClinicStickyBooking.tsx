@@ -109,6 +109,7 @@ function Action({
         ? {
             'data-clinic-phone-source-block': sourcePhone.sourceBlockId,
             'data-clinic-phone-source-text': sourcePhone.sourceText,
+            'data-clinic-phone-source-sha': sourcePhone.sourceSha256,
           }
         : {})}
     >
@@ -120,9 +121,9 @@ function Action({
 }
 
 /**
- * 서버 DOM-only persistent booking surface. Outreach/demo calls set interactive=false.
- * Preview-full may expose only a hash-verified crawl-source Call; Book remains disabled.
- * Live calls may pass only the separately verified US destination projection.
+ * 서버 DOM-only persistent booking surface. Private previews may expose only a hash-verified
+ * crawl-source Call even while other controls remain inert; Book stays disabled.
+ * Live calls use the separately verified US destination projection.
  */
 export function ClinicStickyBooking({
   pin,
@@ -135,20 +136,18 @@ export function ClinicStickyBooking({
   interactive: boolean;
   /** 고객 확인 factory를 통과한 별도 US destination. 기존 CONN$ manifest는 받지 않는다. */
   destination?: ClinicUsDestination;
-  /** Live only. Preview-full may expose a source-verified Call but never the booking URL. */
+  /** Live only. Private previews may expose a source-verified Call but never the booking URL. */
   bookingEnabled?: boolean;
-  /** Exact crawl-source proof for a preview-full Call action. */
+  /** Exact crawl-source proof for a preview-full or outreach-safe Call action. */
   sourcePhone?: ClinicSourcePhoneProjection;
 }) {
   const sourceCallHref = sourcePhone
     ? telephoneHref(sourcePhone.phone)
     : undefined;
-  const callHref = interactive
-    ? sourceCallHref
-      ?? (bookingEnabled && destination?.validated
-        ? telephoneHref(destination.phone)
-        : undefined)
-    : undefined;
+  const callHref = sourceCallHref
+    ?? (interactive && bookingEnabled && destination?.validated
+      ? telephoneHref(destination.phone)
+      : undefined);
   const bookHref = interactive && bookingEnabled && destination?.validated
     ? destination.bookingUrl
     : undefined;

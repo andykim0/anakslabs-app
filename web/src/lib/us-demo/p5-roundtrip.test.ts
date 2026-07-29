@@ -220,7 +220,7 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.match(previewRoute, /requireAdminOr403\(\)/u);
   });
 
-  test('공유 표면은 색인·상호작용·외부 자산을 계속 차단한다', () => {
+  test('공유 표면은 검증된 outreach Call 외 색인·상호작용·외부 자산을 차단한다', () => {
     const previewPage = readFileSync(
       `${ROOT}/src/app/preview/[token]/[[...path]]/page.tsx`,
       'utf8',
@@ -234,6 +234,11 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.match(previewPage, /nosnippet:\s*true/u);
     assert.match(previewPage, /interactive=\{false\}/u);
     assert.match(previewPage, /animate=\{false\}/u);
+    assert.match(previewPage, /outreachSafeExperienceFromArtifact/u);
+    assert.match(
+      previewPage,
+      /data-clinic-booking-action="call"\]\[data-clinic-phone-source-block\]\[data-clinic-phone-source-sha\]/u,
+    );
     assert.match(nextConfig, /noindex, nofollow, noarchive, nosnippet, noimageindex/u);
     assert.match(robots, /['"]\/preview\/['"]/u);
     assert.doesNotMatch(previewPage, /https:\/\/fonts\.googleapis|googletagmanager|analytics/iu);
