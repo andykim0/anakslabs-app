@@ -33,12 +33,25 @@ function rateLimited(ip: string): boolean {
   return false;
 }
 
-const bodySchema = z.object({
-  email: z.string().email('올바른 이메일 형식이 아닙니다.').max(200),
-  password: z.string().min(6, '비밀번호는 6자 이상이어야 합니다.').max(200),
-  mode: z.enum(['signin', 'signup']),
-  next: z.string().max(2_048).nullish(),
-});
+const bodySchema = z
+  .object({
+    email: z.string().email('올바른 이메일 형식이 아닙니다.').max(200),
+    password: z.string().min(6, '비밀번호는 6자 이상이어야 합니다.').max(200),
+    mode: z.enum(['signin', 'signup']),
+    next: z.string().max(2_048).nullish(),
+    // 가입 전용 필드 — signin 에는 받지 않는다.
+    name: z.string().trim().min(1, '이름을 입력해 주세요.').max(60).optional(),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^0\d{1,2}-?\d{3,4}-?\d{4}$/u, '올바른 전화번호 형식이 아닙니다.')
+      .optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.mode !== 'signup') return;
+    if (!value.name) ctx.addIssue({ code: 'custom', path: ['name'], message: '이름을 입력해 주세요.' });
+    if (!value.phone) ctx.addIssue({ code: 'custom', path: ['phone'], message: '전화번호를 입력해 주세요.' });
+  });
 
 export const POST = withApiHandler(async (request: NextRequest) => {
   // 게이트: 비활성 시 존재 자체를 숨긴다(404)
@@ -56,12 +69,23 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
-  const { email, password, mode, next } = body.data;
+  const { email, password, mode, next, name, phone } = body.data;
 
   const supabase = await createSupabaseRouteClient();
+  // 가입: 이름·전화는 auth user_metadata 로 보관, 이메일 확인 링크는 기존 OAuth 콜백으로 착지시켜
+  // 세션 성립 → clients 보장(completePostLogin)까지 같은 경로를 태운다(2차 인증 = 이메일 확인).
+  const confirmRedirect = new URL('/api/auth/callback', request.nextUrl.origin);
+  if (next) confirmRedirect.searchParams.set('next', next);
   const result =
     mode === 'signup'
-      ? await supabase.auth.signUp({ email, password })
+      ? await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name, phone },
+            emailRedirectTo: confirmRedirect.toString(),
+          },
+        })
       : await supabase.auth.signInWithPassword({ email, password });
 
   // 실패: 원시 Supabase 메시지는 클라이언트에 노출하지 않는다(이메일 열거 방지) — 서버 로그로만.

@@ -54,12 +54,20 @@ describe('ADM-fix post-login redirect contract', () => {
     const callbackRoute = read('src/app/api/auth/callback/route.ts');
     const mockRoute = read('src/app/api/auth/mock-login/route.ts');
     const loginPage = read('src/app/(auth)/login/page.tsx');
+    const signupPage = read('src/app/(auth)/signup/page.tsx');
 
     assert.match(emailRoute, /resolvePostLoginRedirect\(result\.data\.user, next\)/);
     assert.match(callbackRoute, /resolvePostLoginRedirect\(data\.user, nextParam\)/);
     assert.match(mockRoute, /resolvePostLoginRedirect\(/);
     assert.match(loginPage, /callbackUrl\.searchParams\.set\('next', next\)/);
-    assert.match(loginPage, /mode: emailMode, next: requestedNext\(\)/);
+    // 로그인 폼은 signin 전용 — 가입은 /signup 별도 화면이 mode:'signup' + 이름/전화를 보낸다.
+    assert.match(loginPage, /mode: 'signin', next: requestedNext\(\)/);
+    assert.doesNotMatch(loginPage, /mode:\s*'signup'/);
+    assert.match(signupPage, /mode: 'signup'/);
+    assert.match(signupPage, /name: form\.name/);
+    assert.match(signupPage, /phone: form\.phone/);
+    // 가입 이메일 확인(2차 인증) 링크는 공용 콜백으로 착지해 clients 보장을 공유한다.
+    assert.match(emailRoute, /emailRedirectTo: confirmRedirect\.toString\(\)/);
   });
 
   test('portal guards return users to the correct role-specific destination', () => {

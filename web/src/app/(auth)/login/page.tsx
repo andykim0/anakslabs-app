@@ -68,9 +68,8 @@ export default function LoginPage() {
   const [pendingRole, setPendingRole] = useState<MockRole | null>(null);
   const [oauthPending, setOauthPending] = useState<'kakao' | 'google' | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // [임시·삭제가능] 이메일 로그인(OAuth 우회 테스트 경로) — NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 게이트
+  // 이메일 로그인 — NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 게이트. 가입은 /signup 별도 화면.
   const emailLoginOn = isEmailLoginPublic();
-  const [emailMode, setEmailMode] = useState<'signin' | 'signup'>('signin');
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailPending, setEmailPending] = useState(false);
 
@@ -108,7 +107,7 @@ export default function LoginPage() {
     }
   };
 
-  // [임시·삭제가능] 이메일 signup/signin → 세션 쿠키 세팅 → 역할별 앱
+  // 이메일 로그인(signin 전용) → 세션 쿠키 세팅 → 역할별 앱. 가입은 /signup.
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -117,7 +116,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/email-login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...emailForm, mode: emailMode, next: requestedNext() }),
+        body: JSON.stringify({ ...emailForm, mode: 'signin', next: requestedNext() }),
       });
       const data = (await res.json().catch(() => null)) as
         | { ok?: boolean; redirect?: string; message?: string; error?: { message?: string } }
@@ -206,12 +205,10 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* [임시·삭제가능] 이메일 로그인 폼 — 실모드 + NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 일 때만 */}
+          {/* 이메일 로그인 폼 — 실모드 + NEXT_PUBLIC_ALLOW_EMAIL_LOGIN 일 때만. 가입은 /signup */}
           {!mock && emailLoginOn ? (
             <form onSubmit={handleEmailLogin} className="mt-4 space-y-2.5 rounded-xl border border-[#DCE4F0] bg-[#F8FBFF] p-4">
-              <p className="text-[11px] text-[#667085]">
-                이메일 로그인 <span className="text-[#667085]">(임시 테스트 경로)</span>
-              </p>
+              <p className="text-[11px] text-[#667085]">이메일 로그인</p>
               <input
                 type="email"
                 required
@@ -225,7 +222,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 minLength={6}
-                autoComplete={emailMode === 'signup' ? 'new-password' : 'current-password'}
+                autoComplete="current-password"
                 value={emailForm.password}
                 onChange={(ev) => setEmailForm((f) => ({ ...f, password: ev.target.value }))}
                 placeholder="비밀번호 (6자 이상)"
@@ -237,16 +234,18 @@ export default function LoginPage() {
                 className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {emailPending ? <Spinner className="text-white" /> : null}
-                {emailMode === 'signup' ? '가입하고 시작' : '이메일로 로그인'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setEmailMode((m) => (m === 'signin' ? 'signup' : 'signin'))}
-                className="w-full text-center text-[11px] text-[#667085] transition-colors hover:text-[#174DDA]"
-              >
-                {emailMode === 'signin' ? '계정이 없나요? 가입하기' : '이미 계정이 있나요? 로그인'}
+                이메일로 로그인
               </button>
             </form>
+          ) : null}
+
+          {!mock ? (
+            <p className="mt-6 text-center text-xs text-[#667085]">
+              계정이 없으신가요?{' '}
+              <Link href="/signup" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
+                회원가입 하러가기
+              </Link>
+            </p>
           ) : null}
 
           {error ? (
