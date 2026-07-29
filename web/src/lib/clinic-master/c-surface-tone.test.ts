@@ -6,6 +6,7 @@ import {
   CLINIC_FLOW_CSS,
   ClinicFlowSection,
 } from '@/components/site-renderer/ClinicFlowSection';
+import { ClinicInsuranceStrip } from '@/components/site-renderer/ClinicInsuranceStrip';
 import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import {
   resolveSectionSurfaceTone,
@@ -142,6 +143,39 @@ describe('CLINIC C surface-tone policy', () => {
     assert.match(html, /Implant treatment planning starts with a detailed consultation\./u);
     assert.match(html, /data-clinic-typography-tier="display"/u);
     assert.match(html, /letter-spacing:-0\.025em/u);
+  });
+
+  test('보험 로고 전용 renderer도 공통 surface tone과 dark 자동반전을 소비한다', () => {
+    const insurance: Section = {
+      ...section('clinic-accepted-insurance', 'custom'),
+      name: 'Accepted Insurance',
+      surfaceTone: 'dark',
+      elements: [{
+        id: 'clinic-insurance-title',
+        kind: 'text',
+        text: 'Accepted Insurance',
+        frame: { x: 0, y: 0, w: 100, h: 20 },
+        z: 1,
+        style: { fontSize: 40, fontWeight: 600, color: theme.palette.text },
+      }, {
+        id: 'clinic-insurance-logo',
+        kind: 'image',
+        src: '/clinic/provider-placeholder.svg',
+        alt: 'Insurance source logo',
+        frame: { x: 0, y: 20, w: 50, h: 30 },
+        z: 1,
+        style: { objectFit: 'contain' },
+      }],
+    };
+    const html = renderToStaticMarkup(createElement(ClinicInsuranceStrip, {
+      section: insurance,
+      theme,
+      variant: 'canvas',
+    }));
+    assert.match(html, /data-section-surface-tone="dark"/u);
+    assert.match(html, /data-section-surface-enhanced="true"/u);
+    assert.match(html, /background-color:oklch\(0\.0900/u);
+    assert.match(html, /color:oklch\(0\.9700/u);
   });
 
   test('tracking은 공통 size×uppercase 함수 하나로 음수·양수·body 범위를 결정한다', () => {

@@ -1,7 +1,10 @@
 import type { Section, SiteTheme } from '@/lib/types/site';
 import type { ReactElement } from 'react';
 import { safeMediaSrc } from '@/lib/safe-url';
-import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
+import {
+  resolveSectionSurfaceTone,
+  resolveThemePaint,
+} from '@/lib/design/site-theme-tokens';
 
 const CLINIC_INSURANCE_STRIP_ID = 'clinic-accepted-insurance';
 
@@ -16,6 +19,8 @@ export function ClinicInsuranceStrip(input: {
   theme: SiteTheme;
   variant: 'canvas' | 'stack';
 }): ReactElement {
+  const tone = input.section.surfaceTone ?? input.section.sectionLayout?.surfaceTone;
+  const surfacePaint = tone ? resolveSectionSurfaceTone(input.theme, tone) : undefined;
   const title = input.section.elements.find(
     (element) => element.kind === 'text' && element.id.endsWith('-title'),
   );
@@ -28,13 +33,18 @@ export function ClinicInsuranceStrip(input: {
       data-section-type={input.section.type}
       data-clinic-insurance-strip
       data-clinic-archetype="insurance.logo-bar"
+      {...(tone ? {
+        'data-section-surface-tone': tone,
+        'data-section-surface-enhanced': surfacePaint?.enhanced ? 'true' : 'false',
+      } : {})}
       aria-label={input.section.name}
       style={{
-        backgroundColor: resolveThemePaint(
+        backgroundColor: surfacePaint?.background ?? resolveThemePaint(
           input.theme,
           input.section.background.color,
           'backgroundSubtle',
         ),
+        color: surfacePaint?.text,
         padding: compact ? '56px 24px' : '88px 24px',
       }}
     >
@@ -50,7 +60,7 @@ export function ClinicInsuranceStrip(input: {
             data-font-role="heading"
             style={{
               margin: 0,
-              color: title.style.color ?? input.theme.palette.text,
+              color: surfacePaint?.text ?? title.style.color ?? input.theme.palette.text,
               fontFamily: input.theme.fonts.heading,
               fontSize: compact ? 30 : 40,
               fontWeight: title.style.fontWeight ?? 600,
