@@ -516,13 +516,20 @@ export async function crawlDesignatedSite(
   } catch {
     throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt를 확인할 수 없어 보수적으로 중단했습니다.');
   }
-  if (robotsFetch.response.status < 200 || robotsFetch.response.status >= 300) {
+  const robotsStatus = robotsFetch.response.status;
+  let robotsBody = '';
+  if (robotsStatus === 404 || robotsStatus === 410) {
+    // RFC 9309 §2.3.1.2: robots.txt 부재(404/410) = 제한 없음. 표준 크롤러(구글봇 포함)와 동일하게
+    // 빈 robots 로 진행한다. 5xx·타임아웃·기타 상태는 아래에서 기존대로 보수 중단.
+    await robotsFetch.response.body?.cancel().catch(() => undefined);
+  } else if (robotsStatus < 200 || robotsStatus >= 300) {
     await robotsFetch.response.body?.cancel().catch(() => undefined);
     throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt가 정상 응답하지 않아 보수적으로 중단했습니다.');
-  }
-  const robotsBody = await readLimited(robotsFetch.response);
-  if (/text\/html/iu.test(robotsFetch.response.headers.get('content-type') ?? '')) {
-    throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt 대신 HTML이 응답해 보수적으로 중단했습니다.');
+  } else {
+    robotsBody = await readLimited(robotsFetch.response);
+    if (/text\/html/iu.test(robotsFetch.response.headers.get('content-type') ?? '')) {
+      throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt 대신 HTML이 응답해 보수적으로 중단했습니다.');
+    }
   }
   const parsedRobots = parseRobotsTxt(robotsBody);
   const crawlerAllowed = isPathAllowed(
