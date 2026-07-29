@@ -344,12 +344,19 @@ function textStyle(
   uppercase = false,
   trackingFontSizePx = element.style.fontSize,
 ): CSSProperties {
+  const fontWeight = trackingRole === 'display'
+    ? 'var(--clinic-display-weight)'
+    : trackingRole === 'heading' || trackingRole === 'stat-number'
+      ? 'var(--clinic-heading-weight)'
+      : trackingRole === 'eyebrow' || trackingRole === 'stat-label'
+        ? 'var(--clinic-control-weight)'
+        : 400;
   return {
     color: 'var(--clinic-section-text,var(--clinic-text))',
     fontFamily: element.style.fontFamily === 'heading'
       ? theme.fonts.heading
       : theme.fonts.body,
-    fontWeight: element.style.fontWeight,
+    fontWeight,
     fontStyle: element.style.italic ? 'italic' : undefined,
     textAlign: element.style.align,
     whiteSpace: 'pre-wrap',

@@ -206,6 +206,7 @@ describe('CLINIC C surface-tone policy', () => {
       uppercase: false,
       role: 'button',
     }), '0em');
+    assert.match(CLINIC_FLOW_CSS, /font-weight: var\(--clinic-control-weight\)/u);
     assert.doesNotMatch(CLINIC_FLOW_CSS, /letter-spacing\s*:/u);
   });
 });
