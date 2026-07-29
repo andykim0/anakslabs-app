@@ -11,10 +11,21 @@ const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
   test('Grammarly 같은 body 속성 주입만 root body에서 억제한다', () => {
-    const layout = read('src/app/layout.tsx');
-    assert.match(layout, /<body suppressHydrationWarning className="min-h-full flex flex-col">/);
-    assert.equal((layout.match(/suppressHydrationWarning/g) ?? []).length, 1,
-      '하위 hydration 오류까지 가리는 광범위한 억제를 추가하면 안 됨');
+    const contract = read('src/app/root-layout-contract.ts');
+    assert.match(contract, /APP_ROOT_BODY_CLASS_NAME = 'min-h-full flex flex-col'/);
+    for (const path of [
+      'src/app/(marketing)/layout.tsx',
+      'src/app/(auth)/layout.tsx',
+      'src/app/(dashboard)/layout.tsx',
+      'src/app/(admin)/admin/layout.tsx',
+      'src/app/s/layout.tsx',
+      'src/app/preview/[token]/layout.tsx',
+    ]) {
+      const layout = read(path);
+      assert.match(layout, /<body suppressHydrationWarning className=\{APP_ROOT_BODY_CLASS_NAME\}>/);
+      assert.equal((layout.match(/suppressHydrationWarning/g) ?? []).length, 1,
+        `${path}: 하위 hydration 오류까지 가리는 광범위한 억제를 추가하면 안 됨`);
+    }
   });
 
   test('첫 화면은 전역 필름의 포스터 하나만 렌더한다', () => {
