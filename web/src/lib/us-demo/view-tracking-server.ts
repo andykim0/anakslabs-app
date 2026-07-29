@@ -47,7 +47,7 @@ export function demoRequestIp(request: Request): string {
 }
 
 export function hashDemoViewIdentity(input: {
-  slug: string;
+  previewId: string;
   clientVisitorId?: string;
   clientSessionId?: string;
   fallbackSessionSeed?: string;
@@ -57,12 +57,12 @@ export function hashDemoViewIdentity(input: {
   const keyring = readHmacKeyring();
   const secret = keyring.keys.get(keyring.currentVersion)!;
   const ipHash = hmacHex(secret, 'ip', input.ip);
-  const fallbackVisitor = `${input.slug}|${ipHash}|${input.userAgent}`;
+  const fallbackVisitor = `${input.previewId}|${ipHash}|${input.userAgent}`;
   const visitorMaterial = input.clientVisitorId || fallbackVisitor;
-  const visitorId = hmacHex(secret, 'visitor', `${input.slug}|${visitorMaterial}`);
+  const visitorId = hmacHex(secret, 'visitor', `${input.previewId}|${visitorMaterial}`);
   const sessionMaterial = input.clientSessionId
     || `${visitorId}|${input.fallbackSessionSeed || 'fallback-session'}`;
-  const sessionId = hmacHex(secret, 'session', `${input.slug}|${sessionMaterial}`);
+  const sessionId = hmacHex(secret, 'session', `${input.previewId}|${sessionMaterial}`);
   return {
     visitorId,
     sessionId,
@@ -120,7 +120,7 @@ export function storedDemoViewInput(input: {
   const now = input.now ?? new Date();
   const userAgent = input.request.headers.get('user-agent') ?? '';
   const identity = hashDemoViewIdentity({
-    slug: input.payload.slug,
+    previewId: input.previewId,
     clientVisitorId: input.payload.visitorId,
     clientSessionId: input.payload.sessionId,
     fallbackSessionSeed: input.payload.openedAt,
@@ -133,7 +133,7 @@ export function storedDemoViewInput(input: {
   const maxOpenedAt = now.getTime() + 5 * 60_000;
   return {
     previewId: input.previewId,
-    slug: input.payload.slug,
+    pageSlug: input.payload.pageSlug,
     eventId: input.payload.eventId,
     ...identity,
     ...telemetry,

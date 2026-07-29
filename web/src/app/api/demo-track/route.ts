@@ -25,9 +25,11 @@ import {
 export const runtime = 'nodejs';
 
 const limiter = createSiteRateLimiter({ limit: 240, windowMs: 60_000 });
+const pageSlugSchema = z.string().max(40).regex(/^(?:|[a-z0-9]+(?:-[a-z0-9]+)*)$/u);
 
 const payloadSchema = z.object({
-  slug: z.string().uuid(),
+  previewId: z.string().uuid(),
+  pageSlug: pageSlugSchema,
   eventId: z.string().uuid(),
   visitorId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
@@ -87,15 +89,18 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     return apiError(400, 'VALIDATION_ERROR', '허용된 데모 열람 필드만 전송할 수 있습니다.');
   }
 
-  const preview = await getSharedSitePreviewById(parsed.data.slug);
+  const preview = await getSharedSitePreviewById(parsed.data.previewId);
   if (!preview || !isUsMedicalPreview(preview)) {
     return apiError(404, 'DEMO_NOT_FOUND', '데모를 찾을 수 없습니다.');
+  }
+  if (!preview.siteConfig.pages.some((page) => page.slug === parsed.data.pageSlug)) {
+    return apiError(400, 'INVALID_PAGE_SLUG', '데모에 없는 페이지 주소입니다.');
   }
 
   let identity: ReturnType<typeof hashDemoViewIdentity>;
   try {
     identity = hashDemoViewIdentity({
-      slug: parsed.data.slug,
+      previewId: parsed.data.previewId,
       clientVisitorId: parsed.data.visitorId,
       clientSessionId: parsed.data.sessionId,
       ip: demoRequestIp(request),
@@ -105,7 +110,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     return apiError(503, 'DEMO_TRACKING_UNAVAILABLE', '열람 측정 설정을 확인할 수 없습니다.');
   }
   if (isInternalDemoIpHash(identity.ipHash)) return accepted();
-  if (!limiter.allow(`${parsed.data.slug}:${identity.ipHash}`)) {
+  if (!limiter.allow(`${parsed.data.previewId}:${identity.ipHash}`)) {
     return apiError(429, 'RATE_LIMITED', '열람 신호가 너무 자주 전송되었습니다.');
   }
 
@@ -116,14 +121,13 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   });
   const result = await recordDemoView(stored);
 
-  if (result.alertId && result.hoursSinceLast !== null) {
-    await dispatchDemoViewAlert({
-      alertId: result.alertId,
-      slug: parsed.data.slug,
-      visitCount: result.visitCount,
-      hoursSinceLast: result.hoursSinceLast,
-    }).catch(() => undefined);
-  }
+  await Promise.all(result.alerts.map((alert) => dispatchDemoViewAlert({
+    ...alert,
+    previewId: parsed.data.previewId,
+    pageSlug: parsed.data.pageSlug,
+    visitCount: result.visitCount,
+    hoursSinceLast: result.hoursSinceLast,
+  }).catch(() => undefined)));
   const retentionCutoff = new Date(Date.now() - DEMO_VIEW_RETENTION_DAYS * 86_400_000);
   await purgeExpiredDemoViews(retentionCutoff).catch(() => undefined);
   return accepted();

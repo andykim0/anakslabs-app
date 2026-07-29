@@ -6,7 +6,7 @@ import {
   CRAWL_ARTIFACT_RETENTION_DAYS,
   type CrawlArtifactPayload,
   type CrawlArtifactRecord,
-  SHARED_PREVIEW_RETENTION_DAYS,
+  sharedPreviewRetentionDays,
   type SharedSitePreviewRecord,
 } from './contracts';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
@@ -151,7 +151,12 @@ export async function createSharedSitePreview(input: {
   now?: Date;
 }): Promise<SharedSitePreviewRecord> {
   const createdAt = input.now ?? new Date();
-  const expiresAt = new Date(createdAt.getTime() + SHARED_PREVIEW_RETENTION_DAYS * 86_400_000);
+  const renderMode = input.renderMode ?? 'standard';
+  const retentionDays = sharedPreviewRetentionDays({
+    renderMode,
+    siteConfig: input.siteConfig,
+  });
+  const expiresAt = new Date(createdAt.getTime() + retentionDays * 86_400_000);
   const tokenHash = hashPreviewBearerToken(input.token);
   if (isMockMode()) {
     const record: SharedSitePreviewRecord = {
@@ -160,7 +165,7 @@ export async function createSharedSitePreview(input: {
       tokenHash,
       sourceUrl: input.sourceUrl,
       siteConfig: structuredClone(input.siteConfig),
-      renderMode: input.renderMode ?? 'standard',
+      renderMode,
       noticeVersion: IMPORT_PREVIEW_NOTICE_VERSION,
       createdBy: input.createdBy,
       createdAt: createdAt.toISOString(),
@@ -177,7 +182,7 @@ export async function createSharedSitePreview(input: {
       token_hash: tokenHash,
       source_url: input.sourceUrl,
       site_config: input.siteConfig,
-      render_mode: input.renderMode ?? 'standard',
+      render_mode: renderMode,
       notice_version: IMPORT_PREVIEW_NOTICE_VERSION,
       created_by: input.createdBy,
       expires_at: expiresAt.toISOString(),

@@ -11,6 +11,7 @@ import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import { US_DEMO_VIEW_DISCLOSURE } from '@/lib/legal/templates';
 import {
   DEMO_VIEW_HEARTBEAT_MS,
+  DEMO_VIEW_RETENTION_DAYS,
   clampDemoViewTelemetry,
   type DemoViewClientPayload,
 } from './view-tracking-contract';
@@ -20,12 +21,16 @@ const MIGRATION = readFileSync(
   join(ROOT, '../supabase/migrations/0050_us_demo_views.sql'),
   'utf8',
 );
+const PAGE_MIGRATION = readFileSync(
+  join(ROOT, '../supabase/migrations/0052_demo_page_views_and_retention.sql'),
+  'utf8',
+);
 
 interface ServerTrackingModule {
   createDemoQaCookieValue(now?: Date): string;
   isDemoQaCookieValue(value: string | undefined, now?: Date): boolean;
   hashDemoViewIdentity(input: {
-    slug: string;
+    previewId: string;
     clientVisitorId?: string;
     clientSessionId?: string;
     fallbackSessionSeed?: string;
@@ -66,7 +71,8 @@ async function loadServerTracking(): Promise<ServerTrackingModule> {
 
 function payload(overrides: Partial<DemoViewClientPayload> = {}): DemoViewClientPayload {
   return {
-    slug: '11111111-1111-4111-8111-111111111111',
+    previewId: '11111111-1111-4111-8111-111111111111',
+    pageSlug: 'all-on-4',
     eventId: '22222222-2222-4222-8222-222222222222',
     visitorId: '33333333-3333-4333-8333-333333333333',
     sessionId: '44444444-4444-4444-8444-444444444444',
@@ -124,17 +130,36 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     assert.deepEqual(result.referrer, { class: 'email', origin: 'https://mail.example' });
   });
 
+  test('0052는 기존 행을 갱신하지 않고 실제 페이지 slug·procedure 진입·90일 원장을 확장한다', () => {
+    assert.match(PAGE_MIGRATION, /drop constraint demo_views_slug_check/u);
+    assert.match(
+      PAGE_MIGRATION,
+      /slug = ''[\s\S]*slug ~ '\^\[a-z0-9\]\+\(-\[a-z0-9\]\+\)\*\$'/u,
+    );
+    assert.match(PAGE_MIGRATION, /'procedure_entry'/u);
+    assert.match(PAGE_MIGRATION, /if not v_existing_session and p_slug <> ''/u);
+    assert.match(PAGE_MIGRATION, /unique|on conflict \(preview_id, visitor_id, session_id, signal_kind\)/u);
+    assert.match(PAGE_MIGRATION, /interval '90 days'/u);
+    assert.doesNotMatch(PAGE_MIGRATION, /\bupdate\s+public\.demo_views\b/iu);
+    assert.doesNotMatch(
+      PAGE_MIGRATION.split('\n').filter((line) => line.trimStart().startsWith('--')).join('\n'),
+      /```/u,
+    );
+    assert.doesNotMatch(PAGE_MIGRATION, /\bif\b[^;]*\bcase\b/iu);
+    assert.equal(DEMO_VIEW_RETENTION_DAYS, 90);
+  });
+
   test('버전드 HMAC과 QA 쿠키는 결정적이며 원문 IP·UA·브라우저 식별자를 남기지 않는다', async () => {
     const server = await loadServerTracking();
     const identity = server.hashDemoViewIdentity({
-      slug: payload().slug,
+      previewId: payload().previewId,
       clientVisitorId: payload().visitorId,
       clientSessionId: payload().sessionId,
       ip: '203.0.113.9',
       userAgent: 'Example Browser 1.0',
     });
     const repeated = server.hashDemoViewIdentity({
-      slug: payload().slug,
+      previewId: payload().previewId,
       clientVisitorId: payload().visitorId,
       clientSessionId: payload().sessionId,
       ip: '203.0.113.9',
@@ -157,7 +182,7 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     const server = await loadServerTracking();
     const now = new Date('2026-07-27T12:00:00.000Z');
     const stored = server.storedDemoViewInput({
-      previewId: payload().slug,
+      previewId: payload().previewId,
       payload: payload({ openedAt: '2020-01-01T00:00:00.000Z' }),
       request: new Request('https://example.test/api/demo-track', {
         headers: {
@@ -186,7 +211,10 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     assert.match(ingest, /isLikelyBotUserAgent[\s\S]*return accepted\(\)/u);
     assert.match(ingest, /isDemoQaCookieValue[\s\S]*return accepted\(\)/u);
     assert.match(ingest, /isInternalDemoIpHash[\s\S]*return accepted\(\)/u);
-    assert.match(preview, /!internalQa \? <DemoViewTracker/u);
+    assert.match(preview, /!internalQa \? \([\s\S]*<DemoViewTracker/u);
+    assert.match(tracker, /previewId[\s\S]*pageSlug/u);
+    assert.match(ingest, /previewId: z\.string\(\)\.uuid\(\)/u);
+    assert.match(ingest, /pageSlug: pageSlugSchema/u);
     assert.doesNotMatch(ingest, /console\.(?:log|warn|error)\([^)]*(?:userAgent|forwarded|requestIp)/u);
   });
 

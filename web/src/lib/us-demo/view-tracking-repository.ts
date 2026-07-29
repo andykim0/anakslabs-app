@@ -4,6 +4,7 @@ import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { isMockMode } from '@/lib/env';
 import type {
   DemoViewRecordResult,
+  DemoViewSignalKind,
   DemoViewStoredInput,
 } from './view-tracking-contract';
 
@@ -18,7 +19,7 @@ interface MockDemoViewAlert {
   previewId: string;
   visitorId: string;
   sessionId: string;
-  signalKind: 'strong_reinterest_48h';
+  signalKind: DemoViewSignalKind;
   deliveryStatus: 'pending' | 'sent' | 'failed' | 'skipped';
   lastErrorCode: string | null;
 }
@@ -46,7 +47,13 @@ export async function recordDemoView(
 ): Promise<DemoViewRecordResult> {
   if (isMockMode()) {
     if (mockViews().has(input.eventId)) {
-      return { recorded: false, visitCount: 0, hoursSinceLast: null, alertId: null };
+      return {
+        recorded: false,
+        visitCount: 0,
+        hoursSinceLast: null,
+        alertId: null,
+        alerts: [],
+      };
     }
     const prior = [...mockViews().values()]
       .filter((row) => row.previewId === input.previewId && row.visitorId === input.visitorId);
@@ -68,29 +75,41 @@ export async function recordDemoView(
       visitCount,
       hoursSinceLast,
     });
-    let alertId: string | null = null;
-    if (!currentSession && visitCount >= 2 && hoursSinceLast !== null && hoursSinceLast < 48) {
-      const alertKey = `${input.previewId}|${input.visitorId}|${input.sessionId}`;
+    const alerts: DemoViewRecordResult['alerts'] = [];
+    const createMockAlert = (signalKind: DemoViewSignalKind): string | null => {
+      const alertKey = `${input.previewId}|${input.visitorId}|${input.sessionId}|${signalKind}`;
       const existing = mockAlerts().get(alertKey);
       if (!existing) {
-        alertId = crypto.randomUUID();
+        const alertId = crypto.randomUUID();
         mockAlerts().set(alertKey, {
           id: alertId,
           previewId: input.previewId,
           visitorId: input.visitorId,
           sessionId: input.sessionId,
-          signalKind: 'strong_reinterest_48h',
+          signalKind,
           deliveryStatus: 'pending',
           lastErrorCode: null,
         });
+        alerts.push({ alertId, signalKind });
+        return alertId;
       }
+      return null;
+    };
+    if (!currentSession && input.pageSlug !== '') {
+      createMockAlert('procedure_entry');
     }
-    return { recorded: true, visitCount, hoursSinceLast, alertId };
+    const alertId = !currentSession
+      && visitCount >= 2
+      && hoursSinceLast !== null
+      && hoursSinceLast < 48
+      ? createMockAlert('strong_reinterest_48h')
+      : null;
+    return { recorded: true, visitCount, hoursSinceLast, alertId, alerts };
   }
 
   const { data, error } = await getServiceRoleClient().rpc('record_demo_view', {
     p_preview_id: input.previewId,
-    p_slug: input.slug,
+    p_slug: input.pageSlug,
     p_event_id: input.eventId,
     p_visitor_id: input.visitorId,
     p_session_id: input.sessionId,
@@ -109,11 +128,29 @@ export async function recordDemoView(
   });
   if (error) throw new Error(`demo view record failed: ${error.message}`);
   const result = data as Record<string, unknown> | null;
+  const alerts = Array.isArray(result?.alerts)
+    ? result.alerts.flatMap((candidate) => {
+        if (!candidate || typeof candidate !== 'object') return [];
+        const alert = candidate as Record<string, unknown>;
+        const signalKind = alert.signalKind;
+        if (
+          typeof alert.alertId !== 'string'
+          || (signalKind !== 'strong_reinterest_48h' && signalKind !== 'procedure_entry')
+        ) {
+          return [];
+        }
+        return [{
+          alertId: alert.alertId,
+          signalKind: signalKind as DemoViewSignalKind,
+        }];
+      })
+    : [];
   return {
     recorded: result?.recorded === true,
     visitCount: Number(result?.visitCount ?? 0),
     hoursSinceLast: result?.hoursSinceLast == null ? null : Number(result.hoursSinceLast),
     alertId: typeof result?.alertId === 'string' ? result.alertId : null,
+    alerts,
   };
 }
 

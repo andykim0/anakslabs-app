@@ -6,7 +6,9 @@ import { describe, test } from 'node:test';
 import { AiStructureDiff } from '@/components/us-demo/AiStructureDiff';
 import {
   DESIGNATED_CRAWL_POLICY,
+  sharedPreviewRetentionDays,
   SHARED_PREVIEW_RETENTION_DAYS,
+  US_MEDICAL_PREVIEW_RETENTION_DAYS,
 } from '@/lib/crawl/contracts';
 import { crawlDesignatedSite } from '@/lib/crawl/crawler-core';
 import {
@@ -162,6 +164,15 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.equal(tokenHash.length, 64);
     assert.equal(tokenHash.includes(token), false);
     assert.equal(SHARED_PREVIEW_RETENTION_DAYS, 14);
+    assert.equal(US_MEDICAL_PREVIEW_RETENTION_DAYS, 45);
+    assert.equal(sharedPreviewRetentionDays({
+      renderMode: 'outreach-safe',
+      siteConfig: prepared.config,
+    }), 45);
+    assert.equal(sharedPreviewRetentionDays({
+      renderMode: 'standard',
+      siteConfig: prepared.config,
+    }), 14);
   });
 
   test('발행 가정 구조 diff는 동일 extractor의 정직 상태만 렌더한다', async () => {

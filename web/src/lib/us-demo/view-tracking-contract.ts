@@ -1,5 +1,5 @@
 export const DEMO_VIEW_HEARTBEAT_MS = 20_000 as const;
-export const DEMO_VIEW_RETENTION_DAYS = 30 as const;
+export const DEMO_VIEW_RETENTION_DAYS = 90 as const;
 export const DEMO_VIEW_MAX_ACTIVE_SECONDS = 7_200 as const;
 export const DEMO_VIEW_MAX_SECTIONS = 20 as const;
 export const DEMO_VIEW_MAX_CLICKS = 20 as const;
@@ -16,13 +16,20 @@ export const DEMO_REFERRER_CLASSES = [
 ] as const;
 export type DemoReferrerClass = (typeof DEMO_REFERRER_CLASSES)[number];
 
+export const DEMO_VIEW_SIGNAL_KINDS = [
+  'strong_reinterest_48h',
+  'procedure_entry',
+] as const;
+export type DemoViewSignalKind = (typeof DEMO_VIEW_SIGNAL_KINDS)[number];
+
 export interface DemoViewSectionSample {
   id: string;
   activeSeconds: number;
 }
 
 export interface DemoViewClientPayload {
-  slug: string;
+  previewId: string;
+  pageSlug: string;
   eventId: string;
   visitorId?: string;
   sessionId?: string;
@@ -43,7 +50,7 @@ export interface DemoViewClientPayload {
 
 export interface DemoViewStoredInput {
   previewId: string;
-  slug: string;
+  pageSlug: string;
   eventId: string;
   visitorId: string;
   sessionId: string;
@@ -65,11 +72,24 @@ export interface DemoViewRecordResult {
   recorded: boolean;
   visitCount: number;
   hoursSinceLast: number | null;
+  alerts: Array<{
+    alertId: string;
+    signalKind: DemoViewSignalKind;
+  }>;
+  /** Compatibility projection for the original re-interest signal consumer. */
   alertId: string | null;
 }
 
 export const DEMO_REINTEREST_SIGNAL_LABEL =
   '48시간 안에 다시 열어 본 강한 재관심 신호입니다. 다른 사람에게 전달됐을 가능성은 있지만 공유나 구매를 확정하지 않습니다.';
+export const DEMO_PROCEDURE_ENTRY_SIGNAL_LABEL =
+  '시술 페이지에서 세션이 시작된 진입 신호입니다. 관심이나 예약 의도를 확정하지 않습니다.';
+
+export function demoViewSignalLabel(signalKind: DemoViewSignalKind): string {
+  return signalKind === 'procedure_entry'
+    ? DEMO_PROCEDURE_ENTRY_SIGNAL_LABEL
+    : DEMO_REINTEREST_SIGNAL_LABEL;
+}
 
 function finiteInteger(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;

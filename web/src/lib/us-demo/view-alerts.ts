@@ -1,6 +1,9 @@
 import 'server-only';
 
-import { DEMO_REINTEREST_SIGNAL_LABEL } from './view-tracking-contract';
+import {
+  demoViewSignalLabel,
+  type DemoViewSignalKind,
+} from './view-tracking-contract';
 import { updateDemoViewAlertDelivery } from './view-tracking-repository';
 
 function alertErrorCode(error: unknown): string {
@@ -14,9 +17,11 @@ function alertErrorCode(error: unknown): string {
  */
 export async function dispatchDemoViewAlert(input: {
   alertId: string;
-  slug: string;
+  previewId: string;
+  pageSlug: string;
+  signalKind: DemoViewSignalKind;
   visitCount: number;
-  hoursSinceLast: number;
+  hoursSinceLast: number | null;
 }): Promise<void> {
   const endpoint = process.env.DEMO_VIEW_ALERT_WEBHOOK_URL?.trim();
   if (!endpoint) {
@@ -30,8 +35,10 @@ export async function dispatchDemoViewAlert(input: {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        text: DEMO_REINTEREST_SIGNAL_LABEL,
-        demo: input.slug,
+        text: demoViewSignalLabel(input.signalKind),
+        signalKind: input.signalKind,
+        demo: input.previewId,
+        pageSlug: input.pageSlug,
         visitCount: input.visitCount,
         hoursSinceLast: input.hoursSinceLast,
       }),

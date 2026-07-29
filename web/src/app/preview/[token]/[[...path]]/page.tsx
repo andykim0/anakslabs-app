@@ -116,7 +116,7 @@ export default async function SharedImportPreviewPage({
             {isUsMedicalDemo
               ? previewFull
                 ? 'This internal evaluation preview restructures the practice’s public English source text and public images across multiple pages. Search indexing and publication are disabled.'
-                : 'This 14-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.'
+                : 'This 45-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.'
               : IMPORT_PREVIEW_NOTICE}
           </span>
           <span className="text-xs text-[#6B5310]">
@@ -164,7 +164,9 @@ export default async function SharedImportPreviewPage({
       {structure && (previewFull || pageSlug === '')
         ? <AiStructureDiff comparison={structure} pageLabel={currentPage.title} />
         : null}
-      {isUsMedicalDemo && !internalQa ? <DemoViewTracker slug={preview.id} /> : null}
+      {isUsMedicalDemo && !internalQa ? (
+        <DemoViewTracker previewId={preview.id} pageSlug={pageSlug} />
+      ) : null}
     </div>
   );
 }

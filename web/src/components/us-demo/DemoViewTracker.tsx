@@ -58,10 +58,16 @@ function sectionId(element: Element, index: number): string {
   return 'structure-diff';
 }
 
-export function DemoViewTracker({ slug }: { slug: string }) {
+export function DemoViewTracker({
+  previewId,
+  pageSlug,
+}: {
+  previewId: string;
+  pageSlug: string;
+}) {
   useEffect(() => {
     const visitorId = storedId(localStorage, VISITOR_KEY);
-    const sessionId = storedId(sessionStorage, `${SESSION_PREFIX}${slug}`);
+    const sessionId = storedId(sessionStorage, `${SESSION_PREFIX}${previewId}`);
     const openedAt = new Date();
     const referrer = referrerProjection(document.referrer, location.origin);
     const sectionSeconds = new Map<string, number>();
@@ -117,7 +123,8 @@ export function DemoViewTracker({ slug }: { slug: string }) {
     onScroll();
 
     const payload = (final: boolean): DemoViewClientPayload => ({
-      slug,
+      previewId,
+      pageSlug,
       eventId: randomId(),
       ...(visitorId ? { visitorId } : {}),
       ...(sessionId ? { sessionId } : {}),
@@ -173,7 +180,7 @@ export function DemoViewTracker({ slug }: { slug: string }) {
       document.removeEventListener('visibilitychange', onVisibility);
       removeEventListener('pagehide', finalize);
     };
-  }, [slug]);
+  }, [pageSlug, previewId]);
 
   return null;
 }

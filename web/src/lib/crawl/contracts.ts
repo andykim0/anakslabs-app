@@ -8,6 +8,20 @@ import type { UsDemoRenderMode } from '@/lib/us-demo/contracts';
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
 export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
 export const SHARED_PREVIEW_RETENTION_DAYS = 14;
+export const US_MEDICAL_PREVIEW_RETENTION_DAYS = 45;
+
+export function sharedPreviewRetentionDays(input: {
+  renderMode: SharedSitePreviewRecord['renderMode'];
+  siteConfig: Pick<SiteConfig, 'meta'>;
+}): number {
+  const isUsMedicalPreview = input.renderMode !== 'standard'
+    && input.siteConfig.meta.locale === 'en-US'
+    && input.siteConfig.meta.market === 'US-CA'
+    && input.siteConfig.meta.jurisdiction === 'US';
+  return isUsMedicalPreview
+    ? US_MEDICAL_PREVIEW_RETENTION_DAYS
+    : SHARED_PREVIEW_RETENTION_DAYS;
+}
 
 export const DESIGNATED_CRAWL_POLICY = {
   maxPages: 20,
