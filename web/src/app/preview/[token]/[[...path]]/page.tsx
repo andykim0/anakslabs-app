@@ -80,7 +80,7 @@ export default async function SharedImportPreviewPage({
         })
     : undefined;
   const lcpImage = pageLcpImageSrc(preview.siteConfig, pageSlug);
-  const previewJsonLd = previewFull
+  const previewJsonLd = isUsMedicalDemo
     ? jsonLdScriptContent(preview.siteConfig, 'https://preview-hypothesis.invalid', pageSlug)
     : null;
   const hrefForSlug = (slug: string) => (

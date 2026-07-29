@@ -282,6 +282,28 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     assert.equal(blocks.find((source) => source.kind === 'provider_credential')?.text, 'DMD, FAGD');
   });
 
+  test('provider_name은 Dr 또는 자격 표기가 있는 사람 이름만 허용하고 일반 About 표제는 거부한다', () => {
+    const artifact = {
+      schemaVersion: 1,
+      pages: [{
+        url: 'https://practice.example/about',
+        title: 'About',
+        headings: ['About Our Practice', 'Our Values', 'Dr. Edward Nam, DDS'],
+        structured: {
+          description: 'The practice describes its public care philosophy and provider.',
+          commercialPhrases: [],
+          contentItems: [],
+        },
+        images: [],
+        connectors: [],
+      }],
+    } as unknown as CrawlArtifactPayload;
+    const names = prospectPublicSourceBlocks(artifact)
+      .filter((source) => source.kind === 'provider_name')
+      .map((source) => source.text);
+    assert.deepEqual(names, ['Dr. Edward Nam, DDS']);
+  });
+
   test('frozen dental manifest는 검수된 64장이고 결정적 selector는 hero/atmosphere 외 슬롯을 거부한다', () => {
     const expectedCategoryCounts = {
       implant: 10,

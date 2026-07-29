@@ -380,10 +380,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     ...(currentPage.slug ? { breadcrumb: ref(breadcrumbId) } : {}),
     ...(articleEvidence
       ? {
-          author: {
-            '@type': 'Person',
-            name: articleEvidence.author,
-          },
+          author: articleEvidence.author,
           dateModified: articleEvidence.dateModified,
         }
       : {}),

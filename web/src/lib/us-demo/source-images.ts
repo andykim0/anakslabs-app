@@ -15,7 +15,7 @@ const JUNK_IMAGE_RE =
 const BEFORE_AFTER_RE =
   /\bbefore\s*(?:and|&|-)?\s*after\b|\bsmile[-_ ]gallery\b|\bcase[-_ ]results?\b/iu;
 const PATIENT_RESULT_RE =
-  /\bbefore\s*(?:and|&|\/|-)?\s*after\b|\b(?:patient|treatment|smile)\s+results?\b|\bresults?\s+(?:at|from|by)\b|\btransformation\b|\b(?:straight|confident)\s+smile\s+after\b|\bpatient'?s\s+smile\s+after\b/iu;
+  /\bpatients?\b|\bbefore\s*(?:and|&|\/|-)?\s*after\b|\b(?:treatment|smile)\s+results?\b|\bresults?\s+(?:at|from|by)\b|\btransformation\b|\b(?:straight|confident)\s+smile\s+after\b/iu;
 const PROVIDER_RE =
   /\b(?:doctor|dentist|provider|team|staff|headshot|portrait|dds|dmd)\b/iu;
 const INSURANCE_PAGE_RE =

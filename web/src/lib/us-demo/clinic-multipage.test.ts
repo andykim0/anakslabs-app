@@ -763,10 +763,7 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       Array.isArray(medicalArticle?.['@type'])
       && medicalArticle['@type'].includes('Article'),
     );
-    assert.deepEqual(medicalArticle?.author, {
-      '@type': 'Person',
-      name: 'Dr. Jane Park',
-    });
+    assert.equal(medicalArticle?.author, 'Dr. Jane Park');
     assert.equal(medicalArticle?.dateModified, '2026-07-28');
     const procedure = implant.find((node) => node['@type'] === 'MedicalProcedure');
     assert.equal(procedure?.name, 'Dental implants');

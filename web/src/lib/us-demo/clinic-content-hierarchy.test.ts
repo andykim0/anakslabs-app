@@ -260,7 +260,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     );
   });
 
-  test('47장 OCR 인벤토리는 일반 사진 슬롯 19장과 사이트 전체 주제 풀로 결정적으로 축소된다', () => {
+  test('47장 OCR 인벤토리는 환자 식별 사진을 제외한 일반 슬롯 18장으로 결정적으로 축소된다', () => {
     const home = page({
       url: 'https://iddentalimplant.com/',
       title: 'ID Dental Implant Center',
@@ -276,7 +276,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     // id-logo is baseline junk; the other 46 reach the four-way visual gate.
     assert.equal(projected.length, 46);
     const eligible = clinicPhotoSlotPool(projected);
-    assert.equal(eligible.length, 19);
+    assert.equal(eligible.length, 18);
     assert.deepEqual(
       Object.fromEntries(['implant', 'oral-surgery', 'orthodontic', 'cosmetic-restorative',
         'porcelain-veneers', 'emergency', 'endodontic'].map((topic) => [
@@ -298,7 +298,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
       .filter((image) => !clinicPhotoGate(image).eligibleForPhotoSlot)
       .every((image) => !eligible.includes(image)));
     assert.equal(eligible.some((image) => (
-      /insurance|before|after|results?|treatment-plan|implant-diagram|desk-consult/iu
+      /insurance|patient|before|after|results?|treatment-plan|implant-diagram|desk-consult/iu
         .test(`${image.source.url} ${image.source.alt}`)
     )), false);
     assert.equal(clinicProcedureMediaCandidates(5)[0], 'features.zigzag-media');

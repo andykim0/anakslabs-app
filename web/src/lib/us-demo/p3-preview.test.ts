@@ -285,6 +285,7 @@ describe('US-DEMO P3 — private structure diff preview', () => {
     assert.match(pageSource, /animate=\{false\}/u);
     assert.match(pageSource, /Private outreach preview · Not published/u);
     assert.match(pageSource, /Anyone with this link can view the draft until it\s+expires/u);
+    assert.match(pageSource, /const previewJsonLd = isUsMedicalDemo/u);
     assert.doesNotMatch(pageSource, /alternates|canonical/u);
   });
 

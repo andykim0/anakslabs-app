@@ -19,7 +19,7 @@ const FAQ_PATH_RE = /\/(?:faq|faqs|frequently-asked-questions)(?:\/|$)/iu;
 const PROVIDER_CREDENTIAL_RE =
   /\b(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD)\b/iu;
 const PROVIDER_NAME_RE =
-  /^(?:Dr\.?\s+)?(?:[A-Z][\p{L}'’-]+(?:\s+|$)){2,5}(?:,?\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))?$/u;
+  /^(?:Dr\.?\s+[A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){0,4}(?:,\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))?|[A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){1,4},\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))$/u;
 const GENERIC_HEADING_RE =
   /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
 const CTA_HEADING_RE =
