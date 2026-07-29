@@ -22,6 +22,14 @@ const PROVIDER_NAME_RE =
   /^(?:Dr\.?\s+)?(?:[A-Z][\p{L}'’-]+(?:\s+|$)){2,5}(?:,?\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))?$/u;
 const GENERIC_HEADING_RE =
   /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
+const CTA_HEADING_RE =
+  /^(?:ready to\b|book\b|schedule\b|request (?:an? )?appointment\b|call (?:us|today)\b|contact us\b|get started\b|find out\b)/iu;
+const PHONE_TOKEN_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/u;
+const EMAIL_TOKEN_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu;
+const OPENING_HOURS_TOKEN_RE =
+  /\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b[^.]{0,80}\b(?:am|pm|closed)\b/iu;
+const ADDRESS_TOKEN_RE =
+  /\b\d{2,6}\s+[A-Z0-9][^,\n]{2,80},?\s+(?:Los Angeles|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b[^.\n]{0,50}\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/u;
 const MIN_PAIRED_BODY_LENGTH = 32;
 const MAX_PAIRED_BODY_LENGTH = 1_600;
 
@@ -106,6 +114,56 @@ function boundedVerbatimBody(value: string): string | undefined {
     .trim() || undefined;
 }
 
+function firstOperationalBoundary(
+  page: CrawlPageArtifact,
+  value: string,
+): number | undefined {
+  const exactBoundaries = [
+    page.structured.phone,
+    page.structured.address,
+    page.structured.openingHours,
+    ...page.connectors.map((connector) => connector.label),
+  ]
+    .map(clean)
+    .filter((candidate): candidate is string => Boolean(candidate));
+  const offsets = exactBoundaries.flatMap((boundary) => {
+    const offset = value.indexOf(boundary);
+    return offset >= MIN_PAIRED_BODY_LENGTH ? [offset] : [];
+  });
+  for (const pattern of [PHONE_TOKEN_RE, EMAIL_TOKEN_RE, OPENING_HOURS_TOKEN_RE, ADDRESS_TOKEN_RE]) {
+    const match = pattern.exec(value);
+    if (match && match.index >= MIN_PAIRED_BODY_LENGTH) offsets.push(match.index);
+  }
+  return offsets.length > 0 ? Math.min(...offsets) : undefined;
+}
+
+function splitVerbatimBody(page: CrawlPageArtifact, value: string): string {
+  const boundary = firstOperationalBoundary(page, value);
+  return boundary === undefined ? value : value.slice(0, boundary);
+}
+
+/**
+ * Reject a heading/body unit only when its source wording is an operational CTA or an accumulated
+ * contact/navigation tail. Factual contact fields are extracted separately before this filter.
+ */
+export function sourceTextIsOperationalBlob(
+  title: string,
+  body?: string,
+): boolean {
+  if (CTA_HEADING_RE.test(title.trim())) return true;
+  const combined = `${title} ${body ?? ''}`;
+  const signals = [
+    PHONE_TOKEN_RE.test(combined),
+    EMAIL_TOKEN_RE.test(combined),
+    OPENING_HOURS_TOKEN_RE.test(combined),
+    ADDRESS_TOKEN_RE.test(combined),
+    /\b(?:book|schedule|request)\b[^.]{0,40}\bappointment\b/iu.test(combined),
+    /\b(?:home|about|services|contact)\b(?:[^.]{0,60}\b(?:home|about|services|contact)\b){2,}/iu
+      .test(combined),
+  ].filter(Boolean).length;
+  return signals >= 2;
+}
+
 /**
  * The crawl artifact intentionally keeps no source HTML. Pair each captured heading with the
  * verbatim normalized text between that heading and the next one. Repeated navigation headings
@@ -131,7 +189,7 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
       const bodyStart = start + entry.heading.length;
       const bodyEnd = allHeadingStarts.find((candidate) => candidate >= bodyStart)
         ?? pageText.length;
-      return boundedVerbatimBody(pageText.slice(bodyStart, bodyEnd));
+      return boundedVerbatimBody(splitVerbatimBody(page, pageText.slice(bodyStart, bodyEnd)));
     }).filter((body): body is string => Boolean(body));
     const body = candidates.sort((left, right) => (
       right.length - left.length || left.localeCompare(right)
@@ -202,6 +260,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (SERVICE_PATH_RE.test(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.length <= 120)
+      .filter((pair) => !sourceTextIsOperationalBlob(pair.heading, pair.body))
       .slice(0, 12)
       .forEach((pair) => {
         if (pair.heading.endsWith('?')) {
@@ -237,6 +296,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (FAQ_PATH_RE.test(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.endsWith('?') && pair.heading.length <= 240)
+      .filter((pair) => !sourceTextIsOperationalBlob(pair.heading, pair.body))
       .slice(0, 12)
       .forEach((pair) => {
         add('faq_question', pair.heading, 'headings', pair.headingOrdinal);
