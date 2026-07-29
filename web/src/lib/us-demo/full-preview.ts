@@ -703,6 +703,14 @@ function sourceIdsFromSections(sections: readonly Section[]): string[] {
   });
 }
 
+function compilationDate(artifact: CrawlArtifactPayload): string {
+  const observedAt = new Date(artifact.observedAt);
+  if (Number.isNaN(observedAt.getTime())) {
+    throw new Error('CLINIC_ARTIFACT_OBSERVED_AT_INVALID');
+  }
+  return observedAt.toISOString().slice(0, 10);
+}
+
 export interface FullPreviewCompilation {
   config: SiteConfig;
   experience: Extract<ClinicMasterExperience, { mode: UsDemoRenderMode }>;
@@ -754,6 +762,8 @@ export function compileUsMedicalFullPreview(input: {
         })
       : outreachSafeExperienceFromArtifact({ artifact, blocks });
   const businessName = blocks.find((block) => block.kind === 'business_name')!;
+  const articleAuthor = blocks.find((block) => block.kind === 'provider_name');
+  const articleDateModified = compilationDate(artifact);
   const introduction = blocks.find((block) => block.kind === 'introduction');
   const homeCandidate = firstHomeImage(artifact, photoSlotPool);
   const homeImage = allocateHeroImage(homeCandidate
@@ -972,6 +982,14 @@ export function compileUsMedicalFullPreview(input: {
           id: `clinic-procedure-${category}-hero`,
           title: categoryServices[0],
           ...(categoryServices[1] ? { lead: categoryServices[1] } : {}),
+          ...(articleAuthor
+            ? {
+                articleEvidence: {
+                  author: articleAuthor,
+                  dateModified: articleDateModified,
+                },
+              }
+            : {}),
           theme,
           image: sourceLayoutImage(heroImage?.source),
           requestedId: 'hero.split-left',

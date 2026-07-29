@@ -59,6 +59,10 @@ export function buildClinicHeroSection(input: {
   name?: string;
   title: ClinicMasterSourceBlock;
   lead?: ClinicMasterSourceBlock;
+  articleEvidence?: {
+    author: ClinicMasterSourceBlock;
+    dateModified: string;
+  };
   theme: SiteTheme;
   image?: ClinicLayoutImage;
   requestedId?: HeroLayoutVariantId;
@@ -94,9 +98,27 @@ export function buildClinicHeroSection(input: {
     },
   });
   section.heroLayout = resolved.projection;
-  section.elements = resolved.elements;
+  const articleEvidence = input.articleEvidence
+    ? [
+        sourceText(input.articleEvidence.author, 'article-author', input.theme, 'body'),
+        layoutText(
+          `${input.id}-article-date`,
+          clinicDate(input.articleEvidence.dateModified),
+          input.theme,
+          'caption',
+        ),
+      ]
+    : [];
+  section.elements = [...resolved.elements, ...articleEvidence];
   section.height = resolved.height;
   return section;
+}
+
+function clinicDate(value: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
+    throw new Error('CLINIC_ARTICLE_DATE_INVALID');
+  }
+  return value;
 }
 
 function layoutText(

@@ -756,9 +756,18 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     assert.ok(home.some((node) => node['@type'] === 'WebSite'));
 
     const implant = buildJsonLd(config, 'https://preview.example', 'implants');
-    assert.ok(implant.some((node) => (
+    const medicalArticle = implant.find((node) => (
       Array.isArray(node['@type']) && node['@type'].includes('MedicalWebPage')
-    )));
+    ));
+    assert.ok(
+      Array.isArray(medicalArticle?.['@type'])
+      && medicalArticle['@type'].includes('Article'),
+    );
+    assert.deepEqual(medicalArticle?.author, {
+      '@type': 'Person',
+      name: 'Dr. Jane Park',
+    });
+    assert.equal(medicalArticle?.dateModified, '2026-07-28');
     const procedure = implant.find((node) => node['@type'] === 'MedicalProcedure');
     assert.equal(procedure?.name, 'Dental implants');
     assert.deepEqual(
@@ -781,6 +790,62 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       Array.isArray(node['@type']) && node['@type'].includes('LocalBusiness')
     )));
     assert.doesNotMatch(JSON.stringify([home, implant, about, contact]), /best|guarantee/iu);
+  });
+
+  test('시술 페이지 byline·날짜는 provider_name source가 있을 때만 가시 DOM과 schema에 함께 방출된다', () => {
+    const artifact = fixtureArtifact();
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      clinicExperience: outreachSafeExperienceFromArtifact({
+        artifact,
+        blocks: prospectPublicSourceBlocks(artifact),
+      }),
+      pageSlug: 'implants',
+      mode: 'desktop',
+      interactive: true,
+      animate: false,
+    }));
+    assert.match(html, /data-clinic-article-byline/u);
+    assert.match(html, /itemProp="author">Dr\. Jane Park<\/span>/u);
+    assert.match(html, /data-clinic-article-date/u);
+    assert.match(html, /dateTime="2026-07-28">Last updated 2026-07-28/u);
+    assert.doesNotMatch(html, /review(?:ed|ing)?/iu);
+
+    const withoutProvider = fixtureArtifact();
+    const providerPage = withoutProvider.pages.find(
+      (pageArtifact) => pageArtifact.url === 'https://clinic.example/about/doctor',
+    );
+    assert.ok(providerPage);
+    providerPage.title = 'About';
+    providerPage.headings = ['Meet the Doctor'];
+    const noProviderCompilation = compileUsMedicalDemo(
+      withoutProvider,
+      { renderMode: 'outreach-safe' },
+    );
+    const noProviderHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: noProviderCompilation.config,
+      clinicExperience: outreachSafeExperienceFromArtifact({
+        artifact: withoutProvider,
+        blocks: prospectPublicSourceBlocks(withoutProvider),
+      }),
+      pageSlug: 'implants',
+      mode: 'desktop',
+      interactive: true,
+      animate: false,
+    }));
+    assert.doesNotMatch(noProviderHtml, /data-clinic-article-(?:byline|date)/u);
+    const noProviderSchema = buildJsonLd(
+      noProviderCompilation.config,
+      'https://preview.example',
+      'implants',
+    );
+    const noProviderWebPage = noProviderSchema.find((node) => (
+      Array.isArray(node['@type']) && node['@type'].includes('MedicalWebPage')
+    ));
+    assert.deepEqual(noProviderWebPage?.['@type'], ['WebPage', 'MedicalWebPage']);
+    assert.equal(noProviderWebPage?.author, undefined);
+    assert.equal(noProviderWebPage?.dateModified, undefined);
   });
 
   test('diff 패널은 각 demo page를 해당 원본 page와 결정적으로 짝짓는다', () => {

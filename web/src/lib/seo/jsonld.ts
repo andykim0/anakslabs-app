@@ -336,8 +336,23 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   const procedurePage = isClinicMasterV2 && currentPage.id.startsWith('clinic-procedure-');
   const providerPage = isClinicMasterV2 && currentPage.id === 'clinic-about';
   const contactPage = isClinicMasterV2 && currentPage.id === 'clinic-contact';
+  const procedureHero = procedurePage
+    ? currentPage.sections.find((section) => section.type === 'hero')
+    : undefined;
+  const articleAuthor = firstSourceText(procedureHero, 'article-author');
+  const articleDateModified = procedureHero?.elements.find((element) => (
+    element.kind === 'text'
+    && element.id.endsWith('-article-date')
+    && /^\d{4}-\d{2}-\d{2}$/u.test(element.text)
+  ));
+  const articleEvidence = articleAuthor && articleDateModified?.kind === 'text'
+    ? {
+        author: articleAuthor,
+        dateModified: articleDateModified.text,
+      }
+    : undefined;
   const webPageType = procedurePage
-    ? ['WebPage', 'MedicalWebPage']
+    ? ['WebPage', 'MedicalWebPage', ...(articleEvidence ? ['Article'] : [])]
     : providerPage
       ? ['WebPage', 'ProfilePage']
       : contactPage
@@ -363,6 +378,15 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
       ? { primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl } }
       : {}),
     ...(currentPage.slug ? { breadcrumb: ref(breadcrumbId) } : {}),
+    ...(articleEvidence
+      ? {
+          author: {
+            '@type': 'Person',
+            name: articleEvidence.author,
+          },
+          dateModified: articleEvidence.dateModified,
+        }
+      : {}),
   };
   nodes.push(pageNode);
 

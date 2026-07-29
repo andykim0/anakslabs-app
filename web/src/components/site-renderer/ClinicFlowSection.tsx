@@ -252,6 +252,19 @@ export const CLINIC_FLOW_CSS = `
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+[data-clinic-article-evidence] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem 1rem;
+  align-items: baseline;
+  color: var(--clinic-muted);
+  font-size: .875rem;
+}
+[data-clinic-article-evidence] p {
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.5;
+}
 [data-clinic-hero-cta] {
   display: inline-flex;
   min-height: 3.25rem;
@@ -527,9 +540,14 @@ export function ClinicFlowSection({
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
     );
-    const heading = pageHeading?.trim() || text[0]?.text.trim() || section.name;
-    const sourceHeading = text[0]?.text.trim();
-    const remainingText = sourceHeading === heading ? text.slice(1) : text;
+    const articleAuthor = text.find((element) => element.id.includes('-article-author'));
+    const articleDate = text.find((element) => element.id.endsWith('-article-date'));
+    const contentText = text.filter(
+      (element) => element.id !== articleAuthor?.id && element.id !== articleDate?.id,
+    );
+    const heading = pageHeading?.trim() || contentText[0]?.text.trim() || section.name;
+    const sourceHeading = contentText[0]?.text.trim();
+    const remainingText = sourceHeading === heading ? contentText.slice(1) : contentText;
     const heroId = section.heroLayout?.resolvedId ?? 'hero.source-flow';
     return (
       <section
@@ -564,6 +582,18 @@ export function ClinicFlowSection({
                 {element.text}{' '}
               </p>
             ))}
+            {articleAuthor && articleDate ? (
+              <div data-clinic-article-evidence>
+                <p data-clinic-article-byline>
+                  By <span itemProp="author">{articleAuthor.text}</span>
+                </p>
+                <p data-clinic-article-date>
+                  <time dateTime={articleDate.text}>
+                    Last updated {articleDate.text}
+                  </time>
+                </p>
+              </div>
+            ) : null}
             <span aria-disabled="true" data-clinic-hero-cta>
               Book Appointment
             </span>
