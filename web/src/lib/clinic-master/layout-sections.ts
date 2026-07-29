@@ -24,6 +24,7 @@ import {
   type GalleryLayoutVariantId,
   type HeroLayoutVariantId,
 } from '@/lib/layout';
+import { sourceTextIsOperationalBlob } from '@/lib/us-demo/source-extraction';
 import { CLINIC_RADIUS_TOKENS } from './tokens';
 import type { ClinicMasterSourceBlock } from './compiler';
 
@@ -45,6 +46,10 @@ export interface ClinicLayoutContentUnit {
   id: string;
   title: ClinicMasterSourceBlock;
   body?: ClinicMasterSourceBlock;
+  marker?: {
+    source: ClinicMasterSourceBlock;
+    text: string;
+  };
   image?: ClinicLayoutImage;
   href?: string;
 }
@@ -151,6 +156,18 @@ function sourceText(
   return layoutText(`source-${block.id}-${suffix}`, block.text, theme, role);
 }
 
+function sourceFragmentText(
+  block: ClinicMasterSourceBlock,
+  fragment: string,
+  suffix: string,
+  theme: SiteTheme,
+): TextElement {
+  if (!block.text.includes(fragment) || fragment.trim().length === 0) {
+    throw new Error(`CLINIC_SOURCE_FRAGMENT_INVALID:${block.id}`);
+  }
+  return layoutText(`source-${block.id}-${suffix}`, fragment, theme, 'caption');
+}
+
 function layoutImage(image: ClinicLayoutImage, suffix: string): ImageElement {
   return {
     id: `source-image-${image.id}-${suffix}`,
@@ -193,14 +210,17 @@ function baseSection(input: {
  * Catalog contracts accept 2..6 items. Split deterministically without ever leaving a one-item
  * tail: seven becomes 5+2, thirteen becomes 6+5+2.
  */
-export function clinicFeatureGroups<T>(items: readonly T[]): T[][] {
+export function clinicFeatureGroups<T>(
+  items: readonly T[],
+  maximumItems = FEATURE_MAXIMUM_ITEMS,
+): T[][] {
   const groups: T[][] = [];
   let cursor = 0;
-  while (items.length - cursor > FEATURE_MAXIMUM_ITEMS) {
+  while (items.length - cursor > maximumItems) {
     const remaining = items.length - cursor;
-    const take = remaining - FEATURE_MAXIMUM_ITEMS === 1
-      ? FEATURE_MAXIMUM_ITEMS - 1
-      : FEATURE_MAXIMUM_ITEMS;
+    const take = remaining - maximumItems === 1
+      ? maximumItems - 1
+      : maximumItems;
     groups.push(items.slice(cursor, cursor + take));
     cursor += take;
   }
@@ -235,6 +255,7 @@ export function buildClinicFeatureSections(input: {
   titleSourceIdPrefix?: string;
   numbered?: boolean;
   surface?: boolean;
+  maximumItems?: number;
 }): Section[] {
   if (input.units.length === 0) return [];
   if (input.units.length < FEATURE_MINIMUM_ITEMS) {
@@ -251,7 +272,8 @@ export function buildClinicFeatureSections(input: {
       candidates: ['about.split-left', 'about.heading-body-columns'],
     })];
   }
-  return clinicFeatureGroups(input.units).map((units, groupIndex) => {
+  const maximumItems = input.maximumItems ?? FEATURE_MAXIMUM_ITEMS;
+  return clinicFeatureGroups(input.units, maximumItems).map((units, groupIndex) => {
     const suffix = groupIndex === 0 ? '' : `-${groupIndex + 1}`;
     const title = layoutText(
       `${input.id}${suffix}-layout-title`,
@@ -273,14 +295,21 @@ export function buildClinicFeatureSections(input: {
         ? sourceText(unit.body, `layout-body-${unitSuffix}`, input.theme, 'body')
         : undefined;
       if (body) elements.push(body);
-      const marker = input.numbered
-        ? layoutText(
+      const marker = unit.marker
+        ? sourceFragmentText(
+            unit.marker.source,
+            unit.marker.text,
+            `layout-marker-${unitSuffix}`,
+            input.theme,
+          )
+        : input.numbered
+          ? layoutText(
             `${input.id}${suffix}-marker-${index}`,
-            String(index + 1 + groupIndex * FEATURE_MAXIMUM_ITEMS).padStart(2, '0'),
+            String(index + 1 + groupIndex * maximumItems).padStart(2, '0'),
             input.theme,
             'caption',
           )
-        : undefined;
+          : undefined;
       if (marker) elements.push(marker);
       const media = unit.image ? layoutImage(unit.image, `layout-${unitSuffix}`) : undefined;
       if (media) elements.push(media);
@@ -733,28 +762,46 @@ export function buildClinicFaqSection(input: {
     answer?: ClinicMasterSourceBlock;
   }[];
 }): Section | null {
-  const items = input.items.filter((item) => item.answer).slice(0, 12);
-  if (items.length === 0) return null;
-  const title = layoutText(`${input.id}-layout-title`, input.name, input.theme, 'title');
-  let cursor = 260;
-  const elements: CanvasElement[] = [title];
-  title.frame = { x: 120, y: 100, w: 1200, h: 80 };
-  items.forEach((item, index) => {
-    const question = sourceText(item.question, `faq-question-${index}`, input.theme, 'lead');
-    const answer = sourceText(item.answer!, `faq-answer-${index}`, input.theme, 'body');
-    const answerHeight = Math.max(64, Math.ceil(item.answer!.text.length / 72) * 30);
-    question.frame = { x: 120, y: cursor, w: 1200, h: 44 };
-    answer.frame = { x: 120, y: cursor + 56, w: 1200, h: answerHeight };
-    elements.push(question, answer);
-    cursor += 56 + answerHeight + 48;
-  });
-  return {
+  const items = input.items
+    .filter((item): item is { question: ClinicMasterSourceBlock; answer: ClinicMasterSourceBlock } => (
+      Boolean(item.answer)
+      && /[?？]\s*$/u.test(item.question.text)
+      && !sourceTextIsOperationalBlob(item.question.text, item.answer?.text)
+    ))
+    .slice(0, 8);
+  if (items.length < 3) return null;
+  const section = buildClinicFeatureSections({
     id: input.id,
-    type: 'faq',
     name: input.name,
-    height: cursor + 40,
-    layout: 'canvas',
-    background: { color: input.theme.palette.background },
-    elements,
-  };
+    theme: input.theme,
+    units: items.map((item) => ({
+      id: `clinic-faq-item-${item.question.id}`,
+      title: item.question,
+      body: item.answer,
+    })),
+    candidates: ['features.faq-accordion'],
+    maximumItems: 8,
+  })[0];
+  section.type = 'faq';
+  return section;
+}
+
+export function buildClinicStatStripSection(input: {
+  id: string;
+  name: string;
+  theme: SiteTheme;
+  units: readonly ClinicLayoutContentUnit[];
+}): Section | null {
+  const units = input.units
+    .filter((unit) => Boolean(unit.marker && unit.title.text.includes(unit.marker.text)))
+    .slice(0, 4);
+  if (units.length < 2) return null;
+  return buildClinicFeatureSections({
+    id: input.id,
+    name: input.name,
+    theme: input.theme,
+    units,
+    candidates: ['features.stat-strip'],
+    maximumItems: 4,
+  })[0];
 }

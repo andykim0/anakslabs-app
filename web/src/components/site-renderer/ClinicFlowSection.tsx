@@ -113,6 +113,28 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item]:first-child {
   grid-column: span 2;
 }
+[data-clinic-flow-section="features.faq-accordion"] [data-clinic-flow-items] {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+[data-clinic-flow-section="features.faq-accordion"] [data-clinic-flow-item] {
+  padding: 1.5rem;
+  border: 1px solid var(--clinic-border);
+  border-radius: var(--clinic-radius-md);
+  background: var(--clinic-surface);
+}
+[data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-items] {
+  grid-template-columns: repeat(var(--clinic-flow-columns),minmax(0,1fr));
+  gap: 1rem;
+}
+[data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-item] {
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--clinic-border);
+}
+[data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-marker] {
+  font-size: clamp(1rem,1.5vw,1.25rem);
+  letter-spacing: 0;
+}
 [data-clinic-flow-section^="about."] [data-clinic-flow-items] {
   grid-template-columns: 1fr;
 }
@@ -274,6 +296,9 @@ export const CLINIC_FLOW_CSS = `
   }
   [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item]:first-child {
     grid-column: auto;
+  }
+  [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-items] {
+    grid-template-columns: repeat(2,minmax(0,1fr));
   }
   [data-clinic-flow-hero-media] {
     min-height: 38rem;
@@ -658,6 +683,15 @@ export function ClinicFlowSection({
     );
   }
   const ItemsTag = projection.kind === 'features' ? 'ul' : 'div';
+  const itemGridStyle = projection.resolvedId === 'features.stat-strip'
+    ? {
+        '--clinic-flow-columns': Math.min(4, Math.max(2, projection.items.length)),
+        margin: 0,
+        padding: 0,
+      } as CSSProperties
+    : projection.kind === 'features'
+      ? { margin: 0, padding: 0 }
+      : undefined;
 
   return (
     <section
@@ -687,7 +721,7 @@ export function ClinicFlowSection({
         {introNodes}
         <ItemsTag
           data-clinic-flow-items
-          style={projection.kind === 'features' ? { margin: 0, padding: 0 } : undefined}
+          style={itemGridStyle}
         >
           {projection.items.map((item) => (
             <FlowItem

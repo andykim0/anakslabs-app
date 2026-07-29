@@ -352,6 +352,8 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       'Treatment candidates',
       'Candidate considerations',
       'How long does healing take?',
+      'What happens during implant planning?',
+      'How does the practice describe recovery?',
     ];
     const bodies = [
       'The treatment replaces missing teeth with a restoration described by the practice on this page.',
@@ -361,6 +363,8 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
       'The practice describes who may be a treatment candidate while comparing choices.',
       'The original practice page lists considerations for patients comparing options.',
       'The treatment sequence on this page explains how healing time may vary.',
+      'The practice page describes the planning appointment and the imaging it uses.',
+      'The original page explains the recovery instructions given after treatment.',
     ];
     implant.text = [
       implant.headings.join(' '),
@@ -436,7 +440,11 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     for (const projection of projections) {
       assert.deepEqual(Object.keys(projection?.bands ?? {}), ['wide', 'compact', 'mobile']);
       for (const item of projection?.items ?? []) {
-        assert.ok(item.elementIds.some((id) => id.includes('procedure-service')));
+        assert.ok(item.elementIds.some((id) => (
+          projection?.resolvedId === 'features.faq-accordion'
+            ? id.includes('layout-title')
+            : id.includes('procedure-service')
+        )));
         assert.ok(item.elementIds.some((id) => id.includes('layout-body')));
       }
     }
@@ -447,6 +455,8 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     );
     const faq = implantPage.sections.find((section) => section.type === 'faq');
     assert.ok(faq);
+    assert.equal(faq.sectionLayout?.resolvedId, 'features.faq-accordion');
+    assert.equal(faq.sectionLayout?.groups?.length, 3);
     assert.match(
       JSON.stringify(faq.elements),
       /The treatment sequence on this page explains how healing time may vary\./u,

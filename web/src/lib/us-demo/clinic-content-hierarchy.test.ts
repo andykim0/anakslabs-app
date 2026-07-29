@@ -2,10 +2,17 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import {
+  buildClinicFaqSection,
+  buildClinicStatStripSection,
+} from '@/lib/clinic-master';
+import type { SiteTheme } from '@/lib/types/site';
+import {
   prospectPublicSourceBlocks,
+  prospectPublicSourceOperationalStats,
   sourceHeadingBodyPairs,
   sourceTextIsOperationalBlob,
 } from './source-extraction';
+import type { ProspectPublicSourceBlock } from './contracts';
 import {
   clinicProcedureMediaCandidates,
 } from './full-preview';
@@ -65,6 +72,35 @@ const ID_DENTAL_IMAGE_INVENTORY = [
   ['invisalign-results-2.jpg', 'Before and after orthodontic treatment results from ID Dental Implant Center patients in Koreatown, Los Angeles'],
   ['veneer-glam-1.webp', "Close-up of a real ID Dental patient's smile after porcelain veneer treatment in Koreatown, Los Angeles"],
 ] as const;
+
+const theme: SiteTheme = {
+  fonts: { heading: 'sans-serif', body: 'sans-serif' },
+  palette: {
+    background: '#ffffff',
+    surface: '#f4f7fa',
+    text: '#16202b',
+    muted: '#59636e',
+    primary: '#1466a5',
+    accent: '#1466a5',
+  },
+  radius: 4,
+};
+
+function sourceBlock(
+  id: string,
+  kind: ProspectPublicSourceBlock['kind'],
+  text: string,
+): ProspectPublicSourceBlock {
+  return {
+    id,
+    origin: 'prospect_public_source',
+    kind,
+    text,
+    sourceUrl: 'https://clinic.example/about',
+    sourceLocation: { field: 'fixture', ordinal: 0 },
+    originalSha256: 'a'.repeat(64),
+  };
+}
 
 function page(input: Partial<CrawlPageArtifact> & Pick<CrawlPageArtifact, 'url'>): CrawlPageArtifact {
   return {
@@ -207,5 +243,72 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     assert.equal(clinicProcedureMediaCandidates(2)[0], 'features.featured-first');
     assert.equal(clinicProcedureMediaCandidates(1)[0], 'features.icon-grid');
     assert.equal(clinicProcedureMediaCandidates(0)[0], 'features.icon-grid');
+  });
+
+  test('FAQ와 운영 수치 variant는 source gate 통과 재료가 부족하면 미방출한다', () => {
+    const validFaq = [
+      ['faq-q-1', 'What should I bring to my visit?', 'faq-a-1', 'The page asks patients to bring their current insurance information.'],
+      ['faq-q-2', 'Where is the office located?', 'faq-a-2', 'The office page lists its location in Koreatown, Los Angeles.'],
+      ['faq-q-3', 'Which languages are available?', 'faq-a-3', 'The practice page lists English, Korean, and Spanish.'],
+    ] as const;
+    const faqItems = validFaq.map(([questionId, question, answerId, answer]) => ({
+      question: sourceBlock(questionId, 'faq_question', question),
+      answer: sourceBlock(answerId, 'faq_answer', answer),
+    }));
+    assert.equal(buildClinicFaqSection({
+      id: 'faq-short',
+      name: 'FAQ',
+      theme,
+      items: faqItems.slice(0, 2),
+    }), null);
+    const faq = buildClinicFaqSection({
+      id: 'faq-valid',
+      name: 'FAQ',
+      theme,
+      items: [
+        ...faqItems,
+        {
+          question: sourceBlock('faq-cta', 'faq_question', 'Ready to book an appointment?'),
+          answer: sourceBlock('faq-cta-a', 'faq_answer', 'Call (213) 555-0142 to schedule an appointment.'),
+        },
+      ],
+    });
+    assert.equal(faq?.sectionLayout?.resolvedId, 'features.faq-accordion');
+    assert.equal(faq?.sectionLayout?.items.length, 3);
+    assert.equal(faq?.sectionLayout?.groups?.length, 3);
+
+    const operationBlocks = [
+      sourceBlock('stat-years', 'provider_bio', 'The practice has 20+ years of experience.'),
+      sourceBlock('stat-languages', 'introduction', 'The practice lists 3 languages available.'),
+      sourceBlock('stat-healing', 'service_detail', 'Bone integration takes 3–6 months.'),
+      sourceBlock('stat-phone', 'phone', '(213) 555-0142'),
+      sourceBlock('stat-hours', 'opening_hours', 'Monday at 9:30 AM'),
+      sourceBlock('stat-address', 'address', '3663 W 6th St, Los Angeles, CA 90020'),
+      sourceBlock('stat-date', 'provider_bio', 'The practice has served patients since 2012.'),
+    ];
+    const stats = prospectPublicSourceOperationalStats(operationBlocks);
+    assert.deepEqual(stats.map((stat) => stat.marker), ['20+', '3']);
+    const statSection = buildClinicStatStripSection({
+      id: 'clinic-stat-strip',
+      name: 'Practice at a glance',
+      theme,
+      units: stats.map((stat) => ({
+        id: stat.id,
+        title: stat.title,
+        marker: { source: stat.title, text: stat.marker },
+      })),
+    });
+    assert.equal(statSection?.sectionLayout?.resolvedId, 'features.stat-strip');
+    assert.equal(statSection?.sectionLayout?.items.length, 2);
+    assert.equal(buildClinicStatStripSection({
+      id: 'clinic-stat-short',
+      name: 'Practice at a glance',
+      theme,
+      units: [{
+        id: stats[0].id,
+        title: stats[0].title,
+        marker: { source: stats[0].title, text: stats[0].marker },
+      }],
+    }), null);
   });
 });

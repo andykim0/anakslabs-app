@@ -30,6 +30,16 @@ const OPENING_HOURS_TOKEN_RE =
   /\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b[^.]{0,80}\b(?:am|pm|closed)\b/iu;
 const ADDRESS_TOKEN_RE =
   /\b\d{2,6}\s+[A-Z0-9][^,\n]{2,80},?\s+(?:Los Angeles|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b[^.\n]{0,50}\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/u;
+const DATE_TOKEN_RE =
+  /\b(?:19|20)\d{2}\b|\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b/iu;
+const CLOCK_TOKEN_RE = /\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b/iu;
+const ZIP_TOKEN_RE = /\b\d{5}(?:-\d{4})?\b/u;
+const CLINICAL_STAT_CONTEXT_RE =
+  /\b(?:success(?: rate)?|prognosis|survival|lifespan|lifetime|lasts?|healing|recovery|osseointegration|bone integration|months?)\b/iu;
+const OPERATIONAL_STAT_CONTEXT_RE =
+  /\b(?:years?\s+(?:of\s+)?experience|years?\s+in\s+practice|serving\s+(?:patients\s+)?for|languages?\s+(?:spoken|available)|services?\s+(?:offered|available)|treatments?\s+(?:offered|available)|practice locations?|team members?|providers?)\b/iu;
+const SOURCE_NUMBER_TOKEN_RE =
+  /\b\d{1,3}(?:\.\d+)?(?:\s*[-–]\s*\d{1,3}(?:\.\d+)?)?\+?%?(?![\p{L}\p{N}])/u;
 const MIN_PAIRED_BODY_LENGTH = 32;
 const MAX_PAIRED_BODY_LENGTH = 1_600;
 
@@ -81,6 +91,12 @@ export interface ProspectPublicSourceContentUnit {
   headingOrdinal: number;
   title: ProspectPublicSourceBlock;
   body?: ProspectPublicSourceBlock;
+}
+
+export interface ProspectPublicSourceStatUnit {
+  id: string;
+  title: ProspectPublicSourceBlock;
+  marker: string;
 }
 
 function occurrences(text: string, needle: string): number[] {
@@ -338,6 +354,36 @@ export function prospectPublicSourceContentUnits(
         ...(body ? { body } : {}),
       };
     });
+}
+
+/**
+ * Only operational context may enter the display strip. Clinical outcome, prognosis, lifetime,
+ * and healing figures remain ordinary source prose after the advertising gate; they are never
+ * amplified here.
+ */
+export function prospectPublicSourceOperationalStats(
+  blocks: readonly ProspectPublicSourceBlock[],
+): ProspectPublicSourceStatUnit[] {
+  return blocks.flatMap((block) => {
+    if (['phone', 'address', 'opening_hours'].includes(block.kind)) return [];
+    if (
+      PHONE_TOKEN_RE.test(block.text)
+      || ADDRESS_TOKEN_RE.test(block.text)
+      || OPENING_HOURS_TOKEN_RE.test(block.text)
+      || DATE_TOKEN_RE.test(block.text)
+      || CLOCK_TOKEN_RE.test(block.text)
+      || ZIP_TOKEN_RE.test(block.text)
+      || CLINICAL_STAT_CONTEXT_RE.test(block.text)
+      || !OPERATIONAL_STAT_CONTEXT_RE.test(block.text)
+    ) return [];
+    const marker = SOURCE_NUMBER_TOKEN_RE.exec(block.text)?.[0];
+    if (!marker) return [];
+    return [{
+      id: `clinic-source-stat-${block.id}`,
+      title: block,
+      marker,
+    }];
+  }).slice(0, 4);
 }
 
 export function sourceBlockHashIsValid(block: ProspectPublicSourceBlock): boolean {
