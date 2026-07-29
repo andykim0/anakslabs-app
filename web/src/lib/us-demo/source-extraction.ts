@@ -23,11 +23,12 @@ const PROVIDER_NAME_RE =
 const GENERIC_HEADING_RE =
   /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
 const CTA_HEADING_RE =
-  /^(?:ready to\b|book\b|schedule\b|request (?:an? )?appointment\b|call (?:us|today)\b|contact us\b|get started\b|find out\b)/iu;
+  /^(?:ready to\b|book\b|schedule\b|request (?:an? )?appointment\b|call (?:us|today|now)\b|contact us\b|get started\b|find out\b)|\b(?:call now|call us)\b/iu;
 const PHONE_TOKEN_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/u;
 const EMAIL_TOKEN_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu;
 const OPENING_HOURS_TOKEN_RE =
   /\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b[^.]{0,80}\b(?:am|pm|closed)\b/iu;
+const HOURS_LABEL_RE = /\b(?:office|opening|business)\s+hours?\s*:/iu;
 const ADDRESS_TOKEN_RE =
   /\b\d{2,6}\s+[A-Z0-9][^,\n]{2,80},?\s+(?:Los Angeles|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b[^.\n]{0,50}\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/u;
 const DATE_TOKEN_RE =
@@ -146,7 +147,13 @@ function firstOperationalBoundary(
     const offset = value.indexOf(boundary);
     return offset >= MIN_PAIRED_BODY_LENGTH ? [offset] : [];
   });
-  for (const pattern of [PHONE_TOKEN_RE, EMAIL_TOKEN_RE, OPENING_HOURS_TOKEN_RE, ADDRESS_TOKEN_RE]) {
+  for (const pattern of [
+    PHONE_TOKEN_RE,
+    EMAIL_TOKEN_RE,
+    OPENING_HOURS_TOKEN_RE,
+    HOURS_LABEL_RE,
+    ADDRESS_TOKEN_RE,
+  ]) {
     const match = pattern.exec(value);
     if (match && match.index >= MIN_PAIRED_BODY_LENGTH) offsets.push(match.index);
   }
@@ -155,7 +162,11 @@ function firstOperationalBoundary(
 
 function splitVerbatimBody(page: CrawlPageArtifact, value: string): string {
   const boundary = firstOperationalBoundary(page, value);
-  return boundary === undefined ? value : value.slice(0, boundary);
+  const clipped = boundary === undefined ? value : value.slice(0, boundary);
+  const navigationOrdinal = /[.!?]0[1-9]\s*$/u.exec(clipped);
+  return navigationOrdinal
+    ? clipped.slice(0, navigationOrdinal.index + 1)
+    : clipped;
 }
 
 /**
@@ -172,6 +183,7 @@ export function sourceTextIsOperationalBlob(
     PHONE_TOKEN_RE.test(combined),
     EMAIL_TOKEN_RE.test(combined),
     OPENING_HOURS_TOKEN_RE.test(combined),
+    HOURS_LABEL_RE.test(combined),
     ADDRESS_TOKEN_RE.test(combined),
     /\b(?:book|schedule|request)\b[^.]{0,40}\bappointment\b/iu.test(combined),
     /\b(?:home|about|services|contact)\b(?:[^.]{0,60}\b(?:home|about|services|contact)\b){2,}/iu

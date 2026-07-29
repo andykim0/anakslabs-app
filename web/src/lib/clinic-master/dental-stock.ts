@@ -25,6 +25,8 @@ export function selectDentalStock(input: {
   category: DentalStockCategory;
   slot: DentalStockSlot;
   accent: ClinicAccentPreset;
+  selectionSalt?: string;
+  excludedAssetIds?: readonly string[];
 }): FrozenDentalStockAsset | undefined {
   const manifest = input.manifest ?? DENTAL_STOCK_MANIFEST;
   const candidates = manifest.assets
@@ -39,8 +41,15 @@ export function selectDentalStock(input: {
     input.category,
     input.slot,
     input.accent,
+    ...(input.selectionSalt ? [input.selectionSalt] : []),
   ].join('|');
-  return candidates[stableIndex(seed, candidates.length)];
+  const start = stableIndex(seed, candidates.length);
+  const excluded = new Set(input.excludedAssetIds ?? []);
+  for (let offset = 0; offset < candidates.length; offset += 1) {
+    const candidate = candidates[(start + offset) % candidates.length];
+    if (!excluded.has(candidate.assetId)) return candidate;
+  }
+  return undefined;
 }
 
 export function dentalStockCategoryForSource(
@@ -88,6 +97,10 @@ export function applyDentalStockToClinicMaster(
     slot: DentalStockSlot;
     /** Additive multipage seam. Omission preserves the original home-only output bytes. */
     pageSlug?: string;
+    /** Multipage-only seed scope. Omission preserves the original selector bytes. */
+    selectionSalt?: string;
+    /** Deterministic hero reuse guard. Omission preserves the original selector bytes. */
+    excludedAssetIds?: readonly string[];
     manifest?: DentalStockManifest;
   },
 ): SiteConfig {
@@ -105,6 +118,8 @@ export function applyDentalStockToClinicMaster(
     category: input.category,
     slot: input.slot,
     accent: config.clinicMaster.accentPreset,
+    selectionSalt: input.selectionSalt,
+    excludedAssetIds: input.excludedAssetIds,
   });
   if (!asset) return config;
   let changed = false;

@@ -254,6 +254,7 @@ export function buildClinicFeatureSections(input: {
   candidates: readonly FeatureLayoutVariantId[];
   titleSourceIdPrefix?: string;
   numbered?: boolean;
+  numberOffset?: number;
   surface?: boolean;
   maximumItems?: number;
 }): Section[] {
@@ -305,7 +306,8 @@ export function buildClinicFeatureSections(input: {
         : input.numbered
           ? layoutText(
             `${input.id}${suffix}-marker-${index}`,
-            String(index + 1 + groupIndex * maximumItems).padStart(2, '0'),
+            String(index + 1 + groupIndex * maximumItems + (input.numberOffset ?? 0))
+              .padStart(2, '0'),
             input.theme,
             'caption',
           )

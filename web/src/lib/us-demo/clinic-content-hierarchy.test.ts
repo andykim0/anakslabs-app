@@ -147,11 +147,19 @@ describe('CLINIC B — source text segmentation lands before layout projection',
       headings: [
         'Emergency Dentistry',
         'What should I do with a severe toothache?',
+        'While You Wait — First Aid Tips',
+        'What to Do in a Dental Emergency',
+        'Stay Calm & Call Us',
+        'Dental Emergency? Call Now.',
         'Ready to restore your smile?',
       ],
       text: [
         'Emergency Dentistry Same-day care is described for urgent pain and damaged teeth.',
         'What should I do with a severe toothache? Call the office when pain is severe or swelling is present.',
+        'While You Wait — First Aid Tips Rinse with warm salt water and use a cold compress. Office Hours: ',
+        'What to Do in a Dental Emergency Follow these steps and call us right away.01',
+        'Stay Calm & Call Us Take a breath and call (213) 555-0142.',
+        'Dental Emergency? Call Now. Call us immediately.',
         'Ready to restore your smile? Schedule a consultation today.',
         '(213) 555-0142 3663 W 6th St STE 300, Los Angeles, CA 90020',
         'Monday through Thursday 9:30 AM to 6:00 PM Services About Contact',
@@ -173,6 +181,16 @@ describe('CLINIC B — source text segmentation lands before layout projection',
       'Ready to restore your smile?',
       pairs.find((pair) => pair.heading === 'Ready to restore your smile?')?.body,
     ), true);
+    assert.equal(
+      pairs.find((pair) => pair.heading === 'While You Wait — First Aid Tips')?.body,
+      'Rinse with warm salt water and use a cold compress.',
+    );
+    assert.equal(
+      pairs.find((pair) => pair.heading === 'What to Do in a Dental Emergency')?.body,
+      'Follow these steps and call us right away.',
+    );
+    assert.equal(sourceTextIsOperationalBlob('Dental Emergency? Call Now.', 'Call us immediately.'), true);
+    assert.equal(sourceTextIsOperationalBlob('Stay Calm & Call Us', 'Take a breath and call us.'), true);
 
     const home = page({
       url: 'https://clinic.example/',
@@ -187,6 +205,9 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     });
     const blocks = prospectPublicSourceBlocks(artifact([home, service]));
     assert.equal(blocks.some((block) => /Ready to restore your smile/iu.test(block.text)), false);
+    assert.equal(blocks.some((block) => /Dental Emergency\? Call Now/iu.test(block.text)), false);
+    assert.equal(blocks.some((block) => /Stay Calm & Call Us/iu.test(block.text)), false);
+    assert.equal(blocks.some((block) => /Office Hours:/iu.test(block.text)), false);
     assert.equal(blocks.some((block) => (
       block.kind === 'faq_answer' && /Services About Contact/iu.test(block.text)
     )), false);

@@ -323,6 +323,24 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
       accent: 'clean-blue',
     });
     assert.deepEqual(second, first);
+    const alternate = selectDentalStock({
+      hospitalStableId: 'hospital-001',
+      category: 'implant',
+      slot: 'hero',
+      accent: 'clean-blue',
+      selectionSalt: 'page:emergency-dentistry',
+      excludedAssetIds: first ? [first.assetId] : [],
+    });
+    assert.ok(alternate);
+    assert.notEqual(alternate.assetId, first?.assetId);
+    assert.deepEqual(selectDentalStock({
+      hospitalStableId: 'hospital-001',
+      category: 'implant',
+      slot: 'hero',
+      accent: 'clean-blue',
+      selectionSalt: 'page:emergency-dentistry',
+      excludedAssetIds: first ? [first.assetId] : [],
+    }), alternate);
     assert.equal(dentalStockSlotIsAllowed('hero'), true);
     assert.equal(dentalStockSlotIsAllowed('atmosphere'), true);
     for (const forbidden of ['provider', 'real-hospital', 'patient-result', 'before-after']) {

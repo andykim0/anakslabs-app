@@ -10,6 +10,7 @@ import { heroPosterPreloadHtml } from '@/lib/export/document-shell';
 import { clinicFeatureGroups } from '@/lib/clinic-master/layout-sections';
 import { compileUsMedicalDemo } from './source-compiler';
 import {
+  clinicMaximumConsecutiveProseSections,
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
   planProcedurePages,
   previewFullExperienceFromArtifact,
@@ -463,7 +464,16 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     );
     assert.equal(
       implantPage.sections.some((section) => section.type === 'cta'),
-      false,
+      true,
+    );
+    assert.equal(clinicMaximumConsecutiveProseSections(implantPage.sections) <= 2, true);
+    assert.equal(
+      implantPage.sections
+        .find((section) => section.type === 'cta')
+        ?.elements.some((element) => (
+          element.kind === 'button' && element.href === '#clinic-sticky-booking'
+        )),
+      true,
     );
     assert.equal(
       compiled.config.pages[0].sections.find((section) => section.id === 'clinic-home-cta')

@@ -15,7 +15,9 @@ import {
   buildClinicFeatureSections,
   buildClinicGallerySections,
   buildClinicHeroSection,
+  buildClinicStatStripSection,
   CLINIC_RADIUS_TOKENS,
+  clinicFeatureGroups,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
   verifyClinicUsDestination,
@@ -41,6 +43,7 @@ import {
 } from './source-images';
 import {
   prospectPublicSourceContentUnits,
+  prospectPublicSourceOperationalStats,
   type ProspectPublicSourceContentUnit,
 } from './source-extraction';
 
@@ -379,6 +382,34 @@ export function clinicProcedureMediaCandidates(
   return ['features.icon-grid', 'features.sticky-heading-two-column', 'features.numbered-list'];
 }
 
+const CLINIC_PROSE_RESET_VARIANTS = new Set([
+  'features.numbered-list',
+  'features.icon-grid',
+  'features.faq-accordion',
+  'features.stat-strip',
+]);
+
+export function clinicSectionIsProse(section: Section): boolean {
+  const resolvedId = section.sectionLayout?.resolvedId;
+  if (!resolvedId || section.sectionLayout?.kind !== 'features') return false;
+  if (CLINIC_PROSE_RESET_VARIANTS.has(resolvedId)) return false;
+  return !section.elements.some((element) => (
+    element.kind === 'image' || element.kind === 'video'
+  ));
+}
+
+export function clinicMaximumConsecutiveProseSections(
+  sections: readonly Section[],
+): number {
+  let current = 0;
+  let maximum = 0;
+  for (const section of sections) {
+    current = clinicSectionIsProse(section) ? current + 1 : 0;
+    maximum = Math.max(maximum, current);
+  }
+  return maximum;
+}
+
 function unitContext(unit: ProspectPublicSourceContentUnit): string {
   return `${unit.title.text} ${unit.body?.text ?? ''}`;
 }
@@ -431,6 +462,11 @@ function procedureContentSections(input: {
   });
   const mediaCandidates = clinicProcedureMediaCandidates(images.length);
   const sections: Section[] = [];
+  let proseRun = 0;
+  const pushSection = (section: Section) => {
+    sections.push(section);
+    proseRun = clinicSectionIsProse(section) ? proseRun + 1 : 0;
+  };
   const append = (
     key: keyof typeof buckets,
     name: string,
@@ -441,22 +477,45 @@ function procedureContentSections(input: {
       unit,
       imageByUnit.get(unit.id),
     ));
-    sections.push(...buildClinicFeatureSections({
-      id: `${input.id}-${key}`,
-      name,
-      units,
-      theme: input.theme,
-      candidates,
-      titleSourceIdPrefix: 'procedure-service',
-      numbered,
-      surface: sections.length % 2 === 1,
-    }));
+    let unitOffset = 0;
+    for (const [groupIndex, group] of clinicFeatureGroups(units).entries()) {
+      const breakDeviceCandidates = proseRun >= 2 && group.length >= 2
+        ? ['features.icon-grid' as const, ...candidates.filter(
+            (candidate) => candidate !== 'features.icon-grid',
+          )]
+        : candidates;
+      const built = buildClinicFeatureSections({
+        id: `${input.id}-${key}${groupIndex === 0 ? '' : `-${groupIndex + 1}`}`,
+        name,
+        units: group,
+        theme: input.theme,
+        candidates: breakDeviceCandidates,
+        titleSourceIdPrefix: 'procedure-service',
+        numbered,
+        numberOffset: unitOffset,
+        surface: sections.length % 2 === 1,
+      });
+      built.forEach(pushSection);
+      unitOffset += group.length;
+    }
   };
   append(
     'overview',
     `${input.name} Overview`,
     mediaCandidates,
   );
+  const operationalStats = prospectPublicSourceOperationalStats(input.blocks);
+  const statStrip = buildClinicStatStripSection({
+    id: `${input.id}-operational-stats`,
+    name: 'Practice at a glance',
+    theme: input.theme,
+    units: operationalStats.map((stat) => ({
+      id: stat.id,
+      title: stat.title,
+      marker: { source: stat.title, text: stat.marker },
+    })),
+  });
+  if (statStrip) pushSection(statStrip);
   append(
     'process',
     'Treatment Process',
@@ -488,12 +547,12 @@ function procedureContentSections(input: {
       )),
     })),
   });
-  if (faq) sections.push(faq);
+  if (faq) pushSection(faq);
   if (input.bookingUrl) {
     const ctaTitle = sourceUnits[0]?.title
       ?? input.blocks.find((block) => block.kind === 'service');
     if (ctaTitle) {
-      sections.push(buildClinicCtaSection({
+      pushSection(buildClinicCtaSection({
         id: `${input.id}-cta`,
         name: 'Book Appointment',
         theme: input.theme,
@@ -532,15 +591,14 @@ function procedureImageTopic(
   plan: PlannedProcedurePage,
   slug: string,
 ): ClinicImagePageTopic {
-  const context = [
+  const routeContext = [
     slug,
     plan.sourceUrl ?? '',
-    ...plan.blocks.filter((block) => block.kind === 'service').map((block) => block.text),
-  ].join(' ');
-  if (/\b(?:emergency|toothache|urgent)\b/iu.test(context)) return 'emergency';
-  if (/\b(?:endodontic|root canal)\b/iu.test(context)) return 'endodontic';
-  if (/\b(?:oral surgery|bone graft|extraction)\b/iu.test(context)) return 'oral-surgery';
-  if (/\b(?:porcelain veneer|veneers?)\b/iu.test(context)) return 'porcelain-veneers';
+  ].join(' ').replace(/[-_/]+/gu, ' ');
+  if (/\b(?:emergency|toothache|urgent)\b/iu.test(routeContext)) return 'emergency';
+  if (/\b(?:endodontics?|root canal)\b/iu.test(routeContext)) return 'endodontic';
+  if (/\b(?:oral surgery|bone graft|extraction)\b/iu.test(routeContext)) return 'oral-surgery';
+  if (/\b(?:porcelain veneer|veneers?)\b/iu.test(routeContext)) return 'porcelain-veneers';
   if (plan.category === 'implant') return 'implant';
   if (plan.category === 'orthodontic') return 'orthodontic';
   if (plan.category === 'cosmetic-restorative') return 'cosmetic-restorative';
@@ -652,7 +710,10 @@ export function compileUsMedicalFullPreview(input: {
       || photoSlotPool.indexOf(left) - photoSlotPool.indexOf(right)
     ));
     const selected = available[0];
-    if (!selected) return undefined;
+    if (!selected) {
+      previousHeroImageId = undefined;
+      return undefined;
+    }
     heroUseCounts.set(selected.source.id, (heroUseCounts.get(selected.source.id) ?? 0) + 1);
     previousHeroImageId = selected.source.id;
     return selected;
@@ -838,10 +899,11 @@ export function compileUsMedicalFullPreview(input: {
     );
     const detail = procedureContentSections({
       id: `clinic-procedure-${category}-details`,
-      name: meta.navLabel,
+      name: displayTitle,
       blocks: pageSourceBlocks,
       images: bodyImages,
       theme,
+      bookingUrl: '#clinic-sticky-booking',
     });
     const galleryImages = bodyImages.filter(
       (image) => !detail.usedImageIds.has(image.source.id),
@@ -956,8 +1018,13 @@ export function compileUsMedicalFullPreview(input: {
     pages,
     nav: { enabled: true },
   };
+  const stockHeroUseCounts = new Map<string, number>();
+  let previousStockHeroAssetId: string | undefined;
   for (const page of pages) {
-    if (pageHeroHasImage(page)) continue;
+    if (pageHeroHasImage(page)) {
+      previousStockHeroAssetId = undefined;
+      continue;
+    }
     const procedure = CATEGORY_ORDER.find((category) => (
       page.id.startsWith(`clinic-procedure-${category}-`)
     ));
@@ -971,7 +1038,28 @@ export function compileUsMedicalFullPreview(input: {
       category,
       slot: 'hero',
       pageSlug: page.slug,
+      selectionSalt: `page:${page.slug || 'home'}`,
+      excludedAssetIds: [
+        ...(previousStockHeroAssetId ? [previousStockHeroAssetId] : []),
+        ...[...stockHeroUseCounts.entries()]
+          .filter(([, count]) => count >= 2)
+          .map(([assetId]) => assetId),
+      ],
     });
+    const stockHeroUrl = config.pages
+      .find((candidate) => candidate.slug === page.slug)
+      ?.sections.find((candidate) => candidate.type === 'hero')
+      ?.background.image?.src;
+    const stockHeroAssetId = stockHeroUrl
+      ? config.assetRefs?.find((ref) => ref.url === stockHeroUrl)?.assetId
+      : undefined;
+    previousStockHeroAssetId = stockHeroAssetId;
+    if (stockHeroAssetId) {
+      stockHeroUseCounts.set(
+        stockHeroAssetId,
+        (stockHeroUseCounts.get(stockHeroAssetId) ?? 0) + 1,
+      );
+    }
   }
 
   const sourceByUrl = new Map(projectedImages.map((image) => [image.source.url, image.source.id]));
