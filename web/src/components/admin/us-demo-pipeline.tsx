@@ -41,6 +41,7 @@ const BLOCK_KIND_LABELS = {
   price_or_financing: '가격·금융',
   faq_question: '질문',
   faq_answer: '답변',
+  cta: '원문 CTA',
   phone: '전화',
   address: '주소',
   opening_hours: '진료 시간',

@@ -30,6 +30,7 @@ export type ClinicMasterSourceKind =
   | 'price_or_financing'
   | 'faq_question'
   | 'faq_answer'
+  | 'cta'
   | 'phone'
   | 'address'
   | 'opening_hours';

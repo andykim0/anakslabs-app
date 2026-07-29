@@ -24,6 +24,11 @@ const GENERIC_HEADING_RE =
   /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
 const CTA_HEADING_RE =
   /^(?:ready to\b|book\b|schedule\b|request (?:an? )?appointment\b|call (?:us|today|now)\b|contact us\b|get started\b|find out\b)|\b(?:call now|call us)\b/iu;
+const GLUED_CTA_START_RE =
+  /(?:Find Out|Book|Schedule|Learn More|Get|Call|Request|Contact)\b/gu;
+const CTA_BOUNDARY_BRAND_RE = /^(?:MetLife|UnitedConcordia|CareCredit)$/u;
+const CTA_NON_TERMINAL_PRECEDING_WORD_RE =
+  /^(?:a|an|the|and|or|but|of|to|for|with|without|in|on|at|by|from|as|into|through|about|your|our|their|this|that|these|those|is|are|be|more|most|new|easy|simple|available|affordable|personalized|advanced|comprehensive)$/iu;
 const PHONE_TOKEN_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/u;
 const EMAIL_TOKEN_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu;
 const OPENING_HOURS_TOKEN_RE =
@@ -80,10 +85,14 @@ function safePage(page: CrawlPageArtifact): boolean {
     && !PORTAL_OR_BOOKING_RE.test(`${url.pathname}${url.search}`);
 }
 
-interface HeadingBodyPair {
+export interface HeadingBodyPair {
   heading: string;
   headingOrdinal: number;
   body?: string;
+  /** Operational clipping applied, but before the glued CTA tail is split. */
+  bodyBeforeCtaSplit?: string;
+  /** Exact suffix moved to a local source-backed CTA block; concatenation restores the input. */
+  relocatedCta?: string;
 }
 
 export interface ProspectPublicSourceContentUnit {
@@ -160,13 +169,48 @@ function firstOperationalBoundary(
   return offsets.length > 0 ? Math.min(...offsets) : undefined;
 }
 
-function splitVerbatimBody(page: CrawlPageArtifact, value: string): string {
+export function splitKnownCtaTail(value: string): {
+  body: string;
+  relocatedCta?: string;
+} {
+  GLUED_CTA_START_RE.lastIndex = 0;
+  for (const match of value.matchAll(GLUED_CTA_START_RE)) {
+    const index = match.index;
+    if (index <= 0 || !/[a-z]/u.test(value[index - 1] ?? '')) continue;
+    const leftToken = /[\p{L}'’-]+$/u.exec(value.slice(0, index))?.[0];
+    const rightToken = /^[\p{L}'’-]+/u.exec(value.slice(index))?.[0];
+    if (!leftToken || !rightToken) continue;
+    const joinedToken = `${leftToken}${rightToken}`;
+    if (CTA_BOUNDARY_BRAND_RE.test(joinedToken)) continue;
+    if (CTA_NON_TERMINAL_PRECEDING_WORD_RE.test(leftToken)) continue;
+    return {
+      body: value.slice(0, index),
+      relocatedCta: value.slice(index),
+    };
+  }
+  return { body: value };
+}
+
+function splitVerbatimBody(page: CrawlPageArtifact, value: string): {
+  body: string;
+  bodyBeforeCtaSplit: string;
+  relocatedCta?: string;
+} {
   const boundary = firstOperationalBoundary(page, value);
   const clipped = boundary === undefined ? value : value.slice(0, boundary);
   const navigationOrdinal = /[.!?]0[1-9]\s*$/u.exec(clipped);
-  return navigationOrdinal
+  const withoutNavigation = navigationOrdinal
     ? clipped.slice(0, navigationOrdinal.index + 1)
     : clipped;
+  const bodyBeforeCtaSplit = withoutNavigation
+    .replace(/^[\s:|·–—-]+/u, '')
+    .trim();
+  const split = splitKnownCtaTail(bodyBeforeCtaSplit);
+  return {
+    body: split.body,
+    bodyBeforeCtaSplit,
+    ...(split.relocatedCta ? { relocatedCta: split.relocatedCta } : {}),
+  };
 }
 
 /**
@@ -217,15 +261,29 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
       const bodyStart = start + entry.heading.length;
       const bodyEnd = allHeadingStarts.find((candidate) => candidate >= bodyStart)
         ?? pageText.length;
-      return boundedVerbatimBody(splitVerbatimBody(page, pageText.slice(bodyStart, bodyEnd)));
-    }).filter((body): body is string => Boolean(body));
-    const body = candidates.sort((left, right) => (
-      right.length - left.length || left.localeCompare(right)
+      const split = splitVerbatimBody(page, pageText.slice(bodyStart, bodyEnd));
+      const body = boundedVerbatimBody(split.body);
+      return body ? { ...split, body } : undefined;
+    }).filter((candidate): candidate is {
+      body: string;
+      bodyBeforeCtaSplit: string;
+      relocatedCta?: string;
+    } => Boolean(candidate));
+    const candidate = candidates.sort((left, right) => (
+      right.body.length - left.body.length || left.body.localeCompare(right.body)
     ))[0];
     return {
       heading: entry.heading,
       headingOrdinal: entry.headingOrdinal,
-      ...(body ? { body } : {}),
+      ...(candidate
+        ? {
+            body: candidate.body,
+            bodyBeforeCtaSplit: candidate.bodyBeforeCtaSplit,
+            ...(candidate.relocatedCta
+              ? { relocatedCta: candidate.relocatedCta }
+              : {}),
+          }
+        : {}),
     };
   });
 }
@@ -288,9 +346,12 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (SERVICE_PATH_RE.test(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.length <= 120)
-      .filter((pair) => !sourceTextIsOperationalBlob(pair.heading, pair.body))
       .slice(0, 12)
       .forEach((pair) => {
+        if (pair.relocatedCta) {
+          add('cta', pair.relocatedCta, 'text.cta', pair.headingOrdinal);
+        }
+        if (sourceTextIsOperationalBlob(pair.heading, pair.body)) return;
         if (pair.heading.endsWith('?')) {
           add('faq_question', pair.heading, 'headings', pair.headingOrdinal);
           add('faq_answer', pair.body, 'text', pair.headingOrdinal);
@@ -324,9 +385,12 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (FAQ_PATH_RE.test(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.endsWith('?') && pair.heading.length <= 240)
-      .filter((pair) => !sourceTextIsOperationalBlob(pair.heading, pair.body))
       .slice(0, 12)
       .forEach((pair) => {
+        if (pair.relocatedCta) {
+          add('cta', pair.relocatedCta, 'text.cta', pair.headingOrdinal);
+        }
+        if (sourceTextIsOperationalBlob(pair.heading, pair.body)) return;
         add('faq_question', pair.heading, 'headings', pair.headingOrdinal);
         add('faq_answer', pair.body, 'text', pair.headingOrdinal);
       });
@@ -339,7 +403,9 @@ export function prospectPublicSourceBlocks(
 ): ProspectPublicSourceBlock[] {
   const seen = new Set<string>();
   return artifact.pages.flatMap(pageBlocks).filter((block) => {
-    const key = `${block.kind}:${block.text.toLocaleLowerCase('en-US')}`;
+    const key = block.kind === 'cta'
+      ? `${block.kind}:${block.sourceUrl}:${block.sourceLocation.ordinal}:${block.text}`
+      : `${block.kind}:${block.text.toLocaleLowerCase('en-US')}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;

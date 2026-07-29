@@ -542,7 +542,8 @@ function procedureContentSections(input: {
   });
   if (faq) pushSection(faq);
   if (input.bookingUrl) {
-    const ctaTitle = sourceUnits[0]?.title
+    const ctaTitle = input.blocks.find((block) => block.kind === 'cta')
+      ?? sourceUnits[0]?.title
       ?? input.blocks.find((block) => block.kind === 'service');
     if (ctaTitle) {
       pushSection(buildClinicCtaSection({

@@ -9,6 +9,7 @@ import type { SiteTheme } from '@/lib/types/site';
 import {
   prospectPublicSourceBlocks,
   prospectPublicSourceOperationalStats,
+  splitKnownCtaTail,
   sourceHeadingBodyPairs,
   sourceTextIsOperationalBlob,
 } from './source-extraction';
@@ -149,6 +150,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
         'What should I do with a severe toothache?',
         'While You Wait — First Aid Tips',
         'What to Do in a Dental Emergency',
+        'Who Is a Good Candidate?',
         'Stay Calm & Call Us',
         'Dental Emergency? Call Now.',
         'Ready to restore your smile?',
@@ -158,6 +160,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
         'What should I do with a severe toothache? Call the office when pain is severe or swelling is present.',
         'While You Wait — First Aid Tips Rinse with warm salt water and use a cold compress. Office Hours: ',
         'What to Do in a Dental Emergency Follow these steps and call us right away.01',
+        'Who Is a Good Candidate? Healthy gums and adequate bone are important, and a non-smoker is preferredFind Out If You Qualify Your Journey ',
         'Stay Calm & Call Us Take a breath and call (213) 555-0142.',
         'Dental Emergency? Call Now. Call us immediately.',
         'Ready to restore your smile? Schedule a consultation today.',
@@ -189,6 +192,27 @@ describe('CLINIC B — source text segmentation lands before layout projection',
       pairs.find((pair) => pair.heading === 'What to Do in a Dental Emergency')?.body,
       'Follow these steps and call us right away.',
     );
+    const candidate = pairs.find((pair) => pair.heading === 'Who Is a Good Candidate?');
+    assert.equal(
+      candidate?.body,
+      'Healthy gums and adequate bone are important, and a non-smoker is preferred',
+    );
+    assert.equal(candidate?.relocatedCta, 'Find Out If You Qualify Your Journey');
+    assert.equal(
+      `${candidate?.body ?? ''}${candidate?.relocatedCta ?? ''}`,
+      candidate?.bodyBeforeCtaSplit,
+    );
+    assert.ok(
+      (candidate?.body?.length ?? 0) + (candidate?.relocatedCta?.length ?? 0)
+        >= (candidate?.bodyBeforeCtaSplit?.length ?? Number.MAX_SAFE_INTEGER),
+    );
+    for (const brand of ['MetLife', 'UnitedConcordia', 'CareCredit']) {
+      assert.deepEqual(splitKnownCtaTail(brand), { body: brand });
+    }
+    assert.deepEqual(
+      splitKnownCtaTail('Our advancedBooking options'),
+      { body: 'Our advancedBooking options' },
+    );
     assert.equal(sourceTextIsOperationalBlob('Dental Emergency? Call Now.', 'Call us immediately.'), true);
     assert.equal(sourceTextIsOperationalBlob('Stay Calm & Call Us', 'Take a breath and call us.'), true);
 
@@ -216,6 +240,20 @@ describe('CLINIC B — source text segmentation lands before layout projection',
       block.kind === 'opening_hours'
       && block.text === 'Monday through Thursday 9:30 AM to 6:00 PM'
     )));
+    const relocated = blocks.find((block) => (
+      block.kind === 'cta'
+      && block.sourceUrl === service.url
+      && block.sourceLocation.ordinal === candidate?.headingOrdinal
+    ));
+    assert.equal(relocated?.text, candidate?.relocatedCta);
+    assert.equal(
+      `${blocks.find((block) => (
+        block.kind === 'faq_answer'
+        && block.sourceUrl === service.url
+        && block.sourceLocation.ordinal === candidate?.headingOrdinal
+      ))?.text ?? ''}${relocated?.text ?? ''}`,
+      candidate?.bodyBeforeCtaSplit,
+    );
   });
 
   test('47장 OCR 인벤토리는 일반 사진 슬롯 19장과 사이트 전체 주제 풀로 결정적으로 축소된다', () => {
