@@ -160,7 +160,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
         'What should I do with a severe toothache? Call the office when pain is severe or swelling is present.',
         'While You Wait — First Aid Tips Rinse with warm salt water and use a cold compress. Office Hours: ',
         'What to Do in a Dental Emergency Follow these steps and call us right away.01',
-        'Who Is a Good Candidate? Healthy gums and adequate bone are important, and a non-smoker is preferredFind Out If You Qualify Your Journey ',
+        'Who Is a Good Candidate? Healthy gums and adequate bone are important, and a non-smoker is preferred)Find Out If You Qualify Your Journey ',
         'Stay Calm & Call Us Take a breath and call (213) 555-0142.',
         'Dental Emergency? Call Now. Call us immediately.',
         'Ready to restore your smile? Schedule a consultation today.',
@@ -195,7 +195,7 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     const candidate = pairs.find((pair) => pair.heading === 'Who Is a Good Candidate?');
     assert.equal(
       candidate?.body,
-      'Healthy gums and adequate bone are important, and a non-smoker is preferred',
+      'Healthy gums and adequate bone are important, and a non-smoker is preferred)',
     );
     assert.equal(candidate?.relocatedCta, 'Find Out If You Qualify Your Journey');
     assert.equal(
@@ -212,6 +212,10 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     assert.deepEqual(
       splitKnownCtaTail('Our advancedBooking options'),
       { body: 'Our advancedBooking options' },
+    );
+    assert.deepEqual(
+      splitKnownCtaTail('Service linksBlogContact Us today'),
+      { body: 'Service linksBlogContact Us today' },
     );
     assert.equal(sourceTextIsOperationalBlob('Dental Emergency? Call Now.', 'Call us immediately.'), true);
     assert.equal(sourceTextIsOperationalBlob('Stay Calm & Call Us', 'Take a breath and call us.'), true);

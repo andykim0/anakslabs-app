@@ -28,7 +28,7 @@ const GLUED_CTA_START_RE =
   /(?:Find Out|Book|Schedule|Learn More|Get|Call|Request|Contact)\b/gu;
 const CTA_BOUNDARY_BRAND_RE = /^(?:MetLife|UnitedConcordia|CareCredit)$/u;
 const CTA_NON_TERMINAL_PRECEDING_WORD_RE =
-  /^(?:a|an|the|and|or|but|of|to|for|with|without|in|on|at|by|from|as|into|through|about|your|our|their|this|that|these|those|is|are|be|more|most|new|easy|simple|available|affordable|personalized|advanced|comprehensive)$/iu;
+  /^(?:a|an|the|and|or|but|of|to|for|with|without|in|on|at|by|from|as|into|through|about|your|our|their|this|that|these|those|is|are|be|more|most|new|easy|simple|available|affordable|personalized|advanced|comprehensive|blog|services?|insurance|financing|privacy|policy|terms?|accessibility|maps?)$/iu;
 const PHONE_TOKEN_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/u;
 const EMAIL_TOKEN_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu;
 const OPENING_HOURS_TOKEN_RE =
@@ -176,8 +176,11 @@ export function splitKnownCtaTail(value: string): {
   GLUED_CTA_START_RE.lastIndex = 0;
   for (const match of value.matchAll(GLUED_CTA_START_RE)) {
     const index = match.index;
-    if (index <= 0 || !/[a-z]/u.test(value[index - 1] ?? '')) continue;
-    const leftToken = /[\p{L}'’-]+$/u.exec(value.slice(0, index))?.[0];
+    if (index <= 0) continue;
+    const leftContext = value.slice(0, index).replace(/[)\]}”"']+$/gu, '');
+    if (!/[a-z]$/u.test(leftContext)) continue;
+    const leftToken = /[A-Z][a-z]+$/u.exec(leftContext)?.[0]
+      ?? /[\p{L}'’-]+$/u.exec(leftContext)?.[0];
     const rightToken = /^[\p{L}'’-]+/u.exec(value.slice(index))?.[0];
     if (!leftToken || !rightToken) continue;
     const joinedToken = `${leftToken}${rightToken}`;
