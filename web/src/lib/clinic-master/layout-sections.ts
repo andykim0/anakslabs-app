@@ -274,16 +274,19 @@ export function buildClinicFeatureSections(input: {
     })];
   }
   const maximumItems = input.maximumItems ?? FEATURE_MAXIMUM_ITEMS;
-  return clinicFeatureGroups(input.units, maximumItems).map((units, groupIndex) => {
-    const suffix = groupIndex === 0 ? '' : `-${groupIndex + 1}`;
-    const title = layoutText(
-      `${input.id}${suffix}-layout-title`,
-      input.name,
-      input.theme,
-      'title',
-    );
-    const elements: CanvasElement[] = [title];
-    const items = units.map((unit, index) => {
+  const groups = clinicFeatureGroups(input.units, maximumItems);
+  const title = layoutText(
+    `${input.id}-layout-title`,
+    input.name,
+    input.theme,
+    'title',
+  );
+  const elements: CanvasElement[] = [title];
+  let globalIndex = 0;
+  const items = groups.flatMap((units, groupIndex) => (
+    units.map((unit) => {
+      const index = globalIndex;
+      globalIndex += 1;
       const unitSuffix = `${groupIndex}-${index}`;
       const itemTitle = sourceText(
         unit.title,
@@ -305,8 +308,8 @@ export function buildClinicFeatureSections(input: {
           )
         : input.numbered
           ? layoutText(
-            `${input.id}${suffix}-marker-${index}`,
-            String(index + 1 + groupIndex * maximumItems + (input.numberOffset ?? 0))
+            `${input.id}-marker-${index}`,
+            String(index + 1 + (input.numberOffset ?? 0))
               .padStart(2, '0'),
             input.theme,
             'caption',
@@ -317,7 +320,7 @@ export function buildClinicFeatureSections(input: {
       if (media) elements.push(media);
       const cta: ButtonElement | undefined = unit.href
         ? {
-            id: `${input.id}${suffix}-item-link-${index}`,
+            id: `${input.id}-item-link-${index}`,
             kind: 'button',
             label: 'View treatment',
             href: unit.href,
@@ -342,26 +345,34 @@ export function buildClinicFeatureSections(input: {
         ...(media ? { mediaId: media.id } : {}),
         ...(cta ? { ctaId: cta.id } : {}),
       };
-    });
-    const section = baseSection({
-      id: `${input.id}${suffix}`,
-      type: 'features',
-      name: input.name,
-      theme: input.theme,
-      elements,
-      surface: input.surface,
-    });
-    const projection = resolveFeature(input.candidates, section, input.theme, {
-      intro: { titleId: title.id },
-      items,
-    });
-    if (!projection) {
-      throw new Error(`CLINIC_FEATURE_LAYOUT_UNRESOLVED:${input.id}:${units.length}`);
-    }
-    section.sectionLayout = projection;
-    section.height = projection.bands.wide.sectionHeight;
-    return section;
+    })
+  ));
+  const section = baseSection({
+    id: input.id,
+    type: 'features',
+    name: input.name,
+    theme: input.theme,
+    elements,
+    surface: input.surface,
   });
+  const projection = resolveFeature(input.candidates, section, input.theme, {
+    intro: { titleId: title.id },
+    items,
+    ...(groups.length > 1
+      ? {
+          groups: groups.map((units, groupIndex) => ({
+            id: `${input.id}-${groupIndex + 1}`,
+            itemIds: units.map((unit) => unit.id),
+          })),
+        }
+      : {}),
+  });
+  if (!projection) {
+    throw new Error(`CLINIC_FEATURE_LAYOUT_UNRESOLVED:${input.id}:${input.units.length}`);
+  }
+  section.sectionLayout = projection;
+  section.height = projection.bands.wide.sectionHeight;
+  return [section];
 }
 
 export function buildClinicAboutSection(input: {

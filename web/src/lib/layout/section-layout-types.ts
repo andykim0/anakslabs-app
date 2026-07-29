@@ -241,6 +241,11 @@ export interface FeatureLayoutItemBinding {
   ctaId?: string;
 }
 
+export interface FeatureLayoutGroupBinding {
+  id: string;
+  itemIds: readonly string[];
+}
+
 export interface AboutLayoutBinding {
   id: string;
   statementId?: string;
@@ -264,6 +269,11 @@ export interface GalleryLayoutItemBinding {
 export interface FeatureLayoutContent {
   intro: SectionLayoutIntroBinding;
   items: readonly FeatureLayoutItemBinding[];
+  /**
+   * Explicit internal rows for a single titled section. Each group must independently satisfy
+   * the selected variant's item bounds and together cover every item exactly once.
+   */
+  groups?: readonly FeatureLayoutGroupBinding[];
 }
 
 export interface AboutLayoutContent {

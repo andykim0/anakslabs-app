@@ -17,7 +17,6 @@ import {
   buildClinicHeroSection,
   buildClinicStatStripSection,
   CLINIC_RADIUS_TOKENS,
-  clinicFeatureGroups,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
   verifyClinicUsDestination,
@@ -477,27 +476,21 @@ function procedureContentSections(input: {
       unit,
       imageByUnit.get(unit.id),
     ));
-    let unitOffset = 0;
-    for (const [groupIndex, group] of clinicFeatureGroups(units).entries()) {
-      const breakDeviceCandidates = proseRun >= 2 && group.length >= 2
-        ? ['features.icon-grid' as const, ...candidates.filter(
-            (candidate) => candidate !== 'features.icon-grid',
-          )]
-        : candidates;
-      const built = buildClinicFeatureSections({
-        id: `${input.id}-${key}${groupIndex === 0 ? '' : `-${groupIndex + 1}`}`,
-        name,
-        units: group,
-        theme: input.theme,
-        candidates: breakDeviceCandidates,
-        titleSourceIdPrefix: 'procedure-service',
-        numbered,
-        numberOffset: unitOffset,
-        surface: sections.length % 2 === 1,
-      });
-      built.forEach(pushSection);
-      unitOffset += group.length;
-    }
+    const breakDeviceCandidates = proseRun >= 2 && units.length >= 2
+      ? ['features.icon-grid' as const, ...candidates.filter(
+          (candidate) => candidate !== 'features.icon-grid',
+        )]
+      : candidates;
+    buildClinicFeatureSections({
+      id: `${input.id}-${key}`,
+      name,
+      units,
+      theme: input.theme,
+      candidates: breakDeviceCandidates,
+      titleSourceIdPrefix: 'procedure-service',
+      numbered,
+      surface: sections.length % 2 === 1,
+    }).forEach(pushSection);
   };
   append(
     'overview',

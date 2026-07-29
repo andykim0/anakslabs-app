@@ -7,7 +7,10 @@ import { SiteRenderer } from '@/components/site-renderer';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import { buildJsonLd } from '@/lib/seo/jsonld';
 import { heroPosterPreloadHtml } from '@/lib/export/document-shell';
-import { clinicFeatureGroups } from '@/lib/clinic-master/layout-sections';
+import {
+  buildClinicFeatureSections,
+  clinicFeatureGroups,
+} from '@/lib/clinic-master/layout-sections';
 import { compileUsMedicalDemo } from './source-compiler';
 import {
   clinicMaximumConsecutiveProseSections,
@@ -218,6 +221,34 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.deepEqual(
       clinicFeatureGroups(Array.from({ length: 13 }, (_, index) => index)),
       [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12]],
+    );
+    const theme = compileUsMedicalDemo(fixtureArtifact(), {
+      renderMode: 'preview-full',
+    }).config.theme;
+    const sections = buildClinicFeatureSections({
+      id: 'clinic-grouped-services',
+      name: 'Services',
+      units: Array.from({ length: 7 }, (_, index) => ({
+        id: `service-${index}`,
+        title: sourceBlock({
+          id: `service-title-${index}`,
+          kind: 'service',
+          text: `Source service ${index + 1}`,
+          sourceUrl: `https://clinic.example/services/${index + 1}`,
+        }),
+      })),
+      theme,
+      candidates: ['features.icon-grid'],
+    });
+    assert.equal(sections.length, 1);
+    assert.equal(sections[0]?.name, 'Services');
+    assert.equal(sections[0]?.sectionLayout?.items.length, 7);
+    assert.equal(sections[0]?.sectionLayout?.groups?.length, 2);
+    assert.equal(
+      sections[0]?.elements.filter((element) => (
+        element.kind === 'text' && element.text === 'Services'
+      )).length,
+      1,
     );
   });
 

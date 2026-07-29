@@ -14,6 +14,7 @@ import {
 import { featureLayoutById } from './feature-catalog';
 import type {
   FeatureLayoutContent,
+  FeatureLayoutGroupBinding,
   FeatureLayoutItemBinding,
   FeatureLayoutVariantId,
   SectionLayoutBandProjection,
@@ -23,6 +24,70 @@ import type {
 } from './section-layout-types';
 
 const BANDS = ['wide', 'compact', 'mobile'] as const satisfies readonly SectionLayoutBreakpointBand[];
+
+function internalGroupsAreValid(
+  groups: readonly FeatureLayoutGroupBinding[] | undefined,
+  items: readonly FeatureLayoutItemBinding[],
+  minimumItems: number,
+  maximumItems: number,
+): groups is readonly FeatureLayoutGroupBinding[] {
+  if (!groups || groups.length < 2) return false;
+  const itemIds = new Set(items.map((item) => item.id));
+  const groupedIds = groups.flatMap((group) => group.itemIds);
+  return (
+    groupedIds.length === items.length
+    && new Set(groupedIds).size === items.length
+    && groupedIds.every((id) => itemIds.has(id))
+    && groups.every((group) => (
+      group.itemIds.length >= minimumItems
+      && group.itemIds.length <= maximumItems
+    ))
+  );
+}
+
+function withInternalGroupFrames(
+  band: SectionLayoutBandProjection,
+  groups: readonly FeatureLayoutGroupBinding[] | undefined,
+  items: readonly FeatureLayoutItemBinding[],
+): SectionLayoutBandProjection {
+  if (!groups) return band;
+  const itemById = new Map(items.map((item) => [item.id, item]));
+  const groupFrames: Record<string, SectionLayoutCompiledFrame> = {};
+  for (const group of groups) {
+    const frames = group.itemIds.flatMap((itemId) => {
+      const item = itemById.get(itemId);
+      if (!item) return [];
+      return [
+        item.markerId,
+        item.mediaId,
+        item.titleId,
+        item.bodyId,
+        item.ctaId,
+      ].flatMap((elementId) => {
+        const frame = elementId ? band.frames[elementId] : undefined;
+        return frame ? [frame] : [];
+      });
+    });
+    if (frames.length === 0) continue;
+    const left = Math.min(...frames.map((frame) => frame.x));
+    const top = Math.min(...frames.map((frame) => frame.y));
+    const right = Math.max(...frames.map((frame) => frame.x + frame.w));
+    const bottom = Math.max(...frames.map((frame) => frame.y + frame.h));
+    groupFrames[`feature-group-${group.id}`] = {
+      x: left,
+      y: top,
+      w: right - left,
+      h: bottom - top,
+    };
+  }
+  return {
+    ...band,
+    groupFrames: {
+      ...band.groupFrames,
+      ...groupFrames,
+    },
+  };
+}
 
 interface LocalItemLayout {
   height: number;
@@ -434,13 +499,24 @@ export function resolveFeatureLayoutVariant({
   content: FeatureLayoutContent;
 }): SectionLayoutProjection | null {
   const variant = featureLayoutById(requestedId);
-  if (
-    content.items.length < variant.content.minimumItems
-    || content.items.length > variant.content.maximumItems
-  ) return null;
+  const internalGroups = internalGroupsAreValid(
+    content.groups,
+    content.items,
+    variant.content.minimumItems,
+    variant.content.maximumItems,
+  )
+    ? content.groups
+    : undefined;
+  if (content.items.length < variant.content.minimumItems) return null;
+  if (content.items.length > variant.content.maximumItems && !internalGroups) return null;
+  if (content.groups && !internalGroups) return null;
   const bands = Object.fromEntries(BANDS.map((band) => [
     band,
-    compileBand({ band, requestedId, elements, theme, content }),
+    withInternalGroupFrames(
+      compileBand({ band, requestedId, elements, theme, content }),
+      internalGroups,
+      content.items,
+    ),
   ])) as SectionLayoutProjection['bands'];
   return {
     catalogVersion: 1,
@@ -460,7 +536,14 @@ export function resolveFeatureLayoutVariant({
       ].filter((id): id is string => Boolean(id)),
       ...(item.mediaId ? { mediaElementId: item.mediaId } : {}),
     })),
-    ...(requestedId === 'features.faq-accordion'
+    ...(internalGroups
+      ? {
+          groups: internalGroups.map((group) => ({
+            id: `feature-group-${group.id}`,
+            appearance: 'surface' as const,
+          })),
+        }
+      : requestedId === 'features.faq-accordion'
       ? {
           groups: content.items.map((item) => ({
             id: `feature-surface-${item.id}`,
