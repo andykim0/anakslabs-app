@@ -75,9 +75,9 @@ export interface UsDemoSourceManifest {
     reason: 'policy-block' | 'review-required' | 'manual-exclusion' | 'unsupported-slot';
     violations?: readonly UsMedicalAdViolation[];
   }[];
-  /** preview-full only. Omission preserves the outreach-safe manifest bytes. */
+  /** Multipage clinic previews only. IDs remain immutable crawl projections; no bytes are copied. */
   images?: readonly ProspectPublicSourceImage[];
-  /** preview-full only. IDs are derived from the immutable crawl projection. */
+  /** Multipage clinic previews only. IDs are derived from the immutable crawl projection. */
   usedImageIds?: readonly string[];
 }
 

@@ -30,6 +30,7 @@ import {
 import type {
   ProspectPublicSourceBlock,
   ProspectPublicSourceImage,
+  UsDemoRenderMode,
 } from './contracts';
 import {
   clinicPhotoGate,
@@ -638,7 +639,7 @@ function previewExperience(input: {
   artifact: CrawlArtifactPayload;
   blocks: readonly ProspectPublicSourceBlock[];
   images: readonly ProjectedUsDemoSourceImage[];
-}): ClinicMasterExperience {
+}): Extract<ClinicMasterExperience, { mode: 'preview-full' }> {
   const sourcePhone = sourcePhoneFromBlocks(input.artifact, input.blocks);
   const bookingUrl = input.artifact.pages
     .flatMap((page) => page.connectors)
@@ -704,7 +705,7 @@ function sourceIdsFromSections(sections: readonly Section[]): string[] {
 
 export interface FullPreviewCompilation {
   config: SiteConfig;
-  experience: Extract<ClinicMasterExperience, { mode: 'preview-full' }>;
+  experience: Extract<ClinicMasterExperience, { mode: UsDemoRenderMode }>;
   sourceImages: readonly ProspectPublicSourceImage[];
   usedImageIds: readonly string[];
 }
@@ -714,8 +715,9 @@ export function compileUsMedicalFullPreview(input: {
   blocks: readonly ProspectPublicSourceBlock[];
   baseConfig: SiteConfig;
   hospitalStableId: string;
+  renderMode: UsDemoRenderMode;
 }): FullPreviewCompilation {
-  const { artifact, blocks, baseConfig, hospitalStableId } = input;
+  const { artifact, blocks, baseConfig, hospitalStableId, renderMode } = input;
   const theme = baseConfig.theme;
   const pin = baseConfig.clinicMaster;
   if (!pin) throw new Error('CLINIC_MASTER_PIN_REQUIRED');
@@ -743,11 +745,14 @@ export function compileUsMedicalFullPreview(input: {
     previousHeroImageId = selected.source.id;
     return selected;
   };
-  const experience = previewExperience({
-    artifact,
-    blocks,
-    images: projectedImages,
-  }) as Extract<ClinicMasterExperience, { mode: 'preview-full' }>;
+  const experience: Extract<ClinicMasterExperience, { mode: UsDemoRenderMode }> =
+    renderMode === 'preview-full'
+      ? previewExperience({
+          artifact,
+          blocks,
+          images: projectedImages,
+        })
+      : outreachSafeExperienceFromArtifact({ artifact, blocks });
   const businessName = blocks.find((block) => block.kind === 'business_name')!;
   const introduction = blocks.find((block) => block.kind === 'introduction');
   const homeCandidate = firstHomeImage(artifact, photoSlotPool);
@@ -788,8 +793,12 @@ export function compileUsMedicalFullPreview(input: {
   ));
   const reservedImages = new Set([
     homeImage?.source.id,
-    ...(experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []),
-    ...(experience.beforeAfterImages?.map((image) => image.sourceImageId) ?? []),
+    ...(experience.mode === 'preview-full'
+      ? experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []
+      : []),
+    ...(experience.mode === 'preview-full'
+      ? experience.beforeAfterImages?.map((image) => image.sourceImageId) ?? []
+      : []),
   ].filter((id): id is string => Boolean(id)));
   const homeServiceImageIds = new Set<string>();
   const homeServiceUnits = plannedPages.slice(0, 12).flatMap(({ planned, slug }) => {
@@ -879,7 +888,13 @@ export function compileUsMedicalFullPreview(input: {
     (candidate) => candidate.id === 'us-demo-providers',
   );
   const beforeAfter = masterSections.filter(
-    (candidate) => candidate.id.startsWith('clinic-before-after-preview-full'),
+    (candidate) => (
+      candidate.id.startsWith('clinic-before-after-preview-full')
+      || candidate.id === 'clinic-before-after-placeholder'
+    ),
+  );
+  const ratingAggregate = masterSections.find(
+    (candidate) => candidate.id === 'clinic-rating-aggregate',
   );
   const insurancePricing = masterSections.find(
     (candidate) => candidate.id === 'clinic-insurance-pricing',
@@ -891,6 +906,7 @@ export function compileUsMedicalFullPreview(input: {
     ...(homeHero ? [homeHero] : []),
     ...homeServiceSections,
     ...(providerTeaser ? [providerTeaser] : []),
+    ...(ratingAggregate ? [ratingAggregate] : []),
     ...gallerySections.slice(0, 1),
     ...beforeAfter.slice(0, 1),
     ...(homeInsuranceStrip
@@ -972,7 +988,8 @@ export function compileUsMedicalFullPreview(input: {
   const providerTitle = blocks.find((block) => block.kind === 'provider_name') ?? businessName;
   if (providerSections.length > 0) {
     const providerImage = allocateHeroImage(projectedImages.filter((image) => (
-      experience.providerPhotos?.some((photo) => photo.sourceImageId === image.source.id)
+      experience.mode === 'preview-full'
+      && experience.providerPhotos?.some((photo) => photo.sourceImageId === image.source.id)
       && clinicPhotoGate(image).eligibleForPhotoSlot
     )));
     pages.push({

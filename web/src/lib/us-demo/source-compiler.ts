@@ -6,8 +6,6 @@ import {
 import type { ClinicMasterPin, SiteConfig } from '@/lib/types/site';
 import {
   compilePremiumDentalMaster,
-  applyDentalStockToClinicMaster,
-  dentalStockCategoryForSource,
   resolveClinicFocus,
   resolveClinicMasterTheme,
 } from '@/lib/clinic-master';
@@ -229,25 +227,15 @@ export function compileUsMedicalDemo(
   const hospitalStableId = createHash('sha256')
     .update(artifact.finalOrigin, 'utf8')
     .digest('hex');
-  const fullPreview = options.renderMode === 'preview-full'
-    ? compileUsMedicalFullPreview({
-        artifact,
-        blocks: curated.accepted,
-        baseConfig: configWithoutStock,
-        hospitalStableId,
-      })
-    : null;
-  const config = fullPreview?.config ?? applyDentalStockToClinicMaster(configWithoutStock, {
+  const renderMode = options.renderMode ?? 'outreach-safe';
+  const multipage = compileUsMedicalFullPreview({
+    artifact,
+    blocks: curated.accepted,
+    baseConfig: configWithoutStock,
     hospitalStableId,
-    category: dentalStockCategoryForSource(
-      clinicMaster.focus,
-      curated.accepted
-        .filter((block) => block.kind === 'service')
-        .map((block) => block.text)
-        .join(' '),
-    ),
-    slot: 'hero',
+    renderMode,
   });
+  const config = multipage.config;
   const usedBlockIds = config.pages
     .flatMap((page) => page.sections)
     .flatMap((item) => item.elements)
@@ -270,13 +258,9 @@ export function compileUsMedicalDemo(
       blocks: sourceBlocks,
       usedBlockIds: [...new Set([...usedBlockIds, ...metaBlockIds, ...publicContactBlockIds])],
       excluded: curated.excluded,
-      ...(fullPreview
-        ? {
-            images: fullPreview.sourceImages,
-            usedImageIds: fullPreview.usedImageIds,
-          }
-        : {}),
+      images: multipage.sourceImages,
+      usedImageIds: multipage.usedImageIds,
     },
-    ...(fullPreview ? { renderMode: 'preview-full' as const } : {}),
+    ...(renderMode === 'preview-full' ? { renderMode: 'preview-full' as const } : {}),
   };
 }

@@ -212,7 +212,7 @@ function sourceBlock(input: {
   };
 }
 
-describe('CLINIC$ master v2 — preview-full multipage', () => {
+describe('CLINIC$ master v2 — clinic multipage', () => {
   test('feature resolver 입력은 2~6개 그룹으로 결정적으로 분할한다', () => {
     assert.deepEqual(clinicFeatureGroups([0, 1]), [[0, 1]]);
     assert.deepEqual(
@@ -253,38 +253,48 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     );
   });
 
-  test('outreach-safe default remains the exact single-page/deactivated output', () => {
+  test('outreach-safe와 preview-full은 같은 멀티페이지·nav·페이지별 스키마를 쓴다', () => {
     const artifact = fixtureArtifact();
     const implicit = compileUsMedicalDemo(artifact);
     const explicit = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
+    const full = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
     assert.deepEqual(explicit, implicit);
-    assert.equal(implicit.config.pages.length, 1);
-    assert.deepEqual(implicit.config.nav, { enabled: false });
+    assert.deepEqual(
+      implicit.config.pages.map((entry) => entry.slug),
+      full.config.pages.map((entry) => entry.slug),
+    );
+    assert.deepEqual(implicit.config.nav, { enabled: true });
+    assert.deepEqual(implicit.config.nav, full.config.nav);
     assert.equal(implicit.renderMode, undefined);
-    assert.equal(implicit.sourceManifest.images, undefined);
+    assert.equal(implicit.sourceManifest.images?.length, full.sourceManifest.images?.length);
+    assert.deepEqual(
+      implicit.config.pages.map((entry) => (
+        buildJsonLd(implicit.config, 'https://preview.example', entry.slug)
+          .map((node) => node['@type'])
+      )),
+      full.config.pages.map((entry) => (
+        buildJsonLd(full.config, 'https://preview.example', entry.slug)
+          .map((node) => node['@type'])
+      )),
+    );
     assert.match(JSON.stringify(implicit.config), /Consented cases can be added/u);
+    assert.match(JSON.stringify(implicit.config), /rating and review count can appear/u);
+    assert.match(JSON.stringify(implicit.config), /provider-placeholder\.svg/u);
+    assert.doesNotMatch(
+      JSON.stringify(full.config),
+      /Consented cases can be added|rating and review count can appear|provider-placeholder\.svg/iu,
+    );
   });
 
-  test('사이트 phone SHA가 유효하면 outreach-safe 18페이지 전부 Call, 변조되면 전부 비활성이다', () => {
+  test('사이트 phone SHA가 유효하면 outreach-safe 실 컴파일 전 페이지 Call, 변조되면 전부 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
     const blocks = prospectPublicSourceBlocks(artifact);
     const experience = outreachSafeExperienceFromArtifact({ artifact, blocks });
-    const home = compiled.config.pages[0]!;
-    const multipageConfig = {
-      ...compiled.config,
-      pages: Array.from({ length: 18 }, (_, index) => ({
-        ...home,
-        id: `outreach-page-${index}`,
-        title: index === 0 ? 'Home' : `Outreach page ${index}`,
-        slug: index === 0 ? '' : `outreach-${index}`,
-      })),
-      nav: { enabled: true },
-    };
-    const renderedPages = multipageConfig.pages.map((entry) => renderToStaticMarkup(createElement(
+    const renderedPages = compiled.config.pages.map((entry) => renderToStaticMarkup(createElement(
       SiteRenderer,
       {
-        config: multipageConfig,
+        config: compiled.config,
         clinicExperience: experience,
         pageSlug: entry.slug,
         mode: 'desktop',
@@ -295,9 +305,9 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     const activeCallPages = renderedPages.filter((html) => (
       /<a\b[^>]*data-clinic-booking-action="call"/u.test(html)
     )).length;
-    const pagesWithVerifiedPhone = experience.sourcePhone ? multipageConfig.pages.length : 0;
+    const pagesWithVerifiedPhone = experience.sourcePhone ? compiled.config.pages.length : 0;
     assert.equal(activeCallPages, pagesWithVerifiedPhone);
-    assert.equal(activeCallPages, 18);
+    assert.equal(activeCallPages, compiled.config.pages.length);
     for (const html of renderedPages) {
       assert.match(html, /href="tel:\+12135550142"/u);
       assert.match(html, /data-clinic-phone-source-text="\(213\) 555-0142"/u);
@@ -320,10 +330,10 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
         : block
     ));
     const rejected = outreachSafeExperienceFromArtifact({ artifact, blocks: tampered });
-    const rejectedPages = multipageConfig.pages.map((entry) => renderToStaticMarkup(createElement(
+    const rejectedPages = compiled.config.pages.map((entry) => renderToStaticMarkup(createElement(
       SiteRenderer,
       {
-        config: multipageConfig,
+        config: compiled.config,
         clinicExperience: rejected,
         pageSlug: entry.slug,
         mode: 'desktop',
@@ -335,7 +345,7 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.equal(rejectedPages.filter((html) => /href="tel:/u.test(html)).length, 0);
     assert.equal(rejectedPages.filter((html) => (
       /<span aria-disabled="true" data-clinic-booking-action="call">Call<\/span>/u.test(html)
-    )).length, 18);
+    )).length, compiled.config.pages.length);
   });
 
   test('다중 phone은 입력 배열 순서와 무관하게 crawl 소스 등장순서 첫 verified를 채택한다', () => {
