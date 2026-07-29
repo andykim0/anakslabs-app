@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Coins, CreditCard, LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import type { Tier } from '@/lib/types/domain';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
 import { getCredits, logout } from './api';
 import { cn, Skeleton, Spinner, TierBadge } from './ui';
 import styles from './dashboard-theme.module.css';
@@ -61,6 +62,7 @@ function CreditBadge() {
 
 function LogoutButton() {
   const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const handleLogout = async () => {
     setLoading(true);
     try {
@@ -71,16 +73,24 @@ function LogoutButton() {
     window.location.href = '/login';
   };
   return (
-    <button
-      type="button"
-      onClick={handleLogout}
-      disabled={loading}
-      className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#667085] transition-colors hover:bg-[#EDF4FF] hover:text-[#174DDA] disabled:opacity-60"
-      title="로그아웃"
-    >
-      {loading ? <Spinner className="h-3.5 w-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
-      로그아웃
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        disabled={loading}
+        className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#667085] transition-colors hover:bg-[#EDF4FF] hover:text-[#174DDA] disabled:opacity-60"
+        title="로그아웃"
+      >
+        {loading ? <Spinner className="h-3.5 w-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
+        로그아웃
+      </button>
+      <LogoutConfirmDialog
+        open={confirming}
+        pending={loading}
+        onCancel={() => setConfirming(false)}
+        onConfirm={handleLogout}
+      />
+    </>
   );
 }
 
@@ -94,7 +104,6 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
 
   const nav = (
     <nav className="flex gap-1 md:flex-col">
@@ -125,13 +134,13 @@ export function DashboardShell({
       {/* 상단 바 */}
       <header className="sticky top-0 z-40 border-b border-[#DCE4F0] bg-white/90 shadow-[0_1px_0_rgba(11,23,54,0.02)] backdrop-blur-xl">
         <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6">
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard')}
+          <Link
+            href="/dashboard"
+            aria-label="대시보드 홈"
             className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#0B1736]"
           >
             <BrandLogo />
-          </button>
+          </Link>
           <div className="flex items-center gap-2.5">
             <CreditBadge />
             <TierBadge tier={tier} />

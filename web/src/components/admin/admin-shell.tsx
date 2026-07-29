@@ -7,6 +7,7 @@ import {
   FilePenLine,
   Globe2,
   LayoutDashboard,
+  LogOut,
   Newspaper,
   ReceiptText,
   SearchCheck,
@@ -16,8 +17,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { logout } from '@/components/dashboard/api';
 
 const NAV_ITEMS = [
   { href: '/admin', label: '대시보드', icon: LayoutDashboard, exact: true },
@@ -35,12 +38,30 @@ const NAV_ITEMS = [
 /** 관리자 콘솔 셸 — Daboim 라이트 앱 크롬. ADMIN 표기를 항상 노출한다. */
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch {
+      // 세션이 이미 없어도 로그인 화면으로 이동
+    }
+    window.location.href = '/login';
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-[#F8FBFF] text-[#0B1736]">
       <aside className="fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-[#DCE4F0] bg-white text-[#475467]">
-        <div className="flex items-center gap-2 px-4 py-4">
-          <BrandLogo />
+        <div className="flex flex-col items-start gap-2 px-4 py-4">
+          <Link
+            href="/admin"
+            aria-label="관리자 대시보드 홈"
+            className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#174DDA]"
+          >
+            <BrandLogo />
+          </Link>
           <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
             ADMIN
           </span>
@@ -68,8 +89,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <div className="border-t border-[#E8EEF6] px-4 py-3">
-          <p className="flex items-center gap-1.5 text-[11px] text-[#667085]">
+        <div className="border-t border-[#E8EEF6] px-2 py-3">
+          <button
+            type="button"
+            onClick={() => setConfirmingLogout(true)}
+            disabled={loggingOut}
+            aria-busy={loggingOut}
+            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[#5F6B7C] transition-colors hover:bg-[#F1F6FC] hover:text-[#0B1736] disabled:cursor-wait disabled:opacity-60"
+          >
+            <LogOut size={15} aria-hidden />
+            {loggingOut ? '로그아웃 중…' : '로그아웃'}
+          </button>
+          <p className="mt-2 flex items-center gap-1.5 px-2.5 text-[11px] text-[#667085]">
             <ShieldAlert size={12} aria-hidden />
             관리자 전용 콘솔
           </p>
@@ -87,6 +118,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </header>
         <main className="w-full flex-1 px-5 py-5">{children}</main>
       </div>
+      <LogoutConfirmDialog
+        open={confirmingLogout}
+        pending={loggingOut}
+        onCancel={() => setConfirmingLogout(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }

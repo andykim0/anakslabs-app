@@ -42,15 +42,20 @@ export function BrandLogo({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-2.5 ${className}`}
+      className={`inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap ${className}`}
       aria-label={PUBLIC_BRAND_NAMES.brandBilingual}
       data-brand-bilingual="logo"
     >
       <BrandMark className="h-8 w-8 shrink-0" />
       {compact ? null : (
-        <span className={`flex items-baseline font-semibold leading-none ${inverse ? 'text-white' : 'text-[#0B1736]'}`}>
-          <span className="text-[17px] tracking-[-0.03em]">{PUBLIC_BRAND_NAMES.brand}</span>
-          <span className={`ml-1.5 text-[9px] tracking-[-0.02em] ${inverse ? 'text-white/55' : 'text-[#667085]'}`}>
+        <span className={`flex shrink-0 items-baseline whitespace-nowrap font-semibold leading-none ${inverse ? 'text-white' : 'text-[#0B1736]'}`}>
+          <span
+            data-brand-name="daboim"
+            className="shrink-0 whitespace-nowrap text-[17px] tracking-[-0.03em]"
+          >
+            {PUBLIC_BRAND_NAMES.brand}
+          </span>
+          <span className={`ml-1.5 shrink-0 whitespace-nowrap text-[9px] tracking-[-0.02em] ${inverse ? 'text-white/55' : 'text-[#667085]'}`}>
             (Daboim)
           </span>
         </span>

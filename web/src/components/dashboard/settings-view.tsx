@@ -6,6 +6,7 @@
  */
 import { useState } from 'react';
 import { ArrowUpRight, LogOut, Mail, Sparkles, User } from 'lucide-react';
+import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
 import type { AuthProvider, Tier } from '@/lib/types/domain';
 import {
   PRICING,
@@ -57,6 +58,7 @@ export function SettingsView({
   createdAt: string;
 }) {
   const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -149,11 +151,21 @@ export function SettingsView({
           <h2 className="text-sm font-semibold text-neutral-200">로그아웃</h2>
           <p className="mt-1 text-xs text-neutral-500">이 기기에서 세션을 종료합니다.</p>
         </div>
-        <Button variant="danger" onClick={handleLogout} loading={loggingOut}>
+        <Button
+          variant="danger"
+          onClick={() => setConfirmingLogout(true)}
+          loading={loggingOut}
+        >
           <LogOut className="h-4 w-4" />
           로그아웃
         </Button>
       </Card>
+      <LogoutConfirmDialog
+        open={confirmingLogout}
+        pending={loggingOut}
+        onCancel={() => setConfirmingLogout(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }
