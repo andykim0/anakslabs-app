@@ -107,6 +107,19 @@ describe('CLINIC C surface-tone policy', () => {
       substantial.sections.map((candidate) => candidate.surfaceTone),
       ['base', 'tint', 'tint', 'dark', 'base', 'brand'],
     );
+    const compactSubstantial = applyClinicSurfaceCadence([
+      page('compact', [
+        section('hero', 'hero'),
+        section('overview'),
+        section('process'),
+        section('faq', 'faq'),
+        section('cta', 'cta'),
+      ]),
+    ])[0];
+    assert.deepEqual(
+      compactSubstantial.sections.map((candidate) => candidate.surfaceTone),
+      ['base', 'tint', 'tint', 'dark', 'brand'],
+    );
     const short = applyClinicSurfaceCadence([
       page('emergency', [
         section('hero', 'hero'),

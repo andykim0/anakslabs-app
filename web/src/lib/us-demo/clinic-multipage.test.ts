@@ -316,6 +316,9 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       }
       if (tintRun > 0) tintRuns.push(tintRun);
       assert.ok(tintRuns.every((length) => length >= 2), page.slug);
+      if (content.length >= 4) {
+        assert.ok(tintRuns.some((length) => length >= 2), page.slug);
+      }
       assert.ok(content.filter((section) => section.surfaceTone === 'dark').length < 3);
     }
   });

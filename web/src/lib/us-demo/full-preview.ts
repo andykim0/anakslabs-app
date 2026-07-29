@@ -452,6 +452,7 @@ export function applyClinicSurfaceCadence(pages: readonly SitePage[]): SitePage[
       && !isPreFooterCta(sections[sectionIndex])
     ));
     const midpoint = Math.floor((contentIndices.length - 1) / 2);
+    const content = contentIndices.map((index) => sections[index]);
     const darkContentIndex = existingDarkContentIndex >= 0
       ? existingDarkContentIndex
       : [...contentIndices.keys()]
@@ -461,11 +462,12 @@ export function applyClinicSurfaceCadence(pages: readonly SitePage[]): SitePage[
             && !isPreFooterCta(sections[contentIndices[contentIndex]])
           ))
           .sort((left, right) => (
-            Math.abs(left - midpoint) - Math.abs(right - midpoint)
+            Number(tintPairFor(content, left) === null)
+            - Number(tintPairFor(content, right) === null)
+            || Math.abs(left - midpoint) - Math.abs(right - midpoint)
             || left - right
           ))[0];
 
-    const content = contentIndices.map((index) => sections[index]);
     const tintPair = tintPairFor(content, darkContentIndex);
     for (const [contentIndex, sectionIndex] of contentIndices.entries()) {
       const section = sections[sectionIndex];
