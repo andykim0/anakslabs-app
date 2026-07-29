@@ -120,9 +120,9 @@ function Action({
 }
 
 /**
- * 서버 DOM-only persistent booking surface. Preview/demo calls set interactive=false,
- * which guarantees no href and no connector issuance. Live calls may pass only the
- * separately verified US destination projection; CONN$ manifests are not accepted here.
+ * 서버 DOM-only persistent booking surface. Outreach/demo calls set interactive=false.
+ * Preview-full may expose only a hash-verified crawl-source Call; Book remains disabled.
+ * Live calls may pass only the separately verified US destination projection.
  */
 export function ClinicStickyBooking({
   pin,

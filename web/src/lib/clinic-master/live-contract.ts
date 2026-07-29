@@ -12,7 +12,7 @@ export interface ClinicUsDestination {
 export interface ClinicSourcePhoneProjection {
   readonly version: 1;
   readonly sourceBlockId: string;
-  /** Exact normalized crawl-source string; never inferred from a phone-shaped value. */
+  /** Exact crawl-source projection string; never inferred from a phone-shaped value. */
   readonly sourceText: string;
   readonly sourceSha256: string;
   readonly phone: string;
