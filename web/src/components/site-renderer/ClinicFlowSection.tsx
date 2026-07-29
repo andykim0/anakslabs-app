@@ -417,7 +417,7 @@ function FlowText({
           theme,
           role === 'display-heading' ? 'display' : 'heading',
           false,
-          role === 'display-heading' ? 64 : 28,
+          role === 'display-heading' ? 48 : 28,
         )}
         {...attributes}
       >

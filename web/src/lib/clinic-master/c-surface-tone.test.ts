@@ -74,7 +74,8 @@ describe('CLINIC C surface-tone policy', () => {
     assert.match(tint.background, /^oklch\(0\.9200 0\.0150 /u);
     assert.match(brand.background, /^oklch\(0\.9500 /u);
     assert.equal(sectionSurfaceLightnessDelta(theme, 'tint'), 0.08);
-    assert.equal(dark.background, theme.tokens?.color.ramps?.neutral['950']);
+    assert.match(dark.background, /^oklch\(0\.1600 0\.(?:0[0-3]\d{2}|0400) /u);
+    assert.notEqual(dark.background, theme.tokens?.color.ramps?.neutral['950']);
     assert.equal(dark.text, theme.tokens?.color.ramps?.neutral['50']);
     assert.equal(dark.dark, true);
   });
@@ -120,6 +121,39 @@ describe('CLINIC C surface-tone policy', () => {
       compactSubstantial.sections.map((candidate) => candidate.surfaceTone),
       ['base', 'tint', 'tint', 'dark', 'brand'],
     );
+    const placeholder = section('placeholder');
+    placeholder.elements = [{
+      id: 'placeholder-note',
+      kind: 'text',
+      text: 'Preview note',
+      frame: { x: 0, y: 0, w: 1, h: 1 },
+      z: 1,
+      style: {
+        fontSize: 16,
+        fontWeight: 400,
+        fontFamily: 'body',
+        color: theme.palette.text,
+        lineHeight: 1.5,
+      },
+    }];
+    const withPlaceholder = applyClinicSurfaceCadence([
+      page('placeholder-page', [
+        section('hero', 'hero'),
+        section('overview'),
+        section('services'),
+        placeholder,
+        section('faq', 'faq'),
+        section('cta', 'cta'),
+      ]),
+    ])[0];
+    assert.notEqual(
+      withPlaceholder.sections.find((candidate) => candidate.id === 'placeholder')?.surfaceTone,
+      'dark',
+    );
+    assert.equal(
+      withPlaceholder.sections.filter((candidate) => candidate.surfaceTone === 'dark').length,
+      1,
+    );
     const short = applyClinicSurfaceCadence([
       page('emergency', [
         section('hero', 'hero'),
@@ -155,7 +189,7 @@ describe('CLINIC C surface-tone policy', () => {
     assert.match(html, /data-clinic-flow-section="features\.dark-value-band"/u);
     assert.match(html, /Implant treatment planning starts with a detailed consultation\./u);
     assert.match(html, /data-clinic-typography-tier="display"/u);
-    assert.match(html, /letter-spacing:-0\.025em/u);
+    assert.match(html, /letter-spacing:-0\.02em/u);
   });
 
   test('보험 로고 전용 renderer도 공통 surface tone과 dark 자동반전을 소비한다', () => {
@@ -187,13 +221,14 @@ describe('CLINIC C surface-tone policy', () => {
     }));
     assert.match(html, /data-section-surface-tone="dark"/u);
     assert.match(html, /data-section-surface-enhanced="true"/u);
-    assert.match(html, /background-color:oklch\(0\.0900/u);
+    assert.match(html, /background-color:oklch\(0\.1600/u);
     assert.match(html, /color:oklch\(0\.9700/u);
     assert.match(html, /data-clinic-tracking-role="heading"/u);
     assert.match(html, /letter-spacing:-0\.01em/u);
   });
 
   test('tracking은 공통 size×uppercase 함수 하나로 음수·양수·body 범위를 결정한다', () => {
+    const legacyInlineValues = new Set(['-0.025em', '-0.01em', '0em', '0.12em']);
     assert.equal(resolveTypographyTracking({
       fontSizePx: 88,
       uppercase: false,
@@ -219,6 +254,35 @@ describe('CLINIC C surface-tone policy', () => {
       uppercase: false,
       role: 'button',
     }), '0em');
+    const uppercaseButton = resolveTypographyTracking({
+      fontSizePx: 16,
+      uppercase: true,
+      role: 'button',
+    });
+    const darkStatement = resolveTypographyTracking({
+      fontSizePx: 48,
+      uppercase: false,
+      role: 'display',
+    });
+    assert.equal(uppercaseButton, '0.05em');
+    assert.equal(darkStatement, '-0.02em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 72,
+      uppercase: false,
+      role: 'stat-number',
+    }), '-0.01em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 13,
+      uppercase: true,
+      role: 'stat-label',
+    }), '0.08em');
+    assert.equal(resolveTypographyTracking({
+      fontSizePx: 15,
+      uppercase: true,
+      role: 'nav',
+    }), '0.08em');
+    assert.equal(legacyInlineValues.has(uppercaseButton), false);
+    assert.equal(legacyInlineValues.has(darkStatement), false);
     assert.match(CLINIC_FLOW_CSS, /font-weight: var\(--clinic-control-weight\)/u);
     assert.doesNotMatch(CLINIC_FLOW_CSS, /letter-spacing\s*:/u);
   });
