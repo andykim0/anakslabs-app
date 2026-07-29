@@ -15,6 +15,8 @@ export const FEATURE_LAYOUT_VARIANT_IDS = [
   'features.numbered-list',
   'features.sticky-heading-two-column',
   'features.featured-first',
+  'features.faq-accordion',
+  'features.stat-strip',
 ] as const;
 
 export const ABOUT_LAYOUT_VARIANT_IDS = [
@@ -113,6 +115,8 @@ export type SectionLayoutFlow =
   | 'numbered-rows'
   | 'sticky-heading'
   | 'featured-first'
+  | 'accordion'
+  | 'stat-strip'
   | 'split'
   | 'centered-statement'
   | 'fullbleed-overlay'

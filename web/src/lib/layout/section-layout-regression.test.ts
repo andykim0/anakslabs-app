@@ -210,11 +210,16 @@ function galleryFixture(count: number): {
   };
 }
 
-describe('LIB2 M4 — 14종 × 3밴드 × 콘텐츠 가변 회귀', () => {
-  test('피처 6종은 항목 2~6개에서 겹침·오버플로 없이 결정적으로 컴파일된다', () => {
+describe('LIB2 M4 — section variants × 3밴드 × 콘텐츠 가변 회귀', () => {
+  test('피처 8종은 각 content contract 범위에서 겹침·오버플로 없이 결정적으로 컴파일된다', () => {
     let checked = 0;
     for (const requestedId of FEATURE_LAYOUT_VARIANT_IDS) {
-      for (let count = 2; count <= 6; count += 1) {
+      const variant = FEATURE_LAYOUT_CATALOG.find((candidate) => candidate.id === requestedId)!;
+      for (
+        let count = variant.content.minimumItems;
+        count <= variant.content.maximumItems;
+        count += 1
+      ) {
         const fixture = featureFixture(count);
         const projection = resolveFeatureLayoutVariant({
           requestedId,
@@ -235,7 +240,12 @@ describe('LIB2 M4 — 14종 × 3밴드 × 콘텐츠 가변 회귀', () => {
         }
       }
     }
-    assert.equal(checked, 6 * 5 * 3);
+    assert.equal(checked, FEATURE_LAYOUT_CATALOG.reduce(
+      (sum, variant) => (
+        sum + (variant.content.maximumItems - variant.content.minimumItems + 1) * 3
+      ),
+      0,
+    ));
   });
 
   test('about 4종은 장문 8개 블록에서 섹션 높이를 늘려 잘림·겹침을 막는다', () => {

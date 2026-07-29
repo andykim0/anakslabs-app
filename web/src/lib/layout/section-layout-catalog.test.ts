@@ -126,14 +126,14 @@ const galleryElements: CanvasElement[] = [
   ]),
 ];
 
-describe('LIB2 M2 — 14종 catalog', () => {
-  test('6 feature + 4 about + 4 gallery ID를 스펙 순서로 고정한다', () => {
+describe('LIB2 M2 — section layout catalog', () => {
+  test('8 feature + 4 about + 4 gallery ID를 스펙 순서로 고정한다', () => {
     assert.deepEqual(FEATURE_LAYOUT_CATALOG.map((item) => item.id), FEATURE_LAYOUT_VARIANT_IDS);
     assert.deepEqual(ABOUT_LAYOUT_CATALOG.map((item) => item.id), ABOUT_LAYOUT_VARIANT_IDS);
     assert.deepEqual(GALLERY_LAYOUT_CATALOG.map((item) => item.id), GALLERY_LAYOUT_VARIANT_IDS);
     assert.equal(
       FEATURE_LAYOUT_CATALOG.length + ABOUT_LAYOUT_CATALOG.length + GALLERY_LAYOUT_CATALOG.length,
-      14,
+      16,
     );
   });
 
@@ -167,13 +167,16 @@ describe('LIB2 M2 — 14종 catalog', () => {
     }
   });
 
-  test('14종 resolver는 3밴드 프레임과 실제 콘텐츠 기반 높이를 결정적으로 컴파일한다', () => {
+  test('16종 resolver는 3밴드 프레임과 실제 콘텐츠 기반 높이를 결정적으로 컴파일한다', () => {
     const projections = [
-      ...FEATURE_LAYOUT_VARIANT_IDS.map((requestedId) => resolveFeatureLayoutVariant({
-        requestedId,
+      ...FEATURE_LAYOUT_CATALOG.map((variant) => resolveFeatureLayoutVariant({
+        requestedId: variant.id,
         elements: featureElements,
         theme,
-        content: featureContent,
+        content: {
+          ...featureContent,
+          items: featureContent.items.slice(0, variant.content.maximumItems),
+        },
       })),
       ...ABOUT_LAYOUT_VARIANT_IDS.map((requestedId) => resolveAboutLayoutVariant({
         requestedId,
@@ -189,7 +192,7 @@ describe('LIB2 M2 — 14종 catalog', () => {
         content: galleryContent,
       })),
     ];
-    assert.equal(projections.length, 14);
+    assert.equal(projections.length, 16);
     for (const projection of projections) {
       assert.ok(projection);
       assert.equal(JSON.stringify(projection), JSON.stringify(structuredClone(projection)));

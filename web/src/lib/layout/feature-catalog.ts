@@ -135,6 +135,52 @@ export const FEATURE_LAYOUT_CATALOG = [
       ['cafe-warm-editorial', 'dining-refined-contrast', 'beauty-soft-wellness', 'workshop-tactile-heritage', 'retail-bold-geometric'],
     ),
   },
+  {
+    id: 'features.faq-accordion',
+    kind: 'features',
+    label: 'FAQ 아코디언형',
+    description: '검증된 질문과 답변 3~8개를 표면 카드에 모두 펼쳐 정적 문서로 제공합니다.',
+    bands: {
+      wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'accordion', columns: 1 }),
+      compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'accordion', columns: 1 }),
+      mobile: recipe({ gridColumns: 4, textZone: 'flow-full', flow: 'accordion', columns: 1 }),
+    },
+    content: {
+      minimumItems: 3,
+      maximumItems: 8,
+      requiredFields: ['section-title', 'item-title', 'item-body'],
+      optionalFields: [],
+    },
+    mediaContract: noMedia,
+    compatibility: sectionCompatibility(
+      ['medical', 'legal', 'consulting', 'academy'],
+      ['cafe', 'fine_dining', 'beauty', 'workshop', 'retail', 'portfolio'],
+      ['medical-clinical-clarity', 'legal-authoritative-editorial', 'academy-structured-friendly'],
+    ),
+  },
+  {
+    id: 'features.stat-strip',
+    kind: 'features',
+    label: '운영 수치 스트립형',
+    description: '출처가 확인된 운영 수치 2~4개를 절제된 크기로 나란히 보여줍니다.',
+    bands: {
+      wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'stat-strip', columns: 4 }),
+      compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'stat-strip', columns: 2 }),
+      mobile: recipe({ gridColumns: 4, textZone: 'flow-full', flow: 'stat-strip', columns: 2 }),
+    },
+    content: {
+      minimumItems: 2,
+      maximumItems: 4,
+      requiredFields: ['section-title', 'item-marker', 'item-title'],
+      optionalFields: [],
+    },
+    mediaContract: noMedia,
+    compatibility: sectionCompatibility(
+      ['medical', 'consulting', 'academy'],
+      ['cafe', 'fine_dining', 'beauty', 'legal', 'workshop', 'retail', 'portfolio'],
+      ['medical-clinical-clarity', 'academy-structured-friendly'],
+    ),
+  },
 ] as const satisfies readonly SectionLayoutVariant<FeatureLayoutVariantId>[];
 
 export function featureLayoutById(id: FeatureLayoutVariantId) {

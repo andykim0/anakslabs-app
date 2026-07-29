@@ -159,6 +159,76 @@ function compileBand({
   const itemStart = intro.bottom + spacing.elementGap * 2;
   const itemOrder = content.items.map((item) => item.id);
 
+  if (recipe.flow === 'accordion') {
+    const groupFrames: Record<string, SectionLayoutCompiledFrame> = {};
+    let cursor = itemStart;
+    for (const item of content.items) {
+      const local = verticalItem({
+        item,
+        elements,
+        theme,
+        band,
+        width: zone.w,
+        mediaFirst: true,
+        padded: true,
+      });
+      mergeLocal(frames, fontSizes, local, zone.x, cursor);
+      groupFrames[`feature-surface-${item.id}`] = {
+        x: zone.x,
+        y: cursor,
+        w: zone.w,
+        h: local.height,
+      };
+      cursor += local.height + spacing.elementGap;
+    }
+    return {
+      width: band === 'wide' ? 1440 : band === 'compact' ? 768 : 390,
+      sectionHeight: Math.ceil(cursor - spacing.elementGap + spacing.sectionBlock),
+      frames,
+      fontSizes,
+      itemOrder,
+      groupFrames,
+    };
+  }
+
+  if (recipe.flow === 'stat-strip') {
+    const columns = band === 'wide'
+      ? Math.min(4, Math.max(2, content.items.length))
+      : 2;
+    const columnWidth = (zone.w - spacing.elementGap * (columns - 1)) / columns;
+    const locals = content.items.map((item) => verticalItem({
+      item,
+      elements,
+      theme,
+      band,
+      width: columnWidth,
+      mediaFirst: true,
+      padded: true,
+    }));
+    let cursor = itemStart;
+    for (let rowStart = 0; rowStart < content.items.length; rowStart += columns) {
+      const row = locals.slice(rowStart, rowStart + columns);
+      const rowHeight = Math.max(...row.map((item) => item.height));
+      row.forEach((local, column) => {
+        mergeLocal(
+          frames,
+          fontSizes,
+          local,
+          zone.x + column * (columnWidth + spacing.elementGap),
+          cursor,
+        );
+      });
+      cursor += rowHeight + spacing.elementGap;
+    }
+    return {
+      width: band === 'wide' ? 1440 : band === 'compact' ? 768 : 390,
+      sectionHeight: Math.ceil(cursor - spacing.elementGap + spacing.sectionBlock),
+      frames,
+      fontSizes,
+      itemOrder,
+    };
+  }
+
   if (recipe.flow === 'alternating-media') {
     let cursor = itemStart;
     for (const [index, item] of content.items.entries()) {
@@ -390,6 +460,15 @@ export function resolveFeatureLayoutVariant({
       ].filter((id): id is string => Boolean(id)),
       ...(item.mediaId ? { mediaElementId: item.mediaId } : {}),
     })),
+    ...(requestedId === 'features.faq-accordion'
+      ? {
+          groups: content.items.map((item) => ({
+            id: `feature-surface-${item.id}`,
+            appearance: 'surface' as const,
+            itemId: item.id,
+          })),
+        }
+      : {}),
     bands,
   };
 }
