@@ -7,10 +7,14 @@ import {
 } from '@/lib/clinic-master';
 import type { SiteTheme } from '@/lib/types/site';
 import {
+  prospectPublicSourceContentUnits,
   prospectPublicSourceBlocks,
   prospectPublicSourceOperationalStats,
   splitKnownCtaTail,
+  splitVerbatimListItems,
+  sourceBlockHashIsValid,
   sourceHeadingBodyPairs,
+  sourceTextHasGluedListItems,
   sourceTextIsOperationalBlob,
 } from './source-extraction';
 import type { ProspectPublicSourceBlock } from './contracts';
@@ -141,6 +145,61 @@ function artifact(pages: CrawlPageArtifact[]): CrawlArtifactPayload {
 }
 
 describe('CLINIC B — source text segmentation lands before layout projection', () => {
+  test('joined source list items split before layout with item-local verbatim preservation', () => {
+    const joined = [
+      'Full arch replacement with just 4 implants',
+      'Often same-day temporary teeth',
+      'No bone graft needed in most cases',
+      'Permanent — no denture adhesives',
+      'Eat normally — no dietary restrictions after healing',
+      'Preserves jawbone and prevents facial collapse',
+      'Natural appearance and comfortable fit',
+      '15–25+ year lifespan with proper care',
+    ].join('');
+    const treatment = page({
+      url: 'https://clinic.example/services/dental-implants/all-on-4',
+      title: 'All-on-4',
+      headings: ['All-on-4 Benefits'],
+      text: `All-on-4 Benefits ${joined}`,
+    });
+    const pairs = sourceHeadingBodyPairs(treatment);
+    assert.equal(pairs[0]?.body, joined);
+    const blocks = prospectPublicSourceBlocks(artifact([treatment]));
+    const aggregate = blocks.find((block) => (
+      block.kind === 'service_detail'
+      && block.sourceLocation.field === 'text'
+    ));
+    const listItems = blocks.filter((block) => (
+      block.kind === 'service_detail'
+      && block.sourceLocation.field.startsWith('text.list-item.')
+    ));
+    assert.equal(aggregate, undefined);
+    assert.equal(pairs[0]?.body, listItems.map((block) => block.text).join(''));
+    assert.equal(listItems.length, 8);
+    assert.equal(listItems.map((block) => block.text).join(''), joined);
+    assert.ok(listItems.map((block) => block.text).join('').length >= joined.length);
+    assert.ok(listItems.every((block) => (
+      block.sourceUrl === treatment.url
+      && block.sourceLocation.ordinal === 0
+      && sourceBlockHashIsValid(block)
+      && !sourceTextHasGluedListItems(block.text)
+    )));
+    const units = prospectPublicSourceContentUnits(blocks);
+    assert.equal(units.length, 8);
+    assert.equal(units[0]?.title.text, 'All-on-4 Benefits');
+    assert.equal(units[0]?.body?.text, listItems[0]?.text);
+    assert.deepEqual(
+      units.slice(1).map((unit) => unit.title.text),
+      listItems.slice(1).map((block) => block.text),
+    );
+    assert.ok(units.slice(1).every((unit) => unit.parentTitle?.text === 'All-on-4 Benefits'));
+    assert.equal(sourceTextHasGluedListItems(joined), true);
+    for (const brand of ['MetLife', 'UnitedConcordia', 'CareCredit']) {
+      assert.deepEqual(splitVerbatimListItems(brand), [brand]);
+      assert.equal(sourceTextHasGluedListItems(brand), false);
+    }
+  });
+
   test('CTA/contact/hours tail is split before source blocks and never becomes an FAQ item', () => {
     const service = page({
       url: 'https://clinic.example/services/emergency-dentistry',

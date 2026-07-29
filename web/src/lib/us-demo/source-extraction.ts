@@ -48,6 +48,8 @@ const SOURCE_NUMBER_TOKEN_RE =
   /\b\d{1,3}(?:\.\d+)?(?:\s*[-–]\s*\d{1,3}(?:\.\d+)?)?\+?%?(?![\p{L}\p{N}])/u;
 const MIN_PAIRED_BODY_LENGTH = 32;
 const MAX_PAIRED_BODY_LENGTH = 1_600;
+const GLUED_LIST_BOUNDARY_RE = /[a-z)][A-Z0-9]/gu;
+const MAX_VERBATIM_LIST_ITEMS = 12;
 
 function clean(value: string | undefined): string | null {
   const text = value?.replace(/\s+/gu, ' ').trim();
@@ -101,6 +103,8 @@ export interface ProspectPublicSourceContentUnit {
   headingOrdinal: number;
   title: ProspectPublicSourceBlock;
   body?: ProspectPublicSourceBlock;
+  /** Classification-only parent heading; never rendered as substitute copy. */
+  parentTitle?: ProspectPublicSourceBlock;
 }
 
 export interface ProspectPublicSourceStatUnit {
@@ -192,6 +196,44 @@ export function splitKnownCtaTail(value: string): {
     };
   }
   return { body: value };
+}
+
+function boundaryJoinsProtectedBrand(value: string, boundary: number): boolean {
+  const left = /[A-Z][a-z]+$/u.exec(value.slice(0, boundary))?.[0]
+    ?? /[\p{L}'’-]+$/u.exec(value.slice(0, boundary))?.[0];
+  const right = /^[A-Z][a-z]+/u.exec(value.slice(boundary))?.[0]
+    ?? /^[\p{L}'’-]+/u.exec(value.slice(boundary))?.[0];
+  return Boolean(left && right && CTA_BOUNDARY_BRAND_RE.test(`${left}${right}`));
+}
+
+/**
+ * The crawl snapshot normalizes list whitespace and may join adjacent source list items. Split
+ * only when at least two unprotected lower→upper/number boundaries prove a list-shaped run.
+ * Concatenating the returned fragments restores the exact input bytes.
+ */
+export function splitVerbatimListItems(value: string): string[] {
+  const boundaries = [...value.matchAll(GLUED_LIST_BOUNDARY_RE)]
+    .map((match) => (match.index ?? -1) + 1)
+    .filter((boundary) => (
+      boundary > 0
+      && boundary < value.length
+      && !boundaryJoinsProtectedBrand(value, boundary)
+    ));
+  if (boundaries.length < 2 || boundaries.length + 1 > MAX_VERBATIM_LIST_ITEMS) {
+    return [value];
+  }
+  const fragments = boundaries
+    .reduce<string[]>((items, boundary, index) => {
+      const start = index === 0 ? 0 : boundaries[index - 1];
+      items.push(value.slice(start, boundary));
+      return items;
+    }, []);
+  fragments.push(value.slice(boundaries.at(-1)));
+  return fragments.every((fragment) => fragment.length > 0) ? fragments : [value];
+}
+
+export function sourceTextHasGluedListItems(value: string): boolean {
+  return splitVerbatimListItems(value).length > 1;
 }
 
 function splitVerbatimBody(page: CrawlPageArtifact, value: string): {
@@ -360,7 +402,19 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
           add('faq_answer', pair.body, 'text', pair.headingOrdinal);
         } else {
           add('service', pair.heading, 'headings', pair.headingOrdinal);
-          add('service_detail', pair.body, 'text', pair.headingOrdinal);
+          const listItems = splitVerbatimListItems(pair.body ?? '');
+          if (listItems.length > 1) {
+            listItems.forEach((item, index) => {
+              add(
+                'service_detail',
+                item,
+                `text.list-item.${index}`,
+                pair.headingOrdinal,
+              );
+            });
+          } else {
+            add('service_detail', pair.body, 'text', pair.headingOrdinal);
+          }
         }
       });
   }
@@ -421,19 +475,42 @@ export function prospectPublicSourceContentUnits(
 ): ProspectPublicSourceContentUnit[] {
   return blocks
     .filter((block) => block.kind === 'service')
-    .map((title) => {
-      const body = blocks.find((candidate) => (
+    .flatMap((title) => {
+      const matchingDetails = blocks.filter((candidate) => (
         candidate.kind === 'service_detail'
         && candidate.sourceUrl === title.sourceUrl
         && candidate.sourceLocation.ordinal === title.sourceLocation.ordinal
       ));
-      return {
+      const listItems = matchingDetails.filter((candidate) => (
+        candidate.sourceLocation.field.startsWith('text.list-item.')
+      ));
+      const details = listItems.length > 1
+        ? listItems.sort((left, right) => (
+            left.sourceLocation.field.localeCompare(
+              right.sourceLocation.field,
+              'en-US',
+              { numeric: true },
+            )
+          ))
+        : matchingDetails.filter((candidate) => candidate.sourceLocation.field === 'text');
+      const body = details[0];
+      const first: ProspectPublicSourceContentUnit = {
         id: `clinic-source-unit-${title.id}`,
         sourceUrl: title.sourceUrl,
         headingOrdinal: title.sourceLocation.ordinal,
         title,
         ...(body ? { body } : {}),
       };
+      return [
+        first,
+        ...details.slice(1).map((detail, index) => ({
+          id: `clinic-source-list-unit-${detail.id}-${index + 1}`,
+          sourceUrl: title.sourceUrl,
+          headingOrdinal: title.sourceLocation.ordinal,
+          title: detail,
+          parentTitle: title,
+        })),
+      ];
     });
 }
 
