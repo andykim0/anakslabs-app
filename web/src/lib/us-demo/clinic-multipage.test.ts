@@ -265,15 +265,26 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.match(JSON.stringify(implicit.config), /Consented cases can be added/u);
   });
 
-  test('outreach-safe는 SHA-verbatim phone 보유 페이지와 정확히 같은 수의 Call만 활성화한다', () => {
+  test('사이트 phone SHA가 유효하면 outreach-safe 18페이지 전부 Call, 변조되면 전부 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
     const blocks = prospectPublicSourceBlocks(artifact);
-    const experience = outreachSafeExperienceFromArtifact({ blocks });
-    const renderedPages = compiled.config.pages.map((entry) => renderToStaticMarkup(createElement(
+    const experience = outreachSafeExperienceFromArtifact({ artifact, blocks });
+    const home = compiled.config.pages[0]!;
+    const multipageConfig = {
+      ...compiled.config,
+      pages: Array.from({ length: 18 }, (_, index) => ({
+        ...home,
+        id: `outreach-page-${index}`,
+        title: index === 0 ? 'Home' : `Outreach page ${index}`,
+        slug: index === 0 ? '' : `outreach-${index}`,
+      })),
+      nav: { enabled: true },
+    };
+    const renderedPages = multipageConfig.pages.map((entry) => renderToStaticMarkup(createElement(
       SiteRenderer,
       {
-        config: compiled.config,
+        config: multipageConfig,
         clinicExperience: experience,
         pageSlug: entry.slug,
         mode: 'desktop',
@@ -284,45 +295,85 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     const activeCallPages = renderedPages.filter((html) => (
       /<a\b[^>]*data-clinic-booking-action="call"/u.test(html)
     )).length;
-    const pagesWithVerifiedPhone = experience.sourcePhone ? compiled.config.pages.length : 0;
+    const pagesWithVerifiedPhone = experience.sourcePhone ? multipageConfig.pages.length : 0;
     assert.equal(activeCallPages, pagesWithVerifiedPhone);
-    assert.equal(activeCallPages, 1);
-    assert.match(renderedPages[0]!, /href="tel:\+12135550142"/u);
-    assert.match(renderedPages[0]!, /data-clinic-phone-source-text="\(213\) 555-0142"/u);
-    assert.match(
-      renderedPages[0]!,
-      new RegExp(`data-clinic-phone-source-sha="${experience.sourcePhone?.sourceSha256}"`, 'u'),
-    );
-    assert.match(
-      renderedPages[0]!,
-      /<span aria-disabled="true" data-clinic-booking-action="book">Book Appointment<\/span>/u,
-    );
-    assert.match(
-      renderedPages[0]!,
-      /Booking activates when you connect your system\./u,
-    );
-    assert.doesNotMatch(renderedPages[0]!, /href="https:\/\/clinic\.example\/appointments\/request"/u);
-    assert.doesNotMatch(renderedPages[0]!, /(?:예약|연결하면|활성화|시스템을)/u);
+    assert.equal(activeCallPages, 18);
+    for (const html of renderedPages) {
+      assert.match(html, /href="tel:\+12135550142"/u);
+      assert.match(html, /data-clinic-phone-source-text="\(213\) 555-0142"/u);
+      assert.match(
+        html,
+        new RegExp(`data-clinic-phone-source-sha="${experience.sourcePhone?.sourceSha256}"`, 'u'),
+      );
+      assert.match(
+        html,
+        /<span aria-disabled="true" data-clinic-booking-action="book">Book Appointment<\/span>/u,
+      );
+      assert.match(html, /Booking activates when you connect your system\./u);
+      assert.doesNotMatch(html, /href="https:\/\/clinic\.example\/appointments\/request"/u);
+      assert.doesNotMatch(html, /(?:예약|연결하면|활성화|시스템을)/u);
+    }
 
     const tampered = blocks.map((block) => (
       block.kind === 'phone'
         ? { ...block, originalSha256: '0'.repeat(64) }
         : block
     ));
-    const rejected = outreachSafeExperienceFromArtifact({ blocks: tampered });
-    const rejectedHtml = renderToStaticMarkup(createElement(SiteRenderer, {
-      config: compiled.config,
-      clinicExperience: rejected,
-      pageSlug: '',
-      mode: 'desktop',
-      interactive: false,
-      animate: false,
-    }));
+    const rejected = outreachSafeExperienceFromArtifact({ artifact, blocks: tampered });
+    const rejectedPages = multipageConfig.pages.map((entry) => renderToStaticMarkup(createElement(
+      SiteRenderer,
+      {
+        config: multipageConfig,
+        clinicExperience: rejected,
+        pageSlug: entry.slug,
+        mode: 'desktop',
+        interactive: false,
+        animate: false,
+      },
+    )));
     assert.equal(rejected.sourcePhone, undefined);
-    assert.doesNotMatch(rejectedHtml, /href="tel:/u);
-    assert.match(
-      rejectedHtml,
-      /<span aria-disabled="true" data-clinic-booking-action="call">Call<\/span>/u,
+    assert.equal(rejectedPages.filter((html) => /href="tel:/u.test(html)).length, 0);
+    assert.equal(rejectedPages.filter((html) => (
+      /<span aria-disabled="true" data-clinic-booking-action="call">Call<\/span>/u.test(html)
+    )).length, 18);
+  });
+
+  test('다중 phone은 입력 배열 순서와 무관하게 crawl 소스 등장순서 첫 verified를 채택한다', () => {
+    const artifact = fixtureArtifact();
+    artifact.pages[1]!.structured.phone = '(310) 555-0199';
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const experience = outreachSafeExperienceFromArtifact({
+      artifact,
+      blocks: [...blocks].reverse(),
+    });
+    assert.equal(experience.sourcePhone?.sourceText, '(213) 555-0142');
+    assert.equal(experience.sourcePhone?.phone, '+12135550142');
+  });
+
+  test('첫 phone SHA 실패는 다음 verified로 폴백하고 verified가 전혀 없으면 닫힌다', () => {
+    const artifact = fixtureArtifact();
+    artifact.pages[1]!.structured.phone = '(310) 555-0199';
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const firstInvalid = blocks.map((block) => (
+      block.kind === 'phone' && block.text === '(213) 555-0142'
+        ? { ...block, originalSha256: '0'.repeat(64) }
+        : block
+    ));
+    const fallback = outreachSafeExperienceFromArtifact({
+      artifact,
+      blocks: [...firstInvalid].reverse(),
+    });
+    assert.equal(fallback.sourcePhone?.sourceText, '(310) 555-0199');
+    assert.equal(fallback.sourcePhone?.phone, '+13105550199');
+
+    const allInvalid = blocks.map((block) => (
+      block.kind === 'phone'
+        ? { ...block, originalSha256: '0'.repeat(64) }
+        : block
+    ));
+    assert.equal(
+      outreachSafeExperienceFromArtifact({ artifact, blocks: allInvalid }).sourcePhone,
+      undefined,
     );
   });
 

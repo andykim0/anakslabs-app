@@ -75,6 +75,7 @@ export default async function SharedImportPreviewPage({
           blocks: prospectPublicSourceBlocks(artifact.artifact),
         })
       : outreachSafeExperienceFromArtifact({
+          artifact: artifact.artifact,
           blocks: prospectPublicSourceBlocks(artifact.artifact),
         })
     : undefined;

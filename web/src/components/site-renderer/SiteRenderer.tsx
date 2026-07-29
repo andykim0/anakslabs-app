@@ -804,6 +804,7 @@ export function SiteRenderer({
           page.slug === ''
           || clinicExperience?.mode === 'live'
           || clinicExperience?.mode === 'preview-full'
+          || clinicExperience?.mode === 'outreach-safe'
         ) ? (
           <ClinicStickyBooking
             pin={config.clinicMaster}

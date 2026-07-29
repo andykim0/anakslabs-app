@@ -608,10 +608,22 @@ function rotateSourceOrder<T>(items: readonly T[], offset: number): T[] {
 }
 
 function sourcePhoneFromBlocks(
+  artifact: CrawlArtifactPayload,
   blocks: readonly ProspectPublicSourceBlock[],
 ): ClinicSourcePhoneProjection | undefined {
-  for (const block of blocks) {
-    if (block.kind !== 'phone') continue;
+  const pageOrder = new Map(
+    artifact.pages.map((page, index) => [page.url, index]),
+  );
+  const orderedPhones = blocks
+    .filter((block) => block.kind === 'phone' && pageOrder.has(block.sourceUrl))
+    .map((block) => ({ block, pageIndex: pageOrder.get(block.sourceUrl)! }))
+    .sort((left, right) => (
+      left.pageIndex - right.pageIndex
+      || left.block.sourceLocation.ordinal - right.block.sourceLocation.ordinal
+      || left.block.sourceLocation.field.localeCompare(right.block.sourceLocation.field)
+      || left.block.id.localeCompare(right.block.id)
+    ));
+  for (const { block } of orderedPhones) {
     const verified = verifyClinicSourcePhone({
       sourceBlockId: block.id,
       sourceText: block.text,
@@ -627,7 +639,7 @@ function previewExperience(input: {
   blocks: readonly ProspectPublicSourceBlock[];
   images: readonly ProjectedUsDemoSourceImage[];
 }): ClinicMasterExperience {
-  const sourcePhone = sourcePhoneFromBlocks(input.blocks);
+  const sourcePhone = sourcePhoneFromBlocks(input.artifact, input.blocks);
   const bookingUrl = input.artifact.pages
     .flatMap((page) => page.connectors)
     .find((connector) => connector.kind === 'us_booking')?.url;
@@ -1104,9 +1116,10 @@ export function previewFullExperienceFromArtifact(input: {
 }
 
 export function outreachSafeExperienceFromArtifact(input: {
+  artifact: CrawlArtifactPayload;
   blocks: readonly ProspectPublicSourceBlock[];
 }): Extract<ClinicMasterExperience, { mode: 'outreach-safe' }> {
-  const sourcePhone = sourcePhoneFromBlocks(input.blocks);
+  const sourcePhone = sourcePhoneFromBlocks(input.artifact, input.blocks);
   return {
     mode: 'outreach-safe',
     ...(sourcePhone ? { sourcePhone } : {}),
