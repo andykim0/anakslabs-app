@@ -108,19 +108,26 @@ export default async function SharedImportPreviewPage({
           <strong className="font-bold">
             {isUsMedicalDemo
               ? previewFull
-                ? '내부 평가용 full 프리뷰 · 발행되지 않음'
-                : '비공개 발행 가정 데모 · 발행되지 않음'
+                ? 'Internal full preview · Not published'
+                : 'Private outreach preview · Not published'
               : '확인용 이전 초안 · 발행되지 않음'}
           </strong>
           <span>
             {isUsMedicalDemo
               ? previewFull
-                ? '병원의 공개 영어 원문과 공개 이미지를 멀티페이지로 재구성한 내부 평가본입니다. 검색 노출과 실제 발행은 차단되어 있습니다.'
-                : '병원의 공개 영어 원문을 구조만 재구성한 14일 한시 데모입니다. 검색 노출과 실제 발행은 차단되어 있습니다.'
+                ? 'This internal evaluation preview restructures the practice’s public English source text and public images across multiple pages. Search indexing and publication are disabled.'
+                : 'This 14-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.'
               : IMPORT_PREVIEW_NOTICE}
           </span>
           <span className="text-xs text-[#6B5310]">
-            원문: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}
+            {isUsMedicalDemo ? (
+              <>
+                Source: {preview.sourceUrl} · Anyone with this link can view the draft until it
+                expires. Share it only with intended recipients and revoke it when sharing ends.
+              </>
+            ) : (
+              <>원문: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}</>
+            )}
           </span>
         </div>
       </aside>

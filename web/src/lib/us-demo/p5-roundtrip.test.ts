@@ -188,10 +188,14 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
       </main></body></html>`,
     });
     const html = renderToStaticMarkup(createElement(AiStructureDiff, { comparison }));
-    assert.match(html, /검색·AI가 읽는 서버 HTML 구조/u);
-    assert.match(html, /현재 공개 사이트/u);
-    assert.match(html, /발행 가정/u);
-    assert.doesNotMatch(html, /2\.3배|공유 확정|구매 확정|AI가 이렇게 답/u);
+    assert.match(html, /Server-rendered HTML structure for search and AI systems/u);
+    assert.match(html, /Current public site/u);
+    assert.match(html, /Publication hypothesis/u);
+    assert.doesNotMatch(html, /[가-힣]/u);
+    assert.doesNotMatch(
+      html,
+      /2\.3배|공유 확정|구매 확정|AI가 이렇게 답|\bbest\b|\bguarantee(?:d)?\b|100%|#1|\bcure\b/iu,
+    );
   });
 
   test('관리자 조립 UI는 검증된 API 경계와 ID 기반 마감만 소비한다', () => {

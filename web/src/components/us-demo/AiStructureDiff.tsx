@@ -1,8 +1,5 @@
 import type { AiSignalState } from '@/lib/scan/ai-visibility';
-import {
-  US_DEMO_DIFF_GROUP_LABELS,
-  type UsDemoStructureComparison,
-} from '@/lib/us-demo/structure-diff';
+import type { UsDemoStructureComparison } from '@/lib/us-demo/structure-diff';
 import type { UsMedicalOutreachGroup } from '@/lib/scan/profiles';
 
 const GROUPS = [
@@ -13,10 +10,18 @@ const GROUPS = [
   'access',
 ] as const satisfies readonly UsMedicalOutreachGroup[];
 
+const GROUP_LABELS = Object.freeze({
+  entity: 'Practice information links',
+  structuredSchema: 'Structured practice information',
+  evidence: 'Evidence and sources',
+  answerExtraction: 'Question-and-answer structure',
+  access: 'Search access',
+} as const satisfies Record<UsMedicalOutreachGroup, string>);
+
 function stateLabel(state: AiSignalState | 'measured'): string {
-  if (state === 'detected' || state === 'measured') return '확인됨';
-  if (state === 'not_applicable') return '해당 없음';
-  return '미확인';
+  if (state === 'detected' || state === 'measured') return 'Verified';
+  if (state === 'not_applicable') return 'Not applicable';
+  return 'Not verified';
 }
 
 function ScoreCard({
@@ -40,7 +45,7 @@ function ScoreCard({
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            {hypothesis ? '발행 가정' : '현재 공개 사이트'}
+            {hypothesis ? 'Publication hypothesis' : 'Current public site'}
           </p>
           <h3 className="mt-1 text-xl font-black text-slate-950">{title}</h3>
         </div>
@@ -58,7 +63,7 @@ function ScoreCard({
               className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl bg-white/75 px-4 py-3"
             >
               <dt className="min-w-0 text-sm font-bold text-slate-800">
-                {US_DEMO_DIFF_GROUP_LABELS[group]}
+                {GROUP_LABELS[group]}
               </dt>
               <dd className="text-right">
                 <span className="block text-sm font-black tabular-nums text-slate-950">
@@ -90,7 +95,9 @@ export function AiStructureDiff({
       className="bg-slate-950 px-4 py-14 text-white sm:px-8 sm:py-20"
     >
       <div className="mx-auto max-w-6xl">
-        <p className="text-sm font-bold text-cyan-300">디자인이 아니라 읽히는 구조를 비교합니다</p>
+        <p className="text-sm font-bold text-cyan-300">
+          Comparing machine-readable structure, not visual design
+        </p>
         {pageLabel ? (
           <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
             Page · {pageLabel}
@@ -100,16 +107,18 @@ export function AiStructureDiff({
           id="us-demo-structure-title"
           className="mt-3 max-w-3xl text-3xl font-black leading-tight sm:text-5xl"
         >
-          {comparison.framing}
+          Server-rendered HTML structure for search and AI systems
         </h2>
         <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-          왼쪽은 수집 시점의 공개 서버 HTML, 오른쪽은 같은 공개 원문을 구조화한 발행 가정입니다.
-          미확인은 없음으로 단정하지 않고, 통계·인용이 없는 항목은 해당 없음으로 두어 가점을 주지 않습니다.
+          The left column reflects the public server-rendered HTML captured at crawl time. The
+          right column is a publication hypothesis that structures the same public source text.
+          “Not verified” does not mean absent; items without statistics or citations are marked
+          “Not applicable” and receive no score credit.
         </p>
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          <ScoreCard title="원본 구조" summary={comparison.source} />
+          <ScoreCard title="Original structure" summary={comparison.source} />
           <ScoreCard
-            title="재구성한 구조"
+            title="Restructured hypothesis"
             summary={comparison.publishHypothesis}
             hypothesis
           />

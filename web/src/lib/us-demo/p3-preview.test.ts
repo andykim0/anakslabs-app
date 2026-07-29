@@ -247,11 +247,15 @@ describe('US-DEMO P3 — private structure diff preview', () => {
       hypothesisUrl: 'https://publish-hypothesis.invalid/',
     });
     const html = renderToStaticMarkup(createElement(AiStructureDiff, { comparison }));
-    assert.match(html, /검색·AI가 읽는 서버 HTML 구조/u);
-    assert.match(html, /미확인/u);
-    assert.match(html, /해당 없음/u);
-    assert.match(html, /발행 가정/u);
-    assert.doesNotMatch(html, /2\.3배|AI가 이렇게 답|상위 노출|순위 보장/u);
+    assert.match(html, /Server-rendered HTML structure for search and AI systems/u);
+    assert.match(html, /Not verified/u);
+    assert.match(html, /Not applicable/u);
+    assert.match(html, /Publication hypothesis/u);
+    assert.doesNotMatch(html, /[가-힣]/u);
+    assert.doesNotMatch(
+      html,
+      /2\.3배|AI가 이렇게 답|상위 노출|순위 보장|\bbest\b|\bguarantee(?:d)?\b|100%|#1|\bcure\b/iu,
+    );
   });
 
   test('토큰·TTL·noindex 5중·비활성 셸 계약을 고정한다', () => {
@@ -279,6 +283,8 @@ describe('US-DEMO P3 — private structure diff preview', () => {
     assert.match(pageSource, /data-private-preview-inert/u);
     assert.match(pageSource, /interactive=\{false\}/u);
     assert.match(pageSource, /animate=\{false\}/u);
+    assert.match(pageSource, /Private outreach preview · Not published/u);
+    assert.match(pageSource, /Anyone with this link can view the draft until it\s+expires/u);
     assert.doesNotMatch(pageSource, /alternates|canonical/u);
   });
 
