@@ -200,6 +200,41 @@ describe('CLINIC B — source text segmentation lands before layout projection',
     }
   });
 
+  test('list tail under a question stays source-local but exits the FAQ answer before layout', () => {
+    const prose = 'Porcelain veneers are custom-crafted shells.';
+    const list = [
+      'Corrects chips, cracks, and gaps',
+      'Reshapes uneven or worn teeth',
+      'Stain-resistant dental porcelain',
+    ];
+    const joined = `${prose}${list.join('')}`;
+    const treatment = page({
+      url: 'https://clinic.example/services/porcelain-veneers',
+      title: 'Porcelain Veneers',
+      headings: ['What Are Porcelain Veneers?'],
+      text: `What Are Porcelain Veneers? ${joined}`,
+    });
+    const blocks = prospectPublicSourceBlocks(artifact([treatment]));
+    const answer = blocks.find((block) => block.kind === 'faq_answer');
+    const relocated = blocks.filter((block) => (
+      block.kind === 'service'
+      && block.sourceLocation.field.startsWith('text.list-item.')
+    ));
+    assert.equal(answer?.text, prose);
+    assert.deepEqual(relocated.map((block) => block.text), list);
+    assert.equal(
+      [answer, ...relocated].map((block) => block?.text ?? '').join(''),
+      joined,
+    );
+    assert.ok([answer, ...relocated].every((block) => (
+      block
+      && block.sourceUrl === treatment.url
+      && block.sourceLocation.ordinal === 0
+      && sourceBlockHashIsValid(block)
+      && !sourceTextHasGluedListItems(block.text)
+    )));
+  });
+
   test('CTA/contact/hours tail is split before source blocks and never becomes an FAQ item', () => {
     const service = page({
       url: 'https://clinic.example/services/emergency-dentistry',

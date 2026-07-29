@@ -49,6 +49,7 @@ const SOURCE_NUMBER_TOKEN_RE =
 const MIN_PAIRED_BODY_LENGTH = 32;
 const MAX_PAIRED_BODY_LENGTH = 1_600;
 const GLUED_LIST_BOUNDARY_RE = /[a-z)][A-Z0-9]/gu;
+const GLUED_LIST_START_RE = /[.!?][A-Z]/gu;
 const MAX_VERBATIM_LIST_ITEMS = 12;
 
 function clean(value: string | undefined): string | null {
@@ -212,16 +213,26 @@ function boundaryJoinsProtectedBrand(value: string, boundary: number): boolean {
  * Concatenating the returned fragments restores the exact input bytes.
  */
 export function splitVerbatimListItems(value: string): string[] {
-  const boundaries = [...value.matchAll(GLUED_LIST_BOUNDARY_RE)]
+  const itemBoundaries = [...value.matchAll(GLUED_LIST_BOUNDARY_RE)]
     .map((match) => (match.index ?? -1) + 1)
     .filter((boundary) => (
       boundary > 0
       && boundary < value.length
       && !boundaryJoinsProtectedBrand(value, boundary)
     ));
-  if (boundaries.length < 2 || boundaries.length + 1 > MAX_VERBATIM_LIST_ITEMS) {
+  if (
+    itemBoundaries.length < 2
+    || itemBoundaries.length + 1 > MAX_VERBATIM_LIST_ITEMS
+  ) {
     return [value];
   }
+  const firstItemBoundary = itemBoundaries[0];
+  const listStart = [...value.slice(0, firstItemBoundary).matchAll(GLUED_LIST_START_RE)]
+    .map((match) => (match.index ?? -1) + 1)
+    .at(-1);
+  const boundaries = listStart
+    ? [listStart, ...itemBoundaries]
+    : itemBoundaries;
   const fragments = boundaries
     .reduce<string[]>((items, boundary, index) => {
       const start = index === 0 ? 0 : boundaries[index - 1];
@@ -399,7 +410,16 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
         if (sourceTextIsOperationalBlob(pair.heading, pair.body)) return;
         if (pair.heading.endsWith('?')) {
           add('faq_question', pair.heading, 'headings', pair.headingOrdinal);
-          add('faq_answer', pair.body, 'text', pair.headingOrdinal);
+          const listItems = splitVerbatimListItems(pair.body ?? '');
+          add('faq_answer', listItems[0], 'text', pair.headingOrdinal);
+          listItems.slice(1).forEach((item, index) => {
+            add(
+              'service',
+              item,
+              `text.list-item.${index + 1}`,
+              pair.headingOrdinal,
+            );
+          });
         } else {
           add('service', pair.heading, 'headings', pair.headingOrdinal);
           const listItems = splitVerbatimListItems(pair.body ?? '');
@@ -448,8 +468,17 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
           add('cta', pair.relocatedCta, 'text.cta', pair.headingOrdinal);
         }
         if (sourceTextIsOperationalBlob(pair.heading, pair.body)) return;
+        const listItems = splitVerbatimListItems(pair.body ?? '');
         add('faq_question', pair.heading, 'headings', pair.headingOrdinal);
-        add('faq_answer', pair.body, 'text', pair.headingOrdinal);
+        add('faq_answer', listItems[0], 'text', pair.headingOrdinal);
+        listItems.slice(1).forEach((item, index) => {
+          add(
+            'service',
+            item,
+            `text.list-item.${index + 1}`,
+            pair.headingOrdinal,
+          );
+        });
       });
   }
   return blocks;
