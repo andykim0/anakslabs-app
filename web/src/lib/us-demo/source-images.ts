@@ -14,12 +14,41 @@ const JUNK_IMAGE_RE =
   /\b(?:logo|icon|favicon|sprite|pixel|tracking|spacer|loader|captcha|badge|social|payment|powered[-_ ]by)\b/iu;
 const BEFORE_AFTER_RE =
   /\bbefore\s*(?:and|&|-)?\s*after\b|\bsmile[-_ ]gallery\b|\bcase[-_ ]results?\b/iu;
+const PATIENT_RESULT_RE =
+  /\bbefore\s*(?:and|&|\/|-)?\s*after\b|\b(?:patient|treatment|smile)\s+results?\b|\bresults?\s+(?:at|from|by)\b|\btransformation\b|\b(?:straight|confident)\s+smile\s+after\b|\bpatient'?s\s+smile\s+after\b/iu;
 const PROVIDER_RE =
   /\b(?:doctor|dentist|provider|team|staff|headshot|portrait|dds|dmd)\b/iu;
 const INSURANCE_PAGE_RE =
   /\/(?:insurance|accepted-insurance|financing|payment|membership)(?:\/|$)/iu;
 const INSURANCE_LOGO_RE =
   /\b(?:insurance|insurer|payer|dental[-_ ]plan|benefits?|accepted[-_ ]plans?)\b/iu;
+const COMPOSED_LAYOUT_RE =
+  /(?:^|[-_/])(?:og[-_ ]?card|social[-_ ]?card|treatment[-_ ]?plan|implant[-_ ]?diagram)(?:[-_.]|$)|\b(?:infographic|diagram poster|treatment plan graphic)\b/iu;
+const CREDENTIAL_IMAGE_RE =
+  /(?:^|[-_/])(?:degree|diploma|credential|certificate|desk[-_ ]?consult)(?:[-_.]|$)|\b(?:harvard|herman ostrow|school of dentistry|doctor of dental surgery|board[- ]certified)\b/iu;
+const BUSINESS_NAME_POISON_RE =
+  /\bid dental implant(?:\s*(?:&|and)\s*cosmetic)? center\b|\bimplant center\b|\bid dental\b|\bkoreatown\b|\blos angeles\b|,?\s*\bca\b/giu;
+
+export type ClinicImageMatchCategory =
+  | 'surgery'
+  | 'consultation-imaging'
+  | 'model-diagram'
+  | 'office'
+  | 'patient-result'
+  | 'unknown';
+
+export type ClinicPhotoGateReason =
+  | 'eligible-photograph'
+  | 'insurance-logo'
+  | 'composed-layout'
+  | 'credential-image'
+  | 'patient-result';
+
+export interface ClinicPhotoGateDecision {
+  eligibleForPhotoSlot: boolean;
+  reason: ClinicPhotoGateReason;
+  category: ClinicImageMatchCategory;
+}
 
 export interface ProjectedUsDemoSourceImage {
   source: ProspectPublicSourceImage;
@@ -118,7 +147,7 @@ export function sourceImageIsBeforeAfter(image: ProjectedUsDemoSourceImage): boo
   const url = new URL(image.page.url);
   return BEFORE_AFTER_RE.test(
     `${url.pathname} ${image.page.title ?? ''} ${image.candidate.alt} ${image.source.url}`,
-  );
+  ) || sourceImageIsPatientResult(image);
 }
 
 export function sourceImageIsProvider(image: ProjectedUsDemoSourceImage): boolean {
@@ -129,4 +158,105 @@ export function sourceImageIsProvider(image: ProjectedUsDemoSourceImage): boolea
 
 export function sourceImageIsInsuranceLogo(image: ProjectedUsDemoSourceImage): boolean {
   return candidateIsInsuranceLogo(image.page, image.candidate);
+}
+
+function imageFilename(image: ProjectedUsDemoSourceImage): string {
+  return new URL(image.source.url).pathname.split('/').filter(Boolean).at(-1) ?? '';
+}
+
+function matchingContext(image: ProjectedUsDemoSourceImage): string {
+  return image.candidate.alt
+    .replace(BUSINESS_NAME_POISON_RE, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
+export function sourceImageIsPatientResult(image: ProjectedUsDemoSourceImage): boolean {
+  return PATIENT_RESULT_RE.test(`${image.candidate.alt} ${imageFilename(image)}`);
+}
+
+export function clinicImageMatchCategory(
+  image: ProjectedUsDemoSourceImage,
+): ClinicImageMatchCategory {
+  const context = matchingContext(image);
+  if (sourceImageIsPatientResult(image)) return 'patient-result';
+  if (/\b(?:model|anatomy|jawbone|titanium|3d|radiograph|x-?ray)\b/iu.test(context)) {
+    return 'model-diagram';
+  }
+  if (/\b(?:performing|surgery|procedure|chairside|root canal|endodontic|graft|extraction|crown)\b/iu
+    .test(context)) {
+    return 'surgery';
+  }
+  if (/\b(?:consult|reviewing|workstation|cbct|scan|imaging|headshot|portrait|doctor|dentist|team)\b/iu
+    .test(context)) {
+    return 'consultation-imaging';
+  }
+  if (/\b(?:office|lobby|reception|waiting|suite|room|interior|exterior|facility)\b/iu
+    .test(context)) {
+    return 'office';
+  }
+  return 'unknown';
+}
+
+/**
+ * Four-way visual gate. Text printed on a real wall, coat, or physical device remains a
+ * photograph; only composed layouts are removed. OCR credential evidence is fail-closed.
+ */
+export function clinicPhotoGate(
+  image: ProjectedUsDemoSourceImage,
+): ClinicPhotoGateDecision {
+  const context = `${imageFilename(image)} ${image.candidate.alt}`;
+  const category = clinicImageMatchCategory(image);
+  if (sourceImageIsInsuranceLogo(image)) {
+    return { eligibleForPhotoSlot: false, reason: 'insurance-logo', category };
+  }
+  if (COMPOSED_LAYOUT_RE.test(context)) {
+    return { eligibleForPhotoSlot: false, reason: 'composed-layout', category };
+  }
+  if (CREDENTIAL_IMAGE_RE.test(context)) {
+    return { eligibleForPhotoSlot: false, reason: 'credential-image', category };
+  }
+  if (sourceImageIsPatientResult(image)) {
+    return { eligibleForPhotoSlot: false, reason: 'patient-result', category };
+  }
+  return { eligibleForPhotoSlot: true, reason: 'eligible-photograph', category };
+}
+
+export function clinicPhotoSlotPool(
+  images: readonly ProjectedUsDemoSourceImage[],
+): ProjectedUsDemoSourceImage[] {
+  return images.filter((image) => clinicPhotoGate(image).eligibleForPhotoSlot);
+}
+
+export type ClinicImagePageTopic =
+  | 'home'
+  | 'implant'
+  | 'oral-surgery'
+  | 'orthodontic'
+  | 'cosmetic-restorative'
+  | 'porcelain-veneers'
+  | 'emergency'
+  | 'endodontic'
+  | 'about'
+  | 'contact';
+
+/** Match from the whole eligible site pool. No crawl-page membership participates. */
+export function clinicPhotoPoolForTopic(
+  images: readonly ProjectedUsDemoSourceImage[],
+  topic: ClinicImagePageTopic,
+): ProjectedUsDemoSourceImage[] {
+  const eligible = clinicPhotoSlotPool(images);
+  if (topic === 'home') return eligible;
+  const matcher: Record<Exclude<ClinicImagePageTopic, 'home'>, RegExp> = {
+    implant: /\b(?:implant|all[- ]on[- ](?:4|6)|full[- ]arch)\b/iu,
+    'oral-surgery': /\b(?:oral surgery|surgery|graft(?:ing)?|extraction)\b/iu,
+    orthodontic: /\b(?:orthodontic|aligned smile|aligner|braces|invisalign)\b/iu,
+    'cosmetic-restorative': /\b(?:cosmetic|veneer|crown|aesthetic|straight smile|confident.*smile|makeover)\b/iu,
+    'porcelain-veneers': /\bveneer\b/iu,
+    emergency: /\b(?:emergency|toothache|urgent)\b/iu,
+    endodontic: /\b(?:endodontic|root canal)\b/iu,
+    about: /\b(?:headshot|portrait|doctor|dentist|founder|team)\b/iu,
+    contact: /\b(?:office|lobby|reception|waiting|interior|exterior|facility)\b/iu,
+  };
+  return eligible.filter((image) => matcher[topic].test(matchingContext(image)));
 }

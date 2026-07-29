@@ -428,9 +428,11 @@ describe('CLINIC$ master v2 — preview-full multipage', () => {
     assert.ok(projections.some((projection) => (
       projection?.resolvedId === 'features.numbered-list'
     )));
-    assert.ok(projections.some((projection) => (
-      projection?.resolvedId === 'features.three-column-cards'
-    )), JSON.stringify(projections.map((projection) => projection?.resolvedId)));
+    assert.ok(
+      projections.filter((projection) => projection?.resolvedId === 'features.zigzag-media')
+        .length >= 2,
+      JSON.stringify(projections.map((projection) => projection?.resolvedId)),
+    );
     for (const projection of projections) {
       assert.deepEqual(Object.keys(projection?.bands ?? {}), ['wide', 'compact', 'mobile']);
       for (const item of projection?.items ?? []) {

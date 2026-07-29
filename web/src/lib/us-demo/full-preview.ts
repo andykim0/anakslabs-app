@@ -29,10 +29,14 @@ import type {
   ProspectPublicSourceImage,
 } from './contracts';
 import {
+  clinicPhotoGate,
+  clinicPhotoPoolForTopic,
+  clinicPhotoSlotPool,
   prospectPublicSourceImages,
   sourceImageIsBeforeAfter,
   sourceImageIsInsuranceLogo,
   sourceImageIsProvider,
+  type ClinicImagePageTopic,
   type ProjectedUsDemoSourceImage,
 } from './source-images';
 import {
@@ -360,6 +364,20 @@ const PROCESS_RE =
 const BENEFIT_RE =
   /\b(?:benefits?|advantages?|why choose|candidates?|improve|restore|comfort|confidence)\b/iu;
 const LONG_PROSE_MINIMUM = 420;
+type ClinicFeatureCandidates = Parameters<typeof buildClinicFeatureSections>[0]['candidates'];
+
+/** The count is the matched real-photo pool remaining after the page hero is assigned. */
+export function clinicProcedureMediaCandidates(
+  remainingImageCount: number,
+): ClinicFeatureCandidates {
+  if (remainingImageCount >= 5) {
+    return ['features.zigzag-media', 'features.featured-first', 'features.icon-grid'];
+  }
+  if (remainingImageCount >= 2) {
+    return ['features.featured-first', 'features.three-column-cards', 'features.icon-grid'];
+  }
+  return ['features.icon-grid', 'features.sticky-heading-two-column', 'features.numbered-list'];
+}
 
 function unitContext(unit: ProspectPublicSourceContentUnit): string {
   return `${unit.title.text} ${unit.body?.text ?? ''}`;
@@ -390,14 +408,6 @@ function procedureContentSections(input: {
 }): { sections: Section[]; usedImageIds: Set<string> } {
   const sourceUnits = prospectPublicSourceContentUnits(input.blocks);
   const images = input.images.filter((image) => !sourceImageIsInsuranceLogo(image));
-  const usedImageIds = new Set<string>();
-  const imageByUnit = new Map<string, ProjectedUsDemoSourceImage>();
-  sourceUnits.forEach((unit, index) => {
-    const image = images[index];
-    if (!image) return;
-    imageByUnit.set(unit.id, image);
-    usedImageIds.add(image.source.id);
-  });
   const buckets = {
     overview: [] as ProspectPublicSourceContentUnit[],
     process: [] as ProspectPublicSourceContentUnit[],
@@ -411,6 +421,15 @@ function procedureContentSections(input: {
     else if (BENEFIT_RE.test(context)) buckets.benefits.push(unit);
     else buckets.overview.push(unit);
   }
+  const usedImageIds = new Set<string>();
+  const imageByUnit = new Map<string, ProjectedUsDemoSourceImage>();
+  [...buckets.overview, ...buckets.benefits].forEach((unit, index) => {
+    const image = images[index];
+    if (!image) return;
+    imageByUnit.set(unit.id, image);
+    usedImageIds.add(image.source.id);
+  });
+  const mediaCandidates = clinicProcedureMediaCandidates(images.length);
   const sections: Section[] = [];
   const append = (
     key: keyof typeof buckets,
@@ -436,7 +455,7 @@ function procedureContentSections(input: {
   append(
     'overview',
     `${input.name} Overview`,
-    ['features.zigzag-media', 'features.three-column-cards', 'features.icon-grid'],
+    mediaCandidates,
   );
   append(
     'process',
@@ -447,9 +466,7 @@ function procedureContentSections(input: {
   append(
     'benefits',
     'Treatment Benefits',
-    buckets.benefits.some((unit) => imageByUnit.has(unit.id))
-      ? ['features.three-column-cards', 'features.icon-grid']
-      : ['features.icon-grid', 'features.three-column-cards'],
+    mediaCandidates,
   );
   append(
     'long',
@@ -489,21 +506,6 @@ function procedureContentSections(input: {
   return { sections, usedImageIds };
 }
 
-function sourceImageContext(image: ProjectedUsDemoSourceImage): string {
-  return [
-    new URL(image.page.url).pathname.replace(/[-_/]+/gu, ' '),
-    image.page.title ?? '',
-    image.candidate.alt,
-  ].join(' ');
-}
-
-function exactPageImages(
-  images: readonly ProjectedUsDemoSourceImage[],
-  sourceUrls: ReadonlySet<string>,
-): ProjectedUsDemoSourceImage[] {
-  return images.filter((image) => sourceUrls.has(image.page.url));
-}
-
 function firstHomeImage(
   artifact: CrawlArtifactPayload,
   images: readonly ProjectedUsDemoSourceImage[],
@@ -524,6 +526,31 @@ function firstHomeImage(
       && !sourceImageIsBeforeAfter(image)
       && !sourceImageIsInsuranceLogo(image)
     ));
+}
+
+function procedureImageTopic(
+  plan: PlannedProcedurePage,
+  slug: string,
+): ClinicImagePageTopic {
+  const context = [
+    slug,
+    plan.sourceUrl ?? '',
+    ...plan.blocks.filter((block) => block.kind === 'service').map((block) => block.text),
+  ].join(' ');
+  if (/\b(?:emergency|toothache|urgent)\b/iu.test(context)) return 'emergency';
+  if (/\b(?:endodontic|root canal)\b/iu.test(context)) return 'endodontic';
+  if (/\b(?:oral surgery|bone graft|extraction)\b/iu.test(context)) return 'oral-surgery';
+  if (/\b(?:porcelain veneer|veneers?)\b/iu.test(context)) return 'porcelain-veneers';
+  if (plan.category === 'implant') return 'implant';
+  if (plan.category === 'orthodontic') return 'orthodontic';
+  if (plan.category === 'cosmetic-restorative') return 'cosmetic-restorative';
+  return 'contact';
+}
+
+function rotateSourceOrder<T>(items: readonly T[], offset: number): T[] {
+  if (items.length < 2) return [...items];
+  const normalized = offset % items.length;
+  return [...items.slice(normalized), ...items.slice(0, normalized)];
 }
 
 function previewExperience(input: {
@@ -548,7 +575,9 @@ function previewExperience(input: {
       (candidate) => candidate.sourceUrl === bio.sourceUrl,
     ).length;
     const exactPageImages = input.images.filter((image) => (
-      image.page.url === bio.sourceUrl && !sourceImageIsBeforeAfter(image)
+      image.page.url === bio.sourceUrl
+      && !sourceImageIsBeforeAfter(image)
+      && clinicPhotoGate(image).eligibleForPhotoSlot
     ));
     const providerImages = exactPageImages.filter(sourceImageIsProvider);
     const photo = providerImages[occurrence] ?? exactPageImages[occurrence];
@@ -608,6 +637,26 @@ export function compileUsMedicalFullPreview(input: {
   const pin = baseConfig.clinicMaster;
   if (!pin) throw new Error('CLINIC_MASTER_PIN_REQUIRED');
   const projectedImages = prospectPublicSourceImages(artifact);
+  const photoSlotPool = clinicPhotoSlotPool(projectedImages);
+  const heroUseCounts = new Map<string, number>();
+  let previousHeroImageId: string | undefined;
+  const allocateHeroImage = (
+    candidates: readonly ProjectedUsDemoSourceImage[],
+  ): ProjectedUsDemoSourceImage | undefined => {
+    const available = candidates.filter((candidate) => (
+      candidate.source.id !== previousHeroImageId
+      && (heroUseCounts.get(candidate.source.id) ?? 0) < 2
+    ));
+    available.sort((left, right) => (
+      (heroUseCounts.get(left.source.id) ?? 0) - (heroUseCounts.get(right.source.id) ?? 0)
+      || photoSlotPool.indexOf(left) - photoSlotPool.indexOf(right)
+    ));
+    const selected = available[0];
+    if (!selected) return undefined;
+    heroUseCounts.set(selected.source.id, (heroUseCounts.get(selected.source.id) ?? 0) + 1);
+    previousHeroImageId = selected.source.id;
+    return selected;
+  };
   const experience = previewExperience({
     artifact,
     blocks,
@@ -615,7 +664,13 @@ export function compileUsMedicalFullPreview(input: {
   }) as Extract<ClinicMasterExperience, { mode: 'preview-full' }>;
   const businessName = blocks.find((block) => block.kind === 'business_name')!;
   const introduction = blocks.find((block) => block.kind === 'introduction');
-  const homeImage = firstHomeImage(artifact, projectedImages);
+  const homeCandidate = firstHomeImage(artifact, photoSlotPool);
+  const homeImage = allocateHeroImage(homeCandidate
+    ? [
+        homeCandidate,
+        ...photoSlotPool.filter((image) => image !== homeCandidate),
+      ]
+    : photoSlotPool);
   const services = blocks.filter((block) => block.kind === 'service');
   const procedurePlan = planProcedurePages(blocks);
   const procedureCategoryCounts = new Map(CATEGORY_ORDER.map((category) => [
@@ -659,11 +714,10 @@ export function compileUsMedicalFullPreview(input: {
     const body = planned.blocks.find((block) => (
       block.kind === 'service_detail' && block.sourceUrl === title.sourceUrl
     ));
-    const image = projectedImages.find((candidate) => (
-      planned.sourceUrls.has(candidate.page.url)
-      && !sourceImageIsProvider(candidate)
-      && !sourceImageIsBeforeAfter(candidate)
-      && !sourceImageIsInsuranceLogo(candidate)
+    const topic = procedureImageTopic(planned, slug);
+    const image = clinicPhotoPoolForTopic(projectedImages, topic).find((candidate) => (
+      !homeServiceImageIds.has(candidate.source.id)
+      && candidate.source.id !== homeImage?.source.id
     ));
     if (image) homeServiceImageIds.add(image.source.id);
     return [{
@@ -686,7 +740,7 @@ export function compileUsMedicalFullPreview(input: {
   const gallerySections = buildClinicGallerySections({
     id: 'clinic-practice-gallery',
     name: 'Practice Gallery',
-    images: projectedImages
+    images: photoSlotPool
       .filter((image) => (
         !reservedImages.has(image.source.id)
         && !homeServiceImageIds.has(image.source.id)
@@ -769,36 +823,27 @@ export function compileUsMedicalFullPreview(input: {
     sections: homeSections,
   }];
 
-  for (const { planned, slug } of plannedPages) {
+  for (const [pageIndex, { planned, slug }] of plannedPages.entries()) {
     const { category, blocks: pageSourceBlocks, sourceUrls } = planned;
     const categoryServices = pageSourceBlocks.filter((block) => block.kind === 'service');
     const meta = CATEGORY_META[category];
     const displayTitle = categoryServices.find((block) => block.text.length <= 60)?.text
       ?? meta.navLabel;
-    const exactImages = exactPageImages(projectedImages, sourceUrls)
-      .filter((image) => (
-        !sourceImageIsProvider(image)
-        && !sourceImageIsBeforeAfter(image)
-        && !sourceImageIsInsuranceLogo(image)
-      ));
-    const contextualImages = projectedImages.filter((image) => (
-      procedureCategory(sourceImageContext(image)) === category
-      && !sourceImageIsProvider(image)
-      && !sourceImageIsBeforeAfter(image)
-      && !sourceImageIsInsuranceLogo(image)
-    ));
-    const categoryImages = [...new Map(
-      [...exactImages, ...contextualImages].map((image) => [image.source.id, image]),
-    ).values()];
-    const heroImage = categoryImages[0];
+    const pageTopic = procedureImageTopic(planned, slug);
+    const categoryImages = clinicPhotoPoolForTopic(projectedImages, pageTopic);
+    const heroImage = allocateHeroImage(categoryImages);
+    const bodyImages = rotateSourceOrder(
+      categoryImages.filter((image) => image.source.id !== heroImage?.source.id),
+      pageIndex,
+    );
     const detail = procedureContentSections({
       id: `clinic-procedure-${category}-details`,
       name: meta.navLabel,
       blocks: pageSourceBlocks,
-      images: categoryImages.slice(1),
+      images: bodyImages,
       theme,
     });
-    const galleryImages = categoryImages.slice(1).filter(
+    const galleryImages = bodyImages.filter(
       (image) => !detail.usedImageIds.has(image.source.id),
     );
     const gallery = buildClinicGallerySections({
@@ -839,9 +884,10 @@ export function compileUsMedicalFullPreview(input: {
   );
   const providerTitle = blocks.find((block) => block.kind === 'provider_name') ?? businessName;
   if (providerSections.length > 0) {
-    const providerImage = projectedImages.find((image) => (
+    const providerImage = allocateHeroImage(projectedImages.filter((image) => (
       experience.providerPhotos?.some((photo) => photo.sourceImageId === image.source.id)
-    ));
+      && clinicPhotoGate(image).eligibleForPhotoSlot
+    )));
     pages.push({
       id: 'clinic-about',
       title: 'About',
@@ -877,12 +923,10 @@ export function compileUsMedicalFullPreview(input: {
         ))
         .map((block) => block.sourceUrl),
     );
-    const contactImage = exactPageImages(projectedImages, contactPageUrls)
-      .find((image) => (
-        !sourceImageIsProvider(image)
-        && !sourceImageIsBeforeAfter(image)
-        && !sourceImageIsInsuranceLogo(image)
-      ));
+    const contactCandidates = clinicPhotoPoolForTopic(projectedImages, 'contact').filter(
+      (image) => contactPageUrls.size === 0 || contactPageUrls.has(image.page.url),
+    );
+    const contactImage = allocateHeroImage(contactCandidates);
     const contactInsuranceStrip = insuranceStripSection({
       id: 'clinic-accepted-insurance',
       images: insuranceLogos,
