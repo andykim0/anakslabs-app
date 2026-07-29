@@ -5,6 +5,7 @@ import {
   resolveSectionSurfaceTone,
   resolveThemePaint,
 } from '@/lib/design/site-theme-tokens';
+import { resolveTypographyTracking } from '@/lib/design/typography-tracking';
 
 const CLINIC_INSURANCE_STRIP_ID = 'clinic-accepted-insurance';
 
@@ -58,6 +59,8 @@ export function ClinicInsuranceStrip(input: {
         {title?.kind === 'text' ? (
           <h2
             data-font-role="heading"
+            data-clinic-typography-tier="section"
+            data-clinic-tracking-role="heading"
             style={{
               margin: 0,
               color: surfacePaint?.text ?? title.style.color ?? input.theme.palette.text,
@@ -65,6 +68,11 @@ export function ClinicInsuranceStrip(input: {
               fontSize: compact ? 30 : 40,
               fontWeight: title.style.fontWeight ?? 600,
               lineHeight: 1.2,
+              letterSpacing: resolveTypographyTracking({
+                fontSizePx: compact ? 30 : 40,
+                uppercase: false,
+                role: 'heading',
+              }),
             }}
           >
             {title.text}

@@ -176,6 +176,8 @@ describe('CLINIC C surface-tone policy', () => {
     assert.match(html, /data-section-surface-enhanced="true"/u);
     assert.match(html, /background-color:oklch\(0\.0900/u);
     assert.match(html, /color:oklch\(0\.9700/u);
+    assert.match(html, /data-clinic-tracking-role="heading"/u);
+    assert.match(html, /letter-spacing:-0\.01em/u);
   });
 
   test('tracking은 공통 size×uppercase 함수 하나로 음수·양수·body 범위를 결정한다', () => {
