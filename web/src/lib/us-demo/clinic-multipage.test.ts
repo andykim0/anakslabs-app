@@ -286,6 +286,40 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     );
   });
 
+  test('clinic surface cadence는 양 모드 구조를 보존하고 substantial/short dark 규칙을 지킨다', () => {
+    const artifact = fixtureArtifact();
+    const outreach = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
+    const full = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    assert.deepEqual(
+      outreach.config.pages.map((page) => page.slug),
+      full.config.pages.map((page) => page.slug),
+    );
+    for (const page of [...outreach.config.pages, ...full.config.pages]) {
+      assert.ok(page.sections.every((section) => section.surfaceTone));
+      const content = page.sections.filter((section) => section.type !== 'hero');
+      const dark = content.flatMap((section, index) => (
+        section.surfaceTone === 'dark' ? [index] : []
+      ));
+      assert.equal(dark.length, content.length >= 4 ? 1 : 0, page.slug);
+      if (dark.length === 1) {
+        assert.ok(dark[0] > 0 && dark[0] < content.length - 1, page.slug);
+        assert.notEqual(content[dark[0]].type, 'cta', page.slug);
+      }
+      const tintRuns: number[] = [];
+      let tintRun = 0;
+      for (const section of content) {
+        if (section.surfaceTone === 'tint') tintRun += 1;
+        else if (tintRun > 0) {
+          tintRuns.push(tintRun);
+          tintRun = 0;
+        }
+      }
+      if (tintRun > 0) tintRuns.push(tintRun);
+      assert.ok(tintRuns.every((length) => length >= 2), page.slug);
+      assert.ok(content.filter((section) => section.surfaceTone === 'dark').length < 3);
+    }
+  });
+
   test('사이트 phone SHA가 유효하면 outreach-safe 실 컴파일 전 페이지 Call, 변조되면 전부 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'outreach-safe' });
