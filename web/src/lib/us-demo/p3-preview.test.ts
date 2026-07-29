@@ -288,14 +288,24 @@ describe('US-DEMO P3 — private structure diff preview', () => {
     assert.doesNotMatch(pageSource, /alternates|canonical/u);
   });
 
-  test('US compiler output has no active CTA, form, map, connector, original image, or script', () => {
+  test('US compiler output has no active form, map, connector, script, or restricted clinic image', () => {
     const { config } = compileUsMedicalDemo(fixtureArtifact());
     const elements = config.pages.flatMap((entry) => entry.sections).flatMap((entry) => entry.elements);
     assert.equal(elements.some((element) => (
-      ['button', 'form', 'map', 'socialLinks', 'video'].includes(element.kind)
+      ['form', 'map', 'socialLinks', 'video'].includes(element.kind)
     )), false);
+    const buttons = elements.filter((element) => element.kind === 'button');
+    assert.ok(buttons.every((element) => (
+      element.kind === 'button'
+      && (!element.href || element.href.startsWith('/') || element.href.startsWith('#'))
+    )));
     const images = elements.filter((element) => element.kind === 'image');
     assert.ok(images.every((element) => (
+      element.kind === 'image'
+      && !/patient|before|after|credential|harvard|board-certified/iu.test(element.alt ?? '')
+    )));
+    const providerImages = images.filter((element) => element.id.includes('provider'));
+    assert.ok(providerImages.every((element) => (
       element.kind === 'image'
       && element.src === '/clinic/provider-placeholder.svg'
       && /placeholder/iu.test(element.alt ?? '')

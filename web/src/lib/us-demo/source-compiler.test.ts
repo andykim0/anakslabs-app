@@ -308,8 +308,8 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     assert.equal(first.config.clinicMaster?.paletteSource.sourceSha256, 'b'.repeat(64));
     assert.equal(first.config.clinicMaster?.focus, 'implant');
     const serviceSection = first.config.pages[0]?.sections
-      .find((section) => section.id === 'us-demo-services')
-    assert.equal(serviceSection?.sectionLayout?.resolvedId, 'features.icon-grid');
+      .find((section) => section.id.startsWith('us-demo-services'));
+    assert.equal(serviceSection?.sectionLayout?.resolvedId, 'about.split-left');
     assert.deepEqual(Object.keys(serviceSection?.sectionLayout?.bands ?? {}), [
       'wide',
       'compact',

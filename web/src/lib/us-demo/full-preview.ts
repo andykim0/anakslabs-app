@@ -19,6 +19,7 @@ import {
   CLINIC_RADIUS_TOKENS,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
+  orderClinicServices,
   verifyClinicUsDestination,
   verifyClinicSourcePhone,
   type ClinicLayoutContentUnit,
@@ -812,9 +813,13 @@ export function compileUsMedicalFullPreview(input: {
   ].filter((id): id is string => Boolean(id)));
   const homeServiceImageIds = new Set<string>();
   const homeServiceUnits = plannedPages.slice(0, 12).flatMap(({ planned, slug }) => {
-    const title = planned.blocks.find((block) => (
+    const orderedServices = orderClinicServices(
+      planned.blocks.filter((block) => block.kind === 'service'),
+      pin.focus,
+    );
+    const title = orderedServices.find((block) => (
       block.kind === 'service' && block.text.length <= 72
-    )) ?? planned.blocks.find((block) => block.kind === 'service');
+    )) ?? orderedServices[0];
     if (!title) return [];
     const body = planned.blocks.find((block) => (
       block.kind === 'service_detail' && block.sourceUrl === title.sourceUrl
@@ -937,7 +942,10 @@ export function compileUsMedicalFullPreview(input: {
 
   for (const [pageIndex, { planned, slug }] of plannedPages.entries()) {
     const { category, blocks: pageSourceBlocks, sourceUrls } = planned;
-    const categoryServices = pageSourceBlocks.filter((block) => block.kind === 'service');
+    const categoryServices = orderClinicServices(
+      pageSourceBlocks.filter((block) => block.kind === 'service'),
+      pin.focus,
+    );
     const meta = CATEGORY_META[category];
     const displayTitle = categoryServices.find((block) => block.text.length <= 60)?.text
       ?? meta.navLabel;
