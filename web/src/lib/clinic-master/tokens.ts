@@ -108,10 +108,8 @@ export function resolveClinicMasterTheme(
 ): SiteTheme {
   const accent = CLINIC_ACCENT_TOKENS[pin.accentPreset];
   const typography = CLINIC_TYPOGRAPHY_TOKENS[pin.typographyPreset];
-  const { tokens: _dnaTokens, ...legacyTheme } = baseTheme;
-  void _dnaTokens;
   return {
-    ...legacyTheme,
+    ...baseTheme,
     fonts: {
       heading: typography.headingFamily,
       body: typography.bodyFamily,

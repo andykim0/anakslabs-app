@@ -279,9 +279,10 @@ export function buildClinicFeatureSections(input: {
   numberOffset?: number;
   surface?: boolean;
   maximumItems?: number;
+  allowSingleFeature?: boolean;
 }): Section[] {
   if (input.units.length === 0) return [];
-  if (input.units.length < FEATURE_MINIMUM_ITEMS) {
+  if (input.units.length < FEATURE_MINIMUM_ITEMS && !input.allowSingleFeature) {
     const unit = input.units[0];
     return [buildClinicAboutSection({
       id: `${input.id}-single`,
@@ -393,6 +394,7 @@ export function buildClinicFeatureSections(input: {
     throw new Error(`CLINIC_FEATURE_LAYOUT_UNRESOLVED:${input.id}:${input.units.length}`);
   }
   section.sectionLayout = projection;
+  if (projection.surfaceTone) section.surfaceTone = projection.surfaceTone;
   section.height = projection.bands.wide.sectionHeight;
   return [section];
 }
@@ -838,5 +840,22 @@ export function buildClinicStatStripSection(input: {
     units,
     candidates: ['features.stat-strip'],
     maximumItems: 4,
+  })[0];
+}
+
+export function buildClinicDarkValueBandSection(input: {
+  id: string;
+  name: string;
+  theme: SiteTheme;
+  statement: ClinicLayoutContentUnit;
+}): Section {
+  return buildClinicFeatureSections({
+    id: input.id,
+    name: input.name,
+    theme: input.theme,
+    units: [input.statement],
+    candidates: ['features.dark-value-band'],
+    maximumItems: 1,
+    allowSingleFeature: true,
   })[0];
 }

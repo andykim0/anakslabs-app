@@ -6,7 +6,11 @@ import type {
   TextElement,
 } from '@/lib/types/site';
 import { fontRoleForTextElement } from '@/lib/fonts/resources';
-import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
+import {
+  resolveSectionSurfaceTone,
+  resolveThemePaint,
+  type SectionSurfacePaint,
+} from '@/lib/design/site-theme-tokens';
 import { ElementContent } from './ElementContent';
 
 export const CLINIC_FLOW_CSS = `
@@ -28,6 +32,7 @@ export const CLINIC_FLOW_CSS = `
   font-weight: var(--clinic-heading-weight);
   line-height: 1.12;
   letter-spacing: -.01em;
+  color: var(--clinic-section-text,var(--clinic-text));
 }
 [data-clinic-flow-intro] {
   max-width: 46rem;
@@ -66,7 +71,7 @@ export const CLINIC_FLOW_CSS = `
   line-height: 1.7;
 }
 [data-clinic-flow-marker] {
-  color: var(--clinic-accent);
+  color: var(--clinic-section-accent,var(--clinic-accent));
   font-family: var(--clinic-control-family);
   font-size: .875rem;
   font-weight: var(--clinic-control-weight);
@@ -101,14 +106,14 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section="features.sticky-heading-two-column"] [data-clinic-flow-items] {
   grid-template-columns: 1fr;
   gap: 0;
-  border-top: 1px solid var(--clinic-border);
+  border-top: 1px solid var(--clinic-section-border,var(--clinic-border));
 }
 [data-clinic-flow-section="features.numbered-list"] [data-clinic-flow-item],
 [data-clinic-flow-section="features.sticky-heading-two-column"] [data-clinic-flow-item] {
   grid-template-columns: minmax(4rem,.3fr) minmax(0,1.7fr);
   gap: var(--clinic-grid-gutter);
   padding-block: 2rem;
-  border-bottom: 1px solid var(--clinic-border);
+  border-bottom: 1px solid var(--clinic-section-border,var(--clinic-border));
 }
 [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item]:first-child {
   grid-column: span 2;
@@ -119,9 +124,9 @@ export const CLINIC_FLOW_CSS = `
 }
 [data-clinic-flow-section="features.faq-accordion"] [data-clinic-flow-item] {
   padding: 1.5rem;
-  border: 1px solid var(--clinic-border);
+  border: 1px solid var(--clinic-section-border,var(--clinic-border));
   border-radius: var(--clinic-radius-md);
-  background: var(--clinic-surface);
+  background: var(--clinic-section-surface,var(--clinic-surface));
 }
 [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-items] {
   grid-template-columns: repeat(var(--clinic-flow-columns),minmax(0,1fr));
@@ -129,7 +134,7 @@ export const CLINIC_FLOW_CSS = `
 }
 [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-item] {
   padding-block: 1.25rem;
-  border-block: 1px solid var(--clinic-border);
+  border-block: 1px solid var(--clinic-section-border,var(--clinic-border));
 }
 [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-marker] {
   font-size: clamp(1rem,1.5vw,1.25rem);
@@ -158,13 +163,12 @@ export const CLINIC_FLOW_CSS = `
   gap: .75rem;
 }
 [data-clinic-flow-section^="cta."] {
-  color: var(--clinic-accent-contrast);
-  background: var(--clinic-accent) !important;
+  color: var(--clinic-section-text,var(--clinic-text));
 }
 [data-clinic-flow-section^="cta."] [data-clinic-flow-heading],
 [data-clinic-flow-section^="cta."] [data-clinic-flow-copy],
 [data-clinic-flow-section^="cta."] [data-clinic-flow-item-heading] {
-  color: var(--clinic-accent-contrast) !important;
+  color: var(--clinic-section-text,var(--clinic-text)) !important;
 }
 [data-clinic-flow-section^="cta."] [data-clinic-flow-items],
 [data-clinic-flow-section^="directions."] [data-clinic-flow-items] {
@@ -172,18 +176,18 @@ export const CLINIC_FLOW_CSS = `
 }
 [data-clinic-flow-section^="directions."] [data-clinic-flow-item] {
   padding: 1.5rem;
-  border: 1px solid var(--clinic-border);
+  border: 1px solid var(--clinic-section-border,var(--clinic-border));
   border-radius: var(--clinic-radius-md);
-  background: var(--clinic-surface);
+  background: var(--clinic-section-surface,var(--clinic-surface));
 }
 [data-clinic-flow-section="faq.compact"] [data-clinic-flow-items] {
   grid-template-columns: 1fr;
   gap: 0;
-  border-top: 1px solid var(--clinic-border);
+  border-top: 1px solid var(--clinic-section-border,var(--clinic-border));
 }
 [data-clinic-flow-section="faq.compact"] [data-clinic-flow-item] {
   padding-block: 1.5rem;
-  border-bottom: 1px solid var(--clinic-border);
+  border-bottom: 1px solid var(--clinic-section-border,var(--clinic-border));
 }
 [data-clinic-flow-section^="hero."] {
   padding-block: 0;
@@ -230,7 +234,7 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-hero-copy] h1 {
   max-width: 48rem;
   margin: 0;
-  color: var(--clinic-text);
+  color: var(--clinic-section-text,var(--clinic-text));
   font-family: var(--clinic-heading-family);
   font-size: clamp(2.75rem,6vw,5.5rem);
   font-weight: var(--clinic-heading-weight);
@@ -240,12 +244,12 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-hero-copy] p {
   max-width: 42rem;
   margin: 0;
-  color: var(--clinic-text);
+  color: var(--clinic-section-text,var(--clinic-text));
   font-size: clamp(1.05rem,1.5vw,1.3rem);
   line-height: 1.7;
 }
 [data-clinic-hero-kicker] {
-  color: var(--clinic-accent) !important;
+  color: var(--clinic-section-accent,var(--clinic-accent)) !important;
   font-family: var(--clinic-control-family);
   font-size: .875rem !important;
   font-weight: var(--clinic-control-weight);
@@ -257,7 +261,7 @@ export const CLINIC_FLOW_CSS = `
   flex-wrap: wrap;
   gap: .35rem 1rem;
   align-items: baseline;
-  color: var(--clinic-muted);
+  color: var(--clinic-section-muted,var(--clinic-muted));
   font-size: .875rem;
 }
 [data-clinic-article-evidence] p {
@@ -327,7 +331,7 @@ export const CLINIC_FLOW_CSS = `
 
 function textStyle(element: TextElement, theme: SiteTheme): CSSProperties {
   return {
-    color: resolveThemePaint(theme, element.style.color ?? theme.palette.text, 'muted'),
+    color: 'var(--clinic-section-text,var(--clinic-text))',
     fontFamily: element.style.fontFamily === 'heading'
       ? theme.fonts.heading
       : theme.fonts.body,
@@ -335,6 +339,29 @@ function textStyle(element: TextElement, theme: SiteTheme): CSSProperties {
     fontStyle: element.style.italic ? 'italic' : undefined,
     textAlign: element.style.align,
     whiteSpace: 'pre-wrap',
+  };
+}
+
+type ClinicSurfaceStyle = CSSProperties & Record<string, string | number | undefined>;
+
+function clinicSurface(
+  section: Section,
+  theme: SiteTheme,
+): { paint: SectionSurfacePaint; style: ClinicSurfaceStyle } | null {
+  const tone = section.surfaceTone ?? section.sectionLayout?.surfaceTone;
+  if (!tone) return null;
+  const paint = resolveSectionSurfaceTone(theme, tone);
+  return {
+    paint,
+    style: {
+      backgroundColor: paint.background,
+      color: paint.text,
+      '--clinic-section-text': paint.text,
+      '--clinic-section-muted': paint.muted,
+      '--clinic-section-accent': paint.accent,
+      '--clinic-section-border': paint.border,
+      '--clinic-section-surface': paint.surface,
+    },
   };
 }
 
@@ -536,6 +563,7 @@ export function ClinicFlowSection({
   hrefForPageSlug?: (slug: string) => string;
 }) {
   const projection = section.sectionLayout;
+  const surface = clinicSurface(section, theme);
   if (section.type === 'hero') {
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
@@ -556,7 +584,14 @@ export function ClinicFlowSection({
         data-section-type={section.type}
         data-clinic-flow-section={heroId}
         data-clinic-archetype={heroId}
+        {...(surface
+          ? {
+              'data-section-surface-tone': surface.paint.resolvedTone,
+              'data-section-surface-enhanced': surface.paint.enhanced ? 'true' : 'false',
+            }
+          : {})}
         aria-label={section.name}
+        style={surface?.style}
       >
         <div data-clinic-flow-hero-media>
           {section.background.image ? (
@@ -619,13 +654,21 @@ export function ClinicFlowSection({
         data-section-type={section.type}
         data-clinic-flow-section={faqLike ? 'faq.compact' : `${section.type}.source-flow`}
         data-clinic-archetype={faqLike ? 'faq.compact' : `${section.type}.source-flow`}
+        {...(surface
+          ? {
+              'data-section-surface-tone': surface.paint.resolvedTone,
+              'data-section-surface-enhanced': surface.paint.enhanced ? 'true' : 'false',
+            }
+          : {})}
         aria-label={section.name}
         style={{
-          backgroundColor: resolveThemePaint(
-            theme,
-            section.background.color,
-            'backgroundSubtle',
-          ),
+          ...(surface?.style ?? {
+            backgroundColor: resolveThemePaint(
+              theme,
+              section.background.color,
+              'backgroundSubtle',
+            ),
+          }),
           backgroundImage: section.background.gradient,
         }}
       >
@@ -633,7 +676,7 @@ export function ClinicFlowSection({
           <h2
             data-clinic-flow-heading
             data-font-role="heading"
-            style={{ color: theme.palette.text }}
+            style={{ color: 'var(--clinic-section-text,var(--clinic-text))' }}
           >
             {section.name}
           </h2>
@@ -730,13 +773,21 @@ export function ClinicFlowSection({
       data-section-type={section.type}
       data-clinic-flow-section={projection.resolvedId}
       data-clinic-archetype={projection.resolvedId}
+      {...(surface
+        ? {
+            'data-section-surface-tone': surface.paint.resolvedTone,
+            'data-section-surface-enhanced': surface.paint.enhanced ? 'true' : 'false',
+          }
+        : {})}
       aria-label={section.name}
       style={{
-        backgroundColor: resolveThemePaint(
-          theme,
-          section.background.color,
-          'backgroundSubtle',
-        ),
+        ...(surface?.style ?? {
+          backgroundColor: resolveThemePaint(
+            theme,
+            section.background.color,
+            'backgroundSubtle',
+          ),
+        }),
         backgroundImage: section.background.gradient,
       }}
     >
@@ -744,7 +795,7 @@ export function ClinicFlowSection({
         <h2
           data-clinic-flow-heading
           data-font-role="heading"
-          style={{ color: theme.palette.text }}
+          style={{ color: 'var(--clinic-section-text,var(--clinic-text))' }}
         >
           {sectionTitle}
         </h2>

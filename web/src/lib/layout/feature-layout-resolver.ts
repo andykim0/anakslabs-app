@@ -294,6 +294,34 @@ function compileBand({
     };
   }
 
+  if (recipe.flow === 'dark-value-band') {
+    const statementWidth = zone.w * (band === 'mobile' ? 1 : 0.82);
+    const statementX = zone.x + (zone.w - statementWidth) / 2;
+    const item = content.items[0];
+    const local = verticalItem({
+      item,
+      elements,
+      theme,
+      band,
+      width: statementWidth,
+      mediaFirst: true,
+      padded: false,
+    });
+    mergeLocal(frames, fontSizes, local, statementX, itemStart);
+    fontSizes[item.titleId] = layoutFontSize(
+      theme,
+      band === 'mobile' ? 'title' : 'display',
+      band === 'mobile' ? 34 : 56,
+    );
+    return {
+      width: band === 'wide' ? 1440 : band === 'compact' ? 768 : 390,
+      sectionHeight: Math.ceil(itemStart + local.height + spacing.sectionBlock),
+      frames,
+      fontSizes,
+      itemOrder,
+    };
+  }
+
   if (recipe.flow === 'alternating-media') {
     let cursor = itemStart;
     for (const [index, item] of content.items.entries()) {
@@ -525,6 +553,9 @@ export function resolveFeatureLayoutVariant({
     resolvedId: requestedId,
     mediaRole: variant.mediaContract.role,
     enhancement: 'none',
+    ...('surfaceTone' in variant && variant.surfaceTone
+      ? { surfaceTone: variant.surfaceTone }
+      : {}),
     items: content.items.map((item) => ({
       id: item.id,
       elementIds: [

@@ -749,6 +749,7 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
     acts: 'collect',
     heroLayout: 'ignore',
     sectionLayout: 'ignore',
+    surfaceTone: 'ignore',
     proceduralBackground: 'ignore',
     hidden: 'ignore',
   }),

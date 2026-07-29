@@ -413,6 +413,75 @@ export function clinicMaximumConsecutiveProseSections(
   return maximum;
 }
 
+function isPreFooterCta(section: Section): boolean {
+  return section.type === 'cta'
+    || section.sectionLayout?.kind === 'cta'
+    || section.sectionLayout?.resolvedId.startsWith('cta.') === true;
+}
+
+function tintPairFor(
+  content: readonly Section[],
+  darkIndex: number | undefined,
+): readonly [number, number] | null {
+  for (let index = 0; index < content.length - 1; index += 1) {
+    if (index === darkIndex || index + 1 === darkIndex) continue;
+    if (isPreFooterCta(content[index]) || isPreFooterCta(content[index + 1])) continue;
+    return [index, index + 1];
+  }
+  return null;
+}
+
+/**
+ * premium-dental-v1 opt-in cadence. Every section receives an enum, while Basic/non-clinic
+ * configs never call this projector. Short pages stay semantic base; substantial pages gain one
+ * isolated mid-page dark punctuation and a contiguous two-section tint block.
+ */
+export function applyClinicSurfaceCadence(pages: readonly SitePage[]): SitePage[] {
+  return pages.map((page) => {
+    const sections = page.sections.map((section) => ({
+      ...section,
+      surfaceTone: section.surfaceTone ?? section.sectionLayout?.surfaceTone ?? 'base' as const,
+    }));
+    const contentIndices = sections.flatMap((section, index) => (
+      section.type === 'hero' ? [] : [index]
+    ));
+    if (contentIndices.length < 4) return { ...page, sections };
+
+    const existingDarkContentIndex = contentIndices.findIndex((sectionIndex) => (
+      sections[sectionIndex].surfaceTone === 'dark'
+      && !isPreFooterCta(sections[sectionIndex])
+    ));
+    const midpoint = Math.floor((contentIndices.length - 1) / 2);
+    const darkContentIndex = existingDarkContentIndex >= 0
+      ? existingDarkContentIndex
+      : [...contentIndices.keys()]
+          .filter((contentIndex) => (
+            contentIndex > 0
+            && contentIndex < contentIndices.length - 1
+            && !isPreFooterCta(sections[contentIndices[contentIndex]])
+          ))
+          .sort((left, right) => (
+            Math.abs(left - midpoint) - Math.abs(right - midpoint)
+            || left - right
+          ))[0];
+
+    const content = contentIndices.map((index) => sections[index]);
+    const tintPair = tintPairFor(content, darkContentIndex);
+    for (const [contentIndex, sectionIndex] of contentIndices.entries()) {
+      const section = sections[sectionIndex];
+      const requestedTone = contentIndex === darkContentIndex
+        ? 'dark'
+        : tintPair?.includes(contentIndex)
+          ? 'tint'
+          : isPreFooterCta(section)
+            ? 'brand'
+            : 'base';
+      sections[sectionIndex] = { ...section, surfaceTone: requestedTone };
+    }
+    return { ...page, sections };
+  });
+}
+
 function unitContext(unit: ProspectPublicSourceContentUnit): string {
   return `${unit.title.text} ${unit.body?.text ?? ''}`;
 }
@@ -1129,6 +1198,10 @@ export function compileUsMedicalFullPreview(input: {
       );
     }
   }
+  config = {
+    ...config,
+    pages: applyClinicSurfaceCadence(config.pages),
+  };
 
   const sourceByUrl = new Map(projectedImages.map((image) => [image.source.url, image.source.id]));
   const usedImageIds = new Set(config.pages.flatMap((page) => [

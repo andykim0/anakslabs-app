@@ -614,6 +614,7 @@ const sectionLayoutProjectionSchema = z.object({
   resolvedId: sectionLayoutVariantIdSchema,
   mediaRole: z.enum(['atmospheric-background', 'referential-figure', 'none']),
   enhancement: z.enum(['none', 'carousel']),
+  surfaceTone: z.enum(['base', 'tint', 'brand', 'dark']).optional(),
   staticFallbackId: z.enum(GALLERY_LAYOUT_VARIANT_IDS).optional(),
   items: z.array(z.object({
     id: z.string().min(1),
@@ -670,6 +671,7 @@ const sectionSchema = z.object({
   acts: z.array(scrollytellingActSchema).min(3).max(5).optional(),
   heroLayout: heroLayoutProjectionSchema.optional(),
   sectionLayout: sectionLayoutProjectionSchema.optional(),
+  surfaceTone: z.enum(['base', 'tint', 'brand', 'dark']).optional(),
   proceduralBackground: proceduralBackgroundSpecSchema.optional(),
   hidden: z.boolean().optional(),
 }).superRefine((section, ctx) => {

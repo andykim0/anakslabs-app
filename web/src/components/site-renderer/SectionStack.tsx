@@ -19,7 +19,10 @@ import {
   type MotionPlan,
 } from '@/lib/motion/apply';
 import { safeMediaSrc } from '@/lib/safe-url';
-import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
+import {
+  resolveSectionSurfaceTone,
+  resolveThemePaint,
+} from '@/lib/design/site-theme-tokens';
 import { isUniformTeaserSection, UniformTeaserGrid } from './UniformTeaserGrid';
 import { continuousFlowLayerRoleFor } from '@/lib/motion/site-cinematic';
 import { ResponsiveHeroPhoto } from './ResponsiveHeroPhoto';
@@ -188,6 +191,10 @@ function HeroLayoutStackSection({
       : resolveScrim(theme.palette)
     : null;
   const textShadow = scrim ? `0 1px 2px ${scrim.overlayColor}` : undefined;
+  const requestedSurfaceTone = section.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
   const stageVariables = {
     '--hero-layout-height-compact': bandLength(compact.sectionHeight, compact.width),
     '--hero-layout-height-mobile': bandLength(mobile.sectionHeight, mobile.width),
@@ -205,14 +212,19 @@ function HeroLayoutStackSection({
     <section
       data-anchor={section.id}
       data-section-type={section.type}
+      {...(surfacePaint
+        ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+        : {})}
       data-hero-layout-stack={projection.resolvedId}
       aria-label={section.name}
       style={{
         ...stageVariables,
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
+        backgroundColor: surfacePaint?.background
+          ?? resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
         backgroundImage: bg.gradient,
+        ...(surfacePaint ? { color: surfacePaint.text } : {}),
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: HERO_LAYOUT_STACK_CSS }} />
@@ -484,6 +496,10 @@ export function SectionStack({
     ? imgScrim ?? ((s) => ({ overlayColor: s.overlayColor, overlayOpacity: s.overlayOpacity }))(resolveScrim(theme.palette))
     : null;
   const continuousHero = continuousFlow && section.type === 'hero';
+  const requestedSurfaceTone = section.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
 
   if (elements.length === 0 && !bgImgSrc && !proceduralHero) return null;
 
@@ -494,13 +510,17 @@ export function SectionStack({
       // data-anchor 중 '보이는' 요소로 스크롤해 해소.
       data-anchor={section.id}
       data-section-type={section.type}
+      {...(surfacePaint
+        ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+        : {})}
       {...(continuousHero ? { 'data-continuous-hero-stage': 'true' } : {})}
       style={{
         position: 'relative',
         overflow: continuousHero ? 'visible' : 'hidden',
         backgroundColor: cinematic
           ? 'transparent'
-          : resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
+          : surfacePaint?.background
+            ?? resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
         backgroundImage: cinematic ? undefined : bg.gradient,
         padding: theme.tokens
           ? `${theme.tokens.spacing.sectionBlock} ${theme.tokens.spacing.sectionInline}`
@@ -508,6 +528,7 @@ export function SectionStack({
         // 요소 없이 배경 이미지만 있는 섹션은 이미지 밴드로
         minHeight: elements.length === 0 ? '52vw' : undefined,
         zIndex: cinematic ? 1 : undefined,
+        ...(surfacePaint ? { color: surfacePaint.text } : {}),
       }}
     >
       {!cinematic && proceduralHero && (

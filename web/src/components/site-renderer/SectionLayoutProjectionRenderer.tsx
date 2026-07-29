@@ -15,7 +15,10 @@ import {
   type MotionPlan,
 } from '@/lib/motion/apply';
 import { resolveScrim } from '@/lib/design/scrim';
-import { resolveThemePaint } from '@/lib/design/site-theme-tokens';
+import {
+  resolveSectionSurfaceTone,
+  resolveThemePaint,
+} from '@/lib/design/site-theme-tokens';
 import { ElementContent } from './ElementContent';
 import { cqw } from './scale';
 import { ProceduralBackground } from './ProceduralBackground';
@@ -229,12 +232,19 @@ export function SectionLayoutProjectionRenderer({
       : {}),
   } as LayoutVariables;
   const atmospheric = projection.mediaRole === 'atmospheric-background';
+  const requestedSurfaceTone = section.surfaceTone ?? projection.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
 
   return (
     <section
       id={variant === 'canvas' ? section.id : undefined}
       data-anchor={variant === 'stack' ? section.id : undefined}
       data-section-type={section.type}
+      {...(surfacePaint
+        ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+        : {})}
       data-section-layout-stage={projection.resolvedId}
       {...(projection.enhancement === 'carousel'
         ? { 'data-section-layout-carousel': 'true' }
@@ -243,8 +253,10 @@ export function SectionLayoutProjectionRenderer({
       style={{
         ...stageVariables,
         height: 'var(--section-layout-height)',
-        backgroundColor: resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
+        backgroundColor: surfacePaint?.background
+          ?? resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
         backgroundImage: section.background.gradient,
+        ...(surfacePaint ? { color: surfacePaint.text } : {}),
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: SECTION_LAYOUT_CSS }} />

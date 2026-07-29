@@ -181,6 +181,30 @@ export const FEATURE_LAYOUT_CATALOG = [
       ['medical-clinical-clarity', 'academy-structured-friendly'],
     ),
   },
+  {
+    id: 'features.dark-value-band',
+    kind: 'features',
+    label: '다크 가치 문장 밴드',
+    description: '출처가 확인된 단일 문장을 다크 표면 위의 중간 호흡점으로 보여줍니다.',
+    bands: {
+      wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'dark-value-band', columns: 1 }),
+      compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'dark-value-band', columns: 1 }),
+      mobile: recipe({ gridColumns: 4, textZone: 'flow-full', flow: 'dark-value-band', columns: 1 }),
+    },
+    content: {
+      minimumItems: 1,
+      maximumItems: 1,
+      requiredFields: ['section-title', 'item-title'],
+      optionalFields: ['item-body'],
+    },
+    mediaContract: noMedia,
+    compatibility: sectionCompatibility(
+      ['medical', 'legal', 'consulting', 'academy'],
+      ['cafe', 'fine_dining', 'beauty', 'workshop', 'retail', 'portfolio'],
+      ['medical-clinical-clarity', 'legal-authoritative-editorial'],
+    ),
+    surfaceTone: 'dark',
+  },
 ] as const satisfies readonly SectionLayoutVariant<FeatureLayoutVariantId>[];
 
 export function featureLayoutById(id: FeatureLayoutVariantId) {

@@ -17,6 +17,7 @@ export const FEATURE_LAYOUT_VARIANT_IDS = [
   'features.featured-first',
   'features.faq-accordion',
   'features.stat-strip',
+  'features.dark-value-band',
 ] as const;
 
 export const ABOUT_LAYOUT_VARIANT_IDS = [
@@ -72,6 +73,7 @@ export type SectionLayoutKind =
   | 'testimonial'
   | 'directions';
 export type SectionLayoutBreakpointBand = SignatureBreakpointBand;
+export type SectionSurfaceTone = 'base' | 'tint' | 'brand' | 'dark';
 
 export interface SectionLayoutSelection {
   features?: FeatureLayoutVariantId;
@@ -117,6 +119,7 @@ export type SectionLayoutFlow =
   | 'featured-first'
   | 'accordion'
   | 'stat-strip'
+  | 'dark-value-band'
   | 'split'
   | 'centered-statement'
   | 'fullbleed-overlay'
@@ -169,6 +172,8 @@ export interface SectionLayoutVariant<
   content: SectionLayoutContentContract;
   mediaContract: LayoutMediaContract;
   compatibility: SectionLayoutCompatibility;
+  /** Optional semantic surface role. Omission preserves the legacy section paint byte-for-byte. */
+  surfaceTone?: SectionSurfaceTone;
   staticFallbackId?: GalleryLayoutVariantId;
 }
 
@@ -217,6 +222,8 @@ export interface SectionLayoutProjection {
   resolvedId: SectionLayoutVariantId;
   mediaRole: LayoutMediaRole;
   enhancement: 'none' | 'carousel';
+  /** Catalog-derived semantic surface role; section.surfaceTone may override it per compiled page. */
+  surfaceTone?: SectionSurfaceTone;
   staticFallbackId?: GalleryLayoutVariantId;
   items: readonly SectionLayoutItemProjection[];
   /** Additive LIB3 decoration geometry; it never changes element semantics or content. */

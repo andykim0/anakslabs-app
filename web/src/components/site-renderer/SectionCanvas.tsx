@@ -15,6 +15,7 @@ import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
 import { resolveScrim } from '@/lib/design/scrim';
 import {
+  resolveSectionSurfaceTone,
   resolveThemePaint,
   themeSectionBlockDelta,
 } from '@/lib/design/site-theme-tokens';
@@ -162,6 +163,10 @@ function StandardSection({
   const effectiveProceduralHero = proceduralHero
     && heroLayout?.mediaSlotRole !== 'referential-figure';
   const adaptiveWideScrim = bg.image?.adaptiveScrim?.wide;
+  const requestedSurfaceTone = section.surfaceTone ?? section.sectionLayout?.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
 
   // [Q1] bg.image에 overlayColor가 없으면(레거시 config) 팔레트 기반 기본 스크림 주입 — 텍스트 대비 보호.
   const imgScrim = (!effectiveProceduralHero || responsivePhoto) && bg.image
@@ -186,8 +191,10 @@ function StandardSection({
     position: 'relative',
     height: pinned ? '100%' : cqw(section.height + densityDelta * 2),
     overflow: continuousHero ? 'visible' : 'hidden',
-    backgroundColor: resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
+    backgroundColor: surfacePaint?.background
+      ?? resolveThemePaint(theme, bg.color, 'backgroundSubtle'),
     backgroundImage: bg.gradient,
+    ...(surfacePaint ? { color: surfacePaint.text } : {}),
   };
 
   const videoBackdrop = videoHero && bg.video ? (
@@ -280,6 +287,9 @@ function StandardSection({
     <section
       id={section.id}
       data-section-type={section.type}
+      {...(surfacePaint
+        ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+        : {})}
       {...(continuousHero ? { 'data-continuous-hero-stage': 'true' } : {})}
       aria-label={section.name}
       {...(sectionDataM ? { 'data-m': sectionDataM } : {})}
@@ -292,7 +302,8 @@ function StandardSection({
           style={{
             ...canvasFrameStyle(heroLayoutBand.panelFrame),
             zIndex: 1,
-            backgroundColor: resolveThemePaint(theme, theme.palette.surface, 'surfaceStrong'),
+            backgroundColor: surfacePaint?.surface
+              ?? resolveThemePaint(theme, theme.palette.surface, 'surfaceStrong'),
             borderRadius: theme.tokens?.radius.soft ?? cqw(theme.radius ?? 0),
           }}
         />
@@ -471,6 +482,10 @@ function CinematicProgressSection(props: SectionCanvasProps) {
 function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, animate }: SectionCanvasProps & { animate: boolean }) {
   const items = [...section.elements].sort((a, b) => a.frame.x - b.frame.x || a.frame.y - b.frame.y);
   const densityDelta = themeSectionBlockDelta(theme);
+  const requestedSurfaceTone = section.surfaceTone ?? section.sectionLayout?.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
   const group = (clone: boolean) => (
     <div className="anaks-mq-group" aria-hidden={clone || undefined} style={{ display: 'flex', alignItems: 'center', gap: cqw(56), paddingRight: cqw(56) }}>
       {items.map((el) => (
@@ -484,6 +499,9 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
     <section
       id={section.id}
       data-section-type={section.type}
+      {...(surfacePaint
+        ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+        : {})}
       aria-label={section.name}
       {...(animate ? { 'data-m': 'marquee' } : {})}
       style={{
@@ -492,8 +510,10 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        backgroundColor: resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
+        backgroundColor: surfacePaint?.background
+          ?? resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
         backgroundImage: section.background.gradient,
+        ...(surfacePaint ? { color: surfacePaint.text } : {}),
       }}
     >
       <div className="anaks-mq">
@@ -521,13 +541,28 @@ function ScrubSection({ section, theme, interactive = true, siteId, isFirst }: S
   const v = section.background.video!;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
   const densityDelta = themeSectionBlockDelta(theme);
+  const requestedSurfaceTone = section.surfaceTone ?? section.sectionLayout?.surfaceTone;
+  const surfacePaint = requestedSurfaceTone
+    ? resolveSectionSurfaceTone(theme, requestedSurfaceTone)
+    : null;
   return (
     <div data-m="scrollscrub" style={{ position: 'relative', height: cqw((section.height + densityDelta * 2) * 3) }}>
       <section
         id={section.id}
         data-section-type={section.type}
+        {...(surfacePaint
+          ? { 'data-section-surface-tone': surfacePaint.resolvedTone }
+          : {})}
         aria-label={section.name}
-        style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', backgroundColor: resolveThemePaint(theme, section.background.color, 'backgroundSubtle') }}
+        style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          overflow: 'hidden',
+          backgroundColor: surfacePaint?.background
+            ?? resolveThemePaint(theme, section.background.color, 'backgroundSubtle'),
+          ...(surfacePaint ? { color: surfacePaint.text } : {}),
+        }}
       >
         <video data-m-scrub src={safeMediaSrc(v.src)} poster={safeMediaSrc(v.poster)} muted playsInline preload="none" aria-hidden style={coverStyle} />
         {elements.map((el) => (

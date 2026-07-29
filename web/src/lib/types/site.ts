@@ -8,7 +8,10 @@ import type { DesignDnaSelection, DnaColorRamp } from '@/lib/design/dna/types';
 import type { SiteFontPairingPin } from '@/lib/fonts/types';
 import type { ProceduralBackgroundSpec } from '@/lib/abstract/types';
 import type { HeroLayoutProjection } from '@/lib/layout/types';
-import type { SectionLayoutProjection } from '@/lib/layout/section-layout-types';
+import type {
+  SectionLayoutProjection,
+  SectionSurfaceTone,
+} from '@/lib/layout/section-layout-types';
 import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import type { SiteIndustryId } from '@/lib/industry/profiles';
 import type { ImageDirectionId } from '@/lib/assets/image-directions';
@@ -412,6 +415,11 @@ export interface Section {
    * 렌더 경계가 이 결정적 3밴드 projection을 우선 소비한다.
    */
   sectionLayout?: SectionLayoutProjection;
+  /**
+   * Additive semantic surface role. Omission is the exact legacy paint path; renderers resolve
+   * enum roles through theme ramps and fail closed to the semantic base when ramps are absent.
+   */
+  surfaceTone?: SectionSurfaceTone;
   /**
    * ABS 신규 생성본 전용 배경형 슬롯 핀. 색·좌표는 저장하지 않고 서버가 선택한
    * 패밀리·시드와 SIG 안전지대 참조만 보존한다.
