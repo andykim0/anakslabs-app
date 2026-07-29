@@ -157,12 +157,19 @@ export function resolveSectionSurfaceTone(
     h: hue,
   });
   if (requestedTone === 'dark') {
+    const darkChroma = primary.c < 0.02
+      ? 0.018
+      : Math.min(0.04, Math.max(0.024, primary.c * 0.3));
     return {
       requestedTone,
       resolvedTone: 'dark',
       enhanced: true,
-      background: ramps.neutral['950'],
-      surface: ramps.neutral['900'],
+      background: formatSurfaceOklch({ l: 0.16, c: darkChroma, h: hue }),
+      surface: formatSurfaceOklch({
+        l: 0.2,
+        c: Math.min(0.04, darkChroma * 0.86),
+        h: hue,
+      }),
       text: ramps.neutral['50'],
       muted: ramps.neutral['200'],
       border: ramps.neutral['700'],

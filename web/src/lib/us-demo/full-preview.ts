@@ -419,6 +419,17 @@ function isPreFooterCta(section: Section): boolean {
     || section.sectionLayout?.resolvedId.startsWith('cta.') === true;
 }
 
+export function clinicSectionHasPlaceholder(section: Section): boolean {
+  return /placeholder/iu.test(section.id)
+    || section.elements.some((element) => (
+      element.kind === 'image'
+        ? /placeholder/iu.test(element.src)
+        : element.kind === 'text'
+          ? /\b(?:preview note|placeholder|can be added|can appear)\b/iu.test(element.text)
+          : false
+    ));
+}
+
 function tintPairFor(
   content: readonly Section[],
   darkIndex: number | undefined,
@@ -450,23 +461,38 @@ export function applyClinicSurfaceCadence(pages: readonly SitePage[]): SitePage[
     const existingDarkContentIndex = contentIndices.findIndex((sectionIndex) => (
       sections[sectionIndex].surfaceTone === 'dark'
       && !isPreFooterCta(sections[sectionIndex])
+      && !clinicSectionHasPlaceholder(sections[sectionIndex])
     ));
     const midpoint = Math.floor((contentIndices.length - 1) / 2);
     const content = contentIndices.map((index) => sections[index]);
+    const regularDarkCandidates = [...contentIndices.keys()]
+      .filter((contentIndex) => (
+        contentIndex > 0
+        && contentIndex < contentIndices.length - 1
+        && !isPreFooterCta(sections[contentIndices[contentIndex]])
+        && !clinicSectionHasPlaceholder(sections[contentIndices[contentIndex]])
+      ));
+    const fallbackDarkContentIndex = [...contentIndices.keys()]
+      .filter((contentIndex) => (
+        !clinicSectionHasPlaceholder(sections[contentIndices[contentIndex]])
+        && (
+          sections[contentIndices[contentIndex]].type === 'faq'
+          || isPreFooterCta(sections[contentIndices[contentIndex]])
+        )
+      ))
+      .sort((left, right) => (
+        Math.abs(left - midpoint) - Math.abs(right - midpoint)
+        || left - right
+      ))[0];
     const darkContentIndex = existingDarkContentIndex >= 0
       ? existingDarkContentIndex
-      : [...contentIndices.keys()]
-          .filter((contentIndex) => (
-            contentIndex > 0
-            && contentIndex < contentIndices.length - 1
-            && !isPreFooterCta(sections[contentIndices[contentIndex]])
-          ))
+      : regularDarkCandidates
           .sort((left, right) => (
             Number(tintPairFor(content, left) === null)
             - Number(tintPairFor(content, right) === null)
             || Math.abs(left - midpoint) - Math.abs(right - midpoint)
             || left - right
-          ))[0];
+          ))[0] ?? fallbackDarkContentIndex;
 
     const tintPair = tintPairFor(content, darkContentIndex);
     for (const [contentIndex, sectionIndex] of contentIndices.entries()) {
@@ -485,7 +511,7 @@ export function applyClinicSurfaceCadence(pages: readonly SitePage[]): SitePage[
 }
 
 function unitContext(unit: ProspectPublicSourceContentUnit): string {
-  return `${unit.title.text} ${unit.body?.text ?? ''}`;
+  return `${unit.parentTitle?.text ?? ''} ${unit.title.text} ${unit.body?.text ?? ''}`;
 }
 
 function clinicLayoutUnit(

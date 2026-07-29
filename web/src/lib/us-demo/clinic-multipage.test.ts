@@ -14,6 +14,7 @@ import {
 import { compileUsMedicalDemo } from './source-compiler';
 import {
   clinicMaximumConsecutiveProseSections,
+  clinicSectionHasPlaceholder,
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
   outreachSafeExperienceFromArtifact,
   planProcedurePages,
@@ -304,6 +305,7 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       if (dark.length === 1) {
         assert.ok(dark[0] > 0 && dark[0] < content.length - 1, page.slug);
         assert.notEqual(content[dark[0]].type, 'cta', page.slug);
+        assert.equal(clinicSectionHasPlaceholder(content[dark[0]]), false, page.slug);
       }
       const tintRuns: number[] = [];
       let tintRun = 0;
