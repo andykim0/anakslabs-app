@@ -644,15 +644,28 @@ export function ClinicFlowSection({
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
     );
-    const articleAuthor = text.find((element) => element.id.includes('-article-author'));
+    const articleAuthor = text.find((element) => (
+      element.id.includes('-article-author') && !element.id.includes('-article-author-label')
+    ));
+    const articleAuthorLabel = text.find((element) => (
+      element.id.includes('-article-author-label')
+    ));
     const articleDate = text.find((element) => (
       element.id.endsWith('-article-date') || element.id.includes('-article-date-iso-')
+    ));
+    const articleDateLabel = text.find((element) => (
+      element.id.includes('-article-date-label')
     ));
     const articleDateTime = articleDate?.id.match(
       /-article-date-iso-(\d{4}-\d{2}-\d{2})/u,
     )?.[1] ?? articleDate?.text;
     const contentText = text.filter(
-      (element) => element.id !== articleAuthor?.id && element.id !== articleDate?.id,
+      (element) => (
+        element.id !== articleAuthor?.id
+        && element.id !== articleAuthorLabel?.id
+        && element.id !== articleDate?.id
+        && element.id !== articleDateLabel?.id
+      ),
     );
     const heading = pageHeading?.trim() || contentText[0]?.text.trim() || section.name;
     const sourceHeading = contentText[0]?.text.trim();
@@ -724,18 +737,22 @@ export function ClinicFlowSection({
                 {element.text}{' '}
               </p>
             ))}
-            {articleAuthor && articleDate ? (
+            {articleAuthor || articleDate ? (
               <div data-clinic-article-evidence>
-                <p data-clinic-article-byline>
-                  {locale === 'ko-KR' ? '작성자 ' : 'By '}
-                  <span itemProp="author">{articleAuthor.text}</span>
-                </p>
-                <p data-clinic-article-date>
-                  <time dateTime={articleDateTime}>
-                    {locale === 'ko-KR' ? '작성일 ' : 'Last updated '}
-                    {articleDate.text}
-                  </time>
-                </p>
+                {articleAuthor ? (
+                  <p data-clinic-article-byline>
+                    {articleAuthorLabel?.text ?? (locale === 'ko-KR' ? '작성자' : 'By')}{' '}
+                    <span itemProp="author">{articleAuthor.text}</span>
+                  </p>
+                ) : null}
+                {articleDate ? (
+                  <p data-clinic-article-date>
+                    <time dateTime={articleDateTime}>
+                      {articleDateLabel?.text ?? (locale === 'ko-KR' ? '작성일' : 'Last updated')}{' '}
+                      {articleDate.text}
+                    </time>
+                  </p>
+                ) : null}
               </div>
             ) : null}
             <span

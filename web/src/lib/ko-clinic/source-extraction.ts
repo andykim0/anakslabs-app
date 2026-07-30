@@ -8,7 +8,7 @@ import type {
 } from './contracts';
 
 const CONTENT_TAGS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td';
-const UI_CHROME_IMAGE = /(?:\/img\/common\/|\/cheditor5\/icons\/|(?:^|[/_.-])(?:arrow|blank|btn|button|favicon|icon|loading|logo|pg_(?:first|last|next|prev)|popup|scroll|sns|spacer|sprite|tracking)(?:[/_.-]|$))/iu;
+const UI_CHROME_IMAGE = /(?:\/n_images\/common\/|\/img\/common\/|\/cheditor5\/icons\/|banner_(?:call|reservation)|(?:^|[/_.-])(?:arrow|blank|btn|button|favicon|icon|loading|logo|pg_(?:first|last|next|prev)|popup|scroll|sns|spacer|sprite|tracking)(?:[/_.-]|$))/iu;
 const UI_CHROME_CONTEXT = /(?:login|menu|navigation|pagination|popup|scroll|sns|social|toolbar)/iu;
 const REMOVABLE = [
   'script',
@@ -39,6 +39,11 @@ export function normalizeKoClinicText(value: string): string {
 }
 
 function compactAnimatedHeading(element: HTMLElement): string {
+  const directText = element.childNodes
+    .filter((child) => !('tagName' in child))
+    .map((child) => normalizeKoClinicText(child.text))
+    .filter(Boolean);
+  if (directText.length > 0) return normalizeKoClinicText(element.text);
   const children = element.childNodes.filter((child) => (
     'tagName' in child && (child as HTMLElement).tagName !== 'BR'
   )) as HTMLElement[];
@@ -64,6 +69,7 @@ function sourceBlock(input: {
   sourceUrl: string;
   locator: string;
   ordinal: number;
+  sourceLabel?: string;
   href?: string;
 }): KoClinicSourceBlock {
   const sourceSha256 = sha256(input.text);
@@ -74,6 +80,7 @@ function sourceBlock(input: {
     sourceUrl: input.sourceUrl,
     sourceLocator: input.locator,
     sourceSha256,
+    ...(input.sourceLabel ? { sourceLabel: input.sourceLabel } : {}),
     ...(input.href ? { href: input.href } : {}),
   };
 }
@@ -168,7 +175,87 @@ function contentBlocks(
       ordinal: blocks.length,
     }));
   }
+  if (blocks.length === 0) {
+    const text = blockText(root);
+    if (text && text !== titleText) {
+      blocks.push(sourceBlock({
+        kind: 'paragraph',
+        text,
+        sourceUrl,
+        locator: `${root.tagName?.toLocaleLowerCase('en-US') ?? 'root'}:direct-source-block`,
+        ordinal: 0,
+      }));
+    }
+  }
   return blocks;
+}
+
+function breadcrumbBlocks(
+  root: HTMLElement,
+  sourceUrl: string,
+  titleText: string,
+): KoClinicSourceBlock[] {
+  const seen = new Set<string>();
+  const blocks: KoClinicSourceBlock[] = [];
+  for (const element of root.querySelectorAll('.main_tit .breadcrumb li,.main_tit .depth li')) {
+    const text = blockText(element);
+    if (!text || text === titleText || seen.has(text)) continue;
+    seen.add(text);
+    blocks.push(sourceBlock({
+      kind: 'category',
+      text,
+      sourceUrl,
+      locator: '.main_tit:source-breadcrumb',
+      ordinal: blocks.length,
+    }));
+  }
+  return blocks;
+}
+
+function boardCommentBlocks(
+  root: HTMLElement,
+  sourceUrl: string,
+  startOrdinal: number,
+): KoClinicSourceBlock[] {
+  const commentRoot = root.querySelector('#commentContents');
+  if (!commentRoot) return [];
+  const result: KoClinicSourceBlock[] = [];
+  const seen = new Set<string>();
+  const heading = commentRoot.querySelector('span[style*="color"]');
+  if (heading) {
+    const text = blockText(heading);
+    if (text) {
+      seen.add(text);
+      result.push(sourceBlock({
+        kind: 'heading',
+        text,
+        sourceUrl,
+        locator: '#commentContents:answer-heading',
+        ordinal: startOrdinal + result.length,
+      }));
+    }
+  }
+  for (const [index, element] of commentRoot
+    .querySelectorAll('div[style*="line-height"]')
+    .entries()) {
+    const clone = parse(element.toString());
+    for (const removable of clone.querySelectorAll(
+      'script,style,input,textarea,a,div[style*="text-align:center"],[style*="display:none"]',
+    )) {
+      removable.remove();
+    }
+    const text = blockText(clone);
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    result.push(sourceBlock({
+      kind: 'paragraph',
+      text,
+      sourceUrl,
+      locator: `#commentContents:answer(${index + 1})`,
+      ordinal: startOrdinal + result.length,
+    }));
+  }
+  return result;
 }
 
 function boardEvidence(
@@ -176,24 +263,29 @@ function boardEvidence(
   sourceUrl: string,
   startOrdinal: number,
 ): KoClinicSourceBlock[] {
-  const row = root.querySelectorAll('.board_view tr').find((element) => (
-    /작성자/u.test(element.text) && /작성일/u.test(element.text)
-  ));
-  if (!row) return [];
-  const cells = row.querySelectorAll('th,td');
   const result: KoClinicSourceBlock[] = [];
-  for (let index = 0; index < cells.length - 1; index += 1) {
-    const label = normalizeKoClinicText(cells[index].text);
-    if (label !== '작성자' && label !== '작성일') continue;
-    const text = normalizeKoClinicText(cells[index + 1].text);
-    if (!text) continue;
-    result.push(sourceBlock({
-      kind: label === '작성자' ? 'author' : 'published_date',
-      text,
-      sourceUrl,
-      locator: `.board_view tr:has(th:${label}) td`,
-      ordinal: startOrdinal + result.length,
-    }));
+  for (const row of root.querySelectorAll('.board_view tr')) {
+    const cells = row.querySelectorAll('th,td');
+    for (let index = 0; index < cells.length - 1; index += 1) {
+      const label = normalizeKoClinicText(cells[index].text);
+      if (!['분 류', '진료과목', '작성자', '작성일', '작성일자', '발행연도'].includes(label)) {
+        continue;
+      }
+      const text = normalizeKoClinicText(cells[index + 1].text);
+      if (!text) continue;
+      result.push(sourceBlock({
+        kind: label === '분 류' || label === '진료과목'
+          ? 'category'
+          : label === '작성자'
+            ? 'author'
+            : 'published_date',
+        text,
+        sourceUrl,
+        locator: `.board_view tr:has(th:${label}) td`,
+        ordinal: startOrdinal + result.length,
+        sourceLabel: label,
+      }));
+    }
   }
   return result;
 }
@@ -316,12 +408,22 @@ export function extractKoClinicPage(input: {
   const contentClone = parse(content.toString());
   for (const element of contentClone.querySelectorAll(REMOVABLE)) element.remove();
   let blocks = contentBlocks(contentClone, input.sourceUrl, title.text);
-  const evidence = boardEvidence(root, input.sourceUrl, blocks.length + 1);
+  const breadcrumbs = breadcrumbBlocks(root, input.sourceUrl, title.text);
+  const evidence = boardEvidence(
+    root,
+    input.sourceUrl,
+    breadcrumbs.length + blocks.length + 1,
+  );
+  const comments = boardCommentBlocks(
+    root,
+    input.sourceUrl,
+    breadcrumbs.length + blocks.length + evidence.length + 1,
+  );
   const publicNotice = board?.table === 'praise'
     ? praisePublicNotice(input.html, input.sourceUrl)
     : null;
   if (publicNotice) blocks = [publicNotice, ...blocks];
-  blocks = [...evidence, ...blocks];
+  blocks = [...breadcrumbs, ...evidence, ...blocks, ...comments];
   const related = relatedLinks(root, input.sourceUrl, blocks.length + 1);
   const metaDescription = root.querySelector('meta[name="description"]')
     ?.getAttribute('content');
@@ -333,7 +435,7 @@ export function extractKoClinicPage(input: {
     ...(businessName ? { businessName } : {}),
     ...(description ? { description } : {}),
     blocks,
-    images: sourceImages(content, input.sourceUrl),
+    images: sourceImages(root, input.sourceUrl),
     relatedLinks: related,
     ...(board ? { board } : {}),
   };

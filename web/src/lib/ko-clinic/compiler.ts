@@ -11,6 +11,7 @@ import {
   buildClinicFeatureSections,
   buildClinicGallerySections,
   buildClinicHeroSection,
+  buildClinicDirectionsSection,
   resolveClinicMasterTheme,
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
@@ -77,6 +78,16 @@ function sourceBlock(block: KoClinicSourceBlock): ClinicMasterSourceBlock {
   };
 }
 
+function sourceLabelBlock(block: KoClinicSourceBlock): ClinicMasterSourceBlock | undefined {
+  if (!block.sourceLabel) return undefined;
+  return {
+    id: `${block.id}-source-label`,
+    kind: 'service',
+    text: block.sourceLabel,
+    sourceUrl: block.sourceUrl,
+  };
+}
+
 function joinedSourceBlock(input: {
   id: string;
   blocks: readonly KoClinicSourceBlock[];
@@ -129,7 +140,7 @@ export function koClinicSlugForSourceUrl(sourceUrl: string): string {
 function pageId(page: KoClinicExtractedPage, slug: string): string {
   if (slug === '') return 'ko-clinic-home';
   if (page.board) return `ko-clinic-article-${page.board.table}-${page.board.wrId}`;
-  if (/\/page\/sub(?:[2-5]_\d+|1_\d+_\d+)\.php$/u.test(new URL(page.sourceUrl).pathname)) {
+  if (/\/page\/sub[1-5]_\d+_\d+\.php$/u.test(new URL(page.sourceUrl).pathname)) {
     return `clinic-procedure-ko-${slug}`;
   }
   if (slug === 'directions') return 'ko-clinic-contact';
@@ -148,19 +159,17 @@ function isoDateFromVerbatim(text: string): string | undefined {
 
 function pageTitle(page: KoClinicExtractedPage): string {
   const category = page.board ? BOARD_LABELS[page.board.table as keyof typeof BOARD_LABELS] : undefined;
-  return category && !page.title.text.includes(category)
+  const title = category && !page.title.text.includes(category)
     ? `${category} · ${page.title.text}`
     : page.title.text;
+  return page.board ? `${title} · 게시물 ${page.board.wrId}` : title;
 }
 
 function descriptionFor(page: KoClinicExtractedPage, publishedBlocks: readonly KoClinicSourceBlock[]) {
-  if (page.description && page.description !== pageTitle(page) && page.description.length <= 320) {
-    return page.description;
-  }
   const first = publishedBlocks.find((block) => (
     block.kind === 'paragraph' && block.text.length <= 320
   ));
-  return first?.text;
+  return first?.text ?? page.title.text;
 }
 
 function contentUnits(input: {
@@ -196,6 +205,14 @@ function contentUnits(input: {
     if (block.kind === 'heading') {
       flush();
       activeHeading = block;
+    } else if (block.kind === 'category') {
+      flush();
+      const label = sourceLabelBlock(block);
+      units.push({
+        id: `ko-category-unit-${units.length + 1}-${block.id}`,
+        title: label ?? sourceBlock(block),
+        ...(label ? { body: sourceBlock(block) } : {}),
+      });
     } else if (block.kind === 'list_item') {
       flush();
       units.push({
@@ -249,6 +266,7 @@ function sectionsForPage(input: {
   imageManifest: ReadonlyMap<string, KoClinicOptimizedImage>;
   internalHrefBySourceUrl: ReadonlyMap<string, string>;
   isProcedure: boolean;
+  isDirections: boolean;
 }): Section[] {
   const images = input.page.images
     .filter((image) => image.classification === 'content')
@@ -264,21 +282,37 @@ function sectionsForPage(input: {
     title: sourceBlock(input.page.title),
     theme: input.theme,
     ...(images[0] ? { image: images[0] } : {}),
-    ...(author && date && isoDate
+    ...(author
       ? {
           articleEvidence: {
             author: sourceBlock(author),
-            dateModified: isoDate,
-            visibleDate: sourceBlock(date),
+            ...(sourceLabelBlock(author)
+              ? { authorLabel: sourceLabelBlock(author) }
+              : {}),
+            ...(date && isoDate
+              ? {
+                  dateModified: isoDate,
+                  visibleDate: sourceBlock(date),
+                  ...(sourceLabelBlock(date)
+                    ? { dateLabel: sourceLabelBlock(date) }
+                    : {}),
+                }
+              : {}),
           },
         }
       : {}),
     requestedId: 'hero.split-left',
   });
+  const contactBlock = input.isDirections
+    ? input.publishedBlocks.find((block) => (
+        /(?:주소\s*:|서울시\s+강남구)/u.test(block.text)
+      ))
+    : undefined;
   const units = contentUnits({
     page: input.page,
     blocks: input.publishedBlocks.filter((block) => (
       !['author', 'published_date'].includes(block.kind)
+      && block.id !== contactBlock?.id
     )),
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
@@ -307,7 +341,20 @@ function sectionsForPage(input: {
   if (images.length === 2 && gallery.length === 0) {
     units[0].image = images[1];
   }
-  return [hero, ...prose, ...gallery];
+  const directions = contactBlock
+    ? buildClinicDirectionsSection({
+        id: `ko-directions-${input.page.sourceHtmlSha256.slice(0, 16)}`,
+        name: '연락처',
+        theme: input.theme,
+        rows: [{
+          id: `ko-directions-address-${contactBlock.id}`,
+          label: '주소',
+          value: sourceBlock(contactBlock),
+        }],
+        surface: true,
+      })
+    : null;
+  return [hero, ...(directions ? [directions] : []), ...prose, ...gallery];
 }
 
 function communityHub(input: {
@@ -316,7 +363,13 @@ function communityHub(input: {
   slugBySourceUrl: ReadonlyMap<string, string>;
   theme: SiteConfig['theme'];
 }): SitePage {
-  const sections: Section[] = [];
+  const sections: Section[] = [buildClinicHeroSection({
+    id: 'ko-community-hero',
+    name: '이담클리닉',
+    title: systemChromeBlock('community-title', '커뮤니티'),
+    theme: input.theme,
+    requestedId: 'hero.split-left',
+  })];
   for (const table of Object.keys(BOARD_LABELS) as (keyof typeof BOARD_LABELS)[]) {
     if (table === 'praise' || table === 'customer') continue;
     const posts = input.pages.filter((page) => (
@@ -496,6 +549,7 @@ export function compileKoClinicSite(input: {
         imageManifest,
         internalHrefBySourceUrl: hrefBySourceUrl,
         isProcedure: id.startsWith('clinic-procedure-ko-'),
+        isDirections: slug === 'directions',
       }),
     };
   });
@@ -549,7 +603,7 @@ export function compileKoClinicSite(input: {
     pages,
     nav: { enabled: true },
     motion: {
-      presetId: 'none',
+      presetId: 'clinic-premium',
       intensity: 'off',
     },
   };

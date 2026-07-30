@@ -7,6 +7,7 @@ export type KoClinicSourceKind =
   | 'heading'
   | 'paragraph'
   | 'list_item'
+  | 'category'
   | 'author'
   | 'published_date'
   | 'related_link'
@@ -19,6 +20,8 @@ export interface KoClinicSourceBlock {
   sourceUrl: string;
   sourceLocator: string;
   sourceSha256: string;
+  /** Verbatim source field label when the factual value came from a labelled row. */
+  sourceLabel?: string;
   href?: string;
 }
 
@@ -73,6 +76,13 @@ export interface KoClinicOptimizedImage {
   width: number;
   height: number;
   alt: string;
+}
+
+export interface KoClinicUnavailableImage {
+  sourceUrl: string;
+  sourceReferenceSha256: string;
+  status: 404;
+  reason: 'source-http-404';
 }
 
 export interface KoClinicCompilation {

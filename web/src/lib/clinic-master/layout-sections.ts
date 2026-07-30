@@ -63,9 +63,11 @@ export function buildClinicHeroSection(input: {
   lead?: ClinicMasterSourceBlock;
   articleEvidence?: {
     author: ClinicMasterSourceBlock;
-    dateModified: string;
+    authorLabel?: ClinicMasterSourceBlock;
+    dateModified?: string;
     /** Optional verbatim visible date. The normalized dateModified remains schema-only evidence. */
     visibleDate?: ClinicMasterSourceBlock;
+    dateLabel?: ClinicMasterSourceBlock;
   };
   theme: SiteTheme;
   image?: ClinicLayoutImage;
@@ -105,20 +107,39 @@ export function buildClinicHeroSection(input: {
   const articleEvidence = input.articleEvidence
     ? [
         sourceText(input.articleEvidence.author, 'article-author', input.theme, 'body'),
-        input.articleEvidence.visibleDate
+        input.articleEvidence.authorLabel
+          ? sourceText(
+              input.articleEvidence.authorLabel,
+              'article-author-label',
+              input.theme,
+              'body',
+            )
+          : undefined,
+        input.articleEvidence.visibleDate && input.articleEvidence.dateModified
           ? sourceText(
               input.articleEvidence.visibleDate,
               `article-date-iso-${clinicDate(input.articleEvidence.dateModified)}`,
               input.theme,
               'body',
             )
-          : layoutText(
+          : input.articleEvidence.dateModified
+            ? layoutText(
               `${input.id}-article-date`,
               clinicDate(input.articleEvidence.dateModified),
               input.theme,
               'caption',
-            ),
+            )
+            : undefined,
+        input.articleEvidence.dateLabel
+          ? sourceText(
+              input.articleEvidence.dateLabel,
+              'article-date-label',
+              input.theme,
+              'body',
+            )
+          : undefined,
       ]
+        .filter((element): element is TextElement => Boolean(element))
     : [];
   section.elements = [...resolved.elements, ...articleEvidence];
   section.height = resolved.height;

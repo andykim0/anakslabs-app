@@ -48,6 +48,7 @@ export default async function SharedImportPreviewPage({
   const isUsMedicalDemo = preview.siteConfig.meta.locale === 'en-US'
     && preview.siteConfig.meta.market === 'US-CA'
     && preview.siteConfig.meta.jurisdiction === 'US';
+  const isKoClinicImport = preview.siteConfig.clinicMaster?.demoPitchLocale === 'ko-owner';
   const artifact = isUsMedicalDemo
     ? await getCrawlArtifact(preview.crawlArtifactId)
     : null;
@@ -80,7 +81,7 @@ export default async function SharedImportPreviewPage({
         })
     : undefined;
   const lcpImage = pageLcpImageSrc(preview.siteConfig, pageSlug);
-  const previewJsonLd = isUsMedicalDemo
+  const previewJsonLd = isUsMedicalDemo || isKoClinicImport
     ? jsonLdScriptContent(preview.siteConfig, 'https://preview-hypothesis.invalid', pageSlug)
     : null;
   const hrefForSlug = (slug: string) => (

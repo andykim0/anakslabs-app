@@ -27,7 +27,14 @@ export interface IndependentOriginalText {
   excluded: readonly {
     selector: string;
     text: string;
-    reason: 'login-member-widget' | 'search-form' | 'pagination-label' | 'board-list-widget';
+    reason:
+      | 'login-member-widget'
+      | 'search-form'
+      | 'pagination-label'
+      | 'board-list-widget'
+      | 'board-view-label'
+      | 'board-view-count'
+      | 'hidden-form-state';
   }[];
 }
 
@@ -38,23 +45,29 @@ function normalize(value: string): string {
     .trim();
 }
 
+function independentVisibleText(element: HTMLElement): string {
+  if (/^H[1-6]$/u.test(element.tagName)) {
+    const elementChildren = element.childNodes.filter((child) => 'tagName' in child) as HTMLElement[];
+    const characterChildren = elementChildren.map((child) => normalize(child.text));
+    if (
+      characterChildren.length >= 2
+      && characterChildren.every((value) => value.length === 1 && /[\p{L}\p{N}]/u.test(value))
+    ) {
+      // Source indentation between inline, one-character animation spans is layout
+      // whitespace, not a visible word boundary. This remains independent of the
+      // production source extractor while matching what the original page displays.
+      return characterChildren.join('');
+    }
+  }
+  return normalize(element.text);
+}
+
 function deepestTextBlocks(root: HTMLElement): string[] {
   const blocks: string[] = [];
   const candidates = root.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td');
-  const selected = new Set(candidates);
   for (const element of candidates) {
     if (element.querySelector('h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td')) continue;
-    let parent = element.parentNode;
-    let nested = false;
-    while (parent && 'tagName' in parent) {
-      if (selected.has(parent as HTMLElement)) {
-        nested = true;
-        break;
-      }
-      parent = parent.parentNode;
-    }
-    if (nested) continue;
-    const text = normalize(element.text);
+    const text = independentVisibleText(element);
     if (text) blocks.push(text);
   }
   return blocks;
@@ -80,9 +93,53 @@ export function extractIndependentOriginalText(input: {
   record('form[action*="search"],.search-wrap', 'search-form');
   record('.paging,.pagination', 'pagination-label');
   record('.board_list', 'board-list-widget');
+  record('textarea,input,[style*="display:none"]', 'hidden-form-state');
+  for (const row of root.querySelectorAll('.board_view tr')) {
+    const cells = row.querySelectorAll('th,td');
+    for (let index = 0; index < cells.length; index += 1) {
+      const label = normalize(cells[index].text);
+      if (label === '제 목') {
+        excluded.push({
+          selector: '.board_view th',
+          text: label,
+          reason: 'board-view-label',
+        });
+        cells[index].remove();
+        continue;
+      }
+      if (
+        ['발행연도'].includes(label)
+        && (!cells[index + 1] || !normalize(cells[index + 1].text))
+      ) {
+        excluded.push({
+          selector: '.board_view th',
+          text: label,
+          reason: 'board-view-label',
+        });
+        cells[index].remove();
+        continue;
+      }
+      if (label !== '조회' && label !== '조회수') continue;
+      const value = cells[index + 1] ? normalize(cells[index + 1].text) : '';
+      excluded.push({
+        selector: '.board_view th',
+        text: label,
+        reason: 'board-view-count',
+      });
+      if (value) {
+        excluded.push({
+          selector: '.board_view td',
+          text: value,
+          reason: 'board-view-count',
+        });
+        cells[index + 1].remove();
+      }
+      cells[index].remove();
+    }
+  }
   for (const element of root.querySelectorAll(EXCLUDED_ORIGINAL_CHROME)) element.remove();
-  const content = root.querySelector('.content_wrap')
-    ?? root.querySelector('main')
+  const content = root.querySelector('main')
+    ?? root.querySelector('.content_wrap')
     ?? root;
   return {
     sourceUrl: input.sourceUrl,

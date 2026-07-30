@@ -15,6 +15,10 @@
     "fonts:latin:subset": "tsx scripts/build-latin-font-subsets.ts",
     "stock:sync": "tsx scripts/sync-pexels-stock.ts",
     "stock:dental:sync": "tsx scripts/sync-pexels-dental-stock.ts",
+    "assets:edom:sync": "tsx scripts/sync-edom-clinic-assets.ts",
+    "clinic:edom:build": "tsx scripts/build-edom-clinic-preview.ts",
+    "clinic:edom:issue": "tsx scripts/issue-edom-clinic-preview.ts",
+    "clinic:edom:audit-sitemap": "tsx scripts/audit-edom-original-sitemap.ts",
     "assets:backfill-dimensions": "tsx scripts/backfill-asset-dimensions.ts"
   },
   "dependencies": {

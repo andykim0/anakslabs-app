@@ -38,6 +38,18 @@ const NEWS_HTML = `<!doctype html><html lang="ko"><body><main>
 
 const PRAISE_HTML = `<meta charset="utf-8"><script>alert('치료 후기, 치료 결과 열람은\\n의료법에 의거, 로그인 후 가능합니다.');</script>`;
 
+const COUNSEL_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>전문의상담</h2></div>
+  <div class="content_wrap"><table class="board_view">
+    <tr><th>제 목</th><td><div>공개 상담 제목</div></td></tr>
+    <tr><th>진료과목</th><td>혈관외과</td><th>작성일자</th><td>2024-06-20</td></tr>
+    <tr><td class="viewContentTD"><span id="writeContents"><p>공개 상담 질문 원문입니다.</p></span></td></tr>
+  </table><div id="commentContents">
+    <span style="color:#1466a5">전문의 답변</span>
+    <div style="line-height:1.7"><p>공개 답변 원문입니다.</p><textarea>숨은 입력 폼</textarea></div>
+  </div></div>
+</main></body></html>`;
+
 test('KO source extraction preserves source blocks and classifies only explicit UI chrome', () => {
   const page = extractKoClinicPage({
     html: STATIC_HTML,
@@ -59,9 +71,36 @@ test('independent S_orig path retains content but excludes predeclared chrome', 
     html: STATIC_HTML,
     sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
   });
+  assert.equal(original.included.includes('하지정맥류'), true);
+  assert.equal(original.included.includes('하지 정맥류'), false);
   assert.equal(original.included.some((text) => text.includes('정맥 혈액순환 장애')), true);
   assert.equal(original.included.includes('메뉴'), false);
   assert.equal(original.included.some((text) => text.includes('대표자')), false);
+});
+
+test('headings with direct text are not compacted and board aliases keep verbatim labels', () => {
+  const headed = extractKoClinicPage({
+    html: STATIC_HTML.replace(
+      '<h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2>',
+      '<h2>척추관절센터 <span>통증 클리닉</span></h2>',
+    ),
+    sourceUrl: 'https://edomclinic.com/page/sub4_1_1.php',
+  });
+  assert.equal(headed.title.text, '척추관절센터 통증 클리닉');
+
+  const counsel = extractKoClinicPage({
+    html: COUNSEL_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=pub_counsel&wr_id=1',
+  });
+  assert.deepEqual(
+    counsel.blocks
+      .filter((block) => ['category', 'published_date'].includes(block.kind))
+      .map((block) => [block.sourceLabel, block.text]),
+    [['진료과목', '혈관외과'], ['작성일자', '2024-06-20']],
+  );
+  assert.equal(counsel.blocks.some((block) => block.text === '전문의 답변'), true);
+  assert.equal(counsel.blocks.some((block) => block.text === '공개 답변 원문입니다.'), true);
+  assert.equal(counsel.blocks.some((block) => block.text.includes('숨은 입력 폼')), false);
 });
 
 test('prose article catalog accepts one source item without a minimum-content disappearance', () => {
@@ -74,7 +113,10 @@ test('prose article catalog accepts one source item without a minimum-content di
 test('KO compiler is deterministic, holds praise, and keeps US locale absent', () => {
   const pages = [
     extractKoClinicPage({
-      html: STATIC_HTML.replace('하지정맥류', '이담병원 홈'),
+      html: STATIC_HTML.replace(
+        '<h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2>',
+        '<h2>이담병원 홈</h2>',
+      ),
       sourceUrl: 'https://edomclinic.com/',
     }),
     extractKoClinicPage({
@@ -99,6 +141,11 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
   assert.equal(first.publicationHolds[0].ruleId, 'medical-treatment-testimonial');
   assert.equal(first.config.pages.some((page) => page.slug.includes('praise')), false);
   assert.equal(first.config.pages.some((page) => page.slug === 'community'), true);
+  assert.equal(new Set(first.config.pages.map((page) => page.title)).size, first.config.pages.length);
+  assert.deepEqual(
+    first.config.pages.filter((page) => page.showInNav).map((page) => page.slug),
+    ['', 'center-vascular', 'community'],
+  );
   assert.equal(
     first.config.pages
       .flatMap((page) => page.sections)
@@ -119,6 +166,14 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
   assert.match(html, /23-08-14 14:35/u);
   assert.match(html, /features\.prose-article/u);
   assert.doesNotMatch(html, /Book Appointment/u);
+  const communityHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: first.config,
+    pageSlug: 'community',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(communityHtml, /<h1[^>]*>[\s\S]*커뮤니티/u);
+  assert.match(communityHtml, /상담 접수 안내/u);
 });
 
 test('source URL slug mapping is stable and preserves the empty home contract', () => {
