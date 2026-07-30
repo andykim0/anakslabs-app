@@ -22,6 +22,12 @@ describe('LP2$ F1 히어로 영상·확장 주입 hydration 경계', () => {
       'src/app/preview/[token]/layout.tsx',
     ]) {
       const layout = read(path);
+      assert.match(layout, /import '@\/app\/globals\.css';/,
+        `${path}: 전역 스타일과 Tailwind preflight를 root layout에서 이관해야 함`);
+      assert.match(layout, /<html[^>]*className=\{APP_ROOT_HTML_CLASS_NAME\}>/,
+        `${path}: 공유 Geist 변수 html class 계약을 사용해야 함`);
+      assert.ok((layout.match(/APP_ROOT_METADATA/g) ?? []).length >= 2,
+        `${path}: 공유 root metadata를 import만 하지 말고 실제 metadata에 소비해야 함`);
       assert.match(layout, /<body suppressHydrationWarning className=\{APP_ROOT_BODY_CLASS_NAME\}>/);
       assert.equal((layout.match(/suppressHydrationWarning/g) ?? []).length, 1,
         `${path}: 하위 hydration 오류까지 가리는 광범위한 억제를 추가하면 안 됨`);
