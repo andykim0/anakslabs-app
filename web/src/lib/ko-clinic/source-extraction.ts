@@ -7,7 +7,8 @@ import type {
   KoClinicSourceKind,
 } from './contracts';
 
-const CONTENT_TAGS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td';
+const CONTENT_TAGS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td,figcaption';
+const BOARD_RICH_CONTENT_TAGS = `${CONTENT_TAGS},div`;
 const UI_CHROME_IMAGE = /(?:\/n_images\/common\/|\/img\/common\/|\/cheditor5\/icons\/|banner_(?:call|reservation)|(?:^|[/_.-])(?:arrow|blank|btn|button|favicon|icon|loading|logo|pg_(?:first|last|next|prev)|popup|scroll|sns|spacer|sprite|tracking)(?:[/_.-]|$))/iu;
 const UI_CHROME_CONTEXT = /(?:login|menu|navigation|pagination|popup|scroll|sns|social|toolbar)/iu;
 const REMOVABLE = [
@@ -141,26 +142,36 @@ function contentRoot(root: HTMLElement, board: KoClinicExtractedPage['board']): 
     ?? root;
 }
 
-function nearestSelectedAncestor(element: HTMLElement, selected: ReadonlySet<HTMLElement>): boolean {
-  let parent = element.parentNode;
-  while (parent && 'tagName' in parent) {
-    if (selected.has(parent as HTMLElement)) return true;
-    parent = parent.parentNode;
-  }
-  return false;
+function textWithoutNestedSourceBlocks(
+  element: HTMLElement,
+  candidateSelector: string,
+): string {
+  const nestedBlocks = element.querySelectorAll(candidateSelector);
+  if (nestedBlocks.length === 0) return blockText(element);
+  const cloneRoot = parse(element.toString());
+  const clone = cloneRoot.querySelector(element.tagName.toLocaleLowerCase('en-US'));
+  if (!clone) return '';
+  for (const nested of clone.querySelectorAll(candidateSelector)) nested.remove();
+  return blockText(clone);
 }
 
 function contentBlocks(
   root: HTMLElement,
   sourceUrl: string,
   titleText: string,
+  includeRichContainers: boolean,
 ): KoClinicSourceBlock[] {
-  const candidates = root.querySelectorAll(CONTENT_TAGS);
-  const selected = new Set(candidates);
+  const candidateSelector = includeRichContainers
+    ? BOARD_RICH_CONTENT_TAGS
+    : CONTENT_TAGS;
+  const candidates = root.querySelectorAll(candidateSelector);
   const blocks: KoClinicSourceBlock[] = [];
   for (const [index, element] of candidates.entries()) {
-    if (nearestSelectedAncestor(element, selected)) continue;
-    const text = blockText(element);
+    // Keep direct/inline text beside nested source blocks as its own verbatim block.
+    // The old outermost-only rule merged home-card chrome into the body and, on
+    // board articles, discarded inline div copy and figure captions whenever a
+    // sibling paragraph happened to exist.
+    const text = textWithoutNestedSourceBlocks(element, candidateSelector);
     if (!text || text === titleText) continue;
     const kind: KoClinicSourceKind = /^H[1-6]$/u.test(element.tagName)
       ? 'heading'
@@ -407,7 +418,7 @@ export function extractKoClinicPage(input: {
   const content = contentRoot(root, board);
   const contentClone = parse(content.toString());
   for (const element of contentClone.querySelectorAll(REMOVABLE)) element.remove();
-  let blocks = contentBlocks(contentClone, input.sourceUrl, title.text);
+  let blocks = contentBlocks(contentClone, input.sourceUrl, title.text, Boolean(board));
   const breadcrumbs = breadcrumbBlocks(root, input.sourceUrl, title.text);
   const evidence = boardEvidence(
     root,

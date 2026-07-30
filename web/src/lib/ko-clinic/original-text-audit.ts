@@ -22,6 +22,8 @@ const EXCLUDED_ORIGINAL_CHROME = [
 ].join(',');
 
 const ORIGINAL_TEXT_BLOCKS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td';
+const BOARD_RICH_TEXT_BLOCKS =
+  `${ORIGINAL_TEXT_BLOCKS},#writeContents div,#writeContents figcaption`;
 const SOURCE_PAGE_CONTEXT = [
   '.main_tit .breadcrumb li',
   '.main_tit .depth li',
@@ -80,11 +82,22 @@ function independentVisibleText(element: HTMLElement): string {
   return normalize(element.text);
 }
 
-function independentTextBlocks(root: HTMLElement): string[] {
+function independentTextBlocks(
+  root: HTMLElement,
+  includeBoardRichText: boolean,
+): string[] {
   const blocks: string[] = [];
-  const candidates = root.querySelectorAll(ORIGINAL_TEXT_BLOCKS);
+  const candidateSelector = includeBoardRichText
+    ? BOARD_RICH_TEXT_BLOCKS
+    : ORIGINAL_TEXT_BLOCKS;
+  // The nested selector deliberately has no #writeContents ancestor qualifier:
+  // cloned candidates no longer retain that external context.
+  const nestedSelector = includeBoardRichText
+    ? `${ORIGINAL_TEXT_BLOCKS},div,figcaption`
+    : ORIGINAL_TEXT_BLOCKS;
+  const candidates = root.querySelectorAll(candidateSelector);
   for (const element of candidates) {
-    const nestedBlocks = element.querySelectorAll(ORIGINAL_TEXT_BLOCKS);
+    const nestedBlocks = element.querySelectorAll(nestedSelector);
     if (nestedBlocks.length === 0) {
       const text = independentVisibleText(element);
       if (text) blocks.push(text);
@@ -96,7 +109,7 @@ function independentTextBlocks(root: HTMLElement): string[] {
     const cloneRoot = parse(element.toString());
     const clone = cloneRoot.querySelector(element.tagName.toLocaleLowerCase('en-US'));
     if (!clone) continue;
-    for (const nested of clone.querySelectorAll(ORIGINAL_TEXT_BLOCKS)) nested.remove();
+    for (const nested of clone.querySelectorAll(nestedSelector)) nested.remove();
     const text = independentVisibleText(clone);
     if (text) blocks.push(text);
   }
@@ -174,7 +187,11 @@ export function extractIndependentOriginalText(input: {
   const sourceContext = root.querySelectorAll(SOURCE_PAGE_CONTEXT)
     .map(independentVisibleText)
     .filter(Boolean);
-  const contentBlocks = independentTextBlocks(content);
+  const isBoardPage = new URL(input.sourceUrl).pathname.endsWith('/bbs/board.php');
+  const contentBlocks = independentTextBlocks(
+    content,
+    isBoardPage,
+  );
   const includedEvidence: IndependentOriginalText['includedEvidence'] = [
     ...sourceContext.map((text) => ({
       selector: 'source-page-context' as const,

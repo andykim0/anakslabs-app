@@ -11,6 +11,7 @@ import {
   extractKoClinicPage,
   koClinicSlugForSourceUrl,
 } from '.';
+import { normalizeKoClinicText } from './source-extraction';
 
 const STATIC_HTML = `<!doctype html><html lang="ko"><body>
   <header><img src="/n_images/common/logo.png" alt="EDOM 이담외과의원"><nav>메뉴</nav></header>
@@ -68,6 +69,48 @@ const MINT_BOARD_HTML = `<!doctype html><html lang="ko"><body>
   </div>
 </body></html>`;
 
+const HOME_COMPOUND_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>이담병원</h2></div>
+  <div class="content_wrap"><ul>
+    <li><a><div><em>01.</em> <span>하지정맥류</span></div><div><h4>하지정맥류</h4><p>하지정맥류 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+    <li><a><div><em>02.</em> <span>투석혈관</span></div><div><h4>투석혈관</h4><p>투석혈관 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+    <li><a><div><em>03.</em> <span>당뇨발</span></div><div><h4>당뇨발</h4><p>당뇨발 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+    <li><a><div><em>04.</em> <span>장기질환 케어</span></div><div><h4>장기질환 케어</h4><p>장기질환 케어 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+    <li><a><div><span>Difference</span></div><div><h4>협진시스템 - 성형외과</h4><p>성형외과 협진 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+    <li><a><div><span>Difference</span></div><div><h4>협진시스템 - 정형외과</h4><p>정형외과 협진 원문 본문</p></div> <span><em>자세히보기</em></span></a></li>
+  </ul></div>
+</main></body></html>`;
+
+const TV_19_MISSING_BODY = '여름철에는 ‘하지정맥류’ 검사·치료를 위해 병원을 찾는 사람들이 많아진다. 평소엔 인지하지 못했으나, 옷차림이 짧아지면서 다리에 울퉁불퉁 튀어나온 혈관들이 보이기 때문이다. 문제는 하지정맥류 환자 중 혈관이 튀어나오지 않는 경우도 적지 않다는 점이다. 이는 하지정맥류를 방치하는 원인이 되기도 한다. 지난달 22일 헬스조선 공식 유튜브와 네이버TV 채널에서는 ‘하지정맥류‘를 주제로 헬스조선 건강똑똑 라이브가 진행됐다. 라이브에 출연한 이담외과의원 김현규 대표원장은 하지정맥류의 원인, 증상, 치료법, 예방법 등에 대해 설명하는 한편, 실시간 질의응답을 통해 하지정맥류와 관련된 다양한 궁금증을 함께 풀어봤다. 영상은 헬스조선 공식 유튜브와 네이버TV 채널에서 다시 볼 수 있다. (중략) ▼▼영상 보러가기▼▼ https://youtu.be/JP_CPoF3QU8 ▼▼기사 원문 보러가기▼▼ https://n.news.naver.com/mnews/article/346/0000053076?sid=103';
+const TV_19_NESTED_INLINE_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>이담미디어</h2></div>
+  <div class="content_wrap"><table class="board_view">
+    <tr><th>제 목</th><td><div>하지정맥류 원문 기사</div></td></tr>
+    <tr><td><span id="writeContents">
+      <p>헬스조선 건강똑똑 라이브 &lt;하지정맥류&gt; 편</p>
+      <div><span>여름철에는 ‘하지정맥류’ 검사·치료를 위해 병원을 찾는 사람들이 많아진다. 평소엔 인지하지 못했으나, 옷차림이 짧아지면서 다리에 울퉁불퉁 튀어나온 혈관들이 보이기 때문이다. 문제는 하지정맥류 환자 중 혈관이 튀어나오지 않는 경우도 적지 않다는 점이다. 이는 하지정맥류를 방치하는 원인이 되기도 한다.</span></div>
+      <div><span>지난달 22일 헬스조선 공식 유튜브와 네이버TV 채널에서는 ‘하지정맥류‘를 주제로 헬스조선 건강똑똑 라이브가 진행됐다. 라이브에 출연한 이담외과의원 김현규 대표원장은 하지정맥류의 원인, 증상, 치료법, 예방법 등에 대해 설명하는 한편, 실시간 질의응답을 통해 하지정맥류와 관련된 다양한 궁금증을 함께 풀어봤다. 영상은 헬스조선 공식 유튜브와 네이버TV 채널에서 다시 볼 수 있다.</span></div>
+      <div><span>(중략)</span></div>
+      <div><span>▼▼영상 보러가기▼▼</span><br><span>https://youtu.be/JP_CPoF3QU8</span></div>
+      <div><span>▼▼기사 원문 보러가기▼▼</span><br><span>https://n.news.naver.com/mnews/article/346/0000053076?sid=103</span></div>
+    </span></td></tr>
+  </table></div>
+</main></body></html>`;
+
+const TV_46_MISSING_CAPTIONS = '개원 4년째인 김현규 이담외과 대표원장은 AI 의료 시대에도 인간적인 병원을 지향하면서 환자 행복을 위해 최선을 다하고 있다고 밝혔다. 혈관외과 전문의인 김 원장이 직접 혈관질환에 대해 설명하고 있다. 김용학 기자 김현규 이담외과 대표원장이 시술하고 있다. 김현규 이담외과 대표원장(왼쪽 두 번째)이 당뇨발 협진팀과 함께 포즈를 취하고 있다. 이담외과 제공';
+const TV_46_FIGCAPTION_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>이담미디어</h2></div>
+  <div class="content_wrap"><table class="board_view">
+    <tr><th>제 목</th><td><div>담담한 만남 원문 기사</div></td></tr>
+    <tr><td><span id="writeContents">
+      <p>김현규 이담외과 대표원장, 혈관외과 전문의…개원 4년 맞아</p>
+      <figure><img src="/one.jpg" alt=""><figcaption>개원 4년째인 김현규 이담외과 대표원장은 AI 의료 시대에도 인간적인 병원을 지향하면서 환자 행복을 위해 최선을 다하고 있다고 밝혔다. 혈관외과 전문의인 김 원장이 직접 혈관질환에 대해 설명하고 있다. 김용학 기자</figcaption></figure>
+      <figure><img src="/two.jpg" alt=""><figcaption>김현규 이담외과 대표원장이 시술하고 있다.</figcaption></figure>
+      <figure><img src="/three.jpg" alt=""><figcaption>김현규 이담외과 대표원장(왼쪽 두 번째)이 당뇨발 협진팀과 함께 포즈를 취하고 있다. 이담외과 제공</figcaption></figure>
+    </span></td></tr>
+  </table></div>
+</main></body></html>`;
+
 test('KO source extraction preserves source blocks and classifies only explicit UI chrome', () => {
   const page = extractKoClinicPage({
     html: STATIC_HTML,
@@ -118,6 +161,70 @@ test('independent S_orig includes source page context and inline text beside nes
       .map((entry) => entry.text),
     ['게시판 목록 위젯 문구'],
   );
+});
+
+test('KO extraction preserves the six verbatim home compound labels without reconstructed fragments', () => {
+  const page = extractKoClinicPage({
+    html: HOME_COMPOUND_HTML,
+    sourceUrl: 'https://edomclinic.com/',
+  });
+  const listItems = page.blocks
+    .filter((block) => block.kind === 'list_item')
+    .map((block) => normalizeKoClinicText(block.text));
+  assert.deepEqual(listItems, [
+    '01. 하지정맥류 자세히보기',
+    '02. 투석혈관 자세히보기',
+    '03. 당뇨발 자세히보기',
+    '04. 장기질환 케어 자세히보기',
+    'Difference 자세히보기',
+    'Difference 자세히보기',
+  ]);
+  assert.equal(listItems.includes('01. 자세히보기'), false);
+  assert.equal(listItems.includes('02. 자세히보기'), false);
+  assert.equal(listItems.includes('03. 자세히보기'), false);
+  assert.equal(listItems.includes('04. 자세히보기'), false);
+});
+
+test('KO extraction retains the actual tv-19 inline body beside nested block content', () => {
+  const page = extractKoClinicPage({
+    html: TV_19_NESTED_INLINE_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=tv&wr_id=19',
+  });
+  const extracted = normalizeKoClinicText(
+    page.blocks
+      .filter((block) => block.kind === 'paragraph')
+      .map((block) => block.text)
+      .join(' '),
+  ).replace(/\s+/gu, ' ');
+  assert.equal(extracted.includes(TV_19_MISSING_BODY), true, extracted);
+});
+
+test('KO extraction retains the actual tv-46 figure captions', () => {
+  const page = extractKoClinicPage({
+    html: TV_46_FIGCAPTION_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=tv&wr_id=46',
+  });
+  const extracted = normalizeKoClinicText(
+    page.blocks
+      .filter((block) => block.kind === 'paragraph')
+      .map((block) => block.text)
+      .join(' '),
+  );
+  assert.equal(extracted.includes(TV_46_MISSING_CAPTIONS), true);
+  const independent = extractIndependentOriginalText({
+    html: TV_46_FIGCAPTION_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=tv&wr_id=46',
+  });
+  assert.deepEqual(
+    independent.included.filter((text) => text.includes('김현규 이담외과 대표원장')),
+    [
+      '김현규 이담외과 대표원장, 혈관외과 전문의…개원 4년 맞아',
+      '개원 4년째인 김현규 이담외과 대표원장은 AI 의료 시대에도 인간적인 병원을 지향하면서 환자 행복을 위해 최선을 다하고 있다고 밝혔다. 혈관외과 전문의인 김 원장이 직접 혈관질환에 대해 설명하고 있다. 김용학 기자',
+      '김현규 이담외과 대표원장이 시술하고 있다.',
+      '김현규 이담외과 대표원장(왼쪽 두 번째)이 당뇨발 협진팀과 함께 포즈를 취하고 있다. 이담외과 제공',
+    ],
+  );
+  assert.equal(independent.included.includes(TV_46_MISSING_CAPTIONS), false);
 });
 
 test('headings with direct text are not compacted and board aliases keep verbatim labels', () => {
