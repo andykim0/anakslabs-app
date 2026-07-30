@@ -150,6 +150,27 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section="features.stat-strip"] [data-clinic-flow-marker] {
   font-size: clamp(1rem,1.5vw,1.25rem);
 }
+[data-clinic-flow-section="features.prose-article"] [data-clinic-flow-inner] {
+  max-width: 68rem;
+}
+[data-clinic-flow-section="features.prose-article"] [data-clinic-flow-items] {
+  grid-template-columns: minmax(0, 40em);
+  justify-content: center;
+  gap: var(--clinic-stack-rhythm);
+}
+[data-clinic-flow-section="features.prose-article"] [data-clinic-flow-item] {
+  gap: 1.25rem;
+}
+[data-clinic-flow-section="features.prose-article"] [data-clinic-flow-copy] {
+  white-space: pre-wrap;
+}
+[data-ko-clinic] [data-font-role] {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+[data-ko-clinic] :is(h1,h2,h3)[data-font-role] {
+  text-wrap: balance;
+}
 [data-clinic-flow-section^="about."] [data-clinic-flow-items] {
   grid-template-columns: 1fr;
 }
@@ -606,6 +627,7 @@ export function ClinicFlowSection({
   siteId,
   pageHeading,
   hrefForPageSlug,
+  locale = 'en-US',
 }: {
   section: Section;
   theme: SiteTheme;
@@ -614,6 +636,7 @@ export function ClinicFlowSection({
   siteId?: string;
   pageHeading?: string;
   hrefForPageSlug?: (slug: string) => string;
+  locale?: 'en-US' | 'ko-KR';
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
@@ -622,7 +645,12 @@ export function ClinicFlowSection({
       (element): element is TextElement => element.kind === 'text',
     );
     const articleAuthor = text.find((element) => element.id.includes('-article-author'));
-    const articleDate = text.find((element) => element.id.endsWith('-article-date'));
+    const articleDate = text.find((element) => (
+      element.id.endsWith('-article-date') || element.id.includes('-article-date-iso-')
+    ));
+    const articleDateTime = articleDate?.id.match(
+      /-article-date-iso-(\d{4}-\d{2}-\d{2})/u,
+    )?.[1] ?? articleDate?.text;
     const contentText = text.filter(
       (element) => element.id !== articleAuthor?.id && element.id !== articleDate?.id,
     );
@@ -652,7 +680,7 @@ export function ClinicFlowSection({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={section.background.image.src}
-              alt={`${heading} practice`}
+              alt={locale === 'ko-KR' ? heading : `${heading} practice`}
               loading={isFirst ? 'eager' : 'lazy'}
               fetchPriority={isFirst ? 'high' : undefined}
               decoding="async"
@@ -661,6 +689,7 @@ export function ClinicFlowSection({
           <div data-clinic-flow-hero-copy>
             <p
               data-clinic-hero-kicker
+              data-font-role="body"
               data-clinic-tracking-role="eyebrow"
               style={{
                 letterSpacing: resolveTypographyTracking({
@@ -698,11 +727,13 @@ export function ClinicFlowSection({
             {articleAuthor && articleDate ? (
               <div data-clinic-article-evidence>
                 <p data-clinic-article-byline>
-                  By <span itemProp="author">{articleAuthor.text}</span>
+                  {locale === 'ko-KR' ? '작성자 ' : 'By '}
+                  <span itemProp="author">{articleAuthor.text}</span>
                 </p>
                 <p data-clinic-article-date>
-                  <time dateTime={articleDate.text}>
-                    Last updated {articleDate.text}
+                  <time dateTime={articleDateTime}>
+                    {locale === 'ko-KR' ? '작성일 ' : 'Last updated '}
+                    {articleDate.text}
                   </time>
                 </p>
               </div>
@@ -710,6 +741,7 @@ export function ClinicFlowSection({
             <span
               aria-disabled="true"
               data-clinic-hero-cta
+              data-font-role="body"
               data-clinic-tracking-role="button"
               style={{
                 letterSpacing: resolveTypographyTracking({
@@ -719,7 +751,7 @@ export function ClinicFlowSection({
                 }),
               }}
             >
-              Book Appointment
+              {locale === 'ko-KR' ? '상담 문의' : 'Book Appointment'}
             </span>
           </div>
         </div>

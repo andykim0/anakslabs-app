@@ -432,6 +432,9 @@ export function SiteRenderer({
       || config.businessInfo?.ownerName
       || page.title
     : page.title;
+  const clinicLocale = config.clinicMaster?.demoPitchLocale === 'ko-owner'
+    ? 'ko-KR'
+    : 'en-US';
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),
@@ -537,7 +540,9 @@ export function SiteRenderer({
     clinicStyle['--clinic-heading-gap'] = clinicTokens.stackHeadingGap;
     clinicStyle['--clinic-grid-gutter'] = clinicTokens.gridGutter;
     clinicStyle['--clinic-heading-family'] = theme.fonts.heading;
-    clinicStyle['--clinic-control-family'] = clinicTokens.controlFamily;
+    clinicStyle['--clinic-control-family'] = clinicLocale === 'ko-KR'
+      ? theme.fonts.body
+      : clinicTokens.controlFamily;
     clinicStyle['--clinic-control-weight'] = clinicTokens.controlWeight;
     clinicStyle['--clinic-display-weight'] = clinicTokens.displayWeight;
     clinicStyle['--clinic-heading-weight'] = clinicTokens.headingWeight;
@@ -599,6 +604,7 @@ export function SiteRenderer({
           'data-clinic-accent': config.clinicMaster.accentPreset,
           'data-clinic-typography': config.clinicMaster.typographyPreset,
           'data-clinic-density': config.clinicMaster.density,
+          ...(clinicLocale === 'ko-KR' ? { 'data-ko-clinic': '1' } : {}),
         } : {})}
         {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
         {...(continuousCanvas ? { 'data-continuous-canvas-root': '1' } : {})}
@@ -633,12 +639,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
                         </div>
                       )}
                     </div>
@@ -683,6 +689,7 @@ export function SiteRenderer({
                       clinicFlow={Boolean(config.clinicMaster)}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
+                      clinicLocale={clinicLocale}
                     />
                   </div>
                 )}
@@ -700,6 +707,7 @@ export function SiteRenderer({
                       clinicFlow={Boolean(config.clinicMaster)}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
+                      clinicLocale={clinicLocale}
                     />
                   </div>
                 )}
@@ -721,12 +729,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -747,12 +755,12 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
             ) : ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
             ))}
           </div>
         )}
@@ -775,6 +783,7 @@ export function SiteRenderer({
                       clinicFlow={Boolean(config.clinicMaster)}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
+                      clinicLocale={clinicLocale}
                     />
                   </SiteCinematicChapter>
                 ))}
@@ -791,6 +800,7 @@ export function SiteRenderer({
                 clinicFlow={Boolean(config.clinicMaster)}
                 clinicPageHeading={clinicPageHeading}
                 hrefForPageSlug={hrefForPageSlug}
+                clinicLocale={clinicLocale}
               />
             ))}
           </div>

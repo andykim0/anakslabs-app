@@ -63,6 +63,8 @@ interface SectionCanvasProps {
   clinicPageHeading?: string;
   /** Route-aware page link mapping for preview and static export. */
   hrefForPageSlug?: (slug: string) => string;
+  /** KO contract-import only. Omission preserves the existing en-US clinic markup. */
+  clinicLocale?: 'en-US' | 'ko-KR';
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -103,6 +105,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         siteId={props.siteId}
         pageHeading={props.clinicPageHeading}
         hrefForPageSlug={props.hrefForPageSlug}
+        locale={props.clinicLocale}
       />
     );
   }

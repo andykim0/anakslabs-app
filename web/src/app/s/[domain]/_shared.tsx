@@ -97,12 +97,13 @@ export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   }
   const isHome = pageSlug === '';
   const meta = config.meta;
+  const description = page.description ?? meta.description;
   const pageUrl = canonicalUrlFor(siteUrlOf(site.domain), pageSlug) ?? '';
   const ogImage = absoluteMediaUrl(meta.ogImage, siteUrlOf(site.domain));
   const title = isHome ? meta.title : `${page.title} · ${meta.title}`;
   return {
     title,
-    description: meta.description,
+    description,
     verification: {
       ...(config.searchVerification?.google ? { google: config.searchVerification.google } : {}),
       ...(config.searchVerification?.naver
@@ -116,14 +117,14 @@ export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
       siteName: meta.title,
       locale: 'ko_KR',
       title,
-      description: meta.description,
+      description,
       ...(pageUrl ? { url: pageUrl } : {}),
       ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {
       card: ogImage ? 'summary_large_image' : 'summary',
       title,
-      description: meta.description,
+      description,
       ...(ogImage ? { images: [ogImage] } : {}),
     },
     robots:

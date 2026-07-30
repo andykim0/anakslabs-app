@@ -18,6 +18,7 @@ export const FEATURE_LAYOUT_VARIANT_IDS = [
   'features.faq-accordion',
   'features.stat-strip',
   'features.dark-value-band',
+  'features.prose-article',
 ] as const;
 
 export const ABOUT_LAYOUT_VARIANT_IDS = [
@@ -120,6 +121,7 @@ export type SectionLayoutFlow =
   | 'accordion'
   | 'stat-strip'
   | 'dark-value-band'
+  | 'prose-article'
   | 'split'
   | 'centered-statement'
   | 'fullbleed-overlay'

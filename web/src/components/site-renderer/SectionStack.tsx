@@ -56,6 +56,8 @@ interface SectionStackProps {
   clinicPageHeading?: string;
   /** Route-aware page link mapping for preview and static export. */
   hrefForPageSlug?: (slug: string) => string;
+  /** KO contract-import only. Omission preserves the existing en-US clinic markup. */
+  clinicLocale?: 'en-US' | 'ko-KR';
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -412,6 +414,7 @@ export function SectionStack({
   clinicFlow = false,
   clinicPageHeading,
   hrefForPageSlug,
+  clinicLocale,
 }: SectionStackProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
@@ -426,6 +429,7 @@ export function SectionStack({
         siteId={siteId}
         pageHeading={clinicPageHeading}
         hrefForPageSlug={hrefForPageSlug}
+        locale={clinicLocale}
       />
     );
   }

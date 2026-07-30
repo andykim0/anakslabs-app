@@ -322,6 +322,33 @@ function compileBand({
     };
   }
 
+  if (recipe.flow === 'prose-article') {
+    const articleWidth = zone.w * (band === 'mobile' ? 1 : 0.62);
+    const articleX = zone.x + (zone.w - articleWidth) / 2;
+    let cursor = itemStart;
+    for (const item of content.items) {
+      const local = verticalItem({
+        item,
+        elements,
+        theme,
+        band,
+        width: articleWidth,
+        mediaAspect: recipe.mediaAspect,
+        mediaFirst: true,
+        padded: false,
+      });
+      mergeLocal(frames, fontSizes, local, articleX, cursor);
+      cursor += local.height + spacing.elementGap * 2;
+    }
+    return {
+      width: band === 'wide' ? 1440 : band === 'compact' ? 768 : 390,
+      sectionHeight: Math.ceil(cursor - spacing.elementGap * 2 + spacing.sectionBlock),
+      frames,
+      fontSizes,
+      itemOrder,
+    };
+  }
+
   if (recipe.flow === 'alternating-media') {
     let cursor = itemStart;
     for (const [index, item] of content.items.entries()) {

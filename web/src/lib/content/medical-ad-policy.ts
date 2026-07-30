@@ -733,6 +733,7 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
   sitePage: defineFieldCoverage<SitePage>()({
     id: 'ignore',
     title: 'collect',
+    description: 'collect',
     slug: 'ignore',
     sections: 'collect',
     showInNav: 'ignore',

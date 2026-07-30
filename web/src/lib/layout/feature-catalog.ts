@@ -205,6 +205,29 @@ export const FEATURE_LAYOUT_CATALOG = [
     ),
     surfaceTone: 'dark',
   },
+  {
+    id: 'features.prose-article',
+    kind: 'features',
+    label: '본문 아티클형',
+    description: '원문 제목·본문·작성 증거를 축약 없이 좁은 읽기 폭의 문서 흐름으로 보존합니다.',
+    bands: {
+      wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'prose-article', columns: 1 }),
+      compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'prose-article', columns: 1 }),
+      mobile: recipe({ gridColumns: 4, textZone: 'flow-full', flow: 'prose-article', columns: 1 }),
+    },
+    content: {
+      minimumItems: 1,
+      maximumItems: 100,
+      requiredFields: ['section-title', 'item-title'],
+      optionalFields: ['item-body', 'item-media', 'item-cta'],
+    },
+    mediaContract: figureMedia,
+    compatibility: sectionCompatibility(
+      ['medical', 'legal', 'consulting', 'academy'],
+      ['cafe', 'fine_dining', 'beauty', 'workshop', 'retail', 'portfolio'],
+      ['medical-clinical-clarity', 'legal-authoritative-editorial', 'academy-structured-friendly'],
+    ),
+  },
 ] as const satisfies readonly SectionLayoutVariant<FeatureLayoutVariantId>[];
 
 export function featureLayoutById(id: FeatureLayoutVariantId) {

@@ -778,7 +778,8 @@ export const businessInfoSchema = z
 /** [v4] 페이지 (title/slug/sections + 내비 옵션) */
 const sitePageSchema = z.object({
   id: z.string().min(1).max(64),
-  title: z.string().min(1, '페이지 이름을 입력해 주세요.').max(60),
+  title: z.string().min(1, '페이지 이름을 입력해 주세요.').max(200),
+  description: z.string().max(320).optional(),
   slug: z.string().max(40),
   sections: z.array(sectionSchema),
   showInNav: z.boolean().optional(),

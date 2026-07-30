@@ -750,6 +750,8 @@ export interface SitePage {
   id: string;
   /** 에디터/내비 표시명 (예: '홈', '회사소개') */
   title: string;
+  /** Additive per-page search summary. Omission preserves the existing site-level description. */
+  description?: string;
   /** URL 경로 조각. ''(빈 문자열) = 홈. 규칙: /^[a-z0-9-]{1,40}$/ 또는 '' */
   slug: string;
   sections: Section[];

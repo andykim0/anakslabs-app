@@ -334,25 +334,42 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   });
 
   const procedurePage = isClinicMasterV2 && currentPage.id.startsWith('clinic-procedure-');
+  const koClinicProcedurePage = (
+    config.clinicMaster?.demoPitchLocale === 'ko-owner'
+    && currentPage.id.startsWith('clinic-procedure-ko-')
+  );
+  const articlePage = (
+    config.clinicMaster?.demoPitchLocale === 'ko-owner'
+    && currentPage.id.startsWith('ko-clinic-article-')
+  );
+  const isProcedurePage = procedurePage || koClinicProcedurePage;
   const providerPage = isClinicMasterV2 && currentPage.id === 'clinic-about';
   const contactPage = isClinicMasterV2 && currentPage.id === 'clinic-contact';
-  const procedureHero = procedurePage
+  const procedureHero = isProcedurePage || articlePage
     ? currentPage.sections.find((section) => section.type === 'hero')
     : undefined;
   const articleAuthor = firstSourceText(procedureHero, 'article-author');
   const articleDateModified = procedureHero?.elements.find((element) => (
     element.kind === 'text'
-    && element.id.endsWith('-article-date')
-    && /^\d{4}-\d{2}-\d{2}$/u.test(element.text)
+    && (
+      (element.id.endsWith('-article-date') && /^\d{4}-\d{2}-\d{2}$/u.test(element.text))
+      || /-article-date-iso-\d{4}-\d{2}-\d{2}/u.test(element.id)
+    )
   ));
+  const articleDateIso = articleDateModified?.kind === 'text'
+    ? articleDateModified.id.match(/-article-date-iso-(\d{4}-\d{2}-\d{2})/u)?.[1]
+      ?? articleDateModified.text
+    : undefined;
   const articleEvidence = articleAuthor && articleDateModified?.kind === 'text'
     ? {
         author: articleAuthor,
-        dateModified: articleDateModified.text,
+        dateModified: articleDateIso!,
       }
     : undefined;
-  const webPageType = procedurePage
+  const webPageType = isProcedurePage
     ? ['WebPage', 'MedicalWebPage', ...(articleEvidence ? ['Article'] : [])]
+    : articlePage && articleEvidence
+      ? ['WebPage', 'Article']
     : providerPage
       ? ['WebPage', 'ProfilePage']
       : contactPage
@@ -373,7 +390,9 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     isPartOf: ref(websiteId),
     about: ref(identityId),
     ...(spec?.profilePage && currentPage.slug === '' ? { mainEntity: ref(identityId) } : {}),
-    ...(config.meta.description ? { description: config.meta.description } : {}),
+    ...((currentPage.description ?? config.meta.description)
+      ? { description: currentPage.description ?? config.meta.description }
+      : {}),
     ...(imageUrl
       ? { primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl } }
       : {}),
@@ -387,7 +406,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   };
   nodes.push(pageNode);
 
-  if (procedurePage) {
+  if (isProcedurePage) {
     const procedureNames = allSourceTexts(
       currentPage.sections,
       'procedure-service-',

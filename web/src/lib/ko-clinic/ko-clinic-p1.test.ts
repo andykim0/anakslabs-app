@@ -1,0 +1,130 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
+import { featureLayoutById } from '@/lib/layout';
+import {
+  compileKoClinicSite,
+  extractIndependentOriginalText,
+  extractKoClinicPage,
+  koClinicSlugForSourceUrl,
+} from '.';
+
+const STATIC_HTML = `<!doctype html><html lang="ko"><body>
+  <header><img src="/n_images/common/logo.png" alt="EDOM 이담외과의원"><nav>메뉴</nav></header>
+  <main>
+    <div class="sub_tit"><div class="main_tit"><h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2></div></div>
+    <div class="content_wrap">
+      <section><h3>하지정맥류의 원인</h3>
+        <p>정맥 혈액순환 장애에 관한 원문 문장입니다.</p>
+        <ul><li>노화</li><li>가족력</li></ul>
+        <img src="/n_images/sub/vein.jpg" alt="하지정맥류의 원인">
+        <img src="/n_images/common/scroll.png" alt="scroll">
+      </section>
+    </div>
+  </main>
+  <footer>대표자와 사업자번호</footer>
+</body></html>`;
+
+const NEWS_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>공지사항</h2></div>
+  <div class="content_wrap"><table class="board_view">
+    <tr><th>제 목</th><td><div>진료 안내 원문</div></td></tr>
+    <tr><th>작성자</th><td>이담외과</td><th>작성일</th><td>23-08-14 14:35</td></tr>
+    <tr><td class="viewContentTD"><span id="writeContents"><p>원문 진료 안내입니다.</p></span></td></tr>
+  </table><div class="board_button"><a href="./board.php?bo_table=news&amp;wr_id=2" title="다음 원문">이 전</a></div></div>
+</main></body></html>`;
+
+const PRAISE_HTML = `<meta charset="utf-8"><script>alert('치료 후기, 치료 결과 열람은\\n의료법에 의거, 로그인 후 가능합니다.');</script>`;
+
+test('KO source extraction preserves source blocks and classifies only explicit UI chrome', () => {
+  const page = extractKoClinicPage({
+    html: STATIC_HTML,
+    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  });
+  assert.equal(page.title.text, '하지정맥류');
+  assert.equal(page.businessName?.text, 'EDOM 이담외과의원');
+  assert.deepEqual(
+    page.blocks.map((block) => block.text),
+    ['하지정맥류의 원인', '정맥 혈액순환 장애에 관한 원문 문장입니다.', '노화', '가족력'],
+  );
+  assert.equal(page.blocks.every((block) => block.sourceSha256.length === 64), true);
+  assert.equal(page.images.find((image) => image.sourceUrl.endsWith('/vein.jpg'))?.classification, 'content');
+  assert.equal(page.images.find((image) => image.sourceUrl.endsWith('/scroll.png'))?.classification, 'ui-chrome');
+});
+
+test('independent S_orig path retains content but excludes predeclared chrome', () => {
+  const original = extractIndependentOriginalText({
+    html: STATIC_HTML,
+    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  });
+  assert.equal(original.included.some((text) => text.includes('정맥 혈액순환 장애')), true);
+  assert.equal(original.included.includes('메뉴'), false);
+  assert.equal(original.included.some((text) => text.includes('대표자')), false);
+});
+
+test('prose article catalog accepts one source item without a minimum-content disappearance', () => {
+  const prose = featureLayoutById('features.prose-article');
+  assert.equal(prose.content.minimumItems, 1);
+  assert.equal(prose.bands.wide.flow, 'prose-article');
+  assert.equal(prose.mediaContract.role, 'referential-figure');
+});
+
+test('KO compiler is deterministic, holds praise, and keeps US locale absent', () => {
+  const pages = [
+    extractKoClinicPage({
+      html: STATIC_HTML.replace('하지정맥류', '이담병원 홈'),
+      sourceUrl: 'https://edomclinic.com/',
+    }),
+    extractKoClinicPage({
+      html: STATIC_HTML,
+      sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+    }),
+    extractKoClinicPage({
+      html: NEWS_HTML,
+      sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=news&wr_id=1',
+    }),
+    extractKoClinicPage({
+      html: PRAISE_HTML,
+      sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=praise&wr_id=1',
+    }),
+  ].map((page) => ({ ...page, images: [] }));
+  const first = compileKoClinicSite({ pages, images: [] });
+  const second = compileKoClinicSite({ pages, images: [] });
+  assert.deepEqual(first, second);
+  assert.equal(first.config.meta.locale, undefined);
+  assert.equal(first.config.clinicMaster?.demoPitchLocale, 'ko-owner');
+  assert.equal(first.publicationHolds.length, 1);
+  assert.equal(first.publicationHolds[0].ruleId, 'medical-treatment-testimonial');
+  assert.equal(first.config.pages.some((page) => page.slug.includes('praise')), false);
+  assert.equal(first.config.pages.some((page) => page.slug === 'community'), true);
+  assert.equal(
+    first.config.pages
+      .flatMap((page) => page.sections)
+      .some((section) => section.sectionLayout?.resolvedId === 'features.prose-article'),
+    true,
+  );
+  const news = first.config.pages.find((page) => page.slug === 'community-news-1');
+  assert.ok(news);
+  assert.equal(news.id.startsWith('ko-clinic-article-'), true);
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: first.config,
+    pageSlug: 'community-news-1',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /data-ko-clinic="1"/u);
+  assert.match(html, /작성자/u);
+  assert.match(html, /23-08-14 14:35/u);
+  assert.match(html, /features\.prose-article/u);
+  assert.doesNotMatch(html, /Book Appointment/u);
+});
+
+test('source URL slug mapping is stable and preserves the empty home contract', () => {
+  assert.equal(koClinicSlugForSourceUrl('https://edomclinic.com/main.php'), '');
+  assert.equal(
+    koClinicSlugForSourceUrl('https://edomclinic.com/bbs/board.php?wr_id=12&bo_table=news'),
+    'community-news-12',
+  );
+});

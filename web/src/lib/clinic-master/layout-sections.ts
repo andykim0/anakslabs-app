@@ -52,6 +52,8 @@ export interface ClinicLayoutContentUnit {
   };
   image?: ClinicLayoutImage;
   href?: string;
+  /** Renderer chrome only. Factual item copy remains source-owned. */
+  actionLabel?: string;
 }
 
 export function buildClinicHeroSection(input: {
@@ -62,6 +64,8 @@ export function buildClinicHeroSection(input: {
   articleEvidence?: {
     author: ClinicMasterSourceBlock;
     dateModified: string;
+    /** Optional verbatim visible date. The normalized dateModified remains schema-only evidence. */
+    visibleDate?: ClinicMasterSourceBlock;
   };
   theme: SiteTheme;
   image?: ClinicLayoutImage;
@@ -101,12 +105,19 @@ export function buildClinicHeroSection(input: {
   const articleEvidence = input.articleEvidence
     ? [
         sourceText(input.articleEvidence.author, 'article-author', input.theme, 'body'),
-        layoutText(
-          `${input.id}-article-date`,
-          clinicDate(input.articleEvidence.dateModified),
-          input.theme,
-          'caption',
-        ),
+        input.articleEvidence.visibleDate
+          ? sourceText(
+              input.articleEvidence.visibleDate,
+              `article-date-iso-${clinicDate(input.articleEvidence.dateModified)}`,
+              input.theme,
+              'body',
+            )
+          : layoutText(
+              `${input.id}-article-date`,
+              clinicDate(input.articleEvidence.dateModified),
+              input.theme,
+              'caption',
+            ),
       ]
     : [];
   section.elements = [...resolved.elements, ...articleEvidence];
@@ -345,7 +356,7 @@ export function buildClinicFeatureSections(input: {
         ? {
             id: `${input.id}-item-link-${index}`,
             kind: 'button',
-            label: 'View treatment',
+            label: unit.actionLabel ?? 'View treatment',
             href: unit.href,
             frame: AUTHORED_FRAME,
             z: 2,
@@ -498,10 +509,8 @@ export function buildClinicGallerySections(input: {
 }): Section[] {
   if (input.images.length < GALLERY_MINIMUM_ITEMS) return [];
   const result: Section[] = [];
-  for (let start = 0; start < input.images.length; start += GALLERY_MAXIMUM_ITEMS) {
-    const images = input.images.slice(start, start + GALLERY_MAXIMUM_ITEMS);
-    if (images.length < GALLERY_MINIMUM_ITEMS) break;
-    const groupIndex = start / GALLERY_MAXIMUM_ITEMS;
+  const imageGroups = clinicFeatureGroups(input.images, GALLERY_MAXIMUM_ITEMS);
+  for (const [groupIndex, images] of imageGroups.entries()) {
     const suffix = groupIndex === 0 ? '' : `-${groupIndex + 1}`;
     const title = layoutText(
       `${input.id}${suffix}-layout-title`,
