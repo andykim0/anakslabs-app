@@ -375,6 +375,17 @@ export const CLINIC_FLOW_CSS = `
 }
 `;
 
+export const KO_CLINIC_FLOW_MEASURE_CSS = `
+[data-ko-clinic] [data-clinic-flow-section="features.prose-article"] :is(
+  [data-clinic-flow-item-heading],
+  [data-clinic-flow-copy]
+) {
+  width: 100%;
+  max-width: 30em;
+  justify-self: center;
+}
+`;
+
 function textStyle(
   element: TextElement,
   theme: SiteTheme,

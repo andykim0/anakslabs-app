@@ -47,7 +47,10 @@ import { signatureContractEnabled } from '@/lib/motion/signature-contract';
 import { fontPairingResources } from '@/lib/fonts/resources';
 import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
-import { CLINIC_FLOW_CSS } from './ClinicFlowSection';
+import {
+  CLINIC_FLOW_CSS,
+  KO_CLINIC_FLOW_MEASURE_CSS,
+} from './ClinicFlowSection';
 
 export type SiteRendererMode = 'desktop' | 'mobile' | 'auto';
 
@@ -500,6 +503,7 @@ export function SiteRenderer({
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
     (config.clinicMaster ? CLINIC_MASTER_CSS + CLINIC_FLOW_CSS : '') +
+    (config.clinicMaster && clinicLocale === 'ko-KR' ? KO_CLINIC_FLOW_MEASURE_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 
   const rootStyle: CSSProperties = {

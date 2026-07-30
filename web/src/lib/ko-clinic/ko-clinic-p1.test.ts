@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { KO_CLINIC_FLOW_MEASURE_CSS } from '@/components/site-renderer/ClinicFlowSection';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { featureLayoutById } from '@/lib/layout';
 import {
@@ -182,6 +183,18 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
   }));
   assert.match(homeHtml, /예약 시스템을 연결하면 예약 기능이 활성화됩니다\./u);
   assert.match(homeHtml, /white-space:\s*normal !important/u);
+  const englishHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: {
+      ...first.config,
+      clinicMaster: first.config.clinicMaster
+        ? { ...first.config.clinicMaster, demoPitchLocale: 'en' }
+        : undefined,
+    },
+    pageSlug: '',
+    interactive: false,
+    animate: false,
+  }));
+  assert.doesNotMatch(englishHtml, /max-width:\s*30em/u);
   const communityHtml = renderToStaticMarkup(createElement(SiteRenderer, {
     config: first.config,
     pageSlug: 'community',
@@ -282,6 +295,13 @@ test('KO board articles keep a verbatim H1, category eyebrow, and inline source 
   assert.match(html, /data-clinic-hero-kicker[^>]*>\s*공지사항/u);
   assert.doesNotMatch(html, /<h[23][^>]*>\s*진료 안내 원문\s*<\/h[23]>/u);
   assert.match(html, /<img[^>]+board-source\.webp/u);
+});
+
+test('KO prose article text selectors own the approved 30em measure', () => {
+  assert.match(
+    KO_CLINIC_FLOW_MEASURE_CSS,
+    /\[data-ko-clinic\][\s\S]*features\.prose-article[\s\S]*:is\([\s\S]*data-clinic-flow-item-heading[\s\S]*data-clinic-flow-copy[\s\S]*max-width:\s*30em/u,
+  );
 });
 
 test('source URL slug mapping is stable and preserves the empty home contract', () => {
