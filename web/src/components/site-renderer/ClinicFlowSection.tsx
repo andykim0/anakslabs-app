@@ -449,15 +449,18 @@ function FlowText({
   element,
   theme,
   role,
+  headingLevel = 3,
 }: {
   element: TextElement;
   theme: SiteTheme;
   role: 'intro' | 'heading' | 'display-heading' | 'copy' | 'marker' | 'stat-marker';
+  headingLevel?: 2 | 3;
 }) {
   const attributes = fontRole(element, theme);
   if (role === 'heading' || role === 'display-heading') {
+    const HeadingTag = headingLevel === 2 ? 'h2' : 'h3';
     return (
-      <h3
+      <HeadingTag
         data-clinic-flow-item-heading
         data-clinic-typography-tier={role === 'display-heading' ? 'display' : 'subhead'}
         data-clinic-tracking-role={role === 'display-heading' ? 'display' : 'heading'}
@@ -471,7 +474,7 @@ function FlowText({
         {...attributes}
       >
         {element.text}{' '}
-      </h3>
+      </HeadingTag>
     );
   }
   if (role === 'marker' || role === 'stat-marker') {
@@ -580,6 +583,7 @@ function FlowItem({
   hrefForPageSlug,
   listItem = false,
   variantId,
+  headingLevel = 3,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -589,6 +593,7 @@ function FlowItem({
   hrefForPageSlug?: (slug: string) => string;
   listItem?: boolean;
   variantId?: string;
+  headingLevel?: 2 | 3;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -617,6 +622,7 @@ function FlowItem({
             role={variantId === 'features.dark-value-band'
               ? 'display-heading'
               : 'heading'}
+            headingLevel={headingLevel}
           />
         ) : null}
         {content.map((element) => (
@@ -962,6 +968,10 @@ export function ClinicFlowSection({
     : projection.kind === 'features'
       ? { margin: 0, padding: 0 }
       : undefined;
+  const koProseArticle = (
+    locale === 'ko-KR'
+    && projection.resolvedId === 'features.prose-article'
+  );
 
   return (
     <section
@@ -989,22 +999,24 @@ export function ClinicFlowSection({
       }}
     >
       <div data-clinic-flow-inner>
-        <h2
-          data-clinic-flow-heading
-          data-font-role="heading"
-          data-clinic-typography-tier="section"
-          data-clinic-tracking-role="heading"
-          style={{
-            color: 'var(--clinic-section-text,var(--clinic-text))',
-            letterSpacing: resolveTypographyTracking({
-              fontSizePx: 52,
-              uppercase: false,
-              role: 'heading',
-            }),
-          }}
-        >
-          {sectionTitle}
-        </h2>
+        {!koProseArticle ? (
+          <h2
+            data-clinic-flow-heading
+            data-font-role="heading"
+            data-clinic-typography-tier="section"
+            data-clinic-tracking-role="heading"
+            style={{
+              color: 'var(--clinic-section-text,var(--clinic-text))',
+              letterSpacing: resolveTypographyTracking({
+                fontSizePx: 52,
+                uppercase: false,
+                role: 'heading',
+              }),
+            }}
+          >
+            {sectionTitle}
+          </h2>
+        ) : null}
         {introNodes}
         <ItemsTag
           data-clinic-flow-items
@@ -1024,6 +1036,7 @@ export function ClinicFlowSection({
               hrefForPageSlug={hrefForPageSlug}
               listItem={projection.kind === 'features'}
               variantId={projection.resolvedId}
+              headingLevel={koProseArticle ? 2 : 3}
             />
           ))}
         </ItemsTag>

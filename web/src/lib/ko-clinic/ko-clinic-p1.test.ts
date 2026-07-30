@@ -295,6 +295,26 @@ test('KO board articles keep a verbatim H1, category eyebrow, and inline source 
   assert.match(html, /data-clinic-hero-kicker[^>]*>\s*공지사항/u);
   assert.doesNotMatch(html, /<h[23][^>]*>\s*진료 안내 원문\s*<\/h[23]>/u);
   assert.match(html, /<img[^>]+board-source\.webp/u);
+  assert.match(
+    html,
+    /<section[^>]+data-clinic-flow-section="features\.prose-article"[^>]+aria-label="본문"/u,
+  );
+  assert.doesNotMatch(html, /<h2[^>]+data-clinic-flow-heading[^>]*>\s*본문\s*<\/h2>/u);
+  assert.match(html, /<h2[^>]+data-clinic-flow-item-heading/u);
+
+  const englishHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: {
+      ...compilation.config,
+      clinicMaster: compilation.config.clinicMaster
+        ? { ...compilation.config.clinicMaster, demoPitchLocale: 'en' }
+        : undefined,
+    },
+    pageSlug: article.slug,
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(englishHtml, /<h2[^>]+data-clinic-flow-heading[^>]*>\s*본문\s*<\/h2>/u);
+  assert.match(englishHtml, /<h3[^>]+data-clinic-flow-item-heading/u);
 });
 
 test('KO prose article text selectors own the approved 30em measure', () => {
