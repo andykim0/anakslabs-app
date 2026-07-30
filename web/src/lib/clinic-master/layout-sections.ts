@@ -245,6 +245,15 @@ function sourceText(
   return layoutText(`source-${block.id}-${suffix}`, block.text, theme, role);
 }
 
+export function buildClinicSourceMetadataElements(
+  blocks: readonly ClinicMasterSourceBlock[],
+  theme: SiteTheme,
+): TextElement[] {
+  return blocks.map((block) => (
+    sourceText(block, 'source-breadcrumb-metadata', theme, 'body')
+  ));
+}
+
 function sourceFragmentText(
   block: ClinicMasterSourceBlock,
   fragment: string,

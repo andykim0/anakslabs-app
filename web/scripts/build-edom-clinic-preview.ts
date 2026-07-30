@@ -334,6 +334,9 @@ async function main() {
         slug: compiledPage?.slug ?? null,
         originalBlocks: independentOriginal.included.length,
         missing,
+        missingDetails: independentOriginal.includedEvidence.filter((entry) => (
+          missing.includes(entry.text)
+        )),
       };
     });
   const perPageFailures = perPageTextCompleteness.filter((entry) => entry.missing.length > 0);
@@ -344,7 +347,27 @@ async function main() {
     .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)))
     .flatMap(({ independentOriginal }) => independentOriginal.included)
     .filter((text) => !globalCompiledText.includes(normalizedAuditText(text)));
+  await mkdir(OUTPUT_DIR, { recursive: true });
+  await writeFile(
+    path.join(OUTPUT_DIR, 'source-completeness.json'),
+    `${JSON.stringify({
+      version: 2,
+      generatedAt: new Date().toISOString(),
+      independentPath: 'src/lib/ko-clinic/original-text-audit.ts',
+      publishedPages: perPageTextCompleteness.length,
+      passedPages: perPageTextCompleteness.length - perPageFailures.length,
+      failures: perPageFailures,
+      globalAuxiliary: {
+        missingCount: globalMissing.length,
+        missing: globalMissing,
+      },
+    }, null, 2)}\n`,
+  );
   if (perPageFailures.length > 0) {
+    await writeFile(
+      path.join(OUTPUT_DIR, 'candidate-site-config.blocked.json'),
+      `${JSON.stringify(config, null, 2)}\n`,
+    );
     throw new Error(`EDOM_PER_PAGE_TEXT_LOSS:${perPageFailures.length}`);
   }
   const duplicateSlugs = config.pages
@@ -517,7 +540,6 @@ async function main() {
       + `${heroContrastViolations.length}:${articleHeroBackgrounds.length}`,
     );
   }
-  await mkdir(OUTPUT_DIR, { recursive: true });
   const artifacts: Record<string, unknown> = {
     'site-config.json': config,
     'crawl-artifact.json': crawlArtifact,

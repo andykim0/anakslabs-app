@@ -674,6 +674,24 @@ export function ClinicFlowSection({
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
+  const sourceBreadcrumbMetadata = section.elements.filter(
+    (element): element is TextElement => (
+      element.kind === 'text'
+      && element.id.includes('-source-breadcrumb-metadata')
+    ),
+  );
+  const sourceBreadcrumbMetadataIds = new Set(
+    sourceBreadcrumbMetadata.map((element) => element.id),
+  );
+  const renderSourceBreadcrumbMetadata = sourceBreadcrumbMetadata.map((element) => (
+    <span
+      key={element.id}
+      hidden
+      data-ko-clinic-source-breadcrumb={element.id}
+    >
+      {element.text}
+    </span>
+  ));
   if (section.type === 'hero') {
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
@@ -866,6 +884,7 @@ export function ClinicFlowSection({
           backgroundImage: section.background.gradient,
         }}
       >
+        {renderSourceBreadcrumbMetadata}
         <div data-clinic-flow-inner>
           <h2
             data-clinic-flow-heading
@@ -927,9 +946,12 @@ export function ClinicFlowSection({
       </section>
     );
   }
-  const elements = new Map(section.elements.map((element) => [element.id, element]));
+  const visibleElements = section.elements.filter(
+    (element) => !sourceBreadcrumbMetadataIds.has(element.id),
+  );
+  const elements = new Map(visibleElements.map((element) => [element.id, element]));
   const itemElementIds = new Set(projection.items.flatMap((item) => item.elementIds));
-  const introElements = section.elements.filter((element) => !itemElementIds.has(element.id));
+  const introElements = visibleElements.filter((element) => !itemElementIds.has(element.id));
   const introTitle = introElements.find((element) => element.kind === 'text');
   const introRemainder = introElements.filter((element) => element.id !== introTitle?.id);
   const sectionTitle = section.name.trim() || (
@@ -998,6 +1020,7 @@ export function ClinicFlowSection({
         backgroundImage: section.background.gradient,
       }}
     >
+      {renderSourceBreadcrumbMetadata}
       <div data-clinic-flow-inner>
         {!koProseArticle ? (
           <h2

@@ -21,9 +21,21 @@ const EXCLUDED_ORIGINAL_CHROME = [
   '.scroll',
 ].join(',');
 
+const ORIGINAL_TEXT_BLOCKS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td';
+const SOURCE_PAGE_CONTEXT = [
+  '.main_tit .breadcrumb li',
+  '.main_tit .depth li',
+  '.main_tit > h1',
+  '.main_tit > h2',
+].join(',');
+
 export interface IndependentOriginalText {
   sourceUrl: string;
   included: readonly string[];
+  includedEvidence: readonly {
+    selector: 'source-page-context' | 'content-root';
+    text: string;
+  }[];
   excluded: readonly {
     selector: string;
     text: string;
@@ -68,12 +80,24 @@ function independentVisibleText(element: HTMLElement): string {
   return normalize(element.text);
 }
 
-function deepestTextBlocks(root: HTMLElement): string[] {
+function independentTextBlocks(root: HTMLElement): string[] {
   const blocks: string[] = [];
-  const candidates = root.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td');
+  const candidates = root.querySelectorAll(ORIGINAL_TEXT_BLOCKS);
   for (const element of candidates) {
-    if (element.querySelector('h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td')) continue;
-    const text = independentVisibleText(element);
+    const nestedBlocks = element.querySelectorAll(ORIGINAL_TEXT_BLOCKS);
+    if (nestedBlocks.length === 0) {
+      const text = independentVisibleText(element);
+      if (text) blocks.push(text);
+      continue;
+    }
+    // Preserve direct/inline source text when a block also contains nested blocks.
+    // Example: <h3><em>Dialysis vessel</em><p>...</p></h3>. Keeping only the
+    // deepest candidate silently discards the inline <em> text.
+    const cloneRoot = parse(element.toString());
+    const clone = cloneRoot.querySelector(element.tagName.toLocaleLowerCase('en-US'));
+    if (!clone) continue;
+    for (const nested of clone.querySelectorAll(ORIGINAL_TEXT_BLOCKS)) nested.remove();
+    const text = independentVisibleText(clone);
     if (text) blocks.push(text);
   }
   return blocks;
@@ -147,9 +171,24 @@ export function extractIndependentOriginalText(input: {
   const content = root.querySelector('main')
     ?? root.querySelector('.content_wrap')
     ?? root;
+  const sourceContext = root.querySelectorAll(SOURCE_PAGE_CONTEXT)
+    .map(independentVisibleText)
+    .filter(Boolean);
+  const contentBlocks = independentTextBlocks(content);
+  const includedEvidence: IndependentOriginalText['includedEvidence'] = [
+    ...sourceContext.map((text) => ({
+      selector: 'source-page-context' as const,
+      text,
+    })),
+    ...contentBlocks.map((text) => ({
+      selector: 'content-root' as const,
+      text,
+    })),
+  ];
   return {
     sourceUrl: input.sourceUrl,
-    included: deepestTextBlocks(content),
+    included: includedEvidence.map((entry) => entry.text),
+    includedEvidence,
     excluded,
   };
 }

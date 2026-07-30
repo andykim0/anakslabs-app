@@ -51,6 +51,23 @@ const COUNSEL_HTML = `<!doctype html><html lang="ko"><body><main>
   </div></div>
 </main></body></html>`;
 
+const MINT_BOARD_HTML = `<!doctype html><html lang="ko"><body>
+  <div class="sub_tit"><div class="main_tit">
+    <ul class="depth"><li>커뮤니티</li><li>민트병원TV</li></ul>
+    <h2><em>민트병원TV</em></h2>
+  </div></div>
+  <div class="content_wrap">
+    <table class="board_view">
+      <tr><th>제 목</th><td><div>원문 미디어 제목</div></td></tr>
+      <tr><th>작성자</th><td>이담외과</td><th>작성일자</th><td>23-08-20 01:12</td></tr>
+      <tr><td><span id="writeContents">
+        <h3><em>Dialysis vessel</em><p>오래 아껴 써야 할 원문입니다.</p></h3>
+      </span></td></tr>
+    </table>
+    <div class="board_list"><ul><li>게시판 목록 위젯 문구</li></ul></div>
+  </div>
+</body></html>`;
+
 test('KO source extraction preserves source blocks and classifies only explicit UI chrome', () => {
   const page = extractKoClinicPage({
     html: STATIC_HTML,
@@ -77,6 +94,30 @@ test('independent S_orig path retains content but excludes predeclared chrome', 
   assert.equal(original.included.some((text) => text.includes('정맥 혈액순환 장애')), true);
   assert.equal(original.included.includes('메뉴'), false);
   assert.equal(original.included.some((text) => text.includes('대표자')), false);
+});
+
+test('independent S_orig includes source page context and inline text beside nested blocks', () => {
+  const original = extractIndependentOriginalText({
+    html: MINT_BOARD_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=tv&wr_id=1',
+  });
+  assert.equal(original.included.includes('민트병원TV'), true);
+  assert.equal(original.included.includes('Dialysis vessel'), true);
+  assert.equal(original.included.includes('오래 아껴 써야 할 원문입니다.'), true);
+  assert.equal(
+    original.includedEvidence.some((entry) => (
+      entry.selector === 'source-page-context'
+      && entry.text === '민트병원TV'
+    )),
+    true,
+  );
+  assert.equal(original.included.includes('게시판 목록 위젯 문구'), false);
+  assert.deepEqual(
+    original.excluded
+      .filter((entry) => entry.reason === 'board-list-widget')
+      .map((entry) => entry.text),
+    ['게시판 목록 위젯 문구'],
+  );
 });
 
 test('headings with direct text are not compacted and board aliases keep verbatim labels', () => {
@@ -315,6 +356,35 @@ test('KO board articles keep a verbatim H1, category eyebrow, and inline source 
   }));
   assert.match(englishHtml, /<h2[^>]+data-clinic-flow-heading[^>]*>\s*본문\s*<\/h2>/u);
   assert.match(englishHtml, /<h3[^>]+data-clinic-flow-item-heading/u);
+});
+
+test('legacy Mint breadcrumb labels remain source metadata without visible promotion', () => {
+  const page = extractKoClinicPage({
+    html: MINT_BOARD_HTML,
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=tv&wr_id=1',
+  });
+  const compilation = compileKoClinicSite({ pages: [page], images: [] });
+  const article = compilation.config.pages.find((candidate) => (
+    candidate.slug === 'community-tv-1'
+  ));
+  assert.ok(article);
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compilation.config,
+    pageSlug: article.slug,
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /data-clinic-hero-kicker[^>]*>\s*이담미디어/u);
+  assert.match(
+    html,
+    /<span hidden="" data-ko-clinic-source-breadcrumb="[^"]+">민트병원TV<\/span>/u,
+  );
+  assert.doesNotMatch(html, /<h[1-6][^>]*>[^<]*민트병원TV/u);
+  assert.equal(
+    article.sections.flatMap((section) => section.elements)
+      .some((element) => element.kind === 'text' && element.text === '민트병원TV'),
+    true,
+  );
 });
 
 test('KO prose article text selectors own the approved 30em measure', () => {

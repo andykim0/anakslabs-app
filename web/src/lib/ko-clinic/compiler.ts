@@ -12,6 +12,7 @@ import {
   buildClinicGallerySections,
   buildClinicHeroSection,
   buildClinicDirectionsSection,
+  buildClinicSourceMetadataElements,
   resolveClinicMasterTheme,
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
@@ -49,6 +50,11 @@ const BOARD_LABELS = Object.freeze({
   story: '이벤트',
   tv: '이담미디어',
 } as const);
+const LEGACY_MINT_SOURCE_LABELS = new Set([
+  '민트병원TV',
+  '민트의 연구·학술',
+  '민트스토리',
+]);
 
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
@@ -326,6 +332,7 @@ function sectionsForPage(input: {
     blocks: input.publishedBlocks.filter((block) => (
       !['author', 'published_date'].includes(block.kind)
       && block.id !== contactBlock?.id
+      && !(block.kind === 'category' && LEGACY_MINT_SOURCE_LABELS.has(block.text))
     )),
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
@@ -344,6 +351,18 @@ function sectionsForPage(input: {
     surface: true,
     ...(input.isProcedure ? { titleSourceIdPrefix: 'procedure-service' } : {}),
   });
+  const sourceMetadata = buildClinicSourceMetadataElements(
+    input.publishedBlocks
+      .filter((block) => (
+        block.kind === 'category'
+        && LEGACY_MINT_SOURCE_LABELS.has(block.text)
+      ))
+      .map(sourceBlock),
+    input.theme,
+  );
+  if (sourceMetadata.length > 0 && prose[0]) {
+    prose[0].elements = [...prose[0].elements, ...sourceMetadata];
+  }
   for (const section of prose) section.surfaceTone = 'tint';
   const gallery = buildClinicGallerySections({
     id: `ko-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}`,
