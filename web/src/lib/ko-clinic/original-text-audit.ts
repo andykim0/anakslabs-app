@@ -47,9 +47,15 @@ function normalize(value: string): string {
 
 function independentVisibleText(element: HTMLElement): string {
   if (/^H[1-6]$/u.test(element.tagName)) {
+    const directText = element.childNodes
+      .filter((child) => !('tagName' in child))
+      .map((child) => normalize(child.text))
+      .filter(Boolean);
     const elementChildren = element.childNodes.filter((child) => 'tagName' in child) as HTMLElement[];
     const characterChildren = elementChildren.map((child) => normalize(child.text));
     if (
+      directText.length === 0
+      &&
       characterChildren.length >= 2
       && characterChildren.every((value) => value.length === 1 && /[\p{L}\p{N}]/u.test(value))
     ) {

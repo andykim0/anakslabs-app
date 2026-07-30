@@ -131,6 +131,7 @@ export function ClinicStickyBooking({
   destination,
   bookingEnabled = false,
   sourcePhone,
+  locale = 'en-US',
 }: {
   pin: ClinicMasterPin;
   interactive: boolean;
@@ -140,6 +141,8 @@ export function ClinicStickyBooking({
   bookingEnabled?: boolean;
   /** Exact crawl-source proof for a preview-full or outreach-safe Call action. */
   sourcePhone?: ClinicSourcePhoneProjection;
+  /** Render-only chrome locale. Source facts and destinations remain unchanged. */
+  locale?: 'ko-KR' | 'en-US';
 }) {
   const sourceCallHref = sourcePhone
     ? telephoneHref(sourcePhone.phone)
@@ -153,11 +156,24 @@ export function ClinicStickyBooking({
     : undefined;
   const deactivated = !bookHref && !callHref;
   const tokens = clinicMasterRenderTokens(pin);
+  const labels = locale === 'ko-KR'
+    ? {
+        aria: '예약 및 전화',
+        book: '예약 문의',
+        call: '전화',
+        disclosure: '예약 시스템을 연결하면 예약 기능이 활성화됩니다.',
+      }
+    : {
+        aria: 'Appointment actions',
+        book: 'Book Appointment',
+        call: 'Call',
+        disclosure: 'Booking activates when you connect your system.',
+      };
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: CLINIC_STICKY_BOOKING_CSS }} />
       <aside
-        aria-label="Appointment actions"
+        aria-label={labels.aria}
         {...(deactivated ? { 'aria-disabled': 'true' } : {})}
         data-clinic-sticky-booking="1"
         data-clinic-booking-state={deactivated ? 'deactivated' : bookHref ? 'active' : 'call-only'}
@@ -170,13 +186,13 @@ export function ClinicStickyBooking({
           '--clinic-radius-md': tokens.radiusMd,
         } as CSSProperties}
       >
-        <Action href={bookHref} kind="book">Book Appointment</Action>
+        <Action href={bookHref} kind="book">{labels.book}</Action>
         <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
-          Call
+          {labels.call}
         </Action>
         {!bookHref ? (
           <p data-clinic-booking-disclosure>
-            Booking activates when you connect your system.
+            {labels.disclosure}
           </p>
         ) : null}
       </aside>

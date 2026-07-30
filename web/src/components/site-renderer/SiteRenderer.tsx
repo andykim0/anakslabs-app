@@ -831,6 +831,7 @@ export function SiteRenderer({
               || clinicExperience?.mode === 'outreach-safe'
               ? clinicExperience.sourcePhone
               : undefined}
+            locale={clinicLocale}
           />
         ) : null}
       </div>

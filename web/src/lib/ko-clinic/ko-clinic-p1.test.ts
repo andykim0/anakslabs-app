@@ -79,14 +79,22 @@ test('independent S_orig path retains content but excludes predeclared chrome', 
 });
 
 test('headings with direct text are not compacted and board aliases keep verbatim labels', () => {
+  const mixedHeadingHtml = STATIC_HTML.replace(
+    '<h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2>',
+    '<h2><span>E</span>fficient <span>D</span>esign for <span>O</span>ptimized <span>M</span>edical Method</h2>',
+  );
   const headed = extractKoClinicPage({
-    html: STATIC_HTML.replace(
-      '<h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2>',
-      '<h2>척추관절센터 <span>통증 클리닉</span></h2>',
-    ),
+    html: mixedHeadingHtml,
     sourceUrl: 'https://edomclinic.com/page/sub4_1_1.php',
   });
-  assert.equal(headed.title.text, '척추관절센터 통증 클리닉');
+  assert.equal(headed.title.text, 'Efficient Design for Optimized Medical Method');
+  assert.equal(
+    extractIndependentOriginalText({
+      html: mixedHeadingHtml,
+      sourceUrl: 'https://edomclinic.com/page/sub4_1_1.php',
+    }).included.includes('Efficient Design for Optimized Medical Method'),
+    true,
+  );
 
   const counsel = extractKoClinicPage({
     html: COUNSEL_HTML,
@@ -166,6 +174,13 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
   assert.match(html, /23-08-14 14:35/u);
   assert.match(html, /features\.prose-article/u);
   assert.doesNotMatch(html, /Book Appointment/u);
+  const homeHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: first.config,
+    pageSlug: '',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(homeHtml, /예약 시스템을 연결하면 예약 기능이 활성화됩니다\./u);
   const communityHtml = renderToStaticMarkup(createElement(SiteRenderer, {
     config: first.config,
     pageSlug: 'community',

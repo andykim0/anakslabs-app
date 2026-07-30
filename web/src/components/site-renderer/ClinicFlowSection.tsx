@@ -164,6 +164,10 @@ export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section="features.prose-article"] [data-clinic-flow-copy] {
   white-space: pre-wrap;
 }
+[data-ko-clinic] [data-clinic-flow-section="features.prose-article"] [data-clinic-flow-copy] {
+  font-size: clamp(1rem,1.18vw,1.0625rem);
+  white-space: normal;
+}
 [data-ko-clinic] [data-font-role] {
   word-break: keep-all;
   overflow-wrap: break-word;
