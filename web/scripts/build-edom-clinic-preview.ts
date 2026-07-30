@@ -383,6 +383,19 @@ async function main() {
   ) {
     throw new Error('EDOM_PUBLIC_PROJECTION_SET_MISMATCH');
   }
+  const compiledImagePlacements = config.pages.flatMap((page) => (
+    page.sections.flatMap((section) => [
+      ...(section.background.image ? [section.background.image.src] : []),
+      ...section.elements.flatMap((element) => (
+        element.kind === 'image' ? [element.src] : []
+      )),
+    ])
+  ));
+  const compiledImagePaths = new Set(compiledImagePlacements);
+  const optimizedImagePaths = new Set(imageManifest.assets.map((asset) => asset.publicPath));
+  const unplacedOptimizedImagePaths = [...optimizedImagePaths]
+    .filter((publicPath) => !compiledImagePaths.has(publicPath))
+    .sort();
   await mkdir(OUTPUT_DIR, { recursive: true });
   const artifacts: Record<string, unknown> = {
     'site-config.json': config,
@@ -456,6 +469,10 @@ async function main() {
         unclassifiedOriginalContentImages,
         contentUnique: sourceContentImages.size,
         optimized: imageManifest.assets.length,
+        optimizedUniquePublicPaths: optimizedImagePaths.size,
+        compiledPlacements: compiledImagePlacements.length,
+        compiledUniquePublicPaths: compiledImagePaths.size,
+        unplacedOptimizedPublicPaths: unplacedOptimizedImagePaths,
         unavailable: imageManifest.unavailable,
         missingProvenance: missingImages,
       },

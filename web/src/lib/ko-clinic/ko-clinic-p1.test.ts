@@ -181,6 +181,7 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
     animate: false,
   }));
   assert.match(homeHtml, /예약 시스템을 연결하면 예약 기능이 활성화됩니다\./u);
+  assert.match(homeHtml, /white-space:\s*normal !important/u);
   const communityHtml = renderToStaticMarkup(createElement(SiteRenderer, {
     config: first.config,
     pageSlug: 'community',
@@ -189,6 +190,34 @@ test('KO compiler is deterministic, holds praise, and keeps US locale absent', (
   }));
   assert.match(communityHtml, /<h1[^>]*>[\s\S]*커뮤니티/u);
   assert.match(communityHtml, /상담 접수 안내/u);
+});
+
+test('a two-image source page preserves its hero and article image placements', () => {
+  const page = extractKoClinicPage({
+    html: STATIC_HTML.replace(
+      '<img src="/n_images/common/scroll.png" alt="scroll">',
+      '<img src="/n_images/sub/second.jpg" alt="두 번째 원문 이미지">'
+        + '<img src="/n_images/common/scroll.png" alt="scroll">',
+    ),
+    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  });
+  const contentImages = page.images.filter((image) => image.classification === 'content');
+  assert.equal(contentImages.length, 2);
+  const images = contentImages.map((image, index) => ({
+    sourceUrl: image.sourceUrl,
+    publicPath: `/clinic/edom/test-${index + 1}.webp`,
+    sourceSha256: `${index + 1}`.repeat(64),
+    optimizedSha256: `${index + 3}`.repeat(64),
+    sourceBytes: 1_024,
+    optimizedBytes: 512,
+    width: 1_200,
+    height: 800,
+    alt: image.alt,
+  }));
+  const compilation = compileKoClinicSite({ pages: [page], images });
+  const serialized = JSON.stringify(compilation.config);
+  assert.match(serialized, /\/clinic\/edom\/test-1\.webp/u);
+  assert.match(serialized, /\/clinic\/edom\/test-2\.webp/u);
 });
 
 test('source URL slug mapping is stable and preserves the empty home contract', () => {

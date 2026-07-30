@@ -316,6 +316,9 @@ function sectionsForPage(input: {
     )),
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
+  if (images.length === 2) {
+    units[0].image = images[1];
+  }
   const prose = buildClinicFeatureSections({
     id: `ko-prose-${input.page.sourceHtmlSha256.slice(0, 16)}`,
     name: input.page.title.text,
@@ -338,9 +341,6 @@ function sectionsForPage(input: {
   gallery.forEach((section, index) => {
     section.surfaceTone = index % 2 === 0 ? 'base' : 'tint';
   });
-  if (images.length === 2 && gallery.length === 0) {
-    units[0].image = images[1];
-  }
   const directions = contactBlock
     ? buildClinicDirectionsSection({
         id: `ko-directions-${input.page.sourceHtmlSha256.slice(0, 16)}`,
