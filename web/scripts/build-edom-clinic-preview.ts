@@ -26,7 +26,7 @@ const CRAWL_REPORT = process.env.EDOM_CRAWL_REPORT
   ?? '/private/tmp/edom-fixed-crawl/crawl-report.json';
 const OUTPUT_DIR = process.env.EDOM_BUILD_OUTPUT
   ?? '/private/tmp/ko-clinic-p1';
-const EXPECTED_PUBLIC_PAGE_COUNT = 283;
+const EXPECTED_PUBLIC_PAGE_COUNT = 284;
 const EXPECTED_PRAISE_HOLD_COUNT = 33;
 const EXPECTED_EXCLUDED_PRIVATE_COUNT = 79;
 const STRUCTURAL_PAGE_COUNT = 1;
@@ -182,6 +182,49 @@ function pageSchemaTypes(config: ReturnType<typeof siteConfigSchema.parse>) {
   }));
 }
 
+function normalizedAuditText(value: string): string {
+  return value.replace(/\s+/gu, ' ').trim();
+}
+
+function relativeLuminance(value: string): number {
+  const match = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/iu.exec(value);
+  if (!match) return 0;
+  const channel = (hex: string) => {
+    const normalized = Number.parseInt(hex, 16) / 255;
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  };
+  return (
+    0.2126 * channel(match[1])
+    + 0.7152 * channel(match[2])
+    + 0.0722 * channel(match[3])
+  );
+}
+
+function contrastRatio(left: number, right: number): number {
+  return (Math.max(left, right) + 0.05) / (Math.min(left, right) + 0.05);
+}
+
+function compiledPageText(
+  page: ReturnType<typeof siteConfigSchema.parse>['pages'][number],
+): string {
+  return normalizedAuditText([
+    page.title,
+    page.navLabel,
+    page.description,
+    ...page.sections.flatMap((section) => [
+      section.name,
+      ...section.elements.flatMap((element) => {
+        if (element.kind === 'text') return [element.text];
+        if (element.kind === 'button') return [element.label];
+        if (element.kind === 'image') return [element.alt];
+        return [];
+      }),
+    ]),
+  ].filter((value): value is string => Boolean(value)).join('\n'));
+}
+
 async function main() {
   const report = JSON.parse(await readFile(CRAWL_REPORT, 'utf8')) as CrawlReport;
   const expectedText = await readFile(report.expectedPath, 'utf8');
@@ -271,6 +314,38 @@ async function main() {
   }
   if (config.pages.length !== expectedPublished.size + STRUCTURAL_PAGE_COUNT) {
     throw new Error(`EDOM_COMPILED_PAGE_COUNT_INVALID:${config.pages.length}`);
+  }
+  const compiledPageBySourceUrl = new Map(
+    Object.entries(first.sourceUrlBySlug).map(([slug, sourceUrl]) => [
+      canonicalSourceUrl(sourceUrl),
+      config.pages.find((page) => page.slug === slug),
+    ]),
+  );
+  const perPageTextCompleteness = extractedWithRaw
+    .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)))
+    .map(({ attempt, independentOriginal }) => {
+      const compiledPage = compiledPageBySourceUrl.get(canonicalSourceUrl(attempt.url));
+      const rendered = compiledPage ? compiledPageText(compiledPage) : '';
+      const missing = independentOriginal.included.filter((text) => (
+        !rendered.includes(normalizedAuditText(text))
+      ));
+      return {
+        sourceUrl: attempt.url,
+        slug: compiledPage?.slug ?? null,
+        originalBlocks: independentOriginal.included.length,
+        missing,
+      };
+    });
+  const perPageFailures = perPageTextCompleteness.filter((entry) => entry.missing.length > 0);
+  const globalCompiledText = normalizedAuditText(
+    config.pages.map(compiledPageText).join('\n'),
+  );
+  const globalMissing = extractedWithRaw
+    .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)))
+    .flatMap(({ independentOriginal }) => independentOriginal.included)
+    .filter((text) => !globalCompiledText.includes(normalizedAuditText(text)));
+  if (perPageFailures.length > 0) {
+    throw new Error(`EDOM_PER_PAGE_TEXT_LOSS:${perPageFailures.length}`);
   }
   const duplicateSlugs = config.pages
     .map((page) => page.slug)
@@ -396,6 +471,52 @@ async function main() {
   const unplacedOptimizedImagePaths = [...optimizedImagePaths]
     .filter((publicPath) => !compiledImagePaths.has(publicPath))
     .sort();
+  const imageAnalysisByPath = new Map(imageManifest.assets.map((asset) => [
+    asset.publicPath,
+    asset.analysis,
+  ]));
+  const heroContrast = config.pages.flatMap((page) => {
+    const hero = page.sections.find((section) => section.type === 'hero');
+    const image = hero?.background.image;
+    if (!image) return [];
+    const analysis = imageAnalysisByPath.get(image.src);
+    if (!analysis) throw new Error(`EDOM_HERO_IMAGE_ANALYSIS_MISSING:${page.slug}`);
+    const overlayOpacity = image.overlayOpacity ?? 0;
+    const compositeLuminance = (
+      overlayOpacity + (1 - overlayOpacity) * analysis.heroTextRegionLuminance
+    );
+    return [{
+      slug: page.slug,
+      image: image.src,
+      textDense: analysis.textDense,
+      rawLuminance: analysis.heroTextRegionLuminance,
+      overlayOpacity,
+      measuredCompositeContrast: contrastRatio(
+        compositeLuminance,
+        relativeLuminance(config.theme.palette.text),
+      ),
+    }];
+  });
+  const textDenseHeroViolations = heroContrast.filter((entry) => entry.textDense);
+  const heroContrastViolations = heroContrast.filter(
+    (entry) => entry.measuredCompositeContrast < 4.5,
+  );
+  const articleHeroBackgrounds = Object.entries(first.sourceUrlBySlug)
+    .filter(([, sourceUrl]) => new URL(sourceUrl).pathname.endsWith('/bbs/board.php'))
+    .flatMap(([slug]) => {
+      const page = config.pages.find((candidate) => candidate.slug === slug);
+      return page?.sections[0]?.background.image ? [slug] : [];
+    });
+  if (
+    textDenseHeroViolations.length > 0
+    || heroContrastViolations.length > 0
+    || articleHeroBackgrounds.length > 0
+  ) {
+    throw new Error(
+      `EDOM_HERO_READABILITY_INVALID:${textDenseHeroViolations.length}:`
+      + `${heroContrastViolations.length}:${articleHeroBackgrounds.length}`,
+    );
+  }
   await mkdir(OUTPUT_DIR, { recursive: true });
   const artifacts: Record<string, unknown> = {
     'site-config.json': config,
@@ -456,6 +577,15 @@ async function main() {
           (sum, entry) => sum + entry.independentOriginal.excluded.length,
           0,
         ),
+        perPageCompleteness: {
+          publishedPages: perPageTextCompleteness.length,
+          passedPages: perPageTextCompleteness.length - perPageFailures.length,
+          failures: perPageFailures,
+        },
+        globalAuxiliary: {
+          missingCount: globalMissing.length,
+          missing: globalMissing,
+        },
       },
       images: {
         originalReferences: originalImageAudit.length,
@@ -475,6 +605,27 @@ async function main() {
         unplacedOptimizedPublicPaths: unplacedOptimizedImagePaths,
         unavailable: imageManifest.unavailable,
         missingProvenance: missingImages,
+        analysis: {
+          version: 1,
+          analyzed: imageManifest.assets.filter((asset) => asset.analysis.version === 1).length,
+          textDense: imageManifest.assets.filter((asset) => asset.analysis.textDense).length,
+          heroCandidateSample: imageManifest.assets
+            .filter((asset) => [
+              '/clinic/edom/54afd16d7b1c21326cbd5537.webp',
+              '/clinic/edom/3693d581b2f639a83e9ef29a.webp',
+              '/clinic/edom/98b84daffe5e65f35e71cd12.webp',
+              '/clinic/edom/48f40ac2014e1f9121986454.webp',
+              '/clinic/edom/d415b2392856a0714f426c05.webp',
+            ].includes(asset.publicPath))
+            .map((asset) => ({
+              publicPath: asset.publicPath,
+              ...asset.analysis,
+            })),
+          heroContrast,
+          textDenseHeroViolations,
+          heroContrastViolations,
+          articleHeroBackgrounds,
+        },
       },
       deterministic: true,
     },

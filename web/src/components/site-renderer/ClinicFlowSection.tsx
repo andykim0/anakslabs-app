@@ -255,7 +255,12 @@ export const CLINIC_FLOW_CSS = `
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg,rgba(255,255,255,.94),rgba(255,255,255,.72) 48%,rgba(255,255,255,.12));
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,var(--clinic-hero-overlay-opacity,.94)),
+    rgba(255,255,255,.72) 48%,
+    rgba(255,255,255,.12)
+  );
 }
 [data-clinic-flow-hero-copy] {
   width: min(calc(100% - 3rem), var(--clinic-container-max));
@@ -281,6 +286,14 @@ export const CLINIC_FLOW_CSS = `
   color: var(--clinic-section-text,var(--clinic-text));
   font-size: clamp(1.05rem,1.5vw,1.3rem);
   line-height: 1.7;
+}
+[data-clinic-flow-hero-copy][data-clinic-ko-hero-copy] > p:not([data-clinic-hero-kicker]) {
+  line-height: 1.45;
+}
+[data-clinic-flow-hero-copy][data-clinic-article-hero-copy] h1 {
+  font-size: clamp(2.25rem,4vw,4rem);
+  line-height: 1.1;
+  text-wrap: balance;
 }
 [data-clinic-hero-kicker] {
   color: var(--clinic-section-accent,var(--clinic-accent)) !important;
@@ -671,7 +684,11 @@ export function ClinicFlowSection({
         && element.id !== articleDateLabel?.id
       ),
     );
-    const heading = pageHeading?.trim() || contentText[0]?.text.trim() || section.name;
+    const heading = (
+      locale === 'ko-KR'
+        ? contentText[0]?.text.trim()
+        : pageHeading?.trim()
+    ) || contentText[0]?.text.trim() || section.name;
     const sourceHeading = contentText[0]?.text.trim();
     const remainingText = sourceHeading === heading ? contentText.slice(1) : contentText;
     const heroId = section.heroLayout?.resolvedId ?? 'hero.source-flow';
@@ -689,7 +706,15 @@ export function ClinicFlowSection({
             }
           : {})}
         aria-label={section.name}
-        style={surface?.style}
+        style={{
+          ...surface?.style,
+          ...(locale === 'ko-KR'
+            ? {
+                '--clinic-hero-overlay-opacity':
+                  section.background.image?.overlayOpacity ?? 0.94,
+              }
+            : {}),
+        } as CSSProperties}
       >
         <div data-clinic-flow-hero-media>
           {section.background.image ? (
@@ -703,7 +728,17 @@ export function ClinicFlowSection({
               decoding="async"
             />
           ) : null}
-          <div data-clinic-flow-hero-copy>
+          <div
+            data-clinic-flow-hero-copy
+            {...(locale === 'ko-KR'
+              ? {
+                  'data-clinic-ko-hero-copy': '',
+                  ...(articleAuthor || articleDate
+                    ? { 'data-clinic-article-hero-copy': '' }
+                    : {}),
+                }
+              : {})}
+          >
             <p
               data-clinic-hero-kicker
               data-font-role="body"

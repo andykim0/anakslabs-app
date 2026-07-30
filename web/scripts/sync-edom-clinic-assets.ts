@@ -11,9 +11,12 @@ import sharp from 'sharp';
 import { readLimitedBytes, safeFetch } from '@/lib/import/extract';
 import { extractKoClinicPage } from '@/lib/ko-clinic/source-extraction';
 import type {
-  KoClinicOptimizedImage,
   KoClinicUnavailableImage,
 } from '@/lib/ko-clinic/contracts';
+import {
+  analyzeClinicImages,
+  type ClinicImageForAnalysis,
+} from './lib/clinic-image-analysis';
 
 const ROOT = process.cwd();
 const CRAWL_REPORT = process.env.EDOM_CRAWL_REPORT
@@ -48,7 +51,7 @@ interface StoredManifest {
   version: 1;
   expectedManifestSha256: string;
   generatedAt: string;
-  assets: KoClinicOptimizedImage[];
+  assets: ClinicImageForAnalysis[];
   unavailable?: KoClinicUnavailableImage[];
 }
 
@@ -123,12 +126,10 @@ async function main() {
   ));
   const sourceUrls = new Set(sources.map((source) => source.sourceUrl));
   const previous = await existingManifest();
-  const completed = new Map(
-    previous?.expectedManifestSha256 === crawl.expectedManifestSha256
-      ? previous.assets
-          .filter((asset) => sourceUrls.has(asset.sourceUrl))
-          .map((asset) => [asset.sourceUrl, asset])
-      : [],
+  const completed = new Map<string, ClinicImageForAnalysis>(
+    (previous?.assets ?? [])
+      .filter((asset) => sourceUrls.has(asset.sourceUrl))
+      .map((asset) => [asset.sourceUrl, asset]),
   );
   await mkdir(OUTPUT_DIR, { recursive: true });
   const unavailable = sources
@@ -231,9 +232,13 @@ async function main() {
       );
     }
   }
-  const assets = [...completed.values()].sort((left, right) => (
+  const unanalysedAssets = [...completed.values()].sort((left, right) => (
     left.sourceUrl.localeCompare(right.sourceUrl)
   ));
+  const assets = await analyzeClinicImages({
+    root: ROOT,
+    assets: unanalysedAssets,
+  });
   await writeFile(MANIFEST_PATH, `${JSON.stringify({
     version: 1,
     expectedManifestSha256: crawl.expectedManifestSha256,

@@ -110,6 +110,10 @@ function systemChromeBlock(id: string, text: string): ClinicMasterSourceBlock {
   };
 }
 
+function normalizedVisibleText(value: string): string {
+  return value.normalize('NFKC').replace(/\s+/gu, ' ').trim();
+}
+
 export function koClinicSlugForSourceUrl(sourceUrl: string): string {
   const url = new URL(sourceUrl);
   if (url.pathname === '/' || url.pathname === '/main.php') return '';
@@ -182,10 +186,14 @@ function contentUnits(input: {
   let body: KoClinicSourceBlock[] = [];
   const flush = () => {
     if (!activeHeading && body.length === 0) return;
-    const title = activeHeading ?? input.page.title;
+    const sourceTitle = activeHeading ?? input.page.title;
+    const title = normalizedVisibleText(sourceTitle.text)
+      === normalizedVisibleText(input.page.title.text)
+      ? systemChromeBlock(`page-overview-${units.length + 1}`, '개요')
+      : sourceBlock(sourceTitle);
     units.push({
       id: `ko-unit-${units.length + 1}-${title.id}`,
-      title: sourceBlock(title),
+      title,
       ...(joinedSourceBlock({
         id: `ko-body-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
         blocks: body,
@@ -237,7 +245,7 @@ function contentUnits(input: {
   if (units.length === 0) {
     units.push({
       id: `ko-title-only-${input.page.title.id}`,
-      title: sourceBlock(input.page.title),
+      title: systemChromeBlock('page-overview-only', '개요'),
     });
   }
   return units;
@@ -256,6 +264,8 @@ function clinicImage(
     alt: pageImage.alt,
     sourceWidth: asset.width,
     sourceHeight: asset.height,
+    textDense: asset.analysis.textDense,
+    heroTextRegionLuminance: asset.analysis.heroTextRegionLuminance,
   };
 }
 
@@ -274,6 +284,9 @@ function sectionsForPage(input: {
   const author = input.page.blocks.find((block) => block.kind === 'author');
   const date = input.page.blocks.find((block) => block.kind === 'published_date');
   const isoDate = date ? isoDateFromVerbatim(date.text) : undefined;
+  const heroImage = input.page.board
+    ? undefined
+    : images.find((image) => image.textDense === false);
   const hero = buildClinicHeroSection({
     id: `ko-hero-${input.page.sourceHtmlSha256.slice(0, 16)}`,
     name: input.page.board
@@ -281,7 +294,7 @@ function sectionsForPage(input: {
       : '이담클리닉',
     title: sourceBlock(input.page.title),
     theme: input.theme,
-    ...(images[0] ? { image: images[0] } : {}),
+    ...(heroImage ? { image: heroImage, enforceHeroContrast: true } : {}),
     ...(author
       ? {
           articleEvidence: {
@@ -316,12 +329,13 @@ function sectionsForPage(input: {
     )),
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
-  if (images.length === 2) {
-    units[0].image = images[1];
+  const inlineImages = images.filter((image) => image.id !== heroImage?.id);
+  if (inlineImages.length === 1 && units[0]) {
+    units[0].image = inlineImages[0];
   }
   const prose = buildClinicFeatureSections({
     id: `ko-prose-${input.page.sourceHtmlSha256.slice(0, 16)}`,
-    name: input.page.title.text,
+    name: '본문',
     units,
     theme: input.theme,
     candidates: ['features.prose-article'],
@@ -333,10 +347,11 @@ function sectionsForPage(input: {
   for (const section of prose) section.surfaceTone = 'tint';
   const gallery = buildClinicGallerySections({
     id: `ko-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}`,
-    name: input.page.title.text,
-    images: images.slice(1),
+    name: '관련 이미지',
+    images: inlineImages.length >= 2 ? inlineImages : [],
     theme: input.theme,
     candidates: ['gallery.uniform-grid'],
+    groupName: (index) => index === 0 ? '관련 이미지' : `관련 이미지 ${index + 1}`,
   });
   gallery.forEach((section, index) => {
     section.surfaceTone = index % 2 === 0 ? 'base' : 'tint';

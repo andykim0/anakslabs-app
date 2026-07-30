@@ -40,6 +40,8 @@ export interface ClinicLayoutImage {
   alt: string;
   sourceWidth?: number;
   sourceHeight?: number;
+  textDense?: boolean;
+  heroTextRegionLuminance?: number;
 }
 
 export interface ClinicLayoutContentUnit {
@@ -71,6 +73,8 @@ export function buildClinicHeroSection(input: {
   };
   theme: SiteTheme;
   image?: ClinicLayoutImage;
+  /** KO contract-import opt-in. Other clinic masters retain their byte-stable 0.78 pin. */
+  enforceHeroContrast?: boolean;
   requestedId?: HeroLayoutVariantId;
 }): Section {
   const title = sourceText(input.title, 'hero-title', input.theme, 'lead');
@@ -85,10 +89,21 @@ export function buildClinicHeroSection(input: {
     elements: [title, ...(lead ? [lead] : [])],
   });
   if (input.image) {
+    const rawContrast = input.enforceHeroContrast
+      && input.image.heroTextRegionLuminance !== undefined
+      ? wcagContrast(
+          input.image.heroTextRegionLuminance,
+          relativeLuminance(input.theme.palette.text),
+        )
+      : 0;
     section.background.image = {
       src: input.image.src,
       overlayColor: input.theme.palette.background,
-      overlayOpacity: 0.78,
+      // The legacy clinic contract remains 0.78. KO contract import explicitly opts into
+      // generation-time evidence and a fail-closed stronger scrim when raw AA is unknown.
+      overlayOpacity: input.enforceHeroContrast
+        ? (rawContrast >= 4.5 ? 0.78 : 0.94)
+        : 0.78,
     };
   }
   const resolved = resolveHeroLayoutVariant({
@@ -144,6 +159,26 @@ export function buildClinicHeroSection(input: {
   section.elements = [...resolved.elements, ...articleEvidence];
   section.height = resolved.height;
   return section;
+}
+
+function relativeLuminance(value: string): number {
+  const match = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/iu.exec(value);
+  if (!match) return 0;
+  const channel = (hex: string) => {
+    const normalized = Number.parseInt(hex, 16) / 255;
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  };
+  return (
+    0.2126 * channel(match[1])
+    + 0.7152 * channel(match[2])
+    + 0.0722 * channel(match[3])
+  );
+}
+
+function wcagContrast(left: number, right: number): number {
+  return (Math.max(left, right) + 0.05) / (Math.min(left, right) + 0.05);
 }
 
 function clinicDate(value: string): string {
@@ -527,15 +562,18 @@ export function buildClinicGallerySections(input: {
   theme: SiteTheme;
   candidates?: readonly GalleryLayoutVariantId[];
   surface?: boolean;
+  /** Optional deterministic compiler chrome for split groups; source media remains unchanged. */
+  groupName?: (groupIndex: number) => string;
 }): Section[] {
   if (input.images.length < GALLERY_MINIMUM_ITEMS) return [];
   const result: Section[] = [];
   const imageGroups = clinicFeatureGroups(input.images, GALLERY_MAXIMUM_ITEMS);
   for (const [groupIndex, images] of imageGroups.entries()) {
     const suffix = groupIndex === 0 ? '' : `-${groupIndex + 1}`;
+    const groupName = input.groupName?.(groupIndex) ?? input.name;
     const title = layoutText(
       `${input.id}${suffix}-layout-title`,
-      input.name,
+      groupName,
       input.theme,
       'title',
     );
@@ -547,7 +585,7 @@ export function buildClinicGallerySections(input: {
     const section = baseSection({
       id: `${input.id}${suffix}`,
       type: 'gallery',
-      name: input.name,
+      name: groupName,
       theme: input.theme,
       elements,
       surface: input.surface,

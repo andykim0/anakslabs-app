@@ -17,7 +17,7 @@ const ROOT = process.cwd();
 const BUILD_DIR = process.env.EDOM_BUILD_OUTPUT ?? '/private/tmp/ko-clinic-p1';
 const RECEIPT_PATH = '/private/tmp/ko-clinic-p1/preview-issuance-private.json';
 const APPROVED_MANIFEST_SHA =
-  '449a17f030ec5486d6c515dc4bba9d4ef6e413641e2820703781cfc1a5fc15c7';
+  'a6a6a3ab059ee399c80144fdb7a1e1d47d414df0addee7846354d8137ccd15bd';
 
 async function main() {
   if (process.env.EDOM_CONTRACT_IMPORT_APPROVED !== '1') {
@@ -45,9 +45,9 @@ async function main() {
     throw new Error('EDOM_CONTRACT_IMPORT_MANIFEST_NOT_APPROVED');
   }
   if (
-    artifact.pages.length !== 283
-    || config.pages.length !== 251
-    || buildReport.pages?.extracted !== 283
+    artifact.pages.length !== 284
+    || config.pages.length !== 252
+    || buildReport.pages?.extracted !== 284
   ) {
     throw new Error('EDOM_CONTRACT_IMPORT_SET_NOT_COMPLETE');
   }

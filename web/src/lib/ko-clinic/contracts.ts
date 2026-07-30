@@ -76,6 +76,16 @@ export interface KoClinicOptimizedImage {
   width: number;
   height: number;
   alt: string;
+  analysis: {
+    version: 1;
+    engine: 'apple-vision-v1';
+    recognizedLineCount: number;
+    recognizedCharacterCount: number;
+    textAreaRatio: number;
+    textDense: boolean;
+    /** Mean WCAG relative luminance for the left 55% hero-copy candidate region. */
+    heroTextRegionLuminance: number;
+  };
 }
 
 export interface KoClinicUnavailableImage {

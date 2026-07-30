@@ -213,11 +213,75 @@ test('a two-image source page preserves its hero and article image placements', 
     width: 1_200,
     height: 800,
     alt: image.alt,
+    analysis: {
+      version: 1 as const,
+      engine: 'apple-vision-v1' as const,
+      recognizedLineCount: 0,
+      recognizedCharacterCount: 0,
+      textAreaRatio: 0,
+      textDense: false,
+      heroTextRegionLuminance: 0.3,
+    },
   }));
   const compilation = compileKoClinicSite({ pages: [page], images });
   const serialized = JSON.stringify(compilation.config);
   assert.match(serialized, /\/clinic\/edom\/test-1\.webp/u);
   assert.match(serialized, /\/clinic\/edom\/test-2\.webp/u);
+  const sourcePage = compilation.config.pages.find((candidate) => (
+    candidate.slug === 'center-vascular'
+  ));
+  assert.equal(sourcePage?.sections[0].background.image?.src, '/clinic/edom/test-1.webp');
+  assert.equal(sourcePage?.sections[0].background.image?.overlayOpacity, 0.78);
+});
+
+test('KO board articles keep a verbatim H1, category eyebrow, and inline source figures', () => {
+  const page = extractKoClinicPage({
+    html: NEWS_HTML.replace(
+      '</span>',
+      '<img src="/board-source.jpg" alt="게시글 원문 사진"></span>',
+    ),
+    sourceUrl: 'https://edomclinic.com/bbs/board.php?bo_table=news&wr_id=1',
+  });
+  const sourceImage = page.images.find((image) => image.classification === 'content');
+  assert.ok(sourceImage);
+  const compilation = compileKoClinicSite({
+    pages: [page],
+    images: [{
+      sourceUrl: sourceImage.sourceUrl,
+      publicPath: '/clinic/edom/board-source.webp',
+      sourceSha256: 'a'.repeat(64),
+      optimizedSha256: 'b'.repeat(64),
+      sourceBytes: 1_024,
+      optimizedBytes: 512,
+      width: 1_200,
+      height: 800,
+      alt: sourceImage.alt,
+      analysis: {
+        version: 1,
+        engine: 'apple-vision-v1',
+        recognizedLineCount: 0,
+        recognizedCharacterCount: 0,
+        textAreaRatio: 0,
+        textDense: false,
+        heroTextRegionLuminance: 0.3,
+      },
+    }],
+  });
+  const article = compilation.config.pages.find((candidate) => (
+    candidate.slug === 'community-news-1'
+  ));
+  assert.ok(article);
+  assert.equal(article.sections[0].background.image, undefined);
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compilation.config,
+    pageSlug: article.slug,
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /<h1[^>]*>\s*진료 안내 원문\s*<\/h1>/u);
+  assert.match(html, /data-clinic-hero-kicker[^>]*>\s*공지사항/u);
+  assert.doesNotMatch(html, /<h[23][^>]*>\s*진료 안내 원문\s*<\/h[23]>/u);
+  assert.match(html, /<img[^>]+board-source\.webp/u);
 });
 
 test('source URL slug mapping is stable and preserves the empty home contract', () => {
