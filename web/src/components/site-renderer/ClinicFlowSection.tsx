@@ -440,6 +440,40 @@ export const KO_CLINIC_FLOW_MEASURE_CSS = `
 [data-ko-clinic] [data-clinic-flow-section="features.three-column-cards"] [data-clinic-flow-media] {
   aspect-ratio: 4 / 5;
 }
+[data-ko-clinic] [data-clinic-provider-grid] [data-clinic-flow-items] {
+  grid-template-columns: repeat(var(--clinic-provider-columns),minmax(0,1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+[data-ko-clinic] [data-clinic-provider-grid] [data-clinic-provider-card] {
+  height: 100%;
+  grid-template-rows: minmax(0,1fr) auto;
+  align-content: stretch;
+}
+[data-ko-clinic] [data-clinic-provider-grid] [data-clinic-flow-item-copy] {
+  height: 100%;
+  grid-template-rows: auto minmax(0,1fr) auto;
+  align-content: stretch;
+}
+[data-ko-clinic] [data-clinic-provider-grid] [data-clinic-flow-item-heading] {
+  display: block;
+  max-block-size: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+[data-ko-clinic] [data-clinic-provider-card-body],
+[data-ko-clinic] [data-clinic-provider-card-actions] {
+  min-width: 0;
+}
+[data-ko-clinic] [data-clinic-provider-card-actions]:empty {
+  min-height: 0;
+}
 [data-ko-clinic] [data-ko-reveal-group][data-m="reveal"].m-hide {
   transform: translateY(24px);
 }
@@ -466,6 +500,9 @@ export const KO_CLINIC_FLOW_MEASURE_CSS = `
   }
   [data-ko-clinic] [data-ko-reveal-group][data-m="reveal"].m-hide {
     transform: translateY(16px);
+  }
+  [data-ko-clinic] [data-clinic-provider-grid] [data-clinic-flow-items] {
+    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -735,6 +772,7 @@ function FlowItem({
   listItem = false,
   variantId,
   headingLevel = 3,
+  providerCard = false,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -745,6 +783,7 @@ function FlowItem({
   listItem?: boolean;
   variantId?: string;
   headingLevel?: 2 | 3;
+  providerCard?: boolean;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -763,10 +802,17 @@ function FlowItem({
   const content = remainder.filter(
     (element) => element.kind !== 'image' && element.kind !== 'video',
   );
+  const providerBody = providerCard
+    ? content.filter((element) => element.kind !== 'button')
+    : content;
+  const providerActions = providerCard
+    ? content.filter((element) => element.kind === 'button')
+    : [];
   const ItemTag = listItem ? 'li' : 'article';
   return (
     <ItemTag
       data-clinic-flow-item
+      {...(providerCard ? { 'data-clinic-provider-card': '' } : {})}
       data-clinic-flow-has-media={media.length > 0 ? 'true' : 'false'}
       style={listItem ? { listStyle: 'none' } : undefined}
     >
@@ -783,18 +829,49 @@ function FlowItem({
             headingLevel={headingLevel}
           />
         ) : null}
-        {content.map((element) => (
-          <FlowElement
-            key={element.id}
-            element={element}
-            theme={theme}
-            isFirst={isFirst}
-            interactive={interactive}
-            siteId={siteId}
-            hrefForPageSlug={hrefForPageSlug}
-            markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
-          />
-        ))}
+        {providerCard ? (
+          <>
+            <div data-clinic-provider-card-body>
+              {providerBody.map((element) => (
+                <FlowElement
+                  key={element.id}
+                  element={element}
+                  theme={theme}
+                  isFirst={isFirst}
+                  interactive={interactive}
+                  siteId={siteId}
+                  hrefForPageSlug={hrefForPageSlug}
+                  markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+                />
+              ))}
+            </div>
+            <div data-clinic-provider-card-actions>
+              {providerActions.map((element) => (
+                <FlowElement
+                  key={element.id}
+                  element={element}
+                  theme={theme}
+                  isFirst={isFirst}
+                  interactive={interactive}
+                  siteId={siteId}
+                  hrefForPageSlug={hrefForPageSlug}
+                  markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+                />
+              ))}
+            </div>
+          </>
+        ) : content.map((element) => (
+            <FlowElement
+              key={element.id}
+              element={element}
+              theme={theme}
+              isFirst={isFirst}
+              interactive={interactive}
+              siteId={siteId}
+              hrefForPageSlug={hrefForPageSlug}
+              markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+            />
+          ))}
       </div>
       {media.map((element) => (
         <FlowElement
@@ -809,6 +886,15 @@ function FlowItem({
       ))}
     </ItemTag>
   );
+}
+
+export function resolveBalancedClinicCardColumns(itemCount: number): number {
+  const boundedCount = Math.max(1, Math.floor(itemCount));
+  const maximumColumns = Math.min(3, boundedCount);
+  for (let columns = maximumColumns; columns >= 2; columns -= 1) {
+    if (boundedCount % columns === 0) return columns;
+  }
+  return maximumColumns;
 }
 
 export function ClinicFlowSection({
@@ -1177,12 +1263,24 @@ export function ClinicFlowSection({
     );
   }
   const ItemsTag = projection.kind === 'features' ? 'ul' : 'div';
+  const koProviderGrid = (
+    locale === 'ko-KR'
+    && section.id === 'ko-home-providers'
+  );
   const itemGridStyle = projection.resolvedId === 'features.stat-strip'
     ? {
         '--clinic-flow-columns': Math.min(4, Math.max(2, projection.items.length)),
         margin: 0,
         padding: 0,
       } as CSSProperties
+    : koProviderGrid
+      ? {
+          '--clinic-provider-columns': resolveBalancedClinicCardColumns(
+            projection.items.length,
+          ),
+          margin: 0,
+          padding: 0,
+        } as CSSProperties
     : projection.kind === 'features'
       ? { margin: 0, padding: 0 }
       : undefined;
@@ -1201,6 +1299,7 @@ export function ClinicFlowSection({
       data-section-type={section.type}
       data-clinic-flow-section={projection.resolvedId}
       data-clinic-archetype={projection.resolvedId}
+      {...(koProviderGrid ? { 'data-clinic-provider-grid': '' } : {})}
       {...(surface
         ? {
             'data-section-surface-tone': surface.paint.resolvedTone,
@@ -1265,6 +1364,7 @@ export function ClinicFlowSection({
               listItem={projection.kind === 'features'}
               variantId={projection.resolvedId}
               headingLevel={koProseArticle ? 2 : 3}
+              providerCard={koProviderGrid}
             />
           ))}
         </ItemsTag>

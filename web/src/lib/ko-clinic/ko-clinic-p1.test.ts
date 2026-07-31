@@ -5,7 +5,10 @@ import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { parse } from 'node-html-parser';
-import { KO_CLINIC_FLOW_MEASURE_CSS } from '@/components/site-renderer/ClinicFlowSection';
+import {
+  KO_CLINIC_FLOW_MEASURE_CSS,
+  resolveBalancedClinicCardColumns,
+} from '@/components/site-renderer/ClinicFlowSection';
 import { ClinicStickyBooking } from '@/components/site-renderer/ClinicStickyBooking';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { featureLayoutById } from '@/lib/layout';
@@ -685,6 +688,26 @@ test('KO prose article text selectors own the approved 30em measure', () => {
   assert.match(
     KO_CLINIC_FLOW_MEASURE_CSS,
     /\[data-ko-clinic\][\s\S]*features\.prose-article[\s\S]*:is\([\s\S]*data-clinic-flow-item-heading[\s\S]*data-clinic-flow-copy[\s\S]*max-width:\s*30em/u,
+  );
+});
+
+test('KO provider cards use balanced complete rows and never clamp source titles', () => {
+  assert.equal(resolveBalancedClinicCardColumns(1), 1);
+  assert.equal(resolveBalancedClinicCardColumns(2), 2);
+  assert.equal(resolveBalancedClinicCardColumns(3), 3);
+  assert.equal(resolveBalancedClinicCardColumns(4), 2);
+  assert.equal(resolveBalancedClinicCardColumns(6), 3);
+  assert.match(
+    KO_CLINIC_FLOW_MEASURE_CSS,
+    /data-clinic-provider-grid[\s\S]*grid-template-columns:\s*repeat\(var\(--clinic-provider-columns\),minmax\(0,1fr\)\)[\s\S]*grid-auto-rows:\s*1fr/u,
+  );
+  assert.match(
+    KO_CLINIC_FLOW_MEASURE_CSS,
+    /data-clinic-provider-grid[\s\S]*data-clinic-flow-item-heading[\s\S]*overflow:\s*visible[\s\S]*-webkit-line-clamp:\s*unset[\s\S]*line-clamp:\s*unset/u,
+  );
+  assert.match(
+    KO_CLINIC_FLOW_MEASURE_CSS,
+    /data-clinic-provider-card-actions\]:empty\s*\{\s*min-height:\s*0/u,
   );
 });
 
