@@ -1,5 +1,10 @@
 import { createHash } from 'node:crypto';
-import { parse, type HTMLElement } from 'node-html-parser';
+import {
+  NodeType,
+  parse,
+  type HTMLElement,
+  type Node,
+} from 'node-html-parser';
 import type {
   KoClinicExtractedPage,
   KoClinicSourceBlock,
@@ -25,6 +30,8 @@ const REMOVABLE = [
   '.pagination',
   '.login_icon',
 ].join(',');
+const STRUCTURE_LABEL = /^(?:Difference(?:\s+자세히보기)?|EDAM Story|News)$/iu;
+const LOWERED_CARD_LABEL = /^(?:이담 With 스타|공지사항)$/iu;
 
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
@@ -58,6 +65,61 @@ function compactAnimatedHeading(element: HTMLElement): string {
   return normalizeKoClinicText(element.text);
 }
 
+function animatedHeadingDisplayText(element: HTMLElement): string | undefined {
+  const animatedCharacters = element.querySelectorAll('[data-scroll]')
+    .map((child) => normalizeKoClinicText(child.text))
+    .filter(Boolean);
+  if (
+    animatedCharacters.length < 2
+    || !animatedCharacters.every((value) => (
+      [...value].length === 1 && /[\p{L}\p{N}]/u.test(value)
+    ))
+  ) {
+    return undefined;
+  }
+  const words: string[] = [];
+  let active = '';
+  const flush = () => {
+    if (active) words.push(active);
+    active = '';
+  };
+  for (const child of element.childNodes) {
+    if (child.nodeType === NodeType.TEXT_NODE) {
+      const text = normalizeKoClinicText(child.text);
+      if (text) {
+        flush();
+        words.push(text);
+      }
+      continue;
+    }
+    if (child.nodeType !== NodeType.ELEMENT_NODE) continue;
+    const childElement = child as HTMLElement;
+    const text = normalizeKoClinicText(childElement.text);
+    if (
+      childElement.tagName === 'BR'
+      || (
+        !text
+        && /(?:padding|margin|width)\s*:/iu.test(
+          childElement.getAttribute('style') ?? '',
+        )
+      )
+    ) {
+      flush();
+      continue;
+    }
+    if ([...text].length === 1 && childElement.hasAttribute('data-scroll')) {
+      active += text;
+      continue;
+    }
+    if (text) {
+      flush();
+      words.push(text);
+    }
+  }
+  flush();
+  return normalizeKoClinicText(words.join(' '));
+}
+
 function blockText(element: HTMLElement): string {
   if (/^H[1-6]$/u.test(element.tagName)) return compactAnimatedHeading(element);
   const withBreaks = element.innerHTML.replace(/<br\s*\/?>/giu, '\n');
@@ -72,6 +134,7 @@ function sourceBlock(input: {
   ordinal: number;
   sourceLabel?: string;
   href?: string;
+  render?: KoClinicSourceBlock['render'];
 }): KoClinicSourceBlock {
   const sourceSha256 = sha256(input.text);
   return {
@@ -83,7 +146,102 @@ function sourceBlock(input: {
     sourceSha256,
     ...(input.sourceLabel ? { sourceLabel: input.sourceLabel } : {}),
     ...(input.href ? { href: input.href } : {}),
+    ...(input.render ? { render: input.render } : {}),
   };
+}
+
+function sourceNodesForElement(input: {
+  element: HTMLElement;
+  candidateSelector: string;
+  sourceUrl: string;
+  locator: string;
+}): NonNullable<KoClinicSourceBlock['render']>['sourceNodes'] {
+  const nodes: { id: string; text: string }[] = [];
+  const visit = (node: Node, nested: boolean) => {
+    if (node.nodeType === NodeType.TEXT_NODE) {
+      const text = normalizeKoClinicText(node.text);
+      if (!text) return;
+      const id = `ko-node-${sha256([
+        input.sourceUrl,
+        input.locator,
+        String(nodes.length),
+        text,
+      ].join('\n')).slice(0, 20)}`;
+      nodes.push({ id, text });
+      return;
+    }
+    if (node.nodeType !== NodeType.ELEMENT_NODE) return;
+    const element = node as HTMLElement;
+    if (nested && element.matches(input.candidateSelector)) return;
+    for (const child of element.childNodes) visit(child, true);
+  };
+  visit(input.element, false);
+  return nodes;
+}
+
+function renderDisplayText(element: HTMLElement, auditText: string): string {
+  if (/^H[1-6]$/u.test(element.tagName)) {
+    return animatedHeadingDisplayText(element) ?? normalizedDisplayText(auditText);
+  }
+  return normalizedDisplayText(auditText);
+}
+
+function normalizedDisplayText(value: string): string {
+  return value.replace(/\s+/gu, ' ').trim();
+}
+
+function isStructureLabel(value: string): boolean {
+  return STRUCTURE_LABEL.test(normalizedDisplayText(value));
+}
+
+function assignRenderGroups(root: HTMLElement): void {
+  const grouped = [
+    ...root.querySelectorAll('li').filter((element) => (
+      Boolean(element.querySelector('h1,h2,h3,h4,h5,h6,p,dt,dd,address,figcaption,img'))
+    )),
+    ...root.querySelectorAll('figure'),
+  ];
+  for (const [index, element] of grouped.entries()) {
+    element.setAttribute('data-ko-render-group', `ko-render-group-${index + 1}`);
+  }
+}
+
+function closestRenderGroup(element: HTMLElement): HTMLElement | null {
+  return element.closest('[data-ko-render-group]');
+}
+
+function renderRole(input: {
+  element: HTMLElement;
+  auditText: string;
+  candidateSelector: string;
+}): NonNullable<KoClinicSourceBlock['render']>['role'] {
+  const displayText = renderDisplayText(input.element, input.auditText);
+  if (isStructureLabel(displayText)) return 'structure-label';
+  const group = closestRenderGroup(input.element);
+  if (input.element.tagName === 'LI') {
+    return group && !LOWERED_CARD_LABEL.test(displayText) ? 'title' : 'body';
+  }
+  if (/^H[1-6]$/u.test(input.element.tagName)) {
+    if (group?.tagName !== 'LI') return 'title';
+    const groupText = textWithoutNestedSourceBlocks(group, input.candidateSelector);
+    if (LOWERED_CARD_LABEL.test(normalizedDisplayText(displayText))) return 'body';
+    return groupText
+      && !isStructureLabel(groupText)
+      && !LOWERED_CARD_LABEL.test(normalizedDisplayText(groupText))
+      ? 'body'
+      : 'title';
+  }
+  if (
+    group?.tagName === 'LI'
+    && group.querySelectorAll('h1,h2,h3,h4,h5,h6').some((heading) => (
+      LOWERED_CARD_LABEL.test(
+        normalizedDisplayText(renderDisplayText(heading, blockText(heading))),
+      )
+    ))
+  ) {
+    return 'title';
+  }
+  return 'body';
 }
 
 function boardCoordinates(sourceUrl: string): KoClinicExtractedPage['board'] {
@@ -173,6 +331,9 @@ function contentBlocks(
     // sibling paragraph happened to exist.
     const text = textWithoutNestedSourceBlocks(element, candidateSelector);
     if (!text || text === titleText) continue;
+    const locator = `${element.tagName.toLocaleLowerCase('en-US')}:nth-source-block(${index + 1})`;
+    const group = closestRenderGroup(element);
+    const renderText = renderDisplayText(element, text);
     const kind: KoClinicSourceKind = /^H[1-6]$/u.test(element.tagName)
       ? 'heading'
       : element.tagName === 'LI'
@@ -182,8 +343,20 @@ function contentBlocks(
       kind,
       text,
       sourceUrl,
-      locator: `${element.tagName.toLocaleLowerCase('en-US')}:nth-source-block(${index + 1})`,
+      locator,
       ordinal: blocks.length,
+      render: {
+        groupId: group?.getAttribute('data-ko-render-group')
+          ?? `ko-render-source-block-${index + 1}`,
+        text: renderText,
+        role: renderRole({ element, auditText: text, candidateSelector }),
+        sourceNodes: sourceNodesForElement({
+          element,
+          candidateSelector,
+          sourceUrl,
+          locator,
+        }),
+      },
     }));
   }
   if (blocks.length === 0) {
@@ -195,6 +368,17 @@ function contentBlocks(
         sourceUrl,
         locator: `${root.tagName?.toLocaleLowerCase('en-US') ?? 'root'}:direct-source-block`,
         ordinal: 0,
+        render: {
+          groupId: 'ko-render-source-root',
+          text: normalizedDisplayText(text),
+          role: 'body',
+          sourceNodes: sourceNodesForElement({
+            element: root,
+            candidateSelector,
+            sourceUrl,
+            locator: `${root.tagName?.toLocaleLowerCase('en-US') ?? 'root'}:direct-source-block`,
+          }),
+        },
       }));
     }
   }
@@ -348,7 +532,47 @@ function relatedLinks(
   return links;
 }
 
-function sourceImages(root: HTMLElement, sourceUrl: string): KoClinicSourceImage[] {
+function renderGroupByImageUrl(input: {
+  root: HTMLElement;
+  sourceUrl: string;
+  candidateSelector: string;
+}): ReadonlyMap<string, string> {
+  const groups = new Map<string, string>();
+  const candidates = input.root.querySelectorAll(input.candidateSelector);
+  for (const image of input.root.querySelectorAll('img')) {
+    const raw = image.getAttribute('src') ?? image.getAttribute('data-src');
+    if (!raw) continue;
+    let absolute: string;
+    try {
+      absolute = new URL(raw, input.sourceUrl).toString();
+    } catch {
+      continue;
+    }
+    const explicit = closestRenderGroup(image)?.getAttribute('data-ko-render-group');
+    if (explicit) {
+      groups.set(absolute, explicit);
+      continue;
+    }
+    const closest = candidates.reduce<{
+      index: number;
+      distance: number;
+    } | null>((best, candidate, index) => {
+      const distance = Math.min(
+        Math.abs(candidate.range[0] - image.range[1]),
+        Math.abs(image.range[0] - candidate.range[1]),
+      );
+      return !best || distance < best.distance ? { index, distance } : best;
+    }, null);
+    if (closest) groups.set(absolute, `ko-render-source-block-${closest.index + 1}`);
+  }
+  return groups;
+}
+
+function sourceImages(
+  root: HTMLElement,
+  sourceUrl: string,
+  renderGroups: ReadonlyMap<string, string>,
+): KoClinicSourceImage[] {
   const images: KoClinicSourceImage[] = [];
   const seen = new Set<string>();
   for (const [index, image] of root.querySelectorAll('img').entries()) {
@@ -384,6 +608,9 @@ function sourceImages(root: HTMLElement, sourceUrl: string): KoClinicSourceImage
       alt: normalizeKoClinicText(image.getAttribute('alt') ?? ''),
       classification: exclusionReason ? 'ui-chrome' : 'content',
       ...(exclusionReason ? { exclusionReason } : {}),
+      ...(renderGroups.get(absolute)
+        ? { renderGroupId: renderGroups.get(absolute) }
+        : {}),
     });
   }
   return images;
@@ -397,12 +624,29 @@ export function extractKoClinicPage(input: {
   const board = boardCoordinates(input.sourceUrl);
   const heading = pageHeading(root);
   const titleText = heading ? compactAnimatedHeading(heading) : fallbackTitle(input.sourceUrl, board);
+  const titleLocator = heading ? 'visible-page-heading' : 'url-structural-fallback';
   const title = sourceBlock({
     kind: 'page_title',
     text: titleText || fallbackTitle(input.sourceUrl, board),
     sourceUrl: input.sourceUrl,
-    locator: heading ? 'visible-page-heading' : 'url-structural-fallback',
+    locator: titleLocator,
     ordinal: 0,
+    ...(heading
+      ? {
+          render: {
+            groupId: 'ko-render-page-title',
+            text: animatedHeadingDisplayText(heading)
+              ?? normalizedDisplayText(titleText),
+            role: 'title' as const,
+            sourceNodes: sourceNodesForElement({
+              element: heading,
+              candidateSelector: 'h1,h2,h3,h4,h5,h6',
+              sourceUrl: input.sourceUrl,
+              locator: titleLocator,
+            }),
+          },
+        }
+      : {}),
   });
   const logoIdentity = root.querySelector('img[alt*="이담"]')?.getAttribute('alt');
   const businessNameText = logoIdentity ? normalizeKoClinicText(logoIdentity) : '';
@@ -418,7 +662,14 @@ export function extractKoClinicPage(input: {
   const content = contentRoot(root, board);
   const contentClone = parse(content.toString());
   for (const element of contentClone.querySelectorAll(REMOVABLE)) element.remove();
+  assignRenderGroups(contentClone);
+  const candidateSelector = board ? BOARD_RICH_CONTENT_TAGS : CONTENT_TAGS;
   let blocks = contentBlocks(contentClone, input.sourceUrl, title.text, Boolean(board));
+  const imageRenderGroups = renderGroupByImageUrl({
+    root: contentClone,
+    sourceUrl: input.sourceUrl,
+    candidateSelector,
+  });
   const breadcrumbs = breadcrumbBlocks(root, input.sourceUrl, title.text);
   const evidence = boardEvidence(
     root,
@@ -446,7 +697,7 @@ export function extractKoClinicPage(input: {
     ...(businessName ? { businessName } : {}),
     ...(description ? { description } : {}),
     blocks,
-    images: sourceImages(root, input.sourceUrl),
+    images: sourceImages(root, input.sourceUrl, imageRenderGroups),
     relatedLinks: related,
     ...(board ? { board } : {}),
   };

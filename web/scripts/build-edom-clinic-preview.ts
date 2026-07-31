@@ -363,12 +363,30 @@ async function main() {
       },
     }, null, 2)}\n`,
   );
+  await writeFile(
+    path.join(OUTPUT_DIR, 'render-integrity.json'),
+    `${JSON.stringify({
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      axis: 'source-text-node-to-render-block',
+      ...first.renderIntegrity,
+    }, null, 2)}\n`,
+  );
   if (perPageFailures.length > 0) {
     await writeFile(
       path.join(OUTPUT_DIR, 'candidate-site-config.blocked.json'),
       `${JSON.stringify(config, null, 2)}\n`,
     );
     throw new Error(`EDOM_PER_PAGE_TEXT_LOSS:${perPageFailures.length}`);
+  }
+  if (first.renderIntegrity.violations.length > 0) {
+    await writeFile(
+      path.join(OUTPUT_DIR, 'candidate-site-config.blocked.json'),
+      `${JSON.stringify(config, null, 2)}\n`,
+    );
+    throw new Error(
+      `EDOM_RENDER_BLOCK_INTEGRITY:${first.renderIntegrity.violations.length}`,
+    );
   }
   const duplicateSlugs = config.pages
     .map((page) => page.slug)
@@ -540,6 +558,121 @@ async function main() {
       + `${heroContrastViolations.length}:${articleHeroBackgrounds.length}`,
     );
   }
+  const proseStructure = config.pages.flatMap((page) => (
+    page.sections.flatMap((section) => {
+      if (section.sectionLayout?.resolvedId !== 'features.prose-article') return [];
+      const textById = new Map(section.elements.flatMap((element) => (
+        element.kind === 'text' ? [[element.id, element.text] as const] : []
+      )));
+      const items = section.sectionLayout.items.map((item) => {
+        const text = item.elementIds.flatMap((id) => (
+          textById.has(id) ? [{ id, text: textById.get(id)! }] : []
+        ));
+        const first = text[0];
+        const copyOnly = first?.id.includes('-ko-copy-only-') ?? false;
+        return {
+          id: item.id,
+          heading: copyOnly ? '' : first?.text ?? '',
+          body: [
+            ...(copyOnly && first ? [first.text] : []),
+            ...text.slice(1).map((entry) => entry.text),
+          ].join(' '),
+        };
+      });
+      let activeHeadingOnlyRun = 0;
+      let maximumHeadingOnlyRun = 0;
+      for (const item of items) {
+        if (
+          normalizedAuditText(item.heading).length > 0
+          && normalizedAuditText(item.body).length === 0
+        ) {
+          activeHeadingOnlyRun += 1;
+          maximumHeadingOnlyRun = Math.max(
+            maximumHeadingOnlyRun,
+            activeHeadingOnlyRun,
+          );
+        } else {
+          activeHeadingOnlyRun = 0;
+        }
+      }
+      return [{
+        slug: page.slug,
+        sectionId: section.id,
+        shortHeadings: items
+          .filter((item) => {
+            const heading = normalizedAuditText(item.heading);
+            return heading.length > 0 && [...heading].length < 3;
+          })
+          .map((item) => ({ itemId: item.id, text: item.heading })),
+        headingCount: items.filter((item) => normalizedAuditText(item.heading)).length,
+        bodyCharacterCount: items.reduce(
+          (sum, item) => sum + [...normalizedAuditText(item.body)].length,
+          0,
+        ),
+        maximumHeadingOnlyRun,
+      }];
+    })
+  ));
+  const shortHeadingViolations = proseStructure.flatMap((entry) => (
+    entry.shortHeadings.map((heading) => ({
+      slug: entry.slug,
+      sectionId: entry.sectionId,
+      ...heading,
+    }))
+  ));
+  const headingOnlySections = proseStructure.filter((entry) => (
+    entry.headingCount > 0 && entry.bodyCharacterCount === 0
+  ));
+  const consecutiveHeadingRuns = proseStructure.filter(
+    (entry) => entry.maximumHeadingOnlyRun > 1,
+  );
+  const loweredStructureLabels = ['Difference', 'EDAM Story', 'News'];
+  const visibleStructureLabels = config.pages.flatMap((page) => (
+    page.sections.flatMap((section) => {
+      const projectedIds = new Set(section.sectionLayout?.items.flatMap(
+        (item) => item.elementIds,
+      ) ?? []);
+      return section.elements.flatMap((element) => (
+        element.kind === 'text'
+        && projectedIds.has(element.id)
+        && loweredStructureLabels.some((label) => (
+          normalizedAuditText(element.text).startsWith(label)
+        ))
+          ? [{ slug: page.slug, sectionId: section.id, text: element.text }]
+          : []
+      ));
+    })
+  ));
+  if (
+    shortHeadingViolations.length > 0
+    || headingOnlySections.length > 0
+    || consecutiveHeadingRuns.length > 0
+    || visibleStructureLabels.length > 0
+  ) {
+    throw new Error(
+      `EDOM_RENDER_STRUCTURE_INVALID:${shortHeadingViolations.length}:`
+      + `${headingOnlySections.length}:${consecutiveHeadingRuns.length}:`
+      + `${visibleStructureLabels.length}`,
+    );
+  }
+  const homeSource = compilablePages.find((page) => (
+    canonicalSourceUrl(page.sourceUrl) === 'https://edomclinic.com/'
+  ));
+  const homeCompiled = config.pages.find((page) => page.slug === '');
+  const homeExplicitContextImages = homeSource?.images.filter((image) => (
+    image.classification === 'content'
+    && image.renderGroupId?.startsWith('ko-render-group-')
+  )).length ?? 0;
+  const homeContextGalleryImages = homeCompiled?.sections
+    .filter((section) => section.id.startsWith('ko-context-gallery-'))
+    .reduce((sum, section) => (
+      sum + section.elements.filter((element) => element.kind === 'image').length
+    ), 0) ?? 0;
+  const homeTailGalleryImages = homeCompiled?.sections
+    .filter((section) => section.id.startsWith('ko-gallery-'))
+    .reduce((sum, section) => (
+      sum + section.elements.filter((element) => element.kind === 'image').length
+    ), 0) ?? 0;
   const artifacts: Record<string, unknown> = {
     'site-config.json': config,
     'crawl-artifact.json': crawlArtifact,
@@ -608,6 +741,13 @@ async function main() {
           missingCount: globalMissing.length,
           missing: globalMissing,
         },
+        renderIntegrity: first.renderIntegrity,
+        renderStructure: {
+          shortHeadingViolations,
+          headingOnlySections,
+          consecutiveHeadingRuns,
+          visibleStructureLabels,
+        },
       },
       images: {
         originalReferences: originalImageAudit.length,
@@ -627,6 +767,13 @@ async function main() {
         unplacedOptimizedPublicPaths: unplacedOptimizedImagePaths,
         unavailable: imageManifest.unavailable,
         missingProvenance: missingImages,
+        sourceContextPlacement: {
+          homeExplicitCardImages: homeExplicitContextImages,
+          homeContextGalleryImages,
+          homeMovedFromTail:
+            homeExplicitContextImages + homeContextGalleryImages,
+          homeTailGalleryImages,
+        },
         analysis: {
           version: 1,
           analyzed: imageManifest.assets.filter((asset) => asset.analysis.version === 1).length,

@@ -79,7 +79,7 @@ function sourceBlock(block: KoClinicSourceBlock): ClinicMasterSourceBlock {
   return {
     id: block.id,
     kind: block.kind === 'page_title' ? 'service' : 'service_detail',
-    text: block.text,
+    text: block.render?.text ?? block.text,
     sourceUrl: block.sourceUrl,
   };
 }
@@ -94,6 +94,15 @@ function sourceLabelBlock(block: KoClinicSourceBlock): ClinicMasterSourceBlock |
   };
 }
 
+function auditSourceBlock(block: KoClinicSourceBlock): ClinicMasterSourceBlock {
+  return {
+    id: `${block.id}-audit`,
+    kind: 'service_detail',
+    text: block.text,
+    sourceUrl: block.sourceUrl,
+  };
+}
+
 function joinedSourceBlock(input: {
   id: string;
   blocks: readonly KoClinicSourceBlock[];
@@ -102,7 +111,7 @@ function joinedSourceBlock(input: {
   return {
     id: input.id,
     kind: 'service_detail',
-    text: input.blocks.map((block) => block.text).join('\n\n'),
+    text: input.blocks.map((block) => block.render?.text ?? block.text).join('\n\n'),
     sourceUrl: input.blocks[0].sourceUrl,
   };
 }
@@ -182,57 +191,183 @@ function descriptionFor(page: KoClinicExtractedPage, publishedBlocks: readonly K
   return first?.text ?? page.title.text;
 }
 
+interface KoClinicRenderAssignment {
+  sourceUrl: string;
+  sourceNodeId: string;
+  sourceText: string;
+  renderedBlockId: string;
+}
+
+interface KoClinicRenderUnit extends ClinicLayoutContentUnit {
+  renderGroupIds: readonly string[];
+}
+
+interface KoClinicContentUnits {
+  units: KoClinicRenderUnit[];
+  sourceMetadata: KoClinicSourceBlock[];
+  assignments: KoClinicRenderAssignment[];
+}
+
+function assignRenderNodes(
+  blocks: readonly KoClinicSourceBlock[],
+  renderedBlockId: string,
+): KoClinicRenderAssignment[] {
+  return blocks.flatMap((block) => (
+    block.render?.sourceNodes.map((node) => ({
+      sourceUrl: block.sourceUrl,
+      sourceNodeId: node.id,
+      sourceText: node.text,
+      renderedBlockId,
+    })) ?? []
+  ));
+}
+
 function contentUnits(input: {
   page: KoClinicExtractedPage;
   blocks: readonly KoClinicSourceBlock[];
   internalHrefBySourceUrl: ReadonlyMap<string, string>;
-}): ClinicLayoutContentUnit[] {
-  const units: ClinicLayoutContentUnit[] = [];
+}): KoClinicContentUnits {
+  const units: KoClinicRenderUnit[] = [];
+  const sourceMetadata: KoClinicSourceBlock[] = [];
+  const assignments: KoClinicRenderAssignment[] = [];
   let activeHeading: KoClinicSourceBlock | undefined;
   let body: KoClinicSourceBlock[] = [];
   const flush = () => {
     if (!activeHeading && body.length === 0) return;
     const sourceTitle = activeHeading ?? input.page.title;
-    const title = normalizedVisibleText(sourceTitle.text)
-      === normalizedVisibleText(input.page.title.text)
-      ? systemChromeBlock(`page-overview-${units.length + 1}`, '개요')
+    const title = normalizedVisibleText(sourceTitle.render?.text ?? sourceTitle.text)
+      === normalizedVisibleText(input.page.title.render?.text ?? input.page.title.text)
+      ? systemChromeBlock(`page-overview-${units.length + 1}`, '상세 내용')
       : sourceBlock(sourceTitle);
-    units.push({
+    const bodyBlock = joinedSourceBlock({
+      id: `ko-body-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
+      blocks: body,
+    });
+    const unit: KoClinicRenderUnit = {
       id: `ko-unit-${units.length + 1}-${title.id}`,
       title,
-      ...(joinedSourceBlock({
-        id: `ko-body-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
-        blocks: body,
-      })
-        ? {
-            body: joinedSourceBlock({
-              id: `ko-body-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
-              blocks: body,
-            }),
-          }
-        : {}),
-    });
+      ...(bodyBlock ? { body: bodyBlock } : {}),
+      renderGroupIds: [
+        ...new Set(
+          [activeHeading, ...body]
+            .filter((block): block is KoClinicSourceBlock => Boolean(block))
+            .map((block) => block.render?.groupId)
+            .filter((groupId): groupId is string => Boolean(groupId)),
+        ),
+      ],
+    };
+    units.push(unit);
+    if (activeHeading) {
+      assignments.push(...assignRenderNodes([activeHeading], title.id));
+    }
+    if (bodyBlock) assignments.push(...assignRenderNodes(body, bodyBlock.id));
     activeHeading = undefined;
     body = [];
   };
-  for (const block of input.blocks) {
-    if (block.kind === 'heading') {
+  const grouped = new Set<string>();
+  for (let index = 0; index < input.blocks.length; index += 1) {
+    const block = input.blocks[index];
+    const explicitGroup = block.render?.groupId.startsWith('ko-render-group-')
+      ? block.render.groupId
+      : undefined;
+    if (explicitGroup && grouped.has(explicitGroup)) continue;
+    if (block.render?.role === 'structure-label' && !explicitGroup) {
+      sourceMetadata.push(block);
+      assignments.push(...assignRenderNodes([block], `metadata-${block.id}`));
+      continue;
+    }
+    if (explicitGroup) {
+      flush();
+      grouped.add(explicitGroup);
+      const groupBlocks = input.blocks.filter((candidate) => (
+        candidate.render?.groupId === explicitGroup
+      ));
+      const groupMetadata = groupBlocks.filter((candidate) => (
+        candidate.render?.role === 'structure-label'
+      ));
+      sourceMetadata.push(...groupMetadata);
+      for (const metadata of groupMetadata) {
+        assignments.push(...assignRenderNodes([metadata], `metadata-${metadata.id}`));
+      }
+      const visible = groupBlocks.filter((candidate) => (
+        candidate.render?.role !== 'structure-label'
+      ));
+      if (visible.length === 0) continue;
+      const preferredTitle = visible.find((candidate) => candidate.render?.role === 'title')
+        ?? visible[0];
+      const groupBody = visible.filter((candidate) => candidate.id !== preferredTitle.id);
+      const shortTitle = normalizedVisibleText(
+        preferredTitle.render?.text ?? preferredTitle.text,
+      ).length < 3;
+      const combinedTitle = shortTitle && groupBody.length > 0
+        ? joinedSourceBlock({
+            id: `ko-group-title-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
+            blocks: visible,
+          })
+        : undefined;
+      const title = combinedTitle ?? sourceBlock(preferredTitle);
+      const bodyBlock = shortTitle
+        ? undefined
+        : joinedSourceBlock({
+        id: `ko-body-${input.page.sourceHtmlSha256.slice(0, 12)}-${units.length + 1}`,
+        blocks: groupBody,
+      });
+      units.push({
+        id: `ko-unit-${units.length + 1}-${title.id}`,
+        title,
+        ...(bodyBlock ? { body: bodyBlock } : {}),
+        renderGroupIds: [explicitGroup],
+      });
+      assignments.push(...assignRenderNodes(
+        shortTitle ? visible : [preferredTitle],
+        title.id,
+      ));
+      if (bodyBlock) assignments.push(...assignRenderNodes(groupBody, bodyBlock.id));
+      continue;
+    }
+    if (explicitGroup) continue;
+    if (block.render?.role === 'title' || block.kind === 'heading') {
+      if (
+        normalizedVisibleText(block.render?.text ?? block.text).length < 3
+        || (activeHeading && body.length === 0)
+      ) {
+        body.push(block);
+        continue;
+      }
       flush();
       activeHeading = block;
     } else if (block.kind === 'category') {
       flush();
       const label = sourceLabelBlock(block);
+      if (!label) {
+        sourceMetadata.push(block);
+        assignments.push(...assignRenderNodes([block], `metadata-${block.id}`));
+        continue;
+      }
+      const value = sourceBlock(block);
+      const title: ClinicMasterSourceBlock = {
+        id: `${block.id}-labelled-category`,
+        kind: 'service',
+        text: `${label.text} ${value.text}`,
+        sourceUrl: block.sourceUrl,
+      };
       units.push({
         id: `ko-category-unit-${units.length + 1}-${block.id}`,
-        title: label ?? sourceBlock(block),
-        ...(label ? { body: sourceBlock(block) } : {}),
+        title,
+        renderGroupIds: block.render?.groupId ? [block.render.groupId] : [],
       });
-    } else if (block.kind === 'list_item') {
+      assignments.push(...assignRenderNodes(
+        [block],
+        title.id,
+      ));
+    } else if (block.kind === 'list_item' && !block.render) {
       flush();
       units.push({
         id: `ko-list-unit-${units.length + 1}-${block.id}`,
         title: sourceBlock(block),
+        renderGroupIds: [],
       });
+      assignments.push(...assignRenderNodes([block], block.id));
     } else {
       body.push(block);
     }
@@ -246,15 +381,29 @@ function contentUnits(input: {
       title: sourceBlock(link),
       href,
       actionLabel: '관련 글 보기',
+      renderGroupIds: [],
     });
   }
   if (units.length === 0) {
     units.push({
       id: `ko-title-only-${input.page.title.id}`,
-      title: systemChromeBlock('page-overview-only', '개요'),
+      title: systemChromeBlock('page-overview-only', '상세 내용'),
+      renderGroupIds: [],
     });
   }
-  return units;
+  const copyOnlyId = new Map<string, string>();
+  for (const unit of units) {
+    if (unit.body) continue;
+    const originalId = unit.title.id;
+    const renderedId = `${originalId}-ko-copy-only`;
+    unit.title = { ...unit.title, id: renderedId };
+    copyOnlyId.set(originalId, renderedId);
+  }
+  for (const assignment of assignments) {
+    assignment.renderedBlockId =
+      copyOnlyId.get(assignment.renderedBlockId) ?? assignment.renderedBlockId;
+  }
+  return { units, sourceMetadata, assignments };
 }
 
 function clinicImage(
@@ -283,16 +432,23 @@ function sectionsForPage(input: {
   internalHrefBySourceUrl: ReadonlyMap<string, string>;
   isProcedure: boolean;
   isDirections: boolean;
+  renderAssignments: KoClinicRenderAssignment[];
 }): Section[] {
-  const images = input.page.images
-    .filter((image) => image.classification === 'content')
-    .map((image) => clinicImage(image.sourceUrl, image, input.imageManifest));
+  const sourceImages = input.page.images.filter((image) => image.classification === 'content');
+  const images = sourceImages.map((image) => ({
+    source: image,
+    layout: clinicImage(image.sourceUrl, image, input.imageManifest),
+  }));
   const author = input.page.blocks.find((block) => block.kind === 'author');
   const date = input.page.blocks.find((block) => block.kind === 'published_date');
   const isoDate = date ? isoDateFromVerbatim(date.text) : undefined;
-  const heroImage = input.page.board
+  const heroEntry = input.page.board
     ? undefined
-    : images.find((image) => image.textDense === false);
+    : images.find((image) => (
+        image.layout.textDense === false
+        && !image.source.renderGroupId?.startsWith('ko-render-group-')
+      ));
+  const heroImage = heroEntry?.layout;
   const hero = buildClinicHeroSection({
     id: `ko-hero-${input.page.sourceHtmlSha256.slice(0, 16)}`,
     name: input.page.board
@@ -322,12 +478,16 @@ function sectionsForPage(input: {
       : {}),
     requestedId: 'hero.split-left',
   });
+  input.renderAssignments.push(...assignRenderNodes(
+    [input.page.title],
+    sourceBlock(input.page.title).id,
+  ));
   const contactBlock = input.isDirections
     ? input.publishedBlocks.find((block) => (
         /(?:주소\s*:|서울시\s+강남구)/u.test(block.text)
       ))
     : undefined;
-  const units = contentUnits({
+  const content = contentUnits({
     page: input.page,
     blocks: input.publishedBlocks.filter((block) => (
       !['author', 'published_date'].includes(block.kind)
@@ -336,38 +496,105 @@ function sectionsForPage(input: {
     )),
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
-  const inlineImages = images.filter((image) => image.id !== heroImage?.id);
-  if (inlineImages.length === 1 && units[0]) {
-    units[0].image = inlineImages[0];
+  input.renderAssignments.push(...content.assignments);
+  const unplacedImages: ClinicLayoutImage[] = [];
+  const contextualImages = new Map<string, ClinicLayoutImage[]>();
+  for (const entry of images.filter((candidate) => candidate.layout.id !== heroImage?.id)) {
+    const target = entry.source.renderGroupId
+      ? content.units.find((unit) => (
+          unit.renderGroupIds.includes(entry.source.renderGroupId!)
+        ))
+      : undefined;
+    if (target && !target.image) {
+      target.image = entry.layout;
+    } else if (target) {
+      const extras = contextualImages.get(target.id) ?? [];
+      extras.push(entry.layout);
+      contextualImages.set(target.id, extras);
+    } else {
+      unplacedImages.push(entry.layout);
+    }
   }
-  const prose = buildClinicFeatureSections({
-    id: `ko-prose-${input.page.sourceHtmlSha256.slice(0, 16)}`,
-    name: '본문',
-    units,
-    theme: input.theme,
-    candidates: ['features.prose-article'],
-    allowSingleFeature: true,
-    maximumItems: 100,
-    surface: true,
-    ...(input.isProcedure ? { titleSourceIdPrefix: 'procedure-service' } : {}),
-  });
+  for (const [unitId, extras] of contextualImages) {
+    if (extras.length >= 2) continue;
+    unplacedImages.push(...extras);
+    contextualImages.delete(unitId);
+  }
+  if (unplacedImages.length === 1) {
+    const fallbackUnit = content.units.find((unit) => !unit.image);
+    if (fallbackUnit) fallbackUnit.image = unplacedImages.shift();
+  }
+  const proseAndContext: Section[] = [];
+  const proseSections: Section[] = [];
+  let unitCursor = 0;
+  let segment = 0;
+  const contextAnchors = [...contextualImages.keys()]
+    .map((unitId) => ({
+      unitId,
+      index: content.units.findIndex((unit) => unit.id === unitId),
+    }))
+    .filter((anchor) => anchor.index >= 0)
+    .sort((left, right) => left.index - right.index);
+  const appendProse = (units: readonly KoClinicRenderUnit[]) => {
+    if (units.length === 0) return;
+    segment += 1;
+    const sections = buildClinicFeatureSections({
+      id: `ko-prose-${input.page.sourceHtmlSha256.slice(0, 16)}-${segment}`,
+      name: '본문',
+      units,
+      theme: input.theme,
+      candidates: ['features.prose-article'],
+      allowSingleFeature: true,
+      maximumItems: 100,
+      surface: true,
+      ...(input.isProcedure ? { titleSourceIdPrefix: 'procedure-service' } : {}),
+    });
+    for (const section of sections) section.surfaceTone = 'tint';
+    proseSections.push(...sections);
+    proseAndContext.push(...sections);
+  };
+  for (const [contextIndex, anchor] of contextAnchors.entries()) {
+    appendProse(content.units.slice(unitCursor, anchor.index + 1));
+    unitCursor = anchor.index + 1;
+    const gallery = buildClinicGallerySections({
+      id: `ko-context-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}-${contextIndex + 1}`,
+      name: '관련 이미지',
+      images: contextualImages.get(anchor.unitId) ?? [],
+      theme: input.theme,
+      candidates: ['gallery.uniform-grid'],
+      groupName: (index) => index === 0 ? '관련 이미지' : `관련 이미지 ${index + 1}`,
+    });
+    for (const section of gallery) section.surfaceTone = 'base';
+    proseAndContext.push(...gallery);
+  }
+  appendProse(content.units.slice(unitCursor));
   const sourceMetadata = buildClinicSourceMetadataElements(
-    input.publishedBlocks
-      .filter((block) => (
-        block.kind === 'category'
-        && LEGACY_MINT_SOURCE_LABELS.has(block.text)
-      ))
-      .map(sourceBlock),
+    [
+      ...content.sourceMetadata,
+      ...input.publishedBlocks.filter((block) => (
+          block.kind === 'category'
+          && LEGACY_MINT_SOURCE_LABELS.has(block.text)
+        )),
+    ]
+      .map(sourceBlock)
+      .concat(
+        [input.page.title, ...input.publishedBlocks]
+          .filter((block) => (
+            block.render
+            && normalizedVisibleText(block.render.text)
+              !== normalizedVisibleText(block.text)
+          ))
+          .map(auditSourceBlock),
+      ),
     input.theme,
   );
-  if (sourceMetadata.length > 0 && prose[0]) {
-    prose[0].elements = [...prose[0].elements, ...sourceMetadata];
+  if (sourceMetadata.length > 0 && proseSections[0]) {
+    proseSections[0].elements = [...proseSections[0].elements, ...sourceMetadata];
   }
-  for (const section of prose) section.surfaceTone = 'tint';
   const gallery = buildClinicGallerySections({
     id: `ko-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}`,
     name: '관련 이미지',
-    images: inlineImages.length >= 2 ? inlineImages : [],
+    images: unplacedImages.length >= 2 ? unplacedImages : [],
     theme: input.theme,
     candidates: ['gallery.uniform-grid'],
     groupName: (index) => index === 0 ? '관련 이미지' : `관련 이미지 ${index + 1}`,
@@ -388,7 +615,18 @@ function sectionsForPage(input: {
         surface: true,
       })
     : null;
-  return [hero, ...(directions ? [directions] : []), ...prose, ...gallery];
+  if (contactBlock && directions) {
+    input.renderAssignments.push(...assignRenderNodes(
+      [contactBlock],
+      sourceBlock(contactBlock).id,
+    ));
+  }
+  return [
+    hero,
+    ...(directions ? [directions] : []),
+    ...proseAndContext,
+    ...gallery,
+  ];
 }
 
 function communityHub(input: {
@@ -431,7 +669,7 @@ function communityHub(input: {
     name: '상담 접수 안내',
     units: [{
       id: 'ko-community-consultation-intake-link',
-      title: systemChromeBlock('consultation-intake', '상담 접수 안내'),
+      title: systemChromeBlock('consultation-intake-ko-copy-only', '상담 접수 안내'),
       href: '/directions',
       actionLabel: '연락처 보기',
     }],
@@ -551,6 +789,7 @@ export function compileKoClinicSite(input: {
     clinicTheme,
     fontSelection?.locale === 'ko-KR' ? fontSelection.id : null,
   );
+  const renderAssignments: KoClinicRenderAssignment[] = [];
   const sourcePages = publishablePages.map((page): SitePage => {
     const slug = slugBySourceUrl.get(normalizeSourceUrl(page.sourceUrl))!;
     const id = pageId(page, slug);
@@ -584,6 +823,7 @@ export function compileKoClinicSite(input: {
         internalHrefBySourceUrl: hrefBySourceUrl,
         isProcedure: id.startsWith('clinic-procedure-ko-'),
         isDirections: slug === 'directions',
+        renderAssignments,
       }),
     };
   });
@@ -641,6 +881,51 @@ export function compileKoClinicSite(input: {
       intensity: 'off',
     },
   };
+  const expectedRenderNodes = publishablePages.flatMap((page) => {
+    const heldIds = new Set(publicationHolds
+      .filter((hold) => normalizeSourceUrl(hold.sourceUrl) === normalizeSourceUrl(page.sourceUrl))
+      .flatMap((hold) => hold.sourceBlockIds));
+    return [page.title, ...page.blocks.filter((block) => !heldIds.has(block.id))]
+      .flatMap((block) => (
+        block.render?.sourceNodes.map((node) => ({
+          sourceUrl: block.sourceUrl,
+          sourceNodeId: node.id,
+          sourceText: node.text,
+        })) ?? []
+      ));
+  });
+  const renderedBlocksByNode = new Map<string, Set<string>>();
+  for (const assignment of renderAssignments) {
+    const blocks = renderedBlocksByNode.get(assignment.sourceNodeId) ?? new Set<string>();
+    blocks.add(assignment.renderedBlockId);
+    renderedBlocksByNode.set(assignment.sourceNodeId, blocks);
+  }
+  const renderIntegrityViolations = expectedRenderNodes.flatMap((node) => {
+    const renderedBlockIds = [...(renderedBlocksByNode.get(node.sourceNodeId) ?? [])];
+    return renderedBlockIds.length === 1
+      ? []
+      : [{
+          ...node,
+          renderedBlockIds,
+        }];
+  });
+  const affectedPageCount = new Set(publishablePages
+    .filter((page) => {
+      const groups = new Map<string, number>();
+      for (const block of [page.title, ...page.blocks]) {
+        if (!block.render) continue;
+        groups.set(block.render.groupId, (groups.get(block.render.groupId) ?? 0) + 1);
+      }
+      return [page.title, ...page.blocks].some((block) => (
+        block.render?.role === 'structure-label'
+        || (
+          block.render
+          && normalizedVisibleText(block.render.text) !== normalizedVisibleText(block.text)
+        )
+        || (block.render && (groups.get(block.render.groupId) ?? 0) > 1)
+      ));
+    })
+    .map((page) => normalizeSourceUrl(page.sourceUrl))).size;
   return {
     config,
     sourceManifest,
@@ -648,5 +933,10 @@ export function compileKoClinicSite(input: {
     publicationHolds,
     adDiagnostics,
     sourceUrlBySlug: Object.fromEntries([...slugBySourceUrl].map(([url, slug]) => [slug, url])),
+    renderIntegrity: {
+      sourceNodeCount: expectedRenderNodes.length,
+      affectedPageCount,
+      violations: renderIntegrityViolations,
+    },
   };
 }

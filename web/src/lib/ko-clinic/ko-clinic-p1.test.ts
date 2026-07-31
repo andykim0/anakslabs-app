@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { parse } from 'node-html-parser';
 import { KO_CLINIC_FLOW_MEASURE_CSS } from '@/components/site-renderer/ClinicFlowSection';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { featureLayoutById } from '@/lib/layout';
@@ -81,6 +82,29 @@ const HOME_COMPOUND_HTML = `<!doctype html><html lang="ko"><body><main>
   </ul></div>
 </main></body></html>`;
 
+const ANIMATED_HEADING_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="main_tit"><h2>
+    <em data-scroll>당</em><em data-scroll>신</em><em data-scroll>의</em>
+    <span style="padding:0 7px"></span>
+    <em data-scroll>건</em>
+    <em data-scroll>강</em><em data-scroll>에</em>
+    <span style="padding:0 7px"></span>
+    <em data-scroll>진</em><em data-scroll>심</em><em data-scroll>을</em>
+    <span style="padding:0 7px"></span>
+    <em data-scroll>담</em><em data-scroll>아</em>
+  </h2></div>
+  <div class="content_wrap"><p>원문 본문입니다.</p></div>
+</main></body></html>`;
+
+const CONTEXT_IMAGE_HTML = `<!doctype html><html lang="ko"><body><main>
+  <div class="sub_tit"><h2>이담병원</h2></div>
+  <div class="content_wrap"><ul>
+    <li><img src="/doctor-a.jpg" alt="의료진 A"><h4>의료진 A</h4><p>의료진 A 원문입니다.</p></li>
+    <li><img src="/doctor-b.jpg" alt="의료진 B"><h4>의료진 B</h4><p>의료진 B 원문입니다.</p></li>
+    <li><img src="/doctor-c.jpg" alt="의료진 C"><h4>단독 사진</h4></li>
+  </ul></div>
+</main></body></html>`;
+
 const TV_19_MISSING_BODY = '여름철에는 ‘하지정맥류’ 검사·치료를 위해 병원을 찾는 사람들이 많아진다. 평소엔 인지하지 못했으나, 옷차림이 짧아지면서 다리에 울퉁불퉁 튀어나온 혈관들이 보이기 때문이다. 문제는 하지정맥류 환자 중 혈관이 튀어나오지 않는 경우도 적지 않다는 점이다. 이는 하지정맥류를 방치하는 원인이 되기도 한다. 지난달 22일 헬스조선 공식 유튜브와 네이버TV 채널에서는 ‘하지정맥류‘를 주제로 헬스조선 건강똑똑 라이브가 진행됐다. 라이브에 출연한 이담외과의원 김현규 대표원장은 하지정맥류의 원인, 증상, 치료법, 예방법 등에 대해 설명하는 한편, 실시간 질의응답을 통해 하지정맥류와 관련된 다양한 궁금증을 함께 풀어봤다. 영상은 헬스조선 공식 유튜브와 네이버TV 채널에서 다시 볼 수 있다. (중략) ▼▼영상 보러가기▼▼ https://youtu.be/JP_CPoF3QU8 ▼▼기사 원문 보러가기▼▼ https://n.news.naver.com/mnews/article/346/0000053076?sid=103';
 const TV_19_NESTED_INLINE_HTML = `<!doctype html><html lang="ko"><body><main>
   <div class="sub_tit"><h2>이담미디어</h2></div>
@@ -110,6 +134,52 @@ const TV_46_FIGCAPTION_HTML = `<!doctype html><html lang="ko"><body><main>
     </span></td></tr>
   </table></div>
 </main></body></html>`;
+
+function renderExtractedPage(
+  page: ReturnType<typeof extractKoClinicPage>,
+  images: Parameters<typeof compileKoClinicSite>[0]['images'] = [],
+): ReturnType<typeof parse> {
+  const compilation = compileKoClinicSite({ pages: [page], images });
+  const slug = koClinicSlugForSourceUrl(page.sourceUrl);
+  return parse(renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compilation.config,
+    pageSlug: slug,
+    mode: 'desktop',
+    interactive: false,
+    animate: false,
+  })));
+}
+
+function renderedTextBlocks(root: ReturnType<typeof parse>) {
+  return root.querySelectorAll(
+    '[data-clinic-flow-item-heading],[data-clinic-flow-copy]',
+  );
+}
+
+function optimizedFixtureImages(
+  sourceUrls: readonly string[],
+): Parameters<typeof compileKoClinicSite>[0]['images'] {
+  return sourceUrls.map((sourceUrl, index) => ({
+    sourceUrl,
+    publicPath: `/ko-clinic/test-${index + 1}.webp`,
+    sourceSha256: String(index + 1).padStart(64, '0'),
+    optimizedSha256: String(index + 11).padStart(64, '0'),
+    sourceBytes: 100,
+    optimizedBytes: 80,
+    width: 1200,
+    height: 800,
+    alt: '',
+    analysis: {
+      version: 1,
+      engine: 'apple-vision-v1',
+      recognizedLineCount: 0,
+      recognizedCharacterCount: 0,
+      textAreaRatio: 0,
+      textDense: false,
+      heroTextRegionLuminance: 0.5,
+    },
+  }));
+}
 
 test('KO source extraction preserves source blocks and classifies only explicit UI chrome', () => {
   const page = extractKoClinicPage({
@@ -183,6 +253,88 @@ test('KO extraction preserves the six verbatim home compound labels without reco
   assert.equal(listItems.includes('02. 자세히보기'), false);
   assert.equal(listItems.includes('03. 자세히보기'), false);
   assert.equal(listItems.includes('04. 자세히보기'), false);
+
+  const rendered = renderExtractedPage(page);
+  const exactHeading = renderedTextBlocks(rendered).filter((element) => (
+    normalizeKoClinicText(element.text).replace(/\s+/gu, ' ')
+      === '01. 하지정맥류 자세히보기'
+  ));
+  assert.equal(exactHeading.length, 1, exactHeading.map((element) => element.toString()).join('\n'));
+  const item = exactHeading[0].closest('[data-clinic-flow-item]');
+  assert.ok(item);
+  assert.equal(
+    item.querySelectorAll('[data-clinic-flow-copy]').some((element) => (
+      normalizeKoClinicText(element.text).includes('하지정맥류 원문 본문')
+    )),
+    true,
+    'the source card compound and its nested source copy must share one render item',
+  );
+  assert.equal(
+    rendered.querySelectorAll('h1,h2,h3').some((element) => (
+      /^(?:Difference|EDAM Story|News)(?:\s+자세히보기)?$/u.test(
+        normalizeKoClinicText(element.text).replace(/\s+/gu, ' '),
+      )
+    )),
+    false,
+  );
+});
+
+test('animated source characters keep a fine audit axis but render as one original display block', () => {
+  const page = extractKoClinicPage({
+    html: ANIMATED_HEADING_HTML,
+    sourceUrl: 'https://edomclinic.com/',
+  });
+  assert.notEqual(
+    normalizeKoClinicText(page.title.text),
+    '당신의 건강에 진심을 담아',
+  );
+  assert.equal(page.title.render?.text, '당신의 건강에 진심을 담아');
+  const compilation = compileKoClinicSite({ pages: [page], images: [] });
+  assert.equal(compilation.renderIntegrity.violations.length, 0);
+  const rendered = renderExtractedPage(page);
+  assert.equal(
+    rendered.querySelectorAll('h1').filter((heading) => (
+      normalizeKoClinicText(heading.text).replace(/\s+/gu, ' ')
+        === '당신의 건강에 진심을 담아'
+    )).length,
+    1,
+  );
+});
+
+test('source-context images stay with their source cards instead of a related-image tail', () => {
+  const page = extractKoClinicPage({
+    html: CONTEXT_IMAGE_HTML,
+    sourceUrl: 'https://edomclinic.com/',
+  });
+  const imageAssets = optimizedFixtureImages([
+    'https://edomclinic.com/doctor-a.jpg',
+    'https://edomclinic.com/doctor-b.jpg',
+    'https://edomclinic.com/doctor-c.jpg',
+  ]);
+  const compilation = compileKoClinicSite({ pages: [page], images: imageAssets });
+  const home = compilation.config.pages.find((candidate) => candidate.slug === '');
+  assert.ok(home);
+  assert.equal(
+    home.sections.filter((section) => section.name.startsWith('관련 이미지')).length,
+    0,
+  );
+  const rendered = renderExtractedPage(page, imageAssets);
+  for (const name of ['의료진 A', '의료진 B']) {
+    const heading = rendered.querySelectorAll('[data-clinic-flow-item-heading]')
+      .find((element) => normalizeKoClinicText(element.text) === name);
+    assert.ok(heading);
+    assert.ok(heading.closest('[data-clinic-flow-item]')?.querySelector('img'));
+  }
+  assert.equal(
+    rendered.querySelectorAll('[data-clinic-flow-item-heading]').some((element) => (
+      normalizeKoClinicText(element.text) === '단독 사진'
+    )),
+    false,
+  );
+  const copyOnly = rendered.querySelectorAll('[data-clinic-flow-copy]').find((element) => (
+    normalizeKoClinicText(element.text) === '단독 사진'
+  ));
+  assert.ok(copyOnly?.closest('[data-clinic-flow-item]')?.querySelector('img'));
 });
 
 test('KO extraction retains the actual tv-19 inline body beside nested block content', () => {
@@ -197,6 +349,16 @@ test('KO extraction retains the actual tv-19 inline body beside nested block con
       .join(' '),
   ).replace(/\s+/gu, ' ');
   assert.equal(extracted.includes(TV_19_MISSING_BODY), true, extracted);
+  const rendered = renderExtractedPage(page);
+  const containingBlocks = renderedTextBlocks(rendered).filter((element) => (
+      normalizeKoClinicText(element.text).replace(/\s+/gu, ' ')
+        .includes(TV_19_MISSING_BODY)
+    ));
+  assert.equal(
+    containingBlocks.length,
+    1,
+    containingBlocks.map((element) => element.toString()).join('\n'),
+  );
 });
 
 test('KO extraction retains the actual tv-46 figure captions', () => {
@@ -225,6 +387,26 @@ test('KO extraction retains the actual tv-46 figure captions', () => {
     ],
   );
   assert.equal(independent.included.includes(TV_46_MISSING_CAPTIONS), false);
+  const rendered = renderExtractedPage(
+    page,
+    optimizedFixtureImages([
+      'https://edomclinic.com/one.jpg',
+      'https://edomclinic.com/two.jpg',
+      'https://edomclinic.com/three.jpg',
+    ]),
+  );
+  for (const caption of independent.included.filter((text) => (
+    text.includes('김현규 이담외과 대표원장')
+    && text !== '김현규 이담외과 대표원장, 혈관외과 전문의…개원 4년 맞아'
+  ))) {
+    assert.equal(
+      renderedTextBlocks(rendered).filter((element) => (
+        normalizeKoClinicText(element.text).includes(caption)
+      )).length,
+      1,
+      caption,
+    );
+  }
 });
 
 test('headings with direct text are not compacted and board aliases keep verbatim labels', () => {

@@ -23,6 +23,20 @@ export interface KoClinicSourceBlock {
   /** Verbatim source field label when the factual value came from a labelled row. */
   sourceLabel?: string;
   href?: string;
+  /**
+   * KO contract-import display metadata. `text` remains the fine-grained,
+   * checksum-pinned audit axis; the renderer consumes this separate axis so a
+   * completeness repair cannot turn individual source fragments into headings.
+   */
+  render?: {
+    groupId: string;
+    text: string;
+    role: 'title' | 'body' | 'structure-label';
+    sourceNodes: readonly {
+      id: string;
+      text: string;
+    }[];
+  };
 }
 
 export interface KoClinicSourceImage {
@@ -34,6 +48,21 @@ export interface KoClinicSourceImage {
   alt: string;
   classification: 'content' | 'ui-chrome';
   exclusionReason?: string;
+  /** Nearest source render group, fixed at extraction time from DOM proximity. */
+  renderGroupId?: string;
+}
+
+export interface KoClinicRenderIntegrityViolation {
+  sourceUrl: string;
+  sourceNodeId: string;
+  sourceText: string;
+  renderedBlockIds: readonly string[];
+}
+
+export interface KoClinicRenderIntegrity {
+  sourceNodeCount: number;
+  affectedPageCount: number;
+  violations: readonly KoClinicRenderIntegrityViolation[];
 }
 
 export interface KoClinicExtractedPage {
@@ -102,4 +131,5 @@ export interface KoClinicCompilation {
   publicationHolds: readonly KoClinicPublicationHold[];
   adDiagnostics: readonly KoClinicAdDiagnostic[];
   sourceUrlBySlug: Readonly<Record<string, string>>;
+  renderIntegrity: KoClinicRenderIntegrity;
 }

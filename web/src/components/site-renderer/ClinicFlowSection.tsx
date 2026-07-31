@@ -598,6 +598,11 @@ function FlowItem({
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
   ));
+  // KO contract imports mark source-backed title-only fragments as prose. The
+  // layout resolver still receives its required item-title binding, while the
+  // visible DOM avoids manufacturing a run of empty headings. Other masters
+  // never receive this compiler-owned suffix and keep their existing output.
+  const headingRendersAsCopy = heading?.id.includes('-ko-copy-only-') ?? false;
   const remainder = heading
     ? elements.filter((element) => element.id !== heading.id)
     : elements;
@@ -619,9 +624,11 @@ function FlowItem({
           <FlowText
             element={heading}
             theme={theme}
-            role={variantId === 'features.dark-value-band'
-              ? 'display-heading'
-              : 'heading'}
+            role={headingRendersAsCopy
+              ? 'copy'
+              : variantId === 'features.dark-value-band'
+                ? 'display-heading'
+                : 'heading'}
             headingLevel={headingLevel}
           />
         ) : null}
