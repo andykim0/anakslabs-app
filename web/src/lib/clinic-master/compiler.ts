@@ -15,7 +15,7 @@ import {
   buildClinicHeroSection,
   buildClinicProductInfoSection,
   type ClinicLayoutImage,
-} from './layout-sections';
+} from '@/lib/clinic-engine/layout-sections';
 import type { ClinicMasterExperience } from './live-contract';
 
 export type ClinicMasterSourceKind =

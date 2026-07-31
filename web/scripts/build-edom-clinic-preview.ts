@@ -29,6 +29,7 @@ import {
   relativeLuminance as srgbRelativeLuminance,
 } from '@/lib/design/dna/color';
 import { FEATURE_LAYOUT_CATALOG } from '@/lib/layout/feature-catalog';
+import { auditClinicTextCompleteness } from '@/lib/clinic-engine/audit';
 
 const CRAWL_REPORT = process.env.EDOM_CRAWL_REPORT
   ?? '/private/tmp/edom-fixed-crawl/crawl-report.json';
@@ -332,32 +333,29 @@ async function main() {
       config.pages.find((page) => page.slug === slug),
     ]),
   );
-  const perPageTextCompleteness = extractedWithRaw
-    .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)))
-    .map(({ attempt, independentOriginal }) => {
+  const publishedAuditSources = extractedWithRaw
+    .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)));
+  const completeness = auditClinicTextCompleteness({
+    sources: publishedAuditSources.map(({ attempt, independentOriginal }) => ({
+      sourceUrl: attempt.url,
+      included: independentOriginal.included,
+      includedEvidence: independentOriginal.includedEvidence,
+    })),
+    compiledPages: publishedAuditSources.map(({ attempt }) => {
       const compiledPage = compiledPageBySourceUrl.get(canonicalSourceUrl(attempt.url));
-      const rendered = compiledPage ? compiledPageText(compiledPage) : '';
-      const missing = independentOriginal.included.filter((text) => (
-        !rendered.includes(normalizedAuditText(text))
-      ));
       return {
         sourceUrl: attempt.url,
         slug: compiledPage?.slug ?? null,
-        originalBlocks: independentOriginal.included.length,
-        missing,
-        missingDetails: independentOriginal.includedEvidence.filter((entry) => (
-          missing.includes(entry.text)
-        )),
+        page: compiledPage,
       };
-    });
-  const perPageFailures = perPageTextCompleteness.filter((entry) => entry.missing.length > 0);
-  const globalCompiledText = normalizedAuditText(
-    config.pages.map(compiledPageText).join('\n'),
-  );
-  const globalMissing = extractedWithRaw
-    .filter(({ attempt }) => !heldUrls.has(canonicalSourceUrl(attempt.url)))
-    .flatMap(({ independentOriginal }) => independentOriginal.included)
-    .filter((text) => !globalCompiledText.includes(normalizedAuditText(text)));
+    }),
+    compiledText: compiledPageText,
+    normalize: normalizedAuditText,
+    globalRenderedText: config.pages.map(compiledPageText).join('\n'),
+  });
+  const perPageTextCompleteness = completeness.perPage;
+  const perPageFailures = completeness.failures;
+  const globalMissing = completeness.globalMissing;
   await mkdir(OUTPUT_DIR, { recursive: true });
   await writeFile(
     path.join(OUTPUT_DIR, 'source-completeness.json'),

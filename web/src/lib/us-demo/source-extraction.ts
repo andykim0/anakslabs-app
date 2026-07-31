@@ -5,6 +5,12 @@ import {
   type ProspectPublicSourceBlock,
   type ProspectPublicSourceKind,
 } from './contracts';
+import {
+  runClinicSourceExtraction,
+} from '@/lib/clinic-engine/pipeline';
+import { US_MEDICAL_OUTREACH_PROFILE } from '@/lib/clinic-engine/profiles';
+import { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
+export { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
 
 const PATIENT_CONTENT_RE =
   /\b(?:testimonial|patient stor(?:y|ies)|before\s*(?:and|&)\s*after|review(?:s)?|case result)\b/iu;
@@ -22,8 +28,6 @@ const PROVIDER_NAME_RE =
   /^(?:Dr\.?\s+[A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){0,4}(?:,\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))?|[A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){1,4},\s*(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD))$/u;
 const GENERIC_HEADING_RE =
   /^(?:home|about(?: us)?|services?|contact(?: us)?|menu|welcome|learn more|read more|meet (?:our |the )?team|our team|meet (?:our |the )?(?:doctor|doctors|providers?))$/iu;
-const CTA_HEADING_RE =
-  /^(?:ready to\b|book\b|schedule\b|request (?:an? )?appointment\b|call (?:us|today|now)\b|contact us\b|get started\b|find out\b)|\b(?:call now|call us)\b/iu;
 const GLUED_CTA_START_RE =
   /(?:Find Out|Book|Schedule|Learn More|Get|Call|Request|Contact)\b/gu;
 const CTA_BOUNDARY_BRAND_RE = /^(?:MetLife|UnitedConcordia|CareCredit)$/u;
@@ -270,29 +274,6 @@ function splitVerbatimBody(page: CrawlPageArtifact, value: string): {
 }
 
 /**
- * Reject a heading/body unit only when its source wording is an operational CTA or an accumulated
- * contact/navigation tail. Factual contact fields are extracted separately before this filter.
- */
-export function sourceTextIsOperationalBlob(
-  title: string,
-  body?: string,
-): boolean {
-  if (CTA_HEADING_RE.test(title.trim())) return true;
-  const combined = `${title} ${body ?? ''}`;
-  const signals = [
-    PHONE_TOKEN_RE.test(combined),
-    EMAIL_TOKEN_RE.test(combined),
-    OPENING_HOURS_TOKEN_RE.test(combined),
-    HOURS_LABEL_RE.test(combined),
-    ADDRESS_TOKEN_RE.test(combined),
-    /\b(?:book|schedule|request)\b[^.]{0,40}\bappointment\b/iu.test(combined),
-    /\b(?:home|about|services|contact)\b(?:[^.]{0,60}\b(?:home|about|services|contact)\b){2,}/iu
-      .test(combined),
-  ].filter(Boolean).length;
-  return signals >= 2;
-}
-
-/**
  * The crawl artifact intentionally keeps no source HTML. Pair each captured heading with the
  * verbatim normalized text between that heading and the next one. Repeated navigation headings
  * are resolved by choosing the occurrence with the largest substantive body, so nav dumps lose
@@ -484,7 +465,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   return blocks;
 }
 
-export function prospectPublicSourceBlocks(
+function extractProspectPublicSourceBlocks(
   artifact: CrawlArtifactPayload,
 ): ProspectPublicSourceBlock[] {
   const seen = new Set<string>();
@@ -503,6 +484,16 @@ export function prospectPublicSourceBlocks(
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
+  });
+}
+
+export function prospectPublicSourceBlocks(
+  artifact: CrawlArtifactPayload,
+): ProspectPublicSourceBlock[] {
+  return runClinicSourceExtraction({
+    profile: US_MEDICAL_OUTREACH_PROFILE,
+    value: artifact,
+    extract: extractProspectPublicSourceBlocks,
   });
 }
 

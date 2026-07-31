@@ -39,6 +39,11 @@ import {
   type SiteConfig,
   type SitePage,
 } from '@/lib/types/site';
+import {
+  runClinicEngine,
+} from '@/lib/clinic-engine/pipeline';
+import { KO_MEDICAL_IMPORT_PROFILE } from '@/lib/clinic-engine/profiles';
+import { auditClinicRenderBlockIntegrity } from '@/lib/clinic-engine/audit';
 import type {
   KoClinicAdDiagnostic,
   KoClinicCompilation,
@@ -47,6 +52,7 @@ import type {
   KoClinicPublicationHold,
   KoClinicSourceBlock,
 } from './contracts';
+import { auditKoClinicDensity } from './density';
 
 const KO_CLINIC_DNA_ID = 'medical-clinical-clarity' as const;
 const KO_CLINIC_HUE_SEED = 205;
@@ -1137,7 +1143,7 @@ function communityHub(input: {
   };
 }
 
-export function compileKoClinicSite(input: {
+function compileKoClinicSiteProfile(input: {
   pages: readonly KoClinicExtractedPage[];
   images: readonly KoClinicOptimizedImage[];
 }): KoClinicCompilation {
@@ -1345,20 +1351,9 @@ export function compileKoClinicSite(input: {
         })) ?? []
       ));
   });
-  const renderedBlocksByNode = new Map<string, Set<string>>();
-  for (const assignment of renderAssignments) {
-    const blocks = renderedBlocksByNode.get(assignment.sourceNodeId) ?? new Set<string>();
-    blocks.add(assignment.renderedBlockId);
-    renderedBlocksByNode.set(assignment.sourceNodeId, blocks);
-  }
-  const renderIntegrityViolations = expectedRenderNodes.flatMap((node) => {
-    const renderedBlockIds = [...(renderedBlocksByNode.get(node.sourceNodeId) ?? [])];
-    return renderedBlockIds.length === 1
-      ? []
-      : [{
-          ...node,
-          renderedBlockIds,
-        }];
+  const renderIntegrityViolations = auditClinicRenderBlockIntegrity({
+    expected: expectedRenderNodes,
+    assignments: renderAssignments,
   });
   const affectedPageCount = new Set(publishablePages
     .filter((page) => {
@@ -1391,4 +1386,22 @@ export function compileKoClinicSite(input: {
       violations: renderIntegrityViolations,
     },
   };
+}
+
+export function compileKoClinicSite(input: {
+  pages: readonly KoClinicExtractedPage[];
+  images: readonly KoClinicOptimizedImage[];
+}): KoClinicCompilation {
+  return runClinicEngine({
+    profile: KO_MEDICAL_IMPORT_PROFILE,
+    value: input,
+    // Per-page HTML extraction already traverses the shared source-extraction entry point.
+    extractSource: (source) => source,
+    splitPages: (source) => source,
+    resolveLayouts: compileKoClinicSiteProfile,
+    gateEvidence: (output) => ({
+      'render-block-integrity': output.renderIntegrity.violations.length === 0,
+      density: auditKoClinicDensity(output.config).pass,
+    }),
+  });
 }

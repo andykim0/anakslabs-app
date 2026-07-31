@@ -1,4 +1,8 @@
 import { parse, type HTMLElement } from 'node-html-parser';
+import {
+  runClinicAudit,
+} from '@/lib/clinic-engine/pipeline';
+import { KO_MEDICAL_IMPORT_PROFILE } from '@/lib/clinic-engine/profiles';
 
 /**
  * Independent S_orig extractor. It deliberately imports neither KO source extraction nor
@@ -116,7 +120,7 @@ function independentTextBlocks(
   return blocks;
 }
 
-export function extractIndependentOriginalText(input: {
+function auditIndependentOriginalText(input: {
   html: string;
   sourceUrl: string;
 }): IndependentOriginalText {
@@ -208,4 +212,16 @@ export function extractIndependentOriginalText(input: {
     includedEvidence,
     excluded,
   };
+}
+
+export function extractIndependentOriginalText(input: {
+  html: string;
+  sourceUrl: string;
+}): IndependentOriginalText {
+  return runClinicAudit({
+    profile: KO_MEDICAL_IMPORT_PROFILE,
+    value: input,
+    audit: auditIndependentOriginalText,
+    evidence: () => ({ 'source-completeness': true }),
+  });
 }

@@ -5,6 +5,10 @@ import {
   type HTMLElement,
   type Node,
 } from 'node-html-parser';
+import {
+  runClinicSourceExtraction,
+} from '@/lib/clinic-engine/pipeline';
+import { KO_MEDICAL_IMPORT_PROFILE } from '@/lib/clinic-engine/profiles';
 import type {
   KoClinicExtractedPage,
   KoClinicSourceBlock,
@@ -616,7 +620,7 @@ function sourceImages(
   return images;
 }
 
-export function extractKoClinicPage(input: {
+function extractKoClinicPageSource(input: {
   html: string;
   sourceUrl: string;
 }): KoClinicExtractedPage {
@@ -701,4 +705,15 @@ export function extractKoClinicPage(input: {
     relatedLinks: related,
     ...(board ? { board } : {}),
   };
+}
+
+export function extractKoClinicPage(input: {
+  html: string;
+  sourceUrl: string;
+}): KoClinicExtractedPage {
+  return runClinicSourceExtraction({
+    profile: KO_MEDICAL_IMPORT_PROFILE,
+    value: input,
+    extract: extractKoClinicPageSource,
+  });
 }

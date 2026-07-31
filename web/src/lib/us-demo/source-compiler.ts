@@ -15,6 +15,10 @@ import {
 } from '@/lib/fonts';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import {
+  runClinicEngine,
+} from '@/lib/clinic-engine/pipeline';
+import { US_MEDICAL_OUTREACH_PROFILE } from '@/lib/clinic-engine/profiles';
+import {
   INSUFFICIENT_ENGLISH_SOURCE,
   US_DEMO_LOCALE_CONTRACT,
   US_DEMO_SOURCE_ORIGIN,
@@ -141,14 +145,14 @@ function clinicMasterPinForArtifact(
  * It neither translates nor asks an LLM to write copy; every factual canvas string points to an
  * immutable public-source block linked through the crawl artifact.
  */
-export function compileUsMedicalDemo(
+function compileUsMedicalDemoProfile(
   artifact: CrawlArtifactPayload,
+  sourceBlocks: readonly ProspectPublicSourceBlock[],
   options: {
     manualFinish?: UsDemoManualFinish;
     renderMode?: UsDemoRenderMode;
   } = {},
 ): UsMedicalDemoCompilation {
-  const sourceBlocks = prospectPublicSourceBlocks(artifact);
   const curated = curateSourceBlocks(sourceBlocks, options.manualFinish);
   if (!sourceLooksEnglish(curated.accepted)) {
     throw new UsDemoCompileError(
@@ -263,4 +267,28 @@ export function compileUsMedicalDemo(
     },
     ...(renderMode === 'preview-full' ? { renderMode: 'preview-full' as const } : {}),
   };
+}
+
+export function compileUsMedicalDemo(
+  artifact: CrawlArtifactPayload,
+  options: {
+    manualFinish?: UsDemoManualFinish;
+    renderMode?: UsDemoRenderMode;
+  } = {},
+): UsMedicalDemoCompilation {
+  return runClinicEngine({
+    profile: US_MEDICAL_OUTREACH_PROFILE,
+    value: { artifact, options },
+    extractSource: ({ artifact: sourceArtifact, options: sourceOptions }) => ({
+      artifact: sourceArtifact,
+      sourceBlocks: prospectPublicSourceBlocks(sourceArtifact),
+      options: sourceOptions,
+    }),
+    splitPages: (source) => source,
+    resolveLayouts: (source) => compileUsMedicalDemoProfile(
+      source.artifact,
+      source.sourceBlocks,
+      source.options,
+    ),
+  });
 }
