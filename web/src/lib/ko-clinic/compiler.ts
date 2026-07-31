@@ -4,8 +4,7 @@ import {
   tokenSetToSiteTheme,
 } from '@/lib/design/dna';
 import {
-  applyModernKoreanFontPairing,
-  resolveFontPairingForLocale,
+  applyKoreanFontPairing,
 } from '@/lib/fonts';
 import {
   buildClinicFeatureSections,
@@ -51,6 +50,7 @@ import type {
 
 const KO_CLINIC_DNA_ID = 'medical-clinical-clarity' as const;
 const KO_CLINIC_HUE_SEED = 205;
+const KO_CLINIC_FONT_PAIRING_ID = 'kr-nanum-myeongjo-readable' as const;
 const BOARD_LABELS = Object.freeze({
   customer: '고객의 소리',
   edu: '학술활동',
@@ -1231,15 +1231,9 @@ export function compileKoClinicSite(input: {
     KO_CLINIC_HUE_SEED,
   ));
   const clinicTheme = resolveClinicMasterTheme(baseTheme, pin);
-  const fontSelection = resolveFontPairingForLocale({
-    locale: 'ko-KR',
-    dnaId: KO_CLINIC_DNA_ID,
-    industryClass: 'medical',
-  });
-  const theme = applyModernKoreanFontPairing(
-    clinicTheme,
-    fontSelection?.locale === 'ko-KR' ? fontSelection.id : null,
-  );
+  // KO-D explicitly opts this import-only surface into the authored display/body pair.
+  // The general medical DNA resolver remains unchanged for Basic and en-US surfaces.
+  const theme = applyKoreanFontPairing(clinicTheme, KO_CLINIC_FONT_PAIRING_ID);
   const renderAssignments: KoClinicRenderAssignment[] = [];
   const sourcePages = publishablePages.map((page): SitePage => {
     const slug = slugBySourceUrl.get(normalizeSourceUrl(page.sourceUrl))!;

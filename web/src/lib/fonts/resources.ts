@@ -228,6 +228,26 @@ export function fontPairingResources(theme: SiteTheme): FontPairingResources | n
   return koreanResourcesFor(theme, null);
 }
 
+/**
+ * KO opt-in surfaces can consume the authored role weights without duplicating numeric values.
+ * The renderer calls this only inside its ko-KR clinic branch; existing sites and Latin pins
+ * retain their current weight projection.
+ */
+export function koreanFontPairingRoleWeights(theme: SiteTheme): {
+  heading: number;
+  body: number;
+  control: number;
+} | null {
+  const pin = theme.fontPairing;
+  if (!pin || isLatinPin(pin)) return null;
+  const manifest = productionKoreanFontPairingById(pin.id).productionManifest;
+  return {
+    heading: manifest.heading.weights[0],
+    body: manifest.body.weights[0],
+    control: manifest.control.weights[0],
+  };
+}
+
 function codePointsInRange(unicodeRange: string): Set<number> {
   const output = new Set<number>();
   for (const token of unicodeRange.split(/,\s*/u)) {

@@ -44,7 +44,10 @@ import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
 import { signatureContractEnabled } from '@/lib/motion/signature-contract';
-import { fontPairingResources } from '@/lib/fonts/resources';
+import {
+  fontPairingResources,
+  koreanFontPairingRoleWeights,
+} from '@/lib/fonts/resources';
 import { projectAuthoritativePublicContact } from '@/lib/seo/public-contact';
 import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
 import {
@@ -454,6 +457,9 @@ export function SiteRenderer({
     && section.type === 'hero'
     && !section.background.video?.src;
   const pinnedFontResources = fontPairingResources(theme);
+  const koClinicFontWeights = clinicLocale === 'ko-KR'
+    ? koreanFontPairingRoleWeights(theme)
+    : null;
   const fontUrls = pinnedFontResources ? [] : googleFontUrls(theme.fonts.googleFonts);
 
   // v2 signature는 저장값을 곧바로 신뢰하지 않는다. 렌더 진입에서도 업종·tier·target·자산 소유권을
@@ -547,9 +553,12 @@ export function SiteRenderer({
     clinicStyle['--clinic-control-family'] = clinicLocale === 'ko-KR'
       ? theme.fonts.body
       : clinicTokens.controlFamily;
-    clinicStyle['--clinic-control-weight'] = clinicTokens.controlWeight;
-    clinicStyle['--clinic-display-weight'] = clinicTokens.displayWeight;
-    clinicStyle['--clinic-heading-weight'] = clinicTokens.headingWeight;
+    clinicStyle['--clinic-control-weight'] = koClinicFontWeights?.control
+      ?? clinicTokens.controlWeight;
+    clinicStyle['--clinic-display-weight'] = koClinicFontWeights?.heading
+      ?? clinicTokens.displayWeight;
+    clinicStyle['--clinic-heading-weight'] = koClinicFontWeights?.heading
+      ?? clinicTokens.headingWeight;
     clinicStyle['--clinic-background'] = theme.palette.background;
     clinicStyle['--clinic-surface'] = theme.palette.surface;
     clinicStyle['--clinic-text'] = theme.palette.text;

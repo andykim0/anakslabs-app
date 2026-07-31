@@ -281,6 +281,9 @@ export const CLINIC_FLOW_CSS = `
   font-weight: var(--clinic-display-weight);
   line-height: 1.02;
 }
+[data-ko-clinic] [data-clinic-flow-hero-copy] h1[data-clinic-ko-long-token] {
+  font-size: clamp(2.25rem,4vw,3.5rem);
+}
 [data-clinic-flow-hero-copy] p {
   max-width: 42rem;
   margin: 0;
@@ -884,6 +887,10 @@ export function ClinicFlowSection({
         ? contentText[0]?.text.trim()
         : pageHeading?.trim()
     ) || contentText[0]?.text.trim() || section.name;
+    const compactKoDisplay = locale === 'ko-KR'
+      && /[가-힣]/u.test(heading)
+      && !/\s/u.test(heading)
+      && [...heading].length >= 8;
     const sourceHeading = contentText[0]?.text.trim();
     const remainingText = sourceHeading === heading ? contentText.slice(1) : contentText;
     const heroId = section.heroLayout?.resolvedId ?? 'hero.source-flow';
@@ -969,6 +976,7 @@ export function ClinicFlowSection({
               data-font-role="heading"
               data-clinic-typography-tier="display"
               data-clinic-tracking-role="display"
+              {...(compactKoDisplay ? { 'data-clinic-ko-long-token': '' } : {})}
               style={{
                 letterSpacing: resolveTypographyTracking({
                   fontSizePx: 88,

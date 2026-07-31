@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { createElement } from 'react';
@@ -718,6 +719,96 @@ test('KO-D density limits are pinned to the declared 30-site survey quantiles', 
       quantile: 'P90',
     },
   });
+});
+
+test('KO-D-b pins the authored Nanum Myeongjo 700 + Pretendard body preset without font asset drift', () => {
+  const page = extractKoClinicPage({
+    html: STATIC_HTML,
+    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  });
+  const compilation = compileKoClinicSite({
+    pages: [page],
+    images: optimizedFixtureImages(
+      page.images
+        .filter((image) => image.classification === 'content')
+        .map((image) => image.sourceUrl),
+    ),
+  });
+  assert.deepEqual(compilation.config.theme.fontPairing, {
+    catalogVersion: 1,
+    id: 'kr-nanum-myeongjo-readable',
+  });
+  assert.equal(
+    compilation.config.theme.fonts.heading,
+    "'Nanum Myeongjo', 'Noto Serif KR', serif",
+  );
+  assert.equal(
+    compilation.config.theme.fonts.body,
+    "'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif",
+  );
+  assert.doesNotMatch(compilation.config.theme.fonts.heading, /Noto Sans|Arial|Inter|Roboto/iu);
+
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compilation.config,
+    pageSlug: 'center-vascular',
+    mode: 'desktop',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /data-font-pairing="kr-nanum-myeongjo-readable"/u);
+  assert.match(html, /font-family:"Nanum Myeongjo"/u);
+  assert.match(html, /font-family:"Pretendard Variable"/u);
+  assert.match(html, /--clinic-display-weight:700/u);
+  assert.match(html, /--clinic-heading-weight:700/u);
+  assert.match(html, /--clinic-control-weight:600/u);
+  assert.match(
+    html,
+    /data-font-role="heading"[\s\S]*letter-spacing:-0\.015em!important;line-height:1\.28!important/u,
+  );
+  assert.match(
+    html,
+    /data-font-role="body"[\s\S]*letter-spacing:-0\.005em!important;line-height:1\.74!important/u,
+  );
+
+  const compactTitlePage = extractKoClinicPage({
+    html: STATIC_HTML.replace(
+      /<h2><em>하<\/em><em>지<\/em><em>정<\/em><em>맥<\/em><em>류<\/em><\/h2>/u,
+      '<h2>경피적내시경하위루술</h2>',
+    ),
+    sourceUrl: 'https://edomclinic.com/page/sub1_4_3.php',
+  });
+  const compactTitleCompilation = compileKoClinicSite({
+    pages: [compactTitlePage],
+    images: optimizedFixtureImages(
+      compactTitlePage.images
+        .filter((image) => image.classification === 'content')
+        .map((image) => image.sourceUrl),
+    ),
+  });
+  const compactTitleHtml = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compactTitleCompilation.config,
+    pageSlug: 'sub1-4-3',
+    mode: 'desktop',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(compactTitleHtml, /data-clinic-ko-long-token=""/u);
+  assert.match(
+    compactTitleHtml,
+    /h1\[data-clinic-ko-long-token\]\s*\{\s*font-size:\s*clamp\(2\.25rem,4vw,3\.5rem\)/u,
+  );
+
+  const fileSha = (relativePath: string) => createHash('sha256')
+    .update(readFileSync(new URL(relativePath, import.meta.url)))
+    .digest('hex');
+  assert.equal(
+    fileSha('../../../public/fonts/korean/font-assets.json'),
+    '8dd5b55790a829f426fdddd1e2a3d5f516725bf32674069a28064a508409e38d',
+  );
+  assert.equal(
+    fileSha('../../../public/fonts/latin/font-assets.json'),
+    '9fd1e6ca1957cc54ce4e91e5772ea7dba8d528c6ff8290d8e5090f923331a47e',
+  );
 });
 
 test('KO-D image manifest pins a bounded lowest-variance hero copy zone for every asset', () => {
