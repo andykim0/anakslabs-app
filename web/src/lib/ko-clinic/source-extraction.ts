@@ -15,6 +15,10 @@ import type {
   KoClinicSourceImage,
   KoClinicSourceKind,
 } from './contracts';
+import {
+  EDOM_KO_CLINIC_SOURCE_PROFILE,
+  type KoClinicSourceProfile,
+} from './source-profile';
 
 const CONTENT_TAGS = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,address,th,td,figcaption';
 const BOARD_RICH_CONTENT_TAGS = `${CONTENT_TAGS},div`;
@@ -248,11 +252,14 @@ function renderRole(input: {
   return 'body';
 }
 
-function boardCoordinates(sourceUrl: string): KoClinicExtractedPage['board'] {
+function boardCoordinates(
+  sourceUrl: string,
+  profile: KoClinicSourceProfile,
+): KoClinicExtractedPage['board'] {
   const url = new URL(sourceUrl);
-  if (!url.pathname.endsWith('/bbs/board.php')) return undefined;
-  const table = url.searchParams.get('bo_table');
-  const wrId = Number(url.searchParams.get('wr_id'));
+  if (!profile.board || url.pathname !== profile.board.pathname) return undefined;
+  const table = url.searchParams.get(profile.board.tableParam);
+  const wrId = Number(url.searchParams.get(profile.board.articleIdParam));
   return table && Number.isSafeInteger(wrId) && wrId > 0 ? { table, wrId } : undefined;
 }
 
@@ -263,44 +270,46 @@ function boardTitle(root: HTMLElement): HTMLElement | null {
   return titleRow?.querySelector('td div') ?? titleRow?.querySelector('td') ?? null;
 }
 
-function pageHeading(root: HTMLElement): HTMLElement | null {
+function pageHeading(root: HTMLElement, profile: KoClinicSourceProfile): HTMLElement | null {
   return boardTitle(root)
-    ?? root.querySelector('.sub_tit .main_tit h2')
-    ?? root.querySelector('.main_tit h2')
-    ?? root.querySelector('main h1')
-    ?? root.querySelector('main h2')
-    ?? root.querySelector('h1')
-    ?? root.querySelector('h2');
+    ?? profile.headingSelectors
+      .map((selector) => root.querySelector(selector))
+      .find((element): element is HTMLElement => Boolean(element))
+    ?? null;
 }
 
-function fallbackTitle(sourceUrl: string, board: KoClinicExtractedPage['board']): string {
+function fallbackTitle(
+  sourceUrl: string,
+  board: KoClinicExtractedPage['board'],
+  profile: KoClinicSourceProfile,
+): string {
   if (board) {
-    const labels: Record<string, string> = {
-      customer: '고객의 소리',
-      edu: '학술활동',
-      news: '공지사항',
-      photo: '이담with스타',
-      praise: '칭찬합니다',
-      pub_counsel: '전문의상담',
-      story: '이벤트',
-      tv: '이담미디어',
-    };
-    return `${labels[board.table] ?? board.table} ${board.wrId}`;
+    return `${profile.board?.labels[board.table] ?? board.table} ${board.wrId}`;
   }
   const url = new URL(sourceUrl);
-  if (url.pathname === '/' || url.pathname === '/main.php') return '이담병원';
-  return url.pathname.split('/').pop()?.replace(/\.php$/u, '') ?? '이담병원';
+  if (profile.homePaths.includes(url.pathname) && profile.fallbackHomeTitle) {
+    return profile.fallbackHomeTitle;
+  }
+  return url.pathname.split('/').pop()?.replace(/\.[a-z0-9]+$/iu, '')
+    || url.hostname;
 }
 
-function contentRoot(root: HTMLElement, board: KoClinicExtractedPage['board']): HTMLElement {
+function contentRoot(
+  root: HTMLElement,
+  board: KoClinicExtractedPage['board'],
+  profile: KoClinicSourceProfile,
+): HTMLElement {
   if (board) {
     return root.querySelector('#writeContents')
       ?? root.querySelector('.board_view')
-      ?? root.querySelector('.content_wrap')
+      ?? profile.contentRootSelectors
+        .map((selector) => root.querySelector(selector))
+        .find((element): element is HTMLElement => Boolean(element))
       ?? root;
   }
-  return root.querySelector('.content_wrap')
-    ?? root.querySelector('main')
+  return profile.contentRootSelectors
+    .map((selector) => root.querySelector(selector))
+    .find((element): element is HTMLElement => Boolean(element))
     ?? root;
 }
 
@@ -393,10 +402,12 @@ function breadcrumbBlocks(
   root: HTMLElement,
   sourceUrl: string,
   titleText: string,
+  profile: KoClinicSourceProfile,
 ): KoClinicSourceBlock[] {
   const seen = new Set<string>();
   const blocks: KoClinicSourceBlock[] = [];
-  for (const element of root.querySelectorAll('.main_tit .breadcrumb li,.main_tit .depth li')) {
+  for (const selector of profile.breadcrumbSelectors) {
+    for (const element of root.querySelectorAll(selector)) {
     const text = blockText(element);
     if (!text || text === titleText || seen.has(text)) continue;
     seen.add(text);
@@ -404,9 +415,10 @@ function breadcrumbBlocks(
       kind: 'category',
       text,
       sourceUrl,
-      locator: '.main_tit:source-breadcrumb',
+      locator: profile.breadcrumbLocator ?? `${selector}:source-breadcrumb`,
       ordinal: blocks.length,
     }));
+    }
   }
   return blocks;
 }
@@ -623,15 +635,19 @@ function sourceImages(
 function extractKoClinicPageSource(input: {
   html: string;
   sourceUrl: string;
+  profile?: KoClinicSourceProfile;
 }): KoClinicExtractedPage {
+  const profile = input.profile ?? EDOM_KO_CLINIC_SOURCE_PROFILE;
   const root = parse(input.html);
-  const board = boardCoordinates(input.sourceUrl);
-  const heading = pageHeading(root);
-  const titleText = heading ? compactAnimatedHeading(heading) : fallbackTitle(input.sourceUrl, board);
+  const board = boardCoordinates(input.sourceUrl, profile);
+  const heading = pageHeading(root, profile);
+  const titleText = heading
+    ? compactAnimatedHeading(heading)
+    : fallbackTitle(input.sourceUrl, board, profile);
   const titleLocator = heading ? 'visible-page-heading' : 'url-structural-fallback';
   const title = sourceBlock({
     kind: 'page_title',
-    text: titleText || fallbackTitle(input.sourceUrl, board),
+    text: titleText || fallbackTitle(input.sourceUrl, board, profile),
     sourceUrl: input.sourceUrl,
     locator: titleLocator,
     ordinal: 0,
@@ -652,18 +668,25 @@ function extractKoClinicPageSource(input: {
         }
       : {}),
   });
-  const logoIdentity = root.querySelector('img[alt*="이담"]')?.getAttribute('alt');
+  const identityElement = profile.businessNameSelectors
+    .map((selector) => root.querySelector(selector))
+    .find((element): element is HTMLElement => Boolean(element));
+  const logoIdentity = identityElement?.tagName === 'META'
+    ? identityElement.getAttribute('content')
+    : identityElement?.getAttribute('alt');
   const businessNameText = logoIdentity ? normalizeKoClinicText(logoIdentity) : '';
   const businessName = businessNameText
     ? sourceBlock({
         kind: 'business_name',
         text: businessNameText,
         sourceUrl: input.sourceUrl,
-        locator: 'img[alt*="이담"]@alt',
+        locator: profile.businessNameLocator ?? `${profile.businessNameSelectors[0] ?? 'identity'}@${
+          identityElement?.tagName === 'META' ? 'content' : 'alt'
+        }`,
         ordinal: 1,
       })
     : undefined;
-  const content = contentRoot(root, board);
+  const content = contentRoot(root, board, profile);
   const contentClone = parse(content.toString());
   for (const element of contentClone.querySelectorAll(REMOVABLE)) element.remove();
   assignRenderGroups(contentClone);
@@ -674,7 +697,7 @@ function extractKoClinicPageSource(input: {
     sourceUrl: input.sourceUrl,
     candidateSelector,
   });
-  const breadcrumbs = breadcrumbBlocks(root, input.sourceUrl, title.text);
+  const breadcrumbs = breadcrumbBlocks(root, input.sourceUrl, title.text, profile);
   const evidence = boardEvidence(
     root,
     input.sourceUrl,
@@ -710,6 +733,7 @@ function extractKoClinicPageSource(input: {
 export function extractKoClinicPage(input: {
   html: string;
   sourceUrl: string;
+  profile?: KoClinicSourceProfile;
 }): KoClinicExtractedPage {
   return runClinicSourceExtraction({
     profile: KO_MEDICAL_IMPORT_PROFILE,

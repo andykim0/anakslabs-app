@@ -7,10 +7,13 @@ import {
   DABOIM_CRAWLER_USER_AGENT,
   DESIGNATED_CRAWL_POLICY,
   type CrawlArtifactPayload,
+  type CrawlAccessWarning,
   type CrawlConnectorCandidate,
   type CrawlImageCandidate,
   type CrawlImageRole,
+  type CrawlPageAccessObservation,
   type CrawlPageArtifact,
+  type CrawlPageFailure,
   type CrawlSkippedUrl,
   type CrawlTlsObservation,
 } from './contracts';
@@ -51,6 +54,8 @@ const CERTIFICATE_ERROR_CODES = new Set([
   'CERT_HAS_EXPIRED',
   'DEPTH_ZERO_SELF_SIGNED_CERT',
   'ERR_TLS_CERT_ALTNAME_INVALID',
+  'ERR_SSL_DH_KEY_TOO_SMALL',
+  'DH_KEY_TOO_SMALL',
   'SELF_SIGNED_CERT_IN_CHAIN',
   'UNABLE_TO_GET_ISSUER_CERT',
   'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
@@ -66,7 +71,10 @@ export type CrawlErrorCode =
   | 'NOT_HTML'
   | 'TOO_LARGE'
   | 'CROSS_ORIGIN_REDIRECT'
+  | 'REDIRECT_LOOP'
+  | 'RATE_LIMITED'
   | 'TLS_FALLBACK_NOT_APPROVED'
+  | 'TLS_INSECURE_FETCH_UNAVAILABLE'
   | 'UNSAFE_URL'
   | 'AUTH_REDIRECT';
 
@@ -81,16 +89,36 @@ type ValidateUrl = (url: string) => Promise<URL>;
 
 export interface CrawlDependencies {
   fetchFn?: typeof fetch;
+  /**
+   * Never supplied by the production default. A caller must pair this explicit
+   * transport with allowInvalidTlsCertificate=true for a single audited run.
+   */
+  invalidTlsFetchFn?: typeof fetch;
   validateUrl?: ValidateUrl;
   wait?: (milliseconds: number) => Promise<void>;
   now?: () => Date;
+  /** Server-owned validation override; always capped by the production policy. */
+  pageLimit?: number;
   probeSocialLinks?: (urls: readonly string[]) => Promise<SocialLinkObservation[]>;
+  renderPage?: (input: {
+    url: string;
+    rawHtml: string;
+  }) => Promise<{
+    html: string;
+    finalUrl?: string;
+    observation: CrawlPageAccessObservation;
+  }>;
 }
 
 interface FetchedDocument {
   response: Response;
   finalUrl: URL;
   ttfbMs: number;
+}
+
+interface TlsInspection {
+  observation: CrawlTlsObservation;
+  resolvedHttpsUrl?: URL;
 }
 
 function normalizedHost(hostname: string): string {
@@ -136,7 +164,13 @@ async function fetchWithRedirects(
 ): Promise<FetchedDocument> {
   let current = await input.validateUrl(rawUrl);
   let responseMs = 0;
+  const visited = new Set<string>();
   for (let hop = 0; hop <= DESIGNATED_CRAWL_POLICY.maxRedirects; hop += 1) {
+    const currentKey = current.toString();
+    if (visited.has(currentKey)) {
+      throw new CrawlError('REDIRECT_LOOP', '리다이렉트 순환을 감지해 중단했습니다.');
+    }
+    visited.add(currentKey);
     if (input.requiredOrigin && current.origin !== input.requiredOrigin) {
       throw new CrawlError('CROSS_ORIGIN_REDIRECT', '지정한 사이트 밖으로 이동해 크롤을 중단했습니다.');
     }
@@ -210,7 +244,7 @@ async function inspectTls(
     validateUrl: ValidateUrl;
     allowTlsHttpFallback: boolean;
   },
-): Promise<CrawlTlsObservation> {
+): Promise<TlsInspection> {
   const httpsUrl = new URL(seed.toString());
   httpsUrl.protocol = 'https:';
   httpsUrl.port = '';
@@ -224,31 +258,57 @@ async function inspectTls(
     });
     await fetched.response.body?.cancel().catch(() => undefined);
     return {
-      httpsUrl: httpsUrl.toString(),
-      status: 'valid',
-      httpFallbackApproved: hostApproved && input.allowTlsHttpFallback,
-      httpFallbackUsed: false,
+      observation: {
+        httpsUrl: httpsUrl.toString(),
+        status: 'valid',
+        httpFallbackApproved: hostApproved && input.allowTlsHttpFallback,
+        httpFallbackUsed: false,
+      },
+      resolvedHttpsUrl: fetched.finalUrl,
     };
   } catch (error) {
     const code = certificateErrorCode(error);
     if (!code) {
       return {
-        httpsUrl: httpsUrl.toString(),
-        status: 'unavailable',
-        ...(errorCode(error) ? { errorCode: errorCode(error) } : {}),
-        httpFallbackApproved: false,
-        httpFallbackUsed: false,
+        observation: {
+          httpsUrl: httpsUrl.toString(),
+          status: 'unavailable',
+          ...(errorCode(error) ? { errorCode: errorCode(error) } : {}),
+          httpFallbackApproved: false,
+          httpFallbackUsed: false,
+        },
       };
     }
     const approved = hostApproved && input.allowTlsHttpFallback;
     return {
-      httpsUrl: httpsUrl.toString(),
-      status: 'certificate_error',
-      errorCode: code,
-      httpFallbackApproved: approved,
-      httpFallbackUsed: approved && seed.protocol === 'http:',
+      observation: {
+        httpsUrl: httpsUrl.toString(),
+        status: 'certificate_error',
+        errorCode: code,
+        httpFallbackApproved: approved,
+        httpFallbackUsed: approved && seed.protocol === 'http:',
+      },
     };
   }
+}
+
+function retryAfterMilliseconds(response: Response, now: Date): number {
+  const raw = response.headers.get('retry-after')?.trim();
+  if (!raw) return DESIGNATED_CRAWL_POLICY.minRequestIntervalMs;
+  if (/^\d+$/u.test(raw)) return Number(raw) * 1_000;
+  const retryAt = Date.parse(raw);
+  return Number.isFinite(retryAt)
+    ? Math.max(0, retryAt - now.getTime())
+    : DESIGNATED_CRAWL_POLICY.minRequestIntervalMs;
+}
+
+function pageFailureCode(error: unknown): CrawlPageFailure['code'] {
+  if (!(error instanceof CrawlError)) return 'fetch_failed';
+  if (error.code === 'AUTH_REDIRECT') return 'auth_redirect';
+  if (error.code === 'REDIRECT_LOOP') return 'redirect_loop';
+  if (error.code === 'RATE_LIMITED') return 'rate_limited';
+  if (error.code === 'TOO_LARGE') return 'too_large';
+  return 'fetch_failed';
 }
 
 function imageRole(element: HTMLElement): CrawlImageRole {
@@ -446,6 +506,7 @@ export async function crawlDesignatedSite(
   input: {
     url: string;
     allowTlsHttpFallback?: boolean;
+    allowInvalidTlsCertificate?: boolean;
     scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
   },
   dependencies: CrawlDependencies = {},
@@ -459,6 +520,10 @@ export async function crawlDesignatedSite(
     setTimeout(resolve, milliseconds);
   }));
   const now = dependencies.now ?? (() => new Date());
+  const requestedPageLimit = dependencies.pageLimit;
+  const pageLimit = Number.isFinite(requestedPageLimit) && (requestedPageLimit ?? 0) > 0
+    ? Math.min(DESIGNATED_CRAWL_POLICY.maxPages, Math.floor(requestedPageLimit!))
+    : DESIGNATED_CRAWL_POLICY.maxPages;
   const observedAt = now().toISOString();
 
   let seed: URL;
@@ -476,20 +541,50 @@ export async function crawlDesignatedSite(
     throw new CrawlError('PLATFORM_HOST_BLOCKED', '플랫폼 페이지는 다페이지 수집 대상이 아닙니다.');
   }
 
-  const tls = await inspectTls(seed, {
+  const tlsInspection = await inspectTls(seed, {
     fetchFn,
     validateUrl,
     allowTlsHttpFallback: input.allowTlsHttpFallback === true,
   });
+  let tls = tlsInspection.observation;
+  let crawlFetchFn = fetchFn;
+  const accessWarnings: CrawlAccessWarning[] = [];
+  if (
+    tls.status === 'valid'
+    && seed.protocol === 'http:'
+    && tlsInspection.resolvedHttpsUrl
+  ) {
+    seed = new URL(tlsInspection.resolvedHttpsUrl.toString());
+  }
   if (tls.status === 'certificate_error') {
-    if (!tls.httpFallbackApproved) {
+    if (input.allowInvalidTlsCertificate === true) {
+      if (!dependencies.invalidTlsFetchFn) {
+        throw new CrawlError(
+          'TLS_INSECURE_FETCH_UNAVAILABLE',
+          '인증서 경고 진행이 명시됐지만 격리된 관대 전송기가 제공되지 않았습니다.',
+        );
+      }
+      crawlFetchFn = dependencies.invalidTlsFetchFn;
+      seed = new URL(tls.httpsUrl);
+      tls = {
+        ...tls,
+        httpFallbackUsed: false,
+        certificateWarningAccepted: true,
+      };
+      accessWarnings.push({
+        code: 'tls_certificate_verification_bypassed',
+        url: tls.httpsUrl,
+        detail: tls.errorCode ?? 'certificate_error',
+      });
+    } else if (!tls.httpFallbackApproved) {
       throw new CrawlError('TLS_FALLBACK_NOT_APPROVED', '인증서 오류가 있어 승인된 HTTP 폴백 없이는 진행할 수 없습니다.');
+    } else {
+      if (seed.protocol === 'https:') {
+        seed.protocol = 'http:';
+        seed.port = '';
+      }
+      tls.httpFallbackUsed = true;
     }
-    if (seed.protocol === 'https:') {
-      seed.protocol = 'http:';
-      seed.port = '';
-    }
-    tls.httpFallbackUsed = true;
   }
 
   let lastRequestAt = Date.now();
@@ -497,13 +592,31 @@ export async function crawlDesignatedSite(
     url: string,
     options: Omit<Parameters<typeof fetchWithRedirects>[1], 'fetchFn' | 'validateUrl'>,
   ) => {
-    const elapsed = Date.now() - lastRequestAt;
-    if (lastRequestAt > 0 && elapsed < DESIGNATED_CRAWL_POLICY.minRequestIntervalMs) {
-      await wait(DESIGNATED_CRAWL_POLICY.minRequestIntervalMs - elapsed);
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const elapsed = Date.now() - lastRequestAt;
+      if (lastRequestAt > 0 && elapsed < DESIGNATED_CRAWL_POLICY.minRequestIntervalMs) {
+        await wait(DESIGNATED_CRAWL_POLICY.minRequestIntervalMs - elapsed);
+      }
+      const result = await fetchWithRedirects(url, {
+        ...options,
+        fetchFn: crawlFetchFn,
+        validateUrl,
+      });
+      lastRequestAt = Date.now();
+      if (result.response.status !== 403 && result.response.status !== 429) return result;
+      const delay = retryAfterMilliseconds(result.response, now());
+      await result.response.body?.cancel().catch(() => undefined);
+      if (attempt === 2 || delay > DESIGNATED_CRAWL_POLICY.maxRateLimitRetryDelayMs) {
+        throw new CrawlError(
+          'RATE_LIMITED',
+          delay > DESIGNATED_CRAWL_POLICY.maxRateLimitRetryDelayMs
+            ? '서버 재시도 유예가 안전 상한을 넘어 다음 사이트로 진행합니다.'
+            : '접근 제한 응답이 재시도 뒤에도 유지됐습니다.',
+        );
+      }
+      await wait(Math.max(DESIGNATED_CRAWL_POLICY.minRequestIntervalMs, delay));
     }
-    const result = await fetchWithRedirects(url, { ...options, fetchFn, validateUrl });
-    lastRequestAt = Date.now();
-    return result;
+    throw new CrawlError('RATE_LIMITED', '접근 제한 응답이 유지됐습니다.');
   };
 
   const origin = seed.origin;
@@ -596,6 +709,7 @@ export async function crawlDesignatedSite(
   }
 
   const pages: CrawlPageArtifact[] = [];
+  const pageFailures: CrawlPageFailure[] = [];
   let clinicPaletteProjection: ClinicPaletteProjection | null = null;
   const skippedUrls: CrawlSkippedUrl[] = [];
   const skippedKeys = new Set<string>();
@@ -606,7 +720,7 @@ export async function crawlDesignatedSite(
     skippedUrls.push(item);
   };
   const visited = new Set<string>();
-  while (queue.length > 0 && pages.length < DESIGNATED_CRAWL_POLICY.maxPages) {
+  while (queue.length > 0 && pages.length < pageLimit) {
     const next = queue.shift()!;
     if (visited.has(next)) continue;
     const nextUrl = new URL(next);
@@ -632,19 +746,82 @@ export async function crawlDesignatedSite(
         visited.add(next);
         continue;
       }
-      throw new CrawlError('FETCH_FAILED', '페이지 응답을 확인할 수 없어 보수적으로 중단했습니다.');
+      pageFailures.push({
+        url: next,
+        stage: 'access',
+        code: pageFailureCode(error),
+        attempts: error instanceof CrawlError && error.code === 'RATE_LIMITED' ? 2 : 1,
+      });
+      visited.add(next);
+      continue;
     }
     visited.add(next);
     if (!fetched.response.ok) {
-      await fetched.response.body?.cancel().catch(() => undefined);
-      throw new CrawlError('FETCH_FAILED', '페이지가 오류 상태를 반환해 보수적으로 중단했습니다.');
-    }
-    const contentType = fetched.response.headers.get('content-type') ?? '';
-    if (!/(?:text\/html|application\/xhtml\+xml)/iu.test(contentType)) {
+      pageFailures.push({
+        url: fetched.finalUrl.toString(),
+        stage: 'access',
+        code: 'http_error',
+        status: fetched.response.status,
+        attempts: 1,
+      });
       await fetched.response.body?.cancel().catch(() => undefined);
       continue;
     }
-    const html = await readLimited(fetched.response);
+    const contentType = fetched.response.headers.get('content-type') ?? '';
+    if (!/(?:text\/html|application\/xhtml\+xml)/iu.test(contentType)) {
+      pageFailures.push({
+        url: fetched.finalUrl.toString(),
+        stage: 'access',
+        code: 'not_html',
+        status: fetched.response.status,
+        attempts: 1,
+      });
+      await fetched.response.body?.cancel().catch(() => undefined);
+      continue;
+    }
+    let html: string;
+    try {
+      html = await readLimited(fetched.response);
+    } catch (error) {
+      pageFailures.push({
+        url: fetched.finalUrl.toString(),
+        stage: 'access',
+        code: pageFailureCode(error),
+        status: fetched.response.status,
+        attempts: 1,
+      });
+      continue;
+    }
+    let accessObservation: CrawlPageAccessObservation | undefined;
+    if (dependencies.renderPage) {
+      try {
+        const rendered = await dependencies.renderPage({
+          url: fetched.finalUrl.toString(),
+          rawHtml: html,
+        });
+        if (rendered.finalUrl) {
+          const renderedUrl = await validateUrl(rendered.finalUrl);
+          if (renderedUrl.origin !== origin) {
+            throw new CrawlError(
+              'CROSS_ORIGIN_REDIRECT',
+              '브라우저 렌더가 지정한 사이트 밖으로 이동했습니다.',
+            );
+          }
+          fetched.finalUrl = renderedUrl;
+        }
+        html = rendered.html;
+        accessObservation = rendered.observation;
+      } catch (error) {
+        pageFailures.push({
+          url: fetched.finalUrl.toString(),
+          stage: 'access',
+          code: 'render_failed',
+          status: fetched.response.status,
+          attempts: 2,
+          detail: (error instanceof Error ? error.message : String(error)).slice(0, 500),
+        });
+      }
+    }
     if (input.scanProfileId === US_MEDICAL_OUTREACH_PROFILE_ID) {
       const candidate = projectClinicPaletteFromHtml(html);
       if (
@@ -704,6 +881,7 @@ export async function crawlDesignatedSite(
     pages.push({
       ...projected.page,
       ...(aiVisibilitySummary ? { aiVisibilitySummary } : {}),
+      ...(accessObservation ? { accessObservation } : {}),
       decay,
     });
     projected.skipped.forEach(addSkipped);
@@ -733,6 +911,8 @@ export async function crawlDesignatedSite(
     },
     pages,
     skippedUrls,
-    stoppedReason: pages.length >= DESIGNATED_CRAWL_POLICY.maxPages ? 'page_limit' : 'queue_exhausted',
+    ...(pageFailures.length > 0 ? { pageFailures } : {}),
+    ...(accessWarnings.length > 0 ? { accessWarnings } : {}),
+    stoppedReason: pages.length >= pageLimit ? 'page_limit' : 'queue_exhausted',
   };
 }

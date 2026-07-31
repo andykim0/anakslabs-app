@@ -27,6 +27,7 @@ export const DESIGNATED_CRAWL_POLICY = {
   maxPages: 20,
   minRequestIntervalMs: 1_000,
   maxRedirects: 3,
+  maxRateLimitRetryDelayMs: 30_000,
   requestTimeoutMs: 8_000,
   maxHtmlBytes: 1_000_000,
   maxSitemaps: 3,
@@ -85,6 +86,8 @@ export interface CrawlPageArtifact {
   connectors: CrawlConnectorCandidate[];
   /** US outreach crawl only: minimized signal projection computed while source HTML is in memory. */
   aiVisibilitySummary?: AiVisibilitySummary;
+  /** Present only when an explicitly supplied browser renderer was used. */
+  accessObservation?: CrawlPageAccessObservation;
   decay: DecayScoreResult;
 }
 
@@ -94,6 +97,47 @@ export interface CrawlTlsObservation {
   errorCode?: string;
   httpFallbackApproved: boolean;
   httpFallbackUsed: boolean;
+  /** Explicit per-run opt-in only. TLS verification remains enabled by default. */
+  certificateWarningAccepted?: boolean;
+}
+
+export interface CrawlModalReleaseObservation {
+  version: 1;
+  beforeDomSha256: string;
+  afterDomSha256: string;
+  removedNodeCount: number;
+  removedSelectors: string[];
+}
+
+export interface CrawlPageAccessObservation {
+  version: 1;
+  renderAttempts: number;
+  fullScrollCompleted: boolean;
+  screenshotSegments: Array<{ y: number; height: number }>;
+  modalRelease?: CrawlModalReleaseObservation;
+}
+
+export interface CrawlPageFailure {
+  url: string;
+  stage: 'access';
+  code:
+    | 'auth_redirect'
+    | 'fetch_failed'
+    | 'http_error'
+    | 'not_html'
+    | 'rate_limited'
+    | 'redirect_loop'
+    | 'render_failed'
+    | 'too_large';
+  status?: number;
+  attempts: number;
+  detail?: string;
+}
+
+export interface CrawlAccessWarning {
+  code: 'tls_certificate_verification_bypassed';
+  url: string;
+  detail: string;
 }
 
 export interface CrawlRobotsObservation {
@@ -129,6 +173,10 @@ export interface CrawlArtifactPayload {
   robots: CrawlRobotsObservation;
   pages: CrawlPageArtifact[];
   skippedUrls: CrawlSkippedUrl[];
+  /** Additive failure ledger. Omitted for legacy all-success crawls. */
+  pageFailures?: CrawlPageFailure[];
+  /** Additive explicit-risk ledger. Omitted when no opt-in was used. */
+  accessWarnings?: CrawlAccessWarning[];
   stoppedReason?: 'page_limit' | 'queue_exhausted';
 }
 

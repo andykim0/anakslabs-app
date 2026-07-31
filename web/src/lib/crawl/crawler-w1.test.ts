@@ -64,19 +64,19 @@ describe('CRAWL W1 — designated crawl', () => {
       },
     );
     assert.equal(calls[0], 'https://example.com/');
-    assert.equal(calls[1], 'http://example.com/robots.txt');
+    assert.equal(calls[1], 'https://example.com/robots.txt');
     assert.deepEqual(result.pages.map((page) => page.url), [
-      'http://example.com/',
-      'http://example.com/about',
+      'https://example.com/',
+      'https://example.com/about',
     ]);
     assert.ok(waits.every((value) => value <= DESIGNATED_CRAWL_POLICY.minRequestIntervalMs));
     assert.equal(result.pages.some((page) => page.url.includes('outside.example')), false);
     assert.equal(result.pages.some((page) => /login|action=delete/u.test(page.url)), false);
     assert.equal(result.pages[0].text.includes('회원가입 전용 문구'), false);
     assert.deepEqual(result.skippedUrls, [
-      { url: 'http://example.com/login', reason: 'auth_or_account' },
-      { url: 'http://example.com/index.php', reason: 'auth_or_account' },
-      { url: 'http://example.com/work', reason: 'side_effect' },
+      { url: 'https://example.com/login', reason: 'auth_or_account' },
+      { url: 'https://example.com/index.php', reason: 'auth_or_account' },
+      { url: 'https://example.com/work', reason: 'side_effect' },
     ]);
     assert.equal(calls.some((url) => /login|member|action=delete/iu.test(url)), false);
   });
@@ -166,7 +166,7 @@ describe('CRAWL W1 — designated crawl', () => {
     for (const forbidden of ['rawHtml', 'imageBytes', 'set-cookie', 'secret=1', 'ipAddress', 'userAgent']) {
       assert.equal(serialized.includes(forbidden), false, forbidden);
     }
-    assert.equal(result.pages[0].images[0].url, 'http://example.com/room.jpg');
+    assert.equal(result.pages[0].images[0].url, 'https://example.com/room.jpg');
   });
 
   test('US medical crawl stores only deterministic palette preset + source hash projection', async () => {
@@ -223,7 +223,7 @@ describe('CRAWL W1 — designated crawl', () => {
       { fetchFn, validateUrl: validated, wait: async () => undefined },
     );
     assert.deepEqual(result.skippedUrls, [
-      { url: 'http://example.com/private', reason: 'auth_redirect' },
+      { url: 'https://example.com/private', reason: 'auth_redirect' },
     ]);
     assert.equal(calls.includes('http://example.com/login'), false);
   });
@@ -235,17 +235,17 @@ describe('CRAWL W1 — designated crawl', () => {
       calls.push(url);
       if (init?.method === 'HEAD') return response('');
       if (url.endsWith('/robots.txt')) {
-        return response('User-agent: *\nAllow: /\nSitemap: http://example.com/sitemap.xml', {
+        return response('User-agent: *\nAllow: /\nSitemap: https://example.com/sitemap.xml', {
           headers: { 'content-type': 'text/plain' },
         });
       }
       if (url.endsWith('/sitemap.xml')) {
         return response([
           '<urlset>',
-          '<url><loc>http://example.com/</loc></url>',
-          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberLoginForm</loc></url>',
-          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberSignUpForm</loc></url>',
-          '<url><loc>http://example.com/index.php?mid=home&amp;act=dispMemberFindAccount</loc></url>',
+          '<url><loc>https://example.com/</loc></url>',
+          '<url><loc>https://example.com/index.php?mid=home&amp;act=dispMemberLoginForm</loc></url>',
+          '<url><loc>https://example.com/index.php?mid=home&amp;act=dispMemberSignUpForm</loc></url>',
+          '<url><loc>https://example.com/index.php?mid=home&amp;act=dispMemberFindAccount</loc></url>',
           '</urlset>',
         ].join(''), { headers: { 'content-type': 'application/xml' } });
       }
@@ -255,9 +255,9 @@ describe('CRAWL W1 — designated crawl', () => {
       { url: 'http://example.com/' },
       { fetchFn, validateUrl: validated, wait: async () => undefined },
     );
-    assert.deepEqual(result.pages.map((page) => page.url), ['http://example.com/']);
+    assert.deepEqual(result.pages.map((page) => page.url), ['https://example.com/']);
     assert.deepEqual(result.skippedUrls, [
-      { url: 'http://example.com/index.php', reason: 'auth_or_account' },
+      { url: 'https://example.com/index.php', reason: 'auth_or_account' },
     ]);
     assert.equal(calls.some((url) => /dispMember/iu.test(url)), false);
   });

@@ -7,6 +7,7 @@ import {
   type CrawlDependencies,
 } from './crawler-core';
 import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
+import { explicitlyUnverifiedTlsFetch } from './insecure-tls-fetch';
 
 export {
   CrawlError,
@@ -18,6 +19,7 @@ export function crawlDesignatedSite(
   input: {
     url: string;
     allowTlsHttpFallback?: boolean;
+    allowInvalidTlsCertificate?: boolean;
     scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
   },
   dependencies: CrawlDependencies = {},
@@ -26,5 +28,11 @@ export function crawlDesignatedSite(
     ...dependencies,
     validateUrl: dependencies.validateUrl ?? assertPublicHttpUrl,
     probeSocialLinks: dependencies.probeSocialLinks ?? probeSocialLinks,
+    ...(input.allowInvalidTlsCertificate === true
+      ? {
+          invalidTlsFetchFn: dependencies.invalidTlsFetchFn
+            ?? explicitlyUnverifiedTlsFetch,
+        }
+      : {}),
   });
 }

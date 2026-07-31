@@ -53,6 +53,10 @@ import type {
   KoClinicSourceBlock,
 } from './contracts';
 import { auditKoClinicDensity } from './density';
+import {
+  EDOM_KO_CLINIC_ROUTING_PROFILE,
+  type KoClinicRoutingProfile,
+} from './source-profile';
 
 const KO_CLINIC_DNA_ID = 'medical-clinical-clarity' as const;
 const KO_CLINIC_HUE_SEED = 205;
@@ -77,10 +81,10 @@ function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function normalizeSourceUrl(raw: string): string {
+function normalizeSourceUrl(raw: string, canonicalHost = 'edomclinic.com'): string {
   const url = new URL(raw);
   url.protocol = 'https:';
-  url.hostname = 'edomclinic.com';
+  url.hostname = canonicalHost;
   url.port = '';
   url.hash = '';
   const entries = [...url.searchParams.entries()].sort(([leftKey, leftValue], [rightKey, rightValue]) => (
@@ -146,29 +150,46 @@ function normalizedVisibleText(value: string): string {
   return value.normalize('NFKC').replace(/\s+/gu, ' ').trim();
 }
 
-export function koClinicSlugForSourceUrl(sourceUrl: string): string {
+export function koClinicSlugForSourceUrl(
+  sourceUrl: string,
+  profile: KoClinicRoutingProfile = EDOM_KO_CLINIC_ROUTING_PROFILE,
+): string {
   const url = new URL(sourceUrl);
-  if (url.pathname === '/' || url.pathname === '/main.php') return '';
-  if (url.pathname === '/index02.php') return 'center-surgery';
-  if (url.pathname === '/index03.php') return 'center-internal-medicine';
-  if (url.pathname === '/index04.php') return 'center-spine-joint';
-  if (url.pathname === '/index05.php') return 'center-plastic-skin';
-  if (url.pathname === '/page/sub1_1_1.php') return 'center-vascular';
-  if (url.pathname === '/page/sub1_5.php') return 'directions';
-  const board = url.pathname.endsWith('/bbs/board.php')
-    ? url.searchParams.get('bo_table')
+  if (profile.homePaths.includes(url.pathname)) return '';
+  const exactSlug = profile.exactPathSlugs[url.pathname];
+  if (exactSlug !== undefined) return exactSlug;
+  const board = profile.board && url.pathname === profile.board.pathname
+    ? url.searchParams.get(profile.board.tableParam)
     : null;
-  const wrId = url.searchParams.get('wr_id');
+  const wrId = profile.board
+    ? url.searchParams.get(profile.board.articleIdParam)
+    : null;
   const slug = board && wrId
     ? `community-${board.replaceAll('_', '-')}-${wrId}`
     : url.pathname
-        .replace(/^\/page\//u, '')
-        .replace(/\.php$/u, '')
+        .replace(
+          profile.contentPathPrefix
+            ? new RegExp(`^${profile.contentPathPrefix.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}`, 'u')
+            : /^\//u,
+          '',
+        )
+        .replace(
+          profile.contentExtension
+            ? new RegExp(`${profile.contentExtension.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}$`, 'u')
+            : /\.[a-z0-9]+$/iu,
+          '',
+        )
+        .replaceAll('/', '-')
         .replaceAll('_', '-')
         .replace(/[^a-z0-9-]/gu, '')
         .replace(/^-+|-+$/gu, '');
   if (!isValidPageSlug(slug)) {
-    return `source-${sha256(normalizeSourceUrl(sourceUrl)).slice(0, 20)}`;
+    return `source-${sha256(normalizeSourceUrl(
+      sourceUrl,
+      profile.id === EDOM_KO_CLINIC_ROUTING_PROFILE.id
+        ? 'edomclinic.com'
+        : url.hostname,
+    )).slice(0, 20)}`;
   }
   return slug;
 }

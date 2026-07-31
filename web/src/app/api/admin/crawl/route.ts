@@ -46,6 +46,7 @@ function originFor(rawUrl: string): string | null {
 const bodySchema = z.object({
   url: z.string().url().max(2_000),
   allowTlsHttpFallback: z.boolean().optional(),
+  allowInvalidTlsCertificate: z.boolean().optional(),
   scanProfileId: z.literal(US_MEDICAL_OUTREACH_PROFILE_ID).optional(),
 });
 
