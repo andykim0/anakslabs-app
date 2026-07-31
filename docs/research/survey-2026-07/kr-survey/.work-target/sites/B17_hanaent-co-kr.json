@@ -1,0 +1,245 @@
+{
+ "sample_id": "B17",
+ "name": "하나이비인후과병원",
+ "url": "https://www.hanaent.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.hanaent.co.kr/",
+ "title": "하나이비인후과병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 3209,
+  "screens": 3.6,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 100,
+    "h": 1874,
+    "chars": 342,
+    "headings": [
+     "찾아오시는 길",
+     "공지사항",
+     "치료사례",
+     "하나이비인후과병원 건강 정보"
+    ],
+    "keyText": "1 2 3 4 5 6 처음 오셨나요? 코, 목, 귀 질환 증상에 따른 알맞은 치료로 빠른 회복을 돕겠습니다. 의료진 소개 초진안내 온라인예약 온라인 상담 연락처02.6925.1111 평일 09:00 ~ 18:00 (접수마감:오전 12:30/오후 5:30) 점심시간 13:00 ~ 14:00 토요일 09:00 ~ 13:30 (접수마감:오후 1:00/ 현장 상황에 따라 조기 마감 가능) 일요일, 공휴일 휴진 찾아오시는 길 병원으로 오시는 길을 안내해드립니다. 셔틀버스 대중교통 주차안내 약도문자 공지사항 치료사례 축농증/물혹 수술후기 비중격만곡증 수술후기 코골이 수술후기 편도 수술후기 하나이비인후과병원 건강 정보",
+    "media": 12,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "footer",
+    "absTop": 1974,
+    "h": 1235,
+    "chars": 269,
+    "headings": [
+     "하나이비인후과병원 SNS"
+    ],
+    "keyText": "하나이비인후과병원 SNS 유튜브 네이버TV 블로그 블로그 페이스북 이용약관 개인정보처리방침 환자의 권리와 의무 비급여안내 Family Site 하나이비인후과네트워크 h reverse aging center 하나이비인후과병원 06225 서울특별시 강남구 역삼로 245 하나이비인후과병원 대표자 : 이상덕 외 1명사업자등록번호 : 716-11-02128대표전화 : 02-6925-1111 COPYRIGHT© 2015 HANA ENT HOSPITAL. ALL RIGHT RESERVED.",
+    "media": 7,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 583,
+    "h": 287,
+    "chars": 3,
+    "headings": [],
+    "keyText": "TOP",
+    "media": 3,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 172,
+    "h": 577,
+    "chars": 23,
+    "headings": [],
+    "keyText": "이 창을 하루동안 열지 않습니다. [닫기]",
+    "media": 1,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 1283,
+    "tag": "h3",
+    "t": "치료사례"
+   },
+   {
+    "y": 1284,
+    "tag": "h3",
+    "t": "찾아오시는 길"
+   },
+   {
+    "y": 1284,
+    "tag": "h3",
+    "t": "공지사항"
+   },
+   {
+    "y": 1834,
+    "tag": "h3",
+    "t": "하나이비인후과병원 건강 정보"
+   },
+   {
+    "y": 2003,
+    "tag": "h4",
+    "t": "하나이비인후과병원 SNS"
+   }
+  ],
+  "type": {
+   "h1Px": 0,
+   "h2Px": 30,
+   "bodyPx": 18,
+   "h1Fam": "a",
+   "bodyFam": "\"Noto Sans KR\"",
+   "h1Weight": "400",
+   "h1TextLen": 0,
+   "h2TextLen": 3,
+   "headingTotal": 5,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 44,
+   "imgInFirstScreen": 1
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 0,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 8
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -58.5, -58.5)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "ENG",
+   "로그인",
+   "회원가입",
+   "병원소개",
+   "미션 및 비전",
+   "하나 이야기",
+   "의료진 소개",
+   "병원소식",
+   "안전수술 시스템",
+   "진료협력센터",
+   "건강정보",
+   "채용정보",
+   "고객의 소리",
+   "진료안내",
+   "진료 일정",
+   "외래진료안내",
+   "입·퇴원안내",
+   "오시는 길",
+   "온라인 예약",
+   "자주 묻는 질문",
+   "온라인 상담",
+   "치료사례",
+   "서류발급",
+   "코 질환 센터",
+   "센터 소개",
+   "축농증",
+   "비중격만곡증",
+   "알레르기 비염",
+   "만성 비염",
+   "코 물혹",
+   "후각장애",
+   "목 질환 센터",
+   "편도",
+   "목의 혹",
+   "갑상선",
+   "침샘",
+   "악성 질환",
+   "귀 질환 센터",
+   "어지럼증",
+   "만성 중이염",
+   "소아 중이염",
+   "난청",
+   "보청기",
+   "이명",
+   "안면마비회복 클리닉",
+   "수면 센터",
+   "진단과정",
+   "수면검사",
+   "수술치료",
+   "비수술치료",
+   "신경과",
+   "신경과 소개",
+   "수면장애·불면증",
+   "두통",
+   "치매초기진단",
+   "H리버스에이징센터",
+   "고압산소치료란?",
+   "면역수액클리닉",
+   "신경회복통합 프로그램",
+   "초진안내"
+  ],
+  "pageTextLen": 1035,
+  "kw": {
+   "원장": 0,
+   "전문의": 0,
+   "의료진": 2,
+   "교수": 0,
+   "센터": 10,
+   "지점": 1,
+   "병원": 7,
+   "의원": 0,
+   "faq": 1,
+   "후기": 6,
+   "전후": 0,
+   "예약": 4,
+   "이벤트": 0,
+   "비급여": 1,
+   "오시는길": 4
+  },
+  "deptHits": [
+   "신경과",
+   "이비인후과"
+  ],
+  "providerUrl": "https://www.hanaent.co.kr/intro/intro02.html",
+  "centerUrl": "https://www.hanaent.co.kr/nose/nose01.html"
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -58.5, -58.5)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 4248,
+  "imgs": 20,
+  "title": "의료진 소개 - 하나이비인후과병원",
+  "원장": 7,
+  "전문의": 16,
+  "교수": 0,
+  "nameTokens": 13,
+  "iframes": 0,
+  "url": "https://www.hanaent.co.kr/intro/intro02.html",
+  "status": 200
+ }
+}

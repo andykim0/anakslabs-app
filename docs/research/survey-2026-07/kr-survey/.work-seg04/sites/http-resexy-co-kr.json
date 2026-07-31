@@ -1,0 +1,770 @@
+{
+ "url": "http://www.resexy.co.kr/",
+ "status": 200,
+ "finalUrl": "http://www.resexy.co.kr/",
+ "title": "\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0, \uc9c8\ud68c\uc74c\uc218\uc220",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 3009,
+  "screens": 3.3,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 350,
+    "h": 370,
+    "chars": 22,
+    "headings": [],
+    "keyText": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 629,
+    "chars": 898,
+    "headings": [],
+    "keyText": "010 011 016 017 018 019 - - \uc120\ud0dd 10:00~11:00 11:00~12:00 12:00~13:00 13:00~14:00 14:00~15:00 15:00~16:00 16:00~17:00 17:00~18:00 18:00~19:00 19:00~20:00 20:00~21:00 @ \uc120\ud0dd\ud558\uc138\uc694 hanmail.net naver.com empal.com paran.com nate.com korea.com hitel.net unitel.co.kr kornet.net nownuri.net gmail.com lycos.co.kr hanafos.com dreamwiz.com hanmir.com freechal.com chollian.net yahoo.co.kr hotmail.com \uc9c1\uc811\uc785\ub825 \uac00. \uac1c\uc778\uc815\ubcf4\uc758 \uc218\uc9d1 \ubc0f \uc774\uc6a9 \ubaa9\uc801 \"\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \ud734\ub300\ud3f0\uc0c1\ub2f4\"\uc11c\ube44\uc2a4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801\uc744 \uc704\ud574 \uac1c\uc778\uc815\ubcf4\ub97c \uc218\uc9d1 \ubc0f \uc774\uc6a9\ud569\ub2c8\ub2e4. \uc218\uc9d1\ub41c \uac1c\uc778\uc815\ubcf4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801 \uc774\uc678\uc758 \uc6a9\ub3c4\ub85c\ub294 \uc774\uc6a9\ub418\uc9c0 \uc54a\uc73c\uba70 \uc218\uc9d1 \ubaa9\uc801\uc774 \ubcc0\uacbd\ub420 \uacbd\uc6b0 \uc0ac\uc804\uc5d0 \uc54c\ub9ac\uace0 \ub3d9\uc758\ub97c \ubc1b\uc744 \uc608\uc815\uc785\ub2c8\ub2e4. - \uc9c8\uc131\ud615/\uc74c\ubd80\ud68c\uc74c\uc218\uc220/\uc694\uc2e4\uae08\uc218\uc220/\ub9de\ucda4\ud504\ub85c\uadf8\ub7a8 \ub4f1 \ud734\ub300\ud3f0\uc0c1\ub2f4 \uc9c8\uc131\ud615/\uc74c\ubd80\ud68c\uc74c\uc218\uc220/\uc694\uc2e4\uae08\uc218\uc220/\ub9de\ucda4\ud504\ub85c\uadf8\ub7a8 \ub4f1\uc758 \uc9c4\ub8cc\uc5d0 \ub300\ud55c \ud734\ub300\ud3f0\uc0c1\ub2f4\uc744 \ubaa9\uc801\uc73c\ub85c \uac1c\uc778\uc815\ubcf4\ub97c \ucc98\ub9ac\ud569\ub2c8\ub2e4. \ub098. \uc218\uc9d1\ud558\ub294 \uac1c\uc778\uc815\ubcf4\uc758 \ud56d\ubaa9 - \ud544\uc218\ud56d\ubaa9 : \uc774\ub984/\ud734\ub300\ud3f0/\uc774\uba54\uc77c - \uc120\ud0dd\ud56d\ubaa9 : \uc5c6\uc74c \ub2e4. \uac1c\uc778\uc815\ubcf4\uc758 \ubcf4\uc720 \ubc0f \uc774\uc6a9 \uae30\uac04 \ud68c\uc6d0\uc758 \uac1c\uc778\uc815",
+    "media": 6,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 0,
+    "h": 629,
+    "chars": 537,
+    "headings": [],
+    "keyText": "010 011 016 017 018 019 - - \uac00. \uac1c\uc778\uc815\ubcf4\uc758 \uc218\uc9d1 \ubc0f \uc774\uc6a9 \ubaa9\uc801 \"\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\"\uc11c\ube44\uc2a4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801\uc744 \uc704\ud574 \uac1c\uc778\uc815\ubcf4\ub97c \uc218\uc9d1 \ubc0f \uc774\uc6a9\ud569\ub2c8\ub2e4. \uc218\uc9d1\ub41c \uac1c\uc778\uc815\ubcf4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801 \uc774\uc678\uc758 \uc6a9\ub3c4\ub85c\ub294 \uc774\uc6a9\ub418\uc9c0 \uc54a\uc73c\uba70 \uc218\uc9d1 \ubaa9\uc801\uc774 \ubcc0\uacbd\ub420 \uacbd\uc6b0 \uc0ac\uc804\uc5d0 \uc54c\ub9ac\uace0 \ub3d9\uc758\ub97c \ubc1b\uc744 \uc608\uc815\uc785\ub2c8\ub2e4. - \uc9c8\uc131\ud615/\uc74c\ubd80\ud68c\uc74c\uc218\uc220/\uc694\uc2e4\uae08\uc218\uc220/\ub9de\ucda4\ud504\ub85c\uadf8\ub7a8 \ub4f1 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4 \uc9c8\uc131\ud615/\uc74c\ubd80\ud68c\uc74c\uc218\uc220/\uc694\uc2e4\uae08\uc218\uc220/\ub9de\ucda4\ud504\ub85c\uadf8\ub7a8 \ub4f1\uc758 \uc9c4\ub8cc\uc5d0 \ub300\ud55c \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\uc744 \ubaa9\uc801\uc73c\ub85c \uac1c\uc778\uc815\ubcf4\ub97c \ucc98\ub9ac\ud569\ub2c8\ub2e4. \ub098. \uc218\uc9d1\ud558\ub294 \uac1c\uc778\uc815\ubcf4\uc758 \ud56d\ubaa9 - \ud544\uc218\ud56d\ubaa9 : \uc774\ub984/\ud734\ub300\ud3f0 - \uc120\ud0dd\ud56d\ubaa9 : \uc5c6\uc74c \ub2e4. \uac1c\uc778\uc815\ubcf4\uc758 \ubcf4\uc720 \ubc0f \uc774\uc6a9 \uae30\uac04 \ud68c\uc6d0\uc758 \uac1c\uc778\uc815\ubcf4\ub294 \ud68c\uc6d0 \ud0c8\ud1f4 \ub610\ub294 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4 \ubaa9\uc801\uc774 \uc885\uacb0\ub418\ub294 \uc989\uc2dc \uc9c0\uccb4 \uc5c6\uc774 \ud30c\uae30\ud569\ub2c8\ub2e4. \ub610\ud55c, \ud68c\uc6d0\uc774 \uc0ad\uc81c \uc694\uccad\uc744 \ud558\ub294 \uacbd\uc6b0 \uc989\uc2dc \uc0ad\uc81c \uc870\uce58\ud569\ub2c8\ub2e4. \ub77c. \ub3d9\uc758\ub97c \uac70\ubd80\ud560 \uad8c\ub9ac\uac00 \uc788\ub2e4\ub294 \uc0ac\uc2e4\uacfc \ub3d9\uc758 \uac70\ubd80\uc5d0 \ub530\ub978 \ubd88\uc774\uc775 \ub0b4\uc6a9 \ud68c\uc6d0\uc740 \" \ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\"\uc5d0\uc11c \uc218\uc9d1\ud558\ub294 \uac1c\uc778\uc815\ubcf4\uc5d0 \ub300\ud574 \ub3d9\uc758\ub97c \uac70\ubd80\ud560 \uad8c\ub9ac\uac00 \uc788\uc73c\uba70 \ub3d9\uc758 \uac70\ubd80 \uc2dc\uc5d0\ub294 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\uc758 \uc11c\ube44\uc2a4\uac00 \uc81c\ud55c\ub429\ub2c8\ub2e4.",
+    "media": 4,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 0,
+    "h": 629,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 0,
+    "h": 629,
+    "chars": 299,
+    "headings": [],
+    "keyText": "1397 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^ [1] 1396 \uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8.. [1] 1395 \uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 .. [1] 1394 \uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08.. [1] 1393 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0\uac10 \uc788.. [1] 1392 \uc9c0\ub801\uc774\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c,\uc9c0\uc2a4\ud31f\ud544\ub7ec,.. [1] 1391 \uc9c8\ub808\uc774\uc800,\uc18c\uc74c\uc21c\ubc15\ud53c \ub9ac\uc5d0\uc2a4\uc5d0\uc11c \ud558.. [1] 1390 \uc18c\uc74c\uc21c\ubc15\ud53c,\uc18c\uc74c\uc21c\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c .. [1] 1389 \uc694\uc2e4\uae08\uc218\uc220,\uc9c8\ub808\uc774\uc800+\uc131\uc7a5\uc778\uc790\uc8fc\uc0ac .. [1] 1388 \ubc29\uad11\uc8fc\uc785\uce58\ub8cc,\uc694\uc2e4\uae08,\uc9c8\ub808\uc774\uc800+\uc560\uc561.. [1]",
+    "media": 2,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 0,
+    "h": 809,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 3,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 303,
+    "h": 2300,
+    "chars": 508,
+    "headings": [
+     "",
+     "",
+     ""
+    ],
+    "keyText": "\uc2dc\uc220 \uac00\uaca9 \ubb38\uc758 \uad8c\uc2b9\ud61c 2026-07-25 \ubbf8\ub808\ub098 \uc2dc\uc220 \ubb38\uc758 \uc774\uc625\uc601 2026-07-24 \ube44\uc6a9\ubb38\uc758 \ud1a0\ub07c\ud480 2026-07-13 \uc9c8\ud655\uc7a5 \uad81\uae08\ud574\uc694 000 2026-07-07 \uc18c\uc74c\uc21c\uc218\uc220 \uae40\uc9c0\uc219 2026-07-07 \uc74c\ubd80\ubbf8\ubc31 \uac00\uaca9\ubb38\uc758 \ud55c\uc124 2026-07-04 \uc694\uc2e4\uae08 \uc218\uc220(\ubcf5\uc555\uc131\uc694\uc2e4\uae08) \ub0a8\uc218\ud604 2026-06-22 1397 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^ [1] \uce04\ube14\ub9ac 2026-07-16 1396 \uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8\ub808\uc774.. [1] \ube44\ub9de\uc740.. 2026-07-14 1395 \uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 \ud6c4 \uc0c8.. [1] L.EJ 2026-07-03 1394 \uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08\uc220 \uc88b.. [1] \ub7ec\ube0c\ub2e4.. 2026-06-30 1393 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0\uac10 \uc788\ub294 .. [1] \ub77c\ub530\ub9d8.. 2026-06-25 1392 \uc9c0\ub801\uc774\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c,\uc9c0\uc2a4\ud31f\ud544\ub7ec,\uc9c8\ud544.. [1] \ubc29\ubc30\ub3d9.. 2026-06-20 1391 \uc9c8\ub808\uc774\uc800,\uc18c\uc74c\uc21c\ubc15\ud53c \ub9ac\uc5d0\uc2a4\uc5d0\uc11c \ud558\uace0 \uc131.. [1] \uc548\uacbd .. 2026-06-19",
+    "media": 76,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 2768,
+    "h": 241,
+    "chars": 155,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \uc6d0\uc7a5 : \uc815\ucc3d\uc6d0 \uc804\ud654\ubc88\ud638 : 02-540-5858 / 02-540-1177 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc11c\ucd08\uad6c \uc7a0\uc6d0\ub3d9 19-10 \uc790\uc740\ube4c\ub529 7\uce35 \ub9ac\uc5d0\uc2a4 \uc5ec\uc131\uc758\uc6d0 \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 211-90-77833 Copyright (C) RE-S clinic. All Rights Reserved.",
+    "media": 13,
+    "bgKey": "21,21,21",
+    "bgLum": 0.976,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 1800,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 1800,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 2794,
+    "tag": "h2",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 370,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 0.93,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]"
+  },
+  "type": {
+   "h1": null,
+   "h2": "\"Nanum Gothic\", monospace",
+   "body": "\"Nanum Gothic\", monospace",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": "700",
+   "h2Size": "20px",
+   "bodySize": "12px",
+   "bodyWeight": "400",
+   "bodyLH": "18px",
+   "bigHeadPx": 14,
+   "bigHeadFam": "\"Nanum Gothic\", monospace",
+   "bigHeadWeight": "700",
+   "h1Count": 0,
+   "h2Sizes": [
+    "20px"
+   ],
+   "h3Size": "15.6px",
+   "fontFaces": [
+    "Nanum Gothic"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 2425,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 6,
+   "inputCount": 13,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 2,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": true,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": false,
+   "phoneKR": "02-540-5858",
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.761,
+   "darkFrac": 0.122,
+   "lightFrac": 0.789
+  },
+  {
+   "i": 1,
+   "mean": 0.79,
+   "darkFrac": 0.075,
+   "lightFrac": 0.792
+  },
+  {
+   "i": 2,
+   "mean": 0.79,
+   "darkFrac": 0.075,
+   "lightFrac": 0.792
+  },
+  {
+   "i": 3,
+   "mean": 0.859,
+   "darkFrac": 0.059,
+   "lightFrac": 0.835
+  },
+  {
+   "i": 4,
+   "mean": 0.768,
+   "darkFrac": 0.096,
+   "lightFrac": 0.749
+  },
+  {
+   "i": 5,
+   "mean": 0.706,
+   "darkFrac": 0.166,
+   "lightFrac": 0.669
+  },
+  {
+   "i": 6,
+   "mean": 0.686,
+   "darkFrac": 0.186,
+   "lightFrac": 0.633
+  },
+  {
+   "i": 7,
+   "mean": 0.798,
+   "darkFrac": 0.073,
+   "lightFrac": 0.76
+  }
+ ],
+ "heroLum": {
+  "mean": 0.795,
+  "darkFrac": 0.078,
+  "lightFrac": 0.799
+ },
+ "heroLumBelowNav": {
+  "mean": 0.794,
+  "darkFrac": 0.089,
+  "lightFrac": 0.786
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1290,
+   "w": 150,
+   "h": 900,
+   "z": "2000",
+   "links": [
+    {
+     "href": "../07_customer/customer01.php",
+     "label": ""
+    },
+    {
+     "href": "../user_comment/user_comment.php",
+     "label": ""
+    },
+    {
+     "href": "../user_comment/pre_post_op_photo.php",
+     "label": ""
+    },
+    {
+     "href": "../07_customer/customer02.php",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [],
+   "label": "010 011 016 017 018 019 - - \uc120\ud0dd 10:00~11:00 11:00~12:00 12:00~13:00 13:00~14:00 14:00~15:00 15:00~16:00 16:00~17:00 17:00~18:00 18:00~19:00 1",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [],
+   "label": "010 011 016 017 018 019 - - \uac00. \uac1c\uc778\uc815\ubcf4\uc758 \uc218\uc9d1 \ubc0f \uc774\uc6a9 \ubaa9\uc801 \"\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\"\uc11c\ube44\uc2a4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801\uc744 \uc704\ud574 \uac1c\uc778\uc815\ubcf4\ub97c \uc218\uc9d1 \ubc0f \uc774\uc6a9\ud569\ub2c8\ub2e4. \uc218\uc9d1\ub41c \uac1c\uc778\uc815\ubcf4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801 \uc774\uc678\uc758 \uc6a9\ub3c4\ub85c\ub294 \uc774\uc6a9\ub418\uc9c0 \uc54a\uc73c\uba70 \uc218\uc9d1 \ubaa9\uc801\uc774 ",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_07_03();",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_06_01();",
+     "label": ""
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^"
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0\uac10 \uc788.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c0\ub801\uc774\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c,\uc9c0\uc2a4\ud31f\ud544\ub7ec,.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c8\ub808\uc774\uc800,\uc18c\uc74c\uc21c\ubc15\ud53c \ub9ac\uc5d0\uc2a4\uc5d0\uc11c \ud558.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\ubc15\ud53c,\uc18c\uc74c\uc21c\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc694\uc2e4\uae08\uc218\uc220,\uc9c8\ub808\uc774\uc800+\uc131\uc7a5\uc778\uc790\uc8fc\uc0ac .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\ubc29\uad11\uc8fc\uc785\uce58\ub8cc,\uc694\uc2e4\uae08,\uc9c8\ub808\uc774\uc800+\uc560\uc561.."
+    }
+   ],
+   "label": "1397 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^ [1] 1396 \uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8.. [1] 1395 \uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 .. [1] 1394 \uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08.. [1] 1393 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 809,
+   "left": 1455,
+   "w": 435,
+   "h": 809,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_01_03_right();",
+     "label": ""
+    },
+    {
+     "href": "javascript:menu_01_03_popup();",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1290,
+   "w": 150,
+   "h": 900,
+   "z": "2000",
+   "links": [
+    {
+     "href": "../07_customer/customer01.php",
+     "label": ""
+    },
+    {
+     "href": "../user_comment/user_comment.php",
+     "label": ""
+    },
+    {
+     "href": "../user_comment/pre_post_op_photo.php",
+     "label": ""
+    },
+    {
+     "href": "../07_customer/customer02.php",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [],
+   "label": "010 011 016 017 018 019 - - \uc120\ud0dd 10:00~11:00 11:00~12:00 12:00~13:00 13:00~14:00 14:00~15:00 15:00~16:00 16:00~17:00 17:00~18:00 18:00~19:00 1",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [],
+   "label": "010 011 016 017 018 019 - - \uac00. \uac1c\uc778\uc815\ubcf4\uc758 \uc218\uc9d1 \ubc0f \uc774\uc6a9 \ubaa9\uc801 \"\ub9ac\uc5d0\uc2a4\uc5ec\uc131\uc758\uc6d0 \uce74\uce74\uc624\ud1a1\uc0c1\ub2f4\"\uc11c\ube44\uc2a4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801\uc744 \uc704\ud574 \uac1c\uc778\uc815\ubcf4\ub97c \uc218\uc9d1 \ubc0f \uc774\uc6a9\ud569\ub2c8\ub2e4. \uc218\uc9d1\ub41c \uac1c\uc778\uc815\ubcf4\ub294 \ub2e4\uc74c\uc758 \ubaa9\uc801 \uc774\uc678\uc758 \uc6a9\ub3c4\ub85c\ub294 \uc774\uc6a9\ub418\uc9c0 \uc54a\uc73c\uba70 \uc218\uc9d1 \ubaa9\uc801\uc774 ",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_07_03();",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 629,
+   "left": 1455,
+   "w": 435,
+   "h": 629,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_06_01();",
+     "label": ""
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^"
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0\uac10 \uc788.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c0\ub801\uc774\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c,\uc9c0\uc2a4\ud31f\ud544\ub7ec,.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc9c8\ub808\uc774\uc800,\uc18c\uc74c\uc21c\ubc15\ud53c \ub9ac\uc5d0\uc2a4\uc5d0\uc11c \ud558.."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc18c\uc74c\uc21c\ubc15\ud53c,\uc18c\uc74c\uc21c\uc218\uc220,\ub354\ube14\ubc18\uc601\uad6c .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\uc694\uc2e4\uae08\uc218\uc220,\uc9c8\ub808\uc774\uc800+\uc131\uc7a5\uc778\uc790\uc8fc\uc0ac .."
+    },
+    {
+     "href": "javascript:mem_login_quk()",
+     "label": "\ubc29\uad11\uc8fc\uc785\uce58\ub8cc,\uc694\uc2e4\uae08,\uc9c8\ub808\uc774\uc800+\uc560\uc561.."
+    }
+   ],
+   "label": "1397 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubbf8\ubc31 \uac15\uce04~!^^ [1] 1396 \uc18c\uc74c\uc21c\ubbf8\ubc31,\uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8,\uc9c8.. [1] 1395 \uc774\uc05c\uc774\uc218\uc220+\uc784\ud50c\ub780\ud2b8, \uc694\uc2e4\uae08 \uc218\uc220 .. [1] 1394 \uc9c8\ud655\uc7a5,\uc9c8\ub808\uc774\uc800+\uc560\uc561\uc8fc\uc0ac\ud6c4 \ubd80\ubd80\uae08.. [1] 1393 \uc18c\uc74c\uc21c\uc218\uc220,\uc18c\uc74c\uc21c\ubc15\ud53c \ud6c4 \uc790\uc2e0",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 809,
+   "left": 1455,
+   "w": 435,
+   "h": 809,
+   "z": "1900",
+   "links": [
+    {
+     "href": "javascript:menu_01_03_right();",
+     "label": ""
+    },
+    {
+     "href": "javascript:menu_01_03_popup();",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 8.7,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 80,
+   "left": 0,
+   "w": 390,
+   "h": 80,
+   "z": "99999",
+   "links": [
+    {
+     "href": "../main/main.php",
+     "label": ""
+    },
+    {
+     "href": "https://m.booking.naver.com/booking/13/bizes/1279220?theme=place&entry",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 80,
+   "bottom": 115,
+   "left": 0,
+   "w": 390,
+   "h": 35,
+   "z": "9999999",
+   "links": [
+    {
+     "href": "javascript:menu_02_01();",
+     "label": "\uc774\uc05c\uc774\uc218\uc220"
+    },
+    {
+     "href": "javascript:menu_02_06();",
+     "label": "\uc9c8\ub808\uc774\uc800"
+    },
+    {
+     "href": "javascript:menu_04_01();",
+     "label": "\uc694\uc2e4\uae08\uc218\uc220"
+    },
+    {
+     "href": "javascript:menu_06_01();",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    }
+   ],
+   "label": "\uc774\uc05c\uc774\uc218\uc220 \uc9c8\ub808\uc774\uc800 \uc694\uc2e4\uae08\uc218\uc220 \uc218\uc220\ud6c4\uae30",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 395,
+   "bottom": 840,
+   "left": 310,
+   "w": 70,
+   "h": 445,
+   "z": "99",
+   "links": [
+    {
+     "href": "tel:02-540-5858",
+     "label": ""
+    },
+    {
+     "href": "tel:010-6342-1245",
+     "label": ""
+    },
+    {
+     "href": "http://pf.kakao.com/_ExaXxfV/chat",
+     "label": ""
+    },
+    {
+     "href": "/01_intro/intro04.php#map",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 804,
+   "bottom": 844,
+   "left": 98,
+   "w": 195,
+   "h": 40,
+   "z": "99",
+   "links": [],
+   "label": "\uc0c1\ub2f4 \uc608\uc57d\ud558\uae30",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

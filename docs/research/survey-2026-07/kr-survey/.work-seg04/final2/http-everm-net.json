@@ -1,0 +1,357 @@
+{
+ "url": "http://www.everm.net",
+ "popupsBefore": [],
+ "dismissed": [],
+ "popupsAfter": [],
+ "bands": [
+  {
+   "i": 0,
+   "tag": "rs-sbg-wrap",
+   "top": -1,
+   "h": 902,
+   "chars": 0,
+   "fixed": false,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 1,
+   "tag": "div",
+   "top": 900,
+   "h": 1052,
+   "chars": 45,
+   "fixed": false,
+   "media": 18,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "REAL SELFIE \uc5d0\ubc84\uc5e0\uacfc \ud568\uaed8\ud55c \ub9ac\uc5bc\ud6c4\uae30",
+    "REAL SELFIE",
+    "MORE VIEW"
+   ],
+   "keyText": "REAL SELFIE \uc5d0\ubc84\uc5e0\uacfc \ud568\uaed8\ud55c \ub9ac\uc5bc\ud6c4\uae30 MORE VIEW \ubaa8\ub378\uc9c0\uc6d0 \ubc14\ub85c\uac00\uae30",
+   "slides": 0
+  },
+  {
+   "i": 2,
+   "tag": "div",
+   "top": 1978,
+   "h": 277,
+   "chars": 45,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "ON TV. EVERM \uc5bc\uad74\ubf08 \ub2e5\ud130\uac00 \uc54c\ub824\uc8fc\ub294 \uc5bc\uad74\ubf08\uc758 \ubaa8\ub4e0\uac83!",
+    "ON TV. EVERM",
+    "MORE VIEW"
+   ],
+   "keyText": "ON TV. EVERM \uc5bc\uad74\ubf08 \ub2e5\ud130\uac00 \uc54c\ub824\uc8fc\ub294 \uc5bc\uad74\ubf08\uc758 \ubaa8\ub4e0\uac83! MORE VIEW",
+   "slides": 0
+  },
+  {
+   "i": 3,
+   "tag": "div",
+   "top": 2280,
+   "h": 519,
+   "chars": 1577,
+   "fixed": false,
+   "media": 31,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "\uc591\uc545\uc218\uc220 Q&A\u3163\uc5bc\uad74\ubf08\ub2e5\ud130\uc5d0\uac8c \ubb3c\uc5b4\ubd10",
+    "\uc9c4\ub2e8\ubd80\ud130 \uc81c\uc791\uae4c\uc9c0, \uc5d0\ubc84\uc5e0 3D \uc591\uc545 \uc2dc\uc2a4\ud15c",
+    "\uae30\ub2a5\uc591\uc545\uc740 \uad1c\ucc2e\uace0, \ubbf8\uc6a9\uc591\uc545\uc740 \uc704\ud5d8\ud558\ub2e4?",
+    "\ub3cc\ucd9c\uc785 \uc218\uc220, \uc81c\uac00 \uc9c1\uc811 \ubcf4\uc5ec\ub4dc\ub9b4\uac8c\uc694",
+    "\uc591\uc545\uc218\uc220\uc5d0 \ub098\uc774\uc81c\ud55c, \uc788\ub2e4?\uc5c6\ub2e4?",
+    "\uc5ed\ud68c\uc804 \uc591\uc545\uc218\uc220\uc740 \ub204\uac00\ud558\ub0d0\uace0?!"
+   ],
+   "keyText": "#QnA #\uc5d0\ubc84\uc5e0\uce58\uacfc \uc591\uc545\uc218\uc220 Q&A\u3163\uc5bc\uad74\ubf08\ub2e5\ud130\uc5d0\uac8c \ubb3c\uc5b4\ubd10 \uac00\uc7a5 \ub9ce\uc774 \ubb3c\uc5b4\ubd10\uc8fc\uc2dc\ub294 \uc9c8\ubb38\ub4e4, \ub871\ud3fc \ubaa8\uc74c\uc9d1! #3D #\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc9c4\ub2e8\ubd80\ud130 \uc81c\uc791\uae4c\uc9c0, \uc5d0\ubc84\uc5e0 3D \uc591\uc545 \uc2dc\uc2a4\ud15c \u201c\ub370\uc774\ud130\ub97c \uae30\ubc18\uc73c\ub85c \ubcc0\ud654\ub97c \uc124\uacc4\ud569\ub2c8\ub2e4.\u201d #\ubbf8\uc6a9\uc591\uc545 #\uae30\ub2a5\uc591\uc545 \uae30\ub2a5\uc591\uc545\uc740 \uad1c\ucc2e\uace0, \ubbf8\uc6a9\uc591\uc545\uc740 \uc704\ud5d8\ud558\ub2e4? \ubbf8\uc6a9 \uc591\uc545\uc218\uc220 \uc704\ud5d8\ud558\ub2e4\ub294 \ub9d0, \uc0ac\uc2e4\uc77c\uae4c? #\ub3cc\ucd9c\uc785 #aso\uc218\uc220 \ub3cc\ucd9c\uc785 \uc218\uc220, \uc81c\uac00 \uc9c1\uc811 \ubcf4\uc5ec\ub4dc\ub9b4\uac8c\uc694 \uc5d0\ubc84\uc5e0\uce58\uacfc\uc5d0\uc11c\uc758 \uc2e4\uc81c aso \uc218\uc220 \uc7a5\uba74\uc744 \ud0c0\uc784\ub7a9\uc2a4 \ud615\ud0dc\ub85c \uacf5\uac1c\ud588\uc2b5\ub2c8\ub2e4! #\uc591\uc545\uc218\uc220 #\uc591\uc545\uc218\uc220\uc2dc\uae30 \uc591\uc545\uc218\uc220\uc5d0 \ub098\uc774\uc81c\ud55c, \uc788\ub2e4?\uc5c6\ub2e4? \uc591\uc545\uc218\uc220 \uc5f0\ub839\ub300\ubcc4 \uace0\ub824\uc0ac\ud56d\uacfc \uc8fc\uc758\uc810\uc744 \uc54c\ub824\ub4dc\ub9b4\uac8c\uc694\ud83d\ude18 #\uc591\uc545\uc218\uc220 #\uc5ed\ud68c\uc804\uc591\uc545 \uc5ed\ud68c\uc804 \uc591\uc545\uc218\uc220\uc740 \ub204\uac00\ud558\ub0d0\uace0?! \uc5ed\ud68c\uc804\uc591\uc545 \uc218\uc220\uc758 \ud6a8\uacfc\ub294? #\uc591\uc545\uc218\uc220 #\uae00\ub85c\ubc8c\ud611\uc9c4 K-\uc591\uc545 \uc138\uacc4",
+   "slides": 0
+  },
+  {
+   "i": 4,
+   "tag": "div",
+   "top": 2825,
+   "h": 846,
+   "chars": 41,
+   "fixed": false,
+   "media": 26,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "REAL STORY \uc601\uc0c1\uc73c\ub85c \ubc14\ub85c \ud655\uc778\ud574\ubcf4\ub294 \uc804\ud6c4 \uc2a4\ud1a0\ub9ac",
+    "REAL STORY",
+    "MORE VIEW"
+   ],
+   "keyText": "REAL STORY \uc601\uc0c1\uc73c\ub85c \ubc14\ub85c \ud655\uc778\ud574\ubcf4\ub294 \uc804\ud6c4 \uc2a4\ud1a0\ub9ac MORE VIEW",
+   "slides": 0
+  },
+  {
+   "i": 5,
+   "tag": "div",
+   "top": 3696,
+   "h": 277,
+   "chars": 46,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "BEFORE AND AFTER \uc678\ud5a5\uc801\uc778 \ubaa8\uc2b5\ubd80\ud130 \uadfc\ubcf8\uc801\uc778 \ubf08\uc758 \ud615\ud0dc\uae4c\uc9c0 \uace0\ub824\ud569\ub2c8\ub2e4.",
+    "BEFORE AND AFTER"
+   ],
+   "keyText": "BEFORE AND AFTER \uc678\ud5a5\uc801\uc778 \ubaa8\uc2b5\ubd80\ud130 \uadfc\ubcf8\uc801\uc778 \ubf08\uc758 \ud615\ud0dc\uae4c\uc9c0 \uace0\ub824\ud569\ub2c8\ub2e4.",
+   "slides": 0
+  },
+  {
+   "i": 6,
+   "tag": "div",
+   "top": 3999,
+   "h": 1028,
+   "chars": 51,
+   "fixed": false,
+   "media": 5,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "\uc815\uba74 \uce21\uba74 Before After \uc815\uba74 45\ub3c4 \uce21\uba74 Before After \uc804\ud6c4\uc0ac\uc9c4 \ub354 \ubcf4\uae30",
+   "slides": 0
+  },
+  {
+   "i": 7,
+   "tag": "div",
+   "top": 5027,
+   "h": 304,
+   "chars": 48,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "WHY EVERM 2010\ub144 \uac1c\uc6d0\uc774\ub798 \uc218\ub9ce\uc740 \uc140\ud504 \ud6c4\uae30\ub4e4\uc774 \uc99d\uba85\ud558\ub294 \uc5d0\ubc84\uc5e0\uc758 \uc5bc\uad74\ubf08\uc218\uc220",
+    "WHY EVERM"
+   ],
+   "keyText": "WHY EVERM 2010\ub144 \uac1c\uc6d0\uc774\ub798 \uc218\ub9ce\uc740 \uc140\ud504 \ud6c4\uae30\ub4e4\uc774 \uc99d\uba85\ud558\ub294 \uc5d0\ubc84\uc5e0\uc758 \uc5bc\uad74\ubf08\uc218\uc220",
+   "slides": 0
+  },
+  {
+   "i": 8,
+   "tag": "div",
+   "top": 5356,
+   "h": 913,
+   "chars": 30,
+   "fixed": false,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "REAL SELF REVIEW 667 MORE VIEW",
+   "slides": 0
+  },
+  {
+   "i": 9,
+   "tag": "div",
+   "top": 6269,
+   "h": 268,
+   "chars": 169,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7",
+    "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7",
+    "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7",
+    "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7",
+    "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   ],
+   "keyText": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7 EVERM ORAL MAXILLOFACIAL SURGERY\u00b7 EVERM ORAL MAXILLOFACIAL SURGERY\u00b7 EVERM ORAL MAXILLOFACIAL SURGERY\u00b7 EVERM ORAL MAXILLOFACIAL SURGERY\u00b7",
+   "slides": 0
+  },
+  {
+   "i": 10,
+   "tag": "div",
+   "top": 6537,
+   "h": 838,
+   "chars": 187,
+   "fixed": false,
+   "media": 4,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "\uc5d0\ubc84\uc5e0\ube4c\ub529 \ub458\ub7ec\ubcf4\uae30",
+    "\uc218\uc220\uc2e4 \ub0b4 CCTV \ud655\uc778 \uac00\ub2a5",
+    "\uc804\ubb38 \uc758\ub8cc\uc9c4 \uc18c\uac1c",
+    "EVERM SYSTEM"
+   ],
+   "keyText": "\uc9c4\ub8cc\ub97c \uc704\ud55c \uc2dc\uc2a4\ud15c\uc774 \ud55c\uacf3\uc5d0! \uc5d0\ubc84\uc5e0\ube4c\ub529 \ub458\ub7ec\ubcf4\uae30 \ube4c\ub529 \uaddc\ubaa8\uc758 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\ub294 \ucd5c\uc2e0 \uc758\ub8cc\uae30\uae30\uc640 \uc804\ubb38\uc758 \ud611\uc9c4\uc744 \ud1b5\ud574 \ub0b4\ubd80\uc5d0\uc11c \uc6d0\uc2a4\ud1b1 \uc9c4\ub8cc \uc2dc\uc2a4\ud15c\uc744 \uac16\ucd94\uace0 \uc788\uc2b5\ub2c8\ub2e4. \ub300\ub9ac \uc218\uc220 \uc608\ubc29 \ubc0f \uc548\uc804\ud55c \uc9c4\ub8cc\ub97c \uc704\ud55c \uc218\uc220\uc2e4 \ub0b4 CCTV \ud655\uc778 \uac00\ub2a5 \uc12c\uc138\ud568\uc73c\ub85c \uc218\uc220\uc758 \uc644\uc131\ub3c4\ub97c \ub192\uc774\ub294 \uc804\ubb38 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uc548\uc804\ud55c \uc218\uc220\uc744 \uc9c4\ud589\ud558\ub294 EVERM SYSTEM",
+   "slides": 0
+  },
+  {
+   "i": 11,
+   "tag": "div",
+   "top": 7375,
+   "h": 254,
+   "chars": 45,
+   "fixed": false,
+   "media": 12,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "EVERM \ud611\ub825\uae30\uad00 \uc9c0\uc18d\uc801\uc778 \ud30c\ud2b8\ub108\uc27d \uccb4\uacb0\ub85c \ub354 \ub098\uc740 \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud574\ub4dc\ub9ac\uaca0\uc2b5\ub2c8\ub2e4.",
+   "slides": 12
+  },
+  {
+   "i": 12,
+   "tag": "div",
+   "top": 7679,
+   "h": 680,
+   "chars": 219,
+   "fixed": false,
+   "media": 31,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "\uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc548\ub0b4 \uace0\uac1d\ub2d8\ub4e4\uc758 \ud3b8\uc758\ub97c \uc704\ud574 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uce58\uacfc\uc758\uc6d0\uc5d0 \uc624\uc2dc\ub294 \uae38 \ubc0f \uc9c4\ub8cc\uc2dc\uac04\uc744 \uc548\ub0b4\ud574\ub4dc\ub9bd\ub2c8\ub2e4. 02.540.8275 \ud3c9 \uc77c | AM 10:00 ~ PM 07:00 \ud1a0\uc694\uc77c | AM 10:00 ~ PM 04:00 \uaca9\uc8fc \ubaa9\uc694\uc77c/\ud1a0\uc694\uc77c, \uc77c\uc694\uc77c, \uacf5\ud734\uc77c\uc740 \ud734\uc9c4\uc785\ub2c8\ub2e4. \ubc29\ubb38 \uc804 \ud734\uc9c4\uc77c \ud655\uc778 \ubc0f \uc6d0\ud65c\ud55c \uc9c4\ub8cc\ub97c \uc704\ud574 \uc0ac\uc804 \uc804\ud654 \uc608\uc57d\uc744 \ubd80\ud0c1\ub4dc\ub9bd\ub2c8\ub2e4. 30m \u00a9 NAVER Corp.",
+   "slides": 0
+  },
+  {
+   "i": 13,
+   "tag": "div",
+   "top": 8359,
+   "h": 404,
+   "chars": 212,
+   "fixed": false,
+   "media": 5,
+   "bgLum": 0.145,
+   "bgMedia": false,
+   "headings": [
+    "\uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uce58\uacfc\uc758\uc6d0"
+   ],
+   "keyText": "\uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uce58\uacfc\uc758\uc6d0 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \ud559\ub3d9\ub85c 3\uae38 2 EVERM\ube4c\ub529 \ub300\ud45c : \uc724\uaddc\uc2dd \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 211-10-47958 Copyright(C) EVERM dental clinic. All Rights Reserved. Design by Crossdesign. \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \uc774\uc6a9\uc57d\uad00 \uc0ac\uc774\ud2b8\ub9f5 \ube44\uae09\uc5ec\uc218\uac00\ud45c \ub300\ud45c\uc804\ud654 \ubc0f \ubb38\uc758\uc804\ud654 02-540-8275 \ubcd1\uc6d0\uc18c\uac1c \uc624\uc2dc\ub294 \uae38",
+   "slides": 0
+  }
+ ],
+ "maskedFrac": 0.0,
+ "captureH": 8763,
+ "heroLum": {
+  "mean": 0.769,
+  "darkFrac": 0.273,
+  "lightFrac": 0.716,
+  "usablePx": 1.0
+ },
+ "heroLumBelowNav": {
+  "mean": 0.772,
+  "darkFrac": 0.266,
+  "lightFrac": 0.722,
+  "usablePx": 1.0
+ },
+ "bandLum": [
+  {
+   "i": 0,
+   "mean": 0.77,
+   "darkFrac": 0.272,
+   "lightFrac": 0.716,
+   "usablePx": 1.0
+  },
+  {
+   "i": 1,
+   "mean": 0.907,
+   "darkFrac": 0.063,
+   "lightFrac": 0.884,
+   "usablePx": 1.0
+  },
+  {
+   "i": 2,
+   "mean": 0.994,
+   "darkFrac": 0.006,
+   "lightFrac": 0.993,
+   "usablePx": 1.0
+  },
+  {
+   "i": 3,
+   "mean": 0.977,
+   "darkFrac": 0.017,
+   "lightFrac": 0.971,
+   "usablePx": 1.0
+  },
+  {
+   "i": 4,
+   "mean": 0.957,
+   "darkFrac": 0.026,
+   "lightFrac": 0.948,
+   "usablePx": 1.0
+  },
+  {
+   "i": 5,
+   "mean": 0.992,
+   "darkFrac": 0.008,
+   "lightFrac": 0.991,
+   "usablePx": 1.0
+  },
+  {
+   "i": 6,
+   "mean": 0.926,
+   "darkFrac": 0.061,
+   "lightFrac": 0.926,
+   "usablePx": 1.0
+  },
+  {
+   "i": 7,
+   "mean": 0.992,
+   "darkFrac": 0.006,
+   "lightFrac": 0.99,
+   "usablePx": 1.0
+  },
+  {
+   "i": 8,
+   "mean": 0.843,
+   "darkFrac": 0.15,
+   "lightFrac": 0.785,
+   "usablePx": 1.0
+  },
+  {
+   "i": 9,
+   "mean": 0.999,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 10,
+   "mean": 0.979,
+   "darkFrac": 0.008,
+   "lightFrac": 0.97,
+   "usablePx": 1.0
+  },
+  {
+   "i": 11,
+   "mean": 0.992,
+   "darkFrac": 0.006,
+   "lightFrac": 0.99,
+   "usablePx": 1.0
+  },
+  {
+   "i": 12,
+   "mean": 0.98,
+   "darkFrac": 0.015,
+   "lightFrac": 0.979,
+   "usablePx": 1.0
+  },
+  {
+   "i": 13,
+   "mean": 0.794,
+   "darkFrac": 0.24,
+   "lightFrac": 0.758,
+   "usablePx": 1.0
+  }
+ ],
+ "strips": 1
+}

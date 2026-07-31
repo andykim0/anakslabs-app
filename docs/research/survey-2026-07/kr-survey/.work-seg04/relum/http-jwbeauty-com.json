@@ -1,0 +1,150 @@
+{
+ "url": "http://www.jwbeauty.com/",
+ "dismiss": {
+  "clicked": [
+   "Xcar",
+   "Xcar",
+   "Xcar"
+  ],
+  "hidden": 2
+ },
+ "heroLum": {
+  "mean": 0.818,
+  "darkFrac": 0.188,
+  "lightFrac": 0.79
+ },
+ "heroLumBelowNav": {
+  "mean": 0.854,
+  "darkFrac": 0.154,
+  "lightFrac": 0.823
+ },
+ "bands": [
+  {
+   "i": 0,
+   "tag": "div",
+   "top": 0,
+   "h": 1589,
+   "chars": 265,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "\ub098\uc774 \ub4e4\uc5b4\ubcf4\uc774\ub294 \uc794\uc8fc\ub984, \ubcfc\ucc98\uc9d0",
+    "\ube44\uc808\uac1c \ub9ac\ud504\ud305",
+    "JW\uc815\uc6d0 \ube44\uc808\uac1c \ub9ac\ud504\ud305\uc774\ub780?"
+   ],
+   "keyText": "JW LIFTING SURGERY JW LIFTING SURGERY \ub098\uc774 \ub4e4\uc5b4\ubcf4\uc774\ub294 \uc794\uc8fc\ub984, \ubcfc\ucc98\uc9d0 \ud754\uc801\uc5c6\uc774 \uc9c0\uc6b0\uc790! \ube44\uc808\uac1c \ub9ac\ud504\ud305 JW PLASRIC SURGERY JW\uc815\uc6d0 \ube44\uc808\uac1c \ub9ac\ud504\ud305\uc774\ub780? \ub178\ud654\uac00 \uc9c4\ud589\ub418\uba70 \uc0dd\uae34 \uc8fc\ub984 \ubc0f \ucc98\uc9d0\uc744 \uc808\uac1c\ub97c \uac00\ud558\uc9c0 \uc54a\uace0 \uac1c\uc120\ud574 \uc8fc\ub294 \uc2dc\uc220\uc785\ub2c8\ub2e4. \uc5bc\uad74 \uc804\uccb4\uc801\uc778 \uc8fc\ub984\uc740 \ubb3c\ub860 \ucc98\uc9c4 \ubcfc\uc0b4, \ud314\uc790\uc8fc\ub984, \uc774\uc911\ud131\uc5d0\ub3c4 \ud6a8\uacfc\ub97c \uc5bb\uc744 \uc218 \uc788\uc5b4 \ub098\uc774\uac00 \uc5b4\ub9b0 20\ub300\ubd80\ud130 60\ub300\uae4c\uc9c0 \ubd80\ub2f4 \uc5c6\uc774 \uc9c4\ud589\ud560 \uc218 \uc788\ub294 \ub9ac\ud504\ud305\uc785\ub2c8\ub2e4. \uc2e4\ub9ac\ud504\ud305 \ub354\ube14\ub9ac\ud504\ud305 \ud2b8\ub9ac\ud50c\ub9ac\ud504\ud305 XCAR",
+   "slides": 0
+  },
+  {
+   "i": 1,
+   "tag": "div",
+   "top": 1589,
+   "h": 6487,
+   "chars": 1146,
+   "media": 12,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "JW\uc815\uc6d0 \uc5d1\uc2a4\uce74\ub780?",
+    "\uc5d1\uc2a4\uce74 \uc2dc\uc220\uc6d0\ub9ac",
+    "\uc5d1\uc2a4\uce74 \uc2dc\uc220 \ud6a8\uacfc",
+    "\uae30\uc874 \ud544\ub7ec \uc6b8\ud241\ubd88\ud241\ud55c \ud45c\uba74",
+    "\uc5d1\uc2a4\uce74 + \ud544\ub7ec \ub9e4\ub048\ud55c \ud45c\uba74",
+    "\uae30\uc874 \ubcf4\ud1a1\uc2a4 \uc8fc\ub984 \uc644\ud654"
+   ],
+   "keyText": "JW\uc815\uc6d0 \uc5d1\uc2a4\uce74\ub780? \uc5d1\uc2a4\uce74\ub294 \uc8fc\uc0ac\uae30\ub97c \uc774\uc6a9\ud558\uc5ec \ud53c\ubd80\uc758 \uc9c4\ud53c\uce35\uc73c\ub85c \uac00\uc2a4\ub97c \uc9c1\uc811 \ud22c\uc785\ud558\ub294 \uc2dc\uc220\uc785\ub2c8\ub2e4. \uac00\uc2a4\uac00 \ud22c\uc785\ub418\uc5b4 \ud608\uad00 \uc0dd\uc131\uacfc \ud568\uaed8 \ucf5c\ub77c\uac90 \ub9ac\ubaa8\ub378\ub9c1\uc774 \uc9c4\ud589\ub418\uc5b4 \ud749\ud130\uc640 \uc8fc\ub984 \ubc0f \ud2bc\uc0b4 \ubd80\uc704\uc758 \uc7ac\uc0dd\uc5d0 \ud6a8\uacfc\ub97c \ub290\ub084 \uc218 \uc788\uc2b5\ub2c8\ub2e4. Co2\ub97c \uc8fc\uc785\ud574 \ud615\uc131\ub41c \ubc15\ub9ac \uacf5\uac04(\uc5d0\uc5b4\ud3ec\ucf13) \uc8fc\uc704\uc5d0 \ud544\ub7ec \ud639\uc740 \ubcf4\ud1a1\uc2a4\ub97c \ud568\uaed8 \uc2dc\uc220\ud560 \uacbd\uc6b0 \ub354 \ud070 \ub9cc\uc871\uc744 \ub290\ub084 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \ud749\ud130\uc640 \uc8fc\ub984\uc744 \ub9d0\ub054\ud558\uac8c \uc9c0\uc6cc\uc8fc\ub294 XCAR \uc5d1\uc2a4\uce74 \uc2dc\uc220\uc6d0\ub9ac \uc587\uc740 \ubc14\ub298\uc744 \uc774\uc6a9\ud558\uc5ec Co2\ub97c \uc8fc\uc785\ud569\ub2c8\ub2e4. \uc8fc\uc785\ub41c \uc774\uc0b0\ud654\ud0c4\uc18c\uac00 \uc9c4\ud53c\uce35\uc744 \ubc15\ub9ac\ud558\uc5ec \ube48 \uacf5\uac04(\uc5d0\uc5b4\ud3ec\ucf13)\uc774 \uc0dd\uae30\uac8c \ub429\ub2c8\ub2e4. \ube44\uc5b4\uc788\ub294 \uacf5\uac04\uc5d0 \ud544\ub7ec\ub098 \ubcf4\ud1a1\uc2a4\ub97c \uc8fc\uc785\ud558\uc5ec \ud749\ud130\ub098 \uae4a\uc740 \uc8fc\ub984 \uc644\ud654\uc5d0 \ud6a8\uacfc\uc801\uc785\ub2c8\ub2e4. 1 \ud749\ud130\ub098 \uae4a\uc740 \uc8fc\ub984\uc5d0 \ubc14\ub298 \uc8fc\uc785 2 Co2\ub97c \uc8fc\uc785\ud558\uc5ec \ubb49\uccd0\uc788\ub294 \uc12c\uc720\uc870\uc9c1\uc744 \ub04a\uc5b4",
+   "slides": 0
+  },
+  {
+   "i": 2,
+   "tag": "div",
+   "top": 8077,
+   "h": 410,
+   "chars": 0,
+   "media": 11,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 3,
+   "tag": "footer",
+   "top": 8487,
+   "h": 567,
+   "chars": 306,
+   "media": 1,
+   "bgLum": 0.133,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "\u203b\ubaa8\ub4e0 \uc218\uc220\uc740 \uac1c\uc778\uc5d0 \ub530\ub77c \ubd80\uc791\uc6a9\uc774 \uc0dd\uae38 \uc218 \uc788\uc73c\uba70, \uc758\ub8cc\uc9c4\uacfc \ucda9\ubd84\ud55c \uc0c1\ub2f4 \ud6c4 \uacb0\uc815\ud558\uc2dc\uae30 \ubc14\ub78d\ub2c8\ub2e4.\u203b JW\uc815\uc6d0\uc18c\uac1c \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \uc774\uc6a9\uc57d\uad00 \ub85c\uadf8\uc778 \uc0c1\ud638 : JW\uc815\uc6d0\uc131\ud615\uc678\uacfc\uc758\uc6d0|\ub300\ud45c\uc790\uba85 : \uc124\ucca0\ud658 \uc678 2\uba85|\uc8fc\uc18c : \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uc0bc\uc131\ub85c553 JW\uc815\uc6d0\uc131\ud615\ube4c\ub529 3~7\uce35 \uc0ac\uc5c5\uc790\ubc88\ud638 : 211-09-47966|Tel. 02-541-5114|Foreign Staff Contact (+82).2.541.5104|\uc774\uba54\uc77c : jwbeauty.m2@gmail.com COPYRIGHT \u24d2 JW PLASTICSURGERY. ALL RIGHTS RESERVED.",
+   "slides": 0
+  },
+  {
+   "i": 4,
+   "tag": "li",
+   "top": 9215,
+   "h": 355,
+   "chars": 0,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 5,
+   "tag": "li",
+   "top": 9570,
+   "h": 355,
+   "chars": 0,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  }
+ ],
+ "bandLum": [
+  {
+   "i": 0,
+   "mean": 0.683,
+   "darkFrac": 0.198,
+   "lightFrac": 0.72
+  },
+  {
+   "i": 1,
+   "mean": 0.829,
+   "darkFrac": 0.175,
+   "lightFrac": 0.802
+  },
+  {
+   "i": 2,
+   "mean": 0.266,
+   "darkFrac": 0.717,
+   "lightFrac": 0.116
+  },
+  {
+   "i": 3,
+   "mean": 0.201,
+   "darkFrac": 0.86,
+   "lightFrac": 0.057
+  },
+  {
+   "i": 4,
+   "mean": 0.179,
+   "darkFrac": 0.9,
+   "lightFrac": 0.027
+  },
+  {
+   "i": 5,
+   "mean": 0.179,
+   "darkFrac": 0.9,
+   "lightFrac": 0.027
+  }
+ ]
+}

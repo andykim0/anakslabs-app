@@ -1,0 +1,211 @@
+{
+ "url": "https://villagedentaldtc.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "video",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 0.9
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 70,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 93,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 103,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 129,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 121,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 141,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 187,
+    "h": 56,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 151,
+    "h": 26,
+    "fixedAnc": false,
+    "isCta": false
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Karla, Helvetica, Arial, Lucida, sans-serif",
+   "bodyFam": "Karla, Helvetica, Arial, Lucida, sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 95
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 95
+   },
+   "sameFamily": true
+  },
+  "blocks": [
+   {
+    "top": 94,
+    "h": 900,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 994,
+    "h": 846,
+    "tag": "div",
+    "chars": 345,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1840,
+    "h": 580,
+    "tag": "div",
+    "chars": 297,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2420,
+    "h": 1063,
+    "tag": "div",
+    "chars": 666,
+    "imgs": 4,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3483,
+    "h": 997,
+    "tag": "div",
+    "chars": 424,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4480,
+    "h": 732,
+    "tag": "div",
+    "chars": 220,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5212,
+    "h": 805,
+    "tag": "div",
+    "chars": 448,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6017,
+    "h": 999,
+    "tag": "div",
+    "chars": 339,
+    "imgs": 7,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7016,
+    "h": 275,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 5,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7291,
+    "h": 411,
+    "tag": "div",
+    "chars": 126,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7701,
+    "h": 472,
+    "tag": "footer",
+    "chars": 328,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

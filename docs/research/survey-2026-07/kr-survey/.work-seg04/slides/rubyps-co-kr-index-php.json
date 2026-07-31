@@ -1,0 +1,79 @@
+{
+ "url": "https://rubyps.co.kr/index.php",
+ "tracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 9,
+   "top": 0,
+   "w": 1440,
+   "h": 960
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 15,
+   "top": 1231,
+   "w": 1066,
+   "h": 546
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 10,
+   "top": 2210,
+   "w": 1440,
+   "h": 690
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 12,
+   "top": 4719,
+   "w": 1440,
+   "h": 570
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 34,
+   "top": 5766,
+   "w": 1440,
+   "h": 348
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 12,
+   "top": 6593,
+   "w": 1066,
+   "h": 394
+  }
+ ],
+ "pags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-fraction swipe",
+   "n": 2,
+   "top": 695
+  }
+ ],
+ "heroTracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 9,
+   "top": 0,
+   "w": 1440,
+   "h": 960
+  }
+ ],
+ "heroPags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-fraction swipe",
+   "n": 2,
+   "top": 695
+  }
+ ],
+ "bgKeys": [
+  "rgba(0, 0, 0, 0)",
+  "rgb(255, 255, 255)",
+  "rgb(237, 213, 207)",
+  "rgb(204, 204, 204)",
+  "rgb(91, 9, 29)",
+  "rgba(85, 85, 85, 0.9)",
+  "rgba(0, 0, 0, 0.2)"
+ ]
+}

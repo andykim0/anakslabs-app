@@ -1,0 +1,36 @@
+
+() => {
+  const vw=innerWidth;
+  const vis=(el)=>{const cs=getComputedStyle(el); if(cs.display==='none'||cs.visibility==='hidden')return false;
+    const r=el.getBoundingClientRect(); return r.width>1&&r.height>1;};
+  const txt=(el)=>(el.innerText||'').replace(/\s+/g,' ').trim();
+  const parseRGB=(s)=>{const m=(s||'').match(/rgba?\(([^)]+)\)/); if(!m)return null;
+    const p=m[1].split(',').map(x=>parseFloat(x)); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1};};
+  const lum=(c)=>c?(0.2126*c.r+0.7152*c.g+0.0722*c.b)/255:null;
+  const H=document.body.scrollHeight;
+  const cand=[]; let g=0;
+  document.querySelectorAll('body *').forEach(el=>{
+    if(g++>9000)return;
+    if(['SCRIPT','STYLE','NOSCRIPT','SVG'].includes(el.tagName))return;
+    if(!vis(el))return;
+    const r=el.getBoundingClientRect();
+    if(r.width<vw*0.82||r.height<200||r.height>H*0.80)return;
+    let d=0,n=el; while(n){d++;n=n.parentElement;}
+    cand.push({el,top:Math.round(r.top+scrollY),h:Math.round(r.height),depth:d,
+      fixed:getComputedStyle(el).position==='fixed'});
+  });
+  cand.sort((a,b)=>a.top-b.top||b.h-a.h||a.depth-b.depth);
+  const kept=[];
+  for(const c of cand){ if(!kept.some(k=>!(c.top>=k.top+k.h-8||c.top+c.h<=k.top+8))) kept.push(c); }
+  return kept.map((c,i)=>{const cs=getComputedStyle(c.el);const bgc=parseRGB(cs.backgroundColor);
+    const t=txt(c.el);
+    return {i,tag:c.el.tagName.toLowerCase(),top:c.top,h:c.h,chars:t.length,fixed:c.fixed,
+      media:(()=>{let n=0;c.el.querySelectorAll('img,video,picture,iframe').forEach(m=>{if(vis(m))n++;});
+        let q=0;c.el.querySelectorAll('*').forEach(d=>{if(q++>1200||n>80)return;const bi=getComputedStyle(d).backgroundImage;
+          if(bi&&/url\(/.test(bi)&&!/^linear-gradient|^radial-gradient/.test(bi)&&vis(d))n++;});return n;})(),
+      bgLum:bgc&&bgc.a>0.05?+lum(bgc).toFixed(3):null,
+      bgMedia:/url\(/.test(cs.backgroundImage||''),
+      headings:[...c.el.querySelectorAll('h1,h2,h3,strong,[class*=tit]')].filter(vis).map(h=>txt(h)).filter(x=>x&&x.length<70).slice(0,6),
+      keyText:t.slice(0,380),
+      slides:c.el.querySelectorAll('.swiper-slide:not(.swiper-slide-duplicate),.slick-slide:not(.slick-cloned),.splide__slide:not(.splide__slide--clone),[class*="carousel-item"]').length};});
+}

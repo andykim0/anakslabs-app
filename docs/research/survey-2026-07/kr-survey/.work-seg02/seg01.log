@@ -1,0 +1,37 @@
+--- http://www.ahnkang.com/
+   ok screens=1.4 secs=3 heroLum=0.549
+   SAVED seg01/http-ahnkang-com.json
+--- http://www.saekimps.co.kr/
+   ok screens=9.4 secs=13 heroLum=0.752
+   SAVED seg01/http-saekimps-co-kr.json
+--- https://www.ekwangdong.co.kr/
+   ok screens=9.8 secs=12 heroLum=0.666
+   SAVED seg01/ekwangdong-co-kr.json
+--- https://eng.grandsurgery.com/
+   ok screens=6.6 secs=10 heroLum=0.697
+   SAVED seg01/eng-grandsurgery-com.json
+--- http://www.andps.co.kr/
+   ok screens=8.7 secs=9 heroLum=0.663
+   SAVED seg01/http-andps-co-kr.json
+--- https://ilovegangnam.com/
+   ok screens=62.7 secs=30 heroLum=0.517
+   SAVED seg01/ilovegangnam-com.json
+--- https://www.beautyskin.kr/
+   ok screens=10.6 secs=10 heroLum=0.745
+   SAVED seg01/beautyskin-kr.json
+--- http://www.goruda.co.kr/
+   ok screens=1 secs=2 heroLum=0.089
+   SAVED seg01/http-goruda-co-kr.json
+--- https://www.slseoulhospital.com/
+   ok screens=7.5 secs=16 heroLum=0.634
+   SAVED seg01/slseoulhospital-com.json
+--- https://www.doctorpetit.com/
+   ok screens=2.5 secs=2 heroLum=0.651
+   SAVED seg01/doctorpetit-com.json
+--- http://velyb.kr
+   ok screens=8.2 secs=10 heroLum=0.724
+   SAVED seg01/http-velyb-kr.json
+--- http://www.corea1.co.kr/
+   ok screens=9 secs=9 heroLum=0.291
+   SAVED seg01/http-corea1-co-kr.json
+BATCH-DONE

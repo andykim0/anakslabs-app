@@ -1,0 +1,855 @@
+{
+ "sample_id": "B14",
+ "name": "대항병원",
+ "url": "https://www.daehang.com/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.daehang.com/",
+ "title": "대장항문전문병원 대항병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6922,
+  "screens": 7.7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 960,
+    "chars": 258,
+    "headings": [],
+    "keyText": "대항병원 실적 (~2024년 누적 기준) 진료 2,875,110 건 수술 225,508 건 대장내시경검사 581,164 건 위내시경검사 386,571 건 위·대장암의 조기 발견 대항병원 내시경센터 국내 최초 개설된 변비·변실금클리닉 이러한 증상들이 골반저질환일 수 있습니다. 대항병원 실적 (~2024년 누적 기준) 진료 2,875,110 건 수술 225,508 건 대장내시경검사 581,164 건 위내시경검사 386,571 건 1 2 3 4 5 PrevNext",
+    "media": 14,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 960,
+    "h": 960,
+    "chars": 142,
+    "headings": [
+     "대장항문 36년"
+    ],
+    "keyText": "대장항문 36년 예약상담신청 전문간호사가 빠르게 예약을 도와드립니다. 하단 버튼을 눌러주세요. 예약신청 진료안내 대표전화 02-6388-8114 진료안내 바로가기 치질클리닉 대장암센터 내시경센터 공단검진 탈장클리닉 변비 · 변실금클리닉 소화기내과 종합검진",
+    "media": 13,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1920,
+    "h": 960,
+    "chars": 29,
+    "headings": [],
+    "keyText": "1990 1999 2007 2011 2013 2017",
+    "media": 8,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2880,
+    "h": 960,
+    "chars": 371,
+    "headings": [],
+    "keyText": "고객님들께서 믿고 선택해 주신 결과입니다. 대장내시경검사 누적 실적 (2006~2025년) 대장내시경 건 용종절제술 건 용종발견율 % 대장내시경 용종절제술 용종 중 조직학적으로 ‘선종성 용종’은 악성 종양 즉 대장암으로 진행할 수 있으며, 대장내시경검사를 통하여 이와 같은 ‘선종성 용종’을 발견하여 적극적으로 제거하는 것이 대장암 발생을 예방하는 방법이라 하겠습니다. 본원은 경험이 풍부한 15명의 대장항문외과 전문의와 소화기내과 전문의에 의해 대장내시경검사가 시행되고 있으며, 국제적 권고기준인 25%를 훨씬 상회하는 ‘선종 발견율’을 기록하고 있습니다. 또한, 대장암 발견 시 대장암의 진단, 수술, 항암치료, 사후 관리 까지 지속적으로 받으실 수 있습니다.",
+    "media": 4,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 3840,
+    "h": 960,
+    "chars": 1186,
+    "headings": [],
+    "keyText": "대항병원의 새로운 소식과 언론이 인정한 대항병원을 전해드립니다. 병원소식 언론속의대항 연구실적 진료지원부, 검진센터 대상 CS교육 성료 대항병원이 21일(화)부터 23일(목)까지 동관 지하 1층 대항아트홀에서 진료지원부와검진센터를대상으로 CS교육을 실시했습니다. 박미애 간호부장이 진행한 이번 교육은 '공단검진 환자의 재방문을 만드는 협업 CS'라는 주제 아래, 환자가 다시 찾아오게 만드는 감동 서비스를 실현하기 위한 서비스 마인드에 대한내용으로 구성되었습니다. 이번 교육에서는 검진 환자의 예약부터 접수, 검사, 귀가까지 전 과정에서 직원의 태도와 말을 기억하는 만큼 환자의 불편을 먼저 해결하고 긍정적인 경험을 제공.. 2026-07-21 2026년 2분기 신입직원 교육 성료 대항병원이 14일(화) 4~6월 입사자를 대상으로 2026년 2분기 신입직원 교육을 실시했습니다. 이번 교육은 박미애 간호부장의 지도 하에 ▲병원 소개 ▲감염관리 교육 ▲QI 질 향상과 환자안전 교육 ▲심폐소생술",
+    "media": 0,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 4800,
+    "h": 960,
+    "chars": 113,
+    "headings": [],
+    "keyText": "고객님께서 주신 사랑 더 크게 돌려드리겠습니다. 매월 전 직원 급여의 1%씩을 더해 조성된 사회공헌기금인 대항병원 사랑나누미는 진료비 부담이 큰 환자나 도움의 손길이 필요한 이웃을 후원합니다. 자세히보기",
+    "media": 0,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 5760,
+    "h": 860,
+    "chars": 105,
+    "headings": [],
+    "keyText": "병원 오시는 길 서울시 서초구 남부순환로 2151(방배동 481-10), 2·4호선 사당역 14번 출구 오시는 길 주차안내 대항병원 100m 확대 축소 초기화 로드뷰 길찾기 지도 크게 보기",
+    "media": 28,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 6620,
+    "h": 302,
+    "chars": 226,
+    "headings": [],
+    "keyText": "이용약관 개인정보처리방침 이메일무단수집거부 환자권리와의무 비급여진료비안내 진료협력센터 패밀리사이트 대표전화 : 02-6388-8114 (06699) 서울시 서초구 남부순환로 2151 사업자번호 : 114-96-05495대표자 : 김도선 “대항”, “대항병원”은 상표법에 의거, 모든 법적 권한은 대항병원만이 보유하고 있습니다. COPYRIGHT © 2020 대항병원. ALL RIGHTS RESERVED.",
+    "media": 6,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 1135,
+    "tag": "h2",
+    "t": "대장항문 36년"
+   }
+  ],
+  "type": {
+   "h1Px": 0,
+   "h2Px": 55,
+   "bodyPx": 0,
+   "h1Fam": "\"Noto Sans KR\", sans-serif",
+   "bodyFam": "\"Noto Sans KR\", sans-serif",
+   "h1Weight": "400",
+   "h1TextLen": 0,
+   "h2TextLen": 8,
+   "headingTotal": 2,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 60,
+   "imgInFirstScreen": 10
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 1,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 5
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -180, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -180, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": null,
+    "dur": "0.7s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 15,
+    "op": 1,
+    "tr": "matrix(0, 1, -1, 0, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 16,
+    "op": 1,
+    "tr": "matrix(0, -1, 1, 0, 0, 0)",
+    "dur": "0.5s",
+    "ease": "linear",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 17,
+    "op": 1,
+    "tr": "matrix(-1, 0, 0, -1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(0, -1, 1, 0, 0, 0)",
+    "dur": "0.5s",
+    "ease": "linear",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(0, -1, 1, 0, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 20,
+    "op": 1,
+    "tr": "matrix(0, -1, 1, 0, 0, 0)",
+    "dur": "0.5s",
+    "ease": "linear",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 21,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 22,
+    "op": 1,
+    "tr": "matrix(0, -1, 1, 0, 0, 0)",
+    "dur": "0.5s",
+    "ease": "linear",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 26,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 27,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "진료과소개",
+   "이용안내",
+   "건강정보",
+   "고객참여",
+   "병원소개",
+   "진료협력센터",
+   "치질클리닉",
+   "탈장클리닉",
+   "변비·변실금클리닉",
+   "담낭클리닉",
+   "급성충수염클리닉",
+   "대장암센터",
+   "암환자요양",
+   "내시경센터",
+   "치료내시경센터",
+   "소화기내과",
+   "간클리닉",
+   "염증성장질환클리닉",
+   "심장클리닉",
+   "비뇨의학과",
+   "유방·갑상선외과",
+   "부인과",
+   "가정의학과",
+   "공단검진",
+   "종합검진",
+   "예약상담신청",
+   "의료진소개",
+   "진료시간안내",
+   "전화번호안내",
+   "위치안내",
+   "찾아오시는 길",
+   "주차안내",
+   "증명서발급안내",
+   "구비서류안내",
+   "발급안내",
+   "입/퇴원안내",
+   "입원안내",
+   "수술안내",
+   "퇴원안내",
+   "간호간병통합서비스 안내",
+   "병문안안내",
+   "층별안내",
+   "서관",
+   "동관",
+   "편의시설안내",
+   "질병정보",
+   "건강자료",
+   "원격진료",
+   "전문의 상담",
+   "치료후기",
+   "칭찬합니다",
+   "고객경험평가",
+   "봉사속의 사랑",
+   "사랑나누미",
+   "후원추천",
+   "걸어온길",
+   "봉사나누미",
+   "미션과 비전",
+   "대표원장 인사말",
+   "대항의 역사"
+  ],
+  "pageTextLen": 2575,
+  "kw": {
+   "원장": 0,
+   "전문의": 3,
+   "의료진": 4,
+   "교수": 0,
+   "센터": 8,
+   "지점": 1,
+   "병원": 22,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 7,
+   "이벤트": 0,
+   "비급여": 4,
+   "오시는길": 4
+  },
+  "deptHits": [
+   "대장항문",
+   "검진",
+   "내과",
+   "외과"
+  ],
+  "providerUrl": "https://www.daehang.com/aboutDH/dhNewsListView.asp?mode=view&page=&idx=174499",
+  "centerUrl": null
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -180, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -180, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 10,
+   "op": 0,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 12,
+   "op": 0,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 13,
+   "op": 0,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 14,
+   "op": 0,
+   "tr": null,
+   "dur": "0.7s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(0, 1, -1, 0, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": "matrix(0.544688, -0.838639, 0.838639, 0.544688, 0, 0)",
+   "dur": "0.5s",
+   "ease": "linear"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(-1, 0, 0, -1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(0, -1, 1, 0, 0, 0)",
+   "dur": "0.5s",
+   "ease": "linear"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(0, -1, 1, 0, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": "matrix(0, -1, 1, 0, 0, 0)",
+   "dur": "0.5s",
+   "ease": "linear"
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": "matrix(0, -1, 1, 0, 0, 0)",
+   "dur": "0.5s",
+   "ease": "linear"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 668,
+  "imgs": 12,
+  "title": "병원소개 > 병원소식 | 대항병원",
+  "원장": 1,
+  "전문의": 1,
+  "교수": 0,
+  "nameTokens": 2,
+  "iframes": 0,
+  "url": "https://www.daehang.com/aboutDH/dhNewsListView.asp?mode=view&page=&idx=174499",
+  "status": 200
+ }
+}

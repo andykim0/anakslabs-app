@@ -1,0 +1,202 @@
+{
+ "url": "https://www.kseye.co.kr/",
+ "status": 200,
+ "finalUrl": "https://www.kseye.co.kr/",
+ "title": "\uac15\ub0a8\uc11c\uc6b8\uc548\uacfc",
+ "popups": [
+  "popup0 main_pop imgmap_pop |  \uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]",
+  "popup2 main_pop imgmap_pop |  \uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]"
+ ],
+ "revealPost": [],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 900,
+  "screens": 1,
+  "sectionParentTag": "div",
+  "sectionCoverRatio": 2,
+  "sectionCount": 2,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 13,
+    "headings": [
+     "\ub178\uc548\u00b7\ubc31\ub0b4\uc7a5"
+    ],
+    "keyText": "\ub178\uc548\u00b7\ubc31\ub0b4\uc7a5 \ubc14\ub85c\uac00\uae30 \u2192",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 15,
+    "headings": [
+     "\ucd08\uace0\ub3c4\uadfc\uc2dc\u00b7\ub77c\uc139"
+    ],
+    "keyText": "\ucd08\uace0\ub3c4\uadfc\uc2dc\u00b7\ub77c\uc139 \ubc14\ub85c\uac00\uae30 \u2192",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   }
+  ],
+  "outline": [],
+  "hero": {
+   "h": 900,
+   "bgLum": null,
+   "bgMedia": true,
+   "textLum": null,
+   "mediaKind": null,
+   "mediaPlace": "none",
+   "mediaCoverW": null,
+   "mediaCoverH": null,
+   "slides": 0,
+   "anchorCount": 2,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 357,
+     "h": 150,
+     "label": "\ub178\uc548\u00b7\ubc31\ub0b4\uc7a5 \ubc14\ub85c\uac00\uae30 \u2192",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": true,
+     "bw": 2,
+     "w": 170,
+     "h": 50,
+     "label": "\ubc14\ub85c\uac00\uae30 \u2192",
+     "isCta": true,
+     "radius": "0px"
+    }
+   ],
+   "text": "\ub178\uc548\u00b7\ubc31\ub0b4\uc7a5 \ubc14\ub85c\uac00\uae30 \u2192"
+  },
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "\"Noto Sans KR\", \"Nanum Gothic\", \ub098\ub214\uace0\ub515, \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, Dotum",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": null,
+   "h2Size": null,
+   "bodySize": "18px",
+   "bodyWeight": "300",
+   "bodyLH": "23.94px",
+   "bigHeadPx": 70,
+   "bigHeadFam": "\"Noto Sans KR\", \"Nanum Gothic\", \ub098\ub214\uace0\ub515, \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, Dotum",
+   "bigHeadWeight": "700",
+   "h1Count": 0,
+   "h2Sizes": [],
+   "h3Size": "70px",
+   "fontFaces": [
+    "Noto Sans KR",
+    "Roboto",
+    "Montserrat"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 29,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 2,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": false,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 0,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "phoneKR": null,
+   "statLike": []
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.302,
+   "darkFrac": 0.647,
+   "lightFrac": 0.022
+  },
+  {
+   "i": 1,
+   "mean": 0.302,
+   "darkFrac": 0.647,
+   "lightFrac": 0.022
+  }
+ ],
+ "heroLum": {
+  "mean": 0.301,
+  "darkFrac": 0.648,
+  "lightFrac": 0.021
+ },
+ "heroLumBelowNav": {
+  "mean": 0.302,
+  "darkFrac": 0.653,
+  "lightFrac": 0.021
+ },
+ "fixedTop": [],
+ "fixedMid": [],
+ "mobileScreens": 1,
+ "mobileFixed": []
+}

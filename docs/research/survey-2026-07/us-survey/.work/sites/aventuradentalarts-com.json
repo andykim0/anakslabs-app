@@ -1,0 +1,1469 @@
+{
+ "url": "https://aventuradentalarts.com",
+ "status": 200,
+ "finalUrl": "https://aventuradentalarts.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 18429,
+  "screens": 20.5,
+  "sectionParentTag": "main",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 0,
+    "h": 2520,
+    "chars": 301,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "20,19,19",
+    "bgLum": 0.911,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 2520,
+    "h": 1424,
+    "chars": 369,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 3,
+    "bgKey": "20,19,19",
+    "bgLum": 0.911,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 3944,
+    "h": 3285,
+    "chars": 347,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 18,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 7229,
+    "h": 1202,
+    "chars": 42,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 8431,
+    "h": 3251,
+    "chars": 325,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 6,
+    "bgKey": "20,19,19",
+    "bgLum": 0.911,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 11681,
+    "h": 1520,
+    "chars": 805,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 13201,
+    "h": 2914,
+    "chars": 486,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "section",
+    "absTop": 16115,
+    "h": 1234,
+    "chars": 62,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "footer",
+    "absTop": 17131,
+    "h": 1298,
+    "chars": 896,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "2,2,2",
+    "bgLum": 0.084,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 2520,
+   "bgLum": 0.911,
+   "bgMedia": false,
+   "textLum": 0.263,
+   "mediaKind": "video",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 3,
+   "ctas": [],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "InstrumentSerif",
+   "h2": "InstrumentSerif",
+   "body": "InterTight",
+   "h1Weight": "400",
+   "h1Size": "153px",
+   "bodySize": "15px",
+   "fontFaces": [
+    "InstrumentSerif",
+    "InterTight",
+    "swiper-icons"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 1,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 6
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 96, 0)"
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 64, 0)"
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 32, 0)"
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 5,
+    "op": 0.6,
+    "tr": "matrix(1, 0, 0, 1, -626, -690)"
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -1424)"
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 24,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 25,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -180)"
+   },
+   {
+    "id": 28,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 29,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -720, -242.406)"
+   },
+   {
+    "id": 30,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -23.9219)"
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -236)"
+   },
+   {
+    "id": 32,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 33,
+    "op": 0,
+    "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+   },
+   {
+    "id": 34,
+    "op": 0,
+    "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+   },
+   {
+    "id": 35,
+    "op": 0,
+    "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+   },
+   {
+    "id": 36,
+    "op": 0,
+    "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+   },
+   {
+    "id": 37,
+    "op": 0,
+    "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+   },
+   {
+    "id": 38,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 39,
+    "op": 1,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 40,
+    "op": 0.3,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 41,
+    "op": 0.3,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 42,
+    "op": 0.3,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 43,
+    "op": 0.3,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 44,
+    "op": 0.3,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+   },
+   {
+    "id": 45,
+    "op": 1,
+    "tr": "matrix(-0.832613, 0.553855, -0.553855, -0.832613, -574.202, -559.434)"
+   },
+   {
+    "id": 46,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -86, -90)"
+   },
+   {
+    "id": 47,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -90)"
+   },
+   {
+    "id": 48,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -664.203, 0)"
+   },
+   {
+    "id": 49,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 54.4922)"
+   },
+   {
+    "id": 51,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 119.883)"
+   },
+   {
+    "id": 52,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 53,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 54,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 55,
+    "op": 1,
+    "tr": "matrix(0.988937, 0.148334, -0.148334, 0.988937, 272.973, 0)"
+   },
+   {
+    "id": 56,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -829, 0)"
+   },
+   {
+    "id": 57,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -75, 0)"
+   },
+   {
+    "id": 58,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1267, 0)"
+   },
+   {
+    "id": 59,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 900)"
+   }
+  ],
+  "pageTextLen": 4199,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 10,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 3,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 2,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwImplant": true,
+   "kwCosmetic": true,
+   "kwUSState": "FL 33180",
+   "phoneUS": "(305) 682-1414",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.566,
+   "darkFrac": 0.413,
+   "lightFrac": 0.513
+  },
+  {
+   "i": 1,
+   "mean": 0.839,
+   "darkFrac": 0.08,
+   "lightFrac": 0.902
+  },
+  {
+   "i": 2,
+   "mean": 0.18,
+   "darkFrac": 0.855,
+   "lightFrac": 0.078
+  },
+  {
+   "i": 3,
+   "mean": 0.455,
+   "darkFrac": 0.354,
+   "lightFrac": 0.302
+  },
+  {
+   "i": 4,
+   "mean": 0.837,
+   "darkFrac": 0.082,
+   "lightFrac": 0.891
+  },
+  {
+   "i": 5,
+   "mean": 0.171,
+   "darkFrac": 0.895,
+   "lightFrac": 0.069
+  },
+  {
+   "i": 6,
+   "mean": 0.116,
+   "darkFrac": 0.959,
+   "lightFrac": 0.036
+  },
+  {
+   "i": 7,
+   "mean": 0.297,
+   "darkFrac": 0.678,
+   "lightFrac": 0.267
+  },
+  {
+   "i": 8,
+   "mean": 0.184,
+   "darkFrac": 0.963,
+   "lightFrac": 0.034
+  }
+ ],
+ "heroLum": {
+  "mean": 0.638,
+  "darkFrac": 0.295,
+  "lightFrac": 0.581
+ },
+ "heroLumBelowNav": {
+  "mean": 0.616,
+  "darkFrac": 0.334,
+  "lightFrac": 0.527
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 72,
+   "left": 0,
+   "w": 1440,
+   "h": 72,
+   "z": "10",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274-eb777e61f",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 682-1414",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 864-1656",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 668-1811",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 2520,
+   "left": 0,
+   "w": 1440,
+   "h": 2520,
+   "z": "auto",
+   "links": [
+    {
+     "href": "https://maps.app.goo.gl/oFQPrr2sgsdXtbdv8",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://maps.app.goo.gl/LpQBJqAyJvEd88Dx9",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://maps.app.goo.gl/pEFbhnNfZaex1aEZ7",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "section",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "12",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/faq",
+     "label": "<removed>"
+    },
+    {
+     "href": "esthetic-dentistry",
+     "label": "<removed>"
+    },
+    {
+     "href": "restorative-dentistry",
+     "label": "<removed>"
+    },
+    {
+     "href": "preventive-care",
+     "label": "<removed>"
+    },
+    {
+     "href": "beyond-the-smile",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "/laboratory",
+     "label": "<removed>"
+    },
+    {
+     "href": "/technology",
+     "label": "<removed>"
+    },
+    {
+     "href": "/contact",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 900,
+   "bottom": 1800,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "12",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 96, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 64, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 32, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 5,
+   "op": 0.6,
+   "tr": "matrix(1, 0, 0, 1, -626, -690)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -1424)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 180)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 180)"
+  },
+  {
+   "id": 12,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 13,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 15,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 16,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 18,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 19,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 21,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 40)"
+  },
+  {
+   "id": 22,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 40)"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 180)"
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 180)"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 180.3)"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -720, 56)"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -23.9219)"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -236)"
+  },
+  {
+   "id": 32,
+   "op": 0,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 33,
+   "op": 0,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 34,
+   "op": 0,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 35,
+   "op": 0,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 36,
+   "op": 0,
+   "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 38,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -724.219)"
+  },
+  {
+   "id": 39,
+   "op": 0.3,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 40,
+   "op": 0.3,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 41,
+   "op": 0.3,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 42,
+   "op": 0.3,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 43,
+   "op": 0.3,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 44,
+   "op": 1,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+  },
+  {
+   "id": 45,
+   "op": 1,
+   "tr": "matrix(0.150573, -0.988599, 0.988599, 0.150573, -876.222, -264.787)"
+  },
+  {
+   "id": 46,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -86, 0)"
+  },
+  {
+   "id": 47,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 48,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -664.203, 0)"
+  },
+  {
+   "id": 49,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 50,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 54.4922)"
+  },
+  {
+   "id": 51,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 52,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 76.2891)"
+  },
+  {
+   "id": 53,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 76.2891)"
+  },
+  {
+   "id": 54,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 185.1)"
+  },
+  {
+   "id": 55,
+   "op": 1,
+   "tr": "matrix(0.968676, 0.248328, -0.248328, 0.968676, 460.114, 0)"
+  },
+  {
+   "id": 56,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -829, 0)"
+  },
+  {
+   "id": 57,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -75, 0)"
+  },
+  {
+   "id": 58,
+   "op": 1,
+   "tr": "matrix(2.7, 0, 0, 2.7, -1267, 0)"
+  },
+  {
+   "id": 59,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 900)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 72,
+   "left": 0,
+   "w": 1440,
+   "h": 72,
+   "z": "10",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274-eb777e61f",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 682-1414",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 864-1656",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 668-1811",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": -1620,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 2520,
+   "z": "auto",
+   "links": [
+    {
+     "href": "https://maps.app.goo.gl/oFQPrr2sgsdXtbdv8",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://maps.app.goo.gl/LpQBJqAyJvEd88Dx9",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://maps.app.goo.gl/pEFbhnNfZaex1aEZ7",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "section",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": -524,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 1424,
+   "z": "auto",
+   "links": [
+    {
+     "href": "/about",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "section",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 900,
+   "left": 32,
+   "w": 1376,
+   "h": 900,
+   "z": "auto",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "12",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/faq",
+     "label": "<removed>"
+    },
+    {
+     "href": "esthetic-dentistry",
+     "label": "<removed>"
+    },
+    {
+     "href": "restorative-dentistry",
+     "label": "<removed>"
+    },
+    {
+     "href": "preventive-care",
+     "label": "<removed>"
+    },
+    {
+     "href": "beyond-the-smile",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "/laboratory",
+     "label": "<removed>"
+    },
+    {
+     "href": "/technology",
+     "label": "<removed>"
+    },
+    {
+     "href": "/contact",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 900,
+   "bottom": 1800,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "12",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 14.2,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 844,
+   "z": "12",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274-eb777e61f",
+     "label": "<removed>"
+    },
+    {
+     "href": "/faq",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/laboratory",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 844,
+   "bottom": 1688,
+   "left": 0,
+   "w": 390,
+   "h": 844,
+   "z": "12",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.instagram.com/aventuradentalarts/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 844,
+   "z": "11",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 682-1414",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 864-1656",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:(305) 668-1811",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

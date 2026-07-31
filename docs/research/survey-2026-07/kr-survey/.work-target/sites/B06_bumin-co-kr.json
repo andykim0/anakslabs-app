@@ -1,0 +1,157 @@
+{
+ "sample_id": "B06",
+ "name": "부민병원",
+ "url": "https://www.bumin.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.bumin.co.kr/",
+ "title": "부민병원그룹",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1428,
+  "screens": 1.6,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 75,
+    "h": 1353,
+    "chars": 91,
+    "headings": [
+     "부민병원",
+     "부민 프레스티지 라이프케어센터",
+     "국제부민병원"
+    ],
+    "keyText": "부민병원 서울부민병원 부산부민병원 해운대부민병원 구포부민병원 명지부민병원 2028년 개원 예정 부민 프레스티지 라이프케어센터 마곡 서울 국제부민병원 제주국제부민병원",
+    "media": 10,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 1178,
+    "h": 250,
+    "chars": 168,
+    "headings": [],
+    "keyText": "TOP 유튜브 인스타그램 페이스북 네이버 블로그 이용약관 개인정보처리방침 대표자 : 정흥태 Copyright © 2020 BUMIN HOSPITAL All Rights Reserved. Family Site 서울부민병원 부산부민병원 해운대부민병원 구포부민병원 English Russian Chinese",
+    "media": 4,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 8,
+    "tag": "h1",
+    "t": "부민병원"
+   },
+   {
+    "y": 715,
+    "tag": "h4",
+    "t": "부민병원"
+   },
+   {
+    "y": 715,
+    "tag": "h4",
+    "t": "부민 프레스티지 라이프케어센터"
+   },
+   {
+    "y": 995,
+    "tag": "h4",
+    "t": "국제부민병원"
+   }
+  ],
+  "type": {
+   "h1Px": 32,
+   "h2Px": null,
+   "bodyPx": 16,
+   "h1Fam": "\"Noto Sans KR\", \"Nanum Gothic\", \"Nanum Gothic\", 나눔고딕, \"맑은 고딕\", \"Malgun Gothic\", Dotum, 돋움, Gulim, 굴림, sans-serif",
+   "bodyFam": "\"Noto Sans KR\", \"Nanum Gothic\", \"Nanum Gothic\", 나눔고딕, \"맑은 고딕\", \"Malgun Gothic\", Dotum, 돋움, Gulim, 굴림, sans-serif",
+   "h1Weight": "400",
+   "h1TextLen": 4,
+   "h2TextLen": null,
+   "headingTotal": 1,
+   "headingImgOnly": 0,
+   "headingZeroText": 0,
+   "maxTextPx": 36,
+   "imgInFirstScreen": 2
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 1,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 2
+  },
+  "revealPre": [],
+  "navUniq": [
+   "부민병원그룹소개",
+   "비전과 핵심가치",
+   "부민스토리",
+   "이사장소개",
+   "HI",
+   "HSS 글로벌 얼라이언스",
+   "연혁",
+   "조직도",
+   "오시는길",
+   "의료진 소개",
+   "외래진료 안내",
+   "부민병원그룹소식",
+   "사회공헌",
+   "후원안내",
+   "언론보도",
+   "건강토크",
+   "입찰공고",
+   "공고",
+   "매거진:BLOG",
+   "부민병원 40주년 역사관",
+   "병원/센터",
+   "서울부민병원",
+   "부산부민병원",
+   "해운대부민병원",
+   "구포부민병원",
+   "부민 프레스티지 라이프케어센터 마곡"
+  ],
+  "pageTextLen": 722,
+  "kw": {
+   "원장": 0,
+   "전문의": 0,
+   "의료진": 2,
+   "교수": 0,
+   "센터": 5,
+   "지점": 0,
+   "병원": 29,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 0,
+   "이벤트": 0,
+   "비급여": 0,
+   "오시는길": 2
+  },
+  "deptHits": [],
+  "providerUrl": "https://www.bumin.co.kr/group/introduce/profList.do",
+  "centerUrl": null
+ },
+ "revealPost": [],
+ "providerPage": {
+  "chars": 1748,
+  "imgs": 11,
+  "title": "부민병원그룹",
+  "원장": 4,
+  "전문의": 0,
+  "교수": 0,
+  "nameTokens": 4,
+  "iframes": 0,
+  "url": "https://www.bumin.co.kr/group/introduce/profList.do",
+  "status": 200
+ }
+}

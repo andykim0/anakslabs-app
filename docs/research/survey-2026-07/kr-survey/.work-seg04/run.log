@@ -1,0 +1,46 @@
+--- http://www.iddc.co.kr/
+   ok screens=6.4 secs=6 heroLum=0.823
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-iddc-co-kr.json
+--- http://www.jwbeauty.com/
+   ok screens=9.9 secs=14 heroLum=0.228
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-jwbeauty-com.json
+--- http://www.kosleep.com
+   ok screens=9.4 secs=4 heroLum=0.812
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-kosleep-com.json
+--- http://www.rubyps.co.kr
+   ok screens=1 secs=3 heroLum=0.732
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-rubyps-co-kr.json
+--- http://www.mrbigclinic.com/
+   ok screens=8.7 secs=8 heroLum=0.755
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-mrbigclinic-com.json
+--- http://www.everm.net
+   ok screens=9.7 secs=3 heroLum=0.301
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-everm-net.json
+--- http://www.sooamc.com/
+   ok screens=12 secs=12 heroLum=0.342
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-sooamc-com.json
+--- http://www.jk-withme.com/
+   ok screens=8.6 secs=3 heroLum=0.409
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-jk-withme-com.json
+--- http://www.eyejak.co.kr/
+   ok screens=5.4 secs=5 heroLum=0.701
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-eyejak-co-kr.json
+--- http://bocelle.com/
+   ok screens=0.7 secs=1 heroLum=0.963
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-bocelle-com.json
+--- http://www.withme-medi.com/
+   ok screens=7.1 secs=8 heroLum=0.639
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-withme-medi-com.json
+--- http://www.resexy.co.kr/
+   ok screens=3.3 secs=8 heroLum=0.795
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-resexy-co-kr.json
+--- http://www.glowell.co.kr/
+   ok screens=5.3 secs=3 heroLum=0.619
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-glowell-co-kr.json
+--- http://www.gangnamhifu.com/
+   ERROR: Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gangnamhifu.com/
+Call log:
+  - navigating to "http://www.gangnamhifu.com/", waiting until "domcontentloaded"
+
+   SAVED /private/tmp/kr-survey/.work-seg04/sites/http-gangnamhifu-com.json
+BATCH-DONE

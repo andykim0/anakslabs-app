@@ -1,0 +1,23 @@
+{
+ "url": "http://www.rubyps.co.kr",
+ "popupsBefore": [],
+ "dismissed": [],
+ "popupsAfter": [],
+ "bands": [],
+ "maskedFrac": 0.0,
+ "captureH": 900,
+ "heroLum": {
+  "mean": 0.732,
+  "darkFrac": 0.07,
+  "lightFrac": 0.697,
+  "usablePx": 1.0
+ },
+ "heroLumBelowNav": {
+  "mean": 0.729,
+  "darkFrac": 0.059,
+  "lightFrac": 0.685,
+  "usablePx": 1.0
+ },
+ "bandLum": [],
+ "strips": 1
+}

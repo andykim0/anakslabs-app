@@ -1,0 +1,820 @@
+{
+ "url": "https://www.cnuclinic.co.kr/",
+ "status": 200,
+ "finalUrl": "https://www.cnuclinic.co.kr/",
+ "title": "\ucc28\uc564\uc720\ud074\ub9ac\ub2c9 | \uac15\uc11c\uad6c\ud53c\ubd80\uacfc, \ub9c8\uace1\u00b7\ubaa9\ub3d9\u00b7\uc601\ub4f1\ud3ec\u00b7\uc591\ucc9c\uad6c\u00b7\uac00\uc591\u00b7\ubc1c\uc0b0\u00b7\ud53c\ubd80\uacfc",
+ "popups": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 6000)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 10886,
+  "screens": 12.1,
+  "sectionParentTag": "div#id",
+  "sectionCoverRatio": 1,
+  "sectionCount": 7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 135,
+    "headings": [],
+    "keyText": "1,000\ud3c9\uc758 \ub113\uc740 \uc2e4\ub0b4\uacf5\uac04 \uc138\uacc4 \ud53c\ubd80\ubbf8\uc6a9 \uc758\ud559\uc758 \uc911\uc2ec CHA & YOU \ubd84\uc57c\ubcc4 \uc804\ub2f4\uc758\uc0ac 28\uba85, \uc2a4\ud15d\uc9c4 120\uba85+ 150 \uc5ec\ub300\uc758 \ucd5c\uc801\ud654 \ub808\uc774\uc800 \ubc0f \uae30\uae30 1,000\ud3c9\uc758 \ub113\uc740 \uc2e4\ub0b4\uacf5\uac04 \uc138\uacc4 \ud53c\ubd80\ubbf8\uc6a9 \uc758\ud559\uc758 \uc911\uc2ec CHA & YOU \uc77c\uc2dc\uc815\uc9c0/\ud50c\ub808\uc774",
+    "media": 13,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 960,
+    "h": 570,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1530,
+    "h": 622,
+    "chars": 68,
+    "headings": [
+     "CHA & YOU BEST"
+    ],
+    "keyText": "CHA & YOU BEST \ucc28\uc564\uc720 \ub300\ud45c\uc2dc\uc220 \ud14c\ud2b8\ub77c \uc810\ube7c\uae30 \uae30\ubbf8\u00b7\uc0c9\uc18c \ub9ac\ud504\ud305\u00b7\ud0c4\ub825 \uc2e4\ub9ac\ud504\ud305 \uc5ec\ub4dc\ub984 \uce58\ub8cc \uc561\ucde8\uc99d \ud2bc\uc0b4 \ubb38\uc2e0\uc81c\uac70",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.961,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2152,
+    "h": 6900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 9052,
+    "h": 442,
+    "chars": 4,
+    "headings": [],
+    "keyText": "PLAY",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 9494,
+    "h": 1086,
+    "chars": 251,
+    "headings": [
+     "CONTACT US"
+    ],
+    "keyText": "\uac00\uc871 \uac19\uc740 \ub9c8\uc74c\uc73c\ub85c \uc9c4\ub8cc\ud569\ub2c8\ub2e4. CONTACT US \ucc28\uc564\uc720\uc758\uc6d0 100m \ud655\ub300 \ucd95\uc18c \ucd08\uae30\ud654 \uc11c\uc6b8 \uac15\uc11c\uad6c \ub4f1\ucd0c\ub3d9 60-5 \uc608\ub2e4\uc778 B\ub3d9 2\uce35 (\uac00\uc591\uc5ed 10\ubc88 \ucd9c\uad6c \uc88c\uce21 \ub3c4\ubcf4 1\ubd84) \ud654 / \ubaa9 / \uae08 \uc624\uc804 10:00 ~ \uc624\ud6c4 09:00 \uc6d4 / \uc218 \uc624\uc804 10:00 ~ \uc624\ud6c4 08:00 \ud1a0 \uc694 \uc77c \uc624\uc804 10:00 ~ \uc624\ud6c4 04:00 \uc810 \uc2ec \uc624\ud6c4 01:00 ~ \uc624\ud6c4 02:00 * \ubaa9\uc694\uc77c\uc740 \uc624\ud6c4 2:30\uae4c\uc9c0 \uc77c\uc694\uc77c \ubc0f \uacf5\ud734\uc77c\uc740 \ud734\uc9c4\uc785\ub2c8\ub2e4. 02.3664.9003",
+    "media": 30,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "footer",
+    "absTop": 10580,
+    "h": 306,
+    "chars": 156,
+    "headings": [
+     "CHA&YOU"
+    ],
+    "keyText": "CHA&YOU \uc628\ub77c\uc778 \uc0c1\ub2f4 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc774\uc6a9\uc57d\uad00 \ucc28\uc564\uc720\uc758\uc6d0 \uc8fc\uc18c : \uc11c\uc6b8 \uac15\uc11c\uad6c \ub4f1\ucd0c 3\ub3d9 60-5 \uc608\ub2e4\uc778 B\ub3d9 2\uce35 Tel : 02-3664-9003 \uc0ac\uc5c5\uc790\ubc88\ud638 : 109-09-43046 COPYRIGHT@2024 CHA&YOU CLINIC ALL RIGHT RESERVED",
+    "media": 1,
+    "bgKey": "6,6,6",
+    "bgLum": 0.286,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 0,
+    "tag": "h1",
+    "t": "\uba54\ub274\uc5f4\uae30"
+   },
+   {
+    "y": 1615,
+    "tag": "h2",
+    "t": "CHA & YOU BEST"
+   },
+   {
+    "y": 9689,
+    "tag": "h2",
+    "t": "CONTACT US"
+   },
+   {
+    "y": 10660,
+    "tag": "h2",
+    "t": "CHA&YOU"
+   }
+  ],
+  "hero": {
+   "h": 900,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "bg-image",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 4,
+   "anchorCount": 7,
+   "ctas": [],
+   "text": "1,000\ud3c9\uc758 \ub113\uc740 \uc2e4\ub0b4\uacf5\uac04 \uc138\uacc4 \ud53c\ubd80\ubbf8\uc6a9 \uc758\ud559\uc758 \uc911\uc2ec CHA & YOU \ubd84\uc57c\ubcc4 \uc804\ub2f4\uc758\uc0ac 28\uba85, \uc2a4\ud15d\uc9c4 120\uba85+ 150 \uc5ec\ub300\uc758 \ucd5c\uc801\ud654 \ub808\uc774\uc800 \ubc0f \uae30\uae30 1,000\ud3c9\uc758 \ub113\uc740 \uc2e4\ub0b4\uacf5\uac04 \uc138\uacc4 \ud53c\ubd80\ubbf8\uc6a9 \uc758\ud559\uc758 \uc911\uc2ec CHA & YOU \uc77c\uc2dc\uc815\uc9c0/\ud50c\ub808\uc774"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", sans-serif",
+   "h2": "Lora, serif",
+   "body": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Weight": "700",
+   "h2Size": "21px",
+   "bodySize": "20px",
+   "bodyWeight": "350",
+   "bodyLH": "30px",
+   "bigHeadPx": 28,
+   "bigHeadFam": "\"Noto Sans KR\", sans-serif",
+   "bigHeadWeight": "700",
+   "h1Count": 1,
+   "h2Sizes": [
+    "21px",
+    "90px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Lora",
+    "Noto Sans KR",
+    "Futura Md BT",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "https://fonts.googleapis.com/css2?family=Lora:wght@400..700&family=Noto+Sans+KR:wght@100.."
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": true,
+   "scrollTrigger": true,
+   "swiperCount": 1,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 6
+  },
+  "pageTextLen": 655,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 5,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 7,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 1,
+   "phoneKR": "yes",
+   "statLike": [
+    "28\uba85",
+    "120\uba85"
+   ]
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -1200, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 2021, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.616,
+   "darkFrac": 0.279,
+   "lightFrac": 0.629
+  },
+  {
+   "i": 1,
+   "mean": 0.863,
+   "darkFrac": 0.028,
+   "lightFrac": 0.915
+  },
+  {
+   "i": 2,
+   "mean": 0.944,
+   "darkFrac": 0.019,
+   "lightFrac": 0.976
+  },
+  {
+   "i": 3,
+   "mean": 0.983,
+   "darkFrac": 0.014,
+   "lightFrac": 0.983
+  },
+  {
+   "i": 4,
+   "mean": 0.951,
+   "darkFrac": 0.001,
+   "lightFrac": 0.997
+  },
+  {
+   "i": 5,
+   "mean": 0.947,
+   "darkFrac": 0.026,
+   "lightFrac": 0.954
+  },
+  {
+   "i": 6,
+   "mean": 0.97,
+   "darkFrac": 0.013,
+   "lightFrac": 0.973
+  }
+ ],
+ "heroLum": {
+  "mean": 0.247,
+  "darkFrac": 0.721,
+  "lightFrac": 0.01
+ },
+ "heroLumBelowNav": {
+  "mean": 0.274,
+  "darkFrac": 0.684,
+  "lightFrac": 0.01
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 120,
+   "left": 0,
+   "w": 1440,
+   "h": 120,
+   "z": "11100000",
+   "links": [
+    {
+     "href": "",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/reserve/reserve_history.php",
+     "label": ""
+    },
+    {
+     "href": "/reserve/cart.php",
+     "label": "0"
+    }
+   ],
+   "label": "\uba54\ub274\uc5f4\uae30 \uba54\ub274\uc5f4\uae30 0",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 729,
+   "bottom": 840,
+   "left": 1330,
+   "w": 50,
+   "h": 111,
+   "z": "1111000",
+   "links": [
+    {
+     "href": "/reserve/list.php?cate1=18",
+     "label": "\uc608\uc57d\ud558\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_qYxhKxd/chat",
+     "label": "kakao"
+    }
+   ],
+   "label": "\uc608\uc57d\ud558\uae30 kakao",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 100,
+   "left": 0,
+   "w": 1440,
+   "h": 100,
+   "z": "11100000",
+   "links": [
+    {
+     "href": "",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/reserve/reserve_history.php",
+     "label": ""
+    },
+    {
+     "href": "/reserve/cart.php",
+     "label": "0"
+    }
+   ],
+   "label": "\uba54\ub274\uc5f4\uae30 \uba54\ub274\uc5f4\uae30 0",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 729,
+   "bottom": 840,
+   "left": 1330,
+   "w": 50,
+   "h": 111,
+   "z": "1111000",
+   "links": [
+    {
+     "href": "/reserve/list.php?cate1=18",
+     "label": "\uc608\uc57d\ud558\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_qYxhKxd/chat",
+     "label": "kakao"
+    }
+   ],
+   "label": "\uc608\uc57d\ud558\uae30 kakao",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "auto",
+   "links": [],
+   "label": "\uc138\uacc4 \ud53c\ubd80\ubbf8\uc6a9 \uc758\ud559\uc758 \uc911\uc2ec\uc5d0, \ucc28\uc564\uc720\uac00 \uc788\uc2b5\ub2c8\ub2e4. 01 \ud574\uc678 \uc758\ub8cc\uc9c4 \uad50\uc721 120\uc5ec\ud68c \ucc28\uc564\uc720\ub294 \uc138\uacc4 \uac01\uad6d\uc758 \ud53c\ubd80\uacfc \uc758\ub8cc\uc9c4\ub4e4\uc744 \ub300\uc0c1\uc73c\ub85c \ucd1d 120\uc5ec\ud68c\uc758 \uad50\uc721 \ubc0f \ub77c\uc774\ube0c \uc2dc\uc5f0\uc744 \ud1b5\ud574 \uc138\uacc4 \ubbf8\uc6a9\uc758\ud559 \ubc1c\uc804\uc5d0 \uae30\uc5ec\ud558\uace0 \ud55c\uad6d \ubbf8\uc6a9\uc758\ud559\uc744 \ubc1c\uc804\uc2dc\ud0a4\ub294\ub370 \uacf5\ud5cc\ud558\uc600\uc2b5\ub2c8\ub2e4.",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 7.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubcf4\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 60,
+   "left": 0,
+   "w": 390,
+   "h": 60,
+   "z": "11100000",
+   "links": [
+    {
+     "href": "",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/reserve/reserve_history.php",
+     "label": ""
+    },
+    {
+     "href": "/reserve/cart.php",
+     "label": "0"
+    },
+    {
+     "href": "",
+     "label": "\uba54\ub274\ub2eb\uae30"
+    },
+    {
+     "href": "/member/login.php",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "../intro/intro01.php",
+     "label": "\ucc28\uc564\uc720\uc18c\uac1c"
+    },
+    {
+     "href": "../special/special01.php",
+     "label": "\ud2b9\ud654\uc9c4\ub8cc"
+    },
+    {
+     "href": "../skin/skin01.php",
+     "label": "\ud14c\ud2b8\ub77c\uc810\ube7c\uae30(\ud2b9\ud654)"
+    },
+    {
+     "href": "../skin/skin05.php",
+     "label": "\ud53c\ubd80\u00b7\uc131\ud615"
+    },
+    {
+     "href": "../plastic/plastic04.php",
+     "label": "\uc561\ucde8\uc99d(\ud2b9\ud5c8)"
+    },
+    {
+     "href": "../skin/skin10.php",
+     "label": "\ud2bc\uc0b4\uce58\ub8cc(\ud2b9\ud5c8)"
+    },
+    {
+     "href": "../skin/skin06.php",
+     "label": "\ubb38\uc2e0\uc81c\uac70(\ud2b9\ud654)"
+    }
+   ],
+   "label": "\uba54\ub274\uc5f4\uae30 \uba54\ub274\uc5f4\uae30 0 \uba54\ub274\ub2eb\uae30 \ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \ucc28\uc564\uc720\uc18c\uac1c \ud2b9\ud654\uc9c4\ub8cc \ud14c\ud2b8\ub77c\uc810\ube7c\uae30(\ud2b9\ud654) \ud53c\ubd80\u00b7\uc131\ud615 \uc561\ucde8\uc99d(\ud2b9\ud5c8) \ud2bc\uc0b4\uce58\ub8cc(\ud2b9\ud5c8) \ubb38\uc2e0\uc81c\uac70(\ud2b9\ud654) \ud749\ud130\uce58\ub8cc(\ud2b9\ud654) \ucee4\ubba4\ub2c8\ud2f0 youtube KR EN CN",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 683,
+   "bottom": 822,
+   "left": 329,
+   "w": 39,
+   "h": 139,
+   "z": "111000",
+   "links": [
+    {
+     "href": "/reserve/list.php?cate1=18",
+     "label": "\uc608\uc57d\ud558\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_qYxhKxd/chat",
+     "label": "kakao"
+    },
+    {
+     "href": "tel:02-3664-9003",
+     "label": "\uc804\ud654\uc0c1\ub2f4"
+    }
+   ],
+   "label": "\uc608\uc57d\ud558\uae30 kakao \uc804\ud654\uc0c1\ub2f4",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,923 @@
+{
+ "url": "https://www.medicubesignature.com",
+ "status": 200,
+ "finalUrl": "https://www.medicubesignature.com/",
+ "title": "\uba54\ub514\ud050\ube0c\ud074\ub9ac\ub2c9 \ubd84\ub2f9\uc810",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 4814,
+  "screens": 5.3,
+  "sectionParentTag": "div",
+  "sectionCount": 7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "aside",
+    "absTop": 195,
+    "h": 648,
+    "chars": 39,
+    "headings": [],
+    "keyText": "\uc628\ub77c\uc778 \uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4 \uc608\uc57d \uc804\ud6c4&\ud6c4\uae30 \uc774\ubca4\ud2b8 \uc624\uc2dc\ub294 \uae38 \ub300\ud45c\uc804\ud654 TOP",
+    "media": 8,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 0,
+    "h": 900,
+    "chars": 128,
+    "headings": [],
+    "keyText": "\uba54\uc778 \ube44\uc8fc\uc5bc VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c \ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4 MEDICUBE SIGNATURE VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c \ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4 \ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4 MEDICUBE SIGNATURE VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c",
+    "media": 16,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 900,
+    "h": 900,
+    "chars": 0,
+    "headings": [
+     ""
+    ],
+    "keyText": "",
+    "media": 9,
+    "bgKey": "media",
+    "bgLum": 0.715,
+    "bgMedia": true
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 1800,
+    "h": 900,
+    "chars": 15,
+    "headings": [],
+    "keyText": "SKIN CONSERTENT",
+    "media": 1,
+    "bgKey": "21,0,0",
+    "bgLum": 0.213,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 2700,
+    "h": 900,
+    "chars": 337,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120 \uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800 \ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5 \uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58 \uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5 \uc2a4\ud31f \ub9ac\ud398\uc5b4 \ub9ac\ud504\ud305 \ub808\uc774\uc800\uc758 \ub05d\ud310\uc655 \uc6b8\uc384\ub77c \ub9ac\ud504\ud305 \uc5ec\ub4dc\ub984+\ud749\ud130 \ud1a0\ud0c8 \ucf00\uc5b4 \uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5 \ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120 \uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800 \ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5 \uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58 \uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5 \uc2a4\ud31f \ub9ac\ud398\uc5b4 \ub9ac\ud504\ud305 \ub808\uc774\uc800\uc758 \ub05d\ud310\uc655 \uc6b8\uc384\ub77c \ub9ac\ud504\ud305 \uc5ec\ub4dc\ub984+\ud749\ud130 \ud1a0\ud0c8 \ucf00\uc5b4 \uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5 \ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120 \uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800 \ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5 \uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58 \uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5 \uc2a4\ud31f \ub9ac\ud398\uc5b4",
+    "media": 27,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 3600,
+    "h": 900,
+    "chars": 494,
+    "headings": [
+     "",
+     "1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac",
+     "\uc2a4\ub9c8\ud2b8\ud55c \ud53c\ubd80\uc0c1\ud0dc \uc9c4\ub2e8\uc73c\ub85c \ub0b4 \ud53c\ubd80\uc0c1\ud0dc\uc5d0 \ub9de\ub294 \uce58\ub8cc\ud504\ub85c\uadf8\ub7a8 \uc6b4\uc601",
+     "\ud53c\ubd80\ub97c \uc798 \uc544\ub294 \uc219\ub828\ub41c \uc804\ubb38\uc758 \ub300\ud45c\uc6d0\uc7a5\uc758 \ud53c\ubd80\uace0\ubbfc \ubcc4 1:1 \ucc45\uc784 \uc9c4\ub8cc",
+     "1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac"
+    ],
+    "keyText": "1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac \uc5c4\uc120\ub41c \uba54\ub514\ud050\ube0c \ud504\ub9ac\ubbf8\uc5c4 \uc81c\ud488\uacfc \ucd5c\uace0\uae09 \uc6d0\ub8cc\ub9cc\uc744 \uc0ac\uc6a9 \ud504\ub9ac\ubbf8\uc5c4 LED \uad11\uc120 \uce58\ub8cc\ub85c \uc2a4\uba70\ub4dc\ub294 \uac74\uac15\ud55c \ud53c\ubd80 \uc5d0\ub108\uc9c0 \uc2a4\ub9c8\ud2b8\ud55c \ud53c\ubd80\uc0c1\ud0dc \uc9c4\ub2e8\uc73c\ub85c \ub0b4 \ud53c\ubd80\uc0c1\ud0dc\uc5d0 \ub9de\ub294 \uce58\ub8cc\ud504\ub85c\uadf8\ub7a8 \uc6b4\uc601 \ud53c\ubd80\uc9c8\ud658\uc758 \uc6d0\uc778\uacfc \uc7a0\uc7ac\ub41c \ud53c\ubd80 \ubb38\uc81c\uc810\uc744 \uc885\ud569\uc801\uc73c\ub85c \ubd84\uc11d\ud558\uc5ec \uac1c\uc778\uc758 \ud53c\ubd80\uc5d0 \uac00\uc7a5 \ucd5c\uc801\ud654\ub41c \uce58\ub8cc \ud504\ub85c\uadf8\ub7a8 \uacc4\ud68d \uc218\ub9bd \ud53c\ubd80\ub97c \uc798 \uc544\ub294 \uc219\ub828\ub41c \uc804\ubb38\uc758 \ub300\ud45c\uc6d0\uc7a5\uc758 \ud53c\ubd80\uace0\ubbfc \ubcc4 1:1 \ucc45\uc784 \uc9c4\ub8cc \ub0b4\uc6d0\ud55c \uc21c\uac04\ubd80\ud130 \uc2dc\uc791\ub418\ub294 \ub300\ud45c\uc6d0\uc7a5\uc758 \ub9de\ucda4 \uc2dd \ucc45\uc784 \uc9c4\ub8cc \uac00\uc7a5 \ud6a8\uacfc\uc801\uc778 \uce58\ub8cc\ubc29\ud5a5 \uce74\uc6b4\uc140\ub9c1 \ubc0f \uc12c\uc138\ud55c \uce58\ub8cc \uc9c4\ud589 1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac \uc5c4\uc120\ub41c \uba54\ub514\ud050\ube0c \ud504\ub9ac\ubbf8\uc5c4 \uc81c\ud488\uacfc \ucd5c\uace0\uae09 \uc6d0\ub8cc\ub9cc\uc744 \uc0ac\uc6a9 \ud504\ub9ac\ubbf8\uc5c4 LED \uad11\uc120 \uce58\ub8cc\ub85c \uc2a4\uba70\ub4dc\ub294 \uac74\uac15\ud55c \ud53c\ubd80 \uc5d0\ub108\uc9c0 \uc2a4\ub9c8\ud2b8\ud55c \ud53c\ubd80\uc0c1\ud0dc \uc9c4\ub2e8\uc73c\ub85c \ub0b4 \ud53c\ubd80\uc0c1\ud0dc\uc5d0 \ub9de\ub294 \uce58\ub8cc\ud504\ub85c\uadf8\ub7a8 \uc6b4\uc601 \ud53c\ubd80\uc9c8\ud658\uc758 \uc6d0\uc778\uacfc \uc7a0\uc7ac\ub41c \ud53c\ubd80 \ubb38\uc81c\uc810\uc744 \uc885\ud569\uc801\uc73c\ub85c \ubd84\uc11d\ud558\uc5ec \uac1c\uc778\uc758 \ud53c\ubd80\uc5d0 \uac00\uc7a5 \ucd5c\uc801\ud654\ub41c \uce58\ub8cc \ud504\ub85c\uadf8\ub7a8 \uacc4\ud68d \uc218\ub9bd",
+    "media": 18,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 6,
+    "tag": "footer",
+    "absTop": 4500,
+    "h": 314,
+    "chars": 263,
+    "headings": [],
+    "keyText": "facebook instargram youtube \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \uc774\uc6a9\uc57d\uad00 \uba54\ub514\ud050\ube0c\uc18c\uac1c \uc9c4\ub8cc\uc548\ub0b4/\uc624\uc2dc\ub294 \uae38 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc758\ub8cc\uae30\uad00\uba85 : \uba54\ub514\ud050\ube0c\uc758\uc6d0\ub300\ud45c : \uc815\uc7ac\uc601\uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 416-33-60915 \uacbd\uae30\ub3c4 \uc131\ub0a8\uc2dc \ubd84\ub2f9\uad6c \ud669\uc0c8\uc6b8\ub85c 326, \ubd84\ub2f9\uc11c\ud604\ube4c\ub529 \ubcc4\uad00 4\uce35(\uc11c\ud604\ub3d9)Tel : 050-71325-6277 Fax : 031-778-6287 \uac00\ub9f9\uc810 \ubb38\uc758: 02-6941-1171 COPYRIGHT \u24d2 2018 MEDICUBECLINIC All RIGHTS RESERVED.",
+    "media": 4,
+    "bgKey": "3,4,4",
+    "bgLum": 0.165,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ub9ac\ud504\ud305 \ub808\uc774\uc800\uc758 \ub05d\ud310\uc655"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984+\ud749\ud130 \ud1a0\ud0c8 \ucf00\uc5b4"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ub9ac\ud504\ud305 \ub808\uc774\uc800\uc758 \ub05d\ud310\uc655"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984+\ud749\ud130 \ud1a0\ud0c8 \ucf00\uc5b4"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ubd89\uc740 \uc790\uad6d+\ud328\uc778 \ud749\ud130 \uc9d1\uc911\uac1c\uc120"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\ud53c\ubd80 \uce35 \uae4a\uc219\uc774 \uc218\ubd84 \ucda9\uc804+\ud0c4\ub825 \uc9d1\uc911 \ud68c\ubcf5"
+   },
+   {
+    "y": 3277,
+    "tag": "p",
+    "t": "\uc7a1\ud2f0\uc81c\uac70+\uc7ac\uc0dd\uce58\ub8cc+\uc548\ud2f0\uc5d0\uc774\uc9d5"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc2a4\ud31f \ub9ac\ud398\uc5b4"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc6b8\uc384\ub77c \ub9ac\ud504\ud305"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc2a4\ud31f \ub9ac\ud398\uc5b4"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc6b8\uc384\ub77c \ub9ac\ud504\ud305"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58"
+   },
+   {
+    "y": 3333,
+    "tag": "p",
+    "t": "\uc2a4\ud31f \ub9ac\ud398\uc5b4"
+   },
+   {
+    "y": 3904,
+    "tag": "h3",
+    "t": "1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac"
+   },
+   {
+    "y": 3904,
+    "tag": "h3",
+    "t": "\uc2a4\ub9c8\ud2b8\ud55c \ud53c\ubd80\uc0c1\ud0dc \uc9c4\ub2e8\uc73c\ub85c \ub0b4 \ud53c\ubd80\uc0c1\ud0dc\uc5d0 \ub9de\ub294 \uce58\ub8cc\ud504\ub85c\uadf8\ub7a8 \uc6b4\uc601"
+   },
+   {
+    "y": 3904,
+    "tag": "h3",
+    "t": "\ud53c\ubd80\ub97c \uc798 \uc544\ub294 \uc219\ub828\ub41c \uc804\ubb38\uc758 \ub300\ud45c\uc6d0\uc7a5\uc758 \ud53c\ubd80\uace0\ubbfc \ubcc4 1:1 \ucc45\uc784 \uc9c4\ub8cc"
+   },
+   {
+    "y": 3904,
+    "tag": "h3",
+    "t": "1\uc778 \uad00\ub9ac\uc2e4\uc5d0\uc11c \ud2b9\ubcc4\ud558\uac8c \uc804\ubb38\ud53c\ubd80\uad00\ub9ac\uc0ac\uc758 \ud638\ud154\uc2dd VIP \ud53c\ubd80\uad00\ub9ac"
+   },
+   {
+    "y": 3904,
+    "tag": "h3",
+    "t": "\uc2a4\ub9c8\ud2b8\ud55c \ud53c\ubd80\uc0c1\ud0dc \uc9c4\ub2e8\uc73c\ub85c \ub0b4 \ud53c\ubd80\uc0c1\ud0dc\uc5d0 \ub9de\ub294 \uce58\ub8cc\ud504\ub85c\uadf8\ub7a8 \uc6b4\uc601"
+   }
+  ],
+  "hero": {
+   "h": 648,
+   "bgLum": 0,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "bg-image",
+   "mediaPlace": "right",
+   "mediaCoverW": 1,
+   "mediaCoverH": 0.13,
+   "slides": 0,
+   "anchorCount": 7,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 71,
+     "label": "\uc628\ub77c\uc778 \uc0c1\ub2f4",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 71,
+     "label": "\uc804\ud654\uc0c1\ub2f4 \uc608\uc57d",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 71,
+     "label": "\uc804\ud6c4&\ud6c4\uae30",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 71,
+     "label": "\uc774\ubca4\ud2b8",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 71,
+     "label": "\uc624\uc2dc\ub294 \uae38",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 83,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": false,
+     "bw": 0,
+     "w": 84,
+     "h": 26,
+     "label": "TOP",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\uc628\ub77c\uc778 \uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4 \uc608\uc57d \uc804\ud6c4&\ud6c4\uae30 \uc774\ubca4\ud2b8 \uc624\uc2dc\ub294 \uae38 \ub300\ud45c\uc804\ud654 TOP"
+  },
+  "type": {
+   "h1": "\ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h2": "\ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "body": "\ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Size": "21px",
+   "h2Weight": "700",
+   "bodyWeight": "300",
+   "bodySize": "16px",
+   "fontFaces": [
+    "Noto Sans KR",
+    "Open Sans"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 3,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 23
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1620, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1310, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "pageTextLen": 1665,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 1,
+   "formCount": 1,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 7,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kakaoLinks": 0,
+   "naverLinks": 0,
+   "instaLinks": 2,
+   "ytLinks": 2,
+   "mapEmbed": 0,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwNotice": true,
+   "kwPhoneKR": true,
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.324,
+   "darkFrac": 0.643,
+   "lightFrac": 0.028
+  },
+  {
+   "i": 1,
+   "mean": 0.367,
+   "darkFrac": 0.656,
+   "lightFrac": 0.094
+  },
+  {
+   "i": 2,
+   "mean": 0.69,
+   "darkFrac": 0.141,
+   "lightFrac": 0.715
+  },
+  {
+   "i": 3,
+   "mean": 0.48,
+   "darkFrac": 0.339,
+   "lightFrac": 0.292
+  },
+  {
+   "i": 4,
+   "mean": 0.508,
+   "darkFrac": 0.501,
+   "lightFrac": 0.402
+  },
+  {
+   "i": 5,
+   "mean": 0.425,
+   "darkFrac": 0.608,
+   "lightFrac": 0.338
+  },
+  {
+   "i": 6,
+   "mean": 0.454,
+   "darkFrac": 0.575,
+   "lightFrac": 0.376
+  }
+ ],
+ "heroLum": {
+  "mean": 0.291,
+  "darkFrac": 0.902,
+  "lightFrac": 0.091
+ },
+ "heroLumBelowNav": {
+  "mean": 0.244,
+  "darkFrac": 0.961,
+  "lightFrac": 0.034
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 129,
+   "left": 0,
+   "w": 1440,
+   "h": 129,
+   "z": "1000",
+   "links": [
+    {
+     "href": "https://themedicube.co.kr",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php",
+     "label": "LOGIN"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "JOIN US"
+    },
+    {
+     "href": "https://www.facebook.com/%EB%A9%94%EB%94%94%ED%81%90%EB%B8%8C-%ED%81%B",
+     "label": "facebook"
+    },
+    {
+     "href": "https://www.instagram.com/medicubeclinic_/",
+     "label": "instargram"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCGmjmWyR3r8RJ5eXAwvpsqw",
+     "label": "youtube"
+    },
+    {
+     "href": "/",
+     "label": "medicube"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4"
+    },
+    {
+     "href": "/intro/intro02.php",
+     "label": "VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "/intro/intro03.php",
+     "label": "\ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": "\uc9c4\ub8cc\uc548\ub0b4+\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "/signature/signature01.php",
+     "label": "\uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98"
+    },
+    {
+     "href": "/signature/signature01.php",
+     "label": "\uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5"
+    }
+   ],
+   "label": "LOGIN JOIN US facebook instargram youtube medicube \ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c \ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4 VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c \ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30 \uc9c4\ub8cc\uc548\ub0b4+\uc624\uc2dc\ub294\uae38 \uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98 \uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5 \uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 70,
+   "bottom": 95,
+   "left": 1220,
+   "w": 175,
+   "h": 25,
+   "z": "100",
+   "links": [
+    {
+     "href": "https://themedicube.co.kr",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2592, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1310, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -45,
+   "bottom": 56,
+   "left": 0,
+   "w": 1440,
+   "h": 101,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/member/login.php",
+     "label": "LOGIN"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "JOIN US"
+    },
+    {
+     "href": "/",
+     "label": "medicube"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4"
+    },
+    {
+     "href": "/intro/intro02.php",
+     "label": "VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "/intro/intro03.php",
+     "label": "\ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": "\uc9c4\ub8cc\uc548\ub0b4+\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "/signature/signature01.php",
+     "label": "\uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98"
+    },
+    {
+     "href": "/signature/signature01.php",
+     "label": "\uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5"
+    },
+    {
+     "href": "/signature/signature02.php",
+     "label": "\uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800"
+    },
+    {
+     "href": "/signature/signature03.php",
+     "label": "\uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58"
+    },
+    {
+     "href": "/signature/signature04.php",
+     "label": "\uc2a4\ud31f \ub9ac\ud398\uc5b4"
+    },
+    {
+     "href": "/signature/signature05.php",
+     "label": "\uc6b8\uc384\ub77c \ub9ac\ud504\ud305"
+    }
+   ],
+   "label": "LOGIN JOIN US medicube \ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c \ud53c\ubd80 \uc804\ubb38\uac00\ub4e4\uc774 \ubb49\ucce4\ub2e4 VISIA \ud53c\ubd80\uc9c4\ub2e8 \uc2dc\uc2a4\ud15c \ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30 \uc9c4\ub8cc\uc548\ub0b4+\uc624\uc2dc\ub294\uae38 \uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98 \uc5ec\ub4dc\ub984 \uc774\ub808\uc774\uc9d5 \uc5ec\ub4dc\ub984 \ud749\ud130 \uc774\ub808\uc774\uc800 \uc0e4\uc774\ub2dd \uc2a4\ud2f0\uce58 \uc2a4\ud31f \ub9ac\ud398\uc5b4 \uc6b8\uc384\ub77c \ub9ac\ud504\ud305 \ube45\uc2dc",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 70,
+   "bottom": 95,
+   "left": 1220,
+   "w": 175,
+   "h": 25,
+   "z": "100",
+   "links": [
+    {
+     "href": "https://themedicube.co.kr",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 56,
+   "bottom": 704,
+   "left": 1356,
+   "w": 84,
+   "h": 648,
+   "z": "99",
+   "links": [
+    {
+     "href": "/community/community04.php",
+     "label": "\uc628\ub77c\uc778 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community05.php",
+     "label": "\uc804\ud654\uc0c1\ub2f4 \uc608\uc57d"
+    },
+    {
+     "href": "/community/community03.php",
+     "label": "\uc804\ud6c4&\ud6c4\uae30"
+    },
+    {
+     "href": "/community/community02.php",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "https://themedicube.co.kr/",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": "TOP"
+    }
+   ],
+   "label": "\uc628\ub77c\uc778 \uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4 \uc608\uc57d \uc804\ud6c4&\ud6c4\uae30 \uc774\ubca4\ud2b8 \uc624\uc2dc\ub294 \uae38 \ub300\ud45c\uc804\ud654 TOP",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 3.5,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 53,
+   "left": 0,
+   "w": 390,
+   "h": 53,
+   "z": "100",
+   "links": [
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "/community/community04.php",
+     "label": ""
+    },
+    {
+     "href": "/community/community05.php",
+     "label": ""
+    },
+    {
+     "href": "/community/community03.php",
+     "label": ""
+    },
+    {
+     "href": "/community/community02.php",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": ""
+    },
+    {
+     "href": "https://themedicube.co.kr",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c"
+    },
+    {
+     "href": "/signature/signature01.php",
+     "label": "\uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \ud53c\ubd80\uace0\ubbfc\uc5d4 \uba54\ub514\ud050\ube0c \uba54\ub514\ud050\ube0c \ud074\ub9ac\ub2c9 \uc2dc\uadf8\ub2c8\ucc98 \ub9ac\ubc84\uc2a4 \uc5d0\uc774\uc9d5 \uba54\ub514\uceec \uc2a4\ud0a8\ucf00\uc5b4 \uc2a4\ub9c8\ud2b8 \ud130\uce58 \ucee4\ubba4\ub2c8\ud2f0",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 383,
+   "left": 390,
+   "w": 390,
+   "h": 383,
+   "z": "300",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "http://pf.kakao.com/_Ltxbxgxl/chat",
+     "label": ""
+    },
+    {
+     "href": "/community/community05.php",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": ""
+    },
+    {
+     "href": "tel:031-778-6277",
+     "label": ""
+    }
+   ],
+   "label": "\ubb38\uc758 \ub0a8\uae30\uae30 \ubb38\uc758\ub0a8\uae30\uae30 \uc785\ub825\ud3fc \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68\ub3d9\uc758 \uba54\ub514\ud050\ube0c\uc740 \uadc0\ud558\uc758 \uac1c\uc778\uc815\ubcf4\ubcf4\ud638\ub97c \ub9e4\uc6b0 \uc911\uc694\uc2dc\ud558\uba70, \uac1c\uc778\uc815\ubcf4\ubcf4\ud638\ubc29\uce68\uc744 \ud1b5\ud558\uc5ec \uadc0\ud558\uaed8\uc11c \uc81c\uacf5\ud558\uc2dc\ub294 \uac1c\uc778\uc815\ubcf4\uac00 \uc5b4\ub5a0\ud55c \uc6a9\ub3c4\uc640 \ubc29\uc2dd\uc73c\ub85c \uc774\uc6a9\ub418\uace0 \uc788\uc73c\uba70 \uac1c\uc778\uc815\ubcf4\ubcf4\ud638\ub97c \uc704\ud574 \uc5b4\ub5a0\ud55c \uc870\uce58\uac00 \ucde8\ud574\uc9c0\uace0 \uc788\ub294\uc9c0 \uc54c\ub824\ub4dc",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

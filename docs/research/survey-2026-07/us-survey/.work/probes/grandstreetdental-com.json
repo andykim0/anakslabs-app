@@ -1,0 +1,184 @@
+{
+ "url": "https://www.grandstreetdental.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "bg-image",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 1
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 145,
+    "h": 115,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 74,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 94,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 102,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 157,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 101,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 173,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "\"Superior Title\"",
+   "bodyFam": "Gotham",
+   "head": {
+    "topRatio": 3,
+    "botRatio": 3,
+    "midW": 15,
+    "hgt": 99
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 8,
+    "hgt": 105
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 900,
+    "tag": "section",
+    "chars": 20,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1030,
+    "h": 821,
+    "tag": "section",
+    "chars": 1041,
+    "imgs": 8,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1981,
+    "h": 770,
+    "tag": "section",
+    "chars": 23,
+    "imgs": 11,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2872,
+    "h": 1169,
+    "tag": "section",
+    "chars": 270,
+    "imgs": 12,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4121,
+    "h": 726,
+    "tag": "section",
+    "chars": 67,
+    "imgs": 5,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4997,
+    "h": 664,
+    "tag": "section",
+    "chars": 221,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5812,
+    "h": 769,
+    "tag": "section",
+    "chars": 230,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6667,
+    "h": 770,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7437,
+    "h": 656,
+    "tag": "section",
+    "chars": 410,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

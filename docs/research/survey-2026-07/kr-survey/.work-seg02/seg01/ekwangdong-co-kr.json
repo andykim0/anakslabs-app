@@ -1,0 +1,2031 @@
+{
+ "url": "https://www.ekwangdong.co.kr/",
+ "status": 200,
+ "finalUrl": "https://www.ekwangdong.co.kr/",
+ "title": "\uac15\ub0a8 \uc0bc\uc131\ub3d9 \uad11\ub3d9\ubcd1\uc6d0 | \uac74\uac15\uac80\uc9c4\u00b7\ud1b5\uc99d\uc7ac\ud65c\u00b7\uce58\ub9e4\uc608\ubc29\u00b7\uc2e0\uacbd\uacfc\u00b7\uc54c\ub808\ub974\uae30\ucc9c\uc2dd\u00b7\ud55c\ubc29\ubcd1\uc6d0\u00b7\ub0b4\uacfc",
+ "popups": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1340, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2233.33, 0)"
+  },
+  {
+   "id": 9,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -1200, 1)"
+  },
+  {
+   "id": 10,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -999.851, 1)"
+  },
+  {
+   "id": 11,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -800.149, 1)"
+  },
+  {
+   "id": 12,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -600, 1)"
+  },
+  {
+   "id": 13,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -399.851, 1)"
+  },
+  {
+   "id": 14,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -200.149, 1)"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 8,
+   "op": 0.5,
+   "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -200.149, 1)"
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": "matrix(-1, 0, 0, -1, 0, 0)"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1518.92, 0)"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 10)"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": "matrix(-1, 0, 0, -1, 0, 0)"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -680, 0)"
+  },
+  {
+   "id": 31,
+   "op": 0.3,
+   "tr": "matrix3d(-0.5, 0, -0.866025, 0, 0, 1, 0, 0, 0.866025, 0, -0.5, 0, 0, 0, -300, 1)"
+  },
+  {
+   "id": 32,
+   "op": 0.3,
+   "tr": "matrix3d(0.173648, 0, -0.984808, 0, 0, 1, 0, 0, 0.984808, 0, 0.173648, 0, 0, 0, -200, 1)"
+  },
+  {
+   "id": 33,
+   "op": 0.3,
+   "tr": "matrix3d(0.766044, 0, -0.642788, 0, 0, 1, 0, 0, 0.642788, 0, 0.766044, 0, 0, 0, -100, 1)"
+  },
+  {
+   "id": 34,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 35,
+   "op": 0.3,
+   "tr": "matrix3d(0.766044, 0, 0.642788, 0, 0, 1, 0, 0, -0.642788, 0, 0.766044, 0, 0, 0, -100, 1)"
+  },
+  {
+   "id": 36,
+   "op": 0.3,
+   "tr": "matrix3d(0.173648, 0, 0.984808, 0, 0, 1, 0, 0, -0.984808, 0, 0.173648, 0, 0, 0, -200, 1)"
+  },
+  {
+   "id": 37,
+   "op": 0.3,
+   "tr": "matrix3d(-0.5, 0, 0.866025, 0, 0, 1, 0, 0, -0.866025, 0, -0.5, 0, 0, 0, -300, 1)"
+  },
+  {
+   "id": 38,
+   "op": 0.3,
+   "tr": "matrix3d(-0.939693, 0, 0.34202, 0, 0, 1, 0, 0, -0.34202, 0, -0.939693, 0, 0, 0, -400, 1)"
+  },
+  {
+   "id": 39,
+   "op": 0.3,
+   "tr": "matrix3d(-0.939693, 0, -0.34202, 0, 0, 1, 0, 0, 0.34202, 0, -0.939693, 0, 0, 0, -500, 1)"
+  },
+  {
+   "id": 40,
+   "op": 0.3,
+   "tr": "matrix3d(-0.5, 0, -0.866025, 0, 0, 1, 0, 0, 0.866025, 0, -0.5, 0, 0, 0, -600, 1)"
+  },
+  {
+   "id": 41,
+   "op": 0.3,
+   "tr": "matrix3d(0.173648, 0, -0.984808, 0, 0, 1, 0, 0, 0.984808, 0, 0.173648, 0, 0, 0, -700, 1)"
+  },
+  {
+   "id": 42,
+   "op": 0.3,
+   "tr": "matrix3d(0.766044, 0, -0.642788, 0, 0, 1, 0, 0, 0.642788, 0, 0.766044, 0, 0, 0, -800, 1)"
+  },
+  {
+   "id": 43,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 44,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 45,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 46,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 47,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 48,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 49,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 50,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 51,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 52,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 53,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 54,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 55,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 56,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 57,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 58,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 59,
+   "op": 0,
+   "tr": null
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 8854,
+  "screens": 9.8,
+  "sectionParentTag": "div",
+  "sectionCoverRatio": 1,
+  "sectionCount": 12,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 0,
+    "h": 810,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 810,
+    "h": 807,
+    "chars": 11,
+    "headings": [],
+    "keyText": "01 02 03 04",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 1617,
+    "h": 856,
+    "chars": 73,
+    "headings": [
+     "\uad11\ub3d9\ubcd1\uc6d0\uc5d0 \ub300\ud574 \ube60\ub974\uac8c \ucc3e\uc544\ubcf4\uc138\uc694."
+    ],
+    "keyText": "\uad11\ub3d9\ubcd1\uc6d0\uc5d0 \ub300\ud574 \ube60\ub974\uac8c \ucc3e\uc544\ubcf4\uc138\uc694. \uac80\uc0c9\uc5b4 \uc785\ub825 \ucd94\ucc9c \uac80\uc0c9\uc5b4 \uc548\uba74\ub9c8\ube44 \ucc99\ucd94 \uc624\uc2dc\ub294 \uae38 \uc9c4\ub8cc\uc2dc\uac04\ud45c \uc785/\ud1f4\uc6d0 \uc11c\ub958\ubc1c\uae09 \uc548\ub0b4 \ube44\uae09\uc5ec \uc548\ub0b4",
+    "media": 7,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 2473,
+    "h": 544,
+    "chars": 28,
+    "headings": [],
+    "keyText": "\ucc98\uc74c\ubd80\ud130, \uad11\ub3d9\ubcd1\uc6d0 Since 1994 \uc790\uc138\ud788 \ubcf4\uae30",
+    "media": 1,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 3017,
+    "h": 869,
+    "chars": 417,
+    "headings": [
+     "\uad11\ub3d9\ubcd1\uc6d0 \uc804\ubb38\uc13c\ud130"
+    ],
+    "keyText": "\uad11\ub3d9\ubcd1\uc6d0 \uc804\ubb38\uc13c\ud130 \uae00\ub85c\ubc8c\uac80\uc9c4\uc13c\ud130 More Valuable \ud2b9\ubcc4\ud55c \uac00\uce58, \ud589\ubcf5\ud55c \uac74\uac15\uac80\uc9c4 \ubcf4\ub2e4 \uc2e0\ub8b0\ud560 \uc218 \uc788\ub294 \uac74\uac15\uac80\uc9c4\uc758 \uae30\uc900 \ub1cc\uac74\uac15\uce58\ub9e4\uc608\ubc29\uc13c\ud130 \uae30\uc5b5\uc758 \uc2dc\uac04\uc740 \uc18c\uc911\ud569\ub2c8\ub2e4, \uc608\ubc29\uc740 \uadf8 \uc2dc\uac04\uc744 \uc9c0\ud0a4\ub294 \uc77c\uc785\ub2c8\ub2e4. \ucc9c\uc2dd\u2219\uc54c\ub808\ub974\uae30\uba74\uc5ed\uc13c\ud130 \uc138\uacc4\uc54c\ub808\ub974\uae30\ud559\ud68c(WAO)\uac00 \uc8fc\ubaa9\ud55c \uba85\uc758,\ucc9c\uc2dd\u00b7\uc54c\ub808\ub974\uae30 \uc9c4\ub8cc\uc758 \uae30\uc900\uc744 \ub9cc\ub4dc\ub294 \uc774\ub984 - \uc870\uc0c1\ud5cc \uc5b4\uc9c0\ub7fc\uc99d\uc13c\ud130 \uc5b4\uc9c0\ub7fc\uc99d \uce58\ub8cc\uc758 A to Z,\uc2e0\uacbd\uacfc\u00b7\uc7ac\ud65c\uc758\ud559\uacfc\u00b7\ud55c\uc758\uacfc\uc758 \uc804\ubb38\uc131\uacfc \uc720\uae30\uc801 \ud611\uc9c4 \ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 \uc815\ubc00\uc9c4\ub2e8\uacfc \ub9de\ucda4\uce58\ub8cc\ub85c \uac74\uac15\ud55c \uc0b6\uc758 \ud68c\ubcf5\uacfc \uc720\uc9c0, 1:1 \uc8fc\uce58\uc758 \ub9de\ucda4\uc9c4\ub8cc \ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \uc815\ubc00 \uc9c4\ub2e8\ubd80\ud130 \uc7ac\uc0dd\uce58\ub8cc\uae4c\uc9c0,\ucc99\ucd94\u00b7\uad00\uc808 \ud1b5\uc99d\uc758 \ube44\uc218\uc220 \ud1b5\ud569 \uce58\ub8cc \ud55c\ubc29\uc13c\ud130(\ud55c\uc758\ud559\uc13c\ud130) 30\ub144 \uacbd\ud5d8\uacfc \uacfc\ud559\uc801 \uc815\ubc00 \uac80\uc0ac\uc758 \ud611\ub825\uc9c4\ub8cc, \ud55c\uc758\ud559 \ud1b5\ud569\uce58\ub8cc \ub0b4\uc2dc\uacbd\uc13c\ud130 \ubcf4\ub2e4 \uc548\uc804\ud558\uac8c, \ubcf4\ub2e4 \uc815\ud655\ud558\uac8c, \ubcf4\ub2e4 \uccad\uacb0\ud558\uac8c, \uac80\uc0ac\uc758 \uae30\ubcf8 \uc6d0\uce59\uc744 \uc18c\uc911\ud558\uac8c \uc9c0\ud0b5\ub2c8\ub2e4",
+    "media": 18,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 3886,
+    "h": 931,
+    "chars": 109,
+    "headings": [
+     "\uc9c4\ub8cc\uacfc\ubaa9"
+    ],
+    "keyText": "\uc9c4\ub8cc\uacfc\ubaa9 \uc77c\ubc18\ub0b4\uacfc \uc18c\ud654\uae30\ub0b4\uacfc \ub178\ub144\ub0b4\uacfc \ucc9c\uc2dd\u2022\uc54c\ub808\ub974\uae30\u2022\ud638\ud761\uae30\ub0b4\uacfc \uac00\uc815\uc758\ud559\uacfc \uc0dd\ud65c\uc2b5\uad00\ubcd1\ubd80\ud130 \ub9cc\uc131\uc9c8\ud658\uae4c\uc9c0, \uac74\uac15\uc758 \uae30\ucd08\ub97c \ub2e4\uc9c0\ub294, \uad11\ub3d9\ubcd1\uc6d0 \uac00\uc815\uc758\ud559\uacfc\uc785\ub2c8\ub2e4. \uae30\ub2a5\uc758\ud559 \uc2e0\uacbd\uacfc \uc7ac\ud65c\uc758\ud559\uacfc \uc601\uc0c1\uc758\ud559\uacfc \ud55c\uc758\uacfc",
+    "media": 22,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 4817,
+    "h": 1082,
+    "chars": 945,
+    "headings": [
+     "Doctor\u2019s"
+    ],
+    "keyText": "Doctor\u2019s \uc77c\ubc18\ub0b4\uacfc, \uc18c\ud654\uae30\ub0b4\uacfc\u3164/ \uae00\ub85c\ubc8c\uac80\uc9c4\uc13c\ud130 \ucd5c\uc9c0\uc5f0 \uc6d0\uc7a5 \ud1b5\ud569\ub0b4\uacfc, \ub9cc\uc131\uc9c8\ud658(\ub2f9\ub1e8, \uace0\ud608\uc555, \uace0\uc9c0\ud608\uc99d), \uae30\ub2a5\uc131 \uc704\uc7a5\uad00 \uc9c8\ud658, \uac11\uc0c1\uc120 \uc9c8\ud658, \ube44\ub9cc, \uac80\uc9c4 \ubc0f \uc815\ubc00 \ud310\ub3c5 \uc790\uc138\ud788 \ubcf4\uae30 \uac00\uc815\uc758\ud559\uacfc/ \uae00\ub85c\ubc8c\uac80\uc9c4\uc13c\ud130 \uc784\uc218\ubbfc \uc6d0\uc7a5 \uac00\uc815\uc758\ud559 \uc9c8\ud658, \uac80\uc9c4 \ubc0f \uc815\ubc00 \ud310\ub3c5 \uc790\uc138\ud788 \ubcf4\uae30 \uce58\uacfc/ \uae00\ub85c\ubc8c\uac80\uc9c4\uc13c\ud130 \uc6a9\uc2b9\ud76c \uc6d0\uc7a5 \uce58\uc8fc\uc9c8\ud658, \uad6c\uac15\uac80\uc9c4 \uc790\uc138\ud788 \ubcf4\uae30 \ucc9c\uc2dd\u2022\uc54c\ub808\ub974\uae30\u2022\ud638\ud761\uae30\ub0b4\uacfc/\ucc9c\uc2dd\u2022\uc54c\ub808\ub974\uae30\uba74\uc5ed\uc13c\ud130 \uc870\uc0c1\ud5cc \ubcd1\uc6d0\uc7a5 \ucc9c\uc2dd, \ub9cc\uc131\uae30\uce68, \uc54c\ub808\ub974\uae30 \ube44\uc5fc, \uba74\uc5ed\uc131\ud3d0\uc9c8\ud658, \ub9cc\uc131\ub450\ub4dc\ub7ec\uae30, \uc544\ud1a0\ud53c\ud53c\ubd80\uc5fc, \uae30\ud0c0 \uc54c\ub808\ub974\uae30\uc9c8\ud658, \uba74\uc5ed\uce58\ub8cc, COPD \uc790\uc138\ud788 \ubcf4\uae30 \uc77c\ubc18\ub0b4\uacfc, \ub178\ub144\ub0b4\uacfc, \uae30\ub2a5\uc758\ud559/ \ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 \uae40\uc9c4\uc6a9 \uc6d0\uc7a5 \uc2dd\ub3c4/\uc704/ \uc7a5 \uc9c8\ud658, \ub0b4\uc2dc\uacbd, \ub178\ub144\ub0b4\uacfc(\ub2e4\uc57d\uc81c \uc870\uc808), \uc554\ud658\uc790 \ud1b5\ud569\uc758\ud559 \uc790\uc138\ud788 \ubcf4\uae30 \uc2e0\uacbd\uacfc/ \ub1cc\uac74\uac15\uce58\ub9e4\uc608\ubc29\uc13c\ud130, \uc5b4\uc9c0\ub7fc\uc99d\uc13c\ud130 \uae40\uc5f0\uc815 \uc6d0\uc7a5 \uae30\uc5b5\ub825\uc7a5\uc560(\uce58\ub9e4), \ub450\ud1b5, \uc774\uc0c1\uc6b4\ub3d9 \uc9c8\ud658(\uc190\ub5a8\ub9bc, \ud30c\ud0a8\uc2a8\ubcd1), \uc5b4\uc9c0\ub7fc\uc99d, \ub1cc\uc878\uc911, \ub9d0\ucd08\uc2e0\uacbd \uc9c8\ud658(\uc190\ubc1c \uc800\ub9bc), \uc548\uba74\uc2e0\uacbd \uc9c8\ud658(\uc548\uba74\ub9c8\ube44) \uc790\uc138\ud788 \ubcf4\uae30 \uc7ac\ud65c\uc758\ud559\uacfc/\ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \uc2e0\uc0c1\ud6c8 \uc6d0\uc7a5 \uadfc\uace8\uaca9\uacc4\ud1b5\uc99d, \uc218\uc220 \ud6c4 \uc7ac\ud65c,\uadfc\uac10\uc18c\uc99d,\uc2a4\ud3ec\uce20\uc7ac\ud65c,\uc804\uc815\uc7ac\ud65c,\ub300\uc0c1\ud3ec\uc9c4,\uc2e0\uacbd\uadfc\uc804\ub3c4\uac80\uc0ac \uc790\uc138\ud788 \ubcf4\uae30 \ud55c\uc758\uacfc/ \ud55c\uc758\ud559\uc13c\ud130, \ub1cc\uac74\uac15\uce58\ub9e4\uc608\ubc29\uc13c\ud130 \ubb38\ubcd1\ud558 \uc6d0\uc7a5 \uc548\uba74\ub9c8\ube44, \ub5a8\ub9bc/\uc218\uc804\uc99d/\ub450\uc804\uc99d, \ub1cc\uc9c8\ud658\ud6c4\uc720\uc99d \uc790\uc138\ud788 \ubcf4\uae30 \ud55c\uc758\uacfc/ \ud55c\uc758\ud559\uc13c\ud130, \ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 \ucd5c\uc6b0\uc815 \uc6d0\uc7a5 \uba54\ub514\uceec\uc0b0\ud6c4\uad00\ub9ac, \ub2e4\uc774\uc5b4\ud2b8, \ud55c\ubc29\ubbf8\uc6a9, \uc5ec\uc131\uc9c8\ud658, \uc18c\ud654\uc7a5\uc560, \uc131\uc7a5/\uc218\ud5d8\uc0dd, \ud53c\ub85c/\uba74\uc5ed \uc790",
+    "media": 24,
+    "bgKey": "20,20,20",
+    "bgLum": 0.945,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "section",
+    "absTop": 5899,
+    "h": 737,
+    "chars": 293,
+    "headings": [
+     "\uad11\ub3d9 \uc140\ub809\uc158"
+    ],
+    "keyText": "\uad11\ub3d9 \uc140\ub809\uc158 \ubc31\uc138\uc2dc\ub300\ub97c \uc704\ud55c \uac74\uac15\uc815\ubcf4, \uad11\ub3d9\ubcd1\uc6d0\uacfc \ud568\uaed8 \ud558\uc138\uc694. \uad11\ub3d9\ubcd1\uc6d0TV \ud639\uc2dc \uce58\ub9e4 \uc804\uc870? \ubb34\uc11c\uc6b4 \uc2e0\ud638, \uacbd\ub3c4\uc778\uc9c0\uc7a5\uc560 \uc790\uc138\ud788 \ubcf4\uae30 \uc5b8\ub860\ubcf4\ub3c4 [\uad11\ub3d9\uae30\uc0ac-\uc2a4\ud3ec\uce20\uacbd\ud5a5] \uc54c\uce20\ud558\uc774\uba38\ubcd1 \uce58\ub8cc\uc758 \uc0c8 \uc804\ud658\uc810\u2026 \uad11\ub3d9\ubcd1\uc6d0, \ub808\uce74\ub124\ub9d9 \ud1b5\ud569 \uc9c4\ub8cc \ubcf8\uaca9\ud654 \uc790\uc138\ud788 \ubcf4\uae30 \uad11\ub3d9\uc18c\uc2dd \uad11\ub3d9 \uacf5\uc9c4\ub2e8, \uadf8 \ud55c \uc54c\uc774 \ub9cc\ub4e4\uc5b4\uc9c0\uae30\uae4c\uc9c0 \uc790\uc138\ud788 \ubcf4\uae30 \uacf5\uc9c0\uc0ac\ud56d Summer Season, \uac74\uac15\uac80\uc9c4\uc740 \uc5ec\ub984\uc2dc\uc98c\uc774 VIP \uc790\uc138\ud788 \ubcf4\uae30 \uc9c4\ub8cc\ud6c4\uae30 [\uac74\uac15\uac80\uc9c4 \ud6c4\uae30] \ud574\uc678 \ud658\uc790 \uac74\uac15\uac80\uc9c4 \ud6c4\uae30, \uae68\ub057\ud558\uace0 \ucf8c\uc801\ud55c \uc2dc\uc124\uacfc \uce5c\uc808\ud55c \uc758\ub8cc\uc9c4\ub4e4 \ub355\uc5d0 \ud3b8\uc548\ud55c \uac74\uac15\uac80\uc9c4\uc774\uc5c8\uc2b5\ub2c8\ub2e4. \uc790\uc138\ud788 \ubcf4\uae30",
+    "media": 10,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "section",
+    "absTop": 6637,
+    "h": 865,
+    "chars": 552,
+    "headings": [
+     "\uad11\ub3d9\ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30"
+    ],
+    "keyText": "\uad11\ub3d9\ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30 1F \ub85c\ube44 \u00b7 \uac80\uc9c4\uc13c\ud130 1F \ub85c\ube44 \u00b7 \uac80\uc9c4\uc13c\ud130 \uad11\ub3d9\ubcd1\uc6d0 \uc6d0\ubb34\uacfc \ubc0f \uac80\uc9c4\uc13c\ud130 \uc811\uc218 \uc790\uc138\ud788 \ubcf4\uae30 2F \ub0b4\uacfc/\ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 2F \ub0b4\uacfc/\ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 \ub0b4\uacfc \ubc0f \ud56d\ub178\ud654\uba74\uc5ed\uc13c\ud130 \uc9c4\ub8cc \uc790\uc138\ud788 \ubcf4\uae30 3F \uc2e0\uacbd\uacfc/\uc7ac\ud65c\uc758\ud559\uacfc 3F \uc2e0\uacbd\uacfc/\uc7ac\ud65c\uc758\ud559\uacfc \uc2e0\uacbd\uacfc \ubc0f \uc7ac\ud65c\uc758\ud559\uacfc, \ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \uc9c4\ub8cc \uc790\uc138\ud788 \ubcf4\uae30 5F \uc2a4\ud3ec\uce20\uc758\ud559\uc13c\ud130/\ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 5F \uc2a4\ud3ec\uce20\uc758\ud559\uc13c\ud130/\ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \ub3c4\uc218\uce58\ub8cc\uc2e4, TMS, \ubb3c\ub9ac\uce58\ub8cc\uc2e4 \uc790\uc138\ud788 \ubcf4\uae30 6F \ud55c\uc758\ud559\uc13c\ud130 6F \ud55c\uc758\ud559\uc13c\ud130 \ud55c\uc758\uacfc(\ub1cc\uac74\uac15, \uc5b4\uc9c0\ub7fc\uc99d, \ud1b5\uc99d, \uc624\ud589\ud074\ub9ac\ub2c9) \uc790\uc138\ud788 \ubcf4\uae30 7F \ubcd1\ub3d9 7F \ubcd1\ub3d9 \uc785\uc6d0\uc2e4(\ucd5c\uc801\uc758 \ud658\uacbd\uc73c\ub85c, \ucd5c\uc120\uc758 \uce58\ub8cc\ub97c) \uc790\uc138\ud788 \ubcf4\uae30 8F \ubcd1\ub3d9 8F \ubcd1\ub3d9 \uc785\uc6d0\uc2e4(\ucd5c\uc801\uc758 \ud658\uacbd\uc73c\ub85c, \ucd5c\uc120\uc758 \uce58\ub8cc\ub97c) \uc790\uc138\ud788 \ubcf4\uae30 9F \uce74\ud398\ud14c\ub9ac\uc544 \u00b7 \uc2dd\ub2f9 9F \uce74\ud398\ud14c\ub9ac\uc544 \u00b7 \uc2dd\ub2f9 \uce74\ud398\ud14c\ub9ac\uc544 \uc790\uc138\ud788 \ubcf4\uae30 10F \uc625\uc0c1\uc815\uc6d0 10F \uc625\uc0c1\uc815\uc6d0 \uc625\uc0c1\uc815\uc6d0 \uc790\uc138\ud788 \ubcf4\uae30 B3~B4F \uc9c0\ud558\uc8fc\ucc28\uc7a5 B3~B4F \uc9c0\ud558\uc8fc\ucc28\uc7a5 \uc8fc\ucc28\uc7a5 \uc790\uc138\ud788 \ubcf4\uae30 B2 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 B2 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 \uc790\uc138\ud788 \ubcf4\uae30 B1 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 B1 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 \uc790\uc138\ud788 \ubcf4\uae30",
+    "media": 24,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "section",
+    "absTop": 7501,
+    "h": 388,
+    "chars": 83,
+    "headings": [
+     "\uad11\ub3d9\ubcd1\uc6d0 SNS"
+    ],
+    "keyText": "\uad11\ub3d9\ubcd1\uc6d0 SNS \uad11\ub3d9\ubcd1\uc6d0\uc758 \ub2e4\uc591\ud55c \uc18c\uc2dd\uc744 \uc54c\uc544\ubcf4\uc138\uc694 \uad11\ub3d9\ubcd1\uc6d0 \uc778\uc2a4\ud0c0\uadf8\ub7a8 \uad11\ub3d9\ubcd1\uc6d0 \ud398\uc774\uc2a4\ubd81 \uad11\ub3d9\ubcd1\uc6d0 \uc720\ud29c\ube0c \uad11\ub3d9\ubcd1\uc6d0 \ub124\uc774\ubc84 \ube14\ub85c\uadf8 \uad11\ub3d9\ubcd1\uc6d0 \uce74\uce74\uc624 \ucc44\ub110",
+    "media": 9,
+    "bgKey": "20,20,20",
+    "bgLum": 0.945,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 7889,
+    "h": 733,
+    "chars": 149,
+    "headings": [],
+    "keyText": "\uc624\uc2dc\ub294 \uae38 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \ubd09\uc740\uc0ac\ub85c 612(\uc0bc\uc131\ub3d9) \uad11\ub3d9\ubcd1\uc6d0 \uc9c4\ub8cc\uc2dc\uac04 \uc6d4 - \uae0809:00 - 18:00 \ud654\uc694\uc77c\ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \uc57c\uac04\uc9c4\ub8cc 20:00\uae4c\uc9c0 \ud1a0\uc694\uc77c09:00 - 13:00 * \uc77c\uc694\uc77c \u00b7 \uacf5\ud734\uc77c \ud734\uc9c4 \uc608\uc57d \ubc0f \uc0c1\ub2f4 02-2222-4888 \uce74\uce74\uc624\ud1a1 \uc0c1\ub2f4 \uc628\ub77c\uc778 \uc608\uc57d",
+    "media": 2,
+    "bgKey": "7,7,7",
+    "bgLum": 0.313,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "div",
+    "absTop": 8622,
+    "h": 232,
+    "chars": 219,
+    "headings": [],
+    "keyText": "\uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc774\uba54\uc77c\ubb34\ub2e8\uc218\uc9d1\uac70\ubd80 (\uc758)\uac00\uc0b0\uc758\ub8cc\uc7ac\ub2e8 \uad11\ub3d9\ubcd1\uc6d0 \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 120-82-02521 \ub300\ud45c\uc790 \uc774\uac15\ub0a8 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \ubd09\uc740\uc0ac\ub85c 612(\uc0bc\uc131\ub3d9) \uac00\uc0b0\uc758\ub8cc\uc7ac\ub2e8 \uad11\ub3d9\ubcd1\uc6d0 TEL. 02-2222-4888 FAX. 02-2222-4951 \u00a9 KWANGDONG HOSPITAL. ALL RIGHTS RESERVED blog kakao instagram youtube facebook",
+    "media": 5,
+    "bgKey": "7,7,7",
+    "bgLum": 0.313,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 40,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 1767,
+    "tag": "h2",
+    "t": "\uad11\ub3d9\ubcd1\uc6d0\uc5d0 \ub300\ud574 \ube60\ub974\uac8c \ucc3e\uc544\ubcf4\uc138\uc694."
+   },
+   {
+    "y": 3167,
+    "tag": "h2",
+    "t": "\uad11\ub3d9\ubcd1\uc6d0 \uc804\ubb38\uc13c\ud130"
+   },
+   {
+    "y": 4036,
+    "tag": "h2",
+    "t": "\uc9c4\ub8cc\uacfc\ubaa9"
+   },
+   {
+    "y": 4967,
+    "tag": "h2",
+    "t": "Doctor\u2019s"
+   },
+   {
+    "y": 6049,
+    "tag": "h2",
+    "t": "\uad11\ub3d9 \uc140\ub809\uc158"
+   },
+   {
+    "y": 6787,
+    "tag": "h2",
+    "t": "\uad11\ub3d9\ubcd1\uc6d0 \ub458\ub7ec\ubcf4\uae30"
+   },
+   {
+    "y": 7601,
+    "tag": "h2",
+    "t": "\uad11\ub3d9\ubcd1\uc6d0 SNS"
+   }
+  ],
+  "hero": {
+   "h": 810,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "video",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": ""
+  },
+  "type": {
+   "h1": "\"Pretendard Variable\", \"\ub9d1\uc740 \uace0\ub515\", \"Apple SD Gothic Neo\", sans-serif",
+   "h2": "Pretendard, Philosopher, \"Noto Sans KR\", \"Noto Sans TC\", \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "body": "Pretendard, Philosopher, \"Noto Sans KR\", \"Noto Sans TC\", \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "h1Weight": "400",
+   "h1Size": "16px",
+   "h2Weight": "700",
+   "h2Size": "55px",
+   "bodySize": "16px",
+   "bodyWeight": "400",
+   "bodyLH": "20.8px",
+   "bigHeadPx": 28,
+   "bigHeadFam": "\"Pretendard Variable\", \"\ub9d1\uc740 \uace0\ub515\", \"Apple SD Gothic Neo\", sans-serif",
+   "bigHeadWeight": "600",
+   "h1Count": 2,
+   "h2Sizes": [
+    "55px"
+   ],
+   "h3Size": "16px",
+   "fontFaces": [
+    "Nanum Myeongjo",
+    "Pretendard Variable",
+    "Material Symbols Outlined",
+    "Noto Sans KR",
+    "Pretendard",
+    "Philosopher",
+    "Noto Sans TC",
+    "Environment",
+    "Laurentian",
+    "GmarketSans",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&display=swap",
+    "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvari",
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20.",
+    "/font/font.css"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": true,
+   "scrollTrigger": true,
+   "swiperCount": 8,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 61
+  },
+  "pageTextLen": 3430,
+  "features": {
+   "videoTag": 2,
+   "videoEmbed": 0,
+   "formCount": 1,
+   "inputCount": 6,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 2,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 10,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwAbout": true,
+   "kwVideo": true,
+   "kwTrust": true,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 6,
+   "naverLinks": 14,
+   "instaLinks": 2,
+   "ytLinks": 2,
+   "phoneKR": "yes",
+   "statLike": [
+    "30\ub144 "
+   ]
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1340, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -100, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -2233.33, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -1200, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -999.851, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 10,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -800.149, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 11,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -600, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 12,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -399.851, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 13,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -200.149, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 14,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 15,
+    "op": 0.5,
+    "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -200.149, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 16,
+    "op": 1,
+    "tr": "matrix(-1, 0, 0, -1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 17,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1493.49, 0)",
+    "td": "1s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 20,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 21,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 22,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 23,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 10)",
+    "td": "0.4s, 0.4s",
+    "tf": "ease, ease",
+    "tp": "opacity, transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 24,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 25,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 28,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.1s",
+    "tf": "ease",
+    "tp": "width",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 29,
+    "op": 1,
+    "tr": "matrix(-1, 0, 0, -1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 30,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -680, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 31,
+    "op": 0.3,
+    "tr": "matrix3d(-0.5, 0, -0.866025, 0, 0, 1, 0, 0, 0.866025, 0, -0.5, 0, 0, 0, -300, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 32,
+    "op": 0.3,
+    "tr": "matrix3d(0.173648, 0, -0.984808, 0, 0, 1, 0, 0, 0.984808, 0, 0.173648, 0, 0, 0, -200, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 33,
+    "op": 0.3,
+    "tr": "matrix3d(0.766044, 0, -0.642788, 0, 0, 1, 0, 0, 0.642788, 0, 0.766044, 0, 0, 0, -100, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 34,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 35,
+    "op": 0.3,
+    "tr": "matrix3d(0.766044, 0, 0.642788, 0, 0, 1, 0, 0, -0.642788, 0, 0.766044, 0, 0, 0, -100, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 36,
+    "op": 0.3,
+    "tr": "matrix3d(0.173648, 0, 0.984808, 0, 0, 1, 0, 0, -0.984808, 0, 0.173648, 0, 0, 0, -200, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 37,
+    "op": 0.3,
+    "tr": "matrix3d(-0.5, 0, 0.866025, 0, 0, 1, 0, 0, -0.866025, 0, -0.5, 0, 0, 0, -300, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 38,
+    "op": 0.3,
+    "tr": "matrix3d(-0.939693, 0, 0.34202, 0, 0, 1, 0, 0, -0.34202, 0, -0.939693, 0, 0, 0, -400, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 39,
+    "op": 0.3,
+    "tr": "matrix3d(-0.939693, 0, -0.34202, 0, 0, 1, 0, 0, 0.34202, 0, -0.939693, 0, 0, 0, -500, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 40,
+    "op": 0.3,
+    "tr": "matrix3d(-0.5, 0, -0.866025, 0, 0, 1, 0, 0, 0.866025, 0, -0.5, 0, 0, 0, -600, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 41,
+    "op": 0.3,
+    "tr": "matrix3d(0.173648, 0, -0.984808, 0, 0, 1, 0, 0, 0.984808, 0, 0.173648, 0, 0, 0, -700, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 42,
+    "op": 0.3,
+    "tr": "matrix3d(0.766044, 0, -0.642788, 0, 0, 1, 0, 0, 0.642788, 0, 0.766044, 0, 0, 0, -800, 1)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 43,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 44,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 45,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 46,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 47,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 48,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 49,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 51,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 52,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 53,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 54,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 55,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 56,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 57,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 58,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 59,
+    "op": 0,
+    "tr": null,
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [
+    "400"
+   ],
+   "aosEase": [
+    "ease"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.643,
+   "darkFrac": 0.149,
+   "lightFrac": 0.603
+  },
+  {
+   "i": 1,
+   "mean": 0.362,
+   "darkFrac": 0.559,
+   "lightFrac": 0.171
+  },
+  {
+   "i": 2,
+   "mean": 0.444,
+   "darkFrac": 0.303,
+   "lightFrac": 0.153
+  },
+  {
+   "i": 3,
+   "mean": 0.951,
+   "darkFrac": 0.029,
+   "lightFrac": 0.948
+  },
+  {
+   "i": 4,
+   "mean": 0.863,
+   "darkFrac": 0.092,
+   "lightFrac": 0.892
+  },
+  {
+   "i": 5,
+   "mean": 0.59,
+   "darkFrac": 0.382,
+   "lightFrac": 0.49
+  },
+  {
+   "i": 6,
+   "mean": 0.772,
+   "darkFrac": 0.144,
+   "lightFrac": 0.824
+  },
+  {
+   "i": 7,
+   "mean": 0.582,
+   "darkFrac": 0.346,
+   "lightFrac": 0.423
+  },
+  {
+   "i": 8,
+   "mean": 0.789,
+   "darkFrac": 0.112,
+   "lightFrac": 0.787
+  },
+  {
+   "i": 9,
+   "mean": 0.868,
+   "darkFrac": 0.056,
+   "lightFrac": 0.879
+  },
+  {
+   "i": 10,
+   "mean": 0.511,
+   "darkFrac": 0.638,
+   "lightFrac": 0.322
+  },
+  {
+   "i": 11,
+   "mean": 0.53,
+   "darkFrac": 0.604,
+   "lightFrac": 0.338
+  }
+ ],
+ "heroLum": {
+  "mean": 0.666,
+  "darkFrac": 0.179,
+  "lightFrac": 0.582
+ },
+ "heroLumBelowNav": {
+  "mean": 0.739,
+  "darkFrac": 0.08,
+  "lightFrac": 0.653
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 101,
+   "left": 0,
+   "w": 1440,
+   "h": 101,
+   "z": "9999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\uad11\ub3d9\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/vision.php",
+     "label": "\ubbf8\uc158 \ubc0f \ube44\uc804"
+    },
+    {
+     "href": "/about/doctor.php",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/history.php",
+     "label": "\ubcd1\uc6d0 \uc5f0\ud601"
+    },
+    {
+     "href": "/about/performance.php",
+     "label": "\uc9c4\ub8cc\uc2e4\uc801"
+    },
+    {
+     "href": "/about/hospital.php?ptype=list&code=hospital&category=16",
+     "label": "\uce35\ubcc4\uc548\ub0b4"
+    },
+    {
+     "href": "/about/equipment.php",
+     "label": "\uc8fc\uc694 \uac80\uc0ac\uc7a5\ube44"
+    },
+    {
+     "href": "/about/treatment.php",
+     "label": "\uc8fc\uc694 \uce58\ub8cc\uc7a5\ube44"
+    },
+    {
+     "href": "/department/internal.php",
+     "label": "\uc9c4\ub8cc\uacfc"
+    },
+    {
+     "href": "/department/internal.php",
+     "label": "\uc77c\ubc18\ub0b4\uacfc"
+    },
+    {
+     "href": "/department/gastroenterology.php",
+     "label": "\uc18c\ud654\uae30\ub0b4\uacfc"
+    },
+    {
+     "href": "/department/geriatric_medicine.php",
+     "label": "\ub178\ub144\ub0b4\uacfc"
+    }
+   ],
+   "label": "\ubcd1\uc6d0\uc18c\uac1c \uad11\ub3d9\ubcd1\uc6d0 \uc18c\uac1c \ubbf8\uc158 \ubc0f \ube44\uc804 \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcd1\uc6d0 \uc5f0\ud601 \uc9c4\ub8cc\uc2e4\uc801 \uce35\ubcc4\uc548\ub0b4 \uc8fc\uc694 \uac80\uc0ac\uc7a5\ube44 \uc8fc\uc694 \uce58\ub8cc\uc7a5\ube44 \uc9c4\ub8cc\uacfc \uc77c\ubc18\ub0b4\uacfc \uc18c\ud654\uae30\ub0b4\uacfc \ub178\ub144\ub0b4\uacfc \ucc9c\uc2dd\u00b7\uc54c\ub808\ub974\uae30\u00b7\ud638\ud761\uae30\ub0b4\uacfc \uac00\uc815\uc758\ud559\uacfc \uae30\ub2a5\uc758\ud559 \uc2e0\uacbd\uacfc \ud1b5\uc99d\uc7ac\ud65c \uc601\uc0c1\uc758\ud559\uacfc \ud55c\uc758\uacfc \uc804\ubb38\uc13c\ud130 \ub1cc\uac74\uac15\uce58\ub9e4\uc608\ubc29\uc13c\ud130 \ucc9c",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 355,
+   "bottom": 777,
+   "left": 1320,
+   "w": 70,
+   "h": 422,
+   "z": "9990",
+   "links": [
+    {
+     "href": "/guide/reservation.php",
+     "label": "\uc628\ub77c\uc778 \uc608\uc57d"
+    },
+    {
+     "href": "https://pf.kakao.com/_xbBKiV/chat",
+     "label": "\uc2e4\uc2dc\uac04 \uc0c1\ub2f4"
+    },
+    {
+     "href": "https://naver.me/GkR3bq1c",
+     "label": "\ub124\uc774\ubc84 \uc608\uc57d"
+    },
+    {
+     "href": "tel:02-2222-4888",
+     "label": "\uc804\ud654 \uc0c1\ub2f4"
+    },
+    {
+     "href": "#top",
+     "label": ""
+    }
+   ],
+   "label": "\uc628\ub77c\uc778 \uc608\uc57d \uc2e4\uc2dc\uac04 \uc0c1\ub2f4 \ub124\uc774\ubc84 \uc608\uc57d \uc804\ud654 \uc0c1\ub2f4",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 829,
+   "bottom": 990,
+   "left": 0,
+   "w": 1440,
+   "h": 161,
+   "z": "999",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac04\ud3b8\uc608\uc57d"
+    }
+   ],
+   "label": "\uac04\ud3b8 \uc9c4\ub8cc \uc608\uc57d \uac04\ud3b8 \uac80\uc9c4 \uc608\uc57d \uac1c\uc778\uc815\ubcf4\uc218\uc9d1 \uc774\uc6a9\ub3d9\uc758 \uc790\uc138\ud788\ubcf4\uae30 \uac04\ud3b8\uc608\uc57d",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 101,
+   "left": 0,
+   "w": 1440,
+   "h": 101,
+   "z": "9999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\uad11\ub3d9\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/vision.php",
+     "label": "\ubbf8\uc158 \ubc0f \ube44\uc804"
+    },
+    {
+     "href": "/about/doctor.php",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/history.php",
+     "label": "\ubcd1\uc6d0 \uc5f0\ud601"
+    },
+    {
+     "href": "/about/performance.php",
+     "label": "\uc9c4\ub8cc\uc2e4\uc801"
+    },
+    {
+     "href": "/about/hospital.php?ptype=list&code=hospital&category=16",
+     "label": "\uce35\ubcc4\uc548\ub0b4"
+    },
+    {
+     "href": "/about/equipment.php",
+     "label": "\uc8fc\uc694 \uac80\uc0ac\uc7a5\ube44"
+    },
+    {
+     "href": "/about/treatment.php",
+     "label": "\uc8fc\uc694 \uce58\ub8cc\uc7a5\ube44"
+    },
+    {
+     "href": "/department/internal.php",
+     "label": "\uc9c4\ub8cc\uacfc"
+    },
+    {
+     "href": "/department/internal.php",
+     "label": "\uc77c\ubc18\ub0b4\uacfc"
+    },
+    {
+     "href": "/department/gastroenterology.php",
+     "label": "\uc18c\ud654\uae30\ub0b4\uacfc"
+    },
+    {
+     "href": "/department/geriatric_medicine.php",
+     "label": "\ub178\ub144\ub0b4\uacfc"
+    }
+   ],
+   "label": "\ubcd1\uc6d0\uc18c\uac1c \uad11\ub3d9\ubcd1\uc6d0 \uc18c\uac1c \ubbf8\uc158 \ubc0f \ube44\uc804 \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcd1\uc6d0 \uc5f0\ud601 \uc9c4\ub8cc\uc2e4\uc801 \uce35\ubcc4\uc548\ub0b4 \uc8fc\uc694 \uac80\uc0ac\uc7a5\ube44 \uc8fc\uc694 \uce58\ub8cc\uc7a5\ube44 \uc9c4\ub8cc\uacfc \uc77c\ubc18\ub0b4\uacfc \uc18c\ud654\uae30\ub0b4\uacfc \ub178\ub144\ub0b4\uacfc \ucc9c\uc2dd\u00b7\uc54c\ub808\ub974\uae30\u00b7\ud638\ud761\uae30\ub0b4\uacfc \uac00\uc815\uc758\ud559\uacfc \uae30\ub2a5\uc758\ud559 \uc2e0\uacbd\uacfc \ud1b5\uc99d\uc7ac\ud65c \uc601\uc0c1\uc758\ud559\uacfc \ud55c\uc758\uacfc \uc804\ubb38\uc13c\ud130 \ub1cc\uac74\uac15\uce58\ub9e4\uc608\ubc29\uc13c\ud130 \ucc9c",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 355,
+   "bottom": 777,
+   "left": 1320,
+   "w": 70,
+   "h": 422,
+   "z": "9990",
+   "links": [
+    {
+     "href": "/guide/reservation.php",
+     "label": "\uc628\ub77c\uc778 \uc608\uc57d"
+    },
+    {
+     "href": "https://pf.kakao.com/_xbBKiV/chat",
+     "label": "\uc2e4\uc2dc\uac04 \uc0c1\ub2f4"
+    },
+    {
+     "href": "https://naver.me/GkR3bq1c",
+     "label": "\ub124\uc774\ubc84 \uc608\uc57d"
+    },
+    {
+     "href": "tel:02-2222-4888",
+     "label": "\uc804\ud654 \uc0c1\ub2f4"
+    },
+    {
+     "href": "#top",
+     "label": ""
+    }
+   ],
+   "label": "\uc628\ub77c\uc778 \uc608\uc57d \uc2e4\uc2dc\uac04 \uc0c1\ub2f4 \ub124\uc774\ubc84 \uc608\uc57d \uc804\ud654 \uc0c1\ub2f4",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 829,
+   "bottom": 990,
+   "left": 0,
+   "w": 1440,
+   "h": 161,
+   "z": "999",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac04\ud3b8\uc608\uc57d"
+    }
+   ],
+   "label": "\uac04\ud3b8 \uc9c4\ub8cc \uc608\uc57d \uac04\ud3b8 \uac80\uc9c4 \uc608\uc57d \uac1c\uc778\uc815\ubcf4\uc218\uc9d1 \uc774\uc6a9\ub3d9\uc758 \uc790\uc138\ud788\ubcf4\uae30 \uac04\ud3b8\uc608\uc57d",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 7.7,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 60,
+   "left": 0,
+   "w": 390,
+   "h": 60,
+   "z": "9999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php?prev=%2Findex.php",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "/about/location.php",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "/guide/schedule.php",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04\ud45c"
+    },
+    {
+     "href": "/guide/admission.php",
+     "label": "\uc785/\ud1f4\uc6d0"
+    },
+    {
+     "href": "tel:02-2222-4888",
+     "label": "02-2222-4888"
+    }
+   ],
+   "label": "Language \ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \uc624\uc2dc\ub294 \uae38 \uc9c4\ub8cc\uc2dc\uac04\ud45c \uc785/\ud1f4\uc6d0 \ubcd1\uc6d0\uc18c\uac1c \uc9c4\ub8cc\uacfc \uc804\ubb38\uc13c\ud130 \uae00\ub85c\ubc8c \uac80\uc9c4\uc13c\ud130 \uace0\uac1d\uc11c\ube44\uc2a4 \ucee4\ubba4\ub2c8\ud2f0 \uc608\uc57d \ubc0f \uc0c1\ub2f4 02-2222-4888 \uc6d4\uc694\uc77c - \uae08\uc694\uc77c 09:00 - 18:00 \ud654\u00b7\ubaa9\uc694\uc77c\ud1b5\uc99d\uc7ac\ud65c\uc13c\ud130 \uc57c\uac04\uc9c4\ub8cc 20:00\uae4c\uc9c0 \ud1a0",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 700,
+   "bottom": 740,
+   "left": 331,
+   "w": 40,
+   "h": 40,
+   "z": "9990",
+   "links": [
+    {
+     "href": "#top",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 764,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 80,
+   "z": "9992",
+   "links": [
+    {
+     "href": "tel:02-2222-4888",
+     "label": "\uc804\ud654 \uc0c1\ub2f4"
+    },
+    {
+     "href": "https://naver.me/GkR3bq1c",
+     "label": "\ub124\uc774\ubc84 \uc608\uc57d"
+    },
+    {
+     "href": "",
+     "label": "\uac04\ud3b8 \uc608\uc57d"
+    },
+    {
+     "href": "https://pf.kakao.com/_xbBKiV/chat",
+     "label": "\uc2e4\uc2dc\uac04 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/guide/reservation.php",
+     "label": "\uc628\ub77c\uc778\uc608\uc57d"
+    }
+   ],
+   "label": "\uc804\ud654 \uc0c1\ub2f4 \ub124\uc774\ubc84 \uc608\uc57d \uac04\ud3b8 \uc608\uc57d \uc2e4\uc2dc\uac04 \uc0c1\ub2f4 \uc628\ub77c\uc778\uc608\uc57d",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 844,
+   "bottom": 1061,
+   "left": 0,
+   "w": 390,
+   "h": 217,
+   "z": "99",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac04\ud3b8\uc608\uc57d"
+    }
+   ],
+   "label": "\uac04\ud3b8 \uc9c4\ub8cc \uc608\uc57d \uac04\ud3b8 \uac80\uc9c4 \uc608\uc57d \uac1c\uc778\uc815\ubcf4\uc218\uc9d1 \uc774\uc6a9\ub3d9\uc758 \uc790\uc138\ud788\ubcf4\uae30 \uac04\ud3b8\uc608\uc57d",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,778 @@
+{
+ "url": "http://www.mrbigclinic.com/",
+ "status": 200,
+ "finalUrl": "https://mrbigclinic.com/",
+ "title": "MR.BIG CLINIC \u2013 MR.BIG Clinic",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 7859,
+  "screens": 8.7,
+  "sectionParentTag": "main",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 184,
+    "h": 295,
+    "chars": 332,
+    "headings": [
+     "mr.big clinic \u0e04\u0e37\u0e2d\u0e43\u0e04\u0e23"
+    ],
+    "keyText": "mr.big clinic \u0e04\u0e37\u0e2d\u0e43\u0e04\u0e23 mr.big clinic \u0e40\u0e1b\u0e47\u0e19\u0e04\u0e25\u0e34\u0e19\u0e34\u0e01\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e01\u0e36\u0e48\u0e07\u0e44\u0e1b\u0e23\u0e40\u0e27\u0e15 \u0e17\u0e35\u0e48\u0e40\u0e1b\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e14\u0e49\u0e32\u0e19\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e41\u0e25\u0e30\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e43\u0e2b\u0e49\u0e01\u0e31\u0e1a\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01\u0e02\u0e2d\u0e07 mr.big \u0e2a\u0e48\u0e27\u0e19\u0e17\u0e35\u0e48\u0e40\u0e1b\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e41\u0e01\u0e48\u0e2a\u0e32\u0e18\u0e32\u0e23\u0e13\u0e30\u0e04\u0e37\u0e2d\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23 ErgoProfile \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e1a\u0e38\u0e04\u0e04\u0e25 \u0e41\u0e25\u0e30\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 \u0e04\u0e37\u0e2d\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e23\u0e30\u0e22\u0e30\u0e2a\u0e31\u0e14\u0e2a\u0e48\u0e27\u0e19\u0e23\u0e48\u0e32\u0e07\u0e01\u0e32\u0e22 \u0e04\u0e27\u0e32\u0e21\u0e2a\u0e21\u0e14\u0e38\u0e25\u0e02\u0e2d\u0e07\u0e42\u0e04\u0e23\u0e07\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e01\u0e23\u0e30\u0e14\u0e39\u0e01\u0e2a\u0e31\u0e19\u0e2b\u0e25\u0e31\u0e07 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e0a\u0e49\u0e43\u0e19\u0e01\u0e32\u0e23\u0e08\u0e31\u0e14\u0e42\u0e15\u0e49\u0e30\u0e17\u0e33\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e49\u0e40\u0e2b\u0e21\u0e32\u0e30\u0e01\u0e31\u0e1a\u0e1a\u0e38\u0e04\u0e04\u0e25\u0e17\u0e35\u0e48\u0e2a\u0e38\u0e14",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 479,
+    "h": 420,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1094,
+    "h": 660,
+    "chars": 209,
+    "headings": [
+     "\u0e15\u0e23\u0e27\u0e08 ErgoProfile"
+    ],
+    "keyText": "\u0e15\u0e23\u0e27\u0e08 ErgoProfile \u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08 ErgoProfile \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e08\u0e31\u0e14 setting \u0e02\u0e2d\u0e07\u0e42\u0e15\u0e49\u0e30 \u0e40\u0e01\u0e49\u0e32\u0e2d\u0e35\u0e49\u0e2a\u0e33\u0e19\u0e31\u0e01\u0e07\u0e32\u0e19 \u0e15\u0e23\u0e27\u0e08\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e04\u0e27\u0e32\u0e21\u0e2a\u0e21\u0e14\u0e38\u0e25\u0e42\u0e04\u0e23\u0e07\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e23\u0e48\u0e32\u0e07\u0e01\u0e32\u0e22\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e2b\u0e32\u0e2a\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e02\u0e2d\u0e07\u0e2d\u0e32\u0e01\u0e32\u0e23\u0e1b\u0e27\u0e14 \u0e41\u0e19\u0e30\u0e19\u0e33\u0e1c\u0e25\u0e34\u0e15\u0e20\u0e31\u0e13\u0e11\u0e4c\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e0a\u0e48\u0e27\u0e22\u0e1b\u0e23\u0e31\u0e1a\u0e1b\u0e23\u0e38\u0e07\u0e42\u0e15\u0e49\u0e30\u0e17\u0e33\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e49 ergonomic \u0e2d\u0e48\u0e32\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1755,
+    "h": 899,
+    "chars": 280,
+    "headings": [
+     "\u0e17\u0e35\u0e48\u0e1b\u0e23\u0e36\u0e01\u0e29\u0e32\u0e14\u0e49\u0e32\u0e19 Ergonomic \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23"
+    ],
+    "keyText": "\u0e17\u0e35\u0e48\u0e1b\u0e23\u0e36\u0e01\u0e29\u0e32\u0e14\u0e49\u0e32\u0e19 Ergonomic \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 \u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19 Ergonomic Score \u0e02\u0e2d\u0e07\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48\u0e17\u0e33\u0e07\u0e32\u0e19 \u0e19\u0e33\u0e40\u0e2a\u0e19\u0e2d\u0e41\u0e1c\u0e19\u0e01\u0e32\u0e23\u0e1e\u0e31\u0e12\u0e19\u0e32 Office Ergonomic \u0e43\u0e2b\u0e49\u0e1c\u0e39\u0e49\u0e1a\u0e23\u0e34\u0e2b\u0e32\u0e23 \u0e17\u0e35\u0e48\u0e1b\u0e23\u0e36\u0e01\u0e29\u0e32\u0e14\u0e49\u0e32\u0e19\u0e01\u0e32\u0e23\u0e08\u0e31\u0e14\u0e0b\u0e37\u0e49\u0e2d\u0e2d\u0e38\u0e1b\u0e01\u0e23\u0e13\u0e4c\u0e2a\u0e33\u0e19\u0e31\u0e01\u0e07\u0e32\u0e19 \u0e2a\u0e31\u0e21\u0e21\u0e19\u0e32\u0e43\u0e2b\u0e49\u0e04\u0e27\u0e32\u0e21\u0e23\u0e39\u0e49\u0e41\u0e01\u0e48\u0e1e\u0e19\u0e31\u0e01\u0e07\u0e32\u0e19\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a Ergonomic \u0e43\u0e19\u0e17\u0e35\u0e48\u0e17\u0e33\u0e07\u0e32\u0e19\u0e41\u0e25\u0e30\u0e43\u0e19\u0e0a\u0e35\u0e27\u0e34\u0e15 \u0e15\u0e23\u0e27\u0e08 ErgoProfile \u0e43\u0e2b\u0e49\u0e1e\u0e19\u0e31\u0e01\u0e07\u0e32\u0e19 \u0e08\u0e31\u0e14\u0e2d\u0e1a\u0e23\u0e21\u0e14\u0e49\u0e32\u0e19\u0e01\u0e32\u0e23\u0e22\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2654,
+    "h": 532,
+    "chars": 280,
+    "headings": [
+     "\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14"
+    ],
+    "keyText": "\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14 mr.big clinic \u0e40\u0e1b\u0e47\u0e19\u0e04\u0e25\u0e34\u0e19\u0e34\u0e01\u0e41\u0e1a\u0e1a\u0e44\u0e1b\u0e23\u0e40\u0e27\u0e15 \u0e40\u0e1b\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e17\u0e35\u0e48\u0e40\u0e1b\u0e47\u0e19\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01\u0e02\u0e2d\u0e07 mr.big \u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e07\u0e32\u0e19\u0e42\u0e14\u0e22\u0e19\u0e31\u0e01\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e21\u0e32\u0e01\u0e1b\u0e23\u0e30\u0e2a\u0e1a\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e43\u0e19\u0e01\u0e32\u0e23\u0e23\u0e31\u0e01\u0e29\u0e32\u0e43\u0e19\u0e2d\u0e32\u0e01\u0e32\u0e23\u0e23\u0e30\u0e1a\u0e1a\u0e01\u0e23\u0e30\u0e14\u0e39\u0e01\u0e41\u0e25\u0e30\u0e01\u0e25\u0e49\u0e32\u0e21\u0e40\u0e19\u0e37\u0e49\u0e2d \u0e17\u0e32\u0e07\u0e01\u0e32\u0e23\u0e01\u0e35\u0e2c\u0e32 \u0e41\u0e25\u0e30\u0e17\u0e32\u0e07\u0e23\u0e30\u0e1a\u0e1a\u0e1b\u0e23\u0e30\u0e2a\u0e32\u0e17 \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e43\u0e2b\u0e49\u0e04\u0e33\u0e41\u0e19\u0e30\u0e19\u0e33\u0e41\u0e25\u0e30\u0e43\u0e2b\u0e49\u0e04\u0e38\u0e13\u0e01\u0e25\u0e31\u0e1a\u0e44\u0e1b\u0e43\u0e0a\u0e49\u0e0a\u0e35\u0e27\u0e34\u0e15\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e49\u0e2d\u0e32\u0e01\u0e32\u0e23\u0e1b\u0e27\u0e14\u0e40\u0e23\u0e47\u0e27\u0e17\u0e35\u0e48\u0e2a\u0e38\u0e14 \u0e2d\u0e48\u0e32\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 3186,
+    "h": 532,
+    "chars": 119,
+    "headings": [
+     "\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14"
+    ],
+    "keyText": "\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14 mr.big clinic \u0e40\u0e1b\u0e47\u0e19\u0e04\u0e25\u0e34\u0e19\u0e34\u0e01\u0e41\u0e1a\u0e1a\u0e44\u0e1b\u0e23\u0e40\u0e27\u0e15 \u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 mr.big \u0e14\u0e49\u0e27\u0e22\u0e01\u0e32\u0e23\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e42\u0e14\u0e22\u0e19\u0e31\u0e01\u0e27\u0e34\u0e17\u0e22\u0e32\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c\u0e01\u0e32\u0e23\u0e01\u0e35\u0e2c\u0e32 \u0e2d\u0e48\u0e32\u0e19\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 3718,
+    "h": 3285,
+    "chars": 1330,
+    "headings": [
+     "\u0e17\u0e35\u0e21\u0e07\u0e32\u0e19\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32",
+     "Chawakit Kaoien, Physical Therapist, PT., CNPT",
+     "Setthasak Sirikamnerd, Physical Therapist (PT., CMTPT)",
+     "Nathaphon Jirasakulsuk, Physical Therapist, MPT",
+     "Anthony Ratchanon"
+    ],
+    "keyText": "\u0e17\u0e35\u0e21\u0e07\u0e32\u0e19\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32 Chawakit Kaoien, Physical Therapist, PT., CNPT Founder of MR.BIG and MR.BIG CLINIC Certified as nutritional physical therapy by Florida Physical Therapy Association, component of APTA. Master of Science in Anti-Aging and Regenerative Medicine Lung and chest physiotherapist Setthasak Sirikamnerd, Physical Therapist (PT., CMTPT) Clinical expertise on musculoskeletal and neurological hand-on physical therapy HAL robotic certified Dry needling certified CPR certified Registered Physiotherapist in Thailand and Oman Nathaphon Jirasakulsuk, Physical Therapist, MPT Master of science in physical therapy Clinical expertise on musculoskeletal and sport Soft tissue mobilization Individualiz",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "section",
+    "absTop": 7003,
+    "h": 577,
+    "chars": 94,
+    "headings": [
+     "\u0e2a\u0e19\u0e43\u0e08\u0e2a\u0e31\u0e21\u0e21\u0e19\u0e32\u0e01\u0e32\u0e23\u0e22\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23"
+    ],
+    "keyText": "\u0e2a\u0e19\u0e43\u0e08\u0e2a\u0e31\u0e21\u0e21\u0e19\u0e32\u0e01\u0e32\u0e23\u0e22\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 Name-Last Name Email Phone Number Name of Organization Submit",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 20,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 224,
+    "tag": "h2",
+    "t": "mr.big clinic \u0e04\u0e37\u0e2d\u0e43\u0e04\u0e23"
+   },
+   {
+    "y": 935,
+    "tag": "h2",
+    "t": "\u0e17\u0e35\u0e48\u0e17\u0e2d\u0e07\u0e2b\u0e25\u0e48\u0e2d \u0e0b\u0e2d\u0e22 9"
+   },
+   {
+    "y": 1022,
+    "tag": "h2",
+    "t": "\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32"
+   },
+   {
+    "y": 1210,
+    "tag": "h2",
+    "t": "\u0e15\u0e23\u0e27\u0e08 ErgoProfile"
+   },
+   {
+    "y": 1871,
+    "tag": "h2",
+    "t": "\u0e17\u0e35\u0e48\u0e1b\u0e23\u0e36\u0e01\u0e29\u0e32\u0e14\u0e49\u0e32\u0e19 Ergonomic \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23"
+   },
+   {
+    "y": 2770,
+    "tag": "h2",
+    "t": "\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14"
+   },
+   {
+    "y": 3302,
+    "tag": "h2",
+    "t": "\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14"
+   },
+   {
+    "y": 3774,
+    "tag": "h2",
+    "t": "\u0e17\u0e35\u0e21\u0e07\u0e32\u0e19\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32"
+   },
+   {
+    "y": 7059,
+    "tag": "h2",
+    "t": "\u0e2a\u0e19\u0e43\u0e08\u0e2a\u0e31\u0e21\u0e21\u0e19\u0e32\u0e01\u0e32\u0e23\u0e22\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23"
+   },
+   {
+    "y": 7636,
+    "tag": "h2",
+    "t": "Subscribe to our emails"
+   }
+  ],
+  "hero": {
+   "h": 295,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 0.302,
+   "mediaKind": null,
+   "mediaPlace": "none",
+   "mediaCoverW": null,
+   "mediaCoverH": null,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": "mr.big clinic \u0e04\u0e37\u0e2d\u0e43\u0e04\u0e23 mr.big clinic \u0e40\u0e1b\u0e47\u0e19\u0e04\u0e25\u0e34\u0e19\u0e34\u0e01\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e01\u0e36\u0e48\u0e07\u0e44\u0e1b\u0e23\u0e40\u0e27\u0e15 \u0e17\u0e35\u0e48\u0e40\u0e1b\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e14\u0e49\u0e32\u0e19\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e41\u0e25\u0e30\u0e19\u0e27\u0e14\u0e1a\u0e33\u0e1a\u0e31\u0e14\u0e43\u0e2b\u0e49\u0e01\u0e31\u0e1a\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01\u0e02\u0e2d\u0e07 mr.big \u0e2a\u0e48\u0e27\u0e19\u0e17\u0e35\u0e48\u0e40\u0e1b\u0e34\u0e14\u0e43\u0e2b\u0e49\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e41\u0e01\u0e48\u0e2a\u0e32\u0e18\u0e32\u0e23\u0e13\u0e30\u0e04\u0e37\u0e2d\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23 ErgoProfile \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e1a\u0e38\u0e04\u0e04\u0e25 \u0e41\u0e25\u0e30\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 \u0e04\u0e37\u0e2d\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e23\u0e30\u0e22\u0e30\u0e2a\u0e31\u0e14\u0e2a\u0e48\u0e27\u0e19\u0e23\u0e48\u0e32\u0e07\u0e01\u0e32\u0e22 \u0e04\u0e27\u0e32\u0e21\u0e2a\u0e21\u0e14\u0e38\u0e25\u0e02\u0e2d\u0e07\u0e42\u0e04\u0e23\u0e07\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e01\u0e23\u0e30\u0e14\u0e39\u0e01\u0e2a\u0e31\u0e19\u0e2b\u0e25\u0e31\u0e07 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e0a\u0e49\u0e43\u0e19\u0e01\u0e32\u0e23\u0e08\u0e31\u0e14\u0e42\u0e15\u0e49\u0e30\u0e17\u0e33\u0e07\u0e32\u0e19\u0e43\u0e2b\u0e49\u0e40\u0e2b\u0e21\u0e32\u0e30\u0e01\u0e31\u0e1a\u0e1a\u0e38\u0e04\u0e04\u0e25\u0e17\u0e35\u0e48\u0e2a\u0e38\u0e14"
+  },
+  "type": {
+   "h1": "Figtree, sans-serif",
+   "h2": "Figtree, sans-serif",
+   "body": "Figtree, sans-serif",
+   "h1Weight": "400",
+   "h1Size": "40px",
+   "h2Weight": "400",
+   "h2Size": "13px",
+   "bodySize": "16px",
+   "bodyWeight": "400",
+   "bodyLH": "28.8px",
+   "bigHeadPx": 40,
+   "bigHeadFam": "Figtree, sans-serif",
+   "bigHeadWeight": "400",
+   "h1Count": 1,
+   "h2Sizes": [
+    "40px",
+    "24px",
+    "18px"
+   ],
+   "h3Size": "18px",
+   "fontFaces": [
+    "Figtree"
+   ],
+   "linkFonts": [
+    "//mrbigclinic.com/cdn/fonts/figtree/figtree_n4.3c0838aba1701047e60be6a99a1b0a40ce9b8419.wo"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 10,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 11,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 12,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 13,
+    "op": 0.01,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 2886,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 3,
+   "inputCount": 5,
+   "detailsCount": 6,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 2,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": false,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": true,
+   "phoneKR": null,
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.981,
+   "darkFrac": 0.006,
+   "lightFrac": 0.972
+  },
+  {
+   "i": 1,
+   "mean": 0.493,
+   "darkFrac": 0.247,
+   "lightFrac": 0.284
+  },
+  {
+   "i": 2,
+   "mean": 0.907,
+   "darkFrac": 0.013,
+   "lightFrac": 0.934
+  },
+  {
+   "i": 3,
+   "mean": 0.894,
+   "darkFrac": 0.091,
+   "lightFrac": 0.86
+  },
+  {
+   "i": 4,
+   "mean": 0.777,
+   "darkFrac": 0.188,
+   "lightFrac": 0.718
+  },
+  {
+   "i": 5,
+   "mean": 0.865,
+   "darkFrac": 0.055,
+   "lightFrac": 0.825
+  },
+  {
+   "i": 6,
+   "mean": 0.879,
+   "darkFrac": 0.036,
+   "lightFrac": 0.929
+  },
+  {
+   "i": 7,
+   "mean": 0.994,
+   "darkFrac": 0.0,
+   "lightFrac": 0.994
+  }
+ ],
+ "heroLum": {
+  "mean": 0.755,
+  "darkFrac": 0.116,
+  "lightFrac": 0.656
+ },
+ "heroLumBelowNav": {
+  "mean": 0.722,
+  "darkFrac": 0.133,
+  "lightFrac": 0.61
+ },
+ "fixedTop": [
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 145,
+   "left": 0,
+   "w": 1440,
+   "h": 145,
+   "z": "3",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/",
+     "label": "\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e23\u0e32"
+    },
+    {
+     "href": "/pages/%E0%B8%84%E0%B8%A5%E0%B8%B4%E0%B8%99%E0%B8%B4%E0%B8%81%E0%B8%81",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%99%E0%B8%A7%E0%B8%94%E0%B8%9A%E0%B8%B3%E0%B8%9A%E0%B8%B1",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%A7%E0%B8%B1%E0%B8%94",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%A7%E0%B8%B1%E0%B8%94",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%88%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%9A%E0%B8%A3%E0%B8%A1",
+     "label": ""
+    },
+    {
+     "href": "/pages/contact",
+     "label": "\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e40\u0e23\u0e32"
+    },
+    {
+     "href": "/blogs/news",
+     "label": "Blog"
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "https://mrbigclinic.com/customer_authentication/redirect?locale=en&reg",
+     "label": "Log in"
+    },
+    {
+     "href": "/cart",
+     "label": "Cart"
+    }
+   ],
+   "label": "\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e23\u0e32 \u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 \u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e40\u0e23\u0e32 Blog Log in Cart",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 145,
+   "left": 0,
+   "w": 1440,
+   "h": 145,
+   "z": "3",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/",
+     "label": "\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e23\u0e32"
+    },
+    {
+     "href": "/pages/%E0%B8%84%E0%B8%A5%E0%B8%B4%E0%B8%99%E0%B8%B4%E0%B8%81%E0%B8%81",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%99%E0%B8%A7%E0%B8%94%E0%B8%9A%E0%B8%B3%E0%B8%9A%E0%B8%B1",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%A7%E0%B8%B1%E0%B8%94",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%A7%E0%B8%B1%E0%B8%94",
+     "label": ""
+    },
+    {
+     "href": "/pages/%E0%B8%88%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%9A%E0%B8%A3%E0%B8%A1",
+     "label": ""
+    },
+    {
+     "href": "/pages/contact",
+     "label": "\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e40\u0e23\u0e32"
+    },
+    {
+     "href": "/blogs/news",
+     "label": "Blog"
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "https://mrbigclinic.com/customer_authentication/redirect?locale=en&reg",
+     "label": "Log in"
+    },
+    {
+     "href": "/cart",
+     "label": "Cart"
+    }
+   ],
+   "label": "\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a\u0e40\u0e23\u0e32 \u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e32 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2d\u0e07\u0e04\u0e4c\u0e01\u0e23 \u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e40\u0e23\u0e32 Blog Log in Cart",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 11.1,
+ "mobileFixed": []
+}

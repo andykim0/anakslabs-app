@@ -1,0 +1,29 @@
+{
+ "url": "http://www.withme-medi.com/",
+ "tracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 7,
+   "top": 240,
+   "w": 1440,
+   "h": 600
+  }
+ ],
+ "pags": [],
+ "heroTracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 7,
+   "top": 240,
+   "w": 1440,
+   "h": 600
+  }
+ ],
+ "heroPags": [],
+ "bgKeys": [
+  "rgba(0, 0, 0, 0)",
+  "rgb(255, 255, 255)",
+  "rgb(250, 251, 252)",
+  "rgb(248, 249, 250)"
+ ]
+}

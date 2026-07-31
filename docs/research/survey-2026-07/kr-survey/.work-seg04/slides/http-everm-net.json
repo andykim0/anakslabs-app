@@ -1,0 +1,31 @@
+{
+ "url": "http://www.everm.net",
+ "tracks": [],
+ "pags": [
+  {
+   "cls": "tp-bullets newnavclass_1 horizontal nav-pos-hor-le",
+   "n": 7,
+   "top": 891
+  },
+  {
+   "cls": "owl-dots",
+   "n": 2,
+   "top": 7573
+  }
+ ],
+ "heroTracks": [],
+ "heroPags": [
+  {
+   "cls": "tp-bullets newnavclass_1 horizontal nav-pos-hor-le",
+   "n": 7,
+   "top": 891
+  }
+ ],
+ "bgKeys": [
+  "rgb(255, 255, 255)",
+  "rgba(0, 0, 0, 0)",
+  "rgb(241, 241, 241)",
+  "rgb(17, 17, 17)",
+  "rgb(37, 37, 37)"
+ ]
+}

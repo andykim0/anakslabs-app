@@ -1,0 +1,41 @@
+--- B01 이담외과 https://edomclinic.com/
+   ok screens=1 secs=2 provider=None
+--- B02 서울척병원 https://www.seoulchuk.com/
+   ok screens=3.7 secs=5 provider=2426
+--- B03 나누리병원 https://www.nanoori.co.kr/
+   ok screens=4 secs=7 provider=None
+--- B04 우리들병원 https://www.wooridul.co.kr/
+   ok screens=6.8 secs=11 provider=1238
+--- B05 힘찬병원 https://www.himchanhospital.com/
+   ok screens=5.6 secs=8 provider=3416
+--- B06 부민병원 https://www.bumin.co.kr/
+   ok screens=1.6 secs=2 provider=1748
+--- B07 자생한방병원 https://www.jaseng.co.kr/
+   ok screens=2.8 secs=6 provider=3417
+--- B08 모커리한방병원 https://www.mokhuri.com/
+   ok screens=2.7 secs=5 provider=1548
+--- B10 바른세상병원 https://www.barunsesang.co.kr/
+   ok screens=5.6 secs=9 provider=4185
+--- B11 예손병원 https://www.yesonhospital.com/
+   ok screens=1.3 secs=3 provider=2566
+--- B12 서울21세기병원 https://spine21.co.kr/
+   ERROR: Error: Page.goto: net::ERR_CERT_COMMON_NAME_INVALID at https://spine21.co.kr/
+Call log:
+  - navigating to "https://spine21.co.kr/", waiting 
+--- B13 평촌서울나우병원 https://www.nowhospital.co.kr/
+   ok screens=6.7 secs=9 provider=2924
+--- B14 대항병원 https://www.daehang.com/
+   ok screens=7.7 secs=8 provider=668
+--- B16 민트병원 https://www.mintir.com/
+   ok screens=6.8 secs=8 provider=1229
+--- B17 하나이비인후과병원 https://www.hanaent.co.kr/
+   ok screens=3.6 secs=4 provider=4248
+--- B36 분당서울대학교병원 https://www.snubh.org/
+   ok screens=3.4 secs=6 provider=1593
+--- B37 삼성서울병원 https://www.samsunghospital.com/
+   ok screens=1.9 secs=3 provider=747
+--- B38 서울아산병원 https://www.amc.seoul.kr/
+   ok screens=4.5 secs=8 provider=1986
+--- B39 세브란스병원 https://sev.severance.healthcare/
+   ok screens=3 secs=5 provider=895
+BATCH-DONE

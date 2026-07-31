@@ -1,0 +1,12 @@
+OK http://www.ahnkang.com/ 
+OK http://leegajeong.com/ Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://leegajeong.com/
+Call log:
+  - navigating to "http://leegajeong.com/", waiting until "domcontentloaded"
+
+OK http://www.gwgclinic.co.kr/ Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gwgclinic.co.kr/
+Call log:
+  - navigating to "http://www.gwgclinic.co.kr/", waiting until "domcontentloaded"
+
+OK http://www.saekimps.co.kr/ 
+OK https://www.ekwangdong.co.kr/ 
+OK https://eng.grandsurgery.com/ 

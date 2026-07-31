@@ -1,0 +1,1108 @@
+{
+ "url": "http://www.startps.com/",
+ "status": 200,
+ "finalUrl": "http://www.startps.com/",
+ "title": "\uc2a4\ud0c0\ud2b8 \uc131\ud615\uc678\uacfc\uc758\uc6d0",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 7985,
+  "screens": 8.9,
+  "sectionParentTag": "body",
+  "sectionCount": 14,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 615,
+    "h": 236,
+    "chars": 22,
+    "headings": [],
+    "keyText": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 160,
+    "h": 455,
+    "chars": 22,
+    "headings": [],
+    "keyText": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 160,
+    "h": 455,
+    "chars": 22,
+    "headings": [],
+    "keyText": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "ul",
+    "absTop": 151,
+    "h": 607,
+    "chars": 38,
+    "headings": [],
+    "keyText": "\uc778\uc2a4\ud0c0\uadf8\ub7a8 \ud398\uc774\uc2a4\ubd81 \ub124\uc774\ubc84\ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uce74\uce74\uc624\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc624\uc2dc\ub294\uae38",
+    "media": 8,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 374,
+    "h": 477,
+    "chars": 123,
+    "headings": [
+     "\ube44\uc6a9\uc0c1\ub2f4"
+    ],
+    "keyText": "\ube44\uc6a9\uc0c1\ub2f4 \uc5f0\ub839\ub300 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 \uad00\uc2ec\ubd80\uc704 LED\ub2e4\ud06c\uc11c\ud074 \uc774\ub9c8\ucd95\uc18c \uc9c0\ubc29\uc774\uc2dd \uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc911\ub144\ub3d9\uc548\ub208\uc131\ud615 T\uc874\uc785\uccb4\uc131\ud615 \ub9ac\ud504\ud305 \ubc14\ub514\uc131\ud615 \ubcf4\ud1a1\uc2a4/\ud544\ub7ec \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788 \ubcf4\uae30]",
+    "media": 3,
+    "bgKey": "15,12,7",
+    "bgLum": 0.567,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 0,
+    "h": 1000,
+    "chars": 7,
+    "headings": [],
+    "keyText": "1234567",
+    "media": 11,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 1000,
+    "h": 1125,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 11,
+    "bgKey": "20,20,20",
+    "bgLum": 0.957,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 2125,
+    "h": 1005,
+    "chars": 0,
+    "headings": [
+     ""
+    ],
+    "keyText": "",
+    "media": 22,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 3130,
+    "h": 892,
+    "chars": 0,
+    "headings": [
+     ""
+    ],
+    "keyText": "",
+    "media": 8,
+    "bgKey": "media",
+    "bgLum": 0.839,
+    "bgMedia": true
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 4022,
+    "h": 1117,
+    "chars": 0,
+    "headings": [
+     ""
+    ],
+    "keyText": "",
+    "media": 6,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 5139,
+    "h": 816,
+    "chars": 43,
+    "headings": [
+     ""
+    ],
+    "keyText": "[ \ubc29\uc1a1\ucd9c\uc5f0 ] \ud558\uc548\uac80 [ \ubc29\uc1a1\ucd9c\uc5f0 ] \uc774\ub9c8\uac70\uc0c1 [ \ubc29\uc1a1\ucd9c\uc5f0 ] \ub208\ubc11\uc9c0\ubc29\uc7ac\ubc30\uce58",
+    "media": 4,
+    "bgKey": "8,8,8",
+    "bgLum": 0.396,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "div",
+    "absTop": 5955,
+    "h": 790,
+    "chars": 193,
+    "headings": [
+     "",
+     "",
+     "\ube44\uc6a9\uc0c1\ub2f4"
+    ],
+    "keyText": "\ub208\ubc11\uc218\uc220 \ub208\ubc11\uc9c0\ubc29 \uc7ac\ubc30\uce58 \ub610\ub294 \ud558\uc548\uac80 \uc0c1\ub2f4 .. \ub2f5\ubcc0\uc644\ub8cc \ub208\ubc11\uc218\uc220 \ub208\ubc11\uc9c0 \uc0c1\ub2f4\uc608\uc57d \ub2f5\ubcc0\uc644\ub8cc \ub208\ubc11\uc218\uc220 \uc0c1\ub2f4\ubb38\uc758 \ub2f5\ubcc0\uc644\ub8cc \ud558\uc548\uac80 \ube44\uc6a9\uc0c1\ub2f4 \uc5f0\ub839\ub300 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 \uad00\uc2ec\ubd80\uc704 LED\ub2e4\ud06c\uc11c\ud074 \uc774\ub9c8\ucd95\uc18c \uc9c0\ubc29\uc774\uc2dd \uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc911\ub144\ub3d9\uc548\ub208\uc131\ud615 T\uc874\uc785\uccb4\uc131\ud615 \ub9ac\ud504\ud305 \ubc14\ub514\uc131\ud615 \ubcf4\ud1a1\uc2a4/\ud544\ub7ec \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788 \ubcf4\uae30]",
+    "media": 7,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 12,
+    "tag": "div",
+    "absTop": 6745,
+    "h": 825,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 13,
+    "tag": "footer",
+    "absTop": 7570,
+    "h": 415,
+    "chars": 202,
+    "headings": [],
+    "keyText": "\uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4 \ucc98\ub9ac\ubc29\uce68 \ud658\uc790\uad8c\ub9ac\uc7a5\uc804 \uc624\uc2dc\ub294\uae38 \ube44\uae09\uc5ec\uc9c4\ub8cc\ud56d\ubaa9 \uc8fc\uc18c : \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uac15\ub0a8\ub300\ub85c 616, 14\uce35(\uc2e0\uc0ac\ub3d9, \uc2e0\uc0ac\ubbf8\ud0c0\uc6cc) \ub300\ud45c\uc804\ud654 : 02-518-7588\ubcd1\uc6d0\uba85 : \uc2a4\ud0c0\ud2b8 \uc131\ud615\uc678\uacfc\uc758\uc6d0\ub300\ud45c\uc790\uba85 : \uc624\ub3d9\uc11d\uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 857-79-00116 COPYRIGHT \u24d2 2013 START PLASTIC SURGERY All RIGHTS RESERVED.",
+    "media": 7,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 409,
+    "tag": "h2",
+    "t": "\ube44\uc6a9\uc0c1\ub2f4"
+   },
+   {
+    "y": 6115,
+    "tag": "h2",
+    "t": "\ube44\uc6a9\uc0c1\ub2f4"
+   }
+  ],
+  "hero": {
+   "h": 236,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 0.86,
+   "slides": 0,
+   "anchorCount": 2,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 421,
+     "h": 204,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\uc624\ub298 \ud558\ub8e8 \ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. [\ub2eb\uae30]"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", \"\ub9d1\uc740 \uace0\ub515\", \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Helvetica, \"Apple SD Gothic Neo\", Tahoma, Geneva, sans-serif, verdana",
+   "h2": "\"Noto Sans KR\", \"\ub9d1\uc740 \uace0\ub515\", \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Helvetica, \"Apple SD Gothic Neo\", Tahoma, Geneva, sans-serif, verdana",
+   "body": "\"Noto Sans KR\", \"\ub9d1\uc740 \uace0\ub515\", \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Helvetica, \"Apple SD Gothic Neo\", Tahoma, Geneva, sans-serif, verdana",
+   "h1Weight": "400",
+   "h1Size": "18px",
+   "h2Size": "30px",
+   "h2Weight": "500",
+   "bodyWeight": "300",
+   "bodySize": "17px",
+   "fontFaces": [
+    "Noto Sans KR"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 2,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 16
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1780, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "cubic-bezier(0.1, 0.57, 0.1, 1)",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": null,
+    "dur": "0.4s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "cubic-bezier(0.1, 0.57, 0.1, 1)",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "pageTextLen": 1137,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 3,
+   "inputCount": 11,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 10,
+   "bookingWidget": 0,
+   "reviewWidgets": 1,
+   "kakaoLinks": 1,
+   "naverLinks": 1,
+   "instaLinks": 1,
+   "ytLinks": 1,
+   "mapEmbed": 4,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwNotice": true,
+   "kwPhoneKR": true,
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.441,
+   "darkFrac": 0.378,
+   "lightFrac": 0.184
+  },
+  {
+   "i": 1,
+   "mean": 0.453,
+   "darkFrac": 0.357,
+   "lightFrac": 0.195
+  },
+  {
+   "i": 2,
+   "mean": 0.425,
+   "darkFrac": 0.354,
+   "lightFrac": 0.166
+  },
+  {
+   "i": 3,
+   "mean": 0.491,
+   "darkFrac": 0.163,
+   "lightFrac": 0.149
+  },
+  {
+   "i": 4,
+   "mean": 0.522,
+   "darkFrac": 0.096,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 5,
+   "mean": 0.459,
+   "darkFrac": 0.275,
+   "lightFrac": 0.109
+  },
+  {
+   "i": 6,
+   "mean": 0.686,
+   "darkFrac": 0.151,
+   "lightFrac": 0.64
+  },
+  {
+   "i": 7,
+   "mean": 0.759,
+   "darkFrac": 0.117,
+   "lightFrac": 0.793
+  },
+  {
+   "i": 8,
+   "mean": 0.718,
+   "darkFrac": 0.127,
+   "lightFrac": 0.734
+  },
+  {
+   "i": 9,
+   "mean": 0.826,
+   "darkFrac": 0.101,
+   "lightFrac": 0.812
+  },
+  {
+   "i": 10,
+   "mean": 0.421,
+   "darkFrac": 0.094,
+   "lightFrac": 0.066
+  },
+  {
+   "i": 11,
+   "mean": 0.786,
+   "darkFrac": 0.063,
+   "lightFrac": 0.764
+  },
+  {
+   "i": 12,
+   "mean": 0.727,
+   "darkFrac": 0.008,
+   "lightFrac": 0.616
+  },
+  {
+   "i": 13,
+   "mean": 0.855,
+   "darkFrac": 0.012,
+   "lightFrac": 0.808
+  }
+ ],
+ "heroLum": {
+  "mean": 0.558,
+  "darkFrac": 0.327,
+  "lightFrac": 0.562
+ },
+ "heroLumBelowNav": {
+  "mean": 0.589,
+  "darkFrac": 0.24,
+  "lightFrac": 0.637
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 150,
+   "left": 0,
+   "w": 1440,
+   "h": 150,
+   "z": "100",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php?ref=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "",
+     "label": "KOR"
+    },
+    {
+     "href": "/jp",
+     "label": "JPN"
+    },
+    {
+     "href": "../intro/intro01.php",
+     "label": "\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/counsel/counsel01.php",
+     "label": "\uc0c1\ub2f4/\uc608\uc57d"
+    },
+    {
+     "href": "/community/community01.php",
+     "label": "\uc804\ud6c4\uc0ac\uc9c4/\ud6c4\uae30"
+    },
+    {
+     "href": "/tzone/tzone01.php",
+     "label": "T\uc874 \uc785\uccb4\uc131\ud615"
+    },
+    {
+     "href": "/lowereye/lowereye01.php",
+     "label": "\ub208\ubc11\uc131\ud615"
+    },
+    {
+     "href": "/forehead/forehead01.php",
+     "label": "\uc774\ub9c8\uc131\ud615"
+    },
+    {
+     "href": "/liposuction/liposuction01.php",
+     "label": "\uc5bc\uad74\uc9c0\ubc29\ud761\uc785"
+    },
+    {
+     "href": "/eye/eye01.php",
+     "label": "\ub208\uc131\ud615"
+    },
+    {
+     "href": "/nose/nose01.php",
+     "label": "\ucf54\uc131\ud615"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 KOR JPN \ubcd1\uc6d0 \uc18c\uac1c \uc0c1\ub2f4/\uc608\uc57d \uc804\ud6c4\uc0ac\uc9c4/\ud6c4\uae30 T\uc874 \uc785\uccb4\uc131\ud615 \ub208\ubc11\uc131\ud615 \uc774\ub9c8\uc131\ud615 \uc5bc\uad74\uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc9c0\ubc29\uc774\uc2dd \ub9ac\ud504\ud305/\uc058\ub760 \uccb4\ud615 \ud53c\ubd80",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 151,
+   "bottom": 758,
+   "left": 1365,
+   "w": 75,
+   "h": 607,
+   "z": "1001",
+   "links": [
+    {
+     "href": "https://www.instagram.com/start_ps/",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    },
+    {
+     "href": "https://www.facebook.com/startclinic",
+     "label": "\ud398\uc774\uc2a4\ubd81"
+    },
+    {
+     "href": "https://blog.naver.com/startps",
+     "label": "\ub124\uc774\ubc84\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCxz89MIdkNXkjve1oYeaHEg",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "http://pf.kakao.com/_flgnE/chat ",
+     "label": "\uce74\uce74\uc624\uc0c1\ub2f4"
+    },
+    {
+     "href": "/counsel/counsel01.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/intro/intro03.php",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "#main",
+     "label": ""
+    }
+   ],
+   "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8 \ud398\uc774\uc2a4\ubd81 \ub124\uc774\ubc84\ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uce74\uce74\uc624\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc624\uc2dc\ub294\uae38",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 374,
+   "bottom": 851,
+   "left": 1490,
+   "w": 350,
+   "h": 477,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788 \ubcf4\uae30]"
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "\ube44\uc6a9\uc0c1\ub2f4 \uc5f0\ub839\ub300 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 \uad00\uc2ec\ubd80\uc704 LED\ub2e4\ud06c\uc11c\ud074 \uc774\ub9c8\ucd95\uc18c \uc9c0\ubc29\uc774\uc2dd \uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc911\ub144\ub3d9\uc548\ub208\uc131\ud615 T\uc874\uc785\uccb4\uc131\ud615 \ub9ac\ud504\ud305 \ubc14\ub514\uc131\ud615 \ubcf4\ud1a1\uc2a4/\ud544\ub7ec \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788 \ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1780, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "cubic-bezier(0.1, 0.57, 0.1, 1)"
+  },
+  {
+   "id": 7,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 0,
+   "tr": null,
+   "dur": "0.4s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "cubic-bezier(0.1, 0.57, 0.1, 1)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -100,
+   "bottom": 50,
+   "left": 0,
+   "w": 1440,
+   "h": 150,
+   "z": "100",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php?ref=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "",
+     "label": "KOR"
+    },
+    {
+     "href": "/jp",
+     "label": "JPN"
+    },
+    {
+     "href": "../intro/intro01.php",
+     "label": "\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/counsel/counsel01.php",
+     "label": "\uc0c1\ub2f4/\uc608\uc57d"
+    },
+    {
+     "href": "/community/community01.php",
+     "label": "\uc804\ud6c4\uc0ac\uc9c4/\ud6c4\uae30"
+    },
+    {
+     "href": "/tzone/tzone01.php",
+     "label": "T\uc874 \uc785\uccb4\uc131\ud615"
+    },
+    {
+     "href": "/lowereye/lowereye01.php",
+     "label": "\ub208\ubc11\uc131\ud615"
+    },
+    {
+     "href": "/forehead/forehead01.php",
+     "label": "\uc774\ub9c8\uc131\ud615"
+    },
+    {
+     "href": "/liposuction/liposuction01.php",
+     "label": "\uc5bc\uad74\uc9c0\ubc29\ud761\uc785"
+    },
+    {
+     "href": "/eye/eye01.php",
+     "label": "\ub208\uc131\ud615"
+    },
+    {
+     "href": "/nose/nose01.php",
+     "label": "\ucf54\uc131\ud615"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 KOR JPN \ubcd1\uc6d0 \uc18c\uac1c \uc0c1\ub2f4/\uc608\uc57d \uc804\ud6c4\uc0ac\uc9c4/\ud6c4\uae30 T\uc874 \uc785\uccb4\uc131\ud615 \ub208\ubc11\uc131\ud615 \uc774\ub9c8\uc131\ud615 \uc5bc\uad74\uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc9c0\ubc29\uc774\uc2dd \ub9ac\ud504\ud305/\uc058\ub760 \uccb4\ud615 \ud53c\ubd80",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 151,
+   "bottom": 758,
+   "left": 1365,
+   "w": 75,
+   "h": 607,
+   "z": "1001",
+   "links": [
+    {
+     "href": "https://www.instagram.com/start_ps/",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    },
+    {
+     "href": "https://www.facebook.com/startclinic",
+     "label": "\ud398\uc774\uc2a4\ubd81"
+    },
+    {
+     "href": "https://blog.naver.com/startps",
+     "label": "\ub124\uc774\ubc84\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCxz89MIdkNXkjve1oYeaHEg",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "http://pf.kakao.com/_flgnE/chat ",
+     "label": "\uce74\uce74\uc624\uc0c1\ub2f4"
+    },
+    {
+     "href": "/counsel/counsel01.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/intro/intro03.php",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "#main",
+     "label": ""
+    }
+   ],
+   "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8 \ud398\uc774\uc2a4\ubd81 \ub124\uc774\ubc84\ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uce74\uce74\uc624\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc624\uc2dc\ub294\uae38",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 374,
+   "bottom": 851,
+   "left": 1490,
+   "w": 350,
+   "h": 477,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788 \ubcf4\uae30]"
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "\ube44\uc6a9\uc0c1\ub2f4 \uc5f0\ub839\ub300 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 \uad00\uc2ec\ubd80\uc704 LED\ub2e4\ud06c\uc11c\ud074 \uc774\ub9c8\ucd95\uc18c \uc9c0\ubc29\uc774\uc2dd \uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc911\ub144\ub3d9\uc548\ub208\uc131\ud615 T\uc874\uc785\uccb4\uc131\ud615 \ub9ac\ud504\ud305 \ubc14\ub514\uc131\ud615 \ubcf4\ud1a1\uc2a4/\ud544\ub7ec \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788 \ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 5.8,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 55,
+   "left": 0,
+   "w": 390,
+   "h": 55,
+   "z": "101",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "tel:025187588",
+     "label": ""
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "KOR"
+    },
+    {
+     "href": "/jp",
+     "label": "JPN"
+    },
+    {
+     "href": "",
+     "label": "\ube44\uc6a9 \ubb38\uc758"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/member/login.php?ref=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join02.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "https://www.instagram.com/start_ps/",
+     "label": ""
+    },
+    {
+     "href": "https://www.facebook.com/startclinic",
+     "label": ""
+    },
+    {
+     "href": "https://blog.naver.com/startps",
+     "label": ""
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCxz89MIdkNXkjve1oYeaHEg",
+     "label": ""
+    },
+    {
+     "href": "http://pf.kakao.com/_flgnE/chat",
+     "label": ""
+    }
+   ],
+   "label": "KOR JPN \ube44\uc6a9 \ubb38\uc758 \ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \ubcd1\uc6d0 \uc18c\uac1c \uc0c1\ub2f4/\uc608\uc57d \uc804\ud6c4\uc0ac\uc9c4/\ud6c4\uae30 T\uc874 \uc785\uccb4\uc131\ud615 \ub208\ubc11\uc131\ud615 \uc774\ub9c8\uc131\ud615 \uc5bc\uad74\uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc9c0\ubc29\uc774\uc2dd \ub9ac\ud504\ud305/\uc058\ub760 \uccb4\ud615 \ud53c\ubd80",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 595,
+   "bottom": 794,
+   "left": 268,
+   "w": 100,
+   "h": 199,
+   "z": "90",
+   "links": [
+    {
+     "href": "https://www.youtube.com/channel/UCxz89MIdkNXkjve1oYeaHEg",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "http://pf.kakao.com/_flgnE/chat",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 844,
+   "bottom": 1151,
+   "left": 0,
+   "w": 390,
+   "h": 307,
+   "z": "100",
+   "links": [
+    {
+     "href": "",
+     "label": "\ube44\uc6a9\ubb38\uc758 \u25b2"
+    },
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788 \ubcf4\uae30]"
+    }
+   ],
+   "label": "\ube44\uc6a9\ubb38\uc758 \u25b2 \uc5f0\ub839\ub300 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 \uad00\uc2ec\ubd80\uc704 LED\ub2e4\ud06c\uc11c\ud074 \uc774\ub9c8\ucd95\uc18c \uc9c0\ubc29\uc774\uc2dd \uc9c0\ubc29\ud761\uc785 \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc911\ub144\ub3d9\uc548\ub208\uc131\ud615 T\uc874\uc785\uccb4\uc131\ud615 \ub9ac\ud504\ud305 \ubc14\ub514\uc131\ud615 \ubcf4\ud1a1\uc2a4/\ud544\ub7ec \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788 \ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

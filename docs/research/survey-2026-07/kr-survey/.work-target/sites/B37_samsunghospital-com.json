@@ -1,0 +1,202 @@
+{
+ "sample_id": "B37",
+ "name": "삼성서울병원",
+ "url": "https://www.samsunghospital.com/",
+ "stratum": "academic-control",
+ "status": 200,
+ "finalUrl": "https://www.samsunghospital.com/",
+ "title": "삼성서울병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1721,
+  "screens": 1.9,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 86,
+    "h": 1405,
+    "chars": 964,
+    "headings": [
+     "의료진/진료과 검색 삼성서울병원의 전문의료진을 검색해 보세요.",
+     "온라인 예약신청",
+     "처음진료 빠른예약",
+     "건강검진 빠른예약",
+     "의무기록사본발급신청",
+     "제증명발급서비스"
+    ],
+    "keyText": "홍보 베너 리스트 오픈카드 서비스 안내 오픈카드 서비스 안내 리모델링으로 인한 원내 위치 변경 안내 리모델링으로 인한 원내 위치 변경 안내 홍보베너1 홍보베너2 이전베너 다음베너 의료진/진료과 검색 삼성서울병원의 전문의료진을 검색해 보세요. 검색 의료진 검색 및 진료 예약신청, 조회 온라인 예약신청 로그인 없이도 진료 예약을 편리하게 하실 수 있습니다. 예약신청 처음진료 빠른예약 연락처를 남겨주시면 해피콜을 통해 빠른 예약을 도와드립니다. 예약신청 건강검진 빠른예약 연락처를 남겨주시면 검진 상담 전문 간호사가 빠른 예약을 도와드립니다. 검진 프로그램 보기 예약신청 의무기록사본발급신청 로그인 하신 후 사본발급 신청 가능합니다. 온라인신청 제증명발급서비스 로그인 하신 후 각종 제증명서류를 발급받으실 수 있습니다. 온라인신청 본인인증 후 타병원 의료영상을 전송 할 수 있습니다. 온라인업로드 편의가이드 진료조회 검사이력 및 결과조회 오시는 길 주차안내 원내위치안내 병원생활안내 공지사항 더보",
+    "media": 19,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "footer",
+    "absTop": 1493,
+    "h": 228,
+    "chars": 333,
+    "headings": [],
+    "keyText": "삼성서울병원 건강의학센터 심장뇌혈관병원 암병원 미래의학연구원 양성자치료센터 인재채용 장례식장 ScholarWorks 센터홈페이지패밀리사이트 병원소개 회원약관 개인정보처리방침 보안신고 환자의 권리와 의무 제보하기 비급여진료비안내 원격지원 고객의 소리 홈페이지 가이드 사이트맵 정보보호관리체계인증 상세팝업 트위터 페이스북 블로그 유튜브 서울특별시 강남구 일원로 81 (06351) 삼성서울병원 / 대표전화 : 1599-3114 / 사업자등록번호 : 213-82-05096 박승우 COPYRIGHT©1996-2015 BY SAMSUNG MEDICAL CENTER. ALL RIGHTS RESERVED.",
+    "media": 8,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 137,
+    "h": 478,
+    "chars": 31,
+    "headings": [],
+    "keyText": "365일 24시간 진료예약 1599-3114 맨위로 이동",
+    "media": 4,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 649,
+    "tag": "h3",
+    "t": "의료진/진료과 검색 삼성서울병원의 전문의료진을 검색해 보세요."
+   },
+   {
+    "y": 742,
+    "tag": "h4",
+    "t": "온라인 예약신청"
+   },
+   {
+    "y": 742,
+    "tag": "h4",
+    "t": "처음진료 빠른예약"
+   },
+   {
+    "y": 742,
+    "tag": "h4",
+    "t": "건강검진 빠른예약"
+   },
+   {
+    "y": 742,
+    "tag": "h4",
+    "t": "의무기록사본발급신청"
+   },
+   {
+    "y": 742,
+    "tag": "h4",
+    "t": "제증명발급서비스"
+   },
+   {
+    "y": 1195,
+    "tag": "h4",
+    "t": "공지사항"
+   },
+   {
+    "y": 1195,
+    "tag": "h4",
+    "t": "학술행사"
+   }
+  ],
+  "type": {
+   "h1Px": 24,
+   "h2Px": 18,
+   "bodyPx": 12,
+   "h1Fam": "NanumBarunGothic, Dotum",
+   "bodyFam": "NanumBarunGothic, Dotum",
+   "h1Weight": "700",
+   "h1TextLen": 0,
+   "h2TextLen": 0,
+   "headingTotal": 2,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 26,
+   "imgInFirstScreen": 1
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 1,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 6
+  },
+  "revealPre": [],
+  "navUniq": [
+   "진료예약",
+   "건강정보",
+   "진료차트",
+   "나눔소통",
+   "병원안내",
+   "병원소개",
+   "병원장 인사말",
+   "설립 이념",
+   "미션/비전",
+   "Caregiver문화",
+   "병원 현황",
+   "CI",
+   "연혁",
+   "ESG 보고서",
+   "ENG",
+   "中國語",
+   "RUSSIAN",
+   "체외검사123회",
+   "당뇨12.03",
+   "당뇨 search",
+   "체온증123회",
+   "로그인",
+   "회원가입",
+   "인쇄 TIP",
+   "빠른예약",
+   "의료진 검색",
+   "건강의학센터",
+   "심장뇌혈관병원",
+   "암병원",
+   "양성자치료센터",
+   "진료협력/의뢰",
+   "인재채용",
+   "맨위로 이동"
+  ],
+  "pageTextLen": 1530,
+  "kw": {
+   "원장": 0,
+   "전문의": 1,
+   "의료진": 3,
+   "교수": 0,
+   "센터": 5,
+   "지점": 0,
+   "병원": 17,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 13,
+   "이벤트": 0,
+   "비급여": 3,
+   "오시는길": 2
+  },
+  "deptHits": [
+   "혈관",
+   "검진",
+   "외과"
+  ],
+  "providerUrl": "https://www.samsunghospital.com/home/reservation/doctorDetailInfo.do",
+  "centerUrl": null
+ },
+ "revealPost": [],
+ "providerPage": {
+  "chars": 747,
+  "imgs": 3,
+  "title": "의료진 검색",
+  "원장": 0,
+  "전문의": 0,
+  "교수": 2,
+  "nameTokens": 2,
+  "iframes": 0,
+  "url": "https://www.samsunghospital.com/home/reservation/doctorDetailInfo.do",
+  "status": 200
+ }
+}

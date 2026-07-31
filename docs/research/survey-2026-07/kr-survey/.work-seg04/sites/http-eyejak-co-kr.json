@@ -1,0 +1,608 @@
+{
+ "url": "http://www.eyejak.co.kr/",
+ "status": 200,
+ "finalUrl": "http://www.eyejak.co.kr/",
+ "title": "\uc544\uc774\uc791\uc131\ud615\uc678\uacfc\uc758\uc6d0",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 4831,
+  "screens": 5.4,
+  "sectionParentTag": "div",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "header",
+    "absTop": 150,
+    "h": 180,
+    "chars": 64,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \uc990\uaca8\ucc3e\uae30 \uc544\uc774\uc791 \uc131\ud615\uc678\uacfc \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc548\ud2f0\uc5d0\uc774\uc9d5 \uc058\ub760\uc131\ud615 \uc2a4\ud398\uc15c \ud504\ub85c\uadf8\ub7a8 \uba54\ub514\uceec \uc2a4\ud0a8\ucf00\uc5b4 \ucee4\ubba4\ub2c8\ud2f0",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "aside",
+    "absTop": 332,
+    "h": 797,
+    "chars": 33,
+    "headings": [
+     ""
+    ],
+    "keyText": "\uc628\ub77c\uc778 \uc0c1\ub2f4 \uc628\ub77c\uc778 \uc608\uc57d \uacf5\uc9c0\uc0ac\ud56d \uc804\ud6c4\uc0ac\uc9c4 \uc624\uc2dc\ub294 \uae38 TOP",
+    "media": 10,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "main",
+    "absTop": 330,
+    "h": 3906,
+    "chars": 223,
+    "headings": [
+     "EYEJAKSURGERY",
+     "\uacf5\uc9c0\uc0ac\ud56d",
+     "\uc628\ub77c\uc778\uc0c1\ub2f4",
+     "\uc2dc\uc220\ud6c4\uae30",
+     "EYEJAK Community"
+    ],
+    "keyText": "Prev Next 1 2 3 EYEJAKSURGERY \uacf5\uc9c0\uc0ac\ud56d 26\ub144 \uc544\uc774\uc791\uc131\ud615\uc678\uacfc \uc5ec\ub984\uc774\ubca4\ud2b8 \uc18c\uac1c! 2026.06.01 26\ub144 \uc544\uc774\uc791\uc131\ud615\uc678\uacfc \ubd04\uc774\ubca4\ud2b8 \uc18c\uac1c! 2026.03.01 25\ub144 \uc544\uc774\uc791 \uaca8\uc6b8\uc774\ubca4\ud2b8 \uc18c\uac1c! 2025.11.30 \ub354\ubcf4\uae30 \uc628\ub77c\uc778\uc0c1\ub2f4 \ub0a8\uc131\uc5bc\uad74\uc81c\ubaa8 2026.07.30 \ubaa8\uae30\uc9c8\uc885 2026.05.29 \ub208\ub450\ub369\uc774 \uc9c0\ubc29\uc774 \ub9ce\uc544\uc694. 2026.04.15 \ub354\ubcf4\uae30 \uc2dc\uc220\ud6c4\uae30 EYEJAK Community",
+    "media": 27,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 4236,
+    "h": 194,
+    "chars": 62,
+    "headings": [
+     ""
+    ],
+    "keyText": "\uc774 \ub984 \uc5f0 \ub77d \ucc98 \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc548\ud2f0\uc5d0\uc774\uc9d5 \uc058\ub760 \uba54\ub514\uceec\uc2a4\ud0a8\ucf00\uc5b4 \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68\uc5d0 \ub3d9\uc758\ud569\ub2c8\ub2e4.",
+    "media": 2,
+    "bgKey": "4,4,3",
+    "bgLum": 0.179,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "footer",
+    "absTop": 4430,
+    "h": 401,
+    "chars": 226,
+    "headings": [],
+    "keyText": "\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc11c\ube44\uc2a4\uc774\uc6a9\uc57d\uad00 \ubcd1\uc6d0\uc18c\uac1c \uc624\uc2dc\ub294\uae38 \uc0c1\ud638\uba85 : \uc544\uc774\uc791\uc131\ud615\uc678\uacfc\uc758\uc6d0 \uff5c \ub300\ud45c\uc790 : \ubc15\uc120\ud615 \uff5c \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 615-40-00375 \uc8fc\uc18c : \uacbd\uae30\ub3c4 \uc131\ub0a8\uc2dc \uc218\uc815\uad6c \uc704\ub840 \uad11\uc7a5\ub85c 300 \uc704\ub840\uc911\uc559\ud0c0\uc6cc 1\ub3d9 9\uce35 907\ud638 \ub300\ud45c\uc804\ud654 : 031.758.3050 \uff5c \ud329\uc2a4 : 031.758.3060 copyrigth c.2017 eyejak plasticsurgery. All rights Reserved.",
+    "media": 6,
+    "bgKey": "3,3,3",
+    "bgLum": 0.122,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 179,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 332,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 1709,
+    "tag": "h2",
+    "t": "EYEJAKSURGERY"
+   },
+   {
+    "y": 3180,
+    "tag": "h2",
+    "t": "\uacf5\uc9c0\uc0ac\ud56d"
+   },
+   {
+    "y": 3180,
+    "tag": "h2",
+    "t": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+   },
+   {
+    "y": 3180,
+    "tag": "h2",
+    "t": "\uc2dc\uc220\ud6c4\uae30"
+   },
+   {
+    "y": 3733,
+    "tag": "h2",
+    "t": "EYEJAK Community"
+   },
+   {
+    "y": 4236,
+    "tag": "h2",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 180,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 0.4,
+   "mediaKind": "img",
+   "mediaPlace": "center",
+   "mediaCoverW": 0.22,
+   "mediaCoverH": 0.36,
+   "slides": 0,
+   "anchorCount": 49,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 321,
+     "h": 40,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 60,
+     "h": 64,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 188,
+     "h": 62,
+     "label": "\uc544\uc774\uc791 \uc131\ud615\uc678\uacfc",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 114,
+     "h": 62,
+     "label": "\ub208\uc131\ud615",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 114,
+     "h": 62,
+     "label": "\ucf54\uc131\ud615",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 144,
+     "h": 62,
+     "label": "\uc548\ud2f0\uc5d0\uc774\uc9d5",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 129,
+     "h": 62,
+     "label": "\uc058\ub760\uc131\ud615",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 179,
+     "h": 62,
+     "label": "\uc2a4\ud398\uc15c \ud504\ub85c\uadf8\ub7a8",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 179,
+     "h": 62,
+     "label": "\uba54\ub514\uceec \uc2a4\ud0a8\ucf00\uc5b4",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 144,
+     "h": 62,
+     "label": "\ucee4\ubba4\ub2c8\ud2f0",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 60,
+     "h": 64,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \uc990\uaca8\ucc3e\uae30 \uc544\uc774\uc791 \uc131\ud615\uc678\uacfc \ub208\uc131\ud615 \ucf54\uc131\ud615 \uc548\ud2f0\uc5d0\uc774\uc9d5 \uc058\ub760\uc131\ud615 \uc2a4\ud398\uc15c \ud504\ub85c\uadf8\ub7a8 \uba54\ub514\uceec \uc2a4\ud0a8\ucf00\uc5b4 \ucee4\ubba4\ub2c8\ud2f0"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "h2": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "body": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Weight": "700",
+   "h2Size": "21px",
+   "bodySize": "16px",
+   "bodyWeight": "300",
+   "bodyLH": "normal",
+   "bigHeadPx": 14,
+   "bigHeadFam": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "bigHeadWeight": "300",
+   "h1Count": 1,
+   "h2Sizes": [
+    "21px",
+    "17px",
+    "25px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Noto Sans KR"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "td": "0.4s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 659,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 5,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 1,
+   "bookingWidget": 0,
+   "reviewWidgets": 1,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": false,
+   "phoneKR": "031.758.3050",
+   "statLike": [
+    "26\ub144 ",
+    "25\ub144 "
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.961,
+   "darkFrac": 0.018,
+   "lightFrac": 0.97
+  },
+  {
+   "i": 1,
+   "mean": 0.57,
+   "darkFrac": 0.362,
+   "lightFrac": 0.501
+  },
+  {
+   "i": 2,
+   "mean": 0.597,
+   "darkFrac": 0.341,
+   "lightFrac": 0.537
+  },
+  {
+   "i": 3,
+   "mean": 0.315,
+   "darkFrac": 0.789,
+   "lightFrac": 0.186
+  },
+  {
+   "i": 4,
+   "mean": 0.361,
+   "darkFrac": 0.714,
+   "lightFrac": 0.242
+  }
+ ],
+ "heroLum": {
+  "mean": 0.701,
+  "darkFrac": 0.19,
+  "lightFrac": 0.683
+ },
+ "heroLumBelowNav": {
+  "mean": 0.768,
+  "darkFrac": 0.1,
+  "lightFrac": 0.774
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": null
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 797,
+   "left": 1340,
+   "w": 100,
+   "h": 797,
+   "z": "999999",
+   "links": [
+    {
+     "href": "/community/community05.php?PHPSESSID=acaeb5254fcbd148ac9bfb2cb7a71038",
+     "label": "\uc628\ub77c\uc778 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community04.php?PHPSESSID=acaeb5254fcbd148ac9bfb2cb7a71038",
+     "label": "\uc628\ub77c\uc778 \uc608\uc57d"
+    },
+    {
+     "href": "/community/community01.php?PHPSESSID=acaeb5254fcbd148ac9bfb2cb7a71038",
+     "label": "\uacf5\uc9c0\uc0ac\ud56d"
+    },
+    {
+     "href": "/community/community02.php?PHPSESSID=acaeb5254fcbd148ac9bfb2cb7a71038",
+     "label": "\uc804\ud6c4\uc0ac\uc9c4"
+    },
+    {
+     "href": "/intro/intro04.php?PHPSESSID=acaeb5254fcbd148ac9bfb2cb7a71038",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": " http://pf.kakao.com/_etqmxl",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": "TOP"
+    }
+   ],
+   "label": "\uc628\ub77c\uc778 \uc0c1\ub2f4 \uc628\ub77c\uc778 \uc608\uc57d \uacf5\uc9c0\uc0ac\ud56d \uc804\ud6c4\uc0ac\uc9c4 \uc624\uc2dc\ub294 \uae38 TOP",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 3.8,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+{
+ "url": "https://sinnonhyeon.ppeum.com/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "slidein": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeout": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   }
+  },
+  "els": []
+ }
+}

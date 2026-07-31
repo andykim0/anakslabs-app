@@ -1,0 +1,20 @@
+{
+ "url": "https://www.cnuclinic.co.kr/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "rotate_image": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   }
+  },
+  "els": []
+ }
+}

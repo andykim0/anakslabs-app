@@ -1,0 +1,725 @@
+{
+ "url": "https://sinnonhyeon.ppeum.com/",
+ "status": 200,
+ "finalUrl": "https://sinnonhyeon.ppeum.com/",
+ "title": "\uac15\ub0a8\ubcf8\uc810 \uc608\uc068\uc8fc\uc758\uc068\uc758\uc6d0",
+ "popups": [
+  "popupWrap popup-wrap | 2 | 2 \uc624\ub298 \ud558\ub8e8 \ubcf4\uc9c0 \uc54a\uae30 \ub2eb\uae30"
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1140,
+  "screens": 1.3,
+  "sectionParentTag": "div#id",
+  "sectionCoverRatio": 1,
+  "sectionCount": 2,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "main",
+    "absTop": 0,
+    "h": 900,
+    "chars": 271,
+    "headings": [],
+    "keyText": "3 | 10 \uc2e4\uc2dc\uac04 \uac80\uc0c9 10 \ud53c\ucf54\ud1a0\ub2dd 1\ud68c \uccb4\ud5d8\uac00 (\ud329 \ubbf8\ud3ec\ud568) 1 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 2 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc544\uc774 \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 3 \ub9ac\ud31f\ub808\uc774\uc800 5mm 4 \ud480\ud398\uc774\uc2a4 \uc140\ub974\ub514\uc5e0 1\ud68c (7cc) 5 [HOT] \uc2ac\ub9bc\ubc14\ub514\uc8fc\uc0ac 1\ud68c 6 \uc96c\ubca0\ub8e9 \ubcfc\ub968 1cc 1\ud68c \uccb4\ud5d8\uac00 7 \uace0\uc555\uc0b0\uc18c\ucf00\uc5b4(\uc544\uc774\ubca1\uc2a4) 60\ubd84 1\ud68c \uccb4\ud5d8\uac00 8 \uad6d\uc0b0 \ubc14\ub514\ubcf4\ud1a1\uc2a4 100U 1\ud68c \uccb4\ud5d8\uac00 9 [HOT] \uc791\uc740\uc5bc\uad74\uc8fc\uc0ac 1\ud68c 10 \ud53c\ucf54\ud1a0\ub2dd 1\ud68c \uccb4\ud5d8\uac00 (\ud329 \ubbf8\ud3ec\ud568) 1 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 \uc804\uccb4\ub7ad\ud0b9",
+    "media": 13,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "footer",
+    "absTop": 899,
+    "h": 241,
+    "chars": 75,
+    "headings": [],
+    "keyText": "\uacf5\uc9c0\uc0ac\ud56d \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc0ac\uc5c5\uc790\uc815\ubcf4\ud655\uc778 Copyright \u00a92024 PPEUMCLINIC. All Rights Reserved",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 0.968,
+    "bgMedia": false
+   }
+  ],
+  "outline": [],
+  "hero": {
+   "h": 900,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 0.067,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 0.88,
+   "slides": 20,
+   "anchorCount": 16,
+   "ctas": [],
+   "text": "3 | 10 \uc2e4\uc2dc\uac04 \uac80\uc0c9 10 \ud53c\ucf54\ud1a0\ub2dd 1\ud68c \uccb4\ud5d8\uac00 (\ud329 \ubbf8\ud3ec\ud568) 1 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 2 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc544\uc774 \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 3 \ub9ac\ud31f\ub808\uc774\uc800 5mm 4 \ud480\ud398\uc774\uc2a4 \uc140\ub974\ub514\uc5e0 1\ud68c (7cc) 5 [HOT] \uc2ac\ub9bc\ubc14\ub514\uc8fc\uc0ac 1\ud68c 6 \uc96c\ubca0\ub8e9 \ubcfc\ub968 1cc 1\ud68c \uccb4\ud5d8\uac00 7 \uace0\uc555\uc0b0\uc18c\ucf00\uc5b4(\uc544\uc774\ubca1\uc2a4) 60\ubd84 1\ud68c \uccb4\ud5d8\uac00 8 \uad6d\uc0b0 \ubc14\ub514\ubcf4\ud1a1\uc2a4 100U 1\ud68c \uccb4\ud5d8\uac00 9 [HOT] \uc791\uc740\uc5bc\uad74\uc8fc\uc0ac 1\ud68c 10 \ud53c\ucf54\ud1a0\ub2dd 1\ud68c \uccb4\ud5d8\uac00 (\ud329 \ubbf8\ud3ec\ud568) 1 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 \uc804\uccb4\ub7ad\ud0b9"
+  },
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "\"Pretendard Variable\", \"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": null,
+   "h2Size": null,
+   "bodySize": "10px",
+   "bodyWeight": "400",
+   "bodyLH": "normal",
+   "bigHeadPx": 14,
+   "bigHeadFam": "\"Pretendard Variable\", \"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "bigHeadWeight": "500",
+   "h1Count": 0,
+   "h2Sizes": [],
+   "h3Size": "16px",
+   "fontFaces": [
+    "Pretendard Variable",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "/common/homepage/css/pretendardvariable.css"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 3,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 28
+  },
+  "pageTextLen": 515,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwAbout": true,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 2,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "phoneKR": null,
+   "statLike": [
+    "1\ud68c "
+   ]
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.952,
+   "darkFrac": 0.01,
+   "lightFrac": 0.975
+  },
+  {
+   "i": 1,
+   "mean": 0.931,
+   "darkFrac": 0.005,
+   "lightFrac": 0.954
+  }
+ ],
+ "heroLum": {
+  "mean": 0.953,
+  "darkFrac": 0.01,
+  "lightFrac": 0.976
+ },
+ "heroLumBelowNav": {
+  "mean": 0.948,
+  "darkFrac": 0.011,
+  "lightFrac": 0.973
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 56,
+   "left": 435,
+   "w": 570,
+   "h": 56,
+   "z": "10",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac80\uc0c9"
+    },
+    {
+     "href": "/basket",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uccb4\uba54\ub274"
+    }
+   ],
+   "label": "\uac80\uc0c9 \uc7a5\ubc14\uad6c\ub2c8 \uc804\uccb4\uba54\ub274",
+   "tag": "header",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 782,
+   "bottom": 833,
+   "left": 435,
+   "w": 570,
+   "h": 51,
+   "z": "auto",
+   "links": [],
+   "label": "\uc2e4\uc2dc\uac04 \uac80\uc0c9 10 \ud53c\ucf54\ud1a0\ub2dd 1\ud68c \uccb4\ud5d8\uac00 (\ud329 \ubbf8\ud3ec\ud568) 1 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 2 [\uc190\uc608\uc9c4 \ub9ac\ud504\ud305] \uc544\uc774 \uc6b8\ud2b8\ub77c\uc778 100\uc0f7 3 \ub9ac\ud31f\ub808\uc774\uc800 5mm 4 \ud480\ud398\uc774\uc2a4 \uc140\ub974\ub514\uc5e0 1\ud68c (7cc) 5 [HOT] \uc2ac\ub9bc\ubc14\ub514\uc8fc\uc0ac 1\ud68c 6 \uc96c\ubca0\ub8e9 \ubcfc\ub968 1cc",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1440,
+   "w": 1440,
+   "h": 900,
+   "z": "9999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "\uce74\ud1a1 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/mypage?type=2",
+     "label": ""
+    },
+    {
+     "href": "/mypage?type=3",
+     "label": ""
+    },
+    {
+     "href": "javascript:pvlCounselViewShowFun()",
+     "label": ""
+    },
+    {
+     "href": "/event",
+     "label": ""
+    },
+    {
+     "href": "/selectSurgery",
+     "label": ""
+    },
+    {
+     "href": "/about?type=3",
+     "label": ""
+    },
+    {
+     "href": "/about?type=1",
+     "label": ""
+    },
+    {
+     "href": "/about?type=2",
+     "label": ""
+    },
+    {
+     "href": "/notice",
+     "label": ""
+    }
+   ],
+   "label": "\uc804\uccb4 \uba54\ub274 \uce74\ud1a1 \uc0c1\ub2f4 \ubc14\ub85c \uc608\uc57d \uc77c\ubc18 \uc608\uc57d/PVL \uc608\uc57d \uc608\uc57d \ud655\uc778 / \ubcc0\uacbd/ \ucde8\uc18c \uc794\uc5ec \uc2dc\uc220 \uc870\ud68c / \uc608\uc57d PVL \uc608\uc57d\ud558\uae30 \uc774\ubca4\ud2b8 \u00b7 \uc2dc\uc220\uc608\uc57d \uc9c4\ud589 \uc911 \uc774\ubca4\ud2b8 \uc2dc\uc220\uc608\uc57d/\uac00\uaca9 \uc18c\uac1c \uc624\uc2dc\ub294 \uae38 / \uc9c4\ub8cc \uc2dc\uac04 \ub458\ub7ec\ubcf4\uae30 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uacf5\uc9c0\uc0ac\ud56d",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 833,
+   "bottom": 900,
+   "left": 435,
+   "w": 570,
+   "h": 67,
+   "z": "3",
+   "links": [
+    {
+     "href": "/selectSurgery",
+     "label": "\uc2dc\uc220\uc608\uc57d"
+    },
+    {
+     "href": "javascript:counselViewShowFun()",
+     "label": "\uc0c1\ub2f4"
+    },
+    {
+     "href": "/event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/about",
+     "label": "\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/mypage",
+     "label": "\ub9c8\uc774\ud398\uc774\uc9c0"
+    }
+   ],
+   "label": "\uc2dc\uc220\uc608\uc57d \uc0c1\ub2f4 \uc774\ubca4\ud2b8 \ubcd1\uc6d0 \uc18c\uac1c \ub9c8\uc774\ud398\uc774\uc9c0",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 56,
+   "left": 435,
+   "w": 570,
+   "h": 56,
+   "z": "10",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac80\uc0c9"
+    },
+    {
+     "href": "/basket",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uccb4\uba54\ub274"
+    }
+   ],
+   "label": "\uac80\uc0c9 \uc7a5\ubc14\uad6c\ub2c8 \uc804\uccb4\uba54\ub274",
+   "tag": "header",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1440,
+   "w": 1440,
+   "h": 900,
+   "z": "9999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "\uce74\ud1a1 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/mypage?type=2",
+     "label": ""
+    },
+    {
+     "href": "/mypage?type=3",
+     "label": ""
+    },
+    {
+     "href": "javascript:pvlCounselViewShowFun()",
+     "label": ""
+    },
+    {
+     "href": "/event",
+     "label": ""
+    },
+    {
+     "href": "/selectSurgery",
+     "label": ""
+    },
+    {
+     "href": "/about?type=3",
+     "label": ""
+    },
+    {
+     "href": "/about?type=1",
+     "label": ""
+    },
+    {
+     "href": "/about?type=2",
+     "label": ""
+    },
+    {
+     "href": "/notice",
+     "label": ""
+    }
+   ],
+   "label": "\uc804\uccb4 \uba54\ub274 \uce74\ud1a1 \uc0c1\ub2f4 \ubc14\ub85c \uc608\uc57d \uc77c\ubc18 \uc608\uc57d/PVL \uc608\uc57d \uc608\uc57d \ud655\uc778 / \ubcc0\uacbd/ \ucde8\uc18c \uc794\uc5ec \uc2dc\uc220 \uc870\ud68c / \uc608\uc57d PVL \uc608\uc57d\ud558\uae30 \uc774\ubca4\ud2b8 \u00b7 \uc2dc\uc220\uc608\uc57d \uc9c4\ud589 \uc911 \uc774\ubca4\ud2b8 \uc2dc\uc220\uc608\uc57d/\uac00\uaca9 \uc18c\uac1c \uc624\uc2dc\ub294 \uae38 / \uc9c4\ub8cc \uc2dc\uac04 \ub458\ub7ec\ubcf4\uae30 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uacf5\uc9c0\uc0ac\ud56d",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 833,
+   "bottom": 900,
+   "left": 435,
+   "w": 570,
+   "h": 67,
+   "z": "3",
+   "links": [
+    {
+     "href": "/selectSurgery",
+     "label": "\uc2dc\uc220\uc608\uc57d"
+    },
+    {
+     "href": "javascript:counselViewShowFun()",
+     "label": "\uc0c1\ub2f4"
+    },
+    {
+     "href": "/event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/about",
+     "label": "\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/mypage",
+     "label": "\ub9c8\uc774\ud398\uc774\uc9c0"
+    }
+   ],
+   "label": "\uc2dc\uc220\uc608\uc57d \uc0c1\ub2f4 \uc774\ubca4\ud2b8 \ubcd1\uc6d0 \uc18c\uac1c \ub9c8\uc774\ud398\uc774\uc9c0",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 1.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 56,
+   "left": 0,
+   "w": 390,
+   "h": 56,
+   "z": "10",
+   "links": [
+    {
+     "href": "",
+     "label": "\uac80\uc0c9"
+    },
+    {
+     "href": "/basket",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc7a5\ubc14\uad6c\ub2c8"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uccb4\uba54\ub274"
+    }
+   ],
+   "label": "\uac80\uc0c9 \uc7a5\ubc14\uad6c\ub2c8 \uc804\uccb4\uba54\ub274",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 390,
+   "w": 390,
+   "h": 844,
+   "z": "9999",
+   "links": [
+    {
+     "href": "tel:02-593-3344",
+     "label": "\uc804\ud654 \uc0c1\ub2f4"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "\uce74\ud1a1 \uc0c1\ub2f4"
+    },
+    {
+     "href": "/mypage?type=2",
+     "label": ""
+    },
+    {
+     "href": "/mypage?type=3",
+     "label": ""
+    },
+    {
+     "href": "javascript:pvlCounselViewShowFun()",
+     "label": ""
+    },
+    {
+     "href": "/event",
+     "label": ""
+    },
+    {
+     "href": "/selectSurgery",
+     "label": ""
+    },
+    {
+     "href": "/about?type=3",
+     "label": ""
+    },
+    {
+     "href": "/about?type=1",
+     "label": ""
+    },
+    {
+     "href": "/about?type=2",
+     "label": ""
+    },
+    {
+     "href": "/notice",
+     "label": ""
+    }
+   ],
+   "label": "\uc804\uccb4 \uba54\ub274 \uc804\ud654 \uc0c1\ub2f4 \uce74\ud1a1 \uc0c1\ub2f4 \ubc14\ub85c \uc608\uc57d \uc77c\ubc18 \uc608\uc57d/PVL \uc608\uc57d \uc608\uc57d \ud655\uc778 / \ubcc0\uacbd/ \ucde8\uc18c \uc794\uc5ec \uc2dc\uc220 \uc870\ud68c / \uc608\uc57d PVL \uc608\uc57d\ud558\uae30 \uc774\ubca4\ud2b8 \u00b7 \uc2dc\uc220\uc608\uc57d \uc9c4\ud589 \uc911 \uc774\ubca4\ud2b8 \uc2dc\uc220\uc608\uc57d/\uac00\uaca9 \uc18c\uac1c \uc624\uc2dc\ub294 \uae38 / \uc9c4\ub8cc \uc2dc\uac04 \ub458\ub7ec\ubcf4\uae30 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uacf5\uc9c0\uc0ac\ud56d",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 777,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 67,
+   "z": "3",
+   "links": [
+    {
+     "href": "/selectSurgery",
+     "label": "\uc2dc\uc220\uc608\uc57d"
+    },
+    {
+     "href": "javascript:counselViewShowFun()",
+     "label": "\uc0c1\ub2f4"
+    },
+    {
+     "href": "/event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/about",
+     "label": "\ubcd1\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "/mypage",
+     "label": "\ub9c8\uc774\ud398\uc774\uc9c0"
+    }
+   ],
+   "label": "\uc2dc\uc220\uc608\uc57d \uc0c1\ub2f4 \uc774\ubca4\ud2b8 \ubcd1\uc6d0 \uc18c\uac1c \ub9c8\uc774\ud398\uc774\uc9c0",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

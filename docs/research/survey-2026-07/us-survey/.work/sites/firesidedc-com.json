@@ -1,0 +1,545 @@
+{
+ "url": "https://firesidedc.com",
+ "status": 200,
+ "finalUrl": "https://firesidedc.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 13892,
+  "screens": 15.4,
+  "sectionParentTag": "div",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 0,
+    "h": 4481,
+    "chars": 1104,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 6,
+    "bgKey": "20,20,20",
+    "bgLum": 0.94,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 4481,
+    "h": 1250,
+    "chars": 85,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "19,19,18",
+    "bgLum": 0.88,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 5731,
+    "h": 717,
+    "chars": 315,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,19,19",
+    "bgLum": 0.905,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 6448,
+    "h": 3544,
+    "chars": 577,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 3,
+    "bgKey": "19,19,18",
+    "bgLum": 0.88,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 9992,
+    "h": 734,
+    "chars": 386,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "20,20,20",
+    "bgLum": 0.94,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 10725,
+    "h": 1134,
+    "chars": 248,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 3,
+    "bgKey": "20,20,20",
+    "bgLum": 0.94,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 11859,
+    "h": 687,
+    "chars": 878,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.94,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "section",
+    "absTop": 12547,
+    "h": 900,
+    "chars": 50,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "19,19,18",
+    "bgLum": 0.88,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 12547,
+    "h": 1345,
+    "chars": 101,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "3,3,3",
+    "bgLum": 0.137,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 4481,
+   "bgLum": 0.94,
+   "bgMedia": false,
+   "textLum": 0.137,
+   "mediaKind": "video",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 0.86,
+   "mediaCoverH": 0.71,
+   "slides": 0,
+   "anchorCount": 3,
+   "ctas": [],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": null,
+   "h2": "Ivyprestoheadline, sans-serif",
+   "body": "Intertight, sans-serif",
+   "h1Weight": null,
+   "h1Size": null,
+   "bodySize": "20.16px",
+   "fontFaces": [
+    "webflow-icons",
+    "Ivyprestoheadline",
+    "Intertight"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 2,
+   "webflowIx": 24,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 90)"
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 135)"
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 24.25)"
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 521.992)"
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 521.992)"
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -49.3812)"
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -49.3812)"
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   }
+  ],
+  "pageTextLen": 3794,
+  "features": {
+   "videoTag": 5,
+   "videoEmbed": 3,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 4,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 1,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwImplant": false,
+   "kwCosmetic": false,
+   "kwUSState": null,
+   "phoneUS": null,
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.8,
+   "darkFrac": 0.084,
+   "lightFrac": 0.818
+  },
+  {
+   "i": 1,
+   "mean": 0.852,
+   "darkFrac": 0.079,
+   "lightFrac": 0.882
+  },
+  {
+   "i": 2,
+   "mean": 0.905,
+   "darkFrac": 0.003,
+   "lightFrac": 0.994
+  },
+  {
+   "i": 3,
+   "mean": 0.895,
+   "darkFrac": 0.028,
+   "lightFrac": 0.954
+  },
+  {
+   "i": 4,
+   "mean": 0.754,
+   "darkFrac": 0.221,
+   "lightFrac": 0.729
+  },
+  {
+   "i": 5,
+   "mean": 0.699,
+   "darkFrac": 0.197,
+   "lightFrac": 0.639
+  },
+  {
+   "i": 6,
+   "mean": 0.697,
+   "darkFrac": 0.175,
+   "lightFrac": 0.701
+  },
+  {
+   "i": 7,
+   "mean": 0.929,
+   "darkFrac": 0.012,
+   "lightFrac": 0.976
+  },
+  {
+   "i": 8,
+   "mean": 0.93,
+   "darkFrac": 0.012,
+   "lightFrac": 0.976
+  }
+ ],
+ "heroLum": {
+  "mean": 0.775,
+  "darkFrac": 0.116,
+  "lightFrac": 0.756
+ },
+ "heroLumBelowNav": {
+  "mean": 0.759,
+  "darkFrac": 0.132,
+  "lightFrac": 0.731
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 96,
+   "left": 0,
+   "w": 1440,
+   "h": 96,
+   "z": "99",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about-us",
+     "label": "<removed>"
+    },
+    {
+     "href": "/blog",
+     "label": "<removed>"
+    },
+    {
+     "href": "http://46655537.hs-sites.com/membership-trial",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 49.3724)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 49.3724)"
+  },
+  {
+   "id": 7,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 9,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 96,
+   "left": 0,
+   "w": 1440,
+   "h": 96,
+   "z": "99",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about-us",
+     "label": "<removed>"
+    },
+    {
+     "href": "/blog",
+     "label": "<removed>"
+    },
+    {
+     "href": "http://46655537.hs-sites.com/membership-trial",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 900,
+   "left": 206,
+   "w": 1029,
+   "h": 900,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 17,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 77,
+   "left": 0,
+   "w": 390,
+   "h": 77,
+   "z": "99",
+   "links": [
+    {
+     "href": "/old-home",
+     "label": "<removed>"
+    },
+    {
+     "href": "http://46655537.hs-sites.com/membership-trial",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about-us",
+     "label": "<removed>"
+    },
+    {
+     "href": "/blog",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 844,
+   "left": 16,
+   "w": 358,
+   "h": 844,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

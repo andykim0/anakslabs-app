@@ -1,0 +1,157 @@
+{
+ "url": "https://docmac.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "bg-image",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 0.75
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 231,
+    "h": 28,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 75,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 96,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 187,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 232,
+    "h": 48,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Roboto, sans-serif",
+   "bodyFam": "\"open sans\", sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 20,
+    "hgt": 106
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 15,
+    "hgt": 107
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 103,
+    "h": 675,
+    "tag": "section",
+    "chars": 84,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 779,
+    "h": 1580,
+    "tag": "section",
+    "chars": 2787,
+    "imgs": 5,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2359,
+    "h": 829,
+    "tag": "section",
+    "chars": 2886,
+    "imgs": 12,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3188,
+    "h": 281,
+    "tag": "section",
+    "chars": 58,
+    "imgs": 5,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3469,
+    "h": 1193,
+    "tag": "section",
+    "chars": 2265,
+    "imgs": 15,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4662,
+    "h": 525,
+    "tag": "section",
+    "chars": 228,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5187,
+    "h": 556,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5743,
+    "h": 434,
+    "tag": "div",
+    "chars": 550,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

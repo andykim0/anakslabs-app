@@ -1,0 +1,27 @@
+--- http://smileface.dental/
+   ok screens=19.3 secs=20 heroLum=0.387
+   SAVED sites/http-smileface-dental.json
+--- http://www.deesse.co.kr
+   ok screens=6.8 secs=9 heroLum=0.689
+   SAVED sites/http-deesse-co-kr.json
+--- http://www.vennskincare.co.kr/
+   ok screens=6.3 secs=12 heroLum=0.199
+   SAVED sites/http-vennskincare-co-kr.json
+--- http://www.startps.com/
+   ok screens=8.9 secs=14 heroLum=0.558
+   SAVED sites/http-startps-com.json
+--- http://www.medicubesignature.com
+   ERROR: Error: Page.goto: net::ERR_TOO_MANY_REDIRECTS at http://www.medicubesignature.com/
+Call log:
+  - navigating to "http://www.medicubesignature.com/", waiting until "domcontentloaded"
+   SAVED sites/http-medicubesignature-com.json
+--- http://www.sdule.co.kr/
+   ok screens=7.3 secs=9 heroLum=0.766
+   SAVED sites/http-sdule-co-kr.json
+--- http://www.erumeye.co.kr/
+   ok screens=7.1 secs=8 heroLum=0.488
+   SAVED sites/http-erumeye-co-kr.json
+--- http://www.yjain.co.kr/
+   ok screens=7.9 secs=10 heroLum=0.843
+   SAVED sites/http-yjain-co-kr.json
+BATCH-DONE

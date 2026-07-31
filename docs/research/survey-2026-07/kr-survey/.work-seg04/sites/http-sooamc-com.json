@@ -1,0 +1,1875 @@
+{
+ "url": "http://www.sooamc.com/",
+ "status": 200,
+ "finalUrl": "https://www.sooamc.com/",
+ "title": "24\uc2dc\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 10800,
+  "screens": 12,
+  "sectionParentTag": "main",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 116,
+    "headings": [
+     "MRI\u00b7CT\ub97c \uac16\ucd98 \ucca8\ub2e8\uc758\ub8cc\uc13c\ud130"
+    ],
+    "keyText": "500\ud3c9 \uaddc\ubaa8\ub85c \ucc28\ubcc4\ud654\ub41c \uc9c4\ub8cc\ud658\uacbd MRI\u00b7CT\ub97c \uac16\ucd98 \ucca8\ub2e8\uc758\ub8cc\uc13c\ud130 \ud56d\uc554\uce58\ub8cc / RFA \uad6d\ub0b4\ucd5c\ub2e4\uc2dc\uc220 \uc678\uacfc \uc218\uc220\uacbd\ub825 20\ub144\uc774\uc0c1 \uc18c\ub3d9\ubb3c\uc5d0 \ucd5c\uc801\ud654\ub41c \ud608\uc561\ud22c\uc11d\uae30 \ubcf4\uc720 \uc870\uae30\uc9c4\ub2e8 \ucd5c\uc801\ud654 \uac74\uac15\uac80\uc9c4\uc13c\ud130 \uc57d 60\uba85\uc758 \uc804\ubb38\uc758\ub8cc\uc9c4",
+    "media": 6,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 900,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1800,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2700,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 3600,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 4500,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 5400,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 6300,
+    "h": 900,
+    "chars": 12,
+    "headings": [],
+    "keyText": "MEDICAL TEAM",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 7200,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 8100,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 9000,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "div",
+    "absTop": 9900,
+    "h": 900,
+    "chars": 235,
+    "headings": [],
+    "keyText": "\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130\uc18c\uac1c \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc0ac\uc774\ud2b8\ub9f5 24\uc2dc\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 107-19-74275 \ub300\ud45c\uc790 : \ubc15\uc218\ud615, \uc6d0\uc218\ubcf5, \uae40\ub3d9\ube48, \uc2e0\uacbd\uc778 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc601\ub4f1\ud3ec\uad6c \uc601\ub4f1\ud3ec\ub85c 85-1, \uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 02-2676-7582 02-2676-2475 sooamc@sooamc.com \u00a9 SOO ANIMAL MEDICAL CENTER. ALL RIGHTS RESERVED. Designed By Threeway",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 17,
+    "tag": "h1",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 900,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "iframe",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1.11,
+   "mediaCoverH": 1.44,
+   "slides": 0,
+   "anchorCount": 1,
+   "ctas": [],
+   "text": "500\ud3c9 \uaddc\ubaa8\ub85c \ucc28\ubcc4\ud654\ub41c \uc9c4\ub8cc\ud658\uacbd MRI\u00b7CT\ub97c \uac16\ucd98 \ucca8\ub2e8\uc758\ub8cc\uc13c\ud130 \ud56d\uc554\uce58\ub8cc / RFA \uad6d\ub0b4\ucd5c\ub2e4\uc2dc\uc220 \uc678\uacfc \uc218\uc220\uacbd\ub825 20\ub144\uc774\uc0c1 \uc18c\ub3d9\ubb3c\uc5d0 \ucd5c\uc801\ud654\ub41c \ud608\uc561\ud22c\uc11d\uae30 \ubcf4\uc720 \uc870\uae30\uc9c4\ub2e8 \ucd5c\uc801\ud654 \uac74\uac15\uac80\uc9c4\uc13c\ud130 \uc57d 60\uba85\uc758 \uc804\ubb38\uc758\ub8cc\uc9c4"
+  },
+  "type": {
+   "h1": "Pretendard, Outfit, \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "h2": "Pretendard, Outfit, \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "body": "Outfit, Pretendard, \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "h1Weight": "700",
+   "h1Size": "36px",
+   "h2Weight": "700",
+   "h2Size": "27px",
+   "bodySize": "14.994px",
+   "bodyWeight": "400",
+   "bodyLH": "27.8888px",
+   "bigHeadPx": 69.984,
+   "bigHeadFam": "Pretendard, Outfit, \"Malgun Gothic\", \"Malgun Gothic\", sans-serif",
+   "bigHeadWeight": "600",
+   "h1Count": 1,
+   "h2Sizes": [],
+   "h3Size": "69.984px",
+   "fontFaces": [
+    "Material Symbols Outlined",
+    "Pretendard",
+    "Outfit",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20."
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": true,
+   "scrollTrigger": true,
+   "swiperCount": 0,
+   "slick": 4,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 94
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 17,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 21,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 27,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)",
+    "td": "3s",
+    "tf": "ease-in-out",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 32,
+    "op": 1,
+    "tr": "matrix(-1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 33,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "0.8s",
+    "tf": "ease-in-out",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 34,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 35,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -120)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 36,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 37,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 38,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 39,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 40,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -330, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 41,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -120)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 42,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 43,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 44,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 45,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 46,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -330, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 47,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -120)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 48,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 49,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 51,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 52,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -330, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 53,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -120)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 54,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 55,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 56,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "td": "0.8s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 57,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 58,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -330, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 59,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -120)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [
+    "400"
+   ],
+   "aosEase": [
+    "ease"
+   ]
+  },
+  "pageTextLen": 632,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 2,
+   "formCount": 0,
+   "inputCount": 1,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 4,
+   "bookingWidget": 0,
+   "reviewWidgets": 2,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwTrust": false,
+   "kwVideo": true,
+   "phoneKR": "02-2676-7582",
+   "statLike": [
+    "20\ub144\uc774\uc0c1",
+    "60\uba85"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.395,
+   "darkFrac": 0.486,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 1,
+   "mean": 0.399,
+   "darkFrac": 0.311,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 2,
+   "mean": 0.398,
+   "darkFrac": 0.311,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 3,
+   "mean": 0.399,
+   "darkFrac": 0.308,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 4,
+   "mean": 0.381,
+   "darkFrac": 0.636,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 5,
+   "mean": 0.389,
+   "darkFrac": 0.582,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 6,
+   "mean": 0.393,
+   "darkFrac": 0.491,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 7,
+   "mean": 0.39,
+   "darkFrac": 0.532,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 8,
+   "mean": 0.381,
+   "darkFrac": 0.593,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 9,
+   "mean": 0.367,
+   "darkFrac": 0.673,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 10,
+   "mean": 0.36,
+   "darkFrac": 0.728,
+   "lightFrac": 0.158
+  },
+  {
+   "i": 11,
+   "mean": 0.35,
+   "darkFrac": 0.796,
+   "lightFrac": 0.158
+  }
+ ],
+ "heroLum": {
+  "mean": 0.342,
+  "darkFrac": 0.691,
+  "lightFrac": 0.154
+ },
+ "heroLumBelowNav": {
+  "mean": 0.346,
+  "darkFrac": 0.659,
+  "lightFrac": 0.169
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 95,
+   "left": 0,
+   "w": 1440,
+   "h": 95,
+   "z": "999999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "/about/team.php",
+     "label": "\uc804\ubb38\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/hospital.php?ptype=list&code=hospital_new&category=56",
+     "label": "\ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "/about/equip.php?ptype=list&code=main_equip&category=47",
+     "label": "\uc758\ub8cc\uc7a5\ube44 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/welfare.php?ptype=list&code=welfare_new&category=58",
+     "label": "\uc9c1\uc6d0\ubcf5\uc9c0\uc548\ub0b4"
+    },
+    {
+     "href": "/about/location.php",
+     "label": "\ucc3e\uc544\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "/about/cost.php",
+     "label": "\uc9c4\ub8cc\ube44\uc6a9\uac8c\uc2dc"
+    },
+    {
+     "href": "/center/anticancer.php",
+     "label": "\ud2b9\ud654\uc9c4\ub8cc\uc13c\ud130"
+    },
+    {
+     "href": "/center/anticancer.php",
+     "label": "\uc885\uc591"
+    },
+    {
+     "href": "/center/rfa.php",
+     "label": "RFA"
+    }
+   ],
+   "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0 2\ucc28\uc9c4\ub8cc\uc758\ub8b0 \uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 \ubcd1\uc6d0\uc18c\uac1c \uc804\ubb38\uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30 \uc758\ub8cc\uc7a5\ube44 \uc18c\uac1c \uc9c1\uc6d0\ubcf5\uc9c0\uc548\ub0b4 \ucc3e\uc544\uc624\uc2dc\ub294 \uae38 \uc9c4\ub8cc\ube44\uc6a9\uac8c\uc2dc \ud2b9\ud654\uc9c4\ub8cc\uc13c\ud130 \uc885\uc591 RFA ECT \ud608\uc561\ud22c\uc11d \uc815\ud615\uc2e0\uacbd\uc13c\ud130 \uc2ac\uac1c\uace8 \ud0c8\uad6c \ucd5c\uc18c\uce68\uc2b5\uc13c\ud130 \ube44\ub1e8\uc0dd\uc2dd\uae30\uc678\uacfc \uac74\uac15\uac80\uc9c4\uc13c\ud130 MRI\u318dCT ",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 226,
+   "bottom": 674,
+   "left": 1305,
+   "w": 135,
+   "h": 449,
+   "z": "990",
+   "links": [
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/about/team.php",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "/about/location.php",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "https://blog.naver.com/sooamc",
+     "label": "\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCaCLH4hOA-xwWWzWv0j2Nog/videos",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "https://www.instagram.com/24soo_amc",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    }
+   ],
+   "label": "QUICK 2\ucc28\uc9c4\ub8cc\uc758\ub8b0 \uc758\ub8cc\uc9c4\uc18c\uac1c \uc624\uc2dc\ub294 \uae38 \ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uc778\uc2a4\ud0c0\uadf8\ub7a8",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 3,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 6,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 7,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 8,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 9,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 12,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 13,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -100, 0)"
+  },
+  {
+   "id": 14,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 15,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -100, 0)"
+  },
+  {
+   "id": 16,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 18,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 19,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 20,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 22,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 23,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 24,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 25,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 27,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 28,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 29,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 100, 0)"
+  },
+  {
+   "id": 30,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1.2, 0, 0, 1.2, 0, 0)"
+  },
+  {
+   "id": 32,
+   "op": 1,
+   "tr": "matrix(-1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 33,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 100)"
+  },
+  {
+   "id": 34,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -120)"
+  },
+  {
+   "id": 36,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 38,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 39,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 40,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -330, 0)"
+  },
+  {
+   "id": 41,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -120)"
+  },
+  {
+   "id": 42,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 43,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 44,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 45,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 46,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -330, 0)"
+  },
+  {
+   "id": 47,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -120)"
+  },
+  {
+   "id": 48,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 49,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 50,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 51,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 52,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -330, 0)"
+  },
+  {
+   "id": 53,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -120)"
+  },
+  {
+   "id": 54,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 55,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 56,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 50)"
+  },
+  {
+   "id": 57,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 58,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -330, 0)"
+  },
+  {
+   "id": 59,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -120)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 95,
+   "left": 0,
+   "w": 1440,
+   "h": 95,
+   "z": "999999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    },
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130"
+    },
+    {
+     "href": "/about/about.php",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "/about/team.php",
+     "label": "\uc804\ubb38\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/hospital.php?ptype=list&code=hospital_new&category=56",
+     "label": "\ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "/about/equip.php?ptype=list&code=main_equip&category=47",
+     "label": "\uc758\ub8cc\uc7a5\ube44 \uc18c\uac1c"
+    },
+    {
+     "href": "/about/welfare.php?ptype=list&code=welfare_new&category=58",
+     "label": "\uc9c1\uc6d0\ubcf5\uc9c0\uc548\ub0b4"
+    },
+    {
+     "href": "/about/location.php",
+     "label": "\ucc3e\uc544\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "/about/cost.php",
+     "label": "\uc9c4\ub8cc\ube44\uc6a9\uac8c\uc2dc"
+    },
+    {
+     "href": "/center/anticancer.php",
+     "label": "\ud2b9\ud654\uc9c4\ub8cc\uc13c\ud130"
+    },
+    {
+     "href": "/center/anticancer.php",
+     "label": "\uc885\uc591"
+    },
+    {
+     "href": "/center/rfa.php",
+     "label": "RFA"
+    }
+   ],
+   "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0 2\ucc28\uc9c4\ub8cc\uc758\ub8b0 \uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 \ubcd1\uc6d0\uc18c\uac1c \uc804\ubb38\uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30 \uc758\ub8cc\uc7a5\ube44 \uc18c\uac1c \uc9c1\uc6d0\ubcf5\uc9c0\uc548\ub0b4 \ucc3e\uc544\uc624\uc2dc\ub294 \uae38 \uc9c4\ub8cc\ube44\uc6a9\uac8c\uc2dc \ud2b9\ud654\uc9c4\ub8cc\uc13c\ud130 \uc885\uc591 RFA ECT \ud608\uc561\ud22c\uc11d \uc815\ud615\uc2e0\uacbd\uc13c\ud130 \uc2ac\uac1c\uace8 \ud0c8\uad6c \ucd5c\uc18c\uce68\uc2b5\uc13c\ud130 \ube44\ub1e8\uc0dd\uc2dd\uae30\uc678\uacfc \uac74\uac15\uac80\uc9c4\uc13c\ud130 MRI\u318dCT ",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 226,
+   "bottom": 674,
+   "left": 1305,
+   "w": 135,
+   "h": 449,
+   "z": "990",
+   "links": [
+    {
+     "href": "/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/about/team.php",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "/about/location.php",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "https://blog.naver.com/sooamc",
+     "label": "\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCaCLH4hOA-xwWWzWv0j2Nog/videos",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "https://www.instagram.com/24soo_amc",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    }
+   ],
+   "label": "QUICK 2\ucc28\uc9c4\ub8cc\uc758\ub8b0 \uc758\ub8cc\uc9c4\uc18c\uac1c \uc624\uc2dc\ub294 \uae38 \ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uc778\uc2a4\ud0c0\uadf8\ub7a8",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 12.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -80,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 80,
+   "z": "999999",
+   "links": [
+    {
+     "href": "/m/",
+     "label": ""
+    },
+    {
+     "href": "javascript:;",
+     "label": "\uac80\uc0c9search"
+    },
+    {
+     "href": "javascript:;",
+     "label": "\uba54\ub274menu"
+    }
+   ],
+   "label": "\uac80\uc0c9search \uba54\ub274menu",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 452,
+   "bottom": 802,
+   "left": 350,
+   "w": 100,
+   "h": 350,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/m/request/request.php",
+     "label": "2\ucc28\uc9c4\ub8cc\uc758\ub8b0"
+    },
+    {
+     "href": "/m/about/team.php",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "/m/about/location.php",
+     "label": "\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "https://blog.naver.com/sooamc",
+     "label": "\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCaCLH4hOA-xwWWzWv0j2Nog/videos",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "https://www.instagram.com/24soo_amc",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    }
+   ],
+   "label": "QUICK 2\ucc28\uc9c4\ub8cc\uc758\ub8b0 \uc758\ub8cc\uc9c4\uc18c\uac1c \uc624\uc2dc\ub294 \uae38 \ube14\ub85c\uadf8 \uc720\ud29c\ube0c \uc778\uc2a4\ud0c0\uadf8\ub7a8",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

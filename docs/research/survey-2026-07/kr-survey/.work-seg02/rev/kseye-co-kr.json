@@ -1,0 +1,15 @@
+{
+ "url": "https://www.kseye.co.kr/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   }
+  },
+  "els": []
+ }
+}

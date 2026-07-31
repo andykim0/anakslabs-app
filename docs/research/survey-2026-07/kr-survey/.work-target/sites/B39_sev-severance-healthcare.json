@@ -1,0 +1,366 @@
+{
+ "sample_id": "B39",
+ "name": "세브란스병원",
+ "url": "https://sev.severance.healthcare/",
+ "stratum": "academic-control",
+ "status": 200,
+ "finalUrl": "https://sev.severance.healthcare/sev/index.do",
+ "title": "세브란스병원 | 연세대학교 의과대학",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 2700,
+  "screens": 3,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 215,
+    "h": 500,
+    "chars": 64,
+    "headings": [],
+    "keyText": "세브란스병원 세계 최초 로봇수술 '5만례' 24시간 멈춤 없는 안심병동 입원 환자 실시간 모니터링 '프리즘' 1 2",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 715,
+    "h": 766,
+    "chars": 1495,
+    "headings": [],
+    "keyText": "바로가기 연세암병원 심장혈관병원 어린이병원 안과병원 재활병원 첫방문 간편예약 온라인 진료 예약 진료과 찾기 온라인 발급 서비스 건강검진 안내 비자신체검사 진료협력 주요 콘텐츠 공감Story Previous 의료진 이야기 정교한 수술로 신체 결손 채우고 자신감 되찾아주는 홍종원 교수 의료진 이야기 개인의 질병 넘어 가족 모두의 삶 바라보는 이주한 교수 의료진 이야기 췌장암 환자의 편에서 미더운 손 내밀며 끈질기게 췌장암 연구하는 방승민 교수 의료진 이야기 도전정신과 정교한 수술로 생명의 새 길 여는 주동진 교수 의료진 이야기 천의 얼굴 가진 파킨슨병의 면면 밝히는 임상과 연구의 세계적 권위자 이필휴 교수 의료진 이야기 정교한 수술로 신체 결손 채우고 자신감 되찾아주는 홍종원 교수 의료진 이야기 개인의 질병 넘어 가족 모두의 삶 바라보는 이주한 교수 의료진 이야기 췌장암 환자의 편에서 미더운 손 내밀며 끈질기게 췌장암 연구하는 방승민 교수 의료진 이야기 도전정신과 정교한 수술로 생명의 ",
+    "media": 17,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1481,
+    "h": 391,
+    "chars": 1168,
+    "headings": [
+     "NEWS 더보기"
+    ],
+    "keyText": "NEWS 더보기 고객여러분께 가장 빠른 소식을 제공해 드리겠습니다. Previous 언론 보도 [연합뉴스] 세브란스병원, 자립준비 여성 청년 120명에 HPV 백신 접종 지원 2026-07-30 메디컬 리포트 [세브란스병원] 렘수면행동장애 2026-07-29 메디컬 리포트 [세브란스병원] 수면무호흡증 2026-07-29 메디컬 리포트 [세브란스병원] 알레르기 비염 2026-07-31 언론 보도 [KBS] 폭염에 피부 건강도 적신호…자외선 막으려면? 2026-07-31 언론 보도 [뉴스1] \"뇌동맥류 수술 후 회복 증진 프로그램 적용 시 회복 빨라\" 2026-07-31 메디컬 리포트 [세브란스병원] 근막통증증후군 2026-07-30 보도 자료 [세브란스병원] 뇌동맥류 수술 후, 회복 증진 프로그램(ERAS) 적용 시 회복 빨라 2026-07-30 언론 보도 [TV조선] 마운자로 처방 10달만에 150만건 돌파…'오남용 우려' 지정 검토 2026-07-30 언론 보도 [KBS] “나도 ",
+    "media": 3,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1872,
+    "h": 614,
+    "chars": 20,
+    "headings": [],
+    "keyText": "홍보배너 1 2 3 4 5 6 7 8",
+    "media": 17,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "footer",
+    "absTop": 2486,
+    "h": 214,
+    "chars": 176,
+    "headings": [],
+    "keyText": "챗봇 세브란스병원 치과대학병원 강남세브란스병원 용인세브란스병원 네이버 블로그 유튜브 인스타그램 페이스북 X 연세의료원 네트워크 이용약관 개인정보처리방침 고객의 소리 병원소개 03722 서울특별시 서대문구 연세로 50-1 COPYRIGHT(C) SEVERANCE HOSPITAL. ALL RIGHTS RESERVED.",
+    "media": 7,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 1581,
+    "tag": "h3",
+    "t": "NEWS 더보기"
+   }
+  ],
+  "type": {
+   "h1Px": 16,
+   "h2Px": 0,
+   "bodyPx": 16,
+   "h1Fam": "-apple-system, \"system-ui\", NanumGothic, malgungothic, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+   "bodyFam": "NanumGothic, malgungothic, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+   "h1Weight": "700",
+   "h1TextLen": 0,
+   "h2TextLen": 3,
+   "headingTotal": 2,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 40,
+   "imgInFirstScreen": 2
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 0,
+   "slick": 5,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 74
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -514, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -514, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -981, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -518, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "콘텐츠 바로가기",
+   "주메뉴 바로가기",
+   "푸터 바로가기",
+   "EN",
+   "JP",
+   "CN",
+   "RU",
+   "AR",
+   "환자/보호자",
+   "예약",
+   "진료 예약",
+   "처음 오신 분 빠른예약",
+   "예약 안내",
+   "진료 시간표",
+   "온라인 예약",
+   "건강검진(헬스체크업)",
+   "헬스체크업 안내",
+   "헬스체크업 자주묻는질문",
+   "비자신체검사",
+   "비자신체검사 예약",
+   "비자신체검사 자주묻는질문",
+   "예약 현황",
+   "결과",
+   "내원일자",
+   "약처방정보",
+   "검진결과",
+   "입퇴원내역",
+   "검사결과",
+   "증명서 및 의무기록",
+   "의무기록사본 및 영상자료 (CD/DVD) 발급",
+   "발급 절차",
+   "신청자별 구비서류",
+   "발급 비용",
+   "Q & A",
+   "제증명서 및 진단서 발급",
+   "종류",
+   "온라인 발급 서비스",
+   "서식 다운로드",
+   "이용안내",
+   "주요전화번호",
+   "WI-FI접속인증방법",
+   "병원시설 안내",
+   "층별 시설",
+   "편의 시설",
+   "병원 내 길찾기",
+   "진료안내",
+   "외래이용안내",
+   "대리처방안내",
+   "진료비 수납 및 환불",
+   "Hi-Pass (진료비 후불서비스)",
+   "약처방 방법",
+   "비급여진료비",
+   "응급진료안내",
+   "병원생활 안내",
+   "입퇴원절차",
+   "입원생활",
+   "면회",
+   "퇴원환자서비스",
+   "중환자실 이용안내",
+   "수술실 이용안내"
+  ],
+  "pageTextLen": 3063,
+  "kw": {
+   "원장": 0,
+   "전문의": 0,
+   "의료진": 11,
+   "교수": 11,
+   "센터": 0,
+   "지점": 1,
+   "병원": 26,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 5,
+   "이벤트": 0,
+   "비급여": 0,
+   "오시는길": 0
+  },
+  "deptHits": [
+   "검진",
+   "혈관",
+   "안과",
+   "치과"
+  ],
+  "providerUrl": "https://sev.severance.healthcare/sev/story/doctor.do",
+  "centerUrl": null
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -771, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -771, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -981, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -777, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 895,
+  "imgs": 15,
+  "title": "의료진 이야기 | 세브란스병원",
+  "원장": 0,
+  "전문의": 0,
+  "교수": 12,
+  "nameTokens": 12,
+  "iframes": 1,
+  "url": "https://sev.severance.healthcare/sev/story/doctor.do",
+  "status": 200
+ }
+}

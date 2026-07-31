@@ -1,0 +1,4 @@
+{
+ "url": "http://www.gangnamhifu.com/",
+ "error": "Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gangnamhifu.com/\nCall log:\n  - navigating to \"http://www.gangnamhifu.com/\", waiting until \"domcontentloaded\"\n"
+}

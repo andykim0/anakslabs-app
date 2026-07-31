@@ -1,0 +1,104 @@
+{
+ "url": "http://www.lamar180.com/",
+ "status": 200,
+ "finalUrl": "http://www.petit-party.com/",
+ "title": "403 Forbidden",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 900,
+  "screens": 1,
+  "sectionParentTag": "body",
+  "sections": [],
+  "outline": [
+   {
+    "y": 8,
+    "tag": "h1",
+    "t": "Forbidden"
+   }
+  ],
+  "hero": null,
+  "type": {
+   "h1": "Times",
+   "h2": null,
+   "body": "Times",
+   "h1Weight": "700",
+   "h1Size": "32px",
+   "h2Size": null,
+   "h2Weight": null,
+   "bodyWeight": "400",
+   "bodySize": "16px",
+   "fontFaces": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "pageTextLen": 63,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kakaoLinks": 0,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "mapEmbed": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": false,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwNotice": false,
+   "kwPhoneKR": false,
+   "statLike": []
+  }
+ },
+ "sectionLum": [],
+ "heroLum": {
+  "mean": 0.998,
+  "darkFrac": 0.002,
+  "lightFrac": 0.998
+ },
+ "heroLumBelowNav": {
+  "mean": 1.0,
+  "darkFrac": 0.0,
+  "lightFrac": 1.0
+ },
+ "fixedTop": [],
+ "revealPost": [],
+ "fixedMid": [],
+ "mobileScreens": 1,
+ "mobileFixed": []
+}

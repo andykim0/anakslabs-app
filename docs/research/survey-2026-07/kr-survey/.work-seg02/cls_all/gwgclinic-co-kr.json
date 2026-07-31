@@ -1,0 +1,4 @@
+{
+ "url": "http://www.gwgclinic.co.kr/",
+ "error": "Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gwgclinic.co.kr/\nCall log:\n  - navigating to \"http://www.gwgclinic.co.kr/\", waiting until \"domcontentloaded\"\n"
+}

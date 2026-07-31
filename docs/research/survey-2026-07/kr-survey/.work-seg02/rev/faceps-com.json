@@ -1,0 +1,468 @@
+{
+ "url": "https://www.faceps.com/",
+ "pre": [
+  {
+   "id": 0,
+   "vis": "hidden",
+   "op": 1,
+   "tr": null,
+   "an": "none",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "0.7s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "cls": "wow fadeInUpS",
+   "aos": null,
+   "aosD": null,
+   "aosE": null,
+   "aosDl": null
+  },
+  {
+   "id": 1,
+   "vis": "hidden",
+   "op": 1,
+   "tr": null,
+   "an": "none",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "1.1s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "cls": "wow fadeInUpS",
+   "aos": null,
+   "aosD": null,
+   "aosE": null,
+   "aosDl": null
+  },
+  {
+   "id": 2,
+   "vis": "hidden",
+   "op": 1,
+   "tr": null,
+   "an": "none",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "1.5s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "cls": "wow fadeInUpS",
+   "aos": null,
+   "aosD": null,
+   "aosE": null,
+   "aosDl": null
+  }
+ ],
+ "live": [
+  {
+   "id": 0,
+   "an": "fadeInUpS",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "0.7s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "op": 0.0628187,
+   "tr": "matrix(1, 0, 0, 1, 0, 93.7181)"
+  },
+  {
+   "id": 1,
+   "an": "fadeInUpS",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "1.1s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "op": 0.0449725,
+   "tr": "matrix(1, 0, 0, 1, 0, 95.5028)"
+  },
+  {
+   "id": 2,
+   "an": "fadeInUpS",
+   "ad": "1.2s",
+   "af": "ease",
+   "adl": "1.5s",
+   "td": "0s",
+   "tf": "ease",
+   "tp": "all",
+   "op": 0.0324316,
+   "tr": "matrix(1, 0, 0, 1, 0, 96.7568)"
+  }
+ ],
+ "post": {
+  "kf": {
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounce": {
+    "x": 0,
+    "y": 30,
+    "opFrom": null
+   },
+   "flash": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "pulse": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "rubberBand": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "shake": {
+    "x": 10,
+    "y": 0,
+    "opFrom": null
+   },
+   "swing": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "tada": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "wobble": {
+    "x": 25,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInDown": {
+    "x": 0,
+    "y": 3000,
+    "opFrom": 0
+   },
+   "bounceInLeft": {
+    "x": 3000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInRight": {
+    "x": 3000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInUp": {
+    "x": 0,
+    "y": 3000,
+    "opFrom": 0
+   },
+   "bounceOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutDown": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "bounceOutLeft": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutRight": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutUp": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "fadeIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   },
+   "fadeInDownBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 0
+   },
+   "fadeInLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInLeftBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInRightBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   },
+   "fadeInUpS": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   },
+   "fadeOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 1
+   },
+   "fadeOutDownBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 1
+   },
+   "fadeOutLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutLeftBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutRightBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 1
+   },
+   "fadeOutUpBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 1
+   },
+   "flip": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "flipInX": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "flipInY": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "flipOutX": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "flipOutY": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "lightSpeedIn": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "lightSpeedOut": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInDownLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInDownRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInUpLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInUpRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutDownLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutDownRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutUpLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutUpRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "hinge": {
+    "x": 0,
+    "y": 700,
+    "opFrom": null
+   },
+   "rollIn": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rollOut": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "zoomIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInDown": {
+    "x": 0,
+    "y": 1000,
+    "opFrom": 0
+   },
+   "zoomInLeft": {
+    "x": 1000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInRight": {
+    "x": 1000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInUp": {
+    "x": 0,
+    "y": 1000,
+    "opFrom": 0
+   },
+   "zoomOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "zoomOutDown": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "zoomOutLeft": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "zoomOutRight": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "zoomOutUp": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   }
+  },
+  "els": [
+   {
+    "id": 0,
+    "vis": "visible",
+    "op": 1,
+    "tr": null,
+    "an": "fadeInUpS",
+    "ad": "1.2s",
+    "af": "ease",
+    "adl": "0.7s"
+   },
+   {
+    "id": 1,
+    "vis": "visible",
+    "op": 1,
+    "tr": null,
+    "an": "fadeInUpS",
+    "ad": "1.2s",
+    "af": "ease",
+    "adl": "1.1s"
+   },
+   {
+    "id": 2,
+    "vis": "visible",
+    "op": 1,
+    "tr": null,
+    "an": "fadeInUpS",
+    "ad": "1.2s",
+    "af": "ease",
+    "adl": "1.5s"
+   }
+  ]
+ }
+}

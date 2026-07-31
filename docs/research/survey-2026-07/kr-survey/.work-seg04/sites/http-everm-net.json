@@ -1,0 +1,2167 @@
+{
+ "url": "http://www.everm.net",
+ "status": 200,
+ "finalUrl": "https://www.everm.net/",
+ "title": "\uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uce58\uacfc\uc758\uc6d0, \uc591\uc545\uc218\uc220, \uc724\uacfd\uc218\uc220, \ub3cc\ucd9c\uc785",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 8763,
+  "screens": 9.7,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 100,
+    "h": 635,
+    "chars": 63,
+    "headings": [],
+    "keyText": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 On Air EVERM \ube44\uc6a9\ubb38\uc758 \ube60\ub978\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uc624\uc2dc\ub294\uae38 \uce74\ud1a1\uc0c1\ub2f4 \uc0c1\ub2f4\ubb38\uc758 02.540.8275",
+    "media": 2,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 8763,
+    "chars": 4737,
+    "headings": [
+     "REAL SELFIE",
+     "ON TV. EVERM",
+     "REAL STORY",
+     "BEFORE AND AFTER",
+     "WHY EVERM"
+    ],
+    "keyText": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \uc5d0\ubc84\uc5e0 \uc18c\uac1c \u201c\uc5d0\ubc84\uc5e0\uc740 \uace0\uac1d\ub2d8\uc758 \uc5bc\uad74\ub9cc\uc744 \uc0dd\uac01\ud569\ub2c8\ub2e4\u201d \uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \ub300\ud45c\uc6d0\uc7a5 \uc778\uc0ac\ub9d0 \ubc0f \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc5f0\ud601 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uac01 \uacfc\ubcc4 \uc804\ubb38\uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4 \uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \ud1a0\ud0c8 \ucf00\uc5b4\ub97c \uc704\ud55c \uc5d0\ubc84\uc5e0 \ube4c\ub529\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4 \uc5d0\ubc84\uc5e0\uc2a4\ud398\uc15c\uc2dc\uc2a4\ud15c \uc548\uc804\uc744 \uc704\ud55c \ucd5c\ucca8\ub2e8 \uc2dc\uc2a4\ud15c\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4 \uc9c4\ub8cc\uc2dc\uac04 \ubc0f \uc624\uc2dc\ub294 \uae38 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uc9c4\ub8cc\uc2dc\uac04\uc744 \uc548\ub0b4\ud574\ub4dc\ub9bd\ub2c8\ub2e4 \uc591\uc545\uc218\uc220 \uc591\uc545\uc218\uc220 \ud48d\ubd80\ud55c \uc784\uc0c1\uacbd\ud5d8\uc73c\ub85c \uae30\ub2a5\uacfc \uc2ec\ubbf8\ub97c \ub3d9\uc2dc\uc5d0 \u201c\uc5d0\ubc84\uc5e0 \uc591\uc545\uc218\uc220\u201d 3D\ubcf5\ud569\uc548\uba74\ucd95\uc18c\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\ub9cc\uc758 3\ucc28\uc6d0 \uc5bc\uad74\ubf08 \ucd95\uc18c\uc220 EVERM \uc591\uc545\uc218\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc591\uc545\uc218\uc220\uc758 \ud2b9\uc9d5 \uc8fc\uac71\ud131 \ud074\ub9ac\ub2c9 SSRO\uc640 IVRO\uc218\uc220\uc774 \ubaa8\ub450 \uac00\ub2a5\ud55c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc548\uba74\ube44\ub300\uce6d \ud074\ub9ac\ub2c9 \uc5bc\uad74\uc758 \uc88c\uc6b0 \ubc38\ub7f0\uc2a4\ub97c \ub9de\ucdb0 \ub4dc\ub9bd\ub2c8\ub2e4 \ubb34\ud131 \ud074\ub9ac\ub2c9 \ud131\ub05d \ubcfc\ub968\uc744 \ub192\uc5ec\uc11c \uc138\ub828\ub41c \ud131\uc120\uc73c\ub85c \ub3cc\ucd9c\uc785 \ud074\ub9ac\ub2c9 \uc815\ud655\ud55c \uc9c4\ub2e8\uacfc \ubd84\uc11d\uc73c\ub85c \uac00\uc7a5 \ud6a8\uacfc\uc801\uc778 \ud574\ubc95 \uc81c\uacf5 \uae34 \uc5bc\uad74 \ud074\ub9ac\ub2c9 \uc5bc\uad74\uc758 \ud669\uae08\ube44\uc728\uc744 \ub9cc\ub4dc\ub294 \uae34\uc5bc\uad74 \uc218\uc220 \uc218\uc220 \uc804\ud6c4\ucf00\uc5b4 \ube60\ub978 \ud68c\ubcf5\uacfc \uc77c\uc0c1\uc0dd\ud65c \ubcf5\uadc0\ub97c \uc704\ud55c \ucf00\uc5b4 \uc2dc\uc2a4\ud15c \uc548\uba74\uc724\uacfd \uc548\uba74\uc724\uacfd \uc791\uace0 \ubd80\ub4dc\ub7ec\uc6b4 \uc5bc\uad74\ub77c\uc778\uc744 \uc704\ud55c \u201c\uc5d0\ubc84\uc5e0 \uc548\uba74\uc724\uacfd\u201d V\ub77c\uc778 \ud074\ub9ac\ub2c9 \uc2ac\ub9bc\ud558\uace0 \uac38\ub984\ud55c \uc5bc\uad74\ub77c\uc778\uc744 \uc704\ud55c V\ub77c\uc778\uc218\uc220 \uc0ac\uac01\ud131 \ud074\ub9ac\ub2c9 \uc774\ucc28\uac01 \uc5c6\uc774 \ub9e4\ub048\ud558\uac8c! \uc0ac\uac01\ud131\uc218\uc220 \ud131 \ub05d \ud074\ub9ac\ub2c9 \ud131\ub77c\uc778\uc758 \uc644\uc131! \ud131\ub05d\uc218\uc220 \uad11\ub300 \ud074\ub9ac\ub2c9 \ubd80\ub4dc\ub7ec\uc6b4 \uc5bc\uad74\uc744 \uc704\ud55c \uad11\ub300\ubf08\uc218\uc220 \uc218\uc220 \uc804\ud6c4\ucf00\uc5b4 \ube60\ub978 \ud68c\ubcf5\uacfc \uc77c\uc0c1\uc0dd\ud65c \ubcf5\uadc0\ub97c \uc704\ud55c \ucf00\uc5b4 \uc2dc\uc2a4\ud15c \ub3cc\ucd9c",
+    "media": 97,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 19,
+    "headings": [],
+    "keyText": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uc815\ubcf4 / \ud68c\uc6d0\uac00\uc785\ub85c\uadf8\uc544\uc6c3",
+    "media": 0,
+    "bgKey": "5,6,14",
+    "bgLum": 0.286,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 1020,
+    "tag": "h2",
+    "t": "REAL SELFIE"
+   },
+   {
+    "y": 2098,
+    "tag": "h2",
+    "t": "ON TV. EVERM"
+   },
+   {
+    "y": 2945,
+    "tag": "h2",
+    "t": "REAL STORY"
+   },
+   {
+    "y": 3816,
+    "tag": "h2",
+    "t": "BEFORE AND AFTER"
+   },
+   {
+    "y": 5147,
+    "tag": "h2",
+    "t": "WHY EVERM"
+   },
+   {
+    "y": 6340,
+    "tag": "h2",
+    "t": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   },
+   {
+    "y": 6340,
+    "tag": "h2",
+    "t": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   },
+   {
+    "y": 6340,
+    "tag": "h2",
+    "t": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   },
+   {
+    "y": 6340,
+    "tag": "h2",
+    "t": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   },
+   {
+    "y": 6340,
+    "tag": "h2",
+    "t": "EVERM ORAL MAXILLOFACIAL SURGERY\u00b7"
+   }
+  ],
+  "hero": {
+   "h": 635,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "right",
+   "mediaCoverW": 0.27,
+   "mediaCoverH": 0.04,
+   "slides": 0,
+   "anchorCount": 9,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 27,
+     "label": "\ud68c\uc6d0\uac00\uc785",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": true,
+     "bw": 1,
+     "w": 80,
+     "h": 65,
+     "label": "On Air EVERM",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 60,
+     "label": "\ube44\uc6a9\ubb38\uc758",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 60,
+     "label": "\ube60\ub978\uc608\uc57d",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 60,
+     "label": "\uc218\uc220\ud6c4\uae30",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 60,
+     "label": "\uc624\uc2dc\ub294\uae38",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 57,
+     "label": "\uce74\ud1a1\uc0c1\ub2f4",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 80,
+     "h": 21,
+     "label": "02.540.8275",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 On Air EVERM \ube44\uc6a9\ubb38\uc758 \ube60\ub978\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uc624\uc2dc\ub294\uae38 \uce74\ud1a1\uc0c1\ub2f4 \uc0c1\ub2f4\ubb38\uc758 02.540.8275"
+  },
+  "type": {
+   "h1": null,
+   "h2": "Pretendard, \ub9d1\uc740\uace0\ub515, MalgunGothic, sans-serif",
+   "body": "Pretendard, \ub9d1\uc740\uace0\ub515, MalgunGothic, sans-serif",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": "700",
+   "h2Size": "60px",
+   "bodySize": "17px",
+   "bodyWeight": "400",
+   "bodyLH": "27px",
+   "bigHeadPx": 60,
+   "bigHeadFam": "Pretendard, \ub9d1\uc740\uace0\ub515, MalgunGothic, sans-serif",
+   "bigHeadWeight": "700",
+   "h1Count": 0,
+   "h2Sizes": [
+    "60px",
+    "72px"
+   ],
+   "h3Size": "48px",
+   "fontFaces": [
+    "Font Awesome 5 Brands",
+    "Font Awesome 5 Free",
+    "Noto Sans KR",
+    "Pretendard",
+    "FontAwesome",
+    "revicons",
+    "icomoon",
+    "Open Sans",
+    "vcpb-plugin-icons",
+    "vc_grid_v1",
+    "xeicon",
+    "Roboto",
+    "jquery-ui",
+    "ipt-icomoon"
+   ],
+   "linkFonts": [
+    "https://use.fontawesome.com/releases/v5.10.0/css/all.css?ver=5.10.0",
+    "https://www.everm.net/wp-content/plugins/jt-easy-popups-1.2.1/css/font-awesome.min.css?ver",
+    "https://www.everm.net/wp-content/themes/salient/css/font-awesome-legacy.min.css?ver=4.7.1",
+    "https://fonts.googleapis.com/css?family=Open+Sans%3A300%2C400%2C600%2C700&subset=latin%2Cl",
+    "https://fonts.googleapis.com/css?family=Roboto:400%7CNoto+Sans+KR:400%2C500",
+    "https://www.everm.net/wp-content/plugins/wp-fsqm-pro/static/fonts/jquery.iconfont/jquery-u",
+    "https://www.everm.net/wp-content/plugins/wp-fsqm-pro/static/fonts/icomoon/icomoon.min.css?",
+    "https://fonts.googleapis.com/css?family=Noto+Sans%7CRoboto%3A300%2C400%2C400i%2C700&ver=4."
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 2,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 12
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 30.0886, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 26,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 27,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 31,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 32,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 33,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 30.0886, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 34,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 35,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 36,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 37,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 38,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 39,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 40,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 41,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 42,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 43,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 44,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 45,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 46,
+    "op": 0,
+    "tr": null,
+    "td": "0.65s",
+    "tf": "cubic-bezier(0.05, 0.2, 0.1, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 47,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 48,
+    "op": 1,
+    "tr": "matrix(1.6, 0, 0, 1.6, 0, 0)",
+    "td": "1.3s",
+    "tf": "cubic-bezier(0.12, 0.75, 0.4, 1)",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 49,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 51,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 52,
+    "op": 0,
+    "tr": "matrix(0.7, 0, 0, 0.7, 0, 0)",
+    "td": "1.3s, 0.4s",
+    "tf": "cubic-bezier(0.12, 0.75, 0.4, 1), ease-out",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 53,
+    "op": 1,
+    "tr": "matrix(1.75, 0, 0, 1.75, 0, 0)",
+    "td": "1.3s",
+    "tf": "cubic-bezier(0.12, 0.75, 0.4, 1)",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 54,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 55,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 56,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1650.31, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "14s",
+    "an": "nectar-scrolling-text-animation",
+    "af": "linear",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 57,
+    "op": 1,
+    "tr": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 58,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1650.31, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "14s",
+    "an": "nectar-scrolling-text-animation",
+    "af": "linear",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 59,
+    "op": 1,
+    "tr": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 4843,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 1,
+   "formCount": 1,
+   "inputCount": 6,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 15,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwTrust": false,
+   "kwVideo": true,
+   "phoneKR": "02.540.8275",
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.328,
+   "darkFrac": 0.745,
+   "lightFrac": 0.199
+  },
+  {
+   "i": 1,
+   "mean": 0.305,
+   "darkFrac": 0.785,
+   "lightFrac": 0.172
+  },
+  {
+   "i": 2,
+   "mean": 0.305,
+   "darkFrac": 0.785,
+   "lightFrac": 0.172
+  }
+ ],
+ "heroLum": {
+  "mean": 0.301,
+  "darkFrac": 0.79,
+  "lightFrac": 0.168
+ },
+ "heroLumBelowNav": {
+  "mean": 0.312,
+  "darkFrac": 0.762,
+  "lightFrac": 0.19
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 100,
+   "bottom": 735,
+   "left": 1320,
+   "w": 120,
+   "h": 635,
+   "z": "99",
+   "links": [
+    {
+     "href": "https://www.everm.net/login/?redirect_to=https%3A%2F%2Fwww.everm.net",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "https://www.everm.net/join/",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCIZrhM2wLqEt8wOKToJ28pg?app=desktop",
+     "label": "On Air EVERM"
+    },
+    {
+     "href": "/cost-inquiry/",
+     "label": "\ube44\uc6a9\ubb38\uc758"
+    },
+    {
+     "href": "/consulting-reservation/online/",
+     "label": "\ube60\ub978\uc608\uc57d"
+    },
+    {
+     "href": "/review/self-surgery-review/",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    },
+    {
+     "href": "/everm/location/",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "https://pf.kakao.com/_Xyxgxoxh/chat",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "tel:025408275",
+     "label": "02.540.8275"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 On Air EVERM \ube44\uc6a9\ubb38\uc758 \ube60\ub978\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uc624\uc2dc\ub294\uae38 \uce74\ud1a1\uc0c1\ub2f4 \uc0c1\ub2f4\ubb38\uc758 02.540.8275",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 76,
+   "left": 0,
+   "w": 1440,
+   "h": 76,
+   "z": "9998",
+   "links": [
+    {
+     "href": "https://www.everm.net",
+     "label": ""
+    },
+    {
+     "href": "/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c"
+    },
+    {
+     "href": "/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \u201c\uc5d0\ubc84\uc5e0\uc740 \uace0\uac1d\ub2d8\uc758 \uc5bc\uad74\ub9cc\uc744 \uc0dd\uac01\ud569\ub2c8\ub2e4\u201d"
+    },
+    {
+     "href": "https://www.everm.net/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \ub300\ud45c\uc6d0\uc7a5 \uc778\uc0ac\ub9d0 \ubc0f \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74"
+    },
+    {
+     "href": "https://www.everm.net/everm/doctor/",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uac01 \uacfc\ubcc4 \uc804\ubb38\uc758\ub8cc\uc9c4\uc744"
+    },
+    {
+     "href": "https://www.everm.net/everm/tour/",
+     "label": "\uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \ud1a0\ud0c8 \ucf00\uc5b4\ub97c \uc704\ud55c \uc5d0\ubc84\uc5e0 \ube4c\ub529\uc744 \uc18c\uac1c\ud569"
+    },
+    {
+     "href": "https://www.everm.net/everm/special-system/",
+     "label": "\uc5d0\ubc84\uc5e0\uc2a4\ud398\uc15c\uc2dc\uc2a4\ud15c \uc548\uc804\uc744 \uc704\ud55c \ucd5c\ucca8\ub2e8 \uc2dc\uc2a4\ud15c\uc744 \uc18c\uac1c\ud569\ub2c8"
+    },
+    {
+     "href": "https://www.everm.net/everm/location/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04 \ubc0f \uc624\uc2dc\ub294 \uae38 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uc9c4\ub8cc\uc2dc\uac04\uc744"
+    },
+    {
+     "href": "/orthognathic-surgery/specialization/",
+     "label": "\uc591\uc545\uc218\uc220"
+    },
+    {
+     "href": "/orthognathic-surgery/specialization/",
+     "label": "\uc591\uc545\uc218\uc220 \ud48d\ubd80\ud55c \uc784\uc0c1\uacbd\ud5d8\uc73c\ub85c \uae30\ub2a5\uacfc \uc2ec\ubbf8\ub97c \ub3d9\uc2dc\uc5d0 \u201c\uc5d0"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/specialization/",
+     "label": "3D\ubcf5\ud569\uc548\uba74\ucd95\uc18c\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\ub9cc\uc758 3\ucc28\uc6d0 \uc5bc\uad74\ubf08"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/everm/",
+     "label": "EVERM \uc591\uc545\uc218\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc591\uc545\uc218\uc220\uc758 \ud2b9\uc9d5"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/upsweep/",
+     "label": "\uc8fc\uac71\ud131 \ud074\ub9ac\ub2c9 SSRO\uc640 IVRO\uc218\uc220\uc774 \ubaa8\ub450 \uac00\ub2a5\ud55c \uc5d0"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/facial-asymmetry/",
+     "label": "\uc548\uba74\ube44\ub300\uce6d \ud074\ub9ac\ub2c9 \uc5bc\uad74\uc758 \uc88c\uc6b0 \ubc38\ub7f0\uc2a4\ub97c \ub9de\ucdb0 \ub4dc\ub9bd\ub2c8\ub2e4"
+    }
+   ],
+   "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \uc5d0\ubc84\uc5e0 \uc18c\uac1c \u201c\uc5d0\ubc84\uc5e0\uc740 \uace0\uac1d\ub2d8\uc758 \uc5bc\uad74\ub9cc\uc744 \uc0dd\uac01\ud569\ub2c8\ub2e4\u201d \uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \ub300\ud45c\uc6d0\uc7a5 \uc778\uc0ac\ub9d0 \ubc0f \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc5f0\ud601 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uac01 \uacfc\ubcc4 \uc804\ubb38\uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4 \uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \ud1a0\ud0c8 \ucf00\uc5b4\ub97c \uc704\ud55c \uc5d0\ubc84\uc5e0 \ube4c\ub529\uc744 \uc18c\uac1c\ud569",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 804,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 96,
+   "z": "10",
+   "links": [
+    {
+     "href": "/privacy/",
+     "label": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68"
+    },
+    {
+     "href": "/privacy/#marketing",
+     "label": "\ub9c8\ucf00\ud305 \ubc0f \uad11\uace0 \ud65c\uc6a9\ub3d9\uc758"
+    },
+    {
+     "href": "",
+     "label": "\uc0c1\ub2f4\uc2e0\uccad"
+    }
+   ],
+   "label": "\ube60\ub978\uc0c1\ub2f4 \uc774\ub984 \uc5f0\ub77d\ucc98 (\uc22b\uc790\ub9cc \uc785\ub825) \ub0b4\uc6a9 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758(\ud544\uc218) \ub9c8\ucf00\ud305 \ubc0f \uad11\uace0 \ud65c\uc6a9\ub3d9\uc758(\uc120\ud0dd) \uc0c1\ub2f4\uc2e0\uccad",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1441,
+   "w": 340,
+   "h": 900,
+   "z": "9999",
+   "links": [
+    {
+     "href": "/login/?redirect_to=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/profile/",
+     "label": "\ud68c\uc6d0\uc815\ubcf4"
+    },
+    {
+     "href": "/join/",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "/wp-login.php?action=logout&redirect_to=%2Fprofile%2F&_wpnonce=c401be9",
+     "label": "\ub85c\uadf8\uc544\uc6c3"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uc815\ubcf4 / \ud68c\uc6d0\uac00\uc785\ub85c\uadf8\uc544\uc6c3",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 1391,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#sidewidgetarea",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -26,
+   "bottom": 26,
+   "left": -26,
+   "w": 52,
+   "h": 52,
+   "z": "400",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 30.0886, 0)"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 32,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 33,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 30.0886, 0)"
+  },
+  {
+   "id": 34,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 36,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 38,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 39,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 40,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 41,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 42,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 43,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 44,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 45,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 46,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 47,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 48,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 49,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 50,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 51,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 52,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 53,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 54,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 55,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 56,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1183.33, 0)"
+  },
+  {
+   "id": 57,
+   "op": 1,
+   "tr": "matrix(0.5, 0, 0, 0.5, 0, 0)"
+  },
+  {
+   "id": 58,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1183.33, 0)"
+  },
+  {
+   "id": 59,
+   "op": 1,
+   "tr": "matrix(0.5, 0, 0, 0.5, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 100,
+   "bottom": 735,
+   "left": 1320,
+   "w": 120,
+   "h": 635,
+   "z": "99",
+   "links": [
+    {
+     "href": "https://www.everm.net/login/?redirect_to=https%3A%2F%2Fwww.everm.net",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "https://www.everm.net/join/",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCIZrhM2wLqEt8wOKToJ28pg?app=desktop",
+     "label": "On Air EVERM"
+    },
+    {
+     "href": "/cost-inquiry/",
+     "label": "\ube44\uc6a9\ubb38\uc758"
+    },
+    {
+     "href": "/consulting-reservation/online/",
+     "label": "\ube60\ub978\uc608\uc57d"
+    },
+    {
+     "href": "/review/self-surgery-review/",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    },
+    {
+     "href": "/everm/location/",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "https://pf.kakao.com/_Xyxgxoxh/chat",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "tel:025408275",
+     "label": "02.540.8275"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 On Air EVERM \ube44\uc6a9\ubb38\uc758 \ube60\ub978\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uc624\uc2dc\ub294\uae38 \uce74\ud1a1\uc0c1\ub2f4 \uc0c1\ub2f4\ubb38\uc758 02.540.8275",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 76,
+   "left": 0,
+   "w": 1440,
+   "h": 76,
+   "z": "9998",
+   "links": [
+    {
+     "href": "https://www.everm.net",
+     "label": ""
+    },
+    {
+     "href": "/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c"
+    },
+    {
+     "href": "/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \u201c\uc5d0\ubc84\uc5e0\uc740 \uace0\uac1d\ub2d8\uc758 \uc5bc\uad74\ub9cc\uc744 \uc0dd\uac01\ud569\ub2c8\ub2e4\u201d"
+    },
+    {
+     "href": "https://www.everm.net/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \ub300\ud45c\uc6d0\uc7a5 \uc778\uc0ac\ub9d0 \ubc0f \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74"
+    },
+    {
+     "href": "https://www.everm.net/everm/doctor/",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uac01 \uacfc\ubcc4 \uc804\ubb38\uc758\ub8cc\uc9c4\uc744"
+    },
+    {
+     "href": "https://www.everm.net/everm/tour/",
+     "label": "\uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \ud1a0\ud0c8 \ucf00\uc5b4\ub97c \uc704\ud55c \uc5d0\ubc84\uc5e0 \ube4c\ub529\uc744 \uc18c\uac1c\ud569"
+    },
+    {
+     "href": "https://www.everm.net/everm/special-system/",
+     "label": "\uc5d0\ubc84\uc5e0\uc2a4\ud398\uc15c\uc2dc\uc2a4\ud15c \uc548\uc804\uc744 \uc704\ud55c \ucd5c\ucca8\ub2e8 \uc2dc\uc2a4\ud15c\uc744 \uc18c\uac1c\ud569\ub2c8"
+    },
+    {
+     "href": "https://www.everm.net/everm/location/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04 \ubc0f \uc624\uc2dc\ub294 \uae38 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uc9c4\ub8cc\uc2dc\uac04\uc744"
+    },
+    {
+     "href": "/orthognathic-surgery/specialization/",
+     "label": "\uc591\uc545\uc218\uc220"
+    },
+    {
+     "href": "/orthognathic-surgery/specialization/",
+     "label": "\uc591\uc545\uc218\uc220 \ud48d\ubd80\ud55c \uc784\uc0c1\uacbd\ud5d8\uc73c\ub85c \uae30\ub2a5\uacfc \uc2ec\ubbf8\ub97c \ub3d9\uc2dc\uc5d0 \u201c\uc5d0"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/specialization/",
+     "label": "3D\ubcf5\ud569\uc548\uba74\ucd95\uc18c\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\ub9cc\uc758 3\ucc28\uc6d0 \uc5bc\uad74\ubf08"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/everm/",
+     "label": "EVERM \uc591\uc545\uc218\uc220 \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc591\uc545\uc218\uc220\uc758 \ud2b9\uc9d5"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/upsweep/",
+     "label": "\uc8fc\uac71\ud131 \ud074\ub9ac\ub2c9 SSRO\uc640 IVRO\uc218\uc220\uc774 \ubaa8\ub450 \uac00\ub2a5\ud55c \uc5d0"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/facial-asymmetry/",
+     "label": "\uc548\uba74\ube44\ub300\uce6d \ud074\ub9ac\ub2c9 \uc5bc\uad74\uc758 \uc88c\uc6b0 \ubc38\ub7f0\uc2a4\ub97c \ub9de\ucdb0 \ub4dc\ub9bd\ub2c8\ub2e4"
+    }
+   ],
+   "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \uc5d0\ubc84\uc5e0 \uc18c\uac1c \u201c\uc5d0\ubc84\uc5e0\uc740 \uace0\uac1d\ub2d8\uc758 \uc5bc\uad74\ub9cc\uc744 \uc0dd\uac01\ud569\ub2c8\ub2e4\u201d \uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \ub300\ud45c\uc6d0\uc7a5 \uc778\uc0ac\ub9d0 \ubc0f \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc \uc5f0\ud601 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uad6c\uac15\uc545\uc548\uba74\uc678\uacfc\uc758 \uac01 \uacfc\ubcc4 \uc804\ubb38\uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4 \uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \ud1a0\ud0c8 \ucf00\uc5b4\ub97c \uc704\ud55c \uc5d0\ubc84\uc5e0 \ube4c\ub529\uc744 \uc18c\uac1c\ud569",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 804,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 96,
+   "z": "10",
+   "links": [
+    {
+     "href": "/privacy/",
+     "label": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68"
+    },
+    {
+     "href": "/privacy/#marketing",
+     "label": "\ub9c8\ucf00\ud305 \ubc0f \uad11\uace0 \ud65c\uc6a9\ub3d9\uc758"
+    },
+    {
+     "href": "",
+     "label": "\uc0c1\ub2f4\uc2e0\uccad"
+    }
+   ],
+   "label": "\ube60\ub978\uc0c1\ub2f4 \uc774\ub984 \uc5f0\ub77d\ucc98 (\uc22b\uc790\ub9cc \uc785\ub825) \ub0b4\uc6a9 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758(\ud544\uc218) \ub9c8\ucf00\ud305 \ubc0f \uad11\uace0 \ud65c\uc6a9\ub3d9\uc758(\uc120\ud0dd) \uc0c1\ub2f4\uc2e0\uccad",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 857,
+   "bottom": 886,
+   "left": 1394,
+   "w": 29,
+   "h": 29,
+   "z": "9994",
+   "links": [],
+   "label": "",
+   "tag": "a",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1441,
+   "w": 340,
+   "h": 900,
+   "z": "9999",
+   "links": [
+    {
+     "href": "/login/?redirect_to=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/profile/",
+     "label": "\ud68c\uc6d0\uc815\ubcf4"
+    },
+    {
+     "href": "/join/",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "/wp-login.php?action=logout&redirect_to=%2Fprofile%2F&_wpnonce=c401be9",
+     "label": "\ub85c\uadf8\uc544\uc6c3"
+    }
+   ],
+   "label": "\ub85c\uadf8\uc778 \ud68c\uc6d0\uc815\ubcf4 / \ud68c\uc6d0\uac00\uc785\ub85c\uadf8\uc544\uc6c3",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 1391,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#sidewidgetarea",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -26,
+   "bottom": 26,
+   "left": -26,
+   "w": 52,
+   "h": 52,
+   "z": "400",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 9.9,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 472,
+   "bottom": 752,
+   "left": 333,
+   "w": 57,
+   "h": 280,
+   "z": "99",
+   "links": [
+    {
+     "href": "/consulting-reservation/online/",
+     "label": ""
+    },
+    {
+     "href": "https://pf.kakao.com/_Xyxgxoxh/chat",
+     "label": ""
+    },
+    {
+     "href": "tel:025408275",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 48,
+   "left": 0,
+   "w": 390,
+   "h": 48,
+   "z": "9995",
+   "links": [
+    {
+     "href": "https://www.everm.net",
+     "label": ""
+    },
+    {
+     "href": "#sidewidgetarea",
+     "label": "Menu"
+    }
+   ],
+   "label": "Menu",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 391,
+   "w": 340,
+   "h": 844,
+   "z": "9999",
+   "links": [
+    {
+     "href": "#",
+     "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c"
+    },
+    {
+     "href": "https://www.everm.net/everm/about-history/",
+     "label": "\uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601"
+    },
+    {
+     "href": "https://www.everm.net/everm/doctor/",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "https://www.everm.net/everm/tour/",
+     "label": "\uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "https://www.everm.net/everm/special-system/",
+     "label": "\uc5d0\ubc84\uc5e0\uc2a4\ud398\uc15c\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "https://www.everm.net/everm/location/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04 \ubc0f \uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "#",
+     "label": "\uc591\uc545\uc218\uc220"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/specialization/",
+     "label": "3D\ubcf5\ud569\uc548\uba74\ucd95\uc18c\uc220"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/everm/",
+     "label": "EVERM \uc591\uc545\uc218\uc220"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/upsweep/",
+     "label": "\uc8fc\uac71\ud131 \ud074\ub9ac\ub2c9"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/facial-asymmetry/",
+     "label": "\uc548\uba74\ube44\ub300\uce6d \ud074\ub9ac\ub2c9"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/short-chin/",
+     "label": "\ubb34\ud131 \ud074\ub9ac\ub2c9"
+    },
+    {
+     "href": "https://www.everm.net/protrusion/orthognathic-surgery/",
+     "label": "\ub3cc\ucd9c\uc785 \ud074\ub9ac\ub2c9"
+    },
+    {
+     "href": "https://www.everm.net/orthognathic-surgery/long-face/",
+     "label": "\uae34 \uc5bc\uad74 \ud074\ub9ac\ub2c9"
+    }
+   ],
+   "label": "\uc5d0\ubc84\uc5e0 \uc18c\uac1c \uc5d0\ubc84\uc5e0\uc18c\uac1c \ubc0f \uc5f0\ud601 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uc5d0\ubc84\uc5e0 \ub458\ub7ec\ubcf4\uae30 \uc5d0\ubc84\uc5e0\uc2a4\ud398\uc15c\uc2dc\uc2a4\ud15c \uc9c4\ub8cc\uc2dc\uac04 \ubc0f \uc624\uc2dc\ub294 \uae38 \uc591\uc545\uc218\uc220 3D\ubcf5\ud569\uc548\uba74\ucd95\uc18c\uc220 EVERM \uc591\uc545\uc218\uc220 \uc8fc\uac71\ud131 \ud074\ub9ac\ub2c9 \uc548\uba74\ube44\ub300\uce6d \ud074\ub9ac\ub2c9 \ubb34\ud131 \ud074\ub9ac\ub2c9 \ub3cc\ucd9c\uc785 \ud074\ub9ac\ub2c9 \uae34 \uc5bc\uad74 \ud074\ub9ac\ub2c9 \uc218\uc220 \uc804\ud6c4\ucf00\uc5b4 \uc548\uba74\uc724\uacfd V\ub77c",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 341,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#sidewidgetarea",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,152 @@
+{
+ "url": "http://bocelle.com/",
+ "status": 200,
+ "finalUrl": "http://bocelle.com/",
+ "title": "\uc811\uc18d\ud558\uc5ec \uc8fc\uc2e0 \ub3c4\uba54\uc778\uc758 \uae30\ud55c\uc774 \ub9cc\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 669,
+  "screens": 0.7,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 80,
+    "h": 377,
+    "chars": 522,
+    "headings": [],
+    "keyText": "bocelle.com \uc548\ub155\ud558\uc138\uc694. Cypack\uc785\ub2c8\ub2e4. \uc811\uc18d\ud558\uc5ec \uc8fc\uc2e0 \ub3c4\uba54\uc778\uc758 \uae30\ud55c\uc774 \ub9cc\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4. \ub9cc\ub8cc\ub41c \ub3c4\uba54\uc778\uc740 \uae30\uac04\uc5f0\uc7a5\uc744 \ud558\uc2dc\uba74 \ub2e4\uc2dc \uc0ac\uc6a9\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. - \ub3c4\uba54\uc778 \uc5f0\uc7a5 \ube44\uc6a9\uc740 \ud68c\uc6d0\uc758 \uc608\uce58\uae08 \ub4f1\uae09\uc5d0 \ub530\ub77c \ub2e4\ub97c \uc218 \uc788\uc73c\ub2c8 \ub85c\uadf8\uc778 \ud6c4 \uc5f0\uc7a5 \ube44\uc6a9\uc744 \ud655\uc778\ud558\uc5ec \uc8fc\uc2ed\uc2dc\uc624. - \ub3c4\uba54\uc778 \uc5f0\uc7a5\uc740 \ub3c4\uba54\uc778\uc758 \uc18c\uc720\uad8c\uc744 \ud68d\ub4dd\ud560 \uc218 \uc788\ub294 \uc218\ub2e8\uc774 \uc544\ub2c8\uba70, \ub3c4\uba54\uc778\uc758 \uc0ac\uc6a9 \uae30\uac04\ub9cc \uc5f0\uc7a5\ub418\ub294 \uc11c\ube44\uc2a4\uc785\ub2c8\ub2e4. - \ucd5c \uc0c1\uc704 \uae30\uad00\uc758 \uc815\ucc45\uc5d0 \uc758\ud558\uc5ec \ub3c4\uba54\uc778 \uc5f0\uc7a5 \ud6c4\uc5d0\ub294 \ub3c4\uba54\uc778 \uc5f0\uc7a5\ube44\uc6a9\uc758 \ud658\ubd88\uc774 \ubd88\uac00\ud569\ub2c8\ub2e4. \ubcf8 \ud398\uc774\uc9c0\ub294 ICANN\uc758 \ub9cc\ub8cc\ub3c4\uba54\uc778 \ubcf5\uad6c \uc815\ucc45(ERRP)\uc5d0 \uc758\uac70 \ud558\uc5ec \ub3c4\uba54\uc778 \uc18c\uc720\uc790\uc5d0\uac8c \ub3c4\uba54\uc778 \ub9cc\ub8cc\ub97c \uc54c\ub9ac\uae30 \uc704\ud55c \ud398\uc774\uc9c0\uc785\ub2c8\ub2e4. (This page is notice to promote consumer choice and awareness about domain name expiration by ICANN Expired Registration Recovery Policy.) COPYRIGHT(C)INAMES CO.,LTD. ALL RIGHTS RESERVED",
+    "media": 10,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [],
+  "hero": {
+   "h": 377,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "bg-image",
+   "mediaPlace": "center",
+   "mediaCoverW": 0.65,
+   "mediaCoverH": 0.87,
+   "slides": 0,
+   "anchorCount": 1,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 113,
+     "h": 18,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "bocelle.com \uc548\ub155\ud558\uc138\uc694. Cypack\uc785\ub2c8\ub2e4. \uc811\uc18d\ud558\uc5ec \uc8fc\uc2e0 \ub3c4\uba54\uc778\uc758 \uae30\ud55c\uc774 \ub9cc\ub8cc\ub418\uc5c8\uc2b5\ub2c8\ub2e4. \ub9cc\ub8cc\ub41c \ub3c4\uba54\uc778\uc740 \uae30\uac04\uc5f0\uc7a5\uc744 \ud558\uc2dc\uba74 \ub2e4\uc2dc \uc0ac\uc6a9\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. - \ub3c4\uba54\uc778 \uc5f0\uc7a5 \ube44\uc6a9\uc740 \ud68c\uc6d0\uc758 \uc608\uce58\uae08 \ub4f1\uae09\uc5d0 \ub530\ub77c \ub2e4\ub97c \uc218 \uc788\uc73c\ub2c8 \ub85c\uadf8\uc778 \ud6c4 \uc5f0\uc7a5 \ube44\uc6a9\uc744 \ud655\uc778\ud558\uc5ec \uc8fc\uc2ed\uc2dc\uc624. - \ub3c4\uba54\uc778 \uc5f0\uc7a5\uc740 \ub3c4\uba54\uc778\uc758 \uc18c\uc720\uad8c\uc744 \ud68d\ub4dd\ud560 \uc218 \uc788\ub294 \uc218\ub2e8\uc774 \uc544\ub2c8\uba70, \ub3c4\uba54\uc778\uc758 \uc0ac\uc6a9 \uae30\uac04\ub9cc \uc5f0\uc7a5\ub418\ub294 \uc11c\ube44\uc2a4\uc785\ub2c8\ub2e4. - \ucd5c \uc0c1\uc704 \uae30\uad00\uc758 \uc815\ucc45\uc5d0 \uc758\ud558\uc5ec \ub3c4\uba54\uc778 \uc5f0\uc7a5 \ud6c4\uc5d0\ub294 \ub3c4\uba54\uc778 \uc5f0\uc7a5\ube44\uc6a9\uc758 \ud658\ubd88\uc774 \ubd88\uac00\ud569\ub2c8\ub2e4. \ubcf8 \ud398\uc774\uc9c0\ub294 ICANN\uc758 \ub9cc\ub8cc\ub3c4\uba54\uc778 \ubcf5\uad6c \uc815\ucc45(ERRP)\uc5d0 \uc758\uac70 \ud558\uc5ec \ub3c4\uba54\uc778 \uc18c\uc720\uc790\uc5d0\uac8c \ub3c4\uba54\uc778 \ub9cc\ub8cc\ub97c \uc54c\ub9ac\uae30 \uc704\ud55c \ud398\uc774\uc9c0\uc785\ub2c8\ub2e4. (This page is notice to promote consumer choice and awareness about domain name expiration by ICANN Expired Registration Recovery Policy.) COPYRIGHT(C)INAMES CO.,LTD. ALL RIGHTS RESERVED"
+  },
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "\"Malgun Gothic\", \ub3cb\uc6c0, dotum, sans-serif",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": null,
+   "h2Size": null,
+   "bodySize": "11px",
+   "bodyWeight": "400",
+   "bodyLH": "18px",
+   "bigHeadPx": 22,
+   "bigHeadFam": "\"Malgun Gothic\", \ub3cb\uc6c0, dotum, sans-serif",
+   "bigHeadWeight": "700",
+   "h1Count": 0,
+   "h2Sizes": [],
+   "h3Size": null,
+   "fontFaces": [],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 523,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": false,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": false,
+   "phoneKR": null,
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.959,
+   "darkFrac": 0.01,
+   "lightFrac": 0.966
+  }
+ ],
+ "heroLum": {
+  "mean": 0.963,
+  "darkFrac": 0.011,
+  "lightFrac": 0.965
+ },
+ "heroLumBelowNav": {
+  "mean": 0.959,
+  "darkFrac": 0.012,
+  "lightFrac": 0.961
+ },
+ "fixedTop": [],
+ "revealPost": [],
+ "fixedMid": [],
+ "mobileScreens": 0.3,
+ "mobileFixed": []
+}

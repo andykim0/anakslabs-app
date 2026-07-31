@@ -1,0 +1,148 @@
+{
+ "url": "https://firesidedc.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "video",
+   "place": "center",
+   "covW": 0.86,
+   "covH": 0.36
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 74,
+    "h": 57,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 64,
+    "h": 57,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 176,
+    "h": 57,
+    "fixedAnc": true,
+    "isCta": false
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Ivyprestoheadline, sans-serif",
+   "bodyFam": "Intertight, sans-serif",
+   "head": {
+    "topRatio": 2.43,
+    "botRatio": 2.43,
+    "midW": 14,
+    "hgt": 109
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 109
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 4481,
+    "tag": "section",
+    "chars": 1104,
+    "imgs": 6,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4481,
+    "h": 1250,
+    "tag": "section",
+    "chars": 85,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5731,
+    "h": 717,
+    "tag": "section",
+    "chars": 315,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6448,
+    "h": 3544,
+    "tag": "section",
+    "chars": 577,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 9992,
+    "h": 734,
+    "tag": "section",
+    "chars": 386,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 10725,
+    "h": 1134,
+    "tag": "section",
+    "chars": 248,
+    "imgs": 3,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 11859,
+    "h": 687,
+    "tag": "section",
+    "chars": 878,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 12547,
+    "h": 900,
+    "tag": "section",
+    "chars": 50,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 12547,
+    "h": 1345,
+    "tag": "div",
+    "chars": 101,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

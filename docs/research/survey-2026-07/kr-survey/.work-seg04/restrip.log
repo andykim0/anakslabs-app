@@ -1,0 +1,21 @@
+--- http://www.rubyps.co.kr
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.729, 'darkFrac': 0.059, 'lightFrac': 0.685, 'usablePx': 1.0} bands 0 
+--- http://www.mrbigclinic.com/
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.722, 'darkFrac': 0.133, 'lightFrac': 0.61, 'usablePx': 1.0} bands 9 
+--- http://www.everm.net
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.772, 'darkFrac': 0.266, 'lightFrac': 0.722, 'usablePx': 1.0} bands 14 
+--- http://www.sooamc.com/
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.345, 'darkFrac': 0.643, 'lightFrac': 0.169, 'usablePx': 1.0} bands 10 
+--- http://www.jk-withme.com/
+  popBefore 2 dismissed ['닫기'] popAfter 0 masked 0.0 hero {'mean': 0.577, 'darkFrac': 0.19, 'lightFrac': 0.366, 'usablePx': 1.0} bands 3 
+--- http://www.eyejak.co.kr/
+  popBefore 1 dismissed ['닫기'] popAfter 0 masked 0.0 hero {'mean': 0.771, 'darkFrac': 0.077, 'lightFrac': 0.8, 'usablePx': 1.0} bands 3 
+--- http://bocelle.com/
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.959, 'darkFrac': 0.012, 'lightFrac': 0.961, 'usablePx': 1.0} bands 1 
+--- http://www.withme-medi.com/
+  popBefore 1 dismissed ['오늘 하루 보지 않기'] popAfter 0 masked 0.0 hero {'mean': 0.729, 'darkFrac': 0.215, 'lightFrac': 0.7, 'usablePx': 1.0} bands 7 
+--- http://www.resexy.co.kr/
+  popBefore 1 dismissed ['닫기'] popAfter 0 masked 0.0 hero {'mean': 0.833, 'darkFrac': 0.033, 'lightFrac': 0.871, 'usablePx': 1.0} bands 2 
+--- http://www.glowell.co.kr/
+  popBefore 0 dismissed [] popAfter 0 masked 0.0 hero {'mean': 0.583, 'darkFrac': 0.232, 'lightFrac': 0.697, 'usablePx': 1.0} bands 4 
+FINAL-DONE

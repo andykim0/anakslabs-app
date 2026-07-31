@@ -1,0 +1,220 @@
+{
+ "url": "https://www.thegleamery.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "img",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 0.77
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 185,
+    "h": 39,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 141,
+    "h": 34,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 256,
+    "h": 44,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 348,
+    "h": 52,
+    "fixedAnc": false,
+    "isCta": false
+   }
+  ],
+  "foldSlides": 3,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Bagoss, sans-serif",
+   "bodyFam": "Inter, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 12,
+    "hgt": 107
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 109
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 900,
+    "tag": "div",
+    "chars": 840,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 133,
+    "h": 691,
+    "tag": "div",
+    "chars": 747,
+    "imgs": 4,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 823,
+    "h": 826,
+    "tag": "section",
+    "chars": 821,
+    "imgs": 8,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1649,
+    "h": 609,
+    "tag": "div",
+    "chars": 520,
+    "imgs": 6,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2258,
+    "h": 399,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 7,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2657,
+    "h": 915,
+    "tag": "div",
+    "chars": 1030,
+    "imgs": 10,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3572,
+    "h": 553,
+    "tag": "section",
+    "chars": 265,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4125,
+    "h": 1021,
+    "tag": "section",
+    "chars": 651,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5146,
+    "h": 1229,
+    "tag": "div",
+    "chars": 615,
+    "imgs": 4,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6375,
+    "h": 1081,
+    "tag": "section",
+    "chars": 535,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7456,
+    "h": 1093,
+    "tag": "div",
+    "chars": 1298,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 8549,
+    "h": 692,
+    "tag": "div",
+    "chars": 2597,
+    "imgs": 8,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 9240,
+    "h": 1375,
+    "tag": "section",
+    "chars": 935,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 10861,
+    "h": 547,
+    "tag": "div",
+    "chars": 297,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 11408,
+    "h": 837,
+    "tag": "div",
+    "chars": 666,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 12245,
+    "h": 466,
+    "tag": "div",
+    "chars": 389,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

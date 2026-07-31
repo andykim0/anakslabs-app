@@ -1,0 +1,252 @@
+{
+ "url": "http://www.ahnkang.com/",
+ "status": 200,
+ "finalUrl": "https://seoul.ahnkang.com/",
+ "title": "\uc11c\uc6b8\uc548\uac15\ubcd1\uc6d0",
+ "popups": [
+  "divpop50 mainPop |  \uc624\ub298 \ud558\ub8e8 \uc774\ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uae30 [\ub2eb\uae30]",
+  "divpop64 mainPop |  \uc624\ub298 \ud558\ub8e8 \uc774\ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uae30 [\ub2eb\uae30]",
+  "divpop67 mainPop |  \uc624\ub298 \ud558\ub8e8 \uc774\ucc3d\uc744 \uc5f4\uc9c0 \uc54a\uae30 [\ub2eb\uae30]"
+ ],
+ "revealPost": [],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1280,
+  "screens": 1.4,
+  "sectionParentTag": "div#id",
+  "sectionCoverRatio": 1.91,
+  "sectionCount": 3,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 980,
+    "chars": 90,
+    "headings": [
+     "\uc804\ubb38\uc7ac\ud65c \uc11c\uc6b8\uc548\uac15\ubcd1\uc6d0"
+    ],
+    "keyText": "SEOUL AHNKANG HOSPITAL \uc804\ubb38\uc7ac\ud65c \uc11c\uc6b8\uc548\uac15\ubcd1\uc6d0 \uc7ac\ud65c\uc13c\ud130 \ub354 \ub098\uc740 \ub0b4\uc77c\uc744 \uc704\ud574! \ud1b5\uc99d\uc13c\ud130 \uc815\ud655\ud55c \uc9c4\ub2e8 \ube44\uc218\uc220 \uce58\ub8cc \uac74\uac15\uc99d\uc9c4\uc13c\ud130 \uac74\uac15\uc744 \uc9c0\ud0a4\ub294 \uccab\uac78\uc74c",
+    "media": 3,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 980,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 2,
+    "tag": "aside",
+    "absTop": 247,
+    "h": 486,
+    "chars": 24,
+    "headings": [],
+    "keyText": "\ubcd1\uc6d0\uc18c\uac1c \uc0c1\ub2f4\ubb38\uc758 \uc624\uc2dc\ub294 \uae38 SNS \uce74\uce74\uc624\ud1a1",
+    "media": 8,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 20,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 231,
+    "tag": "h2",
+    "t": "\uc804\ubb38\uc7ac\ud65c \uc11c\uc6b8\uc548\uac15\ubcd1\uc6d0"
+   }
+  ],
+  "hero": {
+   "h": 980,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 1,
+   "mediaKind": "img",
+   "mediaPlace": "left",
+   "mediaCoverW": 0.09,
+   "mediaCoverH": 0.12,
+   "slides": 0,
+   "anchorCount": 3,
+   "ctas": [
+    {
+     "filled": true,
+     "outline": false,
+     "bw": 0,
+     "w": 450,
+     "h": 418,
+     "label": "\uc7ac\ud65c\uc13c\ud130 \ub354 \ub098\uc740 \ub0b4\uc77c\uc744 \uc704\ud574!",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": false,
+     "bw": 0,
+     "w": 220,
+     "h": 204,
+     "label": "\ud1b5\uc99d\uc13c\ud130 \uc815\ud655\ud55c \uc9c4\ub2e8 \ube44\uc218\uc220 \uce58\ub8cc",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": false,
+     "bw": 0,
+     "w": 220,
+     "h": 204,
+     "label": "\uac74\uac15\uc99d\uc9c4\uc13c\ud130 \uac74\uac15\uc744 \uc9c0\ud0a4\ub294 \uccab\uac78\uc74c",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "SEOUL AHNKANG HOSPITAL \uc804\ubb38\uc7ac\ud65c \uc11c\uc6b8\uc548\uac15\ubcd1\uc6d0 \uc7ac\ud65c\uc13c\ud130 \ub354 \ub098\uc740 \ub0b4\uc77c\uc744 \uc704\ud574! \ud1b5\uc99d\uc13c\ud130 \uc815\ud655\ud55c \uc9c4\ub2e8 \ube44\uc218\uc220 \uce58\ub8cc \uac74\uac15\uc99d\uc9c4\uc13c\ud130 \uac74\uac15\uc744 \uc9c0\ud0a4\ub294 \uccab\uac78\uc74c"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", \"\ub9d1\uc740 \uace0\ub515\", \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Helvetica, \"Apple SD Gothic Neo\", Tahoma, Geneva, sans-serif, verdana",
+   "h2": "\"Nanum Myeongjo\"",
+   "body": "\"Noto Sans KR\", \"\ub9d1\uc740 \uace0\ub515\", \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Helvetica, \"Apple SD Gothic Neo\", Tahoma, Geneva, sans-serif, verdana",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Weight": "700",
+   "h2Size": "36px",
+   "bodySize": "16px",
+   "bodyWeight": "500",
+   "bodyLH": "16px",
+   "bigHeadPx": 36,
+   "bigHeadFam": "\"Nanum Myeongjo\"",
+   "bigHeadWeight": "700",
+   "h1Count": 1,
+   "h2Sizes": [
+    "36px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Nanum Myeongjo",
+    "Noto Sans KR",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+"
+   ]
+  },
+  "motion": {
+   "aosCount": 3,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 433,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 1,
+   "inputCount": 6,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 3,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwAbout": true,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 2,
+   "naverLinks": 3,
+   "instaLinks": 2,
+   "ytLinks": 2,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [
+    "fade-up"
+   ],
+   "aosDur": [
+    "400",
+    "800"
+   ],
+   "aosEase": [
+    "ease"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.553,
+   "darkFrac": 0.107,
+   "lightFrac": 0.279
+  },
+  {
+   "i": 1,
+   "mean": 0.553,
+   "darkFrac": 0.107,
+   "lightFrac": 0.279
+  },
+  {
+   "i": 2,
+   "mean": 0.56,
+   "darkFrac": 0.138,
+   "lightFrac": 0.434
+  }
+ ],
+ "heroLum": {
+  "mean": 0.549,
+  "darkFrac": 0.115,
+  "lightFrac": 0.273
+ },
+ "heroLumBelowNav": {
+  "mean": 0.546,
+  "darkFrac": 0.131,
+  "lightFrac": 0.309
+ },
+ "fixedTop": [],
+ "fixedMid": [],
+ "mobileScreens": 1.2,
+ "mobileFixed": []
+}

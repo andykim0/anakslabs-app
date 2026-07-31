@@ -1,0 +1,893 @@
+{
+ "sample_id": "B04",
+ "name": "우리들병원",
+ "url": "https://www.wooridul.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.wooridul.co.kr/",
+ "title": "척추는 우리들병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6132,
+  "screens": 6.8,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 300,
+    "h": 390,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 7,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 26,
+    "headings": [],
+    "keyText": "세계 145개국에서 찾아오는 척추전문 우리들병원",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 900,
+    "h": 900,
+    "chars": 1580,
+    "headings": [
+     "어디가 아프신가요? 진료과목을 선택하세요",
+     "우리들을 선택한 사람들 세계 각국의 척추 환자와 의사들이 우리들병원을 찾아옵니다"
+    ],
+    "keyText": "어디가 아프신가요? 진료과목을 선택하세요 허리ㆍ골반ㆍ다리 · 염좌 · 디스크 · 추간공디스크 · 퇴행성추간판질환 · 협착증 · 척추전방전위증 목ㆍ머리ㆍ어깨ㆍ팔 · 디스크 · 추간공 협착증 · 후종인대골화증 등ㆍ옆구리 · 디스크 · 황색인대골화증 · 후종인대골화증 · 골절 우리들을 선택한 사람들 세계 각국의 척추 환자와 의사들이 우리들병원을 찾아옵니다 영국 환자 - 로버트 웰스 님(응급의학과 전문의) “나는 영국인 의사입니다. 내 병, 한국이 고쳤습니다.” 영국 환자 - 사라 캠벨 님(간호사) “먼저 수술 받은 로버트 박사의 추천으로 한국행 결심” 국내 환자 - 이재성 님(73세) “KBS1 다큐온 : 나사못 박지 않는 척추관협착증 치료 인대재건술” 독일환자 - 클라우스 닐센 님 “절개 수술과 뼈 융합술을 받지 않고 목 디스크 나았어요” LPGA 전 골퍼 박OO 님 “성공적으로 필드에 복귀했어요” 프랑스 환자 - 프랑수아 비아 님 “프랑스에서 해결 못한 35년 요통, 한국서 새 삶” ",
+    "media": 33,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1800,
+    "h": 900,
+    "chars": 260,
+    "headings": [
+     "Remarkable Spine Technology WOORIDUL"
+    ],
+    "keyText": "Remarkable Spine Technology WOORIDUL 뉴스위크 선정 세계 최고 스마트 척추전문병원 우리들병원 세계 10대 병원 6회 선정 ‘세계 30대 첨단병원’ 25위 선정 척추 단일 분야 독보적 연구성과 기록 ‘내시경 척추’ 분야 논문 저술 세계 1위 전세계 '내시경 척추수술' 우리들병원 1위 02|06 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기 자세히 보러가기",
+    "media": 26,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2700,
+    "h": 900,
+    "chars": 267,
+    "headings": [
+     "WOORIDUL MEDICAL SERVICES",
+     "최소침습 최소절개"
+    ],
+    "keyText": "WOORIDUL MEDICAL SERVICES 최소침습 최소절개 5단계 진단검사 8가지 맞춤 치료 팀서저리 최소침습 최소절개 최소절개를 통해 정상 조직을 보존하고 원인만 정확하게 치료하는 우리들병원만의 독자적인 수술방법 우리들병원은 1992년 기존 내시경 시술에 레이저를 접목한 새로운 ‘내시경 레이저 척추 치료법’을 정립하며 본격적인 최소상처 척추수술 시대를 열었고, 40년간 최소상처 치료법을 연구 발전시키며 척추 치료 분야의 새로운 기준을 제시하고 있습니다. 상세내용 보기",
+    "media": 3,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 3600,
+    "h": 900,
+    "chars": 176,
+    "headings": [
+     "우리들병원, 수치가 입증합니다!"
+    ],
+    "keyText": "우리들병원, 수치가 입증합니다! 7,252,892 우리들이 시행한 수술 치료 2000~2026.06 32,626 우리들이 치료한 외국인 환자 2006~2026.06 603,428 SCIE 402 우리들이 등재한 국제 논문 1982.03~2026.06 554,390 우리들이 가르친 외국인 의사 1993~2026.06",
+    "media": 9,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 4500,
+    "h": 900,
+    "chars": 2238,
+    "headings": [
+     "우리들 척추건강 채널"
+    ],
+    "keyText": "우리들 척추건강 채널 공식 유튜브 2024. 10. 11 나에게 적합한 협착증 치료법은? 바로가기 공식 유튜브 2024. 07. 26 척추관협착증, 당신만 모르는 이야기 바로가기 공식 블로그 2025. 01. 22 척추인대재건술, 꼭 해야 할까? 바로가기 공식 블로그 2024. 12. 18 여러 마디 척추관협착증 치료에 효과적인 수술 바로가기 공식 유튜브 2026. 04. 10 허리디스크 터져서 15분만에 끝나는 척추내시경수술 받은 썰 바로가기 공식 유튜브 2026. 03. 06 의사가 비행기를 3,000번이나 탔다고? 내시경 척추 수술의 아버지 바로가기 공식 유튜브 2026. 02. 06 꼬부랑 허리가 편하다면? 바로가기 공식 유튜브 2025. 11. 07 3분만에 끝나는 목디스크 시술이 있다??? 바로가기 공식 유튜브 2025. 08. 29 척추도 \"재수술\" 가능하다구요?! 바로가기 공식 유튜브 2025. 08. 22 척추관 협착증 Q&A \"TOP7\" 모든 궁금증 해결! 바로가기",
+    "media": 61,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 5400,
+    "h": 425,
+    "chars": 11514,
+    "headings": [],
+    "keyText": "척추관 협착증 치료, 골든타임 놓치면? 의료에는 골든타임이 있다. 환자의 생사를 가르는 결정적인 치료를 해야 하는 중요한 시간대이다. 척추 질환은 일분일초에 목숨이 오가는 시급한 사항은 아니지만, 삶의 질과 밀접한 연관이 있는 만큼 치료 효과에 영향을 미치는... 2023.10.31l헬스조선 美 '뉴스위크'가 인정한 세계 유일의 척추전문병원은? 척추 전문 우리들병원(회장 이상호)이 최근 뉴스위크가 새롭게 선정한 '2024 세계 최고 스마트 병원(World's Best Smart Hospitals 2024)'에 3년 연속 100대 순위권에 진입하며, 다시 한번 스마트 기술과 의료 인공지능 시스템을 ... 2023.10.17l매일경제 척추관 협착증 최신 치료, 나사못 고정 없는 인대 재건 수술 70대 여성 환자 우 모씨는 오른쪽 종아리가 터져나갈 거 같고 골반이 빠질 듯이 아파서 30m를 걷지 못하는 환자였다. 너무 고통스러워 대학병원, 개인병원 열 곳을 넘게 다녔지만, 수술을 하면 더",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 5825,
+    "h": 307,
+    "chars": 403,
+    "headings": [],
+    "keyText": "보건복지부 척추전문병원 보건복지부 인증 의료기관 보건복지부 의료평가 최우수병원 의료관광객을 위한 세계 10대병원 6회 선정 세계 30대 첨단병원 뉴스위크 선정, 5회 연속 '세계 최고 스마트 병원' 포브스 선정, 고객신뢰도 1위 프리미엄 브랜드 로고가 없는 ‘우리’나 ‘우리들’병원은 척추전문병원인 ‘우리들병원’이 아닙니다. 대표전화 : 1688-0088 Copyright © 2021. Wooridul Spine Hospital All rights reserved. 우리들병원의 모든 콘텐츠는 저작권법의 보호를 받습니다. International Patient Center International Training Center 청담 김포공항 부산 대구 광주 두바이 아부다비 English 네트워크 병원 홈페이지 바로가기",
+    "media": 8,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 164,
+    "h": 572,
+    "chars": 16,
+    "headings": [],
+    "keyText": "오늘 하루 그만 보기 닫기 X",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 928,
+    "tag": "h2",
+    "t": "어디가 아프신가요? 진료과목을 선택하세요"
+   },
+   {
+    "y": 1356,
+    "tag": "h2",
+    "t": "우리들을 선택한 사람들 세계 각국의 척추 환자와 의사들이 우리들병원을 찾아옵니다"
+   },
+   {
+    "y": 1807,
+    "tag": "h2",
+    "t": "Remarkable Spine Technology WOORIDUL"
+   },
+   {
+    "y": 2776,
+    "tag": "h2",
+    "t": "WOORIDUL MEDICAL SERVICES"
+   },
+   {
+    "y": 3607,
+    "tag": "h2",
+    "t": "우리들병원, 수치가 입증합니다!"
+   },
+   {
+    "y": 4545,
+    "tag": "h2",
+    "t": "우리들 척추건강 채널"
+   }
+  ],
+  "type": {
+   "h1Px": 0,
+   "h2Px": 40,
+   "bodyPx": 13,
+   "h1Fam": "NotoSans, sans-serif",
+   "bodyFam": "NotoSans, sans-serif",
+   "h1Weight": "700",
+   "h1TextLen": 0,
+   "h2TextLen": 22,
+   "headingTotal": 8,
+   "headingImgOnly": 0,
+   "headingZeroText": 1,
+   "maxTextPx": 50,
+   "imgInFirstScreen": 2
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": true,
+   "scrollTrigger": false,
+   "swiper": 0,
+   "slick": 5,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 4,
+   "webflow": 0,
+   "slideEls": 148
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -340.5)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1760, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -410)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1840, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 14,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -310)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -361.5)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 24,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -322.914)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 26,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 28,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1750, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 30,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1750, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "Close",
+   "우리들 병원소개",
+   "인사말",
+   "우리들 철학",
+   "42년 우리들 역사관",
+   "언론이 주목한 우리들",
+   "우리들을 선택한 사람들",
+   "우리들 진료안내",
+   "국제환자센터",
+   "게시판",
+   "우리들 우수성",
+   "최소침습 원인치료",
+   "5단계 진단검사",
+   "8단계 원인치료",
+   "팀서저리",
+   "우리들 치료정보",
+   "허리(요추)",
+   "목(경추)",
+   "등(흉추)",
+   "우리들 연구센터",
+   "학술연구센터",
+   "국제교육센터",
+   "학술컨퍼런스",
+   "도서출판 우리들척추건강",
+   "기관생명윤리위원회",
+   "스파인헬스아카데미",
+   "청담",
+   "김포공항",
+   "부산",
+   "대구",
+   "광주",
+   "두바이",
+   "아부다비"
+  ],
+  "pageTextLen": 17146,
+  "kw": {
+   "원장": 14,
+   "전문의": 9,
+   "의료진": 10,
+   "교수": 0,
+   "센터": 12,
+   "지점": 5,
+   "병원": 189,
+   "의원": 0,
+   "faq": 2,
+   "후기": 0,
+   "전후": 0,
+   "예약": 1,
+   "이벤트": 2,
+   "비급여": 0,
+   "오시는길": 0
+  },
+  "deptHits": [
+   "척추"
+  ],
+  "providerUrl": "https://www.wooridul.co.kr/introduce/network?dtg=fdoctors",
+  "centerUrl": null
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -340.5)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2200, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -410)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2760, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -310)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 15,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 16,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 17,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -361.5)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 19,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 20,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 21,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 22,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 23,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -322.914)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 25,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 26,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2100, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 29,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2100, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 1238,
+  "imgs": 21,
+  "title": "척추는 우리들병원",
+  "원장": 0,
+  "전문의": 0,
+  "교수": 0,
+  "nameTokens": 0,
+  "iframes": 1,
+  "url": "https://www.wooridul.co.kr/introduce/network?dtg=fdoctors",
+  "status": 200
+ }
+}

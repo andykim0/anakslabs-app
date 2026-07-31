@@ -1,0 +1,229 @@
+{
+ "url": "https://fornidental.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "video",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 1
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 68,
+    "h": 59,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 88,
+    "h": 59,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 126,
+    "h": 59,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 123,
+    "h": 59,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 235,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 231,
+    "h": 45,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 239,
+    "h": 47,
+    "fixedAnc": false,
+    "isCta": false
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Syncopate, Helvetica, Arial, Lucida, sans-serif",
+   "bodyFam": "Roboto, Helvetica, Arial, Lucida, sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 10,
+    "hgt": 100
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 10,
+    "hgt": 106
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 900,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 900,
+    "h": 378,
+    "tag": "div",
+    "chars": 458,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1402,
+    "h": 420,
+    "tag": "div",
+    "chars": 294,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1822,
+    "h": 510,
+    "tag": "div",
+    "chars": 488,
+    "imgs": 4,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2509,
+    "h": 915,
+    "tag": "div",
+    "chars": 209,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3424,
+    "h": 353,
+    "tag": "div",
+    "chars": 13,
+    "imgs": 6,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3776,
+    "h": 625,
+    "tag": "div",
+    "chars": 47,
+    "imgs": 4,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4401,
+    "h": 684,
+    "tag": "div",
+    "chars": 1,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5085,
+    "h": 435,
+    "tag": "div",
+    "chars": 342,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5519,
+    "h": 485,
+    "tag": "div",
+    "chars": 491,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6005,
+    "h": 592,
+    "tag": "div",
+    "chars": 235,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6497,
+    "h": 706,
+    "tag": "div",
+    "chars": 132,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7468,
+    "h": 458,
+    "tag": "div",
+    "chars": 122,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7926,
+    "h": 462,
+    "tag": "footer",
+    "chars": 382,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

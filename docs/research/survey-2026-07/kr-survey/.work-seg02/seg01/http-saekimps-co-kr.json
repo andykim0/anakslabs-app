@@ -1,0 +1,2346 @@
+{
+ "url": "http://www.saekimps.co.kr/",
+ "status": 200,
+ "finalUrl": "http://saekimps.co.kr/",
+ "title": "\uc0c8\uae40\uc131\ud615\uc678\uacfc, \uc555\uad6c\uc815\uc131\ud615\uc678\uacfc, \uc548\uba74\uc724\uacfd\u2219\ub3d9\uc548\u2219\ub208\u2219\ucf54",
+ "popups": [
+  "cross-popup-slider  | 8\uc6d4 \uc9c4\ub8cc\uc548\ub0b4 \uc5ec\ub984 \ub3d9\ubc18\ud560\uc778 event \uc9c4\ub8cc \uc5f0\uc7a5"
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2086, 0)"
+  },
+  {
+   "id": 6,
+   "op": 0.6,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 7,
+   "op": 0.6,
+   "tr": "matrix(1, 0, 0, 1, 795.984, 0)"
+  },
+  {
+   "id": 8,
+   "op": 0.6,
+   "tr": "matrix(1, 0, 0, 1, 1591.97, 0)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 2388.03, 0)"
+  },
+  {
+   "id": 10,
+   "op": 0.6,
+   "tr": "matrix(1, 0, 0, 1, 3184.01, 0)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -20)"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -20)"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 378.547, 212.93)"
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)"
+  },
+  {
+   "id": 28,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)"
+  },
+  {
+   "id": 32,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 33,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)"
+  },
+  {
+   "id": 34,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)"
+  },
+  {
+   "id": 36,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)"
+  },
+  {
+   "id": 38,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 39,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)"
+  },
+  {
+   "id": 40,
+   "op": 1,
+   "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)"
+  },
+  {
+   "id": 41,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)"
+  },
+  {
+   "id": 42,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 43,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 44,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 45,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 46,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 47,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 48,
+   "op": 1,
+   "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)"
+  },
+  {
+   "id": 49,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 50,
+   "op": 1,
+   "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)"
+  },
+  {
+   "id": 51,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 52,
+   "op": 1,
+   "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)"
+  },
+  {
+   "id": 53,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 54,
+   "op": 1,
+   "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)"
+  },
+  {
+   "id": 55,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 56,
+   "op": 1,
+   "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)"
+  },
+  {
+   "id": 57,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 58,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  },
+  {
+   "id": 59,
+   "op": 1,
+   "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 8462,
+  "screens": 9.4,
+  "sectionParentTag": "body",
+  "sectionCoverRatio": 1.12,
+  "sectionCount": 13,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "sr7-fonttest-wrap",
+    "absTop": -1500,
+    "h": 1000,
+    "chars": 14,
+    "headings": [],
+    "keyText": "BESbswyBESbswy",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 114,
+    "h": 691,
+    "chars": 48,
+    "headings": [
+     "\uc0c1\ub2f4\ubd80\ud130 \uc218\uc220\uae4c\uc9c0 \ub300\ud45c\uc6d0\uc7a5 \uc804\ub2f4"
+    ],
+    "keyText": "1:1 \ub9de\ucda4 \uc131\ud615\u2022\uad00\ub9ac\ub85c \ub192\uc740 \ub9de\ucda4 \uc9c4\ub8cc\ub97c \uc81c\uacf5\ud569\ub2c8\ub2e4. \uc0c1\ub2f4\ubd80\ud130 \uc218\uc220\uae4c\uc9c0 \ub300\ud45c\uc6d0\uc7a5 \uc804\ub2f4",
+    "media": 2,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 805,
+    "h": 1046,
+    "chars": 338,
+    "headings": [
+     "Before & After"
+    ],
+    "keyText": "Before & After \uc0c8\uae40\uc131\ud615\uc678\uacfc\uc758 \uc218\uc220 \uacb0\uacfc\ub97c \ud655\uc778\ud558\uc138\uc694. view more \uae34\uace1\uc120\uc0ac\uac01\ud131+\uc55e\ud131T+\ucf54(\uc808\uace8, \ube44\uc911\uaca9, \ub9e4\ubd80\ub9ac, \uc2e4\ub9ac\ucf58) (\uc218\uc220 \ud6c4 1\ub144 11\uac1c\uc6d4) \ub208\ubc11\uc9c0\ubc29\uc7ac\ubc30\uce58+\ubbf8\uc138\uc9c0\ubc29\uc774\uc2dd(\ub208\ubc11) (\uc218\uc220 \ud6c4 1\uac1c\uc6d4) 3D\uad11\ub300+\uae34\uace1\uc120\uc0ac\uac01\ud131+\uc55e\ud131V(\uc804\uc9c4)+\ubd80\ubd84\uc808\uac1c\ub208\ub9e4\uad50\uc815+\uc55e\ud2b8\uc784+\ubc11\ud2b8\uc784+\ucf54\uc7ac\uc218\uc220(\uae30\uc99d\ub291,\uc2e4\ub9ac\ucf58\uad50\uccb4)+\uc774\ub9c8\ucd95\uc18c+\uc774\ub9c8\uac70\uc0c1 (\uc218\uc220 \ud6c4 3\uac1c\uc6d4) \ub9e5\uc2a4v(\uc774\uc911\ud131)+\uc774\uc911\ud131\uadfc\uc721\ubb36\uae30 (\uc218\uc220 \ud6c4 1\uac1c\uc6d4) \ub9e5\uc2a4V\ud504\ub9ac\ubbf8\uc5c4(\uc606\ubcfc \uc774\uc911\ud131)+\uc9c0\ubc29\uc8fc\uc785(\ud314\uc790 \uc55e\ud131)+ \uc2ec\ubd80\ubcfc+\uc774\uc911\ud131\uadfc\uc721\ubb36\uae30+\ubbfc\ud2b8\uc2e4 +\ubcf4\ud1a1\uc2a4(\uc0ac\uac01\ud131)+\ub9ac\uc96c\ub780+\uc2a4\ud0a8\ubcf4\ud1a1\uc2a4+\ud544\ub7ec(\uc55e\ud131) (\uc218\uc220 \ud6c4 5\uac1c\uc6d4) \u203b \uc218\uc220 \ub610\ub294 \uc2dc\uc220 \uacb0\uacfc\ub294 \uac1c\uc778\ub9c8\ub2e4 \ucc28\uc774\uac00 \uc788\uc2b5\ub2c8\ub2e4.",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1851,
+    "h": 566,
+    "chars": 264,
+    "headings": [
+     "SAEKIM Youtube"
+    ],
+    "keyText": "SAEKIM Youtube view more Play Video Play Video \ub208\ub9e4\uad50\uc815 vs \uc30d\uaebc\ud480\ud83d\udc40, \ud5f7\uac08\ub9ac\uba74 \uc548 \ub418\ub294 \ucc28\uc774\uac00 \uc788\ub2e4\uace0\uc694?! #\ub208\ub9e4\uad50\uc815 #\uc30d\uaebc\ud480\uc218\uc220 #\uc30d\uc218 40\ub300 \uc5bc\uad74 \ucc98\uc9d0 \uc5b4\ub5a4 \uc2dc\uc220/\uc218\uc220\uc774 \ub9de\uc744\uae4c? \uc804\ubb38\uc758\uac00 \uc54c\ub824\uc8fc\ub294 \uc120\ud0dd \uac00\uc774\ub4dc #\ubcf4\ud1a1\uc2a4 #\uc2e4\ub9ac\ud504\ud305 #\ub808\uc774\uc800\ub9ac\ud504\ud305 #\uc9c0\ubc29\uc774\uc2dd \ub208, \ud314\uc790, \ub9c8\ub9ac\uc624\ub124\ud2b8 \uc8fc\ub984\uacfc \uaebc\uc9d0 \ud604\uc0c1\uc740 \uc9c0\ubc29\uc774\uc2dd\uc73c\ub85c \uac1c\uc120\uc774 \uac00\ub2a5\ud55c\uac00\uc694..? #\ud314\uc790\uc8fc\ub984 #\ub9ac\ud504\ud305 #\uc131\ud615 \ub208\uc379\ud558\uac70\uc0c1\uc220 \uc54c\uace0\ud569\uc2dc\ub2e4\ud83d\ude0b Q&A\ud3b8! #\ub208\uc379\ud558\uac70\uc0c1\uc220 #\ub3d9\uc548\uc131\ud615 #\uac70\uc0c1",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2417,
+    "h": 751,
+    "chars": 199,
+    "headings": [
+     "SAEKIM Shorts"
+    ],
+    "keyText": "SAEKIM Shorts view more Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video",
+    "media": 8,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 2552,
+    "h": 436,
+    "chars": 199,
+    "headings": [
+     "SAEKIM Shorts"
+    ],
+    "keyText": "SAEKIM Shorts view more Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video",
+    "media": 8,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 3169,
+    "h": 849,
+    "chars": 86,
+    "headings": [
+     "SAEKIM Event"
+    ],
+    "keyText": "SAEKIM Event view more \uc0c8\uae40 \uc548\uba74\uc724\uacfd3\uc885 \uc5bc\uad74\uc9c0\ubc29\ud761\uc785 \ub9e5\uc2a4V\ub9ac\ud504\ud305 \uc0c8\uae40 \ub208\uc131\ud615 \uc0c8\uae40 \uc548\uba74\uc724\uacfd \ud540\uc81c\uac70 \uc0c8\uae40 \ub208\ubc11\uc9c0\ubc29\uc7ac\ubc30\uce58 \uc0c8\uae40 \uc790\ub824\ud55c\ucf54\uc131\ud615",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 4018,
+    "h": 716,
+    "chars": 52,
+    "headings": [
+     "Real Selfie",
+     "\uc2dc\uac04\uc774 \uc9c0\ub098\ub3c4 \ubcc0\uce58 \uc54a\ub294 \uc0c8\uae40\uc758 \uc544\ub984\ub2e4\uc6c0",
+     "\uc0c8\uae40\uc758 \ub9ac\uc5bc\uc140\ud53c\uc5d0\uc11c \ud655\uc778\ud574\ubcf4\uc138\uc694"
+    ],
+    "keyText": "Real Selfie \uc2dc\uac04\uc774 \uc9c0\ub098\ub3c4 \ubcc0\uce58 \uc54a\ub294 \uc0c8\uae40\uc758 \uc544\ub984\ub2e4\uc6c0 \uc0c8\uae40\uc758 \ub9ac\uc5bc\uc140\ud53c\uc5d0\uc11c \ud655\uc778\ud574\ubcf4\uc138\uc694",
+    "media": 15,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 4108,
+    "h": 426,
+    "chars": 52,
+    "headings": [
+     "Real Selfie",
+     "\uc2dc\uac04\uc774 \uc9c0\ub098\ub3c4 \ubcc0\uce58 \uc54a\ub294 \uc0c8\uae40\uc758 \uc544\ub984\ub2e4\uc6c0",
+     "\uc0c8\uae40\uc758 \ub9ac\uc5bc\uc140\ud53c\uc5d0\uc11c \ud655\uc778\ud574\ubcf4\uc138\uc694"
+    ],
+    "keyText": "Real Selfie \uc2dc\uac04\uc774 \uc9c0\ub098\ub3c4 \ubcc0\uce58 \uc54a\ub294 \uc0c8\uae40\uc758 \uc544\ub984\ub2e4\uc6c0 \uc0c8\uae40\uc758 \ub9ac\uc5bc\uc140\ud53c\uc5d0\uc11c \ud655\uc778\ud574\ubcf4\uc138\uc694",
+    "media": 15,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 4734,
+    "h": 1427,
+    "chars": 155,
+    "headings": [
+     "SAEKIM",
+     "Medical Team",
+     "\uae40\uc9c0\uba85 \ub300\ud45c\uc6d0\uc7a5",
+     "\ubb38\ud61c\uc601 \ub300\ud45c\uc6d0\uc7a5",
+     "\uc724\ud0dc\ud638 \ub300\ud45c\uc6d0\uc7a5"
+    ],
+    "keyText": "SAEKIM Medical Team \uc784\uc0c1\uacbd\ud5d8\uc774 \ud48d\ubd80\ud55c \ubd84\uc57c\ubcc4 \uc804\ub2f4 \uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4. \uc131\ud615\uc678\uacfc \uc804\ubb38\uc758 Dr. Kim Jee-Myung \uae40\uc9c0\uba85 \ub300\ud45c\uc6d0\uc7a5 \uc131\ud615\uc678\uacfc \uc804\ubb38\uc758 Dr. Moon Hye-Young \ubb38\ud61c\uc601 \ub300\ud45c\uc6d0\uc7a5 \uc131\ud615\uc678\uacfc \uc804\ubb38\uc758 Dr. Yoon Tae-ho \uc724\ud0dc\ud638 \ub300\ud45c\uc6d0\uc7a5",
+    "media": 7,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 6161,
+    "h": 1127,
+    "chars": 279,
+    "headings": [
+     "\uc758\ubbf8\uc788\ub294",
+     "\uc544\ub984\ub2e4\uc6c0\uc744 \uc608\uc068\uc744",
+     "\uc0c8\uae30\ub2e4",
+     "\uc9c4\ub8cc\ubd80\ud130 \ud68c\ubcf5\uae4c\uc9c0, \ud55c \uacf5\uac04\uc5d0\uc11c \uc644\uc131\ub429\ub2c8\ub2e4",
+     "\ub9c8\ucde8\ud1b5\uc99d\uc758\ud559\uacfc \uc804\ubb38\uc758\uac00 \uc0c1\uc8fc\ud569\ub2c8\ub2e4"
+    ],
+    "keyText": "SAEKIM \uc758\ubbf8\uc788\ub294 \uc544\ub984\ub2e4\uc6c0\uc744 \uc608\uc068\uc744 \uc0c8\uae30\ub2e4 01 \uc9c4\ub8cc\ubd80\ud130 \ud68c\ubcf5\uae4c\uc9c0, \ud55c \uacf5\uac04\uc5d0\uc11c \uc644\uc131\ub429\ub2c8\ub2e4 \uc0c8\uae40\uc131\ud615\uc678\uacfc\ub294 \ub2e8\ub3c5 \uac74\ubb3c \uc804\uccb4\ub97c \uc6b4\uc601\ud558\uba70 \uc9c4\ub8cc\u00b7\uc218\uc220\u00b7\ud68c\ubcf5\uc744 \ubaa8\ub450 \uc544\uc6b0\ub974\ub294 \uc6d0\uc2a4\ud1b1 \uc2dc\uc2a4\ud15c\uc744 \uac16\ucd94\uace0 \uc788\uc2b5\ub2c8\ub2e4. 02 \ub9c8\ucde8\ud1b5\uc99d\uc758\ud559\uacfc \uc804\ubb38\uc758\uac00 \uc0c1\uc8fc\ud569\ub2c8\ub2e4 \ub9c8\ucde8\ud1b5\uc99d\uc758\ud559\uacfc \uc804\ubb38\uc758\uac00 \uc0c1\uc8fc\ud558\uc5ec \uac1c\uc778\ubcc4 \uc0c1\ud0dc\uc5d0 \ub9de\ucdb0 1:1 \ub9de\ucda4 \ub9c8\ucde8\uc640 \uc548\uc804 \ubaa8\ub2c8\ud130\ub9c1\uc744 \uc804\ub2f4\ud569\ub2c8\ub2e4. 03 \ub300\ud45c\uc6d0\uc7a5\uc774 \uc804 \uacfc\uc815\uc744 \uc9c1\uc811 \ucc45\uc784\uc9d1\ub2c8\ub2e4 \uc0c8\uae40\uc131\ud615\uc678\uacfc\ub294 \uc0c1\ub2f4, \uc218\uc220, \uacbd\uacfc \uad00\ub9ac\uac00 \ub3d9\uc77c\ud55c \ub300\ud45c\uc6d0\uc7a5\uc5d0\uac8c \uc77c\uad00\ub418\uac8c \uc774\ub8e8\uc5b4\uc838 \uc2e0\ub8b0\ub3c4 \ub192\uc740 \ub9de\ucda4 \uc9c4\ub8cc\ub97c \uc81c\uacf5\ud569\ub2c8\ub2e4.",
+    "media": 4,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "div",
+    "absTop": 7288,
+    "h": 556,
+    "chars": 222,
+    "headings": [
+     "Location",
+     "T. 1833-7227"
+    ],
+    "keyText": "Location \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uc5b8\uc8fc\ub85c 856 \uc9c0\ud5582\uce35~6\uce35 (\uc2e0\uc0ac\ub3d9) \uc6d4/\ud654/\uc218 10 : 00 ~ 19 : 00 \uae08\uc694\uc77c 10 : 00 ~ 20 : 00 \ud1a0\uc694\uc77c 10 : 00 ~ 17 : 00 * \ubaa9\uc694\uc77c, \uc77c\uc694\uc77c, \uacf5\ud734\uc77c\uc740 \ud734\uc9c4\uc785\ub2c8\ub2e4. \ub124\uc774\ubc84 \uc9c0\ub3c4 \uce74\uce74\uc624 \uc9c0\ub3c4 \uad6c\uae00 \uc9c0\ub3c4 T. 1833-7227 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uc5b8\uc8fc\ub85c 856 \uc9c0\ud5582\uce35~6\uce35 (\uc2e0\uc0ac\ub3d9) Naver > Google > Kakao >",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 12,
+    "tag": "div",
+    "absTop": 7844,
+    "h": 618,
+    "chars": 406,
+    "headings": [],
+    "keyText": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \uc774\uc6a9\uc57d\uad00 \ube44\uae09\uc5ec\ud56d\ubaa9\uc218\uac00\ud45c \ubcd1\uc6d0\uc18c\uac1c \uc628\ub77c\uc778\uc0c1\ub2f4 \uc624\uc2dc\ub294 \uae38 Contact T. 1833-7227 \uc6d4/\ud654/\uc218 10:00 ~ 19:00 \uae08\uc694\uc77c 10:00 ~ 20:00 \ud1a0\uc694\uc77c 10:00 ~ 17:00 (\uc77c\uc694\uc77c \u00b7 \uacf5\ud734\uc77c \ud734\ubb34) Info \uc0c8\uae40\uc131\ud615\uc678\uacfc \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \uc5b8\uc8fc\ub85c 856 \uc9c0\ud5582\uce35~6\uce35(\uc2e0\uc0ac\ub3d9) \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 512-71-00328\ub300\ud45c : \uae40\uc9c0\uba85, \ubb38\ud61c\uc601 \u24d2 Copyright SAEKIM Plastic Surgery. All Rights RESERVED \uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ub124\uc774\ubc84\uc608\uc57d \ub9ac\uc5bc\ubaa8\ub378\uc2e0\uccad \uc720\ud29c\ube0c \uc624\uc2dc\ub294 \uae38 \ud035\uba54\ub274 \ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad \uc774\ub984 * \uc804\ud654\ubc88\ud638 * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd \uc548\uba74\uc724\uacfd \ub208\uc131\ud615 \ucf54\uc131\ud615 \ub3d9\uc548/\ub9ac\ud504\ud305 \uccb4\ud615 \uc058\ub760 \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 * \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+    "media": 14,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 571,
+    "tag": "h1",
+    "t": "\uc0c1\ub2f4\ubd80\ud130 \uc218\uc220\uae4c\uc9c0 \ub300\ud45c\uc6d0\uc7a5 \uc804\ub2f4"
+   },
+   {
+    "y": 950,
+    "tag": "h2",
+    "t": "Before & After"
+   },
+   {
+    "y": 1881,
+    "tag": "h2",
+    "t": "SAEKIM Youtube"
+   },
+   {
+    "y": 2552,
+    "tag": "h2",
+    "t": "SAEKIM Shorts"
+   },
+   {
+    "y": 3309,
+    "tag": "h2",
+    "t": "SAEKIM Event"
+   },
+   {
+    "y": 4108,
+    "tag": "h2",
+    "t": "Real Selfie"
+   },
+   {
+    "y": 4850,
+    "tag": "h2",
+    "t": "SAEKIM"
+   },
+   {
+    "y": 4923,
+    "tag": "h2",
+    "t": "Medical Team"
+   },
+   {
+    "y": 5799,
+    "tag": "h2",
+    "t": "\uae40\uc9c0\uba85 \ub300\ud45c\uc6d0\uc7a5"
+   },
+   {
+    "y": 5799,
+    "tag": "h2",
+    "t": "\uc724\ud0dc\ud638 \ub300\ud45c\uc6d0\uc7a5"
+   },
+   {
+    "y": 5864,
+    "tag": "h2",
+    "t": "\ubb38\ud61c\uc601 \ub300\ud45c\uc6d0\uc7a5"
+   },
+   {
+    "y": 6578,
+    "tag": "h1",
+    "t": "\uc758\ubbf8\uc788\ub294"
+   },
+   {
+    "y": 6695,
+    "tag": "h1",
+    "t": "\uc544\ub984\ub2e4\uc6c0\uc744 \uc608\uc068\uc744"
+   },
+   {
+    "y": 6777,
+    "tag": "h2",
+    "t": "\uc9c4\ub8cc\ubd80\ud130 \ud68c\ubcf5\uae4c\uc9c0, \ud55c \uacf5\uac04\uc5d0\uc11c \uc644\uc131\ub429\ub2c8\ub2e4"
+   },
+   {
+    "y": 6777,
+    "tag": "h2",
+    "t": "\ub9c8\ucde8\ud1b5\uc99d\uc758\ud559\uacfc \uc804\ubb38\uc758\uac00 \uc0c1\uc8fc\ud569\ub2c8\ub2e4"
+   },
+   {
+    "y": 6777,
+    "tag": "h2",
+    "t": "\ub300\ud45c\uc6d0\uc7a5\uc774 \uc804 \uacfc\uc815\uc744 \uc9c1\uc811 \ucc45\uc784\uc9d1\ub2c8\ub2e4"
+   },
+   {
+    "y": 6816,
+    "tag": "h1",
+    "t": "\uc0c8\uae30\ub2e4"
+   },
+   {
+    "y": 7499,
+    "tag": "h2",
+    "t": "Location"
+   }
+  ],
+  "hero": {
+   "h": 1000,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": null,
+   "mediaPlace": "none",
+   "mediaCoverW": null,
+   "mediaCoverH": null,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": "BESbswyBESbswy"
+  },
+  "type": {
+   "h1": "Marcellus, serif",
+   "h2": "Pretendard, -apple-system, \"system-ui\", system-ui, Roboto, \"Helvetica Neue\", \"Segoe UI\", \"Apple SD Gothic Neo\", \"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "body": "Pretendard, -apple-system, \"system-ui\", system-ui, Roboto, \"Helvetica Neue\", \"Segoe UI\", \"Apple SD Gothic Neo\", \"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "h1Weight": "400",
+   "h1Size": "62px",
+   "h2Weight": "700",
+   "h2Size": "29px",
+   "bodySize": "23px",
+   "bodyWeight": "600",
+   "bodyLH": "35px",
+   "bigHeadPx": 49,
+   "bigHeadFam": "Pretendard, \"Malgun Gothic\", malgungothic, \ub9d1\uc740\uace0\ub515, sans-serif",
+   "bigHeadWeight": "600",
+   "h1Count": 8,
+   "h2Sizes": [
+    "41px",
+    "22px",
+    "54px",
+    "30px",
+    "45px",
+    "43px"
+   ],
+   "h3Size": "38px",
+   "fontFaces": [
+    "Font Awesome 5 Brands",
+    "Font Awesome 5 Free",
+    "FontAwesome",
+    "Pretendard",
+    "Marcellus",
+    "gform-icons-orbital",
+    "icomoon",
+    "Open Sans",
+    "Montserrat",
+    "swiper-icons",
+    "revicons",
+    "Roboto"
+   ],
+   "linkFonts": [
+    "https://use.fontawesome.com/releases/v5.10.0/css/all.css?ver=5.10.0",
+    "http://saekimps.co.kr/wp-content/plugins/jt-easy-popups-1.2.1/css/font-awesome.min.css?ver",
+    "http://saekimps.co.kr/wp-content/themes/salient/css/font-awesome-legacy.min.css?ver=4.7.1",
+    "https://fonts.googleapis.com/css?family=Open+Sans%3A300%2C400%2C600%2C700&subset=latin%2Cl",
+    "//saekimps.co.kr/wp-content/plugins/revslider/public/css/fonts/revicons/css/revicons.css",
+    "//fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Marcellus:wght@400&display=s"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 2,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 6,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 19,
+   "lottie": 6,
+   "webflowIx": 0,
+   "marquee": 2,
+   "totalSlideEls": 6
+  },
+  "pageTextLen": 2600,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 1,
+   "inputCount": 6,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 14,
+   "bookingWidget": 0,
+   "reviewWidgets": 1,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwAbout": true,
+   "kwVideo": true,
+   "kwTrust": true,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 4,
+   "naverLinks": 3,
+   "instaLinks": 15,
+   "ytLinks": 12,
+   "phoneKR": null,
+   "statLike": [
+    "1\ub144 "
+   ]
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1289.96, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0.6,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0.6,
+    "tr": "matrix(1, 0, 0, 1, 795.984, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 1591.97, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 0.6,
+    "tr": "matrix(1, 0, 0, 1, 2388.03, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 10,
+    "op": 0.6,
+    "tr": "matrix(1, 0, 0, 1, 3184.01, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -20)",
+    "td": "0.45s, 0.45s, 0.45s, 0.45s, 0.45s, 0.45s",
+    "tf": "cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1)",
+    "tp": "opacity, transform, border-color, color, background-color, box-shadow",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -20)",
+    "td": "0.45s, 0.45s, 0.45s, 0.45s, 0.45s, 0.45s",
+    "tf": "cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1), cubic-bezier(0.25, 1, 0.33, 1)",
+    "tp": "opacity, transform, border-color, color, background-color, box-shadow",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 13,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 15,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 16,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 17,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 20,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 378.547, 212.93)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 21,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 22,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 23,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 24,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 25,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 28,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 29,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 30,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 32,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 33,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 34,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 35,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 161.156)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 36,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 37,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 38,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 39,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 40,
+    "op": 1,
+    "tr": "matrix(1.05, 0, 0, 1.05, 0, 0)",
+    "td": "0.7s",
+    "tf": "cubic-bezier(0.2, 1, 0.22, 1)",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 41,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 90.4295, 160.758)",
+    "td": "0.3s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 42,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 43,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 44,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 45,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 53.3)",
+    "td": "1.2s, 1.2s",
+    "tf": "cubic-bezier(0.25, 1, 0.5, 1), cubic-bezier(0.25, 1, 0.5, 1)",
+    "tp": "transform, opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 46,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 47,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 48,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 49,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 50,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 51,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 52,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 53,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 54,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 55,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 56,
+    "op": 1,
+    "tr": "matrix(0.85, 0, 0, 0.85, 0, 0)",
+    "td": "0.6s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 57,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 58,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 59,
+    "op": 1,
+    "tr": "matrix(1.006, 0, 0, 1.006, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.794,
+   "darkFrac": 0.036,
+   "lightFrac": 0.916
+  },
+  {
+   "i": 1,
+   "mean": 0.75,
+   "darkFrac": 0.042,
+   "lightFrac": 0.91
+  },
+  {
+   "i": 2,
+   "mean": 0.886,
+   "darkFrac": 0.028,
+   "lightFrac": 0.892
+  },
+  {
+   "i": 3,
+   "mean": 0.855,
+   "darkFrac": 0.104,
+   "lightFrac": 0.833
+  },
+  {
+   "i": 4,
+   "mean": 0.874,
+   "darkFrac": 0.056,
+   "lightFrac": 0.869
+  },
+  {
+   "i": 5,
+   "mean": 0.784,
+   "darkFrac": 0.096,
+   "lightFrac": 0.775
+  },
+  {
+   "i": 6,
+   "mean": 0.891,
+   "darkFrac": 0.047,
+   "lightFrac": 0.897
+  },
+  {
+   "i": 7,
+   "mean": 0.847,
+   "darkFrac": 0.106,
+   "lightFrac": 0.799
+  },
+  {
+   "i": 8,
+   "mean": 0.754,
+   "darkFrac": 0.171,
+   "lightFrac": 0.677
+  },
+  {
+   "i": 9,
+   "mean": 0.878,
+   "darkFrac": 0.033,
+   "lightFrac": 0.94
+  },
+  {
+   "i": 10,
+   "mean": 0.769,
+   "darkFrac": 0.052,
+   "lightFrac": 0.808
+  },
+  {
+   "i": 11,
+   "mean": 0.934,
+   "darkFrac": 0.012,
+   "lightFrac": 0.961
+  },
+  {
+   "i": 12,
+   "mean": 0.472,
+   "darkFrac": 0.591,
+   "lightFrac": 0.403
+  }
+ ],
+ "heroLum": {
+  "mean": 0.752,
+  "darkFrac": 0.083,
+  "lightFrac": 0.742
+ },
+ "heroLumBelowNav": {
+  "mean": 0.722,
+  "darkFrac": 0.091,
+  "lightFrac": 0.713
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 114,
+   "left": 0,
+   "w": 1440,
+   "h": 114,
+   "z": "9998",
+   "links": [
+    {
+     "href": "http://saekimps.co.kr",
+     "label": ""
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\uc0c8\uae40\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/medical-team/",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/hours-directions/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/facilities-tour/",
+     "label": "\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/safe-anesthesia-syst",
+     "label": "\uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-operative-care-",
+     "label": "\uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-surgery-guideli",
+     "label": "\uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/notices/",
+     "label": "\uacf5\uc9c0\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/press/",
+     "label": "\uc5b8\ub860\ubcf4\ub3c4"
+    },
+    {
+     "href": "http://saekimps.co.kr/facial-contouring/cheekbone-reduction/",
+     "label": "\uc548\uba74\uc724\uacfd"
+    }
+   ],
+   "label": "\ubcd1\uc6d0\uc18c\uac1c \uc0c8\uae40\uc18c\uac1c \uc758\ub8cc\uc9c4\uc18c\uac1c \uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38 \ub458\ub7ec\ubcf4\uae30 \uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4 \uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c \uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c \uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8 \uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d \uacf5\uc9c0\uc0ac\ud56d \uc5b8\ub860\ubcf4\ub3c4 \uc548\uba74\uc724\uacfd \uad11\ub300\ucd95\uc18c\uc220 \uc0ac\uac01\ud131\uc218\uc220 \ud131\ub05d\uc218\uc220 \uc724\uacfd\uc7ac\uc218\uc220 \ubcf4\ud615\ubb3c \ubb34\ud131\ubcf4\ud615\ubb3c \uadc0\uc871 \uc774\ub9c8 \ub208\uc131\ud615 \uc30d\uaebc\ud480/\ud2b8",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 748,
+   "bottom": 850,
+   "left": 1338,
+   "w": 82,
+   "h": 102,
+   "z": "999999",
+   "links": [
+    {
+     "href": "#none",
+     "label": "\ud035\uba54\ub274"
+    }
+   ],
+   "label": "\uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ub124\uc774\ubc84\uc608\uc57d \ub9ac\uc5bc\ubaa8\ub378\uc2e0\uccad \uc720\ud29c\ube0c \uc624\uc2dc\ub294 \uae38 \ud035\uba54\ub274",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 834,
+   "bottom": 998,
+   "left": 0,
+   "w": 1440,
+   "h": 164,
+   "z": "99999999",
+   "links": [
+    {
+     "href": "#",
+     "label": "\ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad"
+    },
+    {
+     "href": "/privacy-policy/",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    }
+   ],
+   "label": "\ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad \uc774\ub984 * \uc804\ud654\ubc88\ud638 * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd \uc548\uba74\uc724\uacfd \ub208\uc131\ud615 \ucf54\uc131\ud615 \ub3d9\uc548/\ub9ac\ud504\ud305 \uccb4\ud615 \uc058\ub760 \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 * \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 1391,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#slide-out-widget-area",
+     "label": "Menu"
+    }
+   ],
+   "label": "Menu",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1441,
+   "w": 340,
+   "h": 900,
+   "z": "9999",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -26,
+   "bottom": 26,
+   "left": -26,
+   "w": 52,
+   "h": 52,
+   "z": "400",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -114,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 114,
+   "z": "9998",
+   "links": [
+    {
+     "href": "http://saekimps.co.kr",
+     "label": ""
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\uc0c8\uae40\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/medical-team/",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/hours-directions/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/facilities-tour/",
+     "label": "\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/safe-anesthesia-syst",
+     "label": "\uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-operative-care-",
+     "label": "\uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-surgery-guideli",
+     "label": "\uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/notices/",
+     "label": "\uacf5\uc9c0\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/press/",
+     "label": "\uc5b8\ub860\ubcf4\ub3c4"
+    },
+    {
+     "href": "http://saekimps.co.kr/facial-contouring/cheekbone-reduction/",
+     "label": "\uc548\uba74\uc724\uacfd"
+    }
+   ],
+   "label": "\ubcd1\uc6d0\uc18c\uac1c \uc0c8\uae40\uc18c\uac1c \uc758\ub8cc\uc9c4\uc18c\uac1c \uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38 \ub458\ub7ec\ubcf4\uae30 \uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4 \uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c \uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c \uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8 \uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d \uacf5\uc9c0\uc0ac\ud56d \uc5b8\ub860\ubcf4\ub3c4 \uc548\uba74\uc724\uacfd \uad11\ub300\ucd95\uc18c\uc220 \uc0ac\uac01\ud131\uc218\uc220 \ud131\ub05d\uc218\uc220 \uc724\uacfd\uc7ac\uc218\uc220 \ubcf4\ud615\ubb3c \ubb34\ud131\ubcf4\ud615\ubb3c \uadc0\uc871 \uc774\ub9c8 \ub208\uc131\ud615 \uc30d\uaebc\ud480/\ud2b8",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 751,
+   "left": 20,
+   "w": 1400,
+   "h": 751,
+   "z": "1",
+   "links": [
+    {
+     "href": "https://www.youtube.com/@saekimps",
+     "label": "view more"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DWyLhGlCSgT/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DWyLhGlCSgT/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DTH2eVhjWPd/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DTH2eVhjWPd/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DW8CvIDieLj/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DW8CvIDieLj/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DS11SHMDdjq/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DS11SHMDdjq/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://youtube.com/shorts/8xdHe78Nh8g",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://youtube.com/shorts/8xdHe78Nh8g",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/p/DXtY74LjYU-/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/p/DXtY74LjYU-/",
+     "label": "Play Video"
+    },
+    {
+     "href": "https://www.instagram.com/reel/DXJSAoBjWuO/",
+     "label": "Play Video"
+    }
+   ],
+   "label": "SAEKIM Shorts view more Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play Video Play V",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 716,
+   "left": 20,
+   "w": 1400,
+   "h": 716,
+   "z": "2",
+   "links": [],
+   "label": "Real Selfie \uc2dc\uac04\uc774 \uc9c0\ub098\ub3c4 \ubcc0\uce58 \uc54a\ub294 \uc0c8\uae40\uc758 \uc544\ub984\ub2e4\uc6c0 \uc0c8\uae40\uc758 \ub9ac\uc5bc\uc140\ud53c\uc5d0\uc11c \ud655\uc778\ud574\ubcf4\uc138\uc694",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 748,
+   "bottom": 850,
+   "left": 1338,
+   "w": 82,
+   "h": 102,
+   "z": "999999",
+   "links": [
+    {
+     "href": "#none",
+     "label": "\ud035\uba54\ub274"
+    }
+   ],
+   "label": "\uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ub124\uc774\ubc84\uc608\uc57d \ub9ac\uc5bc\ubaa8\ub378\uc2e0\uccad \uc720\ud29c\ube0c \uc624\uc2dc\ub294 \uae38 \ud035\uba54\ub274",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 834,
+   "bottom": 998,
+   "left": 0,
+   "w": 1440,
+   "h": 164,
+   "z": "99999999",
+   "links": [
+    {
+     "href": "#",
+     "label": "\ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad"
+    },
+    {
+     "href": "/privacy-policy/",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    }
+   ],
+   "label": "\ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad \uc774\ub984 * \uc804\ud654\ubc88\ud638 * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd \uc548\uba74\uc724\uacfd \ub208\uc131\ud615 \ucf54\uc131\ud615 \ub3d9\uc548/\ub9ac\ud504\ud305 \uccb4\ud615 \uc058\ub760 \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 * \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 1391,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#slide-out-widget-area",
+     "label": "Menu"
+    }
+   ],
+   "label": "Menu",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 857,
+   "bottom": 886,
+   "left": 1394,
+   "w": 29,
+   "h": 29,
+   "z": "9994",
+   "links": [],
+   "label": "",
+   "tag": "a",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1441,
+   "w": 340,
+   "h": 900,
+   "z": "9999",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -26,
+   "bottom": 26,
+   "left": -26,
+   "w": 52,
+   "h": 52,
+   "z": "400",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 6.9,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -65,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 65,
+   "z": "9998",
+   "links": [
+    {
+     "href": "http://saekimps.co.kr",
+     "label": ""
+    },
+    {
+     "href": "#slide-out-widget-area",
+     "label": "Menu"
+    }
+   ],
+   "label": "Menu",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 790,
+   "bottom": 942,
+   "left": 0,
+   "w": 390,
+   "h": 152,
+   "z": "99999999",
+   "links": [
+    {
+     "href": "/introduction/hours-directions/",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "https://pf.kakao.com/_jxkxjxlK",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "tel:1833-7227",
+     "label": "\uc804\ud654\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": "\ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad"
+    },
+    {
+     "href": "/privacy-policy/",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    }
+   ],
+   "label": "\uc624\uc2dc\ub294\uae38 \uce74\ud1a1\uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4 \ube60\ub978 \uc0c1\ub2f4 \uc2e0\uccad \uc774\ub984 * \uc804\ud654\ubc88\ud638 * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd * \uc0c1\ub2f4\ubd80\uc704 \uc120\ud0dd \uc548\uba74\uc724\uacfd \ub208\uc131\ud615 \ucf54\uc131\ud615 \ub3d9\uc548/\ub9ac\ud504\ud305 \uccb4\ud615 \uc058\ub760 \uae30\ud0c0 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 * \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 21,
+   "left": 341,
+   "w": 22,
+   "h": 21,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#slide-out-widget-area",
+     "label": "Menu"
+    }
+   ],
+   "label": "Menu",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 391,
+   "w": 340,
+   "h": 844,
+   "z": "9999",
+   "links": [
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\ubcd1\uc6d0\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/about-saegim/",
+     "label": "\uc0c8\uae40\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/medical-team/",
+     "label": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/hours-directions/",
+     "label": "\uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/facilities-tour/",
+     "label": "\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/saegim-safety-system",
+     "label": "\uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/safe-anesthesia-syst",
+     "label": "\uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-operative-care-",
+     "label": "\uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/safe-aftercare/post-surgery-guideli",
+     "label": "\uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/notices/",
+     "label": "\uacf5\uc9c0\uc0ac\ud56d"
+    },
+    {
+     "href": "http://saekimps.co.kr/introduction/press/",
+     "label": "\uc5b8\ub860\ubcf4\ub3c4"
+    },
+    {
+     "href": "http://saekimps.co.kr/facial-contouring/cheekbone-reduction/",
+     "label": "\uc548\uba74\uc724\uacfd"
+    },
+    {
+     "href": "http://saekimps.co.kr/facial-contouring/cheekbone-reduction/",
+     "label": "\uad11\ub300\ucd95\uc18c\uc220"
+    }
+   ],
+   "label": "\ubcd1\uc6d0\uc18c\uac1c \uc0c8\uae40\uc18c\uac1c \uc758\ub8cc\uc9c4\uc18c\uac1c \uc9c4\ub8cc\uc2dc\uac04/\uc624\uc2dc\ub294 \uae38 \ub458\ub7ec\ubcf4\uae30 \uc548\uc804\uc0ac\ud6c4\ucf00\uc5b4 \uc0c8\uae40 \uc548\uc804\uc2dc\uc2a4\ud15c \uc548\uc2ec \ub9c8\ucde8\uc2dc\uc2a4\ud15c \uc218\uc220 \ud6c4 \ud504\ub85c\uadf8\ub7a8 \uc218\uc220 \ud6c4 \uc8fc\uc758\uc0ac\ud56d \uacf5\uc9c0\uc0ac\ud56d \uc5b8\ub860\ubcf4\ub3c4 \uc548\uba74\uc724\uacfd \uad11\ub300\ucd95\uc18c\uc220 \uc0ac\uac01\ud131\uc218\uc220 \ud131\ub05d\uc218\uc220 \uc724\uacfd\uc7ac\uc218\uc220 \ubcf4\ud615\ubb3c \ubb34\ud131\ubcf4\ud615\ubb3c \uadc0\uc871 \uc774\ub9c8 \ub208\uc131\ud615 \uc30d\uaebc\ud480/\ud2b8",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,532 @@
+{
+ "url": "http://rebornps.com/",
+ "status": 200,
+ "finalUrl": "http://rebornps.com/",
+ "title": "\ub9ac\ubcf8\uc131\ud615\uc678\uacfc",
+ "popups": [
+  "pop_c  | \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ub0b4\uc6a9\uc5d0 \ub3d9\uc758[\uc790\uc138\ud788\ubcf4\uae30] [\uc624\ub298\ud558\ub8e8",
+  "DIM:pbg "
+ ],
+ "revealPost": [],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6500,
+  "screens": 7.2,
+  "sectionParentTag": "body",
+  "sectionCoverRatio": 1.04,
+  "sectionCount": 8,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 159,
+    "h": 779,
+    "chars": 13,
+    "headings": [],
+    "keyText": "Previous Next",
+    "media": 4,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 938,
+    "h": 1019,
+    "chars": 276,
+    "headings": [
+     "REBORN\u2019S TV",
+     "\uc2e4\ub9ac\ud504\ud305, \uac71\uc815\ud558\uc9c0 \ub9c8\uc138\uc694(\uc548\uc804\uc131, \ud749\ud130, \ubcfc \ud328\uc784&\ub524\ud50c)",
+     "\uc131\ud615\uc678\uacfc \uc758\uc0ac\uac00 \uc9c1\uc811 \uc54c\ub824\uc8fc\ub294 \ub098\uc5d0\uac8c \ub9de\ub294 \ud314\uc790\uc8fc\ub984 \uc81c\uac70 \ubc29\ubc95!",
+     "\ucf5c\ub77c\uac90\uc740 \uc9c4\uc9dc \ud53c\ubd80\uc5d0\ub294 \uc0ac\uae30\uc801\uc778 \uc544\uc774\ud15c \uac19\uc2b5\ub2c8\ub2e4. \ucf5c\ub77c\uac90\uc744 \ucc44\uc6b0\ub294 \ubc29\ubc95",
+     "\ub0b4\uac00 \uc774\uc911\ud131 \uc9c0\ubc29\ud761\uc785\uc744 \uacb0\uc2ec\ud55c \uc774\uc720"
+    ],
+    "keyText": "\ub2e4\uc2dc \ud0dc\uc5b4\ub098\ub2e4 : RE-BORN REBORN\u2019S TV REBORN PLASTIC SURGERY \uc2e4\ub9ac\ud504\ud305, \uac71\uc815\ud558\uc9c0 \ub9c8\uc138\uc694(\uc548\uc804\uc131, \ud749\ud130, \ubcfc \ud328\uc784&\ub524\ud50c) #\uc2e4\ub9ac\ud504\ud305 #\ub9ac\ud504\ud305 #\ub9ac\ud504\ud305 \uc2dc\uc220 \uc131\ud615\uc678\uacfc \uc758\uc0ac\uac00 \uc9c1\uc811 \uc54c\ub824\uc8fc\ub294 \ub098\uc5d0\uac8c \ub9de\ub294 \ud314\uc790\uc8fc\ub984 \uc81c\uac70 \ubc29\ubc95! #\ud314\uc790\uc8fc\ub984\ub9ac\ud504\ud305 #\uc9c0\ubc29\uc774\uc2dd #\ud544\ub7ec #\ud314\uc790\uc8fc\ub984 \ucf5c\ub77c\uac90\uc740 \uc9c4\uc9dc \ud53c\ubd80\uc5d0\ub294 \uc0ac\uae30\uc801\uc778 \uc544\uc774\ud15c \uac19\uc2b5\ub2c8\ub2e4. \ucf5c\ub77c\uac90\uc744 \ucc44\uc6b0\ub294 \ubc29\ubc95 #\ucf5c\ub77c\uac90 #\ub2f9\uae30\uc9c0\uc624 #\ub178\ud654\ubc29\uc9c0 \ub0b4\uac00 \uc774\uc911\ud131 \uc9c0\ubc29\ud761\uc785\uc744 \uacb0\uc2ec\ud55c \uc774\uc720 #\uc5bc\uad74\uc9c0\ubc29\ud761\uc785 #\uc774\uc911\ud131\uc81c\uac70 #\uc774\uc911\ud131\uc9c0\ubc29\ud761\uc785 VIEW MORE",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 0.98,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1617,
+    "h": 541,
+    "chars": 32,
+    "headings": [],
+    "keyText": "\ub9ac\ubcf8\uc720\ud29c\ube0c \ub9ac\ubcf8\ube14\ub85c\uadf8 \uce74\ud1a1\uc0c1\ub2f4 \ubb38\uc758 \uc774\ubca4\ud2b8 \uc624\uc2dc\ub294\uae38 Top",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1957,
+    "h": 1435,
+    "chars": 58,
+    "headings": [
+     "REBORN\u2019S HOT PICK"
+    ],
+    "keyText": "\ub2e4\uc2dc \ud0dc\uc5b4\ub098\ub2e4 : RE-BORN REBORN\u2019S HOT PICK REBORN PLASTIC SURGERY",
+    "media": 5,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 3392,
+    "h": 399,
+    "chars": 66,
+    "headings": [
+     "EVENT & NOTICE"
+    ],
+    "keyText": "\ub2e4\uc2dc \ud0dc\uc5b4\ub098\ub2e4 : RE-BORN EVENT & NOTICE REBORN PLASTIC SURGERY \uac8c\uc2dc\ubb3c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 3791,
+    "h": 966,
+    "chars": 301,
+    "headings": [
+     "BEFORE & AFTER",
+     "MEMBERS ONLY",
+     "BEFORE",
+     "AFTER",
+     "MEMBERS ONLY"
+    ],
+    "keyText": "\ub2e4\uc2dc \ud0dc\uc5b4\ub098\ub2e4 : RE-BORN BEFORE & AFTER REBORN PLASTIC SURGERY MEMBERS ONLY \ud68c\uc6d0\ub85c\uadf8\uc778\uc744 \ud558\uc2dc\uba74 \ub2e4\uc591\ud55c \uc804\ud6c4 \uc0ac\uc9c4\uc744 \ud655\uc778\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. BEFORE AFTER MEMBERS ONLY \ud68c\uc6d0\ub85c\uadf8\uc778\uc744 \ud558\uc2dc\uba74 \ub2e4\uc591\ud55c \uc804\ud6c4 \uc0ac\uc9c4\uc744 \ud655\uc778\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. BEFORE AFTER MEMBERS ONLY \ud68c\uc6d0\ub85c\uadf8\uc778\uc744 \ud558\uc2dc\uba74 \ub2e4\uc591\ud55c \uc804\ud6c4 \uc0ac\uc9c4\uc744 \ud655\uc778\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. BEFORE AFTER MEMBERS ONLY \ud68c\uc6d0\ub85c\uadf8\uc778\uc744 \ud558\uc2dc\uba74 \ub2e4\uc591\ud55c \uc804\ud6c4 \uc0ac\uc9c4\uc744 \ud655\uc778\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4. BEFORE AFTER VIEW MORE",
+    "media": 9,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 4757,
+    "h": 972,
+    "chars": 811,
+    "headings": [
+     "CS CENTER",
+     "\ube60\ub978\uc0c1\ub2f4 \uc2e0\uccad ONLINE CONSULTATION",
+     "\uacf5\uc9c0\uc0ac\ud56d NOTICE"
+    ],
+    "keyText": "\ub2e4\uc2dc \ud0dc\uc5b4\ub098\ub2e4 : RE-BORN CS CENTER REBORN PLASTIC SURGERY \uc774\uba54\uc77c \ube60\ub978\uc0c1\ub2f4 \uc2e0\uccad ONLINE CONSULTATION \uc774\ub984 \uc5f0\ub839 \uc5f0\ub839 \uc120\ud0dd 10\ub300 20\ub300 30\ub300 40\ub300 50\ub300 60\ub300 70\ub300 \uc5f0\ub77d\ucc98 \ud76c\ub9dd \uc2dc\uc220\uba85 \ud76c\ub9dd \uc2dc\uc220\uc120\ud0dd \ub9ac\ud504\ud305\uc131\ud615 \ub208\uc131\ud615 \ucf54\uc131\ud615 \ubc18\uc601\uad6c \uc058\ub760\uc131\ud615 \uc548\uba74\uc724\uacfd \uac00\uc2b4\uc131\ud615 \uc9c0\ubc29\uc131\ud615 \ud53c\ubd80\uacfc \ube44\ub9cc \uc7ac\uc218\uc220 \uae30\ud0c0 \uc5f0\ub77d\uc2dc\uac04\ub300 \ud1b5\ud654\uac00\ub2a5\uc2dc\uac04 \uc120\ud0dd \ud56d\uc0c1 \uac00\ub2a5 AM 10:00 ~ AM 10:30 AM 10:30 ~ AM 11:00 AM 11:00 ~ AM 11:30 AM 11:30 ~ AM 11:00 AM 12:00 ~ AM 12:30 AM 12:30 ~ PM 1:00 PM 1:00 ~ PM 1:30 PM 1:30 ~ PM 2:00 PM 2:00 ~ PM 2:30 PM 2:30 ~ PM 3:00 PM 3:00 ~ PM 3:30 PM 3:30 ~ PM 4:00 PM 4:00 ~ PM 4:30 PM 4:30 ~ PM 5:00 PM 5:00 ~ PM 5:30 PM 5:30 ~ PM 6:00 PM 6:00 ~ PM 6:30 PM 6:30 ~ PM 7:00 \uc22b\uc790\uc74c\uc131\ub4e3\uae30 \uc0c8\ub85c\uace0\uce68 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68[\ud544\uc218] \ub9c8\ucf00\ud305\ud65c\uc6a9\ub3d9\uc758[\uc120\ud0dd] \uc0c1\ub2f4\uc2e0\uccad\ud558\uae30 \ubb38\uc758 \uc804\ud654 02-543-3355 \uce74\uce74\uc624 \uc0c1\ub2f4 \uacf5\uc9c0\uc0ac\ud56d NOTICE \uacf5\uc9c0\uc0ac\ud56d 6\uc6d4 \ud734\uc9c4, \uc9c4\ub8cc \uc548\ub0b4 2025-05-12 \uacf5\uc9c0\uc0ac\ud56d 5\uc6d4 \uc5b4\ub9b0\uc774\ub0a0 / \ubd80\ucc98\ub2d8\uc624\uc2e0\ub0a0 \ud734\uc9c4\uc548\ub0b4 2025-04-15 \uacf5",
+    "media": 8,
+    "bgKey": "media",
+    "bgLum": 0.898,
+    "bgMedia": true
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 5729,
+    "h": 620,
+    "chars": 253,
+    "headings": [
+     "\uc9c4\ub8cc\uc2dc\uac04 \uc548\ub0b4",
+     "\uc624\uc2dc\ub294 \uae38",
+     "02-543-3355"
+    ],
+    "keyText": "\uc9c4\ub8cc\uc2dc\uac04 \uc548\ub0b4 \uc6d4 ~ \ubaa9 AM 09:30 ~ PM 6:30 \uae08 \uc694 \uc77c AM 09:30 ~ PM 8:00 (\uc57c\uac04\uc9c4\ub8cc) \ud1a0 \uc694 \uc77c AM 09:30 ~ PM 4:00 \uc218\uc694\uc77c, \uc77c\uc694\uc77c, \uacf5\ud734\uc77c\uc740 \ud734\uc9c4\uc785\ub2c8\ub2e4. \uc624\uc2dc\ub294 \uae38 \uc8fc \uc18c \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uac15\ub0a8\uad6c \ub17c\ud604\ub3d9 2 KBL\uc13c\ud130 2\uce35 (\uc2e0\uc0ac\uc5ed 1\ubc88\ucd9c\uad6c \ubc14\ub85c \uc55e) 02-543-3355 \ub9ac\ubcf8\uc131\ud615\uc678\uacfc \uc678\ubd80\uc8fc\ucc28 \uc548\ub0b4 \u203bKBL\ud0c0\uc6cc \uc8fc\ucc28\uc7a5 \ub9cc\ucc28 \uc2dc BK\uc131\ud615\uc678\uacfc, \uc218\ud611\uc740\ud589, \uc2e0\uc0ac1\uc8fc\ucc28\uc7a5, \uc2e0\uc0ac2\uc8fc\ucc28\uc7a5\uc744 \uc774\uc6a9\ud574\uc8fc\uc2dc\uae30 \ubc14\ub78d\ub2c8\ub2e4. (\uc720\ub8cc)",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 26,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 1056,
+    "tag": "h1",
+    "t": "REBORN\u2019S TV"
+   },
+   {
+    "y": 2075,
+    "tag": "h1",
+    "t": "REBORN\u2019S HOT PICK"
+   },
+   {
+    "y": 3510,
+    "tag": "h1",
+    "t": "EVENT & NOTICE"
+   },
+   {
+    "y": 3909,
+    "tag": "h1",
+    "t": "BEFORE & AFTER"
+   },
+   {
+    "y": 4269,
+    "tag": "h1",
+    "t": "BEFORE"
+   },
+   {
+    "y": 4269,
+    "tag": "h1",
+    "t": "AFTER"
+   },
+   {
+    "y": 4269,
+    "tag": "h1",
+    "t": "BEFORE"
+   },
+   {
+    "y": 4269,
+    "tag": "h1",
+    "t": "AFTER"
+   },
+   {
+    "y": 4505,
+    "tag": "h1",
+    "t": "BEFORE"
+   },
+   {
+    "y": 4505,
+    "tag": "h1",
+    "t": "AFTER"
+   },
+   {
+    "y": 4505,
+    "tag": "h1",
+    "t": "BEFORE"
+   },
+   {
+    "y": 4505,
+    "tag": "h1",
+    "t": "AFTER"
+   },
+   {
+    "y": 4875,
+    "tag": "h1",
+    "t": "CS CENTER"
+   },
+   {
+    "y": 5087,
+    "tag": "h1",
+    "t": "\ube60\ub978\uc0c1\ub2f4 \uc2e0\uccad ONLINE CONSULTATION"
+   },
+   {
+    "y": 5087,
+    "tag": "h1",
+    "t": "\uacf5\uc9c0\uc0ac\ud56d NOTICE"
+   },
+   {
+    "y": 5919,
+    "tag": "h2",
+    "t": "02-543-3355"
+   }
+  ],
+  "hero": {
+   "h": 779,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1.33,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 5,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 50,
+     "h": 50,
+     "label": "Previous",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 50,
+     "h": 50,
+     "label": "Next",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "Previous Next"
+  },
+  "type": {
+   "h1": "S-CoreDream-4Regular",
+   "h2": "S-CoreDream-4Regular",
+   "body": "S-CoreDream-4Regular",
+   "h1Weight": "700",
+   "h1Size": "32px",
+   "h2Weight": "700",
+   "h2Size": "0px",
+   "bodySize": "15px",
+   "bodyWeight": "400",
+   "bodyLH": "28px",
+   "bigHeadPx": 30,
+   "bigHeadFam": "GmarketSansBold",
+   "bigHeadWeight": "700",
+   "h1Count": 16,
+   "h2Sizes": [
+    "38px"
+   ],
+   "h3Size": "15px",
+   "fontFaces": [
+    "NanumSquare",
+    "Nanum Gothic",
+    "Williwaw",
+    "GmarketSansLight",
+    "GmarketSansMedium",
+    "GmarketSansBold",
+    "S-CoreDream-1Thin",
+    "S-CoreDream-3Light",
+    "S-CoreDream-4Regular",
+    "S-CoreDream-5Medium",
+    "S-CoreDream-9Black",
+    "KOTRALEAP",
+    "HoengseongHanu",
+    "SANJUGotgam"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 2054,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 4,
+   "formCount": 2,
+   "inputCount": 9,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 1,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": true,
+   "kwTrust": false,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 2,
+   "naverLinks": 2,
+   "instaLinks": 1,
+   "ytLinks": 3,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.737,
+   "darkFrac": 0.069,
+   "lightFrac": 0.745
+  },
+  {
+   "i": 1,
+   "mean": 0.754,
+   "darkFrac": 0.172,
+   "lightFrac": 0.686
+  },
+  {
+   "i": 2,
+   "mean": 0.953,
+   "darkFrac": 0.02,
+   "lightFrac": 0.947
+  },
+  {
+   "i": 3,
+   "mean": 0.751,
+   "darkFrac": 0.094,
+   "lightFrac": 0.723
+  },
+  {
+   "i": 4,
+   "mean": 0.991,
+   "darkFrac": 0.001,
+   "lightFrac": 0.99
+  },
+  {
+   "i": 5,
+   "mean": 0.751,
+   "darkFrac": 0.21,
+   "lightFrac": 0.682
+  },
+  {
+   "i": 6,
+   "mean": 0.908,
+   "darkFrac": 0.034,
+   "lightFrac": 0.923
+  },
+  {
+   "i": 7,
+   "mean": 0.919,
+   "darkFrac": 0.054,
+   "lightFrac": 0.877
+  }
+ ],
+ "heroLum": {
+  "mean": 0.903,
+  "darkFrac": 0.015,
+  "lightFrac": 0.901
+ },
+ "heroLumBelowNav": {
+  "mean": 0.891,
+  "darkFrac": 0.017,
+  "lightFrac": 0.89
+ },
+ "fixedTop": [],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 61,
+   "left": 0,
+   "w": 1440,
+   "h": 61,
+   "z": "9999",
+   "links": [
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/0201.php",
+     "label": "\ub9ac\ud504\ud305"
+    },
+    {
+     "href": "/0301.php",
+     "label": "\ub208\uc131\ud615"
+    },
+    {
+     "href": "/0401.php",
+     "label": "\ucf54\uc131\ud615"
+    },
+    {
+     "href": "/0501.php",
+     "label": "\ubc18\uc601\uad6c\uc13c\ud130"
+    },
+    {
+     "href": "/0601.php",
+     "label": "\ud53c\ubd80 \u00b7 \uc058\ub760"
+    },
+    {
+     "href": "/0101.php",
+     "label": "\ub9ac\ubcf8\uc18c\uac1c"
+    }
+   ],
+   "label": "\ub9ac\ud504\ud305 \ub208\uc131\ud615 \ucf54\uc131\ud615 \ubc18\uc601\uad6c\uc13c\ud130 \ud53c\ubd80 \u00b7 \uc058\ub760 \ub9ac\ubcf8\uc18c\uac1c",
+   "tag": "nav",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 6,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 69,
+   "left": 0,
+   "w": 390,
+   "h": 69,
+   "z": "99999",
+   "links": [
+    {
+     "href": "/",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 777,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 67,
+   "z": "auto",
+   "links": [
+    {
+     "href": "tel:02-543-3355",
+     "label": "\uc804\ud654 \uc0c1\ub2f4"
+    },
+    {
+     "href": "https://pf.kakao.com/_tBclE",
+     "label": "\uce74\uce74\uc624\ud1a1"
+    },
+    {
+     "href": "#",
+     "label": "\ube60\ub978 \uc0c1\ub2f4"
+    }
+   ],
+   "label": "\uc804\ud654 \uc0c1\ub2f4 \uce74\uce74\uc624\ud1a1 \ube60\ub978 \uc0c1\ub2f4",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

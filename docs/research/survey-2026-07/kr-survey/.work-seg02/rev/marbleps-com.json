@@ -1,0 +1,950 @@
+{
+ "url": "https://marbleps.com/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "sbr-sk-scaleout": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "sbi-sk-scaleout": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "fa-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "turn-on-visibility": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "turn-off-visibility": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "lightbox-zoom-in": {
+    "x": 50,
+    "y": 50,
+    "opFrom": null
+   },
+   "lightbox-zoom-out": {
+    "x": 50,
+    "y": 50,
+    "opFrom": null
+   },
+   "overlay-menu__fade-in-animation": {
+    "x": 0,
+    "y": 0.5,
+    "opFrom": 0
+   },
+   "ctf-sk-scaleout": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "selectedSlotCheckmark": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "latepointFadeUp": {
+    "x": 0,
+    "y": 40,
+    "opFrom": 0
+   },
+   "up10op": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "up10": {
+    "x": 0,
+    "y": 10,
+    "opFrom": null
+   },
+   "up20op": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 0
+   },
+   "rotateScale": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "up20": {
+    "x": 0,
+    "y": 20,
+    "opFrom": null
+   },
+   "up40": {
+    "x": 0,
+    "y": 20,
+    "opFrom": null
+   },
+   "latepointMessage": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "latepointFadeDown": {
+    "x": 0,
+    "y": 40,
+    "opFrom": 0
+   },
+   "agentBio": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "osLightboxAnimation": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "latepointAvailabilityPopup": {
+    "x": 50,
+    "y": 115,
+    "opFrom": 0
+   },
+   "latepointAvailabilityPopupY": {
+    "x": 0,
+    "y": 115,
+    "opFrom": 0
+   },
+   "latepointNextBtn": {
+    "x": 15,
+    "y": 0,
+    "opFrom": 0
+   },
+   "latepointPrevBtn": {
+    "x": 15,
+    "y": 0,
+    "opFrom": 0
+   },
+   "os-loading-gradient": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "LatepointSlideUp": {
+    "x": 0,
+    "y": 40,
+    "opFrom": 0
+   },
+   "LatepointSlideDown": {
+    "x": 0,
+    "y": 40,
+    "opFrom": 0
+   },
+   "LatepointSlideLeft": {
+    "x": 10,
+    "y": 0,
+    "opFrom": 0
+   },
+   "LatepointSlideRight": {
+    "x": 10,
+    "y": 0,
+    "opFrom": 0
+   },
+   "LatepointSlideUpHalf": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 0
+   },
+   "LatepointSlideUpTiny": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "LatepointSlideDownHalf": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 0
+   },
+   "LatepointSlideUpMobileSummary": {
+    "x": 50,
+    "y": 50,
+    "opFrom": 0
+   },
+   "os-loading-delayed": {
+    "x": 50,
+    "y": 50,
+    "opFrom": 0
+   },
+   "os-loading": {
+    "x": 50,
+    "y": 50,
+    "opFrom": 1
+   },
+   "stepCategoryItem": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "osLightboxMobileAnimation": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "tp-rotateplane": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "tp-fade-in": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "tp-rotate": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "quick_bounce": {
+    "x": 0,
+    "y": 30,
+    "opFrom": null
+   },
+   "spinning_animation": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounce_in_animation": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "row_bg_zoom_out": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "portSliderLine": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "portSliderLine2": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowSVGStart": {
+    "x": 3,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowSVGEnd": {
+    "x": 3,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowTextStart": {
+    "x": 6,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowTextEnd": {
+    "x": 6,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowStart": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowStartTeam": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowEnd": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowLineStart": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaArrowLineEnd": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "nectar_curved_arrow_animation__svg": {
+    "x": 4,
+    "y": 0,
+    "opFrom": 1
+   },
+   "nectar_curved_arrow_animation__arrow": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "nectar_curved_arrow_animation__line": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaMinimaLArrowOuter": {
+    "x": 0,
+    "y": 12,
+    "opFrom": null
+   },
+   "ctaMinimaLArrowLine": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "ctaMinimaLArrow": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "down_arrow_bounce": {
+    "x": 0,
+    "y": 14,
+    "opFrom": null
+   },
+   "mouse-scroll-btn-roll-over": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "mouse-scroll-btn-roll-out": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "trackBallSlide": {
+    "x": 0,
+    "y": 13,
+    "opFrom": 1
+   },
+   "nudgeMouse": {
+    "x": 0,
+    "y": 8,
+    "opFrom": null
+   },
+   "rightLineStart": {
+    "x": 88,
+    "y": 50,
+    "opFrom": null
+   },
+   "rightLineEnd": {
+    "x": 28,
+    "y": 50,
+    "opFrom": null
+   },
+   "rightLineStart2": {
+    "x": 88,
+    "y": 50,
+    "opFrom": null
+   },
+   "rightLineEnd2": {
+    "x": 28,
+    "y": 50,
+    "opFrom": null
+   },
+   "rightArrowStart": {
+    "x": 50,
+    "y": 0,
+    "opFrom": null
+   },
+   "rightArrowEnd": {
+    "x": 75,
+    "y": 0,
+    "opFrom": null
+   },
+   "rightArrowStart2": {
+    "x": 50,
+    "y": 0,
+    "opFrom": null
+   },
+   "rightArrowEnd2": {
+    "x": 75,
+    "y": 0,
+    "opFrom": null
+   },
+   "rightArrowLineStart": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "rightArrowLineEnd": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "nectar_ltr_line_animation": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "nectar_ltr_line_animation_start": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "fadebottom": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 1
+   },
+   "pulse-1": {
+    "x": 50,
+    "y": 50,
+    "opFrom": 1
+   },
+   "pulse-2": {
+    "x": 50,
+    "y": 50,
+    "opFrom": 0.5
+   },
+   "crossLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "crossLeftClose": {
+    "x": 22,
+    "y": 22,
+    "opFrom": null
+   },
+   "crossRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "crossRightClose": {
+    "x": 22,
+    "y": 22,
+    "opFrom": null
+   },
+   "wpb_ttb": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "wpb_btt": {
+    "x": 0,
+    "y": 10,
+    "opFrom": 0
+   },
+   "wpb_ltr": {
+    "x": 10,
+    "y": 0,
+    "opFrom": 0
+   },
+   "wpb_rtl": {
+    "x": 10,
+    "y": 0,
+    "opFrom": 0
+   },
+   "wpb_appear": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0.1
+   },
+   "rotate-forever": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "spinner-loader": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounce": {
+    "x": 0,
+    "y": 30,
+    "opFrom": null
+   },
+   "flash": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "pulse": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "rubberBand": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "shake": {
+    "x": 10,
+    "y": 0,
+    "opFrom": null
+   },
+   "headShake": {
+    "x": 6,
+    "y": 0,
+    "opFrom": null
+   },
+   "swing": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "tada": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "wobble": {
+    "x": 25,
+    "y": 0,
+    "opFrom": null
+   },
+   "jello": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "heartBeat": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInDown": {
+    "x": 0,
+    "y": 3000,
+    "opFrom": 0
+   },
+   "bounceInLeft": {
+    "x": 3000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInRight": {
+    "x": 3000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "bounceInUp": {
+    "x": 0,
+    "y": 3000,
+    "opFrom": 0
+   },
+   "bounceOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutDown": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "bounceOutLeft": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutRight": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounceOutUp": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "fadeIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   },
+   "fadeInDownBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 0
+   },
+   "fadeInLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInLeftBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInRightBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "fadeInUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   },
+   "fadeInUpBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 0
+   },
+   "fadeOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 1
+   },
+   "fadeOutDownBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 1
+   },
+   "fadeOutLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutLeftBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutRightBig": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": 1
+   },
+   "fadeOutUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 1
+   },
+   "fadeOutUpBig": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": 1
+   },
+   "flip": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "flipInX": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "flipInY": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "flipOutX": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "flipOutY": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "lightSpeedIn": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "lightSpeedOut": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInDownLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInDownRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInUpLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateInUpRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rotateOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutDownLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutDownRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutUpLeft": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "rotateOutUpRight": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "hinge": {
+    "x": 0,
+    "y": 700,
+    "opFrom": null
+   },
+   "jackInTheBox": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rollIn": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 0
+   },
+   "rollOut": {
+    "x": 100,
+    "y": 0,
+    "opFrom": 1
+   },
+   "zoomIn": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInDown": {
+    "x": 0,
+    "y": 1000,
+    "opFrom": 0
+   },
+   "zoomInLeft": {
+    "x": 1000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInRight": {
+    "x": 1000,
+    "y": 0,
+    "opFrom": 0
+   },
+   "zoomInUp": {
+    "x": 0,
+    "y": 1000,
+    "opFrom": 0
+   },
+   "zoomOut": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "zoomOutDown": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "zoomOutLeft": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "zoomOutRight": {
+    "x": 2000,
+    "y": 0,
+    "opFrom": null
+   },
+   "zoomOutUp": {
+    "x": 0,
+    "y": 2000,
+    "opFrom": null
+   },
+   "slideInDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": null
+   },
+   "slideInLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": null
+   },
+   "slideInRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": null
+   },
+   "slideInUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": null
+   },
+   "slideOutDown": {
+    "x": 0,
+    "y": 100,
+    "opFrom": null
+   },
+   "slideOutLeft": {
+    "x": 100,
+    "y": 0,
+    "opFrom": null
+   },
+   "slideOutRight": {
+    "x": 100,
+    "y": 0,
+    "opFrom": null
+   },
+   "slideOutUp": {
+    "x": 0,
+    "y": 100,
+    "opFrom": null
+   },
+   "nectar_material_loader_colors": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "fadein": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "tp-bouncedelay": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "gformLoader": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "fadeout": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   },
+   "nectar_cta_letter_animation": {
+    "x": 0,
+    "y": 115,
+    "opFrom": 0
+   },
+   "fancybox-rotate": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "MenuAnimOut5": {
+    "x": 300,
+    "y": 0,
+    "opFrom": null
+   },
+   "MenuAnimIn5": {
+    "x": 300,
+    "y": 0,
+    "opFrom": 0
+   },
+   "SubMenuAnimIn5": {
+    "x": 300,
+    "y": 0,
+    "opFrom": 0
+   },
+   "SubMenuAnimOut5": {
+    "x": 300,
+    "y": 0,
+    "opFrom": 1
+   },
+   "MenuAnimOut4": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "MenuAnimIn4": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "SubMenuAnimIn4": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 0
+   },
+   "SubMenuAnimOut4": {
+    "x": 0,
+    "y": 0,
+    "opFrom": 1
+   }
+  },
+  "els": []
+ }
+}

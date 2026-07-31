@@ -1,0 +1,909 @@
+{
+ "url": "https://www.limedent.com:9006/",
+ "status": 200,
+ "finalUrl": "https://www.limedent.com:9006/",
+ "title": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1\uc6d0",
+ "popups": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 5806,
+  "screens": 6.5,
+  "sectionParentTag": "div#id",
+  "sectionCoverRatio": 0.95,
+  "sectionCount": 8,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 262,
+    "h": 839,
+    "chars": 37,
+    "headings": [],
+    "keyText": "\uc774\uc804\uc774\ubbf8\uc9c0 \ub2e4\uc74c\uc774\ubbf8\uc9c0 1 2 3 4 5 6 7 8 Prev Next",
+    "media": 14,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 1101,
+    "h": 726,
+    "chars": 94,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\ub294 \uc0c8\ub85c\uc6b4 \ud328\ub7ec\ub2e4\uc784\uc758 \ub514\uc9c0\ud138 \uc2dc\uc2a4\ud15c\uacfc \uc138\uc2ec\ud55c \ud611\uc9c4\uc744 \ud1b5\ud574 \uba85\ud488 \uc758\ub8cc\uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud569\ub2c8\ub2e4. MOER VIEW MOER VIEW MOER VIEW MOER VIEW",
+    "media": 9,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1827,
+    "h": 702,
+    "chars": 11,
+    "headings": [],
+    "keyText": "\ub9ac\uc5bc\uc2a4\ud1a0\ub9ac\uce58\ub8cc\uc804\ud6c4\uc0ac\uc9c4",
+    "media": 6,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2529,
+    "h": 917,
+    "chars": 82,
+    "headings": [
+     ""
+    ],
+    "keyText": "\uaddc\ubaa8\uc640 \uc131\uc7a5, \uc9c4\ub8cc\uc218\uc900\uc758 \ud5a5\uc0c1 \ub9cc\ud07c \uace0\uac1d\uc744 \ud5a5\ud55c \ub9c8\uc74c\ub3c4 \ud568\uaed8 \uc131\uc7a5\ud569\ub2c8\ub2e4. 1 2 3 4 5 6 7 Prev Next 1 2 3 4 Prev Next",
+    "media": 23,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 3566,
+    "h": 582,
+    "chars": 11,
+    "headings": [],
+    "keyText": "\ub9ac\uc5bc\uc2a4\ud1a0\ub9ac\uce58\ub8cc\uc804\ud6c4\uc0ac\uc9c4",
+    "media": 3,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 4148,
+    "h": 652,
+    "chars": 182,
+    "headings": [
+     "",
+     "\uacf5\uc9c0\uc0ac\ud56d"
+    ],
+    "keyText": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\uc758 \ucd5c\uc6b0\uc120 \uac00\uce58\ub294 \"\uace0\uac1d\ud589\ubcf5\"\uc774\uae30\uc5d0 \uc9c4\uc815\uc73c\ub85c \ud589\ubcf5\ud569\ub2c8\ub2e4. \uacf5\uc9c0\uc0ac\ud56d \ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1\uc6d0, \uce74\ud0c0\ub974 KMC \ubcd1\uc6d0\uc5d0 \uce58.. 2024-06-14 \uae40\uc778\uc218 \ub300\ud45c\uc6d0\uc7a5, \ud589\uc815\uc548\uc804\ubd80 \uc7a5\uad00\uc0c1 \uc218\uc0c1! 2022-12-29 \uad6d\uac00\uad6c\uac15\uac80\uc9c4, \ub77c\uc784\ub098\ubb34\uc5d0\uc11c \ubc1b\uc73c\uc138\uc694! 2022-09-27 \uc11c\uc6b8\uc2dc \uc911\uad6c \uba85\ub3d9\uae38 43 \uc2e0\ud55c\uc740\ud589\ube4c\ub529 7F 02-754-2879",
+    "media": 5,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 4800,
+    "h": 635,
+    "chars": 472,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ub77c\uc784\ub098\ubb34\uc18c\uac1c \ub77c\uc784\ub098\ubb34 History \uc758\ub8cc\uc9c4 \uc18c\uac1c \ub77c\uc784\ub098\ubb34 \ud575\uc2ec\uacbd\uc7c1\ub825 \uc0ac\ud68c\uacf5\ud5cc\ud65c\ub3d9 \ucca8\ub2e8\uc7a5\ube44 \ubc0f \uc18c\ub3c5\uc2dc\uc2a4\ud15c \uc9c4\ub8cc\uc548\ub0b4 / \ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30 \uc784\ud50c\ub780\ud2b8 \ubb34\uce58\uc545 \uc784\ud50c\ub780\ud2b8 \ub77c\uc784\ub098\ubb34 \ud2b9\ud654 \uc784\ud50c\ub780\ud2b8 \ub124\ube44\uac8c\uc774\uc158 \uc784\ud50c\ub780\ud2b8 \uc6d0\ub370\uc774 \uc784\ud50c\ub780\ud2b8 \ubf08\uc774\uc2dd \uc784\ud50c\ub780\ud2b8 \ubcf4\ud5d8 \uc784\ud50c\ub780\ud2b8 \uc784\ud50c\ub780\ud2b8 \uc885\ub958 \uc99d\uc0c1\ubcc4 \uc784\ud50c\ub780\ud2b8 \ub9cc\uc131\uc9c8\ud658 \uc784\ud50c\ub780\ud2b8 \uc784\ud50c\ub780\ud2b8 \uc7ac\uc218\uc220 \uce58\uc544\uad50\uc815 \ub77c\uc784\ub098\ubb34 \uad50\uc815\uc758 \ud2b9\ubcc4\ud568 \ube44\ubc1c\uce58\ub3cc\ucd9c\uc785\uce58\uc544\uad50\uc815 \uc2a4\ud53c\ub4dc\uce58\uc544\uad50\uc815 \uae09\uc18d\ubd80\ubd84\uad50\uc815 \ud574\uc678,\uc9c0\ubc29\uac70\uc8fc, \ucde8\uc900\uc0dd\uad50\uc815 \ubcf4\uc774\ub294 \uad50\uc815 \uc548\ubcf4\uc774\ub294 \uad50\uc815 \ud22c\uba85\uad50\uc815 \uc99d\uc0c1\ubcc4 \uad50\uc815 \uc2ec\ubbf8\uce58\ub8cc \ub77c\ubbf8\ub124\uc774\ud2b8 \uc62c\uc138\ub77c\ubbf9 \uc787\ubab8\uc131\ud615 \uce58\uc544\ubbf8\ubc31 \ucda9\uce58\uce58\ub8cc \ucda9\uce58\uce58\ub8cc \uc787\ubab8\uce58\ub8cc \uc0ac\ub791\ub2c8\ubc1c\uce58 \ub77c\uc784\ub098\ubb34 \uc608\ubc29 \ud504\ub85c\uadf8\ub7a8 \ucf54\uace8\uc774 \ucf54\uace8\uc774\uce58\ub8cc \uc0c1\ub2f4&\uc608\uc57d \uc628\ub77c\uc778\uc0c1\ub2f4 \ube44\uc6a9\uc0c1\ub2f4 \uc628\ub77c\uc778\uc608\uc57d \ucee4\ubba4\ub2c8\ud2f0 \uacf5\uc9c0&\uc774\ubca4\ud2b8 \uc5b8\ub860\ubcf4\ub3c4 \uc2a4\ud0c0\uac24\ub7ec\ub9ac \ub77c\uc784\uac24\ub7ec\ub9ac \uce58\ub8cc\uc804\ud6c4\uc0ac\uc9c4 \uce58\ub8cc\ud6c4\uae30 \ub9ac\uc5bc\uc2a4\ud1a0\ub9ac \ube60\ub978\uc0c1\ub2f4 \uc774 \ub984 \uc5f0 \ub77d \ucc98 \uc774\uba54\uc77c \uc0c1\ub2f4\ubd84\uc57c \uc0c1\ub2f4\ubd84\uc57c\uc120\ud0dd \uc784\ud50c\ub780\ud2b8 \uce58\uc544\uad50\uc815 \ubcf4\ucca0\uce58\ub8cc \uc2ec\ubbf8\uce58\ub8cc \uc0c1\ub2f4\ub0b4\uc6a9 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68\ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "footer",
+    "absTop": 5435,
+    "h": 371,
+    "chars": 188,
+    "headings": [
+     ""
+    ],
+    "keyText": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\uc18c\uac1c \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ud68c\uc6d0\uc57d\uad00 \ube44\uae09\uc5ec\uc218\uac00\ud45c \uc0c1\ud638\uba85 : \ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1\uc6d0\ub300\ud45c\uc790. \uae40\uc778\uc218\uc11c\uc6b8\uc2dc \uc911\uad6c \uba85\ub3d9\uae38 43 \uc2e0\ud55c\uc740\ud589\ube4c\ub529 7F Tel. 02.754.2879FAX. 02.754.0116\uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638. 201-18-14117 COPYRIGHT\u00a9 LIME TREE DENTAL HOSPITAL. ALL RIGHTS RESERVED.",
+    "media": 1,
+    "bgKey": "3,3,3",
+    "bgLum": 0.133,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 74,
+    "tag": "h2",
+    "t": "NOTICE"
+   },
+   {
+    "y": 131,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 1101,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 2529,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 4148,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 5284,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 5496,
+    "tag": "h2",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 839,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1.39,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 22,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 86,
+     "label": "\uc774\uc804\uc774\ubbf8\uc9c0",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 86,
+     "label": "\ub2e4\uc74c\uc774\ubbf8\uc9c0",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 839,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\uc774\uc804\uc774\ubbf8\uc9c0 \ub2e4\uc74c\uc774\ubbf8\uc9c0 1 2 3 4 5 6 7 8 Prev Next"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h2": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "body": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Weight": "700",
+   "h2Size": "14px",
+   "bodySize": "14px",
+   "bodyWeight": "300",
+   "bodyLH": "normal",
+   "bigHeadPx": 17,
+   "bigHeadFam": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "bigHeadWeight": "300",
+   "h1Count": 1,
+   "h2Sizes": [
+    "14px",
+    "21px"
+   ],
+   "h3Size": "16.38px",
+   "fontFaces": [
+    "Nanum Barun Gothic",
+    "Noto Sans KR",
+    "NanumSquare"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 1889,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 0,
+   "formCount": 3,
+   "inputCount": 13,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 1,
+   "bookingWidget": 0,
+   "reviewWidgets": 1,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwAbout": false,
+   "kwVideo": false,
+   "kwTrust": true,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 7,
+   "naverLinks": 1,
+   "instaLinks": 1,
+   "ytLinks": 3,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.379,
+   "darkFrac": 0.603,
+   "lightFrac": 0.19
+  },
+  {
+   "i": 1,
+   "mean": 0.694,
+   "darkFrac": 0.226,
+   "lightFrac": 0.552
+  },
+  {
+   "i": 2,
+   "mean": 0.728,
+   "darkFrac": 0.11,
+   "lightFrac": 0.739
+  },
+  {
+   "i": 3,
+   "mean": 0.635,
+   "darkFrac": 0.277,
+   "lightFrac": 0.499
+  },
+  {
+   "i": 4,
+   "mean": 0.438,
+   "darkFrac": 0.438,
+   "lightFrac": 0.198
+  },
+  {
+   "i": 5,
+   "mean": 0.824,
+   "darkFrac": 0.17,
+   "lightFrac": 0.809
+  },
+  {
+   "i": 6,
+   "mean": 0.378,
+   "darkFrac": 0.872,
+   "lightFrac": 0.101
+  },
+  {
+   "i": 7,
+   "mean": 0.337,
+   "darkFrac": 0.832,
+   "lightFrac": 0.15
+  }
+ ],
+ "heroLum": {
+  "mean": 0.609,
+  "darkFrac": 0.179,
+  "lightFrac": 0.351
+ },
+ "heroLumBelowNav": {
+  "mean": 0.617,
+  "darkFrac": 0.127,
+  "lightFrac": 0.346
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubcf4\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 114,
+   "bottom": 1014,
+   "left": 1350,
+   "w": 90,
+   "h": 900,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#",
+     "label": "\uc804\ud654\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": "\uc790\uc138\ud788\ubcf4\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_UQQHZ/chat",
+     "label": "\uc2e4\uc2dc\uac04\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": "\uc628\ub77c\uc778\uc608\uc57d"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/counsel/counsel01.php?tb=online_counsel&act=write",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": "\ucc3e\uc544\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "https://map.kakao.com/?urlX=496628.0&urlY=1129019.0&itemId=8055459&q=%",
+     "label": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1\uc6d0 \uba85\ub3d9\uc810"
+    },
+    {
+     "href": "http://map.kakao.com/",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": "\ud655\ub300"
+    },
+    {
+     "href": "",
+     "label": "\ucd95\uc18c"
+    }
+   ],
+   "label": "\uc804\ud654\uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4\uc608\uc57d \uc0c1\ub2f4\ubd84\uc57c * \uc0c1\ub2f4\ubd84\uc57c\ub97c \uc120\ud0dd\ud558\uc138\uc694 \uc784\ud50c\ub780\ud2b8 \uce58\uc544\uad50\uc815 \ubcf4\ucca0\uce58\ub8cc \uc2ec\ubbf8\uce58\ub8cc \uc774 \ub984 * \ud734\ub300\ud3f0 * \uc120\ud0dd 010 011 016 017 018 019 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68\uc5d0 \ub3d9\uc758\uc790\uc138\ud788\ubcf4\uae30 \uc2e4\uc2dc\uac04\uc0c1\ub2f4 \uc628\ub77c\uc778\uc608\uc57d \uc628\ub77c\uc778\uc0c1\ub2f4 \ucc3e\uc544\uc624\uc2dc\ub294\uae38 \ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubcf4\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 49,
+   "left": 0,
+   "w": 1440,
+   "h": 49,
+   "z": "10000",
+   "links": [
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ub77c\uc784\ub098\ubb34\uc18c\uac1c"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "\ub77c\uc784\ub098\ubb34 History"
+    },
+    {
+     "href": "/intro/intro02.php",
+     "label": "\uc758\ub8cc\uc9c4 \uc18c\uac1c"
+    },
+    {
+     "href": "/intro/intro03.php",
+     "label": "\ub77c\uc784\ub098\ubb34 \ud575\uc2ec\uacbd\uc7c1\ub825"
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": "\uc0ac\ud68c\uacf5\ud5cc\ud65c\ub3d9"
+    },
+    {
+     "href": "/intro/intro05.php",
+     "label": "\ucca8\ub2e8\uc7a5\ube44 \ubc0f \uc18c\ub3c5\uc2dc\uc2a4\ud15c"
+    },
+    {
+     "href": "/intro/intro06.php",
+     "label": "\uc9c4\ub8cc\uc548\ub0b4 / \ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30"
+    },
+    {
+     "href": "/implant/implant01.php",
+     "label": "\uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant10.php",
+     "label": "\ubb34\uce58\uc545 \uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant01.php",
+     "label": "\ub77c\uc784\ub098\ubb34 \ud2b9\ud654 \uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant02.php",
+     "label": "\ub124\ube44\uac8c\uc774\uc158 \uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant03.php",
+     "label": "\uc6d0\ub370\uc774 \uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant04.php",
+     "label": "\ubf08\uc774\uc2dd \uc784\ud50c\ub780\ud2b8"
+    },
+    {
+     "href": "/implant/implant05.php",
+     "label": "\ubcf4\ud5d8 \uc784\ud50c\ub780\ud2b8"
+    }
+   ],
+   "label": "\ub77c\uc784\ub098\ubb34\uc18c\uac1c \ub77c\uc784\ub098\ubb34 History \uc758\ub8cc\uc9c4 \uc18c\uac1c \ub77c\uc784\ub098\ubb34 \ud575\uc2ec\uacbd\uc7c1\ub825 \uc0ac\ud68c\uacf5\ud5cc\ud65c\ub3d9 \ucca8\ub2e8\uc7a5\ube44 \ubc0f \uc18c\ub3c5\uc2dc\uc2a4\ud15c \uc9c4\ub8cc\uc548\ub0b4 / \ubcd1\uc6d0\ub458\ub7ec\ubcf4\uae30 \uc784\ud50c\ub780\ud2b8 \ubb34\uce58\uc545 \uc784\ud50c\ub780\ud2b8 \ub77c\uc784\ub098\ubb34 \ud2b9\ud654 \uc784\ud50c\ub780\ud2b8 \ub124\ube44\uac8c\uc774\uc158 \uc784\ud50c\ub780\ud2b8 \uc6d0\ub370\uc774 \uc784\ud50c\ub780\ud2b8 \ubf08\uc774\uc2dd \uc784\ud50c\ub780\ud2b8 \ubcf4\ud5d8 \uc784\ud50c\ub780\ud2b8 \uc784\ud50c\ub780\ud2b8",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 48,
+   "bottom": 948,
+   "left": 1350,
+   "w": 90,
+   "h": 900,
+   "z": "10000",
+   "links": [
+    {
+     "href": "#",
+     "label": "\uc804\ud654\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": "\uc790\uc138\ud788\ubcf4\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_UQQHZ/chat",
+     "label": "\uc2e4\uc2dc\uac04\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": "\uc628\ub77c\uc778\uc608\uc57d"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/counsel/counsel01.php?tb=online_counsel&act=write",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "#",
+     "label": "\ucc3e\uc544\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "https://map.kakao.com/?urlX=496628.0&urlY=1129019.0&itemId=8055459&q=%",
+     "label": "\ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1\uc6d0 \uba85\ub3d9\uc810"
+    },
+    {
+     "href": "http://map.kakao.com/",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": "\ud655\ub300"
+    },
+    {
+     "href": "",
+     "label": "\ucd95\uc18c"
+    }
+   ],
+   "label": "\uc804\ud654\uc0c1\ub2f4 \uc804\ud654\uc0c1\ub2f4\uc608\uc57d \uc0c1\ub2f4\ubd84\uc57c * \uc0c1\ub2f4\ubd84\uc57c\ub97c \uc120\ud0dd\ud558\uc138\uc694 \uc784\ud50c\ub780\ud2b8 \uce58\uc544\uad50\uc815 \ubcf4\ucca0\uce58\ub8cc \uc2ec\ubbf8\uce58\ub8cc \uc774 \ub984 * \ud734\ub300\ud3f0 * \uc120\ud0dd 010 011 016 017 018 019 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68\uc5d0 \ub3d9\uc758\uc790\uc138\ud788\ubcf4\uae30 \uc2e4\uc2dc\uac04\uc0c1\ub2f4 \uc628\ub77c\uc778\uc608\uc57d \uc628\ub77c\uc778\uc0c1\ub2f4 \ucc3e\uc544\uc624\uc2dc\ub294\uae38 \ub77c\uc784\ub098\ubb34\uce58\uacfc\ubcd1",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 5.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubcf4\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 774,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 70,
+   "z": "10",
+   "links": [
+    {
+     "href": "tel:027542879",
+     "label": ""
+    },
+    {
+     "href": "/counsel/counsel01.php?tb=online_counsel&act=write",
+     "label": ""
+    },
+    {
+     "href": "https://m.limedent.com:9009/counsel/counsel03.php",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro06.php",
+     "label": ""
+    },
+    {
+     "href": "/community/community06.php",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "ul",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 716,
+   "bottom": 764,
+   "left": 296,
+   "w": 84,
+   "h": 48,
+   "z": "auto",
+   "links": [
+    {
+     "href": "http://pf.kakao.com/_UQQHZ/chat",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

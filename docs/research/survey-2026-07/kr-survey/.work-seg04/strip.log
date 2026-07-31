@@ -1,0 +1,17 @@
+http://www.jwbeauty.com/ fullH=7998 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-jwbeauty-com-d0.jpg', '/private/tmp/kr-survey/.work-seg04/shots/http-jwbeauty-com-d1.jpg']
+http://www.kosleep.com fullH=7542 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-kosleep-com-d0.jpg']
+http://www.rubyps.co.kr fullH=804 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-rubyps-co-kr-d0.jpg']
+http://www.mrbigclinic.com/ fullH=7038 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-mrbigclinic-com-d0.jpg']
+http://www.everm.net fullH=2088 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-everm-net-d0.jpg']
+http://www.sooamc.com/ fullH=9675 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-sooamc-com-d0.jpg', '/private/tmp/kr-survey/.work-seg04/shots/http-sooamc-com-d1.jpg']
+http://www.jk-withme.com/ fullH=6897 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-jk-withme-com-d0.jpg']
+http://www.eyejak.co.kr/ fullH=4326 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-eyejak-co-kr-d0.jpg']
+http://bocelle.com/ fullH=804 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-bocelle-com-d0.jpg']
+http://www.withme-medi.com/ fullH=5691 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-withme-medi-com-d0.jpg']
+http://www.resexy.co.kr/ fullH=2256 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-resexy-co-kr-d0.jpg']
+http://www.glowell.co.kr/ fullH=4251 strips=['/private/tmp/kr-survey/.work-seg04/shots/http-glowell-co-kr-d0.jpg']
+ERR http://www.gangnamhifu.com/ Error Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gangnamhifu.com/
+Call log:
+  - navigating to "http://www.gangnamhifu.com/", waiting until "domcontentloaded"
+
+STRIP-DONE

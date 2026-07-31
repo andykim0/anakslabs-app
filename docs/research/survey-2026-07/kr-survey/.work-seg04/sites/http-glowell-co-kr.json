@@ -1,0 +1,443 @@
+{
+ "url": "http://www.glowell.co.kr/",
+ "status": 200,
+ "finalUrl": "https://www.glowell.co.kr/",
+ "title": "\uae00\ub85c\uc6f0 \ubaa8\ubc1c\uc774\uc2dd\uc13c\ud130",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 4747,
+  "screens": 5.3,
+  "sectionParentTag": "main",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 80,
+    "h": 950,
+    "chars": 19,
+    "headings": [],
+    "keyText": "1 2 3 4 5 Prev Next",
+    "media": 16,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 1030,
+    "h": 587,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1687,
+    "h": 2736,
+    "chars": 288,
+    "headings": [],
+    "keyText": "\uc6d0\ub798\uc758 \ub098\ucc98\ub7fc! \ub2f9\ub2f9\ud558\uace0 \uc544\ub984\ub2e4\uc6b4 \ubaa8\uc2b5 \uadf8\ub300\ub85c Prev Next GLOBAL WELLNESS \uae00\ub85c\uc6f0\uc740 \uc774\uc57c\uae30 \ud569\ub2c8\ub2e4. \uae00\ub85c\uc6f0\uc740 \uc758\uc0ac\uc774\uae30\uc5d0 \ud560 \uc218 \uc788\ub294 \uc77c, \uc758\uc0ac\uc774\uae30 \ub54c\ubb38\uc5d0 \ud574\uc57c \ud558\ub294 \uc77c\uc5d0 \uc9d1\uc911\ud569\ub2c8\ub2e4. \uc548\uc804\ud55c \uc2dc\uc220 \ucca8\ub2e8\uae30\uc220 \ub208\uc18d\uc784 \uc5c6\ub294 \uc9c4\ub8cc \ubaa8\ubc1c\uc774\uc2dd \ud754\uc801 \uc5c6\uc774 \ubbf8\uc6a9\uc2e4\uc5d0\uc11c\ub3c4 \ub2f9\ub2f9\ud558\uac8c! \ubbf8\uc6a9\uc0ac\ub4e4\uc774 \ub180\ub77c\ub294 \ud749\ud130 \uc5c6\ub294 \ubd09\ud569! \uc27d\uace0 \uc815\ud655\ud55c\ub0b4\uc6a9\uc73c\ub85c \uc815\ubcf4\uc81c\uacf5\ub3c4 \uc2ec\ud50c, \uc218\uc220\uacfc\uc815\ub3c4 \uc815\ud655\ud558\uace0 \uc2ec\ud50c\ud558\uac8c! \uc27d\uace0 \uc815\ud655\ud55c \uc124\uba85 \uc77c\uc815\uc5d0 \ub9de\ucd98 \uae54\ub054\ud55c \uc9c4\ub8cc GLOBAL SPECIAL \uae00\ub85c\uc6f0 \ud504\ub85c\uadf8\ub7a8 GLOBAL WELLNESS \uae00\ub85c\uc6f0 \uc624\uc2dc\ub294\uae38",
+    "media": 20,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 27,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 80,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 4543,
+    "tag": "h2",
+    "t": "\ubb34\ub8cc \uc0c1\ub2f4\uc608\uc57d"
+   }
+  ],
+  "hero": {
+   "h": 950,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1.39,
+   "mediaCoverH": 1.02,
+   "slides": 0,
+   "anchorCount": 14,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 2000,
+     "h": 920,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 86,
+     "label": "Prev",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 86,
+     "label": "Next",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "1 2 3 4 5 Prev Next"
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", \"Malgun Gothic\", \"Apple SD Gothic Neo\"",
+   "h2": "\"Noto Sans KR\", \"Malgun Gothic\", \"Apple SD Gothic Neo\"",
+   "body": "\"Noto Sans KR\", \"Malgun Gothic\", \"Apple SD Gothic Neo\"",
+   "h1Weight": "700",
+   "h1Size": "28px",
+   "h2Weight": "700",
+   "h2Size": "21px",
+   "bodySize": "14px",
+   "bodyWeight": "400",
+   "bodyLH": "normal",
+   "bigHeadPx": 14,
+   "bigHeadFam": "\"Noto Sans KR\", \"Malgun Gothic\", \"Apple SD Gothic Neo\"",
+   "bigHeadWeight": "400",
+   "h1Count": 1,
+   "h2Sizes": [
+    "21px",
+    "42px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Nanum Myeongjo",
+    "Noto Sans KR"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -468, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 645,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 11,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": false,
+   "phoneKR": "02-2631-9900",
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.591,
+   "darkFrac": 0.213,
+   "lightFrac": 0.7
+  },
+  {
+   "i": 1,
+   "mean": 0.555,
+   "darkFrac": 0.478,
+   "lightFrac": 0.515
+  },
+  {
+   "i": 2,
+   "mean": 0.681,
+   "darkFrac": 0.304,
+   "lightFrac": 0.616
+  }
+ ],
+ "heroLum": {
+  "mean": 0.619,
+  "darkFrac": 0.208,
+  "lightFrac": 0.722
+ },
+ "heroLumBelowNav": {
+  "mean": 0.583,
+  "darkFrac": 0.232,
+  "lightFrac": 0.697
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -468, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 635,
+   "left": 1360,
+   "w": 80,
+   "h": 635,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/counsel/counsel01.php?tb=online_counsel",
+     "label": ""
+    },
+    {
+     "href": "/review/review01.php",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro04.php",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 4.6,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 650,
+   "bottom": 824,
+   "left": 322,
+   "w": 48,
+   "h": 174,
+   "z": "99999",
+   "links": [
+    {
+     "href": "https://pf.kakao.com/_xhVpvV",
+     "label": ""
+    },
+    {
+     "href": "tel:02.2631.9900",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "nav",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,646 @@
+{
+ "url": "https://villagedentaldtc.com",
+ "status": 200,
+ "finalUrl": "https://www.villagedentaldtc.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 8173,
+  "screens": 9.1,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 8173,
+    "chars": 3361,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 30,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 8173,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 0.962,
+   "mediaKind": "bg-image",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1.11,
+   "slides": 0,
+   "anchorCount": 153,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 288,
+     "h": 19,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 70,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 93,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 103,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 129,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 121,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 141,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 1,
+     "w": 187,
+     "h": 56,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 151,
+     "h": 26,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 96,
+     "h": 101,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 207,
+     "h": 23,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 1,
+     "w": 319,
+     "h": 56,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "Karla, Helvetica, Arial, Lucida, sans-serif",
+   "h2": "\"Noto Serif JP\", Georgia, \"Times New Roman\", serif",
+   "body": "Karla, Helvetica, Arial, Lucida, sans-serif",
+   "h1Weight": "500",
+   "h1Size": "23px",
+   "bodySize": "18px",
+   "fontFaces": [
+    "Karla",
+    "Noto Serif JP",
+    "Open Sans",
+    "ETmodules",
+    "FontAwesome"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(0.866025, 0.5, -0.5, 0.866025, 0, 0)"
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 14,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -1073.94)"
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": null
+   }
+  ],
+  "pageTextLen": 3362,
+  "features": {
+   "videoTag": 2,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 1,
+   "waLinks": 0,
+   "bookingLinks": 8,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwImplant": true,
+   "kwCosmetic": true,
+   "kwUSState": "CO 80111",
+   "phoneUS": "720-730-9140",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.444,
+   "darkFrac": 0.297,
+   "lightFrac": 0.112
+  }
+ ],
+ "heroLum": {
+  "mean": 0.358,
+  "darkFrac": 0.508,
+  "lightFrac": 0.124
+ },
+ "heroLumBelowNav": {
+  "mean": 0.283,
+  "darkFrac": 0.575,
+  "lightFrac": 0.025
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 94,
+   "left": 0,
+   "w": 1440,
+   "h": 94,
+   "z": "99999",
+   "links": [
+    {
+     "href": "https://www.villagedentaldtc.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about-us",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.villagedentaldtc.com/warranty/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.villagedentaldtc.com/new-patients/",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:7207309140",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://book.modento.io/villagedentaldtc",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 1107.96)"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": null
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 94,
+   "left": 0,
+   "w": 1440,
+   "h": 94,
+   "z": "99999",
+   "links": [
+    {
+     "href": "https://www.villagedentaldtc.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about-us",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.villagedentaldtc.com/warranty/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.villagedentaldtc.com/new-patients/",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:7207309140",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://book.modento.io/villagedentaldtc",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 13.8,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 788,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 56,
+   "z": "9990",
+   "links": [
+    {
+     "href": "tel:7207309140",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:7207309140",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.localmed.com/offices/9xj3mj5nuvd6ku0_c827951/widget/?_ga=2",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.localmed.com/offices/9xj3mj5nuvd6ku0_c827951/widget/?_ga=2",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://goo.gl/maps/h8FZCqhyRSt17X666",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://goo.gl/maps/h8FZCqhyRSt17X666",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

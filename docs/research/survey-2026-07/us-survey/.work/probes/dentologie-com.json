@@ -1,0 +1,292 @@
+{
+ "url": "https://dentologie.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "img",
+   "place": "center",
+   "covW": 0.94,
+   "covH": 0.25
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 108,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 138,
+    "h": 32,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 92,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 92,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 110,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 110,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 117,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 117,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 105,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 105,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 98,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 98,
+    "h": 36,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 116,
+    "h": 44,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 116,
+    "h": 44,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 97,
+    "h": 44,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 156,
+    "h": 48,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 156,
+    "h": 48,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 298,
+    "h": 48,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 298,
+    "h": 48,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "\"Playfair Display\", Georgia, serif",
+   "bodyFam": "Inter, system-ui, sans-serif",
+   "head": {
+    "topRatio": 2.71,
+    "botRatio": 2.71,
+    "midW": 14,
+    "hgt": 106
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 109
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 133,
+    "h": 1397,
+    "tag": "section",
+    "chars": 274,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1530,
+    "h": 882,
+    "tag": "section",
+    "chars": 485,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2411,
+    "h": 692,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3103,
+    "h": 818,
+    "tag": "section",
+    "chars": 290,
+    "imgs": 10,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3921,
+    "h": 1004,
+    "tag": "section",
+    "chars": 348,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4925,
+    "h": 792,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5717,
+    "h": 597,
+    "tag": "section",
+    "chars": 618,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6314,
+    "h": 734,
+    "tag": "section",
+    "chars": 255,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7048,
+    "h": 525,
+    "tag": "footer",
+    "chars": 181,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

@@ -1,0 +1,658 @@
+{
+ "url": "https://dentologie.com",
+ "status": 200,
+ "finalUrl": "https://dentologie.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 7573,
+  "screens": 8.4,
+  "sectionParentTag": "main",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 133,
+    "h": 1397,
+    "chars": 274,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "20,20,20",
+    "bgLum": 0.954,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 1530,
+    "h": 882,
+    "chars": 485,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.954,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 2411,
+    "h": 692,
+    "chars": 0,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "19,19,19",
+    "bgLum": 0.906,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 3103,
+    "h": 818,
+    "chars": 290,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 10,
+    "bgKey": "13,19,17",
+    "bgLum": 0.831,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 3921,
+    "h": 1004,
+    "chars": 348,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.954,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 4925,
+    "h": 792,
+    "chars": 0,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,16,15",
+    "bgLum": 0.802,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 5717,
+    "h": 597,
+    "chars": 618,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "19,19,19",
+    "bgLum": 0.906,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "section",
+    "absTop": 6314,
+    "h": 734,
+    "chars": 255,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.954,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 1397,
+   "bgLum": 0.954,
+   "bgMedia": false,
+   "textLum": 0.151,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 0.94,
+   "mediaCoverH": 0.84,
+   "slides": 0,
+   "anchorCount": 4,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 156,
+     "h": 48,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 156,
+     "h": 48,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "9999px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 298,
+     "h": 48,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 2,
+     "w": 298,
+     "h": 48,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "9999px"
+    }
+   ],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "\"Playfair Display\", Georgia, serif",
+   "h2": "\"Playfair Display\", Georgia, serif",
+   "body": "Inter, system-ui, sans-serif",
+   "h1Weight": "400",
+   "h1Size": "72px",
+   "bodySize": "12px",
+   "fontFaces": [
+    "Inter",
+    "Playfair Display"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   }
+  ],
+  "pageTextLen": 3024,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 5,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 8,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwImplant": true,
+   "kwCosmetic": true,
+   "kwUSState": null,
+   "phoneUS": "312-846-6752",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.932,
+   "darkFrac": 0.007,
+   "lightFrac": 0.98
+  },
+  {
+   "i": 1,
+   "mean": 0.914,
+   "darkFrac": 0.019,
+   "lightFrac": 0.966
+  },
+  {
+   "i": 2,
+   "mean": 0.906,
+   "darkFrac": 0.013,
+   "lightFrac": 0.981
+  },
+  {
+   "i": 3,
+   "mean": 0.854,
+   "darkFrac": 0.018,
+   "lightFrac": 0.961
+  },
+  {
+   "i": 4,
+   "mean": 0.873,
+   "darkFrac": 0.041,
+   "lightFrac": 0.916
+  },
+  {
+   "i": 5,
+   "mean": 0.847,
+   "darkFrac": 0.018,
+   "lightFrac": 0.97
+  },
+  {
+   "i": 6,
+   "mean": 0.864,
+   "darkFrac": 0.03,
+   "lightFrac": 0.92
+  },
+  {
+   "i": 7,
+   "mean": 0.941,
+   "darkFrac": 0.01,
+   "lightFrac": 0.985
+  }
+ ],
+ "heroLum": {
+  "mean": 0.88,
+  "darkFrac": 0.044,
+  "lightFrac": 0.906
+ },
+ "heroLumBelowNav": {
+  "mean": 0.885,
+  "darkFrac": 0.041,
+  "lightFrac": 0.904
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 868,
+   "bottom": 900,
+   "left": 1020,
+   "w": 420,
+   "h": 32,
+   "z": "100",
+   "links": [],
+   "label": "<removed>",
+   "tag": "ol",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 788,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 112,
+   "z": "50",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/wa-privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/terms",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 133,
+   "left": 0,
+   "w": 1440,
+   "h": 133,
+   "z": "50",
+   "links": [
+    {
+     "href": "https://better-smile.dentologie.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/services",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/locations",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/careers",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/insurance",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://better-smile.dentologie.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 868,
+   "bottom": 900,
+   "left": 1020,
+   "w": 420,
+   "h": 32,
+   "z": "100",
+   "links": [],
+   "label": "<removed>",
+   "tag": "ol",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 788,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 112,
+   "z": "50",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/wa-privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/terms",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 133,
+   "left": 0,
+   "w": 1440,
+   "h": 133,
+   "z": "50",
+   "links": [
+    {
+     "href": "https://better-smile.dentologie.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/services",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/locations",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/careers",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/insurance",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://better-smile.dentologie.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 11.9,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 32,
+   "left": 0,
+   "w": 390,
+   "h": 32,
+   "z": "100",
+   "links": [],
+   "label": "<removed>",
+   "tag": "ol",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 611,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 234,
+   "z": "50",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "/privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/wa-privacy",
+     "label": "<removed>"
+    },
+    {
+     "href": "/terms",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 177,
+   "left": 0,
+   "w": 390,
+   "h": 177,
+   "z": "50",
+   "links": [
+    {
+     "href": "https://better-smile.dentologie.com/",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

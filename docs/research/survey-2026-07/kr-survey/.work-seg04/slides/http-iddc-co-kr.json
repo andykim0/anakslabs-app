@@ -1,0 +1,40 @@
+{
+ "url": "http://www.iddc.co.kr/",
+ "tracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 8,
+   "top": 180,
+   "w": 2000,
+   "h": 760
+  }
+ ],
+ "pags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 6,
+   "top": 850
+  }
+ ],
+ "heroTracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 8,
+   "top": 180,
+   "w": 2000,
+   "h": 760
+  }
+ ],
+ "heroPags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 6,
+   "top": 850
+  }
+ ],
+ "bgKeys": [
+  "rgba(0, 0, 0, 0)",
+  "rgb(67, 68, 66)",
+  "rgb(222, 222, 222)"
+ ]
+}

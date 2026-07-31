@@ -1,0 +1,193 @@
+{
+ "url": "https://www.thetoothco.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "iframe",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 0.84
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 142,
+    "h": 35,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 172,
+    "h": 34,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 225,
+    "h": 34,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 150,
+    "h": 112,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 201,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 211,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 238,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 164,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 174,
+    "h": 49,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "\"Work Sans\", sans-serif",
+   "bodyFam": "\"Lexend Peta\", sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 26,
+    "hgt": 99
+   },
+   "body": {
+    "topRatio": 2.92,
+    "botRatio": 2.92,
+    "midW": 26,
+    "hgt": 105
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 147,
+    "h": 810,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 957,
+    "h": 1415,
+    "tag": "section",
+    "chars": 962,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2372,
+    "h": 650,
+    "tag": "section",
+    "chars": 177,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3023,
+    "h": 821,
+    "tag": "section",
+    "chars": 1076,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3844,
+    "h": 286,
+    "tag": "section",
+    "chars": 64,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4130,
+    "h": 540,
+    "tag": "section",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4670,
+    "h": 722,
+    "tag": "section",
+    "chars": 1218,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5391,
+    "h": 950,
+    "tag": "div",
+    "chars": 83,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

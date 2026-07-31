@@ -1,0 +1,523 @@
+{
+ "sample_id": "B13",
+ "name": "평촌서울나우병원",
+ "url": "https://www.nowhospital.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.nowhospital.co.kr/",
+ "title": "관절전문병원 | 평촌서울나우병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6006,
+  "screens": 6.7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "header",
+    "absTop": 0,
+    "h": 222,
+    "chars": 68,
+    "headings": [],
+    "keyText": "카카오톡 블로그 페이스북 인스타그램 유튜브 네이버TV 로그인 회원가입 ENG 병원소개 부위별질환 치료방법 치료증례 고객센터",
+    "media": 9,
+    "imgOnlyHeading": 1
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 222,
+    "h": 600,
+    "chars": 9,
+    "headings": [],
+    "keyText": "prev next",
+    "media": 19,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 974,
+    "h": 1539,
+    "chars": 425,
+    "headings": [
+     "평촌나우 CLINIC",
+     "분야별 전문의 20인 ONE-STOP 협진 시스템"
+    ],
+    "keyText": "평촌나우 CLINIC 척추 척추 허리디스크, 목 디스크 척추협착증 척추 전방 전위증 척추 골절 골다공증성 압박골절 무릎 무릎 회전형 인공관절 수술 반관절 수술 관절경 수술 줄기세포 수술 어깨 어깨 오십견 회전근개파열 석회성 건염 견관절재발성 탈구 수부 수부 손목터널증후군 방아쇠손가락 테니스엘보우 골프엘보우 팔꿈치터널증후군 엉덩이 엉덩이 고관절퇴행성관절염, 무혈성괴사 점액낭염 발음성고관절증후근 족부 족부 발목염좌/만성 불안정성 무지외반증 발목 관절염 족저근막염 등 다양한 족부질환 내과 내과 류마티스관절염 통풍 강직성척추염 골다공증 당뇨, 고혈압, 고지혈증 등 성인병 클리닉 일반내과 질환&예방접종 물리치료/도수재활 물리치료/도수재활센터 자세교정/맞춤형 깔창제작 수술후 재활, 스포츠 재활 근골격계 질환 치료 분야별 전문의 20인 ONE-STOP 협진 시스템",
+    "media": 9,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 2513,
+    "h": 490,
+    "chars": 581,
+    "headings": [
+     "평촌나우 News",
+     "공지사항",
+     "언론보도 NOW",
+     "365NOW"
+    ],
+    "keyText": "평촌나우 News 공지사항 더보기 [NOW 의료진 학술활동] 평촌서울나우병원 윤재연 원장, 태국 AO Recon 코스 참석 및 우수 증례상 수상 [NOW 의료진 학술활동] 평촌서울나우병원 이혁진 원장, 제2회 산전수전 심포지움에 패널 및 연자로 참석 [NOW 의료진 학술활동] 평촌서울나우병원 윤필환 원장, APHEAM 2026 학술위원회 관절 대표 위원으로 참석 2026년 8월 진료 일정 안내 [NOW 의료진 학술활동] 평촌서울나우병원 송원태 원장, 제2회 MIS 족부 심포지움 참석 발표 언론보도 NOW 더보기 [보건뉴스] 평촌서울나우병원 윤재연 원장, 로봇 활용 무릎 반치환술 성공 [메디컬투데이] 야외활동 늘어나는 5~6월, ‘시큰한 손목’ 방치했다간... 수부 질환 주의 [보건뉴스] 평촌서울나우병원 고관절 전담팀, 'ACTIS Hip Stem' 수술 1,000례 달성 [스포츠서울] FC안양, 김천전 ‘10년간 파트너’ 평촌서울나우병원 브랜드데이 ‘NOW DAY’ 연다 [보건뉴스]",
+    "media": 1,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 3003,
+    "h": 793,
+    "chars": 42,
+    "headings": [
+     "NOW REVIEW"
+    ],
+    "keyText": "NOW REVIEW 237 평촌서울나우병원과 함께한 고객님들의 체험기 더보기",
+    "media": 15,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 3796,
+    "h": 412,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 5,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 4208,
+    "h": 652,
+    "chars": 169,
+    "headings": [],
+    "keyText": "\"운동을 원하시는 부위를 클릭 해보세요!\" 어깨 등,목 허리 테니스엘보,골프 엘보 고관절 족저근막 아킬레스건 무릎강화,스트레칭 발목 손목건초염, 방화쇠수지 어깨 스트레칭 수술 후 관리를 위해 평촌서울나우병원에서 자체적으로 개발한 캐릭터 큐아리를 통한 셀프 운동법 어깨 근력 강화 운동 어깨 관절 스트레칭",
+    "media": 3,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 4860,
+    "h": 580,
+    "chars": 328,
+    "headings": [],
+    "keyText": "진료 안내 1588-2012 평 일AM 9:00 - PM 6:00 (오후 1~2시, 점심시간) 토요일AM 9:00 - PM 1:00 의료진 별 진료시간 및 공휴일 진료 일정은 내원 전 반드시 확인 부탁드립니다. 전문의 상담 찾아오시는 길 의료진/진료시간 입.퇴원 절차 일반 문의 이용약관 동의[보기] 개인정보처리방침 동의[보기] 진료과목선택 손/팔꿈치/말초신경질환 마취클리닉 고관절 고관절/무릎 무릎 척추/허리/목 손/팔꿈치/소아 상지 무릎/어깨 어깨/팔꿈치 발/발목/하지 내과 영상의학과 통증클리닉 발/발목/종아리 기타 신청하기 첨단의술과 인술을 겸비한 평촌나우 진료·편의시설 둘러보기",
+    "media": 3,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 8,
+    "tag": "footer",
+    "absTop": 5440,
+    "h": 566,
+    "chars": 252,
+    "headings": [],
+    "keyText": "병원소개 이용약관 개인정보처리방침 이메일 무단수집 거부 오시는 길 비급여안내 경기도 안양시 동안구 시민대로 372 (관양동 900-4) 평촌서울나우병원 / 대표자 : 김준배, 정재윤, 이혁진, 윤필환, 박종현 TEL:1588-2012 / 사업자등록번호 138-91-49397 ©2020 NOW HOSPITAL All Rights Reserved. 평촌서울나우병원의 모든 콘텐츠는 저작권법의 보호를 받습니다. 콘텐츠의 무단도용 및 수정·편집을 금합니다.",
+    "media": 10,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 1074,
+    "tag": "h2",
+    "t": "평촌나우 CLINIC"
+   },
+   {
+    "y": 2543,
+    "tag": "h2",
+    "t": "평촌나우 News"
+   },
+   {
+    "y": 3103,
+    "tag": "h2",
+    "t": "NOW REVIEW"
+   }
+  ],
+  "type": {
+   "h1Px": 32,
+   "h2Px": 30,
+   "bodyPx": 16,
+   "h1Fam": "\"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "bodyFam": "\"Noto Sans KR\", \"Malgun Gothic\", sans-serif",
+   "h1Weight": "400",
+   "h1TextLen": 0,
+   "h2TextLen": 11,
+   "headingTotal": 8,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 44,
+   "imgInFirstScreen": 0
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 0,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": null,
+    "dur": "0.1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -136, -136)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -136, -136)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -136, -136)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -136, -136)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -136, -136)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "카카오톡",
+   "블로그",
+   "페이스북",
+   "인스타그램",
+   "유튜브",
+   "네이버TV",
+   "로그인",
+   "회원가입",
+   "ENG",
+   "대표전화",
+   "병원소개",
+   "평촌나우 차별성",
+   "비전과 미션",
+   "비전 및 미션",
+   "진료센터",
+   "평촌서울나우병원 연혁",
+   "의료진/진료시간",
+   "이용안내",
+   "층별안내",
+   "안내영상",
+   "입·퇴원 안내",
+   "주차 안내",
+   "제증명발급안내",
+   "비급여항목안내",
+   "부서별 연락처",
+   "FAQ",
+   "협력기관",
+   "오시는 길",
+   "부위별질환",
+   "척추",
+   "척추센터 소개",
+   "척추관 협착증",
+   "경추",
+   "흉추",
+   "요추",
+   "무릎",
+   "퇴행성 관절염",
+   "반월상 연골판 손상",
+   "전방십자인대손상",
+   "후방십자인대손상",
+   "측부인대손상",
+   "전방통증증후군",
+   "슬개골탈구",
+   "관절연골손상",
+   "무릎 주변 건염",
+   "어깨",
+   "오십견",
+   "회전근개파열",
+   "석회성 건염",
+   "견관절재발성탈구",
+   "수부",
+   "수근관 증후군",
+   "외상과염 ? 내상과염",
+   "방아쇠 손가락",
+   "사구체종",
+   "드 꿰르뱅 병",
+   "팔꿈치 터널 증후군",
+   "선천성 기형",
+   "엉덩이",
+   "고관절퇴행성관절염"
+  ],
+  "pageTextLen": 1946,
+  "kw": {
+   "원장": 5,
+   "전문의": 2,
+   "의료진": 8,
+   "교수": 0,
+   "센터": 2,
+   "지점": 0,
+   "병원": 15,
+   "의원": 0,
+   "faq": 0,
+   "후기": 1,
+   "전후": 0,
+   "예약": 1,
+   "이벤트": 0,
+   "비급여": 1,
+   "오시는길": 6
+  },
+  "deptHits": [
+   "척추",
+   "관절",
+   "내과",
+   "영상의학과"
+  ],
+  "providerUrl": "https://www.nowhospital.co.kr/info/doctors.html",
+  "centerUrl": "https://www.nowhospital.co.kr/info/center.html"
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 0,
+   "tr": null,
+   "dur": "0.1s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -136, -136)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -136, -136)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -136, -136)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -136, -136)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -136, -136)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 2924,
+  "imgs": 43,
+  "title": "관절전문병원 | 평촌서울나우병원",
+  "원장": 0,
+  "전문의": 21,
+  "교수": 0,
+  "nameTokens": 0,
+  "iframes": 1,
+  "url": "https://www.nowhospital.co.kr/info/doctors.html",
+  "status": 200
+ }
+}

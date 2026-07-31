@@ -1,0 +1,39 @@
+{
+ "url": "http://www.ahnkang.com/",
+ "ev": {
+  "textLen": 433,
+  "nav": [
+   "ENG",
+   "العربي"
+  ],
+  "dept": {
+   "안과": 1,
+   "한의원": 1,
+   "병원": 4,
+   "의원": 1
+  },
+  "scale": {
+   "branchPhrase": [],
+   "branchNames": [],
+   "branchNameCount": 0,
+   "wonjang": [],
+   "wonjangCount": 0,
+   "doctorWord": 0,
+   "daepyo": [
+    "대표자명"
+   ],
+   "bizNo": 1,
+   "addrHits": [
+    "서울특별시 서초구 "
+   ],
+   "phones": [
+    "02-567-8853"
+   ],
+   "phoneCount": 1
+  },
+  "doctorLinks": [
+   "병원소개"
+  ],
+  "title": "서울안강병원"
+ }
+}

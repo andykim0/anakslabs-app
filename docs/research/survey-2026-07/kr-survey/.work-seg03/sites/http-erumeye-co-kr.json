@@ -1,0 +1,1048 @@
+{
+ "url": "http://www.erumeye.co.kr/",
+ "status": 200,
+ "finalUrl": "http://www.erumeye.co.kr/",
+ "title": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6373,
+  "screens": 7.1,
+  "sectionParentTag": "div",
+  "sectionCount": 8,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 0,
+    "h": 662,
+    "chars": 5,
+    "headings": [],
+    "keyText": "\uc774\uc804 \ub2e4\uc74c",
+    "media": 2,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 892,
+    "h": 520,
+    "chars": 131,
+    "headings": [
+     "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc \ud074\ub9ac\ub2c9 \uc18c\uac1c"
+    ],
+    "keyText": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc \ud074\ub9ac\ub2c9 \uc18c\uac1c Erumeye Clinic 01 \ub178\uc548\u00b7\ubc31\ub0b4\uc7a5 Erumeye Clinic 02 \uc2a4\ub9c8\uc77c\ub77c\uc2dd Erumeye Clinic 03 \uc2dc\ub825\uad50\uc815 Erumeye Clinic 04 \ub80c\uc988\uc0bd\uc785\uc220 Erumeye Clinic 05 \uc548\uc9c8\ud658",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 1507,
+    "h": 744,
+    "chars": 576,
+    "headings": [
+     "\ub530\ub77c\uc62c \uc218 \uc5c6\ub294 No.1 \ub300\ud55c\ubbfc\uad6d \ub300\ud45c \uc2dc\ub825\uad50\uc815\uc548\uacfc"
+    ],
+    "keyText": "\ub530\ub77c\uc62c \uc218 \uc5c6\ub294 No.1 \ub300\ud55c\ubbfc\uad6d \ub300\ud45c \uc2dc\ub825\uad50\uc815\uc548\uacfc 01 \uace0\uac1d\uc758 \uc548\uc804\ud55c \uc218\uc220 \ucca0\uc800\ud55c \uc0ac\uc804\uac80\uc0ac\ub97c \ubc14\ud0d5\uc73c\ub85c \uace0\uac1d\ub2d8\ub4e4\uaed8 \ub9de\ub294 \ub9de\ucda4 \uce58\ub8cc\ub97c \uc2dc\ud589\ud558\uba70, \uac80\uc0ac\uacb0\uacfc\uc5d0\uc11c \uc870\uae08\uc758 \uc704\ud5d8\uc694\uc18c\ub77c\ub3c4 \ubc1c\uc0dd\uc2dc \ubb34\ub9ac\ud55c \uc218\uc220\uc744 \uac15\uc694\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. 02 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uc218\uc220\uacb0\uacfc \uc6b0\ub9ac\ubab8\uc5d0\uc11c \uac00\uc7a5 \uc911\uc694\ud55c \ub208\uc744 \ub2f4\ub2f9\ud558\ub294 \uc548\uacfc\uc5d0\uc11c \uc774\uc131\uc801\uc778 \ud310\ub2e8\uacfc \ub0c9\ucca0\ud568\uc744 \uc783\ub294\ub2e4\uba74 \uc800\ud76c\ub97c \ubbff\uace0 \uc218\uc220\ud558\uc2e0 \uace0\uac1d\ub2d8\ub4e4\uaed8 \uc2e0\ub8b0\ub97c \uc5bb\uc9c0 \ubabb\ud560\uac70\ub77c \ud655\uc2e0\ud558\uba70 \uc800\ud76c\ub294 \uac00\uc7a5 \ucd5c\uc0c1\uc758 \uc0c1\ud0dc\uc5d0\uc11c \uace0\uac1d\ub2d8\uc744 \ub9de\uc774\ud569\ub2c8\ub2e4. 03 \uc7ac\ub2a5\uae30\ubd80\ub97c \ud1b5\ud574 \ub098\ub214\uc2e4\ucc9c \uc0ac\ud68c\uc801\uc73c\ub85c \uc18c\uc678\ub418\uace0 \ubd88\uc6b0\ud55c \uc774\uc6c3\uc744 \uc704\ud574 \uafb8\uc900\ud55c \uc758\ub8cc\ubd09\uc0ac\ub97c \uc2e4\ucc9c\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4. 01 \uace0\uac1d\uc758 \uc548\uc804\ud55c \uc218\uc220 \ucca0\uc800\ud55c \uc0ac\uc804\uac80\uc0ac\ub97c \ubc14\ud0d5\uc73c\ub85c \uace0\uac1d\ub2d8\ub4e4\uaed8 \ub9de\ub294 \ub9de\ucda4 \uce58\ub8cc\ub97c \uc2dc\ud589\ud558\uba70, \uac80\uc0ac\uacb0\uacfc\uc5d0\uc11c \uc870\uae08\uc758 \uc704\ud5d8\uc694\uc18c\ub77c\ub3c4 \ubc1c\uc0dd\uc2dc \ubb34\ub9ac\ud55c \uc218\uc220\uc744 \uac15\uc694\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. 02 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uc218\uc220\uacb0\uacfc \uc6b0\ub9ac\ubab8\uc5d0\uc11c \uac00\uc7a5 \uc911\uc694\ud55c \ub208\uc744 \ub2f4\ub2f9\ud558\ub294 \uc548\uacfc\uc5d0\uc11c \uc774\uc131\uc801\uc778 \ud310\ub2e8\uacfc \ub0c9\ucca0\ud568\uc744 \uc783\ub294\ub2e4\uba74 \uc800\ud76c\ub97c \ubbff\uace0 \uc218\uc220\ud558\uc2e0 \uace0\uac1d\ub2d8\ub4e4\uaed8 \uc2e0\ub8b0\ub97c \uc5bb\uc9c0 \ubabb\ud560\uac70\ub77c \ud655\uc2e0\ud558\uba70 \uc800\ud76c\ub294 \uac00\uc7a5 \ucd5c\uc0c1\uc758 \uc0c1\ud0dc\uc5d0\uc11c \uace0\uac1d\ub2d8\uc744 \ub9de\uc774\ud569\ub2c8\ub2e4. 03 \uc7ac\ub2a5\uae30\ubd80\ub97c \ud1b5\ud574 \ub098\ub214\uc2e4\ucc9c \uc0ac\ud68c\uc801\uc73c\ub85c \uc18c\uc678\ub418\uace0 \ubd88\uc6b0\ud55c \uc774\uc6c3\uc744 \uc704\ud574 \uafb8\uc900\ud55c \uc758\ub8cc\ubd09\uc0ac\ub97c \uc2e4\ucc9c\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4.",
+    "media": 6,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 2382,
+    "h": 700,
+    "chars": 135,
+    "headings": [],
+    "keyText": "\ubc15\uc131\uc81c \uc6d0\uc7a5 \ud604\uc8fc \uc6d0\uc7a5 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uc218\uc220\uacb0\uacfc\ub97c \uc704\ud574 \ucd5c\uc120\uc744 \ub2e4\ud558\uaca0\uc2b5\ub2c8\ub2e4. \uc11c\uc6b8\uc758\ub300 \uc878\uc5c5 \uc11c\uc6b8\ub300 \uc548\uacfc \uc678\ub798\uad50\uc218 \uc5ed\uc784 \uc11c\uc6b8\ub300\ud559\uad50\ubcd1\uc6d0 \uc218\ub828\uc758 \uc548\uacfc\ud559\uad50\uc2e4 \uc790\ubb38\uc758 \uc11c\uc6b8\ub300\ud559\uad50\ubcd1\uc6d0 \uc548\uacfc \uc804\ubb38\uc758 \ud3c9\ud0dd\uc11c\uc6b8\uc548\uacfc \ub300\ud45c\uc6d0\uc7a5 \uc758\ub8cc\uc9c4\uc18c\uac1c \ubc14\ub85c\uac00\uae30 \uc548\uacfc\uc804\ubb38\uc758 \ubc15\uc131\uc81c \uc6d0\uc7a5",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 3212,
+    "h": 1014,
+    "chars": 163,
+    "headings": [
+     "\ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc, \uc22b\uc790\ub85c \ubcf4\ub294 \uc774\ub8f8 \uac15\ub0a8\uc774\ub8f8\uc548\uacfc\ub294 \uace0\uac1d\uc758 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc\ub97c \uc704\ud574 \ud56d\uc0c1 \ub04a\uc784\uc5c6\uc774 \uc5f0\uad6c\ud558\uace0 \ub178\ub825\ud569\ub2c8\ub2e4."
+    ],
+    "keyText": "\ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc, \uc22b\uc790\ub85c \ubcf4\ub294 \uc774\ub8f8 \uac15\ub0a8\uc774\ub8f8\uc548\uacfc\ub294 \uace0\uac1d\uc758 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc\ub97c \uc704\ud574 \ud56d\uc0c1 \ub04a\uc784\uc5c6\uc774 \uc5f0\uad6c\ud558\uace0 \ub178\ub825\ud569\ub2c8\ub2e4. 1 \uc704 \uc54c\ucf58 \ube44\ube44\ud2f0 \uad6d\ub0b4\ub204\uc801 \uc218\uc220\uac74\uc218 1\uc704 20 \ub144 \uacbd\ub825 20\ub144 \uacbd\ub825\uc758 \uc548\uacfc\uc804\ubb38\uc758 0 \uba85 \uace0\uac1d\ub9cc\uc871\ubcf4\uc7a5\uc81c\ub3c4 \uc6b4\uc601 \uc9c4\ub8cc\ubd88\ub9cc\uc871 0\uba85 100 % \ub9cc\uc871\ub3c4 \uace0\uac1d\ub9cc\uc871\uc774 \ucd5c\uc6b0\uc120\uc778 \uac15\ub0a8\uc774\ub8f8\uc548\uacfc",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 4355,
+    "h": 670,
+    "chars": 95,
+    "headings": [
+     "NOTICE & EVENT"
+    ],
+    "keyText": "NOTICE & EVENT \uacf5\uc9c0\uc0ac\ud56d \uc774\ubca4\ud2b8 \uacf5\uc9c0\uc0ac\ud56d 7\uc6d4 \uc9c4\ub8cc\uc77c\uc815 \uc548\ub0b4 2025-07-04 5\uc6d4 \uc9c4\ub8cc\uc77c\uc815 \uc548\ub0b4 2025-04-29 3\uc6d4 \uc9c4\ub8cc \uc77c\uc815 \uc548\ub0b4 2024-02-05",
+    "media": 3,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 5156,
+    "h": 914,
+    "chars": 293,
+    "headings": [],
+    "keyText": "\uc804\ud654\uc0c1\ub2f4 02.6952.0975 \uc9c4\ub8cc\uc2dc\uac04 \uc6d4/\ud654/\ubaa9AM 09:30 ~ PM 06:30 \uae08\uc694\uc77cAM 09:30 ~ PM 08:00 \ud1a0\uc694\uc77cAM 09:30 ~ PM 04:30 \uc810\uc2ec\uc2dc\uac04PM 01:00 ~ PM 02:00 \u203b \uc218\uc694\uc77c, \uc77c\uc694\uc77c, \uacf5\ud734\uc77c \ud734\uc9c4 (\ubaa9\uc694\uc77c\uc740 \uc608\uc57d\uc218\uc220\ub9cc \uc9c4\ud589\ub418\uba70 \uc678\ub798\uc9c4\ub8cc\ub294 \ud734\uc9c4\uc785\ub2c8\ub2e4.) \uce74\uce74\uc624\ud1a1 \ubb38\uc758 \uce74\ud1a1 \uc544\uc774\ub514 \uac80\uc0c9\uc5d0\uc11c \u2018erumeye\u2019\uc744 \uac80\uc0c9\ud558\uc138\uc694. \uc774\ub8f8\uc548\uacfc SNS \uce74\uce74\uc624\ud1a1 \uc778\uc2a4\ud0c0\uadf8\ub7a8 \uc720\ud29c\ube0c \uc704\uce58\uc548\ub0b4 \uc11c\uc6b8\uc2dc \uac15\ub0a8\uad6c \uac15\ub0a8\ub300\ub85c358, \uac15\ub0a8358\ud0c0\uc6cc B1\uce35 (\uc5ed\uc0bc\ub3d9) \uac15\ub0a8\uc774\ub8f8\uc548\uacfc\uc758\uc6d0 100m \ud655\ub300 \ucd95\uc18c \ucd08\uae30\ud654",
+    "media": 22,
+    "bgKey": "4,4,4",
+    "bgLum": 0.169,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 6070,
+    "h": 303,
+    "chars": 189,
+    "headings": [],
+    "keyText": "\ubcd1\uc6d0\uc18c\uac1c \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \ube44\uae09\uc5ec \uc9c4\ub8cc\ube44 \uac15\ub0a8\uc774\ub8f8\uc548\uacfc\uc758\uc6d0 \ub300\ud45c\uc790 : \ubc15\uc131\uc81c \uc8fc\uc18c : \uc11c\uc6b8\uc2dc \uac15\ub0a8\uad6c \uac15\ub0a8\ub300\ub85c 358, \uac15\ub0a8358\ud0c0\uc6cc B1\uce35(\uc5ed\uc0bc\ub3d9) \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 671-90-01044 \ub300\ud45c\ubc88\ud638 : 02-6952-0975 \ud329\uc2a4\ubc88\ud638 : 02-2038-8977 Copyright(C)\uac15\ub0a8\uc774\ub8f8\uc548\uacfc\uc758\uc6d0 All Right Reserved.",
+    "media": 0,
+    "bgKey": "4,4,4",
+    "bgLum": 0.169,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 892,
+    "tag": "h2",
+    "t": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc \ud074\ub9ac\ub2c9 \uc18c\uac1c"
+   },
+   {
+    "y": 1507,
+    "tag": "h2",
+    "t": "\ub530\ub77c\uc62c \uc218 \uc5c6\ub294 No.1 \ub300\ud55c\ubbfc\uad6d \ub300\ud45c \uc2dc\ub825\uad50\uc815\uc548\uacfc"
+   },
+   {
+    "y": 3312,
+    "tag": "h2",
+    "t": "\ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc, \uc22b\uc790\ub85c \ubcf4\ub294 \uc774\ub8f8 \uac15\ub0a8\uc774\ub8f8\uc548\uacfc\ub294 \uace0\uac1d\uc758 \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc\ub97c \uc704\ud574 \ud56d\uc0c1 \ub04a\uc784\uc5c6\uc774 \uc5f0\uad6c\ud558\uace0 \ub178\ub825\ud569\ub2c8\ub2e4."
+   },
+   {
+    "y": 4455,
+    "tag": "h2",
+    "t": "NOTICE & EVENT"
+   }
+  ],
+  "hero": {
+   "h": 662,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1.05,
+   "slides": 4,
+   "anchorCount": 8,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 1440,
+     "h": 698,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 1440,
+     "h": 698,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": true,
+     "bw": 3,
+     "w": 42,
+     "h": 42,
+     "label": "\uc774\uc804",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": true,
+     "bw": 3,
+     "w": 42,
+     "h": 42,
+     "label": "\ub2e4\uc74c",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\uc774\uc804 \ub2e4\uc74c"
+  },
+  "type": {
+   "h1": "\"Pretendard Variable\", sans-serif",
+   "h2": "\"Pretendard Variable\", sans-serif",
+   "body": "Arita-buri-SemiBold",
+   "h1Weight": "500",
+   "h1Size": "20px",
+   "h2Size": "0px",
+   "h2Weight": "500",
+   "bodyWeight": "400",
+   "bodySize": "14px",
+   "fontFaces": [
+    "Poppins",
+    "Roboto",
+    "Pretendard Variable",
+    "Marcellus",
+    "Arita-buri-SemiBold",
+    "FontAwesome",
+    "swiper-icons"
+   ]
+  },
+  "motion": {
+   "aosCount": 14,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 1,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 18
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -100, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-right",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-left",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-left",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": "fade-up",
+    "aosDur": "1000",
+    "aosEase": null
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "pageTextLen": 1694,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 11,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kakaoLinks": 7,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 1,
+   "mapEmbed": 12,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwNotice": true,
+   "kwPhoneKR": true,
+   "statLike": [
+    "20 \ub144",
+    "20\ub144",
+    "0 \uba85",
+    "0\uba85"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.383,
+   "darkFrac": 0.626,
+   "lightFrac": 0.298
+  },
+  {
+   "i": 1,
+   "mean": 0.57,
+   "darkFrac": 0.212,
+   "lightFrac": 0.324
+  },
+  {
+   "i": 2,
+   "mean": 0.833,
+   "darkFrac": 0.045,
+   "lightFrac": 0.73
+  },
+  {
+   "i": 3,
+   "mean": 0.885,
+   "darkFrac": 0.026,
+   "lightFrac": 0.905
+  },
+  {
+   "i": 4,
+   "mean": 0.417,
+   "darkFrac": 0.546,
+   "lightFrac": 0.167
+  },
+  {
+   "i": 5,
+   "mean": 0.942,
+   "darkFrac": 0.031,
+   "lightFrac": 0.941
+  },
+  {
+   "i": 6,
+   "mean": 0.395,
+   "darkFrac": 0.687,
+   "lightFrac": 0.281
+  },
+  {
+   "i": 7,
+   "mean": 0.174,
+   "darkFrac": 0.997,
+   "lightFrac": 0.002
+  }
+ ],
+ "heroLum": {
+  "mean": 0.488,
+  "darkFrac": 0.455,
+  "lightFrac": 0.311
+ },
+ "heroLumBelowNav": {
+  "mean": 0.52,
+  "darkFrac": 0.406,
+  "lightFrac": 0.348
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 101,
+   "left": 0,
+   "w": 1440,
+   "h": 101,
+   "z": "999",
+   "links": [
+    {
+     "href": "http://www.erumeye.co.kr",
+     "label": ""
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/intro/intro.php",
+     "label": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/presbyopia/presbyopia.php",
+     "label": "\ub178\uc548 \u00b7 \ubc31\ub0b4\uc7a5"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/lasik/smile_lasik.php",
+     "label": "\uc2a4\ub9c8\uc77c\ub77c\uc2dd"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/eyesight/lasik.php",
+     "label": "\uc2dc\ub825\uad50\uc815"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/lens/lens.php",
+     "label": "\ub80c\uc988\uc0bd\uc785\uc220"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/eye_disease/dryness.php",
+     "label": "\uc548\uc9c8\ud658"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/bbs/write.php?bo_table=reserve",
+     "label": "\uc0c1\ub2f4&\uc608\uc57d"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/bbs/login.php?url=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "javascript:;",
+     "label": ""
+    }
+   ],
+   "label": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc \ub178\uc548 \u00b7 \ubc31\ub0b4\uc7a5 \uc2a4\ub9c8\uc77c\ub77c\uc2dd \uc2dc\ub825\uad50\uc815 \ub80c\uc988\uc0bd\uc785\uc220 \uc548\uc9c8\ud658 \uc0c1\ub2f4&\uc608\uc57d \ub85c\uadf8\uc778",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 800,
+   "bottom": 880,
+   "left": 0,
+   "w": 1440,
+   "h": 80,
+   "z": "998",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/bbs/board.php?bo_table=event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=reserve",
+     "label": "\uc0c1\ub2f4&\uc608\uc57d"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=review",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_xexbxjmG",
+     "label": "\uce74\uce74\uc624\uc0c1\ub2f4"
+    },
+    {
+     "href": "https://www.youtube.com/@erum_eye",
+     "label": "\uc774\ub8f8 \uc720\ud29c\ube0c"
+    }
+   ],
+   "label": "\uc774\ubca4\ud2b8 \uc0c1\ub2f4&\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uce74\uce74\uc624\uc0c1\ub2f4 \uc774\ub8f8 \uc720\ud29c\ube0c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 100,
+   "left": 0,
+   "w": 1440,
+   "h": 100,
+   "z": "999",
+   "links": [
+    {
+     "href": "http://www.erumeye.co.kr",
+     "label": ""
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/intro/intro.php",
+     "label": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/presbyopia/presbyopia.php",
+     "label": "\ub178\uc548 \u00b7 \ubc31\ub0b4\uc7a5"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/lasik/smile_lasik.php",
+     "label": "\uc2a4\ub9c8\uc77c\ub77c\uc2dd"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/eyesight/lasik.php",
+     "label": "\uc2dc\ub825\uad50\uc815"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/lens/lens.php",
+     "label": "\ub80c\uc988\uc0bd\uc785\uc220"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/sub/eye_disease/dryness.php",
+     "label": "\uc548\uc9c8\ud658"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/bbs/write.php?bo_table=reserve",
+     "label": "\uc0c1\ub2f4&\uc608\uc57d"
+    },
+    {
+     "href": "http://www.erumeye.co.kr/bbs/login.php?url=%2F",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "javascript:;",
+     "label": ""
+    }
+   ],
+   "label": "\uac15\ub0a8\uc774\ub8f8\uc548\uacfc \ub178\uc548 \u00b7 \ubc31\ub0b4\uc7a5 \uc2a4\ub9c8\uc77c\ub77c\uc2dd \uc2dc\ub825\uad50\uc815 \ub80c\uc988\uc0bd\uc785\uc220 \uc548\uc9c8\ud658 \uc0c1\ub2f4&\uc608\uc57d \ub85c\uadf8\uc778",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 830,
+   "bottom": 880,
+   "left": 1370,
+   "w": 50,
+   "h": 50,
+   "z": "90",
+   "links": [],
+   "label": "\uc0c1\ub2e8\uc73c\ub85c",
+   "tag": "button",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 800,
+   "bottom": 880,
+   "left": 0,
+   "w": 1440,
+   "h": 80,
+   "z": "998",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/bbs/board.php?bo_table=event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=reserve",
+     "label": "\uc0c1\ub2f4&\uc608\uc57d"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=review",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_xexbxjmG",
+     "label": "\uce74\uce74\uc624\uc0c1\ub2f4"
+    },
+    {
+     "href": "https://www.youtube.com/@erum_eye",
+     "label": "\uc774\ub8f8 \uc720\ud29c\ube0c"
+    }
+   ],
+   "label": "\uc774\ubca4\ud2b8 \uc0c1\ub2f4&\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uce74\uce74\uc624\uc0c1\ub2f4 \uc774\ub8f8 \uc720\ud29c\ube0c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 8.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 70,
+   "left": 0,
+   "w": 390,
+   "h": 70,
+   "z": "999",
+   "links": [
+    {
+     "href": "http://www.erumeye.co.kr",
+     "label": ""
+    },
+    {
+     "href": "javascript:;",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 774,
+   "bottom": 824,
+   "left": 320,
+   "w": 50,
+   "h": 50,
+   "z": "90",
+   "links": [],
+   "label": "\uc0c1\ub2e8\uc73c\ub85c",
+   "tag": "button",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 772,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 72,
+   "z": "998",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/bbs/board.php?bo_table=event",
+     "label": "\uc774\ubca4\ud2b8"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=reserve",
+     "label": "\uc0c1\ub2f4&\uc608\uc57d"
+    },
+    {
+     "href": "/bbs/board.php?bo_table=review",
+     "label": "\uc218\uc220\ud6c4\uae30"
+    },
+    {
+     "href": "http://pf.kakao.com/_xexbxjmG",
+     "label": "\uce74\uce74\uc624\uc0c1\ub2f4"
+    },
+    {
+     "href": "https://www.youtube.com/@erum_eye",
+     "label": "\uc774\ub8f8 \uc720\ud29c\ube0c"
+    }
+   ],
+   "label": "\uc774\ubca4\ud2b8 \uc0c1\ub2f4&\uc608\uc57d \uc218\uc220\ud6c4\uae30 \uce74\uce74\uc624\uc0c1\ub2f4 \uc774\ub8f8 \uc720\ud29c\ube0c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

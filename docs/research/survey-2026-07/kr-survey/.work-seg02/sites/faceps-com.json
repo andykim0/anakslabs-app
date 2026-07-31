@@ -1,0 +1,641 @@
+{
+ "url": "https://www.faceps.com/",
+ "status": 200,
+ "finalUrl": "https://www.faceps.com/",
+ "title": "\ub300\uc804\ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc",
+ "popups": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1662.5, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 4789,
+  "screens": 5.3,
+  "sectionParentTag": "body",
+  "sectionCoverRatio": 0.98,
+  "sectionCount": 7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 850,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 950,
+    "h": 390,
+    "chars": 57,
+    "headings": [],
+    "keyText": "\uc804\ud6c4\uc140\uce74 \ub208 \ud638\uac15\uc774\ub780, \ubc14\ub85c \uc774\ub7f0 \uac83 \uc804\ud6c4\uc0ac\uc9c4 \uc0dd\uac01\uc744 \ud655\uc2e0\ud558\ub294 \uc21c\uac04 \uc218\uc220\ud6c4\uae30 \ud398\uc774\uc2a4\uc5d0 \ub354 \ube60\uc838\ub4dc\ub294 \uc774\uc720",
+    "media": 3,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1440,
+    "h": 644,
+    "chars": 370,
+    "headings": [],
+    "keyText": "FACE shorts \ud558\uc548\uac80\uc218\uc220 #shorts \ucf54\uc7ac\uc218\uc220 #shorts \uc911\ub144\ub208\uc218\uc220 #shorts \uc30d\uaebc\ud480\uc218\uc220 #shorts \uc774\ub9c8\uc9c0\ubc29\uc774\uc2dd/\ucf54/\ub208\ubc11\uc9c0\ubc29\uc7ac\ubc30\uce58 #shorts \ub9e4\ubab0/\uc55e\ud2b8\uc784 #shorts \ucf54\uc218\uc220 #shorts \uc138\ubbf8\uc544\uc6c3\uc30d\uaebc\ud480\uc218\uc220 #shorts 3D-Plant(\ud131 \ub9de\ucda4\ud615\ubcf4\ud615\ubb3c) #shorts \uc0c1\uc548\uac80\uc218\uc220 #shorts \ud558\uc548\uac80\uc218\uc220 #shorts \ucf54\uc7ac\uc218\uc220 #shorts \uc911\ub144\ub208\uc218\uc220 #shorts \uc30d\uaebc\ud480\uc218\uc220 #shorts \uc774\ub9c8\uc9c0\ubc29\uc774\uc2dd/\ucf54/\ub208\ubc11\uc9c0\ubc29\uc7ac\ubc30\uce58 #shorts \ub9e4\ubab0/\uc55e\ud2b8\uc784 #shorts \ucf54\uc218\uc220 #shorts \uc138\ubbf8\uc544\uc6c3\uc30d\uaebc\ud480\uc218\uc220 #shorts 3D-Plant(\ud131 \ub9de\ucda4\ud615\ubcf4\ud615\ubb3c) #shorts \uc0c1\uc548\uac80\uc218\uc220 #shorts \ud558\uc548\uac80\uc218\uc220 #shorts \ucf54\uc7ac\uc218\uc220 #shorts",
+    "media": 23,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2084,
+    "h": 504,
+    "chars": 60,
+    "headings": [
+     "\uc138\uc0c1\uc5d0\uc11c \uac00\uc7a5 \uc18c\uc911\ud55c \ub2f9\uc2e0\uc744 \uc704\ud574. \ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc\uc758 \uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4."
+    ],
+    "keyText": "ABOUT US \uc138\uc0c1\uc5d0\uc11c \uac00\uc7a5 \uc18c\uc911\ud55c \ub2f9\uc2e0\uc744 \uc704\ud574. \ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc\uc758 \uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4. LEARN MORE",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2738,
+    "h": 504,
+    "chars": 319,
+    "headings": [
+     "FACE MAGAZINE"
+    ],
+    "keyText": "FACE MAGAZINE \uc30d\uaebc\ud480 \uc218\uc220\uc774 \uc544\ub2cc \uc774\ub9c8 \uac70\uc0c1\uc774 \ud544\uc694\ud55c \uc774\uc720 \ub208\uc5d0 \uc9c0\ubc29\uc774 \ub9ce\uace0 \ub208\uaebc\ud480\uc774 \ucc98\uc838 \ub208\ub9e4\uad50\uc815\uacfc \uc30d\uaebc\ud480 \uc218\uc220\uc744 \ud1b5\ud574 \uc131\ud615\uc678\uacfc\ub97c \ubc29\ubb38\ud574\uc8fc\uc2dc\ub294 \ubd84\ub4e4\uc774 \ub9ce\uc2b5\ub2c8\ub2e4. \ud558\uc9c0\ub9cc \uc774\ub7f0 \uacbd\uc6b0 \ub208 \uc218\uc220\ubfd0\ub9cc \uc544\ub2c8\ub77c \uc774\ub9c8\ub97c \ud3ec\ud568\ud55c \uc5bc\uad74 \uc804\uccb4\ub97c \ubd10\uc57c\ud569\ub2c8\ub2e4. \ub300\ubd80\ubd84 \ub208\uc774 \ub36e\ud788\ub294 \uc99d\uc0c1\uc744 \ud638\uc18c\ud558\uc2dc\ub294 \ubd84\ub4e4\uc740 \uc548\uac80\ud558\uc218\ub77c \uc0dd\uac01\ud560 \uc218 \uc788\uc9c0\ub9cc \ubb34\uac70\uc6b4 \ub208\uc379\uc744 \uac00\uc9c4 \ub208\uc379\ud558\uc218\uc77c \uac00\ub2a5\uc131\uc774 \ub192\uc73c\uba70 \ub208\ub9e4\uad50\uc815\uc744 \ud558\uac8c \ub41c\ub2e4\uba74 \uadfc\ubcf8\uc801\uc778 \ubb38\uc81c\uac00 \ud574\uacb0\ub418\uc9c0 \uc54a\uc544 \ub208\uc379\ud558\uc218\uac00 \uc624\ud788\ub824 \uc2ec\ud574\uc9c8 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uadf8\ub798\uc11c \ubb34\uac70\uc6b4 \ub208\uc379\uc744 \ub04c\uc5b4\uc62c\ub9ac\ub294 \uc774\ub9c8\uac70\uc0c1\uc220\uc744 \uc9c4\ud589\ud574\uc57c \ub9cc\uc871\uc2a4\ub7ec\uc6b4 \uacb0\uacfc\ub97c \uc5bb\uc744 \uc218 \uc788\uc2b5\ub2c8\ub2e4. READ MORE",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 3462,
+    "h": 750,
+    "chars": 84,
+    "headings": [
+     "\ud398\uc774\uc2a4\ud50c\ub780\ud2b8"
+    ],
+    "keyText": "EVENT NOTICE 01 APR 2026 FACE EVENT \ud398\uc774\uc2a4\ud50c\ub780\ud2b8 CT \ub370\uc774\ud130 \uae30\ubc18 \ub9de\ucda4\ud615 \uc778\uacf5 \ubcf4\ud615\ubb3c \ub514\uc790\uc778 \ud398\uc774\uc2a4\ud50c\ub780\ud2b8 READ MORE",
+    "media": 1,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "footer",
+    "absTop": 4212,
+    "h": 577,
+    "chars": 398,
+    "headings": [],
+    "keyText": "\uc544\ub984\ub2e4\uc6c0\uc744 \ud5a5\ud55c \uc5ec\uc815 \uc9c0\uae08, \ub3c4\uc6c0\uc774 \ud544\uc694\ud558\uc2e0\uac00\uc694? FACE\ub294 \ubc29\ubc95\uc774 \uc788\uc2b5\ub2c8\ub2e4. FACE \ucc3e\uae30 \uc608\uc57d. \uc0c1\ub2f4. \uce74\uce74\uc624\ud1a1. \ubcd1\uc6d0\uc548\ub0b4 \uc758\ub8cc\uc9c4 \uc18c\uac1c \uacf5\uc9c0\uc0ac\ud56d \uc774\ubca4\ud2b8 FACE MEDIA \uc790\uc8fc\ud558\ub294 \uc9c8\ubb38 \uc774\uba54\uc77c\ubb34\ub2e8\uc218\uc9d1\uac70\ubd80 \uc724\uacfd\uc131\ud615 \uac00\uc2b4\uc131\ud615 \ucf54\uc131\ud615 \ub208\uc131\ud615 \ub3d9\uc548\uc131\ud615 \ubcf4\ud1a1\uc2a4 \ud544\ub7ec \uc131\ud615\ubaa8\ub378\uc744 \uc9c0\uc6d0\ud558\uc2dc\ub824\uba74 \uc774\ub984\uc744 \uc801\uc5b4\uc8fc\uc138\uc694. \uc131\ud615\ubaa8\ub378\uc9c0\uc6d0\ud558\uae30 FOLLOW US \uc758\ub8cc\uae30\uad00\uba85 : \ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc\ub300\ud45c\uc790\uba85 : \uc724\uc601\ubb35\uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 314-27-91178 \uc8fc\uc18c : \ub300\uc804 \uc11c\uad6c \ub300\ub355\ub300\ub85c 203 (\ub454\uc0b0\ub3d9 1040), \ub454\uc0b0\ubbf8\ub798\ube4c\ub529 3\uce35\ub300\ud45c\uc804\ud654 : 042-484-2300\ud329\uc2a4\ubc88\ud638 : 042-487-0070 \uba54\uc77c : faceps1@daum.net COPYRIGHT(c) FACEPS 2016 ALL RIGHTS RESERVED. \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc774\uc6a9\uc57d\uad00",
+    "media": 8,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 0,
+    "tag": "h1",
+    "t": "face\uc131\ud615\uc678\uacfc"
+   },
+   {
+    "y": 2229,
+    "tag": "h2",
+    "t": "\uc138\uc0c1\uc5d0\uc11c \uac00\uc7a5 \uc18c\uc911\ud55c \ub2f9\uc2e0\uc744 \uc704\ud574. \ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc\uc758 \uc758\ub8cc\uc9c4\uc744 \uc18c\uac1c\ud569\ub2c8\ub2e4."
+   },
+   {
+    "y": 2790,
+    "tag": "h2",
+    "t": "FACE MAGAZINE"
+   },
+   {
+    "y": 3715,
+    "tag": "h2",
+    "t": "\ud398\uc774\uc2a4\ud50c\ub780\ud2b8"
+   }
+  ],
+  "hero": {
+   "h": 850,
+   "bgLum": null,
+   "bgMedia": true,
+   "textLum": 1,
+   "mediaKind": "bg-image",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 1,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 1440,
+     "h": 850,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": ""
+  },
+  "type": {
+   "h1": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "h2": "Gotham, sans-serif, \ufffd\ufffd\ufffd\ufffd, Dotum, \ufffd\ufffd\ufffd\ufffd, Gulim, Tahoma, Geneva, verdana",
+   "body": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "h1Weight": "700",
+   "h1Size": "32px",
+   "h2Weight": "500",
+   "h2Size": "48px",
+   "bodySize": "14px",
+   "bodyWeight": "300",
+   "bodyLH": "25px",
+   "bigHeadPx": 32,
+   "bigHeadFam": "\"Noto Sans KR\", sans-serif, \ub3cb\uc6c0, Dotum, \uad74\ub9bc, Gulim, Tahoma, Geneva, verdana",
+   "bigHeadWeight": "700",
+   "h1Count": 1,
+   "h2Sizes": [
+    "35px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Noto Sans KR",
+    "Gotham",
+    "Roboto",
+    "swiper-icons"
+   ],
+   "linkFonts": [
+    "https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swa"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 1,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 4,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 22
+  },
+  "pageTextLen": 1376,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 3,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 3,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwAbout": true,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": true,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 5,
+   "naverLinks": 5,
+   "instaLinks": 3,
+   "ytLinks": 3,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1425, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.631,
+   "darkFrac": 0.185,
+   "lightFrac": 0.796
+  },
+  {
+   "i": 1,
+   "mean": 0.367,
+   "darkFrac": 0.463,
+   "lightFrac": 0.04
+  },
+  {
+   "i": 2,
+   "mean": 0.661,
+   "darkFrac": 0.325,
+   "lightFrac": 0.585
+  },
+  {
+   "i": 3,
+   "mean": 0.181,
+   "darkFrac": 0.794,
+   "lightFrac": 0.043
+  },
+  {
+   "i": 4,
+   "mean": 0.787,
+   "darkFrac": 0.136,
+   "lightFrac": 0.749
+  },
+  {
+   "i": 5,
+   "mean": 0.301,
+   "darkFrac": 0.585,
+   "lightFrac": 0.268
+  },
+  {
+   "i": 6,
+   "mean": 0.035,
+   "darkFrac": 0.952,
+   "lightFrac": 0.019
+  }
+ ],
+ "heroLum": {
+  "mean": 0.647,
+  "darkFrac": 0.182,
+  "lightFrac": 0.801
+ },
+ "heroLumBelowNav": {
+  "mean": 0.714,
+  "darkFrac": 0.072,
+  "lightFrac": 0.909
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 140,
+   "left": 0,
+   "w": 1440,
+   "h": 140,
+   "z": "10",
+   "links": [
+    {
+     "href": "/",
+     "label": "face\uc131\ud615\uc678\uacfc"
+    },
+    {
+     "href": "/member/login.php",
+     "label": "LOGIN"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "JOIN"
+    },
+    {
+     "href": "",
+     "label": "LANGUAGE"
+    },
+    {
+     "href": "https://www.facebook.com/faceps",
+     "label": ""
+    },
+    {
+     "href": "https://www.instagram.com/face_ps/?hl=ko",
+     "label": ""
+    },
+    {
+     "href": "https://www.youtube.com/channel/UC1oxogQGe2wiM9IY0nUVfhQ",
+     "label": ""
+    },
+    {
+     "href": "https://blog.naver.com/faceplastic",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "ABOUT"
+    },
+    {
+     "href": "/eye/eye.php",
+     "label": "OPERATION"
+    },
+    {
+     "href": "/petit/petit01.php",
+     "label": "PROCEDURE"
+    },
+    {
+     "href": "/photo/photo02.php",
+     "label": "REVIEW"
+    },
+    {
+     "href": "/customer/customer01.php",
+     "label": "CONTACT"
+    },
+    {
+     "href": "/event/event02.php",
+     "label": "EVENT"
+    }
+   ],
+   "label": "face\uc131\ud615\uc678\uacfc LOGIN JOIN LANGUAGE ABOUT OPERATION PROCEDURE REVIEW CONTACT EVENT",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": -140,
+   "bottom": 0,
+   "left": 0,
+   "w": 1440,
+   "h": 140,
+   "z": "10",
+   "links": [
+    {
+     "href": "/",
+     "label": "face\uc131\ud615\uc678\uacfc"
+    },
+    {
+     "href": "/member/login.php",
+     "label": "LOGIN"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "JOIN"
+    },
+    {
+     "href": "",
+     "label": "LANGUAGE"
+    },
+    {
+     "href": "https://www.facebook.com/faceps",
+     "label": ""
+    },
+    {
+     "href": "https://www.instagram.com/face_ps/?hl=ko",
+     "label": ""
+    },
+    {
+     "href": "https://www.youtube.com/channel/UC1oxogQGe2wiM9IY0nUVfhQ",
+     "label": ""
+    },
+    {
+     "href": "https://blog.naver.com/faceplastic",
+     "label": ""
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "ABOUT"
+    },
+    {
+     "href": "/eye/eye.php",
+     "label": "OPERATION"
+    },
+    {
+     "href": "/petit/petit01.php",
+     "label": "PROCEDURE"
+    },
+    {
+     "href": "/photo/photo02.php",
+     "label": "REVIEW"
+    },
+    {
+     "href": "/customer/customer01.php",
+     "label": "CONTACT"
+    },
+    {
+     "href": "/event/event02.php",
+     "label": "EVENT"
+    }
+   ],
+   "label": "face\uc131\ud615\uc678\uacfc LOGIN JOIN LANGUAGE ABOUT OPERATION PROCEDURE REVIEW CONTACT EVENT",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 4,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 390,
+   "w": 390,
+   "h": 844,
+   "z": "1111102",
+   "links": [
+    {
+     "href": "",
+     "label": "\uacac\uc801\uacc4\uc0b0 \ub2eb\uae30"
+    },
+    {
+     "href": "#",
+     "label": "\uc804\uccb4\uc0ad\uc81c"
+    },
+    {
+     "href": "/customer/customer01.php",
+     "label": ""
+    },
+    {
+     "href": "http://pf.kakao.com/_HpDEl",
+     "label": ""
+    },
+    {
+     "href": "/customer/customer02.php",
+     "label": ""
+    }
+   ],
+   "label": "Quotation for plastic surgery \uac1c\uc778\uc5d0 \ub530\ub77c \uac00\uaca9\uc740 \uc77c\ubd80 \ubcc0\uacbd\ub420 \uc218 \uc788\uc73c\uba70, \uc815\ud655\ud55c \ube44\uc6a9\uc740 \ubc29\ubb38\ud558\uc5ec \uc0c1\ub2f4\ud558\uc2dc\uae30 \ubc14\ub78d\ub2c8\ub2e4 \uacac\uc801\uacc4\uc0b0 \ub2eb\uae30 \ub208\uc131\ud615 \ub9e4\ubab0 \ubd80\ubd84\uc808\uac1c \ubd80\ubd84\uc808\uac1c \ub208\ub9e4\uad50\uc815 1 \ubd80\ubd84\uc808\uac1c \ub208\ub9e4\uad50\uc815 2 \uc808\uac1c\ubc95 \uc30d\uaebc\ud480 \uc808\uac1c\ub208\ub9e4\uad50\uc815 1 ",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 54,
+   "left": 0,
+   "w": 390,
+   "h": 54,
+   "z": "1000",
+   "links": [
+    {
+     "href": "",
+     "label": "\uba54\ub274\uc5f4\uae30"
+    },
+    {
+     "href": "/",
+     "label": "\ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc"
+    },
+    {
+     "href": "",
+     "label": "\ub2e4\uad6d\uc5b4 \ud648\ud398\uc774\uc9c0"
+    },
+    {
+     "href": "/customer/customer01.php",
+     "label": "\uc0c1\ub2f4"
+    },
+    {
+     "href": "",
+     "label": "\uba54\ub274\ub2eb\uae30"
+    },
+    {
+     "href": "/intro/intro01.php",
+     "label": "ABOUT"
+    },
+    {
+     "href": "/eye/eye01.php",
+     "label": "OPERATION"
+    },
+    {
+     "href": "",
+     "label": "PROCEDURE"
+    },
+    {
+     "href": "",
+     "label": "REVIEW"
+    },
+    {
+     "href": "",
+     "label": "CONTACT"
+    },
+    {
+     "href": "/event/event02.php",
+     "label": "EVENT"
+    },
+    {
+     "href": "/member/login.php",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "https://www.faceps.com/?pc",
+     "label": "PC\ubcf4\uae30"
+    }
+   ],
+   "label": "\uba54\ub274\uc5f4\uae30 \ud398\uc774\uc2a4\uc131\ud615\uc678\uacfc \ub2e4\uad6d\uc5b4 \ud648\ud398\uc774\uc9c0 \uc0c1\ub2f4 \uba54\ub274\ub2eb\uae30 MENU ABOUT OPERATION PROCEDURE REVIEW CONTACT EVENT FOLLOW US \ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 PC\ubcf4\uae30 \uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

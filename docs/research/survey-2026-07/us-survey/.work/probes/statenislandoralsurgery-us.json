@@ -1,0 +1,220 @@
+{
+ "url": "https://statenislandoralsurgery.us",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "img",
+   "place": "right",
+   "covW": 0.4,
+   "covH": 0.64
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 202,
+    "h": 50,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 110,
+    "h": 57,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 89,
+    "h": 57,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 137,
+    "h": 57,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 110,
+    "h": 57,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 183,
+    "h": 56,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 185,
+    "h": 58,
+    "fixedAnc": false,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 192,
+    "h": 72,
+    "fixedAnc": false,
+    "isCta": false
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "\"DM Sans\", sans-serif",
+   "bodyFam": "\"DM Sans\", sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 16,
+    "hgt": 105
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 105
+   },
+   "sameFamily": true
+  },
+  "blocks": [
+   {
+    "top": 150,
+    "h": 772,
+    "tag": "div",
+    "chars": 371,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 780,
+    "h": 277,
+    "tag": "div",
+    "chars": 60,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 922,
+    "h": 345,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 19,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1267,
+    "h": 784,
+    "tag": "div",
+    "chars": 16,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2052,
+    "h": 796,
+    "tag": "div",
+    "chars": 49,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2848,
+    "h": 751,
+    "tag": "div",
+    "chars": 76,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3599,
+    "h": 512,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4111,
+    "h": 3510,
+    "tag": "div",
+    "chars": 3125,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7641,
+    "h": 683,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 8324,
+    "h": 1208,
+    "tag": "div",
+    "chars": 1588,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 9532,
+    "h": 858,
+    "tag": "div",
+    "chars": 323,
+    "imgs": 12,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 10390,
+    "h": 1921,
+    "tag": "footer",
+    "chars": 1245,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

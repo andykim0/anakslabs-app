@@ -1,0 +1,25 @@
+{
+ "url": "https://www.champodonamu.com/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "fa-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "swiper-preloader-spin": {
+    "x": 0,
+    "y": 0,
+    "opFrom": null
+   },
+   "bounce-in-top": {
+    "x": 0,
+    "y": 100,
+    "opFrom": 0
+   }
+  },
+  "els": []
+ }
+}

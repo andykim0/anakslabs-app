@@ -1,0 +1,16 @@
+http://www.jwbeauty.com/ tracks 6 heroTracks [{'cls': 'swiper-wrapper', 'n': 11, 'top': 0, 'w': 1440, 'h': 850}] heroPags [{'cls': 'swiper-pagination swiper-pagination-clickable swip', 'n': 9, 'top': 129}, {'cls': 'swiper-pagination swiper-pagination-clickable swip', 'n': 9, 'top': 812}] 
+http://www.kosleep.com tracks 0 heroTracks [] heroPags [] 
+http://www.rubyps.co.kr tracks 0 heroTracks [] heroPags [] 
+http://www.mrbigclinic.com/ tracks 0 heroTracks [] heroPags [] 
+http://www.everm.net tracks 0 heroTracks [] heroPags [{'cls': 'tp-bullets newnavclass_1 horizontal nav-pos-hor-le', 'n': 7, 'top': 891}] 
+http://www.sooamc.com/ tracks 0 heroTracks [] heroPags [] 
+http://www.jk-withme.com/ tracks 1 heroTracks [] heroPags [] 
+http://www.eyejak.co.kr/ tracks 0 heroTracks [] heroPags [] 
+http://bocelle.com/ tracks 0 heroTracks [] heroPags [] 
+http://www.withme-medi.com/ tracks 1 heroTracks [{'cls': 'swiper-wrapper', 'n': 7, 'top': 240, 'w': 1440, 'h': 600}] heroPags [] 
+http://www.resexy.co.kr/ tracks 0 heroTracks [] heroPags [] 
+http://www.glowell.co.kr/ tracks 0 heroTracks [] heroPags [] 
+http://www.gangnamhifu.com/ tracks 0 heroTracks None heroPags None Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at http://www.gangnamhifu.com/
+Call log:
+  - navigating
+SLIDES-DONE

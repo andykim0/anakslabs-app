@@ -1,0 +1,849 @@
+{
+ "url": "http://127.0.0.1:3111/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+ "status": 200,
+ "finalUrl": "http://127.0.0.1:3111/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+ "title": "\ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 11612,
+  "screens": 12.9,
+  "sectionParentTag": "main",
+  "sectionCount": 19,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 151,
+    "h": 648,
+    "chars": 33,
+    "headings": [
+     "\ud1b5\uc99d\uc73c\ub85c \uc783\uc5b4\ubc84\ub838\ub358 \ubbf8\uc18c\ub97c \ucc3e\uc544\ub4dc\ub9bd\ub2c8\ub2e4"
+    ],
+    "keyText": "\uc774\ub2f4\ud074\ub9ac\ub2c9 \ud1b5\uc99d\uc73c\ub85c \uc783\uc5b4\ubc84\ub838\ub358 \ubbf8\uc18c\ub97c \ucc3e\uc544\ub4dc\ub9bd\ub2c8\ub2e4 \uc0c1\ub2f4 \ubb38\uc758",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 799,
+    "h": 1493,
+    "chars": 713,
+    "headings": [
+     "\uc774\ub2f4\uc758 \uce58\ub8cc Vascular Center",
+     "\ub2f9\uc2e0\uc758 \uac74\uac15\uc5d0 \uc774\ub86d\ub3c4\ub85d \uc9c4\uc2ec\uc744 \ub2f4\uc544 \uc9c4\ub8cc\ud569\ub2c8\ub2e4",
+     "\uc774\ub2f4\uc758 \uce58\ub8cc Vascular Center",
+     "01. \ud558\uc9c0\uc815\ub9e5\ub958 \uc790\uc138\ud788\ubcf4\uae30",
+     "02. \ud22c\uc11d\ud608\uad00 \uc790\uc138\ud788\ubcf4\uae30"
+    ],
+    "keyText": "\uc774\ub2f4\uc758 \uce58\ub8cc Vascular Center \ub2f9\uc2e0\uc758 \uac74\uac15\uc5d0 \uc774\ub86d\ub3c4\ub85d \uc9c4\uc2ec\uc744 \ub2f4\uc544 \uc9c4\ub8cc\ud569\ub2c8\ub2e4 Doctor\u2019s \uc2e4\ub825\uc5d0\uc11c \uc624\ub294 \uc790\uc2e0\uac10 \uc77c\ubc18\uc801\uc778 \uc9c8\ubcd1\uacfc \ub2ec\ub9ac \uc6c0\uc9c1\uc5ec\uc57c \ud558\ub294 \ub2e4\ub9ac\ud608\uad00, \ud2b9\ud788 \ud22c\uc11d \uc2dc \uc0ac\uc6a9\ub418\ub294 \ud608\uad00 \uadf8\ub9ac\uace0 \ubf08, \uadfc\uc721\uc5d0 \uad00\ub828\ub41c \ud2b9\uc218\ud55c \uc9c8\ubcd1\ub4e4\uc740 \uc0c1\ub2f9\ud55c \uace0\ud1b5\uc744 \uc218\ubc18\ud569\ub2c8\ub2e4. 10\ub144 \uc774\uc0c1\uc758 \ud608\uad00, \uadfc\uc721, \ubf08 \uad00\ub828 \ud2b9\uc218\uc9c8\ubcd1 \uc804\ubb38\uce58\ub8cc \uacbd\ud5d8\uc774 \ud48d\ubd80\ud55c \ubd84\uc57c\ubcc4 \uc804\ubb38\uc758\uac00 \ucc98\uc74c\ubd80\ud130 \ub05d\uae4c\uc9c0 \ud568\uaed8 \ud569\ub2c8\ub2e4. \uc774\ub2f4\uc758 \uce58\ub8cc Vascular Center 15\ub144 \uc774\uc0c1 \ud608\uad00\uc9c8\ud658\ub9cc\uc744 \uc9d1\uc911 \uc9c4\ub8cc\ud574\uc628 \ud608\uad00\uc678\uacfc \uc804\ubb38\uc758\uac00 \ub2e4\ub9ac \uc815\ub9e5\uacfc \ub3d9\ub9e5\ud608\uad00\uc758 \uc9c4\ub2e8 \uacfc \uce58\ub8cc, \ubca0\ub098\uc2e4 500\ub840 \uc774\uc0c1\uc758 \uc784\uc0c1\uacbd\ud5d8, \uc2e0\uccb4 \ubd80\ub2f4\uc744 \ucd5c\uc18c\ud654\ud55c \uace0\ub09c\ub3c4\uc758 \ubbf8\uc138 \uc815\ub9e5\uc808\uc81c\uc220 \ub178\ud558\uc6b0 \ub4f1\uc744 \ubc14\ud0d5\uc73c\ub85c \ucd5c\uc0c1\uc758 \uc9c4\ub8cc \uc11c\ube44\uc2a4\ub97c \uc81c\uacf5\ud569\ub2c8\ub2e4. 01. \ud558\uc9c0\uc815\ub9e5\ub958 \uc790\uc138\ud788\ubcf4\uae30 \ud558\uc9c0\uc815\ub9e5\ub958 \uc624\ud6c4\uc5d0\ub3c4 \uac00\ubfd0\ud558\uace0 \ud3b8\uc548\ud55c \ub2e4\ub9ac, \uc774\ub2f4\uc758 \ud558\uc9c0\uc815\ub9e5\ub958 \uce58\ub8cc\uc758 \uc9c0\ud5a5\uc810\uc785\ub2c8\ub2e4. \uc815\ud655\ud55c \uc9c4\ub2e8\uacfc \ucd5c\uc120\uc758 \uce58\ub8cc\ubc29\ubc95\uc744 \uc120\ud0dd\ud558\ub294\uac83\uc774 \uc911\uc694\ud569\ub2c8\ub2e4. 02. \ud22c\uc11d\ud608\uad00 \uc790\uc138\ud788\ubcf4\uae30 \ud22c\uc11d\ud608\uad00 \uc870\uc131\uff65\uce58\ub8cc \ud22c\uc11d\ud608\uad00\uc758 \uc548\uacfc \ubc16\uc5d0\uc11c \uc811\uadfc\ud558\ub294 \ub2e4\uac01\uc801\uc778 \uce58\ub8cc\ub97c \ubcd1\ud589\ud568\uc73c\ub85c\uc368 \ube60\ub978 \ud68c\ubcf5, \uc815\uad50\ud55c \uce58\ub8cc, \ubd80\uc791\uc6a9 \ucd5c\uc18c\ud654\ub97c \uc2e4\ud604\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4. 03. \ub2f9\ub1e8\ubc1c \uc790\uc138\ud788\ubcf4\uae30 \ub2f9\ub1e8\ubc1c \ub2f9\ub1e8\ubc1c\uc758 \uc870\uae30\uce58\ub8cc\uc640 \ud608\uc561\uc21c\ud658 \uce58\ub8cc, \uac10\uc5fc\uce58\ub8cc, \uc555\ub825\uc190\uc0c1\uce58\ub8cc, \ucc3d\uc0c1\uce58\uc720\ub2a5\ub825 \uac1c\uc120\ub4f1 \uc815\ud615\uc678\uacfc \uc804\ubb38\uc758\uc640\uc758 \ud611\uc9c4\uc73c\ub85c \uccb4\uacc4\uc801\uc778 \uce58\ub8cc\uc640 \uad00\ub9ac\uac00 \uac00\ub2a5\ud569\ub2c8\ub2e4. 04. \uc7a5\uae30\uc9c8\ud658 \ucf00\uc5b4 \uc790\uc138\ud788\ubcf4\uae30 \uc9c0\uc18d\uc801\uc778 \uad00\ub9ac\uc640 \uce58\ub8cc\uac00 \ud544\uc694\ud55c \uc7a5\uae30\uc9c8\ud658\uc758 \ud6a8\uacfc",
+    "media": 2,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 2379,
+    "h": 1936,
+    "chars": 432,
+    "headings": [
+     "\uace0\ub09c\ub3c4 \uc218\uc220\ubd80\ud130 \ucd5c\uc2e0 \ube44\uc218\uc220\uae4c\uc9c0",
+     "\uace0\ub09c\ub3c4 \uc218\uc220\ubd80\ud130 \ucd5c\uc2e0 \ube44\uc218\uc220\uae4c\uc9c0",
+     "\ud611\uc9c4\uc2dc\uc2a4\ud15c - \uc131\ud615\uc678\uacfc",
+     "\ud611\uc9c4\uc2dc\uc2a4\ud15c - \uc815\ud615\uc678\uacfc"
+    ],
+    "keyText": "\uace0\ub09c\ub3c4 \uc218\uc220\ubd80\ud130 \ucd5c\uc2e0 \ube44\uc218\uc220\uae4c\uc9c0 \uace0\ub09c\ub3c4 \uc218\uc220\ubd80\ud130 \ucd5c\uc2e0 \ube44\uc218\uc220\uae4c\uc9c0 01 \ubaa8\ub4e0 \uc815\ub9e5\ub958\uc758 \uce58\ub8cc\uc5d0 \ubd80\ud569\ud558\ub294 \ub2e8 \ud55c\uac00\uc9c0 \ubc29\ubc95\uc740 \uc5c6\uc2b5\ub2c8\ub2e4. \ud608\uad00\uc9c8\ud658 \uce58\ub8cc\uc5d0 \uc790\uc2e0\uc774 \uc788\ub2e4\uba74, \uac00\ubcbc\uc6b4 \uacbd\uc99d\ubd80\ud130 \uc911\uc99d \uc815\ub9e5\ub958\uae4c\uc9c0 \uc9c8\ud658\uc758 \uc0c1\ud0dc\uc640 \ud658\uc790\uc758 \uc694\uad6c\uc5d0 \ubd80\ud569\ud558\ub294 1\ub3001 \ub9de\ucda4 \uce58\ub8cc\ub97c \uc2dc\ud589\ud560 \uc218 \uc788\uc5b4\uc57c \ud569\ub2c8\ub2e4. \uc774\ub2f4\uc678\uacfc\uc5d0\uc11c\ub294 \ud608\uad00\uc758 \ubc16\uc5d0\uc11c \uc811\uadfc\ud558\ub294 \uc678\uacfc\uc218\uc220\uacfc \ud608\uad00 \uc548\uc73c\ub85c \uc9c4\uc785\ud558\ub294 \uc778\ud130\ubca4\uc158(\uc911\uc7ac\uc801) \ube44\uc218\uc220\uc774 \ubaa8\ub450 \uac00\ub2a5\ud569\ub2c8\ub2e4. \ud611\uc9c4\uc2dc\uc2a4\ud15c - \uc131\ud615\uc678\uacfc 02 \uc131\ud615\uc678\uacfc \uc804\ubb38\uc758\uc758 \uc9c4\ub8cc\ub97c \ud1b5\ud574, \uc911\uc99d \uc774\uc0c1\uc758 \ud558\uc9c0\uc815\ub9e5\ub958\uc5d0 \ub3d9\ubc18\ub418\ub294 \ud53c\ubd80\uc5fc\uc99d\u00b7\ud558\uc9c0\uada4\uc591\u00b7\ud53c\ubd80\uad34\uc0ac \ub4f1\uc758 \ud569\ubcd1\uc99d\uc744 \ud6a8\uacfc\uc801\uc73c\ub85c \uce58\ub8cc\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4 \ud611\uc9c4\uc2dc\uc2a4\ud15c - \uc815\ud615\uc678\uacfc 03 \ucc99\ucd94 \ubc0f \uad00\uc808 \uc9c8\ud658\uacfc \ud558\uc9c0\uc815\ub9e5\ub958\uc758 \uac10\ubcc4\uc744 \uc704\ud574 \ud608\uad00\uc678\uacfc \uc804\ubb38\uc758\uc640 \uc815\ud615\uc678\uacfc \uc804\ubb38\uc758\uac00 \ud611\ub825 \uc9c4\ub8cc\ud569\ub2c8\ub2e4. \uc5ec\ub7ec \ubcd1\uc6d0\uc744 \uac70\uce58\uc9c0 \uc54a\uace0 \ud55c \uacf3\uc5d0\uc11c \ud1b5\uc99d\uc758 \ub2e4\uc591\ud55c \uc6d0\uc778\uc744 \ud30c\uc545\ud558\uace0 \uce58\ub8cc\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 4403,
+    "h": 1980,
+    "chars": 203,
+    "headings": [
+     "\uc758\ub8cc\uc9c4\uc18c\uac1c",
+     "\uc678\uacfc \uc804\ubb38\uc758 (\ud608\uad00\ubd84\uacfc) \uae40\ud604\uaddc \ub300\ud45c\uc6d0\uc7a5 DR. KIM HYUN KYU",
+     "\uc815\ud615\uc678\uacfc \uc804\ubb38\uc758/\uc758\ud559\ubc15\uc0ac \uae40\uc0c1\uc724 \uc6d0\uc7a5 DR. KIM SANG YOON",
+     "\uc131\ud615\uc678\uacfc \uc804\ubb38\uc758 \uace0\uc900\uac78 \uc6d0\uc7a5 DR. KO JUN GUL",
+     "\ub0b4\uacfc \uc804\ubb38\uc758 / \uc18c\ud654\uae30\ub0b4\uc2dc\uacbd \uc138\ubd80\uc804\ubb38\uc758 \ubc15\uc2b9\uc6b0 \uc6d0\uc7a5 DR. PARK SEUNG WOO"
+    ],
+    "keyText": "\uc758\ub8cc\uc9c4\uc18c\uac1c \uc678\uacfc \uc804\ubb38\uc758 (\ud608\uad00\ubd84\uacfc) \uae40\ud604\uaddc \ub300\ud45c\uc6d0\uc7a5 DR. KIM HYUN KYU \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcf4\uae30 \uc815\ud615\uc678\uacfc \uc804\ubb38\uc758/\uc758\ud559\ubc15\uc0ac \uae40\uc0c1\uc724 \uc6d0\uc7a5 DR. KIM SANG YOON \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcf4\uae30 \uc131\ud615\uc678\uacfc \uc804\ubb38\uc758 \uace0\uc900\uac78 \uc6d0\uc7a5 DR. KO JUN GUL \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcf4\uae30 \ub0b4\uacfc \uc804\ubb38\uc758 / \uc18c\ud654\uae30\ub0b4\uc2dc\uacbd \uc138\ubd80\uc804\ubb38\uc758 \ubc15\uc2b9\uc6b0 \uc6d0\uc7a5 DR. PARK SEUNG WOO \uc758\ub8cc\uc9c4 \uc18c\uac1c \ubcf4\uae30",
+    "media": 4,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "li",
+    "absTop": 6562,
+    "h": 672,
+    "chars": 56,
+    "headings": [
+     "\ubca0\ub098\uc2e4 1000\ub840 \ub2ec\uc131!"
+    ],
+    "keyText": "\ubca0\ub098\uc2e4 1000\ub840 \ub2ec\uc131! \ub300\ud55c\ubbfc\uad6d 4\ubc88\uc9f8, \uc11c\uc6b8 \uac15\ub0a8\uad6c \uccab \ubc88\uc9f8\ub85c \ubca0\ub098\uc2e4 1000\ub840\ub97c \ub2ec\uc131\ud558\uc600\uc2b5\ub2c8\ub2e4.",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "li",
+    "absTop": 6562,
+    "h": 435,
+    "chars": 52,
+    "headings": [
+     "\uc774\ub2f4 \uc720\ud29c\ube0c \ucc44\ub110"
+    ],
+    "keyText": "\uc774\ub2f4 \uc720\ud29c\ube0c \ucc44\ub110 \uc9c8\ud658\uc73c\ub85c \uace0\ud1b5\ubc1b\ub294 \ud658\uc790\uc640 \ubcf4\ud638\uc790\ub97c \uc704\ud55c \uc720\ud29c\ube0c \uc9c0\uc2dd\ucc44\ub110\uc744 \uc6b4\uc601\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4.",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "li",
+    "absTop": 7289,
+    "h": 404,
+    "chars": 45,
+    "headings": [
+     "\uc9c4\ub2e8 \uce58\ub8cc \uc7a5\ube44"
+    ],
+    "keyText": "\uc9c4\ub2e8 \uce58\ub8cc \uc7a5\ube44 \uac19\uc740 \uc2dc\uc220\uc774\ub77c\ub3c4 \uce58\ub8cc \uacb0\uacfc\uac00 \ub2e4\ub978 \uc774\uc720, \uacb0\uacfc\ub97c \uc704\ud574 \ud22c\uc790\ud569\ub2c8\ub2e4.",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "li",
+    "absTop": 7289,
+    "h": 373,
+    "chars": 17,
+    "headings": [
+     "\ubc30\uc6b0 \uc774\uc9c0\ud6c8"
+    ],
+    "keyText": "\ubc30\uc6b0 \uc774\uc9c0\ud6c8 \uc774\ub2f4 With \uc2a4\ud0c0",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "li",
+    "absTop": 7289,
+    "h": 373,
+    "chars": 17,
+    "headings": [
+     "\ubc30\uc6b0 \ub098\uc778\uc6b0"
+    ],
+    "keyText": "\ubc30\uc6b0 \ub098\uc778\uc6b0 \uc774\ub2f4 With \uc2a4\ud0c0",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "li",
+    "absTop": 7749,
+    "h": 373,
+    "chars": 18,
+    "headings": [
+     "\ubc29\uc1a1\uc778 \uc870\uc601\uad6c"
+    ],
+    "keyText": "\ubc29\uc1a1\uc778 \uc870\uc601\uad6c \uc774\ub2f4 With \uc2a4\ud0c0",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "li",
+    "absTop": 7749,
+    "h": 373,
+    "chars": 17,
+    "headings": [
+     "\uac00\uc218 \uc774\uc2b9\ucca0"
+    ],
+    "keyText": "\uac00\uc218 \uc774\uc2b9\ucca0 \uc774\ub2f4 With \uc2a4\ud0c0",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "li",
+    "absTop": 7749,
+    "h": 480,
+    "chars": 53,
+    "headings": [
+     "\ub300\ud55c\ubbfc\uad6d 4\ubc88\uc9f8, \uc11c\uc6b8 \uac15\ub0a8\uad6c \uccab \ubc88\uc9f8\ub85c \ubca0\ub098\uc2e4 1000\ub840\ub97c \ub2ec\uc131\ud558\uc600\uc2b5\ub2c8\ub2e4."
+    ],
+    "keyText": "\ub300\ud55c\ubbfc\uad6d 4\ubc88\uc9f8, \uc11c\uc6b8 \uac15\ub0a8\uad6c \uccab \ubc88\uc9f8\ub85c \ubca0\ub098\uc2e4 1000\ub840\ub97c \ub2ec\uc131\ud558\uc600\uc2b5\ub2c8\ub2e4. \uc774\ub2f4 With \uc2a4\ud0c0",
+    "media": 1,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 12,
+    "tag": "li",
+    "absTop": 8285,
+    "h": 185,
+    "chars": 24,
+    "headings": [
+     "\uc774\ub2f4\uc678\uacfc \ubca0\ub098\uc2e4 1,000\ub840 \ub2ec\uc131!"
+    ],
+    "keyText": "\uc774\ub2f4\uc678\uacfc \ubca0\ub098\uc2e4 1,000\ub840 \ub2ec\uc131! \uacf5\uc9c0\uc0ac\ud56d",
+    "media": 0,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 13,
+    "tag": "li",
+    "absTop": 8285,
+    "h": 185,
+    "chars": 22,
+    "headings": [
+     "01\uc6d4 \ud1a0\uc694\uc77c \uc9c4\ub8cc \ubc0f \ud734\uc9c4\uc548\ub0b4"
+    ],
+    "keyText": "01\uc6d4 \ud1a0\uc694\uc77c \uc9c4\ub8cc \ubc0f \ud734\uc9c4\uc548\ub0b4 \uacf5\uc9c0\uc0ac\ud56d",
+    "media": 0,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 14,
+    "tag": "li",
+    "absTop": 8285,
+    "h": 257,
+    "chars": 41,
+    "headings": [
+     "\uc774\ub2f4\uc678\uacfc, \uac74\uac15\ubcf4\ud5d8\uc2ec\uc0ac\ud3c9\uac00\uc6d0 \ubc1c\ud45c \uc218\ud608 \uc801\uc815\uc131 \ud3c9\uac00 1\ub4f1\uae09 \ud68d\ub4dd!"
+    ],
+    "keyText": "\uc774\ub2f4\uc678\uacfc, \uac74\uac15\ubcf4\ud5d8\uc2ec\uc0ac\ud3c9\uac00\uc6d0 \ubc1c\ud45c \uc218\ud608 \uc801\uc815\uc131 \ud3c9\uac00 1\ub4f1\uae09 \ud68d\ub4dd! \uacf5\uc9c0\uc0ac\ud56d",
+    "media": 0,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 15,
+    "tag": "li",
+    "absTop": 8598,
+    "h": 257,
+    "chars": 49,
+    "headings": [
+     "[2022 \ub3c5\uac10\ubc31\uc2e0 \uc608\ubc29\uc811\uc885] \ub179\uc2ed\uc790, \uc0ac\ub178\ud53c, GSK 4\uac00 \ub3c5\uac10\ubc31\uc2e0 \uc218\uac00 \uc548\ub0b4"
+    ],
+    "keyText": "[2022 \ub3c5\uac10\ubc31\uc2e0 \uc608\ubc29\uc811\uc885] \ub179\uc2ed\uc790, \uc0ac\ub178\ud53c, GSK 4\uac00 \ub3c5\uac10\ubc31\uc2e0 \uc218\uac00 \uc548\ub0b4 \uacf5\uc9c0\uc0ac\ud56d",
+    "media": 0,
+    "bgKey": "20,21,21",
+    "bgLum": 0.967,
+    "bgMedia": false
+   },
+   {
+    "i": 16,
+    "tag": "section",
+    "absTop": 8943,
+    "h": 1543,
+    "chars": 132,
+    "headings": [
+     "\uc774\ub2f4\ubbf8\ub514\uc5b4",
+     "\uad50\ud1b5\uc0ac\uace0 \ud6c4 \uc0c1\ucc98, \ubd09\ud569\ub9cc\uc73c\ub85c \ub05d? \ud749\ud130 \uce58\ub8cc \u2018\uace8\ub4e0\ud0c0\uc784\u2019 \ucc59\uae30\uc138\uc694",
+     "\ud53c\uc9c0\ub0ad\uc885\u00b7\uc9c0\ubc29\uc885\ubd80\ud130 \u2018\uace8\uc885\u2019\uae4c\uc9c0 \uad6c\ubcc4 \ubc29\ubc95\uacfc \uce58\ub8cc",
+     "\uc774\ub2f4\uc678\uacfc, \ud608\uad00 \uc2dc\uc220\u00b7\uc218\uc220 3\ub9cc\ub840 \ub2ec\uc131\u2026\ud22c\uc11d\ud608\uad00\u00b7\ub2f9\ub1e8\ubc1c \uce58\ub8cc \uc9d1\uc911"
+    ],
+    "keyText": "\uc774\ub2f4\ubbf8\ub514\uc5b4 \uad50\ud1b5\uc0ac\uace0 \ud6c4 \uc0c1\ucc98, \ubd09\ud569\ub9cc\uc73c\ub85c \ub05d? \ud749\ud130 \uce58\ub8cc \u2018\uace8\ub4e0\ud0c0\uc784\u2019 \ucc59\uae30\uc138\uc694 \uc601\uc0c1 \uae00 \ubcf4\uae30 \ud53c\uc9c0\ub0ad\uc885\u00b7\uc9c0\ubc29\uc885\ubd80\ud130 \u2018\uace8\uc885\u2019\uae4c\uc9c0 \uad6c\ubcc4 \ubc29\ubc95\uacfc \uce58\ub8cc \uc601\uc0c1 \uae00 \ubcf4\uae30 \uc774\ub2f4\uc678\uacfc, \ud608\uad00 \uc2dc\uc220\u00b7\uc218\uc220 3\ub9cc\ub840 \ub2ec\uc131\u2026\ud22c\uc11d\ud608\uad00\u00b7\ub2f9\ub1e8\ubc1c \uce58\ub8cc \uc9d1\uc911 \uc601\uc0c1 \uae00 \ubcf4\uae30",
+    "media": 2,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   },
+   {
+    "i": 17,
+    "tag": "section",
+    "absTop": 10486,
+    "h": 511,
+    "chars": 179,
+    "headings": [
+     "\uc774\ub2f4\uc758 \uae30\ub85d",
+     "5",
+     "10\ub144 \uc774\uc0c1",
+     "31"
+    ],
+    "keyText": "\uc774\ub2f4\uc758 \uae30\ub85d 5 5\uac1c \uc13c\ud130 10\ub144 \uc774\uc0c1 \uc77c\ubc18\uc801\uc778 \uc9c8\ubcd1\uacfc \ub2ec\ub9ac \uc6c0\uc9c1\uc5ec\uc57c \ud558\ub294 \ub2e4\ub9ac\ud608\uad00, \ud2b9\ud788 \ud22c\uc11d \uc2dc \uc0ac\uc6a9\ub418\ub294 \ud608\uad00 \uadf8\ub9ac\uace0 \ubf08, \uadfc\uc721\uc5d0 \uad00\ub828\ub41c \ud2b9\uc218\ud55c \uc9c8\ubcd1\ub4e4\uc740 \uc0c1\ub2f9\ud55c \uace0\ud1b5\uc744 \uc218\ubc18\ud569\ub2c8\ub2e4. 10\ub144 \uc774\uc0c1\uc758 \ud608\uad00, \uadfc\uc721, \ubf08 \uad00\ub828 \ud2b9\uc218\uc9c8\ubcd1 \uc804\ubb38\uce58\ub8cc \uacbd\ud5d8\uc774 \ud48d\ubd80\ud55c \ubd84\uc57c\ubcc4 \uc804\ubb38\uc758\uac00 \ucc98\uc74c\ubd80\ud130 \ub05d\uae4c\uc9c0 \ud568\uaed8 \ud569\ub2c8\ub2e4. 31 31\uac74 \ud559\uc220\ud65c\ub3d9",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   },
+   {
+    "i": 18,
+    "tag": "section",
+    "absTop": 10997,
+    "h": 615,
+    "chars": 113,
+    "headings": [
+     "\uc608\uc57d\u00b7\uc0c1\ub2f4 \uc548\ub0b4",
+     "\uc804\ud654",
+     "\uc8fc\uc18c",
+     "\uc9c4\ub8cc\uc2dc\uac04",
+     "\uc608\uc57d"
+    ],
+    "keyText": "\uc608\uc57d\u00b7\uc0c1\ub2f4 \uc548\ub0b4 \uc804\ud654 02-547-2004 \uc8fc\uc18c \uc11c\uc6b8\uc2dc \uac15\ub0a8\uad6c \ub3c4\uc0b0\ub300\ub85c235 \ub354\uc2dc\uc5d0\ub098 \ub3c4\uc0b0 2,3\uce35 \uc9c4\ub8cc\uc2dc\uac04 \uc6d4/\uc218/\uae08 : \uc624\uc804 9\uc2dc ~ \uc624\ud6c4 6\uc2dc \uc608\uc57d \uc608\uc57d \uc2dc\uc2a4\ud15c\uc744 \uc5f0\uacb0\ud558\uba74 \uc608\uc57d \uae30\ub2a5\uc774 \ud65c\uc131\ud654\ub429\ub2c8\ub2e4.",
+    "media": 0,
+    "bgKey": "21,21,21",
+    "bgLum": 0.983,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 289,
+    "tag": "h1",
+    "t": "\ud1b5\uc99d\uc73c\ub85c \uc783\uc5b4\ubc84\ub838\ub358 \ubbf8\uc18c\ub97c \ucc3e\uc544\ub4dc\ub9bd\ub2c8\ub2e4"
+   },
+   {
+    "y": 887,
+    "tag": "h2",
+    "t": "\uc774\ub2f4\uc758 \uce58\ub8cc Vascular Center"
+   },
+   {
+    "y": 2379,
+    "tag": "h2",
+    "t": "\uace0\ub09c\ub3c4 \uc218\uc220\ubd80\ud130 \ucd5c\uc2e0 \ube44\uc218\uc220\uae4c\uc9c0"
+   },
+   {
+    "y": 4491,
+    "tag": "h2",
+    "t": "\uc758\ub8cc\uc9c4\uc18c\uac1c"
+   },
+   {
+    "y": 6471,
+    "tag": "h2",
+    "t": "\uc774\ub2f4 With \uc2a4\ud0c0"
+   },
+   {
+    "y": 9031,
+    "tag": "h2",
+    "t": "\uc774\ub2f4\ubbf8\ub514\uc5b4"
+   },
+   {
+    "y": 10574,
+    "tag": "h2",
+    "t": "\uc774\ub2f4\uc758 \uae30\ub85d"
+   },
+   {
+    "y": 11085,
+    "tag": "h2",
+    "t": "\uc608\uc57d\u00b7\uc0c1\ub2f4 \uc548\ub0b4"
+   }
+  ],
+  "hero": {
+   "h": 648,
+   "bgLum": 0.983,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": "\uc774\ub2f4\ud074\ub9ac\ub2c9 \ud1b5\uc99d\uc73c\ub85c \uc783\uc5b4\ubc84\ub838\ub358 \ubbf8\uc18c\ub97c \ucc3e\uc544\ub4dc\ub9bd\ub2c8\ub2e4 \uc0c1\ub2f4 \ubb38\uc758"
+  },
+  "type": {
+   "h1": "\"Nanum Myeongjo\", \"Noto Serif KR\", serif",
+   "h2": "\"Nanum Myeongjo\", \"Noto Serif KR\", serif",
+   "body": "\"Pretendard Variable\", Pretendard, \"Noto Sans KR\", system-ui, sans-serif",
+   "h1Weight": "700",
+   "h1Size": "86.4px",
+   "h2Size": "52px",
+   "h2Weight": "700",
+   "bodyWeight": "400",
+   "bodySize": "18px",
+   "fontFaces": [
+    "Geist",
+    "Geist Fallback",
+    "Geist Mono",
+    "Geist Mono Fallback",
+    "__nextjs-Geist",
+    "__nextjs-Geist Mono",
+    "Pretendard Variable",
+    "Nanum Myeongjo"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "pageTextLen": 2506,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 2,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kakaoLinks": 0,
+   "naverLinks": 0,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "mapEmbed": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwNotice": true,
+   "kwPhoneKR": true,
+   "statLike": [
+    "10\ub144",
+    "15\ub144",
+    "500\ub840",
+    "000\ub840",
+    "1,000\ub840",
+    "31\uac74"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.224,
+   "darkFrac": 0.821,
+   "lightFrac": 0.03
+  },
+  {
+   "i": 1,
+   "mean": 0.882,
+   "darkFrac": 0.024,
+   "lightFrac": 0.913
+  },
+  {
+   "i": 2,
+   "mean": 0.979,
+   "darkFrac": 0.008,
+   "lightFrac": 0.97
+  },
+  {
+   "i": 3,
+   "mean": 0.782,
+   "darkFrac": 0.131,
+   "lightFrac": 0.794
+  },
+  {
+   "i": 4,
+   "mean": 0.661,
+   "darkFrac": 0.242,
+   "lightFrac": 0.599
+  },
+  {
+   "i": 5,
+   "mean": 0.653,
+   "darkFrac": 0.292,
+   "lightFrac": 0.606
+  },
+  {
+   "i": 6,
+   "mean": 0.792,
+   "darkFrac": 0.067,
+   "lightFrac": 0.739
+  },
+  {
+   "i": 7,
+   "mean": 0.783,
+   "darkFrac": 0.072,
+   "lightFrac": 0.72
+  },
+  {
+   "i": 8,
+   "mean": 0.783,
+   "darkFrac": 0.072,
+   "lightFrac": 0.72
+  },
+  {
+   "i": 9,
+   "mean": 0.817,
+   "darkFrac": 0.048,
+   "lightFrac": 0.809
+  },
+  {
+   "i": 10,
+   "mean": 0.817,
+   "darkFrac": 0.048,
+   "lightFrac": 0.809
+  },
+  {
+   "i": 11,
+   "mean": 0.82,
+   "darkFrac": 0.051,
+   "lightFrac": 0.824
+  },
+  {
+   "i": 12,
+   "mean": 0.913,
+   "darkFrac": 0.03,
+   "lightFrac": 0.956
+  },
+  {
+   "i": 13,
+   "mean": 0.913,
+   "darkFrac": 0.03,
+   "lightFrac": 0.956
+  },
+  {
+   "i": 14,
+   "mean": 0.913,
+   "darkFrac": 0.022,
+   "lightFrac": 0.969
+  },
+  {
+   "i": 15,
+   "mean": 0.901,
+   "darkFrac": 0.011,
+   "lightFrac": 0.984
+  },
+  {
+   "i": 16,
+   "mean": 0.906,
+   "darkFrac": 0.025,
+   "lightFrac": 0.915
+  },
+  {
+   "i": 17,
+   "mean": 0.064,
+   "darkFrac": 0.979,
+   "lightFrac": 0.014
+  },
+  {
+   "i": 18,
+   "mean": 0.719,
+   "darkFrac": 0.228,
+   "lightFrac": 0.763
+  }
+ ],
+ "heroLum": {
+  "mean": 0.415,
+  "darkFrac": 0.593,
+  "lightFrac": 0.287
+ },
+ "heroLumBelowNav": {
+  "mean": 0.341,
+  "darkFrac": 0.674,
+  "lightFrac": 0.193
+ },
+ "fixedTop": [
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 95,
+   "left": 0,
+   "w": 1440,
+   "h": 95,
+   "z": "1000",
+   "links": [],
+   "label": "\ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548 \u00b7 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc74c \ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548\uc785\ub2c8\ub2e4. \uc6d0\ubb38\uc5d0\uc11c \uac00\uc838\uc628 \uc815\ubcf4\ub294 \uc0ac\uc7a5\ub2d8 \ud655\uc778 \uc804\uc5d0\ub294 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc73c\uba70, \uc0ac\uc9c4\uc740 \uc0ac\uc6a9 \uad8c\ub9ac\ub97c \ud655\uc778\ud55c \ub4a4\uc5d0\ub9cc \ubc18\uc601\ub429\ub2c8\ub2e4. \uc6d0\ubb38: https://edomclinic.com/ \u00b7 \uc774 \ub9c1\ud06c\ub97c \ubc1b\uc740 \uc0ac\ub78c\uc740 \ub9cc\ub8cc ",
+   "tag": "aside",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 95,
+   "bottom": 151,
+   "left": 0,
+   "w": 1440,
+   "h": 56,
+   "z": "50",
+   "links": [
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": "\ud648"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-vascular",
+     "label": "\ud608\uad00\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-surgery",
+     "label": "\uc678\uacfc\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-spine-join",
+     "label": "\ucc99\ucd94\uad00\uc808\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-internal-m",
+     "label": "\ub0b4\uacfc\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-plastic-sk",
+     "label": "\uc131\ud615\ud53c\ubd80\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/directions",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/community",
+     "label": ""
+    }
+   ],
+   "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0 \ud648 \ud608\uad00\uc13c\ud130 \uc678\uacfc\uc13c\ud130 \ucc99\ucd94\uad00\uc808\uc13c\ud130 \ub0b4\uacfc\uc13c\ud130 \uc131\ud615\ud53c\ubd80\uc13c\ud130 \ub354\ubcf4\uae30 \u25be",
+   "tag": "header",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 708,
+   "bottom": 880,
+   "left": 1268,
+   "w": 152,
+   "h": 172,
+   "z": "80",
+   "links": [],
+   "label": "\uc804\ud654 \ubb38\uc758 \uce74\uce74\uc624 \uc0c1\ub2f4 \uc624\uc2dc\ub294 \uae38",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [],
+ "fixedMid": [
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 95,
+   "left": 0,
+   "w": 1440,
+   "h": 95,
+   "z": "1000",
+   "links": [],
+   "label": "\ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548 \u00b7 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc74c \ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548\uc785\ub2c8\ub2e4. \uc6d0\ubb38\uc5d0\uc11c \uac00\uc838\uc628 \uc815\ubcf4\ub294 \uc0ac\uc7a5\ub2d8 \ud655\uc778 \uc804\uc5d0\ub294 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc73c\uba70, \uc0ac\uc9c4\uc740 \uc0ac\uc6a9 \uad8c\ub9ac\ub97c \ud655\uc778\ud55c \ub4a4\uc5d0\ub9cc \ubc18\uc601\ub429\ub2c8\ub2e4. \uc6d0\ubb38: https://edomclinic.com/ \u00b7 \uc774 \ub9c1\ud06c\ub97c \ubc1b\uc740 \uc0ac\ub78c\uc740 \ub9cc\ub8cc ",
+   "tag": "aside",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 56,
+   "left": 0,
+   "w": 1440,
+   "h": 56,
+   "z": "50",
+   "links": [
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": "\ud648"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-vascular",
+     "label": "\ud608\uad00\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-surgery",
+     "label": "\uc678\uacfc\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-spine-join",
+     "label": "\ucc99\ucd94\uad00\uc808\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-internal-m",
+     "label": "\ub0b4\uacfc\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-plastic-sk",
+     "label": "\uc131\ud615\ud53c\ubd80\uc13c\ud130"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/directions",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/community",
+     "label": ""
+    }
+   ],
+   "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0 \ud648 \ud608\uad00\uc13c\ud130 \uc678\uacfc\uc13c\ud130 \ucc99\ucd94\uad00\uc808\uc13c\ud130 \ub0b4\uacfc\uc13c\ud130 \uc131\ud615\ud53c\ubd80\uc13c\ud130 \ub354\ubcf4\uae30 \u25be",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 708,
+   "bottom": 880,
+   "left": 1268,
+   "w": 152,
+   "h": 172,
+   "z": "80",
+   "links": [],
+   "label": "\uc804\ud654 \ubb38\uc758 \uce74\uce74\uc624 \uc0c1\ub2f4 \uc624\uc2dc\ub294 \uae38",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 17.3,
+ "mobileFixed": [
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 172,
+   "left": 0,
+   "w": 390,
+   "h": 172,
+   "z": "1000",
+   "links": [],
+   "label": "\ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548 \u00b7 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc74c \ud655\uc778\uc6a9 \uc774\uc804 \ucd08\uc548\uc785\ub2c8\ub2e4. \uc6d0\ubb38\uc5d0\uc11c \uac00\uc838\uc628 \uc815\ubcf4\ub294 \uc0ac\uc7a5\ub2d8 \ud655\uc778 \uc804\uc5d0\ub294 \ubc1c\ud589\ub418\uc9c0 \uc54a\uc73c\uba70, \uc0ac\uc9c4\uc740 \uc0ac\uc6a9 \uad8c\ub9ac\ub97c \ud655\uc778\ud55c \ub4a4\uc5d0\ub9cc \ubc18\uc601\ub429\ub2c8\ub2e4. \uc6d0\ubb38: https://edomclinic.com/ \u00b7 \uc774 \ub9c1\ud06c\ub97c \ubc1b\uc740 \uc0ac\ub78c\uc740 \ub9cc\ub8cc ",
+   "tag": "aside",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 56,
+   "left": 0,
+   "w": 390,
+   "h": 56,
+   "z": "50",
+   "links": [
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0"
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-vascular",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-surgery",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-spine-join",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-internal-m",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/center-plastic-sk",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/directions",
+     "label": ""
+    },
+    {
+     "href": "/preview/V_HGYflLx_o-MpNnzM4JEh1OVdb2NRpv0pFlMIct9m4/community",
+     "label": ""
+    }
+   ],
+   "label": "EDOM \uc774\ub2f4\uc678\uacfc\uc758\uc6d0 \u2630",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 787,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 57,
+   "z": "80",
+   "links": [],
+   "label": "\uc804\ud654 \ubb38\uc758 \uce74\uce74\uc624 \uc0c1\ub2f4 \uc624\uc2dc\ub294 \uae38",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

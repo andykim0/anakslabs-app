@@ -1,0 +1,287 @@
+{
+ "url": "http://www.rubyps.co.kr",
+ "status": 200,
+ "finalUrl": "https://www.rubyps.co.kr/",
+ "title": "\uc2e0\uc0ac\uc5ed \uc131\ud615\uc678\uacfc \ub208\uc131\ud615 \uc548\uba74\uac70\uc0c1 \ub9ac\ud504\ud305 \ucf54\uc131\ud615\uc804\ubb38",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 900,
+  "screens": 1,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 16,
+    "headings": [],
+    "keyText": "\ub8e8\ube44\uc131\ud615\uc678\uacfc \ud648\ud398\uc774\uc9c0 \ubc29\ubb38\ud558\uae30",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 19,
+    "bgKey": "20,20,19",
+    "bgLum": 0.934,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 205,
+    "h": 490,
+    "chars": 40,
+    "headings": [],
+    "keyText": "\uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ube44\uc6a9\uc0c1\ub2f4 \ube60\ub978\uc608\uc57d EVENT 1661-8897 TOP",
+    "media": 6,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [],
+  "hero": {
+   "h": 900,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 1,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 720,
+     "h": 900,
+     "label": "\ub8e8\ube44\uc131\ud615\uc678\uacfc \ud648\ud398\uc774\uc9c0 \ubc29\ubb38\ud558\uae30",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\ub8e8\ube44\uc131\ud615\uc678\uacfc \ud648\ud398\uc774\uc9c0 \ubc29\ubb38\ud558\uae30"
+  },
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "scd-regular",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": null,
+   "h2Size": null,
+   "bodySize": "26px",
+   "bodyWeight": "400",
+   "bodyLH": "26px",
+   "bigHeadPx": 26,
+   "bigHeadFam": "scd-regular",
+   "bigHeadWeight": "400",
+   "h1Count": 0,
+   "h2Sizes": [],
+   "h3Size": null,
+   "fontFaces": [
+    "nsn_0",
+    "nsn_1",
+    "nsn_2",
+    "nsn_3",
+    "nsn_4",
+    "GloberThin",
+    "GloberSemiBold",
+    "gmsl",
+    "gmsr",
+    "gmsm",
+    "gmsb",
+    "Oswald-extraLight",
+    "Oswald-light",
+    "Oswald-regular"
+   ],
+   "linkFonts": [
+    "/css/font.css?1785485747",
+    "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;200;300;400;500;600;700",
+    "https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap",
+    "https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap",
+    "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  },
+  "pageTextLen": 57,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwTrust": false,
+   "kwVideo": false,
+   "phoneKR": null,
+   "statLike": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.731,
+   "darkFrac": 0.07,
+   "lightFrac": 0.692
+  },
+  {
+   "i": 1,
+   "mean": 0.731,
+   "darkFrac": 0.07,
+   "lightFrac": 0.692
+  },
+  {
+   "i": 2,
+   "mean": 0.704,
+   "darkFrac": 0.061,
+   "lightFrac": 0.614
+  }
+ ],
+ "heroLum": {
+  "mean": 0.732,
+  "darkFrac": 0.07,
+  "lightFrac": 0.697
+ },
+ "heroLumBelowNav": {
+  "mean": 0.729,
+  "darkFrac": 0.059,
+  "lightFrac": 0.685
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1380,
+   "w": 60,
+   "h": 900,
+   "z": "20",
+   "links": [
+    {
+     "href": "javascript:view_katalkchat()",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_normal.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_pay.php",
+     "label": "\ube44\uc6a9\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_reservation.php",
+     "label": "\ube60\ub978\uc608\uc57d"
+    },
+    {
+     "href": "/htm/community_event.php",
+     "label": "EVENT"
+    }
+   ],
+   "label": "\uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ube44\uc6a9\uc0c1\ub2f4 \ube60\ub978\uc608\uc57d EVENT 1661-8897 TOP",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 1380,
+   "w": 60,
+   "h": 900,
+   "z": "20",
+   "links": [
+    {
+     "href": "javascript:view_katalkchat()",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_normal.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_pay.php",
+     "label": "\ube44\uc6a9\uc0c1\ub2f4"
+    },
+    {
+     "href": "/htm/counsel_reservation.php",
+     "label": "\ube60\ub978\uc608\uc57d"
+    },
+    {
+     "href": "/htm/community_event.php",
+     "label": "EVENT"
+    }
+   ],
+   "label": "\uce74\ud1a1\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \ube44\uc6a9\uc0c1\ub2f4 \ube60\ub978\uc608\uc57d EVENT 1661-8897 TOP",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 1,
+ "mobileFixed": []
+}

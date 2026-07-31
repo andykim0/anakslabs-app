@@ -1,0 +1,202 @@
+{
+ "url": "https://www.zen.dentist",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "img",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 1
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 121,
+    "h": 56,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 99,
+    "h": 48,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 102,
+    "h": 48,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 99,
+    "h": 48,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 101,
+    "h": 48,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 145,
+    "h": 49,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 164,
+    "h": 52,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 143,
+    "h": 54,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "__Cormorant_Garamond_3b76fe, __Cormorant_Garamond_Fallback_3b76fe, Georgia, serif",
+   "bodyFam": "__Hanken_Grotesk_c8454b, __Hanken_Grotesk_Fallback_c8454b, -apple-system, sans-serif",
+   "head": {
+    "topRatio": 2.4,
+    "botRatio": 2.9,
+    "midW": 10,
+    "hgt": 93
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 104
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 900,
+    "tag": "section",
+    "chars": 170,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 900,
+    "h": 1285,
+    "tag": "section",
+    "chars": 507,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2185,
+    "h": 712,
+    "tag": "section",
+    "chars": 478,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2897,
+    "h": 1254,
+    "tag": "section",
+    "chars": 933,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4150,
+    "h": 1432,
+    "tag": "section",
+    "chars": 333,
+    "imgs": 24,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5582,
+    "h": 1178,
+    "tag": "section",
+    "chars": 541,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6760,
+    "h": 915,
+    "tag": "div",
+    "chars": 3872,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7674,
+    "h": 1171,
+    "tag": "section",
+    "chars": 194,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 8845,
+    "h": 749,
+    "tag": "section",
+    "chars": 258,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 9594,
+    "h": 715,
+    "tag": "footer",
+    "chars": 404,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

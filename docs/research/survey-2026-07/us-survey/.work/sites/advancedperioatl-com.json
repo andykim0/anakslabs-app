@@ -1,0 +1,856 @@
+{
+ "url": "https://advancedperioatl.com",
+ "status": 200,
+ "finalUrl": "https://advancedperioatl.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 9013,
+  "screens": 10,
+  "sectionParentTag": "body",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 9013,
+    "chars": 9685,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 59,
+    "bgKey": "21,21,21",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 9013,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": 1,
+   "mediaKind": "video",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 22,
+   "anchorCount": 110,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 280,
+     "h": 20,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 2,
+     "w": 285,
+     "h": 58,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 178,
+     "h": 34,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 236,
+     "h": 34,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 2,
+     "w": 285,
+     "h": 58,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 386,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 223,
+     "h": 46,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 185,
+     "h": 20,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 144,
+     "h": 20,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 391,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 253,
+     "h": 46,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 406,
+     "h": 46,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "Raleway, Helvetica, Arial, Lucida, sans-serif",
+   "h2": "Montserrat, Helvetica, Arial, Lucida, sans-serif",
+   "body": "Raleway, Helvetica, Arial, Lucida, sans-serif",
+   "h1Weight": "500",
+   "h1Size": "28px",
+   "bodySize": "18px",
+   "fontFaces": [
+    "Abhaya Libre",
+    "Encode Sans",
+    "Heebo",
+    "Inter",
+    "Montserrat",
+    "Open Sans",
+    "Raleway",
+    "ETmodules",
+    "FontAwesome"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": true,
+   "scrollTrigger": true,
+   "swiperCount": 3,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 55
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1795.13, 0)"
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(-1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -159.708, 0)"
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1480, 0)"
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 29,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 32,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 33,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 34,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 35,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 36,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 37,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 38,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 39,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 40,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 41,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 42,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 43,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 44,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 45,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 46,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 47,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 48,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 49,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 51,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 52,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 53,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 54,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 55,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 56,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 57,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 58,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 59,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   }
+  ],
+  "pageTextLen": 9685,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 3,
+   "smsLinks": 6,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 6,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwImplant": true,
+   "kwCosmetic": true,
+   "kwUSState": "GA 30309",
+   "phoneUS": "(404) 876-4867",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.735,
+   "darkFrac": 0.001,
+   "lightFrac": 0.924
+  }
+ ],
+ "heroLum": {
+  "mean": 0.732,
+  "darkFrac": 0.001,
+  "lightFrac": 0.914
+ },
+ "heroLumBelowNav": {
+  "mean": 0.753,
+  "darkFrac": 0.001,
+  "lightFrac": 0.998
+ },
+ "fixedTop": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(0, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(0, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2139, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(-1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -159.708, 0)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 24,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1588.41, 0)"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 28,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 30,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 32,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 33,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 34,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 36,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 38,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 39,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 40,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 41,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 42,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 43,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 44,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 45,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 46,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 47,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 48,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 49,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 50,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 51,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 52,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 53,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 54,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 55,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 56,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 57,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 58,
+   "op": 1,
+   "tr": null
+  },
+  {
+   "id": 59,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "fixedMid": [],
+ "mobileScreens": 14.8,
+ "mobileFixed": []
+}

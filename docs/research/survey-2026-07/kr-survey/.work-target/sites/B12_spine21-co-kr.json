@@ -1,0 +1,547 @@
+{
+ "sample_id": "B12",
+ "name": "서울21세기병원",
+ "url": "http://spine21.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "http://spine21.co.kr/",
+ "title": "서울21세기병원_서초구 신경외과 정형외과",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 3552,
+  "screens": 3.9,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 100,
+    "h": 530,
+    "chars": 16,
+    "headings": [],
+    "keyText": "오늘 하루 이 창을 열지 않음",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 100,
+    "h": 530,
+    "chars": 16,
+    "headings": [],
+    "keyText": "오늘 하루 이 창을 열지 않음",
+    "media": 2,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 71,
+    "headings": [
+     "서울21세기병원만의",
+     "차별화된 노하우"
+    ],
+    "keyText": "서울21세기병원만의 차별화된 노하우 척추 · 관절치료, 26년의 경험 예약하기 상담하기 척추센터 관절센터 감사의 편지 오시는 길",
+    "media": 12,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 900,
+    "h": 713,
+    "chars": 126,
+    "headings": [
+     "환자의 안전과 건강을 최우선으로"
+    ],
+    "keyText": "환자의 안전과 건강을 최우선으로 67,000례 누적 수술 및 시술 26년 안전성을 가진 병원 92% 소개가 많은 병원 94% 만족도가 높은 병원 증명서발급 주차안내 유튜브 인스타그램 페이스북 블로그 찾아오시는 길 영상/언론보도",
+    "media": 0,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 1663,
+    "h": 968,
+    "chars": 377,
+    "headings": [
+     "환자 치료 후기 감사의 편지",
+     "척추·관절 건강 정보",
+     "서울21세기병원의 프리미엄 AI 헬스케어",
+     "역사 속 척추 이야기",
+     "목디스크 수술 후 운동법",
+     "상부관절와순파열"
+    ],
+    "keyText": "환자 치료 후기 감사의 편지 서울21세기병원을 다녀가신 환자 분들의 솔직한 치료 후기! 척추·관절 건강 정보 척추와 관절 그리고 그 외 도움이 되는 다양한 건강 정보! 서울21세기병원의 프리미엄 AI 헬스케어 exbody9100 근골격&체형 분석 시스템 도입! 역사 속 척추 이야기 #가체 #세종대왕 #존F.케네디 목디스크 수술 후 운동법 유튜브를 통해 따라 해보세요! 상부관절와순파열 운동 선수라면 수술이 필수일까? 젊다고 예외는 없다?! 척추가 굳는 병, 강직성 척추염이란? 허리·목 디스크, 방치해도 괜찮을까? 추간판 탈출증의 모든 것! 입원 준비 안내 서울21세기병원 입원 전 준비 사항은? 다리 저림, 그냥 넘겨선 안 되는 이유! 척추가 보내는 건강 적신호 알아보기",
+    "media": 11,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 2631,
+    "h": 615,
+    "chars": 152,
+    "headings": [
+     "서울특별시 서초구 서초중앙로39",
+     "진료시간"
+    ],
+    "keyText": "서울 서초구 서초중앙로 39 100m 길찾기 주소 서울 서초구 서초중앙로 39 전화 - 전화문의 02.3477.0880 서울특별시 서초구 서초중앙로39 진료시간 평일 오전 09:00 ~ 오후 06:00 토요일 오전 09:00 ~ 오후 02:00 일요일 / 공휴일은 쉽니다.",
+    "media": 32,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 3246,
+    "h": 307,
+    "chars": 300,
+    "headings": [
+     "이메일 무단수집 거부 · 개인정보 취급방침 · 비급여 진료안내 · 직원게시판",
+     "02.3477.0880"
+    ],
+    "keyText": "서울21세기병원 사업자번호 114-90-18697 | 대표자 성경훈 서울특별시 서초구 서초중앙로39 서울21세기병원 | Tel 02-3477-0880 | Fax 02-3472-7780~1 COPYRIGHT 2025 Ⓒ21ST CENTURY HOSPITAL . All Right Reserved. 이메일 무단수집 거부 · 개인정보 취급방침 · 비급여 진료안내 · 직원게시판 02.3477.0880 평일 09:00 ~ 18:00 / 토요일 09:00 ~ 14:00 / 일요일, 공휴일 휴무 전화 상담 카카오톡 오시는 길 유튜브 TOP TOP",
+    "media": 8,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 387,
+    "tag": "h2",
+    "t": "차별화된 노하우"
+   },
+   {
+    "y": 1230,
+    "tag": "h1",
+    "t": "환자의 안전과 건강을 최우선으로"
+   },
+   {
+    "y": 1487,
+    "tag": "h1",
+    "t": "서울21세기병원의 프리미엄 AI 헬스케어"
+   },
+   {
+    "y": 1651,
+    "tag": "h1",
+    "t": "역사 속 척추 이야기"
+   },
+   {
+    "y": 1743,
+    "tag": "h1",
+    "t": "환자 치료 후기 감사의 편지"
+   },
+   {
+    "y": 1743,
+    "tag": "h1",
+    "t": "척추·관절 건강 정보"
+   },
+   {
+    "y": 1794,
+    "tag": "h1",
+    "t": "목디스크 수술 후 운동법"
+   },
+   {
+    "y": 1937,
+    "tag": "h1",
+    "t": "상부관절와순파열"
+   },
+   {
+    "y": 2081,
+    "tag": "h1",
+    "t": "젊다고 예외는 없다?!"
+   },
+   {
+    "y": 2204,
+    "tag": "h1",
+    "t": "허리·목 디스크, 방치해도 괜찮을까?"
+   },
+   {
+    "y": 2367,
+    "tag": "h1",
+    "t": "입원 준비 안내"
+   },
+   {
+    "y": 2491,
+    "tag": "h1",
+    "t": "다리 저림, 그냥 넘겨선 안 되는 이유!"
+   },
+   {
+    "y": 3316,
+    "tag": "h1",
+    "t": "02.3477.0880"
+   }
+  ],
+  "type": {
+   "h1Px": 30,
+   "h2Px": 110,
+   "bodyPx": 15,
+   "h1Fam": "Montserrat, \"Noto Sans KR\"",
+   "bodyFam": "Montserrat, \"Noto Sans KR\"",
+   "h1Weight": "400",
+   "h1TextLen": 0,
+   "h2TextLen": 8,
+   "headingTotal": 18,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 110,
+   "imgInFirstScreen": 8
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 2,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 14
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0.8,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 50)",
+    "dur": "0.6s",
+    "ease": "cubic-bezier(0.165, 0.84, 0.44, 1)",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0.8,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0.8,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -573.333)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "병원소개",
+   "의료진소개",
+   "층별안내",
+   "부서별 전화번호",
+   "찾아오시는길",
+   "진료안내",
+   "초진절차",
+   "재진절차",
+   "입·퇴원 절차안내",
+   "증명서 발급안내",
+   "척추센터",
+   "척추 시술 클리닉",
+   "내시경 클리닉",
+   "미세현미경 클리닉",
+   "척추 비수술 클리닉",
+   "관절센터",
+   "인공관절 클리닉",
+   "관절경 클리닉",
+   "관절 비수술 클리닉",
+   "커뮤니티",
+   "병원소식",
+   "영상/언론보도",
+   "감사의편지",
+   "유튜브",
+   "건강정보",
+   "진료예약",
+   "카톡상담",
+   "전화 상담",
+   "카카오톡",
+   "오시는 길",
+   "TOP"
+  ],
+  "pageTextLen": 1316,
+  "kw": {
+   "원장": 0,
+   "전문의": 0,
+   "의료진": 1,
+   "교수": 0,
+   "센터": 6,
+   "지점": 0,
+   "병원": 13,
+   "의원": 0,
+   "faq": 0,
+   "후기": 2,
+   "전후": 0,
+   "예약": 3,
+   "이벤트": 0,
+   "비급여": 1,
+   "오시는길": 6
+  },
+  "deptHits": [
+   "척추",
+   "관절"
+  ],
+  "providerUrl": "http://spine21.co.kr/default/about/doctor/sub2.php?top=1&sub=2",
+  "centerUrl": null
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "cubic-bezier(0.165, 0.84, 0.44, 1)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -573.333)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 613,
+  "imgs": 10,
+  "title": "서울21세기병원_서초구 신경외과 정형외과",
+  "원장": 0,
+  "전문의": 0,
+  "교수": 0,
+  "nameTokens": 0,
+  "iframes": 0,
+  "url": "http://spine21.co.kr/default/about/doctor/sub2.php?top=1&sub=2",
+  "status": 200
+ }
+}

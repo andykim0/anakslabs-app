@@ -1,0 +1,1372 @@
+{
+ "url": "https://ilovegangnam.com/",
+ "status": 200,
+ "finalUrl": "https://ilovegangnam.com/signature/",
+ "title": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0",
+ "popups": [],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -1440, 0)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2880, 0)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -4320, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -5760, 0)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 56474,
+  "screens": 62.7,
+  "sectionParentTag": "div",
+  "sectionCoverRatio": 1.01,
+  "sectionCount": 30,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 916,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 4,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 100,
+    "h": 518,
+    "chars": 24,
+    "headings": [],
+    "keyText": "24\uc2dc\uac04 \ub3d9\uc548 \ub2e4\uc2dc \uc5f4\ub78c\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. \ub2eb\uae30",
+    "media": 5,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 916,
+    "h": 747,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2033,
+    "h": 249,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 3,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2652,
+    "h": 421,
+    "chars": 44,
+    "headings": [],
+    "keyText": "3D \uc2e4\ub9ac\ud504\ud305 3D \ucf5c\ub77c\uac90 \ubd80\uc2a4\ud130 VIP \uc548\ud2f0\uc5d0\uc774\uc9d5 \ube44\uc808\uac1c \ub208\uc131\ud615 \ube44\uc808\uac1c \ucf54\uc131\ud615",
+    "media": 5,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "img",
+    "absTop": 3378,
+    "h": 3325,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 6703,
+    "h": 915,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 7618,
+    "h": 1168,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "img",
+    "absTop": 8786,
+    "h": 1458,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 10244,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 10979,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "div",
+    "absTop": 11714,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 12,
+    "tag": "div",
+    "absTop": 12449,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 13,
+    "tag": "div",
+    "absTop": 13184,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 14,
+    "tag": "div",
+    "absTop": 13919,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 15,
+    "tag": "div",
+    "absTop": 14654,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 16,
+    "tag": "div",
+    "absTop": 15389,
+    "h": 675,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 17,
+    "tag": "img",
+    "absTop": 16244,
+    "h": 6122,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 18,
+    "tag": "img",
+    "absTop": 22366,
+    "h": 7894,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 19,
+    "tag": "div",
+    "absTop": 30260,
+    "h": 1602,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 20,
+    "tag": "img",
+    "absTop": 31862,
+    "h": 8513,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 21,
+    "tag": "img",
+    "absTop": 40375,
+    "h": 4769,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 22,
+    "tag": "div",
+    "absTop": 45144,
+    "h": 855,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 1,
+    "bgKey": "21,21,21",
+    "bgLum": 0.969,
+    "bgMedia": false
+   },
+   {
+    "i": 23,
+    "tag": "img",
+    "absTop": 45999,
+    "h": 2635,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 24,
+    "tag": "div",
+    "absTop": 48634,
+    "h": 1602,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 25,
+    "tag": "img",
+    "absTop": 50236,
+    "h": 1168,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 26,
+    "tag": "img",
+    "absTop": 51404,
+    "h": 1127,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 27,
+    "tag": "img",
+    "absTop": 52531,
+    "h": 2919,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 28,
+    "tag": "div",
+    "absTop": 55450,
+    "h": 267,
+    "chars": 19,
+    "headings": [
+     ""
+    ],
+    "keyText": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+    "media": 5,
+    "bgKey": "21,21,21",
+    "bgLum": 0.973,
+    "bgMedia": false
+   },
+   {
+    "i": 29,
+    "tag": "div",
+    "absTop": 55717,
+    "h": 600,
+    "chars": 40,
+    "headings": [],
+    "keyText": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 100m \ud655\ub300 \ucd95\uc18c \ucd08\uae30\ud654 \ub85c\ub4dc\ubdf0 \uae38\ucc3e\uae30 \uc9c0\ub3c4 \ud06c\uac8c \ubcf4\uae30",
+    "media": 37,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 0,
+    "tag": "h1",
+    "t": ""
+   },
+   {
+    "y": 200,
+    "tag": "h2",
+    "t": ""
+   },
+   {
+    "y": 55500,
+    "tag": "h2",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 916,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1.47,
+   "mediaCoverH": 1.12,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": ""
+  },
+  "type": {
+   "h1": "Times",
+   "h2": "Times",
+   "body": "Times",
+   "h1Weight": "400",
+   "h1Size": "16px",
+   "h2Weight": "400",
+   "h2Size": "16px",
+   "bodySize": "16px",
+   "bodyWeight": "400",
+   "bodyLH": "16px",
+   "bigHeadPx": 17,
+   "bigHeadFam": "\"NEXON Lv1 Gothic OTF\", sans-serif",
+   "bigHeadWeight": "400",
+   "h1Count": 1,
+   "h2Sizes": [
+    "16px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "swiper-icons",
+    "Noto Sans KR",
+    "Pretendard-Regular",
+    "NEXON Lv1 Gothic OTF",
+    "Pretendard-Light"
+   ],
+   "linkFonts": []
+  },
+  "motion": {
+   "aosCount": 9,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 2,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 10
+  },
+  "pageTextLen": 450,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 15,
+   "formCount": 2,
+   "inputCount": 10,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 4,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": true,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": true,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 9,
+   "naverLinks": 4,
+   "instaLinks": 2,
+   "ytLinks": 2,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 100)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "opacity, transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": "fade-up",
+    "aosD": "1500",
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 100, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "opacity, transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": "fade-left",
+    "aosD": "1500",
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -100, 0)",
+    "td": "1.5s",
+    "tf": "ease",
+    "tp": "opacity, transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": "fade-right",
+    "aosD": "1500",
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "transform",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1440, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -2880, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 7,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -4320, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -5760, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "opacity",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "td": "0s",
+    "tf": "ease",
+    "tp": "all",
+    "ad": "0s",
+    "an": "none",
+    "af": "ease",
+    "aos": null,
+    "aosD": null,
+    "aosE": null,
+    "aosO": null
+   }
+  ],
+  "revealCfg": {
+   "aosAttrs": [
+    "fade-up",
+    "fade-left",
+    "fade-right"
+   ],
+   "aosDur": [
+    "400",
+    "1500"
+   ],
+   "aosEase": [
+    "ease"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.469,
+   "darkFrac": 0.417,
+   "lightFrac": 0.413
+  },
+  {
+   "i": 1,
+   "mean": 0.529,
+   "darkFrac": 0.266,
+   "lightFrac": 0.438
+  },
+  {
+   "i": 2,
+   "mean": 0.68,
+   "darkFrac": 0.182,
+   "lightFrac": 0.619
+  },
+  {
+   "i": 3,
+   "mean": 0.74,
+   "darkFrac": 0.121,
+   "lightFrac": 0.632
+  },
+  {
+   "i": 4,
+   "mean": 0.728,
+   "darkFrac": 0.12,
+   "lightFrac": 0.668
+  },
+  {
+   "i": 5,
+   "mean": 0.415,
+   "darkFrac": 0.607,
+   "lightFrac": 0.282
+  },
+  {
+   "i": 6,
+   "mean": 0.77,
+   "darkFrac": 0.144,
+   "lightFrac": 0.748
+  },
+  {
+   "i": 7,
+   "mean": 0.827,
+   "darkFrac": 0.137,
+   "lightFrac": 0.836
+  },
+  {
+   "i": 8,
+   "mean": 0.773,
+   "darkFrac": 0.218,
+   "lightFrac": 0.736
+  },
+  {
+   "i": 9,
+   "mean": 0.529,
+   "darkFrac": 0.285,
+   "lightFrac": 0.319
+  },
+  {
+   "i": 10,
+   "mean": 0.578,
+   "darkFrac": 0.335,
+   "lightFrac": 0.526
+  },
+  {
+   "i": 11,
+   "mean": 0.543,
+   "darkFrac": 0.323,
+   "lightFrac": 0.408
+  },
+  {
+   "i": 12,
+   "mean": 0.415,
+   "darkFrac": 0.571,
+   "lightFrac": 0.289
+  },
+  {
+   "i": 13,
+   "mean": 0.552,
+   "darkFrac": 0.304,
+   "lightFrac": 0.465
+  },
+  {
+   "i": 14,
+   "mean": 0.472,
+   "darkFrac": 0.421,
+   "lightFrac": 0.369
+  },
+  {
+   "i": 15,
+   "mean": 0.462,
+   "darkFrac": 0.348,
+   "lightFrac": 0.23
+  },
+  {
+   "i": 16,
+   "mean": 0.551,
+   "darkFrac": 0.371,
+   "lightFrac": 0.477
+  },
+  {
+   "i": 17,
+   "mean": 0.451,
+   "darkFrac": 0.568,
+   "lightFrac": 0.328
+  },
+  {
+   "i": 18,
+   "mean": 0.403,
+   "darkFrac": 0.628,
+   "lightFrac": 0.307
+  },
+  {
+   "i": 19,
+   "mean": 0.539,
+   "darkFrac": 0.373,
+   "lightFrac": 0.507
+  }
+ ],
+ "heroLum": {
+  "mean": 0.517,
+  "darkFrac": 0.377,
+  "lightFrac": 0.508
+ },
+ "heroLumBelowNav": {
+  "mean": 0.551,
+  "darkFrac": 0.323,
+  "lightFrac": 0.555
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 80,
+   "left": 0,
+   "w": 1440,
+   "h": 80,
+   "z": "999",
+   "links": [
+    {
+     "href": "#01",
+     "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "#02",
+     "label": "3D \uc2e4\ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#07",
+     "label": "\ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#03",
+     "label": "3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90"
+    },
+    {
+     "href": "#04",
+     "label": "VIP \uc548\ud2f0\uc5d0\uc774\uc9d5"
+    },
+    {
+     "href": "#05",
+     "label": "\ube44\uc808\uac1c \ub208\uc131\ud615"
+    },
+    {
+     "href": "#06",
+     "label": "\ube44\uc808\uac1c \ucf54\uc131\ud615"
+    },
+    {
+     "href": "https://ilovegangnam.com/ch/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/jp/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/en/",
+     "label": ""
+    }
+   ],
+   "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c 3D \uc2e4\ub9ac\ud504\ud305 \ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305 3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90 VIP \uc548\ud2f0\uc5d0\uc774\uc9d5 \ube44\uc808\uac1c \ub208\uc131\ud615 \ube44\uc808\uac1c \ucf54\uc131\ud615",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 86,
+   "bottom": 918,
+   "left": 1376,
+   "w": 201,
+   "h": 832,
+   "z": "999",
+   "links": [
+    {
+     "href": "/index.php",
+     "label": "\ud648\ud398\uc774\uc9c0"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "\ube60\ub978\uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community02.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community03.php",
+     "label": "\uc804\ud6c4\uc0ac\uc9c4"
+    },
+    {
+     "href": "/intro/intro02.php",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "https://booking.naver.com/booking/13/bizes/481961/items/3795333",
+     "label": "\ub124\uc774\ubc84\uc608\uc57d"
+    },
+    {
+     "href": "https://pf.kakao.com/_xfmxlnC/chat",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "ilovegn01"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "ilovegangnam"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCz4pt1I2YYijVG1r6pEeghg",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "https://blog.naver.com/ilovegangnam1",
+     "label": "\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.instagram.com/ilove_gangnam/",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    },
+    {
+     "href": "https://www.facebook.com/ilovegangnam2017",
+     "label": "\ud398\uc774\uc2a4\ubd81"
+    }
+   ],
+   "label": "\ud648\ud398\uc774\uc9c0 \ube60\ub978\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc804\ud6c4\uc0ac\uc9c4 \uc624\uc2dc\ub294\uae38 \ub124\uc774\ubc84\uc608\uc57d \uce74\ud1a1\uc0c1\ub2f4 ilovegn01 ilovegangnam \uc720\ud29c\ube0c \ube14\ub85c\uadf8 \uc778\uc2a4\ud0c0\uadf8\ub7a8 \ud398\uc774\uc2a4\ubd81",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 200,
+   "bottom": 783,
+   "left": 1590,
+   "w": 450,
+   "h": 583,
+   "z": "1119",
+   "links": [
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 820,
+   "bottom": 880,
+   "left": 1360,
+   "w": 60,
+   "h": 60,
+   "z": "999",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 80,
+   "left": 0,
+   "w": 1440,
+   "h": 80,
+   "z": "999",
+   "links": [
+    {
+     "href": "#01",
+     "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "#02",
+     "label": "3D \uc2e4\ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#07",
+     "label": "\ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#03",
+     "label": "3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90"
+    },
+    {
+     "href": "#04",
+     "label": "VIP \uc548\ud2f0\uc5d0\uc774\uc9d5"
+    },
+    {
+     "href": "#05",
+     "label": "\ube44\uc808\uac1c \ub208\uc131\ud615"
+    },
+    {
+     "href": "#06",
+     "label": "\ube44\uc808\uac1c \ucf54\uc131\ud615"
+    },
+    {
+     "href": "https://ilovegangnam.com/ch/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/jp/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/en/",
+     "label": ""
+    }
+   ],
+   "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c 3D \uc2e4\ub9ac\ud504\ud305 \ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305 3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90 VIP \uc548\ud2f0\uc5d0\uc774\uc9d5 \ube44\uc808\uac1c \ub208\uc131\ud615 \ube44\uc808\uac1c \ucf54\uc131\ud615",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 86,
+   "bottom": 918,
+   "left": 1376,
+   "w": 201,
+   "h": 832,
+   "z": "999",
+   "links": [
+    {
+     "href": "/index.php",
+     "label": "\ud648\ud398\uc774\uc9c0"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "\ube60\ub978\uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community02.php",
+     "label": "\uc628\ub77c\uc778\uc0c1\ub2f4"
+    },
+    {
+     "href": "/community/community03.php",
+     "label": "\uc804\ud6c4\uc0ac\uc9c4"
+    },
+    {
+     "href": "/intro/intro02.php",
+     "label": "\uc624\uc2dc\ub294\uae38"
+    },
+    {
+     "href": "https://booking.naver.com/booking/13/bizes/481961/items/3795333",
+     "label": "\ub124\uc774\ubc84\uc608\uc57d"
+    },
+    {
+     "href": "https://pf.kakao.com/_xfmxlnC/chat",
+     "label": "\uce74\ud1a1\uc0c1\ub2f4"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "ilovegn01"
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": "ilovegangnam"
+    },
+    {
+     "href": "https://www.youtube.com/channel/UCz4pt1I2YYijVG1r6pEeghg",
+     "label": "\uc720\ud29c\ube0c"
+    },
+    {
+     "href": "https://blog.naver.com/ilovegangnam1",
+     "label": "\ube14\ub85c\uadf8"
+    },
+    {
+     "href": "https://www.instagram.com/ilove_gangnam/",
+     "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8"
+    },
+    {
+     "href": "https://www.facebook.com/ilovegangnam2017",
+     "label": "\ud398\uc774\uc2a4\ubd81"
+    }
+   ],
+   "label": "\ud648\ud398\uc774\uc9c0 \ube60\ub978\uc0c1\ub2f4 \uc628\ub77c\uc778\uc0c1\ub2f4 \uc804\ud6c4\uc0ac\uc9c4 \uc624\uc2dc\ub294\uae38 \ub124\uc774\ubc84\uc608\uc57d \uce74\ud1a1\uc0c1\ub2f4 ilovegn01 ilovegangnam \uc720\ud29c\ube0c \ube14\ub85c\uadf8 \uc778\uc2a4\ud0c0\uadf8\ub7a8 \ud398\uc774\uc2a4\ubd81",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 200,
+   "bottom": 783,
+   "left": 1590,
+   "w": 450,
+   "h": 583,
+   "z": "1119",
+   "links": [
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 820,
+   "bottom": 880,
+   "left": 1360,
+   "w": 60,
+   "h": 60,
+   "z": "999",
+   "links": [],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 43,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 80,
+   "left": 0,
+   "w": 390,
+   "h": 80,
+   "z": "999",
+   "links": [
+    {
+     "href": "tel:02-6401-7575",
+     "label": ""
+    },
+    {
+     "href": "#01",
+     "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c"
+    },
+    {
+     "href": "#02",
+     "label": "3D \uc2e4\ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#07",
+     "label": "\ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305"
+    },
+    {
+     "href": "#03",
+     "label": "3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90"
+    },
+    {
+     "href": "#04",
+     "label": "VIP \uc548\ud2f0\uc5d0\uc774\uc9d5"
+    },
+    {
+     "href": "#05",
+     "label": "\ube44\uc808\uac1c \ub208\uc131\ud615"
+    },
+    {
+     "href": "#06",
+     "label": "\ube44\uc808\uac1c \ucf54\uc131\ud615"
+    },
+    {
+     "href": "https://ilovegangnam.com/ch/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/jp/",
+     "label": ""
+    },
+    {
+     "href": "https://ilovegangnam.com/en/",
+     "label": ""
+    }
+   ],
+   "label": "\uc544\uc774\ub7ec\ube0c\uac15\ub0a8\uc758\uc6d0 \uc18c\uac1c 3D \uc2e4\ub9ac\ud504\ud305 \ub9ac\ucf54\uc5b4 \ub9ac\ud504\ud305 3D \ud37c\uc2a4\ub110 \ucf5c\ub77c\uac90 VIP \uc548\ud2f0\uc5d0\uc774\uc9d5 \ube44\uc808\uac1c \ub208\uc131\ud615 \ube44\uc808\uac1c \ucf54\uc131\ud615",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 76,
+   "bottom": 622,
+   "left": 647,
+   "w": 343,
+   "h": 546,
+   "z": "1119",
+   "links": [
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\uac1c\uc778\uc815\ubcf4\ucde8\uae09\ubc29\uce68 \ub3d9\uc758 [\uc790\uc138\ud788\ubcf4\uae30]",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 518,
+   "bottom": 778,
+   "left": 315,
+   "w": 60,
+   "h": 260,
+   "z": "999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": ""
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": ""
+    },
+    {
+     "href": "https://pf.kakao.com/_xfmxlnC/chat",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 794,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 50,
+   "z": "999",
+   "links": [
+    {
+     "href": "/index.php",
+     "label": ""
+    },
+    {
+     "href": "javascript:void(0);",
+     "label": ""
+    },
+    {
+     "href": "/m/community/community02.php",
+     "label": ""
+    },
+    {
+     "href": "/m/community/community03.php",
+     "label": ""
+    },
+    {
+     "href": "/m/intro/intro02.php",
+     "label": ""
+    },
+    {
+     "href": "https://booking.naver.com/booking/13/bizes/481961/items/3795333",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,100 @@
+{
+ "sample_id": "B01",
+ "name": "이담외과",
+ "url": "https://edomclinic.com/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://edomclinic.com/intro.php",
+ "title": "이담외과의원 - 혈관외과/정형외과/성형외과/외과/내과",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 900,
+  "screens": 1,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "aticle",
+    "absTop": 0,
+    "h": 900,
+    "chars": 21,
+    "headings": [],
+    "keyText": "전화상담 카톡상담 온라인상담 실시간예약",
+    "media": 3,
+    "imgOnlyHeading": 1
+   },
+   {
+    "i": 1,
+    "tag": "aticle",
+    "absTop": 0,
+    "h": 900,
+    "chars": 97,
+    "headings": [],
+    "keyText": "바로가기 하지정맥류 투석혈관 당뇨발 장기질환케어 바로가기 갑상선/유방 담낭/맹장/치질 비만 바로가기 관절 척추 치료법 바로가기 내과진료 건강검진 바로가기 성형클리닉 피부클리닉",
+    "media": 21,
+    "imgOnlyHeading": 10
+   }
+  ],
+  "outline": [],
+  "type": {
+   "h1Px": 32,
+   "h2Px": 24,
+   "bodyPx": 16,
+   "h1Fam": "\"Noto Sans KR\", sans-serif",
+   "bodyFam": "\"Noto Sans KR\", sans-serif",
+   "h1Weight": "700",
+   "h1TextLen": 0,
+   "h2TextLen": 0,
+   "headingTotal": 11,
+   "headingImgOnly": 11,
+   "headingZeroText": 11,
+   "maxTextPx": 19,
+   "imgInFirstScreen": 1
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 0,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 0
+  },
+  "revealPre": [],
+  "navUniq": [],
+  "pageTextLen": 119,
+  "kw": {
+   "원장": 0,
+   "전문의": 0,
+   "의료진": 0,
+   "교수": 0,
+   "센터": 0,
+   "지점": 0,
+   "병원": 0,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 2,
+   "이벤트": 0,
+   "비급여": 0,
+   "오시는길": 0
+  },
+  "deptHits": [
+   "혈관",
+   "관절",
+   "척추",
+   "내과",
+   "검진"
+  ],
+  "providerUrl": null,
+  "centerUrl": null
+ },
+ "revealPost": [],
+ "providerPage": null
+}

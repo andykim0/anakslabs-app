@@ -1,0 +1,1209 @@
+{
+ "url": "https://www.thegleamery.com",
+ "status": 200,
+ "finalUrl": "https://thegleamery.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 12711,
+  "screens": 14.1,
+  "sectionParentTag": "div",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 133,
+    "h": 691,
+    "chars": 747,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 4,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 823,
+    "h": 826,
+    "chars": 821,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 8,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 1649,
+    "h": 609,
+    "chars": 520,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 6,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 2258,
+    "h": 399,
+    "chars": 0,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 7,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2657,
+    "h": 915,
+    "chars": 1030,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 10,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 3572,
+    "h": 553,
+    "chars": 265,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 4125,
+    "h": 1021,
+    "chars": 651,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 5,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 5146,
+    "h": 1229,
+    "chars": 615,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 4,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 8,
+    "tag": "section",
+    "absTop": 6375,
+    "h": 1081,
+    "chars": 535,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 4,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 7456,
+    "h": 1093,
+    "chars": 1298,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 10,
+    "tag": "div",
+    "absTop": 8549,
+    "h": 692,
+    "chars": 2597,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 8,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 11,
+    "tag": "section",
+    "absTop": 9240,
+    "h": 1375,
+    "chars": 935,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 12,
+    "tag": "div",
+    "absTop": 10615,
+    "h": 246,
+    "chars": 24,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 13,
+    "tag": "div",
+    "absTop": 10861,
+    "h": 547,
+    "chars": 297,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   },
+   {
+    "i": 14,
+    "tag": "div",
+    "absTop": 11408,
+    "h": 837,
+    "chars": 666,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "21,21,20",
+    "bgLum": 0.971,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 691,
+   "bgLum": 0.971,
+   "bgMedia": false,
+   "textLum": 1,
+   "mediaKind": "img",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 3,
+   "anchorCount": 4,
+   "ctas": [
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 402,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "40px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 300,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "40px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 256,
+     "h": 44,
+     "label": "<removed>",
+     "isCta": true,
+     "radius": "40px"
+    },
+    {
+     "filled": true,
+     "outline": "<removed>",
+     "bw": 0,
+     "w": 40,
+     "h": 40,
+     "label": "<removed>",
+     "isCta": false,
+     "radius": "50%"
+    }
+   ],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "Bagoss, sans-serif",
+   "h2": "Bagoss, sans-serif",
+   "body": "Inter, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+   "h1Weight": "200",
+   "h1Size": "70px",
+   "bodySize": "11px",
+   "fontFaces": [
+    "Inter",
+    "CeraPro",
+    "FontAwesome",
+    "StyreneB",
+    "Bagoss",
+    "Epicene",
+    "Poppins",
+    "BagosHeadline",
+    "Cera Pro",
+    "EpiceneBody",
+    "Kanit-Klaviyo-Hosted",
+    "Nunito-Sans-Klaviyo-Hosted"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 10,
+   "slick": 1,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 48
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -1828.81, 0)"
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 12,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 13,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 14,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 15,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 16,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 17,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 18,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 20,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 21,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 22,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 23,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 24,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 25,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 26,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": null
+   },
+   {
+    "id": 29,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 30,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 32,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 33,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 34,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 35,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 36,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 37,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   },
+   {
+    "id": 38,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)"
+   }
+  ],
+  "pageTextLen": 12825,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 0,
+   "formCount": 3,
+   "inputCount": 8,
+   "detailsCount": 0,
+   "accordionCount": 55,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 27,
+   "bookingWidget": 0,
+   "reviewWidgets": 10,
+   "kwReviews": true,
+   "kwFaq": false,
+   "kwInsurance": true,
+   "kwPromo": true,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwImplant": false,
+   "kwCosmetic": true,
+   "kwUSState": null,
+   "phoneUS": "(213) 326-1789",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.384,
+   "darkFrac": 0.519,
+   "lightFrac": 0.133
+  },
+  {
+   "i": 1,
+   "mean": 0.446,
+   "darkFrac": 0.239,
+   "lightFrac": 0.114
+  },
+  {
+   "i": 2,
+   "mean": 0.483,
+   "darkFrac": 0.114,
+   "lightFrac": 0.143
+  },
+  {
+   "i": 3,
+   "mean": 0.422,
+   "darkFrac": 0.433,
+   "lightFrac": 0.167
+  },
+  {
+   "i": 4,
+   "mean": 0.481,
+   "darkFrac": 0.144,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 5,
+   "mean": 0.471,
+   "darkFrac": 0.194,
+   "lightFrac": 0.149
+  },
+  {
+   "i": 6,
+   "mean": 0.481,
+   "darkFrac": 0.13,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 7,
+   "mean": 0.402,
+   "darkFrac": 0.457,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 8,
+   "mean": 0.485,
+   "darkFrac": 0.141,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 9,
+   "mean": 0.49,
+   "darkFrac": 0.101,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 10,
+   "mean": 0.419,
+   "darkFrac": 0.375,
+   "lightFrac": 0.133
+  },
+  {
+   "i": 11,
+   "mean": 0.463,
+   "darkFrac": 0.21,
+   "lightFrac": 0.141
+  },
+  {
+   "i": 12,
+   "mean": 0.516,
+   "darkFrac": 0.067,
+   "lightFrac": 0.184
+  },
+  {
+   "i": 13,
+   "mean": 0.447,
+   "darkFrac": 0.274,
+   "lightFrac": 0.15
+  }
+ ],
+ "heroLum": {
+  "mean": 0.42,
+  "darkFrac": 0.34,
+  "lightFrac": 0.16
+ },
+ "heroLumBelowNav": {
+  "mean": 0.421,
+  "darkFrac": 0.378,
+  "lightFrac": 0.182
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 850,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 50,
+   "z": "2147483647",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 133,
+   "left": 0,
+   "w": 1440,
+   "h": 133,
+   "z": "20",
+   "links": [
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:213-326-1789",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/locations",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/membership",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/referrals",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://app.thegleamery.com",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "90000",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/privacy-policy",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/terms-of-use",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -2480.24, 0)"
+  },
+  {
+   "id": 12,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 13,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 14,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 16,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 17,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 18,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 20,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 21,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 22,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 24,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 25,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 26,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 28,
+   "op": 0,
+   "tr": null
+  },
+  {
+   "id": 29,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 30,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 32,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 33,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 34,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 36,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 37,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  {
+   "id": 38,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 850,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 50,
+   "z": "2147483647",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 133,
+   "left": 0,
+   "w": 1440,
+   "h": 133,
+   "z": "20",
+   "links": [
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:213-326-1789",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/locations",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/membership",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/about",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/referrals",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://app.thegleamery.com",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 900,
+   "z": "90000",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/privacy-policy",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/terms-of-use",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 15,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 749,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 95,
+   "z": "2147483647",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "sticky",
+   "top": 0,
+   "bottom": 120,
+   "left": 0,
+   "w": 390,
+   "h": 120,
+   "z": "20",
+   "links": [
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "#klaviyo-TfUwTN",
+     "label": "<removed>"
+    },
+    {
+     "href": "/pages/aligners",
+     "label": "<removed>"
+    },
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://app.thegleamery.com",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "tel:213-326-1789",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 844,
+   "z": "90000",
+   "links": [
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/privacy-policy",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thegleamery.com/pages/terms-of-use",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

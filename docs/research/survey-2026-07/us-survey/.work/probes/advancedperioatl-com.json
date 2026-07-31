@@ -1,0 +1,175 @@
+{
+ "url": "https://advancedperioatl.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "video",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 1
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 285,
+    "h": 58,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 178,
+    "h": 34,
+    "fixedAnc": false,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 236,
+    "h": 34,
+    "fixedAnc": false,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "Raleway, Helvetica, Arial, Lucida, sans-serif",
+   "bodyFam": "Raleway, Helvetica, Arial, Lucida, sans-serif",
+   "head": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 106
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 106
+   },
+   "sameFamily": true
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 900,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 945,
+    "h": 562,
+    "tag": "div",
+    "chars": 500,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1507,
+    "h": 581,
+    "tag": "div",
+    "chars": 495,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2088,
+    "h": 758,
+    "tag": "div",
+    "chars": 4999,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2847,
+    "h": 554,
+    "tag": "div",
+    "chars": 563,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3491,
+    "h": 746,
+    "tag": "div",
+    "chars": 794,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 4264,
+    "h": 939,
+    "tag": "div",
+    "chars": 63,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 5202,
+    "h": 943,
+    "tag": "div",
+    "chars": 481,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6145,
+    "h": 730,
+    "tag": "div",
+    "chars": 371,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 6875,
+    "h": 957,
+    "tag": "div",
+    "chars": 264,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7832,
+    "h": 516,
+    "tag": "div",
+    "chars": 252,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 8498,
+    "h": 516,
+    "tag": "footer",
+    "chars": 670,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

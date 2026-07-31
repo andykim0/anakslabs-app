@@ -1,0 +1,210 @@
+{
+ "url": "http://www.goruda.co.kr/",
+ "status": 200,
+ "finalUrl": "http://www.goruda.co.kr/index_intro.php",
+ "title": "\uace0\ub974\ub2e4\uce58\uacfc\uc758\uc6d0",
+ "popups": [],
+ "revealPost": [],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 903,
+  "screens": 1,
+  "sectionParentTag": "div",
+  "sectionCoverRatio": 1.34,
+  "sectionCount": 2,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "img",
+    "absTop": 0,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 105,
+    "h": 309,
+    "chars": 19,
+    "headings": [],
+    "keyText": "\uccab \ubc29\ubb38 \uc628\ub77c\uc778\uc608\uc57d \uc7ac\uc9c4 \uc9c4\ub8cc \uc608\uc57d",
+    "media": 4,
+    "bgKey": "0,0,0",
+    "bgLum": 0,
+    "bgMedia": false
+   }
+  ],
+  "outline": [],
+  "hero": {
+   "h": 900,
+   "bgLum": 0,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": null,
+   "mediaPlace": "none",
+   "mediaCoverW": null,
+   "mediaCoverH": null,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": ""
+  },
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "\"Noto Sans KR\", \"\ub3cb\uc74c, Dotum\", Arial, \"sans-serif\"",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": null,
+   "h2Size": null,
+   "bodySize": "9px",
+   "bodyWeight": "100",
+   "bodyLH": "14.4px",
+   "bigHeadPx": 17.9712,
+   "bigHeadFam": "\"Noto Sans KR\", \"\ub3cb\uc74c, Dotum\", Arial, \"sans-serif\"",
+   "bigHeadWeight": "400",
+   "h1Count": 0,
+   "h2Sizes": [],
+   "h3Size": null,
+   "fontFaces": [
+    "Font Awesome 6 Brands",
+    "Font Awesome 6 Free",
+    "Font Awesome 5 Brands",
+    "Font Awesome 5 Free",
+    "FontAwesome",
+    "Noto Sans KR"
+   ],
+   "linkFonts": [
+    "/intro/assets/font_awesome/css/all.css",
+    "/intro/assets/notosanskr/font.css"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 248,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 1,
+   "inputCount": 8,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 2,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": false,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 0,
+   "naverLinks": 2,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [
+    "800"
+   ],
+   "aosEase": [
+    "ease-out-back"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.091,
+   "darkFrac": 0.915,
+   "lightFrac": 0.037
+  },
+  {
+   "i": 1,
+   "mean": 0.129,
+   "darkFrac": 0.874,
+   "lightFrac": 0.085
+  }
+ ],
+ "heroLum": {
+  "mean": 0.089,
+  "darkFrac": 0.916,
+  "lightFrac": 0.036
+ },
+ "heroLumBelowNav": {
+  "mean": 0.101,
+  "darkFrac": 0.905,
+  "lightFrac": 0.041
+ },
+ "fixedTop": [],
+ "fixedMid": [],
+ "mobileScreens": 1.1,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 765,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 79,
+   "z": "auto",
+   "links": [
+    {
+     "href": "",
+     "label": "\uccab \ubc29\ubb38 \uc628\ub77c\uc778 \uc608\uc57d"
+    },
+    {
+     "href": "",
+     "label": "\uc7ac\uc9c4 \uc9c4\ub8cc \uc608\uc57d"
+    }
+   ],
+   "label": "\uccab \ubc29\ubb38 \uc628\ub77c\uc778 \uc608\uc57d \uc7ac\uc9c4 \uc9c4\ub8cc \uc608\uc57d",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

@@ -1,0 +1,173 @@
+[
+ {
+  "sample_id": "B01",
+  "group": "B",
+  "name": "이담외과",
+  "url": "https://edomclinic.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "다섯 진료센터를 가진 중형 전문병원 구조 기준점",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B02",
+  "group": "B",
+  "name": "서울척병원",
+  "url": "https://www.seoulchuk.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 척추 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B03",
+  "group": "B",
+  "name": "나누리병원",
+  "url": "https://www.nanoori.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 다기관 척추·관절 병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B04",
+  "group": "B",
+  "name": "우리들병원",
+  "url": "https://www.wooridul.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 다기관 척추 병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B05",
+  "group": "B",
+  "name": "힘찬병원",
+  "url": "https://www.himchanhospital.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "다기관 관절·척추 병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B06",
+  "group": "B",
+  "name": "부민병원",
+  "url": "https://www.bumin.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "다기관 종합·관절 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B07",
+  "group": "B",
+  "name": "자생한방병원",
+  "url": "https://www.jaseng.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 다기관 한방척추 병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B08",
+  "group": "B",
+  "name": "모커리한방병원",
+  "url": "https://www.mokhuri.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 한방척추 병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B10",
+  "group": "B",
+  "name": "바른세상병원",
+  "url": "https://www.barunsesang.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "관절·척추·재활 센터를 가진 중형 전문병원",
+  "crawlDelayMs": 5000
+ },
+ {
+  "sample_id": "B11",
+  "group": "B",
+  "name": "예손병원",
+  "url": "https://www.yesonhospital.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "수부·관절·척추 센터를 가진 중형 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B12",
+  "group": "B",
+  "name": "서울21세기병원",
+  "url": "https://spine21.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "척추·관절 센터를 가진 중형 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B13",
+  "group": "B",
+  "name": "평촌서울나우병원",
+  "url": "https://www.nowhospital.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 관절 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B14",
+  "group": "B",
+  "name": "대항병원",
+  "url": "https://www.daehang.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 대장항문 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B16",
+  "group": "B",
+  "name": "민트병원",
+  "url": "https://www.mintir.com/",
+  "stratum": "mid-specialist",
+  "selection_reason": "혈관·여성·영상의학 센터를 가진 중형 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B17",
+  "group": "B",
+  "name": "하나이비인후과병원",
+  "url": "https://www.hanaent.co.kr/",
+  "stratum": "mid-specialist",
+  "selection_reason": "HIRA 전문병원 프레임의 이비인후과 전문병원",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B36",
+  "group": "B",
+  "name": "분당서울대학교병원",
+  "url": "https://www.snubh.org/",
+  "stratum": "academic-control",
+  "selection_reason": "대형 종합병원 정보밀도 대조군 전수",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B37",
+  "group": "B",
+  "name": "삼성서울병원",
+  "url": "https://www.samsunghospital.com/",
+  "stratum": "academic-control",
+  "selection_reason": "대형 종합병원 정보밀도 대조군 전수",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B38",
+  "group": "B",
+  "name": "서울아산병원",
+  "url": "https://www.amc.seoul.kr/",
+  "stratum": "academic-control",
+  "selection_reason": "대형 종합병원 정보밀도 대조군 전수",
+  "crawlDelayMs": 1500
+ },
+ {
+  "sample_id": "B39",
+  "group": "B",
+  "name": "세브란스병원",
+  "url": "https://sev.severance.healthcare/",
+  "stratum": "academic-control",
+  "selection_reason": "대형 종합병원 정보밀도 대조군 전수",
+  "crawlDelayMs": 1500
+ }
+]

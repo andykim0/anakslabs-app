@@ -1,0 +1,1587 @@
+{
+ "sample_id": "B07",
+ "name": "자생한방병원",
+ "url": "https://www.jaseng.co.kr/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.jaseng.co.kr/",
+ "title": "자생한방병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 2541,
+  "screens": 2.8,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 90,
+    "h": 810,
+    "chars": 203,
+    "headings": [],
+    "keyText": "척추압박골절 환자 94% 회복 자생 비수술 치료 효과 입증 자생 초음파 약침 영상 진단을 더한 정밀한 디스크 치료 4배 빠른 통증 회복 '동작침' 교통사고 후 다리 통증 치료 효과 입증 척추압박골절 환자 94% 회복 자생 비수술 치료 효과 입증 자생 초음파 약침 영상 진단을 더한 정밀한 디스크 치료 01 / 03 오시는 길 진료시간 안내 진료비 안내 제증명 발급",
+    "media": 9,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 900,
+    "h": 1145,
+    "chars": 903,
+    "headings": [],
+    "keyText": "JASENG JASENG 한방 비수술 치료를 선도하는 자생한방병원 한방 비수술 치료를 선도하는 자생한방병원 강남 광주 노원 대구 대전 목동 보라매 부산 부천 분당 수원 안산 울산 인천 일산 잠실 창원 천안 청주 해운대 자생(강남) 바로가기 신준식 한의학박사 이진호 병원장 고동현 의무원장 김학재 의료상담원장 박상원 의료상담원장 라이문트 로이어 의료상담원장 홍순성 교육수련부장 강도현 원장 강만호 원장 강진영 원장 구승혁 원장 김지원 원장 김환 원장 박동선 원장 안용준 원장 우렁찬 원장 윤동주 원장 이남우 원장 이다원 원장 이종환 원장 이준행 원장 이형철 원장 최성권 원장 최종호 원장 최희승 원장 강예현 원장 나현욱 원장 염지성 원장 윤예림 원장 이상운 원장 신준식 한의학박사 이진호 병원장 고동현 의무원장 김학재 의료상담원장 박상원 의료상담원장 라이문트 로이어 의료상담원장 홍순성 교육수련부장 강도현 원장 강만호 원장 강진영 원장 구승혁 원장 김지원 원장 김환 원장 박동선 원장 안용준 원장",
+    "media": 111,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 0,
+    "h": 900,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 222,
+    "h": 456,
+    "chars": 17,
+    "headings": [],
+    "keyText": "다시 보지 않기 1 / 2 닫기",
+    "media": 4,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 5,
+    "tag": "footer",
+    "absTop": 2185,
+    "h": 357,
+    "chars": 348,
+    "headings": [],
+    "keyText": "개인정보처리방침 이용약관 환자의권리와의무 오시는 길 패밀리사이트 패밀리사이트 자생의료재단 자생메디컬아카데미 성남약침원외탕전실 자생메디바이오센터 신바로 기념관 Korean MEDIcine MSAT 척추신경추나의학회 미국 오스테오페틱의사협회(AOA) 전미정골아카데미학회(AAO) LANGUAGE LANGUAGE 영어 러시아어 몽골어 일본어 아랍어 베트남어 중국어 [06110] 서울 강남구 강남대로 536 (논현동) 사업자번호 211-90-11471 대표자 신준식 본 사이트의 모든 컨텐츠는 저작권법에 따른 보호를 받습니다. © Jaseng Hospital of Korean medicine. 바로 예약 전화 상담 예약 TOP",
+    "media": 4,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   },
+   {
+    "y": 336,
+    "tag": "h4",
+    "t": "추천검색어"
+   }
+  ],
+  "type": {
+   "h1Px": 40,
+   "h2Px": null,
+   "bodyPx": 20,
+   "h1Fam": "\"Pretendard Variable\", \"Noto Sans TC\"",
+   "bodyFam": "\"Pretendard Variable\", \"Noto Sans TC\"",
+   "h1Weight": "700",
+   "h1TextLen": 0,
+   "h2TextLen": null,
+   "headingTotal": 1,
+   "headingImgOnly": 1,
+   "headingZeroText": 1,
+   "maxTextPx": 55,
+   "imgInFirstScreen": 17
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": true,
+   "scrollTrigger": true,
+   "swiper": 4,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 99
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -5941.67, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 348, 202.928)",
+    "dur": "0.5s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": null,
+    "dur": "0.6s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": "waves",
+    "animDur": "2s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 15,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 19,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 23,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 26,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 27,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -33.9297, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 31,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 32,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 33,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 34,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 35,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 36,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 37,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 38,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 39,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 40,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 41,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 42,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 43,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 44,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 45,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 46,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 47,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 48,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 49,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 50,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 51,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 52,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 53,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 54,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 55,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 56,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 57,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 58,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 59,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 60,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 61,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 62,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 63,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 64,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 65,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 66,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 67,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 68,
+    "op": 0,
+    "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 69,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, -200, -40)",
+    "dur": "0.3s",
+    "ease": "ease-in-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "대표",
+   "강남",
+   "광주",
+   "노원",
+   "대구",
+   "대전",
+   "목동",
+   "보라매",
+   "부산",
+   "부천",
+   "분당",
+   "수원",
+   "안산",
+   "울산",
+   "인천",
+   "일산",
+   "잠실",
+   "창원",
+   "천안",
+   "청주",
+   "해운대",
+   "척추·관절",
+   "허리",
+   "허리디스크",
+   "척추관협착증",
+   "퇴행성디스크",
+   "척추전방전위증",
+   "허리염좌",
+   "목",
+   "목디스크",
+   "거북목증후군",
+   "턱",
+   "턱관절장애",
+   "무릎",
+   "퇴행성관절염",
+   "어깨",
+   "오십견",
+   "석회화건염",
+   "고관절",
+   "고관절질환",
+   "손·발",
+   "손목·발목 염좌",
+   "족저근막염",
+   "손목터널증후군",
+   "자생TV보니 바로가기",
+   "#초음파약침",
+   "#척추압박골절",
+   "#교통사고후유증",
+   "#허리디스크",
+   "#목디스크",
+   "#추나요법",
+   "클리닉",
+   "교통사고후유증",
+   "척추압박골절",
+   "수술후재활",
+   "수술후통증증후군",
+   "성장·자세교정",
+   "증상별",
+   "안면신경마비",
+   "기능성 소화불량"
+  ],
+  "pageTextLen": 3301,
+  "kw": {
+   "원장": 84,
+   "전문의": 0,
+   "의료진": 2,
+   "교수": 0,
+   "센터": 1,
+   "지점": 0,
+   "병원": 10,
+   "의원": 0,
+   "faq": 2,
+   "후기": 12,
+   "전후": 0,
+   "예약": 9,
+   "이벤트": 2,
+   "비급여": 9,
+   "오시는길": 7
+  },
+  "deptHits": [
+   "척추",
+   "관절",
+   "혈관"
+  ],
+  "providerUrl": "https://www.jaseng.co.kr/about/medical-staff.do?Location_Branch_Code=10000",
+  "centerUrl": null
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -6133.33, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 348, 202.928)",
+   "dur": "0.5s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": null,
+   "dur": "0.6s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 4,
+   "op": 0.11918,
+   "tr": "matrix(0.640841, 0, 0, 0.640841, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 6,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 8,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 10,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 11,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 13,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 14,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 15,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 16,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 17,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 18,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 19,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 20,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 21,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 22,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 23,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 24,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 25,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 26,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 27,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 28,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 29,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 30,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -33.9297, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 31,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 32,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 33,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 34,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 35,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 36,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 37,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 38,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 39,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 40,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 41,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 42,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 43,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 44,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 45,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 46,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 47,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 48,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 49,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 50,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 51,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 52,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 53,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 54,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 55,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 56,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 57,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 58,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 59,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 60,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 61,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 62,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 63,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 64,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 65,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 66,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -26.5859, -37.375)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  },
+  {
+   "id": 67,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 68,
+   "op": 0,
+   "tr": "matrix(0.3, 0, 0, 0.3, -65, -65)",
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 69,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, -200, -40)",
+   "dur": "0.3s",
+   "ease": "ease-in-out"
+  }
+ ],
+ "providerPage": {
+  "chars": 3417,
+  "imgs": 25,
+  "title": "의료진 소개 | 척추관절, 클리닉, 병동, 외과진료 | 자생한방병원",
+  "원장": 10,
+  "전문의": 0,
+  "교수": 0,
+  "nameTokens": 1,
+  "iframes": 0,
+  "url": "https://www.jaseng.co.kr/about/medical-staff.do?Location_Branch_Code=10000",
+  "status": 200
+ }
+}

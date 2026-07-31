@@ -1,0 +1,31 @@
+--- https://www.misoro.kr/
+   ok screens=1.5 secs=2 heroLum=0.489
+   SAVED sites/misoro-kr.json
+--- http://www.iniqueps.com/
+   ok screens=8.1 secs=10 heroLum=0.861
+   SAVED sites/http-iniqueps-com.json
+--- https://www.kseye.co.kr/
+   ok screens=1 secs=2 heroLum=0.301
+   SAVED sites/kseye-co-kr.json
+--- https://www.faceps.com/
+   ok screens=5.3 secs=7 heroLum=0.647
+   SAVED sites/faceps-com.json
+--- https://www.champodonamu.com/
+   ok screens=23 secs=21 heroLum=0.888
+   SAVED sites/champodonamu-com.json
+--- https://www.limedent.com:9006/
+   ok screens=6.5 secs=8 heroLum=0.609
+   SAVED sites/limedent-com-9006.json
+--- https://marbleps.com/
+   ok screens=6.6 secs=1 heroLum=0.766
+   SAVED sites/marbleps-com.json
+--- https://sinnonhyeon.ppeum.com/
+   ok screens=1.3 secs=2 heroLum=0.953
+   SAVED sites/sinnonhyeon-ppeum-com.json
+--- https://www.hooclinic.co.kr/
+   ok screens=12 secs=10 heroLum=0.553
+   SAVED sites/hooclinic-co-kr.json
+--- https://www.cnuclinic.co.kr/
+   ok screens=12.1 secs=7 heroLum=0.247
+   SAVED sites/cnuclinic-co-kr.json
+BATCH-DONE

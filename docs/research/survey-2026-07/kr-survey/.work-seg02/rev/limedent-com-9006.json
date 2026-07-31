@@ -1,0 +1,20 @@
+{
+ "url": "https://www.limedent.com:9006/",
+ "pre": [],
+ "live": [],
+ "post": {
+  "kf": {
+   "dIKmRx": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 1
+   },
+   "jtBULV": {
+    "x": 0,
+    "y": 20,
+    "opFrom": 0
+   }
+  },
+  "els": []
+ }
+}

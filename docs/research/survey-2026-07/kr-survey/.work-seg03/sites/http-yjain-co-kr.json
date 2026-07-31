@@ -1,0 +1,576 @@
+{
+ "url": "http://www.yjain.co.kr/",
+ "status": 200,
+ "finalUrl": "https://www.yjain.co.kr/",
+ "title": "\uac31\ub144\uae30 \uce58\ub8cc | \uc5ec\uc790\uc778\ud55c\uc758\uc6d0 - \uc11c\ucd08 \uac31\ub144\uae30 \ud55c\uc758\uc6d0",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 7143,
+  "screens": 7.9,
+  "sectionParentTag": "div",
+  "sectionCount": 10,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 300,
+    "h": 595,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 7,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 109,
+    "h": 807,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 22,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 916,
+    "h": 927,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 9,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 1843,
+    "h": 1127,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 2,
+    "bgKey": "20,20,19",
+    "bgLum": 0.919,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 2970,
+    "h": 940,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 5,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 5,
+    "tag": "div",
+    "absTop": 3910,
+    "h": 888,
+    "chars": 201,
+    "headings": [],
+    "keyText": "\uac31\ub144\uae30 \ubcf4\uc57d \uc74c\uc2dd \uae30\ud0c0 \uac31\ub144\uae30 \ub450\ud1b5\uacfc \uc5b4\uc9c0\ub7fc\uc99d, \ub9e4\uc77c \uba39\ub294 \"\uc774\uac83\" \ub54c\ubb38\uc774\ub77c\uace0\u2026 \uac31\ub144\uae30 \ub2e4\uc774\uc5b4\ud2b8 \uc778\ubc14\ub514 \ud544\uc218 \ud655\uc778 \uafc0\ud301! \uac31\ub144\uae30 \uc6b4\ub3d9 \uc774\ub807\uac8c\ub9cc \ub530\ub77c\ud558\uc138\uc694. \uac31\ub144\uae30 \uc6b0\uc6b8\uc99d\uae4c\uc9c0 \uac00\uc9c0 \uc54a\uc73c\ub824\uba74? \uac31\ub144\uae30 \ub098\uc787\uc0b4 \"\uc774\uc74c\uc2dd\" \ub54c\ubb38\uc785\ub2c8\ub2e4. \uac31\ub144\uae30! \ucc38\uc9c0 \ub9c8\uc138\uc694. \uc5c4\ub9c8\uac00 \uac31\ub144\uae30\ub77c \ud798\ub4e4\uc5b4\uc694. \uc218\uba74\uc81c \uc5c6\uc774 \ubc14\ub85c \uafc0\uc7a0! \uc5ec\uc790\ub4e4 90% \ubaa8\ub974\ub294 \uc9c8\uac74\uc870 \uc6d0\uc778 \ubc29\uad11\uc5fc\uc774 \uc548 \ub0ab\ub294 \uc774\uc720!",
+    "media": 13,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "div",
+    "absTop": 4798,
+    "h": 395,
+    "chars": 90,
+    "headings": [],
+    "keyText": "ONLY \uac31\ub144\uae30 \uc9c8\ud658 \ud558\ub098\ub9cc \ucc98\uc74c\ubd80\ud130 \uac31\ub144\uae30 YEAR \uac31\ub144\uae30 \uc9c4\ub8cc \ud55c \ubd84\uc57c\uc5d0 \uc9d1\uc911\ud558\ub294 \ud55c\uc758\uc6d0 CASE 20,000\uc744 \uc9c4\ub8cc\ud55c \ub178\ud558\uc6b0 20,001\ubc88\uc9f8 \uce58\ub8cc\ub97c \ubc1b\uc73c\uc138\uc694",
+    "media": 0,
+    "bgKey": "20,20,20",
+    "bgLum": 0.928,
+    "bgMedia": false
+   },
+   {
+    "i": 7,
+    "tag": "div",
+    "absTop": 5193,
+    "h": 801,
+    "chars": 0,
+    "headings": [],
+    "keyText": "",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 8,
+    "tag": "div",
+    "absTop": 5994,
+    "h": 793,
+    "chars": 201,
+    "headings": [],
+    "keyText": "\uc5ec\uc790\uc778\ud55c\uc758\uc6d0 50m \ud655\ub300 \ucd95\uc18c \ucd08\uae30\ud654 \ub85c\ub4dc\ubdf0 \uae38\ucc3e\uae30 \uc9c0\ub3c4 \ud06c\uac8c \ubcf4\uae30 02.588.9725 010.5141.9725 \uc6d4 \ud654 \uae08 \uc624\uc804 10:00 - \uc624\ud6c4 6:00 \uc218 \uc694 \uc77c \uc624\uc804 10:00 - \uc624\ud6c4 4:00 \ubaa9 \uc694 \uc77c \ud734\uc9c4 \ud1a0 \uc694 \uc77c \uc624\uc804 9:30 - \uc624\ud6c4 4:00 \uc810\uc2ec\uc2dc\uac04 \uc624\ud6c4 1:00 - \uc624\ud6c4 2:30 3\ud638\uc120 \ub0a8\ubd80\ud130\ubbf8\ub110\uc5ed 6\ubc88 \ucd9c\uad6c\uc5d0\uc11c 80m, \uc0bc\uacbd\ube4c\ub529 7\uce35",
+    "media": 34,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 9,
+    "tag": "div",
+    "absTop": 6787,
+    "h": 356,
+    "chars": 145,
+    "headings": [],
+    "keyText": "\ubcd1\uc6d0\uc18c\uac1c \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ubcf4\ud638\ubc29\uce68 \uc5ec\uc790\uc778\ud55c\uc758\uc6d0 | \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc11c\ucd08\uad6c \ud6a8\ub839\ub85c 279, 7\uce35 701\ud638(\uc11c\ucd08\ub3d9, \uc0bc\uacbd\ube4c\ub529) | \ub300\ud45c\uc790 : \uc774\ud604\uc219 | \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 473-03-00984 COPYRIGHT 2023 \uc5ec\uc790\uc778\ud55c\uc758\uc6d0 ALL RIGHTS RESERVED.",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   }
+  ],
+  "outline": [
+   {
+    "y": 4277,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30 \ub450\ud1b5\uacfc \uc5b4\uc9c0\ub7fc\uc99d, \ub9e4\uc77c \uba39\ub294 \"\uc774\uac83\" \ub54c\ubb38\uc774\ub77c\uace0\u2026"
+   },
+   {
+    "y": 4385,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30 \ub2e4\uc774\uc5b4\ud2b8 \uc778\ubc14\ub514 \ud544\uc218 \ud655\uc778 \uafc0\ud301!"
+   },
+   {
+    "y": 4504,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30 \uc6b4\ub3d9 \uc774\ub807\uac8c\ub9cc \ub530\ub77c\ud558\uc138\uc694."
+   },
+   {
+    "y": 4601,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30 \uc6b0\uc6b8\uc99d\uae4c\uc9c0 \uac00\uc9c0 \uc54a\uc73c\ub824\uba74?"
+   },
+   {
+    "y": 4709,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30 \ub098\uc787\uc0b4 \"\uc774\uc74c\uc2dd\" \ub54c\ubb38\uc785\ub2c8\ub2e4."
+   },
+   {
+    "y": 4828,
+    "tag": "span",
+    "t": "\uac31\ub144\uae30! \ucc38\uc9c0 \ub9c8\uc138\uc694."
+   },
+   {
+    "y": 4936,
+    "tag": "span",
+    "t": "\uc5c4\ub9c8\uac00 \uac31\ub144\uae30\ub77c \ud798\ub4e4\uc5b4\uc694."
+   },
+   {
+    "y": 5044,
+    "tag": "span",
+    "t": "\uc218\uba74\uc81c \uc5c6\uc774 \ubc14\ub85c \uafc0\uc7a0!"
+   },
+   {
+    "y": 5152,
+    "tag": "span",
+    "t": "\uc5ec\uc790\ub4e4 90% \ubaa8\ub974\ub294 \uc9c8\uac74\uc870 \uc6d0\uc778"
+   },
+   {
+    "y": 5260,
+    "tag": "span",
+    "t": "\ubc29\uad11\uc5fc\uc774 \uc548 \ub0ab\ub294 \uc774\uc720!"
+   }
+  ],
+  "hero": {
+   "h": 595,
+   "bgLum": 1,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "img",
+   "mediaPlace": "right",
+   "mediaCoverW": 1,
+   "mediaCoverH": 0.14,
+   "slides": 0,
+   "anchorCount": 7,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 83,
+     "h": 85,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": ""
+  },
+  "type": {
+   "h1": "NanumSquareNeo, nanumgothic",
+   "h2": "NanumSquareNeo, nanumgothic",
+   "body": "NanumSquareNeo, nanumgothic",
+   "h1Weight": "700",
+   "h1Size": "13.3333px",
+   "h2Size": "0px",
+   "h2Weight": "700",
+   "bodyWeight": "700",
+   "bodySize": "18px",
+   "fontFaces": [
+    "swiper-icons",
+    "FontAwesome",
+    "Noto Sans KR",
+    "NanumSquareNeo"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 1,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 18
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0s",
+    "ease": "ease",
+    "delay": "0s",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "pageTextLen": 2112,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 4,
+   "formCount": 1,
+   "inputCount": 5,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 2,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 3,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kakaoLinks": 7,
+   "naverLinks": 1,
+   "instaLinks": 0,
+   "ytLinks": 1,
+   "mapEmbed": 12,
+   "kwReviews": true,
+   "kwFaq": true,
+   "kwInsurance": false,
+   "kwPromo": true,
+   "kwBeforeAfter": false,
+   "kwTeam": true,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": true,
+   "kwNotice": false,
+   "kwPhoneKR": true,
+   "statLike": [
+    "33\ub144",
+    "992\ub144",
+    "20,000\uba85"
+   ]
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.878,
+   "darkFrac": 0.052,
+   "lightFrac": 0.926
+  },
+  {
+   "i": 1,
+   "mean": 0.878,
+   "darkFrac": 0.049,
+   "lightFrac": 0.92
+  },
+  {
+   "i": 2,
+   "mean": 0.946,
+   "darkFrac": 0.025,
+   "lightFrac": 0.933
+  },
+  {
+   "i": 3,
+   "mean": 0.891,
+   "darkFrac": 0.027,
+   "lightFrac": 0.902
+  },
+  {
+   "i": 4,
+   "mean": 0.824,
+   "darkFrac": 0.028,
+   "lightFrac": 0.889
+  },
+  {
+   "i": 5,
+   "mean": 0.779,
+   "darkFrac": 0.181,
+   "lightFrac": 0.716
+  },
+  {
+   "i": 6,
+   "mean": 0.916,
+   "darkFrac": 0.009,
+   "lightFrac": 0.981
+  },
+  {
+   "i": 7,
+   "mean": 0.821,
+   "darkFrac": 0.033,
+   "lightFrac": 0.816
+  },
+  {
+   "i": 8,
+   "mean": 0.924,
+   "darkFrac": 0.025,
+   "lightFrac": 0.93
+  },
+  {
+   "i": 9,
+   "mean": 0.966,
+   "darkFrac": 0.019,
+   "lightFrac": 0.968
+  }
+ ],
+ "heroLum": {
+  "mean": 0.843,
+  "darkFrac": 0.089,
+  "lightFrac": 0.833
+ },
+ "heroLumBelowNav": {
+  "mean": 0.825,
+  "darkFrac": 0.1,
+  "lightFrac": 0.815
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 830,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 70,
+   "z": "100",
+   "links": [
+    {
+     "href": "javascript:;",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 830,
+   "bottom": 900,
+   "left": 0,
+   "w": 1440,
+   "h": 70,
+   "z": "100",
+   "links": [
+    {
+     "href": "javascript:;",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 7,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 61,
+   "left": 0,
+   "w": 390,
+   "h": 61,
+   "z": "1600",
+   "links": [
+    {
+     "href": "https://www.yjain.co.kr",
+     "label": ""
+    },
+    {
+     "href": "tel:025889725",
+     "label": ""
+    },
+    {
+     "href": "#none",
+     "label": ""
+    },
+    {
+     "href": "#none",
+     "label": ""
+    },
+    {
+     "href": "https://www.yjain.co.kr/bbs/login.php",
+     "label": "LOGIN"
+    },
+    {
+     "href": "https://www.yjain.co.kr/bbs/register.php",
+     "label": "JOIN"
+    }
+   ],
+   "label": "LOGIN JOIN \uc5ec\uc790\uc778 \uc18c\uac1c \uac31\ub144\uae30 \uc99d\uc0c1 \uac31\ub144\uae30 \uce58\ub8cc \ub450\ud1b5\u00b7\uc5b4\uc9c0\ub7fc\uc99d \uc815\ubc00 \uc9c4\ub2e8 \ubcf4\uc57d \uc0c1\ub2f4\u00b7\ud6c4\uae30 \ucee4\ubba4\ub2c8\ud2f0",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 768,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 76,
+   "z": "30",
+   "links": [
+    {
+     "href": "tel:025889725",
+     "label": ""
+    },
+    {
+     "href": "https://pf.kakao.com/_XexiRM",
+     "label": ""
+    },
+    {
+     "href": "https://www.yjain.co.kr/bbs/write.php?bo_table=0603",
+     "label": ""
+    },
+    {
+     "href": "https://www.yjain.co.kr/bbs/board.php?bo_table=0104",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

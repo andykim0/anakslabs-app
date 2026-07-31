@@ -1,0 +1,411 @@
+{
+ "sample_id": "B11",
+ "name": "예손병원",
+ "url": "https://www.yesonhospital.com/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.yesonhospital.com/",
+ "title": "예손병원 | 관절·수지접합 전문병원 | 부천정형외과",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1178,
+  "screens": 1.3,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 913,
+    "chars": 494,
+    "headings": [
+     "근골격계 진료의 기준의 되는 병원 예손병원",
+     "예손병원 20년사",
+     "관절센터",
+     "척추센터",
+     "수부센터",
+     "족부센터"
+    ],
+    "keyText": "MENU 공지사항 진료일정 전문의소개 전문의상담 오시는 길 온라인예약 (네이버예약) 예손TV 유튜브 관절 센터 척추 센터 수부 센터 족부 센터 TOP 근골격계 진료의 기준의 되는 병원 예손병원 예손병원 20년사 근골격계 진료의 기준, 손 끝에 남은 시간들 e-book 관절센터 보건복지부 지정 관절 전문병원 - 4회 연속 무릎, 어깨, 고관절 세분화 진료 척추센터 척추 신경외과 전문의 3인 고난이도 양방향 척추내시경 수부센터 보건복지부 지정 수지접합 전문병원 - 5회 연속 수부외과 세부전문의 수련병원 족부센터 족부 전담 전문의 3인 족부 질환 전담 시스템 내과/건강검진센터 소화기내시경 세부전문의의 위∙대장 내시경 재활/고압산소치료센터 재활의학과 전문의와 전문 치료사의 재활프로그램 골다공증 클리닉 골다공증 위험지수 확인하기 뇌신경센터 신경과 전문의와 뇌신경 검사 영상의학센터 근골격계 전문 영상의학과 전문의의 정확한 판독 마취통증의학센터 마취통증의학과 전문의 5명의 안전한 수술",
+    "media": 10,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 913,
+    "h": 265,
+    "chars": 224,
+    "headings": [],
+    "keyText": "보건복지부 인증 의료기관 관절·수지접합 전문병원, 예손병원 개인정보취급방침 이용약관 비급여수가목록 환자의 권리와 의무 경기도 부천시 원미구 부천로 206 (춘의동) Tel.1666-7582 Fax.032-674-8276 상호명 : 예손병원 / 사업자번호 : 229-33-00104 / 대표자 : 김진호 Copyright (C) 2024 Yeson Hospital. All rights reserved.",
+    "media": 9,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 0,
+    "h": 500,
+    "chars": 28,
+    "headings": [],
+    "keyText": "골다공증 클리닉 일주일 동안 보이지 않습니다 창닫기",
+    "media": 1,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 53,
+    "tag": "h2",
+    "t": "근골격계 진료의 기준의 되는 병원 예손병원"
+   },
+   {
+    "y": 70,
+    "tag": "h3",
+    "t": "예손병원 20년사"
+   },
+   {
+    "y": 428,
+    "tag": "h3",
+    "t": "관절센터"
+   },
+   {
+    "y": 428,
+    "tag": "h3",
+    "t": "척추센터"
+   },
+   {
+    "y": 428,
+    "tag": "h3",
+    "t": "수부센터"
+   },
+   {
+    "y": 428,
+    "tag": "h3",
+    "t": "족부센터"
+   },
+   {
+    "y": 668,
+    "tag": "h4",
+    "t": "내과/건강검진센터"
+   },
+   {
+    "y": 668,
+    "tag": "h4",
+    "t": "재활/고압산소치료센터"
+   },
+   {
+    "y": 668,
+    "tag": "h4",
+    "t": "골다공증 클리닉"
+   },
+   {
+    "y": 807,
+    "tag": "h4",
+    "t": "뇌신경센터"
+   },
+   {
+    "y": 807,
+    "tag": "h4",
+    "t": "영상의학센터"
+   },
+   {
+    "y": 807,
+    "tag": "h4",
+    "t": "마취통증의학센터"
+   }
+  ],
+  "type": {
+   "h1Px": 0,
+   "h2Px": 60,
+   "bodyPx": 12,
+   "h1Fam": "Pretendard",
+   "bodyFam": "Pretendard",
+   "h1Weight": "700",
+   "h1TextLen": 28,
+   "h2TextLen": 23,
+   "headingTotal": 6,
+   "headingImgOnly": 0,
+   "headingZeroText": 0,
+   "maxTextPx": 64,
+   "imgInFirstScreen": 2
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 1,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 3
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 365)",
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 286)",
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 164)",
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 82)",
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 66)",
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 0,
+    "tr": null,
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 0,
+    "tr": null,
+    "dur": "0.2s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, -65.3906)",
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "본문바로가기",
+   "로그인 N",
+   "회원가입",
+   "Language",
+   "ENGLISH",
+   "관절센터바로가기",
+   "척추센터바로가기",
+   "수부센터바로가기",
+   "족부센터바로가기",
+   "내과/건강검진센터",
+   "재활/고압산소치료센터",
+   "뇌신경센터",
+   "영상의학센터",
+   "마취통증의학센터",
+   "이용안내",
+   "진료일정",
+   "증명서발급",
+   "외래진료절차",
+   "입원생활 안내",
+   "입/퇴원 절차",
+   "진단검사",
+   "비급여안내",
+   "예손소식",
+   "공지사항",
+   "언론속의 예손",
+   "예손 연구/학회",
+   "예손이야기",
+   "채용소식",
+   "고객센터",
+   "전문의상담",
+   "예손 의학정보",
+   "예손병원 TV",
+   "완쾌후기",
+   "고객의소리",
+   "병원소개",
+   "미션&비전",
+   "예손병원 발자취",
+   "전문의료진소개",
+   "찾아오시는 길",
+   "층별안내",
+   "간호·간병통합서비스",
+   "첨단의료장비",
+   "관절센터",
+   "척추센터",
+   "수부센터",
+   "족부센터",
+   "외래진료 절차",
+   "X",
+   "- 척추센터",
+   "척추센터소개",
+   "비수술척추",
+   "신경주사치료",
+   "신경성형술",
+   "최소침습수술",
+   "미세현미경디스크수술",
+   "나사고정없는감압술",
+   "인공디스크치환술",
+   "경피적내시경디스크수술",
+   "무수혈 나사고정술",
+   "경피적 척추 성형술"
+  ],
+  "pageTextLen": 785,
+  "kw": {
+   "원장": 0,
+   "전문의": 10,
+   "의료진": 0,
+   "교수": 0,
+   "센터": 13,
+   "지점": 0,
+   "병원": 11,
+   "의원": 0,
+   "faq": 0,
+   "후기": 0,
+   "전후": 0,
+   "예약": 2,
+   "이벤트": 0,
+   "비급여": 1,
+   "오시는길": 1
+  },
+  "deptHits": [
+   "관절",
+   "정형외과",
+   "척추",
+   "신경외과",
+   "외과",
+   "내과",
+   "검진",
+   "재활의학과",
+   "신경과",
+   "영상의학과",
+   "마취통증의학과"
+  ],
+  "providerUrl": "https://www.yesonhospital.com/page.php?pageIndex=150103",
+  "centerUrl": "https://www.yesonhospital.com/page.php?pageIndex=110101101"
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 365)",
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 1,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 286)",
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 2,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 164)",
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 3,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 82)",
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 4,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 66)",
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 5,
+   "op": 0,
+   "tr": null,
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 6,
+   "op": 0,
+   "tr": null,
+   "dur": "0.2s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, -65.3906)",
+   "dur": "0s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 2566,
+  "imgs": 54,
+  "title": "전문의료진소개",
+  "원장": 8,
+  "전문의": 17,
+  "교수": 0,
+  "nameTokens": 8,
+  "iframes": 1,
+  "url": "https://www.yesonhospital.com/page.php?pageIndex=150103",
+  "status": 200
+ }
+}

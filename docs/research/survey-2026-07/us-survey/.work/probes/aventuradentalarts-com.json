@@ -1,0 +1,247 @@
+{
+ "url": "https://aventuradentalarts.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "video",
+   "place": "full-bleed",
+   "covW": 1,
+   "covH": 1
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 179,
+    "h": 37,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 192,
+    "h": 48,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 179,
+    "h": 37,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 80,
+    "h": 80,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 80,
+    "h": 80,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 256,
+    "h": 66,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 256,
+    "h": 66,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 318,
+    "h": 93,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 324,
+    "h": 93,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 318,
+    "h": 93,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 324,
+    "h": 93,
+    "fixedAnc": true,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "InstrumentSerif",
+   "bodyFam": "InterTight",
+   "head": {
+    "topRatio": 2.67,
+    "botRatio": 2.67,
+    "midW": 12,
+    "hgt": 108
+   },
+   "body": {
+    "topRatio": 1,
+    "botRatio": 1,
+    "midW": 14,
+    "hgt": 109
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 0,
+    "h": 2520,
+    "tag": "section",
+    "chars": 301,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 1800,
+    "h": 900,
+    "tag": "div",
+    "chars": 90,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 2520,
+    "h": 1424,
+    "tag": "section",
+    "chars": 369,
+    "imgs": 3,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 3944,
+    "h": 3285,
+    "tag": "section",
+    "chars": 347,
+    "imgs": 10,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7049,
+    "h": 1202,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 7229,
+    "h": 1202,
+    "tag": "section",
+    "chars": 42,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 8431,
+    "h": 3251,
+    "tag": "section",
+    "chars": 325,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 11681,
+    "h": 1520,
+    "tag": "section",
+    "chars": 781,
+    "imgs": 2,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 13201,
+    "h": 2914,
+    "tag": "div",
+    "chars": 486,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 16115,
+    "h": 1234,
+    "tag": "section",
+    "chars": 62,
+    "imgs": 1,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 17131,
+    "h": 1298,
+    "tag": "footer",
+    "chars": 896,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   },
+   {
+    "top": 17131,
+    "h": 2534,
+    "tag": "div",
+    "chars": 0,
+    "imgs": 0,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

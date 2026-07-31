@@ -1,0 +1,551 @@
+{
+ "url": "https://www.thetoothco.com",
+ "status": 200,
+ "finalUrl": "https://thetoothco.com/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 6631,
+  "screens": 7.4,
+  "sectionParentTag": "div",
+  "sections": [
+   {
+    "i": 0,
+    "tag": "section",
+    "absTop": 147,
+    "h": 810,
+    "chars": 0,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "9,9,9",
+    "bgLum": 0.421,
+    "bgMedia": false
+   },
+   {
+    "i": 1,
+    "tag": "section",
+    "absTop": 957,
+    "h": 1415,
+    "chars": 962,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   },
+   {
+    "i": 2,
+    "tag": "section",
+    "absTop": 2372,
+    "h": 650,
+    "chars": 177,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   },
+   {
+    "i": 3,
+    "tag": "section",
+    "absTop": 3023,
+    "h": 821,
+    "chars": 1076,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   },
+   {
+    "i": 4,
+    "tag": "section",
+    "absTop": 3844,
+    "h": 286,
+    "chars": 64,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 0,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   },
+   {
+    "i": 5,
+    "tag": "section",
+    "absTop": 4130,
+    "h": 540,
+    "chars": 0,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 1,
+    "bgKey": "default",
+    "bgLum": 1,
+    "bgMedia": false
+   },
+   {
+    "i": 6,
+    "tag": "section",
+    "absTop": 4670,
+    "h": 722,
+    "chars": 1218,
+    "headings": "<removed>",
+    "keyText": "<removed>",
+    "media": 2,
+    "bgKey": "21,21,20",
+    "bgLum": 0.974,
+    "bgMedia": false
+   }
+  ],
+  "outline": "<removed>",
+  "hero": {
+   "h": 810,
+   "bgLum": 0.421,
+   "bgMedia": false,
+   "textLum": null,
+   "mediaKind": "iframe",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1,
+   "slides": 0,
+   "anchorCount": 0,
+   "ctas": [],
+   "text": "<removed>"
+  },
+  "type": {
+   "h1": "\"Work Sans\", sans-serif",
+   "h2": "\"Work Sans\", sans-serif",
+   "body": "\"Lexend Peta\", sans-serif",
+   "h1Weight": "700",
+   "h1Size": "35px",
+   "bodySize": "13px",
+   "fontFaces": [
+    "Lexend Peta",
+    "Work Sans",
+    "DM Sans",
+    "IBM Plex Mono",
+    "Inter",
+    "Source Serif Pro",
+    "gform-icons-theme"
+   ]
+  },
+  "motion": {
+   "aosCount": 5,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, -960, -540)"
+   },
+   {
+    "id": 1,
+    "op": 0.6,
+    "tr": "matrix(-1, 0, 0, -1, 0, 0)"
+   }
+  ],
+  "pageTextLen": 4257,
+  "features": {
+   "videoTag": 1,
+   "videoEmbed": 1,
+   "formCount": 1,
+   "inputCount": 5,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 1,
+   "smsLinks": 0,
+   "mailLinks": 1,
+   "waLinks": 0,
+   "bookingLinks": 6,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": true,
+   "kwTeam": false,
+   "kwImplant": true,
+   "kwCosmetic": true,
+   "kwUSState": "CA 92618",
+   "phoneUS": "949.801.6215",
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.336,
+   "darkFrac": 0.517,
+   "lightFrac": 0.005
+  },
+  {
+   "i": 1,
+   "mean": 0.848,
+   "darkFrac": 0.047,
+   "lightFrac": 0.8
+  },
+  {
+   "i": 2,
+   "mean": 0.965,
+   "darkFrac": 0.006,
+   "lightFrac": 0.984
+  },
+  {
+   "i": 3,
+   "mean": 0.835,
+   "darkFrac": 0.092,
+   "lightFrac": 0.782
+  },
+  {
+   "i": 4,
+   "mean": 0.965,
+   "darkFrac": 0.01,
+   "lightFrac": 0.987
+  },
+  {
+   "i": 5,
+   "mean": 0.357,
+   "darkFrac": 0.55,
+   "lightFrac": 0.155
+  },
+  {
+   "i": 6,
+   "mean": 0.956,
+   "darkFrac": 0.017,
+   "lightFrac": 0.975
+  }
+ ],
+ "heroLum": {
+  "mean": 0.499,
+  "darkFrac": 0.304,
+  "lightFrac": 0.35
+ },
+ "heroLumBelowNav": {
+  "mean": 0.467,
+  "darkFrac": 0.302,
+  "lightFrac": 0.306
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 500,
+   "bottom": 858,
+   "left": 1440,
+   "w": 180,
+   "h": 358,
+   "z": "9999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "nav",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 826,
+   "bottom": 886,
+   "left": 1370,
+   "w": 256,
+   "h": 60,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, -960, -540)"
+  },
+  {
+   "id": 1,
+   "op": 0.6,
+   "tr": "matrix(-1, 0, 0, -1, 0, 0)"
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 500,
+   "bottom": 858,
+   "left": 1440,
+   "w": 180,
+   "h": 358,
+   "z": "9999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "nav",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 112,
+   "left": 0,
+   "w": 1440,
+   "h": 112,
+   "z": "2147483640",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thetoothco.com/the-doctor/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thetoothco.com/the-services/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thetoothco.com/the-experience/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thetoothco.com/the-office/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://thetoothco.com/the-gallery/",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 826,
+   "bottom": 886,
+   "left": 1370,
+   "w": 256,
+   "h": 60,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 7.8,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 300,
+   "bottom": 566,
+   "left": 390,
+   "w": 180,
+   "h": 266,
+   "z": "9999",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    },
+    {
+     "href": "#",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "nav",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 112,
+   "left": 0,
+   "w": 390,
+   "h": 112,
+   "z": "2147483640",
+   "links": [
+    {
+     "href": "/",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 770,
+   "bottom": 830,
+   "left": 320,
+   "w": 256,
+   "h": 60,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

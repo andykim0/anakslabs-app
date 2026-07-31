@@ -1,0 +1,22 @@
+{
+ "url": "http://www.jk-withme.com/",
+ "tracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 23,
+   "top": 4299,
+   "w": 1352,
+   "h": 305
+  }
+ ],
+ "pags": [],
+ "heroTracks": [],
+ "heroPags": [],
+ "bgKeys": [
+  "rgb(255, 255, 255)",
+  "rgba(8, 8, 8, 0.46)",
+  "rgba(0, 0, 0, 0)",
+  "rgb(251, 249, 247)",
+  "rgba(0, 0, 0, 0.5)"
+ ]
+}

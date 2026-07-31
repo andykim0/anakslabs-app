@@ -1,0 +1,239 @@
+{
+ "url": "http://www.sooamc.com/",
+ "popupsBefore": [],
+ "dismissed": [],
+ "popupsAfter": [],
+ "bands": [
+  {
+   "i": 0,
+   "tag": "iframe",
+   "top": -200,
+   "h": 1300,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 1,
+   "tag": "div",
+   "top": 1100,
+   "h": 554,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 2,
+   "tag": "div",
+   "top": 1710,
+   "h": 1080,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": 0,
+   "bgMedia": true,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 3,
+   "tag": "div",
+   "top": 2879,
+   "h": 632,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 4,
+   "tag": "div",
+   "top": 3510,
+   "h": 1080,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": true,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 5,
+   "tag": "div",
+   "top": 4661,
+   "h": 631,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 6,
+   "tag": "div",
+   "top": 5310,
+   "h": 1080,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": 0,
+   "bgMedia": true,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 7,
+   "tag": "div",
+   "top": 7200,
+   "h": 2562,
+   "chars": 0,
+   "fixed": false,
+   "media": 0,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [],
+   "keyText": "",
+   "slides": 0
+  },
+  {
+   "i": 8,
+   "tag": "div",
+   "top": 9900,
+   "h": 900,
+   "chars": 235,
+   "fixed": false,
+   "media": 1,
+   "bgLum": null,
+   "bgMedia": false,
+   "headings": [
+    "\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68"
+   ],
+   "keyText": "\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130\uc18c\uac1c \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc0ac\uc774\ud2b8\ub9f5 24\uc2dc\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 107-19-74275 \ub300\ud45c\uc790 : \ubc15\uc218\ud615, \uc6d0\uc218\ubcf5, \uae40\ub3d9\ube48, \uc2e0\uacbd\uc778 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc601\ub4f1\ud3ec\uad6c \uc601\ub4f1\ud3ec\ub85c 85-1, \uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 02-2676-7582 02-2676-2475 sooamc@sooamc.com \u00a9 SOO ANIMAL MEDICAL CENTER. ALL RIGHTS RESERVED. Designed By Threeway",
+   "slides": 0
+  },
+  {
+   "i": 9,
+   "tag": "footer",
+   "top": 10800,
+   "h": 445,
+   "chars": 235,
+   "fixed": false,
+   "media": 0,
+   "bgLum": 0.2,
+   "bgMedia": false,
+   "headings": [
+    "\uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68"
+   ],
+   "keyText": "\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130\uc18c\uac1c \uc774\uc6a9\uc57d\uad00 \uac1c\uc778\uc815\ubcf4\ucc98\ub9ac\ubc29\uce68 \uc0ac\uc774\ud2b8\ub9f5 24\uc2dc\uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 \uc0ac\uc5c5\uc790\ub4f1\ub85d\ubc88\ud638 : 107-19-74275 \ub300\ud45c\uc790 : \ubc15\uc218\ud615, \uc6d0\uc218\ubcf5, \uae40\ub3d9\ube48, \uc2e0\uacbd\uc778 \uc11c\uc6b8\ud2b9\ubcc4\uc2dc \uc601\ub4f1\ud3ec\uad6c \uc601\ub4f1\ud3ec\ub85c 85-1, \uc218\ub3d9\ubb3c\uba54\ub514\uceec\uc13c\ud130 02-2676-7582 02-2676-2475 sooamc@sooamc.com \u00a9 SOO ANIMAL MEDICAL CENTER. ALL RIGHTS RESERVED. Designed By Threeway",
+   "slides": 0
+  }
+ ],
+ "maskedFrac": 0.0,
+ "captureH": 10800,
+ "heroLum": {
+  "mean": 0.34,
+  "darkFrac": 0.677,
+  "lightFrac": 0.154,
+  "usablePx": 1.0
+ },
+ "heroLumBelowNav": {
+  "mean": 0.345,
+  "darkFrac": 0.643,
+  "lightFrac": 0.169,
+  "usablePx": 1.0
+ },
+ "bandLum": [
+  {
+   "i": 0,
+   "mean": 0.456,
+   "darkFrac": 0.558,
+   "lightFrac": 0.303,
+   "usablePx": 1.0
+  },
+  {
+   "i": 1,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 2,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 3,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 4,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 5,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 6,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 7,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 8,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  },
+  {
+   "i": 9,
+   "mean": 1.0,
+   "darkFrac": 0.0,
+   "lightFrac": 1.0,
+   "usablePx": 1.0
+  }
+ ],
+ "strips": 3
+}

@@ -1,0 +1,847 @@
+{
+ "sample_id": "B02",
+ "name": "서울척병원",
+ "url": "https://www.seoulchuk.com/",
+ "stratum": "mid-specialist",
+ "status": 200,
+ "finalUrl": "https://www.seoulchuk.com/main.do",
+ "title": "서울척병원",
+ "home": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 3305,
+  "screens": 3.7,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 88,
+    "h": 740,
+    "chars": 388,
+    "headings": [],
+    "keyText": "이유를 모르는 ‘두통’? 그런 ‘두통’은 없습니다 바로가기 건강검진센터 종합검진 패키지 더욱 세분화되고, 정밀해진 건강검진 프로그램으로 나와 가족의 건강을 함께 챙겨보세요! 바로가기 또 다시, 1등급 환자의 안전을 위한 우리의 고집 서울척병원은 고객의 안전을 위해 타협하지 않습니다. 언제나 고객이 믿고 찾을 수 있는 병원이 되도록 최선을 다하겠습니다. 바로가기 서울척병원이 ‘엄지척’인 이유! 수준 높은 의료 서비스! 환자 안전을 최우선 하는 진료 원칙! 서울척병원의 ‘자부심’이자, 그 우수성을 입증 받은 ‘이유’입니다. 서울척병원 강북 최초 전 병동 간호·간병 통합서비스 지정 환자와 가족의 소중한 일상과 재정은 물론, 불안하고 지친 마음까지 지켜드리겠습니다. 바로가기 0102030405",
+    "media": 10,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 828,
+    "h": 1328,
+    "chars": 521,
+    "headings": [
+     "소셜채널.척"
+    ],
+    "keyText": "소셜채널.척 더보기 언론보도 외부컨텐츠 관심콘텐츠 서울척병원, 질병관리청장 표창 수상 #감염예방 # 환자안전 # 질병관리청장표창 유투브 관심콘텐츠 서울척병원 20주년, 그날의 감동을 다시 한번! #서울척병원20주년 # 개원기념일 언론보도 외부컨텐츠 관심콘텐츠 성북구 사회복지종사자 의료지원 협약 체결 #성북구청 # 지역사회지원 # 의료협약식 언론보도 외부컨텐츠 관심콘텐츠 성북구 취약계층 어르신 위해 잡곡 500kg 기탁 #성북구청 # 기부 # 취약계층지원 유투브 관심콘텐츠 통증, 참지말고 서울척병원 #척추관절통증 # 척추전문병원 # 인증의료기관 언론보도 외부컨텐츠 관심콘텐츠 [서울척병원] 강북구 의료취약계층 지원 업무 협약식 #강북구 # 의료취약계층지원 # 강북구서울척병원 언론보도 외부컨텐츠 관심콘텐츠 [관절센터] 무지외반증 수술 최소침습 교정술이란? #무지외반증 # 이희형원장 # 최소칩습교정술 # MICA 언론보도 외부컨텐츠 관심콘텐츠 [서울척병원] 5회연속 척추전문병원 인증 #5회",
+    "media": 31,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 2,
+    "tag": "div",
+    "absTop": 2156,
+    "h": 700,
+    "chars": 895,
+    "headings": [],
+    "keyText": "척추센터 풍부한 임상 경험과 노하우를 갖춘 각 분야의 우수한 의료진이 치료부터 관리까지 책임집니다. 의료진 더보기 척추센터 홍준기 원장 진실한 치료를 위해 언제나 최선을 다하겠습니다 척추센터 박지권 원장 환자의 통증을 공감하는 것이 치료의 시작이라 생각합니다 척추센터 노원 대표원장 친절한 설명, 진실한 치료로 보답하겠습니다 관절센터 관절 부위별로 전담 의료진을 배치, 환자 개개인에게 맞는 최적의 관리법과 치료법을 찾아 드립니다. 의료진 더보기 관절센터 김민욱 원장 정확한 진단을 바탕으로 이해하기 쉬운 설명과 올바른 치료를 약속드립니다. 관절센터 이희형 원장 저와 인연을 맺은 모든 분들은편안하고 행복합니다 뇌신경센터 뇌신경센터의 우수한 신경과 전문의가 각종 뇌 질환의 조기 진단과 치료를 도와드립니다. 의료진 더보기 뇌신경센터 박영민 원장 정확한 진단과 치료를 위한 최선의 진료를 하겠습니다 뇌신경센터 강민경 원장 100세 시대 이제는 나만의 신경과 주치의가 필요합니다! 뇌신경센터 주종규",
+    "media": 24,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 3,
+    "tag": "div",
+    "absTop": 2856,
+    "h": 865,
+    "chars": 174,
+    "headings": [
+     "고객 후기 BEST"
+    ],
+    "keyText": "고객 후기 BEST 고객이 엄지척 할 때까지 고객감동 서비스를 할 것을 약속드립니다. 더보기 '가수 마리아'의 건강검진 후기 여자 20대 / 마리아 '개그맨 박휘순'의 건강검진 후기 남자 40대 / 박휘순 'MC 조영구'의 건강검진 후기 남자 50대 / 조영구 '가수 강진'의 건강검진 후기 남자 60대 / 강진",
+    "media": 5,
+    "imgOnlyHeading": 0
+   },
+   {
+    "i": 4,
+    "tag": "div",
+    "absTop": 3779,
+    "h": 266,
+    "chars": 307,
+    "headings": [],
+    "keyText": "이용약관 이메일무단수집거부 개인정보처리방침 채용정보 FAMILY SITE 페이스북 블로그 유투브 네이버 포스트 네이버 TV 상호명 : 서울척병원 대표자 : 김동윤 서울특별시 성북구 동소문로 47길 8 (길음동) 사업자번호 : 209-90-70079 전화번호 : 02-940-2000 팩스번호 : 02-940-2009 Copyright(c) 2019 SeoulChuk Hospital. All Rights reserved. 서울척병원의 모든 콘텐츠는 저작권법의 보호를 받습니다. 콘텐츠의 무단 도용 및 수정·편집을 금합니다. 대표번호 1599-0033",
+    "media": 6,
+    "imgOnlyHeading": 0
+   }
+  ],
+  "outline": [
+   {
+    "y": 0,
+    "tag": "h1",
+    "t": "서울척병원 서울"
+   },
+   {
+    "y": 938,
+    "tag": "h2",
+    "t": "소셜채널.척"
+   },
+   {
+    "y": 2971,
+    "tag": "h2",
+    "t": "고객 후기 BEST"
+   }
+  ],
+  "type": {
+   "h1Px": 36,
+   "h2Px": 48,
+   "bodyPx": 18,
+   "h1Fam": "\"Titillium Web\", NanumSquare, 돋움, dotum, sans-serif",
+   "bodyFam": "\"Titillium Web\", NanumSquare, 돋움, dotum, sans-serif",
+   "h1Weight": "400",
+   "h1TextLen": 8,
+   "h2TextLen": 6,
+   "headingTotal": 3,
+   "headingImgOnly": 0,
+   "headingZeroText": 0,
+   "maxTextPx": 64,
+   "imgInFirstScreen": 1
+  },
+  "motion": {
+   "aos": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiper": 1,
+   "slick": 0,
+   "splide": 0,
+   "wow": 0,
+   "animateCss": 0,
+   "webflow": 0,
+   "slideEls": 0
+  },
+  "revealPre": [
+   {
+    "id": 0,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 1,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 2,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 3,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 4,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 5,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 6,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 7,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "0.6s",
+    "ease": "ease-out",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 8,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 9,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 10,
+    "op": 1,
+    "tr": "matrix(1, 0, 0, 1, 0, 0)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 11,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 12,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 13,
+    "op": 0,
+    "tr": null,
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 14,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 15,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 16,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 17,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 18,
+    "op": 0,
+    "tr": null,
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 19,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 20,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 21,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 22,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 23,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 24,
+    "op": 0,
+    "tr": null,
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 25,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 26,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 27,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 28,
+    "op": 0,
+    "tr": null,
+    "dur": "0s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 29,
+    "op": 0,
+    "tr": null,
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 30,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 31,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   },
+   {
+    "id": 32,
+    "op": 0,
+    "tr": "matrix(1, 0, 0, 1, 0, 20)",
+    "dur": "1s",
+    "ease": "ease",
+    "anim": null,
+    "animDur": "0s",
+    "aos": null,
+    "aosDur": null,
+    "aosEase": null
+   }
+  ],
+  "navUniq": [
+   "서울척병원",
+   "서울",
+   "LOGIN",
+   "JOIN",
+   "이용 안내",
+   "진료 시간표",
+   "외래진료/입·퇴원 안내",
+   "서류 발급 안내",
+   "비급여 안내",
+   "진료협력센터",
+   "간호 · 간병통합서비스",
+   "저소득층 의료비 지원",
+   "진료 내용",
+   "허리/목",
+   "무릎",
+   "어깨/팔",
+   "족부",
+   "고관절",
+   "뇌질환",
+   "내과질환",
+   "센터 소개",
+   "척추센터",
+   "관절센터",
+   "뇌신경센터",
+   "비수술센터",
+   "내과",
+   "재활센터",
+   "건강검진센터",
+   "고객 서비스",
+   "공지사항",
+   "의료 상담",
+   "진료 예약",
+   "예약조회",
+   "소셜채널.척",
+   "건강지식IN",
+   "고객 후기",
+   "병원 소개",
+   "이사장 인사말",
+   "미션/핵심가치/비전",
+   "서울척병원 HI",
+   "서울척병원 스토리",
+   "안전ㆍ보건 경영방침",
+   "의료진 소개",
+   "첨단장비 소개",
+   "병원 둘러보기",
+   "오시는 길",
+   "간편 예약",
+   "네이버 예약",
+   "이용약관",
+   "이메일무단수집거부",
+   "개인정보처리방침",
+   "채용정보",
+   "의정부 서울척병원"
+  ],
+  "pageTextLen": 2688,
+  "kw": {
+   "원장": 11,
+   "전문의": 2,
+   "의료진": 9,
+   "교수": 0,
+   "센터": 26,
+   "지점": 0,
+   "병원": 23,
+   "의원": 0,
+   "faq": 0,
+   "후기": 6,
+   "전후": 0,
+   "예약": 5,
+   "이벤트": 0,
+   "비급여": 1,
+   "오시는길": 4
+  },
+  "deptHits": [
+   "관절",
+   "내과",
+   "척추",
+   "검진",
+   "신경과"
+  ],
+  "providerUrl": "https://www.seoulchuk.com/intro/mdclStaff/list.do",
+  "centerUrl": "https://www.seoulchuk.com/main.do#"
+ },
+ "revealPost": [
+  {
+   "id": 0,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 1,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 2,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 3,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 4,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 5,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 6,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 7,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "0.6s",
+   "ease": "ease-out"
+  },
+  {
+   "id": 8,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 9,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 10,
+   "op": 1,
+   "tr": "matrix(1, 0, 0, 1, 0, 0)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 11,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 12,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 13,
+   "op": 0,
+   "tr": null,
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 14,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 15,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 16,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 17,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 18,
+   "op": 0,
+   "tr": null,
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 19,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 20,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 21,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 22,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 23,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 24,
+   "op": 0,
+   "tr": null,
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 25,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 26,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 27,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 28,
+   "op": 0,
+   "tr": null,
+   "dur": "0s",
+   "ease": "ease"
+  },
+  {
+   "id": 29,
+   "op": 0,
+   "tr": null,
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 30,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 31,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  },
+  {
+   "id": 32,
+   "op": 0,
+   "tr": "matrix(1, 0, 0, 1, 0, 20)",
+   "dur": "1s",
+   "ease": "ease"
+  }
+ ],
+ "providerPage": {
+  "chars": 2426,
+  "imgs": 33,
+  "title": "의료진 소개 | 병원 소개 | 서울척병원",
+  "원장": 13,
+  "전문의": 0,
+  "교수": 0,
+  "nameTokens": 28,
+  "iframes": 1,
+  "url": "https://www.seoulchuk.com/intro/mdclStaff/list.do",
+  "status": 200
+ }
+}

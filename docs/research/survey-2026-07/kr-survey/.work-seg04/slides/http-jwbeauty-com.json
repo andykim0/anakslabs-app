@@ -1,0 +1,88 @@
+{
+ "url": "http://www.jwbeauty.com/",
+ "tracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 11,
+   "top": 0,
+   "w": 1440,
+   "h": 850
+  },
+  {
+   "cls": "slick-track",
+   "n": 5,
+   "top": 2261,
+   "w": 4750,
+   "h": 567
+  },
+  {
+   "cls": "slick-track",
+   "n": 14,
+   "top": 2844,
+   "w": 4396,
+   "h": 176
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 12,
+   "top": 4411,
+   "w": 900,
+   "h": 360
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 7,
+   "top": 4961,
+   "w": 1440,
+   "h": 601
+  },
+  {
+   "cls": "swiper-wrapper",
+   "n": 16,
+   "top": 6312,
+   "w": 900,
+   "h": 254
+  }
+ ],
+ "pags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 9,
+   "top": 129
+  },
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 9,
+   "top": 812
+  }
+ ],
+ "heroTracks": [
+  {
+   "cls": "swiper-wrapper",
+   "n": 11,
+   "top": 0,
+   "w": 1440,
+   "h": 850
+  }
+ ],
+ "heroPags": [
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 9,
+   "top": 129
+  },
+  {
+   "cls": "swiper-pagination swiper-pagination-clickable swip",
+   "n": 9,
+   "top": 812
+  }
+ ],
+ "bgKeys": [
+  "rgba(0, 0, 0, 0)",
+  "rgba(0, 0, 0, 0.7)",
+  "rgb(255, 255, 255)",
+  "rgb(251, 246, 248)",
+  "rgb(245, 245, 245)",
+  "rgb(34, 34, 34)"
+ ]
+}

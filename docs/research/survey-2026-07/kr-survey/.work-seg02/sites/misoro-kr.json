@@ -1,0 +1,1208 @@
+{
+ "url": "https://www.misoro.kr/",
+ "status": 200,
+ "finalUrl": "https://www.misoro.kr/",
+ "title": "\ube44\uc5fc\u00b7\uc544\ud1a0\ud53c\u00b7\uc0ac\ub9c8\uadc0 \ud55c\ubc29 \ud2b9\ud654\uce58\ub8cc | \ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0 \uc804\uad6d 10\uac1c \uc9c0\uc810 : \ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0",
+ "popups": [],
+ "revealPost": [],
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 1306,
+  "screens": 1.5,
+  "sectionParentTag": "main#id",
+  "sectionCoverRatio": 1.53,
+  "sectionCount": 2,
+  "sections": [
+   {
+    "i": 0,
+    "tag": "div",
+    "absTop": 0,
+    "h": 1000,
+    "chars": 30,
+    "headings": [
+     "\ud638\ud761\uae30 \uc9c8\ud658"
+    ],
+    "keyText": "\ub9c9\ud78c \ucf54\ub85c \uc778\ud574 \ub2f5\ub2f5\ud55c \ud638\ud761\uae30 \uc9c8\ud658 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   },
+   {
+    "i": 1,
+    "tag": "div",
+    "absTop": 0,
+    "h": 1000,
+    "chars": 48,
+    "headings": [
+     "\ud53c\ubd80 \uc9c8\ud658"
+    ],
+    "keyText": "\ud53c\ubd80\ub294 \uae68\ub057\ud558\uac8c \ud53c\ubd80 \uc9c8\ud658 \uc544\ud1a0\ud53c \ud55c\ud3ec\uc9c4 \uc0ac\ub9c8\uadc0 \uc9c0\ub8e8\uc131\ud53c\ubd80\uc5fc \uac74\uc120 \ub450\ub4dc\ub7ec\uae30 \uc2b5\uc9c4 \ub2e4\ud55c\uc99d",
+    "media": 0,
+    "bgKey": "media",
+    "bgLum": null,
+    "bgMedia": true
+   }
+  ],
+  "outline": [
+   {
+    "y": 90,
+    "tag": "h2",
+    "t": "\ube44\uc6a9\ubb38\uc758"
+   },
+   {
+    "y": 90,
+    "tag": "h2",
+    "t": "\uc804\ud654\uc0c1\ub2f4"
+   },
+   {
+    "y": 90,
+    "tag": "h2",
+    "t": "\uc9c0\uc810\uc548\ub0b4"
+   },
+   {
+    "y": 90,
+    "tag": "h2",
+    "t": "\uc57d\ub3c4\uc804\uc1a1"
+   },
+   {
+    "y": 345,
+    "tag": "h2",
+    "t": "\ud638\ud761\uae30 \uc9c8\ud658"
+   },
+   {
+    "y": 345,
+    "tag": "h2",
+    "t": "\ud53c\ubd80 \uc9c8\ud658"
+   },
+   {
+    "y": 901,
+    "tag": "h2",
+    "t": ""
+   }
+  ],
+  "hero": {
+   "h": 1000,
+   "bgLum": null,
+   "bgMedia": true,
+   "textLum": 0.816,
+   "mediaKind": "bg-image",
+   "mediaPlace": "full-bleed",
+   "mediaCoverW": 1,
+   "mediaCoverH": 1.11,
+   "slides": 0,
+   "anchorCount": 5,
+   "ctas": [
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 720,
+     "h": 1000,
+     "label": "",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 382,
+     "h": 119,
+     "label": "\ud638\ud761\uae30 \uc9c8\ud658",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 45,
+     "h": 25,
+     "label": "\ube44\uc5fc",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 67,
+     "h": 25,
+     "label": "\ucd95\ub18d\uc99d",
+     "isCta": false,
+     "radius": "0px"
+    },
+    {
+     "filled": false,
+     "outline": false,
+     "bw": 0,
+     "w": 67,
+     "h": 25,
+     "label": "\uc911\uc774\uc5fc",
+     "isCta": false,
+     "radius": "0px"
+    }
+   ],
+   "text": "\ub9c9\ud78c \ucf54\ub85c \uc778\ud574 \ub2f5\ub2f5\ud55c \ud638\ud761\uae30 \uc9c8\ud658 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc"
+  },
+  "type": {
+   "h1": null,
+   "h2": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "body": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "h1Weight": null,
+   "h1Size": null,
+   "h2Weight": "700",
+   "h2Size": "80px",
+   "bodySize": "14px",
+   "bodyWeight": "300",
+   "bodyLH": "normal",
+   "bigHeadPx": 80,
+   "bigHeadFam": "\"Noto Sans KR\", \ub9d1\uc740\uace0\ub515, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif, \ub098\ub214\uace0\ub515, \"Nanum Gothic\", Dotum",
+   "bigHeadWeight": "700",
+   "h1Count": 0,
+   "h2Sizes": [
+    "80px",
+    "21px",
+    "34px"
+   ],
+   "h3Size": null,
+   "fontFaces": [
+    "Nanum Barun Gothic",
+    "Noto Sans KR",
+    "NanumSquare",
+    "NanumSquareAc"
+   ],
+   "linkFonts": [
+    "/css/font/font.css"
+   ]
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "pageTextLen": 1049,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 2,
+   "inputCount": 11,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwBooking": true,
+   "kwLocation": true,
+   "kwGallery": false,
+   "kwAbout": false,
+   "kwVideo": false,
+   "kwTrust": false,
+   "kwNotice": false,
+   "kwAd\uc2ec\uc758": false,
+   "kakao": 9,
+   "naverLinks": 12,
+   "instaLinks": 0,
+   "ytLinks": 0,
+   "phoneKR": "yes",
+   "statLike": []
+  },
+  "revealPre": [],
+  "revealCfg": {
+   "aosAttrs": [],
+   "aosDur": [],
+   "aosEase": []
+  }
+ },
+ "sectionLum": [
+  {
+   "i": 0,
+   "mean": 0.484,
+   "darkFrac": 0.186,
+   "lightFrac": 0.15
+  },
+  {
+   "i": 1,
+   "mean": 0.484,
+   "darkFrac": 0.186,
+   "lightFrac": 0.15
+  }
+ ],
+ "heroLum": {
+  "mean": 0.489,
+  "darkFrac": 0.184,
+  "lightFrac": 0.158
+ },
+ "heroLumBelowNav": {
+  "mean": 0.419,
+  "darkFrac": 0.21,
+  "lightFrac": 0.041
+ },
+ "fixedTop": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 120,
+   "left": 0,
+   "w": 1440,
+   "h": 120,
+   "z": "99999",
+   "links": [],
+   "label": "",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 200,
+   "bottom": 600,
+   "left": 1360,
+   "w": 80,
+   "h": 400,
+   "z": "1000",
+   "links": [
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 900,
+   "bottom": 1095,
+   "left": 0,
+   "w": 1440,
+   "h": 195,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/respiratory/reservation/index.php",
+     "label": "\uac04\ud3b8\uc9c4\ub8cc \uc608\uc57d\ud558\uae30"
+    },
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    }
+   ],
+   "label": "\uac04\ud3b8\uc9c4\ub8cc \uc608\uc57d\ud558\uae30 \ube60\ub978 \uc9c4\ub8cc \uc608\uc57d \uc815\ubcf4\uc785\ub825 \uc774\ub984 \uc9c8\ud658\uba85 \uc120\ud0dd\ud558\uc138\uc694 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc \uae30\ud0c0 \uc804\ud654\ubc88\ud638 010 011 016 017 018 019 \uc608\uc57d\ub0a0\uc9dc \ub144 \uc6d4 \uc77c \uc9c0\uc810\uba85 \uc9c0\uc810\uc120\ud0dd \uc601\ub4f1\ud3ec\uc810 \ubd84\ub2f9\uc810 \uc218\uc6d0\uc810 \uc548\uc0b0\uc810 \ud3c9\ud0dd\uc810 \ub300\uc804\uc810 \uc804\uc8fc\uc810 \ucc9c\uc548\uc810 \uc778\ucc9c\uc810 \uc608\uc57d\uc2dc",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "https://pf.kakao.com/_xaFxbVd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_PhnrM",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_lXclu",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_pigxhd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_xkjrxhC",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_ltxfZd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_txdxeTT",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_uIarb",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_bfwDxj",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\ube44\uc6a9\ubb38\uc758 \uc601\ub4f1\ud3ec\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc601\ub4f1\ud3ec \ubc14\ub85c\uac00\uae30 \ubd84\ub2f9\uc810@\ubd84\ub2f9\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0 \ubc14\ub85c\uac00\uae30 \uc218\uc6d0\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc218\uc6d0 \ubc14\ub85c\uac00\uae30 \uc548\uc0b0\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc548\uc0b0 \ubc14\ub85c\uac00\uae30 \ud3c9\ud0dd\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\ud3c9\ud0dd \ubc14\ub85c\uac00\uae30 \ub300\uc804\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\ub300\uc804 \ubc14\ub85c\uac00\uae30 \uc804\uc8fc\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc804\uc8fc \ubc14\ub85c\uac00\uae30 \ucc9c\uc548\uc810@\ubbf8\uc18c\ub85c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationca/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationic/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\uc804\ud654\uc0c1\ub2f4 \uc601\ub4f1\ud3ec\uc81002-2068-5009 \uc9c0\uc810\uc548\ub0b4 \ubd84\ub2f9\uc810031-726-2075 \uc9c0\uc810\uc548\ub0b4 \uc218\uc6d0\uc810031-206-2471 \uc9c0\uc810\uc548\ub0b4 \uc548\uc0b0\uc810031-411-4647 \uc9c0\uc810\uc548\ub0b4 \ud3c9\ud0dd\uc810031-651-7576 \uc9c0\uc810\uc548\ub0b4 \ub300\uc804\uc810042-476-4200 \uc9c0\uc810\uc548\ub0b4 \uc804\uc8fc\uc810063-2",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc804\uc8fc"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc804\uc8fc"
+    }
+   ],
+   "label": "\uc9c0\uc810\uc548\ub0b4 \uc601\ub4f1\ud3ec \uc601\ub4f1\ud3ec \ubd84\ub2f9 \ubd84\ub2f9 \uc548\uc0b0 \uc548\uc0b0 \uc218\uc6d0 \uc218\uc6d0 \ud3c9\ud0dd \ud3c9\ud0dd \ub300\uc804 \ub300\uc804 \uc804\uc8fc \uc804\uc8fc \ucc9c\uc548 \ucc9c\uc548 \uc778\ucc9c \uc778\ucc9c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uc8fc"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uc8fc"
+    }
+   ],
+   "label": "\uc57d\ub3c4\uc804\uc1a1 \uc601\ub4f1\ud3ec \uc601\ub4f1\ud3ec \ubd84\ub2f9 \ubd84\ub2f9 \uc548\uc0b0 \uc548\uc0b0 \uc218\uc6d0 \uc218\uc6d0 \ud3c9\ud0dd \ud3c9\ud0dd \ub300\uc804 \ub300\uc804 \uc804\uc8fc \uc804\uc8fc \ucc9c\uc548 \ucc9c\uc548 \uc778\ucc9c \uc778\ucc9c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "fixedMid": [
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 120,
+   "left": 0,
+   "w": 1440,
+   "h": 120,
+   "z": "99999",
+   "links": [],
+   "label": "",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 200,
+   "bottom": 600,
+   "left": 1360,
+   "w": 80,
+   "h": 400,
+   "z": "1000",
+   "links": [
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    }
+   ],
+   "label": "",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 900,
+   "bottom": 1095,
+   "left": 0,
+   "w": 1440,
+   "h": 195,
+   "z": "1000",
+   "links": [
+    {
+     "href": "/respiratory/reservation/index.php",
+     "label": "\uac04\ud3b8\uc9c4\ub8cc \uc608\uc57d\ud558\uae30"
+    },
+    {
+     "href": "/member/privacy.php",
+     "label": "[\uc790\uc138\ud788\ubcf4\uae30]"
+    }
+   ],
+   "label": "\uac04\ud3b8\uc9c4\ub8cc \uc608\uc57d\ud558\uae30 \ube60\ub978 \uc9c4\ub8cc \uc608\uc57d \uc815\ubcf4\uc785\ub825 \uc774\ub984 \uc9c8\ud658\uba85 \uc120\ud0dd\ud558\uc138\uc694 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc \uae30\ud0c0 \uc804\ud654\ubc88\ud638 010 011 016 017 018 019 \uc608\uc57d\ub0a0\uc9dc \ub144 \uc6d4 \uc77c \uc9c0\uc810\uba85 \uc9c0\uc810\uc120\ud0dd \uc601\ub4f1\ud3ec\uc810 \ubd84\ub2f9\uc810 \uc218\uc6d0\uc810 \uc548\uc0b0\uc810 \ud3c9\ud0dd\uc810 \ub300\uc804\uc810 \uc804\uc8fc\uc810 \ucc9c\uc548\uc810 \uc778\ucc9c\uc810 \uc608\uc57d\uc2dc",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "https://pf.kakao.com/_xaFxbVd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_PhnrM",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_lXclu",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_pigxhd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_xkjrxhC",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_ltxfZd",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_txdxeTT",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_uIarb",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "https://pf.kakao.com/_bfwDxj",
+     "label": "\ubc14\ub85c\uac00\uae30"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\ube44\uc6a9\ubb38\uc758 \uc601\ub4f1\ud3ec\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc601\ub4f1\ud3ec \ubc14\ub85c\uac00\uae30 \ubd84\ub2f9\uc810@\ubd84\ub2f9\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0 \ubc14\ub85c\uac00\uae30 \uc218\uc6d0\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc218\uc6d0 \ubc14\ub85c\uac00\uae30 \uc548\uc0b0\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc548\uc0b0 \ubc14\ub85c\uac00\uae30 \ud3c9\ud0dd\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\ud3c9\ud0dd \ubc14\ub85c\uac00\uae30 \ub300\uc804\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\ub300\uc804 \ubc14\ub85c\uac00\uae30 \uc804\uc8fc\uc810@\ubbf8\uc18c\ub85c\ud55c\uc758\uc6d0\uc804\uc8fc \ubc14\ub85c\uac00\uae30 \ucc9c\uc548\uc810@\ubbf8\uc18c\ub85c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationca/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/local_informationic/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    },
+    {
+     "href": "",
+     "label": ""
+    }
+   ],
+   "label": "\uc804\ud654\uc0c1\ub2f4 \uc601\ub4f1\ud3ec\uc81002-2068-5009 \uc9c0\uc810\uc548\ub0b4 \ubd84\ub2f9\uc810031-726-2075 \uc9c0\uc810\uc548\ub0b4 \uc218\uc6d0\uc810031-206-2471 \uc9c0\uc810\uc548\ub0b4 \uc548\uc0b0\uc810031-411-4647 \uc9c0\uc810\uc548\ub0b4 \ud3c9\ud0dd\uc810031-651-7576 \uc9c0\uc810\uc548\ub0b4 \ub300\uc804\uc810042-476-4200 \uc9c0\uc810\uc548\ub0b4 \uc804\uc8fc\uc810063-2",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "/respiratory/local_informationbd/index.php",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "/respiratory/local_informationas/index.php",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "/respiratory/local_informationsw/index.php",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "/respiratory/local_informationpt/index.php",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "/respiratory/local_informationdj/index.php",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc804\uc8fc"
+    },
+    {
+     "href": "/respiratory/local_informationjj/index.php",
+     "label": "\uc804\uc8fc"
+    }
+   ],
+   "label": "\uc9c0\uc810\uc548\ub0b4 \uc601\ub4f1\ud3ec \uc601\ub4f1\ud3ec \ubd84\ub2f9 \ubd84\ub2f9 \uc548\uc0b0 \uc548\uc0b0 \uc218\uc6d0 \uc218\uc6d0 \ud3c9\ud0dd \ud3c9\ud0dd \ub300\uc804 \ub300\uc804 \uc804\uc8fc \uc804\uc8fc \ucc9c\uc548 \ucc9c\uc548 \uc778\ucc9c \uc778\ucc9c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  },
+  {
+   "pos": "fixed",
+   "top": 90,
+   "bottom": 840,
+   "left": 2360,
+   "w": 520,
+   "h": 750,
+   "z": "200",
+   "links": [
+    {
+     "href": "",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "",
+     "label": "\uc601\ub4f1\ud3ec"
+    },
+    {
+     "href": "",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "",
+     "label": "\ubd84\ub2f9"
+    },
+    {
+     "href": "",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "",
+     "label": "\uc548\uc0b0"
+    },
+    {
+     "href": "",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "",
+     "label": "\uc218\uc6d0"
+    },
+    {
+     "href": "",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "",
+     "label": "\ud3c9\ud0dd"
+    },
+    {
+     "href": "",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "",
+     "label": "\ub300\uc804"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uc8fc"
+    },
+    {
+     "href": "",
+     "label": "\uc804\uc8fc"
+    }
+   ],
+   "label": "\uc57d\ub3c4\uc804\uc1a1 \uc601\ub4f1\ud3ec \uc601\ub4f1\ud3ec \ubd84\ub2f9 \ubd84\ub2f9 \uc548\uc0b0 \uc548\uc0b0 \uc218\uc6d0 \uc218\uc6d0 \ud3c9\ud0dd \ud3c9\ud0dd \ub300\uc804 \ub300\uc804 \uc804\uc8fc \uc804\uc8fc \ucc9c\uc548 \ucc9c\uc548 \uc778\ucc9c \uc778\ucc9c",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 900,
+   "vw": 1440
+  }
+ ],
+ "mobileScreens": 2.7,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": -40,
+   "bottom": 0,
+   "left": 0,
+   "w": 390,
+   "h": 40,
+   "z": "10000",
+   "links": [],
+   "label": "\ubcf8\ubb38\ubc14\ub85c\uac00\uae30",
+   "tag": "a",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 55,
+   "left": 0,
+   "w": 390,
+   "h": 55,
+   "z": "10000011",
+   "links": [
+    {
+     "href": "/respiratory/",
+     "label": "\ubbf8\uc18c\ub85c \ud55c\uc758\uc6d0"
+    },
+    {
+     "href": "/respiratory/",
+     "label": ""
+    },
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/respiratory/member/login.php",
+     "label": "\ub85c\uadf8\uc778"
+    },
+    {
+     "href": "/respiratory/member/join01.php",
+     "label": "\ud68c\uc6d0\uac00\uc785"
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "#",
+     "label": ""
+    },
+    {
+     "href": "/respiratory/b_later/index.php",
+     "label": ""
+    },
+    {
+     "href": "/respiratory/b_program/index.php",
+     "label": "\ube44\uc5fc"
+    },
+    {
+     "href": "/respiratory/s_program/index.php",
+     "label": "\ucd95\ub18d\uc99d"
+    },
+    {
+     "href": "/respiratory/j_tong/index.php",
+     "label": "\uc911\uc774\uc5fc"
+    },
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc9c0\uc810 \uc548\ub0b4"
+    },
+    {
+     "href": "/respiratory/reservation/index.php",
+     "label": "\uc608\uc57d\uc0c1\ub2f4"
+    },
+    {
+     "href": "/respiratory/b_later/index.php",
+     "label": "\uce58\ub8cc\ud6c4\uae30"
+    }
+   ],
+   "label": "\ubbf8\uc18c\ub85c \ud55c\uc758\uc6d0 \ub85c\uadf8\uc778 \ud68c\uc6d0\uac00\uc785 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc \uc9c0\uc810 \uc548\ub0b4 \uc608\uc57d\uc0c1\ub2f4 \uce58\ub8cc\ud6c4\uae30 \ucc38\uc88b\uc740 \uc0ac\ub78c\ub4e4",
+   "tag": "header",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 150,
+   "bottom": 395,
+   "left": 530,
+   "w": 250,
+   "h": 245,
+   "z": "11100",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "https://pf.kakao.com/_xaFxbVd",
+     "label": "\uc601\ub4f1\ud3ec\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_PhnrM",
+     "label": "\ubd84\ub2f9\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_lXclu",
+     "label": "\uc218\uc6d0\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_ltxfZd",
+     "label": "\ub300\uc804\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_pigxhd",
+     "label": "\uc548\uc0b0\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_xkjrxhC",
+     "label": "\ud3c9\ud0dd\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_xatHCj",
+     "label": "\uccad\uc8fc\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_vqPYj",
+     "label": "\uc758\uc815\ubd80\uc810"
+    },
+    {
+     "href": "https://pf.kakao.com/_txdxeTT",
+     "label": "\uc804\uc8fc\uc810"
+    }
+   ],
+   "label": "\uc601\ub4f1\ud3ec\uc810 \ubd84\ub2f9\uc810 \uc218\uc6d0\uc810 \ub300\uc804\uc810 \uc548\uc0b0\uc810 \ud3c9\ud0dd\uc810 \uccad\uc8fc\uc810 \uc758\uc815\ubd80\uc810 \uc804\uc8fc\uc810",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 490,
+   "bottom": 594,
+   "left": 261,
+   "w": 110,
+   "h": 104,
+   "z": "101",
+   "links": [
+    {
+     "href": "javascript:void(0);",
+     "label": "\uc804\ud654\ud558\uae30"
+    },
+    {
+     "href": "/respiratory/local_informationyd/index.php",
+     "label": "\uc9c0\uc810\uc548\ub0b4"
+    }
+   ],
+   "label": "\uc804\ud654\ud558\uae30 \uc9c0\uc810\uc548\ub0b4",
+   "tag": "aside",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 632,
+   "bottom": 844,
+   "left": 0,
+   "w": 390,
+   "h": 212,
+   "z": "106",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "/member/privacy.php",
+     "label": "\uc0c1\uc138\ubcf4\uae30"
+    },
+    {
+     "href": "",
+     "label": "\ube60\ub978\uc0c1\ub2f4\uc2e0\uccad"
+    }
+   ],
+   "label": "\uc9c0\uc810 \uc601\ub4f1\ud3ec\uc810 \ubd84\ub2f9\uc810 \uc218\uc6d0\uc810 \uc548\uc0b0\uc810 \ud3c9\ud0dd\uc810 \ub300\uc804\uc810 \uc804\uc8fc\uc810 \ucc9c\uc548\uc810 \uc778\ucc9c\uc810 \uc9c8\ud658\uba85 \uc544\ud1a0\ud53c \uc0ac\ub9c8\uadc0 \uac74\uc120 \uc2b5\uc9c4 \ud55c\ud3ec\uc9c4 \uc9c0\ub8e8\uc131\ud53c\ubd80\uc5fc \ub450\ub4dc\ub7ec\uae30 \ub2e4\ud55c\uc99d \uae30\ud0c0 \ud53c\ubd80\uc9c8\ud658 \ube44\uc5fc \ucd95\ub18d\uc99d \uc911\uc774\uc5fc \uae30\ud0c0 \ud638\ud761\uae30\uc9c8\ud658 \uac1c\uc778\uc815\ubcf4 \uc218\uc9d1 \ubc0f \uc774\uc6a9 \ub3d9\uc758 \uc0c1\uc138\ubcf4\uae30 \ube60\ub978\uc0c1\ub2f4\uc2e0\uccad",
+   "tag": "section",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 150,
+   "bottom": 395,
+   "left": 530,
+   "w": 250,
+   "h": 245,
+   "z": "11100",
+   "links": [
+    {
+     "href": "",
+     "label": ""
+    },
+    {
+     "href": "tel:0220685009",
+     "label": "\uc601\ub4f1\ud3ec\uc810"
+    },
+    {
+     "href": "tel:0317262075 ",
+     "label": "\ubd84\ub2f9\uc810"
+    },
+    {
+     "href": "tel:0312062471",
+     "label": "\uc218\uc6d0\uc810"
+    },
+    {
+     "href": "tel:0314114647",
+     "label": "\uc548\uc0b0\uc810"
+    },
+    {
+     "href": "tel:0316517576",
+     "label": "\ud3c9\ud0dd\uc810"
+    },
+    {
+     "href": "tel:0424764200",
+     "label": "\ub300\uc804\uc810"
+    },
+    {
+     "href": "tel:0632555800",
+     "label": "\uc804\uc8fc\uc810"
+    },
+    {
+     "href": "tel:0415721075",
+     "label": "\ucc9c\uc548\uc810"
+    },
+    {
+     "href": "tel:0325217533",
+     "label": "\uc778\ucc9c\uc810"
+    }
+   ],
+   "label": "\uc601\ub4f1\ud3ec\uc810 \ubd84\ub2f9\uc810 \uc218\uc6d0\uc810 \uc548\uc0b0\uc810 \ud3c9\ud0dd\uc810 \ub300\uc804\uc810 \uc804\uc8fc\uc810 \ucc9c\uc548\uc810 \uc778\ucc9c\uc810",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}

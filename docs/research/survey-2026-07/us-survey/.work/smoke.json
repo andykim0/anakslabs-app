@@ -1,0 +1,1928 @@
+[
+ {
+  "url": "https://www.grandstreetdental.com",
+  "status": 200,
+  "finalUrl": "https://www.grandstreetdental.com/",
+  "title": "Dentist in Brooklyn & Williamsburg | Best Dentist Near Me",
+  "main": {
+   "viewport": [
+    1440,
+    900
+   ],
+   "scrollHeight": 8186,
+   "screens": 9.1,
+   "sectionParentTag": "body",
+   "sections": [
+    {
+     "i": 0,
+     "tag": "section",
+     "h": 900,
+     "chars": 20,
+     "headings": [
+      "Dentistry Redesigned"
+     ],
+     "keyText": "Dentistry Redesigned",
+     "media": 0,
+     "bgKey": "media",
+     "bgLum": null,
+     "bgMedia": true
+    },
+    {
+     "i": 1,
+     "tag": "section",
+     "h": 821,
+     "chars": 1041,
+     "headings": [
+      "Grand Street Dental has redefined the dental experience and set a new standard for patient care and aesthetic dentistry."
+     ],
+     "keyText": "Grand Street Dental has redefined the dental experience and set a new standard for patient care and aesthetic dentistry. \u201cThis dental appointment is unlike anything I\u2019ve ever had\u2026Plotnick is no ordinary dentist.\u201d Grand Street Dental is \u201cunlike anything I\u2019ve seen before\u201d and Dr. Plotnick is \u201cin a class by herself\u2026there is no practice like hers anywhere.\u201d \u201cThe first time we set foot in Dr. Jennifer Plotnick\u2019s Brooklyn dental office, Grand Street Dental, we were blown away.\u201d \u201cA hot topic lately at Madewell HQ? The dentist we\u2019re all going to. Seriously\u2026her carefully curated office and sunny personality has us scheduling cleanings like crazy.\u201d \u201cUsing wit, warmth and creativity, Grand Street Dental is totally re-imagining the experience of going to the dentist.\u201d \u201cClassy-as-Hell\u201d \u201cJennifer Plotnick founded Grand Street Dental in Williamsburg, Brooklyn with the intention of making people smile b",
+     "media": 8,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 2,
+     "tag": "section",
+     "h": 770,
+     "chars": 23,
+     "headings": [],
+     "keyText": "Previous Next 1 2 3 4 5",
+     "media": 11,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 3,
+     "tag": "section",
+     "h": 1169,
+     "chars": 270,
+     "headings": [
+      "Leader in Cosmetic Dentistry"
+     ],
+     "keyText": "Leader in Cosmetic Dentistry We take great pride in crafting incredibly lifelike porcelain veneers that will transform your smile. Click on the link below to see our extensive collection of smile transformations. 14 Porcelain Veneers & Crowns VIEW BEFORE & AFTER GALLERY",
+     "media": 12,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 4,
+     "tag": "section",
+     "h": 726,
+     "chars": 67,
+     "headings": [
+      "Patient Stories"
+     ],
+     "keyText": "Patient Stories Follow us on Instagram @grandstreetdental LOAD MORE",
+     "media": 5,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 5,
+     "tag": "section",
+     "h": 664,
+     "chars": 221,
+     "headings": [
+      "Complete Care"
+     ],
+     "keyText": "Complete Care We offer a complete and comprehensive service for family, restorative and cosmetic dentistry. From the second you set foot in our office you will see and feel what makes our approach different. VIEW SERVICES",
+     "media": 1,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 6,
+     "tag": "section",
+     "h": 769,
+     "chars": 230,
+     "headings": [
+      "We\u2019re All Smiles"
+     ],
+     "keyText": "We\u2019re All Smiles Our team loves what we do and it shows. We\u2019ll transform your expectations for what a doctors office should be. From the environment. To every interaction with our staff. That\u2019s a promise. LEARN MORE ABOUT OUR TEAM",
+     "media": 0,
+     "bgKey": "media",
+     "bgLum": null,
+     "bgMedia": true
+    },
+    {
+     "i": 7,
+     "tag": "section",
+     "h": 770,
+     "chars": 0,
+     "headings": [],
+     "keyText": "",
+     "media": 2,
+     "bgKey": "21,21,21",
+     "bgLum": 1,
+     "bgMedia": false
+    },
+    {
+     "i": 8,
+     "tag": "section",
+     "h": 656,
+     "chars": 410,
+     "headings": [
+      "Office Hours",
+      "Contact Us",
+      "Instagram"
+     ],
+     "keyText": "Find available appointments BOOK ONLINE AVERAGE RATING 4.9 679 Reviews Read More Reviews \u00bb Office Hours Mon9:00 am - 5:00 pm Tue9:00 am - 5:00 pm Wed9:00 am - 5:00 pm Thu9:00 am - 5:00 pm Fri9:00 am - 5:00 pm Contact Us 57 Grand Street, Brooklyn, NY 11249 (718) 942 9942 hello@grandstreetdental.com Instagram \"The cool Brooklyn dentist who wants teeth to look as nice as her instagram feed\" - New York Magazine",
+     "media": 6,
+     "bgKey": "5,5,5",
+     "bgLum": 0.231,
+     "bgMedia": false
+    }
+   ],
+   "hero": {
+    "h": 900,
+    "bgLum": null,
+    "bgMedia": true,
+    "textLum": 0,
+    "mediaKind": null,
+    "mediaPlace": "none",
+    "mediaCoverW": null,
+    "mediaCoverH": null,
+    "slides": 0,
+    "ctas": [],
+    "text": "Dentistry Redesigned"
+   },
+   "type": {
+    "h1": "\"Superior Title\"",
+    "h2": "Gotham",
+    "body": "Gotham",
+    "bodyTag": "p",
+    "h1Weight": "500",
+    "h1Size": "70px"
+   },
+   "motion": {
+    "aos": false,
+    "aosCount": 0,
+    "gsap": false,
+    "scrollTrigger": false,
+    "swiper": true,
+    "swiperCount": 3,
+    "slick": 1,
+    "splide": 0,
+    "glide": 0,
+    "flickity": 0,
+    "wow": 0,
+    "framer": 0,
+    "elementorInvisible": 0,
+    "animateCss": 0,
+    "lottie": 0,
+    "scrollData": 0,
+    "webflowIx": 0,
+    "prefersReduced": false,
+    "totalSlideEls": 19
+   },
+   "revealPre": [
+    {
+     "id": 0,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 1,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -385.031)"
+    },
+    {
+     "id": 2,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 3,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, -1440, 0)"
+    },
+    {
+     "id": 4,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -385.031)"
+    },
+    {
+     "id": 5,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 6,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    }
+   ],
+   "fixedPre": [
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 115,
+     "left": 0,
+     "w": 1440,
+     "h": 115,
+     "z": "1",
+     "links": [
+      {
+       "href": "https://www.grandstreetdental.com/",
+       "label": ""
+      },
+      {
+       "href": "https://www.grandstreetdental.com/",
+       "label": "HOME"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/about/",
+       "label": "MEET US"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/services/",
+       "label": "SERVICES"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/before-after-gallery/",
+       "label": "BEFORE & AFTER"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/contact/",
+       "label": "CONTACT"
+      },
+      {
+       "href": "https://www.nexhealth.com/appt/grandstreetdental/",
+       "label": "BOOK ONLINE"
+      }
+     ],
+     "label": "HOME MEET US SERVICES BEFORE & AFTER CONTACT BOOK ONLINE",
+     "tag": "nav",
+     "role": null,
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 861,
+     "bottom": 900,
+     "left": 1285,
+     "w": 155,
+     "h": 39,
+     "z": "9999",
+     "links": [
+      {
+       "href": "javascript:void(0)",
+       "label": "CONTACT US"
+      }
+     ],
+     "label": "CONTACT US",
+     "tag": "div",
+     "role": null,
+     "isHeaderLike": false
+    }
+   ],
+   "pageTextLen": 2526,
+   "features": {
+    "videoTag": 0,
+    "videoEmbed": 0,
+    "formCount": 2,
+    "inputCount": 8,
+    "detailsCount": 0,
+    "accordionCount": 0,
+    "telLinks": 3,
+    "smsLinks": 0,
+    "mailLinks": 1,
+    "waLinks": 0,
+    "bookingLinks": 4,
+    "reviewWidgets": 24,
+    "kwReviews": true,
+    "kwFaq": false,
+    "kwInsurance": false,
+    "kwPromo": false,
+    "kwBeforeAfter": true,
+    "kwTeam": true,
+    "kwImplant": false,
+    "kwCosmetic": true,
+    "kwUSState": "NY 11249",
+    "phoneUS": "(718) 942 9942",
+    "statLike": [
+     "679 Reviews"
+    ]
+   }
+  },
+  "post": {
+   "reveal": [
+    {
+     "id": 0,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 1,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -385.031)"
+    },
+    {
+     "id": 2,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 3,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, -1440, 0)"
+    },
+    {
+     "id": 4,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -385.031)"
+    },
+    {
+     "id": 5,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 6,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    }
+   ],
+   "fixed": [
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 70,
+     "left": 0,
+     "w": 1440,
+     "h": 70,
+     "z": "9",
+     "links": [
+      {
+       "href": "https://www.grandstreetdental.com/",
+       "label": ""
+      },
+      {
+       "href": "https://www.grandstreetdental.com/",
+       "label": "HOME"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/about/",
+       "label": "MEET US"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/services/",
+       "label": "SERVICES"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/before-after-gallery/",
+       "label": "BEFORE & AFTER"
+      },
+      {
+       "href": "https://www.grandstreetdental.com/contact/",
+       "label": "CONTACT"
+      },
+      {
+       "href": "https://www.nexhealth.com/appt/grandstreetdental/",
+       "label": "BOOK ONLINE"
+      }
+     ],
+     "label": "HOME MEET US SERVICES BEFORE & AFTER CONTACT BOOK ONLINE",
+     "tag": "nav",
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 861,
+     "bottom": 900,
+     "left": 1285,
+     "w": 155,
+     "h": 39,
+     "z": "9999",
+     "links": [
+      {
+       "href": "javascript:void(0)",
+       "label": "CONTACT US"
+      }
+     ],
+     "label": "CONTACT US",
+     "tag": "div",
+     "isHeaderLike": false
+    },
+    {
+     "pos": "fixed",
+     "top": 847,
+     "bottom": 880,
+     "left": 20,
+     "w": 33,
+     "h": 33,
+     "z": "100",
+     "links": [],
+     "label": "",
+     "tag": "button",
+     "isHeaderLike": false
+    }
+   ]
+  },
+  "fixedMid": [
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 70,
+    "left": 0,
+    "w": 1440,
+    "h": 70,
+    "z": "9",
+    "links": [
+     {
+      "href": "https://www.grandstreetdental.com/",
+      "label": ""
+     },
+     {
+      "href": "https://www.grandstreetdental.com/",
+      "label": "HOME"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/about/",
+      "label": "MEET US"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/services/",
+      "label": "SERVICES"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/before-after-gallery/",
+      "label": "BEFORE & AFTER"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/contact/",
+      "label": "CONTACT"
+     },
+     {
+      "href": "https://www.nexhealth.com/appt/grandstreetdental/",
+      "label": "BOOK ONLINE"
+     }
+    ],
+    "label": "HOME MEET US SERVICES BEFORE & AFTER CONTACT BOOK ONLINE",
+    "tag": "nav",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "fixed",
+    "top": 861,
+    "bottom": 900,
+    "left": 1285,
+    "w": 155,
+    "h": 39,
+    "z": "9999",
+    "links": [
+     {
+      "href": "javascript:void(0)",
+      "label": "CONTACT US"
+     }
+    ],
+    "label": "CONTACT US",
+    "tag": "div",
+    "isHeaderLike": false
+   },
+   {
+    "pos": "fixed",
+    "top": 847,
+    "bottom": 880,
+    "left": 20,
+    "w": 33,
+    "h": 33,
+    "z": "100",
+    "links": [],
+    "label": "",
+    "tag": "button",
+    "isHeaderLike": false
+   }
+  ],
+  "mobileFixed": [
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 60,
+    "w": 390,
+    "h": 60,
+    "links": [
+     {
+      "href": "https://www.grandstreetdental.com/",
+      "label": ""
+     }
+    ],
+    "label": "",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   },
+   {
+    "pos": "fixed",
+    "top": 761,
+    "bottom": 844,
+    "w": 390,
+    "h": 83,
+    "links": [
+     {
+      "href": "/before-after-gallery/",
+      "label": "GALLERY"
+     },
+     {
+      "href": "tel:7189429942",
+      "label": "CALL"
+     },
+     {
+      "href": "https://app.nexhealth.com/appt/grandstreetdental",
+      "label": "BOOK"
+     },
+     {
+      "href": "/contact/",
+      "label": "CONTACT"
+     }
+    ],
+    "label": "GALLERY CALL BOOK CONTACT",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": true
+   },
+   {
+    "pos": "fixed",
+    "top": 2,
+    "bottom": 57,
+    "w": 55,
+    "h": 55,
+    "links": [],
+    "label": "",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   },
+   {
+    "pos": "fixed",
+    "top": -844,
+    "bottom": 0,
+    "w": 390,
+    "h": 844,
+    "links": [
+     {
+      "href": "https://www.grandstreetdental.com/",
+      "label": "Home"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/about/",
+      "label": "MEET US +"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/services/",
+      "label": "SERVICES +"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/before-after-gallery/",
+      "label": "BEFORE & AFTER"
+     },
+     {
+      "href": "https://www.grandstreetdental.com/contact/",
+      "label": "CONTACT"
+     },
+     {
+      "href": "tel:7189429942",
+      "label": "CALL US"
+     },
+     {
+      "href": "https://www.google.com/maps/dir/?api=1&destination=57%20Gran",
+      "label": "DIRECTION"
+     }
+    ],
+    "label": "Home MEET US + SERVICES + BEFORE & AFTER CONTACT CALL US DIRECTION",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   },
+   {
+    "pos": "fixed",
+    "top": 711,
+    "bottom": 744,
+    "w": 33,
+    "h": 33,
+    "links": [],
+    "label": "",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   }
+  ],
+  "mobileScreens": 10.4
+ },
+ {
+  "url": "https://aventuradentalarts.com",
+  "status": 200,
+  "finalUrl": "https://aventuradentalarts.com/",
+  "title": "Home | ADA",
+  "main": {
+   "viewport": [
+    1440,
+    900
+   ],
+   "scrollHeight": 18429,
+   "screens": 20.5,
+   "sectionParentTag": "main",
+   "sections": [
+    {
+     "i": 0,
+     "tag": "section",
+     "h": 2520,
+     "chars": 301,
+     "headings": [
+      "Your smile, effortlessly enhanced"
+     ],
+     "keyText": "Based in: Aventura Bay Harbor Coral Gables Premium Esthetic Dentistry Premium Esthetic Dentistry We combine advanced science with an artist\u2019s touch. Designing smiles that are as healthy as they are beautiful Your smile, effortlessly enhanced Implant Restoration Advanced Esthetic Restorative Dentistry",
+     "media": 2,
+     "bgKey": "20,19,19",
+     "bgLum": 0.911,
+     "bgMedia": false
+    },
+    {
+     "i": 1,
+     "tag": "section",
+     "h": 1424,
+     "chars": 369,
+     "headings": [
+      "Our goal is"
+     ],
+     "keyText": "Our goal is With decades of combined experience and ongoing advanced education, our team delivers care rooted in knowledge, precision, and an unwavering dedication to excellence. 20 to deliver world-class dental and aesthetic care through advanced techniques, customized treatments, and a bespoke level of service that makes every patient feel valued. About Us About Us",
+     "media": 3,
+     "bgKey": "20,19,19",
+     "bgLum": 0.911,
+     "bgMedia": false
+    },
+    {
+     "i": 2,
+     "tag": "section",
+     "h": 3285,
+     "chars": 347,
+     "headings": [],
+     "keyText": "Our Solutions: Smile Makeovers Esthetic Bonding & Contouring Teeth Whitening Porcelain Veneers From teeth whitening and veneers to complete smile makeovers, we use the latest techniques to create natural, stunning results. Esthetic Dentistry Services: Esthetic Dentistry Restorative Dentistry Preventive Care Beyond the Smile Learn More Learn More",
+     "media": 18,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    },
+    {
+     "i": 3,
+     "tag": "section",
+     "h": 1202,
+     "chars": 42,
+     "headings": [],
+     "keyText": "Modern Dentistry: Faster Smarter Pain-Free",
+     "media": 1,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    },
+    {
+     "i": 4,
+     "tag": "section",
+     "h": 3251,
+     "chars": 325,
+     "headings": [
+      "Dentistry for Exceptional Results"
+     ],
+     "keyText": "Technology-Driven Technology-Driven Dentistry for Exceptional Results 01 / 06 Technology iTero Digital Impressions Learn More Learn More Solea Laser Learn More Learn More Intra Oral Camera Learn More Learn More Digital Imaging Learn More Learn More CAD/CAM Restorations Learn More Learn More 3D CAT Scan Learn More Learn More",
+     "media": 6,
+     "bgKey": "20,19,19",
+     "bgLum": 0.911,
+     "bgMedia": false
+    },
+    {
+     "i": 5,
+     "tag": "section",
+     "h": 1520,
+     "chars": 781,
+     "headings": [],
+     "keyText": "Team of Experts Dr. Joel Gale Senior partner Expert in esthetic and implant dentistry, known for precision, empathy, and artistry. Creates natural, camera-ready smiles through advanced veneers, implants, and full-mouth rehabilitations. Dr. Nuria Otero Partner Prosthodontist with 20+ years of experience in complex restorations and smile transformations. Combines technical mastery with esthetic vision in full-mouth reconstructions and veneers. Dr. Larry Grillo Senior partner Renowned expert in advanced restorative and cosmetic dentistry. Merges innovation and artistry to craft functional, long-lasting, and naturally beautiful smiles. Skilled professionals delivering expert care with advanced technology. Our team is dedicated to providing w o n d Meet The Team Meet The Team",
+     "media": 2,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    },
+    {
+     "i": 6,
+     "tag": "div",
+     "h": 2914,
+     "chars": 486,
+     "headings": [],
+     "keyText": "Testimonials Implant Restoration Crowns and bridges Full Mouth Rehabilitation Deep Cleanings \u201c I had a fantastic experience at my recent dentist appointment. The staff was incredibly friendly and professional from start to finish. The office was clean and welcoming, and everything ran right on schedule. Dr. Gale and his assistants explained everything clearly and made sure I was comfortable the entire time. I left feeling confident and well cared for. Highly recommend! \u201d Ashanti I.",
+     "media": 0,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    },
+    {
+     "i": 7,
+     "tag": "section",
+     "h": 1234,
+     "chars": 62,
+     "headings": [],
+     "keyText": "Bringing Your Perfect Premium esthetic dentistry Smile to Life",
+     "media": 1,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    },
+    {
+     "i": 8,
+     "tag": "footer",
+     "h": 1298,
+     "chars": 896,
+     "headings": [],
+     "keyText": "Ready to Transform Your Smile? Book a call. Choose your location: Aventura Bay Harbor Coral Gables Name Phone number Message Services Esthetic Dentistry Esthetic Dentistry Restorative Dentistry Restorative Dentistry Preventive Care Preventive Care Beyond the Smile Beyond the Smile Our Clinic Home Home About us About us Technology Technology Contact Contact Locations Aventura Aventura 18851 NE 29th Avenue Suite 301, Aventura, FL 33180 (305) 682-1414 Mo-Th 8:30 am \u2013 5:00 pm Friday 8:30 am \u2013 2:00 pm Bay Harbor Bay Harbor 1031 Kane Concourse, Bay Harbor Islands, FL 33154 (305) 864-1656 Mo-Th 8:00 am \u2013 4:00 pm Coral Gables Coral Gables 6705 S Red Rd Suite 614, Coral Gables, FL 33143 (305) 668-1811 Mo-Fr 8:30 am \u2013 5:00 pm Copyright \u00a9 2026 Aventura Dental Arts Privacy Policy Privacy Policy , Accessibility Statement Accessibility Statement , Terms & Conditions Terms & Conditions Developed by",
+     "media": 2,
+     "bgKey": "2,2,2",
+     "bgLum": 0.084,
+     "bgMedia": false
+    }
+   ],
+   "hero": {
+    "h": 2520,
+    "bgLum": 0.911,
+    "bgMedia": false,
+    "textLum": 0.263,
+    "mediaKind": "video",
+    "mediaPlace": "right",
+    "mediaCoverW": 1,
+    "mediaCoverH": 0.36,
+    "slides": 0,
+    "ctas": [],
+    "text": "Based in: Aventura Bay Harbor Coral Gables Premium Esthetic Dentistry Premium Esthetic Dentistry We combine advanced science with an artist\u2019s touch. Designing smiles that are as healthy as they are beautiful Your smile, effortlessly enhanced Implant Restoration Advanced Esthetic Restorative Dentistry"
+   },
+   "type": {
+    "h1": "InstrumentSerif",
+    "h2": "InstrumentSerif",
+    "body": "InterTight",
+    "bodyTag": "p",
+    "h1Weight": "400",
+    "h1Size": "153px"
+   },
+   "motion": {
+    "aos": false,
+    "aosCount": 0,
+    "gsap": false,
+    "scrollTrigger": false,
+    "swiper": true,
+    "swiperCount": 1,
+    "slick": 0,
+    "splide": 0,
+    "glide": 0,
+    "flickity": 0,
+    "wow": 0,
+    "framer": 0,
+    "elementorInvisible": 0,
+    "animateCss": 0,
+    "lottie": 0,
+    "scrollData": 0,
+    "webflowIx": 0,
+    "prefersReduced": false,
+    "totalSlideEls": 6
+   },
+   "revealPre": [
+    {
+     "id": 0,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 96, 0)"
+    },
+    {
+     "id": 1,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 64, 0)"
+    },
+    {
+     "id": 2,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 32, 0)"
+    },
+    {
+     "id": 3,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 4,
+     "op": 0,
+     "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+    },
+    {
+     "id": 5,
+     "op": 0.6,
+     "tr": "matrix(1, 0, 0, 1, -626, -690)"
+    },
+    {
+     "id": 6,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -1424)"
+    },
+    {
+     "id": 7,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 8,
+     "op": 1,
+     "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+    },
+    {
+     "id": 9,
+     "op": 1,
+     "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+    },
+    {
+     "id": 10,
+     "op": 1,
+     "tr": "matrix(1.4, 0, 0, 1.4, 0, 0)"
+    },
+    {
+     "id": 11,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 12,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 13,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 14,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 15,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 16,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 17,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 18,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 19,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 20,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 21,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 22,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 23,
+     "op": 0,
+     "tr": null
+    },
+    {
+     "id": 24,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 25,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 26,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 27,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -180)"
+    },
+    {
+     "id": 28,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 29,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, -720, -242.406)"
+    },
+    {
+     "id": 30,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -23.9219)"
+    },
+    {
+     "id": 31,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -236)"
+    },
+    {
+     "id": 32,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 33,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 34,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 35,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 36,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 37,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 38,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 39,
+     "op": 1,
+     "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+    }
+   ],
+   "fixedPre": [
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 72,
+     "left": 0,
+     "w": 1440,
+     "h": 72,
+     "z": "10",
+     "links": [
+      {
+       "href": "/",
+       "label": ""
+      },
+      {
+       "href": "",
+       "label": "Menu"
+      },
+      {
+       "href": "",
+       "label": "Services"
+      },
+      {
+       "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274",
+       "label": "Patient form"
+      },
+      {
+       "href": "tel:(305) 682-1414",
+       "label": "(305) 682-1414"
+      },
+      {
+       "href": "tel:(305) 864-1656",
+       "label": "(305) 864-1656 (305) 864-1656"
+      },
+      {
+       "href": "tel:(305) 668-1811",
+       "label": "(305) 668-1811 (305) 668-1811"
+      },
+      {
+       "href": "",
+       "label": "Book A Call Book A Call"
+      }
+     ],
+     "label": "Menu Services Patient form (305) 682-1414 (305) 864-1656 (305) 864-1656 (305) 668-1811 (305) 668-1811 Book A Call Book A",
+     "tag": "header",
+     "role": null,
+     "isHeaderLike": true
+    },
+    {
+     "pos": "sticky",
+     "top": 0,
+     "bottom": 2520,
+     "left": 0,
+     "w": 1440,
+     "h": 2520,
+     "z": "auto",
+     "links": [
+      {
+       "href": "https://maps.app.goo.gl/oFQPrr2sgsdXtbdv8",
+       "label": "Aventura"
+      },
+      {
+       "href": "https://maps.app.goo.gl/LpQBJqAyJvEd88Dx9",
+       "label": "Bay Harbor"
+      },
+      {
+       "href": "https://maps.app.goo.gl/pEFbhnNfZaex1aEZ7",
+       "label": "Coral Gables"
+      }
+     ],
+     "label": "Based in: Aventura Bay Harbor Coral Gables Premium Esthetic Dentistry Premium Esthetic Dentistry We combine advanced sci",
+     "tag": "section",
+     "role": null,
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 180,
+     "left": 0,
+     "w": 180,
+     "h": 180,
+     "z": "auto",
+     "links": [],
+     "label": "",
+     "tag": "div",
+     "role": null,
+     "isHeaderLike": false
+    },
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 900,
+     "left": 0,
+     "w": 1440,
+     "h": 900,
+     "z": "12",
+     "links": [
+      {
+       "href": "/",
+       "label": ""
+      },
+      {
+       "href": "",
+       "label": "Menu"
+      },
+      {
+       "href": "https://www.instagram.com/aventuradentalarts/",
+       "label": ""
+      },
+      {
+       "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+       "label": ""
+      },
+      {
+       "href": "/",
+       "label": "Patient form"
+      },
+      {
+       "href": "/faq",
+       "label": "FAQ"
+      },
+      {
+       "href": "esthetic-dentistry",
+       "label": "Esthetic Dentistry"
+      },
+      {
+       "href": "restorative-dentistry",
+       "label": "Restorative Dentistry"
+      },
+      {
+       "href": "preventive-care",
+       "label": "Preventive Care"
+      },
+      {
+       "href": "beyond-the-smile",
+       "label": "Beyond the Smile"
+      },
+      {
+       "href": "/about",
+       "label": "About Us About Us"
+      },
+      {
+       "href": "/laboratory",
+       "label": "Laboratory Laboratory"
+      }
+     ],
+     "label": "Menu Patient form FAQ Services: Esthetic Dentistry Restorative Dentistry Preventive Care Beyond the Smile About Us About",
+     "tag": "div",
+     "role": null,
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 900,
+     "bottom": 1800,
+     "left": 0,
+     "w": 1440,
+     "h": 900,
+     "z": "12",
+     "links": [
+      {
+       "href": "",
+       "label": "Close"
+      },
+      {
+       "href": "",
+       "label": ""
+      },
+      {
+       "href": "https://www.instagram.com/aventuradentalarts/",
+       "label": ""
+      },
+      {
+       "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+       "label": ""
+      },
+      {
+       "href": "",
+       "label": ""
+      }
+     ],
+     "label": "Close Ready to book or just have questions? We\u2019re here for you. Choose your location: Aventura Bay Harbor Coral Gables N",
+     "tag": "div",
+     "role": null,
+     "isHeaderLike": false
+    }
+   ],
+   "pageTextLen": 4175,
+   "features": {
+    "videoTag": 1,
+    "videoEmbed": 0,
+    "formCount": 2,
+    "inputCount": 10,
+    "detailsCount": 0,
+    "accordionCount": 0,
+    "telLinks": 3,
+    "smsLinks": 0,
+    "mailLinks": 0,
+    "waLinks": 0,
+    "bookingLinks": 0,
+    "reviewWidgets": 2,
+    "kwReviews": true,
+    "kwFaq": true,
+    "kwInsurance": false,
+    "kwPromo": false,
+    "kwBeforeAfter": true,
+    "kwTeam": true,
+    "kwImplant": true,
+    "kwCosmetic": true,
+    "kwUSState": "FL 33180",
+    "phoneUS": "(305) 682-1414",
+    "statLike": [
+     "20+ years"
+    ]
+   }
+  },
+  "post": {
+   "reveal": [
+    {
+     "id": 0,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 96, 0)"
+    },
+    {
+     "id": 1,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 64, 0)"
+    },
+    {
+     "id": 2,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 32, 0)"
+    },
+    {
+     "id": 3,
+     "op": 1,
+     "tr": null
+    },
+    {
+     "id": 4,
+     "op": 1,
+     "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+    },
+    {
+     "id": 5,
+     "op": 0.6,
+     "tr": "matrix(1, 0, 0, 1, -626, -690)"
+    },
+    {
+     "id": 6,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -1424)"
+    },
+    {
+     "id": 7,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 180)"
+    },
+    {
+     "id": 8,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 9,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 10,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 11,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 180)"
+    },
+    {
+     "id": 12,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 13,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 14,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 15,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 16,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 17,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 18,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 19,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 20,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 21,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 40)"
+    },
+    {
+     "id": 22,
+     "op": 0,
+     "tr": "matrix(1, 0, 0, 1, 0, 40)"
+    },
+    {
+     "id": 23,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 24,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 180)"
+    },
+    {
+     "id": 25,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 180)"
+    },
+    {
+     "id": 26,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 180.3)"
+    },
+    {
+     "id": 27,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 28,
+     "op": 1,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 29,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, -720, 56)"
+    },
+    {
+     "id": 30,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -23.9219)"
+    },
+    {
+     "id": 31,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -236)"
+    },
+    {
+     "id": 32,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 33,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 34,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 35,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 36,
+     "op": 0,
+     "tr": "matrix(1.1, 0, 0, 1.1, 0, 0)"
+    },
+    {
+     "id": 37,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+     "id": 38,
+     "op": 1,
+     "tr": "matrix(1, 0, 0, 1, 0, -724.219)"
+    },
+    {
+     "id": 39,
+     "op": 0.3,
+     "tr": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10, 1)"
+    }
+   ],
+   "fixed": [
+    {
+     "pos": "sticky",
+     "top": -1620,
+     "bottom": 900,
+     "left": 0,
+     "w": 1440,
+     "h": 2520,
+     "z": "auto",
+     "links": [
+      {
+       "href": "https://maps.app.goo.gl/oFQPrr2sgsdXtbdv8",
+       "label": "Aventura"
+      },
+      {
+       "href": "https://maps.app.goo.gl/LpQBJqAyJvEd88Dx9",
+       "label": "Bay Harbor"
+      },
+      {
+       "href": "https://maps.app.goo.gl/pEFbhnNfZaex1aEZ7",
+       "label": "Coral Gables"
+      }
+     ],
+     "label": "Based in: Aventura Bay Harbor Coral Gables We combine advanced science with an artist\u2019s touch. Your smile, effortlessly ",
+     "tag": "section",
+     "isHeaderLike": true
+    },
+    {
+     "pos": "sticky",
+     "top": -524,
+     "bottom": 900,
+     "left": 0,
+     "w": 1440,
+     "h": 1424,
+     "z": "auto",
+     "links": [
+      {
+       "href": "/about",
+       "label": "About Us About Us"
+      }
+     ],
+     "label": "Our goal is With decades of combined experience and ongoing advanced education, our team delivers care rooted in knowled",
+     "tag": "section",
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 180,
+     "left": 0,
+     "w": 180,
+     "h": 180,
+     "z": "auto",
+     "links": [],
+     "label": "",
+     "tag": "div",
+     "isHeaderLike": false
+    },
+    {
+     "pos": "fixed",
+     "top": 0,
+     "bottom": 900,
+     "left": 0,
+     "w": 1440,
+     "h": 900,
+     "z": "12",
+     "links": [
+      {
+       "href": "/",
+       "label": ""
+      },
+      {
+       "href": "",
+       "label": "Menu"
+      },
+      {
+       "href": "https://www.instagram.com/aventuradentalarts/",
+       "label": ""
+      },
+      {
+       "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+       "label": ""
+      },
+      {
+       "href": "/",
+       "label": "Patient form"
+      },
+      {
+       "href": "/faq",
+       "label": "FAQ"
+      },
+      {
+       "href": "esthetic-dentistry",
+       "label": "Esthetic Dentistry"
+      },
+      {
+       "href": "restorative-dentistry",
+       "label": "Restorative Dentistry"
+      },
+      {
+       "href": "preventive-care",
+       "label": "Preventive Care"
+      },
+      {
+       "href": "beyond-the-smile",
+       "label": "Beyond the Smile"
+      },
+      {
+       "href": "/about",
+       "label": "About Us About Us"
+      },
+      {
+       "href": "/laboratory",
+       "label": "Laboratory Laboratory"
+      }
+     ],
+     "label": "Menu Patient form FAQ Services: Esthetic Dentistry Restorative Dentistry Preventive Care Beyond the Smile About Us About",
+     "tag": "div",
+     "isHeaderLike": true
+    },
+    {
+     "pos": "fixed",
+     "top": 900,
+     "bottom": 1800,
+     "left": 0,
+     "w": 1440,
+     "h": 900,
+     "z": "12",
+     "links": [
+      {
+       "href": "",
+       "label": "Close"
+      },
+      {
+       "href": "",
+       "label": ""
+      },
+      {
+       "href": "https://www.instagram.com/aventuradentalarts/",
+       "label": ""
+      },
+      {
+       "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+       "label": ""
+      },
+      {
+       "href": "",
+       "label": ""
+      }
+     ],
+     "label": "Close Ready to book or just have questions? We\u2019re here for you. Choose your location: Aventura Bay Harbor Coral Gables N",
+     "tag": "div",
+     "isHeaderLike": false
+    }
+   ]
+  },
+  "fixedMid": [
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 72,
+    "left": 0,
+    "w": 1440,
+    "h": 72,
+    "z": "10",
+    "links": [
+     {
+      "href": "/",
+      "label": ""
+     },
+     {
+      "href": "",
+      "label": "Menu"
+     },
+     {
+      "href": "",
+      "label": "Services"
+     },
+     {
+      "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274",
+      "label": "Patient form"
+     },
+     {
+      "href": "tel:(305) 682-1414",
+      "label": "(305) 682-1414"
+     },
+     {
+      "href": "tel:(305) 864-1656",
+      "label": "(305) 864-1656 (305) 864-1656"
+     },
+     {
+      "href": "tel:(305) 668-1811",
+      "label": "(305) 668-1811 (305) 668-1811"
+     },
+     {
+      "href": "",
+      "label": "Book A Call Book A Call"
+     }
+    ],
+    "label": "Menu Services Patient form (305) 682-1414 (305) 864-1656 (305) 864-1656 (305) 668-1811 (305) 668-1811 Book A Call Book A",
+    "tag": "header",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "sticky",
+    "top": -1620,
+    "bottom": 900,
+    "left": 0,
+    "w": 1440,
+    "h": 2520,
+    "z": "auto",
+    "links": [
+     {
+      "href": "https://maps.app.goo.gl/oFQPrr2sgsdXtbdv8",
+      "label": "Aventura"
+     },
+     {
+      "href": "https://maps.app.goo.gl/LpQBJqAyJvEd88Dx9",
+      "label": "Bay Harbor"
+     },
+     {
+      "href": "https://maps.app.goo.gl/pEFbhnNfZaex1aEZ7",
+      "label": "Coral Gables"
+     }
+    ],
+    "label": "Based in: Aventura Bay Harbor Coral Gables We combine advanced science with an artist\u2019s touch. Your smile, effortlessly ",
+    "tag": "section",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "sticky",
+    "top": -524,
+    "bottom": 900,
+    "left": 0,
+    "w": 1440,
+    "h": 1424,
+    "z": "auto",
+    "links": [
+     {
+      "href": "/about",
+      "label": "About Us About Us"
+     }
+    ],
+    "label": "Our goal is With decades of combined experience and ongoing advanced education, our team delivers care rooted in knowled",
+    "tag": "section",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "sticky",
+    "top": 0,
+    "bottom": 900,
+    "left": 32,
+    "w": 1376,
+    "h": 900,
+    "z": "auto",
+    "links": [
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     },
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     },
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     },
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     },
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     },
+     {
+      "href": "",
+      "label": "Learn More Learn More"
+     }
+    ],
+    "label": "02 / 06 Technology iTero Digital Impressions Learn More Learn More Solea Laser Learn More Learn More Intra Oral Camera L",
+    "tag": "div",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 180,
+    "left": 0,
+    "w": 180,
+    "h": 180,
+    "z": "auto",
+    "links": [],
+    "label": "",
+    "tag": "div",
+    "isHeaderLike": false
+   },
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 900,
+    "left": 0,
+    "w": 1440,
+    "h": 900,
+    "z": "12",
+    "links": [
+     {
+      "href": "/",
+      "label": ""
+     },
+     {
+      "href": "",
+      "label": "Menu"
+     },
+     {
+      "href": "https://www.instagram.com/aventuradentalarts/",
+      "label": ""
+     },
+     {
+      "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+      "label": ""
+     },
+     {
+      "href": "/",
+      "label": "Patient form"
+     },
+     {
+      "href": "/faq",
+      "label": "FAQ"
+     },
+     {
+      "href": "esthetic-dentistry",
+      "label": "Esthetic Dentistry"
+     },
+     {
+      "href": "restorative-dentistry",
+      "label": "Restorative Dentistry"
+     },
+     {
+      "href": "preventive-care",
+      "label": "Preventive Care"
+     },
+     {
+      "href": "beyond-the-smile",
+      "label": "Beyond the Smile"
+     },
+     {
+      "href": "/about",
+      "label": "About Us About Us"
+     },
+     {
+      "href": "/laboratory",
+      "label": "Laboratory Laboratory"
+     }
+    ],
+    "label": "Menu Patient form FAQ Services: Esthetic Dentistry Restorative Dentistry Preventive Care Beyond the Smile About Us About",
+    "tag": "div",
+    "isHeaderLike": true
+   },
+   {
+    "pos": "fixed",
+    "top": 900,
+    "bottom": 1800,
+    "left": 0,
+    "w": 1440,
+    "h": 900,
+    "z": "12",
+    "links": [
+     {
+      "href": "",
+      "label": "Close"
+     },
+     {
+      "href": "",
+      "label": ""
+     },
+     {
+      "href": "https://www.instagram.com/aventuradentalarts/",
+      "label": ""
+     },
+     {
+      "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+      "label": ""
+     },
+     {
+      "href": "",
+      "label": ""
+     }
+    ],
+    "label": "Close Ready to book or just have questions? We\u2019re here for you. Choose your location: Aventura Bay Harbor Coral Gables N",
+    "tag": "div",
+    "isHeaderLike": false
+   }
+  ],
+  "mobileFixed": [
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 844,
+    "w": 390,
+    "h": 844,
+    "links": [
+     {
+      "href": "/",
+      "label": ""
+     },
+     {
+      "href": "",
+      "label": ""
+     },
+     {
+      "href": "https://www.instagram.com/aventuradentalarts/",
+      "label": ""
+     },
+     {
+      "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+      "label": ""
+     },
+     {
+      "href": "https://mysecurepractice.com/Truform/d645c1d1-2597-4aea-a274",
+      "label": "Patient form"
+     },
+     {
+      "href": "/faq",
+      "label": "FAQ"
+     },
+     {
+      "href": "",
+      "label": "Book a Call Book a Call"
+     },
+     {
+      "href": "/about",
+      "label": "About Us"
+     },
+     {
+      "href": "",
+      "label": "Services"
+     },
+     {
+      "href": "",
+      "label": "Esthetic Dentistry"
+     }
+    ],
+    "label": "Patient form FAQ Book a Call Book a Call About Us Services Esthetic DentistryRestorative DentistryPr",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   },
+   {
+    "pos": "fixed",
+    "top": 844,
+    "bottom": 1688,
+    "w": 390,
+    "h": 844,
+    "links": [
+     {
+      "href": "",
+      "label": ""
+     },
+     {
+      "href": "",
+      "label": "Send"
+     },
+     {
+      "href": "",
+      "label": ""
+     },
+     {
+      "href": "https://www.instagram.com/aventuradentalarts/",
+      "label": ""
+     },
+     {
+      "href": "https://www.linkedin.com/company/aventura-dental-arts-llc/",
+      "label": ""
+     }
+    ],
+    "label": "Book a Call Ready to book or just have questions? We\u2019re here for you. Choose your location: Aventura",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": true
+   },
+   {
+    "pos": "fixed",
+    "top": 0,
+    "bottom": 844,
+    "w": 390,
+    "h": 844,
+    "links": [
+     {
+      "href": "",
+      "label": "Book a Call"
+     },
+     {
+      "href": "",
+      "label": ""
+     },
+     {
+      "href": "tel:(305) 682-1414",
+      "label": "(305) 682-1414"
+     },
+     {
+      "href": "tel:(305) 864-1656",
+      "label": "(305) 864-1656"
+     },
+     {
+      "href": "tel:(305) 668-1811",
+      "label": "(305) 668-1811"
+     }
+    ],
+    "label": "Book a Call Aventura (305) 682-1414 Mo-Th 8:30 am \u2013 5:00 pm Friday 8:30 am \u2013 2:00 pm Bay Harbor (305",
+    "vh": 844,
+    "vw": 390,
+    "atBottom": false
+   }
+  ],
+  "mobileScreens": 14.1
+ }
+]

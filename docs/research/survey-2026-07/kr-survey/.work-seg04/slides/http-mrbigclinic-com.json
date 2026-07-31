@@ -1,0 +1,13 @@
+{
+ "url": "http://www.mrbigclinic.com/",
+ "tracks": [],
+ "pags": [],
+ "heroTracks": [],
+ "heroPags": [],
+ "bgKeys": [
+  "rgba(0, 0, 0, 0)",
+  "rgb(255, 255, 255)",
+  "rgba(77, 77, 77, 0.1)",
+  "rgb(103, 103, 103)"
+ ]
+}

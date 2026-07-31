@@ -1,0 +1,184 @@
+{
+ "url": "https://jacksonfamilydental.com",
+ "status": 200,
+ "probe": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "foldMedia": {
+   "kind": "bg-image",
+   "place": "right",
+   "covW": 0.16,
+   "covH": 0.04
+  },
+  "foldCtas": [
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 115,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 118,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 122,
+    "h": 44,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 196,
+    "h": 35,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 90,
+    "h": 35,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 139,
+    "h": 26,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 70,
+    "h": 36,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 81,
+    "h": 36,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 114,
+    "h": 36,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 128,
+    "h": 36,
+    "fixedAnc": true,
+    "isCta": true
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 135,
+    "h": 36,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 273,
+    "h": 50,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 273,
+    "h": 50,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": false,
+    "outline": "<removed>",
+    "w": 273,
+    "h": 26,
+    "fixedAnc": true,
+    "isCta": false
+   },
+   {
+    "label": "<removed>",
+    "filled": true,
+    "outline": "<removed>",
+    "w": 60,
+    "h": 60,
+    "fixedAnc": true,
+    "isCta": true
+   }
+  ],
+  "foldSlides": 0,
+  "foldText": "<removed>",
+  "foldStats": "<removed>",
+  "serif": {
+   "headFam": "noto-sans, sans-serif",
+   "bodyFam": "\"Noto Sans\", sans-serif",
+   "head": {
+    "topRatio": 2.63,
+    "botRatio": 2.63,
+    "midW": 16,
+    "hgt": 107
+   },
+   "body": {
+    "topRatio": 2.79,
+    "botRatio": 2.79,
+    "midW": 14,
+    "hgt": 107
+   },
+   "sameFamily": false
+  },
+  "blocks": [
+   {
+    "top": 3449,
+    "h": 550,
+    "tag": "footer",
+    "chars": 316,
+    "imgs": 5,
+    "heads": "<removed>",
+    "text": "<removed>"
+   }
+  ]
+ }
+}

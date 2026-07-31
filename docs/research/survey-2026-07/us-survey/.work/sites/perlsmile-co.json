@@ -1,0 +1,225 @@
+{
+ "url": "https://www.perlsmile.co",
+ "status": 429,
+ "finalUrl": "https://www.perlsmile.co/",
+ "title": "<removed>",
+ "main": {
+  "viewport": [
+   1440,
+   900
+  ],
+  "scrollHeight": 15,
+  "screens": 0,
+  "sectionParentTag": "body",
+  "sections": [],
+  "outline": "<removed>",
+  "hero": null,
+  "type": {
+   "h1": null,
+   "h2": null,
+   "body": "Times",
+   "h1Weight": null,
+   "h1Size": null,
+   "bodySize": "16px",
+   "fontFaces": []
+  },
+  "motion": {
+   "aosCount": 0,
+   "gsap": false,
+   "scrollTrigger": false,
+   "swiperCount": 0,
+   "slick": 0,
+   "splide": 0,
+   "glide": 0,
+   "flickity": 0,
+   "wow": 0,
+   "framer": 0,
+   "elementorInvisible": 0,
+   "animateCss": 0,
+   "lottie": 0,
+   "webflowIx": 0,
+   "marquee": 0,
+   "totalSlideEls": 0
+  },
+  "revealPre": [],
+  "pageTextLen": 17,
+  "features": {
+   "videoTag": 0,
+   "videoEmbed": 0,
+   "formCount": 0,
+   "inputCount": 0,
+   "detailsCount": 0,
+   "accordionCount": 0,
+   "telLinks": 0,
+   "smsLinks": 0,
+   "mailLinks": 0,
+   "waLinks": 0,
+   "bookingLinks": 0,
+   "bookingWidget": 0,
+   "reviewWidgets": 0,
+   "kwReviews": false,
+   "kwFaq": false,
+   "kwInsurance": false,
+   "kwPromo": false,
+   "kwBeforeAfter": false,
+   "kwTeam": false,
+   "kwImplant": false,
+   "kwCosmetic": false,
+   "kwUSState": null,
+   "phoneUS": null,
+   "statLike": "<removed>"
+  }
+ },
+ "sectionLum": [],
+ "heroLum": {
+  "mean": 1.0,
+  "darkFrac": 0.0,
+  "lightFrac": 1.0
+ },
+ "heroLumBelowNav": {
+  "mean": 1.0,
+  "darkFrac": 0.0,
+  "lightFrac": 1.0
+ },
+ "fixedTop": [],
+ "revealPost": [],
+ "fixedMid": [],
+ "mobileScreens": 15.4,
+ "mobileFixed": [
+  {
+   "pos": "fixed",
+   "top": 787,
+   "bottom": 831,
+   "left": 13,
+   "w": 44,
+   "h": 44,
+   "z": "auto",
+   "links": [],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": true,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 0,
+   "bottom": 116,
+   "left": 0,
+   "w": 390,
+   "h": 116,
+   "z": "10010",
+   "links": [
+    {
+     "href": "https://schedule.jarvisanalytics.com/frame?eoid=19252&elid=19000000000",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": true,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 116,
+   "bottom": 211,
+   "left": 0,
+   "w": 390,
+   "h": 95,
+   "z": "10010",
+   "links": [
+    {
+     "href": "/home",
+     "label": "<removed>"
+    },
+    {
+     "href": "",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/about/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/services/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/problems-we-treat/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/new-patients/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://schedule.jarvisanalytics.com/frame?eoid=19252&elid=19000000000",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 95,
+   "bottom": 939,
+   "left": 390,
+   "w": 320,
+   "h": 844,
+   "z": "99998",
+   "links": [
+    {
+     "href": "https://www.perlsmile.co/about/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/services/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/problems-we-treat/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://www.perlsmile.co/new-patients/",
+     "label": "<removed>"
+    },
+    {
+     "href": "https://schedule.jarvisanalytics.com/frame?eoid=19252&elid=19000000000",
+     "label": "<removed>"
+    }
+   ],
+   "label": "<removed>",
+   "tag": "div",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  },
+  {
+   "pos": "fixed",
+   "top": 679,
+   "bottom": 719,
+   "left": 350,
+   "w": 40,
+   "h": 40,
+   "z": "99999",
+   "links": [],
+   "label": "<removed>",
+   "tag": "span",
+   "headerLike": false,
+   "bottomPinned": false,
+   "vh": 844,
+   "vw": 390
+  }
+ ]
+}
