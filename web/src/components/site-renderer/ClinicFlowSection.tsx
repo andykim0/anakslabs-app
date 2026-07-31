@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import type {
   CanvasElement,
   Section,
@@ -15,6 +15,7 @@ import {
   resolveTypographyTracking,
   type TypographyTrackingRole,
 } from '@/lib/design/typography-tracking';
+import type { MotionPlan } from '@/lib/motion/apply';
 import { ElementContent } from './ElementContent';
 
 export const CLINIC_FLOW_CSS = `
@@ -384,7 +385,111 @@ export const KO_CLINIC_FLOW_MEASURE_CSS = `
   max-width: 30em;
   justify-self: center;
 }
+[data-ko-clinic] [data-clinic-flow-section^="hero."] {
+  background: var(--clinic-section-surface,var(--clinic-text));
+}
+[data-ko-clinic] [data-clinic-flow-hero-media] {
+  background: var(--clinic-section-surface,var(--clinic-text));
+}
+[data-ko-clinic] [data-clinic-flow-hero-media] > img {
+  opacity: .82;
+}
+[data-ko-clinic] [data-clinic-flow-hero-media]::after {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 98%,transparent) 0%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 94%,transparent) 42%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 54%,transparent) 68%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 28%,transparent) 100%
+  );
+}
+[data-ko-clinic] [data-clinic-hero-text-zone="right"] [data-clinic-flow-hero-media]::after {
+  background: linear-gradient(
+    270deg,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 98%,transparent) 0%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 94%,transparent) 42%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 54%,transparent) 68%,
+    color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 28%,transparent) 100%
+  );
+}
+[data-ko-clinic] [data-clinic-hero-text-zone] [data-clinic-flow-hero-copy] {
+  position: absolute;
+  top: var(--ko-hero-zone-y);
+  left: var(--ko-hero-zone-x);
+  width: var(--ko-hero-zone-width);
+  height: var(--ko-hero-zone-height);
+  margin: 0;
+  padding: 0;
+  align-content: center;
+}
+[data-ko-clinic] [data-clinic-flow-hero-copy] :is(h1,p),
+[data-ko-clinic] [data-clinic-hero-kicker],
+[data-ko-clinic] [data-clinic-article-evidence] {
+  color: var(--clinic-section-text,#fff) !important;
+}
+[data-ko-clinic] [data-clinic-flow-section="features.three-column-cards"] [data-clinic-flow-item],
+[data-ko-clinic] [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item] {
+  padding: clamp(1.25rem,2.4vw,2rem);
+  border: 1px solid var(--clinic-section-border,var(--clinic-border));
+  border-radius: var(--clinic-radius-md);
+  background: var(--clinic-section-surface,var(--clinic-surface));
+}
+[data-ko-clinic] [data-clinic-flow-section="features.three-column-cards"] [data-clinic-flow-media] {
+  aspect-ratio: 4 / 5;
+}
+[data-ko-clinic] [data-ko-reveal-group][data-m="reveal"].m-hide {
+  transform: translateY(24px);
+}
+[data-ko-clinic] [data-ko-reveal-group][data-m="reveal"].m-show {
+  transition-duration: 280ms;
+  transition-timing-function: cubic-bezier(.22,1,.36,1);
+}
+@media (max-width: 767.98px) {
+  [data-ko-clinic] [data-clinic-hero-text-zone] [data-clinic-flow-hero-copy] {
+    position: relative;
+    inset: auto;
+    width: min(calc(100% - 3rem),var(--clinic-container-max));
+    height: auto;
+    margin-inline: auto;
+    padding-block: 5rem 6rem;
+  }
+  [data-ko-clinic] [data-clinic-flow-hero-media]::after,
+  [data-ko-clinic] [data-clinic-hero-text-zone="right"] [data-clinic-flow-hero-media]::after {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 88%,transparent),
+      color-mix(in srgb,var(--clinic-section-surface,var(--clinic-text)) 96%,transparent)
+    );
+  }
+  [data-ko-clinic] [data-ko-reveal-group][data-m="reveal"].m-hide {
+    transform: translateY(16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ko-clinic] [data-ko-reveal-group] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
 `;
+
+function clinicHeroTextZone(section: Section) {
+  const marker = section.elements.find((element) => (
+    element.kind === 'shape' && element.id.includes('-hero-text-zone-')
+  ));
+  const match = marker?.id.match(
+    /-hero-text-zone-(left|right)-x(\d+)-y(\d+)-w(\d+)-h(\d+)$/u,
+  );
+  if (!match) return undefined;
+  return {
+    side: match[1] as 'left' | 'right',
+    x: Number(match[2]) / 10_000,
+    y: Number(match[3]) / 10_000,
+    width: Number(match[4]) / 10_000,
+    height: Number(match[5]) / 10_000,
+  };
+}
 
 function textStyle(
   element: TextElement,
@@ -440,6 +545,49 @@ function clinicSurface(
   };
 }
 
+/**
+ * Some legacy KO headings were authored as animated character spans and therefore
+ * have no whitespace in their verbatim text node. Preserve textContent byte-for-byte
+ * while exposing Unicode word boundaries to the browser instead of allowing an
+ * emergency syllable split from overflow-wrap.
+ */
+function compactKoTokenSegments(token: string): string[] {
+  if (!/[가-힣]/u.test(token)) return [token];
+  let segments = [...new Intl.Segmenter('ko', { granularity: 'word' }).segment(token)]
+    .map((entry) => entry.segment)
+    .filter(Boolean);
+  // ICU treats compacted animation-source headings as one token. In that case,
+  // expose only Korean grammatical endings as break opportunities; no character
+  // is inserted, deleted, translated, or reordered.
+  if (segments.length < 2) {
+    const endings = /(?:으로|에서|에게|까지|부터|처럼|보다|도록|었던|였던|했던|던|의|을|를|에|와|과|아|어)/gu;
+    segments = [];
+    let cursor = 0;
+    for (const match of token.matchAll(endings)) {
+      const end = (match.index ?? 0) + match[0].length;
+      if (end <= cursor || end >= token.length) continue;
+      segments.push(token.slice(cursor, end));
+      cursor = end;
+    }
+    if (cursor < token.length) segments.push(token.slice(cursor));
+  }
+  return segments.length > 0 ? segments : [token];
+}
+
+function koHeadingBreakOpportunities(text: string): ReactNode {
+  if (!/[가-힣]/u.test(text)) return text;
+  return text.split(/(\s+)/u).map((token, tokenIndex) => {
+    if (!token || /^\s+$/u.test(token)) return token;
+    const segments = compactKoTokenSegments(token);
+    return segments.map((segment, segmentIndex) => (
+      <Fragment key={`${tokenIndex}-${segmentIndex}-${segment}`}>
+        {segmentIndex > 0 ? <wbr /> : null}
+        {segment}
+      </Fragment>
+    ));
+  });
+}
+
 function fontRole(element: TextElement, theme: SiteTheme): Record<string, string> {
   const role = theme.fontPairing ? fontRoleForTextElement(element) : undefined;
   return role ? { 'data-font-role': role } : {};
@@ -473,7 +621,7 @@ function FlowText({
         )}
         {...attributes}
       >
-        {element.text}{' '}
+        {koHeadingBreakOpportunities(element.text)}{' '}
       </HeadingTag>
     );
   }
@@ -669,6 +817,7 @@ export function ClinicFlowSection({
   pageHeading,
   hrefForPageSlug,
   locale = 'en-US',
+  motionPlan,
 }: {
   section: Section;
   theme: SiteTheme;
@@ -678,6 +827,7 @@ export function ClinicFlowSection({
   pageHeading?: string;
   hrefForPageSlug?: (slug: string) => string;
   locale?: 'en-US' | 'ko-KR';
+  motionPlan?: MotionPlan;
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
@@ -700,6 +850,9 @@ export function ClinicFlowSection({
     </span>
   ));
   if (section.type === 'hero') {
+    const heroTextZone = locale === 'ko-KR'
+      ? clinicHeroTextZone(section)
+      : undefined;
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
     );
@@ -741,6 +894,15 @@ export function ClinicFlowSection({
         data-section-type={section.type}
         data-clinic-flow-section={heroId}
         data-clinic-archetype={heroId}
+        {...(locale === 'ko-KR'
+          ? {
+              'data-clinic-hero-slider': 'reserved',
+              'data-clinic-hero-slide-count': section.background.image ? '1' : '0',
+            }
+          : {})}
+        {...(heroTextZone
+          ? { 'data-clinic-hero-text-zone': heroTextZone.side }
+          : {})}
         {...(surface
           ? {
               'data-section-surface-tone': surface.paint.resolvedTone,
@@ -754,6 +916,14 @@ export function ClinicFlowSection({
             ? {
                 '--clinic-hero-overlay-opacity':
                   section.background.image?.overlayOpacity ?? 0.94,
+                ...(heroTextZone
+                  ? {
+                      '--ko-hero-zone-x': `${heroTextZone.x * 100}%`,
+                      '--ko-hero-zone-y': `${heroTextZone.y * 100}%`,
+                      '--ko-hero-zone-width': `${heroTextZone.width * 100}%`,
+                      '--ko-hero-zone-height': `${heroTextZone.height * 100}%`,
+                    }
+                  : {}),
               }
             : {}),
         } as CSSProperties}
@@ -807,7 +977,7 @@ export function ClinicFlowSection({
                 }),
               }}
             >
-              {heading}{' '}
+              {koHeadingBreakOpportunities(heading)}{' '}
             </h1>
             {remainingText.map((element) => (
               <p
@@ -858,6 +1028,9 @@ export function ClinicFlowSection({
   }
 
   if (!projection) {
+    const koMotion = locale === 'ko-KR'
+      && Boolean(motionPlan)
+      && motionPlan?.intensity !== 'off';
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
     );
@@ -894,6 +1067,9 @@ export function ClinicFlowSection({
         {renderSourceBreadcrumbMetadata}
         <div data-clinic-flow-inner>
           <h2
+            {...(koMotion
+              ? { 'data-m': 'reveal', 'data-m-delay': '0', 'data-ko-reveal-group': '0' }
+              : {})}
             data-clinic-flow-heading
             data-font-role="heading"
             data-clinic-typography-tier="section"
@@ -907,9 +1083,14 @@ export function ClinicFlowSection({
               }),
             }}
           >
-            {section.name}
+            {koHeadingBreakOpportunities(section.name)}
           </h2>
-          <div data-clinic-flow-items>
+          <div
+            data-clinic-flow-items
+            {...(koMotion
+              ? { 'data-m': 'reveal', 'data-m-delay': '70', 'data-ko-reveal-group': '1' }
+              : {})}
+          >
             {faqLike ? content.map((element, index) => (
               /[?？]\s*$/u.test(element.text) ? (
                 <article key={element.id} data-clinic-flow-item>
@@ -1001,6 +1182,9 @@ export function ClinicFlowSection({
     locale === 'ko-KR'
     && projection.resolvedId === 'features.prose-article'
   );
+  const koMotion = locale === 'ko-KR'
+    && Boolean(motionPlan)
+    && motionPlan?.intensity !== 'off';
 
   return (
     <section
@@ -1031,6 +1215,9 @@ export function ClinicFlowSection({
       <div data-clinic-flow-inner>
         {!koProseArticle ? (
           <h2
+            {...(koMotion
+              ? { 'data-m': 'reveal', 'data-m-delay': '0', 'data-ko-reveal-group': '0' }
+              : {})}
             data-clinic-flow-heading
             data-font-role="heading"
             data-clinic-typography-tier="section"
@@ -1044,13 +1231,16 @@ export function ClinicFlowSection({
               }),
             }}
           >
-            {sectionTitle}
+            {koHeadingBreakOpportunities(sectionTitle)}
           </h2>
         ) : null}
         {introNodes}
         <ItemsTag
           data-clinic-flow-items
           style={itemGridStyle}
+          {...(koMotion
+            ? { 'data-m': 'reveal', 'data-m-delay': '70', 'data-ko-reveal-group': '1' }
+            : {})}
         >
           {projection.items.map((item) => (
             <FlowItem

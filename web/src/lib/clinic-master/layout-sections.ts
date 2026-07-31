@@ -42,6 +42,13 @@ export interface ClinicLayoutImage {
   sourceHeight?: number;
   textDense?: boolean;
   heroTextRegionLuminance?: number;
+  heroTextZone?: {
+    side: 'left' | 'right';
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 export interface ClinicLayoutContentUnit {
@@ -119,6 +126,28 @@ export function buildClinicHeroSection(input: {
     },
   });
   section.heroLayout = resolved.projection;
+  const heroTextZoneElement: CanvasElement | undefined = input.image?.heroTextZone
+    ? (() => {
+    const zone = input.image.heroTextZone;
+    return {
+      id: [
+        input.id,
+        'hero-text-zone',
+        zone.side,
+        `x${Math.round(zone.x * 10_000)}`,
+        `y${Math.round(zone.y * 10_000)}`,
+        `w${Math.round(zone.width * 10_000)}`,
+        `h${Math.round(zone.height * 10_000)}`,
+      ].join('-'),
+      kind: 'shape',
+      shape: 'rect',
+      frame: AUTHORED_FRAME,
+      z: 0,
+      style: {},
+      entrance: { effect: 'none' },
+    };
+  })()
+    : undefined;
   const articleEvidence = input.articleEvidence
     ? [
         sourceText(input.articleEvidence.author, 'article-author', input.theme, 'body'),
@@ -156,7 +185,11 @@ export function buildClinicHeroSection(input: {
       ]
         .filter((element): element is TextElement => Boolean(element))
     : [];
-  section.elements = [...resolved.elements, ...articleEvidence];
+  section.elements = [
+    ...resolved.elements,
+    ...articleEvidence,
+    ...(heroTextZoneElement ? [heroTextZoneElement] : []),
+  ];
   section.height = resolved.height;
   return section;
 }

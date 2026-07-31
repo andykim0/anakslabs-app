@@ -11,6 +11,13 @@ export const CLINIC_OCR_TEXT_AREA_RATIO_THRESHOLD = 0.025;
 export const CLINIC_OCR_LINE_COUNT_THRESHOLD = 6;
 export const CLINIC_OCR_CHARACTER_COUNT_THRESHOLD = 48;
 export const CLINIC_HERO_TEXT_REGION_WIDTH_RATIO = 0.55;
+export const CLINIC_HERO_TEXT_ZONE = Object.freeze({
+  y: 0.16,
+  width: 0.38,
+  height: 0.68,
+  leftX: 0.08,
+  rightX: 0.54,
+});
 
 interface VisionLine {
   text: string;
@@ -62,6 +69,88 @@ async function meanHeroRegionLuminance(imagePath: string): Promise<number> {
     );
   }
   return luminance / (data.length / info.channels);
+}
+
+interface LuminanceStats {
+  mean: number;
+  variance: number;
+}
+
+async function luminanceStatsForNormalizedRegion(
+  imagePath: string,
+  region: { x: number; y: number; width: number; height: number },
+): Promise<LuminanceStats> {
+  const metadata = await sharp(imagePath).metadata();
+  if (!metadata.width || !metadata.height) {
+    throw new Error(`CLINIC_IMAGE_DIMENSIONS_MISSING:${imagePath}`);
+  }
+  const left = Math.max(0, Math.floor(metadata.width * region.x));
+  const top = Math.max(0, Math.floor(metadata.height * region.y));
+  const width = Math.max(
+    1,
+    Math.min(metadata.width - left, Math.floor(metadata.width * region.width)),
+  );
+  const height = Math.max(
+    1,
+    Math.min(metadata.height - top, Math.floor(metadata.height * region.height)),
+  );
+  const { data, info } = await sharp(imagePath)
+    .extract({ left, top, width, height })
+    .resize({ width: 48, height: 48, fit: 'fill' })
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const values: number[] = [];
+  let total = 0;
+  for (let offset = 0; offset < data.length; offset += info.channels) {
+    const value = (
+      0.2126 * srgbChannel(data[offset])
+      + 0.7152 * srgbChannel(data[offset + 1])
+      + 0.0722 * srgbChannel(data[offset + 2])
+    );
+    values.push(value);
+    total += value;
+  }
+  const mean = total / values.length;
+  const variance = values.reduce(
+    (sum, value) => sum + (value - mean) ** 2,
+    0,
+  ) / values.length;
+  return { mean, variance };
+}
+
+export async function resolveClinicHeroTextZone(
+  imagePath: string,
+): Promise<NonNullable<KoClinicOptimizedImage['analysis']['heroTextZone']>> {
+  const left = await luminanceStatsForNormalizedRegion(imagePath, {
+    x: CLINIC_HERO_TEXT_ZONE.leftX,
+    y: CLINIC_HERO_TEXT_ZONE.y,
+    width: CLINIC_HERO_TEXT_ZONE.width,
+    height: CLINIC_HERO_TEXT_ZONE.height,
+  });
+  const right = await luminanceStatsForNormalizedRegion(imagePath, {
+    x: CLINIC_HERO_TEXT_ZONE.rightX,
+    y: CLINIC_HERO_TEXT_ZONE.y,
+    width: CLINIC_HERO_TEXT_ZONE.width,
+    height: CLINIC_HERO_TEXT_ZONE.height,
+  });
+  const side = right.variance < left.variance ? 'right' : 'left';
+  const selected = side === 'left' ? left : right;
+  const opposite = side === 'left' ? right : left;
+  return {
+    version: 1 as const,
+    method: 'local-luminance-variance-v1' as const,
+    side,
+    x: side === 'left'
+      ? CLINIC_HERO_TEXT_ZONE.leftX
+      : CLINIC_HERO_TEXT_ZONE.rightX,
+    y: CLINIC_HERO_TEXT_ZONE.y,
+    width: CLINIC_HERO_TEXT_ZONE.width,
+    height: CLINIC_HERO_TEXT_ZONE.height,
+    meanLuminance: selected.mean,
+    luminanceVariance: selected.variance,
+    oppositeVariance: opposite.variance,
+  };
 }
 
 function parseVisionOutput(stdout: string): Map<string, VisionResult> {
@@ -118,6 +207,7 @@ export async function analyzeClinicImages(input: {
         textAreaRatio,
         textDense,
         heroTextRegionLuminance: await meanHeroRegionLuminance(imagePath),
+        heroTextZone: await resolveClinicHeroTextZone(imagePath),
       },
     };
   }));

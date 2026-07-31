@@ -106,6 +106,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         pageHeading={props.clinicPageHeading}
         hrefForPageSlug={props.hrefForPageSlug}
         locale={props.clinicLocale}
+        motionPlan={plan}
       />
     );
   }

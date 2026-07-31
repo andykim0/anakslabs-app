@@ -809,7 +809,7 @@ export function SiteRenderer({
             ))}
           </div>
         )}
-        {page.slug === '' && config.connectors ? (
+        {page.slug === '' && config.connectors && clinicLocale !== 'ko-KR' ? (
           <ConnectorPanel
             manifest={config.connectors}
             theme={theme}
@@ -819,6 +819,7 @@ export function SiteRenderer({
         ) : null}
         {config.clinicMaster && (
           page.slug === ''
+          || clinicLocale === 'ko-KR'
           || clinicExperience?.mode === 'live'
           || clinicExperience?.mode === 'preview-full'
           || clinicExperience?.mode === 'outreach-safe'
@@ -836,6 +837,7 @@ export function SiteRenderer({
               ? clinicExperience.sourcePhone
               : undefined}
             locale={clinicLocale}
+            connectors={clinicLocale === 'ko-KR' ? config.connectors : undefined}
           />
         ) : null}
       </div>

@@ -430,6 +430,7 @@ export function SectionStack({
         pageHeading={clinicPageHeading}
         hrefForPageSlug={hrefForPageSlug}
         locale={clinicLocale}
+        motionPlan={plan}
       />
     );
   }

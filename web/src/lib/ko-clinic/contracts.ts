@@ -114,6 +114,22 @@ export interface KoClinicOptimizedImage {
     textDense: boolean;
     /** Mean WCAG relative luminance for the left 55% hero-copy candidate region. */
     heroTextRegionLuminance: number;
+    /**
+     * Generation-time-only copy placement evidence. The renderer consumes the normalized
+     * resolver result and never performs OCR or pixel analysis in the browser.
+     */
+    heroTextZone?: {
+      version: 1;
+      method: 'local-luminance-variance-v1';
+      side: 'left' | 'right';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      meanLuminance: number;
+      luminanceVariance: number;
+      oppositeVariance: number;
+    };
   };
 }
 
@@ -132,4 +148,10 @@ export interface KoClinicCompilation {
   adDiagnostics: readonly KoClinicAdDiagnostic[];
   sourceUrlBySlug: Readonly<Record<string, string>>;
   renderIntegrity: KoClinicRenderIntegrity;
+  trustSignals: readonly {
+    id: 'center-count' | 'history' | 'academic-activity-count';
+    label: string;
+    value: string;
+    sourceUrls: readonly string[];
+  }[];
 }

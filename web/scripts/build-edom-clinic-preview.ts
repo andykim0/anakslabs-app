@@ -17,10 +17,18 @@ import { buildJsonLd } from '@/lib/seo/jsonld';
 import type { Site } from '@/lib/types/domain';
 import {
   compileKoClinicSite,
+  auditKoClinicDensity,
   edomClinicImageManifest,
   extractIndependentOriginalText,
   extractKoClinicPage,
 } from '@/lib/ko-clinic';
+import { resolveSectionSurfaceTone } from '@/lib/design/site-theme-tokens';
+import {
+  oklchToSrgb,
+  parseOklch,
+  relativeLuminance as srgbRelativeLuminance,
+} from '@/lib/design/dna/color';
+import { FEATURE_LAYOUT_CATALOG } from '@/lib/layout/feature-catalog';
 
 const CRAWL_REPORT = process.env.EDOM_CRAWL_REPORT
   ?? '/private/tmp/edom-fixed-crawl/crawl-report.json';
@@ -187,6 +195,9 @@ function normalizedAuditText(value: string): string {
 }
 
 function relativeLuminance(value: string): number {
+  if (value.startsWith('oklch(')) {
+    return srgbRelativeLuminance(oklchToSrgb(parseOklch(value)));
+  }
   const match = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/iu.exec(value);
   if (!match) return 0;
   const channel = (hex: string) => {
@@ -516,25 +527,39 @@ async function main() {
     asset.publicPath,
     asset.analysis,
   ]));
+  const darkHeroPaint = resolveSectionSurfaceTone(config.theme, 'dark');
+  // The KO hero scrim resolves from --clinic-section-surface, so the build-time
+  // contrast audit must composite against that exact rendered color.
+  const darkHeroLuminance = relativeLuminance(darkHeroPaint.surface);
+  const darkHeroTextLuminance = relativeLuminance(darkHeroPaint.text);
+  const heroTextZoneOverlayOpacity = 0.94;
+  const heroImageOpacity = 0.82;
   const heroContrast = config.pages.flatMap((page) => {
     const hero = page.sections.find((section) => section.type === 'hero');
     const image = hero?.background.image;
     if (!image) return [];
     const analysis = imageAnalysisByPath.get(image.src);
     if (!analysis) throw new Error(`EDOM_HERO_IMAGE_ANALYSIS_MISSING:${page.slug}`);
-    const overlayOpacity = image.overlayOpacity ?? 0;
+    const rawLuminance = analysis.heroTextZone?.meanLuminance
+      ?? analysis.heroTextRegionLuminance;
+    const imageOverDark = (
+      heroImageOpacity * rawLuminance
+      + (1 - heroImageOpacity) * darkHeroLuminance
+    );
     const compositeLuminance = (
-      overlayOpacity + (1 - overlayOpacity) * analysis.heroTextRegionLuminance
+      heroTextZoneOverlayOpacity * darkHeroLuminance
+      + (1 - heroTextZoneOverlayOpacity) * imageOverDark
     );
     return [{
       slug: page.slug,
       image: image.src,
       textDense: analysis.textDense,
-      rawLuminance: analysis.heroTextRegionLuminance,
-      overlayOpacity,
+      rawLuminance,
+      textZone: analysis.heroTextZone,
+      overlayOpacity: heroTextZoneOverlayOpacity,
       measuredCompositeContrast: contrastRatio(
         compositeLuminance,
-        relativeLuminance(config.theme.palette.text),
+        darkHeroTextLuminance,
       ),
     }];
   });
@@ -632,7 +657,15 @@ async function main() {
       const projectedIds = new Set(section.sectionLayout?.items.flatMap(
         (item) => item.elementIds,
       ) ?? []);
-      return section.elements.flatMap((element) => (
+      const sectionHeading = (
+        section.sectionLayout?.resolvedId !== 'features.prose-article'
+        && loweredStructureLabels.some((label) => (
+          normalizedAuditText(section.name).startsWith(label)
+        ))
+      )
+        ? [{ slug: page.slug, sectionId: section.id, text: section.name }]
+        : [];
+      return [...sectionHeading, ...section.elements.flatMap((element) => (
         element.kind === 'text'
         && projectedIds.has(element.id)
         && loweredStructureLabels.some((label) => (
@@ -640,7 +673,7 @@ async function main() {
         ))
           ? [{ slug: page.slug, sectionId: section.id, text: element.text }]
           : []
-      ));
+      ))];
     })
   ));
   if (
@@ -673,6 +706,88 @@ async function main() {
     .reduce((sum, section) => (
       sum + section.elements.filter((element) => element.kind === 'image').length
     ), 0) ?? 0;
+  const density = auditKoClinicDensity(config);
+  if (!density.pass) {
+    throw new Error(`EDOM_KO_DENSITY_INVALID:${JSON.stringify(density)}`);
+  }
+  const standardBlocks = {
+    providers: homeCompiled?.sections.filter((section) => (
+      section.id === 'ko-home-providers'
+    )).length ?? 0,
+    reservation: homeCompiled?.sections.filter((section) => (
+      section.id === 'ko-home-reservation'
+    )).length ?? 0,
+    video: homeCompiled?.sections.filter((section) => (
+      section.id === 'ko-home-videos'
+    )).length ?? 0,
+    trust: homeCompiled?.sections.filter((section) => (
+      section.id === 'ko-home-trust-signals'
+    )).length ?? 0,
+    visibleRelatedImageLabels: config.pages.reduce((count, page) => (
+      count + page.sections.filter((section) => /관련 이미지/u.test(section.name)).length
+    ), 0),
+    homeTailGalleryImages,
+  };
+  if (
+    standardBlocks.providers !== 1
+    || standardBlocks.reservation !== 1
+    || standardBlocks.video !== 1
+    || standardBlocks.trust !== 1
+    || standardBlocks.visibleRelatedImageLabels !== 0
+    || standardBlocks.homeTailGalleryImages !== 0
+  ) {
+    throw new Error(`EDOM_KO_STANDARD_BLOCKS_INVALID:${JSON.stringify(standardBlocks)}`);
+  }
+  const sourceUrlSet = new Set(extractedWithRaw.map((entry) => (
+    canonicalSourceUrl(entry.page.sourceUrl)
+  )));
+  const invalidTrustSignals = first.trustSignals.filter((signal) => (
+    signal.sourceUrls.length === 0
+    || signal.sourceUrls.some((sourceUrl) => !sourceUrlSet.has(canonicalSourceUrl(sourceUrl)))
+  ));
+  if (first.trustSignals.length !== 3 || invalidTrustSignals.length > 0) {
+    throw new Error(
+      `EDOM_KO_TRUST_SIGNALS_INVALID:${first.trustSignals.length}:`
+      + `${JSON.stringify(invalidTrustSignals)}`,
+    );
+  }
+  const connectorItems = config.connectors?.items ?? [];
+  const invalidConnectorItems = connectorItems.filter((item) => (
+    !['tel', 'kakao-channel', 'naver-booking', 'naver-map'].includes(item.id)
+    || !item.href
+  ));
+  if (
+    connectorItems.length < 3
+    || connectorItems.length > 4
+    || invalidConnectorItems.length > 0
+  ) {
+    throw new Error(
+      `EDOM_KO_CONNECTOR_CONTRACT_INVALID:${connectorItems.length}:`
+      + `${JSON.stringify(invalidConnectorItems)}`,
+    );
+  }
+  const invalidHeroTextZones = imageManifest.assets.filter((asset) => {
+    const zone = asset.analysis.heroTextZone;
+    return !zone
+      || zone.luminanceVariance > zone.oppositeVariance
+      || zone.x < 0
+      || zone.y < 0
+      || zone.width <= 0
+      || zone.height <= 0
+      || zone.x + zone.width > 1
+      || zone.y + zone.height > 1;
+  });
+  if (invalidHeroTextZones.length > 0) {
+    throw new Error(`EDOM_KO_HERO_TEXT_ZONE_INVALID:${invalidHeroTextZones.length}`);
+  }
+  const variantUsage = Object.fromEntries(FEATURE_LAYOUT_CATALOG.map((variant) => [
+    variant.id,
+    config.pages.reduce((count, page) => (
+      count + page.sections.filter((section) => (
+        section.sectionLayout?.resolvedId === variant.id
+      )).length
+    ), 0),
+  ]));
   const artifacts: Record<string, unknown> = {
     'site-config.json': config,
     'crawl-artifact.json': crawlArtifact,
@@ -681,6 +796,7 @@ async function main() {
     'publication-holds.json': first.publicationHolds,
     'ad-diagnostics.json': first.adDiagnostics,
     'source-url-by-slug.json': first.sourceUrlBySlug,
+    'trust-signals.json': first.trustSignals,
     'independent-original-text.json': extractedWithRaw.map((entry) => (
       entry.independentOriginal
     )),
@@ -717,6 +833,12 @@ async function main() {
         duplicateSlugs,
         duplicateTitles,
         originalDuplicateOrEmptyDocumentTitles: originalTitleGroups,
+      },
+      koDesign: {
+        density,
+        standardBlocks,
+        trustSignals: first.trustSignals,
+        variantUsage,
       },
       publicationHolds: {
         count: first.publicationHolds.length,

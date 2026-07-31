@@ -49,6 +49,7 @@ export default async function SharedImportPreviewPage({
     && preview.siteConfig.meta.market === 'US-CA'
     && preview.siteConfig.meta.jurisdiction === 'US';
   const isKoClinicImport = preview.siteConfig.clinicMaster?.demoPitchLocale === 'ko-owner';
+  const koClinicMotion = isKoClinicImport && !isUsMedicalDemo;
   const artifact = isUsMedicalDemo
     ? await getCrawlArtifact(preview.crawlArtifactId)
     : null;
@@ -156,7 +157,7 @@ export default async function SharedImportPreviewPage({
             config={preview.siteConfig}
             pageSlug={pageSlug}
             interactive={false}
-            animate={false}
+            animate={koClinicMotion}
             hrefForSlug={hrefForSlug}
             clinicExperience={clinicExperience}
           />

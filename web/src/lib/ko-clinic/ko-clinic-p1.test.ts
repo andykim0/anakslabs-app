@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { parse } from 'node-html-parser';
 import { KO_CLINIC_FLOW_MEASURE_CSS } from '@/components/site-renderer/ClinicFlowSection';
+import { ClinicStickyBooking } from '@/components/site-renderer/ClinicStickyBooking';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { featureLayoutById } from '@/lib/layout';
 import {
   compileKoClinicSite,
   extractIndependentOriginalText,
   extractKoClinicPage,
+  KO_CLINIC_DENSITY_CONTRACT,
   koClinicSlugForSourceUrl,
 } from '.';
+import type { KoClinicOptimizedImage } from './contracts';
 import { normalizeKoClinicText } from './source-extraction';
 
 const STATIC_HTML = `<!doctype html><html lang="ko"><body>
@@ -689,4 +693,188 @@ test('source URL slug mapping is stable and preserves the empty home contract', 
     koClinicSlugForSourceUrl('https://edomclinic.com/bbs/board.php?wr_id=12&bo_table=news'),
     'community-news-12',
   );
+});
+
+test('KO-D density limits are pinned to the declared 30-site survey quantiles', () => {
+  assert.deepEqual(KO_CLINIC_DENSITY_CONTRACT, {
+    version: 1,
+    source: '/private/tmp/ko-survey/raw-measurements.json',
+    sampleSize: 30,
+    sectionBodyCharacters: {
+      lower: 42,
+      upper: 899,
+      lowerQuantile: 'P10',
+      upperQuantile: 'P90',
+      sampleCount: 111,
+    },
+    homeSectionCount: {
+      lower: 4,
+      upper: 8,
+      lowerQuantile: 'P25',
+      upperQuantile: 'P90',
+    },
+    maximumConsecutiveImageLessSections: {
+      value: 3,
+      quantile: 'P90',
+    },
+  });
+});
+
+test('KO-D image manifest pins a bounded lowest-variance hero copy zone for every asset', () => {
+  const manifest = JSON.parse(readFileSync(
+    new URL('./edom-image-manifest.generated.json', import.meta.url),
+    'utf8',
+  )) as { assets: KoClinicOptimizedImage[] };
+  assert.ok(manifest.assets.length > 0);
+  for (const asset of manifest.assets) {
+    const zone = asset.analysis.heroTextZone;
+    assert.ok(zone, asset.publicPath);
+    assert.equal(zone.method, 'local-luminance-variance-v1');
+    assert.ok(zone.luminanceVariance <= zone.oppositeVariance, asset.publicPath);
+    assert.ok(zone.x >= 0 && zone.y >= 0, asset.publicPath);
+    assert.ok(zone.x + zone.width <= 1, asset.publicPath);
+    assert.ok(zone.y + zone.height <= 1, asset.publicPath);
+  }
+});
+
+test('KO-D hero consumes the generated text zone and exposes a single-image slider seam', () => {
+  const page = extractKoClinicPage({
+    html: STATIC_HTML.replace(
+      '<h2><em>하</em><em>지</em><em>정</em><em>맥</em><em>류</em></h2>',
+      '<h2>당신의건강에이롭도록진심을담아진료합니다</h2>',
+    ),
+    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  });
+  const sourceImage = page.images.find((image) => image.classification === 'content');
+  assert.ok(sourceImage);
+  const compilation = compileKoClinicSite({
+    pages: [page],
+    images: [{
+      sourceUrl: sourceImage.sourceUrl,
+      publicPath: '/clinic/edom/hero-zone-test.webp',
+      sourceSha256: 'a'.repeat(64),
+      optimizedSha256: 'b'.repeat(64),
+      sourceBytes: 1_024,
+      optimizedBytes: 512,
+      width: 1_200,
+      height: 800,
+      alt: sourceImage.alt,
+      analysis: {
+        version: 1,
+        engine: 'apple-vision-v1',
+        recognizedLineCount: 0,
+        recognizedCharacterCount: 0,
+        textAreaRatio: 0,
+        textDense: false,
+        heroTextRegionLuminance: 0.3,
+        heroTextZone: {
+          version: 1,
+          method: 'local-luminance-variance-v1',
+          side: 'right',
+          x: 0.54,
+          y: 0.16,
+          width: 0.38,
+          height: 0.68,
+          meanLuminance: 0.3,
+          luminanceVariance: 0.01,
+          oppositeVariance: 0.03,
+        },
+      },
+    }],
+  });
+  const html = renderToStaticMarkup(createElement(SiteRenderer, {
+    config: compilation.config,
+    pageSlug: 'center-vascular',
+    interactive: false,
+    animate: false,
+  }));
+  assert.match(html, /data-clinic-hero-text-zone="right"/u);
+  assert.match(html, /data-clinic-hero-slider="reserved"/u);
+  assert.match(html, /data-clinic-hero-slide-count="1"/u);
+  assert.match(html, /--ko-hero-zone-x:54%/u);
+  assert.match(html, /<wbr\/>/u);
+  assert.equal(
+    parse(html).querySelector('h1')?.text.trim(),
+    '당신의건강에이롭도록진심을담아진료합니다',
+  );
+});
+
+test('KO-D sticky surface exposes only connected KO channels and leaves EN markup unchanged', () => {
+  const pin = {
+    version: 1 as const,
+    masterId: 'premium-dental-v1' as const,
+    accentPreset: 'clean-blue' as const,
+    typographyPreset: 'clinic-neutral' as const,
+    density: 'airy' as const,
+    focus: 'balanced' as const,
+    demoPitchLocale: 'ko-owner' as const,
+    paletteSource: {
+      version: 1 as const,
+      kind: 'neutral' as const,
+      sourceSha256: 'c'.repeat(64),
+    },
+    stockManifestVersion: 1,
+  };
+  const ko = renderToStaticMarkup(createElement(ClinicStickyBooking, {
+    pin,
+    locale: 'ko-KR',
+    interactive: true,
+    connectors: {
+      catalogVersion: 1,
+      items: [
+        { id: 'tel', label: '전화 문의', href: 'tel:025472004', displayPhone: '02-547-2004' },
+        {
+          id: 'kakao-channel',
+          label: '카카오 상담',
+          href: 'https://pf.kakao.com/_source',
+          channelId: '_source',
+        },
+        {
+          id: 'naver-map',
+          label: '오시는 길',
+          href: 'https://map.naver.com/p/search/source',
+          address: '원문 주소',
+        },
+      ],
+    },
+  }));
+  const koRoot = parse(ko);
+  assert.match(ko, /data-clinic-sticky-locale="ko-KR"/u);
+  assert.equal((ko.match(/data-clinic-connector-id=/gu) ?? []).length, 3);
+  assert.equal(
+    koRoot.querySelector('[data-clinic-sticky-booking]')?.getAttribute('aria-disabled'),
+    undefined,
+  );
+  assert.equal(koRoot.querySelectorAll('[aria-disabled="true"]').length, 0);
+  assert.doesNotMatch(ko, /예약 시스템을 연결/u);
+
+  const en = renderToStaticMarkup(createElement(ClinicStickyBooking, {
+    pin,
+    locale: 'en-US',
+    interactive: false,
+  }));
+  assert.match(en, /Book Appointment/u);
+  assert.match(en, /Booking activates when you connect your system\./u);
+  assert.doesNotMatch(en, /data-clinic-connector-id=/u);
+});
+
+test('KO-D reveal contract stays subtle and reduced motion is a complete stop', () => {
+  const previewRoute = readFileSync(
+    new URL('../../app/preview/[token]/[[...path]]/page.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(KO_CLINIC_FLOW_MEASURE_CSS, /translateY\(24px\)/u);
+  assert.match(KO_CLINIC_FLOW_MEASURE_CSS, /translateY\(16px\)/u);
+  assert.match(KO_CLINIC_FLOW_MEASURE_CSS, /transition-duration:\s*280ms/u);
+  assert.match(
+    KO_CLINIC_FLOW_MEASURE_CSS,
+    /prefers-reduced-motion:\s*reduce[\s\S]*opacity:\s*1 !important[\s\S]*transform:\s*none !important[\s\S]*transition:\s*none !important/u,
+  );
+  assert.doesNotMatch(KO_CLINIC_FLOW_MEASURE_CSS, /perspective|translateZ|parallax/iu);
+  assert.match(
+    previewRoute,
+    /const koClinicMotion = isKoClinicImport && !isUsMedicalDemo;/u,
+  );
+  assert.match(previewRoute, /interactive=\{false\}[\s\S]*animate=\{koClinicMotion\}/u);
+  assert.match(previewRoute, /interactive[\s\S]*animate=\{false\}/u);
 });

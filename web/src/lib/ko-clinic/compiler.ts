@@ -13,11 +13,22 @@ import {
   buildClinicHeroSection,
   buildClinicDirectionsSection,
   buildClinicSourceMetadataElements,
+  buildClinicStatStripSection,
   resolveClinicMasterTheme,
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
   type ClinicMasterSourceBlock,
 } from '@/lib/clinic-master';
+import {
+  businessDirectionsHref,
+  businessPhoneHref,
+  isRecognizedChatUrl,
+} from '@/lib/analytics/trackable-actions';
+import {
+  CONNECTOR_CATALOG_VERSION,
+  type SiteConnector,
+  type SiteConnectorManifest,
+} from '@/lib/connectors/types';
 import {
   MEDICAL_AD_POLICY_VERSION,
   screenMedicalCopy,
@@ -421,7 +432,399 @@ function clinicImage(
     sourceHeight: asset.height,
     textDense: asset.analysis.textDense,
     heroTextRegionLuminance: asset.analysis.heroTextRegionLuminance,
+    heroTextZone: asset.analysis.heroTextZone,
   };
+}
+
+function sourceFragmentBlock(input: {
+  block: KoClinicSourceBlock;
+  id: string;
+  text: string;
+}): ClinicMasterSourceBlock {
+  if (!input.block.text.includes(input.text)) {
+    throw new Error(`KO_CLINIC_SOURCE_FRAGMENT_MISSING:${input.block.id}:${input.text}`);
+  }
+  return {
+    id: input.id,
+    kind: 'service_detail',
+    text: input.text,
+    sourceUrl: input.block.sourceUrl,
+  };
+}
+
+function pageBySlug(
+  pages: readonly KoClinicExtractedPage[],
+  slug: string,
+): KoClinicExtractedPage | undefined {
+  return pages.find((page) => koClinicSlugForSourceUrl(page.sourceUrl) === slug);
+}
+
+function publishedPageImages(input: {
+  page: KoClinicExtractedPage;
+  imageManifest: ReadonlyMap<string, KoClinicOptimizedImage>;
+}): ClinicLayoutImage[] {
+  return input.page.images
+    .filter((image) => image.classification === 'content')
+    .map((image) => clinicImage(image.sourceUrl, image, input.imageManifest));
+}
+
+type TrustSignals = KoClinicCompilation['trustSignals'];
+
+function deriveTrustSignals(input: {
+  pages: readonly KoClinicExtractedPage[];
+  home: KoClinicExtractedPage;
+}): TrustSignals {
+  const centerSlugs = [
+    'center-vascular',
+    'center-surgery',
+    'center-spine-joint',
+    'center-internal-medicine',
+    'center-plastic-skin',
+  ];
+  const centerPages = centerSlugs
+    .map((slug) => pageBySlug(input.pages, slug))
+    .filter((page): page is KoClinicExtractedPage => Boolean(page));
+  const history = input.home.blocks.find((block) => /\d+\s*년\s*이상/u.test(block.text));
+  const historyValue = history?.text.match(/\d+\s*년\s*이상/u)?.[0];
+  const academicPages = input.pages.filter((page) => page.board?.table === 'edu');
+  return [
+    ...(centerPages.length > 0
+      ? [{
+          id: 'center-count' as const,
+          label: '센터',
+          value: String(centerPages.length),
+          sourceUrls: centerPages.map((page) => page.sourceUrl),
+        }]
+      : []),
+    ...(history && historyValue
+      ? [{
+          id: 'history' as const,
+          label: '진료 경험',
+          value: historyValue.replace(/\s+/gu, ' '),
+          sourceUrls: [history.sourceUrl],
+        }]
+      : []),
+    ...(academicPages.length > 0
+      ? [{
+          id: 'academic-activity-count' as const,
+          label: '학술활동',
+          value: String(academicPages.length),
+          sourceUrls: academicPages.map((page) => page.sourceUrl),
+        }]
+      : []),
+  ];
+}
+
+function connectorFacts(input: {
+  pages: readonly KoClinicExtractedPage[];
+}): {
+  manifest?: SiteConnectorManifest;
+  phone?: ClinicMasterSourceBlock;
+  address?: ClinicMasterSourceBlock;
+  hours?: ClinicMasterSourceBlock;
+} {
+  const blocks = input.pages.flatMap((page) => page.blocks);
+  const phoneBlock = blocks.find((block) => /02[- )]?547[- )]?2004/u.test(block.text));
+  const phoneText = phoneBlock?.text.match(/02[- )]?547[- )]?2004/u)?.[0];
+  const addressBlock = blocks.find((block) => (
+    /서울시\s*강남구\s*도산대로\s*235/u.test(block.text)
+  ));
+  const addressText = addressBlock?.text.match(
+    /서울시\s*강남구\s*도산대로\s*235[^\n]*/u,
+  )?.[0]?.trim();
+  const hoursBlock = blocks.find((block) => (
+    /월\s*\/\s*수\s*\/\s*금\s*:\s*오전\s*9시\s*~\s*오후\s*6시/u.test(block.text)
+  ));
+  const hoursText = hoursBlock?.text.match(
+    /월\s*\/\s*수\s*\/\s*금\s*:\s*오전\s*9시\s*~\s*오후\s*6시/u,
+  )?.[0];
+  const kakaoBlock = blocks.find((block) => /https?:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]+/u.test(
+    block.text,
+  ));
+  const rawKakao = kakaoBlock?.text.match(
+    /https?:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]+/u,
+  )?.[0];
+  const kakaoHref = rawKakao?.replace(/^http:/u, 'https:');
+  const items: SiteConnector[] = [];
+  if (phoneText) {
+    const href = businessPhoneHref(phoneText);
+    if (href) {
+      items.push({
+        id: 'tel',
+        label: '전화 문의',
+        href,
+        displayPhone: phoneText,
+      });
+    }
+  }
+  if (kakaoHref && isRecognizedChatUrl(kakaoHref)) {
+    items.push({
+      id: 'kakao-channel',
+      label: '카카오 상담',
+      href: kakaoHref,
+      channelId: new URL(kakaoHref).pathname.split('/').filter(Boolean)[0],
+    });
+  }
+  if (addressText) {
+    const href = businessDirectionsHref(addressText);
+    if (href) {
+      items.push({
+        id: 'naver-map',
+        label: '오시는 길',
+        href,
+        address: addressText,
+      });
+    }
+  }
+  return {
+    ...(items.length > 0
+      ? {
+          manifest: {
+            catalogVersion: CONNECTOR_CATALOG_VERSION,
+            items,
+          },
+        }
+      : {}),
+    ...(phoneBlock && phoneText
+      ? {
+          phone: sourceFragmentBlock({
+            block: phoneBlock,
+            id: 'ko-contact-phone-source',
+            text: phoneText,
+          }),
+        }
+      : {}),
+    ...(addressBlock && addressText
+      ? {
+          address: sourceFragmentBlock({
+            block: addressBlock,
+            id: 'ko-contact-address-source',
+            text: addressText,
+          }),
+        }
+      : {}),
+    ...(hoursBlock && hoursText
+      ? {
+          hours: sourceFragmentBlock({
+            block: hoursBlock,
+            id: 'ko-contact-hours-source',
+            text: hoursText,
+          }),
+        }
+      : {}),
+  };
+}
+
+function koClinicHomeStandardSections(input: {
+  pages: readonly KoClinicExtractedPage[];
+  home: KoClinicExtractedPage;
+  homeProviderImages: readonly ClinicLayoutImage[];
+  imageManifest: ReadonlyMap<string, KoClinicOptimizedImage>;
+  internalHrefBySourceUrl: ReadonlyMap<string, string>;
+  theme: SiteConfig['theme'];
+  trustSignals: TrustSignals;
+  contact: ReturnType<typeof connectorFacts>;
+}): {
+  provider: Section | null;
+  video: Section | null;
+  trust: Section | null;
+  reservation: Section | null;
+} {
+  const providerPage = pageBySlug(input.pages, 'sub1-2');
+  const providerTitles = providerPage?.blocks.filter((block) => (
+    block.kind === 'heading'
+    && /(?:대표원장|전문의|원장).*(?:DR\.|원장)/u.test(
+      normalizedVisibleText(block.render?.text ?? block.text),
+    )
+  )).slice(0, input.homeProviderImages.length) ?? [];
+  const providerHref = providerPage
+    ? input.internalHrefBySourceUrl.get(normalizeSourceUrl(providerPage.sourceUrl))
+    : undefined;
+  const providerSections = providerTitles.length > 0
+    ? buildClinicFeatureSections({
+        id: 'ko-home-providers',
+        name: providerPage?.title.render?.text ?? providerPage?.title.text ?? '의료진소개',
+        units: providerTitles.map((block, index) => ({
+          id: `ko-home-provider-${index + 1}`,
+          title: sourceBlock(block),
+          ...(input.homeProviderImages[index]
+            ? { image: input.homeProviderImages[index] }
+            : {}),
+          ...(providerHref
+            ? { href: providerHref, actionLabel: '의료진 소개 보기' }
+            : {}),
+        })),
+        theme: input.theme,
+        candidates: ['features.three-column-cards'],
+        maximumItems: 6,
+        surface: true,
+      })
+    : [];
+  const provider = providerSections[0] ?? null;
+  if (provider) provider.surfaceTone = 'tint';
+
+  const videoPages = input.pages
+    .filter((page) => page.board?.table === 'tv')
+    .sort((left, right) => (
+      Number(right.board?.wrId ?? 0) - Number(left.board?.wrId ?? 0)
+      || normalizeSourceUrl(left.sourceUrl).localeCompare(normalizeSourceUrl(right.sourceUrl))
+    ))
+    .slice(0, 3);
+  const videoUnits = videoPages.map((page) => {
+    const href = input.internalHrefBySourceUrl.get(normalizeSourceUrl(page.sourceUrl));
+    const image = publishedPageImages({
+      page,
+      imageManifest: input.imageManifest,
+    }).find((candidate) => !candidate.textDense);
+    return {
+      id: `ko-home-video-${page.board!.wrId}`,
+      title: sourceBlock(page.title),
+      ...(image ? { image } : {}),
+      ...(href ? { href, actionLabel: '영상 글 보기' } : {}),
+    };
+  });
+  const videoSections = videoUnits.length > 0
+    ? buildClinicFeatureSections({
+        id: 'ko-home-videos',
+        name: BOARD_LABELS.tv,
+        units: videoUnits,
+        theme: input.theme,
+        candidates: ['features.featured-first', 'features.three-column-cards'],
+        maximumItems: 6,
+      })
+    : [];
+  const video = videoSections[0] ?? null;
+
+  const trustUnits = input.trustSignals.flatMap((signal) => {
+    if (signal.id === 'history') {
+      const block = input.home.blocks.find((candidate) => (
+        signal.sourceUrls.includes(candidate.sourceUrl)
+        && candidate.text.includes(signal.value)
+      ));
+      if (!block) return [];
+      return [{
+        id: 'ko-home-trust-history',
+        title: sourceBlock(block),
+        marker: {
+          source: sourceBlock(block),
+          text: signal.value,
+        },
+      }];
+    }
+    const text = signal.id === 'center-count'
+      ? `${signal.value}개 센터`
+      : `${signal.value}건 학술활동`;
+    const derived: ClinicMasterSourceBlock = {
+      id: `ko-derived-trust-${signal.id}`,
+      kind: 'service_detail',
+      text,
+      sourceUrl: signal.sourceUrls[0],
+    };
+    return [{
+      id: `ko-home-trust-${signal.id}`,
+      title: derived,
+      marker: { source: derived, text: signal.value },
+    }];
+  });
+  const trust = buildClinicStatStripSection({
+    id: 'ko-home-trust-signals',
+    name: '이담의 기록',
+    theme: input.theme,
+    units: trustUnits,
+  });
+  if (trust) trust.surfaceTone = 'dark';
+
+  const rows = [
+    ...(input.contact.phone
+      ? [{ id: 'ko-home-contact-phone', label: '전화', value: input.contact.phone }]
+      : []),
+    ...(input.contact.address
+      ? [{ id: 'ko-home-contact-address', label: '주소', value: input.contact.address }]
+      : []),
+    ...(input.contact.hours
+      ? [{ id: 'ko-home-contact-hours', label: '진료시간', value: input.contact.hours }]
+      : []),
+    {
+      id: 'ko-home-contact-booking-disclosure',
+      label: '예약',
+      value: systemChromeBlock(
+        'booking-disclosure',
+        '예약 시스템을 연결하면 예약 기능이 활성화됩니다.',
+      ),
+    },
+  ];
+  const reservation = buildClinicDirectionsSection({
+    id: 'ko-home-reservation',
+    name: '예약·상담 안내',
+    theme: input.theme,
+    rows,
+    surface: true,
+  });
+  if (reservation) reservation.surfaceTone = 'tint';
+  return { provider, video, trust, reservation };
+}
+
+function koClinicHomeContentSections(input: {
+  home: KoClinicExtractedPage;
+  content: KoClinicContentUnits;
+  sourceMetadata: readonly ClinicMasterSourceBlock[];
+  theme: SiteConfig['theme'];
+}): Section[] {
+  const fourthServiceIndex = input.content.units.findIndex((unit) => (
+    /^04[.]\s*/u.test(normalizedVisibleText(unit.title.text))
+  ));
+  const lastApproachIndex = input.content.units.findLastIndex((unit) => (
+    /협진시스템/u.test(unit.title.text)
+  ));
+  const serviceEnd = fourthServiceIndex >= 0 ? fourthServiceIndex + 1 : Math.min(6, input.content.units.length);
+  const approachEnd = lastApproachIndex >= serviceEnd
+    ? lastApproachIndex + 1
+    : Math.min(serviceEnd + 3, input.content.units.length);
+  const serviceUnits = input.content.units.slice(0, serviceEnd);
+  const approachUnits = input.content.units.slice(serviceEnd, approachEnd);
+  const storyUnits = input.content.units.slice(approachEnd);
+  const services = buildClinicFeatureSections({
+    id: `ko-home-services-${input.home.sourceHtmlSha256.slice(0, 16)}`,
+    name: serviceUnits.find((unit) => /이담의 치료/u.test(unit.title.text))?.title.text
+      ?? '이담의 치료',
+    units: serviceUnits,
+    theme: input.theme,
+    candidates: ['features.three-column-cards', 'features.icon-grid'],
+    maximumItems: 6,
+    surface: true,
+  });
+  const approach = buildClinicFeatureSections({
+    id: `ko-home-approach-${input.home.sourceHtmlSha256.slice(0, 16)}`,
+    name: approachUnits[0]?.title.text ?? '진료 안내',
+    units: approachUnits,
+    theme: input.theme,
+    candidates: ['features.numbered-list', 'features.icon-grid'],
+    maximumItems: 6,
+    numbered: true,
+  });
+  const stories = buildClinicFeatureSections({
+    id: `ko-home-stories-${input.home.sourceHtmlSha256.slice(0, 16)}`,
+    name: storyUnits.find((unit) => (
+      normalizedVisibleText(unit.body?.text ?? '') === '이담 With 스타'
+    ))?.body?.text ?? storyUnits[0]?.title.text ?? input.home.title.text,
+    units: storyUnits,
+    theme: input.theme,
+    candidates: ['features.featured-first', 'features.three-column-cards'],
+    maximumItems: 6,
+    surface: true,
+  });
+  const sections = [...services, ...approach, ...stories];
+  if (services[0]) {
+    const sourceMetadata = buildClinicSourceMetadataElements(
+      input.sourceMetadata,
+      input.theme,
+    );
+    services[0].elements = [...services[0].elements, ...sourceMetadata];
+  }
+  if (services[0]) services[0].surfaceTone = 'tint';
+  if (approach[0]) approach[0].surfaceTone = 'base';
+  if (stories[0]) stories[0].surfaceTone = 'tint';
+  return sections;
 }
 
 function sectionsForPage(input: {
@@ -430,6 +833,11 @@ function sectionsForPage(input: {
   theme: SiteConfig['theme'];
   imageManifest: ReadonlyMap<string, KoClinicOptimizedImage>;
   internalHrefBySourceUrl: ReadonlyMap<string, string>;
+  allPages: readonly KoClinicExtractedPage[];
+  home: KoClinicExtractedPage;
+  trustSignals: TrustSignals;
+  contact: ReturnType<typeof connectorFacts>;
+  isHome: boolean;
   isProcedure: boolean;
   isDirections: boolean;
   renderAssignments: KoClinicRenderAssignment[];
@@ -442,9 +850,12 @@ function sectionsForPage(input: {
   const author = input.page.blocks.find((block) => block.kind === 'author');
   const date = input.page.blocks.find((block) => block.kind === 'published_date');
   const isoDate = date ? isoDateFromVerbatim(date.text) : undefined;
+  const preferredHomeHero = input.isHome
+    ? images.find((image) => /\/main_img1[.]jpg$/u.test(image.source.sourceUrl))
+    : undefined;
   const heroEntry = input.page.board
     ? undefined
-    : images.find((image) => (
+    : preferredHomeHero ?? images.find((image) => (
         image.layout.textDense === false
         && !image.source.renderGroupId?.startsWith('ko-render-group-')
       ));
@@ -476,8 +887,11 @@ function sectionsForPage(input: {
           },
         }
       : {}),
-    requestedId: 'hero.split-left',
+    requestedId: heroImage?.heroTextZone?.side === 'right'
+      ? 'hero.split-right'
+      : 'hero.split-left',
   });
+  hero.surfaceTone = 'dark';
   input.renderAssignments.push(...assignRenderNodes(
     [input.page.title],
     sourceBlock(input.page.title).id,
@@ -497,9 +911,31 @@ function sectionsForPage(input: {
     internalHrefBySourceUrl: input.internalHrefBySourceUrl,
   });
   input.renderAssignments.push(...content.assignments);
+  const sourceMetadataBlocks = [
+    ...content.sourceMetadata,
+    ...input.publishedBlocks.filter((block) => (
+      block.kind === 'category'
+      && LEGACY_MINT_SOURCE_LABELS.has(block.text)
+    )),
+  ]
+    .map(sourceBlock)
+    .concat(
+      [input.page.title, ...input.publishedBlocks]
+        .filter((block) => (
+          block.render
+          && normalizedVisibleText(block.render.text)
+            !== normalizedVisibleText(block.text)
+        ))
+        .map(auditSourceBlock),
+    );
+  const homeProviderEntries = input.isHome
+    ? images.filter((entry) => /\/section2_img0[1-4][.]png$/u.test(entry.source.sourceUrl))
+    : [];
+  const homeProviderIds = new Set(homeProviderEntries.map((entry) => entry.layout.id));
   const unplacedImages: ClinicLayoutImage[] = [];
   const contextualImages = new Map<string, ClinicLayoutImage[]>();
   for (const entry of images.filter((candidate) => candidate.layout.id !== heroImage?.id)) {
+    if (homeProviderIds.has(entry.layout.id)) continue;
     const target = entry.source.renderGroupId
       ? content.units.find((unit) => (
           unit.renderGroupIds.includes(entry.source.renderGroupId!)
@@ -523,6 +959,34 @@ function sectionsForPage(input: {
   if (unplacedImages.length === 1) {
     const fallbackUnit = content.units.find((unit) => !unit.image);
     if (fallbackUnit) fallbackUnit.image = unplacedImages.shift();
+  }
+  if (input.isHome) {
+    const core = koClinicHomeContentSections({
+      home: input.page,
+      content,
+      sourceMetadata: sourceMetadataBlocks,
+      theme: input.theme,
+    });
+    const standard = koClinicHomeStandardSections({
+      pages: input.allPages,
+      home: input.home,
+      homeProviderImages: homeProviderEntries.map((entry) => entry.layout),
+      imageManifest: input.imageManifest,
+      internalHrefBySourceUrl: input.internalHrefBySourceUrl,
+      theme: input.theme,
+      trustSignals: input.trustSignals,
+      contact: input.contact,
+    });
+    return [
+      hero,
+      ...(core[0] ? [core[0]] : []),
+      ...(core[1] ? [core[1]] : []),
+      ...(standard.provider ? [standard.provider] : []),
+      ...(core[2] ? [core[2]] : []),
+      ...(standard.video ? [standard.video] : []),
+      ...(standard.trust ? [standard.trust] : []),
+      ...(standard.reservation ? [standard.reservation] : []),
+    ];
   }
   const proseAndContext: Section[] = [];
   const proseSections: Section[] = [];
@@ -556,48 +1020,31 @@ function sectionsForPage(input: {
   for (const [contextIndex, anchor] of contextAnchors.entries()) {
     appendProse(content.units.slice(unitCursor, anchor.index + 1));
     unitCursor = anchor.index + 1;
+    const contextName = content.units[anchor.index]?.title.text ?? input.page.title.text;
+    const contextGalleryName = `${contextName} 사진`;
     const gallery = buildClinicGallerySections({
       id: `ko-context-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}-${contextIndex + 1}`,
-      name: '관련 이미지',
+      name: contextGalleryName,
       images: contextualImages.get(anchor.unitId) ?? [],
       theme: input.theme,
       candidates: ['gallery.uniform-grid'],
-      groupName: (index) => index === 0 ? '관련 이미지' : `관련 이미지 ${index + 1}`,
+      groupName: () => contextGalleryName,
     });
     for (const section of gallery) section.surfaceTone = 'base';
     proseAndContext.push(...gallery);
   }
   appendProse(content.units.slice(unitCursor));
-  const sourceMetadata = buildClinicSourceMetadataElements(
-    [
-      ...content.sourceMetadata,
-      ...input.publishedBlocks.filter((block) => (
-          block.kind === 'category'
-          && LEGACY_MINT_SOURCE_LABELS.has(block.text)
-        )),
-    ]
-      .map(sourceBlock)
-      .concat(
-        [input.page.title, ...input.publishedBlocks]
-          .filter((block) => (
-            block.render
-            && normalizedVisibleText(block.render.text)
-              !== normalizedVisibleText(block.text)
-          ))
-          .map(auditSourceBlock),
-      ),
-    input.theme,
-  );
+  const sourceMetadata = buildClinicSourceMetadataElements(sourceMetadataBlocks, input.theme);
   if (sourceMetadata.length > 0 && proseSections[0]) {
     proseSections[0].elements = [...proseSections[0].elements, ...sourceMetadata];
   }
   const gallery = buildClinicGallerySections({
     id: `ko-gallery-${input.page.sourceHtmlSha256.slice(0, 16)}`,
-    name: '관련 이미지',
+    name: `${input.page.title.render?.text ?? input.page.title.text} 사진`,
     images: unplacedImages.length >= 2 ? unplacedImages : [],
     theme: input.theme,
     candidates: ['gallery.uniform-grid'],
-    groupName: (index) => index === 0 ? '관련 이미지' : `관련 이미지 ${index + 1}`,
+    groupName: () => `${input.page.title.render?.text ?? input.page.title.text} 사진`,
   });
   gallery.forEach((section, index) => {
     section.surfaceTone = index % 2 === 0 ? 'base' : 'tint';
@@ -635,13 +1082,15 @@ function communityHub(input: {
   slugBySourceUrl: ReadonlyMap<string, string>;
   theme: SiteConfig['theme'];
 }): SitePage {
-  const sections: Section[] = [buildClinicHeroSection({
+  const communityHero = buildClinicHeroSection({
     id: 'ko-community-hero',
     name: '이담클리닉',
     title: systemChromeBlock('community-title', '커뮤니티'),
     theme: input.theme,
     requestedId: 'hero.split-left',
-  })];
+  });
+  communityHero.surfaceTone = 'dark';
+  const sections: Section[] = [communityHero];
   for (const table of Object.keys(BOARD_LABELS) as (keyof typeof BOARD_LABELS)[]) {
     if (table === 'praise' || table === 'customer') continue;
     const posts = input.pages.filter((page) => (
@@ -760,6 +1209,8 @@ export function compileKoClinicSite(input: {
   ]));
   const home = publishablePages.find((page) => koClinicSlugForSourceUrl(page.sourceUrl) === '')
     ?? publishablePages[0];
+  const trustSignals = deriveTrustSignals({ pages: publishablePages, home });
+  const contact = connectorFacts({ pages: publishablePages });
   const pin: ClinicMasterPin = {
     version: 1,
     masterId: 'premium-dental-v1',
@@ -821,6 +1272,11 @@ export function compileKoClinicSite(input: {
         theme,
         imageManifest,
         internalHrefBySourceUrl: hrefBySourceUrl,
+        allPages: publishablePages,
+        home,
+        trustSignals,
+        contact,
+        isHome: slug === '',
         isProcedure: id.startsWith('clinic-procedure-ko-'),
         isDirections: slug === 'directions',
         renderAssignments,
@@ -878,8 +1334,9 @@ export function compileKoClinicSite(input: {
     nav: { enabled: true },
     motion: {
       presetId: 'clinic-premium',
-      intensity: 'off',
+      intensity: 'subtle',
     },
+    ...(contact.manifest ? { connectors: contact.manifest } : {}),
   };
   const expectedRenderNodes = publishablePages.flatMap((page) => {
     const heldIds = new Set(publicationHolds
@@ -933,6 +1390,7 @@ export function compileKoClinicSite(input: {
     publicationHolds,
     adDiagnostics,
     sourceUrlBySlug: Object.fromEntries([...slugBySourceUrl].map(([url, slug]) => [slug, url])),
+    trustSignals,
     renderIntegrity: {
       sourceNodeCount: expectedRenderNodes.length,
       affectedPageCount,

@@ -4,6 +4,7 @@ import type {
   ClinicSourcePhoneProjection,
   ClinicUsDestination,
 } from '@/lib/clinic-master/live-contract';
+import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
 
 const CLINIC_STICKY_BOOKING_CSS = `
@@ -84,6 +85,56 @@ const CLINIC_STICKY_BOOKING_CSS = `
 }
 `;
 
+const KO_CLINIC_STICKY_BOOKING_CSS = `
+[data-clinic-sticky-booking][data-clinic-sticky-locale="ko-KR"] {
+  display: flex;
+  width: auto;
+  min-width: 9.5rem;
+  flex-direction: column;
+  gap: .5rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+[data-clinic-sticky-booking][data-clinic-sticky-locale="ko-KR"] [data-clinic-booking-action] {
+  min-height: 3.25rem;
+  padding-inline: 1.25rem;
+  border: 1px solid color-mix(in srgb,var(--clinic-accent) 78%,#fff);
+  border-radius: 999px;
+  box-shadow: 0 10px 28px rgba(22,32,43,.16);
+}
+[data-clinic-sticky-booking][data-clinic-sticky-locale="ko-KR"] [data-clinic-booking-action="call"] {
+  border-left: 1px solid color-mix(in srgb,var(--clinic-accent) 78%,#fff);
+}
+@media (max-width: 767.98px) {
+  [data-clinic-sticky-booking][data-clinic-sticky-locale="ko-KR"] {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--clinic-sticky-channel-count),minmax(0,1fr));
+    width: 100%;
+    min-width: 0;
+    gap: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--clinic-border);
+    background: #fff;
+    box-shadow: 0 -10px 32px rgba(22,32,43,.12);
+  }
+  [data-clinic-sticky-booking][data-clinic-sticky-locale="ko-KR"] [data-clinic-booking-action] {
+    min-width: 0;
+    min-height: 56px;
+    padding-inline: .5rem;
+    border: 0;
+    border-right: 1px solid color-mix(in srgb,var(--clinic-accent-contrast) 32%,transparent);
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+`;
+
 function telephoneHref(phone: string | undefined): string | undefined {
   if (!phone) return undefined;
   const normalized = phone.replace(/[^\d+]/gu, '');
@@ -132,6 +183,7 @@ export function ClinicStickyBooking({
   bookingEnabled = false,
   sourcePhone,
   locale = 'en-US',
+  connectors,
 }: {
   pin: ClinicMasterPin;
   interactive: boolean;
@@ -143,7 +195,18 @@ export function ClinicStickyBooking({
   sourcePhone?: ClinicSourcePhoneProjection;
   /** Render-only chrome locale. Source facts and destinations remain unchanged. */
   locale?: 'ko-KR' | 'en-US';
+  /** KO contract-import only. EN clinic previews retain the separate US destination contract. */
+  connectors?: SiteConnectorManifest;
 }) {
+  const koConnectors = locale === 'ko-KR'
+    ? (connectors?.items ?? []).filter((item) => (
+        item.id === 'tel'
+        || item.id === 'kakao-channel'
+        || item.id === 'naver-booking'
+        || item.id === 'naver-map'
+      ))
+    : [];
+  if (locale === 'ko-KR' && koConnectors.length === 0) return null;
   const sourceCallHref = sourcePhone
     ? telephoneHref(sourcePhone.phone)
     : undefined;
@@ -154,7 +217,9 @@ export function ClinicStickyBooking({
   const bookHref = interactive && bookingEnabled && destination?.validated
     ? destination.bookingUrl
     : undefined;
-  const deactivated = !bookHref && !callHref;
+  const deactivated = locale === 'ko-KR'
+    ? !interactive || koConnectors.length === 0
+    : !bookHref && !callHref;
   const tokens = clinicMasterRenderTokens(pin);
   const labels = locale === 'ko-KR'
     ? {
@@ -172,11 +237,17 @@ export function ClinicStickyBooking({
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: CLINIC_STICKY_BOOKING_CSS }} />
+      {locale === 'ko-KR' ? (
+        <style dangerouslySetInnerHTML={{ __html: KO_CLINIC_STICKY_BOOKING_CSS }} />
+      ) : null}
       <aside
         aria-label={labels.aria}
         {...(deactivated ? { 'aria-disabled': 'true' } : {})}
         data-clinic-sticky-booking="1"
-        data-clinic-booking-state={deactivated ? 'deactivated' : bookHref ? 'active' : 'call-only'}
+        {...(locale === 'ko-KR' ? { 'data-clinic-sticky-locale': locale } : {})}
+        data-clinic-booking-state={locale === 'ko-KR'
+          ? deactivated ? 'deactivated' : 'active'
+          : deactivated ? 'deactivated' : bookHref ? 'active' : 'call-only'}
         style={{
           '--clinic-accent': tokens.accent,
           '--clinic-accent-contrast': tokens.accentContrast,
@@ -184,13 +255,43 @@ export function ClinicStickyBooking({
           '--clinic-control-family': tokens.controlFamily,
           '--clinic-control-weight': tokens.controlWeight,
           '--clinic-radius-md': tokens.radiusMd,
+          ...(locale === 'ko-KR'
+            ? { '--clinic-sticky-channel-count': koConnectors.length }
+            : {}),
         } as CSSProperties}
       >
-        <Action href={bookHref} kind="book">{labels.book}</Action>
-        <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
-          {labels.call}
-        </Action>
-        {!bookHref ? (
+        {locale === 'ko-KR' ? koConnectors.map((item) => (
+          interactive ? (
+            <a
+              key={item.id}
+              href={item.href}
+              data-clinic-booking-action={item.id === 'tel' ? 'call' : item.id}
+              data-clinic-connector-id={item.id}
+              {...(!item.href.startsWith('tel:')
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span
+              key={item.id}
+              aria-disabled="true"
+              data-clinic-booking-action={item.id === 'tel' ? 'call' : item.id}
+              data-clinic-connector-id={item.id}
+            >
+              {item.label}
+            </span>
+          )
+        )) : (
+          <>
+            <Action href={bookHref} kind="book">{labels.book}</Action>
+            <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
+              {labels.call}
+            </Action>
+          </>
+        )}
+        {locale !== 'ko-KR' && !bookHref ? (
           <p data-clinic-booking-disclosure>
             {labels.disclosure}
           </p>
