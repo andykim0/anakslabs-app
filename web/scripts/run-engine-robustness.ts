@@ -8,6 +8,7 @@ import {
 import { isIP } from 'node:net';
 import { Agent, request } from 'node:https';
 import { Readable } from 'node:stream';
+import { gzipSync } from 'node:zlib';
 import path from 'node:path';
 import { parse } from 'node-html-parser';
 import { createElement } from 'react';
@@ -32,8 +33,13 @@ import type {
   CrawlArtifactPayload,
   CrawlPageAccessObservation,
 } from '@/lib/crawl/contracts';
+import { DESIGNATED_CRAWL_POLICY } from '@/lib/crawl/contracts';
 
 const DEFAULT_OUTPUT = '/private/tmp/engine-robust';
+const DEFAULT_CORPUS_ROOT = path.resolve(
+  process.cwd(),
+  '../docs/research/corpus-2026-08',
+);
 const RESEARCH_ROOT = path.resolve(
   process.cwd(),
   '../docs/research/survey-2026-07',
@@ -123,6 +129,77 @@ interface SiteResult {
 function argument(name: string): string | undefined {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] : undefined;
+}
+
+function flag(name: string): boolean {
+  return process.argv.includes(name);
+}
+
+interface FrozenCorpusSiteRecord {
+  version: 1;
+  target: Target;
+  crawlStartedAt: string;
+  crawlCompletedAt: string;
+  tlsOptIn: boolean;
+  status: 'success' | 'failure';
+  failureReason?: string;
+  artifact?: CrawlArtifactPayload;
+  documents: Array<{
+    sourceUrl: string;
+    finalUrl: string;
+    postModalDomFile: string;
+    postModalDomSha256: string;
+    removedDetails: RenderEvidence['removedDetails'];
+  }>;
+}
+
+async function persistFrozenCorpusSite(input: {
+  corpusRoot: string;
+  corpusId: string;
+  target: Target;
+  crawlStartedAt: string;
+  crawlCompletedAt: string;
+  tlsOptIn: boolean;
+  artifact?: CrawlArtifactPayload;
+  failureReason?: string;
+  rendered: ReadonlyMap<string, RenderEvidence>;
+}): Promise<{ siteFile: string; documentFiles: string[] }> {
+  const siteDir = path.join(input.corpusRoot, 'sites', input.corpusId);
+  const documentDir = path.join(siteDir, 'documents');
+  await mkdir(documentDir, { recursive: true });
+  const documents: FrozenCorpusSiteRecord['documents'] = [];
+  for (const [index, evidence] of [...input.rendered.values()].entries()) {
+    const fileName = `${String(index + 1).padStart(3, '0')}-${safeId(evidence.finalUrl)}.html.gz`;
+    const absoluteFile = path.join(documentDir, fileName);
+    await writeFile(absoluteFile, gzipSync(Buffer.from(evidence.html, 'utf8')));
+    documents.push({
+      sourceUrl: evidence.sourceUrl,
+      finalUrl: evidence.finalUrl,
+      postModalDomFile: path.relative(input.corpusRoot, absoluteFile),
+      postModalDomSha256: hash(evidence.html),
+      removedDetails: evidence.removedDetails,
+    });
+  }
+  const record: FrozenCorpusSiteRecord = {
+    version: 1,
+    target: input.target,
+    crawlStartedAt: input.crawlStartedAt,
+    crawlCompletedAt: input.crawlCompletedAt,
+    tlsOptIn: input.tlsOptIn,
+    status: input.artifact ? 'success' : 'failure',
+    ...(input.failureReason ? { failureReason: input.failureReason } : {}),
+    ...(input.artifact ? { artifact: input.artifact } : {}),
+    documents,
+  };
+  const siteFile = path.join(siteDir, 'crawl-artifact.json.gz');
+  await writeFile(
+    siteFile,
+    gzipSync(Buffer.from(JSON.stringify(record), 'utf8')),
+  );
+  return {
+    siteFile: path.relative(input.corpusRoot, siteFile),
+    documentFiles: documents.map((document) => document.postModalDomFile),
+  };
 }
 
 function normalizeHost(raw: string): string {
@@ -668,8 +745,13 @@ async function runTarget(input: {
   browser: () => Promise<Browser>;
   insecureBrowser: () => Promise<Browser>;
   outputDir: string;
+  corpusRoot: string;
+  corpusId: string;
+  pageLimit: number;
+  corpusOnly: boolean;
   compiledHtml: Map<string, string>;
 }): Promise<SiteResult> {
+  const crawlStartedAt = new Date().toISOString();
   let tlsOptIn = false;
   let artifact: CrawlArtifactPayload | undefined;
   const rendered = new Map<string, RenderEvidence>();
@@ -682,7 +764,7 @@ async function runTarget(input: {
       {
         validateUrl: validatePublicUrl,
         wait: (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)),
-        pageLimit: 1,
+        pageLimit: input.pageLimit,
         ...(allowInvalidTlsCertificate
           ? { invalidTlsFetchFn: explicitlyUnverifiedTlsFetch }
           : {}),
@@ -722,15 +804,26 @@ async function runTarget(input: {
     }
   }
   if (!artifact) {
+    const failureReason = crawlFailure instanceof Error
+      ? `${crawlFailure.name}:${crawlFailure.message}`
+      : String(crawlFailure);
+    await persistFrozenCorpusSite({
+      corpusRoot: input.corpusRoot,
+      corpusId: input.corpusId,
+      target: input.target,
+      crawlStartedAt,
+      crawlCompletedAt: new Date().toISOString(),
+      tlsOptIn,
+      failureReason,
+      rendered,
+    });
     return {
       target: input.target,
       tlsOptIn,
       crawl: {
         status: 'failure',
         pageCount: 0,
-        failureReason: crawlFailure instanceof Error
-          ? `${crawlFailure.name}:${crawlFailure.message}`
-          : String(crawlFailure),
+        failureReason,
         modalRemovedNodeCount: 0,
         modalRemovedSelectors: [],
         fullScrollCompleted: false,
@@ -772,6 +865,25 @@ async function runTarget(input: {
       0,
     ),
   };
+  await persistFrozenCorpusSite({
+    corpusRoot: input.corpusRoot,
+    corpusId: input.corpusId,
+    target: input.target,
+    crawlStartedAt,
+    crawlCompletedAt: new Date().toISOString(),
+    tlsOptIn,
+    artifact,
+    rendered,
+  });
+  if (input.corpusOnly) {
+    return {
+      target: input.target,
+      tlsOptIn,
+      crawl: crawlResult,
+      compile: { status: 'not_run', pageCount: 0 },
+      gates: { status: 'not_run' },
+    };
+  }
   try {
     const profile = input.target.market === 'KR'
       ? KO_MEDICAL_IMPORT_PROFILE
@@ -829,9 +941,16 @@ async function runTarget(input: {
 
 async function main(): Promise<void> {
   const outputDir = argument('--output') ?? DEFAULT_OUTPUT;
+  const corpusRoot = path.resolve(argument('--corpus') ?? DEFAULT_CORPUS_ROOT);
   const specFile = argument('--spec') ?? DEFAULT_SPEC;
   const limit = Number(argument('--limit') ?? '79');
+  const pageLimit = Number(argument('--page-limit') ?? DESIGNATED_CRAWL_POLICY.maxPages);
+  const corpusOnly = flag('--corpus-only');
+  if (!Number.isSafeInteger(pageLimit) || pageLimit < 1 || pageLimit > DESIGNATED_CRAWL_POLICY.maxPages) {
+    throw new Error(`ENGINE_ROBUST_PAGE_LIMIT_INVALID:${pageLimit}`);
+  }
   await mkdir(outputDir, { recursive: true });
+  await mkdir(corpusRoot, { recursive: true });
   const [krSites, dental, aesthetic, ortho, specification] = await Promise.all([
     readFile(path.join(RESEARCH_ROOT, 'kr-survey/site-list.txt'), 'utf8'),
     readFile(path.join(RESEARCH_ROOT, 'us-survey/segment-dental.md'), 'utf8'),
@@ -903,6 +1022,14 @@ async function main(): Promise<void> {
         browser: normalBrowser,
         insecureBrowser,
         outputDir,
+        corpusRoot,
+        corpusId: [
+          String(targets.indexOf(target) + 1).padStart(3, '0'),
+          target.market.toLowerCase(),
+          safeId(target.url),
+        ].join('-'),
+        pageLimit,
+        corpusOnly,
         compiledHtml,
       })));
       results.push(...completed);
@@ -952,6 +1079,9 @@ async function main(): Promise<void> {
         targetCount: targets.length,
         issuance: false,
         compileMode: 'local-static-document',
+        frozenCorpusRoot: corpusRoot,
+        pageLimit,
+        corpusOnly,
       },
       results,
       captures,
@@ -959,6 +1089,26 @@ async function main(): Promise<void> {
     await writeFile(
       path.join(outputDir, 'driver-report.json'),
       JSON.stringify(summary, null, 2),
+    );
+    await writeFile(
+      path.join(corpusRoot, 'manifest.json'),
+      JSON.stringify({
+        version: 1,
+        generatedAt: summary.generatedAt,
+        sourceRunner: 'web/scripts/run-engine-robustness.ts',
+        targetCount: targets.length,
+        pageLimit,
+        issuance: false,
+        siteFiles: targets.map((target, index) => path.join(
+          'sites',
+          [
+            String(index + 1).padStart(3, '0'),
+            target.market.toLowerCase(),
+            safeId(target.url),
+          ].join('-'),
+          'crawl-artifact.json.gz',
+        )),
+      }, null, 2),
     );
   } finally {
     await closeBrowser(normalBrowserInstance);
