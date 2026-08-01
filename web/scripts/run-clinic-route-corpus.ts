@@ -156,6 +156,100 @@ function rate(numerator: number, denominator: number): number {
   return denominator === 0 ? 0 : numerator / denominator;
 }
 
+const AUDIT_LOGO_OR_ICON_RE =
+  /(?:^|[-_/\s.])(?:logo|icon|favicon|sprite|button|btn)(?:[-_/\s.]|$)/iu;
+
+function imageMetrics(
+  artifact: CrawlArtifactPayload,
+  config: SiteConfig,
+  selectionAudit?: RobustClinicCompilation['audit']['imageSelection'],
+) {
+  const sourceImages = artifact.pages.flatMap((page) => page.images);
+  const elementImages = config.pages.flatMap((page) => page.sections.flatMap((section) => (
+    section.elements.filter((element) => element.kind === 'image').map((element) => ({
+      id: element.id,
+      src: element.src,
+      alt: element.alt ?? '',
+    }))
+  )));
+  const brandImages = elementImages.filter((image) => (
+    image.id.startsWith('clinic-route-brand-logo-')
+  ));
+  const photoElementImages = elementImages.filter((image) => (
+    !image.id.startsWith('clinic-route-brand-logo-')
+  ));
+  const backdropImages = config.pages.flatMap((page) => page.sections.flatMap((section) => [
+    ...(section.background.image
+      ? [{ id: `${section.id}:background`, src: section.background.image.src, alt: '' }]
+      : []),
+  ]));
+  const renderedImages = [...photoElementImages, ...backdropImages];
+  const allExternalCandidates = [...renderedImages, ...brandImages];
+  const renderedUrls = new Set(renderedImages.map((image) => image.src));
+  const sectionCount = config.pages.reduce((total, page) => total + page.sections.length, 0);
+  const home = config.pages.find((page) => page.slug === '') ?? config.pages[0];
+  const homeHeroSection = home?.sections.find((section) => section.type === 'hero');
+  const homeHeroElement = homeHeroSection?.elements.find((element) => (
+    element.kind === 'image'
+    && !element.id.startsWith('clinic-route-brand-logo-')
+  ));
+  const homeHero = homeHeroSection?.background.image
+    ? { src: homeHeroSection.background.image.src, alt: '' }
+    : homeHeroElement?.kind === 'image'
+      ? { src: homeHeroElement.src, alt: homeHeroElement.alt ?? '' }
+      : undefined;
+  const roleCounts = { atmosphere: 0, figure: 0, unknown: 0 };
+  const usedRoleCounts = { atmosphere: 0, figure: 0, unknown: 0 };
+  for (const image of sourceImages) {
+    const role = image.role === 'atmosphere' || image.role === 'figure'
+      ? image.role
+      : 'unknown';
+    roleCounts[role] += 1;
+    if (renderedUrls.has(image.url)) usedRoleCounts[role] += 1;
+  }
+  const externalHosts: Record<string, number> = {};
+  for (const image of allExternalCandidates) {
+    try {
+      const parsed = new URL(image.src);
+      if (!['http:', 'https:'].includes(parsed.protocol)) continue;
+      externalHosts[parsed.host] = (externalHosts[parsed.host] ?? 0) + 1;
+    } catch {
+      // Audit only: invalid/local sources are not external references.
+    }
+  }
+  const rejectedReasonCounts: Record<string, number> = {};
+  const rejectedRepresentatives: Record<string, Array<{ url: string; alt: string }>> = {};
+  for (const image of selectionAudit?.rejected ?? []) {
+    rejectedReasonCounts[image.reason] = (rejectedReasonCounts[image.reason] ?? 0) + 1;
+    const representatives = rejectedRepresentatives[image.reason] ?? [];
+    if (representatives.length < 3) representatives.push({ url: image.url, alt: image.alt });
+    rejectedRepresentatives[image.reason] = representatives;
+  }
+  return {
+    sectionCount,
+    renderedImageCount: renderedImages.length,
+    renderedImagesPerSection: rate(renderedImages.length, sectionCount),
+    homeHero: homeHero
+      ? {
+          src: homeHero.src,
+          alt: homeHero.alt,
+          looksLikeLogoOrIcon: AUDIT_LOGO_OR_ICON_RE.test(`${homeHero.src} ${homeHero.alt}`),
+        }
+      : null,
+    sourceImageRecordCount: sourceImages.length,
+    sourceImageUniqueUrlCount: new Set(sourceImages.map((image) => image.url)).size,
+    roleCounts,
+    usedRoleCounts,
+    renderedExternalReferenceCount: Object.values(externalHosts)
+      .reduce((total, count) => total + count, 0),
+    externalHosts,
+    brandLogoCount: brandImages.length,
+    routedBrandLogo: selectionAudit?.routedBrandLogo ?? null,
+    rejectedReasonCounts,
+    rejectedRepresentatives,
+  };
+}
+
 function siteIdFor(file: string): string {
   return file.split('/')[1] ?? '';
 }
@@ -228,6 +322,11 @@ function compileMetrics(input: {
         variants.filter((value) => value === variant).length,
       ]),
     ),
+    images: imageMetrics(
+      input.artifact,
+      input.compiled?.config ?? input.baseline,
+      input.compiled?.audit.imageSelection,
+    ),
   };
 }
 
@@ -252,6 +351,8 @@ async function main(): Promise<void> {
     bodyPlacementRate: number;
     totalPlacementRate: number;
     sourceBlockCount: number;
+    renderedImageCount: number;
+    renderedImagesPerSection: number;
     compileStatus: 'success' | 'failure';
   }> = [];
   for (const file of manifest.siteFiles) {
@@ -291,10 +392,16 @@ async function main(): Promise<void> {
       bodyPlacementRate: metrics.after.bodyPlacementRate,
       totalPlacementRate: metrics.after.totalPlacementRate,
       sourceBlockCount: metrics.sourceBlockCount,
+      renderedImageCount: metrics.images.renderedImageCount,
+      renderedImagesPerSection: metrics.images.renderedImagesPerSection,
       compileStatus: metrics.after.compileStatus as 'success' | 'failure',
     });
   }
   await mkdir(OUTPUT_ROOT, { recursive: true });
+  await writeFile(
+    path.join(OUTPUT_ROOT, 'all-configs.json'),
+    JSON.stringify(configs, null, 2),
+  );
   await writeFile(
     path.join(OUTPUT_ROOT, 'placement-raw.json'),
     JSON.stringify({
@@ -324,6 +431,27 @@ async function main(): Promise<void> {
   await writeFile(
     path.join(OUTPUT_ROOT, 'capture-configs.json'),
     JSON.stringify(captureCandidates, null, 2),
+  );
+  const imageRanked = configs
+    .filter((entry) => entry.compileStatus === 'success')
+    .sort((left, right) => (
+      left.renderedImageCount - right.renderedImageCount
+      || left.siteId.localeCompare(right.siteId)
+    ));
+  const imageCaptureCandidates = [
+    ...imageRanked.slice(0, 3).map((entry) => ({ ...entry, rank: 'bottom' as const })),
+    ...imageRanked.slice(-3).map((entry) => ({ ...entry, rank: 'top' as const })),
+    ...imageRanked
+      .filter((entry) => entry.siteId.includes('ppeum1'))
+      .filter((entry) => ![
+        ...imageRanked.slice(0, 3),
+        ...imageRanked.slice(-3),
+      ].some((candidate) => candidate.siteId === entry.siteId))
+      .map((entry) => ({ ...entry, rank: 'reference' as const })),
+  ];
+  await writeFile(
+    path.join(OUTPUT_ROOT, 'image-capture-configs.json'),
+    JSON.stringify(imageCaptureCandidates, null, 2),
   );
   process.stdout.write(JSON.stringify({
     output: path.join(OUTPUT_ROOT, 'placement-raw.json'),
