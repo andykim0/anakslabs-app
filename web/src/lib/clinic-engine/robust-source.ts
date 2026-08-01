@@ -7,6 +7,7 @@ import {
 } from 'node-html-parser';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import type { ClinicMasterSourceBlock } from '@/lib/clinic-master/compiler';
+import type { BusinessInfo } from '@/lib/types/site';
 import type { ClinicEngineProfile } from './contracts';
 import type { ClinicLayoutImage } from './layout-sections';
 import {
@@ -47,8 +48,6 @@ const GENERIC_BLOCK_TAGS = new Set([
 const REMOVED_TAGS = 'script,style,noscript,template,svg,canvas';
 const SKIP_LINK_TEXT = /(?:skip|건너뛰기|본문으로|콘텐츠로|메뉴 건너)/iu;
 const FOOTER_COPYRIGHT = /(?:copyright|all rights reserved|©|ⓒ)/iu;
-const FOOTER_BUSINESS_NUMBER = /(?:사업자(?:등록)?번호|business registration|business no\.?|license no\.?)/iu;
-const FOOTER_ADDRESS = /(?:주소\s*[:：]|address\s*[:：]|\b\d{5}(?:-\d{4})?\b|(?:로|길|대로)\s*\d|\b(?:street|st\.|avenue|ave\.|road|rd\.|boulevard|blvd\.)\b)/iu;
 
 export type RobustClinicExclusionKind =
   | 'footer-legal'
@@ -106,6 +105,11 @@ export interface RobustClinicSourcePlan {
   blocks: RobustClinicSourceBlock[];
   targetBlocks: RobustClinicSourceBlock[];
   excludedBlocks: RobustClinicSourceBlock[];
+  /** Complete, source-backed legal projection. Partial footers remain ordinary source content. */
+  businessInfo?: {
+    info: BusinessInfo;
+    sourceBlockIds: string[];
+  };
 }
 
 function sha256(value: string): string {
@@ -181,7 +185,13 @@ function locator(element: HTMLElement, ordinal: number): string {
 }
 
 function isNavigation(element: HTMLElement): boolean {
-  return Boolean(element.closest('nav,[role="navigation"]'));
+  if (element.closest('nav,[role="navigation"]')) return true;
+  const footer = element.closest('footer,[role="contentinfo"]');
+  if (!footer) return false;
+  const anchor = element.tagName === 'A'
+    ? element
+    : element.closest('a') ?? element.querySelector('a');
+  return Boolean(anchor || element.getAttribute('onclick'));
 }
 
 function isSkipLink(element: HTMLElement, text: string): boolean {
@@ -195,9 +205,9 @@ function isSkipLink(element: HTMLElement, text: string): boolean {
 
 function isFooterLegal(element: HTMLElement, text: string): boolean {
   if (!element.closest('footer,[role="contentinfo"]')) return false;
-  return FOOTER_COPYRIGHT.test(text)
-    || FOOTER_BUSINESS_NUMBER.test(text)
-    || FOOTER_ADDRESS.test(text);
+  // Factual business fields are not dropped piecemeal. A complete footer projection routes them
+  // to SiteConfig.businessInfo; incomplete projections remain ordinary body source content.
+  return FOOTER_COPYRIGHT.test(text);
 }
 
 function exclusionFor(
@@ -430,6 +440,113 @@ function blockedAccessDocument(page: CrawlPageArtifact, blocks: readonly RobustC
     || (blocks.length <= 5 && /\bforbidden\b/iu.test(evidence));
 }
 
+type FooterBusinessField =
+  | 'businessName'
+  | 'ownerName'
+  | 'businessNumber'
+  | 'address'
+  | 'phone';
+
+const FOOTER_FIELD_MARKER =
+  /(?:상호명?|business\s+name|사업자(?:등록)?번호|business\s+(?:registration|license|no\.?)(?:\s+number)?|대표번호|대표전화|전화번호|phone|tel|대표자|owner|representative|주소|address)\s*[:：]?/giu;
+
+function footerContainerPath(block: RobustClinicSourceBlock): string | undefined {
+  const segments = block.sourceElementPath.split('>');
+  const footerIndex = segments.findIndex((segment) => /^footer(?::|#|$)/u.test(segment));
+  return footerIndex >= 0 ? segments.slice(0, footerIndex + 1).join('>') : undefined;
+}
+
+function footerFieldFor(label: string): FooterBusinessField | undefined {
+  const normalized = label.replace(/\s+/gu, ' ').trim().toLocaleLowerCase('en-US');
+  if (/^(?:상호명?|business name)$/u.test(normalized)) return 'businessName';
+  if (/^(?:대표자|owner|representative)$/u.test(normalized)) return 'ownerName';
+  if (/^(?:사업자(?:등록)?번호|business (?:registration|license|no\.?)(?: number)?)$/u.test(normalized)) {
+    return 'businessNumber';
+  }
+  if (/^(?:대표번호|대표전화|전화번호|phone|tel)$/u.test(normalized)) return 'phone';
+  if (/^(?:주소|address)$/u.test(normalized)) return 'address';
+  return undefined;
+}
+
+function footerFields(block: RobustClinicSourceBlock): Array<{
+  field: FooterBusinessField;
+  value: string;
+}> {
+  const matches = [...block.text.matchAll(FOOTER_FIELD_MARKER)];
+  return matches.flatMap((match, index) => {
+    const field = footerFieldFor(match[0].replace(/[:：]\s*$/u, '').trim());
+    if (!field || match.index === undefined) return [];
+    const start = match.index + match[0].length;
+    const end = matches[index + 1]?.index ?? block.text.length;
+    const value = normalizeRobustClinicText(block.text.slice(start, end))
+      .replace(/(?:copyright|all rights reserved|[©ⓒ])[\s\S]*$/iu, '')
+      .trim();
+    return value ? [{ field, value }] : [];
+  });
+}
+
+function normalizeBusinessNumber(value: string): string | undefined {
+  const digits = value.match(/\d/g)?.join('') ?? '';
+  return digits.length === 10
+    ? `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`
+    : undefined;
+}
+
+function normalizeBusinessPhone(value: string): string | undefined {
+  const match = value.match(/(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?)[\s.-]\d{3,4}[\s.-]\d{4}/u);
+  return match?.[0].trim();
+}
+
+function projectFooterBusinessInfo(pages: readonly RobustClinicSourcePage[]): {
+  info: BusinessInfo;
+  sourceBlockIds: string[];
+} | undefined {
+  const groups = new Map<string, RobustClinicSourceBlock[]>();
+  for (const page of pages) {
+    for (const block of page.blocks) {
+      const footerPath = footerContainerPath(block);
+      if (!footerPath) continue;
+      const key = `${page.finalUrl}\n${footerPath}`;
+      const values = groups.get(key) ?? [];
+      values.push(block);
+      groups.set(key, values);
+    }
+  }
+  const complete: Array<{
+    info: BusinessInfo;
+    sourceBlockIds: string[];
+  }> = [];
+  for (const blocks of groups.values()) {
+    const values = new Map<FooterBusinessField, string>();
+    const sourceIds = new Set<string>();
+    for (const block of blocks) {
+      for (const entry of footerFields(block)) {
+        if (!values.has(entry.field)) values.set(entry.field, entry.value);
+        sourceIds.add(block.id);
+      }
+    }
+    const businessName = values.get('businessName');
+    const ownerName = values.get('ownerName');
+    const businessNumber = normalizeBusinessNumber(values.get('businessNumber') ?? '');
+    const address = values.get('address');
+    const phone = normalizeBusinessPhone(values.get('phone') ?? '');
+    if (!businessName || !ownerName || !businessNumber || !address || !phone) continue;
+    complete.push({
+      info: { businessName, ownerName, businessNumber, address, phone },
+      sourceBlockIds: [...sourceIds],
+    });
+  }
+  const canonical = complete[0];
+  if (!canonical) return undefined;
+  const canonicalValue = JSON.stringify(canonical.info);
+  return {
+    info: canonical.info,
+    sourceBlockIds: [...new Set(complete
+      .filter((candidate) => JSON.stringify(candidate.info) === canonicalValue)
+      .flatMap((candidate) => candidate.sourceBlockIds))],
+  };
+}
+
 /**
  * Frozen post-modal DOM is the source of truth. Artifact fields are used only when a caller has
  * no rendered document (unit tests and legacy diagnostics); CLINIC-ROUTE corpus drivers always
@@ -487,11 +604,27 @@ export function extractRobustClinicSource(input: {
         : {}),
     });
   }
+  const businessInfo = projectFooterBusinessInfo(pages);
+  const routedBusinessIds = new Set(businessInfo?.sourceBlockIds ?? []);
+  const routedPages = pages.map((page) => {
+    const blocks = page.blocks.map((block) => (
+      routedBusinessIds.has(block.id) && !block.exclusion
+        ? { ...block, exclusion: 'footer-legal' as const }
+        : block
+    ));
+    return {
+      ...page,
+      blocks,
+      targetBlocks: blocks.filter((block) => !block.exclusion),
+      excludedBlocks: blocks.filter((block) => Boolean(block.exclusion)),
+    };
+  });
   return {
     profile: input.profile,
-    pages,
-    blocks: pages.flatMap((page) => page.blocks),
-    targetBlocks: pages.flatMap((page) => page.targetBlocks),
-    excludedBlocks: pages.flatMap((page) => page.excludedBlocks),
+    pages: routedPages,
+    blocks: routedPages.flatMap((page) => page.blocks),
+    targetBlocks: routedPages.flatMap((page) => page.targetBlocks),
+    excludedBlocks: routedPages.flatMap((page) => page.excludedBlocks),
+    ...(businessInfo ? { businessInfo } : {}),
   };
 }

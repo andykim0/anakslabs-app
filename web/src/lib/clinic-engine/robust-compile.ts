@@ -42,6 +42,7 @@ export interface RobustClinicCompilationAudit {
   placedBlockIds: string[];
   unplacedTargetBlockIds: string[];
   renderBlockViolationCount: number;
+  routedBusinessInfoBlockCount: number;
   pages: Array<{
     sourceUrl: string;
     finalUrl: string;
@@ -123,44 +124,145 @@ function safeSlug(value: string, index: number, claimed: Set<string>): string {
   return slug;
 }
 
+interface HierarchyCluster {
+  blocks: RobustClinicSourceBlock[];
+  repeatedStructure: boolean;
+}
+
+const HIERARCHY_PRICE_OR_NUMBER = /^(?:[-+]?\d[\d,.]*(?:\s*(?:원|%))?|[₩$€¥£]\s*\d[\d,.]*)$/u;
+const HIERARCHY_WIDGET_LABEL = /^(?:전체랭킹|실시간\s*(?:검색|인기\s*검색\s*순위)|검색|장바구니|전체메뉴|전체\s*메뉴)$/iu;
+
+function pathSegments(block: RobustClinicSourceBlock): string[] {
+  return block.sourceElementPath.split('>').filter(Boolean);
+}
+
+function normalizedStructurePath(value: string): string {
+  return value.replace(/:nth-of-type\(\d+\)/gu, ':nth-of-type(*)');
+}
+
+function hierarchyClusters(blocks: readonly RobustClinicSourceBlock[]): HierarchyCluster[] {
+  const prefixBlocks = new Map<string, Set<string>>();
+  for (const block of blocks) {
+    const segments = pathSegments(block);
+    for (let length = 1; length < segments.length; length += 1) {
+      const prefix = segments.slice(0, length).join('>');
+      const values = prefixBlocks.get(prefix) ?? new Set<string>();
+      values.add(block.id);
+      prefixBlocks.set(prefix, values);
+    }
+  }
+  const signatureInstances = new Map<string, Set<string>>();
+  for (const prefix of prefixBlocks.keys()) {
+    const signature = normalizedStructurePath(prefix);
+    const values = signatureInstances.get(signature) ?? new Set<string>();
+    values.add(prefix);
+    signatureInstances.set(signature, values);
+  }
+  const groupFor = (block: RobustClinicSourceBlock) => {
+    const segments = pathSegments(block);
+    const candidates = segments.slice(0, -1).map((_, index) => (
+      segments.slice(0, index + 1).join('>')
+    ));
+    for (const prefix of candidates.reverse()) {
+      const tail = prefix.split('>').at(-1) ?? '';
+      const semanticItem = /^(?:li|tr|article)(?::|#|$)/u.test(tail);
+      const blockCount = prefixBlocks.get(prefix)?.size ?? 0;
+      const repeated = (signatureInstances.get(normalizedStructurePath(prefix))?.size ?? 0) >= 2;
+      if (blockCount >= 2 && (semanticItem || repeated)) {
+        return { key: prefix, repeated };
+      }
+    }
+    return undefined;
+  };
+  const assigned = new Map(blocks.map((block) => [block.id, groupFor(block)]));
+  const result: HierarchyCluster[] = [];
+  let cursor = 0;
+  while (cursor < blocks.length) {
+    const block = blocks[cursor];
+    const group = assigned.get(block.id);
+    if (group) {
+      const grouped = [block];
+      cursor += 1;
+      while (cursor < blocks.length && assigned.get(blocks[cursor].id)?.key === group.key) {
+        grouped.push(blocks[cursor]);
+        cursor += 1;
+      }
+      result.push({ blocks: grouped, repeatedStructure: group.repeated });
+      continue;
+    }
+    if (block.heading) {
+      const grouped = [block];
+      cursor += 1;
+      while (
+        cursor < blocks.length
+        && !blocks[cursor].heading
+        && !assigned.get(blocks[cursor].id)
+      ) {
+        grouped.push(blocks[cursor]);
+        cursor += 1;
+      }
+      result.push({ blocks: grouped, repeatedStructure: false });
+      continue;
+    }
+    result.push({ blocks: [block], repeatedStructure: false });
+    cursor += 1;
+  }
+  return result;
+}
+
+function canLeadHierarchyItem(block: RobustClinicSourceBlock): boolean {
+  const text = block.text.replace(/\s+/gu, ' ').trim();
+  if (!text || HIERARCHY_PRICE_OR_NUMBER.test(text) || HIERARCHY_WIDGET_LABEL.test(text)) {
+    return false;
+  }
+  if (/\n/u.test(block.text) && /(?:[₩$€¥£]|\d[\d,]*(?:\.\d+)?\s*(?:원|%))/u.test(block.text)) {
+    return false;
+  }
+  return block.heading || [...text].length >= 4;
+}
+
 function contentUnits(input: {
   blocks: readonly RobustClinicSourceBlock[];
   images: RobustClinicSourcePage['images'];
-}): ClinicLayoutContentUnit[] {
-  const units: ClinicLayoutContentUnit[] = [];
-  let cursor = 0;
+}): Array<ClinicLayoutContentUnit & { repeatedStructure: boolean }> {
+  const units: Array<ClinicLayoutContentUnit & { repeatedStructure: boolean }> = [];
   let imageIndex = 0;
-  while (cursor < input.blocks.length) {
-    const title = input.blocks[cursor];
-    const next = input.blocks[cursor + 1];
-    const pairNext = Boolean(
-      next
-      && (
-        title.heading
-        || (!title.heading && !next.heading)
-      ),
-    );
-    const body = pairNext ? next : undefined;
+  for (const [clusterIndex, cluster] of hierarchyClusters(input.blocks).entries()) {
+    const title = cluster.blocks.find(canLeadHierarchyItem) ?? cluster.blocks[0];
+    const remainder = cluster.blocks.filter((block) => block.id !== title.id);
+    const body = remainder[0];
     const image = input.images[imageIndex];
     if (image) imageIndex += 1;
     units.push({
-      id: `robust-unit-${title.id}`,
+      id: `robust-hierarchy-${clusterIndex}-${title.id}`,
       title,
       ...(body ? { body } : {}),
+      ...(remainder.length > 1 ? { details: remainder.slice(1) } : {}),
+      ...(!canLeadHierarchyItem(title) ? { titleAsCopy: true } : {}),
       ...(image ? { image } : {}),
+      repeatedStructure: cluster.repeatedStructure,
     });
-    cursor += body ? 2 : 1;
   }
   return units;
 }
 
-function candidatesFor(units: readonly ClinicLayoutContentUnit[]) {
+function candidatesFor(
+  units: readonly (ClinicLayoutContentUnit & { repeatedStructure?: boolean })[],
+) {
   if (
     units.length >= 3
     && units.length <= 8
     && units.every((unit) => /[?？]\s*$/u.test(unit.title.text) && Boolean(unit.body))
   ) {
     return ['features.faq-accordion', 'features.prose-article'] as const;
+  }
+  const repeatedCount = units.filter((unit) => unit.repeatedStructure).length;
+  if (repeatedCount >= 2 && repeatedCount / units.length >= 0.3) {
+    return [
+      'features.three-column-cards',
+      'features.icon-grid',
+      'features.prose-article',
+    ] as const;
   }
   const imageCount = units.filter((unit) => Boolean(unit.image)).length;
   if (units.length <= 6 && imageCount >= 2) {
@@ -211,13 +313,15 @@ function sectionsForPage(input: {
   });
   for (let offset = 0; offset < units.length; offset += FEATURE_SECTION_MAXIMUM_UNITS) {
     const chunk = units.slice(offset, offset + FEATURE_SECTION_MAXIMUM_UNITS);
+    const candidates = candidatesFor(chunk);
+    const cardFirst = candidates[0] === 'features.three-column-cards';
     sections.push(...buildClinicFeatureSections({
       id: `${input.page.id}-content-${Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) + 1}`,
       name: input.locale === 'ko-KR' ? '진료 안내' : 'Clinical information',
       units: chunk,
       theme: input.theme,
-      candidates: candidatesFor(chunk),
-      maximumItems: chunk.length > 6 ? FEATURE_SECTION_MAXIMUM_UNITS : 6,
+      candidates,
+      maximumItems: cardFirst ? 6 : chunk.length > 6 ? FEATURE_SECTION_MAXIMUM_UNITS : 6,
       allowSingleFeature: true,
       surface: Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) % 2 === 1,
     }));
@@ -355,6 +459,7 @@ function compilePagePlan(input: {
       templateId: 'premium-dental-v1',
     },
     clinicMaster: pin,
+    ...(input.plan.businessInfo ? { businessInfo: input.plan.businessInfo.info } : {}),
     meta: {
       title,
       purposeId: 'booking_service',
@@ -386,6 +491,7 @@ function compilePagePlan(input: {
       placedBlockIds: renderAudit.placedBlockIds,
       unplacedTargetBlockIds: renderAudit.unplacedTargetBlockIds,
       renderBlockViolationCount: renderAudit.violationCount,
+      routedBusinessInfoBlockCount: input.plan.businessInfo?.sourceBlockIds.length ?? 0,
       pages: auditPages,
     },
   };

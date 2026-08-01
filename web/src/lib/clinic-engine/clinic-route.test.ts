@@ -218,8 +218,100 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
       [
         'hero.text-only-bold',
         'features.prose-article',
+        'features.prose-article',
         'features.icon-grid',
       ],
+    );
+  });
+
+  test('repeated source fragments remain distinct blocks inside existing card items', () => {
+    const page = artifactPage('https://clinic.example/prices');
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: `<main>
+          <h1>시술 가격</h1><p>원문 가격 안내입니다.</p>
+          <table><tbody>
+            <tr><td><p>1</p><p>울트라인 100샷</p><p>249,000원</p><p>28%</p></td></tr>
+            <tr><td><p>2</p><p>리팟레이저 5mm</p><p>290,000원</p><p>35%</p></td></tr>
+          </tbody></table>
+        </main>`,
+      }],
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+    });
+    const section = compiled.config.pages[0].sections.find((candidate) => (
+      candidate.sectionLayout?.resolvedId === 'features.three-column-cards'
+    ));
+    assert.ok(section?.sectionLayout);
+    const itemTexts = section.sectionLayout.items.map((item) => item.elementIds
+      .flatMap((id) => section.elements.find((element) => element.id === id))
+      .filter((element) => element?.kind === 'text')
+      .map((element) => element.kind === 'text' ? element.text : ''));
+    const priceItems = itemTexts.filter((texts) => texts.length === 4);
+    assert.equal(priceItems.length, 2);
+    assert.deepEqual(
+      priceItems,
+      [
+        ['울트라인 100샷', '1', '249,000원', '28%'],
+        ['리팟레이저 5mm', '2', '290,000원', '35%'],
+      ],
+    );
+    assert.equal(compiled.audit.targetBlockCount, 10);
+    assert.equal(compiled.audit.placedBlockIds.length, 10);
+    assert.equal(compiled.audit.renderBlockViolationCount, 0);
+  });
+
+  test('complete footer business fields route to LegalFooter data while incomplete fields fail open', () => {
+    const page = artifactPage('https://clinic.example/');
+    const complete = compileRobustClinicArtifact({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: `<body><main><h1>원문 병원</h1><p>원문 본문</p></main><footer>
+          <a href="/privacy">개인정보처리방침</a>
+          <p>상호명\n원문병원</p><p>대표자\n홍길동</p>
+          <p>사업자등록번호\n123-45-67890</p><p>주소\n서울시 강남구 1</p>
+          <p>대표번호\n02-1234-5678</p><p>Copyright 2026</p>
+        </footer></body>`,
+      }],
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+    });
+    assert.deepEqual(complete.config.businessInfo, {
+      businessName: '원문병원',
+      ownerName: '홍길동',
+      businessNumber: '123-45-67890',
+      address: '서울시 강남구 1',
+      phone: '02-1234-5678',
+    });
+    assert.equal(complete.audit.routedBusinessInfoBlockCount, 5);
+    assert.equal(complete.audit.exclusions['navigation-label'], 1);
+    assert.equal(complete.audit.unplacedTargetBlockIds.length, 0);
+    assert.equal(complete.config.pages[0].sections.some((section) => (
+      section.elements.some((element) => (
+        element.kind === 'text' && ['원문병원', '홍길동', '123-45-67890']
+          .includes(element.text)
+      ))
+    )), false, 'routed footer fields must leave body sections');
+
+    const incompletePlan = extractRobustClinicSource({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: `<main><h1>원문 병원</h1></main><footer>
+          <p>상호명\n원문병원</p><p>대표자\n홍길동</p>
+          <p>주소\n서울시 강남구 1</p><p>대표번호\n02-1234-5678</p>
+        </footer>`,
+      }],
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+    });
+    assert.equal(incompletePlan.businessInfo, undefined);
+    assert.deepEqual(
+      incompletePlan.targetBlocks.map((block) => block.text),
+      ['원문 병원', '상호명\n원문병원', '대표자\n홍길동', '주소\n서울시 강남구 1', '대표번호\n02-1234-5678'],
     );
   });
 

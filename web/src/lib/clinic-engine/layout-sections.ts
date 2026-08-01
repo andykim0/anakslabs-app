@@ -55,6 +55,10 @@ export interface ClinicLayoutContentUnit {
   id: string;
   title: ClinicMasterSourceBlock;
   body?: ClinicMasterSourceBlock;
+  /** Additional source nodes that stay distinct while sharing one visual item boundary. */
+  details?: readonly ClinicMasterSourceBlock[];
+  /** Resolver-required title binding rendered as body copy for short/non-semantic fragments. */
+  titleAsCopy?: boolean;
   marker?: {
     source: ClinicMasterSourceBlock;
     text: string;
@@ -415,6 +419,7 @@ export function buildClinicFeatureSections(input: {
   );
   const elements: CanvasElement[] = [title];
   let globalIndex = 0;
+  const detailIdsByItem = new Map<string, string[]>();
   const items = groups.flatMap((units, groupIndex) => (
     units.map((unit) => {
       const index = globalIndex;
@@ -422,7 +427,9 @@ export function buildClinicFeatureSections(input: {
       const unitSuffix = `${groupIndex}-${index}`;
       const itemTitle = sourceText(
         unit.title,
-        `${input.titleSourceIdPrefix ?? 'layout-title'}-${unitSuffix}`,
+        `${input.titleSourceIdPrefix ?? 'layout-title'}-${
+          unit.titleAsCopy ? 'ko-copy-only-' : ''
+        }${unitSuffix}`,
         input.theme,
         'lead',
       );
@@ -431,6 +438,16 @@ export function buildClinicFeatureSections(input: {
         ? sourceText(unit.body, `layout-body-${unitSuffix}`, input.theme, 'body')
         : undefined;
       if (body) elements.push(body);
+      const details = (unit.details ?? []).map((detail, detailIndex) => (
+        sourceText(
+          detail,
+          `layout-detail-${unitSuffix}-${detailIndex}`,
+          input.theme,
+          'body',
+        )
+      ));
+      elements.push(...details);
+      if (details.length > 0) detailIdsByItem.set(unit.id, details.map((detail) => detail.id));
       const marker = unit.marker
         ? sourceFragmentText(
             unit.marker.source,
@@ -502,7 +519,18 @@ export function buildClinicFeatureSections(input: {
   if (!projection) {
     throw new Error(`CLINIC_FEATURE_LAYOUT_UNRESOLVED:${input.id}:${input.units.length}`);
   }
-  section.sectionLayout = projection;
+  section.sectionLayout = detailIdsByItem.size > 0
+    ? {
+        ...projection,
+        items: projection.items.map((item) => ({
+          ...item,
+          elementIds: [
+            ...item.elementIds,
+            ...(detailIdsByItem.get(item.id) ?? []),
+          ],
+        })),
+      }
+    : projection;
   if (projection.surfaceTone) section.surfaceTone = projection.surfaceTone;
   section.height = projection.bands.wide.sectionHeight;
   return [section];
