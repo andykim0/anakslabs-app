@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "manifestGeneratedAt": "2026-08-01T09:49:19.300Z",
+  "targetCount": 79,
+  "siteRecordCount": 79,
+  "successSiteCount": 48,
+  "failureSiteCount": 31,
+  "artifactRowCount": 835,
+  "duplicateArtifactRowCount": 9,
+  "uniqueArtifactFinalUrlCount": 826,
+  "postModalDomCount": 823,
+  "explicitlyExcludedSiteCount": 1,
+  "explicitlyExcludedPageCount": 2,
+  "eligibleSiteCount": 47,
+  "eligibleUniqueFinalUrlCount": 823,
+  "eligiblePostModalDomCount": 823,
+  "fileCountExcludingIntegrityReport": 903,
+  "compressedBytesExcludingIntegrityReport": 25271916,
+  "crawlStartedAtMin": "2026-08-01T09:13:43.422Z",
+  "crawlStartedAtMax": "2026-08-01T09:49:16.069Z",
+  "crawlCompletedAtMin": "2026-08-01T09:13:48.770Z",
+  "crawlCompletedAtMax": "2026-08-01T09:49:19.296Z",
+  "excluded": [
+    {
+      "scope": "page",
+      "siteId": "023-kr-www.ppeum1.com-2d1e58aca0",
+      "sourceUrl": "https://sinnonhyeon.ppeum.com/kakaoChat/pvl",
+      "reasonCode": "post_modal_dom_unavailable",
+      "reason": "Headless render did not produce a post-modal DOM; excluded from placement denominators."
+    },
+    {
+      "scope": "site",
+      "siteId": "038-kr-www.sdule.co.kr-4f06051fe5",
+      "sourceUrl": "http://www.sdule.co.kr/",
+      "reasonCode": "raw_html_fallback_without_post_modal_dom",
+      "reason": "The only page fell back to raw HTML after headless render failure; the entire site is excluded from the corpus and all placement denominators."
+    },
+    {
+      "scope": "page",
+      "siteId": "039-kr-www.erumeye.co.kr-b5cd8d74a6",
+      "sourceUrl": "https://www.erumeye.co.kr/bbs/board.php?bo_table=reserve",
+      "reasonCode": "post_modal_dom_unavailable",
+      "reason": "Headless render did not produce a post-modal DOM; excluded from placement denominators."
+    }
+  ],
+  "errors": [],
+  "losslessForEligibleCorpus": true
+}
