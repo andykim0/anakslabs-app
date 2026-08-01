@@ -45,6 +45,13 @@ export function TenantHeader({
   const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
   const siteName = rawName.split('—')[0].trim() || rawName;
   const englishNavigation = config.meta.locale === 'en-US';
+  const brandLogo = config.pages
+    .flatMap((page) => page.sections)
+    .flatMap((section) => section.elements)
+    .find((element) => (
+      element.kind === 'image'
+      && element.id.startsWith('clinic-route-brand-logo-')
+    ));
   const linkFor = (slug: string) => (hrefForSlug ? hrefForSlug(slug) : slug === '' ? '/' : `/${slug}`);
   const labelOf = (p: SitePage | TenantNavigationItem) => p.navLabel ?? p.title;
 
@@ -119,6 +126,7 @@ export function TenantHeader({
         <a
           href={linkFor('')}
           style={{
+            ...(brandLogo ? { display: 'flex', alignItems: 'center', gap: 10 } : {}),
             fontFamily: theme.fonts.heading,
             fontWeight: 600,
             fontSize: 18,
@@ -133,7 +141,28 @@ export function TenantHeader({
             flex: '0 1 auto',
           }}
         >
-          {siteName}
+          {brandLogo?.kind === 'image' ? (
+            <>
+              {/* Source logo stays a normal image contract; clinic-route alone emits this pin. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={brandLogo.src}
+                alt=""
+                aria-hidden="true"
+                loading="eager"
+                decoding="async"
+                style={{
+                  display: 'block',
+                  width: 'auto',
+                  maxWidth: 144,
+                  height: 32,
+                  objectFit: 'contain',
+                  flexShrink: 0,
+                }}
+              />
+              <span>{siteName}</span>
+            </>
+          ) : siteName}
         </a>
 
         {/* 데스크톱 내비 (xl+) — 인라인 최대 6개 + 초과분 '더보기' 드롭다운 */}

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { TenantHeader } from '@/components/site-renderer/TenantHeader';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import {
   KO_MEDICAL_IMPORT_PROFILE,
@@ -313,6 +315,71 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
       incompletePlan.targetBlocks.map((block) => block.text),
       ['원문 병원', '상호명\n원문병원', '대표자\n홍길동', '주소\n서울시 강남구 1', '대표번호\n02-1234-5678'],
     );
+  });
+
+  test('shared US image gates protect clinic-route slots and the strongest narrative image leads', () => {
+    const page = artifactPage('https://clinic.example/');
+    page.images = [
+      { url: 'https://clinic.example/assets/logo.png', alt: 'Clinic logo', role: 'unknown' },
+      { url: 'https://clinic.example/assets/icon-calendar.png', alt: 'Calendar icon', role: 'unknown' },
+      { url: 'https://www.gstatic.com/images/branding/googlelogo.png', alt: '', role: 'unknown' },
+      { url: 'https://clinic.example/assets/yelp-logo.png', alt: 'Yelp logo', role: 'unknown' },
+      { url: 'https://tracker.example/fire?pixelId=123', alt: '', role: 'atmosphere' },
+      { url: 'https://clinic.example/assets/og_img.png', alt: '', role: 'atmosphere' },
+      { url: 'https://clinic.example/results/before-after.jpg', alt: 'Patient before and after', role: 'figure' },
+      { url: 'https://clinic.example/assets/accepted-insurance-logo.jpg', alt: 'Insurance plan logo', role: 'unknown' },
+      { url: 'https://clinic.example/assets/degree-certificate.jpg', alt: 'Board certificate', role: 'figure' },
+      { url: 'https://clinic.example/uploads/opaque-hash.jpg', alt: '', role: 'unknown' },
+      { url: 'https://clinic.example/media/main-visual-clinic.jpg', alt: 'Clinic reception', role: 'atmosphere' },
+      { url: 'https://clinic.example/media/procedure-room.jpg', alt: 'Procedure room', role: 'figure' },
+    ] as CrawlPageArtifact['images'];
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: '<main><h1>Source clinic</h1><p>Source treatment information.</p></main>',
+      }],
+      profile: US_MEDICAL_OUTREACH_PROFILE,
+    });
+    const hero = compiled.config.pages[0].sections.find((section) => section.type === 'hero');
+    assert.equal(
+      hero?.background.image?.src,
+      'https://clinic.example/media/main-visual-clinic.jpg',
+    );
+    const brand = hero?.elements.find((element) => (
+      element.kind === 'image' && element.id.startsWith('clinic-route-brand-logo-')
+    ));
+    assert.equal(
+      brand?.kind === 'image' ? brand.src : undefined,
+      'https://clinic.example/assets/logo.png',
+    );
+    const renderedSources = compiled.config.pages.flatMap((candidate) => (
+      candidate.sections.flatMap((section) => [
+        ...(section.background.image ? [section.background.image.src] : []),
+        ...section.elements.flatMap((element) => element.kind === 'image' ? [element.src] : []),
+      ])
+    ));
+    assert.equal(renderedSources.includes('https://clinic.example/assets/icon-calendar.png'), false);
+    assert.equal(renderedSources.includes('https://www.gstatic.com/images/branding/googlelogo.png'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/assets/yelp-logo.png'), false);
+    assert.equal(renderedSources.includes('https://tracker.example/fire?pixelId=123'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/assets/og_img.png'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/results/before-after.jpg'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/assets/accepted-insurance-logo.jpg'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/assets/degree-certificate.jpg'), false);
+    assert.equal(renderedSources.includes('https://clinic.example/uploads/opaque-hash.jpg'), false);
+    assert.deepEqual(
+      [...new Set(compiled.audit.imageSelection.rejected.map((image) => image.reason))].sort(),
+      ['credential-image', 'indeterminate', 'insurance-logo', 'junk-image', 'patient-result'],
+    );
+    const header = renderToStaticMarkup(TenantHeader({
+      config: { ...compiled.config, nav: { enabled: true } },
+      currentSlug: '',
+      additionalItems: [{ id: 'contact', slug: 'contact', title: 'Contact' }],
+    }));
+    assert.match(header, /clinic\.example\/assets\/logo\.png/u);
+    assert.match(header, /Source clinic/u);
   });
 
   test('a blocked access document fails closed instead of becoming a clinic shell', () => {

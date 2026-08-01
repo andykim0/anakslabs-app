@@ -40,6 +40,8 @@ export interface ClinicLayoutImage {
   alt: string;
   sourceWidth?: number;
   sourceHeight?: number;
+  /** Compile-time source ranking only. Render elements never persist this value. */
+  selectionScore?: number;
   textDense?: boolean;
   heroTextRegionLuminance?: number;
   heroTextZone?: {

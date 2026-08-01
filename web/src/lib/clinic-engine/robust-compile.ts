@@ -7,6 +7,7 @@ import {
 import { resolveClinicMasterTheme } from '@/lib/clinic-master/tokens';
 import type {
   ClinicMasterPin,
+  ImageElement,
   Section,
   SiteConfig,
   SitePage,
@@ -25,6 +26,7 @@ import {
 import { runClinicEngine } from './pipeline';
 import {
   extractRobustClinicSource,
+  type RobustClinicImageDecision,
   type RobustClinicDocument,
   type RobustClinicExclusionKind,
   type RobustClinicSourceBlock,
@@ -43,6 +45,17 @@ export interface RobustClinicCompilationAudit {
   unplacedTargetBlockIds: string[];
   renderBlockViolationCount: number;
   routedBusinessInfoBlockCount: number;
+  imageSelection: {
+    sourceRecordCount: number;
+    selectedPhotoCount: number;
+    brandCandidateCount: number;
+    routedBrandLogo?: {
+      sourcePageUrl: string;
+      url: string;
+      alt: string;
+    };
+    rejected: RobustClinicImageDecision[];
+  };
   pages: Array<{
     sourceUrl: string;
     finalUrl: string;
@@ -52,6 +65,19 @@ export interface RobustClinicCompilationAudit {
     placedBlockCount: number;
     layoutVariants: string[];
   }>;
+}
+
+function brandLogoElement(image: RobustClinicSourcePage['brandImages'][number]): ImageElement {
+  return {
+    id: `clinic-route-brand-logo-${image.id}`,
+    kind: 'image',
+    src: image.src,
+    alt: image.alt,
+    frame: { x: 0, y: 0, w: 1, h: 1 },
+    z: 0,
+    style: { objectFit: 'contain', shadow: false },
+    entrance: { effect: 'none' },
+  };
 }
 
 export interface RobustClinicCompilation {
@@ -399,6 +425,11 @@ function compilePagePlan(input: {
   const claimedSlugs = new Set<string>();
   const pages: SitePage[] = [];
   const auditPages: RobustClinicCompilationAudit['pages'] = [];
+  const brandRoute = input.plan.pages.flatMap((page) => (
+    page.brandImages.map((image) => ({ image, sourcePageUrl: page.sourceUrl }))
+  )).sort((left, right) => (
+    (right.image.selectionScore ?? 0) - (left.image.selectionScore ?? 0)
+  ))[0];
   for (const sourcePage of input.plan.pages) {
     const compiled = sectionsForPage({
       page: sourcePage,
@@ -424,6 +455,10 @@ function compilePagePlan(input: {
         ? sourcePage.artifactPage.title
         : sourcePage.targetBlocks.find((block) => block.text.length <= 200)?.text)
       ?? new URL(sourcePage.finalUrl).hostname;
+    if (pages.length === 0 && brandRoute) {
+      const hero = compiled.sections.find((section) => section.type === 'hero');
+      hero?.elements.push(brandLogoElement(brandRoute.image));
+    }
     pages.push({
       id: sourcePage.id,
       title,
@@ -492,6 +527,33 @@ function compilePagePlan(input: {
       unplacedTargetBlockIds: renderAudit.unplacedTargetBlockIds,
       renderBlockViolationCount: renderAudit.violationCount,
       routedBusinessInfoBlockCount: input.plan.businessInfo?.sourceBlockIds.length ?? 0,
+      imageSelection: {
+        sourceRecordCount: input.plan.pages.reduce(
+          (total, page) => total + page.imageDecisions.length,
+          0,
+        ),
+        selectedPhotoCount: input.plan.pages.reduce(
+          (total, page) => total + page.images.length,
+          0,
+        ),
+        brandCandidateCount: input.plan.pages.reduce(
+          (total, page) => total + page.brandImages.length,
+          0,
+        ),
+        ...(brandRoute
+          ? {
+              routedBrandLogo: {
+                sourcePageUrl: brandRoute.sourcePageUrl,
+                url: brandRoute.image.src,
+                alt: brandRoute.image.alt,
+              },
+            }
+          : {}),
+        rejected: input.plan.pages.flatMap((page) => page.imageDecisions.filter(
+          (decision) => decision.disposition === 'blocked'
+            || decision.disposition === 'indeterminate',
+        )),
+      },
       pages: auditPages,
     },
   };
