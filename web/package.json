@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "npm run clinic:overlay:guard",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "pretest": "npm run clinic:overlay:guard",
     "test": "tsx --test 'src/**/*.test.ts'",
     "motion:audit": "tsx scripts/audit-hyperframes-isolation.ts",
     "motion:render": "tsx scripts/render-motion-clip.ts",
@@ -19,6 +21,8 @@
     "clinic:edom:build": "tsx scripts/build-edom-clinic-preview.ts",
     "clinic:edom:issue": "tsx scripts/issue-edom-clinic-preview.ts",
     "clinic:edom:audit-sitemap": "tsx scripts/audit-edom-original-sitemap.ts",
+    "clinic:overlay:guard": "tsx scripts/verify-overlay-ui-chrome-corpus.ts",
+    "clinic:overlay:guard:update": "tsx scripts/verify-overlay-ui-chrome-corpus.ts --write",
     "assets:backfill-dimensions": "tsx scripts/backfill-asset-dimensions.ts"
   },
   "dependencies": {
