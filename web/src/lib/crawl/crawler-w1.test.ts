@@ -107,6 +107,103 @@ describe('CRAWL W1 — designated crawl', () => {
     );
   });
 
+  test('robots redirects may cross origins only within one registrable domain and record the chain', async () => {
+    const calls: string[] = [];
+    const fetchFn: typeof fetch = async (input, init) => {
+      const url = String(input);
+      calls.push(url);
+      if (init?.method === 'HEAD') return response('');
+      if (url === 'https://example.com/robots.txt') {
+        return response('', {
+          status: 301,
+          headers: { location: 'https://www.example.com/robots.txt' },
+        });
+      }
+      if (url === 'https://www.example.com/robots.txt') {
+        return response('User-agent: *\nAllow: /', {
+          headers: { 'content-type': 'text/plain' },
+        });
+      }
+      if (url.endsWith('/sitemap.xml')) return response('', { status: 404 });
+      return response(html('홈'));
+    };
+    const result = await crawlDesignatedSite(
+      { url: 'http://example.com/' },
+      { fetchFn, validateUrl: validated, wait: async () => undefined },
+    );
+    assert.equal(result.robots.url, 'https://www.example.com/robots.txt');
+    assert.deepEqual(result.robots.redirectChain, [
+      'https://example.com/robots.txt',
+      'https://www.example.com/robots.txt',
+    ]);
+    assert.equal(calls.includes('https://www.example.com/robots.txt'), true);
+  });
+
+  test('robots redirects to another registrable domain remain blocked before the target fetch', async () => {
+    const calls: string[] = [];
+    const fetchFn: typeof fetch = async (input, init) => {
+      const url = String(input);
+      calls.push(url);
+      if (init?.method === 'HEAD') return response('');
+      if (url.endsWith('/robots.txt')) {
+        return response('', {
+          status: 302,
+          headers: { location: 'https://outside.example/robots.txt' },
+        });
+      }
+      return response(html('홈'));
+    };
+    await assert.rejects(
+      crawlDesignatedSite(
+        { url: 'http://example.com/' },
+        { fetchFn, validateUrl: validated, wait: async () => undefined },
+      ),
+      (error: unknown) => error instanceof CrawlError && error.code === 'ROBOTS_UNAVAILABLE',
+    );
+    assert.equal(calls.includes('https://outside.example/robots.txt'), false);
+  });
+
+  test('an HTML robots destination is treated as absent while page redirects stay exact-origin', async () => {
+    const htmlRobotsFetch: typeof fetch = async (input, init) => {
+      const url = String(input);
+      if (init?.method === 'HEAD') return response('');
+      if (url.endsWith('/robots.txt')) return response(html('not a robots policy'));
+      if (url.endsWith('/sitemap.xml')) return response('', { status: 404 });
+      return response(html('홈'));
+    };
+    const result = await crawlDesignatedSite(
+      { url: 'http://example.com/' },
+      { fetchFn: htmlRobotsFetch, validateUrl: validated, wait: async () => undefined },
+    );
+    assert.equal(result.pages.length, 1);
+    assert.equal(result.robots.crawlerAllowed, true);
+
+    const calls: string[] = [];
+    const pageRedirectFetch: typeof fetch = async (input, init) => {
+      const url = String(input);
+      calls.push(url);
+      if (init?.method === 'HEAD') return response('');
+      if (url.endsWith('/robots.txt')) {
+        return response('User-agent: *\nAllow: /', {
+          headers: { 'content-type': 'text/plain' },
+        });
+      }
+      if (url.endsWith('/sitemap.xml')) return response('', { status: 404 });
+      return response('', {
+        status: 302,
+        headers: { location: 'https://www.example.com/' },
+      });
+    };
+    await assert.rejects(
+      crawlDesignatedSite(
+        { url: 'http://example.com/' },
+        { fetchFn: pageRedirectFetch, validateUrl: validated, wait: async () => undefined },
+      ),
+      (error: unknown) => error instanceof CrawlError && error.code === 'NOT_HTML',
+    );
+    assert.equal(calls.includes('https://www.example.com/'), false);
+  });
+
   test('pilot certificate fallback requires exact host allowlist and explicit admin flag', async () => {
     const certificateFailure = Object.assign(new TypeError('fetch failed'), {
       cause: { code: 'DEPTH_ZERO_SELF_SIGNED_CERT' },

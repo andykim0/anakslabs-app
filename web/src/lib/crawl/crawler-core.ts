@@ -39,6 +39,7 @@ import {
   projectClinicPaletteFromHtml,
   type ClinicPaletteProjection,
 } from '@/lib/clinic-master/palette-routing';
+import { registrableDomain } from './registrable-domain';
 
 const PLATFORM_MULTI_PAGE_HOSTS = new Set([
   'blog.naver.com',
@@ -114,6 +115,7 @@ interface FetchedDocument {
   response: Response;
   finalUrl: URL;
   ttfbMs: number;
+  redirectChain: string[];
 }
 
 interface TlsInspection {
@@ -160,18 +162,27 @@ async function fetchWithRedirects(
     accept: string;
     method?: 'GET' | 'HEAD';
     requiredOrigin?: string;
+    requiredRegistrableDomain?: string;
   },
 ): Promise<FetchedDocument> {
   let current = await input.validateUrl(rawUrl);
   let responseMs = 0;
   const visited = new Set<string>();
+  const redirectChain: string[] = [];
   for (let hop = 0; hop <= DESIGNATED_CRAWL_POLICY.maxRedirects; hop += 1) {
     const currentKey = current.toString();
     if (visited.has(currentKey)) {
       throw new CrawlError('REDIRECT_LOOP', '리다이렉트 순환을 감지해 중단했습니다.');
     }
     visited.add(currentKey);
+    redirectChain.push(currentKey);
     if (input.requiredOrigin && current.origin !== input.requiredOrigin) {
+      throw new CrawlError('CROSS_ORIGIN_REDIRECT', '지정한 사이트 밖으로 이동해 크롤을 중단했습니다.');
+    }
+    if (
+      input.requiredRegistrableDomain
+      && registrableDomain(current.hostname) !== input.requiredRegistrableDomain
+    ) {
       throw new CrawlError('CROSS_ORIGIN_REDIRECT', '지정한 사이트 밖으로 이동해 크롤을 중단했습니다.');
     }
     const controller = new AbortController();
@@ -207,7 +218,12 @@ async function fetchWithRedirects(
       current = await input.validateUrl(target.toString());
       continue;
     }
-    return { response, finalUrl: current, ttfbMs: Math.round(responseMs) };
+    return {
+      response,
+      finalUrl: current,
+      ttfbMs: Math.round(responseMs),
+      redirectChain,
+    };
   }
   throw new CrawlError('FETCH_FAILED', '리다이렉트가 너무 많습니다.');
 }
@@ -620,11 +636,14 @@ export async function crawlDesignatedSite(
   };
 
   const origin = seed.origin;
+  const robotsRegistrableDomain = registrableDomain(seed.hostname);
   let robotsFetch: FetchedDocument;
   try {
     robotsFetch = await throttledFetch(new URL('/robots.txt', origin).toString(), {
       accept: 'text/plain',
-      requiredOrigin: origin,
+      ...(robotsRegistrableDomain
+        ? { requiredRegistrableDomain: robotsRegistrableDomain }
+        : { requiredOrigin: origin }),
     });
   } catch {
     throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt를 확인할 수 없어 보수적으로 중단했습니다.');
@@ -638,11 +657,12 @@ export async function crawlDesignatedSite(
   } else if (robotsStatus < 200 || robotsStatus >= 300) {
     await robotsFetch.response.body?.cancel().catch(() => undefined);
     throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt가 정상 응답하지 않아 보수적으로 중단했습니다.');
+  } else if (/text\/html/iu.test(robotsFetch.response.headers.get('content-type') ?? '')) {
+    // Hosts sometimes redirect /robots.txt to an HTML home page. It carries no robots policy, so
+    // RFC 9309's absent-file behavior applies; explicit text robots rules remain authoritative.
+    await robotsFetch.response.body?.cancel().catch(() => undefined);
   } else {
     robotsBody = await readLimited(robotsFetch.response);
-    if (/text\/html/iu.test(robotsFetch.response.headers.get('content-type') ?? '')) {
-      throw new CrawlError('ROBOTS_UNAVAILABLE', 'robots.txt 대신 HTML이 응답해 보수적으로 중단했습니다.');
-    }
   }
   const parsedRobots = parseRobotsTxt(robotsBody);
   const crawlerAllowed = isPathAllowed(
@@ -908,6 +928,7 @@ export async function crawlDesignatedSite(
       status: robotsFetch.response.status,
       sitemaps: declaredSitemaps.map((url) => url.toString()),
       crawlerAllowed,
+      redirectChain: robotsFetch.redirectChain,
     },
     pages,
     skippedUrls,

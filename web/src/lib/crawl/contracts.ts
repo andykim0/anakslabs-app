@@ -145,6 +145,8 @@ export interface CrawlRobotsObservation {
   status: number;
   sitemaps: string[];
   crawlerAllowed: boolean;
+  /** Additive redirect evidence; legacy artifacts omit it. Includes requested and final URL. */
+  redirectChain?: string[];
 }
 
 export interface CrawlSkippedUrl {
