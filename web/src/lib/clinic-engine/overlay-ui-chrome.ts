@@ -24,6 +24,27 @@ export interface OverlayUiChromeEvidence {
   recordedRemovalReasons: Array<OverlayRemovalEvidence['reason']>;
 }
 
+export type OverlayContentVetoSignal =
+  | 'currency-symbol'
+  | 'krw-price'
+  | 'discount-rate';
+
+export interface OverlayContentVetoEvidence {
+  version: 1;
+  bias: 'ambiguous-means-content';
+  signals: OverlayContentVetoSignal[];
+  matches: string[];
+}
+
+const CONTENT_VETO_PATTERNS: ReadonlyArray<{
+  signal: OverlayContentVetoSignal;
+  pattern: RegExp;
+}> = [
+  { signal: 'currency-symbol', pattern: /[₩$€¥£]/gu },
+  { signal: 'krw-price', pattern: /\d[\d,]*(?:\.\d+)?\s*원/gu },
+  { signal: 'discount-rate', pattern: /\d(?:[\d,.]*\d)?\s*%/gu },
+];
+
 function normalizeText(value: string): string {
   return value.replace(/\u00a0/gu, ' ').replace(/\s+/gu, ' ').trim();
 }
@@ -93,6 +114,29 @@ function isProtectedContentModal(candidate: HTMLElement): boolean {
 function isCloseOnly(text: string): boolean {
   const withoutBrackets = text.replace(/^[\s\[({]+|[\s\])}]+$/gu, '').trim();
   return withoutBrackets.length <= 80 && CLOSE_ONLY.test(withoutBrackets);
+}
+
+/**
+ * Content veto applied after overlay chrome classification. Location never wins over an explicit
+ * price, currency, or discount signal: ambiguous material returns to source content so visible
+ * clutter is preferred over silent customer-content loss.
+ */
+export function vetoOverlayUiChromeClassification(input: {
+  text: string;
+  classification: OverlayUiChromeEvidence | undefined;
+}): OverlayContentVetoEvidence | undefined {
+  if (!input.classification) return undefined;
+  const text = normalizeText(input.text);
+  const matches = CONTENT_VETO_PATTERNS.flatMap(({ signal, pattern }) => (
+    [...text.matchAll(pattern)].map((match) => ({ signal, text: match[0] }))
+  ));
+  if (matches.length === 0) return undefined;
+  return {
+    version: 1,
+    bias: 'ambiguous-means-content',
+    signals: [...new Set(matches.map((match) => match.signal))],
+    matches: [...new Set(matches.map((match) => match.text))],
+  };
 }
 
 export function overlayElementPath(element: HTMLElement): string {

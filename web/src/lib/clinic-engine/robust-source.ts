@@ -12,6 +12,8 @@ import type { ClinicLayoutImage } from './layout-sections';
 import {
   classifyOverlayUiChrome,
   overlayElementPath,
+  vetoOverlayUiChromeClassification,
+  type OverlayContentVetoEvidence,
   type OverlayRemovalEvidence,
   type OverlayUiChromeEvidence,
 } from './overlay-ui-chrome';
@@ -70,6 +72,9 @@ export interface RobustClinicSourceBlock extends ClinicMasterSourceBlock {
   heading: boolean;
   exclusion?: RobustClinicExclusionKind;
   overlayUiChromeEvidence?: OverlayUiChromeEvidence;
+  /** Pre-veto classifier result retained so content restoration stays fully auditable. */
+  overlayUiChromeCandidateEvidence?: OverlayUiChromeEvidence;
+  overlayContentVetoEvidence?: OverlayContentVetoEvidence;
   /**
    * Additive audit evidence for excluded navigation labels. Rendering never consumes this field;
    * corpus analysis uses it to distinguish links to already-crawled pages from destinations the
@@ -305,13 +310,20 @@ function extractBlocks(input: {
     const sourceSha256 = sha256(text);
     const heading = /^H[1-6]$/u.test(element.tagName);
     const establishedExclusion = exclusionFor(element, text);
-    const overlayUiChromeEvidence = establishedExclusion
+    const overlayUiChromeClassification = establishedExclusion
       ? undefined
       : classifyOverlayUiChrome({
         element,
         text,
         removalEvidence: input.overlayRemovalEvidence,
       });
+    const overlayContentVetoEvidence = vetoOverlayUiChromeClassification({
+      text,
+      classification: overlayUiChromeClassification,
+    });
+    const overlayUiChromeEvidence = overlayContentVetoEvidence
+      ? undefined
+      : overlayUiChromeClassification;
     const exclusion = establishedExclusion
       ?? (overlayUiChromeEvidence ? 'overlay-ui-chrome' : undefined);
     const destinations = exclusion === 'navigation-label'
@@ -330,6 +342,10 @@ function extractBlocks(input: {
       ...(exclusion ? { exclusion } : {}),
       ...(destinations ? { navigationDestinations: destinations } : {}),
       ...(overlayUiChromeEvidence ? { overlayUiChromeEvidence } : {}),
+      ...(overlayContentVetoEvidence && overlayUiChromeClassification
+        ? { overlayUiChromeCandidateEvidence: overlayUiChromeClassification }
+        : {}),
+      ...(overlayContentVetoEvidence ? { overlayContentVetoEvidence } : {}),
     });
   };
 

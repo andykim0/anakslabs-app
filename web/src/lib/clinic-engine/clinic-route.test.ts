@@ -117,7 +117,7 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
     );
     assert.deepEqual(
       overlayBlocks.map((block) => block.text),
-      ['실시간 검색 순위', '프로모션 가격 29,000원', '닫기'],
+      ['실시간 검색 순위', '닫기'],
     );
     assert.ok(overlayBlocks.every((block) => (
       block.overlayUiChromeEvidence?.candidateSignal === 'overlay-marker'
@@ -125,7 +125,24 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
     )));
     assert.deepEqual(
       plan.targetBlocks.map((block) => block.text),
-      ['원문 병원', '원문 진료 안내입니다.', '시술 상세', '원문 시술 설명입니다.', '닫기'],
+      [
+        '원문 병원',
+        '원문 진료 안내입니다.',
+        '프로모션 가격 29,000원',
+        '시술 상세',
+        '원문 시술 설명입니다.',
+        '닫기',
+      ],
+    );
+    assert.deepEqual(
+      plan.targetBlocks.find((block) => block.text === '프로모션 가격 29,000원')
+        ?.overlayContentVetoEvidence,
+      {
+        version: 1,
+        bias: 'ambiguous-means-content',
+        signals: ['krw-price'],
+        matches: ['29,000원'],
+      },
     );
   });
 
