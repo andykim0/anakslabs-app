@@ -9,6 +9,12 @@ import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contra
 import type { ClinicMasterSourceBlock } from '@/lib/clinic-master/compiler';
 import type { ClinicEngineProfile } from './contracts';
 import type { ClinicLayoutImage } from './layout-sections';
+import {
+  classifyOverlayUiChrome,
+  overlayElementPath,
+  type OverlayRemovalEvidence,
+  type OverlayUiChromeEvidence,
+} from './overlay-ui-chrome';
 
 const CONTENT_BLOCK_TAGS = new Set([
   'H1',
@@ -45,20 +51,25 @@ const FOOTER_ADDRESS = /(?:주소\s*[:：]|address\s*[:：]|\b\d{5}(?:-\d{4})?\b
 export type RobustClinicExclusionKind =
   | 'footer-legal'
   | 'navigation-label'
-  | 'skip-link';
+  | 'skip-link'
+  | 'overlay-ui-chrome';
 
 export interface RobustClinicDocument {
   sourceUrl: string;
   finalUrl: string;
   html: string;
+  /** Persisted crawl-time evidence; no computed style or recrawl is needed at extraction time. */
+  overlayRemovalEvidence?: readonly OverlayRemovalEvidence[];
 }
 
 export interface RobustClinicSourceBlock extends ClinicMasterSourceBlock {
   sourceLocator: string;
+  sourceElementPath: string;
   sourceSha256: string;
   tagName: string;
   heading: boolean;
   exclusion?: RobustClinicExclusionKind;
+  overlayUiChromeEvidence?: OverlayUiChromeEvidence;
   /**
    * Additive audit evidence for excluded navigation labels. Rendering never consumes this field;
    * corpus analysis uses it to distinguish links to already-crawled pages from destinations the
@@ -278,6 +289,7 @@ function extractBlocks(input: {
   html: string;
   sourceUrl: string;
   pageId: string;
+  overlayRemovalEvidence?: RobustClinicDocument['overlayRemovalEvidence'];
 }): RobustClinicSourceBlock[] {
   const root = parse(input.html);
   for (const removed of root.querySelectorAll(REMOVED_TAGS)) removed.remove();
@@ -292,7 +304,16 @@ function extractBlocks(input: {
     const sourceLocator = locator(element, ordinal);
     const sourceSha256 = sha256(text);
     const heading = /^H[1-6]$/u.test(element.tagName);
-    const exclusion = exclusionFor(element, text);
+    const establishedExclusion = exclusionFor(element, text);
+    const overlayUiChromeEvidence = establishedExclusion
+      ? undefined
+      : classifyOverlayUiChrome({
+        element,
+        text,
+        removalEvidence: input.overlayRemovalEvidence,
+      });
+    const exclusion = establishedExclusion
+      ?? (overlayUiChromeEvidence ? 'overlay-ui-chrome' : undefined);
     const destinations = exclusion === 'navigation-label'
       ? navigationDestinations(element, input.sourceUrl)
       : undefined;
@@ -302,11 +323,13 @@ function extractBlocks(input: {
       text,
       sourceUrl: input.sourceUrl,
       sourceLocator,
+      sourceElementPath: overlayElementPath(element),
       sourceSha256,
       tagName: element.tagName.toLocaleLowerCase('en-US'),
       heading,
       ...(exclusion ? { exclusion } : {}),
       ...(destinations ? { navigationDestinations: destinations } : {}),
+      ...(overlayUiChromeEvidence ? { overlayUiChromeEvidence } : {}),
     });
   };
 
@@ -418,6 +441,7 @@ export function extractRobustClinicSource(input: {
       html: document.html,
       sourceUrl: artifactPage.url,
       pageId: id,
+      overlayRemovalEvidence: document.overlayRemovalEvidence,
     });
     const metadataTitle = metadataBlock({
       pageId: id,

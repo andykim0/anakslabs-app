@@ -244,6 +244,9 @@ function exclusionCounts(
     'footer-legal': plan.excludedBlocks.filter((block) => block.exclusion === 'footer-legal').length,
     'navigation-label': plan.excludedBlocks.filter((block) => block.exclusion === 'navigation-label').length,
     'skip-link': plan.excludedBlocks.filter((block) => block.exclusion === 'skip-link').length,
+    'overlay-ui-chrome': plan.excludedBlocks.filter(
+      (block) => block.exclusion === 'overlay-ui-chrome',
+    ).length,
   };
 }
 

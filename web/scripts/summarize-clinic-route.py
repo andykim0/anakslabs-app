@@ -80,7 +80,7 @@ summary = {
     },
     'exclusions': {
         key: sum(site['exclusionBreakdown'][key] for site in sites)
-        for key in ['footer-legal', 'navigation-label', 'skip-link']
+        for key in ['footer-legal', 'navigation-label', 'skip-link', 'overlay-ui-chrome']
     },
 }
 (ROOT / 'placement-summary.json').write_text(

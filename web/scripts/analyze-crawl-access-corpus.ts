@@ -111,6 +111,9 @@ async function readDocuments(
       html: gunzipSync(
         await readFile(path.join(CORPUS_ROOT, document.postModalDomFile)),
       ).toString('utf8'),
+      ...(document.removedDetails
+        ? { overlayRemovalEvidence: document.removedDetails }
+        : {}),
     });
   }
   return documents;

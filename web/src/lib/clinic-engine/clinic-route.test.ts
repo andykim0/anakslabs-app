@@ -49,7 +49,7 @@ function artifact(pages: CrawlPageArtifact[]): CrawlArtifactPayload {
 }
 
 describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
-  test('the legitimate exclusion list is fixed to nav, skip-link, and footer legal text', () => {
+  test('the legitimate exclusion list adds only measured overlay UI chrome', () => {
     const page = artifactPage('https://clinic.example/');
     const plan = extractRobustClinicSource({
       artifact: artifact([page]),
@@ -82,6 +82,68 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
       plan.excludedBlocks.find((block) => block.exclusion === 'navigation-label')
         ?.navigationDestinations,
       [{ url: 'https://clinic.example/about', label: '병원 소개' }],
+    );
+  });
+
+  test('recorded overlay UI chrome is excluded with per-block evidence', () => {
+    const page = artifactPage('https://clinic.example/');
+    const plan = extractRobustClinicSource({
+      artifact: artifact([page]),
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: `
+          <body>
+            <main><h1>원문 병원</h1><p>원문 진료 안내입니다.</p></main>
+            <div class="modal-wrap">
+              <p>실시간 검색 순위</p>
+              <p>프로모션 가격 29,000원</p>
+              <button aria-label="닫기">닫기</button>
+            </div>
+            <div class="procedure-modal">
+              <h2>시술 상세</h2><p>원문 시술 설명입니다.</p><button>닫기</button>
+            </div>
+          </body>
+        `,
+        overlayRemovalEvidence: [{
+          selector: 'body>div.dim',
+          reason: 'dim_backdrop',
+        }],
+      }],
+    });
+    const overlayBlocks = plan.excludedBlocks.filter(
+      (block) => block.exclusion === 'overlay-ui-chrome',
+    );
+    assert.deepEqual(
+      overlayBlocks.map((block) => block.text),
+      ['실시간 검색 순위', '프로모션 가격 29,000원', '닫기'],
+    );
+    assert.ok(overlayBlocks.every((block) => (
+      block.overlayUiChromeEvidence?.candidateSignal === 'overlay-marker'
+      && block.overlayUiChromeEvidence.recordedRemovalReasons.includes('dim_backdrop')
+    )));
+    assert.deepEqual(
+      plan.targetBlocks.map((block) => block.text),
+      ['원문 병원', '원문 진료 안내입니다.', '시술 상세', '원문 시술 설명입니다.', '닫기'],
+    );
+  });
+
+  test('modal-looking content stays source content without persisted removal evidence', () => {
+    const page = artifactPage('https://clinic.example/procedure');
+    const plan = extractRobustClinicSource({
+      artifact: artifact([page]),
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: '<main><div class="procedure-modal"><h1>임플란트 상세</h1><p>원문 설명</p></div></main>',
+      }],
+    });
+    assert.equal(plan.excludedBlocks.length, 0);
+    assert.deepEqual(
+      plan.targetBlocks.map((block) => block.text),
+      ['임플란트 상세', '원문 설명'],
     );
   });
 

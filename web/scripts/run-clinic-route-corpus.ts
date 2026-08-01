@@ -42,6 +42,10 @@ interface CorpusSiteRecord {
     finalUrl: string;
     postModalDomFile: string;
     postModalDomSha256: string;
+    removedDetails?: Array<{
+      selector: string;
+      reason: 'explicit_close' | 'dim_backdrop';
+    }>;
   }>;
 }
 
@@ -120,7 +124,14 @@ async function readDocuments(
     const html = gunzipSync(
       await readFile(path.join(CORPUS_ROOT, document.postModalDomFile)),
     ).toString('utf8');
-    result.push({ sourceUrl: document.sourceUrl, finalUrl: document.finalUrl, html });
+    result.push({
+      sourceUrl: document.sourceUrl,
+      finalUrl: document.finalUrl,
+      html,
+      ...(document.removedDetails
+        ? { overlayRemovalEvidence: document.removedDetails }
+        : {}),
+    });
   }
   return result;
 }
@@ -185,6 +196,9 @@ function compileMetrics(input: {
       'footer-legal': plan.excludedBlocks.filter((block) => block.exclusion === 'footer-legal').length,
       'navigation-label': plan.excludedBlocks.filter((block) => block.exclusion === 'navigation-label').length,
       'skip-link': plan.excludedBlocks.filter((block) => block.exclusion === 'skip-link').length,
+      'overlay-ui-chrome': plan.excludedBlocks.filter(
+        (block) => block.exclusion === 'overlay-ui-chrome',
+      ).length,
     },
     baseline: {
       placedAll: baselineAllPlaced,
