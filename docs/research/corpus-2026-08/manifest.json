@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-01T11:28:18.297Z",
+  "generatedAt": "2026-08-01T11:35:39.653Z",
   "sourceRunner": "web/scripts/run-engine-robustness.ts",
   "targetCount": 79,
   "pageLimit": 20,
@@ -14470,7 +14470,7 @@
     }
   ],
   "navigationAudit": {
-    "generatedAt": "2026-08-01T11:28:18.297Z",
+    "generatedAt": "2026-08-01T11:35:39.653Z",
     "navigationLabelCount": 30475,
     "crawledDestinationLabelCount": 13162,
     "uncrawledDestinationLabelCount": 15421,

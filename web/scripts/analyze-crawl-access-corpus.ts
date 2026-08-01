@@ -2,6 +2,7 @@ import { gunzipSync } from 'node:zlib';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
+import { sameRegistrableDomain } from '@/lib/crawl/registrable-domain';
 import {
   extractRobustClinicSource,
   type RobustClinicDocument,
@@ -79,19 +80,11 @@ function normalizedHostname(value: string): string {
   return value.trim().toLocaleLowerCase('en-US').replace(/^www\./u, '').replace(/\.$/u, '');
 }
 
-/**
- * The corpus already fixes the site boundary. A destination is site-owned only when it uses an
- * observed host, its bare/www spelling, or a direct parent/child host relation. Sibling domains
- * are deliberately not inferred here; an unobserved ownership claim would inflate page counts.
- */
 function belongsToObservedSite(hostname: string, observedHosts: ReadonlySet<string>): boolean {
   const candidate = normalizedHostname(hostname);
-  return [...observedHosts].some((observedValue) => {
-    const observed = normalizedHostname(observedValue);
-    return candidate === observed
-      || candidate.endsWith(`.${observed}`)
-      || observed.endsWith(`.${candidate}`);
-  });
+  return [...observedHosts].some((observedValue) => (
+    sameRegistrableDomain(candidate, normalizedHostname(observedValue))
+  ));
 }
 
 function siteIdFor(file: string): string {
