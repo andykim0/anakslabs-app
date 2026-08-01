@@ -108,6 +108,31 @@ def main():
     after_reasons = Counter(row['afterReasonClass'] for row in retry_rows)
     forbidden_rows = [row for row in retry_rows if row['host'] in FORBIDDEN]
 
+    pre_append_sites = [
+        site for site in nav['sites']
+        if site['siteId'] != '031-kr-smileface.dental-db8d8e56fb'
+    ]
+    nav['preAppend47Totals'] = {
+        'siteCount': len(pre_append_sites),
+        'navigationLabelCount': sum(site['navigationLabelCount'] for site in pre_append_sites),
+        'crawledDestinationLabelCount': sum(
+            site['crawledDestinationLabelCount'] for site in pre_append_sites
+        ),
+        'uncrawledDestinationLabelCount': sum(
+            site['uncrawledDestinationLabelCount'] for site in pre_append_sites
+        ),
+        'noInternalDestinationLabelCount': sum(
+            site['noInternalDestinationLabelCount'] for site in pre_append_sites
+        ),
+        'crawledPageCount': sum(site['crawledPageCount'] for site in pre_append_sites),
+        'estimatedOriginalPageCount': sum(
+            site['estimatedOriginalPageCount'] for site in pre_append_sites
+        ),
+        'uncrawledDestinationCount': sum(
+            site['uncrawledDestinationCount'] for site in pre_append_sites
+        ),
+    }
+
     placement_sites = placement['sites']
     existing = [site for site in placement_sites if site['siteId'] != '031-kr-smileface.dental-db8d8e56fb']
     existing_renderable = [site for site in existing if site['after']['compileStatus'] == 'success']
