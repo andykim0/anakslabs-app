@@ -59,6 +59,15 @@ export interface RobustClinicSourceBlock extends ClinicMasterSourceBlock {
   tagName: string;
   heading: boolean;
   exclusion?: RobustClinicExclusionKind;
+  /**
+   * Additive audit evidence for excluded navigation labels. Rendering never consumes this field;
+   * corpus analysis uses it to distinguish links to already-crawled pages from destinations the
+   * designated crawl never observed.
+   */
+  navigationDestinations?: Array<{
+    url: string;
+    label: string;
+  }>;
 }
 
 export interface RobustClinicSourcePage {
@@ -185,6 +194,40 @@ function exclusionFor(
   return undefined;
 }
 
+function navigationDestinations(
+  element: HTMLElement,
+  sourceUrl: string,
+): RobustClinicSourceBlock['navigationDestinations'] {
+  const anchors = element.tagName === 'A'
+    ? [element]
+    : element.querySelectorAll('a[href]');
+  const seen = new Set<string>();
+  const result: NonNullable<RobustClinicSourceBlock['navigationDestinations']> = [];
+  for (const anchor of anchors) {
+    const href = anchor.getAttribute('href')?.trim();
+    if (!href) continue;
+    let destination: URL;
+    try {
+      destination = new URL(href, sourceUrl);
+    } catch {
+      continue;
+    }
+    if (!['http:', 'https:'].includes(destination.protocol)) continue;
+    destination.hash = '';
+    if (destination.pathname !== '/') {
+      destination.pathname = destination.pathname.replace(/\/+$/u, '');
+    }
+    const url = destination.toString();
+    if (seen.has(url)) continue;
+    seen.add(url);
+    result.push({
+      url,
+      label: normalizeRobustClinicText(anchor.text),
+    });
+  }
+  return result.length > 0 ? result : undefined;
+}
+
 function hasDescendantContentBlock(element: HTMLElement): boolean {
   return element.querySelectorAll([
     'h1',
@@ -250,6 +293,9 @@ function extractBlocks(input: {
     const sourceSha256 = sha256(text);
     const heading = /^H[1-6]$/u.test(element.tagName);
     const exclusion = exclusionFor(element, text);
+    const destinations = exclusion === 'navigation-label'
+      ? navigationDestinations(element, input.sourceUrl)
+      : undefined;
     result.push({
       id: `robust-${input.pageId}-${ordinal}-${sourceSha256.slice(0, 12)}`,
       kind: heading ? 'service' : 'service_detail',
@@ -260,6 +306,7 @@ function extractBlocks(input: {
       tagName: element.tagName.toLocaleLowerCase('en-US'),
       heading,
       ...(exclusion ? { exclusion } : {}),
+      ...(destinations ? { navigationDestinations: destinations } : {}),
     });
   };
 

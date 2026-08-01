@@ -78,6 +78,11 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
       plan.targetBlocks.map((block) => block.text),
       ['원문 병원', '원문 진료 안내입니다.', '야간 진료 안내는 원문 콘텐츠입니다.'],
     );
+    assert.deepEqual(
+      plan.excludedBlocks.find((block) => block.exclusion === 'navigation-label')
+        ?.navigationDestinations,
+      [{ url: 'https://clinic.example/about', label: '병원 소개' }],
+    );
   });
 
   test('splitPages output reaches the resolver and locale selects the matching clinic typography', () => {
