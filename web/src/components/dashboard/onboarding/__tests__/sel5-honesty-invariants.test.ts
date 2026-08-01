@@ -59,7 +59,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
       },
       addonProjectionBadge: {
         source: SOURCES.sitePreview,
-        label: /예시 · AI 영상 홈페이지\(\+₩/,
+        label: /예시 · 베이직 포함 AI 영상 홈페이지 적용 시/,
       },
       sectionReviewProjection: {
         source: SOURCES.sectionReview,
@@ -67,7 +67,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
       },
       dashboardAddonToggle: {
         source: SOURCES.siteDetail,
-        label: /애드온 적용 예시/,
+        label: /포함 영상 적용 예시/,
       },
     } as const;
 

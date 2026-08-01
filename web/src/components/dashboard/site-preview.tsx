@@ -14,7 +14,6 @@ import { DESIGN_WIDTH, type MotionTier, type SiteConfig } from '@/lib/types/site
 import { SiteRenderer, TenantHeader } from '@/components/site-renderer';
 import { usePreviewMotion } from '@/components/site-renderer/use-preview-motion';
 import { configForAddonPreview } from '@/lib/motion/preview-addon';
-import { PRICING } from '@/lib/pricing';
 import { cn } from './ui';
 
 const MOBILE_PREVIEW_WIDTH = 390;
@@ -184,7 +183,7 @@ export function SitePreview({
       </div>
       {previewAsAddon ? (
         <span className="pointer-events-none absolute top-2 left-2 z-50 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-lg backdrop-blur-sm">
-          예시 · AI 영상 홈페이지(+₩{PRICING.videoHeroAddon.toLocaleString('ko-KR')}) 적용 시
+          예시 · 베이직 포함 AI 영상 홈페이지 적용 시
         </span>
       ) : null}
     </div>

@@ -37,7 +37,7 @@ describe('W3/v2 — 시그니처 production 라이브러리 UI', () => {
 
   test('시그니처와 AI 영상 미디어를 분리하고 권한 우회를 약속하지 않는다', () => {
     assert.match(motion, /시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어/);
-    assert.match(motion, /실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과/);
+    assert.match(motion, /실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작/);
   });
 
   test('예 경로만 등록된 heroMotionId를 저장하고 스킵은 이를 버린다', () => {

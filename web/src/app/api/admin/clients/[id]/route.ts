@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../../../_lib/http';
 import { requireAdminOr403 } from '../../../_lib/guards';
+import { creditsEnabled } from '@/lib/product/flags';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -36,6 +37,7 @@ export const GET = withApiHandler<Ctx>(async (_request, { params }) => {
 
   return NextResponse.json({
     client,
+    creditsEnabled: creditsEnabled(),
     balance: balance.balance,
     sites: siteList,
     ledger: recentLedger,

@@ -4,6 +4,7 @@ import { isMockMode } from '@/lib/env';
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { MockCreditsService } from '@/lib/data/mock/credits';
 import { PRICING } from '@/lib/pricing';
+import { creditsEnabled } from '@/lib/product/flags';
 import {
   buildAdminSiteSubscriptionListing,
   isSiteSubscriptionActiveAt,
@@ -118,12 +119,14 @@ export async function renewSiteSubscriptionManually(input: {
       source: 'admin_manual',
       at,
     });
-    await new MockCreditsService().grant({
-      clientId: input.clientId,
-      amount: PRICING.subscription.creditsPerMonth,
-      reason: 'subscription_grant',
-      idempotencyKey: subscriptionGrantIdempotencyKey(input.clientId, at),
-    });
+    if (creditsEnabled()) {
+      await new MockCreditsService().grant({
+        clientId: input.clientId,
+        amount: PRICING.subscription.creditsPerMonth,
+        reason: 'subscription_grant',
+        idempotencyKey: subscriptionGrantIdempotencyKey(input.clientId, at),
+      });
+    }
     return result;
   }
   const { data, error } = await getServiceRoleClient().rpc('admin_renew_site_subscription', {
@@ -180,6 +183,9 @@ export async function setSiteSubscriptionStatus(input: {
 export async function grantMonthlySubscriptionCredits(
   at: Date = new Date(),
 ): Promise<{ eligible: number; granted: number; skipped: number }> {
+  if (!creditsEnabled()) {
+    return { eligible: 0, granted: 0, skipped: 0 };
+  }
   if (isMockMode()) {
     const states = listMockActiveSiteSubscriptions(at);
     const credits = new MockCreditsService();

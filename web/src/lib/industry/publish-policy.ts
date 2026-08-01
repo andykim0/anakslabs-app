@@ -3,6 +3,7 @@ import {
   industryProfile,
   LEGACY_PRICING_MODEL_VERSION,
   LEGACY_V4_SUBSCRIPTION_PRICE,
+  PREVIOUS_PRICING_MODEL_VERSION,
   PRICING_MODEL_VERSION,
   subscriptionPriceForProfile,
   type SubscriptionPriceContract,
@@ -55,8 +56,15 @@ export function industryPublishPolicy(site: SiteIndustryContract): IndustryPubli
   }
   if (
     site.pricingModelVersion !== PRICING_MODEL_VERSION
-    || !site.industryProfileId
+    && site.pricingModelVersion !== PREVIOUS_PRICING_MODEL_VERSION
   ) {
+    return {
+      status: 'unavailable',
+      code: INDUSTRY_PROFILE_NOT_AVAILABLE,
+      message: '현재 이 업종의 발행 요금은 준비 중입니다. 추가 홈페이지 제작을 문의해 주세요.',
+    };
+  }
+  if (!site.industryProfileId) {
     return {
       status: 'unavailable',
       code: INDUSTRY_PROFILE_NOT_AVAILABLE,

@@ -14,12 +14,13 @@ export function PublishPrice({
   return (
     <div data-publish-price className={`flex flex-col gap-1.5 ${alignment}`}>
       <span className={`text-3xl font-semibold tracking-[-0.04em] sm:text-4xl ${currentColor}`}>
-        {PUBLISH_PAYMENT_COPY.monthlyRetainer}
+        {PUBLISH_PAYMENT_COPY.setupPromotion}
       </span>
-      <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.term}</span>
-      <span className={`mkt-type-support ${detailColor}`}>{PUBLISH_PAYMENT_COPY.renewal}</span>
+      <span className={`mkt-type-support ${detailColor}`}>
+        <del>{PUBLISH_PAYMENT_COPY.setupList}</del> · {PUBLISH_PAYMENT_COPY.promotionEndsOn}
+      </span>
       <span className={`mkt-type-support font-medium ${detailColor}`}>
-        {PUBLISH_PAYMENT_COPY.annualOption}
+        {PUBLISH_PAYMENT_COPY.monthlyMaintenance}
       </span>
     </div>
   );

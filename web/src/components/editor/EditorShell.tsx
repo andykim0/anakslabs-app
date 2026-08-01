@@ -41,11 +41,13 @@ interface EditorShellProps {
   initialConfig: SiteConfig;
   /** [gating] 소유자 요금제 — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰) */
   tier: Tier;
+  /** PRICE-V6 서버 스위치. false면 AI 패널과 진입 버튼을 전혀 렌더하지 않는다. */
+  aiEditAvailable: boolean;
 }
 
 type RightTab = 'design' | 'ai';
 
-export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShellProps) {
+export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvailable }: EditorShellProps) {
   const { toast } = useToast();
 
   // 첫 렌더 전에 스토어 초기화 — 페이지가 key={siteId}로 마운트하므로 인스턴스당 1회.
@@ -67,7 +69,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
   const [lastIntent, setLastIntent] = useState(aiIntent);
   if (aiIntent !== lastIntent) {
     setLastIntent(aiIntent);
-    if (aiIntent) setTab('ai');
+    if (aiIntent && aiEditAvailable) setTab('ai');
   }
   const selectTab = (next: RightTab) => {
     if (aiIntent) useEditorStore.getState().setAiIntent(null);
@@ -166,12 +168,16 @@ export function EditorShell({ siteId, siteName, initialConfig, tier }: EditorShe
             <TabButton active={tab === 'design'} onClick={() => selectTab('design')} icon={<Palette className="h-3.5 w-3.5" />}>
               디자인
             </TabButton>
-            <TabButton active={tab === 'ai'} onClick={() => selectTab('ai')} icon={<Wand2 className="h-3.5 w-3.5" />}>
-              AI 편집
-            </TabButton>
+            {aiEditAvailable ? (
+              <TabButton active={tab === 'ai'} onClick={() => selectTab('ai')} icon={<Wand2 className="h-3.5 w-3.5" />}>
+                AI 편집
+              </TabButton>
+            ) : null}
           </div>
           <div className="min-h-0 flex-1 overflow-hidden">
-            {tab === 'design' ? <Inspector /> : <AiPanel siteId={siteId} />}
+            {tab === 'design' || !aiEditAvailable
+              ? <Inspector aiEditAvailable={aiEditAvailable} />
+              : <AiPanel siteId={siteId} />}
           </div>
         </aside>
       </div>

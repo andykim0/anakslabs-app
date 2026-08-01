@@ -1,6 +1,7 @@
 import { CREDIT_PACKS } from '@/lib/credits/constants';
 import { PRICING } from '@/lib/pricing';
 import type { PaymentType } from '@/lib/types/domain';
+import { creditsEnabled } from '@/lib/product/flags';
 
 export type PaymentAmountSubject =
   | { type: 'maintenance_subscription' }
@@ -19,9 +20,10 @@ export function acceptedPaymentAmounts(subject: PaymentAmountSubject): readonly 
     return [PRICING.subscription.amountKrw];
   }
   if (subject.type === 'premium_addon') {
-    return [PRICING.videoHeroAddon];
+    return [];
   }
   if (subject.type === 'credit_pack') {
+    if (!creditsEnabled()) return [];
     const pack = CREDIT_PACKS.find((candidate) => candidate.credits === subject.credits);
     return pack ? [pack.priceKrw] : [];
   }
@@ -60,10 +62,12 @@ export function paymentAmountSubject(input: {
     return { type: 'maintenance_subscription' };
   }
   if (input.type === 'premium_addon') {
-    return { type: 'premium_addon' };
+    return null;
   }
   if (input.type === 'build_fee') return null;
-  return Number.isSafeInteger(input.creditsGranted) && (input.creditsGranted ?? 0) > 0
+  return creditsEnabled()
+    && Number.isSafeInteger(input.creditsGranted)
+    && (input.creditsGranted ?? 0) > 0
     ? { type: 'credit_pack', credits: input.creditsGranted! }
     : null;
 }

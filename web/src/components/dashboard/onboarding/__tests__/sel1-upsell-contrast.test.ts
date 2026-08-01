@@ -29,6 +29,6 @@ describe('SEL1 — 고객 선택 이미지의 정직한 정지→모션 대비',
     assert.match(choice, /정지 화면으로 유지하기/);
     assert.match(preview, /useReducedMotion/);
     assert.match(preview, /disabled=\{reducedMotion\}/);
-    assert.match(choice, /실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과/);
+    assert.match(choice, /실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작/);
   });
 });

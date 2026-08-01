@@ -131,7 +131,7 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
             )}
           >
             <Film className="h-3 w-3" />
-            애드온 적용 예시
+            포함 영상 적용 예시
           </button>
         ) : null}
         <button
@@ -437,7 +437,15 @@ function DetailSkeleton() {
   );
 }
 
-export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
+export function SiteDetail({
+  siteId,
+  tier,
+  aiEditAvailable,
+}: {
+  siteId: string;
+  tier: Tier;
+  aiEditAvailable: boolean;
+}) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   // 발행 전 사업자 정보 + 휴먼 3체크 모달
@@ -605,7 +613,7 @@ export function SiteDetail({ siteId, tier }: { siteId: string; tier: Tier }) {
 
       <FormInbox siteId={siteId} />
 
-      <EditHistory siteId={siteId} />
+      {aiEditAvailable ? <EditHistory siteId={siteId} /> : null}
 
       {/* 사업자 정보 확인과 휴먼 3체크는 서로 별도이며 서버도 둘 다 요구한다. */}
       <Modal

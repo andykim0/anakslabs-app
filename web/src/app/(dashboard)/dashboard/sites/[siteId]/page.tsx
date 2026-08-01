@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentClient } from '@/lib/services/auth';
 import { SiteDetail } from '@/components/dashboard/site-detail';
+import { aiEditEnabled } from '@/lib/product/flags';
 
 export const metadata: Metadata = { title: '사이트 상세 — 다보임' };
 
@@ -14,5 +15,5 @@ export default async function SiteDetailPage({
   const client = await getCurrentClient();
   if (!client) redirect('/login');
 
-  return <SiteDetail siteId={siteId} tier={client.tier} />;
+  return <SiteDetail siteId={siteId} tier={client.tier} aiEditAvailable={aiEditEnabled()} />;
 }

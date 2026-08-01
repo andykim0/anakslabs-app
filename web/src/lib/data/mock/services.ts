@@ -3,9 +3,11 @@
  * 저장 객체 오염 방지를 위해 조회 결과는 structuredClone으로 복사해 반환한다.
  */
 import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constants';
+import { creditsEnabled } from '@/lib/product/flags';
 import { ROOT_DOMAIN } from '@/lib/env';
 import {
   LEGACY_PRICING_MODEL_VERSION,
+  LEGACY_PRICING,
   LEGACY_V4_SUBSCRIPTION_PRICE,
   PRICING,
   subscriptionPriceForProfile,
@@ -486,9 +488,12 @@ class MockPaymentsService implements PaymentsService {
     let subscriptionGrantKey: string | null = null;
     if (payload.type === 'build_fee') {
       const tier = payload.tier ?? client.tier;
-      creditsGranted = INITIAL_GRANT[tier];
+      creditsGranted = creditsEnabled() ? INITIAL_GRANT[tier] : 0;
       client.tier = tier; // 빌드비 결제 = 티어 확정 (SQL handle_build_fee_payment와 동일)
     } else if (payload.type === 'credit_pack') {
+      if (!creditsEnabled()) {
+        throw new Error('payments.handleWebhook: credit pack sales are disabled');
+      }
       if (!payload.creditsGranted || payload.creditsGranted <= 0) {
         throw new Error('payments.handleWebhook: credit_pack은 creditsGranted가 양수여야 합니다');
       }
@@ -533,12 +538,14 @@ class MockPaymentsService implements PaymentsService {
       // Freeze the one-time legacy projection before inserting this new
       // payment, exactly as an already-applied migration would in real mode.
       getMockSiteSubscription(payload.clientId);
-      subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
-      creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
+      if (creditsEnabled()) {
+        subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
+        creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
+      }
     } else if (payload.type === 'premium_addon') {
-      if (payload.amount !== PRICING.videoHeroAddon) {
+      if (payload.amount !== LEGACY_PRICING.videoHeroAddon) {
         throw new Error(
-          `payments.handleWebhook: premium addon amount must equal ${PRICING.videoHeroAddon}`,
+          `payments.handleWebhook: premium addon amount must equal ${LEGACY_PRICING.videoHeroAddon}`,
         );
       }
       client.tier = 'premium';
@@ -579,7 +586,7 @@ class MockPaymentsService implements PaymentsService {
       }
     }
 
-    if (payload.type === 'build_fee') {
+    if (payload.type === 'build_fee' && creditsGranted > 0) {
       await this.credits.grant({
         clientId: payload.clientId,
         amount: creditsGranted,

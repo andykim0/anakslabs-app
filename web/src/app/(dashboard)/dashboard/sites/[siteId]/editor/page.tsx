@@ -13,6 +13,7 @@ import {
   preservePersistedAssetUsagesInPreview,
   resolveSiteAssetPolicy,
 } from '@/lib/assets/assignment';
+import { aiEditEnabled } from '@/lib/product/flags';
 
 export const metadata: Metadata = {
   title: '에디터 — 다보임',
@@ -48,5 +49,14 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
   const tier = owner?.tier ?? 'basic';
 
   // key: 사이트가 바뀌면 에디터 인스턴스를 새로 마운트해 스토어를 재초기화
-  return <EditorShell key={site.id} siteId={site.id} siteName={site.name} initialConfig={initialConfig} tier={tier} />;
+  return (
+    <EditorShell
+      key={site.id}
+      siteId={site.id}
+      siteName={site.name}
+      initialConfig={initialConfig}
+      tier={tier}
+      aiEditAvailable={aiEditEnabled()}
+    />
+  );
 }

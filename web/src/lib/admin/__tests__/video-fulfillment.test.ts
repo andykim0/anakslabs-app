@@ -7,6 +7,7 @@ import { toAssetRef } from '@/lib/assets/provenance';
 import { createMemoryAssetRegistry } from '@/lib/assets/registry-core';
 import { DEMO_PREMIUM_ID, HWARODAM_SITE_ID } from '@/lib/data/mock/seed';
 import { getMockStore, resetMockStore } from '@/lib/data/mock/store';
+import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
 import {
   deriveVideoQueueItem,
@@ -133,6 +134,26 @@ describe('ADM1 video fulfillment queue core', () => {
     assert.deepEqual(siteVideoFulfillmentState({ site, client }), {
       pending: false,
       reason: 'already-applied',
+    });
+  });
+
+  test('current V6 basic includes one approval-time video without opening legacy basic sites', () => {
+    resetMockStore();
+    const store = getMockStore();
+    const site = store.sites.get(HWARODAM_SITE_ID)!;
+    const client = { ...store.clients.get(DEMO_PREMIUM_ID)!, tier: 'basic' as const };
+    site.assetPolicyVersion = 2;
+    site.pricingModelVersion = PRICING_MODEL_VERSION;
+    site.draftConfig = requestedConfig();
+    site.siteConfig = null;
+
+    assert.equal(siteVideoFulfillmentState({ site, client }).pending, true);
+    assert.ok(deriveVideoQueueItem({ site, client }));
+
+    site.pricingModelVersion = null;
+    assert.deepEqual(siteVideoFulfillmentState({ site, client }), {
+      pending: false,
+      reason: 'addon-not-owned',
     });
   });
 

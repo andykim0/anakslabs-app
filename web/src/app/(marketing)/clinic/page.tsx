@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { clinicAvailability } from '@/lib/industry/clinic-availability';
 import { INDUSTRY_PROFILES, formatKrw } from '@/lib/pricing';
 
-const PROFILE = INDUSTRY_PROFILES.clinic;
+const PROFILE = INDUSTRY_PROFILES.interior;
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export function generateMetadata(): Metadata {
   return {
     title: '의원·클리닉 홈페이지 제작·운영',
     description:
-      `진료 안내와 예약 동선을 정리하고 공개 전 문구를 검사합니다. 발행할 때 월 ${formatKrw(PROFILE.monthlyKrw)}으로 시작하며 별도 제작비는 없습니다.`,
+      `진료 안내와 예약 동선을 정리하고 공개 전 문구를 검사합니다. 제작비 ${formatKrw(PROFILE.setupPromotionalKrw)}, 유지비 월 ${formatKrw(PROFILE.monthlyKrw)}입니다.`,
     alternates: { canonical: '/clinic' },
   };
 }
@@ -55,17 +55,17 @@ export default function ClinicPage() {
 
           <div className="rounded-3xl border border-white/70 bg-white/78 p-6 shadow-[0_24px_70px_rgba(28,54,58,.11)] backdrop-blur-sm sm:p-8">
             <p className="mkt-type-eyebrow font-semibold tracking-[0.12em] text-[#496D70] uppercase">
-              발행 후 매월
+              제작비 · 기간한정
             </p>
             <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
-              월 {formatKrw(PROFILE.monthlyKrw)}
+              {formatKrw(PROFILE.setupPromotionalKrw)}
             </p>
-            <p className="mkt-type-support mt-2 text-[#657579]">부가세 포함 · 홈페이지 1개 · 자동 갱신</p>
+            <p className="mkt-type-support mt-2 text-[#657579]">정가 {formatKrw(PROFILE.setupListKrw)} · {PROFILE.promotionEndsOn}까지</p>
             <p className="mkt-type-body mt-5 text-[#43575B]">
-              별도 제작비 없이 홈페이지 제작, 예약·전화 연결, 문의 행동 추적, 월간 리포트와 운영이 포함됩니다.
+              홈페이지 제작과 승인한 영상 히어로 1회 생성이 포함됩니다. 유지비는 월 {formatKrw(PROFILE.monthlyKrw)}입니다.
             </p>
             <p className="mkt-type-support mt-4 font-medium text-[#315F62]">
-              연납 {formatKrw(PROFILE.annualKrw)} · 2개월분 면제
+              부가세 포함 · 홈페이지 1개
             </p>
           </div>
         </div>

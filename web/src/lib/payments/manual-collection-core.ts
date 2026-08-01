@@ -1,4 +1,3 @@
-import { CREDIT_PACKS } from '@/lib/credits/constants';
 import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
 import type { Payment, PaymentType } from '@/lib/types/domain';
 
@@ -12,9 +11,7 @@ export const MANUAL_COLLECTION_PRODUCT_KINDS = [
 
 /** 새 수금에 허용되는 상품. 제작비 2종은 과거 장부 해석·취소를 위해서만 남긴다. */
 export const RECORDABLE_MANUAL_COLLECTION_PRODUCT_KINDS = [
-  'video_addon',
   'subscription',
-  'credit_pack',
 ] as const satisfies readonly ManualCollectionProductKind[];
 
 export type ManualCollectionProductKind = (typeof MANUAL_COLLECTION_PRODUCT_KINDS)[number];
@@ -192,20 +189,17 @@ export function manualCollectionQuote(input: {
     case 'video_addon':
       return {
         paymentType: 'premium_addon',
-        amountKrw: PRICING.videoHeroAddon,
+        amountKrw: LEGACY_PRICING.videoHeroAddon,
         creditsGranted: 0,
       };
     case 'subscription':
       return {
         paymentType: 'maintenance_subscription',
         amountKrw: PRICING.subscription.amountKrw,
-        creditsGranted: PRICING.subscription.creditsPerMonth,
+        creditsGranted: 0,
       };
     case 'credit_pack': {
-      const pack = CREDIT_PACKS.find((candidate) => candidate.credits === input.creditPackCredits);
-      return pack
-        ? { paymentType: 'credit_pack', amountKrw: pack.priceKrw, creditsGranted: pack.credits }
-        : null;
+      return null;
     }
   }
 }

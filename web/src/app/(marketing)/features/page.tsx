@@ -17,13 +17,12 @@ import { MonthlyReportPreview } from '@/components/marketing/MonthlyReportPrevie
 import { PricingMotionComparison } from '@/components/marketing/PricingMotionComparison';
 import { ScannerCta } from '@/components/marketing/ui';
 import {
-  formatKrw,
   PUBLISH_PAYMENT_COPY,
   PRICING,
   SITE_PRICE_UNIT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
+  formatKrw,
 } from '@/lib/pricing';
-import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { VIDEO_FULFILLMENT_COPY } from '@/lib/fulfillment-sla';
 
 export const metadata: Metadata = {
@@ -206,7 +205,7 @@ export default function FeaturesPage() {
               <div>
                 <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">MONTHLY RETAINER</p>
                 <p className="mkt-type-card-title mt-3 font-semibold tracking-[-0.025em]">
-                  월 성과 관리 {formatKrw(PRICING.subscription.amountKrw)}
+                  월 유지 {formatKrw(PRICING.subscription.amountKrw)}
                 </p>
                 <p className="mkt-type-support mt-2 text-[#667085]">
                   {PUBLISH_PAYMENT_COPY.term} · {PUBLISH_PAYMENT_COPY.renewal} · {PUBLISH_PAYMENT_COPY.vat}
@@ -216,23 +215,23 @@ export default function FeaturesPage() {
                 <div>
                   <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
                     <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
-                    {SUBSCRIPTION_BENEFIT_COPY.report} + 클릭 추적
+                    {SUBSCRIPTION_BENEFIT_COPY.selfEdit}
                   </p>
-                  <p className="mkt-type-support mt-2 text-[#667085]">방문 흐름과 전화·예약·길찾기 반응을 매달 확인합니다.</p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">문구와 사진을 에디터에서 직접 바꿀 수 있습니다.</p>
                 </div>
                 <div>
                   <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
                     <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
-                    {SUBSCRIPTION_BENEFIT_COPY.credits}
+                    {SUBSCRIPTION_BENEFIT_COPY.videoHero}
                   </p>
-                  <p data-credit-contract className="mkt-type-support mt-2 text-[#667085]">{CREDIT_CONTRACT_COPY}</p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">디자인 후보 승인 뒤 영상 히어로를 1회 생성합니다.</p>
                 </div>
                 <div>
                   <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
                     <Check className="h-4 w-4 shrink-0 text-[#03A995]" aria-hidden />
-                    검색·AI용 기본 구조 업데이트
+                    안전한 사이트 운영
                   </p>
-                  <p className="mkt-type-support mt-2 text-[#667085]">검색과 AI가 홈페이지를 읽는 방식이 바뀌면 기본 구조도 함께 점검하고 업데이트합니다.</p>
+                  <p className="mkt-type-support mt-2 text-[#667085]">SSL과 백업을 유지해 홈페이지를 계속 열어 둡니다.</p>
                 </div>
                 <div>
                   <p className="mkt-type-body flex items-center gap-2 font-semibold text-[#26354D]">
@@ -251,12 +250,12 @@ export default function FeaturesPage() {
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-start">
             <div>
-              <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">OPTIONAL VIDEO</p>
+              <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#174DDA]">VIDEO INCLUDED</p>
               <h2 className="mkt-type-section-title mt-5 font-semibold tracking-[-0.045em] break-keep">
                 기본 움직임과 영상 첫 화면을 같은 장면으로 비교하세요.
               </h2>
               <p className="mkt-type-body mt-5 max-w-lg text-[#526174] break-keep">
-                모든 홈페이지에는 기본 움직임이 포함됩니다. 더 깊은 공간감이 필요할 때만 AI 영상 홈페이지를 추가할 수 있습니다.
+                모든 홈페이지에는 기본 움직임이 포함됩니다. 한 디자인을 승인하면 같은 장면의 AI 영상 히어로를 1회 생성합니다.
               </p>
               <p className="mkt-type-support mt-4 max-w-lg text-[#667085] break-keep">
                 {VIDEO_FULFILLMENT_COPY}
@@ -285,7 +284,7 @@ export default function FeaturesPage() {
           <div className="min-w-[260px] border-t border-[#DCE4F0] pt-6 lg:text-right">
             <PublishPrice align="right" />
             <p className="mkt-type-support mt-2 text-[#667085]">
-              {PUBLISH_PAYMENT_COPY.noBuildFee} · {PUBLISH_PAYMENT_COPY.vat}
+              {PUBLISH_PAYMENT_COPY.vat}
             </p>
             <p data-site-price-unit className="mkt-type-support mt-1 text-[#667085]">
               {SITE_PRICE_UNIT_COPY}

@@ -1,6 +1,7 @@
 import type { Client, Site } from '@/lib/types/domain';
 import type { MotionIndustryClass, SiteConfig } from '@/lib/types/site';
 import { heroVideoResumePlan } from '@/lib/onboarding/hero-video-process';
+import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 
 export type VideoFulfillmentRequestedAtSource = 'recorded' | 'site-created-fallback';
 
@@ -103,7 +104,11 @@ export function siteVideoFulfillmentState(input: {
   completion?: VideoFulfillmentRecord | null;
   timing?: VideoFulfillmentRequestTiming | null;
 }): SiteVideoFulfillmentState {
-  if (input.client.id !== input.site.clientId || input.client.tier !== 'premium') {
+  const hasIncludedVideo = input.site.pricingModelVersion === PRICING_MODEL_VERSION;
+  if (
+    input.client.id !== input.site.clientId
+    || (input.client.tier !== 'premium' && !hasIncludedVideo)
+  ) {
     return { pending: false, reason: 'addon-not-owned' };
   }
   if (input.completion) return { pending: false, reason: 'completed' };

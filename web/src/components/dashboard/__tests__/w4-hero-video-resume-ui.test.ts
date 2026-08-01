@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 describe('W4 — 관리자 검수 영상 이행 상태 UI', () => {
   test('서버 페이지의 현재 tier를 상세 화면에 전달한다', () => {
     const page = source('src/app/(dashboard)/dashboard/sites/[siteId]/page.tsx');
-    assert.match(page, /<SiteDetail siteId=\{siteId\} tier=\{client\.tier\} \/>/);
+    assert.match(page, /<SiteDetail siteId=\{siteId\} tier=\{client\.tier\} aiEditAvailable=\{aiEditEnabled\(\)\} \/>/);
   });
 
   test('상세 화면은 draft 우선 설정에서 요청·권한·적용 여부를 상태로 표시한다', () => {

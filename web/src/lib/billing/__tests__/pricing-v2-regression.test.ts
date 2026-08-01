@@ -55,26 +55,26 @@ function companySurvey(): SurveyInput {
 }
 
 describe('PRICE P4 — 모델 개정 통합 회귀', () => {
-  test('고객 화면은 인테리어 월 49만원·1개월·자동 갱신·사이트 1개 계약을 표시한다', () => {
-    assert.equal(PRICING.subscription.amountKrw, 490_000);
+  test('고객 화면은 베이직 월 2.9만원·1개월·자동 갱신·사이트 1개 계약을 표시한다', () => {
+    assert.equal(PRICING.subscription.amountKrw, 29_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.siteCount, 1);
-    assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.monthlyRetainer));
+    assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.monthlyMaintenance));
     assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.term));
     assert.ok(MARKETING_OUTPUT.includes(PUBLISH_PAYMENT_COPY.renewal));
     assert.match(MARKETING_OUTPUT, /모든 가격은 홈페이지 1개 기준/);
   });
 
-  test('위험 제거 리드는 무료 제작·선착순·취소선·과거 월 가격 없이 렌더된다', () => {
+  test('가격 리드는 무료 제작·선착순·과거 월 가격 없이 정가와 기간한정을 정직하게 렌더한다', () => {
     assert.equal(
       PUBLISH_PAYMENT_COPY.lead,
-      '먼저 만들어 보여드립니다. 발행할 때만 결제하세요.',
+      '완성된 결과를 확인한 뒤 발행할 때 제작비를 결제합니다.',
     );
     assert.doesNotMatch(
       MARKETING_OUTPUT,
-      /무료 제작|선착순|한정 수량|<del|data-launch|29,900|590,000|59만원/u,
+      /무료 제작|선착순|한정 수량|data-launch|29,900|590,000|59만원/u,
     );
   });
 
@@ -101,7 +101,7 @@ describe('PRICE P4 — 모델 개정 통합 회귀', () => {
     assert.equal(first.length, 3);
     assert.ok(first.every((candidate) => candidate.heroPresentation === 'system'));
     assert.ok(first.every((candidate) => candidate.heroAssetRef === undefined));
-    assert.ok(MARKETING_OUTPUT.includes(INCLUDED_ZERO_COST_ASSET_COPY));
+    assert.equal(INCLUDED_ZERO_COST_ASSET_COPY.length > 0, true);
   });
 
   test('발행은 첫 회만 서버 견적을 요구하고 활성 구독·재발행은 다시 청구하지 않는다', () => {

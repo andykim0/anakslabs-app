@@ -14,13 +14,10 @@ import {
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
-  formatKrw,
-  PRICING,
   PUBLISH_PAYMENT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
-import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { LandingCinematicShowcase } from '@/components/marketing/LandingCinematicShowcase';
 import { LandingFullFilm } from '@/components/marketing/LandingFullFilm';
@@ -33,7 +30,7 @@ import { FadeIn } from '@/components/motion/FadeIn';
 
 const PAGE_TITLE = `손님이 찾고 믿을 수 있는 홈페이지 제작 | ${PUBLIC_BRAND_NAMES.brand}`;
 const PAGE_DESCRIPTION =
-  `손님이 네이버·구글에서 가게를 찾고 AI에 물을 때 공식 정보를 확인하기 쉬운 홈페이지를 만듭니다. 업종별 설계, 디자인 3안, 직접 편집, 호스팅과 월간 성과 리포트까지 ${PUBLIC_BRAND_NAMES.brand} 하나로 제공합니다.`;
+  `손님이 네이버·구글에서 가게를 찾고 AI에 물을 때 공식 정보를 확인하기 쉬운 홈페이지를 만듭니다. 업종별 설계, 디자인 3안, 직접 편집과 호스팅·유지를 ${PUBLIC_BRAND_NAMES.brand} 하나로 제공합니다.`;
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
@@ -111,7 +108,7 @@ const COMPARISON = [
     label: '성과 확인',
     builder: '스스로 분석',
     agency: '별도 관리 계약',
-    anaks: '매달 리포트가 숫자로 도착',
+    anaks: '직접 확인할 수 있는 문의 동선',
   },
 ];
 
@@ -129,8 +126,8 @@ const CORE_FEATURES = [
   '네이버·구글·AI가 읽기 쉬운 기본 구성',
   '네이버·구글 검색 등록까지 다보임이 대신합니다 — 사장님은 아무것도 안 하셔도 됩니다.',
   '멀티페이지 + SSL 호스팅',
-  SUBSCRIPTION_BENEFIT_COPY.report,
-  SUBSCRIPTION_BENEFIT_COPY.credits,
+  SUBSCRIPTION_BENEFIT_COPY.operations,
+  SUBSCRIPTION_BENEFIT_COPY.videoHero,
 ];
 
 const FAQS: FaqItem[] = [
@@ -143,16 +140,12 @@ const FAQS: FaqItem[] = [
     a: `아니요. 순위와 AI 답변 노출은 네이버·구글·AI 서비스가 결정합니다. ${PUBLIC_BRAND_NAMES.brand}은 가게 이름, 지역, 서비스와 공식 정보를 읽고 확인하기 쉬운 홈페이지를 만듭니다.`,
   },
   {
-    q: '무제한 수정과 크레딧은 뭐가 다른가요?',
-    a: CREDIT_CONTRACT_COPY,
-  },
-  {
-    q: '사이트 운영 구독에는 무엇이 포함되나요?',
-    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
+    q: '월 유지비에는 무엇이 포함되나요?',
+    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}와 ${SUBSCRIPTION_BENEFIT_COPY.selfEdit}가 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
   },
   {
     q: 'AI 영상 홈페이지도 만들 수 있나요?',
-    a: `기본 모션은 월 이용료에 포함됩니다. ${PUBLIC_BRAND_NAMES.ai}가 만드는 시네마틱 영상 히어로는 AI 영상 홈페이지 옵션으로 +${formatKrw(PRICING.videoHeroAddon)}에 추가할 수 있습니다.`,
+    a: `네. ${PUBLIC_BRAND_NAMES.ai}가 만드는 영상 히어로는 베이직 제작비에 포함됩니다. 디자인 후보에서는 정지 이미지와 기본 움직임으로 확인하고, 최종 디자인 승인 뒤 1회 생성합니다.`,
   },
 ];
 
@@ -320,8 +313,8 @@ export default function MarketingHome() {
                 <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">DIRECTABLE AI</p>
                 <h3 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">AI가 시작하고,<br />사장님이 방향을 잡습니다.</h3>
                 <p className="mkt-type-body mt-5 max-w-lg text-[#666A73]">먼저 페이지 구성을 확인하고, 서로 다른 디자인 3안에서 방향을 고릅니다. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 요소를 옮기고 크기를 바꿀 수 있습니다. 직접 수정은 횟수 제한 없이 무료입니다.</p>
-                <p data-credit-contract className="mkt-type-support mt-4 max-w-lg border-l-2 border-[#08AFC5] pl-4 text-[#526174]">
-                  {CREDIT_CONTRACT_COPY}
+                <p className="mkt-type-support mt-4 max-w-lg border-l-2 border-[#08AFC5] pl-4 text-[#526174]">
+                  문구와 이미지는 에디터에서 직접 수정할 수 있으며, 직접 수정은 횟수 제한 없이 무료입니다.
                 </p>
                 <ul className="mkt-type-body mt-7 grid gap-3 text-[#41444C] sm:grid-cols-2">
                   {['생성 전 구성 확인', '디자인 3안 비교', '드래그·리사이즈 편집', '구조 진단 후 발행'].map((item) => (
@@ -365,7 +358,7 @@ export default function MarketingHome() {
             <div data-story-copy="pricing">
               <p className="mkt-type-eyebrow font-mono tracking-[0.16em] text-[#174DDA] uppercase">ONE PRODUCT · CLEAR PRICE</p>
               <h2 className="mkt-type-section-title mt-4 font-semibold tracking-[-0.04em] text-[#0B1736]">먼저 결과를 보고,<br />발행할 때 시작합니다.</h2>
-              <p className="mkt-type-body mt-5 max-w-md text-[#666A73]">{PUBLISH_PAYMENT_COPY.lead} 검색과 AI의 읽는 방식은 계속 바뀌므로, 발행 뒤에도 성과 숫자와 기본 구조를 함께 관리합니다.</p>
+              <p className="mkt-type-body mt-5 max-w-md text-[#666A73]">{PUBLISH_PAYMENT_COPY.lead} 발행 뒤에는 호스팅·SSL·백업과 셀프 편집 환경을 유지합니다.</p>
             </div>
           </FadeIn>
           <FadeIn delay={0.08}>
@@ -373,18 +366,18 @@ export default function MarketingHome() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="mkt-type-eyebrow font-mono tracking-[0.14em] text-[#5DE0D0]">WEBSITE + MANAGED HOSTING</p>
-                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 발행 + 매월 성과 관리</h3>
+                  <h3 className="mkt-type-card-title mt-3 font-semibold">홈페이지 제작 + 월 유지</h3>
                 </div>
                 <PublishPrice tone="dark" align="right" />
               </div>
-              <p className="mkt-type-support mt-2 text-right text-white/48">{PUBLISH_PAYMENT_COPY.noBuildFee} · {PUBLISH_PAYMENT_COPY.vat}</p>
+              <p className="mkt-type-support mt-2 text-right text-white/48">{PUBLISH_PAYMENT_COPY.vat}</p>
               <p className="mkt-type-support mt-2 text-right font-medium text-[#5DE0D0]">{SUBSCRIPTION_VALUE_COPY}</p>
               <ul className="mkt-type-body mt-8 grid gap-3 border-t border-white/10 pt-7 text-white/68 sm:grid-cols-2">
                 {CORE_FEATURES.map((feature) => <li key={feature} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#5DE0D0]" />{feature}</li>)}
               </ul>
               <div className="mt-7 flex flex-col justify-between gap-4 rounded-2xl border border-white/8 bg-white/[0.045] p-4 sm:flex-row sm:items-center">
-                <p className="mkt-type-support text-white/52">AI 영상 홈페이지<br /><span className="text-white/78" data-brand-bilingual="core-first">{PUBLIC_BRAND_NAMES.aiBilingual} 시네마틱 영상 히어로 · 선택</span></p>
-                <span className="mkt-type-body font-mono font-semibold text-[#5DE0D0]">+{formatKrw(PRICING.videoHeroAddon)}</span>
+                <p className="mkt-type-support text-white/52">AI 영상 홈페이지<br /><span className="text-white/78" data-brand-bilingual="core-first">{PUBLIC_BRAND_NAMES.aiBilingual} 시네마틱 영상 히어로</span></p>
+                <span className="mkt-type-body font-mono font-semibold text-[#5DE0D0]">베이직 포함</span>
               </div>
               <Link href="/pricing" className="mkt-type-control group mt-7 inline-flex items-center gap-2 font-semibold text-white">가격 자세히 보기 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
             </div>

@@ -4,7 +4,6 @@
  * 결제·구독 페이지 (/dashboard/billing) —
  * 구독 상태 카드(단일 월 요금·mock 표기) · suspended 경고 배너 · 결제 이력 테이블.
  */
-import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, BadgeCheck, ReceiptText } from 'lucide-react';
 import type { PaymentType, Tier } from '@/lib/types/domain';
@@ -79,10 +78,8 @@ export function subscriptionStatusLabel(subscription: ResolvedSubscription): str
 }
 
 function SubscriptionCard({
-  tier,
   subscription,
 }: {
-  tier: Tier;
   subscription: ResolvedSubscription;
 }) {
   const mock = isMockMode();
@@ -98,14 +95,12 @@ function SubscriptionCard({
         <div>
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-neutral-100">사이트 운영 구독</p>
-            <Badge tone={tier === 'premium' ? 'gold' : 'neutral'}>
-              {tier === 'premium' ? 'AI 영상 홈페이지 적용' : '기본 모션 포함'}
-            </Badge>
+            <Badge tone="neutral">영상 히어로 포함</Badge>
             {mock ? <Badge tone="blue">데모 결제</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            월 {PRICING.subscription.amountKrw.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.report} ·{' '}
-            {SUBSCRIPTION_BENEFIT_COPY.credits} · {SUBSCRIPTION_BENEFIT_COPY.operations}
+            월 {PRICING.subscription.amountKrw.toLocaleString()}원 · {SUBSCRIPTION_BENEFIT_COPY.operations} ·{' '}
+            {SUBSCRIPTION_BENEFIT_COPY.selfEdit}
           </p>
           <p className="mt-1 text-[11px] leading-5 text-blue-300/80">
             {SUBSCRIPTION_VALUE_COPY}
@@ -121,14 +116,6 @@ function SubscriptionCard({
           <p className="mt-1 text-[11px] text-neutral-500">
             현재 이용기간 {formatDateTime(state.currentPeriodEnd)}까지
           </p>
-        ) : null}
-        {tier === 'basic' ? (
-          <Link
-            href="/dashboard/settings"
-            className="mt-1 inline-block text-xs text-[#c8a96a] hover:underline"
-          >
-            AI 영상 홈페이지 문의 →
-          </Link>
         ) : null}
       </div>
     </Card>
@@ -153,7 +140,7 @@ function PaymentsTable() {
         <EmptyState
           icon={<ReceiptText className="h-8 w-8" />}
           title="결제 이력이 없습니다"
-          description="과거 제작비, 월 사이트 운영 구독, 애드온과 크레딧 팩 결제 내역이 이곳에 표시됩니다."
+          description="과거 제작비와 월 사이트 유지비를 포함한 결제 이력이 이곳에 표시됩니다."
         />
       ) : (
         <Card className="overflow-x-auto p-0">
@@ -202,7 +189,7 @@ function PaymentsTable() {
   );
 }
 
-export function BillingView({ tier, subscription }: { tier: Tier; subscription: ResolvedSubscription }) {
+export function BillingView({ subscription }: { tier: Tier; subscription: ResolvedSubscription }) {
   return (
     <div>
       <PageHeader
@@ -210,7 +197,7 @@ export function BillingView({ tier, subscription }: { tier: Tier; subscription: 
         description="사이트 운영 구독 상태와 결제 이력을 확인하세요."
       />
       <SuspendedBanner />
-      <SubscriptionCard tier={tier} subscription={subscription} />
+      <SubscriptionCard subscription={subscription} />
       <PaymentsTable />
     </div>
   );

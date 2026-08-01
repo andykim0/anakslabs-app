@@ -25,13 +25,13 @@ describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () 
     assert.doesNotMatch(motion, /@keyframes hvm-|HeroMotionDemo/);
   });
 
-  test('AI 영상 홈페이지 가격은 pricing 단일 소스를 쓰고 기본·영상 선택은 접근 가능하다', () => {
-    assert.match(motion, /PRICING\.videoHeroAddon\.toLocaleString/);
+  test('AI 영상 홈페이지는 별도 가격 없이 베이직 포함이고 기본·영상 선택은 접근 가능하다', () => {
+    assert.doesNotMatch(motion, /PRICING\.videoHeroAddon\.toLocaleString/);
     assert.doesNotMatch(motion, /200_?000/);
     assert.match(motion, /이미지 \+ 기본 모션/);
-    assert.match(motion, /포함·무료/);
+    assert.match(motion, /베이직 제작비에 포함/);
     assert.match(motion, /AI 영상 홈페이지/);
-    assert.match(motion, /선택만으로 생성되거나 권한이 부여되지 않습니다/);
+    assert.match(motion, /최종 디자인 승인 뒤 1회 생성/);
     assert.ok((motion.match(/aria-pressed=/g) ?? []).length >= 2);
   });
 

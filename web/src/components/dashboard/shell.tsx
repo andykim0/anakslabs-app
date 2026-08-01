@@ -21,12 +21,6 @@ const NAV_ITEMS = [
       path === '/dashboard' || path.startsWith('/dashboard/sites') || path.startsWith('/onboarding'),
   },
   {
-    href: '/dashboard/credits',
-    label: '크레딧',
-    icon: Coins,
-    isActive: (path: string) => path.startsWith('/dashboard/credits'),
-  },
-  {
     href: '/dashboard/reports',
     label: '성과 리포트',
     icon: BarChart3,
@@ -97,10 +91,12 @@ function LogoutButton() {
 export function DashboardShell({
   clientName,
   tier,
+  creditsAvailable,
   children,
 }: {
   clientName: string;
   tier: Tier;
+  creditsAvailable: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -142,7 +138,7 @@ export function DashboardShell({
             <BrandLogo />
           </Link>
           <div className="flex items-center gap-2.5">
-            <CreditBadge />
+            {creditsAvailable ? <CreditBadge /> : null}
             <TierBadge tier={tier} />
             <span className="hidden text-xs text-[#667085] sm:inline">{clientName}님</span>
             <LogoutButton />

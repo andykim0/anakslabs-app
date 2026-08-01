@@ -14,7 +14,7 @@ const MOCK_BUTTONS: { role: MockRole; label: string; description: string; icon: 
   {
     role: 'premium',
     label: '데모: AI 영상 홈페이지',
-    description: '실제 영상 히어로 적용 · 크레딧 3개 지급',
+    description: '승인한 디자인의 영상 히어로 1회 생성 · 직접 수정 무제한',
     icon: <Sparkles className="h-4 w-4 text-[#174DDA]" />,
   },
   {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { INITIAL_GRANT } from '@/lib/credits/constants';
-import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING } from '@/lib/pricing';
 import type { Payment } from '@/lib/types/domain';
 import type { ManualPaymentEntry } from '@/lib/payments/manual-collection-core';
 import {
@@ -84,22 +84,22 @@ describe('ADM4 admin revenue metrics', () => {
       amount: LEGACY_PRICING.build.list,
     })), { base: 'list', videoAddon: false });
     assert.deepEqual(classifyBuildContract(payment('launch-video', {
-      amount: LEGACY_PRICING.build.launch + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon,
       creditsGranted: INITIAL_GRANT.premium,
     })), { base: 'launch', videoAddon: true });
     assert.deepEqual(classifyBuildContract(payment('list-video', {
-      amount: LEGACY_PRICING.build.list + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.list + LEGACY_PRICING.videoHeroAddon,
       creditsGranted: INITIAL_GRANT.premium,
     })), { base: 'list', videoAddon: true });
     assert.deepEqual(classifyBuildContract(payment('ambiguous', {
-      amount: LEGACY_PRICING.build.launch + PRICING.videoHeroAddon,
+      amount: LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon,
       creditsGranted: 2,
     })), { base: 'unclassified', videoAddon: false });
   });
 
   test('keeps exact base, add-on, subscription, credit-pack and ambiguous receipts separate', () => {
-    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
-    const listVideo = LEGACY_PRICING.build.list + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon;
+    const listVideo = LEGACY_PRICING.build.list + LEGACY_PRICING.videoHeroAddon;
     const historicalBuild = 1_290_000;
     const historicalSubscription = 49_000;
     const creditPack = 65_000;
@@ -132,7 +132,7 @@ describe('ADM4 admin revenue metrics', () => {
 
     assert.equal(result.segments.launchBuild.grossKrw, LEGACY_PRICING.build.launch * 2);
     assert.equal(result.segments.listBuild.grossKrw, LEGACY_PRICING.build.list * 2);
-    assert.equal(result.segments.videoAddon.grossKrw, PRICING.videoHeroAddon * 2);
+    assert.equal(result.segments.videoAddon.grossKrw, LEGACY_PRICING.videoHeroAddon * 2);
     assert.equal(result.segments.unclassifiedBuild.grossKrw, historicalBuild);
     assert.equal(result.segments.subscription.grossKrw, historicalSubscription);
     assert.equal(result.segments.creditPack.grossKrw, creditPack);
@@ -153,7 +153,7 @@ describe('ADM4 admin revenue metrics', () => {
   });
 
   test('uses cash-basis refunds and does not invent a partial composite allocation', () => {
-    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon;
     const result = buildAdminOpsRevenueMetrics([
       payment('old-full-refund', {
         amount: launchVideo,
@@ -175,8 +175,8 @@ describe('ADM4 admin revenue metrics', () => {
     assert.equal(result.receipts.netKrw, -100_000);
     assert.equal(result.segments.launchBuild.grossKrw, LEGACY_PRICING.build.launch);
     assert.equal(result.segments.launchBuild.refundsKrw, LEGACY_PRICING.build.launch);
-    assert.equal(result.segments.videoAddon.grossKrw, PRICING.videoHeroAddon);
-    assert.equal(result.segments.videoAddon.refundsKrw, PRICING.videoHeroAddon);
+    assert.equal(result.segments.videoAddon.grossKrw, LEGACY_PRICING.videoHeroAddon);
+    assert.equal(result.segments.videoAddon.refundsKrw, LEGACY_PRICING.videoHeroAddon);
     assert.equal(result.segments.unclassifiedBuild.refundsKrw, 100_000);
     assert.equal(result.operatingRevenueNetKrw, -100_000);
   });
@@ -206,7 +206,7 @@ describe('ADM4 admin revenue metrics', () => {
   });
 
   test('counts cumulative exact launch contracts, excludes full refunds, and uses the offer limit', () => {
-    const launchVideo = LEGACY_PRICING.build.launch + PRICING.videoHeroAddon;
+    const launchVideo = LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon;
     const fullRefund = payment('full-refund', {
       createdAt: '2026-01-05T03:00:00.000Z',
       refundedAt: '2026-02-05T03:00:00.000Z',

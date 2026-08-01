@@ -10,7 +10,6 @@ import {
   SUBSCRIPTION_BENEFIT_COPY,
   SUBSCRIPTION_VALUE_COPY,
 } from '@/lib/pricing';
-import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 import { FaqList, faqJsonLd, type FaqItem } from '@/components/marketing/Faq';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 import {
@@ -40,12 +39,8 @@ const FAQ: FaqItem[] = [
     a: '네. 하나로 이어지는 홈페이지 화면에서 PPT를 다루듯 글과 사진을 끌어 옮기고 크기를 바꿀 수 있습니다. 문구와 이미지는 AI가 먼저 채워 두므로 마음에 걸리는 부분만 손보면 됩니다.',
   },
   {
-    q: '무제한 수정과 크레딧은 뭐가 다른가요?',
-    a: CREDIT_CONTRACT_COPY,
-  },
-  {
-    q: '사이트 운영 구독에는 무엇이 포함되나요?',
-    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}, ${SUBSCRIPTION_BENEFIT_COPY.report}, ${SUBSCRIPTION_BENEFIT_COPY.credits}이 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
+    q: '월 유지비에는 무엇이 포함되나요?',
+    a: `${SUBSCRIPTION_BENEFIT_COPY.operations}와 ${SUBSCRIPTION_BENEFIT_COPY.selfEdit}가 포함됩니다. ${SUBSCRIPTION_VALUE_COPY}`,
   },
   {
     q: '홈페이지를 2개 만들 수 있나요?',
@@ -57,7 +52,7 @@ const FAQ: FaqItem[] = [
   },
   {
     q: '스크롤 모션은 실제 영상인가요?',
-    a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임으로, 모든 홈페이지에 무료로 들어갑니다. AI 영상 홈페이지는 ${PUBLIC_BRAND_NAMES.ai}가 만든 실제 영상 첫 화면을 추가하는 유료 옵션입니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
+    a: `기본 모션은 사진과 글이 부드럽게 나타나는 움직임입니다. ${PUBLIC_BRAND_NAMES.ai}가 만든 실제 영상 첫 화면도 베이직 제작 범위에 포함되며, 최종 디자인 승인 뒤 1회 생성합니다. 참고로 ${DYNAMIC_FEATURE_NOTICE}`,
   },
   {
     q: '영상은 언제 적용되나요?',

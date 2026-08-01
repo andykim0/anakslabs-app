@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getDataServices } from '@/lib/data';
 import { apiError, parseBody, withApiHandler } from '../../../_lib/http';
+import { creditsEnabled } from '@/lib/product/flags';
 import { requireAdminOr403 } from '../../../_lib/guards';
 
 const bodySchema = z.object({
@@ -19,6 +20,9 @@ const bodySchema = z.object({
 });
 
 export const POST = withApiHandler(async (request) => {
+  if (!creditsEnabled()) {
+    return apiError(404, 'CREDITS_DISABLED', '크레딧 충전은 현재 제공하지 않습니다.');
+  }
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
 

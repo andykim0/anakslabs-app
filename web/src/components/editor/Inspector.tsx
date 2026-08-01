@@ -6,7 +6,7 @@
  *  - 섹션 선택: 이름/유형/높이/배경(색·그라디언트·이미지+오버레이)/숨김
  *  - 미선택: 테마(팔레트 6색 / 폰트 큐레이션 셀렉트 / radius / 사이트 제목)
  */
-import { useRef, useState } from 'react';
+import { createContext, useContext, useRef, useState } from 'react';
 import {
   AlertTriangle,
   AlignCenter,
@@ -65,7 +65,17 @@ import {
   ToggleField,
 } from './fields';
 
-export function Inspector() {
+const AiEditAvailabilityContext = createContext(false);
+
+export function Inspector({ aiEditAvailable = false }: { aiEditAvailable?: boolean }) {
+  return (
+    <AiEditAvailabilityContext.Provider value={aiEditAvailable}>
+      <InspectorContent />
+    </AiEditAvailabilityContext.Provider>
+  );
+}
+
+function InspectorContent() {
   const config = useEditorStore((s) => s.config);
   const selectedElementId = useEditorStore((s) => s.selectedElementId);
   const selectedSectionId = useEditorStore((s) => s.selectedSectionId);
@@ -86,6 +96,8 @@ export function Inspector() {
 // ---------- 공용 조각 ----------
 
 function AiGenerateButton({ type, label }: { type: EditType; label: string }) {
+  const aiEditAvailable = useContext(AiEditAvailabilityContext);
+  if (!aiEditAvailable) return null;
   return (
     <button
       type="button"

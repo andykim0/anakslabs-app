@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowRight, Coins, FileEdit, Globe, Plus } from 'lucide-react';
+import { FileEdit, Globe, PencilRuler, Plus } from 'lucide-react';
 import { getCurrentClient } from '@/lib/services/auth';
 import { getRecentScan } from '@/lib/services/recent-scan';
 import { getDataServices } from '@/lib/data';
@@ -16,6 +16,7 @@ import {
   PageHeader,
 } from '@/components/dashboard/ui';
 import { SITE_BUILD_SLA_COPY } from '@/lib/fulfillment-sla';
+import { aiEditEnabled } from '@/lib/product/flags';
 
 export const metadata: Metadata = { title: '내 사이트 — 다보임' };
 
@@ -24,10 +25,10 @@ export default async function DashboardHomePage() {
   if (!client) redirect('/login');
 
   const services = getDataServices();
-  const [sites, balance, editRequests, recentScan] = await Promise.all([
+  const aiEditAvailable = aiEditEnabled();
+  const [sites, editRequests, recentScan] = await Promise.all([
     services.sites.listByClient(client.id),
-    services.credits.getBalance(client.id),
-    services.editRequests.listByClient(client.id),
+    aiEditAvailable ? services.editRequests.listByClient(client.id) : Promise.resolve([]),
     getRecentScan(),
   ]);
 
@@ -62,7 +63,7 @@ export default async function DashboardHomePage() {
       ) : null}
 
       {/* 요약 카드 */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card className="flex items-center gap-4">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
             <Globe className="h-5 w-5" />
@@ -72,31 +73,31 @@ export default async function DashboardHomePage() {
             <p className="text-xl font-semibold text-neutral-50">{sites.length}개</p>
           </div>
         </Card>
-        <Link href="/dashboard/credits" className="block">
-          <Card className="flex items-center gap-4 transition-colors hover:border-[#4a3a22]">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2a2117] text-[#d9b878]">
-              <Coins className="h-5 w-5" />
+        {aiEditAvailable ? (
+          <Card className="flex items-center gap-4">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
+              <FileEdit className="h-5 w-5" />
             </span>
-            <div className="flex-1">
-              <p className="text-xs text-neutral-500">크레딧 잔액</p>
-              <p className="text-xl font-semibold text-[#d9b878]">{balance.balance}개</p>
+            <div>
+              <p className="text-xs text-neutral-500">진행 중 편집 요청</p>
+              <p className="text-xl font-semibold text-neutral-50">{inProgressCount}건</p>
             </div>
-            <ArrowRight className="h-4 w-4 text-neutral-600" />
           </Card>
-        </Link>
-        <Card className="flex items-center gap-4">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
-            <FileEdit className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs text-neutral-500">진행 중 편집 요청</p>
-            <p className="text-xl font-semibold text-neutral-50">{inProgressCount}건</p>
-          </div>
-        </Card>
+        ) : (
+          <Card className="flex items-center gap-4">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
+              <PencilRuler className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-xs text-neutral-500">셀프 편집</p>
+              <p className="text-sm font-semibold text-neutral-50">직접 수정 무제한</p>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* 사이트 목록 */}
-      <section className="mt-8">
+      {aiEditAvailable ? <section className="mt-8">
         <h2 className="mb-3 text-sm font-semibold text-neutral-300">내 사이트</h2>
         {sites.length === 0 ? (
           <EmptyState
@@ -126,7 +127,7 @@ export default async function DashboardHomePage() {
             </Link>
           </div>
         )}
-      </section>
+      </section> : null}
 
       {/* 최근 편집 요청 */}
       <section className="mt-8">

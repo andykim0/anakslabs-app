@@ -14,7 +14,6 @@ import {
   PUBLISH_PAYMENT_COPY,
   SUBSCRIPTION_BENEFIT_COPY,
 } from '@/lib/pricing';
-import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');
@@ -183,19 +182,18 @@ describe('FT$ /features 전면 재구성 통합 회귀', () => {
     );
   });
 
-  test('구독 가격·혜택·크레딧 계약과 영상 애드온 가격은 단일 소스만 소비한다', () => {
+  test('베이직 유지비·운영·셀프 편집·영상 포함 계약은 단일 소스만 소비한다', () => {
     assert.match(featuresSource, /formatKrw\(PRICING\.subscription\.amountKrw\)/);
     assert.match(featuresSource, /PUBLISH_PAYMENT_COPY\.term/);
-    assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.report/);
-    assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.credits/);
-    assert.match(featuresSource, /CREDIT_CONTRACT_COPY/);
-    assert.doesNotMatch(`${featuresSource}\n${reportSource}`, /(?:29[,_]?900|200[,_]?000|20만원)/u);
+    assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.operations/);
+    assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.selfEdit/);
+    assert.match(featuresSource, /SUBSCRIPTION_BENEFIT_COPY\.videoHero/);
+    assert.doesNotMatch(featuresSource, /CREDIT_CONTRACT_COPY|videoHeroAddon|(?:790[,_]?000|200[,_]?000|79만원|20만원)/u);
     assert.ok(featuresHtml.includes(formatKrw(PRICING.subscription.amountKrw)));
     assert.ok(featuresHtml.includes(PUBLISH_PAYMENT_COPY.term));
-    assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.report));
-    assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.credits));
-    assert.ok(featuresHtml.includes(CREDIT_CONTRACT_COPY));
-    assert.ok(featuresHtml.includes(formatKrw(PRICING.videoHeroAddon)));
+    assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.operations));
+    assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.selfEdit));
+    assert.ok(featuresHtml.includes(SUBSCRIPTION_BENEFIT_COPY.videoHero));
   });
 
   test('T4는 검증된 같은 장면 비교를 재사용하고 초기 HTML에서 영상을 내려받지 않는다', () => {

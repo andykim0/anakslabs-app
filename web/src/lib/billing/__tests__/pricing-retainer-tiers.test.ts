@@ -12,16 +12,19 @@ import {
 } from '@/lib/pricing';
 
 describe('INDUSTRY M1·M2 — 업종 단일가·레거시 가격표 격리', () => {
-  test('신규 가격표는 인테리어 공개·clinic gated 프로파일과 VAT 포함 계약을 소유한다', () => {
-    assert.equal(PRICING_MODEL_VERSION, 'industry-single-2026-07');
+  test('신규 가격표는 KO 베이직 공개 프로파일과 VAT 포함 계약을 소유한다', () => {
+    assert.equal(PRICING_MODEL_VERSION, 'price-v6-2026-08');
     assert.equal(CURRENT_PRICING_TABLE.modelVersion, PRICING_MODEL_VERSION);
-    assert.deepEqual(Object.keys(CURRENT_PRICING_TABLE.profiles), ['interior', 'clinic']);
+    assert.deepEqual(Object.keys(CURRENT_PRICING_TABLE.profiles), ['interior']);
     assert.deepEqual(industryProfile('interior'), {
       id: 'interior',
-      label: '인테리어·공간',
+      label: '베이직',
       availability: 'public',
-      monthlyKrw: 490_000,
-      annualKrw: 4_900_000,
+      setupListKrw: 990_000,
+      setupPromotionalKrw: 490_000,
+      promotionEndsOn: '2026-10-31',
+      monthlyKrw: 29_000,
+      annualKrw: null,
       postsPerMonth: 0,
       schemaType: 'HomeAndConstructionBusiness',
       contentRules: [],
@@ -34,7 +37,7 @@ describe('INDUSTRY M1·M2 — 업종 단일가·레거시 가격표 격리', () 
     assert.equal(PUBLISH_PAYMENT_COPY.vat, '부가세 포함 총액');
   });
 
-  test('402 기본 견적은 인테리어 월 단위이며 연납은 표시 계약만 유지한다', () => {
+  test('402 기본 견적은 베이직 월 단위이며 연납은 미판매다', () => {
     const quote = publishPaymentQuote({
       clientId: 'client-industry',
       siteId: 'site-industry',
@@ -42,11 +45,10 @@ describe('INDUSTRY M1·M2 — 업종 단일가·레거시 가격표 격리', () 
     });
     assert.equal(quote.pricingModelVersion, PRICING_MODEL_VERSION);
     assert.equal(quote.industryProfileId, 'interior');
-    assert.equal(quote.amountKrw, 490_000);
+    assert.equal(quote.amountKrw, 29_000);
     assert.equal(quote.periodMonths, 1);
     assert.equal(quote.vatIncluded, true);
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
-    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'unavailable');
   });
 
   test('머지된 v4는 동결 해석 자료로만 보존하고 머지되지 않은 v5는 만들지 않는다', () => {

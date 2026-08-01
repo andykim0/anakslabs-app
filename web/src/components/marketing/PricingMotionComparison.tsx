@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
-import { formatKrw, PRICING } from '@/lib/pricing';
 
 const POSTER_SRC = '/daboim-visibility-film-poster.webp';
 
@@ -141,7 +140,7 @@ export function PricingMotionComparison() {
           </div>
           <div className="p-4">
             <h3 className="mkt-type-card-title font-semibold text-[#0B1736]">
-              AI 영상 홈페이지 · +{formatKrw(PRICING.videoHeroAddon)}
+              AI 영상 홈페이지 · 베이직 포함
             </h3>
             <p className="mkt-type-body mt-1 text-[#5C6068]">같은 장면에 실제 공간감과 시네마틱 움직임을 더합니다.</p>
           </div>

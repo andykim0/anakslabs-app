@@ -11,7 +11,6 @@ import { ArrowLeft, ArrowRight, Check, Expand, Film, Gauge, ImageIcon, MonitorPl
 import type { DesignCandidate, SitePurposeId, SurveyInput, Tier } from '@/lib/types/domain';
 import type { ProductionMotionSignatureId } from '@/lib/types/site';
 import { hasVideoAddon } from '@/lib/services/entitlements';
-import { PRICING } from '@/lib/pricing';
 import {
   MOTION_SIGNATURES,
   isProductionMotionSignatureId,
@@ -144,7 +143,6 @@ export function MotionChoiceStep({
   const videoRequired = selected?.spec.mediaCapability === 'video-required';
   const supportsVideo = selected?.spec.mediaCapability === 'video-required' || selected?.spec.mediaCapability === 'image-or-video';
   const [wantsVideo, setWantsVideo] = useState(() => initialVideoPreference(supportsVideo, videoRequired, initial));
-  const addonPrice = `+₩${PRICING.videoHeroAddon.toLocaleString('ko-KR')}`;
 
   const chooseSignature = (id: ProductionMotionSignatureId) => {
     const next = MOTION_SIGNATURES[id];
@@ -305,7 +303,7 @@ export function MotionChoiceStep({
           <div>
             <h3 className="text-lg font-semibold tracking-tight text-ob-ink">사장님의 이 사진이, 이렇게 움직입니다</h3>
             <p className="mt-1 text-xs leading-5 text-ob-muted">
-              예시 연출이에요. 선택하시면 이 사진을 소스로 실제 영상을 만들어 드립니다 {ownsAddon ? '' : `(${addonPrice})`}.
+              예시 연출이에요. 최종 디자인을 승인하면 이 사진을 소스로 실제 영상을 1회 만들어 드립니다.
             </p>
           </div>
           <HeroMotionUpsellPreview
@@ -323,7 +321,7 @@ export function MotionChoiceStep({
               </p>
             </div>
             <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2.5 py-1 text-[10px] font-semibold text-ob-accent-strong">
-              {ownsAddon ? '승인됨' : addonPrice}
+              베이직 제작비에 포함 · 최종 디자인 승인 뒤 1회 생성
             </span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -344,14 +342,14 @@ export function MotionChoiceStep({
               className={cn('rounded-ob border p-4 text-left', wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <Film className="h-5 w-5 text-ob-accent-strong" />
-              <span className="mt-2 block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 {ownsAddon ? '' : addonPrice}</span>
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 · 포함</span>
               <span className="mt-1 block text-xs leading-5 text-ob-muted">
                 {heroPhotoUrl ? '대표 사진의 피사체를 그대로 보존해 움직입니다.' : '제품을 지어내지 않고 선택한 무드·빛·공간을 움직입니다.'}
               </span>
             </button>
           </div>
           <p className="text-[11px] leading-5 text-ob-muted">
-            예시는 최종 다보임 AI 영상이 아닙니다. 실제 생성은 결제·관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 시작됩니다.
+            예시는 최종 다보임 AI 영상이 아닙니다. 실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작됩니다.
           </p>
         </div>
       ) : null}

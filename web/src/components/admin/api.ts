@@ -168,6 +168,7 @@ export interface AdminClientRow {
 
 export interface AdminClientDetail {
   client: Client;
+  creditsEnabled: boolean;
   balance: number;
   sites: Site[];
   /** 최근 20건, createdAt desc */
@@ -605,6 +606,18 @@ export function completeVideoFulfillment(
     {
       method: 'POST',
       body: JSON.stringify({ videoAssetId }),
+    },
+  );
+}
+
+export function generateApprovedHeroVideo(
+  siteId: string,
+): Promise<{ approved: true; generated: true; videoAssetId: string }> {
+  return fetchJson<{ approved: true; generated: true; videoAssetId: string }>(
+    `/api/admin/video-queue/${encodeURIComponent(siteId)}/generate`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ approved: true }),
     },
   );
 }

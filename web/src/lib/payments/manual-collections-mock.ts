@@ -167,17 +167,19 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
         at,
       });
       subscriptionPeriodEnd = renewal.state.currentPeriodEnd;
-      const credits = new MockCreditsService();
-      const before = (await credits.getLedger(clientId)).length;
-      await credits.grant({
-        clientId,
-        amount: quote.creditsGranted,
-        reason: 'subscription_grant',
-        referenceId: payment.id,
-        idempotencyKey: subscriptionGrantIdempotencyKey(clientId, at),
-      });
-      const after = (await credits.getLedger(clientId)).length;
-      payment.creditsGranted = after > before ? quote.creditsGranted : 0;
+      if (quote.creditsGranted > 0) {
+        const credits = new MockCreditsService();
+        const before = (await credits.getLedger(clientId)).length;
+        await credits.grant({
+          clientId,
+          amount: quote.creditsGranted,
+          reason: 'subscription_grant',
+          referenceId: payment.id,
+          idempotencyKey: subscriptionGrantIdempotencyKey(clientId, at),
+        });
+        const after = (await credits.getLedger(clientId)).length;
+        payment.creditsGranted = after > before ? quote.creditsGranted : 0;
+      }
     } else if (entry.productKind === 'credit_pack') {
       await new MockCreditsService().grant({
         clientId,

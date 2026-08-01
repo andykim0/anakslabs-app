@@ -27,7 +27,9 @@ describe('INDUSTRY M3 — 업종 랜딩·발행 결제 배선', () => {
     assert.match(landing, /<SiteRenderer/);
     assert.match(landing, /예시 · 실제 고객이 아닙니다/);
     assert.match(landing, /PROFILE\.monthlyKrw/);
-    assert.match(landing, /PROFILE\.annualKrw/);
+    assert.match(landing, /PROFILE\.setupPromotionalKrw/);
+    assert.match(landing, /PROFILE\.setupListKrw/);
+    assert.match(landing, /PROFILE\.promotionEndsOn/);
     assert.doesNotMatch(landing, /월\s*\d+건|순위.*보장|상위.*올려/);
   });
 
@@ -68,7 +70,7 @@ describe('INDUSTRY M3 — 업종 랜딩·발행 결제 배선', () => {
       {
         modelVersion: PRICING_MODEL_VERSION,
         profile: 'interior',
-        amount: 490_000,
+        amount: 29_000,
         months: 1,
         vatIncluded: true,
       },

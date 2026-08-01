@@ -34,6 +34,7 @@ import {
   MEDICAL_AD_POLICY_VERSION,
   screenMedicalCopy,
 } from '@/lib/content/medical-ad-policy';
+import { aiEditEnabled } from '@/lib/product/flags';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -74,6 +75,9 @@ function videoGuardResponse(error: unknown, creditCost: number): NextResponse | 
 }
 
 export const POST = withApiHandler(async (request) => {
+  if (!aiEditEnabled()) {
+    return apiError(404, 'AI_EDIT_DISABLED', 'AI 편집 요청은 현재 제공하지 않습니다.');
+  }
   const client = await getAuthedClient();
   if (!client) return unauthorized();
 
@@ -321,6 +325,9 @@ export const POST = withApiHandler(async (request) => {
 });
 
 export const GET = withApiHandler(async (request) => {
+  if (!aiEditEnabled()) {
+    return apiError(404, 'AI_EDIT_DISABLED', 'AI 편집 요청은 현재 제공하지 않습니다.');
+  }
   const client = await getAuthedClient();
   if (!client) return unauthorized();
 

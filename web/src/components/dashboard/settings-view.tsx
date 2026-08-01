@@ -5,9 +5,9 @@
  * 프로필(이름/이메일/로그인 수단) · 사이트 운영 구독 + AI 영상 홈페이지 문의 CTA · 로그아웃.
  */
 import { useState } from 'react';
-import { ArrowUpRight, LogOut, Mail, Sparkles, User } from 'lucide-react';
+import { LogOut, Mail, User } from 'lucide-react';
 import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
-import type { AuthProvider, Tier } from '@/lib/types/domain';
+import type { AuthProvider } from '@/lib/types/domain';
 import {
   PRICING,
   SUBSCRIPTION_BENEFIT_COPY,
@@ -48,13 +48,11 @@ export function SettingsView({
   name,
   email,
   authProvider,
-  tier,
   createdAt,
 }: {
   name: string;
   email: string;
   authProvider: AuthProvider;
-  tier: Tier;
   createdAt: string;
 }) {
   const [loggingOut, setLoggingOut] = useState(false);
@@ -117,31 +115,17 @@ export function SettingsView({
               이용 구성
             </h2>
             <p className="mt-1 text-xs text-neutral-500">
-              {tier === 'premium'
-                ? 'AI 영상 홈페이지가 적용되어 실제 영상 히어로와 시네마틱 모션을 이용 중입니다.'
-                : '기본 모션은 무료로 포함됩니다. AI 영상 홈페이지는 실제 영상 히어로를 추가하는 1회 애드온입니다.'}
+              영상 히어로 1회 생성과 셀프 편집이 베이직 제작 범위에 포함됩니다.
             </p>
           </div>
-          {tier === 'basic' ? (
-            <a
-              href={`mailto:hello@anakslabs.com?subject=${encodeURIComponent('[다보임] AI 영상 홈페이지 문의')}&body=${encodeURIComponent(`안녕하세요, 다보임 AI 영상 홈페이지를 문의드립니다.\n\n계정: ${email}`)}`}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
-            >
-              <Sparkles className="h-4 w-4" />
-              AI 영상 홈페이지 문의
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
-          ) : null}
         </div>
-        {tier === 'basic' ? (
-          <ul className="mt-4 space-y-1.5 rounded-lg bg-neutral-800/40 px-4 py-3 text-xs leading-5 text-neutral-400">
-            <li>· 기본 스크롤 모션 포함 · 추가 비용 없음</li>
-            <li>· AI 영상 히어로 +{PRICING.videoHeroAddon.toLocaleString()}원 (1회)</li>
-            <li>· 사이트 운영 구독 월 {PRICING.subscription.amountKrw.toLocaleString()}원 (사이트 1개)</li>
-            <li>· {SUBSCRIPTION_BENEFIT_COPY.report} · {SUBSCRIPTION_BENEFIT_COPY.credits}</li>
-            <li>· {SUBSCRIPTION_BENEFIT_COPY.selfEdit}</li>
-          </ul>
-        ) : null}
+        <ul className="mt-4 space-y-1.5 rounded-lg bg-neutral-800/40 px-4 py-3 text-xs leading-5 text-neutral-400">
+          <li>· 기본 스크롤 모션 포함</li>
+          <li>· 승인한 디자인의 AI 영상 히어로 1회 생성 포함</li>
+          <li>· 사이트 유지 월 {PRICING.subscription.amountKrw.toLocaleString()}원 (사이트 1개)</li>
+          <li>· {SUBSCRIPTION_BENEFIT_COPY.operations}</li>
+          <li>· {SUBSCRIPTION_BENEFIT_COPY.selfEdit}</li>
+        </ul>
         <p className="mt-3 text-[11px] leading-5 text-blue-300/80">{SUBSCRIPTION_VALUE_COPY}</p>
       </Card>
 

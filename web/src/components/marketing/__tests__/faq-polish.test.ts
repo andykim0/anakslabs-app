@@ -8,9 +8,7 @@ import { parse } from 'node-html-parser';
 import FaqPage, { metadata as faqMetadata } from '@/app/(marketing)/faq/page';
 import sitemap from '@/app/sitemap';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
-import { CREDIT_CONTRACT_COPY } from '@/lib/credits/contract-copy';
-import { CREDIT_COSTS, CREDIT_EXPIRY_DAYS } from '@/lib/credits/constants';
-import { PRICING } from '@/lib/pricing';
+import { SUBSCRIPTION_BENEFIT_COPY } from '@/lib/pricing';
 
 const root = process.cwd();
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
@@ -83,27 +81,17 @@ describe('FAQ$ 자주 묻는 질문 강화', () => {
     );
   });
 
-  test('무제한 직접 수정과 크레딧 재생성을 실제 가격 계약에서 조립해 세 마케팅 페이지가 공유한다', () => {
-    for (const copy of [
-      '문구를 고치고, 사진을 교체하고, 배치를 바꾸는 직접 수정',
-      `문구 재생성 ${CREDIT_COSTS.text}크레딧`,
-      `이미지 재생성 ${CREDIT_COSTS.image}크레딧`,
-      `구성 변경 ${CREDIT_COSTS.structure}크레딧`,
-      `영상 재생성 ${CREDIT_COSTS.video}크레딧`,
-      `매월 ${PRICING.subscription.creditsPerMonth}크레딧`,
-      `${CREDIT_EXPIRY_DAYS.subscription_grant}일간 유효`,
-    ]) assert.ok(CREDIT_CONTRACT_COPY.includes(copy), copy);
-
+  test('직접 수정·영상 포함을 공유하고 크레딧 판매 문구는 세 마케팅 페이지에서 사라진다', () => {
     for (const path of [
       'src/app/(marketing)/page.tsx',
       'src/app/(marketing)/features/page.tsx',
       'src/app/(marketing)/pricing/page.tsx',
     ]) {
       const source = read(path);
-      assert.match(source, /@\/lib\/credits\/contract-copy/);
-      assert.match(source, /CREDIT_CONTRACT_COPY/);
-      assert.doesNotMatch(source, /문구 재생성 1크레딧|이미지 재생성 1크레딧|구성 변경 2크레딧|영상 재생성 3크레딧/u);
+      assert.doesNotMatch(source, /@\/lib\/credits\/contract-copy|CREDIT_CONTRACT_COPY|크레딧 팩|크레딧 혜택/u);
     }
-    assert.equal(visibleFaq().some((item) => item.name === '무제한 수정과 크레딧은 뭐가 다른가요?' && item.text === CREDIT_CONTRACT_COPY), true);
+    const maintenance = visibleFaq().find((item) => item.name === '월 유지비에는 무엇이 포함되나요?')?.text ?? '';
+    assert.ok(maintenance.includes(SUBSCRIPTION_BENEFIT_COPY.selfEdit));
+    assert.equal(visibleFaq().some((item) => /크레딧/u.test(`${item.name} ${item.text}`)), false);
   });
 });

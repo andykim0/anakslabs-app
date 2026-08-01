@@ -27,6 +27,16 @@ const GUARDED_ROUTES = [
     markers: ['getDataServices()', 'getHeroVideoFulfillmentRepository()'],
   },
   {
+    path: 'src/app/api/admin/video-queue/[siteId]/generate/route.ts',
+    markers: [
+      'await parseBody(',
+      'getDataServices()',
+      'getHeroVideoFulfillmentRepository()',
+      'await assertVideoGenAllowed(',
+      'await generateHeroVideo(',
+    ],
+  },
+  {
     path: 'src/app/api/admin/video-queue/[siteId]/complete/route.ts',
     markers: [
       'await parseBody(',

@@ -24,6 +24,8 @@ import {
   setMockSiteSubscriptionStatus,
 } from '../mock';
 
+const LEGACY_SUBSCRIPTION_GRANT = 2;
+
 const at = new Date('2026-07-17T03:00:00.000Z');
 
 function state(status: SiteSubscriptionState['status'], end: string): SiteSubscriptionState {
@@ -48,7 +50,7 @@ async function addMockMaintenancePayment(input: {
     clientId: DEMO_BASIC_ID,
     type: 'maintenance_subscription',
     amount: PRICING.subscription.amountKrw,
-    creditsGranted: PRICING.subscription.creditsPerMonth,
+    creditsGranted: LEGACY_SUBSCRIPTION_GRANT,
     providerPaymentKey: input.providerPaymentKey,
     createdAt: paidAt.toISOString(),
   };
@@ -63,7 +65,7 @@ async function addMockMaintenancePayment(input: {
   });
   await new MockCreditsService().grant({
     clientId: payment.clientId,
-    amount: PRICING.subscription.creditsPerMonth,
+    amount: LEGACY_SUBSCRIPTION_GRANT,
     reason: 'subscription_grant',
     referenceId: payment.id,
     idempotencyKey: subscriptionGrantIdempotencyKey(payment.clientId, paidAt),
@@ -200,7 +202,7 @@ describe('RPT$ authoritative subscription resolver', () => {
 });
 
 describe('RPT$ mock renewal/credit parity', () => {
-  test('active renewal grants two 90-day credits once per Korean month', async () => {
+  test('과거 유료 구독 증거의 2크레딧은 90일·월 1회 계약으로 계속 해석된다', async () => {
     resetMockStore();
     const credits = new MockCreditsService();
     const before = await credits.getBalance(DEMO_BASIC_ID);
@@ -215,12 +217,12 @@ describe('RPT$ mock renewal/credit parity', () => {
     const grantKey = subscriptionGrantIdempotencyKey(DEMO_BASIC_ID, at);
     await credits.grant({
       clientId: DEMO_BASIC_ID,
-      amount: PRICING.subscription.creditsPerMonth,
+      amount: LEGACY_SUBSCRIPTION_GRANT,
       reason: 'subscription_grant',
       idempotencyKey: grantKey,
     });
     const after = await credits.getBalance(DEMO_BASIC_ID);
-    assert.equal(after.balance - before.balance, PRICING.subscription.creditsPerMonth);
+    assert.equal(after.balance - before.balance, LEGACY_SUBSCRIPTION_GRANT);
     const grant = (await credits.getLedger(DEMO_BASIC_ID)).find(
       (entry) => entry.reason === 'subscription_grant',
     );
@@ -232,7 +234,7 @@ describe('RPT$ mock renewal/credit parity', () => {
 
     await credits.grant({
       clientId: DEMO_BASIC_ID,
-      amount: PRICING.subscription.creditsPerMonth,
+      amount: LEGACY_SUBSCRIPTION_GRANT,
       reason: 'subscription_grant',
       idempotencyKey: grantKey,
     });
@@ -263,7 +265,7 @@ describe('RPT$ mock renewal/credit parity', () => {
     assert.ok(originalGrant);
     assert.equal(
       (await credits.getBalance(DEMO_BASIC_ID)).balance,
-      balanceBefore.balance + PRICING.subscription.creditsPerMonth,
+      balanceBefore.balance + LEGACY_SUBSCRIPTION_GRANT,
     );
 
     await applyMockFullMaintenanceRefund(payment);
@@ -278,7 +280,7 @@ describe('RPT$ mock renewal/credit parity', () => {
         (entry) =>
           entry.reason === 'admin_clawback' &&
           entry.referenceId === originalGrant.id &&
-          entry.amount === -PRICING.subscription.creditsPerMonth,
+          entry.amount === -LEGACY_SUBSCRIPTION_GRANT,
       ),
       true,
     );
@@ -302,7 +304,7 @@ describe('RPT$ mock renewal/credit parity', () => {
     assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID).active, true);
     assert.equal(
       (await credits.getBalance(DEMO_BASIC_ID)).balance,
-      before.balance + PRICING.subscription.creditsPerMonth,
+      before.balance + LEGACY_SUBSCRIPTION_GRANT,
     );
   });
 
@@ -331,7 +333,7 @@ describe('RPT$ mock renewal/credit parity', () => {
     assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID).active, true);
     assert.equal(
       (await credits.getBalance(DEMO_BASIC_ID)).balance,
-      balanceBefore.balance + PRICING.subscription.creditsPerMonth,
+      balanceBefore.balance + LEGACY_SUBSCRIPTION_GRANT,
       'the surviving paid period keeps the already-earned monthly benefit',
     );
     const transferred = (await credits.getLedger(DEMO_BASIC_ID)).find(
@@ -414,15 +416,12 @@ describe('RPT$ mock renewal/credit parity', () => {
 });
 
 describe('RPT$ contract and SQL invariants', () => {
-  test('신규 구독은 월 리테이너이고 기존 크레딧 비용·팩은 유지한다', () => {
-    assert.equal(PRICING.subscription.amountKrw, 490_000);
+  test('신규 유지 계약은 월 29,000원이고 크레딧 판매·지급은 동면한다', () => {
+    assert.equal(PRICING.subscription.amountKrw, 29_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
-    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
-    assert.equal(PRICING.subscription.creditsPerMonth, 2);
-    assert.equal(PRICING.subscription.creditValueKrw, 30_000);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'unavailable');
+    assert.equal(PRICING.subscription.creditsPerMonth, 0);
     assert.equal(CREDIT_EXPIRY_DAYS.subscription_grant, 90);
     assert.deepEqual(CREDIT_COSTS, { text: 1, image: 1, video: 3, structure: 2 });
     assert.deepEqual(CREDIT_PACKS, [

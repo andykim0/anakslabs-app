@@ -72,8 +72,8 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     const detail = source('src/components/dashboard/site-detail.tsx');
 
     assert.match(preview, /configForAddonPreview/);
-    assert.match(preview, /예시 · AI 영상 홈페이지\(\+₩/);
-    assert.match(detail, /애드온 적용 예시/);
+    assert.match(preview, /예시 · 베이직 포함 AI 영상 홈페이지 적용 시/);
+    assert.match(detail, /포함 영상 적용 예시/);
     assert.doesNotMatch(serving, /preview-addon|previewAsAddon|configForAddonPreview/);
     assert.doesNotMatch(exporter, /preview-addon|previewAsAddon|configForAddonPreview/);
   });

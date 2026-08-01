@@ -5,7 +5,7 @@ import {
   manualCollectionQuote,
   type ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
-import { LEGACY_PRICING, PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING } from '@/lib/pricing';
 import type { Payment, Site } from '@/lib/types/domain';
 
 /** Internal operating target, not a customer-facing product price. */
@@ -141,13 +141,13 @@ export function classifyBuildContract(payment: Pick<Payment, 'amount' | 'credits
   }
   if (
     payment.creditsGranted === INITIAL_GRANT.premium
-    && payment.amount === LEGACY_PRICING.build.launch + PRICING.videoHeroAddon
+    && payment.amount === LEGACY_PRICING.build.launch + LEGACY_PRICING.videoHeroAddon
   ) {
     return { base: 'launch', videoAddon: true };
   }
   if (
     payment.creditsGranted === INITIAL_GRANT.premium
-    && payment.amount === LEGACY_PRICING.build.list + PRICING.videoHeroAddon
+    && payment.amount === LEGACY_PRICING.build.list + LEGACY_PRICING.videoHeroAddon
   ) {
     return { base: 'list', videoAddon: true };
   }
@@ -172,7 +172,7 @@ function buildAllocations(payment: Pick<Payment, 'amount'>, classification: Buil
   return classification.videoAddon
     ? [
         { segment: baseSegment, amount: LEGACY_PRICING.build[classification.base] },
-        { segment: 'videoAddon', amount: PRICING.videoHeroAddon },
+        { segment: 'videoAddon', amount: LEGACY_PRICING.videoHeroAddon },
       ]
     : [{ segment: baseSegment, amount: payment.amount }];
 }

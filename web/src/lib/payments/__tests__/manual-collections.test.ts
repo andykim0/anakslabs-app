@@ -14,21 +14,12 @@ import {
 import { MockManualCollectionsRepository } from '../manual-collections-mock';
 
 describe('OPS O1 manual collection contract', () => {
-  test('derives every accepted amount from pricing and credit-pack sources', () => {
+  test('현재 수금은 유지비만 허용하고 과거 견적은 읽기 경계에만 남긴다', () => {
     assert.equal(manualCollectionQuote({ productKind: 'launch_build' })?.amountKrw, LEGACY_PRICING.build.launch);
     assert.equal(manualCollectionQuote({ productKind: 'list_build' })?.amountKrw, LEGACY_PRICING.build.list);
-    assert.equal(manualCollectionQuote({ productKind: 'video_addon' })?.amountKrw, PRICING.videoHeroAddon);
+    assert.equal(manualCollectionQuote({ productKind: 'video_addon' })?.amountKrw, LEGACY_PRICING.videoHeroAddon);
     assert.equal(manualCollectionQuote({ productKind: 'subscription' })?.amountKrw, PRICING.subscription.amountKrw);
-    for (const pack of CREDIT_PACKS) {
-      assert.deepEqual(manualCollectionQuote({
-        productKind: 'credit_pack',
-        creditPackCredits: pack.credits,
-      }), {
-        paymentType: 'credit_pack',
-        amountKrw: pack.priceKrw,
-        creditsGranted: pack.credits,
-      });
-    }
+    for (const pack of CREDIT_PACKS) assert.equal(manualCollectionQuote({ productKind: 'credit_pack', creditPackCredits: pack.credits }), null);
     assert.equal(manualCollectionQuote({ productKind: 'credit_pack', creditPackCredits: 2 }), null);
   });
 
@@ -37,21 +28,21 @@ describe('OPS O1 manual collection contract', () => {
       clientId: DEMO_PREMIUM_ID,
       siteId: HWARODAM_SITE_ID,
       productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon + 1,
+      amountKrw: LEGACY_PRICING.videoHeroAddon,
       channel: 'kmong',
       collectionReference: 'order-bad-price',
-    }), /AMOUNT_MISMATCH/);
+    }), /PRODUCT_RETIRED/);
     const withoutSite = normalizeRecordManualCollectionInput({
       clientId: DEMO_PREMIUM_ID,
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'order-no-site',
     });
     assert.equal(withoutSite.siteId, null);
     assert.throws(() => normalizeRecordManualCollectionInput({
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'order-no-customer',
     }), /CUSTOMER_REQUIRED/);
@@ -59,8 +50,8 @@ describe('OPS O1 manual collection contract', () => {
       clientId: DEMO_PREMIUM_ID,
       customerName: '중복 고객',
       customerContact: '010-0000-0000',
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'order-ambiguous-customer',
     }), /CUSTOMER_AMBIGUOUS/);
@@ -72,8 +63,8 @@ describe('OPS O1 manual collection contract', () => {
     const input = {
       clientId: DEMO_PREMIUM_ID,
       siteId: null,
-      productKind: 'video_addon' as const,
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription' as const,
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong' as const,
       collectionReference: 'KMONG-OPS-001',
       memo: '영상 옵션 수금',
@@ -111,8 +102,8 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       customerName: '크몽 고객',
       customerContact: 'kmong:owner-1024',
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'KMONG-OPS2-ACCOUNTLESS-001',
       memo: '가입 전 선입금',
@@ -169,8 +160,8 @@ describe('OPS O1 manual collection contract', () => {
     const receipt = await repository.record({
       customerName: '취소 고객',
       customerContact: 'kmong:cancel-owner',
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'KMONG-OPS2-CANCEL-001',
     });
@@ -190,44 +181,28 @@ describe('OPS O1 manual collection contract', () => {
     assert.equal(rows.filter(({ entry }) => entry.reversesEntryId === receipt.record.entry.id).length, 1);
   });
 
-  test('mock rejects another client site and reverses only the unused purchased credit lot', async () => {
+  test('mock rejects another client site and retired credit-pack sales', async () => {
     resetMockStore();
     const repository = new MockManualCollectionsRepository();
     await assert.rejects(repository.record({
       clientId: DEMO_BASIC_ID,
       siteId: HWARODAM_SITE_ID,
-      productKind: 'video_addon',
-      amountKrw: PRICING.videoHeroAddon,
+      productKind: 'subscription',
+      amountKrw: PRICING.subscription.amountKrw,
       channel: 'kmong',
       collectionReference: 'KMONG-WRONG-OWNER',
     }), /SITE_OWNERSHIP_MISMATCH/);
 
     const pack = CREDIT_PACKS[0];
     assert.ok(pack);
-    const balance = () => getMockStore().ledger
-      .filter((entry) => entry.clientId === DEMO_BASIC_ID)
-      .reduce((sum, entry) => sum + entry.amount, 0);
-    const before = balance();
-    const receipt = await repository.record({
+    await assert.rejects(repository.record({
       clientId: DEMO_BASIC_ID,
       productKind: 'credit_pack',
       creditPackCredits: pack.credits,
       amountKrw: pack.priceKrw,
       channel: 'kmong',
       collectionReference: 'KMONG-CREDIT-PACK-001',
-    });
-    assert.equal(balance(), before + pack.credits);
-
-    await repository.reverse({
-      entryId: receipt.record.entry.id,
-      collectionReference: 'KMONG-CREDIT-PACK-001-CORRECTION',
-      memo: '미사용 크레딧 팩 수금 정정',
-    });
-    assert.equal(balance(), before);
-    assert.ok(
-      receipt.record.payment && getMockStore().payments.has(receipt.record.payment.id),
-      'append-only reversal must retain the original payment row',
-    );
+    }), /PRODUCT_RETIRED/);
   });
 
   test('manual subscription receipt and reversal keep period and monthly credits atomic', async () => {
@@ -456,7 +431,7 @@ describe('OPS O1 manual collection contract', () => {
     for (const amount of [
       LEGACY_PRICING.build.launch,
       LEGACY_PRICING.build.list,
-      PRICING.videoHeroAddon,
+      LEGACY_PRICING.videoHeroAddon,
       LEGACY_PRICING.subscriptionMonthly,
       ...CREDIT_PACKS.map((pack) => pack.priceKrw),
     ]) {

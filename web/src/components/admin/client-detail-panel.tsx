@@ -107,13 +107,15 @@ export function ClientDetailPanel({
                     {formatNumber(data.balance)}
                   </span>
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setAdjustOpen(true)}
-                  className="rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-700"
-                >
-                  크레딧 수동 조정
-                </button>
+                {data.creditsEnabled ? (
+                  <button
+                    type="button"
+                    onClick={() => setAdjustOpen(true)}
+                    className="rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-700"
+                  >
+                    크레딧 수동 조정
+                  </button>
+                ) : null}
               </div>
             </div>
 
@@ -237,7 +239,7 @@ export function ClientDetailPanel({
         )}
       </aside>
 
-      {adjustOpen && data ? (
+      {adjustOpen && data?.creditsEnabled ? (
         <CreditAdjustDialog
           clientId={data.client.id}
           clientName={data.client.name}

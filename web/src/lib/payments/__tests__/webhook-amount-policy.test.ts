@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
-import { CREDIT_PACKS } from '@/lib/credits/constants';
 import { PRICING } from '@/lib/pricing';
 import {
   acceptedPaymentAmounts,
@@ -15,26 +14,16 @@ describe('PRICE P1 webhook amount policy', () => {
     assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
   });
 
-  test('월 구독·프리미엄 애드온·크레딧 팩만 서버 가격과 정확히 일치한다', () => {
+  test('월 유지비만 서버 가격과 일치하고 애드온·크레딧 팩은 닫힌다', () => {
     assert.equal(validatePaymentAmount(
       { type: 'maintenance_subscription' },
       PRICING.subscription.amountKrw,
     ).ok, true);
-    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 29_900).ok, false);
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), [
-      PRICING.videoHeroAddon,
-    ]);
-    assert.equal(
-      validatePaymentAmount({ type: 'premium_addon' }, PRICING.videoHeroAddon).ok,
-      true,
-    );
-    assert.equal(validatePaymentAmount({ type: 'premium_addon' }, 200_001).ok, false);
-
-    for (const pack of CREDIT_PACKS) {
-      const subject = { type: 'credit_pack' as const, credits: pack.credits };
-      assert.equal(validatePaymentAmount(subject, pack.priceKrw).ok, true);
-      assert.equal(validatePaymentAmount(subject, pack.priceKrw + 1).ok, false);
-    }
+    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 29_001).ok, false);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), []);
+    assert.equal(validatePaymentAmount({ type: 'premium_addon' }, 200_000).ok, false);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'credit_pack', credits: 5 }), []);
+    assert.equal(validatePaymentAmount({ type: 'credit_pack', credits: 5 }, 65_000).ok, false);
     assert.equal(validatePaymentAmount({ type: 'credit_pack', credits: 2 }, 30_000).ok, false);
   });
 

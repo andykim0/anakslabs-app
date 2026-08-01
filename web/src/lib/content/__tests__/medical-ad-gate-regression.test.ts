@@ -14,6 +14,7 @@ import {
 import { industryPublishPolicy } from '@/lib/industry/publish-policy';
 import {
   CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION,
+  PREVIOUS_PRICING_MODEL_VERSION,
   PRICING_MODEL_VERSION,
 } from '@/lib/pricing';
 import { MEDICAL_AD_POLICY_VERSION, screenMedicalCopy } from '@/lib/content/medical-ad-policy';
@@ -203,19 +204,24 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
     }).reason, 'classification-mismatch');
   });
 
-  test('flag OFF는 clinic 가격을 발행·결제 견적에 내리지 않고 ON+안전 draft만 79만원을 연다', () => {
+  test('PRICE-V6 clinic 신규 판매는 닫고 과거 계약만 기존 의료 게이트로 해석한다', () => {
     const site = {
       industryProfileId: 'clinic' as const,
       pricingModelVersion: PRICING_MODEL_VERSION,
       draftConfig: medicalConfig(),
     };
+    assert.equal(industryPublishPolicy(site).status, 'unavailable');
+    const previousSite = {
+      ...site,
+      pricingModelVersion: PREVIOUS_PRICING_MODEL_VERSION,
+    };
     withClinicFlag(undefined, () => {
-      const policy = industryPublishPolicy(site);
+      const policy = industryPublishPolicy(previousSite);
       assert.equal(policy.status, 'gated');
       if (policy.status === 'gated') assert.equal(policy.reason, 'flag-off');
     });
     withClinicFlag('1', () => {
-      const policy = industryPublishPolicy(site);
+      const policy = industryPublishPolicy(previousSite);
       assert.equal(policy.status, 'available');
       if (policy.status === 'available') {
         assert.equal(policy.pricing.amountKrw, 790_000);

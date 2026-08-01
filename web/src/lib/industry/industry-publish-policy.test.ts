@@ -9,6 +9,7 @@ import {
 } from './publish-policy';
 import {
   INDUSTRY_PROFILES,
+  PREVIOUS_PRICING_MODEL_VERSION,
   PRICING_MODEL_VERSION,
 } from '@/lib/pricing';
 
@@ -16,35 +17,23 @@ function source(path: string): string {
   return readFileSync(join(process.cwd(), path), 'utf8');
 }
 
-describe('INDUSTRY M2 clinic 프로파일·게이트', () => {
-  test('clinic 계약은 79만원·연 790만원·발행량 0·MedicalClinic으로 고정된다', () => {
-    assert.deepEqual(INDUSTRY_PROFILES.clinic, {
-      id: 'clinic',
-      label: '의원·클리닉',
-      availability: 'gated',
-      monthlyKrw: 790_000,
-      annualKrw: 7_900_000,
-      postsPerMonth: 0,
-      schemaType: 'MedicalClinic',
-      requiredMedicalAdPolicyVersion: 'medical-ad-2026-07-v1',
-      contentRules: [
-        '현재 의료광고 정책 검사와 공개 활성화 게이트를 모두 통과해야 공개·발행·결제를 허용한다.',
-      ],
-      keywordSets: [
-        { id: 'region', label: '지역', source: 'region' },
-        { id: 'medical-specialty', label: '진료과목', source: 'business_fact' },
-      ],
-      included: INDUSTRY_PROFILES.clinic.included,
-    });
+describe('PRICE-V6 clinic 과거 계약·게이트', () => {
+  test('현재 신규 가격표에서 clinic 판매 프로필은 제거된다', () => {
+    assert.equal('clinic' in INDUSTRY_PROFILES, false);
   });
 
-  test('clinic은 gated, 현재 미등록 업종은 unavailable, 레거시는 보존된다', () => {
+  test('현재 clinic은 unavailable, 과거 clinic 계약은 gated, 레거시는 보존된다', () => {
     const clinic = industryPublishPolicy({
       industryProfileId: 'clinic',
       pricingModelVersion: PRICING_MODEL_VERSION,
     });
-    assert.equal(clinic.status, 'gated');
-    if (clinic.status === 'gated') assert.equal(clinic.code, INDUSTRY_PROFILE_GATED);
+    assert.equal(clinic.status, 'unavailable');
+    const previousClinic = industryPublishPolicy({
+      industryProfileId: 'clinic',
+      pricingModelVersion: PREVIOUS_PRICING_MODEL_VERSION,
+    });
+    assert.equal(previousClinic.status, 'gated');
+    if (previousClinic.status === 'gated') assert.equal(previousClinic.code, INDUSTRY_PROFILE_GATED);
 
     const unavailable = industryPublishPolicy({
       industryProfileId: null,

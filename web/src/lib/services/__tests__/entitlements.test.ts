@@ -4,16 +4,16 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { hasVideoAddon, VIDEO_ADDON_TIER, VIDEO_ADDON_PRICE_KRW } from '@/lib/services/entitlements';
-import { PRICING } from '@/lib/pricing';
+import { LEGACY_PRICING } from '@/lib/pricing';
 import { sanitizeMotion } from '@/lib/motion/validate';
 import { emptySiteConfig } from '@/lib/types/site';
 
-describe('U1 — hasVideoAddon 파생', () => {
-  test("premium=애드온 보유, basic=미보유", () => {
+describe('PRICE-V6 — 승인 전 영상 런타임 권한', () => {
+  test('basic은 승인 전 정적이고 premium 내부 권한만 기존 영상 런타임을 연다', () => {
     assert.equal(hasVideoAddon('premium'), true);
     assert.equal(hasVideoAddon('basic'), false);
     assert.equal(VIDEO_ADDON_TIER, 'premium');
-    assert.equal(VIDEO_ADDON_PRICE_KRW, PRICING.videoHeroAddon);
+    assert.equal(VIDEO_ADDON_PRICE_KRW, LEGACY_PRICING.videoHeroAddon);
   });
 });
 
@@ -26,13 +26,11 @@ describe('U1 — videoRequested 표식이 sanitizeMotion 강등을 견딘다', (
     };
   }
 
-  test('basic(애드온 미보유): 능력(heroTechnique/videoConceptId)은 강등되지만 표식은 보존', () => {
+  test('basic은 승인 전 정적으로 강등하되 요청 표식을 유지한다', () => {
     const { config } = sanitizeMotion(cfgWithVideoRequest(), 'basic');
-    // 표식은 남아 관리자가 애드온 판매 대상 식별
     assert.equal(config.motion?.videoRequested, true, 'videoRequested 표식 소실(강등에 휩쓸림)');
-    // 실제 영상 능력은 강등 — 정적 폴백(video-hero 미허용)
-    assert.equal(config.motion?.heroTechnique, undefined, 'basic에서 video-hero 미강등');
-    assert.equal(config.motion?.videoConceptId, undefined, 'basic에서 영상 컨셉 미제거');
+    assert.equal(config.motion?.heroTechnique, undefined);
+    assert.equal(config.motion?.videoConceptId, undefined);
   });
 
   test('premium(애드온 보유): 능력·표식 모두 유지', () => {

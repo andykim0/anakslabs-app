@@ -9,7 +9,7 @@ import { PUBLISH_PAYMENT_COPY } from '@/lib/pricing';
 export const PUBLISH_HUMAN_CHECKS = [
   { id: 'heroPhotoAuthentic', label: '대표 사진이 진짜인가' },
   { id: 'copyIsFactual', label: '문구가 사실인가' },
-  { id: 'worthThePrice', label: `이 화면을 ${PUBLISH_PAYMENT_COPY.monthlyRetainer}에 발행할 만한가` },
+  { id: 'worthThePrice', label: `이 화면을 제작비 ${PUBLISH_PAYMENT_COPY.setupPromotion}에 발행할 만한가` },
 ] as const;
 
 export type PublishHumanCheckId = (typeof PUBLISH_HUMAN_CHECKS)[number]['id'];

@@ -7,24 +7,26 @@ import { acceptedPaymentAmounts, paymentAmountSubject } from '../amount-policy';
 
 const read = (path: string): string => readFileSync(join(process.cwd(), path), 'utf8');
 
-describe('PRICE R1 monthly-retainer publish-payment contract', () => {
-  test('신규 인테리어 가격은 제작비 0·월 49만원·1개월·자동 갱신·1사이트다', () => {
+describe('PRICE-V6 payment boundary contract', () => {
+  test('신규 KO 베이직 가격은 제작비 99→49만원·월 유지 2.9만원·1사이트다', () => {
     assert.equal(PRICING.modelVersion, PRICING_MODEL_VERSION);
-    assert.deepEqual(PRICING.build, { amountKrw: 0, paymentTiming: 'publish' });
-    assert.equal(PRICING.subscription.amountKrw, 490_000);
+    assert.equal(PRICING.build.listAmountKrw, 990_000);
+    assert.equal(PRICING.build.promotionalAmountKrw, 490_000);
+    assert.equal(PRICING.build.promotionEndsOn, '2026-10-31');
+    assert.equal(PRICING.subscription.amountKrw, 29_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
-    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'unavailable');
     assert.equal(PRICING.siteCount, 1);
   });
 
-  test('신규 제작비 주문은 fail-closed하고 월 구독·애드온만 현재 가격을 갖는다', () => {
+  test('신규 제작비는 PG 미연동이고 유지비만 허용하며 애드온은 fail-closed한다', () => {
     assert.equal(paymentAmountSubject({ type: 'build_fee' }), null);
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [490_000]);
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), [200_000]);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [29_000]);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), []);
+    assert.equal(paymentAmountSubject({ type: 'premium_addon' }), null);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'credit_pack', credits: 10 }), []);
   });
 
   test('0043의 프리미엄·TTL·비용 이벤트를 유지하고 0044가 구독 계약을 파라미터화한다', () => {

@@ -15,7 +15,7 @@ describe('발행 휴먼 3체크', () => {
       { id: 'copyIsFactual', label: '문구가 사실인가' },
       {
         id: 'worthThePrice',
-        label: `이 화면을 ${PUBLISH_PAYMENT_COPY.monthlyRetainer}에 발행할 만한가`,
+        label: `이 화면을 제작비 ${PUBLISH_PAYMENT_COPY.setupPromotion}에 발행할 만한가`,
       },
     ]);
   });

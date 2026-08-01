@@ -6,6 +6,7 @@ import { CheckCircle2, Clapperboard, Clock3, Inbox, Loader2, RefreshCw } from 'l
 import { useState } from 'react';
 import {
   completeVideoFulfillment,
+  generateApprovedHeroVideo,
   getVideoQueue,
   type AdminVideoQueueItem,
 } from './api';
@@ -44,6 +45,10 @@ const BLOCKED_REASON_COPY: Record<
 function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
   const queryClient = useQueryClient();
   const [videoAssetId, setVideoAssetId] = useState('');
+  const generation = useMutation({
+    mutationFn: () => generateApprovedHeroVideo(item.siteId),
+    onSuccess: (result) => setVideoAssetId(result.videoAssetId),
+  });
   const completion = useMutation({
     mutationFn: () => completeVideoFulfillment(item.siteId, videoAssetId.trim()),
     onSuccess: async () => {
@@ -118,6 +123,15 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
           ) : null}
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => generation.mutate()}
+              disabled={blocked || generation.isPending || Boolean(videoAssetId)}
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-sky-300 bg-sky-50 px-3 text-xs font-semibold text-sky-800 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {generation.isPending ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Clapperboard size={13} aria-hidden />}
+              최종 디자인 승인 · 영상 1회 생성
+            </button>
             <label className="min-w-0 flex-1">
               <span className="sr-only">영상 자산 ID</span>
               <input
@@ -139,8 +153,10 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
             </button>
           </div>
           <p className="mt-1.5 text-[11px] leading-5 text-slate-500">
-            URL은 입력받지 않습니다. 서버 registry의 소유·사이트 귀속·AI 영상 출처가 확인된 자산만 적용됩니다.
+            디자인 후보에서는 영상을 만들지 않습니다. 승인 버튼이 비용 가드와 생성 로그를 통과해 한 번 생성하며,
+            서버 registry의 소유·사이트 귀속·AI 영상 출처가 확인된 자산만 적용됩니다.
           </p>
+          {generation.isError ? <p className="mt-2 text-xs text-red-600">{generation.error.message}</p> : null}
           {completion.isError ? <p className="mt-2 text-xs text-red-600">{completion.error.message}</p> : null}
         </div>
       </div>

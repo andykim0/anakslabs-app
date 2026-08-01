@@ -16,12 +16,16 @@ import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
+import { creditsEnabled } from '@/lib/product/flags';
 
 const bodySchema = z.object({
   packCredits: z.number().int().positive(),
 });
 
 export const POST = withApiHandler(async (request) => {
+  if (!creditsEnabled()) {
+    return apiError(404, 'CREDITS_DISABLED', '크레딧 구매는 현재 제공하지 않습니다.');
+  }
   const client = await getAuthedClient();
   if (!client) return unauthorized();
 

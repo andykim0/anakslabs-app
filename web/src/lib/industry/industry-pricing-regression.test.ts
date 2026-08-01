@@ -18,6 +18,7 @@ import {
   INDUSTRY_PROFILES,
   LEGACY_PRICING_MODEL_VERSION,
   LEGACY_V4_SUBSCRIPTION_PRICE,
+  PREVIOUS_PRICING_MODEL_VERSION,
   PRICING_MODEL_VERSION,
 } from '@/lib/pricing';
 import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
@@ -65,7 +66,7 @@ function publishedSha(config: SiteConfig): string {
 }
 
 describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
-  test('인테리어 현재 견적은 월 49만원·1개월·VAT 포함·사이트 1개다', () => {
+  test('베이직 현재 견적은 월 2.9만원·1개월·VAT 포함·사이트 1개다', () => {
     const policy = industryPublishPolicy({
       industryProfileId: 'interior',
       pricingModelVersion: PRICING_MODEL_VERSION,
@@ -83,7 +84,7 @@ describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
       quoteId: quote.quoteId,
       pricingModelVersion: PRICING_MODEL_VERSION,
       industryProfileId: 'interior',
-      amountKrw: 490_000,
+      amountKrw: 29_000,
       periodMonths: 1,
       billingInterval: 'month',
       automaticRenewal: true,
@@ -92,7 +93,7 @@ describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
       checkoutMode: 'mock',
     });
     assert.equal(quote.quoteId.length, 32);
-    assert.equal(INDUSTRY_PROFILES.interior.annualKrw, 4_900_000);
+    assert.equal(INDUSTRY_PROFILES.interior.annualKrw, null);
     assert.equal(INDUSTRY_PROFILES.interior.postsPerMonth, 0);
   });
 
@@ -175,13 +176,18 @@ describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
     resetMockStore();
   });
 
-  test('clinic은 기본 OFF이며 공개·탐색·발행·결제가 단일 가용성 함수 뒤에 있다', () => {
-    const clinic = industryPublishPolicy({
+  test('clinic 신규 판매는 제거되고 과거 계약만 기존 의료 게이트로 읽는다', () => {
+    const currentClinic = industryPublishPolicy({
       industryProfileId: 'clinic',
       pricingModelVersion: PRICING_MODEL_VERSION,
     });
-    assert.equal(INDUSTRY_PROFILES.clinic.availability, 'gated');
-    assert.equal(clinic.status, 'gated');
+    const previousClinic = industryPublishPolicy({
+      industryProfileId: 'clinic',
+      pricingModelVersion: PREVIOUS_PRICING_MODEL_VERSION,
+    });
+    assert.equal('clinic' in INDUSTRY_PROFILES, false);
+    assert.equal(currentClinic.status, 'unavailable');
+    assert.equal(previousClinic.status, 'gated');
     assert.equal(existsSync(join(process.cwd(), 'src/app/(marketing)/clinic/page.tsx')), true);
 
     const page = read('src/app/(marketing)/clinic/page.tsx');
@@ -240,7 +246,9 @@ describe('INDUSTRY M4 — 업종 단일가·게이트 통합 회귀', () => {
     const example = read('src/lib/marketing/interior-landing.ts');
     assert.match(page, /INDUSTRY_PROFILES\.interior/u);
     assert.match(page, /formatKrw\(PROFILE\.monthlyKrw\)/u);
-    assert.match(page, /formatKrw\(PROFILE\.annualKrw\)/u);
+    assert.match(page, /formatKrw\(PROFILE\.setupPromotionalKrw\)/u);
+    assert.match(page, /formatKrw\(PROFILE\.setupListKrw\)/u);
+    assert.match(page, /PROFILE\.promotionEndsOn/u);
     assert.match(page, /AI로 원가를 줄이고/u);
     assert.match(page, /품질은 직접 검수합니다/u);
     assert.match(page, /실제 고객이나 프로젝트가 아닙니다/u);

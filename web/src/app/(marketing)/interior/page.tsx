@@ -8,9 +8,9 @@ import { interiorLandingExampleConfig } from '@/lib/marketing/interior-landing';
 const PROFILE = INDUSTRY_PROFILES.interior;
 
 export const metadata: Metadata = {
-  title: '인테리어 홈페이지 제작·성과 관리',
+  title: '인테리어 홈페이지 제작·유지',
   description:
-    `인테리어 회사의 소개·사업분야·실적 구조를 먼저 만들어 보여드립니다. 발행할 때 월 ${formatKrw(PROFILE.monthlyKrw)}으로 시작하며 별도 제작비는 없습니다.`,
+    `인테리어 회사의 소개·사업분야·실적 구조를 먼저 만들어 보여드립니다. 제작비는 ${PROFILE.promotionEndsOn}까지 ${formatKrw(PROFILE.setupPromotionalKrw)}, 유지비는 월 ${formatKrw(PROFILE.monthlyKrw)}입니다.`,
   alternates: { canonical: '/interior' },
 };
 
@@ -34,7 +34,7 @@ export default async function InteriorPage() {
               <br />그 과정을 보여주는 홈페이지도 중요합니다.
             </h1>
             <p className="mkt-type-body mt-6 max-w-2xl text-[#53605B] break-keep">
-              회사소개·사업분야·실적을 깊이 읽히는 구조로 만들고, 문의 행동과 검색 상태를 매달 함께 확인합니다.
+              회사소개·사업분야·실적을 깊이 읽히는 구조로 만들고, 직접 수정할 수 있는 상태로 안전하게 유지합니다.
               먼저 결과를 보고 발행을 결정하세요.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -56,17 +56,17 @@ export default async function InteriorPage() {
 
           <div className="rounded-3xl border border-white/70 bg-white/72 p-6 shadow-[0_24px_70px_rgba(31,51,44,.12)] backdrop-blur-sm sm:p-8">
             <p className="mkt-type-eyebrow font-semibold tracking-[0.12em] text-[#5A735F] uppercase">
-              발행 후 매월
+              제작비 · 기간한정
             </p>
             <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
-              월 {formatKrw(PROFILE.monthlyKrw)}
+              {formatKrw(PROFILE.setupPromotionalKrw)}
             </p>
-            <p className="mkt-type-support mt-2 text-[#66736E]">부가세 포함 · 홈페이지 1개 · 자동 갱신</p>
+            <p className="mkt-type-support mt-2 text-[#66736E]">정가 {formatKrw(PROFILE.setupListKrw)} · {PROFILE.promotionEndsOn}까지</p>
             <p className="mkt-type-body mt-5 text-[#46534E]">
-              별도 제작비 없이 홈페이지 제작, 상담 연결, 문의 행동 추적, 월간 리포트와 운영이 포함됩니다.
+              홈페이지 제작과 승인한 영상 히어로 1회 생성이 포함됩니다. 유지비는 월 {formatKrw(PROFILE.monthlyKrw)}입니다.
             </p>
             <p className="mkt-type-support mt-4 font-medium text-[#315C4D]">
-              연납 {formatKrw(PROFILE.annualKrw)} · 2개월분 면제
+              부가세 포함 · 홈페이지 1개
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default async function InteriorPage() {
             </h2>
             <p className="mkt-type-body mt-5 max-w-xl text-white/68 break-keep">
               자동화는 반복 작업을 줄이는 데 쓰고, 공개 전 화면과 문구는 사람이 확인합니다.
-              검색 순위나 문의 결과를 약속하지 않고, 실제 행동은 매달 숫자로 보여드립니다.
+              검색 순위나 문의 결과를 약속하지 않고, 공개 전 화면과 문구를 직접 확인합니다.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -147,7 +147,7 @@ export default async function InteriorPage() {
           우리 회사 내용으로 먼저 확인하세요.
         </h2>
         <p className="mkt-type-body mx-auto mt-4 max-w-xl text-[#5A6762]">
-          만드는 동안에는 결제하지 않습니다. 완성된 결과를 확인하고 발행할 때 월 이용을 시작합니다.
+          만드는 동안에는 결제하지 않습니다. 완성된 결과를 확인하고 발행할 때 제작비를 결제합니다.
         </p>
         <Link
           href="/onboarding"

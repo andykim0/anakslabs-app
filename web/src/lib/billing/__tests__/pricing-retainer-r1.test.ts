@@ -17,26 +17,24 @@ const read = (path: string): string =>
   readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('PRICE R1 — 월 리테이너 백본·가격표 버전', () => {
-  test('신규 발행 견적의 기본 백본은 인테리어 월 490,000원·1개월 자동 갱신이다', () => {
+  test('신규 발행 견적의 기본 백본은 베이직 월 29,000원·1개월 자동 갱신이다', () => {
     const quote = publishPaymentQuote({
       clientId: 'client-r1',
       siteId: 'site-r1',
       mock: true,
     });
 
-    assert.equal(PRICING.subscription.amountKrw, 490_000);
+    assert.equal(PRICING.subscription.amountKrw, 29_000);
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.billingInterval, 'month');
     assert.equal(PRICING.subscription.automaticRenewal, true);
-    assert.equal(quote.amountKrw, 490_000);
+    assert.equal(quote.amountKrw, 29_000);
     assert.equal(quote.industryProfileId, 'interior');
     assert.equal(quote.vatIncluded, true);
     assert.equal(quote.periodMonths, 1);
     assert.equal(quote.billingInterval, 'month');
     assert.equal(quote.pricingModelVersion, PRICING_MODEL_VERSION);
-    assert.equal(PRICING.subscription.annualCommitment.status, 'available');
-    assert.equal(PRICING.subscription.annualCommitment.amountKrw, 4_900_000);
-    assert.equal(PRICING.subscription.annualCommitment.freeMonths, 2);
+    assert.equal(PRICING.subscription.annualCommitment.status, 'unavailable');
   });
 
   test('가격표 버전을 올리면 신규 견적만 바뀌고 현재 가격표 견적은 바이트 동일하다', () => {
@@ -68,7 +66,7 @@ describe('PRICE R1 — 월 리테이너 백본·가격표 버전', () => {
     assert.deepEqual(CURRENT_SUBSCRIPTION_PRICE, {
       modelVersion: PRICING_MODEL_VERSION,
       industryProfileId: 'interior',
-      amountKrw: 490_000,
+      amountKrw: 29_000,
       periodMonths: 1,
       billingInterval: 'month',
       automaticRenewal: true,
@@ -82,7 +80,7 @@ describe('PRICE R1 — 월 리테이너 백본·가격표 버전', () => {
       currentPeriodStart: '2026-07-01T00:00:00.000Z',
       currentPeriodEnd: '2026-08-01T00:00:00.000Z',
       pricingModelVersion: PRICING_MODEL_VERSION,
-      amountKrw: 490_000,
+      amountKrw: 29_000,
       periodMonths: 1,
     });
     const before = JSON.stringify(existingSubscription);
