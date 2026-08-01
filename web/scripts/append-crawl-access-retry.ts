@@ -224,7 +224,7 @@ async function main(): Promise<void> {
   }
 
   const appended = [];
-  for (const { file: stageFile, record } of stageSuccesses) {
+  for (const { record } of stageSuccesses) {
     const host = normalizeHost(record.target.url);
     const active = activeByHost.get(host);
     if (!active) throw new Error(`CORPUS_TARGET_NOT_FOUND:${record.target.url}`);
