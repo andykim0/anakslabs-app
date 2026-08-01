@@ -293,6 +293,7 @@ async function main(): Promise<void> {
     `${JSON.stringify({ generatedAt, totals, sites, uncrawledDestinations }, null, 2)}\n`,
   );
   if (writeManifest) {
+    manifest.generatedAt = generatedAt;
     manifest.uncrawledDestinations = uncrawledDestinations;
     manifest.navigationAudit = {
       generatedAt,
