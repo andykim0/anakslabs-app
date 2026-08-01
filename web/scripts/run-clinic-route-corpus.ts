@@ -21,7 +21,7 @@ import type { ClinicEngineProfile } from '@/lib/clinic-engine/contracts';
 import type { CanvasElement, SiteConfig } from '@/lib/types/site';
 
 const CORPUS_ROOT = path.resolve(process.cwd(), '../docs/research/corpus-2026-08');
-const OUTPUT_ROOT = '/private/tmp/clinic-route';
+const OUTPUT_ROOT = process.env.CLINIC_ROUTE_OUTPUT_ROOT ?? '/private/tmp/clinic-route';
 
 interface CorpusTarget {
   market: 'KR' | 'US';
@@ -216,6 +216,11 @@ function compileMetrics(input: {
       unplacedTargetBlockCount: input.compiled?.audit.unplacedTargetBlockIds.length
         ?? plan.targetBlocks.length,
       renderBlockViolationCount: input.compiled?.audit.renderBlockViolationCount ?? 0,
+      routedBusinessInfoBlockCount: (
+        input.compiled?.audit as RobustClinicCompilation['audit'] & {
+          routedBusinessInfoBlockCount?: number;
+        } | undefined
+      )?.routedBusinessInfoBlockCount ?? 0,
     },
     layoutVariants: Object.fromEntries(
       [...new Set(variants)].sort().map((variant) => [
@@ -246,6 +251,8 @@ async function main(): Promise<void> {
     config?: SiteConfig;
     bodyPlacementRate: number;
     totalPlacementRate: number;
+    sourceBlockCount: number;
+    compileStatus: 'success' | 'failure';
   }> = [];
   for (const file of manifest.siteFiles) {
     const siteId = siteIdFor(file);
@@ -283,6 +290,8 @@ async function main(): Promise<void> {
       ...(compiled ? { config: compiled.config } : {}),
       bodyPlacementRate: metrics.after.bodyPlacementRate,
       totalPlacementRate: metrics.after.totalPlacementRate,
+      sourceBlockCount: metrics.sourceBlockCount,
+      compileStatus: metrics.after.compileStatus as 'success' | 'failure',
     });
   }
   await mkdir(OUTPUT_ROOT, { recursive: true });
@@ -297,13 +306,20 @@ async function main(): Promise<void> {
       sites,
     }, null, 2),
   );
-  const ranked = [...configs].sort((left, right) => (
-    left.totalPlacementRate - right.totalPlacementRate
+  const ranked = configs.filter((entry) => entry.compileStatus === 'success').sort((left, right) => (
+    left.sourceBlockCount - right.sourceBlockCount
     || left.siteId.localeCompare(right.siteId)
   ));
   const captureCandidates = [
     ...ranked.slice(0, 3).map((entry) => ({ ...entry, rank: 'bottom' as const })),
     ...ranked.slice(-3).map((entry) => ({ ...entry, rank: 'top' as const })),
+    ...ranked
+      .filter((entry) => entry.siteId.includes('ppeum1'))
+      .filter((entry) => ![
+        ...ranked.slice(0, 3),
+        ...ranked.slice(-3),
+      ].some((candidate) => candidate.siteId === entry.siteId))
+      .map((entry) => ({ ...entry, rank: 'reference' as const })),
   ];
   await writeFile(
     path.join(OUTPUT_ROOT, 'capture-configs.json'),
@@ -317,6 +333,7 @@ async function main(): Promise<void> {
       rank: entry.rank,
       bodyPlacementRate: entry.bodyPlacementRate,
       totalPlacementRate: entry.totalPlacementRate,
+      sourceBlockCount: entry.sourceBlockCount,
     })),
   }, null, 2));
 }
