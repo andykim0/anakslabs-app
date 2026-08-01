@@ -46,4 +46,3 @@ export function sameRegistrableDomain(leftHostname: string, rightHostname: strin
   const rightDomain = registrableDomain(right);
   return Boolean(leftDomain && rightDomain && leftDomain === rightDomain);
 }
-
