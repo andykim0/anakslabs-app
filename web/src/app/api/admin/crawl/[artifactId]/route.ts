@@ -44,6 +44,15 @@ export const GET = withApiHandler(async (
       })),
       skippedUrls: record.artifact.skippedUrls,
       stoppedReason: record.artifact.stoppedReason,
+      ...(record.artifact.crawlPolicyId
+        ? { crawlPolicyId: record.artifact.crawlPolicyId }
+        : {}),
+      ...(record.artifact.consentEvidence
+        ? { consentEvidence: record.artifact.consentEvidence }
+        : {}),
+      ...(record.artifact.crawlCoverage
+        ? { crawlCoverage: record.artifact.crawlCoverage }
+        : {}),
       tls: record.artifact.tls,
       robots: record.artifact.robots,
       decay: record.decayResult,

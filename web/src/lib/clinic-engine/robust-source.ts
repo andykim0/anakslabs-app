@@ -7,6 +7,7 @@ import {
 } from 'node-html-parser';
 import type {
   CrawlArtifactPayload,
+  CrawlConsentedSourceBlock,
   CrawlImageCandidate,
   CrawlPageArtifact,
 } from '@/lib/crawl/contracts';
@@ -419,6 +420,54 @@ function extractBlocks(input: {
   };
   visit(body);
   return result;
+}
+
+/**
+ * Persistable, source-only block projection for the consented crawl artifact. IDs are rebuilt
+ * from the consuming page position so the artifact carries no compiler-owned identifiers.
+ */
+export function projectConsentedClinicSourceBlocks(input: {
+  html: string;
+  sourceUrl: string;
+}): CrawlConsentedSourceBlock[] {
+  return extractBlocks({
+    html: input.html,
+    sourceUrl: input.sourceUrl,
+    pageId: 'consented-source',
+  }).map((block) => ({
+    text: block.text,
+    sourceLocator: block.sourceLocator,
+    sourceElementPath: block.sourceElementPath,
+    sourceSha256: block.sourceSha256,
+    tagName: block.tagName,
+    heading: block.heading,
+    ...(block.exclusion ? { exclusion: block.exclusion } : {}),
+    ...(block.navigationDestinations
+      ? { navigationDestinations: block.navigationDestinations }
+      : {}),
+  }));
+}
+
+function hydrateConsentedSourceBlocks(input: {
+  blocks: readonly CrawlConsentedSourceBlock[];
+  pageId: string;
+  sourceUrl: string;
+}): RobustClinicSourceBlock[] {
+  return input.blocks.map((block, index) => ({
+    id: `robust-${input.pageId}-${index + 1}-${block.sourceSha256.slice(0, 12)}`,
+    kind: block.heading ? 'service' : 'service_detail',
+    text: block.text,
+    sourceUrl: input.sourceUrl,
+    sourceLocator: block.sourceLocator,
+    sourceElementPath: block.sourceElementPath,
+    sourceSha256: block.sourceSha256,
+    tagName: block.tagName,
+    heading: block.heading,
+    ...(block.exclusion ? { exclusion: block.exclusion } : {}),
+    ...(block.navigationDestinations
+      ? { navigationDestinations: block.navigationDestinations }
+      : {}),
+  }));
 }
 
 const BRAND_IMAGE_RE =
@@ -879,25 +928,34 @@ export function extractRobustClinicSource(input: {
   documents?: readonly RobustClinicDocument[];
   profile: ClinicEngineProfile;
 }): RobustClinicSourcePlan {
-  const documents = input.documents ?? input.artifact.pages.map(fallbackDocument);
+  const documents = input.documents;
   const consumedFinalUrls = new Set<string>();
   const pages: RobustClinicSourcePage[] = [];
   for (const [artifactIndex, artifactPage] of input.artifact.pages.entries()) {
-    const document = documents.find((candidate) => (
+    const suppliedDocument = documents?.find((candidate) => (
       samePage(candidate.sourceUrl, artifactPage.url)
       || samePage(candidate.finalUrl, artifactPage.url)
     ));
-    if (!document) continue;
-    const finalKey = normalizedUrl(document.finalUrl);
+    const document = suppliedDocument
+      ?? (artifactPage.consentedSource ? undefined : fallbackDocument(artifactPage));
+    if (!document && !artifactPage.consentedSource) continue;
+    const finalUrl = document?.finalUrl ?? artifactPage.url;
+    const finalKey = normalizedUrl(finalUrl);
     if (consumedFinalUrls.has(finalKey)) continue;
     consumedFinalUrls.add(finalKey);
     const id = `page-${String(artifactIndex + 1).padStart(3, '0')}-${sha256(finalKey).slice(0, 10)}`;
-    const blocks = extractBlocks({
-      html: document.html,
-      sourceUrl: artifactPage.url,
-      pageId: id,
-      overlayRemovalEvidence: document.overlayRemovalEvidence,
-    });
+    const blocks = document
+      ? extractBlocks({
+          html: document.html,
+          sourceUrl: artifactPage.url,
+          pageId: id,
+          overlayRemovalEvidence: document.overlayRemovalEvidence,
+        })
+      : hydrateConsentedSourceBlocks({
+          blocks: artifactPage.consentedSource!.blocks,
+          pageId: id,
+          sourceUrl: artifactPage.url,
+        });
     const metadataTitle = metadataBlock({
       pageId: id,
       role: 'title',
@@ -918,7 +976,7 @@ export function extractRobustClinicSource(input: {
     pages.push({
       id,
       sourceUrl: artifactPage.url,
-      finalUrl: document.finalUrl,
+      finalUrl,
       artifactPage,
       blocks,
       targetBlocks: blocks.filter((block) => !block.exclusion),

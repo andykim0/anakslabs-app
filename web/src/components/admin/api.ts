@@ -385,6 +385,13 @@ export interface AdminUsDemoCrawlResponse {
     pageCount: number;
     observedAt: string;
     expiresAt: string;
+    crawlPolicyId?: 'us-medical-consented-v1';
+    crawlCoverage?: {
+      crawledPages: number;
+      estimatedSourcePages: number;
+      coverageRate: number;
+      uncrawledDestinations: string[];
+    };
   };
 }
 
@@ -408,6 +415,19 @@ export interface AdminUsDemoArtifactResponse {
       structuredFields: string[];
     }>;
     stoppedReason?: string;
+    crawlPolicyId?: 'us-medical-consented-v1';
+    consentEvidence?: {
+      consentId: string;
+      prospectId: string;
+      scope: 'demo-by-email';
+      consentedAt: string;
+    };
+    crawlCoverage?: {
+      crawledPages: number;
+      estimatedSourcePages: number;
+      coverageRate: number;
+      uncrawledDestinations: string[];
+    };
     usDemo: {
       sourceVisibility: AiVisibilitySummary;
       englishSourceReady: boolean;
@@ -423,12 +443,26 @@ export interface AdminUsDemoPreviewResponse {
     expiresAt: string;
     warning: string;
     sourceReport: {
-      origin: 'prospect_public_source';
+      origin: 'prospect_public_source' | 'prospect_consented_source';
       totalBlocks: number;
       usedBlocks: number;
       excludedBlocks: number;
+      policyExcludedBlocks?: number;
     };
+    emailEvidenceLine?: string;
   };
+}
+
+export interface AdminUsMedicalConsent {
+  id: string;
+  prospectId: string;
+  consenterName: string;
+  consenterTitle: string;
+  consentedAt: string;
+  scope: 'demo-by-email';
+  recordedBy: string;
+  notes: string;
+  createdAt: string;
 }
 
 // ---------- fetch 헬퍼 ----------
@@ -711,6 +745,40 @@ export function crawlUsMedicalDemo(
   });
 }
 
+export function createUsMedicalDemoConsent(input: {
+  prospectId: string;
+  consenterName: string;
+  consenterTitle: string;
+  consentedAt: string;
+  notes: string;
+}): Promise<{ consent: AdminUsMedicalConsent }> {
+  return fetchJson<{ consent: AdminUsMedicalConsent }>('/api/admin/crawl/consents', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...input,
+      scope: 'demo-by-email',
+    }),
+  });
+}
+
+export function crawlUsMedicalConsentedDemo(input: {
+  url: string;
+  consentId: string;
+  prospectId: string;
+  allowTlsHttpFallback?: boolean;
+}): Promise<AdminUsDemoCrawlResponse> {
+  return fetchJson<AdminUsDemoCrawlResponse>('/api/admin/crawl', {
+    method: 'POST',
+    body: JSON.stringify({
+      url: input.url,
+      allowTlsHttpFallback: input.allowTlsHttpFallback ?? false,
+      crawlProfile: 'us-medical-consented',
+      consentId: input.consentId,
+      prospectId: input.prospectId,
+    }),
+  });
+}
+
 export function getUsMedicalDemoArtifact(
   artifactId: string,
 ): Promise<AdminUsDemoArtifactResponse> {
@@ -723,13 +791,14 @@ export function createUsMedicalDemoPreview(
   artifactId: string,
   manualFinish: UsDemoManualFinish,
   renderMode: 'outreach-safe' | 'preview-full' = 'outreach-safe',
+  consented = false,
 ): Promise<AdminUsDemoPreviewResponse> {
   return fetchJson<AdminUsDemoPreviewResponse>(
     `/api/admin/crawl/${encodeURIComponent(artifactId)}/preview`,
     {
       method: 'POST',
       body: JSON.stringify({
-        previewKind: 'us-medical-outreach',
+        previewKind: consented ? 'us-medical-consented' : 'us-medical-outreach',
         renderMode,
         manualFinish,
       }),

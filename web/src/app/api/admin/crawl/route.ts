@@ -3,13 +3,18 @@ import { z } from 'zod';
 import { requireAdminOr403 } from '@/app/api/_lib/guards';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { getCurrentAdminActorId } from '@/lib/services/auth';
-import { crawlDesignatedSite, CrawlError } from '@/lib/crawl/crawler';
+import {
+  crawlConsentedUsMedicalSite,
+  crawlDesignatedSite,
+  CrawlError,
+} from '@/lib/crawl/crawler';
 import { createCrawlArtifact } from '@/lib/crawl/repository';
 import { aggregateDecayScores } from '@/lib/scan/decay';
 import { US_MEDICAL_OUTREACH_PROFILE_ID } from '@/lib/scan/profiles';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+// A 100-page consented crawl still observes the one-request-per-second floor.
+export const maxDuration = 300;
 
 const RATE_LIMIT = 2;
 const RATE_WINDOW_MS = 60_000;
@@ -48,6 +53,17 @@ const bodySchema = z.object({
   allowTlsHttpFallback: z.boolean().optional(),
   allowInvalidTlsCertificate: z.boolean().optional(),
   scanProfileId: z.literal(US_MEDICAL_OUTREACH_PROFILE_ID).optional(),
+  crawlProfile: z.enum(['designated', 'us-medical-consented']).default('designated'),
+  consentId: z.string().uuid().optional(),
+  prospectId: z.string().trim().min(1).max(100).optional(),
+}).strict().superRefine((value, context) => {
+  if (value.crawlProfile !== 'us-medical-consented') return;
+  if (!value.consentId) {
+    context.addIssue({ code: 'custom', path: ['consentId'], message: '동의 레코드가 필요합니다.' });
+  }
+  if (!value.prospectId) {
+    context.addIssue({ code: 'custom', path: ['prospectId'], message: '프로스펙트 ID가 필요합니다.' });
+  }
 });
 
 export const POST = withApiHandler(async (request) => {
@@ -69,7 +85,15 @@ export const POST = withApiHandler(async (request) => {
   }
   active.add(origin);
   try {
-    const artifact = await crawlDesignatedSite(body.data);
+    const artifact = body.data.crawlProfile === 'us-medical-consented'
+      ? await crawlConsentedUsMedicalSite({
+          url: body.data.url,
+          consentId: body.data.consentId!,
+          prospectId: body.data.prospectId!,
+          allowTlsHttpFallback: body.data.allowTlsHttpFallback,
+          allowInvalidTlsCertificate: body.data.allowInvalidTlsCertificate,
+        })
+      : await crawlDesignatedSite(body.data);
     const decayResult = aggregateDecayScores(
       artifact.pages.map((page) => page.decay),
       artifact.observedAt,
@@ -85,11 +109,20 @@ export const POST = withApiHandler(async (request) => {
         observedAt: record.artifact.observedAt,
         decay: record.decayResult,
         expiresAt: record.expiresAt,
+        ...(record.artifact.crawlPolicyId
+          ? { crawlPolicyId: record.artifact.crawlPolicyId }
+          : {}),
+        ...(record.artifact.crawlCoverage
+          ? { crawlCoverage: record.artifact.crawlCoverage }
+          : {}),
       },
     }, { status: 201 });
   } catch (error) {
     if (error instanceof CrawlError) {
-      return apiError(400, error.code, error.message);
+      return apiError(error.code === 'RENDER_FAILED' ? 503 : 400, error.code, error.message);
+    }
+    if (error instanceof Error && error.message === 'US_MEDICAL_CONSENT_REQUIRED') {
+      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
     }
     throw error;
   } finally {

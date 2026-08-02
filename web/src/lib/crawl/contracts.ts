@@ -34,6 +34,26 @@ export const DESIGNATED_CRAWL_POLICY = {
 } as const;
 
 /**
+ * A separately authorized full-transfer crawl. Consent expands volume only: robots, the
+ * identifiable UA, redirect safety, and the one-request-per-second floor remain unchanged.
+ */
+export const CONSENTED_CRAWL_POLICY = {
+  ...DESIGNATED_CRAWL_POLICY,
+  maxPages: 100,
+  id: 'us-medical-consented-v1',
+} as const;
+
+export function consentedCrawlMaxPages(
+  raw = process.env.US_CONSENTED_CRAWL_MAX_PAGES,
+): number {
+  if (raw === undefined || raw.trim() === '') return CONSENTED_CRAWL_POLICY.maxPages;
+  const parsed = Number(raw);
+  return Number.isSafeInteger(parsed) && parsed >= 1 && parsed <= 500
+    ? parsed
+    : CONSENTED_CRAWL_POLICY.maxPages;
+}
+
+/**
  * The pilot exception requires both this server-owned exact-host allowlist and
  * an explicit admin request flag. TLS verification is never disabled: an
  * approved certificate failure may only fall back to the public HTTP origin.
@@ -64,6 +84,35 @@ export interface CrawlImageCandidate {
   role: CrawlImageRole;
   declaredWidth?: number;
   declaredHeight?: number;
+  /** Browser-observed dimensions; additive metadata only. No image bytes are ingested. */
+  renderedDimensions?: {
+    naturalWidth: number;
+    naturalHeight: number;
+    displayedWidth: number;
+    displayedHeight: number;
+  };
+}
+
+export interface CrawlRenderedImageMeasurement {
+  url: string;
+  naturalWidth: number;
+  naturalHeight: number;
+  displayedWidth: number;
+  displayedHeight: number;
+}
+
+export interface CrawlConsentedSourceBlock {
+  text: string;
+  sourceLocator: string;
+  sourceElementPath: string;
+  sourceSha256: string;
+  tagName: string;
+  heading: boolean;
+  exclusion?: 'footer-legal' | 'navigation-label' | 'skip-link' | 'overlay-ui-chrome';
+  navigationDestinations?: Array<{
+    url: string;
+    label: string;
+  }>;
 }
 
 export interface CrawlConnectorCandidate {
@@ -84,6 +133,14 @@ export interface CrawlPageArtifact {
   structured: StructuredImportFacts;
   images: CrawlImageCandidate[];
   connectors: CrawlConnectorCandidate[];
+  /**
+   * Full source-block projection for an owner-consented transfer. Omitted from the designated
+   * crawl so its bounded legacy artifact stays byte-compatible.
+   */
+  consentedSource?: {
+    version: 1;
+    blocks: CrawlConsentedSourceBlock[];
+  };
   /** US outreach crawl only: minimized signal projection computed while source HTML is in memory. */
   aiVisibilitySummary?: AiVisibilitySummary;
   /** Present only when an explicitly supplied browser renderer was used. */
@@ -159,6 +216,22 @@ export interface CrawlArtifactPayload {
   seedUrl: string;
   finalOrigin: string;
   observedAt: string;
+  /** Omitted for the byte-compatible designated crawl path. */
+  crawlPolicyId?: 'us-medical-consented-v1';
+  /** Minimal linkage only; consent identity and notes remain in the immutable consent ledger. */
+  consentEvidence?: {
+    consentId: string;
+    prospectId: string;
+    scope: 'demo-by-email';
+    consentedAt: string;
+  };
+  /** Consented-only same-origin destination ledger. URLs are discovered navigation targets. */
+  crawlCoverage?: {
+    crawledPages: number;
+    estimatedSourcePages: number;
+    coverageRate: number;
+    uncrawledDestinations: string[];
+  };
   /** Additive profile marker. Omission preserves the existing designated-crawl artifact bytes. */
   scanProfileId?: ScanProfileId;
   /**

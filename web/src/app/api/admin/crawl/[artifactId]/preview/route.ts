@@ -19,11 +19,23 @@ import {
   UsDemoCompileError,
 } from '@/lib/us-demo/contracts';
 import { prepareUsMedicalPreview } from '@/lib/us-demo/admin-workflow';
+import {
+  compileUsMedicalConsentedArtifact,
+  ConsentedClinicCompileError,
+} from '@/lib/clinic-engine/consented';
+import {
+  consentedDemoEmailEvidenceLine,
+  requireUsMedicalDemoConsent,
+} from '@/lib/crawl/consent';
 
 export const runtime = 'nodejs';
 
 const createSchema = z.object({
-  previewKind: z.enum(['import', 'us-medical-outreach']).default('import'),
+  previewKind: z.enum([
+    'import',
+    'us-medical-outreach',
+    'us-medical-consented',
+  ]).default('import'),
   renderMode: z.enum(['outreach-safe', 'preview-full']).default('outreach-safe'),
   purposeId: z.enum([
     'local_store',
@@ -64,12 +76,14 @@ export const POST = withApiHandler(async (
   let config;
   let sourceReport:
     | {
-        origin: 'prospect_public_source';
+        origin: 'prospect_public_source' | 'prospect_consented_source';
         totalBlocks: number;
         usedBlocks: number;
         excludedBlocks: number;
+        policyExcludedBlocks?: number;
       }
     | undefined;
+  let emailEvidenceLine: string | undefined;
   if (body.data.previewKind === 'us-medical-outreach') {
     try {
       const prepared = prepareUsMedicalPreview({
@@ -99,6 +113,35 @@ export const POST = withApiHandler(async (
       }
       throw error;
     }
+  } else if (body.data.previewKind === 'us-medical-consented') {
+    const evidence = artifactRecord.artifact.consentEvidence;
+    if (!evidence) {
+      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
+    }
+    try {
+      const consent = await requireUsMedicalDemoConsent({
+        consentId: evidence.consentId,
+        prospectId: evidence.prospectId,
+      });
+      const compiled = compileUsMedicalConsentedArtifact({ artifact: artifactRecord.artifact });
+      config = compiled.config;
+      sourceReport = {
+        origin: 'prospect_consented_source',
+        totalBlocks: compiled.audit.sourceBlockCount,
+        usedBlocks: compiled.audit.placedBlockIds.length,
+        excludedBlocks: compiled.audit.excludedBlockCount,
+        policyExcludedBlocks: compiled.medicalAdPolicyExcluded.length,
+      };
+      emailEvidenceLine = consentedDemoEmailEvidenceLine(consent);
+    } catch (error) {
+      if (error instanceof ConsentedClinicCompileError) {
+        return apiError(422, error.code, error.message);
+      }
+      if (error instanceof Error && error.message === 'US_MEDICAL_CONSENT_REQUIRED') {
+        return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
+      }
+      throw error;
+    }
   } else {
     config = buildImportPreviewSiteConfig(artifactRecord.artifact, body.data).config;
   }
@@ -111,6 +154,8 @@ export const POST = withApiHandler(async (
     siteConfig: storedConfig,
     renderMode: body.data.previewKind === 'us-medical-outreach'
       ? body.data.renderMode
+      : body.data.previewKind === 'us-medical-consented'
+        ? 'outreach-safe'
       : 'standard',
     createdBy: actorId,
   });
@@ -121,6 +166,7 @@ export const POST = withApiHandler(async (
       expiresAt: preview.expiresAt,
       warning: IMPORT_PREVIEW_BEARER_WARNING,
       ...(sourceReport ? { sourceReport } : {}),
+      ...(emailEvidenceLine ? { emailEvidenceLine } : {}),
     },
   }, { status: 201 });
 });

@@ -32,6 +32,7 @@ import type { SiteConfig } from '@/lib/types/site';
 import type {
   CrawlArtifactPayload,
   CrawlPageAccessObservation,
+  CrawlRenderedImageMeasurement,
 } from '@/lib/crawl/contracts';
 import { DESIGNATED_CRAWL_POLICY } from '@/lib/crawl/contracts';
 
@@ -503,6 +504,7 @@ async function renderSourcePage(input: {
   html: string;
   finalUrl: string;
   observation: CrawlPageAccessObservation;
+  imageMeasurements: CrawlRenderedImageMeasurement[];
   evidence: RenderEvidence;
 }> {
   let finalError: unknown;
@@ -537,6 +539,16 @@ async function renderSourcePage(input: {
         document.documentElement.scrollHeight,
         document.body.scrollHeight,
       ));
+      const imageMeasurements = await page.evaluate(() => Array.from(document.images).map((image) => {
+        const rect = image.getBoundingClientRect();
+        return {
+          url: image.currentSrc || image.src,
+          naturalWidth: image.naturalWidth,
+          naturalHeight: image.naturalHeight,
+          displayedWidth: rect.width,
+          displayedHeight: rect.height,
+        };
+      }).filter((image) => Boolean(image.url)));
       const segments = screenshotSegments(totalHeight);
       const id = safeId(input.sourceUrl);
       let beforePath: string | undefined;
@@ -553,6 +565,7 @@ async function renderSourcePage(input: {
       return {
         html: after,
         finalUrl,
+        imageMeasurements,
         observation: {
           version: 1,
           renderAttempts: attempt,
@@ -780,6 +793,7 @@ async function runTarget(input: {
             html: result.html,
             finalUrl: result.finalUrl,
             observation: result.observation,
+            imageMeasurements: result.imageMeasurements,
           };
         },
       },

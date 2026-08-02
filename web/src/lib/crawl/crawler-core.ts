@@ -3,6 +3,7 @@ import { parseHtml } from '@/lib/import/extract';
 import { isPathAllowed, parseRobotsTxt } from '@/lib/scan/robots';
 import {
   APPROVED_TLS_HTTP_FALLBACK_HOSTS,
+  consentedCrawlMaxPages,
   CRAWL_ARTIFACT_SCHEMA_VERSION,
   DABOIM_CRAWLER_USER_AGENT,
   DESIGNATED_CRAWL_POLICY,
@@ -14,6 +15,7 @@ import {
   type CrawlPageAccessObservation,
   type CrawlPageArtifact,
   type CrawlPageFailure,
+  type CrawlRenderedImageMeasurement,
   type CrawlSkippedUrl,
   type CrawlTlsObservation,
 } from './contracts';
@@ -39,6 +41,7 @@ import {
   projectClinicPaletteFromHtml,
   type ClinicPaletteProjection,
 } from '@/lib/clinic-master/palette-routing';
+import { projectConsentedClinicSourceBlocks } from '@/lib/clinic-engine/robust-source';
 import { registrableDomain } from './registrable-domain';
 
 const PLATFORM_MULTI_PAGE_HOSTS = new Set([
@@ -77,7 +80,8 @@ export type CrawlErrorCode =
   | 'TLS_FALLBACK_NOT_APPROVED'
   | 'TLS_INSECURE_FETCH_UNAVAILABLE'
   | 'UNSAFE_URL'
-  | 'AUTH_REDIRECT';
+  | 'AUTH_REDIRECT'
+  | 'RENDER_FAILED';
 
 export class CrawlError extends Error {
   constructor(public code: CrawlErrorCode, message: string) {
@@ -108,6 +112,7 @@ export interface CrawlDependencies {
     html: string;
     finalUrl?: string;
     observation: CrawlPageAccessObservation;
+    imageMeasurements?: CrawlRenderedImageMeasurement[];
   }>;
 }
 
@@ -349,9 +354,30 @@ function positiveInteger(value: string | undefined): number | undefined {
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function pageImages(root: HTMLElement, pageUrl: URL): CrawlImageCandidate[] {
+function validRenderedDimension(value: number): boolean {
+  return Number.isFinite(value) && value >= 0;
+}
+
+function pageImages(
+  root: HTMLElement,
+  pageUrl: URL,
+  renderedMeasurements: readonly CrawlRenderedImageMeasurement[] = [],
+): CrawlImageCandidate[] {
   const images: CrawlImageCandidate[] = [];
   const seen = new Set<string>();
+  const measurementsByUrl = new Map<string, CrawlRenderedImageMeasurement>();
+  for (const measurement of renderedMeasurements) {
+    const url = normalizeCandidate(measurement.url, pageUrl);
+    if (
+      !url
+      || measurementsByUrl.has(url.toString())
+      || !validRenderedDimension(measurement.naturalWidth)
+      || !validRenderedDimension(measurement.naturalHeight)
+      || !validRenderedDimension(measurement.displayedWidth)
+      || !validRenderedDimension(measurement.displayedHeight)
+    ) continue;
+    measurementsByUrl.set(url.toString(), measurement);
+  }
   const add = (element: HTMLElement, raw: string | undefined, role?: CrawlImageRole) => {
     if (!raw || images.length >= 40) return;
     const url = normalizeCandidate(raw, pageUrl);
@@ -359,12 +385,23 @@ function pageImages(root: HTMLElement, pageUrl: URL): CrawlImageCandidate[] {
     seen.add(url.toString());
     const width = positiveInteger(element.getAttribute('width'));
     const height = positiveInteger(element.getAttribute('height'));
+    const rendered = measurementsByUrl.get(url.toString());
     images.push({
       url: url.toString(),
       alt: (element.getAttribute('alt') ?? '').trim().slice(0, 300),
       role: role ?? imageRole(element),
       ...(width ? { declaredWidth: width } : {}),
       ...(height ? { declaredHeight: height } : {}),
+      ...(rendered
+        ? {
+            renderedDimensions: {
+              naturalWidth: rendered.naturalWidth,
+              naturalHeight: rendered.naturalHeight,
+              displayedWidth: rendered.displayedWidth,
+              displayedHeight: rendered.displayedHeight,
+            },
+          }
+        : {}),
     });
   };
   const ogImage = root.querySelector('meta[property="og:image"]');
@@ -471,7 +508,12 @@ function removeFormsAndAuthenticationUi(root: HTMLElement): void {
   }
 }
 
-function pageArtifact(html: string, fetched: FetchedDocument): {
+function pageArtifact(
+  html: string,
+  fetched: FetchedDocument,
+  imageMeasurements: readonly CrawlRenderedImageMeasurement[] = [],
+  includeConsentedSource = false,
+): {
   page: Omit<CrawlPageArtifact, 'decay'>;
   links: string[];
   skipped: CrawlSkippedUrl[];
@@ -493,22 +535,33 @@ function pageArtifact(html: string, fetched: FetchedDocument): {
       headings: extracted.headings,
       text: extracted.text,
       structured: extracted.structured,
-      images: pageImages(root, fetched.finalUrl),
+      images: pageImages(root, fetched.finalUrl, imageMeasurements),
       connectors: pageConnectors(root, fetched.finalUrl),
+      ...(includeConsentedSource
+        ? {
+            consentedSource: {
+              version: 1 as const,
+              blocks: projectConsentedClinicSourceBlocks({
+                html: root.toString(),
+                sourceUrl: fetched.finalUrl.toString(),
+              }),
+            },
+          }
+        : {}),
     },
     links: links.links,
     skipped: links.skipped,
   };
 }
 
-function sitemapLocations(xml: string, origin: string): string[] {
+function sitemapLocations(xml: string, origin: string, maximumUrls: number): string[] {
   const urls: string[] = [];
   const pattern = /<loc>\s*([^<]+?)\s*<\/loc>/giu;
   for (const match of xml.matchAll(pattern)) {
     const url = normalizeCandidate(match[1]);
     if (!url || url.origin !== origin || urls.includes(url.toString())) continue;
     urls.push(url.toString());
-    if (urls.length >= DESIGNATED_CRAWL_POLICY.maxPages) break;
+    if (urls.length >= maximumUrls) break;
   }
   return urls;
 }
@@ -518,14 +571,17 @@ function sitemapLocations(xml: string, origin: string): string[] {
  * artifact stores bounded text and metadata, never raw HTML, response cookies,
  * request IP/user-agent, or image bytes.
  */
-export async function crawlDesignatedSite(
+async function crawlSite(
   input: {
     url: string;
     allowTlsHttpFallback?: boolean;
     allowInvalidTlsCertificate?: boolean;
     scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
   },
-  dependencies: CrawlDependencies = {},
+  dependencies: CrawlDependencies,
+  maximumPages: number,
+  includeCoverage: boolean,
+  requireRenderedPage: boolean,
 ): Promise<CrawlArtifactPayload> {
   const fetchFn = dependencies.fetchFn ?? fetch;
   const validateUrl = dependencies.validateUrl;
@@ -538,8 +594,8 @@ export async function crawlDesignatedSite(
   const now = dependencies.now ?? (() => new Date());
   const requestedPageLimit = dependencies.pageLimit;
   const pageLimit = Number.isFinite(requestedPageLimit) && (requestedPageLimit ?? 0) > 0
-    ? Math.min(DESIGNATED_CRAWL_POLICY.maxPages, Math.floor(requestedPageLimit!))
-    : DESIGNATED_CRAWL_POLICY.maxPages;
+    ? Math.min(maximumPages, Math.floor(requestedPageLimit!))
+    : maximumPages;
   const observedAt = now().toISOString();
 
   let seed: URL;
@@ -706,7 +762,7 @@ export async function crawlDesignatedSite(
           contentType: fetched.response.headers.get('content-type') ?? '',
           truncated: false,
         };
-        for (const url of sitemapLocations(body, origin)) {
+        for (const url of sitemapLocations(body, origin, pageLimit)) {
           if (!queued.has(url)) {
             queued.add(url);
             queue.push(url);
@@ -813,6 +869,7 @@ export async function crawlDesignatedSite(
       continue;
     }
     let accessObservation: CrawlPageAccessObservation | undefined;
+    let imageMeasurements: CrawlRenderedImageMeasurement[] | undefined;
     if (dependencies.renderPage) {
       try {
         const rendered = await dependencies.renderPage({
@@ -831,7 +888,14 @@ export async function crawlDesignatedSite(
         }
         html = rendered.html;
         accessObservation = rendered.observation;
+        imageMeasurements = rendered.imageMeasurements;
       } catch (error) {
+        if (requireRenderedPage) {
+          throw new CrawlError(
+            'RENDER_FAILED',
+            `동의 기반 수집의 렌더 계측에 실패했습니다: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
         pageFailures.push({
           url: fetched.finalUrl.toString(),
           stage: 'access',
@@ -854,7 +918,7 @@ export async function crawlDesignatedSite(
         clinicPaletteProjection = candidate;
       }
     }
-    const projected = pageArtifact(html, fetched);
+    const projected = pageArtifact(html, fetched, imageMeasurements, includeCoverage);
     const root = parse(html);
     const socialLinks = dependencies.probeSocialLinks
       ? await dependencies.probeSocialLinks(socialLinkUrls(root, fetched.finalUrl))
@@ -915,6 +979,9 @@ export async function crawlDesignatedSite(
   if (pages.length === 0) {
     throw new CrawlError('NOT_HTML', '수집 가능한 HTML 페이지를 찾지 못했습니다.');
   }
+  const crawledUrls = new Set(pages.map((page) => page.url));
+  const discoveredUrls = [...queued];
+  const uncrawledDestinations = discoveredUrls.filter((url) => !crawledUrls.has(url));
   return {
     schemaVersion: CRAWL_ARTIFACT_SCHEMA_VERSION,
     seedUrl: input.url,
@@ -934,6 +1001,50 @@ export async function crawlDesignatedSite(
     skippedUrls,
     ...(pageFailures.length > 0 ? { pageFailures } : {}),
     ...(accessWarnings.length > 0 ? { accessWarnings } : {}),
+    ...(includeCoverage
+      ? {
+          crawlCoverage: {
+            crawledPages: pages.length,
+            estimatedSourcePages: discoveredUrls.length,
+            coverageRate: discoveredUrls.length === 0 ? 0 : pages.length / discoveredUrls.length,
+            uncrawledDestinations,
+          },
+        }
+      : {}),
     stoppedReason: pages.length >= pageLimit ? 'page_limit' : 'queue_exhausted',
   };
+}
+
+export function crawlDesignatedSite(
+  input: {
+    url: string;
+    allowTlsHttpFallback?: boolean;
+    allowInvalidTlsCertificate?: boolean;
+    scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
+  },
+  dependencies: CrawlDependencies = {},
+): Promise<CrawlArtifactPayload> {
+  return crawlSite(input, dependencies, DESIGNATED_CRAWL_POLICY.maxPages, false, false);
+}
+
+/**
+ * Internal transport for the repository-gated consent wrapper in crawler.ts. Production route
+ * handlers must never call this directly because this function does not own consent storage.
+ */
+export function crawlConsentedSiteCore(
+  input: {
+    url: string;
+    allowTlsHttpFallback?: boolean;
+    allowInvalidTlsCertificate?: boolean;
+    scanProfileId?: typeof US_MEDICAL_OUTREACH_PROFILE_ID;
+  },
+  dependencies: CrawlDependencies = {},
+): Promise<CrawlArtifactPayload> {
+  if (!dependencies.renderPage) {
+    throw new CrawlError(
+      'RENDER_FAILED',
+      '동의 기반 수집은 이미지 치수 계측이 가능한 서버 렌더러가 필요합니다.',
+    );
+  }
+  return crawlSite(input, dependencies, consentedCrawlMaxPages(), true, true);
 }

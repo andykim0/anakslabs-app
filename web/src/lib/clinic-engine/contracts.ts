@@ -1,5 +1,6 @@
 export const CLINIC_ENGINE_PROFILE_IDS = [
   'us-medical-outreach-v1',
+  'us-medical-consented-v1',
   'ko-medical-import-v1',
 ] as const;
 
@@ -32,6 +33,7 @@ export interface ClinicEngineProfile {
   siteForm: 'discovered-multipage' | 'fixed-set-multipage';
   locale: 'en-US' | 'ko-KR';
   deliveryMode: 'outreach' | 'import';
+  contentTransfer: 'redesign' | 'full-transfer';
   jurisdiction: 'us-medical-advertising' | 'kr-medical-law';
   scoringLens: 'us-medical-outreach-v1' | 'ko-medical-import-v1';
   typographyPreset: 'latin-clinic-pinned' | 'korean-clinic-paired';

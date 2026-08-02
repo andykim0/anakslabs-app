@@ -567,7 +567,9 @@ export function compileRobustClinicArtifact(input: {
   artifact: CrawlArtifactPayload;
   documents?: readonly RobustClinicDocument[];
   profile: ClinicEngineProfile;
-  gateEvidence?: ClinicEngineGateEvidence;
+  gateEvidence?: ClinicEngineGateEvidence | ((output: RobustClinicCompilation) => ClinicEngineGateEvidence);
+  /** Additive policy adapter; existing profiles omit it and retain byte-identical output. */
+  transformSourcePlan?: (plan: RobustClinicSourcePlan) => RobustClinicSourcePlan;
 }): RobustClinicCompilation {
   return runClinicEngine({
     profile: input.profile,
@@ -576,9 +578,14 @@ export function compileRobustClinicArtifact(input: {
       documents: input.documents,
       profile: input.profile,
     },
-    extractSource: extractRobustClinicSource,
+    extractSource: (value) => {
+      const source = extractRobustClinicSource(value);
+      return input.transformSourcePlan?.(source) ?? source;
+    },
     splitPages: (source) => source,
     resolveLayouts: (plan) => compilePagePlan({ plan, artifact: input.artifact }),
-    gateEvidence: () => input.gateEvidence ?? {},
+    gateEvidence: (output) => typeof input.gateEvidence === 'function'
+      ? input.gateEvidence(output)
+      : input.gateEvidence ?? {},
   });
 }

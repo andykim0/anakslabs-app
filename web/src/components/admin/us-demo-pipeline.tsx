@@ -12,7 +12,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import {
+  createUsMedicalDemoConsent,
   createUsMedicalDemoPreview,
+  crawlUsMedicalConsentedDemo,
   crawlUsMedicalDemo,
   enableUsDemoQaExclusion,
   getUsMedicalDemoArtifact,
@@ -74,6 +76,12 @@ export function UsDemoPipeline() {
   const [approvedReviewIds, setApprovedReviewIds] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<AdminUsDemoPreviewResponse['preview'] | null>(null);
   const [renderMode, setRenderMode] = useState<'preview-full' | 'outreach-safe'>('outreach-safe');
+  const [consentedTransfer, setConsentedTransfer] = useState(false);
+  const [prospectId, setProspectId] = useState('');
+  const [consenterName, setConsenterName] = useState('');
+  const [consenterTitle, setConsenterTitle] = useState('');
+  const [consentedAt, setConsentedAt] = useState('');
+  const [consentNotes, setConsentNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const blocksById = new Map(
@@ -88,7 +96,23 @@ export function UsDemoPipeline() {
     setError(null);
     setPreview(null);
     try {
-      const crawled = await crawlUsMedicalDemo(url, allowTlsHttpFallback);
+      const crawled = consentedTransfer
+        ? await (async () => {
+            const recorded = await createUsMedicalDemoConsent({
+              prospectId,
+              consenterName,
+              consenterTitle,
+              consentedAt: new Date(consentedAt).toISOString(),
+              notes: consentNotes,
+            });
+            return crawlUsMedicalConsentedDemo({
+              url,
+              consentId: recorded.consent.id,
+              prospectId,
+              allowTlsHttpFallback,
+            });
+          })()
+        : await crawlUsMedicalDemo(url, allowTlsHttpFallback);
       const artifact = await getUsMedicalDemoArtifact(crawled.artifact.id);
       const sourceBlocks = artifact.artifact.usDemo.blocks;
       setDetail(artifact);
@@ -140,6 +164,7 @@ export function UsDemoPipeline() {
           approvedReviewBlockIds: orderedIds.filter((id) => approvedReviewIds.has(id)),
         },
         renderMode,
+        consentedTransfer,
       );
       setPreview(response.preview);
       setStatus('ready');
@@ -196,7 +221,14 @@ export function UsDemoPipeline() {
           </label>
           <button
             type="button"
-            disabled={!url || status === 'crawling' || status === 'publishing'}
+            disabled={
+              !url
+              || status === 'crawling'
+              || status === 'publishing'
+              || (consentedTransfer && (
+                !prospectId || !consenterName || !consenterTitle || !consentedAt
+              ))
+            }
             onClick={runCrawl}
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#174DDA] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
           >
@@ -212,6 +244,68 @@ export function UsDemoPipeline() {
           />
           사전 승인된 파일럿 호스트만 인증서 오류 시 HTTP 공개 페이지로 계속 수집
         </label>
+        <label className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#22304A]">
+          <input
+            type="checkbox"
+            checked={consentedTransfer}
+            onChange={(event) => setConsentedTransfer(event.target.checked)}
+          />
+          구두 동의 기반 전체 이관 데모
+        </label>
+        {consentedTransfer ? (
+          <div className="mt-3 grid gap-3 rounded-xl border border-[#C9D5E7] bg-[#F7F9FC] p-4 sm:grid-cols-2">
+            <label className="text-xs font-semibold text-[#22304A]">
+              프로스펙트 ID
+              <input
+                required
+                value={prospectId}
+                onChange={(event) => setProspectId(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[#22304A]">
+              통화 일시
+              <input
+                required
+                type="datetime-local"
+                value={consentedAt}
+                onChange={(event) => setConsentedAt(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[#22304A]">
+              동의자 이름
+              <input
+                required
+                value={consenterName}
+                onChange={(event) => setConsenterName(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[#22304A]">
+              동의자 직함
+              <input
+                required
+                value={consenterTitle}
+                onChange={(event) => setConsenterTitle(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[#22304A] sm:col-span-2">
+              통화 메모
+              <input
+                type="text"
+                value={consentNotes}
+                onChange={(event) => setConsentNotes(event.target.value)}
+                maxLength={2000}
+                className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <p className="text-xs leading-5 text-[#667085] sm:col-span-2">
+              동의 범위는 demo-by-email로 고정됩니다. robots·초당 1회·식별 가능한 크롤러 UA는 그대로 유지됩니다.
+            </p>
+          </div>
+        ) : null}
         {error && (
           <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
             {error}
@@ -242,6 +336,16 @@ export function UsDemoPipeline() {
                     {detail.artifact.usDemo.englishSourceReady ? '컴파일 가능' : '원문 부족 — 생성 중단'}
                   </dd>
                 </div>
+                {detail.artifact.crawlCoverage ? (
+                  <div>
+                    <dt className="text-xs text-[#667085]">동의 크롤 커버리지</dt>
+                    <dd className="mt-1 font-semibold">
+                      {detail.artifact.crawlCoverage.crawledPages}
+                      {' / '}
+                      {detail.artifact.crawlCoverage.estimatedSourcePages}페이지
+                    </dd>
+                  </div>
+                ) : null}
               </dl>
               <details className="mt-4 text-xs text-[#5F6B7C]">
                 <summary className="cursor-pointer font-semibold">방문 URL 보기</summary>
@@ -406,6 +510,16 @@ export function UsDemoPipeline() {
               <p className="mt-2 text-sm text-emerald-800">
                 원문 {preview.sourceReport.usedBlocks}개 사용 · {preview.sourceReport.excludedBlocks}개 제외
               </p>
+              {preview.sourceReport.policyExcludedBlocks ? (
+                <p className="mt-1 text-xs text-amber-800">
+                  미국 의료광고 정책 보류 {preview.sourceReport.policyExcludedBlocks}개
+                </p>
+              ) : null}
+              {preview.emailEvidenceLine ? (
+                <p className="mt-2 rounded-md bg-white/70 px-3 py-2 text-xs text-emerald-900">
+                  이메일 근거 문구: {preview.emailEvidenceLine}
+                </p>
+              ) : null}
               <p className="mt-1 break-all text-xs text-emerald-700">
                 {preview.url} · {new Date(preview.expiresAt).toLocaleString('ko-KR')} 만료
               </p>
