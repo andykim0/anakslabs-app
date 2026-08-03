@@ -24,6 +24,7 @@ import {
 import type { PublishArtifactAudit } from './artifact-audit';
 import { screenMedicalSiteConfig } from '@/lib/content/medical-ad-enforcement';
 import {
+  US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
   US_TENANT_LEGAL_DOCUMENTS_ENABLED,
   usTenantLegalDocumentsRequired,
 } from '@/lib/legal/templates';
@@ -64,7 +65,7 @@ export function checkPublish(
   const warnings: string[] = [];
 
   if (usTenantLegalDocumentsRequired(config) && !US_TENANT_LEGAL_DOCUMENTS_ENABLED) {
-    blockers.push('US tenant legal documents are pending counsel review and cannot be published.');
+    blockers.push(US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE);
   }
 
   for (const blocker of opts?.artifact?.blockers ?? []) blockers.push(blocker.message);

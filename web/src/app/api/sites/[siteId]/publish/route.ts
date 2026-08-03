@@ -1,7 +1,8 @@
 /**
  * POST /api/sites/[siteId]/publish — 발행 (draft → 발행본, status='live', 서브도메인 할당).
- * body: { businessInfoConfirmed: true, humanChecks: { ...3개 true } } 필수.
- * 사업자 정보와 사람만 판단할 수 있는 최종 확인을 모두 서버가 재검증한다.
+ * body: { humanChecks: { ...3개 true }, businessInfoConfirmed?: true }.
+ * 사업자 정보 확인은 KO/default 사이트 또는 선택 입력된 US 정보에만 요구하고,
+ * 사람만 판단할 수 있는 최종 확인은 모든 발행에서 서버가 재검증한다.
  * 응답: { site, url } — url은 라이브 주소.
  */
 import { after, NextResponse, type NextRequest } from 'next/server';
@@ -31,6 +32,12 @@ import {
 } from '@/lib/billing/publish-payment';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
 import { industryPublishPolicy } from '@/lib/industry/publish-policy';
+import {
+  businessInfoRequiredForPublish,
+  US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
+  US_TENANT_LEGAL_DOCUMENTS_ENABLED,
+  usTenantLegalDocumentsRequired,
+} from '@/lib/legal/templates';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -52,21 +59,23 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, industryPolicy.code, industryPolicy.message);
   }
 
-  // 요청 본문은 한 번만 읽고 사업자 확인과 휴먼 3체크를 각각 검증한다.
+  // Read the request body once, then validate the locale-specific operator confirmation and human checks.
   let body: { businessInfoConfirmed?: unknown; humanChecks?: unknown } | null = null;
   try {
     body = (await request.json()) as { businessInfoConfirmed?: unknown; humanChecks?: unknown } | null;
   } catch {
     body = null;
   }
-  if (body?.businessInfoConfirmed !== true) {
+  const requiresBusinessInfo = businessInfoRequiredForPublish(site.draftConfig);
+  const hasBusinessInfo = Boolean(site.draftConfig.businessInfo);
+  if ((requiresBusinessInfo || hasBusinessInfo) && body?.businessInfoConfirmed !== true) {
     return apiError(
       400,
       'BUSINESS_INFO_CONFIRM_REQUIRED',
       '발행 전 사업자 정보 확인이 필요합니다. 에디터의 발행 버튼으로 진행해 주세요.',
     );
   }
-  const missingHumanChecks = missingPublishHumanChecks(body.humanChecks);
+  const missingHumanChecks = missingPublishHumanChecks(body?.humanChecks);
   if (missingHumanChecks.length > 0) {
     return apiError(
       400,
@@ -76,12 +85,25 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
-  // [§6] 발행 게이트 — 사업자 정보(전자상거래법 표시 의무)가 없으면 발행 불가
-  if (!site.draftConfig.businessInfo) {
+  // Korean sites retain the operator-information publication boundary. It is optional for US sites.
+  if (requiresBusinessInfo && !hasBusinessInfo) {
     return apiError(
       409,
       'BUSINESS_INFO_REQUIRED',
       '발행하려면 사업자 정보가 필요합니다. 에디터의 사업자 정보에서 입력해 주세요.',
+    );
+  }
+
+  // Legal policy is evaluated before render/provenance audits so a collecting form fails with
+  // its actual publication reason, even if a later renderer is unavailable.
+  if (
+    usTenantLegalDocumentsRequired(site.draftConfig)
+    && !US_TENANT_LEGAL_DOCUMENTS_ENABLED
+  ) {
+    return apiError(
+      409,
+      'US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED',
+      US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
     );
   }
 

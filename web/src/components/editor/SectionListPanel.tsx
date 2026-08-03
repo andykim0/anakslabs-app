@@ -15,6 +15,7 @@ import { BusinessInfoForm } from './BusinessInfoForm';
 import { PageListPanel } from './PageListPanel';
 import { SECTION_TYPE_LABELS } from './defaults';
 import { DropMenu } from './DropMenu';
+import { businessInfoRequiredForPublish } from '@/lib/legal/templates';
 
 const SECTION_TYPES = Object.keys(SECTION_TYPE_LABELS) as SectionType[];
 
@@ -22,6 +23,7 @@ export function SectionListPanel() {
   const sections = useEditorStore((s) => activeSections(s.config));
   const selectedSectionId = useEditorStore((s) => s.selectedSectionId);
   const businessInfo = useEditorStore((s) => s.businessInfo);
+  const businessInfoRequired = useEditorStore((s) => businessInfoRequiredForPublish(s.config));
   const [bizModalOpen, setBizModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -172,7 +174,7 @@ export function SectionListPanel() {
           )}
         >
           <Building2 className="h-3.5 w-3.5" />
-          Business information {businessInfo ? '' : "(Required before issuance)"}
+          Business information {businessInfo ? '' : businessInfoRequired ? '(Required before publication)' : '(Optional)'}
         </button>
       </div>
 

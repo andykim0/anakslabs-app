@@ -5,13 +5,16 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
   US_TENANT_LEGAL_DOCUMENTS_ENABLED,
   US_TENANT_LEGAL_PLACEHOLDERS,
   UsTenantLegalDocumentsPendingError,
   assertUsTenantLegalDocumentsReady,
+  businessInfoRequiredForPublish,
   pinUsTenantLocaleForNewSite,
   siteCollectsPersonalData,
   usPrivacyPolicy,
+  usTenantLegalDocumentsRequired,
   usTermsOfService,
 } from '@/lib/legal/templates';
 import { emptySiteConfig, type BusinessInfo } from '@/lib/types/site';
@@ -25,7 +28,7 @@ const BUSINESS_INFO: BusinessInfo = {
 };
 
 describe('US tenant legal publication boundary', () => {
-  test('pending placeholders are non-publishable and both legal document builders fail closed', () => {
+  test('a form-free US brochure site does not require legal documents, even with optional business information', () => {
     const config = emptySiteConfig('US legal boundary');
     config.meta.locale = 'en-US';
     config.businessInfo = BUSINESS_INFO;
@@ -33,12 +36,14 @@ describe('US tenant legal publication boundary', () => {
     assert.equal(US_TENANT_LEGAL_DOCUMENTS_ENABLED, false);
     assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.privacy.publishable, false);
     assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.terms.publishable, false);
-    assert.throws(() => assertUsTenantLegalDocumentsReady(config), UsTenantLegalDocumentsPendingError);
+    assert.equal(businessInfoRequiredForPublish(config), false);
+    assert.equal(usTenantLegalDocumentsRequired(config), false);
+    assert.doesNotThrow(() => assertUsTenantLegalDocumentsReady(config));
+    assert.equal(checkPublish(config, 'basic').blockers.includes(US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE), false);
+
+    // Counsel copy remains absent: direct document construction must never synthesize a policy.
     assert.throws(() => usPrivacyPolicy(config), UsTenantLegalDocumentsPendingError);
     assert.throws(() => usTermsOfService(config), UsTenantLegalDocumentsPendingError);
-    const preflight = checkPublish(config, 'basic');
-    assert.equal(preflight.ok, false);
-    assert.ok(preflight.blockers.some((item) => /pending counsel review/iu.test(item)));
   });
 
   test('new-site issuance pins en-US without mutating a stored legacy config', () => {
@@ -47,10 +52,10 @@ describe('US tenant legal publication boundary', () => {
     const issued = pinUsTenantLocaleForNewSite(legacy);
     assert.equal(legacy.meta.locale, undefined);
     assert.equal(issued.meta.locale, 'en-US');
-    assert.throws(() => assertUsTenantLegalDocumentsReady({
+    assert.doesNotThrow(() => assertUsTenantLegalDocumentsReady({
       ...issued,
       businessInfo: BUSINESS_INFO,
-    }), UsTenantLegalDocumentsPendingError);
+    }));
   });
 
   test('aggregate measurement disclosure is operational copy, not a tenant legal document', () => {
@@ -87,6 +92,44 @@ describe('US tenant legal publication boundary', () => {
       }],
     });
     assert.equal(siteCollectsPersonalData(config), true);
+    config.meta.locale = 'en-US';
+    assert.equal(usTenantLegalDocumentsRequired(config), true);
+    assert.throws(
+      () => assertUsTenantLegalDocumentsReady(config),
+      (error: unknown) => error instanceof UsTenantLegalDocumentsPendingError
+        && error.message === US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
+    );
+    const preflight = checkPublish(config, 'basic');
+    assert.equal(preflight.ok, false);
+    assert.ok(preflight.blockers.includes(US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE));
+  });
+
+  test('external booking links are not treated as personal-data collection and KO keeps its operator-info boundary', () => {
+    const us = emptySiteConfig('US outbound booking');
+    us.meta.locale = 'en-US';
+    us.pages[0].sections.push({
+      id: 'booking',
+      name: 'Book',
+      type: 'cta',
+      height: 320,
+      background: { color: '#ffffff' },
+      elements: [{
+        id: 'booking-link',
+        kind: 'button',
+        frame: { x: 0, y: 0, w: 240, h: 56 },
+        z: 1,
+        label: 'Book appointment',
+        href: 'https://booking.example.com',
+        style: { variant: 'solid' },
+      }],
+    });
+    assert.equal(siteCollectsPersonalData(us), false);
+    assert.equal(usTenantLegalDocumentsRequired(us), false);
+    assert.equal(businessInfoRequiredForPublish(us), false);
+
+    const ko = emptySiteConfig('KO operator boundary');
+    assert.equal(ko.meta.locale, undefined);
+    assert.equal(businessInfoRequiredForPublish(ko), true);
   });
 });
 

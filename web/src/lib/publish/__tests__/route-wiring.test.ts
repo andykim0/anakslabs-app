@@ -10,7 +10,7 @@ describe('Q$6 publish route 서버 강제 배선', () => {
   const preflight = source('src/app/api/sites/[siteId]/preflight/route.ts');
 
   test('휴먼 3체크 → provenance 감사 → artifact 감사가 실제 publish보다 먼저 실행된다', () => {
-    const humanAt = publish.indexOf('missingPublishHumanChecks(body.humanChecks)');
+    const humanAt = publish.indexOf('missingPublishHumanChecks(body?.humanChecks)');
     const provenanceAt = publish.indexOf('await resolveSiteAssetPolicy({');
     const auditAt = publish.indexOf('preflightScan(auditedDraft');
     const persistAt = publish.indexOf('publishAuditedSnapshot(getDataServices().sites, siteId, auditedDraft)');
@@ -55,5 +55,17 @@ describe('Q$6 publish route 서버 강제 배선', () => {
       assert.doesNotMatch(route, /assetAudit\.violations[\s\S]{0,120}apiError/);
       assert.doesNotMatch(route, /console\.(?:warn|error)\([^)]*assetId/);
     }
+  });
+
+  test('US operator information is optional while KO and present-info confirmation remain enforced', () => {
+    assert.match(publish, /businessInfoRequiredForPublish\(site\.draftConfig\)/);
+    assert.match(publish, /\(requiresBusinessInfo \|\| hasBusinessInfo\) && body\?\.businessInfoConfirmed !== true/);
+    assert.match(publish, /requiresBusinessInfo && !hasBusinessInfo/);
+    assert.match(preflight, /businessInfoRequiredForPublish\(auditedConfig\) && !auditedConfig\.businessInfo/);
+    const legalAt = publish.indexOf('usTenantLegalDocumentsRequired(site.draftConfig)');
+    const provenanceAt = publish.indexOf('await resolveStoredBeforeAfterMotionOptions({');
+    assert.ok(legalAt >= 0 && provenanceAt > legalAt);
+    assert.match(publish, /US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED/);
+    assert.match(preflight, /usTenantLegalDocumentsRequired\(config\)/);
   });
 });

@@ -60,4 +60,15 @@ describe('발행 휴먼 체크 UI 배선', () => {
     assert.match(dialog, /result\?\.preflight\.needsQa/);
     assert.match(dashboard, /result\.preflight\.warnings\.length/);
   });
+
+  test('US editor and dashboard can continue without optional business information', () => {
+    const editor = source('src/components/editor/PrePublishDialog.tsx');
+    const dashboard = source('src/components/dashboard/site-detail.tsx');
+    const sectionList = source('src/components/editor/SectionListPanel.tsx');
+    assert.match(editor, /businessInfoRequiredForPublish\(s\.config\)/);
+    assert.match(editor, /Continue without it/);
+    assert.match(dashboard, /!businessInfoRequired/);
+    assert.match(dashboard, /No legal footer will be shown unless you add it/);
+    assert.match(sectionList, /businessInfoRequired \? '\(Required before publication\)' : '\(Optional\)'/);
+  });
 });

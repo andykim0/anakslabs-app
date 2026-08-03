@@ -21,6 +21,12 @@ import {
   safeAuditErrorName,
   shouldBlockAssetPolicy,
 } from '@/lib/publish/asset-policy-feedback';
+import {
+  businessInfoRequiredForPublish,
+  US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
+  US_TENANT_LEGAL_DOCUMENTS_ENABLED,
+  usTenantLegalDocumentsRequired,
+} from '@/lib/legal/templates';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -35,6 +41,14 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
   const config = site.draftConfig ?? site.siteConfig;
   if (!config) {
     return apiError(409, 'NO_DRAFT', '진단할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
+  }
+
+  if (usTenantLegalDocumentsRequired(config) && !US_TENANT_LEGAL_DOCUMENTS_ENABLED) {
+    return apiError(
+      409,
+      'US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED',
+      US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
+    );
   }
 
   let provenance: Awaited<ReturnType<typeof resolveStoredBeforeAfterMotionOptions>>;
@@ -147,7 +161,8 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
     blockers: preflight.blockers,
     warnings: preflight.warnings,
     needsQa: preflight.needsQa,
-    businessInfoMissing: !auditedConfig.businessInfo,
+    businessInfoMissing:
+      businessInfoRequiredForPublish(auditedConfig) && !auditedConfig.businessInfo,
     assetPolicy: {
       mode: assetAudit.mode,
       issues: assetPolicyIssues,
