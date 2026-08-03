@@ -4,6 +4,9 @@ import {
   applyKoreanFontPairing,
   applyLatinFontPairing,
 } from '@/lib/fonts/selection';
+import type { ProductionKoreanFontPairId } from '@/lib/fonts/types';
+import { expandTokens } from '@/lib/design/dna/expand-tokens';
+import { tokenSetToSiteTheme } from '@/lib/design/dna/site-theme-adapter';
 import { resolveClinicMasterTheme } from '@/lib/clinic-master/tokens';
 import type { ClinicMasterSourceBlock } from '@/lib/clinic-master/compiler';
 import type {
@@ -19,6 +22,7 @@ import type {
   ClinicEngineGateEvidence,
   ClinicEngineProfile,
 } from './contracts';
+import type { FeatureLayoutVariantId } from '@/lib/layout';
 import {
   buildClinicFeatureSections,
   buildClinicHeroSection,
@@ -35,6 +39,14 @@ import {
   type RobustClinicSourcePlan,
 } from './robust-source';
 import { sourceTextIsOperationalBlob } from './source-text-gates';
+import {
+  clinicMaterialAxesForUnit,
+  isClinicFaqUnit,
+  selectClinicVariantBlueprints,
+  type ClinicMaterialAxisId,
+  type ClinicMotionSignatureId,
+  type ClinicVariantBlueprint,
+} from './variants';
 
 const FEATURE_SECTION_MAXIMUM_UNITS = 100;
 
@@ -57,6 +69,15 @@ export interface RobustClinicCompilationAudit {
       alt: string;
     };
     rejected: RobustClinicImageDecision[];
+  };
+  variant?: {
+    id: string;
+    expression: ClinicVariantBlueprint['expression'];
+    activeMaterialAxes: ClinicVariantBlueprint['activeMaterialAxes'];
+    emphasizedAxis?: ClinicMaterialAxisId;
+    faqSourceUnitCount: number;
+    faqRenderedUnitCount: number;
+    syntheticContentBlockCount: 0;
   };
   pages: Array<{
     sourceUrl: string;
@@ -121,17 +142,30 @@ export interface RobustClinicCompilation {
   audit: RobustClinicCompilationAudit;
 }
 
+export interface RobustClinicVariantCompilation extends RobustClinicCompilation {
+  variant: ClinicVariantBlueprint;
+}
+
+export interface RobustClinicVariantSet {
+  variants: RobustClinicVariantCompilation[];
+}
+
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function masterPin(profile: ClinicEngineProfile, artifact: CrawlArtifactPayload): ClinicMasterPin {
+function masterPin(
+  profile: ClinicEngineProfile,
+  artifact: CrawlArtifactPayload,
+  variant?: ClinicVariantBlueprint,
+): ClinicMasterPin {
   return {
     version: 1,
     masterId: 'premium-dental-v1',
-    accentPreset: 'clean-blue',
-    typographyPreset: profile.locale === 'ko-KR' ? 'clinic-neutral' : 'clinic-editorial',
-    density: 'balanced',
+    accentPreset: variant?.expression.accentPreset ?? 'clean-blue',
+    typographyPreset: variant?.expression.typographyPreset
+      ?? (profile.locale === 'ko-KR' ? 'clinic-neutral' : 'clinic-editorial'),
+    density: variant?.expression.density ?? 'balanced',
     focus: 'balanced',
     demoPitchLocale: profile.locale === 'ko-KR' ? 'ko-owner' : 'en',
     paletteSource: {
@@ -147,21 +181,108 @@ function themeFor(
   profile: ClinicEngineProfile,
   artifact: CrawlArtifactPayload,
   pin: ClinicMasterPin,
+  variant?: ClinicVariantBlueprint,
 ): SiteTheme {
   const resolved = resolveClinicMasterTheme(
     emptySiteConfig(new URL(artifact.seedUrl).hostname).theme,
     pin,
   );
-  if (profile.locale === 'ko-KR') {
-    return applyKoreanFontPairing(resolved, 'kr-nanum-myeongjo-readable');
-  }
-  return applyLatinFontPairing(resolved, {
+  const koreanPairing: ProductionKoreanFontPairId = variant
+    ? variant.expression.typographyPreset === 'clinic-editorial'
+      ? 'kr-nanum-myeongjo-readable'
+      : variant.expression.typographyPreset === 'clinic-geometric'
+        ? 'kr-gmarket-noto-structured'
+        : 'kr-pretendard-neutral'
+    : 'kr-nanum-myeongjo-readable';
+  const paired = profile.locale === 'ko-KR'
+    ? applyKoreanFontPairing(resolved, koreanPairing)
+    : applyLatinFontPairing(resolved, {
     locale: 'en-US',
     id: 'us-clinical-neutral',
     assetVersion: 1,
     systemFallback: false,
     typographyPreset: pin.typographyPreset,
   });
+  if (!variant) return paired;
+  const tokenTheme = tokenSetToSiteTheme(expandTokens(
+    'medical-clinical-clarity',
+    clinicVariantHueSeed(variant),
+    { density: variant.expression.density },
+  ));
+  return {
+    ...paired,
+    tokens: tokenTheme.tokens,
+    customCss: clinicVariantCss(variant),
+  };
+}
+
+function clinicVariantHueSeed(variant: ClinicVariantBlueprint): number {
+  switch (variant.expression.accentPreset) {
+    case 'clean-blue': return 210;
+    case 'clean-teal': return 184;
+    case 'clean-green': return 150;
+    case 'clean-warm-neutral': return 25;
+  }
+}
+
+const CLINIC_VARIANT_EASING = 'cubic-bezier(.16,1,.3,1)';
+
+function clinicVariantCss(variant: ClinicVariantBlueprint): string {
+  const motion = variant.expression.motionSignature;
+  const duration = motion === 'calm-fade'
+    ? 800
+    : motion === 'rise-stagger'
+      ? 1000
+      : motion === 'cinematic'
+        ? 1200
+        : 0;
+  const translateDesktop = motion === 'calm-fade' ? 0 : 24;
+  const translateMobile = motion === 'calm-fade' ? 0 : 16;
+  const hero = variant.expression.heroLayout;
+  return `
+[data-clinic-motion-signature="${motion}"] [data-clinic-variant-reveal][data-m="reveal"].m-hide {
+  opacity: 0;
+  transform: translateY(${translateDesktop}px);
+}
+[data-clinic-motion-signature="${motion}"] [data-clinic-variant-reveal][data-m="reveal"].m-show {
+  opacity: 1;
+  transform: none;
+  transition-duration: ${duration}ms;
+  transition-timing-function: ${CLINIC_VARIANT_EASING};
+}
+[data-clinic-motion-signature="cinematic"] [data-clinic-flow-inner] {
+  transform: translateY(calc((.5 - var(--scroll-progress,0)) * 12px));
+}
+[data-clinic-flow-section="${hero}"] [data-clinic-flow-hero-copy] {
+  ${hero === 'hero.split-right' ? 'justify-items: end; text-align: right;' : ''}
+  ${hero === 'hero.fullbleed-centered' ? 'justify-items: center; text-align: center;' : ''}
+}
+[data-clinic-flow-section="${hero}"] [data-clinic-flow-hero-copy] :is(h1,p) {
+  ${hero === 'hero.split-right' ? 'margin-left: auto;' : ''}
+  ${hero === 'hero.fullbleed-centered' ? 'margin-inline: auto;' : ''}
+}
+[data-clinic-flow-section="hero.image-below"] [data-clinic-flow-hero-media] {
+  min-height: 0;
+  grid-template-rows: auto minmax(22rem,50vh);
+}
+[data-clinic-flow-section="hero.image-below"] [data-clinic-flow-hero-media] > img {
+  position: relative;
+  grid-row: 2;
+  z-index: 0;
+}
+@media (max-width: 767.98px) {
+  [data-clinic-motion-signature="${motion}"] [data-clinic-variant-reveal][data-m="reveal"].m-hide {
+    transform: translateY(${translateMobile}px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-clinic-motion-signature] [data-clinic-variant-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}`.trim();
 }
 
 function safeSlug(value: string, index: number, claimed: Set<string>): string {
@@ -640,6 +761,191 @@ function candidatesFor(
   return ['features.prose-article'] as const;
 }
 
+function variantCandidatesFor(
+  units: readonly (ClinicLayoutContentUnit & { repeatedStructure?: boolean })[],
+  emphasizedAxis?: ClinicMaterialAxisId,
+): readonly FeatureLayoutVariantId[] {
+  if (!emphasizedAxis) return candidatesFor(units);
+  if (
+    emphasizedAxis === 'beforeafter'
+    || emphasizedAxis === 'videos'
+    || emphasizedAxis === 'events'
+    || emphasizedAxis === 'gallery'
+    || emphasizedAxis === 'us-procedure-gallery'
+  ) {
+    return [
+      'features.zigzag-media',
+      'features.featured-first',
+      'features.three-column-cards',
+      'features.prose-article',
+    ];
+  }
+  if (
+    emphasizedAxis === 'reviews'
+    || emphasizedAxis === 'providers'
+    || emphasizedAxis === 'us-trust-rich'
+  ) {
+    return [
+      'features.three-column-cards',
+      'features.icon-grid',
+      'features.sticky-heading-two-column',
+      'features.prose-article',
+    ];
+  }
+  return [
+    'features.icon-grid',
+    'features.numbered-list',
+    'features.sticky-heading-two-column',
+    'features.prose-article',
+  ];
+}
+
+function markedVariantSectionId(
+  value: string,
+  motionSignature: ClinicMotionSignatureId,
+): string {
+  return `${value}-clinic-variant-motion-${motionSignature}`;
+}
+
+function variantOrderedUnits(
+  units: readonly (ClinicLayoutContentUnit & { repeatedStructure?: boolean })[],
+  profile: ClinicEngineProfile,
+  emphasizedAxis?: ClinicMaterialAxisId,
+): Array<ClinicLayoutContentUnit & { repeatedStructure?: boolean }> {
+  if (!emphasizedAxis) return [...units];
+  return units
+    .map((unit, sourceIndex) => ({
+      unit,
+      sourceIndex,
+      emphasized: clinicMaterialAxesForUnit(unit, profile).includes(emphasizedAxis),
+    }))
+    .sort((left, right) => (
+      Number(right.emphasized) - Number(left.emphasized)
+      || left.sourceIndex - right.sourceIndex
+    ))
+    .map(({ unit }) => unit);
+}
+
+function variantSectionsForPage(input: {
+  page: RobustClinicSourcePage;
+  theme: SiteTheme;
+  profile: ClinicEngineProfile;
+  title: ClinicMasterSourceBlock;
+  variant: ClinicVariantBlueprint;
+}): {
+  sections: Section[];
+  placedBlockIds: string[];
+  faqSourceUnitCount: number;
+  faqRenderedUnitCount: number;
+} | null {
+  if (input.page.accessFailure || input.page.targetBlocks.length === 0) return null;
+  const titleOwnsTargetBlock = input.page.targetBlocks.some((block) => block.id === input.title.id);
+  const lead = input.page.metadataDescription
+    ?? input.page.targetBlocks.find((block) => block.id !== input.title.id);
+  const bodyBlocks = input.page.targetBlocks.filter((block) => (
+    (!titleOwnsTargetBlock || block.id !== input.title.id)
+    && block.id !== lead?.id
+  ));
+  const motion = input.variant.expression.motionSignature;
+  const heroImage = input.page.images[0];
+  const requestedHero = heroImage
+    ? input.variant.expression.heroLayout
+    : 'hero.text-only-bold';
+  const hero = buildClinicHeroSection({
+    id: markedVariantSectionId(`${input.page.id}-hero`, motion),
+    name: input.profile.locale === 'ko-KR' ? '소개' : 'Introduction',
+    title: input.title,
+    ...(lead ? { lead } : {}),
+    theme: input.theme,
+    ...(heroImage ? { image: heroImage } : {}),
+    requestedId: requestedHero,
+  });
+  hero.surfaceTone = input.variant.expression.tone === 'dark' ? 'dark' : 'base';
+
+  const sourceUnits = contentUnits({
+    blocks: bodyBlocks,
+    images: input.page.images.slice(1),
+  });
+  const faqUnits = sourceUnits.filter(isClinicFaqUnit);
+  // The catalog contract requires 3 complete Q/A pairs. Below that threshold every source
+  // unit remains in the ordinary content stream; no empty FAQ shell is emitted.
+  const renderedFaqUnits = faqUnits.length >= 3 ? faqUnits.slice(0, 8) : [];
+  const renderedFaqIds = new Set(renderedFaqUnits.map((unit) => unit.id));
+  const ordinaryUnits = variantOrderedUnits(
+    sourceUnits.filter((unit) => !renderedFaqIds.has(unit.id)),
+    input.profile,
+    input.variant.emphasizedAxis,
+  );
+  const contentSections: Section[] = [];
+  for (let offset = 0; offset < ordinaryUnits.length; offset += FEATURE_SECTION_MAXIMUM_UNITS) {
+    const chunk = ordinaryUnits.slice(offset, offset + FEATURE_SECTION_MAXIMUM_UNITS);
+    const candidates = variantCandidatesFor(chunk, input.variant.emphasizedAxis);
+    const cardFirst = candidates[0] === 'features.three-column-cards';
+    contentSections.push(...buildClinicFeatureSections({
+      id: markedVariantSectionId(
+        `${input.page.id}-content-${Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) + 1}`,
+        motion,
+      ),
+      name: input.profile.locale === 'ko-KR' ? '진료 안내' : 'Clinical information',
+      units: chunk,
+      theme: input.theme,
+      candidates,
+      maximumItems: cardFirst ? 6 : chunk.length > 6 ? FEATURE_SECTION_MAXIMUM_UNITS : 6,
+      allowSingleFeature: true,
+      surface: Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) % 2 === 1,
+    }));
+  }
+  const faqSections = renderedFaqUnits.length > 0
+    ? buildClinicFeatureSections({
+        id: markedVariantSectionId(`${input.page.id}-faq`, motion),
+        name: 'FAQ',
+        units: renderedFaqUnits,
+        theme: input.theme,
+        candidates: ['features.faq-accordion', 'features.prose-article'],
+        maximumItems: 8,
+        surface: true,
+      })
+    : [];
+  const sections = [hero, ...contentSections, ...faqSections];
+  if (
+    input.variant.expression.closingBlock === 'faq-last'
+    && faqSections.length > 0
+  ) {
+    // Already last by construction. Keeping the branch explicit makes the expression
+    // choice auditable without inventing a closing section.
+  } else if (
+    input.variant.expression.closingBlock === 'visual-last'
+    || input.variant.expression.closingBlock === 'trust-last'
+  ) {
+    const axis = input.variant.expression.closingBlock === 'visual-last'
+      ? new Set<ClinicMaterialAxisId>([
+          'beforeafter', 'videos', 'events', 'gallery', 'us-procedure-gallery',
+        ])
+      : new Set<ClinicMaterialAxisId>([
+          'reviews', 'providers', 'us-trust-rich',
+        ]);
+    const firstMatchingIndex = contentSections.findIndex((section) => {
+      const sectionUnitIds = new Set(section.sectionLayout?.items.map((item) => item.id) ?? []);
+      return ordinaryUnits.some((unit) => (
+        sectionUnitIds.has(unit.id)
+        && clinicMaterialAxesForUnit(unit, input.profile).some((value) => axis.has(value))
+      ));
+    });
+    if (firstMatchingIndex >= 0) {
+      const matching = contentSections[firstMatchingIndex];
+      sections.splice(sections.indexOf(matching), 1);
+      const insertionIndex = faqSections.length > 0 ? sections.length - 1 : sections.length;
+      sections.splice(insertionIndex, 0, matching);
+    }
+  }
+  return {
+    sections,
+    placedBlockIds: input.page.targetBlocks.map((block) => block.id),
+    faqSourceUnitCount: faqUnits.length,
+    faqRenderedUnitCount: renderedFaqUnits.length,
+  };
+}
+
 function sectionsForPage(input: {
   page: RobustClinicSourcePage;
   theme: SiteTheme;
@@ -750,12 +1056,15 @@ function sourceRenderAudit(input: {
 function compilePagePlan(input: {
   plan: RobustClinicSourcePlan;
   artifact: CrawlArtifactPayload;
+  variant?: ClinicVariantBlueprint;
 }): RobustClinicCompilation {
-  const pin = masterPin(input.plan.profile, input.artifact);
-  const theme = themeFor(input.plan.profile, input.artifact, pin);
+  const pin = masterPin(input.plan.profile, input.artifact, input.variant);
+  const theme = themeFor(input.plan.profile, input.artifact, pin, input.variant);
   const claimedSlugs = new Set<string>();
   const pages: SitePage[] = [];
   const auditPages: RobustClinicCompilationAudit['pages'] = [];
+  let faqSourceUnitCount = 0;
+  let faqRenderedUnitCount = 0;
   const suffixes = repeatedBrandSuffixes(input.plan.pages);
   const headlines = new Map(input.plan.pages.map((page) => [
     page.id,
@@ -772,12 +1081,23 @@ function compilePagePlan(input: {
     (right.image.selectionScore ?? 0) - (left.image.selectionScore ?? 0)
   ))[0];
   for (const sourcePage of input.plan.pages) {
-    const compiled = sectionsForPage({
-      page: sourcePage,
-      theme,
-      locale: input.plan.profile.locale,
-      title: headlines.get(sourcePage.id)!.block,
-    });
+    const variantCompiled = input.variant
+      ? variantSectionsForPage({
+          page: sourcePage,
+          theme,
+          profile: input.plan.profile,
+          title: headlines.get(sourcePage.id)!.block,
+          variant: input.variant,
+        })
+      : null;
+    const compiled = input.variant
+      ? variantCompiled
+      : sectionsForPage({
+        page: sourcePage,
+        theme,
+        locale: input.plan.profile.locale,
+        title: headlines.get(sourcePage.id)!.block,
+      });
     if (!compiled) {
       auditPages.push({
         sourceUrl: sourcePage.sourceUrl,
@@ -791,6 +1111,10 @@ function compilePagePlan(input: {
         navigation: navigation.get(sourcePage.id)!,
       });
       continue;
+    }
+    if (variantCompiled) {
+      faqSourceUnitCount += variantCompiled.faqSourceUnitCount;
+      faqRenderedUnitCount += variantCompiled.faqRenderedUnitCount;
     }
     const slug = safeSlug(sourcePage.finalUrl, pages.length, claimedSlugs);
     const title = headlines.get(sourcePage.id)!.block.text;
@@ -828,8 +1152,8 @@ function compilePagePlan(input: {
     designDna: {
       catalogVersion: 1,
       dnaId: 'medical-clinical-clarity',
-      hueSeed: 210,
-      overrides: {},
+      hueSeed: input.variant ? clinicVariantHueSeed(input.variant) : 210,
+      overrides: input.variant ? { density: input.variant.expression.density } : {},
     },
     namedTemplate: {
       catalogVersion: 1,
@@ -849,7 +1173,9 @@ function compilePagePlan(input: {
     },
     pages,
     nav: { enabled: pages.length > 1 },
-    motion: { presetId: 'clinic-premium', intensity: 'subtle' },
+    motion: input.variant
+      ? motionConfigFor(input.variant.expression.motionSignature)
+      : { presetId: 'clinic-premium', intensity: 'subtle' },
   };
   const renderAudit = sourceRenderAudit({
     config,
@@ -896,8 +1222,56 @@ function compilePagePlan(input: {
             || decision.disposition === 'indeterminate',
         )),
       },
+      ...(input.variant
+        ? {
+            variant: {
+              id: input.variant.id,
+              expression: input.variant.expression,
+              activeMaterialAxes: input.variant.activeMaterialAxes,
+              ...(input.variant.emphasizedAxis
+                ? { emphasizedAxis: input.variant.emphasizedAxis }
+                : {}),
+              faqSourceUnitCount,
+              faqRenderedUnitCount,
+              syntheticContentBlockCount: 0 as const,
+            },
+          }
+        : {}),
       pages: auditPages,
     },
+  };
+}
+
+function motionConfigFor(signature: ClinicMotionSignatureId): NonNullable<SiteConfig['motion']> {
+  if (signature === 'static') {
+    return {
+      presetId: 'base-calm-v2',
+      intensity: 'off',
+      catalogVersion: 2,
+      heroTechnique: 'none',
+    };
+  }
+  if (signature === 'calm-fade') {
+    return {
+      presetId: 'base-calm-v2',
+      intensity: 'subtle',
+      catalogVersion: 2,
+      heroTechnique: 'none',
+    };
+  }
+  if (signature === 'rise-stagger') {
+    return {
+      presetId: 'base-flow-v2',
+      intensity: 'subtle',
+      catalogVersion: 2,
+      heroTechnique: 'none',
+    };
+  }
+  return {
+    presetId: 'base-premium-v2',
+    intensity: 'normal',
+    catalogVersion: 2,
+    heroTechnique: 'ken-burns',
   };
 }
 
@@ -930,4 +1304,34 @@ export function compileRobustClinicArtifact(input: {
       ? input.gateEvidence(output)
       : input.gateEvidence ?? {},
   });
+}
+
+/**
+ * Additive multi-proposal entry for arbitrary clinic sources. The established single-output
+ * compiler above remains byte-stable; variants share one extracted source plan and differ only
+ * through pinned expression policy and source-backed structural emphasis.
+ */
+export function compileRobustClinicVariants(input: {
+  artifact: CrawlArtifactPayload;
+  documents?: readonly RobustClinicDocument[];
+  profile: ClinicEngineProfile;
+  /** Additive policy adapter; identical to the single-output entry's source boundary. */
+  transformSourcePlan?: (plan: RobustClinicSourcePlan) => RobustClinicSourcePlan;
+}): RobustClinicVariantSet {
+  const extracted = extractRobustClinicSource({
+    artifact: input.artifact,
+    documents: input.documents,
+    profile: input.profile,
+  });
+  const plan = input.transformSourcePlan?.(extracted) ?? extracted;
+  const blueprints = selectClinicVariantBlueprints(plan);
+  if (blueprints.length < 3) {
+    throw new Error(`CLINIC_VARIANT_MINIMUM_UNMET:${blueprints.length}`);
+  }
+  return {
+    variants: blueprints.map((variant) => ({
+      ...compilePagePlan({ plan, artifact: input.artifact, variant }),
+      variant,
+    })),
+  };
 }
