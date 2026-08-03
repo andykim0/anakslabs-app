@@ -65,6 +65,7 @@ interface SectionCanvasProps {
   hrefForPageSlug?: (slug: string) => string;
   /** KO contract-import only. Omission preserves the existing en-US clinic markup. */
   clinicLocale?: 'en-US' | 'ko-KR';
+  runtimeDelivery?: 'inline' | 'client';
 }
 
 /** 절대 커버 레이어(배경 이미지/영상 공통) */
@@ -107,6 +108,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         hrefForPageSlug={props.hrefForPageSlug}
         locale={props.clinicLocale}
         motionPlan={plan}
+        runtimeDelivery={props.runtimeDelivery}
       />
     );
   }
@@ -120,6 +122,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         interactive={props.interactive}
         plan={props.plan}
         siteId={props.siteId}
+        runtimeDelivery={props.runtimeDelivery}
       />
     );
   }
@@ -145,6 +148,7 @@ function StandardSection({
   proceduralHero = false,
   integratedTypography = false,
   continuousFlow = false,
+  runtimeDelivery = 'client',
 }: SectionCanvasProps & { pinned?: boolean; cinematicPlayback?: boolean }) {
   const bg = section.background;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
@@ -384,6 +388,7 @@ function StandardSection({
               : undefined}
             layoutAlign={heroLayoutBand?.align}
             layoutFillFrame={Boolean(heroLayoutBand && el.kind === 'button')}
+            runtimeDelivery={runtimeDelivery}
           />
         );
         return (
@@ -483,7 +488,7 @@ function CinematicProgressSection(props: SectionCanvasProps) {
  * [motion 3단계] marquee — 흐름 띠(비파괴: frame 무시, x오름차순 나열). animate면 트랙 복제로
  * 심리스 루프(복제는 aria-hidden), 아니면 정적 나열. layout==='marquee'이면 애니 여부와 무관하게 흐름 렌더.
  */
-function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, animate }: SectionCanvasProps & { animate: boolean }) {
+function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, runtimeDelivery = 'client', animate }: SectionCanvasProps & { animate: boolean }) {
   const items = [...section.elements].sort((a, b) => a.frame.x - b.frame.x || a.frame.y - b.frame.y);
   const densityDelta = themeSectionBlockDelta(theme);
   const requestedSurfaceTone = section.surfaceTone ?? section.sectionLayout?.surfaceTone;
@@ -494,7 +499,7 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
     <div className="anaks-mq-group" aria-hidden={clone || undefined} style={{ display: 'flex', alignItems: 'center', gap: cqw(56), paddingRight: cqw(56) }}>
       {items.map((el) => (
         <div key={(clone ? 'c-' : '') + el.id} style={{ flex: '0 0 auto', width: cqw(el.frame.w), height: cqw(el.frame.h) }}>
-          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} />
+          <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} runtimeDelivery={runtimeDelivery} />
         </div>
       ))}
     </div>
@@ -541,7 +546,7 @@ function MarqueeSection({ section, theme, isFirst, interactive = true, siteId, a
  * 인코딩 요구: 스크럽 대상 영상은 촘촘한 키프레임(-g 1)로 인코딩해야 부드럽다(에셋 검증 경고 대상).
  * 현재 어떤 프리셋도 scroll-scrub을 포함하지 않음(3단계 이월) — bg.video 있는 섹션에서만 발동.
  */
-function ScrubSection({ section, theme, interactive = true, siteId, isFirst }: SectionCanvasProps) {
+function ScrubSection({ section, theme, interactive = true, siteId, isFirst, runtimeDelivery = 'client' }: SectionCanvasProps) {
   const v = section.background.video!;
   const elements = [...section.elements].sort((a, b) => a.z - b.z);
   const densityDelta = themeSectionBlockDelta(theme);
@@ -574,7 +579,7 @@ function ScrubSection({ section, theme, interactive = true, siteId, isFirst }: S
             key={el.id}
             style={{ position: 'absolute', left: cqw(el.frame.x), top: cqw(el.frame.y + densityDelta), width: cqw(el.frame.w), height: cqw(el.frame.h), zIndex: el.z, opacity: el.opacity }}
           >
-            <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} />
+            <ElementContent element={el} theme={theme} variant="canvas" eager={isFirst} interactive={interactive} siteId={siteId} runtimeDelivery={runtimeDelivery} />
           </div>
         ))}
       </section>

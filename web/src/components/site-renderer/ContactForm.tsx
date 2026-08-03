@@ -8,19 +8,10 @@
  * - honeypot(website) 히든 필드 — 봇이 채우면 서버가 조용히 폐기.
  * - 정적 Export에는 JS 번들이 없어 제출이 동작하지 않음(약관 11장 동적 기능 고지와 일치).
  */
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import type { FormElement, SiteTheme } from '@/lib/types/site';
 import { announceSuccessfulSiteForm } from '@/lib/analytics/site-beacon';
-import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
-
-type FormFieldKey = FormElement['fields'][number];
-
-const FIELD_META: Record<FormFieldKey, { label: string; type: string; multiline?: boolean }> = {
-  name: { label: 'Name', type: 'text' },
-  phone: { label: 'Phone', type: 'tel' },
-  email: { label: 'Email', type: 'email' },
-  message: { label: 'Message', type: 'text', multiline: true },
-};
+import { ContactFormView, type ContactFormStatus } from './ContactFormView';
 
 export function ContactForm({
   el,
@@ -38,48 +29,10 @@ export function ContactForm({
   compact?: boolean;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
+  const [status, setStatus] = useState<ContactFormStatus>('idle');
   const [feedback, setFeedback] = useState('');
 
   const enabled = interactive && !!siteId;
-  const s = el.style;
-  const radius = theme.tokens
-    ? themeRadius(theme, 'soft', 8)
-    : (s.borderRadius ?? theme.radius ?? 8);
-  const controlRadius = theme.tokens
-    ? themeRadius(theme, 'sharp', 8)
-    : Math.min(radius as number, 12);
-  const accent = s.color ?? theme.palette.primary;
-
-  const wrap: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: compact ? 10 : 12,
-    fontFamily: theme.fonts.body,
-    padding: s.variant === 'card' ? (compact ? 16 : 24) : 0,
-    backgroundColor: s.variant === 'card' ? themeColor(theme, 'surfaceStrong') : 'transparent',
-    borderRadius: s.variant === 'card' ? radius : undefined,
-    boxSizing: 'border-box',
-    overflow: 'hidden',
-  };
-
-  const inputStyle: CSSProperties = {
-    width: '100%',
-    padding: '12px 14px',
-    fontSize: compact ? 15 : 15,
-    fontFamily: theme.fonts.body,
-    color: theme.palette.text,
-    backgroundColor: themeColor(theme, 'backgroundSubtle'),
-    border: theme.tokens
-      ? `1px solid ${themeColor(theme, 'border')}`
-      : `1px solid ${theme.palette.muted}55`,
-    borderRadius: controlRadius,
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!enabled || status === 'sending') return;
@@ -109,75 +62,16 @@ export function ContactForm({
   };
 
   return (
-    <form style={wrap} onSubmit={submit}>
-      {/* honeypot — 사람에겐 보이지 않음. 봇이 채우면 서버가 폐기 */}
-      <input
-        type="text"
-        name="website"
-        tabIndex={-1}
-        autoComplete="off"
-        aria-hidden
-        value={values.website ?? ''}
-        onChange={(e) => setValues((v) => ({ ...v, website: e.target.value }))}
-        style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }}
-      />
-      {el.fields.map((f) => {
-        const meta = FIELD_META[f];
-        return meta.multiline ? (
-          <textarea
-            key={f}
-            placeholder={meta.label}
-            rows={3}
-            disabled={!enabled}
-            value={values[f] ?? ''}
-            onChange={(e) => setValues((v) => ({ ...v, [f]: e.target.value }))}
-            style={{ ...inputStyle, resize: 'none', flex: 1, minHeight: 72 }}
-          />
-        ) : (
-          <input
-            key={f}
-            type={meta.type}
-            placeholder={meta.label}
-            disabled={!enabled}
-            value={values[f] ?? ''}
-            onChange={(e) => setValues((v) => ({ ...v, [f]: e.target.value }))}
-            style={inputStyle}
-          />
-        );
-      })}
-      <button
-        type="submit"
-        disabled={!enabled || status === 'sending'}
-        className="anaks-btn"
-        data-variant="solid"
-        style={{
-          padding: '13px 20px',
-          fontSize: 15,
-          fontWeight: 600,
-          fontFamily: theme.fonts.body,
-          color: theme.palette.background,
-          backgroundColor: accent,
-          border: 'none',
-          borderRadius: controlRadius,
-          cursor: enabled ? 'pointer' : 'default',
-          opacity: status === 'sending' ? 0.7 : 1,
-        }}
-      >
-        {status === 'sending' ? 'Sending…' : el.submitLabel || 'Send message'}
-      </button>
-      {feedback ? (
-        <p
-          role="status"
-          style={{
-            margin: 0,
-            fontSize: 13,
-            lineHeight: 1.5,
-            color: status === 'ok' ? accent : '#e5484d',
-          }}
-        >
-          {feedback}
-        </p>
-      ) : null}
-    </form>
+    <ContactFormView
+      el={el}
+      theme={theme}
+      enabled={enabled}
+      compact={compact}
+      values={values}
+      status={status}
+      feedback={feedback}
+      onSubmit={submit}
+      onValueChange={(field, value) => setValues((current) => ({ ...current, [field]: value }))}
+    />
   );
 }

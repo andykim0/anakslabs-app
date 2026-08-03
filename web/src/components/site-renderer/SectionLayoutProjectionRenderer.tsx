@@ -172,6 +172,7 @@ interface SectionLayoutProjectionRendererProps {
   interactive?: boolean;
   plan?: MotionPlan;
   siteId?: string;
+  runtimeDelivery?: 'inline' | 'client';
 }
 
 export function SectionLayoutProjectionRenderer({
@@ -182,6 +183,7 @@ export function SectionLayoutProjectionRenderer({
   interactive = true,
   plan,
   siteId,
+  runtimeDelivery = 'client',
 }: SectionLayoutProjectionRendererProps) {
   const projection = section.sectionLayout!;
   const fallback = projection.fallbackBands ?? projection.bands;
@@ -411,6 +413,7 @@ export function SectionLayoutProjectionRenderer({
               splitText={plan ? isSplitText(plan, section.id, element.id) : false}
               layoutFontSize={layoutFontSize}
               layoutFillFrame={element.kind === 'button'}
+              runtimeDelivery={runtimeDelivery}
             />
           </div>
         );

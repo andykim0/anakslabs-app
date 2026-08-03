@@ -727,6 +727,7 @@ function FlowElement({
   siteId,
   hrefForPageSlug,
   markerRole = 'marker',
+  runtimeDelivery = 'client',
 }: {
   element: CanvasElement;
   theme: SiteTheme;
@@ -735,6 +736,7 @@ function FlowElement({
   siteId?: string;
   hrefForPageSlug?: (slug: string) => string;
   markerRole?: 'marker' | 'stat-marker';
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   if (element.kind === 'text') {
     return (
@@ -755,6 +757,7 @@ function FlowElement({
           eager={isFirst}
           interactive={interactive}
           siteId={siteId}
+          runtimeDelivery={runtimeDelivery}
         />
       </div>
     );
@@ -775,6 +778,7 @@ function FlowElement({
         eager={isFirst}
         interactive={interactive}
         siteId={siteId}
+        runtimeDelivery={runtimeDelivery}
       />
     </div>
   );
@@ -792,6 +796,7 @@ function FlowItem({
   headingLevel = 3,
   providerCard = false,
   motionAttributes,
+  runtimeDelivery = 'client',
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -804,6 +809,7 @@ function FlowItem({
   headingLevel?: 2 | 3;
   providerCard?: boolean;
   motionAttributes?: Record<string, string>;
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -866,6 +872,7 @@ function FlowItem({
                   siteId={siteId}
                   hrefForPageSlug={hrefForPageSlug}
                   markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+                  runtimeDelivery={runtimeDelivery}
                 />
               ))}
             </div>
@@ -880,6 +887,7 @@ function FlowItem({
                   siteId={siteId}
                   hrefForPageSlug={hrefForPageSlug}
                   markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+                  runtimeDelivery={runtimeDelivery}
                 />
               ))}
             </div>
@@ -894,6 +902,7 @@ function FlowItem({
               siteId={siteId}
               hrefForPageSlug={hrefForPageSlug}
               markerRole={variantId === 'features.stat-strip' ? 'stat-marker' : 'marker'}
+              runtimeDelivery={runtimeDelivery}
             />
           ))}
       </div>
@@ -906,6 +915,7 @@ function FlowItem({
           interactive={interactive}
           siteId={siteId}
           hrefForPageSlug={hrefForPageSlug}
+          runtimeDelivery={runtimeDelivery}
         />
       ))}
     </ItemTag>
@@ -976,6 +986,7 @@ export function ClinicFlowSection({
   hrefForPageSlug,
   locale = 'en-US',
   motionPlan,
+  runtimeDelivery = 'client',
 }: {
   section: Section;
   theme: SiteTheme;
@@ -986,6 +997,7 @@ export function ClinicFlowSection({
   hrefForPageSlug?: (slug: string) => string;
   locale?: 'en-US' | 'ko-KR';
   motionPlan?: MotionPlan;
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
@@ -1343,6 +1355,7 @@ export function ClinicFlowSection({
         interactive={interactive}
         siteId={siteId}
         hrefForPageSlug={hrefForPageSlug}
+        runtimeDelivery={runtimeDelivery}
       />,
     );
   }
@@ -1456,6 +1469,7 @@ export function ClinicFlowSection({
                     legacyKoMotion: false,
                   })
                 : undefined}
+              runtimeDelivery={runtimeDelivery}
             />
           ))}
         </ItemsTag>

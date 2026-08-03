@@ -76,11 +76,13 @@ export function ConnectorPanel({
   theme,
   siteId,
   interactive,
+  runtimeDelivery = 'client',
 }: {
   manifest: SiteConnectorManifest;
   theme: SiteTheme;
   siteId?: string;
   interactive: boolean;
+  runtimeDelivery?: 'inline' | 'client';
 }) {
   const style = {
     '--connector-bg': theme.palette.background,
@@ -159,7 +161,7 @@ export function ConnectorPanel({
           })}
         </div>
       </div>
-      {interactive ? <ConnectorRuntime /> : null}
+      {interactive && runtimeDelivery === 'client' ? <ConnectorRuntime /> : null}
     </section>
   );
 }
