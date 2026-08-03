@@ -9,8 +9,11 @@
  * 보안: x-forwarded-host는 신뢰하지 않는다 — `headers.get('host')`만 사용.
  */
 import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import {
   APP_ENTRY_SUBDOMAIN,
+  env,
+  isMockMode,
   ROOT_DOMAIN,
   reservedAppSubdomainForHostname,
 } from '@/lib/env';
@@ -29,6 +32,69 @@ function isAppHost(hostname: string): boolean {
   );
 }
 
+const DASHBOARD_SITE_PATH_RE = /^\/dashboard\/sites\/([^/]+)(?:\/|$)/u;
+
+function dashboardSiteId(pathname: string): string | null {
+  const encoded = DASHBOARD_SITE_PATH_RE.exec(pathname)?.[1];
+  if (!encoded) return null;
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return null;
+  }
+}
+
+function resourceNotFound(): NextResponse {
+  return new NextResponse('Not found.', {
+    status: 404,
+    headers: { 'cache-control': 'private, no-store' },
+  });
+}
+
+/**
+ * Next 16 can begin a parent layout stream before a page-level notFound() resolves, which
+ * correctly hides the site but leaves the HTTP status at 200. Resolve this exact resource
+ * boundary before React starts streaming. The authenticated query is RLS-scoped to the caller;
+ * a foreign and a missing id deliberately produce the same 404 response.
+ */
+async function guardDashboardSite(request: NextRequest, siteId: string): Promise<NextResponse> {
+  if (isMockMode()) {
+    const session = request.cookies.get('anaks_mock_session')?.value;
+    if (!session) return NextResponse.next();
+    const { getMockStore } = await import('@/lib/data/mock/store');
+    const site = getMockStore().sites.get(siteId);
+    return site?.clientId === session ? NextResponse.next() : resourceNotFound();
+  }
+
+  if (!env.supabaseUrl || !env.supabaseAnonKey) {
+    return new NextResponse('Site access verification unavailable.', { status: 503 });
+  }
+  const passthrough = NextResponse.next();
+  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          passthrough.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) {
+    return new NextResponse('Authentication required.', { status: 401 });
+  }
+  const { data: site, error: siteError } = await supabase
+    .from('sites')
+    .select('id')
+    .eq('id', siteId)
+    .maybeSingle();
+  if (siteError) {
+    return new NextResponse('Site access verification unavailable.', { status: 503 });
+  }
+  return site ? passthrough : resourceNotFound();
+}
+
 export function proxy(request: NextRequest) {
   const hostHeader = request.headers.get('host') ?? '';
   // 포트 제거 + 소문자 정규화 + trailing dot 제거 (FQDN 형태 방어)
@@ -43,6 +109,8 @@ export function proxy(request: NextRequest) {
   }
 
   if (isAppHost(hostname)) {
+    const siteId = dashboardSiteId(request.nextUrl.pathname);
+    if (siteId) return guardDashboardSite(request, siteId);
     return NextResponse.next();
   }
 

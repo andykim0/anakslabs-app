@@ -17,6 +17,7 @@ import {
   PageHeader,
   TIER_TONES,
 } from './ui';
+import { OperatorClientInviteForm } from './operator-client-actions';
 
 export function ClientsTable() {
   const { data, isPending, isError, error, refetch } = useQuery({
@@ -90,6 +91,8 @@ export function ClientsTable() {
           </div>
         }
       />
+
+      <OperatorClientInviteForm />
 
       {isPending ? (
         <LoadingBlock label="Loading customer list..." />

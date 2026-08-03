@@ -6,6 +6,8 @@ import { OnboardingWizard } from '@/components/dashboard/onboarding/wizard';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { realisticImageSupplyEnabled } from '@/lib/assets/image-supply-flags';
 import { templateGalleryEnabled } from '@/lib/design/templates';
+import { getDataServices } from '@/lib/data';
+import { customerLocaleFromSites, onboardingAllowedForLocale } from '@/lib/operator-model/policy';
 
 export const metadata: Metadata = { title: "Create a new site — Anaks Labs" };
 
@@ -17,6 +19,8 @@ export default async function OnboardingPage({
 }) {
   const client = await getCurrentClient();
   if (!client) redirect('/login');
+  const locale = customerLocaleFromSites(await getDataServices().sites.listByClient(client.id));
+  if (!onboardingAllowedForLocale(locale)) redirect('/dashboard');
 
   const sp = (await searchParams) ?? {};
   // [v3 Phase 7] 스캔→온보딩 프리필: 도메인에서 상호 추정, 이슈 요약 노트

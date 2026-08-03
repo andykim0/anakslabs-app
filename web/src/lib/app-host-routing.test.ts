@@ -14,32 +14,40 @@ import {
   ROOT_DOMAIN,
   reservedAppSubdomainForHostname,
 } from '@/lib/env';
+import {
+  DEMO_BASIC_ID,
+  DEMO_PREMIUM_ID,
+  HWARODAM_SITE_ID,
+} from '@/lib/data/mock/seed';
 
-function request(host: string, pathname = '/') {
+function request(host: string, pathname = '/', session?: string) {
   return new NextRequest(`http://127.0.0.1${pathname}`, {
-    headers: { host },
+    headers: {
+      host,
+      ...(session ? { cookie: `anaks_mock_session=${session}` } : {}),
+    },
   });
 }
 
 describe('APP-HOST routing contract', () => {
-  test('reserved app hosts bypass tenant rewrites and app root enters the authenticated app', () => {
+  test('reserved app hosts bypass tenant rewrites and app root enters the authenticated app', async () => {
     assert.deepEqual(RESERVED_APP_SUBDOMAINS, ['app', 'preview']);
     assert.equal(reservedAppSubdomainForHostname(`app.${ROOT_DOMAIN}`), 'app');
     assert.equal(reservedAppSubdomainForHostname(`preview.${ROOT_DOMAIN}`), 'preview');
 
-    const appRoot = proxy(request(`app.${ROOT_DOMAIN}`));
+    const appRoot = await proxy(request(`app.${ROOT_DOMAIN}`));
     assert.equal(new URL(getRedirectUrl(appRoot) ?? '').pathname, '/dashboard');
 
-    const appLogin = proxy(request(`app.${ROOT_DOMAIN}`, '/login'));
+    const appLogin = await proxy(request(`app.${ROOT_DOMAIN}`, '/login'));
     assert.equal(isRewrite(appLogin), false);
     assert.equal(appLogin.headers.get('x-middleware-next'), '1');
 
-    const preview = proxy(request(`preview.${ROOT_DOMAIN}`, '/preview/testtoken'));
+    const preview = await proxy(request(`preview.${ROOT_DOMAIN}`, '/preview/testtoken'));
     assert.equal(isRewrite(preview), false);
     assert.equal(preview.headers.get('x-middleware-next'), '1');
   });
 
-  test('existing app hosts stay app-owned while ordinary root-domain subdomains stay tenants', () => {
+  test('existing app hosts stay app-owned while ordinary root-domain subdomains stay tenants', async () => {
     for (const host of [
       ROOT_DOMAIN,
       `www.${ROOT_DOMAIN}`,
@@ -47,11 +55,11 @@ describe('APP-HOST routing contract', () => {
       '127.0.0.1',
       'deployment.vercel.app',
     ]) {
-      const response = proxy(request(host));
+      const response = await proxy(request(host));
       assert.equal(isRewrite(response), false, host);
     }
 
-    const tenant = proxy(request(`hwarodam.${ROOT_DOMAIN}`));
+    const tenant = await proxy(request(`hwarodam.${ROOT_DOMAIN}`));
     assert.equal(isRewrite(tenant), true);
     assert.equal(
       new URL(getRewrittenUrl(tenant) ?? '').pathname,
@@ -64,6 +72,32 @@ describe('APP-HOST routing contract', () => {
     assert.equal(reservedAppSubdomainForHostname(`${APP_ENTRY_SUBDOMAIN}-2.${ROOT_DOMAIN}`), null);
     assert.equal(reservedAppSubdomainForHostname(`clinic.${ROOT_DOMAIN}`), null);
     assert.equal(reservedAppSubdomainForHostname(`app.customer.example`), null);
+  });
+
+  test('dashboard site resources return before streaming for foreign and missing ids', async () => {
+    const owned = await proxy(request(
+      `app.${ROOT_DOMAIN}`,
+      `/dashboard/sites/${HWARODAM_SITE_ID}`,
+      DEMO_PREMIUM_ID,
+    ));
+    assert.equal(owned.status, 200);
+    assert.equal(owned.headers.get('x-middleware-next'), '1');
+
+    const foreign = await proxy(request(
+      `app.${ROOT_DOMAIN}`,
+      `/dashboard/sites/${HWARODAM_SITE_ID}`,
+      DEMO_BASIC_ID,
+    ));
+    assert.equal(foreign.status, 404);
+    assert.equal(await foreign.text(), 'Not found.');
+
+    const missing = await proxy(request(
+      `app.${ROOT_DOMAIN}`,
+      '/dashboard/sites/00000000-0000-0000-0000-000000000000',
+      DEMO_PREMIUM_ID,
+    ));
+    assert.equal(missing.status, 404);
+    assert.equal(await missing.text(), 'Not found.');
   });
 
   test('production and mock assignment boundaries consume the shared reservation helper', () => {

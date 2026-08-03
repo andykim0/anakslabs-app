@@ -7,6 +7,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { env, isEmailLoginPublic, isMockMode } from '@/lib/env';
 import { Spinner } from '@/components/dashboard/ui';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { OPERATOR_PRODUCT_LOCALE, selfSignupAllowedForLocale } from '@/lib/operator-model/policy';
 
 function GoogleIcon() {
   return (
@@ -51,6 +52,7 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   // 가입 접수(이메일 확인 대기) 상태 — 에러가 아니라 성공 안내로 렌더
   const [confirmNotice, setConfirmNotice] = useState<string | null>(null);
+  const selfSignupAllowed = selfSignupAllowedForLocale(OPERATOR_PRODUCT_LOCALE);
 
   const requestedNext = () => new URLSearchParams(window.location.search).get('next');
   const allAgreed = agree.terms && agree.privacy && agree.marketingEmail;
@@ -121,6 +123,26 @@ export default function SignupPage() {
       setPending(false);
     }
   };
+
+  if (!selfSignupAllowed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FBFF] px-6 text-[#0B1736]">
+        <main className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white p-8 text-center shadow-[0_24px_80px_rgba(11,23,54,.11)]">
+          <BrandLogo />
+          <h1 className="mt-8 text-2xl font-semibold tracking-[-0.035em]">Accounts are issued by Anaks Labs</h1>
+          <p className="mt-3 text-sm leading-6 text-[#667085]">
+            Use the invitation from your account manager to access your clinic workspace.
+          </p>
+          <Link
+            href="/login"
+            className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-[#174DDA] text-sm font-semibold text-white"
+          >
+            Sign in
+          </Link>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F8FBFF] text-[#0B1736]">

@@ -176,6 +176,20 @@ export interface AdminClientDetail {
   payments: Payment[];
 }
 
+export interface OperatorClientInviteResult {
+  client: Client;
+  inviteUrl: string;
+  delivery: 'mock' | 'operator';
+}
+
+export interface OperatorSiteCreateResult {
+  siteId: string;
+  site: Site;
+  source: 'crawl' | 'minimal';
+  locale: string;
+  formCount: number;
+}
+
 export interface AdjustCreditsInput {
   clientId: string;
   /** 0이 아닌 정수. 양수 = 지급, 음수 = 차감 */
@@ -571,6 +585,34 @@ export function linkManualCollectionSite(
 
 export function getClients(): Promise<AdminClientRow[]> {
   return fetchJson<AdminClientRow[]>('/api/admin/clients');
+}
+
+export function inviteOperatorClient(input: {
+  name: string;
+  email: string;
+}): Promise<OperatorClientInviteResult> {
+  return fetchJson<OperatorClientInviteResult>('/api/admin/clients/invite', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export function createOperatorClientSite(
+  clientId: string,
+  input:
+    | { mode: 'crawl'; sourceUrl: string }
+    | {
+        mode: 'minimal';
+        businessName: string;
+        industry: string;
+        tone: string;
+        colorPreference: string;
+      },
+): Promise<OperatorSiteCreateResult> {
+  return fetchJson<OperatorSiteCreateResult>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites`,
+    { method: 'POST', body: JSON.stringify(input) },
+  );
 }
 
 export function getClientDetail(clientId: string): Promise<AdminClientDetail> {

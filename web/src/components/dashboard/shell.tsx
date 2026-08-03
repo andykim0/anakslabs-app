@@ -11,9 +11,14 @@ import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
 import { getCredits, logout } from './api';
 import { cn, Skeleton, Spinner, TierBadge } from './ui';
 import styles from './dashboard-theme.module.css';
+import {
+  customerWorkspaceItemsForLocale,
+  type CustomerWorkspaceItem,
+} from '@/lib/operator-model/policy';
 
 const NAV_ITEMS = [
   {
+    id: 'sites' as const,
     href: '/dashboard',
     label: 'My sites',
     icon: LayoutDashboard,
@@ -21,18 +26,21 @@ const NAV_ITEMS = [
       path === '/dashboard' || path.startsWith('/dashboard/sites') || path.startsWith('/onboarding'),
   },
   {
+    id: 'reports' as const,
     href: '/dashboard/reports',
     label: 'Reports',
     icon: BarChart3,
     isActive: (path: string) => path.startsWith('/dashboard/reports'),
   },
   {
+    id: 'billing' as const,
     href: '/dashboard/billing',
     label: 'Billing',
     icon: CreditCard,
     isActive: (path: string) => path.startsWith('/dashboard/billing'),
   },
   {
+    id: 'settings' as const,
     href: '/dashboard/settings',
     label: 'Settings',
     icon: Settings,
@@ -92,18 +100,21 @@ export function DashboardShell({
   clientName,
   tier,
   creditsAvailable,
+  locale,
   children,
 }: {
   clientName: string;
   tier: Tier;
   creditsAvailable: boolean;
+  locale: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const visibleItems = new Set<CustomerWorkspaceItem>(customerWorkspaceItemsForLocale(locale));
 
   const nav = (
     <nav className="flex gap-1 md:flex-col">
-      {NAV_ITEMS.map((item) => {
+      {NAV_ITEMS.filter((item) => visibleItems.has(item.id)).map((item) => {
         const active = item.isActive(pathname);
         const Icon = item.icon;
         return (
