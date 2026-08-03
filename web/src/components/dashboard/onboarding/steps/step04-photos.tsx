@@ -164,12 +164,12 @@ export function Step04Photos() {
       if (changedRegisteredSet) invalidateGeneralAttestation();
       setPhotoStatus(
         result.assetRef
-          ? '대표 사진이 직접 업로드 자산으로 등록됐어요. 아래에서 사진 사용을 확인해 주세요.'
-          : '사진은 올렸지만 직접 업로드 자산 참조가 없어 실사 사진 방향의 근거로는 사용할 수 없어요.',
+          ? "The representative photo was registered as a direct upload asset. Please check out the photo usage below."
+          : "I uploaded a photo, but there is no direct upload asset reference, so it cannot be used as a basis for photo orientation.",
       );
-      toast('success', heroPhotoUrl ? '대표 사진을 교체했어요.' : '대표 사진을 올렸어요.');
+      toast('success', heroPhotoUrl ? "The featured photo was replaced." : "The featured photo was uploaded.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : '대표 사진 업로드에 실패했습니다.';
+      const message = err instanceof Error ? err.message : "Failed to upload main photo.";
       setPhotoError(message);
       toast('error', message);
     } finally {
@@ -188,7 +188,7 @@ export function Step04Photos() {
       setValue('logoUrl', url, { shouldValidate: true });
       void detectWhiteBg(file).then(setLogoWhiteBg).catch(() => {});
     } catch (err) {
-      toast('error', err instanceof Error ? err.message : '로고 업로드에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Logo upload failed.");
     } finally {
       setLogoUploading(false);
       if (logoInputRef.current) logoInputRef.current.value = '';
@@ -200,7 +200,7 @@ export function Step04Photos() {
     const current = watch('storePhotoUrls') ?? [];
     const remaining = MAX - current.length;
     if (remaining <= 0) {
-      toast('info', `사진은 최대 ${MAX}장까지 올릴 수 있어요.`);
+      toast('info', `You can upload up to ${MAX} photos.`);
       if (inputRef.current) inputRef.current.value = '';
       return;
     }
@@ -222,20 +222,20 @@ export function Step04Photos() {
       });
       if (newRefs.length) invalidateGeneralAttestation();
       if (uploaded.length) {
-        toast('success', `사진 ${uploaded.length}장을 올렸어요.`);
+        toast('success', `${uploaded.length} photo${uploaded.length === 1 ? '' : 's'} uploaded.`);
         setPhotoStatus(
           newRefs.length === uploaded.length
-            ? '사진이 직접 업로드 자산으로 등록됐어요. 아래에서 사진 사용을 확인해 주세요.'
-            : `${uploaded.length}장 중 ${uploaded.length - newRefs.length}장은 직접 업로드 자산 참조가 없어 실사 사진 방향의 근거로 사용할 수 없어요.`,
+            ? "The photo was registered as a direct upload asset. Please check out the photo usage below."
+            : `${uploaded.length - newRefs.length} of ${uploaded.length} photos lack direct-upload provenance and cannot support a photographic direction.`,
         );
       }
       if (failed) {
-        const message = `${failed}장은 업로드하지 못했어요. 나머지 사진은 보존했어요.`;
+        const message = `${failed} photo${failed === 1 ? '' : 's'} could not be uploaded. The other uploads were preserved.`;
         setPhotoError(message);
         toast('error', message);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : '사진 업로드에 실패했습니다.';
+      const message = err instanceof Error ? err.message : "Photo upload failed.";
       setPhotoError(message);
       toast('error', message);
     } finally {
@@ -281,15 +281,15 @@ export function Step04Photos() {
     if (!accepted) {
       setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
       attestationKeyRef.current = null;
-      setPhotoStatus('사진 사용 확인을 해제했어요. 실사 사진 방향은 확인 전까지 사용할 수 없어요.');
+      setPhotoStatus("I unchecked the use of photos. Real photo orientation cannot be used until confirmed.");
       return;
     }
     if (!registeredAssetRefs.length) {
-      setPhotoError('서버에 등록된 사진이 없습니다. 사진을 다시 올리거나 가져와 주세요.');
+      setPhotoError("There are no photos registered on the server. Please repost or import the photo.");
       return;
     }
     if (personAttestingAssetId) {
-      setPhotoError('인물 사진 사용 확인을 기록한 뒤 다시 시도해 주세요.');
+      setPhotoError("Please note your confirmation to use portrait photos and try again.");
       return;
     }
     const exactClassification = projectPersonPhotoClassification(
@@ -306,7 +306,7 @@ export function Step04Photos() {
     try {
       if (!attestationKeyRef.current) {
         if (typeof globalThis.crypto?.randomUUID !== 'function') {
-          throw new Error('이 브라우저에서는 사진 사용 확인을 안전하게 기록할 수 없습니다.');
+          throw new Error("This browser cannot securely log photo usage confirmations.");
         }
         attestationKeyRef.current = globalThis.crypto.randomUUID();
       }
@@ -318,9 +318,9 @@ export function Step04Photos() {
         ...(siteId ? { siteId } : {}),
       });
       setValue('generalAssetAttestationId', attestation.id, { shouldValidate: true });
-      setPhotoStatus('사진의 관계와 사용 권한 확인이 기록됐어요. 실사 사진 방향을 선택할 수 있습니다.');
+      setPhotoStatus("Photo relationships and usage permission confirmation were recorded. You can choose the photo orientation of the photo.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : '사진 사용 확인을 기록하지 못했습니다.';
+      const message = err instanceof Error ? err.message : "Failed to log photo usage confirmation.";
       setPhotoError(message);
       setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
     } finally {
@@ -342,7 +342,7 @@ export function Step04Photos() {
       setValue('nonPersonPhotoAssetIds', nextClassification.nonPersonPhotoAssetIds, {
         shouldValidate: true,
       });
-      setPhotoStatus('이 사진은 식별 가능한 인물이 없는 사진으로 분류했어요.');
+      setPhotoStatus("This photo was classified as a photo with no identifiable people.");
       return;
     }
     setPersonAttestingAssetId(assetId);
@@ -358,9 +358,9 @@ export function Step04Photos() {
       setValue('nonPersonPhotoAssetIds', nextClassification.nonPersonPhotoAssetIds, {
         shouldValidate: false,
       });
-      setPhotoStatus('인물 사진의 공개·홍보 사용 확인이 자산별로 기록됐어요.');
+      setPhotoStatus("Confirmation of public and promotional use of portraits was recorded for each asset.");
     } catch (error) {
-      setPhotoError(error instanceof Error ? error.message : '인물 사진 사용 확인을 기록하지 못했습니다.');
+      setPhotoError(error instanceof Error ? error.message : "Failed to record portrait usage confirmation.");
     } finally {
       setPersonAttestingAssetId(null);
     }
@@ -376,7 +376,7 @@ export function Step04Photos() {
         <Field
           label={
             <>
-              대표 실제 사진 <span className="font-normal text-ob-muted">(첫 화면용 · 선택)</span>
+              Representative real photos <span className="font-normal text-ob-muted">(for first screen · selection)</span>
             </>
           }
           hint={REFERENTIAL_IMAGE_POLICY_COPY.heroHint}
@@ -385,11 +385,11 @@ export function Step04Photos() {
             {heroPhotoUrl ? (
               <span className="relative block h-28 w-44 overflow-hidden rounded-ob border border-ob-border bg-ob-bg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={heroPhotoUrl} alt="대표 사진" className="h-full w-full object-cover" />
+                <img src={heroPhotoUrl} alt="representative photo" className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={removeHeroPhoto}
-                  aria-label="대표 사진 제거"
+                  aria-label="Remove featured photo"
                   className="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-ob-ink/85 text-white transition-colors hover:bg-ob-danger"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -403,7 +403,7 @@ export function Step04Photos() {
                 className="inline-flex h-28 w-44 flex-col items-center justify-center gap-1.5 rounded-ob border border-dashed border-ob-accent-strong/50 bg-ob-surface text-[13px] text-ob-muted transition-colors hover:border-ob-accent-strong hover:text-ob-ink disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {heroUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
-                대표 사진 올리기
+                Upload featured photo
               </button>
             )}
             {heroPhotoUrl ? (
@@ -414,7 +414,7 @@ export function Step04Photos() {
                 className="inline-flex h-10 items-center gap-1.5 rounded-ob border border-ob-border bg-ob-surface px-3.5 text-[13px] text-ob-ink transition-colors hover:border-ob-muted disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {heroUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-                사진 교체
+                Replace photo
               </button>
             ) : null}
             <input
@@ -425,14 +425,14 @@ export function Step04Photos() {
               onChange={(e) => void handleHeroPhoto(e.target.files)}
             />
           </div>
-          <p className="mt-2 text-[13px] text-ob-muted">직접 촬영했거나 사용 권한이 있는 사진 · 5MB 이하 · PNG·JPG·WEBP</p>
+          <p className="mt-2 text-[13px] text-ob-muted">Photos you own or are authorized to use · up to 5MB · PNG, JPG, or WEBP</p>
         </Field>
       </div>
 
       <Field
         label={
           <>
-            제품·공간·인물 사진 <span className="font-normal text-ob-muted">(본문·갤러리용 · 선택 · 최대 {MAX}장)</span>
+            Clinic, service, and team photos <span className="font-normal text-ob-muted">(optional · up to {MAX})</span>
           </>
         }
         hint={REFERENTIAL_IMAGE_POLICY_COPY.collectionHint}
@@ -443,13 +443,13 @@ export function Step04Photos() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
-                alt="가게 사진"
+                alt="Uploaded clinic photo"
                 className="h-20 w-24 rounded-ob border border-ob-border object-cover"
               />
               <button
                 type="button"
                 onClick={() => remove(url)}
-                aria-label="사진 제거"
+                aria-label="Remove photo"
                 className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ob-ink text-white transition-colors hover:bg-ob-danger"
               >
                 <X className="h-3 w-3" />
@@ -467,7 +467,7 @@ export function Step04Photos() {
             ) : (
               <ImagePlus className="h-5 w-5" />
             )}
-            사진 올리기
+            Upload photo
           </button>
           <input
             ref={inputRef}
@@ -479,7 +479,7 @@ export function Step04Photos() {
           />
         </div>
         <p className="mt-2 text-[13px] text-ob-muted">
-          {photos.length}/{MAX}장 · 5MB 이하 · PNG·JPG·WEBP
+          {photos.length}/{MAX} photos · up to 5MB each · PNG, JPG, or WEBP
         </p>
       </Field>
 
@@ -490,12 +490,12 @@ export function Step04Photos() {
           aria-busy={Boolean(personAttestingAssetId)}
         >
           <legend className="px-1 text-[15px] font-semibold text-ob-ink">
-            인물이 들어간 사진만 체크해 주세요
+            Please check only photos containing people.
           </legend>
           <p id="person-asset-consent-help" className="mb-3 text-[13px] leading-5 text-ob-muted">
-            체크하지 않은 사진은 식별 가능한 인물이 없는 사진으로 기록합니다.
-            체크하면 해당 사진에 다음 공개·홍보 사용 확인을 자산별로 기록합니다: {PERSON_ASSET_CONSENT_TEXT}
-            이 확인은 법적 검토를 대신하지 않습니다.
+            Unchecked photos are recorded as photos without identifiable people.
+            When checked, the following public/promotional usage confirmations will be recorded for each asset for the photo: {PERSON_ASSET_CONSENT_TEXT}
+            This verification is not a substitute for a legal review.
           </p>
           <div className="space-y-2">
             {registeredAssetRefs.map((ref, index) => {
@@ -520,7 +520,7 @@ export function Step04Photos() {
                     />
                     <span className="min-w-0 flex-1">
                       <span id={`asset-classification-${ref.assetId}`} className="block font-medium">
-                        사진 {index + 1}
+                        Photo {index + 1}
                       </span>
                       <label className="mt-2 inline-flex cursor-pointer items-center gap-2">
                         <input
@@ -530,18 +530,18 @@ export function Step04Photos() {
                           onChange={(event) => void handlePersonPhotoCheck(ref.assetId, event.target.checked)}
                           className="h-4 w-4 rounded border-ob-border text-ob-accent-strong focus:ring-ob-accent"
                         />
-                        이 사진에 식별 가능한 인물이 있어요
+                        There is an identifiable person in this photo
                         {busy ? <Loader2 className="h-4 w-4 animate-spin text-ob-muted" aria-hidden="true" /> : null}
                       </label>
                       {checked ? (
                         <span className="mt-2 flex items-start gap-1.5 rounded-ob bg-ob-accent-soft/40 px-2.5 py-2 text-[12px] leading-5 text-ob-muted">
                           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ob-accent-strong" aria-hidden="true" />
-                          <span>이 자산의 인물 사진 공개·홍보 사용 확인이 기록됐어요.</span>
+                          <span>Confirmation of public and promotional use of portraits of this asset has been recorded.</span>
                         </span>
                       ) : null}
                       {generalAssetAttestationId ? (
                         <span className="mt-2 block text-[12px] leading-5 text-ob-muted">
-                          이 사진 묶음의 인물 여부가 기록됐어요. 사진을 추가·교체·삭제하면 다시 확인합니다.
+                          The presence or absence of people in this batch of photos was recorded. Check again when you add, replace, or delete photos.
                         </span>
                       ) : null}
                     </span>
@@ -559,7 +559,7 @@ export function Step04Photos() {
           aria-describedby="general-asset-attestation-help"
           aria-busy={attesting}
         >
-          <legend className="px-1 text-[15px] font-semibold text-ob-ink">실제 사진 사용 확인</legend>
+          <legend className="px-1 text-[15px] font-semibold text-ob-ink">Make sure to use real photos</legend>
           <label className="flex cursor-pointer items-start gap-3 rounded-ob p-1 text-[14px] leading-6 text-ob-ink">
             <input
               type="checkbox"
@@ -574,14 +574,14 @@ export function Step04Photos() {
                 {GENERAL_ASSET_ATTESTATION_TEXT}
               </span>
               <span id="general-asset-attestation-help" className="mt-1 block text-[13px] leading-5 text-ob-muted">
-                위에서 인물이 들어간 사진만 체크했는지 확인해 주세요. 법적 보증을 요구하는 것이 아니라, 이 사진을 실제 제품·장소·작업을 보여주는 이미지로 사용할 수 있는지 확인하는 절차예요.
+                Please make sure you only check the photos containing people above. It is not a request for a legal guarantee, but a process to check whether the photo can be used as an image showing the actual product, place, or work.
               </span>
             </span>
           </label>
           {attesting ? (
             <p className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-ob-muted">
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-              확인을 안전하게 기록하고 있어요.
+              Confirmation is recorded securely.
             </p>
           ) : null}
         </fieldset>
@@ -589,7 +589,7 @@ export function Step04Photos() {
 
       {assetPolicyV2Ready && unregisteredPhotoCount > 0 ? (
         <p className="rounded-ob border border-ob-border bg-ob-bg px-3 py-2 text-[13px] leading-5 text-ob-muted">
-          서버 출처 기록이 없는 사진 {unregisteredPhotoCount}장은 실사 사진 방향의 근거로 사용되지 않아요.
+          Photos without server origin records {unregisteredPhotoCount}Fields are not used as a basis for orientation in live-action photos.
         </p>
       ) : null}
 
@@ -602,21 +602,21 @@ export function Step04Photos() {
 
       {/* [v4.5] 로고 서브 슬롯 */}
       <Field
-        label={<>로고 <span className="font-normal text-ob-muted">(선택)</span></>}
-        hint="로고가 있다면 올려주세요 — 없으면 상호명으로 글자 로고를 만들어드려요. 배경이 투명한 PNG를 권장합니다."
+        label={<>logo <span className="font-normal text-ob-muted">(select)</span></>}
+        hint="If you have a logo, please upload it — if not, we will create a letter logo using your business name. We recommend PNG with a transparent background."
       >
         <div className="flex items-center gap-3">
           {logoUrl ? (
             <span className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={logoUrl} alt="로고" className="h-16 w-28 rounded-ob border border-ob-border bg-ob-bg object-contain p-1.5" />
+              <img src={logoUrl} alt="logo" className="h-16 w-28 rounded-ob border border-ob-border bg-ob-bg object-contain p-1.5" />
               <button
                 type="button"
                 onClick={() => {
                   setValue('logoUrl', '', { shouldValidate: true });
                   setLogoWhiteBg(false);
                 }}
-                aria-label="로고 제거"
+                aria-label="remove logo"
                 className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ob-ink text-white transition-colors hover:bg-ob-danger"
               >
                 <X className="h-3 w-3" />
@@ -630,7 +630,7 @@ export function Step04Photos() {
               className="inline-flex h-16 w-28 flex-col items-center justify-center gap-1 rounded-ob border border-dashed border-ob-border text-[13px] text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink disabled:opacity-50"
             >
               {logoUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
-              로고 올리기
+              Post your logo
             </button>
           )}
           <input
@@ -643,7 +643,7 @@ export function Step04Photos() {
         </div>
         {logoWhiteBg ? (
           <p className="mt-2 text-[13px] text-ob-accent-strong">
-            흰 배경이 감지됐어요 — 투명 PNG로 올리면 더 깔끔해요.
+            A white background was detected — it will be cleaner if you upload it as a transparent PNG.
           </p>
         ) : null}
       </Field>

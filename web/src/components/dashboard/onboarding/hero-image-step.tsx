@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * [W1] 첫 화면 비주얼 선택 — 고객 대표 사진(선택) + 다보임이 준비한 안전한 무드 3안.
+ * [W1] 첫 화면 비주얼 선택 — 고객 대표 사진(선택) + Anaks Labs이 준비한 안전한 무드 3안.
  * 후보 요청은 CandidateStep과 동일 query key/requestKey를 공유해 한 온보딩에서 AI 3안을 한 번만 만든다.
  */
 import { useState } from 'react';
@@ -20,32 +20,32 @@ import { Button, Card, cn, ErrorState } from '../ui';
 import { LoadingScreen } from './candidate-step';
 
 const LOADING_MESSAGES = [
-  '원하는 느낌을 이미지로 풀고 있어요…',
-  '제품 대신 공간·빛·질감으로 연출하는 중…',
-  '서로 다른 무드 3안을 준비하고 있습니다',
+  "I'm expressing the feeling I want through images...",
+  "We are creating with space, light, and texture instead of products...",
+  "We are preparing 3 different moods.",
 ];
 const REAL_PHOTO_LOADING_MESSAGES = [
-  '올린 사진의 소유권과 등록 상태를 확인하고 있어요…',
-  '실제 사진을 바꾸지 않고 디자인 구도를 준비하고 있습니다',
+  "We are checking the ownership and registration status of the uploaded photo...",
+  "We are preparing a design composition without changing the actual photo.",
 ];
 
 function optionCopy(option: HeroImageSelection): { label: string; description: string } {
   if (option.source === 'system') {
     return {
-      label: '다보임이 준비한 첫 화면',
-      description: '사진 대신 사이트 색과 디자인에 맞춘 안전한 무대를 사용해요.',
+      label: "The first screen prepared by Anaks Labs",
+      description: "Instead of photos, we use a safe stage that matches the site color and design.",
     };
   }
   if (option.source === 'upload') {
     return {
-      label: '내가 올린 대표 사진',
-      description: '실제 사진을 그대로 히어로에 크게 사용해요.',
+      label: "Featured photo I posted",
+      description: "I use actual photos as they are for the hero.",
     };
   }
   const index = Number(option.id.replace('ai-', '')) || 1;
   return {
-    label: `다보임 무드 ${index}`,
-    description: '선택한 느낌을 공간·빛·질감 중심으로 다보임이 준비한 비주얼이에요.',
+    label: `Anaks Labs Mood${index}`,
+    description: "This is a visual prepared by Anaks Labs focusing on space, light, and texture to express the chosen feeling.",
   };
 }
 
@@ -87,12 +87,12 @@ export function HeroImageStep({
     return (
       <div className="space-y-4">
         <ErrorState
-          message={error instanceof Error ? error.message : '히어로 이미지 제안에 실패했습니다.'}
+          message={error instanceof Error ? error.message : "The hero image proposal failed."}
           onRetry={() => void refetch()}
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          이전
+          Back
         </Button>
       </div>
     );
@@ -110,10 +110,10 @@ export function HeroImageStep({
   if (isRealPhoto && options.length === 0) {
     return (
       <div className="space-y-4">
-        <ErrorState message="확인된 직접 업로드 사진을 찾지 못했어요. 사진 단계에서 다시 올리고 사용 확인을 완료해 주세요." />
+        <ErrorState message="I couldn't find any verified direct upload photos. Please upload again at the photo stage and complete usage confirmation." />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          사진 방향 다시 고르기
+          Re-select photo orientation
         </Button>
       </div>
     );
@@ -125,13 +125,13 @@ export function HeroImageStep({
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
           <h2 className="text-lg font-semibold text-ob-ink">
-            {isRealPhoto ? '첫 화면에 쓸 실제 사진을 확인해 주세요' : '첫 화면에 쓸 이미지를 골라주세요'}
+            {isRealPhoto ? "Please check the actual photo to be used on the first screen." : "Please select an image for the home screen"}
           </h2>
         </div>
         <p className="mt-1 text-sm leading-6 text-ob-muted">
           {isRealPhoto
-            ? '첫 화면은 다보임이 준비한 무대가 기본입니다. 품질 확인을 통과한 실제 사진만 원본 그대로 승격해요.'
-            : '사진을 요구하지 않아요. 다보임이 준비한 무드 3안 중 하나를 고르면, 이후 움직임과 최종 첫 화면이 이 비주얼을 사용해요.'}
+            ? "The first screen is basically the stage prepared by Anaks Labs. Only actual photos that have passed the quality check are promoted as originals."
+            : "No photos required. If you choose one of the three mood plans prepared by Anaks Labs, this visual will be used for subsequent movements and the final first screen."}
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export function HeroImageStep({
                 <img src={option.url} alt={copy.label} className="h-full w-full object-cover" />
                 <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-medium text-white">
                   {option.source === 'upload' ? <Upload className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                  {option.source === 'upload' ? '실제 사진' : '다보임 준비'}
+                  {option.source === 'upload' ? "real photo" : "Preparing for Anaks Labs"}
                 </span>
                 {active ? (
                   <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ob-accent-strong text-xs font-bold text-white">
@@ -185,17 +185,17 @@ export function HeroImageStep({
 
       <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-xs leading-5 text-ob-muted">
         {isRealPhoto
-          ? '통과한 사진도 AI로 보정하거나 다시 만들지 않습니다. 원본은 유지하고 크롭·배치·포커스만 연출합니다.'
-          : 'AI 이미지는 특정 메뉴·상품·시술 결과를 만들지 않고, 선택한 톤의 공간·빛·질감만 표현합니다.'}
+          ? "Photos that pass are not retouched or recreated with AI. The original is maintained and only cropping, placement, and focus are performed."
+          : "AI images do not create specific menus, products, or treatment results, but only express the space, light, and texture of the selected tone."}
       </div>
 
       <div className="flex items-center justify-between border-t border-ob-border pt-5">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          이전
+          Back
         </Button>
         <Button size="lg" disabled={!selected} onClick={() => selected && onComplete(selected)}>
-          이 사진으로 계속
+          Continue with this photo
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>

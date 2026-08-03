@@ -14,7 +14,7 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
     const result = await getManualCollectionsRepository().reverse({
       entryId,
       collectionReference: `cancel:${entryId}`,
-      memo: '관리자 원클릭 취소',
+      memo: 'Admin one-click cancellation',
     });
     return NextResponse.json({ ok: true, duplicated: result.duplicated, entry: result.record.entry });
   } catch (error) {

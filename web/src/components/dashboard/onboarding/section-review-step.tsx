@@ -82,7 +82,7 @@ export function SectionReviewStep({
     const trimmedNote = note.trim();
     const unmatchedNote = Boolean(trimmedNote) && sectionDirectionGuidesFromNote(trimmedNote).length === 0;
     if (intent === 'adjust' && guided.length === 0 && unmatchedNote) {
-      setMessage('이 메모는 자동 조정 규칙과 연결되지 않았어요. 방향 칩을 하나 고르거나 에디터에서 직접 수정해 주세요.');
+      setMessage("This note is not associated with an auto-scaling rule. Please select a direction chip or edit it directly in the editor.");
       return;
     }
     const direction: SectionDirection = {
@@ -113,13 +113,13 @@ export function SectionReviewStep({
 
       setMessage(
         intent === 'regenerate'
-          ? '좌우 배치를 바꿨어요. 같은 섹션을 다시 확인한 뒤, 괜찮으면 이대로 확정해 주세요.'
+          ? 'Left and right placement has been swapped. Review this section again before confirming.'
           : unmatchedNote
-            ? '선택한 방향 칩만 반영했어요. 자유 메모는 자동 반영되지 않았으니 에디터에서 직접 확인해 주세요.'
-            : '요청한 방향을 반영했어요. 같은 섹션을 다시 확인한 뒤, 괜찮으면 이대로 확정해 주세요.',
+            ? 'Only the selected direction was applied. Free-form notes are not applied automatically; review them in the editor.'
+            : 'The requested direction was applied. Review this section again before confirming.',
       );
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '검수 내용을 저장하지 못했습니다.');
+      setError(cause instanceof Error ? cause.message : "Failed to save inspection details.");
     } finally {
       setSaving(null);
     }
@@ -133,7 +133,7 @@ export function SectionReviewStep({
       await saveSiteDraft(siteId, config);
       onComplete(config);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '사이트 초안을 저장하지 못했습니다.');
+      setError(cause instanceof Error ? cause.message : "Failed to save site draft.");
     } finally {
       setSaving(null);
     }
@@ -143,17 +143,17 @@ export function SectionReviewStep({
     return (
       <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
         <div>
-          <Badge tone="blue">최종 확인</Badge>
-          <h2 className="mt-3 text-xl font-semibold tracking-tight text-ob-ink">확인할 섹션이 없어요</h2>
+          <Badge tone="blue">final confirmation</Badge>
+          <h2 className="mt-3 text-xl font-semibold tracking-tight text-ob-ink">There are no sections to check</h2>
           <p className="mt-2 text-sm leading-6 text-ob-muted">
-            현재 초안을 저장하고 완료 화면으로 이동할 수 있어요.
+            You can save the current draft and go to the completion screen.
           </p>
         </div>
         {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ob-border pt-5">
           <EditorLink siteId={siteId} />
           <Button loading={saving === 'empty'} onClick={completeEmptyReview}>
-            초안 저장하고 완료
+            Save draft and finish
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
@@ -169,17 +169,16 @@ export function SectionReviewStep({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="blue">섹션별 최종 확인</Badge>
+              <Badge tone="blue">Final check by section</Badge>
               <span className="text-xs font-medium text-ob-muted">
                 {targetIndex + 1} / {targets.length}
               </span>
             </div>
             <h2 className="mt-3 text-xl font-semibold tracking-tight text-ob-ink">
-              {target.sectionName}, 이대로 보여드릴까요?
+              Review {target.sectionName}
             </h2>
             <p className="mt-2 text-sm leading-6 text-ob-muted">
-              <span className="font-medium text-ob-ink">{target.pageTitle}</span> 페이지를 한 섹션씩
-              확인해요. 직접 확정한 섹션만 다음으로 넘어갑니다.
+              Check this section on the <span className="font-medium text-ob-ink">{target.pageTitle}</span> page before continuing.
             </p>
           </div>
           <EditorLink siteId={siteId} />
@@ -188,18 +187,18 @@ export function SectionReviewStep({
         {isHeroTarget && (onChooseHeroImage || onChooseHeroMotion) ? (
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-ob-border bg-ob-bg p-3">
             <p className="mr-auto text-xs leading-5 text-ob-muted">
-              첫 화면의 원본 사진과 연출은 언제든 다시 골라 재생성할 수 있어요.
+              You can revisit the hero image and motion choices before publishing.
             </p>
             {onChooseHeroImage ? (
               <Button variant="secondary" disabled={isBusy} onClick={onChooseHeroImage}>
                 <ImageIcon className="h-4 w-4" />
-                대표 사진 다시 고르기
+                Choose another hero image
               </Button>
             ) : null}
             {onChooseHeroMotion ? (
               <Button variant="secondary" disabled={isBusy} onClick={onChooseHeroMotion}>
                 <Film className="h-4 w-4" />
-                움직임 다시 고르기
+                Choose another motion
               </Button>
             ) : null}
           </div>
@@ -207,13 +206,13 @@ export function SectionReviewStep({
 
         {hasAppliedHeroVideo ? (
           <div className="rounded-xl border border-ob-success/40 bg-ob-success/10 px-3 py-2 text-xs leading-5 text-ob-ink">
-            <span className="font-semibold">승인 후 생성된 실제 영상 초안이에요.</span>{' '}
-            아래에서 고객님의 영상과 스크롤 연출을 그대로 확인한 뒤 확정해 주세요.
+            <span className="font-semibold">This video draft was created after approval.</span>{' '}
+            Review the video and scroll behavior below.
           </div>
         ) : previewAsAddon ? (
           <div className="rounded-xl border border-ob-accent bg-ob-accent-soft px-3 py-2 text-xs leading-5 text-ob-ink">
-            <span className="font-semibold">고른 영상 연출의 실제 스크롤 예시예요.</span>{' '}
-            저장된 권한이나 발행물은 바꾸지 않고, 대표 데모 영상으로만 작동을 보여드려요. 고객님의 최종 영상은 아닙니다.
+            <span className="font-semibold">This is a scroll preview of the selected treatment.</span>{' '}
+            It does not alter stored permissions or published content, and representative media is not your final video.
           </div>
         ) : null}
 
@@ -243,7 +242,7 @@ export function SectionReviewStep({
           <div className="rounded-xl border border-ob-border bg-ob-bg p-4">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4 text-ob-accent-strong" />
-              <p className="text-sm font-semibold text-ob-ink">원하는 방향으로 조금 조정</p>
+              <p className="text-sm font-semibold text-ob-ink">Adjust slightly in the direction you want</p>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {SECTION_DIRECTION_GUIDES.map((guide) => {
@@ -267,7 +266,7 @@ export function SectionReviewStep({
               })}
             </div>
             <label className="mt-3 block text-xs font-medium text-ob-muted" htmlFor="section-direction-note">
-              더 필요한 방향 (선택)
+              Further needed directions (optional)
             </label>
             <textarea
               id="section-direction-note"
@@ -275,14 +274,14 @@ export function SectionReviewStep({
               maxLength={500}
               disabled={isBusy}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="예: 제목은 유지하고 사진 비중만 조금 키워주세요"
+              placeholder="Example: Keep the title but increase the proportion of the photo a little."
               className="mt-1.5 min-h-20 w-full resize-y rounded-lg border border-ob-border bg-ob-surface px-3 py-2 text-sm text-ob-ink outline-none transition-colors placeholder:text-ob-muted focus:border-ob-accent-strong"
             />
             {unsupportedNote ? (
               <p role="status" className="mt-2 text-xs leading-5 text-ob-muted">
                 {guided.length > 0
-                  ? '이 메모는 자동 규칙과 연결되지 않아 선택한 방향 칩만 반영돼요. 메모 내용은 에디터에서 직접 수정해 주세요.'
-                  : '이 메모는 자동 조정 규칙과 연결되지 않았어요. 방향 칩을 하나 고르거나 에디터에서 직접 수정해 주세요.'}
+                  ? 'This note is not linked to an automatic adjustment, so only the selected direction was applied. Edit the remaining note directly in the editor.'
+                  : 'This note is not linked to an automatic adjustment. Select a direction or edit the section directly.'}
               </p>
             ) : null}
             <Button
@@ -292,7 +291,7 @@ export function SectionReviewStep({
               loading={saving === 'adjust'}
               onClick={() => submitDirection('adjust')}
             >
-              조정해서 다시 보기
+              Adjust and watch again
             </Button>
           </div>
 
@@ -304,7 +303,7 @@ export function SectionReviewStep({
               onClick={() => submitDirection('regenerate')}
             >
               <RefreshCw className="h-4 w-4" />
-              좌우 배치 바꾸기
+              Swap left and right placement
             </Button>
             <Button
               size="lg"
@@ -313,14 +312,14 @@ export function SectionReviewStep({
               onClick={() => submitDirection('keep')}
             >
               <Check className="h-4 w-4" />
-              {isLast ? '이대로 확정하고 완료' : '이대로 확정하고 다음'}
+              {isLast ? 'Confirm and finish' : 'Confirm and continue'}
             </Button>
           </div>
         </div>
 
         <p className="text-xs leading-5 text-ob-muted">
-          다른 구성이나 조정을 눌러도 다음으로 자동 이동하지 않아요. 결과를 다시 보고
-          <span className="font-medium text-ob-ink"> 이대로 확정</span>해야 저장된 검수가 끝나요.
+          Even if you click on another configuration or adjustment, it does not automatically move to the next step. look at the results again
+          <span className="font-medium text-ob-ink"> Confirmed like this</span>Only then will the saved review be completed.
         </p>
       </Card>
     </div>
@@ -334,8 +333,8 @@ function EditorLink({ siteId }: { siteId: string }) {
       className="inline-flex items-center gap-1.5 text-xs font-medium text-ob-accent-strong underline-offset-4 hover:underline"
     >
       <ExternalLink className="h-3.5 w-3.5" />
-      에디터에서 직접 수정
-      <span className="text-ob-muted">(횟수 제한 없이 무료)</span>
+      Edit directly in the editor
+      <span className="text-ob-muted">(Free and unlimited)</span>
     </Link>
   );
 }

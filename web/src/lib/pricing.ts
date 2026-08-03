@@ -1,19 +1,14 @@
 import type { IndustryProfileId } from '@/lib/industry/profiles';
 
-export const PRICING_MODEL_VERSION = 'price-v6-2026-08' as const;
-export const US_ENTERPRISE_PRICING_MODEL_VERSION = 'enterprise-us-v6-2026-08' as const;
-export const PREVIOUS_PRICING_MODEL_VERSION = 'industry-single-2026-07' as const;
+export const PRICING_MODEL_VERSION = 'enterprise-us-v6-2026-08' as const;
+export const US_ENTERPRISE_PRICING_MODEL_VERSION = PRICING_MODEL_VERSION;
+export const PREVIOUS_PRICING_MODEL_VERSION = 'price-v6-2026-08' as const;
 export const LEGACY_PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
 /** clinic 계약이 요구하는 배포 의료광고 정책. 기존 계약 읽기 경계에서만 사용한다. */
 export const CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION = 'medical-ad-2026-07-v1' as const;
 
-export const KO_BASIC_SETUP_LIST_KRW = 990_000;
-export const KO_BASIC_SETUP_PROMOTION_KRW = 490_000;
-export const KO_BASIC_PROMOTION_END_DATE = '2026-10-31' as const;
-export const KO_BASIC_MAINTENANCE_MONTHLY_KRW = 29_000;
 /** 과거 영상 애드온 영수증 분해용. 신규 견적·표시·주문에는 사용하지 않는다. */
-export const LEGACY_VIDEO_HERO_ADDON_KRW = 200_000;
-const KO_BASIC_PROMOTION_END_AT_MS = Date.parse(`${KO_BASIC_PROMOTION_END_DATE}T23:59:59.999+09:00`);
+const LEGACY_VIDEO_HERO_ADDON_KRW = 200_000;
 
 export const US_ENTERPRISE_PRICING = {
   modelVersion: US_ENTERPRISE_PRICING_MODEL_VERSION,
@@ -33,11 +28,16 @@ export type UsEnterpriseDeliverable = (typeof US_ENTERPRISE_PRICING.deliverables
 export interface SubscriptionPriceContract {
   modelVersion: string;
   industryProfileId: IndustryProfileId;
+  amountUsd: number;
+  currency: 'USD';
+  /** Legacy numeric payment-column bridge. New quotes must use amountUsd + currency. */
   amountKrw: number;
   periodMonths: number;
   billingInterval: 'month';
   automaticRenewal: true;
-  vatIncluded: true;
+  taxMode: 'calculated-at-checkout';
+  /** Legacy quote bridge; USD checkout does not represent tax as included. */
+  vatIncluded: false;
 }
 
 export interface LegacySubscriptionPriceContract {
@@ -73,7 +73,7 @@ export const LEGACY_PRICING_TABLE_CATALOG = {
           automaticRenewal: true,
         },
         included: [
-          { id: 'done-for-you-site', label: '다보임이 만드는 사이트·커넥터' },
+          { id: 'done-for-you-site', label: 'Anaks Labs이 만드는 사이트·커넥터' },
           { id: 'conversion-tracking', label: '문의·예약 전환 추적' },
           { id: 'monthly-report', label: '월간 성과 리포트' },
           { id: 'basic-search-schema', label: '기초 검색·AI 대비와 구조화 정보' },
@@ -127,7 +127,7 @@ export const LEGACY_V4_SUBSCRIPTION_PRICE: LegacySubscriptionPriceContract = {
 };
 
 export type IndustryProfileAvailability = 'public' | 'gated';
-export type IndustrySchemaType = 'HomeAndConstructionBusiness' | 'MedicalClinic';
+export type IndustrySchemaType = 'MedicalClinic';
 
 export interface IndustryKeywordSet {
   id: string;
@@ -139,11 +139,9 @@ export interface IndustryProfile {
   id: IndustryProfileId;
   label: string;
   availability: IndustryProfileAvailability;
-  setupListKrw: number;
-  setupPromotionalKrw: number;
-  promotionEndsOn: string;
-  monthlyKrw: number;
-  annualKrw: number | null;
+  setupUsd: number;
+  monthlyUsd: number;
+  annualUsd: number | null;
   postsPerMonth: number;
   schemaType: IndustrySchemaType;
   requiredMedicalAdPolicyVersion?: string;
@@ -152,77 +150,45 @@ export interface IndustryProfile {
   included: readonly { id: string; label: string }[];
 }
 
-const CURRENT_INTERIOR_PROFILE: IndustryProfile = {
-  id: 'interior',
-  label: '베이직',
-  availability: 'public',
-  setupListKrw: KO_BASIC_SETUP_LIST_KRW,
-  setupPromotionalKrw: KO_BASIC_SETUP_PROMOTION_KRW,
-  promotionEndsOn: KO_BASIC_PROMOTION_END_DATE,
-  monthlyKrw: KO_BASIC_MAINTENANCE_MONTHLY_KRW,
-  annualKrw: null,
-  postsPerMonth: 0,
-  schemaType: 'HomeAndConstructionBusiness',
-  contentRules: [],
+const CURRENT_CLINIC_PROFILE: IndustryProfile = {
+  id: 'clinic',
+  label: 'Clinic',
+  availability: 'gated',
+  setupUsd: US_ENTERPRISE_PRICING.setupUsd,
+  monthlyUsd: US_ENTERPRISE_PRICING.monthlyUsd,
+  annualUsd: null,
+  postsPerMonth: 8,
+  schemaType: 'MedicalClinic',
+  requiredMedicalAdPolicyVersion: CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION,
+  contentRules: [
+    'Publication requires the current medical-ad policy and public-release gates.',
+  ],
   keywordSets: [
-    { id: 'region', label: '지역', source: 'region' },
-    { id: 'area-size', label: '평형', source: 'business_fact' },
+    { id: 'region', label: 'Region', source: 'region' },
+    { id: 'medical-specialty', label: 'Medical specialty', source: 'business_fact' },
   ],
-  included: [
-    { id: 'done-for-you-site', label: '다보임이 제작하는 홈페이지' },
-    { id: 'hosting-maintenance', label: '호스팅·SSL·백업·유지' },
-    { id: 'self-edit', label: '직접 편집' },
-    { id: 'video-hero-included', label: '승인한 디자인의 영상 히어로 1회 생성' },
-  ],
+  included: [],
 };
 
 /**
  * 기존 industry-single 행을 재발행·환불할 때만 쓰는 읽기 전용 스냅샷.
  * 현재 PRICING_TABLE_CATALOG이나 고객 화면에는 노출하지 않는다.
  */
-const PREVIOUS_INDUSTRY_PROFILES: Record<IndustryProfileId, IndustryProfile> = {
-  interior: {
-    ...CURRENT_INTERIOR_PROFILE,
-    label: '인테리어·공간',
-    setupListKrw: 0,
-    setupPromotionalKrw: 0,
-    promotionEndsOn: '2026-07-31',
-    monthlyKrw: 490_000,
-    annualKrw: 4_900_000,
-    included: [],
-  },
+const PREVIOUS_INDUSTRY_PROFILES: Partial<Record<IndustryProfileId, IndustryProfile>> = {
   clinic: {
-    id: 'clinic',
-    label: '의원·클리닉',
-    availability: 'gated',
-    setupListKrw: 0,
-    setupPromotionalKrw: 0,
-    promotionEndsOn: '2026-07-31',
-    monthlyKrw: 790_000,
-    annualKrw: 7_900_000,
-    postsPerMonth: 0,
-    schemaType: 'MedicalClinic',
-    requiredMedicalAdPolicyVersion: CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION,
-    contentRules: [
-      '현재 의료광고 정책 검사와 공개 활성화 게이트를 모두 통과해야 공개·발행·결제를 허용한다.',
-    ],
-    keywordSets: [
-      { id: 'region', label: '지역', source: 'region' },
-      { id: 'medical-specialty', label: '진료과목', source: 'business_fact' },
-    ],
-    included: [],
+    ...CURRENT_CLINIC_PROFILE,
   },
 };
 
 export const PRICING_TABLE_CATALOG = {
   [PRICING_MODEL_VERSION]: {
     modelVersion: PRICING_MODEL_VERSION,
-    vatIncluded: true,
-    profiles: { interior: CURRENT_INTERIOR_PROFILE },
+    currency: 'USD',
+    profiles: { clinic: CURRENT_CLINIC_PROFILE },
   },
 } as const satisfies Record<string, {
   modelVersion: string;
-  vatIncluded: true;
+  currency: 'USD';
   profiles: Partial<Record<IndustryProfileId, IndustryProfile>>;
 }>;
 
@@ -250,18 +216,21 @@ export function subscriptionPriceForProfile(
   return {
     modelVersion,
     industryProfileId: profile.id,
-    amountKrw: profile.monthlyKrw,
+    amountUsd: profile.monthlyUsd,
+    currency: 'USD',
+    amountKrw: profile.monthlyUsd,
     periodMonths: 1,
     billingInterval: 'month',
     automaticRenewal: true,
-    vatIncluded: true,
+    taxMode: 'calculated-at-checkout',
+    vatIncluded: false,
   };
 }
 
 /** @deprecated 신규 계약은 프로파일 ID 없이 버전만으로 가격을 해석하지 않는다. */
 export function subscriptionPriceForVersion(
   modelVersion: string,
-  profileId: IndustryProfileId = 'interior',
+  profileId: IndustryProfileId = 'clinic',
 ): SubscriptionPriceContract | null {
   return subscriptionPriceForProfile(profileId, modelVersion);
 }
@@ -272,28 +241,17 @@ function requireSubscriptionPrice(profileId: IndustryProfileId): SubscriptionPri
   return pricing;
 }
 
-export const CURRENT_SUBSCRIPTION_PRICE = requireSubscriptionPrice('interior');
-
-export function koBasicPromotionActiveAt(now: Date = new Date()): boolean {
-  return Number.isFinite(now.getTime()) && now.getTime() <= KO_BASIC_PROMOTION_END_AT_MS;
-}
-
-export function koBasicSetupPriceAt(now: Date = new Date()): number {
-  return koBasicPromotionActiveAt(now)
-    ? KO_BASIC_SETUP_PROMOTION_KRW
-    : KO_BASIC_SETUP_LIST_KRW;
-}
+export const CURRENT_SUBSCRIPTION_PRICE = requireSubscriptionPrice('clinic');
 
 /** 현재 신규 계약의 단일 가격 소스. */
 export const PRICING = {
   modelVersion: PRICING_MODEL_VERSION,
   siteCount: 1,
   build: {
-    listAmountKrw: KO_BASIC_SETUP_LIST_KRW,
-    promotionalAmountKrw: KO_BASIC_SETUP_PROMOTION_KRW,
-    promotionEndsOn: KO_BASIC_PROMOTION_END_DATE,
+    setupUsd: US_ENTERPRISE_PRICING.setupUsd,
+    currency: 'USD',
     paymentTiming: 'publish',
-    vatIncluded: true,
+    taxMode: 'calculated-at-checkout',
   },
   videoHero: {
     included: true,
@@ -320,34 +278,37 @@ export const LEGACY_PRICING = {
 } as const;
 
 export const PUBLISH_PAYMENT_COPY = {
-  lead: '완성된 결과를 확인한 뒤 발행할 때 제작비를 결제합니다.',
-  decision: '완성된 결과를 확인한 뒤 발행을 결정합니다.',
-  setupList: `정가 ${formatKrw(PRICING.build.listAmountKrw)}`,
-  setupPromotion: formatKrw(PRICING.build.promotionalAmountKrw),
-  promotionEndsOn: `${PRICING.build.promotionEndsOn}까지 기간한정`,
-  monthlyMaintenance: `유지 ${formatKrw(PRICING.subscription.amountKrw)}/월`,
-  term: `홈페이지 ${PRICING.siteCount}개`,
-  renewal: '유지비는 매월 같은 금액으로 자동 갱신',
-  videoIncluded: '승인한 디자인의 영상 히어로 1회 생성 포함',
-  vat: '부가세 포함 총액',
+  lead: 'Review the completed site before starting the paid service.',
+  decision: 'Publishing begins the Enterprise service agreement.',
+  setup: `${formatUsd(PRICING.build.setupUsd)} setup`,
+  setupPromotion: `${formatUsd(PRICING.build.setupUsd)} setup`,
+  monthlyMaintenance: `${formatUsd(PRICING.subscription.amountUsd)}/month`,
+  term: `${PRICING.siteCount} clinic website`,
+  renewal: 'The monthly service renews automatically until canceled.',
+  videoIncluded: 'One approved hero-video generation is included.',
+  tax: 'Applicable taxes are calculated at checkout.',
 } as const;
 
 export const SUBSCRIPTION_BENEFIT_COPY = {
-  operations: '호스팅·SSL·백업·유지',
-  selfEdit: '직접 수정 무제한 무료',
+  operations: 'Hosting, SSL, backups, and maintenance',
+  selfEdit: 'Self-service editing',
   videoHero: PUBLISH_PAYMENT_COPY.videoIncluded,
 } as const;
 
 export const SUBSCRIPTION_VALUE_COPY =
-  `${SUBSCRIPTION_BENEFIT_COPY.operations}와 ${SUBSCRIPTION_BENEFIT_COPY.selfEdit}가 월 유지비에 포함됩니다.`;
+  `${SUBSCRIPTION_BENEFIT_COPY.operations} and ${SUBSCRIPTION_BENEFIT_COPY.selfEdit} are included in the monthly service.`;
 
 export const INCLUDED_ZERO_COST_ASSET_COPY =
-  '레이아웃 선택, 절차적 배경, 제공 스톡처럼 외부 생성비가 들지 않는 기본 자산은 제작 범위에 포함됩니다.';
+  'Licensed stock, approved layout assets, and procedural backgrounds are included when applicable.';
 
-export const SITE_PRICE_UNIT_COPY = '모든 가격은 홈페이지 1개 기준입니다.';
+export const SITE_PRICE_UNIT_COPY = 'Pricing applies to one clinic website.';
 
 export const MULTI_SITE_FAQ_ANSWER =
-  '가능합니다. 홈페이지마다 제작비와 월 유지비가 각각 적용됩니다. 두 번째 홈페이지는 문의 주시면 안내해 드립니다.';
+  'Additional clinic websites require a separate setup and monthly service agreement.';
+
+export function formatUsd(value: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+}
 
 export function formatKrw(value: number): string {
   return `${new Intl.NumberFormat('ko-KR').format(value)}원`;

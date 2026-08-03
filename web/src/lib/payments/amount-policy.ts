@@ -10,14 +10,15 @@ export type PaymentAmountSubject =
 
 export interface PaymentAmountValidation {
   ok: boolean;
-  expectedKrw: readonly number[];
+  expectedAmounts: readonly number[];
+  currency: 'USD';
   message: string | null;
 }
 
 /** Exact current product combinations, derived only from the pricing contract. */
 export function acceptedPaymentAmounts(subject: PaymentAmountSubject): readonly number[] {
   if (subject.type === 'maintenance_subscription') {
-    return [PRICING.subscription.amountKrw];
+    return [PRICING.subscription.amountUsd];
   }
   if (subject.type === 'premium_addon') {
     return [];
@@ -32,26 +33,28 @@ export function acceptedPaymentAmounts(subject: PaymentAmountSubject): readonly 
 
 export function validatePaymentAmount(
   subject: PaymentAmountSubject,
-  amountKrw: number,
+  amount: number,
 ): PaymentAmountValidation {
-  const expectedKrw = acceptedPaymentAmounts(subject);
-  if (!Number.isSafeInteger(amountKrw) || amountKrw <= 0) {
+  const expectedAmounts = acceptedPaymentAmounts(subject);
+  if (!Number.isSafeInteger(amount) || amount <= 0) {
     return {
       ok: false,
-      expectedKrw,
-      message: '결제 금액은 0보다 큰 원 단위 정수여야 합니다.',
+      expectedAmounts,
+      currency: 'USD',
+      message: 'The payment amount must be a positive whole-dollar value.',
     };
   }
-  if (!expectedKrw.includes(amountKrw)) {
+  if (!expectedAmounts.includes(amount)) {
     return {
       ok: false,
-      expectedKrw,
-      message: expectedKrw.length
-        ? `현재 가격 계약과 일치하지 않습니다. 허용 금액: ${expectedKrw.join(', ')}원`
-        : '현재 가격표에 존재하지 않는 결제 조합입니다.',
+      expectedAmounts,
+      currency: 'USD',
+      message: expectedAmounts.length
+        ? `The amount does not match the current contract. Allowed amount: $${expectedAmounts.join(', $')}`
+        : 'This purchase type is not available in the current contract.',
     };
   }
-  return { ok: true, expectedKrw, message: null };
+  return { ok: true, expectedAmounts, currency: 'USD', message: null };
 }
 
 export function paymentAmountSubject(input: {

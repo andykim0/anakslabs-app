@@ -11,7 +11,7 @@ export async function saveSiteDraft(siteId: string, draftConfig: SiteConfig): Pr
       body: JSON.stringify({ draftConfig }),
     });
   } catch {
-    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.');
+    throw new ApiError(0, 'NETWORK_ERROR', "Please check your network connection.");
   }
 
   let body: unknown = null;
@@ -27,10 +27,10 @@ export async function saveSiteDraft(siteId: string, draftConfig: SiteConfig): Pr
     throw new ApiError(
       response.status,
       typeof error?.code === 'string' ? error.code : 'SAVE_FAILED',
-      typeof error?.message === 'string' ? error.message : '사이트 초안을 저장하지 못했습니다.',
+      typeof error?.message === 'string' ? error.message : "Failed to save site draft.",
     );
   }
   if (!body || typeof body !== 'object' || (body as { ok?: unknown }).ok !== true) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '사이트 초안 저장 응답을 해석하지 못했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "Failed to interpret site draft save response.");
   }
 }

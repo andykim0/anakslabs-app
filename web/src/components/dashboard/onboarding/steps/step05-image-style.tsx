@@ -51,7 +51,7 @@ function LegacyImageStyle() {
   return (
     <div className="space-y-6">
       <StepIntro>
-        사이트의 전체 분위기를 정해요. {REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisuals}
+        It sets the overall tone of the site. {REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisuals}
       </StepIntro>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -75,7 +75,7 @@ function LegacyImageStyle() {
                 <LegacyStyleSample style={option.id} />
                 {isRecommended ? (
                   <span className="absolute top-2 left-2 rounded-full bg-ob-accent-strong px-2 py-0.5 text-[11px] font-semibold text-white">
-                    추천
+                    suggestion
                   </span>
                 ) : null}
               </div>
@@ -128,7 +128,7 @@ function DirectionSample({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={direction === 'real_photo' && realPhotoUrl ? '업로드한 실제 사진 미리보기' : ''}
+      alt={direction === 'real_photo' && realPhotoUrl ? "Preview the actual uploaded photo" : ''}
       aria-hidden={direction !== 'real_photo' || !realPhotoUrl}
       className="h-full w-full object-cover"
       onError={() => setFailed(true)}
@@ -194,12 +194,12 @@ function V2ImageStyle({ realisticImageSupplyReady }: { realisticImageSupplyReady
   return (
     <div className="space-y-6">
       <StepIntro>
-        사장님이 올린 실제 사진을 그대로 보여줄지, 다보임이 준비하는 명백히 예술적인 방향을 사용할지 정해요.
-        업로드가 없어도 실제 사업·제품·사람을 지어내지 않고 완주할 수 있어요.
+        Decide whether to show the actual photo posted by the boss or use the clearly artistic direction prepared by Anaks Labs.
+        Even without uploading, you can complete the course without making up real businesses, products, or people.
       </StepIntro>
 
       <fieldset aria-describedby="image-direction-policy">
-        <legend className="sr-only">사이트 이미지 방향</legend>
+        <legend className="sr-only">Site image direction</legend>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {directionOptions.map((option) => {
             const isRealPhoto = option.id === 'real_photo';
@@ -233,13 +233,13 @@ function V2ImageStyle({ realisticImageSupplyReady }: { realisticImageSupplyReady
                   <DirectionSample direction={option.id} realPhotoUrl={realPhotoPreview} />
                   {isRecommended ? (
                     <span className="absolute top-2 left-2 rounded-full bg-ob-accent-strong px-2 py-0.5 text-[11px] font-semibold text-white">
-                      추천
+                      suggestion
                     </span>
                   ) : null}
                   {disabled ? (
                     <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-ob-ink/85 px-2 py-0.5 text-[11px] font-semibold text-white">
                       <LockKeyhole className="h-3 w-3" aria-hidden="true" />
-                      실제 사진 필요
+                      Real photo needed
                     </span>
                   ) : null}
                 </div>
@@ -280,12 +280,12 @@ function V2ImageStyle({ realisticImageSupplyReady }: { realisticImageSupplyReady
             className="mt-2 inline-flex min-h-10 items-center gap-1.5 rounded-ob border border-ob-accent px-3 font-semibold text-ob-accent-strong transition-colors hover:bg-ob-accent-soft"
           >
             <ImagePlus className="h-4 w-4" aria-hidden="true" />
-            사진 올리고 확인하기
+            Upload and check photos
           </button>
         </div>
       ) : (
         <p id="image-direction-policy" className="text-[13px] leading-5 text-ob-muted">
-          확인된 직접 업로드 사진만 실사 방향에 사용합니다. URL이나 가져온 이미지는 자동으로 실제 사진이 되지 않아요.
+          Only verified direct upload photos are used for live orientation. URLs or imported images do not automatically become actual photos.
         </p>
       )}
     </div>

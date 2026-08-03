@@ -9,23 +9,23 @@ export const FULFILLMENT_SLA = {
 } as const;
 
 function businessDayRange(min: number, max: number): string {
-  return min === max ? `영업일 ${max}일` : `영업일 ${min}~${max}일`;
+  return min === max ? `${max} business day${max === 1 ? '' : 's'}` : `${min}–${max} business days`;
 }
 
 export const SITE_BUILD_SLA_COPY =
-  `홈페이지 제작은 영업일 ${FULFILLMENT_SLA.siteBuild.maxBusinessDays}일 이내 완료됩니다.`;
+  `Website production is completed within ${FULFILLMENT_SLA.siteBuild.maxBusinessDays} business days.`;
 
 export const VIDEO_FULFILLMENT_COPY =
-  `주문 후 ${businessDayRange(FULFILLMENT_SLA.videoApplication.minBusinessDays, FULFILLMENT_SLA.videoApplication.maxBusinessDays)} 안에 적용됩니다. `
-  + '사장님이 고르신 연출 방향대로 다보임 AI가 만들고, 한 편씩 직접 검수해 가게 분위기에 맞는 것만 올립니다.';
+  `The approved video is applied within ${businessDayRange(FULFILLMENT_SLA.videoApplication.minBusinessDays, FULFILLMENT_SLA.videoApplication.maxBusinessDays)}. `
+  + 'Anaks Labs AI follows the selected direction, and every result is reviewed before it is applied.';
 
 export const EDIT_REQUEST_SLA_COPY =
-  `수정 대행은 접수 후 ${businessDayRange(FULFILLMENT_SLA.assistedEdit.minBusinessDays, FULFILLMENT_SLA.assistedEdit.maxBusinessDays)} 안에 처리됩니다.`;
+  `Managed edit requests are completed within ${businessDayRange(FULFILLMENT_SLA.assistedEdit.minBusinessDays, FULFILLMENT_SLA.assistedEdit.maxBusinessDays)}.`;
 
 export const VIDEO_FULFILLMENT_STATUS_LABELS = {
-  received: '접수됨',
-  reviewing: '검수 중',
-  applied: '적용 완료',
+  received: 'Received',
+  reviewing: 'Under review',
+  applied: 'Applied',
 } as const;
 
 export type VideoFulfillmentStatus = keyof typeof VIDEO_FULFILLMENT_STATUS_LABELS;

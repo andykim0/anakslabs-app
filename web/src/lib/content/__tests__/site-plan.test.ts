@@ -213,7 +213,7 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     });
     const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
     const hash = createHash('sha256').update(normalized).digest('hex');
-    assert.equal(hash, '1eda9d4c95205d29df6fb90610d9eaf67735328313d809eedb1c5fc91686ab27');
+    assert.equal(hash, 'c17160a1f435f1fea26a7aa4c0a3734190f6ceb7b6193efe007d6afc300b0c1e');
   });
 
   test('신규 브리프 필드가 없는 기존 v2 발행 결과는 고정 SHA를 유지한다', () => {
@@ -224,6 +224,6 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     });
     const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
     const hash = createHash('sha256').update(normalized).digest('hex');
-    assert.equal(hash, '7a483ecc5b924b10e909bc393e2991873715ea2d6e594cecf8808e42ebc03e61');
+    assert.equal(hash, '30efefdf09ff167bac96d7af7625bcb7cd13b90ce78ce00289be958332ad98ba');
   });
 });

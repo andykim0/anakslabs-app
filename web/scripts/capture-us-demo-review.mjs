@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import puppeteer from 'puppeteer-core';
 
-const ROOT = '/private/tmp/daboim-us-demo-review';
+const ROOT = '/private/tmp/anakslabs-us-demo-review';
 const PORT = 3217;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const CHROME =

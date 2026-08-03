@@ -33,7 +33,7 @@ export const GENERATED_SITE_PROGRESS_RAIL = 'none' as const;
 /**
  * 신규 생성 경계의 단일 pin 함수. 생성 사이트에는 시그니처와 무관하게 진행 레일을 만들지
  * 않는다. 저장된 legacy/numbered config는 이 생성 경계를 다시 통과하지 않는 한 렌더러가
- * 그대로 보존하며, 다보임 랜딩의 독립 StoryProgressRail 계약에는 관여하지 않는다.
+ * 그대로 보존하며, Anaks Labs 랜딩의 독립 StoryProgressRail 계약에는 관여하지 않는다.
  */
 export function withGeneratedSiteProgressRail(
   config: SiteConfig,

@@ -38,15 +38,15 @@ function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
   return (
     <div className="space-y-1.5 rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3">
       {info.isPersonal ? (
-        <p className="text-[11px] font-medium text-[#174DDA]">개인 운영 사이트</p>
+        <p className="text-[11px] font-medium text-[#174DDA]">privately operated site</p>
       ) : null}
-      <SummaryRow label="상호" value={info.businessName} />
-      <SummaryRow label={info.isPersonal ? '운영자' : '대표자'} value={info.ownerName} />
-      <SummaryRow label="사업자등록번호" value={info.businessNumber} />
-      <SummaryRow label="주소" value={info.address} />
-      <SummaryRow label="전화" value={info.phone} />
-      <SummaryRow label="이메일" value={info.email} />
-      <SummaryRow label="통신판매업 신고" value={info.mailOrderNumber} />
+      <SummaryRow label="mutual" value={info.businessName} />
+      <SummaryRow label={info.isPersonal ? "operator" : "exponent"} value={info.ownerName} />
+      <SummaryRow label="Business registration number" value={info.businessNumber} />
+      <SummaryRow label="address" value={info.address} />
+      <SummaryRow label="phone call" value={info.phone} />
+      <SummaryRow label="email" value={info.email} />
+      <SummaryRow label="Mail order business report" value={info.mailOrderNumber} />
     </div>
   );
 }
@@ -90,7 +90,7 @@ function PrePublishDialogContent({
     }
   };
 
-  const title = step === 0 ? '발행 전 진단 (1/3)' : step === 1 ? '사업자 정보 확인 (2/3)' : '발행 (3/3)';
+  const title = step === 0 ? "Pre-issue diagnosis (1/3)" : step === 1 ? "Check business information (2/3)" : "Published (3/3)";
   const updateHumanCheck = (id: PublishHumanCheckId, checked: boolean) => {
     setHumanChecks((current) => ({ ...current, [id]: checked }));
   };
@@ -102,10 +102,10 @@ function PrePublishDialogContent({
           <PublishDiagnostics siteId={siteId} onFix={handleFix} onGateChange={setQualityGateReady} />
           <div className="flex justify-end gap-2 pt-1">
             <Button variant="ghost" onClick={onClose}>
-              먼저 보완하기
+              Complement first
             </Button>
             <Button disabled={!qualityGateReady} onClick={() => setStep(1)}>
-              계속
+              continue
               <Rocket className="h-4 w-4" />
             </Button>
           </div>
@@ -114,11 +114,11 @@ function PrePublishDialogContent({
         editing || !businessInfo ? (
           <div className="space-y-3">
             <p className="text-xs leading-5 text-[#5F6B7C]">
-              발행하려면 사이트에 표기할 {businessInfo ? '' : '사업자(또는 운영자) '}정보가 필요해요.
+              To publish, please indicate on the site {businessInfo ? '' : "Business operator (or operator)"}I need information.
             </p>
             <BusinessInfoForm
               initial={businessInfo}
-              submitLabel="저장하고 계속"
+              submitLabel="Save and continue"
               onSave={(info) => {
                 useEditorStore.getState().setBusinessInfo(info);
                 setEditing(false);
@@ -131,7 +131,7 @@ function PrePublishDialogContent({
                     onClick={() => setEditing(false)}
                     className="inline-flex h-9 items-center rounded-lg border border-[#CAD5E5] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
                   >
-                    취소
+                    Cancel
                   </button>
                 ) : null
               }
@@ -146,7 +146,7 @@ function PrePublishDialogContent({
               className="inline-flex items-center gap-1.5 text-xs text-[#5F6B7C] transition-colors hover:text-[#174DDA]"
             >
               <Pencil className="h-3 w-3" />
-              정보 수정하기
+              Edit information
             </button>
             <label
               className={cn(
@@ -161,16 +161,16 @@ function PrePublishDialogContent({
                 className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
               />
               <span className="text-xs leading-5 text-[#344054]">
-                위 {businessInfo.isPersonal ? '운영자' : '사업자'} 정보가 정확한지 확인했습니다. 발행된 사이트
-                최하단에 법적 표기로 게시됩니다.
+                stomach {businessInfo.isPersonal ? "operator" : "business person"} We have verified that the information is accurate. published site
+                It is posted with legal notation at the bottom.
               </span>
             </label>
             <div className="flex justify-end gap-2 pt-1">
               <Button variant="ghost" onClick={onClose}>
-                취소
+                Cancel
               </Button>
               <Button disabled={!confirmed} onClick={() => setStep(2)}>
-                다음
+                Next
               </Button>
             </div>
           </div>
@@ -179,16 +179,16 @@ function PrePublishDialogContent({
         <div className="space-y-4">
           <p className="flex items-center gap-2 text-sm text-[#26354D]">
             <CheckCircle2 className="h-4 w-4 text-[#174DDA]" />
-            사업자 정보 확인 완료
+            Business information confirmed completed
           </p>
           <p className="text-xs leading-5 text-[#5F6B7C]">
-            지금 발행하면 편집 중인 초안이 라이브 사이트로 반영됩니다. 서브도메인은 즉시 접속 가능하며,
-            이후에도 언제든 다시 편집하고 재발행할 수 있어요.
+            If you publish now, your edited draft will be reflected on your live site. Subdomains can be accessed immediately,
+            You can edit and republish at any time later.
           </p>
           <HumanPublishChecklist value={humanChecks} onChange={updateHumanCheck} />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setStep(1)}>
-              이전
+              Back
             </Button>
             <Button
               disabled={!allPublishHumanChecksConfirmed(humanChecks)}
@@ -196,7 +196,7 @@ function PrePublishDialogContent({
               onClick={() => onConfirmed(humanChecks)}
             >
               <Rocket className="h-4 w-4" />
-              발행하기
+              Publish
             </Button>
           </div>
         </div>

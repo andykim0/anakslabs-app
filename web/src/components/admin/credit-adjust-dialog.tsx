@@ -60,11 +60,11 @@ export function CreditAdjustDialog({
   const submit = () => {
     setValidationError(null);
     if (!qtyValid) {
-      setValidationError('수량은 1 이상의 정수여야 합니다.');
+      setValidationError("Quantity must be an integer greater than or equal to 1.");
       return;
     }
     if (memo.trim().length === 0) {
-      setValidationError('조정 사유(메모)를 입력하세요.');
+      setValidationError("Enter the reason for the adjustment (memo).");
       return;
     }
     if (mode === 'deduct' && step !== 'confirm') {
@@ -84,17 +84,17 @@ export function CreditAdjustDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="크레딧 수동 조정"
+        aria-label="Manual adjustment of credits"
         className="w-full max-w-md rounded-lg bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-slate-900">크레딧 수동 조정</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Manual adjustment of credits</h2>
           <button
             type="button"
             onClick={onClose}
             disabled={mutation.isPending}
-            aria-label="닫기"
+            aria-label="Close"
             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           >
             <X size={16} aria-hidden />
@@ -104,29 +104,29 @@ export function CreditAdjustDialog({
         {step === 'done' && newBalance !== null ? (
           <div className="px-5 py-6 text-center">
             <CheckCircle2 size={28} className="mx-auto text-emerald-500" aria-hidden />
-            <p className="mt-3 text-sm font-medium text-slate-900">조정이 완료되었습니다</p>
+            <p className="mt-3 text-sm font-medium text-slate-900">Adjustment is complete</p>
             <p className="mt-1 text-xs text-slate-500">
-              {clientName} 님의 잔액: {formatNumber(currentBalance)} →{' '}
+              {clientName} Your balance: {formatNumber(currentBalance)} →{' '}
               <span className="font-semibold text-slate-900">{formatNumber(newBalance)}</span>{' '}
-              크레딧
+              credits
             </p>
             <button
               type="button"
               onClick={onClose}
               className="mt-4 rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-slate-700"
             >
-              닫기
+              Close
             </button>
           </div>
         ) : (
           <div className="px-5 py-4">
             <p className="text-xs text-slate-500">
-              대상: <span className="font-medium text-slate-800">{clientName}</span> · 현재 잔액{' '}
+              Target: <span className="font-medium text-slate-800">{clientName}</span> · Current balance{' '}
               <span className="font-medium text-slate-800">{formatNumber(currentBalance)}</span>{' '}
-              크레딧
+              credits
             </p>
 
-            <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="조정 방향">
+            <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="adjustment direction">
               <button
                 type="button"
                 role="radio"
@@ -143,7 +143,7 @@ export function CreditAdjustDialog({
                 )}
               >
                 <Plus size={13} aria-hidden />
-                지급 (+)
+                Payment (+)
               </button>
               <button
                 type="button"
@@ -161,12 +161,12 @@ export function CreditAdjustDialog({
                 )}
               >
                 <Minus size={13} aria-hidden />
-                차감 (−)
+                Deducted (−)
               </button>
             </div>
 
             <label className="mt-3 block">
-              <span className="text-xs font-medium text-slate-600">수량</span>
+              <span className="text-xs font-medium text-slate-600">quantity</span>
               <input
                 type="number"
                 min={1}
@@ -181,12 +181,12 @@ export function CreditAdjustDialog({
             </label>
 
             <label className="mt-3 block">
-              <span className="text-xs font-medium text-slate-600">메모 (조정 사유 — 필수)</span>
+              <span className="text-xs font-medium text-slate-600">Notes (Reason for Adjustment — Required)</span>
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 rows={2}
-                placeholder="예: CS 보상 지급 / 중복 지급분 회수"
+                placeholder="Example: CS compensation payment / recovery of duplicate payments"
                 className="mt-1 w-full resize-none rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
               />
             </label>
@@ -195,9 +195,9 @@ export function CreditAdjustDialog({
               <div className="mt-3 flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2.5">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0 text-red-600" aria-hidden />
                 <p className="text-xs text-red-700">
-                  <span className="font-semibold">음수 조정 확인:</span> {clientName} 님의 잔액에서{' '}
-                  {qtyValid ? formatNumber(parsedQty) : qty}크레딧이 차감됩니다. 잔액이 부족하면
-                  조정이 거부됩니다. 계속하시겠습니까?
+                  <span className="font-semibold">Check for negative adjustments:</span> {clientName} From your balance{' '}
+                  {qtyValid ? formatNumber(parsedQty) : qty}Credit will be deducted. If the balance is insufficient
+                  Adjustment is rejected. Do you want to continue?
                 </p>
               </div>
             ) : null}
@@ -216,7 +216,7 @@ export function CreditAdjustDialog({
                 disabled={mutation.isPending}
                 className="rounded-md border border-slate-300 px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
               >
-                취소
+                Cancel
               </button>
               <button
                 type="button"
@@ -233,10 +233,10 @@ export function CreditAdjustDialog({
                   <Loader2 size={13} className="animate-spin" aria-hidden />
                 ) : null}
                 {step === 'confirm'
-                  ? '차감 확정'
+                  ? "Deduction confirmed"
                   : mode === 'deduct'
-                    ? '차감 진행'
-                    : '지급 적용'}
+                    ? "Deduction progress"
+                    : "Apply payment"}
               </button>
             </div>
           </div>

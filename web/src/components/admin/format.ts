@@ -54,61 +54,61 @@ export function shortId(id: string | null | undefined): string {
 }
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: '기본 홈페이지',
-  premium: 'AI 영상 홈페이지',
+  basic: "default homepage",
+  premium: "AI video homepage",
 };
 
 export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
-  active: '활성',
-  paused: '일시중지',
-  cancelled: '해지',
+  active: "active",
+  paused: "pause",
+  cancelled: "Termination",
 };
 
 export const SITE_STATUS_LABELS: Record<SiteStatus, string> = {
-  draft: '초안',
-  building: '제작 중',
-  live: '라이브',
-  pending_dns: 'DNS 대기',
-  suspended: '중지됨',
+  draft: "draft",
+  building: "in production",
+  live: "live",
+  pending_dns: "DNS standby",
+  suspended: "stopped",
 };
 
 export const DOMAIN_TYPE_LABELS: Record<DomainType, string> = {
-  subdomain: '서브도메인',
-  custom: '커스텀',
+  subdomain: "subdomain",
+  custom: "custom",
 };
 
 export const EDIT_TYPE_LABELS: Record<EditType, string> = {
-  text: '다보임 카피 수정 대행',
-  image: 'AI 이미지 새로 생성',
-  video: 'AI 영상 재생성',
-  structure: 'AI 전체 섹션 재디자인',
+  text: "Anaks Labs copy editing service",
+  image: "Create a new AI image",
+  video: "AI video regeneration",
+  structure: "AI entire section redesign",
 };
 
 export const EDIT_STATUS_LABELS: Record<EditStatus, string> = {
-  pending: '대기',
-  ai_processing: 'AI 처리 중',
-  qa_review: 'QA 검수',
-  applied: '적용됨',
-  rejected: '반려됨',
+  pending: "atmosphere",
+  ai_processing: "AI processing",
+  qa_review: "QA inspection",
+  applied: "Applied",
+  rejected: "Rejected",
 };
 
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
-  initial_grant: '초기 지급',
-  purchase: '팩 구매',
-  subscription_grant: '구독 월 지급',
-  edit_text: '다보임 카피 수정 대행',
-  edit_image: 'AI 이미지 새로 생성',
-  edit_video: 'AI 영상 재생성',
-  edit_structure: 'AI 전체 섹션 재디자인',
-  refund: '환불',
-  expired: '만료 소멸',
-  admin_clawback: '지급분 회수',
-  admin_adjust: '관리자 조정',
+  initial_grant: "initial payment",
+  purchase: "Buy pack",
+  subscription_grant: "Subscription monthly payment",
+  edit_text: "Anaks Labs copy editing service",
+  edit_image: "Create a new AI image",
+  edit_video: "AI video regeneration",
+  edit_structure: "AI entire section redesign",
+  refund: "refund",
+  expired: "expiration",
+  admin_clawback: "Recovery of payment",
+  admin_adjust: "Administrator Coordination",
 };
 
 export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
-  build_fee: '빌드비(과거)',
-  maintenance_subscription: '사이트 운영 구독',
-  premium_addon: 'AI 영상 애드온',
-  credit_pack: '크레딧 팩',
+  build_fee: "Build fee (past)",
+  maintenance_subscription: "Site operation subscription",
+  premium_addon: "AI video add-on",
+  credit_pack: "credit pack",
 };

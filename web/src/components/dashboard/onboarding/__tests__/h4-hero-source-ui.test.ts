@@ -15,7 +15,7 @@ describe('H4 — 히어로 영상 소스 UI·전달', () => {
   test('긴 mock data URL과 비원격 스킴은 이행 힌트로 싣지 않는다', () => {
     for (const value of [
       `data:image/png;base64,${'A'.repeat(5000)}`,
-      'blob:https://daboim.kr/id',
+    'blob:https://anakslabs.com/id',
       'javascript:alert(1)',
       '//evil.example/hero.jpg',
     ]) {
@@ -36,8 +36,8 @@ describe('H4 — 히어로 영상 소스 UI·전달', () => {
 
   test('영상 선택 카피는 사진 보존/AI 무드 경로를 구분하고 음식 접시 이모지를 쓰지 않는다', () => {
     const motion = source('src/components/dashboard/onboarding/motion-choice-step.tsx');
-    assert.match(motion, /대표 사진의 피사체를 그대로 보존해 움직입니다/);
-    assert.match(motion, /제품을 지어내지 않고 선택한 무드·빛·공간을 움직입니다/);
+    assert.match(motion, /Preserves the subject of the approved image while adding motion/);
+    assert.match(motion, /approved mood, light, and space without inventing a product/);
     assert.doesNotMatch(motion, /🍽️|product-closeup|unboxing-detail/);
   });
 });

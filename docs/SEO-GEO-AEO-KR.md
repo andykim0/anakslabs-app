@@ -214,7 +214,7 @@ same template. [Generative search measurement study](https://arxiv.org/abs/2604.
   Scanner URL/DNS safety-validation time is outside the stopwatch, while every
   redirect hop is still revalidated against SSRF. Slow/very-slow deductions
   were reduced from 4/8 to 2/3 because this is a lab observation from the
-  Daboim scanner region, not a field metric from the visitor's location.
+  Anaks Labs scanner region, not a field metric from the visitor's location.
   web.dev describes TTFB as including connection and server latency, notes that
   values vary by architecture and measurement context, and treats its numeric
   thresholds as rough guidance rather than a Core Web Vital.

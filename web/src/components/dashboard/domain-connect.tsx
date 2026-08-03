@@ -16,9 +16,9 @@ import { Badge, Button, Card, cn, ErrorState, Skeleton } from './ui';
 const HOSTNAME_RE = /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
 
 const STEPS: { key: CustomDomainState; label: string; hint: string }[] = [
-  { key: 'pending', label: '대기중', hint: 'DNS 레코드 추가를 기다리는 중' },
-  { key: 'verifying', label: '검증중', hint: '레코드 확인 · SSL 인증서 발급 중' },
-  { key: 'active', label: '완료', hint: '커스텀 도메인으로 서비스 중' },
+  { key: 'pending', label: "Waiting", hint: "Waiting for DNS records to be added" },
+  { key: 'verifying', label: "Verifying", hint: "Checking records · Issuing SSL certificate" },
+  { key: 'active', label: "Complete", hint: "Serving as a custom domain" },
 ];
 
 function stepIndex(state: CustomDomainState): number {
@@ -38,14 +38,14 @@ function CopyButton({ value }: { value: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast('error', '복사에 실패했습니다. 값을 직접 선택해 주세요.');
+      toast('error', "Copy failed. Please select your own value.");
     }
   };
   return (
     <button
       type="button"
       onClick={copy}
-      aria-label="값 복사"
+      aria-label="Copy value"
       className="rounded-md p-1 text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -58,7 +58,7 @@ function StatusStepper({ state }: { state: CustomDomainState }) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-red-900 bg-red-950/30 px-3 py-2.5 text-xs text-red-300">
         <AlertTriangle className="h-4 w-4 shrink-0" />
-        검증에 실패했습니다. DNS 레코드 값을 다시 확인한 뒤, 아래에서 재시도해 주세요.
+        Verification failed. Please check your DNS record values ​​again and try again below.
       </div>
     );
   }
@@ -108,18 +108,18 @@ function StatusStepper({ state }: { state: CustomDomainState }) {
 function DnsGuideCard({ status }: { status: CustomDomainStatus }) {
   return (
     <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-4">
-      <p className="text-xs font-medium text-neutral-200">DNS 레코드 추가 안내</p>
+      <p className="text-xs font-medium text-neutral-200">Instructions for adding DNS records</p>
       <p className="mt-1 text-xs leading-5 text-neutral-500">
-        가비아·후이즈 등 <span className="text-neutral-400">도메인을 구매한 업체의 DNS 관리 화면</span>에서 아래
-        레코드를 그대로 추가해 주세요. 전파에는 최대 24~48시간이 걸릴 수 있고, 상태는 5초마다 자동 갱신됩니다.
+        Gabia, Whois, etc. <span className="text-neutral-400">DNS management screen of the company that purchased the domain</span>from below
+        Please add the record as is. Propagation can take up to 24-48 hours, and the status is automatically updated every 5 seconds.
       </p>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full min-w-105 text-left text-xs">
           <thead>
             <tr className="border-b border-neutral-800 text-[11px] text-neutral-500">
-              <th className="py-1.5 pr-3 font-medium">유형</th>
-              <th className="py-1.5 pr-3 font-medium">호스트(이름)</th>
-              <th className="py-1.5 font-medium">값</th>
+              <th className="py-1.5 pr-3 font-medium">category</th>
+              <th className="py-1.5 pr-3 font-medium">host(name)</th>
+              <th className="py-1.5 font-medium">value</th>
             </tr>
           </thead>
           <tbody className="font-mono">
@@ -146,7 +146,7 @@ function DnsGuideCard({ status }: { status: CustomDomainStatus }) {
         </table>
       </div>
       {status.sslStatus ? (
-        <p className="mt-2 text-[11px] text-neutral-600">SSL 상태: {status.sslStatus}</p>
+        <p className="mt-2 text-[11px] text-neutral-600">SSL Status: {status.sslStatus}</p>
       ) : null}
     </div>
   );
@@ -170,7 +170,7 @@ function ConnectForm({
     e.preventDefault();
     const value = hostname.trim().toLowerCase();
     if (!HOSTNAME_RE.test(value)) {
-      setLocalError('올바른 도메인 형식이 아닙니다. (예: www.example.com)');
+      setLocalError("This is not a valid domain format. (e.g. www.example.com)");
       return;
     }
     setLocalError(null);
@@ -182,8 +182,8 @@ function ConnectForm({
   return (
     <form onSubmit={submit} className="mt-1">
       <p className="text-xs leading-5 text-neutral-500">
-        보유하신 도메인을 연결할 수 있어요. <span className="text-neutral-400">www.내도메인.com</span> 형태를
-        권장합니다. 연결 자체는 무료이며, 기존 서브도메인 주소는 연결이 끝날 때까지 계속 동작합니다.
+        You can connect your own domain. <span className="text-neutral-400">www.mydomain.com</span> form
+        Recommended. The connection itself is free, and existing subdomain addresses will continue to operate until the connection is completed.
       </p>
       <div className="mt-3 flex gap-2">
         <input
@@ -194,7 +194,7 @@ function ConnectForm({
         />
         <Button type="submit" loading={pending}>
           <Link2 className="h-4 w-4" />
-          연결하기
+          Connect
         </Button>
       </div>
       {error ? <p className="mt-2 text-xs text-red-400">{error}</p> : null}
@@ -226,10 +226,10 @@ export function DomainSection({ site }: { site: Site }) {
       queryClient.setQueryData(['domain', site.id], status);
       queryClient.invalidateQueries({ queryKey: ['site', site.id] });
       queryClient.invalidateQueries({ queryKey: ['sites'] });
-      toast('success', `${status.hostname} 연결 요청 완료 — DNS 레코드를 추가해 주세요.`);
+      toast('success', `${status.hostname}Connection request completed — please add your DNS records.`);
     },
     onError: (err) => {
-      setRequestError(err instanceof Error ? err.message : '도메인 연결 요청에 실패했습니다.');
+      setRequestError(err instanceof Error ? err.message : "Domain connection request failed.");
     },
   });
 
@@ -237,7 +237,7 @@ export function DomainSection({ site }: { site: Site }) {
 
   return (
     <section className="mt-8">
-      <h2 className="mb-3 text-sm font-semibold text-neutral-300">도메인</h2>
+      <h2 className="mb-3 text-sm font-semibold text-neutral-300">domain</h2>
       <Card className="space-y-5">
         {/* 현재 도메인 */}
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -246,18 +246,18 @@ export function DomainSection({ site }: { site: Site }) {
               <Globe className="h-4.5 w-4.5" />
             </span>
             <div>
-              <p className="text-xs text-neutral-500">현재 도메인</p>
+              <p className="text-xs text-neutral-500">current domain</p>
               <p className="text-sm font-medium text-neutral-100">
-                {site.domain ?? '미할당 (발행 시 서브도메인 자동 부여)'}
+                {site.domain ?? "Not assigned (subdomain automatically assigned when issued)"}
               </p>
             </div>
           </div>
           <Badge tone={site.domainType === 'custom' ? (site.dnsVerified ? 'emerald' : 'amber') : 'neutral'}>
             {site.domainType === 'custom'
               ? site.dnsVerified
-                ? '커스텀 도메인 · 연결됨'
-                : '커스텀 도메인 · 검증 중'
-              : '기본 서브도메인'}
+                ? "Custom Domain · Connected"
+                : "Custom domain · Verifying"
+              : "default subdomain"}
           </Badge>
         </div>
 
@@ -268,7 +268,7 @@ export function DomainSection({ site }: { site: Site }) {
           </div>
         ) : statusQuery.isError ? (
           <div className="border-t border-neutral-800 pt-4">
-            <ErrorState message="도메인 상태를 불러오지 못했습니다." onRetry={() => statusQuery.refetch()} />
+            <ErrorState message="Failed to retrieve domain status." onRetry={() => statusQuery.refetch()} />
           </div>
         ) : status ? (
           /* 연결 진행 중 / 완료 */
@@ -276,7 +276,7 @@ export function DomainSection({ site }: { site: Site }) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm text-neutral-200">
                 <span className="font-medium">{status.hostname}</span>
-                <span className="text-neutral-500"> 연결 상태</span>
+                <span className="text-neutral-500"> connection status</span>
               </p>
               <button
                 type="button"
@@ -284,13 +284,13 @@ export function DomainSection({ site }: { site: Site }) {
                 className="inline-flex items-center gap-1 text-[11px] text-neutral-500 transition-colors hover:text-neutral-300"
               >
                 <RefreshCw className={cn('h-3 w-3', statusQuery.isFetching && 'animate-spin')} />
-                지금 확인
+                check now
               </button>
             </div>
             <StatusStepper state={status.status} />
             {status.status === 'active' ? (
               <p className="rounded-lg border border-emerald-900 bg-emerald-950/30 px-3 py-2.5 text-xs text-emerald-300">
-                연결이 완료됐어요. 이제 {status.hostname} 으로 접속하면 이 사이트가 열립니다. (SSL 자동 적용)
+                The connection is complete. now {status.hostname} This site opens when you access . (SSL automatically applied)
               </p>
             ) : (
               <DnsGuideCard status={status} />
@@ -306,7 +306,7 @@ export function DomainSection({ site }: { site: Site }) {
         ) : (
           /* 아직 커스텀 도메인 없음 → 연결 폼 */
           <div className="border-t border-neutral-800 pt-4">
-            <p className="text-sm font-medium text-neutral-200">내 도메인 연결</p>
+            <p className="text-sm font-medium text-neutral-200">Connect my domain</p>
             <ConnectForm
               onSubmit={(hostname) => requestMutation.mutate(hostname)}
               pending={requestMutation.isPending}

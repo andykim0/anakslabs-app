@@ -45,7 +45,7 @@ export async function typographyHeroScene(value: unknown): Promise<string> {
     styles: `
       :root{--bg:${palette.background};--surface:${palette.surface};--primary:${palette.primary};--accent:${palette.accent};--text:${palette.text}}
       *{box-sizing:border-box}html,body{width:1920px;height:1080px;margin:0;overflow:hidden;background:var(--bg)}
-      body{font-family:"Daboim Noto Sans KR",sans-serif}#root{position:relative;width:100%;height:100%;overflow:hidden;color:var(--text);isolation:isolate}
+      body{font-family:"Anaks Labs Noto Sans KR",sans-serif}#root{position:relative;width:100%;height:100%;overflow:hidden;color:var(--text);isolation:isolate}
       .field{position:absolute;inset:-12%;background:radial-gradient(circle at 74% 25%,color-mix(in srgb,var(--accent) 72%,transparent),transparent 23%),radial-gradient(circle at 22% 80%,color-mix(in srgb,var(--primary) 70%,transparent),transparent 30%),var(--bg);animation:hero-field 6s linear both}
       .orbit{position:absolute;width:760px;height:760px;right:-110px;top:-170px;border:2px solid color-mix(in srgb,var(--text) 24%,transparent);border-radius:50%;animation:hero-orbit 6s cubic-bezier(.2,.8,.2,1) both}
       .orbit::before,.orbit::after{content:"";position:absolute;border-radius:50%;border:1px solid color-mix(in srgb,var(--accent) 58%,transparent)}.orbit::before{inset:110px}.orbit::after{inset:245px;background:color-mix(in srgb,var(--surface) 52%,transparent)}

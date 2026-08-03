@@ -17,17 +17,17 @@ function source(path: string): string {
   return readFileSync(join(process.cwd(), path), 'utf8');
 }
 
-describe('PRICE-V6 clinic 과거 계약·게이트', () => {
-  test('현재 신규 가격표에서 clinic 판매 프로필은 제거된다', () => {
-    assert.equal('clinic' in INDUSTRY_PROFILES, false);
+describe('Anaks Labs clinic enterprise publish policy', () => {
+  test('the current pricing table contains only the clinic enterprise profile', () => {
+    assert.deepEqual(Object.keys(INDUSTRY_PROFILES), ['clinic']);
   });
 
-  test('현재 clinic은 unavailable, 과거 clinic 계약은 gated, 레거시는 보존된다', () => {
+  test('current and previous clinic contracts remain medical-policy gated while pre-profile rows stay legacy', () => {
     const clinic = industryPublishPolicy({
       industryProfileId: 'clinic',
       pricingModelVersion: PRICING_MODEL_VERSION,
     });
-    assert.equal(clinic.status, 'unavailable');
+    assert.equal(clinic.status, 'gated');
     const previousClinic = industryPublishPolicy({
       industryProfileId: 'clinic',
       pricingModelVersion: PREVIOUS_PRICING_MODEL_VERSION,
@@ -58,19 +58,17 @@ describe('PRICE-V6 clinic 과거 계약·게이트', () => {
       assert.ok(policy < route.indexOf('needsPublishPayment(', policy));
     }
     assert.ok(publish.indexOf('industryPublishPolicy(site)') < publish.indexOf('publishPaymentQuote({'));
-    assert.ok(payment.indexOf('industryPublishPolicy(site)') < payment.indexOf('getDataServices().payments.handleWebhook'));
+    assert.ok(payment.indexOf('industryPublishPolicy(site)') < payment.indexOf('services.payments.handleWebhook'));
   });
 
-  test('/clinic 공개 페이지·sitemap·마케팅 내비 링크는 같은 가용성 함수 뒤에 있다', () => {
+  test('/clinic is the permanent public product surface while publishing remains separately gated', () => {
     const page = source('src/app/(marketing)/clinic/page.tsx');
     const sitemap = source('src/app/sitemap.ts');
-    const layout = source('src/app/(marketing)/layout.tsx');
     const header = source('src/components/marketing/MarketingHeader.tsx');
     const footer = source('src/components/marketing/MarketingFooter.tsx');
-    assert.match(page, /clinicAvailability\(\)\.available[\s\S]*notFound\(\)/u);
-    assert.match(sitemap, /clinicAvailability\(\)\.available[\s\S]*['"]\/clinic['"]/u);
-    assert.match(layout, /clinicAvailability\(\)\.available/u);
-    assert.match(header, /clinicAvailable[\s\S]*href: ['"]\/clinic['"]/u);
-    assert.match(footer, /clinicAvailable[\s\S]*href: ['"]\/clinic['"]/u);
+    assert.match(page, /Clinic website delivery/u);
+    assert.match(sitemap, /['"]\/clinic['"]/u);
+    assert.match(header, /href: ['"]\/clinic['"]/u);
+    assert.match(footer, /href: ['"]\/clinic['"]/u);
   });
 });

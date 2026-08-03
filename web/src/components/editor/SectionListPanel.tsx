@@ -39,16 +39,16 @@ export function SectionListPanel() {
       <PageListPanel />
       <div className="flex items-center gap-2 border-b border-[#DCE4F0] px-4 py-3">
         <Layers className="h-3.5 w-3.5 text-[#667085]" />
-        <span className="text-xs font-semibold text-[#344054]">섹션</span>
+        <span className="text-xs font-semibold text-[#344054]">section</span>
         <span className="text-[11px] text-[#667085] tabular-nums">{sections.length}</span>
       </div>
 
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2">
         {sections.length === 0 ? (
           <p className="px-2 py-6 text-center text-[11px] leading-5 text-[#667085]">
-            섹션이 없습니다.
+            There are no sections.
             <br />
-            아래에서 추가해 보세요.
+            Add yours below.
           </p>
         ) : null}
 
@@ -88,7 +88,7 @@ export function SectionListPanel() {
                     {section.name}
                   </span>
                   <span className="block text-[10px] text-[#667085]">
-                    {SECTION_TYPE_LABELS[section.type]} · 요소 {section.elements.length}개
+                    {SECTION_TYPE_LABELS[section.type]} · Element {section.elements.length} items
                   </span>
                 </span>
                 {section.hidden ? <EyeOff className="h-3 w-3 shrink-0 text-[#667085]" /> : null}
@@ -96,27 +96,27 @@ export function SectionListPanel() {
 
               <div className="mt-1.5 hidden items-center gap-0.5 group-hover:flex">
                 <PanelIconButton
-                  title="위로"
+                  title="consolation"
                   disabled={idx === 0}
                   onClick={() => useEditorStore.getState().moveSection(section.id, -1)}
                 >
                   <ChevronUp className="h-3.5 w-3.5" />
                 </PanelIconButton>
                 <PanelIconButton
-                  title="아래로"
+                  title="down"
                   disabled={idx === sections.length - 1}
                   onClick={() => useEditorStore.getState().moveSection(section.id, 1)}
                 >
                   <ChevronDown className="h-3.5 w-3.5" />
                 </PanelIconButton>
                 <PanelIconButton
-                  title="복제"
+                  title="replication"
                   onClick={() => useEditorStore.getState().duplicateSection(section.id)}
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </PanelIconButton>
                 <PanelIconButton
-                  title={section.hidden ? '표시' : '숨김 (발행 시 제외)'}
+                  title={section.hidden ? "mark" : "Hidden (except when published)"}
                   onClick={() =>
                     useEditorStore.getState().updateSection(section.id, { hidden: !section.hidden })
                   }
@@ -124,7 +124,7 @@ export function SectionListPanel() {
                   {section.hidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                 </PanelIconButton>
                 <PanelIconButton
-                  title="삭제"
+                  title="Delete"
                   danger
                   onClick={() => useEditorStore.getState().deleteSection(section.id)}
                 >
@@ -145,7 +145,7 @@ export function SectionListPanel() {
               type="button"
               className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-[#CAD5E5] text-xs font-medium text-[#26354D] transition-colors hover:border-[#AEBACC] hover:bg-white"
             >
-              <Plus className="h-3.5 w-3.5" /> 섹션 추가
+              <Plus className="h-3.5 w-3.5" /> Add section
             </button>
           }
           items={SECTION_TYPES.map((type) => ({
@@ -172,18 +172,18 @@ export function SectionListPanel() {
           )}
         >
           <Building2 className="h-3.5 w-3.5" />
-          사업자 정보 {businessInfo ? '' : '(발행 전 필수)'}
+          Business information {businessInfo ? '' : "(Required before issuance)"}
         </button>
       </div>
 
-      <Modal open={bizModalOpen} onClose={() => setBizModalOpen(false)} title="사업자 정보" className="max-w-lg">
+      <Modal open={bizModalOpen} onClose={() => setBizModalOpen(false)} title="Business information" className="max-w-lg">
         <BusinessInfoForm
           initial={businessInfo}
-          submitLabel="저장"
+          submitLabel="Save"
           onSave={(info) => {
             useEditorStore.getState().setBusinessInfo(info);
             setBizModalOpen(false);
-            toast('success', '사업자 정보를 저장했어요. 발행 시 사이트 하단에 자동 표기됩니다.');
+            toast('success', "The business information has been saved. When published, it will be automatically displayed at the bottom of the site.");
           }}
           extraActions={
             <button
@@ -191,7 +191,7 @@ export function SectionListPanel() {
               onClick={() => setBizModalOpen(false)}
               className="inline-flex h-9 items-center rounded-lg border border-[#CAD5E5] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
             >
-              취소
+              Cancel
             </button>
           }
         />

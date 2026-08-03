@@ -37,11 +37,11 @@ describe('Q$4 — 생성 후 섹션별 반복 검수 게이트', () => {
   test('adjust/regenerate는 저장 뒤 같은 타깃에 남고 명시적 keep만 다음으로 이동한다', () => {
     assert.match(review, /const nextConfig = applySectionDirection\(config, direction\);\s*await saveSiteDraft\(siteId, nextConfig\);/);
     assert.match(review, /if \(intent === 'keep'\) \{[\s\S]*setTargetIndex\(\(current\) => current \+ 1\)/);
-    assert.match(review, /좌우 배치를 바꿨어요\. 같은 섹션을 다시 확인한 뒤, 괜찮으면 이대로 확정해 주세요/);
+    assert.match(review, /Left and right placement has been swapped\. Review this section again before confirming/);
     assert.equal((review.match(/setTargetIndex\(/g) ?? []).length, 1, 'keep 외 자동 진행 금지');
-    assert.match(review, /좌우 배치 바꾸기/);
-    assert.match(review, /이대로 확정하고 다음/);
-    assert.match(review, /이대로 확정하고 완료/);
+    assert.match(review, /Swap left and right placement/);
+    assert.match(review, /Confirm and continue/);
+    assert.match(review, /Confirm and finish/);
   });
 
   test('GenerateStep은 성공 후 기존 완료 카드보다 먼저 검수 게이트를 연다', () => {
@@ -57,11 +57,11 @@ describe('Q$4 — 생성 후 섹션별 반복 검수 게이트', () => {
     assert.match(review, /hasAppliedHeroVideo = Boolean\([\s\S]*background\.video\?\.src[\s\S]*background\.video\.poster/);
     assert.match(review, /!hasAppliedHeroVideo[\s\S]*config\.motion\?\.videoAddon === true \|\| config\.motion\?\.videoRequested === true/);
     assert.match(review, /previewAsAddon=\{previewAsAddon\}/);
-    assert.match(review, /고른 영상 연출의 실제 스크롤 예시예요/);
-    assert.match(review, /승인 후 생성된 실제 영상 초안이에요/);
-    assert.match(review, /저장된 권한이나 발행물은 바꾸지 않고/);
-    assert.match(review, /대표 사진 다시 고르기/);
-    assert.match(review, /움직임 다시 고르기/);
+    assert.match(review, /scroll preview of the selected treatment/);
+    assert.match(review, /video draft was created after approval/);
+    assert.match(review, /does not alter stored permissions or published content/);
+    assert.match(review, /Choose another hero image/);
+    assert.match(review, /Choose another motion/);
     assert.match(review, /onClick=\{onChooseHeroImage\}/);
     assert.match(review, /onClick=\{onChooseHeroMotion\}/);
     assert.match(generate, /onChooseHeroImage=\{onChooseHeroImage\}/);
@@ -80,7 +80,7 @@ describe('Q$4 — 생성 후 섹션별 반복 검수 게이트', () => {
 
   test('직접 편집 무료·무제한 링크를 항상 제공하고 검수 UI에는 원가 호출이 없다', () => {
     assert.match(review, /href=\{`\/dashboard\/sites\/\$\{siteId\}\/editor`\}/);
-    assert.match(review, /횟수 제한 없이 무료/);
+    assert.match(review, /Free and unlimited/);
     for (const banned of ['fetch(', '/api/', 'generateSite', 'generateVeoVideo', 'edit-request', 'credit']) {
       assert.ok(!review.includes(banned), `검수 UI 원가/신규 경로 심볼 금지: ${banned}`);
     }
@@ -105,12 +105,15 @@ describe('Q$4 — 생성 후 섹션별 반복 검수 게이트', () => {
 
   test('PATCH 성공처럼 보이는 잘못된 응답은 완료로 처리하지 않는다', async () => {
     globalThis.fetch = (async () => jsonResponse({ ok: false })) as typeof fetch;
-    await assert.rejects(saveSiteDraft('site-1', emptySiteConfig('검수')), /사이트 초안 저장 응답/);
+    await assert.rejects(
+      saveSiteDraft('site-1', emptySiteConfig('review')),
+      /Failed to interpret site draft save response/,
+    );
   });
 
   test('미지원 자유 메모는 반영 성공으로 말하지 않고 등록 방향을 안내한다', () => {
     assert.match(review, /sectionDirectionGuidesFromNote\(note\)/);
-    assert.match(review, /이 메모는 자동 조정 규칙과 연결되지 않았어요/);
-    assert.match(review, /선택한 방향 칩만 반영했어요\. 자유 메모는 자동 반영되지 않았으니/);
+    assert.match(review, /This note is not linked to an automatic adjustment/);
+    assert.match(review, /Only the selected direction was applied\. Free-form notes are not applied automatically/);
   });
 });

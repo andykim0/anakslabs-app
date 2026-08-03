@@ -46,7 +46,7 @@ export function useAutosave(siteId: string): AutosaveHandle {
           // config/businessInfo가 그 사이 바뀜 → 루프 계속
         }
       } catch (err) {
-        console.error('[editor] 자동저장 실패:', err);
+        console.error("[editor] Autosave failed:", err);
         useEditorStore.getState().setSaveStatus('error');
         if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
         retryTimerRef.current = setTimeout(() => {

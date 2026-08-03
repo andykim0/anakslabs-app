@@ -5,11 +5,11 @@ import { SCROLLYTELLING_MOTION_ID } from './hero-video-motions';
 import { hasValidScrollytellingActs, isScrollytellingTemplate } from './scrollytelling';
 
 /**
- * 결제 전 애드온 예시에만 쓰는 다보임 데모 자산.
+ * 결제 전 애드온 예시에만 쓰는 Anaks Labs 데모 자산.
  * 실제 고객 발행물의 영상 URL이나 애드온 권한으로 저장하지 않는다.
  */
-export const ADDON_DEMO_VIDEO = '/daboim-visibility-film-scrub.mp4';
-export const ADDON_DEMO_POSTER = '/daboim-visibility-film-poster.webp';
+export const ADDON_DEMO_VIDEO = '/anakslabs-visibility-film-scrub.mp4';
+export const ADDON_DEMO_POSTER = '/anakslabs-visibility-film-poster.webp';
 export const ADDON_DEMO_VIDEO_BYTES = 6_950_435;
 
 /**

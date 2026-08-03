@@ -1,6 +1,6 @@
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
-/** Daboim 제품 락업 — 웹 프레임과 SEO/AEO/GEO 발견 신호를 결합한다. */
+/** Anaks Labs product lockup. */
 export function BrandMark({ className = 'h-9 w-9' }: { className?: string }) {
   return (
     <svg
@@ -11,13 +11,13 @@ export function BrandMark({ className = 'h-9 w-9' }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient id="daboim-mark-gradient" x1="4" y1="4" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+        <linearGradient id="anaks-mark-gradient" x1="4" y1="4" x2="40" y2="40" gradientUnits="userSpaceOnUse">
           <stop stopColor="#174DDA" />
           <stop offset="0.55" stopColor="#08B8E8" />
           <stop offset="1" stopColor="#03D1B8" />
         </linearGradient>
       </defs>
-      <rect width="44" height="44" rx="12" fill="url(#daboim-mark-gradient)" />
+      <rect width="44" height="44" rx="12" fill="url(#anaks-mark-gradient)" />
       <rect x="7.5" y="8" width="29" height="27" rx="6" stroke="white" strokeWidth="2.8" />
       <path d="M8.5 15h27" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
       <circle cx="13" cy="11.5" r="1.35" fill="white" />
@@ -50,13 +50,10 @@ export function BrandLogo({
       {compact ? null : (
         <span className={`flex shrink-0 items-baseline whitespace-nowrap font-semibold leading-none ${inverse ? 'text-white' : 'text-[#0B1736]'}`}>
           <span
-            data-brand-name="daboim"
+            data-brand-name="anaks-labs"
             className="shrink-0 whitespace-nowrap text-[17px] tracking-[-0.03em]"
           >
             {PUBLIC_BRAND_NAMES.brand}
-          </span>
-          <span className={`ml-1.5 shrink-0 whitespace-nowrap text-[9px] tracking-[-0.02em] ${inverse ? 'text-white/55' : 'text-[#667085]'}`}>
-            (Daboim)
           </span>
         </span>
       )}

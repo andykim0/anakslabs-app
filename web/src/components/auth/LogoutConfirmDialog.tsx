@@ -49,10 +49,10 @@ export function LogoutConfirmDialog({
           <LogOut className="h-5 w-5" aria-hidden />
         </span>
         <h2 id="logout-confirm-title" className="mt-4 text-lg font-semibold tracking-[-0.02em]">
-          로그아웃할까요?
+          Log out?
         </h2>
         <p id="logout-confirm-description" className="mt-2 text-sm leading-6 text-[#667085]">
-          현재 세션을 종료하고 로그인 화면으로 이동합니다.
+          This ends your current session and returns you to the sign-in page.
         </p>
         <div className="mt-6 flex justify-end gap-2">
           <button
@@ -61,7 +61,7 @@ export function LogoutConfirmDialog({
             disabled={pending}
             className="h-10 rounded-lg border border-[#DCE4F0] px-4 text-sm font-medium text-[#475467] transition-colors hover:bg-[#F8FBFF] disabled:opacity-60"
           >
-            취소
+            Cancel
           </button>
           <button
             ref={confirmRef}
@@ -75,7 +75,7 @@ export function LogoutConfirmDialog({
             ) : (
               <LogOut className="h-4 w-4" aria-hidden />
             )}
-            {pending ? '로그아웃 중…' : '로그아웃'}
+            {pending ? 'Logging out…' : 'Log out'}
           </button>
         </div>
       </section>

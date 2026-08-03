@@ -1,6 +1,6 @@
 /**
  * 테넌트 호스트 404 — 미발행/미등록 도메인, 존재하지 않는 하위 경로.
- * 다보임 브랜딩을 담은 자체 404 (앱 chrome 없음).
+ * Anaks Labs 브랜딩을 담은 자체 404 (앱 chrome 없음).
  */
 import { ROOT_DOMAIN } from '@/lib/env';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';

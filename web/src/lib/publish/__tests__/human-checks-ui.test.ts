@@ -34,7 +34,7 @@ describe('발행 휴먼 체크 UI 배선', () => {
     assert.match(diagnostics, /data\?\.ok === true/);
     assert.match(diagnostics, /!isFetching/);
     assert.match(diagnostics, /refetchOnMount:\s*'always'/);
-    assert.match(diagnostics, /진단을 완료하지 못해 지금은 발행할 수 없어요/);
+    assert.match(diagnostics, /Publishing is unavailable because the diagnostic check could not complete/);
     assert.doesNotMatch(diagnostics, /그대로 발행/);
   });
 
@@ -46,7 +46,7 @@ describe('발행 휴먼 체크 UI 배선', () => {
     const openAt = shell.indexOf('setPrePublishOpen(true)', flushAt);
     assert.ok(clickStart >= 0 && flushAt > clickStart && openAt > flushAt);
     assert.match(shell, /prePublishOpen \? \(\s*<PrePublishDialog/);
-    assert.match(diagnostics, /!data\.ok \? \([\s\S]*다시 진단해야 발행할 수 있어요/);
+    assert.match(diagnostics, /!data\.ok \? \([\s\S]*run the diagnostic check again before publishing/);
     assert.match(diagnostics, /data\.ok && data\.warnings\.length/);
   });
 

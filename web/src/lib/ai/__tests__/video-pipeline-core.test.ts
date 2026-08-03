@@ -204,6 +204,6 @@ describe('resolveHeroSourceUrl — 상대 mock src', () => {
   });
   test('origin 없는 상대 경로·비 http(s)는 거부한다', () => {
     assert.equal(resolveHeroSourceUrl('/mock/hero.png'), null);
-    assert.equal(resolveHeroSourceUrl('data:image/png;base64,AA==', 'https://daboim.kr'), null);
+  assert.equal(resolveHeroSourceUrl('data:image/png;base64,AA==', 'https://anakslabs.com'), null);
   });
 });

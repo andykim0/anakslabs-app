@@ -18,8 +18,8 @@ export const maxDuration = 300;
 
 const RATE_LIMIT = 2;
 const RATE_WINDOW_MS = 60_000;
-const RL_KEY = '__daboimAdminCrawlRateLimit__' as const;
-const ACTIVE_KEY = '__daboimAdminActiveCrawlOrigins__' as const;
+const RL_KEY = '__anaksAdminCrawlRateLimit__' as const;
+const ACTIVE_KEY = '__anaksAdminActiveCrawlOrigins__' as const;
 type GlobalWithCrawlGuard = typeof globalThis & {
   [RL_KEY]?: Map<string, number[]>;
   [ACTIVE_KEY]?: Set<string>;

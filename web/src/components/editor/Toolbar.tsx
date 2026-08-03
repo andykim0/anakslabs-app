@@ -59,19 +59,19 @@ function SaveStatusIndicator() {
   if (saveStatus === 'saving') {
     return (
       <span className="flex items-center gap-1 text-[11px] text-[#5F6B7C]">
-        <Loader2 className="h-3 w-3 animate-spin" /> 저장 중…
+        <Loader2 className="h-3 w-3 animate-spin" /> Saving…
       </span>
     );
   }
   if (saveStatus === 'error') {
     return (
       <span className="flex items-center gap-1 text-[11px] text-red-400">
-        <AlertTriangle className="h-3 w-3" /> 저장 실패 — 자동 재시도 중
+        <AlertTriangle className="h-3 w-3" /> Save failed — automatically retrying
       </span>
     );
   }
   if (dirty) {
-    return <span className="text-[11px] text-[#667085]">변경사항 저장 대기 중…</span>;
+    return <span className="text-[11px] text-[#667085]">Waiting to save changes...</span>;
   }
   if (saveStatus === 'saved' && lastSavedAt) {
     const d = new Date(lastSavedAt);
@@ -79,11 +79,11 @@ function SaveStatusIndicator() {
     const mm = String(d.getMinutes()).padStart(2, '0');
     return (
       <span className="flex items-center gap-1 text-[11px] text-[#667085]">
-        <Check className="h-3 w-3 text-emerald-500" /> 저장됨 {hh}:{mm}
+        <Check className="h-3 w-3 text-emerald-500" /> saved {hh}:{mm}
       </span>
     );
   }
-  return <span className="text-[11px] text-[#667085]">모든 변경사항 저장됨</span>;
+  return <span className="text-[11px] text-[#667085]">All changes saved</span>;
 }
 
 function ToolButton({
@@ -161,7 +161,7 @@ export function Toolbar({
           onClick={onExit}
           className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> 나가기
+          <ArrowLeft className="h-3.5 w-3.5" /> Exit
         </Link>
         <div className="h-4 w-px bg-[#E8EDF5]" />
         <span className="truncate text-sm font-semibold text-[#0B1736]">{siteName}</span>
@@ -170,10 +170,10 @@ export function Toolbar({
 
       {/* 중앙: 편집 도구 */}
       <div className="flex items-center gap-0.5">
-        <ToolButton title="실행 취소 (⌘Z)" disabled={!canUndo} onClick={undoEditor}>
+        <ToolButton title="Undo (⌘Z)" disabled={!canUndo} onClick={undoEditor}>
           <Undo2 className="h-4 w-4" />
         </ToolButton>
-        <ToolButton title="다시 실행 (⇧⌘Z)" disabled={!canRedo} onClick={redoEditor}>
+        <ToolButton title="Redo (⇧⌘Z)" disabled={!canRedo} onClick={redoEditor}>
           <Redo2 className="h-4 w-4" />
         </ToolButton>
 
@@ -186,7 +186,7 @@ export function Toolbar({
               disabled={previewing}
               className="flex h-8 items-center gap-1.5 rounded-lg border border-[#CAD5E5] px-2.5 text-xs font-medium text-[#26354D] transition-colors hover:border-[#AEBACC] hover:bg-white disabled:opacity-40"
             >
-              <Plus className="h-3.5 w-3.5" /> 요소 추가
+              <Plus className="h-3.5 w-3.5" /> Add element
             </button>
           }
           items={ELEMENT_KINDS.map((kind) => ({
@@ -199,17 +199,17 @@ export function Toolbar({
 
         <div className="mx-1.5 h-4 w-px bg-[#E8EDF5]" />
 
-        <ToolButton title="축소" onClick={() => stepZoom(-1)} disabled={previewing}>
+        <ToolButton title="reduction" onClick={() => stepZoom(-1)} disabled={previewing}>
           <ZoomOut className="h-4 w-4" />
         </ToolButton>
         <span className="w-11 text-center text-[11px] tabular-nums text-[#5F6B7C]">
           {Math.round(effectiveScale * 100)}%
         </span>
-        <ToolButton title="확대" onClick={() => stepZoom(1)} disabled={previewing}>
+        <ToolButton title="enlargement" onClick={() => stepZoom(1)} disabled={previewing}>
           <ZoomIn className="h-4 w-4" />
         </ToolButton>
         <ToolButton
-          title="화면에 맞춤"
+          title="Fit to screen"
           active={zoom === 'fit'}
           onClick={() => useEditorStore.getState().setZoom('fit')}
           disabled={previewing}
@@ -223,7 +223,7 @@ export function Toolbar({
         <div className="flex rounded-lg border border-[#CAD5E5] p-0.5">
           <button
             type="button"
-            title="편집 캔버스"
+            title="editing canvas"
             onClick={() => useEditorStore.getState().setPreview('off')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
@@ -234,7 +234,7 @@ export function Toolbar({
           </button>
           <button
             type="button"
-            title="미리보기 — 등장 애니메이션·버튼이 발행본과 동일하게 동작"
+            title="Preview — Appearance animation and buttons work the same as in the published version"
             onClick={() => useEditorStore.getState().setPreview('desktop')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
@@ -245,7 +245,7 @@ export function Toolbar({
           </button>
           <button
             type="button"
-            title="모바일 미리보기 (y좌표 순 자동 스택)"
+            title="Mobile preview (automatic stacking by y-coordinate)"
             onClick={() => useEditorStore.getState().setPreview('mobile')}
             className={cn(
               'flex h-7 w-9 items-center justify-center rounded-md transition-colors',
@@ -266,7 +266,7 @@ export function Toolbar({
           className="flex h-8 items-center gap-1.5 rounded-lg bg-[#174DDA] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[#245FE5] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
-          발행
+          publication
         </button>
       </div>
     </header>

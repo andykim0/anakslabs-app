@@ -4,7 +4,7 @@
  * the 8px viewport edge band.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-layout-variants-review.tsx
- * Out: /private/tmp/daboim-layout-variants-review
+ * Out: /private/tmp/anakslabs-layout-variants-review
  */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -26,7 +26,7 @@ import type { HeroLayoutVariantId } from '@/lib/layout/types';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-layout-variants-review';
+const OUTPUT_DIR = '/private/tmp/anakslabs-layout-variants-review';
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const GLYPH_EDGE_BAND_PX = 8;

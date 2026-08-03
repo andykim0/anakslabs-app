@@ -32,7 +32,7 @@ const MotionImmersivePreview = dynamic(
     ssr: false,
     loading: () => (
       <div className="fixed inset-0 z-[120] grid place-items-center bg-[#07162f]/95 text-sm font-semibold text-white" role="status">
-        실제 예시 연출을 준비하고 있어요…
+        Preparing an interactive example…
       </div>
     ),
   },
@@ -74,11 +74,11 @@ export function initialVideoPreference(
 
 function mediaRequirement(spec: MotionSignatureSpec): string {
   switch (spec.mediaCapability) {
-    case 'none': return '별도 이미지 없이 콘텐츠로 작동';
-    case 'image': return '실제 이미지가 필요';
-    case 'image-or-video': return '이미지로 작동 · 영상 선택 가능';
-    case 'video-required': return 'AI 영상 홈페이지가 있어야 발행 가능';
-    case 'verified-customer-images-only': return '소유권이 확인된 같은 실제 사례 사진 2장만';
+    case 'none': return "Works as content without separate images";
+    case 'image': return "need actual image";
+    case 'image-or-video': return "Operates by image, video selectable";
+    case 'video-required': return "Can be published only if there is an AI video website";
+    case 'verified-customer-images-only': return "Only 2 photos of the same actual case with confirmed ownership";
   }
 }
 
@@ -185,11 +185,11 @@ export function MotionChoiceStep({
     <Card className="space-y-6 border-ob-border bg-ob-surface p-6">
       <div>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-ob-border bg-ob-bg px-2.5 py-1 text-[11px] font-semibold text-ob-muted">
-          <Gauge className="h-3.5 w-3.5" /> 기본 모션 자동 적용
+          <Gauge className="h-3.5 w-3.5" /> Basic motion included
         </span>
-        <h2 className="mt-3 text-xl font-semibold text-ob-ink">페이지의 대표 움직임을 골라주세요</h2>
+        <h2 className="mt-3 text-xl font-semibold text-ob-ink">Choose a signature motion</h2>
         <p className="mt-1 text-sm leading-6 text-ob-muted">
-          버튼·문단의 가벼운 리빌은 자동으로 맞춥니다. 여기서는 사이트 전체에서 딱 한 번 쓰는 대표 연출만 정해요.
+          Buttons and text receive subtle motion automatically. Here you can choose one signature treatment for the site.
         </p>
       </div>
 
@@ -209,7 +209,7 @@ export function MotionChoiceStep({
                   type="button"
                   onClick={() => setPreviewingSignatureId(spec.id as ProductionMotionSignatureId)}
                   className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ob-accent-strong"
-                  aria-label={`${spec.label} 전체 화면 예시 열기`}
+                  aria-label={`Open ${spec.label} full-screen example`}
                 >
                 <div className="pointer-events-none relative bg-ob-bg">
                   <SitePreview
@@ -219,17 +219,17 @@ export function MotionChoiceStep({
                     previewAsAddon={spec.tier === 'premium'}
                   />
                   <span className="absolute top-2 left-2 z-[70] rounded-full border border-white/25 bg-black/65 px-2 py-1 text-[9px] font-semibold text-white">
-                    예시 · 실제 렌더러 티저 · 눌러서 체험
+                    Example · Actual renderer teaser · Click to experience
                   </span>
                 </div>
                 <span className="block space-y-2 p-3.5">
                   <span className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-ob-ink">{spec.label}</span>
-                    {index === 0 ? <span className="text-[10px] font-semibold text-ob-accent-strong">추천</span> : null}
+                    {index === 0 ? <span className="text-[10px] font-semibold text-ob-accent-strong">Recommended</span> : null}
                   </span>
                   <span className="block text-xs leading-5 text-ob-muted">{spec.description}</span>
                   <span className="block text-[11px] leading-4 text-ob-muted">
-                    모바일: {spec.mobileFallback}
+                    Mobile: {spec.mobileFallback}
                   </span>
                   <span className="block text-[11px] font-medium text-ob-ink">{mediaRequirement(spec)}</span>
                 </span>
@@ -240,7 +240,7 @@ export function MotionChoiceStep({
                     onClick={() => setPreviewingSignatureId(spec.id as ProductionMotionSignatureId)}
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-ob-accent-strong hover:underline"
                   >
-                    <Expand className="h-3.5 w-3.5" /> 크게 체험
+                    <Expand className="h-3.5 w-3.5" /> Open preview
                   </button>
                   <button
                     type="button"
@@ -248,7 +248,7 @@ export function MotionChoiceStep({
                     onClick={() => chooseSignature(spec.id as ProductionMotionSignatureId)}
                     className={cn('rounded-full px-3 py-1.5 text-[11px] font-semibold', active ? 'bg-ob-accent-strong text-white' : 'border border-ob-border text-ob-ink hover:border-ob-muted')}
                   >
-                    {active ? '선택됨' : '이 연출 선택'}
+                    {active ? 'Selected' : 'Choose this motion'}
                   </button>
                 </div>
               </article>
@@ -257,9 +257,9 @@ export function MotionChoiceStep({
         </div>
       ) : (
         <div className="rounded-ob border border-ob-border bg-ob-bg p-5">
-          <p className="text-sm font-semibold text-ob-ink">현재 콘텐츠에는 기본 모션이 가장 완성도가 높아요</p>
+          <p className="text-sm font-semibold text-ob-ink">Basic motion is the strongest fit for the available content.</p>
           <p className="mt-1 text-xs leading-5 text-ob-muted">
-            부족한 카드·사진·과정을 임의로 복제하지 않습니다. 콘텐츠를 더 넣으면 그에 맞는 시그니처가 열려요.
+            We do not duplicate or invent missing cards, photos, or process steps. Additional signatures become available when the source content supports them.
           </p>
         </div>
       )}
@@ -269,14 +269,14 @@ export function MotionChoiceStep({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="flex items-center gap-2 text-sm font-semibold text-ob-ink">
-                <MonitorPlay className="h-4 w-4 text-ob-accent-strong" /> {selected.spec.label} 실제 스크롤 체험
+                <MonitorPlay className="h-4 w-4 text-ob-accent-strong" /> {selected.spec.label} scroll preview
               </h3>
               <p className="mt-1 text-xs leading-5 text-ob-muted">
-                선택하신 색·글꼴·콘텐츠와 발행본의 동일한 scene 계약·런타임을 사용합니다. 안쪽을 직접 스크롤해 보세요.
+                This uses the same scene contract and runtime as the published version, with your selected colors, fonts, and content.
               </p>
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-ob-surface px-2.5 py-1 text-[10px] font-semibold text-ob-ink">
-              <Smartphone className="h-3 w-3" /> 모바일은 세로형으로 자동 전환
+              <Smartphone className="h-3 w-3" /> Mobile uses a vertical fallback
             </span>
           </div>
           <button
@@ -285,15 +285,15 @@ export function MotionChoiceStep({
             className="flex w-full items-center justify-between gap-4 rounded-ob border border-ob-border bg-ob-surface p-4 text-left transition-colors hover:border-ob-accent-strong"
           >
             <span>
-              <span className="block text-sm font-semibold text-ob-ink">전체 화면에서 실제 스크롤로 체험</span>
+              <span className="block text-sm font-semibold text-ob-ink">Experience the scroll behavior full screen</span>
               <span className="mt-1 block text-xs leading-5 text-ob-muted">
-                작은 카드에서 보이지 않던 진입·전환·마무리까지 고객님의 디자인으로 확인합니다.
+                Review entry, transitions, and completion using the actual renderer.
               </span>
             </span>
             <Expand className="h-5 w-5 shrink-0 text-ob-accent-strong" />
           </button>
           {selected.preview.usesRepresentativeMedia ? (
-            <p className="text-[10px] leading-4 text-ob-muted">움직임 설명용 다보임 대표 영상 · 고객 최종 자산 아님</p>
+            <p className="text-[10px] leading-4 text-ob-muted">Representative media demonstrates motion only; it is not your final asset.</p>
           ) : null}
         </div>
       ) : null}
@@ -301,9 +301,9 @@ export function MotionChoiceStep({
       {selected && supportsVideo ? (
         <div className="space-y-3 border-t border-ob-border pt-5">
           <div>
-            <h3 className="text-lg font-semibold tracking-tight text-ob-ink">사장님의 이 사진이, 이렇게 움직입니다</h3>
+            <h3 className="text-lg font-semibold tracking-tight text-ob-ink">See how the selected image moves</h3>
             <p className="mt-1 text-xs leading-5 text-ob-muted">
-              예시 연출이에요. 최종 디자인을 승인하면 이 사진을 소스로 실제 영상을 1회 만들어 드립니다.
+              This is a preview. After final design approval, one video generation may use the approved source image.
             </p>
           </div>
           <HeroMotionUpsellPreview
@@ -315,13 +315,13 @@ export function MotionChoiceStep({
           />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-ob-ink">이 움직임을 홈페이지에 남길까요?</h3>
+              <h3 className="text-sm font-semibold text-ob-ink">Use this treatment on the homepage?</h3>
               <p className="mt-1 text-xs leading-5 text-ob-muted">
-                시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어예요. 선택만으로 생성되거나 권한이 부여되지 않습니다.
+                A motion signature is a layout experience; AI video is separate media. Selecting this option does not create media or grant rights.
               </p>
             </div>
             <span className="rounded-full border border-ob-accent bg-ob-accent-soft px-2.5 py-1 text-[10px] font-semibold text-ob-accent-strong">
-              베이직 제작비에 포함 · 최종 디자인 승인 뒤 1회 생성
+              Included · One generation after final design approval
             </span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -332,8 +332,8 @@ export function MotionChoiceStep({
               className={cn('rounded-ob border p-4 text-left', !wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <ImageIcon className="h-5 w-5 text-ob-accent-strong" />
-              <span className="mt-2 block text-sm font-semibold text-ob-ink">정지 화면으로 유지하기</span>
-              <span className="mt-1 block text-xs leading-5 text-ob-muted">이미지 + 기본 모션 · 포함·무료. 직접 올린 이미지와 가벼운 모션으로 완성해요.</span>
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">Keep the approved image</span>
+              <span className="mt-1 block text-xs leading-5 text-ob-muted">Image + basic motion · Included. Uses the approved image with subtle movement.</span>
             </button>
             <button
               type="button"
@@ -342,22 +342,22 @@ export function MotionChoiceStep({
               className={cn('rounded-ob border p-4 text-left', wantsVideo ? 'border-ob-accent-strong bg-ob-accent-soft' : 'border-ob-border')}
             >
               <Film className="h-5 w-5 text-ob-accent-strong" />
-              <span className="mt-2 block text-sm font-semibold text-ob-ink">AI 영상 홈페이지 · 포함</span>
+              <span className="mt-2 block text-sm font-semibold text-ob-ink">AI hero video · Included</span>
               <span className="mt-1 block text-xs leading-5 text-ob-muted">
-                {heroPhotoUrl ? '대표 사진의 피사체를 그대로 보존해 움직입니다.' : '제품을 지어내지 않고 선택한 무드·빛·공간을 움직입니다.'}
+                {heroPhotoUrl ? 'Preserves the subject of the approved image while adding motion.' : 'Uses the approved mood, light, and space without inventing a product.'}
               </span>
             </button>
           </div>
           <p className="text-[11px] leading-5 text-ob-muted">
-            예시는 최종 다보임 AI 영상이 아닙니다. 실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작됩니다.
+            This preview is not the final Anaks Labs AI video. Generation starts once, only after administrator approval and all cost-cap and kill-switch checks pass.
           </p>
         </div>
       ) : null}
 
       <div className="flex items-center justify-between border-t border-ob-border pt-5">
-        <Button variant="ghost" onClick={onBack}><ArrowLeft className="h-4 w-4" />이전</Button>
+        <Button variant="ghost" onClick={onBack}><ArrowLeft className="h-4 w-4" />Back</Button>
         <Button size="lg" onClick={submit}>
-          {signatureId ? <><Check className="h-4 w-4" />이 움직임으로 계속</> : <>기본 모션으로 계속<ArrowRight className="h-4 w-4" /></>}
+          {signatureId ? <><Check className="h-4 w-4" />Continue with this motion</> : <>Continue with basic motion<ArrowRight className="h-4 w-4" /></>}
         </Button>
       </div>
 

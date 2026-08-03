@@ -1,6 +1,6 @@
 # AI 영상 히어로 수동 이행
 
-크몽 수동 수금 고객의 영상 파일을 다보임 Storage와 자산 registry에 등록하고 `/admin/video-queue`에서 이행 완료하는 운영 절차입니다. 이 절차는 영상을 생성하지 않으며, 등록 과정에서 외부 AI 호출이나 추가 비용이 발생하지 않습니다.
+크몽 수동 수금 고객의 영상 파일을 Anaks Labs Storage와 자산 registry에 등록하고 `/admin/video-queue`에서 이행 완료하는 운영 절차입니다. 이 절차는 영상을 생성하지 않으며, 등록 과정에서 외부 AI 호출이나 추가 비용이 발생하지 않습니다.
 
 ## 준비
 
@@ -11,7 +11,7 @@
 
 ## 1. 영상 생성·인코딩
 
-승인된 고객별 Daboim AI(Veo) 수동 생성 절차로 6~8초, 1920×1080 원본을 만들고, 고객이 선택한 히어로 소스와 연출인지 눈으로 확인합니다. 다른 가게의 영상이나 제품·시술 결과를 날조한 영상을 사용하지 않습니다.
+승인된 고객별 Anaks Labs AI(Veo) 수동 생성 절차로 6~8초, 1920×1080 원본을 만들고, 고객이 선택한 히어로 소스와 연출인지 눈으로 확인합니다. 다른 가게의 영상이나 제품·시술 결과를 날조한 영상을 사용하지 않습니다.
 
 스크럽용 파일은 해상도를 자동으로 낮추지 않고 MP4/H.264/yuv420p, 무음 all-intra로 인코딩합니다. 등록 검사는 인코더·컨테이너 오차를 고려해 5.5~8.5초만 허용하며, 신규 등록분은 1920×1080과 평균 4Mbps 이상을 함께 만족해야 합니다.
 
@@ -48,7 +48,7 @@ node --env-file=.env.local ./node_modules/.bin/tsx \
   --url https://storage.example/video.mp4
 ```
 
-URL은 provenance가 아닙니다. 스크립트는 각 HTTPS 리다이렉트마다 DNS 결과를 검사하고 검증한 공개 IPv4에 연결을 고정하되 원래 Host와 TLS SNI를 유지합니다. DNS·리다이렉트·본문 전체를 합쳐 60초, 스트리밍 본문은 8MiB로 제한합니다. 받은 MP4 바이트를 다보임 `ai-assets`에 다시 저장한 뒤 `(storage bucket, storage key)` identity를 등록합니다. `clientId`, origin과 사이트 귀속은 CLI가 아니라 서버가 결정합니다.
+URL은 provenance가 아닙니다. 스크립트는 각 HTTPS 리다이렉트마다 DNS 결과를 검사하고 검증한 공개 IPv4에 연결을 고정하되 원래 Host와 TLS SNI를 유지합니다. DNS·리다이렉트·본문 전체를 합쳐 60초, 스트리밍 본문은 8MiB로 제한합니다. 받은 MP4 바이트를 Anaks Labs `ai-assets`에 다시 저장한 뒤 `(storage bucket, storage key)` identity를 등록합니다. `clientId`, origin과 사이트 귀속은 CLI가 아니라 서버가 결정합니다.
 
 쓰기 전 검사만 하려면 `--dry-run`을 추가합니다. 실제 등록 성공 시 마지막 줄의 UUID를 복사합니다.
 

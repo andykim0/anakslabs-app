@@ -30,7 +30,7 @@ export function extractMainVisibleText(root: HTMLElement): string {
 
 /**
  * 본문 비율의 분모. 실행 코드·CSS와 class/style/data-* 같은 표현·런타임 속성은
- * 콘텐츠 양이 아니므로 제거한다. 외부 사이트와 다보임 발행물에 같은 계산을 쓴다.
+ * 콘텐츠 양이 아니므로 제거한다. 외부 사이트와 Anaks Labs 발행물에 같은 계산을 쓴다.
  */
 export function contentMarkupLength(root: HTMLElement): number {
   const clone = contentClone(root);

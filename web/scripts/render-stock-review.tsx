@@ -4,7 +4,7 @@
  * precedence and real-dimension masonry.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-stock-review.tsx
- * Out: /private/tmp/daboim-stock-review
+ * Out: /private/tmp/anakslabs-stock-review
  */
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
@@ -46,7 +46,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
 const OUTPUT = process.env.STOCK_REVIEW_OUTPUT
-  ?? '/private/tmp/daboim-stock-body-review';
+  ?? '/private/tmp/anakslabs-stock-body-review';
 const PUBLIC = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';

@@ -187,7 +187,7 @@ async function download(source: SourceSpec, directory: string): Promise<Buffer> 
 }
 
 async function main() {
-  const sourceCache = await mkdtemp(join(tmpdir(), 'daboim-latin-fonts-'));
+  const sourceCache = await mkdtemp(join(tmpdir(), 'anakslabs-latin-fonts-'));
   await mkdir(OUTPUT_DIR, { recursive: true });
   const text = latinCharacterSet();
   const chunk = {

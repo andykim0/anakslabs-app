@@ -16,10 +16,10 @@ const MAIN_REVIEW = process.env.MAIN_REVIEW === '1';
 const FLOW_REVIEW = process.env.FLOW_REVIEW === '1';
 const STORY_REVIEW = MAIN_REVIEW || FLOW_REVIEW;
 const OUTPUT = FLOW_REVIEW
-  ? '/private/tmp/daboim-continuous-canvas-review'
+  ? '/private/tmp/anakslabs-continuous-canvas-review'
   : MAIN_REVIEW
-  ? '/private/tmp/daboim-main-storytelling-review'
-  : '/private/tmp/daboim-content-depth-review';
+  ? '/private/tmp/anakslabs-main-storytelling-review'
+  : '/private/tmp/anakslabs-content-depth-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 async function dataUrl(file: string, mime: string): Promise<string> {

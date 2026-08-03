@@ -69,8 +69,8 @@ describe('asset-policy v2 onboarding wiring', () => {
     assert.match(STEP04, /personPhotoAssetIds/);
     assert.match(STEP04, /nonPersonPhotoAssetIds/);
     assert.match(STEP04, /projectPersonPhotoClassification/);
-    assert.match(STEP04, /인물이 들어간 사진만 체크해 주세요/);
-    assert.match(STEP04, /체크하지 않은 사진은 식별 가능한 인물이 없는 사진으로 기록합니다/);
+    assert.match(STEP04, /Please check only photos containing people/);
+    assert.match(STEP04, /Unchecked photos are recorded as photos without identifiable people/);
     assert.match(STEP04, /type="checkbox"[\s\S]*?checked=\{checked\}[\s\S]*?handlePersonPhotoCheck\(ref\.assetId, event\.target\.checked\)/);
     assert.doesNotMatch(STEP04, /type="radio"|value="non-person"|value="person"/);
     const personCheck = block(STEP04, 'const handlePersonPhotoCheck', 'return (');
@@ -82,7 +82,7 @@ describe('asset-policy v2 onboarding wiring', () => {
       STEP04,
       /disabled=\{Boolean\(personAttestingAssetId\) \|\| Boolean\(generalAssetAttestationId\)\}/,
     );
-    assert.match(STEP04, /사진을 추가·교체·삭제하면 다시 확인합니다/);
+    assert.match(STEP04, /Check again when you add, replace, or delete photos/);
     assert.match(STEP03, /nonPersonIds\.filter/);
     assert.match(DASHBOARD_API, /\/api\/asset-attestations\/person/);
     assert.match(DASHBOARD_API, /statementVersion: PERSON_ASSET_CONSENT_VERSION/);
@@ -92,7 +92,7 @@ describe('asset-policy v2 onboarding wiring', () => {
   test('외부 ingest refs는 별도 출처로 보존되고 사진 권리확약 집합에 포함된다', () => {
     assert.match(STEP02, /setValue\('importedPhotoAssetRefs'/);
     assert.doesNotMatch(STEP02, /setValue\('storePhotoAssetRefs'/);
-    assert.match(STEP02, /assetPolicyV2Ready[\s\S]*?사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요/);
+    assert.match(STEP02, /assetPolicyV2Ready[\s\S]*?Confirm usage rights in the photo step/);
     const attestationSet = STEP04.slice(
       STEP04.indexOf('const registeredAssetRefs'),
       STEP04.indexOf('const unregisteredPhotoCount'),
@@ -126,7 +126,7 @@ describe('asset-policy v2 onboarding wiring', () => {
     assert.match(STEP04, /assetPolicyV2Ready \? \([\s\S]*?aria-live="polite"/);
     assert.match(STEP08, /const \{ goTo, assetPolicyV2Ready \} = useSurveyUx\(\)/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.importedPhotoAssetRefs\.length/);
-    assert.match(STEP08, /title=\{assetPolicyV2Ready \? '이미지 방향' : '이미지 스타일'\}/);
+    assert.match(STEP08, /title=\{assetPolicyV2Ready \? "Image direction" : "Image style"\}/);
     assert.match(HOST, /if \(!assetPolicyV2Ready\)/);
     assert.match(HOST, /\.\.\.\(assetPolicyV2Ready \? \{ imageDirectionId: selectedImageDirection \} : \{\}\)/);
     assert.match(IMPROVE, /\.\.\.\(assetPolicyV2Ready \? \{ imageDirectionId \} : \{\}\)/);

@@ -41,10 +41,10 @@ const candidate: DesignCandidate = {
   theme: emptySiteConfig('industry').theme,
 };
 
-describe('IndustryProfile 서버 계약', () => {
-  test('정확한 목적·업종만 인테리어 프로파일로 판정하고 자유문장 유사는 거부한다', () => {
-    assert.equal(siteIndustryIdForSurvey(interiorSurvey()), 'interior');
-    assert.equal(industryProfileIdForSurvey(interiorSurvey()), 'interior');
+describe('IndustryProfile server contract', () => {
+  test('the US fork never issues an interior product profile', () => {
+    assert.equal(siteIndustryIdForSurvey(interiorSurvey()), null);
+    assert.equal(industryProfileIdForSurvey(interiorSurvey()), null);
     assert.equal(
       industryProfileIdForSurvey({
         purposeId: 'company_brand',
@@ -61,22 +61,25 @@ describe('IndustryProfile 서버 계약', () => {
     );
   });
 
-  test('신규 생성 config만 industryId를 보존하고 가격 정보는 렌더 계약에 넣지 않는다', () => {
+  test('new configs omit interior while the schema still reads historical render data', () => {
     const config = buildSiteConfigFromSurvey(interiorSurvey(), candidate, {
       heroImageUrl: '/mock/interior.svg',
       imagePool: [],
     });
-    assert.equal(config.meta.industryId, 'interior');
-    assert.equal(siteConfigSchema.parse(config).meta.industryId, 'interior');
+    assert.equal(config.meta.industryId, undefined);
+    const historical = structuredClone(config);
+    historical.meta.industryId = 'interior';
+    assert.equal(siteConfigSchema.parse(historical).meta.industryId, 'interior');
     assert.equal(JSON.stringify(config).includes(PRICING_MODEL_VERSION), false);
     assert.equal(JSON.stringify(config).includes('490000'), false);
   });
 
-  test('industryId는 인테리어 JSON-LD만 구체화하고 가격 모듈을 렌더러에 결합하지 않는다', () => {
+  test('historical interior configs remain readable without restoring a product profile', () => {
     const config = buildSiteConfigFromSurvey(interiorSurvey(), candidate, {
       heroImageUrl: '/mock/interior.svg',
       imagePool: [],
     });
+    config.meta.industryId = 'interior';
     const identity = buildJsonLd(config, 'https://interior.example.kr')[0];
     const types = Array.isArray(identity['@type']) ? identity['@type'] : [identity['@type']];
     assert.ok(types.includes('HomeAndConstructionBusiness'));
@@ -117,11 +120,11 @@ describe('IndustryProfile 서버 계약', () => {
     assert.doesNotMatch(sql, /\bif\b[^;\n]*\bcase\b/iu);
   });
 
-  test('프로파일의 스키마·키워드·무콘텐츠 약속이 승인값과 일치한다', () => {
-    const profile = industryProfile('interior');
+  test('the active profile pins the clinic schema, content cadence, and grounded keyword axes', () => {
+    const profile = industryProfile('clinic');
     assert.ok(profile);
-    assert.equal(profile.schemaType, 'HomeAndConstructionBusiness');
-    assert.equal(profile.postsPerMonth, 0);
-    assert.deepEqual(profile.keywordSets.map((set) => set.label), ['지역', '평형']);
+    assert.equal(profile.schemaType, 'MedicalClinic');
+    assert.equal(profile.postsPerMonth, 8);
+    assert.deepEqual(profile.keywordSets.map((set) => set.label), ['Region', 'Medical specialty']);
   });
 });

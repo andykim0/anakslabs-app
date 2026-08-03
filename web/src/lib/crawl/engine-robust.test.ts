@@ -7,13 +7,8 @@ import {
   relativeLuminance,
   screenshotSegments,
 } from './render-hardening';
-import { extractKoClinicPage } from '@/lib/ko-clinic/source-extraction';
-import { koClinicSlugForSourceUrl } from '@/lib/ko-clinic/compiler';
-import {
-  GENERIC_KO_CLINIC_ROUTING_PROFILE,
-  GENERIC_KO_CLINIC_SOURCE_PROFILE,
-} from '@/lib/ko-clinic/source-profile';
 import { compileRobustClinicArtifact } from '@/lib/clinic-engine/robust-compile';
+import { extractRobustClinicSource } from '@/lib/clinic-engine/robust-source';
 import { clinicEngineTraceFor } from '@/lib/clinic-engine/pipeline';
 import { KO_MEDICAL_IMPORT_PROFILE } from '@/lib/clinic-engine/profiles';
 
@@ -217,21 +212,51 @@ describe('ENGINE-ROBUST — access primitives', () => {
   });
 
   test('generic parsing and routing do not depend on EDOM selectors, paths, or board names', () => {
-    const extracted = extractKoClinicPage({
-      html: '<main><h1>새 병원</h1><article><p>원문 진료 안내</p></article></main>',
-      sourceUrl: 'https://clinic.example/treatments/vein.html',
-      profile: GENERIC_KO_CLINIC_SOURCE_PROFILE,
+    const artifact = {
+      seedUrl: 'https://clinic.example/treatments/vein.html',
+      finalOrigin: 'https://clinic.example',
+      observedAt: '2026-08-03T00:00:00.000Z',
+      tls: {
+        httpsUrl: 'https://clinic.example/treatments/vein.html',
+        status: 'valid' as const,
+        httpFallbackApproved: false,
+        httpFallbackUsed: false,
+      },
+      robots: {
+        url: 'https://clinic.example/robots.txt',
+        status: 200,
+        sitemaps: [],
+        crawlerAllowed: true,
+      },
+      pages: [{
+        url: 'https://clinic.example/treatments/vein.html',
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        title: '새 병원',
+        headings: ['새 병원'],
+        text: '원문 진료 안내',
+        structured: { commercialPhrases: [], contentItems: [] },
+        images: [],
+        connectors: [],
+        decay: {},
+      }],
+      skippedUrls: [],
+    } as unknown as Awaited<ReturnType<typeof crawlDesignatedSite>>;
+    const extracted = extractRobustClinicSource({
+      artifact,
+      documents: [{
+        sourceUrl: artifact.pages[0].url,
+        finalUrl: artifact.pages[0].url,
+        html: '<main><h1>새 병원</h1><article><p>원문 진료 안내</p></article></main>',
+      }],
+      profile: KO_MEDICAL_IMPORT_PROFILE,
     });
-    assert.equal(extracted.title.text, '새 병원');
-    assert.equal(extracted.blocks.some((block) => block.text.includes('원문 진료 안내')), true);
-    assert.equal(extracted.board, undefined);
+    assert.equal(extracted.pages.length, 1);
     assert.equal(
-      koClinicSlugForSourceUrl(
-        'https://clinic.example/treatments/vein.html',
-        GENERIC_KO_CLINIC_ROUTING_PROFILE,
-      ),
-      'treatments-vein',
+      extracted.pages[0].targetBlocks.some((block) => block.text.includes('원문 진료 안내')),
+      true,
     );
+    assert.equal(extracted.pages[0].sourceUrl, artifact.pages[0].url);
   });
 
   test('arbitrary-site compilation still traverses the shared clinic engine gate registry', async () => {

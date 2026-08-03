@@ -109,21 +109,21 @@ function round(value: number): number {
 
 function guidanceFor(reasons: readonly HeroPhotoQualityReasonCode[]): string {
   if (reasons.includes('resolution_too_small')) {
-    return '사진 크기가 첫 화면에 쓰기엔 조금 작아 이번엔 다보임이 준비한 화면을 사용했어요. 가로 1600픽셀 이상의 선명한 사진으로 바꾸면 자동으로 반영돼요.';
+    return 'This photo is too small for the hero, so the Anaks Labs fallback is used. Upload a sharp landscape photo at least 1600 pixels wide to replace it automatically.';
   }
   if (reasons.includes('aspect_ratio_unsupported')) {
-    return '사진 비율을 첫 화면에 맞추면 중요한 부분이 너무 많이 잘려 이번엔 다보임이 준비한 화면을 사용했어요. 가로로 넉넉한 사진으로 바꾸면 자동으로 반영돼요.';
+    return 'This photo would lose important content when cropped for the hero, so the Anaks Labs fallback is used. Upload a wider landscape photo to replace it automatically.';
   }
   if (reasons.includes('exposure_too_dark')) {
-    return '사진이 조금 어두워 이번엔 다보임이 준비한 화면을 사용했어요. 밝은 사진으로 바꾸면 자동으로 반영돼요.';
+    return 'This photo is too dark for the hero, so the Anaks Labs fallback is used. Upload a brighter photo to replace it automatically.';
   }
   if (reasons.includes('exposure_too_bright')) {
-    return '사진의 밝은 부분이 많이 날아가 이번엔 다보임이 준비한 화면을 사용했어요. 밝기가 고르게 보이는 사진으로 바꾸면 자동으로 반영돼요.';
+    return 'This photo has clipped highlights, so the Anaks Labs fallback is used. Upload a more evenly exposed photo to replace it automatically.';
   }
   if (reasons.includes('focus_too_soft')) {
-    return '사진의 초점이 조금 흐려 이번엔 다보임이 준비한 화면을 사용했어요. 또렷한 사진으로 바꾸면 자동으로 반영돼요.';
+    return 'This photo is too soft for the hero, so the Anaks Labs fallback is used. Upload a sharper photo to replace it automatically.';
   }
-  return '사진 품질을 확인했어요. 원본을 바꾸거나 다시 만들지 않고 첫 화면에 맞춰 배치합니다.';
+  return 'Photo quality passed. The original is placed in the hero without being altered or regenerated.';
 }
 
 export function viewportCropGuidance(
@@ -132,16 +132,16 @@ export function viewportCropGuidance(
 ): string {
   if (reasons.length === 0) {
     return band === 'mobile'
-      ? '세로 화면에서도 중요한 구도가 안전하게 보입니다.'
-      : '이 화면 크기에서 중요한 구도가 안전하게 보입니다.';
+      ? 'The important composition remains visible on a portrait screen.'
+      : 'The important composition remains visible at this screen size.';
   }
   if (band === 'mobile') {
-    return '세로 화면에선 사진 구도가 잘려, 모바일은 다보임이 준비한 화면을 사용했어요.';
+    return 'The composition crops poorly on portrait screens, so mobile uses the Anaks Labs fallback.';
   }
   if (band === 'compact') {
-    return '태블릿 화면에선 사진 구도가 잘려, 이 화면은 다보임이 준비한 화면을 사용했어요.';
+    return 'The composition crops poorly on compact screens, so this viewport uses the Anaks Labs fallback.';
   }
-  return '큰 화면에선 사진 구도가 잘려, 이 화면은 다보임이 준비한 화면을 사용했어요.';
+  return 'The composition crops poorly on wide screens, so this viewport uses the Anaks Labs fallback.';
 }
 
 function stableCropAssessment(crop: HeroPhotoCropAssessment) {

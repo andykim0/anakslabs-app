@@ -20,16 +20,16 @@ import { SitePreview } from '../site-preview';
 import { Badge, Button, Card, cn, ErrorState } from '../ui';
 
 const STYLE_LABELS: Record<CandidateStyle, string> = {
-  photo: '실사 포토',
-  '3d_render': '3D 렌더',
-  illustration: '일러스트',
+  photo: "live photo",
+  '3d_render': "3D render",
+  illustration: "Illustration",
 };
 
 const LOADING_MESSAGES = [
-  '업종에 맞는 구성을 고르고 있습니다…',
-  '입력한 내용과 분위기를 맞추고 있어요',
-  '팔레트와 글꼴을 조합하는 중…',
-  '실제 홈페이지 미리보기를 준비하고 있습니다',
+  "We are choosing a configuration that suits your industry…",
+  "Matches the mood with the entered content.",
+  "Combining palettes and fonts...",
+  "We are preparing a preview of the actual homepage.",
 ];
 
 export function LoadingScreen({ messages }: { messages: string[] }) {
@@ -213,12 +213,12 @@ export function CandidateStep({
     return (
       <div className="space-y-4">
         <ErrorState
-          message={error instanceof Error ? error.message : '디자인 후보 생성에 실패했습니다.'}
+          message={error instanceof Error ? error.message : "Failed to create design candidate."}
           onRetry={() => void refetch()}
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          이전
+          Back
         </Button>
       </div>
     );
@@ -250,11 +250,11 @@ export function CandidateStep({
       {loadPretendard ? <link rel="stylesheet" href={PRETENDARD_CSS_URL} /> : null}
       {candidateFontUrls.map((url) => <link key={url} rel="stylesheet" href={url} />)}
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-ob-ink">디자인 방향을 골라주세요</h2>
+        <h2 className="text-lg font-semibold text-ob-ink">Please select a design direction</h2>
         <p className="mt-1 text-sm text-ob-muted">
           {namedTemplates
-            ? `업종에 맞춰 고른 ${candidates.length}가지입니다. 같은 내용이 구성과 분위기에 따라 어떻게 달라지는지 비교해 보세요.`
-            : '설문을 바탕으로 제안한 3가지 방향입니다. 선택 후에도 캔버스에서 자유롭게 다듬을 수 있어요.'}
+            ? `Selected according to industry${candidates.length}It's an eggplant. Compare how the same content changes depending on the composition and atmosphere.`
+            : "These are the three directions suggested based on the survey. Even after selection, you can freely refine it on the canvas."}
         </p>
       </div>
 
@@ -264,7 +264,7 @@ export function CandidateStep({
           namedTemplates ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-3',
         )}
         role="radiogroup"
-        aria-label="디자인 방향"
+        aria-label="design direction"
       >
         {candidates.map((c) => (
           <CandidateCard
@@ -282,14 +282,14 @@ export function CandidateStep({
       <div className="mt-6 flex items-center justify-between">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          이전
+          Back
         </Button>
         <Button
           size="lg"
           disabled={!selected}
           onClick={() => selected && onSelect(applyHeroImageToCandidate(selected, heroImageUrl, heroImageAssetRef))}
         >
-          이 디자인으로 만들기
+          Create with this design
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>

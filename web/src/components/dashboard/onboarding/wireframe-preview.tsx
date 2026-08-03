@@ -29,9 +29,9 @@ export function pruneSections(survey: SurveyInput, removed: Set<string>): Survey
 }
 
 const SECTION_LABEL: Record<string, string> = {
-  hero: '첫 화면', about: '소개', features: '강점', menu: '메뉴·상품', gallery: '갤러리',
-  testimonials: '후기', pricing: '가격', contact: '연락·문의', cta: '행동 유도', team: '팀',
-  cases: '사례·실적', faq: '자주 묻는 질문', custom: '섹션',
+  hero: "home screen", about: "introduction", features: "strength", menu: "Menu/Product", gallery: "gallery",
+  testimonials: "Reviews", pricing: "price", contact: "Contact/Inquiry", cta: "call to action", team: "team",
+  cases: "Case studies/performance", faq: "Frequently Asked Questions", custom: "section",
 };
 
 export function WireframePreview({
@@ -51,7 +51,7 @@ export function WireframePreview({
   // 페이지 순서(pagePlan) → 그 안의 섹션(sectionPlan, pageSlug로 그룹)
   const pages = sitePlan?.pages ?? (survey.pagePlan?.length
     ? survey.pagePlan
-    : [{ slug: '', title: '홈', priority: 'must' as const }]);
+    : [{ slug: '', title: "home", priority: 'must' as const }]);
   const byPage = (slug: string) => sitePlan
     ? sitePlan.sections.filter((section) => section.pageSlug === slug)
     : survey.sectionPlan.filter((section) => (section.pageSlug ?? '') === slug);
@@ -69,12 +69,12 @@ export function WireframePreview({
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-ob-ink">{page.title}</span>
                   {pageMust ? (
-                    <span className="rounded-full bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">필수</span>
+                    <span className="rounded-full bg-ob-accent-soft px-2 py-0.5 text-[10px] font-semibold text-ob-accent-strong">essential</span>
                   ) : (
-                    <span className="rounded-full border border-ob-border px-2 py-0.5 text-[10px] text-ob-muted">선택</span>
+                    <span className="rounded-full border border-ob-border px-2 py-0.5 text-[10px] text-ob-muted">Select</span>
                   )}
                 </div>
-                <span className="text-[11px] text-ob-muted">섹션 {sections.length}</span>
+                <span className="text-[11px] text-ob-muted">section {sections.length}</span>
               </div>
               <ul className="divide-y divide-ob-border">
                 {sections.map((s) => {
@@ -100,7 +100,7 @@ export function WireframePreview({
                           <span className="rounded bg-ob-bg px-1.5 py-0.5 text-[10px] text-ob-muted">
                             {SECTION_LABEL[s.type] ?? s.type}
                           </span>
-                          {must ? <span className="text-[10px] font-semibold text-ob-accent-strong">필수</span> : null}
+                          {must ? <span className="text-[10px] font-semibold text-ob-accent-strong">essential</span> : null}
                         </div>
                         {s.brief ? <p className="mt-0.5 line-clamp-1 text-[11px] leading-4 text-ob-muted">{s.brief}</p> : null}
                       </div>
@@ -109,7 +109,7 @@ export function WireframePreview({
                           type="button"
                           onClick={() => approvalKey && onToggle(approvalKey)}
                           aria-pressed={!isRemoved}
-                          aria-label={isRemoved ? '이 섹션 넣기' : '이 섹션 빼기'}
+                          aria-label={isRemoved ? "Put this section" : "Minus this section"}
                           className={cn(
                             'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
                             isRemoved ? 'border-ob-border text-transparent hover:border-ob-muted' : 'border-ob-accent-strong bg-ob-accent-strong/15 text-ob-accent-strong',
@@ -118,7 +118,7 @@ export function WireframePreview({
                           <Check className="h-3.5 w-3.5" />
                         </button>
                       ) : (
-                        <Lock className="mt-1 h-3.5 w-3.5 shrink-0 text-ob-border" aria-label="필수 섹션(고정)" />
+                        <Lock className="mt-1 h-3.5 w-3.5 shrink-0 text-ob-border" aria-label="Required sections (fixed)" />
                       )}
                     </li>
                   );
@@ -130,7 +130,7 @@ export function WireframePreview({
       </div>
       {sitePlan?.absentSections.length ? (
         <div className="rounded-ob border border-dashed border-ob-border bg-ob-bg px-4 py-3">
-          <p className="text-xs font-semibold text-ob-ink">아직 넣지 않은 구성</p>
+          <p className="text-xs font-semibold text-ob-ink">Configuration not yet included</p>
           <ul className="mt-2 space-y-1.5">
             {sitePlan.absentSections.map((section) => (
               <li key={`${section.type}:${section.name}`} className="text-[11px] leading-4 text-ob-muted">
@@ -155,8 +155,8 @@ export function WireframePreview({
       ) : null}
       <p className="text-[11px] leading-4 text-ob-muted">
         {sitePlan
-          ? '지금 확인한 구성과 실제로 만들어지는 구성이 같습니다. 답하지 않은 내용은 지어내지 않아요.'
-          : '필수 섹션은 그대로 두고, 선택 섹션만 체크를 해제해 뺄 수 있어요. 이미지·글은 다음 단계에서 채워져요.'}
+          ? "The configuration you just checked and the configuration actually created are the same. I don’t make up things that aren’t answered."
+          : "You can leave the required sections as is and uncheck only the optional sections. Images and text are filled in in the next step."}
       </p>
     </div>
   );

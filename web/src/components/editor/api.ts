@@ -43,11 +43,11 @@ export async function uploadEditorImage(file: File): Promise<string> {
   try {
     res = await fetch('/api/uploads', { method: 'POST', body });
   } catch {
-    throw new EditorApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.', {});
+    throw new EditorApiError(0, 'NETWORK_ERROR', "Please check your network connection.", {});
   }
   const data = (await res.json().catch(() => null)) as { url?: string; error?: { message?: string } } | null;
   if (!res.ok || !data?.url) {
-    throw new EditorApiError(res.status, 'UPLOAD_FAILED', data?.error?.message ?? '이미지 업로드에 실패했어요.', {});
+    throw new EditorApiError(res.status, 'UPLOAD_FAILED', data?.error?.message ?? "Image upload failed.", {});
   }
   return data.url;
 }
@@ -60,7 +60,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
       headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
     });
   } catch {
-    throw new EditorApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.', {});
+    throw new EditorApiError(0, 'NETWORK_ERROR', "Please check your network connection.", {});
   }
 
   let body: unknown = null;
@@ -74,7 +74,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     const errObj = ((body as { error?: unknown } | null)?.error ?? {}) as Record<string, unknown>;
     const code = typeof errObj.code === 'string' ? errObj.code : 'UNKNOWN_ERROR';
     const message =
-      typeof errObj.message === 'string' ? errObj.message : `요청에 실패했습니다. (${res.status})`;
+      typeof errObj.message === 'string' ? errObj.message : `Your request failed. (${res.status})`;
     const { code: _c, message: _m, ...extra } = errObj;
     void _c;
     void _m;

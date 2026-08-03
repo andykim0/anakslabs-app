@@ -40,7 +40,7 @@ function buildTemporaryConfig(survey: SurveyInput): SiteConfig {
 function scan(config: SiteConfig): PreflightScanResult {
   return preflightScan(config, {
     tier: 'basic',
-    siteUrl: 'https://onboarding-preview.daboim.kr',
+siteUrl: 'https://onboarding-preview.anakslabs.com',
   });
 }
 

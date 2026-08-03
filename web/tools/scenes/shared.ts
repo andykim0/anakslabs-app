@@ -109,7 +109,7 @@ export async function embeddedKoreanFontCss(literalText: string): Promise<string
     const fileStem = chunk.startsWith('[') ? chunk.slice(1, -1) : chunk;
     const fontFile = path.join(FONT_PACKAGE_ROOT, 'files', `noto-sans-kr-${fileStem}-wght-normal.woff2`);
     const encoded = (await readFile(fontFile)).toString('base64');
-    return `@font-face{font-family:"Daboim Noto Sans KR";font-style:normal;font-display:block;font-weight:100 900;src:url(data:font/woff2;base64,${encoded}) format("woff2-variations");unicode-range:${unicodeRange};}`;
+    return `@font-face{font-family:"Anaks Labs Noto Sans KR";font-style:normal;font-display:block;font-weight:100 900;src:url(data:font/woff2;base64,${encoded}) format("woff2-variations");unicode-range:${unicodeRange};}`;
   }));
   return rules.join('\n');
 }

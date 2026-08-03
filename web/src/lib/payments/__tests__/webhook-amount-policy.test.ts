@@ -17,9 +17,9 @@ describe('PRICE P1 webhook amount policy', () => {
   test('월 유지비만 서버 가격과 일치하고 애드온·크레딧 팩은 닫힌다', () => {
     assert.equal(validatePaymentAmount(
       { type: 'maintenance_subscription' },
-      PRICING.subscription.amountKrw,
+      PRICING.subscription.amountUsd,
     ).ok, true);
-    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 29_001).ok, false);
+    assert.equal(validatePaymentAmount({ type: 'maintenance_subscription' }, 991).ok, false);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), []);
     assert.equal(validatePaymentAmount({ type: 'premium_addon' }, 200_000).ok, false);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'credit_pack', credits: 5 }), []);
@@ -32,26 +32,16 @@ describe('PRICE P1 webhook amount policy', () => {
     assert.equal(paymentAmountSubject({ type: 'credit_pack', creditsGranted: 0 }), null);
   });
 
-  test('wires the same exact validator before both mock-internal and Toss processing', () => {
+  test('uses the Stripe event contract and contains no live payment adapter', () => {
     const route = readFileSync(
       join(process.cwd(), 'src/app/api/payments/webhook/route.ts'),
       'utf8',
     );
     assert.doesNotMatch(route, /PRICE_RANGES|minimum|minPrice|최소 계약가/);
 
-    const internalStart = route.indexOf('if (internal.success)');
-    const tossStart = route.indexOf('// 2) 토스 웹훅 포맷');
-    assert.ok(internalStart >= 0 && tossStart > internalStart);
-    const internalBlock = route.slice(internalStart, tossStart);
-    assert.match(
-      internalBlock,
-      /validateOrderAmount\(internal\.data, internal\.data\.amount\)[\s\S]*payments\.handleWebhook\(internal\.data\)/,
-    );
-
-    const tossBlock = route.slice(tossStart);
-    assert.match(
-      tossBlock,
-      /validateOrderAmount\(order, totalAmount\)[\s\S]*payments\.handleWebhook\(\{/,
-    );
+    assert.match(route, /stripeMockEventSchema\.safeParse/);
+    assert.match(route, /stripeCheckoutTotalCents\(\)/);
+    assert.match(route, /stripePaymentKeys\(event\)/);
+    assert.doesNotMatch(route, /TOSS|tosspayments|STRIPE_SECRET_KEY/);
   });
 });

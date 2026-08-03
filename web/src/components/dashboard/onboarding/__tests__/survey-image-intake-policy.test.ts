@@ -26,10 +26,10 @@ import { surveyForEarlySitePlan } from '@/components/dashboard/onboarding/survey
 const source = (path: string) => readFileSync(path, 'utf8');
 
 describe('SURVEY 이미지 수집 정책', () => {
-  test('업로드 요청은 실제 제품·공간·인물·로고로 한정하고 무대 비주얼은 다보임 책임으로 고지한다', () => {
-    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /제품·공간·인물·로고/u);
-    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /배경·무드·애니메이션용 비주얼은 다보임이 준비/u);
-    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /업로드가 0장이어도 생성을 막지 않아요/u);
+  test('업로드 요청은 실제 제품·공간·인물·로고로 한정하고 무대 비주얼은 Anaks Labs 책임으로 고지한다', () => {
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /spaces, people, services, or logo/u);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /Anaks Labs provides atmospheric backgrounds and motion/u);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /zero uploads do not block generation/u);
 
     const photos = source('src/components/dashboard/onboarding/steps/step04-photos.tsx');
     const imageStyle = source('src/components/dashboard/onboarding/steps/step05-image-style.tsx');
@@ -38,10 +38,10 @@ describe('SURVEY 이미지 수집 정책', () => {
     for (const consumer of [photos, imageStyle, review]) {
       assert.match(consumer, /REFERENTIAL_IMAGE_POLICY_COPY/u);
     }
-    assert.match(photos, /대표 실제 사진/u);
-    assert.match(photos, /제품·공간·인물 사진/u);
-    assert.match(hero, /사진을 요구하지 않아요/u);
-    assert.match(hero, /다보임 준비/u);
+    assert.match(photos, /Representative real photos/u);
+    assert.match(photos, /REFERENTIAL_IMAGE_POLICY_COPY/u);
+    assert.match(hero, /No photos required/u);
+    assert.match(hero, /prepared by Anaks Labs/u);
     assert.doesNotMatch([photos, imageStyle, review, hero].join('\n'), /\b(?:fal|pexels)\b/iu);
   });
 
@@ -50,8 +50,8 @@ describe('SURVEY 이미지 수집 정책', () => {
     const deepening = source('src/components/dashboard/onboarding/steps/step-conditional-deepening.tsx');
     assert.match(sitePlan, /gallery: '사용 권리를 확인한 실제 제품·공간·작업 사진/u);
     assert.match(sitePlan, /team: '구성원 경력·자격[\s\S]*실제 인물 사진만 사용/u);
-    assert.match(deepening, /실제 인물 사진 올리기\(선택\)/u);
-    assert.match(deepening, /사진이 없어도 경력·자격 정보 중심으로 구성/u);
+    assert.match(deepening, /Upload a photo of a real person \(optional\)/u);
+    assert.match(deepening, /Even without photos, you can organize it based on career and qualification information/u);
   });
 
   test('업로드 0장 제출은 추상 무대로 결정적 완주하고 실사 주장 자산을 만들지 않는다', () => {
@@ -96,7 +96,7 @@ describe('SURVEY 이미지 수집 정책', () => {
     const selected = options[0]!;
     const candidate: DesignCandidate = {
       id: 'zero-upload-candidate',
-      label: '다보임 공급 추상 무대',
+      label: 'Anaks Labs 공급 추상 무대',
       description: '실제 제품·공간·인물을 주장하지 않는 추상 비주얼',
       style: imageDirectionToLegacyCandidateStyle(direction),
       imageDirectionId: direction,

@@ -5,7 +5,7 @@ import { getCurrentClient } from '@/lib/services/auth';
 import { CreditsView } from '@/components/dashboard/credits-view';
 import { creditsEnabled } from '@/lib/product/flags';
 
-export const metadata: Metadata = { title: '크레딧 — 다보임' };
+export const metadata: Metadata = { title: "Credits — Anaks Labs" };
 
 export default async function CreditsPage() {
   if (!creditsEnabled()) notFound();

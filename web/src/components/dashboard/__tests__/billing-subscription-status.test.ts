@@ -17,17 +17,17 @@ function resolved(status: SiteSubscriptionStatus, active: boolean): ResolvedSubs
 
 describe('billing authoritative subscription label', () => {
   test('resolved active만 이용 중으로 표시한다', () => {
-    assert.equal(subscriptionStatusLabel(resolved('active', true)), '이용 중');
-    assert.notEqual(subscriptionStatusLabel(resolved('past_due', false)), '이용 중');
-    assert.notEqual(subscriptionStatusLabel(resolved('suspended', false)), '이용 중');
-    assert.notEqual(subscriptionStatusLabel(resolved('cancelled', false)), '이용 중');
+    assert.equal(subscriptionStatusLabel(resolved('active', true)), 'In use');
+    assert.notEqual(subscriptionStatusLabel(resolved('past_due', false)), 'In use');
+    assert.notEqual(subscriptionStatusLabel(resolved('suspended', false)), 'In use');
+    assert.notEqual(subscriptionStatusLabel(resolved('cancelled', false)), 'In use');
   });
 
   test('기간이 끝난 persisted active 행은 이용 중이 아니라 만료로 표시한다', () => {
-    assert.equal(subscriptionStatusLabel(resolved('active', false)), '이용기간 만료');
+    assert.equal(subscriptionStatusLabel(resolved('active', false)), 'Expiration of usage period');
   });
 
   test('상태 행이 없으면 구독 전으로 표시한다', () => {
-    assert.equal(subscriptionStatusLabel({ state: null, active: false }), '구독 전');
+    assert.equal(subscriptionStatusLabel({ state: null, active: false }), 'Before subscribing');
   });
 });

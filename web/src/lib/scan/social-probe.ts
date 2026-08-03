@@ -5,7 +5,7 @@ import type { SocialLinkObservation } from './social-links';
 
 const SOCIAL_PROBE_TIMEOUT_MS = 3_000;
 const SOCIAL_PROBE_UA =
-  'Mozilla/5.0 (compatible; DaboimCrawler/1.0; +https://anakslabs.com/privacy; contact=help@anakslabs.com)';
+  'Mozilla/5.0 (compatible; AnaksLabsCrawler/1.0; +https://anakslabs.com/privacy; contact=help@anakslabs.com)';
 
 export async function probeSocialLinks(
   urls: readonly string[],

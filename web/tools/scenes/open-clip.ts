@@ -54,7 +54,7 @@ export async function openClipScene(value: unknown): Promise<string> {
     fontCss,
     styles: `
       :root{--bg:${palette.background};--surface:${palette.surface};--primary:${palette.primary};--accent:${palette.accent};--text:${palette.text}}
-      *{box-sizing:border-box}html,body{width:1080px;height:1920px;margin:0;overflow:hidden;background:var(--bg)}body{font-family:"Daboim Noto Sans KR",sans-serif}
+      *{box-sizing:border-box}html,body{width:1080px;height:1920px;margin:0;overflow:hidden;background:var(--bg)}body{font-family:"Anaks Labs Noto Sans KR",sans-serif}
       #root{position:relative;width:100%;height:100%;overflow:hidden;color:var(--text);isolation:isolate}.field{position:absolute;inset:-12%;background:radial-gradient(circle at 12% 24%,color-mix(in srgb,var(--primary) 74%,transparent),transparent 25%),radial-gradient(circle at 92% 76%,color-mix(in srgb,var(--accent) 60%,transparent),transparent 27%),linear-gradient(145deg,var(--bg),var(--surface));animation:open-field 12s linear both}
       .grain{position:absolute;inset:0;opacity:.2;background-image:linear-gradient(120deg,transparent 46%,color-mix(in srgb,var(--text) 17%,transparent) 48%,transparent 50%);background-size:86px 86px;animation:open-grain 12s linear both}
       .topline{position:absolute;left:72px;right:72px;top:74px;display:flex;align-items:center;gap:24px;font-size:24px;font-weight:720;letter-spacing:.15em;color:color-mix(in srgb,var(--text) 72%,transparent);animation:open-top 12s ease both}.topline::after{content:"";height:1px;flex:1;background:color-mix(in srgb,var(--text) 32%,transparent)}

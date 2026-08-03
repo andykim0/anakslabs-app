@@ -6,8 +6,8 @@ import { withContinuousCanvasDefault, withSiteCinematicDefault } from './site-ci
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 
-const DEMO_VIDEO = '/daboim-visibility-film-scrub.mp4';
-const DEMO_POSTER = '/daboim-visibility-film-poster.webp';
+const DEMO_VIDEO = '/anakslabs-visibility-film-scrub.mp4';
+const DEMO_POSTER = '/anakslabs-visibility-film-poster.webp';
 
 export interface MotionPreviewResult {
   config: SiteConfig;

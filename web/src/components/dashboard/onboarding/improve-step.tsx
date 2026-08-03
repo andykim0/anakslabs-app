@@ -32,7 +32,7 @@ import type { ImproveContext } from './wizard';
 const NEUTRAL_SEED = { primary: '#1f2430', secondary: '#f4f5f7' } as const;
 
 /** step3 톤 칩 (최대 2개 선택) — fresh 설문과 라벨 통일 */
-const TONE_CHIPS = ['차분한', '친근한', '모던', '고급스러운', '대담한', '미니멀'];
+const TONE_CHIPS = ["tranquil", "friendly", "modern", "luxurious", "bold", "minimalist"];
 
 /** step3 무드 칩 — REFERENCE_SAMPLES 상위 6개 */
 const MOOD_SAMPLES = REFERENCE_SAMPLES.slice(0, 6);
@@ -135,7 +135,7 @@ export function ImproveStep({
     let cancelled = false;
     const timeout = setTimeout(() => {
       if (cancelled) return;
-      setErrorMsg('불러오기가 오래 걸려요. 다시 시도하거나 직접 입력으로 시작해 주세요.');
+      setErrorMsg("It takes a long time to load. Please try again or start by entering it manually.");
       setPhase('error');
     }, 12000);
     (async () => {
@@ -153,7 +153,7 @@ export function ImproveStep({
       } catch (err) {
         if (cancelled) return;
         clearTimeout(timeout);
-        setErrorMsg(err instanceof Error ? err.message : '기존 사이트를 불러오지 못했어요.');
+        setErrorMsg(err instanceof Error ? err.message : "The existing site failed to load.");
         setPhase('error');
       }
     })();
@@ -282,18 +282,18 @@ export function ImproveStep({
       sectionPlan: planFromTemplate(template),
       pagePlan: pagePlanFromTemplate(template),
       templateId: template.id,
-      extraNotes: refine ? '조금 더 세련되고 고급스러운 느낌으로 다듬어 주세요.' : undefined,
+      extraNotes: refine ? "Please refine it to feel a little more sophisticated and luxurious." : undefined,
     });
   };
 
   const title =
     localStep === 1
       ? phase === 'ready'
-        ? '불러온 내용을 확인해주세요'
-        : '기존 사이트를 불러오고 있어요'
+        ? "Please check the loaded contents"
+        : "Loading an existing site"
       : localStep === 2
-        ? '어떤 곳인지 확인해주세요'
-        : '색과 분위기를 정해주세요';
+        ? "Please check where it is"
+        : "Please choose the color and mood";
 
   return (
     <div className="space-y-5">
@@ -303,9 +303,9 @@ export function ImproveStep({
           <Wand2 className="mt-0.5 h-4 w-4 shrink-0 text-ob-accent-strong" />
           <span>
             {improve.issueCount > 0
-              ? `진단에서 찾은 ${improve.issueCount}개 문제를 고쳐서 다시 짓습니다.`
-              : '진단 결과를 반영해서 다시 짓습니다.'}{' '}
-            기존 내용을 가져와 몇 가지만 확인하면 돼요.
+              ? `found in diagnosis${improve.issueCount}Fix the dog problem and rebuild.`
+              : "Rebuild to reflect the diagnosis results."}{' '}
+            All you have to do is import the existing content and check a few things.
           </span>
         </p>
       </div>
@@ -334,8 +334,8 @@ export function ImproveStep({
             phase === 'loading' ? (
               <div className="flex flex-col items-center justify-center gap-3 py-14 text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-ob-accent-strong" />
-                <p className="text-[15px] text-ob-ink">기존 사이트를 살펴보는 중…</p>
-                <p className="text-[13px] text-ob-muted">{host} 의 내용과 색을 가져오고 있어요.</p>
+                <p className="text-[15px] text-ob-ink">Looking at the existing site...</p>
+                <p className="text-[13px] text-ob-muted">Importing content and color signals from {host}.</p>
               </div>
             ) : phase === 'error' ? (
               <div className="space-y-4">
@@ -343,7 +343,7 @@ export function ImproveStep({
                   {errorMsg}
                 </div>
                 <p className="text-[14px] leading-relaxed text-ob-muted">
-                  자동으로 가져오지 못했어요. 다시 시도하거나, 직접 몇 가지만 입력해서 시작할 수 있어요.
+                  We couldn’t import it automatically. Try again, or enter a few details manually.
                 </p>
                 <div className="flex flex-wrap gap-2.5">
                   <button
@@ -352,23 +352,23 @@ export function ImproveStep({
                     className="inline-flex h-12 items-center gap-2 rounded-ob border border-ob-border bg-ob-surface px-5 text-[15px] font-medium text-ob-ink transition-colors hover:border-ob-accent-strong hover:text-ob-accent-strong"
                   >
                     <Loader2 className="h-4 w-4" />
-                    다시 시도
+                    try again
                   </button>
                   <button
                     type="button"
                     onClick={() => setLocalStep(2)}
                     className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
                   >
-                    직접 입력으로 시작
+                    Start with direct input
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
-                <StepIntro>가져온 내용이에요. 다음에서 목적·색만 확인하면 바로 만들어드려요.</StepIntro>
+                <StepIntro>This is what I brought. Just check the purpose and color below and we will make it right away.</StepIntro>
                 <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-4">
-                  <p className="text-[13px] text-ob-muted">상호</p>
+                  <p className="text-[13px] text-ob-muted">mutual</p>
                   <p className="mt-0.5 text-[17px] font-semibold text-ob-ink">
                     {(extract?.title ?? '').trim() || defaultBusinessName || host}
                   </p>
@@ -380,16 +380,16 @@ export function ImproveStep({
                   <div className="mt-3 flex flex-wrap gap-4 text-[13px] text-ob-muted">
                     <span className="inline-flex items-center gap-1.5">
                       <ListChecks className="h-4 w-4 text-ob-accent-strong" />
-                      가져온 항목 {extract?.contentItems?.length ?? 0}개
+                      imported item {extract?.contentItems?.length ?? 0} items
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <ImageIcon className="h-4 w-4 text-ob-accent-strong" />
-                      이미지 {extract?.imageUrls?.length ?? 0}장
+                      image {extract?.imageUrls?.length ?? 0} images
                     </span>
                     {seed ? (
                       <span className="inline-flex items-center gap-1.5">
                         <Swatch color={seed.primary} size="h-4 w-4" />
-                        대표 색 감지됨
+                        Representative color detected
                       </span>
                     ) : null}
                   </div>
@@ -401,10 +401,10 @@ export function ImproveStep({
           {/* ── step 2: 확인 ── */}
           {localStep === 2 ? (
             <div className="space-y-7">
-              <StepIntro>가져온 내용을 바탕으로 미리 골라뒀어요. 다르면 눌러서 바꿔주세요.</StepIntro>
+              <StepIntro>I chose it in advance based on the content I brought. If they are different, please click to change them.</StepIntro>
 
               {/* 목적 */}
-              <Field label="어떤 곳인가요?">
+              <Field label="What kind of place is it?">
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   {LIVE_PURPOSE_IDS.map((id) => {
                     const def = findPurpose(id);
@@ -422,21 +422,21 @@ export function ImproveStep({
               </Field>
 
               {/* 업종 */}
-              <Field label="업종" hint="예: 카페·디저트 / 미용실 / 코딩 학원. 검색·디자인 방향을 잡는 데 쓰여요.">
+              <Field label="Industry" hint="Example: Cafe/Dessert / Beauty Salon / Coding Academy. It is used to determine search and design direction.">
                 <input
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  placeholder="업종을 적어주세요"
+                  placeholder="Please enter your industry"
                   className={obInput}
                 />
               </Field>
 
               {/* 지역 */}
-              <Field label="지역 (선택)" hint="예: 서울 연희동. 지역 검색 노출에 도움이 돼요.">
+              <Field label="Region (optional)" hint="Example: Yeonhui-dong, Seoul. It helps with local search exposure.">
                 <input
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  placeholder="지역을 적어주세요"
+                  placeholder="Please write your region"
                   className={obInput}
                 />
               </Field>
@@ -445,9 +445,9 @@ export function ImproveStep({
               <div className="space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
                   <label className="text-[15px] font-medium text-ob-ink">
-                    {req.itemLabel} 목록 <span className="text-ob-danger">*</span>
+                    {req.itemLabel} inventory <span className="text-ob-danger">*</span>
                   </label>
-                  <span className="shrink-0 text-[13px] text-ob-muted">{filledCount}개</span>
+                  <span className="shrink-0 text-[13px] text-ob-muted">{filledCount} items</span>
                 </div>
 
                 <div className="space-y-2.5">
@@ -458,14 +458,14 @@ export function ImproveStep({
                           <input
                             value={it.name}
                             onChange={(e) => updateItem(index, { name: e.target.value })}
-                            placeholder={`${req.itemLabel} 이름`}
+                            placeholder={`${req.itemLabel}name`}
                             className={cn(obInput, 'min-w-0 flex-1')}
                           />
                           {showPrice ? (
                             <input
                               value={it.price}
                               onChange={(e) => updateItem(index, { price: e.target.value })}
-                              placeholder="가격 (선택)"
+                              placeholder="Price (optional)"
                               inputMode="numeric"
                               className={cn(obInput, 'w-24 shrink-0 sm:w-28')}
                             />
@@ -473,7 +473,7 @@ export function ImproveStep({
                           <button
                             type="button"
                             onClick={() => removeItem(index)}
-                            aria-label="항목 삭제"
+                            aria-label="Delete item"
                             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ob border border-ob-border text-ob-muted transition-colors hover:border-ob-danger hover:text-ob-danger"
                           >
                             <X className="h-4 w-4" />
@@ -482,7 +482,7 @@ export function ImproveStep({
                         <input
                           value={it.description}
                           onChange={(e) => updateItem(index, { description: e.target.value })}
-                          placeholder="한 줄 설명 (선택)"
+                          placeholder="One-line description (optional)"
                           className={obInput}
                         />
                       </div>
@@ -496,16 +496,16 @@ export function ImproveStep({
                   className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink"
                 >
                   <Plus className="h-4 w-4" />
-                  {req.itemLabel} 추가
+                  {req.itemLabel} Add
                 </button>
 
                 {gate.needMore > 0 ? (
                   <p className="rounded-ob border border-ob-border bg-ob-bg px-3.5 py-2.5 text-[13px] leading-relaxed text-ob-danger">
-                    {req.itemLabel}을(를) 1개 이상 입력해야 다음으로 넘어갈 수 있어요.
+                    {req.itemLabel}You must enter at least one to proceed to the next step.
                   </p>
                 ) : gate.recommendedShort > 0 ? (
                   <p className="text-[13px] leading-relaxed text-ob-muted">
-                    {req.itemLabel}이(가) {gate.recommendedItems}개 이상이면 검색 노출에 더 유리해요.
+                    {req.itemLabel}Lee {gate.recommendedItems}If there are more than one, it is more advantageous for search exposure.
                   </p>
                 ) : null}
               </div>
@@ -515,7 +515,7 @@ export function ImproveStep({
           {/* ── step 3: 색·분위기 ── */}
           {localStep === 3 ? (
             <div className="space-y-7">
-              <StepIntro>기존 느낌을 그대로 살리거나, 새 느낌을 골라도 돼요.</StepIntro>
+              <StepIntro>You can keep the existing feel or choose a new one.</StepIntro>
 
               {/* 그대로 팔레트 or 기본 톤 */}
               {seed ? (
@@ -539,14 +539,14 @@ export function ImproveStep({
                   </span>
                   <span className="min-w-0">
                     <span className={cn('block text-[15px] font-semibold', useSeedPalette ? 'text-ob-accent-strong' : 'text-ob-ink')}>
-                      기존 사이트 느낌 그대로
+                      Same as the existing site
                     </span>
-                    <span className="block text-[13px] text-ob-muted">가져온 대표 색 {seed.primary}로 만들어요.</span>
+                    <span className="block text-[13px] text-ob-muted">Imported Representative Colors {seed.primary}Make it with</span>
                   </span>
                 </button>
               ) : (
                 <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3 text-[13px] leading-relaxed text-ob-muted">
-                  기존 사이트에서 뚜렷한 대표 색을 찾지 못했어요. 기본 톤으로 시작하거나 아래에서 느낌을 골라주세요.
+                  We couldn’t identify a clear representative color. Start with the default or choose a direction below.
                 </div>
               )}
 
@@ -557,7 +557,7 @@ export function ImproveStep({
                   onClick={() => setShowMoods((v) => !v)}
                   className="text-[14px] font-medium text-ob-accent-strong underline"
                 >
-                  {showMoods ? '느낌 접기' : '직접 고르기'}
+                  {showMoods ? "fold feeling" : "Pick your own"}
                 </button>
                 {showMoods ? (
                   <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -580,7 +580,7 @@ export function ImproveStep({
                           />
                           {selected ? (
                             <span className="absolute top-1.5 right-1.5 rounded-full bg-ob-accent-strong px-2 py-0.5 text-[10px] font-bold text-white">
-                              선택
+                              Select
                             </span>
                           ) : null}
                           <span className="flex flex-col gap-0.5 p-2.5">
@@ -604,11 +604,11 @@ export function ImproveStep({
                   onChange={(e) => setRefine(e.target.checked)}
                   className="h-4 w-4 accent-ob-accent-strong"
                 />
-                <span className="text-[14px] text-ob-ink">조금 더 세련되게 다듬어 주세요</span>
+                <span className="text-[14px] text-ob-ink">Please refine it a little more.</span>
               </label>
 
               {/* 톤 */}
-              <Field label={<>분위기(톤) <span className="font-normal text-ob-muted">(최대 2개)</span></>}>
+              <Field label={<>Mood (tone) <span className="font-normal text-ob-muted">(maximum 2)</span></>}>
                 <div className="flex flex-wrap gap-2">
                   {TONE_CHIPS.map((chip) => (
                     <Chip key={chip} selected={tone.includes(chip)} onClick={() => toggleTone(chip)}>
@@ -620,7 +620,7 @@ export function ImproveStep({
 
               {/* 적용될 색 미리보기 */}
               <div className="flex items-center gap-2.5 rounded-ob border border-ob-border bg-ob-bg px-4 py-3">
-                <span className="text-[13px] text-ob-muted">적용될 색</span>
+                <span className="text-[13px] text-ob-muted">color to be applied</span>
                 <Swatch color={preview.primary} />
                 {preview.secondary ? <Swatch color={preview.secondary} /> : null}
                 <span className="text-[13px] text-ob-muted">{preview.primary}</span>
@@ -637,7 +637,7 @@ export function ImproveStep({
               onClick={() => setLocalStep(2)}
               className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong"
             >
-              이 내용으로 계속
+              Continue with this content
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -651,7 +651,7 @@ export function ImproveStep({
               className="inline-flex h-12 items-center gap-1.5 rounded-ob border border-ob-border bg-ob-surface px-4 text-[15px] text-ob-ink transition-colors hover:border-ob-muted"
             >
               <ArrowLeft className="h-4 w-4" />
-              이전
+              Back
             </button>
             <button
               type="button"
@@ -659,7 +659,7 @@ export function ImproveStep({
               disabled={!gate.ok}
               className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
             >
-              다음
+              Next
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -673,7 +673,7 @@ export function ImproveStep({
               className="inline-flex h-12 items-center gap-1.5 rounded-ob border border-ob-border bg-ob-surface px-4 text-[15px] text-ob-ink transition-colors hover:border-ob-muted"
             >
               <ArrowLeft className="h-4 w-4" />
-              이전
+              Back
             </button>
             <button
               type="button"
@@ -682,7 +682,7 @@ export function ImproveStep({
               className="inline-flex h-12 items-center gap-2 rounded-ob bg-ob-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-ob-accent-strong disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Sparkles className="h-4 w-4" />
-              이 방향으로 만들기
+              make it this way
             </button>
           </div>
         ) : null}

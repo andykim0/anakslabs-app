@@ -16,7 +16,7 @@ describe('ADMIN UI — shell navigation and session basics', () => {
     const html = renderToStaticMarkup(createElement(BrandLogo));
     assert.match(
       html,
-      /data-brand-name="daboim"[^>]*class="[^"]*shrink-0[^"]*whitespace-nowrap/u,
+      /data-brand-name="anaks-labs"[^>]*class="[^"]*shrink-0[^"]*whitespace-nowrap/u,
     );
     assert.match(
       html,
@@ -48,8 +48,8 @@ describe('ADMIN UI — shell navigation and session basics', () => {
     const settings = read('src/components/dashboard/settings-view.tsx');
     assert.match(dialog, /role="alertdialog"/u);
     assert.match(dialog, /aria-modal="true"/u);
-    assert.match(dialog, /로그아웃할까요\?/u);
-    assert.match(dialog, /현재 세션을 종료하고 로그인 화면으로 이동합니다/u);
+    assert.match(dialog, /Log out\?/u);
+    assert.match(dialog, /This ends your current session and returns you to the sign-in page/u);
     assert.match(dialog, /event\.key !== 'Escape'/u);
     assert.match(settings, /<LogoutConfirmDialog/u);
   });

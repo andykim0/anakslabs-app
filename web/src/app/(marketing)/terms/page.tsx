@@ -1,48 +1,38 @@
 import type { Metadata } from 'next';
-import {
-  DYNAMIC_FEATURE_NOTICE,
-  HOSTING_ONLY_FOOTNOTE,
-  OWNERSHIP_SUMMARY,
-  REFUND_NOTICE,
-} from '@/lib/legal/notices';
 import { COMPANY_EMAIL } from '@/lib/marketing/contact';
-import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
 export const metadata: Metadata = {
-  title: '이용약관',
-  description: `${PUBLIC_BRAND_NAMES.brandBilingual} 서비스 이용약관 요약. 운영사 Anaks Labs, 소유권·환불·정적 산출물 고지.`,
+  title: 'Service Terms',
+  description: 'Interim Anaks Labs clinic website service terms.',
   alternates: { canonical: '/terms' },
   robots: { index: false },
 };
 
-/**
- * [마케팅] 이용약관 — 핵심 고지 요약(인터림). 정식 약관 전문은 법률 검토 후 게시.
- * 문구는 lib/legal/notices.ts 상수 재사용(재작성 금지).
- */
 export default function TermsPage() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">이용약관</h1>
+      <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">Service Terms</h1>
       <p className="mkt-type-support mt-3 text-[#5C6068]">
-        아래는 핵심 고지 요약입니다. 정식 약관 전문은 법률 검토 후 게시되며, 그 전까지의 문의는{' '}
-        <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#5C6068] hover:text-[#17181C]">{COMPANY_EMAIL}</a>{' '}
-        로 받습니다.
+        These interim terms summarize the current product boundary while final terms and live Stripe checkout remain disabled. Questions may be sent to{' '}
+        <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#174DDA] hover:underline">{COMPANY_EMAIL}</a>.
       </p>
-
       <div className="mkt-type-body mt-10 space-y-8 text-[#5C6068]">
-        <div>
-          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">소유권</h2>
-          <p className="mt-2">{OWNERSHIP_SUMMARY}</p>
-        </div>
-        <div>
-          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">환불</h2>
-          <p className="mt-2">{REFUND_NOTICE}</p>
-        </div>
-        <div>
-          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">정적 산출물(HTML 백업) 고지</h2>
-          <p className="mt-2">{DYNAMIC_FEATURE_NOTICE}</p>
-          <p className="mkt-type-support mt-2 text-[#696E76]">{HOSTING_ONLY_FOOTNOTE}</p>
-        </div>
+        <section>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">Enterprise service</h2>
+          <p className="mt-2">The current contract is $990 setup and $990 per month for one clinic website. It includes hosting and maintenance, self-service editing, monthly reporting, eight AEO/GEO blog posts per month, and PHI-free inquiry and booking action tracking.</p>
+        </section>
+        <section>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">Customer content</h2>
+          <p className="mt-2">The customer retains rights in content it supplies and is responsible for having the rights and permissions needed to publish it. Anaks Labs retains rights in its platform, renderer, data structures, and service software.</p>
+        </section>
+        <section>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">Static export boundary</h2>
+          <p className="mt-2">A static export reproduces publish-time HTML, CSS, and eligible image assets. Hosting, reporting, managed optimization, and server-backed editing are service functions and are not part of a static export.</p>
+        </section>
+        <section>
+          <h2 className="mkt-type-card-title font-semibold text-[#17181C]">Payments and cancellation</h2>
+          <p className="mt-2">Live payment is not enabled. Renewal, cancellation, tax, and refund terms will be presented consistently in the final agreement and verified Stripe checkout before any charge is made.</p>
+        </section>
       </div>
     </section>
   );

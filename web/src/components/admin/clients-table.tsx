@@ -47,8 +47,8 @@ export function ClientsTable() {
   return (
     <>
       <PageHeader
-        title="고객"
-        description={data ? `총 ${formatNumber(data.length)}명` : undefined}
+        title="customer"
+        description={data ? `gun${formatNumber(data.length)}number of people` : undefined}
         actions={
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -61,48 +61,48 @@ export function ClientsTable() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="이름·이메일 검색"
-                aria-label="고객 검색"
+                placeholder="Name/email search"
+                aria-label="customer search"
                 className="w-52 rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-2.5 text-xs focus:border-slate-500 focus:outline-none"
               />
             </div>
             <select
               value={tierFilter}
               onChange={(e) => setTierFilter(e.target.value as Tier | 'all')}
-              aria-label="티어 필터"
+              aria-label="tier filter"
               className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
             >
-              <option value="all">티어 전체</option>
-              <option value="basic">기본 홈페이지</option>
-              <option value="premium">AI 영상 홈페이지</option>
+              <option value="all">All tiers</option>
+              <option value="basic">default homepage</option>
+              <option value="premium">AI video homepage</option>
             </select>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as ClientStatus | 'all')}
-              aria-label="상태 필터"
+              aria-label="status filter"
               className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
             >
-              <option value="all">상태 전체</option>
-              <option value="active">활성</option>
-              <option value="paused">일시중지</option>
-              <option value="cancelled">해지</option>
+              <option value="all">state full</option>
+              <option value="active">active</option>
+              <option value="paused">pause</option>
+              <option value="cancelled">Termination</option>
             </select>
           </div>
         }
       />
 
       {isPending ? (
-        <LoadingBlock label="고객 목록을 불러오는 중…" />
+        <LoadingBlock label="Loading customer list..." />
       ) : isError ? (
         <ErrorBlock message={error.message} onRetry={() => refetch()} />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={Users}
-          title={data.length === 0 ? '고객이 없습니다' : '조건에 맞는 고객이 없습니다'}
+          title={data.length === 0 ? "There are no customers" : "There are no customers matching the conditions"}
           description={
             data.length === 0
-              ? '빌드비 결제가 완료되면 고객이 자동 등록됩니다.'
-              : '검색어나 필터를 조정해 보세요.'
+              ? "Once the build fee payment is completed, the customer is automatically registered."
+              : "Try adjusting your search terms or filters."
           }
         />
       ) : (
@@ -110,13 +110,13 @@ export function ClientsTable() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-400">
-                <th className="px-4 py-2.5 font-medium">이름</th>
-                <th className="px-4 py-2.5 font-medium">이메일</th>
-                <th className="px-4 py-2.5 font-medium">티어</th>
-                <th className="px-4 py-2.5 font-medium">상태</th>
-                <th className="px-4 py-2.5 text-right font-medium">크레딧 잔액</th>
-                <th className="px-4 py-2.5 font-medium">가입일</th>
-                <th className="px-4 py-2.5 text-right font-medium">사이트</th>
+                <th className="px-4 py-2.5 font-medium">name</th>
+                <th className="px-4 py-2.5 font-medium">email</th>
+                <th className="px-4 py-2.5 font-medium">tier</th>
+                <th className="px-4 py-2.5 font-medium">situation</th>
+                <th className="px-4 py-2.5 text-right font-medium">credit balance</th>
+                <th className="px-4 py-2.5 font-medium">Join date</th>
+                <th className="px-4 py-2.5 text-right font-medium">site</th>
               </tr>
             </thead>
             <tbody>

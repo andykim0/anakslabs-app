@@ -3,7 +3,7 @@
  * repository SVG only; no generated asset or provider call is made.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-hero-fixes-review.tsx
- * Out: /private/tmp/daboim-hero-fixes-review
+ * Out: /private/tmp/anakslabs-hero-fixes-review
  */
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -23,7 +23,7 @@ import { expandTokens, tokenSetToSiteTheme, type DesignDNA } from '@/lib/design/
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-hero-fixes-review';
+const OUTPUT_DIR = '/private/tmp/anakslabs-hero-fixes-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const HERO_SOURCE = path.resolve('public/mock/candidate-light.svg');
 

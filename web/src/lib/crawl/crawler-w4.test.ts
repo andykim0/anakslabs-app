@@ -4,7 +4,6 @@ import { describe, test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
-import { DESIGNATED_CRAWL_DISCLOSURE } from '@/lib/legal/templates';
 
 const ROOT = process.cwd();
 
@@ -35,12 +34,11 @@ describe('CRAWL W4 — retention, privacy, and preview isolation', () => {
 
   test('the fixed privacy template discloses minimal storage, retention, bearer risk, and image rights', () => {
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
-    for (const line of Object.values(DESIGNATED_CRAWL_DISCLOSURE)) {
-      assert.ok(html.includes(line), `missing fixed crawl disclosure: ${line}`);
-    }
-    assert.equal(Object.values(DESIGNATED_CRAWL_DISCLOSURE).every(
-      (line) => typeof line === 'string' && line.length > 0,
-    ), true);
+    assert.match(html, /Designated public pages/u);
+    assert.match(html, /do not bypass authentication or explicit robots exclusions/u);
+    assert.match(html, /Image publication remains gated on the applicable rights and compliance review/u);
+    assert.match(html, /Private demo views/u);
+    assert.match(html, /retained for up to 90 days/u);
   });
 
   test('preview access remains token-only, noninteractive, and absent from canonical and sitemap output', () => {

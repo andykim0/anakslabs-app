@@ -33,12 +33,12 @@ function Row({
     <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 py-4 last:border-0">
       <div className="w-24 shrink-0">
         <p className="text-sm font-medium text-slate-800">{EDIT_TYPE_LABELS[rule.editType]}</p>
-        {!automatable ? <p className="text-[11px] text-slate-400">자동화 제외</p> : null}
+        {!automatable ? <p className="text-[11px] text-slate-400">Excluding automation</p> : null}
       </div>
 
       <div className="flex-1 min-w-40">
         <div className="flex items-baseline justify-between">
-          <span className="text-[11px] text-slate-500">승인률 (최근 {sampleSize}건)</span>
+          <span className="text-[11px] text-slate-500">Approval Rate (Recent {sampleSize}case)</span>
           <span className="text-sm font-semibold tabular-nums text-slate-800">{Math.round(rate * 100)}%</span>
         </div>
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -48,17 +48,17 @@ function Row({
           />
         </div>
         <p className="mt-1 text-[11px] text-slate-400">
-          임계 {Math.round(rule.approvalThreshold * 100)}% · 최소 표본 {rule.minSamples}건
+          criticality {Math.round(rule.approvalThreshold * 100)}% Minimum sample {rule.minSamples} records
         </p>
       </div>
 
       <div className="w-28 shrink-0 text-center">
         {!automatable ? (
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] text-slate-500">사람 QA 고정</span>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] text-slate-500">Human QA fixation</span>
         ) : meetsThreshold ? (
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">자동화 가능</span>
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">Automation possible</span>
         ) : (
-          <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] text-amber-700">표본/승인률 부족</span>
+          <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] text-amber-700">Insufficient sample/approval rate</span>
         )}
       </div>
 
@@ -102,18 +102,18 @@ export function QaAutomation() {
   return (
     <Card className="mb-6">
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-800">QA 자동화 임계치</h2>
-        <span className="text-[11px] text-slate-400">ON 시 무수정 자동 승인 · 표본 감사 유지</span>
+        <h2 className="text-sm font-semibold text-slate-800">QA Automation Thresholds</h2>
+        <span className="text-[11px] text-slate-400">Automatically approves without modification when ON and maintains sample audits</span>
       </div>
       <p className="mb-3 text-xs leading-5 text-slate-500">
-        유형별 승인률이 임계를 넘으면 자동 승인으로 전환할 수 있습니다. 전환은 관리자가 직접 토글하며,
-        자동 승인 건도 일부는 표본 감사됩니다. 영상은 항상 사람 QA를 유지합니다.
+        If the approval rate for each type exceeds a threshold, you can switch to automatic approval. The transition is toggled directly by the administrator,
+        Some automatic approval cases are also sample audited. Videos always maintain human QA.
       </p>
 
       {isPending ? (
-        <LoadingBlock label="QA 통계 불러오는 중…" />
+        <LoadingBlock label="Loading QA statistics..." />
       ) : isError ? (
-        <ErrorBlock message="QA 통계를 불러오지 못했습니다." onRetry={() => refetch()} />
+        <ErrorBlock message="QA statistics failed to load." onRetry={() => refetch()} />
       ) : (
         <div>
           {ORDER.map((t) => {

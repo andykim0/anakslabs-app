@@ -22,10 +22,10 @@ import {
 import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 
 function elapsedLabel(hours: number): string {
-  if (hours < 24) return `${formatNumber(hours)}시간 경과`;
+  if (hours < 24) return `${formatNumber(hours)}time lapse`;
   const days = Math.floor(hours / 24);
   const remainder = hours % 24;
-  return remainder ? `${formatNumber(days)}일 ${formatNumber(remainder)}시간 경과` : `${formatNumber(days)}일 경과`;
+  return remainder ? `${formatNumber(days)} days${formatNumber(remainder)}time lapse` : `${formatNumber(days)}days elapsed`;
 }
 
 function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
@@ -50,7 +50,7 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
             <Badge tone={EDIT_STATUS_TONES[item.status]}>{EDIT_STATUS_LABELS[item.status]}</Badge>
             <Badge tone="blue">{EDIT_TYPE_LABELS[item.type]}</Badge>
-            {item.overdue ? <Badge tone="red">대기 {FULFILLMENT_SLA_BUSINESS_DAYS}영업일 초과</Badge> : null}
+            {item.overdue ? <Badge tone="red">atmosphere {FULFILLMENT_SLA_BUSINESS_DAYS}over business days</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">{item.clientName}</p>
         </div>
@@ -74,13 +74,13 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
           <span className="inline-flex items-center gap-1.5 text-slate-600">
             <WalletCards size={13} aria-hidden />
             {item.creditCharged
-              ? `원장 순차감 ${formatNumber(item.netCreditCharge)}크레딧`
-              : '원장 순차감 없음'}
+              ? `Ledger Sequencing${formatNumber(item.netCreditCharge)}credits`
+              : "No sense of ledger order"}
           </span>
           <span className="text-[11px] text-slate-400">
-            관련 원장 {formatNumber(item.ledgerEntryCount)}행
+            Related Ledger {formatNumber(item.ledgerEntryCount)}line
           </span>
-          {item.isInitialRevision ? <Badge tone="green">초기 무료 수정</Badge> : null}
+          {item.isInitialRevision ? <Badge tone="green">Initial free fix</Badge> : null}
         </div>
 
         <div className="flex flex-col items-end gap-2">
@@ -92,10 +92,10 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
                 onChange={(event) => setSiteAppliedConfirmed(event.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-slate-900"
               />
-              AI 결과와 적용 대상을 확인했습니다
+              Confirmed AI results and application targets
             </label>
           ) : (
-            <p className="text-[11px] text-amber-700">처리·QA 준비가 끝난 요청만 완료할 수 있습니다.</p>
+            <p className="text-[11px] text-amber-700">Only requests that are ready for processing and QA can be completed.</p>
           )}
           <button
             type="button"
@@ -108,12 +108,12 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             ) : (
               <CheckCircle2 size={13} aria-hidden />
             )}
-            발행본 반영·완료
+            Issue reflected/completed
           </button>
         </div>
       </div>
       <p className="mt-1.5 text-right text-[11px] text-slate-400">
-        버튼을 누르면 검증된 결과를 초안과 현재 발행본에 원자적으로 반영한 뒤에만 완료로 기록합니다.
+        At the push of a button, the verified results are atomically reflected in the draft and current issue before being recorded as complete.
       </p>
       {completion.isError ? (
         <p role="alert" className="mt-2 text-right text-xs text-red-600">
@@ -133,8 +133,8 @@ export function EditQueue() {
   return (
     <>
       <PageHeader
-        title="수정 대행 큐"
-        description={query.data ? `미완료 요청 ${formatNumber(query.data.items.length)}건 · 오래된 요청부터 표시합니다.` : undefined}
+        title="Modification Agency Queue"
+        description={query.data ? `Incomplete request${formatNumber(query.data.items.length)}It displays the oldest requests first.` : undefined}
         actions={
           <button
             type="button"
@@ -143,27 +143,27 @@ export function EditQueue() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(query.isRefetching && 'animate-spin')} aria-hidden />
-            새로고침
+            refresh
           </button>
         }
       />
 
       {query.data?.integrity.missingCount ? (
         <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          원천 요청 {formatNumber(query.data.integrity.sourceCount)}건 중 큐에서 누락된 요청이{' '}
-          {formatNumber(query.data.integrity.missingCount)}건 있습니다.
+          source request {formatNumber(query.data.integrity.sourceCount)}Requests missing from queue{' '}
+          {formatNumber(query.data.integrity.missingCount)}There is something.
         </p>
       ) : null}
 
       {query.isPending ? (
-        <LoadingBlock label="수정 대행 큐를 불러오는 중…" />
+        <LoadingBlock label="Loading editing queue..." />
       ) : query.isError ? (
         <ErrorBlock message={query.error.message} onRetry={() => query.refetch()} />
       ) : query.data.items.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="대기 중인 수정 요청이 없습니다"
-          description="pending·AI 처리·QA 검수 상태의 요청만 이 운영 큐에 표시됩니다."
+          title="There are no pending edit requests"
+          description="Only requests with pending·AI processing·QA review status will appear in this operational queue."
         />
       ) : (
         <div className="space-y-3">

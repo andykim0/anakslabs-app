@@ -68,7 +68,7 @@ describe('SITECINE C5 — 생성 사이트 시네마틱 통합 회귀', () => {
     for (let index = 1; index <= 4; index += 1) assert.match(html, new RegExp(`고객 카피 ${index}`));
   });
 
-  test('고객 영상 경로는 video 1개·poster·preload none을 지키고 다보임 자산을 방출하지 않는다', () => {
+  test('고객 영상 경로는 video 1개·poster·preload none을 지키고 Anaks Labs 자산을 방출하지 않는다', () => {
     const html = render(completeSite(true));
     const root = parse(html);
     const videos = root.querySelectorAll('video');
@@ -77,14 +77,14 @@ describe('SITECINE C5 — 생성 사이트 시네마틱 통합 회귀', () => {
     assert.equal(videos[0]?.getAttribute('preload'), 'none');
     assert.equal(videos[0]?.getAttribute('poster'), '/customer-poster.webp');
     assert.match(html, /fetchPriority="high"/);
-    assert.doesNotMatch(html, /daboim-visibility-film/);
+    assert.doesNotMatch(html, /anakslabs-visibility-film/);
   });
 
   test('무영상 경로는 URL 없는 팔레트 장면이며 시네마틱 카피에 사각 패널 계약이 없다', () => {
     const html = render(completeSite());
     assert.match(html, /data-site-cine-procedural-hero="true"/);
     assert.doesNotMatch(html, /src="\/customer-poster\.webp"/);
-    assert.doesNotMatch(html, /daboim-visibility-film/);
+    assert.doesNotMatch(html, /anakslabs-visibility-film/);
     assert.match(html, /radial-gradient\(ellipse at center/);
     assert.match(html, /padding:\s*0; border:\s*0; border-radius:\s*0; background:\s*none; box-shadow:\s*none/);
   });
@@ -104,9 +104,9 @@ describe('SITECINE C5 — 생성 사이트 시네마틱 통합 회귀', () => {
     assert.match(html, /src="\/customer-poster\.webp"/);
   });
 
-  test('발행·정적 export 경계는 preview 전용 다보임 필름 모듈을 참조하지 않는다', () => {
+  test('발행·정적 export 경계는 preview 전용 Anaks Labs 필름 모듈을 참조하지 않는다', () => {
     const serving = source('src/app/s/[domain]/_shared.tsx');
     const exporter = source('src/lib/export/render-static.ts');
-    assert.doesNotMatch(`${serving}\n${exporter}`, /preview-addon|daboim-visibility-film/);
+    assert.doesNotMatch(`${serving}\n${exporter}`, /preview-addon|anakslabs-visibility-film/);
   });
 });

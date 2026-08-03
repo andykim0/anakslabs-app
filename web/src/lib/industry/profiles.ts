@@ -1,13 +1,16 @@
 import { resolveTemplate } from '@/lib/data/site-blueprints';
 import type { SurveyInput } from '@/lib/types/domain';
 
-export const INDUSTRY_PROFILE_IDS = ['interior', 'clinic'] as const;
+/** Active sellable product profiles in this US fork. */
+export const INDUSTRY_PROFILE_IDS = ['clinic'] as const;
 export type IndustryProfileId = (typeof INDUSTRY_PROFILE_IDS)[number];
 
-export const SITE_INDUSTRY_IDS = INDUSTRY_PROFILE_IDS;
-export type SiteIndustryId = IndustryProfileId;
-
-export const INTERIOR_INDUSTRY_LABEL = '건설·인테리어 시공' as const;
+/**
+ * Read/render compatibility for historical configs and the frozen robustness
+ * corpus. `interior` cannot be newly issued as a product profile.
+ */
+export const SITE_INDUSTRY_IDS = ['interior', 'clinic'] as const;
+export type SiteIndustryId = (typeof SITE_INDUSTRY_IDS)[number];
 
 /**
  * 가격이나 계약 상태를 포함하지 않는 렌더용 업종 식별자다. 신규 생성 경계가
@@ -16,12 +19,6 @@ export const INTERIOR_INDUSTRY_LABEL = '건설·인테리어 시공' as const;
 export function siteIndustryIdForSurvey(
   survey: Pick<SurveyInput, 'purposeId' | 'industry'>,
 ): SiteIndustryId | null {
-  if (
-    survey.purposeId === 'company_brand'
-    && survey.industry.trim() === INTERIOR_INDUSTRY_LABEL
-  ) {
-    return 'interior';
-  }
   if (
     survey.purposeId === 'booking_service'
     && resolveTemplate(survey.purposeId, survey.industry).id === 'booking_service.clinic'
@@ -35,5 +32,5 @@ export function siteIndustryIdForSurvey(
 export function industryProfileIdForSurvey(
   survey: Pick<SurveyInput, 'purposeId' | 'industry'>,
 ): IndustryProfileId | null {
-  return siteIndustryIdForSurvey(survey);
+  return siteIndustryIdForSurvey(survey) === 'clinic' ? 'clinic' : null;
 }

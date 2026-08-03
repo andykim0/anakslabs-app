@@ -91,7 +91,7 @@ export function evaluateGuarantee(input: GuaranteeEvaluationInput): GuaranteeEva
 }
 
 export const GUARANTEE_MARKETING_COPY =
-  `발행 후 ${GUARANTEE_WINDOW_DAYS}일, 네이버에서 손님이 들어오지 않으면 제작비를 돌려드립니다.`;
+  `If the legacy guarantee program is enabled, its review window is ${GUARANTEE_WINDOW_DAYS} days after publication.`;
 
 export const GUARANTEE_CRITERIA_COPY =
-  `발행 ${GUARANTEE_WINDOW_DAYS}일 시점에 네이버 색인 확인이 되지 않고, 다보임 비콘의 네이버 유입이 누적 ${GUARANTEE_NAVER_REFERRAL_THRESHOLD}회 미만이면 환불 대상입니다.`;
+  `At day ${GUARANTEE_WINDOW_DAYS}, the legacy review checks verified Naver indexing and whether the Anaks Labs beacon recorded fewer than ${GUARANTEE_NAVER_REFERRAL_THRESHOLD} Naver referrals.`;

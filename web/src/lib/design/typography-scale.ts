@@ -8,7 +8,7 @@ import { tokenRemToPx } from '@/lib/design/site-theme-tokens';
  * Generated sites apply the section-title floor only in flow/stack playback; the
  * persisted DESIGN_WIDTH canvas remains byte-for-byte faithful to authored geometry.
  */
-export const DABOIM_TYPOGRAPHY_HIERARCHY = {
+export const ANAKS_TYPOGRAPHY_HIERARCHY = {
   marketing: {
     bodyMinPx: 16,
     bodyMaxPx: 18,
@@ -29,8 +29,8 @@ export const DABOIM_TYPOGRAPHY_HIERARCHY = {
 const toRem = (px: number): string => `${px / 16}rem`;
 
 function assertTypographyHierarchyContract(): void {
-  const marketing = DABOIM_TYPOGRAPHY_HIERARCHY.marketing;
-  const generated = DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite;
+  const marketing = ANAKS_TYPOGRAPHY_HIERARCHY.marketing;
+  const generated = ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite;
   if (marketing.sectionTitleMinPx / marketing.bodyMaxPx < marketing.sectionTitleMinRatioToBody) {
     throw new Error('Marketing section-title hierarchy must be at least 1.5x body.');
   }
@@ -55,24 +55,24 @@ assertTypographyHierarchyContract();
  * also provide a conservative render-time uplift for paragraph-like legacy text, which
  * is the explicitly approved existing-publish visual change in LP$ L3.
  */
-export const DABOIM_TYPOGRAPHY = {
+export const ANAKS_TYPOGRAPHY = {
   marketing: {
     hero: { fontSize: 'clamp(2.75rem, 7vw, 5.25rem)', lineHeight: 1.01 },
     pageTitle: { fontSize: 'clamp(2.25rem, 5vw, 3.25rem)', lineHeight: 1.12 },
     sectionTitle: {
-      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.sectionTitleMinPx)}, 6vw, 3.5rem)`,
+      fontSize: `clamp(${toRem(ANAKS_TYPOGRAPHY_HIERARCHY.marketing.sectionTitleMinPx)}, 6vw, 3.5rem)`,
       lineHeight: 1.16,
     },
     cardTitle: {
-      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
+      fontSize: `clamp(${toRem(ANAKS_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
       lineHeight: 1.3,
     },
     tableTitle: {
-      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
+      fontSize: `clamp(${toRem(ANAKS_TYPOGRAPHY_HIERARCHY.marketing.cardAndTableTitleMinPx)}, 1.8vw, 1.625rem)`,
       lineHeight: 1.3,
     },
     body: {
-      fontSize: `clamp(${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.bodyMinPx)}, calc(.96rem + .25vw), ${toRem(DABOIM_TYPOGRAPHY_HIERARCHY.marketing.bodyMaxPx)})`,
+      fontSize: `clamp(${toRem(ANAKS_TYPOGRAPHY_HIERARCHY.marketing.bodyMinPx)}, calc(.96rem + .25vw), ${toRem(ANAKS_TYPOGRAPHY_HIERARCHY.marketing.bodyMaxPx)})`,
       lineHeight: 1.75,
     },
     support: { fontSize: 'clamp(.8125rem, .95vw, .875rem)', lineHeight: 1.6 },
@@ -81,7 +81,7 @@ export const DABOIM_TYPOGRAPHY = {
   },
   generatedSite: {
     sectionTitle: {
-      fontSize: DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+      fontSize: ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
       lineHeight: 1.35,
     },
     heroBody: { fontSize: 18, lineHeight: 1.8 },
@@ -93,8 +93,8 @@ export const DABOIM_TYPOGRAPHY = {
   },
 } as const;
 
-export type MarketingTypographyRole = keyof typeof DABOIM_TYPOGRAPHY.marketing;
-export type GeneratedTypographyRole = keyof typeof DABOIM_TYPOGRAPHY.generatedSite;
+export type MarketingTypographyRole = keyof typeof ANAKS_TYPOGRAPHY.marketing;
+export type GeneratedTypographyRole = keyof typeof ANAKS_TYPOGRAPHY.generatedSite;
 
 export type TextFlowKind = 'heading' | 'body';
 
@@ -103,7 +103,7 @@ export type TextFlowKind = 'heading' | 'body';
  * `anywhere` is only the emergency fallback for an unbroken URL/Latin token; ordinary
  * Korean still wraps between words because `keep-all` remains authoritative.
  */
-export const DABOIM_TEXT_FLOW = {
+export const ANAKS_TEXT_FLOW = {
   heading: {
     wordBreak: 'keep-all',
     overflowWrap: 'anywhere',
@@ -123,7 +123,7 @@ export function textFlowFor(fontFamily?: 'heading' | 'body'): Pick<
   CSSProperties,
   'wordBreak' | 'overflowWrap' | 'textWrap'
 > {
-  return { ...DABOIM_TEXT_FLOW[fontFamily === 'heading' ? 'heading' : 'body'] };
+  return { ...ANAKS_TEXT_FLOW[fontFamily === 'heading' ? 'heading' : 'body'] };
 }
 
 export interface GeneratedTextRoleRule {
@@ -201,7 +201,7 @@ export function isGeneratedSectionTitleId(elementId: string): boolean {
 
 export function generatedStackFontFloor(elementId: string): number | undefined {
   return isGeneratedSectionTitleId(elementId)
-    ? DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx
+    ? ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx
     : undefined;
 }
 
@@ -212,31 +212,31 @@ export function generatedTextRoleFor(elementId: string): GeneratedTextRoleRule |
 }
 
 export const MARKETING_TYPOGRAPHY_VARS = {
-  '--mkt-type-hero-size': DABOIM_TYPOGRAPHY.marketing.hero.fontSize,
-  '--mkt-type-hero-leading': DABOIM_TYPOGRAPHY.marketing.hero.lineHeight,
-  '--mkt-type-page-title-size': DABOIM_TYPOGRAPHY.marketing.pageTitle.fontSize,
-  '--mkt-type-page-title-leading': DABOIM_TYPOGRAPHY.marketing.pageTitle.lineHeight,
-  '--mkt-type-section-title-size': DABOIM_TYPOGRAPHY.marketing.sectionTitle.fontSize,
-  '--mkt-type-section-title-leading': DABOIM_TYPOGRAPHY.marketing.sectionTitle.lineHeight,
-  '--mkt-type-card-title-size': DABOIM_TYPOGRAPHY.marketing.cardTitle.fontSize,
-  '--mkt-type-card-title-leading': DABOIM_TYPOGRAPHY.marketing.cardTitle.lineHeight,
-  '--mkt-type-table-title-size': DABOIM_TYPOGRAPHY.marketing.tableTitle.fontSize,
-  '--mkt-type-table-title-leading': DABOIM_TYPOGRAPHY.marketing.tableTitle.lineHeight,
-  '--mkt-type-body-size': DABOIM_TYPOGRAPHY.marketing.body.fontSize,
-  '--mkt-type-body-leading': DABOIM_TYPOGRAPHY.marketing.body.lineHeight,
-  '--mkt-type-support-size': DABOIM_TYPOGRAPHY.marketing.support.fontSize,
-  '--mkt-type-support-leading': DABOIM_TYPOGRAPHY.marketing.support.lineHeight,
-  '--mkt-type-eyebrow-size': DABOIM_TYPOGRAPHY.marketing.eyebrow.fontSize,
-  '--mkt-type-eyebrow-leading': DABOIM_TYPOGRAPHY.marketing.eyebrow.lineHeight,
-  '--mkt-type-control-size': DABOIM_TYPOGRAPHY.marketing.control.fontSize,
-  '--mkt-type-control-leading': DABOIM_TYPOGRAPHY.marketing.control.lineHeight,
+  '--mkt-type-hero-size': ANAKS_TYPOGRAPHY.marketing.hero.fontSize,
+  '--mkt-type-hero-leading': ANAKS_TYPOGRAPHY.marketing.hero.lineHeight,
+  '--mkt-type-page-title-size': ANAKS_TYPOGRAPHY.marketing.pageTitle.fontSize,
+  '--mkt-type-page-title-leading': ANAKS_TYPOGRAPHY.marketing.pageTitle.lineHeight,
+  '--mkt-type-section-title-size': ANAKS_TYPOGRAPHY.marketing.sectionTitle.fontSize,
+  '--mkt-type-section-title-leading': ANAKS_TYPOGRAPHY.marketing.sectionTitle.lineHeight,
+  '--mkt-type-card-title-size': ANAKS_TYPOGRAPHY.marketing.cardTitle.fontSize,
+  '--mkt-type-card-title-leading': ANAKS_TYPOGRAPHY.marketing.cardTitle.lineHeight,
+  '--mkt-type-table-title-size': ANAKS_TYPOGRAPHY.marketing.tableTitle.fontSize,
+  '--mkt-type-table-title-leading': ANAKS_TYPOGRAPHY.marketing.tableTitle.lineHeight,
+  '--mkt-type-body-size': ANAKS_TYPOGRAPHY.marketing.body.fontSize,
+  '--mkt-type-body-leading': ANAKS_TYPOGRAPHY.marketing.body.lineHeight,
+  '--mkt-type-support-size': ANAKS_TYPOGRAPHY.marketing.support.fontSize,
+  '--mkt-type-support-leading': ANAKS_TYPOGRAPHY.marketing.support.lineHeight,
+  '--mkt-type-eyebrow-size': ANAKS_TYPOGRAPHY.marketing.eyebrow.fontSize,
+  '--mkt-type-eyebrow-leading': ANAKS_TYPOGRAPHY.marketing.eyebrow.lineHeight,
+  '--mkt-type-control-size': ANAKS_TYPOGRAPHY.marketing.control.fontSize,
+  '--mkt-type-control-leading': ANAKS_TYPOGRAPHY.marketing.control.lineHeight,
 } as CSSProperties;
 
 export function generatedType(role: GeneratedTypographyRole): {
   fontSize: number;
   lineHeight: number;
 } {
-  return { ...DABOIM_TYPOGRAPHY.generatedSite[role] };
+  return { ...ANAKS_TYPOGRAPHY.generatedSite[role] };
 }
 
 export function minTextFrameHeight(
@@ -244,7 +244,7 @@ export function minTextFrameHeight(
   lines: number,
   verticalPadding = 0,
 ): number {
-  const type = DABOIM_TYPOGRAPHY.generatedSite[role];
+  const type = ANAKS_TYPOGRAPHY.generatedSite[role];
   return Math.ceil(type.fontSize * type.lineHeight * Math.max(1, lines) + verticalPadding);
 }
 
@@ -265,7 +265,7 @@ interface RenderedSiteTypographyInput {
 
 function inferredLegacyRole(style: RenderedSiteTypographyInput['style']): GeneratedTypographyRole | undefined {
   if (style.fontFamily === 'heading' || style.fontSize > 18) return undefined;
-  if (style.fontSize <= DABOIM_TYPOGRAPHY.generatedSite.support.fontSize) return 'support';
+  if (style.fontSize <= ANAKS_TYPOGRAPHY.generatedSite.support.fontSize) return 'support';
   if (style.lineHeight == null || style.lineHeight < 1.6) return undefined;
   if (style.lineHeight >= 1.85) return 'longBody';
   return 'body';
@@ -287,7 +287,7 @@ function resolveLegacyRenderedSiteTypography({
   const stored = { fontSize: style.fontSize, lineHeight: storedLineHeight };
   if (isGeneratedSectionTitleId(elementId)) {
     if (variant === 'canvas') return stored;
-    const readable = DABOIM_TYPOGRAPHY.generatedSite.sectionTitle;
+    const readable = ANAKS_TYPOGRAPHY.generatedSite.sectionTitle;
     return {
       fontSize: Math.max(stored.fontSize, readable.fontSize),
       lineHeight: Math.max(storedLineHeight, readable.lineHeight),
@@ -299,7 +299,7 @@ function resolveLegacyRenderedSiteTypography({
   const role = rule?.role ?? inferredLegacyRole(style);
   if (!role) return stored;
 
-  const readable = DABOIM_TYPOGRAPHY.generatedSite[role];
+  const readable = ANAKS_TYPOGRAPHY.generatedSite[role];
   const candidate = {
     fontSize: Math.max(style.fontSize, readable.fontSize),
     lineHeight: Math.max(storedLineHeight, readable.lineHeight),

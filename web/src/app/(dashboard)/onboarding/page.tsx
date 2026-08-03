@@ -7,7 +7,7 @@ import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { realisticImageSupplyEnabled } from '@/lib/assets/image-supply-flags';
 import { templateGalleryEnabled } from '@/lib/design/templates';
 
-export const metadata: Metadata = { title: '새 사이트 만들기 — 다보임' };
+export const metadata: Metadata = { title: "Create a new site — Anaks Labs" };
 
 export default async function OnboardingPage({
   searchParams,

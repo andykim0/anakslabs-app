@@ -51,7 +51,7 @@ interface ServerTrackingModule {
 }
 
 async function loadServerTracking(): Promise<ServerTrackingModule> {
-  const directory = mkdtempSync(join(tmpdir(), 'daboim-us-demo-p4-'));
+const directory = mkdtempSync(join(tmpdir(), 'anakslabs-us-demo-p4-'));
   const outfile = join(directory, 'view-tracking-server.mjs');
   try {
     execFileSync(join(ROOT, 'node_modules/.bin/esbuild'), [
@@ -218,7 +218,7 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     assert.doesNotMatch(ingest, /console\.(?:log|warn|error)\([^)]*(?:userAgent|forwarded|requestIp)/u);
   });
 
-  test('개인정보 예외 초안은 기존 익명 집계와 구분해 HMAC·30일·PHI 0·법무 확인을 고지한다', () => {
+  test('the private-demo notice distinguishes HMAC identifiers, 90-day retention, PHI exclusion, and legal review', () => {
     const document = [
       US_DEMO_VIEW_DISCLOSURE.collected,
       US_DEMO_VIEW_DISCLOSURE.purpose,
@@ -231,7 +231,9 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     assert.match(document, /환자 정보/u);
     assert.match(document, /법무/u);
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
-    assert.match(html, /미국 병원 비공개 데모 열람 측정 예외/u);
-    assert.match(html, /공유·구매를 확정하지 않습니다/u);
+    assert.match(html, /Private demo views/u);
+    assert.match(html, /HMAC-SHA-256/u);
+    assert.match(html, /retained for up to 90 days/u);
+    assert.match(html, /does not by itself authorize sharing, purchase, or public release/u);
   });
 });

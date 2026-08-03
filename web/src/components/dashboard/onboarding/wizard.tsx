@@ -48,12 +48,12 @@ function motionChoiceWithHeroVideoSelection(
 
 // [A4] 승인 프레이밍 — 각 단계는 '확인하고 넘어가는' 게이트. 라벨을 승인 축으로.
 const STEPS = [
-  { no: 1, label: '내용' },
-  { no: 2, label: '첫 화면 비주얼' },
-  { no: 3, label: '디자인 방향' },
-  { no: 4, label: '움직임' },
-  { no: 5, label: '부가기능' },
-  { no: 6, label: '구성·생성' },
+  { no: 1, label: 'Clinic details' },
+  { no: 2, label: 'Hero visual' },
+  { no: 3, label: 'Design direction' },
+  { no: 4, label: 'Motion' },
+  { no: 5, label: 'Additional features' },
+  { no: 6, label: 'Review and create' },
 ] as const;
 
 export function OnboardingWizard({
@@ -108,7 +108,7 @@ export function OnboardingWizard({
         <div className="mb-6 rounded-xl border border-ob-border bg-ob-accent-soft px-4 py-3">
           <p className="flex items-start gap-2 text-sm leading-6 text-ob-ink">
             <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-ob-accent-strong" />
-            <span>{scanContext.notes || `이전 진단 ${scanContext.total}점 · 문제 ${scanContext.issueCount}개`} 새 사이트는 이 문제들을 해결한 100점 기반으로 시작합니다.</span>
+            <span>{scanContext.notes || `previous diagnosis${scanContext.total}point · problem${scanContext.issueCount} items`} The new site launches on a 100-point basis that addresses these issues.</span>
           </p>
         </div>
       ) : null}
@@ -116,7 +116,7 @@ export function OnboardingWizard({
       {/* [A4] 진행 표시 + 승인 프레이밍 — 각 단계는 확인하고 넘어가는 게이트(기본 1클릭 통과, 언제든 이전) */}
       <div className="mb-8">
         <p className="mb-2 text-center text-[11px] text-ob-muted">
-          {step}/6 단계 · 확인하고 넘어가면 돼요 — 마음에 안 들면 언제든 이전으로
+          {step}/Step 6 · Just check and move on — if you don’t like it, you can always go back to the previous version.
         </p>
         <div className="flex items-center">
           {STEPS.map((s, i) => {
@@ -139,7 +139,7 @@ export function OnboardingWizard({
                       active ? 'font-semibold text-ob-ink' : 'text-ob-muted',
                     )}
                   >
-                    {improve && s.no === 1 ? '가져오기' : s.label}
+                    {improve && s.no === 1 ? "import" : s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 ? (

@@ -26,9 +26,9 @@ describe('SEL2 — production renderer 풀스크린 몰입 예시', () => {
   });
 
   test('예시·모바일 fallback·대표 자산 고지와 키보드/cleanup 경계를 갖는다', () => {
-    assert.match(overlay, /예시 · 실제 production renderer/);
+    assert.match(overlay, /Example · actual production renderer/);
     assert.match(overlay, /spec\.mobileFallback/);
-    assert.match(overlay, /고객님의 최종 자산이 아닙니다/);
+    assert.match(overlay, /not your final asset/);
     assert.match(overlay, /event\.key === 'Escape'/);
     assert.match(overlay, /document\.body\.style\.overflow = previousOverflow/);
     assert.match(overlay, /previousFocus\?\.focus\(\)/);
@@ -43,6 +43,6 @@ describe('SEL2 — production renderer 풀스크린 몰입 예시', () => {
   test('영상 필수 연출도 정지 유지가 1클릭이고 제출 시 invalid signature를 저장하지 않는다', () => {
     assert.doesNotMatch(choice, /disabled=\{videoRequired\}/);
     assert.match(choice, /const submittedSignatureId = videoRequired && !video \? undefined : signatureId/);
-    assert.match(choice, /정지 화면으로 유지하기/);
+    assert.match(choice, /Keep the approved image/);
   });
 });

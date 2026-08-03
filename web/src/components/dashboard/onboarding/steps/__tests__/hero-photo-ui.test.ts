@@ -91,13 +91,13 @@ describe('H4 — 대표 사진 UI·제출 배선', () => {
     assert.match(STEP04, /setValue\('heroPhotoAssetRef', result\.assetRef/);
     assert.match(STEP04, /setValue\('heroPhotoAssetRef', undefined/);
     assert.match(STEP04, /accept="image\/png,image\/jpeg,image\/webp"/);
-    assert.match(STEP04, /대표 사진 올리기/);
-    assert.match(STEP04, /사진 교체/);
+    assert.match(STEP04, /Upload featured photo/);
+    assert.match(STEP04, /Replace photo/);
     assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.intro/);
     assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.heroHint/);
     assert.match(STEP04, /REFERENTIAL_IMAGE_POLICY_COPY\.collectionHint/);
-    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /제품·공간·인물·로고/);
-    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /업로드가 0장이어도 생성을 막지 않아요/);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /spaces, people, services, or logo/u);
+    assert.match(REFERENTIAL_IMAGE_POLICY_COPY.intro, /zero uploads do not block generation/u);
   });
 
   test('호스트는 공백을 정리한 heroPhotoUrl을 SurveyInput으로 전달한다', () => {
@@ -112,9 +112,9 @@ describe('H4 — 대표 사진 UI·제출 배선', () => {
   });
 
   test('확인 화면은 대표 사진과 일반 사진을 별도 행으로 보여준다', () => {
-    assert.match(REVIEW, /Row title="대표 실제 사진"/);
-    assert.match(REVIEW, /Row title="제품·공간·인물 사진"/);
+    assert.match(REVIEW, /Row title="Representative real photos"/);
+    assert.match(REVIEW, /Row title="Clinic, service, and team photos"/);
     assert.match(REVIEW, /v\.heroPhotoAssetRef/);
-    assert.match(REVIEW, /URL 이미지\(실사 근거 아님\)/);
+    assert.match(REVIEW, /URL image \(not direct-upload evidence\)/);
   });
 });

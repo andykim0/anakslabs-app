@@ -4,7 +4,7 @@ import { getCurrentClient } from '@/lib/services/auth';
 import { BillingView } from '@/components/dashboard/billing-view';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
 
-export const metadata: Metadata = { title: '결제·구독 — 다보임' };
+export const metadata: Metadata = { title: "Payment/Subscription — Anaks Labs" };
 
 export default async function BillingPage() {
   const client = await getCurrentClient();

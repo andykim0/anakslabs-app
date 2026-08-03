@@ -25,10 +25,10 @@ describe('SEL1 — 고객 선택 이미지의 정직한 정지→모션 대비',
   });
 
   test('예시 라벨·정지 1클릭·reduced-motion 정지 경로가 명시돼 있다', () => {
-    assert.match(preview, /예시 · 같은 사진으로 비교 중/);
-    assert.match(choice, /정지 화면으로 유지하기/);
+    assert.match(preview, /Example · Comparing the same photo/);
+    assert.match(choice, /Keep the approved image/);
     assert.match(preview, /useReducedMotion/);
     assert.match(preview, /disabled=\{reducedMotion\}/);
-    assert.match(choice, /실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작/);
+    assert.match(choice, /Generation starts once, only after administrator approval and all cost-cap and kill-switch checks pass/);
   });
 });

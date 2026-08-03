@@ -116,11 +116,11 @@ describe('RPT2 monthly report core', () => {
     assert.equal(monthlyPerformanceReportSchema.safeParse(report).success, true);
     const email = buildMonthlyReportEmail({
       siteName: '기존 사이트',
-      dashboardUrl: 'https://daboim.com/dashboard/reports/legacy-site',
+      dashboardUrl: 'https://anakslabs.com/dashboard/reports/legacy-site',
       report,
     });
-    assert.match(email.text, /예약: 0건/);
-    assert.doesNotMatch(email.text, /카카오 상담 클릭/);
+    assert.match(email.text, /Bookings: 0/);
+    assert.doesNotMatch(email.text, /Chat clicks/);
   });
 
   test('never invents a percentage from a zero baseline and rejects invalid aggregates', () => {
@@ -169,19 +169,19 @@ describe('RPT2 monthly report core', () => {
     });
     const email = buildMonthlyReportEmail({
       siteName: '<온화 & 다이닝>',
-      dashboardUrl: 'https://daboim.com/dashboard/reports/site-1',
+      dashboardUrl: 'https://anakslabs.com/dashboard/reports/site-1',
       report,
     });
-    assert.match(email.subject, /2026년 06월/);
+    assert.match(email.subject, /June 2026/);
     assert.match(email.html, /&lt;온화 &amp; 다이닝&gt;/);
     assert.doesNotMatch(email.html, /<온화/);
-    assert.match(email.html, /고유 방문자가 아니라 이 사이트에서 수집된 페이지 조회/);
-    assert.match(email.html, /첫 리포트예요/);
-    assert.match(email.text, /유입\(페이지뷰\): 3건 · 신규 집계/);
-    assert.match(email.text, /상담 행동: 3건/);
-    assert.match(email.text, /카카오 상담 클릭 2건 · 문의 폼 제출 1건/);
-    assert.match(email.text, /인스타그램 클릭 4건/);
-    assert.doesNotMatch(email.text, /상담 완료/);
+    assert.match(email.html, /page views, not unique visitors/);
+    assert.match(email.html, /first report/iu);
+    assert.match(email.text, /Page views: 3 · Newly measured/);
+    assert.match(email.text, /Inquiry actions: 3/);
+    assert.match(email.text, /Chat clicks 2 · Form submissions 1/);
+    assert.match(email.text, /Instagram clicks 4/);
+    assert.doesNotMatch(email.text, /consultation completed/iu);
     assert.equal('to' in email, false);
   });
 
@@ -191,14 +191,14 @@ describe('RPT2 monthly report core', () => {
       'utf8',
     );
     for (const copy of [
-      '상담 행동',
-      '카카오 상담 클릭',
-      '문의 폼 제출',
-      '예약 클릭',
-      '인스타그램 클릭',
+      'Inquiry actions',
+      'Chat clicks',
+      'Form submissions',
+      'Booking clicks',
+      'Instagram clicks',
     ]) {
       assert.match(source, new RegExp(copy));
     }
-    assert.doesNotMatch(source, /상담 완료/);
+    assert.doesNotMatch(source, /consultation completed/iu);
   });
 });

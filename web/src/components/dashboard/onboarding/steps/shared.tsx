@@ -31,15 +31,15 @@ const assetRefSchema = z.object({
 });
 
 export const surveyFormSchema = z.object({
-  purposeId: z.string().min(1, '어떤 곳인지 하나 골라주세요.'),
+  purposeId: z.string().min(1, "Please choose a place."),
   businessName: z
     .string()
-    .min(1, '상호명을 입력해주세요.')
-    .max(60, '상호명은 60자 이내로 입력해주세요.'),
+    .min(1, "Please enter the business name.")
+    .max(60, "Please enter the business name within 60 characters."),
   /** [UI 전용] 지역 — SurveyInput에 필드가 없어 onComplete에서 extraNotes로 접어 넣음 */
   region: z.string().max(60).optional(),
-  tagline: z.string().max(80, '한 줄 소개는 80자 이내로 입력해주세요.').optional(),
-  industry: z.string().min(1, '업종을 고르거나 입력해주세요.').max(100),
+  tagline: z.string().max(80, "Please enter a one-line introduction of 80 characters or less.").optional(),
+  industry: z.string().min(1, "Please select or enter an industry.").max(100),
   existingPresence: z.array(z.object({ kind: z.enum(PRESENCE_KINDS), url: z.string() })).max(5),
   factualAnswers: z.array(z.object({
     key: z.enum(BUSINESS_FACT_KEYS),
@@ -53,12 +53,12 @@ export const surveyFormSchema = z.object({
     extractedAt: z.string(),
     fields: z.array(z.string()),
   })).max(5),
-  brandStory: z.string().max(2000, '브랜드 이야기는 2000자 이내로 입력해주세요.'),
-  brandOrigin: z.string().max(2000, '시작한 계기는 2000자 이내로 입력해주세요.'),
-  brandPhilosophy: z.string().max(2000, '철학과 지향은 2000자 이내로 입력해주세요.'),
-  targetCustomer: z.string().max(300, '300자 이내로 입력해주세요.'),
-  visitorNeed: z.string().max(300, '300자 이내로 입력해주세요.'),
-  valueProposition: z.string().max(300, '300자 이내로 입력해주세요.'),
+  brandStory: z.string().max(2000, "Please enter your brand story within 2000 characters."),
+  brandOrigin: z.string().max(2000, "Please enter no more than 2000 characters about why you started."),
+  brandPhilosophy: z.string().max(2000, "Please enter your philosophy and orientation within 2000 characters."),
+  targetCustomer: z.string().max(300, "Please enter within 300 characters."),
+  visitorNeed: z.string().max(300, "Please enter within 300 characters."),
+  valueProposition: z.string().max(300, "Please enter within 300 characters."),
   conversionKind: z.enum(['phone_fact', 'reservation_url', 'contact_form', 'messenger_url']).optional(),
   conversionUrl: z.string().max(1000),
   proofItems: z.array(z.object({
@@ -69,7 +69,7 @@ export const surveyFormSchema = z.object({
     publisher: z.string().max(120).optional(),
     asOfDate: z.string().max(10).optional(),
   })).max(20),
-  providedContent: z.string().max(5000, '5000자 이내로 입력해주세요.').optional(),
+  providedContent: z.string().max(5000, "Please enter within 5000 characters.").optional(),
   /** [H1] 히어로에 크게 쓰는 고객 실사 1장. storePhotoUrls(본문·갤러리)와 별도. */
   heroPhotoUrl: z.string().optional(),
   heroPhotoAssetRef: assetRefSchema.optional(),
@@ -109,9 +109,9 @@ export const surveyFormSchema = z.object({
   highlights: z.array(z.string().max(40)).max(3),
   tone: z
     .array(z.string())
-    .min(1, '분위기를 1개 이상 골라주세요.')
-    .max(2, '분위기는 최대 2개까지 선택할 수 있어요.'),
-  extraNotes: z.string().max(500, '추가 요청은 500자 이내로 입력해주세요.').optional(),
+    .min(1, "Please select at least one atmosphere.")
+    .max(2, "You can select up to two atmospheres."),
+  extraNotes: z.string().max(500, "Please enter additional requests within 500 characters.").optional(),
 });
 
 export type SurveyForm = z.infer<typeof surveyFormSchema>;
@@ -360,7 +360,7 @@ export const SurveyUxProvider = SurveyUxContext.Provider;
 
 export function useSurveyUx(): SurveyUx {
   const ctx = useContext(SurveyUxContext);
-  if (!ctx) throw new Error('useSurveyUx는 SurveyUxProvider 내부에서만 사용할 수 있습니다.');
+  if (!ctx) throw new Error("useSurveyUx can only be used inside SurveyUxProvider.");
   return ctx;
 }
 

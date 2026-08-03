@@ -306,6 +306,6 @@ test('미터는 같은 입력을 실제 스캐너로 계산한 네 점수를 변
   }));
   assert.match(html, new RegExp(`>${scanned.scores.total}</strong>`));
   for (const score of [scanned.scores.seo, scanned.scores.aeo, scanned.scores.geo]) {
-    assert.match(html, new RegExp(`>${score}점</span>`));
+    assert.match(html, new RegExp(`>${score} points</span>`));
   }
 });

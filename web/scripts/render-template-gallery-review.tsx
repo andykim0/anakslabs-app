@@ -3,7 +3,7 @@
  * production SiteRenderer with customer-supplied content and checked-in media.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-template-gallery-review.tsx
- * Out: TEMPLATE_REVIEW_OUTPUT or /private/tmp/daboim-template-review
+ * Out: TEMPLATE_REVIEW_OUTPUT or /private/tmp/anakslabs-template-review
  */
 import { createServer } from 'node:http';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -45,7 +45,7 @@ import type {
 import type { SiteConfig } from '@/lib/types/site';
 
 const OUTPUT_DIR = process.env.TEMPLATE_REVIEW_OUTPUT
-  ?? '/private/tmp/daboim-template-review';
+  ?? '/private/tmp/anakslabs-template-review';
 const PUBLIC_DIR = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';

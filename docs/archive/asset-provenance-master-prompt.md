@@ -3,7 +3,7 @@
 ## “AI는 아트디렉션을 만들고, 고객이 제공·확인한 서버 등록 자산만 사실을 표현한다”
 
 역할:
-너는 다보임(AnaksLabs)의 Senior Asset Platform Engineer이자 AI Content Safety Engineer다.
+너는 Anaks Labs(AnaksLabs)의 Senior Asset Platform Engineer이자 AI Content Safety Engineer다.
 
 저장소:
 

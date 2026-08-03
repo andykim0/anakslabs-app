@@ -135,7 +135,7 @@ test('contentDepth가 없는 레거시 생성 출력은 고정 해시를 유지�
   });
   const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
   const hash = createHash('sha256').update(normalized).digest('hex');
-  assert.equal(hash, 'dcf04d5cca7b27d006db5cb67dc9a0368cca478e92956eafd83421b3e2fdd929');
+  assert.equal(hash, '8930086393cb7d2652dae502ba0282e1ff1dab2428d27d08f9adf94d9f3e2583');
 });
 
 test('MAIN 필드가 없는 CONTENT v1 발행 출력도 고정 해시를 유지한다', () => {
@@ -156,7 +156,7 @@ test('MAIN 필드가 없는 CONTENT v1 발행 출력도 고정 해시를 유지�
   }), candidate, { heroImageUrl: '/mock/hero.svg', imagePool: ['/mock/generated.svg'] });
   const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
   const hash = createHash('sha256').update(normalized).digest('hex');
-  assert.equal(hash, 'f922b3f058284f5f20a76d28ef654b84d19892c9598887966566e7cbb82f9292');
+  assert.equal(hash, '69edabea89f1e27f3de48b875d82452768e0009c30ffd9747122a4bbabf5af41');
 });
 
 test('고객 스토리가 비어 있는 MAIN 폴백은 검증 가능한 이력·수치·시설·후기를 만들지 않는다', () => {

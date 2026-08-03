@@ -8,11 +8,11 @@ import { formatDate, SiteStatusBadge } from './ui';
 
 function ThumbnailPlaceholder({ site }: { site: Site }) {
   const byStatus: Record<string, { icon: React.ReactNode; text: string }> = {
-    draft: { icon: <PencilRuler className="h-6 w-6" />, text: '초안 — 에디터에서 이어서 작업하세요' },
-    building: { icon: <Sparkles className="h-6 w-6" />, text: 'AI가 사이트를 생성하고 있습니다' },
-    live: { icon: <Globe className="h-6 w-6" />, text: '라이브' },
-    pending_dns: { icon: <Globe className="h-6 w-6" />, text: 'DNS 검증 대기 중' },
-    suspended: { icon: <Hammer className="h-6 w-6" />, text: '일시중지된 사이트' },
+    draft: { icon: <PencilRuler className="h-6 w-6" />, text: "Draft — continue working in the editor" },
+    building: { icon: <Sparkles className="h-6 w-6" />, text: "AI is generating your site" },
+    live: { icon: <Globe className="h-6 w-6" />, text: "live" },
+    pending_dns: { icon: <Globe className="h-6 w-6" />, text: "Waiting for DNS validation" },
+    suspended: { icon: <Hammer className="h-6 w-6" />, text: "Suspended site" },
   };
   const p = byStatus[site.status] ?? byStatus.draft;
   return (
@@ -49,30 +49,30 @@ export function SiteCard({ site }: { site: Site }) {
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 truncate transition-colors hover:text-[#c8a96a]"
-              title="새 탭에서 열기"
+              title="Open in new tab"
             >
               <Globe className="h-3 w-3 shrink-0" />
               <span className="truncate">{site.domain}</span>
               <ExternalLink className="h-3 w-3 shrink-0" />
             </a>
           ) : (
-            <span>도메인 미할당 — 발행 시 서브도메인이 부여됩니다</span>
+            <span>Domain unassigned — subdomain assigned upon publication</span>
           )}
         </div>
         <div className="mt-3 flex items-center justify-between border-t border-neutral-800 pt-3">
-          <span className="text-[11px] text-neutral-600">생성 {formatDate(site.createdAt)}</span>
+          <span className="text-[11px] text-neutral-600">generation {formatDate(site.createdAt)}</span>
           <div className="flex gap-2">
             <Link
               href={`/dashboard/sites/${site.id}`}
               className="rounded-md border border-neutral-700 px-2.5 py-1 text-[11px] text-neutral-300 transition-colors hover:border-neutral-500"
             >
-              상세
+              particular
             </Link>
             <Link
               href={`/dashboard/sites/${site.id}/editor`}
               className="rounded-md bg-[#c8a96a] px-2.5 py-1 text-[11px] font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
             >
-              에디터
+              editor
             </Link>
           </div>
         </div>

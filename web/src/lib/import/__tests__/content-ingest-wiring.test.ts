@@ -7,12 +7,14 @@ import { surveySchema } from '@/app/api/_lib/schemas';
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');
 
-test('온보딩 첫 단계가 다중 기존 채널과 customer_import 자동채움을 보존한다', () => {
+test('the first onboarding step preserves website and Instagram imports with customer_import provenance', () => {
   const step = read('src/components/dashboard/onboarding/steps/step02-existing.tsx');
   const host = read('src/components/dashboard/onboarding/survey-step.tsx');
-  assert.match(host, /1: '이미 홈페이지·블로그·플레이스가 있으세요\?'/);
+  assert.match(host, /1: "Do you already have a website, blog, or place\?"/);
   assert.match(host, /step === 1 \? <Step02Existing \/>/);
-  assert.match(step, /kind: 'naver_blog'/);
+  assert.match(step, /kind: 'website'/);
+  assert.match(step, /kind: 'instagram'/);
+  assert.doesNotMatch(step, /kind: 'naver_blog'|kind: 'naver_place'/);
   assert.match(step, /setValue\('businessName'/);
   assert.match(step, /setValue\('factualAnswers'/);
   assert.match(step, /setValue\('contentItems'/);

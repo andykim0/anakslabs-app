@@ -398,7 +398,7 @@ export const SEO_RULES: ScanRule[] = [
     decaySlot: 'responseSpeed',
     decayWeight: 8,
     label: '서버 첫 응답이 느립니다 (1.5초 초과)',
-    detail: '다보임 진단 서버 위치에서 2회 측정한 빠른 응답이 1.5초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표입니다.',
+    detail: 'Anaks Labs 진단 서버 위치에서 2회 측정한 빠른 응답이 1.5초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표입니다.',
     failed: (ctx) => ctx.ttfbMs > 1500 && ctx.ttfbMs <= 3000,
   },
   {
@@ -410,7 +410,7 @@ export const SEO_RULES: ScanRule[] = [
     decaySlot: 'responseSpeed',
     decayWeight: 15,
     label: '서버 첫 응답이 매우 느립니다 (3초 초과)',
-    detail: '다보임 진단 서버 위치에서 2회 측정한 빠른 응답이 3초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표이므로 반복 측정으로 확인하세요.',
+    detail: 'Anaks Labs 진단 서버 위치에서 2회 측정한 빠른 응답이 3초를 넘었습니다. 실제 손님의 위치·네트워크에 따라 달라지는 참고 지표이므로 반복 측정으로 확인하세요.',
     failed: (ctx) => ctx.ttfbMs > 3000,
   },
   {

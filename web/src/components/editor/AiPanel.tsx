@@ -3,7 +3,7 @@
 /**
  * AI 편집 패널.
  *  - 크레딧 잔액 표시 (GET /api/credits)
- *  - 액션: 다보임 카피 수정 / AI 이미지 생성 / AI 영상 재생성 / AI 전체 섹션 재디자인
+ *  - 액션: Anaks Labs 카피 수정 / AI 이미지 생성 / AI 영상 재생성 / AI 전체 섹션 재디자인
  *  - POST /api/edit-requests → 201 { editRequest, balance }
  *    · 402 UPSELL_REQUIRED → AI 영상 홈페이지 안내(크레딧 우회 없음)
  *    · 409 INSUFFICIENT_CREDITS → 크레딧 구매 유도 모달
@@ -23,10 +23,10 @@ import { Button, cn } from '@/components/dashboard/ui';
 import { createEditRequest, EditorApiError, getCredits, type CreateEditRequestInput } from './api';
 
 const ACTIONS: { type: EditType; label: string; desc: string }[] = [
-  { type: 'text', label: '다보임 카피 수정 대행', desc: '요청한 문구를 만들고 검수해 드립니다' },
-  { type: 'image', label: 'AI 이미지 새로 생성', desc: '설명으로 새 이미지를 만듭니다' },
-  { type: 'video', label: 'AI 영상 재생성', desc: 'AI 영상 홈페이지 전용 · 8초 클립' },
-  { type: 'structure', label: 'AI 전체 섹션 재디자인', desc: '섹션 전체 구성을 다시 제안합니다' },
+  { type: 'text', label: "Anaks Labs copy editing service", desc: "We will create and review the requested text." },
+  { type: 'image', label: "Create a new AI image", desc: "Create a new image with description" },
+  { type: 'video', label: "AI video regeneration", desc: "AI video homepage only · 8 second clip" },
+  { type: 'structure', label: "AI entire section redesign", desc: "I suggest again organizing the entire section" },
 ];
 
 interface AiOutput {
@@ -66,7 +66,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
       setResult(editRequest);
       setUpsellRequest(null);
       setPrompt('');
-      toast('success', '편집 요청이 접수되었습니다. QA 검수 후 반영됩니다.');
+      toast('success', "Your edit request has been received. It will be reflected after QA inspection.");
     },
     onError: (err, variables) => {
       if (err instanceof EditorApiError) {
@@ -86,7 +86,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
         toast('error', err.message);
         return;
       }
-      toast('error', '요청에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      toast('error', "Your request failed. Please try again later.");
     },
   });
 
@@ -96,14 +96,14 @@ export function AiPanel({ siteId }: { siteId: string }) {
   const submit = () => {
     const content = prompt.trim();
     if (!content) {
-      toast('info', '요청 내용을 입력해 주세요.');
+      toast('info', "Please enter your request.");
       return;
     }
     const state = useEditorStore.getState();
     const pageId = state.selectedPageId || state.config.pages[0]?.id;
     const sectionId = state.selectedSectionId ?? activeSections(state.config)[0]?.id;
     if (!pageId || !sectionId) {
-      toast('error', '수정할 페이지와 섹션을 먼저 선택해 주세요.');
+      toast('error', "Please first select the page and section you want to edit.");
       return;
     }
     mutation.mutate({
@@ -125,15 +125,15 @@ export function AiPanel({ siteId }: { siteId: string }) {
       {/* 잔액 */}
       <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
         <span className="flex items-center gap-1.5 text-xs font-semibold text-[#26354D]">
-          <Wand2 className="h-3.5 w-3.5 text-[#174DDA]" /> AI 편집
+          <Wand2 className="h-3.5 w-3.5 text-[#174DDA]" /> AI Editing
         </span>
         <Link
           href="/dashboard/credits"
           className="flex items-center gap-1 rounded-full border border-[#9DB7EB] bg-[#EDF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#174DDA] transition-colors hover:border-[#7EA2EA]"
-          title="크레딧 관리"
+          title="Credit Management"
         >
           <Coins className="h-3 w-3" />
-          {creditsQuery.isPending ? '…' : creditsQuery.isError ? '—' : `${balance}개`}
+          {creditsQuery.isPending ? '…' : creditsQuery.isError ? '—' : `${balance} items`}
         </Link>
       </div>
 
@@ -172,12 +172,12 @@ export function AiPanel({ siteId }: { siteId: string }) {
           rows={4}
           placeholder={
             type === 'text'
-              ? '예) 히어로 문구를 더 절제된 톤으로 다시 써 주세요'
+              ? "Example) Please rewrite the hero text in a more restrained tone."
               : type === 'image'
-                ? '예) 숯불 위 갈비, 어두운 배경, 시네마틱 조명'
+                ? "Example) Ribs on charcoal, dark background, cinematic lighting"
                 : type === 'video'
-                  ? '예) 불꽃이 피어오르는 화로 클로즈업, 8초 루프'
-                  : '예) 시그니처 메뉴 4개를 소개하는 섹션을 추가해 주세요'
+                  ? "Example) Close-up of a brazier with flames rising, 8 second loop"
+                  : "Example) Please add a section introducing the 4 signature menu items."
           }
           className="w-full resize-y rounded-lg border border-[#CAD5E5] bg-white px-3 py-2 text-xs leading-5 text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-sky-600"
         />
@@ -189,24 +189,24 @@ export function AiPanel({ siteId }: { siteId: string }) {
           className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#174DDA] text-xs font-semibold text-white transition-colors hover:bg-[#245FE5] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {mutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-          {mutation.isPending ? 'AI 생성 중…' : `요청하기 (크레딧 ${cost}개 사용)`}
+          {mutation.isPending ? "Creating AI..." : `Request (Credit${cost}dog use)`}
         </button>
 
         <p className="text-[10px] leading-4 text-[#667085]">
-          요청은 AI 생성 후 QA 검수를 거쳐 반영됩니다. 생성 실패 시 크레딧은 자동 환불됩니다.
+          Requests are reflected after AI creation and QA inspection. If creation fails, credits will be automatically refunded.
         </p>
 
         {/* 결과 카드 */}
         {result ? (
           <div className="rounded-lg border border-[#DCE4F0] bg-white/90 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#344054]">AI 생성 결과</span>
-              <span className="rounded bg-amber-950/60 px-1.5 py-0.5 text-[10px] text-amber-300">QA 검수 대기</span>
+              <span className="text-[11px] font-semibold text-[#344054]">AI generated results</span>
+              <span className="rounded bg-amber-950/60 px-1.5 py-0.5 text-[10px] text-amber-300">Waiting for QA inspection</span>
             </div>
 
             {result.type === 'image' && resultOutput.url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={resultOutput.url} alt="AI 생성 이미지" className="mb-2 w-full rounded-md" />
+              <img src={resultOutput.url} alt="AI generated images" className="mb-2 w-full rounded-md" />
             ) : null}
             {result.type === 'video' && resultOutput.url ? (
               <video src={resultOutput.url} poster={resultOutput.poster} controls muted playsInline className="mb-2 w-full rounded-md" />
@@ -223,11 +223,11 @@ export function AiPanel({ siteId }: { siteId: string }) {
                 onClick={() => setResult(null)}
                 className="h-8 rounded-md border border-[#CAD5E5] px-3 text-xs text-[#344054] transition-colors hover:border-[#AEBACC]"
               >
-                닫기
+                Close
               </button>
             </div>
             <p className="mt-1.5 text-[10px] leading-4 text-[#667085]">
-              검수가 끝나면 서버가 초안과 발행본에 함께 반영합니다. 완료 전에는 라이브 사이트가 바뀌지 않습니다.
+              Once the review is complete, the server reflects it in both the draft and published version. Your live site will not change until you are done.
             </p>
           </div>
         ) : null}
@@ -237,49 +237,49 @@ export function AiPanel({ siteId }: { siteId: string }) {
       <Modal
         open={upsellRequest !== null}
         onClose={() => setUpsellRequest(null)}
-        title="AI 영상 홈페이지가 필요합니다"
+        title="I need an AI video homepage"
         footer={
           <>
             <Link
               href="/dashboard/billing"
               className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
             >
-              AI 영상 홈페이지 상담
+              AI video website consultation
             </Link>
             <Button variant="secondary" onClick={() => setUpsellRequest(null)}>
-              닫기
+              Close
             </Button>
           </>
         }
       >
-        AI 영상 재생성은 AI 영상 홈페이지가 승인된 사이트에서만 사용할 수 있습니다. 일반 크레딧으로
-        이용 권한을 우회하지 않습니다.
+        AI video regeneration can only be used on sites with approved AI video homepages. with regular credit
+        Does not bypass access rights.
       </Modal>
 
       {/* 크레딧 부족 모달 */}
       <Modal
         open={shortage !== null}
         onClose={() => setShortage(null)}
-        title="크레딧이 부족합니다"
+        title="I'm running out of credits"
         footer={
           <>
             <Button variant="secondary" onClick={() => setShortage(null)}>
-              닫기
+              Close
             </Button>
             <Link
               href="/dashboard/credits"
               className="inline-flex h-10 items-center rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
             >
-              크레딧 구매하기
+              Buy Credits
             </Link>
           </>
         }
       >
         {shortage ? (
           <p>
-            이 요청에는 크레딧 <b className="text-[#0B1736]">{shortage.required}개</b>가 필요하지만, 현재{' '}
-            <b className="text-[#0B1736]">{shortage.balance}개</b> 보유 중입니다. 크레딧을 구매한 뒤 다시
-            시도해 주세요.
+            Credit to this request <b className="text-[#0B1736]">{shortage.required} items</b>is needed, but currently{' '}
+            <b className="text-[#0B1736]">{shortage.balance} items</b> I have it in stock. After purchasing credits,
+            Please try it.
           </p>
         ) : null}
       </Modal>

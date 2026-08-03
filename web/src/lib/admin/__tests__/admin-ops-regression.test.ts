@@ -140,9 +140,9 @@ describe('ADM5 admin operations construction invariants', () => {
   test('the shared admin navigation exposes every operations queue and status board', () => {
     const shell = read('src/components/admin/admin-shell.tsx');
     for (const item of [
-      { href: '/admin/video-queue', label: '영상 이행' },
-      { href: '/admin/subscriptions', label: '구독·리포트' },
-      { href: '/admin/edit-queue', label: '수정 대행' },
+      { href: '/admin/video-queue', label: 'Video fulfillment' },
+      { href: '/admin/subscriptions', label: 'Subscriptions & reports' },
+      { href: '/admin/edit-queue', label: 'Edit requests' },
     ]) {
       const declaration = `{ href: '${item.href}', label: '${item.label}'`;
       assert.equal(
@@ -183,9 +183,9 @@ describe('ADM5 admin operations construction invariants', () => {
     }
     assert.ok(
       read('src/app/api/admin/subscriptions/route.ts').includes(
-        'PRICING.subscription.amountKrw',
+        'PRICING.subscription.amountUsd',
       ),
-      'subscription MRR must consume PRICING.subscription.amountKrw',
+      'subscription MRR must consume PRICING.subscription.amountUsd',
     );
     assert.match(metrics, /function quantityOfferLimit\(\): number \| null \{[\s\S]*return null;/);
     assert.doesNotMatch(metrics, /LAUNCH_OFFER|선착순/u);

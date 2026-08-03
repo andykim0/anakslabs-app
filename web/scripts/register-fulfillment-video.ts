@@ -2,7 +2,7 @@
  * Register a manually fulfilled hero video in the authoritative asset registry.
  *
  * This script never accepts owner/origin/storage claims. It derives the owner
- * from the persisted site, uploads bytes into Daboim Storage, stamps the fixed
+ * from the persisted site, uploads bytes into Anaks Labs Storage, stamps the fixed
  * ai_generated origin, verifies the registry row, then prints the UUID consumed
  * by /admin/video-queue.
  */
@@ -38,7 +38,7 @@ import {
 
 const REMOTE_VIDEO_TIMEOUT_MS = 60_000;
 const REMOTE_VIDEO_MAX_REDIRECTS = 3;
-const REMOTE_VIDEO_USER_AGENT = 'DaboimFulfillmentVideo/1.0';
+const REMOTE_VIDEO_USER_AGENT = 'Anaks LabsFulfillmentVideo/1.0';
 
 const USAGE = `사용법:
   node --env-file=.env.local ./node_modules/.bin/tsx --tsconfig scripts/tsconfig.json \\
@@ -381,7 +381,7 @@ async function main(): Promise<void> {
   const mimeType = normalizeFulfillmentVideoMime(source.bytes, source.declaredMime);
   if (size.warning) console.warn(`[video-register] 경고: ${size.warning}`);
 
-  const tempDirectory = await mkdtemp(join(tmpdir(), 'daboim-video-register-'));
+  const tempDirectory = await mkdtemp(join(tmpdir(), 'anakslabs-video-register-'));
   let assetId: string | undefined;
   try {
     const probePath = join(tempDirectory, 'candidate.mp4');

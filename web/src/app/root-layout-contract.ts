@@ -23,8 +23,8 @@ export const APP_ROOT_BODY_CLASS_NAME = 'min-h-full flex flex-col';
 export const APP_ROOT_METADATA: Metadata = {
   metadataBase: new URL(`https://${ROOT_DOMAIN}`),
   applicationName: PUBLIC_BRAND_NAMES.brand,
-  title: `${PUBLIC_BRAND_NAMES.brandBilingual} — 홈페이지 전문 최적화 AI`,
+  title: `${PUBLIC_BRAND_NAMES.brand} — Clinic website operations`,
   description:
-    `${PUBLIC_BRAND_NAMES.brand}이 업종에 맞는 홈페이지를 AI로 설계하고 SEO·AEO·GEO 기반부터 호스팅·관리까지 제공합니다. 무료 홈페이지 진단으로 시작하세요.`,
-  category: 'AI website builder',
+    'Anaks Labs builds and operates source-grounded, multi-page websites for clinics.',
+  category: 'Clinic website platform',
 };

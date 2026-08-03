@@ -32,7 +32,7 @@ const candidate: DesignCandidate = {
 function reservationSurvey(): SurveyInput {
   const template = resolveTemplate('booking_service', '미용실');
   return {
-    businessName: '다보임 살롱',
+    businessName: 'Anaks Labs 살롱',
     purposeId: 'booking_service',
     purpose: '예약·서비스업',
     industry: '미용실',
@@ -77,7 +77,7 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
     });
     const injected = applyExtraFeatures(generated, { reservationLink: { url: RESERVATION_URL } });
     injected.businessInfo = {
-      businessName: '다보임 살롱',
+      businessName: 'Anaks Labs 살롱',
       ownerName: '김대표',
       businessNumber: '123-45-67890',
       address: '서울특별시 마포구 월드컵북로 1',

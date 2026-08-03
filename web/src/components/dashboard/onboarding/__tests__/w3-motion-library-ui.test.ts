@@ -19,7 +19,7 @@ describe('W3/v2 — 시그니처 production 라이브러리 UI', () => {
   });
 
   test('모든 카드는 production SitePreview이며 레거시 약한 ID·CSS keyframe을 나열하지 않는다', () => {
-    assert.match(motion, /실제 렌더러 티저/);
+    assert.match(motion, /Actual renderer teaser/);
     assert.match(motion, /<SitePreview/);
     assert.doesNotMatch(motion, /boomerang-loop|slow-zoom|parallax-depth|@keyframes hvm-/);
   });
@@ -27,17 +27,17 @@ describe('W3/v2 — 시그니처 production 라이브러리 UI', () => {
   test('대형 미리보기는 lazy overlay에서 실제 스크롤을 켜고 대표 영상의 출처를 표시한다', () => {
     assert.match(motion, /dynamic\([\s\S]*motion-immersive-preview[\s\S]*ssr: false/);
     assert.match(immersive, /<SitePreview[\s\S]*scroll[\s\S]*motion=\{!reducedMotion\}/);
-    assert.match(immersive, /대표 데모 영상은 움직임 설명용이며 고객님의 최종 자산이 아닙니다/);
+    assert.match(immersive, /Representative demo videos are for movement illustrative purposes only and are not your final assets/);
   });
 
   test('콘텐츠가 부족하면 복제·날조하지 않고 기본 모션을 권한다', () => {
-    assert.match(motion, /부족한 카드·사진·과정을 임의로 복제하지 않습니다/);
-    assert.match(motion, /현재 콘텐츠에는 기본 모션이 가장 완성도가 높아요/);
+    assert.match(motion, /do not duplicate or invent missing cards, photos, or process steps/);
+    assert.match(motion, /Basic motion is the strongest fit for the available content/);
   });
 
   test('시그니처와 AI 영상 미디어를 분리하고 권한 우회를 약속하지 않는다', () => {
-    assert.match(motion, /시그니처는 스크롤·레이아웃 경험이고, AI 영상은 별도 미디어/);
-    assert.match(motion, /실제 생성은 관리자 승인·비용 상한·킬스위치 검사를 모두 통과한 뒤에만 1회 시작/);
+    assert.match(motion, /motion signature is a layout experience; AI video is separate media/);
+    assert.match(motion, /Generation starts once, only after administrator approval and all cost-cap and kill-switch checks pass/);
   });
 
   test('예 경로만 등록된 heroMotionId를 저장하고 스킵은 이를 버린다', () => {

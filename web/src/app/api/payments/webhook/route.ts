@@ -1,216 +1,75 @@
 /**
- * POST /api/payments/webhook — 결제 웹훅 (토스페이먼츠 / 내부 mock 포맷).
+ * Stripe webhook contract boundary.
  *
- * 멱등성: payments.handleWebhook이 providerPaymentKey 기준으로 보장(중복 = 크레딧 1회만 지급).
- * 라우트도 중복 웹훅에 200을 재응답해 PG 재시도 루프를 끊는다.
- *
- * 보안 (감사 반영):
- *  - 내부 포맷은 mock 모드 전용. 실모드에서는 절대 처리하지 않는다
- *    (무인증 요청으로 임의 clientId에 크레딧 지급이 가능한 벡터였음).
- *  - 실모드 토스 웹훅은 본문(status/totalAmount)을 신뢰하지 않고, TOSS_SECRET_KEY로
- *    토스 결제조회 API(GET /v1/payments/{paymentKey})를 호출해 status=DONE·orderId·totalAmount를
- *    재검증한 뒤에만 지급한다. 검증 실패 시 4xx 거부.
- *  - 지급량은 orderId 파싱값(공격자 통제 가능)만으로 결정하지 않는다:
- *    cp_ 주문은 CREDIT_PACKS 서버 가격표와 credits·금액이 정확히 일치해야 하고,
- *    월 구독과 프리미엄 애드온도 pricing.ts의 현재 계약과 정확히 일치해야 한다.
- *    불일치 = 지급 거부(수동 확인 로그).
- *
- * 지원 페이로드:
- *  1) 내부 포맷 (mock 모드 전용): { providerPaymentKey, clientId, type, amount, tier?, creditsGranted? }
- *  2) 토스 포맷: { eventType: 'PAYMENT_STATUS_CHANGED', data: { paymentKey, orderId, status, totalAmount } }
- *     - status === 'DONE' 만 처리, 그 외는 200 + ignored.
- *     - orderId 인코딩 규약 (구매 라우트와 공유):
- *         cp_{credits}_{clientId}_{nonce}  → credit_pack
- *         ms_{clientId}_{nonce}            → maintenance_subscription
- *         pa_{clientId}_{nonce}            → premium_addon
+ * Live Stripe verification is intentionally not enabled in this fork. In
+ * MOCK_MODE the route accepts the same checkout-session shape that a future
+ * signed adapter will verify. Each business effect receives its own stable
+ * provider key, so delivery retries remain idempotent.
  */
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import type { PaymentType } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
-import { env, isMockMode } from '@/lib/env';
+import { isMockMode } from '@/lib/env';
+import { PRICING, US_ENTERPRISE_PRICING } from '@/lib/pricing';
 import {
-  paymentAmountSubject,
-  validatePaymentAmount,
-} from '@/lib/payments/amount-policy';
+  stripeCheckoutTotalCents,
+  stripeMockEventSchema,
+  stripePaymentKeys,
+} from '@/lib/payments/stripe';
 import { apiError, withApiHandler } from '../../_lib/http';
 
-const internalPayloadSchema = z.object({
-  providerPaymentKey: z.string().min(1),
-  clientId: z.string().min(1),
-  type: z.enum(['maintenance_subscription', 'premium_addon', 'credit_pack']),
-  amount: z.number().nonnegative(),
-  tier: z.enum(['basic', 'premium']).optional(),
-  creditsGranted: z.number().int().nonnegative().optional(),
-});
-
-const tossPayloadSchema = z.object({
-  eventType: z.string().optional(),
-  data: z.object({
-    paymentKey: z.string().min(1),
-    orderId: z.string().min(1),
-    status: z.string(),
-    totalAmount: z.number().nonnegative(),
-  }),
-});
-
-interface ParsedOrder {
-  type: PaymentType;
-  clientId: string;
-  creditsGranted?: number;
-}
-
-function parseOrderId(orderId: string): ParsedOrder | null {
-  const parts = orderId.split('_');
-  if (parts.length < 3) return null;
-
-  if (parts[0] === 'cp' && parts.length >= 4) {
-    const credits = Number(parts[1]);
-    if (!Number.isInteger(credits) || credits <= 0) return null;
-    return { type: 'credit_pack', clientId: parts[2], creditsGranted: credits };
-  }
-  if (parts[0] === 'ms') {
-    return { type: 'maintenance_subscription', clientId: parts[1] };
-  }
-  if (parts[0] === 'pa') {
-    return { type: 'premium_addon', clientId: parts[1] };
-  }
-  return null;
-}
-
-/**
- * 서버 가격표 기준 금액 검증 — orderId는 공격자가 통제 가능하므로
- * 파싱 결과만으로 지급하지 않고 실결제 금액과 대조한다.
- * 반환: 문제 없으면 null, 문제 있으면 거부 사유.
- */
-function validateOrderAmount(order: ParsedOrder, totalAmount: number): string | null {
-  const subject = paymentAmountSubject(order);
-  if (!subject) {
-    return '결제 유형의 현재 가격 조합을 확정할 수 없습니다.';
-  }
-  const validation = validatePaymentAmount(subject, totalAmount);
-  return validation.ok ? null : validation.message;
-}
-
-const TOSS_API_BASE = 'https://api.tosspayments.com';
-
-interface TossPaymentLookup {
-  status?: string;
-  orderId?: string;
-  totalAmount?: number;
-}
-
-/**
- * 실모드 웹훅 검증 — 웹훅 본문을 신뢰하지 않고 토스 결제조회 API로
- * status=DONE / orderId / totalAmount 를 재검증한다.
- */
-async function verifyWithToss(
-  paymentKey: string,
-  orderId: string,
-  totalAmount: number,
-): Promise<{ ok: true } | { ok: false; reason: string }> {
-  if (!env.tossSecretKey) {
-    return { ok: false, reason: 'TOSS_SECRET_KEY 미설정 — 웹훅 검증 불가' };
-  }
-
-  let res: Response;
-  try {
-    res = await fetch(`${TOSS_API_BASE}/v1/payments/${encodeURIComponent(paymentKey)}`, {
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${env.tossSecretKey}:`).toString('base64')}`,
-      },
-      cache: 'no-store',
-    });
-  } catch {
-    return { ok: false, reason: '토스 결제조회 API 호출 실패' };
-  }
-
-  if (!res.ok) {
-    return { ok: false, reason: `토스 결제조회 실패 (HTTP ${res.status}) — 존재하지 않는 paymentKey 가능성` };
-  }
-
-  const payment = (await res.json().catch(() => null)) as TossPaymentLookup | null;
-  if (!payment) {
-    return { ok: false, reason: '토스 결제조회 응답 파싱 실패' };
-  }
-  if (payment.status !== 'DONE') {
-    return { ok: false, reason: `토스 결제 상태 불일치 (조회 결과: ${payment.status})` };
-  }
-  if (payment.orderId !== orderId) {
-    return { ok: false, reason: 'orderId 불일치 (웹훅 본문 ≠ 토스 조회 결과)' };
-  }
-  if (payment.totalAmount !== totalAmount) {
-    return { ok: false, reason: 'totalAmount 불일치 (웹훅 본문 ≠ 토스 조회 결과)' };
-  }
-  return { ok: true };
-}
-
 export const POST = withApiHandler(async (request) => {
-  let raw: unknown;
-  try {
-    raw = await request.json();
-  } catch {
-    return apiError(400, 'INVALID_JSON', '웹훅 본문이 올바른 JSON 형식이 아닙니다.');
+  if (!isMockMode()) {
+    return apiError(
+      503,
+      'STRIPE_LIVE_DISABLED',
+      'Live Stripe webhook verification is not enabled.',
+    );
   }
 
-  // 1) 내부 포맷 — mock 모드 전용 (실모드에서 처리하면 무인증 크레딧 발급 벡터가 된다)
-  if (isMockMode()) {
-    const internal = internalPayloadSchema.safeParse(raw);
-    if (internal.success) {
-      const amountError = validateOrderAmount(internal.data, internal.data.amount);
-      if (amountError) {
-        return apiError(400, 'AMOUNT_MISMATCH', `결제 금액 검증에 실패했습니다. (${amountError})`);
-      }
-      const result = await getDataServices().payments.handleWebhook(internal.data);
-      return NextResponse.json({ received: true, ...result });
-    }
+  const raw = await request.json().catch(() => null);
+  const parsed = stripeMockEventSchema.safeParse(raw);
+  if (!parsed.success) {
+    return apiError(400, 'INVALID_STRIPE_EVENT', 'The Stripe mock event is invalid.');
+  }
+  const event = parsed.data;
+  const session = event.data.object;
+  if (session.amount_total !== stripeCheckoutTotalCents()) {
+    return apiError(400, 'AMOUNT_MISMATCH', 'The checkout total does not match the Enterprise contract.');
   }
 
-  // 2) 토스 웹훅 포맷
-  const toss = tossPayloadSchema.safeParse(raw);
-  if (toss.success) {
-    const { paymentKey, orderId, status, totalAmount } = toss.data.data;
-
-    if (status !== 'DONE') {
-      // 결제 완료 외 상태 변경(취소/실패 등)은 MVP 범위 밖 — 재시도 방지 위해 200
-      return NextResponse.json({ received: true, ignored: true, reason: `status=${status}` });
-    }
-
-    const order = parseOrderId(orderId);
-    if (!order) {
-      console.error('[payments/webhook] 알 수 없는 orderId 형식:', orderId);
-      return NextResponse.json({ received: true, ignored: true, reason: 'unknown_order_format' });
-    }
-
-    // 서버 가격표 대조 — orderId 변조로 소액 결제에 대량 크레딧/티어 승격 지급 차단
-    const amountError = validateOrderAmount(order, totalAmount);
-    if (amountError) {
-      console.error(
-        `[payments/webhook] 금액 검증 실패 — 수동 확인 필요. orderId=${orderId}, paymentKey=${paymentKey}: ${amountError}`,
-      );
-      return apiError(400, 'AMOUNT_MISMATCH', `결제 금액 검증에 실패했습니다. (${amountError})`);
-    }
-
-    // 실모드 — 토스 결제조회 API로 재검증 (웹훅 본문의 status/totalAmount 신뢰 금지)
-    if (!isMockMode()) {
-      const verified = await verifyWithToss(paymentKey, orderId, totalAmount);
-      if (!verified.ok) {
-        console.error(
-          `[payments/webhook] 토스 검증 실패 — orderId=${orderId}, paymentKey=${paymentKey}: ${verified.reason}`,
-        );
-        return apiError(401, 'WEBHOOK_VERIFICATION_FAILED', '결제 검증에 실패했습니다.');
-      }
-    }
-
-    const result = await getDataServices().payments.handleWebhook({
-      providerPaymentKey: paymentKey,
-      clientId: order.clientId,
-      type: order.type,
-      amount: totalAmount,
-      creditsGranted: order.creditsGranted,
-    });
-    return NextResponse.json({ received: true, ...result });
+  const services = getDataServices();
+  const site = await services.sites.getById(session.metadata.siteId);
+  if (
+    !site
+    || site.clientId !== session.client_reference_id
+    || site.industryProfileId !== 'clinic'
+    || site.pricingModelVersion !== PRICING.modelVersion
+  ) {
+    return apiError(409, 'SITE_CONTRACT_MISMATCH', 'The Stripe event does not match the site contract.');
   }
 
-  return apiError(400, 'INVALID_PAYLOAD', '지원하지 않는 웹훅 페이로드 형식입니다.');
+  const keys = stripePaymentKeys(event);
+  const setup = await services.payments.handleWebhook({
+    providerPaymentKey: keys.setup,
+    clientId: site.clientId,
+    type: 'build_fee',
+    amount: US_ENTERPRISE_PRICING.setupUsd,
+  });
+  const monthly = await services.payments.handleWebhook({
+    providerPaymentKey: keys.monthly,
+    clientId: site.clientId,
+    siteId: site.id,
+    industryProfileId: 'clinic',
+    pricingModelVersion: PRICING.modelVersion,
+    periodMonths: 1,
+    type: 'maintenance_subscription',
+    amount: US_ENTERPRISE_PRICING.monthlyUsd,
+  });
+
+  return NextResponse.json({
+    received: true,
+    processed: setup.processed || monthly.processed,
+    duplicated: setup.duplicated && monthly.duplicated,
+    effects: { setup, monthly },
+  });
 });

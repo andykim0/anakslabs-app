@@ -4,6 +4,7 @@ import { getDataServices } from '@/lib/data';
 import { isMockMode } from '@/lib/env';
 import {
   mockPublishPaymentKey,
+  mockPublishSetupPaymentKey,
   needsPublishPayment,
   publishPaymentQuote,
   quoteMatchesSite,
@@ -18,6 +19,7 @@ import {
   unauthorized,
 } from '../../../_lib/guards';
 import { industryPublishPolicy } from '@/lib/industry/publish-policy';
+import { US_ENTERPRISE_PRICING } from '@/lib/pricing';
 
 type Ctx = { params: Promise<{ siteId: string }> };
 
@@ -39,6 +41,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     return apiError(409, industryPolicy.code, industryPolicy.message);
   }
   const pricing = industryPolicy.pricing;
+  const paymentAmount = 'amountUsd' in pricing ? pricing.amountUsd : pricing.amountKrw;
+  const paymentCurrency = 'currency' in pricing ? pricing.currency : 'KRW';
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
@@ -62,11 +66,18 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     );
   }
 
-  const result = await getDataServices().payments.handleWebhook({
+  const services = getDataServices();
+  const setupResult = await services.payments.handleWebhook({
+    providerPaymentKey: mockPublishSetupPaymentKey(siteId, pricing),
+    clientId: client.id,
+    type: 'build_fee',
+    amount: paymentCurrency === 'USD' ? US_ENTERPRISE_PRICING.setupUsd : 0,
+  });
+  const result = await services.payments.handleWebhook({
     providerPaymentKey: mockPublishPaymentKey(siteId, pricing),
     clientId: client.id,
     type: 'maintenance_subscription',
-    amount: pricing.amountKrw,
+    amount: paymentAmount,
     pricingModelVersion: pricing.modelVersion,
     periodMonths: pricing.periodMonths,
     ...('industryProfileId' in pricing
@@ -84,7 +95,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       costUsdMicros: 0,
       idempotencyKey: `publish-payment:${pricing.modelVersion}:${siteId}`,
       metadata: {
-        amountKrw: pricing.amountKrw,
+        amount: paymentAmount,
+        currency: paymentCurrency,
         periodMonths: pricing.periodMonths,
         ...('industryProfileId' in pricing
           ? { industryProfileId: pricing.industryProfileId }
@@ -100,7 +112,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
 
   return NextResponse.json({
     paid: true,
-    duplicated: result.duplicated,
+    duplicated: setupResult.duplicated && result.duplicated,
     quote: publishPaymentQuote({ clientId: client.id, siteId, mock: true, pricing }),
   });
 });

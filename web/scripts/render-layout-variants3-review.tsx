@@ -3,7 +3,7 @@
  * CTA, testimonial, and directions layouts at the three renderer bands.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-layout-variants3-review.tsx
- * Out: /private/tmp/daboim-layout-variants3-review
+ * Out: /private/tmp/anakslabs-layout-variants3-review
  */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -57,7 +57,7 @@ import {
   type TextElement,
 } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-layout-variants3-review';
+const OUTPUT_DIR = '/private/tmp/anakslabs-layout-variants3-review';
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const GLYPH_EDGE_BAND_PX = 8;

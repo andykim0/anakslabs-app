@@ -16,7 +16,7 @@ import {
 import { aiEditEnabled } from '@/lib/product/flags';
 
 export const metadata: Metadata = {
-  title: '에디터 — 다보임',
+  title: "Editor — Anaks Labs",
 };
 
 export default async function EditorPage({ params }: { params: Promise<{ siteId: string }> }) {
@@ -42,7 +42,7 @@ export default async function EditorPage({ params }: { params: Promise<{ siteId:
         })).config,
         persistedConfig,
       })
-    : emptySiteConfig(site.name || '새 사이트');
+    : emptySiteConfig(site.name || "new site");
 
   // [gating] 소유자 tier — 등장 애니메이션 게이팅(인스펙터 잠금·프리뷰). 조회 실패 시 fail-closed(basic).
   const owner = await getDataServices().clients.getById(site.clientId);

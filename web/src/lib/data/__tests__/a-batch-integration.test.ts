@@ -54,6 +54,6 @@ describe('A6 — 에이전시 흐름 통합', () => {
 
   test('A5 구조화 피드백 — 칩 선택이 결정적 조립(계약 무변경 경로)', () => {
     const out = assembleRequestedContent(TYPE_QUICK_CHIPS.image, new Set(['brighter', 'brand-color']), '히어로만');
-    assert.equal(out, '[더 밝게] [브랜드 색으로] 히어로만');
+    assert.equal(out, '[brighter] [with brand colors] 히어로만');
   });
 });

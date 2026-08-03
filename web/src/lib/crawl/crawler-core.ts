@@ -5,7 +5,7 @@ import {
   APPROVED_TLS_HTTP_FALLBACK_HOSTS,
   consentedCrawlMaxPages,
   CRAWL_ARTIFACT_SCHEMA_VERSION,
-  DABOIM_CRAWLER_USER_AGENT,
+  ANAKS_LABS_CRAWLER_USER_AGENT,
   DESIGNATED_CRAWL_POLICY,
   type CrawlArtifactPayload,
   type CrawlAccessWarning,
@@ -202,7 +202,7 @@ async function fetchWithRedirects(
         cache: 'no-store',
         signal: controller.signal,
         headers: {
-          'user-agent': DABOIM_CRAWLER_USER_AGENT,
+          'user-agent': ANAKS_LABS_CRAWLER_USER_AGENT,
           accept: input.accept,
         },
       });
@@ -723,7 +723,7 @@ async function crawlSite(
   const parsedRobots = parseRobotsTxt(robotsBody);
   const crawlerAllowed = isPathAllowed(
     parsedRobots,
-    'DaboimCrawler',
+    'AnaksLabsCrawler',
     `${seed.pathname}${seed.search}`,
   );
   if (!crawlerAllowed) {
@@ -806,7 +806,7 @@ async function crawlSite(
       visited.add(next);
       continue;
     }
-    if (!isPathAllowed(parsedRobots, 'DaboimCrawler', `${nextUrl.pathname}${nextUrl.search}`)) {
+    if (!isPathAllowed(parsedRobots, 'AnaksLabsCrawler', `${nextUrl.pathname}${nextUrl.search}`)) {
       visited.add(next);
       continue;
     }

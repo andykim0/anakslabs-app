@@ -24,19 +24,17 @@ import { Button, Card, cn } from '../ui';
 type FormFieldKey = 'name' | 'phone' | 'email' | 'message';
 
 const FORM_FIELD_OPTIONS: { value: FormFieldKey; label: string }[] = [
-  { value: 'name', label: '이름' },
-  { value: 'phone', label: '연락처' },
-  { value: 'email', label: '이메일' },
-  { value: 'message', label: '문의 내용' },
+  { value: 'name', label: "name" },
+  { value: 'phone', label: "contact" },
+  { value: 'email', label: "email" },
+  { value: 'message', label: "Inquiry details" },
 ];
 
 const SNS_KIND_OPTIONS: { value: SnsKind; label: string }[] = [
-  { value: 'instagram', label: '인스타그램' },
-  { value: 'kakao_channel', label: '카카오 채널' },
-  { value: 'naver_blog', label: '네이버 블로그' },
-  { value: 'youtube', label: '유튜브' },
-  { value: 'x', label: 'X (트위터)' },
-  { value: 'custom', label: '기타 링크' },
+  { value: 'instagram', label: "Instagram" },
+  { value: 'youtube', label: "YouTube" },
+  { value: 'x', label: "X (Twitter)" },
+  { value: 'custom', label: "Other Links" },
 ];
 
 interface SnsRow {
@@ -162,7 +160,7 @@ export function ExtrasStep({
     if (reservationOn) {
       const url = reservationUrl.trim();
       if (!url || !isRecognizedReservationUrl(url)) {
-        setError('예약 링크를 확인해 주세요 — 지원하는 예약 서비스의 https:// 주소만 사용할 수 있어요.');
+        setError("Please check the reservation link — you can only use https:// addresses for supported reservation services.");
         return;
       }
       extras.reservationLink = { url };
@@ -175,7 +173,7 @@ export function ExtrasStep({
     if (mapOn) {
       const url = mapUrl.trim();
       if (!url || !isSafeMapEmbedUrl(url)) {
-        setError('지도 URL을 확인해 주세요 — 네이버/카카오/구글 지도 embed 주소만 사용할 수 있어요.');
+        setError("Please enter a valid Google Maps embed URL.");
         return;
       }
       extras.mapEmbed = {
@@ -191,7 +189,7 @@ export function ExtrasStep({
         .map((r) => ({ kind: r.kind, url: snsUrlFromHandle(r.kind, r.url.trim()), label: r.label }))
         .filter((r) => r.url.trim() !== '' && isHttpsUrl(r.url));
       if (valid.length === 0) {
-        setError('SNS 아이디나 링크를 1개 이상 입력해 주세요.');
+        setError("Please enter at least one SNS ID or link.");
         return;
       }
       extras.snsLinks = valid.map((r) => ({ kind: r.kind, url: r.url, label: r.label?.trim() || undefined }));
@@ -207,10 +205,10 @@ export function ExtrasStep({
 
   const targetSelect = (value: SectionType, onChange: (t: SectionType) => void, auto?: { label: string }) => (
     <div>
-      <span className="mb-1 block text-[11px] text-ob-muted">넣을 섹션</span>
+      <span className="mb-1 block text-[11px] text-ob-muted">section to put</span>
       {auto ? (
         <p className="rounded-lg border border-ob-border bg-ob-accent-soft px-3 py-2 text-xs text-ob-accent-strong">
-          계획한 &ldquo;{auto.label.replace(/^\d+\.\s*/, '')}&rdquo; 섹션에 자동으로 들어가요.
+          This will be added to the planned &ldquo;{auto.label.replace(/^\d+\.\s*/, '')}&rdquo; section.
         </p>
       ) : (
         <select value={value} onChange={(e) => onChange(e.target.value as SectionType)} className={cn(inputClass, 'h-10 py-0')}>
@@ -219,7 +217,7 @@ export function ExtrasStep({
               {t.label}
             </option>
           ))}
-          <option value="contact">+ 새 문의 섹션 추가</option>
+          <option value="contact">+ Added new inquiry section</option>
         </select>
       )}
     </div>
@@ -228,43 +226,43 @@ export function ExtrasStep({
   return (
     <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
       <div>
-        <h2 className="text-lg font-semibold text-ob-ink">부가기능을 골라주세요</h2>
+        <h2 className="text-lg font-semibold text-ob-ink">Please select an add-on</h2>
         <p className="mt-1 text-sm text-ob-muted">
-          전부 선택사항이에요. {purpose ? `${purpose.label}에 추천하는 기능은 미리 켜뒀어요.` : ''} 생성 후 에디터에서도 추가·수정할 수 있어요.
+          Everything is optional. {purpose ? `Recommended features for ${purpose.label} are enabled.` : ''} You can edit these choices later.
         </p>
       </div>
 
       {/* 예약 링크 — 의도 라벨이 아니라 실제 외부 href가 있을 때만 생성·집계 */}
       <FeatureCard
         icon={<CalendarCheck className="h-4.5 w-4.5" />}
-        title="예약 링크"
-        desc="히어로의 예약 버튼을 실제 예약 서비스로 연결해요. 예약이 목표일 때만 추천해요."
+        title="Reservation Link"
+        desc="Connect Hero’s reservation button to the actual reservation service. I only recommend this if your goal is to make a reservation."
         enabled={reservationOn}
         onToggle={() => setReservationOn((value) => !value)}
       >
         <div>
           <label htmlFor="reservation-url" className="mb-1 block text-[11px] text-ob-muted">
-            외부 예약 URL
+            External reservation URL
           </label>
           <input
             id="reservation-url"
             value={reservationUrl}
             onChange={(event) => setReservationUrl(event.target.value)}
-            placeholder="https://booking.naver.com/..."
+            placeholder="https://booking.example.com/..."
             inputMode="url"
             autoComplete="url"
             className={inputClass}
           />
           <p className="mt-1 text-[11px] leading-4 text-ob-muted">
-            네이버 예약·카카오 채널·캐치테이블·테이블링·배민·요기요의 https 링크를 지원해요.
+            Enter the clinic’s verified HTTPS booking page.
           </p>
           {reservationInvalid ? (
             <p className="mt-1 text-[11px] text-ob-danger">
-              지원하지 않는 주소예요. 실제 예약 페이지의 https 링크를 입력해 주세요.
+              This address is not supported. Please enter the https link of the actual reservation page.
             </p>
           ) : null}
           {reservationUrl.trim() && !reservationInvalid ? (
-            <p className="mt-1 text-[11px] text-ob-success">실제 예약 버튼으로 연결할 수 있어요.</p>
+            <p className="mt-1 text-[11px] text-ob-success">You can connect to the actual reservation button.</p>
           ) : null}
         </div>
       </FeatureCard>
@@ -272,13 +270,13 @@ export function ExtrasStep({
       {/* 문의 폼 */}
       <FeatureCard
         icon={<FormInput className="h-4.5 w-4.5" />}
-        title="문의 폼"
-        desc="방문자가 남긴 문의가 대시보드 문의함으로 들어와요."
+        title="Inquiry form"
+        desc="Inquiries left by visitors are sent to the dashboard inquiry box."
         enabled={formOn}
         onToggle={() => setFormOn((v) => !v)}
       >
         <div>
-          <span className="mb-1.5 block text-[11px] text-ob-muted">받을 필드</span>
+          <span className="mb-1.5 block text-[11px] text-ob-muted">field to receive</span>
           <div className="flex flex-wrap gap-2">
             {FORM_FIELD_OPTIONS.map((o) => {
               const on = formFields.includes(o.value);
@@ -304,29 +302,29 @@ export function ExtrasStep({
       {/* 지도 */}
       <FeatureCard
         icon={<MapIcon className="h-4.5 w-4.5" />}
-        title="지도 임베드"
-        desc="네이버·카카오·구글 지도를 오시는 길 섹션에 넣어요."
+        title="Map embed"
+        desc="Add a Google map to the directions section."
         enabled={mapOn}
         onToggle={() => setMapOn((v) => !v)}
       >
         <div>
-          <span className="mb-1 block text-[11px] text-ob-muted">지도 embed URL</span>
+          <span className="mb-1 block text-[11px] text-ob-muted">Map embed URL</span>
           <input
             value={mapUrl}
             onChange={(e) => setMapUrl(e.target.value)}
-            placeholder="https://map.naver.com/… / https://map.kakao.com/… / 구글 /maps/embed"
+            placeholder="https://www.google.com/maps/embed?..."
             className={inputClass}
           />
           <p className="mt-1 text-[11px] leading-4 text-ob-muted">
-            네이버/카카오 지도에서 &ldquo;공유 → URL 복사&rdquo;, 구글 지도는 &ldquo;공유 → 지도 퍼가기&rdquo;의 iframe src 주소를 붙여넣으세요.
+            In Google Maps, choose &ldquo;Share → Embed a map&rdquo; and paste the iframe src URL.
           </p>
           {mapInvalid ? (
             <p className="mt-1 text-[11px] text-ob-danger">
-              허용되지 않은 주소예요. map.naver.com · map.kakao.com · www.google.com/maps/embed 만 가능합니다.
+              This address is not allowed. Use a www.google.com/maps/embed URL.
             </p>
           ) : null}
           {mapUrl.trim() && !mapInvalid ? (
-            <p className="mt-1 text-[11px] text-ob-success">사용할 수 있는 지도 주소예요.</p>
+            <p className="mt-1 text-[11px] text-ob-success">This is the map address you can use.</p>
           ) : null}
         </div>
         {targetSelect(mapTarget, setMapTarget, mapRow ? { label: mapRow.label } : undefined)}
@@ -335,8 +333,8 @@ export function ExtrasStep({
       {/* SNS 링크 */}
       <FeatureCard
         icon={<Share2 className="h-4.5 w-4.5" />}
-        title="SNS · 카카오 채널 링크"
-        desc="인스타그램·카카오 채널 등으로 연결되는 링크를 넣어요."
+        title="Social links"
+        desc="Add verified Instagram, YouTube, X, or other HTTPS links."
         enabled={snsOn}
         onToggle={() => setSnsOn((v) => !v)}
       >
@@ -366,7 +364,7 @@ export function ExtrasStep({
                     <input
                       value={row.url}
                       onChange={(e) => setSnsRows((rows) => rows.map((r, j) => (j === i ? { ...r, url: e.target.value } : r)))}
-                      placeholder="아이디만 입력 (예: mycafe)"
+                      placeholder="Enter only the ID (e.g. mycafe)"
                       className={cn(inputClass, 'rounded-l-none')}
                     />
                   </div>
@@ -378,13 +376,13 @@ export function ExtrasStep({
                     className={inputClass}
                   />
                 )}
-                {bad ? <p className="mt-1 text-[11px] text-ob-danger">https:// 주소를 입력해 주세요.</p> : null}
+                {bad ? <p className="mt-1 text-[11px] text-ob-danger">Please enter the https:// address.</p> : null}
               </div>
               <button
                 type="button"
                 onClick={() => setSnsRows((rows) => (rows.length > 1 ? rows.filter((_, j) => j !== i) : rows))}
                 disabled={snsRows.length <= 1}
-                aria-label="링크 삭제"
+                aria-label="Delete link"
                 className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded text-ob-muted transition-colors hover:bg-ob-danger/10 hover:text-ob-danger disabled:opacity-30"
               >
                 <X className="h-3.5 w-3.5" />
@@ -399,15 +397,15 @@ export function ExtrasStep({
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-ob-border px-3 py-2 text-xs text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
-          링크 추가
+          Add link
         </button>
         <div>
-          <span className="mb-1.5 block text-[11px] text-ob-muted">표시 방식</span>
+          <span className="mb-1.5 block text-[11px] text-ob-muted">Display method</span>
           <div className="grid grid-cols-2 gap-2">
             {(
               [
-                ['bar', '묶음 바', '아이콘을 한 줄로 묶어 표시'],
-                ['buttons', '개별 버튼', '버튼으로 만들어 자유롭게 이동·수정'],
+                ['bar', "bundled bars", "Display icons in one line"],
+                ['buttons', "individual buttons", "Move and modify freely with buttons"],
               ] as const
             ).map(([val, label, hint]) => (
               <button
@@ -432,14 +430,14 @@ export function ExtrasStep({
       <div className="flex items-center justify-between border-t border-ob-border pt-5">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          디자인 선택
+          Choose your design
         </Button>
         <div className="flex items-center gap-3">
           <Button variant="secondary" onClick={() => onComplete(undefined, undefined)}>
-            건너뛰기
+            Skip
           </Button>
           <Button size="lg" onClick={submit}>
-            이대로 생성하기
+            Create it like this
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

@@ -89,13 +89,13 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
     <Card className="p-0">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-neutral-400">미리보기</span>
+          <span className="text-xs font-medium text-neutral-400">Preview</span>
           {hasBoth ? (
             <div className="flex overflow-hidden rounded-lg border border-neutral-700 text-[11px]">
               {(
                 [
-                  ['draft', '초안'],
-                  ['published', '발행본'],
+                  ['draft', "draft"],
+                  ['published', "edition"],
                 ] as const
               ).map(([key, label]) => (
                 <button
@@ -113,7 +113,7 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
             </div>
           ) : (
             <span className="text-[11px] text-neutral-600">
-              {site.draftConfig ? '초안 기준' : '발행본 기준'}
+              {site.draftConfig ? "draft basis" : "Based on published version"}
             </span>
           )}
         </div>
@@ -131,7 +131,7 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
             )}
           >
             <Film className="h-3 w-3" />
-            포함 영상 적용 예시
+            Example of application of embedded video
           </button>
         ) : null}
         <button
@@ -146,13 +146,13 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
           )}
         >
           <Play className="h-3 w-3" />
-          모션
+          motion
         </button>
         <div className="flex overflow-hidden rounded-lg border border-neutral-700">
           <button
             type="button"
             onClick={() => setMode('desktop')}
-            aria-label="데스크톱 미리보기"
+            aria-label="desktop preview"
             className={cn(
               'flex h-7 w-9 items-center justify-center transition-colors',
               mode === 'desktop' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-500 hover:text-neutral-300',
@@ -163,7 +163,7 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
           <button
             type="button"
             onClick={() => setMode('mobile')}
-            aria-label="모바일 미리보기"
+            aria-label="Mobile Preview"
             className={cn(
               'flex h-7 w-9 items-center justify-center transition-colors',
               mode === 'mobile' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-500 hover:text-neutral-300',
@@ -186,13 +186,13 @@ function PreviewCard({ site, tier }: { site: Site; tier: Tier }) {
               motion={motionOn}
               previewAsAddon={previewAsAddon}
               tier={tier}
-              onFormSubmit={() => toast('info', '발행 후 실제 사이트에서 문의가 전송됩니다.')}
+              onFormSubmit={() => toast('info', "After publication, an inquiry will be sent from the actual site.")}
             />
           </div>
         ) : (
           <EmptyState
-            title="표시할 콘텐츠가 없습니다"
-            description="에디터에서 사이트를 편집하면 이곳에서 미리 볼 수 있어요."
+            title="There is no content to display"
+            description="If you edit your site in the editor, you can preview it here."
           />
         )}
       </div>
@@ -216,12 +216,12 @@ function BackupCard({ site }: { site: Site }) {
       toast(
         warned ? 'info' : 'success',
         warned
-          ? `백업 생성 완료 — 일부 자산 경고 ${result.warnings!.length}건 (원본 링크 유지)`
-          : '백업이 준비되었습니다. 아래에서 내려받으세요.',
+          ? `Backup creation complete — some asset warnings${result.warnings!.length}Gun (maintain original link)`
+          : "Your backup is ready. Download it below.",
       );
     },
     onError: (err) => {
-      toast('error', err instanceof Error ? err.message : '백업 생성에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Backup creation failed.");
     },
   });
 
@@ -232,10 +232,10 @@ function BackupCard({ site }: { site: Site }) {
           <Package className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold text-neutral-200">HTML 백업 (이관·다운로드)</h2>
+          <h2 className="text-sm font-semibold text-neutral-200">HTML backup (transfer/download)</h2>
           <p className="mt-1 text-xs leading-5 text-neutral-500">
-            발행본을 정적 HTML 번들(zip)로 내려받아 어떤 웹호스팅에서도 직접 운영할 수 있습니다.
-            데스크톱·모바일 레이아웃과 이미지·폰트가 포함됩니다. {DYNAMIC_FEATURE_NOTICE}
+            You can download the published version as a static HTML bundle (zip) and run it directly on any web hosting.
+            Includes desktop/mobile layouts, images, and fonts. {DYNAMIC_FEATURE_NOTICE}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2.5">
             <Button
@@ -243,10 +243,10 @@ function BackupCard({ site }: { site: Site }) {
               onClick={() => mutation.mutate()}
               loading={mutation.isPending}
               disabled={!site.siteConfig}
-              title={site.siteConfig ? undefined : '발행 후 백업할 수 있습니다'}
+              title={site.siteConfig ? undefined : "Can be backed up after publication"}
             >
               <Package className="h-4 w-4" />
-              {downloadUrl ? '백업 다시 생성' : 'HTML 백업 생성'}
+              {downloadUrl ? "Recreate backup" : "Create HTML Backup"}
             </Button>
             {downloadUrl ? (
               <a
@@ -254,12 +254,12 @@ function BackupCard({ site }: { site: Site }) {
                 className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#4a3a22] bg-[#151310] px-4 text-sm text-[#d9b878] transition-colors hover:border-[#c8a96a]"
               >
                 <Download className="h-4 w-4" />
-                zip 다운로드
+                zip download
               </a>
             ) : null}
           </div>
           {!site.siteConfig ? (
-            <p className="mt-2 text-[11px] text-neutral-600">발행하면 백업을 만들 수 있습니다.</p>
+            <p className="mt-2 text-[11px] text-neutral-600">Publishing allows you to create a backup.</p>
           ) : null}
         </div>
       </div>
@@ -287,7 +287,7 @@ function HeroVideoStatusCard({ site, tier }: { site: Site; tier: Tier }) {
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-neutral-100">AI 영상 홈페이지</h2>
+            <h2 className="text-sm font-semibold text-neutral-100">AI video homepage</h2>
             <Badge tone={status === 'applied' ? 'emerald' : 'blue'}>
               {VIDEO_FULFILLMENT_STATUS_LABELS[status]}
             </Badge>
@@ -304,10 +304,10 @@ function HeroVideoStatusCard({ site, tier }: { site: Site; tier: Tier }) {
 // ---------- [v3 Phase 3] 문의함 ----------
 
 const SUBMISSION_FIELD_LABELS: Record<string, string> = {
-  name: '이름',
-  phone: '연락처',
-  email: '이메일',
-  message: '문의 내용',
+  name: "name",
+  phone: "contact",
+  email: "email",
+  message: "Inquiry details",
 };
 
 function FormInbox({ siteId }: { siteId: string }) {
@@ -320,7 +320,7 @@ function FormInbox({ siteId }: { siteId: string }) {
     <section className="mt-8">
       <div className="mb-3 flex items-center gap-2">
         <Inbox className="h-4 w-4 text-neutral-400" />
-        <h2 className="text-sm font-semibold text-neutral-300">문의함</h2>
+        <h2 className="text-sm font-semibold text-neutral-300">Inquiry</h2>
         {data && data.length > 0 ? (
           <span className="rounded-full bg-[#2a2117] px-2 py-0.5 text-[11px] font-medium text-[#d9b878]">
             {data.length}
@@ -330,11 +330,11 @@ function FormInbox({ siteId }: { siteId: string }) {
       {isPending ? (
         <Skeleton className="h-16" />
       ) : isError ? (
-        <ErrorState message="문의함을 불러오지 못했습니다." onRetry={() => refetch()} />
+        <ErrorState message="Failed to load inquiry box." onRetry={() => refetch()} />
       ) : data.length === 0 ? (
         <EmptyState
-          title="아직 접수된 문의가 없습니다"
-          description="사이트에 문의 폼을 넣으면 방문자의 문의가 이곳에 쌓여요."
+          title="No inquiries have been received yet"
+          description="If you put an inquiry form on your site, visitors’ inquiries will accumulate here."
         />
       ) : (
         <Card className="p-0">
@@ -377,12 +377,12 @@ function EditHistory({ siteId }: { siteId: string }) {
   return (
     <section className="mt-8">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-300">편집 요청 히스토리</h2>
+        <h2 className="text-sm font-semibold text-neutral-300">Edit request history</h2>
         <Link
           href="/dashboard/credits"
           className="text-xs text-neutral-500 transition-colors hover:text-[#c8a96a]"
         >
-          새 편집 요청 →
+          New edit request →
         </Link>
       </div>
       {isPending ? (
@@ -391,11 +391,11 @@ function EditHistory({ siteId }: { siteId: string }) {
           <Skeleton className="h-14" />
         </div>
       ) : isError ? (
-        <ErrorState message="편집 요청 내역을 불러오지 못했습니다." onRetry={() => refetch()} />
+        <ErrorState message="Failed to load edit request history." onRetry={() => refetch()} />
       ) : data.length === 0 ? (
         <EmptyState
-          title="이 사이트의 편집 요청이 없습니다"
-          description="에디터에서 직접 수정하는 것은 무료예요. AI 재생성이나 다보임 수정 대행이 필요할 때만 크레딧으로 요청하세요."
+          title="There are no editorial requests for this site"
+          description="Editing directly in the editor is free. Use credits only for AI regeneration or managed editing services."
         />
       ) : (
         <Card className="p-0">
@@ -405,7 +405,7 @@ function EditHistory({ siteId }: { siteId: string }) {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-neutral-200">
                     <span className="font-medium">{EDIT_TYPE_LABELS[req.type]}</span>
-                    <span className="text-neutral-500"> · 크레딧 {req.creditCost}개</span>
+                    <span className="text-neutral-500"> · Credits {req.creditCost} items</span>
                   </p>
                   <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-neutral-500">
                     {req.requestedContent}
@@ -471,10 +471,10 @@ export function SiteDetail({
       toast(
         'success',
         result.preflight.warnings.length > 0
-          ? `발행 완료 · 운영 QA 확인 ${result.preflight.warnings.length}건`
+          ? `Publication completed · Operation QA confirmed${result.preflight.warnings.length} records`
           : result.url
-            ? `발행 완료 — ${result.url.replace(/^https?:\/\//, '')} 에서 라이브`
-            : '발행이 완료되었습니다.',
+            ? `Published —${result.url.replace(/^https?:\/\//, '')}live at`
+            : "Publication has been completed.",
       );
     },
     onError: (err, checks) => {
@@ -487,7 +487,7 @@ export function SiteDetail({
           return;
         }
       }
-      toast('error', err instanceof Error ? err.message : '발행에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Publishing failed.");
     },
   });
 
@@ -504,11 +504,11 @@ export function SiteDetail({
       toast(
         'success',
         result.url
-          ? `결제 확인·발행 완료 — ${result.url.replace(/^https?:\/\//, '')}`
-          : '결제 확인 후 발행이 완료되었습니다.',
+          ? `Payment confirmation/issuance completed —${result.url.replace(/^https?:\/\//, '')}`
+          : "After payment is confirmed, issuance is complete.",
       );
     } catch (err) {
-      toast('error', err instanceof Error ? err.message : '결제 확인에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Payment confirmation failed.");
     } finally {
       setPaying(false);
     }
@@ -523,11 +523,11 @@ export function SiteDetail({
         {notFound ? (
           <EmptyState
             icon={<Globe className="h-8 w-8" />}
-            title="사이트를 찾을 수 없습니다"
-            description="삭제되었거나 접근 권한이 없는 사이트예요."
+            title="Site not found"
+            description="The site has been deleted or you do not have access to it."
             action={
               <Link href="/dashboard" className="text-sm text-[#c8a96a] hover:underline">
-                내 사이트 목록으로 돌아가기
+                Return to My Site List
               </Link>
             }
           />
@@ -553,12 +553,12 @@ export function SiteDetail({
         href="/dashboard"
         className="mb-4 inline-flex items-center gap-1 text-xs text-neutral-500 transition-colors hover:text-neutral-300"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />내 사이트
+        <ArrowLeft className="h-3.5 w-3.5" />my site
       </Link>
 
       <PageHeader
         title={site.name}
-        description={`생성 ${formatDate(site.createdAt)}${site.publishedAt ? ` · 최근 발행 ${formatDateTime(site.publishedAt)}` : ' · 아직 발행 전'}`}
+        description={`generation${formatDate(site.createdAt)}${site.publishedAt ? `· Recently published${formatDateTime(site.publishedAt)}` : "· Before publication"}`}
         actions={
           <>
             <Link
@@ -566,7 +566,7 @@ export function SiteDetail({
               className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-neutral-700 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
             >
               <PencilRuler className="h-4 w-4" />
-              에디터 열기
+              Open editor
             </Link>
             <Button
               onClick={() => {
@@ -576,10 +576,10 @@ export function SiteDetail({
               }}
               loading={publishMutation.isPending}
               disabled={!site.draftConfig}
-              title={site.draftConfig ? undefined : '발행할 초안이 없습니다'}
+              title={site.draftConfig ? undefined : "There are no drafts to publish"}
             >
               <Rocket className="h-4 w-4" />
-              {isPublished ? '재발행' : '발행하기'}
+              {isPublished ? "reissue" : "Publish"}
             </Button>
           </>
         }
@@ -599,7 +599,7 @@ export function SiteDetail({
             <ExternalLink className="h-3 w-3" />
           </a>
         ) : (
-          <span className="text-xs text-ob-muted">발행하면 서브도메인이 즉시 할당됩니다</span>
+          <span className="text-xs text-ob-muted">Upon publishing, your subdomain will be assigned immediately</span>
         )}
       </div>
 
@@ -619,12 +619,12 @@ export function SiteDetail({
       <Modal
         open={publishConfirmOpen}
         onClose={() => setPublishConfirmOpen(false)}
-        title="발행 전 최종 확인"
+        title="Final confirmation before publication"
         footer={
           site.draftConfig?.businessInfo ? (
             <>
               <Button variant="ghost" onClick={() => setPublishConfirmOpen(false)}>
-                취소
+                Cancel
               </Button>
               <Button
                 disabled={!bizConfirmed || !allPublishHumanChecksConfirmed(humanChecks)}
@@ -632,20 +632,20 @@ export function SiteDetail({
                 onClick={() => publishMutation.mutate(humanChecks)}
               >
                 <Rocket className="h-4 w-4" />
-                발행하기
+                Publish
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" onClick={() => setPublishConfirmOpen(false)}>
-                닫기
+                Close
               </Button>
               <Link
                 href={`/dashboard/sites/${siteId}/editor`}
                 className="inline-flex h-10 items-center gap-1.5 rounded-ob bg-ob-accent px-4 text-sm font-semibold text-white transition-colors hover:bg-ob-accent-strong"
               >
                 <PencilRuler className="h-4 w-4" />
-                에디터에서 입력하기
+                Enter in the editor
               </Link>
             </>
           )
@@ -655,15 +655,15 @@ export function SiteDetail({
           <div className="space-y-3">
             <div className="space-y-1.5 rounded-ob border border-ob-border bg-ob-bg px-3.5 py-3 text-sm">
               {site.draftConfig.businessInfo.isPersonal ? (
-                <p className="text-[11px] font-medium text-ob-accent-strong">개인 운영 사이트</p>
+                <p className="text-[11px] font-medium text-ob-accent-strong">privately operated site</p>
               ) : null}
               {(
                 [
-                  ['상호', site.draftConfig.businessInfo.businessName],
-                  [site.draftConfig.businessInfo.isPersonal ? '운영자' : '대표자', site.draftConfig.businessInfo.ownerName],
-                  ['사업자등록번호', site.draftConfig.businessInfo.businessNumber],
-                  ['주소', site.draftConfig.businessInfo.address],
-                  ['전화', site.draftConfig.businessInfo.phone],
+                  ["mutual", site.draftConfig.businessInfo.businessName],
+                  [site.draftConfig.businessInfo.isPersonal ? "operator" : "exponent", site.draftConfig.businessInfo.ownerName],
+                  ["Business registration number", site.draftConfig.businessInfo.businessNumber],
+                  ["address", site.draftConfig.businessInfo.address],
+                  ["phone call", site.draftConfig.businessInfo.phone],
                 ] as const
               )
                 .filter(([, v]) => v)
@@ -682,15 +682,15 @@ export function SiteDetail({
                 className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
               />
               <span className="text-xs leading-5 text-ob-ink">
-                위 정보가 정확한지 확인했습니다. 발행된 사이트 최하단에 법적 표기로 게시됩니다.
+                I have verified that the above information is accurate. It is posted as a legal notation at the bottom of the published site.
               </span>
             </label>
             <HumanPublishChecklist value={humanChecks} onChange={updateHumanCheck} />
           </div>
         ) : (
           <p className="text-sm leading-6 text-ob-muted">
-            발행하려면 사업자(또는 운영자) 정보가 필요해요. 에디터 좌측 하단의{' '}
-            <span className="text-ob-accent-strong">사업자 정보</span>에서 입력한 뒤 발행해 주세요.
+            To issue, business (or operator) information is required. at the bottom left of the editor{' '}
+            <span className="text-ob-accent-strong">Business information</span>Please enter it in and then publish it.
           </p>
         )}
       </Modal>

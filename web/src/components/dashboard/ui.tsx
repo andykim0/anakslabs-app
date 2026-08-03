@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
 // ---------- 포맷터 ----------
 
 export function formatKrw(amount: number): string {
-  return `${amount.toLocaleString('ko-KR')}원`;
+  return `${amount.toLocaleString('ko-KR')} KRW`;
 }
 
 export function formatDate(iso: string): string {
@@ -30,45 +30,45 @@ export function formatDateTime(iso: string): string {
 // ---------- 라벨 사전 ----------
 
 export const SITE_STATUS_LABELS: Record<SiteStatus, string> = {
-  draft: '초안',
-  building: '생성 중',
-  live: '라이브',
-  pending_dns: 'DNS 대기',
-  suspended: '일시중지',
+  draft: "draft",
+  building: "Creating",
+  live: "live",
+  pending_dns: "DNS standby",
+  suspended: "pause",
 };
 
 export const EDIT_STATUS_LABELS: Record<EditStatus, string> = {
-  pending: '접수됨',
-  ai_processing: 'AI 처리 중',
-  qa_review: '검수 중',
-  applied: '반영 완료',
-  rejected: '반려',
+  pending: "Received",
+  ai_processing: "AI processing",
+  qa_review: "Inspecting",
+  applied: "Reflection completed",
+  rejected: "companion",
 };
 
 export const EDIT_TYPE_LABELS: Record<EditType, string> = {
-  text: '다보임 카피 수정 대행',
-  image: 'AI 이미지 새로 생성',
-  video: 'AI 영상 재생성',
-  structure: 'AI 전체 섹션 재디자인',
+  text: "Anaks Labs copy editing service",
+  image: "Create a new AI image",
+  video: "AI video regeneration",
+  structure: "AI entire section redesign",
 };
 
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
-  initial_grant: '초기 지급',
-  purchase: '크레딧 구매',
-  subscription_grant: '구독 월 지급',
-  edit_text: '다보임 카피 수정 대행',
-  edit_image: 'AI 이미지 새로 생성',
-  edit_video: 'AI 영상 재생성',
-  edit_structure: 'AI 전체 섹션 재디자인',
-  refund: '환불',
-  expired: '만료 소멸',
-  admin_clawback: '지급분 회수',
-  admin_adjust: '운영자 조정',
+  initial_grant: "initial payment",
+  purchase: "Buy Credits",
+  subscription_grant: "Subscription monthly payment",
+  edit_text: "Anaks Labs copy editing service",
+  edit_image: "Create a new AI image",
+  edit_video: "AI video regeneration",
+  edit_structure: "AI entire section redesign",
+  refund: "refund",
+  expired: "expiration",
+  admin_clawback: "Recovery of payment",
+  admin_adjust: "Operator Coordination",
 };
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: '기본 홈페이지',
-  premium: 'AI 영상 홈페이지',
+  basic: "default homepage",
+  premium: "AI video homepage",
 };
 
 // ---------- 뱃지 ----------
@@ -88,7 +88,7 @@ export function Badge({
     emerald: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
     amber: 'border-[#F2D59B] bg-[#FFF8E8] text-[#855700]',
     red: 'border-[#F2B8BE] bg-[#FFF0F2] text-[#B42318]',
-    // Legacy API name kept for callers; visually this is now the Daboim mint tier signal.
+    // Legacy API name kept for callers; visually this is now the Anaks Labs mint tier signal.
     gold: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
   };
   return (
@@ -204,7 +204,7 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  message = '데이터를 불러오지 못했습니다.',
+  message = "Failed to load data.",
   onRetry,
 }: {
   message?: string;
@@ -223,7 +223,7 @@ export function ErrorState({
           onClick={onRetry}
           className="rounded-lg border border-[#E59AA3] px-3 py-1.5 text-xs text-[#B42318] transition-colors hover:bg-[#FFE8EA]"
         >
-          다시 시도
+          try again
         </button>
       ) : null}
     </div>

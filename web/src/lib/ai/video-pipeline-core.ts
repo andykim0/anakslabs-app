@@ -66,7 +66,7 @@ export function synchronousVideoTransportError(mockMode: boolean): string | null
 }
 
 /** 유료 영상 진입점이 신뢰할 수 있는 고정 프롬프트인지 판별하는 서버 내부 마커. */
-export const REGISTERED_VIDEO_PROMPT_MARKER = 'DABOIM_REGISTERED_MOTION_V1';
+export const REGISTERED_VIDEO_PROMPT_MARKER = 'ANAKSLABS_REGISTERED_MOTION_V1';
 
 export { FAITHFUL_PHOTO_MOTION_DIRECTIVE };
 

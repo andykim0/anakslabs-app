@@ -7,8 +7,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { ElementContent } from '@/components/site-renderer/ElementContent';
 import { emptySiteConfig, type TextElement } from '@/lib/types/site';
 import {
-  DABOIM_TYPOGRAPHY,
-  DABOIM_TYPOGRAPHY_HIERARCHY,
+  ANAKS_TYPOGRAPHY,
+  ANAKS_TYPOGRAPHY_HIERARCHY,
   GENERATED_TEXT_ROLE_RULES,
   generatedType,
   isGeneratedSectionTitleId,
@@ -41,8 +41,8 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
       variant: 'canvas',
       frameHeight: 32,
     }), {
-      fontSize: DABOIM_TYPOGRAPHY.generatedSite.body.fontSize,
-      lineHeight: DABOIM_TYPOGRAPHY.generatedSite.body.lineHeight,
+      fontSize: ANAKS_TYPOGRAPHY.generatedSite.body.fontSize,
+      lineHeight: ANAKS_TYPOGRAPHY.generatedSite.body.lineHeight,
     });
     assert.deepEqual(resolveRenderedSiteTypography({
       elementId: 'legacy-long-body',
@@ -50,8 +50,8 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
       variant: 'stack',
       frameHeight: 20,
     }), {
-      fontSize: DABOIM_TYPOGRAPHY.generatedSite.longBody.fontSize,
-      lineHeight: DABOIM_TYPOGRAPHY.generatedSite.longBody.lineHeight,
+      fontSize: ANAKS_TYPOGRAPHY.generatedSite.longBody.fontSize,
+      lineHeight: ANAKS_TYPOGRAPHY.generatedSite.longBody.lineHeight,
     });
     assert.deepEqual(resolveRenderedSiteTypography({
       elementId: 'legacy-support',
@@ -59,8 +59,8 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
       variant: 'stack',
       frameHeight: 18,
     }), {
-      fontSize: DABOIM_TYPOGRAPHY.generatedSite.support.fontSize,
-      lineHeight: DABOIM_TYPOGRAPHY.generatedSite.support.lineHeight,
+      fontSize: ANAKS_TYPOGRAPHY.generatedSite.support.fontSize,
+      lineHeight: ANAKS_TYPOGRAPHY.generatedSite.support.lineHeight,
     });
   });
 
@@ -124,9 +124,9 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
     assert.match(stack, /font-size:30px/);
     assert.deepEqual(semanticTitle.frame, frame, 'renderer must not mutate persisted geometry');
     assert.ok(
-      DABOIM_TYPOGRAPHY.generatedSite.sectionTitle.fontSize
-        / DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx
-        >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.sectionTitleMinRatioToBody,
+      ANAKS_TYPOGRAPHY.generatedSite.sectionTitle.fontSize
+        / ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx
+        >= ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.sectionTitleMinRatioToBody,
     );
   });
 
@@ -156,8 +156,8 @@ describe('LP$ L3 기존 발행본 가독성 상향', () => {
       variant: 'stack',
       frameHeight: 24,
     });
-    assert.equal(team.fontSize, DABOIM_TYPOGRAPHY.generatedSite.support.fontSize);
-    assert.notEqual(team.fontSize, DABOIM_TYPOGRAPHY.generatedSite.sectionTitle.fontSize);
+    assert.equal(team.fontSize, ANAKS_TYPOGRAPHY.generatedSite.support.fontSize);
+    assert.notEqual(team.fontSize, ANAKS_TYPOGRAPHY.generatedSite.sectionTitle.fontSize);
   });
 
   test('레거시 canvas는 확대된 행 상자를 담지 못하면 저장값을 보존한다', () => {

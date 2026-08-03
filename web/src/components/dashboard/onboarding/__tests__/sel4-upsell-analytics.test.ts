@@ -37,9 +37,9 @@ describe('SEL4 — motion upsell funnel wiring', () => {
   });
 
   test('compact·loading·full demo가 모두 화면에 보이는 예시 라벨을 가진다', () => {
-    assert.match(choice, />\s*예시 · 실제 렌더러 티저 · 눌러서 체험\s*</);
-    assert.match(choice, /실제 예시 연출을 준비하고 있어요/);
-    assert.match(upsell, />\s*예시 · 같은 사진으로 비교 중\s*</);
-    assert.match(immersive, />\s*예시 · 실제 production renderer\s*</);
+    assert.match(choice, />\s*Example · Actual renderer teaser · Click to experience\s*</);
+    assert.match(choice, /Review entry, transitions, and completion using the actual renderer/);
+    assert.match(upsell, />\s*Example · Comparing the same photo\s*</);
+    assert.match(immersive, />\s*Example · actual production renderer\s*</);
   });
 });

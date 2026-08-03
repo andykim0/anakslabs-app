@@ -107,7 +107,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
       headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
     });
   } catch {
-    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.');
+    throw new ApiError(0, 'NETWORK_ERROR', "Please check your network connection.");
   }
 
   let body: unknown = null;
@@ -124,7 +124,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
         : {};
     const code = typeof errObj.code === 'string' ? errObj.code : 'UNKNOWN_ERROR';
     const message =
-      typeof errObj.message === 'string' ? errObj.message : `요청에 실패했습니다. (${res.status})`;
+      typeof errObj.message === 'string' ? errObj.message : `Your request failed. (${res.status})`;
     const { code: _c, message: _m, ...extra } = errObj;
     void _c;
     void _m;
@@ -230,7 +230,7 @@ export async function generateHeroVideoDrafts(
   input: GenerateHeroVideoDraftsInput,
 ): Promise<HeroVideoDraftDto[]> {
   if (!Number.isInteger(input.count) || input.count < 1 || input.count > 2) {
-    throw new ApiError(400, 'VALIDATION_ERROR', '영상 시안 개수는 1~2개여야 합니다.');
+    throw new ApiError(400, 'VALIDATION_ERROR', "The number of video drafts must be 1 to 2.");
   }
 
   const data = await post<unknown>(`/api/sites/${encodeURIComponent(siteId)}/hero-video`, input);
@@ -243,7 +243,7 @@ export async function generateHeroVideoDrafts(
     drafts.length !== input.count ||
     !drafts.every(isHeroVideoDraftDto)
   ) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '영상 시안 생성에 실패했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "Failed to create video draft.");
   }
   return drafts;
 }
@@ -254,14 +254,14 @@ export async function applyHeroVideoDraft(
   draft: HeroVideoDraftDto,
 ): Promise<void> {
   if (!isHeroVideoDraftDto(draft)) {
-    throw new ApiError(400, 'VALIDATION_ERROR', '영상 시안을 확인해 주세요.');
+    throw new ApiError(400, 'VALIDATION_ERROR', "Please check the video draft.");
   }
   const data = await request<unknown>(`/api/sites/${encodeURIComponent(siteId)}/hero-video`, {
     method: 'PATCH',
     body: JSON.stringify(draft),
   });
   if (!data || typeof data !== 'object' || (data as { ok?: unknown }).ok !== true) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '영상 적용에 실패했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "Failed to apply video.");
   }
 }
 
@@ -325,7 +325,7 @@ export interface PurchaseResult {
   credits?: number;
   amount?: number;
   balance?: number;
-  /** 실모드: 토스 결제창 파라미터 */
+  /** Reserved for a future verified checkout adapter. */
   checkout?: Record<string, unknown>;
 }
 
@@ -397,7 +397,7 @@ export async function uploadImageWithAssetRef(
   try {
     res = await fetch('/api/uploads', { method: 'POST', body: form });
   } catch {
-    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요.');
+    throw new ApiError(0, 'NETWORK_ERROR', "Please check your network connection.");
   }
   let body: unknown = null;
   try {
@@ -411,15 +411,15 @@ export async function uploadImageWithAssetRef(
         ? ((body as { error: Record<string, unknown> }).error ?? {})
         : {};
     const code = typeof err.code === 'string' ? err.code : 'UPLOAD_FAILED';
-    const message = typeof err.message === 'string' ? err.message : '업로드에 실패했습니다.';
+    const message = typeof err.message === 'string' ? err.message : "Upload failed.";
     throw new ApiError(res.status, code, message);
   }
   const url = (body as { url?: string }).url;
-  if (!url) throw new ApiError(500, 'INVALID_RESPONSE', '업로드 응답을 해석하지 못했습니다.');
+  if (!url) throw new ApiError(500, 'INVALID_RESPONSE', "Failed to interpret upload response.");
   const rawAssetRef = (body as { assetRef?: unknown }).assetRef;
   const assetRef = parseAssetRef(rawAssetRef, url);
   if (rawAssetRef !== undefined && !assetRef) {
-    throw new ApiError(500, 'ASSET_PROVENANCE_MISSING', '업로드 자산의 서버 출처 기록을 확인하지 못했습니다.');
+    throw new ApiError(500, 'ASSET_PROVENANCE_MISSING', "The server origin record for the uploaded asset could not be verified.");
   }
   return assetRef ? { url, assetRef } : { url };
 }
@@ -475,7 +475,7 @@ export async function createGeneralAssetAttestation(
   const personAssetIds = [...new Set(input.personAssetIds)];
   const nonPersonAssetIds = [...new Set(input.nonPersonAssetIds)];
   if (assetIds.length < 1) {
-    throw new ApiError(400, 'VALIDATION_ERROR', '확인할 직접 업로드 사진이 없습니다.');
+    throw new ApiError(400, 'VALIDATION_ERROR', "There are no direct upload photos to view.");
   }
   const data = await post<{ attestation?: unknown }>('/api/asset-attestations/general', {
     accepted: true,
@@ -487,7 +487,7 @@ export async function createGeneralAssetAttestation(
     ...(input.siteId ? { siteId: input.siteId } : {}),
   });
   if (!isGeneralAssetAttestation(data?.attestation)) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '사진 사용 확인 기록을 확인하지 못했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "We were unable to verify your photo usage confirmation history.");
   }
   return data.attestation;
 }
@@ -516,7 +516,7 @@ export async function createPersonAssetConsent(
     ...(siteId ? { siteId } : {}),
   });
   if (!isPersonAssetConsent(data?.consent)) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '인물 사진 사용 확인 기록을 확인하지 못했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "We were unable to verify your portrait usage confirmation history.");
   }
   return data.consent;
 }
@@ -598,7 +598,7 @@ export async function generateCandidates(
     ...(siteId ? { siteId } : {}),
   });
   if (!Array.isArray(data.candidates) || data.candidates.length === 0) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '디자인 후보 생성에 실패했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "Failed to create design candidate.");
   }
   return data.candidates;
 }
@@ -638,7 +638,7 @@ export async function generateSite(input: {
   const data = await post<{ siteId?: string; site?: Site }>('/api/onboarding/generate', input);
   const siteId = data.siteId ?? data.site?.id;
   if (!siteId) {
-    throw new ApiError(500, 'INVALID_RESPONSE', '사이트 생성 응답을 해석하지 못했습니다.');
+    throw new ApiError(500, 'INVALID_RESPONSE', "The site-generated response could not be interpreted.");
   }
   return { siteId, site: data.site, freeRegensUsed: 0 };
 }

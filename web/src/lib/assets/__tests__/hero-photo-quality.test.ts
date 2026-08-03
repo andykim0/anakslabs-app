@@ -67,8 +67,8 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     assert.equal(isHeroPhotoQualityStamp(result), true);
   });
 
-  test('1920px 실제 시네마틱 래스터 기준으로 초점 하한을 과도하게 잡지 않는다', async () => {
-    const bytes = readFileSync('public/cases/demos/yeobaek-workshop/poster.webp');
+  test('a 1920px photographic raster does not set an excessive focus floor', async () => {
+    const bytes = await detailedPhoto();
     const result = await assessHeroPhotoQuality(bytes);
     assert.equal(result.passed, true, JSON.stringify(result));
     assert.equal(result.reasons.includes('focus_too_soft'), false);
@@ -101,7 +101,7 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     const mobile = result.viewportCrops?.mobile ?? [];
     assert.ok(mobile.every((crop) => !crop.passed));
     assert.ok(mobile.every((crop) => crop.reasons.includes('crop_information_too_low')));
-    assert.ok(mobile.every((crop) => /다보임이 준비한 화면/u.test(crop.guidance)));
+    assert.ok(mobile.every((crop) => /Anaks Labs fallback/u.test(crop.guidance)));
   });
 
   test('판정은 customer_upload provenance 레코드에 서버 전용 immutable stamp로 저장된다', async () => {
@@ -137,21 +137,21 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     const result = await assessHeroPhotoQuality(await detailedPhoto(800, 450));
     assert.equal(result.passed, false);
     assert.ok(result.reasons.includes('resolution_too_small'));
-    assert.match(result.guidance, /가로 1600픽셀/);
+    assert.match(result.guidance, /at least 1600 pixels wide/);
   });
 
   test('세로로 과도하게 긴 사진은 크롭 비율 사유를 남긴다', async () => {
     const result = await assessHeroPhotoQuality(await detailedPhoto(1800, 2700));
     assert.equal(result.passed, false);
     assert.ok(result.reasons.includes('aspect_ratio_unsupported'));
-    assert.match(result.guidance, /가로로 넉넉한 사진/);
+    assert.match(result.guidance, /wider landscape photo/);
   });
 
   test('초점 정보가 없는 평면 사진은 흐림 사유를 남긴다', async () => {
     const result = await assessHeroPhotoQuality(await solidPhoto(128));
     assert.equal(result.passed, false);
     assert.ok(result.reasons.includes('focus_too_soft'));
-    assert.match(result.guidance, /초점이 조금 흐려/);
+    assert.match(result.guidance, /too soft/);
   });
 
   test('과소·과다 노출을 별도 코드와 비난 없는 문구로 구분한다', async () => {
@@ -159,8 +159,8 @@ describe('IMG I2 deterministic hero-photo quality gate', () => {
     const bright = await assessHeroPhotoQuality(await exposedDetailedPhoto(['#eef0f2', '#ffffff']));
     assert.ok(dark.reasons.includes('exposure_too_dark'));
     assert.ok(bright.reasons.includes('exposure_too_bright'));
-    assert.match(dark.guidance, /사진이 조금 어두워/);
-    assert.match(bright.guidance, /밝은 부분이 많이 날아가/);
+    assert.match(dark.guidance, /too dark/);
+    assert.match(bright.guidance, /clipped highlights/);
   });
 
   test('업로드 경계와 0042 migration이 판정을 서버 권위 필드로 고정한다', () => {

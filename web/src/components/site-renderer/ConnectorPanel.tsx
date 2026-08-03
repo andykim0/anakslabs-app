@@ -93,8 +93,10 @@ export function ConnectorPanel({
     '--connector-shadow': theme.tokens?.shadow.low ?? '0 12px 36px rgb(0 0 0 / 8%)',
     '--connector-heading': theme.fonts.heading,
   } as CSSProperties;
-  const kakaoJsKey = process.env.KAKAO_JAVASCRIPT_KEY?.trim();
-  const naverClientId = process.env.NAVER_MAP_CLIENT_ID?.trim();
+  // Korea-only browser SDK credentials are intentionally unavailable in the
+  // US product. Legacy connector records retain plain-link fallbacks only.
+  const kakaoJsKey: string | undefined = undefined;
+  const naverClientId: string | undefined = undefined;
 
   return (
     <section className="anaks-connectors" style={style} aria-labelledby="anaks-connectors-title">

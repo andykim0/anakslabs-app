@@ -392,7 +392,7 @@ let staticRendererPromise: Promise<StaticRenderer> | undefined;
  */
 async function loadStaticRenderer(): Promise<StaticRenderer> {
   staticRendererPromise ??= (async () => {
-    const directory = mkdtempSync(join(tmpdir(), 'daboim-x5-render-static-'));
+const directory = mkdtempSync(join(tmpdir(), 'anakslabs-x5-render-static-'));
     const outfile = join(directory, 'render-static.mjs');
     try {
       execFileSync(join(process.cwd(), 'node_modules/.bin/esbuild'), [
@@ -425,7 +425,7 @@ function renderFixture(id: ProductionMotionSignatureId): Promise<string> {
   const pending = loadStaticRenderer().then((renderStaticDocument) => renderStaticDocument({
     config: fixtureValue.config,
     pageSlug: '',
-    siteUrl: 'https://x5.daboim.example',
+      siteUrl: 'https://x5.anakslabs.example',
     tier: fixtureValue.tier,
     motionOwnerId: fixtureValue.motionOwnerId,
     motionSiteId: fixtureValue.motionSiteId,
@@ -506,7 +506,7 @@ function renderBaseFixture(id: ActiveBaseTechniqueId): Promise<string> {
   const pending = loadStaticRenderer().then((renderStaticDocument) => renderStaticDocument({
     config: baseConfig(id),
     pageSlug: '',
-    siteUrl: 'https://x5-base.daboim.example',
+      siteUrl: 'https://x5-base.anakslabs.example',
     tier: fixtureValue.tier,
   }));
   renderedBaseDocuments.set(id, pending);

@@ -97,7 +97,7 @@ describe('HF$ offline HyperFrames pipeline regression', () => {
       ['open-clip', 1080, 1920, 12, 360],
     ] as const;
     for (const [name, width, height, duration, frames] of expectations) {
-      const report = json(`tools/assets/daboim/${name}.report.json`);
+      const report = json(`tools/assets/anakslabs/${name}.report.json`);
       const firstPass = report.firstPass as Record<string, unknown>;
       const storedProbe = firstPass.probe as Record<string, unknown>;
       assert.equal(report.outputContract, 'h264-gop1-muted-yuv420p');
@@ -116,7 +116,7 @@ describe('HF$ offline HyperFrames pipeline regression', () => {
       ['typography-hero', 1920, 1080],
       ['open-clip', 1080, 1920],
     ] as const) {
-      const streams = probe(`tools/assets/daboim/${name}.mp4`);
+      const streams = probe(`tools/assets/anakslabs/${name}.mp4`);
       const video = streams.find((stream) => stream.codec_type === 'video');
       assert.equal(video?.codec_name, 'h264');
       assert.equal(video?.width, width);
@@ -127,8 +127,8 @@ describe('HF$ offline HyperFrames pipeline regression', () => {
   });
 
   test('dogfood inputs use disclosed values and never placeholder phone or address', () => {
-    const input = json('tools/assets/daboim/open-clip.input.json');
-    assert.equal(input.businessName, '다보임');
+    const input = json('tools/assets/anakslabs/open-clip.input.json');
+    assert.equal(input.businessName, 'Anaks Labs');
     assert.equal(input.address, '사업장 주소 미공개');
     assert.equal(input.phone, '전화번호 미공개 · hello@anakslabs.com');
     assert.doesNotMatch(JSON.stringify(input), /0{2,3}-0{3,4}-0{4}/u);

@@ -3,7 +3,7 @@
  * five native connectors at 1440/768/390.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-connectors-review.tsx
- * Out: /private/tmp/daboim-connectors-review
+ * Out: /private/tmp/anakslabs-connectors-review
  */
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -36,7 +36,7 @@ import type {
 } from '@/lib/types/domain';
 import type { SiteConfig, SiteTheme } from '@/lib/types/site';
 
-const OUTPUT = '/private/tmp/daboim-connectors-review';
+const OUTPUT = '/private/tmp/anakslabs-connectors-review';
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const SITE_ID = '00000000-0000-4000-8000-000000000045';

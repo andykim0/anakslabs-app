@@ -48,7 +48,9 @@ describe('PRICE P2 publish payment contract', () => {
     const first = publishPaymentQuote(input);
     const second = publishPaymentQuote(input);
     assert.deepEqual(first, second);
-    assert.equal(first.amountKrw, PRICING.subscription.amountKrw);
+    assert.equal(first.amount, PRICING.subscription.amountUsd);
+    assert.equal(first.setupAmount, PRICING.build.setupUsd);
+    assert.equal(first.currency, 'USD');
     assert.equal(first.periodMonths, 1);
     assert.equal(first.billingInterval, 'month');
     assert.equal(first.pricingModelVersion, PRICING_MODEL_VERSION);
@@ -68,7 +70,7 @@ describe('PRICE P2 publish payment contract', () => {
     const payment = read('src/app/api/sites/[siteId]/publish-payment/route.ts');
     assert.match(payment, /if \(!isMockMode\(\)\) \{[\s\S]*PUBLISH_PAYMENT_UNAVAILABLE/);
     assert.match(payment, /type: 'maintenance_subscription'/);
-    assert.match(payment, /amount: pricing\.amountKrw/);
+    assert.match(payment, /amount: paymentAmount/);
     assert.match(payment, /industryPublishPolicy\(site\)/);
     assert.ok(
       payment.indexOf('if (!isMockMode())') < payment.indexOf('payments.handleWebhook'),
@@ -124,6 +126,6 @@ describe('PRICE P2 publish payment contract', () => {
     assert.match(events, /eventKind: 'build_completed'/);
     assert.match(generate, /recordBuildEvidence\(\{/);
     assert.match(payment, /eventKind: 'publish_payment'/);
-    assert.match(payment, /amountKrw: pricing\.amountKrw/);
+    assert.match(payment, /currency: paymentCurrency/);
   });
 });

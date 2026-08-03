@@ -17,31 +17,31 @@ export function uid(): string {
 }
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
-  hero: '히어로',
-  about: '소개',
-  features: '특징',
-  menu: '메뉴',
-  gallery: '갤러리',
-  testimonials: '후기',
-  pricing: '가격',
-  contact: '문의',
+  hero: "hero",
+  about: "introduction",
+  features: "characteristic",
+  menu: "menu",
+  gallery: "gallery",
+  testimonials: "Reviews",
+  pricing: "price",
+  contact: "inquiry",
   cta: 'CTA',
-  custom: '커스텀',
-  team: '구성원',
-  cases: '실적·사례',
-  faq: '자주 묻는 질문',
+  custom: "custom",
+  team: "member",
+  cases: "Performance/Cases",
+  faq: "Frequently Asked Questions",
 };
 
 export const ELEMENT_KIND_LABELS: Record<ElementKind, string> = {
-  text: '텍스트',
-  image: '이미지',
-  button: '버튼',
-  shape: '도형',
-  divider: '구분선',
-  video: '영상',
-  form: '문의 폼',
-  map: '지도',
-  socialLinks: 'SNS 링크',
+  text: "text",
+  image: "image",
+  button: "button",
+  shape: "diagram",
+  divider: "contour",
+  video: "video",
+  form: "Inquiry form",
+  map: "map",
+  socialLinks: "SNS Links",
 };
 
 const SECTION_DEFAULT_HEIGHT: Partial<Record<SectionType, number>> = {
@@ -70,7 +70,7 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         kind,
         z,
         frame: { x: 420, y: 80, w: 600, h: 88 },
-        text: '새 텍스트를 입력하세요',
+        text: "Please enter new text",
         style: { fontSize: 28, fontWeight: 500, fontFamily: 'body', align: 'left', lineHeight: 1.4 },
       };
     case 'image':
@@ -80,7 +80,7 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         z,
         frame: { x: 480, y: 80, w: 480, h: 320 },
         src: `https://picsum.photos/seed/${id.slice(0, 8)}/960/640`,
-        alt: '이미지',
+        alt: "image",
         style: { objectFit: 'cover', borderRadius: theme.radius ?? 8 },
       };
     case 'button':
@@ -89,7 +89,7 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         kind,
         z,
         frame: { x: 620, y: 100, w: 200, h: 56 },
-        label: '자세히 보기',
+        label: "Learn more",
         href: '#',
         style: { variant: 'solid', fontSize: 16 },
       };
@@ -128,7 +128,7 @@ export function createDefaultElement(kind: ElementKind, theme: SiteTheme, z: num
         frame: { x: 520, y: 80, w: 400, h: 360 },
         formType: 'contact',
         fields: ['name', 'phone', 'message'],
-        submitLabel: '문의 보내기',
+        submitLabel: "Send inquiry",
         style: { variant: 'card', borderRadius: theme.radius ?? 8 },
       };
     case 'map':

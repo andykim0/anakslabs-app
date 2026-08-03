@@ -41,8 +41,7 @@ CLOUDFLARE_API_TOKEN=
 CLOUDFLARE_ZONE_ID=
 
 # ── 토스페이먼츠 ──
-TOSS_SECRET_KEY=                        # 서버 — 결제 조회/검증
-NEXT_PUBLIC_TOSS_CLIENT_KEY=            # 클라이언트 — 결제창
+# Stripe is contract-and-mock only in this fork. No live Stripe key is accepted yet.
 
 # ── 크론 보호 ──
 CRON_SECRET=dev-secret                  # /api/cron/* Bearer 검증
@@ -52,7 +51,7 @@ INDEXNOW_SECRET=                        # 서버 전용 16자 이상, 테넌트�
 
 # ── 월간 성과 리포트 이메일 ──
 RESEND_API_KEY=                         # 서버 전용 sending access 키 — 클라이언트 노출 금지
-REPORT_FROM_EMAIL=다보임 <report@daboim.com> # Resend에서 인증을 마친 도메인의 발신 주소
+REPORT_FROM_EMAIL=Anaks Labs <report@anakslabs.com> # Resend에서 인증을 마친 도메인의 발신 주소
 ```
 
 ---
@@ -147,13 +146,13 @@ GLM_API_KEY=...       # 카피
 **선행**: 사업자등록 + 토스페이먼츠 가맹 심사.
 
 ```bash
-TOSS_SECRET_KEY=...            # 서버 — 결제 조회/검증
-NEXT_PUBLIC_TOSS_CLIENT_KEY=...# 클라이언트 — 결제창
+# Stripe live keys are intentionally unsupported. MOCK_MODE exercises the
+# checkout-session contract without external payment calls.
 ```
 
-- 웹훅(`/api/payments/webhook`)은 **본문을 신뢰하지 않고** `TOSS_SECRET_KEY`로 토스 결제조회 API를 호출해 `status=DONE`·`orderId`·`totalAmount`를 재검증한 뒤에만 크레딧을 지급합니다(무인증 크레딧 발급 취약점 차단, 감사 반영). 미설정 시 실결제는 fail-closed로 거부됩니다.
+- 웹훅(`/api/payments/webhook`)은 `MOCK_MODE=1`에서만 Stripe checkout-session 계약을 받고, stable provider key로 setup·monthly 효과를 각각 멱등 처리합니다. 실모드는 서명 검증 어댑터가 승인되기 전까지 `STRIPE_LIVE_DISABLED`로 fail-closed 처리됩니다.
 - orderId 규약: `cp_{credits}_{clientId}_{nonce}`(팩) / `bf_{tier}_{clientId}_{nonce}`(빌드비) / `ms_{clientId}_{nonce}`(유지보수).
-- ⚠️ **미구현**: 결제창 SDK(`@tosspayments/payment-sdk`) 클라이언트 연동. 현재 실모드 구매는 checkout 파라미터 반환까지만.
+- ⚠️ **미구현**: Stripe Checkout SDK·실키·서명 검증 어댑터. 현재는 계약과 mock 웹훅만 존재합니다.
 
 ---
 
@@ -193,7 +192,7 @@ CLOUDFLARE_ZONE_ID=...
 1. Resend에서 실제 발신 도메인을 추가하고 안내된 **SPF·DKIM DNS 레코드**를 모두 등록합니다.
 2. 도메인 인증 완료 후 sending access 범위의 API 키를 발급해 배포 환경의
    `RESEND_API_KEY`에 저장합니다. `NEXT_PUBLIC_` 접두사를 붙이거나 브라우저에 전달하면 안 됩니다.
-3. 인증된 도메인의 주소를 `REPORT_FROM_EMAIL`에 설정합니다. 예: `다보임 <report@daboim.com>`.
+3. 인증된 도메인의 주소를 `REPORT_FROM_EMAIL`에 설정합니다. 예: `Anaks Labs <report@anakslabs.com>`.
 4. 월간 리포트 크론의 실패 기록에서 재발송 가능한 건을 확인하고, 같은 리포트의 재시도에는
    동일한 idempotency key를 사용합니다. Resend의 provider-side key 보존 기간은 24시간이므로,
    장기 중복 방지는 DB의 월별 리포트 고유키와 발송 상태를 함께 신뢰합니다.

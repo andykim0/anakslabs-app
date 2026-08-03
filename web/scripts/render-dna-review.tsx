@@ -3,7 +3,7 @@
  * the production SiteRenderer reuses one existing repository preview image.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-dna-review.tsx
- * Out: /private/tmp/daboim-dna3-review
+ * Out: /private/tmp/anakslabs-dna3-review
  */
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -34,8 +34,8 @@ import type {
   SurveyInput,
 } from '@/lib/types/domain';
 
-const OUTPUT_DIR = '/private/tmp/daboim-dna3-review';
-const BEFORE_DIR = process.env.DNA_REVIEW_BEFORE_DIR ?? '/private/tmp/daboim-dna3-before';
+const OUTPUT_DIR = '/private/tmp/anakslabs-dna3-review';
+const BEFORE_DIR = process.env.DNA_REVIEW_BEFORE_DIR ?? '/private/tmp/anakslabs-dna3-before';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const HERO_SOURCE = path.resolve('public/mock/candidate-light.svg');
 const HUES = [24, 216] as const;

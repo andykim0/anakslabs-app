@@ -58,7 +58,7 @@ function MotionToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       }
     >
       <Play className="h-3 w-3" />
-      모션 {on ? '켬' : '끔'}
+      motion {on ? "On" : "Off"}
     </button>
   );
 }
@@ -77,7 +77,7 @@ function PreviewPageSwitcher() {
       {pages.map((p) => (
         <option key={p.id} value={p.slug}>
           {p.title}
-          {p.slug === '' ? ' (홈)' : ` · /${p.slug}`}
+          {p.slug === '' ? "(home)" : ` · /${p.slug}`}
         </option>
       ))}
     </select>
@@ -129,7 +129,7 @@ export function CanvasStage() {
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-[#5F6B7C]">
             <Smartphone className="h-3.5 w-3.5" />
-            모바일 미리보기
+            Mobile Preview
             <PreviewPageSwitcher />
             <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
           </div>
@@ -152,7 +152,7 @@ export function CanvasStage() {
       <div className="min-w-0 flex-1 overflow-y-auto bg-[#E8EEF7]" onClickCapture={handlePreviewClickCapture}>
         <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-[#5F6B7C]">
           <Eye className="h-3.5 w-3.5" />
-          미리보기 — 버튼 동작 (외부 링크는 새 탭) · 모션 토글로 실제 움직임 확인
+          Preview — Button behavior (external link in new tab) · Motion toggle to see actual movement
           <PreviewPageSwitcher />
           <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
         </div>
@@ -190,14 +190,14 @@ export function CanvasStage() {
 
         {sections.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#CAD5E5] bg-white/80 px-14 py-16 text-center">
-            <p className="text-sm font-medium text-[#344054]">아직 섹션이 없습니다</p>
-            <p className="text-xs text-[#667085]">히어로 섹션부터 시작해 보세요.</p>
+            <p className="text-sm font-medium text-[#344054]">There are no sections yet</p>
+            <p className="text-xs text-[#667085]">Start with the hero section.</p>
             <button
               type="button"
               onClick={() => useEditorStore.getState().addSection('hero')}
               className="mt-1 flex h-9 items-center gap-1.5 rounded-lg bg-[#174DDA] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#245FE5]"
             >
-              <Plus className="h-3.5 w-3.5" /> 히어로 섹션 추가
+              <Plus className="h-3.5 w-3.5" /> Add hero section
             </button>
           </div>
         ) : null}

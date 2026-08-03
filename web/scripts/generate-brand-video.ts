@@ -1,5 +1,5 @@
 /**
- * [일회성 도구] Daboim 히어로 브랜드 영상 — 선택한 신규 후보를 시작 프레임으로
+ * [일회성 도구] Anaks Labs 히어로 브랜드 영상 — 선택한 신규 후보를 시작 프레임으로
  * Veo fast image-to-video 2안 생성.
  * 어댑터 경유(generateVeoVideoBytes — 업로드 없이 바이트만) → 메인 체크아웃 scripts/out/에 로컬 저장
  * (SaaS 스토리지 미오염). 하드 에러(billing/모델없음)면 남은 시안 중단(과금 방지).
@@ -13,7 +13,7 @@ import { FAST_MODEL } from '@/lib/ai/video-pipeline-core';
 
 const OUT = process.env.BRAND_HERO_OUT || '/Users/axxykim/Desktop/anakslabs/web/scripts/out';
 // 후보 검수 결과: 2번이 상승 곡선과 16:11 랜딩 크롭이 가장 안정적이다.
-const START_FRAME = process.env.DABOIM_START_FRAME || join(OUT, 'daboim-hero-candidate-2.png');
+const START_FRAME = process.env.ANAKS_START_FRAME || join(OUT, 'anakslabs-hero-candidate-2.png');
 
 const MOTION = `One continuous eight-second premium 3D product shot. Keep the transparent
 browser portal geometrically stable. Begin with the three luminous ribbons visibly
@@ -53,7 +53,7 @@ async function main() {
         resolution: RESOLUTION,
       });
       const ext = mimeType.includes('webm') ? 'webm' : 'mp4';
-      const file = join(OUT, `daboim-brand-video-1080-${i}.${ext}`);
+      const file = join(OUT, `anakslabs-brand-video-1080-${i}.${ext}`);
       writeFileSync(file, bytes);
       ok += 1;
       console.log(

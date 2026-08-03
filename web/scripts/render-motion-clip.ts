@@ -234,7 +234,7 @@ async function renderPass(
   fps: number,
   browserPath: string,
 ): Promise<RenderPass> {
-  const workDir = await mkdtemp(path.join(tmpdir(), 'daboim-hyperframes-'));
+  const workDir = await mkdtemp(path.join(tmpdir(), 'anakslabs-hyperframes-'));
   const rawOutput = path.join(workDir, 'hyperframes-raw.mp4');
   const compositionRoot = path.dirname(scenePath);
   const compositionPath = path.basename(scenePath);
@@ -291,7 +291,7 @@ export async function renderMotionClip(options: CliOptions): Promise<MotionRende
   const { hyperframesVersion, browserPath } = assertEnvironment();
   const parameterizedScene = isParameterizedSceneId(options.scene) ? options.scene : undefined;
   const materializedDir = parameterizedScene
-    ? await mkdtemp(path.join(tmpdir(), 'daboim-scene-'))
+    ? await mkdtemp(path.join(tmpdir(), 'anakslabs-scene-'))
     : undefined;
   try {
     let scenePath: string;
@@ -312,7 +312,7 @@ export async function renderMotionClip(options: CliOptions): Promise<MotionRende
     let secondPass: RenderPass | undefined;
     let deterministic: boolean | null = null;
     if (options.determinismCheck) {
-      const verifyDir = await mkdtemp(path.join(tmpdir(), 'daboim-hyperframes-verify-'));
+      const verifyDir = await mkdtemp(path.join(tmpdir(), 'anakslabs-hyperframes-verify-'));
       try {
         secondPass = await renderPass(scenePath, path.join(verifyDir, 'second.mp4'), options.fps, browserPath);
         deterministic = firstPass.frameDigest === secondPass.frameDigest;

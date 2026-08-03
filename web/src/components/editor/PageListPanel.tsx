@@ -56,13 +56,13 @@ export function PageListPanel() {
     <div className="border-b border-[#DCE4F0]">
       <div className="flex items-center gap-2 px-4 py-3">
         <FileText className="h-3.5 w-3.5 text-[#667085]" />
-        <span className="text-xs font-semibold text-[#344054]">페이지</span>
+        <span className="text-xs font-semibold text-[#344054]">page</span>
         <span className="text-[11px] text-[#667085] tabular-nums">{pages.length}</span>
         <button
           type="button"
-          title="페이지 추가"
+          title="Add page"
           onClick={() => {
-            const id = store().addPage('새 페이지');
+            const id = store().addPage("new page");
             setRenaming(id);
           }}
           className="ml-auto flex h-6 w-6 items-center justify-center rounded text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
@@ -111,26 +111,26 @@ export function PageListPanel() {
                       {page.title}
                     </div>
                   )}
-                  <div className="truncate text-[10px] text-[#667085]">{isHome ? '홈 · /' : `/${page.slug}`}</div>
+                  <div className="truncate text-[10px] text-[#667085]">{isHome ? "home · /" : `/${page.slug}`}</div>
                 </div>
                 <div className="flex shrink-0 items-center opacity-60 group-hover:opacity-100">
                   <IconBtn
-                    title={page.showInNav === false ? '내비에 표시' : '내비에서 숨김'}
+                    title={page.showInNav === false ? "Show in navigation" : "Hide from Navi"}
                     onClick={() => store().setPageNav(page.id, { showInNav: page.showInNav === false })}
                   >
                     {page.showInNav === false ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                   </IconBtn>
-                  <IconBtn title="위로" disabled={idx === 0} onClick={() => store().reorderPage(page.id, -1)}>
+                  <IconBtn title="consolation" disabled={idx === 0} onClick={() => store().reorderPage(page.id, -1)}>
                     <ChevronUp className="h-3 w-3" />
                   </IconBtn>
-                  <IconBtn title="아래로" disabled={idx === pages.length - 1} onClick={() => store().reorderPage(page.id, 1)}>
+                  <IconBtn title="down" disabled={idx === pages.length - 1} onClick={() => store().reorderPage(page.id, 1)}>
                     <ChevronDown className="h-3 w-3" />
                   </IconBtn>
-                  <IconBtn title="복제" onClick={() => store().duplicatePage(page.id)}>
+                  <IconBtn title="replication" onClick={() => store().duplicatePage(page.id)}>
                     <Copy className="h-3 w-3" />
                   </IconBtn>
                   {!isHome ? (
-                    <IconBtn title="삭제" danger onClick={() => store().deletePage(page.id)}>
+                    <IconBtn title="Delete" danger onClick={() => store().deletePage(page.id)}>
                       <Trash2 className="h-3 w-3" />
                     </IconBtn>
                   ) : null}
@@ -144,7 +144,7 @@ export function PageListPanel() {
       {/* 선택 페이지 주소(slug) 편집 — 홈은 '/' 고정 */}
       {selected && selected.slug !== '' ? (
         <div className="px-3 pb-3">
-          <label className="mb-1 block text-[10px] text-[#667085]">주소 (영소문자·숫자·하이픈)</label>
+          <label className="mb-1 block text-[10px] text-[#667085]">Address (lowercase letters, numbers, hyphens)</label>
           <div className="flex items-center gap-1">
             <span className="text-[11px] text-[#667085]">/</span>
             <input
@@ -167,7 +167,7 @@ export function PageListPanel() {
             />
           </div>
           {navCount >= 2 ? null : (
-            <p className="mt-1 text-[10px] text-[#667085]">내비는 표시 페이지가 2개 이상일 때 자동 노출됩니다.</p>
+            <p className="mt-1 text-[10px] text-[#667085]">The navigation is automatically displayed when there are two or more displayed pages.</p>
           )}
         </div>
       ) : null}

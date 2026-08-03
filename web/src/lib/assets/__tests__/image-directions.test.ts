@@ -141,7 +141,7 @@ describe('asset-policy v2 image directions', () => {
   test('실사 비적격 안내 문구는 제품 계약과 동일하다', () => {
     assert.equal(
       REAL_PHOTO_REQUIRED_GUIDANCE,
-      '실사 방향은 사장님이 제공하고 사용을 확인한 실제 제품·공간·인물 사진이 필요해요. 사진이 없으면 다보임이 준비하는 추상·3D·일러스트 방향을 선택해 주세요.',
+      'A photographic direction requires an approved customer upload of the real clinic, team, or service. Without one, choose an abstract or 3D direction supplied by Anaks Labs.',
     );
   });
 });

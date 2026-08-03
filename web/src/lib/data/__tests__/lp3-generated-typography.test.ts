@@ -6,8 +6,8 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { DESIGN_WIDTH, emptySiteConfig, type TextElement } from '@/lib/types/site';
 import { ElementContent } from '@/components/site-renderer/ElementContent';
 import {
-  DABOIM_TYPOGRAPHY,
-  DABOIM_TYPOGRAPHY_HIERARCHY,
+  ANAKS_TYPOGRAPHY,
+  ANAKS_TYPOGRAPHY_HIERARCHY,
   generatedType,
   isGeneratedSectionTitleId,
   minTextFrameHeight,
@@ -184,13 +184,13 @@ describe('LP$ L3 generated-site semantic typography', () => {
 
   test('대표 6업종은 1440 geometry를 보존하고 exact section title만 stack에서 30px 이상이다', () => {
     const generatedBodyMax = Math.max(
-      DABOIM_TYPOGRAPHY.generatedSite.heroBody.fontSize,
-      DABOIM_TYPOGRAPHY.generatedSite.sectionIntro.fontSize,
-      DABOIM_TYPOGRAPHY.generatedSite.longBody.fontSize,
-      DABOIM_TYPOGRAPHY.generatedSite.body.fontSize,
-      DABOIM_TYPOGRAPHY.generatedSite.cardBody.fontSize,
+      ANAKS_TYPOGRAPHY.generatedSite.heroBody.fontSize,
+      ANAKS_TYPOGRAPHY.generatedSite.sectionIntro.fontSize,
+      ANAKS_TYPOGRAPHY.generatedSite.longBody.fontSize,
+      ANAKS_TYPOGRAPHY.generatedSite.body.fontSize,
+      ANAKS_TYPOGRAPHY.generatedSite.cardBody.fontSize,
     );
-    assert.equal(generatedBodyMax, DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx);
+    assert.equal(generatedBodyMax, ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.bodyMaxPx);
 
     for (const [purposeId, industry] of fixtures) {
       const config = buildSiteConfigFromSurvey(survey(purposeId, industry), candidate, options);
@@ -222,7 +222,7 @@ describe('LP$ L3 generated-site semantic typography', () => {
           frameHeight: title.frame.h,
         });
         assert.ok(
-          stack.fontSize >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+          stack.fontSize >= ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
           `${purposeId}/${industry}/${title.id}: stack title floor`,
         );
         const markup = renderToStaticMarkup(createElement(ElementContent, {
@@ -233,7 +233,7 @@ describe('LP$ L3 generated-site semantic typography', () => {
         const renderedSize = markup.match(/font-size:(\d+)px/u);
         assert.ok(renderedSize, `${purposeId}/${industry}/${title.id}: stack font size missing`);
         assert.ok(
-          Number(renderedSize[1]) >= DABOIM_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
+          Number(renderedSize[1]) >= ANAKS_TYPOGRAPHY_HIERARCHY.generatedSite.flowSectionTitleMinPx,
           `${purposeId}/${industry}/${title.id}: rendered stack title is below 30px`,
         );
         assert.deepEqual(title.frame, geometry, `${purposeId}/${industry}/${title.id}: geometry mutated`);

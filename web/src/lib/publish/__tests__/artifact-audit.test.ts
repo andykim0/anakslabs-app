@@ -13,7 +13,7 @@ import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/d
 import { applyGeneratedMotion } from '@/lib/motion/validate';
 
 const LONG_COPY =
-  '다보임은 고객이 제공한 실제 정보와 대표 사진을 바탕으로 검색엔진과 답변엔진이 읽을 수 있는 홈페이지를 만듭니다. ' +
+  'Anaks Labs은 고객이 제공한 실제 정보와 대표 사진을 바탕으로 검색엔진과 답변엔진이 읽을 수 있는 홈페이지를 만듭니다. ' +
   '페이지의 제목과 본문, 구조화 데이터, 모바일 화면을 함께 점검하고 방문자가 필요한 정보를 빠르게 찾도록 구성합니다. ' +
   '운영자는 발행 전에 사진과 문구를 직접 확인하며 이후에도 내용을 수정하고 다시 발행할 수 있습니다.';
 

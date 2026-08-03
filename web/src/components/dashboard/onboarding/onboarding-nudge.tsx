@@ -45,7 +45,7 @@ export function useOnboardingPreflight(
             loading: false,
             error: error instanceof Error
               ? error.message
-              : '진단 점수를 잠시 불러오지 못했어요.',
+              : "I was unable to load my diagnostic scores for a while.",
           }));
         });
     }, PREFLIGHT_DEBOUNCE_MS);
@@ -59,9 +59,9 @@ export function useOnboardingPreflight(
 }
 
 const SCORE_META = [
-  { key: 'seo', label: '검색 기본' },
-  { key: 'aeo', label: '질문 답변' },
-  { key: 'geo', label: 'AI 확인' },
+  { key: 'seo', label: "Search Basics" },
+  { key: 'aeo', label: "questions answers" },
+  { key: 'geo', label: "AI verification" },
 ] as const;
 
 export function NudgeMeter({
@@ -88,9 +88,9 @@ export function NudgeMeter({
         ) : (
           <SearchCheck className="h-3.5 w-3.5 text-ob-accent-strong" aria-hidden="true" />
         )}
-        <span className="font-medium text-ob-ink">홈페이지 준비 점수</span>
+        <span className="font-medium text-ob-ink">Homepage preparation score</span>
         <strong className="tabular-nums text-ob-accent-strong">
-          {result ? `${result.scores.total}점` : '확인 중'}
+          {result ? `${result.scores.total} points` : "Checking"}
         </strong>
       </div>
     );
@@ -105,10 +105,10 @@ export function NudgeMeter({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p id="onboarding-preflight-title" className="text-[15px] font-semibold text-ob-ink">
-            지금 홈페이지 준비 점수
+            Homepage preparation score now
           </p>
           <p className="mt-1 text-[12px] leading-relaxed text-ob-muted">
-            지금 입력으로 실제 홈페이지를 잠깐 만들어 같은 진단 기준으로 확인한 결과예요.
+            This is the result of briefly creating an actual homepage using the current input and checking it using the same diagnostic criteria.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export function NudgeMeter({
               <div key={key}>
                 <div className="flex items-center justify-between gap-2 text-[12px]">
                   <span className="font-medium text-ob-ink">{label}</span>
-                  <span className="tabular-nums text-ob-muted">{score}점</span>
+                  <span className="tabular-nums text-ob-muted">{score} points</span>
                 </div>
                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-ob-surface" aria-hidden="true">
                   <span

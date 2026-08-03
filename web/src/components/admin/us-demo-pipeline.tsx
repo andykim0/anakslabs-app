@@ -24,29 +24,29 @@ import {
 } from './api';
 
 const GROUP_LABELS = {
-  entity: '병원 정보 연결',
-  structuredSchema: '구조화된 병원 정보',
-  evidence: '근거와 출처',
-  answerExtraction: '질문·답변 구조',
-  access: '검색 접근',
+  entity: "Hospital information link",
+  structuredSchema: "Structured Hospital Information",
+  evidence: "Evidence and Sources",
+  answerExtraction: "Question/answer structure",
+  access: "Search Access",
 } as const;
 
 const BLOCK_KIND_LABELS = {
-  business_name: '병원명',
-  introduction: '소개',
-  service: '진료 항목',
-  service_detail: '진료 본문',
-  provider_name: '의료진 이름',
-  provider_credential: '의료진 자격',
-  provider_bio: '의료진 약력',
-  insurance: '보험',
-  price_or_financing: '가격·금융',
-  faq_question: '질문',
-  faq_answer: '답변',
-  cta: '원문 CTA',
-  phone: '전화',
-  address: '주소',
-  opening_hours: '진료 시간',
+  business_name: "Hospital name",
+  introduction: "introduction",
+  service: "Medical treatment items",
+  service_detail: "treatment text",
+  provider_name: "medical staff name",
+  provider_credential: "Medical staff qualifications",
+  provider_bio: "Medical staff biographies",
+  insurance: "insurance",
+  price_or_financing: "Price/Finance",
+  faq_question: "question",
+  faq_answer: "answer",
+  cta: "Original CTA",
+  phone: "phone call",
+  address: "address",
+  opening_hours: "clinic hours",
 } as const;
 
 type PipelineStatus = 'idle' | 'crawling' | 'ready' | 'publishing';
@@ -126,7 +126,7 @@ export function UsDemoPipeline() {
       setStatus('ready');
     } catch (reason) {
       setStatus('idle');
-      setError(reason instanceof Error ? reason.message : '수집에 실패했습니다.');
+      setError(reason instanceof Error ? reason.message : "Collection failed.");
     }
   }
 
@@ -170,7 +170,7 @@ export function UsDemoPipeline() {
       setStatus('ready');
     } catch (reason) {
       setStatus('ready');
-      setError(reason instanceof Error ? reason.message : '프리뷰 생성에 실패했습니다.');
+      setError(reason instanceof Error ? reason.message : "Preview creation failed.");
     }
   }
 
@@ -181,7 +181,7 @@ export function UsDemoPipeline() {
       await enableUsDemoQaExclusion();
       window.open(preview.url, '_blank', 'noopener,noreferrer');
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '내부 QA 제외 설정에 실패했습니다.');
+      setError(reason instanceof Error ? reason.message : "Setting up internal QA exclusions failed.");
     }
   }
 
@@ -194,11 +194,11 @@ export function UsDemoPipeline() {
               US MEDICAL OUTREACH
             </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#0B1736]">
-              영어 병원 데모 조립
+              English Hospital Demonstration Assembly
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5F6B7C]">
-              공개 영어 원문만 수집해 구조를 진단하고, Andy가 사용할 블록을 확인한 뒤
-              14일짜리 비공개 프리뷰를 만듭니다. 환자 정보·후기·번역·새 효능 문구는 넣지 않습니다.
+              After collecting only the public English text, diagnosing the structure, and checking which blocks Andy will use,
+              Create a private 14-day preview. Patient information, reviews, translations, and new efficacy statements are not included.
             </p>
           </div>
           <div className="rounded-xl bg-[#EEF4FF] p-3 text-[#174DDA]">
@@ -210,7 +210,7 @@ export function UsDemoPipeline() {
       <section className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <label className="block">
-            <span className="text-sm font-semibold text-[#22304A]">타깃 병원 URL</span>
+            <span className="text-sm font-semibold text-[#22304A]">Target hospital URL</span>
             <input
               type="url"
               value={url}
@@ -233,7 +233,7 @@ export function UsDemoPipeline() {
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#174DDA] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
           >
             {status === 'crawling' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
-            수집하고 진단하기
+            Collect and Diagnose
           </button>
         </div>
         <label className="mt-3 inline-flex items-center gap-2 text-xs text-[#667085]">
@@ -242,7 +242,7 @@ export function UsDemoPipeline() {
             checked={allowTlsHttpFallback}
             onChange={(event) => setAllowTlsHttpFallback(event.target.checked)}
           />
-          사전 승인된 파일럿 호스트만 인증서 오류 시 HTTP 공개 페이지로 계속 수집
+          Only pre-approved pilot hosts continue to collect certificate errors as HTTP public pages
         </label>
         <label className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#22304A]">
           <input
@@ -250,12 +250,12 @@ export function UsDemoPipeline() {
             checked={consentedTransfer}
             onChange={(event) => setConsentedTransfer(event.target.checked)}
           />
-          구두 동의 기반 전체 이관 데모
+          Full transfer demo based on verbal consent
         </label>
         {consentedTransfer ? (
           <div className="mt-3 grid gap-3 rounded-xl border border-[#C9D5E7] bg-[#F7F9FC] p-4 sm:grid-cols-2">
             <label className="text-xs font-semibold text-[#22304A]">
-              프로스펙트 ID
+              Prospect ID
               <input
                 required
                 value={prospectId}
@@ -264,7 +264,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              통화 일시
+              call date and time
               <input
                 required
                 type="datetime-local"
@@ -274,7 +274,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              동의자 이름
+              consenter name
               <input
                 required
                 value={consenterName}
@@ -283,7 +283,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              동의자 직함
+              consenter title
               <input
                 required
                 value={consenterTitle}
@@ -292,7 +292,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A] sm:col-span-2">
-              통화 메모
+              call notes
               <input
                 type="text"
                 value={consentNotes}
@@ -302,7 +302,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <p className="text-xs leading-5 text-[#667085] sm:col-span-2">
-              동의 범위는 demo-by-email로 고정됩니다. robots·초당 1회·식별 가능한 크롤러 UA는 그대로 유지됩니다.
+              The scope of consent is fixed to demo-by-email. robots·Once per second·Identifiable crawler UA remains the same.
             </p>
           </div>
         ) : null}
@@ -319,36 +319,36 @@ export function UsDemoPipeline() {
             <article className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={18} className="text-emerald-600" aria-hidden />
-                <h2 className="font-bold text-[#0B1736]">수집 안전 기록</h2>
+                <h2 className="font-bold text-[#0B1736]">Collect safety records</h2>
               </div>
               <dl className="mt-4 grid gap-3 text-sm">
                 <div>
-                  <dt className="text-xs text-[#667085]">읽은 공개 페이지</dt>
-                  <dd className="mt-1 font-semibold">{detail.artifact.visitedUrls.length}개</dd>
+                  <dt className="text-xs text-[#667085]">public pages read</dt>
+                  <dd className="mt-1 font-semibold">{detail.artifact.visitedUrls.length} items</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#667085]">보관 만료</dt>
+                  <dt className="text-xs text-[#667085]">Storage expiration</dt>
                   <dd className="mt-1">{new Date(detail.artifact.expiresAt).toLocaleString('ko-KR')}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#667085]">영어 원문 충분성</dt>
+                  <dt className="text-xs text-[#667085]">English text sufficiency</dt>
                   <dd className="mt-1 font-semibold">
-                    {detail.artifact.usDemo.englishSourceReady ? '컴파일 가능' : '원문 부족 — 생성 중단'}
+                    {detail.artifact.usDemo.englishSourceReady ? "Compilable" : "Lack of original text — production halted"}
                   </dd>
                 </div>
                 {detail.artifact.crawlCoverage ? (
                   <div>
-                    <dt className="text-xs text-[#667085]">동의 크롤 커버리지</dt>
+                    <dt className="text-xs text-[#667085]">Consent Crawl Coverage</dt>
                     <dd className="mt-1 font-semibold">
                       {detail.artifact.crawlCoverage.crawledPages}
                       {' / '}
-                      {detail.artifact.crawlCoverage.estimatedSourcePages}페이지
+                      {detail.artifact.crawlCoverage.estimatedSourcePages}page
                     </dd>
                   </div>
                 ) : null}
               </dl>
               <details className="mt-4 text-xs text-[#5F6B7C]">
-                <summary className="cursor-pointer font-semibold">방문 URL 보기</summary>
+                <summary className="cursor-pointer font-semibold">View visit URL</summary>
                 <ul className="mt-2 space-y-1 break-all">
                   {detail.artifact.visitedUrls.map((visitedUrl) => (
                     <li key={visitedUrl}>{visitedUrl}</li>
@@ -360,13 +360,13 @@ export function UsDemoPipeline() {
             <article className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-[#667085]">미국 의료 아웃리치 진단</p>
+                  <p className="text-xs text-[#667085]">American Medical Outreach Diagnosis</p>
                   <h2 className="mt-1 text-xl font-bold text-[#0B1736]">
                     {detail.artifact.usDemo.sourceVisibility.score} / 100
                   </h2>
                 </div>
                 <span className="text-xs text-[#667085]">
-                  검색·AI가 읽는 서버 HTML 구조
+                  Server HTML structure read by search and AI
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-5">
@@ -390,13 +390,13 @@ export function UsDemoPipeline() {
           <section className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="font-bold text-[#0B1736]">공개 원문 수동 마감</h2>
+                <h2 className="font-bold text-[#0B1736]">Public original text manual closure</h2>
                 <p className="mt-1 text-sm text-[#667085]">
-                  원문을 고르고 순서만 바꿀 수 있습니다. 문장을 새로 쓰거나 번역할 수 없습니다.
+                  You can just select the original text and change the order. You cannot rewrite or translate sentences.
                 </p>
               </div>
               <span className="rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#174DDA]">
-                선택 {includedIds.size} / {orderedBlocks.length}
+                Select {includedIds.size} / {orderedBlocks.length}
               </span>
             </div>
 
@@ -411,7 +411,7 @@ export function UsDemoPipeline() {
                     checked={includedIds.has(block.id)}
                     disabled={block.disposition === 'blocked'}
                     onChange={() => toggleBlock(block)}
-                    aria-label={`${BLOCK_KIND_LABELS[block.kind]} 원문 사용`}
+                    aria-label={`${BLOCK_KIND_LABELS[block.kind]}Use original text`}
                     className="mt-1"
                   />
                   <div className="min-w-0">
@@ -421,10 +421,10 @@ export function UsDemoPipeline() {
                       </span>
                       <span className="rounded bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-[#667085]">
                         {block.disposition === 'allowed'
-                          ? '사용 가능'
+                          ? "available"
                           : block.disposition === 'review'
-                            ? 'Andy 확인 필요'
-                            : '사용 차단'}
+                            ? "Andy needs confirmation"
+                            : "Block use"}
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-[#22304A]">{block.text}</p>
@@ -442,7 +442,7 @@ export function UsDemoPipeline() {
                       type="button"
                       disabled={index === 0}
                       onClick={() => setOrderedIds((ids) => moveBlock(ids, block.id, -1))}
-                      aria-label="원문 블록 위로 이동"
+                      aria-label="Move up text block"
                       className="rounded border border-[#C9D5E7] bg-white p-1.5 disabled:opacity-35"
                     >
                       <ArrowUp size={14} aria-hidden />
@@ -451,7 +451,7 @@ export function UsDemoPipeline() {
                       type="button"
                       disabled={index === orderedBlocks.length - 1}
                       onClick={() => setOrderedIds((ids) => moveBlock(ids, block.id, 1))}
-                      aria-label="원문 블록 아래로 이동"
+                      aria-label="Move down text block"
                       className="rounded border border-[#C9D5E7] bg-white p-1.5 disabled:opacity-35"
                     >
                       <ArrowDown size={14} aria-hidden />
@@ -465,10 +465,10 @@ export function UsDemoPipeline() {
               <div className="space-y-2">
                 <p className="flex items-center gap-2 text-xs text-[#667085]">
                   <LockKeyhole size={14} aria-hidden />
-                  두 모드 모두 색인 차단되며 14일 뒤 404가 됩니다.
+                  Both modes will be index blocked and will result in a 404 after 14 days.
                 </p>
                 <label className="block text-xs font-semibold text-[#22304A]">
-                  렌더 모드
+                  render mode
                   <select
                     value={renderMode}
                     onChange={(event) => setRenderMode(
@@ -476,8 +476,8 @@ export function UsDemoPipeline() {
                     )}
                     className="ml-2 rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
                   >
-                    <option value="preview-full">내부 평가 · full 멀티페이지</option>
-                    <option value="outreach-safe">발송용 · safe 단일페이지</option>
+                    <option value="preview-full">Internal evaluation · full multi-page</option>
+                    <option value="outreach-safe">For shipping · safe single page</option>
                   </select>
                 </label>
               </div>
@@ -492,7 +492,7 @@ export function UsDemoPipeline() {
                 className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0B765C] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {status === 'publishing' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
-                비공개 데모 만들기
+                Create a private demo
               </button>
             </div>
           </section>
@@ -505,23 +505,23 @@ export function UsDemoPipeline() {
             <div>
               <p className="flex items-center gap-2 font-bold text-emerald-900">
                 <CheckCircle2 size={18} aria-hidden />
-                공유 프리뷰가 준비됐습니다
+                Share preview is ready
               </p>
               <p className="mt-2 text-sm text-emerald-800">
-                원문 {preview.sourceReport.usedBlocks}개 사용 · {preview.sourceReport.excludedBlocks}개 제외
+                original text {preview.sourceReport.usedBlocks}Dog use · {preview.sourceReport.excludedBlocks}excluding dogs
               </p>
               {preview.sourceReport.policyExcludedBlocks ? (
                 <p className="mt-1 text-xs text-amber-800">
-                  미국 의료광고 정책 보류 {preview.sourceReport.policyExcludedBlocks}개
+                  US medical advertising policy on hold {preview.sourceReport.policyExcludedBlocks} items
                 </p>
               ) : null}
               {preview.emailEvidenceLine ? (
                 <p className="mt-2 rounded-md bg-white/70 px-3 py-2 text-xs text-emerald-900">
-                  이메일 근거 문구: {preview.emailEvidenceLine}
+                  Email supporting text: {preview.emailEvidenceLine}
                 </p>
               ) : null}
               <p className="mt-1 break-all text-xs text-emerald-700">
-                {preview.url} · {new Date(preview.expiresAt).toLocaleString('ko-KR')} 만료
+                {preview.url} · {new Date(preview.expiresAt).toLocaleString('ko-KR')} expiration
               </p>
             </div>
             <button
@@ -529,7 +529,7 @@ export function UsDemoPipeline() {
               onClick={openPreview}
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              내부 QA 제외 후 열기
+              Open after excluding internal QA
               <ExternalLink size={15} aria-hidden />
             </button>
           </div>

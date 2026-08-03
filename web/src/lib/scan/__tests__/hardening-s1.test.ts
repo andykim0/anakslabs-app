@@ -30,13 +30,13 @@ const SITEMAP: ProbedResource = {
 
 const HEALTHY_HTML = `<!doctype html><html lang="ko"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>다보임 홈페이지 제작</title><meta name="description" content="한국 사업자를 위한 홈페이지 제작 서비스입니다.">
+<title>Anaks Labs 홈페이지 제작</title><meta name="description" content="한국 사업자를 위한 홈페이지 제작 서비스입니다.">
 <link rel="canonical" href="https://example.kr/"><link rel="icon" href="/favicon.ico">
-<meta property="og:title" content="다보임 홈페이지 제작"><meta property="og:description" content="홈페이지 제작 서비스"><meta property="og:image" content="https://example.kr/og.jpg">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"다보임","url":"https://example.kr/"}</script>
-</head><body><header><nav><a href="/">홈</a></nav></header><main><h1>다보임 홈페이지 제작</h1>
-<section><h2>서비스 안내</h2><p>다보임은 한국 사업자가 손님에게 필요한 정보를 분명하게 전하는 홈페이지를 제작합니다. 페이지 구조와 공식 정보를 함께 정리합니다. 검색과 질문에 필요한 내용을 서버 HTML에 담아 여러 환경에서 읽기 쉬운 문서를 만들고, 업종에 맞는 서비스 설명과 이용 방법도 빠짐없이 구성합니다.</p><p>검색과 질문에 필요한 내용을 서버 HTML에 담아 여러 환경에서 읽기 쉬운 문서를 만듭니다.</p><ul><li>페이지 설계</li><li>공식 정보 정리</li></ul></section>
-</main><footer><p>다보임 공식 홈페이지입니다.</p></footer></body></html>`;
+<meta property="og:title" content="Anaks Labs 홈페이지 제작"><meta property="og:description" content="홈페이지 제작 서비스"><meta property="og:image" content="https://example.kr/og.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Anaks Labs","url":"https://example.kr/"}</script>
+</head><body><header><nav><a href="/">홈</a></nav></header><main><h1>Anaks Labs 홈페이지 제작</h1>
+<section><h2>서비스 안내</h2><p>Anaks Labs은 한국 사업자가 손님에게 필요한 정보를 분명하게 전하는 홈페이지를 제작합니다. 페이지 구조와 공식 정보를 함께 정리합니다. 검색과 질문에 필요한 내용을 서버 HTML에 담아 여러 환경에서 읽기 쉬운 문서를 만들고, 업종에 맞는 서비스 설명과 이용 방법도 빠짐없이 구성합니다.</p><p>검색과 질문에 필요한 내용을 서버 HTML에 담아 여러 환경에서 읽기 쉬운 문서를 만듭니다.</p><ul><li>페이지 설계</li><li>공식 정보 정리</li></ul></section>
+</main><footer><p>Anaks Labs 공식 홈페이지입니다.</p></footer></body></html>`;
 
 function context(html = HEALTHY_HTML, overrides: Partial<RuleContext> = {}): RuleContext {
   const root = parse(html);

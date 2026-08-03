@@ -19,8 +19,8 @@ import { CONNECTOR_CATALOG, connectorCatalogEntry } from '@/lib/connectors/catal
 const root = process.cwd();
 const source = (relative: string) => readFileSync(`${root}/${relative}`, 'utf8');
 const RESERVATION = 'https://booking.naver.com/booking/6/bizes/12345';
-const KAKAO = 'https://pf.kakao.com/_daboim';
-const INSTAGRAM = 'https://www.instagram.com/daboim.official/';
+const KAKAO = 'https://pf.kakao.com/_legacy_fixture';
+const INSTAGRAM = 'https://www.instagram.com/anakslabs/';
 const OFFICIAL_BRAND_ASSET_SHA256 = {
   'public/brand/connectors/instagram-glyph-gradient.png':
     '0c2b3e84f9c7057b4cc3c656624562f8367592374de30ffc657153e3e969fb45',
@@ -38,7 +38,7 @@ const OFFICIAL_BRAND_ASSET_SHA256 = {
 
 function survey(): SurveyInput {
   return {
-    businessName: '다보임 인테리어',
+    businessName: 'Anaks Labs 인테리어',
     purposeId: 'company_brand',
     purpose: '회사 소개',
     industry: '인테리어',
@@ -63,7 +63,7 @@ function survey(): SurveyInput {
 }
 
 function config(): SiteConfig {
-  const base = emptySiteConfig('다보임 인테리어');
+  const base = emptySiteConfig('Anaks Labs 인테리어');
   return {
     ...base,
     publicContact: {
@@ -243,25 +243,18 @@ describe('CONN C2 — native connector catalog and rendering', () => {
     );
   });
 
-  test('missing Naver key fails closed to a static card and deep link', () => {
-    const previous = process.env.NAVER_MAP_CLIENT_ID;
-    delete process.env.NAVER_MAP_CLIENT_ID;
-    try {
-      const output = applyConnectorManifest(config(), survey(), { connectorCatalogVersion: 1 });
-      const html = renderToStaticMarkup(createElement(SiteRenderer, {
-        config: output,
-        mode: 'auto',
-        interactive: true,
-        animate: false,
-      }));
-      const dom = parse(html);
-      assert.ok(dom.querySelector('a[href^="https://map.naver.com/"]'));
-      assert.equal(dom.querySelectorAll('[data-naver-map-preview]').length, 0);
-      assert.equal(dom.querySelectorAll('iframe').length, 0);
-    } finally {
-      if (previous === undefined) delete process.env.NAVER_MAP_CLIENT_ID;
-      else process.env.NAVER_MAP_CLIENT_ID = previous;
-    }
+  test('the US fork keeps legacy Naver destinations as static links without an SDK key path', () => {
+    const output = applyConnectorManifest(config(), survey(), { connectorCatalogVersion: 1 });
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: output,
+      mode: 'auto',
+      interactive: true,
+      animate: false,
+    }));
+    const dom = parse(html);
+    assert.ok(dom.querySelector('a[href^="https://map.naver.com/"]'));
+    assert.equal(dom.querySelectorAll('[data-naver-map-preview]').length, 0);
+    assert.equal(dom.querySelectorAll('iframe').length, 0);
   });
 
   test('manifest is server-owned and missing manifests preserve legacy JSON', () => {
@@ -299,11 +292,10 @@ describe('CONN R1 — Instagram redirect-only connector', () => {
     assert.doesNotMatch(migration, /ciphertext|initialization_iv|auth_tag|key_version/u);
   });
 
-  test('only Kakao and Naver load SDKs; Instagram performs no fetch or feed rendering', () => {
+  test('the US runtime loads no Kakao, Naver, or Instagram SDK', () => {
     const runtime = source('src/components/site-renderer/ConnectorRuntime.tsx');
-    assert.match(runtime, /closest<HTMLAnchorElement>\('a\[data-kakao-channel-id\]/u);
-    assert.match(runtime, /closest<HTMLButtonElement>\('button\[data-naver-map-preview\]'\)/u);
-    assert.doesNotMatch(runtime, /Instagram|instagram|IntersectionObserver|fetch\(/u);
+    assert.match(runtime, /return null/u);
+    assert.doesNotMatch(runtime, /Kakao\.|naver\.maps|platform\.instagram|IntersectionObserver|fetch\(|createElement\('script'\)/iu);
     assert.doesNotMatch(source('src/components/site-renderer/ConnectorPanel.tsx'), /instagram-feed/u);
   });
 });

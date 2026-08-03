@@ -50,10 +50,8 @@ describe('SITECINE C2 — 랜딩 공유 번호 진행 척추', () => {
     assert.match(html, /background:\s*var\(--site-cine-bg\)/);
   });
 
-  test('랜딩과 생성 렌더러가 StoryProgressRail DOM과 syncLandingContinuation 엔진을 공유한다', () => {
-    const landing = source('src/components/marketing/LandingStoryContinuation.tsx');
+  test('the generated renderer uses the shared StoryProgressRail runtime without scroll hijacking', () => {
     const renderer = source('src/components/site-renderer/SiteRenderer.tsx');
-    assert.match(landing, /<StoryProgressRail \/>/);
     assert.match(renderer, /<StoryProgressRail \/>/);
     assert.match(MOTION_RUNTIME, /data-landing-continuation'\)\|\|el\.hasAttribute\('data-site-cinematic-continuation/);
     assert.match(MOTION_RUNTIME, /syncLandingContinuation\(el,p\)/);

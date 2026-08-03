@@ -19,10 +19,10 @@ import { NudgeBadge } from '../onboarding-nudge';
 import { Chip, Field, StepIntro, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 const TEMPLATES: { label: string; heading: string }[] = [
-  { label: '소개', heading: '[소개]\n' },
-  { label: '메뉴·가격', heading: '[메뉴·가격]\n' },
-  { label: '영업 정보', heading: '[영업 정보]\n영업시간: \n휴무: \n주차: \n' },
-  { label: '하고 싶은 말', heading: '[하고 싶은 말]\n' },
+  { label: "introduction", heading: "[introduction]" },
+  { label: "Menu/price", heading: "[Menu/Price]" },
+  { label: "Sales information", heading: "[Sales Information]\nBusiness hours: \nClosed: \nParking:" },
+  { label: "What I want to say", heading: "[What I want to say]" },
 ];
 
 /** 받침 유무로 조사(이/가·을/를)를 골라 자연스러운 한국어를 만든다. */
@@ -69,10 +69,10 @@ function ContentRowPhoto({ index }: { index: number }) {
         setValue('generalAssetAttestationId', undefined, { shouldValidate: false });
       }
       if (assetPolicyV2Ready && !uploaded.assetRef) {
-        toast('info', '사진은 올렸지만 직접 업로드 자산 참조가 없어 실사 사진 방향에는 사용할 수 없어요.');
+        toast('info', "I uploaded a photo, but there is no direct upload asset reference, so I can't use it for photo orientation.");
       }
     } catch (err) {
-      toast('error', err instanceof Error ? err.message : '사진 업로드에 실패했어요.');
+      toast('error', err instanceof Error ? err.message : "Photo upload failed.");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -84,7 +84,7 @@ function ContentRowPhoto({ index }: { index: number }) {
       {url ? (
         <span className="relative shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="항목 사진" className="h-14 w-14 rounded-ob border border-ob-border object-cover" />
+          <img src={url} alt="item photo" className="h-14 w-14 rounded-ob border border-ob-border object-cover" />
           <button
             type="button"
             onClick={() => {
@@ -106,7 +106,7 @@ function ContentRowPhoto({ index }: { index: number }) {
                 );
               }
             }}
-            aria-label="사진 제거"
+            aria-label="remove photos"
             className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ob-ink text-white transition-colors hover:bg-ob-danger"
           >
             <X className="h-3 w-3" />
@@ -117,7 +117,7 @@ function ContentRowPhoto({ index }: { index: number }) {
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          aria-label="항목 사진 올리기"
+          aria-label="Upload a photo of your item"
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-ob border border-dashed border-ob-border text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink disabled:opacity-50"
         >
           {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
@@ -241,7 +241,7 @@ export function Step03Content({
   // ── 사진 OCR로 한 번에 채우기 ──────────────────────────────
   const ocrInputRef = useRef<HTMLInputElement>(null);
   const [ocrLoading, setOcrLoading] = useState(false);
-  const ocrButtonLabel = itemLabel === '메뉴' ? '메뉴판 사진으로 한 번에 채우기' : '사진으로 한 번에 채우기';
+  const ocrButtonLabel = itemLabel === "menu" ? "Fill the menu with photos at once" : "Fill with photos at once";
 
   const runOcr = async (files: FileList | null) => {
     const file = files?.[0];
@@ -251,7 +251,7 @@ export function Step03Content({
       const uploadedUrl = await uploadImage(file);
       const extracted = await extractMenuFromImage(uploadedUrl);
       if (extracted.length === 0) {
-        toast('info', '사진에서 항목을 못 읽었어요. 직접 입력해 주세요.');
+        toast('info', "I couldn't read the item in the photo. Please enter it directly.");
         return;
       }
       const seen = new Set(
@@ -272,13 +272,13 @@ export function Step03Content({
         });
       }
       if (toAdd.length === 0) {
-        toast('info', '사진 속 항목이 이미 다 들어가 있어요.');
+        toast('info', "All the items in the picture are already included.");
         return;
       }
       append(toAdd);
-      toast('success', `${toAdd.length}개 항목을 추가했어요. 확인하고 수정해 주세요.`);
+      toast('success', `${toAdd.length}Added 1 item. Please check and correct.`);
     } catch (err) {
-      toast('error', err instanceof Error ? err.message : '사진에서 항목을 읽지 못했어요.');
+      toast('error', err instanceof Error ? err.message : "I couldn't read the item in the photo.");
     } finally {
       setOcrLoading(false);
       if (ocrInputRef.current) ocrInputRef.current.value = '';
@@ -289,42 +289,42 @@ export function Step03Content({
     <div className="space-y-7">
       <StepIntro>
         {mode === 'core'
-          ? '먼저 목적에 꼭 필요한 핵심 정보만 받아요. 나머지는 홈페이지 구성을 본 뒤 원하는 만큼 더할 수 있어요.'
-          : '선택한 구성을 만들 수 있는 실제 정보만 물어요. 답하지 않은 내용은 지어내지 않습니다.'}
+          ? "First, only receive key information necessary for the purpose. You can add the rest as you wish after looking at the homepage configuration."
+          : "We only ask for actual information that will enable us to create the configuration you have chosen. Do not make up information that is not answered."}
       </StepIntro>
 
       {showStory ? <section className="rounded-ob border border-ob-border bg-ob-surface p-4 sm:p-5" aria-labelledby="brand-story-title">
         <div>
           <h3 id="brand-story-title" className="text-[17px] font-semibold text-ob-ink">
-            가게의 이야기를 들려주세요
+            Tell us your clinic’s story
           </h3>
           <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
-            사장님이 적어주신 실제 이야기는 메인 소개의 중심이 됩니다. 비워두면 지어낸 일화 대신 가게가 지향하는 태도만 담아요.
+            Your own words become the center of the clinic introduction. If you leave this blank, we will not invent a story.
           </p>
         </div>
         <div className="mt-5 grid gap-4">
-          <Field label={<>브랜드 스토리 <span className="font-normal text-ob-muted">(선택)</span></>} hint="손님에게 들려주고 싶은 가게의 이야기">
-            <textarea
-              {...register('brandStory')}
-              rows={3}
-              placeholder="예: 이 공간에서 손님이 어떤 시간을 보내길 바라는지 적어주세요."
+          <Field label={<>Clinic story <span className="font-normal text-ob-muted">(optional)</span></>} hint="The story you want patients to know">
+              <textarea
+                {...register('brandStory')}
+                rows={3}
+              placeholder="Example: Describe the experience you want patients to have at your clinic."
               className={cn(obInput, 'resize-y leading-relaxed')}
             />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={<>시작한 계기 <span className="font-normal text-ob-muted">(선택)</span></>} hint="실제로 가게를 시작하게 된 이유나 계기">
+            <Field label={<>How it started <span className="font-normal text-ob-muted">(optional)</span></>} hint="The factual reason or event that led you to open the clinic">
               <textarea
                 {...register('brandOrigin')}
                 rows={3}
-                placeholder="실제로 있었던 계기만 적어주세요."
+                placeholder="Please write down only the events that actually occurred."
                 className={cn(obInput, 'resize-y leading-relaxed')}
               />
             </Field>
-            <Field label={<>철학과 지향 <span className="font-normal text-ob-muted">(선택)</span></>} hint="운영하며 중요하게 생각하는 태도">
+            <Field label={<>Care philosophy <span className="font-normal text-ob-muted">(optional)</span></>} hint="The principles that guide how your clinic operates">
               <textarea
                 {...register('brandPhilosophy')}
                 rows={3}
-                placeholder="가게가 지키고 싶은 태도와 방향을 적어주세요."
+                placeholder="Describe the principles your clinic actually follows."
                 className={cn(obInput, 'resize-y leading-relaxed')}
               />
             </Field>
@@ -336,16 +336,16 @@ export function Step03Content({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 id="factual-interview-title" className="text-[17px] font-semibold text-ob-ink">
-              가게 사실을 알려주세요
+              Tell us about the clinic
             </h3>
             <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
               {mode === 'core'
-                ? '지금 고른 홈페이지 목적에 필요한 정보예요. 같은 내용은 뒤에서 다시 묻지 않아요.'
-                : '있으면 답하고, 없으면 건너뛰세요. 답한 정보가 있는 구성만 생깁니다.'}
+                ? "This is the information needed for the purpose of the homepage you have chosen. The same information will not be asked again later."
+                : "Answer if you have it, skip it if not. Only configurations containing the information you answered will be created."}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-ob-accent-soft px-3 py-1.5 text-[12px] font-medium text-ob-accent-strong">
-            {answeredFactCount}/{factQuestions.length}개 답변
+            {answeredFactCount}/{factQuestions.length} answered
           </span>
         </div>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-ob-bg" aria-hidden="true">
@@ -356,7 +356,7 @@ export function Step03Content({
         </div>
         <p className="mt-2 inline-flex items-center gap-1.5 text-[12px] leading-relaxed text-ob-muted">
           <CheckCircle2 className="h-3.5 w-3.5 text-ob-accent-strong" aria-hidden="true" />
-          답할수록 내 홈페이지에 사실 기반 안내와 섹션이 더해져요.
+          The more you answer, the more fact-based guidance and sections we can include.
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -371,7 +371,7 @@ export function Step03Content({
                     {question.required ? (
                       <span className="text-ob-danger">*</span>
                     ) : (
-                      <span className="font-normal text-ob-muted">(선택)</span>
+                      <span className="font-normal text-ob-muted">(select)</span>
                     )}
                   </>
                 }
@@ -385,7 +385,7 @@ export function Step03Content({
                 />
                 {answer?.source === 'customer_import' ? (
                   <span className="mt-1.5 block text-[11px] font-medium text-ob-accent-strong">
-                    기존 채널에서 가져온 내용 · 확인하고 고쳐주세요
+                    Content taken from existing channel · Please check and correct
                   </span>
                 ) : null}
                 {question.key === 'phone' || question.key === 'address' ? (
@@ -401,14 +401,14 @@ export function Step03Content({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h3 id="guided-faq-title" className="text-[17px] font-semibold text-ob-ink">
-              손님이 자주 묻는 질문
+              Frequently asked questions from patients
             </h3>
             <p className="mt-1 text-[13px] leading-relaxed text-ob-muted">
-              질문은 준비해 두었어요. 사장님이 답한 질문만 홈페이지와 검색용 질문·답에 들어갑니다.
+              Only questions you answer will be included on the website and in its structured FAQ.
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-ob-surface px-3 py-1.5 text-[12px] font-medium text-ob-muted">
-            {answeredFaqCount}/{faqQuestions.length}개 답변 · 모두 선택
+            {answeredFaqCount}/{faqQuestions.length} answered · all optional
           </span>
         </div>
         <div className="mt-5 space-y-4">
@@ -418,7 +418,7 @@ export function Step03Content({
                 value={faqAnswersById.get(question.id) ?? ''}
                 onChange={(event) => setFaqAnswer(question.id, event.target.value)}
                 rows={2}
-                placeholder="실제 운영 기준에 맞는 답을 적어주세요. 답하지 않으면 홈페이지에 나오지 않아요."
+                placeholder="Please write an answer that meets actual operational standards. If you don't answer, it won't appear on the website."
                 className={cn(obInput, 'resize-y leading-relaxed')}
               />
             </Field>
@@ -430,9 +430,9 @@ export function Step03Content({
       {showItems ? <div className="space-y-3">
         <div className="flex items-baseline justify-between gap-2">
           <label className="text-[15px] font-medium text-ob-ink">
-            {itemLabel} 목록 <span className="font-normal text-ob-muted">(선택)</span>
+            {itemLabel} inventory <span className="font-normal text-ob-muted">(select)</span>
           </label>
-          <span className="shrink-0 text-[13px] text-ob-muted">{filledCount}개 입력됨</span>
+          <span className="shrink-0 text-[13px] text-ob-muted">{filledCount}entered</span>
         </div>
 
         {/* 사진으로 한 번에 채우기 */}
@@ -447,7 +447,7 @@ export function Step03Content({
             {ocrButtonLabel}
           </button>
           <p className="mt-1.5 text-[13px] leading-relaxed text-ob-muted">
-            사진 속 항목을 자동으로 읽어와 채워드려요. 자동 확정이 아니니 읽어온 내용을 확인하고 수정해 주세요.
+            The items in the photo are automatically read and filled in. It is not automatically confirmed, so please check and correct what you have read.
           </p>
           <input
             ref={ocrInputRef}
@@ -467,13 +467,13 @@ export function Step03Content({
                 <div className="flex gap-2">
                   <input
                     {...register(`contentItems.${index}.name`)}
-                    placeholder={`${itemLabel} 이름`}
+                    placeholder={`${itemLabel}name`}
                     className={cn(obInput, 'min-w-0 flex-1')}
                   />
                   {showPrice ? (
                     <input
                       {...register(`contentItems.${index}.price`)}
-                      placeholder="가격 (선택)"
+                      placeholder="Price (optional)"
                       inputMode="numeric"
                       className={cn(obInput, 'w-24 shrink-0 sm:w-28')}
                     />
@@ -481,7 +481,7 @@ export function Step03Content({
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    aria-label="항목 삭제"
+                    aria-label="Delete item"
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ob border border-ob-border text-ob-muted transition-colors hover:border-ob-danger hover:text-ob-danger"
                   >
                     <X className="h-4 w-4" />
@@ -489,7 +489,7 @@ export function Step03Content({
                 </div>
                 <input
                   {...register(`contentItems.${index}.description`)}
-                  placeholder="한 줄 설명 (선택)"
+                  placeholder="One-line description (optional)"
                   className={obInput}
                 />
               </div>
@@ -503,17 +503,17 @@ export function Step03Content({
           className="inline-flex h-11 items-center gap-1.5 rounded-ob border border-dashed border-ob-border px-4 text-[14px] text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink"
         >
           <Plus className="h-4 w-4" />
-          {itemLabel} 추가
+          {itemLabel} Add
         </button>
 
         {/* 입력하면 계획에 반영된다는 안내 — 심화 단계는 진행을 막지 않는다. */}
         {gate.needMore > 0 ? (
           <p className="rounded-ob border border-ob-border bg-ob-bg px-3.5 py-2.5 text-[13px] leading-relaxed text-ob-muted">
-            {josa(itemLabel, '을', '를')} 1개 이상 입력하면 이 구성이 홈페이지에 추가돼요.
+            {josa(itemLabel, "second", "cast")} If you enter more than one, this configuration will be added to the homepage.
           </p>
         ) : gate.recommendedShort > 0 ? (
           <p className="text-[13px] leading-relaxed text-ob-muted">
-            {josa(itemLabel, '이', '가')} {gate.recommendedItems}개 이상이면 검색 노출에 훨씬 유리해요.
+            {josa(itemLabel, "this", "go")} {gate.recommendedItems}If there are more than one, it is much more advantageous for search exposure.
           </p>
         ) : null}
       </div> : null}
@@ -523,13 +523,13 @@ export function Step03Content({
         {importedBadge ? (
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-ob-border bg-ob-accent-soft px-3 py-1.5 text-[13px] text-ob-accent-strong">
             <Sparkles className="h-3.5 w-3.5" />
-            가져온 내용이에요, 자유롭게 고쳐주세요
+            This is what I imported, please feel free to edit it.
           </div>
         ) : null}
 
         <Field
-          label="소개·영업정보·하고 싶은 말 (선택)"
-          hint={`가게 소개, 영업시간·위치, ${itemLabel} 외에 더 알리고 싶은 이야기를 자유롭게 적어주세요. 아래 버튼을 누르면 머리말이 들어가요.`}
+          label="Introduction/Sales Information/What You Want to Say (Optional)"
+          hint={`Store introduction, business hours and location,${itemLabel}Please feel free to write any other stories you would like to know. If you click the button below, the header will appear.`}
           error={formState.errors.providedContent?.message}
         >
           <div className="mb-2 flex flex-wrap gap-2">
@@ -542,7 +542,7 @@ export function Step03Content({
           <textarea
             {...register('providedContent')}
             rows={7}
-            placeholder="실제 소개 문구, 영업 정보, 하고 싶은 말 등을 자유롭게 적어주세요."
+            placeholder="Please feel free to write down the actual introduction, sales information, anything you want to say, etc."
             className={cn(obInput, 'resize-y leading-relaxed')}
           />
         </Field>

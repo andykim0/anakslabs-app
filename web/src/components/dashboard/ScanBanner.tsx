@@ -37,7 +37,7 @@ export function ScanBanner({ scan, ctaHref = '/onboarding?mode=improve' }: { sca
       <button
         type="button"
         onClick={close}
-        aria-label="닫기"
+        aria-label="Close"
         className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
       >
         <X className="h-4 w-4" />
@@ -47,15 +47,15 @@ export function ScanBanner({ scan, ctaHref = '/onboarding?mode=improve' }: { sca
           <ScanSearch className="h-4 w-4" />
         </span>
         <p className="min-w-0 flex-1 text-sm leading-6 text-neutral-200">
-          아까 진단한 <span className="font-medium text-[#d9b878]">{host}</span> — 문제{' '}
-          <span className="font-semibold text-[#d9b878]">{scan.issueCount}개</span>,{' '}
-          <span className="font-semibold text-[#d9b878]">{scan.total}점</span>이었어요. 이 문제들을 해결한 100점 기반으로 다시 지어볼까요?
+          Diagnosed earlier <span className="font-medium text-[#d9b878]">{host}</span> - problem{' '}
+          <span className="font-semibold text-[#d9b878]">{scan.issueCount} items</span>,{' '}
+          <span className="font-semibold text-[#d9b878]">{scan.total} points</span>It was. Shall we build again based on the 100 points from solving these problems?
         </p>
         <Link
           href={ctaHref}
           className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-[#c8a96a] px-5 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
         >
-          다시 만들기
+          recreate
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

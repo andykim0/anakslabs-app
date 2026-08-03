@@ -1,5 +1,5 @@
 /**
- * [일회성 도구] Daboim(다보임) 마케팅 히어로 전용 3D 비주얼 후보 생성.
+ * [일회성 도구] Anaks Labs(Anaks Labs) 마케팅 히어로 전용 3D 비주얼 후보 생성.
  * SaaS 저장소 자산 아님 → web/public이 아니라 scripts/out/에 임시 저장(.gitignore됨).
  *
  * 조건:
@@ -14,7 +14,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 
-// Daboim의 고유 메타포: 세 발견 신호(SEO/AEO/GEO)가 브라우저 포털에서 하나의
+// Anaks Labs의 고유 메타포: 세 발견 신호(SEO/AEO/GEO)가 브라우저 포털에서 하나의
 // 상승 신호로 합쳐진다. 기존 Anaks Labs의 칩·회로망 비주얼과 명시적으로 분리한다.
 // 색 이름만 사용한다(hex는 생성물 표면에 글자로 새겨지는 경향이 있어 금지).
 const PROMPT = `A pristine high-end 3D product-film keyframe for a website visibility AI,
@@ -56,8 +56,8 @@ async function main() {
     try {
       const img = await generateGeminiImage({ prompt: PROMPT, aspectRatio: ASPECT });
       const bytes = Buffer.from(img.base64, 'base64');
-      // Anaks Labs 산출물을 보존하고 Daboim 후보는 별도 네임스페이스에 저장한다.
-      const file = join(outDir, `daboim-hero-candidate-${i}.png`);
+      // Anaks Labs 산출물을 보존하고 Anaks Labs 후보는 별도 네임스페이스에 저장한다.
+      const file = join(outDir, `anakslabs-hero-candidate-${i}.png`);
       writeFileSync(file, bytes);
       ok += 1;
       totalBytes += bytes.byteLength;

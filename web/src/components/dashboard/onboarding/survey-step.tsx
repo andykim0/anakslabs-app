@@ -67,18 +67,18 @@ import { WireframePreview, sectionKey } from './wireframe-preview';
 import { NudgeMeter, useOnboardingPreflight } from './onboarding-nudge';
 
 const TOTAL_STEPS = 9;
-const SURVEY_DRAFT_PREFIX = 'daboim:survey-brief:draft:';
+const SURVEY_DRAFT_PREFIX = 'anakslabs:survey-brief:draft:';
 
 const STEP_TITLES: Record<number, string> = {
-  1: '이미 홈페이지·블로그·플레이스가 있으세요?',
-  2: '무엇을 하는 곳인가요?',
-  3: '3~5분 핵심 브리프를 완성해요',
-  4: '먼저 홈페이지 구성을 확인해주세요',
-  5: '원하는 구성만 더 채워주세요',
+  1: "Do you already have a website, blog, or place?",
+  2: "What does this place do?",
+  3: "Complete the key brief in 3-5 minutes",
+  4: "Please check the homepage configuration first.",
+  5: "Please fill in only the desired configuration.",
   6: REFERENTIAL_IMAGE_POLICY_COPY.stepTitle,
-  7: '이미지 느낌을 골라주세요',
-  8: '마음에 드는 느낌을 골라주세요',
-  9: '입력하신 내용을 확인해주세요',
+  7: "Please choose the feeling of the image",
+  8: "Please choose the feeling you like",
+  9: "Please check the information you entered.",
 };
 
 function scrollToTop() {
@@ -154,9 +154,9 @@ export function surveyForEarlySitePlan(values: SurveyForm): SurveyInput {
   return {
     purposeId,
     purpose: findPurpose(purposeId)?.label ?? purposeId,
-    businessName: values.businessName.trim() || '상호명',
+    businessName: values.businessName.trim() || "business name",
     industry: values.industry.trim(),
-    tone: values.tone.length ? values.tone : ['차분한'],
+    tone: values.tone.length ? values.tone : ["tranquil"],
     colorPreference: colors.colorPreference || '#174DDA',
     secondaryColor: colors.secondaryColor,
     referenceImageUrls: [],
@@ -300,19 +300,19 @@ export function SurveyStep({
       if (!ok) return;
     }
     if (step === 2 && !(getValues('region') ?? '').trim()) {
-      toast('info', '지역을 입력해 주세요.');
+      toast('info', "Please enter your region.");
       return;
     }
     if (step === 3) {
       const pid = ((getValues('purposeId') as LivePurposeId) || 'local_store') as LivePurposeId;
       const missingFacts = missingRequiredFacts(pid, getValues('factualAnswers') ?? []);
       if (missingFacts.length) {
-        toast('info', '별표로 표시된 핵심 정보를 입력해 주세요.');
+        toast('info', "Please enter key information marked with an asterisk.");
         return;
       }
       const goal = getValues('siteGoal');
       if (!goal) {
-        toast('info', '방문자가 뭘 해주면 좋을지 하나 골라주세요.');
+        toast('info', "Please choose one thing you would like visitors to do.");
         return;
       }
       if (goal === 'call') {
@@ -320,12 +320,12 @@ export function SurveyStep({
           (fact) => fact.key === 'phone' && fact.value.trim(),
         );
         if (!phone) {
-          toast('info', '전화 버튼에 연결할 연락처를 입력해 주세요.');
+          toast('info', "Please enter the contact number to connect to the phone button.");
           return;
         }
       }
       if (goal === 'reserve' && !isRecognizedReservationUrl(getValues('conversionUrl') ?? '')) {
-        toast('info', '실제 예약 페이지의 https 주소를 입력해 주세요.');
+        toast('info', "Please enter the https address of the actual reservation page.");
         return;
       }
       if (
@@ -333,7 +333,7 @@ export function SurveyStep({
         getValues('conversionKind') === 'messenger_url' &&
         !isHttpsUrl(getValues('conversionUrl') ?? '')
       ) {
-        toast('info', '실제 메신저의 https 주소를 입력해 주세요.');
+        toast('info', "Please enter the https address of the actual messenger.");
         return;
       }
     }
@@ -360,7 +360,7 @@ export function SurveyStep({
     if (step === 8) {
       const { colorPreference } = deriveColors(getValues());
       if (!colorPreference) {
-        toast('info', '느낌을 하나 고르거나 대표 색을 골라주세요.');
+        toast('info', "Please choose a feeling or a representative color.");
         return;
       }
     }
@@ -372,7 +372,7 @@ export function SurveyStep({
     const template = resolveTemplate(pid, values.industry);
     const { colorPreference, secondaryColor } = deriveColors(values);
     if (!colorPreference) {
-      toast('info', '느낌을 하나 고르거나 대표 색을 골라주세요.');
+      toast('info', "Please choose a feeling or a representative color.");
       goTo(8);
       return;
     }
@@ -523,7 +523,7 @@ export function SurveyStep({
   };
 
   const isLast = step === TOTAL_STEPS;
-  const primaryLabel = isLast ? '생성 시작' : '다음';
+  const primaryLabel = isLast ? "Start creating" : "Next";
 
   return (
     <FormProvider {...methods}>
@@ -554,7 +554,7 @@ export function SurveyStep({
               </span>
             </div>
             <p className="mt-2 text-[11px] text-ob-muted" aria-live="polite">
-              작성 중인 답변은 이 브라우저에 자동 저장되고, 다시 들어오면 이어서 쓸 수 있어요.
+              The answer you are writing is automatically saved in this browser, and you can continue writing when you come back.
             </p>
             {step >= 3 ? (
               <div className="mt-3 sm:hidden">
@@ -580,19 +580,19 @@ export function SurveyStep({
               {step === 4 ? (
                 <div className="space-y-5">
                   <p className="text-[14px] leading-relaxed text-ob-muted">
-                    지금 답한 내용으로 실제 생성될 구성이에요. 빠진 구성은 아래에서 골라 바로 채울 수 있어요.
+                    This is the configuration that will actually be created based on the answers you have given so far. You can fill in the missing components by selecting them below.
                   </p>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-ob border border-ob-border bg-ob-bg px-4 py-3">
-                      <p className="text-[13px] font-semibold text-ob-ink">자동으로 준비하는 것</p>
+                      <p className="text-[13px] font-semibold text-ob-ink">preparing automatically</p>
                       <p className="mt-1 text-[12px] leading-relaxed text-ob-muted">
-                        검색이 읽는 기본 구조와 질문·답의 연결은 다보임이 준비해요.
+                        Anaks Labs prepares the basic structure for searching and the connection between questions and answers.
                       </p>
                     </div>
                     <div className="rounded-ob border border-ob-border bg-ob-surface px-4 py-3">
-                      <p className="text-[13px] font-semibold text-ob-ink">입력한 값만 쓰는 것</p>
+                      <p className="text-[13px] font-semibold text-ob-ink">Write only the entered value</p>
                       <p className="mt-1 text-[12px] leading-relaxed text-ob-muted">
-                        전화·주소·수치와 출처는 사장님이 확인한 값만 반영해요.
+                        Phone numbers, addresses, figures and sources only reflect the values ​​confirmed by the boss.
                       </p>
                     </div>
                   </div>
@@ -646,7 +646,7 @@ export function SurveyStep({
               className="inline-flex h-12 items-center gap-1.5 rounded-ob border border-ob-border bg-ob-surface px-4 text-[15px] text-ob-ink transition-colors hover:border-ob-muted disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowLeft className="h-4 w-4" />
-              이전
+              Back
             </button>
             <button
               type="button"

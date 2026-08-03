@@ -5,8 +5,6 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
-  DESIGNATED_CRAWL_DISCLOSURE,
-  EXTERNAL_AI_PROCESSING_DISCLOSURE,
   privacyPolicy,
   siteCollectsPersonalData,
 } from '@/lib/legal/templates';
@@ -49,13 +47,11 @@ describe('RPT4 — 익명 성과 측정 개인정보 고지', () => {
     assert.match(section.body.join(' '), /폼 입력 내용/);
   });
 
-  test('다보임 마케팅 방침도 고객 사이트와 동일한 공용 고지를 실제 HTML에 렌더한다', () => {
+  test('Anaks Labs marketing privacy renders the equivalent aggregate-reporting boundaries in English', () => {
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
-
-    assert.match(html, /익명 성과 측정 및 월간 리포트/);
-    for (const line of DISCLOSURE_LINES) {
-      assert.ok(html.includes(line), `마케팅 방침에서 공용 고지가 누락됨: ${line}`);
-    }
+    assert.match(html, /PHI-free measurement/u);
+    assert.match(html, /aggregate page views and completed action categories/u);
+    assert.match(html, /Patient information, form contents, raw IP addresses, raw user-agent strings, and raw referrers are not stored/u);
   });
 
   test('실제 폼이 있는 config만 방문자 입력 수집을 고지한다', () => {
@@ -87,29 +83,20 @@ describe('RPT4 — 익명 성과 측정 개인정보 고지', () => {
 });
 
 describe('M2 — 외부 AI 처리 위탁 고지', () => {
-  test('Daboim 방침은 Google·Anthropic 처리와 법무 검토 경계를 실제 HTML에 표시한다', () => {
+  test('Anaks Labs discloses Google and Anthropic processing without exposing credentials', () => {
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
-    for (const line of Object.values(EXTERNAL_AI_PROCESSING_DISCLOSURE)) {
-      assert.ok(html.includes(line), `외부 AI 고지 누락: ${line}`);
-    }
-    assert.match(html, /Google AI 서비스/);
-    assert.match(html, /Anthropic AI 서비스/);
-    assert.match(html, /비밀번호와 결제정보는 AI 생성 요청에 전송하지 않/);
-    assert.match(html, /수탁자의 정확한 법인명/);
-    assert.match(html, /※ 법무 검토 대상/);
+    assert.match(html, /Google or Anthropic service/u);
+    assert.match(html, /do not send passwords or payment credentials/u);
+    assert.match(html, /pending final legal review/u);
   });
 });
 
 describe('CRAWL W4 — 지정 공개 페이지 처리 고지', () => {
-  test('고정 템플릿의 처리 범위·보관 기간·공유 위험·이미지 권리를 실제 HTML에 표시한다', () => {
+  test('the fixed privacy page discloses designated-page limits, bearer measurement retention, and image rights', () => {
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
-    for (const line of Object.values(DESIGNATED_CRAWL_DISCLOSURE)) {
-      assert.ok(html.includes(line), `지정 페이지 처리 고지 누락: ${line}`);
-    }
-    assert.match(html, /로그인하거나 회원 전용 영역에 들어가지 않/);
-    assert.match(html, /최대 30일/);
-    assert.match(html, /최대 14일/);
-    assert.match(html, /공유 링크를 받은 사람/);
-    assert.match(html, /사용 권리를 확인하기 전에는/);
+    assert.match(html, /Designated public pages/u);
+    assert.match(html, /do not bypass authentication or explicit robots exclusions/u);
+    assert.match(html, /retained for up to 90 days/u);
+    assert.match(html, /Image publication remains gated on the applicable rights and compliance review/u);
   });
 });

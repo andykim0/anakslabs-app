@@ -4,7 +4,7 @@
  * build_fee 환불 시 초기 지급 크레딧 미사용분 회수. maintenance_subscription 전액 환불은
  * 해당 갱신 기간과 결제연결 월 크레딧을 원자적으로 정합. 멱등(이미 환불 시 alreadyRefunded).
  *
- * PG 환불 API(토스) 호출은 데이터 계층 refund()의 실모드 TODO — 여기서는 원장/기록 정합만.
+ * Live Stripe refund execution is intentionally disabled; this route preserves ledger reconciliation only.
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';

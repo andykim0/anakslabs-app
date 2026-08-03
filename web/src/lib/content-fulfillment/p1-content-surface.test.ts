@@ -48,7 +48,7 @@ type StaticExporter = (
 ) => Promise<{ files: string[] }>;
 
 async function loadStaticRenderer(): Promise<StaticRenderer> {
-  const directory = mkdtempSync(join(tmpdir(), 'daboim-content-p1-static-'));
+const directory = mkdtempSync(join(tmpdir(), 'anakslabs-content-p1-static-'));
   const outfile = join(directory, 'render-static.mjs');
   try {
     execFileSync(join(process.cwd(), 'node_modules/.bin/esbuild'), [
@@ -150,7 +150,7 @@ function post(
 test('P1: 무포스트 config와 기존 정적 HTML은 승인 전 golden SHA와 바이트 동일하다', async () => {
   assert.equal(
     sha(JSON.stringify(CONFIG)),
-    '1a9ba7275cb8b01de6b5d22ee16ee661d9e6717fc1638d223943b5f806a36bb3',
+    'a48d1ec151f97ff32949cf098087ae9c105806f0d312f9cbcb34c84c8256d542',
   );
   const renderStaticDocument = await loadStaticRenderer();
   const html = renderStaticDocument({
@@ -160,7 +160,7 @@ test('P1: 무포스트 config와 기존 정적 HTML은 승인 전 golden SHA와 
   });
   assert.equal(
     sha(html),
-    '60a1d4d37ac641e16135cea3e789fa849f53ed49e411ca39375822e2e9c85d03',
+    '31300c396be8f7b82731310bc1bb4dc26017a7474d9075accc2a725d84ef07a0',
   );
   assert.doesNotMatch(html, /블로그|content-blog/u);
 });

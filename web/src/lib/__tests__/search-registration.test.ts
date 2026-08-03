@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
@@ -76,14 +76,15 @@ describe('GT$ G3 검색 등록 대행', () => {
     assert.deepEqual(summarizeRegistrationAccounts([record('pending', 'NAVER-OPS-01', 'pending')]), []);
   });
 
-  test('등록 큐 API는 관리자 가드와 서버 전용 저장 경계를 사용한다', () => {
+  test('legacy registration APIs remain guarded while the Korean admin surface is removed', () => {
     const listRoute = source('src/app/api/admin/search-registration/route.ts');
     const updateRoute = source('src/app/api/admin/search-registration/[siteId]/route.ts');
     assert.match(listRoute, /requireAdminOr403\(\)/);
     assert.match(updateRoute, /requireAdminOr403\(\)/);
     assert.match(updateRoute, /sites\.setSearchVerification/);
     assert.match(updateRoute, /NAVER_ACCOUNT_SITE_LIMIT/);
-    assert.doesNotMatch(source('src/components/admin/search-registration-queue.tsx'), /getDataServices|setSearchVerification/);
+    assert.equal(existsSync(join(process.cwd(), 'src/components/admin/search-registration-queue.tsx')), false);
+    assert.doesNotMatch(source('src/components/admin/admin-shell.tsx'), /search-registration/u);
   });
 
   test('DB 큐는 service role 전용이며 운영 계정 비밀번호를 저장하지 않는다', () => {

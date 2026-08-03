@@ -14,7 +14,7 @@ const message: MonthlyReportEmailMessage = {
 
 const validInput = {
   apiKey: 're_test',
-  from: '다보임 <report@daboim.com>',
+  from: 'Anaks Labs <report@anakslabs.com>',
   to: 'owner@example.com',
   message,
   idempotencyKey: 'monthly-report/report-1',

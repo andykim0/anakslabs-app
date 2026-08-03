@@ -97,7 +97,7 @@ function QaAuditReference() {
     <details className="mb-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
       <summary className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-700">
         <ClipboardCheck size={14} className="text-slate-400" aria-hidden />
-        검수 기준 체크리스트 ({items.length}) — $200 vs $10,000를 가르는 요소
+        Inspection criteria checklist ({items.length}) — What makes the difference between $200 and $10,000
       </summary>
       <ul className="mt-2.5 space-y-1.5">
         {items.map((it) => (
@@ -148,8 +148,8 @@ export function QaQueue() {
   return (
     <>
       <PageHeader
-        title="QA 큐"
-        description={data ? `검수 대기 ${formatNumber(pendingCount)}건` : undefined}
+        title="QA queue"
+        description={data ? `waiting for inspection${formatNumber(pendingCount)} records` : undefined}
         actions={
           <button
             type="button"
@@ -158,7 +158,7 @@ export function QaQueue() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(isRefetching && 'animate-spin')} aria-hidden />
-            새로고침
+            refresh
           </button>
         }
       />
@@ -167,14 +167,14 @@ export function QaQueue() {
       <QaAuditReference />
 
       {isPending ? (
-        <LoadingBlock label="QA 큐를 불러오는 중…" />
+        <LoadingBlock label="Loading QA queue…" />
       ) : isError ? (
         <ErrorBlock message={error.message} onRetry={() => refetch()} />
       ) : data.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="QA 대기 건이 없습니다"
-          description="고객의 편집 요청이 AI 처리를 마치고 검수 단계에 도달하면 여기에 표시됩니다."
+          title="There are no QA cases waiting"
+          description="Once a customer's edit request has completed AI processing and reached the review stage, it will appear here."
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
@@ -241,19 +241,19 @@ function QaCard({
             <span className="font-medium text-slate-600">{item.siteName}</span>
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
-            요청 {formatDateTime(item.createdAt)}
+            request {formatDateTime(item.createdAt)}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
           <Badge tone="neutral">{EDIT_TYPE_LABELS[item.type]}</Badge>
-          <Badge tone="amber">{formatNumber(item.creditCost)} 크레딧</Badge>
+          <Badge tone="amber">{formatNumber(item.creditCost)} credits</Badge>
           <Badge tone={EDIT_STATUS_TONES[item.status]}>{EDIT_STATUS_LABELS[item.status]}</Badge>
         </div>
       </div>
 
       <div className="mt-3">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          요청 내용
+          Request details
         </p>
         <p className="mt-1 whitespace-pre-wrap rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-700 ring-1 ring-slate-200">
           {item.requestedContent}
@@ -262,7 +262,7 @@ function QaCard({
 
       <div className="mt-3 flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          AI 결과 미리보기
+          Preview AI results
         </p>
         <div className="mt-1">
           <QaPreviewBlock preview={preview} requested={item.requestedContent} />
@@ -275,17 +275,17 @@ function QaCard({
         {processedState === 'applied' ? (
           <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
             <CheckCircle2 size={14} aria-hidden />
-            적용됨 — 사이트 반영이 트리거되었습니다.
+            Applied — Site reflection has been triggered.
           </p>
         ) : processedState === 'rejected' ? (
           <p className="flex items-center gap-1.5 text-xs font-medium text-sky-700">
             <Undo2 size={14} aria-hidden />
-            반려 처리 — 크레딧 환불됨 (+{formatNumber(item.creditCost)})
+            Refusal Processing — Credit Refunded (+{formatNumber(item.creditCost)})
           </p>
         ) : item.status === 'ai_processing' ? (
           <p className="flex items-center gap-1.5 text-xs text-slate-400">
             <Loader2 size={13} className="animate-spin" aria-hidden />
-            AI 처리 중 — 완료 후 검수할 수 있습니다.
+            AI Processing — Can be inspected upon completion.
           </p>
         ) : (
           <div className="flex justify-end gap-2">
@@ -295,7 +295,7 @@ function QaCard({
               disabled={!reviewable || approving}
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
-              반려
+              companion
             </button>
             <button
               type="button"
@@ -304,7 +304,7 @@ function QaCard({
               className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
             >
               {approving ? <Loader2 size={12} className="animate-spin" aria-hidden /> : null}
-              승인·적용
+              Approval/Apply
             </button>
           </div>
         )}
@@ -315,7 +315,7 @@ function QaCard({
 
 function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested: string }) {
   if (preview.kind === 'none') {
-    return <p className="text-xs text-slate-400">AI 결과가 아직 없습니다.</p>;
+    return <p className="text-xs text-slate-400">There are no AI results yet.</p>;
   }
 
   if (preview.kind === 'image' && preview.imageUrl) {
@@ -323,7 +323,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
     return (
       <img
         src={preview.imageUrl}
-        alt="AI 생성 이미지 미리보기"
+        alt="Preview AI-generated images"
         className="max-h-60 w-auto rounded-md border border-slate-200 object-contain"
       />
     );
@@ -335,7 +335,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
         <div className="rounded-md border border-slate-200 px-3 py-2">
           <p className="text-[10px] font-semibold uppercase text-slate-400">Before</p>
           <p className="mt-1 whitespace-pre-wrap text-xs text-slate-500">
-            {preview.before ?? `(원문 미포함 — 요청 내용 참고)\n${requested}`}
+            {preview.before ?? `(Original text not included – see request)${requested}`}
           </p>
         </div>
         <div className="rounded-md border border-emerald-200 bg-emerald-50/50 px-3 py-2">
@@ -352,7 +352,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
         {preview.posterUrl ? (
           <img
             src={preview.posterUrl}
-            alt="영상 포스터 미리보기"
+            alt="Video poster preview"
             className="h-20 w-32 rounded-md border border-slate-200 object-cover"
           />
         ) : null}
@@ -363,7 +363,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
           className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-700 underline underline-offset-2 hover:text-sky-500"
         >
           <ExternalLink size={13} aria-hidden />
-          영상 새 탭에서 확인
+          Check out the video in a new tab
         </a>
       </div>
     );
@@ -411,17 +411,17 @@ function RejectDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="편집 요청 반려"
+        aria-label="Edit request rejected"
         className="w-full max-w-md rounded-lg bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-slate-900">편집 요청 반려</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Edit request rejected</h2>
           <button
             type="button"
             onClick={onClose}
             disabled={pending}
-            aria-label="닫기"
+            aria-label="Close"
             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           >
             <X size={16} aria-hidden />
@@ -430,23 +430,23 @@ function RejectDialog({
 
         <div className="px-5 py-4">
           <p className="text-xs text-slate-500">
-            {item.clientName} · {item.siteName} — {EDIT_TYPE_LABELS[item.type]} 요청을 반려합니다.
-            반려 시 소모된 크레딧 {formatNumber(item.creditCost)}개가 자동 환불됩니다.
+            {item.clientName} · {item.siteName} — {EDIT_TYPE_LABELS[item.type]} We reject your request.
+            Credits consumed when returning a product {formatNumber(item.creditCost)}Your dog will receive an automatic refund.
           </p>
 
           <label className="mt-3 block">
-            <span className="text-xs font-medium text-slate-600">반려 사유 (고객에게 안내됨)</span>
+            <span className="text-xs font-medium text-slate-600">Reason for rejection (notified to customer)</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               onBlur={() => setTouched(true)}
               rows={3}
-              placeholder="예: 생성 이미지 품질 미달 — 재생성 후 다시 검수 예정"
+              placeholder="Example: Poor generated image quality — scheduled for re-inspection after regeneration"
               className="mt-1 w-full resize-none rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             />
           </label>
           {touched && !valid ? (
-            <p className="mt-1 text-xs text-red-600">반려 사유를 입력하세요.</p>
+            <p className="mt-1 text-xs text-red-600">Please enter the reason for rejection.</p>
           ) : null}
           {errorMessage ? <p className="mt-2 text-xs text-red-600">{errorMessage}</p> : null}
 
@@ -457,7 +457,7 @@ function RejectDialog({
               disabled={pending}
               className="rounded-md border border-slate-300 px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
             >
-              취소
+              Cancel
             </button>
             <button
               type="button"
@@ -469,7 +469,7 @@ function RejectDialog({
               className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
             >
               {pending ? <Loader2 size={12} className="animate-spin" aria-hidden /> : null}
-              반려 확정 (크레딧 환불)
+              Confirmation of return (credit refund)
             </button>
           </div>
         </div>

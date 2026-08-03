@@ -41,7 +41,7 @@ function quality(passed: boolean): HeroPhotoQualityStamp {
         edgeDensity: passed ? 0.08 : 0,
         boundaryEdgeRatio: 1,
       },
-      guidance: passed ? '통과' : '이 화면은 다보임이 준비한 화면을 사용했어요.',
+      guidance: passed ? '통과' : '이 화면은 Anaks Labs이 준비한 화면을 사용했어요.',
     }));
   const viewportCrops = {
     wide: crops(),
@@ -62,7 +62,7 @@ function quality(passed: boolean): HeroPhotoQualityStamp {
       darkPixelRatio: 0,
       brightPixelRatio: 0,
     },
-    guidance: passed ? '통과' : '사진의 초점이 조금 흐려 이번엔 다보임이 준비한 화면을 사용했어요.',
+    guidance: passed ? '통과' : '사진의 초점이 조금 흐려 이번엔 Anaks Labs이 준비한 화면을 사용했어요.',
     viewportCrops,
     contrastProfile: {
       algorithmVersion: 'image-channel-range-v1',
@@ -231,7 +231,7 @@ describe('IMG I3 — 실사진 히어로 승격', () => {
       ...crop,
       passed: false,
       reasons: ['crop_boundary_cut_risk'],
-      guidance: '세로 화면에선 사진 구도가 잘려, 모바일은 다보임이 준비한 화면을 사용했어요.',
+      guidance: '세로 화면에선 사진 구도가 잘려, 모바일은 Anaks Labs이 준비한 화면을 사용했어요.',
     }));
     const resolvedCandidate = resolveHeroPhotoCandidate(candidate(), {
       ...record(true),
@@ -245,7 +245,7 @@ describe('IMG I3 — 실사진 히어로 승격', () => {
     const promotion = config.pages[0].sections[0].background.image?.responsivePromotion;
     assert.equal(promotion?.wide.promoted, true);
     assert.equal(promotion?.mobile.promoted, false);
-    assert.match(promotion?.mobile.guidance ?? '', /모바일은 다보임이 준비한 화면/u);
+    assert.match(promotion?.mobile.guidance ?? '', /모바일은 Anaks Labs이 준비한 화면/u);
     const html = renderToStaticMarkup(createElement(SiteRenderer, {
       config,
       mode: 'auto',

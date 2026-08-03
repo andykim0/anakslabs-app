@@ -13,7 +13,7 @@ import { expandTokens, tokenSetToSiteTheme } from '@/lib/design/dna';
 import type { DesignCandidate, LivePurposeId, SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 
-const OUTPUT = '/private/tmp/daboim-plan-contract-review';
+const OUTPUT = '/private/tmp/anakslabs-plan-contract-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 interface ReviewSeed {

@@ -3,7 +3,7 @@
  * stored DNA ramps; this script does not call an image provider or create product imagery.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-abstract-review.tsx
- * Out: /private/tmp/daboim-abstract-review
+ * Out: /private/tmp/anakslabs-abstract-review
  */
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -27,7 +27,7 @@ import {
   type SiteConfig,
 } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-abstract-review';
+const OUTPUT_DIR = '/private/tmp/anakslabs-abstract-review';
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const VIEWPORTS = [

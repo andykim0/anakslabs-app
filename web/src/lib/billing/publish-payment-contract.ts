@@ -2,12 +2,14 @@ export interface PublishPaymentQuote {
   quoteId: string;
   pricingModelVersion: string;
   industryProfileId?: 'interior' | 'clinic';
-  amountKrw: number;
+  amount: number;
+  setupAmount: number;
+  currency: 'USD' | 'KRW';
   periodMonths: number;
   billingInterval: 'month';
   automaticRenewal: true;
   siteCount: 1;
-  vatIncluded: boolean;
+  taxIncluded: boolean;
   checkoutMode: 'mock' | 'unavailable';
 }
 
@@ -25,12 +27,14 @@ export function publishPaymentQuoteFromExtra(
       && value.industryProfileId !== 'interior'
       && value.industryProfileId !== 'clinic'
     )
-    || typeof value.amountKrw !== 'number'
+    || typeof value.amount !== 'number'
+    || typeof value.setupAmount !== 'number'
+    || (value.currency !== 'USD' && value.currency !== 'KRW')
     || typeof value.periodMonths !== 'number'
     || value.billingInterval !== 'month'
     || value.automaticRenewal !== true
     || value.siteCount !== 1
-    || typeof value.vatIncluded !== 'boolean'
+    || typeof value.taxIncluded !== 'boolean'
     || (value.checkoutMode !== 'mock' && value.checkoutMode !== 'unavailable')
   ) {
     return null;

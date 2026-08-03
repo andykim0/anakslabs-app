@@ -14,12 +14,12 @@ import { Chip, Field, SelectCard, StepIntro, obInput, type SurveyForm } from './
 // [제품 확정] 소개형 6종만 노출 — 3그룹(손님 받기 / 알리기 / 초간단)으로 단순화.
 // taxonomy.group에 의존하지 않고 명시 목록으로 구성(제거 4종은 애초에 목록에 없음).
 const DISPLAY_GROUPS: { label: string; hint: string; ids: LivePurposeId[] }[] = [
-  { label: '손님 받기', hint: '방문·문의·상담을 받는 곳', ids: ['local_store', 'booking_service', 'edu_membership'] },
-  { label: '알리기', hint: '회사·작업을 소개하는 곳', ids: ['company_brand', 'portfolio'] },
+  { label: "receiving guests", hint: "Place for visits, inquiries, and consultations", ids: ['local_store', 'booking_service', 'edu_membership'] },
+  { label: "inform", hint: "A place to introduce the company and work", ids: ['company_brand', 'portfolio'] },
 ];
 const SPECIAL_GROUP: { label: string; hint: string; ids: LivePurposeId[] } = {
-  label: '초간단',
-  hint: '프로필·링크를 한 페이지에',
+  label: "Super simple",
+  hint: "Profile and link on one page",
   ids: ['one_page'],
 };
 
@@ -37,10 +37,10 @@ export function Step01Basics() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        여기서 고른 목적과 업종으로 사이트의 큰 구성과 첫 화면을 정해요.
+        Here, you decide on the overall structure and first screen of the site based on the purpose and industry you choose.
       </StepIntro>
 
-      <Field label="어떤 사이트인가요?" error={errors.purposeId?.message as string | undefined}>
+      <Field label="What site is it?" error={errors.purposeId?.message as string | undefined}>
         <div className="space-y-5">
           {DISPLAY_GROUPS.map((g) => (
             <div key={g.label}>
@@ -93,7 +93,7 @@ export function Step01Basics() {
         </div>
       </Field>
 
-      <Field label="업종" error={errors.industry?.message}>
+      <Field label="Industry" error={errors.industry?.message}>
         {selectedPurpose ? (
           <div className="mb-2 flex flex-wrap gap-2">
             {industryChips.map((chip) => (
@@ -107,37 +107,37 @@ export function Step01Basics() {
             ))}
           </div>
         ) : (
-          <p className="mb-2 text-[13px] text-ob-muted">먼저 목적을 고르면 업종 예시가 나타나요.</p>
+          <p className="mb-2 text-[13px] text-ob-muted">When you first select a purpose, industry examples will appear.</p>
         )}
-        <input {...register('industry')} placeholder="직접 입력해도 돼요" className={obInput} />
+        <input {...register('industry')} placeholder="You can enter it directly" className={obInput} />
       </Field>
 
-      <Field label="상호명" error={errors.businessName?.message}>
+      <Field label="business name" error={errors.businessName?.message}>
         <input
           {...register('businessName')}
-          placeholder="예: 하루필라테스, 리버사이드 스튜디오"
+          placeholder="Example: Haru Pilates, Riverside Studio"
           className={obInput}
         />
       </Field>
 
       <Field
-        label={<>지역 <span className="text-ob-danger">*</span></>}
+        label={<>region <span className="text-ob-danger">*</span></>}
         error={errors.region?.message}
-        hint="동네·도시를 적어주시면 지역 손님을 겨냥한 문구에 반영돼요."
+        hint="If you write down your neighborhood or city, it will be reflected in phrases aimed at local customers."
       >
-        <input {...register('region')} placeholder="예: 서울 성수동, 부산 해운대" className={obInput} />
+        <input {...register('region')} placeholder="Example: Seongsu-dong, Seoul, Haeundae, Busan" className={obInput} />
       </Field>
 
       <Field
         label={
           <>
-            한 줄 소개 <span className="font-normal text-ob-muted">(선택)</span>
+            one line introduction <span className="font-normal text-ob-muted">(select)</span>
           </>
         }
         error={errors.tagline?.message}
-        hint="비워두면 타깃·가치제안과 업종에 맞는 정직한 소개 문장을 사용해요."
+        hint="If you leave it blank, we will use an honest introductory sentence that fits your target/value proposition and industry."
       >
-        <input {...register('tagline')} placeholder="예: 매일의 균형을 만드는 시간" className={obInput} />
+        <input {...register('tagline')} placeholder="Example: Time to create daily balance." className={obInput} />
       </Field>
     </div>
   );

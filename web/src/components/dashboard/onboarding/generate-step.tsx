@@ -46,10 +46,10 @@ import { PageEnrichmentCards } from './page-enrichment-cards';
 import { SectionReviewStep } from './section-review-step';
 
 const LOADING_MESSAGES = [
-  '선택하신 방향으로 사이트 구조를 설계하고 있습니다…',
-  '섹션별 카피를 다듬는 중이에요',
-  '이미지와 팔레트를 캔버스에 배치하고 있습니다',
-  '거의 다 됐어요 — 마감 디테일을 정리하는 중…',
+  "We are designing the site structure in the direction you have chosen...",
+  "I'm refining the copy for each section.",
+  "Images and palettes are placed on the canvas.",
+  "Almost done — just sorting out the finishing details...",
 ];
 
 export function GenerateStep({
@@ -119,7 +119,7 @@ export function GenerateStep({
           if (!reviewConfig) throw cause;
         }
         if (!reviewConfig) {
-          throw new Error('생성된 사이트 초안을 불러오지 못했습니다.');
+          throw new Error("The generated site draft failed to load.");
         }
         const heroVideo = heroVideoResumePlan(reviewConfig);
         return { ...site, heroVideo, reviewConfig };
@@ -152,19 +152,19 @@ export function GenerateStep({
     return (
       <Card className="space-y-5 border-ob-border bg-ob-surface p-6">
         <div>
-          <h2 className="text-lg font-semibold text-ob-ink">이런 구성으로 만들게요 — 맞나요?</h2>
+          <h2 className="text-lg font-semibold text-ob-ink">Here is the proposed structure.</h2>
           <p className="mt-1 text-sm text-ob-muted">
-            페이지와 섹션 순서예요. 이대로 좋으면 바로 만들고, 빼고 싶은 선택 섹션만 체크를 풀어주세요.
+            This is the order of pages and sections. If you like it as is, create it right away, and uncheck only the optional sections you want to exclude.
           </p>
         </div>
         <WireframePreview survey={survey} removed={removed} onToggle={toggleRemoved} />
         <div className="flex items-center justify-between gap-3 border-t border-ob-border pt-5">
           <Button variant="ghost" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
-            이전
+            Back
           </Button>
           <Button size="lg" onClick={() => setConfirmed(true)}>
-            이대로 만들기
+            Make it like this
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
@@ -180,12 +180,12 @@ export function GenerateStep({
     return (
       <div className="space-y-4">
         <ErrorState
-          message={mutation.error instanceof Error ? mutation.error.message : '사이트 생성에 실패했습니다.'}
+          message={mutation.error instanceof Error ? mutation.error.message : "Site creation failed."}
           onRetry={() => mutation.mutate()}
         />
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
-          디자인 선택으로 돌아가기
+          Return to design selection
         </Button>
       </div>
     );
@@ -227,11 +227,11 @@ export function GenerateStep({
         </span>
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-ob-ink">
-            {survey.businessName} 사이트 초안이 완성됐어요
+            {survey.businessName} The site draft is complete.
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ob-muted">
-            선택하신 <span className="text-ob-ink">{candidate.label}</span> 방향으로 섹션과
-            카피를 구성했습니다. 이제 캔버스에서 PPT처럼 자유롭게 다듬고, 준비되면 발행하세요.
+            selected <span className="text-ob-ink">{candidate.label}</span> section and
+            I made up the copy. Now, freely edit it on canvas like a PPT, and publish it when ready.
           </p>
           <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-ob-muted">
             {SITE_BUILD_SLA_COPY}
@@ -239,14 +239,14 @@ export function GenerateStep({
         </div>
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Badge tone="gold">{candidate.label}</Badge>
-          <Badge>섹션 {survey.sectionPlan.length}개</Badge>
-          <Badge>초안 저장됨</Badge>
+          <Badge>section {survey.sectionPlan.length} items</Badge>
+          <Badge>Draft saved</Badge>
         </div>
 
         {survey.videoAddon === true ? (
           <div className="w-full max-w-md rounded-xl border border-ob-border bg-ob-bg px-4 py-3 text-left text-xs leading-5 text-ob-muted">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="font-medium text-ob-ink">AI 영상 홈페이지</span>
+              <span className="font-medium text-ob-ink">AI video homepage</span>
               <Badge tone={videoFulfillmentStatus === 'applied' ? 'emerald' : 'blue'}>
                 {VIDEO_FULFILLMENT_STATUS_LABELS[videoFulfillmentStatus]}
               </Badge>
@@ -261,7 +261,7 @@ export function GenerateStep({
             className="inline-flex h-12 items-center gap-2 rounded-xl bg-ob-accent px-6 text-sm font-semibold text-white transition-colors hover:bg-ob-accent-strong"
           >
             <PencilRuler className="h-4 w-4" />
-            에디터에서 다듬기
+            Trimming in the editor
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
@@ -269,7 +269,7 @@ export function GenerateStep({
             className="inline-flex h-12 items-center gap-2 rounded-xl border border-ob-border px-6 text-sm text-ob-ink transition-colors hover:border-ob-muted"
           >
             <LayoutDashboard className="h-4 w-4" />
-            사이트 상세 보기
+            View site details
           </Link>
         </div>
 
@@ -284,29 +284,29 @@ export function GenerateStep({
           {canRegen ? (
             <>
               <p className="text-xs font-medium text-ob-ink">
-                마음에 안 드세요? 무료로 다시 생성할 수 있어요 (남은 무료 {regenLeft}회)
+                Want another direction? You have {regenLeft} free regeneration{regenLeft === 1 ? '' : 's'} remaining.
               </p>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 <Button variant="secondary" onClick={onPickAnother}>
                   <RefreshCw className="h-4 w-4" />
-                  다른 디자인으로 다시
+                  again with a different design
                 </Button>
                 <Button variant="ghost" onClick={onEditSurvey}>
                   <SlidersHorizontal className="h-4 w-4" />
-                  설문 수정하기
+                  Edit survey
                 </Button>
               </div>
             </>
           ) : (
             <p className="text-xs leading-5 text-ob-muted">
-              무료 재생성({FREE_REGEN_LIMIT}회)을 모두 사용했어요. 이제 캔버스 에디터에서 직접 다듬거나
-              편집 크레딧으로 수정할 수 있습니다.
+              Free regeneration ({FREE_REGEN_LIMIT}I used all of them. Now you can edit it directly in the canvas editor or
+              You can edit it with editing credit.
             </p>
           )}
         </div>
 
         <p className="text-xs text-ob-muted">
-          발행 전까지는 초안 상태예요. 발행하면 서브도메인이 즉시 라이브됩니다.
+          It is in draft status until publication. Once you publish, your subdomain will be live immediately.
         </p>
       </Card>
     </motion.div>

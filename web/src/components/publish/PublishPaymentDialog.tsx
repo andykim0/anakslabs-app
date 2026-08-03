@@ -2,8 +2,12 @@
 
 import type { PublishPaymentQuote } from '@/lib/billing/publish-payment-contract';
 
-function won(value: number): string {
-  return `${value.toLocaleString('ko-KR')}원`;
+function money(value: number, currency: 'USD' | 'KRW'): string {
+  return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'ko-KR', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 export function PublishPaymentDialog({
@@ -27,24 +31,27 @@ export function PublishPaymentDialog({
         aria-labelledby="publish-payment-title"
         className="w-full max-w-md rounded-2xl bg-white p-6 text-[#0B1736] shadow-2xl"
       >
-        <p className="text-xs font-semibold text-[#174DDA]">발행할 때 결제</p>
+        <p className="text-xs font-semibold text-[#174DDA]">Enterprise publishing</p>
         <h2 id="publish-payment-title" className="mt-2 text-xl font-bold">
-          결과를 확인하셨다면 발행하세요
+          Review and publish your clinic site
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5F6B7C]">
-          월 이용료는 {won(quote.amountKrw)}이며 홈페이지 1개 기준입니다.
-          별도 제작비는 없고 매월 자동 갱신됩니다.
+          The Enterprise contract includes a {money(quote.setupAmount, quote.currency)} setup fee and a {money(quote.amount, quote.currency)} monthly service for one clinic website.
         </p>
         <div className="mt-5 rounded-xl bg-[#F3F7FF] px-4 py-3">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-[#5F6B7C]">월 리테이너</span>
-            <strong className="text-lg">{won(quote.amountKrw)}</strong>
+            <span className="text-sm text-[#5F6B7C]">Monthly Enterprise service</span>
+            <strong className="text-lg">{money(quote.amount, quote.currency)}</strong>
           </div>
-          <p className="mt-1 text-[11px] text-[#7A8699]">부가세 별도 · 홈페이지 1개 기준</p>
+          <div className="mt-2 flex items-center justify-between gap-4 border-t border-[#DCE4F0] pt-2">
+            <span className="text-sm text-[#5F6B7C]">One-time setup</span>
+            <strong className="text-base">{money(quote.setupAmount, quote.currency)}</strong>
+          </div>
+          <p className="mt-1 text-[11px] text-[#7A8699]">Taxes, if applicable, are calculated at checkout.</p>
         </div>
         {!canPay ? (
           <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
-            실제 결제 승인을 준비하고 있어 지금은 결제가 진행되지 않습니다.
+            Live Stripe checkout is not enabled yet. No charge will be made.
           </p>
         ) : null}
         <div className="mt-6 flex justify-end gap-2">
@@ -54,7 +61,7 @@ export function PublishPaymentDialog({
             disabled={paying}
             className="h-10 rounded-lg border border-[#DCE4F0] px-4 text-sm font-medium"
           >
-            닫기
+            Close
           </button>
           {canPay ? (
             <button
@@ -63,7 +70,7 @@ export function PublishPaymentDialog({
               disabled={paying}
               className="h-10 rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white disabled:opacity-60"
             >
-              {paying ? '확인 중…' : '결제하고 발행하기'}
+              {paying ? 'Confirming…' : 'Confirm mock payment and publish'}
             </button>
           ) : null}
         </div>

@@ -109,7 +109,7 @@ function config(input: {
       radius: 14,
     },
     meta: {
-      title: '다보임 테스트',
+      title: 'Anaks Labs 테스트',
       purposeId: 'local_store',
       templateId: 'local_store.default',
       industryClass: sectionType === 'gallery' ? 'portfolio' : 'cafe',
@@ -254,7 +254,7 @@ test('legacy logoUrl-only hero logo remains outside generic factual assignment u
     frame: { x: 80, y: 60, w: 160, h: 72 },
     z: 3,
     src: 'https://assets.example/logo.svg',
-    alt: '다보임 로고',
+    alt: 'Anaks Labs 로고',
     style: { objectFit: 'contain' },
   });
   const result = run({ config: site });

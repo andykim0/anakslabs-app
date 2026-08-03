@@ -8,14 +8,6 @@ import { env, isEmailLoginPublic, isMockMode } from '@/lib/env';
 import { Spinner } from '@/components/dashboard/ui';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 
-function KakaoIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden>
-      <path d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65-.2.76-.75 2.78-.86 3.21-.13.53.2.52.41.38.17-.11 2.65-1.8 3.72-2.54.66.1 1.35.15 2.07.15 5.52 0 10-3.54 10-7.85C22 6.54 17.52 3 12 3z" />
-    </svg>
-  );
-}
-
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
@@ -55,7 +47,7 @@ export default function SignupPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', passwordConfirm: '' });
   const [agree, setAgree] = useState<Agreements>({ terms: false, privacy: false, marketingEmail: false });
   const [pending, setPending] = useState(false);
-  const [oauthPending, setOauthPending] = useState<'kakao' | 'google' | null>(null);
+  const [oauthPending, setOauthPending] = useState<'google' | null>(null);
   const [error, setError] = useState<string | null>(null);
   // 가입 접수(이메일 확인 대기) 상태 — 에러가 아니라 성공 안내로 렌더
   const [confirmNotice, setConfirmNotice] = useState<string | null>(null);
@@ -64,21 +56,21 @@ export default function SignupPage() {
   const allAgreed = agree.terms && agree.privacy && agree.marketingEmail;
   const setAll = (value: boolean) => setAgree({ terms: value, privacy: value, marketingEmail: value });
 
-  const handleOAuth = async (provider: 'kakao' | 'google') => {
+  const handleOAuth = async () => {
     setError(null);
-    setOauthPending(provider);
+    setOauthPending('google');
     try {
       const supabase = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
       const callbackUrl = new URL('/api/auth/callback', window.location.origin);
       const next = requestedNext();
       if (next) callbackUrl.searchParams.set('next', next);
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: 'google',
         options: { redirectTo: callbackUrl.toString() },
       });
       if (oauthError) throw oauthError;
     } catch (err) {
-      setError(err instanceof Error ? err.message : '소셜 가입에 실패했습니다.');
+      setError(err instanceof Error ? err.message : 'Google sign-up failed.');
       setOauthPending(null);
     }
   };
@@ -87,15 +79,15 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     if (!PASSWORD_RULE.test(form.password)) {
-      setError('비밀번호는 영문, 숫자, 특수문자가 모두 들어간 8-20자여야 합니다.');
+      setError('Use 8–20 characters with a letter, number, and special character.');
       return;
     }
     if (form.password !== form.passwordConfirm) {
-      setError('비밀번호가 일치하지 않습니다.');
+      setError('The passwords do not match.');
       return;
     }
     if (!agree.terms || !agree.privacy) {
-      setError('필수 약관에 동의해 주세요.');
+      setError('Please accept the Terms and Privacy Policy.');
       return;
     }
     setPending(true);
@@ -116,16 +108,16 @@ export default function SignupPage() {
       const data = (await res.json().catch(() => null)) as
         | { ok?: boolean; redirect?: string; message?: string; error?: { message?: string } }
         | null;
-      if (!res.ok) throw new Error(data?.error?.message ?? '가입에 실패했습니다.');
+      if (!res.ok) throw new Error(data?.error?.message ?? 'Sign-up failed.');
       if (data?.ok && data?.redirect) {
         router.push(data.redirect);
         return;
       }
       // 세션 미생성 = 이메일 확인(2차 인증) 대기
-      setConfirmNotice(data?.message ?? '인증 메일을 보냈습니다. 메일함에서 확인 링크를 눌러 가입을 완료해 주세요.');
+      setConfirmNotice(data?.message ?? 'We sent a verification email. Open the link to finish creating your account.');
       setPending(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '가입에 실패했습니다.');
+      setError(err instanceof Error ? err.message : 'Sign-up failed.');
       setPending(false);
     }
   };
@@ -151,53 +143,42 @@ export default function SignupPage() {
         <div className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white/92 p-6 shadow-[0_24px_80px_rgba(11,23,54,.11)] backdrop-blur-xl sm:p-8">
           {mock ? (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">회원가입</h1>
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Create an account</h1>
               <p className="mt-2 text-center text-sm text-[#667085]">
-                데모 모드에서는 가입 없이 로그인으로 체험할 수 있어요.
+                Mock mode does not require registration.
               </p>
               <div className="mt-8">
                 <Link
                   href="/login"
                   className="flex h-12 w-full items-center justify-center rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7]"
                 >
-                  로그인 화면으로
+                  Return to sign in
                 </Link>
               </div>
             </>
           ) : confirmNotice ? (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">회원가입</h1>
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Create an account</h1>
               <div className="mt-8 space-y-4">
                 <div className="rounded-xl border border-[#BFEDE8] bg-[#E8FBF7] px-4 py-4 text-center">
-                  <p className="text-sm font-semibold text-[#087D70]">인증 메일을 보냈습니다</p>
+                  <p className="text-sm font-semibold text-[#087D70]">Verification email sent</p>
                   <p className="mt-1.5 text-xs leading-5 text-[#3D5A55]">{confirmNotice}</p>
                 </div>
                 <Link
                   href="/login"
                   className="flex h-11 w-full items-center justify-center rounded-xl border border-[#DCE4F0] bg-white text-sm font-semibold text-[#0B1736] transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF]"
                 >
-                  로그인 화면으로
+                  Return to sign in
                 </Link>
               </div>
             </>
           ) : view === 'choose' ? (
             <>
               <h1 className="text-center text-[22px] leading-snug font-semibold tracking-[-0.03em] text-[#0B1736]">
-                회원가입하고 나만의 홈페이지를
-                <br />
-                시작해 보세요
+                Start your clinic website workspace
               </h1>
 
               <div className="mt-8 space-y-3">
-                <button
-                  type="button"
-                  onClick={() => handleOAuth('kakao')}
-                  disabled={oauthPending !== null}
-                  className="flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-[#FEE500] text-sm font-semibold text-[#191919] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {oauthPending === 'kakao' ? <Spinner className="text-[#191919]" /> : <KakaoIcon />}
-                  카카오로 3초 만에 시작
-                </button>
                 {emailSignupOn ? (
                   <button
                     type="button"
@@ -207,24 +188,24 @@ export default function SignupPage() {
                     }}
                     className="flex h-12 w-full items-center justify-center rounded-xl border border-[#DCE4F0] bg-white text-sm font-semibold text-[#0B1736] transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF]"
                   >
-                    이메일로 가입
+                    Sign up with email
                   </button>
                 ) : null}
               </div>
 
               <div className="mt-6 flex items-center gap-3">
                 <span className="h-px flex-1 bg-[#DCE4F0]" />
-                <span className="text-[11px] text-[#98A2B3]">또는</span>
+                <span className="text-[11px] text-[#98A2B3]">or</span>
                 <span className="h-px flex-1 bg-[#DCE4F0]" />
               </div>
 
               <div className="mt-5 flex items-center justify-center">
                 <button
                   type="button"
-                  onClick={() => handleOAuth('google')}
+                  onClick={handleOAuth}
                   disabled={oauthPending !== null}
-                  aria-label="Google로 가입"
-                  title="Google로 가입"
+                  aria-label="Sign up with Google"
+                  title="Sign up with Google"
                   className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DCE4F0] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {oauthPending === 'google' ? <Spinner className="text-[#0B1736]" /> : <GoogleIcon />}
@@ -233,12 +214,12 @@ export default function SignupPage() {
             </>
           ) : (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">이메일 가입</h1>
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Sign up with email</h1>
 
               <form onSubmit={handleEmailSignup} className="mt-8 space-y-4">
                 <div>
                   <label htmlFor="signup-email" className={LABEL_CLASS}>
-                    이메일
+                    Email
                   </label>
                   <input
                     id="signup-email"
@@ -247,13 +228,13 @@ export default function SignupPage() {
                     autoComplete="email"
                     value={form.email}
                     onChange={(ev) => setForm((f) => ({ ...f, email: ev.target.value }))}
-                    placeholder="아이디로 사용할 이메일을 입력해 주세요"
+                    placeholder="you@clinic.com"
                     className={INPUT_CLASS}
                   />
                 </div>
                 <div>
                   <label htmlFor="signup-name" className={LABEL_CLASS}>
-                    이름
+                    Name
                   </label>
                   <input
                     id="signup-name"
@@ -262,13 +243,13 @@ export default function SignupPage() {
                     autoComplete="name"
                     value={form.name}
                     onChange={(ev) => setForm((f) => ({ ...f, name: ev.target.value }))}
-                    placeholder="이름을 입력해 주세요"
+                    placeholder="Your name"
                     className={INPUT_CLASS}
                   />
                 </div>
                 <div>
                   <label htmlFor="signup-phone" className={LABEL_CLASS}>
-                    전화번호
+                    Phone
                   </label>
                   <input
                     id="signup-phone"
@@ -277,13 +258,13 @@ export default function SignupPage() {
                     autoComplete="tel"
                     value={form.phone}
                     onChange={(ev) => setForm((f) => ({ ...f, phone: ev.target.value }))}
-                    placeholder="010-0000-0000"
+                    placeholder="+1 555 555 0123"
                     className={INPUT_CLASS}
                   />
                 </div>
                 <div>
                   <label htmlFor="signup-password" className={LABEL_CLASS}>
-                    비밀번호
+                    Password
                   </label>
                   <input
                     id="signup-password"
@@ -294,7 +275,7 @@ export default function SignupPage() {
                     autoComplete="new-password"
                     value={form.password}
                     onChange={(ev) => setForm((f) => ({ ...f, password: ev.target.value }))}
-                    placeholder="영문, 숫자, 특수문자가 모두 들어간 8-20자"
+                    placeholder="8–20 characters with letters, numbers, and symbols"
                     className={INPUT_CLASS}
                   />
                   <input
@@ -303,10 +284,10 @@ export default function SignupPage() {
                     minLength={8}
                     maxLength={20}
                     autoComplete="new-password"
-                    aria-label="비밀번호 확인"
+                    aria-label="Confirm password"
                     value={form.passwordConfirm}
                     onChange={(ev) => setForm((f) => ({ ...f, passwordConfirm: ev.target.value }))}
-                    placeholder="비밀번호를 한 번 더 입력해 주세요"
+                    placeholder="Enter the password again"
                     className={`${INPUT_CLASS} mt-2`}
                   />
                 </div>
@@ -319,7 +300,7 @@ export default function SignupPage() {
                       onChange={(ev) => setAll(ev.target.checked)}
                       className="h-4 w-4 accent-[#174DDA]"
                     />
-                    <span className="text-[13px] font-semibold text-[#0B1736]">전체 동의</span>
+                    <span className="text-[13px] font-semibold text-[#0B1736]">Accept all</span>
                   </label>
                   <div className="mt-3 space-y-2.5 border-t border-[#DCE4F0] pt-3">
                     <div className="flex items-center justify-between gap-2">
@@ -330,7 +311,7 @@ export default function SignupPage() {
                           onChange={(ev) => setAgree((a) => ({ ...a, terms: ev.target.checked }))}
                           className="h-4 w-4 accent-[#174DDA]"
                         />
-                        <span className="text-[13px] text-[#0B1736]">[필수] 이용약관 동의</span>
+                        <span className="text-[13px] text-[#0B1736]">Terms (required)</span>
                       </label>
                       <a
                         href="/terms"
@@ -338,7 +319,7 @@ export default function SignupPage() {
                         rel="noreferrer"
                         className="shrink-0 text-[12px] text-[#667085] underline underline-offset-2 hover:text-[#174DDA]"
                       >
-                        전문보기
+                        View
                       </a>
                     </div>
                     <div className="flex items-center justify-between gap-2">
@@ -349,7 +330,7 @@ export default function SignupPage() {
                           onChange={(ev) => setAgree((a) => ({ ...a, privacy: ev.target.checked }))}
                           className="h-4 w-4 accent-[#174DDA]"
                         />
-                        <span className="text-[13px] text-[#0B1736]">[필수] 개인정보 수집·이용 동의</span>
+                        <span className="text-[13px] text-[#0B1736]">Privacy Policy (required)</span>
                       </label>
                       <a
                         href="/privacy"
@@ -357,7 +338,7 @@ export default function SignupPage() {
                         rel="noreferrer"
                         className="shrink-0 text-[12px] text-[#667085] underline underline-offset-2 hover:text-[#174DDA]"
                       >
-                        전문보기
+                        View
                       </a>
                     </div>
                     <label className="flex cursor-pointer items-center gap-2.5">
@@ -368,7 +349,7 @@ export default function SignupPage() {
                         className="h-4 w-4 accent-[#174DDA]"
                       />
                       <span className="text-[13px] text-[#0B1736]">
-                        이벤트 및 혜택 이메일 수신 동의 <span className="text-[#98A2B3]">(선택)</span>
+                        Product updates by email <span className="text-[#98A2B3]">(optional)</span>
                       </span>
                     </label>
                   </div>
@@ -380,7 +361,7 @@ export default function SignupPage() {
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {pending ? <Spinner className="text-white" /> : null}
-                  가입
+                  Create account
                 </button>
               </form>
 
@@ -392,7 +373,7 @@ export default function SignupPage() {
                 }}
                 className="mt-4 w-full text-center text-[12px] text-[#667085] transition-colors hover:text-[#174DDA]"
               >
-                ← 다른 방법으로 가입
+                ← Choose another method
               </button>
             </>
           )}
@@ -405,9 +386,9 @@ export default function SignupPage() {
 
           {!mock && !confirmNotice ? (
             <p className="mt-8 text-center text-[13px] text-[#667085]">
-              이미 계정이 있으신가요?{' '}
+              Already have an account?{' '}
               <Link href="/login" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
-                로그인
+                Sign in
               </Link>
             </p>
           ) : null}

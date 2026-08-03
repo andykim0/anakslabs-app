@@ -76,8 +76,8 @@ describe('SS5 — W 모션 라이브러리 절제 게이트', () => {
     assert.match(motion, /motionSignaturesForContext\(demoContext/);
     assert.match(motion, /buildMotionSignaturePreviewConfig/);
     assert.match(motion, /<SitePreview/);
-    assert.match(motion, /실제 렌더러 티저/);
-    assert.match(motion, /실제 스크롤 체험/);
+    assert.match(motion, /Actual renderer teaser/);
+    assert.match(motion, /Experience the scroll behavior full screen/);
     assert.doesNotMatch(motion, /@keyframes|CSS 대표 예시예요/);
     assert.doesNotMatch(motion, /fetch\(|generateVeoVideo|generateHeroVideo/);
   });
@@ -93,7 +93,7 @@ describe('SS5 — W 모션 라이브러리 절제 게이트', () => {
     assert.ok(context);
     assert.ok(context.povMood.includes(HERO_VIDEO_MOTIONS[SCROLLYTELLING_MOTION_ID].promptSeed));
     const prompt = buildMotionPrompt(context.povMood, context.source);
-    assert.match(prompt, /DABOIM_REGISTERED_MOTION_V1/);
+    assert.match(prompt, /ANAKSLABS_REGISTERED_MOTION_V1/);
     assert.match(prompt, /camera drift|composition|depth|loop/i);
     assert.match(prompt, /Do NOT depict a specific finished dish, product, or service result/);
     assert.doesNotMatch(HERO_VIDEO_MOTIONS[SCROLLYTELLING_MOTION_ID].promptSeed, /\b(?:dish|meal|steak|product|service result)\b/i);

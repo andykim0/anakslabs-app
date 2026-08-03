@@ -46,7 +46,7 @@ function setup(input?: {
       if (input?.send) sends += 1;
       return send(request);
     },
-    dashboardUrl: 'https://daboim.com/dashboard/reports',
+    dashboardUrl: 'https://anakslabs.com/dashboard/reports',
   };
   return { dependencies, events, reports, site, client, sends: () => sends };
 }

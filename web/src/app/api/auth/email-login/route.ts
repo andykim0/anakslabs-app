@@ -35,29 +35,30 @@ function rateLimited(ip: string): boolean {
 
 const bodySchema = z
   .object({
-    email: z.string().email('올바른 이메일 형식이 아닙니다.').max(200),
-    password: z.string().min(6, '비밀번호는 6자 이상이어야 합니다.').max(200),
+    email: z.string().email('Enter a valid email address.').max(200),
+    password: z.string().min(6, 'Password must be at least 6 characters.').max(200),
     mode: z.enum(['signin', 'signup']),
     next: z.string().max(2_048).nullish(),
     // 가입 전용 필드 — signin 에는 받지 않는다.
-    name: z.string().trim().min(1, '이름을 입력해 주세요.').max(60).optional(),
+    name: z.string().trim().min(1, 'Enter your name.').max(60).optional(),
     phone: z
       .string()
       .trim()
-      .regex(/^0\d{1,2}-?\d{3,4}-?\d{4}$/u, '올바른 전화번호 형식이 아닙니다.')
+      .transform((value) => value.replace(/[\s().-]/gu, ''))
+      .refine((value) => /^\+?[1-9]\d{7,14}$/u.test(value), 'Enter a valid phone number with country code.')
       .optional(),
     marketingEmail: z.boolean().optional(),
   })
   .superRefine((value, ctx) => {
     if (value.mode !== 'signup') return;
-    if (!value.name) ctx.addIssue({ code: 'custom', path: ['name'], message: '이름을 입력해 주세요.' });
-    if (!value.phone) ctx.addIssue({ code: 'custom', path: ['phone'], message: '전화번호를 입력해 주세요.' });
+    if (!value.name) ctx.addIssue({ code: 'custom', path: ['name'], message: 'Enter your name.' });
+    if (!value.phone) ctx.addIssue({ code: 'custom', path: ['phone'], message: 'Enter your phone number.' });
     // 가입 비밀번호는 영문+숫자+특수문자 8-20자(로그인은 기존 계정 호환 위해 min 6 유지)
     if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^\dA-Za-z\s]).{8,20}$/u.test(value.password)) {
       ctx.addIssue({
         code: 'custom',
         path: ['password'],
-        message: '비밀번호는 영문, 숫자, 특수문자가 모두 들어간 8-20자여야 합니다.',
+        message: 'Use 8–20 characters with a letter, number, and special character.',
       });
     }
   });
@@ -65,15 +66,15 @@ const bodySchema = z
 export const POST = withApiHandler(async (request: NextRequest) => {
   // 게이트: 비활성 시 존재 자체를 숨긴다(404)
   if (!isEmailLoginEnabled()) {
-    return apiError(404, 'NOT_FOUND', '요청한 리소스를 찾을 수 없습니다.');
+    return apiError(404, 'NOT_FOUND', 'The requested resource was not found.');
   }
   // 이메일 로그인은 실제 Supabase Auth가 필요 — mock 모드에선 불가
   if (isMockMode()) {
-    return apiError(400, 'REAL_MODE_ONLY', '이메일 로그인은 실 DB 모드에서만 사용할 수 있습니다.');
+    return apiError(400, 'REAL_MODE_ONLY', 'Email sign-in is available only with a configured database.');
   }
   const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
   if (rateLimited(ip)) {
-    return apiError(429, 'RATE_LIMITED', '요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many requests. Try again shortly.');
   }
 
   const body = await parseBody(request, bodySchema);
@@ -108,8 +109,8 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     if (result.error) console.warn(`[email-login] ${mode} 실패:`, result.error.message);
     const msg =
       mode === 'signup'
-        ? '가입에 실패했습니다. 입력값을 확인해 주세요.'
-        : '로그인에 실패했습니다. 이메일/비밀번호를 확인해 주세요.';
+        ? 'Sign-up failed. Check the information and try again.'
+        : 'Sign-in failed. Check your email and password.';
     return apiError(401, 'AUTH_FAILED', msg);
   }
 
@@ -118,7 +119,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   if (!result.data.session) {
     return NextResponse.json({
       ok: false,
-      message: '가입이 접수됐어요. 이메일로 보내드린 확인 링크를 눌러 인증을 완료해 주세요.',
+      message: 'Open the verification link sent to your email to finish creating your account.',
     });
   }
 

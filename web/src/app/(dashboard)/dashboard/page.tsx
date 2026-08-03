@@ -18,7 +18,7 @@ import {
 import { SITE_BUILD_SLA_COPY } from '@/lib/fulfillment-sla';
 import { aiEditEnabled } from '@/lib/product/flags';
 
-export const metadata: Metadata = { title: '내 사이트 — 다보임' };
+export const metadata: Metadata = { title: "My site — Anaks Labs" };
 
 export default async function DashboardHomePage() {
   const client = await getCurrentClient();
@@ -43,14 +43,14 @@ export default async function DashboardHomePage() {
   return (
     <div>
       <PageHeader
-        title={`안녕하세요, ${client.name}님`}
-        description={`사이트 현황과 편집 요청 진행 상태를 한눈에 확인하세요. ${SITE_BUILD_SLA_COPY}`}
+        title={`Welcome, ${client.name}`}
+        description={`Check site status and editing progress at a glance. ${SITE_BUILD_SLA_COPY}`}
         actions={
           <Link
             href="/onboarding"
             className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
           >
-            <Plus className="h-4 w-4" />새 사이트 만들기
+            <Plus className="h-4 w-4" />Create a new site
           </Link>
         }
       />
@@ -69,8 +69,8 @@ export default async function DashboardHomePage() {
             <Globe className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs text-neutral-500">내 사이트</p>
-            <p className="text-xl font-semibold text-neutral-50">{sites.length}개</p>
+            <p className="text-xs text-neutral-500">my site</p>
+            <p className="text-xl font-semibold text-neutral-50">{sites.length} items</p>
           </div>
         </Card>
         {aiEditAvailable ? (
@@ -79,8 +79,8 @@ export default async function DashboardHomePage() {
               <FileEdit className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs text-neutral-500">진행 중 편집 요청</p>
-              <p className="text-xl font-semibold text-neutral-50">{inProgressCount}건</p>
+              <p className="text-xs text-neutral-500">In-Progress Edit Request</p>
+              <p className="text-xl font-semibold text-neutral-50">{inProgressCount} records</p>
             </div>
           </Card>
         ) : (
@@ -89,8 +89,8 @@ export default async function DashboardHomePage() {
               <PencilRuler className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs text-neutral-500">셀프 편집</p>
-              <p className="text-sm font-semibold text-neutral-50">직접 수정 무제한</p>
+              <p className="text-xs text-neutral-500">self edit</p>
+              <p className="text-sm font-semibold text-neutral-50">Unlimited direct modifications</p>
             </div>
           </Card>
         )}
@@ -98,18 +98,18 @@ export default async function DashboardHomePage() {
 
       {/* 사이트 목록 */}
       {aiEditAvailable ? <section className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-300">내 사이트</h2>
+        <h2 className="mb-3 text-sm font-semibold text-neutral-300">my site</h2>
         {sites.length === 0 ? (
           <EmptyState
             icon={<Globe className="h-8 w-8" />}
-            title="아직 사이트가 없습니다"
-            description="설문에 답하면 AI가 디자인 후보 3안을 제안하고, 선택한 방향으로 사이트를 만들어 드립니다."
+            title="There is no site yet"
+            description="If you answer the survey, AI will suggest three design candidates and create a site in the direction you chose."
             action={
               <Link
                 href="/onboarding"
                 className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
               >
-                <Plus className="h-4 w-4" />첫 사이트 만들기
+                <Plus className="h-4 w-4" />Create your first site
               </Link>
             }
           />
@@ -123,7 +123,7 @@ export default async function DashboardHomePage() {
               className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 text-neutral-500 transition-colors hover:border-[#4a3a22] hover:text-[#c8a96a]"
             >
               <Plus className="h-6 w-6" />
-              <span className="text-sm">새 사이트 만들기</span>
+              <span className="text-sm">Create a new site</span>
             </Link>
           </div>
         )}
@@ -132,15 +132,15 @@ export default async function DashboardHomePage() {
       {/* 최근 편집 요청 */}
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-neutral-300">최근 편집 요청</h2>
+          <h2 className="text-sm font-semibold text-neutral-300">Recent Edit Requests</h2>
           <Link href="/dashboard/credits" className="text-xs text-neutral-500 transition-colors hover:text-[#c8a96a]">
-            편집 요청하기 →
+            Request an edit →
           </Link>
         </div>
         {recentEdits.length === 0 ? (
           <EmptyState
-            title="편집 요청 내역이 없습니다"
-            description="에디터에서 직접 수정하는 것은 무료입니다. AI 재생성이나 다보임 수정 대행이 필요할 때만 크레딧을 사용합니다."
+            title="There are no edit requests"
+            description="Editing directly in the editor is free. Credits are used only for AI regeneration or managed editing services."
           />
         ) : (
           <Card className="p-0">
@@ -150,7 +150,7 @@ export default async function DashboardHomePage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm text-neutral-200">
                       <span className="font-medium">{EDIT_TYPE_LABELS[req.type]}</span>
-                      <span className="text-neutral-500"> · {siteNameById.get(req.siteId) ?? '삭제된 사이트'}</span>
+                      <span className="text-neutral-500"> · {siteNameById.get(req.siteId) ?? "deleted site"}</span>
                     </p>
                     <p className="mt-0.5 truncate text-xs text-neutral-500">{req.requestedContent}</p>
                   </div>

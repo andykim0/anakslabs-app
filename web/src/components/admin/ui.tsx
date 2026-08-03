@@ -135,7 +135,7 @@ export function Gauge({
 
 // ---------- 상태 블록 ----------
 
-export function LoadingBlock({ label = '불러오는 중…' }: { label?: string }) {
+export function LoadingBlock({ label = "Loading..." }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-2 py-16 text-sm text-slate-500">
       <Loader2 size={16} className="animate-spin" aria-hidden />
@@ -156,7 +156,7 @@ export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: ()
           className="inline-flex items-center gap-1.5 rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100"
         >
           <RefreshCw size={13} aria-hidden />
-          다시 시도
+          try again
         </button>
       ) : null}
     </div>

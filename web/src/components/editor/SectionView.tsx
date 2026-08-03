@@ -96,7 +96,7 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
         {section.elements.length === 0 ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span className="rounded-md border border-dashed border-[#AEBACC]/70 bg-white/90 px-3 py-1.5 text-xs text-[#5F6B7C]">
-              빈 섹션 — 상단 툴바에서 요소를 추가해 보세요
+              Empty section — add elements from the top toolbar
             </span>
           </div>
         ) : null}
@@ -127,12 +127,12 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
       </div>
       {section.hidden ? (
         <div className="pointer-events-none absolute top-2 right-2 z-[998] flex items-center gap-1 rounded bg-white/95 px-2 py-1 text-[10px] text-[#344054]">
-          <EyeOff className="h-3 w-3" /> 발행 시 숨김
+          <EyeOff className="h-3 w-3" /> Hidden when published
         </div>
       ) : null}
       {section.elements.some((e) => e.locked) ? (
         <div className="pointer-events-none absolute right-2 bottom-2 z-[998] flex items-center gap-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] text-[#667085]">
-          <Lock className="h-2.5 w-2.5" /> 잠긴 요소 포함
+          <Lock className="h-2.5 w-2.5" /> Contains locked elements
         </div>
       ) : null}
     </div>

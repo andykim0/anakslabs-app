@@ -31,21 +31,21 @@ import { useToast } from './toast';
 import { Badge, Button, Card, cn, EDIT_TYPE_LABELS, ErrorState, Skeleton } from './ui';
 
 const formSchema = z.object({
-  siteId: z.string().min(1, '사이트를 선택해 주세요.'),
+  siteId: z.string().min(1, "Please select a site."),
   type: z.enum(['text', 'image', 'video', 'structure']),
   requestedContent: z
     .string()
-    .min(5, '요청 내용을 5자 이상 입력해 주세요.')
-    .max(4000, '요청 내용은 4000자 이내로 입력해 주세요.'),
+    .min(5, "Please enter at least 5 characters for your request.")
+    .max(4000, "Please enter your request within 4000 characters."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const TYPE_META: { value: EditType; icon: React.ReactNode; hint: string }[] = [
-  { value: 'text', icon: <Type className="h-4 w-4" />, hint: '다보임 카피 수정 대행' },
-  { value: 'image', icon: <ImagePlus className="h-4 w-4" />, hint: 'AI 이미지 새로 생성' },
-  { value: 'video', icon: <Clapperboard className="h-4 w-4" />, hint: 'AI 영상 재생성' },
-  { value: 'structure', icon: <LayoutList className="h-4 w-4" />, hint: 'AI 전체 섹션 재디자인' },
+  { value: 'text', icon: <Type className="h-4 w-4" />, hint: "Anaks Labs copy editing service" },
+  { value: 'image', icon: <ImagePlus className="h-4 w-4" />, hint: "Create a new AI image" },
+  { value: 'video', icon: <Clapperboard className="h-4 w-4" />, hint: "AI video regeneration" },
+  { value: 'structure', icon: <LayoutList className="h-4 w-4" />, hint: "AI entire section redesign" },
 ];
 
 /**
@@ -62,29 +62,29 @@ interface QuickChip {
 
 export const TYPE_QUICK_CHIPS: Record<EditType, QuickChip[]> = {
   text: [
-    { key: 'friendly', label: '더 친근하게' },
-    { key: 'professional', label: '더 전문적으로' },
-    { key: 'shorter', label: '더 짧게' },
-    { key: 'detailed', label: '더 자세히' },
-    { key: 'explain', label: '직접 설명', freeform: true },
+    { key: 'friendly', label: "more friendly" },
+    { key: 'professional', label: "more professionally" },
+    { key: 'shorter', label: "shorter" },
+    { key: 'detailed', label: "in more detail" },
+    { key: 'explain', label: "direct explanation", freeform: true },
   ],
   image: [
-    { key: 'mood', label: '다른 분위기' },
-    { key: 'brighter', label: '더 밝게' },
-    { key: 'calmer', label: '더 차분하게' },
-    { key: 'brand-color', label: '브랜드 색으로' },
-    { key: 'regenerate', label: '다시 생성(크레딧)' },
+    { key: 'mood', label: "different atmosphere" },
+    { key: 'brighter', label: "brighter" },
+    { key: 'calmer', label: "more calmly" },
+    { key: 'brand-color', label: "with brand colors" },
+    { key: 'regenerate', label: "Recreate (credits)" },
   ],
   video: [
-    { key: 'mood', label: '다른 분위기' },
-    { key: 'shorter', label: '더 짧게' },
-    { key: 'explain', label: '직접 설명', freeform: true },
+    { key: 'mood', label: "different atmosphere" },
+    { key: 'shorter', label: "shorter" },
+    { key: 'explain', label: "direct explanation", freeform: true },
   ],
   structure: [
-    { key: 'add-section', label: '섹션 추가' },
-    { key: 'remove-section', label: '섹션 빼기' },
-    { key: 'reorder', label: '순서 바꾸기' },
-    { key: 'spacing', label: '간격 넓게' },
+    { key: 'add-section', label: "Add section" },
+    { key: 'remove-section', label: "Subtract sections" },
+    { key: 'reorder', label: "change order" },
+    { key: 'spacing', label: "widely spaced" },
   ],
 };
 
@@ -190,8 +190,8 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
       toast(
         'success',
         result.isInitialRevision
-          ? `편집 요청이 접수됐어요 — 최초 무료 수정권으로 처리(크레딧 차감 없음, 잔액 ${result.balance}개). ${EDIT_REQUEST_SLA_COPY}`
-          : `편집 요청이 접수됐어요 — 크레딧 ${result.editRequest.creditCost}개 차감 (잔액 ${result.balance}개). ${EDIT_REQUEST_SLA_COPY}`,
+          ? `An edit request has been received — processed with a free first edit (no credit, balance)${result.balance}dog).${EDIT_REQUEST_SLA_COPY}`
+          : `Your edit request has been received — Credits${result.editRequest.creditCost}Deducted (Balance${result.balance}dog).${EDIT_REQUEST_SLA_COPY}`,
       );
     },
     onError: (err, variables) => {
@@ -206,7 +206,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
         setInsufficient({ message: (err as ApiError).message, ...info });
         return;
       }
-      toast('error', err instanceof Error ? err.message : '편집 요청 제출에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Your edit request submission failed.");
     },
   });
 
@@ -217,7 +217,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
     const page = config?.pages[0];
     const section = page?.sections[0];
     if (!page || !section) {
-      toast('error', '수정할 사이트의 첫 페이지를 확인할 수 없습니다. 에디터에서 먼저 섹션을 만들어 주세요.');
+      toast('error', "We cannot determine the front page of the site you wish to edit. Please create a section in the editor first.");
       return;
     }
     mutation.mutate({
@@ -235,12 +235,12 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
             <Skeleton className="h-20" />
           </div>
         ) : sitesQuery.isError ? (
-          <ErrorState message="사이트 목록을 불러오지 못했습니다." onRetry={() => sitesQuery.refetch()} />
+          <ErrorState message="The site list could not be loaded." onRetry={() => sitesQuery.refetch()} />
         ) : sites.length === 0 ? (
           <p className="py-4 text-center text-sm text-neutral-500">
-            편집을 요청할 사이트가 없습니다.{' '}
+            There are no sites to request edits to.{' '}
             <Link href="/onboarding" className="text-[#c8a96a] hover:underline">
-              먼저 사이트를 만들어 주세요.
+              Please create a site first.
             </Link>
           </p>
         ) : (
@@ -251,14 +251,14 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
             {/* 사이트 선택 */}
             <div>
               <div className="mb-2 flex items-baseline justify-between">
-                <span className="text-sm font-medium text-neutral-200">대상 사이트</span>
+                <span className="text-sm font-medium text-neutral-200">target site</span>
                 {errors.siteId ? <span className="text-xs text-red-400">{errors.siteId.message}</span> : null}
               </div>
               <select
                 {...register('siteId')}
                 className="h-10 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none transition-colors focus:border-[#c8a96a]"
               >
-                <option value="">사이트 선택…</option>
+                <option value="">Select site…</option>
                 {sites.map((site) => (
                   <option key={site.id} value={site.id}>
                     {site.name}
@@ -270,7 +270,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
 
             {/* 유형 */}
             <div>
-              <span className="mb-2 block text-sm font-medium text-neutral-200">편집 유형</span>
+              <span className="mb-2 block text-sm font-medium text-neutral-200">Edit type</span>
               <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 {TYPE_META.map((meta) => {
                   const selected = selectedType === meta.value;
@@ -297,7 +297,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                         <Badge tone={selected ? 'gold' : 'neutral'}>{CREDIT_COSTS[meta.value]}</Badge>
                       </span>
                       <span className="text-[10px] text-neutral-500">
-                        {isVideoOnBasic ? 'AI 영상 홈페이지 전용 — 제출 시 안내' : meta.hint}
+                        {isVideoOnBasic ? "AI video homepage only — guidance upon submission" : meta.hint}
                       </span>
                     </button>
                   );
@@ -308,14 +308,14 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
             {/* 내용 — 구조화 빠른선택(우선) + 자유텍스트(보조) */}
             <div>
               <div className="mb-2 flex items-baseline justify-between">
-                <span className="text-sm font-medium text-neutral-200">요청 내용</span>
+                <span className="text-sm font-medium text-neutral-200">Request details</span>
                 {errors.requestedContent ? (
                   <span className="text-xs text-red-400">{errors.requestedContent.message}</span>
                 ) : null}
               </div>
 
               {/* 구조화 빠른선택 칩 — 다중 선택, 선택 시 requestedContent 프리픽스로 결정적 조립 */}
-              <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="구조화 빠른선택">
+              <div className="mb-3 flex flex-wrap gap-1.5" role="group" aria-label="Structured quick selection">
                 {chipsForType.map((chip) => {
                   const selected = selectedChipKeys.has(chip.key);
                   return (
@@ -342,36 +342,36 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                 value={extraText}
                 onChange={(e) => setExtraText(e.target.value)}
                 rows={3}
-                placeholder="예: 히어로 문구를 '여섯 가지 요리, 하나의 불'로 바꿔주세요"
-                aria-label="덧붙일 말 (선택)"
+                placeholder="Example: Change the hero phrase to ‘Six dishes, one fire’"
+                aria-label="Additional remarks (optional)"
                 className="w-full resize-none rounded-lg border border-neutral-700 bg-neutral-900 px-3.5 py-2.5 text-sm text-neutral-100 outline-none transition-colors placeholder:text-neutral-600 focus:border-[#c8a96a]"
               />
               <p className="mt-1.5 text-[11px] text-neutral-500">
-                위 빠른선택으로 구체화하면 정확해요. 덧붙일 말은 선택이에요.
+                It is accurate if you specify it with the quick selection above. What I would like to add is that it is a choice.
               </p>
 
               {/* 모호 입력 되물음 — 제출을 막지 않는 부드러운 인라인 안내 */}
               {isVagueInput ? (
                 <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-[#2a2117]/60 px-3 py-2 text-[11px] leading-5 text-[#d9b878]">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  조금만 더 알려주시면 정확해요 — 색? 배치? 글? 위에서 골라주셔도 돼요.
+                  Could you please tell me a little bit more about the exact color? — Color? arrangement? writing? You can choose from above.
                 </p>
               ) : null}
             </div>
 
             <p className="rounded-lg bg-neutral-800/40 px-3 py-2 text-[11px] leading-5 text-neutral-500">
-              최초 발행 후 7일 이내 첫 편집 1건은 무료입니다 (영상 제외). 무료 대상이면 제출 시 크레딧이
-              차감되지 않습니다.
+              The first edit within 7 days of initial publication is free (excluding videos). If it is free, you will receive a credit upon submission.
+              It is not deducted.
             </p>
 
             <div className="flex items-center justify-between border-t border-neutral-800 pt-4">
               <span className="inline-flex items-center gap-1.5 text-xs text-neutral-400">
                 <Coins className="h-3.5 w-3.5 text-[#d9b878]" />
-                예상 차감: <span className="font-semibold text-[#d9b878]">{cost}개</span>
+                Expected deduction: <span className="font-semibold text-[#d9b878]">{cost} items</span>
               </span>
               <Button type="submit" loading={mutation.isPending}>
                 <Send className="h-4 w-4" />
-                요청 제출
+                Submit request
               </Button>
             </div>
           </form>
@@ -382,7 +382,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
       <Modal
         open={upsell !== null}
         onClose={() => setUpsell(null)}
-        title="AI 영상 홈페이지가 필요합니다"
+        title="I need an AI video homepage"
         footer={
           upsell ? (
             <>
@@ -391,10 +391,10 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
                 className="inline-flex h-10 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-200 transition-colors hover:border-neutral-500"
                 onClick={() => setUpsell(null)}
               >
-                AI 영상 홈페이지 상담
+                AI video website consultation
               </Link>
               <Button variant="secondary" onClick={() => setUpsell(null)}>
-                닫기
+                Close
               </Button>
             </>
           ) : null
@@ -404,7 +404,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
           <>
             <p>{upsell.message}</p>
             <p className="mt-3 rounded-lg bg-neutral-800/60 px-3 py-2 text-xs leading-5 text-neutral-400">
-              영상 생성 원가 보호를 위해 일반 크레딧으로 애드온 권한을 우회할 수 없습니다.
+              To protect video production costs, add-on permissions cannot be bypassed with regular credits.
             </p>
           </>
         ) : null}
@@ -414,11 +414,11 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
       <Modal
         open={insufficient !== null}
         onClose={() => setInsufficient(null)}
-        title="크레딧이 부족합니다"
+        title="I'm running out of credits"
         footer={
           <>
             <Button variant="secondary" onClick={() => setInsufficient(null)}>
-              닫기
+              Close
             </Button>
             <a
               href="#packs"
@@ -426,7 +426,7 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
               className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
             >
               <Coins className="h-4 w-4" />
-              크레딧 구매하기
+              Buy Credits
             </a>
           </>
         }
@@ -436,10 +436,10 @@ export function EditRequestForm({ tier }: { tier: Tier }) {
             <p>{insufficient.message}</p>
             <div className="mt-3 flex gap-4 rounded-lg bg-neutral-800/60 px-3 py-2 text-xs text-neutral-400">
               <span>
-                필요 <span className="font-semibold text-neutral-100">{insufficient.required}개</span>
+                necessary <span className="font-semibold text-neutral-100">{insufficient.required} items</span>
               </span>
               <span>
-                보유 <span className="font-semibold text-red-300">{insufficient.balance}개</span>
+                possession <span className="font-semibold text-red-300">{insufficient.balance} items</span>
               </span>
             </div>
           </>

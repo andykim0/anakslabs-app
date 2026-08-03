@@ -77,22 +77,27 @@ describe('LANG-GUARD — preview document language and translation policy', () =
   test('every UI route has a root document with the shared CSS, font variables, and body contract', () => {
     assert.equal(existsSync(join(ROOT, 'src/app/layout.tsx')), false);
 
-    const domesticRoots = [
+    const appRoots = [
       'src/app/(marketing)/layout.tsx',
       'src/app/(auth)/layout.tsx',
       'src/app/(dashboard)/layout.tsx',
       'src/app/(admin)/admin/layout.tsx',
-      'src/app/s/layout.tsx',
     ];
-    for (const path of domesticRoots) {
+    for (const path of appRoots) {
       const layout = source(path);
       assert.match(layout, /import '@\/app\/globals\.css';/u, path);
       assert.match(layout, /APP_ROOT_HTML_CLASS_NAME/u, path);
       assert.match(layout, /APP_ROOT_BODY_CLASS_NAME/u, path);
-      assert.match(layout, /<html lang="ko"/u, path);
+      assert.match(layout, /<html lang="en"/u, path);
       assert.match(layout, /<body suppressHydrationWarning/u, path);
       assert.doesNotMatch(layout, /notranslate/u, path);
     }
+
+    const tenantLayout = source('src/app/s/layout.tsx');
+    assert.match(tenantLayout, /import '@\/app\/globals\.css';/u);
+    assert.match(tenantLayout, /APP_ROOT_HTML_CLASS_NAME/u);
+    assert.match(tenantLayout, /APP_ROOT_BODY_CLASS_NAME/u);
+    assert.match(tenantLayout, /<html lang="ko"/u);
 
     const contract = source('src/app/root-layout-contract.ts');
     assert.match(contract, /variable: '--font-geist-sans'/u);

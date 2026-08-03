@@ -13,9 +13,8 @@
 }
 
 /*
- * Daboim 앱 라이트 테마 토큰.
- * 아이스 화이트 위에 deep navy 본문, blue 상호작용, cyan/mint 신호색을 사용한다.
- * ob-* 이름은 기존 온보딩 계약을 유지하기 위해 보존한다.
+ * Anaks Labs application theme tokens.
+ * ob-* names remain as internal compatibility identifiers.
  */
 @theme {
   --color-ob-bg: #f8fbff;
@@ -43,68 +42,68 @@ body {
  * Public marketing typography roles. Values are injected by the marketing
  * layout from lib/design/typography-scale.ts so pages share one scale contract.
  */
-.daboim-marketing .mkt-type-hero {
+.anakslabs-marketing .mkt-type-hero {
   font-size: var(--mkt-type-hero-size);
   line-height: var(--mkt-type-hero-leading);
 }
 
-.daboim-marketing .mkt-type-page-title {
+.anakslabs-marketing .mkt-type-page-title {
   font-size: var(--mkt-type-page-title-size);
   line-height: var(--mkt-type-page-title-leading);
 }
 
-.daboim-marketing .mkt-type-section-title {
+.anakslabs-marketing .mkt-type-section-title {
   font-size: var(--mkt-type-section-title-size);
   line-height: var(--mkt-type-section-title-leading);
 }
 
-.daboim-marketing .mkt-type-card-title {
+.anakslabs-marketing .mkt-type-card-title {
   font-size: var(--mkt-type-card-title-size);
   line-height: var(--mkt-type-card-title-leading);
 }
 
-.daboim-marketing .mkt-type-table-title {
+.anakslabs-marketing .mkt-type-table-title {
   font-size: var(--mkt-type-table-title-size);
   line-height: var(--mkt-type-table-title-leading);
 }
 
-.daboim-marketing .mkt-type-body {
+.anakslabs-marketing .mkt-type-body {
   font-size: var(--mkt-type-body-size);
   line-height: var(--mkt-type-body-leading);
 }
 
-.daboim-marketing .mkt-type-support {
+.anakslabs-marketing .mkt-type-support {
   font-size: var(--mkt-type-support-size);
   line-height: var(--mkt-type-support-leading);
 }
 
-.daboim-marketing .mkt-type-eyebrow {
+.anakslabs-marketing .mkt-type-eyebrow {
   font-size: var(--mkt-type-eyebrow-size);
   line-height: var(--mkt-type-eyebrow-leading);
 }
 
-.daboim-marketing .mkt-type-control {
+.anakslabs-marketing .mkt-type-control {
   font-size: var(--mkt-type-control-size);
   line-height: var(--mkt-type-control-leading);
   white-space: nowrap;
 }
 
-.daboim-marketing .mkt-type-control > svg {
+.anakslabs-marketing .mkt-type-control > svg {
   flex: 0 0 auto;
 }
 
-.daboim-marketing .mkt-type-hero,
-.daboim-marketing .mkt-type-page-title,
-.daboim-marketing .mkt-type-section-title,
-.daboim-marketing .mkt-type-card-title,
-.daboim-marketing .mkt-type-table-title {
+.anakslabs-marketing .mkt-type-hero,
+.anakslabs-marketing .mkt-type-page-title,
+.anakslabs-marketing .mkt-type-section-title,
+.anakslabs-marketing .mkt-type-card-title,
+.anakslabs-marketing .mkt-type-table-title {
   overflow-wrap: anywhere;
   text-wrap: balance;
   word-break: keep-all;
 }
 
-.daboim-marketing .mkt-type-body,
-.daboim-marketing .mkt-type-support {
+.anakslabs-marketing .mkt-type-body,
+.anakslabs-marketing .mkt-type-support {
   overflow-wrap: anywhere;
   text-wrap: pretty;
   word-break: keep-all;

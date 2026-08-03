@@ -320,7 +320,7 @@ async function download(source: SourceSpec, directory: string): Promise<Buffer> 
 }
 
 async function main() {
-  const temp = await mkdtemp(join(tmpdir(), 'daboim-font-subsets-'));
+  const temp = await mkdtemp(join(tmpdir(), 'anakslabs-font-subsets-'));
   const sourceCache = join(temp, 'sources');
   await mkdir(sourceCache, { recursive: true });
   await mkdir(OUTPUT_DIR, { recursive: true });

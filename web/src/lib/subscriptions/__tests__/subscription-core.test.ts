@@ -416,8 +416,9 @@ describe('RPT$ mock renewal/credit parity', () => {
 });
 
 describe('RPT$ contract and SQL invariants', () => {
-  test('신규 유지 계약은 월 29,000원이고 크레딧 판매·지급은 동면한다', () => {
-    assert.equal(PRICING.subscription.amountKrw, 29_000);
+  test('the new enterprise subscription is USD 990 monthly while credit sales and grants remain dormant', () => {
+    assert.equal(PRICING.subscription.amountUsd, 990);
+    assert.equal(PRICING.subscription.currency, 'USD');
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
     assert.equal(PRICING.subscription.annualCommitment.status, 'unavailable');

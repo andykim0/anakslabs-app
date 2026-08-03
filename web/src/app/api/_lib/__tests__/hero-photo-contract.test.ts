@@ -5,7 +5,7 @@ import { surveySchema } from '@/app/api/_lib/schemas';
 
 function survey(over: Partial<SurveyInput> = {}): SurveyInput {
   return {
-    businessName: '다보임 테스트',
+    businessName: 'Anaks Labs 테스트',
     purposeId: 'local_store',
     purpose: '방문·매장',
     industry: '카페',

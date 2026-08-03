@@ -1,15 +1,9 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import type {
   CrawlArtifactPayload,
   CrawlPageArtifact,
 } from '@/lib/crawl/contracts';
-import { compileKoClinicSite } from '@/lib/ko-clinic/compiler';
-import {
-  extractIndependentOriginalText,
-} from '@/lib/ko-clinic/original-text-audit';
-import { extractKoClinicPage } from '@/lib/ko-clinic/source-extraction';
 import { compileUsMedicalDemo } from '@/lib/us-demo/source-compiler';
 import {
   clinicFeatureGroups as compatibilityClinicFeatureGroups,
@@ -30,12 +24,11 @@ import {
   KO_MEDICAL_IMPORT_PROFILE,
   US_MEDICAL_OUTREACH_PROFILE,
 } from './profiles';
-
-function sha256(value: unknown): string {
-  return createHash('sha256')
-    .update(typeof value === 'string' ? value : JSON.stringify(value))
-    .digest('hex');
-}
+import { compileRobustClinicArtifact } from './robust-compile';
+import {
+  extractRobustClinicSource,
+  type RobustClinicDocument,
+} from './robust-source';
 
 function page(
   input: Partial<CrawlPageArtifact> & Pick<CrawlPageArtifact, 'url'>,
@@ -115,14 +108,33 @@ function usArtifact(): CrawlArtifactPayload {
 }
 
 const KO_HTML = `<!doctype html><html lang="ko"><body>
-  <header><img alt="EDOM 이담외과의원" src="/logo.png"></header>
-  <main><div class="main_tit"><h2>하지정맥류</h2></div>
-    <div class="content_wrap"><section><h3>하지정맥류의 원인</h3>
+  <header><img alt="새 병원" src="/logo.png"></header>
+  <main><article><h2>하지정맥류</h2><section><h3>하지정맥류의 원인</h3>
       <p>정맥 혈액순환 장애에 관한 원문 문장입니다.</p>
       <ul><li>노화</li><li>가족력</li></ul>
-    </section></div>
+    </section></article>
   </main>
 </body></html>`;
+
+function koArtifact(): CrawlArtifactPayload {
+  return {
+    ...usArtifact(),
+    seedUrl: 'https://clinic.example/vein',
+    finalOrigin: 'https://clinic.example',
+    pages: [page({
+      url: 'https://clinic.example/vein',
+      title: '하지정맥류',
+      headings: ['하지정맥류', '하지정맥류의 원인'],
+      text: '정맥 혈액순환 장애에 관한 원문 문장입니다. 노화 가족력',
+    })],
+  };
+}
+
+const KO_DOCUMENTS: RobustClinicDocument[] = [{
+  sourceUrl: 'https://clinic.example/vein',
+  finalUrl: 'https://clinic.example/vein',
+  html: KO_HTML,
+}];
 
 test('ENGINE-MERGE profiles keep locale, delivery, jurisdiction, lens, and market data separate', () => {
   assert.deepEqual(US_MEDICAL_OUTREACH_PROFILE, {
@@ -153,11 +165,17 @@ test('ENGINE-MERGE profiles keep locale, delivery, jurisdiction, lens, and marke
 
 test('US and KO compile through the same phase and gate registries without serialized trace data', () => {
   const us = compileUsMedicalDemo(usArtifact(), { renderMode: 'outreach-safe' });
-  const koPage = extractKoClinicPage({
-    html: KO_HTML,
-    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+  const ko = compileRobustClinicArtifact({
+    artifact: koArtifact(),
+    documents: KO_DOCUMENTS,
+    profile: KO_MEDICAL_IMPORT_PROFILE,
+    gateEvidence: {
+      'source-completeness': true,
+      'render-block-integrity': true,
+      density: true,
+      'line-width': true,
+    },
   });
-  const ko = compileKoClinicSite({ pages: [koPage], images: [] });
   const usTrace = clinicEngineTraceFor(us);
   const koTrace = clinicEngineTraceFor(ko);
   assert.deepEqual(usTrace?.phases, CLINIC_ENGINE_PHASES);
@@ -174,23 +192,20 @@ test('US and KO compile through the same phase and gate registries without seria
   assert.doesNotMatch(JSON.stringify(ko), /clinic-engine|marketEvidence/iu);
 });
 
-test('source and independent-original extraction share the engine entry without sharing parsers', () => {
-  const extracted = extractKoClinicPage({
-    html: KO_HTML,
-    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
+test('generic source extraction retains Korean text without the retired EDOM path', () => {
+  const extracted = extractRobustClinicSource({
+    artifact: koArtifact(),
+    documents: KO_DOCUMENTS,
+    profile: KO_MEDICAL_IMPORT_PROFILE,
   });
-  const original = extractIndependentOriginalText({
-    html: KO_HTML,
-    sourceUrl: 'https://edomclinic.com/page/sub1_1_1.php',
-  });
-  assert.equal(clinicEngineTraceFor(extracted)?.profileId, 'ko-medical-import-v1');
-  assert.equal(clinicEngineTraceFor(original)?.profileId, 'ko-medical-import-v1');
+  assert.equal(extracted.pages.length, 1);
+  assert.equal(extracted.pages[0].targetBlocks.some((block) => (
+    block.text === '정맥 혈액순환 장애에 관한 원문 문장입니다.'
+  )), true);
   assert.equal(
-    clinicEngineTraceFor(original)?.gates
-      .find((gate) => gate.id === 'source-completeness')?.status,
-    'pass',
+    extracted.pages[0].targetBlocks.every((block) => Boolean(block.sourceUrl)),
+    true,
   );
-  assert.equal(extracted.sourceHtmlSha256, sha256(KO_HTML));
 });
 
 test('shared completeness remains per-page and reverse enumeration remains directional', () => {

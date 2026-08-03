@@ -5,7 +5,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import puppeteer from 'puppeteer-core';
 
-const ROOT = '/private/tmp/daboim-continuous-canvas-review';
+const ROOT = '/private/tmp/anakslabs-continuous-canvas-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 async function ffmpeg(input, output) {

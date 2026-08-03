@@ -82,7 +82,7 @@ function toBusinessInfo(values: FormValues): BusinessInfo {
 export function BusinessInfoForm({
   initial,
   onSave,
-  submitLabel = '저장',
+  submitLabel = "Save",
   extraActions,
 }: {
   initial: BusinessInfo | null;
@@ -124,10 +124,10 @@ export function BusinessInfoForm({
       >
         <span>
           <span className={cn('block text-xs font-medium', isPersonal ? 'text-[#174DDA]' : 'text-[#344054]')}>
-            사업자가 아닌 개인 사이트예요
+            This is a personal site, not a business.
           </span>
           <span className="mt-0.5 block text-[10px] text-[#667085]">
-            개인 운영이면 운영자명·연락처만 입력하면 돼요.
+            If it is a private operation, you only need to enter the operator name and contact information.
           </span>
         </span>
         <span
@@ -141,38 +141,38 @@ export function BusinessInfoForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         {!isPersonal ? (
-          <Field label="상호 (법인명)" error={errors.businessName?.message}>
-            <input {...register('businessName')} placeholder="예: 살롱 피즈" className={inputClass} />
+          <Field label="Company name (corporate name)" error={errors.businessName?.message}>
+            <input {...register('businessName')} placeholder="Example: Salon Fizz" className={inputClass} />
           </Field>
         ) : null}
-        <Field label={isPersonal ? '운영자명' : '대표자명'} error={errors.ownerName?.message} span2={isPersonal}>
-          <input {...register('ownerName')} placeholder="예: 김대표" className={inputClass} />
+        <Field label={isPersonal ? "operator name" : "Representative name"} error={errors.ownerName?.message} span2={isPersonal}>
+          <input {...register('ownerName')} placeholder="Example: Representative Kim" className={inputClass} />
         </Field>
         {!isPersonal ? (
           <>
-            <Field label="사업자등록번호" error={errors.businessNumber?.message}>
+            <Field label="Business registration number" error={errors.businessNumber?.message}>
               <input {...register('businessNumber')} placeholder="000-00-00000" className={inputClass} />
             </Field>
-            <Field label="사업장 주소" error={errors.address?.message}>
-              <input {...register('address')} placeholder="예: 서울시 마포구 …" className={inputClass} />
+            <Field label="business address" error={errors.address?.message}>
+              <input {...register('address')} placeholder="Example: Mapo-gu, Seoul…" className={inputClass} />
             </Field>
           </>
         ) : null}
-        <Field label="연락처 (전화)" error={errors.phone?.message}>
+        <Field label="Contact (Phone)" error={errors.phone?.message}>
           <input {...register('phone')} placeholder="02-000-0000" className={inputClass} />
         </Field>
-        <Field label="이메일 (선택)" error={errors.email?.message}>
+        <Field label="Email (optional)" error={errors.email?.message}>
           <input {...register('email')} placeholder="owner@example.com" className={inputClass} />
         </Field>
         {!isPersonal ? (
-          <Field label="통신판매업 신고번호 (선택)" error={errors.mailOrderNumber?.message} span2>
-            <input {...register('mailOrderNumber')} placeholder="제2026-서울마포-1234호" className={inputClass} />
+          <Field label="Mail order business report number (optional)" error={errors.mailOrderNumber?.message} span2>
+            <input {...register('mailOrderNumber')} placeholder="No. 2026-Seoul Mapo-1234" className={inputClass} />
           </Field>
         ) : null}
       </div>
 
       <p className="text-[11px] leading-4 text-[#667085]">
-        발행된 사이트 최하단에 법적 표기 푸터로 자동 표시됩니다 (전자상거래법·정보통신망법 표시 의무).
+        It is automatically displayed as a legal notation footer at the bottom of the published site (display obligation under the Electronic Commerce Act and the Information and Communications Network Act).
       </p>
 
       <div className="flex items-center justify-end gap-2 pt-1">

@@ -1,10 +1,10 @@
 /*
  * Transitional dashboard palette bridge.
  *
- * Dashboard pages predate the Daboim visual system and still carry semantic
+ * Dashboard pages predate the Anaks Labs visual system and still carry semantic
  * neutral utility names. Scoping their rendered colors here keeps the light
  * product chrome consistent without changing tenant previews, onboarding or
- * the full-screen editor. New shared primitives use the Daboim colors directly.
+ * the full-screen editor. New shared primitives use the Anaks Labs colors directly.
  */
 .theme :global(.bg-neutral-950),
 .theme :global(.bg-neutral-950\/60),

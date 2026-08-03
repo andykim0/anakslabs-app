@@ -15,26 +15,26 @@ import styles from './dashboard-theme.module.css';
 const NAV_ITEMS = [
   {
     href: '/dashboard',
-    label: '내 사이트',
+    label: 'My sites',
     icon: LayoutDashboard,
     isActive: (path: string) =>
       path === '/dashboard' || path.startsWith('/dashboard/sites') || path.startsWith('/onboarding'),
   },
   {
     href: '/dashboard/reports',
-    label: '성과 리포트',
+    label: 'Reports',
     icon: BarChart3,
     isActive: (path: string) => path.startsWith('/dashboard/reports'),
   },
   {
     href: '/dashboard/billing',
-    label: '결제·구독',
+    label: 'Billing',
     icon: CreditCard,
     isActive: (path: string) => path.startsWith('/dashboard/billing'),
   },
   {
     href: '/dashboard/settings',
-    label: '설정',
+    label: 'Settings',
     icon: Settings,
     isActive: (path: string) => path.startsWith('/dashboard/settings'),
   },
@@ -46,10 +46,10 @@ function CreditBadge() {
     <Link
       href="/dashboard/credits"
       className="flex h-8 items-center gap-1.5 rounded-full border border-[#BBD0FA] bg-[#EDF4FF] px-3 text-xs font-semibold text-[#174DDA] transition-colors hover:border-[#174DDA] hover:bg-[#E5EFFF]"
-      title="크레딧 잔액"
+      title="Credit balance"
     >
       <Coins className="h-3.5 w-3.5" />
-      {isPending ? <Skeleton className="h-3 w-6 bg-[#C8D8F4]" /> : isError ? '—' : `${data.balance}개`}
+      {isPending ? <Skeleton className="h-3 w-6 bg-[#C8D8F4]" /> : isError ? '—' : `${data.balance} items`}
     </Link>
   );
 }
@@ -73,10 +73,10 @@ function LogoutButton() {
         onClick={() => setConfirming(true)}
         disabled={loading}
         className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#667085] transition-colors hover:bg-[#EDF4FF] hover:text-[#174DDA] disabled:opacity-60"
-        title="로그아웃"
+        title="Log out"
       >
         {loading ? <Spinner className="h-3.5 w-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
-        로그아웃
+        Log out
       </button>
       <LogoutConfirmDialog
         open={confirming}
@@ -132,7 +132,7 @@ export function DashboardShell({
         <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6">
           <Link
             href="/dashboard"
-            aria-label="대시보드 홈"
+            aria-label="Dashboard Home"
             className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#0B1736]"
           >
             <BrandLogo />
@@ -140,7 +140,7 @@ export function DashboardShell({
           <div className="flex items-center gap-2.5">
             {creditsAvailable ? <CreditBadge /> : null}
             <TierBadge tier={tier} />
-            <span className="hidden text-xs text-[#667085] sm:inline">{clientName}님</span>
+            <span className="hidden text-xs text-[#667085] sm:inline">{clientName}</span>
             <LogoutButton />
           </div>
         </div>

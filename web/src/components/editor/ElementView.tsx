@@ -394,10 +394,10 @@ function ElementBody({
 // ---------- [v3 Phase 3] 부가기능 3종 — 에디터 프리뷰(비대화형 lookalike) ----------
 
 const FORM_FIELD_LABELS: Record<FormElement['fields'][number], string> = {
-  name: '이름',
-  phone: '연락처',
-  email: '이메일',
-  message: '문의 내용',
+  name: "name",
+  phone: "contact",
+  email: "email",
+  message: "Inquiry details",
 };
 
 function FormBody({ el, theme, scale }: { el: FormElement; theme: SiteTheme; scale: number }) {
@@ -448,7 +448,7 @@ function FormBody({ el, theme, scale }: { el: FormElement; theme: SiteTheme; sca
           borderRadius: Math.min(radius, 12 * scale),
         }}
       >
-        {el.submitLabel || '문의 보내기'}
+        {el.submitLabel || "Send inquiry"}
       </div>
     </div>
   );
@@ -476,7 +476,7 @@ function MapBody({ el, theme, scale }: { el: MapElement; theme: SiteTheme; scale
     >
       <MapPin style={{ width: 20 * scale, height: 20 * scale }} />
       <span style={{ fontSize: 12 * scale }}>
-        {valid ? `지도 — ${host} (발행 시 표시)` : el.embedUrl ? '허용되지 않은 지도 URL' : '지도 URL을 입력하세요'}
+        {valid ? `map -${host}(Indicated at time of publication)` : el.embedUrl ? "Map URL not allowed" : "Please enter the map URL"}
       </span>
     </div>
   );
@@ -579,7 +579,7 @@ function ImageBody({ el, theme, scale }: { el: ImageElement; theme: SiteTheme; s
   const s = el.style;
   const radius = (s.borderRadius ?? 0) * scale;
   if (!el.src) {
-    return <EmptySourcePlaceholder icon={<ImageIcon className="h-5 w-5" />} label="이미지 URL을 입력하세요" radius={radius} />;
+    return <EmptySourcePlaceholder icon={<ImageIcon className="h-5 w-5" />} label="Please enter image URL" radius={radius} />;
   }
   return (
     // 고객 콘텐츠 이미지는 next/image 대신 plain <img> (규약)
@@ -687,7 +687,7 @@ function VideoBody({ el, scale }: { el: VideoElement; scale: number }) {
   const s = el.style;
   const radius = (s.borderRadius ?? 0) * scale;
   if (!el.src) {
-    return <EmptySourcePlaceholder icon={<Film className="h-5 w-5" />} label="영상 URL을 입력하세요" radius={radius} />;
+    return <EmptySourcePlaceholder icon={<Film className="h-5 w-5" />} label="Enter the video URL" radius={radius} />;
   }
   return (
     <video

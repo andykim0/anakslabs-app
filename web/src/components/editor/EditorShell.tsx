@@ -93,7 +93,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
     try {
       const saved = await autosave.flush();
       if (!saved) {
-        toast('error', '초안 저장에 실패해 발행 진단을 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        toast('error', "Publication diagnostics could not be started because the draft failed to be saved. Please try again later.");
         return;
       }
       setPrePublishOpen(true);
@@ -109,7 +109,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
     try {
       const saved = await autosave.flush();
       if (!saved) {
-        toast('error', '초안 저장에 실패해 발행을 중단했습니다. 잠시 후 다시 시도해 주세요.');
+        toast('error', "Publication has been stopped because the draft failed to be saved. Please try again later.");
         return;
       }
       const result = await publishSiteRequest(siteId, humanChecks);
@@ -126,7 +126,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
         }
       }
       if (err instanceof EditorApiError) toast('error', err.message);
-      else toast('error', '발행에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+      else toast('error', "Publishing failed. Please try again later.");
     } finally {
       setPublishing(false);
     }
@@ -142,7 +142,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
       setPendingHumanChecks(null);
       setPublishResult(result);
     } catch (err) {
-      toast('error', err instanceof Error ? err.message : '결제 확인에 실패했습니다.');
+      toast('error', err instanceof Error ? err.message : "Payment confirmation failed.");
     } finally {
       setPaying(false);
     }
@@ -166,11 +166,11 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
         <aside className="flex w-80 shrink-0 flex-col border-l border-[#DCE4F0] bg-[#F8FBFF]">
           <div className="flex shrink-0 border-b border-[#DCE4F0] p-1.5">
             <TabButton active={tab === 'design'} onClick={() => selectTab('design')} icon={<Palette className="h-3.5 w-3.5" />}>
-              디자인
+              design
             </TabButton>
             {aiEditAvailable ? (
               <TabButton active={tab === 'ai'} onClick={() => selectTab('ai')} icon={<Wand2 className="h-3.5 w-3.5" />}>
-                AI 편집
+                AI Editing
               </TabButton>
             ) : null}
           </div>

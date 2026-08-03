@@ -14,8 +14,8 @@ import { isAdmin } from '@/lib/services/auth';
 export const metadata: Metadata = {
   ...APP_ROOT_METADATA,
   title: {
-    default: '관리자 콘솔 — Daboim',
-    template: '%s — Daboim ADMIN',
+    default: "Administrator Console — Anaks Labs",
+    template: '%s — Anaks Labs ADMIN',
   },
   robots: { index: false, follow: false },
 };
@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!admin) redirect('/login?next=/admin');
 
   return (
-    <html lang="ko" className={APP_ROOT_HTML_CLASS_NAME}>
+    <html lang="en" className={APP_ROOT_HTML_CLASS_NAME}>
       <body suppressHydrationWarning className={APP_ROOT_BODY_CLASS_NAME}>
         <AdminQueryProvider>
           <AdminShell>{children}</AdminShell>

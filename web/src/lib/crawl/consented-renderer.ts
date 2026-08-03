@@ -24,7 +24,7 @@ export interface ConsentedRenderedPageSession {
 }
 
 function chromeExecutablePath(): string {
-  const configured = process.env.DABOIM_CHROME_EXECUTABLE_PATH?.trim()
+  const configured = process.env.ANAKS_CHROME_EXECUTABLE_PATH?.trim()
     || process.env.CHROME_PATH?.trim();
   if (configured) {
     if (!existsSync(configured)) throw new Error('US_CONSENTED_RENDERER_EXECUTABLE_NOT_FOUND');

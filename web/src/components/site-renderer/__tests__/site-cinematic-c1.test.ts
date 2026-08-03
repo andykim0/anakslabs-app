@@ -47,7 +47,7 @@ describe('SITECINE C1 — 신규 히어로 브랜드 경계', () => {
     assert.doesNotMatch(html, /data-site-cine-procedural-hero="true"/);
   });
 
-  test('신규 계약은 DNA 팔레트 CSS 장면을 쓰고 테넌트 DOM에 다보임 자산 URL을 내보내지 않는다', () => {
+  test('신규 계약은 DNA 팔레트 CSS 장면을 쓰고 테넌트 DOM에 Anaks Labs 자산 URL을 내보내지 않는다', () => {
     const legacy = configWithHero();
     const config = withSiteCinematicDefault(legacy);
     const parsed = siteConfigSchema.parse(config);
@@ -57,7 +57,7 @@ describe('SITECINE C1 — 신규 히어로 브랜드 경계', () => {
     assert.match(html, /data-site-cinematic="1"/);
     assert.match(html, /data-site-cine-procedural-hero="true"/);
     assert.doesNotMatch(html, /src="\/customer-hero\.webp"/);
-    assert.doesNotMatch(html, /daboim-visibility-film/);
+    assert.doesNotMatch(html, /anakslabs-visibility-film/);
   });
 
   test('고객 영상이 있는 신규 config는 절차적 배경 대신 단일 영상을 쓴다', () => {
@@ -90,6 +90,6 @@ describe('SITECINE C1 — 신규 히어로 브랜드 경계', () => {
     const serving = source('src/app/s/[domain]/_shared.tsx');
     const exporter = source('src/lib/export/render-static.ts');
     assert.match(generateRoute, /withSiteCinematicDefault\(withExtras\)/);
-    assert.doesNotMatch(`${serving}\n${exporter}`, /preview-addon|daboim-visibility-film/);
+    assert.doesNotMatch(`${serving}\n${exporter}`, /preview-addon|anakslabs-visibility-film/);
   });
 });

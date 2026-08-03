@@ -25,7 +25,7 @@ const candidate: DesignCandidate = {
 
 function survey(overrides: Partial<SurveyInput> = {}): SurveyInput {
   return {
-    businessName: '다보임 테스트',
+    businessName: 'Anaks Labs 테스트',
     purposeId: 'company_brand',
     purpose: '회사 소개',
     industry: '컨설팅',
@@ -118,7 +118,7 @@ describe('Q$3 섹션 디렉션 additive 계약', () => {
   });
 
   test('siteConfigSchema는 directions를 round-trip하고 없는 레거시 config를 그대로 허용한다', () => {
-    const withDirections = { ...emptySiteConfig('다보임'), directions };
+    const withDirections = { ...emptySiteConfig('Anaks Labs'), directions };
     assert.deepEqual(siteConfigSchema.parse(withDirections).directions, directions);
 
     const legacy = emptySiteConfig('레거시');

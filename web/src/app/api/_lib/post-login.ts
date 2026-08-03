@@ -15,7 +15,7 @@ import { getDataServices } from '@/lib/data';
 import { claimPendingScan } from './scan-claim';
 
 export function resolveAuthProvider(provider: unknown): AuthProvider {
-  return provider === 'kakao' || provider === 'google' ? provider : 'email';
+  return provider === 'google' ? provider : 'email';
 }
 
 /** 세션 성립 후 clients 보장 + 스캔 귀속. res 에 스캔 쿠키 세팅. */

@@ -110,7 +110,7 @@ test('종료된 네이버 리치 결과와 남은 질문 매칭 가치를 코드
   const ui = readFileSync(join(root, 'src/components/dashboard/onboarding/steps/step03-content.tsx'), 'utf8');
   assert.match(catalog, /2026-07-08 종료/);
   assert.match(catalog, /인덱싱·질문 매칭·AI 인용/);
-  assert.match(ui, /사장님이 답한 질문만 홈페이지와 검색용 질문·답에 들어갑니다/);
-  assert.match(ui, /답하지 않으면 홈페이지에 나오지 않아요/);
+  assert.match(ui, /Only questions you answer will be included on the website and in its structured FAQ/);
+  assert.match(ui, /If you don't answer, it won't appear on the website/);
   assert.doesNotMatch(ui, /예상답변|자동생성한 답/);
 });

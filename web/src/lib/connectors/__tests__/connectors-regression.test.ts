@@ -159,15 +159,15 @@ describe('CONN C4 — connector, tracking, and reporting round trip', () => {
     assert.equal(report.metrics.instagramClicks.current, 1);
     const email = buildMonthlyReportEmail({
       siteName: '온결 인테리어',
-      dashboardUrl: 'https://daboim.com/dashboard/reports',
+      dashboardUrl: 'https://anakslabs.com/dashboard/reports',
       report,
     });
-    assert.match(email.text, /상담 행동: 2건/);
-    assert.match(email.text, /카카오 상담 클릭 1건/);
-    assert.doesNotMatch(email.text, /상담 완료/);
+    assert.match(email.text, /Inquiry actions: 2/);
+    assert.match(email.text, /Chat clicks 1/);
+    assert.doesNotMatch(email.text, /consultation completed/iu);
   });
 
-  test('first HTML is native and static; every heavy integration waits for interaction or visibility', () => {
+  test('the US fork keeps first HTML native and loads no Korea-only connector SDK', () => {
     const config = applyConnectorManifest(
       {
         ...emptySiteConfig('온결 인테리어'),
@@ -200,16 +200,15 @@ describe('CONN C4 — connector, tracking, and reporting round trip', () => {
     assert.equal(dom.querySelectorAll('[data-instagram-feed-endpoint]').length, 0);
 
     const runtime = source('src/components/site-renderer/ConnectorRuntime.tsx');
-    assert.match(runtime, /script\.async = true/u);
-    assert.match(runtime, /script\.defer = true/u);
-    assert.doesNotMatch(runtime, /IntersectionObserver|instagram|fetch\(/iu);
+    assert.match(runtime, /export function ConnectorRuntime\(\) \{[\s\S]*return null/u);
+    assert.doesNotMatch(runtime, /createElement\('script'\)|IntersectionObserver|instagram|fetch\(/iu);
     assert.doesNotMatch(runtime, /document\.write|<iframe/iu);
   });
 
   test('only successful forms are counted and internal anchors never become conversion events', () => {
     const runtime = buildSiteBeaconRuntime({
       siteId: 'published-site',
-      endpoint: 'https://daboim.com/api/site-events',
+      endpoint: 'https://anakslabs.com/api/site-events',
     });
     assert.match(runtime, new RegExp(SITE_FORM_SUCCESS_EVENT));
     assert.doesNotMatch(runtime, /addEventListener\(['"]submit/iu);

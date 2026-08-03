@@ -3,7 +3,7 @@
  * no generated assets, provider calls, retouching, or image mutation.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-image-promotion-review.tsx
- * Out: /private/tmp/daboim-image-promotion-review
+ * Out: /private/tmp/anakslabs-image-promotion-review
  */
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -41,7 +41,7 @@ import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { emptySiteConfig, type SiteConfig } from '@/lib/types/site';
 
 const OUTPUT_DIR =
-  process.env.IMAGE_PROMOTION_REVIEW_OUTPUT ?? '/private/tmp/daboim-image-promotion-review';
+  process.env.IMAGE_PROMOTION_REVIEW_OUTPUT ?? '/private/tmp/anakslabs-image-promotion-review';
 const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const ASSET_ID = '11111111-1111-4111-8111-111111111111';

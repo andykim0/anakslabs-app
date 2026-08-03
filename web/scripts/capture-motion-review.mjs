@@ -2,7 +2,7 @@
 /**
  * Dependency-free Chrome DevTools Protocol visual/performance review runner.
  *
- * Input:  /private/tmp/daboim-motion-review (render-motion-review.tsx output)
+ * Input:  /private/tmp/anakslabs-motion-review (render-motion-review.tsx output)
  * Output: screenshots/, recordings/, browser-review.json in the same directory.
  */
 import { createServer } from 'node:http';
@@ -10,7 +10,7 @@ import { readFile, readdir, mkdir, writeFile, rm } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 
-const ROOT = process.env.MOTION_REVIEW_OUTPUT ?? '/private/tmp/daboim-motion-review';
+const ROOT = process.env.MOTION_REVIEW_OUTPUT ?? '/private/tmp/anakslabs-motion-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.MOTION_REVIEW_PORT ?? 4179);
 const RECORD = process.argv.includes('--record');
@@ -19,7 +19,7 @@ const CHOREO_QUICK = process.argv.includes('--choreo-quick');
 const MERGE = process.argv.includes('--merge');
 const ONLY = (process.argv.find((value) => value.startsWith('--only='))?.slice('--only='.length) ?? '')
   .split(',').map((value) => value.trim()).filter(Boolean);
-const PROFILE = `/private/tmp/daboim-motion-review-chrome-${process.pid}`;
+const PROFILE = `/private/tmp/anakslabs-motion-review-chrome-${process.pid}`;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',

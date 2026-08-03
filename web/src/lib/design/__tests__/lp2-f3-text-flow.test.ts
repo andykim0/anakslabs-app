@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { ElementContent } from '@/components/site-renderer/ElementContent';
 import { MOTION_CSS } from '@/lib/motion/runtime';
 import {
-  DABOIM_TEXT_FLOW,
+  ANAKS_TEXT_FLOW,
   GENERATED_TEXT_ROLE_RULES,
   textFlowFor,
 } from '@/lib/design/typography-scale';
@@ -30,13 +30,13 @@ function text(fontFamily: 'heading' | 'body'): TextElement {
 
 describe('LP2$ F3 Korean text flow and no-wrap controls', () => {
   test('공용 helper는 제목 balance·본문 pretty와 긴 토큰 비상 줄바꿈을 구분한다', () => {
-    assert.deepEqual(textFlowFor('heading'), DABOIM_TEXT_FLOW.heading);
-    assert.deepEqual(textFlowFor('body'), DABOIM_TEXT_FLOW.body);
-    assert.deepEqual(textFlowFor(undefined), DABOIM_TEXT_FLOW.body);
-    assert.deepEqual(DABOIM_TEXT_FLOW.heading, {
+    assert.deepEqual(textFlowFor('heading'), ANAKS_TEXT_FLOW.heading);
+    assert.deepEqual(textFlowFor('body'), ANAKS_TEXT_FLOW.body);
+    assert.deepEqual(textFlowFor(undefined), ANAKS_TEXT_FLOW.body);
+    assert.deepEqual(ANAKS_TEXT_FLOW.heading, {
       wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'balance',
     });
-    assert.deepEqual(DABOIM_TEXT_FLOW.body, {
+    assert.deepEqual(ANAKS_TEXT_FLOW.body, {
       wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'pretty',
     });
   });
@@ -44,12 +44,12 @@ describe('LP2$ F3 Korean text flow and no-wrap controls', () => {
   test('마케팅 역할 CSS가 제목과 본문을 중앙에서 나누고 control은 한 줄로 제한한다', () => {
     const css = source('src/app/globals.css');
     const heading = css.match(
-      /\.daboim-marketing \.mkt-type-hero,[\s\S]*?\.mkt-type-table-title\s*\{([^}]+)\}/,
+      /\.anakslabs-marketing \.mkt-type-hero,[\s\S]*?\.mkt-type-table-title\s*\{([^}]+)\}/,
     );
     const body = css.match(
-      /\.daboim-marketing \.mkt-type-body,[\s\S]*?\.mkt-type-support\s*\{([^}]+)\}/,
+      /\.anakslabs-marketing \.mkt-type-body,[\s\S]*?\.mkt-type-support\s*\{([^}]+)\}/,
     );
-    const control = css.match(/\.daboim-marketing \.mkt-type-control\s*\{([^}]+)\}/);
+    const control = css.match(/\.anakslabs-marketing \.mkt-type-control\s*\{([^}]+)\}/);
     assert.ok(heading && body && control);
     assert.match(heading[1], /word-break:\s*keep-all/);
     assert.match(heading[1], /overflow-wrap:\s*anywhere/);
@@ -60,7 +60,8 @@ describe('LP2$ F3 Korean text flow and no-wrap controls', () => {
     assert.match(control[1], /white-space:\s*nowrap/);
     assert.doesNotMatch(control[1], /text-overflow:\s*ellipsis/);
     assert.match(css, /\.mkt-type-control > svg\s*\{[^}]*flex:\s*0 0 auto/);
-    assert.match(source('src/components/marketing/MarketingHeader.tsx'), /w-\[100px\][^"\n]*shrink-0/);
+    assert.match(source('src/components/marketing/MarketingHeader.tsx'), /className="shrink-0"/);
+    assert.match(source('src/components/brand/BrandLogo.tsx'), /shrink-0[^"\n]*whitespace-nowrap|whitespace-nowrap[^"\n]*shrink-0/);
   });
 
   test('production renderer와 editor mirror가 같은 text-flow helper를 소비한다', () => {

@@ -9,7 +9,7 @@ import { COMPOSITE_SIGNATURES, MOTION_LIMITS, countMotionSignatures } from '@/li
 import { sanitizeMotion } from '@/lib/motion/validate';
 
 function config(): SiteConfig {
-  const value = emptySiteConfig('다보임 시네마틱');
+  const value = emptySiteConfig('Anaks Labs 시네마틱');
   value.motion = {
     presetId: 'cinematic-hero',
     intensity: 'normal',

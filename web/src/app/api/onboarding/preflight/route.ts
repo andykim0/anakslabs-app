@@ -11,7 +11,7 @@ export const runtime = 'nodejs';
 
 export const ONBOARDING_PREFLIGHT_RATE_LIMIT = 30;
 export const ONBOARDING_PREFLIGHT_WINDOW_MS = 60_000;
-const RATE_KEY = '__daboimOnboardingPreflightRateLimiter__' as const;
+const RATE_KEY = '__anaksOnboardingPreflightRateLimiter__' as const;
 type GlobalWithLimiter = typeof globalThis & {
   [RATE_KEY]?: ReturnType<typeof createSiteRateLimiter>;
 };

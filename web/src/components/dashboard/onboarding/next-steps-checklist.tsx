@@ -51,9 +51,9 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
   return (
     <div className="w-full max-w-md text-left">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-ob-ink">이제 이런 걸 다듬어보세요</h3>
+        <h3 className="text-sm font-semibold text-ob-ink">Now try to refine this</h3>
         <span className="text-xs text-ob-muted">
-          {completed}/{steps.length} 완료
+          {completed}/{steps.length} Complete
         </span>
       </div>
       <ul className="space-y-2">
@@ -69,7 +69,7 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
             >
               <button
                 type="button"
-                aria-label={isDone ? '완료 취소' : '완료 표시'}
+                aria-label={isDone ? "Done Cancel" : "mark done"}
                 onClick={() => toggle(step.id)}
                 className={cn(
                   'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors',
@@ -90,7 +90,7 @@ export function NextStepsChecklist({ siteId, survey }: { siteId: string; survey:
                 href={`/dashboard/sites/${siteId}/editor?focus=${step.focus}`}
                 className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-lg border border-ob-border px-2.5 py-1 text-[11px] text-ob-ink transition-colors hover:border-ob-accent-strong hover:text-ob-accent-strong"
               >
-                열기 <ArrowRight className="h-3 w-3" />
+                Open <ArrowRight className="h-3 w-3" />
               </Link>
             </li>
           );

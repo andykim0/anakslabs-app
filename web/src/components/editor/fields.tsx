@@ -331,7 +331,7 @@ export function ColorField({
   value,
   onCommit,
   clearable = false,
-  clearLabel = '테마 기본',
+  clearLabel = "theme basics",
 }: {
   label: string;
   /** undefined = 테마 기본값 사용 */
@@ -368,7 +368,7 @@ export function ColorField({
         {clearable && value !== undefined ? (
           <button
             type="button"
-            title={`${clearLabel}으로 초기화`}
+            title={`${clearLabel}initialized to`}
             onClick={() => onCommit(undefined)}
             className="flex h-8 w-7 shrink-0 items-center justify-center rounded-md text-[#667085] transition-colors hover:bg-[#E8EDF5] hover:text-[#26354D]"
           >

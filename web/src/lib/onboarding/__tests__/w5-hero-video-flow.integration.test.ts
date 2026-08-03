@@ -193,9 +193,9 @@ describe('W5 — 히어로 사진→영상 애드온 통합 상태 전이', () =
     assert.match(candidates, /items\.slice\(0, HERO_CANDIDATE_LIMIT\)/);
     assert.match(candidates, /console\.info\([\s\S]*\[hero-image-candidates\]/);
 
-    assert.match(preview, /실제 렌더러 티저/);
-    assert.match(preview, /동일한 scene 계약·런타임/);
-    assert.match(preview, /고객 최종 자산 아님/);
+    assert.match(preview, /Actual renderer teaser/);
+    assert.match(preview, /actual renderer/);
+    assert.match(preview, /not your final asset/);
 
     const addon = post.indexOf('!hasVideoAddon(client.tier)');
     const owned = post.indexOf('await getOwnedSite');

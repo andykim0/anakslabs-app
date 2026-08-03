@@ -32,7 +32,7 @@ class PreviewErrorBoundary extends Component<{ children: ReactNode }, { failed: 
       return (
         <div className="flex h-40 flex-col items-center justify-center gap-2 text-neutral-600">
           <ImageOff className="h-6 w-6" />
-          <p className="text-xs">미리보기를 표시할 수 없습니다</p>
+          <p className="text-xs">Preview cannot be displayed</p>
         </div>
       );
     }
@@ -183,7 +183,7 @@ export function SitePreview({
       </div>
       {previewAsAddon ? (
         <span className="pointer-events-none absolute top-2 left-2 z-50 rounded-full border border-white/25 bg-[#07162f]/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-lg backdrop-blur-sm">
-          예시 · 베이직 포함 AI 영상 홈페이지 적용 시
+          Example · When applying AI video homepage including Basic
         </span>
       ) : null}
     </div>

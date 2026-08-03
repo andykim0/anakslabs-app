@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <html lang="ko" className={APP_ROOT_HTML_CLASS_NAME}>
+    <html lang="en" className={APP_ROOT_HTML_CLASS_NAME}>
       <body suppressHydrationWarning className={APP_ROOT_BODY_CLASS_NAME}>
         <Providers>
           <DashboardShell

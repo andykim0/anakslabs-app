@@ -16,7 +16,7 @@ import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { MotionSignatureRenderer } from '../MotionSignatureRenderer';
 import { SiteRenderer } from '../SiteRenderer';
 
-const theme = emptySiteConfig('Daboim').theme;
+const theme = emptySiteConfig('Anaks Labs').theme;
 const image = (id: string, caption?: string): MotionMedia => ({
   id,
   kind: 'image',
@@ -424,7 +424,7 @@ function productionConfig(scene: MotionScene): SiteConfig {
   return {
     version: 2,
     theme,
-    meta: { title: 'Daboim', purposeId: 'local_store', templateId: 'local_store.default', industryClass: 'other' },
+    meta: { title: 'Anaks Labs', purposeId: 'local_store', templateId: 'local_store.default', industryClass: 'other' },
     pages: [{ id: 'home', title: '홈', slug: '', sections: [target] }],
     motion: { presetId: 'base-calm-v2', intensity: 'normal', catalogVersion: 2, signatures: [scene] },
   };

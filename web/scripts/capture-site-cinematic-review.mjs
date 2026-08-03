@@ -5,10 +5,10 @@ import { createServer } from 'node:http';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const ROOT = process.env.SITECINE_REVIEW_OUTPUT ?? '/private/tmp/daboim-site-cinematic-review';
+const ROOT = process.env.SITECINE_REVIEW_OUTPUT ?? '/private/tmp/anakslabs-site-cinematic-review';
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = Number(process.env.SITECINE_REVIEW_PORT ?? 4183);
-const PROFILE = `/private/tmp/daboim-sitecine-chrome-${process.pid}`;
+const PROFILE = `/private/tmp/anakslabs-sitecine-chrome-${process.pid}`;
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.mp4': 'video/mp4',
@@ -404,7 +404,7 @@ async function main() {
       noJs: { copyPresent: true, chapterCount: noJs.chapterCount, cls: noJs.cls },
       reduced: { copyPresent: true, chapterCount: reduced.chapterCount, cls: reduced.cls },
       requests: requests.map((request) => request.path),
-      daboimAssetRequests: requests.filter((request) => request.path.includes('daboim-visibility-film')),
+      anakslabsAssetRequests: requests.filter((request) => request.path.includes('anakslabs-visibility-film')),
     }, null, 2), 'utf8');
     process.stdout.write(`SITECINE browser review: ${audits.length} viewport audits, 2 recordings -> ${ROOT}\n`);
   } finally {

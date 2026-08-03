@@ -171,24 +171,24 @@ export function MotionImmersivePreview({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-bold text-cyan-100">
-                예시 · 실제 production renderer
+                Example · actual production renderer
               </span>
-              {selected ? <span className="text-[10px] font-semibold text-white/65">현재 선택</span> : null}
+              {selected ? <span className="text-[10px] font-semibold text-white/65">current selection</span> : null}
             </div>
             <h2 id="motion-immersive-title" className="mt-1.5 truncate text-base font-semibold sm:text-lg">
-              {spec.label}을 직접 스크롤해 보세요
+              {spec.label}Scroll for yourself
             </h2>
             <p className="hidden text-xs text-white/60 sm:block">{spec.description}</p>
           </div>
 
-          <div className="flex items-center rounded-full border border-white/15 bg-white/5 p-1" aria-label="미리보기 화면 크기">
+          <div className="flex items-center rounded-full border border-white/15 bg-white/5 p-1" aria-label="Preview screen size">
             <button
               type="button"
               aria-pressed={mode === 'desktop'}
               onClick={() => setMode('desktop')}
               className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-semibold', mode === 'desktop' ? 'bg-white text-[#07162f]' : 'text-white/65 hover:text-white')}
             >
-              <Monitor className="h-3.5 w-3.5" /> 데스크톱
+              <Monitor className="h-3.5 w-3.5" /> desktop
             </button>
             <button
               type="button"
@@ -196,7 +196,7 @@ export function MotionImmersivePreview({
               onClick={() => setMode('mobile')}
               className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-semibold', mode === 'mobile' ? 'bg-white text-[#07162f]' : 'text-white/65 hover:text-white')}
             >
-              <Smartphone className="h-3.5 w-3.5" /> 모바일
+              <Smartphone className="h-3.5 w-3.5" /> mobile
             </button>
           </div>
 
@@ -204,7 +204,7 @@ export function MotionImmersivePreview({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            aria-label="몰입 미리보기 닫기"
+            aria-label="Close immersive preview"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <X className="h-5 w-5" />
@@ -227,11 +227,11 @@ export function MotionImmersivePreview({
 
         <footer className="flex shrink-0 flex-wrap items-center gap-3 border-t border-white/12 bg-[#07162f]/92 px-4 py-3 sm:px-6">
           <div className="mr-auto min-w-0 text-[11px] leading-5 text-white/65">
-            <p>{mode === 'mobile' ? `모바일: ${spec.mobileFallback} · 천천히 자동 진행되며 직접 스와이프하면 멈춰요.` : '데스크톱: 안쪽을 스크롤하면 발행본과 같은 진행도 런타임이 작동합니다.'}</p>
-            <p>{usesRepresentativeMedia ? '대표 데모 영상은 움직임 설명용이며 고객님의 최종 자산이 아닙니다.' : '선택한 팔레트·글꼴·콘텐츠·이미지를 그대로 반영한 예시입니다.'}</p>
+            <p>{mode === 'mobile' ? `Mobile:${spec.mobileFallback}· It progresses slowly and automatically and stops when you swipe directly.` : "Desktop: Scrolling inwards now works like a published version of the progression runtime."}</p>
+            <p>{usesRepresentativeMedia ? "Representative demo videos are for movement illustrative purposes only and are not your final assets." : "This is an example that directly reflects the selected palette, font, content, and image."}</p>
           </div>
-          <Button variant="secondary" onClick={onClose}>다른 연출 보기</Button>
-          <Button onClick={onConfirm}><Check className="h-4 w-4" />이 연출 선택</Button>
+          <Button variant="secondary" onClick={onClose}>See other productions</Button>
+          <Button onClick={onConfirm}><Check className="h-4 w-4" />This directing choice</Button>
         </footer>
       </div>
     </div>,

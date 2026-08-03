@@ -45,16 +45,11 @@ describe('GT$ G4 통합 회귀', () => {
     assert.match(sql, /revoke all on table public\.search_registration_queue from anon, authenticated/);
   });
 
-  test('보장 판정 로직은 보존하되 프로그램은 기본 OFF이고 비교·검색 등록 카피는 유지한다', () => {
-    const guarantee = read('src/app/(marketing)/guarantee/page.tsx');
-    const scanner = read('src/components/landing/LandingScanner.tsx');
+  test('legacy guarantee evaluation remains gated off while the US surface makes no guarantee claim', () => {
     const landing = read('src/app/(marketing)/page.tsx');
     assert.equal(guaranteeProgramEnabled({}), false);
     assert.equal(guaranteeProgramEnabled({ GUARANTEE_PROGRAM_ENABLED: '1' }), true);
-    assert.match(guarantee, /if \(!guaranteeProgramEnabled\(\)\) notFound\(\)/);
-    assert.doesNotMatch(landing, /GuaranteeBadge|90일 성과 보장/u);
-    assert.match(scanner, /실제 검색 순위 조회나 순위 보장이 아닙니다/);
-    assert.match(scanner, /진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다/);
-    assert.match(landing, /네이버·구글 검색 등록까지 다보임이 대신합니다/);
+    assert.doesNotMatch(landing, /GuaranteeBadge|guaranteed outcome|#1 clinic|best clinic/iu);
+    assert.match(landing, /No invented claims and no empty template sections/u);
   });
 });

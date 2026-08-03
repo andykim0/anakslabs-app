@@ -87,7 +87,7 @@ describe('W4 — 히어로 영상 dashboard API', () => {
           error instanceof ApiError &&
           error.status === 500 &&
           error.code === 'INVALID_RESPONSE' &&
-          error.message === '영상 시안 생성에 실패했습니다.',
+          error.message === 'Failed to create video draft.',
       );
     }
   });
@@ -110,7 +110,7 @@ describe('W4 — 히어로 영상 dashboard API', () => {
       (error: unknown) =>
         error instanceof ApiError &&
         error.code === 'INVALID_RESPONSE' &&
-        error.message === '영상 적용에 실패했습니다.',
+        error.message === 'Failed to apply video.',
     );
   });
 

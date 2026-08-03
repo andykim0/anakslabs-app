@@ -25,11 +25,11 @@ import { cn } from '../../ui';
 import { Field, StepIntro, deriveColors, obInput, useSurveyUx, type SurveyForm } from './shared';
 
 const KIND_LABEL: Record<PresenceKind, string> = {
-  website: '홈페이지',
-  naver_blog: '네이버 블로그',
-  instagram: '인스타그램',
-  naver_place: '네이버 플레이스',
-  other: '기타',
+  website: "Website",
+  naver_blog: "Legacy Naver Blog",
+  instagram: "Instagram",
+  naver_place: "Legacy Naver Place",
+  other: "Other",
 };
 
 function Row({
@@ -54,14 +54,14 @@ function Row({
         onClick={() => goTo(step)}
         className="inline-flex shrink-0 items-center gap-1 text-[13px] text-ob-accent-strong hover:underline"
       >
-        <Pencil className="h-3 w-3" /> 수정
+        <Pencil className="h-3 w-3" /> Edit
       </button>
     </div>
   );
 }
 
 function Empty() {
-  return <span className="text-ob-muted">없음</span>;
+  return <span className="text-ob-muted">Not provided</span>;
 }
 
 export function Step08Review() {
@@ -87,76 +87,76 @@ export function Step08Review() {
 
   return (
     <div className="space-y-6">
-      <StepIntro>맞으면 아래 생성 시작을 눌러주세요. 각 항목은 언제든 수정할 수 있어요.</StepIntro>
+      <StepIntro>If correct, click Start Creation below. Each item can be edited at any time.</StepIntro>
 
       <div className="rounded-ob border border-ob-border bg-ob-surface px-4">
-        <Row title="목적 · 업종" step={2} goTo={goTo}>
+        <Row title="Purpose and specialty" step={2} goTo={goTo}>
           {purpose?.label ?? <Empty />}
           {v.industry ? ` · ${v.industry}` : ''}
         </Row>
-        <Row title="상호명" step={2} goTo={goTo}>
+        <Row title="Clinic name" step={2} goTo={goTo}>
           {v.businessName || <Empty />}
           {v.region ? <span className="text-ob-muted"> · {v.region}</span> : null}
         </Row>
-        <Row title="한 줄 소개" step={2} goTo={goTo}>
-          {v.tagline || <span className="text-ob-muted">입력 안 함</span>}
+        <Row title="Short introduction" step={2} goTo={goTo}>
+          {v.tagline || <span className="text-ob-muted">No input</span>}
         </Row>
-        <Row title="기존 채널" step={1} goTo={goTo}>
+        <Row title="Existing sources" step={1} goTo={goTo}>
           {v.existingPresence.length ? (
             v.existingPresence.map((p) => KIND_LABEL[p.kind]).join(' · ')
           ) : (
             <Empty />
           )}
         </Row>
-        <Row title="소개·메뉴 원문" step={5} goTo={goTo}>
+        <Row title="Source text" step={5} goTo={goTo}>
           {v.providedContent?.trim() ? (
             <span className="line-clamp-2 text-ob-muted">{v.providedContent.trim()}</span>
           ) : (
-            <span className="text-ob-muted">추가 입력 없음</span>
+            <span className="text-ob-muted">No additional input</span>
           )}
         </Row>
-        <Row title="대표 실제 사진" step={6} goTo={goTo}>
+        <Row title="Representative real photos" step={6} goTo={goTo}>
           {!assetPolicyV2Ready ? (
             v.heroPhotoUrl
-              ? '1장 · 히어로에 사용'
+              ? "1 photo · available for the hero"
               : <span className="text-ob-muted">{REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisualsShort}</span>
           ) : v.heroPhotoUrl ? (
             v.heroPhotoAssetRef
-              ? '1장 · 직접 업로드 등록'
-              : <span className="text-ob-muted">1장 · URL 이미지(실사 근거 아님)</span>
+              ? "1 photo · verified direct upload"
+              : <span className="text-ob-muted">1 photo · URL image (not direct-upload evidence)</span>
           ) : <span className="text-ob-muted">{REFERENTIAL_IMAGE_POLICY_COPY.suppliedVisualsShort}</span>}
         </Row>
-        <Row title="제품·공간·인물 사진" step={6} goTo={goTo}>
+        <Row title="Clinic, service, and team photos" step={6} goTo={goTo}>
           {!assetPolicyV2Ready
-            ? (v.storePhotoUrls.length ? `${v.storePhotoUrls.length}장` : <Empty />)
+            ? (v.storePhotoUrls.length ? `${v.storePhotoUrls.length} images` : <Empty />)
             : v.storePhotoUrls.length
-            ? `${v.storePhotoUrls.length}장 · 직접 업로드 등록 ${v.storePhotoAssetRefs.length}장`
+            ? `${v.storePhotoUrls.length} photos · ${v.storePhotoAssetRefs.length} verified direct uploads`
             : <Empty />}
         </Row>
         {assetPolicyV2Ready && v.importedPhotoAssetRefs.length ? (
-          <Row title="외부 채널에서 가져온 사진" step={1} goTo={goTo}>
-            <span className="text-ob-muted">{v.importedPhotoAssetRefs.length}장 · 사진 단계의 사용 권리 확인 대상</span>
+          <Row title="Photos imported from external sources" step={1} goTo={goTo}>
+            <span className="text-ob-muted">{v.importedPhotoAssetRefs.length} photos · usage rights must be confirmed in the photo step</span>
           </Row>
         ) : null}
         {assetPolicyV2Ready ? (
-          <Row title="실제 사진 사용 확인" step={6} goTo={goTo}>
-            {v.generalAssetAttestationId ? '확인 완료' : <span className="text-ob-muted">확인 안 됨</span>}
+          <Row title="Photo usage confirmation" step={6} goTo={goTo}>
+            {v.generalAssetAttestationId ? "Confirmed" : <span className="text-ob-muted">Not confirmed</span>}
           </Row>
         ) : null}
         {assetPolicyV2Ready && v.personPhotoAssetIds.length ? (
-          <Row title="인물 사진 추가 확인" step={6} goTo={goTo}>
-            {v.personPhotoAssetIds.length}장 · 자산별 확인 완료
+          <Row title="Portrait consent" step={6} goTo={goTo}>
+            {v.personPhotoAssetIds.length} asset-level confirmation{v.personPhotoAssetIds.length === 1 ? '' : 's'}
           </Row>
         ) : null}
         {assetPolicyV2Ready && v.nonPersonPhotoAssetIds.length ? (
-          <Row title="인물 없음 확인" step={6} goTo={goTo}>
-            {v.nonPersonPhotoAssetIds.length}장 · 식별 가능한 인물 없음
+          <Row title="Photos without identifiable people" step={6} goTo={goTo}>
+            {v.nonPersonPhotoAssetIds.length} photos
           </Row>
         ) : null}
-        <Row title={assetPolicyV2Ready ? '이미지 방향' : '이미지 스타일'} step={7} goTo={goTo}>
+        <Row title={assetPolicyV2Ready ? "Image direction" : "Image style"} step={7} goTo={goTo}>
           {assetPolicyV2Ready ? imageDirectionLabel : legacyImageStyleLabel}
         </Row>
-        <Row title="느낌 · 색" step={8} goTo={goTo}>
+        <Row title="Mood and color" step={8} goTo={goTo}>
           <span className="inline-flex items-center gap-2">
             {applied.colorPreference ? (
               <span
@@ -167,24 +167,24 @@ export function Step08Review() {
             {moodLabels.length ? moodLabels.join(', ') : applied.colorPreference || <Empty />}
           </span>
         </Row>
-        <Row title="타깃 고객" step={3} goTo={goTo}>
+        <Row title="Patient audience" step={3} goTo={goTo}>
           {v.targetCustomer || <Empty />}
         </Row>
-        <Row title="방문자가 찾는 것" step={3} goTo={goTo}>
+        <Row title="What Visitors Are Looking For" step={3} goTo={goTo}>
           {v.visitorNeed || <Empty />}
         </Row>
-        <Row title="가치제안" step={3} goTo={goTo}>
+        <Row title="Value proposition" step={3} goTo={goTo}>
           {v.valueProposition || <Empty />}
         </Row>
-        <Row title="방문자 목표" step={3} goTo={goTo}>
+        <Row title="Visitor goal" step={3} goTo={goTo}>
           {goalLabel ?? <Empty />}
         </Row>
-        <Row title="출처 있는 신뢰 요소" step={5} goTo={goTo}>
+        <Row title="Sourced Trust Factor" step={5} goTo={goTo}>
           {v.proofItems.length
-            ? `${v.proofItems.filter((proof) => proof.content.trim()).length}개 입력`
+            ? `${v.proofItems.filter((proof) => proof.content.trim()).length} sourced items`
             : v.highlights.length ? v.highlights.join(', ') : <Empty />}
         </Row>
-        <Row title="분위기(톤)" step={3} goTo={goTo}>
+        <Row title="Mood (tone)" step={3} goTo={goTo}>
           {v.tone.length ? v.tone.join(', ') : <Empty />}
         </Row>
       </div>
@@ -192,14 +192,14 @@ export function Step08Review() {
       <Field
         label={
           <>
-            추가로 요청할 내용 <span className="font-normal text-ob-muted">(선택)</span>
+            Additional Requests <span className="font-normal text-ob-muted">(select)</span>
           </>
         }
       >
         <textarea
           {...register('extraNotes')}
           rows={3}
-          placeholder="예: 대표 메뉴를 가장 위에, 예약 버튼을 눈에 띄게"
+          placeholder="Example: Main menu at the top, reservation button prominently"
           className={cn(obInput, 'resize-none')}
         />
       </Field>

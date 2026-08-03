@@ -19,8 +19,8 @@ describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () 
 
   test('가짜 CSS 카드 대신 동일 scene·runtime의 SitePreview를 소형·대형으로 쓴다', () => {
     assert.ok((`${motion}\n${immersive}`.match(/<SitePreview/g) ?? []).length >= 2);
-    assert.match(motion, /실제 렌더러 티저/);
-    assert.match(motion, /동일한 scene 계약·런타임/);
+    assert.match(motion, /Actual renderer teaser/);
+    assert.match(motion, /same scene contract and runtime/);
     assert.match(immersive, /motion=\{!reducedMotion\}/);
     assert.doesNotMatch(motion, /@keyframes hvm-|HeroMotionDemo/);
   });
@@ -28,10 +28,10 @@ describe('W2/v2 — production 시그니처 미리보기·AI 영상 분리', () 
   test('AI 영상 홈페이지는 별도 가격 없이 베이직 포함이고 기본·영상 선택은 접근 가능하다', () => {
     assert.doesNotMatch(motion, /PRICING\.videoHeroAddon\.toLocaleString/);
     assert.doesNotMatch(motion, /200_?000/);
-    assert.match(motion, /이미지 \+ 기본 모션/);
-    assert.match(motion, /베이직 제작비에 포함/);
-    assert.match(motion, /AI 영상 홈페이지/);
-    assert.match(motion, /최종 디자인 승인 뒤 1회 생성/);
+    assert.match(motion, /Image \+ basic motion/);
+    assert.match(motion, /Included/);
+    assert.match(motion, /AI hero video/);
+    assert.match(motion, /One generation after final design approval/);
     assert.ok((motion.match(/aria-pressed=/g) ?? []).length >= 2);
   });
 

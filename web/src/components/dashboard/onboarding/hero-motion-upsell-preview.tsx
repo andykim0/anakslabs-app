@@ -84,7 +84,7 @@ export function HeroMotionUpsellPreview({
       <div className="relative aspect-[16/9] overflow-hidden bg-[#07162f]">
         <motion.img
           src={heroImageUrl}
-          alt={`${businessName}에서 선택한 히어로 이미지`}
+          alt={`${businessName}Hero image selected from`}
           className="absolute inset-0 h-full w-full object-cover"
           initial={false}
           animate={moving
@@ -109,12 +109,12 @@ export function HeroMotionUpsellPreview({
           transition={moving ? { duration: 5.8, repeat: Infinity, repeatDelay: 2.2, ease: 'easeInOut' } : { duration: 0 }}
         />
         <span className="absolute top-3 left-3 rounded-full border border-white/25 bg-[#07162f]/82 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">
-          예시 · 같은 사진으로 비교 중
+          Example · Comparing the same photo
         </span>
         <div className="absolute right-3 bottom-3 left-3 flex items-end justify-between gap-3 text-white">
           <div className="min-w-0">
             <p className="truncate text-[11px] font-medium text-white/75">{businessName}</p>
-            <p className="mt-0.5 text-sm font-semibold">{moving ? '빛과 카메라가 천천히 흐르는 중' : '선택한 정지 이미지'}</p>
+            <p className="mt-0.5 text-sm font-semibold">{moving ? 'Subtle light and camera movement' : 'Selected still image'}</p>
           </div>
           <span className="shrink-0 rounded-full border border-white/20 bg-black/35 px-2.5 py-1 text-[10px] font-semibold backdrop-blur-sm">
             {moving ? 'MOTION' : 'STILL'}
@@ -124,9 +124,9 @@ export function HeroMotionUpsellPreview({
 
       <div className="flex items-center justify-between gap-3 border-t border-ob-border p-3">
         <p className="text-[11px] leading-5 text-ob-muted">
-          {reducedMotion ? '기기의 움직임 줄이기 설정에 따라 정지 예시로 보여드려요.' : '정지와 모션을 눌러 같은 사진의 차이를 직접 비교해 보세요.'}
+          {reducedMotion ? 'Motion is disabled by your reduced-motion setting.' : 'Compare still and motion using the same image.'}
         </p>
-        <div className="flex shrink-0 rounded-full border border-ob-border bg-ob-bg p-1" aria-label="예시 움직임 비교">
+        <div className="flex shrink-0 rounded-full border border-ob-border bg-ob-bg p-1" aria-label="Example movement comparison">
           <button
             type="button"
             aria-pressed={effectiveMode === 'still'}
@@ -136,7 +136,7 @@ export function HeroMotionUpsellPreview({
               effectiveMode === 'still' ? 'bg-ob-surface text-ob-ink shadow-sm' : 'text-ob-muted hover:text-ob-ink',
             )}
           >
-            <ImageIcon className="h-3 w-3" /> 정지
+            <ImageIcon className="h-3 w-3" /> Still
           </button>
           <button
             type="button"
@@ -149,7 +149,7 @@ export function HeroMotionUpsellPreview({
               reducedMotion && 'cursor-not-allowed opacity-50',
             )}
           >
-            {effectiveMode === 'motion' ? <Sparkles className="h-3 w-3" /> : <Play className="h-3 w-3" />} 모션
+            {effectiveMode === 'motion' ? <Sparkles className="h-3 w-3" /> : <Play className="h-3 w-3" />} Motion
           </button>
         </div>
       </div>

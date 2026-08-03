@@ -329,11 +329,11 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
           {scan.scores.total < 60
             ? '손님이 검색하거나 AI에 물을 때 핵심 정보를 찾기 어려운 상태입니다.'
             : '기본 정보는 있지만 손님이 찾기 어려운 항목이 남아 있습니다.'}{' '}
-          다보임은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
+          Anaks Labs은 위 <span className="font-semibold text-[#174DDA]">{issueCount}개 빠진 항목</span>을 제작 단계에서
           보완해, 가게 이름·지역·서비스를 네이버·구글·AI가 읽기 쉽게 정리합니다.
         </p>
         <p className="mkt-type-body mt-3 font-semibold text-[#0B4351]">
-          진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다.
+          진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 Anaks Labs뿐입니다.
         </p>
         <Link
           href="/login"
@@ -410,7 +410,7 @@ export function LandingScanner() {
             홈페이지 주소를 넣으면 손님이 검색하거나 AI에 물을 때 빠진 정보를 바로 보여드립니다.
           </p>
           <p className="mkt-type-body mt-3 max-w-xl font-semibold text-[#0B4351] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
-            진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 다보임뿐입니다.
+            진단만 해주는 곳은 많습니다. 진단하고, 고쳐서, 만들어드리는 건 Anaks Labs뿐입니다.
           </p>
 
           <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">

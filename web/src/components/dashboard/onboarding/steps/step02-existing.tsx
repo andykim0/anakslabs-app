@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AtSign, Globe, ImageOff, Loader2, MapPin } from 'lucide-react';
+import { AtSign, Globe, ImageOff, Loader2 } from 'lucide-react';
 import type { PresenceKind } from '@/lib/types/domain';
 import type { AssetRef } from '@/lib/assets/provenance';
 import { handleFromSnsUrl, snsUrlFromHandle } from '@/lib/onboarding/sns';
@@ -46,11 +46,11 @@ interface ImportResult {
 }
 
 const KIND_LABEL: Record<PresenceKind, string> = {
-  website: '홈페이지',
-  naver_blog: '네이버 블로그',
-  instagram: '인스타그램',
-  naver_place: '네이버 플레이스',
-  other: '기타',
+  website: "homepage",
+  naver_blog: "Legacy blog",
+  instagram: "Instagram",
+  naver_place: "Legacy directory",
+  other: "Other",
 };
 
 function normalizeWebUrl(raw: string): string {
@@ -86,12 +86,6 @@ export function Step02Existing() {
   const [websiteUrl, setWebsiteUrl] = useState(
     () => presence.find((item) => item.kind === 'website')?.url ?? '',
   );
-  const [naverUrl, setNaverUrl] = useState(
-    () => presence.find((item) => item.kind === 'naver_place')?.url ?? '',
-  );
-  const [naverBlogUrl, setNaverBlogUrl] = useState(
-    () => presence.find((item) => item.kind === 'naver_blog')?.url ?? '',
-  );
   const [skip, setSkip] = useState(false);
 
   const [owned, setOwned] = useState(false);
@@ -107,12 +101,8 @@ export function Step02Existing() {
     }
     const web = normalizeWebUrl(websiteUrl);
     if (isWebUrl(web)) out.push({ kind: 'website', url: web });
-    const nav = normalizeWebUrl(naverUrl);
-    if (isWebUrl(nav)) out.push({ kind: 'naver_place', url: nav });
-    const blog = normalizeWebUrl(naverBlogUrl);
-    if (isWebUrl(blog)) out.push({ kind: 'naver_blog', url: blog });
     return out.slice(0, 5);
-  }, [instaHandle, websiteUrl, naverBlogUrl, naverUrl]);
+  }, [instaHandle, websiteUrl]);
 
   // 입력한 원천을 form.existingPresence에 저장 (가져오기 없이도)
   useEffect(() => {
@@ -140,7 +130,7 @@ export function Step02Existing() {
         | { results?: ImportResult[]; error?: { message?: string } }
         | null;
       if (!res.ok) {
-        toast('error', data?.error?.message ?? '가져오기에 실패했어요.');
+        toast('error', data?.error?.message ?? "Import failed.");
         return;
       }
       const list = Array.isArray(data?.results) ? data.results : [];
@@ -225,12 +215,12 @@ export function Step02Existing() {
         const merged = cur ? `${cur}\n\n${importedText}`.slice(0, 5000) : importedText;
         setValue('providedContent', merged, { shouldValidate: false });
         setImportedBadge(true);
-        toast('success', '가져온 사실을 해당 입력칸에 채웠어요. 확인하고 고쳐주세요.');
+        toast('success', "I filled in the information I brought into the corresponding input box. Please check and fix it.");
       } else {
-        toast('info', '자동으로 가져올 텍스트가 없어요. 원문을 직접 붙여넣어 주세요.');
+        toast('info', "There is no text to automatically import. Please paste the original text directly.");
       }
     } catch {
-      toast('error', '네트워크 연결을 확인해 주세요.');
+      toast('error', "Please check your network connection.");
     } finally {
       setImporting(false);
     }
@@ -252,12 +242,12 @@ export function Step02Existing() {
         | { imageUrls?: string[]; assetRefs?: unknown; error?: { message?: string } }
         | null;
       if (!res.ok) {
-        toast('error', data?.error?.message ?? '이미지 가져오기에 실패했어요.');
+        toast('error', data?.error?.message ?? "Failed to import image.");
         return;
       }
       const got = Array.isArray(data?.imageUrls) ? data.imageUrls : [];
       if (got.length === 0) {
-        toast('info', '가져올 수 있는 이미지가 없었어요.');
+        toast('info', "There were no images I could import.");
         return;
       }
       const importedRefs = data?.assetRefs === undefined
@@ -269,7 +259,7 @@ export function Step02Existing() {
         || (data?.assetRefs !== undefined
           && (importedRefs.length !== got.length
             || importedRefs.some((ref, index) => ref.url !== got[index])))) {
-        toast('error', '가져온 이미지의 서버 출처 기록을 확인하지 못했습니다. 다시 시도해 주세요.');
+        toast('error', "The server origin record for the imported image could not be verified. Please try again.");
         return;
       }
       const cur = getValues('storePhotoUrls') ?? [];
@@ -285,11 +275,11 @@ export function Step02Existing() {
       toast(
         'success',
         assetPolicyV2Ready
-          ? `사진 ${got.length}장을 담았어요. 사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요.`
-          : `사진 ${got.length}장을 담았어요. 다음 사진 단계에서 확인할 수 있어요.`,
+          ? `${got.length} image${got.length === 1 ? '' : 's'} imported. Confirm usage rights in the photo step before using them as photographic evidence.`
+          : `${got.length} image${got.length === 1 ? '' : 's'} imported. Review them in the next photo step.`,
       );
     } catch {
-      toast('error', '네트워크 연결을 확인해 주세요.');
+      toast('error', "Please check your network connection.");
     } finally {
       setIngesting(false);
     }
@@ -298,7 +288,7 @@ export function Step02Existing() {
   return (
     <div className="space-y-7">
       <StepIntro>
-        이미 홈페이지·블로그·플레이스가 있으세요? 주소를 알려주시면 확인 가능한 소개·메뉴·가격·영업 정보를 그대로 옮겨드려요. 못 가져온 내용은 다음 단계에서 직접 적을 수 있어요.
+        Add a website or social profile you control. We will import only verifiable public content, and you can review it before publishing.
       </StepIntro>
 
       {!skip ? (
@@ -306,10 +296,10 @@ export function Step02Existing() {
           <Field
             label={
               <span className="inline-flex items-center gap-1.5">
-                <AtSign className="h-4 w-4 text-ob-muted" /> 인스타그램
+                <AtSign className="h-4 w-4 text-ob-muted" /> Instagram
               </span>
             }
-            hint="아이디만 적어주세요. @나 전체 주소를 붙여넣어도 알아서 정리해요."
+            hint="Please just write your ID. Even if you paste @ or the entire address, it will be sorted automatically."
           >
             <div className="flex items-stretch overflow-hidden rounded-ob border border-ob-border bg-ob-surface focus-within:border-ob-accent-strong focus-within:ring-1 focus-within:ring-ob-accent">
               <span className="flex items-center bg-ob-bg px-3 text-[15px] text-ob-muted">
@@ -327,23 +317,7 @@ export function Step02Existing() {
           <Field
             label={
               <span className="inline-flex items-center gap-1.5">
-                <Globe className="h-4 w-4 text-ob-muted" /> 네이버 블로그 <span className="font-normal text-ob-muted">(선택)</span>
-              </span>
-            }
-            hint="가게를 소개하는 블로그 주소를 붙여넣어 주세요. 공개 페이지에서 확인되는 내용만 가져와요."
-          >
-            <input
-              value={naverBlogUrl}
-              onChange={(e) => setNaverBlogUrl(e.target.value)}
-              placeholder="https://blog.naver.com/..."
-              className={obInput}
-            />
-          </Field>
-
-          <Field
-            label={
-              <span className="inline-flex items-center gap-1.5">
-                <Globe className="h-4 w-4 text-ob-muted" /> 홈페이지 주소 <span className="font-normal text-ob-muted">(선택)</span>
+                <Globe className="h-4 w-4 text-ob-muted" /> Homepage address <span className="font-normal text-ob-muted">(select)</span>
               </span>
             }
           >
@@ -355,25 +329,6 @@ export function Step02Existing() {
             />
           </Field>
 
-          <Field
-            label={
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-ob-muted" /> 네이버 플레이스 <span className="font-normal text-ob-muted">(선택)</span>
-              </span>
-            }
-            hint="네이버 지도 → 내 가게 → 공유 → 링크 복사한 주소를 붙여넣어 주세요."
-          >
-            <input
-              value={naverUrl}
-              onChange={(e) => setNaverUrl(e.target.value)}
-              placeholder="https://naver.me/..."
-              className={obInput}
-            />
-          </Field>
-          <p className="-mt-4 text-[13px] leading-relaxed text-ob-muted">
-            플레이스 등록은 사장님 계정이 필요해요. 가이드를 드리고 같이 진행해 드립니다.
-          </p>
-
           <div className="rounded-ob border border-ob-border bg-ob-bg p-4">
             <label className="flex items-start gap-2.5 text-[15px] text-ob-ink">
               <input
@@ -382,10 +337,10 @@ export function Step02Existing() {
                 onChange={(e) => setOwned(e.target.checked)}
                 className="mt-0.5 h-4 w-4 accent-[#174DDA]"
               />
-              <span>제가 직접 운영하는 페이지입니다.</span>
+              <span>This is a page I run myself.</span>
             </label>
             <p className="mt-1.5 pl-7 text-[13px] leading-relaxed text-ob-muted">
-              내 채널에서만 내용을 가져와요. 남의 페이지 내용은 가져오지 않아요.
+              Import content only from channels I control. Do not import another organization’s content.
             </p>
             <div className="mt-3 pl-7">
               <Button
@@ -394,17 +349,17 @@ export function Step02Existing() {
                 loading={importing}
                 disabled={!owned || presences.length === 0}
               >
-                내 채널에서 가져오기
+                Get it from my channel
               </Button>
               {presences.length === 0 ? (
-                <span className="ml-2 text-[13px] text-ob-muted">먼저 채널을 하나 이상 입력해 주세요.</span>
+                <span className="ml-2 text-[13px] text-ob-muted">Please enter at least one channel first.</span>
               ) : null}
             </div>
           </div>
 
           {importing ? (
             <div className="flex items-center gap-2 text-[15px] text-ob-muted">
-              <Loader2 className="h-4 w-4 animate-spin" /> 채널에서 내용을 가져오는 중이에요...
+              <Loader2 className="h-4 w-4 animate-spin" /> Retrieving content from the channel...
             </div>
           ) : null}
 
@@ -431,17 +386,17 @@ export function Step02Existing() {
                         </p>
                       ) : null}
                       {[
-                        r.extracted.structured.phone && '연락처',
-                        r.extracted.structured.address && '주소',
-                        r.extracted.structured.openingHours && '영업시간',
-                        r.extracted.structured.contentItems.length > 0 && '메뉴·서비스',
+                        r.extracted.structured.phone && "contact",
+                        r.extracted.structured.address && "address",
+                        r.extracted.structured.openingHours && "Business hours",
+                        r.extracted.structured.contentItems.length > 0 && "Menu/Service",
                       ].filter(Boolean).length ? (
                         <p className="pt-1 text-[12px] font-medium text-ob-accent-strong">
-                          자동 채움: {[
-                            r.extracted.structured.phone && '연락처',
-                            r.extracted.structured.address && '주소',
-                            r.extracted.structured.openingHours && '영업시간',
-                            r.extracted.structured.contentItems.length > 0 && '메뉴·서비스',
+                          Autofill: {[
+                            r.extracted.structured.phone && "contact",
+                            r.extracted.structured.address && "address",
+                            r.extracted.structured.openingHours && "Business hours",
+                            r.extracted.structured.contentItems.length > 0 && "Menu/Service",
                           ].filter(Boolean).join(' · ')}
                         </p>
                       ) : null}
@@ -456,7 +411,7 @@ export function Step02Existing() {
               {imageCandidates.length > 0 ? (
                 <div>
                   <p className="mb-2 text-[15px] font-medium text-ob-ink">
-                    가져올 사진을 골라주세요 <span className="font-normal text-ob-muted">(선택)</span>
+                    Please select a photo to import <span className="font-normal text-ob-muted">(select)</span>
                   </p>
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {imageCandidates.map((url) => {
@@ -473,7 +428,7 @@ export function Step02Existing() {
                           )}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={url} alt="가져올 사진 후보" className="h-full w-full object-cover" />
+                          <img src={url} alt="Candidate photos to import" className="h-full w-full object-cover" />
                           {on ? (
                             <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-ob-accent-strong text-[11px] font-bold text-white">
                               ✓
@@ -491,13 +446,13 @@ export function Step02Existing() {
                       loading={ingesting}
                       disabled={selectedImages.length === 0}
                     >
-                      선택한 사진 {selectedImages.length > 0 ? `${selectedImages.length}장 ` : ''}가져오기
+                      selected photo {selectedImages.length > 0 ? `${selectedImages.length} images` : ''}import
                     </Button>
                   </div>
                 </div>
               ) : (
                 <p className="flex items-center gap-1.5 text-[13px] text-ob-muted">
-                  <ImageOff className="h-3.5 w-3.5" /> 가져온 사진 후보는 없어요. 다음 단계에서 직접 올릴 수 있어요.
+                  <ImageOff className="h-3.5 w-3.5" /> There are no photo candidates brought in. You can upload it directly in the next step.
                 </p>
               )}
             </div>
@@ -508,19 +463,19 @@ export function Step02Existing() {
             onClick={() => setSkip(true)}
             className="text-[14px] text-ob-muted underline transition-colors hover:text-ob-ink"
           >
-            아직 채널이 없어요 · 건너뛸게요
+            No channels yet · Skip this step
           </button>
         </>
       ) : (
         <div className="rounded-ob border border-dashed border-ob-border bg-ob-bg px-5 py-8 text-center">
-          <p className="text-[15px] text-ob-ink">채널 입력을 건너뛰었어요.</p>
-          <p className="mt-1 text-[13px] text-ob-muted">필요하면 다시 입력할 수 있어요.</p>
+          <p className="text-[15px] text-ob-ink">Channel input was skipped.</p>
+          <p className="mt-1 text-[13px] text-ob-muted">You can re-enter it if necessary.</p>
           <button
             type="button"
             onClick={() => setSkip(false)}
             className="mt-3 text-[14px] text-ob-accent-strong underline"
           >
-            다시 입력하기
+            Enter again
           </button>
         </div>
       )}

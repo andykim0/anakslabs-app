@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import {
   APPROVED_TLS_HTTP_FALLBACK_HOSTS,
-  DABOIM_CRAWLER_USER_AGENT,
+  ANAKS_LABS_CRAWLER_USER_AGENT,
   DESIGNATED_CRAWL_POLICY,
 } from './contracts';
 import { crawlDesignatedSite, CrawlError } from './crawler-core';
@@ -85,7 +85,7 @@ describe('CRAWL W1 — designated crawl', () => {
     const fetchFn: typeof fetch = async (input, init) => {
       if (init?.method === 'HEAD') return response('');
       if (String(input).endsWith('/robots.txt')) {
-        return response('User-agent: DaboimCrawler\nDisallow: /', {
+        return response('User-agent: AnaksLabsCrawler\nDisallow: /', {
           headers: { 'content-type': 'text/plain' },
         });
       }
@@ -368,7 +368,7 @@ describe('CRAWL W1 — designated crawl', () => {
     assert.doesNotMatch(migration, /--[^\n]*\$/u);
     assert.match(route, /requireAdminOr403\(\)/u);
     assert.match(route, /allowTlsHttpFallback/u);
-    assert.match(DABOIM_CRAWLER_USER_AGENT, /DaboimCrawler\/1\.0/u);
+    assert.match(ANAKS_LABS_CRAWLER_USER_AGENT, /AnaksLabsCrawler\/1\.0/u);
     assert.doesNotMatch(readFileSync(`${ROOT}/src/lib/crawl/crawler-core.ts`, 'utf8'), /method:\s*['"]POST/u);
   });
 });

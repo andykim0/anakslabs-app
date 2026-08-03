@@ -25,7 +25,7 @@ import {
   type SiteTheme,
 } from '@/lib/types/site';
 
-const OUTPUT_DIR = process.env.MOTION_REVIEW_OUTPUT ?? '/private/tmp/daboim-motion-review';
+const OUTPUT_DIR = process.env.MOTION_REVIEW_OUTPUT ?? '/private/tmp/anakslabs-motion-review';
 const CONTRACT_REVIEW_ENABLED = process.env.SIGNATURE_CONTRACT_ENABLED === '1';
 const OWNER_ID = 'motion-review-owner';
 const SITE_ID = 'motion-review-site';
@@ -71,8 +71,8 @@ const THEMES: Record<PaletteName, SiteTheme> = {
 };
 
 const ASSET_SOURCES = {
-  'daboim-film.mp4': 'public/daboim-visibility-film-scrub.mp4',
-  'daboim-film-poster.webp': 'public/daboim-visibility-film-poster.webp',
+  'anakslabs-film.mp4': 'public/anakslabs-visibility-film-scrub.mp4',
+  'anakslabs-film-poster.webp': 'public/anakslabs-visibility-film-poster.webp',
   'brand-film.mp4': 'public/mock/clip-ember.mp4',
   'brand-film-poster.svg': 'public/mock/video-poster.svg',
   'photo.webp': 'public/onboarding/style-samples/photo.webp',
@@ -275,7 +275,7 @@ function fixture(input: FixtureInput): ReviewFixture {
 
 const LONG_KOREAN = '고객의 중요한 결정을 돕는 문장은 빠르게 지나가지 않아야 합니다. 핵심 정보와 실제 근거를 충분히 읽을 수 있는 안정된 구간을 두고, 시선의 이동은 한 번에 하나의 초점만 따라가도록 절제합니다.';
 
-const cinematicMedia = video('brand-cinematic', 'daboim-film.mp4', 'daboim-film-poster.webp', '푸른 빛의 브랜드 시네마틱 포스터', 1920, 1080);
+const cinematicMedia = video('brand-cinematic', 'anakslabs-film.mp4', 'anakslabs-film-poster.webp', '푸른 빛의 브랜드 시네마틱 포스터', 1920, 1080);
 const manifestoMedia = video('dining-manifesto', 'brand-film.mp4', 'brand-film-poster.svg', '빛이 천천히 흐르는 다이닝 공간', 1280, 720);
 
 const legalChapterMedia = [
@@ -341,7 +341,7 @@ const verifiedAssets: readonly MotionAssetProvenance[] = [
 
 const FIXTURES: ReviewFixture[] = [
   fixture({
-    id: 'saas-cinematic-dark', label: '다보임 AI 검색 가시성', industry: 'SaaS / 브랜드', theme: 'midnight',
+  id: 'saas-cinematic-dark', label: 'Anaks Labs AI Search Visibility', industry: 'SaaS / Brand', theme: 'midnight',
     purposeId: 'company_brand', templateId: 'company_brand.default', industryClass: 'brand', targetType: 'hero', tier: 'premium',
     scene: {
       signatureId: 'cinematic-scrub', pageId: 'home', sectionId: 'hero',

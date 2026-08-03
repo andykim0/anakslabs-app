@@ -72,8 +72,8 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     const detail = source('src/components/dashboard/site-detail.tsx');
 
     assert.match(preview, /configForAddonPreview/);
-    assert.match(preview, /예시 · 베이직 포함 AI 영상 홈페이지 적용 시/);
-    assert.match(detail, /포함 영상 적용 예시/);
+    assert.match(preview, /Example · When applying AI video homepage including Basic/);
+    assert.match(detail, /Example of application of embedded video/);
     assert.doesNotMatch(serving, /preview-addon|previewAsAddon|configForAddonPreview/);
     assert.doesNotMatch(exporter, /preview-addon|previewAsAddon|configForAddonPreview/);
   });
@@ -115,7 +115,7 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     assert.equal((html.match(/data-ss-stage="true"/g) ?? []).length, 1);
     assert.equal((html.match(/data-ss-act="true"/g) ?? []).length, baseHero.acts?.length);
     assert.equal((html.match(/<video\b/g) ?? []).length, 1);
-    assert.match(html, /daboim-visibility-film-scrub\.mp4/);
+    assert.match(html, /anakslabs-visibility-film-scrub\.mp4/);
     assert.match(html, /고객이 입력한 첫 문장/);
   });
 
@@ -124,12 +124,12 @@ describe('Q$1 — 권한을 부여하지 않는 애드온 데모 미리보기', 
     const projection = source('src/lib/motion/preview-config.ts');
     assert.match(onboarding, /buildMotionSignaturePreviewConfig/);
     assert.match(onboarding, /<SitePreview/);
-    assert.match(onboarding, /실제 렌더러 티저/);
-    assert.match(onboarding, /실제 스크롤 체험/);
-    assert.match(onboarding, /고객 최종 자산 아님/);
-    assert.match(onboarding, /예시는 최종 다보임 AI 영상이 아닙니다/);
-    assert.match(projection, /daboim-visibility-film-scrub\.mp4/);
-    assert.match(projection, /daboim-visibility-film-poster\.webp/);
+    assert.match(onboarding, /Actual renderer teaser/);
+    assert.match(onboarding, /Experience the scroll behavior full screen/);
+    assert.match(onboarding, /not your final asset/);
+    assert.match(onboarding, /not the final Anaks Labs AI video/);
+    assert.match(projection, /anakslabs-visibility-film-scrub\.mp4/);
+    assert.match(projection, /anakslabs-visibility-film-poster\.webp/);
     assert.doesNotMatch(`${onboarding}\n${projection}`, /fetch\(|\/api\/sites\/|generateVeoVideo|generateHeroVideo/);
   });
 });

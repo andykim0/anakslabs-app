@@ -24,11 +24,11 @@ import { ManualCollectionPanel } from './manual-collection-panel';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
 
 const GUARANTEE_DECISION_COPY = {
-  'not-due': { label: '판정 전', tone: 'text-slate-600 bg-slate-100' },
-  'needs-index-evidence': { label: '색인 확인 필요', tone: 'text-amber-800 bg-amber-100' },
-  eligible: { label: '환불 대상', tone: 'text-red-700 bg-red-100' },
-  'not-eligible': { label: '기준 충족', tone: 'text-emerald-700 bg-emerald-100' },
-  excluded: { label: '예외 적용', tone: 'text-violet-700 bg-violet-100' },
+  'not-due': { label: "Before decision", tone: 'text-slate-600 bg-slate-100' },
+  'needs-index-evidence': { label: "Need to check index", tone: 'text-amber-800 bg-amber-100' },
+  eligible: { label: "Refund Eligibility", tone: 'text-red-700 bg-red-100' },
+  'not-eligible': { label: "Meets the criteria", tone: 'text-emerald-700 bg-emerald-100' },
+  excluded: { label: "Exceptions apply", tone: 'text-violet-700 bg-violet-100' },
 } as const;
 
 export function OverviewDashboard() {
@@ -40,8 +40,8 @@ export function OverviewDashboard() {
   if (isPending) {
     return (
       <>
-        <PageHeader title="대시보드" description="서비스 전체 현황 요약" />
-        <LoadingBlock label="현황을 불러오는 중…" />
+        <PageHeader title="dashboard" description="Summary of overall service status" />
+        <LoadingBlock label="Loading status..." />
       </>
     );
   }
@@ -49,7 +49,7 @@ export function OverviewDashboard() {
   if (isError) {
     return (
       <>
-        <PageHeader title="대시보드" description="서비스 전체 현황 요약" />
+        <PageHeader title="dashboard" description="Summary of overall service status" />
         <ErrorBlock message={error.message} onRetry={() => refetch()} />
       </>
     );
@@ -59,7 +59,7 @@ export function OverviewDashboard() {
 
   return (
     <>
-      <PageHeader title="대시보드" description="서비스 전체 현황 요약" />
+      <PageHeader title="dashboard" description="Summary of overall service status" />
 
       {hostnameDanger ? (
         <div
@@ -68,11 +68,11 @@ export function OverviewDashboard() {
         >
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-600" aria-hidden />
           <div className="text-sm text-red-800">
-            <p className="font-semibold">Cloudflare 무료 한도 임박</p>
+            <p className="font-semibold">Cloudflare free limits coming soon</p>
             <p className="mt-0.5 text-xs text-red-700">
-              커스텀 호스트네임 {formatNumber(data.customHostnameCount)}/
-              {formatNumber(CF_FREE_HOSTNAME_LIMIT)}개 사용 중입니다. 한도 초과분은 호스트네임당 월
-              $0.10이 과금됩니다. 인프라 탭에서 상세를 확인하세요.
+              custom hostname {formatNumber(data.customHostnameCount)}/
+              {formatNumber(CF_FREE_HOSTNAME_LIMIT)}The dog is in use. Exceeding the limit is per hostname per month.
+              $0.10 will be charged. Check the details in the Infrastructure tab.
             </p>
           </div>
         </div>
@@ -86,17 +86,17 @@ export function OverviewDashboard() {
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
           <div className="text-sm text-amber-900">
             <p className="font-semibold">
-              대기 {FULFILLMENT_SLA_BUSINESS_DAYS}영업일을 넘긴 이행 요청 {formatNumber(data.fulfillmentAlerts.total)}건
+              atmosphere {FULFILLMENT_SLA_BUSINESS_DAYS}Fulfillment requests that extend beyond business days {formatNumber(data.fulfillmentAlerts.total)} records
             </p>
             <p className="mt-0.5 text-xs text-amber-800">
               <Link href="/admin/edit-queue" className="underline underline-offset-2">
-                수정 {formatNumber(data.fulfillmentAlerts.editOverdue)}건
+                correction {formatNumber(data.fulfillmentAlerts.editOverdue)} records
               </Link>
               {' · '}
               <Link href="/admin/video-queue" className="underline underline-offset-2">
-                영상 {formatNumber(data.fulfillmentAlerts.videoOverdue)}건
+                video {formatNumber(data.fulfillmentAlerts.videoOverdue)} records
               </Link>
-              이 조용히 누락되지 않도록 우선 확인해 주세요.
+              Please check first to make sure this is not quietly missing.
             </p>
           </div>
         </div>
@@ -104,41 +104,41 @@ export function OverviewDashboard() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
-          label="고객 수"
+          label="number of customers"
           icon={Users}
           value={formatNumber(data.clients.total)}
           sub={
             <span>
-              기본 홈페이지 {formatNumber(data.clients.basic)} · AI 영상 홈페이지{' '}
+              default homepage {formatNumber(data.clients.basic)} · AI video homepage{' '}
               {formatNumber(data.clients.premium)}
             </span>
           }
         />
         <StatCard
-          label="라이브 사이트"
+          label="live site"
           icon={MonitorCheck}
           value={formatNumber(data.liveSites)}
-          sub="status = live 기준"
+          sub="status = live standard"
         />
         <StatCard
-          label="크레딧 유통량"
+          label="credit circulation"
           icon={Coins}
           value={formatNumber(data.credits.circulating)}
           sub={
             <span>
-              지급 {formatNumber(data.credits.granted)} − 소모{' '}
+              payment {formatNumber(data.credits.granted)} − consumption{' '}
               {formatNumber(data.credits.consumed)}
             </span>
           }
         />
         <StatCard
-          label="QA 대기"
+          label="Waiting for QA"
           icon={ClipboardCheck}
           value={formatNumber(data.qaPending)}
-          sub="검수 필요 편집 요청"
+          sub="Review required Edit request"
         />
         <StatCard
-          label="커스텀 호스트네임"
+          label="custom hostname"
           icon={Globe}
           tone={hostnameDanger ? 'danger' : 'neutral'}
           value={
@@ -167,14 +167,14 @@ export function OverviewDashboard() {
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 id="admin-revenue-heading" className="text-sm font-semibold text-slate-900">
-              매출 한눈판
+              Sales at a glance
             </h2>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              {data.revenue.month.month} KST · PG와 수동 수금 원장 합산 · 현금주의
+              {data.revenue.month.month} KST · PG and manual collection ledger combined · Cash basis
             </p>
           </div>
           <p className="text-xs text-slate-500">
-            목표 달성률 {Math.round(data.revenue.targetProgress * 100)}%
+            Goal achievement rate {Math.round(data.revenue.targetProgress * 100)}%
           </p>
         </div>
 
@@ -182,21 +182,21 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                이번 달 운영 순수금
+                Net proceeds from operations this month
               </p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
                 {formatKrw(data.revenue.operatingRevenueNetKrw)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                제작·AI 영상·사이트 운영 구독 수금 − 환불 · 크레딧 팩 제외
+                Production/AI video/site operation Subscription collection − Excluding refunds and credit packs
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
-                PG {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · 수동 수금{' '}
+                PG {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · Manual collection{' '}
                 {formatKrw(data.revenue.operatingRevenueBySourceKrw.manual)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-slate-400">월 운영 목표</p>
+              <p className="text-[11px] text-slate-400">Monthly operating goal</p>
               <p className="mt-0.5 text-sm font-semibold tabular-nums text-slate-700">
                 {formatKrw(data.revenue.targetKrw)}
               </p>
@@ -211,36 +211,36 @@ export function OverviewDashboard() {
 
         <div className="mt-3 grid grid-cols-2 gap-3 xl:grid-cols-6">
           <StatCard
-            label="런칭가 제작"
+            label="Launch price production"
             value={formatKrw(data.revenue.segments.launchBuild.netKrw)}
             icon={Rocket}
           />
           <StatCard
-            label="정가 제작"
+            label="fixed price production"
             value={formatKrw(data.revenue.segments.listBuild.netKrw)}
             icon={Target}
           />
           <StatCard
-            label="AI 영상 애드온"
+            label="AI video add-on"
             value={formatKrw(data.revenue.segments.videoAddon.netKrw)}
             icon={Video}
           />
           <StatCard
-            label="운영 구독 수금"
+            label="Operational Subscription Collection"
             value={formatKrw(data.revenue.segments.subscription.netKrw)}
             icon={ReceiptText}
           />
           <StatCard
-            label="미분류 제작"
+            label="Uncategorized Production"
             value={formatKrw(data.revenue.segments.unclassifiedBuild.netKrw)}
-            sub="과거·협의가·불명확 조합·부분환불 배분"
+            sub="Past, negotiated price, unclear combination, partial refund distribution"
             icon={CircleDollarSign}
             tone={data.revenue.segments.unclassifiedBuild.netKrw !== 0 ? 'danger' : 'neutral'}
           />
           <StatCard
-            label="전체 환불"
+            label="full refund"
             value={formatKrw(data.revenue.receipts.refundsKrw)}
-            sub="크레딧 팩 포함 · 실제 처리 시각"
+            sub="Credit pack included · Actual processing time"
             icon={ReceiptText}
             tone={data.revenue.receipts.refundsKrw > 0 ? 'danger' : 'neutral'}
           />
@@ -250,9 +250,9 @@ export function OverviewDashboard() {
           <div className="flex items-start gap-2 border-b border-slate-200 px-4 py-3">
             <ShieldCheck size={16} className="mt-0.5 text-slate-400" aria-hidden />
             <div>
-              <h3 className="text-sm font-semibold text-slate-900">90일 성과 보장 판정</h3>
+              <h3 className="text-sm font-semibold text-slate-900">90-day performance guarantee decision</h3>
               <p className="mt-0.5 text-[11px] text-slate-500">
-                색인 신호는 서치어드바이저/URL 확인 기록만 사용 · 유입은 PII 없는 네이버 pageview 합계
+                Index signal uses only Search Advisor/URL confirmation records · Inflow is the sum of Naver pageviews without PII
               </p>
             </div>
           </div>
@@ -260,11 +260,11 @@ export function OverviewDashboard() {
             <table data-guarantee-admin className="w-full min-w-[880px] text-left text-xs">
               <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium">사이트</th>
-                  <th className="px-4 py-2.5 font-medium">90일 판정일</th>
-                  <th className="px-4 py-2.5 font-medium">네이버 색인</th>
-                  <th className="px-4 py-2.5 font-medium">네이버 유입</th>
-                  <th className="px-4 py-2.5 font-medium">판정</th>
+                  <th className="px-4 py-2.5 font-medium">site</th>
+                  <th className="px-4 py-2.5 font-medium">90 days decision date</th>
+                  <th className="px-4 py-2.5 font-medium">Naver Index</th>
+                  <th className="px-4 py-2.5 font-medium">Naver influx</th>
+                  <th className="px-4 py-2.5 font-medium">verdict</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -274,17 +274,17 @@ export function OverviewDashboard() {
                     <tr key={row.siteId}>
                       <td className="px-4 py-3">
                         <p className="font-medium text-slate-800">{row.siteName}</p>
-                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? '도메인 대기'}</p>
+                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? "domain standby"}</p>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
                         {new Date(row.dueAt).toLocaleDateString('ko-KR')}
-                        {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining}일 남음)</span> : null}
+                        {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining}days left)</span> : null}
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {row.naverIndexed === null ? '확인 필요' : row.naverIndexed ? '있음' : '없음'}
+                        {row.naverIndexed === null ? "Confirmation required" : row.naverIndexed ? "Yes" : "doesn't exist"}
                       </td>
                       <td className="px-4 py-3 tabular-nums text-slate-700">
-                        {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)}회
+                        {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)} times
                       </td>
                       <td className="px-4 py-3">
                         <span className={`rounded px-2 py-1 text-[11px] font-semibold ${decision.tone}`}>{decision.label}</span>
@@ -295,7 +295,7 @@ export function OverviewDashboard() {
               </tbody>
             </table>
           ) : (
-            <p className="px-4 py-8 text-center text-xs text-slate-500">발행된 보장 판정 대상 사이트가 없습니다.</p>
+            <p className="px-4 py-8 text-center text-xs text-slate-500">There are no sites subject to coverage awards issued.</p>
           )}
         </Card> : null}
 
@@ -303,20 +303,20 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                과거 런칭가 수금 사이트
+                Past launch price collection site
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
                 {formatNumber(data.revenue.launchOffer.contracts)}
                 {data.revenue.launchOffer.limit === null ? null : (
                   <span className="text-sm font-normal text-slate-400">
-                    {' '}/ {formatNumber(data.revenue.launchOffer.limit)}건
+                    {' '}/ {formatNumber(data.revenue.launchOffer.limit)} records
                   </span>
                 )}
               </p>
             </div>
             <p className="max-w-lg text-right text-[11px] leading-5 text-slate-500">
-              PG는 고객 소유 사이트가 하나로 확인될 때만, 수동 수금은 원장에 귀속된 사이트만 집계합니다.
-              동일 사이트의 PG·수동 중복은 1곳으로 계산하며, 신규 계약에는 수량 제한이 없습니다.
+              PG only counts the sites owned by the customer when identified as one, while manual collections only counts sites attributed to the ledger.
+              PG/manual duplicates on the same site are counted as one, and there is no quantity limit for new contracts.
             </p>
           </div>
           {data.revenue.launchOffer.limit !== null ? (
@@ -328,21 +328,21 @@ export function OverviewDashboard() {
               />
               <p className="mt-2 text-[11px] text-slate-500">
                 {data.revenue.launchOffer.reachedLimit
-                  ? '한도에 도달했습니다. 운영자가 런칭 오퍼 상태를 검토하세요.'
-                  : `${formatNumber(data.revenue.launchOffer.remaining ?? 0)}건 남음`}
+                  ? "The limit has been reached. Have the operator review the launch offer status."
+                  : `${formatNumber(data.revenue.launchOffer.remaining ?? 0)}There's nothing left`}
               </p>
             </>
           ) : (
-            <p className="mt-2 text-xs text-slate-500">과거 장부 재현용 집계이며 신규 판매에는 사용하지 않습니다.</p>
+            <p className="mt-2 text-xs text-slate-500">This is a tally for reproducing past ledgers and is not used for new sales.</p>
           )}
         </Card>
 
         {data.revenue.anomalies.length ? (
           <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
             <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
-            결제 원장 {formatNumber(data.revenue.anomalyPaymentCount)}건에서 오류{' '}
-            {formatNumber(data.revenue.anomalies.length)}개를 발견했습니다. 해당 필드의 분류·환불 반영은
-            추정하지 않았습니다.
+            payment ledger {formatNumber(data.revenue.anomalyPaymentCount)}error in gun{' '}
+            {formatNumber(data.revenue.anomalies.length)}I found a dog. Classification and refund reflection of the field is
+            No estimates were made.
           </div>
         ) : null}
       </section>

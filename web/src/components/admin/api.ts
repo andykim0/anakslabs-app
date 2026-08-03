@@ -303,7 +303,7 @@ export interface AdminSubscriptionsResponse {
     pastDue: number;
     suspended: number;
     cancelled: number;
-    mrrKrw: number;
+    mrrUsd: number;
     newThisMonth: number;
     cancelledThisMonth: number;
     reportAccepted: number;
@@ -473,7 +473,7 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
   });
   if (!res.ok) {
-    let message = `요청에 실패했습니다 (HTTP ${res.status})`;
+    let message = `Request failed (HTTP${res.status})`;
     try {
       // API 표준 에러 포맷: { error: { code, message, ...extra } }
       const body = (await res.json()) as { error?: { message?: string } | string };

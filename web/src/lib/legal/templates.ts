@@ -41,8 +41,8 @@ export const ANONYMOUS_SITE_EVENT_DISCLOSURE = {
 } as const;
 
 /**
- * Daboim 서비스의 외부 AI 처리 고지. 테넌트 방문자 방침이 아니라,
- * Daboim 고객이 명시적으로 AI 기능을 요청할 때의 서비스 처리에만 적용한다.
+ * Anaks Labs 서비스의 외부 AI 처리 고지. 테넌트 방문자 방침이 아니라,
+ * Anaks Labs 고객이 명시적으로 AI 기능을 요청할 때의 서비스 처리에만 적용한다.
  * 실제 법인명·처리 국가·보관 조건은 공급자 계약 확인 전에 지어내지 않는다.
  */
 export const EXTERNAL_AI_PROCESSING_DISCLOSURE = {
@@ -60,9 +60,9 @@ export const EXTERNAL_AI_PROCESSING_DISCLOSURE = {
 } as const;
 
 /**
- * CRAWL — Daboim 운영자가 직접 지정한 공개 URL의 이전 제안 초안 처리 고지.
+ * CRAWL — Anaks Labs 운영자가 직접 지정한 공개 URL의 이전 제안 초안 처리 고지.
  *
- * 테넌트 방문자 방침이 아니라 Daboim 고객·잠재 고객을 위한 서비스 처리에만 적용한다.
+ * 테넌트 방문자 방침이 아니라 Anaks Labs 고객·잠재 고객을 위한 서비스 처리에만 적용한다.
  * 정식 방침 확정 전에도 코드와 화면이 같은 고정 문구를 소비하도록 하며 AI가 작성하지 않는다.
  */
 export const DESIGNATED_CRAWL_DISCLOSURE = {
@@ -82,7 +82,7 @@ export const DESIGNATED_CRAWL_DISCLOSURE = {
 /**
  * US-DEMO — expiring outreach-demo view measurement exception.
  *
- * This is a fixed interim draft for Daboim's own privacy page, not a tenant-site disclosure.
+ * This is a fixed interim draft for Anaks Labs's own privacy page, not a tenant-site disclosure.
  * Andy and legal counsel must confirm the wording before the outreach demo goes live.
  */
 export const US_DEMO_VIEW_DISCLOSURE = {
@@ -99,7 +99,7 @@ export const US_DEMO_VIEW_DISCLOSURE = {
     '※ 법무 검토 전 초안: 라이브 운영 전에 미국 대상 고지 범위, HMAC 식별자 처리, 보관 기간과 이용자 권리 문구를 Andy와 법무가 최종 확인해야 합니다.',
 } as const;
 
-/** 실제 발행 config에 다보임 수신 폼이 있을 때만 개인정보 수집으로 고지한다. */
+/** 실제 발행 config에 Anaks Labs 수신 폼이 있을 때만 개인정보 수집으로 고지한다. */
 export function siteCollectsPersonalData(config: SiteConfig): boolean {
   return config.pages.some((page) =>
     page.sections.some((section) => section.elements.some((element) => element.kind === 'form')),

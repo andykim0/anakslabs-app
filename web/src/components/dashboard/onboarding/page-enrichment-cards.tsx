@@ -53,10 +53,10 @@ export function PageEnrichmentCards({ siteId }: { siteId: string }) {
     <div className="mt-3 w-full max-w-md text-left">
       <div className="mb-2 flex items-center gap-1.5">
         <Sparkles className="h-3.5 w-3.5 text-ob-accent-strong" />
-        <h3 className="text-sm font-semibold text-ob-ink">페이지를 더 채워볼까요?</h3>
+        <h3 className="text-sm font-semibold text-ob-ink">Shall we fill the page with more?</h3>
       </div>
       <p className="mb-2 text-[11px] leading-4 text-ob-muted">
-        아래는 채우면 좋은 곳이에요. 알려주신 사실만 반영해요 — 넘어가도 발행에는 문제없어요.
+        Below is a good place to fill in. We will only reflect the facts you provided - even if you skip it, there will be no problem with publication.
       </p>
       <ul className="space-y-2">
         {pages.map((page) =>
@@ -80,11 +80,11 @@ export function PageEnrichmentCards({ siteId }: { siteId: string }) {
                   href={`/dashboard/sites/${siteId}/editor?focus=${signal.focus}&page=${encodeURIComponent(page.pageSlug)}`}
                   className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-lg border border-ob-border px-2.5 py-1 text-[11px] text-ob-ink transition-colors hover:border-ob-accent-strong hover:text-ob-accent-strong"
                 >
-                  채우기 <ArrowRight className="h-3 w-3" />
+                  fill <ArrowRight className="h-3 w-3" />
                 </Link>
                 <button
                   type="button"
-                  aria-label="이 제안 넘기기"
+                  aria-label="Skip this offer"
                   onClick={() => dismiss(signal.id)}
                   className="mt-0.5 shrink-0 rounded-md p-1 text-ob-muted transition-colors hover:text-ob-ink"
                 >

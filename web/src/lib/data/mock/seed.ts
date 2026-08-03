@@ -35,10 +35,10 @@ const PAY_HWA_PACK_ID = 'pay-hwarodam-pack5-001';
 const PAY_HWA_MAINT_ID = 'pay-hwarodam-maint-001';
 const PAY_MINT_BUILD_ID = 'pay-mintwash-build-001';
 
-const KEY_HWA_BUILD = 'mock_toss_hwarodam_build_001';
-const KEY_HWA_PACK = 'mock_toss_hwarodam_pack5_001';
-const KEY_HWA_MAINT = 'mock_toss_hwarodam_maint_2026_07';
-const KEY_MINT_BUILD = 'mock_toss_mintwash_build_001';
+const KEY_HWA_BUILD = 'legacy_seed_hwarodam_build_001';
+const KEY_HWA_PACK = 'legacy_seed_hwarodam_pack5_001';
+const KEY_HWA_MAINT = 'legacy_seed_hwarodam_maint_2026_07';
+const KEY_MINT_BUILD = 'legacy_seed_mintwash_build_001';
 
 export function buildSeed(): MockStore {
   // ---------- 고객 ----------

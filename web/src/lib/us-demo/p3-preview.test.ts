@@ -141,7 +141,7 @@ type HypothesisBuilder = (
 };
 
 async function loadHypothesisBuilder(): Promise<HypothesisBuilder> {
-  const directory = mkdtempSync(join(tmpdir(), 'daboim-us-demo-p3-'));
+const directory = mkdtempSync(join(tmpdir(), 'anakslabs-us-demo-p3-'));
   const outfile = join(directory, 'publish-hypothesis.mjs');
   try {
     execFileSync(join(ROOT, 'node_modules/.bin/esbuild'), [

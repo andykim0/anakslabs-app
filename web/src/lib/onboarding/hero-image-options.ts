@@ -72,7 +72,7 @@ export function buildHeroImageOptions(
         source: 'system',
         candidateId: resolvedCandidate.id,
         guidance: resolvedCandidate.heroPhotoQuality?.guidance
-          ?? '사진 품질 기록을 아직 확인할 수 없어 이번엔 다보임이 준비한 화면을 사용했어요. 사진을 다시 올리면 자동으로 확인해 드려요.',
+          ?? 'Photo quality evidence is not available yet, so the Anaks Labs fallback is used. Upload the photo again to run the check automatically.',
       }];
     }
     if (resolvedCandidate?.heroPresentation === 'promoted_customer_photo'

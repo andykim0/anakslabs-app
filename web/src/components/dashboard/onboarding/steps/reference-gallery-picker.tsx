@@ -26,7 +26,7 @@ export function ReferenceGalleryPicker({
 
   if (!designs.length) {
     return (
-      <p className="text-[13px] text-ob-muted">먼저 2단계에서 어떤 사이트인지 골라주시면 미리보기가 나타나요.</p>
+      <p className="text-[13px] text-ob-muted">First, select a site in step 2 and a preview will appear.</p>
     );
   }
 

@@ -3,7 +3,7 @@
  * No provider, generated image, or external font request is used.
  *
  * Run: npx tsx --tsconfig scripts/tsconfig.json scripts/render-font-pairing-review.tsx
- * Out: /private/tmp/daboim-fonts-review
+ * Out: /private/tmp/anakslabs-fonts-review
  */
 import { createServer } from 'node:http';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -26,7 +26,7 @@ import type {
 import type { Section, SiteConfig } from '@/lib/types/site';
 import { emptySiteConfig } from '@/lib/types/site';
 
-const OUTPUT_DIR = '/private/tmp/daboim-fonts-review';
+const OUTPUT_DIR = '/private/tmp/anakslabs-fonts-review';
 const PUBLIC_DIR = path.resolve('public');
 const CHROME = process.env.CHROME_PATH
   ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';

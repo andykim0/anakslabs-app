@@ -419,7 +419,7 @@ async function releaseDarkModalScrims(page: Page): Promise<RenderEvidence['remov
       const effectiveAlpha = color.alpha;
       const value = luminance(color);
       const auditId = `overlay-${index + 1}`;
-      element.setAttribute('data-daboim-overlay-audit', auditId);
+      element.setAttribute('data-anakslabs-overlay-audit', auditId);
       let clicked = false;
       for (const control of closeControls) {
         if (element.contains(control) || element.parentElement?.contains(control)) {
@@ -442,7 +442,7 @@ async function releaseDarkModalScrims(page: Page): Promise<RenderEvidence['remov
   if (candidates.length === 0) return [];
   await settle(page, 500);
   await page.evaluate(() => {
-    for (const element of document.querySelectorAll('[data-daboim-overlay-audit]')) {
+    for (const element of document.querySelectorAll('[data-anakslabs-overlay-audit]')) {
       element.remove();
     }
   });

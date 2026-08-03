@@ -204,13 +204,13 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
     }).reason, 'classification-mismatch');
   });
 
-  test('PRICE-V6 clinic 신규 판매는 닫고 과거 계약만 기존 의료 게이트로 해석한다', () => {
+  test('current and previous clinic contracts share the same medical gate, with current USD pricing', () => {
     const site = {
       industryProfileId: 'clinic' as const,
       pricingModelVersion: PRICING_MODEL_VERSION,
       draftConfig: medicalConfig(),
     };
-    assert.equal(industryPublishPolicy(site).status, 'unavailable');
+    assert.equal(industryPublishPolicy(site).status, 'gated');
     const previousSite = {
       ...site,
       pricingModelVersion: PREVIOUS_PRICING_MODEL_VERSION,
@@ -221,16 +221,17 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
       if (policy.status === 'gated') assert.equal(policy.reason, 'flag-off');
     });
     withClinicFlag('1', () => {
-      const policy = industryPublishPolicy(previousSite);
+      const policy = industryPublishPolicy(site);
       assert.equal(policy.status, 'available');
       if (policy.status === 'available') {
-        assert.equal(policy.pricing.amountKrw, 790_000);
+        assert.equal(policy.pricing.amountUsd, 990);
+        assert.equal(policy.pricing.currency, 'USD');
         assert.equal(policy.pricing.industryProfileId, 'clinic');
       }
     });
   });
 
-  test('플래그와 clinic 공개 경계는 단일 모듈만 소유하고 여섯 표면이 그 결과를 소비한다', () => {
+  test('the publish flag has one owner while public clinic marketing remains available', () => {
     const owners = sourceFiles('src').filter(
       (path) => source(path).includes(`'${CLINIC_PUBLISH_FLAG}'`),
     );
@@ -240,19 +241,17 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
     const industry = source('src/lib/industry/publish-policy.ts');
     const page = source('src/app/(marketing)/clinic/page.tsx');
     const sitemap = source('src/app/sitemap.ts');
-    const layout = source('src/app/(marketing)/layout.tsx');
     const publish = source('src/app/api/sites/[siteId]/publish/route.ts');
     const payment = source('src/app/api/sites/[siteId]/publish-payment/route.ts');
     assert.match(availability, /screenMedicalSiteConfig\(input\.config\)/u);
     assert.match(industry, /clinicAvailability\(\{/u);
-    assert.match(page, /clinicAvailability\(\)\.available[\s\S]*notFound\(\)/u);
-    assert.match(sitemap, /clinicAvailability\(\)\.available/u);
-    assert.match(layout, /clinicAvailability\(\)\.available/u);
+    assert.match(page, /Clinic website delivery/u);
+    assert.match(sitemap, /['"]\/clinic['"]/u);
     assert.match(publish, /industryPublishPolicy\(site\)/u);
     assert.match(payment, /industryPublishPolicy\(site\)/u);
   });
 
-  test('기본 OFF에서는 sitemap·내부 링크가 clinic을 노출하지 않는다', async () => {
+  test('flag-off blocks publishing but does not hide the clinic product surface', async () => {
     await withClinicFlagAsync(undefined, async () => {
       const [{ default: sitemap }, { MarketingFooter }] = await Promise.all([
         import('@/app/sitemap'),
@@ -260,10 +259,10 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
       ]);
       assert.equal(
         sitemap().some((entry) => new URL(entry.url).pathname === '/clinic'),
-        false,
+        true,
       );
       const footer = renderToStaticMarkup(createElement(MarketingFooter));
-      assert.doesNotMatch(footer, /href="\/clinic"/u);
+      assert.match(footer, /href="\/clinic"/u);
     });
   });
 

@@ -83,23 +83,23 @@ describe('asset-policy v2 rollout UI', () => {
     assert.match(STEP02, /const \{ setImportedBadge, assetPolicyV2Ready \} = useSurveyUx\(\)/);
     assert.match(
       STEP02,
-      /assetPolicyV2Ready[\s\S]*?사진 단계에서 사용 권리를 확인하면 실사로 쓸 수 있어요\.[\s\S]*?: `사진 \$\{got\.length\}장을 담았어요\. 다음 사진 단계에서 확인할 수 있어요\.`/,
+      /assetPolicyV2Ready[\s\S]*?Confirm usage rights in the photo step before using them as photographic evidence[\s\S]*?: `\$\{got\.length\} image/,
     );
 
     assert.match(STEP03, /const \{ siteId, assetPolicyV2Ready \} = useSurveyUx\(\)/);
-    assert.match(STEP03, /if \(assetPolicyV2Ready && !uploaded\.assetRef\) \{[\s\S]*?실사 사진 방향에는 사용할 수 없어요/);
+    assert.match(STEP03, /if \(assetPolicyV2Ready && !uploaded\.assetRef\) \{[\s\S]*?can't use it for photo orientation/);
 
     assert.equal((STEP04.match(/assetPolicyV2Ready && registeredAssetRefs\.length/g) ?? []).length, 2);
     assert.match(STEP04, /assetPolicyV2Ready && unregisteredPhotoCount > 0/);
     assert.match(STEP04, /assetPolicyV2Ready \? \([\s\S]*?aria-live="polite"/);
 
     assert.match(STEP08, /const \{ goTo, assetPolicyV2Ready \} = useSurveyUx\(\)/);
-    assert.match(STEP08, /!assetPolicyV2Ready \? \([\s\S]*?1장 · 히어로에 사용[\s\S]*?REFERENTIAL_IMAGE_POLICY_COPY\.suppliedVisualsShort/);
+    assert.match(STEP08, /!assetPolicyV2Ready \? \([\s\S]*?1 photo · available for the hero[\s\S]*?REFERENTIAL_IMAGE_POLICY_COPY\.suppliedVisualsShort/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.importedPhotoAssetRefs\.length/);
-    assert.match(STEP08, /assetPolicyV2Ready \? \([\s\S]*?title="실제 사진 사용 확인"/);
+    assert.match(STEP08, /assetPolicyV2Ready \? \([\s\S]*?title="Photo usage confirmation"/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.personPhotoAssetIds\.length/);
     assert.match(STEP08, /assetPolicyV2Ready && v\.nonPersonPhotoAssetIds\.length/);
-    assert.match(STEP08, /title=\{assetPolicyV2Ready \? '이미지 방향' : '이미지 스타일'\}/);
+    assert.match(STEP08, /title=\{assetPolicyV2Ready \? "Image direction" : "Image style"\}/);
     assert.match(STEP08, /assetPolicyV2Ready \? imageDirectionLabel : legacyImageStyleLabel/);
   });
 });

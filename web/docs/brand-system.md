@@ -1,26 +1,26 @@
-# Daboim brand system
+# Anaks Labs brand system
 
 ## Brand architecture
 
-- **Product:** Daboim (다보임)
+- **Product:** Anaks Labs
 - **Maker / operator:** Anaks Labs (아낙스랩스)
-- 고객 접점의 주 브랜드는 항상 `Daboim`이다. Anaks Labs는 푸터·회사소개·약관의 제작사/운영사 표기로만 사용한다.
+- 고객 접점의 주 브랜드는 항상 `Anaks Labs`이다. Anaks Labs는 푸터·회사소개·약관의 제작사/운영사 표기로만 사용한다.
 
 ## Position
 
 **Category:** 홈페이지 전문 최적화 AI
 
-**Promise:** 검색과 AI가 읽을 수 있게, Daboim.
+**Promise:** 검색과 AI가 읽을 수 있게, Anaks Labs.
 
 **Product truth:** 업종별 구조를 설계하고, SEO·AEO·GEO 기반을 생성 기본값으로 넣어, 편집과 호스팅까지 한 제품에서 제공한다.
 
-Daboim은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 모두 책임지는 제품도, 결과물을 넘긴 뒤 수정 때마다 다시 의뢰해야 하는 전통 제작대행도 아니다. 비개발자 사업자를 위해 **전문가의 홈페이지 제작 흐름을 제품화한 관리형 AI SaaS**로 포지셔닝한다.
+Anaks Labs은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 모두 책임지는 제품도, 결과물을 넘긴 뒤 수정 때마다 다시 의뢰해야 하는 전통 제작대행도 아니다. 비개발자 사업자를 위해 **전문가의 홈페이지 제작 흐름을 제품화한 관리형 AI SaaS**로 포지셔닝한다.
 
 ## Message hierarchy
 
 1. 내 홈페이지, 검색과 AI가 제대로 읽고 있을까요?
 2. 주소 하나로 무료 SEO·AEO·GEO 진단.
-3. 검색과 AI가 읽을 수 있게, Daboim.
+3. 검색과 AI가 읽을 수 있게, Anaks Labs.
 4. 업종 설계 → 디자인 3안 → 캔버스 편집 → 최적화 → 호스팅.
 
 순위·노출·AI 인용을 보장하지 않는다. 항상 “읽을 수 있는 구조”, “인용하기 쉬운 기반”, “생성 기본값”으로 표현한다.
@@ -40,14 +40,14 @@ Daboim은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 모두
 ## Motion system
 
 - 얇은 스캔 라인, 순차 점등 노드, 상태 전환을 기본 모션 문법으로 사용한다.
-- 히어로 3D 신호 필름은 Daboim 전용 신규 Gemini 시작 프레임에서 Veo 3.1 Fast image-to-video로 생성한 8초 원본을 사용한다. Anaks Labs 기존 브랜드 영상은 재사용하지 않는다.
-- 공개 자산 `daboim-visibility-film.mp4`와 `daboim-visibility-film.webm`은 원본 해상도를 유지한 무음 1080p(1920×1080) 파생본이다.
-- `prefers-reduced-motion`과 모바일에서는 `daboim-visibility-film-poster.webp`만 표시한다.
+- 히어로 3D 신호 필름은 Anaks Labs 전용 신규 Gemini 시작 프레임에서 Veo 3.1 Fast image-to-video로 생성한 8초 원본을 사용한다. Anaks Labs 기존 브랜드 영상은 재사용하지 않는다.
+- 공개 자산 `anakslabs-visibility-film.mp4`와 `anakslabs-visibility-film.webm`은 원본 해상도를 유지한 무음 1080p(1920×1080) 파생본이다.
+- `prefers-reduced-motion`과 모바일에서는 `anakslabs-visibility-film-poster.webp`만 표시한다.
 - 영상은 뷰포트 근접 시에만 로드하고, 화면 밖에서는 일시 정지한다.
 
 ## Competitive frame
 
-| | 범용 빌더(아임웹 등) | 제작대행사 | Daboim |
+| | 범용 빌더(아임웹 등) | 제작대행사 | Anaks Labs |
 |---|---|---|---|
 | 강점 | 쇼핑·예약 등 폭넓은 운영 도구 | 사람 중심의 맞춤 기획 | 업종 홈페이지 최적화의 제품화 |
 | 시작 | 템플릿/AI 결과를 사용자가 조립 | 상담·견적·제작 | 질문 응답 후 구조와 3안 생성 |
@@ -58,8 +58,8 @@ Daboim은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 모두
 
 ## Logo usage
 
-- `public/daboim-mark.svg`: 정사각형 심벌, 앱 아이콘·파비콘·워터마크
-- `public/daboim-logo.svg`: 밝은 배경용 영문 락업
+- `public/anakslabs-mark.svg`: 정사각형 심벌, 앱 아이콘·파비콘·워터마크
+- `public/anakslabs-logo.svg`: 밝은 배경용 영문 락업
 - `src/components/brand/BrandLogo.tsx`: 제품 UI용 반응형 락업
 - 심벌 최소 크기는 디지털 24px이다.
 - 그라데이션 순서(blue → cyan → mint), 프레임 비율, 신호 경로를 임의로 바꾸지 않는다.

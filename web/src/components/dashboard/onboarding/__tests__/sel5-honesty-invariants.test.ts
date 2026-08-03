@@ -47,35 +47,35 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
     const demoLabels = {
       compactProductionTeaser: {
         source: SOURCES.choice,
-        label: /aria-label=\{`\$\{spec\.label\} 전체 화면 예시 열기`\}/,
+        label: /aria-label=\{`Open \$\{spec\.label\} full-screen example`\}/,
       },
       customerPhotoComparator: {
         source: SOURCES.customerPhoto,
-        label: /예시 · 같은 사진으로 비교 중/,
+        label: /Example · Comparing the same photo/,
       },
       immersiveProductionRenderer: {
         source: SOURCES.immersive,
-        label: /예시 · 실제 production renderer/,
+        label: /Example · actual production renderer/,
       },
       addonProjectionBadge: {
         source: SOURCES.sitePreview,
-        label: /예시 · 베이직 포함 AI 영상 홈페이지 적용 시/,
+        label: /Example · When applying AI video homepage including Basic/,
       },
       sectionReviewProjection: {
         source: SOURCES.sectionReview,
-        label: /고른 영상 연출의 실제 스크롤 예시예요/,
+        label: /scroll preview of the selected treatment/,
       },
       dashboardAddonToggle: {
         source: SOURCES.siteDetail,
-        label: /포함 영상 적용 예시/,
+        label: /Example of application of embedded video/,
       },
     } as const;
 
     for (const [name, fixture] of Object.entries(demoLabels)) {
       assert.match(fixture.source, fixture.label, `${name}에서 예시 고지가 사라졌다`);
     }
-    assert.match(SOURCES.choice, /예시는 최종 다보임 AI 영상이 아닙니다/);
-    assert.match(SOURCES.immersive, /고객님의 최종 자산이 아닙니다/);
+    assert.match(SOURCES.choice, /preview is not the final Anaks Labs AI video/);
+    assert.match(SOURCES.immersive, /not your final assets/);
   });
 
   test('고객 사진 비교 데모는 같은 사진에 transform만 적용하고 생성·영상 경로를 호출하지 않는다', () => {
@@ -93,7 +93,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
   test('정지 유지 선택은 한 번의 클릭으로 영상 필드를 제거한 기본 모션 DTO를 만든다', () => {
     assert.match(
       SOURCES.choice,
-      /onClick=\{\(\) => chooseVideoPreference\(false\)\}[\s\S]{0,500}정지 화면으로 유지하기/,
+      /onClick=\{\(\) => chooseVideoPreference\(false\)\}[\s\S]{0,500}Keep the approved image/,
     );
     assert.doesNotMatch(SOURCES.choice, /disabled=\{videoRequired\}/);
 
@@ -160,7 +160,7 @@ describe('SEL5 — 애드온 데모 정직성·수명주기·비누출 불변식
     const projected = configForAddonPreview(config, true);
     assert.notEqual(projected, config);
     assert.deepEqual(config, before, '화면 projection이 입력 SiteConfig를 변경했다');
-    assert.equal(projected.pages[0].sections[0].background.video?.src, '/daboim-visibility-film-scrub.mp4');
+    assert.equal(projected.pages[0].sections[0].background.video?.src, '/anakslabs-visibility-film-scrub.mp4');
     assert.equal(config.pages[0].sections[0].background.video, undefined);
 
     const allowedFiles = new Set([

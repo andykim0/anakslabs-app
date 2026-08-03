@@ -2,7 +2,7 @@ import { FONT_PAIRINGS } from '@/lib/ai/design-knowledge-data';
 import {
   ACTIVE_MOTION_SIGNATURE_IDS,
 } from '@/lib/motion/signatures';
-import { DABOIM_TYPOGRAPHY } from '@/lib/design/typography-scale';
+import { ANAKS_TYPOGRAPHY } from '@/lib/design/typography-scale';
 import { designDnaById } from './catalog';
 import {
   chromaAtLightness,
@@ -219,7 +219,7 @@ function typography(pairId: DnaFontPairId, ratioId: DnaTypeRatio): TokenSet['typ
   const pair = FONT_PAIRINGS.find((candidate) => candidate.id === pairId);
   if (!pair) throw new Error(`DNA font pair is not registered: ${pairId}`);
   const ratio = DNA_TYPE_RATIO_VALUES[ratioId];
-  const base = DABOIM_TYPOGRAPHY.generatedSite.body.fontSize / 16;
+  const base = ANAKS_TYPOGRAPHY.generatedSite.body.fontSize / 16;
   return {
     pair: pairId,
     heading: pair.heading,
@@ -234,8 +234,8 @@ function typography(pairId: DnaFontPairId, ratioId: DnaTypeRatio): TokenSet['typ
       display: rem(base * ratio ** 4),
     },
     lineHeight: {
-      body: DABOIM_TYPOGRAPHY.generatedSite.body.lineHeight,
-      heading: DABOIM_TYPOGRAPHY.generatedSite.sectionTitle.lineHeight,
+      body: ANAKS_TYPOGRAPHY.generatedSite.body.lineHeight,
+      heading: ANAKS_TYPOGRAPHY.generatedSite.sectionTitle.lineHeight,
     },
   };
 }

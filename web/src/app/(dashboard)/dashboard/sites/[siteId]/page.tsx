@@ -4,7 +4,7 @@ import { getCurrentClient } from '@/lib/services/auth';
 import { SiteDetail } from '@/components/dashboard/site-detail';
 import { aiEditEnabled } from '@/lib/product/flags';
 
-export const metadata: Metadata = { title: '사이트 상세 — 다보임' };
+export const metadata: Metadata = { title: "Site Details — Anaks Labs" };
 
 export default async function SiteDetailPage({
   params,

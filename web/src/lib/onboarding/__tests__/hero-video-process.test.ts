@@ -125,7 +125,7 @@ describe('W4 — process 히어로 영상 게이트', () => {
   test('mock data URL·blob·긴 주소는 업로드 선택이어도 출처 힌트 body에서 제외한다', async () => {
     for (const heroPhotoUrl of [
       `data:image/png;base64,${'A'.repeat(5000)}`,
-      'blob:https://daboim.kr/mock-id',
+    'blob:https://anakslabs.com/mock-id',
       `https://assets.example.com/${'x'.repeat(2050)}`,
     ]) {
       const { calls, dependencies } = deps();

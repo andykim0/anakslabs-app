@@ -16,7 +16,7 @@ const HERO = '/customer/one-real-photo.webp';
 
 function survey(referenceDesignId?: string): SurveyInput {
   return {
-    businessName: '다보임 스튜디오',
+    businessName: 'Anaks Labs 스튜디오',
     purposeId: 'company_brand',
     purpose: '회사·브랜드',
     industry: 'SaaS',
@@ -55,9 +55,9 @@ describe('M7 같은 사진, 다른 옷 후보 실렌더', () => {
         runtimeDelivery: 'client',
       }));
       assert.deepEqual(config.theme, item.theme);
-      assert.equal(config.meta.title, '다보임 스튜디오 — SaaS · 서울');
+      assert.equal(config.meta.title, 'Anaks Labs 스튜디오 — SaaS · 서울');
       assert.match(html, new RegExp(`src="${HERO}"`));
-      assert.match(html, /다보임 스튜디오/);
+      assert.match(html, /Anaks Labs 스튜디오/);
       assert.match(html, /검색에서 답이 되는 홈페이지/);
       assert.match(html, /class="anaks-site/);
     }

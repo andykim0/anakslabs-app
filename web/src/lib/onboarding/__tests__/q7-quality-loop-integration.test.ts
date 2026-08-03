@@ -60,7 +60,7 @@ function heroSection(): Section {
 }
 
 function qualityDraft(): SiteConfig {
-  const config = emptySiteConfig('다보임 품질 루프');
+  const config = emptySiteConfig('Anaks Labs 품질 루프');
   config.pages[0].sections = [heroSection()];
   config.motion = {
     presetId: 'cafe-basic',
@@ -71,7 +71,7 @@ function qualityDraft(): SiteConfig {
   return config;
 }
 
-describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
+describe('Q$7 — Anaks Labs 품질 루프 통합 경계', () => {
   test('애드온 preview 기본값은 강등·원본을 보존하고 serving/export 권한으로 새지 않는다', () => {
     const draft = qualityDraft();
     const before = structuredClone(draft);
@@ -92,7 +92,7 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
     assert.doesNotMatch(serving, /previewAsAddon|configForAddonPreview|preview-addon/);
     assert.doesNotMatch(exporter, /previewAsAddon|configForAddonPreview|preview-addon/);
     assert.match(preview, /previewAsAddon\s*=\s*false/);
-    assert.match(preview, /예시 · 베이직 포함 AI 영상 홈페이지 적용 시/);
+    assert.match(preview, /Example · When applying AI video homepage including Basic/);
   });
 
   test('Veo는 비용·권한·상한 순서 뒤에서 실제 동기 전송만 fail-closed한다', () => {
@@ -122,7 +122,7 @@ describe('Q$7 — 다보임 품질 루프 통합 경계', () => {
 
   test('구조적 direction이 review 한 섹션만 바꾸며 keep·사실·무료 PATCH 경계를 보존한다', async () => {
     const parsed = surveySchema.parse({
-      businessName: '다보임 검수',
+      businessName: 'Anaks Labs 검수',
       purposeId: 'company_brand',
       purpose: '회사 소개',
       industry: '컨설팅',

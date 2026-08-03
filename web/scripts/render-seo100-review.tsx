@@ -17,7 +17,7 @@ import {
   seo100SurveyFor,
 } from './lib/seo100-dogfood-fixtures';
 
-const OUTPUT = '/private/tmp/daboim-seo100-review';
+const OUTPUT = '/private/tmp/anakslabs-seo100-review';
 const PHASE = process.env.SEO100_REVIEW_PHASE === 'after' ? 'after' : 'before';
 const CHROME =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
