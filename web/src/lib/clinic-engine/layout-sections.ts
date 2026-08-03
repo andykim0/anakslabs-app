@@ -279,7 +279,7 @@ function sourceText(
   block: ClinicMasterSourceBlock,
   suffix: string,
   theme: SiteTheme,
-  role: 'lead' | 'body',
+  role: 'lead' | 'body' | 'caption',
 ): TextElement {
   return layoutText(`source-${block.id}-${suffix}`, block.text, theme, role);
 }
@@ -430,10 +430,10 @@ export function buildClinicFeatureSections(input: {
       const itemTitle = sourceText(
         unit.title,
         `${input.titleSourceIdPrefix ?? 'layout-title'}-${
-          unit.titleAsCopy ? 'ko-copy-only-' : ''
+          unit.titleAsCopy ? 'clinic-route-caption-only-' : ''
         }${unitSuffix}`,
         input.theme,
-        'lead',
+        unit.titleAsCopy ? 'caption' : 'lead',
       );
       elements.push(itemTitle);
       const body = unit.body

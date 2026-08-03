@@ -322,6 +322,23 @@ function compileMetrics(input: {
         variants.filter((value) => value === variant).length,
       ]),
     ),
+    navigationAndHeadlines: input.compiled?.audit.pages.map((page) => ({
+      sourceUrl: page.sourceUrl,
+      finalUrl: page.finalUrl,
+      slug: page.slug,
+      ...(page.slug !== null
+        ? {
+            title: input.compiled?.config.pages.find((candidate) => (
+              candidate.slug === page.slug
+            ))?.title,
+            navLabel: input.compiled?.config.pages.find((candidate) => (
+              candidate.slug === page.slug
+            ))?.navLabel,
+          }
+        : {}),
+      headline: page.headline,
+      navigation: page.navigation,
+    })) ?? [],
     images: imageMetrics(
       input.artifact,
       input.compiled?.config ?? input.baseline,

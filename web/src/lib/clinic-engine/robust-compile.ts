@@ -5,6 +5,7 @@ import {
   applyLatinFontPairing,
 } from '@/lib/fonts/selection';
 import { resolveClinicMasterTheme } from '@/lib/clinic-master/tokens';
+import type { ClinicMasterSourceBlock } from '@/lib/clinic-master/compiler';
 import type {
   ClinicMasterPin,
   ImageElement,
@@ -33,6 +34,7 @@ import {
   type RobustClinicSourcePage,
   type RobustClinicSourcePlan,
 } from './robust-source';
+import { sourceTextIsOperationalBlob } from './source-text-gates';
 
 const FEATURE_SECTION_MAXIMUM_UNITS = 100;
 
@@ -64,7 +66,40 @@ export interface RobustClinicCompilationAudit {
     targetBlockCount: number;
     placedBlockCount: number;
     layoutVariants: string[];
+    headline: RobustClinicHeadlineEvidence;
+    navigation: RobustClinicNavigationEvidence;
   }>;
+}
+
+export type RobustClinicHeadlineSource =
+  | 'text-h1'
+  | 'body-heading'
+  | 'og-title'
+  | 'document-title'
+  | 'source-text'
+  | 'hostname';
+
+export interface RobustClinicHeadlineEvidence {
+  source: RobustClinicHeadlineSource;
+  sourceText: string;
+  value: string;
+  brandSuffixRemoved: boolean;
+  substringVerified: boolean;
+}
+
+export type RobustClinicNavigationSource =
+  | 'anchor'
+  | 'anchor-brand-suffix'
+  | 'path'
+  | 'headline';
+
+export interface RobustClinicNavigationEvidence {
+  source: RobustClinicNavigationSource;
+  sourceText: string;
+  value: string;
+  exactRepeatCollapsed: boolean;
+  brandSuffixRemoved: boolean;
+  substringVerified: boolean;
 }
 
 function brandLogoElement(image: RobustClinicSourcePage['brandImages'][number]): ImageElement {
@@ -150,13 +185,308 @@ function safeSlug(value: string, index: number, claimed: Set<string>): string {
   return slug;
 }
 
+const BRAND_TITLE_SEPARATOR_RE = /(?:\||·|—)/gu;
+
+function lastBrandSuffix(value: string): { prefix: string; suffix: string } | undefined {
+  const matches = [...value.matchAll(BRAND_TITLE_SEPARATOR_RE)];
+  const last = matches.at(-1);
+  if (!last || last.index === undefined) return undefined;
+  const prefix = value.slice(0, last.index).trim();
+  const suffix = value.slice(last.index + last[0].length).trim();
+  return prefix && suffix ? { prefix, suffix } : undefined;
+}
+
+function repeatedBrandSuffixes(pages: readonly RobustClinicSourcePage[]): ReadonlySet<string> {
+  const counts = new Map<string, number>();
+  for (const page of pages) {
+    const values = [page.metadataTitle?.text, page.metadataOgTitle?.text]
+      .filter((value): value is string => Boolean(value));
+    for (const value of new Set(values)) {
+      const suffix = lastBrandSuffix(value)?.suffix.toLocaleLowerCase('en-US');
+      if (suffix) counts.set(suffix, (counts.get(suffix) ?? 0) + 1);
+    }
+  }
+  return new Set([...counts.entries()]
+    .filter(([, count]) => count >= 2)
+    .map(([suffix]) => suffix));
+}
+
+function withoutRepeatedBrandSuffix(
+  value: string,
+  suffixes: ReadonlySet<string>,
+): { value: string; removed: boolean } {
+  const parts = lastBrandSuffix(value);
+  if (!parts || !suffixes.has(parts.suffix.toLocaleLowerCase('en-US'))) {
+    return { value, removed: false };
+  }
+  return { value: parts.prefix, removed: true };
+}
+
+function collapseExactRepeatedAnchorLabel(value: string): {
+  value: string;
+  collapsed: boolean;
+} {
+  const normalized = value.trim();
+  const characters = [...normalized];
+  if (characters.length >= 2 && characters.length % 2 === 0) {
+    const middle = characters.length / 2;
+    const left = characters.slice(0, middle).join('');
+    const right = characters.slice(middle).join('');
+    if (left.toLocaleLowerCase('en-US') === right.toLocaleLowerCase('en-US')) {
+      return { value: left, collapsed: true };
+    }
+  }
+  const words = normalized.split(/\s+/u);
+  if (words.length < 2 || words.length % 2 !== 0) return { value, collapsed: false };
+  const middle = words.length / 2;
+  const left = words.slice(0, middle).join(' ');
+  const right = words.slice(middle).join(' ');
+  return left.toLocaleLowerCase('en-US') === right.toLocaleLowerCase('en-US')
+    ? { value: left, collapsed: true }
+    : { value, collapsed: false };
+}
+
+function normalizedPageUrl(value: string): string {
+  const parsed = new URL(value);
+  parsed.hash = '';
+  if (parsed.pathname !== '/') parsed.pathname = parsed.pathname.replace(/\/+$/u, '');
+  return parsed.toString();
+}
+
+function urlDerivedNavigationLabel(
+  value: string,
+  expanded = false,
+): { label: string; sourceText: string } {
+  const parsed = new URL(value);
+  const sourceText = decodeURIComponent(parsed.toString());
+  const hostOffset = sourceText.indexOf(parsed.host);
+  const relativeSource = hostOffset >= 0
+    ? sourceText.slice(hostOffset + parsed.host.length)
+    : sourceText;
+  const queryValue = [...parsed.searchParams.values()]
+    .map((candidate) => decodeURIComponent(candidate).trim())
+    .find(Boolean);
+  const pathValue = decodeURIComponent(parsed.pathname)
+    .split('/')
+    .filter(Boolean)
+    .at(-1)
+    ?.trim();
+  const candidate = expanded
+    ? relativeSource || parsed.hostname
+    : queryValue ?? pathValue ?? parsed.hostname;
+  const characters = [...candidate];
+  return {
+    label: characters.length <= 40 ? candidate : characters.slice(-40).join(''),
+    sourceText,
+  };
+}
+
+function derivedHeadlineBlock(
+  block: ClinicMasterSourceBlock,
+  text: string,
+): ClinicMasterSourceBlock {
+  return text === block.text
+    ? block
+    : { ...block, id: `${block.id}-brand-trim-${sha256(text).slice(0, 8)}`, text };
+}
+
+function eligibleHeadlineBlock(block: RobustClinicSourceBlock): boolean {
+  const text = block.text.replace(/\s+/gu, ' ').trim();
+  return Boolean(text)
+    && !HIERARCHY_PRICE_OR_NUMBER.test(text)
+    && !HIERARCHY_WIDGET_LABEL.test(text)
+    && !sourceTextIsOperationalBlob(text);
+}
+
+function selectHeadline(
+  page: RobustClinicSourcePage,
+  suffixes: ReadonlySet<string>,
+): { block: ClinicMasterSourceBlock; evidence: RobustClinicHeadlineEvidence } {
+  const candidates: Array<{
+    block: ClinicMasterSourceBlock | undefined;
+    source: RobustClinicHeadlineSource;
+    trimBrand: boolean;
+  }> = [
+    {
+      block: page.targetBlocks.find((block) => block.tagName === 'h1' && eligibleHeadlineBlock(block)),
+      source: 'text-h1',
+      trimBrand: false,
+    },
+    {
+      block: page.targetBlocks.find((block) => block.heading && eligibleHeadlineBlock(block)),
+      source: 'body-heading',
+      trimBrand: false,
+    },
+    { block: page.metadataOgTitle, source: 'og-title', trimBrand: true },
+    { block: page.metadataTitle, source: 'document-title', trimBrand: true },
+    {
+      block: page.targetBlocks.find((block) => (
+        block.text.length <= 200 && eligibleHeadlineBlock(block)
+      )),
+      source: 'source-text',
+      trimBrand: false,
+    },
+  ];
+  for (const candidate of candidates) {
+    if (!candidate.block) continue;
+    const selected = candidate.trimBrand
+      ? withoutRepeatedBrandSuffix(candidate.block.text, suffixes)
+      : { value: candidate.block.text, removed: false };
+    return {
+      block: derivedHeadlineBlock(candidate.block, selected.value),
+      evidence: {
+        source: candidate.source,
+        sourceText: candidate.block.text,
+        value: selected.value,
+        brandSuffixRemoved: selected.removed,
+        substringVerified: candidate.block.text.includes(selected.value),
+      },
+    };
+  }
+  const hostname = new URL(page.finalUrl).hostname;
+  return {
+    block: {
+      id: `robust-hostname-${page.id}-${sha256(hostname).slice(0, 8)}`,
+      kind: 'introduction',
+      text: hostname,
+      sourceUrl: page.sourceUrl,
+    },
+    evidence: {
+      source: 'hostname',
+      sourceText: page.finalUrl,
+      value: hostname,
+      brandSuffixRemoved: false,
+      substringVerified: page.finalUrl.includes(hostname),
+    },
+  };
+}
+
+function navigationEvidenceByPage(input: {
+  pages: readonly RobustClinicSourcePage[];
+  headlines: ReadonlyMap<string, ReturnType<typeof selectHeadline>>;
+  brandSuffixes: ReadonlySet<string>;
+}): ReadonlyMap<string, RobustClinicNavigationEvidence> {
+  const anchors = new Map<string, Array<{ label: string }>>();
+  for (const page of input.pages) {
+    for (const block of page.excludedBlocks) {
+      for (const destination of block.navigationDestinations ?? []) {
+        const key = normalizedPageUrl(destination.url);
+        const values = anchors.get(key) ?? [];
+        values.push({ label: destination.label });
+        anchors.set(key, values);
+      }
+    }
+  }
+  const initial = new Map<string, RobustClinicNavigationEvidence>();
+  for (const page of input.pages) {
+    const candidates = (anchors.get(normalizedPageUrl(page.finalUrl)) ?? [])
+      .map(({ label }) => {
+        const repeated = collapseExactRepeatedAnchorLabel(label);
+        const trimmed = withoutRepeatedBrandSuffix(repeated.value, input.brandSuffixes);
+        return {
+          sourceText: label,
+          value: trimmed.value,
+          collapsed: repeated.collapsed,
+          suffixRemoved: trimmed.removed,
+        };
+      })
+      .filter((candidate) => candidate.value)
+      .sort((left, right) => left.value.length - right.value.length);
+    const anchor = candidates[0];
+    if (anchor) {
+      initial.set(page.id, {
+        source: anchor.suffixRemoved ? 'anchor-brand-suffix' : 'anchor',
+        sourceText: anchor.sourceText,
+        value: [...anchor.value].slice(0, 40).join(''),
+        exactRepeatCollapsed: anchor.collapsed,
+        brandSuffixRemoved: anchor.suffixRemoved,
+        substringVerified: anchor.sourceText.includes([...anchor.value].slice(0, 40).join('')),
+      });
+      continue;
+    }
+    const parsed = new URL(page.finalUrl);
+    if (parsed.pathname === '/' && parsed.search === '') {
+      const headline = input.headlines.get(page.id)!;
+      initial.set(page.id, {
+        source: 'headline',
+        sourceText: headline.evidence.sourceText,
+        value: [...headline.evidence.value].slice(0, 40).join(''),
+        exactRepeatCollapsed: false,
+        brandSuffixRemoved: headline.evidence.brandSuffixRemoved,
+        substringVerified: headline.evidence.sourceText.includes(
+          [...headline.evidence.value].slice(0, 40).join(''),
+        ),
+      });
+      continue;
+    }
+    const pathLabel = urlDerivedNavigationLabel(page.finalUrl);
+    initial.set(page.id, {
+      source: 'path',
+      sourceText: pathLabel.sourceText,
+      value: pathLabel.label,
+      exactRepeatCollapsed: false,
+      brandSuffixRemoved: false,
+      substringVerified: pathLabel.sourceText.includes(pathLabel.label),
+    });
+  }
+  const duplicates = new Map<string, string[]>();
+  for (const page of input.pages) {
+    const label = initial.get(page.id)!;
+    const key = label.value.toLocaleLowerCase('en-US');
+    const values = duplicates.get(key) ?? [];
+    values.push(page.id);
+    duplicates.set(key, values);
+  }
+  for (const ids of duplicates.values()) {
+    if (ids.length < 2) continue;
+    for (const id of ids) {
+      const page = input.pages.find((candidate) => candidate.id === id)!;
+      const parsed = new URL(page.finalUrl);
+      if (parsed.pathname === '/' && parsed.search === '') continue;
+      const pathLabel = urlDerivedNavigationLabel(page.finalUrl);
+      initial.set(id, {
+        source: 'path',
+        sourceText: pathLabel.sourceText,
+        value: pathLabel.label,
+        exactRepeatCollapsed: false,
+        brandSuffixRemoved: false,
+        substringVerified: pathLabel.sourceText.includes(pathLabel.label),
+      });
+    }
+  }
+  const pathDuplicates = new Map<string, string[]>();
+  for (const page of input.pages) {
+    const label = initial.get(page.id)!;
+    const key = label.value.toLocaleLowerCase('en-US');
+    const values = pathDuplicates.get(key) ?? [];
+    values.push(page.id);
+    pathDuplicates.set(key, values);
+  }
+  for (const ids of pathDuplicates.values()) {
+    if (ids.length < 2) continue;
+    for (const id of ids) {
+      const page = input.pages.find((candidate) => candidate.id === id)!;
+      const pathLabel = urlDerivedNavigationLabel(page.finalUrl, true);
+      initial.set(id, {
+        source: 'path',
+        sourceText: pathLabel.sourceText,
+        value: pathLabel.label,
+        exactRepeatCollapsed: false,
+        brandSuffixRemoved: false,
+        substringVerified: pathLabel.sourceText.includes(pathLabel.label),
+      });
+    }
+  }
+  return initial;
+}
+
 interface HierarchyCluster {
   blocks: RobustClinicSourceBlock[];
   repeatedStructure: boolean;
 }
 
 const HIERARCHY_PRICE_OR_NUMBER = /^(?:[-+]?\d[\d,.]*(?:\s*(?:원|%))?|[₩$€¥£]\s*\d[\d,.]*)$/u;
-const HIERARCHY_WIDGET_LABEL = /^(?:전체랭킹|실시간\s*(?:검색|인기\s*검색\s*순위)|검색|장바구니|전체메뉴|전체\s*메뉴)$/iu;
+const HIERARCHY_WIDGET_LABEL = /^(?:전체랭킹|실시간\s*(?:검색|인기\s*검색\s*순위)|검색|장바구니|전체메뉴|전체\s*메뉴|전체\s*카테고리)$/iu;
 
 function pathSegments(block: RobustClinicSourceBlock): string[] {
   return block.sourceElementPath.split('>').filter(Boolean);
@@ -314,9 +644,10 @@ function sectionsForPage(input: {
   page: RobustClinicSourcePage;
   theme: SiteTheme;
   locale: ClinicEngineProfile['locale'];
+  title: ClinicMasterSourceBlock;
 }): { sections: Section[]; placedBlockIds: string[] } | null {
   if (input.page.accessFailure || input.page.targetBlocks.length === 0) return null;
-  const title = input.page.metadataTitle ?? input.page.targetBlocks[0];
+  const title = input.title;
   const titleOwnsTargetBlock = input.page.targetBlocks.some((block) => block.id === title.id);
   const lead = input.page.metadataDescription
     ?? input.page.targetBlocks.find((block) => block.id !== title.id);
@@ -425,6 +756,16 @@ function compilePagePlan(input: {
   const claimedSlugs = new Set<string>();
   const pages: SitePage[] = [];
   const auditPages: RobustClinicCompilationAudit['pages'] = [];
+  const suffixes = repeatedBrandSuffixes(input.plan.pages);
+  const headlines = new Map(input.plan.pages.map((page) => [
+    page.id,
+    selectHeadline(page, suffixes),
+  ]));
+  const navigation = navigationEvidenceByPage({
+    pages: input.plan.pages,
+    headlines,
+    brandSuffixes: suffixes,
+  });
   const brandRoute = input.plan.pages.flatMap((page) => (
     page.brandImages.map((image) => ({ image, sourcePageUrl: page.sourceUrl }))
   )).sort((left, right) => (
@@ -435,6 +776,7 @@ function compilePagePlan(input: {
       page: sourcePage,
       theme,
       locale: input.plan.profile.locale,
+      title: headlines.get(sourcePage.id)!.block,
     });
     if (!compiled) {
       auditPages.push({
@@ -445,16 +787,13 @@ function compilePagePlan(input: {
         targetBlockCount: sourcePage.targetBlocks.length,
         placedBlockCount: 0,
         layoutVariants: [],
+        headline: headlines.get(sourcePage.id)!.evidence,
+        navigation: navigation.get(sourcePage.id)!,
       });
       continue;
     }
     const slug = safeSlug(sourcePage.finalUrl, pages.length, claimedSlugs);
-    const title = sourcePage.metadataTitle?.text
-      ?? sourcePage.targetBlocks.find((block) => block.heading && block.text.length <= 200)?.text
-      ?? (sourcePage.artifactPage.title && sourcePage.artifactPage.title.length <= 200
-        ? sourcePage.artifactPage.title
-        : sourcePage.targetBlocks.find((block) => block.text.length <= 200)?.text)
-      ?? new URL(sourcePage.finalUrl).hostname;
+    const title = headlines.get(sourcePage.id)!.block.text;
     if (pages.length === 0 && brandRoute) {
       const hero = compiled.sections.find((section) => section.type === 'hero');
       hero?.elements.push(brandLogoElement(brandRoute.image));
@@ -462,6 +801,7 @@ function compilePagePlan(input: {
     pages.push({
       id: sourcePage.id,
       title,
+      navLabel: navigation.get(sourcePage.id)!.value,
       slug,
       showInNav: pages.length < 7,
       sections: compiled.sections,
@@ -474,6 +814,8 @@ function compilePagePlan(input: {
       targetBlockCount: sourcePage.targetBlocks.length,
       placedBlockCount: compiled.placedBlockIds.length,
       layoutVariants: layoutVariantIds(compiled.sections),
+      headline: headlines.get(sourcePage.id)!.evidence,
+      navigation: navigation.get(sourcePage.id)!,
     });
   }
   if (pages.length === 0) {

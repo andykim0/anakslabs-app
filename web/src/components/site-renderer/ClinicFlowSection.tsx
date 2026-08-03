@@ -641,7 +641,7 @@ function FlowText({
 }: {
   element: TextElement;
   theme: SiteTheme;
-  role: 'intro' | 'heading' | 'display-heading' | 'copy' | 'marker' | 'stat-marker';
+  role: 'intro' | 'heading' | 'display-heading' | 'copy' | 'caption' | 'marker' | 'stat-marker';
   headingLevel?: 2 | 3;
 }) {
   const attributes = fontRole(element, theme);
@@ -681,6 +681,24 @@ function FlowText({
       >
         {element.text}{' '}
       </span>
+    );
+  }
+  if (role === 'caption') {
+    return (
+      <p
+        data-clinic-flow-caption
+        data-clinic-tracking-role="body"
+        style={{
+          ...textStyle(element, theme, 'body'),
+          margin: 0,
+          color: 'var(--clinic-section-muted,var(--clinic-muted))',
+          fontSize: '.875rem',
+          lineHeight: 1.4,
+        }}
+        {...attributes}
+      >
+        {element.text}{' '}
+      </p>
     );
   }
   return (
@@ -788,11 +806,12 @@ function FlowItem({
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
   ));
-  // KO contract imports mark source-backed title-only fragments as prose. The
+  // Arbitrary clinic imports mark source-backed title-only fragments as captions. The
   // layout resolver still receives its required item-title binding, while the
   // visible DOM avoids manufacturing a run of empty headings. Other masters
   // never receive this compiler-owned suffix and keep their existing output.
   const headingRendersAsCopy = heading?.id.includes('-ko-copy-only-') ?? false;
+  const headingRendersAsCaption = heading?.id.includes('-clinic-route-caption-only-') ?? false;
   const remainder = heading
     ? elements.filter((element) => element.id !== heading.id)
     : elements;
@@ -821,11 +840,13 @@ function FlowItem({
           <FlowText
             element={heading}
             theme={theme}
-            role={headingRendersAsCopy
-              ? 'copy'
-              : variantId === 'features.dark-value-band'
-                ? 'display-heading'
-                : 'heading'}
+            role={headingRendersAsCaption
+              ? 'caption'
+              : headingRendersAsCopy
+                ? 'copy'
+                : variantId === 'features.dark-value-band'
+                  ? 'display-heading'
+                  : 'heading'}
             headingLevel={headingLevel}
           />
         ) : null}

@@ -108,6 +108,7 @@ export interface RobustClinicSourcePage {
   images: ClinicLayoutImage[];
   brandImages: ClinicLayoutImage[];
   imageDecisions: RobustClinicImageDecision[];
+  metadataOgTitle?: ClinicMasterSourceBlock;
   metadataTitle?: ClinicMasterSourceBlock;
   metadataDescription?: ClinicMasterSourceBlock;
   accessFailure?: 'blocked-document';
@@ -801,6 +802,16 @@ function metadataBlock(input: {
   };
 }
 
+function documentOgTitle(html: string | undefined): string | undefined {
+  if (!html) return undefined;
+  const root = parse(html);
+  return normalizeRobustClinicText(
+    root.querySelector('meta[property="og:title"]')?.getAttribute('content')
+      ?? root.querySelector('meta[name="og:title"]')?.getAttribute('content')
+      ?? '',
+  ) || undefined;
+}
+
 function blockedAccessDocument(page: CrawlPageArtifact, blocks: readonly RobustClinicSourceBlock[]): boolean {
   const evidence = normalizeRobustClinicText([
     page.title,
@@ -962,6 +973,12 @@ export function extractRobustClinicSource(input: {
       text: artifactPage.title,
       sourceUrl: artifactPage.url,
     });
+    const metadataOgTitle = metadataBlock({
+      pageId: id,
+      role: 'title',
+      text: documentOgTitle(document?.html),
+      sourceUrl: artifactPage.url,
+    });
     const metadataDescription = metadataBlock({
       pageId: id,
       role: 'description',
@@ -984,6 +1001,7 @@ export function extractRobustClinicSource(input: {
       images: imageSelection.images,
       brandImages: imageSelection.brandImages,
       imageDecisions: imageSelection.decisions,
+      ...(metadataOgTitle ? { metadataOgTitle } : {}),
       ...(metadataTitle ? { metadataTitle } : {}),
       ...(metadataDescription ? { metadataDescription } : {}),
       ...(blockedAccessDocument(artifactPage, blocks)

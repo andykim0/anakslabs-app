@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { TenantPageContent } from '@/components/site-renderer';
 import { TenantHeader } from '@/components/site-renderer/TenantHeader';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import {
@@ -194,6 +195,123 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
     assert.equal(us.config.pages.length, 2);
     assert.equal(us.config.meta.locale, 'en-US');
     assert.match(us.config.theme.fonts.heading, /Schibsted Grotesk/iu);
+  });
+
+  test('navigation uses source anchors while headline priority rejects document-title residue', () => {
+    const pages = [
+      artifactPage('https://clinic.example/', 'Home | ADA'),
+      artifactPage('https://clinic.example/about', 'About us | ADA'),
+      artifactPage('https://clinic.example/service/esthetic-dentistry', 'Esthetic Dentistry | ADA'),
+      artifactPage('https://clinic.example/faq', 'Frequently Asked Questions | ADA'),
+    ];
+    const menu = `<nav>
+      <a href="/"><span>Home</span><span>Home</span></a>
+      <a href="/about"><span>About us</span><span>About us</span></a>
+      <a href="/service/esthetic-dentistry"><span>Esthetic Dentistry</span><span>Esthetic Dentistry</span></a>
+      <a href="/faq">Frequently Asked Questions | ADA</a>
+    </nav>`;
+    const documents: RobustClinicDocument[] = [
+      {
+        sourceUrl: pages[0].url,
+        finalUrl: pages[0].url,
+        html: `<html><head><meta property="og:title" content="Home | ADA"></head><body>${menu}<main><h1>Your smile, effortlessly enhanced</h1><p>Source home copy.</p></main></body></html>`,
+      },
+      {
+        sourceUrl: pages[1].url,
+        finalUrl: pages[1].url,
+        html: `<html><head><meta property="og:title" content="About us | ADA"></head><body>${menu}<main><h2>About our practice</h2><p>Source about copy.</p></main></body></html>`,
+      },
+      {
+        sourceUrl: pages[2].url,
+        finalUrl: pages[2].url,
+        html: `<html><head><meta property="og:title" content="Esthetic Dentistry | ADA"></head><body>${menu}<main><h1>Esthetic Dentistry</h1><p>Source treatment copy.</p></main></body></html>`,
+      },
+      {
+        sourceUrl: pages[3].url,
+        finalUrl: pages[3].url,
+        html: `<html><head><meta property="og:title" content="Frequently Asked Questions | ADA"></head><body>${menu}<main><p>Source FAQ copy without a heading.</p></main></body></html>`,
+      },
+    ];
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact(pages),
+      documents,
+      profile: US_MEDICAL_OUTREACH_PROFILE,
+    });
+    assert.deepEqual(
+      compiled.config.pages.map((page) => page.title),
+      [
+        'Your smile, effortlessly enhanced',
+        'About our practice',
+        'Esthetic Dentistry',
+        'Frequently Asked Questions',
+      ],
+    );
+    assert.deepEqual(
+      compiled.config.pages.map((page) => page.navLabel),
+      ['Home', 'About us', 'Esthetic Dentistry', 'Frequently Asked Questions'],
+    );
+    assert.deepEqual(
+      compiled.audit.pages.map((page) => page.headline.source),
+      ['text-h1', 'body-heading', 'text-h1', 'og-title'],
+    );
+    assert.ok(compiled.audit.pages.every((page) => (
+      page.headline.substringVerified && page.navigation.substringVerified
+    )));
+    assert.equal(compiled.audit.pages[3].headline.brandSuffixRemoved, true);
+    assert.equal(compiled.audit.pages[0].navigation.exactRepeatCollapsed, true);
+    assert.equal(compiled.audit.pages[3].navigation.source, 'anchor-brand-suffix');
+  });
+
+  test('duplicate title residue without anchors falls back to URL-derived distinct labels', () => {
+    const pages = [
+      artifactPage('https://clinic.example/', '강남본점 예쁨주의쁨의원'),
+      artifactPage('https://clinic.example/event/info?tse_code=EVT100', '강남본점 예쁨주의쁨의원'),
+      artifactPage('https://clinic.example/event/info?tse_code=EVT200', '강남본점 예쁨주의쁨의원'),
+    ];
+    const documents: RobustClinicDocument[] = pages.map((page) => ({
+      sourceUrl: page.url,
+      finalUrl: page.url,
+      html: '<main><h2>전체 카테고리</h2><p>원문 이벤트 안내입니다.</p></main>',
+    }));
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact(pages),
+      documents,
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+    });
+    assert.deepEqual(
+      compiled.config.pages.map((page) => page.navLabel),
+      ['강남본점 예쁨주의쁨의원', 'EVT100', 'EVT200'],
+    );
+    assert.deepEqual(
+      compiled.audit.pages.map((page) => page.navigation.source),
+      ['headline', 'path', 'path'],
+    );
+    assert.ok(compiled.audit.pages.every((page) => page.navigation.substringVerified));
+    assert.ok(compiled.audit.pages.every((page) => page.headline.source === 'document-title'));
+  });
+
+  test('orphan ranking fragments are retained as captions instead of promoted headings', () => {
+    const page = artifactPage('https://clinic.example/', '원문 병원');
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: '<main><h1>원문 병원</h1><p>원문 진료 안내입니다.</p><div>1</div><div>전체랭킹</div></main>',
+      }],
+      profile: KO_MEDICAL_IMPORT_PROFILE,
+    });
+    const html = renderToStaticMarkup(TenantPageContent({
+      config: compiled.config,
+      pageSlug: '',
+      interactive: false,
+      animate: false,
+      runtimeDelivery: 'inline',
+    }));
+    assert.match(html, /data-clinic-flow-caption(?:="true"|="")?[^>]*>전체랭킹/u);
+    assert.doesNotMatch(html, /<h[1-3][^>]*>전체랭킹/u);
+    assert.equal(compiled.audit.unplacedTargetBlockIds.length, 0);
+    assert.equal(compiled.audit.renderBlockViolationCount, 0);
   });
 
   test('resolver min/max contracts retain every source block without tuning import caps', () => {
