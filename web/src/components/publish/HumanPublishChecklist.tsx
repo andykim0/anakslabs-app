@@ -16,7 +16,7 @@ export function HumanPublishChecklist({
   return (
     <fieldset className="space-y-2">
       <legend className="mb-2 text-xs font-semibold text-ob-ink">
-        마지막으로 직접 확인해 주세요
+        Review these items before publishing
       </legend>
       {PUBLISH_HUMAN_CHECKS.map(({ id, label }, index) => (
         <label

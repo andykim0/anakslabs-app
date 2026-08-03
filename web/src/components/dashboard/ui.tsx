@@ -67,7 +67,7 @@ export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
 };
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: "default homepage",
+  basic: "Clinic website",
   premium: "AI video homepage",
 };
 

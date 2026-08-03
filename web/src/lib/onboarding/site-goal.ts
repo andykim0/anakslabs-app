@@ -26,37 +26,37 @@ export interface SiteGoalDef {
 
 export const SITE_GOALS = {
   call: {
-    label: '전화가 오면 좋겠어요',
-    ctaLabel: '전화 문의',
-    description: '방문자가 바로 전화를 걸도록 안내해요',
+    label: 'Get more phone calls',
+    ctaLabel: 'Call',
+    description: 'Help visitors call without searching for the number',
     applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
   },
   reserve: {
-    label: '예약을 받고 싶어요',
-    ctaLabel: '예약하기',
-    description: '방문·시술·자리를 미리 예약받아요',
+    label: 'Accept appointments',
+    ctaLabel: 'Book an appointment',
+    description: 'Let visitors request a visit or appointment',
     applicableGroups: ['serve'],
     sectionEmphasis: ['contact', 'menu', 'hero'],
   },
   directions: {
-    label: '찾아오게 하고 싶어요',
-    ctaLabel: '오시는 길',
-    description: '지도를 보고 매장으로 찾아오게 해요',
+    label: 'Bring people to the location',
+    ctaLabel: 'Directions',
+    description: 'Help visitors find the location on a map',
     applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
   },
   kakao_inquiry: {
-    label: '카톡으로 문의받고 싶어요',
-    ctaLabel: '카카오톡 문의',
-    description: '편한 카카오톡 채널로 상담을 받아요',
+    label: 'Receive messages',
+    ctaLabel: 'Send a message',
+    description: 'Connect visitors to a verified messaging channel',
     applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['contact', 'hero'],
   },
   trust: {
-    label: '믿음을 주고 싶어요',
-    ctaLabel: '상담 문의',
-    description: '실적·후기로 신뢰를 먼저 쌓아요',
+    label: 'Build trust first',
+    ctaLabel: 'Contact us',
+    description: 'Lead with verified work and customer proof',
     applicableGroups: ['serve', 'promote'],
     sectionEmphasis: ['cases', 'testimonials', 'team', 'about'],
   },
@@ -102,19 +102,19 @@ export function resolveConversionDestination(
   if (survey.siteGoal === 'call' && destination?.kind === 'phone_fact') {
     const phone = survey.contentDepth?.facts.find((fact) => fact.key === 'phone' && fact.value.trim())?.value;
     const href = phoneHref(phone);
-    return href ? { label: '전화 문의', href, kind: 'phone' } : undefined;
+    return href ? { label: 'Call', href, kind: 'phone' } : undefined;
   }
   if (
     survey.siteGoal === 'reserve' &&
     destination?.kind === 'reservation_url' &&
     isRecognizedReservationUrl(destination.url)
-  ) return { label: '예약하기', href: destination.url, kind: 'reservation' };
+  ) return { label: 'Book an appointment', href: destination.url, kind: 'reservation' };
   if (survey.siteGoal === 'kakao_inquiry') {
     if (destination?.kind === 'contact_form') {
-      return { label: '문의하기', href: '#sec-contact', kind: 'contact-form' };
+      return { label: 'Contact us', href: '#sec-contact', kind: 'contact-form' };
     }
     if (destination?.kind === 'messenger_url' && isRecognizedChatUrl(destination.url)) {
-      return { label: '카카오톡 문의', href: destination.url, kind: 'messenger' };
+      return { label: 'Send a message', href: destination.url, kind: 'messenger' };
     }
   }
   return undefined;

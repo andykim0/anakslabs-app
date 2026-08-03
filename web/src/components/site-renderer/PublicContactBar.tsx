@@ -12,14 +12,14 @@ export function PublicContactBar({
 }) {
   const english = locale === 'en-US';
   const entries = [
-    contact.phone ? [english ? 'Phone' : '전화', contact.phone] : null,
-    contact.address ? [english ? 'Address' : '주소', contact.address] : null,
+    contact.phone ? ['Phone', contact.phone] : null,
+    contact.address ? ['Address', contact.address] : null,
   ].filter((entry): entry is [string, string] => Boolean(entry));
   if (entries.length === 0) return null;
   return (
     <aside
       data-public-contact-surface="survey"
-      aria-label={english ? 'Contact and address' : '연락처와 주소'}
+      aria-label="Contact and address"
       style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -34,11 +34,11 @@ export function PublicContactBar({
       }}
     >
       <span style={{ flexBasis: '100%' }}>
-        <strong>{english ? 'Contact and visit information' : '연락처와 찾아오는 길'}</strong>
+        <strong>Contact and visit information</strong>
         <span style={{ marginLeft: 8 }}>
           {english
             ? 'Public information reproduced from the clinic source for this private preview.'
-            : '사장님이 직접 확인한 정보입니다. 방문이나 문의 전에 아래 전화번호와 주소를 확인해 주세요.'}
+            : 'This information was confirmed by the business. Verify the phone number and address before visiting or contacting the practice.'}
         </span>
       </span>
       {entries.map(([label, value]) => (

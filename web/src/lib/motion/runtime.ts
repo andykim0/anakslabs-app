@@ -1085,7 +1085,7 @@ export const MOTION_RUNTIME = `(function(){
     function writeBeforeAfterState(stage,value){
       value=clamp(value);var rounded=Math.round(value*100),input=stage.querySelector('[data-before-after-range]'),output=stage.querySelector('[data-before-after-output]');
       stage.style.setProperty('--before-after-clip',((1-value)*100).toFixed(3)+'%');
-      if(input){input.value=String(rounded);input.setAttribute('aria-valuetext','이후 사진 '+rounded+'%');}
+       if(input){input.value=String(rounded);input.setAttribute('aria-valuetext','After image '+rounded+'%');}
       if(output)output.textContent=rounded+'%';
     }
     function syncSignature(stage,p,measure){

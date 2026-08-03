@@ -30,12 +30,12 @@ export interface ReferenceDesign {
 
 /** 목적별 대표 업종(팔레트 산업 매칭 시드) */
 const PURPOSE_INDUSTRY: Record<LivePurposeId, string> = {
-  local_store: '카페',
-  booking_service: '미용',
-  company_brand: '회사',
-  portfolio: '포트폴리오',
-  edu_membership: '학원',
-  one_page: '브랜드',
+  local_store: '\uce74\ud398',
+  booking_service: '\ubbf8\uc6a9',
+  company_brand: '\ud68c\uc0ac',
+  portfolio: '\ud3ec\ud2b8\ud3f4\ub9ac\uc624',
+  edu_membership: '\ud559\uc6d0',
+  one_page: '\ube0c\ub79c\ub4dc',
 };
 
 /** 목적별 폰트 페어링(전부 FONT_PAIRINGS 실재 id) — 항목별 교대 */

@@ -259,7 +259,7 @@ test('출처 없는 수치 감점은 유지되고 원문 출처가 같은 섹션
 
   const html = renderDocument(sourcedConfig, 'cases', 'https://source.example.kr');
   assert.match(html, /href="https:\/\/example\.org\/report"/u);
-  assert.match(html, /출처 · 확인 기관 · 2026-07-01/u);
+  assert.match(html, /Source · 확인 기관 · 2026-07-01/u);
   assert.doesNotMatch(html, /evidence_available/u);
 });
 

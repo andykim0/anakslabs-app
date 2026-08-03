@@ -29,11 +29,11 @@ describe('T4-B 손님받기 — 티저·구성원 어댑터', () => {
     const cfg = buildSiteConfigFromSurvey(surveyFor('booking_service', '병원'), candidate, opts);
     const team = cfg.pages.flatMap((p) => p.sections).find((s) => s.type === 'team')!;
     const kicker = team.elements.find((el) => el.id.includes('team-kicker'))!;
-    assert.ok(kicker.kind === 'text' && kicker.text === '의료진');
+    assert.ok(kicker.kind === 'text' && kicker.text === 'Providers');
   });
 
   test("teaser 'work' — 이미지 수 기반 요약, 0이면 undefined(폴백 문구)", () => {
-    assert.equal(teaserSummary({ slug: 'work', imageCount: 6 }), '작업·프로젝트 6건');
+    assert.equal(teaserSummary({ slug: 'work', imageCount: 6 }), '6 work or project images');
     assert.equal(teaserSummary({ slug: 'work', imageCount: 0 }), undefined);
     assert.equal(teaserSummary({ slug: 'work' }), undefined);
   });
@@ -61,7 +61,7 @@ describe('T4-C 알리기 — 케이스 스터디·작업 그리드', () => {
     assert.equal(caps.length, 6);
     assert.deepEqual(
       caps.map((el) => (el.kind === 'text' ? el.text : '')),
-      ['작업 01', '작업 02', '작업 03', '작업 04', '작업 05', '작업 06'],
+      ['Work 01', 'Work 02', 'Work 03', 'Work 04', 'Work 05', 'Work 06'],
     );
     // 캡션은 이미지 아래(오버레이 아님) — 각 캡션 y가 짝 이미지 하단보다 아래
     for (let i = 0; i < 6; i += 1) {
@@ -77,7 +77,7 @@ describe('T4-C 알리기 — 케이스 스터디·작업 그리드', () => {
       .map((el) => (el.kind === 'text' ? el.text : ''));
     assert.equal(names.length, 2);
     assert.ok(names.every((el) => el.kind === 'text' && el.text.includes('테스트')), 'businessName 미보간');
-    assert.deepEqual(labels, ['개요', '과정', '결과', '개요', '과정', '결과']);
+    assert.deepEqual(labels, ['Overview', 'Process', 'Outcome', 'Overview', 'Process', 'Outcome']);
     // 높이 정확 — 모든 요소가 섹션 높이 안에 있어야 함
     for (const el of cases.elements) {
       assert.ok(el.frame.y + el.frame.h <= cases.height, `${el.id} 섹션 높이 초과`);
@@ -100,7 +100,7 @@ describe('T4-E 특수 — 링크 허브', () => {
     assert.equal(btns.length, 3);
     assert.deepEqual(
       btns.map((b) => (b.kind === 'button' ? b.label : '')),
-      ['전화하기', '문의 남기기', '오시는 길'],
+      ['Call', 'Send an inquiry', 'Directions'],
     );
     const secIds = new Set(cfg.pages.flatMap((p) => p.sections).map((s) => s.id));
     for (const b of btns) {

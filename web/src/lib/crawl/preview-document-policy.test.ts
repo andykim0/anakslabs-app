@@ -97,7 +97,7 @@ describe('LANG-GUARD — preview document language and translation policy', () =
     assert.match(tenantLayout, /import '@\/app\/globals\.css';/u);
     assert.match(tenantLayout, /APP_ROOT_HTML_CLASS_NAME/u);
     assert.match(tenantLayout, /APP_ROOT_BODY_CLASS_NAME/u);
-    assert.match(tenantLayout, /<html lang="ko"/u);
+    assert.match(tenantLayout, /<html lang="en"/u);
 
     const contract = source('src/app/root-layout-contract.ts');
     assert.match(contract, /variable: '--font-geist-sans'/u);

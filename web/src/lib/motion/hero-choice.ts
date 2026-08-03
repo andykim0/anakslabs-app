@@ -18,18 +18,18 @@ export interface HeroMotionChoice {
 const BASIC_CHOICES = [
   {
     id: 'ken-burns',
-    label: '사진이 천천히 커지는 느낌',
-    description: '차분하고 은은해요 — 카페·공방에 잘 어울려요',
+    label: 'Slow image zoom',
+    description: 'A quiet, restrained motion for tactile spaces and services.',
   },
   {
     id: 'mask-reveal',
-    label: '사진이 스르륵 나타나는 느낌',
-    description: '스크롤할 때 사진이 부드럽게 열려요 — 깔끔한 인상',
+    label: 'Soft image reveal',
+    description: 'Images open gently on scroll for a clean presentation.',
   },
   {
     id: 'none',
-    label: '움직임 최소',
-    description: '거의 움직이지 않아요 — 차분한 게 좋다면 이걸로',
+    label: 'Minimal motion',
+    description: 'Nearly static for a calm, direct presentation.',
   },
 ] as const satisfies readonly HeroMotionChoice[];
 
@@ -38,8 +38,8 @@ export const HERO_MOTION_CHOICES = {
   premium: [
     {
       id: 'video-hero',
-      label: '사진 대신 짧은 영상이 흐르는 느낌',
-      description: '첫 화면에 영상이 배경으로 흐릅니다 — 가장 시선을 끌어요',
+      label: 'Short background video',
+      description: 'A short video plays behind the opening section.',
     },
     ...BASIC_CHOICES,
   ],

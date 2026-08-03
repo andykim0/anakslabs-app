@@ -228,7 +228,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   const nodes: JsonLdNode[] = [];
   const info = config.businessInfo;
   const publicContact = resolvePublicContact(config);
-  const name = info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트';
+  const name = info?.businessName?.trim() || config.meta.title || info?.ownerName || 'Site';
   const baseUrl = normalizeSiteUrl(siteUrl);
   const currentPage = findPage(config, pageSlug) ?? homePage(config);
   const currentUrl = pageUrlFor(baseUrl, currentPage.slug);
@@ -296,7 +296,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
           '@context': 'https://schema.org',
           '@id': `${baseUrl}#service`,
           '@type': 'Service',
-          name: `${name} 서비스`,
+          name: `${name} services`,
           url: baseUrl,
           provider: ref(identityId),
           ...(region ? { areaServed: region } : {}),
@@ -306,7 +306,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
           '@context': 'https://schema.org',
           '@id': `${baseUrl}#course`,
           '@type': 'Course',
-          name: `${name} 커리큘럼`,
+          name: `${name} curriculum`,
           url: baseUrl,
           provider: ref(identityId),
         });
@@ -315,7 +315,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
           '@context': 'https://schema.org',
           '@id': `${baseUrl}#work`,
           '@type': 'CreativeWork',
-          name: `${name} 작업`,
+          name: `${name} work`,
           url: baseUrl,
           creator: ref(identityId),
         });
@@ -473,7 +473,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
         {
           '@type': 'ListItem',
           position: 1,
-          name: homePage(config).title || '홈',
+          name: homePage(config).title || 'Home',
           item: baseUrl,
         },
         {

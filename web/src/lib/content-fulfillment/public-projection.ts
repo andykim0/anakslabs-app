@@ -6,8 +6,8 @@ import type { PublishedContentPost } from './contracts';
 export const CONTENT_BLOG_NAV_ITEM = {
   id: 'content-blog',
   slug: 'blog',
-  title: '블로그',
-  navLabel: '블로그',
+  title: 'Blog',
+  navLabel: 'Blog',
 } as const;
 
 function xmlEscape(value: string): string {
@@ -71,7 +71,7 @@ export function buildTenantLlmsText(input: {
   const lines = [`# ${name}`, ''];
   if (config.meta.description) lines.push(`> ${config.meta.description}`, '');
 
-  lines.push('## 페이지');
+  lines.push('## Pages');
   for (const page of config.pages) {
     const url = page.slug === '' ? base : `${base}/${page.slug}`;
     lines.push('', `### ${page.title} (${url})`);
@@ -81,20 +81,20 @@ export function buildTenantLlmsText(input: {
   }
 
   if (info) {
-    lines.push('', '## 연락처');
-    if (info.phone) lines.push(`- 전화: ${info.phone}`);
-    if (info.address) lines.push(`- 주소: ${info.address}`);
-    if (info.email) lines.push(`- 이메일: ${info.email}`);
+    lines.push('', '## Contact');
+    if (info.phone) lines.push(`- Phone: ${info.phone}`);
+    if (info.address) lines.push(`- Address: ${info.address}`);
+    if (info.email) lines.push(`- Email: ${info.email}`);
   }
 
-  lines.push('', '## 링크');
+  lines.push('', '## Links');
   for (const page of config.pages) {
     const url = page.slug === '' ? base : `${base}/${page.slug}`;
     lines.push(`- ${page.title}: ${url}`);
   }
 
   if (input.posts.length > 0) {
-    lines.push(`- 블로그: ${contentPostUrl(base)}`, '', '## 글');
+    lines.push(`- Blog: ${contentPostUrl(base)}`, '', '## Posts');
     for (const post of input.posts) {
       lines.push(`- ${post.title}: ${contentPostUrl(base, post.slug)}`);
     }
@@ -135,7 +135,7 @@ export function contentBlogMetadata(
   const config = site.siteConfig!;
   const base = `https://${site.domain}`;
   const canonical = contentPostUrl(base, post?.slug);
-  const title = post ? `${post.title} · ${config.meta.title}` : `블로그 · ${config.meta.title}`;
+  const title = post ? `${post.title} · ${config.meta.title}` : `Blog · ${config.meta.title}`;
   const description = post?.summary ?? config.meta.description;
   return {
     title,

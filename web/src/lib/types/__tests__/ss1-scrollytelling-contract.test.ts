@@ -90,12 +90,12 @@ describe('SS1 — 스크롤리텔링 additive 계약', () => {
     assert.equal(basic.config.pages[0].sections[0].layout, 'canvas');
     assert.deepEqual(basic.config.pages[0].sections[0].acts, ACTS);
     assert.equal(requested.pages[0].sections[0].layout, 'scrollytelling', '원본 변형');
-    assert.match(basic.changes.join('\n'), /AI 영상 홈페이지 미보유/);
+    assert.match(basic.changes.join('\n'), /AI video approval missing/);
 
     const cafe = stageConfig('local_store.default');
     const disallowed = sanitizeScrollytellingSections(cafe, 'premium');
     assert.equal(disallowed.config.pages[0].sections[0].layout, 'canvas');
-    assert.match(disallowed.changes.join('\n'), /허용되지 않은 목적 템플릿/);
+    assert.match(disallowed.changes.join('\n'), /purpose template not allowed/);
   });
 
   test('영상 전 pending layout은 보존하되 실제 렌더 readiness는 false다', () => {

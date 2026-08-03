@@ -5,10 +5,17 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
-  privacyPolicy,
+  US_TENANT_LEGAL_DOCUMENTS_ENABLED,
+  US_TENANT_LEGAL_PLACEHOLDERS,
+  UsTenantLegalDocumentsPendingError,
+  assertUsTenantLegalDocumentsReady,
+  pinUsTenantLocaleForNewSite,
   siteCollectsPersonalData,
+  usPrivacyPolicy,
+  usTermsOfService,
 } from '@/lib/legal/templates';
 import { emptySiteConfig, type BusinessInfo } from '@/lib/types/site';
+import { checkPublish } from '@/lib/publish/preflight';
 
 const BUSINESS_INFO: BusinessInfo = {
   businessName: '테스트 사업자',
@@ -17,44 +24,49 @@ const BUSINESS_INFO: BusinessInfo = {
   isPersonal: false,
 };
 
-const DISCLOSURE_LINES = [
-  ANONYMOUS_SITE_EVENT_DISCLOSURE.collected,
-  ANONYMOUS_SITE_EVENT_DISCLOSURE.purpose,
-  ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded,
-  ANONYMOUS_SITE_EVENT_DISCLOSURE.retention,
-  ANONYMOUS_SITE_EVENT_DISCLOSURE.legalReview,
-] as const;
+describe('US tenant legal publication boundary', () => {
+  test('pending placeholders are non-publishable and both legal document builders fail closed', () => {
+    const config = emptySiteConfig('US legal boundary');
+    config.meta.locale = 'en-US';
+    config.businessInfo = BUSINESS_INFO;
 
-describe('RPT4 — 익명 성과 측정 개인정보 고지', () => {
-  test('고객 사이트 방침은 집계 항목·목적·제외 항목·24개월 보관·법무 검토를 모두 고지한다', () => {
-    const document = privacyPolicy(BUSINESS_INFO);
-    const section = document.sections.find((item) =>
-      item.heading.includes(ANONYMOUS_SITE_EVENT_DISCLOSURE.heading),
-    );
+    assert.equal(US_TENANT_LEGAL_DOCUMENTS_ENABLED, false);
+    assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.privacy.publishable, false);
+    assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.terms.publishable, false);
+    assert.throws(() => assertUsTenantLegalDocumentsReady(config), UsTenantLegalDocumentsPendingError);
+    assert.throws(() => usPrivacyPolicy(config), UsTenantLegalDocumentsPendingError);
+    assert.throws(() => usTermsOfService(config), UsTenantLegalDocumentsPendingError);
+    const preflight = checkPublish(config, 'basic');
+    assert.equal(preflight.ok, false);
+    assert.ok(preflight.blockers.some((item) => /pending counsel review/iu.test(item)));
+  });
 
-    assert.ok(section);
-    assert.deepEqual(section.body, DISCLOSURE_LINES);
-    assert.match(document.updatedNote, /법무 검토 대상/);
-    assert.match(section.body.join(' '), /페이지 조회/);
-    assert.match(section.body.join(' '), /전화·예약·길찾기/);
-    assert.match(section.body.join(' '), /폼 제출 여부/);
-    assert.match(section.body.join(' '), /유입 출처 분류/);
-    assert.match(section.body.join(' '), /직접 방문\/사이트 내부/);
-    assert.doesNotMatch(section.body.join(' '), /직접·사이트 내부/);
-    assert.match(section.body.join(' '), /24개월/);
-    assert.match(section.body.join(' '), /IP 주소/);
-    assert.match(section.body.join(' '), /원문 리퍼러\(raw referrer\)/);
-    assert.match(section.body.join(' '), /폼 입력 내용/);
+  test('new-site issuance pins en-US without mutating a stored legacy config', () => {
+    const legacy = emptySiteConfig('Stored legacy config');
+    assert.equal(legacy.meta.locale, undefined);
+    const issued = pinUsTenantLocaleForNewSite(legacy);
+    assert.equal(legacy.meta.locale, undefined);
+    assert.equal(issued.meta.locale, 'en-US');
+    assert.throws(() => assertUsTenantLegalDocumentsReady({
+      ...issued,
+      businessInfo: BUSINESS_INFO,
+    }), UsTenantLegalDocumentsPendingError);
+  });
+
+  test('aggregate measurement disclosure is operational copy, not a tenant legal document', () => {
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.heading, /Anonymous performance measurement/u);
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded, /patient information/u);
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.legalReview, /Pending final legal review/u);
   });
 
   test('Anaks Labs marketing privacy renders the equivalent aggregate-reporting boundaries in English', () => {
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
     assert.match(html, /PHI-free measurement/u);
     assert.match(html, /aggregate page views and completed action categories/u);
-    assert.match(html, /Patient information, form contents, raw IP addresses, raw user-agent strings, and raw referrers are not stored/u);
+    assert.match(html, /patient information, form contents, raw IP addresses, raw user-agent strings, and raw referrers/iu);
   });
 
-  test('실제 폼이 있는 config만 방문자 입력 수집을 고지한다', () => {
+  test('only a config with a form is classified as collecting visitor input', () => {
     const config = emptySiteConfig('개인정보 테스트');
     assert.equal(siteCollectsPersonalData(config), false);
     config.pages[0].sections.push({
@@ -75,10 +87,6 @@ describe('RPT4 — 익명 성과 측정 개인정보 고지', () => {
       }],
     });
     assert.equal(siteCollectsPersonalData(config), true);
-    assert.match(
-      privacyPolicy(BUSINESS_INFO, { collectsPersonalData: true }).sections[0].body.join(' '),
-      /이름, 연락처/,
-    );
   });
 });
 

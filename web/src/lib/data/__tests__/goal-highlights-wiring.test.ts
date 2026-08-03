@@ -53,7 +53,7 @@ describe('siteGoal → 히어로 주 CTA', () => {
   });
   test('siteGoal 미설정 시 기본 "문의하기" (무회귀)', () => {
     const cfg = buildSiteConfigFromSurvey(survey(), candidate, opts);
-    assert.equal(heroCtaLabel(cfg), '문의하기');
+    assert.equal(heroCtaLabel(cfg), 'Contact us');
   });
 });
 

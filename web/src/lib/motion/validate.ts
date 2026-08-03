@@ -62,13 +62,13 @@ function presetLimitViolation(id: PresetId): string | null {
     counts.set(t, (counts.get(t) ?? 0) + 1);
   }
   if (infinite > MOTION_LIMITS.maxInfinitePerPage)
-    return `무한 반복 모션 ${infinite}개(상한 ${MOTION_LIMITS.maxInfinitePerPage})`;
+    return `${infinite} infinite motions (limit ${MOTION_LIMITS.maxInfinitePerPage})`;
   const signature = countMotionSignatures(used, p.composite);
   if (signature > MOTION_LIMITS.maxSignaturePerPage)
-    return `시그니처 모션 ${signature}개(상한 ${MOTION_LIMITS.maxSignaturePerPage})`;
+    return `${signature} signature motions (limit ${MOTION_LIMITS.maxSignaturePerPage})`;
   for (const [t, c] of counts) {
     const max = MOTION_TECHNIQUES[t as keyof typeof MOTION_TECHNIQUES].maxPerPage;
-    if (c > max) return `기법 '${t}' ${c}회(페이지 상한 ${max})`;
+    if (c > max) return `Technique '${t}' used ${c} times (page limit ${max})`;
   }
   return null;
 }
@@ -92,33 +92,33 @@ export function sanitizeMotion(
 
   if (!config.motion) {
     presetId = DEFAULT_PRESET[plan];
-    changes.push(`모션 설정이 없어 기본 프리셋 '${presetId}'을 적용했습니다.`);
+    changes.push(`Applied default preset '${presetId}' because no motion configuration was present.`);
   }
 
   // ① 미등록/금지 presetId
   if (!isPresetId(presetId)) {
     const fb = DEFAULT_PRESET[plan];
-    changes.push(`알 수 없는 모션 프리셋 '${presetId || '(빈 값)'}' → 기본 '${fb}'으로 대체했습니다.`);
+    changes.push(`Replaced unknown motion preset '${presetId || '(empty)'}' with default '${fb}'.`);
     presetId = fb;
   }
 
   // intensity 검증
   if (!INTENSITIES.includes(intensity)) {
-    changes.push(`알 수 없는 모션 강도 '${String(intensity)}' → 'normal'로 대체했습니다.`);
+    changes.push(`Replaced unknown motion intensity '${String(intensity)}' with 'normal'.`);
     intensity = 'normal';
   }
 
   // ② 영상 합성 프리셋은 애드온 미보유 시 명시적으로 정적 ken-burns로 강등
   if (!hasVideoAddon(plan) && presetId === 'cinematic-hero') {
     const down = DOWNGRADE_MAP['cinematic-hero']!;
-    changes.push(`AI 영상 홈페이지가 없어 시네마틱 프리셋 'cinematic-hero' → '${down}'(ken-burns)로 강등했습니다.`);
+    changes.push(`Downgraded cinematic preset 'cinematic-hero' to '${down}' because AI video was not approved.`);
     presetId = down;
   }
 
   // ③ basic 플랜 + 나머지 premium 프리셋 → 강등
   if (!hasVideoAddon(plan) && MOTION_PRESETS[presetId as PresetId].tier === 'premium') {
     const down = DOWNGRADE_MAP[presetId as PresetId] ?? DEFAULT_PRESET.basic;
-    changes.push(`Basic 플랜에서 Premium 프리셋 '${presetId}'은 사용할 수 없어 '${down}'으로 강등했습니다.`);
+    changes.push(`Downgraded Premium preset '${presetId}' to '${down}' because it is unavailable on this plan.`);
     presetId = down;
   }
 
@@ -126,14 +126,14 @@ export function sanitizeMotion(
   const viol = presetLimitViolation(presetId as PresetId);
   if (viol) {
     const fb = DEFAULT_PRESET[plan];
-    changes.push(`프리셋 '${presetId}' 한도 위반(${viol}) → 기본 '${fb}'으로 대체했습니다.`);
+    changes.push(`Replaced preset '${presetId}' with default '${fb}' after limit violation: ${viol}.`);
     presetId = fb;
   }
 
   // [W4] videoAddon은 '선택 의사'이지 권한이 아니다. 타입 오염은 fail-closed.
   let videoAddon = config.motion?.videoAddon;
   if (videoAddon !== undefined && typeof videoAddon !== 'boolean') {
-    changes.push('AI 영상 홈페이지 선택값이 올바르지 않아 제거했습니다.');
+    changes.push('Removed an invalid AI video selection.');
     videoAddon = undefined;
   }
 
@@ -141,13 +141,13 @@ export function sanitizeMotion(
   let heroTechnique = config.motion?.heroTechnique;
   if (heroTechnique !== undefined) {
     if (videoAddon === false && heroTechnique === 'video-hero') {
-      changes.push('AI 영상 홈페이지를 선택하지 않아 히어로를 ken-burns로 되돌렸습니다.');
+      changes.push('Returned the hero to ken-burns because AI video was not selected.');
       heroTechnique = 'ken-burns';
     } else if (!isAllowedHeroChoice(plan, heroTechnique)) {
       changes.push(
         isKnownHeroChoice(heroTechnique)
-          ? `이 플랜에서 쓸 수 없는 히어로 모션 '${heroTechnique}' → 프리셋 기본 히어로로 되돌렸습니다.`
-          : `알 수 없는 히어로 모션 '${heroTechnique}' → 프리셋 기본 히어로로 되돌렸습니다.`,
+          ? `Returned unavailable hero motion '${heroTechnique}' to the preset default.`
+          : `Returned unknown hero motion '${heroTechnique}' to the preset default.`,
       );
       heroTechnique = undefined;
     }
@@ -157,10 +157,10 @@ export function sanitizeMotion(
   let videoConceptId = config.motion?.videoConceptId;
   if (videoConceptId !== undefined) {
     if (plan === 'basic') {
-      changes.push('영상 컨셉은 AI 영상 홈페이지 전용이라 제거했습니다.');
+      changes.push('Removed the video concept because it is only available for approved AI video.');
       videoConceptId = undefined;
     } else if (!findVideoConcept(videoConceptId)) {
-      changes.push(`알 수 없는 영상 컨셉 '${videoConceptId}' → 제거했습니다.`);
+      changes.push(`Removed unknown video concept '${videoConceptId}'.`);
       videoConceptId = undefined;
     }
   }
@@ -168,7 +168,7 @@ export function sanitizeMotion(
   // [W4] 히어로 소스·영상 연출은 등록값만 보존. basic 강등에서도 요청 의도는 남긴다.
   let heroImageChoice = config.motion?.heroImageChoice;
   if (heroImageChoice !== undefined && !isHeroImageChoice(heroImageChoice)) {
-    changes.push(`알 수 없는 히어로 이미지 선택 '${String(heroImageChoice)}' → 제거했습니다.`);
+    changes.push(`Removed unknown hero image choice '${String(heroImageChoice)}'.`);
     heroImageChoice = undefined;
   }
 
@@ -176,16 +176,16 @@ export function sanitizeMotion(
   let heroMotionId = config.motion?.heroMotionId;
   if (heroMotionId !== undefined) {
     if (!videoIntent) {
-      changes.push('AI 영상 홈페이지를 선택하지 않아 히어로 영상 연출을 제거했습니다.');
+      changes.push('Removed hero video treatment because AI video was not selected.');
       heroMotionId = undefined;
     } else if (!isHeroVideoMotionId(heroMotionId)) {
-      changes.push(`알 수 없는 히어로 영상 연출 '${heroMotionId}' → 제거했습니다.`);
+      changes.push(`Removed unknown hero video treatment '${heroMotionId}'.`);
       heroMotionId = undefined;
     } else if (
       heroMotionId === SCROLLYTELLING_MOTION_ID &&
       !isScrollytellingTemplate(config.meta.purposeId, config.meta.templateId)
     ) {
-      changes.push('페이지 관통 연출은 허용된 브랜드·전문·파인다이닝·포트폴리오 템플릿에서만 사용할 수 있어 제거했습니다.');
+      changes.push('Removed the page-wide treatment because it is limited to approved brand, professional, fine dining, and portfolio templates.');
       heroMotionId = undefined;
     }
   }
@@ -256,7 +256,7 @@ export function sanitizeMotion(
           ...(nextHeroTechnique ? { heroTechnique: nextHeroTechnique } : { heroTechnique: undefined }),
         },
       };
-      changes.push('구조화 모션 시그니처를 유지하고 중복되는 레거시 히어로·영상 시그니처를 제거했습니다.');
+      changes.push('Kept the structured motion signature and removed overlapping legacy hero and video signatures.');
     }
   }
 

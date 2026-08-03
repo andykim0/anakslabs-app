@@ -44,13 +44,13 @@ export interface ContentHonestyResult {
 }
 
 const RAW_HTML = /<\/?[a-z][^>]*>/iu;
-const YEAR_OR_DATE = /(?:19|20)\d{2}(?:년|[-./]\d{1,2})?/u;
+const YEAR_OR_DATE = /(?:19|20)\d{2}(?:\uB144|[-./]\d{1,2})?/u;
 const MEASURABLE_NUMBER =
-  /(?:\d+(?:[,.]\d+)?)\s*(?:%|원|만원|억원|건|명|회|평|㎡|m²|년|개월|주|일|시간|분|개소|곳)\b/iu;
+  /(?:\d+(?:[,.]\d+)?)\s*(?:%|\uC6D0|\uB9CC\uC6D0|\uC5B5\uC6D0|\uAC74|\uBA85|\uD68C|\uD3C9|㎡|m²|\uB144|\uAC1C\uC6D4|\uC8FC|\uC77C|\uC2DC\uAC04|\uBD84|\uAC1C\uC18C|\uACF3)\b/iu;
 const VERIFIABLE_CLAIM =
-  /(?:수상|인증|자격|경력|실적|사례|후기|체험담|만족도|재구매|성공률|전문의|박사|석사|특허|등록|보유|완공|시공|누적|매출|절감|향상|개선율)/u;
+  /(?:\uC218\uC0C1|\uC778\uC99D|\uC790\uACA9|\uACBD\uB825|\uC2E4\uC801|\uC0AC\uB840|\uD6C4\uAE30|\uCCB4\uD5D8\uB2F4|\uB9CC\uC871\uB3C4|\uC7AC\uAD6C\uB9E4|\uC131\uACF5\uB960|\uC804\uBB38\uC758|\uBC15\uC0AC|\uC11D\uC0AC|\uD2B9\uD5C8|\uB4F1\uB85D|\uBCF4\uC720|\uC644\uACF5|\uC2DC\uACF5|\uB204\uC801|\uB9E4\uCD9C|\uC808\uAC10|\uD5A5\uC0C1|\uAC1C\uC120\uC728)/u;
 const COMPARISON_OR_SUPERLATIVE =
-  /(?:최고|최상|최초|유일|1위|1등|no\.?\s*1|넘버원|베스트|top|타사|다른\s*(?:업체|병원|회사).{0,30}보다|대비.{0,20}(?:우수|높|낮|빠르))/iu;
+  /(?:\uCD5C\uACE0|\uCD5C\uC0C1|\uCD5C\uCD08|\uC720\uC77C|1\uC704|1\uB4F1|no\.?\s*1|\uB118\uBC84\uC6D0|\uBCA0\uC2A4\uD2B8|top|\uD0C0\uC0AC|\uB2E4\uB978\s*(?:\uC5C5\uCCB4|\uBCD1\uC6D0|\uD68C\uC0AC).{0,30}\uBCF4\uB2E4|\uB300\uBE44.{0,20}(?:\uC6B0\uC218|\uB192|\uB0AE|\uBE60\uB974))/iu;
 
 export function textNeedsContentSource(text: string): boolean {
   return YEAR_OR_DATE.test(text)
@@ -159,7 +159,7 @@ export function validateGeneratedContentPost(
       violations.push({
         code: 'raw-html',
         path: entry.path,
-        message: '포스트 공개 문서는 raw HTML을 포함할 수 없습니다.',
+        message: 'Published documents cannot contain raw HTML.',
       });
     }
     const unique = new Set(entry.sourceRefs);
@@ -167,14 +167,14 @@ export function validateGeneratedContentPost(
       violations.push({
         code: 'duplicate-source-ref',
         path: entry.path,
-        message: '한 문장에 같은 sourceRef를 중복 사용할 수 없습니다.',
+        message: 'A sentence cannot repeat the same sourceRef.',
       });
     }
     if ((entry.alwaysRequiresSource || textNeedsContentSource(entry.text)) && unique.size === 0) {
       violations.push({
         code: 'missing-source-ref',
         path: entry.path,
-        message: '검증 가능한 주장·수치·표 셀에는 sourceRef가 필요합니다.',
+        message: 'Verifiable claims, numbers, and table cells require a sourceRef.',
       });
     }
     for (const id of unique) {
@@ -182,7 +182,7 @@ export function validateGeneratedContentPost(
         violations.push({
           code: 'unknown-source-ref',
           path: entry.path,
-          message: `스냅샷에 없는 sourceRef입니다: ${id}`,
+          message: `The sourceRef is not present in the snapshot: ${id}`,
         });
       } else {
         usedSourceRefs.push(id);
@@ -218,9 +218,9 @@ export function assertGeneratedContentPost(
 export function documentHasRawHtml(document: ContentPostDocument): boolean {
   return collectContentPostPublicText({
     slug: 'public-boundary',
-    title: '공개 글',
+    title: 'Published article',
     titleSourceRefs: [],
-    summary: '공개 글 요약',
+    summary: 'Published article summary',
     summarySourceRefs: [],
     tags: [],
     document,

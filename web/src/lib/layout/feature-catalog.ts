@@ -27,8 +27,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.three-column-cards',
     kind: 'features',
-    label: '3열 카드형',
-    description: '동등한 서비스·강점 3~6개를 빠르게 비교하는 카드 배열입니다.',
+    label: 'Three-column cards',
+    description: 'A card grid for comparing three to six equal services or strengths.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'equal-grid', columns: 3, mediaAspect: '4:3' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'equal-grid', columns: 2, mediaAspect: '4:3' }),
@@ -46,8 +46,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.zigzag-media',
     kind: 'features',
-    label: '좌우 지그재그 미디어형',
-    description: '항목별 장면과 설명을 좌우로 교차해 긴 목록에 리듬을 줍니다.',
+    label: 'Alternating media rows',
+    description: 'Alternates scenes and explanations to give a long list a clear reading rhythm.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-alternate', flow: 'alternating-media', columns: 2, mediaAspect: '3:2' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-alternate', flow: 'alternating-media', columns: 2, mediaAspect: '3:2' }),
@@ -65,8 +65,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.icon-grid',
     kind: 'features',
-    label: '아이콘 그리드형',
-    description: '이미지 없이 서비스 범주와 핵심 편익을 짧은 단위로 탐색합니다.',
+    label: 'Icon grid',
+    description: 'Scans service categories and primary benefits in short units without images.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'icon-grid', columns: 4 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'icon-grid', columns: 2 }),
@@ -84,8 +84,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.numbered-list',
     kind: 'features',
-    label: '번호 목록형',
-    description: '번호·제목·설명을 명확한 행 구조로 이어 정보 위계를 강조합니다.',
+    label: 'Numbered list',
+    description: 'Uses clear rows of markers, titles, and descriptions to establish hierarchy.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'numbered-rows', columns: 3 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'numbered-rows', columns: 3 }),
@@ -102,8 +102,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.sticky-heading-two-column',
     kind: 'features',
-    label: '고정 제목 2열형',
-    description: '왼쪽 맥락을 유지하고 오른쪽 항목을 순서대로 읽는 긴 설명형 배열입니다.',
+    label: 'Sticky heading columns',
+    description: 'Keeps context on the left while the longer sequence reads on the right.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'sticky-heading', columns: 2, stickyHeading: true }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'sticky-heading', columns: 2, stickyHeading: true }),
@@ -120,8 +120,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.featured-first',
     kind: 'features',
-    label: '첫 항목 강조형',
-    description: '고객 입력 순서의 첫 항목을 크게 두고 나머지를 보조 목록으로 잇습니다.',
+    label: 'Featured first',
+    description: 'Makes the first customer-provided item prominent and follows with a supporting list.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'featured-first', columns: 2, mediaAspect: '4:3' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'featured-first', columns: 2, mediaAspect: '4:3' }),
@@ -138,8 +138,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.faq-accordion',
     kind: 'features',
-    label: 'FAQ 아코디언형',
-    description: '검증된 질문과 답변 3~8개를 표면 카드에 모두 펼쳐 정적 문서로 제공합니다.',
+    label: 'FAQ accordion',
+    description: 'Presents three to eight verified questions and answers as an expanded static document.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'accordion', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'accordion', columns: 1 }),
@@ -161,8 +161,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.stat-strip',
     kind: 'features',
-    label: '운영 수치 스트립형',
-    description: '출처가 확인된 운영 수치 2~4개를 절제된 크기로 나란히 보여줍니다.',
+    label: 'Operational stat strip',
+    description: 'Shows two to four sourced operational numbers side by side without visual exaggeration.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'stat-strip', columns: 4 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'stat-strip', columns: 2 }),
@@ -184,8 +184,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.dark-value-band',
     kind: 'features',
-    label: '다크 가치 문장 밴드',
-    description: '출처가 확인된 단일 문장을 다크 표면 위의 중간 호흡점으로 보여줍니다.',
+    label: 'Dark statement band',
+    description: 'Uses one sourced statement as a dark mid-page pause.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'dark-value-band', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'dark-value-band', columns: 1 }),
@@ -208,8 +208,8 @@ export const FEATURE_LAYOUT_CATALOG = [
   {
     id: 'features.prose-article',
     kind: 'features',
-    label: '본문 아티클형',
-    description: '원문 제목·본문·작성 증거를 축약 없이 좁은 읽기 폭의 문서 흐름으로 보존합니다.',
+    label: 'Article body',
+    description: 'Preserves the original title, body, and authorship evidence in a narrow reading measure without summarizing.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'prose-article', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'prose-article', columns: 1 }),

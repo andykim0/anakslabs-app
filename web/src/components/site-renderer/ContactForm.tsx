@@ -16,10 +16,10 @@ import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 type FormFieldKey = FormElement['fields'][number];
 
 const FIELD_META: Record<FormFieldKey, { label: string; type: string; multiline?: boolean }> = {
-  name: { label: '이름', type: 'text' },
-  phone: { label: '연락처', type: 'tel' },
-  email: { label: '이메일', type: 'email' },
-  message: { label: '문의 내용', type: 'text', multiline: true },
+  name: { label: 'Name', type: 'text' },
+  phone: { label: 'Phone', type: 'tel' },
+  email: { label: 'Email', type: 'email' },
+  message: { label: 'Message', type: 'text', multiline: true },
 };
 
 export function ContactForm({
@@ -93,18 +93,18 @@ export function ContactForm({
       });
       if (res.ok) {
         setStatus('ok');
-        setFeedback('문의가 접수됐어요. 확인 후 연락드리겠습니다.');
+        setFeedback('Your message was received. We will follow up shortly.');
         setValues({});
         // 성공한 제출만 집계한다. detail/payload가 없어 폼 값·연락처는 비콘으로 전달되지 않는다.
         announceSuccessfulSiteForm();
       } else {
         const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
         setStatus('error');
-        setFeedback(body?.error?.message ?? '전송에 실패했어요. 잠시 후 다시 시도해 주세요.');
+        setFeedback(body?.error?.message ?? 'The message could not be sent. Try again shortly.');
       }
     } catch {
       setStatus('error');
-      setFeedback('전송에 실패했어요. 네트워크를 확인해 주세요.');
+      setFeedback('The message could not be sent. Check your connection and try again.');
     }
   };
 
@@ -163,7 +163,7 @@ export function ContactForm({
           opacity: status === 'sending' ? 0.7 : 1,
         }}
       >
-        {status === 'sending' ? '전송 중…' : el.submitLabel || '문의 보내기'}
+        {status === 'sending' ? 'Sending…' : el.submitLabel || 'Send message'}
       </button>
       {feedback ? (
         <p

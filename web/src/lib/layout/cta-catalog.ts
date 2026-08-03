@@ -22,8 +22,8 @@ export const CTA_LAYOUT_CATALOG = [
   {
     id: 'cta.fullwidth-band',
     kind: 'cta',
-    label: '풀폭 선언 밴드형',
-    description: '짧고 분명한 한 가지 행동을 섹션 리듬 사이에서 크게 선언합니다.',
+    label: 'Full-width statement band',
+    description: 'Declares one clear action at a strong break in the section rhythm.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'center-middle', flow: 'fullwidth-band', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'center-middle', flow: 'fullwidth-band', columns: 1 }),
@@ -41,8 +41,8 @@ export const CTA_LAYOUT_CATALOG = [
   {
     id: 'cta.split-action',
     kind: 'cta',
-    label: '텍스트·액션 분할형',
-    description: '행동 전에 필요한 맥락을 먼저 읽고 옆에서 바로 실행하게 합니다.',
+    label: 'Split context and action',
+    description: 'Explains the necessary context before presenting the adjacent action.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'split-action', columns: 2 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'split-action', columns: 2 }),
@@ -59,8 +59,8 @@ export const CTA_LAYOUT_CATALOG = [
   {
     id: 'cta.surface-card',
     kind: 'cta',
-    label: '독립 surface 카드형',
-    description: '카피와 실제 행동을 하나의 결정 카드 안에서 찾기 쉽게 묶습니다.',
+    label: 'Standalone action card',
+    description: 'Keeps the copy and real action together in one decision card.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'center-middle', flow: 'surface-card', columns: 2 }),
       compact: recipe({ gridColumns: 8, textZone: 'center-middle', flow: 'surface-card', columns: 2 }),

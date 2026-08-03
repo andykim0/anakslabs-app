@@ -606,8 +606,8 @@ interface HierarchyCluster {
   repeatedStructure: boolean;
 }
 
-const HIERARCHY_PRICE_OR_NUMBER = /^(?:[-+]?\d[\d,.]*(?:\s*(?:원|%))?|[₩$€¥£]\s*\d[\d,.]*)$/u;
-const HIERARCHY_WIDGET_LABEL = /^(?:전체랭킹|실시간\s*(?:검색|인기\s*검색\s*순위)|검색|장바구니|전체메뉴|전체\s*메뉴|전체\s*카테고리)$/iu;
+const HIERARCHY_PRICE_OR_NUMBER = /^(?:[-+]?\d[\d,.]*(?:\s*(?:\uC6D0|%))?|[₩$€¥£]\s*\d[\d,.]*)$/u;
+const HIERARCHY_WIDGET_LABEL = /^(?:\uC804\uCCB4\uB7AD\uD0B9|\uC2E4\uC2DC\uAC04\s*(?:\uAC80\uC0C9|\uC778\uAE30\s*\uAC80\uC0C9\s*\uC21C\uC704)|\uAC80\uC0C9|\uC7A5\uBC14\uAD6C\uB2C8|\uC804\uCCB4\uBA54\uB274|\uC804\uCCB4\s*\uBA54\uB274|\uC804\uCCB4\s*\uCE74\uD14C\uACE0\uB9AC)$/iu;
 
 function pathSegments(block: RobustClinicSourceBlock): string[] {
   return block.sourceElementPath.split('>').filter(Boolean);
@@ -692,7 +692,7 @@ function canLeadHierarchyItem(block: RobustClinicSourceBlock): boolean {
   if (!text || HIERARCHY_PRICE_OR_NUMBER.test(text) || HIERARCHY_WIDGET_LABEL.test(text)) {
     return false;
   }
-  if (/\n/u.test(block.text) && /(?:[₩$€¥£]|\d[\d,]*(?:\.\d+)?\s*(?:원|%))/u.test(block.text)) {
+  if (/\n/u.test(block.text) && /(?:[₩$€¥£]|\d[\d,]*(?:\.\d+)?\s*(?:\uC6D0|%))/u.test(block.text)) {
     return false;
   }
   return block.heading || [...text].length >= 4;
@@ -853,7 +853,7 @@ function variantSectionsForPage(input: {
     : 'hero.text-only-bold';
   const hero = buildClinicHeroSection({
     id: markedVariantSectionId(`${input.page.id}-hero`, motion),
-    name: input.profile.locale === 'ko-KR' ? '소개' : 'Introduction',
+    name: 'Introduction',
     title: input.title,
     ...(lead ? { lead } : {}),
     theme: input.theme,
@@ -886,7 +886,7 @@ function variantSectionsForPage(input: {
         `${input.page.id}-content-${Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) + 1}`,
         motion,
       ),
-      name: input.profile.locale === 'ko-KR' ? '진료 안내' : 'Clinical information',
+      name: 'Clinical information',
       units: chunk,
       theme: input.theme,
       candidates,
@@ -963,7 +963,7 @@ function sectionsForPage(input: {
   ));
   const sections: Section[] = [buildClinicHeroSection({
     id: `${input.page.id}-hero`,
-    name: input.locale === 'ko-KR' ? '소개' : 'Introduction',
+    name: 'Introduction',
     title,
     ...(lead ? { lead } : {}),
     theme: input.theme,
@@ -980,7 +980,7 @@ function sectionsForPage(input: {
     const cardFirst = candidates[0] === 'features.three-column-cards';
     sections.push(...buildClinicFeatureSections({
       id: `${input.page.id}-content-${Math.floor(offset / FEATURE_SECTION_MAXIMUM_UNITS) + 1}`,
-      name: input.locale === 'ko-KR' ? '진료 안내' : 'Clinical information',
+      name: 'Clinical information',
       units: chunk,
       theme: input.theme,
       candidates,

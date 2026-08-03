@@ -21,8 +21,8 @@ export const TESTIMONIAL_LAYOUT_CATALOG = [
   {
     id: 'testimonial.single-quote',
     kind: 'testimonial',
-    label: '단일 인용 강조형',
-    description: '게시 허락된 실제 후기 한 건을 출처와 함께 크게 읽게 합니다.',
+    label: 'Featured quote',
+    description: 'Presents one review approved for publication with its source.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'center-middle', flow: 'single-quote', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'center-middle', flow: 'single-quote', columns: 1 }),
@@ -45,8 +45,8 @@ export const TESTIMONIAL_LAYOUT_CATALOG = [
   {
     id: 'testimonial.card-grid',
     kind: 'testimonial',
-    label: '2~3열 후기 카드형',
-    description: '게시 허락된 실제 후기 여러 건을 공개 순서 그대로 비교합니다.',
+    label: 'Two- or three-column review cards',
+    description: 'Compares several reviews approved for publication in their original order.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'testimonial-card-grid', columns: 3 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'testimonial-card-grid', columns: 2 }),
@@ -69,8 +69,8 @@ export const TESTIMONIAL_LAYOUT_CATALOG = [
   {
     id: 'testimonial.quote-photo',
     kind: 'testimonial',
-    label: '인용·고객 사진 분할형',
-    description: '별도 동의로 연결된 실제 인물 사진과 그 사람의 후기를 한 쌍으로 둡니다.',
+    label: 'Quote and customer photo split',
+    description: 'Pairs a real person’s photo, covered by separate consent, with that person’s review.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'end-middle', flow: 'quote-photo', columns: 2, mediaAspect: '4:5' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'quote-photo', columns: 2, mediaAspect: '4:5' }),

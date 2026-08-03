@@ -143,7 +143,7 @@ describe('FIXHERO2 헤드라인 길이 × 뷰포트 밴드', () => {
         const secondary = section.querySelector('.anaks-btn[data-variant="outline"]');
         assert.ok(titleNode && leadNode && primary && secondary);
         assert.ok(html.indexOf(titleValue) < html.indexOf(survey().tagline ?? ''));
-        assert.ok(html.indexOf(survey().tagline ?? '') < html.indexOf('문의하기'));
+        assert.ok(html.indexOf(survey().tagline ?? '') < html.indexOf('Contact us'));
         assert.match(primary.getAttribute('style') ?? '', /white-space:nowrap/);
         assert.match(secondary.getAttribute('style') ?? '', /white-space:nowrap/);
 

@@ -311,12 +311,12 @@ describe('motion signature production renderers', () => {
       before: { ...fixture.before, focalPoint: { x: 0.2, y: 0.7 } },
       after: { ...fixture.after, focalPoint: { x: 0.8, y: 0.2 } },
     });
-    assert.match(html, /data-before-after-label="actual-case" data-non-removable="true" data-label-contrast="aa"[^>]*>실제 사례<\/span>/);
-    assert.match(html, /이전 · 실제 사례/);
-    assert.match(html, /이후 · 실제 사례/);
-    assert.match(html, /type="range"[^>]*aria-controls="cases-comparison-viewport"[^>]*aria-describedby="cases-comparison-help"[^>]*aria-valuetext="이후 사진 50%"/);
+    assert.match(html, /data-before-after-label="actual-case" data-non-removable="true" data-label-contrast="aa"[^>]*>Verified case<\/span>/);
+    assert.match(html, /Before · verified case/);
+    assert.match(html, /After · verified case/);
+    assert.match(html, /type="range"[^>]*aria-controls="cases-comparison-viewport"[^>]*aria-describedby="cases-comparison-help"[^>]*aria-valuetext="After image 50%"/);
     assert.match(html, /data-before-after-output="true"[^>]*>50%<\/output>/);
-    assert.match(html, /좌우 방향키 또는 비교 화면을 움직여 확인하세요/);
+    assert.match(html, /Use the left and right arrow keys or move the comparison control/);
     assert.equal((html.match(/object-position:20% 70%/g) ?? []).length, 2, 'both verified images keep identical comparison framing');
     assert.match(MOTION_RUNTIME, /pointerdown/);
     assert.match(MOTION_RUNTIME, /pointermove/);

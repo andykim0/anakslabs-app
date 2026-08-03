@@ -61,7 +61,7 @@ async function withClinicFlagAsync<T>(
   }
 }
 
-function medicalConfig(text = '필요한 진료 정보를 차분히 안내합니다'): SiteConfig {
+function medicalConfig(text = 'Clear information for your visit'): SiteConfig {
   const config = emptySiteConfig('온결 의원');
   config.theme.fonts = {
     heading: "'Pretendard', sans-serif",
@@ -168,7 +168,7 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
       config: safe,
     }).available, true);
 
-    const blocked = medicalConfig('100% 완치를 보장합니다');
+    const blocked = medicalConfig('We guarantee a 100% cure.');
     blocked.meta.medicalAdPolicyVersion = MEDICAL_AD_POLICY_VERSION;
     assert.deepEqual(
       clinicAvailability({
@@ -179,7 +179,7 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
       'copy-blocked',
     );
 
-    const warning = medicalConfig('시술 효과를 안내합니다');
+    const warning = medicalConfig('This treatment provides effective improvement.');
     const warningScreen = screenMedicalSiteConfig(warning);
     assert.equal(warningScreen.blockViolations.length, 0);
     assert.ok(warningScreen.warnViolations.length > 0);
@@ -269,7 +269,7 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
   test('clinic 랜딩 고정 문구도 현재 린터를 통과한다', () => {
     for (const copy of [
       '필요한 진료 정보를 찾기 쉬운 순서로 정리합니다.',
-      '진료 범위·의료진·예약·오시는 길을 한 흐름으로 구성합니다.',
+      '진료 범위·의료진·예약·Directions을 한 흐름으로 구성합니다.',
       '문구는 만들 때 한 번, 공개할 때 다시 확인합니다.',
       '고객이 입력한 표현은 임의로 바꾸지 않고 확인이 필요한 위치와 수정 방향을 알려드립니다.',
     ]) {

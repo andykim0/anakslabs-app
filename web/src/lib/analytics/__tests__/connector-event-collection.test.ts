@@ -69,9 +69,9 @@ describe('CONN C1 — idempotent anonymous conversion collection', () => {
       receiptTable,
       /\b(ip_address|user_agent|visitor_id|session_id|raw_referrer|clicked_url|email|phone)\b/iu,
     );
-    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.collected, /카카오 상담·인스타그램 링크 클릭/);
-    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded, /클릭한 원문 주소/);
-    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded, /48시간 뒤 삭제/);
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.collected, /message, social-link/u);
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.excluded, /clicked destination URLs/u);
+    assert.match(ANONYMOUS_SITE_EVENT_DISCLOSURE.retention, /24 months/u);
   });
 
   test('route accepts an optional UUID only for legacy compatibility', () => {

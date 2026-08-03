@@ -65,7 +65,7 @@ export const KOREAN_CHANNEL_HOSTS = [
 const PHONE_RE = /(?:\+82[-.\s]?)?(?:0\d{1,2})[-.\s)]?\d{3,4}[-.\s]?\d{4}/;
 const BIZ_RE = /\d{3}-\d{2}-\d{5}/;
 const ADDRESS_RE =
-  /(서울(?:특별시)?|부산(?:광역시)?|대구(?:광역시)?|인천(?:광역시)?|광주(?:광역시)?|대전(?:광역시)?|울산(?:광역시)?|세종(?:특별자치시)?|경기(?:도)?|강원(?:특별자치도)?|충북|충남|전북|전남|경북|경남|제주(?:특별자치도)?)[^\n<]{0,70}(?:로|길|동|가|읍|면|리)(?:\s|\d)/;
+  /(\uC11C\uC6B8(?:\uD2B9\uBCC4\uC2DC)?|\uBD80\uC0B0(?:\uAD11\uC5ED\uC2DC)?|\uB300\uAD6C(?:\uAD11\uC5ED\uC2DC)?|\uC778\uCC9C(?:\uAD11\uC5ED\uC2DC)?|\uAD11\uC8FC(?:\uAD11\uC5ED\uC2DC)?|\uB300\uC804(?:\uAD11\uC5ED\uC2DC)?|\uC6B8\uC0B0(?:\uAD11\uC5ED\uC2DC)?|\uC138\uC885(?:\uD2B9\uBCC4\uC790\uCE58\uC2DC)?|\uACBD\uAE30(?:\uB3C4)?|\uAC15\uC6D0(?:\uD2B9\uBCC4\uC790\uCE58\uB3C4)?|\uCDA9\uBD81|\uCDA9\uB0A8|\uC804\uBD81|\uC804\uB0A8|\uACBD\uBD81|\uACBD\uB0A8|\uC81C\uC8FC(?:\uD2B9\uBCC4\uC790\uCE58\uB3C4)?)[^\n<]{0,70}(?:\uB85C|\uAE38|\uB3D9|\uAC00|\uC74D|\uBA74|\uB9AC)(?:\s|\d)/;
 
 function flattenJsonLd(value: unknown, out: JsonLdNode[]) {
   if (Array.isArray(value)) {
@@ -173,7 +173,7 @@ export function canonicalHref(root: HTMLElement): string {
 }
 
 export function hasKoreanText(text: string): boolean {
-  return /[가-힣]/.test(text);
+  return /[\uAC00-\uD7A3]/.test(text);
 }
 
 export function hasPhone(text: string): boolean {
@@ -243,13 +243,13 @@ export function isArticleLike(
 
 export function isFaqLike(root: HTMLElement, visibleText: string): boolean {
   if (jsonLdReport(root).types.has('FAQPage')) return true;
-  if (/자주\s*묻는\s*질문|faq/i.test(visibleText)) return true;
-  const questions = visibleText.match(/[^.!?\n]{2,80}(?:\?|？|인가요|하나요|되나요|있나요)/g) ?? [];
+  if (/\uC790\uC8FC\s*\uBB3B\uB294\s*\uC9C8\uBB38|faq/i.test(visibleText)) return true;
+  const questions = visibleText.match(/[^.!?\n]{2,80}(?:\?|\uFF1F|\uC778\uAC00\uC694|\uD558\uB098\uC694|\uB418\uB098\uC694|\uC788\uB098\uC694)/g) ?? [];
   return questions.length >= 2;
 }
 
 export function isListWorthy(text: string): boolean {
-  return /(메뉴|가격|요금|비용|절차|순서|준비물|비교|장점|단점|서비스\s*항목|커리큘럼|프로그램)/i.test(text);
+  return /(\uBA54\uB274|\uAC00\uACA9|\uC694\uAE08|\uBE44\uC6A9|\uC808\uCC28|\uC21C\uC11C|\uC900\uBE44\uBB3C|\uBE44\uAD50|\uC7A5\uC810|\uB2E8\uC810|\uC11C\uBE44\uC2A4\s*\uD56D\uBAA9|\uCEE4\uB9AC\uD058\uB7FC|\uD504\uB85C\uADF8\uB7A8)/i.test(text);
 }
 
 export function hasUnlabelledControls(root: HTMLElement): boolean {
@@ -283,24 +283,24 @@ export function hasUnlabelledControls(root: HTMLElement): boolean {
 }
 
 const TOKEN_STOPWORDS = new Set([
-  '그리고',
-  '하지만',
-  '위한',
-  '에서',
-  '으로',
-  '하는',
-  '있는',
-  '없는',
-  '대한',
-  '홈',
-  '소개',
-  '페이지',
+  '\uADF8\uB9AC\uACE0',
+  '\uD558\uC9C0\uB9CC',
+  '\uC704\uD55C',
+  '\uC5D0\uC11C',
+  '\uC73C\uB85C',
+  '\uD558\uB294',
+  '\uC788\uB294',
+  '\uC5C6\uB294',
+  '\uB300\uD55C',
+  '\uD648',
+  '\uC18C\uAC1C',
+  '\uD398\uC774\uC9C0',
   'website',
   'official',
 ]);
 
 export function meaningfulTokens(text: string): Set<string> {
-  const tokens = text.toLowerCase().match(/[가-힣]{2,}|[a-z0-9]{2,}/g) ?? [];
+  const tokens = text.toLowerCase().match(/[\uAC00-\uD7A3]{2,}|[a-z0-9]{2,}/g) ?? [];
   return new Set(tokens.filter((token) => !TOKEN_STOPWORDS.has(token)));
 }
 

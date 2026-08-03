@@ -526,7 +526,7 @@ function auditMotionSceneDocument(
     const label = labels[0];
     const classes = label?.getAttribute('class') ?? '';
     const style = label?.getAttribute('style') ?? '';
-    const hidden = !label || labels.length !== 1 || normalizedText(label.text) !== '실제사례' ||
+    const hidden = !label || labels.length !== 1 || normalizedText(label.text) !== 'Verifiedcase' ||
       label.hasAttribute('hidden') || label.getAttribute('aria-hidden') === 'true' ||
       /(?:^|\s)(?:hidden|invisible|opacity-0|text-transparent|sr-only)(?:\s|$)/.test(classes) ||
       /(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\D|$)|color\s*:\s*transparent)/i.test(style);

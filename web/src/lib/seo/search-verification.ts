@@ -5,8 +5,8 @@ export const SEARCH_VERIFICATION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{6,200}$/;
 export function normalizeSearchVerification(input: SearchVerification | undefined): SearchVerification | undefined {
   const naver = input?.naver?.trim();
   const google = input?.google?.trim();
-  if (naver && !SEARCH_VERIFICATION_TOKEN_PATTERN.test(naver)) throw new Error('네이버 소유확인 값 형식이 올바르지 않습니다.');
-  if (google && !SEARCH_VERIFICATION_TOKEN_PATTERN.test(google)) throw new Error('구글 소유확인 값 형식이 올바르지 않습니다.');
+  if (naver && !SEARCH_VERIFICATION_TOKEN_PATTERN.test(naver)) throw new Error('The Naver verification token is not valid.');
+  if (google && !SEARCH_VERIFICATION_TOKEN_PATTERN.test(google)) throw new Error('The Google verification token is not valid.');
   if (!naver && !google) return undefined;
   return { ...(naver ? { naver } : {}), ...(google ? { google } : {}) };
 }

@@ -47,7 +47,7 @@ export interface BuildExportResult {
 /** 발행본 Site → zip 버퍼. 미발행이면 에러(PUBLISH_REQUIRED). */
 export async function buildExportZip(site: Site, opts: BuildExportOptions = {}): Promise<BuildExportResult> {
   if (!site.siteConfig) {
-    throw new Error('PUBLISH_REQUIRED: 발행본이 없는 사이트는 export할 수 없습니다.');
+    throw new Error('PUBLISH_REQUIRED: A site must be published before it can be exported.');
   }
   const warnings: string[] = [];
   // Generic provenance enforcement must run before asset collection. Otherwise a

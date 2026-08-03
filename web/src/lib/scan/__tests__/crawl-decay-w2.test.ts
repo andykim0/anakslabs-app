@@ -94,7 +94,7 @@ describe('CRAWL W2 — separate decay score', () => {
     const second = evaluateDecayScore(ctx);
     assert.equal(first.score, 100);
     assert.deepEqual(first, second);
-    assert.match(first.disclosure, /성과를 보장하지 않습니다/u);
+    assert.match(first.disclosure, /does not guarantee search performance/u);
   });
 
   test('pilot-like HTTP and exact legacy fingerprint are signals while viewport remains healthy', () => {

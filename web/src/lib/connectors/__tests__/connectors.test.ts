@@ -90,7 +90,7 @@ describe('CONN C2 — native connector catalog and rendering', () => {
     );
     assert.equal(siteConfigSchema.safeParse(output).success, true);
     assert.equal(CONNECTOR_CATALOG.length, 5);
-    assert.equal(connectorCatalogEntry('kakao-channel').reportLabel, '카카오 상담 클릭');
+    assert.equal(connectorCatalogEntry('kakao-channel').reportLabel, 'Message clicks');
   });
 
   test('native wrappers render without third-party iframe or eager SDK', () => {

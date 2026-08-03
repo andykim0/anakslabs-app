@@ -81,9 +81,9 @@ function structuralSideEffectViolation(
 ): MedicalCopyPolicyViolation | null {
   const sourceCopies = copies.filter((copy) => copy.sourceKind === 'site-config');
   const joined = normalizeMedicalCopy(sourceCopies.map((copy) => copy.text).join(' '));
-  const mentionsTreatment = /(?:치료|시술|수술|처치|주사|레이저)/u.test(joined);
-  const claimsEffect = /(?:효과|개선|회복|완화|결과)/u.test(joined);
-  const includesRisk = /(?:부작용|위험|주의사항|주의할 점|개인차)/u.test(joined);
+  const mentionsTreatment = /\b(?:treatment|procedure|surgery|injection|laser|therapy)\b/u.test(joined);
+  const claimsEffect = /\b(?:effect|effective|improve|improvement|recover|recovery|relief|result)\b/u.test(joined);
+  const includesRisk = /\b(?:side effect|risk|warning|limitation|individual results?|results? vary)\b/u.test(joined);
   if (!mentionsTreatment || !claimsEffect || includesRisk) return null;
   const rule = MEDICAL_AD_RULES.find((candidate) => candidate.id === 'medical-side-effect-disclosure');
   if (!rule) return null;
@@ -95,7 +95,7 @@ function structuralSideEffectViolation(
     ruleId: rule.id,
     category: rule.category,
     severity: rule.severity,
-    matchedText: '치료·시술 효과 설명에 주의사항 안내 없음',
+    matchedText: 'Treatment-effect copy does not include a material risk or limitation statement.',
     statuteRefs: rule.statuteRefs,
     safeReplacementHint: rule.safeReplacementHint,
     rationale: rule.rationale,
@@ -131,8 +131,8 @@ export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyRe
       code: MEDICAL_CLASSIFICATION_MISMATCH,
       severity: 'block',
       path: 'meta.industryClass',
-      message: 'clinic 업종과 의료 업종 분류가 일치하지 않습니다.',
-      safeReplacementHint: '서버가 확인한 clinic 업종 분류로 다시 생성해 주세요.',
+      message: 'The clinic industry and medical classification do not match.',
+      safeReplacementHint: 'Regenerate with the server-verified clinic classification.',
     });
   }
 
@@ -243,22 +243,22 @@ export function screenMedicalCustomerCopy(
 }
 
 const SAFE_COPY = {
-  meta: '진료 안내',
-  page: '진료 안내',
-  section: '진료 안내',
-  headline: '필요한 진료 정보를 차분히 안내합니다',
-  body: '진료 범위와 이용 방법을 확인해 주세요.',
-  cta: '진료 안내 보기',
-  form: '문의 보내기',
-  alt: '의료기관 안내 이미지',
-  social: '공식 채널 보기',
-  faq: '진료 전에 필요한 정보를 확인해 주세요.',
-  proof: '확인 가능한 공식 정보를 안내합니다.',
-  qualification: '의료진 정보를 확인해 주세요.',
-  motion: '진료 범위와 이용 방법을 안내합니다.',
-  identity: '의료기관',
-  schema: '진료 안내',
-  'semantic-outline': '진료 안내',
+  meta: 'Care information',
+  page: 'Care information',
+  section: 'Care information',
+  headline: 'Clear information for your visit',
+  body: 'Review the available services and how to prepare for your visit.',
+  cta: 'View care information',
+  form: 'Send message',
+  alt: 'Practice information',
+  social: 'View official channel',
+  faq: 'Review the information you need before your visit.',
+  proof: 'Verified practice information',
+  qualification: 'Provider information',
+  motion: 'Services and visit information',
+  identity: 'Medical practice',
+  schema: 'Care information',
+  'semantic-outline': 'Care information',
 } as const satisfies Record<MedicalCopyScope, string>;
 
 function sanitizedString(value: string, scope: MedicalCopyScope): string {
@@ -327,7 +327,7 @@ export function enforceGeneratedMedicalConfig(config: SiteConfig): {
         ...sanitized,
         meta: {
           ...sanitized.meta,
-          description: '진료 범위와 이용 방법, 주의사항과 개인차를 진료 전에 안내합니다.',
+          description: 'Review available services, visit information, material risks, and individual limitations before care.',
         },
       }
     : sanitized;
@@ -356,10 +356,10 @@ export async function generateMedicalSafeCopy(input: {
   const retryPrompt = [
     input.prompt,
     '',
-    '의료광고 안전 제약:',
-    '- 치료 효과·안전·순위·할인·후기를 단정하거나 비교하지 마세요.',
-    '- 확인 가능한 진료 범위와 이용 방법만 중립적으로 작성하세요.',
-    '- 결과 문장만 출력하세요.',
+    'Medical advertising constraints:',
+    '- Do not promise or compare outcomes, safety, rank, pricing, or testimonials.',
+    '- Use only verified services and visit information in neutral language.',
+    '- Return only the final copy.',
   ].join('\n');
   const retried = await input.generate(retryPrompt);
   if (!screenMedicalCopy(retried, { scope: input.scope }).violations.length) {

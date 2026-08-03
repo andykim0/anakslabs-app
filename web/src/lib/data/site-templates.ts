@@ -75,20 +75,20 @@ import { MODERN_KOREAN_FONT_SELECTION_POLICY } from '@/lib/fonts/types';
 
 /** [v4 Phase 4 · F1] 기본 페이지 slug → 제목 (survey.pagePlan 이 없을 때 폴백) */
 const DEFAULT_PAGE_TITLES: Record<string, string> = {
-  '': '홈',
-  about: '소개',
-  team: '팀',
-  services: '서비스',
-  menu: '메뉴',
-  gallery: '갤러리',
-  reviews: '후기',
-  pricing: '요금',
-  work: '실적',
-  guide: '이용안내',
-  faq: '자주 묻는 질문',
-  directions: '오시는 길',
-  contact: '문의',
-  more: '더보기',
+  '': 'Home',
+  about: 'About',
+  team: 'Team',
+  services: 'Services',
+  menu: 'Menu',
+  gallery: 'Gallery',
+  reviews: 'Reviews',
+  pricing: 'Pricing',
+  work: 'Work',
+  guide: 'Guide',
+  faq: 'FAQ',
+  directions: 'Directions',
+  contact: 'Contact',
+  more: 'More',
 };
 
 /** 섹션별 카피 오버라이드 — 실 AI(Claude)가 채우거나, mock이 결정적으로 채운다 */
@@ -146,23 +146,23 @@ function isDark(theme: SiteTheme): boolean {
 /** 톤 문자열 → 절제된 2행 헤드라인 (형용사 나열 금지 원칙) */
 function toneHeadline(tone: string, businessName: string): string {
   const t = tone.toLowerCase();
-  if (/고급|럭셔리|프리미엄|우아/.test(t)) return '기본을 지키는 일이\n가장 오래갑니다';
-  if (/미니멀|심플|단정|절제/.test(t)) return '덜어내면,\n본질이 남습니다';
-  if (/친근|따뜻|편안|다정/.test(t)) return '가까운 곳에서,\n매일 만나는 안부';
-  if (/모던|세련|도시/.test(t)) return '오늘의 기준으로,\n다시 만들었습니다';
-  if (/활기|에너지|생동|즐거/.test(t)) return '좋아하는 일을,\n좋아하는 방식으로';
-  return `${businessName},\n하나의 기준`;
+  if (/\uACE0\uAE09|\uB7ED\uC154\uB9AC|\uD504\uB9AC\uBBF8\uC5C4|\uC6B0\uC544/.test(t)) return 'Standards that last';
+  if (/\uBBF8\uB2C8\uBA40|\uC2EC\uD50C|\uB2E8\uC815|\uC808\uC81C/.test(t)) return 'Less noise.\nMore clarity.';
+  if (/\uCE5C\uADFC|\uB530\uB73B|\uD3B8\uC548|\uB2E4\uC815/.test(t)) return 'Care that feels close';
+  if (/\uBAA8\uB358|\uC138\uB828|\uB3C4\uC2DC/.test(t)) return 'Built for today';
+  if (/\uD65C\uAE30|\uC5D0\uB108\uC9C0|\uC0DD\uB3D9|\uC990\uAC70/.test(t)) return 'Work with energy and purpose';
+  return `${businessName},\na standard of its own`;
 }
 
 function toneBody(tone: string, industry: string): string {
   const t = tone.toLowerCase();
-  if (/고급|럭셔리|프리미엄/.test(t))
-    return `과장하지 않습니다. ${industry}에서 가장 어려운 일은\n기본을 매일 같은 수준으로 지키는 것이라 믿습니다.\n그 믿음이 우리의 전부입니다.`;
-  if (/미니멀|심플|단정|절제/.test(t))
-    return `필요한 것만 남겼습니다.\n${industry}의 군더더기를 덜어내고,\n써야 할 곳에만 정성을 씁니다.`;
-  if (/친근|따뜻|편안|다정/.test(t))
-    return `처음 오신 분도, 늘 오시는 분도\n같은 온도로 맞이합니다.\n${industry}는 결국 사람의 일이니까요.`;
-  return `유행을 따르기보다 오래 남는 쪽을 택했습니다.\n${industry}에 필요한 것을, 필요한 만큼.\n그것이 우리가 일하는 방식입니다.`;
+  if (/\uACE0\uAE09|\uB7ED\uC154\uB9AC|\uD504\uB9AC\uBBF8\uC5C4/.test(t))
+    return `No exaggeration. The hard part of ${industry} is holding the same standard every day.\nThat standard guides our work.`;
+  if (/\uBBF8\uB2C8\uBA40|\uC2EC\uD50C|\uB2E8\uC815|\uC808\uC81C/.test(t))
+    return `Only what matters.\nWe remove the noise from ${industry}\nand focus effort where it counts.`;
+  if (/\uCE5C\uADFC|\uB530\uB73B|\uD3B8\uC548|\uB2E4\uC815/.test(t))
+    return `First visit or familiar face,\neveryone receives the same care.\n${industry} is ultimately about people.`;
+  return `We choose what lasts over what is fashionable.\nWhat ${industry} needs, without the excess.\nThat is how we work.`;
 }
 
 /**
@@ -171,15 +171,15 @@ function toneBody(tone: string, industry: string): string {
  */
 function toneHeroSub(tone: string, industry: string, businessName: string): string {
   const t = tone.toLowerCase();
-  if (/고급|럭셔리|프리미엄|우아/.test(t))
-    return `${businessName}가 ${industry}에서 지켜온 기준을 소개합니다. 필요한 것에만 정성을 들입니다.`;
-  if (/미니멀|심플|단정|절제/.test(t))
-    return `${industry}에서 꼭 필요한 것만 남겼습니다. ${businessName}가 담백하게 안내해 드립니다.`;
-  if (/친근|따뜻|편안|다정/.test(t))
-    return `${businessName}가 ${industry}에서 매일 지키는 것들을 모았습니다. 편하게 둘러보세요.`;
-  if (/활기|에너지|생동|즐거/.test(t))
-    return `${businessName}가 ${industry}에서 하는 일을 한눈에. 지금 바로 살펴보세요.`;
-  return `${businessName}가 ${industry}에서 어떻게 일하는지 담았습니다. 천천히 둘러보세요.`;
+  if (/\uACE0\uAE09|\uB7ED\uC154\uB9AC|\uD504\uB9AC\uBBF8\uC5C4|\uC6B0\uC544/.test(t))
+    return `The standards ${businessName} brings to ${industry}, with attention where it matters.`;
+  if (/\uBBF8\uB2C8\uBA40|\uC2EC\uD50C|\uB2E8\uC815|\uC808\uC81C/.test(t))
+    return `${businessName} keeps ${industry} clear and focused.`;
+  if (/\uCE5C\uADFC|\uB530\uB73B|\uD3B8\uC548|\uB2E4\uC815/.test(t))
+    return `See what ${businessName} works to deliver every day in ${industry}.`;
+  if (/\uD65C\uAE30|\uC5D0\uB108\uC9C0|\uC0DD\uB3D9|\uC990\uAC70/.test(t))
+    return `A clear view of what ${businessName} does in ${industry}.`;
+  return `See how ${businessName} approaches ${industry}.`;
 }
 
 /**
@@ -213,37 +213,37 @@ function aboutPoints(survey: SurveyInput): string[] {
   const hi = survey.highlights?.map((h) => h.trim()).filter(Boolean) ?? [];
   if (hi.length) return hi.slice(0, 3);
   const t = toneText(survey.tone).toLowerCase();
-  if (/고급|럭셔리|프리미엄|우아/.test(t)) return ['한결같은 기준', '필요한 것에만 정성', '오래가는 신뢰'];
-  if (/미니멀|심플|단정|절제/.test(t)) return ['군더더기 없이', '본질에 집중', '정돈된 경험'];
-  if (/친근|따뜻|편안|다정/.test(t)) return ['편안한 응대', '한결같은 태도', '동네와 함께'];
-  return ['기본에 충실', '정직한 태도', '오래가는 관계'];
+  if (/\uACE0\uAE09|\uB7ED\uC154\uB9AC|\uD504\uB9AC\uBBF8\uC5C4|\uC6B0\uC544/.test(t)) return ['Consistent standards', 'Care where it matters', 'Trust that lasts'];
+  if (/\uBBF8\uB2C8\uBA40|\uC2EC\uD50C|\uB2E8\uC815|\uC808\uC81C/.test(t)) return ['No excess', 'Focused on essentials', 'A clear experience'];
+  if (/\uCE5C\uADFC|\uB530\uB73B|\uD3B8\uC548|\uB2E4\uC815/.test(t)) return ['A comfortable welcome', 'Consistent care', 'Part of the community'];
+  return ['Strong fundamentals', 'An honest approach', 'Relationships that last'];
 }
 
 function highlightFrame(i: number, survey: SurveyInput): string {
   const biz = survey.businessName;
   const ind = survey.industry;
   const variants = [
-    `${biz}가 ${ind}에서 가장 신경 쓰는 부분입니다. 매일의 태도로 지켜갑니다.`,
-    `말보다 결과로 보여드리려 합니다. ${ind}에서 오래 남는 방식을 택했습니다.`,
-    `작은 차이가 오래 남는다고 믿습니다. ${biz}가 놓치지 않는 기준입니다.`,
+    `What ${biz} watches most closely in ${ind}, sustained through daily practice.`,
+    `We let the work speak. Our approach to ${ind} is built to last.`,
+    `Small differences matter. This is a standard ${biz} does not overlook.`,
   ];
   return variants[i % variants.length];
 }
 
 const SECTION_NAMES: Record<SectionType, string> = {
-  hero: '히어로',
-  about: '소개',
-  features: '특징',
-  menu: '메뉴',
-  gallery: '갤러리',
-  testimonials: '후기',
-  pricing: '가격',
-  contact: '연락처',
+  hero: 'Hero',
+  about: 'About',
+  features: 'Features',
+  menu: 'Menu',
+  gallery: 'Gallery',
+  testimonials: 'Reviews',
+  pricing: 'Pricing',
+  contact: 'Contact',
   cta: 'CTA',
-  custom: '커스텀',
-  team: '구성원',
-  cases: '실적·사례',
-  faq: '자주 묻는 질문',
+  custom: 'Custom',
+  team: 'Team',
+  cases: 'Results and cases',
+  faq: 'FAQ',
 };
 
 interface Ctx {
@@ -324,8 +324,8 @@ function headingOf(item: SectionPlanItem, fallback: string): string {
  * 설명 성격의 절만 남긴다. 남는 게 없으면 빈 문자열(부제 생략).
  */
 const BRIEF_META_HINTS = [
-  '섹션', '가장 중요', '제일 중요', '핵심 증거', '전환 지점', '겸용',
-  '필수', '기본 해제', '금지', '리드', '사람이 곧 상품', '신뢰의 핵심',
+  'section', 'most important', 'key evidence', 'conversion point', 'shared use',
+  'required', 'default off', 'prohibited', 'lead', 'people are the product', 'core trust signal',
 ];
 function briefToSubtitle(brief?: string): string {
   const raw = brief?.trim();
@@ -364,7 +364,7 @@ function footerEl(ctx: Ctx, y = 560): CanvasElement {
     kind: 'text',
     frame: { x: 122, y, w: 620, h: 18 },
     z: 2,
-    text: `© ${new Date().getFullYear()} ${ctx.survey.businessName}. ${PUBLIC_BRAND_NAMES.brandBilingual}으로 제작.`,
+    text: `© ${new Date().getFullYear()} ${ctx.survey.businessName}. Built by ${PUBLIC_BRAND_NAMES.brandBilingual}.`,
     style: { fontSize: 12, fontWeight: 400, fontFamily: 'body', color: ctx.theme.palette.muted, align: 'left', letterSpacing: 0.5 },
   };
 }
@@ -422,7 +422,7 @@ function buildHero(ctx: Ctx): Section {
   // [D2/H1] 고객이 실제로 입력한 자랑거리만 소형 태그로 노출한다.
   const chips = heroChips(survey);
   // [v4] 히어로 주 CTA = siteGoal의 ctaLabel(있으면), 없으면 기본 문의. (예약 링크는 발행 후 에디터에서 추가)
-  const ctaLabel = ctaLabelForSurvey(survey) ?? '문의하기';
+  const ctaLabel = ctaLabelForSurvey(survey) ?? 'Contact us';
   // [T1] CTA 타깃 = 목표의 강조 섹션(sectionEmphasis) 중 계획에 '단일 존재'하는 첫 타입
   //      (purchase→상품 진열, trust→실적 등). contact이거나 매칭 없으면 기본 '#sec-contact'
   //      (variant 분화 시 앵커 재해소 패스가 첫 contact id로 교체 — 무배선 버튼 0 보장).
@@ -443,7 +443,7 @@ function buildHero(ctx: Ctx): Section {
       frame: { x: 116, y: 150, w: 140, h: 64 },
       z: 5,
       src: survey.logoUrl,
-      alt: `${survey.businessName} 로고`,
+      alt: `${survey.businessName} logo`,
       style: { objectFit: 'contain' },
     });
   }
@@ -509,7 +509,7 @@ function buildHero(ctx: Ctx): Section {
       kind: 'button',
       frame: { x: 310, y: 694, w: 172, h: 54 },
       z: 4,
-      label: '더 알아보기',
+      label: 'Learn more',
       // [T5] 보조 CTA 타깃 — 계획에 실재(단일)하는 소개성 섹션, 없으면 contact 폴백(무배선 0)
       href: depthModel ? '#sec-about' : (() => {
         const aboutish = (['about', 'features', 'menu', 'gallery'] as SectionType[]).find(
@@ -709,7 +709,7 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
       frame: { x: 120, y: 120, w: 520, h: 400 },
       z: 2,
       src: nextImage(ctx),
-      alt: `${survey.businessName} 소개 이미지`,
+      alt: `About ${survey.businessName}`,
       style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
     },
     {
@@ -717,7 +717,7 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 760, y: 158, w: 320, h: 22 },
       z: 2,
-      text: '소개',
+      text: 'About',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
     {
@@ -725,7 +725,7 @@ function buildAbout(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 756, y: 200, w: 540, h: 120 },
       z: 2,
-      text: copy.aboutTitle ?? headingOf(item, `${survey.businessName}의 약속`),
+      text: copy.aboutTitle ?? headingOf(item, `Our commitment at ${survey.businessName}`),
       style: { fontSize: 40, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.4 },
     },
     {
@@ -782,7 +782,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
   const copy = opts.copy ?? {};
   const body =
     copy.aboutBody ??
-    `${survey.businessName}를 찾아주셔서 감사합니다.\n작은 약속 하나를 매일 같은 마음으로 지켜가고자 합니다.\n앞으로도 변함없는 정성으로 함께하겠습니다.`;
+    `Thank you for choosing ${survey.businessName}.\nWe work to keep each promise with the same care, every day.\nYou can expect that commitment to continue.`;
   return {
     id: 'sec-about',
     type: 'about',
@@ -796,7 +796,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
         frame: { x: 120, y: 120, w: 520, h: 400 },
         z: 2,
         src: nextImage(ctx),
-        alt: `${survey.businessName} 대표`,
+        alt: `${survey.businessName} representative`,
         style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       },
       {
@@ -804,7 +804,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 760, y: 150, w: 320, h: 22 },
         z: 2,
-        text: '인사말',
+        text: 'A note from our team',
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
       },
       {
@@ -812,7 +812,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 756, y: 192, w: 560, h: 60 },
         z: 2,
-        text: copy.aboutTitle ?? headingOf(item, '대표 인사말'),
+        text: copy.aboutTitle ?? headingOf(item, 'A note from our team'),
         style: { fontSize: 36, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.4 },
       },
       {
@@ -828,7 +828,7 @@ function buildAboutGreeting(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 760, y: 476, w: 400, h: 26 },
         z: 2,
-        text: `— ${survey.businessName} 대표 드림`,
+        text: `— ${survey.businessName}`,
         style: { fontSize: 15, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 0.5 },
       },
     ],
@@ -841,9 +841,9 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
   const subtitle = briefToSubtitle(item.brief);
   const rowsTop = subtitle ? 300 : 268;
   const rows = [
-    { period: '2020 – 현재', role: '대표 · 주요 직함 / 핵심 역할' },
-    { period: '2016 – 2020', role: '핵심 경력 · 대표 프로젝트' },
-    { period: '2012 – 2016', role: '학력 · 자격 · 수상 이력' },
+    { period: '2020 – Present', role: 'Leadership · primary title / role' },
+    { period: '2016 – 2020', role: 'Core experience · representative projects' },
+    { period: '2012 – 2016', role: 'Education · credentials · recognition' },
   ];
   const elements: CanvasElement[] = [
     {
@@ -851,10 +851,10 @@ function buildAboutResume(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '이력',
+      text: 'Experience',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '경력·이력'), 142),
+    titleEl(ctx, headingOf(item, 'Experience'), 142),
   ];
   if (subtitle) elements.push(subtitleEl(ctx, subtitle));
   rows.forEach((row, i) => {
@@ -901,9 +901,9 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
   const items = survey.highlights?.length
     ? survey.highlights.slice(0, 3).map((h, i) => ({ title: h, desc: highlightFrame(i, survey) }))
     : [
-        { title: '기본', desc: `${survey.industry}의 기본을 매일 같은 수준으로 지킵니다. 눈에 안 보이는 곳까지 신경 씁니다.` },
-        { title: '재료', desc: '좋은 재료는 그대로 살리고, 손은 덜 댑니다. 과하지 않게, 필요한 만큼만.' },
-        { title: '사람', desc: '처음 오신 분도 늘 오신 분처럼 맞이합니다. 결국 사람이 남긴다고 믿습니다.' },
+        { title: 'Standards', desc: `We hold the fundamentals of ${survey.industry} to the same standard every day, including details people do not see.` },
+        { title: 'Materials', desc: 'We preserve what is already good and intervene only where needed.' },
+        { title: 'People', desc: 'First visit or familiar face, everyone receives the same attention.' },
       ];
   const elements: CanvasElement[] = [
     {
@@ -911,10 +911,10 @@ function buildFeatures(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '우리가 지키는 것',
+      text: 'What we stand for',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '세 가지 원칙'), 142),
+    titleEl(ctx, headingOf(item, 'Three principles'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   items.forEach((it, i) => {
@@ -975,63 +975,63 @@ function menuConfig(suf: string, survey: SurveyInput): MenuConfig {
   switch (suf) {
     case 'services':
       return {
-        kicker: '서비스',
-        titleFallback: '시술·서비스',
+        kicker: 'Services',
+        titleFallback: 'Treatments and services',
         cards: [
-          { name: '대표 시술', meta: '약 60분 · 가격 문의', desc: '가장 많이 찾는 시그니처 케어.' },
-          { name: '집중 케어', meta: '약 90분 · 가격 문의', desc: '깊이 있는 관리가 필요할 때.' },
-          { name: '기본 관리', meta: '약 40분 · 가격 문의', desc: '부담 없이 시작하는 코스.' },
+          { name: 'Signature treatment', meta: 'About 60 minutes · Ask for pricing', desc: 'A frequently requested care option.' },
+          { name: 'Focused care', meta: 'About 90 minutes · Ask for pricing', desc: 'For needs that call for more time and attention.' },
+          { name: 'Essential care', meta: 'About 40 minutes · Ask for pricing', desc: 'A straightforward place to begin.' },
         ],
       };
     case 'curriculum':
       return {
-        kicker: '커리큘럼',
-        titleFallback: '프로그램·커리큘럼',
+        kicker: 'Curriculum',
+        titleFallback: 'Program and curriculum',
         cards: [
-          { name: '1단계 · 기초', meta: '1~4회차', desc: '개념을 처음부터 탄탄하게.' },
-          { name: '2단계 · 심화', meta: '5~8회차', desc: '실전 감각을 끌어올리는 과정.' },
-          { name: '3단계 · 완성', meta: '9~12회차', desc: '최종 목표까지 마무리.' },
+          { name: 'Stage 1 · Foundations', meta: 'Sessions 1–4', desc: 'Build the fundamentals from the beginning.' },
+          { name: 'Stage 2 · Practice', meta: 'Sessions 5–8', desc: 'Develop practical skill and confidence.' },
+          { name: 'Stage 3 · Completion', meta: 'Sessions 9–12', desc: 'Work through the final objective.' },
         ],
       };
     case 'schedule':
       return {
-        kicker: '일정',
-        titleFallback: '프로그램·일정',
+        kicker: 'Schedule',
+        titleFallback: 'Program schedule',
         cards: [
-          { name: '1부', meta: '10:00 – 12:00', desc: '오프닝과 첫 세션.' },
-          { name: '2부', meta: '13:00 – 15:00', desc: '핵심 프로그램.' },
-          { name: '3부', meta: '15:30 – 17:00', desc: '마무리와 네트워킹.' },
+          { name: 'Part 1', meta: '10:00–12:00', desc: 'Opening and first session.' },
+          { name: 'Part 2', meta: '13:00–15:00', desc: 'Core program.' },
+          { name: 'Part 3', meta: '15:30–17:00', desc: 'Closing and networking.' },
         ],
       };
     case 'course':
       return {
-        kicker: '코스',
-        titleFallback: '코스 소개',
+        kicker: 'Courses',
+        titleFallback: 'Course menu',
         cards: [
-          { name: '런치 코스', meta: '가격 문의', desc: '가볍게 즐기는 낮의 구성.' },
-          { name: '디너 코스', meta: '가격 문의', desc: '천천히 이어지는 저녁의 여정.' },
-          { name: '셰프 오마카세', meta: '가격 문의', desc: '그날의 재료로 완성하는 코스.' },
+          { name: 'Lunch course', meta: 'Ask for pricing', desc: 'A lighter daytime menu.' },
+          { name: 'Dinner course', meta: 'Ask for pricing', desc: 'An unhurried evening menu.' },
+          { name: "Chef's tasting", meta: 'Ask for pricing', desc: 'A course shaped by the day’s ingredients.' },
         ],
       };
     case 'treatments':
       return {
-        kicker: '진료 안내',
-        titleFallback: '진료 안내',
+        kicker: 'Care',
+        titleFallback: 'Care options',
         cards: [
-          { name: '일반 진료', meta: '', desc: '기본 진료와 상담을 안내합니다.' },
-          { name: '전문 클리닉', meta: '', desc: '분야별 맞춤 진료.' },
-          { name: '검진·예방', meta: '', desc: '정기 검진과 예방 관리.' },
+          { name: 'General care', meta: '', desc: 'General care and consultation.' },
+          { name: 'Specialty care', meta: '', desc: 'Care organized by specialty.' },
+          { name: 'Exams and prevention', meta: '', desc: 'Routine exams and preventive care.' },
         ],
       };
     case 'food':
     default:
       return {
-        kicker: '대표 구성',
-        titleFallback: '메뉴',
+        kicker: 'Featured',
+        titleFallback: 'Menu',
         cards: [
-          { name: '시그니처', meta: '가격 문의', desc: `${survey.businessName}를 가장 잘 보여주는 하나.` },
-          { name: '클래식', meta: '가격 문의', desc: '오래 사랑받은 이유가 있는 구성.' },
-          { name: '시즌', meta: '가격 문의', desc: '계절이 바뀔 때마다 새로 준비합니다.' },
+          { name: 'Signature', meta: 'Ask for pricing', desc: `${survey.businessName} at a glance.` },
+          { name: 'Classic', meta: 'Ask for pricing', desc: 'A longstanding favorite.' },
+          { name: 'Seasonal', meta: 'Ask for pricing', desc: 'Prepared for the current season.' },
         ],
       };
   }
@@ -1071,7 +1071,7 @@ function buildMenu(ctx: Ctx, item: SectionPlanItem): Section {
           kind: 'text',
           frame: { x: 820, y: y - 2, w: 500, h: 36 },
           z: 2,
-          text: `${mi.price}원`,
+          text: `${mi.price}`,
           style: { fontSize: Math.round(26 * ctx.kit.priceScale), fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
         });
       }
@@ -1155,16 +1155,16 @@ function buildWorksGrid(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '작업',
+      text: 'Work',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '대표 작업'), 142),
+    titleEl(ctx, headingOf(item, 'Selected work'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   for (let i = 0; i < 6; i += 1) {
     const x = 120 + (i % 3) * 420;
     const y = TOP + Math.floor(i / 3) * ROW_H;
-    const caption = `작업 0${i + 1}`;
+    const caption = `Work 0${i + 1}`;
     elements.push(
       {
         id: nextId(ctx, 'el-work-img'),
@@ -1211,10 +1211,10 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '공간',
+      text: 'Space',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '둘러보기'), 142),
+    titleEl(ctx, headingOf(item, 'Gallery'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   frames.forEach((f) => {
@@ -1224,7 +1224,7 @@ function buildGallery(ctx: Ctx, item: SectionPlanItem): Section {
       frame: f,
       z: 2,
       src: nextImage(ctx),
-      alt: '갤러리 이미지',
+      alt: 'Gallery image',
       style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
     });
   });
@@ -1244,9 +1244,9 @@ function buildTestimonials(ctx: Ctx): Section {
   const cardFill = sectionBg.toLowerCase() === theme.palette.surface.toLowerCase() ? theme.palette.background : theme.palette.surface;
   // [D2] 단일 인용 → 3카드 그리드. 제네릭 플레이스홀더(가짜 이름·수치 없음, 발행 후 실제 후기로 교체).
   const quotes = [
-    { body: `한 번 다녀가면 알게 됩니다.\n${survey.businessName}가 왜 조용히 오래가는지.`, attr: '— 단골 고객' },
-    { body: '필요한 걸 정확히 아는 곳이에요.\n설명이 친절해서 믿음이 갔습니다.', attr: '— 방문 고객' },
-    { body: '다시 찾게 되는 이유가 있어요.\n기본을 지키는 태도가 느껴집니다.', attr: '— 재방문 고객' },
+    { body: `You understand after one visit.\nThat is why ${survey.businessName} quietly endures.`, attr: '— Returning customer' },
+    { body: 'They understood what I needed.\nThe clear explanation earned my trust.', attr: '— Customer' },
+    { body: 'There is a reason I came back.\nYou can feel their commitment to the fundamentals.', attr: '— Returning customer' },
   ];
   const elements: CanvasElement[] = [
     {
@@ -1254,10 +1254,10 @@ function buildTestimonials(ctx: Ctx): Section {
       kind: 'text',
       frame: { x: 122, y: 96, w: 320, h: 22 },
       z: 2,
-      text: '고객의 이야기',
+      text: 'Customer stories',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, '다녀간 분들의 후기', 138),
+    titleEl(ctx, 'What customers say', 138),
   ];
   quotes.forEach((q, i) => {
     const x = 120 + i * 420;
@@ -1310,8 +1310,8 @@ function buildTestimonials(ctx: Ctx): Section {
 function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
   const plans = [
-    { name: '기본', price: '문의', desc: '처음 시작하는 분들을 위한 구성.' },
-    { name: '프리미엄', price: '문의', desc: '더 깊게, 더 넉넉하게 준비했습니다.' },
+    { name: 'Essential', price: 'Ask us', desc: 'A clear place to begin.' },
+    { name: 'Premium', price: 'Ask us', desc: 'More time and a broader scope.' },
   ];
   const elements: CanvasElement[] = [
     {
@@ -1319,10 +1319,10 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '이용 안내',
+      text: 'Plan details',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '가격'), 142),
+    titleEl(ctx, headingOf(item, 'Pricing'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   plans.forEach((plan, i) => {
@@ -1370,7 +1370,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'button',
         frame: { x: x + 40, y: 544, w: 160, h: 50 },
         z: 3,
-        label: '문의하기',
+        label: 'Contact us',
         href: '#sec-contact',
         style: {
           variant: i === 1 ? 'solid' : 'outline',
@@ -1400,7 +1400,7 @@ function buildPricing(ctx: Ctx, item: SectionPlanItem): Section {
  */
 function buildCtaLinks(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
-  const LINKS = ['전화하기', '문의 남기기', '오시는 길'];
+  const LINKS = ['Call', 'Send an inquiry', 'Directions'];
   const TOP = 180; // 첫 버튼 y
   const PITCH = 72; // 버튼(56) + 간격(16)
   const elements: CanvasElement[] = [
@@ -1409,7 +1409,7 @@ function buildCtaLinks(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 360, y: 100, w: 720, h: 50 },
       z: 2,
-      text: headingOf(item, '링크'),
+      text: headingOf(item, 'Links'),
       style: { fontSize: 32, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'center', lineHeight: 1.35 },
     },
   ];
@@ -1449,7 +1449,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 220, y: 100, w: 1000, h: 64 },
       z: 2,
-      text: copy.ctaTitle ?? headingOf(item, `${survey.businessName}에서 만나요`),
+      text: copy.ctaTitle ?? headingOf(item, `Visit ${survey.businessName}`),
       style: { fontSize: 44, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'center', lineHeight: 1.3 },
     },
   ];
@@ -1468,7 +1468,7 @@ function buildCta(ctx: Ctx, item: SectionPlanItem): Section {
     kind: 'button',
     frame: { x: 634, y: 236, w: 172, h: 54 },
     z: 3,
-    label: '문의하기',
+    label: 'Contact us',
     href: '#sec-contact',
     style: { variant: 'solid', color: theme.palette.primary, textColor: pickButtonTextColor(theme.palette.primary, theme.palette), fontSize: 15, borderRadius: theme.radius ?? 4 },
   });
@@ -1496,11 +1496,11 @@ function buildContact(ctx: Ctx, item: SectionPlanItem): Section {
 function buildContactDefault(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
   const rows = [
-    { label: '주소', value: parseAddress(survey.providedContent) ?? '주소를 입력해주세요' },
-    { label: '영업시간', value: parseBusinessHours(survey.providedContent) ?? '영업시간을 입력해주세요' },
-    { label: '연락처', value: '연락처를 입력해주세요' },
+    { label: 'Address', value: parseAddress(survey.providedContent) ?? 'Add an address' },
+    { label: 'Hours', value: parseBusinessHours(survey.providedContent) ?? 'Add business hours' },
+    { label: 'Contact', value: 'Add contact details' },
   ];
-  const elements: CanvasElement[] = [titleEl(ctx, headingOf(item, '연락처'), 120, 40)];
+  const elements: CanvasElement[] = [titleEl(ctx, headingOf(item, 'Contact'), 120, 40)];
   rows.forEach((row, i) => {
     const y = 230 + i * 88;
     elements.push(
@@ -1549,11 +1549,11 @@ function buildContactDefault(ctx: Ctx, item: SectionPlanItem): Section {
 function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
   const rows = [
-    { label: '주소', value: '주소를 입력해주세요' },
-    { label: '연락처', value: '연락처를 입력해주세요' },
-    { label: '영업시간', value: '영업시간을 입력해주세요' },
+    { label: 'Address', value: 'Add an address' },
+    { label: 'Contact', value: 'Add contact details' },
+    { label: 'Hours', value: 'Add business hours' },
   ];
-  const elements: CanvasElement[] = [titleEl(ctx, headingOf(item, '오시는 길'), 120, 40)];
+  const elements: CanvasElement[] = [titleEl(ctx, headingOf(item, 'Directions'), 120, 40)];
   rows.forEach((row, i) => {
     const y = 230 + i * 88;
     elements.push(
@@ -1589,7 +1589,7 @@ function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 760, y: 348, w: 560, h: 28 },
       z: 2,
-      text: '지도',
+      text: 'Map',
       style: { fontSize: 20, fontWeight: 500, fontFamily: 'heading', color: theme.palette.muted, align: 'center' },
     },
     {
@@ -1597,7 +1597,7 @@ function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 760, y: 384, w: 560, h: 22 },
       z: 2,
-      text: '주소를 입력하면 지도가 표시됩니다',
+      text: 'Add an address to display the map',
       style: { fontSize: 13, fontWeight: 400, fontFamily: 'body', color: theme.palette.muted, align: 'center' },
     },
     footerEl(ctx, 560),
@@ -1615,7 +1615,7 @@ function buildContactMap(ctx: Ctx, item: SectionPlanItem): Section {
 /** contact:form — 제목 + brief 설명 + 문의하기 버튼 (실 FormElement 는 Phase3 주입) */
 function buildContactForm(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
-  const desc = briefToSubtitle(item.brief) || '아래 버튼으로 편하게 문의를 남겨주세요. 확인 후 빠르게 연락드리겠습니다.';
+  const desc = briefToSubtitle(item.brief) || 'Send an inquiry below. We will follow up after reviewing it.';
   return {
     id: 'sec-contact',
     type: 'contact',
@@ -1623,7 +1623,7 @@ function buildContactForm(ctx: Ctx, item: SectionPlanItem): Section {
     height: 460,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements: [
-      titleEl(ctx, headingOf(item, '문의하기'), 120, 40),
+      titleEl(ctx, headingOf(item, 'Contact us'), 120, 40),
       {
         id: nextId(ctx, 'el-form-desc'),
         kind: 'text',
@@ -1637,7 +1637,7 @@ function buildContactForm(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'button',
         frame: { x: 122, y: 300, w: 200, h: 56 },
         z: 3,
-        label: '문의하기',
+        label: 'Contact us',
         href: '#sec-contact',
         style: { variant: 'solid', color: theme.palette.primary, textColor: pickButtonTextColor(theme.palette.primary, theme.palette), fontSize: 16, borderRadius: theme.radius ?? 4 },
       },
@@ -1655,13 +1655,13 @@ function buildContactMini(ctx: Ctx, item: SectionPlanItem): Section {
     height: 360,
     background: { color: ctx.dark ? '#0c0b09' : theme.palette.surface },
     elements: [
-      titleEl(ctx, headingOf(item, '연락'), 110, 36),
+      titleEl(ctx, headingOf(item, 'Contact'), 110, 36),
       {
         id: nextId(ctx, 'el-mini-line'),
         kind: 'text',
         frame: { x: 122, y: 196, w: 820, h: 30 },
         z: 2,
-        text: '이메일 · 전화번호를 입력해주세요',
+        text: 'Add an email address and phone number',
         style: { fontSize: 18, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.6 },
       },
       footerEl(ctx, 288),
@@ -1684,7 +1684,7 @@ function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 220, y: 150, w: 1000, h: 60 },
         z: 2,
-        text: headingOf(item, '자유 섹션'),
+        text: headingOf(item, 'Custom section'),
         style: { fontSize: 36, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'center' },
       },
       {
@@ -1692,7 +1692,7 @@ function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
         kind: 'text',
         frame: { x: 320, y: 230, w: 800, h: 50 },
         z: 2,
-        text: brief || '에디터에서 이 섹션을 자유롭게 구성해보세요.',
+        text: brief || 'Build this section in the editor.',
         style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: theme.palette.muted, align: 'center', lineHeight: 1.7 },
       },
     ],
@@ -1703,11 +1703,11 @@ function buildCustom(ctx: Ctx, item: SectionPlanItem): Section {
 function teamLabels(suf: string | undefined): { kicker: string; titleFallback: string } {
   switch (suf) {
     case 'doctors':
-      return { kicker: '의료진', titleFallback: '의료진 소개' };
+      return { kicker: 'Providers', titleFallback: 'Meet the providers' };
     case 'experts':
-      return { kicker: '전문가', titleFallback: '구성원·전문가 소개' };
+      return { kicker: 'Experts', titleFallback: 'Meet the team' };
     default:
-      return { kicker: '사람', titleFallback: '구성원 소개' };
+      return { kicker: 'Team', titleFallback: 'Meet the team' };
   }
 }
 
@@ -1715,9 +1715,9 @@ function buildTeam(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme } = ctx;
   const labels = teamLabels(variantSuffix(item.variant));
   const members = [
-    { name: '대표', title: '대표·총괄', career: ['해당 분야 경력 다년', '핵심 프로젝트 리드'] },
-    { name: '전문가', title: '수석·전문위원', career: ['현장 실무 전문성', '주요 성과 다수'] },
-    { name: '담당자', title: '책임·매니저', career: ['고객 응대·운영 총괄', '세심한 실행력'] },
+    { name: 'Lead', title: 'Director', career: ['Years of relevant experience', 'Led key projects'] },
+    { name: 'Specialist', title: 'Senior specialist', career: ['Hands-on expertise', 'Representative work'] },
+    { name: 'Coordinator', title: 'Manager', career: ['Customer and operations lead', 'Careful execution'] },
   ];
   const elements: CanvasElement[] = [
     {
@@ -1788,19 +1788,19 @@ function buildCasesProjects(ctx: Ctx, item: SectionPlanItem): Section {
   const { theme, survey } = ctx;
   const projects = [
     {
-      name: `${survey.businessName} 대표 프로젝트`,
+      name: `${survey.businessName} featured project`,
       cols: [
-        '어떤 의뢰였고, 무엇을 목표로 했는지 정리하는 자리입니다.',
-        '리서치부터 완성까지 실제 진행 단계를 적어주세요.',
-        '완성물과 성과를 남겨주세요. 수치가 있으면 더 좋습니다.',
+        'Describe the request and its objective.',
+        'Document the actual steps from research through completion.',
+        'Add the finished work and verified results. Include metrics when available.',
       ],
     },
     {
-      name: `${survey.businessName} 주요 작업`,
-      cols: ['두 번째 프로젝트의 배경과 목표.', '작업 방식과 협업 과정.', '결과물과 지표, 그리고 배운 점.'],
+      name: `${survey.businessName} selected work`,
+      cols: ['Background and objective of the second project.', 'Working process and collaboration.', 'Deliverables, metrics, and lessons.'],
     },
   ];
-  const COL_LABELS = ['개요', '과정', '결과'];
+  const COL_LABELS = ['Overview', 'Process', 'Outcome'];
   const TOP = 300; // 두 줄 섹션 소개 뒤 첫 블록 시작
   const BLOCK_H = 260; // 프로젝트명(40)+구분선+라벨(20)+본문(96)+블록 간격
   const elements: CanvasElement[] = [
@@ -1809,10 +1809,10 @@ function buildCasesProjects(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '프로젝트',
+      text: 'Projects',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '프로젝트 상세'), 142),
+    titleEl(ctx, headingOf(item, 'Project details'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   projects.forEach((proj, i) => {
@@ -1871,9 +1871,9 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
   if (variantSuffix(item.variant) === 'projects') return buildCasesProjects(ctx, item);
   const { theme, survey } = ctx;
   const items = [
-    { title: '대표 사례', metric: '98%', desc: `${survey.industry}에서 검증된 결과.` },
-    { title: '주요 실적', metric: '120+', desc: '누적 수행 프로젝트·고객사.' },
-    { title: '성과 지표', metric: '3배', desc: '핵심 지표 개선 폭.' },
+    { title: 'Featured case', metric: '98%', desc: `A verified result in ${survey.industry}.` },
+    { title: 'Completed work', metric: '120+', desc: 'Cumulative projects or customers.' },
+    { title: 'Outcome', metric: '3×', desc: 'Change in a key metric.' },
   ];
   const elements: CanvasElement[] = [
     {
@@ -1881,10 +1881,10 @@ function buildCases(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '증거',
+      text: 'Evidence',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '실적·사례'), 142),
+    titleEl(ctx, headingOf(item, 'Results and cases'), 142),
   ];
   { const _sub = briefToSubtitle(item.brief); if (_sub) elements.push(subtitleEl(ctx, _sub)); }
   items.forEach((it, i) => {
@@ -1944,9 +1944,9 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
     )
       .map((item) => ({ q: item.question, a: item.answer }))
     : [
-        { q: '이용 방법이 어떻게 되나요?', a: '문의 주시면 상황에 맞춰 안내해 드립니다.' },
-        { q: '예약·상담은 어떻게 하나요?', a: '전화 또는 문의 폼으로 편하게 연락 주세요.' },
-        { q: '운영 시간이 궁금해요.', a: '기본 운영 시간 내 상담·방문이 가능합니다.' },
+        { q: 'How does it work?', a: 'Contact us and we will explain the options for your situation.' },
+        { q: 'How do I book or ask a question?', a: 'Call us or use the inquiry form.' },
+        { q: 'What are your hours?', a: 'Appointments and visits are available during posted business hours.' },
       ];
   const subText = briefToSubtitle(item.brief);
   const hasSub = Boolean(subText);
@@ -1957,10 +1957,10 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '안내',
+      text: 'Information',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, headingOf(item, '자주 묻는 질문'), 142),
+    titleEl(ctx, headingOf(item, 'Frequently asked questions'), 142),
   ];
   if (hasSub) elements.push(subtitleEl(ctx, subText));
   let rowTop = listTop;
@@ -2007,17 +2007,17 @@ function buildFaq(ctx: Ctx, item: SectionPlanItem): Section {
 
 /** [F1] 승격 페이지 slug → 홈 티저 카드 안내 문구 (결정적, 폴백은 제목 기반) */
 const TEASER_BLURB: Record<string, string> = {
-  about: '우리가 어떤 곳인지 이야기합니다.',
-  menu: '무엇을 준비하는지 살펴보세요.',
-  gallery: '공간과 작업을 사진으로 담았습니다.',
-  services: '제공하는 서비스를 안내합니다.',
-  team: '함께하는 사람들을 소개합니다.',
-  reviews: '직접 경험한 이야기들.',
-  pricing: '요금과 구성을 확인하세요.',
-  work: '지금까지의 실적과 사례.',
-  guide: '이용에 필요한 안내를 모았습니다.',
-  contact: '문의와 찾아오시는 길.',
-  more: '더 많은 이야기.',
+  about: 'Who we are and how we work.',
+  menu: 'See what is available.',
+  gallery: 'A visual look at the space and work.',
+  services: 'Services and care options.',
+  team: 'Meet the people behind the work.',
+  reviews: 'Verified customer experiences.',
+  pricing: 'Plans and pricing.',
+  work: 'Selected work and results.',
+  guide: 'What to know before you begin.',
+  contact: 'Contact and directions.',
+  more: 'More from this business.',
 };
 
 /**
@@ -2043,15 +2043,15 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
       kind: 'text',
       frame: { x: 122, y: 100, w: 320, h: 22 },
       z: 2,
-      text: '둘러보기',
+      text: 'Explore',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 5 },
     },
-    titleEl(ctx, '이곳을 소개합니다', 142),
+    titleEl(ctx, 'Explore this site', 142),
   ];
   cards.forEach((entry, i) => {
     const x = 120 + (i % 3) * 420;
     const y = 268 + Math.floor(i / 3) * ROW_GAP;
-    const blurb = entry.blurb || TEASER_BLURB[entry.slug] || `${entry.title} 페이지로 이동합니다.`;
+    const blurb = entry.blurb || TEASER_BLURB[entry.slug] || `Go to the ${entry.title} page.`;
     // 카드 배경
     elements.push({
       id: nextId(ctx, `el-teaser-card-v2-${i + 1}`),
@@ -2105,7 +2105,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
         kind: 'button',
         frame: { x: x + 28, y: y + 284, w: 150, h: 40 },
         z: 3,
-        label: '자세히 보기',
+        label: 'View details',
         href: `/${entry.slug}`,
         style: { variant: 'outline', color: theme.palette.primary, textColor: theme.palette.primary, fontSize: 14, borderRadius: theme.radius ?? 4 },
       },
@@ -2114,7 +2114,7 @@ function buildHomeTeaser(ctx: Ctx, entries: TeaserEntry[]): Section {
   return {
     id: 'sec-home-teaser',
     type: 'custom',
-    name: '둘러보기',
+    name: 'Explore',
     height: 268 + rows * ROW_GAP + 40,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements,
@@ -2131,7 +2131,7 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
   sections.push({
     id: 'sec-about',
     type: 'about',
-    name: '소개',
+    name: 'About',
     height: 680,
     background: { color: theme.palette.background },
     elements: [
@@ -2151,8 +2151,8 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
         id: nextId(ctx, 'el-depth-about-source'), kind: 'text',
         frame: { x: 120, y: 370, w: 470, h: 68 }, z: 2,
         text: model.customerIntroduction.length > 0
-          ? '사장님이 확인한 소개와 가게가 지향하는 태도를 함께 담았습니다.'
-          : '확인되지 않은 이력이나 수치를 보태지 않고, 가게가 지향하는 태도만 담았습니다.',
+          ? 'A verified introduction and the principles behind the business.'
+          : 'The principles behind the business, without adding unverified history or numbers.',
         style: { fontSize: 15, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.75 },
       },
       {
@@ -2168,10 +2168,10 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
     {
       id: nextId(ctx, 'el-depth-strength-kicker'), kind: 'text',
       frame: { x: 122, y: 100, w: 360, h: 22 }, z: 2,
-      text: '중요하게 생각하는 것',
+      text: 'What matters to us',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
     },
-    titleEl(ctx, '세 가지 방향', 142),
+    titleEl(ctx, 'Three priorities', 142),
   ];
   model.strengths.forEach((strength, index) => {
     const x = 120 + index * 420;
@@ -2194,21 +2194,21 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
     );
   });
   sections.push({
-    id: 'sec-features', type: 'features', name: '강점', height: 680,
+    id: 'sec-features', type: 'features', name: 'Strengths', height: 680,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements: strengthElements,
   });
 
   if (model.contentItems.length > 0) {
     const group = contentIndustryGroup(survey.industry);
-    const title = group === 'cafe' || group === 'food' ? '메뉴 자세히 보기'
-      : group === 'education' || group === 'workshop' ? '수업·클래스 자세히 보기'
-        : '서비스 자세히 보기';
+    const title = group === 'cafe' || group === 'food' ? 'View the full menu'
+      : group === 'education' || group === 'workshop' ? 'View classes and programs'
+        : 'View all services';
     const elements: CanvasElement[] = [
       {
         id: nextId(ctx, 'el-depth-menu-kicker'), kind: 'text',
         frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2,
-        text: '사장님이 알려주신 구성',
+        text: 'Verified offerings',
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
       },
       titleEl(ctx, title, 138),
@@ -2227,7 +2227,7 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
       });
       if (item.price) elements.push({
         id: nextId(ctx, 'el-depth-menu-price'), kind: 'text',
-        frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}원`,
+        frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}`,
         style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: theme.palette.primary, align: 'right' },
       });
       elements.push({
@@ -2237,7 +2237,7 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
       });
     });
     sections.push({
-      id: 'sec-menu', type: 'menu', name: '메뉴·서비스',
+      id: 'sec-menu', type: 'menu', name: 'Menu and services',
       height: 252 + Math.min(14, model.contentItems.length) * 112 + 44,
       background: { color: theme.palette.background }, elements,
     });
@@ -2248,30 +2248,30 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
       {
         id: nextId(ctx, 'el-depth-gallery-kicker'), kind: 'text',
         frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2,
-        text: '사장님이 확인한 사진',
+        text: 'Verified photos',
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
       },
-      titleEl(ctx, '사진으로 둘러보기', 138),
+      titleEl(ctx, 'A visual tour', 138),
     ];
     model.galleryImages.slice(0, 6).forEach((src, index) => {
       elements.push({
         id: nextId(ctx, 'el-depth-gallery-image'), kind: 'image',
         frame: { x: 120 + (index % 3) * 420, y: 252 + Math.floor(index / 3) * 300, w: 380, h: 260 },
-        z: 2, src, alt: `${survey.businessName} 고객 제공 사진 ${index + 1}`,
+        z: 2, src, alt: `${survey.businessName} customer-provided photo ${index + 1}`,
         style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
       });
     });
     sections.push({
-      id: 'sec-gallery', type: 'gallery', name: '갤러리',
+      id: 'sec-gallery', type: 'gallery', name: 'Gallery',
       height: 252 + Math.ceil(Math.min(6, model.galleryImages.length) / 3) * 300 + 40,
       background: { color: ctx.dark ? theme.palette.surface : theme.palette.background }, elements,
     });
   }
 
   if (model.faq.length > 0) {
-    const faq = buildFaq(ctx, { type: 'faq', name: '자주 묻는 질문', brief: '', source: 'template', pageSlug: '' });
+    const faq = buildFaq(ctx, { type: 'faq', name: 'Frequently asked questions', brief: '', source: 'template', pageSlug: '' });
     faq.id = 'sec-faq';
-    faq.name = '자주 묻는 질문';
+    faq.name = 'Frequently asked questions';
     sections.push(faq);
   }
 
@@ -2279,10 +2279,10 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
     const elements: CanvasElement[] = [
       {
         id: nextId(ctx, 'el-depth-directions-kicker'), kind: 'text',
-        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: '방문 전에 확인하세요',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: 'Plan your visit',
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
       },
-      titleEl(ctx, '오시는 길', 138),
+      titleEl(ctx, 'Directions', 138),
     ];
     model.directions.forEach((row, index) => {
       const y = 252 + index * 84;
@@ -2300,7 +2300,7 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
       );
     });
     sections.push({
-      id: 'sec-contact-directions', type: 'contact', name: '오시는 길',
+      id: 'sec-contact-directions', type: 'contact', name: 'Directions',
       height: 252 + model.directions.length * 84 + 50,
       background: { color: theme.palette.background }, elements,
     });
@@ -2310,10 +2310,10 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
     const elements: CanvasElement[] = [
       {
         id: nextId(ctx, 'el-depth-contact-kicker'), kind: 'text',
-        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: '연락과 이용 안내',
+        frame: { x: 122, y: 96, w: 360, h: 22 }, z: 2, text: 'Contact and visit details',
         style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
       },
-      titleEl(ctx, `${survey.businessName}에 문의하기`, 138),
+      titleEl(ctx, `Contact ${survey.businessName}`, 138),
     ];
     model.contact.forEach((row, index) => {
       const x = 120 + (index % 2) * 620;
@@ -2334,7 +2334,7 @@ function buildContentDepthHomeSections(ctx: Ctx): Section[] {
     const height = 260 + Math.ceil(model.contact.length / 2) * 112 + 120;
     elements.push(footerEl(ctx, height - 52));
     sections.push({
-      id: 'sec-contact', type: 'contact', name: '문의', height,
+      id: 'sec-contact', type: 'contact', name: 'Contact', height,
       background: { color: ctx.dark ? theme.palette.surface : theme.palette.background }, elements,
     });
   }
@@ -2357,7 +2357,7 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
   const story: Section = {
     id: 'sec-about',
     type: 'about',
-    name: '브랜드 스토리',
+    name: 'Brand story',
     height: storyHeight,
     background: { color: theme.palette.background },
     elements: [
@@ -2377,8 +2377,8 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
         id: nextId(ctx, 'el-main-story-lead'), kind: 'text',
         frame: { x: 120, y: 410, w: 470, h: 110 }, z: 2,
         text: model.hasCustomerStory
-          ? '처음 품었던 마음과 지금 지향하는 태도가 한 흐름으로 이어집니다.'
-          : '지어낸 이력 대신, 이 공간이 지향하는 태도와 경험을 이야기합니다.',
+          ? 'The original purpose and current direction form one clear story.'
+          : 'The experience and principles behind this space, without invented history.',
         style: { fontSize: 16, fontWeight: 400, fontFamily: 'body', color: ctx.softText, align: 'left', lineHeight: 1.8 },
       },
       {
@@ -2394,13 +2394,13 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
     {
       id: nextId(ctx, 'el-main-values-kicker'), kind: 'text',
       frame: { x: 122, y: 100, w: 380, h: 22 }, z: 2,
-      text: '가치 · 철학 · 지향',
+      text: 'Values · philosophy · direction',
       style: { fontSize: 13, fontWeight: 500, fontFamily: 'body', color: theme.palette.primary, align: 'left', letterSpacing: 4 },
     },
     {
       id: nextId(ctx, 'el-main-values-title'), kind: 'text',
       frame: { x: 116, y: 142, w: 520, h: 130 }, z: 2,
-      text: '우리가 중요하게\n생각하는 것',
+      text: 'What matters\nmost to us',
       style: { fontSize: 45, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left', lineHeight: 1.35 },
     },
     {
@@ -2431,7 +2431,7 @@ function buildMainStorytellingHomeSections(ctx: Ctx): Section[] {
     );
   });
   const values: Section = {
-    id: 'sec-features', type: 'features', name: '가치와 철학', height: 720,
+    id: 'sec-features', type: 'features', name: 'Values and philosophy', height: 720,
     background: { color: ctx.dark ? theme.palette.background : theme.palette.surface },
     elements: valueElements,
   };
@@ -2443,7 +2443,7 @@ function mainTopicButton(ctx: Ctx, id: string, y: number, href: string): CanvasE
   return {
     id: nextId(ctx, id), kind: 'button',
     frame: { x: 120, y, w: 176, h: 48 }, z: 3,
-    label: '자세히 보기', href,
+    label: 'View details', href,
     style: {
       variant: 'outline', color: ctx.theme.palette.primary, textColor: ctx.theme.palette.primary,
       fontSize: 15, borderRadius: ctx.theme.radius ?? 4,
@@ -2479,17 +2479,17 @@ function mainTopicIntro(
 
 function mainMenuTitle(industry: string): string {
   const group = contentIndustryGroup(industry);
-  if (group === 'cafe' || group === 'food') return '메뉴';
-  if (group === 'education' || group === 'workshop') return '수업·클래스';
-  return '서비스';
+  if (group === 'cafe' || group === 'food') return 'Menu';
+  if (group === 'education' || group === 'workshop') return 'Classes';
+  return 'Services';
 }
 
 function buildMainMenuTeaser(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const label = mainMenuTitle(ctx.survey.industry);
   const elements = mainTopicIntro(
-    ctx, 'el-main-menu-teaser', `대표 ${label}`, `${label}를 먼저 만나보세요`,
-    `사장님이 알려주신 ${label} 가운데 대표 항목을 골라 보여드립니다. 전체 구성은 자세히 보기에서 확인할 수 있습니다.`,
+    ctx, 'el-main-menu-teaser', `Featured ${label}`, `Start with selected ${label.toLowerCase()}`,
+    `A selection of verified ${label.toLowerCase()}. View details for the full list.`,
   );
   model.contentItems.slice(0, 3).forEach((item, index) => {
     const x = 120 + index * 420;
@@ -2506,14 +2506,14 @@ function buildMainMenuTeaser(ctx: Ctx): Section {
       }] : []),
       ...(item.price ? [{
         id: nextId(ctx, 'el-main-menu-teaser-price'), kind: 'text' as const,
-        frame: { x, y: 444, w: 360, h: 34 }, z: 2, text: `${item.price}원`,
+        frame: { x, y: 444, w: 360, h: 34 }, z: 2, text: `${item.price}`,
         style: { fontSize: 19, fontWeight: 500 as const, fontFamily: 'heading' as const, color: ctx.theme.palette.primary, align: 'left' as const },
       }] : []),
     );
   });
   elements.push(mainTopicButton(ctx, 'el-main-menu-teaser-link', 520, '/menu'));
   return {
-    id: 'sec-home-menu-teaser', type: 'menu', name: `${label} 미리보기`, height: 640,
+    id: 'sec-home-menu-teaser', type: 'menu', name: `${label} preview`, height: 640,
     background: { color: ctx.theme.palette.background }, elements,
   };
 }
@@ -2522,8 +2522,8 @@ function buildMainMenuFull(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const label = mainMenuTitle(ctx.survey.industry);
   const elements: CanvasElement[] = mainTopicIntro(
-    ctx, 'el-main-menu-full', `전체 ${label}`, `${label} 자세히 보기`,
-    `사장님이 확인한 ${label} 이름과 설명, 가격을 한곳에 모았습니다.`,
+    ctx, 'el-main-menu-full', `All ${label}`, `${label} details`,
+    `Verified names, descriptions, and prices in one place.`,
   );
   model.contentItems.forEach((item, index) => {
     const y = 276 + index * 112;
@@ -2539,7 +2539,7 @@ function buildMainMenuFull(ctx: Ctx): Section {
     });
     if (item.price) elements.push({
       id: nextId(ctx, 'el-main-menu-full-price'), kind: 'text',
-      frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}원`,
+      frame: { x: 980, y, w: 340, h: 38 }, z: 2, text: `${item.price}`,
       style: { fontSize: 25, fontWeight: 500, fontFamily: 'heading', color: ctx.theme.palette.primary, align: 'right' },
     });
     elements.push({
@@ -2558,18 +2558,18 @@ function buildMainMenuFull(ctx: Ctx): Section {
 function buildMainGalleryTeaser(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const elements = mainTopicIntro(
-    ctx, 'el-main-gallery-teaser', '사진 미리보기', '공간과 메뉴를 사진으로',
-    '사장님이 사용 권리를 확인한 실제 사진만 보여드립니다. 더 많은 모습은 갤러리에서 이어집니다.',
+    ctx, 'el-main-gallery-teaser', 'Gallery preview', 'See the space and work',
+    'Only photos with confirmed usage rights appear here. The gallery has more.',
   );
   model.galleryImages.slice(0, 3).forEach((src, index) => elements.push({
     id: nextId(ctx, 'el-main-gallery-teaser-image'), kind: 'image',
     frame: { x: 120 + index * 420, y: 274, w: 380, h: 250 }, z: 2,
-    src, alt: `${ctx.survey.businessName} 고객 제공 사진 ${index + 1}`,
+    src, alt: `${ctx.survey.businessName} customer-provided photo ${index + 1}`,
     style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
   }));
   elements.push(mainTopicButton(ctx, 'el-main-gallery-teaser-link', 566, '/gallery'));
   return {
-    id: 'sec-home-gallery-teaser', type: 'gallery', name: '갤러리 미리보기', height: 680,
+    id: 'sec-home-gallery-teaser', type: 'gallery', name: 'Gallery preview', height: 680,
     background: { color: ctx.dark ? ctx.theme.palette.surface : ctx.theme.palette.background }, elements,
   };
 }
@@ -2577,17 +2577,17 @@ function buildMainGalleryTeaser(ctx: Ctx): Section {
 function buildMainGalleryFull(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const elements = mainTopicIntro(
-    ctx, 'el-main-gallery-full', '전체 갤러리', '사진으로 둘러보기',
-    '사장님이 사용 권리를 확인한 실제 사진을 빠짐없이 모았습니다.',
+    ctx, 'el-main-gallery-full', 'Full gallery', 'A visual tour',
+    'Photos with confirmed usage rights.',
   );
   model.galleryImages.forEach((src, index) => elements.push({
     id: nextId(ctx, 'el-main-gallery-full-image'), kind: 'image',
     frame: { x: 120 + (index % 3) * 420, y: 270 + Math.floor(index / 3) * 300, w: 380, h: 260 },
-    z: 2, src, alt: `${ctx.survey.businessName} 고객 제공 사진 ${index + 1}`,
+    z: 2, src, alt: `${ctx.survey.businessName} customer-provided photo ${index + 1}`,
     style: { objectFit: 'cover', borderRadius: ctx.kit.imageRadius },
   }));
   return {
-    id: 'sec-gallery', type: 'gallery', name: '갤러리',
+    id: 'sec-gallery', type: 'gallery', name: 'Gallery',
     height: 270 + Math.ceil(model.galleryImages.length / 3) * 300 + 60,
     background: { color: ctx.theme.palette.background }, elements,
   };
@@ -2596,8 +2596,8 @@ function buildMainGalleryFull(ctx: Ctx): Section {
 function buildMainFaqTeaser(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const elements = mainTopicIntro(
-    ctx, 'el-main-faq-teaser', '미리 답해드려요', '자주 묻는 질문',
-    '방문 전에 많이 궁금해하는 내용을 먼저 확인하세요. 사장님이 직접 답한 내용만 담았습니다.',
+    ctx, 'el-main-faq-teaser', 'Answers up front', 'Frequently asked questions',
+    'Review common questions before your visit. Answers come only from verified business input.',
   );
   let rowTop = 270;
   model.faq.slice(0, 3).forEach((item) => {
@@ -2619,7 +2619,7 @@ function buildMainFaqTeaser(ctx: Ctx): Section {
   elements.push(mainTopicButton(ctx, 'el-main-faq-teaser-link', rowTop + 12, '/faq'));
   return {
     // FAQPage는 전체 답변이 보이는 /faq만 소유한다. 홈 미리보기는 구조화 FAQ로 오인하지 않는다.
-    id: 'sec-home-faq-teaser', type: 'custom', name: '자주 묻는 질문 미리보기', height: rowTop + 112,
+    id: 'sec-home-faq-teaser', type: 'custom', name: 'FAQ preview', height: rowTop + 112,
     background: { color: ctx.dark ? ctx.theme.palette.background : ctx.theme.palette.surface }, elements,
   };
 }
@@ -2627,8 +2627,8 @@ function buildMainFaqTeaser(ctx: Ctx): Section {
 function buildMainDirectionsTeaser(ctx: Ctx): Section {
   const model = buildContentDepthHomeModel(ctx.survey);
   const elements = mainTopicIntro(
-    ctx, 'el-main-directions-teaser', '방문 안내', '찾아오는 길을 미리 확인하세요',
-    '주소와 이동 방법, 주차·접근성처럼 방문 전에 필요한 내용을 간단히 정리했습니다.',
+    ctx, 'el-main-directions-teaser', 'Visit details', 'Plan your route before you go',
+    'Address, access, parking, and other practical details for your visit.',
   );
   model.directions.slice(0, 3).forEach((row, index) => {
     const y = 278 + index * 78;
@@ -2648,7 +2648,7 @@ function buildMainDirectionsTeaser(ctx: Ctx): Section {
   const buttonY = 294 + Math.min(3, model.directions.length) * 78;
   elements.push(mainTopicButton(ctx, 'el-main-directions-teaser-link', buttonY, '/directions'));
   return {
-    id: 'sec-home-directions-teaser', type: 'contact', name: '오시는 길 미리보기', height: buttonY + 120,
+    id: 'sec-home-directions-teaser', type: 'contact', name: 'Directions preview', height: buttonY + 120,
     background: { color: ctx.theme.palette.background }, elements,
   };
 }
@@ -2675,7 +2675,7 @@ function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSl
     );
   }
   if (model.faq.length > 0) {
-    const fullFaq = buildFaq(ctx, { type: 'faq', name: '자주 묻는 질문', brief: '', source: 'template', pageSlug: 'faq' });
+    const fullFaq = buildFaq(ctx, { type: 'faq', name: 'Frequently asked questions', brief: '', source: 'template', pageSlug: 'faq' });
     fullFaq.id = 'sec-faq';
     output.push(
       { section: buildMainFaqTeaser(ctx), pageSlug: '' },
@@ -2691,7 +2691,7 @@ function buildMainStorytellingSiteSections(ctx: Ctx): { section: Section; pageSl
       fullDirections.elements.push({
         id: nextId(ctx, 'el-main-directions-place-link'), kind: 'button',
         frame: { x: 120, y: fullDirections.height - 34, w: 220, h: 48 }, z: 3,
-        label: '네이버 지도에서 보기', href: place.url,
+        label: 'Open in Maps', href: place.url,
         style: {
           variant: 'outline', color: ctx.theme.palette.primary, textColor: ctx.theme.palette.primary,
           fontSize: 15, borderRadius: ctx.theme.radius ?? 4,
@@ -2714,18 +2714,18 @@ function buildSitePlanTextSection(ctx: Ctx, planned: SitePlanSection): Section {
   const elements = mainTopicIntro(
     ctx,
     `el-plan-${planned.id}`,
-    planned.mode === 'teaser' ? '미리보기' : '확인된 정보',
+    planned.mode === 'teaser' ? 'Preview' : 'Verified information',
     planned.name,
     planned.mode === 'teaser'
-      ? '사장님이 알려주신 내용 가운데 대표 항목만 먼저 보여드립니다.'
-      : '사장님이 직접 입력하거나 확인한 내용만 빠짐없이 정리했습니다.',
+      ? 'A selection of information provided by the business.'
+      : 'Information entered or confirmed by the business.',
   );
   if (planned.role === 'links') {
     lines.forEach((href, index) => {
       elements.push({
         id: nextId(ctx, `el-plan-link-${index + 1}`), kind: 'button',
         frame: { x: 120, y: 274 + index * 68, w: 520, h: 48 }, z: 3,
-        label: `공식 채널 ${index + 1}`, href,
+        label: `Official channel ${index + 1}`, href,
         style: {
           variant: 'outline', color: ctx.theme.palette.primary,
           textColor: ctx.theme.palette.primary, fontSize: 15,
@@ -2785,7 +2785,7 @@ function testimonialSourceLabel(
 ): string {
   const publisher = proof.publisher?.trim();
   const date = proof.asOfDate?.trim();
-  return [publisher || '고객 제공 후기', date].filter(Boolean).join(' · ');
+  return [publisher || 'Customer-provided review', date].filter(Boolean).join(' · ');
 }
 
 /** 게시 허락된 고객 원문과 출처를 한 덩어리로 보존하는 v2 전용 후기 빌더. */
@@ -2795,9 +2795,9 @@ function buildSitePlanTestimonialSection(ctx: Ctx, planned: SitePlanSection): Se
   const elements = mainTopicIntro(
     ctx,
     `el-plan-${planned.id}`,
-    '고객의 이야기',
+    'Customer stories',
     planned.name,
-    '게시를 허락받은 실제 고객의 문장만 출처와 함께 보여드립니다.',
+    'Only customer statements approved for publication appear here, with their source.',
   );
   let cursor = 282;
   proofs.forEach((proof, index) => {
@@ -2843,7 +2843,7 @@ function buildSitePlanTestimonialSection(ctx: Ctx, planned: SitePlanSection): Se
         kind: 'button',
         frame: { x: 780, y: cursor + quoteHeight + 4, w: 280, h: 42 },
         z: 3,
-        label: `출처 · ${testimonialSourceLabel(proof)}`,
+        label: `Source · ${testimonialSourceLabel(proof)}`,
         href: proof.sourceUrl,
         style: {
           variant: 'ghost',
@@ -2884,9 +2884,9 @@ function buildSitePlanCtaSection(ctx: Ctx, planned: SitePlanSection): Section {
   const elements = mainTopicIntro(
     ctx,
     `el-plan-${planned.id}`,
-    '다음 행동',
+    'Next step',
     planned.name,
-    '사장님이 확인한 실제 목적지로 바로 연결합니다.',
+    'Links go only to destinations confirmed by the business.',
   );
   elements.push({
     id: nextId(ctx, 'el-plan-cta-primary'),
@@ -3120,7 +3120,7 @@ export function buildSiteConfigFromSurvey(
   const metaOf = (slug: string): { title: string; navLabel?: string; showInNav?: boolean } => {
     const fromPlan = (approvedSitePlan?.pages ?? survey.pagePlan)?.find((p) => p.slug === slug);
     if (fromPlan) return { title: fromPlan.title, navLabel: fromPlan.navLabel, showInNav: fromPlan.showInNav };
-    return { title: DEFAULT_PAGE_TITLES[slug] ?? (slug || '홈') };
+    return { title: DEFAULT_PAGE_TITLES[slug] ?? (slug || 'Home') };
   };
 
   const pages: SitePage[] = slugOrder

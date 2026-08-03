@@ -40,7 +40,7 @@ describe('GT$ G2 경쟁 비교 진단', () => {
   test('헤드라인은 구조 신호 차이만 쉬운 문장으로 설명한다', () => {
     const weak = { issues: SCAN_STRUCTURE_SIGNALS.map((signal) => issue(signal.failedBy[0])) };
     const strong = { issues: [] };
-    assert.equal(comparisonHeadline(weak, [strong]), '지금 구조로는 네이버가 옆 가게를 먼저 읽습니다.');
+    assert.equal(comparisonHeadline(weak, [strong]), 'The other site exposes more readable structure to search engines.');
     assert.doesNotMatch(comparisonHeadline(weak, [strong]), /순위|1위|먼저 노출/);
   });
 

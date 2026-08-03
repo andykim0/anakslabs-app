@@ -89,14 +89,14 @@ export async function processApprovedHeroVideo(
       ...(photoHint ? { heroPhotoUrl: photoHint } : {}),
     });
     const draft = drafts[0];
-    if (!draft) throw new Error('영상 시안이 반환되지 않았습니다.');
+    if (!draft) throw new Error('The video draft was not returned.');
     await dependencies.applyDraft(input.siteId, draft);
     return { status: 'applied' };
   } catch (error) {
     return {
       status: 'fallback',
       reason: 'generation-failed',
-      message: error instanceof Error ? error.message : '영상 생성에 실패했습니다.',
+      message: error instanceof Error ? error.message : 'Video generation failed.',
     };
   }
 }

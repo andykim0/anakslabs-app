@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { getDataServices } from '@/lib/data';
-import { privacyPolicy, siteCollectsPersonalData } from '@/lib/legal/templates';
+import { UsTenantLegalDocumentsPendingError, usPrivacyPolicy } from '@/lib/legal/templates';
 import { LegalDocView } from '../LegalDocView';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params;
   const tenant = await loadTenant(domain);
-  return { title: `개인정보처리방침 · ${tenant?.site.name ?? '사이트'}`, robots: { index: false } };
+  return { title: `Privacy · ${tenant?.site.name ?? 'Site'}`, robots: { index: false } };
 }
 
 export default async function PrivacyPage({ params }: Props) {
@@ -39,8 +39,12 @@ export default async function PrivacyPage({ params }: Props) {
   const tenant = await loadTenant(domain);
   if (!tenant?.businessInfo) notFound();
 
-  const doc = privacyPolicy(tenant.businessInfo, {
-    collectsPersonalData: siteCollectsPersonalData(tenant.site.siteConfig!),
-  });
+  let doc: ReturnType<typeof usPrivacyPolicy>;
+  try {
+    doc = usPrivacyPolicy(tenant.site.siteConfig!);
+  } catch (error) {
+    if (error instanceof UsTenantLegalDocumentsPendingError) notFound();
+    throw error;
+  }
   return <LegalDocView doc={doc} theme={tenant.site.siteConfig!.theme} info={tenant.businessInfo} />;
 }

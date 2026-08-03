@@ -32,7 +32,7 @@ describe('D3 — detectPageEnrichments', () => {
     const sig = res[0].signals[0];
     assert.equal(sig.kind, 'photos');
     assert.equal(sig.focus, 'images');
-    assert.ok(sig.description.includes('2장'), `현재 장수 미표기: ${sig.description}`);
+    assert.ok(sig.description.includes('2 photos'), `current count missing: ${sig.description}`);
   });
 
   test('사진 충분한 갤러리(≥6) → 신호 없음', () => {

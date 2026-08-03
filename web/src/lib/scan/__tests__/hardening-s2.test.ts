@@ -184,8 +184,8 @@ describe('SE$ S2 휴리스틱 오탐 방지', () => {
     const verySlow = SEO_RULES.find((rule) => rule.code === 'seo_speed_very_slow');
     assert.equal(slow?.weight, 2);
     assert.equal(verySlow?.weight, 3);
-    assert.match(`${slow?.detail} ${verySlow?.detail}`, /2회 측정/u);
-    assert.match(`${slow?.detail} ${verySlow?.detail}`, /진단 서버 위치/u);
-    assert.match(`${slow?.detail} ${verySlow?.detail}`, /참고 지표/u);
+    assert.match(`${slow?.detail} ${verySlow?.detail}`, /faster of two responses/u);
+    assert.match(`${slow?.detail} ${verySlow?.detail}`, /diagnostic server/u);
+    assert.match(`${slow?.detail} ${verySlow?.detail}`, /Actual results vary/u);
   });
 });

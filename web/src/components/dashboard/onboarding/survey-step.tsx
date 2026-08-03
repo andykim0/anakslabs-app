@@ -554,7 +554,7 @@ export function SurveyStep({
               </span>
             </div>
             <p className="mt-2 text-[11px] text-ob-muted" aria-live="polite">
-              The answer you are writing is automatically saved in this browser, and you can continue writing when you come back.
+          Your answers are saved in this browser so you can pick up where you left off.
             </p>
             {step >= 3 ? (
               <div className="mt-3 sm:hidden">

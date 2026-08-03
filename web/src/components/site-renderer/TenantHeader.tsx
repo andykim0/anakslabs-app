@@ -44,7 +44,6 @@ export function TenantHeader({
   //      상호는 truncate(ellipsis)로 내비/햄버거 공간을 절대 침범하지 않는다.
   const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
   const siteName = rawName.split('—')[0].trim() || rawName;
-  const englishNavigation = config.meta.locale === 'en-US';
   const brandLogo = config.pages
     .flatMap((page) => page.sections)
     .flatMap((section) => section.elements)
@@ -180,7 +179,7 @@ export function TenantHeader({
           {overflow.length > 0 && (
             <details style={{ position: 'relative' }}>
               <summary style={summaryStyle}>
-                {englishNavigation ? 'More' : '더보기'} ▾
+                More ▾
               </summary>
               <div style={panelStyle}>
                 {overflow.map((p) => (
@@ -201,7 +200,7 @@ export function TenantHeader({
         {/* 축소/모바일 햄버거 (<xl) — 전체 페이지 드롭다운 */}
         <details className="xl:hidden" style={{ position: 'relative', flexShrink: 0 }}>
           <summary
-            aria-label={englishNavigation ? 'Open menu' : '메뉴 열기'}
+            aria-label="Open menu"
             style={{ ...summaryStyle, fontSize: 22, lineHeight: 1, color: theme.palette.text }}
           >
             ☰

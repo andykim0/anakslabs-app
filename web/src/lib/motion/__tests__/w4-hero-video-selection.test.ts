@@ -70,7 +70,7 @@ describe('W4 — 히어로·영상 선택 저장과 애드온 강등', () => {
     const sanitized = sanitizeMotion(dirty as never, 'premium');
     assert.equal(sanitized.config.motion?.heroImageChoice, undefined);
     assert.equal(sanitized.config.motion?.heroMotionId, undefined);
-    assert.ok(sanitized.changes.some((change) => change.includes('알 수 없는 히어로')));
+    assert.ok(sanitized.changes.some((change) => change.includes('unknown hero')));
 
     const noVideo = sanitizeMotion(
       {

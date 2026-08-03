@@ -19,13 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain, slug } = await params;
   const site = await getSiteByDomain(domain);
   if (!site?.siteConfig || !site.domain) {
-    return { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+    return { title: 'Site not available', robots: { index: false } };
   }
   const post = await getPublishedContentPostsRepository()
     .getPublishedBySiteAndSlug(site.id, slug);
   return post
     ? contentBlogMetadata(site, post)
-    : { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+    : { title: 'Site not available', robots: { index: false } };
 }
 
 export default async function TenantBlogPostPage({ params }: Props) {

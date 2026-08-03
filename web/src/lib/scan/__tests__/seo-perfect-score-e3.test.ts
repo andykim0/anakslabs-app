@@ -134,7 +134,7 @@ describe('SEO100 E3 — 대표 발행 시드 도그푸딩', () => {
     // C2 intentional baseline: FAQ 티저도 질문 h3 + 답 p가 된다.
     // SemanticOutline은 화면 밖 접근성 개요라 대표 시드 픽셀은 바뀌지 않는다.
     const hash = createHash('sha256').update(outline).digest('hex');
-    assert.equal(hash, 'f1745c33175c1c57a12f3f23bab90edf0dd290351dca25c010f0d8a79fa103fd');
+    assert.equal(hash, '35c21b81e251bebf4f88c6b899b429ebd99dc18e292527dc512b35039af2c89c');
   });
 
   test('검수 스크립트가 11시드×1440/390과 정확한 Puppeteer 뷰포트·픽셀 diff를 강제한다', () => {

@@ -73,8 +73,8 @@ const recipe = (
 export const HERO_LAYOUT_CATALOG = [
   {
     id: 'hero.fullbleed-centered',
-    label: '풀블리드 중앙 집중형',
-    description: '공간·제품의 한 장면과 짧은 선언을 정면에서 함께 각인합니다.',
+    label: 'Centered full-bleed',
+    description: 'Sets one scene and a short statement directly in front of the visitor.',
     slots: slots(3),
     bands: {
       wide: recipe({
@@ -136,8 +136,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.split-left',
-    label: '좌측 정보·우측 미디어형',
-    description: '설명과 전환을 먼저 읽히게 하면서 우측에 업종 이미지를 병치합니다.',
+    label: 'Information left, media right',
+    description: 'Leads with explanation and action, with industry-relevant media on the right.',
     slots: slots(3),
     bands: {
       wide: recipe({
@@ -198,8 +198,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.split-right',
-    label: '좌측 미디어·우측 정보형',
-    description: '이미지가 먼저 시선을 잡고 우측의 짧은 정보 블록으로 전환되게 합니다.',
+    label: 'Media left, information right',
+    description: 'Lets the image lead into a short information block on the right.',
     slots: slots(3),
     bands: {
       wide: recipe({
@@ -260,8 +260,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.overlay-bottom-left',
-    label: '하단 좌측 오버레이형',
-    description: '장면의 중앙을 비우고 핵심 문장과 전환을 하단 좌측에 압축합니다.',
+    label: 'Lower-left overlay',
+    description: 'Keeps the center of the scene open and places the statement and action at lower left.',
     slots: slots(2),
     bands: {
       wide: recipe({
@@ -322,8 +322,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.video-scrim',
-    label: '영상·포스터 스크림형',
-    description: '실제 장면을 배경으로 쓰되 정적 포스터만으로도 완성되는 히어로입니다.',
+    label: 'Video or poster with scrim',
+    description: 'Uses a real scene as the background and remains complete with a static poster.',
     slots: slots(2, true),
     bands: {
       wide: recipe({
@@ -387,8 +387,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.text-only-bold',
-    label: '이미지 없는 볼드 타이포형',
-    description: '검증 가능한 문장과 이름 자체를 중심으로 이미지 없이 위계를 만듭니다.',
+    label: 'Bold typography without media',
+    description: 'Builds hierarchy around a verifiable statement and name without requiring an image.',
     slots: slots(3),
     bands: {
       wide: recipe({
@@ -463,8 +463,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.image-below',
-    label: '텍스트 상단·이미지 하단형',
-    description: '약속과 행동을 먼저 읽힌 뒤 넓은 이미지로 근거 장면을 보여줍니다.',
+    label: 'Text above, image below',
+    description: 'Presents the promise and action before a wide supporting image.',
     slots: slots(3),
     bands: {
       wide: recipe({
@@ -525,8 +525,8 @@ export const HERO_LAYOUT_CATALOG = [
   },
   {
     id: 'hero.asymmetric-offset',
-    label: '비대칭 오프셋형',
-    description: '미디어와 텍스트 패널의 시작 높이를 달리해 편집적인 리듬을 만듭니다.',
+    label: 'Asymmetric offset',
+    description: 'Offsets the starting heights of media and text to create an editorial rhythm.',
     slots: slots(2),
     bands: {
       wide: recipe({

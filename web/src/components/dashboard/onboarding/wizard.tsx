@@ -116,7 +116,7 @@ export function OnboardingWizard({
       {/* [A4] 진행 표시 + 승인 프레이밍 — 각 단계는 확인하고 넘어가는 게이트(기본 1클릭 통과, 언제든 이전) */}
       <div className="mb-8">
         <p className="mb-2 text-center text-[11px] text-ob-muted">
-          {step}/Step 6 · Just check and move on — if you don’t like it, you can always go back to the previous version.
+          Step {step} of 6 · Review each decision. You can return to an earlier step at any time.
         </p>
         <div className="flex items-center">
           {STEPS.map((s, i) => {

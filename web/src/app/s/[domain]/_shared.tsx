@@ -88,12 +88,12 @@ export const getPublishedPostsForSite = cache(
  */
 export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
   if (!site?.siteConfig) {
-    return { title: `사이트를 찾을 수 없습니다 · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
+    return { title: `Site not found · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   }
   const config = site.siteConfig;
   const page = findPage(config, pageSlug);
   if (!page) {
-    return { title: `사이트를 찾을 수 없습니다 · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
+    return { title: `Site not found · ${PUBLIC_BRAND_NAMES.brand}`, robots: { index: false } };
   }
   const isHome = pageSlug === '';
   const meta = config.meta;
@@ -115,7 +115,7 @@ export function tenantMetadata(site: Site | null, pageSlug: string): Metadata {
     openGraph: {
       type: 'website',
       siteName: meta.title,
-      locale: 'ko_KR',
+      locale: 'en_US',
       title,
       description,
       ...(pageUrl ? { url: pageUrl } : {}),

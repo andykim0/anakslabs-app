@@ -44,8 +44,8 @@ export interface HeroVideoMotionSpec {
 export const HERO_VIDEO_MOTIONS = {
   'cinematic-scrub': {
     status: 'active',
-    label: '시네마틱 스크럽',
-    description: '스크롤을 따라 장면이 진행되는 느낌이에요. 모바일은 부드러운 루프로 보여요.',
+    label: 'Cinematic scrub',
+    description: 'The scene advances with the page. Mobile uses a gentle loop.',
     previewClass: 'hvm-preview-scrub',
     promptSeed: 'Measured cinematic camera progression with restrained depth and a stable ending frame.',
     heroTechnique: 'video-hero',
@@ -53,8 +53,8 @@ export const HERO_VIDEO_MOTIONS = {
   },
   'boomerang-loop': {
     status: 'legacy',
-    label: '부메랑 루프',
-    description: '앞뒤로 되돌아오는 듯한 짧은 리듬을 지향해요. 자연스러운 연결을 우선해요.',
+    label: 'Boomerang loop',
+    description: 'A short back-and-forth rhythm with a seamless transition.',
     previewClass: 'hvm-preview-boomerang',
     promptSeed: 'A gentle returning camera arc with a seamless rhythmic loop and no abrupt subject motion.',
     heroTechnique: 'video-hero',
@@ -62,8 +62,8 @@ export const HERO_VIDEO_MOTIONS = {
   },
   'slow-zoom': {
     status: 'legacy',
-    label: '슬로우 줌',
-    description: '사진 속으로 천천히 다가가며 질감과 공기감을 살려요.',
+    label: 'Slow zoom',
+    description: 'A gradual push into the image that preserves texture and atmosphere.',
     previewClass: 'hvm-preview-zoom',
     promptSeed: 'Very slow restrained push in with subtle ambient depth and a calm stable composition.',
     heroTechnique: 'video-hero',
@@ -71,8 +71,8 @@ export const HERO_VIDEO_MOTIONS = {
   },
   'parallax-depth': {
     status: 'legacy',
-    label: '패럴럭스 깊이',
-    description: '앞·뒤 층이 다른 속도로 움직이는 듯한 공간감을 더해요.',
+    label: 'Parallax depth',
+    description: 'Foreground and background layers move at different speeds to create depth.',
     previewClass: 'hvm-preview-parallax',
     promptSeed: 'Subtle layered depth with restrained lateral camera drift and preserved spatial relationships.',
     heroTechnique: 'video-hero',
@@ -80,8 +80,8 @@ export const HERO_VIDEO_MOTIONS = {
   },
   [SCROLLYTELLING_MOTION_ID]: {
     status: 'active',
-    label: '매니페스토 (페이지 관통)',
-    description: '한 영상이 페이지의 여러 막을 관통하며 브랜드 이야기를 이어가요.',
+    label: 'Manifesto across the page',
+    description: 'One video carries the brand story across several sections.',
     previewClass: 'hvm-preview-manifesto',
     promptSeed: 'Restrained continuous camera drift across a layered composition with measured depth and a calm seamless loop.',
     heroTechnique: 'video-hero',

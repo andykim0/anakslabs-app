@@ -90,7 +90,7 @@ function ensureContactSection(config: SiteConfig): Section {
   const section: Section = {
     id,
     type: 'contact',
-    name: '문의',
+    name: 'Contact',
     height: 360,
     background: { color: theme.palette.surface },
     elements: [
@@ -99,7 +99,7 @@ function ensureContactSection(config: SiteConfig): Section {
         kind: 'text',
         frame: { x: CONTENT_X, y: 96, w: CONTENT_W, h: 56 },
         z: 2,
-        text: '문의',
+        text: 'Contact',
         style: { fontSize: 40, fontWeight: 400, fontFamily: 'heading', color: theme.palette.text, align: 'left' },
       },
     ],
@@ -138,7 +138,7 @@ export function applyExtraFeatures(
     );
     if (primaryCta) {
       primaryCta.href = extras.reservationLink.url;
-      primaryCta.label = '예약하기';
+      primaryCta.label = 'Book an appointment';
     }
   }
 
@@ -177,7 +177,7 @@ export function applyExtraFeatures(
       z: maxZ(target),
       formType: 'contact',
       fields,
-      submitLabel: '문의 보내기',
+      submitLabel: 'Send inquiry',
       style: { variant: 'card', borderRadius: radius },
     };
     placeAtBottom(target, el);
@@ -204,7 +204,7 @@ export function applyExtraFeatures(
           kind: 'button',
           frame: { x: startX + i * (w + gap), y, w, h: 52 },
           z: maxZ(target),
-          label: link.label || SNS_LABELS[link.kind] || '링크',
+          label: link.label || SNS_LABELS[link.kind] || 'Link',
           href: link.url,
           style: { variant: 'outline', fontSize: 15, borderRadius: radius },
         };
@@ -229,10 +229,10 @@ export function applyExtraFeatures(
 }
 
 const SNS_LABELS: Record<string, string> = {
-  instagram: '인스타그램',
-  kakao_channel: '카카오 채널',
-  naver_blog: '네이버 블로그',
-  youtube: '유튜브',
+  instagram: 'Instagram',
+  kakao_channel: 'KakaoTalk',
+  naver_blog: 'Naver Blog',
+  youtube: 'YouTube',
   x: 'X',
-  custom: '링크',
+  custom: 'Link',
 };

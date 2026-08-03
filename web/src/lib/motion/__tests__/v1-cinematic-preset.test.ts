@@ -62,7 +62,7 @@ describe('V1 — cinematic-hero 합성 시그니처', () => {
     assert.equal(unowned.config.motion?.videoRequested, true, '요청 표식은 강등 후에도 남아야 함');
     assert.equal(MOTION_PRESETS[unowned.config.motion!.presetId].hero, 'ken-burns');
     assert.ok(unowned.changes.some((change) =>
-      change.includes('AI 영상 홈페이지') && change.includes('cinematic-hero') && change.includes('ken-burns')),
+      change.includes('AI video') && change.includes('cinematic-hero') && change.includes('cafe-basic')),
     );
   });
 

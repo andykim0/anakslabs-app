@@ -69,32 +69,32 @@ export function approvedSectionKey(section: Pick<SectionPlanItem, 'pageSlug' | '
 }
 
 const PAGE_TITLES: Readonly<Record<string, string>> = {
-  '': '홈',
-  about: '소개',
-  services: '업무·서비스',
-  menu: '메뉴·구성',
-  team: '구성원',
-  cases: '실적·사례',
-  gallery: '갤러리',
-  faq: '자주 묻는 질문',
-  pricing: '가격',
-  directions: '오시는 길',
-  contact: '문의',
-  links: '링크',
+  '': 'Home',
+  about: 'About',
+  services: 'Services',
+  menu: 'Menu and offerings',
+  team: 'Team',
+  cases: 'Results and cases',
+  gallery: 'Gallery',
+  faq: 'FAQ',
+  pricing: 'Pricing',
+  directions: 'Directions',
+  contact: 'Contact',
+  links: 'Links',
 };
 
 const INPUT_HINTS: Readonly<Partial<Record<SectionType, string>>> = {
-  about: '브랜드 스토리나 경력·이력을 입력하면 추가돼요',
-  features: '업무·서비스나 대표 강점을 입력하면 추가돼요',
-  menu: '메뉴·서비스·과정 정보를 입력하면 추가돼요',
-  team: '구성원 경력·자격을 입력하면 추가돼요. 얼굴을 보여줄 때는 실제 인물 사진만 사용해요',
-  cases: '실적·프로젝트 정보를 입력하면 추가돼요',
-  gallery: '사용 권리를 확인한 실제 제품·공간·작업 사진을 올리면 추가돼요',
-  testimonials: '게시 허락을 받은 실제 고객 후기를 입력하면 추가돼요',
-  pricing: '가격이 포함된 항목을 입력하면 추가돼요',
-  faq: '자주 묻는 질문에 답하면 추가돼요',
-  contact: '주소·전화·영업시간 같은 이용 정보를 입력하면 추가돼요',
-  cta: '실제로 연결할 예약·전화·문의 목적지를 입력하면 추가돼요',
+  about: 'Add your story, experience, or credentials to include this section',
+  features: 'Add services or key strengths to include this section',
+  menu: 'Add offerings, services, or process details to include this section',
+  team: 'Add team experience and credentials to include this section. Use real photos when showing real people',
+  cases: 'Add verified projects or results to include this section',
+  gallery: 'Upload real product, space, or work photos with confirmed usage rights to include this section',
+  testimonials: 'Add customer reviews approved for publication to include this section',
+  pricing: 'Add offerings with prices to include this section',
+  faq: 'Answer common questions to include this section',
+  contact: 'Add an address, phone number, and hours to include this section',
+  cta: 'Add a verified booking, phone, or inquiry destination to include this section',
 };
 
 function pageSlugFor(item: Pick<SectionPlanItem, 'type' | 'variant'>): string {
@@ -230,7 +230,7 @@ export function sitePlanSectionProofSources(
       const date = proof.asOfDate?.trim();
       return [{
         url: url.toString(),
-        label: `출처 · ${sourceName}${date ? ` · ${date}` : ''}`,
+        label: `Source · ${sourceName}${date ? ` · ${date}` : ''}`,
       }];
     } catch {
       return [];
@@ -287,7 +287,7 @@ function addProjection(
     sections.push({
       id: `sec-home-${base}-teaser`,
       type: item.type === 'faq' ? 'custom' : item.type,
-      name: `${item.name} 미리보기`,
+      name: `${item.name} preview`,
       brief: item.brief,
       pageSlug: '',
       mode: 'teaser',
@@ -334,11 +334,11 @@ export function buildSitePlan(survey: SurveyInput): SitePlan {
   if (survey.contentDepth?.mainStorytelling) {
     sections.push(
       {
-        id: 'sec-story', type: 'about', name: '브랜드 스토리', brief: '고객이 전한 이야기와 정직한 지향',
+        id: 'sec-story', type: 'about', name: 'Brand story', brief: 'The customer-provided story and stated direction',
         pageSlug: '', mode: 'full', role: 'story', required: true,
       },
       {
-        id: 'sec-values', type: 'features', name: '가치와 철학', brief: '고객이 전한 강점과 정직한 태도',
+        id: 'sec-values', type: 'features', name: 'Values and approach', brief: 'Customer-provided strengths and stated approach',
         pageSlug: '', mode: 'full', role: 'values', required: true,
       },
     );
@@ -363,7 +363,7 @@ export function buildSitePlan(survey: SurveyInput): SitePlan {
       absentSections.push({
         type: entry.item.type,
         name: entry.item.name,
-        inputHint: INPUT_HINTS[entry.item.type] ?? `${entry.item.name} 내용을 입력하면 추가돼요`,
+        inputHint: INPUT_HINTS[entry.item.type] ?? `Add ${entry.item.name.toLowerCase()} content to include this section`,
         reason: 'missing_data',
       });
       continue;

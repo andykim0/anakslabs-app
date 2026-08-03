@@ -17,28 +17,28 @@ export interface PurposeCapability {
 
 export const PURPOSE_CAPABILITIES = {
   local_store: {
-    summary: '메뉴판과 가게 이야기, 찾아오는 길까지 한 번에 보여드려요',
-    features: ['메뉴판(사진·가격)', '가게 소개·갤러리', '영업시간·오시는 길·전화 버튼'],
+    summary: 'Show the menu, business story, and directions in one place',
+    features: ['Menu with photos and prices', 'Business introduction and gallery', 'Hours, directions, and call button'],
   },
   booking_service: {
-    summary: '서비스를 소개하고 상담·예약 문의를 받아요',
-    features: ['시술·서비스 메뉴', '담당 전문가 소개', '상담·예약 문의(전화·카톡)'],
+    summary: 'Explain services and receive appointment or consultation requests',
+    features: ['Treatments and services', 'Provider profiles', 'Appointment and contact actions'],
   },
   company_brand: {
-    summary: '회사와 서비스를 신뢰감 있게 소개해요',
-    features: ['서비스·제품 소개', '회사 소개·주요 실적', '문의(카톡·메일 연결)'],
+    summary: 'Present the company and its services with clear proof',
+    features: ['Services and products', 'Company overview and verified results', 'Email and contact actions'],
   },
   portfolio: {
-    summary: '작업물을 보기 좋게 정리하고 의뢰로 이어드려요',
-    features: ['작업 갤러리', '프로젝트 상세(개요·과정·결과)', '이력 소개·의뢰 문의'],
+    summary: 'Organize selected work and turn interest into inquiries',
+    features: ['Work gallery', 'Project details: overview, process, and outcome', 'Experience and project inquiry'],
   },
   edu_membership: {
-    summary: '커리큘럼과 수강 안내를 보여주고 상담 신청을 받아요',
-    features: ['커리큘럼·수업 소개', '수강 안내(가격·일정)', '후기·상담 신청'],
+    summary: 'Present the curriculum and enrollment details, then accept inquiries',
+    features: ['Curriculum and classes', 'Pricing and schedule', 'Reviews and enrollment inquiry'],
   },
   one_page: {
-    summary: '프로필과 링크를 한 페이지에 깔끔하게 모아드려요',
-    features: ['프로필·한 줄 소개', '링크 모음 버튼', 'SNS 연결'],
+    summary: 'Put the profile and essential links on one clear page',
+    features: ['Profile and short introduction', 'Link buttons', 'Social profiles'],
   },
 } as const satisfies Record<LivePurposeId, PurposeCapability>;
 

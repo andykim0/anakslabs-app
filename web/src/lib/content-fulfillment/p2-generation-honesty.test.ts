@@ -198,7 +198,7 @@ test('P2: 의료 포스트는 모든 블록을 수집하고 block·warn 모두 p
   medicalConfig.meta.industryId = 'clinic';
   medicalConfig.meta.industryClass = 'medical';
   const blocked = validPost({
-    title: '100% 완치를 약속하는 치료',
+    title: 'A treatment guaranteed to cure 100%',
     titleSourceRefs: ['proof:experience:0'],
   });
   const result = screenMedicalContentPost({
@@ -228,7 +228,7 @@ test('P2: 의료 위반 생성은 제약 재생성 1회 뒤 안전 결과만 pen
   medicalConfig.meta.industryClass = 'medical';
   const outputs = [
     JSON.stringify(validPost({
-      title: '완치 효과를 보장합니다',
+      title: 'We guarantee a cure',
       titleSourceRefs: ['proof:experience:0'],
     })),
     JSON.stringify(validPost()),

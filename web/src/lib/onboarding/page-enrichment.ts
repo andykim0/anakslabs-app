@@ -50,8 +50,8 @@ function signalForPage(page: SitePage): EnrichmentSignal | null {
         return {
           id: `${slug || 'home'}:photos`,
           kind: 'photos',
-          title: '사진을 더 올릴까요?',
-          description: `지금 갤러리에 사진이 ${n}장이에요. 직접 찍은 사진을 더 올리면 이 페이지가 꽉 차고 신뢰도가 올라가요.`,
+          title: 'Add more photos?',
+          description: `This gallery has ${n} photos. Add more original photos to make the page more useful and specific.`,
           focus: 'images',
         };
       }
@@ -62,8 +62,8 @@ function signalForPage(page: SitePage): EnrichmentSignal | null {
         return {
           id: `${slug || 'home'}:items`,
           kind: 'items',
-          title: '대표 항목을 더 알려줄까요?',
-          description: `인기 메뉴·상품 3개만 더 알려주시면 강조 카드로 만들어 이 페이지를 채워드려요.`,
+          title: 'Add more featured offerings?',
+          description: 'Add three verified services or products and we will organize them into featured cards.',
           focus: 'menu',
         };
       }
@@ -73,8 +73,8 @@ function signalForPage(page: SitePage): EnrichmentSignal | null {
         return {
           id: `${slug || 'home'}:story`,
           kind: 'story',
-          title: '대표 스토리를 더 넣을까요?',
-          description: '어떻게 시작했는지·무엇을 지키는지 한 문단만 더 알려주시면 소개가 풍성해져요.',
+          title: 'Add more of the story?',
+          description: 'Add one paragraph about how the business started or what it works to protect.',
           focus: 'text',
         };
       }
@@ -88,8 +88,8 @@ function signalForPage(page: SitePage): EnrichmentSignal | null {
     return {
       id: `${slug || 'home'}:density`,
       kind: 'density',
-      title: '이 페이지를 더 채울까요?',
-      description: '내용이 조금 비어 보여요. 문구나 항목을 더하면 완성도가 올라가요.',
+      title: 'Add more to this page?',
+      description: 'This page has limited material. Add copy or verified items to make it more complete.',
       focus: 'layout',
     };
   }
@@ -105,7 +105,7 @@ export function detectPageEnrichments(config: SiteConfig): PageEnrichment[] {
   for (const page of config.pages) {
     const signal = signalForPage(page);
     if (signal) {
-      out.push({ pageSlug: page.slug, pageTitle: page.title || '홈', signals: [signal] });
+      out.push({ pageSlug: page.slug, pageTitle: page.title || 'Home', signals: [signal] });
     }
   }
   return out;

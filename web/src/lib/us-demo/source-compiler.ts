@@ -52,7 +52,7 @@ function validateManualFinish(
   if (unknown) {
     throw new UsDemoCompileError(
       'INVALID_MANUAL_FINISH',
-      `수집 원문에 없는 블록은 수동 마감에 사용할 수 없습니다: ${unknown}`,
+      `Manual finishing cannot use blocks that are absent from the collected source: ${unknown}`,
     );
   }
 }
@@ -157,14 +157,14 @@ function compileUsMedicalDemoProfile(
   if (!sourceLooksEnglish(curated.accepted)) {
     throw new UsDemoCompileError(
       INSUFFICIENT_ENGLISH_SOURCE,
-      '영어 원문이 충분하지 않아 번역이나 창작 없이 데모를 만들 수 없습니다.',
+      'There is not enough English source material to build a demo without translation or invention.',
     );
   }
   const businessName = curated.accepted.find((block) => block.kind === 'business_name');
   if (!businessName) {
     throw new UsDemoCompileError(
       INSUFFICIENT_ENGLISH_SOURCE,
-      '공개 영어 원문에서 병원명을 확인할 수 없습니다.',
+      'The practice name could not be verified in the public English source.',
     );
   }
   const baseTheme = tokenSetToSiteTheme(expandTokens(

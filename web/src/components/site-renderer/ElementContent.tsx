@@ -485,7 +485,7 @@ function MapContent({
         }}
       >
         <MapPin style={{ width: 20, height: 20 }} aria-hidden />
-        <span>{src ? '지도' : '지도 (URL을 입력하면 표시됩니다)'}</span>
+        <span>{src ? 'Map' : 'Map (shown after a URL is added)'}</span>
       </div>
     );
   }
@@ -493,7 +493,7 @@ function MapContent({
   return (
     <iframe
       src={src}
-      title="지도"
+      title="Map"
       loading="lazy"
       // 지도 임베드 구동에 필요한 최소 권한만 (top-navigation/forms/popups-escape 차단)
       sandbox="allow-scripts allow-same-origin allow-popups"
@@ -513,12 +513,12 @@ function MapContent({
 // ---------- socialLinks ----------
 
 const SNS_META: Record<SnsKind, { label: string; Icon: typeof Camera }> = {
-  instagram: { label: '인스타그램', Icon: Camera },
-  kakao_channel: { label: '카카오 채널', Icon: MessageCircle },
-  naver_blog: { label: '네이버 블로그', Icon: BookOpen },
-  youtube: { label: '유튜브', Icon: Play },
+  instagram: { label: 'Instagram', Icon: Camera },
+  kakao_channel: { label: 'KakaoTalk', Icon: MessageCircle },
+  naver_blog: { label: 'Naver Blog', Icon: BookOpen },
+  youtube: { label: 'YouTube', Icon: Play },
   x: { label: 'X', Icon: AtSign },
-  custom: { label: '링크', Icon: Link2 },
+  custom: { label: 'Link', Icon: Link2 },
 };
 
 function SocialLinksContent({

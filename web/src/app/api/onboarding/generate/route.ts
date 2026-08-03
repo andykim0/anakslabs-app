@@ -60,6 +60,7 @@ import { applyConnectorManifest } from '@/lib/connectors/application';
 import { candidateMatchesNamedTemplate } from '@/lib/design/templates';
 import { industryProfileIdForSurvey } from '@/lib/industry/profiles';
 import { industryProfile, PRICING_MODEL_VERSION } from '@/lib/pricing';
+import { pinUsTenantLocaleForNewSite } from '@/lib/legal/templates';
 import { applyCategoricalStockSupply } from '@/lib/stock/application';
 import { ensureLicensedStockAssetRefs } from '@/lib/stock/registry';
 import {
@@ -238,7 +239,11 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
 
-  const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
+  // This fork issues US sites only. Pin locale at the new-site write boundary so
+  // historical configs and shared deterministic builders remain byte-identical.
+  const generatedByAi = pinUsTenantLocaleForNewSite(
+    buildZeroCostSiteConfig(survey, candidate),
+  );
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withLegacyExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
   const withExtras = applyConnectorManifest(withLegacyExtras, survey, body.data.extras);

@@ -27,4 +27,4 @@ export interface DecayScoreResult {
 }
 
 export const DECAY_SCORE_DISCLOSURE =
-  '개선 필요 신호를 점검한 참고 점수입니다. 100점은 탐지된 신호가 없다는 뜻이며 검색 성과를 보장하지 않습니다.';
+  'This reference score reports detected maintenance signals. A score of 100 means no listed signals were detected; it does not guarantee search performance.';

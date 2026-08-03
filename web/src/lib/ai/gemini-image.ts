@@ -32,7 +32,7 @@ export async function generateGeminiImage(input: {
 }): Promise<GeminiImageResult> {
   if (!env.geminiApiKey) {
     throw new Error(
-      'GEMINI_NOT_CONFIGURED: GEMINI_API_KEY가 필요합니다. 키 없이 데모하려면 NEXT_PUBLIC_MOCK_MODE=1 을 사용하세요.',
+      'GEMINI_NOT_CONFIGURED: GEMINI_API_KEY is required. Use NEXT_PUBLIC_MOCK_MODE=1 for a keyless demo.',
     );
   }
 
@@ -49,7 +49,7 @@ export async function generateGeminiImage(input: {
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
-    throw new Error(`Gemini 이미지 생성 실패 (HTTP ${res.status}): ${detail.slice(0, 300)}`);
+    throw new Error(`Gemini image generation failed (HTTP ${res.status}): ${detail.slice(0, 300)}`);
   }
 
   const json = (await res.json()) as {
@@ -58,12 +58,12 @@ export async function generateGeminiImage(input: {
   };
 
   if (json.promptFeedback?.blockReason) {
-    throw new Error(`Gemini 이미지 생성 차단됨: ${json.promptFeedback.blockReason}`);
+    throw new Error(`Gemini blocked image generation: ${json.promptFeedback.blockReason}`);
   }
 
   const part = json.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
   if (!part?.inlineData?.data) {
-    throw new Error('Gemini 응답에 이미지가 없습니다 (inlineData 누락)');
+    throw new Error('The Gemini response contained no image data.');
   }
 
   return {

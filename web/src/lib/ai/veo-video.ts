@@ -51,12 +51,12 @@ function veoError(stage: string, status: number, detail: string): Error {
   const d = detail.slice(0, 300);
   if (status === 403 || /billing|has not been used|PERMISSION_DENIED|SERVICE_DISABLED|not enabled/i.test(d)) {
     return new Error(
-      `VEO_BILLING_REQUIRED: Veo 영상 생성은 결제(billing) 활성 Google Cloud 프로젝트가 필요합니다. ` +
+      `VEO_BILLING_REQUIRED: Veo video generation requires a billing-enabled Google Cloud project. ` +
         `(${stage}, HTTP ${status}) ${d}`,
     );
   }
   if (status === 429 || /quota|RESOURCE_EXHAUSTED/i.test(d)) {
-    return new Error(`VEO_QUOTA: Veo 쿼터를 초과했습니다. (${stage}, HTTP ${status}) ${d}`);
+    return new Error(`VEO_QUOTA: The Veo quota was exceeded. (${stage}, HTTP ${status}) ${d}`);
   }
   return new Error(`VEO_API_ERROR: ${stage} (HTTP ${status}) ${d}`);
 }
@@ -83,8 +83,8 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
   const key = env.geminiApiKey;
   if (!key) {
     throw new Error(
-      'VEO_NOT_CONFIGURED: Veo 영상 생성에는 GEMINI_API_KEY(+billing 활성)가 필요합니다. ' +
-        'mock 데모는 NEXT_PUBLIC_MOCK_MODE=1 을 사용하세요.',
+      'VEO_NOT_CONFIGURED: Veo video generation requires GEMINI_API_KEY and billing. ' +
+        'Use NEXT_PUBLIC_MOCK_MODE=1 for mock demos.',
     );
   }
   const model = input.model || process.env.VEO_MODEL || DEFAULT_MODEL;
@@ -101,10 +101,10 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
     cache: 'no-store',
   });
   if (!startRes.ok) {
-    throw veoError('생성 시작', startRes.status, await startRes.text().catch(() => ''));
+    throw veoError('generation start', startRes.status, await startRes.text().catch(() => ''));
   }
   const opName = ((await startRes.json()) as { name?: string }).name;
-  if (!opName) throw new Error('VEO_START_FAILED: operation name 이 응답에 없습니다.');
+  if (!opName) throw new Error('VEO_START_FAILED: The response did not include an operation name.');
 
   // 2) 폴링 (done:true 까지, 상한/백오프)
   const started = Date.now();
@@ -116,14 +116,14 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
     interval = Math.min(Math.round(interval * POLL_BACKOFF), POLL_INTERVAL_MAX_MS);
     const pollRes = await fetch(`${GEMINI_API_BASE}/${opName}`, { headers: authHeaders, cache: 'no-store' });
     if (!pollRes.ok) {
-      throw veoError('폴링', pollRes.status, await pollRes.text().catch(() => ''));
+      throw veoError('polling', pollRes.status, await pollRes.text().catch(() => ''));
     }
     op = (await pollRes.json()) as VeoOperation;
     if (op.done) break;
   }
   if (!op?.done) {
     throw new Error(
-      `VEO_TIMEOUT: 영상 생성이 상한(${Math.round(POLL_TOTAL_MAX_MS / 60000)}분 / ${POLL_MAX_COUNT}폴) 내 완료되지 않았습니다.`,
+      `VEO_TIMEOUT: Video generation did not finish within ${Math.round(POLL_TOTAL_MAX_MS / 60000)} minutes or ${POLL_MAX_COUNT} polls.`,
     );
   }
   if (op.error) {
@@ -135,19 +135,19 @@ export async function generateVeoVideoBytes(input: VeoInput): Promise<{ bytes: B
   if (!uri) {
     const reason = gvr?.raiMediaFilteredReasons?.join('; ');
     throw new Error(
-      `VEO_NO_OUTPUT: 응답에 영상 uri가 없습니다${reason ? ` (안전필터: ${reason})` : ' (안전필터 차단 가능)'}.`,
+      `VEO_NO_OUTPUT: The response did not include a video URI${reason ? ` (safety filter: ${reason})` : ' (possibly blocked by the safety filter)'}.`,
     );
   }
 
   // 3) 다운로드 → Supabase Storage 업로드
   const dlRes = await fetch(uri, { headers: authHeaders, cache: 'no-store' });
   if (!dlRes.ok) {
-    throw veoError('영상 다운로드', dlRes.status, await dlRes.text().catch(() => ''));
+    throw veoError('video download', dlRes.status, await dlRes.text().catch(() => ''));
   }
   const ct = dlRes.headers.get('content-type') || 'video/mp4';
   const mimeType = ct.includes('video') ? ct : 'video/mp4';
   const bytes = Buffer.from(await dlRes.arrayBuffer());
-  if (bytes.byteLength === 0) throw new Error('VEO_EMPTY_DOWNLOAD: 다운로드된 영상이 비어 있습니다.');
+  if (bytes.byteLength === 0) throw new Error('VEO_EMPTY_DOWNLOAD: The downloaded video is empty.');
   return { bytes, mimeType };
 }
 

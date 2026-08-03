@@ -18,10 +18,10 @@ export interface AdapterOutcome {
 }
 
 const NAVER_FALLBACK =
-  '네이버 플레이스는 소개·메뉴를 자동으로 가져오기 어려워요. 플레이스의 소개글·메뉴를 복사해 다음 단계 원문 칸에 붙여넣어 주세요. (링크는 저장해 둘게요.)';
+  'Naver Place does not provide a reliable automatic import for descriptions and menus. Copy the original text into the source field in the next step. The link will be saved.';
 
 const INSTAGRAM_FALLBACK =
-  '인스타그램은 자동으로 가져올 수 없어요. 프로필 소개나 대표 게시물 글을 복사해 다음 단계 원문 칸에 붙여넣어 주세요. (링크는 저장해 둘게요.)';
+  'Instagram does not provide a reliable automatic import. Copy the profile description or representative post text into the source field in the next step. The link will be saved.';
 
 /** 네이버 플레이스 — 현재는 폴백만(견고한 파서 부재). 링크는 상위에서 저장. */
 export function naverPlaceFallback(): AdapterOutcome {

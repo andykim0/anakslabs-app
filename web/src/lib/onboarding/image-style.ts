@@ -6,15 +6,15 @@ import type { CandidateStyle } from '@/lib/types/domain';
 
 /** 설문 UI 카드 옵션 (라벨·설명). 썸네일은 컴포넌트가 미리보기로 렌더. */
 export const IMAGE_STYLE_OPTIONS: { id: CandidateStyle; label: string; description: string }[] = [
-  { id: 'photo', label: '실사 사진', description: '실제 촬영한 듯한 사진 — 음식·공간·시술·인물에 잘 어울려요' },
-  { id: '3d_render', label: '3D 그래픽', description: '입체적인 3D 렌더 — 테크·앱·제품 브랜드에 잘 어울려요' },
-  { id: 'illustration', label: '일러스트', description: '손그림·플랫 일러스트 — 키즈·공방·감성 브랜드에 잘 어울려요' },
+  { id: 'photo', label: 'Photography', description: 'Natural photography for food, spaces, care, and people' },
+  { id: '3d_render', label: '3D graphics', description: 'Dimensional rendering for technology, apps, and product brands' },
+  { id: 'illustration', label: 'Illustration', description: 'Drawn or flat illustration for children, makers, and expressive brands' },
 ];
 
 /** 업종 키워드 → 스타일 (photo가 기본, 3d/illustration은 매칭 시). 순서=우선순위. */
 const STYLE_KEYWORDS: { style: CandidateStyle; re: RegExp }[] = [
-  { style: '3d_render', re: /테크|앱|어플|소프트|아이티|\bit\b|개발|스타트업|게임|플랫폼|saas|핀테크|블록체인|로봇|인공지능|\bai\b|가전|전자기기|하드웨어/i },
-  { style: 'illustration', re: /키즈|아동|유아|어린이|공방|수공예|핸드메이드|일러스트|문구|그림|캐릭터|웹툰|동화|놀이|장난감/i },
+  { style: '3d_render', re: /\uD14C\uD06C|\uC571|\uC5B4\uD50C|\uC18C\uD504\uD2B8|\uC544\uC774\uD2F0|\bit\b|\uAC1C\uBC1C|\uC2A4\uD0C0\uD2B8\uC5C5|\uAC8C\uC784|\uD50C\uB7AB\uD3FC|saas|\uD540\uD14C\uD06C|\uBE14\uB85D\uCCB4\uC778|\uB85C\uBD07|\uC778\uACF5\uC9C0\uB2A5|\bai\b|\uAC00\uC804|\uC804\uC790\uAE30\uAE30|\uD558\uB4DC\uC6E8\uC5B4/i },
+  { style: 'illustration', re: /\uD0A4\uC988|\uC544\uB3D9|\uC720\uC544|\uC5B4\uB9B0\uC774|\uACF5\uBC29|\uC218\uACF5\uC608|\uD578\uB4DC\uBA54\uC774\uB4DC|\uC77C\uB7EC\uC2A4\uD2B8|\uBB38\uAD6C|\uADF8\uB9BC|\uCE90\uB9AD\uD130|\uC6F9\uD230|\uB3D9\uD654|\uB180\uC774|\uC7A5\uB09C\uAC10/i },
 ];
 
 /** 업종 기반 기본 이미지 스타일 — 음식점·뷰티·병원류 등은 photo(기본). */

@@ -43,7 +43,9 @@ function texts(section: Section): string[] {
 function SectionOutline({ section }: { section: Section }) {
   const body = texts(section);
   const sources = section.elements.filter(
-    (element) => element.kind === 'button' && /^https:\/\//iu.test(element.href) && /^출처\s*·/u.test(element.label),
+    (element) => element.kind === 'button'
+      && /^https:\/\//iu.test(element.href)
+      && /^(?:Source|\uCD9C\uCC98)\s*·/u.test(element.label),
   );
   const sourceNodes = sources.map((source) => source.kind === 'button' ? (
     <cite key={source.id}>
@@ -67,7 +69,7 @@ function SectionOutline({ section }: { section: Section }) {
   // 섹션명 = h2 (첫 텍스트가 섹션명과 겹치면 중복 노출은 무방)
   const faqLike = section.type === 'faq'
     || section.id.includes('faq')
-    || /(?:FAQ|자주\s*묻는\s*질문)/iu.test(section.name);
+    || /(?:FAQ|\uc790\uc8fc\s*\ubb3b\ub294\s*\uc9c8\ubb38)/iu.test(section.name);
   if (faqLike) {
     const items: React.ReactNode[] = [];
     for (let i = 0; i < body.length; i++) {
@@ -121,7 +123,7 @@ export function SemanticOutline({ config, pageSlug = '' }: { config: SiteConfig;
   const page = findPage(config, pageSlug) ?? homePage(config);
   const isHome = page.slug === '';
   const title = isHome
-    ? info?.businessName?.trim() || config.meta.title || info?.ownerName || '사이트'
+    ? info?.businessName?.trim() || config.meta.title || info?.ownerName || 'Website'
     : page.title;
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),

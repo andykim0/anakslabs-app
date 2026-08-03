@@ -58,7 +58,7 @@ function requestedConfig(): SiteConfig {
 describe('SS5 — W 모션 라이브러리 절제 게이트', () => {
   test('매니페스토를 다섯 번째 등록 연출로 두되 허용 템플릿에서만 노출한다', () => {
     assert.equal(HERO_VIDEO_MOTION_IDS.includes(SCROLLYTELLING_MOTION_ID), true);
-    assert.equal(HERO_VIDEO_MOTIONS[SCROLLYTELLING_MOTION_ID].label, '매니페스토 (페이지 관통)');
+    assert.equal(HERO_VIDEO_MOTIONS[SCROLLYTELLING_MOTION_ID].label, 'Manifesto across the page');
     assert.equal(heroVideoMotionIdsForContext(false).includes(SCROLLYTELLING_MOTION_ID), false);
     assert.equal(heroVideoMotionIdsForContext(true).includes(SCROLLYTELLING_MOTION_ID), true);
     for (const entry of SCROLLYTELLING_TEMPLATE_POLICY) {
@@ -137,12 +137,12 @@ describe('SS5 — 요청→정적 강등→관리자 승인→무대 복원', ()
     const denied = sanitizeMotion(cafe, 'premium');
     assert.equal(denied.config.motion?.heroMotionId, undefined);
     assert.equal(denied.config.pages[0].sections[0].layout, 'canvas');
-    assert.match(denied.changes.join('\n'), /허용된 브랜드|허용되지 않은 목적/);
+    assert.match(denied.changes.join('\n'), /approved brand|purpose template not allowed/);
 
     const forged = requestedConfig();
     forged.motion!.heroMotionId = 'slow-zoom';
     const closed = sanitizeMotion(forged, 'premium');
     assert.equal(closed.config.pages[0].sections[0].layout, 'canvas');
-    assert.match(closed.changes.join('\n'), /명시 선택 없음/);
+    assert.match(closed.changes.join('\n'), /not explicitly selected/);
   });
 });

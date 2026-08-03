@@ -33,22 +33,22 @@ export interface CompositeSignatureSpec {
 /** 확정 데이터 (13종). 추가·삭제·개명 금지 — 프롬프트 명시값 그대로. */
 export const MOTION_TECHNIQUES = {
   // ---------- Basic ----------
-  'scroll-reveal': { status: 'active', tier: 'basic', weight: 'light', role: '섹션 등장 모션(스태거) — 정적인 느낌 제거', maxPerPage: 99, infinite: false },
-  'ken-burns': { status: 'active', tier: 'basic', weight: 'light', role: '정지 이미지의 느린 줌/팬 — Basic 히어로 담당', maxPerPage: 1, infinite: true },
-  'count-up': { status: 'legacy', tier: 'basic', weight: 'light', role: '통계·실적 숫자 카운트업 (레거시 사이트 전용)', maxPerPage: 3, infinite: false },
-  'mask-reveal': { status: 'active', tier: 'basic', weight: 'light', role: '이미지 등장 연출(clip-path)', maxPerPage: 2, infinite: false },
-  'marquee': { status: 'active', tier: 'basic', weight: 'light', role: '파트너 로고·메뉴 흐름 띠', maxPerPage: 1, infinite: true },
-  'micro-hover': { status: 'legacy', tier: 'basic', weight: 'light', role: '기본 UI affordance로만 유지(선택형 모션 아님)', maxPerPage: 99, infinite: false },
+  'scroll-reveal': { status: 'active', tier: 'basic', weight: 'light', role: 'Staggered section entrance', maxPerPage: 99, infinite: false },
+  'ken-burns': { status: 'active', tier: 'basic', weight: 'light', role: 'Slow zoom and pan for a static hero image', maxPerPage: 1, infinite: true },
+  'count-up': { status: 'legacy', tier: 'basic', weight: 'light', role: 'Legacy count-up for verified metrics', maxPerPage: 3, infinite: false },
+  'mask-reveal': { status: 'active', tier: 'basic', weight: 'light', role: 'Image entrance using clip-path', maxPerPage: 2, infinite: false },
+  'marquee': { status: 'active', tier: 'basic', weight: 'light', role: 'Flowing band for partner marks or menu items', maxPerPage: 1, infinite: true },
+  'micro-hover': { status: 'legacy', tier: 'basic', weight: 'light', role: 'Base UI affordance only; not a selectable motion', maxPerPage: 99, infinite: false },
   // ---------- Premium ----------
-  'video-hero': { status: 'active', tier: 'premium', weight: 'medium', role: 'AI 시네마틱 영상 히어로(루프) — 간판 기능', maxPerPage: 1, infinite: true, costKrwPerSite: 10000, basicFallback: 'ken-burns' },
+  'video-hero': { status: 'active', tier: 'premium', weight: 'medium', role: 'Looping cinematic hero video', maxPerPage: 1, infinite: true, costKrwPerSite: 10000, basicFallback: 'ken-burns' },
   // [V-batch] cinematic-hero 합성에서만 활성. 데스크톱은 currentTime scrub,
   // 모바일·seek 실패는 pinned loop, reduced-motion은 poster로 강등한다.
-  'scroll-scrub': { status: 'active', tier: 'premium', weight: 'medium', role: '스크롤=재생헤드 연출 — 시그니처 내부 합성용', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'parallax': { status: 'active', tier: 'premium', weight: 'light', role: '레이어 깊이감 (페이지당 1섹션)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'split-text': { status: 'active', tier: 'premium', weight: 'light', role: '히어로 헤드라인 단어별 등장', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'stacking-cards': { status: 'legacy', tier: 'premium', weight: 'light', role: '기존 IO 카드 등장(레거시 사이트 전용)', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
-  'spotlight': { status: 'legacy', tier: 'premium', weight: 'light', role: '커서 추적 빛(레거시 사이트 전용)', maxPerPage: 1, infinite: false, darkSectionOnly: true, basicFallback: 'micro-hover' },
-  'hover-video': { status: 'active', tier: 'premium', weight: 'light', role: '갤러리·메뉴 썸네일 호버 재생', maxPerPage: 4, infinite: false, basicFallback: 'micro-hover' },
+  'scroll-scrub': { status: 'active', tier: 'premium', weight: 'medium', role: 'Maps scroll to a playhead inside a signature', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'parallax': { status: 'active', tier: 'premium', weight: 'light', role: 'Layered depth for one section per page', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'split-text': { status: 'active', tier: 'premium', weight: 'light', role: 'Word-by-word hero headline entrance', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'stacking-cards': { status: 'legacy', tier: 'premium', weight: 'light', role: 'Legacy card entrance', maxPerPage: 1, infinite: false, basicFallback: 'scroll-reveal' },
+  'spotlight': { status: 'legacy', tier: 'premium', weight: 'light', role: 'Legacy cursor-tracking light', maxPerPage: 1, infinite: false, darkSectionOnly: true, basicFallback: 'micro-hover' },
+  'hover-video': { status: 'active', tier: 'premium', weight: 'light', role: 'Video playback on gallery or menu hover', maxPerPage: 4, infinite: false, basicFallback: 'micro-hover' },
 } as const satisfies Record<string, MotionTechniqueSpec>;
 
 export type TechniqueId = keyof typeof MOTION_TECHNIQUES;

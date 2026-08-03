@@ -93,8 +93,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'critical',
     weight: 16,
-    label: 'robots.txt가 OAI-SearchBot 수집을 막고 있습니다',
-    detail: 'ChatGPT 검색의 요약·인용 대상이 되려면 OpenAI의 검색 전용 크롤러가 공개 페이지를 수집할 수 있어야 합니다.',
+    label: 'robots.txt blocks OAI-SearchBot',
+    detail: 'OAI-SearchBot must be able to crawl public pages before ChatGPT Search can consider them for retrieval and citation.',
     rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'OAI-SearchBot'),
   },
@@ -104,8 +104,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'critical',
     weight: 14,
-    label: 'robots.txt가 PerplexityBot 수집을 막고 있습니다',
-    detail: 'Perplexity 검색 응답에서 페이지를 검색·인용하려면 PerplexityBot의 공개 콘텐츠 수집 경로가 열려 있어야 합니다.',
+    label: 'robots.txt blocks PerplexityBot',
+    detail: 'PerplexityBot must be able to crawl public content before Perplexity can consider it for retrieval and citation.',
     rootCause: 'robots-crawler-access',
     failed: (ctx) => crawlerBlocked(ctx, 'PerplexityBot'),
   },
@@ -115,8 +115,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'critical',
     weight: 16,
-    label: '검색 요약과 AI 인용에 사용할 본문 발췌가 차단되어 있습니다',
-    detail: 'nosnippet, max-snippet:0, noindex 같은 지시어는 검색결과 요약과 생성형 검색의 본문 사용을 제한합니다.',
+    label: 'Search summaries and AI excerpts are restricted',
+    detail: 'Directives such as nosnippet, max-snippet:0, and noindex restrict search summaries and generative search use of the body.',
     rootCause: (ctx) => hasNoIndex(ctx.root, ctx.xRobotsTag)
       ? 'index-directive'
       : 'snippet-directive',
@@ -128,8 +128,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'info',
     weight: 3,
-    label: '네이버 AI 출처 설명이 비활성화되어 있습니다',
-    detail: 'nosourceinfo가 설정되어 네이버가 AI 검색 등에서 이 페이지를 출처로 설명하는 기능을 사용하지 않도록 요청한 상태입니다.',
+    label: 'Naver source attribution is disabled',
+    detail: 'nosourceinfo asks Naver not to identify this page as a source in supported AI search surfaces.',
     failed: (ctx) => hasNaverSourceInfoRestriction(ctx.root),
   },
   {
@@ -138,8 +138,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'shared',
     severity: 'critical',
     weight: 18,
-    label: 'AI가 읽을 본문 텍스트가 거의 없습니다',
-    detail: '보이는 텍스트가 200자 미만입니다. 핵심 정보가 이미지나 클라이언트 실행 뒤에만 있으면 검색·답변 시스템이 읽지 못할 수 있습니다.',
+    label: 'There is almost no body text to read',
+    detail: 'Visible text is under 200 characters. Information that exists only in images or after client rendering may not be available to search and answer systems.',
     rootCause: 'insufficient-server-html',
     failed: (ctx) => ctx.visibleText.replace(/\s+/g, '').length < 200,
   },
@@ -149,8 +149,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'warn',
     weight: 8,
-    label: '마크업 대비 본문 비율이 낮습니다',
-    detail: '코드 대비 실제 텍스트가 적어 페이지의 핵심 설명과 근거를 빠르게 구분하기 어려운 구조입니다.',
+    label: 'The body-to-markup ratio is low',
+    detail: 'The page contains little text relative to its code, making the primary explanation and evidence harder to identify.',
     failed: (ctx) => {
       const denominator = contentMarkupLength(ctx.root);
       if (denominator === 0) return true;
@@ -165,8 +165,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'customer',
     severity: 'warn',
     weight: 12,
-    label: '지역 업체의 연락처 또는 주소가 불완전합니다',
-    detail: '방문형·지역형 서비스 페이지라면 실제 화면에 일관된 전화번호와 한국 주소를 함께 제공해 업체 정보를 검증할 수 있게 하세요.',
+    label: 'The local business phone number or address is incomplete',
+    detail: 'A location-based service page should show a consistent real phone number and street address so the business can be verified.',
     failed: (ctx) =>
       isLocalPage(ctx) && (
         ctx.scanLocale
@@ -180,8 +180,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'customer',
     severity: 'warn',
     weight: 7,
-    label: '콘텐츠의 작성·수정 날짜가 없습니다',
-    detail: '기사·가이드형 페이지에 날짜가 없어 생성형 검색 시스템과 사용자가 정보의 최신성을 판단하기 어렵습니다.',
+    label: 'The content has no published or modified date',
+    detail: 'Without a date on an article or guide, people and answer systems cannot assess freshness.',
     failed: (ctx) => isArticleLike(ctx.root, jsonLdReport(ctx.root), ctx.url) && !hasDate(ctx),
   },
   {
@@ -190,8 +190,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'critical',
     weight: 10,
-    label: '문서 언어 선언(lang)이 없습니다',
-    detail: '<html lang> 속성이 없어 검색·답변 시스템이 문서 언어와 지역 문맥을 추측해야 합니다.',
+    label: 'The document language is missing',
+    detail: 'Without an html lang value, search and answer systems must infer the document language and locale.',
     failed: (ctx) => !(ctx.root.querySelector('html')?.getAttribute('lang') ?? '').trim(),
   },
   {
@@ -200,8 +200,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'system',
     severity: 'warn',
     weight: 6,
-    label: '한국어 본문과 문서 언어 선언이 맞지 않습니다',
-    detail: '본문은 한국어인데 html lang이 ko 계열이 아니어서 한국어 검색과 음성·답변 처리에서 언어 신호가 충돌합니다.',
+    label: 'The body and document language do not match',
+    detail: 'The body appears to be Korean but html lang is not a ko locale, creating conflicting language signals.',
     failed: (ctx) => {
       if (!hasKoreanText(ctx.visibleText)) return false;
       const lang = ctx.root.querySelector('html')?.getAttribute('lang')?.trim().toLowerCase() ?? '';
@@ -214,8 +214,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'customer',
     severity: 'warn',
     weight: 7,
-    label: '콘텐츠 작성자 또는 검토 주체가 없습니다',
-    detail: '기사·가이드형 페이지에서 책임 주체를 확인할 수 없어 경험·전문성·출처를 평가하기 어렵습니다.',
+    label: 'The content has no author or responsible reviewer',
+    detail: 'An article or guide should identify the real responsible party so readers can assess experience and source.',
     failed: (ctx) => isArticleLike(ctx.root, jsonLdReport(ctx.root), ctx.url) && !hasAuthor(ctx),
   },
   {
@@ -224,8 +224,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'shared',
     severity: 'info',
     weight: 5,
-    label: '공식 채널 링크가 구조화된 엔티티와 연결되지 않았습니다',
-    detail: '네이버 블로그·스마트스토어·카카오·인스타그램 등 화면에 보이는 공식 채널은 Organization/Person의 sameAs에도 연결하세요.',
+    label: 'Official channels are not linked to the structured entity',
+    detail: 'Visible official profiles should also appear in Organization or Person sameAs.',
     failed: (ctx) => {
       const visible = supportedChannelUrls(ctx.root).map(normalizeIdentityUrl);
       if (visible.length === 0) return false;
@@ -239,8 +239,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'customer',
     severity: 'warn',
     weight: 9,
-    label: '수치·연구 주장에 확인 가능한 출처가 없습니다',
-    detail: '통계·조사·연구 결과를 인용한다면 원문 링크, 발행 주체와 기준 시점을 함께 밝혀 생성형 검색이 근거를 검증할 수 있게 하세요.',
+    label: 'Numbers or research claims lack a verifiable source',
+    detail: 'When citing statistics or research, include the original link, publisher, and reference date.',
     failed: (ctx) => hasUnsourcedClaimSignals(ctx.root, ctx.visibleText, ctx.scanLocale),
   },
   {
@@ -249,8 +249,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'shared',
     severity: 'warn',
     weight: 7,
-    label: '페이지 제목과 대표 제목의 주제가 연결되지 않습니다',
-    detail: 'title과 H1의 핵심 용어가 전혀 겹치지 않아 검색·답변 시스템이 페이지의 대표 주제를 확정하기 어렵습니다.',
+    label: 'The page title and primary heading do not align',
+    detail: 'Title and H1 share no central terms, so the primary page topic is unclear.',
     failed: (ctx) => !titleHeadingAligned(ctx.root),
   },
   {
@@ -259,8 +259,8 @@ export const GEO_RULES: ScanRule[] = [
     ownership: 'shared',
     severity: 'critical',
     weight: 10,
-    label: '페이지가 사실상 비어 있습니다',
-    detail: '본문 요소가 거의 없어 질문에 답하거나 인용할 콘텐츠 자체가 없는 상태입니다.',
+    label: 'The page is effectively empty',
+    detail: 'The page has too little body content to answer a question or support a citation.',
     rootCause: 'insufficient-server-html',
     failed: (ctx) => ctx.root.querySelectorAll('p, li, h1, h2, h3, td, dd').length < 3,
   },

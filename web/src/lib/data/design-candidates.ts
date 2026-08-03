@@ -125,15 +125,15 @@ export function hexColorWords(colorPreference: string): string {
   }
 
   // 어휘는 CURATED_PALETTES.mood 의 색 이름과 겹치도록 선택
-  if (s < 0.12) return l < 0.22 ? '블랙 다크' : l > 0.85 ? '화이트 미니멀' : '그레이 모노크롬';
-  if (h < 15 || h >= 345) return l < 0.35 ? '버건디 레드' : '레드';
-  if (h < 32) return l < 0.45 ? '브라운 테라코타' : '오렌지 테라코타';
-  if (h < 65) return l < 0.65 ? '골드 앰버' : '옐로 골드';
-  if (h < 150) return l < 0.3 ? '다크 그린' : '그린';
-  if (h < 200) return '틸 민트';
-  if (h < 250) return l < 0.35 ? '네이비 블루' : '블루 스카이';
-  if (h < 290) return '퍼플 라벤더';
-  return '핑크 로맨틱';
+  if (s < 0.12) return l < 0.22 ? 'Black and dark' : l > 0.85 ? 'White minimal' : 'Gray monochrome';
+  if (h < 15 || h >= 345) return l < 0.35 ? 'Burgundy red' : 'Red';
+  if (h < 32) return l < 0.45 ? 'Brown terracotta' : 'Orange terracotta';
+  if (h < 65) return l < 0.65 ? 'Gold amber' : 'Yellow gold';
+  if (h < 150) return l < 0.3 ? 'Dark green' : 'Green';
+  if (h < 200) return 'Teal mint';
+  if (h < 250) return l < 0.35 ? 'Navy blue' : 'Sky blue';
+  if (h < 290) return 'Purple lavender';
+  return 'Pink romantic';
 }
 
 /**

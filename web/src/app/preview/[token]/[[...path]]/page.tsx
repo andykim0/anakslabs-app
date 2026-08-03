@@ -26,7 +26,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '확인용 이전 초안',
+  title: 'Private preview',
   robots: {
     index: false,
     follow: false,
@@ -112,7 +112,7 @@ export default async function SharedImportPreviewPage({
               ? previewFull
                 ? 'Internal full preview · Not published'
                 : 'Private outreach preview · Not published'
-              : '확인용 이전 초안 · 발행되지 않음'}
+              : 'Private preview · not published'}
           </strong>
           <span>
             {isUsMedicalDemo
@@ -128,7 +128,7 @@ export default async function SharedImportPreviewPage({
                 expires. Share it only with intended recipients and revoke it when sharing ends.
               </>
             ) : (
-              <>원문: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}</>
+              <>Source: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}</>
             )}
           </span>
         </div>

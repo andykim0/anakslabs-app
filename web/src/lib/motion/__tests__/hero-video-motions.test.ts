@@ -40,7 +40,7 @@ describe('W3 — 히어로 영상 연출 레지스트리', () => {
   test('미등록 ID는 fail-closed로 거부한다', () => {
     assert.equal(isHeroVideoMotionId('slow-zoom'), true);
     assert.equal(isHeroVideoMotionId('webgl-shader'), false);
-    assert.equal(heroVideoMotionById('cinematic-scrub')?.label, '시네마틱 스크럽');
+    assert.equal(heroVideoMotionById('cinematic-scrub')?.label, 'Cinematic scrub');
     assert.equal(heroVideoMotionById('unknown'), undefined);
   });
 });

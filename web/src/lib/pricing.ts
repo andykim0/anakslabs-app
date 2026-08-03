@@ -5,7 +5,7 @@ export const US_ENTERPRISE_PRICING_MODEL_VERSION = PRICING_MODEL_VERSION;
 export const PREVIOUS_PRICING_MODEL_VERSION = 'price-v6-2026-08' as const;
 export const LEGACY_PRICING_MODEL_VERSION = 'retainer-two-tier-v4-2026-07' as const;
 /** clinic 계약이 요구하는 배포 의료광고 정책. 기존 계약 읽기 경계에서만 사용한다. */
-export const CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION = 'medical-ad-2026-07-v1' as const;
+export const CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION = 'us-medical-ad-2026-08-v1' as const;
 
 /** 과거 영상 애드온 영수증 분해용. 신규 견적·표시·주문에는 사용하지 않는다. */
 const LEGACY_VIDEO_HERO_ADDON_KRW = 200_000;

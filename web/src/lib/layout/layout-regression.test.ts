@@ -231,7 +231,7 @@ describe('LIB L4 — 승인 조건 C1·C2 SHA 회귀', () => {
       });
       return heroOf(config);
     });
-    assert.equal(sha(legacy), 'a78ab8fb2e50b8f12e1b423e03481504c7df13b325dfc315231ea316c1a261f3');
+    assert.equal(sha(legacy), '23e4c3b4a3a0ed2ad31d8819eb63dac7ff01444ec472e4d126839d2ba0c030a9');
     assert.ok(legacy.every((hero) => hero.heroLayout === undefined));
   });
 
@@ -242,7 +242,7 @@ describe('LIB L4 — 승인 조건 C1·C2 SHA 회귀', () => {
       layoutEnabled: false,
     });
     assert.equal(sha(off), sha(legacy));
-    assert.equal(sha(off), 'bdce58ab2f5d8060c943f78a7899f0f2c5f7e319dd5b16edb61ea6be68cf9f21');
+    assert.equal(sha(off), '1573ae5e74393e17281b79395244973e08c826d1cdac4eec8f476fe6248567c5');
   });
 
   test('C2-4 heroLayout 미지정 SiteRenderer HTML SHA를 고정한다', () => {
@@ -250,7 +250,7 @@ describe('LIB L4 — 승인 조건 C1·C2 SHA 회귀', () => {
     assert.equal(heroOf(config).heroLayout, undefined);
     assert.equal(
       sha(normalizedPublishedHtml(config)),
-      'dfa70e4d46c886123fac14db558afee7492f5970eb5f8250503d06d0d8452c90',
+      'd6def617e644a2359e31d7efd053726e25307882150052a1a7cdf7439f8ec65d',
     );
   });
 

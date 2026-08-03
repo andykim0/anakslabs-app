@@ -223,7 +223,7 @@ describe('signature sanitizer and playback', () => {
     input.motion.catalogVersion = 2;
     const sanitized = sanitizeMotionSignatures(input, context);
     assert.deepEqual(sanitized.config.motion?.signatures, [cardsScene()]);
-    assert.match(sanitized.changes.join('\n'), /두 번째/);
+    assert.match(sanitized.changes.join('\n'), /second motion signature/);
   });
 
   test('a structured signature wins over conflicting legacy cinematic and hero-video effects', () => {
@@ -242,7 +242,7 @@ describe('signature sanitizer and playback', () => {
     assert.equal(result.config.motion?.presetId, 'base-premium-v2');
     assert.equal(result.config.motion?.heroTechnique, undefined);
     assert.equal(result.config.motion?.heroMotionId, undefined);
-    assert.match(result.changes.join('\n'), /중복되는 레거시/);
+    assert.match(result.changes.join('\n'), /overlapping legacy/);
   });
 
   test('a video-consuming signature normalizes a two-loop base to the page infinite-animation cap', () => {

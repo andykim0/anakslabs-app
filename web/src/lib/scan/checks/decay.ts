@@ -3,7 +3,7 @@ import type { ScanRule } from '../rules';
 const STRICT_LEGACY_FINGERPRINTS = [
   /(?:^|[/_-])jquery[.-]1\.(?:[0-9]+)(?:\.[0-9]+)?(?:\.min)?\.js(?:[?"']|$)/iu,
   /jquery\.easing\.1\.3(?:\.min)?\.js(?:[?"']|$)/iu,
-  /<meta[^>]+name=["']generator["'][^>]+content=["'](?:xpressengine|제로보드|adobe golive|microsoft frontpage)["']/iu,
+  /<meta[^>]+name=["']generator["'][^>]+content=["'](?:xpressengine|\uC81C\uB85C\uBCF4\uB4DC|adobe golive|microsoft frontpage)["']/iu,
 ] as const;
 
 function observedDate(ctx: Parameters<ScanRule['failed']>[0]): Date | null {
@@ -46,8 +46,8 @@ export const DECAY_RULES: ScanRule[] = [
     advisory: true,
     decaySlot: 'freshness',
     decayWeight: 10,
-    label: '푸터 연도가 오래된 상태로 보입니다',
-    detail: '저작권 연도가 최근 3년 안에 갱신되지 않았습니다. 실제 운영 상태를 확인한 뒤 현재 연도로 정리하세요.',
+    label: 'The footer year appears stale',
+    detail: 'The copyright year has not been updated within the past three years. Confirm the operating status before updating it.',
     failed: staleFooterYear,
   },
   {
@@ -59,8 +59,8 @@ export const DECAY_RULES: ScanRule[] = [
     advisory: true,
     decaySlot: 'freshness',
     decayWeight: 15,
-    label: '오랫동안 수정되지 않은 응답 신호가 있습니다',
-    detail: '서버의 Last-Modified 값이 2년 넘게 고정되어 있습니다. 이 값만으로 운영 중단을 단정하지 않으며 실제 수정 이력을 함께 확인하세요.',
+    label: 'The response has an old modification signal',
+    detail: 'The Last-Modified value has remained over two years old. This alone does not prove abandonment; compare it with the real content history.',
     failed: staleLastModified,
   },
   {
@@ -72,8 +72,8 @@ export const DECAY_RULES: ScanRule[] = [
     advisory: true,
     decaySlot: 'legacyTechnology',
     decayWeight: 10,
-    label: '오래된 제작 도구의 명확한 흔적이 있습니다',
-    detail: '엄격한 지문 목록과 일치한 경우만 표시합니다. 보안 취약점을 단정하지 않고 업데이트 필요 여부를 확인하는 신호입니다.',
+    label: 'The page has a clear fingerprint from an old site builder',
+    detail: 'Only strict fingerprint matches are reported. This is a maintenance signal, not a claim that the page is vulnerable.',
     failed: (ctx) => STRICT_LEGACY_FINGERPRINTS.some((pattern) => pattern.test(ctx.rawHtml)),
   },
   {
@@ -85,8 +85,8 @@ export const DECAY_RULES: ScanRule[] = [
     advisory: true,
     decaySlot: 'socialLinks',
     decayWeight: 5,
-    label: '연결되지 않는 공식 채널 링크가 있습니다',
-    detail: '명확한 404 또는 410 응답만 표시합니다. 일시 오류·로그인 요구·요청 제한은 판정 불가로 두고 감점하지 않습니다.',
+    label: 'An official channel link is broken',
+    detail: 'Only confirmed 404 or 410 responses are reported. Temporary errors, login requirements, and rate limits remain unconfirmed.',
     failed: (ctx) => ctx.socialLinks?.some((link) => link.status === 'dead') ?? false,
   },
 ];

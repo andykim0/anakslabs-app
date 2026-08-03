@@ -61,9 +61,9 @@ describe('SE$ S4 비교 모드 정합', () => {
 
   test('비교표는 양쪽 엔진 점수와 루트 원인 1개를 그대로 표시한다', () => {
     const html = renderToStaticMarkup(createElement(ScanResultPanel, { scan: primary(), shared: true }));
-    assert.match(html, /72점 · C 등급/u);
-    assert.match(html, /88점 · B 등급/u);
-    assert.equal((html.match(/1개 원인/gu) ?? []).length, 2);
-    assert.doesNotMatch(html, /3개 원인/u);
+    assert.match(html, /72 points · Grade C/u);
+    assert.match(html, /88 points · Grade B/u);
+    assert.equal((html.match(/1 causes/gu) ?? []).length, 2);
+    assert.doesNotMatch(html, /3 causes/u);
   });
 });

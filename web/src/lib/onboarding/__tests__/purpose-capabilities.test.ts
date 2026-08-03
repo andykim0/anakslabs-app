@@ -43,6 +43,6 @@ describe('PURPOSE_CAPABILITIES (소개형 6종)', () => {
 
   test('학원·교육 — 소개형(커리큘럼·수강 안내·상담)만 약속', () => {
     const joined = PURPOSE_CAPABILITIES.edu_membership.features.join(' ');
-    assert.ok(/커리큘럼|수강 안내|상담/.test(joined));
+    assert.ok(/Curriculum|enrollment|inquiry/i.test(joined));
   });
 });

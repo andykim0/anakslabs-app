@@ -594,7 +594,7 @@ describe('LIB3 C2·C3 — 의료 4계층·법률 단일 정책', () => {
     const config = classifiedConfig('medical', '발행 차단 우회 감시 문장');
     const result = checkPublish(config, 'basic');
     assert.equal(result.ok, false);
-    assert.ok(result.blockers.some((message) => message.includes('후기 섹션')));
+    assert.ok(result.blockers.some((message) => message.includes('testimonial sections')));
   });
 
   test('법률과 의료는 조건문 난립 없이 같은 업종 정책 함수에서 fail-closed한다', () => {

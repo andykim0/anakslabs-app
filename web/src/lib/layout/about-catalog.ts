@@ -33,8 +33,8 @@ export const ABOUT_LAYOUT_CATALOG = [
   {
     id: 'about.split-left',
     kind: 'about',
-    label: '소개·이미지 2열형',
-    description: '고객의 실제 이야기를 먼저 읽히고 관련 사진을 옆에 둡니다.',
+    label: 'Two-column story and image',
+    description: 'Puts the customer\'s own story first, with related photography beside it.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'split', columns: 2, mediaAspect: '4:5' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'split', columns: 2, mediaAspect: '4:5' }),
@@ -51,8 +51,8 @@ export const ABOUT_LAYOUT_CATALOG = [
   {
     id: 'about.centered-statement',
     kind: 'about',
-    label: '큰 타이포 중앙 선언형',
-    description: '고객이 직접 적은 철학을 중심 문장으로 세우고 이야기를 잇습니다.',
+    label: 'Centered editorial statement',
+    description: 'Leads with the customer\'s own defining statement and continues the story below.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'centered-statement', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'centered-statement', columns: 1 }),
@@ -70,8 +70,8 @@ export const ABOUT_LAYOUT_CATALOG = [
   {
     id: 'about.fullbleed-overlay',
     kind: 'about',
-    label: '풀블리드 이미지 오버레이형',
-    description: '이야기를 한 장면의 배경과 결합하되 사실 증거와 분위기를 구분합니다.',
+    label: 'Full-bleed image overlay',
+    description: 'Pairs the story with one scene while keeping evidence distinct from atmosphere.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'start-middle', flow: 'fullbleed-overlay', columns: 1, mediaAspect: '16:9' }),
       compact: recipe({ gridColumns: 8, textZone: 'start-middle', flow: 'fullbleed-overlay', columns: 1, mediaAspect: '4:3' }),
@@ -89,8 +89,8 @@ export const ABOUT_LAYOUT_CATALOG = [
   {
     id: 'about.heading-body-columns',
     kind: 'about',
-    label: '제목·본문 2열형',
-    description: '긴 소개를 제목 축과 본문 열로 나누어 문서처럼 안정적으로 읽힙니다.',
+    label: 'Two-column heading and body',
+    description: 'Separates a long introduction into a heading axis and a readable body column.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'heading-body-columns', columns: 2 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'heading-body-columns', columns: 2 }),

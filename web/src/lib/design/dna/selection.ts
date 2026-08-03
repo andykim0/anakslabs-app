@@ -237,11 +237,11 @@ export function dnaSelectionPrompt(survey: SurveyInput): string {
     referenceDesignId: survey.referenceDesignId ?? null,
   };
   return [
-    '등록된 카탈로그 안에서 서로 다른 무드 계열의 후보를 정확히 3개 고르세요.',
-    'select_design_dna 도구를 서로 다른 dna_id로 정확히 세 번 호출하세요.',
-    '업종 친화도를 우선하고 고객 레퍼런스는 가중치로만 사용하세요. 카탈로그 밖 값은 만들지 마세요.',
-    `[고객 신호] ${JSON.stringify(signals)}`,
-    `[카탈로그] ${JSON.stringify(catalog)}`,
+    'Choose exactly three candidates from different mood families in the registered catalog.',
+    'Call the select_design_dna tool exactly three times with different dna_id values.',
+    'Prioritize industry affinity and use customer references only as weights. Do not create values outside the catalog.',
+    `[Customer signals] ${JSON.stringify(signals)}`,
+    `[Catalog] ${JSON.stringify(catalog)}`,
   ].join('\n');
 }
 
@@ -254,7 +254,7 @@ export async function selectDesignDnaCandidates(
   }
   const request: DnaSelectionToolRequest = {
     prompt: dnaSelectionPrompt(survey),
-    system: '당신은 제약 안에서만 선택하는 디자인 디렉터입니다. 자유 JSON이나 색상·크기 값을 쓰지 말고 지정된 도구만 정확히 세 번 호출하세요.',
+    system: 'You are a design director who selects only within the constraints. Do not return free-form JSON or create colors and sizes. Call the specified tool exactly three times.',
     tool: DNA_SELECTION_TOOL,
     expectedCalls: 3,
   };

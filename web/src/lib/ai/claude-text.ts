@@ -15,15 +15,15 @@ const DEFAULT_MODEL = process.env.CLAUDE_MODEL ?? 'claude-opus-4-8';
 
 /** 절제된 카피 원칙(SPEC 부록 C) — 모든 호출 공통 시스템 프롬프트 */
 export const CLAUDE_COPYWRITER_SYSTEM =
-  '너는 한국어 브랜드 카피라이터다. 규칙: (1) 형용사 나열 금지, 절제된 문장 ' +
-  '(2) 과장·이모지·느낌표 금지 (3) 요청된 결과 텍스트만 출력하고 설명은 덧붙이지 않는다.';
+  'You are an English brand copywriter. Rules: (1) use restrained, specific sentences rather than adjective stacks ' +
+  '(2) do not use hype, emoji, or exclamation points (3) return only the requested text without commentary.';
 
 let cachedClient: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!env.anthropicApiKey) {
     throw new Error(
-      'ANTHROPIC_NOT_CONFIGURED: ANTHROPIC_API_KEY가 필요합니다. 키 없이 데모하려면 NEXT_PUBLIC_MOCK_MODE=1 을 사용하세요.',
+      'ANTHROPIC_NOT_CONFIGURED: ANTHROPIC_API_KEY is required. Use NEXT_PUBLIC_MOCK_MODE=1 for a keyless demo.',
     );
   }
   if (!cachedClient) {
@@ -50,7 +50,7 @@ export async function generateClaudeText(input: {
 
   // 안전 분류기 거부(정책상 드묾) — 호출부가 잡아 템플릿 카피로 강등하도록 에러
   if (response.stop_reason === 'refusal') {
-    throw new Error('Claude 카피 생성 거부됨 (stop_reason=refusal)');
+    throw new Error('Claude refused the copy request (stop_reason=refusal)');
   }
 
   const text = response.content
@@ -60,7 +60,7 @@ export async function generateClaudeText(input: {
     .trim();
 
   if (!text) {
-    throw new Error('Claude 응답에 텍스트가 없습니다');
+    throw new Error('The Claude response contained no text');
   }
   return text;
 }
@@ -92,7 +92,7 @@ export async function generateClaudeToolInputs(input: {
     tool_choice: { type: 'tool', name: input.tool.name, disable_parallel_tool_use: false },
   });
   if (response.stop_reason === 'refusal') {
-    throw new Error('Claude 구조화 선택이 거부됐습니다.');
+    throw new Error('Claude refused the structured selection request.');
   }
   return response.content
     .filter((block): block is Anthropic.ToolUseBlock =>

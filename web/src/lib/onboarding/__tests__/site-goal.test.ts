@@ -43,7 +43,7 @@ describe('SITE_GOALS (소개형)', () => {
   });
 
   test('ctaLabelForGoal — 목표 → CTA 문구', () => {
-    assert.equal(ctaLabelForGoal('reserve'), '예약하기');
+    assert.equal(ctaLabelForGoal('reserve'), 'Book an appointment');
     assert.equal(ctaLabelForGoal(undefined), undefined);
   });
 });

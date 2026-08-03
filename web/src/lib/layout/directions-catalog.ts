@@ -22,8 +22,8 @@ export const DIRECTIONS_LAYOUT_CATALOG = [
   {
     id: 'directions.map-info-split',
     kind: 'directions',
-    label: '지도·정보 분할형',
-    description: '방문 사실과 검증된 지도를 같은 화면에서 교차 확인하게 합니다.',
+    label: 'Map and information split',
+    description: 'Lets visitors cross-check verified visit details and the map in one view.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'start-middle', flow: 'map-info-split', columns: 2 }),
       compact: recipe({ gridColumns: 8, textZone: 'start-middle', flow: 'map-info-split', columns: 2 }),
@@ -40,8 +40,8 @@ export const DIRECTIONS_LAYOUT_CATALOG = [
   {
     id: 'directions.info-card-stack',
     kind: 'directions',
-    label: '사실 정보 카드 스택형',
-    description: '지도 없이도 주소·교통·주차의 고객 확인 사실을 빠르게 훑게 합니다.',
+    label: 'Visit detail card stack',
+    description: 'Scans verified address, transit, and parking details without requiring a map.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'info-card-stack', columns: 2 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'info-card-stack', columns: 2 }),
@@ -58,8 +58,8 @@ export const DIRECTIONS_LAYOUT_CATALOG = [
   {
     id: 'directions.full-map-overlay',
     kind: 'directions',
-    label: '풀폭 지도·정보 오버레이형',
-    description: '검증된 지도를 넓게 보여주고 핵심 주소와 방문 행동을 불투명 surface에 둡니다.',
+    label: 'Full-width map with information overlay',
+    description: 'Shows the verified map at full width with address and visit actions on an opaque surface.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'start-lower', flow: 'full-map-overlay', columns: 1 }),
       compact: recipe({ gridColumns: 8, textZone: 'start-lower', flow: 'full-map-overlay', columns: 1 }),

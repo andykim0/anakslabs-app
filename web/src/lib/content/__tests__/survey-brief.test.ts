@@ -85,7 +85,7 @@ test('전화·예약·메신저·문의 폼 목적지는 히어로 주 CTA의 �
 
   messenger.contentDepth!.surveyBrief!.conversionDestination = { kind: 'contact_form' };
   assert.equal(primaryCtaHref(messenger), '#sec-contact');
-  assert.equal(primaryCtaLabel(messenger), '문의하기');
+  assert.equal(primaryCtaLabel(messenger), 'Contact us');
 });
 
 test('서버 스키마는 브리프를 왕복하고 안전하지 않은 전환 URL을 거부한다', () => {

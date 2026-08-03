@@ -152,8 +152,8 @@ describe('LIB2 M3b select_section_layouts structured tool', () => {
       { availability },
     ] as const;
     const prompt = sectionLayoutSelectionPrompt(input, candidates);
-    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[선택 대상] '))!;
-    const targets = JSON.parse(targetsLine.slice('[선택 대상] '.length)) as Array<{
+    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[Selection targets] '))!;
+    const targets = JSON.parse(targetsLine.slice('[Selection targets] '.length)) as Array<{
       candidateIndex: number;
       allowedLayouts: Record<string, Array<Record<string, unknown>>>;
     }>;
@@ -297,8 +297,8 @@ describe('LIB L3 select_hero_layout structured tool', () => {
       imageCandidate,
       imageCandidate,
     ]);
-    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[선택 대상] '))!;
-    const targets = JSON.parse(targetsLine.slice('[선택 대상] '.length)) as Array<{
+    const targetsLine = prompt.split('\n').find((line) => line.startsWith('[Selection targets] '))!;
+    const targets = JSON.parse(targetsLine.slice('[Selection targets] '.length)) as Array<{
       candidateIndex: number;
       allowedLayouts: Array<Record<string, unknown>>;
     }>;

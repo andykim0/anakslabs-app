@@ -201,7 +201,7 @@ function intrinsicAllowedCondition(id: HeroLayoutVariantId): string {
     .filter(([, affinity]) => affinity === 'recommended')
     .map(([industry]) => industry)
     .join(',');
-  return `추천 업종 ${recommended}; 미디어 계약 ${layout.mediaContract.requirement}; 등록 DNA 궁합만 허용`;
+  return `Recommended industries: ${recommended}; media contract: ${layout.mediaContract.requirement}; only registered DNA compatibility is allowed`;
 }
 
 /**
@@ -224,9 +224,9 @@ export function heroLayoutSelectionPrompt(
     }),
   }));
   return [
-    '각 후보에 허용된 ID 중 히어로 배열 하나를 고르세요.',
-    'select_hero_layout 도구를 candidate_index 0, 1, 2에 정확히 한 번씩 호출하세요.',
-    `[선택 대상] ${JSON.stringify(targets)}`,
+    'Choose one allowed hero layout ID for each candidate.',
+    'Call the select_hero_layout tool exactly once for candidate_index 0, 1, and 2.',
+    `[Selection targets] ${JSON.stringify(targets)}`,
   ].join('\n');
 }
 
@@ -261,7 +261,7 @@ export async function selectHeroLayouts(
   if (!invoke || candidates.length !== 3) return fallback;
   const request: HeroLayoutSelectionToolRequest = {
     prompt: heroLayoutSelectionPrompt(survey, candidates),
-    system: '등록된 ID만 선택하세요. 색·크기·좌표를 만들지 말고 지정 도구만 정확히 세 번 호출하세요.',
+    system: 'Choose only registered IDs. Do not create colors, sizes, or coordinates. Call the specified tool exactly three times.',
     tool: HERO_LAYOUT_SELECTION_TOOL,
     expectedCalls: 3,
   };
@@ -540,7 +540,7 @@ function sectionIntrinsicAllowedCondition(
     .filter(([, affinity]) => affinity === 'recommended')
     .map(([industry]) => industry)
     .join(',');
-  return `추천 업종 ${recommended}; 실제 콘텐츠 수 범위 ${layout.content.minimumItems}-${layout.content.maximumItems}; 등록 DNA 궁합만 허용`;
+  return `Recommended industries: ${recommended}; real content count: ${layout.content.minimumItems}-${layout.content.maximumItems}; only registered DNA compatibility is allowed`;
 }
 
 function layoutByKind(kind: SectionLayoutKind, id: SectionLayoutVariantId) {
@@ -584,9 +584,9 @@ export function sectionLayoutSelectionPrompt(
     };
   });
   return [
-    '각 후보에 허용된 섹션 배열 ID를 고르세요. 비어 있는 종류는 필드를 생략하세요.',
-    'select_section_layouts 도구를 candidate_index 0, 1, 2에 정확히 한 번씩 호출하세요.',
-    `[선택 대상] ${JSON.stringify(targets)}`,
+    'Choose allowed section layout IDs for each candidate. Omit a section kind when no valid material exists.',
+    'Call the select_section_layouts tool exactly once for candidate_index 0, 1, and 2.',
+    `[Selection targets] ${JSON.stringify(targets)}`,
   ].join('\n');
 }
 
@@ -637,7 +637,7 @@ export async function selectSectionLayouts(
   if (!invoke || candidates.length !== 3) return fallback;
   const request: SectionLayoutSelectionToolRequest = {
     prompt: sectionLayoutSelectionPrompt(survey, candidates),
-    system: '등록된 ID만 선택하세요. 색·크기·좌표를 만들지 말고 지정 도구만 정확히 세 번 호출하세요.',
+    system: 'Choose only registered IDs. Do not create colors, sizes, or coordinates. Call the specified tool exactly three times.',
     tool: SECTION_LAYOUT_SELECTION_TOOL,
     expectedCalls: 3,
   };

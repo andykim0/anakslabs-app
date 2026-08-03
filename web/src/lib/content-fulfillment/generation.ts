@@ -97,47 +97,47 @@ function generationPrompt(input: {
   retryReason?: string;
 }): string {
   return [
-    '한국어 홈페이지 블로그 글의 구조화 JSON 하나만 출력하세요.',
-    `주제: ${input.topic}`,
-    `slug는 정확히 ${input.slug}`,
-    '허용 블록은 heading, paragraph, list, table뿐입니다. Markdown·HTML은 금지입니다.',
-    '검증 가능한 사실·연도·수치·실적·후기·비교·최상급은 아래 source id를 sourceRefs에 반드시 붙이세요.',
-    '표는 2~6열이고 모든 column.sourceRef와 모든 cell.sourceRef가 아래 source id여야 합니다.',
-    '원료에 없는 사실은 만들지 마세요. 원료가 부족하면 태도·질문·체크리스트형 문장만 쓰세요.',
-    '형식: {"slug","title","titleSourceRefs":[],"summary","summarySourceRefs":[],"tags":[],"document":{"version":1,"blocks":[]}}',
-    input.retryReason ? `이전 결과 거부 사유: ${input.retryReason}` : '',
-    '[사용 가능한 원료]',
-    sourceCatalog(input.snapshot) || '- 없음',
+    'Return one structured JSON object for an English website article.',
+    `Topic: ${input.topic}`,
+    `Use this exact slug: ${input.slug}`,
+    'Allowed blocks: heading, paragraph, list, and table. Do not return Markdown or HTML.',
+    'Attach an allowed source id in sourceRefs to every verifiable fact, date, number, result, review, comparison, or superlative.',
+    'Tables must have 2–6 columns. Every column.sourceRef and cell.sourceRef must use an allowed source id below.',
+    'Do not invent facts absent from the source material. When sources are limited, use questions and neutral checklists without factual claims.',
+    'Shape: {"slug","title","titleSourceRefs":[],"summary","summarySourceRefs":[],"tags":[],"document":{"version":1,"blocks":[]}}',
+    input.retryReason ? `Reason the previous result was rejected: ${input.retryReason}` : '',
+    '[Available source material]',
+    sourceCatalog(input.snapshot) || '- None',
   ].filter(Boolean).join('\n');
 }
 
 function safeCatalogPost(slug: string): GeneratedContentPost {
   return {
     slug,
-    title: '결정 전에 차분히 확인할 기준',
+    title: 'What to verify before you decide',
     titleSourceRefs: [],
-    summary: '필요한 내용을 놓치지 않도록 질문과 확인 순서를 정리합니다.',
+    summary: 'A clear sequence of questions and checks for the decision ahead.',
     summarySourceRefs: [],
-    tags: ['확인 기준', '준비'],
+    tags: ['decision criteria', 'preparation'],
     document: {
       version: 1,
       blocks: [
         {
           type: 'heading',
           level: 2,
-          text: '먼저 목적을 한 문장으로 적어보세요',
+          text: 'Write the objective in one sentence',
         },
         {
           type: 'paragraph',
-          text: '무엇을 결정하려는지 분명하면 필요한 정보와 질문의 순서도 자연스럽게 정리됩니다.',
+          text: 'A clear objective makes the necessary information and questions easier to organize.',
         },
         {
           type: 'list',
           ordered: false,
           items: [
-            '지금 가장 궁금한 점을 적습니다.',
-            '결정 전에 확인할 조건을 나눕니다.',
-            '답이 필요한 항목은 직접 문의해 확인합니다.',
+            'Write down the most important question.',
+            'Separate the conditions you need to verify before deciding.',
+            'Ask the business directly about anything that still needs an answer.',
           ],
         },
       ],
@@ -167,7 +167,7 @@ export function validateContentPostForPending(input: {
   if (medical.medical && !medical.clinicAvailable) {
     throw new ContentPostGenerationError(
       'CONTENT_POST_CLINIC_NOT_AVAILABLE',
-      `clinic 공개 정책을 통과하지 못했습니다: ${medical.clinicAvailabilityReason}`,
+      `The clinic publishing policy did not pass: ${medical.clinicAvailabilityReason}`,
     );
   }
   if (medical.violations.length > 0) {
@@ -250,7 +250,7 @@ export async function generateContentPostVersion(input: {
         generationMetadata: { ...result.generationMetadata, attempt },
       };
     } catch (error) {
-      retryReason = error instanceof Error ? error.message : '정책 검사 실패';
+      retryReason = error instanceof Error ? error.message : 'Policy validation failed';
     }
   }
 

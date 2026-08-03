@@ -582,7 +582,7 @@ function ScrollytellingManifesto({
       theme={theme}
       art={art}
       mode={mode}
-      label={scene.acts[0]?.heading ?? '스크롤 스토리'}
+      label={scene.acts[0]?.heading ?? 'Scroll story'}
       signatureContract={signatureContract}
       style={{
         '--signature-track-height': `${trackDepth * 100}svh`,
@@ -678,7 +678,7 @@ function StickyChapters({ scene, theme, art, mode, isFirst }: MotionSignatureRen
 }) {
   const firstMedia = scene.chapters.findIndex((chapter) => Boolean(chapter.media));
   return (
-    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label="주요 이야기">
+    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label="Primary story">
       <span data-signature-progress-rail aria-hidden="true"><span data-signature-progress-fill /></span>
       <ol data-chapter-indicator aria-hidden="true">
         {scene.chapters.map((chapter, index) => (
@@ -815,7 +815,7 @@ function EditorialScenes({
       theme={theme}
       art={art}
       mode={mode}
-      label={scene.scenes[0]?.heading ?? '브랜드 스토리'}
+      label={scene.scenes[0]?.heading ?? 'Brand story'}
       signatureContract={signatureContract}
       style={{ '--signature-track-height': `${trackDepth * 100}svh` } as CSSProperties}
     >
@@ -900,7 +900,7 @@ function MosaicReveal({ scene, theme, art, mode }: MotionSignatureRendererProps 
   const headingId = `${domId(scene.sectionId)}-mosaic-heading`;
   const revealRanks = mosaicRevealRanks(scene.images.length);
   return (
-    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label={scene.heading ?? '이미지 갤러리'}>
+    <SignatureRoot scene={scene} theme={theme} art={art} mode={mode} label={scene.heading ?? 'Image gallery'}>
       {scene.heading ? (
         <header data-signature-intro style={{ ...copyStyle, padding: 'clamp(28px, 5vw, 72px) clamp(24px, 8vw, 120px) 0' }}>
           <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
@@ -1004,7 +1004,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
       theme={theme}
       art={art}
       mode={mode}
-      label={`${scene.heading} 실제 사례`}
+      label={`${scene.heading} verified case`}
       style={{ '--before-after-ratio': ratio } as CSSProperties}
     >
       <noscript>
@@ -1016,7 +1016,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
             data-before-after-label="actual-case"
             data-non-removable="true"
             data-label-contrast="aa"
-            aria-label="실제 고객 사례"
+            aria-label="Verified customer case"
             style={{
               display: 'inline-flex', position: 'relative', zIndex: 20, opacity: 1,
               color: '#ffffff', background: '#111111', border: '2px solid #ffffff',
@@ -1024,14 +1024,14 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
               pointerEvents: 'none', mixBlendMode: 'normal',
             }}
           >
-            실제 사례
+            Verified case
           </span>
           <h2 id={headingId} data-signature-heading>{scene.heading}</h2>
         </div>
         <div id={viewportId} data-before-after-viewport aria-labelledby={headingId}>
           {([
-            ['before', scene.before, '이전 · 실제 사례'],
-            ['after', scene.after, '이후 · 실제 사례'],
+            ['before', scene.before, 'Before · verified case'],
+            ['after', scene.after, 'After · verified case'],
           ] as const).map(([kind, media, caption]) => (
             <figure
               key={media.assetId}
@@ -1055,7 +1055,7 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
         </div>
         <label data-before-after-control>
           <span data-before-after-control-row>
-            <span>비교 위치</span>
+            <span>Comparison position</span>
             <output id={outputId} data-before-after-output htmlFor={rangeId}>50%</output>
           </span>
           <input
@@ -1066,12 +1066,12 @@ function BeforeAfterScrub({ scene, theme, art, mode }: MotionSignatureRendererPr
             max="100"
             step="1"
             defaultValue="50"
-            aria-label="실제 사례 전후 비교 위치"
+            aria-label="Before and after comparison position"
             aria-controls={viewportId}
             aria-describedby={helpId}
-            aria-valuetext="이후 사진 50%"
+            aria-valuetext="After image 50%"
           />
-          <span id={helpId} data-before-after-help>좌우 방향키 또는 비교 화면을 움직여 확인하세요.</span>
+          <span id={helpId} data-before-after-help>Use the left and right arrow keys or move the comparison control.</span>
         </label>
       </div>
     </SignatureRoot>
@@ -1100,7 +1100,7 @@ function HorizontalStory({
       theme={theme}
       art={art}
       mode={mode}
-      label={scene.heading ?? scene.panels[0]?.heading ?? '가로 스토리'}
+      label={scene.heading ?? scene.panels[0]?.heading ?? 'Horizontal story'}
       style={{ '--signature-track-height': `${count * 100}svh` } as CSSProperties}
     >
       <div data-signature-pin data-composition-pattern={pattern}>

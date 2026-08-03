@@ -15,11 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params;
   const site = await getSiteByDomain(domain);
   if (!site?.siteConfig || !site.domain) {
-    return { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+    return { title: 'Site not available', robots: { index: false } };
   }
   const posts = await getPublishedPostsForSite(site.id);
   if (posts.length === 0) {
-    return { title: '사이트를 찾을 수 없습니다', robots: { index: false } };
+    return { title: 'Site not available', robots: { index: false } };
   }
   return contentBlogMetadata(site);
 }

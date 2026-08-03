@@ -25,61 +25,52 @@ import {
 } from '@/lib/types/site';
 
 const FORBIDDEN_SEEDS = [
-  ['국내 유일의 치료', 'medical-superlative-absolute'],
-  ['최.고 의료진', 'medical-superlative-absolute'],
-  ['1 위 클리닉', 'medical-superlative-absolute'],
-  ['No.1 병원', 'medical-superlative-absolute'],
-  ['치료 효과 １００％', 'medical-guarantee-safety'],
-  ['완 치를 약속합니다', 'medical-guarantee-safety'],
-  ['부작용\u200B 없이 진행합니다', 'medical-guarantee-safety'],
-  ['절대 안전한 치료입니다', 'medical-guarantee-safety'],
-  ['재발 없는 결과', 'medical-guarantee-safety'],
-  ['즉-시 효-과를 확인하세요', 'medical-instant-effect'],
-  ['단 번에 개선됩니다', 'medical-instant-effect'],
-  ['바로 낫는 치료', 'medical-instant-effect'],
-  ['환자 치료 후기', 'medical-treatment-testimonial'],
-  ['완치 체험담을 소개합니다', 'medical-treatment-testimonial'],
-  ['제가 시술을 받고 좋아졌습니다', 'medical-treatment-testimonial'],
-  ['타 병원보다 우수합니다', 'medical-comparison'],
-  ['다른 의원과 비교해 뛰어납니다', 'medical-comparison'],
-  ['다른 병원은 위험합니다', 'medical-disparagement'],
-  ['저렴한 곳은 부실합니다', 'medical-disparagement'],
-  ['비급여 진료비 할인', 'medical-patient-inducement'],
-  ['시술 1 + 1 이벤트', 'medical-patient-inducement'],
-  ['선착순 수술 특가', 'medical-patient-inducement'],
-  ['미 검증 신 의료 기술', 'medical-unassessed-technology'],
-  ['기적의 치료 효과', 'medical-unassessed-technology'],
-  ['공식 인증 전문의', 'medical-qualification-endorsement'],
-  ['국가 인증 병원', 'medical-qualification-endorsement'],
-  ['전문가가 추천하는 병원', 'medical-article-format'],
-  ['언론이 주목한 클리닉', 'medical-article-format'],
+  ['The best clinic for implants', 'medical-superlative-absolute'],
+  ['#1 provider', 'medical-superlative-absolute'],
+  ['The only practice offering this treatment', 'medical-superlative-absolute'],
+  ['We guarantee 100% results', 'medical-guarantee-safety'],
+  ['A completely safe treatment', 'medical-guarantee-safety'],
+  ['No side effects', 'medical-guarantee-safety'],
+  ['Permanent results', 'medical-guarantee-safety'],
+  ['Instant treatment results', 'medical-instant-effect'],
+  ['Immediate relief after treatment', 'medical-instant-effect'],
+  ['Results in one visit', 'medical-instant-effect'],
+  ['Patient testimonial', 'medical-treatment-testimonial'],
+  ['Before-and-after results', 'medical-treatment-testimonial'],
+  ['My treatment completely healed the condition', 'medical-treatment-testimonial'],
+  ['Safer than other clinics', 'medical-comparison'],
+  ['More effective than other providers', 'medical-comparison'],
+  ['A breakthrough treatment', 'medical-unassessed-technology'],
+  ['Clinically proven technology', 'medical-unassessed-technology'],
+  ['Board-certified provider', 'medical-qualification-endorsement'],
+  ['Award-winning specialist', 'medical-qualification-endorsement'],
 ] as const;
 
 const SAFE_SUBJECTS = [
-  '첫 방문 안내',
-  '바로 예약',
-  '무료 주차',
-  '무료 와이파이',
-  '일반 예약 서비스 경험담',
-  '감염 안전 관리',
-  '확실히 확인한 예약 정보',
-  '진료 시간 안내',
-  '의료진 소개',
-  '접근성 안내',
-  '검사 전 준비 안내',
-  '부작용 안내',
+  'First visit information',
+  'Appointment options',
+  'Parking information',
+  'Office Wi-Fi',
+  'Scheduling process',
+  'Infection-control process',
+  'Verified booking information',
+  'Office hours',
+  'Provider profile',
+  'Accessibility information',
+  'Preparation instructions',
+  'Risk information',
 ] as const;
 
 const SAFE_PREDICATES = [
-  '내용을 홈페이지에서 확인할 수 있습니다.',
-  '정보를 사실대로 안내합니다.',
-  '궁금한 점은 접수 전에 확인해 주세요.',
-  '운영 기준을 차분하게 설명합니다.',
-  '개인별 진료 결과를 단정하지 않습니다.',
-  '방문 전에 필요한 정보를 정리했습니다.',
-  '고객이 입력한 내용만 표시합니다.',
-  '진료 과정과 주의사항을 함께 살펴보세요.',
-  '전화나 예약 링크로 문의할 수 있습니다.',
+  'is available on the website.',
+  'is presented as a verified practice fact.',
+  'can be reviewed before check-in.',
+  'is explained in plain language.',
+  'does not promise an individual outcome.',
+  'is organized for patients before a visit.',
+  'uses only customer-provided information.',
+  'includes the process and relevant limitations.',
+  'is available by phone or through the booking link.',
 ] as const;
 
 const SAFE_MEDICAL_COPY = SAFE_SUBJECTS.flatMap((subject) =>
@@ -259,7 +250,7 @@ function coverageConfig(): SiteConfig {
       {
         id: 'button',
         kind: 'button',
-        label: '예약 문의하기',
+        label: 'Book appointment하기',
         href: '/contact',
         frame: { x: 20, y: 500, w: 180, h: 50 },
         z: 2,
@@ -334,28 +325,19 @@ function stringLeaves(value: unknown): string[] {
 }
 
 describe('MEDLAW R1 — 법조문과 정밀도', () => {
-  test('정책 버전과 현행 조·항·호 매핑을 고정하고 제56조 제3항을 오용하지 않는다', () => {
-    assert.equal(MEDICAL_AD_POLICY_VERSION, 'medical-ad-2026-07-v1');
+  test('the US federal baseline and counsel-review holdouts are explicit', () => {
+    assert.equal(MEDICAL_AD_POLICY_VERSION, 'us-medical-ad-2026-08-v1');
     const byCategory = new Map(MEDICAL_AD_RULES.map((rule) => [rule.category, rule]));
-    const refs = (category: MedicalAdRule['category']) => byCategory.get(category)?.statuteRefs ?? [];
-    assert.deepEqual(refs('comparison'), ['의료법 제56조 제2항 제4호']);
-    assert.deepEqual(refs('disparagement'), ['의료법 제56조 제2항 제5호']);
-    assert.deepEqual(refs('treatment-testimonial'), ['의료법 제56조 제2항 제2호']);
-    assert.deepEqual(refs('patient-inducement'), [
-      '의료법 제56조 제2항 제13호',
-      '의료법 제27조 제3항',
-    ]);
-    assert.deepEqual(refs('unassessed-technology'), [
-      '의료법 제56조 제2항 제1호',
-      '의료법 제56조 제2항 제8호',
-    ]);
-    assert.deepEqual(refs('qualification-endorsement'), [
-      '의료법 제56조 제2항 제9호',
-      '의료법 제56조 제2항 제14호',
-    ]);
-    assert.deepEqual(refs('article-format'), ['의료법 제56조 제2항 제10호']);
-    assert.deepEqual(refs('side-effect-omission'), ['의료법 제56조 제2항 제7호']);
-    assert.equal(JSON.stringify(MEDICAL_AD_RULES).includes('제56조 제3항'), false);
+    const refs = (category: MedicalAdRule['category']): readonly string[] =>
+      byCategory.get(category)?.statuteRefs ?? [];
+    assert.deepEqual(refs('comparison'), ['FTC Act Sections 5 and 12']);
+    assert.ok(refs('treatment-testimonial').includes('FTC Endorsement Guides'));
+    assert.ok(refs('unassessed-technology').includes('FTC Health Products Compliance Guidance'));
+    for (const category of ['disparagement', 'patient-inducement', 'article-format'] as const) {
+      assert.equal(byCategory.get(category)?.enabled, false);
+      assert.equal(byCategory.get(category)?.usDisposition, 'inactive-review-required');
+      assert.deepEqual(refs(category), ['US review required']);
+    }
   });
 
   test(`금지표현 씨앗 ${FORBIDDEN_SEEDS.length}건 recall 100%`, () => {
@@ -376,20 +358,20 @@ describe('MEDLAW R1 — 법조문과 정밀도', () => {
   });
 
   test('NFKC·제로폭·구두점·선택적 띄어쓰기만 정규화하고 전체 공백은 보존한다', () => {
-    assert.equal(normalizeMedicalCopy('  최\u200B.고   １００％  '), '최 고 100%');
-    assert.equal(normalizeMedicalCopy('첫 방문 바로 예약'), '첫 방문 바로 예약');
-    assert.deepEqual(screenMedicalCopy('첫 방문 후 바로 예약하세요.').violations, []);
-    assert.deepEqual(screenMedicalCopy('안전 관리와 감염 안전 기준을 안내합니다.').violations, []);
-    assert.deepEqual(screenMedicalCopy('예약 정보를 확실히 확인해 드립니다.').violations, []);
-    assert.deepEqual(screenMedicalCopy('무료 주차와 무료 와이파이를 제공합니다.').violations, []);
-    assert.deepEqual(screenMedicalCopy('예약 서비스 이용 경험담을 정리했습니다.').violations, []);
+    assert.equal(normalizeMedicalCopy('  B\u200B.est   １００％  '), 'b est 100%');
+    assert.equal(normalizeMedicalCopy('First visit booking'), 'first visit booking');
+    assert.deepEqual(screenMedicalCopy('Book after reviewing the first-visit instructions.').violations, []);
+    assert.deepEqual(screenMedicalCopy('Review the infection-control process.').violations, []);
+    assert.deepEqual(screenMedicalCopy('Confirm the appointment details.').violations, []);
+    assert.deepEqual(screenMedicalCopy('Free parking and Wi-Fi are available.').violations, []);
+    assert.deepEqual(screenMedicalCopy('The scheduling process is explained here.').violations, []);
   });
 
   test('warn은 block과 구분돼 향후 사람 검토 seam이 triage할 수 있다', () => {
-    const warning = screenMedicalCopy('공식 인증 전문의가 진료합니다.').violations;
+    const warning = screenMedicalCopy('A board-certified provider offers care.').violations;
     assert.equal(warning.length, 1);
     assert.equal(warning[0].severity, 'warn');
-    const blocker = screenMedicalCopy('완치를 약속합니다.').violations;
+    const blocker = screenMedicalCopy('We guarantee a cure.').violations;
     assert.equal(blocker[0].severity, 'block');
   });
 });

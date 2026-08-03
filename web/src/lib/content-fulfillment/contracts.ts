@@ -105,7 +105,7 @@ export const contentPostDocumentSchema = z.object({
         context.addIssue({
           code: 'custom',
           path: ['blocks', blockIndex, 'rows', rowIndex, 'cells'],
-          message: '표의 모든 행은 헤더와 같은 열 수여야 합니다.',
+          message: 'Every table row must have the same number of columns as the header.',
         });
       }
     }

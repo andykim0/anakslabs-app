@@ -43,10 +43,10 @@ export function videoGuardError(
   countBySite: number,
   countToday: number,
 ): string | null {
-  if (!cfg.enabled) return 'VIDEO_GEN_DISABLED: 영상 생성이 비활성화되어 있습니다 (VIDEO_GEN_ENABLED=1 필요).';
-  if (!hasVideoAddon(tier)) return 'VIDEO_GEN_ADDON: AI 영상 히어로는 AI 영상 홈페이지 승인이 필요합니다.';
-  if (countBySite >= cfg.maxPerSite) return `VIDEO_GEN_SITE_CAP: 이 사이트의 영상 생성 상한(${cfg.maxPerSite}회)에 도달했습니다.`;
-  if (countToday >= cfg.dailyCap) return `VIDEO_GEN_DAILY_CAP: 오늘 영상 생성 상한(${cfg.dailyCap}회)에 도달했습니다.`;
+  if (!cfg.enabled) return 'VIDEO_GEN_DISABLED: Video generation is disabled. Set VIDEO_GEN_ENABLED=1 to enable it.';
+  if (!hasVideoAddon(tier)) return 'VIDEO_GEN_ADDON: An approved AI video site is required.';
+  if (countBySite >= cfg.maxPerSite) return `VIDEO_GEN_SITE_CAP: This site reached its video generation limit of ${cfg.maxPerSite}.`;
+  if (countToday >= cfg.dailyCap) return `VIDEO_GEN_DAILY_CAP: The daily video generation limit of ${cfg.dailyCap} has been reached.`;
   return null;
 }
 
@@ -60,8 +60,8 @@ export function videoGuardError(
 export function synchronousVideoTransportError(mockMode: boolean): string | null {
   if (mockMode) return null;
   return (
-    'VIDEO_GEN_SYNC_UNSAFE: 실제 영상 생성은 긴 동기 HTTP 요청으로 실행할 수 없습니다. ' +
-    '재개 가능한 비동기 처리 경로가 준비될 때까지 정지 히어로를 사용해 주세요.'
+    'VIDEO_GEN_SYNC_UNSAFE: Real video generation cannot run in a long synchronous HTTP request. ' +
+    'Use the static hero until a resumable asynchronous path is available.'
   );
 }
 
@@ -181,7 +181,7 @@ export function applyHeroVideoToConfig(
   trustedAssetRef?: AssetRef,
 ): SiteConfig {
   if (trustedAssetRef && trustedAssetRef.url !== videoUrl) {
-    throw new Error('ASSET_REF_URL_MISMATCH: 검증된 영상 자산 URL과 적용 URL이 다릅니다.');
+    throw new Error('ASSET_REF_URL_MISMATCH: The applied URL differs from the verified video asset URL.');
   }
   const found = homeHero(config);
   if (!found) return config;

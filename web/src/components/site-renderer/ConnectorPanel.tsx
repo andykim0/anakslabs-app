@@ -102,10 +102,10 @@ export function ConnectorPanel({
     <section className="anaks-connectors" style={style} aria-labelledby="anaks-connectors-title">
       <style dangerouslySetInnerHTML={{ __html: CONNECTOR_CSS }} />
       <div className="anaks-connectors__inner">
-        <p className="anaks-connectors__eyebrow">바로 연결하기</p>
-        <h2 id="anaks-connectors-title" className="anaks-connectors__title">필요한 곳으로 바로 이어집니다.</h2>
+        <p className="anaks-connectors__eyebrow">Connect directly</p>
+        <h2 id="anaks-connectors-title" className="anaks-connectors__title">Go straight to the next step.</h2>
         <p className="anaks-connectors__lead">
-          전화, 상담, 예약과 길찾기를 휴대폰에서도 편하게 이용하세요.
+          Call, message, book, or get directions from any device.
         </p>
         <div className="anaks-connectors__grid">
           {manifest.items.map((item) => {
@@ -149,9 +149,9 @@ export function ConnectorPanel({
                       data-longitude={item.coordinates.longitude}
                       data-map-target={mapId}
                     >
-                      지도 미리보기
+                      Map preview
                     </button>
-                    <div id={mapId} className="anaks-connector__map-preview" hidden aria-label="네이버 지도 미리보기" />
+                    <div id={mapId} className="anaks-connector__map-preview" hidden aria-label="Map preview" />
                   </>
                 ) : null}
               </div>

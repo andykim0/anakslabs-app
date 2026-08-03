@@ -61,7 +61,7 @@ function connectorManifest(
   if (phoneHref && contact?.phone) {
     items.push({
       id: 'tel',
-      label: '전화 문의',
+      label: 'Call',
       href: phoneHref,
       displayPhone: contact.phone,
     });
@@ -74,7 +74,7 @@ function connectorManifest(
   if (kakaoUrl && channelId) {
     items.push({
       id: 'kakao-channel',
-      label: '카카오 상담',
+      label: 'Message',
       href: kakaoUrl,
       channelId,
     });
@@ -86,7 +86,7 @@ function connectorManifest(
   if (bookingUrl && isRecognizedReservationUrl(bookingUrl)) {
     items.push({
       id: 'naver-booking',
-      label: '네이버 예약',
+      label: 'Book an appointment',
       href: bookingUrl,
     });
   }
@@ -95,7 +95,7 @@ function connectorManifest(
   if (directionsHref && contact?.address) {
     items.push({
       id: 'naver-map',
-      label: '오시는 길',
+      label: 'Directions',
       href: directionsHref,
       address: contact.address,
     });
@@ -106,7 +106,7 @@ function connectorManifest(
   if (instagramUrl && username) {
     items.push({
       id: 'instagram',
-      label: '인스타그램',
+      label: 'Instagram',
       href: instagramUrl,
       username,
     });

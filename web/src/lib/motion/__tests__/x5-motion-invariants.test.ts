@@ -562,8 +562,8 @@ function sceneCopy(scene: MotionScene): { required: string[]; readingOrder: stri
       for (const item of scene.milestones) { add(item.heading, item.body, item.caption); ordered(item.heading, item.body, item.caption); }
       break;
     case 'before-after-scrub':
-      add(scene.heading, scene.before.caption, scene.after.caption, '실제 사례', '이전 · 실제 사례', '이후 · 실제 사례');
-      ordered(scene.heading, '이전 · 실제 사례', '이후 · 실제 사례');
+      add(scene.heading, scene.before.caption, scene.after.caption, 'Verified case', 'Before · verified case', 'After · verified case');
+      ordered(scene.heading, 'Before · verified case', 'After · verified case');
       break;
     case 'horizontal-story':
       add(scene.heading);
@@ -859,7 +859,7 @@ describe('X5-6 forbidden behavior and bounded budgets', () => {
     ].join('\n');
     assert.doesNotMatch(MOTION_RUNTIME, /addEventListener\(['"](?:wheel|touchmove)['"]/);
     assert.doesNotMatch(MOTION_RUNTIME, /preventDefault\(|scrollTo\(|scrollBy\(/);
-    assert.doesNotMatch(sources, /\b(?:WebGL|THREE|gsap|Lenis|LocomotiveScroll)\b|from ['"]framer-motion['"]/i);
+    assert.doesNotMatch(sources, /\b(?:WebGL|gsap|Lenis|LocomotiveScroll)\b|\bTHREE\.|from ['"](?:three|framer-motion)['"]/);
     assert.doesNotMatch(sources, /<audio\b|autoplaySound|autoplay-sound/i);
     assert.match(MOTION_RUNTIME, /addEventListener\('scroll',scheduleProgress,\{passive:true\}\)/);
   });
@@ -1036,7 +1036,7 @@ describe('X5-9 legal and provenance defense layers', () => {
     const validHtml = await renderFixture('before-after-scrub');
     const stage = parse(validHtml).querySelector('[data-motion-signature="before-after-scrub"]')!;
     assert.equal(stage.querySelectorAll('[data-before-after-label="actual-case"][data-non-removable="true"]').length, 1);
-    assert.ok(stage.text.includes('실제 사례'));
+    assert.ok(stage.text.includes('Verified case'));
     assert.equal(stage.querySelectorAll('video').length, 0);
     const audit = auditPublishArtifacts(validFixture.config, 'basic', [{ pageSlug: '', html: validHtml }]);
     assert.deepEqual(

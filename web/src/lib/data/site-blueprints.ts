@@ -57,85 +57,85 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
   {
     id: 'local_store.default',
     purposeId: 'local_store',
-    label: '음식점·로컬 매장',
+    label: 'Restaurants and local shops',
     sections: [
-      hero('히어로', '상호·한 줄 콘셉트·대표 비주얼·CTA(전화/예약/길찾기)'),
-      { type: 'about', name: '우리 가게 이야기', brief: '공간·재료·운영 철학. 왜 이 가게인가' },
-      { type: 'menu', name: '메뉴판', brief: '대표 메뉴 사진·이름·설명·가격', variant: 'menu:food' },
-      { type: 'gallery', name: '갤러리', brief: '음식·공간 사진' },
-      { type: 'faq', name: '이용 안내', brief: '영업시간·휴무·주차·포장/배달앱 링크', variant: 'faq:store_info' },
-      { type: 'contact', name: '오시는 길', brief: '지도·주소·대표전화', variant: 'contact:map' },
+      hero('Hero', 'Business name, one-line concept, primary image, and call, booking, or directions action'),
+      { type: 'about', name: 'Our story', brief: 'The space, ingredients, and point of view behind the business' },
+      { type: 'menu', name: 'Menu', brief: 'Featured items with photos, names, descriptions, and prices', variant: 'menu:food' },
+      { type: 'gallery', name: 'Gallery', brief: 'Food and location photography' },
+      { type: 'faq', name: 'Plan your visit', brief: 'Hours, closing days, parking, takeout, and delivery links', variant: 'faq:store_info' },
+      { type: 'contact', name: 'Location', brief: 'Map, address, and main phone number', variant: 'contact:map' },
     ],
   },
   // 2. 예약·서비스업
   {
     id: 'booking_service.default',
     purposeId: 'booking_service',
-    label: '예약·서비스업',
+    label: 'Appointment-based services',
     sections: [
-      hero('히어로', '핵심 서비스 한 줄·대표 비주얼·예약/상담 CTA'),
-      { type: 'about', name: '소개', brief: '철학·공간·장비. 신뢰 형성' },
-      { type: 'menu', name: '시술·서비스 메뉴', brief: '서비스명·소요시간·가격', variant: 'menu:services' },
-      { type: 'team', name: '담당 전문가', brief: '원장/디자이너/트레이너 프로필(사진·경력·전문분야)' },
-      { type: 'testimonials', name: '고객 후기', brief: '실제 이용 후기' },
-      { type: 'faq', name: '이용 안내', brief: '예약금·노쇼·변경 규정·주차', variant: 'faq:policy' },
-      { type: 'contact', name: '오시는 길·연락처', brief: '지도·주소·전화·영업시간', variant: 'contact:map' },
-      { type: 'contact', name: '예약·상담 문의', brief: '이름/연락처/희망일시/내용 폼 — 실질 전환 지점', variant: 'contact:form' },
+      hero('Hero', 'One-line service promise, primary image, and booking or inquiry action'),
+      { type: 'about', name: 'About', brief: 'Point of view, space, and equipment that establish trust' },
+      { type: 'menu', name: 'Services', brief: 'Service name, duration, and price', variant: 'menu:services' },
+      { type: 'team', name: 'Meet the team', brief: 'Profiles with real photos, experience, and specialties' },
+      { type: 'testimonials', name: 'Customer reviews', brief: 'Verified customer feedback only' },
+      { type: 'faq', name: 'Before you book', brief: 'Deposits, cancellations, changes, and parking', variant: 'faq:policy' },
+      { type: 'contact', name: 'Location and contact', brief: 'Map, address, phone number, and hours', variant: 'contact:map' },
+      { type: 'contact', name: 'Book or ask a question', brief: 'Name, contact details, preferred time, and message', variant: 'contact:form' },
     ],
   },
   // 4. 교육·멤버십
   {
     id: 'edu_membership.default',
     purposeId: 'edu_membership',
-    label: '교육·멤버십',
+    label: 'Education and training',
     sections: [
-      hero('히어로', '무엇을 얻는지 한 줄 약속·수강/가입 CTA'),
-      { type: 'menu', name: '프로그램·커리큘럼', brief: '과정 구성·회차·내용', variant: 'menu:curriculum' },
-      { type: 'team', name: '강사·운영자', brief: '프로필·경력·자격. 누가 가르치는가' },
-      { type: 'testimonials', name: '수강생 후기·성과', brief: '후기 + 가능하면 수치(합격률·성과)' },
-      { type: 'pricing', name: '수강료·멤버십 플랜', brief: '플랜 비교·기간·혜택' },
-      { type: 'faq', name: '자주 묻는 질문', brief: '환불·수강 기간·난이도' },
-      { type: 'contact', name: '신청·문의', brief: '이름/연락처/관심 과정 폼', variant: 'contact:form' },
+      hero('Hero', 'One-line outcome and an enrollment action'),
+      { type: 'menu', name: 'Programs', brief: 'Course structure, sessions, and curriculum', variant: 'menu:curriculum' },
+      { type: 'team', name: 'Instructors', brief: 'Verbatim profiles, experience, and credentials' },
+      { type: 'testimonials', name: 'Student outcomes', brief: 'Verified feedback and sourced results when available' },
+      { type: 'pricing', name: 'Tuition and plans', brief: 'Plan comparison, term, and included benefits' },
+      { type: 'faq', name: 'Questions', brief: 'Refunds, course length, and difficulty' },
+      { type: 'contact', name: 'Apply or ask', brief: 'Name, contact details, and program of interest', variant: 'contact:form' },
     ],
   },
   // 5. 회사·브랜드
   {
     id: 'company_brand.default',
     purposeId: 'company_brand',
-    label: '회사·브랜드',
+    label: 'Company or brand',
     sections: [
-      hero('히어로', '회사명·핵심 메시지(한 줄 강점)·CTA(문의/견적)'),
-      { type: 'about', name: '회사 소개', brief: '미션·연혁·핵심 가치' },
-      { type: 'features', name: '서비스·제품', brief: '제공하는 것의 구조적 소개' },
-      { type: 'cases', name: '주요 실적·고객사', brief: '프로젝트/납품/파트너 — 수치 중심 증거' },
-      { type: 'team', name: '팀 소개', brief: '핵심 구성원 (선택 해제 가능)' },
-      { type: 'contact', name: '문의·견적 요청', brief: '이름/회사/연락처/문의유형/내용 + 개인정보 동의', variant: 'contact:form' },
-      { type: 'contact', name: '오시는 길', brief: '지도·주소·대표전화', variant: 'contact:map' },
+      hero('Hero', 'Company name, one clear value statement, and an inquiry action'),
+      { type: 'about', name: 'About the company', brief: 'Mission, history, and core values' },
+      { type: 'features', name: 'Services and products', brief: 'A structured account of what the company offers' },
+      { type: 'cases', name: 'Selected work', brief: 'Projects, clients, and sourced results' },
+      { type: 'team', name: 'Team', brief: 'Core team members when source material is available' },
+      { type: 'contact', name: 'Request a quote', brief: 'Name, company, contact details, inquiry type, and message', variant: 'contact:form' },
+      { type: 'contact', name: 'Location', brief: 'Map, address, and main phone number', variant: 'contact:map' },
     ],
   },
   // 6. 포트폴리오
   {
     id: 'portfolio.default',
     purposeId: 'portfolio',
-    label: '포트폴리오',
+    label: 'Portfolio',
     sections: [
-      hero('히어로', '이름·직군·한 줄 정체성'),
-      { type: 'gallery', name: '대표 작업', brief: '썸네일 그리드', variant: 'gallery:works' },
-      { type: 'cases', name: '프로젝트 상세', brief: '케이스스터디: 문제→작업→결과', variant: 'cases:projects' },
-      { type: 'about', name: '경력·이력', brief: '학력·경력·수상·스킬', variant: 'about:resume' },
-      { type: 'contact', name: '의뢰·연락', brief: '의뢰 내용/예산/일정 폼 + SNS', variant: 'contact:form' },
+      hero('Hero', 'Name, role, and one-line point of view'),
+      { type: 'gallery', name: 'Selected work', brief: 'Thumbnail grid', variant: 'gallery:works' },
+      { type: 'cases', name: 'Project details', brief: 'Case studies: problem, work, and result', variant: 'cases:projects' },
+      { type: 'about', name: 'Experience', brief: 'Education, work, recognition, and skills', variant: 'about:resume' },
+      { type: 'contact', name: 'Work together', brief: 'Project, budget, timeline, and social links', variant: 'contact:form' },
     ],
   },
   // 10. 원페이지·링크인바이오
   {
     id: 'one_page.default',
     purposeId: 'one_page',
-    label: '원페이지·링크인바이오',
+    label: 'One-page site or link hub',
     singlePage: true,
     sections: [
-      hero('프로필', '사진·이름·한 줄 소개'),
-      { type: 'cta', name: '링크 허브', brief: '주요 링크 버튼 목록 (socialLinks 요소 중심)', variant: 'cta:links' },
-      { type: 'contact', name: '연락', brief: '이메일·전화 한 줄', variant: 'contact:mini' },
+      hero('Profile', 'Photo, name, and one-line introduction'),
+      { type: 'cta', name: 'Links', brief: 'A focused list of primary links', variant: 'cta:links' },
+      { type: 'contact', name: 'Contact', brief: 'Email and phone number', variant: 'contact:mini' },
     ],
   },
 
@@ -145,62 +145,68 @@ export const SITE_TEMPLATES: SiteTemplateDef[] = [
   {
     id: 'company_brand.professional_firm',
     purposeId: 'company_brand',
-    label: '전문서비스 법인',
-    industryMatch: ['법무', '법률', '변호', '회계', '세무', '특허', '노무', '법인'],
+    label: 'Professional services firm',
+    industryMatch: [
+      'legal', 'law', 'attorney', 'accounting', 'tax', 'patent', 'labor', 'professional services',
+      '\ubc95\ubb34', '\ubc95\ub960', '\ubcc0\ud638', '\ud68c\uacc4', '\uc138\ubb34', '\ud2b9\ud5c8', '\ub178\ubb34', '\ubc95\uc778',
+    ],
     sections: [
-      hero('히어로', '법인명·핵심 메시지(한 줄 강점)·대표 비주얼·CTA(상담문의/전화)'),
-      { type: 'about', name: '법인 소개·대표 인사말', brief: '어떤 법인인지, 대표(대표변호사/대표이사) 메시지, 설립 배경·핵심 가치', variant: 'about:greeting' },
-      { type: 'features', name: '업무·사업 분야', brief: '제공 서비스 영역(기업법무/형사/조세 또는 감사/세무/컨설팅). 법인에서 제일 중요한 섹션', variant: 'features:practice' },
-      { type: 'team', name: '구성원·전문가 소개', brief: '변호사/회계사/전문위원 프로필(사진·경력·전문분야·학력). 사람이 곧 상품 — 필수', variant: 'team:experts' },
-      { type: 'cases', name: '주요 실적·수행 사례', brief: '대표 프로젝트·자문·성공 사례(가능하면 수치). 신뢰의 핵심 증거' },
-      { type: 'contact', name: '오시는 길·연락처', brief: '지도·주소·대표전화·이메일·영업시간(지사 있으면 지점 목록)', variant: 'contact:map' },
-      { type: 'contact', name: '상담·문의', brief: '이름/연락처/문의유형/내용 + 개인정보 수집 동의. 실질 전환 지점', variant: 'contact:form' },
+      hero('Hero', 'Firm name, one clear value statement, primary image, and consultation action'),
+      { type: 'about', name: 'About the firm', brief: 'What the firm does, leadership statement, history, and values', variant: 'about:greeting' },
+      { type: 'features', name: 'Practice areas', brief: 'A clear account of the services the firm provides', variant: 'features:practice' },
+      { type: 'team', name: 'Professionals', brief: 'Verbatim profiles with real photos, experience, specialties, and education', variant: 'team:experts' },
+      { type: 'cases', name: 'Selected matters', brief: 'Representative work and sourced results where available' },
+      { type: 'contact', name: 'Location and contact', brief: 'Map, address, phone, email, hours, and office locations', variant: 'contact:map' },
+      { type: 'contact', name: 'Request a consultation', brief: 'Name, contact details, inquiry type, and message', variant: 'contact:form' },
     ],
   },
   // 병원·의원 (의료광고법 — 후기 기본 제외)
   {
     id: 'booking_service.clinic',
     purposeId: 'booking_service',
-    label: '병원·의원',
-    industryMatch: ['병원', '의원', '치과', '한의원'],
+    label: 'Medical or dental clinic',
+    industryMatch: [
+      'clinic', 'medical', 'dental', 'dentist', 'orthodontic',
+      '\ubcd1\uc6d0', '\uc758\uc6d0', '\uce58\uacfc', '\ud55c\uc758\uc6d0',
+    ],
     sections: [
-      hero('히어로', '진료 분야 한 줄·대표 비주얼·예약/전화 CTA'),
-      { type: 'about', name: '병원 소개', brief: '진료 철학·시설·장비. 신뢰 형성' },
-      { type: 'menu', name: '진료 안내', brief: '진료과목·시술 안내(치료경험담 광고 금지)', variant: 'menu:treatments' },
-      { type: 'team', name: '의료진 소개', brief: '의료진 프로필(사진·전공·경력·자격)', variant: 'team:doctors' },
-      { type: 'faq', name: '이용 안내', brief: '진료시간·휴진·주차·비급여 안내(치료경험담 광고 금지)', variant: 'faq:policy' },
-      { type: 'contact', name: '오시는 길·연락처', brief: '지도·주소·대표전화·진료시간', variant: 'contact:map' },
-      { type: 'contact', name: '예약·문의', brief: '이름/연락처/희망일시/증상 폼', variant: 'contact:form' },
+      hero('Hero', 'One-line focus, primary image, and booking or call action'),
+      { type: 'about', name: 'About the practice', brief: 'Approach to care, facilities, and equipment' },
+      { type: 'menu', name: 'Treatments', brief: 'Services and procedures supported by source material', variant: 'menu:treatments' },
+      { type: 'team', name: 'Meet the doctors', brief: 'Verbatim profiles with real photos, specialties, experience, and credentials', variant: 'team:doctors' },
+      { type: 'faq', name: 'Patient information', brief: 'Hours, closures, parking, and payment information', variant: 'faq:policy' },
+      { type: 'contact', name: 'Location and contact', brief: 'Map, address, phone number, and office hours', variant: 'contact:map' },
+      { type: 'contact', name: 'Book or ask a question', brief: 'Name, contact details, preferred time, and message', variant: 'contact:form' },
     ],
   },
   // 파인다이닝·오마카세
   {
     id: 'local_store.fine_dining',
     purposeId: 'local_store',
-    label: '파인다이닝·오마카세',
-    industryMatch: ['파인다이닝', '오마카세'],
+    label: 'Fine dining or omakase',
+    industryMatch: ['fine dining', 'omakase', '\ud30c\uc778\ub2e4\uc774\ub2dd', '\uc624\ub9c8\uce74\uc138'],
     sections: [
-      hero('히어로', '상호·콘셉트·대표 비주얼·예약 CTA'),
-      { type: 'about', name: '우리 가게 이야기', brief: '공간·철학·셰프의 관점' },
-      { type: 'menu', name: '코스 소개', brief: '코스 구성·계절 재료·가격', variant: 'menu:course' },
-      { type: 'team', name: '셰프 소개', brief: '셰프 경력·철학' },
-      { type: 'gallery', name: '갤러리', brief: '요리·공간 사진' },
-      { type: 'faq', name: '예약 안내', brief: '예약금·노쇼·드레스코드·영업시간', variant: 'faq:reservation' },
-      { type: 'contact', name: '오시는 길', brief: '지도·주소·대표전화', variant: 'contact:map' },
+      hero('Hero', 'Business name, concept, primary image, and reservation action'),
+      { type: 'about', name: 'Our story', brief: 'The room, philosophy, and chef’s point of view' },
+      { type: 'menu', name: 'Courses', brief: 'Course structure, seasonal ingredients, and price', variant: 'menu:course' },
+      { type: 'team', name: 'The chef', brief: 'Verbatim experience and point of view' },
+      { type: 'gallery', name: 'Gallery', brief: 'Food and location photography' },
+      { type: 'faq', name: 'Reservations', brief: 'Deposits, cancellations, dress code, and hours', variant: 'faq:reservation' },
+      { type: 'contact', name: 'Location', brief: 'Map, address, and main phone number', variant: 'contact:map' },
     ],
   },
   // 이력서·CV
   {
     id: 'portfolio.resume',
     purposeId: 'portfolio',
-    label: '이력서·CV',
-    industryMatch: ['이력서', 'CV'],
+    label: 'Resume or CV',
+    industryMatch: ['resume', 'CV', '\uc774\ub825\uc11c'],
     singlePage: true,
     sections: [
-      hero('프로필', '이름·직군·한 줄 정체성'),
-      { type: 'about', name: '경력·이력', brief: '학력·경력·수상·스킬', variant: 'about:resume' },
-      { type: 'cases', name: '주요 경력 상세', brief: '핵심 프로젝트·역할·성과', variant: 'cases:projects' },
-      { type: 'contact', name: '연락', brief: '이메일/연락처 폼 + SNS', variant: 'contact:form' },
+      hero('Profile', 'Name, role, and one-line point of view'),
+      { type: 'about', name: 'Experience', brief: 'Education, work, recognition, and skills', variant: 'about:resume' },
+      { type: 'cases', name: 'Selected experience', brief: 'Key projects, responsibilities, and sourced outcomes', variant: 'cases:projects' },
+      { type: 'contact', name: 'Contact', brief: 'Email, contact form, and social links', variant: 'contact:form' },
     ],
   },
 ];
@@ -270,17 +276,17 @@ const CONTENT_PAGE_SLUG: Record<SectionType, string> = {
 
 /** 승격 페이지 slug → 기본 제목/내비 라벨 (pageLayout·pagePlan 미지정 시 폴백) */
 const CONTENT_PAGE_TITLE: Record<string, string> = {
-  about: '소개',
-  team: '팀',
-  services: '서비스',
-  menu: '메뉴',
-  gallery: '갤러리',
-  reviews: '후기',
-  pricing: '요금',
-  work: '실적',
-  guide: '이용안내',
-  contact: '문의',
-  more: '더보기',
+  about: 'About',
+  team: 'Team',
+  services: 'Services',
+  menu: 'Menu',
+  gallery: 'Gallery',
+  reviews: 'Reviews',
+  pricing: 'Pricing',
+  work: 'Work',
+  guide: 'Patient information',
+  contact: 'Contact',
+  more: 'More',
 };
 
 /** [F1 테스트 지원] 콘텐츠 섹션 type의 승격 slug (분류 상수 노출) */
@@ -296,14 +302,14 @@ export function contentPageSlug(type: SectionType): string {
  * 페이지 내 섹션 순서·페이지 등장 순서는 원 템플릿 순서를 따른다. 홈은 항상 첫 페이지(slug '').
  */
 export function templatePages(t: SiteTemplateDef): TemplatePageInfo[] {
-  if (t.singlePage) return [{ slug: '', title: '홈', sections: t.sections }];
+  if (t.singlePage) return [{ slug: '', title: 'Home', sections: t.sections }];
 
   const structure = t.sections.filter((s) => STRUCTURE_SECTION_TYPES.has(s.type));
   const content = t.sections.filter((s) => isContentSection(s.type));
   // 콘텐츠 섹션이 없으면 단일 홈(무회귀)
-  if (content.length === 0) return [{ slug: '', title: '홈', sections: t.sections }];
+  if (content.length === 0) return [{ slug: '', title: 'Home', sections: t.sections }];
 
-  const home: TemplatePageInfo = { slug: '', title: '홈', sections: [...structure] };
+  const home: TemplatePageInfo = { slug: '', title: 'Home', sections: [...structure] };
   const pages: TemplatePageInfo[] = [home];
   const ensurePage = (
     slug: string,
@@ -399,41 +405,41 @@ export function validateSiteTemplates(): string[] {
   ];
 
   for (const t of SITE_TEMPLATES) {
-    if (ids.has(t.id)) problems.push(`중복 템플릿 id: ${t.id}`);
+    if (ids.has(t.id)) problems.push(`Duplicate template id: ${t.id}`);
     ids.add(t.id);
-    if (t.sections.length === 0) problems.push(`${t.id}: 섹션이 비었습니다`);
+    if (t.sections.length === 0) problems.push(`${t.id}: has no sections`);
     const first = t.sections[0];
     if (!first || first.type !== 'hero' || !first.required) {
-      problems.push(`${t.id}: 첫 항목은 required hero여야 합니다`);
+      problems.push(`${t.id}: the first item must be a required hero`);
     }
     if (!t.purposeId.startsWith(t.id.split('.')[0])) {
-      problems.push(`${t.id}: id 접두사와 purposeId 불일치`);
+      problems.push(`${t.id}: id prefix does not match purposeId`);
     }
     // [v4 Phase 4] 페이지 분할 무결성 — 첫 페이지는 홈(slug ''), 홈 첫 섹션은 hero, slug 유일
     const pages = templatePages(t);
-    if (pages[0]?.slug !== '') problems.push(`${t.id}: 첫 페이지는 홈(slug '')이어야 합니다`);
-    if (pages[0]?.sections[0]?.type !== 'hero') problems.push(`${t.id}: 홈 첫 섹션은 hero여야 합니다`);
+    if (pages[0]?.slug !== '') problems.push(`${t.id}: the first page must be Home (slug '')`);
+    if (pages[0]?.sections[0]?.type !== 'hero') problems.push(`${t.id}: the first Home section must be hero`);
     const slugs = pages.map((p) => p.slug);
-    if (new Set(slugs).size !== slugs.length) problems.push(`${t.id}: 페이지 slug 중복`);
+    if (new Set(slugs).size !== slugs.length) problems.push(`${t.id}: duplicate page slug`);
     // [F1] 승격 페이지 slug는 유효(비예약·소문자하이픈)해야 하고, 구조 섹션은 홈에만 존재
     for (const p of pages) {
       if (p.slug !== '' && !isValidPageSlug(p.slug)) {
-        problems.push(`${t.id}: 승격 페이지 slug '${p.slug}' 가 유효하지 않습니다(예약어/형식)`);
+        problems.push(`${t.id}: page slug '${p.slug}' is invalid or reserved`);
       }
       if (p.slug !== '' && p.sections.some((s) => STRUCTURE_SECTION_TYPES.has(s.type))) {
-        problems.push(`${t.id}: 구조 섹션(hero/cta)이 서브페이지 '${p.slug}'에 있습니다`);
+        problems.push(`${t.id}: structural section hero/cta appears on subpage '${p.slug}'`);
       }
     }
     // [F1] 콘텐츠 섹션은 전부 승격 slug가 등록돼 있어야 함(분류 완전성)
     for (const s of t.sections) {
       if (isContentSection(s.type) && !CONTENT_PAGE_SLUG[s.type]) {
-        problems.push(`${t.id}: 콘텐츠 섹션 type '${s.type}'의 CONTENT_PAGE_SLUG 미등록`);
+        problems.push(`${t.id}: content section type '${s.type}' has no CONTENT_PAGE_SLUG`);
       }
     }
   }
   for (const p of purposes) {
     if (!SITE_TEMPLATES.some((t) => t.id === `${p}.default`)) {
-      problems.push(`목적 ${p}: .default 템플릿 누락`);
+      problems.push(`Purpose ${p}: missing .default template`);
     }
   }
   return problems;

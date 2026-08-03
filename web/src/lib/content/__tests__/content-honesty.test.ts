@@ -65,8 +65,8 @@ test('factual 슬롯은 답한 값만 그룹에 투영하고 마지막 고객 �
   const model = buildContentDepthHomeModel(survey({
     contentDepth: { version: 1, facts, faqAnswers: [], imports: [] },
   }));
-  assert.deepEqual(model.contact, [{ label: '연락처', value: '최종 연락처' }]);
-  assert.deepEqual(model.directions, [{ label: '주소', value: '확인 주소' }]);
+  assert.deepEqual(model.contact, [{ label: 'Phone', value: '최종 연락처' }]);
+  assert.deepEqual(model.directions, [{ label: 'Address', value: '확인 주소' }]);
   assert.equal(JSON.stringify(model).includes('이전 연락처'), false);
   assert.equal(JSON.stringify(model).includes('주차'), false);
 });
@@ -135,7 +135,7 @@ test('contentDepth가 없는 레거시 생성 출력은 고정 해시를 유지�
   });
   const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
   const hash = createHash('sha256').update(normalized).digest('hex');
-  assert.equal(hash, '8930086393cb7d2652dae502ba0282e1ff1dab2428d27d08f9adf94d9f3e2583');
+  assert.equal(hash, '1a4baa0d5cf6b2b7faebfbaba94e41ac4faf8d61f737f5cc17519844522bf3fc');
 });
 
 test('MAIN 필드가 없는 CONTENT v1 발행 출력도 고정 해시를 유지한다', () => {
@@ -156,7 +156,7 @@ test('MAIN 필드가 없는 CONTENT v1 발행 출력도 고정 해시를 유지�
   }), candidate, { heroImageUrl: '/mock/hero.svg', imagePool: ['/mock/generated.svg'] });
   const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
   const hash = createHash('sha256').update(normalized).digest('hex');
-  assert.equal(hash, '69edabea89f1e27f3de48b875d82452768e0009c30ffd9747122a4bbabf5af41');
+  assert.equal(hash, 'b4378a17a6fa39d8883723eefb4fca2cb2082b8e1553b8f1242ff6b04799fbd3');
 });
 
 test('고객 스토리가 비어 있는 MAIN 폴백은 검증 가능한 이력·수치·시설·후기를 만들지 않는다', () => {

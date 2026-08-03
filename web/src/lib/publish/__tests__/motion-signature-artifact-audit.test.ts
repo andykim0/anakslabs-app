@@ -71,7 +71,7 @@ function beforeAfter(): { config: SiteConfig; scene: BeforeAfterScrubScene; mark
   };
   config.motion!.signatures = [scene];
   const markup = `<section data-motion-signature="before-after-scrub">
-    <span data-before-after-label="actual-case" data-non-removable="true">실제 사례</span>
+    <span data-before-after-label="actual-case" data-non-removable="true">Verified case</span>
     <h2>공간 변화</h2>
     <figure><img src="/before.webp" alt="시공 전 실제 공간" width="1200" height="800" loading="lazy" decoding="async"></figure>
     <figure><img src="/after.webp" alt="시공 후 실제 공간" width="1200" height="800" loading="lazy" decoding="async"></figure>

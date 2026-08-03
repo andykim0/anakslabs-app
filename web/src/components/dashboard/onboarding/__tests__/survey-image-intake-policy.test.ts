@@ -48,8 +48,8 @@ describe('SURVEY 이미지 수집 정책', () => {
   test('gallery·team의 부재 안내는 referential 사진 경계를 분명히 한다', () => {
     const sitePlan = source('src/lib/content/site-plan.ts');
     const deepening = source('src/components/dashboard/onboarding/steps/step-conditional-deepening.tsx');
-    assert.match(sitePlan, /gallery: '사용 권리를 확인한 실제 제품·공간·작업 사진/u);
-    assert.match(sitePlan, /team: '구성원 경력·자격[\s\S]*실제 인물 사진만 사용/u);
+    assert.match(sitePlan, /gallery: 'Upload real product, space, or work photos with confirmed usage rights/u);
+    assert.match(sitePlan, /team: 'Add team experience and credentials[\s\S]*Use real photos when showing real people/u);
     assert.match(deepening, /Upload a photo of a real person \(optional\)/u);
     assert.match(deepening, /Even without photos, you can organize it based on career and qualification information/u);
   });

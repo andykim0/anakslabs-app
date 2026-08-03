@@ -49,7 +49,7 @@ describe('SCAN_GUIDANCE 완전성', () => {
     ]);
     for (const code of inputToPerfect) {
       assert.equal(scanRuleFor(code)?.ownership, 'customer', `${code}는 고객 입력 규칙이어야 한다`);
-      assert.match(guidanceFor(code)?.title ?? '', /입력하면 이 항목이 만점이 돼요$/);
+      assert.match(guidanceFor(code)?.title ?? '', /complete this item$/);
     }
 
     const unsourcedClaims = scanRuleFor('geo_unsourced_claims');

@@ -38,7 +38,7 @@ describe('T1-1 모바일 헤더', () => {
   });
   test('모바일 햄버거 + 데스크톱 6개 초과 시 더보기', () => {
     assert.ok(html.includes('☰'));
-    assert.ok(html.includes('더보기'));
+    assert.ok(html.includes('More'));
     assert.ok(/flex-shrink:\s*0/i.test(html), '내비/햄버거 shrink 방지 없음');
   });
 });
@@ -79,7 +79,7 @@ describe('T1-4 앵커·CTA 전수 배선', () => {
     const hero = cfg.pages[0].sections.find((s) => s.type === 'hero')!;
     const cta = hero.elements.find((el) => el.kind === 'button' && el.id.includes('hero-cta') && !el.id.includes('cta2'));
     assert.ok(cta && cta.kind === 'button');
-    assert.equal(cta!.label, '상담 문의');
+    assert.equal(cta!.label, 'Contact us');
     // trust sectionEmphasis(cases/testimonials/team/about) 중 계획에 있는 첫 섹션 또는 contact 폴백 — 무배선 아님
     assert.ok(cta!.href.startsWith('#') || cta!.href.includes('#'), `href=${cta!.href}`);
   });

@@ -227,9 +227,9 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
       US_DEMO_VIEW_DISCLOSURE.legalReview,
     ].join(' ');
     assert.match(document, /HMAC-SHA-256/u);
-    assert.match(document, /30일/u);
-    assert.match(document, /환자 정보/u);
-    assert.match(document, /법무/u);
+    assert.match(document, /90 days/u);
+    assert.match(document, /protected health information \(PHI\)/u);
+    assert.match(document, /legal review/u);
     const html = renderToStaticMarkup(createElement(MarketingPrivacyPage));
     assert.match(html, /Private demo views/u);
     assert.match(html, /HMAC-SHA-256/u);

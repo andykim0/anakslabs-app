@@ -22,17 +22,17 @@ export const ONBOARDING_NUDGE_MAPPING: readonly OnboardingNudgeDefinition[] = [
     id: 'public-contact',
     fieldPaths: ['factualAnswers.phone', 'factualAnswers.address'],
     ruleCodes: ['aeo_local_business_details', 'geo_business_info'],
-    badge: '전화·주소가 AEO·GEO 점수를 올려요',
-    incompleteMessage: '실제 전화번호와 주소를 모두 입력하면 이 항목이 만점이 돼요.',
-    completeMessage: '전화번호와 주소가 홈페이지 화면과 구조화 정보에 같은 값으로 반영돼요.',
+    badge: 'Phone and address strengthen AEO and GEO signals',
+    incompleteMessage: 'Add a real phone number and address to complete this item.',
+    completeMessage: 'The same phone number and address now appear in the page and structured data.',
   },
   {
     id: 'metric-source',
     fieldPaths: ['proofItems.metric.sourceUrl', 'proofItems.metric.publisher', 'proofItems.metric.asOfDate'],
     ruleCodes: ['geo_unsourced_claims'],
-    badge: '수치의 출처가 GEO 점수를 지켜줘요',
-    incompleteMessage: '출처 없는 수치는 검색 신뢰 감점 대상이에요. 출처를 추가하거나 수치를 빼주세요.',
-    completeMessage: '수치와 같은 구역에 원문 출처가 함께 표시돼요.',
+    badge: 'Sources protect the credibility of numbers',
+    incompleteMessage: 'A number without a source weakens trust. Add its source or remove the number.',
+    completeMessage: 'The original source appears beside the number it supports.',
   },
 ] as const;
 
@@ -40,9 +40,9 @@ export function assertNudgeMappingUsesScanRegistry(): void {
   for (const mapping of ONBOARDING_NUDGE_MAPPING) {
     for (const code of mapping.ruleCodes) {
       const rule = scanRuleFor(code);
-      if (!rule) throw new Error(`온보딩 넛지에 등록되지 않은 진단 규칙이 연결됐습니다: ${code}`);
+      if (!rule) throw new Error(`Diagnostic rule not registered for an onboarding nudge: ${code}`);
       if (rule.ownership !== 'customer') {
-        throw new Error(`고객 입력 넛지는 customer 소유 규칙만 연결할 수 있습니다: ${code}`);
+        throw new Error(`Customer input nudges can only use customer-owned rules: ${code}`);
       }
     }
   }

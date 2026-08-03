@@ -117,8 +117,8 @@ const spec = <T extends MotionSignatureSpec>(value: T): T => value;
 /** Active, candidate, and legacy IDs share one auditable catalog. */
 export const MOTION_SIGNATURES = {
   'cinematic-scrub': spec({
-    id: 'cinematic-scrub', status: 'active', label: '시네마틱 스크럽',
-    description: '고정 히어로의 실제 영상 재생헤드를 데스크톱 스크롤 진행도에 연결합니다.',
+    id: 'cinematic-scrub', status: 'active', label: 'Cinematic scrub',
+    description: 'Connects the real video playhead in a pinned hero to desktop scroll progress.',
     tier: 'premium', target: 'hero', minItems: 1, maxItems: 1,
     supportedSectionTypes: ['hero'], mediaCapability: 'video-required', policy: ANY_POLICY,
     contentFit: { strategy: 'hero-media', min: 1, max: 1 },
@@ -129,8 +129,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: true, contract: ACTIVE_SIGNATURE_CONTRACTS['cinematic-scrub'],
   }),
   'scrollytelling-manifesto': spec({
-    id: 'scrollytelling-manifesto', status: 'active', label: '매니페스토',
-    description: '영상 하나를 고정하고 3~5개의 정적 서사 막을 페이지 진행도에 맞춰 전환합니다.',
+    id: 'scrollytelling-manifesto', status: 'active', label: 'Manifesto',
+    description: 'Pins one video while three to five static narrative acts change with page progress.',
     tier: 'premium', target: 'page', minItems: 3, maxItems: 5,
     supportedSectionTypes: ['hero'], mediaCapability: 'video-required',
     policy: {
@@ -151,8 +151,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: true, contract: ACTIVE_SIGNATURE_CONTRACTS['scrollytelling-manifesto'],
   }),
   'sticky-chapters': spec({
-    id: 'sticky-chapters', status: 'candidate', label: '스티키 챕터',
-    description: '고정 미디어 옆에서 3~5개의 실제 섹션이 정상 문서 흐름으로 읽히며 장면을 바꿉니다.',
+    id: 'sticky-chapters', status: 'candidate', label: 'Sticky chapters',
+    description: 'Three to five real sections remain in document flow while changing the scene beside pinned media.',
     tier: 'basic', target: 'page', minItems: 3, maxItems: 5,
     supportedSectionTypes: ['hero'], mediaCapability: 'image-or-video',
     policy: {
@@ -172,8 +172,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: true,
   }),
   'true-card-stack': spec({
-    id: 'true-card-stack', status: 'active', label: '카드 스택',
-    description: '3~6개의 실제 문서-flow 카드가 position:sticky로 차례로 앞 카드를 덮습니다.',
+    id: 'true-card-stack', status: 'active', label: 'Card stack',
+    description: 'Three to six document-flow cards use position: sticky to cover the preceding card in sequence.',
     tier: 'basic', target: 'section', minItems: 3, maxItems: 6,
     supportedSectionTypes: ['menu', 'features', 'pricing', 'gallery', 'cases'],
     mediaCapability: 'image', policy: ANY_POLICY,
@@ -185,8 +185,8 @@ export const MOTION_SIGNATURES = {
     contract: ACTIVE_SIGNATURE_CONTRACTS['true-card-stack'],
   }),
   'portal-zoom': spec({
-    id: 'portal-zoom', status: 'candidate', label: '포털 줌',
-    description: '중앙 미디어 포털이 transform·clip-path로 확장된 뒤 다음 의미 장면을 드러냅니다.',
+    id: 'portal-zoom', status: 'candidate', label: 'Portal zoom',
+    description: 'A central media portal expands with transform and clip-path before revealing the next semantic scene.',
     tier: 'basic', target: 'page', minItems: 2, maxItems: 3,
     supportedSectionTypes: ['hero'], mediaCapability: 'image-or-video',
     policy: {
@@ -201,8 +201,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: true,
   }),
   'scroll-curtain': spec({
-    id: 'scroll-curtain', status: 'active', label: '스크롤 커튼',
-    description: '하나의 공유 진행도로 2~4개 의미 장면의 전경을 걷어 다음 장면을 드러냅니다.',
+    id: 'scroll-curtain', status: 'active', label: 'Scroll curtain',
+    description: 'One shared progress value uncovers the foreground of two to four semantic scenes.',
     tier: 'basic', target: 'page', minItems: 2, maxItems: 4,
     supportedSectionTypes: ['hero'], mediaCapability: 'image-or-video',
     policy: {
@@ -217,8 +217,8 @@ export const MOTION_SIGNATURES = {
     contract: ACTIVE_SIGNATURE_CONTRACTS['scroll-curtain'],
   }),
   'mosaic-reveal': spec({
-    id: 'mosaic-reveal', status: 'candidate', label: '모자이크 리빌',
-    description: '6~12개의 캡션·대체텍스트가 있는 이미지를 결정적인 CSS Grid 순서로 드러냅니다.',
+    id: 'mosaic-reveal', status: 'candidate', label: 'Mosaic reveal',
+    description: 'Reveals six to twelve captioned, described images in a deterministic CSS Grid order.',
     tier: 'basic', target: 'section', minItems: 6, maxItems: 12,
     supportedSectionTypes: ['gallery'], mediaCapability: 'image',
     policy: {
@@ -233,8 +233,8 @@ export const MOTION_SIGNATURES = {
     basicTierFallback: 'scroll-reveal', signatureUnits: 1, sticky: false,
   }),
   'path-journey': spec({
-    id: 'path-journey', status: 'active', label: '패스 저니',
-    description: '3~7개의 검증된 과정 항목을 ol/li 타임라인과 transform 진행선으로 연결합니다.',
+    id: 'path-journey', status: 'active', label: 'Path journey',
+    description: 'Connects three to seven verified process items in an ol/li timeline with a transform progress line.',
     tier: 'basic', target: 'section', minItems: 3, maxItems: 7,
     supportedSectionTypes: ['about', 'features', 'custom', 'faq'], mediaCapability: 'none',
     policy: {
@@ -249,8 +249,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: false, contract: ACTIVE_SIGNATURE_CONTRACTS['path-journey'],
   }),
   'before-after-scrub': spec({
-    id: 'before-after-scrub', status: 'candidate', label: '실제 사례 전후 비교',
-    description: '같은 실제 사례의 소유권 확인 이미지 두 장만 비교하며 AI·영상 생성물을 금지합니다.',
+    id: 'before-after-scrub', status: 'candidate', label: 'Verified before and after',
+    description: 'Compares two rights-confirmed images from the same real case and excludes generated images and video.',
     tier: 'basic', target: 'section', minItems: 2, maxItems: 2,
     supportedSectionTypes: ['gallery', 'cases'], mediaCapability: 'verified-customer-images-only',
     policy: {
@@ -264,8 +264,8 @@ export const MOTION_SIGNATURES = {
     basicTierFallback: 'labelled static real-case pair', signatureUnits: 1, sticky: false,
   }),
   'horizontal-story': spec({
-    id: 'horizontal-story', status: 'candidate', label: '가로 스토리',
-    description: '충분한 데스크톱에서만 세로 진행도를 3~6개 패널의 translateX에 매핑합니다.',
+    id: 'horizontal-story', status: 'candidate', label: 'Horizontal story',
+    description: 'Maps vertical progress to translateX across three to six panels on sufficiently wide desktop screens.',
     tier: 'basic', target: 'page', minItems: 3, maxItems: 6,
     supportedSectionTypes: ['hero'], mediaCapability: 'image-or-video',
     policy: {
@@ -283,8 +283,8 @@ export const MOTION_SIGNATURES = {
 
   // Legacy entries are descriptive only. Their persisted IDs keep existing renderer behavior.
   'boomerang-loop': spec({
-    id: 'boomerang-loop', status: 'legacy', label: '부메랑 루프 (레거시)',
-    description: '기존 영상 프롬프트 방향. 새 사이트 선택에서 제외합니다.', tier: 'premium',
+    id: 'boomerang-loop', status: 'legacy', label: 'Boomerang loop (legacy)',
+    description: 'Legacy video prompt direction. Excluded from new-site selection.', tier: 'premium',
     target: 'hero', minItems: 1, maxItems: 1, supportedSectionTypes: ['hero'],
     mediaCapability: 'video-required', policy: ANY_POLICY,
     contentFit: { strategy: 'hero-media', min: 1, max: 1 },
@@ -293,8 +293,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: false,
   }),
   'slow-zoom': spec({
-    id: 'slow-zoom', status: 'legacy', label: '슬로우 줌 (레거시)',
-    description: '기존 영상 프롬프트 방향. 새 사이트 선택에서 제외합니다.', tier: 'premium',
+    id: 'slow-zoom', status: 'legacy', label: 'Slow zoom (legacy)',
+    description: 'Legacy video prompt direction. Excluded from new-site selection.', tier: 'premium',
     target: 'hero', minItems: 1, maxItems: 1, supportedSectionTypes: ['hero'],
     mediaCapability: 'video-required', policy: ANY_POLICY,
     contentFit: { strategy: 'hero-media', min: 1, max: 1 },
@@ -303,8 +303,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: false,
   }),
   'parallax-depth': spec({
-    id: 'parallax-depth', status: 'legacy', label: '패럴럭스 깊이 (레거시)',
-    description: '기존 영상 프롬프트 방향. 새 사이트 선택에서 제외합니다.', tier: 'premium',
+    id: 'parallax-depth', status: 'legacy', label: 'Parallax depth (legacy)',
+    description: 'Legacy video prompt direction. Excluded from new-site selection.', tier: 'premium',
     target: 'hero', minItems: 1, maxItems: 1, supportedSectionTypes: ['hero'],
     mediaCapability: 'video-required', policy: ANY_POLICY,
     contentFit: { strategy: 'hero-media', min: 1, max: 1 },
@@ -313,22 +313,22 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: false,
   }),
   'count-up': spec({
-    id: 'count-up', status: 'legacy', label: '카운트업 (레거시)', description: '기존 숫자 IO accent.',
+    id: 'count-up', status: 'legacy', label: 'Count up (legacy)', description: 'Legacy number intersection accent.',
     tier: 'basic', target: 'section', minItems: 1, maxItems: 3, supportedSectionTypes: ['about', 'features', 'cases'],
     mediaCapability: 'none', policy: ANY_POLICY, contentFit: { strategy: 'section-items', min: 1, max: 3 },
     desktopPlayback: 'legacy one-shot count', mobileFallback: 'static number', reducedMotionFallback: 'static number',
     noJsFallback: 'static number', basicTierFallback: 'static number', signatureUnits: 1, sticky: false,
   }),
   'spotlight': spec({
-    id: 'spotlight', status: 'legacy', label: '스포트라이트 (레거시)', description: '기존 포인터 장식.',
+    id: 'spotlight', status: 'legacy', label: 'Spotlight (legacy)', description: 'Legacy pointer decoration.',
     tier: 'premium', target: 'section', minItems: 1, maxItems: 1, supportedSectionTypes: ['custom'],
     mediaCapability: 'none', policy: ANY_POLICY, contentFit: { strategy: 'section-items', min: 1, max: 1 },
     desktopPlayback: 'legacy pointer decoration', mobileFallback: 'static', reducedMotionFallback: 'static',
     noJsFallback: 'static', basicTierFallback: 'static', signatureUnits: 1, sticky: false,
   }),
   'stacking-cards': spec({
-    id: 'stacking-cards', status: 'legacy', label: '카드 등장 (레거시)',
-    description: '기존 IO reveal이며 true-card-stack과 다른 의미를 유지합니다.', tier: 'premium',
+    id: 'stacking-cards', status: 'legacy', label: 'Card entrance (legacy)',
+    description: 'Legacy intersection reveal with semantics distinct from true-card-stack.', tier: 'premium',
     target: 'section', minItems: 3, maxItems: 99, supportedSectionTypes: ['menu', 'features', 'pricing', 'gallery', 'cases'],
     mediaCapability: 'image', policy: ANY_POLICY, contentFit: { strategy: 'section-items', min: 3, max: 99 },
     desktopPlayback: 'legacy IO reveal', mobileFallback: 'legacy vertical reveal',
@@ -336,8 +336,8 @@ export const MOTION_SIGNATURES = {
     signatureUnits: 1, sticky: false,
   }),
   'micro-hover': spec({
-    id: 'micro-hover', status: 'legacy', label: '마이크로 호버 (기본 UI)',
-    description: '기본 버튼 피드백으로만 유지하며 시그니처로 판매하지 않습니다.', tier: 'basic',
+    id: 'micro-hover', status: 'legacy', label: 'Micro hover (base UI)',
+    description: 'Retained only as base button feedback, not sold as a signature.', tier: 'basic',
     target: 'section', minItems: 1, maxItems: 99, supportedSectionTypes: ['custom'],
     mediaCapability: 'none', policy: ANY_POLICY, contentFit: { strategy: 'section-items', min: 1, max: 99 },
     desktopPlayback: 'ordinary hover/focus affordance', mobileFallback: 'ordinary focus affordance',
@@ -444,21 +444,21 @@ export function canonicalIndustryClass(
 
   const value = industry.trim().toLowerCase();
   if (purposeId === 'local_store') {
-    if (/카페|베이커리|디저트|bakery|cafe/.test(value)) return 'cafe';
-    if (/편집숍|소품샵|꽃집|반찬가게|정육|청과|retail|shop/.test(value)) return 'retail';
+    if (/\uCE74\uD398|\uBCA0\uC774\uCEE4\uB9AC|\uB514\uC800\uD2B8|bakery|cafe/.test(value)) return 'cafe';
+    if (/\uD3B8\uC9D1\uC20D|\uC18C\uD488\uC0F5|\uAF43\uC9D1|\uBC18\uCC2C\uAC00\uAC8C|\uC815\uC721|\uCCAD\uACFC|retail|shop/.test(value)) return 'retail';
     return 'other';
   }
   if (purposeId === 'booking_service') {
     // medical precedence remains fail-closed even if a forged non-clinic template reaches this helper.
-    if (/병원|의원|치과|한의원|한방|clinic|hospital|dental/.test(value)) return 'medical';
-    if (/공방|원데이|workshop/.test(value)) return 'workshop';
-    if (/사진|대여 스튜디오|photo|studio/.test(value)) return 'photography';
-    if (/상담|법률|세무|consult/.test(value)) return 'consulting';
+    if (/\uBCD1\uC6D0|\uC758\uC6D0|\uCE58\uACFC|\uD55C\uC758\uC6D0|\uD55C\uBC29|clinic|hospital|dental/.test(value)) return 'medical';
+    if (/\uACF5\uBC29|\uC6D0\uB370\uC774|workshop/.test(value)) return 'workshop';
+    if (/\uC0AC\uC9C4|\uB300\uC5EC \uC2A4\uD29C\uB514\uC624|photo|studio/.test(value)) return 'photography';
+    if (/\uC0C1\uB2F4|\uBC95\uB960|\uC138\uBB34|consult/.test(value)) return 'consulting';
     return 'other';
   }
   if (purposeId === 'company_brand') return 'brand';
   if (purposeId === 'portfolio') {
-    return /사진|영상|photo|video/.test(value) ? 'photography' : 'portfolio';
+    return /\uC0AC\uC9C4|\uC601\uC0C1|photo|video/.test(value) ? 'photography' : 'portfolio';
   }
   return 'other';
 }
@@ -664,7 +664,7 @@ export function canUseMotionSignature(
 ): MotionEligibility {
   const specValue: MotionSignatureSpec = MOTION_SIGNATURES[id];
   if (specValue.tier === 'premium' && !context.entitlement.videoAddon) {
-    return { allowed: false, reason: 'AI 영상 홈페이지 승인 필요' };
+    return { allowed: false, reason: 'AI video approval required' };
   }
   if (!policyAllows(specValue, context)) return { allowed: false, reason: 'purpose/template/industry policy' };
   if (!contentFits(id, context, scene)) return { allowed: false, reason: 'insufficient structured content' };
@@ -837,7 +837,7 @@ export function resolveMotionArtDirectionProfile(
   const radius = context.theme?.radius ?? 0;
   const headingFont = context.theme?.fonts.heading.toLowerCase() ?? '';
   const bodyFont = context.theme?.fonts.body.toLowerCase() ?? '';
-  const serifHeading = /serif|myeongjo|명조|song/.test(headingFont);
+  const serifHeading = /serif|myeongjo|\uBA85\uC870|song/.test(headingFont);
   const typographyVoice = serifHeading
     ? 'serif-editorial'
     : headingFont && bodyFont && headingFont !== bodyFont
@@ -1041,7 +1041,7 @@ export function sanitizeMotionSignatures(
         ...config,
         motion: config.motion ? { ...config.motion, signatures: [] } : config.motion,
       },
-      changes: ['모션 시그니처 카탈로그 버전이 없어 안전하게 모든 시그니처를 제거했습니다.'],
+      changes: ['The motion signature catalog version was missing, so all signatures were removed safely.'],
     };
   }
   const changes: string[] = [];
@@ -1050,17 +1050,17 @@ export function sanitizeMotionSignatures(
   for (const candidate of input) {
     const id = candidate?.signatureId;
     if (!(PRODUCTION_MOTION_SIGNATURE_IDS as readonly string[]).includes(id)) {
-      changes.push(`알 수 없는 모션 시그니처 '${String(id)}'을 제거했습니다.`);
+      changes.push(`Removed unknown motion signature '${String(id)}'.`);
       continue;
     }
     const scene = candidate as MotionScene;
     const invalid = validateScene(scene, config, context);
     if (invalid) {
-      changes.push(`모션 시그니처 '${id}'을 제거했습니다: ${invalid}.`);
+      changes.push(`Removed motion signature '${id}': ${invalid}.`);
       continue;
     }
     if (pages.has(scene.pageId)) {
-      changes.push(`페이지 '${scene.pageId}'의 두 번째 모션 시그니처 '${id}'을 제거했습니다.`);
+      changes.push(`Removed the second motion signature '${id}' from page '${scene.pageId}'.`);
       continue;
     }
     pages.add(scene.pageId);

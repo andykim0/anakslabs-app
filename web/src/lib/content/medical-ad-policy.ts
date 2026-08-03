@@ -21,7 +21,16 @@ import type {
   VideoElement,
 } from '@/lib/types/site';
 
-export const MEDICAL_AD_POLICY_VERSION = 'medical-ad-2026-07-v1' as const;
+export const MEDICAL_AD_POLICY_VERSION = 'us-medical-ad-2026-08-v1' as const;
+
+export const MEDICAL_AD_AUTHORITY_SOURCES = Object.freeze({
+  ftcHealthProducts:
+    'https://www.ftc.gov/business-guidance/resources/health-products-compliance-guidance',
+  ftcAdvertisingBasics:
+    'https://www.ftc.gov/business-guidance/advertising-marketing/advertising-marketing-basics',
+  ftcEndorsements:
+    'https://www.ftc.gov/business-guidance/advertising-marketing/endorsements-influencers-reviews',
+} as const);
 
 export type MedicalAdSeverity = 'block' | 'warn';
 
@@ -57,19 +66,10 @@ export interface MedicalPublicCopy {
 }
 
 export type MedicalStatuteRef =
-  | '의료법 제56조 제2항 제1호'
-  | '의료법 제56조 제2항 제2호'
-  | '의료법 제56조 제2항 제3호'
-  | '의료법 제56조 제2항 제4호'
-  | '의료법 제56조 제2항 제5호'
-  | '의료법 제56조 제2항 제7호'
-  | '의료법 제56조 제2항 제8호'
-  | '의료법 제56조 제2항 제9호'
-  | '의료법 제56조 제2항 제10호'
-  | '의료법 제56조 제2항 제13호'
-  | '의료법 제56조 제2항 제14호'
-  | '의료법 제27조 제3항'
-  | '의료광고 자율심의기준 금지표현 예시';
+  | 'FTC Act Sections 5 and 12'
+  | 'FTC Health Products Compliance Guidance'
+  | 'FTC Endorsement Guides'
+  | 'US review required';
 
 interface RegexMatcher {
   kind: 'regex';
@@ -98,6 +98,8 @@ export interface MedicalAdRule {
     | 'article-format'
     | 'side-effect-omission';
   severity: MedicalAdSeverity;
+  enabled: boolean;
+  usDisposition: 'valid' | 'modified' | 'inactive-review-required';
   statuteRefs: readonly MedicalStatuteRef[];
   matchers: readonly MedicalAdMatcher[];
   scopes?: readonly MedicalCopyScope[];
@@ -105,209 +107,163 @@ export interface MedicalAdRule {
   rationale: string;
 }
 
-/**
- * 의료광고 카피 정책의 단일 소스.
- *
- * 현행 의료법 제56조 제3항은 광고 방법에 관한 조항이므로 이 콘텐츠 레지스트리의 근거로
- * 사용하지 않는다. 최상급·보장·즉효 표현에는 전용 호를 만들어 붙이지 않고, 제2항 제8호
- * (객관적 사실 과장)·제3호(거짓)·제2호(치료경험담 오인)와 자율심의 금지표현 예시를 함께
- * 기록한다.
- */
+/** US federal baseline only. State-specific rules remain inactive until counsel review. */
 export const MEDICAL_AD_RULES = [
   {
     id: 'medical-superlative-absolute',
     category: 'superlative-absolute',
     severity: 'block',
-    statuteRefs: [
-      '의료법 제56조 제2항 제8호',
-      '의료법 제56조 제2항 제3호',
-      '의료법 제56조 제2항 제2호',
-      '의료광고 자율심의기준 금지표현 예시',
-    ],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:최\\s*고|최\\s*상|제\\s*일|유\\s*일|무\\s*이|최\\s*초|국\\s*내\\s*유\\s*일|1\\s*위|1\\s*등|no\\s*1|넘\\s*버\\s*원|베\\s*스\\s*트|top(?:\\s*1)?)',
+        source: '\\b(?:best|number\\s+one|top[- ]rated|leading|only\\s+(?:clinic|practice|provider)|1\\s+(?:clinic|practice|provider))\\b',
       },
     ],
-    safeReplacementHint: '검증 가능한 진료 범위·의료진 정보·운영 원칙을 사실대로 적어 주세요.',
-    rationale:
-      '객관적으로 입증하기 어려운 최상급·절대 순위는 거짓 또는 객관적 사실 과장과 치료결과 오인을 만들 수 있다.',
+    safeReplacementHint: 'Use verifiable services, provider details, and operating facts instead.',
+    rationale: 'An objective superiority or exclusivity claim requires substantiation before publication.',
   },
   {
     id: 'medical-guarantee-safety',
     category: 'guarantee-safety',
     severity: 'block',
-    statuteRefs: [
-      '의료법 제56조 제2항 제8호',
-      '의료법 제56조 제2항 제3호',
-      '의료법 제56조 제2항 제2호',
-      '의료법 제56조 제2항 제7호',
-      '의료광고 자율심의기준 금지표현 예시',
-    ],
+    enabled: true,
+    usDisposition: 'valid',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
-      { kind: 'regex', source: '100\\s*%' },
-      { kind: 'regex', source: '완\\s*치' },
       {
         kind: 'regex',
-        source:
-          '(?:완\\s*벽|무\\s*조\\s*건|확\\s*실(?:한|히)?)(?:\\s+[가-힣a-z0-9%]+){0,2}\\s*(?:효\\s*과|치\\s*료|개\\s*선|회\\s*복|결\\s*과|시\\s*술)',
-      },
-      {
-        kind: 'regex',
-        source:
-          '(?:부\\s*작\\s*용\\s*(?:이\\s*)?(?:없|없는|없이)|무\\s*통|통\\s*증\\s*(?:이\\s*)?(?:없|없는|없이)|영\\s*구(?:적|히)?|재\\s*발\\s*(?:이\\s*)?(?:없|없는|없이)|절\\s*대\\s*안\\s*전)',
+        source: '\\b(?:100\\s*%|guarante(?:e|ed|es)|cure(?:d|s)?|completely\\s+safe|absolutely\\s+safe|no\\s+side\\s+effects?|pain[- ]free|permanent\\s+results?)\\b',
       },
     ],
-    safeReplacementHint: '효과를 단정하지 말고 진료 과정·개인차·주의사항을 함께 설명해 주세요.',
-    rationale:
-      '완치·안전·효과를 절대적으로 보장하는 표현은 거짓·과장과 중요 부작용 누락 위험이 있다.',
+    safeReplacementHint: 'Describe the procedure without guaranteeing safety, efficacy, or outcome.',
+    rationale: 'Absolute safety and outcome promises are likely to mislead without adequate substantiation.',
   },
   {
     id: 'medical-instant-effect',
     category: 'instant-effect',
     severity: 'block',
-    statuteRefs: [
-      '의료법 제56조 제2항 제8호',
-      '의료법 제56조 제2항 제3호',
-      '의료법 제56조 제2항 제2호',
-      '의료광고 자율심의기준 금지표현 예시',
-    ],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:(?:즉\\s*시|단\\s*번\\s*에)\\s*(?:효\\s*과|개\\s*선|회\\s*복|치\\s*료|완\\s*화)|바\\s*로\\s*(?:효\\s*과|낫|개\\s*선|회\\s*복))',
+        source: '(?:\\b(?:instant(?:ly)?|immediate(?:ly)?|in\\s+one\\s+visit)\\b.{0,40}\\b(?:results?|relief|recovery|cure|improvement)\\b|\\b(?:results?|relief|recovery|cure|improvement)\\b.{0,20}\\bin\\s+one\\s+visit\\b)',
       },
     ],
-    safeReplacementHint: '효과가 나타나는 시점을 단정하지 말고 치료 과정과 개인차를 안내해 주세요.',
-    rationale:
-      '즉효를 단정하면 객관적 사실을 과장하거나 치료 결과를 오인하게 할 수 있다.',
+    safeReplacementHint: 'Describe timing as a sourced clinical fact, not a promised result.',
+    rationale: 'An immediate-results claim is an objective health claim that requires reliable support.',
   },
   {
     id: 'medical-treatment-testimonial',
     category: 'treatment-testimonial',
-    severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제2호'],
+    severity: 'warn',
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Endorsement Guides', 'FTC Health Products Compliance Guidance'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:(?:치\\s*료|시\\s*술|진\\s*료|수\\s*술|환\\s*자)\\s*(?:후\\s*기|체\\s*험\\s*담|경\\s*험\\s*담|스\\s*토\\s*리)|(?:완\\s*치|치\\s*료)\\s*(?:체\\s*험\\s*담|경\\s*험\\s*담))',
-      },
-      {
-        kind: 'regex',
-        source:
-          '(?:제\\s*가|환\\s*자\\s*가).{0,60}?(?:치\\s*료|시\\s*술).{0,60}?(?:좋\\s*아|나\\s*아|회\\s*복)',
+        source: '\\b(?:patient\\s+(?:testimonial|story)|before[- ]and[- ]after|my\\s+(?:treatment|procedure).{0,80}(?:cured|fixed|healed|recovered))\\b',
       },
     ],
-    safeReplacementHint: '환자 경험 대신 진료 절차와 확인 가능한 공식 정보를 설명해 주세요.',
-    rationale: '환자의 치료 경험담은 치료 효과를 일반화해 소비자를 현혹할 수 있다.',
+    safeReplacementHint: 'Hold the testimonial until claims, typical results, and material connections are reviewed.',
+    rationale: 'A testimonial cannot substantiate a health claim and may require clear typical-results and connection disclosures.',
   },
   {
     id: 'medical-comparison',
     category: 'comparison',
     severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제4호'],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:(?:타|다\\s*른)\\s*(?:병\\s*원|의\\s*원|클\\s*리\\s*닉|치\\s*과)(?:\\s+[가-힣a-z0-9%]+){0,8}\\s*보\\s*다|(?:대\\s*비|비\\s*교\\s*해)(?:\\s+[가-힣a-z0-9%]+){0,8}\\s*(?:우\\s*수|뛰\\s*어))',
+        source: '\\b(?:better|safer|faster|more\\s+effective)\\s+than\\b|\\bcompared\\s+(?:with|to)\\s+other\\s+(?:clinics|practices|providers)\\b',
       },
     ],
-    safeReplacementHint: '다른 의료기관과 비교하지 말고 이곳의 확인 가능한 진료 정보를 적어 주세요.',
-    rationale: '다른 의료기관의 진료 방법·기능과 비교하는 광고는 금지된다.',
+    safeReplacementHint: 'Use the practice\'s verifiable facts without an unsupported comparison.',
+    rationale: 'Objective comparative claims must be truthful, non-misleading, and substantiated.',
   },
   {
     id: 'medical-disparagement',
     category: 'disparagement',
     severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제5호'],
-    matchers: [
-      {
-        kind: 'regex',
-        source:
-          '(?:(?:다\\s*른|타)\\s*(?:병\\s*원|의\\s*원|클\\s*리\\s*닉|치\\s*과)(?:은|는|이|가)?(?:\\s+[가-힣a-z0-9%]+){0,8}?\\s*(?:위\\s*험|부\\s*실|문\\s*제)|(?:저\\s*렴\\s*한|싼)\\s*(?:곳|병\\s*원|의\\s*원)(?:은|는|이|가)?(?:\\s+[가-힣a-z0-9%]+){0,8}?\\s*(?:위\\s*험|부\\s*실))',
-      },
-    ],
-    safeReplacementHint: '타 기관을 평가하지 말고 자체 진료 원칙만 사실대로 안내해 주세요.',
-    rationale: '다른 의료기관이나 의료인의 기능·진료 방법을 비방하는 광고는 금지된다.',
+    enabled: false,
+    usDisposition: 'inactive-review-required',
+    statuteRefs: ['US review required'],
+    matchers: [],
+    safeReplacementHint: 'US review required.',
+    rationale: 'The former rule encoded a Korea-specific categorical prohibition. Applicable state law requires counsel review.',
   },
   {
     id: 'medical-patient-inducement',
     category: 'patient-inducement',
     severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제13호', '의료법 제27조 제3항'],
-    matchers: [
-      {
-        kind: 'regex',
-        source:
-          '(?:(?:무\\s*료(?!\\s*(?:주\\s*차|와\\s*이\\s*파\\s*이))|할\\s*인|특\\s*가|1\\s*\\+\\s*1|사\\s*은\\s*품|페\\s*이\\s*백|선\\s*착\\s*순)(?:\\s+[가-힣a-z0-9%]+){0,3}?\\s*(?:시\\s*술|치\\s*료|진\\s*료|수\\s*술|검\\s*사|비\\s*급\\s*여|진\\s*료\\s*비|치\\s*료\\s*비|수\\s*술\\s*비)|(?:시\\s*술|치\\s*료|진\\s*료|수\\s*술|검\\s*사|비\\s*급\\s*여|진\\s*료\\s*비|치\\s*료\\s*비|수\\s*술\\s*비)(?:\\s+[가-힣a-z0-9%]+){0,3}?\\s*(?:무\\s*료|할\\s*인|특\\s*가|1\\s*\\+\\s*1|사\\s*은\\s*품|페\\s*이\\s*백|선\\s*착\\s*순))',
-      },
-    ],
-    safeReplacementHint: '가격 유인 문구를 빼고 진료비와 적용 조건을 사실대로 안내해 주세요.',
-    rationale:
-      '비급여 진료비 할인·면제를 오인시키거나 금품·향응 등으로 환자를 유인하는 표현을 막는다.',
+    enabled: false,
+    usDisposition: 'inactive-review-required',
+    statuteRefs: ['US review required'],
+    matchers: [],
+    safeReplacementHint: 'US review required.',
+    rationale: 'Fee and patient-inducement restrictions vary by state and cannot be inferred from the former Korean rule.',
   },
   {
     id: 'medical-unassessed-technology',
     category: 'unassessed-technology',
     severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제1호', '의료법 제56조 제2항 제8호'],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:(?:미\\s*검\\s*증|검\\s*증\\s*되\\s*지\\s*않\\s*은)\\s*신\\s*의\\s*료\\s*기\\s*술|(?:기\\s*적|획\\s*기\\s*적)(?:의)?\\s*(?:치\\s*료|효\\s*과|시\\s*술))',
+        source: '\\b(?:miracle|breakthrough|clinically\\s+proven|scientifically\\s+proven)\\b.{0,40}\\b(?:treatment|procedure|technology|results?)\\b',
       },
     ],
-    safeReplacementHint: '평가·허가 상태와 객관적 근거가 확인된 기술만 정확한 명칭으로 적어 주세요.',
-    rationale: '평가받지 않은 신의료기술과 객관적 근거 없는 효능·효과 광고를 차단한다.',
+    safeReplacementHint: 'Use the precise technology name and publish only claims supported by competent and reliable evidence.',
+    rationale: 'Objective health-benefit and evidence-level claims require adequate substantiation.',
   },
   {
     id: 'medical-qualification-endorsement',
     category: 'qualification-endorsement',
     severity: 'warn',
-    statuteRefs: [
-      '의료법 제56조 제2항 제9호',
-      '의료법 제56조 제2항 제14호',
-    ],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Endorsement Guides'],
     matchers: [
       {
         kind: 'regex',
-        source:
-          '(?:세\\s*계\\s*적\\s*명\\s*의|대\\s*한\\s*민\\s*국\\s*대\\s*표\\s*명\\s*의|공\\s*식\\s*인\\s*증\\s*전\\s*문\\s*의|국\\s*가\\s*인\\s*증\\s*병\\s*원|추\\s*천\\s*병\\s*원|수\\s*상\\s*병\\s*원|보\\s*증\\s*된\\s*의\\s*료\\s*진)',
+        source: '\\b(?:board[- ]certified|certified\\s+specialist|award[- ]winning|accredited|fellowship[- ]trained|expert[- ]recommended)\\b',
       },
     ],
-    safeReplacementHint: '법적 근거와 게시 가능한 증빙이 있는 자격·인증만 정확한 명칭으로 적어 주세요.',
-    rationale:
-      '법적 근거 없는 자격·명칭과 법정 예외가 확인되지 않은 인증·보증·추천 표시는 검토가 필요하다.',
+    safeReplacementHint: 'Publish the exact credential only after its source and any material connection are verified.',
+    rationale: 'Credentials and expert endorsements must be accurate and appropriately supported.',
   },
   {
     id: 'medical-article-format',
     category: 'article-format',
     severity: 'block',
-    statuteRefs: ['의료법 제56조 제2항 제10호'],
-    matchers: [
-      {
-        kind: 'regex',
-        source:
-          '(?:전\\s*문\\s*가\\s*가\\s*추\\s*천\\s*하\\s*는|언\\s*론\\s*이\\s*주\\s*목\\s*한|기\\s*사\\s*로\\s*보\\s*는|뉴\\s*스\\s*에\\s*서\\s*소\\s*개\\s*한)',
-      },
-    ],
-    safeReplacementHint: '기사나 전문가 의견처럼 보이는 형식 대신 의료기관이 직접 제공하는 정보로 적어 주세요.',
-    rationale: '기사 또는 전문가 의견 형태로 표현되는 의료광고는 금지된다.',
+    enabled: false,
+    usDisposition: 'inactive-review-required',
+    statuteRefs: ['US review required'],
+    matchers: [],
+    safeReplacementHint: 'US review required.',
+    rationale: 'Native-advertising analysis is context dependent; the former Korea-specific format ban is not reused.',
   },
   {
     id: 'medical-side-effect-disclosure',
     category: 'side-effect-omission',
     severity: 'warn',
-    statuteRefs: ['의료법 제56조 제2항 제7호'],
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [{ kind: 'structural', check: 'side-effect-disclosure' }],
-    safeReplacementHint: '치료 효과를 설명하는 구간에 부작용·위험·주의사항 안내를 함께 추가해 주세요.',
-    rationale: '치료 효과와 함께 중요한 부작용 등 정보를 누락하면 소비자의 판단을 흐릴 수 있다.',
+    safeReplacementHint: 'Hold the claim until material risks, limitations, and qualifications are reviewed.',
+    rationale: 'A material safety omission can make an otherwise literal claim misleading.',
   },
 ] as const satisfies readonly MedicalAdRule[];
 
@@ -342,7 +298,7 @@ const PUNCTUATION = /[^\p{L}\p{N}%+]+/gu;
 export function normalizeMedicalCopy(text: string): string {
   return text
     .normalize('NFKC')
-    .toLocaleLowerCase('ko-KR')
+    .toLocaleLowerCase('en-US')
     .replace(ZERO_WIDTH, '')
     .replace(PUNCTUATION, ' ')
     .replace(/\s+/gu, ' ')
@@ -363,6 +319,7 @@ export function screenMedicalCopy(
   const violations: MedicalAdViolation[] = [];
 
   for (const rule of MEDICAL_AD_RULES) {
+    if (!rule.enabled) continue;
     if (!ruleAppliesToScope(rule, scope)) continue;
     let matchedText = '';
     for (const matcher of rule.matchers) {
@@ -556,7 +513,7 @@ function collectSemanticOutlineCopy(copies: MedicalPublicCopy[], config: SiteCon
       ? config.businessInfo?.businessName?.trim()
         || config.meta.title
         || config.businessInfo?.ownerName
-        || '사이트'
+        || 'Website'
       : page.title;
     addCopy(copies, `${pagePath}.h1`, title, 'semantic-outline', 'derived-semantic-outline');
     if (page.slug === '') {
@@ -606,7 +563,7 @@ function collectSemanticOutlineCopy(copies: MedicalPublicCopy[], config: SiteCon
         } else if (
           element.kind === 'button'
           && /^https:\/\//iu.test(element.href)
-          && /^출처\s*·/u.test(element.label)
+          && /^\ucd9c\ucc98\s*·/u.test(element.label)
         ) {
           addCopy(
             copies,

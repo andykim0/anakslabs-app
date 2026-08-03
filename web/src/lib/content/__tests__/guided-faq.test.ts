@@ -56,7 +56,7 @@ test('답한 질문만 카탈로그 순서로 해석하고 미등록·빈 답변
     { questionId: 'unknown', answer: '이 답은 노출되면 안 됩니다.' },
   ]), [{
     questionId: 'wifi',
-    question: '와이파이와 콘센트를 사용할 수 있나요?',
+    question: 'Do you have Wi-Fi and power outlets?',
     answer: '무료 와이파이를 제공합니다.',
 }]);
 });
@@ -66,15 +66,15 @@ test('신규 브리프는 사실 한 번 입력으로 FAQ를 파생하고 구 �
     { key: 'openingHours', value: '매일 10:00–20:00', source: 'customer' },
     { key: 'parking', value: '주차 불가', source: 'customer' },
   ]), [
-    { questionId: 'hours', question: '영업시간과 쉬는 날은 언제인가요?', answer: '매일 10:00–20:00' },
-    { questionId: 'parking', question: '주차할 수 있나요?', answer: '주차 불가' },
+    { questionId: 'hours', question: 'What are your hours?', answer: '매일 10:00–20:00' },
+    { questionId: 'parking', question: 'Where can I park?', answer: '주차 불가' },
   ]);
   assert.deepEqual(resolveGuidedFaqAnswers('카페', [
     { questionId: 'parking', answer: '기존 고객 답변' },
   ], [
     { key: 'parking', value: '새 사실 값', source: 'customer' },
   ]), [
-    { questionId: 'parking', question: '주차할 수 있나요?', answer: '기존 고객 답변' },
+    { questionId: 'parking', question: 'Where can I park?', answer: '기존 고객 답변' },
   ]);
 });
 
@@ -86,7 +86,7 @@ test('고객 답변 하나가 화면 FAQ와 FAQPage JSON-LD의 같은 문자열�
   assert.ok(faq);
   const visible = extractFaq(faq!);
   assert.deepEqual(visible, [{
-    q: 'Q. 주차할 수 있나요?',
+    q: 'Q. Where can I park?',
     a: '건물 주차장을 한 시간 이용할 수 있습니다.',
   }]);
   const structured = buildJsonLd(config, 'https://fact.example.com').find(

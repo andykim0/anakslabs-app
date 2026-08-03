@@ -231,7 +231,7 @@ test('MAIN은 하위 주제를 홈 미리보기와 완결된 서브페이지 쌍
     'sec-home-directions-teaser', 'sec-contact',
   ]);
   const teaserLinks = home.sections.flatMap((section) => section.elements)
-    .flatMap((element) => element.kind === 'button' && element.label === '자세히 보기' ? [element.href] : []);
+    .flatMap((element) => element.kind === 'button' && element.label === 'View details' ? [element.href] : []);
   assert.deepEqual(teaserLinks, ['/menu', '/gallery', '/faq', '/directions']);
 
   const menu = config.pages.find((page) => page.slug === 'menu')!;
@@ -272,7 +272,7 @@ test('답한 하위 주제가 없으면 MAIN도 빈 서브페이지·티저·죽
   assert.deepEqual(config.pages.map((page) => page.slug), ['']);
   assert.deepEqual(config.pages[0].sections.map((section) => section.id), ['sec-hero', 'sec-about', 'sec-features']);
   assert.equal(config.pages[0].sections.flatMap((section) => section.elements)
-    .some((element) => element.kind === 'button' && element.label === '자세히 보기'), false);
+    .some((element) => element.kind === 'button' && element.label === 'View details'), false);
 });
 
 test('오시는 길 서브페이지는 실제 지도 URL을 같은 페이지에 배치하고 플레이스홀더 문구를 만들지 않는다', () => {
@@ -281,7 +281,7 @@ test('오시는 길 서브페이지는 실제 지도 URL을 같은 페이지에 
   const base = buildSiteConfigFromSurvey(input, candidate, opts);
   const directionsBase = base.pages.find((page) => page.slug === 'directions')!;
   const placeLink = directionsBase.sections.flatMap((section) => section.elements)
-    .find((element) => element.kind === 'button' && element.label === '네이버 지도에서 보기');
+    .find((element) => element.kind === 'button' && element.label === 'Open in Maps');
   assert.ok(placeLink?.kind === 'button');
   assert.equal(placeLink.href, 'https://map.naver.com/p/entry/place/customer-confirmed');
   const config = applyExtraFeatures(base, {
@@ -299,6 +299,6 @@ test('오시는 길 서브페이지는 실제 지도 URL을 같은 페이지에 
   const html = renderToStaticMarkup(createElement(SiteRenderer, {
     config, pageSlug: 'directions', mode: 'desktop', interactive: true, animate: false,
   }));
-  assert.match(html, /<iframe[^>]+title="지도"/u);
+  assert.match(html, /<iframe[^>]+title="Map"/u);
   assert.doesNotMatch(html, /주소를 입력해주세요|지도를 입력|URL을 입력하면|지도 \(URL/u);
 });

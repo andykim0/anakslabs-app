@@ -223,10 +223,10 @@ export function ClinicStickyBooking({
   const tokens = clinicMasterRenderTokens(pin);
   const labels = locale === 'ko-KR'
     ? {
-        aria: '예약 및 전화',
-        book: '예약 문의',
-        call: '전화',
-        disclosure: '예약 시스템을 연결하면 예약 기능이 활성화됩니다.',
+        aria: 'Booking and phone',
+        book: 'Book appointment',
+        call: 'Call',
+        disclosure: 'Booking activates after your scheduling system is connected.',
       }
     : {
         aria: 'Appointment actions',

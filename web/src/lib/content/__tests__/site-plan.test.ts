@@ -105,7 +105,7 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
       (fact) => !['services', 'specialties', 'classes'].includes(fact.key),
     );
     const plan = buildSitePlan(survey);
-    assert.ok(plan.absentSections.some((section) => section.type === 'menu' && section.inputHint.includes('입력하면 추가돼요')));
+    assert.ok(plan.absentSections.some((section) => section.type === 'menu' && section.inputHint.includes('Add')));
     assert.ok(plan.absentSections.some((section) => section.type === 'gallery'));
     assert.ok(plan.absentSections.some((section) => section.type === 'faq'));
     assert.deepEqual(generatedSectionIds(survey), plan.sections.map((section) => section.id).sort());
@@ -213,7 +213,7 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     });
     const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
     const hash = createHash('sha256').update(normalized).digest('hex');
-    assert.equal(hash, 'c17160a1f435f1fea26a7aa4c0a3734190f6ceb7b6193efe007d6afc300b0c1e');
+    assert.equal(hash, '117c2be2334862ef88243fdb16012d8f189b54a68a8aa1394a81e90e905475c9');
   });
 
   test('신규 브리프 필드가 없는 기존 v2 발행 결과는 고정 SHA를 유지한다', () => {
@@ -224,6 +224,6 @@ describe('PLAN P1 단일 생성 계획 계약', () => {
     });
     const normalized = JSON.stringify(config).replace(/© \d{4} /gu, '© YEAR ');
     const hash = createHash('sha256').update(normalized).digest('hex');
-    assert.equal(hash, '30efefdf09ff167bac96d7af7625bcb7cd13b90ce78ce00289be958332ad98ba');
+    assert.equal(hash, '7e0a9475594cb409bac18789b5340908657dd504c887d6c47ef5391457a8fdc1');
   });
 });

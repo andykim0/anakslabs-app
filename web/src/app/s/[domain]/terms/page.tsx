@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { getDataServices } from '@/lib/data';
-import { termsOfService } from '@/lib/legal/templates';
+import { UsTenantLegalDocumentsPendingError, usTermsOfService } from '@/lib/legal/templates';
 import { LegalDocView } from '../LegalDocView';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params;
   const tenant = await loadTenant(domain);
-  return { title: `이용약관 · ${tenant?.site.name ?? '사이트'}`, robots: { index: false } };
+  return { title: `Terms · ${tenant?.site.name ?? 'Site'}`, robots: { index: false } };
 }
 
 export default async function TermsPage({ params }: Props) {
@@ -38,6 +38,12 @@ export default async function TermsPage({ params }: Props) {
   const tenant = await loadTenant(domain);
   if (!tenant?.businessInfo) notFound();
 
-  const doc = termsOfService(tenant.businessInfo);
+  let doc: ReturnType<typeof usTermsOfService>;
+  try {
+    doc = usTermsOfService(tenant.site.siteConfig!);
+  } catch (error) {
+    if (error instanceof UsTenantLegalDocumentsPendingError) notFound();
+    throw error;
+  }
   return <LegalDocView doc={doc} theme={tenant.site.siteConfig!.theme} info={tenant.businessInfo} />;
 }

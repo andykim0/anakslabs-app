@@ -40,25 +40,25 @@ export function teaserSummary(input: {
         .slice(0, 3)
         .map((i) => (i.price ? `${i.name} ${i.price}` : i.name))
         .join(' · ');
-      const extra = items.length > 3 ? ` 외 ${items.length - 3}가지` : '';
+      const extra = items.length > 3 ? ` and ${items.length - 3} more` : '';
       return `${head}${extra}`;
     }
     case 'gallery':
-      return imageCount && imageCount > 0 ? `공간과 메뉴 사진 ${imageCount}장` : undefined;
+      return imageCount && imageCount > 0 ? `${imageCount} space and menu photos` : undefined;
     case 'guide':
       return parseBusinessHours(providedContent);
     case 'contact': {
       const addr = parseAddress(providedContent);
-      return addr ? `${addr} · 찾아오시는 길` : undefined;
+      return addr ? `${addr} · Directions` : undefined;
     }
     case 'about':
       return parseIntroSentence(providedContent);
     case 'reviews':
       // [T4-B] 후기 페이지 — 원문에서 '후기'/'만족'을 언급한 첫 문장(실데이터 없으면 폴백 문구)
-      return firstSentenceMentioning(providedContent, ['후기', '만족']);
+      return firstSentenceMentioning(providedContent, ['\uD6C4\uAE30', '\uB9CC\uC871']);
     case 'work':
       // [T4-B] 실적 페이지 — 원문 파싱이 불가하니 대상 페이지 이미지 수 기반(0이면 폴백 문구)
-      return imageCount && imageCount > 0 ? `작업·프로젝트 ${imageCount}건` : undefined;
+      return imageCount && imageCount > 0 ? `${imageCount} work or project images` : undefined;
     default:
       return undefined;
   }

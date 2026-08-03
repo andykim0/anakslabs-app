@@ -52,7 +52,7 @@ test('수치 증거 입력은 원문·발행 주체·기준일을 받고 출처 
   assert.match(proofSource, /proof\.asOfDate/u);
   const mapping = readFileSync('src/lib/onboarding/nudge-mapping.ts', 'utf8');
   assert.match(mapping, /geo_unsourced_claims/u);
-  assert.match(mapping, /출처 없는 수치는 검색 신뢰 감점 대상/u);
+  assert.match(mapping, /A number without a source weakens trust/u);
 });
 
 test('넛지 카피는 순위·노출 확정 약속을 만들지 않는다', () => {

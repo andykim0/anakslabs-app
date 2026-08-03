@@ -100,9 +100,9 @@ function sideEffectDisclosureViolation(
   copies: readonly MedicalPostPublicCopy[],
 ): MedicalPostViolation | null {
   const joined = normalizeMedicalCopy(copies.map((copy) => copy.text).join(' '));
-  const mentionsTreatment = /(?:치료|시술|수술|처치|주사|레이저)/u.test(joined);
-  const claimsEffect = /(?:효과|개선|회복|완화|결과)/u.test(joined);
-  const includesRisk = /(?:부작용|위험|주의사항|주의할 점|개인차)/u.test(joined);
+  const mentionsTreatment = /\b(?:treatment|procedure|surgery|injection|laser|therapy)\b/u.test(joined);
+  const claimsEffect = /\b(?:effect|effective|improve|improvement|recover|recovery|relief|result)\b/u.test(joined);
+  const includesRisk = /\b(?:side effect|risk|warning|limitation|individual results?|results? vary)\b/u.test(joined);
   if (!mentionsTreatment || !claimsEffect || includesRisk) return null;
   const rule = MEDICAL_AD_RULES.find((candidate) =>
     candidate.id === 'medical-side-effect-disclosure');
@@ -111,7 +111,7 @@ function sideEffectDisclosureViolation(
     path: '$structural.sideEffectDisclosure',
     severity: rule.severity,
     ruleId: rule.id,
-    matchedText: '치료·시술 효과 설명에 주의사항 안내 없음',
+    matchedText: 'Treatment-effect copy does not include a material risk or limitation statement.',
     statuteRefs: rule.statuteRefs,
     safeReplacementHint: rule.safeReplacementHint,
   };

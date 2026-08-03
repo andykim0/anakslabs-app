@@ -120,28 +120,28 @@ export async function assertPublicHttpUrl(rawUrl: string): Promise<URL> {
   try {
     url = new URL(rawUrl);
   } catch {
-    throw new ScanError('INVALID_URL', '올바른 URL 형식이 아닙니다.');
+    throw new ScanError('INVALID_URL', 'Enter a valid URL.');
   }
 
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new ScanError('UNSUPPORTED_SCHEME', 'http/https 주소만 진단할 수 있습니다.');
+    throw new ScanError('UNSUPPORTED_SCHEME', 'Only http and https URLs can be scanned.');
   }
   if (url.port !== '' && url.port !== '80' && url.port !== '443') {
-    throw new ScanError('BLOCKED_PORT', '표준 포트(80/443)의 주소만 진단할 수 있습니다.');
+    throw new ScanError('BLOCKED_PORT', 'Only standard ports 80 and 443 can be scanned.');
   }
   if (url.username || url.password) {
-    throw new ScanError('INVALID_URL', '인증 정보가 포함된 URL은 진단할 수 없습니다.');
+    throw new ScanError('INVALID_URL', 'URLs with embedded credentials cannot be scanned.');
   }
 
   const hostname = url.hostname.replace(/^\[|\]$/g, ''); // IPv6 브래킷 제거
   if (!hostname || hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
-    throw new ScanError('BLOCKED_HOST', '내부 주소는 진단할 수 없습니다.');
+    throw new ScanError('BLOCKED_HOST', 'Internal addresses cannot be scanned.');
   }
 
   // IP 리터럴 — DNS 없이 즉시 검사
   if (isIP(hostname)) {
     if (!isPublicIp(hostname)) {
-      throw new ScanError('BLOCKED_HOST', '내부/예약 대역 주소는 진단할 수 없습니다.');
+      throw new ScanError('BLOCKED_HOST', 'Private and reserved network addresses cannot be scanned.');
     }
     return url;
   }
@@ -151,14 +151,14 @@ export async function assertPublicHttpUrl(rawUrl: string): Promise<URL> {
   try {
     addresses = await lookup(hostname, { all: true, verbatim: true });
   } catch {
-    throw new ScanError('DNS_FAILED', '주소를 찾을 수 없습니다. 도메인을 확인해 주세요.');
+    throw new ScanError('DNS_FAILED', 'The address could not be resolved. Check the domain.');
   }
   if (addresses.length === 0) {
-    throw new ScanError('DNS_FAILED', '주소를 찾을 수 없습니다. 도메인을 확인해 주세요.');
+    throw new ScanError('DNS_FAILED', 'The address could not be resolved. Check the domain.');
   }
   for (const { address } of addresses) {
     if (!isPublicIp(address)) {
-      throw new ScanError('BLOCKED_HOST', '내부망으로 연결되는 주소는 진단할 수 없습니다.');
+      throw new ScanError('BLOCKED_HOST', 'Addresses that resolve to an internal network cannot be scanned.');
     }
   }
   return url;

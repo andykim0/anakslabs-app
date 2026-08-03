@@ -91,7 +91,7 @@ describe('RPT2 monthly report core', () => {
     assert.equal(report.hasComparisonData, true);
     assert.equal(report.sources.reduce((sum, source) => sum + source.sharePercent, 0), 100);
     assert.equal(report.sources.find((source) => source.source === 'naver')?.sharePercent, 60);
-    assert.equal(report.insight, '직접·사이트 내부 유입이 전월보다 100% 늘었어요.');
+    assert.equal(report.insight, 'Direct or on-site traffic increased 100% from last month.');
   });
 
   test('reads legacy v1 reports without inventing connector metrics', () => {
@@ -150,7 +150,7 @@ describe('RPT2 monthly report core', () => {
       { source: 'naver', label: '네이버', count: 10, previousCount: 10, sharePercent: 50, changePercent: 0 },
       { source: 'google', label: '구글', count: 10, previousCount: 10, sharePercent: 50, changePercent: 0 },
     ];
-    assert.equal(deriveMonthlyInsight(metrics, sources), '예약 클릭이 전월보다 100% 늘었어요.');
+    assert.equal(deriveMonthlyInsight(metrics, sources), 'Booking clicks increased 100% from last month.');
   });
 
   test('email is escaped, identifies pageviews honestly, and contains no recipient field', () => {

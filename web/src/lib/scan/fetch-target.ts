@@ -41,13 +41,13 @@ export interface ProbedResource {
 /** 입력 정규화: 스킴 없으면 https:// 부여, 해시 제거, 공백 정리 */
 export function normalizeScanUrl(input: string): string {
   let raw = input.trim();
-  if (!raw) throw new ScanError('INVALID_URL', '진단할 주소를 입력해 주세요.');
+  if (!raw) throw new ScanError('INVALID_URL', 'Enter a URL to scan.');
   if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) raw = `https://${raw}`;
   let url: URL;
   try {
     url = new URL(raw);
   } catch {
-    throw new ScanError('INVALID_URL', '올바른 URL 형식이 아닙니다.');
+    throw new ScanError('INVALID_URL', 'Enter a valid URL.');
   }
   url.hash = '';
   return url.toString();
@@ -65,7 +65,7 @@ async function readCapped(
   let received = 0;
   let truncated = false;
   for (;;) {
-    if (signal.aborted) throw new ScanError('TIMEOUT', '응답이 너무 느립니다 (5초 초과).');
+    if (signal.aborted) throw new ScanError('TIMEOUT', 'The response took longer than 5 seconds.');
     const { done, value } = await reader.read();
     if (done) break;
     if (value) {
@@ -110,16 +110,16 @@ async function fetchTargetSample(rawUrl: string, includeBody: boolean): Promise<
         });
         responseMs += performance.now() - requestStarted;
       } catch (err) {
-        if (controller.signal.aborted) throw new ScanError('TIMEOUT', '응답이 너무 느립니다 (5초 초과).');
-        throw new ScanError('FETCH_FAILED', `사이트에 접속할 수 없습니다. (${err instanceof Error ? err.message : '연결 실패'})`);
+        if (controller.signal.aborted) throw new ScanError('TIMEOUT', 'The response took longer than 5 seconds.');
+        throw new ScanError('FETCH_FAILED', `The site could not be reached. (${err instanceof Error ? err.message : 'Connection failed'})`);
       }
 
       // redirect — 다음 hop도 SSRF 재검증
       if (res.status >= 300 && res.status < 400) {
         const loc = res.headers.get('location');
         await res.body?.cancel().catch(() => undefined);
-        if (!loc) throw new ScanError('FETCH_FAILED', '잘못된 리다이렉트 응답입니다.');
-        if (hop === MAX_REDIRECTS) throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다 (3회 초과).');
+        if (!loc) throw new ScanError('FETCH_FAILED', 'The redirect response is invalid.');
+        if (hop === MAX_REDIRECTS) throw new ScanError('TOO_MANY_REDIRECTS', 'The URL redirected more than three times.');
         current = await assertPublicHttpUrl(new URL(loc, current).toString());
         continue;
       }
@@ -139,7 +139,7 @@ async function fetchTargetSample(rawUrl: string, includeBody: boolean): Promise<
         lastModified: res.headers.get('last-modified') ?? '',
       };
     }
-    throw new ScanError('TOO_MANY_REDIRECTS', '리다이렉트가 너무 많습니다.');
+    throw new ScanError('TOO_MANY_REDIRECTS', 'The URL redirected too many times.');
   } finally {
     clearTimeout(timer);
   }

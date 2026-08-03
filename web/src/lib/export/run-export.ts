@@ -8,7 +8,11 @@ import 'server-only';
 import type { Site } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { slugifySiteName } from '@/lib/data/slug';
-import { privacyPolicy, siteCollectsPersonalData, termsOfService } from '@/lib/legal/templates';
+import {
+  assertUsTenantLegalDocumentsReady,
+  usPrivacyPolicy,
+  usTermsOfService,
+} from '@/lib/legal/templates';
 import { buildExportZip, type BuildExportOptions } from './exporter';
 import { renderLegalDocHtml } from './legal-html';
 import { assertMedicalPublicConfig } from '@/lib/content/medical-ad-enforcement';
@@ -24,6 +28,7 @@ export async function runSiteExport(site: Site, opts?: BuildExportOptions): Prom
   const { exports, sites, clients } = getDataServices();
   // 오염된 medical config는 처리 상태조차 바꾸기 전에 전체 export를 fail-closed한다.
   if (site.siteConfig) assertMedicalPublicConfig(site.siteConfig);
+  if (site.siteConfig) assertUsTenantLegalDocumentsReady(site.siteConfig);
   await sites.updateExport(site.id, { status: 'processing', requestedAt: new Date().toISOString() });
   try {
     // [§6] 사업자정보가 있으면 법적 푸터 + privacy/terms를 번들에 포함
@@ -38,14 +43,12 @@ export async function runSiteExport(site: Site, opts?: BuildExportOptions): Prom
         const title = site.siteConfig.meta.title;
         legalOpts.legalPages = {
           privacyHtml: renderLegalDocHtml(
-            privacyPolicy(info, {
-              collectsPersonalData: siteCollectsPersonalData(site.siteConfig),
-            }),
+            usPrivacyPolicy(site.siteConfig),
             theme,
             info,
             title,
           ),
-          termsHtml: renderLegalDocHtml(termsOfService(info), theme, info, title),
+          termsHtml: renderLegalDocHtml(usTermsOfService(site.siteConfig), theme, info, title),
         };
       }
     }

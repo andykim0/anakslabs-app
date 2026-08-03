@@ -20,15 +20,31 @@ export interface SectionReviewTarget {
 const GUIDE_SET = new Set<string>(SECTION_DIRECTION_GUIDES);
 
 const GUIDE_PROMPTS: Record<SectionDirectionGuide, string> = {
-  '더 미니멀': 'reduce decorative weight and keep the composition restrained',
-  '사진 더 크게': 'increase the visual area while preserving every original image source',
-  '톤 더 따뜻하게': 'add a subtle warm photographic overlay without changing factual content',
-  '여백 늘리기': 'increase section breathing room and preserve the reading order',
-  '카피 강조': 'strengthen the existing primary copy hierarchy without rewriting it',
-  '신뢰 요소 강조': 'visually emphasize existing proof only; never invent a claim or number',
-  '더 역동적으로': 'use restrained entrance movement on existing elements',
-  '색상 차분하게': 'quiet the image treatment with a low-saturation overlay',
+  [SECTION_DIRECTION_GUIDES[0]]: 'reduce decorative weight and keep the composition restrained',
+  [SECTION_DIRECTION_GUIDES[1]]: 'increase the visual area while preserving every original image source',
+  [SECTION_DIRECTION_GUIDES[2]]: 'add a subtle warm photographic overlay without changing factual content',
+  [SECTION_DIRECTION_GUIDES[3]]: 'increase section breathing room and preserve the reading order',
+  [SECTION_DIRECTION_GUIDES[4]]: 'strengthen the existing primary copy hierarchy without rewriting it',
+  [SECTION_DIRECTION_GUIDES[5]]: 'visually emphasize existing proof only; never invent a claim or number',
+  [SECTION_DIRECTION_GUIDES[6]]: 'use restrained entrance movement on existing elements',
+  [SECTION_DIRECTION_GUIDES[7]]: 'quiet the image treatment with a low-saturation overlay',
 };
+
+const GUIDE_LABELS = [
+  'More minimal',
+  'Larger photos',
+  'Warmer tone',
+  'More space',
+  'Stronger copy',
+  'Stronger proof',
+  'More movement',
+  'Quieter color',
+] as const;
+
+export function sectionDirectionGuideLabel(guide: SectionDirectionGuide): string {
+  const index = SECTION_DIRECTION_GUIDES.indexOf(guide);
+  return GUIDE_LABELS[index] ?? guide;
+}
 
 function normalizeDirection(direction: SectionDirection): SectionDirection | null {
   const sectionId = typeof direction.sectionId === 'string' ? direction.sectionId.trim().slice(0, 100) : '';
@@ -104,14 +120,14 @@ function mirrorLayout(section: Section): Section {
 export function sectionDirectionGuidesFromNote(note: string | undefined): SectionDirectionGuide[] {
   if (!note) return [];
   const matches: SectionDirectionGuide[] = [];
-  if (/미니멀|단순|덜어/.test(note)) matches.push('더 미니멀');
-  if (/(?:사진|이미지).{0,8}(?:크게|키워|강조)/.test(note)) matches.push('사진 더 크게');
-  if (/따뜻|온기|웜/.test(note)) matches.push('톤 더 따뜻하게');
-  if (/여백|숨 쉴|간격/.test(note)) matches.push('여백 늘리기');
-  if (/카피|문구|헤드라인|글자/.test(note)) matches.push('카피 강조');
-  if (/신뢰|후기|실적|증거/.test(note)) matches.push('신뢰 요소 강조');
-  if (/역동|움직임|강하게/.test(note)) matches.push('더 역동적으로');
-  if (/차분|채도|색.*줄/.test(note)) matches.push('색상 차분하게');
+  if (/\uBBF8\uB2C8\uBA40|\uB2E8\uC21C|\uB35C\uC5B4/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[0]);
+  if (/(?:\uC0AC\uC9C4|\uC774\uBBF8\uC9C0).{0,8}(?:\uD06C\uAC8C|\uD0A4\uC6CC|\uAC15\uC870)/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[1]);
+  if (/\uB530\uB73B|\uC628\uAE30|\uC6DC/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[2]);
+  if (/\uC5EC\uBC31|\uC228 \uC274|\uAC04\uACA9/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[3]);
+  if (/\uCE74\uD53C|\uBB38\uAD6C|\uD5E4\uB4DC\uB77C\uC778|\uAE00\uC790/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[4]);
+  if (/\uC2E0\uB8B0|\uD6C4\uAE30|\uC2E4\uC801|\uC99D\uAC70/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[5]);
+  if (/\uC5ED\uB3D9|\uC6C0\uC9C1\uC784|\uAC15\uD558\uAC8C/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[6]);
+  if (/\uCC28\uBD84|\uCC44\uB3C4|\uC0C9.*\uC904/.test(note)) matches.push(SECTION_DIRECTION_GUIDES[7]);
   return matches;
 }
 
@@ -155,7 +171,7 @@ function adjustSection(
   let next = section;
 
   for (const guide of guides) {
-    if (guide === '더 미니멀') {
+    if (guide === SECTION_DIRECTION_GUIDES[0]) {
       next = {
         ...next,
         elements: next.elements.map((element) =>
@@ -164,16 +180,16 @@ function adjustSection(
             : element,
         ),
       };
-    } else if (guide === '사진 더 크게') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[1]) {
       next = {
         ...next,
         elements: next.elements.map((element) => (element.kind === 'image' ? clampFrame(element, 1.14) : element)),
       };
-    } else if (guide === '톤 더 따뜻하게') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[2]) {
       next = applyImageTone(next, palette, '#4a2418');
-    } else if (guide === '여백 늘리기') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[3]) {
       next = { ...next, height: Math.min(2400, Math.round(next.height * 1.12)) };
-    } else if (guide === '카피 강조') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[4]) {
       const text = next.elements
         .filter((element): element is Extract<CanvasElement, { kind: 'text' }> => element.kind === 'text')
         .sort((a, b) => b.style.fontSize - a.style.fontSize)[0];
@@ -187,9 +203,9 @@ function adjustSection(
           ),
         };
       }
-    } else if (guide === '신뢰 요소 강조') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[5]) {
       const proof = next.elements.find(
-        (element) => element.kind === 'text' && (/\d/.test(element.text) || /후기|실적|인증|경력/.test(element.text)),
+        (element) => element.kind === 'text' && (/\d/.test(element.text) || /\uD6C4\uAE30|\uC2E4\uC801|\uC778\uC99D|\uACBD\uB825/.test(element.text)),
       );
       if (proof) {
         next = {
@@ -201,7 +217,7 @@ function adjustSection(
           ),
         };
       }
-    } else if (guide === '더 역동적으로') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[6]) {
       next = {
         ...next,
         elements: next.elements.map((element, index) => ({
@@ -213,7 +229,7 @@ function adjustSection(
           },
         })),
       };
-    } else if (guide === '색상 차분하게') {
+    } else if (guide === SECTION_DIRECTION_GUIDES[7]) {
       next = applyImageTone(next, palette, '#16233c');
     }
   }

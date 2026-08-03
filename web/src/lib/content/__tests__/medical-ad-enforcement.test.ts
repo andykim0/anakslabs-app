@@ -55,7 +55,7 @@ function config(input: {
           kind: 'text',
           frame: { x: 120, y: 120, w: 900, h: 120 },
           z: 1,
-          text: input.text ?? '필요한 진료 정보를 차분히 안내합니다',
+          text: input.text ?? 'Clear information for your visit',
           style: { fontSize: 48, fontFamily: 'heading', color: '#111111' },
         }],
       }],
@@ -67,7 +67,7 @@ function survey(text: string): SurveyInput {
   return {
     businessName: '온결 의원',
     purposeId: 'booking_service',
-    purpose: '예약·서비스업',
+    purpose: 'Appointment-based services',
     industry: '의원',
     industryClass: 'medical',
     tone: ['차분한'],
@@ -116,7 +116,7 @@ test('block과 warn을 구분해 수집하며 warn도 현재 공개 경계에서
   const blocked = screenMedicalSiteConfig(config({
     medical: true,
     industryId: 'clinic',
-    text: '완치 효과를 100% 보장합니다',
+    text: 'We guarantee 100% results.',
   }));
   assert.ok(blocked.blockViolations.some((violation) => (
     violation.kind === 'copy' && violation.ruleId === 'medical-guarantee-safety'
@@ -125,7 +125,7 @@ test('block과 warn을 구분해 수집하며 warn도 현재 공개 경계에서
   const warned = screenMedicalSiteConfig(config({
     medical: true,
     industryId: 'clinic',
-    text: '레이저 시술 효과와 개선 방향을 안내합니다',
+    text: 'Laser treatment provides effective improvement.',
   }));
   assert.ok(warned.warnViolations.some(
     (violation) => violation.ruleId === 'medical-side-effect-disclosure',
@@ -134,7 +134,7 @@ test('block과 warn을 구분해 수집하며 warn도 현재 공개 경계에서
 });
 
 test('고객 입력 위반은 필드 경로·안전대체 힌트를 보존하고 자동 치환하지 않는다', () => {
-  const input = survey('100% 완치되는 국내 유일 시술');
+  const input = survey('The only treatment with a 100% guaranteed cure.');
   const before = JSON.stringify(input);
   const violations = screenMedicalCustomerCopy(input);
   assert.ok(violations.some((violation) => (
@@ -148,27 +148,27 @@ test('결정적 시스템 폴백은 금지 카피를 안전 카탈로그로 바�
   const result = enforceGeneratedMedicalConfig(config({
     medical: true,
     industryId: 'clinic',
-    text: '국내 유일 100% 완치 시술',
+    text: 'The only treatment with a 100% guaranteed cure.',
   }));
   assert.equal(result.usedFallback, true);
   assert.equal(result.result.ok, true);
   assert.equal(result.config.meta.medicalAdPolicyVersion, MEDICAL_AD_POLICY_VERSION);
-  assert.doesNotMatch(JSON.stringify(result.config), /100%|완치|국내 유일/u);
+  assert.doesNotMatch(JSON.stringify(result.config), /100%|guaranteed cure|only treatment/iu);
 });
 
 test('의료 AI 카피는 1회 제약 재시도 후에도 위반이면 결정적 카탈로그로 강등한다', async () => {
   const prompts: string[] = [];
   const output = await generateMedicalSafeCopy({
     industryClass: 'medical',
-    prompt: '진료 소개',
+    prompt: 'Treatment introduction',
     scope: 'body',
     generate: async (prompt) => {
       prompts.push(prompt);
-      return prompts.length === 1 ? '100% 완치' : '국내 유일 완치';
+      return prompts.length === 1 ? '100% guaranteed cure' : 'The only guaranteed cure';
     },
   });
   assert.equal(prompts.length, 2);
-  assert.match(prompts[1], /의료광고 안전 제약/u);
+  assert.match(prompts[1], /Medical advertising constraints/u);
   assert.equal(output.resolution, 'catalog-fallback');
   assert.equal(screenMedicalSiteConfig({
     ...config({ medical: true, industryId: 'clinic' }),
@@ -180,11 +180,11 @@ test('checkPublish와 공개/export 경계가 같은 전체 config 검사를 소
   const contaminated = config({
     medical: true,
     industryId: 'clinic',
-    text: '부작용 없는 100% 완치',
+    text: 'A 100% cure with no side effects',
   });
   const gate = checkPublish(contaminated, 'basic');
   assert.equal(gate.ok, false);
-  assert.ok(gate.blockers.some((blocker) => /의료광고 발행 차단/u.test(blocker)));
+  assert.ok(gate.blockers.some((blocker) => /Medical advertising publication blocked/u.test(blocker)));
   assert.throws(
     () => assertMedicalPublicConfig(contaminated),
     MedicalAdPublicBoundaryError,

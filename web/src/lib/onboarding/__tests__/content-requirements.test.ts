@@ -22,9 +22,9 @@ describe('CONTENT_REQUIREMENTS', () => {
     assert.equal(Object.keys(CONTENT_REQUIREMENTS).length, 6);
   });
   test('serve 계열 목적별 라벨(메뉴/시술·서비스/수업·과정)', () => {
-    assert.equal(requirementOf('local_store').itemLabel, '메뉴');
-    assert.equal(requirementOf('booking_service').itemLabel, '시술·서비스');
-    assert.equal(requirementOf('edu_membership').itemLabel, '수업·과정');
+    assert.equal(requirementOf('local_store').itemLabel, 'Menu item');
+    assert.equal(requirementOf('booking_service').itemLabel, 'Treatment or service');
+    assert.equal(requirementOf('edu_membership').itemLabel, 'Class or program');
   });
   test('contentGateStatus — 하드 게이트 + 권장 부족분', () => {
     const zero = contentGateStatus('local_store', 0);

@@ -101,25 +101,25 @@ export async function assertUrlAllowed(rawUrl: string, lookupFn: LookupFn = defa
   try {
     u = new URL(rawUrl);
   } catch {
-    throw new ImportError('INVALID_URL', '올바른 주소가 아닙니다.');
+    throw new ImportError('INVALID_URL', 'Enter a valid URL.');
   }
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
-    throw new ImportError('BLOCKED_SCHEME', 'http/https 주소만 가져올 수 있어요.');
+    throw new ImportError('BLOCKED_SCHEME', 'Only http and https URLs are supported.');
   }
   const host = u.hostname.replace(/^\[|\]$/g, '');
   if (isIpLiteral(host)) {
-    if (isBlockedIp(host)) throw new ImportError('BLOCKED_HOST', '접근할 수 없는 주소입니다.');
+    if (isBlockedIp(host)) throw new ImportError('BLOCKED_HOST', 'This address cannot be accessed.');
     return u;
   }
   let addrs: { address: string }[];
   try {
     addrs = await lookupFn(host);
   } catch {
-    throw new ImportError('DNS_FAIL', '주소를 찾을 수 없습니다.');
+    throw new ImportError('DNS_FAIL', 'The address could not be resolved.');
   }
-  if (!addrs.length) throw new ImportError('DNS_FAIL', '주소를 찾을 수 없습니다.');
+  if (!addrs.length) throw new ImportError('DNS_FAIL', 'The address could not be resolved.');
   for (const a of addrs) {
-    if (isBlockedIp(a.address)) throw new ImportError('BLOCKED_HOST', '접근할 수 없는 주소입니다.');
+    if (isBlockedIp(a.address)) throw new ImportError('BLOCKED_HOST', 'This address cannot be accessed.');
   }
   return u;
 }
@@ -223,13 +223,13 @@ function structuredFacts(input: {
   };
   const phone = stringField('telephone')
     ?? input.root.querySelector('a[href^="tel:"]')?.getAttribute('href')?.replace(/^tel:/i, '').trim()
-    ?? shortVisibleBlock(input.root, /(?:전화|문의|연락처)\s*[:：]/u)?.replace(/^.*?(?:전화|문의|연락처)\s*[:：]\s*/u, '').trim();
+    ?? shortVisibleBlock(input.root, /(?:\uC804\uD654|\uBB38\uC758|\uC5F0\uB77D\uCC98)\s*[:\uFF1A]/u)?.replace(/^.*?(?:\uC804\uD654|\uBB38\uC758|\uC5F0\uB77D\uCC98)\s*[:\uFF1A]\s*/u, '').trim();
   const address = schemaAddress(business?.address)
     ?? input.root.querySelector('address')?.text.replace(/\s+/g, ' ').trim()
-    ?? shortVisibleBlock(input.root, /(?:주소|오시는 길)\s*[:：]/u)?.replace(/^.*?(?:주소|오시는 길)\s*[:：]\s*/u, '').trim();
+    ?? shortVisibleBlock(input.root, /(?:\uC8FC\uC18C|\uC624\uC2DC\uB294 \uAE38)\s*[:\uFF1A]/u)?.replace(/^.*?(?:\uC8FC\uC18C|\uC624\uC2DC\uB294 \uAE38)\s*[:\uFF1A]\s*/u, '').trim();
   const openingHours = schemaHours(business?.openingHoursSpecification)
     ?? schemaHours(business?.openingHours)
-    ?? shortVisibleBlock(input.root, /(?:영업|운영|진료|상담)\s*시간/u);
+    ?? shortVisibleBlock(input.root, /(?:\uC601\uC5C5|\uC6B4\uC601|\uC9C4\uB8CC|\uC0C1\uB2F4)\s*\uC2DC\uAC04/u);
   const businessName = stringField('name')
     ?? input.root.querySelector('meta[property="og:site_name"]')?.getAttribute('content')?.trim()
     ?? input.title;
@@ -241,7 +241,7 @@ function structuredFacts(input: {
     .slice(0, 12);
   const menuSource = input.root.querySelectorAll('p, li, dd, td')
     .map((element) => element.text.replace(/\s+/g, ' ').trim())
-    .filter((value) => /\d[\d,]{1,}\s*원?~?$/u.test(value))
+    .filter((value) => /\d[\d,]{1,}\s*\uC6D0?~?$/u.test(value))
     .join('\n');
   return {
     ...(businessName ? { businessName } : {}),
@@ -330,7 +330,7 @@ async function readLimited(res: Response, maxBytes: number): Promise<string> {
   const body = res.body as ReadableStream<Uint8Array> | null;
   if (!body) {
     const t = await res.text();
-    if (t.length > maxBytes) throw new ImportError('TOO_LARGE', '페이지가 너무 큽니다.');
+    if (t.length > maxBytes) throw new ImportError('TOO_LARGE', 'The page is too large.');
     return t;
   }
   const reader = body.getReader();
@@ -343,7 +343,7 @@ async function readLimited(res: Response, maxBytes: number): Promise<string> {
       total += value.byteLength;
       if (total > maxBytes) {
         await reader.cancel();
-        throw new ImportError('TOO_LARGE', '페이지가 너무 큽니다.');
+        throw new ImportError('TOO_LARGE', 'The page is too large.');
       }
       chunks.push(value);
     }
@@ -385,25 +385,25 @@ export async function safeFetch(
     try {
       res = await fetchFn(url, { redirect: 'manual', signal: ctrl.signal, headers: { 'user-agent': UA, accept } });
     } catch {
-      throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
+      throw new ImportError('FETCH_FAILED', 'The address could not be loaded.');
     } finally {
       clearTimeout(timer);
     }
     if (res.status >= 300 && res.status < 400) {
       const loc = res.headers.get('location');
-      if (!loc) throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
-      if (hop === maxRedirects) throw new ImportError('TOO_MANY_REDIRECTS', '이동이 너무 많아요.');
+      if (!loc) throw new ImportError('FETCH_FAILED', 'The address could not be loaded.');
+      if (hop === maxRedirects) throw new ImportError('TOO_MANY_REDIRECTS', 'Too many redirects.');
       try {
         url = new URL(loc, url).toString();
       } catch {
-        throw new ImportError('INVALID_URL', '올바른 주소가 아닙니다.');
+        throw new ImportError('INVALID_URL', 'Enter a valid URL.');
       }
       continue;
     }
-    if (!res.ok) throw new ImportError('FETCH_FAILED', '주소를 불러오지 못했어요.');
+    if (!res.ok) throw new ImportError('FETCH_FAILED', 'The address could not be loaded.');
     return { res, finalUrl: url };
   }
-  throw new ImportError('TOO_MANY_REDIRECTS', '이동이 너무 많아요.');
+  throw new ImportError('TOO_MANY_REDIRECTS', 'Too many redirects.');
 }
 
 /** URL 1개 → 추출 결과. SSRF 가드·리다이렉트 재검사·크기/타입/타임아웃 제한 적용. */
@@ -412,7 +412,7 @@ export async function extractFromUrl(rawUrl: string, opts: ExtractOpts = {}): Pr
   const { res, finalUrl } = await safeFetch(rawUrl, opts);
   const ct = res.headers.get('content-type') ?? '';
   if (!/text\/html|application\/xhtml/i.test(ct)) {
-    throw new ImportError('NOT_HTML', 'HTML 페이지만 가져올 수 있어요.');
+    throw new ImportError('NOT_HTML', 'Only HTML pages can be imported.');
   }
   const html = await readLimited(res, maxBytes);
   return parseHtml(html, finalUrl);
@@ -423,7 +423,7 @@ export async function readLimitedBytes(res: Response, maxBytes: number): Promise
   const body = res.body as ReadableStream<Uint8Array> | null;
   if (!body) {
     const buf = new Uint8Array(await res.arrayBuffer());
-    if (buf.byteLength > maxBytes) throw new ImportError('TOO_LARGE', '파일이 너무 큽니다.');
+    if (buf.byteLength > maxBytes) throw new ImportError('TOO_LARGE', 'The file is too large.');
     return buf;
   }
   const reader = body.getReader();
@@ -436,7 +436,7 @@ export async function readLimitedBytes(res: Response, maxBytes: number): Promise
       total += value.byteLength;
       if (total > maxBytes) {
         await reader.cancel();
-        throw new ImportError('TOO_LARGE', '파일이 너무 큽니다.');
+        throw new ImportError('TOO_LARGE', 'The file is too large.');
       }
       chunks.push(value);
     }

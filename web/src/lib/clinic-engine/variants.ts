@@ -77,13 +77,13 @@ export interface ClinicVariantBlueprint {
 }
 
 const AXIS_PATTERNS: Readonly<Record<Exclude<ClinicMaterialAxisId, 'us-trust-rich' | 'us-trust-sparse' | 'us-procedure-gallery'>, RegExp>> = {
-  beforeafter: /(?:before\s*\/?\s*after|before\s+and\s+after|전후|비포\s*애프터|치료\s*전|치료\s*후)/iu,
-  reviews: /(?:reviews?|testimonials?|patient\s+stories|후기|치료경험담|칭찬합니다)/iu,
-  videos: /(?:videos?|youtube|병원\s*tv|민트병원tv|영상|미디어)/iu,
-  events: /(?:events?|promotions?|special\s+offers?|프로모션|이벤트|체험가|할인|특가)/iu,
-  gallery: /(?:gallery|facilities|facility|office\s+tour|갤러리|둘러보기|시설|병원\s*전경)/iu,
-  services: /(?:services?|treatments?|procedures?|진료과|진료\s*안내|시술|치료|클리닉)/iu,
-  providers: /(?:providers?|doctors?|dentists?|physicians?|medical\s+team|의료진|원장|전문의|의사)/iu,
+  beforeafter: /(?:before\s*\/?\s*after|before\s+and\s+after|\uC804\uD6C4|\uBE44\uD3EC\s*\uC560\uD504\uD130|\uCE58\uB8CC\s*\uC804|\uCE58\uB8CC\s*\uD6C4)/iu,
+  reviews: /(?:reviews?|testimonials?|patient\s+stories|\uD6C4\uAE30|\uCE58\uB8CC\uACBD\uD5D8\uB2F4|\uCE6D\uCC2C\uD569\uB2C8\uB2E4)/iu,
+  videos: /(?:videos?|youtube|\uBCD1\uC6D0\s*tv|\uBBFC\uD2B8\uBCD1\uC6D0tv|\uC601\uC0C1|\uBBF8\uB514\uC5B4)/iu,
+  events: /(?:events?|promotions?|special\s+offers?|\uD504\uB85C\uBAA8\uC158|\uC774\uBCA4\uD2B8|\uCCB4\uD5D8\uAC00|\uD560\uC778|\uD2B9\uAC00)/iu,
+  gallery: /(?:gallery|facilities|facility|office\s+tour|\uAC24\uB7EC\uB9AC|\uB458\uB7EC\uBCF4\uAE30|\uC2DC\uC124|\uBCD1\uC6D0\s*\uC804\uACBD)/iu,
+  services: /(?:services?|treatments?|procedures?|\uC9C4\uB8CC\uACFC|\uC9C4\uB8CC\s*\uC548\uB0B4|\uC2DC\uC220|\uCE58\uB8CC|\uD074\uB9AC\uB2C9)/iu,
+  providers: /(?:providers?|doctors?|dentists?|physicians?|medical\s+team|\uC758\uB8CC\uC9C4|\uC6D0\uC7A5|\uC804\uBB38\uC758|\uC758\uC0AC)/iu,
 };
 
 const US_TRUST_PATTERNS = [
@@ -226,10 +226,10 @@ function selectorSurvey(plan: RobustClinicSourcePlan): SurveyInput {
   return {
     businessName,
     purposeId: 'booking_service',
-    purpose: plan.profile.locale === 'ko-KR' ? '병원 예약·서비스' : 'medical booking service',
-    industry: plan.profile.locale === 'ko-KR' ? '병원 의료' : 'medical clinic',
+    purpose: 'medical booking service',
+    industry: 'medical clinic',
     tone: plan.profile.locale === 'ko-KR'
-      ? ['차분한', '신뢰감 있는']
+      ? ['calm', 'trustworthy']
       : ['calm', 'trusted'],
     colorPreference: 'clinical clean',
     referenceImageUrls: [],

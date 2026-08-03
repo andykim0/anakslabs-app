@@ -92,7 +92,7 @@ describe('V6 — 시네마틱 렌더 통합 회귀', () => {
   test('애드온 미보유는 ken-burns로 강등되고 합성은 페이지 시그니처 1개 한도를 지킨다', () => {
     const downgraded = sanitizeMotion(config(), 'basic');
     assert.equal(downgraded.config.motion?.presetId, 'cafe-basic');
-    assert.match(downgraded.changes.join('\n'), /AI 영상 홈페이지/);
+    assert.match(downgraded.changes.join('\n'), /AI video/);
     const basicHtml = staticDocument('basic').replace(/<style[^>]*>[\s\S]*?<\/style>/g, '').replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
     assert.doesNotMatch(basicHtml, /<video\b/);
 

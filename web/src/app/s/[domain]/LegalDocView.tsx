@@ -27,7 +27,7 @@ export function LegalDocView({
     >
       <main style={{ maxWidth: 760, margin: '0 auto', padding: '56px 24px 40px' }}>
         <Link href="/" style={{ color: theme.palette.muted, fontSize: 13, textDecoration: 'none' }}>
-          ← 홈으로
+          ← Back to the site
         </Link>
         <h1
           style={{

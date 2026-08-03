@@ -62,7 +62,7 @@ function PostDocument({
           textDecoration: 'none',
         }}
       >
-        블로그로 돌아가기
+        Back to the blog
       </a>
       <p
         style={{
@@ -231,7 +231,7 @@ function PostList({
           fontWeight: 700,
         }}
       >
-        블로그
+        Blog
       </p>
       <h1
         className="anaks-content-blog__title"
@@ -244,7 +244,7 @@ function PostList({
           marginTop: 12,
         }}
       >
-        알아두면 좋은 이야기를 전합니다.
+        Practical information from this practice.
       </h1>
       <div className="anaks-content-blog__grid">
         {posts.map((post) => (

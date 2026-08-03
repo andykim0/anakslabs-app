@@ -102,7 +102,7 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
     const sanitized = sanitizeMotion(classified, 'premium');
     assert.equal(sanitized.config.motion?.heroMotionId, undefined);
     assert.equal(sanitized.config.pages[0].sections[0].layout, 'canvas');
-    assert.match(sanitized.changes.join('\n'), /허용된 브랜드|허용되지 않은 목적/);
+    assert.match(sanitized.changes.join('\n'), /approved brand|purpose template not allowed/);
   });
 
   test('분류 없는 레거시 저장본은 PATCH 요청의 새 분류를 채택하지 않는다', () => {

@@ -25,7 +25,7 @@ export function configForManifestoChoicePreview(
   const acts = buildNarrativeArc(survey);
   if (!hasValidScrollytellingActs(acts)) return null;
 
-  const config = emptySiteConfig(`${survey.businessName} 매니페스토 대표 예시`);
+  const config = emptySiteConfig(`${survey.businessName} manifesto preview`);
   config.theme = {
     ...config.theme,
     palette: {
@@ -53,7 +53,7 @@ export function configForManifestoChoicePreview(
   config.pages[0].sections = [{
     id: 'manifesto-choice-preview',
     type: 'hero',
-    name: '매니페스토 대표 예시',
+    name: 'Manifesto preview',
     height: 800,
     layout: 'scrollytelling',
     acts,

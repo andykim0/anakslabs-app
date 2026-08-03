@@ -48,13 +48,13 @@ describe('teaserSummary', () => {
   test('menu → 대표 메뉴 3 + 외 N가지', () => {
     const s = teaserSummary({ slug: 'menu', providedContent: SOSO });
     assert.ok(s && s.includes('아메리카노 4,500'));
-    assert.ok(s && s.includes('외 4가지'));
+    assert.ok(s && s.includes('and 4 more'));
   });
   test('guide → 영업시간', () => {
     assert.ok((teaserSummary({ slug: 'guide', providedContent: SOSO }) ?? '').includes('08:00'));
   });
   test('gallery → 사진 N장', () => {
-    assert.equal(teaserSummary({ slug: 'gallery', imageCount: 8 }), '공간과 메뉴 사진 8장');
+    assert.equal(teaserSummary({ slug: 'gallery', imageCount: 8 }), '8 space and menu photos');
   });
   test('데이터 없으면 undefined(폴백 유도)', () => {
     assert.equal(teaserSummary({ slug: 'menu', providedContent: '내용 없음' }), undefined);

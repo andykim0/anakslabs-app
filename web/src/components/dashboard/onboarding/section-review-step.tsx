@@ -14,6 +14,7 @@ import {
   applySectionDirection,
   configForSectionReview,
   reviewTargets,
+  sectionDirectionGuideLabel,
   sectionDirectionGuidesFromNote,
 } from '@/lib/onboarding/section-directions';
 import { SitePreview } from '../site-preview';
@@ -260,7 +261,7 @@ export function SectionReviewStep({
                         : 'rounded-full border border-ob-border bg-ob-surface px-3 py-1.5 text-xs font-medium text-ob-muted transition-colors hover:border-ob-muted hover:text-ob-ink'
                     }
                   >
-                    {guide}
+                    {sectionDirectionGuideLabel(guide)}
                   </button>
                 );
               })}

@@ -90,7 +90,7 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
     );
     assert.ok(primary?.kind === 'button');
     assert.equal(primary.href, RESERVATION_URL);
-    assert.equal(primary.label, '예약하기');
+    assert.equal(primary.label, 'Book an appointment');
 
     // TenantPageContent is the single body renderer used by hosted /s and render-static.
     const markup = renderToStaticMarkup(createElement(TenantPageContent, {
@@ -105,13 +105,13 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
     const root = parse(markup);
     const reservation = root.querySelector(`a[href="${RESERVATION_URL}"]`);
     assert.ok(reservation, '정적/호스팅 공용 마크업에 실제 예약 링크가 없음');
-    assert.equal(reservation?.text.trim(), '예약하기');
+    assert.equal(reservation?.text.trim(), 'Book an appointment');
     assert.equal(classifyTrackableHref(reservation?.getAttribute('href') ?? '', 'https://shop.example'), 'reserve');
     assert.equal(root.querySelectorAll('[data-daboim-action]').length, 0);
 
     const phone = root.querySelector('a[href="tel:0212345678"]');
     assert.ok(phone, '검증된 전화가 실제 tel 링크가 아님');
-    assert.equal(phone?.text.trim(), '전화 02-1234-5678');
+    assert.equal(phone?.text.trim(), 'Phone 02-1234-5678');
     assert.equal(classifyTrackableHref(phone?.getAttribute('href') ?? '', 'https://shop.example'), 'tel');
 
     const directionsHref = businessDirectionsHref('서울특별시 마포구 월드컵북로 1');

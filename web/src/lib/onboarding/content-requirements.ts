@@ -24,37 +24,37 @@ export interface ContentRequirement {
 
 export const CONTENT_REQUIREMENTS = {
   local_store: {
-    itemLabel: '메뉴',
+    itemLabel: 'Menu item',
     minItems: 1,
     recommendedItems: 5,
     fields: { name: true, price: 'optional', description: 'optional', photo: 'optional' },
   },
   booking_service: {
-    itemLabel: '시술·서비스',
+    itemLabel: 'Treatment or service',
     minItems: 1,
     recommendedItems: 5,
     fields: { name: true, price: 'optional', description: 'optional', photo: 'optional' },
   },
   edu_membership: {
-    itemLabel: '수업·과정',
+    itemLabel: 'Class or program',
     minItems: 1,
     recommendedItems: 4,
     fields: { name: true, price: 'optional', description: 'optional', photo: 'optional' },
   },
   company_brand: {
-    itemLabel: '서비스·제품',
+    itemLabel: 'Service or product',
     minItems: 1,
     recommendedItems: 3,
     fields: { name: true, price: 'optional', description: 'optional', photo: 'optional' },
   },
   portfolio: {
-    itemLabel: '작업',
+    itemLabel: 'Work item',
     minItems: 1,
     recommendedItems: 3,
     fields: { name: true, price: 'hidden', description: 'optional', photo: 'optional' },
   },
   one_page: {
-    itemLabel: '링크',
+    itemLabel: 'Link',
     minItems: 1,
     recommendedItems: 3,
     fields: { name: true, price: 'hidden', description: 'optional', photo: 'optional' },

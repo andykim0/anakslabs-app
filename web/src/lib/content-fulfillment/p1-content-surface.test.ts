@@ -160,7 +160,7 @@ test('P1: 무포스트 config와 기존 정적 HTML은 승인 전 golden SHA와 
   });
   assert.equal(
     sha(html),
-    '31300c396be8f7b82731310bc1bb4dc26017a7474d9075accc2a725d84ef07a0',
+    'feffa2989a3156ad6afaedf67bd5fa6df5e7ceb669f634746c72c158e977b2dd',
   );
   assert.doesNotMatch(html, /블로그|content-blog/u);
 });
@@ -231,7 +231,7 @@ test('P1: published 포스트가 생긴 때부터만 내비·sitemap·llms·Blog
   );
   assert.equal(
     sha(emptyLlms),
-    '33841a93cb9e66091551a00b76f9a4c930068e25ec2632362fe4ae6bb4b3f51e',
+    'e3e2fa5b024a6e06124a0fcc7c2fa15349d60e85f5d7db6915387c333994aafa',
   );
   assert.doesNotMatch(`${emptySitemap}\n${emptyLlms}`, /\/blog|## 글/u);
 
@@ -241,8 +241,8 @@ test('P1: published 포스트가 생긴 때부터만 내비·sitemap·llms·Blog
   const llms = buildTenantLlmsText({ host: target.domain!, site: target, posts });
   assert.match(sitemap, /<loc>https:\/\/hwarodam\.anakslabs\.com\/blog<\/loc>/u);
   assert.match(sitemap, /\/blog\/interior-flow-check<\/loc>/u);
-  assert.match(llms, /- 블로그: https:\/\/hwarodam\.anakslabs\.com\/blog/u);
-  assert.match(llms, /## 글[\s\S]*공간을 오래 쓰게 만드는 동선 점검/u);
+  assert.match(llms, /- Blog: https:\/\/hwarodam\.anakslabs\.com\/blog/u);
+  assert.match(llms, /## Posts[\s\S]*공간을 오래 쓰게 만드는 동선 점검/u);
 
   const jsonLd = JSON.parse(contentPostJsonLd(target, posts[0] as PublishedContentPost));
   assert.equal(jsonLd['@type'], 'BlogPosting');

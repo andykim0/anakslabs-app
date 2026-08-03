@@ -299,7 +299,7 @@ export function Step02Existing() {
                 <AtSign className="h-4 w-4 text-ob-muted" /> Instagram
               </span>
             }
-            hint="Please just write your ID. Even if you paste @ or the entire address, it will be sorted automatically."
+                hint="Enter your Instagram handle. An @handle or full profile URL works."
           >
             <div className="flex items-stretch overflow-hidden rounded-ob border border-ob-border bg-ob-surface focus-within:border-ob-accent-strong focus-within:ring-1 focus-within:ring-ob-accent">
               <span className="flex items-center bg-ob-bg px-3 text-[15px] text-ob-muted">
@@ -337,10 +337,10 @@ export function Step02Existing() {
                 onChange={(e) => setOwned(e.target.checked)}
                 className="mt-0.5 h-4 w-4 accent-[#174DDA]"
               />
-              <span>This is a page I run myself.</span>
+                      <span>I own or manage this page.</span>
             </label>
             <p className="mt-1.5 pl-7 text-[13px] leading-relaxed text-ob-muted">
-              Import content only from channels I control. Do not import another organization’s content.
+                    Import only from channels you own or manage. Do not import another organization’s content.
             </p>
             <div className="mt-3 pl-7">
               <Button
@@ -349,10 +349,10 @@ export function Step02Existing() {
                 loading={importing}
                 disabled={!owned || presences.length === 0}
               >
-                Get it from my channel
+                Import from my channels
               </Button>
               {presences.length === 0 ? (
-                <span className="ml-2 text-[13px] text-ob-muted">Please enter at least one channel first.</span>
+                    <span className="ml-2 text-[13px] text-ob-muted">Add at least one channel first.</span>
               ) : null}
             </div>
           </div>
@@ -463,7 +463,7 @@ export function Step02Existing() {
             onClick={() => setSkip(true)}
             className="text-[14px] text-ob-muted underline transition-colors hover:text-ob-ink"
           >
-            No channels yet · Skip this step
+                No channels yet · Skip for now
           </button>
         </>
       ) : (

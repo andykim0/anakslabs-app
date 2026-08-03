@@ -21,28 +21,28 @@ export const US_MEDICAL_DEMO_AD_RULES = Object.freeze([
     severity: 'block',
     pattern:
       /\b(?:100\s*%|guarante(?:e|ed|es)|cure(?:d|s)?|completely safe|absolutely safe|no side effects?)\b/iu,
-    rationale: '절대적 치료 결과·안전 보장은 데모에 재현하지 않습니다.',
+    rationale: 'Absolute outcome and safety guarantees are not reproduced in a demo.',
   },
   {
     category: 'unsupported-outcome',
     severity: 'review',
     pattern:
       /\b(?:success rate|clinically proven|proven results?|guaranteed results?|effective for)\b|\b\d+(?:\.\d+)?\s*%/iu,
-    rationale: '효능·성공률 수치는 원문 출처와 맥락을 Andy가 확인해야 합니다.',
+    rationale: 'Outcome and success-rate claims require source and context review.',
   },
   {
     category: 'comparative-superiority',
     severity: 'block',
     pattern:
       /\b(?:best|#\s*1|number\s+one|top[- ]rated|leading|better than|most advanced|only clinic)\b/iu,
-    rationale: '비교우위·최상급 주장은 데모에 재현하지 않습니다.',
+    rationale: 'Comparative superiority and superlative claims are not reproduced in a demo.',
   },
   {
     category: 'unverified-credential',
     severity: 'block',
     pattern:
       /\b(?:board[- ]certified|certified specialist|award[- ]winning|accredited|fellowship[- ]trained|harvard(?:[- ]trained| university| medical school)?)\b/iu,
-    rationale: '별도 검증되지 않은 자격·인증·학력 표기는 모든 데모 모드에서 제외합니다.',
+    rationale: 'Credentials, accreditation, and education claims require separate verification.',
   },
 ] as const satisfies readonly UsMedicalAdRule[]);
 

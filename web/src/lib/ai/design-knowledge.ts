@@ -41,21 +41,21 @@ export {
 
 // ---------- 1. 디자인 원칙 프롬프트 (frontend-design 의 정신을 우리말로 재서술) ----------
 
-export const DESIGN_PRINCIPLES_PROMPT = `당신은 작은 디자인 스튜디오의 리드 디자이너다. 이 클라이언트는 이미 "템플릿 같다"는 이유로 시안을 여러 번 반려했고, 남들과 절대 헷갈리지 않는 시각 정체성에 돈을 낸다. 아래 원칙을 지켜 "이 브리프에서만" 나올 수 있는 디자인을 만들어라.
+export const DESIGN_PRINCIPLES_PROMPT = `You are the lead designer at a small design studio. The client pays for a visual identity that cannot be confused with another business. Create a design that could only come from this brief.
 
-1. 뚜렷한 관점 — 업종 평균이 아니라 이 가게의 세계(재료, 도구, 공간, 말투)에서 출발한다. "어느 가게에 갖다 놔도 어울리는" 선택은 전부 실패다. 히어로는 페이지의 주장 하나를 담는다: 이 가게에서 가장 그 가게다운 것 하나를 첫 화면에 세워라.
+1. Start with a point of view. Build from this business's materials, tools, space, and voice rather than the industry average. The hero should make one claim by showing the most distinctive real aspect of the business.
 
-2. 타이포그래피 금지 목록 — Inter, Roboto, Arial, Helvetica, system-ui, Open Sans, 그리고 Noto Sans 단독 사용 같은 과사용 폰트를 히어로·헤딩에 쓰지 않는다. 개성 있는 디스플레이 서체와 본문 서체를 의도적으로 페어링하고, 타입 스케일·굵기·자간까지 정해 타입 자체가 기억에 남게 한다. 한글 렌더링을 위한 폴백 체인은 필수다.
+2. Avoid overused display defaults. Do not use Inter, Roboto, Arial, Helvetica, system-ui, Open Sans, or Noto Sans alone for hero headings. Pair a distinctive display face with a readable body face and define scale, weight, and tracking. Keep a working fallback chain for every source language.
 
-3. 절제된 팔레트 — 배경·표면·본문·보조·주조·강조 5~6색 이내. 무지개식 나열 금지. 모든 색은 이름 붙여 설명할 수 있는 선택이어야 한다.
+3. Keep the palette restrained. Use five or six named roles for background, surface, body, muted text, primary, and accent. Do not assemble a rainbow of unrelated colors.
 
-4. 위계는 크기 대비로 — 크게 갈 것은 확실히 크게, 나머지는 조용히. 굵기·색·장식을 늘리는 대신 크기와 여백으로 읽는 순서를 만든다. 구조 장치(번호, 라벨, 구분선)는 내용이 실제로 그 구조일 때만 쓴다.
+4. Create hierarchy with size and space. Make the primary element clearly large and keep supporting elements quiet. Use numbers, labels, and dividers only when the content actually has that structure.
 
-5. 카피는 절제 — 형용사 나열("최고급 프리미엄 감성 인테리어") 금지. "여섯 가지 요리, 하나의 불"처럼 구체적 사실 하나로 말한다. 능동태, 짧은 문장. 과장·이모지·느낌표 금지. 버튼은 눌렀을 때 일어나는 일을 그대로 적는다("예약하기", "메뉴 보기").
+5. Keep copy specific. Do not stack adjectives. State one concrete, sourced fact in a short active sentence. Do not use hype, emoji, or exclamation points. A button label must name the action that happens, such as "Book an appointment" or "View services."
 
-6. 미적 리스크 하나 — 기억에 남을 시그니처 요소를 딱 하나 정하고, 그 주변은 철저히 규율한다. 대담함은 한 곳에만 쓴다. 집을 나서기 전 거울을 보고 액세서리 하나를 빼라.
+6. Take one aesthetic risk. Choose one memorable signature element and keep everything around it disciplined. Put boldness in one place.
 
-경계할 기본값 셋: (a) 크림 배경 + 대비 강한 세리프 + 테라코타 포인트, (b) 검정 배경 + 형광 초록/주홍 포인트 하나, (c) 헤어라인 괘선의 신문식 밀집 레이아웃. 셋 다 브리프가 명시적으로 요구할 때만 쓴다 — 브리프의 언어가 항상 이긴다.`;
+Avoid three defaults unless the brief explicitly calls for them: cream with high-contrast serif and terracotta; black with one fluorescent accent; or a dense newspaper grid with hairline rules. The language of the brief always wins.`;
 
 // ---------- 2. 디자인 브리프 ----------
 
@@ -229,9 +229,9 @@ function briefDescription(
 ): string {
   const tone = toneText(survey.tone).trim();
   const lead = tone
-    ? `'${tone}' 요청을 ${style.name} 방향으로 풀었습니다.`
-    : `${style.name} 방향의 제안입니다.`;
-  return `${lead} ${palette.name} 팔레트에 ${fonts.name} 타이포그래피를 조합했습니다.`;
+    ? `The '${tone}' request informed the ${style.name} direction.`
+    : `This proposal uses the ${style.name} direction.`;
+  return `${lead} It pairs the ${palette.name} palette with ${fonts.name} typography.`;
 }
 
 // ---------- 3. 공개 API ----------
@@ -397,25 +397,25 @@ export function validateDesignKnowledge(): string[] {
 
   for (const p of CURATED_PALETTES) {
     for (const [key, value] of Object.entries(p.palette)) {
-      if (!HEX_RE.test(value)) problems.push(`팔레트 ${p.id}.${key}: 잘못된 hex "${value}"`);
+      if (!HEX_RE.test(value)) problems.push(`Palette ${p.id}.${key}: invalid hex "${value}"`);
     }
   }
 
   for (const f of FONT_PAIRINGS) {
     if (f.googleFonts.some((g) => g.trim().toLowerCase() === 'pretendard')) {
-      problems.push(`폰트 ${f.id}: Pretendard 는 googleFonts 에 넣지 않는다 (렌더러가 CDN 자동 로드)`);
+      problems.push(`Font ${f.id}: Pretendard must not be listed in googleFonts because the renderer loads it separately`);
     }
     const headFirst = f.heading.toLowerCase().split(',')[0];
     if (BANNED_HEADING_FONTS.some((b) => headFirst.includes(b))) {
-      problems.push(`폰트 ${f.id}: 과사용 폰트가 헤딩 첫 순위에 있음 (${f.heading})`);
+      problems.push(`Font ${f.id}: an overused font is first in the heading stack (${f.heading})`);
     }
   }
 
   if (!STYLE_DIRECTIONS.some((s) => s.candidateStyle === '3d_render')) {
-    problems.push("스타일 방향에 '3d_render' 가 최소 1개 필요");
+    problems.push("Style directions require at least one '3d_render' option");
   }
   if (!CURATED_PALETTES.some((p) => p.dark) || !CURATED_PALETTES.some((p) => !p.dark)) {
-    problems.push('팔레트에 다크/라이트가 모두 있어야 다양성 보장이 동작한다');
+    problems.push('Palette diversity requires both dark and light options');
   }
 
   return problems;
@@ -425,6 +425,6 @@ export function validateDesignKnowledge(): string[] {
 if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
   const problems = validateDesignKnowledge();
   if (problems.length > 0) {
-    throw new Error(`design-knowledge 데이터 오류:\n${problems.join('\n')}`);
+    throw new Error(`design-knowledge data error:\n${problems.join('\n')}`);
   }
 }

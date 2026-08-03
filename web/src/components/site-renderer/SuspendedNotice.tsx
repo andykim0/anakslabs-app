@@ -15,21 +15,21 @@ export function SuspendedNotice({ siteName }: { siteName?: string }) {
         ⏸
       </span>
       <h1 className="mt-6 text-2xl font-bold tracking-tight text-neutral-50">
-        사이트가 잠시 쉬고 있어요
+        This site is temporarily unavailable
       </h1>
       <p className="mt-3 max-w-md text-sm leading-6 text-neutral-400">
-        {siteName ? `‘${siteName}’ 사이트는` : '이 사이트는'} 사이트 운영 구독 결제가 확인되지 않아
-        일시 중지된 상태입니다. 사이트 관리자라면 {PUBLIC_BRAND_NAMES.brand} 대시보드에서 결제 정보를 확인해
-        주세요. 결제가 완료되면 사이트는 바로 다시 열립니다.
+        {siteName ? `The ${siteName} site` : 'This site'} is paused because its operating subscription could not be confirmed.
+        If you manage this site, review billing in the {PUBLIC_BRAND_NAMES.brand} dashboard.
+        The site will reopen when payment is confirmed.
       </p>
       <a
         href={`https://${ROOT_DOMAIN}`}
         className="mt-8 inline-flex items-center justify-center rounded-full bg-neutral-50 px-6 py-3 text-sm font-semibold text-neutral-950 transition hover:bg-neutral-200"
       >
-        대시보드에서 결제 확인하기
+        Review billing in the dashboard
       </a>
       <p className="mt-16 text-xs text-neutral-600" data-brand-bilingual="hosted-footer">
-        <span className="font-semibold text-neutral-400">{PUBLIC_BRAND_NAMES.brandBilingual}</span> 제공
+        Provided by <span className="font-semibold text-neutral-400">{PUBLIC_BRAND_NAMES.brandBilingual}</span>
       </p>
     </main>
   );

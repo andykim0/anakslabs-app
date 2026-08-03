@@ -34,15 +34,15 @@ export function LegalFooter({
   const directionsHref = !disableActions && info.address ? businessDirectionsHref(info.address) : undefined;
   type FooterItem = { key: string; label: string; href?: string; external?: boolean };
   const items = [
-    info.businessName ? { key: 'business', label: `상호 ${info.businessName}` } : null,
-    { key: 'owner', label: `${info.isPersonal ? '운영자' : '대표'} ${info.ownerName}` },
-    info.businessNumber ? { key: 'number', label: `사업자등록번호 ${info.businessNumber}` } : null,
-    info.mailOrderNumber ? { key: 'mail-order', label: `통신판매업신고 ${info.mailOrderNumber}` } : null,
+    info.businessName ? { key: 'business', label: `Business ${info.businessName}` } : null,
+    { key: 'owner', label: `${info.isPersonal ? 'Operator' : 'Representative'} ${info.ownerName}` },
+    info.businessNumber ? { key: 'number', label: `Registration ${info.businessNumber}` } : null,
+    info.mailOrderNumber ? { key: 'mail-order', label: `E-commerce registration ${info.mailOrderNumber}` } : null,
     info.address
-      ? { key: 'address', label: `주소 ${info.address}`, href: directionsHref, external: true }
+      ? { key: 'address', label: `Address ${info.address}`, href: directionsHref, external: true }
       : null,
-    { key: 'phone', label: `전화 ${info.phone}`, href: phoneHref },
-    info.email ? { key: 'email', label: `이메일 ${info.email}` } : null,
+    { key: 'phone', label: `Phone ${info.phone}`, href: phoneHref },
+    info.email ? { key: 'email', label: `Email ${info.email}` } : null,
   ].filter((item): item is FooterItem => Boolean(item));
 
   const actionStyle = {
@@ -83,10 +83,10 @@ export function LegalFooter({
       </div>
       <div style={{ maxWidth: 1200, margin: '10px auto 0', display: 'flex', gap: 16 }}>
         <a href={privacyHref} style={{ color: theme.palette.text, textDecoration: 'underline', opacity: 0.85 }}>
-          개인정보처리방침
+          Privacy
         </a>
         <a href={termsHref} style={{ color: theme.palette.text, textDecoration: 'underline', opacity: 0.85 }}>
-          이용약관
+          Terms
         </a>
       </div>
     </footer>

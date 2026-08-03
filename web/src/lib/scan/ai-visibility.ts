@@ -29,7 +29,7 @@ import {
   supportedChannelUrls,
 } from './signals';
 
-export const AI_VISIBILITY_SERVER_HTML_LABEL = '검색·AI가 읽는 서버 HTML 구조' as const;
+export const AI_VISIBILITY_SERVER_HTML_LABEL = 'Server HTML structure available to search and AI' as const;
 
 export type AiVisibilitySource = 'source-html' | 'publish-hypothesis';
 export type AiSignalState = 'detected' | 'unconfirmed' | 'not_applicable';

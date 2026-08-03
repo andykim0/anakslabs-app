@@ -16,11 +16,11 @@ import type {
 
 const NUDGE_CANDIDATE: DesignCandidate = {
   id: 'onboarding-preflight',
-  label: '온보딩 진단',
+  label: 'Onboarding diagnostic',
   style: '3d_render',
   heroImageUrl: '/mock/mintwash-hero.svg',
   heroPresentation: 'system',
-  theme: emptySiteConfig('온보딩 진단').theme,
+  theme: emptySiteConfig('Onboarding diagnostic').theme,
   description: '',
 };
 

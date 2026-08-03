@@ -54,14 +54,14 @@ async function ingestExternalImageInternal(
   if (provenance.write && !owner?.clientId) {
     throw new ImportAssetProvenanceError(
       'ASSET_PROVENANCE_CLIENT_REQUIRED',
-      '등록된 외부 이미지에는 인증된 고객 소유자 정보가 필요합니다.',
+      'An imported external image requires a verified customer owner.',
     );
   }
 
   const { res } = await safeFetch(rawUrl, { accept: 'image/*', maxRedirects: 3, timeoutMs: 8000 });
   const ct = (res.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
   const ext = IMG_MIME_EXT[ct];
-  if (!ext) throw new ImportError('NOT_IMAGE', '이미지 파일만 가져올 수 있어요(jpg/png/webp).');
+  if (!ext) throw new ImportError('NOT_IMAGE', 'Only jpg, png, and webp images can be imported.');
   const bytes = await readLimitedBytes(res, MAX_IMG_BYTES);
   const buf = Buffer.from(bytes);
   const mimeType = ct === 'image/jpg' ? 'image/jpeg' : ct;
@@ -72,7 +72,7 @@ async function ingestExternalImageInternal(
     if (!owner) {
       throw new ImportAssetProvenanceError(
         'ASSET_PROVENANCE_CLIENT_REQUIRED',
-        '등록된 외부 이미지에는 인증된 고객 소유자 정보가 필요합니다.',
+        'An imported external image requires a verified customer owner.',
       );
     }
     try {
@@ -90,7 +90,7 @@ async function ingestExternalImageInternal(
     } catch (error) {
       throw new ImportAssetProvenanceError(
         'ASSET_PROVENANCE_WRITE_FAILED',
-        '가져온 이미지의 서버 출처 기록에 실패했습니다.',
+        'Failed to record the server provenance for the imported image.',
         { cause: error },
       );
     }
@@ -105,7 +105,7 @@ async function ingestExternalImageInternal(
   if (!owner) {
     throw new ImportAssetProvenanceError(
       'ASSET_PROVENANCE_CLIENT_REQUIRED',
-      '등록된 외부 이미지에는 인증된 고객 소유자 정보가 필요합니다.',
+      'An imported external image requires a verified customer owner.',
     );
   }
   try {
@@ -123,7 +123,7 @@ async function ingestExternalImageInternal(
   } catch (error) {
     throw new ImportAssetProvenanceError(
       'ASSET_PROVENANCE_WRITE_FAILED',
-      '가져온 이미지의 서버 출처 기록에 실패했습니다.',
+      'Failed to record the server provenance for the imported image.',
       { cause: error },
     );
   }

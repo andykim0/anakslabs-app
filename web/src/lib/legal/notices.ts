@@ -1,35 +1,22 @@
 /**
- * [§8] 고지 문구 단일 소스.
- * 약관규제법 §3(명시·설명의무) 3중 고지가 동일 문구를 쓰도록 상수화한다.
- *  ① 랜딩/요금 카드 각주  ② 결제 직전 동의 체크박스  ③ 해지/Export 화면 재고지
- * 고지 대상 = 구독으로 제공되는 서비스(호스팅·AI 검색 최적화 관리·AI 수정). HTML 백업은 정적 콘텐츠만 재현.
- * 이 파일은 클라이언트 번들 가능한 순수 문자열(server-only 아님).
+ * US customer-facing legal notices remain unavailable until counsel approves final language.
+ * These status messages are not contractual terms and must not be presented as such.
  */
+export const US_LEGAL_NOTICES_REVIEWED = false as const;
 
-/** 정적 산출물에 구독 서비스가 포함되지 않음을 고지 (약관 11장 ③항 요지) — 3곳 공통 */
 export const DYNAMIC_FEATURE_NOTICE =
-  '구독으로 제공되는 호스팅·AI 검색 최적화 관리·AI 수정 및 재생성 등 당사 서버에 의존하는 서비스는 정적 산출물(HTML 백업)에 포함되지 않으며, 백업은 발행 시점의 정적 콘텐츠(HTML·CSS·이미지)만 재현합니다. ' +
-  '해당 서비스의 미포함은 하자 또는 계약 위반에 해당하지 않습니다.';
+  'Subscription and export terms are pending counsel review and are not available for publication.';
 
-/** ① 랜딩·요금 안내 각주 (구독 서비스는 당사 호스팅 전용) */
 export const HOSTING_ONLY_FOOTNOTE =
-  '호스팅·AI 검색 최적화 관리 등 구독 서비스는 당사 호스팅에서만 제공됩니다. 구독 해지 시 제공되는 HTML 백업에서는 발행 시점의 정적 콘텐츠만 재현됩니다.';
+  'Hosting and export terms are pending counsel review.';
 
-/** ② 결제 직전 동의 체크박스 라벨 (미체크 시 결제 진행 불가) */
 export const PAYMENT_CONSENT_LABEL =
-  '해지 시 제공되는 정적 산출물(HTML 백업)에 구독 서비스(호스팅·AI 검색 최적화 관리·AI 수정)가 포함되지 않음을 확인했습니다.';
+  'Payment terms are pending counsel review. Live payment is unavailable.';
 
-/** ③ Export/해지 화면 재고지 헤드라인 */
-export const EXPORT_NOTICE_HEADING = 'HTML 백업 안내';
+export const EXPORT_NOTICE_HEADING = 'Export terms pending review';
 
-/** 소유권 요지 (약관 11장 ①②③) — 해지/Export 화면 표기용 */
 export const OWNERSHIP_SUMMARY =
-  '고객이 제공·생성한 콘텐츠와 정적 산출물(HTML·CSS·이미지 자산)의 소유권은 고객에게 있습니다. ' +
-  '다만 사이트를 구동하는 플랫폼·소스코드·렌더링 엔진·설정 데이터 구조 등 백엔드 시스템의 지식재산권은 당사에 있습니다.';
+  'Ownership terms are pending counsel review and are not available for publication.';
 
-/**
- * PRICE v2 환불·해지 고지.
- * 실제 PG를 열기 전 법률 검토와 결제수단 절차가 확정될 때까지 구체 환불률을 약속하지 않는다.
- */
 export const REFUND_NOTICE =
-  '환불과 자동 갱신 해지 조건은 실제 결제 기능을 열기 전 법률 검토를 거쳐 확정하며, 결제 화면과 이용약관에 같은 문구로 안내합니다. 현재는 실제 결제가 진행되지 않습니다.';
+  'Refund and renewal terms are pending counsel review. Live payment is unavailable.';

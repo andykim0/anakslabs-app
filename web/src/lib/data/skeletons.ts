@@ -31,29 +31,29 @@ export interface Skeleton {
 /** 목적별 3변형 — heroVariant는 fullbleed/centered/split 3종을 고루 커버. */
 export const SKELETONS: Skeleton[] = [
   // local_store: 매장·음식점 — 비주얼 중심
-  { id: 'local-showcase', purpose: 'local_store', label: '매장 쇼케이스', heroVariant: 'fullbleed', emphasis: ['menu', 'gallery'], density: 'rich' },
-  { id: 'local-story', purpose: 'local_store', label: '스토리 중심', heroVariant: 'split', emphasis: ['about', 'menu'], density: 'standard' },
-  { id: 'local-spotlight', purpose: 'local_store', label: '시그니처 스포트라이트', heroVariant: 'centered', emphasis: ['gallery', 'features'], density: 'standard' },
+  { id: 'local-showcase', purpose: 'local_store', label: 'Store showcase', heroVariant: 'fullbleed', emphasis: ['menu', 'gallery'], density: 'rich' },
+  { id: 'local-story', purpose: 'local_store', label: 'Story-led', heroVariant: 'split', emphasis: ['about', 'menu'], density: 'standard' },
+  { id: 'local-spotlight', purpose: 'local_store', label: 'Signature spotlight', heroVariant: 'centered', emphasis: ['gallery', 'features'], density: 'standard' },
   // booking_service: 예약·시술 — 신뢰·전환
-  { id: 'booking-trust', purpose: 'booking_service', label: '신뢰 우선', heroVariant: 'centered', emphasis: ['features', 'testimonials'], density: 'standard' },
-  { id: 'booking-menu', purpose: 'booking_service', label: '시술 안내형', heroVariant: 'fullbleed', emphasis: ['menu', 'pricing'], density: 'rich' },
-  { id: 'booking-editorial', purpose: 'booking_service', label: '에디토리얼', heroVariant: 'split', emphasis: ['about', 'gallery'], density: 'standard' },
+  { id: 'booking-trust', purpose: 'booking_service', label: 'Trust first', heroVariant: 'centered', emphasis: ['features', 'testimonials'], density: 'standard' },
+  { id: 'booking-menu', purpose: 'booking_service', label: 'Service guide', heroVariant: 'fullbleed', emphasis: ['menu', 'pricing'], density: 'rich' },
+  { id: 'booking-editorial', purpose: 'booking_service', label: 'Editorial', heroVariant: 'split', emphasis: ['about', 'gallery'], density: 'standard' },
   // company_brand: 회사·브랜드 — 정제·실적
-  { id: 'company-minimal', purpose: 'company_brand', label: '미니멀 브랜드', heroVariant: 'centered', emphasis: ['features', 'cases'], density: 'standard' },
-  { id: 'company-cases', purpose: 'company_brand', label: '실적 강조', heroVariant: 'fullbleed', emphasis: ['cases', 'features'], density: 'rich' },
-  { id: 'company-split', purpose: 'company_brand', label: '분할 소개형', heroVariant: 'split', emphasis: ['about', 'features'], density: 'standard' },
+  { id: 'company-minimal', purpose: 'company_brand', label: 'Minimal brand', heroVariant: 'centered', emphasis: ['features', 'cases'], density: 'standard' },
+  { id: 'company-cases', purpose: 'company_brand', label: 'Results first', heroVariant: 'fullbleed', emphasis: ['cases', 'features'], density: 'rich' },
+  { id: 'company-split', purpose: 'company_brand', label: 'Split introduction', heroVariant: 'split', emphasis: ['about', 'features'], density: 'standard' },
   // portfolio: 포트폴리오·이력 — 작업 중심
-  { id: 'portfolio-grid', purpose: 'portfolio', label: '작업 그리드', heroVariant: 'fullbleed', emphasis: ['gallery', 'cases'], density: 'rich' },
-  { id: 'portfolio-centered', purpose: 'portfolio', label: '센터 인트로', heroVariant: 'centered', emphasis: ['about', 'gallery'], density: 'standard' },
-  { id: 'portfolio-resume', purpose: 'portfolio', label: '이력 분할형', heroVariant: 'split', emphasis: ['about', 'cases'], density: 'compact' },
+  { id: 'portfolio-grid', purpose: 'portfolio', label: 'Work grid', heroVariant: 'fullbleed', emphasis: ['gallery', 'cases'], density: 'rich' },
+  { id: 'portfolio-centered', purpose: 'portfolio', label: 'Centered introduction', heroVariant: 'centered', emphasis: ['about', 'gallery'], density: 'standard' },
+  { id: 'portfolio-resume', purpose: 'portfolio', label: 'Split résumé', heroVariant: 'split', emphasis: ['about', 'cases'], density: 'compact' },
   // edu_membership: 교육·멤버십 — 커리큘럼·후기
-  { id: 'edu-curriculum', purpose: 'edu_membership', label: '커리큘럼형', heroVariant: 'fullbleed', emphasis: ['menu', 'faq'], density: 'rich' },
-  { id: 'edu-trust', purpose: 'edu_membership', label: '후기·신뢰형', heroVariant: 'centered', emphasis: ['testimonials', 'features'], density: 'standard' },
-  { id: 'edu-story', purpose: 'edu_membership', label: '스토리 분할형', heroVariant: 'split', emphasis: ['about', 'faq'], density: 'standard' },
+  { id: 'edu-curriculum', purpose: 'edu_membership', label: 'Curriculum', heroVariant: 'fullbleed', emphasis: ['menu', 'faq'], density: 'rich' },
+  { id: 'edu-trust', purpose: 'edu_membership', label: 'Reviews and trust', heroVariant: 'centered', emphasis: ['testimonials', 'features'], density: 'standard' },
+  { id: 'edu-story', purpose: 'edu_membership', label: 'Split story', heroVariant: 'split', emphasis: ['about', 'faq'], density: 'standard' },
   // one_page: 원페이지 — 압축
-  { id: 'onepage-hero', purpose: 'one_page', label: '히어로 임팩트', heroVariant: 'fullbleed', emphasis: ['features', 'contact'], density: 'compact' },
-  { id: 'onepage-centered', purpose: 'one_page', label: '센터 원페이지', heroVariant: 'centered', emphasis: ['about', 'contact'], density: 'compact' },
-  { id: 'onepage-split', purpose: 'one_page', label: '분할 원페이지', heroVariant: 'split', emphasis: ['features', 'about'], density: 'compact' },
+  { id: 'onepage-hero', purpose: 'one_page', label: 'Hero impact', heroVariant: 'fullbleed', emphasis: ['features', 'contact'], density: 'compact' },
+  { id: 'onepage-centered', purpose: 'one_page', label: 'Centered one-page', heroVariant: 'centered', emphasis: ['about', 'contact'], density: 'compact' },
+  { id: 'onepage-split', purpose: 'one_page', label: 'Split one-page', heroVariant: 'split', emphasis: ['features', 'about'], density: 'compact' },
 ];
 
 const HERO_VARIANTS: readonly HeroVariant[] = ['fullbleed', 'centered', 'split'];
@@ -93,15 +93,15 @@ export function validateSkeletons(): string[] {
   const errs: string[] = [];
   const ids = new Set<string>();
   for (const s of SKELETONS) {
-    if (ids.has(s.id)) errs.push(`중복 id: ${s.id}`);
+    if (ids.has(s.id)) errs.push(`Duplicate id: ${s.id}`);
     ids.add(s.id);
-    if (!HERO_VARIANTS.includes(s.heroVariant)) errs.push(`${s.id}: 미지 heroVariant`);
+    if (!HERO_VARIANTS.includes(s.heroVariant)) errs.push(`${s.id}: unknown heroVariant`);
   }
   for (const p of LIVE_PURPOSE_IDS) {
     const pool = skeletonsForPurpose(p);
-    if (pool.length < 3) errs.push(`${p}: 뼈대 ${pool.length}개(<3)`);
+    if (pool.length < 3) errs.push(`${p}: ${pool.length} skeletons (<3)`);
     const variants = new Set(pool.map((s) => s.heroVariant));
-    if (variants.size < 3) errs.push(`${p}: heroVariant 다양성 ${variants.size}(<3)`);
+    if (variants.size < 3) errs.push(`${p}: heroVariant diversity ${variants.size} (<3)`);
   }
   return errs;
 }

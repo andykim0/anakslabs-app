@@ -14,11 +14,11 @@ import {
 } from '@/lib/scan/profiles';
 
 export const US_DEMO_DIFF_GROUP_LABELS = Object.freeze({
-  entity: '병원 정보 연결',
-  structuredSchema: '구조화된 병원 정보',
-  evidence: '근거와 출처',
-  answerExtraction: '질문·답변 구조',
-  access: '검색 접근',
+  entity: 'Practice identity',
+  structuredSchema: 'Structured practice data',
+  evidence: 'Evidence and sources',
+  answerExtraction: 'Question and answer structure',
+  access: 'Search access',
 } as const satisfies Record<UsMedicalOutreachGroup, string>);
 
 export interface UsDemoStructureComparison {

@@ -592,7 +592,7 @@ function clinicSurface(
  * emergency syllable split from overflow-wrap.
  */
 function compactKoTokenSegments(token: string): string[] {
-  if (!/[가-힣]/u.test(token)) return [token];
+  if (!/[\uAC00-\uD7A3]/u.test(token)) return [token];
   let segments = [...new Intl.Segmenter('ko', { granularity: 'word' }).segment(token)]
     .map((entry) => entry.segment)
     .filter(Boolean);
@@ -600,7 +600,7 @@ function compactKoTokenSegments(token: string): string[] {
   // expose only Korean grammatical endings as break opportunities; no character
   // is inserted, deleted, translated, or reordered.
   if (segments.length < 2) {
-    const endings = /(?:으로|에서|에게|까지|부터|처럼|보다|도록|었던|였던|했던|던|의|을|를|에|와|과|아|어)/gu;
+    const endings = /(?:\uC73C\uB85C|\uC5D0\uC11C|\uC5D0\uAC8C|\uAE4C\uC9C0|\uBD80\uD130|\uCC98\uB7FC|\uBCF4\uB2E4|\uB3C4\uB85D|\uC5C8\uB358|\uC600\uB358|\uD588\uB358|\uB358|\uC758|\uC744|\uB97C|\uC5D0|\uC640|\uACFC|\uC544|\uC5B4)/gu;
     segments = [];
     let cursor = 0;
     for (const match of token.matchAll(endings)) {
@@ -615,7 +615,7 @@ function compactKoTokenSegments(token: string): string[] {
 }
 
 function koHeadingBreakOpportunities(text: string): ReactNode {
-  if (!/[가-힣]/u.test(text)) return text;
+  if (!/[\uAC00-\uD7A3]/u.test(text)) return text;
   return text.split(/(\s+)/u).map((token, tokenIndex) => {
     if (!token || /^\s+$/u.test(token)) return token;
     const segments = compactKoTokenSegments(token);
@@ -1054,7 +1054,7 @@ export function ClinicFlowSection({
         : pageHeading?.trim()
     ) || contentText[0]?.text.trim() || section.name;
     const compactKoDisplay = locale === 'ko-KR'
-      && /[가-힣]/u.test(heading)
+      && /[\uAC00-\uD7A3]/u.test(heading)
       && !/\s/u.test(heading)
       && [...heading].length >= 8;
     const sourceHeading = contentText[0]?.text.trim();
@@ -1168,14 +1168,14 @@ export function ClinicFlowSection({
               <div data-clinic-article-evidence>
                 {articleAuthor ? (
                   <p data-clinic-article-byline>
-                    {articleAuthorLabel?.text ?? (locale === 'ko-KR' ? '작성자' : 'By')}{' '}
+                    {articleAuthorLabel?.text ?? 'By'}{' '}
                     <span itemProp="author">{articleAuthor.text}</span>
                   </p>
                 ) : null}
                 {articleDate ? (
                   <p data-clinic-article-date>
                     <time dateTime={articleDateTime}>
-                      {articleDateLabel?.text ?? (locale === 'ko-KR' ? '작성일' : 'Last updated')}{' '}
+                      {articleDateLabel?.text ?? 'Last updated'}{' '}
                       {articleDate.text}
                     </time>
                   </p>
@@ -1195,7 +1195,7 @@ export function ClinicFlowSection({
                 }),
               }}
             >
-              {locale === 'ko-KR' ? '상담 문의' : 'Book Appointment'}
+              Book Appointment
             </span>
           </div>
         </div>

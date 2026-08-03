@@ -22,8 +22,8 @@ export const GALLERY_LAYOUT_CATALOG = [
   {
     id: 'gallery.masonry',
     kind: 'gallery',
-    label: '매스너리형',
-    description: '사진의 원래 가로·세로 성격을 보존하며 짧은 열부터 채웁니다.',
+    label: 'Masonry',
+    description: 'Preserves each image\'s orientation while filling the shortest column first.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'masonry', columns: 3 }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'masonry', columns: 2 }),
@@ -40,8 +40,8 @@ export const GALLERY_LAYOUT_CATALOG = [
   {
     id: 'gallery.uniform-grid',
     kind: 'gallery',
-    label: '균일 그리드형',
-    description: '같은 크기의 사진 셀로 장면을 빠르고 예측 가능하게 비교합니다.',
+    label: 'Uniform grid',
+    description: 'Uses equal image cells for quick, predictable comparison.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'uniform-grid', columns: 3, mediaAspect: '4:3' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'uniform-grid', columns: 2, mediaAspect: '4:3' }),
@@ -58,8 +58,8 @@ export const GALLERY_LAYOUT_CATALOG = [
   {
     id: 'gallery.carousel',
     kind: 'gallery',
-    label: '가로 넘겨보기형',
-    description: '한 장면에 집중하고 이전·다음 제어로 사진을 유한하게 탐색합니다.',
+    label: 'Horizontal gallery',
+    description: 'Focuses on one scene at a time with finite previous and next controls.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'carousel', columns: 1, mediaAspect: '16:9' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'carousel', columns: 1, mediaAspect: '16:9' }),
@@ -77,8 +77,8 @@ export const GALLERY_LAYOUT_CATALOG = [
   {
     id: 'gallery.asymmetric-two-one',
     kind: 'gallery',
-    label: '비대칭 2대1형',
-    description: '세 장 단위의 큰 장면과 두 보조 장면으로 편집적인 리듬을 만듭니다.',
+    label: 'Asymmetric two-to-one',
+    description: 'Creates an editorial rhythm with one lead image and two supporting images.',
     bands: {
       wide: recipe({ gridColumns: 12, textZone: 'flow-full', flow: 'asymmetric-two-one', columns: 3, mediaAspect: '4:3' }),
       compact: recipe({ gridColumns: 8, textZone: 'flow-full', flow: 'asymmetric-two-one', columns: 2, mediaAspect: '4:3' }),

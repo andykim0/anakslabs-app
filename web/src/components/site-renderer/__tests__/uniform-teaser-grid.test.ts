@@ -72,7 +72,7 @@ describe('FIXCARD — 홈 티저 카드 그룹 통일', () => {
         assert.equal(card.querySelectorAll('[data-uniform-teaser-thumbnail]').length, 1);
         assert.equal(card.querySelectorAll('[data-uniform-teaser-card-body]').length, 1);
         assert.equal(card.querySelectorAll('[data-uniform-teaser-cta]').length, 1);
-        assert.match(card.textContent, /자세히 보기/u);
+        assert.match(card.textContent, /View details/u);
       }
     }
   });

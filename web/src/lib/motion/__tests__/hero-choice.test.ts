@@ -80,7 +80,7 @@ describe('sanitizeMotion — heroTechnique/videoConceptId 이중 방벽', () => 
       'basic',
     );
     assert.equal(config.motion?.heroTechnique, undefined, '강등 안 됨');
-    assert.ok(changes.some((c) => c.includes('히어로 모션')), changes.join(' / '));
+    assert.ok(changes.some((c) => c.includes('hero motion')), changes.join(' / '));
   });
   test('premium의 video-hero 선택은 보존', () => {
     const { config, changes } = sanitizeMotion(

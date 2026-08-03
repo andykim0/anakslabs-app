@@ -53,7 +53,7 @@ async function inlineCssFonts(
   warnings: string[],
 ): Promise<string> {
   const res = await fetch(cssUrl, { headers: { 'user-agent': WOFF2_UA } });
-  if (!res.ok) throw new Error(`폰트 CSS ${res.status}: ${cssUrl}`);
+  if (!res.ok) throw new Error(`Font CSS ${res.status}: ${cssUrl}`);
   let css = await res.text();
 
   const urls = [...new Set([...css.matchAll(/url\((https:\/\/[^)]+\.woff2)\)/g)].map((m) => m[1]))];
@@ -66,7 +66,7 @@ async function inlineCssFonts(
       fontAssets.set(rel, buf);
       return { fontUrl, rel };
     } catch (err) {
-      warnings.push(`폰트 파일 다운로드 실패 — ${fontUrl.slice(0, 60)} (${err instanceof Error ? err.message : String(err)})`);
+      warnings.push(`Font file download failed — ${fontUrl.slice(0, 60)} (${err instanceof Error ? err.message : String(err)})`);
       return null;
     }
   });
@@ -94,7 +94,7 @@ export async function selfHostFonts(config: SiteConfig): Promise<SelfHostedFonts
       return { fontFaceCss, fontAssets, warnings };
     } catch (error) {
       warnings.push(
-        `고정 한글 폰트 자산을 읽지 못해 저장된 폴백 체인을 사용합니다: ${error instanceof Error ? error.message : String(error)}`,
+        `Pinned Korean font assets could not be read. The stored fallback chain will be used: ${error instanceof Error ? error.message : String(error)}`,
       );
       return { fontFaceCss: '', fontAssets: new Map(), warnings };
     }
@@ -111,13 +111,13 @@ export async function selfHostFonts(config: SiteConfig): Promise<SelfHostedFonts
     }
     // url() 재작성이 하나도 안 됐으면(전부 실패) 셀프호스트 실패로 간주 → CDN 폴백
     if (fontAssets.size === 0) {
-      warnings.push('폰트 셀프호스트 실패 — CDN 링크로 폴백합니다.');
+      warnings.push('Font self-hosting failed. Falling back to the CDN link.');
       return { fontFaceCss: '', fontAssets, warnings };
     }
     return { fontFaceCss: parts.join('\n'), fontAssets, warnings };
   } catch (err) {
     warnings.push(
-      `폰트 셀프호스트 실패 — CDN 링크로 폴백: ${err instanceof Error ? err.message : String(err)}`,
+      `Font self-hosting failed. Falling back to the CDN link: ${err instanceof Error ? err.message : String(err)}`,
     );
     return { fontFaceCss: '', fontAssets: new Map(), warnings };
   }

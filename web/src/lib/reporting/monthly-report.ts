@@ -16,26 +16,26 @@ const EVENT_SET = new Set<string>(REPORT_EVENT_TYPES);
 const SOURCE_SET = new Set<string>(REPORT_REFERRER_SOURCES);
 
 export const REPORT_SOURCE_LABELS = {
-  naver: '네이버',
-  google: '구글',
-  instagram: '인스타그램',
-  direct: '직접·사이트 내부',
-  other: '기타',
+  naver: 'Naver',
+  google: 'Google',
+  instagram: 'Instagram',
+  direct: 'Direct or on-site',
+  other: 'Other',
 } as const satisfies Record<ReportReferrerSource, string>;
 
 const LEGACY_ACTION_INSIGHT_ORDER = [
-  ['reservationClicks', '예약 클릭'],
-  ['phoneClicks', '전화 클릭'],
-  ['directionsClicks', '길찾기 클릭'],
-  ['formSubmissions', '폼 제출'],
+  ['reservationClicks', 'Booking clicks'],
+  ['phoneClicks', 'Call clicks'],
+  ['directionsClicks', 'Directions clicks'],
+  ['formSubmissions', 'Form submissions'],
 ] as const satisfies ReadonlyArray<readonly [keyof MonthlyReportMetrics, string]>;
 
 const V2_ACTION_INSIGHT_ORDER = [
-  ['consultationActions', '상담 행동'],
-  ['reservationClicks', '예약 클릭'],
-  ['phoneClicks', '전화 클릭'],
-  ['directionsClicks', '길찾기 클릭'],
-  ['instagramClicks', '인스타그램 클릭'],
+  ['consultationActions', 'Contact actions'],
+  ['reservationClicks', 'Booking clicks'],
+  ['phoneClicks', 'Call clicks'],
+  ['directionsClicks', 'Directions clicks'],
+  ['instagramClicks', 'Instagram clicks'],
 ] as const satisfies ReadonlyArray<readonly [keyof MonthlyReportMetricsV2, string]>;
 
 function actionInsightEntries(
@@ -170,7 +170,7 @@ export function deriveMonthlyInsight(
         a.index - b.index,
     )[0];
   if (growingSource) {
-    return `${growingSource.label} 유입이 전월보다 ${growingSource.changePercent}% 늘었어요.`;
+    return `${growingSource.label} traffic increased ${growingSource.changePercent}% from last month.`;
   }
 
   const actions = actionInsightEntries(metrics);
@@ -186,15 +186,15 @@ export function deriveMonthlyInsight(
         (b.metric.changePercent ?? 0) - (a.metric.changePercent ?? 0) || a.index - b.index,
     )[0];
   if (growingAction) {
-    return `${growingAction.label}이 전월보다 ${growingAction.metric.changePercent}% 늘었어요.`;
+    return `${growingAction.label} increased ${growingAction.metric.changePercent}% from last month.`;
   }
 
   if (metrics.pageviews.current > 0 && metrics.pageviews.previous === 0) {
-    return `이번 달 방문(페이지뷰) ${metrics.pageviews.current.toLocaleString('ko-KR')}건이 처음 집계됐어요.`;
+    return `This month recorded ${metrics.pageviews.current.toLocaleString('en-US')} pageviews for the first time.`;
   }
 
   if ((metrics.pageviews.changePercent ?? 0) > 0) {
-    return `전체 유입이 전월보다 ${metrics.pageviews.changePercent}% 늘었어요.`;
+    return `Overall traffic increased ${metrics.pageviews.changePercent}% from last month.`;
   }
 
   const leadingAction = actions
@@ -205,13 +205,13 @@ export function deriveMonthlyInsight(
     }))
     .sort((a, b) => b.count - a.count || a.index - b.index)[0];
   if (leadingAction.count > 0) {
-    return `이번 달에는 ${leadingAction.label}이 ${leadingAction.count.toLocaleString('ko-KR')}건 집계됐어요.`;
+    return `This month recorded ${leadingAction.count.toLocaleString('en-US')} ${leadingAction.label.toLowerCase()}.`;
   }
 
   if (metrics.pageviews.current > 0) {
-    return `이번 달 방문(페이지뷰) ${metrics.pageviews.current.toLocaleString('ko-KR')}건이 집계됐어요.`;
+    return `This month recorded ${metrics.pageviews.current.toLocaleString('en-US')} pageviews.`;
   }
-  return '이번 달에는 아직 집계된 방문과 행동이 없어요.';
+  return 'No visits or actions have been recorded this month.';
 }
 
 export function buildMonthlyPerformanceReport(input: {

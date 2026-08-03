@@ -26,8 +26,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'business-info',
       focus: 'business-info',
-      title: '사업자 정보를 입력할까요?',
-      description: '발행하려면 상호·대표자·연락처 등 사업자 정보가 필요해요. 지금 입력해두면 바로 발행할 수 있어요.',
+      title: 'Add business details?',
+      description: 'Publishing requires a legal business name, representative, and contact details. Add them now to keep publishing ready.',
     },
     when: () => true,
   },
@@ -35,8 +35,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'photos',
       focus: 'images',
-      title: '실제 사진으로 바꿔볼까요?',
-      description: 'AI가 넣은 이미지를 직접 촬영한 가게·메뉴 사진으로 교체하면 신뢰도가 크게 올라가요.',
+      title: 'Replace these with real photos?',
+      description: 'Replace generated images with real photos of the business and its work to build trust.',
     },
     when: (s) => (s.storePhotoUrls?.length ?? 0) < 3,
   },
@@ -44,8 +44,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'reservation',
       focus: 'contact',
-      title: '예약·문의 버튼을 추가할까요?',
-      description: '네이버예약·전화·카카오 채널 링크를 버튼으로 연결해 실제 예약을 받아보세요.',
+      title: 'Add booking and contact links?',
+      description: 'Connect a verified booking URL, phone number, or messaging channel so visitors can act.',
     },
     when: (s) =>
       s.purposeId === 'local_store' ||
@@ -56,8 +56,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'copy',
       focus: 'text',
-      title: '문구를 내 목소리로 바꿀까요?',
-      description: 'AI 초안 카피를 실제 소개·강점으로 다듬으면 사이트가 살아나요.',
+      title: 'Make the copy sound like you?',
+      description: 'Replace draft copy with the business’s real introduction and strengths.',
     },
     when: () => true,
   },
@@ -65,8 +65,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'menu',
       focus: 'menu',
-      title: '메뉴판을 다듬을까요?',
-      description: '대표 메뉴·가격을 실제 정보로 채우고 순서를 정리해 보세요.',
+      title: 'Complete the offerings?',
+      description: 'Add verified names and prices, then put the most important offerings first.',
     },
     when: (s) => s.sectionPlan.some((i) => i.type === 'menu' || i.type === 'pricing'),
   },
@@ -74,8 +74,8 @@ const CANDIDATES: Candidate[] = [
     step: {
       id: 'layout',
       focus: 'layout',
-      title: '구성을 미세 조정할까요?',
-      description: '섹션 순서·여백·크기를 PPT처럼 자유롭게 옮겨 사이트를 마무리하세요.',
+      title: 'Fine-tune the layout?',
+      description: 'Adjust section order, spacing, and size to finish the site.',
     },
     when: () => true,
   },

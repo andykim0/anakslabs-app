@@ -23,6 +23,10 @@ import {
 } from '@/lib/content/testimonial-policy';
 import type { PublishArtifactAudit } from './artifact-audit';
 import { screenMedicalSiteConfig } from '@/lib/content/medical-ad-enforcement';
+import {
+  US_TENANT_LEGAL_DOCUMENTS_ENABLED,
+  usTenantLegalDocumentsRequired,
+} from '@/lib/legal/templates';
 
 export const PUBLISH_SCAN_THRESHOLD = 70;
 
@@ -59,6 +63,10 @@ export function checkPublish(
   const blockers: string[] = [];
   const warnings: string[] = [];
 
+  if (usTenantLegalDocumentsRequired(config) && !US_TENANT_LEGAL_DOCUMENTS_ENABLED) {
+    blockers.push('US tenant legal documents are pending counsel review and cannot be published.');
+  }
+
   for (const blocker of opts?.artifact?.blockers ?? []) blockers.push(blocker.message);
 
   const testimonialPolicy = testimonialExposurePolicyForConfig(config);
@@ -66,18 +74,18 @@ export function checkPublish(
     !testimonialPolicy.allowed
     && allSections(config).some((section) => sectionIsTestimonial(section))
   ) {
-    blockers.push('이 업종에서는 고객 후기 섹션을 자동 발행할 수 없습니다.');
+    blockers.push('Customer testimonial sections cannot be published automatically for this industry.');
   }
 
   const medicalPolicy = screenMedicalSiteConfig(config);
   for (const violation of medicalPolicy.violations) {
     if (violation.kind === 'classification') {
-      blockers.push(`의료 업종 분류 오류: ${violation.message}`);
+      blockers.push(`Medical classification error: ${violation.message}`);
       continue;
     }
-    const disposition = violation.severity === 'warn' ? '사람 검토 필요' : '발행 차단';
+    const disposition = violation.severity === 'warn' ? 'review required' : 'publication blocked';
     blockers.push(
-      `의료광고 ${disposition}(${violation.path}): ${violation.safeReplacementHint}`,
+      `Medical advertising ${disposition} (${violation.path}): ${violation.safeReplacementHint}`,
     );
   }
 

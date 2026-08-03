@@ -417,8 +417,8 @@ export function SectionLayoutProjectionRenderer({
       })}
       {projection.enhancement === 'carousel' ? (
         <div data-section-layout-controls>
-          <button type="button" data-section-layout-control data-carousel-step="-1" aria-label="이전 사진">←</button>
-          <button type="button" data-section-layout-control data-carousel-step="1" aria-label="다음 사진">→</button>
+          <button type="button" data-section-layout-control data-carousel-step="-1" aria-label="Previous photo">←</button>
+          <button type="button" data-section-layout-control data-carousel-step="1" aria-label="Next photo">→</button>
         </div>
       ) : null}
     </section>

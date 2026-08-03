@@ -42,7 +42,7 @@ function sectionBlock(text: string, headings: string[]): string {
   return '';
 }
 
-const PRICE_RE = /^(.{1,30}?)\s+([\d][\d,]{1,})\s*원?~?$/;
+const PRICE_RE = /^(.{1,30}?)\s+([\d][\d,]{1,})\s*\uC6D0?~?$/;
 
 /**
  * 메뉴 항목 파싱 — [메뉴]/[가격]/[시술]/[코스] 블록 우선, 없으면 전체. 줄 또는 '/'로 분리 후
@@ -50,7 +50,7 @@ const PRICE_RE = /^(.{1,30}?)\s+([\d][\d,]{1,})\s*원?~?$/;
  */
 export function parseMenuItems(providedContent: string | undefined): MenuItem[] {
   if (!providedContent) return [];
-  const block = sectionBlock(providedContent, ['메뉴', '가격', '시술', '서비스', '코스', '프로그램', '수업']);
+  const block = sectionBlock(providedContent, ['\uBA54\uB274', '\uAC00\uACA9', '\uC2DC\uC220', '\uC11C\uBE44\uC2A4', '\uCF54\uC2A4', '\uD504\uB85C\uADF8\uB7A8', '\uC218\uC5C5']);
   const source = block || providedContent;
   const items: MenuItem[] = [];
   const seen = new Set<string>();
@@ -72,12 +72,12 @@ export function parseMenuItems(providedContent: string | undefined): MenuItem[] 
   return items;
 }
 
-const HOURS_RE = /(월|화|수|목|금|토|일|평일|주말|매일|연중무휴)[^\n]*?\d{1,2}\s*:\s*\d{2}[^\n]*/;
+const HOURS_RE = /(\uC6D4|\uD654|\uC218|\uBAA9|\uAE08|\uD1A0|\uC77C|\uD3C9\uC77C|\uC8FC\uB9D0|\uB9E4\uC77C|\uC5F0\uC911\uBB34\uD734)[^\n]*?\d{1,2}\s*:\s*\d{2}[^\n]*/;
 
 /** 영업시간 한 줄 추출 ([영업 정보]/[운영] 블록 우선). 없으면 undefined */
 export function parseBusinessHours(providedContent: string | undefined): string | undefined {
   if (!providedContent) return undefined;
-  const block = sectionBlock(providedContent, ['영업', '운영', '이용', '안내']);
+  const block = sectionBlock(providedContent, ['\uC601\uC5C5', '\uC6B4\uC601', '\uC774\uC6A9', '\uC548\uB0B4']);
   const source = block || providedContent;
   const m = HOURS_RE.exec(source);
   return m ? m[0].trim().slice(0, 60) : undefined;
@@ -86,17 +86,17 @@ export function parseBusinessHours(providedContent: string | undefined): string 
 /** 주소 한 줄 추출 (시/도·구/군 패턴). 없으면 undefined */
 export function parseAddress(providedContent: string | undefined): string | undefined {
   if (!providedContent) return undefined;
-  const block = sectionBlock(providedContent, ['영업', '운영', '오시는', '주소', '위치']);
+  const block = sectionBlock(providedContent, ['\uC601\uC5C5', '\uC6B4\uC601', '\uC624\uC2DC\uB294', '\uC8FC\uC18C', '\uC704\uCE58']);
   const source = block || providedContent;
   // 시/도(생략 가능) + 구/군 + 로/길/동 을 포함한 주소 라인 (예: '서울 서대문구 연희로 00길 12')
-  const m = /([가-힣]{2,}(?:특별시|광역시|시|도)?\s*[가-힣]+(?:구|군)\s+[^\n]*?(?:로|길|동|가)[^\n]*)/.exec(source);
+  const m = /([\uAC00-\uD7A3]{2,}(?:\uD2B9\uBCC4\uC2DC|\uAD11\uC5ED\uC2DC|\uC2DC|\uB3C4)?\s*[\uAC00-\uD7A3]+(?:\uAD6C|\uAD70)\s+[^\n]*?(?:\uB85C|\uAE38|\uB3D9|\uAC00)[^\n]*)/.exec(source);
   return m ? m[1].trim().slice(0, 60) : undefined;
 }
 
 /** 소개 첫 문장(최대 maxLen자, 문장부호에서 절단) */
 export function parseIntroSentence(providedContent: string | undefined, maxLen = 40): string | undefined {
   if (!providedContent) return undefined;
-  const block = sectionBlock(providedContent, ['소개', '스토리']);
+  const block = sectionBlock(providedContent, ['\uC18C\uAC1C', '\uC2A4\uD1A0\uB9AC']);
   const source = (block || providedContent).trim();
   const firstLine = source.split('\n').map((l) => l.trim()).find((l) => l && !/^\[/.test(l));
   if (!firstLine) return undefined;

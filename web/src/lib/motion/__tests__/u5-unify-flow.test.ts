@@ -43,6 +43,6 @@ describe('U5 — 단일 제품 정합 플로우', () => {
     const cfg = { ...base, motion: { presetId: 'dining-premium', intensity: 'normal' as const } };
     const { config, changes } = sanitizeMotion(cfg, 'basic');
     assert.notEqual(config.motion?.presetId, 'dining-premium', 'premium 프리셋 미강등');
-    assert.ok(changes.some((c) => c.includes('강등')), '강등 안내 없음');
+    assert.ok(changes.some((c) => c.includes('Downgraded')), 'downgrade notice missing');
   });
 });
