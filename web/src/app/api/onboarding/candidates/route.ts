@@ -39,6 +39,7 @@ import {
   fontPairingsEnabled,
   MODERN_KOREAN_FONT_SELECTION_POLICY,
 } from '@/lib/fonts';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 export const runtime = 'nodejs';
 
@@ -110,6 +111,8 @@ function getDedupStore(): Map<string, DedupEntry> {
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;

@@ -4,7 +4,7 @@ export const OPERATOR_PRODUCT_LOCALE = 'en-US' as const;
 
 export type CustomerWorkspaceItem = 'sites' | 'reports' | 'billing' | 'credits' | 'settings';
 
-/** US accounts are issued by an operator. Other locale behavior remains available to shared code. */
+/** This US-only product passes en-US at its call sites; the locale parameter preserves shared policy contracts. */
 export function operatorManagedForLocale(locale: string | undefined): boolean {
   return locale === OPERATOR_PRODUCT_LOCALE;
 }

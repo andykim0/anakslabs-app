@@ -70,6 +70,7 @@ import {
   screenMedicalCustomerCopy,
 } from '@/lib/content/medical-ad-enforcement';
 import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 const bodySchema = z.object({
   survey: surveySchema,
@@ -107,6 +108,8 @@ async function recordBuildEvidence(input: {
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;

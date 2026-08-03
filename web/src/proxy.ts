@@ -17,6 +17,13 @@ import {
   ROOT_DOMAIN,
   reservedAppSubdomainForHostname,
 } from '@/lib/env';
+import {
+  customerLocaleFromSites,
+  customerWorkspaceItemsForLocale,
+  onboardingAllowedForLocale,
+  operatorManagedForLocale,
+  OPERATOR_PRODUCT_LOCALE,
+} from '@/lib/operator-model/policy';
 
 /** 앱(대시보드) 자체를 서빙하는 호스트네임 — 테넌트 rewrite 제외 */
 const APP_HOSTNAMES = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
@@ -33,6 +40,14 @@ function isAppHost(hostname: string): boolean {
 }
 
 const DASHBOARD_SITE_PATH_RE = /^\/dashboard\/sites\/([^/]+)(?:\/|$)/u;
+type OperatorHiddenRoute = 'billing' | 'credits' | 'onboarding';
+
+function operatorHiddenRoute(pathname: string): OperatorHiddenRoute | null {
+  if (/^\/dashboard\/billing\/?$/u.test(pathname)) return 'billing';
+  if (/^\/dashboard\/credits\/?$/u.test(pathname)) return 'credits';
+  if (/^\/onboarding\/?$/u.test(pathname)) return 'onboarding';
+  return null;
+}
 
 function dashboardSiteId(pathname: string): string | null {
   const encoded = DASHBOARD_SITE_PATH_RE.exec(pathname)?.[1];
@@ -95,6 +110,71 @@ async function guardDashboardSite(request: NextRequest, siteId: string): Promise
   return site ? passthrough : resourceNotFound();
 }
 
+function operatorHiddenRouteResponse(
+  request: NextRequest,
+  route: OperatorHiddenRoute,
+): NextResponse {
+  return route === 'onboarding'
+    ? NextResponse.redirect(new URL('/dashboard', request.url))
+    : resourceNotFound();
+}
+
+function routeAllowedForLocale(route: OperatorHiddenRoute, locale: string): boolean {
+  return route === 'onboarding'
+    ? onboardingAllowedForLocale(locale)
+    : customerWorkspaceItemsForLocale(locale).includes(route);
+}
+
+/** Resolve hidden customer surfaces before the dashboard layout starts a 200 stream. */
+async function guardOperatorHiddenRoute(
+  request: NextRequest,
+  route: OperatorHiddenRoute,
+): Promise<NextResponse> {
+  if (isMockMode()) {
+    const session = request.cookies.get('anaks_mock_session')?.value;
+    if (!session) return NextResponse.next();
+    const { getMockStore } = await import('@/lib/data/mock/store');
+    const sites = [...getMockStore().sites.values()].filter((site) => site.clientId === session);
+    const locale = customerLocaleFromSites(sites);
+    return routeAllowedForLocale(route, locale)
+      ? NextResponse.next()
+      : operatorHiddenRouteResponse(request, route);
+  }
+
+  if (!env.supabaseUrl || !env.supabaseAnonKey) {
+    return new NextResponse('Workspace access verification unavailable.', { status: 503 });
+  }
+  const passthrough = NextResponse.next();
+  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          passthrough.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) return NextResponse.next();
+  const { data: rows, error: siteError } = await supabase
+    .from('sites')
+    .select('draft_config,site_config')
+    .eq('client_id', auth.user.id);
+  if (siteError) {
+    return new NextResponse('Workspace access verification unavailable.', { status: 503 });
+  }
+  const locale = rows.flatMap((row) => {
+    const draftLocale = row.draft_config?.meta?.locale;
+    const liveLocale = row.site_config?.meta?.locale;
+    return [draftLocale, liveLocale].filter((value): value is string => typeof value === 'string');
+  })[0] ?? OPERATOR_PRODUCT_LOCALE;
+  if (!operatorManagedForLocale(locale) || routeAllowedForLocale(route, locale)) {
+    return passthrough;
+  }
+  return operatorHiddenRouteResponse(request, route);
+}
+
 export function proxy(request: NextRequest) {
   const hostHeader = request.headers.get('host') ?? '';
   // 포트 제거 + 소문자 정규화 + trailing dot 제거 (FQDN 형태 방어)
@@ -111,6 +191,8 @@ export function proxy(request: NextRequest) {
   if (isAppHost(hostname)) {
     const siteId = dashboardSiteId(request.nextUrl.pathname);
     if (siteId) return guardDashboardSite(request, siteId);
+    const hiddenRoute = operatorHiddenRoute(request.nextUrl.pathname);
+    if (hiddenRoute) return guardOperatorHiddenRoute(request, hiddenRoute);
     return NextResponse.next();
   }
 

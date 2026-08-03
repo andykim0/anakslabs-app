@@ -18,7 +18,9 @@ import {
   DEMO_BASIC_ID,
   DEMO_PREMIUM_ID,
   HWARODAM_SITE_ID,
+  MINTWASH_SITE_ID,
 } from '@/lib/data/mock/seed';
+import { getMockStore } from '@/lib/data/mock/store';
 
 function request(host: string, pathname = '/', session?: string) {
   return new NextRequest(`http://127.0.0.1${pathname}`, {
@@ -98,6 +100,55 @@ describe('APP-HOST routing contract', () => {
     ));
     assert.equal(missing.status, 404);
     assert.equal(await missing.text(), 'Not found.');
+  });
+
+  test('operator-hidden customer surfaces return before streaming while KO remains unchanged', async () => {
+    const store = getMockStore();
+    const mintwash = store.sites.get(MINTWASH_SITE_ID);
+    assert.ok(mintwash?.draftConfig);
+    const previousDraft = mintwash.draftConfig;
+    mintwash.draftConfig = {
+      ...previousDraft,
+      meta: { ...previousDraft.meta, locale: 'en-US' },
+    };
+    try {
+      for (const pathname of ['/dashboard/billing', '/dashboard/credits']) {
+        const response = await proxy(request(
+          `app.${ROOT_DOMAIN}`,
+          pathname,
+          DEMO_BASIC_ID,
+        ));
+        assert.equal(response.status, 404, pathname);
+      }
+      const onboarding = await proxy(request(
+        `app.${ROOT_DOMAIN}`,
+        '/onboarding',
+        DEMO_BASIC_ID,
+      ));
+      assert.equal(onboarding.status, 307);
+      assert.equal(new URL(getRedirectUrl(onboarding) ?? '').pathname, '/dashboard');
+    } finally {
+      mintwash.draftConfig = previousDraft;
+    }
+
+    const hwarodam = store.sites.get(HWARODAM_SITE_ID);
+    assert.ok(hwarodam?.draftConfig);
+    const previousHwarodamDraft = hwarodam.draftConfig;
+    hwarodam.draftConfig = {
+      ...previousHwarodamDraft,
+      meta: { ...previousHwarodamDraft.meta, locale: 'ko-KR' as never },
+    };
+    try {
+      const koBilling = await proxy(request(
+        `app.${ROOT_DOMAIN}`,
+        '/dashboard/billing',
+        DEMO_PREMIUM_ID,
+      ));
+      assert.equal(koBilling.status, 200);
+      assert.equal(koBilling.headers.get('x-middleware-next'), '1');
+    } finally {
+      hwarodam.draftConfig = previousHwarodamDraft;
+    }
   });
 
   test('production and mock assignment boundaries consume the shared reservation helper', () => {

@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import { mapCustomSectionType } from '@/lib/data/section-suggest';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 const bodySchema = z.object({
   name: z.string().min(1, '원하는 섹션을 입력해 주세요.').max(60),
@@ -26,6 +27,8 @@ const bodySchema = z.object({
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
 
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;

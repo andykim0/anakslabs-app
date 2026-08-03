@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import Module from 'node:module';
 import test from 'node:test';
+import { NextRequest } from 'next/server';
 import {
   customerWorkspaceItemsForLocale,
   onboardingAllowedForLocale,
@@ -12,6 +14,10 @@ import {
   OPERATOR_MINIMAL_SITE_FIELDS,
   siteFormCount,
 } from './site-generation';
+import {
+  OPERATOR_MANAGED_ONBOARDING_ERROR_CODE,
+  operatorManagedOnboardingApiGate,
+} from '@/app/api/onboarding/_lib/operator-gate';
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(`${ROOT}/${path}`, 'utf8');
@@ -77,10 +83,62 @@ test('unissued login cannot create a client and cross-client site pages fail clo
   assert.match(detail, /site\.clientId !== client\.id\) notFound\(\)/u);
 });
 
-test('customer onboarding route remains implemented but is gated for US', () => {
-  const onboarding = read('src/app/(dashboard)/onboarding/page.tsx');
-  const generate = read('src/app/api/onboarding/generate/route.ts');
-  assert.match(onboarding, /onboardingAllowedForLocale/u);
-  assert.match(onboarding, /redirect\('\/dashboard'\)/u);
-  assert.match(generate, /buildZeroCostSiteConfig/u);
+test('every self-service onboarding route rejects the US operator-managed product', async () => {
+  // Route modules legitimately import server-only modules. The standalone Node runner does not
+  // expose Next's server condition, so neutralize only its marker package while importing the
+  // actual exported route handlers; no application dependency is mocked.
+  const moduleLoader = Module as unknown as {
+    _load: (request: string, parent: unknown, isMain: boolean) => unknown;
+  };
+  const originalLoad = moduleLoader._load;
+  moduleLoader._load = function loadForRouteTest(request, parent, isMain) {
+    if (request === 'server-only') return {};
+    if (request === 'next/headers') {
+      return {
+        cookies: async () => ({
+          get: (name: string) => name === 'anaks_mock_session'
+            ? { value: 'demo-premium' }
+            : undefined,
+          getAll: () => [],
+          set: () => undefined,
+        }),
+      };
+    }
+    return originalLoad.call(this, request, parent, isMain);
+  };
+  const routeModules = await Promise.all([
+    import('@/app/api/onboarding/candidates/route'),
+    import('@/app/api/onboarding/generate/route'),
+    import('@/app/api/onboarding/import/route'),
+    import('@/app/api/onboarding/improve-extract/route'),
+    import('@/app/api/onboarding/menu-ocr/route'),
+    import('@/app/api/onboarding/preflight/route'),
+    import('@/app/api/onboarding/regenerate/route'),
+    import('@/app/api/onboarding/suggest-section/route'),
+  ]).finally(() => {
+    moduleLoader._load = originalLoad;
+  });
+  const routes = [
+    ['/api/onboarding/candidates', routeModules[0].POST],
+    ['/api/onboarding/generate', routeModules[1].POST],
+    ['/api/onboarding/import', routeModules[2].POST],
+    ['/api/onboarding/improve-extract', routeModules[3].POST],
+    ['/api/onboarding/menu-ocr', routeModules[4].POST],
+    ['/api/onboarding/preflight', routeModules[5].POST],
+    ['/api/onboarding/regenerate', routeModules[6].POST],
+    ['/api/onboarding/suggest-section', routeModules[7].POST],
+  ] as const;
+
+  for (const [pathname, handler] of routes) {
+    const response = await handler(new NextRequest(`http://app.anakslabs.com${pathname}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    }), undefined as never);
+    assert.equal(response.status, 403, pathname);
+    const payload = await response.json() as { error?: { code?: string } };
+    assert.equal(payload.error?.code, OPERATOR_MANAGED_ONBOARDING_ERROR_CODE, pathname);
+  }
+
+  assert.equal(operatorManagedOnboardingApiGate('ko-KR'), null);
 });
