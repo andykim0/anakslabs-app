@@ -31,6 +31,9 @@ export const US_TENANT_LEGAL_PLACEHOLDERS = Object.freeze({
 
 export const US_TENANT_LEGAL_DOCUMENTS_ENABLED = false as const;
 
+export const US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE =
+  'This site collects personal information through a form, so approved policy documents are required before publication.';
+
 /** Pins only newly issued sites in this US fork; stored legacy configs stay untouched. */
 export function pinUsTenantLocaleForNewSite(config: SiteConfig): SiteConfig {
   if (config.meta.locale === 'en-US') return config;
@@ -41,7 +44,7 @@ export class UsTenantLegalDocumentsPendingError extends Error {
   readonly code = 'US_TENANT_LEGAL_DOCUMENTS_PENDING';
 
   constructor() {
-    super('US tenant legal documents are pending counsel review and cannot be published.');
+    super(US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE);
     this.name = 'UsTenantLegalDocumentsPendingError';
   }
 }
@@ -52,8 +55,16 @@ export function siteCollectsPersonalData(config: SiteConfig): boolean {
   );
 }
 
+/**
+ * Business-operator details remain a Korean publication requirement. US tenants may provide
+ * them voluntarily; when present, the renderer continues to show the existing LegalFooter.
+ */
+export function businessInfoRequiredForPublish(config: SiteConfig): boolean {
+  return config.meta.locale !== 'en-US';
+}
+
 export function usTenantLegalDocumentsRequired(config: SiteConfig): boolean {
-  return config.meta.locale === 'en-US' && Boolean(config.businessInfo);
+  return config.meta.locale === 'en-US' && siteCollectsPersonalData(config);
 }
 
 export function assertUsTenantLegalDocumentsReady(config: SiteConfig): void {

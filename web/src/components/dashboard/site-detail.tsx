@@ -53,6 +53,7 @@ import {
   publishPaymentQuoteFromExtra,
   type PublishPaymentQuote,
 } from '@/lib/billing/publish-payment-contract';
+import { businessInfoRequiredForPublish } from '@/lib/legal/templates';
 import { SitePreview } from './site-preview';
 import { useToast } from './toast';
 import {
@@ -543,6 +544,9 @@ export function SiteDetail({
 
   const site = siteQuery.data;
   const isPublished = Boolean(site.siteConfig);
+  const businessInfoRequired = site.draftConfig
+    ? businessInfoRequiredForPublish(site.draftConfig)
+    : true;
   const updateHumanCheck = (id: PublishHumanCheckId, checked: boolean) => {
     setHumanChecks((current) => ({ ...current, [id]: checked }));
   };
@@ -621,13 +625,16 @@ export function SiteDetail({
         onClose={() => setPublishConfirmOpen(false)}
         title="Final confirmation before publication"
         footer={
-          site.draftConfig?.businessInfo ? (
+          site.draftConfig && (site.draftConfig.businessInfo || !businessInfoRequired) ? (
             <>
               <Button variant="ghost" onClick={() => setPublishConfirmOpen(false)}>
                 Cancel
               </Button>
               <Button
-                disabled={!bizConfirmed || !allPublishHumanChecksConfirmed(humanChecks)}
+                disabled={
+                  (Boolean(site.draftConfig.businessInfo) && !bizConfirmed)
+                  || !allPublishHumanChecksConfirmed(humanChecks)
+                }
                 loading={publishMutation.isPending}
                 onClick={() => publishMutation.mutate(humanChecks)}
               >
@@ -685,6 +692,13 @@ export function SiteDetail({
                 I have verified that the above information is accurate. It is posted as a legal notation at the bottom of the published site.
               </span>
             </label>
+            <HumanPublishChecklist value={humanChecks} onChange={updateHumanCheck} />
+          </div>
+        ) : !businessInfoRequired ? (
+          <div className="space-y-3">
+            <p className="text-sm leading-6 text-ob-muted">
+              Business information is optional for this site. No legal footer will be shown unless you add it.
+            </p>
             <HumanPublishChecklist value={humanChecks} onChange={updateHumanCheck} />
           </div>
         ) : (

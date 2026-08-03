@@ -3,10 +3,10 @@
 /**
  * 발행 전 3단계 다이얼로그.
  *  1단계 — 자동 진단.
- *  2단계 — 사업자 정보 확인: 입력값 요약(미입력이면 인라인 폼 즉시 입력),
- *          "위 정보가 정확한지 확인했습니다" 체크 필수. 개인 사이트 토글은 폼 안에.
+ *  2단계 — 사업자 정보 확인: KO/default에서는 필수 입력, US에서는 선택 입력값만 확인.
+ *          입력값이 있으면 "위 정보가 정확한지 확인했습니다" 체크 필수.
  *  3단계 — 휴먼 3체크 후 발행 실행.
- * 서버도 사업자 정보 확인과 휴먼 3체크를 각각 요구한다(클라 우회 방지).
+ * 서버도 locale별 사업자 정보 정책과 휴먼 3체크를 각각 재검증한다(클라 우회 방지).
  */
 import { useState } from 'react';
 import { CheckCircle2, Pencil, Rocket } from 'lucide-react';
@@ -23,6 +23,7 @@ import {
   type PublishHumanCheckId,
   type PublishHumanChecks,
 } from '@/lib/publish/human-checks';
+import { businessInfoRequiredForPublish } from '@/lib/legal/templates';
 
 function SummaryRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
@@ -73,9 +74,10 @@ function PrePublishDialogContent({
   onConfirmed,
 }: PrePublishDialogProps) {
   const businessInfo = useEditorStore((s) => s.businessInfo);
+  const businessInfoRequired = useEditorStore((s) => businessInfoRequiredForPublish(s.config));
   // [G4] 3단계: 0=진단 → 1=사업자정보 → 2=발행
   const [step, setStep] = useState<0 | 1 | 2>(0);
-  const [editing, setEditing] = useState(() => !businessInfo);
+  const [editing, setEditing] = useState(() => businessInfoRequired && !businessInfo);
   const [confirmed, setConfirmed] = useState(false);
   const [humanChecks, setHumanChecks] = useState<PublishHumanChecks>(emptyPublishHumanChecks);
   const [qualityGateReady, setQualityGateReady] = useState(false);
@@ -110,11 +112,25 @@ function PrePublishDialogContent({
             </Button>
           </div>
         </div>
+      ) : step === 1 && !businessInfoRequired && !businessInfo && !editing ? (
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-[#344054]">
+            Business information is optional for this site. If you add it, it will appear in the site footer.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditing(true)}>
+              Add business information
+            </Button>
+            <Button onClick={() => setStep(2)}>Continue without it</Button>
+          </div>
+        </div>
       ) : step === 1 ? (
         editing || !businessInfo ? (
           <div className="space-y-3">
             <p className="text-xs leading-5 text-[#5F6B7C]">
-              To publish, please indicate on the site {businessInfo ? '' : "Business operator (or operator)"}I need information.
+              {businessInfoRequired
+                ? 'Add the business or operator information required for publication.'
+                : 'Add optional business information to show it in the site footer.'}
             </p>
             <BusinessInfoForm
               initial={businessInfo}

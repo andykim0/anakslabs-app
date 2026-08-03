@@ -213,7 +213,7 @@ describe('Q$7 — Anaks Labs 품질 루프 통합 경계', () => {
     assert.ok(preflight.blockers.includes(artifactMessage));
 
     const route = source('src/app/api/sites/[siteId]/publish/route.ts');
-    const humanGate = route.indexOf('missingPublishHumanChecks(body.humanChecks)');
+    const humanGate = route.indexOf('missingPublishHumanChecks(body?.humanChecks)');
     const humanFailure = route.indexOf("'PUBLISH_HUMAN_CHECKS_REQUIRED'", humanGate);
     const artifactAudit = route.indexOf('scan = preflightScan(', humanFailure);
     const auditFailure = route.indexOf("'PUBLISH_AUDIT_UNAVAILABLE'", artifactAudit);
