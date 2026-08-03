@@ -9,7 +9,7 @@
  *  - 금전 쓰기(payments/credit_*)는 전부 security definer SQL 함수 rpc 경유.
  */
 import { INITIAL_GRANT } from '@/lib/credits/constants';
-import { ROOT_DOMAIN } from '@/lib/env';
+import { ROOT_DOMAIN, reservedAppSubdomainForHostname } from '@/lib/env';
 import { PRICING } from '@/lib/pricing';
 import type {
   Client,
@@ -314,11 +314,14 @@ export class SupabaseSitesRepo implements SitesRepo {
           .neq('id', site.id)
           .maybeSingle();
         if (error) throw new Error(`도메인 중복 확인 실패: ${error.message}`);
-        if (!taken) break;
+        if (!taken && reservedAppSubdomainForHostname(candidate) === null) break;
         candidate = `${base}-${suffix}.${ROOT_DOMAIN}`.toLowerCase();
         suffix += 1;
       }
       domain = candidate;
+    }
+    if (reservedAppSubdomainForHostname(domain) !== null) {
+      throw new Error('sites.publish: 예약 앱 호스트는 고객 사이트로 발행할 수 없습니다.');
     }
 
     const { data, error } = await svc
@@ -350,7 +353,13 @@ export class SupabaseSitesRepo implements SitesRepo {
   ): Promise<void> {
     const svc = getServiceRoleClient();
     const patch: Record<string, unknown> = {};
-    if (input.domain !== undefined) patch.domain = input.domain ? input.domain.toLowerCase() : input.domain;
+    if (input.domain !== undefined) {
+      const domain = input.domain ? input.domain.toLowerCase() : input.domain;
+      if (domain && reservedAppSubdomainForHostname(domain) !== null) {
+        throw new Error('sites.updateDomain: 예약 앱 호스트는 고객 도메인으로 할당할 수 없습니다.');
+      }
+      patch.domain = domain;
+    }
     if (input.domainType !== undefined) patch.domain_type = input.domainType;
     if (input.dnsVerified !== undefined) patch.dns_verified = input.dnsVerified;
     if (input.cloudflareHostnameId !== undefined) patch.cloudflare_hostname_id = input.cloudflareHostnameId;

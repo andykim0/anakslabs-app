@@ -26,6 +26,27 @@ export function isEmailLoginPublic(): boolean {
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'anakslabs.com';
 
 /**
+ * ROOT_DOMAIN 아래에서 제품 앱이 소유하는 예약 서브도메인.
+ * 테넌트 도메인 할당과 proxy 라우팅이 이 목록을 단일 진실 소스로 공유한다.
+ */
+export const RESERVED_APP_SUBDOMAINS = ['app', 'preview'] as const;
+
+export type ReservedAppSubdomain = (typeof RESERVED_APP_SUBDOMAINS)[number];
+
+/** 고객 로그인 진입점. 예약 목록의 문자열을 다른 파일에 다시 쓰지 않는다. */
+export const APP_ENTRY_SUBDOMAIN: ReservedAppSubdomain = RESERVED_APP_SUBDOMAINS[0];
+
+/** hostname이 ROOT_DOMAIN 바로 아래의 예약 앱 호스트인지 판정한다. */
+export function reservedAppSubdomainForHostname(hostname: string): ReservedAppSubdomain | null {
+  const normalized = hostname.trim().toLowerCase().replace(/\.$/u, '');
+  const suffix = `.${ROOT_DOMAIN.toLowerCase()}`;
+  if (!normalized.endsWith(suffix)) return null;
+  const label = normalized.slice(0, -suffix.length);
+  if (!label || label.includes('.')) return null;
+  return RESERVED_APP_SUBDOMAINS.find((reserved) => reserved === label) ?? null;
+}
+
+/**
  * [motion 4단계] Veo 영상 생성 비용 가드 (회당 실돈 $0.8~$3.2). 3중 가드:
  *  (a) 킬스위치 videoGenEnabled — 기본 OFF. 이걸 켜지 않으면 어떤 실호출도 발생하지 않는다.
  *  (b) 사이트당 상한 videoGenMaxPerSite — 온보딩 시안 재롤 남용 방지.
