@@ -33,6 +33,10 @@ describe('Q$6 publish route 서버 강제 배선', () => {
     assert.doesNotMatch(publish, /asset policy failed:',\s*error\s*\)/);
     assert.doesNotMatch(publish, /motion provenance failed:',\s*error\s*\)/);
     assert.doesNotMatch(preflight, /(?:scan|asset policy|motion provenance) failed:',\s*error\s*\)/);
+    assert.match(publish, /safePublishAuditErrorDetails\(error\)/);
+    assert.match(preflight, /safePublishAuditErrorDetails\(error\)/);
+    assert.match(publish, /phase:\s*'publish'/);
+    assert.match(preflight, /phase:\s*'preflight'/);
   });
 
   test('진단 UI도 provenance가 감사한 config와 소유자 tier의 artifact 결과를 사용한다', () => {
