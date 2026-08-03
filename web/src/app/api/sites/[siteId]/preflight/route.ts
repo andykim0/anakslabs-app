@@ -21,6 +21,7 @@ import {
   safeAuditErrorName,
   shouldBlockAssetPolicy,
 } from '@/lib/publish/asset-policy-feedback';
+import { safePublishAuditErrorDetails } from '@/lib/publish/audit-error-diagnostics';
 import {
   businessInfoRequiredForPublish,
   US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
@@ -112,8 +113,9 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
       motionAssets: provenance.options.assets,
     });
   } catch (error) {
-    console.error('[preflight-audit] scan failed:', {
-      errorName: safeAuditErrorName(error),
+    console.error('[publish-audit] preflight failed:', {
+      phase: 'preflight',
+      ...safePublishAuditErrorDetails(error),
     });
     return apiError(
       503,

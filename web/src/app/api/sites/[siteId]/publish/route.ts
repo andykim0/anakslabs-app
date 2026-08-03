@@ -24,6 +24,7 @@ import {
   safeAuditErrorName,
   shouldBlockAssetPolicy,
 } from '@/lib/publish/asset-policy-feedback';
+import { safePublishAuditErrorDetails } from '@/lib/publish/audit-error-diagnostics';
 import { isMockMode } from '@/lib/env';
 import {
   needsPublishPayment,
@@ -174,7 +175,8 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     });
   } catch (error) {
     console.error('[publish-audit] preflight failed:', {
-      errorName: safeAuditErrorName(error),
+      phase: 'publish',
+      ...safePublishAuditErrorDetails(error),
     });
     return apiError(
       503,

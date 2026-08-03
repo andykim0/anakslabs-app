@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import type { DesignCandidate, Site, SurveyInput } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
-import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { applyExtraFeatures, ensureUsBookingContactActions } from '@/lib/data/extras-inject';
 import {
   recompileDirectionsSectionLayouts,
   recompileGallerySectionLayouts,
@@ -246,7 +246,8 @@ export const POST = withApiHandler(async (request) => {
   );
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withLegacyExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
-  const withExtras = applyConnectorManifest(withLegacyExtras, survey, body.data.extras);
+  const withContactActions = ensureUsBookingContactActions(withLegacyExtras, body.data.extras);
+  const withExtras = applyConnectorManifest(withContactActions, survey, body.data.extras);
   // SITECINE is server-authored only: old stored configs stay absent/pixel-identical, every new site is pinned.
   const withCinematicBase = withSiteCinematicDefault(withExtras);
   const withCinematicDefault = survey.contentDepth?.mainStorytelling

@@ -22,6 +22,10 @@ import { buildScores } from './score';
 import { extractVisibleText } from './document';
 import type { ScanCore } from './index';
 import type { MotionAssetProvenance } from '@/lib/motion/signatures';
+import {
+  withPublishAuditContext,
+  type PublishAuditStage,
+} from '@/lib/publish/audit-error-diagnostics';
 
 export type PreflightScanResult = ScanCore & { publishAudit: PublishArtifactAudit };
 
@@ -45,63 +49,79 @@ export function preflightScan(
   const seenCodes = new Set<string>();
   const renderedPages: RenderedPublishPage[] = [];
 
-  for (const page of config.pages) {
-    const html = renderStaticDocument({
-      config,
-      pageSlug: page.slug,
-      siteUrl,
-      tier: opts.tier,
-      motionOwnerId: opts.motionOwnerId,
-      motionSiteId: opts.motionSiteId,
-      motionAssets: opts.motionAssets,
-    });
-    renderedPages.push({ pageSlug: page.slug, html });
-    const root = parse(html);
-
-    const ctx: RuleContext = {
-      root,
-      rawHtml: html,
-      visibleText: extractVisibleText(root),
-      url: new URL(page.slug === '' ? siteUrl : `${siteUrl}/${page.slug}`),
-      status: 200,
-      contentType: 'text/html; charset=utf-8',
-      xRobotsTag: '',
-      truncated: false,
-      ttfbMs: 0,
-      robots: {
-        url: `${siteUrl}/robots.txt`,
-        status: 200,
-        ok: true,
-        body: `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`,
-        contentType: 'text/plain; charset=utf-8',
-        truncated: false,
-      },
-      sitemap: {
-        url: `${siteUrl}/sitemap.xml`,
-        status: 200,
-        ok: true,
-        body: `<?xml version="1.0"?><urlset><url><loc>${siteUrl}${page.slug ? `/${page.slug}` : ''}</loc></url></urlset>`,
-        contentType: 'application/xml; charset=utf-8',
-        truncated: false,
-      },
-    };
-
-    // 라이브 runScan과 동일하게 한 페이지의 필러 간 루트 원인을 공유해 이중 차감을 막는다.
-    const runState = createRuleRunState();
-    const seo = runRules(SEO_RULES, ctx, runState);
-    const aeo = runRules(AEO_RULES, ctx, runState);
-    const geo = runRules(GEO_RULES, ctx, runState);
-    worst.seo = Math.max(worst.seo, seo.deducted);
-    worst.aeo = Math.max(worst.aeo, aeo.deducted);
-    worst.geo = Math.max(worst.geo, geo.deducted);
-    for (const iss of [...seo.issues, ...aeo.issues, ...geo.issues]) {
-      if (seenCodes.has(iss.code)) continue;
-      seenCodes.add(iss.code);
-      issues.push(iss);
+  const runPageStage = <T>(pageSlug: string, stage: PublishAuditStage, operation: () => T): T => {
+    try {
+      return operation();
+    } catch (error) {
+      throw withPublishAuditContext(error, stage, pageSlug);
     }
+  };
+
+  for (const page of config.pages) {
+    const html = runPageStage(page.slug, 'render', () => renderStaticDocument({
+        config,
+        pageSlug: page.slug,
+        siteUrl,
+        tier: opts.tier,
+        motionOwnerId: opts.motionOwnerId,
+        motionSiteId: opts.motionSiteId,
+        motionAssets: opts.motionAssets,
+      }));
+    renderedPages.push({ pageSlug: page.slug, html });
+    const ctx = runPageStage(page.slug, 'parse', (): RuleContext => {
+      const root = parse(html);
+      return {
+        root,
+        rawHtml: html,
+        visibleText: extractVisibleText(root),
+        url: new URL(page.slug === '' ? siteUrl : `${siteUrl}/${page.slug}`),
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        xRobotsTag: '',
+        truncated: false,
+        ttfbMs: 0,
+        robots: {
+          url: `${siteUrl}/robots.txt`,
+          status: 200,
+          ok: true,
+          body: `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`,
+          contentType: 'text/plain; charset=utf-8',
+          truncated: false,
+        },
+        sitemap: {
+          url: `${siteUrl}/sitemap.xml`,
+          status: 200,
+          ok: true,
+          body: `<?xml version="1.0"?><urlset><url><loc>${siteUrl}${page.slug ? `/${page.slug}` : ''}</loc></url></urlset>`,
+          contentType: 'application/xml; charset=utf-8',
+          truncated: false,
+        },
+      };
+    });
+
+    runPageStage(page.slug, 'rules', () => {
+      // 라이브 runScan과 동일하게 한 페이지의 필러 간 루트 원인을 공유해 이중 차감을 막는다.
+      const runState = createRuleRunState();
+      const seo = runRules(SEO_RULES, ctx, runState);
+      const aeo = runRules(AEO_RULES, ctx, runState);
+      const geo = runRules(GEO_RULES, ctx, runState);
+      worst.seo = Math.max(worst.seo, seo.deducted);
+      worst.aeo = Math.max(worst.aeo, aeo.deducted);
+      worst.geo = Math.max(worst.geo, geo.deducted);
+      for (const iss of [...seo.issues, ...aeo.issues, ...geo.issues]) {
+        if (seenCodes.has(iss.code)) continue;
+        seenCodes.add(iss.code);
+        issues.push(iss);
+      }
+    });
   }
 
   const { scores, grade } = buildScores(worst);
-  const publishAudit = auditPublishArtifacts(config, opts.tier, renderedPages);
+  let publishAudit: PublishArtifactAudit;
+  try {
+    publishAudit = auditPublishArtifacts(config, opts.tier, renderedPages);
+  } catch (error) {
+    throw withPublishAuditContext(error, 'artifact-audit', config.pages[0]?.slug ?? '');
+  }
   return { url: siteUrl, scores, grade, issues, publishAudit };
 }

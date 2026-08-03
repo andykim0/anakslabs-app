@@ -13,6 +13,7 @@ import { isProductionMotionSignatureId, MOTION_SIGNATURES } from '@/lib/motion/s
 import { schemaSpecFor } from '@/lib/seo/structured-data';
 import { isHttpsUrl, isSafeHref, isSafeMediaSrc } from '@/lib/safe-url';
 import { motionSceneForPage, motionSceneMedia, pageLcpImageSrc } from '@/lib/export/motion-scene-assets';
+import { withPublishAuditContext } from '@/lib/publish/audit-error-diagnostics';
 
 export type PublishArtifactCode =
   | 'lcp_hero_poster'
@@ -739,14 +740,18 @@ export function auditPublishArtifacts(
 
   const documents = new Map(renderedPages.map((document) => [document.pageSlug, document.html]));
   for (const page of config.pages) {
-    const html = documents.get(page.slug);
-    if (!html) {
-      push(blockers, 'static_main', `${pageLabel(page)}의 정적 발행 문서를 만들지 못했습니다.`, { pageSlug: page.slug });
-      continue;
+    try {
+      const html = documents.get(page.slug);
+      if (!html) {
+        push(blockers, 'static_main', `${pageLabel(page)}의 정적 발행 문서를 만들지 못했습니다.`, { pageSlug: page.slug });
+        continue;
+      }
+      const root = auditStaticDocument(config, page, html, blockers);
+      auditHeroMedia(config, tier, page, root, blockers);
+      auditMotionSceneDocument(config, page, root, blockers);
+    } catch (error) {
+      throw withPublishAuditContext(error, 'artifact-audit', page.slug);
     }
-    const root = auditStaticDocument(config, page, html, blockers);
-    auditHeroMedia(config, tier, page, root, blockers);
-    auditMotionSceneDocument(config, page, root, blockers);
   }
 
   const deduped = new Map<string, PublishArtifactBlocker>();
