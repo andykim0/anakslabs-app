@@ -652,12 +652,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                         </div>
                       )}
                     </div>
@@ -703,6 +703,7 @@ export function SiteRenderer({
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
+                      runtimeDelivery={runtimeDelivery}
                     />
                   </div>
                 )}
@@ -721,6 +722,7 @@ export function SiteRenderer({
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
+                      runtimeDelivery={runtimeDelivery}
                     />
                   </div>
                 )}
@@ -742,12 +744,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -768,12 +770,12 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
             ) : ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
             ))}
           </div>
         )}
@@ -797,6 +799,7 @@ export function SiteRenderer({
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
+                      runtimeDelivery={runtimeDelivery}
                     />
                   </SiteCinematicChapter>
                 ))}
@@ -814,6 +817,7 @@ export function SiteRenderer({
                 clinicPageHeading={clinicPageHeading}
                 hrefForPageSlug={hrefForPageSlug}
                 clinicLocale={clinicLocale}
+                runtimeDelivery={runtimeDelivery}
               />
             ))}
           </div>
@@ -824,6 +828,7 @@ export function SiteRenderer({
             theme={theme}
             siteId={siteId}
             interactive={interactive}
+            runtimeDelivery={runtimeDelivery}
           />
         ) : null}
         {config.clinicMaster && (

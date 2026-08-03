@@ -37,6 +37,7 @@ import {
   textFlowFor,
 } from '@/lib/design/typography-scale';
 import { ContactForm } from './ContactForm';
+import { StaticContactForm } from './StaticContactForm';
 import { cqw, mobileFontSize } from './scale';
 import { storyWordWindow } from '@/lib/motion/progress';
 import { fontRoleForTextElement } from '@/lib/fonts/resources';
@@ -69,6 +70,7 @@ interface ElementContentProps {
   layoutFontSize?: string;
   layoutAlign?: 'start' | 'center';
   layoutFillFrame?: boolean;
+  runtimeDelivery?: 'inline' | 'client';
 }
 
 /** variant에 맞는 길이 단위 문자열 */
@@ -94,6 +96,7 @@ export function ElementContent({
   layoutFontSize,
   layoutAlign,
   layoutFillFrame = false,
+  runtimeDelivery = 'client',
 }: ElementContentProps) {
   switch (element.kind) {
     case 'text':
@@ -129,7 +132,9 @@ export function ElementContent({
     case 'video':
       return <VideoContent el={element} theme={theme} variant={variant} eager={eager} hoverVideo={hoverVideo} />;
     case 'form':
-      return (
+      return runtimeDelivery === 'inline' ? (
+        <StaticContactForm el={element} theme={theme} siteId={siteId} interactive={interactive} compact={variant === 'stack'} />
+      ) : (
         <ContactForm el={element} theme={theme} siteId={siteId} interactive={interactive} compact={variant === 'stack'} />
       );
     case 'map':

@@ -58,6 +58,7 @@ interface SectionStackProps {
   hrefForPageSlug?: (slug: string) => string;
   /** KO contract-import only. Omission preserves the existing en-US clinic markup. */
   clinicLocale?: 'en-US' | 'ko-KR';
+  runtimeDelivery?: 'inline' | 'client';
 }
 
 function stackable(el: CanvasElement): boolean {
@@ -165,6 +166,7 @@ function HeroLayoutStackSection({
   proceduralHero = false,
   integratedTypography = false,
   continuousFlow = false,
+  runtimeDelivery = 'client',
 }: SectionStackProps) {
   const projection = section.heroLayout!;
   const bg = section.background;
@@ -393,6 +395,7 @@ function HeroLayoutStackSection({
               layoutFontSize={fontSize}
               layoutAlign={compact.align}
               layoutFillFrame={element.kind === 'button'}
+              runtimeDelivery={runtimeDelivery}
             />
           </div>
         );
@@ -415,6 +418,7 @@ export function SectionStack({
   clinicPageHeading,
   hrefForPageSlug,
   clinicLocale,
+  runtimeDelivery = 'client',
 }: SectionStackProps) {
   if (isClinicInsuranceStripSection(section)) {
     return <ClinicInsuranceStrip section={section} theme={theme} variant="stack" />;
@@ -431,6 +435,7 @@ export function SectionStack({
         hrefForPageSlug={hrefForPageSlug}
         locale={clinicLocale}
         motionPlan={plan}
+        runtimeDelivery={runtimeDelivery}
       />
     );
   }
@@ -444,6 +449,7 @@ export function SectionStack({
         interactive={interactive}
         plan={plan}
         siteId={siteId}
+        runtimeDelivery={runtimeDelivery}
       />
     );
   }
@@ -631,6 +637,7 @@ export function SectionStack({
               splitText={splitText}
               splitTextMode={cinematic ? 'progress' : 'io'}
               hoverVideo={hoverVideo}
+              runtimeDelivery={runtimeDelivery}
             />
           );
           return (
