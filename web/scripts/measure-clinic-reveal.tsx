@@ -11,14 +11,25 @@ const INPUT = process.env.CLINIC_REVEAL_CONFIG
 const OUTPUT = process.env.CLINIC_REVEAL_OUTPUT
   ?? '/private/tmp/clinic-nav/reveal-before';
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const SELECTOR = process.env.CLINIC_REVEAL_SELECTOR
+  ?? '[data-ko-reveal-group][data-m="reveal"]';
+const SIGNATURE = process.env.CLINIC_REVEAL_SIGNATURE ?? 'legacy-ko-reveal';
+const VIEWPORT_HEIGHT = Number(process.env.CLINIC_REVEAL_VIEWPORT_HEIGHT ?? 900);
+const MAX_TARGETS = Number(process.env.CLINIC_REVEAL_MAX_TARGETS ?? 0);
+const REDUCED_MOTION = process.env.CLINIC_REVEAL_REDUCED_MOTION === 'reduce'
+  ? 'reduce'
+  : 'no-preference';
 
 interface RevealSample {
   id: string;
   group: string | null;
   rectTop: number;
+  rectHeight: number;
+  textLength: number;
   opacity: string;
   transform: string;
   transitionDuration: string;
+  transitionTimingFunction: string;
   transitionProperty: string;
   visibility: string;
   classes: string[];
@@ -55,8 +66,8 @@ async function main(): Promise<void> {
   });
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
-    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }]);
+    await page.setViewport({ width: 1440, height: VIEWPORT_HEIGHT, deviceScaleFactor: 1 });
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: REDUCED_MOTION }]);
     await page.setRequestInterception(true);
     page.on('request', (request) => {
       if (request.isNavigationRequest() || request.url().startsWith('data:')) request.continue();
@@ -65,85 +76,110 @@ async function main(): Promise<void> {
     await page.setContent(documentFor(config), { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => scrollTo(0, 0));
     await new Promise((resolve) => setTimeout(resolve, 150));
-    const pre = await page.evaluate(() => {
+    const pre = await page.evaluate(({ selector, maxTargets }) => {
       const result: RevealSample[] = [];
-      const nodes = document.querySelectorAll<HTMLElement>(
-        '[data-ko-reveal-group][data-m="reveal"]',
-      );
-      nodes.forEach((node, index) => {
+      const nodes = document.querySelectorAll<HTMLElement>(selector);
+      for (const [index, node] of [...nodes].entries()) {
+        if (maxTargets > 0 && result.length >= maxTargets) break;
         const rect = node.getBoundingClientRect();
-        if (rect.top < innerHeight) return;
+        if (rect.top < innerHeight) continue;
         node.dataset.clinicRevealAudit = String(index);
         const style = getComputedStyle(node);
         result.push({
           id: String(index),
-          group: node.getAttribute('data-ko-reveal-group'),
+          group: node.getAttribute('data-ko-reveal-group')
+            ?? node.getAttribute('data-clinic-variant-reveal'),
           rectTop: rect.top,
+          rectHeight: rect.height,
+          textLength: node.innerText.trim().length,
           opacity: style.opacity,
           transform: style.transform,
           transitionDuration: style.transitionDuration,
+          transitionTimingFunction: style.transitionTimingFunction,
           transitionProperty: style.transitionProperty,
           visibility: style.visibility,
           classes: [...node.classList],
         });
-      });
+      }
       return result;
-    });
+    }, { selector: SELECTOR, maxTargets: MAX_TARGETS });
     await page.screenshot({ path: path.join(OUTPUT, 'frame-00-pre.png') });
     const live: RevealSample[] = [];
-    const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-    let frame = 1;
-    for (let y = 300; y < scrollHeight; y += 300) {
-      await page.evaluate((nextY) => scrollTo(0, nextY), y);
-      for (let poll = 0; poll < 4; poll += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 60));
-        const samples = await page.evaluate(() => {
+    let sequenceCaptured = false;
+    const traversalTargets = [...pre].sort((left, right) => {
+      const leftFits = left.rectHeight <= VIEWPORT_HEIGHT * 0.8 && left.textLength > 0;
+      const rightFits = right.rectHeight <= VIEWPORT_HEIGHT * 0.8 && right.textLength > 0;
+      if (leftFits !== rightFits) return leftFits ? -1 : 1;
+      return right.textLength - left.textLength || left.rectTop - right.rectTop;
+    });
+    for (const target of traversalTargets) {
+      await page.evaluate((id) => {
+        document.querySelector<HTMLElement>(
+          `[data-clinic-reveal-audit="${CSS.escape(id)}"]`,
+        )?.scrollIntoView({ block: 'center' });
+      }, target.id);
+      const sampleDelays = sequenceCaptured ? [60, 60, 60, 60] : [60, 300, 700];
+      for (const [poll, delay] of sampleDelays.entries()) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        const samples = await page.evaluate((selector) => {
           const result: RevealSample[] = [];
-          document.querySelectorAll<HTMLElement>('[data-clinic-reveal-audit]').forEach((node) => {
+          document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
+            if (!node.dataset.clinicRevealAudit) return;
             const rect = node.getBoundingClientRect();
             if (rect.bottom <= 0 || rect.top >= innerHeight) return;
             const style = getComputedStyle(node);
             result.push({
               id: node.dataset.clinicRevealAudit ?? '',
-              group: node.getAttribute('data-ko-reveal-group'),
+              group: node.getAttribute('data-ko-reveal-group')
+                ?? node.getAttribute('data-clinic-variant-reveal'),
               rectTop: rect.top,
+              rectHeight: rect.height,
+              textLength: node.innerText.trim().length,
               opacity: style.opacity,
               transform: style.transform,
               transitionDuration: style.transitionDuration,
+              transitionTimingFunction: style.transitionTimingFunction,
               transitionProperty: style.transitionProperty,
               visibility: style.visibility,
               classes: [...node.classList],
             });
           });
           return result;
-        });
+        }, SELECTOR);
         live.push(...samples);
+        if (!sequenceCaptured) {
+          await page.screenshot({
+            path: path.join(OUTPUT, `frame-0${poll + 1}-live.png`),
+          });
+        }
       }
-      if (frame <= 3 && live.length > 0) {
-        await page.screenshot({ path: path.join(OUTPUT, `frame-0${frame}-live.png`) });
-        frame += 1;
-      }
+      sequenceCaptured = true;
     }
     await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
     await new Promise((resolve) => setTimeout(resolve, 900));
-    const post = await page.evaluate(() => {
+    const post = await page.evaluate((selector) => {
       const result: RevealSample[] = [];
-      document.querySelectorAll<HTMLElement>('[data-clinic-reveal-audit]').forEach((node) => {
+      document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
+        if (!node.dataset.clinicRevealAudit) return;
         const style = getComputedStyle(node);
         result.push({
           id: node.dataset.clinicRevealAudit ?? '',
-          group: node.getAttribute('data-ko-reveal-group'),
+          group: node.getAttribute('data-ko-reveal-group')
+            ?? node.getAttribute('data-clinic-variant-reveal'),
           rectTop: node.getBoundingClientRect().top,
+          rectHeight: node.getBoundingClientRect().height,
+          textLength: node.innerText.trim().length,
           opacity: style.opacity,
           transform: style.transform,
           transitionDuration: style.transitionDuration,
+          transitionTimingFunction: style.transitionTimingFunction,
           transitionProperty: style.transitionProperty,
           visibility: style.visibility,
           classes: [...node.classList],
         });
       });
       return result;
-    });
+    }, SELECTOR);
     await page.screenshot({ path: path.join(OUTPUT, 'frame-04-post.png') });
     const postById = new Map(post.map((sample) => [sample.id, sample]));
     const transitions = pre.map((sample) => {
@@ -161,7 +197,10 @@ async function main(): Promise<void> {
     });
     const report = {
       input: INPUT,
-      viewport: { width: 1440, height: 900, deviceScaleFactor: 1 },
+      signature: SIGNATURE,
+      reducedMotion: REDUCED_MOTION,
+      selector: SELECTOR,
+      viewport: { width: 1440, height: VIEWPORT_HEIGHT, deviceScaleFactor: 1 },
       scrollStartedAtZero: true,
       pre,
       live,
@@ -195,6 +234,9 @@ async function main(): Promise<void> {
     await writeFile(path.join(OUTPUT, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
     process.stdout.write(`${JSON.stringify(report.summary, null, 2)}\n`);
   } finally {
+    await Promise.all((await browser.pages()).map(async (page) => {
+      await page.close().catch(() => undefined);
+    }));
     await browser.close();
   }
 }

@@ -791,6 +791,7 @@ function FlowItem({
   variantId,
   headingLevel = 3,
   providerCard = false,
+  motionAttributes,
 }: {
   elements: CanvasElement[];
   theme: SiteTheme;
@@ -802,6 +803,7 @@ function FlowItem({
   variantId?: string;
   headingLevel?: 2 | 3;
   providerCard?: boolean;
+  motionAttributes?: Record<string, string>;
 }) {
   const heading = elements.find((element): element is TextElement => (
     element.kind === 'text' && !isMarker(element)
@@ -831,6 +833,7 @@ function FlowItem({
   return (
     <ItemTag
       data-clinic-flow-item
+      {...motionAttributes}
       {...(providerCard ? { 'data-clinic-provider-card': '' } : {})}
       data-clinic-flow-has-media={media.length > 0 ? 'true' : 'false'}
       style={listItem ? { listStyle: 'none' } : undefined}
@@ -918,6 +921,51 @@ export function resolveBalancedClinicCardColumns(itemCount: number): number {
   return maximumColumns;
 }
 
+type ClinicVariantMotionSignature = 'static' | 'calm-fade' | 'rise-stagger' | 'cinematic';
+
+function clinicVariantMotionSignature(sectionId: string): ClinicVariantMotionSignature | undefined {
+  const match = /-clinic-variant-motion-(static|calm-fade|rise-stagger|cinematic)$/u.exec(sectionId);
+  return match?.[1] as ClinicVariantMotionSignature | undefined;
+}
+
+function clinicRevealAttributes(input: {
+  signature?: ClinicVariantMotionSignature;
+  group: 0 | 1;
+  legacyKoMotion: boolean;
+  itemIndex?: number;
+}): Record<string, string> {
+  if (input.signature) {
+    if (input.signature === 'static') return {};
+    const baseDelay = input.group === 0
+      ? 0
+      : input.signature === 'calm-fade'
+        ? 80
+        : input.signature === 'rise-stagger'
+          ? 160
+          : 220;
+    const staggerStep = input.signature === 'calm-fade'
+      ? 40
+      : input.signature === 'rise-stagger'
+        ? 60
+        : 80;
+    const delay = baseDelay + Math.min(input.itemIndex ?? 0, 5) * staggerStep;
+    return {
+      'data-m': 'reveal',
+      'data-m-delay': String(delay),
+      'data-clinic-variant-reveal': input.itemIndex === undefined
+        ? String(input.group)
+        : `${input.group}-${input.itemIndex}`,
+    };
+  }
+  return input.legacyKoMotion
+    ? {
+        'data-m': 'reveal',
+        'data-m-delay': input.group === 0 ? '0' : '70',
+        'data-ko-reveal-group': String(input.group),
+      }
+    : {};
+}
+
 export function ClinicFlowSection({
   section,
   theme,
@@ -941,6 +989,17 @@ export function ClinicFlowSection({
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
+  const variantMotionSignature = clinicVariantMotionSignature(section.id);
+  const legacyKoMotion = !variantMotionSignature
+    && locale === 'ko-KR'
+    && Boolean(motionPlan)
+    && motionPlan?.intensity !== 'off';
+  const variantSectionAttributes = variantMotionSignature
+    ? {
+        'data-clinic-motion-signature': variantMotionSignature,
+        ...(variantMotionSignature === 'cinematic' ? { 'data-m-progress': '' } : {}),
+      }
+    : {};
   const sourceBreadcrumbMetadata = section.elements.filter(
     (element): element is TextElement => (
       element.kind === 'text'
@@ -1008,6 +1067,7 @@ export function ClinicFlowSection({
         data-section-type={section.type}
         data-clinic-flow-section={heroId}
         data-clinic-archetype={heroId}
+        {...variantSectionAttributes}
         {...(locale === 'ko-KR'
           ? {
               'data-clinic-hero-slider': 'reserved',
@@ -1052,6 +1112,7 @@ export function ClinicFlowSection({
               loading={isFirst ? 'eager' : 'lazy'}
               fetchPriority={isFirst ? 'high' : undefined}
               decoding="async"
+              {...(variantMotionSignature === 'cinematic' ? { 'data-m': 'kenburns' } : {})}
             />
           ) : null}
           <div
@@ -1143,9 +1204,6 @@ export function ClinicFlowSection({
   }
 
   if (!projection) {
-    const koMotion = locale === 'ko-KR'
-      && Boolean(motionPlan)
-      && motionPlan?.intensity !== 'off';
     const text = section.elements.filter(
       (element): element is TextElement => element.kind === 'text',
     );
@@ -1161,6 +1219,7 @@ export function ClinicFlowSection({
         data-section-type={section.type}
         data-clinic-flow-section={faqLike ? 'faq.compact' : `${section.type}.source-flow`}
         data-clinic-archetype={faqLike ? 'faq.compact' : `${section.type}.source-flow`}
+        {...variantSectionAttributes}
         {...(surface
           ? {
               'data-section-surface-tone': surface.paint.resolvedTone,
@@ -1182,9 +1241,11 @@ export function ClinicFlowSection({
         {renderSourceBreadcrumbMetadata}
         <div data-clinic-flow-inner>
           <h2
-            {...(koMotion
-              ? { 'data-m': 'reveal', 'data-m-delay': '0', 'data-ko-reveal-group': '0' }
-              : {})}
+            {...clinicRevealAttributes({
+              signature: variantMotionSignature,
+              group: 0,
+              legacyKoMotion,
+            })}
             data-clinic-flow-heading
             data-font-role="heading"
             data-clinic-typography-tier="section"
@@ -1202,9 +1263,11 @@ export function ClinicFlowSection({
           </h2>
           <div
             data-clinic-flow-items
-            {...(koMotion
-              ? { 'data-m': 'reveal', 'data-m-delay': '70', 'data-ko-reveal-group': '1' }
-              : {})}
+            {...clinicRevealAttributes({
+              signature: variantMotionSignature,
+              group: 1,
+              legacyKoMotion,
+            })}
           >
             {faqLike ? content.map((element, index) => (
               /[?？]\s*$/u.test(element.text) ? (
@@ -1309,10 +1372,6 @@ export function ClinicFlowSection({
     locale === 'ko-KR'
     && projection.resolvedId === 'features.prose-article'
   );
-  const koMotion = locale === 'ko-KR'
-    && Boolean(motionPlan)
-    && motionPlan?.intensity !== 'off';
-
   return (
     <section
       id={section.id}
@@ -1320,6 +1379,7 @@ export function ClinicFlowSection({
       data-section-type={section.type}
       data-clinic-flow-section={projection.resolvedId}
       data-clinic-archetype={projection.resolvedId}
+      {...variantSectionAttributes}
       {...(koProviderGrid ? { 'data-clinic-provider-grid': '' } : {})}
       {...(surface
         ? {
@@ -1343,9 +1403,11 @@ export function ClinicFlowSection({
       <div data-clinic-flow-inner>
         {!koProseArticle ? (
           <h2
-            {...(koMotion
-              ? { 'data-m': 'reveal', 'data-m-delay': '0', 'data-ko-reveal-group': '0' }
-              : {})}
+            {...clinicRevealAttributes({
+              signature: variantMotionSignature,
+              group: 0,
+              legacyKoMotion,
+            })}
             data-clinic-flow-heading
             data-font-role="heading"
             data-clinic-typography-tier="section"
@@ -1366,11 +1428,11 @@ export function ClinicFlowSection({
         <ItemsTag
           data-clinic-flow-items
           style={itemGridStyle}
-          {...(koMotion
-            ? { 'data-m': 'reveal', 'data-m-delay': '70', 'data-ko-reveal-group': '1' }
+          {...(!variantMotionSignature
+            ? clinicRevealAttributes({ group: 1, legacyKoMotion })
             : {})}
         >
-          {projection.items.map((item) => (
+          {projection.items.map((item, itemIndex) => (
             <FlowItem
               key={item.id}
               elements={item.elementIds.flatMap((id) => {
@@ -1386,6 +1448,14 @@ export function ClinicFlowSection({
               variantId={projection.resolvedId}
               headingLevel={koProseArticle ? 2 : 3}
               providerCard={koProviderGrid}
+              motionAttributes={variantMotionSignature
+                ? clinicRevealAttributes({
+                    signature: variantMotionSignature,
+                    group: 1,
+                    itemIndex,
+                    legacyKoMotion: false,
+                  })
+                : undefined}
             />
           ))}
         </ItemsTag>
