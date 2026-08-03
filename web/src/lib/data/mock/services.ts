@@ -4,7 +4,7 @@
  */
 import { INITIAL_GRANT, SUBSCRIPTION_MONTHLY_GRANT } from '@/lib/credits/constants';
 import { creditsEnabled } from '@/lib/product/flags';
-import { ROOT_DOMAIN } from '@/lib/env';
+import { ROOT_DOMAIN, reservedAppSubdomainForHostname } from '@/lib/env';
 import {
   LEGACY_PRICING_MODEL_VERSION,
   LEGACY_PRICING,
@@ -329,12 +329,15 @@ class MockSitesRepo implements SitesRepo {
       let suffix = 2;
       const taken = (domain: string) =>
         [...store.sites.values()].some((s) => s.id !== site.id && s.domain === domain);
-      while (taken(candidate)) {
+      while (taken(candidate) || reservedAppSubdomainForHostname(candidate) !== null) {
         candidate = `${base}-${suffix}.${ROOT_DOMAIN}`.toLowerCase();
         suffix += 1;
       }
       site.domain = candidate;
       site.domainType = 'subdomain';
+    }
+    if (reservedAppSubdomainForHostname(site.domain) !== null) {
+      throw new Error('sites.publish: 예약 앱 호스트는 고객 사이트로 발행할 수 없습니다.');
     }
 
     // Q$6: 현재 draft를 다시 읽지 않고 route가 진단한 snapshot만 발행한다.
@@ -357,7 +360,13 @@ class MockSitesRepo implements SitesRepo {
   ): Promise<void> {
     const site = getMockStore().sites.get(siteId);
     if (!site) throw new Error(`sites.updateDomain: 사이트가 없습니다 (${siteId})`);
-    if (input.domain !== undefined) site.domain = input.domain ? input.domain.toLowerCase() : input.domain;
+    if (input.domain !== undefined) {
+      const domain = input.domain ? input.domain.toLowerCase() : input.domain;
+      if (domain && reservedAppSubdomainForHostname(domain) !== null) {
+        throw new Error('sites.updateDomain: 예약 앱 호스트는 고객 도메인으로 할당할 수 없습니다.');
+      }
+      site.domain = domain;
+    }
     if (input.domainType !== undefined) site.domainType = input.domainType;
     if (input.dnsVerified !== undefined) site.dnsVerified = input.dnsVerified;
     if (input.cloudflareHostnameId !== undefined) site.cloudflareHostnameId = input.cloudflareHostnameId;

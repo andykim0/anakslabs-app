@@ -9,7 +9,11 @@
  * 보안: x-forwarded-host는 신뢰하지 않는다 — `headers.get('host')`만 사용.
  */
 import { NextResponse, type NextRequest } from 'next/server';
-import { ROOT_DOMAIN } from '@/lib/env';
+import {
+  APP_ENTRY_SUBDOMAIN,
+  ROOT_DOMAIN,
+  reservedAppSubdomainForHostname,
+} from '@/lib/env';
 
 /** 앱(대시보드) 자체를 서빙하는 호스트네임 — 테넌트 rewrite 제외 */
 const APP_HOSTNAMES = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
@@ -20,7 +24,8 @@ function isAppHost(hostname: string): boolean {
     APP_HOSTNAMES.has(hostname) ||
     hostname.endsWith('.vercel.app') ||
     hostname === ROOT_DOMAIN ||
-    hostname === `www.${ROOT_DOMAIN}`
+    hostname === `www.${ROOT_DOMAIN}` ||
+    reservedAppSubdomainForHostname(hostname) !== null
   );
 }
 
@@ -28,6 +33,14 @@ export function proxy(request: NextRequest) {
   const hostHeader = request.headers.get('host') ?? '';
   // 포트 제거 + 소문자 정규화 + trailing dot 제거 (FQDN 형태 방어)
   const hostname = hostHeader.split(':')[0].trim().toLowerCase().replace(/\.$/, '');
+
+  const reservedAppSubdomain = reservedAppSubdomainForHostname(hostname);
+  if (
+    reservedAppSubdomain === APP_ENTRY_SUBDOMAIN
+    && request.nextUrl.pathname === '/'
+  ) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   if (isAppHost(hostname)) {
     return NextResponse.next();
