@@ -18,6 +18,11 @@ import { mainDirectionsPageEnabled } from '@/lib/content/content-depth';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
 import { SNS_BASES, hasHandleBase, snsUrlFromHandle } from '@/lib/onboarding/sns';
 import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import {
+  contactFormPublicationNotice,
+  initialContactFormEnabled,
+  type OnboardingSiteLocale,
+} from '@/lib/onboarding/extras-policy';
 import type { ExtrasOptionsDto } from '../api';
 import { Button, Card, cn } from '../ui';
 
@@ -95,10 +100,12 @@ function FeatureCard({
 
 export function ExtrasStep({
   survey,
+  locale,
   onBack,
   onComplete,
 }: {
   survey: SurveyInput;
+  locale?: OnboardingSiteLocale;
   onBack: () => void;
   onComplete: (extras: ExtraFeatureSelection | undefined, options: ExtrasOptionsDto | undefined) => void;
 }) {
@@ -125,7 +132,11 @@ export function ExtrasStep({
 
   // 문의 폼
   const [formOn, setFormOn] = useState(
-    briefDestination?.kind === 'contact_form' || recommended.has('contactForm'),
+    initialContactFormEnabled({
+      locale,
+      requestedByBrief: briefDestination?.kind === 'contact_form',
+      recommended: recommended.has('contactForm'),
+    }),
   );
   const [formFields, setFormFields] = useState<FormFieldKey[]>(['name', 'phone', 'message']);
   const [formTarget, setFormTarget] = useState<SectionType>(formRow?.type ?? 'contact');
@@ -142,6 +153,7 @@ export function ExtrasStep({
   const [snsStyle, setSnsStyle] = useState<'bar' | 'buttons'>('bar');
 
   const [error, setError] = useState('');
+  const formPublicationNotice = contactFormPublicationNotice({ locale, formOn });
 
   const toggleFormField = (f: FormFieldKey) => {
     setFormFields((prev) => {
@@ -275,6 +287,11 @@ export function ExtrasStep({
         enabled={formOn}
         onToggle={() => setFormOn((v) => !v)}
       >
+        {formPublicationNotice ? (
+          <p role="status" className="text-xs leading-5 text-ob-danger">
+            {formPublicationNotice}
+          </p>
+        ) : null}
         <div>
           <span className="mb-1.5 block text-[11px] text-ob-muted">field to receive</span>
           <div className="flex flex-wrap gap-2">

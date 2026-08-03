@@ -243,6 +243,7 @@ export function OnboardingWizard({
       {step === 5 && survey && candidate ? (
         <ExtrasStep
           survey={survey}
+          locale="en-US"
           onBack={() => setStep(4)}
           onComplete={(sel, opts) => {
             setExtras(sel);

@@ -20,7 +20,10 @@ import type {
 } from '@/lib/types/site';
 import { allSections, findPage } from '@/lib/types/site';
 import { isHttpsUrl, isSafeMapEmbedUrl } from '@/lib/safe-url';
-import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
+import {
+  businessPhoneHref,
+  isRecognizedReservationUrl,
+} from '@/lib/analytics/trackable-actions';
 
 export interface ExtrasOptions {
   /** SNS 표현: 묶음 바(socialLinks) vs 개별 버튼(ButtonElement). 기본 bar */
@@ -32,6 +35,11 @@ export interface ExtrasOptions {
 const CONTENT_X = 120; // 1440 - 1200 그리드 여백
 const CONTENT_W = 1200;
 const GAP = 48;
+
+type ContactAction = {
+  label: string;
+  href: string;
+};
 
 /** 섹션 내 기존 요소들의 최하단 y */
 function bottomOf(section: Section): number {
@@ -49,6 +57,102 @@ function placeAtBottom(section: Section, el: CanvasElement): void {
 
 function maxZ(section: Section): number {
   return section.elements.reduce((m, el) => Math.max(m, el.z), 0) + 1;
+}
+
+/**
+ * A new US booking-service site defaults to source-backed outbound contact instead of a
+ * first-party form. This only reshapes the new-issuance contact section; absent source contact
+ * material remains fail-closed and does not produce a synthetic destination.
+ */
+export function ensureUsBookingContactActions(
+  input: SiteConfig,
+  extras: ExtraFeatureSelection | undefined,
+): SiteConfig {
+  if (input.meta.locale !== 'en-US' || input.meta.purposeId !== 'booking_service') return input;
+  if (allSections(input).some((section) => section.elements.some((element) => element.kind === 'form'))) {
+    return input;
+  }
+
+  const phone = input.publicContact?.phone?.trim();
+  const phoneHref = phone ? businessPhoneHref(phone) : undefined;
+  const bookingUrl = extras?.reservationLink?.url?.trim();
+  const actions: ContactAction[] = [
+    phone && phoneHref ? { label: `Call ${phone}`, href: phoneHref } : null,
+    bookingUrl && isRecognizedReservationUrl(bookingUrl)
+      ? { label: 'Book an appointment', href: bookingUrl }
+      : null,
+  ].filter((action): action is ContactAction => Boolean(action));
+  if (actions.length === 0) return input;
+
+  const config = structuredClone(input);
+  const target = findTarget(config, 'contact') ?? ensureContactSection(config);
+  const existingActions = new Set(
+    target.elements
+      .filter((element): element is ButtonElement => element.kind === 'button')
+      .map((element) => element.href),
+  );
+  const pending = actions.filter((action) => !existingActions.has(action.href));
+  const replaceable = target.elements.find(
+    (element): element is ButtonElement =>
+      element.kind === 'button' && (!element.href || element.href === `#${target.id}`),
+  );
+  const first = pending.shift();
+  if (first && replaceable) {
+    replaceable.label = first.label;
+    replaceable.href = first.href;
+  } else if (first) {
+    pending.unshift(first);
+  }
+
+  const existingButtons = target.elements.filter(
+    (element): element is ButtonElement => element.kind === 'button',
+  );
+  const anchor = existingButtons[0];
+  for (const [index, action] of pending.entries()) {
+    const button: ButtonElement = {
+      id: `el-contact-action-${target.id}-${index + 1}`,
+      kind: 'button',
+      frame: anchor
+        ? {
+            x: anchor.frame.x + (index + 1) * (anchor.frame.w + 24),
+            y: anchor.frame.y,
+            w: Math.max(anchor.frame.w, 220),
+            h: anchor.frame.h,
+          }
+        : { x: CONTENT_X + index * 244, y: 0, w: 220, h: 56 },
+      z: maxZ(target),
+      label: action.label,
+      href: action.href,
+      style: anchor
+        ? { ...anchor.style, variant: index === 0 ? 'outline' : anchor.style.variant }
+        : {
+            variant: index === 0 ? 'solid' : 'outline',
+            color: config.theme.palette.primary,
+            textColor: config.theme.palette.background,
+            fontSize: 16,
+            borderRadius: config.theme.radius ?? 4,
+          },
+    };
+    if (anchor) target.elements.push(button);
+    else placeAtBottom(target, button);
+  }
+
+  const description = target.elements.find(
+    (element) => element.kind === 'text' && element.id.includes('form-desc'),
+  );
+  if (description?.kind === 'text') {
+    description.text = phoneHref && bookingUrl && isRecognizedReservationUrl(bookingUrl)
+      ? `Call ${phone} or use the verified booking link.`
+      : phoneHref
+        ? `Call ${phone} to contact the clinic.`
+        : 'Use the verified booking link to contact the clinic.';
+  }
+  for (const element of target.elements) {
+    if (element.kind === 'text' && element.text === 'Add contact details' && phone) {
+      element.text = phone;
+    }
+  }
+  return config;
 }
 
 /**
