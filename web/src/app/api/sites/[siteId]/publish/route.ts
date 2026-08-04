@@ -33,6 +33,7 @@ import {
 } from '@/lib/billing/publish-payment';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
 import { industryPublishPolicy } from '@/lib/industry/publish-policy';
+import { stripeLiveCheckoutConfigured } from '@/lib/payments/stripe-live';
 import {
   businessInfoRequiredForPublish,
   US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
@@ -198,10 +199,19 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   // audit has passed. Existing live sites can republish without another charge.
   const subscription = await resolveSiteSubscription(client.id);
   if (needsPublishPayment(site, subscription.active)) {
+    if (industryPolicy.status === 'legacy') {
+      return apiError(
+        409,
+        'LEGACY_PUBLISH_PAYMENT_UNAVAILABLE',
+        'This legacy payment contract cannot start a new subscription.',
+      );
+    }
+    const liveStripe = stripeLiveCheckoutConfigured();
     const quote = publishPaymentQuote({
       clientId: client.id,
       siteId,
-      mock: isMockMode(),
+      mock: isMockMode() && !liveStripe,
+      stripe: liveStripe,
       pricing: industryPolicy.pricing,
     });
     return apiError(

@@ -12,9 +12,9 @@ import {
   PAYMENT_TYPE_LABELS,
   SITE_STATUS_LABELS,
   TIER_LABELS,
+  formatCurrency,
   formatDate,
   formatDateTime,
-  formatKrw,
   formatNumber,
 } from './format';
 import { CreditAdjustDialog } from './credit-adjust-dialog';
@@ -225,7 +225,7 @@ export function ClientDetailPanel({
                           {PAYMENT_TYPE_LABELS[payment.type]}
                         </td>
                         <td className="py-1.5 pr-2 text-right tabular-nums text-slate-800">
-                          {formatKrw(payment.amount)}
+                          {formatCurrency(payment.amount, payment.currency)}
                         </td>
                         <td className="py-1.5 text-right tabular-nums text-slate-600">
                           {payment.creditsGranted > 0

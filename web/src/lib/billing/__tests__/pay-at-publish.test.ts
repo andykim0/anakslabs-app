@@ -59,7 +59,7 @@ describe('PRICE P2 publish payment contract', () => {
     assert.match(mockPublishPaymentKey(input.siteId), new RegExp(PRICING_MODEL_VERSION));
   });
 
-  test('publish audits precede 402 and mock payment is the only enabled checkout', () => {
+  test('publish audits precede 402 and live checkout fails closed without Stripe', () => {
     const publish = read('src/app/api/sites/[siteId]/publish/route.ts');
     const audit = publish.indexOf('const preflight = checkPublish');
     const subscription = publish.indexOf('resolveSiteSubscription(client.id)');
@@ -68,13 +68,14 @@ describe('PRICE P2 publish payment contract', () => {
     assert.match(publish, /apiError\(\s*402,[\s\S]*PUBLISH_PAYMENT_ERROR_CODE/);
 
     const payment = read('src/app/api/sites/[siteId]/publish-payment/route.ts');
-    assert.match(payment, /if \(!isMockMode\(\)\) \{[\s\S]*PUBLISH_PAYMENT_UNAVAILABLE/);
+    assert.match(payment, /if \(liveStripe\) \{[\s\S]*createStripeCheckoutSession/);
+    assert.match(payment, /if \(!isMockMode\(\) && !liveStripe\) \{[\s\S]*PUBLISH_PAYMENT_UNAVAILABLE/);
     assert.match(payment, /type: 'maintenance_subscription'/);
     assert.match(payment, /amount: paymentAmount/);
     assert.match(payment, /industryPublishPolicy\(site\)/);
     assert.ok(
-      payment.indexOf('if (!isMockMode())') < payment.indexOf('payments.handleWebhook'),
-      'real mode must fail before a payment mutation',
+      payment.indexOf('if (!isMockMode() && !liveStripe)') < payment.indexOf('payments.handleWebhook'),
+      'an unconfigured real mode must fail before a mock payment mutation',
     );
   });
 

@@ -29,6 +29,7 @@ export function publishPaymentQuote(input: {
   clientId: string;
   siteId: string;
   mock: boolean;
+  stripe?: boolean;
   pricing?: PublishSubscriptionPriceContract;
 }): PublishPaymentQuote {
   const pricing = input.pricing ?? CURRENT_SUBSCRIPTION_PRICE;
@@ -49,7 +50,7 @@ export function publishPaymentQuote(input: {
     automaticRenewal: pricing.automaticRenewal,
     siteCount: 1,
     taxIncluded,
-    checkoutMode: input.mock ? 'mock' : 'unavailable',
+    checkoutMode: input.mock ? 'mock' : input.stripe ? 'stripe' : 'unavailable',
   };
 }
 

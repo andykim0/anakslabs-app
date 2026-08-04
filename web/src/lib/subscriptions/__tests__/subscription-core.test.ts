@@ -50,6 +50,7 @@ async function addMockMaintenancePayment(input: {
     clientId: DEMO_BASIC_ID,
     type: 'maintenance_subscription',
     amount: PRICING.subscription.amountKrw,
+    currency: 'KRW',
     creditsGranted: LEGACY_SUBSCRIPTION_GRANT,
     providerPaymentKey: input.providerPaymentKey,
     createdAt: paidAt.toISOString(),

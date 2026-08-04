@@ -16,6 +16,7 @@ import {
 } from './core';
 import {
   getMockSiteSubscription,
+  getMockSiteSubscriptionByStripeId,
   listMockActiveSiteSubscriptions,
   listMockSiteSubscriptionsForAdmin,
   renewMockSiteSubscription,
@@ -28,6 +29,7 @@ type SubscriptionRow = {
   site_id?: string | null;
   industry_profile_id?: 'interior' | 'clinic' | null;
   pricing_model_version?: string | null;
+  stripe_subscription_id?: string | null;
   status: SiteSubscriptionStatus;
   current_period_end: string;
   updated_at: string;
@@ -47,6 +49,9 @@ function rowToState(row: SubscriptionRow): SiteSubscriptionState {
     ...(row.pricing_model_version
       ? { pricingModelVersion: row.pricing_model_version }
       : {}),
+    ...(row.stripe_subscription_id
+      ? { stripeSubscriptionId: row.stripe_subscription_id }
+      : {}),
     status: row.status,
     currentPeriodEnd: row.current_period_end,
     updatedAt: row.updated_at,
@@ -57,10 +62,27 @@ export async function getSiteSubscription(clientId: string): Promise<SiteSubscri
   if (isMockMode()) return getMockSiteSubscription(clientId);
   const { data, error } = await getServiceRoleClient()
     .from('site_subscriptions')
-    .select('client_id,site_id,industry_profile_id,pricing_model_version,status,current_period_end,updated_at')
+    .select('client_id,site_id,industry_profile_id,pricing_model_version,stripe_subscription_id,status,current_period_end,updated_at')
     .eq('client_id', clientId)
     .maybeSingle();
   if (error) throw new Error(`site subscription lookup failed: ${error.message}`);
+  return data ? rowToState(data as SubscriptionRow) : null;
+}
+
+/** Resolves the server-owned Stripe binding written by a verified checkout event. */
+export async function getSiteSubscriptionByStripeId(
+  stripeSubscriptionId: string,
+  options: { forceSupabase?: boolean } = {},
+): Promise<SiteSubscriptionState | null> {
+  const id = stripeSubscriptionId.trim();
+  if (!id) return null;
+  if (!options.forceSupabase && isMockMode()) return getMockSiteSubscriptionByStripeId(id);
+  const { data, error } = await getServiceRoleClient()
+    .from('site_subscriptions')
+    .select('client_id,site_id,industry_profile_id,pricing_model_version,stripe_subscription_id,status,current_period_end,updated_at')
+    .eq('stripe_subscription_id', id)
+    .maybeSingle();
+  if (error) throw new Error(`Stripe site subscription lookup failed: ${error.message}`);
   return data ? rowToState(data as SubscriptionRow) : null;
 }
 
@@ -83,7 +105,7 @@ export async function listSiteSubscriptionsForAdmin(
   const [statesResult, renewalsResult] = await Promise.all([
     service
       .from('site_subscriptions')
-      .select('client_id,site_id,industry_profile_id,pricing_model_version,status,current_period_end,updated_at'),
+      .select('client_id,site_id,industry_profile_id,pricing_model_version,stripe_subscription_id,status,current_period_end,updated_at'),
     service
       .from('site_subscription_renewals')
       .select('client_id,period_start,reversed_at'),
@@ -187,7 +209,9 @@ export async function grantMonthlySubscriptionCredits(
     return { eligible: 0, granted: 0, skipped: 0 };
   }
   if (isMockMode()) {
-    const states = listMockActiveSiteSubscriptions(at);
+    const states = listMockActiveSiteSubscriptions(at).filter(
+      (state) => !state.stripeSubscriptionId,
+    );
     const credits = new MockCreditsService();
     let granted = 0;
     for (const state of states) {

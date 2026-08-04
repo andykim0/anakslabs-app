@@ -20,6 +20,7 @@ export interface SiteSubscriptionState {
   siteId?: string | null;
   industryProfileId?: 'interior' | 'clinic' | null;
   pricingModelVersion?: string | null;
+  stripeSubscriptionId?: string | null;
   status: SiteSubscriptionStatus;
   currentPeriodEnd: string;
   updatedAt: string;

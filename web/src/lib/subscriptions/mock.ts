@@ -79,6 +79,17 @@ export function getMockSiteSubscription(clientId: string): SiteSubscriptionState
   return state ? structuredClone(state) : null;
 }
 
+export function getMockSiteSubscriptionByStripeId(
+  stripeSubscriptionId: string,
+): SiteSubscriptionState | null {
+  const id = stripeSubscriptionId.trim();
+  if (!id) return null;
+  const state = [...data().states.values()].find(
+    (candidate) => candidate.stripeSubscriptionId === id,
+  );
+  return state ? structuredClone(state) : null;
+}
+
 export function resolveMockSiteSubscription(clientId: string, at = new Date()): ResolvedSubscription {
   const state = getMockSiteSubscription(clientId);
   return { state, active: isSiteSubscriptionActiveAt(state, at) };
@@ -114,6 +125,7 @@ export function renewMockSiteSubscription(input: {
   siteId?: string;
   industryProfileId?: 'interior' | 'clinic';
   pricingModelVersion?: string;
+  stripeSubscriptionId?: string;
   at?: Date;
 }): { duplicated: boolean; state: SiteSubscriptionState } {
   const store = getMockStore();
@@ -173,6 +185,7 @@ export function renewMockSiteSubscription(input: {
     ...(input.siteId ? { siteId: input.siteId } : {}),
     ...(input.industryProfileId ? { industryProfileId: input.industryProfileId } : {}),
     ...(input.pricingModelVersion ? { pricingModelVersion: input.pricingModelVersion } : {}),
+    ...(input.stripeSubscriptionId ? { stripeSubscriptionId: input.stripeSubscriptionId } : {}),
     status: 'active',
     currentPeriodEnd: nextEnd.toISOString(),
     updatedAt: nowIso,

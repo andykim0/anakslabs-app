@@ -10,8 +10,17 @@ export interface PublishPaymentQuote {
   automaticRenewal: true;
   siteCount: 1;
   taxIncluded: boolean;
-  checkoutMode: 'mock' | 'unavailable';
+  checkoutMode: 'mock' | 'stripe' | 'unavailable';
 }
+
+export type PublishPaymentConfirmation =
+  | { paid: true; duplicated: boolean; quote: PublishPaymentQuote }
+  | {
+      paid: false;
+      checkoutUrl: string;
+      checkoutSessionId: string;
+      quote: PublishPaymentQuote;
+    };
 
 export function publishPaymentQuoteFromExtra(
   extra: Record<string, unknown>,
@@ -35,7 +44,11 @@ export function publishPaymentQuoteFromExtra(
     || value.automaticRenewal !== true
     || value.siteCount !== 1
     || typeof value.taxIncluded !== 'boolean'
-    || (value.checkoutMode !== 'mock' && value.checkoutMode !== 'unavailable')
+    || (
+      value.checkoutMode !== 'mock'
+      && value.checkoutMode !== 'stripe'
+      && value.checkoutMode !== 'unavailable'
+    )
   ) {
     return null;
   }

@@ -22,7 +22,7 @@ export function PublishPaymentDialog({
   onConfirm: () => void;
 }) {
   if (!quote) return null;
-  const canPay = quote.checkoutMode === 'mock';
+  const canPay = quote.checkoutMode === 'mock' || quote.checkoutMode === 'stripe';
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#07142F]/55 px-4" role="presentation">
       <div
@@ -70,7 +70,11 @@ export function PublishPaymentDialog({
               disabled={paying}
               className="h-10 rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white disabled:opacity-60"
             >
-              {paying ? 'Confirming…' : 'Confirm mock payment and publish'}
+              {paying
+                ? 'Opening checkout…'
+                : quote.checkoutMode === 'stripe'
+                  ? 'Continue to secure checkout'
+                  : 'Confirm mock payment and publish'}
             </button>
           ) : null}
         </div>

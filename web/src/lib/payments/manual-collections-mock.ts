@@ -149,6 +149,7 @@ export class MockManualCollectionsRepository implements ManualCollectionsReposit
       clientId,
       type: quote.paymentType,
       amount: entry.amountKrw,
+      currency: 'KRW',
       creditsGranted: entry.productKind === 'subscription' ? 0 : quote.creditsGranted,
       providerPaymentKey: null,
       createdAt: entry.createdAt,
