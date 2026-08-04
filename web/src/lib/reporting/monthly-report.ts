@@ -23,6 +23,17 @@ export const REPORT_SOURCE_LABELS = {
   other: 'Other',
 } as const satisfies Record<ReportReferrerSource, string>;
 
+const REPORT_SOURCE_ORDER_BY_LOCALE = {
+  legacy: REPORT_REFERRER_SOURCES,
+  'en-US': ['google', 'direct', 'instagram', 'other', 'naver'],
+} as const satisfies Record<'legacy' | 'en-US', readonly ReportReferrerSource[]>;
+
+function reportSourceOrder(locale?: string): readonly ReportReferrerSource[] {
+  return locale === 'en-US'
+    ? REPORT_SOURCE_ORDER_BY_LOCALE['en-US']
+    : REPORT_SOURCE_ORDER_BY_LOCALE.legacy;
+}
+
 const LEGACY_ACTION_INSIGHT_ORDER = [
   ['reservationClicks', 'Booking clicks'],
   ['phoneClicks', 'Call clicks'],
@@ -137,11 +148,12 @@ function compositionPercentages(
 function buildSourceComposition(
   currentRows: readonly SiteEventAggregate[],
   previousRows: readonly SiteEventAggregate[],
+  locale?: string,
 ): readonly ReportSourceComposition[] {
   const current = countPageviewSources(currentRows);
   const previous = countPageviewSources(previousRows);
   const shares = compositionPercentages(current);
-  return REPORT_REFERRER_SOURCES.map((source) => ({
+  return reportSourceOrder(locale).map((source) => ({
     source,
     label: REPORT_SOURCE_LABELS[source],
     count: current[source],
@@ -220,6 +232,8 @@ export function buildMonthlyPerformanceReport(input: {
   comparisonPeriod: KstMonthRange;
   current: readonly SiteEventAggregate[];
   previous: readonly SiteEventAggregate[];
+  /** Omitted preserves the legacy/KR source-label order byte-for-byte. */
+  locale?: string;
 }): MonthlyPerformanceReport {
   const siteId = input.siteId.trim();
   if (!siteId) throw new TypeError('A siteId is required to build a monthly report');
@@ -238,7 +252,7 @@ export function buildMonthlyPerformanceReport(input: {
       safeAggregateCount(previous.form + previous.chat),
     ),
   };
-  const sources = buildSourceComposition(input.current, input.previous);
+  const sources = buildSourceComposition(input.current, input.previous, input.locale);
   return {
     schemaVersion: 2,
     siteId,

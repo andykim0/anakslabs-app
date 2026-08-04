@@ -4,12 +4,47 @@ import {
   GUARANTEE_NAVER_REFERRAL_THRESHOLD,
   GUARANTEE_WINDOW_DAYS,
   evaluateGuarantee,
+  partitionGuaranteeEvaluationSites,
 } from '@/lib/guarantee';
+import { readFileSync } from 'node:fs';
 
 const publishedAt = '2026-01-01T00:00:00.000Z';
 const dueAt = '2026-04-01T00:00:00.000Z';
 
 describe('GT$ G1 성과 보장 판정', () => {
+  test('en-US sites are outside the legacy guarantee population while KR evaluation is bit-identical', () => {
+    const kr = {
+      id: 'kr-site',
+      publishedAt,
+      siteConfig: { meta: {} },
+    };
+    const us = {
+      id: 'us-site',
+      publishedAt,
+      siteConfig: { meta: { locale: 'en-US' } },
+    };
+    const unpublished = {
+      id: 'draft-site',
+      publishedAt: null,
+      siteConfig: { meta: {} },
+    };
+    const population = partitionGuaranteeEvaluationSites([kr, us, unpublished]);
+    assert.deepEqual(population.eligible.map((site) => site.id), ['kr-site']);
+    assert.deepEqual(population.excludedEnUs.map((site) => site.id), ['us-site']);
+
+    const krInput = { publishedAt, asOf: dueAt, naverIndexed: false, naverReferralCount: 29 } as const;
+    const before = evaluateGuarantee(krInput);
+    const after = population.eligible.includes(kr) ? evaluateGuarantee(krInput) : null;
+    assert.deepEqual(after, before);
+
+    const overviewRoute = readFileSync(
+      new URL('../../app/api/admin/overview/route.ts', import.meta.url),
+      'utf8',
+    );
+    assert.match(overviewRoute, /partitionGuaranteeEvaluationSites\(siteList\)/);
+    assert.match(overviewRoute, /guaranteePopulation\.eligible/);
+  });
+
   test('90일 전에는 신호와 무관하게 판정 전이다', () => {
     assert.equal(GUARANTEE_WINDOW_DAYS, 90);
     assert.equal(evaluateGuarantee({

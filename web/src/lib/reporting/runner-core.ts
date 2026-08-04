@@ -267,6 +267,7 @@ export async function runMonthlyReportsCore(
         comparisonPeriod: periods.comparison,
         current: reportAggregates(current),
         previous: reportAggregates(previous),
+        locale: site.siteConfig?.meta.locale,
       });
       const inserted = await dependencies.reports.insertIfAbsent({
         siteId: site.id,
