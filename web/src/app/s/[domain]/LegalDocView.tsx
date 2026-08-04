@@ -11,10 +11,12 @@ export function LegalDocView({
   doc,
   theme,
   info,
+  locale,
 }: {
   doc: LegalDocument;
   theme: SiteTheme;
   info: BusinessInfo;
+  locale?: string;
 }) {
   return (
     <div
@@ -52,7 +54,7 @@ export function LegalDocView({
           </section>
         ))}
       </main>
-      <LegalFooter info={info} theme={theme} />
+      <LegalFooter info={info} theme={theme} locale={locale} />
     </div>
   );
 }

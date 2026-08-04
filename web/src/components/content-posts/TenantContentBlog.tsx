@@ -336,7 +336,9 @@ export function TenantContentBlog({
       {!businessInfo && publicContact ? (
         <PublicContactBar contact={publicContact} theme={config.theme} />
       ) : null}
-      {businessInfo ? <LegalFooter info={businessInfo} theme={config.theme} /> : null}
+      {businessInfo ? (
+        <LegalFooter info={businessInfo} theme={config.theme} locale={config.meta.locale} />
+      ) : null}
     </>
   );
 }

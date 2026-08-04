@@ -101,9 +101,12 @@ export function businessPhoneHref(phone: string): string | undefined {
   return /^\+?\d{8,15}$/.test(normalized) ? `tel:${normalized}` : undefined;
 }
 
-/** Deterministic, HTTPS map search for a verified BusinessInfo address. */
-export function businessDirectionsHref(address: string): string | undefined {
+/** Deterministic, HTTPS map search for a verified public business address. */
+export function businessDirectionsHref(address: string, locale?: string): string | undefined {
   const normalized = address.trim();
   if (!normalized || normalized.length > 300) return undefined;
+  if (locale === 'en-US') {
+    return `https://maps.google.com/?q=${encodeURIComponent(normalized)}`;
+  }
   return `https://map.naver.com/p/search/${encodeURIComponent(normalized)}`;
 }
