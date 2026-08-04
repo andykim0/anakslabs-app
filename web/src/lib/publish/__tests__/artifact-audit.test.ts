@@ -61,20 +61,90 @@ function config(): SiteConfig {
 }
 
 function documentFor(value: SiteConfig): string {
+  return documentForPage(value, '');
+}
+
+function documentForPage(value: SiteConfig, pageSlug: string): string {
   const body = renderToStaticMarkup(createElement(TenantPageContent, {
     config: value,
-    pageSlug: '',
+    pageSlug,
     tier: 'premium',
     interactive: true,
     animate: true,
   }));
   return buildDocumentShell({
     config: value,
-    pageSlug: '',
+    pageSlug,
     headerHtml: '',
     bodyHtml: body,
     siteUrl: 'https://publish.example.com',
   });
+}
+
+function documentsFor(value: SiteConfig) {
+  return value.pages.map((page) => ({
+    pageSlug: page.slug,
+    html: documentForPage(value, page.slug),
+  }));
+}
+
+function clinicRebuildConfig(locale: 'en-US' | 'legacy-KR', pageCount = 2): SiteConfig {
+  const value = config();
+  value.meta = {
+    ...value.meta,
+    purposeId: 'booking_service',
+    industryClass: 'medical',
+    industryId: 'clinic',
+    ...(locale === 'en-US' ? { locale, market: 'US-CA', jurisdiction: 'US' } : {}),
+  };
+  value.nav = { ...value.nav, enabled: true };
+  if (pageCount >= 2) {
+    const services = structuredClone(value.pages[0]);
+    services.id = 'clinic-rebuild-services';
+    services.slug = 'services';
+    services.title = locale === 'en-US' ? 'Services' : '진료 안내';
+    services.navLabel = services.title;
+    services.sections = services.sections.map((section) => ({
+      ...section,
+      id: `${section.id}-services`,
+      elements: section.elements.map((element) => ({
+        ...element,
+        id: `${element.id}-services`,
+      })),
+    }));
+    value.pages.push(services);
+  }
+  return value;
+}
+
+function withoutSchemaType(html: string, removedType: string): string {
+  return html.replace(
+    /(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/,
+    (_match, open: string, source: string, close: string) => {
+      const parsed = JSON.parse(source) as Array<Record<string, unknown>>;
+      const filtered = parsed.flatMap((node) => {
+        const raw = node['@type'];
+        if (raw === removedType) return [];
+        if (!Array.isArray(raw) || !raw.includes(removedType)) return [node];
+        const remaining = raw.filter((type) => type !== removedType);
+        return remaining.length > 0 ? [{ ...node, '@type': remaining }] : [];
+      });
+      return `${open}${JSON.stringify(filtered)}${close}`;
+    },
+  );
+}
+
+function schemaTypesFrom(html: string): Set<string> {
+  const source = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html)?.[1];
+  assert.ok(source, 'JSON-LD script missing from fixture');
+  const nodes = JSON.parse(source) as Array<Record<string, unknown>>;
+  return new Set(nodes.flatMap((node) => (
+    Array.isArray(node['@type']) ? node['@type'] : [node['@type']]
+  )).filter((type): type is string => typeof type === 'string'));
+}
+
+function auditDocuments(value: SiteConfig, documents = documentsFor(value)) {
+  return auditPublishArtifacts(value, 'premium', documents);
 }
 
 function audit(value: SiteConfig, html = documentFor(value)) {
@@ -165,6 +235,71 @@ describe('Q$6 발행 산출물 하드 게이트', () => {
 
     const wrongTypes = html.replace(/"Organization"/g, '"Thing"').replace(/"WebSite"/g, '"Thing"');
     assert.ok(codes(audit(value, wrongTypes)).includes('schema_type'));
+  });
+
+  for (const removedType of ['MedicalClinic', 'LocalBusiness', 'WebSite', 'WebPage']) {
+    test(`US clinic rebuild의 ${removedType} 누락을 schema_type으로 차단`, () => {
+      const value = clinicRebuildConfig('en-US');
+      const documents = documentsFor(value);
+      assert.ok(
+        !auditDocuments(value, documents).blockers.some((blocker) => blocker.code === 'schema_type'),
+        '실제 US 방출 집합은 독립 기대 계약을 충족해야 함',
+      );
+      const corrupted = documents.map((document) => ({
+        ...document,
+        html: withoutSchemaType(document.html, removedType),
+      }));
+      const blockers = auditDocuments(value, corrupted).blockers.filter(
+        (blocker) => blocker.code === 'schema_type',
+      );
+      assert.ok(blockers.length > 0, `${removedType} 누락은 schema_type으로 차단해야 함`);
+    });
+  }
+
+  test('KR clinic rebuild는 Service 누락을 차단해 US 예외 누출을 막음', () => {
+    const value = clinicRebuildConfig('legacy-KR');
+    const documents = documentsFor(value);
+    assert.ok(schemaTypesFrom(documents[0].html).has('Service'), 'KR 홈은 Service를 방출해야 함');
+    const corrupted = documents.map((document) => ({
+      ...document,
+      html: withoutSchemaType(document.html, 'Service'),
+    }));
+    assert.ok(
+      auditDocuments(value, corrupted).blockers.some((blocker) => blocker.code === 'schema_type'),
+      'KR Service 누락은 schema_type으로 차단해야 함',
+    );
+  });
+
+  test('내비가 있는 다중 페이지 홈만 SiteNavigationElement를 요구함', () => {
+    const multiPage = clinicRebuildConfig('en-US');
+    const multiDocuments = documentsFor(multiPage);
+    assert.ok(
+      schemaTypesFrom(multiDocuments[0].html).has('SiteNavigationElement'),
+      '다중 페이지 US 홈은 내비 스키마를 방출해야 함',
+    );
+    const missingNavigation = multiDocuments.map((document) => ({
+      ...document,
+      html: withoutSchemaType(document.html, 'SiteNavigationElement'),
+    }));
+    assert.ok(
+      auditDocuments(multiPage, missingNavigation).blockers.some(
+        (blocker) => blocker.code === 'schema_type' && blocker.pageSlug === '',
+      ),
+      '다중 페이지 홈의 내비 스키마 누락은 차단해야 함',
+    );
+
+    const onePage = clinicRebuildConfig('en-US', 1);
+    const onePageDocuments = documentsFor(onePage);
+    assert.ok(
+      !schemaTypesFrom(onePageDocuments[0].html).has('SiteNavigationElement'),
+      '1페이지 US 홈은 내비 스키마를 방출하지 않아야 함',
+    );
+    assert.ok(
+      !auditDocuments(onePage, onePageDocuments).blockers.some(
+        (blocker) => blocker.code === 'schema_type',
+      ),
+      '1페이지 US 홈의 내비 스키마 부재는 차단하면 안 됨',
+    );
   });
 
   test('미디어 예약 프레임 0은 CLS 구조 proxy로 차단', () => {
