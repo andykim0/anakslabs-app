@@ -61,6 +61,7 @@ export function preflightScan(
     const html = runPageStage(page.slug, 'render', () => renderStaticDocument({
         config,
         pageSlug: page.slug,
+        lang: config.meta.locale ?? 'ko',
         siteUrl,
         tier: opts.tier,
         motionOwnerId: opts.motionOwnerId,

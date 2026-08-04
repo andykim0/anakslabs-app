@@ -247,7 +247,6 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     : organizationTypeFor(config, spec, hasMenu);
   const region = config.meta.region?.trim();
   const isUsEnglish = config.meta.locale === 'en-US'
-    && config.meta.market === 'US-CA'
     && config.meta.jurisdiction === 'US';
 
   const identity: JsonLdNode = {

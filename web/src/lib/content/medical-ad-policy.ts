@@ -676,7 +676,6 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
     description: 'collect',
     ogImage: 'ignore',
     locale: 'ignore',
-    market: 'ignore',
     jurisdiction: 'ignore',
     purposeId: 'ignore',
     templateId: 'ignore',

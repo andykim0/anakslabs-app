@@ -27,7 +27,6 @@ describe('LANG-GUARD — preview document language and translation policy', () =
     assert.deepEqual(
       resolvePreviewDocumentPolicy(meta({
         locale: 'en-US',
-        market: 'US-CA',
         jurisdiction: 'US',
       }), 'outreach-safe'),
       {
@@ -64,7 +63,6 @@ describe('LANG-GUARD — preview document language and translation policy', () =
     assert.deepEqual(
       resolvePreviewDocumentPolicy(meta({
         locale: 'en-US',
-        market: 'US-CA',
         jurisdiction: 'US',
       }), 'standard'),
       {

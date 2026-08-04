@@ -25,6 +25,10 @@ const PAGE_MIGRATION = readFileSync(
   join(ROOT, '../supabase/migrations/0052_demo_page_views_and_retention.sql'),
   'utf8',
 );
+const MARKET_REMOVAL_MIGRATION = readFileSync(
+  join(ROOT, '../supabase/migrations/0054_remove_us_preview_market_gate.sql'),
+  'utf8',
+);
 
 interface ServerTrackingModule {
   createDemoQaCookieValue(now?: Date): string;
@@ -147,6 +151,39 @@ describe('US-DEMO P4 — first-party private-demo view ledger', () => {
     );
     assert.doesNotMatch(PAGE_MIGRATION, /\bif\b[^;]*\bcase\b/iu);
     assert.equal(DEMO_VIEW_RETENTION_DAYS, 90);
+  });
+
+  test('0054는 security-definer 기록 계약을 유지하며 market만 US 게이트에서 제거한다', () => {
+    assert.match(MARKET_REMOVAL_MIGRATION, /create or replace function public\.record_demo_view/u);
+    assert.match(MARKET_REMOVAL_MIGRATION, /security definer/u);
+    assert.match(MARKET_REMOVAL_MIGRATION, /\{meta,locale\}' = 'en-US'/u);
+    assert.match(MARKET_REMOVAL_MIGRATION, /\{meta,jurisdiction\}' = 'US'/u);
+    assert.doesNotMatch(MARKET_REMOVAL_MIGRATION, /\{meta,market\}|US-CA/u);
+    assert.match(
+      MARKET_REMOVAL_MIGRATION,
+      /revoke execute on function public\.record_demo_view[\s\S]*from public, anon, authenticated/u,
+    );
+    assert.match(
+      MARKET_REMOVAL_MIGRATION,
+      /grant execute on function public\.record_demo_view[\s\S]*to service_role/u,
+    );
+  });
+
+  test('0054 record_demo_view는 0052에서 market 한 줄만 제거한 같은 함수다', () => {
+    const marker = 'create or replace function public.record_demo_view(';
+    const grant = 'grant execute on function public.record_demo_view(';
+    const functionSql = (sql: string): string => {
+      const start = sql.toLowerCase().indexOf(marker);
+      const grantStart = sql.toLowerCase().indexOf(grant, start);
+      const end = sql.indexOf('to service_role;', grantStart) + 'to service_role;'.length;
+      assert.ok(start >= 0 && grantStart >= 0 && end > grantStart);
+      return sql.slice(start, end);
+    };
+    const previousWithoutMarket = functionSql(PAGE_MIGRATION).replace(
+      "       and preview.site_config #>> '{meta,market}' = 'US-CA'\n",
+      '',
+    );
+    assert.equal(functionSql(MARKET_REMOVAL_MIGRATION), previousWithoutMarket);
   });
 
   test('버전드 HMAC과 QA 쿠키는 결정적이며 원문 IP·UA·브라우저 식별자를 남기지 않는다', async () => {

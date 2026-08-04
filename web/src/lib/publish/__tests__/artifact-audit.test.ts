@@ -95,7 +95,7 @@ function clinicRebuildConfig(locale: 'en-US' | 'legacy-KR', pageCount = 2): Site
     purposeId: 'booking_service',
     industryClass: 'medical',
     industryId: 'clinic',
-    ...(locale === 'en-US' ? { locale, market: 'US-CA', jurisdiction: 'US' } : {}),
+    ...(locale === 'en-US' ? { locale, jurisdiction: 'US' } : {}),
   };
   value.nav = { ...value.nav, enabled: true };
   if (pageCount >= 2) {

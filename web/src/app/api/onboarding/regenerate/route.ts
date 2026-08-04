@@ -12,7 +12,7 @@ import { z } from 'zod';
 import type { DesignCandidate, SurveyInput } from '@/lib/types/domain';
 import { FREE_REGEN_LIMIT } from '@/lib/credits/constants';
 import { getDataServices } from '@/lib/data';
-import { applyExtraFeatures } from '@/lib/data/extras-inject';
+import { applyExtraFeatures, ensureUsBookingContactActions } from '@/lib/data/extras-inject';
 import {
   recompileDirectionsSectionLayouts,
   recompileGallerySectionLayouts,
@@ -65,6 +65,7 @@ import {
 } from '@/lib/content/medical-ad-enforcement';
 import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
 import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
+import { pinUsTenantLocaleForNewSite } from '@/lib/legal/templates';
 
 const bodySchema = z.object({
   siteId: z.string().min(1),
@@ -193,10 +194,13 @@ export const POST = withApiHandler(async (request) => {
     survey.providedContent = await absorbUrlsInContent(survey.providedContent);
   }
   // 결제 전 재구성도 같은 결정적 표준 빌더만 소비한다.
-  const generatedByAi = buildZeroCostSiteConfig(survey, candidate);
+  const generatedByAi = pinUsTenantLocaleForNewSite(
+    buildZeroCostSiteConfig(survey, candidate),
+  );
   const generated = applySectionDirections(generatedByAi, survey.directions);
   const withLegacyExtras = applyExtraFeatures(generated, body.data.extras, body.data.extrasOptions ?? {});
-  const withExtras = applyConnectorManifest(withLegacyExtras, survey, body.data.extras);
+  const withContactActions = ensureUsBookingContactActions(withLegacyExtras, body.data.extras);
+  const withExtras = applyConnectorManifest(withContactActions, survey, body.data.extras);
   const withCinematicBase = withSiteCinematicDefault(withExtras);
   const withCinematicDefault = survey.contentDepth?.mainStorytelling
     ? withContinuousCanvasDefault(withCinematicBase)

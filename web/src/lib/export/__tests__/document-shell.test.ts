@@ -5,6 +5,7 @@
  */
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import type { SiteConfig } from '@/lib/types/site';
 import { emptySiteConfig } from '@/lib/types/site';
 import { buildDocumentShell, heroPosterPreloadHtml } from '@/lib/export/document-shell';
@@ -44,6 +45,29 @@ describe('structured-data 단일 소스', () => {
 });
 
 describe('buildDocumentShell — 서빙 레이어 방출', () => {
+  test('default document language is English and an explicit en-US tag is preserved', () => {
+    assert.match(shell(''), /<html lang="en">/u);
+    const config = cfg();
+    config.meta.locale = 'en-US';
+    config.meta.jurisdiction = 'US';
+    const html = buildDocumentShell({
+      config,
+      pageSlug: '',
+      headerHtml: '',
+      bodyHtml: '<main></main>',
+      lang: config.meta.locale,
+      siteUrl: SITE_URL,
+    });
+    assert.match(html, /<html lang="en-US">/u);
+    assert.match(html, /property="og:locale" content="en_US"/u);
+  });
+
+  test('standalone legal export declares English instead of the retired Korean default', () => {
+    const source = readFileSync(new URL('../legal-html.ts', import.meta.url), 'utf8');
+    assert.match(source, /<html lang="en">/u);
+    assert.doesNotMatch(source, /<html lang="ko">/u);
+  });
+
   test('canonical — 홈·서브페이지 URL 정확', () => {
     assert.ok(shell('', SITE_URL).includes(`<link rel="canonical" href="${SITE_URL}">`));
     assert.ok(shell('menu', SITE_URL).includes(`<link rel="canonical" href="${SITE_URL}/menu">`));

@@ -36,6 +36,8 @@ function forgedStageConfig(): SiteConfig {
     ...config.meta,
     purposeId: 'company_brand',
     templateId: 'company_brand.default',
+    locale: 'en-US',
+    jurisdiction: 'US',
   };
   config.motion = {
     presetId: 'cinematic-hero',
@@ -110,6 +112,29 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
     const classified = preserveSiteClassification(forgedStageConfig(), legacy);
     assert.equal(classified.meta.purposeId, undefined);
     assert.equal(classified.meta.templateId, undefined);
+    assert.equal(classified.meta.locale, undefined);
+    assert.equal(classified.meta.jurisdiction, undefined);
+  });
+
+  test('에디터 PATCH가 locale/jurisdiction을 생략해도 저장된 US 분류를 서버 권위로 복원한다', () => {
+    const persisted = emptySiteConfig('Stored US classification');
+    persisted.meta = {
+      ...persisted.meta,
+      locale: 'en-US',
+      jurisdiction: 'US',
+      purposeId: 'booking_service',
+      templateId: 'booking_service.clinic',
+      industryClass: 'medical',
+      industryId: 'clinic',
+    };
+    const submitted = emptySiteConfig('Client attempted classification deletion');
+    const classified = preserveSiteClassification(submitted, persisted);
+    assert.equal(classified.meta.locale, 'en-US');
+    assert.equal(classified.meta.jurisdiction, 'US');
+    assert.equal(classified.meta.purposeId, 'booking_service');
+    assert.equal(classified.meta.templateId, 'booking_service.clinic');
+    assert.equal(classified.meta.industryClass, 'medical');
+    assert.equal(classified.meta.industryId, 'clinic');
   });
 
   test('generate/regenerate/PATCH가 sanitize 이전에 서버 권위 헬퍼를 호출한다', () => {
@@ -133,5 +158,11 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
       preserve >= 0 && preserve < assetRefs && assetRefs < provenance && provenance < sanitize,
       '저장 분류와 asset manifest를 권위화하고 민감 provenance를 재검증한 뒤 모션을 sanitize해야 한다',
     );
+
+    const regenerate = source('src/app/api/onboarding/regenerate/route.ts');
+    const pin = regenerate.indexOf('pinUsTenantLocaleForNewSite(');
+    const contact = regenerate.indexOf('ensureUsBookingContactActions(');
+    const connectors = regenerate.indexOf('applyConnectorManifest(withContactActions');
+    assert.ok(pin >= 0 && pin < contact && contact < connectors);
   });
 });

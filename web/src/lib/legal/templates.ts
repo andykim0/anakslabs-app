@@ -36,8 +36,15 @@ export const US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE =
 
 /** Pins only newly issued sites in this US fork; stored legacy configs stay untouched. */
 export function pinUsTenantLocaleForNewSite(config: SiteConfig): SiteConfig {
-  if (config.meta.locale === 'en-US') return config;
-  return { ...config, meta: { ...config.meta, locale: 'en-US' } };
+  if (config.meta.locale === 'en-US' && config.meta.jurisdiction === 'US') return config;
+  return {
+    ...config,
+    meta: {
+      ...config.meta,
+      locale: 'en-US',
+      jurisdiction: 'US',
+    },
+  };
 }
 
 export class UsTenantLegalDocumentsPendingError extends Error {

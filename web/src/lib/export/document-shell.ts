@@ -87,7 +87,6 @@ export function buildDocumentShell(input: DocumentShellInput): string {
   const isHome = pageSlug === '';
   const meta = config.meta;
   const isUsEnglish = meta.locale === 'en-US'
-    && meta.market === 'US-CA'
     && meta.jurisdiction === 'US';
   // 홈은 사이트 제목, 서브페이지는 "페이지명 · 사이트명" (서빙 tenantMetadata와 동일 규칙)
   const docTitle = input.documentTitle ?? (isHome || !page ? meta.title : `${page.title} · ${meta.title}`);
@@ -141,7 +140,7 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     .join('\n');
 
   return `<!doctype html>
-<html lang="${input.lang ?? 'ko'}">
+<html lang="${input.lang ?? 'en'}">
 <head>
 ${head}
 </head>

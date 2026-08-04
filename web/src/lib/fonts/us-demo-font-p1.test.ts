@@ -92,7 +92,6 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     config.meta = {
       title: 'Sample Clinic',
       locale: 'en-US',
-      market: 'US-CA',
       jurisdiction: 'US',
     };
     config.theme = applyLatinFontPairing(config.theme, selection);
@@ -133,10 +132,16 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     usConfig.meta = {
       title: 'Sample Clinic',
       locale: 'en-US',
-      market: 'US-CA',
       jurisdiction: 'US',
     };
     assert.deepEqual(siteConfigSchema.parse(usConfig).meta, usConfig.meta);
+    const parsedFormerMarket = siteConfigSchema.parse({
+      ...usConfig,
+      meta: { ...usConfig.meta, market: 'US-CA' },
+    });
+    assert.equal('market' in parsedFormerMarket.meta, false);
+    assert.equal(parsedFormerMarket.meta.locale, 'en-US');
+    assert.equal(parsedFormerMarket.meta.jurisdiction, 'US');
     assert.throws(() => siteConfigSchema.parse({
       ...usConfig,
       meta: { ...usConfig.meta, locale: 'ko-KR' },
