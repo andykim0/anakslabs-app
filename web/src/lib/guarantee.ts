@@ -45,6 +45,26 @@ export interface GuaranteeEvaluation {
   exceptionCode: GuaranteeExceptionCode | null;
 }
 
+interface GuaranteeSiteCandidate {
+  publishedAt: string | null;
+  siteConfig: { meta: { locale?: string } } | null;
+}
+
+/**
+ * The legacy 90-day guarantee is a Korea-only Naver contract. US sites are
+ * explicitly outside its evaluation population; the evaluation formula below
+ * remains unchanged for every eligible legacy/KR site.
+ */
+export function partitionGuaranteeEvaluationSites<T extends GuaranteeSiteCandidate>(
+  sites: readonly T[],
+): { eligible: T[]; excludedEnUs: T[] } {
+  const published = sites.filter((site) => Boolean(site.publishedAt && site.siteConfig));
+  return {
+    eligible: published.filter((site) => site.siteConfig?.meta.locale !== 'en-US'),
+    excludedEnUs: published.filter((site) => site.siteConfig?.meta.locale === 'en-US'),
+  };
+}
+
 const DAY_MS = 86_400_000;
 
 function instant(value: string, label: string): number {

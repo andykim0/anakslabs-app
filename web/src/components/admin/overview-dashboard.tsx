@@ -246,7 +246,7 @@ export function OverviewDashboard() {
           />
         </div>
 
-        {data.guaranteeProgramEnabled ? <Card className="mt-3 overflow-x-auto" >
+        <Card className="mt-3 overflow-x-auto" >
           <div className="flex items-start gap-2 border-b border-slate-200 px-4 py-3">
             <ShieldCheck size={16} className="mt-0.5 text-slate-400" aria-hidden />
             <div>
@@ -254,9 +254,16 @@ export function OverviewDashboard() {
               <p className="mt-0.5 text-[11px] text-slate-500">
                 Index signal uses only Search Advisor/URL confirmation records · Inflow is the sum of Naver pageviews without PII
               </p>
+              <p className="mt-1 text-[11px] text-slate-500" data-guarantee-population>
+                KR/legacy eligible: {formatNumber(data.guaranteePopulation.eligibleSiteCount)} · Evaluated now: {formatNumber(data.guaranteePopulation.evaluatedSiteCount)} · US sites not covered: {formatNumber(data.guaranteePopulation.excludedEnUsSiteCount)}
+              </p>
             </div>
           </div>
-          {data.guarantees.length ? (
+          {!data.guaranteeProgramEnabled ? (
+            <p className="px-4 py-8 text-center text-xs text-slate-500">
+              The legacy guarantee program is paused. No site is currently being evaluated.
+            </p>
+          ) : data.guarantees.length ? (
             <table data-guarantee-admin className="w-full min-w-[880px] text-left text-xs">
               <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
                 <tr>
@@ -295,9 +302,9 @@ export function OverviewDashboard() {
               </tbody>
             </table>
           ) : (
-            <p className="px-4 py-8 text-center text-xs text-slate-500">There are no sites subject to coverage awards issued.</p>
+            <p className="px-4 py-8 text-center text-xs text-slate-500">There are no eligible KR/legacy sites awaiting a guarantee decision.</p>
           )}
-        </Card> : null}
+        </Card>
 
         <Card className="mt-3 p-4">
           <div className="flex flex-wrap items-end justify-between gap-3">

@@ -94,6 +94,31 @@ describe('RPT2 monthly report core', () => {
     assert.equal(report.insight, 'Direct or on-site traffic increased 100% from last month.');
   });
 
+  test('US reports lead with Google while omitted/legacy locale preserves the Naver-first order', () => {
+    const periods = previousMonthRangesKst(new Date('2026-07-17T00:00:00.000Z'));
+    const rows: SiteEventAggregate[] = [
+      { eventType: 'pageview', source: 'naver', count: 1 },
+      { eventType: 'pageview', source: 'google', count: 2 },
+    ];
+    const base = {
+      siteId: 'source-order',
+      period: periods.report,
+      comparisonPeriod: periods.comparison,
+      current: rows,
+      previous: [],
+    };
+    const legacy = buildMonthlyPerformanceReport(base);
+    const us = buildMonthlyPerformanceReport({ ...base, locale: 'en-US' });
+    assert.deepEqual(legacy.sources.map((source) => source.source), [
+      'naver', 'google', 'instagram', 'direct', 'other',
+    ]);
+    assert.deepEqual(us.sources.map((source) => source.source), [
+      'google', 'direct', 'instagram', 'other', 'naver',
+    ]);
+    assert.equal(us.sources[0].label, 'Google');
+    assert.equal(us.sources.at(-1)?.label, 'Naver');
+  });
+
   test('reads legacy v1 reports without inventing connector metrics', () => {
     const periods = previousMonthRangesKst(new Date('2026-07-17T00:00:00.000Z'));
     const report: MonthlyPerformanceReportV1 = {

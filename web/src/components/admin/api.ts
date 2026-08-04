@@ -67,6 +67,11 @@ export interface AdminOverview {
   customHostnameCount: number;
   revenue: AdminOpsRevenueMetrics;
   guaranteeProgramEnabled: boolean;
+  guaranteePopulation: {
+    eligibleSiteCount: number;
+    excludedEnUsSiteCount: number;
+    evaluatedSiteCount: number;
+  };
   guarantees: AdminGuaranteeRow[];
   manualCollections: AdminManualCollectionRow[];
 }

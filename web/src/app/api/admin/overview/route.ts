@@ -11,7 +11,11 @@ import { getDataServices } from '@/lib/data';
 import { getManualCollectionsRepository } from '@/lib/payments/manual-collections';
 import { manualCollectionReversibleEntryIds } from '@/lib/payments/manual-collection-core';
 import { kstDateString } from '@/lib/analytics/site-event-ingest';
-import { evaluateGuarantee, guaranteeDueAt } from '@/lib/guarantee';
+import {
+  evaluateGuarantee,
+  guaranteeDueAt,
+  partitionGuaranteeEvaluationSites,
+} from '@/lib/guarantee';
 import { listGuaranteeEvidence } from '@/lib/guarantee/evidence';
 import { guaranteeProgramEnabled } from '@/lib/guarantee/flags';
 import { withApiHandler } from '../../_lib/http';
@@ -66,8 +70,9 @@ export const GET = withApiHandler(async () => {
       ? [[entry.reversesEntryId, entry] as const]
       : []));
   const guaranteeEnabled = guaranteeProgramEnabled();
+  const guaranteePopulation = partitionGuaranteeEvaluationSites(siteList);
   const guaranteeSites = guaranteeEnabled
-    ? siteList.filter((site) => site.publishedAt && site.siteConfig)
+    ? guaranteePopulation.eligible
     : [];
   const guaranteeEvidence = guaranteeEnabled
     ? await listGuaranteeEvidence(guaranteeSites.map((site) => site.id))
@@ -123,6 +128,11 @@ export const GET = withApiHandler(async () => {
       sites: siteList,
     }),
     guaranteeProgramEnabled: guaranteeEnabled,
+    guaranteePopulation: {
+      eligibleSiteCount: guaranteePopulation.eligible.length,
+      excludedEnUsSiteCount: guaranteePopulation.excludedEnUs.length,
+      evaluatedSiteCount: guaranteeRows.length,
+    },
     guarantees: guaranteeRows.sort((left, right) => left.dueAt.localeCompare(right.dueAt)),
     manualCollections: manualRecords
       .filter(({ entry }) => entry.direction === 'receipt')

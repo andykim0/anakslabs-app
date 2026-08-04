@@ -18,12 +18,15 @@ import { themeColor } from '@/lib/design/site-theme-tokens';
 export function LegalFooter({
   info,
   theme,
+  locale,
   privacyHref = '/privacy',
   termsHref = '/terms',
   disableActions = false,
 }: {
   info: BusinessInfo;
   theme: SiteTheme;
+  /** Explicit locale keeps legacy/KR output on its byte-identical Naver destination. */
+  locale?: string;
   /** 서빙: '/privacy' · Export: 'privacy.html' */
   privacyHref?: string;
   termsHref?: string;
@@ -31,7 +34,9 @@ export function LegalFooter({
   disableActions?: boolean;
 }) {
   const phoneHref = disableActions ? undefined : businessPhoneHref(info.phone);
-  const directionsHref = !disableActions && info.address ? businessDirectionsHref(info.address) : undefined;
+  const directionsHref = !disableActions && info.address
+    ? businessDirectionsHref(info.address, locale)
+    : undefined;
   type FooterItem = { key: string; label: string; href?: string; external?: boolean };
   const items = [
     info.businessName ? { key: 'business', label: `Business ${info.businessName}` } : null,

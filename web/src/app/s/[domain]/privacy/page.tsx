@@ -46,5 +46,12 @@ export default async function PrivacyPage({ params }: Props) {
     if (error instanceof UsTenantLegalDocumentsPendingError) notFound();
     throw error;
   }
-  return <LegalDocView doc={doc} theme={tenant.site.siteConfig!.theme} info={tenant.businessInfo} />;
+  return (
+    <LegalDocView
+      doc={doc}
+      theme={tenant.site.siteConfig!.theme}
+      info={tenant.businessInfo}
+      locale={tenant.site.siteConfig!.meta.locale}
+    />
+  );
 }

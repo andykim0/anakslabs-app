@@ -114,7 +114,10 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
     assert.equal(phone?.text.trim(), 'Phone 02-1234-5678');
     assert.equal(classifyTrackableHref(phone?.getAttribute('href') ?? '', 'https://shop.example'), 'tel');
 
-    const directionsHref = businessDirectionsHref('서울특별시 마포구 월드컵북로 1');
+    const directionsHref = businessDirectionsHref(
+      '서울특별시 마포구 월드컵북로 1',
+      stored.meta.locale,
+    );
     assert.ok(directionsHref);
     const directions = root.querySelector(`a[href="${directionsHref}"]`);
     assert.ok(directions, '검증된 주소가 실제 지도 링크가 아님');
@@ -141,6 +144,22 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
     assert.equal(JSON.stringify(generated), before, '입력 config를 변이하면 안 됨');
     assert.equal(businessPhoneHref('연락주세요'), undefined);
     assert.equal(businessDirectionsHref('   '), undefined);
+  });
+
+  test('US directions use Google Maps while the omitted/legacy locale remains byte-identical Naver', () => {
+    const address = '123 Main Street, Los Angeles, CA';
+    assert.equal(
+      businessDirectionsHref(address, 'en-US'),
+      'https://maps.google.com/?q=123%20Main%20Street%2C%20Los%20Angeles%2C%20CA',
+    );
+    assert.equal(
+      businessDirectionsHref(address),
+      'https://map.naver.com/p/search/123%20Main%20Street%2C%20Los%20Angeles%2C%20CA',
+    );
+    assert.equal(
+      businessDirectionsHref(address, 'ko-KR'),
+      'https://map.naver.com/p/search/123%20Main%20Street%2C%20Los%20Angeles%2C%20CA',
+    );
   });
 
   test('generate/regenerate 모두 공용 injector를 호출하고 export는 같은 TenantPageContent를 사용한다', () => {

@@ -104,7 +104,13 @@ export function TenantPageContent({
         />
       ) : null}
       {businessInfo ? (
-        <LegalFooter info={businessInfo} theme={config.theme} privacyHref={privacyHref} termsHref={termsHref} />
+        <LegalFooter
+          info={businessInfo}
+          theme={config.theme}
+          locale={config.meta.locale}
+          privacyHref={privacyHref}
+          termsHref={termsHref}
+        />
       ) : null}
       {analyticsRuntime ? (
         <script
