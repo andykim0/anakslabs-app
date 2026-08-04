@@ -46,7 +46,6 @@ export default async function SharedImportPreviewPage({
   const preview = await getSharedSitePreviewByToken(token);
   if (!preview) notFound();
   const isUsMedicalDemo = preview.siteConfig.meta.locale === 'en-US'
-    && preview.siteConfig.meta.market === 'US-CA'
     && preview.siteConfig.meta.jurisdiction === 'US';
   const isKoClinicImport = preview.siteConfig.clinicMaster?.demoPitchLocale === 'ko-owner';
   const koClinicMotion = isKoClinicImport && !isUsMedicalDemo;

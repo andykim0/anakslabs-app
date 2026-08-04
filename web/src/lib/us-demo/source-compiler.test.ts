@@ -111,12 +111,13 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     const second = compileUsMedicalDemo(englishArtifact());
     assert.deepEqual(second, first);
     assert.deepEqual(siteConfigSchema.parse(first.config), first.config);
+    assert.equal('market' in first.config.meta, false);
+    assert.equal(first.sourceManifest.market, 'US-CA');
     assert.deepEqual(first.config.meta, {
       title: 'Wilshire Dental Care',
       description:
         'Wilshire Dental Care provides appointment information and explains how patients can prepare for a visit at our Los Angeles office.',
       locale: 'en-US',
-      market: 'US-CA',
       jurisdiction: 'US',
       purposeId: 'booking_service',
       templateId: 'booking_service.clinic',

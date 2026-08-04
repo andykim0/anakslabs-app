@@ -146,7 +146,7 @@ export function contentBlogMetadata(
     openGraph: {
       type: post ? 'article' : 'website',
       siteName: config.meta.title,
-      locale: 'ko_KR',
+      locale: config.meta.locale === 'en-US' ? 'en_US' : 'ko_KR',
       title,
       description,
       url: canonical,

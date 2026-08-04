@@ -61,6 +61,7 @@ export function renderStaticContentPostFiles(input: {
     html: buildDocumentShell({
       config,
       pageSlug: 'blog',
+      lang: config.meta.locale ?? 'ko',
       headerHtml: '',
       bodyHtml: listBody,
       siteUrl: baseUrl,
@@ -78,6 +79,7 @@ export function renderStaticContentPostFiles(input: {
       html: buildDocumentShell({
         config,
         pageSlug: `blog/${post.slug}`,
+        lang: config.meta.locale ?? 'ko',
         headerHtml: '',
         bodyHtml: staticBlogBody({ ...input, post }),
         siteUrl: baseUrl,

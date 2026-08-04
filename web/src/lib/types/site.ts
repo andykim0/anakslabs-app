@@ -660,11 +660,11 @@ export interface SiteMeta {
   description?: string;
   ogImage?: string;
   /**
-   * US-DEMO additive locale contract. Omitted means the existing Korea renderer contract;
+   * US additive locale contract. Locale and jurisdiction are the complete server-owned
+   * classification; omitted means the existing legacy renderer contract.
    * legacy rows are never backfilled so their JSON and HTML remain byte-identical.
    */
   locale?: 'en-US';
-  market?: 'US-CA';
   jurisdiction?: 'US';
   /**
    * [제품 확정] 생성 시점의 목적(SitePurposeId 값) — 서빙 시 JSON-LD @type을 목적으로 결정한다

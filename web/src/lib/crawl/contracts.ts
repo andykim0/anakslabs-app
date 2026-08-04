@@ -16,7 +16,6 @@ export function sharedPreviewRetentionDays(input: {
 }): number {
   const isUsMedicalPreview = input.renderMode !== 'standard'
     && input.siteConfig.meta.locale === 'en-US'
-    && input.siteConfig.meta.market === 'US-CA'
     && input.siteConfig.meta.jurisdiction === 'US';
   return isUsMedicalPreview
     ? US_MEDICAL_PREVIEW_RETENTION_DAYS

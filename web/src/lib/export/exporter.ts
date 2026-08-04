@@ -102,6 +102,7 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
     html: renderStaticDocument({
       config: collected.config,
       pageSlug: page.slug,
+      lang: collected.config.meta.locale ?? 'ko',
       // [S-batch] canonical·JSON-LD — 정적 발행물도 라이브 URL 기준 서빙 레이어 포함
       siteUrl: siteUrlOf(site.domain) || undefined,
       navHrefForSlug,

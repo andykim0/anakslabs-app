@@ -60,7 +60,6 @@ function accepted(): Response {
 
 function isUsMedicalPreview(preview: NonNullable<Awaited<ReturnType<typeof getSharedSitePreviewById>>>): boolean {
   return preview.siteConfig.meta.locale === 'en-US'
-    && preview.siteConfig.meta.market === 'US-CA'
     && preview.siteConfig.meta.jurisdiction === 'US';
 }
 

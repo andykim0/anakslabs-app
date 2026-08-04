@@ -20,6 +20,7 @@ import { MockPublishedContentPostsRepository } from './repository-mock';
 import {
   buildTenantLlmsText,
   buildTenantSitemapXml,
+  contentBlogMetadata,
   contentPostJsonLd,
 } from './public-projection';
 
@@ -46,6 +47,11 @@ type StaticExporter = (
     contentPosts?: readonly PublishedContentPost[];
   },
 ) => Promise<{ files: string[] }>;
+
+type StaticContentRenderer = (input: {
+  site: Site;
+  posts: readonly PublishedContentPost[];
+}) => Array<{ name: string; html: string }>;
 
 async function loadStaticRenderer(): Promise<StaticRenderer> {
 const directory = mkdtempSync(join(tmpdir(), 'anakslabs-content-p1-static-'));
@@ -89,6 +95,28 @@ async function loadStaticExporter(): Promise<StaticExporter> {
       buildExportZip: StaticExporter;
     };
     return loaded.buildExportZip;
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+async function loadStaticContentRenderer(): Promise<StaticContentRenderer> {
+  const directory = mkdtempSync(join(tmpdir(), 'anakslabs-content-p1-blog-'));
+  const outfile = join(directory, 'render-static.mjs');
+  try {
+    execFileSync(join(process.cwd(), 'node_modules/.bin/esbuild'), [
+      'src/lib/content-fulfillment/render-static.ts',
+      '--bundle',
+      '--platform=node',
+      '--format=esm',
+      '--conditions=default',
+      '--alias:server-only=./scripts/_empty-server-only.ts',
+      `--outfile=${outfile}`,
+    ], { cwd: process.cwd(), stdio: 'pipe' });
+    const loaded = await import(`${pathToFileURL(outfile).href}?contentBlog=${Date.now()}`) as {
+      renderStaticContentPostFiles: StaticContentRenderer;
+    };
+    return loaded.renderStaticContentPostFiles;
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -147,7 +175,7 @@ function post(
   };
 }
 
-test('P1: 무포스트 config와 기존 정적 HTML은 승인 전 golden SHA와 바이트 동일하다', async () => {
+test('P1: 무포스트 config와 직접 정적 렌더는 English 안전망만 달라진다', async () => {
   assert.equal(
     sha(JSON.stringify(CONFIG)),
     'a48d1ec151f97ff32949cf098087ae9c105806f0d312f9cbcb34c84c8256d542',
@@ -160,6 +188,11 @@ test('P1: 무포스트 config와 기존 정적 HTML은 승인 전 golden SHA와 
   });
   assert.equal(
     sha(html),
+    '38bf078606c915231b96a85b40b49d8490d7a62aadeddf8dcc2430734e21875e',
+  );
+  assert.match(html, /<html lang="en">/u);
+  assert.equal(
+    sha(html.replace('<html lang="en">', '<html lang="ko">')),
     'feffa2989a3156ad6afaedf67bd5fa6df5e7ceb669f634746c72c158e977b2dd',
   );
   assert.doesNotMatch(html, /블로그|content-blog/u);
@@ -247,6 +280,30 @@ test('P1: published 포스트가 생긴 때부터만 내비·sitemap·llms·Blog
   const jsonLd = JSON.parse(contentPostJsonLd(target, posts[0] as PublishedContentPost));
   assert.equal(jsonLd['@type'], 'BlogPosting');
   assert.equal(jsonLd.mainEntityOfPage, 'https://hwarodam.anakslabs.com/blog/interior-flow-check');
+});
+
+test('P1: blog Open Graph and static document language follow the site locale', async () => {
+  const target = site();
+  const usConfig = structuredClone(CONFIG);
+  usConfig.meta = {
+    ...usConfig.meta,
+    locale: 'en-US',
+    jurisdiction: 'US',
+  };
+  target.siteConfig = usConfig;
+  target.draftConfig = usConfig;
+  const repo = new MockPublishedContentPostsRepository([post()], [version()]);
+  const posts = await repo.listPublishedBySite(SITE_ID);
+  const metadata = contentBlogMetadata(target, posts[0]);
+  assert.equal((metadata.openGraph as { locale?: string } | null)?.locale, 'en_US');
+
+  const renderStaticContentPostFiles = await loadStaticContentRenderer();
+  const files = renderStaticContentPostFiles({ site: target, posts });
+  assert.equal(files.length, 2);
+  for (const file of files) assert.match(file.html, /<html lang="en-US">/u, file.name);
+
+  const legacy = contentBlogMetadata(site(), posts[0]);
+  assert.equal((legacy.openGraph as { locale?: string } | null)?.locale, 'ko_KR');
 });
 
 test('P1: 명시 blog 라우트와 export는 같은 published-only repository를 소비한다', () => {

@@ -273,9 +273,15 @@ test('기존 config는 공개 연락처 projection에서 객체·JSON 바이트�
     createHash('sha256').update(after).digest('hex'),
     '51e9bf8fde9c146c6307a816eb9608e07123eebd740269c85661caf2aa1d66d9',
   );
+  const rendered = renderDocument(legacy, '', 'https://legacy.example.kr');
+  assert.match(rendered, /<html lang="en">/u);
+  assert.equal(
+    createHash('sha256').update(rendered).digest('hex'),
+    '1ed2d552e8b94496e72333a070db5ff006a84efce5ff407b9d7733a12793bc7f',
+  );
   assert.equal(
     createHash('sha256')
-      .update(renderDocument(legacy, '', 'https://legacy.example.kr'))
+      .update(rendered.replace('<html lang="en">', '<html lang="ko">'))
       .digest('hex'),
     'f7792ff5dd00e5a1c970324c557f4103ffa515f0b2fae99e21df7090df9cb6d3',
   );

@@ -5,8 +5,6 @@ export const US_MEDICAL_OUTREACH_PROFILE_ID = 'us-medical-outreach-v1' as const;
 export const US_MEDICAL_OUTREACH_LOCALE = Object.freeze({
   profileId: US_MEDICAL_OUTREACH_PROFILE_ID,
   locale: 'en-US',
-  market: 'US-CA',
-  jurisdiction: 'US',
 } as const satisfies ScanLocaleContext);
 
 export const US_MEDICAL_OUTREACH_GROUP_WEIGHTS = Object.freeze({

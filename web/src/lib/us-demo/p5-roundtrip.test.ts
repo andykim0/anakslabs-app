@@ -143,7 +143,6 @@ describe('US-DEMO P5 — admin outreach roundtrip', () => {
     assert.doesNotMatch(serializedConfig, /best clinic|100% cure|patient stor/iu);
     assert.equal(prepared.sourceReport.origin, 'prospect_public_source');
     assert.equal(prepared.config.meta.locale, 'en-US');
-    assert.equal(prepared.config.meta.market, 'US-CA');
     assert.equal(prepared.config.meta.jurisdiction, 'US');
     assert.equal(prepared.config.pages
       .flatMap((page) => page.sections)

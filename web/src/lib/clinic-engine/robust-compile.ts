@@ -1168,7 +1168,7 @@ function compilePagePlan(input: {
       industryClass: 'medical',
       industryId: 'clinic',
       ...(input.plan.profile.locale === 'en-US'
-        ? { locale: 'en-US', market: 'US-CA', jurisdiction: 'US' }
+        ? { locale: 'en-US', jurisdiction: 'US' }
         : {}),
     },
     pages,

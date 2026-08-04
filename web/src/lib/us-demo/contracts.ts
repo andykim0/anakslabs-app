@@ -5,9 +5,11 @@ export const US_DEMO_RENDER_MODES = ['outreach-safe', 'preview-full'] as const;
 export type UsDemoRenderMode = (typeof US_DEMO_RENDER_MODES)[number];
 export const US_DEMO_LOCALE_CONTRACT = Object.freeze({
   locale: 'en-US',
-  market: 'US-CA',
   jurisdiction: 'US',
 } as const);
+// Provenance-manifest compatibility only. This is not SiteMeta and is never used to classify
+// a rendered site; retaining the legacy byte avoids changing existing US manifest SHA values.
+export const US_DEMO_SOURCE_MANIFEST_MARKET = 'US-CA' as const;
 
 export type ProspectPublicSourceKind =
   | 'business_name'
@@ -66,7 +68,7 @@ export interface UsDemoSourceManifest {
   version: 1;
   origin: typeof US_DEMO_SOURCE_ORIGIN;
   locale: 'en-US';
-  market: 'US-CA';
+  market: typeof US_DEMO_SOURCE_MANIFEST_MARKET;
   jurisdiction: 'US';
   blocks: readonly ProspectPublicSourceBlock[];
   usedBlockIds: readonly string[];

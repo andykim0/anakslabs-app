@@ -22,6 +22,7 @@ import {
   INSUFFICIENT_ENGLISH_SOURCE,
   US_DEMO_LOCALE_CONTRACT,
   US_DEMO_SOURCE_ORIGIN,
+  US_DEMO_SOURCE_MANIFEST_MARKET,
   UsDemoCompileError,
   type ProspectPublicSourceBlock,
   type UsDemoManualFinish,
@@ -258,7 +259,9 @@ function compileUsMedicalDemoProfile(
     sourceManifest: {
       version: 1,
       origin: US_DEMO_SOURCE_ORIGIN,
-      ...US_DEMO_LOCALE_CONTRACT,
+      locale: US_DEMO_LOCALE_CONTRACT.locale,
+      market: US_DEMO_SOURCE_MANIFEST_MARKET,
+      jurisdiction: US_DEMO_LOCALE_CONTRACT.jurisdiction,
       blocks: sourceBlocks,
       usedBlockIds: [...new Set([...usedBlockIds, ...metaBlockIds, ...publicContactBlockIds])],
       excluded: curated.excluded,

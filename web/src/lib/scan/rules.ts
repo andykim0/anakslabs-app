@@ -16,8 +16,6 @@ export type ScanProfileId = (typeof SCAN_PROFILE_IDS)[number];
 export interface ScanLocaleContext {
   profileId: ScanProfileId;
   locale: 'en-US';
-  market: 'US-CA';
-  jurisdiction: 'US';
 }
 
 export interface RuleContext {

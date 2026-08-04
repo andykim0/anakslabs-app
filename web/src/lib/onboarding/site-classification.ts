@@ -29,8 +29,9 @@ export function canonicalizeSurveyTemplate(survey: SurveyInput): SurveyInput {
 export { siteIndustryIdForSurvey };
 
 /**
- * 에디터 PATCH는 콘텐츠·SEO 설명을 수정할 수 있지만 생성 시 확정된 purpose/template 분류는
- * 바꿀 수 없다. 저장값에 분류가 없던 레거시는 요청값을 채택하지 않아 fail-closed한다.
+ * 에디터 PATCH는 콘텐츠·SEO 설명을 수정할 수 있지만 생성 시 확정된 purpose/template 및
+ * locale/jurisdiction 분류는 바꿀 수 없다. 저장값에 분류가 없던 레거시는 요청값을 채택하지
+ * 않아 fail-closed한다.
  */
 export function preserveSiteClassification(
   submitted: SiteConfig,
@@ -41,10 +42,14 @@ export function preserveSiteClassification(
   Reflect.deleteProperty(mutableMeta, 'templateId');
   Reflect.deleteProperty(mutableMeta, 'industryClass');
   Reflect.deleteProperty(mutableMeta, 'industryId');
+  Reflect.deleteProperty(mutableMeta, 'locale');
+  Reflect.deleteProperty(mutableMeta, 'jurisdiction');
   const purposeId = persisted?.meta.purposeId;
   const templateId = persisted?.meta.templateId;
   const industryClass = persisted?.meta.industryClass;
   const industryId = persisted?.meta.industryId;
+  const locale = persisted?.meta.locale;
+  const jurisdiction = persisted?.meta.jurisdiction;
 
   return {
     ...submitted,
@@ -54,6 +59,8 @@ export function preserveSiteClassification(
       ...(templateId !== undefined ? { templateId } : {}),
       ...(industryClass !== undefined ? { industryClass } : {}),
       ...(industryId !== undefined ? { industryId } : {}),
+      ...(locale !== undefined ? { locale } : {}),
+      ...(jurisdiction !== undefined ? { jurisdiction } : {}),
     },
   };
 }

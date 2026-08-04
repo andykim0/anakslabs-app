@@ -21,7 +21,6 @@ export function resolvePreviewDocumentPolicy(
     lang: 'en',
     preventMachineTranslation:
       renderMode !== 'standard'
-      && config.meta.market === 'US-CA'
       && config.meta.jurisdiction === 'US',
   };
 }

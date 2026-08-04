@@ -587,7 +587,6 @@ function expectedSchemaTypes(
     // This predicate intentionally matches jsonld.ts byte-for-byte. It exempts only the
     // verified US delivery contract from synthetic purpose extras such as "{name} services".
     const isUsEnglish = config.meta.locale === 'en-US'
-      && config.meta.market === 'US-CA'
       && config.meta.jurisdiction === 'US';
     const navigation = hasBaseUrl
       && page.slug === ''

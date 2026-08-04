@@ -46,12 +46,24 @@ describe('US tenant legal publication boundary', () => {
     assert.throws(() => usTermsOfService(config), UsTenantLegalDocumentsPendingError);
   });
 
-  test('new-site issuance pins en-US without mutating a stored legacy config', () => {
+  test('new-site issuance pins en-US + US jurisdiction and repairs a stored half-pin without mutation', () => {
     const legacy = emptySiteConfig('Stored legacy config');
     assert.equal(legacy.meta.locale, undefined);
     const issued = pinUsTenantLocaleForNewSite(legacy);
     assert.equal(legacy.meta.locale, undefined);
     assert.equal(issued.meta.locale, 'en-US');
+    assert.equal(issued.meta.jurisdiction, 'US');
+
+    const halfPinned = emptySiteConfig('Stored half-pin');
+    halfPinned.meta.locale = 'en-US';
+    const repaired = pinUsTenantLocaleForNewSite(halfPinned);
+    assert.notEqual(repaired, halfPinned);
+    assert.equal(halfPinned.meta.jurisdiction, undefined);
+    assert.deepEqual(
+      { locale: repaired.meta.locale, jurisdiction: repaired.meta.jurisdiction },
+      { locale: 'en-US', jurisdiction: 'US' },
+    );
+    assert.equal(pinUsTenantLocaleForNewSite(repaired), repaired);
     assert.doesNotThrow(() => assertUsTenantLegalDocumentsReady({
       ...issued,
       businessInfo: BUSINESS_INFO,
