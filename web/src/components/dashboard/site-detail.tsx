@@ -496,7 +496,11 @@ export function SiteDetail({
     if (!publishQuote || !pendingHumanChecks || paying) return;
     setPaying(true);
     try {
-      await confirmPublishPayment(siteId, publishQuote);
+      const payment = await confirmPublishPayment(siteId, publishQuote);
+      if (!payment.paid) {
+        window.location.assign(payment.checkoutUrl);
+        return;
+      }
       const result = await publishSite(siteId, pendingHumanChecks);
       setPublishQuote(null);
       setPendingHumanChecks(null);

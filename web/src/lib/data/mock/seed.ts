@@ -112,7 +112,7 @@ export function buildSeed(): MockStore {
   ]);
 
   // ---------- 결제 (웹훅 처리 결과와 동일한 형태) ----------
-  const payments = new Map<string, Payment>([
+  const legacyKrwPayments = new Map<string, Omit<Payment, 'currency'>>([
     [
       PAY_HWA_BUILD_ID,
       {
@@ -162,6 +162,9 @@ export function buildSeed(): MockStore {
       },
     ],
   ]);
+  const payments = new Map<string, Payment>(
+    [...legacyKrwPayments].map(([id, payment]) => [id, { ...payment, currency: 'KRW' }]),
+  );
 
   const paymentKeys = new Map<string, string>([
     [KEY_HWA_BUILD, PAY_HWA_BUILD_ID],

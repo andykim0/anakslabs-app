@@ -181,6 +181,7 @@ export interface PaymentRow {
   client_id: string;
   type: string;
   amount: number | string;
+  currency: string;
   credits_granted: number | string;
   provider_payment_key: string | null;
   industry_profile_id?: string | null;
@@ -190,11 +191,15 @@ export interface PaymentRow {
 }
 
 export function rowToPayment(row: PaymentRow): Payment {
+  if (row.currency !== 'KRW' && row.currency !== 'USD') {
+    throw new Error(`payments row has unsupported currency (${row.currency})`);
+  }
   return {
     id: row.id,
     clientId: row.client_id,
     type: row.type as PaymentType,
     amount: Number(row.amount),
+    currency: row.currency,
     creditsGranted: Number(row.credits_granted),
     providerPaymentKey: row.provider_payment_key,
     industryProfileId: (row.industry_profile_id as IndustryProfileId | null | undefined) ?? null,

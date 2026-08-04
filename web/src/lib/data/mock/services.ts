@@ -10,6 +10,7 @@ import {
   LEGACY_PRICING,
   LEGACY_V4_SUBSCRIPTION_PRICE,
   PRICING,
+  US_ENTERPRISE_PRICING,
   subscriptionPriceForProfile,
 } from '@/lib/pricing';
 import { assertAccountCanCreateSite } from '@/lib/billing/site-limit';
@@ -473,12 +474,14 @@ class MockPaymentsService implements PaymentsService {
     clientId: string;
     type: PaymentType;
     amount: number;
+    currency?: Payment['currency'];
     tier?: Tier;
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
     siteId?: string;
     industryProfileId?: IndustryProfileId;
+    stripeSubscriptionId?: string;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const store = getMockStore();
 
@@ -495,7 +498,14 @@ class MockPaymentsService implements PaymentsService {
     const processedAt = new Date();
     let creditsGranted = 0;
     let subscriptionGrantKey: string | null = null;
-    if (payload.type === 'build_fee') {
+    const currency = payload.currency ?? 'KRW';
+    if (payload.type === 'build_fee' && currency === 'USD') {
+      if (payload.amount !== US_ENTERPRISE_PRICING.setupUsd) {
+        throw new Error(`payments.handleWebhook: USD build amount must equal ${US_ENTERPRISE_PRICING.setupUsd}`);
+      }
+      // USD Enterprise includes editing and never grants dormant credit benefits.
+      creditsGranted = 0;
+    } else if (payload.type === 'build_fee') {
       const tier = payload.tier ?? client.tier;
       creditsGranted = creditsEnabled() ? INITIAL_GRANT[tier] : 0;
       client.tier = tier; // 빌드비 결제 = 티어 확정 (SQL handle_build_fee_payment와 동일)
@@ -508,17 +518,25 @@ class MockPaymentsService implements PaymentsService {
       }
       creditsGranted = payload.creditsGranted;
     } else if (payload.type === 'maintenance_subscription') {
-      const industryPricing = payload.industryProfileId
+      const industryPricing = currency === 'USD'
+        ? null
+        : payload.industryProfileId
         ? subscriptionPriceForProfile(
             payload.industryProfileId,
             payload.pricingModelVersion,
           )
         : null;
-      const expectedPricing = industryPricing
+      const expectedPricing = currency === 'USD'
+        ? {
+            amountKrw: US_ENTERPRISE_PRICING.monthlyUsd,
+            modelVersion: PRICING.modelVersion,
+            periodMonths: 1,
+          }
+        : industryPricing
         ?? (payload.pricingModelVersion === LEGACY_PRICING_MODEL_VERSION
           ? LEGACY_V4_SUBSCRIPTION_PRICE
           : PRICING.subscription);
-      if (payload.industryProfileId && !industryPricing) {
+      if (currency !== 'USD' && payload.industryProfileId && !industryPricing) {
         throw new Error('payments.handleWebhook: industry pricing contract is unavailable');
       }
       if (payload.siteId || payload.industryProfileId) {
@@ -547,7 +565,7 @@ class MockPaymentsService implements PaymentsService {
       // Freeze the one-time legacy projection before inserting this new
       // payment, exactly as an already-applied migration would in real mode.
       getMockSiteSubscription(payload.clientId);
-      if (creditsEnabled()) {
+      if (currency !== 'USD' && creditsEnabled()) {
         subscriptionGrantKey = subscriptionGrantIdempotencyKey(payload.clientId, processedAt);
         creditsGranted = store.grantKeys.has(subscriptionGrantKey) ? 0 : SUBSCRIPTION_MONTHLY_GRANT;
       }
@@ -565,6 +583,7 @@ class MockPaymentsService implements PaymentsService {
       clientId: payload.clientId,
       type: payload.type,
       amount: payload.amount,
+      currency,
       creditsGranted,
       providerPaymentKey: payload.providerPaymentKey,
       industryProfileId: payload.industryProfileId ?? null,
@@ -584,6 +603,7 @@ class MockPaymentsService implements PaymentsService {
           siteId: payload.siteId,
           industryProfileId: payload.industryProfileId,
           pricingModelVersion: payload.pricingModelVersion,
+          stripeSubscriptionId: payload.stripeSubscriptionId,
           at: processedAt,
         });
       } catch (error) {

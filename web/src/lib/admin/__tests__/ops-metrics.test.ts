@@ -22,6 +22,7 @@ function payment(
     clientId: `client-${id}`,
     type: 'build_fee',
     amount: LEGACY_PRICING.build.launch,
+    currency: 'KRW',
     creditsGranted: INITIAL_GRANT.basic,
     providerPaymentKey: `provider-${id}`,
     createdAt: '2026-07-10T03:00:00.000Z',
@@ -296,6 +297,47 @@ describe('ADM4 admin revenue metrics', () => {
     assert.equal(result.operatingRevenueBySourceKrw.provider, LEGACY_PRICING.build.launch);
     assert.equal(result.operatingRevenueBySourceKrw.manual, LEGACY_PRICING.build.launch);
     assert.equal(result.launchOffer.contracts, 2);
+  });
+
+  test('keeps USD and KRW ledgers separate without converting or summing them', () => {
+    const manual = manualEntry('manual-krw', null, {
+      clientId: null,
+      siteId: 'manual-krw-site',
+      customerName: 'Legacy customer',
+      customerContact: 'legacy-customer@example.test',
+      direction: 'receipt',
+    });
+    const result = buildAdminOpsRevenueMetrics([
+      payment('krw-provider'),
+      payment('usd-setup', {
+        amount: 990,
+        currency: 'USD',
+        creditsGranted: 0,
+      }),
+      payment('usd-monthly', {
+        type: 'maintenance_subscription',
+        amount: 990,
+        currency: 'USD',
+        creditsGranted: 0,
+      }),
+    ], NOW, { manualEntries: [manual], sites: [] });
+
+    assert.equal(result.byCurrency.USD.receipts.gross, 1_980);
+    assert.equal(result.byCurrency.USD.operatingRevenueNet, 1_980);
+    assert.equal(result.byCurrency.USD.segments.unclassifiedBuild.net, 990);
+    assert.equal(result.byCurrency.USD.segments.subscription.net, 990);
+    assert.equal(result.byCurrency.USD.sources.manual.gross, 0);
+
+    const krwExpected = LEGACY_PRICING.build.launch * 2;
+    assert.equal(result.byCurrency.KRW.receipts.gross, krwExpected);
+    assert.equal(result.byCurrency.KRW.operatingRevenueNet, krwExpected);
+    assert.equal(result.receipts.grossKrw, krwExpected, 'legacy fields project only the KRW ledger');
+    assert.equal(result.operatingRevenueNetKrw, krwExpected);
+    assert.equal(
+      result.targetProgress,
+      Math.min(krwExpected / ADMIN_MONTHLY_REVENUE_TARGET_KRW, 1),
+      'the KRW target must not include USD receipts',
+    );
   });
 
   test('counts launch contracts by unique site across provider/manual evidence and reversals', () => {

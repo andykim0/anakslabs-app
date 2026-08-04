@@ -19,6 +19,14 @@ type GlobalWithServices = typeof globalThis & {
   [GLOBAL_KEY]?: { mock?: DataServices; supabase?: DataServices };
 };
 
+/** Provider-signed callbacks must persist even if a development mock flag was left on. */
+export function getSupabaseDataServices(): DataServices {
+  const g = globalThis as GlobalWithServices;
+  const cache = (g[GLOBAL_KEY] ??= {});
+  cache.supabase ??= createSupabaseServices();
+  return cache.supabase;
+}
+
 export function getDataServices(): DataServices {
   const g = globalThis as GlobalWithServices;
   const cache = (g[GLOBAL_KEY] ??= {});
@@ -26,8 +34,7 @@ export function getDataServices(): DataServices {
     cache.mock ??= createMockServices();
     return cache.mock;
   }
-  cache.supabase ??= createSupabaseServices();
-  return cache.supabase;
+  return getSupabaseDataServices();
 }
 
 export type { DataServices } from './types';

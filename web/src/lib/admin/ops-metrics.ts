@@ -6,7 +6,7 @@ import {
   type ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
 import { LEGACY_PRICING } from '@/lib/pricing';
-import type { Payment, Site } from '@/lib/types/domain';
+import type { Payment, PaymentCurrency, Site } from '@/lib/types/domain';
 
 /** Internal operating target, not a customer-facing product price. */
 export const ADMIN_MONTHLY_REVENUE_TARGET_KRW = 10_000_000;
@@ -24,6 +24,15 @@ export interface RevenueBucket {
   netKrw: number;
 }
 
+export type AdminRevenueCurrency = PaymentCurrency;
+
+/** Whole-unit amounts for exactly one currency. Never combine these across currencies. */
+export interface CurrencyRevenueBucket {
+  gross: number;
+  refunds: number;
+  net: number;
+}
+
 export interface AdminRevenueSegments {
   launchBuild: RevenueBucket;
   listBuild: RevenueBucket;
@@ -31,6 +40,29 @@ export interface AdminRevenueSegments {
   unclassifiedBuild: RevenueBucket;
   subscription: RevenueBucket;
   creditPack: RevenueBucket;
+}
+
+export interface AdminCurrencyRevenueSegments {
+  launchBuild: CurrencyRevenueBucket;
+  listBuild: CurrencyRevenueBucket;
+  videoAddon: CurrencyRevenueBucket;
+  unclassifiedBuild: CurrencyRevenueBucket;
+  subscription: CurrencyRevenueBucket;
+  creditPack: CurrencyRevenueBucket;
+}
+
+export interface AdminCurrencyRevenueMetrics {
+  segments: AdminCurrencyRevenueSegments;
+  receipts: CurrencyRevenueBucket;
+  sources: {
+    provider: CurrencyRevenueBucket;
+    manual: CurrencyRevenueBucket;
+  };
+  operatingRevenueBySource: {
+    provider: number;
+    manual: number;
+  };
+  operatingRevenueNet: number;
 }
 
 export type AdminPaymentAnomalyCode =
@@ -58,6 +90,9 @@ export interface LaunchOfferCounterMetrics {
 
 export interface AdminOpsRevenueMetrics {
   month: KstRevenueMonth;
+  /** Currency-isolated ledgers. Values from different keys must never be summed. */
+  byCurrency: Record<AdminRevenueCurrency, AdminCurrencyRevenueMetrics>;
+  /** Backward-compatible KRW projection used by historical operations surfaces. */
   segments: AdminRevenueSegments;
   receipts: RevenueBucket;
   sources: {
@@ -89,22 +124,47 @@ type SegmentKey = keyof AdminRevenueSegments;
 type SourceKey = 'provider' | 'manual';
 type Allocation = { segment: SegmentKey; amount: number };
 
-function emptyBucket(): RevenueBucket {
-  return { grossKrw: 0, refundsKrw: 0, netKrw: 0 };
+function emptyCurrencyBucket(): CurrencyRevenueBucket {
+  return { gross: 0, refunds: 0, net: 0 };
 }
 
-function emptySegments(): AdminRevenueSegments {
+function emptyCurrencySegments(): AdminCurrencyRevenueSegments {
   return {
-    launchBuild: emptyBucket(),
-    listBuild: emptyBucket(),
-    videoAddon: emptyBucket(),
-    unclassifiedBuild: emptyBucket(),
-    subscription: emptyBucket(),
-    creditPack: emptyBucket(),
+    launchBuild: emptyCurrencyBucket(),
+    listBuild: emptyCurrencyBucket(),
+    videoAddon: emptyCurrencyBucket(),
+    unclassifiedBuild: emptyCurrencyBucket(),
+    subscription: emptyCurrencyBucket(),
+    creditPack: emptyCurrencyBucket(),
   };
 }
 
-function isKrw(value: number): boolean {
+function emptyCurrencyMetrics(): AdminCurrencyRevenueMetrics {
+  return {
+    segments: emptyCurrencySegments(),
+    receipts: emptyCurrencyBucket(),
+    sources: { provider: emptyCurrencyBucket(), manual: emptyCurrencyBucket() },
+    operatingRevenueBySource: { provider: 0, manual: 0 },
+    operatingRevenueNet: 0,
+  };
+}
+
+function krwBucket(bucket: CurrencyRevenueBucket): RevenueBucket {
+  return { grossKrw: bucket.gross, refundsKrw: bucket.refunds, netKrw: bucket.net };
+}
+
+function krwSegments(segments: AdminCurrencyRevenueSegments): AdminRevenueSegments {
+  return {
+    launchBuild: krwBucket(segments.launchBuild),
+    listBuild: krwBucket(segments.listBuild),
+    videoAddon: krwBucket(segments.videoAddon),
+    unclassifiedBuild: krwBucket(segments.unclassifiedBuild),
+    subscription: krwBucket(segments.subscription),
+    creditPack: krwBucket(segments.creditPack),
+  };
+}
+
+function isWholeCurrencyAmount(value: number): boolean {
   return Number.isSafeInteger(value) && value >= 0;
 }
 
@@ -154,14 +214,14 @@ export function classifyBuildContract(payment: Pick<Payment, 'amount' | 'credits
   return { base: 'unclassified', videoAddon: false };
 }
 
-function addGross(bucket: RevenueBucket, amount: number): void {
-  bucket.grossKrw += amount;
-  bucket.netKrw += amount;
+function addGross(bucket: CurrencyRevenueBucket, amount: number): void {
+  bucket.gross += amount;
+  bucket.net += amount;
 }
 
-function addRefund(bucket: RevenueBucket, amount: number): void {
-  bucket.refundsKrw += amount;
-  bucket.netKrw -= amount;
+function addRefund(bucket: CurrencyRevenueBucket, amount: number): void {
+  bucket.refunds += amount;
+  bucket.net -= amount;
 }
 
 function buildAllocations(payment: Pick<Payment, 'amount'>, classification: BuildContract): Allocation[] {
@@ -239,6 +299,7 @@ function manualReceiptMatchesPayment(entry: ManualPaymentEntry, payment: Payment
     creditPackCredits: entry.productKind === 'credit_pack' ? payment.creditsGranted : undefined,
   });
   return entry.direction === 'receipt'
+    && payment.currency === 'KRW'
     && entry.paymentId === payment.id
     && entry.clientId !== null
     && entry.clientId === payment.clientId
@@ -265,9 +326,9 @@ function applyEconomicEvent(input: {
   amount: number;
   direction: 'gross' | 'refund';
   source: SourceKey;
-  segments: AdminRevenueSegments;
-  receipts: RevenueBucket;
-  sources: Record<SourceKey, RevenueBucket>;
+  segments: AdminCurrencyRevenueSegments;
+  receipts: CurrencyRevenueBucket;
+  sources: Record<SourceKey, CurrencyRevenueBucket>;
   operatingBySource: Record<SourceKey, number>;
 }): void {
   const add = input.direction === 'gross' ? addGross : addRefund;
@@ -293,10 +354,11 @@ export function buildAdminOpsRevenueMetrics(
   const nowMs = now.getTime();
   const start = Date.parse(month.startIso);
   const end = Date.parse(month.endExclusiveIso);
-  const segments = emptySegments();
-  const receipts = emptyBucket();
-  const sources = { provider: emptyBucket(), manual: emptyBucket() };
-  const operatingBySource = { provider: 0, manual: 0 };
+  const byCurrency: Record<AdminRevenueCurrency, AdminCurrencyRevenueMetrics> = {
+    KRW: emptyCurrencyMetrics(),
+    USD: emptyCurrencyMetrics(),
+  };
+  const krw = byCurrency.KRW;
   const anomalies: AdminPaymentAnomaly[] = [];
   const seenIds = new Set<string>();
   const launchContractBalance = new Map<string, number>();
@@ -346,8 +408,8 @@ export function buildAdminOpsRevenueMetrics(
       continue;
     }
     seenIds.add(payment.id);
-    const amountValid = isKrw(payment.amount);
-    const creditsValid = isKrw(payment.creditsGranted);
+    const amountValid = isWholeCurrencyAmount(payment.amount);
+    const creditsValid = isWholeCurrencyAmount(payment.creditsGranted);
     const createdAt = instant(payment.createdAt);
     if (!amountValid) anomalies.push({ paymentId: payment.id, code: 'invalid_amount' });
     if (!creditsValid) anomalies.push({ paymentId: payment.id, code: 'invalid_credits_granted' });
@@ -374,10 +436,10 @@ export function buildAdminOpsRevenueMetrics(
           amount: manualEntry.amountKrw,
           direction: 'gross',
           source: 'manual',
-          segments,
-          receipts,
-          sources,
-          operatingBySource,
+          segments: krw.segments,
+          receipts: krw.receipts,
+          sources: krw.sources,
+          operatingBySource: krw.operatingRevenueBySource,
         });
       }
       if (manualEntry.productKind === 'launch_build' && entryAt <= nowMs) {
@@ -391,7 +453,10 @@ export function buildAdminOpsRevenueMetrics(
       continue;
     }
 
-    const classification = payment.type === 'build_fee' ? classifyBuildContract(payment) : null;
+    const currencyMetrics = byCurrency[payment.currency];
+    const classification = payment.currency === 'KRW' && payment.type === 'build_fee'
+      ? classifyBuildContract(payment)
+      : null;
     const refundAt = instant(payment.refundedAt);
     const hasRefundMarker = payment.refundedAt !== null && payment.refundedAt !== undefined;
     const hasRefundAmount = payment.refundAmount !== null && payment.refundAmount !== undefined;
@@ -401,7 +466,7 @@ export function buildAdminOpsRevenueMetrics(
         createdAt !== null
         && refundAt !== null
         && refundAmount !== null
-        && isKrw(refundAmount)
+        && isWholeCurrencyAmount(refundAmount)
         && refundAmount <= payment.amount
         && refundAt >= createdAt
       ));
@@ -413,10 +478,10 @@ export function buildAdminOpsRevenueMetrics(
         amount: payment.amount,
         direction: 'gross',
         source: 'provider',
-        segments,
-        receipts,
-        sources,
-        operatingBySource,
+        segments: currencyMetrics.segments,
+        receipts: currencyMetrics.receipts,
+        sources: currencyMetrics.sources,
+        operatingBySource: currencyMetrics.operatingRevenueBySource,
       });
     }
     if (refundValid && refundAt !== null && refundAmount !== null
@@ -426,10 +491,10 @@ export function buildAdminOpsRevenueMetrics(
         amount: refundAmount,
         direction: 'refund',
         source: 'provider',
-        segments,
-        receipts,
-        sources,
-        operatingBySource,
+        segments: currencyMetrics.segments,
+        receipts: currencyMetrics.receipts,
+        sources: currencyMetrics.sources,
+        operatingBySource: currencyMetrics.operatingRevenueBySource,
       });
     }
 
@@ -466,10 +531,10 @@ export function buildAdminOpsRevenueMetrics(
         amount: entry.amountKrw,
         direction: 'gross',
         source: 'manual',
-        segments,
-        receipts,
-        sources,
-        operatingBySource,
+        segments: krw.segments,
+        receipts: krw.receipts,
+        sources: krw.sources,
+        operatingBySource: krw.operatingRevenueBySource,
       });
     }
     if (entry.productKind === 'launch_build' && entryAt <= nowMs) {
@@ -500,10 +565,10 @@ export function buildAdminOpsRevenueMetrics(
         amount: reversal.amountKrw,
         direction: 'refund',
         source: 'manual',
-        segments,
-        receipts,
-        sources,
-        operatingBySource,
+        segments: krw.segments,
+        receipts: krw.receipts,
+        sources: krw.sources,
+        operatingBySource: krw.operatingRevenueBySource,
       });
     }
     if (reversal.productKind === 'launch_build' && reversalAt <= nowMs) {
@@ -511,7 +576,19 @@ export function buildAdminOpsRevenueMetrics(
     }
   }
 
-  const operatingRevenueNetKrw = operatingBySource.provider + operatingBySource.manual;
+  for (const currency of ['KRW', 'USD'] as const) {
+    const metrics = byCurrency[currency];
+    metrics.operatingRevenueNet = metrics.operatingRevenueBySource.provider
+      + metrics.operatingRevenueBySource.manual;
+  }
+  const segments = krwSegments(krw.segments);
+  const receipts = krwBucket(krw.receipts);
+  const sources = {
+    provider: krwBucket(krw.sources.provider),
+    manual: krwBucket(krw.sources.manual),
+  };
+  const operatingRevenueBySourceKrw = krw.operatingRevenueBySource;
+  const operatingRevenueNetKrw = krw.operatingRevenueNet;
   const targetProgress = Math.min(
     Math.max(operatingRevenueNetKrw / ADMIN_MONTHLY_REVENUE_TARGET_KRW, 0),
     1,
@@ -521,10 +598,11 @@ export function buildAdminOpsRevenueMetrics(
 
   return {
     month,
+    byCurrency,
     segments,
     receipts,
     sources,
-    operatingRevenueBySourceKrw: operatingBySource,
+    operatingRevenueBySourceKrw,
     operatingRevenueNetKrw,
     targetKrw: ADMIN_MONTHLY_REVENUE_TARGET_KRW,
     targetProgress,

@@ -183,12 +183,15 @@ export interface PaymentsService {
     clientId: string;
     type: PaymentType;
     amount: number;
+    currency?: Payment['currency'];
     tier?: Tier;
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
     siteId?: string;
     industryProfileId?: IndustryProfileId;
+    /** Stripe subscription authority for USD maintenance payments. */
+    stripeSubscriptionId?: string;
   }): Promise<{ processed: boolean; duplicated: boolean }>;
   listByClient(clientId: string): Promise<Payment[]>;
   /** 관리자 전용 */

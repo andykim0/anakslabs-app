@@ -10,8 +10,21 @@ import type {
   Tier,
 } from '@/lib/types/domain';
 
+export type AdminDisplayCurrency = 'KRW' | 'USD';
+
+/** Payment amounts are whole units of their recorded currency. */
+export function formatCurrency(amount: number, currency: AdminDisplayCurrency): string {
+  const rounded = Math.round(amount);
+  return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'ko-KR', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(rounded);
+}
+
+/** Backward-compatible formatter for KRW-only operating surfaces. */
 export function formatKrw(amount: number): string {
-  return `₩${Math.round(amount).toLocaleString('ko-KR')}`;
+  return formatCurrency(amount, 'KRW');
 }
 
 export function formatNumber(n: number): string {

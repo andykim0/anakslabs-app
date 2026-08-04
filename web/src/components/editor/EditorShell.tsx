@@ -136,7 +136,11 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
     if (!publishQuote || !pendingHumanChecks || paying) return;
     setPaying(true);
     try {
-      await confirmPublishPaymentRequest(siteId, publishQuote);
+      const payment = await confirmPublishPaymentRequest(siteId, publishQuote);
+      if (!payment.paid) {
+        window.location.assign(payment.checkoutUrl);
+        return;
+      }
       const result = await publishSiteRequest(siteId, pendingHumanChecks);
       setPublishQuote(null);
       setPendingHumanChecks(null);

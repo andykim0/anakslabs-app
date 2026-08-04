@@ -32,7 +32,7 @@ describe('PRICE P1 webhook amount policy', () => {
     assert.equal(paymentAmountSubject({ type: 'credit_pack', creditsGranted: 0 }), null);
   });
 
-  test('uses the Stripe event contract and contains no live payment adapter', () => {
+  test('uses the Stripe event contract while keeping secrets out of the route', () => {
     const route = readFileSync(
       join(process.cwd(), 'src/app/api/payments/webhook/route.ts'),
       'utf8',
@@ -43,5 +43,7 @@ describe('PRICE P1 webhook amount policy', () => {
     assert.match(route, /stripeCheckoutTotalCents\(\)/);
     assert.match(route, /stripePaymentKeys\(event\)/);
     assert.doesNotMatch(route, /TOSS|tosspayments|STRIPE_SECRET_KEY/);
+    assert.match(route, /constructStripeWebhookEvent/);
+    assert.match(route, /request\.text\(\)/);
   });
 });

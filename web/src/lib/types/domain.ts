@@ -179,12 +179,16 @@ export type PaymentType =
   | 'premium_addon'
   | 'credit_pack';
 
+/** Whole-unit currency used by the payment ledger (won for KRW, dollars for USD). */
+export type PaymentCurrency = 'KRW' | 'USD';
+
 export interface Payment {
   id: string;
   clientId: string;
   type: PaymentType;
-  /** KRW */
+  /** Whole units of `currency`; fractional/Stripe cent values never cross this boundary. */
   amount: number;
+  currency: PaymentCurrency;
   creditsGranted: number;
   /** PG사 결제 키 — 웹훅 멱등성 기준 */
   providerPaymentKey: string | null;

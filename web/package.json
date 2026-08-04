@@ -38,6 +38,7 @@
     "react-dom": "19.2.4",
     "react-hook-form": "^7.81.0",
     "sharp": "0.34.5",
+    "stripe": "^22.4.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zundo": "^2.3.0",

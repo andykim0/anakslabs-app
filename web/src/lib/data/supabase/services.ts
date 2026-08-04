@@ -498,20 +498,32 @@ export class SupabasePaymentsService implements PaymentsService {
     clientId: string;
     type: PaymentType;
     amount: number;
+    currency?: Payment['currency'];
     tier?: Tier;
     creditsGranted?: number;
     pricingModelVersion?: string;
     periodMonths?: number;
     siteId?: string;
     industryProfileId?: IndustryProfileId;
+    stripeSubscriptionId?: string;
   }): Promise<{ processed: boolean; duplicated: boolean }> {
     const svc = getServiceRoleClient();
 
     let rpcName: string;
     let rpcArgs: Record<string, unknown>;
+    const currency = payload.currency ?? 'KRW';
 
     switch (payload.type) {
       case 'build_fee': {
+        if (currency === 'USD') {
+          rpcName = 'handle_usd_build_fee_payment';
+          rpcArgs = {
+            p_client_id: payload.clientId,
+            p_provider_payment_key: payload.providerPaymentKey,
+            p_amount: payload.amount,
+          };
+          break;
+        }
         // tier 미지정 시 현재 고객 tier 기준 (INITIAL_GRANT 계산은 SQL 함수 내부)
         let tier = payload.tier;
         if (!tier) {
@@ -550,6 +562,23 @@ export class SupabasePaymentsService implements PaymentsService {
           && payload.industryProfileId
           && payload.pricingModelVersion,
         );
+        if (currency === 'USD') {
+          if (!hasIndustryContract || !payload.stripeSubscriptionId) {
+            throw new Error('payments.handleWebhook: USD maintenance requires site contract and Stripe subscription');
+          }
+          rpcName = 'handle_usd_industry_maintenance_payment';
+          rpcArgs = {
+            p_site_id: payload.siteId,
+            p_client_id: payload.clientId,
+            p_provider_payment_key: payload.providerPaymentKey,
+            p_amount: payload.amount,
+            p_industry_profile_id: payload.industryProfileId,
+            p_pricing_model_version: payload.pricingModelVersion,
+            p_period_months: payload.periodMonths ?? 1,
+            p_stripe_subscription_id: payload.stripeSubscriptionId,
+          };
+          break;
+        }
         rpcName = hasIndustryContract
           ? 'handle_industry_maintenance_payment'
           : 'handle_maintenance_payment';

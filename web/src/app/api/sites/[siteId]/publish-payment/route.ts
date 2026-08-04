@@ -20,8 +20,14 @@ import {
 } from '../../../_lib/guards';
 import { industryPublishPolicy } from '@/lib/industry/publish-policy';
 import { US_ENTERPRISE_PRICING } from '@/lib/pricing';
+import {
+  createStripeCheckoutSession,
+  stripeLiveCheckoutConfigured,
+} from '@/lib/payments/stripe-live';
 
 type Ctx = { params: Promise<{ siteId: string }> };
+
+export const runtime = 'nodejs';
 
 const bodySchema = z.object({
   quoteId: z.string().length(32),
@@ -51,14 +57,44 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   }
 
   const subscription = await resolveSiteSubscription(client.id);
+  const liveStripe = stripeLiveCheckoutConfigured();
+  const mockCheckout = isMockMode() && !liveStripe;
   if (!needsPublishPayment(site, subscription.active)) {
     return NextResponse.json({
       paid: true,
       duplicated: true,
-      quote: publishPaymentQuote({ clientId: client.id, siteId, mock: isMockMode(), pricing }),
+      quote: publishPaymentQuote({ clientId: client.id, siteId, mock: mockCheckout, stripe: liveStripe, pricing }),
     });
   }
-  if (!isMockMode()) {
+  // Legacy KRW shapes have no live adapter. Already-published legacy sites
+  // returned above and retain no-charge republishing.
+  if (industryPolicy.status === 'legacy') {
+    return apiError(409, 'LEGACY_PUBLISH_PAYMENT_UNAVAILABLE', 'This legacy payment contract cannot start a new subscription.');
+  }
+  if (liveStripe) {
+    const origin = request.nextUrl.origin;
+    try {
+      const checkout = await createStripeCheckoutSession({
+        siteId,
+        clientId: client.id,
+        customerEmail: client.email,
+        successUrl: new URL(`/dashboard/sites/${siteId}?checkout=success`, origin).toString(),
+        cancelUrl: new URL(`/dashboard/sites/${siteId}?checkout=cancelled`, origin).toString(),
+      });
+      return NextResponse.json({
+        paid: false,
+        checkoutUrl: checkout.url,
+        checkoutSessionId: checkout.id,
+        quote: publishPaymentQuote({ clientId: client.id, siteId, mock: false, stripe: true, pricing }),
+      });
+    } catch (error) {
+      console.error('[stripe-checkout] session creation failed:', {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+      return apiError(503, 'PUBLISH_PAYMENT_UNAVAILABLE', 'Secure checkout is temporarily unavailable.');
+    }
+  }
+  if (!isMockMode() && !liveStripe) {
     return apiError(
       503,
       'PUBLISH_PAYMENT_UNAVAILABLE',
@@ -72,18 +108,23 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     clientId: client.id,
     type: 'build_fee',
     amount: paymentCurrency === 'USD' ? US_ENTERPRISE_PRICING.setupUsd : 0,
+    currency: paymentCurrency,
   });
   const result = await services.payments.handleWebhook({
     providerPaymentKey: mockPublishPaymentKey(siteId, pricing),
     clientId: client.id,
     type: 'maintenance_subscription',
     amount: paymentAmount,
+    currency: paymentCurrency,
     pricingModelVersion: pricing.modelVersion,
     periodMonths: pricing.periodMonths,
     ...('industryProfileId' in pricing
       ? {
           siteId,
           industryProfileId: pricing.industryProfileId,
+          ...(paymentCurrency === 'USD'
+            ? { stripeSubscriptionId: `mock:subscription:${siteId}` }
+            : {}),
         }
       : {}),
   });
@@ -113,6 +154,6 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   return NextResponse.json({
     paid: true,
     duplicated: setupResult.duplicated && result.duplicated,
-    quote: publishPaymentQuote({ clientId: client.id, siteId, mock: true, pricing }),
+    quote: publishPaymentQuote({ clientId: client.id, siteId, mock: true, stripe: false, pricing }),
   });
 });

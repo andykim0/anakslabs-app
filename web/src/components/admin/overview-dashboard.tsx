@@ -19,7 +19,7 @@ import {
 import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credits/constants';
 import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 import { getOverview } from './api';
-import { formatKrw, formatNumber } from './format';
+import { formatCurrency, formatKrw, formatNumber } from './format';
 import { ManualCollectionPanel } from './manual-collection-panel';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
 
@@ -56,6 +56,7 @@ export function OverviewDashboard() {
   }
 
   const hostnameDanger = data.customHostnameCount >= CF_HOSTNAME_ALERT_THRESHOLD;
+  const usdRevenue = data.revenue.byCurrency.USD;
 
   return (
     <>
@@ -170,7 +171,7 @@ export function OverviewDashboard() {
               Sales at a glance
             </h2>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              {data.revenue.month.month} KST · PG and manual collection ledger combined · Cash basis
+              {data.revenue.month.month} KST · USD and KRW ledgers shown separately · Cash basis
             </p>
           </div>
           <p className="text-xs text-slate-500">
@@ -182,13 +183,47 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Net proceeds from operations this month
+                USD net operating revenue this month
+              </p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
+                {formatCurrency(usdRevenue.operatingRevenueNet, 'USD')}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Enterprise setup and monthly service − refunds; no conversion to KRW
+              </p>
+              <p className="mt-1 text-[11px] text-slate-400">
+                Provider {formatCurrency(usdRevenue.operatingRevenueBySource.provider, 'USD')} · Manual collection{' '}
+                {formatCurrency(usdRevenue.operatingRevenueBySource.manual, 'USD')}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-right text-[11px] text-slate-500">
+              <span>Setup/build</span>
+              <strong className="tabular-nums text-slate-700">
+                {formatCurrency(usdRevenue.segments.unclassifiedBuild.net, 'USD')}
+              </strong>
+              <span>Monthly service</span>
+              <strong className="tabular-nums text-slate-700">
+                {formatCurrency(usdRevenue.segments.subscription.net, 'USD')}
+              </strong>
+              <span>Refunds</span>
+              <strong className="tabular-nums text-red-600">
+                {formatCurrency(usdRevenue.receipts.refunds, 'USD')}
+              </strong>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="mt-3 p-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                KRW net operating revenue this month
               </p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
                 {formatKrw(data.revenue.operatingRevenueNetKrw)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Production/AI video/site operation Subscription collection − Excluding refunds and credit packs
+                Legacy production/site operation collection − refunds and credit packs; no conversion from USD
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
                 PG {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · Manual collection{' '}
@@ -196,7 +231,7 @@ export function OverviewDashboard() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-slate-400">Monthly operating goal</p>
+              <p className="text-[11px] text-slate-400">KRW monthly operating goal</p>
               <p className="mt-0.5 text-sm font-semibold tabular-nums text-slate-700">
                 {formatKrw(data.revenue.targetKrw)}
               </p>

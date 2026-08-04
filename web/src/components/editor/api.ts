@@ -15,7 +15,10 @@ import type { CreditLedgerEntry, EditRequest, EditType } from '@/lib/types/domai
 import type { SiteConfig } from '@/lib/types/site';
 import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { PublishedSiteResult } from '@/lib/publish/result';
-import type { PublishPaymentQuote } from '@/lib/billing/publish-payment-contract';
+import type {
+  PublishPaymentConfirmation,
+  PublishPaymentQuote,
+} from '@/lib/billing/publish-payment-contract';
 
 export class EditorApiError extends Error {
   status: number;
@@ -128,7 +131,7 @@ export async function publishSiteRequest(
 export async function confirmPublishPaymentRequest(
   siteId: string,
   quote: PublishPaymentQuote,
-): Promise<{ paid: true; duplicated: boolean; quote: PublishPaymentQuote }> {
+): Promise<PublishPaymentConfirmation> {
   return request(`/api/sites/${encodeURIComponent(siteId)}/publish-payment`, {
     method: 'POST',
     body: JSON.stringify({ quoteId: quote.quoteId }),

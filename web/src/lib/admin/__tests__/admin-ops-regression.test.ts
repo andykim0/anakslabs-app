@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
-import { formatDate, formatDateTime } from '@/components/admin/format';
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatKrw,
+} from '@/components/admin/format';
 
 const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
@@ -194,5 +199,12 @@ describe('ADM5 admin operations construction invariants', () => {
   test('remote admin timestamps are rendered in explicit KST, not the browser timezone', () => {
     assert.equal(formatDate('2026-07-17T00:30:00.000Z'), '2026.07.17');
     assert.equal(formatDateTime('2026-07-17T00:30:00.000Z'), '2026.07.17 09:30 KST');
+  });
+
+  test('admin payment amounts render in their recorded currency', () => {
+    assert.equal(formatCurrency(990, 'USD'), '$990');
+    assert.equal(formatCurrency(-100, 'USD'), '-$100');
+    assert.equal(formatCurrency(990_000, 'KRW'), '₩990,000');
+    assert.equal(formatKrw(990_000), '₩990,000');
   });
 });
