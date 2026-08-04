@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { parse } from 'node-html-parser';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { TenantPageContent } from '@/components/site-renderer';
 import { TenantHeader } from '@/components/site-renderer/TenantHeader';
@@ -195,6 +196,31 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
     assert.equal(us.config.pages.length, 2);
     assert.equal(us.config.meta.locale, 'en-US');
     assert.match(us.config.theme.fonts.heading, /Schibsted Grotesk/iu);
+  });
+
+  test('clinicMaster auto output has one visible source-backed H1', () => {
+    const page = artifactPage('https://clinic.example/');
+    const compiled = compileRobustClinicArtifact({
+      artifact: artifact([page]),
+      documents: [{
+        sourceUrl: page.url,
+        finalUrl: page.url,
+        html: '<main><h1>Source clinic</h1><p>Source treatment information.</p></main>',
+      }],
+      profile: US_MEDICAL_OUTREACH_PROFILE,
+    });
+    const html = renderToStaticMarkup(TenantPageContent({
+      config: compiled.config,
+      pageSlug: '',
+      interactive: true,
+      animate: true,
+    }));
+    const root = parse(html);
+    const h1s = root.querySelectorAll('h1');
+    assert.equal(h1s.length, 1);
+    assert.equal(h1s[0]?.text.trim(), 'Source clinic');
+    assert.equal(root.querySelectorAll('[data-clinic-flow-hero-copy] > h1').length, 1);
+    assert.equal(root.querySelectorAll('[aria-hidden="false"] h1').length, 0);
   });
 
   test('navigation uses source anchors while headline priority rejects document-title residue', () => {

@@ -574,8 +574,13 @@ export function SiteRenderer({
     (rootStyle as Record<string, string | number>)['--m-dur-scale'] = f.durScale;
   }
 
+  // ClinicFlowSection is one responsive DOM tree with its own media queries. The legacy canvas
+  // renderer still needs distinct desktop/mobile projections, but duplicating clinic flow in
+  // auto mode doubles every semantic element and leaves two H1s in the static document.
+  const autoUsesSplitProjection = mode === 'auto' && !config.clinicMaster;
   const showDesktop = mode === 'desktop' || mode === 'auto';
-  const showMobile = mode === 'mobile' || mode === 'auto';
+  const showMobile = mode === 'mobile' || autoUsesSplitProjection;
+  const desktopProjectionClassName = autoUsesSplitProjection ? 'hidden xl:block' : undefined;
   // Structured signature wins over a legacy layout on the same page; persisted legacy IDs remain untouched
   // and continue through SectionCanvas/ScrollytellingStage when no v2 scene is valid.
   const hasScrollytelling = !signatureScene && !!plan && plan.scrollytellingSections.size > 0;
@@ -651,7 +656,7 @@ export function SiteRenderer({
                       data-m-progress
                     >
                       {showDesktop && (
-                        <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+                        <div className={desktopProjectionClassName}>
                           <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                         </div>
                       )}
@@ -690,7 +695,7 @@ export function SiteRenderer({
                 data-m-progress
               >
                 {showDesktop && (
-                  <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+                  <div className={desktopProjectionClassName}>
                     <SectionCanvas
                       section={section}
                       theme={theme}
@@ -743,7 +748,7 @@ export function SiteRenderer({
               {ordinarySections.map((section, index) => (
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
-                    <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+                    <div className={desktopProjectionClassName}>
                       <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                     </div>
                   )}
@@ -765,7 +770,7 @@ export function SiteRenderer({
           )
         ) : null}
         {!signatureScene && !(siteCinematic && scrollytellingSection) && showDesktop && (
-          <div className={mode === 'auto' ? 'hidden xl:block' : undefined}>
+          <div className={desktopProjectionClassName}>
             {siteCinematic ? (
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
