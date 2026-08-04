@@ -10,6 +10,7 @@ import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import { ImportError, parseHtml, readLimitedBytes, safeFetch } from '@/lib/import/extract';
 import { extractSitePalette } from '@/lib/import/extract-palette';
 import { parseMenuItems } from '@/lib/data/content-parse';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 export const runtime = 'nodejs';
 
@@ -39,6 +40,8 @@ const MAX_BYTES = 2_000_000;
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
   if (rateLimited(client.id)) {
     return apiError(429, 'RATE_LIMITED', '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
   }

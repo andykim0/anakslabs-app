@@ -33,7 +33,10 @@ export const GET = withApiHandler(async (request) => {
 
   const nextPath = resolvePostLoginRedirect(data.user, nextParam);
   const res = NextResponse.redirect(new URL(nextPath, origin));
-  // 소셜 로그인 직후 clients row 보장 + 로그인 전 익명 스캔 귀속 (공용 헬퍼 — 이메일 로그인과 공유)
-  await completePostLogin(request, res, data.user);
+  // Operator-issued US accounts must already have an exact clients row bound to this auth id.
+  if (!(await completePostLogin(request, res, data.user))) {
+    await supabase.auth.signOut();
+    return NextResponse.redirect(new URL('/login?error=invite_required', origin));
+  }
   return res;
 });

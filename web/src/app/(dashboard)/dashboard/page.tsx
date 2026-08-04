@@ -17,6 +17,7 @@ import {
 } from '@/components/dashboard/ui';
 import { SITE_BUILD_SLA_COPY } from '@/lib/fulfillment-sla';
 import { aiEditEnabled } from '@/lib/product/flags';
+import { customerLocaleFromSites, operatorManagedForLocale } from '@/lib/operator-model/policy';
 
 export const metadata: Metadata = { title: "My site — Anaks Labs" };
 
@@ -26,10 +27,11 @@ export default async function DashboardHomePage() {
 
   const services = getDataServices();
   const aiEditAvailable = aiEditEnabled();
-  const [sites, editRequests, recentScan] = await Promise.all([
-    services.sites.listByClient(client.id),
+  const sites = await services.sites.listByClient(client.id);
+  const operatorManaged = operatorManagedForLocale(customerLocaleFromSites(sites));
+  const [editRequests, recentScan] = await Promise.all([
     aiEditAvailable ? services.editRequests.listByClient(client.id) : Promise.resolve([]),
-    getRecentScan(),
+    operatorManaged ? Promise.resolve(null) : getRecentScan(),
   ]);
 
   const inProgressCount = editRequests.filter((r) =>
@@ -45,14 +47,14 @@ export default async function DashboardHomePage() {
       <PageHeader
         title={`Welcome, ${client.name}`}
         description={`Check site status and editing progress at a glance. ${SITE_BUILD_SLA_COPY}`}
-        actions={
+        actions={!operatorManaged ? (
           <Link
             href="/onboarding"
             className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
           >
             <Plus className="h-4 w-4" />Create a new site
           </Link>
-        }
+        ) : undefined}
       />
 
       {/* [v3 Phase 7] 스캔→재생성 전환 배너 */}
@@ -97,40 +99,44 @@ export default async function DashboardHomePage() {
       </div>
 
       {/* 사이트 목록 */}
-      {aiEditAvailable ? <section className="mt-8">
+      <section className="mt-8">
         <h2 className="mb-3 text-sm font-semibold text-neutral-300">my site</h2>
         {sites.length === 0 ? (
           <EmptyState
             icon={<Globe className="h-8 w-8" />}
             title="There is no site yet"
-            description="If you answer the survey, AI will suggest three design candidates and create a site in the direction you chose."
-            action={
+            description={operatorManaged
+              ? 'Your Anaks Labs operator is preparing the site for this workspace.'
+              : 'Complete onboarding to create your site.'}
+            action={!operatorManaged ? (
               <Link
                 href="/onboarding"
                 className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
               >
                 <Plus className="h-4 w-4" />Create your first site
               </Link>
-            }
+            ) : undefined}
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {sites.map((site) => (
               <SiteCard key={site.id} site={site} />
             ))}
-            <Link
-              href="/onboarding"
-              className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 text-neutral-500 transition-colors hover:border-[#4a3a22] hover:text-[#c8a96a]"
-            >
-              <Plus className="h-6 w-6" />
-              <span className="text-sm">Create a new site</span>
-            </Link>
+            {!operatorManaged ? (
+              <Link
+                href="/onboarding"
+                className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 text-neutral-500 transition-colors hover:border-[#4a3a22] hover:text-[#c8a96a]"
+              >
+                <Plus className="h-6 w-6" />
+                <span className="text-sm">Create a new site</span>
+              </Link>
+            ) : null}
           </div>
         )}
-      </section> : null}
+      </section>
 
       {/* 최근 편집 요청 */}
-      <section className="mt-8">
+      {aiEditAvailable ? <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-300">Recent Edit Requests</h2>
           <Link href="/dashboard/credits" className="text-xs text-neutral-500 transition-colors hover:text-[#c8a96a]">
@@ -161,7 +167,7 @@ export default async function DashboardHomePage() {
             </ul>
           </Card>
         )}
-      </section>
+      </section> : null}
     </div>
   );
 }

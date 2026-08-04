@@ -13,6 +13,7 @@ import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { createSupabaseRouteClient } from '../../_lib/supabase';
 import { completePostLogin } from '../../_lib/post-login';
+import { OPERATOR_PRODUCT_LOCALE, selfSignupAllowedForLocale } from '@/lib/operator-model/policy';
 
 // 남용 방어: IP 분당 10회 (임시 경로지만 brute-force 완화 — /api/scan·/api/forms 와 동일 패턴)
 const RL_LIMIT = 10;
@@ -81,6 +82,10 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   if (!body.ok) return body.res;
   const { email, password, mode, next, name, phone, marketingEmail } = body.data;
 
+  if (mode === 'signup' && !selfSignupAllowedForLocale(OPERATOR_PRODUCT_LOCALE)) {
+    return apiError(403, 'INVITE_REQUIRED', 'Accounts are issued by Anaks Labs. Use your invitation to sign in.');
+  }
+
   const supabase = await createSupabaseRouteClient();
   // 가입: 이름·전화는 auth user_metadata 로 보관, 이메일 확인 링크는 기존 OAuth 콜백으로 착지시켜
   // 세션 성립 → clients 보장(completePostLogin)까지 같은 경로를 태운다(2차 인증 = 이메일 확인).
@@ -126,6 +131,9 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   const redirect = resolvePostLoginRedirect(result.data.user, next);
   const res = NextResponse.json({ ok: true, redirect });
   // 세션 성립 후에만: clients row 보장 + 로그인 전 익명 스캔 귀속 (OAuth 콜백과 동일 공용 헬퍼)
-  await completePostLogin(request, res, result.data.user);
+  if (!(await completePostLogin(request, res, result.data.user))) {
+    await supabase.auth.signOut();
+    return apiError(403, 'INVITE_REQUIRED', 'This account has not been issued by Anaks Labs.');
+  }
   return res;
 });

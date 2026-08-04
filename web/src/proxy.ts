@@ -9,11 +9,21 @@
  * 보안: x-forwarded-host는 신뢰하지 않는다 — `headers.get('host')`만 사용.
  */
 import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import {
   APP_ENTRY_SUBDOMAIN,
+  env,
+  isMockMode,
   ROOT_DOMAIN,
   reservedAppSubdomainForHostname,
 } from '@/lib/env';
+import {
+  customerLocaleFromSites,
+  customerWorkspaceItemsForLocale,
+  onboardingAllowedForLocale,
+  operatorManagedForLocale,
+  OPERATOR_PRODUCT_LOCALE,
+} from '@/lib/operator-model/policy';
 
 /** 앱(대시보드) 자체를 서빙하는 호스트네임 — 테넌트 rewrite 제외 */
 const APP_HOSTNAMES = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
@@ -27,6 +37,142 @@ function isAppHost(hostname: string): boolean {
     hostname === `www.${ROOT_DOMAIN}` ||
     reservedAppSubdomainForHostname(hostname) !== null
   );
+}
+
+const DASHBOARD_SITE_PATH_RE = /^\/dashboard\/sites\/([^/]+)(?:\/|$)/u;
+type OperatorHiddenRoute = 'billing' | 'credits' | 'onboarding';
+
+function operatorHiddenRoute(pathname: string): OperatorHiddenRoute | null {
+  if (/^\/dashboard\/billing\/?$/u.test(pathname)) return 'billing';
+  if (/^\/dashboard\/credits\/?$/u.test(pathname)) return 'credits';
+  if (/^\/onboarding\/?$/u.test(pathname)) return 'onboarding';
+  return null;
+}
+
+function dashboardSiteId(pathname: string): string | null {
+  const encoded = DASHBOARD_SITE_PATH_RE.exec(pathname)?.[1];
+  if (!encoded) return null;
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return null;
+  }
+}
+
+function resourceNotFound(): NextResponse {
+  return new NextResponse('Not found.', {
+    status: 404,
+    headers: { 'cache-control': 'private, no-store' },
+  });
+}
+
+/**
+ * Next 16 can begin a parent layout stream before a page-level notFound() resolves, which
+ * correctly hides the site but leaves the HTTP status at 200. Resolve this exact resource
+ * boundary before React starts streaming. The authenticated query is RLS-scoped to the caller;
+ * a foreign and a missing id deliberately produce the same 404 response.
+ */
+async function guardDashboardSite(request: NextRequest, siteId: string): Promise<NextResponse> {
+  if (isMockMode()) {
+    const session = request.cookies.get('anaks_mock_session')?.value;
+    if (!session) return NextResponse.next();
+    const { getMockStore } = await import('@/lib/data/mock/store');
+    const site = getMockStore().sites.get(siteId);
+    return site?.clientId === session ? NextResponse.next() : resourceNotFound();
+  }
+
+  if (!env.supabaseUrl || !env.supabaseAnonKey) {
+    return new NextResponse('Site access verification unavailable.', { status: 503 });
+  }
+  const passthrough = NextResponse.next();
+  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          passthrough.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) {
+    return new NextResponse('Authentication required.', { status: 401 });
+  }
+  const { data: site, error: siteError } = await supabase
+    .from('sites')
+    .select('id')
+    .eq('id', siteId)
+    .maybeSingle();
+  if (siteError) {
+    return new NextResponse('Site access verification unavailable.', { status: 503 });
+  }
+  return site ? passthrough : resourceNotFound();
+}
+
+function operatorHiddenRouteResponse(
+  request: NextRequest,
+  route: OperatorHiddenRoute,
+): NextResponse {
+  return route === 'onboarding'
+    ? NextResponse.redirect(new URL('/dashboard', request.url))
+    : resourceNotFound();
+}
+
+function routeAllowedForLocale(route: OperatorHiddenRoute, locale: string): boolean {
+  return route === 'onboarding'
+    ? onboardingAllowedForLocale(locale)
+    : customerWorkspaceItemsForLocale(locale).includes(route);
+}
+
+/** Resolve hidden customer surfaces before the dashboard layout starts a 200 stream. */
+async function guardOperatorHiddenRoute(
+  request: NextRequest,
+  route: OperatorHiddenRoute,
+): Promise<NextResponse> {
+  if (isMockMode()) {
+    const session = request.cookies.get('anaks_mock_session')?.value;
+    if (!session) return NextResponse.next();
+    const { getMockStore } = await import('@/lib/data/mock/store');
+    const sites = [...getMockStore().sites.values()].filter((site) => site.clientId === session);
+    const locale = customerLocaleFromSites(sites);
+    return routeAllowedForLocale(route, locale)
+      ? NextResponse.next()
+      : operatorHiddenRouteResponse(request, route);
+  }
+
+  if (!env.supabaseUrl || !env.supabaseAnonKey) {
+    return new NextResponse('Workspace access verification unavailable.', { status: 503 });
+  }
+  const passthrough = NextResponse.next();
+  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          passthrough.cookies.set(name, value, options);
+        }
+      },
+    },
+  });
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) return NextResponse.next();
+  const { data: rows, error: siteError } = await supabase
+    .from('sites')
+    .select('draft_config,site_config')
+    .eq('client_id', auth.user.id);
+  if (siteError) {
+    return new NextResponse('Workspace access verification unavailable.', { status: 503 });
+  }
+  const locale = rows.flatMap((row) => {
+    const draftLocale = row.draft_config?.meta?.locale;
+    const liveLocale = row.site_config?.meta?.locale;
+    return [draftLocale, liveLocale].filter((value): value is string => typeof value === 'string');
+  })[0] ?? OPERATOR_PRODUCT_LOCALE;
+  if (!operatorManagedForLocale(locale) || routeAllowedForLocale(route, locale)) {
+    return passthrough;
+  }
+  return operatorHiddenRouteResponse(request, route);
 }
 
 export function proxy(request: NextRequest) {
@@ -43,6 +189,10 @@ export function proxy(request: NextRequest) {
   }
 
   if (isAppHost(hostname)) {
+    const siteId = dashboardSiteId(request.nextUrl.pathname);
+    if (siteId) return guardDashboardSite(request, siteId);
+    const hiddenRoute = operatorHiddenRoute(request.nextUrl.pathname);
+    if (hiddenRoute) return guardOperatorHiddenRoute(request, hiddenRoute);
     return NextResponse.next();
   }
 

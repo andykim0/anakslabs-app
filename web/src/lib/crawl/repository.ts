@@ -111,6 +111,28 @@ export async function getCrawlArtifact(id: string): Promise<CrawlArtifactRecord 
   return data ? rowToRecord(data as CrawlArtifactRow) : null;
 }
 
+/** Operator rebuild lookup. Exact normalized seed URL only; no discovery crawl is triggered here. */
+export async function getLatestCrawlArtifactBySeedUrl(
+  seedUrl: string,
+): Promise<CrawlArtifactRecord | null> {
+  const normalized = new URL(seedUrl).toString();
+  if (isMockMode()) {
+    return [...mockArtifacts().values()]
+      .filter((record) => record.seedUrl === normalized)
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+      .map((record) => structuredClone(record))[0] ?? null;
+  }
+  const { data, error } = await getServiceRoleClient()
+    .from('crawl_artifacts')
+    .select('*')
+    .eq('seed_url', normalized)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(`crawl artifact seed lookup failed: ${error.message}`);
+  return data ? rowToRecord(data as CrawlArtifactRow) : null;
+}
+
 interface SharedSitePreviewRow {
   id: string;
   crawl_artifact_id: string;

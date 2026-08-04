@@ -27,6 +27,7 @@ import {
   SITE_STATUS_TONES,
   TIER_TONES,
 } from './ui';
+import { OperatorSiteCreateForm } from './operator-client-actions';
 
 /** 고객 행 클릭 시 우측에 뜨는 상세 패널. */
 export function ClientDetailPanel({
@@ -120,6 +121,8 @@ export function ClientDetailPanel({
             </div>
 
             <ClientEditControls key={data.client.id} client={data.client} />
+
+            <OperatorSiteCreateForm clientId={data.client.id} disabled={data.sites.length > 0} />
 
             <PanelSection title={`site (${data.sites.length})`}>
               {data.sites.length === 0 ? (

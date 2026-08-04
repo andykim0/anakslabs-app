@@ -16,6 +16,7 @@ import type { User } from '@supabase/supabase-js';
 import type { AuthProvider, Client } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { env, isMockMode } from '@/lib/env';
+import { OPERATOR_PRODUCT_LOCALE, operatorManagedForLocale } from '@/lib/operator-model/policy';
 // 쿠키 이름/값 계약의 단일 정의처 (guards ↔ auth 순환 import는 상수/함수 참조뿐이라 안전)
 import { MOCK_CLIENT_IDS, MOCK_SESSION_COOKIE } from '@/app/api/_lib/guards';
 
@@ -81,7 +82,12 @@ export async function getCurrentClient(): Promise<Client | null> {
     user.email?.split('@')[0] ||
     '고객';
 
-  return getDataServices().clients.upsertFromAuth({
+  const clients = getDataServices().clients;
+  if (operatorManagedForLocale(OPERATOR_PRODUCT_LOCALE)) {
+    // US customer rows are issued by an operator and are never created as a login side effect.
+    return clients.getById(user.id);
+  }
+  return clients.upsertFromAuth({
     id: user.id,
     name,
     email: user.email ?? '',

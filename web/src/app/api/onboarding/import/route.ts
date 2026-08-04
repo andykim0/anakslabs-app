@@ -23,6 +23,7 @@ import {
 import { findForbiddenClientAssetClaim } from '@/lib/uploads/client-provenance-claims';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { projectAssetImportResponse } from '@/lib/assets/compatibility';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 export const runtime = 'nodejs';
 
@@ -62,6 +63,8 @@ const bodySchema = z
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
   // Invalid rollout dependencies fail before rate mutation or external work.
   const provenance = assetProvenanceConfig();
   if (rateLimited(client.id)) {

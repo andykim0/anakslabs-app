@@ -13,6 +13,7 @@ import type { User } from '@supabase/supabase-js';
 import type { AuthProvider } from '@/lib/types/domain';
 import { getDataServices } from '@/lib/data';
 import { claimPendingScan } from './scan-claim';
+import { OPERATOR_PRODUCT_LOCALE, operatorManagedForLocale } from '@/lib/operator-model/policy';
 
 export function resolveAuthProvider(provider: unknown): AuthProvider {
   return provider === 'google' ? provider : 'email';
@@ -23,7 +24,9 @@ export async function completePostLogin(
   request: NextRequest,
   res: NextResponse,
   user: User,
-): Promise<void> {
+): Promise<boolean> {
+  // Internal operators authenticate through the same callback but never receive a clients row.
+  if (user.app_metadata?.role === 'admin') return true;
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const name =
     (typeof meta.name === 'string' && meta.name) ||
@@ -31,12 +34,19 @@ export async function completePostLogin(
     user.email?.split('@')[0] ||
     '고객';
 
-  await getDataServices().clients.upsertFromAuth({
-    id: user.id,
-    name,
-    email: user.email ?? '',
-    authProvider: resolveAuthProvider(user.app_metadata?.provider),
-  });
+  const clients = getDataServices().clients;
+  if (operatorManagedForLocale(OPERATOR_PRODUCT_LOCALE)) {
+    // Fail closed: an authenticated user is a customer only after the operator bound this auth id.
+    if (!(await clients.getById(user.id))) return false;
+  } else {
+    await clients.upsertFromAuth({
+      id: user.id,
+      name,
+      email: user.email ?? '',
+      authProvider: resolveAuthProvider(user.app_metadata?.provider),
+    });
+  }
 
   await claimPendingScan(request, res, user.id);
+  return true;
 }

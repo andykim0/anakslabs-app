@@ -8,6 +8,7 @@ import { NextResponse } from 'next/server';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import { menuOcrConfig } from '@/lib/env';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,8 @@ const bodySchema = z.object({
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
 
   const cfg = menuOcrConfig();
   void cfg.enabled;

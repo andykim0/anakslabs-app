@@ -6,6 +6,7 @@ import type { SurveyInput } from '@/lib/types/domain';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { getAuthedClient, unauthorized } from '../../_lib/guards';
 import { surveySchema } from '../../_lib/schemas';
+import { operatorManagedOnboardingApiGate } from '../_lib/operator-gate';
 
 export const runtime = 'nodejs';
 
@@ -30,6 +31,8 @@ const bodySchema = z.object({ survey: surveySchema }).strict();
 export const POST = withApiHandler(async (request) => {
   const client = await getAuthedClient();
   if (!client) return unauthorized();
+  const operatorGate = operatorManagedOnboardingApiGate();
+  if (operatorGate) return operatorGate;
   if (!limiter().allow(client.id)) {
     return apiError(429, 'RATE_LIMITED', '입력이 빠르게 바뀌고 있어요. 잠시 뒤 다시 확인해 주세요.');
   }
@@ -45,4 +48,3 @@ export const POST = withApiHandler(async (request) => {
     nudges: result.nudges,
   });
 });
-
