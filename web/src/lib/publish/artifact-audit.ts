@@ -563,15 +563,43 @@ function nodeTypes(node: Record<string, unknown>): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
-function expectedSchemaTypes(config: SiteConfig, page: SitePage): string[] {
+function expectedSchemaTypes(
+  config: SiteConfig,
+  page: SitePage,
+  hasBaseUrl: boolean,
+): string[] {
   const spec = schemaSpecFor(config.meta.purposeId);
   if (spec) {
     const { orgType } = spec;
+    // Keep this contract independent from buildJsonLd/organizationTypeFor. The audit must
+    // still fail when the emitter drops a required type.
+    const localPurpose =
+      config.meta.purposeId === 'local_store' ||
+      config.meta.purposeId === 'booking_service' ||
+      config.meta.purposeId === 'edu_membership' ||
+      (config.meta.purposeId === 'company_brand' &&
+        ['legal', 'remodeling'].includes(config.meta.industryClass ?? '')) ||
+      config.meta.industryId === 'interior' ||
+      config.meta.industryId === 'clinic';
+    const medicalClinic = localPurpose && (
+      config.meta.industryId === 'clinic' || config.meta.industryClass === 'medical'
+    );
+    // This predicate intentionally matches jsonld.ts byte-for-byte. It exempts only the
+    // verified US delivery contract from synthetic purpose extras such as "{name} services".
+    const isUsEnglish = config.meta.locale === 'en-US'
+      && config.meta.market === 'US-CA'
+      && config.meta.jurisdiction === 'US';
+    const navigation = hasBaseUrl
+      && page.slug === ''
+      && config.nav?.enabled !== false
+      && config.pages.filter((candidate) => candidate.showInNav !== false).length >= 2;
     return [
       ...(typeof orgType === 'string' ? [orgType] : [...orgType]),
+      ...(medicalClinic ? ['MedicalClinic'] : []),
       'WebPage',
-      ...(page.slug === '' ? (spec.extra ?? []) : []),
+      ...(page.slug === '' && !isUsEnglish ? (spec.extra ?? []) : []),
       ...(page.slug === '' && spec.profilePage ? ['ProfilePage'] : []),
+      ...(navigation ? ['SiteNavigationElement'] : []),
     ];
   }
   const hasMenu = config.pages.some((page) => page.sections.some((section) => section.type === 'menu'));
@@ -608,12 +636,15 @@ function auditSchema(
     push(blockers, 'schema_context', `${pageLabel(page)}의 구조화 데이터 schema.org 문맥이 올바르지 않습니다.`, { pageSlug: page.slug });
   }
   const types = new Set(nodes.flatMap(nodeTypes));
-  const expected = expectedSchemaTypes(config, page);
-  if (!types.has('WebSite') || expected.some((type) => !types.has(type))) {
+  const hasBaseUrl = Boolean(
+    root.querySelector('link[rel="canonical"]')?.getAttribute('href')?.trim(),
+  );
+  const expected = ['WebSite', ...expectedSchemaTypes(config, page, hasBaseUrl)];
+  if (expected.some((type) => !types.has(type))) {
     push(
       blockers,
       'schema_type',
-      `${pageLabel(page)}의 목적별 구조화 데이터 타입(WebSite·${expected.join('·')})이 없습니다.`,
+      `${pageLabel(page)}의 목적별 구조화 데이터 타입(${expected.join('·')})이 없습니다.`,
       { pageSlug: page.slug },
     );
   }
