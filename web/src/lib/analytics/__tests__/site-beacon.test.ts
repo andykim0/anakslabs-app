@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
@@ -16,6 +18,48 @@ import { TenantPageContent } from '@/components/site-renderer/TenantPageContent'
 import { emptySiteConfig } from '@/lib/types/site';
 import { isRecognizedReservationUrl } from '@/lib/analytics/trackable-actions';
 import { isRecognizedChatUrl } from '@/lib/analytics/trackable-actions';
+
+async function executeBeaconClicks(
+  runtime: string,
+  hrefs: readonly string[],
+  pageHref = 'https://clinic.example.com/',
+): Promise<string[]> {
+  const listeners = new Map<string, (event: unknown) => void>();
+  const events: string[] = [];
+  const document = {
+    referrer: '',
+    readyState: 'complete',
+    addEventListener(type: string, listener: (event: unknown) => void) {
+      listeners.set(type, listener);
+    },
+  };
+  const fetch = (_endpoint: string, init: { body?: string }) => {
+    events.push(JSON.parse(String(init.body)).event as string);
+    return Promise.resolve({ ok: true });
+  };
+  runInNewContext(runtime, {
+    Blob,
+    URL,
+    crypto: { randomUUID: () => '00000000-0000-4000-8000-000000000000' },
+    document,
+    fetch,
+    location: new URL(pageHref),
+    navigator: { sendBeacon: () => false },
+    setTimeout,
+  });
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  const click = listeners.get('click');
+  assert.ok(click, 'click listener must be installed after DOM readiness');
+  for (const href of hrefs) {
+    click({
+      target: {
+        closest: () => ({ getAttribute: (name: string) => (name === 'href' ? href : null) }),
+      },
+    });
+  }
+  await Promise.resolve();
+  return events;
+}
 
 describe('RPT1 — aggregate-only first-party site beacon', () => {
   test('raw referrer는 브라우저에서 유한 source enum으로만 분류한다', () => {
@@ -73,6 +117,122 @@ describe('RPT1 — aggregate-only first-party site beacon', () => {
     assert.doesNotMatch(runtime, /localStorage|sessionStorage|visitorId|sessionId/);
   });
 
+  test('KR runtime은 기존 호스팅·Export 바이트와 SHA를 그대로 유지한다', () => {
+    const siteId = '2f9c0aa0-08e7-4ce5-a0b0-123456789abc';
+    const hosted = buildSiteBeaconRuntime({ siteId, endpoint: '/api/site-events' });
+    const exported = buildSiteBeaconRuntime({
+      siteId,
+      endpoint: 'https://anakslabs.com/api/site-events',
+    });
+    assert.deepEqual(
+      {
+        bytes: Buffer.byteLength(hosted, 'utf8'),
+        sha256: createHash('sha256').update(hosted).digest('hex'),
+      },
+      {
+        bytes: 1_915,
+        sha256: '35bd1027006085ae4e989a20a3df71f12791e5e1331136278dbbd5a6c91bf9e1',
+      },
+    );
+    assert.deepEqual(
+      {
+        bytes: Buffer.byteLength(exported, 'utf8'),
+        sha256: createHash('sha256').update(exported).digest('hex'),
+      },
+      {
+        bytes: 1_936,
+        sha256: '62b5f2b609e32ebcf4cc86dc7a0689cd5bccf43b0a1ff27fcdd93b5c32ae324e',
+      },
+    );
+  });
+
+  test('US runtime은 선언된 booking 경계만 reserve로 세고 내부 링크·앵커를 버린다', async () => {
+    const runtime = buildSiteBeaconRuntime({
+      siteId: 'us_clinic',
+      locale: 'en-US',
+      bookingHref: 'https://booking.example.com/appointments?declared=ignored',
+    });
+    const events = await executeBeaconClicks(runtime, [
+      'https://booking.example.com/appointments?campaign=summer',
+      'https://booking.example.com/appointments/provider/7',
+      'https://booking.example.com/appointments-other',
+      'https://other.example.com/appointments',
+      'tel:+13105550199',
+      '/appointments',
+      '#contact',
+    ]);
+    assert.deepEqual(events, ['pageview', 'reserve', 'reserve', 'tel']);
+    assert.ok(Buffer.byteLength(runtime, 'utf8') <= SITE_BEACON_MAX_BYTES);
+    assert.doesNotMatch(runtime, /booking\.naver|place\.naver|pf\.kakao|map\.naver|map\.kakao/u);
+  });
+
+  test('US runtime은 booking 선언이 없어도 tel·Google directions·Instagram만 정상 계상한다', async () => {
+    const runtime = buildSiteBeaconRuntime({ siteId: 'us_without_booking', locale: 'en-US' });
+    assert.deepEqual(
+      await executeBeaconClicks(runtime, [
+        'tel:+13105550199',
+        'https://maps.google.com/?q=Los+Angeles',
+        'https://maps.app.goo.gl/example',
+        'https://instagram.com/example-clinic',
+        'https://booking.naver.com/booking/1',
+      ]),
+      ['pageview', 'tel', 'directions', 'directions', 'instagram'],
+    );
+  });
+
+  test('US booking 자체 origin과 root·200자 초과 선언은 매칭만 비활성하고 렌더는 유지한다', async () => {
+    const sameOrigin = buildSiteBeaconRuntime({
+      siteId: 'same_origin',
+      locale: 'en-US',
+      bookingHref: 'https://clinic.example.com/appointments',
+    });
+    assert.deepEqual(
+      await executeBeaconClicks(sameOrigin, ['/appointments', '#contact']),
+      ['pageview'],
+    );
+
+    const root = buildSiteBeaconRuntime({
+      siteId: 'root_booking',
+      locale: 'en-US',
+      bookingHref: 'https://booking.example.com/',
+    });
+    assert.deepEqual(
+      await executeBeaconClicks(root, ['https://booking.example.com/anything']),
+      ['pageview'],
+    );
+
+    const origin = 'https://booking.example.com';
+    const maxLength = `${origin}/${'a'.repeat(200 - origin.length - 1)}`;
+    assert.equal(`${new URL(maxLength).origin}${new URL(maxLength).pathname}`.length, 200);
+    for (const endpoint of ['/api/site-events', 'https://anakslabs.com/api/site-events']) {
+      const atLimit = buildSiteBeaconRuntime({
+        siteId: '2f9c0aa0-08e7-4ce5-a0b0-123456789abc',
+        endpoint,
+        locale: 'en-US',
+        bookingHref: maxLength,
+      });
+      assert.ok(Buffer.byteLength(atLimit, 'utf8') <= SITE_BEACON_MAX_BYTES);
+      assert.deepEqual(await executeBeaconClicks(atLimit, [maxLength]), ['pageview', 'reserve']);
+    }
+    const acceptedInputCeiling = buildSiteBeaconRuntime({
+      siteId: 's'.repeat(80),
+      endpoint: 'https://anakslabs.com/api/site-events',
+      locale: 'en-US',
+      bookingHref: maxLength,
+    });
+    assert.ok(Buffer.byteLength(acceptedInputCeiling, 'utf8') <= SITE_BEACON_MAX_BYTES);
+
+    const tooLong = `${maxLength}a`;
+    assert.equal(`${new URL(tooLong).origin}${new URL(tooLong).pathname}`.length, 201);
+    const oversizedTarget = buildSiteBeaconRuntime({
+      siteId: 'long_booking',
+      locale: 'en-US',
+      bookingHref: tooLong,
+    });
+    assert.ok(Buffer.byteLength(oversizedTarget, 'utf8') <= SITE_BEACON_MAX_BYTES);
+    assert.deepEqual(await executeBeaconClicks(oversizedTarget, [tooLong]), ['pageview']);
+  });
+
   test('endpoint와 public site id를 fail-closed 검증하고 ZIP endpoint는 절대 URL이다', () => {
     assert.equal(absoluteSiteEventEndpoint('anakslabs.com'), 'https://anakslabs.com/api/site-events');
     assert.equal(absoluteSiteEventEndpoint('localhost:3000'), 'http://localhost:3000/api/site-events');
@@ -124,6 +284,17 @@ describe('RPT1 — aggregate-only first-party site beacon', () => {
     assert.doesNotMatch(withBeacon, /<script[^>]+src=/i);
     assert.doesNotMatch(withoutBeacon, /data-daboim-site-beacon/);
     assert.doesNotMatch(withoutDisclosure, /data-daboim-site-beacon/);
+
+    const us = structuredClone(config);
+    us.meta.locale = 'en-US';
+    const usFailClosed = renderToStaticMarkup(createElement(TenantPageContent, {
+      config: us,
+      pageSlug: '',
+      siteId: 'us_site',
+      interactive: true,
+      animate: true,
+    }));
+    assert.doesNotMatch(usFailClosed, /data-daboim-site-beacon/);
   });
 
   test('성공 폼 seam은 detail 없는 단일 CustomEvent만 내보내고 실패를 전파하지 않는다', () => {
