@@ -31,7 +31,7 @@ export function HumanPublishChecklist({
             type="checkbox"
             checked={value[id]}
             onChange={(event) => onChange(id, event.target.checked)}
-            className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#2D63F0]"
           />
           <span className="text-xs leading-5 text-ob-ink">
             {index + 1}. {label}

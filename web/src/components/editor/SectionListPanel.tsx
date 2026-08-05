@@ -36,18 +36,18 @@ export function SectionListPanel() {
   };
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-[#DCE4F0] bg-[#F8FBFF]">
+    <aside className="flex w-60 shrink-0 flex-col border-r border-[#DFE1E6] bg-[#F6F7F9]">
       {/* [v4 Phase 2] 페이지 목록 (선택 페이지 = 편집 스코프) */}
       <PageListPanel />
-      <div className="flex items-center gap-2 border-b border-[#DCE4F0] px-4 py-3">
-        <Layers className="h-3.5 w-3.5 text-[#667085]" />
+      <div className="flex items-center gap-2 border-b border-[#DFE1E6] px-4 py-3">
+        <Layers className="h-3.5 w-3.5 text-[#6a7286]" />
         <span className="text-xs font-semibold text-[#344054]">section</span>
-        <span className="text-[11px] text-[#667085] tabular-nums">{sections.length}</span>
+        <span className="text-[11px] text-[#6a7286] tabular-nums">{sections.length}</span>
       </div>
 
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-2">
         {sections.length === 0 ? (
-          <p className="px-2 py-6 text-center text-[11px] leading-5 text-[#667085]">
+          <p className="px-2 py-6 text-center text-[11px] leading-5 text-[#6a7286]">
             There are no sections.
             <br />
             Add yours below.
@@ -62,8 +62,8 @@ export function SectionListPanel() {
               className={cn(
                 'group rounded-lg border px-2.5 py-2 transition-colors',
                 active
-                  ? 'border-[#9DB7EB] bg-[#EDF4FF]/60'
-                  : 'border-transparent hover:border-[#DCE4F0] hover:bg-white',
+                  ? 'border-[#9DB7EB] bg-[#EAEFFE]/60'
+                  : 'border-transparent hover:border-[#DFE1E6] hover:bg-white',
               )}
             >
               <button
@@ -74,7 +74,7 @@ export function SectionListPanel() {
                 <span
                   className={cn(
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold tabular-nums',
-                    active ? 'bg-[#174DDA] text-white' : 'bg-[#E8EDF5] text-[#5F6B7C]',
+                    active ? 'bg-[#2D63F0] text-white' : 'bg-[#E8EDF5] text-[#545C70]',
                   )}
                 >
                   {idx + 1}
@@ -83,17 +83,17 @@ export function SectionListPanel() {
                   <span
                     className={cn(
                       'block truncate text-xs font-medium',
-                      active ? 'text-[#0B1736]' : 'text-[#344054]',
+                      active ? 'text-[#141A3A]' : 'text-[#344054]',
                       section.hidden && 'line-through opacity-60',
                     )}
                   >
                     {section.name}
                   </span>
-                  <span className="block text-[10px] text-[#667085]">
+                  <span className="block text-[10px] text-[#6a7286]">
                     {SECTION_TYPE_LABELS[section.type]} · Element {section.elements.length} items
                   </span>
                 </span>
-                {section.hidden ? <EyeOff className="h-3 w-3 shrink-0 text-[#667085]" /> : null}
+                {section.hidden ? <EyeOff className="h-3 w-3 shrink-0 text-[#6a7286]" /> : null}
               </button>
 
               <div className="mt-1.5 hidden items-center gap-0.5 group-hover:flex">
@@ -138,14 +138,14 @@ export function SectionListPanel() {
         })}
       </div>
 
-      <div className="space-y-2 border-t border-[#DCE4F0] p-2">
+      <div className="space-y-2 border-t border-[#DFE1E6] p-2">
         <DropMenu
           className="w-full"
           menuClassName="bottom-full top-auto mb-1 w-full"
           trigger={
             <button
               type="button"
-              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-[#CAD5E5] text-xs font-medium text-[#26354D] transition-colors hover:border-[#AEBACC] hover:bg-white"
+              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-[#D9DAE0] text-xs font-medium text-[#232C52] transition-colors hover:border-[#AEBACC] hover:bg-white"
             >
               <Plus className="h-3.5 w-3.5" /> Add section
             </button>
@@ -169,8 +169,8 @@ export function SectionListPanel() {
           className={cn(
             'flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border text-xs font-medium transition-colors',
             businessInfo
-              ? 'border-[#CAD5E5] text-[#26354D] hover:border-[#AEBACC] hover:bg-white'
-              : 'border-[#9DB7EB] bg-[#EDF4FF]/60 text-[#174DDA] hover:border-[#7EA2EA]',
+              ? 'border-[#D9DAE0] text-[#232C52] hover:border-[#AEBACC] hover:bg-white'
+              : 'border-[#9DB7EB] bg-[#EAEFFE]/60 text-[#2D63F0] hover:border-[#7EA2EA]',
           )}
         >
           <Building2 className="h-3.5 w-3.5" />
@@ -191,7 +191,7 @@ export function SectionListPanel() {
             <button
               type="button"
               onClick={() => setBizModalOpen(false)}
-              className="inline-flex h-9 items-center rounded-lg border border-[#CAD5E5] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
+              className="inline-flex h-9 items-center rounded-lg border border-[#D9DAE0] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
             >
               Cancel
             </button>
@@ -222,8 +222,8 @@ function PanelIconButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'flex h-6 w-6 items-center justify-center rounded text-[#5F6B7C] transition-colors disabled:opacity-30',
-        danger ? 'hover:bg-red-50 hover:text-red-700' : 'hover:bg-[#E8EDF5] hover:text-[#0B1736]',
+        'flex h-6 w-6 items-center justify-center rounded text-[#545C70] transition-colors disabled:opacity-30',
+        danger ? 'hover:bg-red-50 hover:text-red-700' : 'hover:bg-[#E8EDF5] hover:text-[#141A3A]',
       )}
     >
       {children}

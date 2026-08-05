@@ -157,7 +157,7 @@ export function surveyForEarlySitePlan(values: SurveyForm): SurveyInput {
     businessName: values.businessName.trim() || "business name",
     industry: values.industry.trim(),
     tone: values.tone.length ? values.tone : ["tranquil"],
-    colorPreference: colors.colorPreference || '#174DDA',
+    colorPreference: colors.colorPreference || '#2D63F0',
     secondaryColor: colors.secondaryColor,
     referenceImageUrls: [],
     existingPresence: values.existingPresence.length ? values.existingPresence : undefined,

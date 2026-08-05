@@ -25,7 +25,7 @@ interface FormValues {
 }
 
 const inputClass =
-  'h-9 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-[#174DDA]';
+  'h-9 w-full rounded-lg border border-[#D9DAE0] bg-white px-3 text-sm text-[#141A3A] outline-none transition-colors placeholder:text-[#6a7286] focus:border-[#2D63F0]';
 
 function Field({
   label,
@@ -41,7 +41,7 @@ function Field({
   return (
     <div className={span2 ? 'sm:col-span-2' : undefined}>
       <div className="mb-1 flex items-baseline justify-between gap-2">
-        <span className="text-[11px] text-[#667085]">{label}</span>
+        <span className="text-[11px] text-[#6a7286]">{label}</span>
         {error ? <span className="text-[11px] text-red-400">{error}</span> : null}
       </div>
       {children}
@@ -119,23 +119,23 @@ export function BusinessInfoForm({
         onClick={() => setValue('isPersonal', !isPersonal, { shouldValidate: true })}
         className={cn(
           'flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition-colors',
-          isPersonal ? 'border-[#174DDA] bg-[#EDF4FF]' : 'border-[#CAD5E5] hover:border-[#AEBACC]',
+          isPersonal ? 'border-[#2D63F0] bg-[#EAEFFE]' : 'border-[#D9DAE0] hover:border-[#AEBACC]',
         )}
       >
         <span>
-          <span className={cn('block text-xs font-medium', isPersonal ? 'text-[#174DDA]' : 'text-[#344054]')}>
+          <span className={cn('block text-xs font-medium', isPersonal ? 'text-[#2D63F0]' : 'text-[#344054]')}>
             This is a personal site, not a business.
           </span>
-          <span className="mt-0.5 block text-[10px] text-[#667085]">
+          <span className="mt-0.5 block text-[10px] text-[#6a7286]">
             If it is a private operation, you only need to enter the operator name and contact information.
           </span>
         </span>
         <span
           role="switch"
           aria-checked={isPersonal}
-          className={cn('relative h-5 w-9 shrink-0 rounded-full transition-colors', isPersonal ? 'bg-[#174DDA]' : 'bg-[#DCE4F0]')}
+          className={cn('relative h-5 w-9 shrink-0 rounded-full transition-colors', isPersonal ? 'bg-[#2D63F0]' : 'bg-[#DFE1E6]')}
         >
-          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-[#F8FBFF] transition-transform', isPersonal ? 'translate-x-4' : 'translate-x-0.5')} />
+          <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-[#F6F7F9] transition-transform', isPersonal ? 'translate-x-4' : 'translate-x-0.5')} />
         </span>
       </button>
 
@@ -171,7 +171,7 @@ export function BusinessInfoForm({
         ) : null}
       </div>
 
-      <p className="text-[11px] leading-4 text-[#667085]">
+      <p className="text-[11px] leading-4 text-[#6a7286]">
         It is automatically displayed as a legal notation footer at the bottom of the published site (display obligation under the Electronic Commerce Act and the Information and Communications Network Act).
       </p>
 
@@ -179,7 +179,7 @@ export function BusinessInfoForm({
         {extraActions}
         <button
           type="submit"
-          className="inline-flex h-9 items-center rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
+          className="inline-flex h-9 items-center rounded-lg bg-[#2D63F0] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2F6BFF]"
         >
           {submitLabel}
         </button>

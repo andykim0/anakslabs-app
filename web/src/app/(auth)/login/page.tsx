@@ -15,19 +15,19 @@ const MOCK_BUTTONS: { role: MockRole; label: string; description: string; icon: 
     role: 'premium',
     label: 'Demo: clinic owner',
     description: 'Review, edit, approve, and publish a clinic website',
-    icon: <Sparkles className="h-4 w-4 text-[#174DDA]" />,
+    icon: <Sparkles className="h-4 w-4 text-[#2D63F0]" />,
   },
   {
     role: 'basic',
     label: 'Demo: draft workspace',
     description: 'Continue an in-progress clinic website',
-    icon: <ShieldCheck className="h-4 w-4 text-[#087F91]" />,
+    icon: <ShieldCheck className="h-4 w-4 text-[#4D7CFF]" />,
   },
   {
     role: 'admin',
     label: 'Demo: administrator',
     description: 'Quality review and operations console',
-    icon: <UserCog className="h-4 w-4 text-[#087D70]" />,
+    icon: <UserCog className="h-4 w-4 text-[#232C52]" />,
   },
 ];
 
@@ -55,8 +55,8 @@ function GoogleIcon() {
 }
 
 const INPUT_CLASS =
-  'h-11 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#174DDA] focus:ring-1 focus:ring-[#174DDA]';
-const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#0B1736]';
+  'h-11 w-full rounded-lg border border-[#D9DAE0] bg-white px-3 text-sm text-[#141A3A] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#2D63F0] focus:ring-1 focus:ring-[#2D63F0]';
+const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#141A3A]';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -131,14 +131,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F8FBFF] text-[#0B1736]">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F6F7F9] text-[#141A3A]">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_8%,rgba(23,77,218,.12),transparent_31%),radial-gradient(circle_at_88%_82%,rgba(3,191,169,.11),transparent_30%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_8%,rgba(45,99,240,.12),transparent_31%),radial-gradient(circle_at_88%_82%,rgba(45,99,240,.11),transparent_30%)]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-24 -right-24 h-72 w-72 rounded-full border border-[#BFEDE8]/70 bg-[#E8FBF7]/45 blur-2xl"
+        className="pointer-events-none absolute top-24 -right-24 h-72 w-72 rounded-full border border-[#CBD8FB]/70 bg-[#EAEFFE]/45 blur-2xl"
       />
 
       <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center px-6 py-5">
@@ -148,12 +148,12 @@ export default function LoginPage() {
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-6 pb-24">
-        <div className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white/92 p-6 shadow-[0_24px_80px_rgba(11,23,54,.11)] backdrop-blur-xl sm:p-8">
-          <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Sign in</h1>
+        <div className="w-full max-w-md rounded-[28px] border border-[#DFE1E6] bg-white/92 p-6 shadow-[0_24px_80px_rgba(20,26,58,.11)] backdrop-blur-xl sm:p-8">
+          <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#141A3A]">Sign in</h1>
 
           {mock ? (
             <>
-              <p className="mt-2 text-center text-sm text-[#667085]">
+              <p className="mt-2 text-center text-sm text-[#6a7286]">
                 Mock mode — choose a role to exercise the complete workflow.
               </p>
               <div className="mt-8 space-y-3">
@@ -163,14 +163,14 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => handleMockLogin(b.role)}
                     disabled={pendingRole !== null}
-                    className="flex w-full items-center gap-3 rounded-xl border border-[#DCE4F0] bg-white px-4 py-3.5 text-left transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center gap-3 rounded-xl border border-[#DFE1E6] bg-white px-4 py-3.5 text-left transition-colors hover:border-[#8FB2FF] hover:bg-[#F6F7F9] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EEF5FF]">
-                      {pendingRole === b.role ? <Spinner className="text-[#174DDA]" /> : b.icon}
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EAEFFE]">
+                      {pendingRole === b.role ? <Spinner className="text-[#2D63F0]" /> : b.icon}
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-sm font-medium text-[#0B1736]">{b.label}</span>
-                      <span className="block text-xs text-[#667085]">{b.description}</span>
+                      <span className="block text-sm font-medium text-[#141A3A]">{b.label}</span>
+                      <span className="block text-xs text-[#6a7286]">{b.description}</span>
                     </span>
                   </button>
                 ))}
@@ -214,7 +214,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={emailPending}
-                    className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2D63F0] text-sm font-semibold text-white transition-colors hover:bg-[#1E4BD1] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {emailPending ? <Spinner className="text-white" /> : null}
                     Sign in
@@ -223,9 +223,9 @@ export default function LoginPage() {
               ) : null}
 
               <div className={`${emailLoginOn ? 'mt-6' : 'mt-8'} flex items-center gap-3`}>
-                <span className="h-px flex-1 bg-[#DCE4F0]" />
+                <span className="h-px flex-1 bg-[#DFE1E6]" />
                 <span className="text-[11px] text-[#98A2B3]">or</span>
-                <span className="h-px flex-1 bg-[#DCE4F0]" />
+                <span className="h-px flex-1 bg-[#DFE1E6]" />
               </div>
 
               <div className="mt-5 flex items-center justify-center gap-4">
@@ -235,9 +235,9 @@ export default function LoginPage() {
                   disabled={oauthPending !== null}
                   aria-label="Sign in with Google"
                   title="Sign in with Google"
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DCE4F0] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DFE1E6] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F6F7F9] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {oauthPending === 'google' ? <Spinner className="text-[#0B1736]" /> : <GoogleIcon />}
+                  {oauthPending === 'google' ? <Spinner className="text-[#141A3A]" /> : <GoogleIcon />}
                 </button>
               </div>
             </>
@@ -250,15 +250,15 @@ export default function LoginPage() {
           ) : null}
 
           {!mock ? (
-            <p className="mt-8 text-center text-[13px] text-[#667085]">
+            <p className="mt-8 text-center text-[13px] text-[#6a7286]">
               New to Anaks Labs?{' '}
-              <Link href="/signup" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
+              <Link href="/signup" className="font-semibold text-[#2D63F0] transition-colors hover:text-[#1E4BD1]">
                 Create an account
               </Link>
             </p>
           ) : null}
 
-          <p className="mt-8 text-center text-[11px] leading-5 text-[#667085]">
+          <p className="mt-8 text-center text-[11px] leading-5 text-[#6a7286]">
             By signing in, you agree to the Terms and acknowledge the Privacy Policy.
           </p>
         </div>

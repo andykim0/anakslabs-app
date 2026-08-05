@@ -33,7 +33,7 @@ export function Field({
 }) {
   return (
     <label className={cn('block', row && 'flex items-center justify-between gap-2')}>
-      <span className="mb-1 block text-[11px] font-medium text-[#5F6B7C]">{label}</span>
+      <span className="mb-1 block text-[11px] font-medium text-[#545C70]">{label}</span>
       {children}
     </label>
   );
@@ -41,15 +41,15 @@ export function Field({
 
 export function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-b border-[#DCE4F0] px-4 py-4">
-      <p className="mb-3 text-[11px] font-semibold tracking-wide text-[#667085] uppercase">{title}</p>
+    <div className="border-b border-[#DFE1E6] px-4 py-4">
+      <p className="mb-3 text-[11px] font-semibold tracking-wide text-[#6a7286] uppercase">{title}</p>
       <div className="space-y-3">{children}</div>
     </div>
   );
 }
 
 const inputCls =
-  'h-8 w-full rounded-md border border-[#CAD5E5] bg-white px-2 text-xs text-[#0B1736] outline-none transition-colors focus:border-sky-600 placeholder:text-[#667085]';
+  'h-8 w-full rounded-md border border-[#D9DAE0] bg-white px-2 text-xs text-[#141A3A] outline-none transition-colors focus:border-sky-600 placeholder:text-[#6a7286]';
 
 // ---------- 텍스트 ----------
 
@@ -85,7 +85,7 @@ export function TextField({
           if (!allowEmpty && draft.trim().length === 0) setDraft(value);
         }}
       />
-      {hint ? <span className="mt-1 block text-[10px] leading-4 text-[#667085]">{hint}</span> : null}
+      {hint ? <span className="mt-1 block text-[10px] leading-4 text-[#6a7286]">{hint}</span> : null}
     </Field>
   );
 }
@@ -211,12 +211,12 @@ export function RangeField({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-[#5F6B7C]">{label}</span>
+        <span className="text-[11px] font-medium text-[#545C70]">{label}</span>
         <span className="text-[11px] tabular-nums text-[#344054]">{format(value)}</span>
       </div>
       <input
         type="range"
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#DCE4F0] accent-sky-500"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#DFE1E6] accent-sky-500"
         min={min}
         max={max}
         step={step}
@@ -266,8 +266,8 @@ export function SegmentedField<T extends string>({
 }) {
   return (
     <div>
-      <span className="mb-1 block text-[11px] font-medium text-[#5F6B7C]">{label}</span>
-      <div className="flex rounded-md border border-[#CAD5E5] bg-white p-0.5">
+      <span className="mb-1 block text-[11px] font-medium text-[#545C70]">{label}</span>
+      <div className="flex rounded-md border border-[#D9DAE0] bg-white p-0.5">
         {options.map((opt) => (
           <button
             key={opt.value}
@@ -277,8 +277,8 @@ export function SegmentedField<T extends string>({
             className={cn(
               'flex h-7 flex-1 items-center justify-center rounded text-xs transition-colors',
               value === opt.value
-                ? 'bg-[#DCE4F0] text-[#0B1736]'
-                : 'text-[#5F6B7C] hover:text-[#26354D]',
+                ? 'bg-[#DFE1E6] text-[#141A3A]'
+                : 'text-[#545C70] hover:text-[#232C52]',
             )}
           >
             {opt.label}
@@ -308,7 +308,7 @@ export function ToggleField({
       <span
         className={cn(
           'relative h-4.5 w-8 rounded-full transition-colors',
-          value ? 'bg-sky-600' : 'bg-[#DCE4F0]',
+          value ? 'bg-sky-600' : 'bg-[#DFE1E6]',
         )}
       >
         <span
@@ -349,7 +349,7 @@ export function ColorField({
       <div className="flex items-center gap-1.5">
         <input
           type="color"
-          className="h-8 w-9 shrink-0 cursor-pointer rounded-md border border-[#CAD5E5] bg-white p-0.5"
+          className="h-8 w-9 shrink-0 cursor-pointer rounded-md border border-[#D9DAE0] bg-white p-0.5"
           value={pickerValue}
           onChange={(e) => onCommit(e.target.value)}
         />
@@ -370,7 +370,7 @@ export function ColorField({
             type="button"
             title={`${clearLabel}initialized to`}
             onClick={() => onCommit(undefined)}
-            className="flex h-8 w-7 shrink-0 items-center justify-center rounded-md text-[#667085] transition-colors hover:bg-[#E8EDF5] hover:text-[#26354D]"
+            className="flex h-8 w-7 shrink-0 items-center justify-center rounded-md text-[#6a7286] transition-colors hover:bg-[#E8EDF5] hover:text-[#232C52]"
           >
             <X className="h-3.5 w-3.5" />
           </button>

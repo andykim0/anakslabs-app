@@ -50,13 +50,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F8FBFF] text-[#0B1736]">
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-[#DCE4F0] bg-white text-[#475467]">
+    <div className="flex min-h-screen w-full bg-[#F6F7F9] text-[#141A3A]">
+      <aside className="fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-[#DFE1E6] bg-white text-[#475467]">
         <div className="flex flex-col items-start gap-2 px-4 py-4">
           <Link
             href="/admin"
             aria-label="Administrator Dashboard Home"
-            className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#174DDA]"
+            className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D63F0]"
           >
             <BrandLogo />
           </Link>
@@ -76,8 +76,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 className={clsx(
                   'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors',
                   active
-                    ? 'bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] font-semibold text-[#174DDA] ring-1 ring-inset ring-[#C9DDF7]'
-                    : 'text-[#5F6B7C] hover:bg-[#F1F6FC] hover:text-[#0B1736]',
+                    ? 'bg-gradient-to-r from-[#EAEFFE] to-[#F2F5FE] font-semibold text-[#2D63F0] ring-1 ring-inset ring-[#CBD8FB]'
+                    : 'text-[#545C70] hover:bg-[#F1F6FC] hover:text-[#141A3A]',
                 )}
               >
                 <Icon size={15} aria-hidden />
@@ -93,12 +93,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
             onClick={() => setConfirmingLogout(true)}
             disabled={loggingOut}
             aria-busy={loggingOut}
-            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[#5F6B7C] transition-colors hover:bg-[#F1F6FC] hover:text-[#0B1736] disabled:cursor-wait disabled:opacity-60"
+            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[#545C70] transition-colors hover:bg-[#F1F6FC] hover:text-[#141A3A] disabled:cursor-wait disabled:opacity-60"
           >
             <LogOut size={15} aria-hidden />
             {loggingOut ? 'Logging out…' : 'Log out'}
           </button>
-          <p className="mt-2 flex items-center gap-1.5 px-2.5 text-[11px] text-[#667085]">
+          <p className="mt-2 flex items-center gap-1.5 px-2.5 text-[11px] text-[#6a7286]">
             <ShieldAlert size={12} aria-hidden />
             Administrator-only console
           </p>
@@ -106,8 +106,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="ml-52 flex min-h-screen w-full flex-col">
-        <header className="sticky top-0 z-20 flex h-11 items-center justify-between border-b border-[#DCE4F0] bg-white/90 px-5 backdrop-blur-xl">
-          <p className="text-xs font-medium text-[#667085]">
+        <header className="sticky top-0 z-20 flex h-11 items-center justify-between border-b border-[#DFE1E6] bg-white/90 px-5 backdrop-blur-xl">
+          <p className="text-xs font-medium text-[#6a7286]">
             Internal operating systems — handle customer data with care
           </p>
           <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">

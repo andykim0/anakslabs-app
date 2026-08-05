@@ -83,13 +83,13 @@ export function Badge({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    neutral: 'border-[#DCE4F0] bg-[#EEF3F9] text-[#475467]',
-    blue: 'border-[#BBD0FA] bg-[#EDF4FF] text-[#174DDA]',
-    emerald: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
+    neutral: 'border-[#DFE1E6] bg-[#EEF3F9] text-[#475467]',
+    blue: 'border-[#BBD0FA] bg-[#EAEFFE] text-[#2D63F0]',
+    emerald: 'border-[#C4E3D2] bg-[#EEF6F1] text-[#10714F]',
     amber: 'border-[#F2D59B] bg-[#FFF8E8] text-[#855700]',
     red: 'border-[#F2B8BE] bg-[#FFF0F2] text-[#B42318]',
     // Legacy API name kept for callers; visually this is now the Anaks Labs mint tier signal.
-    gold: 'border-[#A8E5D8] bg-[#EAFBF7] text-[#087D70]',
+    gold: 'border-[#C4E3D2] bg-[#EEF6F1] text-[#10714F]',
   };
   return (
     <span
@@ -143,7 +143,7 @@ export function Card({
     <div
       {...props}
       className={cn(
-        'rounded-xl border border-[#DCE4F0] bg-white p-5 shadow-[0_10px_32px_rgba(11,23,54,0.045)]',
+        'rounded-xl border border-[#DFE1E6] bg-white p-5 shadow-[0_10px_32px_rgba(20,26,58,0.045)]',
         className,
       )}
     >
@@ -164,8 +164,8 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-[#0B1736]">{title}</h1>
-        {description ? <p className="mt-1 text-sm text-[#5F6B7C]">{description}</p> : null}
+        <h1 className="text-xl font-semibold tracking-tight text-[#141A3A]">{title}</h1>
+        {description ? <p className="mt-1 text-sm text-[#545C70]">{description}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
     </div>
@@ -194,10 +194,10 @@ export function EmptyState({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#CAD5E5] bg-[#F8FBFF] px-6 py-10 text-center">
+    <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#D9DAE0] bg-[#F6F7F9] px-6 py-10 text-center">
       {icon ? <div className="text-[#8B9AB0]">{icon}</div> : null}
-      <p className="text-sm font-medium text-[#26354D]">{title}</p>
-      {description ? <p className="max-w-sm text-xs leading-5 text-[#667085]">{description}</p> : null}
+      <p className="text-sm font-medium text-[#232C52]">{title}</p>
+      {description ? <p className="max-w-sm text-xs leading-5 text-[#6a7286]">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
@@ -247,10 +247,10 @@ export function Button({
 }) {
   const variants: Record<string, string> = {
     primary:
-      'bg-[#174DDA] text-white hover:bg-[#0F3DB9] disabled:hover:bg-[#174DDA] font-semibold shadow-[0_8px_20px_rgba(23,77,218,0.16)]',
+      'bg-[#2D63F0] text-white hover:bg-[#1E4BD1] disabled:hover:bg-[#2D63F0] font-semibold shadow-[0_8px_20px_rgba(45,99,240,0.16)]',
     secondary:
-      'border border-[#CAD5E5] bg-white text-[#26354D] hover:border-[#174DDA] hover:text-[#174DDA]',
-    ghost: 'text-[#475467] hover:bg-[#EDF4FF] hover:text-[#174DDA]',
+      'border border-[#D9DAE0] bg-white text-[#232C52] hover:border-[#2D63F0] hover:text-[#2D63F0]',
+    ghost: 'text-[#475467] hover:bg-[#EAEFFE] hover:text-[#2D63F0]',
     danger: 'border border-[#F2B8BE] bg-[#FFF5F6] text-[#B42318] hover:bg-[#FFE8EA]',
   };
   const sizes: Record<string, string> = {

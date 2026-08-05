@@ -17,11 +17,11 @@ const PILLAR_LABEL: Record<string, string> = { seo: "Search (SEO)", aeo: "AI Ans
 const PASS_THRESHOLD = 70;
 
 function ScoreDot({ label, score }: { label: string; score: number }) {
-  const tone = score >= PASS_THRESHOLD ? 'text-emerald-700' : score >= 40 ? 'text-[#174DDA]' : 'text-red-600';
+  const tone = score >= PASS_THRESHOLD ? 'text-emerald-700' : score >= 40 ? 'text-[#2D63F0]' : 'text-red-600';
   return (
-    <div className="flex flex-col items-center rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2.5">
+    <div className="flex flex-col items-center rounded-lg border border-[#DFE1E6] bg-[#F6F7F9] px-3 py-2.5">
       <span className={cn('text-xl font-semibold tabular-nums', tone)}>{score}</span>
-      <span className="mt-0.5 text-[10px] text-[#667085]">{label}</span>
+      <span className="mt-0.5 text-[10px] text-[#6a7286]">{label}</span>
     </div>
   );
 }
@@ -55,7 +55,7 @@ export function PublishDiagnostics({
   }
   if (isError || !data) {
     return (
-      <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3 text-xs text-[#5F6B7C]">
+      <p className="rounded-lg border border-[#DFE1E6] bg-[#F6F7F9] px-3.5 py-3 text-xs text-[#545C70]">
         Publishing is unavailable because the diagnostic check could not complete. Please try again.
       </p>
     );
@@ -87,7 +87,7 @@ export function PublishDiagnostics({
             <Sparkles className="h-4 w-4" />
             Resolved {improvement.resolved.length} of {improvement.resolved.length + improvement.remaining.length} diagnostic issues
           </p>
-          <p className="mt-1 text-xs text-[#5F6B7C]">
+          <p className="mt-1 text-xs text-[#545C70]">
             Diagnostic score <span className="tabular-nums text-[#344054]">{improvement.beforeTotal}</span> →{' '}
             <span className="tabular-nums text-emerald-700">{improvement.afterTotal}</span>.
             {improvement.remaining.length > 0 ? ` ${improvement.remaining.length} items remain.` : " No issues remain."}
@@ -96,8 +96,8 @@ export function PublishDiagnostics({
       ) : null}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#0B1736]">Search impression score</p>
-          <span className={cn('text-xs font-medium', passed ? 'text-emerald-700' : 'text-[#174DDA]')}>
+          <p className="text-sm font-semibold text-[#141A3A]">Search impression score</p>
+          <span className={cn('text-xs font-medium', passed ? 'text-emerald-700' : 'text-[#2D63F0]')}>
             {scan.scores.total} points · grade {scan.grade}
           </span>
         </div>
@@ -119,7 +119,7 @@ export function PublishDiagnostics({
           The site passed the publishing checks.
         </p>
       ) : (
-        <p className="flex items-start gap-2 rounded-lg border border-[#9DB7EB] bg-[#EDF4FF]/50 px-3.5 py-2.5 text-xs leading-5 text-[#174DDA]">
+        <p className="flex items-start gap-2 rounded-lg border border-[#9DB7EB] bg-[#EAEFFE]/50 px-3.5 py-2.5 text-xs leading-5 text-[#2D63F0]">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
           The site can be published now. The optional items below may improve how clearly search and AI systems read it.
         </p>
@@ -139,16 +139,16 @@ export function PublishDiagnostics({
           {actionable.map((iss) => (
             <li
               key={iss.code}
-              className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] p-3"
+              className="rounded-lg border border-[#DFE1E6] bg-[#F6F7F9] p-3"
               data-input-to-perfect={iss.guidance?.presentation === 'input-to-perfect' ? iss.code : undefined}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-[#0B1736]">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-[#141A3A]">
                     {iss.guidance?.presentation === 'input-to-perfect' ? (
                       <Sparkles className="h-3.5 w-3.5 shrink-0 text-emerald-700" />
                     ) : (
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#174DDA]" />
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-[#2D63F0]" />
                     )}
                     {iss.guidance!.title}
                     {iss.guidance?.presentation === 'input-to-perfect' ? (
@@ -156,17 +156,17 @@ export function PublishDiagnostics({
                         Full score if you enter
                       </span>
                     ) : null}
-                    <span className="rounded bg-[#E8EDF5] px-1.5 py-0.5 text-[9px] text-[#5F6B7C]">
+                    <span className="rounded bg-[#E8EDF5] px-1.5 py-0.5 text-[9px] text-[#545C70]">
                       {PILLAR_LABEL[iss.pillar]}
                     </span>
                   </p>
-                  <p className="mt-1 text-[11px] leading-4 text-[#5F6B7C]">{iss.guidance!.action}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-[#545C70]">{iss.guidance!.action}</p>
                   <p className="mt-0.5 text-[11px] leading-4 text-emerald-700">→ {iss.guidance!.effect}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onFix(iss.guidance!.anchor)}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#CAD5E5] px-2.5 py-1 text-[11px] text-[#344054] transition-colors hover:border-[#174DDA] hover:text-[#174DDA]"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-[#D9DAE0] px-2.5 py-1 text-[11px] text-[#344054] transition-colors hover:border-[#2D63F0] hover:text-[#2D63F0]"
                 >
                   fill <ArrowRight className="h-3 w-3" />
                 </button>
@@ -177,7 +177,7 @@ export function PublishDiagnostics({
       ) : null}
 
       {autoCount > 0 ? (
-        <p className="text-[11px] text-[#667085]">
+        <p className="text-[11px] text-[#6a7286]">
           besides {autoCount}Branches (representative address, structured information, etc.) are automatically processed upon issuance.
         </p>
       ) : null}

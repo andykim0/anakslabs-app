@@ -1,9 +1,0 @@
-<svg width="390" height="104" viewBox="0 0 390 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="g" x1="5" y1="5" x2="95" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#174DDA"/><stop offset=".55" stop-color="#08B8E8"/><stop offset="1" stop-color="#03D1B8"/></linearGradient></defs>
-  <rect x="4" y="4" width="96" height="96" rx="26" fill="url(#g)"/>
-  <rect x="21" y="22" width="62" height="57" rx="13" stroke="white" stroke-width="6"/><path d="M23 37h58" stroke="white" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="33" cy="29.5" r="3" fill="white"/><circle cx="44" cy="29.5" r="3" fill="white"/>
-  <path d="m29 68 15-12 12 6 13-11 13-20" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="m73 32 11-3-2 11" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="126" y="59" fill="#0B1736" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="-1.2">Anaks Labs</text>
-  <text x="127" y="83" fill="#667085" font-family="Arial, Helvetica, sans-serif" font-size="12">Clinic website operations</text>
-</svg>

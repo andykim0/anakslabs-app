@@ -31,7 +31,7 @@ export function LogoutConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B1736]/35 px-5 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#141A3A]/35 px-5 backdrop-blur-[2px]"
       data-logout-confirm-overlay
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !pending) onCancel();
@@ -42,7 +42,7 @@ export function LogoutConfirmDialog({
         aria-modal="true"
         aria-labelledby="logout-confirm-title"
         aria-describedby="logout-confirm-description"
-        className="w-full max-w-sm rounded-xl border border-[#DCE4F0] bg-white p-5 text-[#0B1736] shadow-[0_24px_72px_rgba(11,23,54,.22)]"
+        className="w-full max-w-sm rounded-xl border border-[#DFE1E6] bg-white p-5 text-[#141A3A] shadow-[0_24px_72px_rgba(20,26,58,.22)]"
         data-logout-confirm-dialog
       >
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFF1F0] text-[#D92D20]">
@@ -51,7 +51,7 @@ export function LogoutConfirmDialog({
         <h2 id="logout-confirm-title" className="mt-4 text-lg font-semibold tracking-[-0.02em]">
           Log out?
         </h2>
-        <p id="logout-confirm-description" className="mt-2 text-sm leading-6 text-[#667085]">
+        <p id="logout-confirm-description" className="mt-2 text-sm leading-6 text-[#6a7286]">
           This ends your current session and returns you to the sign-in page.
         </p>
         <div className="mt-6 flex justify-end gap-2">
@@ -59,7 +59,7 @@ export function LogoutConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={pending}
-            className="h-10 rounded-lg border border-[#DCE4F0] px-4 text-sm font-medium text-[#475467] transition-colors hover:bg-[#F8FBFF] disabled:opacity-60"
+            className="h-10 rounded-lg border border-[#DFE1E6] px-4 text-sm font-medium text-[#475467] transition-colors hover:bg-[#F6F7F9] disabled:opacity-60"
           >
             Cancel
           </button>

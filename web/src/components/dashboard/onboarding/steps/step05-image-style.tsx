@@ -110,7 +110,7 @@ function DirectionSample({
     return (
       <div
         aria-hidden="true"
-        className="h-full w-full bg-[radial-gradient(circle_at_28%_30%,rgba(35,105,255,.72),transparent_25%),radial-gradient(circle_at_72%_62%,rgba(35,211,192,.55),transparent_30%),linear-gradient(135deg,#f5f8ff,#dfe8ff_48%,#f8fbff)]"
+        className="h-full w-full bg-[radial-gradient(circle_at_28%_30%,rgba(35,105,255,.72),transparent_25%),radial-gradient(circle_at_72%_62%,rgba(35,211,192,.55),transparent_30%),linear-gradient(135deg,#f5f8ff,#dfe8ff_48%,#f6f7f9)]"
       >
         <span className="absolute inset-[18%] rounded-[42%_58%_64%_36%/40%_35%_65%_60%] border border-white/80 bg-white/30 shadow-[0_18px_45px_rgba(35,105,255,.16)] backdrop-blur-sm" />
       </div>

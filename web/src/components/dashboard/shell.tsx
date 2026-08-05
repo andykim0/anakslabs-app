@@ -53,7 +53,7 @@ function CreditBadge() {
   return (
     <Link
       href="/dashboard/credits"
-      className="flex h-8 items-center gap-1.5 rounded-full border border-[#BBD0FA] bg-[#EDF4FF] px-3 text-xs font-semibold text-[#174DDA] transition-colors hover:border-[#174DDA] hover:bg-[#E5EFFF]"
+      className="flex h-8 items-center gap-1.5 rounded-full border border-[#BBD0FA] bg-[#EAEFFE] px-3 text-xs font-semibold text-[#2D63F0] transition-colors hover:border-[#2D63F0] hover:bg-[#E5EFFF]"
       title="Credit balance"
     >
       <Coins className="h-3.5 w-3.5" />
@@ -80,7 +80,7 @@ function LogoutButton() {
         type="button"
         onClick={() => setConfirming(true)}
         disabled={loading}
-        className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#667085] transition-colors hover:bg-[#EDF4FF] hover:text-[#174DDA] disabled:opacity-60"
+        className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-[#6a7286] transition-colors hover:bg-[#EAEFFE] hover:text-[#2D63F0] disabled:opacity-60"
         title="Log out"
       >
         {loading ? <Spinner className="h-3.5 w-3.5" /> : <LogOut className="h-3.5 w-3.5" />}
@@ -124,8 +124,8 @@ export function DashboardShell({
             className={cn(
               'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
               active
-                ? 'bg-gradient-to-r from-[#EDF4FF] to-[#EAFBF7] font-semibold text-[#174DDA] ring-1 ring-inset ring-[#C9DDF7]'
-                : 'text-[#5F6B7C] hover:bg-[#F1F6FC] hover:text-[#0B1736]',
+                ? 'bg-gradient-to-r from-[#EAEFFE] to-[#F2F5FE] font-semibold text-[#2D63F0] ring-1 ring-inset ring-[#CBD8FB]'
+                : 'text-[#545C70] hover:bg-[#F1F6FC] hover:text-[#141A3A]',
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -137,21 +137,21 @@ export function DashboardShell({
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8FBFF] text-[#0B1736]">
+    <div className="flex min-h-screen flex-col bg-[#F6F7F9] text-[#141A3A]">
       {/* 상단 바 */}
-      <header className="sticky top-0 z-40 border-b border-[#DCE4F0] bg-white/90 shadow-[0_1px_0_rgba(11,23,54,0.02)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[#DFE1E6] bg-white/90 shadow-[0_1px_0_rgba(20,26,58,0.02)] backdrop-blur-xl">
         <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-6">
           <Link
             href="/dashboard"
             aria-label="Dashboard Home"
-            className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#0B1736]"
+            className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#141A3A]"
           >
             <BrandLogo />
           </Link>
           <div className="flex items-center gap-2.5">
             {creditsAvailable ? <CreditBadge /> : null}
             <TierBadge tier={tier} />
-            <span className="hidden text-xs text-[#667085] sm:inline">{clientName}</span>
+            <span className="hidden text-xs text-[#6a7286] sm:inline">{clientName}</span>
             <LogoutButton />
           </div>
         </div>
@@ -161,7 +161,7 @@ export function DashboardShell({
 
       <div className="flex flex-1">
         {/* 사이드바 (데스크톱) */}
-        <aside className="hidden w-52 shrink-0 border-r border-[#DCE4F0] bg-white/55 p-3 md:block">
+        <aside className="hidden w-52 shrink-0 border-r border-[#DFE1E6] bg-white/55 p-3 md:block">
           <div className="sticky top-[68px]">{nav}</div>
         </aside>
         <main

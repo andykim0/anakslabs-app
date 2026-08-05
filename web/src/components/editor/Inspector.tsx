@@ -102,7 +102,7 @@ function AiGenerateButton({ type, label }: { type: EditType; label: string }) {
     <button
       type="button"
       onClick={() => useEditorStore.getState().setAiIntent(type)}
-      className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#9DB7EB] bg-[#EDF4FF] text-xs font-medium text-[#174DDA] transition-colors hover:border-[#7EA2EA]"
+      className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#9DB7EB] bg-[#EAEFFE] text-xs font-medium text-[#2D63F0] transition-colors hover:border-[#7EA2EA]"
     >
       <Sparkles className="h-3.5 w-3.5" />
       {label} ({CREDIT_COSTS[type]}credit)
@@ -141,7 +141,7 @@ function ImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#CAD5E5] text-xs font-medium text-[#344054] transition-colors hover:border-[#AEBACC] hover:bg-[#E8EDF5] disabled:opacity-40"
+        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-[#D9DAE0] text-xs font-medium text-[#344054] transition-colors hover:border-[#AEBACC] hover:bg-[#E8EDF5] disabled:opacity-40"
       >
         <Upload className="h-3.5 w-3.5" />
         {busy ? "Uploading..." : "replace from file"}
@@ -171,10 +171,10 @@ function SmallIconButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'flex h-7 flex-1 items-center justify-center rounded-md border border-[#CAD5E5] text-[#344054] transition-colors disabled:opacity-30',
+        'flex h-7 flex-1 items-center justify-center rounded-md border border-[#D9DAE0] text-[#344054] transition-colors disabled:opacity-30',
         danger
           ? 'hover:border-red-300 hover:bg-red-50 hover:text-red-700'
-          : 'hover:border-[#AEBACC] hover:bg-[#E8EDF5] hover:text-[#0B1736]',
+          : 'hover:border-[#AEBACC] hover:bg-[#E8EDF5] hover:text-[#141A3A]',
       )}
     >
       {children}
@@ -204,8 +204,8 @@ function ElementInspector({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
-        <span className="text-xs font-semibold text-[#26354D]">
+      <div className="flex items-center justify-between border-b border-[#DFE1E6] px-4 py-3">
+        <span className="text-xs font-semibold text-[#232C52]">
           {ELEMENT_KIND_LABELS[element.kind]} element
         </span>
         <div className="flex gap-1">
@@ -213,7 +213,7 @@ function ElementInspector({
             type="button"
             title="Duplicate (⌘D)"
             onClick={() => store().duplicateElement(element.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#545C70] transition-colors hover:bg-[#E8EDF5] hover:text-[#141A3A]"
           >
             <Copy className="h-3.5 w-3.5" />
           </button>
@@ -221,7 +221,7 @@ function ElementInspector({
             type="button"
             title="Delete"
             onClick={() => store().deleteElement(element.id)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5F6B7C] transition-colors hover:bg-red-50 hover:text-red-700"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#545C70] transition-colors hover:bg-red-50 hover:text-red-700"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -511,7 +511,7 @@ function FormFields({ el }: { el: FormElement }) {
   return (
     <FieldGroup title="Inquiry form">
       <div className="space-y-1.5">
-        <span className="block text-[11px] text-[#667085]">Fields to receive (minimum 1)</span>
+        <span className="block text-[11px] text-[#6a7286]">Fields to receive (minimum 1)</span>
         {FORM_FIELD_OPTIONS.map((o) => (
           <ToggleField
             key={o.value}
@@ -533,7 +533,7 @@ function FormFields({ el }: { el: FormElement }) {
       />
       <ColorField label="button color" value={s.color} clearable clearLabel="theme point color" onCommit={(v) => store().updateElementStyle(el.id, { color: v })} />
       <NumberField label="roundness" value={s.borderRadius ?? 8} min={0} max={40} onCommit={(v) => store().updateElementStyle(el.id, { borderRadius: v })} />
-      <p className="text-[11px] leading-4 text-[#667085]">
+      <p className="text-[11px] leading-4 text-[#6a7286]">
         Submitted inquiries are accumulated in the inquiry box in the dashboard site details.
       </p>
     </FieldGroup>
@@ -584,7 +584,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
       {el.links.map((link, i) => {
         const badUrl = link.url !== '' && !isHttpsUrl(link.url);
         return (
-          <div key={i} className="space-y-1.5 rounded-lg border border-[#DCE4F0] p-2">
+          <div key={i} className="space-y-1.5 rounded-lg border border-[#DFE1E6] p-2">
             <div className="flex items-center gap-1.5">
               <div className="flex-1">
                 <SelectField
@@ -599,7 +599,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
                 title="Delete link"
                 disabled={el.links.length <= 1}
                 onClick={() => commitLinks(el.links.filter((_, j) => j !== i))}
-                className="mt-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#CAD5E5] text-[#5F6B7C] transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700 disabled:opacity-30"
+                className="mt-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#D9DAE0] text-[#545C70] transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700 disabled:opacity-30"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -618,7 +618,7 @@ function SocialLinksFields({ el }: { el: SocialLinksElement }) {
         type="button"
         disabled={el.links.length >= 8}
         onClick={() => commitLinks([...el.links, { kind: 'custom', url: '' }])}
-        className="h-8 w-full rounded-md border border-dashed border-[#CAD5E5] text-xs text-[#5F6B7C] transition-colors hover:border-[#AEBACC] hover:text-[#26354D] disabled:opacity-40"
+        className="h-8 w-full rounded-md border border-dashed border-[#D9DAE0] text-xs text-[#545C70] transition-colors hover:border-[#AEBACC] hover:text-[#232C52] disabled:opacity-40"
       >
         + Add link
       </button>
@@ -672,8 +672,8 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
-        <span className="text-xs font-semibold text-[#26354D]">Section settings</span>
+      <div className="flex items-center justify-between border-b border-[#DFE1E6] px-4 py-3">
+        <span className="text-xs font-semibold text-[#232C52]">Section settings</span>
         <div className="flex gap-1">
           <SmallIconButton title="move up" disabled={idx <= 0} onClick={() => store().moveSection(section.id, -1)}>
             <ArrowUp className="h-3.5 w-3.5" />
@@ -752,7 +752,7 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
                   gradient: `linear-gradient(165deg, ${theme.palette.primary} 0%, ${theme.palette.accent} 100%)`,
                 })
               }
-              className="h-7 w-full rounded-md border border-[#CAD5E5] text-[11px] text-[#344054] transition-colors hover:border-[#AEBACC]"
+              className="h-7 w-full rounded-md border border-[#D9DAE0] text-[11px] text-[#344054] transition-colors hover:border-[#AEBACC]"
             >
               Create a gradient with palette colors
             </button>
@@ -793,7 +793,7 @@ function SectionInspector({ section, theme }: { section: Section; theme: SiteThe
         ) : null}
       </FieldGroup>
 
-      <div className="px-4 py-3 text-[11px] leading-5 text-[#667085]">
+      <div className="px-4 py-3 text-[11px] leading-5 text-[#6a7286]">
         Select an element to edit its detailed properties, or click in an empty space to edit the site theme.
       </div>
     </div>
@@ -841,14 +841,14 @@ function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean;
       onClick={onSelect}
       className={cn(
         'w-full rounded-lg border px-3 py-2 text-left transition-colors',
-        active ? 'border-[#174DDA] bg-[#EDF4FF]/60' : 'border-[#CAD5E5] hover:border-[#AEBACC]',
+        active ? 'border-[#2D63F0] bg-[#EAEFFE]/60' : 'border-[#D9DAE0] hover:border-[#AEBACC]',
       )}
     >
       <div className="flex items-center gap-1.5">
-        <span className="text-xs font-semibold text-[#0B1736]">{PRESET_LABELS[pid]}</span>
-        {active ? <Check className="ml-auto h-3.5 w-3.5 text-[#174DDA]" /> : null}
+        <span className="text-xs font-semibold text-[#141A3A]">{PRESET_LABELS[pid]}</span>
+        {active ? <Check className="ml-auto h-3.5 w-3.5 text-[#2D63F0]" /> : null}
       </div>
-      <p className="mt-0.5 text-[10px] leading-4 text-[#667085]">{presetTechniqueSummary(pid)}</p>
+      <p className="mt-0.5 text-[10px] leading-4 text-[#6a7286]">{presetTechniqueSummary(pid)}</p>
     </button>
   );
 }
@@ -856,16 +856,16 @@ function PresetCard({ pid, active, onSelect }: { pid: PresetId; active: boolean;
 /** AI 영상 홈페이지 미적용 계정에 영상 프리셋을 잠금 카드로 안내한다. */
 function PresetLockCard({ pid }: { pid: PresetId }) {
   return (
-    <div className="w-full rounded-lg border border-[#9DB7EB] bg-[#EDF4FF]/40 px-3 py-2">
+    <div className="w-full rounded-lg border border-[#9DB7EB] bg-[#EAEFFE]/40 px-3 py-2">
       <div className="flex items-center gap-1.5">
-        <Lock className="h-3 w-3 text-[#174DDA]" />
-        <span className="text-xs font-semibold text-[#174DDA]">{PRESET_LABELS[pid]}</span>
-        <span className="ml-auto text-[9px] font-semibold tracking-wide text-[#174DDA]/70">AI video</span>
+        <Lock className="h-3 w-3 text-[#2D63F0]" />
+        <span className="text-xs font-semibold text-[#2D63F0]">{PRESET_LABELS[pid]}</span>
+        <span className="ml-auto text-[9px] font-semibold tracking-wide text-[#2D63F0]/70">AI video</span>
       </div>
-      <p className="mt-0.5 text-[10px] leading-4 text-[#667085]">{presetTechniqueSummary(pid)}</p>
+      <p className="mt-0.5 text-[10px] leading-4 text-[#6a7286]">{presetTechniqueSummary(pid)}</p>
       <a
         href="/dashboard/billing"
-        className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#174DDA] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#245FE5]"
+        className="mt-1.5 inline-flex h-7 items-center gap-1 rounded-md bg-[#2D63F0] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#2F6BFF]"
       >
         <Sparkles className="h-3 w-3" /> AI video website inquiry
       </a>
@@ -884,11 +884,11 @@ function MotionPanel() {
     : [current as PresetId, ...ACTIVE_PRESET_IDS];
   return (
     <FieldGroup title="motion">
-      <p className="text-[11px] leading-4 text-[#667085]">
+      <p className="text-[11px] leading-4 text-[#6a7286]">
         Site-wide motion — 1 preset + just pick the intensity. The selected preset/strength will be applied to the site once published.
       </p>
       <div>
-        <span className="mb-1 block text-[11px] text-[#5F6B7C]">robbery</span>
+        <span className="mb-1 block text-[11px] text-[#545C70]">robbery</span>
         <div className="flex gap-1">
           {(['off', 'subtle', 'normal'] as MotionIntensity[]).map((v) => (
             <button
@@ -897,7 +897,7 @@ function MotionPanel() {
               onClick={() => store().setMotionIntensity(v)}
               className={cn(
                 'h-7 flex-1 rounded-md border text-[11px] transition-colors',
-                intensity === v ? 'border-[#174DDA] bg-[#EDF4FF]/60 text-[#174DDA]' : 'border-[#CAD5E5] text-[#344054] hover:border-[#AEBACC]',
+                intensity === v ? 'border-[#2D63F0] bg-[#EAEFFE]/60 text-[#2D63F0]' : 'border-[#D9DAE0] text-[#344054] hover:border-[#AEBACC]',
               )}
             >
               {INTENSITY_LABELS[v]}
@@ -962,9 +962,9 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="border-b border-[#DCE4F0] px-4 py-3">
-        <span className="text-xs font-semibold text-[#26354D]">site theme</span>
-        <p className="mt-0.5 text-[11px] text-[#667085]">With no elements selected — site-wide styles</p>
+      <div className="border-b border-[#DFE1E6] px-4 py-3">
+        <span className="text-xs font-semibold text-[#232C52]">site theme</span>
+        <p className="mt-0.5 text-[11px] text-[#6a7286]">With no elements selected — site-wide styles</p>
       </div>
 
       <FieldGroup title="palette">
@@ -987,7 +987,7 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
       <FieldGroup title="typography">
         <SelectField label="title font" value={fontValue(theme.fonts.heading)} options={fontOptions(theme.fonts.heading)} onCommit={(v) => setFont('heading', v)} />
         <SelectField label="body font" value={fontValue(theme.fonts.body)} options={fontOptions(theme.fonts.body)} onCommit={(v) => setFont('body', v)} />
-        <div className="rounded-lg border border-[#DCE4F0] bg-white/90 px-3 py-3">
+        <div className="rounded-lg border border-[#DFE1E6] bg-white/90 px-3 py-3">
           <p className="truncate text-lg leading-6" style={{ fontFamily: theme.fonts.heading, color: theme.palette.text }}>
             Six dishes, one fire
           </p>

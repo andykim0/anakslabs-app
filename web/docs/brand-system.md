@@ -27,15 +27,21 @@ Anaks Labs은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 �
 
 ## Visual system
 
-- Ice White `#F8FBFF`: 무료 진단과 주요 배경
-- White `#FFFFFF`: 입력·카드 표면
-- Deep Navy `#0B1736`: 헤딩·푸터·고대비 텍스트
-- Royal Blue `#174DDA`: 검색 신호·주 CTA 시작색
-- Cyan `#08B8E8`: 답변 신호·CTA 중간색
-- Signal Mint `#03D1B8`: AI 인용 신호·완료 상태
-- Slate `#667085`: 보조 텍스트
+단일 진실은 마케팅 사이트 `../../website/assets/site.css` 의 토큰이다. 앱은 그 값을 그대로 쓴다.
 
-밝은 표면이 화면의 80% 이상을 차지하도록 한다. 딥네이비는 텍스트와 푸터에 제한하고, 블루→시안→민트 그라데이션은 로고·CTA·신호 경로처럼 의미 있는 지점에만 쓴다.
+- BG `#F6F7F9`: 앱·문서의 기본 배경
+- White `#FFFFFF`: 입력·카드 표면
+- Ink `#141A3A`: 헤딩·푸터·고대비 텍스트
+- Ink-2 `#232C52`: 보조 헤딩·중간 대비 텍스트
+- Blue `#2D63F0`: 주 CTA·링크·활성 상태
+- Blue Bright `#2F6BFF`: 주 CTA hover
+- Blue Soft `#4D7CFF`: 보조 신호·그라데이션 중간색
+- Gray `#545C70` / Gray Soft `#6A7286`: 보조 텍스트
+- Line `#DFE1E6` / `#D9DAE0`: 구분선·컨트롤 테두리
+
+파생값(앱 전용): 진한 파랑 `#1E4BD1`(hover/pressed), 파랑 틴트 `#EAEFFE`(칩·활성 배경).
+
+밝은 표면이 화면의 80% 이상을 차지하도록 한다. Ink는 텍스트와 푸터에 제한한다. 그라데이션은 파랑 계열 안에서만 쓴다 — **블루→시안→민트 그라데이션은 폐기됐다**(이전 팔레트 잔재). 성공/경고/오류는 브랜드색이 아니라 상태색으로 따로 유지한다.
 
 ## Motion system
 
@@ -58,8 +64,25 @@ Anaks Labs은 범용 웹 빌더처럼 사용자가 빈 캔버스와 설정을 �
 
 ## Logo usage
 
-- `public/anakslabs-mark.svg`: 정사각형 심벌, 앱 아이콘·파비콘·워터마크
-- `public/anakslabs-logo.svg`: 밝은 배경용 영문 락업
-- `src/components/brand/BrandLogo.tsx`: 제품 UI용 반응형 락업
+로고에 **벡터 원본은 존재하지 않는다.** 마케팅 사이트(anakslabs.com)도 PNG 를 쓴다. 앱은
+`../../website/assets` 의 PNG 를 그대로 복사해 쓴다 — 재작도·재색상 금지.
+
+- `public/anakslabs-mark.png` (= `assets/icon-512.png`): AL 심벌. 앱 아이콘·워터마크
+- `public/anakslabs-logo.png` (= `assets/logo-inline.png`): 심벌 위 워드마크가 얹힌 세로 락업
+- `src/app/icon.png` · `src/app/apple-icon.png` · `src/app/favicon.ico`: 파비콘/앱 아이콘.
+  favicon.ico 는 심벌을 16/32/48 로 담은 멀티사이즈 아이콘이며, 테넌트 라이브
+  (`app/s/[domain]/_shared.tsx`)와 Export 셸(`lib/export/document-shell.ts`)이 이걸 참조한다.
+- `BrandLogo` (`src/components/brand/BrandLogo.tsx`): 제품 UI 락업 = 심벌 PNG + Space Grotesk
+  워드마크. 세로 락업 PNG 는 헤더 높이(28px)에서 워드마크가 판독 불가라 가로로 재조합한다.
+- `BrandLockup`: 세로 락업 PNG 를 그대로 렌더한다(세로 여백이 있는 표면용).
 - 심벌 최소 크기는 디지털 24px이다.
-- 그라데이션 순서(blue → cyan → mint), 프레임 비율, 신호 경로를 임의로 바꾸지 않는다.
+- 청록 그라데이션 인라인 마크와 그 SVG 복제본(`anakslabs-*.svg`, `app/icon.svg`)은 제거됐다.
+
+## Typography
+
+- 앱·마케팅 공통 서체는 **Space Grotesk**(마케팅 `--sans`)이며, 폴백은
+  `"Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", Roboto, Helvetica, Arial, sans-serif`.
+- 적용 경계: `src/app/app-typography.ts` 를 (auth)·(dashboard)·(admin)·(marketing) 라우트
+  그룹 레이아웃만 import 한다. `globals.css` 의 `body` 규칙과 `root-layout-contract.ts` 의
+  `--font-geist-*` 는 테넌트/공유 프리뷰 문서와의 공유 계약이므로 **바꾸지 않는다** —
+  고객 사이트는 각자의 AI 생성 테마 폰트로 렌더돼야 한다.

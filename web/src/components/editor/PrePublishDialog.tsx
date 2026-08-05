@@ -29,17 +29,17 @@ function SummaryRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex gap-3 text-sm">
-      <span className="w-28 shrink-0 text-[11px] leading-5 text-[#667085]">{label}</span>
-      <span className="min-w-0 flex-1 text-[#26354D]">{value}</span>
+      <span className="w-28 shrink-0 text-[11px] leading-5 text-[#6a7286]">{label}</span>
+      <span className="min-w-0 flex-1 text-[#232C52]">{value}</span>
     </div>
   );
 }
 
 function BusinessInfoSummary({ info }: { info: BusinessInfo }) {
   return (
-    <div className="space-y-1.5 rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3.5 py-3">
+    <div className="space-y-1.5 rounded-lg border border-[#DFE1E6] bg-[#F6F7F9] px-3.5 py-3">
       {info.isPersonal ? (
-        <p className="text-[11px] font-medium text-[#174DDA]">privately operated site</p>
+        <p className="text-[11px] font-medium text-[#2D63F0]">privately operated site</p>
       ) : null}
       <SummaryRow label="mutual" value={info.businessName} />
       <SummaryRow label={info.isPersonal ? "operator" : "exponent"} value={info.ownerName} />
@@ -127,7 +127,7 @@ function PrePublishDialogContent({
       ) : step === 1 ? (
         editing || !businessInfo ? (
           <div className="space-y-3">
-            <p className="text-xs leading-5 text-[#5F6B7C]">
+            <p className="text-xs leading-5 text-[#545C70]">
               {businessInfoRequired
                 ? 'Add the business or operator information required for publication.'
                 : 'Add optional business information to show it in the site footer.'}
@@ -145,7 +145,7 @@ function PrePublishDialogContent({
                   <button
                     type="button"
                     onClick={() => setEditing(false)}
-                    className="inline-flex h-9 items-center rounded-lg border border-[#CAD5E5] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
+                    className="inline-flex h-9 items-center rounded-lg border border-[#D9DAE0] px-4 text-sm text-[#344054] transition-colors hover:border-[#AEBACC]"
                   >
                     Cancel
                   </button>
@@ -159,7 +159,7 @@ function PrePublishDialogContent({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-1.5 text-xs text-[#5F6B7C] transition-colors hover:text-[#174DDA]"
+              className="inline-flex items-center gap-1.5 text-xs text-[#545C70] transition-colors hover:text-[#2D63F0]"
             >
               <Pencil className="h-3 w-3" />
               Edit information
@@ -167,14 +167,14 @@ function PrePublishDialogContent({
             <label
               className={cn(
                 'flex cursor-pointer items-start gap-2.5 rounded-lg border px-3.5 py-3 transition-colors',
-                confirmed ? 'border-[#174DDA] bg-[#EDF4FF]/60' : 'border-[#CAD5E5]',
+                confirmed ? 'border-[#2D63F0] bg-[#EAEFFE]/60' : 'border-[#D9DAE0]',
               )}
             >
               <input
                 type="checkbox"
                 checked={confirmed}
                 onChange={(e) => setConfirmed(e.target.checked)}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#2D63F0]"
               />
               <span className="text-xs leading-5 text-[#344054]">
                 stomach {businessInfo.isPersonal ? "operator" : "business person"} We have verified that the information is accurate. published site
@@ -193,11 +193,11 @@ function PrePublishDialogContent({
         )
       ) : (
         <div className="space-y-4">
-          <p className="flex items-center gap-2 text-sm text-[#26354D]">
-            <CheckCircle2 className="h-4 w-4 text-[#174DDA]" />
+          <p className="flex items-center gap-2 text-sm text-[#232C52]">
+            <CheckCircle2 className="h-4 w-4 text-[#2D63F0]" />
             Business information confirmed completed
           </p>
-          <p className="text-xs leading-5 text-[#5F6B7C]">
+          <p className="text-xs leading-5 text-[#545C70]">
             If you publish now, your edited draft will be reflected on your live site. Subdomains can be accessed immediately,
             You can edit and republish at any time later.
           </p>

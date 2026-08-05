@@ -103,7 +103,7 @@ export default async function SharedImportPreviewPage({
       ) : null}
       <aside
         role="status"
-        className="sticky top-0 z-[1000] border-b border-amber-300 bg-amber-50 px-4 py-3 text-[#382B05]"
+        className="sticky top-0 z-[1000] border-b border-[#DFE1E6] border-l-4 border-l-[#2D63F0] bg-white px-4 py-3 text-[#141A3A]"
       >
         <div className="mx-auto flex min-w-0 max-w-6xl flex-col gap-1 break-all text-sm leading-relaxed">
           <strong className="font-bold">
@@ -120,7 +120,7 @@ export default async function SharedImportPreviewPage({
                 : 'This 45-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.'
               : IMPORT_PREVIEW_NOTICE}
           </span>
-          <span className="text-xs text-[#6B5310]">
+          <span className="text-xs text-[#545C70]">
             {isUsMedicalDemo ? (
               <>
                 Source: {preview.sourceUrl} · Anyone with this link can view the draft until it

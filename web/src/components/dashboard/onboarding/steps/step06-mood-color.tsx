@@ -396,7 +396,7 @@ export function Step06MoodColor({
                         Pick your own
                         <input
                           type="color"
-                          value={/^#[0-9a-fA-F]{6}$/.test(colorOverride) ? colorOverride : '#174DDA'}
+                          value={/^#[0-9a-fA-F]{6}$/.test(colorOverride) ? colorOverride : '#2D63F0'}
                           onChange={(e) => setValue('colorOverride', e.target.value, { shouldValidate: true })}
                           className="h-6 w-8 cursor-pointer rounded border border-ob-border bg-ob-surface"
                         />

@@ -80,7 +80,7 @@ export function HeroMotionUpsellPreview({
   const moving = effectiveMode === 'motion';
 
   return (
-    <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface shadow-[0_24px_70px_-42px_rgba(23,77,218,.45)]">
+    <div className="overflow-hidden rounded-ob border border-ob-border bg-ob-surface shadow-[0_24px_70px_-42px_rgba(45,99,240,.45)]">
       <div className="relative aspect-[16/9] overflow-hidden bg-[#07162f]">
         <motion.img
           src={heroImageUrl}

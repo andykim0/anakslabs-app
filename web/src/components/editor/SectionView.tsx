@@ -95,7 +95,7 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
 
         {section.elements.length === 0 ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="rounded-md border border-dashed border-[#AEBACC]/70 bg-white/90 px-3 py-1.5 text-xs text-[#5F6B7C]">
+            <span className="rounded-md border border-dashed border-[#AEBACC]/70 bg-white/90 px-3 py-1.5 text-xs text-[#545C70]">
               Empty section — add elements from the top toolbar
             </span>
           </div>
@@ -109,7 +109,7 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
         className={cn(
           'pointer-events-none absolute -inset-px z-[997] border transition-opacity',
           sectionSelected
-            ? 'border-[#174DDA] opacity-100'
+            ? 'border-[#2D63F0] opacity-100'
             : 'border-sky-500/35 opacity-0 group-hover/section:opacity-100',
         )}
       />
@@ -117,12 +117,12 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
       <div
         className={cn(
           'pointer-events-none absolute top-1.5 left-1.5 z-[998] flex items-center gap-1.5 rounded bg-white/95 px-1.5 py-0.5 text-[10px] transition-opacity',
-          sectionSelected ? 'text-[#174DDA] opacity-100' : 'text-[#344054] opacity-0 group-hover/section:opacity-100',
+          sectionSelected ? 'text-[#2D63F0] opacity-100' : 'text-[#344054] opacity-0 group-hover/section:opacity-100',
         )}
       >
         <span className="font-semibold">{section.name}</span>
-        <span className="text-[#667085]">{SECTION_TYPE_LABELS[section.type]}</span>
-        <span className="text-[#667085] tabular-nums">{Math.round(section.height)}px</span>
+        <span className="text-[#6a7286]">{SECTION_TYPE_LABELS[section.type]}</span>
+        <span className="text-[#6a7286] tabular-nums">{Math.round(section.height)}px</span>
         {section.hidden ? <EyeOff className="h-3 w-3" /> : null}
       </div>
       {section.hidden ? (
@@ -131,7 +131,7 @@ export const SectionView = memo(function SectionView({ section, theme, scale }: 
         </div>
       ) : null}
       {section.elements.some((e) => e.locked) ? (
-        <div className="pointer-events-none absolute right-2 bottom-2 z-[998] flex items-center gap-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] text-[#667085]">
+        <div className="pointer-events-none absolute right-2 bottom-2 z-[998] flex items-center gap-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] text-[#6a7286]">
           <Lock className="h-2.5 w-2.5" /> Contains locked elements
         </div>
       ) : null}

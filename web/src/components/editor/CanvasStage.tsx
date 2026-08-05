@@ -53,8 +53,8 @@ function MotionToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       aria-pressed={on}
       className={
         on
-          ? 'inline-flex items-center gap-1 rounded-md border border-[#174DDA] bg-[#EDF4FF] px-2 py-1 text-xs font-medium text-[#174DDA]'
-          : 'inline-flex items-center gap-1 rounded-md border border-[#CAD5E5] px-2 py-1 text-xs text-[#5F6B7C] transition-colors hover:border-[#AEBACC] hover:text-[#26354D]'
+          ? 'inline-flex items-center gap-1 rounded-md border border-[#2D63F0] bg-[#EAEFFE] px-2 py-1 text-xs font-medium text-[#2D63F0]'
+          : 'inline-flex items-center gap-1 rounded-md border border-[#D9DAE0] px-2 py-1 text-xs text-[#545C70] transition-colors hover:border-[#AEBACC] hover:text-[#232C52]'
       }
     >
       <Play className="h-3 w-3" />
@@ -72,7 +72,7 @@ function PreviewPageSwitcher() {
     <select
       value={previewPageSlug}
       onChange={(e) => useEditorStore.getState().setPreviewPage(e.target.value)}
-      className="rounded-md border border-[#CAD5E5] bg-white px-2 py-1 text-xs text-[#26354D] outline-none focus:border-[#174DDA]"
+      className="rounded-md border border-[#D9DAE0] bg-white px-2 py-1 text-xs text-[#232C52] outline-none focus:border-[#2D63F0]"
     >
       {pages.map((p) => (
         <option key={p.id} value={p.slug}>
@@ -127,14 +127,14 @@ export function CanvasStage() {
     return (
       <div className="flex min-w-0 flex-1 items-start justify-center overflow-auto bg-[#E8EEF7] py-8">
         <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-xs text-[#5F6B7C]">
+          <div className="flex items-center gap-2 text-xs text-[#545C70]">
             <Smartphone className="h-3.5 w-3.5" />
             Mobile Preview
             <PreviewPageSwitcher />
             <MotionToggle on={motionOn} onToggle={() => setMotionOn((v) => !v)} />
           </div>
           <div
-            className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-[#CAD5E5] bg-black shadow-2xl"
+            className="h-[720px] w-[390px] overflow-y-auto rounded-[28px] border-4 border-[#D9DAE0] bg-black shadow-2xl"
             onClickCapture={handlePreviewClickCapture}
           >
             {/* [v4 Phase 3] 발행본과 동일한 자동 헤더 내비 — 클릭 시 프리뷰 페이지 전환 */}
@@ -150,7 +150,7 @@ export function CanvasStage() {
   if (preview === 'desktop') {
     return (
       <div className="min-w-0 flex-1 overflow-y-auto bg-[#E8EEF7]" onClickCapture={handlePreviewClickCapture}>
-        <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-[#5F6B7C]">
+        <div className="flex items-center justify-center gap-2 py-2.5 text-xs text-[#545C70]">
           <Eye className="h-3.5 w-3.5" />
           Preview — Button behavior (external link in new tab) · Motion toggle to see actual movement
           <PreviewPageSwitcher />
@@ -181,7 +181,7 @@ export function CanvasStage() {
       >
         {/* 연속 페이지 시트 — 섹션이 간격 없이 이어 붙는 실제 사이트 모습 그대로 */}
         {sections.length > 0 ? (
-          <div className="shadow-2xl ring-1 ring-[#DCE4F0]" style={{ width: DESIGN_WIDTH * scale }}>
+          <div className="shadow-2xl ring-1 ring-[#DFE1E6]" style={{ width: DESIGN_WIDTH * scale }}>
             {sections.map((section) => (
               <SectionView key={section.id} section={section} theme={config.theme} scale={scale} />
             ))}
@@ -189,13 +189,13 @@ export function CanvasStage() {
         ) : null}
 
         {sections.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#CAD5E5] bg-white/80 px-14 py-16 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#D9DAE0] bg-white/80 px-14 py-16 text-center">
             <p className="text-sm font-medium text-[#344054]">There are no sections yet</p>
-            <p className="text-xs text-[#667085]">Start with the hero section.</p>
+            <p className="text-xs text-[#6a7286]">Start with the hero section.</p>
             <button
               type="button"
               onClick={() => useEditorStore.getState().addSection('hero')}
-              className="mt-1 flex h-9 items-center gap-1.5 rounded-lg bg-[#174DDA] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#245FE5]"
+              className="mt-1 flex h-9 items-center gap-1.5 rounded-lg bg-[#2D63F0] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#2F6BFF]"
             >
               <Plus className="h-3.5 w-3.5" /> Add hero section
             </button>

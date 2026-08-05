@@ -123,13 +123,13 @@ export function AiPanel({ siteId }: { siteId: string }) {
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       {/* 잔액 */}
-      <div className="flex items-center justify-between border-b border-[#DCE4F0] px-4 py-3">
-        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#26354D]">
-          <Wand2 className="h-3.5 w-3.5 text-[#174DDA]" /> AI Editing
+      <div className="flex items-center justify-between border-b border-[#DFE1E6] px-4 py-3">
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-[#232C52]">
+          <Wand2 className="h-3.5 w-3.5 text-[#2D63F0]" /> AI Editing
         </span>
         <Link
           href="/dashboard/credits"
-          className="flex items-center gap-1 rounded-full border border-[#9DB7EB] bg-[#EDF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#174DDA] transition-colors hover:border-[#7EA2EA]"
+          className="flex items-center gap-1 rounded-full border border-[#9DB7EB] bg-[#EAEFFE] px-2.5 py-1 text-[11px] font-semibold text-[#2D63F0] transition-colors hover:border-[#7EA2EA]"
           title="Credit Management"
         >
           <Coins className="h-3 w-3" />
@@ -148,19 +148,19 @@ export function AiPanel({ siteId }: { siteId: string }) {
               className={cn(
                 'rounded-lg border px-2.5 py-2 text-left transition-colors',
                 type === a.type
-                  ? 'border-[#174DDA] bg-[#EDF4FF]/70'
-                  : 'border-[#DCE4F0] hover:border-[#AEBACC]',
+                  ? 'border-[#2D63F0] bg-[#EAEFFE]/70'
+                  : 'border-[#DFE1E6] hover:border-[#AEBACC]',
               )}
             >
               <span className="flex items-center justify-between">
-                <span className={cn('text-xs font-medium', type === a.type ? 'text-[#0B1736]' : 'text-[#344054]')}>
+                <span className={cn('text-xs font-medium', type === a.type ? 'text-[#141A3A]' : 'text-[#344054]')}>
                   {a.label}
                 </span>
-                <span className="rounded bg-[#E8EDF5] px-1 py-0.5 text-[10px] tabular-nums text-[#174DDA]">
+                <span className="rounded bg-[#E8EDF5] px-1 py-0.5 text-[10px] tabular-nums text-[#2D63F0]">
                   {CREDIT_COSTS[a.type]}cr
                 </span>
               </span>
-              <span className="mt-0.5 block text-[10px] leading-4 text-[#667085]">{a.desc}</span>
+              <span className="mt-0.5 block text-[10px] leading-4 text-[#6a7286]">{a.desc}</span>
             </button>
           ))}
         </div>
@@ -179,26 +179,26 @@ export function AiPanel({ siteId }: { siteId: string }) {
                   ? "Example) Close-up of a brazier with flames rising, 8 second loop"
                   : "Example) Please add a section introducing the 4 signature menu items."
           }
-          className="w-full resize-y rounded-lg border border-[#CAD5E5] bg-white px-3 py-2 text-xs leading-5 text-[#0B1736] outline-none transition-colors placeholder:text-[#667085] focus:border-sky-600"
+          className="w-full resize-y rounded-lg border border-[#D9DAE0] bg-white px-3 py-2 text-xs leading-5 text-[#141A3A] outline-none transition-colors placeholder:text-[#6a7286] focus:border-sky-600"
         />
 
         <button
           type="button"
           onClick={submit}
           disabled={mutation.isPending}
-          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#174DDA] text-xs font-semibold text-white transition-colors hover:bg-[#245FE5] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-[#2D63F0] text-xs font-semibold text-white transition-colors hover:bg-[#2F6BFF] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {mutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
           {mutation.isPending ? "Creating AI..." : `Request (Credit${cost}dog use)`}
         </button>
 
-        <p className="text-[10px] leading-4 text-[#667085]">
+        <p className="text-[10px] leading-4 text-[#6a7286]">
           Requests are reflected after AI creation and QA inspection. If creation fails, credits will be automatically refunded.
         </p>
 
         {/* 결과 카드 */}
         {result ? (
-          <div className="rounded-lg border border-[#DCE4F0] bg-white/90 p-3">
+          <div className="rounded-lg border border-[#DFE1E6] bg-white/90 p-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-[11px] font-semibold text-[#344054]">AI generated results</span>
               <span className="rounded bg-amber-950/60 px-1.5 py-0.5 text-[10px] text-amber-300">Waiting for QA inspection</span>
@@ -212,7 +212,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
               <video src={resultOutput.url} poster={resultOutput.poster} controls muted playsInline className="mb-2 w-full rounded-md" />
             ) : null}
             {resultOutput.text ? (
-              <p className="mb-2 max-h-36 overflow-y-auto text-xs leading-5 whitespace-pre-wrap text-[#26354D]">
+              <p className="mb-2 max-h-36 overflow-y-auto text-xs leading-5 whitespace-pre-wrap text-[#232C52]">
                 {resultOutput.text}
               </p>
             ) : null}
@@ -221,12 +221,12 @@ export function AiPanel({ siteId }: { siteId: string }) {
               <button
                 type="button"
                 onClick={() => setResult(null)}
-                className="h-8 rounded-md border border-[#CAD5E5] px-3 text-xs text-[#344054] transition-colors hover:border-[#AEBACC]"
+                className="h-8 rounded-md border border-[#D9DAE0] px-3 text-xs text-[#344054] transition-colors hover:border-[#AEBACC]"
               >
                 Close
               </button>
             </div>
-            <p className="mt-1.5 text-[10px] leading-4 text-[#667085]">
+            <p className="mt-1.5 text-[10px] leading-4 text-[#6a7286]">
               Once the review is complete, the server reflects it in both the draft and published version. Your live site will not change until you are done.
             </p>
           </div>
@@ -242,7 +242,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
           <>
             <Link
               href="/dashboard/billing"
-              className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
+              className="inline-flex h-10 items-center rounded-lg border border-[#D9DAE0] bg-white px-4 text-sm text-[#232C52] transition-colors hover:border-[#AEBACC]"
             >
               AI video website consultation
             </Link>
@@ -268,7 +268,7 @@ export function AiPanel({ siteId }: { siteId: string }) {
             </Button>
             <Link
               href="/dashboard/credits"
-              className="inline-flex h-10 items-center rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
+              className="inline-flex h-10 items-center rounded-lg bg-[#2D63F0] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2F6BFF]"
             >
               Buy Credits
             </Link>
@@ -277,8 +277,8 @@ export function AiPanel({ siteId }: { siteId: string }) {
       >
         {shortage ? (
           <p>
-            Credit to this request <b className="text-[#0B1736]">{shortage.required} items</b>is needed, but currently{' '}
-            <b className="text-[#0B1736]">{shortage.balance} items</b> I have it in stock. After purchasing credits,
+            Credit to this request <b className="text-[#141A3A]">{shortage.required} items</b>is needed, but currently{' '}
+            <b className="text-[#141A3A]">{shortage.balance} items</b> I have it in stock. After purchasing credits,
             Please try it.
           </p>
         ) : null}
