@@ -508,3 +508,96 @@ describe('BLOG-DESIGN — the surface survives a four-colour clinic palette', ()
     assert.match(html, /\/stock\/pexels\/dental-atmosphere\//u);
   });
 });
+
+describe('BLOG-DESIGN — exported covers point inside the bundle', () => {
+  async function newbuildConfig() {
+    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
+      () => import('@/lib/operator-model/site-generation'),
+    );
+    const built = await buildOperatorClinicNewbuildSiteConfig(
+      {
+        businessName: 'Ridgeline Dental',
+        specialty: 'general',
+        accentPreset: 'clinical-blue',
+        phone: '(303) 555-0142',
+        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
+      } as never,
+      'basic',
+      {} as never,
+    );
+    return built.config;
+  }
+
+  async function postsFor() {
+    const repository = await provisionedSite(3);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    return new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+  }
+
+  test('the live cover url is a real file under public/', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const { postCoverSources } = await import('@/lib/content-fulfillment/post-cover');
+    const config = await newbuildConfig();
+    const sources = postCoverSources({
+      config,
+      siteId: SITE_ID,
+      slugs: ['2026-08-post-1', '2026-08-post-2', '2026-08-post-3'],
+    });
+    assert.ok(sources.length > 0);
+    for (const src of sources) {
+      assert.match(src, /^\/stock\//u, 'live covers are served from the site root');
+      // If this read fails the live page renders a broken image, not a design problem.
+      await readFile(`${process.cwd()}/public${src}`);
+    }
+  });
+
+  test('an exported page never points at a path that lives only on the origin', async () => {
+    const { collectRenderTimeAssets } = await withServerOnlyNeutralized(
+      () => import('@/lib/export/collect-assets'),
+    );
+    const { renderStaticContentPostFiles } = await withServerOnlyNeutralized(
+      () => import('@/lib/content-fulfillment/render-static'),
+    );
+    const { postCoverSources } = await import('@/lib/content-fulfillment/post-cover');
+    const config = await newbuildConfig();
+    const posts = await postsFor();
+    const covers = await collectRenderTimeAssets(postCoverSources({
+      config,
+      siteId: SITE_ID,
+      slugs: posts.map((post) => post.slug),
+    }));
+    assert.ok(covers.assets.size > 0, 'the cover files were read and bundled');
+
+    const files = renderStaticContentPostFiles({
+      site: {
+        id: SITE_ID,
+        domain: 'ridgeline-dental.anakslabs.com',
+        siteConfig: config,
+      } as unknown as Site,
+      posts,
+      coverRewrites: covers.rewrites,
+    });
+
+    const index = files.find((file) => file.name === 'blog.html')!;
+    assert.ok(
+      /<img[^>]*src="/u.test(index.html),
+      'the index renders covers; the article is typeset without one by design',
+    );
+
+    for (const file of files) {
+      const srcs = [...file.html.matchAll(/<img[^>]*src="([^"]*)"/gu)].map((match) => match[1]);
+      for (const src of srcs) {
+        assert.doesNotMatch(src, /^\/stock\//u, `${file.name}: ${src} is not in the bundle`);
+        // A detail page sits one level deeper, so its reference has to climb out.
+        const expectedPrefix = file.name.startsWith('blog/') ? '../assets/' : 'assets/';
+        assert.ok(
+          src.startsWith(expectedPrefix),
+          `${file.name}: ${src} should start with ${expectedPrefix}`,
+        );
+        const bundled = src.replace(/^\.\.\//u, '');
+        assert.ok(covers.assets.has(bundled), `${bundled} is missing from the zip`);
+      }
+    }
+  });
+});

@@ -18,11 +18,18 @@ function staticBlogBody(input: {
   posts: readonly PublishedContentPost[];
   post?: PublishedContentPost;
   fontFaceCss?: string;
+  coverRewrites?: ReadonlyMap<string, string>;
 }): string {
   const isDetail = Boolean(input.post);
   let body = renderToStaticMarkup(createElement(TenantContentBlog, {
     config: input.site.siteConfig!,
     siteId: input.site.id,
+    // Bundled covers live beside the pages; a detail file sits one directory deeper.
+    coverSrc: (src: string) => {
+      const bundled = input.coverRewrites?.get(src);
+      if (!bundled) return src;
+      return isDetail ? `../${bundled}` : bundled;
+    },
     posts: input.posts,
     post: input.post,
     hrefForSlug: (slug: string) => {
@@ -34,8 +41,12 @@ function staticBlogBody(input: {
   }));
   if (input.fontFaceCss) {
     body = body.replace(CDN_FONT_LINK_RE, '');
-    body = body.replaceAll(
-      '/fonts/korean/',
+    // Pin markup and the pinned @font-face CSS both carry checked-in asset paths for live
+    // serving. selfHostFonts flattens every pinned file to assets/fonts/<basename>, so both
+    // font namespaces rewrite the same way — a Latin-pinned US clinic is the common case here,
+    // and leaving /fonts/latin/ absolute puts a 404 in every exported bundle.
+    body = body.replace(
+      /\/fonts\/(?:korean|latin)\//gu,
       isDetail ? '../assets/fonts/' : 'assets/fonts/',
     );
   }
@@ -51,6 +62,8 @@ export function renderStaticContentPostFiles(input: {
   site: Site;
   posts: readonly PublishedContentPost[];
   fontFaceCss?: string;
+  /** Bundled paths for render-time cover images, keyed by the URL the live site serves. */
+  coverRewrites?: ReadonlyMap<string, string>;
 }): StaticContentPostFile[] {
   if (!input.site.siteConfig || !input.site.domain || input.posts.length === 0) return [];
   const baseUrl = `https://${input.site.domain}`;

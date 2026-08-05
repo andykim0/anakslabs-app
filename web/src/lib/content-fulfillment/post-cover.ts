@@ -93,3 +93,23 @@ export function postCoverImage(input: {
   });
   return asset ? { url: asset.renditionUrl, category } : null;
 }
+
+/**
+ * Every cover URL a set of posts will render, so an exporter can bundle them.
+ *
+ * The export asset collector walks the SiteConfig, and these images are not in it — they are
+ * chosen here at render time. Without this list the exported pages point at a path that exists
+ * only on the live origin.
+ */
+export function postCoverSources(input: {
+  config: SiteConfig;
+  siteId: string;
+  slugs: readonly string[];
+}): string[] {
+  const seen = new Set<string>();
+  for (const slug of input.slugs) {
+    const cover = postCoverImage({ config: input.config, siteId: input.siteId, slug });
+    if (cover) seen.add(cover.url);
+  }
+  return [...seen];
+}

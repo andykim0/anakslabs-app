@@ -182,6 +182,11 @@ export interface TenantContentBlogProps {
   config: SiteConfig;
   /** Needed only to pin cover selection to the site; never used to fetch anything. */
   siteId?: string;
+  /**
+   * Maps a cover URL to where it actually lives for this render target. The live site serves
+   * `/stock/...` from public/; a static export bundles the file and needs its own relative path.
+   */
+  coverSrc?: (src: string) => string;
   posts: readonly PublishedContentPost[];
   post?: PublishedContentPost;
   hrefForSlug?: (slug: string) => string;
@@ -418,6 +423,7 @@ function PostCard({
   post,
   config,
   siteId,
+  coverSrc,
   hrefForPost,
   feature = false,
   motion,
@@ -425,6 +431,7 @@ function PostCard({
   post: PublishedContentPost;
   config: SiteConfig;
   siteId?: string;
+  coverSrc: (src: string) => string;
   hrefForPost: (slug: string) => string;
   feature?: boolean;
   motion: boolean;
@@ -446,7 +453,7 @@ function PostCard({
         config={config}
         slug={post.slug}
         feature={feature}
-        {...(cover ? { imageUrl: cover.url } : {})}
+        {...(cover ? { imageUrl: coverSrc(cover.url) } : {})}
       />
       <div className="anaks-content-blog__body">
         <MetaLine color={muted} config={config}>{publishedDateLabel(post, config)}</MetaLine>
@@ -491,12 +498,14 @@ function PostList({
   posts,
   config,
   siteId,
+  coverSrc,
   hrefForPost,
   motion,
 }: {
   posts: readonly PublishedContentPost[];
   config: SiteConfig;
   siteId?: string;
+  coverSrc: (src: string) => string;
   hrefForPost: (slug: string) => string;
   motion: boolean;
 }) {
@@ -556,6 +565,7 @@ function PostList({
             post={lead}
             config={config}
             siteId={siteId}
+            coverSrc={coverSrc}
             hrefForPost={hrefForPost}
             motion={motion}
             feature
@@ -569,6 +579,7 @@ function PostList({
                 post={post}
                 config={config}
                 siteId={siteId}
+                coverSrc={coverSrc}
                 hrefForPost={hrefForPost}
                 motion={motion}
               />
@@ -583,6 +594,7 @@ function PostList({
 export function TenantContentBlog({
   config,
   siteId,
+  coverSrc = (src) => src,
   posts,
   post,
   hrefForSlug,
@@ -641,6 +653,7 @@ export function TenantContentBlog({
             posts={posts}
             config={renderedConfig}
             siteId={siteId}
+            coverSrc={coverSrc}
             hrefForPost={hrefForPost}
             motion={motion}
           />
