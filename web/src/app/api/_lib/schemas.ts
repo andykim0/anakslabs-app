@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { isHttpsUrl, isSafeHref, isSafeMapEmbedUrl, isSafeMediaSrc } from '@/lib/safe-url';
 import {
+  US_SITE_TIMEZONES,
   isValidPageSlug,
   SECTION_DIRECTION_GUIDES,
 } from '@/lib/types/site';
@@ -718,6 +719,7 @@ const siteMetaSchema = z.object({
   // US-DEMO additive only. Omission preserves the exact existing Korea document contract.
   locale: z.literal('en-US').optional(),
   jurisdiction: z.literal('US').optional(),
+  timezone: z.enum(US_SITE_TIMEZONES).optional(),
   // [제품 확정/I1] 목적·지역·진단원본 — JSON-LD @type·지역·전후 대조에 쓰이므로 저장 시 보존(strip 방지)
   purposeId: z.string().max(40).optional(),
   templateId: z.string().max(80).optional(),

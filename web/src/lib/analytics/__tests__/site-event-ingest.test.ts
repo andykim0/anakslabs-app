@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import Module from 'node:module';
 import { describe, test } from 'node:test';
+import { NextRequest } from 'next/server';
 import {
   SITE_EVENT_TYPES,
   TRAFFIC_SOURCES,
@@ -8,7 +10,30 @@ import {
   createSiteRateLimiter,
   isLikelyBotUserAgent,
   kstDateString,
+  siteEventDateString,
+  usSiteDateString,
 } from '../site-event-ingest';
+import { DEFAULT_US_SITE_TIMEZONE, type SiteConfig } from '@/lib/types/site';
+
+function datedConfig(meta: SiteConfig['meta']): SiteConfig {
+  return {
+    version: 2,
+    theme: {
+      fonts: { heading: 'serif', body: 'sans-serif' },
+      palette: {
+        background: '#fff',
+        surface: '#fff',
+        text: '#111',
+        muted: '#555',
+        primary: '#000',
+        accent: '#333',
+      },
+      radius: 0,
+    },
+    meta,
+    pages: [{ id: 'home', title: 'Home', slug: '', sections: [] }],
+  };
+}
 
 describe('RPT1 site event ingest invariants', () => {
   test('uses closed event/source enums and no identifying fields', () => {
@@ -45,6 +70,77 @@ describe('RPT1 site event ingest invariants', () => {
   test('uses server KST date at the UTC boundary', () => {
     assert.equal(kstDateString(new Date('2026-07-16T14:59:59.000Z')), '2026-07-16');
     assert.equal(kstDateString(new Date('2026-07-16T15:00:00.000Z')), '2026-07-17');
+  });
+
+  test('uses the server-owned US site timezone and keeps KR on the KST branch', () => {
+    const now = new Date('2026-08-01T03:30:00.000Z');
+    assert.equal(
+      siteEventDateString(datedConfig({
+        title: 'New York clinic',
+        locale: 'en-US',
+        jurisdiction: 'US',
+        timezone: 'America/New_York',
+      }), now),
+      '2026-07-31',
+    );
+    assert.equal(
+      siteEventDateString(datedConfig({ title: '한국 사이트' }), now),
+      '2026-08-01',
+    );
+  });
+
+  test('defaults a half-pinned en-US site to Los Angeles without accepting a client claim', () => {
+    const now = new Date('2026-08-01T06:30:00.000Z');
+    const halfPinned = datedConfig({
+      title: 'Legacy US clinic',
+      locale: 'en-US',
+      jurisdiction: 'US',
+    });
+    assert.equal(DEFAULT_US_SITE_TIMEZONE, 'America/Los_Angeles');
+    assert.equal(siteEventDateString(halfPinned, now), '2026-07-31');
+    assert.equal(usSiteDateString(DEFAULT_US_SITE_TIMEZONE, now), '2026-07-31');
+
+    const route = readFileSync(
+      new URL('../../../app/api/site-events/route.ts', import.meta.url),
+      'utf8',
+    );
+    const payloadContract = route.slice(
+      route.indexOf('const payloadSchema'),
+      route.indexOf('const CORS_HEADERS'),
+    );
+    assert.match(payloadContract, /\.strict\(\)/u);
+    assert.doesNotMatch(payloadContract, /timezone/u);
+    assert.match(route, /siteEventDateString\(site\.siteConfig\)/u);
+  });
+
+  test('public ingest rejects a browser-claimed timezone at the strict wire boundary', async () => {
+    const moduleLoader = Module as unknown as {
+      _load: (request: string, parent: unknown, isMain: boolean) => unknown;
+    };
+    const originalLoad = moduleLoader._load;
+    moduleLoader._load = function loadForRouteTest(request, parent, isMain) {
+      if (request === 'server-only') return {};
+      return originalLoad.call(this, request, parent, isMain);
+    };
+    const { POST } = await import('@/app/api/site-events/route').finally(() => {
+      moduleLoader._load = originalLoad;
+    });
+    const response = await POST(new NextRequest('http://app.anakslabs.com/api/site-events', {
+      method: 'POST',
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+        'user-agent': 'Mozilla/5.0 Chrome/140 Safari/537.36',
+      },
+      body: JSON.stringify({
+        siteId: 'demo-premium-site',
+        event: 'pageview',
+        source: 'direct',
+        timezone: 'America/New_York',
+      }),
+    }), undefined as never);
+    assert.equal(response.status, 400);
+    const payload = await response.json() as { error?: { code?: string } };
+    assert.equal(payload.error?.code, 'VALIDATION_ERROR');
   });
 
   test('rate limits by site only and resets after the window', () => {

@@ -12,7 +12,7 @@ import {
   canCollectSiteEvents,
   createSiteRateLimiter,
   isLikelyBotUserAgent,
-  kstDateString,
+  siteEventDateString,
 } from '@/lib/analytics/site-event-ingest';
 
 const MAX_BODY_BYTES = 512;
@@ -89,7 +89,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     siteId: parsed.data.siteId,
     eventType: parsed.data.event,
     source: parsed.data.source,
-    eventDate: kstDateString(),
+    eventDate: siteEventDateString(site.siteConfig),
     eventId: parsed.data.eventId,
   });
   return new Response(null, { status: 202, headers: CORS_HEADERS });

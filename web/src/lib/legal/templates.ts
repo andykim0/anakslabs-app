@@ -1,4 +1,8 @@
-import type { SiteConfig } from '@/lib/types/site';
+import {
+  DEFAULT_US_SITE_TIMEZONE,
+  type SiteConfig,
+  type UsSiteTimezone,
+} from '@/lib/types/site';
 
 export interface LegalSection {
   heading: string;
@@ -41,14 +45,23 @@ export const US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE =
   'This site collects personal information through a form, so approved policy documents are required before publication.';
 
 /** Pins only newly issued sites in this US fork; stored legacy configs stay untouched. */
-export function pinUsTenantLocaleForNewSite(config: SiteConfig): SiteConfig {
-  if (config.meta.locale === 'en-US' && config.meta.jurisdiction === 'US') return config;
+export function pinUsTenantLocaleForNewSite(
+  config: SiteConfig,
+  timezone?: UsSiteTimezone,
+): SiteConfig {
+  const resolvedTimezone = timezone ?? config.meta.timezone ?? DEFAULT_US_SITE_TIMEZONE;
+  if (
+    config.meta.locale === 'en-US'
+    && config.meta.jurisdiction === 'US'
+    && config.meta.timezone === resolvedTimezone
+  ) return config;
   return {
     ...config,
     meta: {
       ...config.meta,
       locale: 'en-US',
       jurisdiction: 'US',
+      timezone: resolvedTimezone,
     },
   };
 }

@@ -13,6 +13,7 @@ import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { accountHasSite } from '@/lib/billing/site-limit';
 import { businessPhoneHref } from '@/lib/analytics/trackable-actions';
 import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
+import { US_SITE_TIMEZONES } from '@/lib/types/site';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -20,11 +21,13 @@ const phoneSchema = z.string().trim().min(1).max(40)
   .refine((phone) => Boolean(businessPhoneHref(phone)), 'Use a valid phone number.');
 const bookingUrlSchema = z.string().trim().min(1).max(2_000)
   .refine(isAcceptableUsBookingUrl, 'Use a safe HTTPS booking URL.');
+const timezoneSchema = z.enum(US_SITE_TIMEZONES);
 
 const bodySchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('crawl'),
     sourceUrl: z.string().url().refine((url) => /^https?:\/\//u.test(url), 'Use an http(s) URL.'),
+    timezone: timezoneSchema.optional(),
     phone: phoneSchema.optional(),
     bookingUrl: bookingUrlSchema.optional(),
   }).strict(),
@@ -34,6 +37,7 @@ const bodySchema = z.discriminatedUnion('mode', [
     industry: z.string().trim().min(1).max(100),
     tone: z.string().trim().min(1).max(40),
     colorPreference: z.string().trim().min(1).max(200),
+    timezone: timezoneSchema.optional(),
     phone: phoneSchema.optional(),
     bookingUrl: bookingUrlSchema.optional(),
     address: z.string().trim().min(1).max(300).optional(),
@@ -100,6 +104,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     site,
     source,
     locale: config.meta.locale,
+    timezone: config.meta.timezone,
     formCount,
     items: config.connectors?.items ?? [],
   }, { status: 201 });

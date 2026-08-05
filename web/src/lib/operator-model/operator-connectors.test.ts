@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import Module from 'node:module';
 import test from 'node:test';
 import { NextRequest } from 'next/server';
+import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import type { CrawlArtifactPayload, CrawlPageArtifact } from '@/lib/crawl/contracts';
 import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 import {
@@ -113,23 +114,34 @@ test('minimal and crawl operator builders inject only explicit connector inputs'
     phone: '+1 310 555 0199',
     bookingUrl: 'https://booking.clinic.example/schedule',
     address: '100 Wilshire Blvd, Los Angeles, CA',
+    timezone: 'America/New_York',
   }, 'basic');
   assert.deepEqual(minimal.config.connectors?.items.map((item) => item.id), [
     'tel',
     'booking',
     'map',
   ]);
+  assert.equal(minimal.config.meta.timezone, 'America/New_York');
+  assert.equal(
+    siteConfigSchema.parse(minimal.config).meta.timezone,
+    'America/New_York',
+    'the generated config schema must not strip the creation-time timezone',
+  );
 
   const crawlWithoutExplicitInput = buildOperatorCrawlSiteConfig(crawlArtifact(), 'basic');
   assert.equal(crawlWithoutExplicitInput.connectors, undefined);
+  assert.equal(crawlWithoutExplicitInput.meta.timezone, 'America/Los_Angeles');
   const crawlWithExplicitInput = buildOperatorCrawlSiteConfig(crawlArtifact(), 'basic', {
     phone: '+1 310 555 0199',
     bookingUrl: 'https://booking.clinic.example/schedule',
+    timezone: 'America/Phoenix',
   });
   assert.deepEqual(crawlWithExplicitInput.connectors?.items.map((item) => item.id), [
     'tel',
     'booking',
   ]);
+  assert.equal(crawlWithExplicitInput.meta.timezone, 'America/Phoenix');
+  assert.equal(siteConfigSchema.parse(crawlWithExplicitInput).meta.timezone, 'America/Phoenix');
 });
 
 test('operator connector patch preserves omitted, removes null, and keeps branded records', () => {

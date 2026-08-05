@@ -1,5 +1,5 @@
 import type { SurveyInput, Tier } from '@/lib/types/domain';
-import type { SiteConfig } from '@/lib/types/site';
+import type { SiteConfig, UsSiteTimezone } from '@/lib/types/site';
 import { buildZeroCostCandidates, buildZeroCostSiteConfig } from '@/lib/billing/prepublish-cost-policy';
 import { findPurpose } from '@/lib/data/purpose-taxonomy';
 import {
@@ -37,6 +37,12 @@ export interface OperatorMinimalSiteInput extends OperatorConnectorInput {
   industry: string;
   tone: string;
   colorPreference: string;
+  timezone?: UsSiteTimezone;
+}
+
+export interface OperatorCrawlSiteInput
+  extends Pick<OperatorConnectorInput, 'phone' | 'bookingUrl'> {
+  timezone?: UsSiteTimezone;
 }
 
 function assertNoFirstPartyForm(config: SiteConfig): SiteConfig {
@@ -77,7 +83,10 @@ export async function buildOperatorMinimalSiteConfig(
   const survey = minimalOperatorSurvey(input);
   const candidate = (await buildZeroCostCandidates(survey))[0];
   if (!candidate) throw new Error('OPERATOR_DESIGN_CANDIDATE_UNAVAILABLE');
-  const generated = pinUsTenantLocaleForNewSite(buildZeroCostSiteConfig(survey, candidate));
+  const generated = pinUsTenantLocaleForNewSite(
+    buildZeroCostSiteConfig(survey, candidate),
+    input.timezone,
+  );
   const withCinematicDefault = withSiteCinematicDefault(generated);
   const withDirections = recompileDirectionsSectionLayouts(withCinematicDefault);
   const withMotion = applyGeneratedMotion(
@@ -97,8 +106,9 @@ export async function buildOperatorMinimalSiteConfig(
 export function buildOperatorCrawlSiteConfig(
   artifact: CrawlArtifactPayload,
   tier: Tier,
-  connectorInput: Pick<OperatorConnectorInput, 'phone' | 'bookingUrl'> = {},
+  connectorInput: OperatorCrawlSiteInput = {},
 ): SiteConfig {
+  const { timezone, ...explicitConnectors } = connectorInput;
   const compiled = artifact.crawlPolicyId === 'us-medical-consented-v1'
     ? compileUsMedicalConsentedArtifact({ artifact }).config
     : compileRobustClinicArtifact({
@@ -106,12 +116,12 @@ export function buildOperatorCrawlSiteConfig(
         profile: US_MEDICAL_OUTREACH_PROFILE,
       }).config;
   const generated = applyGeneratedMotion(
-    pinUsTenantLocaleForNewSite(compiled),
+    pinUsTenantLocaleForNewSite(compiled, timezone),
     'booking_service',
     tier,
   );
   return assertNoFirstPartyForm(enforceOperatorMedicalDraft(
-    applyOperatorConnectorInput(generated, connectorInput),
+    applyOperatorConnectorInput(generated, explicitConnectors),
   ));
 }
 

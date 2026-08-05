@@ -55,6 +55,7 @@ import type {
 } from '@/lib/us-demo/contracts';
 import type { UsDemoSourceDisposition } from '@/lib/us-demo/source-curation';
 import type { SiteConnector } from '@/lib/connectors/types';
+import type { UsSiteTimezone } from '@/lib/types/site';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -193,6 +194,7 @@ export interface OperatorSiteCreateResult {
   site: Site;
   source: 'crawl' | 'minimal';
   locale: string;
+  timezone: UsSiteTimezone;
   formCount: number;
   items: SiteConnector[];
 }
@@ -621,6 +623,7 @@ export function createOperatorClientSite(
     | {
         mode: 'crawl';
         sourceUrl: string;
+        timezone?: UsSiteTimezone;
         phone?: string;
         bookingUrl?: string;
       }
@@ -630,6 +633,7 @@ export function createOperatorClientSite(
         industry: string;
         tone: string;
         colorPreference: string;
+        timezone?: UsSiteTimezone;
         phone?: string;
         bookingUrl?: string;
         address?: string;

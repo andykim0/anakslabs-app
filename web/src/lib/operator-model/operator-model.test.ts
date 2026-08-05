@@ -55,6 +55,7 @@ test('minimal operator input is four source-free fields and creates no form', as
 
   const built = await buildOperatorMinimalSiteConfig(input, 'basic');
   assert.equal(built.config.meta.locale, 'en-US');
+  assert.equal(built.config.meta.timezone, 'America/Los_Angeles');
   assert.equal(built.config.meta.medicalAdPolicyVersion, 'us-medical-ad-2026-08-v1');
   assert.equal(siteFormCount(built.config), 0);
 });

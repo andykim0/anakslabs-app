@@ -38,6 +38,7 @@ function forgedStageConfig(): SiteConfig {
     templateId: 'company_brand.default',
     locale: 'en-US',
     jurisdiction: 'US',
+    timezone: 'America/Los_Angeles',
   };
   config.motion = {
     presetId: 'cinematic-hero',
@@ -114,23 +115,27 @@ describe('SS5 — 서버 권위 purpose/template 분류', () => {
     assert.equal(classified.meta.templateId, undefined);
     assert.equal(classified.meta.locale, undefined);
     assert.equal(classified.meta.jurisdiction, undefined);
+    assert.equal(classified.meta.timezone, undefined);
   });
 
-  test('에디터 PATCH가 locale/jurisdiction을 생략해도 저장된 US 분류를 서버 권위로 복원한다', () => {
+  test('에디터 PATCH가 locale/jurisdiction/timezone을 생략하거나 변조해도 저장된 US 분류를 서버 권위로 복원한다', () => {
     const persisted = emptySiteConfig('Stored US classification');
     persisted.meta = {
       ...persisted.meta,
       locale: 'en-US',
       jurisdiction: 'US',
+      timezone: 'America/New_York',
       purposeId: 'booking_service',
       templateId: 'booking_service.clinic',
       industryClass: 'medical',
       industryId: 'clinic',
     };
     const submitted = emptySiteConfig('Client attempted classification deletion');
+    submitted.meta.timezone = 'America/Los_Angeles';
     const classified = preserveSiteClassification(submitted, persisted);
     assert.equal(classified.meta.locale, 'en-US');
     assert.equal(classified.meta.jurisdiction, 'US');
+    assert.equal(classified.meta.timezone, 'America/New_York');
     assert.equal(classified.meta.purposeId, 'booking_service');
     assert.equal(classified.meta.templateId, 'booking_service.clinic');
     assert.equal(classified.meta.industryClass, 'medical');

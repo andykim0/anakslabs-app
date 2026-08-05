@@ -7,6 +7,11 @@ import {
   inviteOperatorClient,
 } from './api';
 import { Card, PanelSection } from './ui';
+import {
+  DEFAULT_US_SITE_TIMEZONE,
+  US_SITE_TIMEZONES,
+  type UsSiteTimezone,
+} from '@/lib/types/site';
 
 const INPUT = 'w-full rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs focus:border-slate-500 focus:outline-none';
 
@@ -55,6 +60,7 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
   const [industry, setIndustry] = useState('Dental practice');
   const [tone, setTone] = useState('calm and clinical');
   const [colorPreference, setColorPreference] = useState('clean blue');
+  const [timezone, setTimezone] = useState<UsSiteTimezone>(DEFAULT_US_SITE_TIMEZONE);
   const [phone, setPhone] = useState('');
   const [bookingUrl, setBookingUrl] = useState('');
   const [address, setAddress] = useState('');
@@ -63,6 +69,7 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
       ? {
           mode,
           sourceUrl: sourceUrl.trim(),
+          timezone,
           ...(phone.trim() ? { phone: phone.trim() } : {}),
           ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
         }
@@ -72,6 +79,7 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
           industry: industry.trim(),
           tone: tone.trim(),
           colorPreference: colorPreference.trim(),
+          timezone,
           ...(phone.trim() ? { phone: phone.trim() } : {}),
           ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
           ...(address.trim() ? { address: address.trim() } : {}),
@@ -109,6 +117,14 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
             </div>
           )}
           <div className="grid gap-2 sm:grid-cols-2">
+            <select
+              className={`${INPUT} sm:col-span-2`}
+              value={timezone}
+              onChange={(event) => setTimezone(event.target.value as UsSiteTimezone)}
+              aria-label="Site timezone"
+            >
+              {US_SITE_TIMEZONES.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
             <input className={INPUT} value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" placeholder="Phone (optional)" aria-label="Public phone" />
             <input className={INPUT} value={bookingUrl} onChange={(event) => setBookingUrl(event.target.value)} type="url" placeholder="https://booking.example (optional)" aria-label="External booking URL" />
             {mode === 'minimal' ? (
@@ -120,7 +136,7 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
           </button>
           {mutation.isError ? <p className="text-xs text-red-600">{mutation.error.message}</p> : null}
           {mutation.data ? (
-            <p className="text-xs text-emerald-700">Created {mutation.data.siteId} · {mutation.data.locale} · forms {mutation.data.formCount}</p>
+            <p className="text-xs text-emerald-700">Created {mutation.data.siteId} · {mutation.data.locale} · {mutation.data.timezone} · forms {mutation.data.formCount}</p>
           ) : null}
         </form>
       )}
