@@ -804,12 +804,17 @@ export function rejectAdminContent(
 export function approveAdminContent(
   id: string,
   expectedVersionId: string,
+  safeCatalogOverrideConfirmed = false,
 ): Promise<{ ok: true; duplicated: boolean }> {
   return fetchJson<{ ok: true; duplicated: boolean }>(
     `/api/admin/content-queue/${encodeURIComponent(id)}/approve`,
     {
       method: 'POST',
-      body: JSON.stringify({ expectedVersionId, approvalConfirmed: true }),
+      body: JSON.stringify({
+        expectedVersionId,
+        approvalConfirmed: true,
+        ...(safeCatalogOverrideConfirmed ? { safeCatalogOverrideConfirmed: true } : {}),
+      }),
     },
   );
 }

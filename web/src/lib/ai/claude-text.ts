@@ -65,8 +65,21 @@ export async function generateClaudeText(input: {
   return text;
 }
 
-/** Named tool output only. Callers still validate every input against their runtime schema. */
-export async function generateClaudeToolInputs(input: {
+export interface ClaudeToolGenerationObservation {
+  stopReason: Anthropic.Message['stop_reason'];
+  usage: {
+    inputTokens: number;
+    outputTokens: number;
+    cacheCreationInputTokens: number;
+    cacheReadInputTokens: number;
+  };
+}
+
+export interface ClaudeToolInputsWithObservation extends ClaudeToolGenerationObservation {
+  inputs: readonly unknown[];
+}
+
+interface ClaudeToolInputRequest {
   prompt: string;
   system: string;
   tool: {
@@ -75,27 +88,62 @@ export async function generateClaudeToolInputs(input: {
     inputSchema: Anthropic.Tool['input_schema'];
   };
   maxTokens?: number;
+  timeoutMs?: number;
+  maxRetries?: number;
+  disableParallelToolUse?: boolean;
   model?: string;
-}): Promise<readonly unknown[]> {
+}
+
+/** Named tool output only. Callers still validate every input against their runtime schema. */
+export async function generateClaudeToolInputs(
+  input: ClaudeToolInputRequest & { includeObservation: true },
+): Promise<ClaudeToolInputsWithObservation>;
+export async function generateClaudeToolInputs(
+  input: ClaudeToolInputRequest & { includeObservation?: false },
+): Promise<readonly unknown[]>;
+export async function generateClaudeToolInputs(
+  input: ClaudeToolInputRequest & { includeObservation?: boolean },
+): Promise<readonly unknown[] | ClaudeToolInputsWithObservation> {
   const client = getClient();
-  const response = await client.messages.create({
-    model: input.model ?? DEFAULT_MODEL,
-    max_tokens: input.maxTokens ?? 1200,
-    system: input.system,
-    messages: [{ role: 'user', content: input.prompt }],
-    tools: [{
-      name: input.tool.name,
-      description: input.tool.description,
-      input_schema: input.tool.inputSchema,
-      strict: true,
-    }],
-    tool_choice: { type: 'tool', name: input.tool.name, disable_parallel_tool_use: false },
-  });
-  if (response.stop_reason === 'refusal') {
-    throw new Error('Claude refused the structured selection request.');
-  }
-  return response.content
+  const response = await client.messages.create(
+    {
+      model: input.model ?? DEFAULT_MODEL,
+      max_tokens: input.maxTokens ?? 1200,
+      system: input.system,
+      messages: [{ role: 'user', content: input.prompt }],
+      tools: [{
+        name: input.tool.name,
+        description: input.tool.description,
+        input_schema: input.tool.inputSchema,
+        strict: true,
+      }],
+      tool_choice: {
+        type: 'tool',
+        name: input.tool.name,
+        disable_parallel_tool_use: input.disableParallelToolUse ?? false,
+      },
+    },
+    {
+      ...(input.timeoutMs !== undefined ? { timeout: input.timeoutMs } : {}),
+      ...(input.maxRetries !== undefined ? { maxRetries: input.maxRetries } : {}),
+    },
+  );
+  const inputs = response.content
     .filter((block): block is Anthropic.ToolUseBlock =>
       block.type === 'tool_use' && block.name === input.tool.name)
     .map((block) => block.input);
+  if (response.stop_reason === 'refusal' && !input.includeObservation) {
+    throw new Error('Claude refused the structured selection request.');
+  }
+  if (!input.includeObservation) return inputs;
+  return {
+    inputs,
+    stopReason: response.stop_reason,
+    usage: {
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      cacheCreationInputTokens: response.usage.cache_creation_input_tokens ?? 0,
+      cacheReadInputTokens: response.usage.cache_read_input_tokens ?? 0,
+    },
+  };
 }
