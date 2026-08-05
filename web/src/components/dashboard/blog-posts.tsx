@@ -31,8 +31,8 @@ function FulfillmentCounter({ view }: { view: CustomerBlogView }) {
       </p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-[#141A3A]">
         {committed === null
-          ? `This month: ${view.delivered} published`
-          : `This month: ${view.delivered} of ${committed} published`}
+          ? `This month: ${view.delivered} delivered`
+          : `This month: ${view.delivered} of ${committed} delivered`}
       </p>
       {committed === null ? null : (
         <div
@@ -66,6 +66,7 @@ function PostRow({ post }: { post: CustomerBlogPost }) {
           <Badge tone={published ? 'emerald' : 'neutral'}>
             {published ? "Published" : "In progress"}
           </Badge>
+          {post.interim ? <Badge tone="amber">Standard article</Badge> : null}
         </div>
         {published && post.summary ? (
           <p className="mt-1 line-clamp-2 max-w-2xl text-xs leading-5 text-[#6a7286]">
@@ -76,6 +77,17 @@ function PostRow({ post }: { post: CustomerBlogPost }) {
             We&apos;re writing this one. It appears on your site once it is published.
           </p>
         )}
+        {/*
+          States the two facts that are true right now — what this article is, and why the
+          counter does not include it. It promises no replacement and names no source, because
+          nothing downstream is obliged to produce either.
+        */}
+        {post.interim ? (
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-[#855700]">
+            A general article, not written from this clinic&apos;s own information. It doesn&apos;t
+            count toward this month&apos;s delivered total.
+          </p>
+        ) : null}
         {published && post.publishedAt ? (
           <p className="mt-1 text-[11px] text-[#8B9AB0]">
             Published {formatDate(post.publishedAt)}

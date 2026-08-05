@@ -3,7 +3,7 @@ import { getContentQueueRepository } from '@/lib/admin/content-queue-repository'
 import type { AdminContentQueueItem } from '@/lib/admin/content-queue-core';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import type { Site } from '@/lib/types/domain';
-import { deliveredCountForPeriod, slotsForPeriod } from './delivery';
+import { deliveredCountForPeriod, isSafeCatalogSlot, slotsForPeriod } from './delivery';
 import { siteFulfillmentPlan } from './site-fulfillment';
 
 /**
@@ -21,6 +21,14 @@ export interface CustomerBlogPost {
   ordinal: number;
   periodMonth: string;
   state: CustomerBlogPostState;
+  /**
+   * True only for a post that is live but does not count toward the month's total — a general
+   * article rather than one written from this business's own information. It exists so the screen
+   * can explain the gap between what is live and what the counter says, instead of leaving the
+   * customer to read the difference as an arithmetic error. Never true while in progress: an
+   * unpublished draft has not been delivered as anything yet.
+   */
+  interim: boolean;
   /** Copy only exists for the customer once it is live under their own domain. */
   title: string | null;
   summary: string | null;
@@ -54,6 +62,7 @@ function customerPost(site: Site, item: AdminContentQueueItem): CustomerBlogPost
     ordinal: item.ordinal,
     periodMonth: item.periodMonth,
     state: published ? 'published' : 'in_progress',
+    interim: published && isSafeCatalogSlot(item),
     title: published ? item.currentVersion?.title ?? null : null,
     summary: published ? item.currentVersion?.summary ?? null : null,
     publishedAt: published ? item.publishedAt : null,

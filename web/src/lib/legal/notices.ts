@@ -20,3 +20,18 @@ export const OWNERSHIP_SUMMARY =
 
 export const REFUND_NOTICE =
   'Refund and renewal terms are pending counsel review. Live payment is unavailable.';
+
+/**
+ * Educational disclaimer carried by every published content post.
+ *
+ * Fixed text with one slot, never AI-generated: this is the sentence that tells a reader the
+ * article is not clinical advice, and a model paraphrasing it could weaken exactly the clause
+ * that matters. The wording stays industry-neutral because the content pipeline classifies these
+ * businesses generically as medical — naming a specialty here would assert something the site
+ * data does not establish.
+ */
+export function contentPostEducationalNotice(businessName: string): string {
+  const name = businessName.trim() || 'this clinic';
+  return `This article is general information provided by ${name} and is not a substitute for `
+    + 'professional medical advice. For questions about your own care, contact the clinic.';
+}

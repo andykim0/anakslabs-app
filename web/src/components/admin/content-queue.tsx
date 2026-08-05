@@ -59,8 +59,8 @@ const DEFAULT_TOPIC = "Criteria for customers to check before making a decision"
 function fulfillmentSentence(site: AdminContentFulfillmentSite): string {
   const month = site.periodMonth.slice(0, 7);
   return site.committed === null
-    ? `${month}: ${formatNumber(site.delivered)} published`
-    : `${month}: ${formatNumber(site.delivered)} of ${formatNumber(site.committed)} published`;
+    ? `${month}: ${formatNumber(site.delivered)} delivered`
+    : `${month}: ${formatNumber(site.delivered)} of ${formatNumber(site.committed)} delivered`;
 }
 
 function FulfillmentRow({ site }: { site: AdminContentFulfillmentSite }) {

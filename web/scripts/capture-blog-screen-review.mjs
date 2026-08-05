@@ -50,11 +50,11 @@ async function main() {
         await page.goto(`${base}${pathname}`, { waitUntil: 'networkidle0', timeout: 60_000 });
         // The admin queue paints its counter from a client fetch; wait for the text itself.
         await page.waitForFunction(
-          () => /\d+ of \d+ published/u.test(document.body.innerText),
+          () => /\d+ of \d+ delivered/u.test(document.body.innerText),
           { timeout: 30_000 },
         ).catch(() => undefined);
         const counter = await page.evaluate(() =>
-          /[^\n]*\d+ of \d+ published[^\n]*/u.exec(document.body.innerText)?.[0] ?? null);
+          /[^\n]*\d+ of \d+ delivered[^\n]*/u.exec(document.body.innerText)?.[0] ?? null);
         const file = path.join(outDir, `${name}-${label}.png`);
         await page.screenshot({ path: file, fullPage: true });
         findings.push({ screen: name, viewport: label, counter, file });
