@@ -90,8 +90,14 @@ export class MockContentQueueRepository implements ContentQueueRepository {
       && item.pricingModelVersion === input.pricingModelVersion
       && isSamePeriodMonth(item.periodMonth, input.periodMonth));
     const takenOrdinals = new Set(existing.map((item) => item.ordinal));
-    // 0049 makes (site_id, slug) unique on top of the schedule identity. Postgres would reject a
-    // colliding insert outright, so the mock must refuse it too rather than quietly diverging.
+    /**
+     * 0049 makes (site_id, slug) unique on top of the schedule identity, and 0059 inserts under
+     * `on conflict do nothing`. So a colliding slug in production is not an error — the row is
+     * skipped and `created` silently comes up short of what the month owes. The mock reproduces
+     * that under-provision rather than throwing: a mock stricter than production would advertise
+     * a fail-safe that does not exist, and this is exactly the signature that appears if 0047's
+     * pricing_model_version immutability is ever relaxed.
+     */
     const takenSlugs = new Set(
       [...this.items.values()]
         .filter((item) => item.siteId === input.siteId)
@@ -101,12 +107,7 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     for (let ordinal = 1; ordinal <= input.count; ordinal += 1) {
       if (takenOrdinals.has(ordinal)) continue;
       const slug = monthlySlotSlug(input.periodMonth, ordinal);
-      if (takenSlugs.has(slug)) {
-        throw new ContentQueueError(
-          'CONTENT_POST_STATE_CONFLICT',
-          `A content post with slug ${slug} already exists for this site.`,
-        );
-      }
+      if (takenSlugs.has(slug)) continue;
       takenSlugs.add(slug);
       const now = new Date().toISOString();
       const id = randomUUID();

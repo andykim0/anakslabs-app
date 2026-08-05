@@ -13,7 +13,6 @@ import { describe, test } from 'node:test';
 import {
   CONTENT_QUEUE_DEFAULT_LIMIT,
   CONTENT_QUEUE_MAX_LIMIT,
-  ContentQueueError,
   normalizeContentQueueLimit,
 } from '@/lib/admin/content-queue-core';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
@@ -256,7 +255,7 @@ describe('BLOG-SCREEN F5 — normalization and mock/Postgres parity', () => {
     assert.equal(normalizeContentQueueLimit(), CONTENT_QUEUE_DEFAULT_LIMIT);
   });
 
-  test('the mock refuses a slug collision the way the unique index would', async () => {
+  test('a slug collision silently under-provisions, exactly as production would', async () => {
     const repository = new MockContentQueueRepository();
     await repository.provisionMonthlySlots({
       clientId: CLIENT_ID,
@@ -266,26 +265,34 @@ describe('BLOG-SCREEN F5 — normalization and mock/Postgres parity', () => {
       count: 2,
       actorId: OPERATOR_ACTOR_ID,
     });
-    // A second pricing model version in the same month derives the same slug. 0049's
-    // (site_id, slug) unique index rejects it, and the mock must not diverge.
-    await assert.rejects(
-      () => repository.provisionMonthlySlots({
-        clientId: CLIENT_ID,
-        siteId: SITE_ID,
-        pricingModelVersion: 'some-other-contract-v1',
-        periodMonth: CURRENT_PERIOD,
-        count: 2,
-        actorId: OPERATOR_ACTOR_ID,
-      }),
-      (error: unknown) => error instanceof ContentQueueError
-        && error.code === 'CONTENT_POST_STATE_CONFLICT',
+
+    // A second pricing model version in the same month derives the same slugs. 0049's
+    // (site_id, slug) unique index blocks the rows, but 0059 inserts under `on conflict do
+    // nothing`, so nothing raises — the month simply comes up short. That silent shortfall is
+    // the real signature to recognize, and the mock must reproduce it rather than throw.
+    const result = await repository.provisionMonthlySlots({
+      clientId: CLIENT_ID,
+      siteId: SITE_ID,
+      pricingModelVersion: 'some-other-contract-v1',
+      periodMonth: CURRENT_PERIOD,
+      count: 2,
+      actorId: OPERATOR_ACTOR_ID,
+    });
+
+    assert.ok(
+      result.created < 2,
+      'a colliding batch must report fewer created slots than the month asked for',
     );
+    assert.equal(result.created, 0, 'both ordinals collide, so none are created');
+
     const all = await repository.listBySites({ siteIds: [SITE_ID] });
-    assert.equal(all.length, 2, 'the rejected batch left no partial rows behind');
+    assert.equal(all.length, 2, 'no duplicate slug row exists');
     assert.deepEqual(
       all.map((item) => item.slug),
       [monthlySlotSlug(CURRENT_PERIOD, 1), monthlySlotSlug(CURRENT_PERIOD, 2)],
     );
+    // The ledger only ever names slots that were actually created.
+    assert.equal(repository.slotCreatedEvents().length, 2);
   });
 });
 

@@ -353,7 +353,7 @@ describe('BLOG-SCREEN F6 — published articles carry an educational disclaimer'
     assertNode.match(html, /<aside[^>]*anaks-content-blog__notice/u);
   });
 
-  test('the list render carries it too, from the same single point', async () => {
+  test('the index does not claim to be an article', async () => {
     const { TenantContentBlog } = await withServerOnlyNeutralized(
       () => import('@/components/content-posts/TenantContentBlog'),
     );
@@ -361,10 +361,15 @@ describe('BLOG-SCREEN F6 — published articles carry an educational disclaimer'
       config: CONFIG,
       posts: [publishedPost()],
     }));
-    assert.ok(html.includes('is not a substitute for professional medical advice'));
+    // The sentence begins "This article is…" and the index is a list, not an article.
+    assert.ok(
+      !html.includes('is not a substitute for professional medical advice'),
+      'the list page must not print a sentence that is false there',
+    );
+    assert.ok(html.includes('What to expect at your first visit'), 'it still lists the post');
   });
 
-  test('the static export output carries the notice on every generated file', async () => {
+  test('the static export carries the notice on post files and not on the index', async () => {
     const { renderStaticContentPostFiles } = await withServerOnlyNeutralized(
       () => import('@/lib/content-fulfillment/render-static'),
     );
@@ -378,11 +383,16 @@ describe('BLOG-SCREEN F6 — published articles carry an educational disclaimer'
     });
 
     assert.equal(files.length, 2, 'a list file and one detail file');
-    for (const file of files) {
-      assert.ok(
-        file.html.includes('is not a substitute for professional medical advice'),
-        `${file.name} must carry the disclaimer`,
-      );
-    }
+    const index = files.find((file) => file.name === 'blog.html');
+    const detail = files.find((file) => file.name.startsWith('blog/'));
+    assert.ok(index && detail);
+    assert.ok(
+      detail.html.includes('is not a substitute for professional medical advice'),
+      `${detail.name} must carry the disclaimer`,
+    );
+    assert.ok(
+      !index.html.includes('is not a substitute for professional medical advice'),
+      'the exported index must not carry it either',
+    );
   });
 });

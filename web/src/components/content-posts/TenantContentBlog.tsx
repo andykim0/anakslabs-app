@@ -335,22 +335,28 @@ export function TenantContentBlog({
           <PostList posts={posts} config={renderedConfig} hrefForPost={hrefForPost} />
         )}
         {/*
-          Rendered beside the article, never inside it. The stored document and its validated
-          hash are what approval re-checks; folding this sentence into document.blocks would
+          Only where the sentence is true. It says "This article", so it belongs on a page that
+          is an article — the index lists several and is not one, and printing it there would be
+          a small false statement in the one place we promise not to make them.
+
+          Rendered beside the article, never inside it: the stored document and its validated
+          hash are what approval re-checks, and folding this sentence into document.blocks would
           change that hash and make every published version fail its own integrity gate.
         */}
-        <aside
-          className="anaks-content-blog__notice"
-          style={{
-            borderTop: `1px solid ${config.theme.palette.muted}33`,
-            color: config.theme.palette.muted,
-            fontFamily: config.theme.fonts.body,
-            fontSize: 14,
-            lineHeight: 1.7,
-          }}
-        >
-          {contentPostEducationalNotice(tenantBrandName(renderedConfig))}
-        </aside>
+        {post ? (
+          <aside
+            className="anaks-content-blog__notice"
+            style={{
+              borderTop: `1px solid ${config.theme.palette.muted}33`,
+              color: config.theme.palette.muted,
+              fontFamily: config.theme.fonts.body,
+              fontSize: 14,
+              lineHeight: 1.7,
+            }}
+          >
+            {contentPostEducationalNotice(tenantBrandName(renderedConfig))}
+          </aside>
+        ) : null}
       </main>
       {!businessInfo && publicContact ? (
         <PublicContactBar contact={publicContact} theme={config.theme} />
