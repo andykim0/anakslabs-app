@@ -10,6 +10,8 @@ import { contentQueueErrorResponse, contentQueueItemDto } from '../../_lib';
 type Ctx = { params: Promise<{ id: string }> };
 const bodySchema = z.object({ topic: z.string().trim().min(2).max(240) }).strict();
 
+export const maxDuration = 300;
+
 export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;

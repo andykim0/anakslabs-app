@@ -11,7 +11,10 @@ import {
   type GeneratedContentPostVersion,
 } from '@/lib/content-fulfillment/generation';
 import { loadContentGenerationContext } from '@/lib/content-fulfillment/generation-repository';
-import { getDataServices } from '@/lib/data';
+import {
+  createContentPostTextGenerator,
+  type ContentPostGenerationObservation,
+} from '@/lib/content-fulfillment/text-generator';
 import { submitIndexNow } from '@/lib/seo/indexnow';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import {
@@ -26,6 +29,7 @@ import {
   type ContentQueueRepository,
 } from './content-queue-core';
 import { getContentQueueRepository } from './content-queue-repository';
+import { safeCatalogApprovalOverrideRequired } from './content-safe-catalog-policy';
 
 const topicSchema = z.string().trim().min(2).max(240);
 const rejectionReasonSchema = z.string().trim().min(2).max(2_000);
@@ -37,14 +41,22 @@ interface ContentWorkflowDependencies {
   indexNow: typeof submitIndexNow;
 }
 
+interface ResolvedContentWorkflowDependencies extends ContentWorkflowDependencies {
+  generationObservations: ContentPostGenerationObservation[];
+}
+
 function dependencies(
   overrides: Partial<ContentWorkflowDependencies> = {},
-): ContentWorkflowDependencies {
+): ResolvedContentWorkflowDependencies {
+  const generationObservations: ContentPostGenerationObservation[] = [];
   return {
     repository: overrides.repository ?? getContentQueueRepository(),
-    generator: overrides.generator ?? getDataServices().ai,
+    generator: overrides.generator ?? createContentPostTextGenerator({
+      onObservation: (observation) => generationObservations.push(observation),
+    }),
     loadContext: overrides.loadContext ?? loadContentGenerationContext,
     indexNow: overrides.indexNow ?? submitIndexNow,
+    generationObservations,
   };
 }
 
@@ -110,11 +122,27 @@ export async function generateAdminContentPost(input: {
       config: context.config,
       topic: parsedTopic.data,
       slug: claim.item.slug,
+      onAttemptRejected: ({ attempt, code, paths }) => {
+        // Paths and gate classes are operationally useful; rejected customer copy is not logged.
+        console.warn('[content-generation] attempt rejected', { attempt, code, paths });
+      },
     });
+    const generatedWithProviderEvidence = deps.generationObservations.length > 0
+      ? {
+          ...generated,
+          generationMetadata: {
+            ...generated.generationMetadata,
+            provider: {
+              name: 'anthropic',
+              responses: deps.generationObservations,
+            },
+          },
+        }
+      : generated;
     return deps.repository.storeGenerated({
       id: input.id,
       actorId: input.actorId,
-      generated,
+      generated: generatedWithProviderEvidence,
     });
   } catch (error) {
     try {
@@ -181,11 +209,22 @@ export async function approveAdminContentPost(input: {
   id: string;
   expectedVersionId: string;
   actorId: string;
+  safeCatalogOverrideConfirmed?: boolean;
   dependencies?: Partial<ContentWorkflowDependencies>;
 }): Promise<ContentPublishResult> {
   const deps = dependencies(input.dependencies);
   const item = await deps.repository.getById(input.id);
   requiredItem(item);
+  if (safeCatalogApprovalOverrideRequired({
+    item,
+    expectedVersionId: input.expectedVersionId,
+    overrideConfirmed: input.safeCatalogOverrideConfirmed === true,
+  })) {
+    throw new ContentQueueError(
+      'CONTENT_POST_STATE_CONFLICT',
+      'Safe-catalog fallback drafts require an explicit operator override before approval.',
+    );
+  }
   if (item.status === 'published' && item.currentVersionId === input.expectedVersionId) {
     const evidence = contentQueueValidationEvidence(item.currentVersion);
     return deps.repository.approveAndPublish({

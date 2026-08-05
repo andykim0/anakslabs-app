@@ -61,10 +61,35 @@ export class ContentPostGenerationError extends Error {
       | 'CONTENT_POST_MEDICAL_BLOCKED'
       | 'CONTENT_POST_CLINIC_NOT_AVAILABLE',
     message: string,
+    readonly rejectionClass:
+      | 'schema'
+      | 'honesty-sourceref'
+      | 'medical'
+      | 'clinic-gate',
+    readonly paths: readonly string[],
   ) {
     super(message);
     this.name = 'ContentPostGenerationError';
   }
+}
+
+export interface ContentPostGenerationRejection {
+  attempt: 1 | 2 | 'safe-catalog';
+  code: 'schema' | 'honesty-sourceref' | 'medical' | 'clinic-gate' | 'generator';
+  paths: readonly string[];
+}
+
+function generatedPostIssuePaths(
+  issues: readonly { code: string; path: readonly PropertyKey[]; keys?: readonly string[] }[],
+): string[] {
+  return issues.flatMap((issue) => {
+    const base = ['post', ...issue.path.map(String)];
+    if (issue.code === 'unrecognized_keys' && issue.keys?.length) {
+      // Unknown property names are model-controlled. Keep them in retry diagnostics, not logs.
+      return [[...base, '$unknown'].join('.')];
+    }
+    return [base.join('.')];
+  });
 }
 
 export interface ContentTextGenerator {
@@ -100,9 +125,18 @@ function generationPrompt(input: {
     'Return one structured JSON object for an English website article.',
     `Topic: ${input.topic}`,
     `Use this exact slug: ${input.slug}`,
-    'Allowed blocks: heading, paragraph, list, and table. Do not return Markdown or HTML.',
-    'Attach an allowed source id in sourceRefs to every verifiable fact, date, number, result, review, comparison, or superlative.',
-    'Tables must have 2–6 columns. Every column.sourceRef and cell.sourceRef must use an allowed source id below.',
+    'Return exactly these top-level keys: slug, title, titleSourceRefs, summary, summarySourceRefs, tags, document. Do not add style or any other key.',
+    'document must be {"version":1,"blocks":[...]}. Do not return Markdown or HTML.',
+    'Block contracts (no extra keys):',
+    '- heading: {"type":"heading","level":2|3,"text":string,"sourceRefs"?:string[]}',
+    '- paragraph: {"type":"paragraph","text":string,"sourceRefs"?:string[]}',
+    '- list: {"type":"list","ordered":boolean,"items":[string|{"text":string,"sourceRefs"?:string[]}]}',
+    '- table: {"type":"table","caption"?:string,"captionSourceRefs"?:string[],"columns":[{"key":string,"header":string,"sourceRef":string}],"rows":[{"cells":[{"text":string,"sourceRef":string}]}]}',
+    'Every table column key must match /^[a-z][a-z0-9_-]*$/. Tables must have 2–6 columns, and every row must have exactly the same number of cells as columns.',
+    'For a verifiable fact, date, number, result, review, comparison, or superlative, use only source ids from the catalog below.',
+    'heading/paragraph sourceRefs and sourced list-item sourceRefs are optional: include them only for verifiable claims and only with catalog ids; otherwise omit the key. Never invent a source id.',
+    'Every table column.sourceRef and cell.sourceRef must use an allowed source id below.',
+    'For medical topics, when a paragraph mentions a treatment effect, the same paragraph must state a material limitation, risk, or that individual results vary.',
     'Do not invent facts absent from the source material. When sources are limited, use questions and neutral checklists without factual claims.',
     'Shape: {"slug","title","titleSourceRefs":[],"summary","summarySourceRefs":[],"tags":[],"document":{"version":1,"blocks":[]}}',
     input.retryReason ? `Reason the previous result was rejected: ${input.retryReason}` : '',
@@ -151,11 +185,18 @@ export function validateContentPostForPending(input: {
   config: SiteConfig;
   clinicFlagValue?: string;
 }): GeneratedContentPostVersion {
+  const postShape = generatedContentPostSchema.safeParse(input.post);
   const honesty = validateGeneratedContentPost(input.post, input.snapshot);
   if (!honesty.ok) {
+    const invalidDocument = honesty.violations.some((violation) =>
+      violation.code === 'invalid-document');
     throw new ContentPostGenerationError(
       'CONTENT_POST_GENERATION_INVALID',
       honesty.violations.map((violation) => `${violation.path}: ${violation.message}`).join(' '),
+      invalidDocument ? 'schema' : 'honesty-sourceref',
+      !postShape.success
+        ? generatedPostIssuePaths(postShape.error.issues)
+        : honesty.violations.map((violation) => violation.path),
     );
   }
   const post = generatedContentPostSchema.parse(input.post);
@@ -168,6 +209,8 @@ export function validateContentPostForPending(input: {
     throw new ContentPostGenerationError(
       'CONTENT_POST_CLINIC_NOT_AVAILABLE',
       `The clinic publishing policy did not pass: ${medical.clinicAvailabilityReason}`,
+      'clinic-gate',
+      ['$clinicAvailability'],
     );
   }
   if (medical.violations.length > 0) {
@@ -175,6 +218,8 @@ export function validateContentPostForPending(input: {
       'CONTENT_POST_MEDICAL_BLOCKED',
       medical.violations.map((violation) =>
         `${violation.path}: ${violation.safeReplacementHint}`).join(' '),
+      'medical',
+      medical.violations.map((violation) => violation.path),
     );
   }
   const sourceSnapshotSha256 = contentSha256(input.snapshot);
@@ -225,6 +270,7 @@ export async function generateContentPostVersion(input: {
   topic: string;
   slug: string;
   clinicFlagValue?: string;
+  onAttemptRejected?: (rejection: ContentPostGenerationRejection) => void;
 }): Promise<GeneratedContentPostVersion> {
   let retryReason = '';
   for (const attempt of [1, 2] as const) {
@@ -250,16 +296,43 @@ export async function generateContentPostVersion(input: {
         generationMetadata: { ...result.generationMetadata, attempt },
       };
     } catch (error) {
+      input.onAttemptRejected?.({
+        attempt,
+        code: error instanceof ContentPostGenerationError
+          ? error.rejectionClass
+          : error instanceof SyntaxError
+            ? 'schema'
+            : 'generator',
+        paths: error instanceof ContentPostGenerationError
+          ? [...new Set(error.paths)]
+          : [error instanceof SyntaxError ? '$json' : '$provider'],
+      });
       retryReason = error instanceof Error ? error.message : 'Policy validation failed';
     }
   }
 
-  const fallback = validateContentPostForPending({
-    post: safeCatalogPost(input.slug),
-    snapshot: input.snapshot,
-    config: input.config,
-    ...(input.clinicFlagValue !== undefined ? { clinicFlagValue: input.clinicFlagValue } : {}),
-  });
+  let fallback: GeneratedContentPostVersion;
+  try {
+    fallback = validateContentPostForPending({
+      post: safeCatalogPost(input.slug),
+      snapshot: input.snapshot,
+      config: input.config,
+      ...(input.clinicFlagValue !== undefined ? { clinicFlagValue: input.clinicFlagValue } : {}),
+    });
+  } catch (error) {
+    input.onAttemptRejected?.({
+      attempt: 'safe-catalog',
+      code: error instanceof ContentPostGenerationError
+        ? error.rejectionClass
+        : error instanceof SyntaxError
+          ? 'schema'
+          : 'generator',
+      paths: error instanceof ContentPostGenerationError
+        ? [...new Set(error.paths)]
+        : [error instanceof SyntaxError ? '$json' : '$provider'],
+    });
+    throw error;
+  }
   return {
     ...fallback,
     generationMetadata: { ...fallback.generationMetadata, attempt: 'safe-catalog' },

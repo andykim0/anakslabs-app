@@ -53,6 +53,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
   const [topic, setTopic] = useState(DEFAULT_TOPIC);
   const [reason, setReason] = useState('');
   const [approvalConfirmed, setApprovalConfirmed] = useState(false);
+  const [safeCatalogOverrideConfirmed, setSafeCatalogOverrideConfirmed] = useState(false);
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ['admin', 'content-queue'] });
   };
@@ -65,12 +66,17 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
     onSuccess: refresh,
   });
   const approval = useMutation({
-    mutationFn: () => approveAdminContent(item.id, item.currentVersionId!),
+    mutationFn: () => approveAdminContent(
+      item.id,
+      item.currentVersionId!,
+      safeCatalogOverrideConfirmed,
+    ),
     onSuccess: refresh,
   });
   const mutationError = generation.error ?? rejection.error ?? approval.error;
   const busy = generation.isPending || rejection.isPending || approval.isPending;
   const version = item.currentVersion;
+  const isSafeCatalog = version?.generationMetadata.attempt === 'safe-catalog';
 
   return (
     <Card className="p-4">
@@ -82,6 +88,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             </h2>
             <Badge tone={STATUS_TONES[item.status]}>{STATUS_LABELS[item.status]}</Badge>
             <Badge tone="blue">/{item.slug}</Badge>
+            {isSafeCatalog ? <Badge tone="amber">Safe-catalog fallback</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">
             site {item.siteId} · Price list {item.pricingModelVersion}
@@ -100,9 +107,14 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             {version.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
           </div>
           <p className="mt-2 text-[11px] text-slate-500">
-            See confirmed raw materials {formatNumber(version.sourceRefs.length)}Dog/external image cost{' '}
+            Verified source items: {formatNumber(version.sourceRefs.length)} · External image cost{' '}
             {version.generationMetadata.externalImageCostKrw === 0 ? "0 won" : "Confirmation required"}
           </p>
+          {isSafeCatalog ? (
+            <p role="alert" className="mt-2 text-xs font-medium text-amber-700">
+              This draft is the safe-catalog fallback and is blocked from approval by default.
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -172,6 +184,17 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             </div>
           </div>
           <div className="flex flex-col items-end justify-end gap-2">
+            {isSafeCatalog ? (
+              <label className="flex items-center gap-2 text-xs font-medium text-amber-700">
+                <input
+                  type="checkbox"
+                  checked={safeCatalogOverrideConfirmed}
+                  onChange={(event) => setSafeCatalogOverrideConfirmed(event.target.checked)}
+                  className="h-4 w-4 rounded border-amber-400"
+                />
+                Approve this safe-catalog fallback as an explicit exception.
+              </label>
+            ) : null}
             <label className="flex items-center gap-2 text-xs text-slate-600">
               <input
                 type="checkbox"
@@ -184,7 +207,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             <button
               type="button"
               onClick={() => approval.mutate()}
-              disabled={busy || !approvalConfirmed}
+              disabled={busy || !approvalConfirmed || (isSafeCatalog && !safeCatalogOverrideConfirmed)}
               className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-md bg-emerald-700 px-3 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
             >
               {approval.isPending
@@ -254,7 +277,12 @@ export function ContentQueue() {
         />
       ) : (
         <div className="space-y-3">
-          {query.data.items.map((item) => <ContentQueueCard key={item.id} item={item} />)}
+          {query.data.items.map((item) => (
+            <ContentQueueCard
+              key={`${item.id}:${item.currentVersionId ?? 'unversioned'}`}
+              item={item}
+            />
+          ))}
         </div>
       )}
       <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500">

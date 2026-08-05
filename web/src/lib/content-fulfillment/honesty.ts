@@ -132,7 +132,8 @@ export function validateGeneratedContentPost(
     violations.push({
       code: 'invalid-document',
       path: 'post',
-      message: postResult.error.issues.map((issue) => issue.message).join(' '),
+      message: postResult.error.issues.map((issue) =>
+        `${issue.path.join('.') || 'post'}: ${issue.message}`).join(' '),
     });
   }
   if (!snapshotResult.success) {
