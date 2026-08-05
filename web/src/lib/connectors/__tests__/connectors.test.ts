@@ -15,10 +15,13 @@ import {
   preserveServerConnectorManifest,
 } from '@/lib/connectors/application';
 import { CONNECTOR_CATALOG, connectorCatalogEntry } from '@/lib/connectors/catalog';
+import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 
 const root = process.cwd();
 const source = (relative: string) => readFileSync(`${root}/${relative}`, 'utf8');
 const RESERVATION = 'https://booking.naver.com/booking/6/bizes/12345';
+const US_BOOKING = 'https://appointments.example.com/clinic';
+const US_MAP = 'https://maps.google.com/?q=123%20Main%20Street';
 const KAKAO = 'https://pf.kakao.com/_legacy_fixture';
 const INSTAGRAM = 'https://www.instagram.com/anakslabs/';
 const OFFICIAL_BRAND_ASSET_SHA256 = {
@@ -75,7 +78,7 @@ function config(): SiteConfig {
 }
 
 describe('CONN C2 — native connector catalog and rendering', () => {
-  test('five connectors are pinned from verified destinations in mobile priority order', () => {
+  test('five legacy connectors remain pinned from verified destinations in mobile priority order', () => {
     const output = applyConnectorManifest(config(), survey(), {
       connectorCatalogVersion: 1,
       reservationLink: { url: RESERVATION },
@@ -89,8 +92,84 @@ describe('CONN C2 — native connector catalog and rendering', () => {
       ['tel', 'kakao-channel', 'naver-booking', 'naver-map', 'instagram'],
     );
     assert.equal(siteConfigSchema.safeParse(output).success, true);
-    assert.equal(CONNECTOR_CATALOG.length, 5);
+    assert.deepEqual(
+      CONNECTOR_CATALOG.map((entry) => entry.id),
+      ['tel', 'kakao-channel', 'naver-booking', 'naver-map', 'instagram', 'booking', 'map'],
+    );
+    assert.equal(CONNECTOR_CATALOG.length, 7);
     assert.equal(connectorCatalogEntry('kakao-channel').reportLabel, 'Message clicks');
+  });
+
+  test('the seven-item schema accepts provider-neutral US booking and map connectors', () => {
+    const legacy = applyConnectorManifest(config(), survey(), {
+      connectorCatalogVersion: 1,
+      reservationLink: { url: RESERVATION },
+      snsLinks: [
+        { kind: 'kakao_channel', url: KAKAO },
+        { kind: 'instagram', url: INSTAGRAM },
+      ],
+    });
+    assert.ok(legacy.connectors);
+    const output: SiteConfig = {
+      ...legacy,
+      connectors: {
+        catalogVersion: 1,
+        items: [
+          ...legacy.connectors.items,
+          { id: 'booking', label: 'Book an appointment', href: US_BOOKING },
+          { id: 'map', label: 'Directions', href: US_MAP, address: '123 Main Street' },
+        ],
+      },
+    };
+    assert.equal(output.connectors?.items.length, 7);
+    assert.equal(siteConfigSchema.safeParse(output).success, true);
+    assert.equal(isAcceptableUsBookingUrl(`  ${US_BOOKING}  `), true);
+    assert.equal(isAcceptableUsBookingUrl('http://appointments.example.com/clinic'), false);
+    assert.equal(isAcceptableUsBookingUrl('javascript:alert(1)'), false);
+
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: output,
+      mode: 'auto',
+      interactive: true,
+      animate: false,
+    }));
+    const dom = parse(html);
+    assert.ok(dom.querySelector(`[data-connector-icon="booking"]`));
+    assert.ok(dom.querySelector(`[data-connector-icon="map"]`));
+    assert.equal(dom.querySelectorAll('[data-connector-brand="booking"]').length, 0);
+    assert.equal(dom.querySelectorAll('[data-connector-brand="map"]').length, 0);
+    assert.ok(dom.querySelector(`a[href="${US_BOOKING}"]`));
+    assert.ok(dom.querySelector(`a[href="${US_MAP}"]`));
+
+    const overCatalogMax: SiteConfig = {
+      ...output,
+      connectors: {
+        ...output.connectors!,
+        items: [
+          ...output.connectors!.items,
+          { id: 'booking', label: 'Duplicate booking', href: US_BOOKING },
+        ],
+      },
+    };
+    assert.equal(siteConfigSchema.safeParse(overCatalogMax).success, false);
+  });
+
+  test('en-US application emits a generic Google map while the legacy locale keeps Naver', () => {
+    const usInput = config();
+    const us = applyConnectorManifest({
+      ...usInput,
+      meta: { ...usInput.meta, locale: 'en-US', jurisdiction: 'US' },
+    }, survey(), { connectorCatalogVersion: 1 });
+    const usMap = us.connectors?.items.find((item) => item.id === 'map');
+    assert.ok(usMap);
+    assert.match(usMap.href, /^https:\/\/maps\.google\.com\//u);
+    assert.equal(us.connectors?.items.some((item) => item.id === 'naver-map'), false);
+    assert.equal(siteConfigSchema.safeParse(us).success, true);
+
+    const legacy = applyConnectorManifest(config(), survey(), { connectorCatalogVersion: 1 });
+    assert.equal(legacy.connectors?.items.some((item) => item.id === 'map'), false);
+    assert.ok(legacy.connectors?.items.find((item) => item.id === 'naver-map'));
+    assert.equal(siteConfigSchema.safeParse(legacy).success, true);
   });
 
   test('native wrappers render without third-party iframe or eager SDK', () => {

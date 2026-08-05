@@ -6,6 +6,8 @@ export const CONNECTOR_IDS = [
   'naver-booking',
   'naver-map',
   'instagram',
+  'booking',
+  'map',
 ] as const;
 
 export type ConnectorId = (typeof CONNECTOR_IDS)[number];
@@ -45,12 +47,25 @@ export interface InstagramConnector extends ConnectorBase {
   username: string;
 }
 
+/** Provider-neutral HTTPS booking destination used by the US operator flow. */
+export interface BookingConnector extends ConnectorBase {
+  id: 'booking';
+}
+
+/** Provider-neutral directions destination used by the US operator flow. */
+export interface MapConnector extends ConnectorBase {
+  id: 'map';
+  address: string;
+}
+
 export type SiteConnector =
   | TelConnector
   | KakaoChannelConnector
   | NaverBookingConnector
   | NaverMapConnector
-  | InstagramConnector;
+  | InstagramConnector
+  | BookingConnector
+  | MapConnector;
 
 /** 서버 카탈로그가 기록하는 additive manifest. 클라이언트 임의 embed HTML은 받지 않는다. */
 export interface SiteConnectorManifest {

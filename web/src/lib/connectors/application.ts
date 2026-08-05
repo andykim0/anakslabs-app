@@ -91,14 +91,21 @@ function connectorManifest(
     });
   }
 
-  const directionsHref = businessDirectionsHref(contact?.address ?? '');
+  const directionsHref = businessDirectionsHref(contact?.address ?? '', config.meta.locale);
   if (directionsHref && contact?.address) {
-    items.push({
-      id: 'naver-map',
-      label: 'Directions',
-      href: directionsHref,
-      address: contact.address,
-    });
+    items.push(config.meta.locale === 'en-US'
+      ? {
+          id: 'map',
+          label: 'Directions',
+          href: directionsHref,
+          address: contact.address,
+        }
+      : {
+          id: 'naver-map',
+          label: 'Directions',
+          href: directionsHref,
+          address: contact.address,
+        });
   }
 
   const instagramUrl = firstSns(survey, extras, 'instagram');
@@ -140,4 +147,15 @@ export function preserveServerConnectorManifest(
   const next = { ...incoming };
   delete next.connectors;
   return persisted?.connectors ? { ...next, connectors: persisted.connectors } : next;
+}
+
+/** 관리자 서버 권위 경로만 사용: 초안·발행본의 manifest를 명시적으로 교체한다. */
+export function withServerConnectorManifest(
+  config: SiteConfig,
+  manifest: SiteConnectorManifest | undefined,
+): SiteConfig {
+  const next = structuredClone(config);
+  if (manifest) next.connectors = structuredClone(manifest);
+  else delete next.connectors;
+  return next;
 }

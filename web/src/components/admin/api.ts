@@ -54,6 +54,7 @@ import type {
   UsMedicalAdViolation,
 } from '@/lib/us-demo/contracts';
 import type { UsDemoSourceDisposition } from '@/lib/us-demo/source-curation';
+import type { SiteConnector } from '@/lib/connectors/types';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -193,6 +194,18 @@ export interface OperatorSiteCreateResult {
   source: 'crawl' | 'minimal';
   locale: string;
   formCount: number;
+  items: SiteConnector[];
+}
+
+export interface OperatorConnectorPatchInput {
+  phone?: string | null;
+  bookingUrl?: string | null;
+  address?: string | null;
+}
+
+export interface OperatorConnectorPatchResult {
+  siteId: string;
+  items: SiteConnector[];
 }
 
 export interface AdjustCreditsInput {
@@ -605,18 +618,37 @@ export function inviteOperatorClient(input: {
 export function createOperatorClientSite(
   clientId: string,
   input:
-    | { mode: 'crawl'; sourceUrl: string }
+    | {
+        mode: 'crawl';
+        sourceUrl: string;
+        phone?: string;
+        bookingUrl?: string;
+      }
     | {
         mode: 'minimal';
         businessName: string;
         industry: string;
         tone: string;
         colorPreference: string;
+        phone?: string;
+        bookingUrl?: string;
+        address?: string;
       },
 ): Promise<OperatorSiteCreateResult> {
   return fetchJson<OperatorSiteCreateResult>(
     `/api/admin/clients/${encodeURIComponent(clientId)}/sites`,
     { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+export function updateOperatorSiteConnectors(
+  clientId: string,
+  siteId: string,
+  input: OperatorConnectorPatchInput,
+): Promise<OperatorConnectorPatchResult> {
+  return fetchJson<OperatorConnectorPatchResult>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/connectors`,
+    { method: 'PATCH', body: JSON.stringify(input) },
   );
 }
 

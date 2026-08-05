@@ -441,6 +441,12 @@ export function SiteRenderer({
   const clinicLocale = config.clinicMaster?.demoPitchLocale === 'ko-owner'
     ? 'ko-KR'
     : 'en-US';
+  const hasPublishedUsStickyAction = config.meta.locale === 'en-US'
+    && Boolean(config.connectors?.items.some((item) => item.id === 'tel' || item.id === 'booking'));
+  const publishedConnectorLocale = config.meta.locale === 'en-US'
+    ? 'en-US'
+    : clinicLocale;
+  const hasExplicitClinicExperience = Boolean(clinicExperience);
   const continuousCanvas = page.slug === '' && continuousCanvasIsEnabled(config);
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),
@@ -827,7 +833,7 @@ export function SiteRenderer({
             ))}
           </div>
         )}
-        {page.slug === '' && config.connectors && clinicLocale !== 'ko-KR' ? (
+        {page.slug === '' && config.connectors && publishedConnectorLocale === 'en-US' ? (
           <ConnectorPanel
             manifest={config.connectors}
             theme={theme}
@@ -836,15 +842,16 @@ export function SiteRenderer({
             runtimeDelivery={runtimeDelivery}
           />
         ) : null}
-        {config.clinicMaster && (
-          page.slug === ''
+        {(hasPublishedUsStickyAction || (config.clinicMaster && (
+          (page.slug === '' && siteId === undefined)
           || clinicLocale === 'ko-KR'
           || clinicExperience?.mode === 'live'
           || clinicExperience?.mode === 'preview-full'
           || clinicExperience?.mode === 'outreach-safe'
-        ) ? (
+        ))) ? (
           <ClinicStickyBooking
             pin={config.clinicMaster}
+            theme={theme}
             interactive={interactive}
             destination={clinicExperience?.mode === 'live'
               || clinicExperience?.mode === 'preview-full'
@@ -855,8 +862,11 @@ export function SiteRenderer({
               || clinicExperience?.mode === 'outreach-safe'
               ? clinicExperience.sourcePhone
               : undefined}
-            locale={clinicLocale}
-            connectors={clinicLocale === 'ko-KR' ? config.connectors : undefined}
+            locale={publishedConnectorLocale}
+            connectors={config.connectors}
+            previewOnly={hasExplicitClinicExperience
+              ? clinicExperience?.mode !== 'live'
+              : !hasPublishedUsStickyAction}
           />
         ) : null}
       </div>

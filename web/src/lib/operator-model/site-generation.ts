@@ -20,6 +20,10 @@ import {
   recompileGallerySectionLayouts,
 } from '@/lib/layout/section-layout-application';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
+import {
+  applyOperatorConnectorInput,
+  type OperatorConnectorInput,
+} from './connectors';
 
 export const OPERATOR_MINIMAL_SITE_FIELDS = [
   'businessName',
@@ -28,7 +32,7 @@ export const OPERATOR_MINIMAL_SITE_FIELDS = [
   'colorPreference',
 ] as const;
 
-export interface OperatorMinimalSiteInput {
+export interface OperatorMinimalSiteInput extends OperatorConnectorInput {
   businessName: string;
   industry: string;
   tone: string;
@@ -85,7 +89,7 @@ export async function buildOperatorMinimalSiteConfig(
   );
   const withGallery = recompileGallerySectionLayouts(withMotion);
   const config = assertNoFirstPartyForm(enforceOperatorMedicalDraft(
-    applyProceduralBackgroundDefaults(withGallery),
+    applyOperatorConnectorInput(applyProceduralBackgroundDefaults(withGallery), input),
   ));
   return { survey, config };
 }
@@ -93,6 +97,7 @@ export async function buildOperatorMinimalSiteConfig(
 export function buildOperatorCrawlSiteConfig(
   artifact: CrawlArtifactPayload,
   tier: Tier,
+  connectorInput: Pick<OperatorConnectorInput, 'phone' | 'bookingUrl'> = {},
 ): SiteConfig {
   const compiled = artifact.crawlPolicyId === 'us-medical-consented-v1'
     ? compileUsMedicalConsentedArtifact({ artifact }).config
@@ -105,7 +110,9 @@ export function buildOperatorCrawlSiteConfig(
     'booking_service',
     tier,
   );
-  return assertNoFirstPartyForm(enforceOperatorMedicalDraft(generated));
+  return assertNoFirstPartyForm(enforceOperatorMedicalDraft(
+    applyOperatorConnectorInput(generated, connectorInput),
+  ));
 }
 
 export function siteFormCount(config: SiteConfig): number {

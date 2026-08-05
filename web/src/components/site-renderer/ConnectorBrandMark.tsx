@@ -1,7 +1,7 @@
 import { isDarkColor } from '@/lib/design/quality-standards';
 import type { SiteConnector } from '@/lib/connectors/types';
 
-type BrandConnectorId = Exclude<SiteConnector['id'], 'tel'>;
+type BrandConnectorId = Exclude<SiteConnector['id'], 'tel' | 'booking' | 'map'>;
 
 /**
  * 확인 필요 요약 — 법률 자문이 아니며 출시 전 각사 최신 가이드의 최종 확인 대상이다.

@@ -19,6 +19,8 @@ import {
   isRecognizedChatUrl,
   isRecognizedReservationUrl,
 } from '@/lib/analytics/trackable-actions';
+import { CONNECTOR_CATALOG } from '@/lib/connectors/catalog';
+import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 import {
   DESIGN_DNA_IDS,
   DNA_CHROMA_NAMES,
@@ -1044,7 +1046,20 @@ const siteConnectorManifestSchema = z.object({
       href: z.string().url().refine((value) => /^https:\/\/(?:www\.)?instagram\.com\//iu.test(value)),
       username: z.string().regex(/^[A-Za-z0-9._]{1,30}$/u),
     }).strict(),
-  ])).min(1).max(5).superRefine((items, ctx) => {
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('booking'),
+      href: z.string().trim().min(1).max(2_000)
+        .refine(isAcceptableUsBookingUrl, 'Booking links must use a safe https:// URL.'),
+    }).strict(),
+    z.object({
+      ...connectorBaseShape,
+      id: z.literal('map'),
+      href: z.string().trim().min(1).max(2_000)
+        .refine(isHttpsUrl, 'Directions links must use https://.'),
+      address: z.string().trim().min(1).max(300),
+    }).strict(),
+  ])).min(1).max(CONNECTOR_CATALOG.length).superRefine((items, ctx) => {
     const ids = new Set<string>();
     items.forEach((item, index) => {
       if (ids.has(item.id)) {

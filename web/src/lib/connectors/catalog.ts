@@ -54,6 +54,22 @@ export const CONNECTOR_CATALOG = [
     loadStrategy: 'interaction',
     reportLabel: 'Instagram clicks',
   },
+  {
+    id: 'booking',
+    label: 'Book an appointment',
+    description: 'Open the verified booking destination.',
+    mobilePriority: 6,
+    loadStrategy: 'native',
+    reportLabel: 'Booking clicks',
+  },
+  {
+    id: 'map',
+    label: 'Directions',
+    description: 'Open the clinic location in maps.',
+    mobilePriority: 7,
+    loadStrategy: 'native',
+    reportLabel: 'Directions clicks',
+  },
 ] as const satisfies readonly ConnectorCatalogEntry[];
 
 export function connectorCatalogEntry(id: ConnectorId): ConnectorCatalogEntry {

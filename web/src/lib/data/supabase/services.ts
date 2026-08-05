@@ -26,7 +26,11 @@ import type {
 import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
-import { preserveServerConnectorManifest } from '@/lib/connectors/application';
+import {
+  preserveServerConnectorManifest,
+  withServerConnectorManifest,
+} from '@/lib/connectors/application';
+import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import { preserveServerClinicMaster } from '@/lib/clinic-master/application';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { IndustryProfileId } from '@/lib/industry/profiles';
@@ -290,6 +294,26 @@ export class SupabaseSitesRepo implements SitesRepo {
     const siteConfig = site.siteConfig ? withServerSearchVerification(site.siteConfig, verification) : null;
     const { error } = await svc.from('sites').update({ draft_config: draftConfig, site_config: siteConfig }).eq('id', siteId);
     if (error) throw new Error(`검색 소유확인 값 저장 실패: ${error.message}`);
+  }
+
+  async setConnectorManifest(
+    siteId: string,
+    manifest: SiteConnectorManifest | undefined,
+  ): Promise<void> {
+    const svc = getServiceRoleClient();
+    const site = await this.getById(siteId);
+    if (!site) throw new Error(`sites.setConnectorManifest: 사이트가 없습니다 (${siteId})`);
+    const draftConfig = site.draftConfig
+      ? withServerConnectorManifest(site.draftConfig, manifest)
+      : null;
+    const siteConfig = site.siteConfig
+      ? withServerConnectorManifest(site.siteConfig, manifest)
+      : null;
+    const { error } = await svc
+      .from('sites')
+      .update({ draft_config: draftConfig, site_config: siteConfig })
+      .eq('id', siteId);
+    if (error) throw new Error(`connector manifest 저장 실패: ${error.message}`);
   }
 
   async publish(siteId: string, auditedDraft?: SiteConfig): Promise<Site> {

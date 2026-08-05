@@ -11,6 +11,7 @@ import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { applyExtraFeatures } from '@/lib/data/extras-inject';
 import { resolveTemplate, planFromTemplate, pagePlanFromTemplate } from '@/lib/data/site-blueprints';
 import { TenantPageContent } from '@/components/site-renderer/TenantPageContent';
+import { ExtrasStep } from '@/components/dashboard/onboarding/extras-step';
 import {
   businessDirectionsHref,
   businessPhoneHref,
@@ -171,7 +172,22 @@ describe('RPT action path — 실제 href만 생성·집계', () => {
       assert.match(route, /applyExtraFeatures\(generated, body\.data\.extras, body\.data\.extrasOptions \?\? \{\}\)/);
     }
     assert.match(staticRenderer, /createElement\(TenantPageContent/);
-    assert.match(extrasUi, /isRecognizedReservationUrl/);
+    const renderExtras = (reservationUrl: string) => parse(renderToStaticMarkup(createElement(ExtrasStep, {
+      survey: { ...reservationSurvey(), reservationUrl },
+      locale: 'ko-KR',
+      onBack() {},
+      onComplete() {},
+    })));
+    assert.equal(
+      renderExtras(RESERVATION_URL).querySelector('#reservation-url')?.getAttribute('value'),
+      RESERVATION_URL,
+      'a recognized reservation destination must be prefilled',
+    );
+    assert.equal(
+      renderExtras('https://example.com/reservation').querySelector('#reservation-url')?.getAttribute('value'),
+      '',
+      'an unrecognized reservation destination must fail closed instead of reaching submission state',
+    );
     assert.match(extrasUi, /건너뛰기/);
     assert.match(extrasUi, /survey\.siteGoal === 'reserve'/, '예약 목표에서만 기본 추천해야 함');
   });
