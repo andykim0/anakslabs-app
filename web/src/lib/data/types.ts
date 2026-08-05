@@ -36,6 +36,7 @@ import type { SearchVerification, SectionType, SiteConfig } from '@/lib/types/si
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 import type { IndustryProfileId } from '@/lib/industry/profiles';
+import type { SiteConnectorManifest } from '@/lib/connectors/types';
 
 // ---------- 클라이언트(고객) ----------
 
@@ -88,6 +89,8 @@ export interface SitesRepo {
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;
   /** 관리자 서버 전용: 발행본·초안에 소유확인 값을 함께 기록한다. */
   setSearchVerification(siteId: string, verification: SearchVerification | undefined): Promise<void>;
+  /** 관리자 서버 전용: 발행본·초안의 서버 권위 connector manifest를 함께 교체한다. */
+  setConnectorManifest(siteId: string, manifest: SiteConnectorManifest | undefined): Promise<void>;
   /** 확정: draft → 발행본 복사, status='live', 서브도메인 미지정 시 할당 */
   publish(siteId: string): Promise<Site>;
   updateStatus(siteId: string, status: Site['status']): Promise<void>;

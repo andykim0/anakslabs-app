@@ -35,9 +35,22 @@ a.anaks-connector:hover{transform:translateY(-2px);border-color:color-mix(in srg
 function connectorDetail(item: SiteConnector): string {
   if (item.id === 'tel') return item.displayPhone;
   if (item.id === 'kakao-channel') return connectorCatalogEntry(item.id).description;
-  if (item.id === 'naver-booking') return connectorCatalogEntry(item.id).description;
-  if (item.id === 'naver-map') return item.address;
+  if (item.id === 'naver-booking' || item.id === 'booking') {
+    return connectorCatalogEntry(item.id).description;
+  }
+  if (item.id === 'naver-map' || item.id === 'map') return item.address;
   return `@${item.username}`;
+}
+
+const GENERIC_CONNECTOR_ICONS = {
+  booking: '▣',
+  map: '⌖',
+} as const;
+
+type GenericConnectorId = keyof typeof GENERIC_CONNECTOR_ICONS;
+
+function isGenericConnectorId(id: SiteConnector['id']): id is GenericConnectorId {
+  return id in GENERIC_CONNECTOR_ICONS;
 }
 
 function ActionRoot({
@@ -111,7 +124,8 @@ export function ConnectorPanel({
         </p>
         <div className="anaks-connectors__grid">
           {manifest.items.map((item) => {
-            const isMap = item.id === 'naver-map';
+            const isMap = item.id === 'naver-map' || item.id === 'map';
+            const isNaverMap = item.id === 'naver-map';
             const mapId = `anaks-map-${siteId ?? 'preview'}`;
             return (
               <div
@@ -127,6 +141,14 @@ export function ConnectorPanel({
                   <span className="anaks-connector__top">
                     {item.id === 'tel' ? (
                       <span className="anaks-connector__icon" aria-hidden="true">☎</span>
+                    ) : isGenericConnectorId(item.id) ? (
+                      <span
+                        className="anaks-connector__icon"
+                        data-connector-icon={item.id}
+                        aria-hidden="true"
+                      >
+                        {GENERIC_CONNECTOR_ICONS[item.id]}
+                      </span>
                     ) : (
                       <ConnectorBrandMark
                         connectorId={item.id}
@@ -140,7 +162,7 @@ export function ConnectorPanel({
                     <span className="anaks-connector__detail">{connectorDetail(item)}</span>
                   </span>
                 </ActionRoot>
-                {isMap && item.coordinates && naverClientId && interactive ? (
+                {isNaverMap && item.coordinates && naverClientId && interactive ? (
                   <>
                     <button
                       type="button"

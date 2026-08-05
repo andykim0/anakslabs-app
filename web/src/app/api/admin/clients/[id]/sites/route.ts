@@ -11,13 +11,22 @@ import {
 } from '@/lib/operator-model/site-generation';
 import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { accountHasSite } from '@/lib/billing/site-limit';
+import { businessPhoneHref } from '@/lib/analytics/trackable-actions';
+import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 
 type Ctx = { params: Promise<{ id: string }> };
+
+const phoneSchema = z.string().trim().min(1).max(40)
+  .refine((phone) => Boolean(businessPhoneHref(phone)), 'Use a valid phone number.');
+const bookingUrlSchema = z.string().trim().min(1).max(2_000)
+  .refine(isAcceptableUsBookingUrl, 'Use a safe HTTPS booking URL.');
 
 const bodySchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('crawl'),
     sourceUrl: z.string().url().refine((url) => /^https?:\/\//u.test(url), 'Use an http(s) URL.'),
+    phone: phoneSchema.optional(),
+    bookingUrl: bookingUrlSchema.optional(),
   }).strict(),
   z.object({
     mode: z.literal('minimal'),
@@ -25,6 +34,9 @@ const bodySchema = z.discriminatedUnion('mode', [
     industry: z.string().trim().min(1).max(100),
     tone: z.string().trim().min(1).max(40),
     colorPreference: z.string().trim().min(1).max(200),
+    phone: phoneSchema.optional(),
+    bookingUrl: bookingUrlSchema.optional(),
+    address: z.string().trim().min(1).max(300).optional(),
   }).strict(),
 ]);
 
@@ -54,7 +66,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
         'No current crawl artifact matches this exact source URL.',
       );
     }
-    config = buildOperatorCrawlSiteConfig(artifact.artifact, client.tier);
+    config = buildOperatorCrawlSiteConfig(artifact.artifact, client.tier, body.data);
     name = artifact.artifact.pages
       .map((page) => page.structured.businessName || page.title)
       .find((value) => value?.trim())?.trim().slice(0, 100)
@@ -89,5 +101,6 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     source,
     locale: config.meta.locale,
     formCount,
+    items: config.connectors?.items ?? [],
   }, { status: 201 });
 });

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { ClinicMasterPin } from '@/lib/types/site';
+import type { ClinicMasterPin, SiteTheme } from '@/lib/types/site';
 import type {
   ClinicSourcePhoneProjection,
   ClinicUsDestination,
@@ -184,8 +184,10 @@ export function ClinicStickyBooking({
   sourcePhone,
   locale = 'en-US',
   connectors,
+  previewOnly = true,
+  theme,
 }: {
-  pin: ClinicMasterPin;
+  pin?: ClinicMasterPin;
   interactive: boolean;
   /** 고객 확인 factory를 통과한 별도 US destination. 기존 CONN$ manifest는 받지 않는다. */
   destination?: ClinicUsDestination;
@@ -195,8 +197,12 @@ export function ClinicStickyBooking({
   sourcePhone?: ClinicSourcePhoneProjection;
   /** Render-only chrome locale. Source facts and destinations remain unchanged. */
   locale?: 'ko-KR' | 'en-US';
-  /** KO contract-import only. EN clinic previews retain the separate US destination contract. */
+  /** Server-owned actions. US live sites use generic booking/tel entries; KO keeps its legacy catalog. */
   connectors?: SiteConnectorManifest;
+  /** The inert disclosure belongs only to private previews, never a published tenant. */
+  previewOnly?: boolean;
+  /** Non-clinicMaster operator sites use their own theme without inventing a second sticky component. */
+  theme?: SiteTheme;
 }) {
   const koConnectors = locale === 'ko-KR'
     ? (connectors?.items ?? []).filter((item) => (
@@ -206,21 +212,43 @@ export function ClinicStickyBooking({
         || item.id === 'naver-map'
       ))
     : [];
+  const usConnectors = locale === 'en-US'
+    ? (connectors?.items ?? []).filter((item) => item.id === 'tel' || item.id === 'booking')
+    : [];
   if (locale === 'ko-KR' && koConnectors.length === 0) return null;
   const sourceCallHref = sourcePhone
     ? telephoneHref(sourcePhone.phone)
     : undefined;
-  const callHref = sourceCallHref
-    ?? (interactive && bookingEnabled && destination?.validated
-      ? telephoneHref(destination.phone)
-      : undefined);
-  const bookHref = interactive && bookingEnabled && destination?.validated
+  const manifestCallHref = previewOnly
+    ? undefined
+    : usConnectors.find((item) => item.id === 'tel')?.href;
+  const manifestBookHref = previewOnly
+    ? undefined
+    : usConnectors.find((item) => item.id === 'booking')?.href;
+  const destinationCallHref = bookingEnabled && destination?.validated
+    ? telephoneHref(destination.phone)
+    : undefined;
+  const destinationBookHref = bookingEnabled && destination?.validated
     ? destination.bookingUrl
     : undefined;
+  const rawCallHref = sourceCallHref ?? manifestCallHref ?? destinationCallHref;
+  const rawBookHref = manifestBookHref ?? destinationBookHref;
+  const callHref = sourceCallHref ?? (interactive ? rawCallHref : undefined);
+  const bookHref = interactive ? rawBookHref : undefined;
+  if (locale === 'en-US' && !previewOnly && !rawBookHref && !rawCallHref) return null;
   const deactivated = locale === 'ko-KR'
     ? !interactive || koConnectors.length === 0
     : !bookHref && !callHref;
-  const tokens = clinicMasterRenderTokens(pin);
+  const tokens = pin
+    ? clinicMasterRenderTokens(pin)
+    : {
+        accent: theme?.palette.primary ?? '#1466A5',
+        accentContrast: '#FFFFFF',
+        border: theme?.tokens?.color.border ?? theme?.palette.muted ?? '#E3E8EE',
+        controlFamily: theme?.fonts.body ?? 'sans-serif',
+        controlWeight: 600,
+        radiusMd: theme?.tokens?.radius.soft ?? `${theme?.radius ?? 4}px`,
+      };
   const labels = locale === 'ko-KR'
     ? {
         aria: 'Booking and phone',
@@ -285,13 +313,17 @@ export function ClinicStickyBooking({
           )
         )) : (
           <>
-            <Action href={bookHref} kind="book">{labels.book}</Action>
-            <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
-              {labels.call}
-            </Action>
+            {previewOnly || rawBookHref ? (
+              <Action href={bookHref} kind="book">{labels.book}</Action>
+            ) : null}
+            {previewOnly || rawCallHref ? (
+              <Action href={callHref} kind="call" sourcePhone={sourceCallHref ? sourcePhone : undefined}>
+                {labels.call}
+              </Action>
+            ) : null}
           </>
         )}
-        {locale !== 'ko-KR' && !bookHref ? (
+        {locale !== 'ko-KR' && previewOnly && !bookHref ? (
           <p data-clinic-booking-disclosure>
             {labels.disclosure}
           </p>

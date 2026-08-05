@@ -37,7 +37,11 @@ import type {
 import type { SearchVerification, SiteConfig } from '@/lib/types/site';
 import { preserveServerSearchVerification, withServerSearchVerification } from '@/lib/seo/search-verification';
 import { preserveServerPublicContact } from '@/lib/seo/public-contact';
-import { preserveServerConnectorManifest } from '@/lib/connectors/application';
+import {
+  preserveServerConnectorManifest,
+  withServerConnectorManifest,
+} from '@/lib/connectors/application';
+import type { SiteConnectorManifest } from '@/lib/connectors/types';
 import { preserveServerClinicMaster } from '@/lib/clinic-master/application';
 import type { AssetRef } from '@/lib/assets/provenance';
 import type { IndustryProfileId } from '@/lib/industry/profiles';
@@ -314,6 +318,20 @@ class MockSitesRepo implements SitesRepo {
     if (!site) throw new Error(`sites.setSearchVerification: 사이트가 없습니다 (${siteId})`);
     if (site.draftConfig) site.draftConfig = withServerSearchVerification(site.draftConfig, verification);
     if (site.siteConfig) site.siteConfig = withServerSearchVerification(site.siteConfig, verification);
+  }
+
+  async setConnectorManifest(
+    siteId: string,
+    manifest: SiteConnectorManifest | undefined,
+  ): Promise<void> {
+    const site = getMockStore().sites.get(siteId);
+    if (!site) throw new Error(`sites.setConnectorManifest: 사이트가 없습니다 (${siteId})`);
+    if (site.draftConfig) {
+      site.draftConfig = withServerConnectorManifest(site.draftConfig, manifest);
+    }
+    if (site.siteConfig) {
+      site.siteConfig = withServerConnectorManifest(site.siteConfig, manifest);
+    }
   }
 
   async publish(siteId: string, auditedDraft?: SiteConfig): Promise<Site> {

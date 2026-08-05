@@ -55,15 +55,26 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
   const [industry, setIndustry] = useState('Dental practice');
   const [tone, setTone] = useState('calm and clinical');
   const [colorPreference, setColorPreference] = useState('clean blue');
+  const [phone, setPhone] = useState('');
+  const [bookingUrl, setBookingUrl] = useState('');
+  const [address, setAddress] = useState('');
   const mutation = useMutation({
     mutationFn: () => createOperatorClientSite(clientId, mode === 'crawl'
-      ? { mode, sourceUrl: sourceUrl.trim() }
+      ? {
+          mode,
+          sourceUrl: sourceUrl.trim(),
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
+          ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
+        }
       : {
           mode,
           businessName: businessName.trim(),
           industry: industry.trim(),
           tone: tone.trim(),
           colorPreference: colorPreference.trim(),
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
+          ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
+          ...(address.trim() ? { address: address.trim() } : {}),
         }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'client', clientId] });
@@ -97,6 +108,13 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
               <input className={INPUT} value={colorPreference} onChange={(event) => setColorPreference(event.target.value)} required placeholder="Color preference" aria-label="Color preference" />
             </div>
           )}
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input className={INPUT} value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" placeholder="Phone (optional)" aria-label="Public phone" />
+            <input className={INPUT} value={bookingUrl} onChange={(event) => setBookingUrl(event.target.value)} type="url" placeholder="https://booking.example (optional)" aria-label="External booking URL" />
+            {mode === 'minimal' ? (
+              <input className={`${INPUT} sm:col-span-2`} value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Business address (optional)" aria-label="Business address" />
+            ) : null}
+          </div>
           <button className="rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white disabled:opacity-50" disabled={mutation.isPending} type="submit">
             Create draft
           </button>
