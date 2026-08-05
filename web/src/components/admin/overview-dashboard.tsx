@@ -20,7 +20,6 @@ import { CF_FREE_HOSTNAME_LIMIT, CF_HOSTNAME_ALERT_THRESHOLD } from '@/lib/credi
 import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 import { getOverview } from './api';
 import { formatCurrency, formatKrw, formatNumber } from './format';
-import { ManualCollectionPanel } from './manual-collection-panel';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
 
 const GUARANTEE_DECISION_COPY = {
@@ -71,9 +70,9 @@ export function OverviewDashboard() {
           <div className="text-sm text-red-800">
             <p className="font-semibold">Cloudflare free limits coming soon</p>
             <p className="mt-0.5 text-xs text-red-700">
-              custom hostname {formatNumber(data.customHostnameCount)}/
-              {formatNumber(CF_FREE_HOSTNAME_LIMIT)}The dog is in use. Exceeding the limit is per hostname per month.
-              $0.10 will be charged. Check the details in the Infrastructure tab.
+              {formatNumber(data.customHostnameCount)} of {formatNumber(CF_FREE_HOSTNAME_LIMIT)} free
+              custom hostnames are in use. Past the limit, each hostname costs $0.10 per month.
+              See the Infrastructure tab for details.
             </p>
           </div>
         </div>
@@ -87,17 +86,18 @@ export function OverviewDashboard() {
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
           <div className="text-sm text-amber-900">
             <p className="font-semibold">
-              atmosphere {FULFILLMENT_SLA_BUSINESS_DAYS}Fulfillment requests that extend beyond business days {formatNumber(data.fulfillmentAlerts.total)} records
+              {formatNumber(data.fulfillmentAlerts.total)} fulfillment requests are past the{' '}
+              {FULFILLMENT_SLA_BUSINESS_DAYS} business-day SLA
             </p>
             <p className="mt-0.5 text-xs text-amber-800">
               <Link href="/admin/edit-queue" className="underline underline-offset-2">
-                correction {formatNumber(data.fulfillmentAlerts.editOverdue)} records
+                edits: {formatNumber(data.fulfillmentAlerts.editOverdue)}
               </Link>
               {' · '}
               <Link href="/admin/video-queue" className="underline underline-offset-2">
-                video {formatNumber(data.fulfillmentAlerts.videoOverdue)} records
+                video: {formatNumber(data.fulfillmentAlerts.videoOverdue)}
               </Link>
-              Please check first to make sure this is not quietly missing.
+              {' — clear these first so none of them goes quietly unanswered.'}
             </p>
           </div>
         </div>
@@ -119,7 +119,7 @@ export function OverviewDashboard() {
           label="live site"
           icon={MonitorCheck}
           value={formatNumber(data.liveSites)}
-          sub="status = live standard"
+          sub="status = live"
         />
         <StatCard
           label="credit circulation"
@@ -127,7 +127,7 @@ export function OverviewDashboard() {
           value={formatNumber(data.credits.circulating)}
           sub={
             <span>
-              payment {formatNumber(data.credits.granted)} − consumption{' '}
+              granted {formatNumber(data.credits.granted)} − consumed{' '}
               {formatNumber(data.credits.consumed)}
             </span>
           }
@@ -161,8 +161,6 @@ export function OverviewDashboard() {
           }
         />
       </div>
-
-      <ManualCollectionPanel rows={data.manualCollections} />
 
       <section className="mt-7" aria-labelledby="admin-revenue-heading">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
@@ -316,14 +314,14 @@ export function OverviewDashboard() {
                     <tr key={row.siteId}>
                       <td className="px-4 py-3">
                         <p className="font-medium text-slate-800">{row.siteName}</p>
-                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? "domain standby"}</p>
+                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? "domain pending"}</p>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
                         {new Date(row.dueAt).toLocaleDateString('ko-KR')}
-                        {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining}days left)</span> : null}
+                        {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining} days left)</span> : null}
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {row.naverIndexed === null ? "Confirmation required" : row.naverIndexed ? "Yes" : "doesn't exist"}
+                        {row.naverIndexed === null ? "Confirmation required" : row.naverIndexed ? "Yes" : "No"}
                       </td>
                       <td className="px-4 py-3 tabular-nums text-slate-700">
                         {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)} times
@@ -371,7 +369,7 @@ export function OverviewDashboard() {
               <p className="mt-2 text-[11px] text-slate-500">
                 {data.revenue.launchOffer.reachedLimit
                   ? "The limit has been reached. Have the operator review the launch offer status."
-                  : `${formatNumber(data.revenue.launchOffer.remaining ?? 0)}There's nothing left`}
+                  : `${formatNumber(data.revenue.launchOffer.remaining ?? 0)} remaining`}
               </p>
             </>
           ) : (
@@ -382,9 +380,9 @@ export function OverviewDashboard() {
         {data.revenue.anomalies.length ? (
           <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
             <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
-            payment ledger {formatNumber(data.revenue.anomalyPaymentCount)}error in gun{' '}
-            {formatNumber(data.revenue.anomalies.length)}I found a dog. Classification and refund reflection of the field is
-            No estimates were made.
+            {formatNumber(data.revenue.anomalies.length)} anomalies found across{' '}
+            {formatNumber(data.revenue.anomalyPaymentCount)} payment ledger entries. Their
+            classification and refunds are reported as-is — nothing was estimated.
           </div>
         ) : null}
       </section>

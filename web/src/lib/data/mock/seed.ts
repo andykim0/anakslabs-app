@@ -5,6 +5,8 @@
  *  - client id: DB는 auth.users uuid, mock은 세션 쿠키 계약값 'demo-premium' / 'demo-basic'
  *  - 화로담 site_config: seed.sql의 간이판 대신 완성도 높은 HWARODAM_SITE_CONFIG 사용
  *  - 원격 picsum 이미지 → 로컬 /mock 자산 (오프라인 데모 1급 시민)
+ *  - demo-clinic(Summit Dental Studio, en-US 발행본) 1건은 mock 전용 — seed.sql에 대응 행이 없다.
+ *    mock 로그인 "Demo: clinic owner"의 착지 사이트이며 결제·원장·편집요청은 갖지 않는다.
  *
  * 정합 검증 (seed.sql과 동일해야 하는 값):
  *  - premium 잔액 6 = initial_grant +3(180일) + purchase +5(365일) - 소모 3 + 환불 1
@@ -19,12 +21,16 @@ import { normalizeSiteConfig } from '@/lib/types/site';
 import { ensureMotion } from '@/lib/motion/validate';
 import { HWARODAM_SITE_CONFIG } from './hwarodam';
 import { MINTWASH_DRAFT_CONFIG } from './mintwash';
+import { SUMMIT_DENTAL_SITE_CONFIG } from './summit-dental';
 
 export const DEMO_PREMIUM_ID = 'demo-premium';
 export const DEMO_BASIC_ID = 'demo-basic';
+/** 미국 치과 데모 고객 — mock 로그인 'premium'(Demo: clinic owner)이 이 워크스페이스로 들어온다. */
+export const DEMO_CLINIC_ID = 'demo-clinic';
 
 export const HWARODAM_SITE_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 export const MINTWASH_SITE_ID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+export const SUMMIT_DENTAL_SITE_ID = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 
 const EDIT_TEXT_APPLIED_ID = '33333333-3333-3333-3333-333333333331';
 const EDIT_IMAGE_QA_ID = '33333333-3333-3333-3333-333333333332';
@@ -69,6 +75,18 @@ export function buildSeed(): MockStore {
         // [v3 통일] 사업자정보는 SiteConfig.businessInfo(사이트 단위)로 이동
       },
     ],
+    [
+      DEMO_CLINIC_ID,
+      {
+        id: DEMO_CLINIC_ID,
+        name: 'Summit Dental Studio',
+        email: 'front-desk@summitdentalstudio.example',
+        authProvider: 'google',
+        tier: 'premium',
+        status: 'active',
+        createdAt: daysAgoIso(24),
+      },
+    ],
   ]);
 
   // ---------- 사이트 ----------
@@ -107,6 +125,23 @@ export function buildSeed(): MockStore {
         draftConfig: ensureMotion(normalizeSiteConfig(structuredClone(MINTWASH_DRAFT_CONFIG))),
         publishedAt: null,
         createdAt: daysAgoIso(5),
+      },
+    ],
+    [
+      SUMMIT_DENTAL_SITE_ID,
+      {
+        id: SUMMIT_DENTAL_SITE_ID,
+        clientId: DEMO_CLINIC_ID,
+        name: 'Summit Dental Studio',
+        domain: 'summit-dental.anakslabs.com', // 소문자 저장 계약
+        domainType: 'subdomain',
+        dnsVerified: false,
+        cloudflareHostnameId: null,
+        status: 'live',
+        siteConfig: ensureMotion(normalizeSiteConfig(structuredClone(SUMMIT_DENTAL_SITE_CONFIG))),
+        draftConfig: ensureMotion(normalizeSiteConfig(structuredClone(SUMMIT_DENTAL_SITE_CONFIG))),
+        publishedAt: daysAgoIso(18),
+        createdAt: daysAgoIso(24),
       },
     ],
   ]);

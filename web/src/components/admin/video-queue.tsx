@@ -86,14 +86,14 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
                 <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
                 <Badge tone={SITE_STATUS_TONES[item.siteStatus]}>{item.siteStatus}</Badge>
                 {blockedCopy ? <Badge tone="red">{blockedCopy.badge}</Badge> : <Badge tone="amber">waiting for fulfillment</Badge>}
-                {item.overdue ? <Badge tone="red">atmosphere {FULFILLMENT_SLA_BUSINESS_DAYS}over business days</Badge> : null}
+                {item.overdue ? <Badge tone="red">over {FULFILLMENT_SLA_BUSINESS_DAYS} business days</Badge> : null}
               </div>
               <p className="mt-1 text-xs text-slate-500">
                 {item.clientName} · {item.industryClass}
               </p>
             </div>
             <div className="text-right text-xs text-slate-500">
-              <p className="font-semibold tabular-nums text-slate-700">{formatNumber(item.waitingDays)}days elapsed</p>
+              <p className="font-semibold tabular-nums text-slate-700">{formatNumber(item.waitingDays)} days elapsed</p>
               <p>{formatDateTime(item.requestedAt)}</p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export function VideoQueue() {
     <>
       <PageHeader
         title="AI video transition queue"
-        description={query.data ? `today${formatNumber(query.data.items.length)}Wait for the gun and verify the manually created output before applying it.` : undefined}
+        description={query.data ? `${formatNumber(query.data.items.length)} requests waiting. Check each manually produced clip before applying it.` : undefined}
         actions={
           <button
             type="button"
@@ -190,8 +190,8 @@ export function VideoQueue() {
 
       {query.data?.integrity.missingCount ? (
         <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          Original video request {formatNumber(query.data.integrity.sourceCount)}Requests missing from queue{' '}
-          {formatNumber(query.data.integrity.missingCount)}There is something.
+          {formatNumber(query.data.integrity.missingCount)} of{' '}
+          {formatNumber(query.data.integrity.sourceCount)} source video requests are missing from this queue.
         </p>
       ) : null}
 

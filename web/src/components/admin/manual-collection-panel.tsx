@@ -295,7 +295,7 @@ The original entry will remain unchanged, and an automatic reversing entry will 
           <div className="flex items-end xl:col-span-4">
             <button type="submit" disabled={!canSubmit} className="inline-flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">
               {record.isPending ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <ReceiptText size={15} aria-hidden />}
-              {quote ? `${formatKrw(quote.amountKrw)}collection records` : "collection records"}
+              {quote ? `Record ${formatKrw(quote.amountKrw)} collection` : "Record collection"}
             </button>
           </div>
           {record.isError ? <p role="alert" className="text-xs text-red-600 xl:col-span-4">{record.error.message}</p> : null}

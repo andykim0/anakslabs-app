@@ -18,6 +18,7 @@ import {
   OPERATOR_MANAGED_ONBOARDING_ERROR_CODE,
   operatorManagedOnboardingApiGate,
 } from '@/app/api/onboarding/_lib/operator-gate';
+import { DEMO_CLINIC_ID } from '@/lib/data/mock/seed';
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(`${ROOT}/${path}`, 'utf8');
@@ -97,8 +98,9 @@ test('every self-service onboarding route rejects the US operator-managed produc
     if (request === 'next/headers') {
       return {
         cookies: async () => ({
+          // The operator-managed customer is the US clinic workspace that mock login lands on.
           get: (name: string) => name === 'anaks_mock_session'
-            ? { value: 'demo-premium' }
+            ? { value: DEMO_CLINIC_ID }
             : undefined,
           getAll: () => [],
           set: () => undefined,

@@ -430,8 +430,8 @@ function RejectDialog({
 
         <div className="px-5 py-4">
           <p className="text-xs text-slate-500">
-            {item.clientName} · {item.siteName} — {EDIT_TYPE_LABELS[item.type]} We reject your request.
-            Credits consumed when returning a product {formatNumber(item.creditCost)}Your dog will receive an automatic refund.
+            {item.clientName} · {item.siteName} — rejecting this {EDIT_TYPE_LABELS[item.type]} request.
+            The {formatNumber(item.creditCost)} credits it consumed are refunded automatically.
           </p>
 
           <label className="mt-3 block">

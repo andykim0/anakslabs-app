@@ -956,7 +956,7 @@ function ThemeInspector({ theme, title }: { theme: SiteTheme; title: string }) {
   const fontValue = (css: string) => matchFontOption(css)?.family ?? '__custom__';
   const fontOptions = (css: string) => {
     const opts = FONT_OPTIONS.map((o) => ({ value: o.family, label: o.label }));
-    if (!matchFontOption(css)) opts.unshift({ value: '__custom__', label: `today:${css.split(',')[0].replace(/['"]/g, '')}` });
+    if (!matchFontOption(css)) opts.unshift({ value: '__custom__', label: `Current: ${css.split(',')[0].replace(/['"]/g, '')}` });
     return opts;
   };
 

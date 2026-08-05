@@ -6,7 +6,6 @@ import { getCurrentClient } from '@/lib/services/auth';
 import { getRecentScan } from '@/lib/services/recent-scan';
 import { getDataServices } from '@/lib/data';
 import { ScanBanner } from '@/components/dashboard/ScanBanner';
-import { SiteCard } from '@/components/dashboard/site-card';
 import {
   Card,
   EDIT_TYPE_LABELS,
@@ -28,6 +27,9 @@ export default async function DashboardHomePage() {
   const services = getDataServices();
   const aiEditAvailable = aiEditEnabled();
   const sites = await services.sites.listByClient(client.id);
+  // 운영자 모델: 클라이언트당 사이트 1개. 목록을 거치지 않고 그 사이트로 직행한다.
+  const [onlySite] = sites;
+  if (onlySite) redirect(`/dashboard/sites/${onlySite.id}`);
   const operatorManaged = operatorManagedForLocale(customerLocaleFromSites(sites));
   const [editRequests, recentScan] = await Promise.all([
     aiEditAvailable ? services.editRequests.listByClient(client.id) : Promise.resolve([]),
@@ -66,15 +68,6 @@ export default async function DashboardHomePage() {
 
       {/* 요약 카드 */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="flex items-center gap-4">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
-            <Globe className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs text-neutral-500">my site</p>
-            <p className="text-xl font-semibold text-neutral-50">{sites.length} items</p>
-          </div>
-        </Card>
         {aiEditAvailable ? (
           <Card className="flex items-center gap-4">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
@@ -98,41 +91,23 @@ export default async function DashboardHomePage() {
         )}
       </div>
 
-      {/* 사이트 목록 */}
+      {/* 사이트 — 소유 사이트가 있으면 위에서 이미 그 사이트로 보냈으므로 여기는 미보유 상태만 남는다 */}
       <section className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-neutral-300">my site</h2>
-        {sites.length === 0 ? (
-          <EmptyState
-            icon={<Globe className="h-8 w-8" />}
-            title="There is no site yet"
-            description={operatorManaged
-              ? 'Your Anaks Labs operator is preparing the site for this workspace.'
-              : 'Complete onboarding to create your site.'}
-            action={!operatorManaged ? (
-              <Link
-                href="/onboarding"
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
-              >
-                <Plus className="h-4 w-4" />Create your first site
-              </Link>
-            ) : undefined}
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {sites.map((site) => (
-              <SiteCard key={site.id} site={site} />
-            ))}
-            {!operatorManaged ? (
-              <Link
-                href="/onboarding"
-                className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-800 text-neutral-500 transition-colors hover:border-[#4a3a22] hover:text-[#c8a96a]"
-              >
-                <Plus className="h-6 w-6" />
-                <span className="text-sm">Create a new site</span>
-              </Link>
-            ) : null}
-          </div>
-        )}
+        <EmptyState
+          icon={<Globe className="h-8 w-8" />}
+          title="There is no site yet"
+          description={operatorManaged
+            ? 'Your Anaks Labs operator is preparing the site for this workspace.'
+            : 'Complete onboarding to create your site.'}
+          action={!operatorManaged ? (
+            <Link
+              href="/onboarding"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#c8a96a] px-4 text-sm font-semibold text-neutral-950 transition-colors hover:bg-[#d9bc82]"
+            >
+              <Plus className="h-4 w-4" />Create your first site
+            </Link>
+          ) : undefined}
+        />
       </section>
 
       {/* 최근 편집 요청 */}

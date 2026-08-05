@@ -96,7 +96,7 @@ export function InfraMonitor() {
             />
             <UsageRow
               label="build time"
-              valueText={`${formatNumber(VERCEL_USAGE_MOCK.buildMinutes)} / ${formatNumber(VERCEL_USAGE_MOCK.buildMinutesLimit)}minute`}
+              valueText={`${formatNumber(VERCEL_USAGE_MOCK.buildMinutes)} / ${formatNumber(VERCEL_USAGE_MOCK.buildMinutesLimit)} minutes`}
               value={VERCEL_USAGE_MOCK.buildMinutes}
               max={VERCEL_USAGE_MOCK.buildMinutesLimit}
             />
