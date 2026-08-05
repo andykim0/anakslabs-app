@@ -2,7 +2,8 @@ import type { SiteConfig } from '@/lib/types/site';
 import type { PublishedContentPost } from '@/lib/content-fulfillment/contracts';
 import { CONTENT_BLOG_NAV_ITEM } from '@/lib/content-fulfillment/public-projection';
 import { projectAuthoritativePublicContact, resolvePublicContact } from '@/lib/seo/public-contact';
-import { TenantHeader } from '@/components/site-renderer/TenantHeader';
+import { TenantHeader, tenantBrandName } from '@/components/site-renderer/TenantHeader';
+import { contentPostEducationalNotice } from '@/lib/legal/notices';
 import { LegalFooter } from '@/components/site-renderer/LegalFooter';
 import { PublicContactBar } from '@/components/site-renderer/PublicContactBar';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
@@ -16,6 +17,7 @@ import {
 const BLOG_CSS = `
 .anaks-content-blog{min-height:70dvh}
 .anaks-content-blog__inner{width:min(100% - 48px,960px);margin:0 auto;padding:clamp(72px,10vw,144px) 0}
+.anaks-content-blog__notice{width:min(100% - 48px,960px);margin:0 auto;padding:20px 0 clamp(48px,6vw,96px)}
 .anaks-content-blog__title{word-break:keep-all;overflow-wrap:break-word}
 .anaks-content-blog__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:44px}
 .anaks-content-blog__card{min-width:0}
@@ -332,6 +334,29 @@ export function TenantContentBlog({
         ) : (
           <PostList posts={posts} config={renderedConfig} hrefForPost={hrefForPost} />
         )}
+        {/*
+          Only where the sentence is true. It says "This article", so it belongs on a page that
+          is an article — the index lists several and is not one, and printing it there would be
+          a small false statement in the one place we promise not to make them.
+
+          Rendered beside the article, never inside it: the stored document and its validated
+          hash are what approval re-checks, and folding this sentence into document.blocks would
+          change that hash and make every published version fail its own integrity gate.
+        */}
+        {post ? (
+          <aside
+            className="anaks-content-blog__notice"
+            style={{
+              borderTop: `1px solid ${config.theme.palette.muted}33`,
+              color: config.theme.palette.muted,
+              fontFamily: config.theme.fonts.body,
+              fontSize: 14,
+              lineHeight: 1.7,
+            }}
+          >
+            {contentPostEducationalNotice(tenantBrandName(renderedConfig))}
+          </aside>
+        ) : null}
       </main>
       {!businessInfo && publicContact ? (
         <PublicContactBar contact={publicContact} theme={config.theme} />

@@ -409,9 +409,33 @@ export interface AdminContentQueueItem {
   updatedAt: string;
 }
 
+export interface AdminContentFulfillmentSite {
+  clientId: string;
+  siteId: string;
+  siteName: string;
+  domain: string | null;
+  periodMonth: string;
+  timezone: string;
+  committed: number | null;
+  delivered: number;
+  slotCount: number;
+}
+
 export interface AdminContentQueueResponse {
   items: AdminContentQueueItem[];
+  fulfillment: AdminContentFulfillmentSite[];
   integrity: AdminFulfillmentQueueIntegrity;
+}
+
+export interface AdminContentSlotProvisionResponse {
+  siteId: string;
+  periodMonth: string;
+  timezone: string;
+  created: number;
+  existing: number;
+  committed: number;
+  delivered: number;
+  slotCount: number;
 }
 
 export interface AdminUsDemoCrawlResponse {
@@ -789,6 +813,16 @@ export function completeAdminEditRequest(
 
 export function getAdminContentQueue(): Promise<AdminContentQueueResponse> {
   return fetchJson<AdminContentQueueResponse>('/api/admin/content-queue');
+}
+
+export function provisionAdminContentSlots(
+  clientId: string,
+  siteId: string,
+): Promise<AdminContentSlotProvisionResponse> {
+  return fetchJson<AdminContentSlotProvisionResponse>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/content-slots`,
+    { method: 'POST', body: '{}' },
+  );
 }
 
 export function generateAdminContent(

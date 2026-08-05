@@ -159,6 +159,22 @@ function zonedMonthRange(
   };
 }
 
+/**
+ * First day of the *current* calendar month in an approved US site time zone, as `YYYY-MM-01`.
+ *
+ * Content fulfillment stamps this on every monthly slot, so it must answer "which month is the
+ * customer living in right now" — the ranges above answer the different question of which months
+ * are already complete, and reusing them would date every slot one month early.
+ */
+export function currentMonthStartDateInTimeZone(
+  timeZone: UsSiteTimezone,
+  now: Date = new Date(),
+): string {
+  assertValidDate(now);
+  const local = zonedCalendarParts(now, timeZone);
+  return `${String(local.year).padStart(4, '0')}-${String(local.month).padStart(2, '0')}-01`;
+}
+
 /** Resolve the last two completed calendar months in an approved US site time zone. */
 export function previousMonthRangesInTimeZone(
   timeZone: UsSiteTimezone,

@@ -1,6 +1,8 @@
 import 'server-only';
 import { surveySchema, siteConfigSchema } from '@/app/api/_lib/schemas';
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
+import { getMockStore } from '@/lib/data/mock/store';
+import { isMockMode } from '@/lib/env';
 import type { SurveyInput } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import {
@@ -28,10 +30,47 @@ export interface ContentGenerationContext {
  * C8 경계: 기존 Site mapper에 survey를 추가하지 않는다. content pipeline만 sites.survey를
  * service-role로 명시 조회해 현재 고객 원료 스냅샷을 만든다.
  */
+/**
+ * Mock mode is a first-class citizen, but this loader reached straight past the in-memory store to
+ * a service-role client, so the whole content flow was undemoable without live keys. The mock
+ * store holds the same survey a real operator-issued site persists — nothing is synthesized here,
+ * and a site with no stored survey still fails closed.
+ */
+function mockContentGenerationContext(
+  siteId: string,
+  capturedAt: string,
+): ContentGenerationContext {
+  const store = getMockStore();
+  const site = store.sites.get(siteId);
+  const survey = store.surveys?.get(siteId);
+  if (!site || !survey) throw new Error('CONTENT_SOURCE_SITE_NOT_FOUND');
+  const config = site.draftConfig ?? site.siteConfig;
+  if (!config) throw new Error('CONTENT_SOURCE_SITE_NOT_FOUND');
+  return {
+    siteId: site.id,
+    clientId: site.clientId,
+    survey,
+    config,
+    sourceSnapshot: buildContentSourceSnapshot({
+      siteId: site.id,
+      clientId: site.clientId,
+      survey,
+      config,
+      capturedAt,
+    }),
+  };
+}
+
 export async function loadContentGenerationContext(
   siteId: string,
   options: { capturedAt?: string } = {},
 ): Promise<ContentGenerationContext> {
+  if (isMockMode()) {
+    return mockContentGenerationContext(
+      siteId,
+      options.capturedAt ?? new Date().toISOString(),
+    );
+  }
   const { data, error } = await getServiceRoleClient()
     .from('sites')
     .select('id,client_id,survey,draft_config,site_config')

@@ -1,16 +1,38 @@
 import { randomUUID } from 'node:crypto';
 import {
+  isSamePeriodMonth,
+  monthlySlotSlug,
+  periodMonthKey,
+} from '@/lib/content-fulfillment/delivery';
+import {
   ContentQueueError,
+  normalizeContentQueueLimit,
   type AdminContentQueueItem,
   type ContentGenerationClaim,
   type ContentPublishResult,
   type ContentQueueRepository,
+  type ContentQueueSiteQuery,
+  type ContentSlotProvisionInput,
+  type ContentSlotProvisionResult,
 } from './content-queue-core';
+
+/** Mirrors the append-only content_post_events row 0059 writes when a slot is created. */
+export interface MockContentSlotEvent {
+  contentPostId: string;
+  clientId: string;
+  siteId: string;
+  eventType: 'slot_created';
+  toStatus: 'draft';
+  actorType: 'admin';
+  actorId: string;
+  createdAt: string;
+}
 
 export class MockContentQueueRepository implements ContentQueueRepository {
   private readonly items = new Map<string, AdminContentQueueItem>();
   private readonly rejectionReasons = new Map<string, string[]>();
   private readonly versionHistory = new Map<string, AdminContentQueueItem['currentVersion'][]>();
+  private readonly slotEvents: MockContentSlotEvent[] = [];
 
   constructor(seed: readonly AdminContentQueueItem[] = []) {
     for (const item of seed) {
@@ -38,6 +60,95 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   async countNonterminal(): Promise<number> {
     return (await this.listNonterminal(500)).length;
+  }
+
+  async listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]> {
+    const siteIds = new Set(query.siteIds);
+    if (siteIds.size === 0) return [];
+    const statuses = query.statuses ? new Set<string>(query.statuses) : null;
+    const descending = query.order === 'desc';
+    return [...this.items.values()]
+      .filter((item) => siteIds.has(item.siteId))
+      .filter((item) => !query.periodMonths
+        || query.periodMonths.some((month) => isSamePeriodMonth(item.periodMonth, month)))
+      .filter((item) => !query.beforePeriodMonth
+        || periodMonthKey(item.periodMonth) < periodMonthKey(query.beforePeriodMonth))
+      .filter((item) => !statuses || statuses.has(item.status))
+      .sort((left, right) => {
+        const byPeriod = left.periodMonth.localeCompare(right.periodMonth);
+        return (descending ? -byPeriod : byPeriod) || left.ordinal - right.ordinal;
+      })
+      .slice(0, normalizeContentQueueLimit(query.limit))
+      .map((item) => structuredClone(item));
+  }
+
+  async provisionMonthlySlots(
+    input: ContentSlotProvisionInput,
+  ): Promise<ContentSlotProvisionResult> {
+    const existing = [...this.items.values()].filter((item) =>
+      item.siteId === input.siteId
+      && item.pricingModelVersion === input.pricingModelVersion
+      && isSamePeriodMonth(item.periodMonth, input.periodMonth));
+    const takenOrdinals = new Set(existing.map((item) => item.ordinal));
+    /**
+     * 0049 makes (site_id, slug) unique on top of the schedule identity, and 0059 inserts under
+     * `on conflict do nothing`. So a colliding slug in production is not an error — the row is
+     * skipped and `created` silently comes up short of what the month owes. The mock reproduces
+     * that under-provision rather than throwing: a mock stricter than production would advertise
+     * a fail-safe that does not exist, and this is exactly the signature that appears if 0047's
+     * pricing_model_version immutability is ever relaxed.
+     */
+    const takenSlugs = new Set(
+      [...this.items.values()]
+        .filter((item) => item.siteId === input.siteId)
+        .map((item) => item.slug),
+    );
+    let created = 0;
+    for (let ordinal = 1; ordinal <= input.count; ordinal += 1) {
+      if (takenOrdinals.has(ordinal)) continue;
+      const slug = monthlySlotSlug(input.periodMonth, ordinal);
+      if (takenSlugs.has(slug)) continue;
+      takenSlugs.add(slug);
+      const now = new Date().toISOString();
+      const id = randomUUID();
+      this.items.set(id, {
+        id,
+        clientId: input.clientId,
+        siteId: input.siteId,
+        pricingModelVersion: input.pricingModelVersion,
+        periodMonth: input.periodMonth,
+        ordinal,
+        slug,
+        status: 'draft',
+        currentVersionId: null,
+        currentVersion: null,
+        publishedVersionId: null,
+        publishedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+      this.versionHistory.set(id, []);
+      this.slotEvents.push({
+        contentPostId: id,
+        clientId: input.clientId,
+        siteId: input.siteId,
+        eventType: 'slot_created',
+        toStatus: 'draft',
+        actorType: 'admin',
+        actorId: input.actorId,
+        createdAt: now,
+      });
+      created += 1;
+    }
+    return {
+      periodMonth: input.periodMonth,
+      created,
+      existing: existing.length,
+      items: await this.listBySites({
+        siteIds: [input.siteId],
+        periodMonths: [input.periodMonth],
+      }),
+    };
   }
 
   async getById(id: string): Promise<AdminContentQueueItem | null> {
@@ -134,8 +245,13 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     ) {
       throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Approval state conflict.');
     }
+    const now = new Date().toISOString();
     item.status = 'published';
-    item.updatedAt = new Date().toISOString();
+    // 0049 requires the published pointer and timestamp to move with the status; leaving them
+    // null made every mock-published post fail the public projection's exact-pointer gate.
+    item.publishedVersionId = item.currentVersionId;
+    item.publishedAt = now;
+    item.updatedAt = now;
     return { item: structuredClone(item), siteDomain: null, duplicated: false };
   }
 
@@ -149,5 +265,10 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   rejectionHistory(id: string): readonly string[] {
     return [...(this.rejectionReasons.get(id) ?? [])];
+  }
+
+  /** Append-only, like the table it mirrors: read for audit assertions, never mutated. */
+  slotCreatedEvents(): readonly MockContentSlotEvent[] {
+    return this.slotEvents.map((event) => ({ ...event }));
   }
 }

@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, Coins, CreditCard, LayoutDashboard, LogOut, Settings } from 'lucide-react';
+import {
+  BarChart3,
+  Coins,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  Newspaper,
+  Settings,
+} from 'lucide-react';
 import type { Tier } from '@/lib/types/domain';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog';
@@ -24,6 +32,13 @@ const NAV_ITEMS = [
     icon: LayoutDashboard,
     isActive: (path: string) =>
       path === '/dashboard' || path.startsWith('/dashboard/sites') || path.startsWith('/onboarding'),
+  },
+  {
+    id: 'blog' as const,
+    href: '/dashboard/blog',
+    label: 'Blog',
+    icon: Newspaper,
+    isActive: (path: string) => path.startsWith('/dashboard/blog'),
   },
   {
     id: 'reports' as const,

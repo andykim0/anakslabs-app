@@ -44,6 +44,9 @@ export interface AdminContentQueueItem {
   status: ContentPostStatus;
   currentVersionId: string | null;
   currentVersion: AdminContentQueueVersion | null;
+  /** Published pointer. Only ever set together, and only while status is published. */
+  publishedVersionId: string | null;
+  publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,9 +62,50 @@ export interface ContentPublishResult {
   duplicated: boolean;
 }
 
+export interface ContentSlotProvisionInput {
+  clientId: string;
+  siteId: string;
+  pricingModelVersion: string;
+  /** Calendar-month key, `YYYY-MM-01`, resolved in the site's own time zone. */
+  periodMonth: string;
+  /** Slots the contract owes for that month. Ordinals run 1..count. */
+  count: number;
+  actorId: string;
+}
+
+export interface ContentSlotProvisionResult {
+  periodMonth: string;
+  created: number;
+  existing: number;
+  items: AdminContentQueueItem[];
+}
+
+export interface ContentQueueSiteQuery {
+  siteIds: readonly string[];
+  /** Optional `YYYY-MM-01` filter. Omit to read a site's whole history. */
+  periodMonths?: readonly string[];
+  /**
+   * Exclusive upper bound on `period_month` (`YYYY-MM-01`). Lets a caller ask for history
+   * without the current month, so the current month can be fetched exactly and never competes
+   * with old rows for the row budget.
+   */
+  beforePeriodMonth?: string;
+  statuses?: readonly ContentPostStatus[];
+  /** `period_month` direction; ordinal always ascends within a month. Defaults to ascending. */
+  order?: 'asc' | 'desc';
+  limit?: number;
+}
+
 export interface ContentQueueRepository {
   listNonterminal(limit?: number): Promise<AdminContentQueueItem[]>;
   countNonterminal(): Promise<number>;
+  /**
+   * Every status including published — the fulfillment counters and the customer view both need
+   * the delivered rows that the admin queue deliberately drops.
+   */
+  listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]>;
+  /** Idempotent: fills only the ordinals this site is still missing for the month. */
+  provisionMonthlySlots(input: ContentSlotProvisionInput): Promise<ContentSlotProvisionResult>;
   getById(id: string): Promise<AdminContentQueueItem | null>;
   claimGeneration(input: {
     id: string;
@@ -110,8 +154,18 @@ export class ContentQueueError extends Error {
   }
 }
 
-export function normalizeContentQueueLimit(limit = 200): number {
-  return Number.isSafeInteger(limit) && limit > 0 && limit <= 500 ? limit : 200;
+export const CONTENT_QUEUE_DEFAULT_LIMIT = 200;
+export const CONTENT_QUEUE_MAX_LIMIT = 500;
+
+/**
+ * A caller asking for more than the ceiling wants as much as it can get, so it is clamped down
+ * to the ceiling. A caller passing a nonsensical limit (0, negative, fractional, NaN) has said
+ * nothing meaningful, so it falls back to the default. Collapsing the two — as this once did —
+ * silently turned "give me 1000" into "give me 200", which is the shape of a truncation bug.
+ */
+export function normalizeContentQueueLimit(limit = CONTENT_QUEUE_DEFAULT_LIMIT): number {
+  if (!Number.isSafeInteger(limit) || limit <= 0) return CONTENT_QUEUE_DEFAULT_LIMIT;
+  return Math.min(limit, CONTENT_QUEUE_MAX_LIMIT);
 }
 
 export function isAdminContentQueueStatus(
@@ -196,6 +250,8 @@ export function projectAdminContentItem(
     status: row.status,
     currentVersionId: row.current_version_id,
     currentVersion: version,
+    publishedVersionId: row.published_version_id,
+    publishedAt: row.published_at,
     createdAt: row.created_at ?? row.updated_at,
     updatedAt: row.updated_at,
   };

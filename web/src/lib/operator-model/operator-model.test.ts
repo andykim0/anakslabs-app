@@ -24,13 +24,16 @@ const ROOT = process.cwd();
 const read = (path: string) => readFileSync(`${ROOT}/${path}`, 'utf8');
 
 test('US customer workspace is operator-managed while non-US behavior is unchanged', () => {
-  assert.deepEqual(customerWorkspaceItemsForLocale('en-US'), ['sites', 'reports', 'settings']);
+  assert.deepEqual(
+    customerWorkspaceItemsForLocale('en-US'),
+    ['sites', 'blog', 'reports', 'settings'],
+  );
   assert.equal(onboardingAllowedForLocale('en-US'), false);
   assert.equal(selfSignupAllowedForLocale('en-US'), false);
 
   assert.deepEqual(
     customerWorkspaceItemsForLocale('ko-KR'),
-    ['sites', 'reports', 'billing', 'credits', 'settings'],
+    ['sites', 'blog', 'reports', 'billing', 'credits', 'settings'],
   );
   assert.equal(onboardingAllowedForLocale('ko-KR'), true);
   assert.equal(selfSignupAllowedForLocale('ko-KR'), true);

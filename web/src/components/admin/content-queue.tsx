@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
+  CalendarPlus,
   CheckCircle2,
   FileCheck2,
   Inbox,
@@ -17,7 +18,9 @@ import {
   approveAdminContent,
   generateAdminContent,
   getAdminContentQueue,
+  provisionAdminContentSlots,
   rejectAdminContent,
+  type AdminContentFulfillmentSite,
   type AdminContentQueueItem,
   type AdminContentQueueStatus,
 } from './api';
@@ -47,6 +50,79 @@ const STATUS_TONES: Record<AdminContentQueueStatus, BadgeTone> = {
 };
 
 const DEFAULT_TOPIC = "Criteria for customers to check before making a decision";
+
+/**
+ * Fulfillment is counted against the month a slot was promised for, so the same sentence the
+ * customer reads is the one the operator works from. Safe-catalog publications are excluded on
+ * the server and never appear in this numerator.
+ */
+function fulfillmentSentence(site: AdminContentFulfillmentSite): string {
+  const month = site.periodMonth.slice(0, 7);
+  return site.committed === null
+    ? `${month}: ${formatNumber(site.delivered)} delivered`
+    : `${month}: ${formatNumber(site.delivered)} of ${formatNumber(site.committed)} delivered`;
+}
+
+function FulfillmentRow({ site }: { site: AdminContentFulfillmentSite }) {
+  const queryClient = useQueryClient();
+  const provision = useMutation({
+    mutationFn: () => provisionAdminContentSlots(site.clientId, site.siteId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'content-queue'] });
+    },
+  });
+  const missing = site.committed === null ? 0 : Math.max(0, site.committed - site.slotCount);
+
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-slate-900">{site.siteName}</p>
+        <p className="mt-0.5 text-xs text-slate-500">
+          {fulfillmentSentence(site)} · {formatNumber(site.slotCount)} slots · {site.timezone}
+        </p>
+        {provision.error ? (
+          <p role="alert" className="mt-1 text-xs text-red-600">{provision.error.message}</p>
+        ) : null}
+      </div>
+      <div className="flex items-center gap-2">
+        {missing > 0 ? (
+          <Badge tone="amber">{formatNumber(missing)} missing</Badge>
+        ) : (
+          <Badge tone="green">Month is provisioned</Badge>
+        )}
+        <button
+          type="button"
+          onClick={() => provision.mutate()}
+          disabled={provision.isPending}
+          className="inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          {provision.isPending
+            ? <Loader2 size={13} className="animate-spin" aria-hidden />
+            : <CalendarPlus size={13} aria-hidden />}
+          Provision this month
+        </button>
+      </div>
+    </li>
+  );
+}
+
+function FulfillmentPanel({ sites }: { sites: readonly AdminContentFulfillmentSite[] }) {
+  if (sites.length === 0) return null;
+  return (
+    <Card className="mb-4 p-0">
+      <div className="border-b border-slate-100 px-4 py-3">
+        <h2 className="text-sm font-semibold text-slate-900">Monthly fulfillment</h2>
+        <p className="mt-0.5 text-xs text-slate-500">
+          Each site&apos;s current month is read in that site&apos;s own time zone. Provisioning is
+          idempotent — it adds only the slots the month is still missing.
+        </p>
+      </div>
+      <ul className="divide-y divide-slate-100">
+        {sites.map((site) => <FulfillmentRow key={site.siteId} site={site} />)}
+      </ul>
+    </Card>
+  );
+}
 
 function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
   const queryClient = useQueryClient();
@@ -242,7 +318,7 @@ export function ContentQueue() {
       <PageHeader
         title="Content Approval Queue"
         description={query.data
-          ? `Inspection before disclosure${formatNumber(query.data.items.length)}· Only approved versions will appear on the site.`
+          ? `${formatNumber(query.data.items.length)} awaiting review · Only approved versions appear on the site.`
           : undefined}
         actions={
           <button
@@ -260,6 +336,7 @@ export function ContentQueue() {
           </button>
         }
       />
+      {query.data ? <FulfillmentPanel sites={query.data.fulfillment} /> : null}
       {query.data?.integrity.missingCount ? (
         <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
           {formatNumber(query.data.integrity.missingCount)} source posts are missing from this queue projection.
@@ -273,7 +350,7 @@ export function ContentQueue() {
         <EmptyState
           icon={Inbox}
           title="There is no content to review"
-          description="Monthly slots are created after the P4 cadence is activated."
+          description="Use Provision this month above to create the month's slots for a site."
         />
       ) : (
         <div className="space-y-3">

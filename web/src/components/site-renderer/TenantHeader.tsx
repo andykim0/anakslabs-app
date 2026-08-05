@@ -20,6 +20,15 @@ export interface TenantNavigationItem {
   navLabel?: string;
 }
 
+/**
+ * [T1] 브랜드 라벨 = 상호만 — meta.title의 '— 업종 · 지역' 부제는 제거(모바일 잘림 원인).
+ * 헤더 외에 블로그 고지 문구도 같은 이름을 불러야 하므로 규칙을 한 곳에 둔다.
+ */
+export function tenantBrandName(config: SiteConfig): string {
+  const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
+  return rawName.split('—')[0].trim() || rawName;
+}
+
 export function TenantHeader({
   config,
   currentSlug,
@@ -40,10 +49,7 @@ export function TenantHeader({
   if (!enabled) return null;
 
   const theme = config.theme;
-  // [T1] 브랜드 라벨 = 상호만 — meta.title의 '— 업종 · 지역' 부제는 헤더에서 제거(모바일 잘림 원인).
-  //      상호는 truncate(ellipsis)로 내비/햄버거 공간을 절대 침범하지 않는다.
-  const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
-  const siteName = rawName.split('—')[0].trim() || rawName;
+  const siteName = tenantBrandName(config);
   const brandLogo = config.pages
     .flatMap((page) => page.sections)
     .flatMap((section) => section.elements)
