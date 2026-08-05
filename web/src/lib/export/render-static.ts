@@ -92,9 +92,12 @@ export function renderStaticDocument(opts: RenderDocumentOptions): string {
   if (opts.fontFaceCss) {
     // 셀프호스트: CDN 폰트 링크 제거 (외부 요청 0 보장)
     body = body.replace(CDN_FONT_LINK_RE, '');
-    // FNT pin markup carries the same checked-in asset paths for live serving. Static bundles
-    // place those files under assets/fonts; rewrite only that additive namespace.
-    body = body.replaceAll('/fonts/korean/', 'assets/fonts/');
+    // FNT pin markup and the pinned @font-face CSS carry checked-in asset paths for live serving.
+    // Static bundles place those files under assets/fonts, flattened to their basename, so both
+    // pin namespaces rewrite identically. This covered only the Korean one, which left every
+    // Latin-pinned site — the entire US clinic product — pointing at /fonts/latin/ paths that
+    // exist on the origin and 404 inside the bundle the customer downloads.
+    body = body.replace(/\/fonts\/(?:korean|latin)\//gu, 'assets/fonts/');
   }
 
   return buildDocumentShell({

@@ -44,7 +44,7 @@ export default async function TenantBlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: contentPostJsonLd(site, post) }}
       />
-      <TenantContentBlog config={site.siteConfig} posts={posts} post={post} />
+      <TenantContentBlog config={site.siteConfig} siteId={site.id} posts={posts} post={post} />
     </>
   );
 }

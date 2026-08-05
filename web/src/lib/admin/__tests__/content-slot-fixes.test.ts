@@ -138,8 +138,10 @@ describe('BLOG-SCREEN F1 — the provisioning actor is the operator, not a const
     const response = await provisionThroughRoute(repository, null);
 
     assert.equal(response.status, 403);
-    const payload = await response.json() as { error?: { code?: string } };
+    const payload = await response.json() as { error?: { code?: string; message?: string } };
     assert.equal(payload.error?.code, 'FORBIDDEN');
+    // This product speaks English to its customers; the shared guards do too.
+    assert.equal(payload.error?.message, 'Administrator access is required.');
     assert.equal(
       repository.slotCreatedEvents().length,
       0,

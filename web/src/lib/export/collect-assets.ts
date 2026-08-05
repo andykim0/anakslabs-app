@@ -119,3 +119,26 @@ export async function collectAndRewriteAssets(input: SiteConfig): Promise<Collec
 
   return { config, assets, assetRewrites: cache, warnings };
 }
+
+/**
+ * Collects assets that are chosen at render time rather than stored in the SiteConfig.
+ *
+ * `collectAndRewriteAssets` walks the config, which is the right source for section media — but
+ * content-post covers are resolved from the stock manifest while rendering, so the config never
+ * mentions them. Without this the exported blog pages point at `/stock/...`, a path that exists
+ * on the live origin and nowhere inside the zip.
+ */
+export async function collectRenderTimeAssets(srcs: readonly string[]): Promise<{
+  rewrites: Map<string, string>;
+  assets: Map<string, Buffer>;
+  warnings: string[];
+}> {
+  const rewrites = new Map<string, string>();
+  const assets = new Map<string, Buffer>();
+  const warnings: string[] = [];
+  for (const src of new Set(srcs)) {
+    const rel = await fetchAsset(src, rewrites, assets, warnings);
+    if (!rel) warnings.push(`content cover asset not bundled — kept as-is: ${src}`);
+  }
+  return { rewrites, assets, warnings };
+}
