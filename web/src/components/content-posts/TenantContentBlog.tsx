@@ -4,6 +4,8 @@ import { CONTENT_BLOG_NAV_ITEM } from '@/lib/content-fulfillment/public-projecti
 import { projectAuthoritativePublicContact, resolvePublicContact } from '@/lib/seo/public-contact';
 import { TenantHeader, tenantBrandName } from '@/components/site-renderer/TenantHeader';
 import { contentPostEducationalNotice } from '@/lib/legal/notices';
+import { postCoverImage } from '@/lib/content-fulfillment/post-cover';
+import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { LegalFooter } from '@/components/site-renderer/LegalFooter';
 import { PublicContactBar } from '@/components/site-renderer/PublicContactBar';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
@@ -70,6 +72,33 @@ const BLOG_CSS = `
 `;
 
 /**
+ * Accent and primary, resolved defensively.
+ *
+ * The palette type marks both as required, but clinic newbuild themes ship a four-colour palette
+ * (background, surface, text, muted) and nothing else — so reading `palette.accent` directly
+ * yields undefined at runtime and produces `undefinedD9` gradients and a contrast crash. Falling
+ * back through the colours that always exist keeps the surface token-derived either way.
+ */
+function blogAccent(theme: SiteConfig['theme']): string {
+  return theme.palette.accent || theme.palette.primary || theme.palette.text;
+}
+
+function blogPrimary(theme: SiteConfig['theme']): string {
+  return theme.palette.primary || theme.palette.accent || theme.palette.text;
+}
+
+/**
+ * Reveal attributes for one element.
+ *
+ * Gated by the site's own motion intensity: a practice that turned motion off should not have it
+ * reappear on its blog. `suppressHydrationWarning` is required because the runtime adds its
+ * hide/show classes before React hydrates — a real difference, on exactly the elements that opt in.
+ */
+function revealProps(enabled: boolean) {
+  return enabled ? { 'data-m': 'reveal', suppressHydrationWarning: true } as const : {};
+}
+
+/**
  * The one recurring device on this surface: a short accent rule marking the hinge between what a
  * thing is and what it says. It sits under the section eyebrow, between a card's title and its
  * summary, and under an article title before the body — the same meaning in all three places, so
@@ -126,7 +155,8 @@ function PostMedia({
   imageUrl?: string;
   feature?: boolean;
 }) {
-  const { accent, primary } = config.theme.palette;
+  const accent = blogAccent(config.theme);
+  const primary = blogPrimary(config.theme);
   const className = [
     'anaks-content-blog__media',
     feature ? 'anaks-content-blog__media--feature' : '',
@@ -150,6 +180,8 @@ function PostMedia({
 
 export interface TenantContentBlogProps {
   config: SiteConfig;
+  /** Needed only to pin cover selection to the site; never used to fetch anything. */
+  siteId?: string;
   posts: readonly PublishedContentPost[];
   post?: PublishedContentPost;
   hrefForSlug?: (slug: string) => string;
@@ -161,16 +193,18 @@ function PostDocument({
   post,
   config,
   listHref,
+  motion,
 }: {
   post: PublishedContentPost;
   config: SiteConfig;
   listHref: string;
+  motion: boolean;
 }) {
   const text = config.theme.palette.text;
   const muted = config.theme.palette.muted;
-  const accent = config.theme.palette.accent;
+  const accent = blogAccent(config.theme);
   const bandBackground = themeColor(config.theme, 'surfaceSubtle');
-  const backLink = pickOutlineColor(bandBackground, config.theme.palette.primary, config.theme.palette);
+  const backLink = pickOutlineColor(bandBackground, blogPrimary(config.theme), config.theme.palette);
   return (
     <>
       <header
@@ -180,7 +214,7 @@ function PostDocument({
           borderBottom: `1px solid ${themeColor(config.theme, 'border')}33`,
         }}
       >
-        <div className="anaks-content-blog__inner" style={{ maxWidth: '68ch' }}>
+        <div className="anaks-content-blog__inner" style={{ maxWidth: '68ch' }} data-m="reveal">
           <a
             href={listHref}
             style={{
@@ -234,7 +268,7 @@ function PostDocument({
           </p>
         </div>
       </header>
-      <article className="anaks-content-blog__article">
+      <article className="anaks-content-blog__article" {...revealProps(motion)}>
         {post.document.blocks.map((block, index) => {
           if (block.type === 'heading') {
             const Heading = block.level === 2 ? 'h2' : 'h3';
@@ -383,15 +417,21 @@ function MetaLine({ children, color, config }: {
 function PostCard({
   post,
   config,
+  siteId,
   hrefForPost,
   feature = false,
+  motion,
 }: {
   post: PublishedContentPost;
   config: SiteConfig;
+  siteId?: string;
   hrefForPost: (slug: string) => string;
   feature?: boolean;
+  motion: boolean;
 }) {
-  const { text, muted, accent } = config.theme.palette;
+  const { text, muted } = config.theme.palette;
+  const accent = blogAccent(config.theme);
+  const cover = siteId ? postCoverImage({ config, siteId, slug: post.slug }) : null;
   return (
     <article
       className={`anaks-content-blog__card${feature ? ' anaks-content-blog__feature' : ''}`}
@@ -400,8 +440,14 @@ function PostCard({
         border: `1px solid ${themeColor(config.theme, 'border')}33`,
         borderRadius: themeRadius(config.theme, 'soft', 16),
       }}
+      {...revealProps(motion)}
     >
-      <PostMedia config={config} slug={post.slug} feature={feature} />
+      <PostMedia
+        config={config}
+        slug={post.slug}
+        feature={feature}
+        {...(cover ? { imageUrl: cover.url } : {})}
+      />
       <div className="anaks-content-blog__body">
         <MetaLine color={muted} config={config}>{publishedDateLabel(post, config)}</MetaLine>
         <h2
@@ -444,13 +490,18 @@ function PostCard({
 function PostList({
   posts,
   config,
+  siteId,
   hrefForPost,
+  motion,
 }: {
   posts: readonly PublishedContentPost[];
   config: SiteConfig;
+  siteId?: string;
   hrefForPost: (slug: string) => string;
+  motion: boolean;
 }) {
-  const { text, muted, accent } = config.theme.palette;
+  const { text, muted } = config.theme.palette;
+  const accent = blogAccent(config.theme);
   const bandBackground = themeColor(config.theme, 'surfaceSubtle');
   // The eyebrow is the only accent-coloured text here, so it is the only one that needs checking.
   const eyebrow = pickOutlineColor(bandBackground, accent, config.theme.palette);
@@ -467,7 +518,7 @@ function PostList({
           borderBottom: `1px solid ${themeColor(config.theme, 'border')}33`,
         }}
       >
-        <div className="anaks-content-blog__inner">
+        <div className="anaks-content-blog__inner" {...revealProps(motion)}>
           <MetaLine color={eyebrow} config={config}>Blog</MetaLine>
           <AccentRule color={accent} />
           <h1
@@ -501,12 +552,26 @@ function PostList({
 
       <section className="anaks-content-blog__feed">
         {lead ? (
-          <PostCard post={lead} config={config} hrefForPost={hrefForPost} feature />
+          <PostCard
+            post={lead}
+            config={config}
+            siteId={siteId}
+            hrefForPost={hrefForPost}
+            motion={motion}
+            feature
+          />
         ) : null}
         {rest.length > 0 ? (
           <div className="anaks-content-blog__grid" style={{ marginTop: 'clamp(20px, 2.5vw, 32px)' }}>
             {rest.map((post) => (
-              <PostCard key={post.id} post={post} config={config} hrefForPost={hrefForPost} />
+              <PostCard
+                key={post.id}
+                post={post}
+                config={config}
+                siteId={siteId}
+                hrefForPost={hrefForPost}
+                motion={motion}
+              />
             ))}
           </div>
         ) : null}
@@ -517,6 +582,7 @@ function PostList({
 
 export function TenantContentBlog({
   config,
+  siteId,
   posts,
   post,
   hrefForSlug,
@@ -527,6 +593,8 @@ export function TenantContentBlog({
   const businessInfo = config.businessInfo ?? null;
   const publicContact = resolvePublicContact(renderedConfig);
   const pinnedFontResources = fontPairingResources(config.theme);
+  // The site's own switch decides. Off means no markers, no stylesheet and no runtime at all.
+  const motion = config.motion?.intensity !== 'off';
   const fontUrls = pinnedFontResources ? [] : googleFontUrls(config.theme.fonts.googleFonts);
   return (
     <>
@@ -538,6 +606,7 @@ export function TenantContentBlog({
         : null}
       {pinnedFontResources ? <style>{pinnedFontResources.css}</style> : null}
       <style>{BLOG_CSS}</style>
+      {motion ? <style>{MOTION_CSS}</style> : null}
       <TenantHeader
         config={renderedConfig}
         currentSlug="blog"
@@ -545,7 +614,11 @@ export function TenantContentBlog({
         additionalItems={[CONTENT_BLOG_NAV_ITEM]}
       />
       <main
-        className="anaks-content-blog"
+        className="anaks-site anaks-content-blog"
+        {...(pinnedFontResources ? { 'data-font-pairing': pinnedFontResources.id } : {})}
+        // The motion runtime adds its own state classes to this element before React hydrates,
+        // so the server and client class lists legitimately differ here — and only here.
+        suppressHydrationWarning
         style={{
           // An article is one continuous reading surface; the index is a feed of cards, which
           // needs the page tone behind them so each card reads as its own object.
@@ -553,13 +626,24 @@ export function TenantContentBlog({
             ? themeColor(config.theme, 'surfaceSubtle')
             : config.theme.palette.background,
           // Hover and focus styles live in the stylesheet, so the accent has to reach them.
-          ['--anaks-blog-accent' as string]: config.theme.palette.accent,
+          ['--anaks-blog-accent' as string]: blogAccent(config.theme),
         }}
       >
         {post ? (
-          <PostDocument post={post} config={renderedConfig} listHref={listHref} />
+          <PostDocument
+            post={post}
+            config={renderedConfig}
+            listHref={listHref}
+            motion={motion}
+          />
         ) : (
-          <PostList posts={posts} config={renderedConfig} hrefForPost={hrefForPost} />
+          <PostList
+            posts={posts}
+            config={renderedConfig}
+            siteId={siteId}
+            hrefForPost={hrefForPost}
+            motion={motion}
+          />
         )}
         {/*
           Only where the sentence is true. It says "This article", so it belongs on a page that
@@ -580,7 +664,7 @@ export function TenantContentBlog({
               lineHeight: 1.7,
             }}
           >
-            <AccentRule color={config.theme.palette.accent} width={28} />
+            <AccentRule color={blogAccent(config.theme)} width={28} />
             {contentPostEducationalNotice(tenantBrandName(renderedConfig))}
           </aside>
         ) : null}
@@ -591,6 +675,13 @@ export function TenantContentBlog({
       {businessInfo ? (
         <LegalFooter info={businessInfo} theme={config.theme} locale={config.meta.locale} />
       ) : null}
+      {/*
+        The blog injects the motion runtime itself rather than through the shared export shell:
+        SiteRenderer already emits it for site pages, and putting it in the shell would inject it
+        twice into every site export. Emitting it here keeps the live route and the blog export
+        identical by construction, since both render this same tree.
+      */}
+      {motion ? <script dangerouslySetInnerHTML={{ __html: MOTION_RUNTIME }} /> : null}
     </>
   );
 }

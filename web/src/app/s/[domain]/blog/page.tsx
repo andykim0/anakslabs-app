@@ -31,5 +31,5 @@ export default async function TenantBlogPage({ params }: Props) {
   const posts = await getPublishedPostsForSite(site.id);
   if (posts.length === 0) notFound();
   if (site.status === 'suspended') return <SuspendedNotice siteName={site.name} />;
-  return <TenantContentBlog config={site.siteConfig} posts={posts} />;
+  return <TenantContentBlog config={site.siteConfig} siteId={site.id} posts={posts} />;
 }

@@ -22,6 +22,7 @@ function staticBlogBody(input: {
   const isDetail = Boolean(input.post);
   let body = renderToStaticMarkup(createElement(TenantContentBlog, {
     config: input.site.siteConfig!,
+    siteId: input.site.id,
     posts: input.posts,
     post: input.post,
     hrefForSlug: (slug: string) => {

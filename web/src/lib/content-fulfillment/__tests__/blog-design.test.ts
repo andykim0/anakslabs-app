@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import Module from 'node:module';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { parse } from 'node-html-parser';
 import { describe, test } from 'node:test';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
 import {
@@ -158,7 +159,13 @@ describe('BLOG-DESIGN D1/D2 — the surface is built from tenant tokens', () => 
         .concat([CONFIG.theme.tokens?.color.surfaceSubtle ?? '', CONFIG.theme.tokens?.color.border ?? ''])
         .map((value) => value.toLowerCase()),
     );
-    const hexes = [...html.matchAll(/#[0-9a-fA-F]{6}/gu)].map((match) => match[0].toLowerCase());
+    // Only this component's own inline styles. The shared platform stylesheets it also emits
+    // (motion) carry their own palette and are not the blog's to define.
+    const inlineStyles = [...html.matchAll(/style="([^"]*)"/gu)].map((match) => match[1]);
+    const hexes = inlineStyles
+      .flatMap((style) => [...style.matchAll(/#[0-9a-fA-F]{6}/gu)])
+      .map((match) => match[0].toLowerCase());
+    assert.ok(hexes.length > 0, 'the surface does paint from the theme');
     const foreign = hexes.filter((hex) => !known.has(hex));
     assert.deepEqual(foreign, [], `unexpected literal colours: ${[...new Set(foreign)].join(', ')}`);
   });
@@ -261,5 +268,243 @@ describe('BLOG-DESIGN D6 — shared guards answer in the product language', () =
     assert.match(source, /apiError\(401, 'UNAUTHORIZED'/u);
     assert.match(source, /apiError\(403, 'FORBIDDEN'/u);
     assert.match(source, /apiError\(404, 'SITE_NOT_FOUND'/u);
+  });
+});
+
+describe('BLOG-DESIGN D3 — reveal motion is scoped, and injected exactly once', () => {
+  async function renderBlog(post?: PublishedContentPost) {
+    const repository = await provisionedSite(3);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+    const { TenantContentBlog } = await withServerOnlyNeutralized(
+      () => import('@/components/content-posts/TenantContentBlog'),
+    );
+    return {
+      posts,
+      html: renderToStaticMarkup(createElement(TenantContentBlog, {
+        config: CONFIG,
+        siteId: SITE_ID,
+        posts,
+        post: post ?? (undefined as never),
+      })),
+    };
+  }
+
+  /** DOM, not substrings: containment is a tree property and has to be asserted as one. */
+  function assertScoped(html: string, label: string) {
+    const root = parse(html);
+    const scopes = root.querySelectorAll('.anaks-site');
+    assert.equal(scopes.length, 1, `${label}: exactly one motion scope root`);
+    const revealed = root.querySelectorAll('[data-m]');
+    assert.ok(revealed.length > 0, `${label}: something is actually revealed`);
+    for (const element of revealed) {
+      const inScope = element.closest('.anaks-site');
+      assert.ok(inScope, `${label}: a [data-m] element sits outside the motion scope`);
+    }
+  }
+
+  test('the live index and article both scope every reveal under one root', async () => {
+    const list = await renderBlog();
+    assertScoped(list.html, 'index');
+    const detail = await renderBlog(list.posts[0]);
+    assertScoped(detail.html, 'article');
+  });
+
+  test('the scope root also carries the font pairing the pinned CSS selects on', async () => {
+    const { html } = await renderBlog();
+    const root = parse(html).querySelector('.anaks-site');
+    assert.ok(root);
+    const { fontPairingResources } = await withServerOnlyNeutralized(
+      () => import('@/lib/fonts/resources'),
+    );
+    const pinned = fontPairingResources(CONFIG.theme);
+    // Pinned font CSS is scoped to `.anaks-site[data-font-pairing="<id>"]`, so the attribute is
+    // what makes the export's bundled fonts actually apply on this surface.
+    assert.equal(root.getAttribute('data-font-pairing'), pinned?.id ?? undefined);
+  });
+
+  test('the blog export carries the motion runtime inline', async () => {
+    const { renderStaticContentPostFiles } = await withServerOnlyNeutralized(
+      () => import('@/lib/content-fulfillment/render-static'),
+    );
+    const repository = await provisionedSite(2);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+    const files = renderStaticContentPostFiles({
+      site: {
+        id: SITE_ID,
+        domain: 'summit-dental.anakslabs.com',
+        siteConfig: CONFIG,
+      } as unknown as Site,
+      posts,
+    });
+    for (const file of files) {
+      assert.ok(file.html.includes('IntersectionObserver'), `${file.name}: runtime missing`);
+      assertScoped(file.html, file.name);
+    }
+  });
+
+  test('a site export still injects the motion runtime exactly once', async () => {
+    // The regression this guards: putting the runtime in the shared document shell would add a
+    // second copy to every site page, which already gets one from SiteRenderer.
+    const { renderStaticDocument } = await withServerOnlyNeutralized(
+      () => import('@/lib/export/render-static'),
+    );
+    const html = renderStaticDocument({ config: CONFIG, pageSlug: '' });
+    const scripts = parse(html)
+      .querySelectorAll('script')
+      .filter((script) => script.text.includes('IntersectionObserver'));
+    assert.equal(scripts.length, 1, 'exactly one motion runtime script in a site export');
+  });
+});
+
+describe('BLOG-DESIGN D4 — covers depict declared services only', () => {
+  test('a chosen category is always one the clinic pinned', async () => {
+    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
+      () => import('@/lib/operator-model/site-generation'),
+    );
+    const serviceIds = ['dental-implants', 'clear-aligners', 'preventive-care'];
+    const built = await buildOperatorClinicNewbuildSiteConfig(
+      {
+        businessName: 'Declared Dental',
+        specialty: 'general',
+        accentPreset: 'clinical-blue',
+        phone: '(303) 555-0142',
+        serviceIds,
+      } as never,
+      'basic',
+      {} as never,
+    );
+    const { pinnedServiceStockCategories, postCoverImage } = await import(
+      '@/lib/content-fulfillment/post-cover'
+    );
+    const declared = pinnedServiceStockCategories(built.config);
+    assert.ok(declared.length > 0, 'the pinned services are recoverable from the config');
+
+    const { CLINIC_DENTAL_SERVICE_TAXONOMY } = await import('@/lib/clinic-master/service-taxonomy');
+    const allowed = new Set<string>(
+      CLINIC_DENTAL_SERVICE_TAXONOMY
+        .filter((entry) => serviceIds.includes(entry.id))
+        .map((entry) => entry.stockCategory),
+    );
+    for (const category of declared) {
+      assert.ok(allowed.has(category), `${category} is not a declared service category`);
+    }
+    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
+      const cover = postCoverImage({
+        config: built.config,
+        siteId: SITE_ID,
+        slug: `2026-08-post-${ordinal}`,
+      });
+      assert.ok(cover, `slot ${ordinal} resolves a cover`);
+      assert.ok(allowed.has(cover.category), `slot ${ordinal} chose an undeclared category`);
+    }
+  });
+
+  test('the same site, pin and slot always resolve to the same image', async () => {
+    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
+      () => import('@/lib/operator-model/site-generation'),
+    );
+    const build = () => buildOperatorClinicNewbuildSiteConfig(
+      {
+        businessName: 'Declared Dental',
+        specialty: 'general',
+        accentPreset: 'clinical-blue',
+        phone: '(303) 555-0142',
+        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
+      } as never,
+      'basic',
+      {} as never,
+    );
+    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
+    const first = await build();
+    const second = await build();
+    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
+      const slug = `2026-08-post-${ordinal}`;
+      assert.deepEqual(
+        postCoverImage({ config: first.config, siteId: SITE_ID, slug }),
+        postCoverImage({ config: second.config, siteId: SITE_ID, slug }),
+        `slot ${ordinal} must be stable across renders`,
+      );
+    }
+  });
+
+  test('a site with no clinic pin falls back to the accent field', async () => {
+    const { pinnedServiceStockCategories, postCoverImage } = await import(
+      '@/lib/content-fulfillment/post-cover'
+    );
+    // The seeded demo clinic is a hand-authored config with no clinic master pin.
+    assert.equal(CONFIG.clinicMaster, undefined);
+    assert.deepEqual(pinnedServiceStockCategories(CONFIG), []);
+    assert.equal(
+      postCoverImage({ config: CONFIG, siteId: SITE_ID, slug: '2026-08-post-1' }),
+      null,
+      'no pin means no cover, and the card paints its accent field',
+    );
+  });
+
+  test('the selection module never reads a model-written field', async () => {
+    const { readFileSync } = await import('node:fs');
+    const source = readFileSync(
+      `${process.cwd()}/src/lib/content-fulfillment/post-cover.ts`,
+      'utf8',
+    );
+    // Strip comments: the rule is about what the code reads, and the comments explain the rule.
+    const code = source
+      .replace(/\/\*[\s\S]*?\*\//gu, '')
+      .replace(/\/\/[^\n]*/gu, '');
+    for (const field of ['title', 'summary', 'tags', 'document']) {
+      assert.doesNotMatch(
+        code,
+        new RegExp(`\\b${field}\\b`, 'u'),
+        `cover selection must not consult the generated ${field}`,
+      );
+    }
+  });
+});
+
+describe('BLOG-DESIGN — the surface survives a four-colour clinic palette', () => {
+  test('a newbuild config renders covers without an undefined colour anywhere', async () => {
+    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
+      () => import('@/lib/operator-model/site-generation'),
+    );
+    const built = await buildOperatorClinicNewbuildSiteConfig(
+      {
+        businessName: 'Ridgeline Dental',
+        specialty: 'general',
+        accentPreset: 'clinical-blue',
+        phone: '(303) 555-0142',
+        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
+      } as never,
+      'basic',
+      {} as never,
+    );
+    // The palette these themes ship is the reason this test exists.
+    assert.equal(built.config.theme.palette.accent, undefined);
+
+    const repository = await provisionedSite(3);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+    const { TenantContentBlog } = await withServerOnlyNeutralized(
+      () => import('@/components/content-posts/TenantContentBlog'),
+    );
+    const html = renderToStaticMarkup(createElement(TenantContentBlog, {
+      config: built.config,
+      siteId: SITE_ID,
+      posts,
+    }));
+
+    // Inline styles only: the shared motion runtime this page also emits is JavaScript, and the
+    // word "undefined" appears in it legitimately.
+    const inlineStyles = [...html.matchAll(/style="([^"]*)"/gu)].map((match) => match[1]);
+    assert.ok(inlineStyles.length > 0);
+    for (const style of inlineStyles) {
+      assert.ok(!style.includes('undefined'), `undefined colour reached a style: ${style}`);
+    }
+    assert.match(html, /class="[^"]*media--cover/u, 'declared services produce real covers');
+    assert.match(html, /\/stock\/pexels\/dental-atmosphere\//u);
   });
 });
