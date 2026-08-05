@@ -71,7 +71,8 @@ function assertEveryObjectIsStrict(node: unknown, path = '$'): void {
 }
 
 test('content generation tool hand-authors a strict four-block union without Zod conversion limits', () => {
-  assert.equal(CONTENT_POST_GENERATION_MAX_TOKENS, 2_000);
+  // Raised from 2,000 after real-key measurement truncated 15.4% of Opus responses.
+  assert.equal(CONTENT_POST_GENERATION_MAX_TOKENS, 6_000);
   assert.equal(CONTENT_POST_GENERATION_REQUEST_TIMEOUT_MS, 130_000);
   assert.equal(CONTENT_POST_GENERATION_MAX_RETRIES, 0);
   assert.match(CONTENT_POST_GENERATION_SYSTEM, /source-grounded English clinic website articles/u);

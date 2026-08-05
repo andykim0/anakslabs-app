@@ -1,4 +1,9 @@
-export const CONTENT_POST_GENERATION_MAX_TOKENS = 2_000 as const;
+/**
+ * Real-key measurement at 2,000 truncated 15.4% of Opus responses (stop_reason=max_tokens),
+ * which burned an attempt on a partial object or zero tool inputs. The model has no thinking
+ * budget here, so the whole ceiling is article tokens; 6,000 output tokens is ~$0.15 per call.
+ */
+export const CONTENT_POST_GENERATION_MAX_TOKENS = 6_000 as const;
 export const CONTENT_POST_GENERATION_REQUEST_TIMEOUT_MS = 130_000 as const;
 export const CONTENT_POST_GENERATION_MAX_RETRIES = 0 as const;
 

@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { HWARODAM_SITE_CONFIG } from '@/lib/data/mock/hwarodam';
+import { normalizeSiteConfig } from '@/lib/types/site';
+import type { ContentSourceSnapshot } from './contracts';
+import { generateContentPostVersion } from './generation';
 import { generatedContentPostSchema } from './honesty';
 import {
   createContentPostTextGeneratorCore,
@@ -34,6 +38,29 @@ const TOOL_POST = {
     }],
   },
 };
+
+const SNAPSHOT: ContentSourceSnapshot = {
+  version: 1,
+  siteId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  clientId: '11111111-1111-4111-8111-111111111111',
+  capturedAt: '2026-08-05T00:00:00.000Z',
+  surveyVersion: 2,
+  industryId: 'clinic',
+  industryClass: 'medical',
+  sources: [{
+    id: 'customer-faq:consultation',
+    kind: 'customer-faq',
+    path: 'survey.contentDepth.faqAnswers.0',
+    text: 'Write down your questions before the consultation.',
+  }],
+};
+
+const TRUNCATED_USAGE = {
+  inputTokens: 1_180,
+  outputTokens: 6_000,
+  cacheCreationInputTokens: 0,
+  cacheReadInputTokens: 0,
+} as const;
 
 describe('content fulfillment dedicated text generator', () => {
   test('mock mode returns deterministic contract-valid JSON with the requested slug', async () => {
@@ -144,5 +171,69 @@ describe('content fulfillment dedicated text generator', () => {
       },
       toolInputCount: 1,
     }]);
+  });
+
+  test('a truncated response fails as truncation, not as a tool-input count, and keeps usage', async () => {
+    for (const inputs of [[], [{ slug: 'choosing-a-dentist' }]]) {
+      const observations: ContentPostGenerationObservation[] = [];
+      const generator = createContentPostTextGeneratorCore({
+        mode: 'supabase',
+        onObservation: (observation) => observations.push(observation),
+        invokeTool: async () => ({
+          inputs,
+          stopReason: 'max_tokens',
+          usage: { ...TRUNCATED_USAGE },
+        }),
+      });
+
+      await assert.rejects(
+        generator.generateText({ prompt: PROMPT }),
+        /cut off at the output token limit/u,
+      );
+      assert.deepEqual(observations, [{
+        provider: 'anthropic',
+        stopReason: 'max_tokens',
+        usage: { ...TRUNCATED_USAGE },
+        toolInputCount: inputs.length,
+      }]);
+    }
+  });
+
+  test('the truncation reason reaches the retry prompt so the retry is asked to write shorter', async () => {
+    const prompts: string[] = [];
+    const generator = createContentPostTextGeneratorCore({
+      mode: 'supabase',
+      invokeTool: async (input) => {
+        prompts.push(input.prompt);
+        if (prompts.length === 1) {
+          return { inputs: [], stopReason: 'max_tokens', usage: { ...TRUNCATED_USAGE } };
+        }
+        return {
+          inputs: [TOOL_POST],
+          stopReason: 'tool_use',
+          usage: {
+            inputTokens: 1_180,
+            outputTokens: 900,
+            cacheCreationInputTokens: 0,
+            cacheReadInputTokens: 0,
+          },
+        };
+      },
+    });
+
+    const generated = await generateContentPostVersion({
+      generator,
+      snapshot: SNAPSHOT,
+      config: normalizeSiteConfig(structuredClone(HWARODAM_SITE_CONFIG)),
+      topic: 'Questions to ask before choosing a dentist',
+      slug: 'choosing-a-dentist',
+      clinicFlagValue: '1',
+    });
+
+    assert.equal(generated.generationMetadata.attempt, 2);
+    assert.equal(prompts.length, 2);
+    assert.doesNotMatch(prompts[0] ?? '', /cut off at the output token limit/u);
+    assert.match(prompts[1] ?? '', /Reason the previous result was rejected: The previous response was cut off at the output token limit/u);
+    assert.match(prompts[1] ?? '', /fewer blocks and fewer table rows/u);
   });
 });

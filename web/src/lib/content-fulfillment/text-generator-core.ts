@@ -109,6 +109,16 @@ export function createContentPostTextGeneratorCore(
       if (response.stopReason === 'refusal') {
         throw new Error('Claude refused the structured content request.');
       }
+      // A truncated response is either a partial object or zero tool inputs. Both burn an
+      // attempt, so name the cause: this message becomes the retry prompt's rejection reason,
+      // and without it the model rewrites an article of the same length and truncates again.
+      if (response.stopReason === 'max_tokens') {
+        throw new Error(
+          'The previous response was cut off at the output token limit before the article was '
+          + 'complete. Write a shorter article: use fewer blocks and fewer table rows, and keep '
+          + 'each paragraph brief.',
+        );
+      }
       if (response.inputs.length !== 1) {
         throw new Error(
           `The content generator returned ${response.inputs.length} tool inputs; expected exactly one.`,
