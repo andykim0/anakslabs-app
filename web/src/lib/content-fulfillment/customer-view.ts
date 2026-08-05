@@ -66,6 +66,15 @@ function byOrdinal(left: CustomerBlogPost, right: CustomerBlogPost): number {
 }
 
 /**
+ * How far back the history list reaches. A single unbounded read cannot serve this screen: with
+ * one row budget shared between months, a long-lived site's *current* month falls off the end and
+ * the counter reads zero. So the current month is fetched exactly, and history is a separate
+ * newest-first read. Roughly 25 months of an eight-post contract fit here; anything older than
+ * that is omitted from the list, which the counter never depends on.
+ */
+const EARLIER_POST_LIMIT = 200;
+
+/**
  * The caller is responsible for having proven ownership of `site` — this reads through the
  * service-role queue repository and applies no tenancy filter of its own beyond the site id.
  */
@@ -74,20 +83,33 @@ export async function loadCustomerBlogView(
   now: Date = new Date(),
 ): Promise<CustomerBlogView> {
   const plan = siteFulfillmentPlan(site, now);
-  const items = await getContentQueueRepository().listBySites({ siteIds: [site.id] });
-  const thisMonthItems = slotsForPeriod(items, plan.periodMonth);
-  const thisMonthIds = new Set(thisMonthItems.map((item) => item.id));
+  const repository = getContentQueueRepository();
+  const [thisMonthItems, earlierItems] = await Promise.all([
+    // Exact month: the counter is computed from these rows, so they can never be crowded out.
+    repository.listBySites({
+      siteIds: [site.id],
+      periodMonths: [plan.periodMonth],
+    }),
+    repository.listBySites({
+      siteIds: [site.id],
+      beforePeriodMonth: plan.periodMonth,
+      statuses: ['published'],
+      order: 'desc',
+      limit: EARLIER_POST_LIMIT,
+    }),
+  ]);
 
   return {
     siteId: site.id,
     siteName: site.name,
     domain: site.domain,
     periodMonth: plan.periodMonth,
-    delivered: deliveredCountForPeriod(items, plan.periodMonth),
+    delivered: deliveredCountForPeriod(thisMonthItems, plan.periodMonth),
     committed: plan.committed,
-    thisMonth: thisMonthItems.map((item) => customerPost(site, item)).sort(byOrdinal),
-    earlier: items
-      .filter((item) => !thisMonthIds.has(item.id) && item.status === 'published')
+    thisMonth: slotsForPeriod(thisMonthItems, plan.periodMonth)
+      .map((item) => customerPost(site, item))
+      .sort(byOrdinal),
+    earlier: earlierItems
       .map((item) => customerPost(site, item))
       .sort((left, right) =>
         right.periodMonth.localeCompare(left.periodMonth) || byOrdinal(left, right)),

@@ -66,6 +66,16 @@ begin
     and pricing_model_version = p_pricing_model_version
     and period_month = v_period;
 
+  -- Slug determinism rests on one external guarantee. The schedule identity is keyed on
+  -- (site_id, pricing_model_version, period_month, ordinal) while the slug is derived from only
+  -- (period_month, ordinal), so two different pricing model versions in the same month would
+  -- derive the same slug and collide on the separate (site_id, slug) unique index. The only thing
+  -- preventing that is 0047's sites_protected_columns guard, which raises
+  -- 'pricing_model_version cannot be changed once set' — a site can never move to a second
+  -- version. If 0047 is ever relaxed, the `on conflict do nothing` below stops being a no-op
+  -- retry and starts silently swallowing genuinely missing slots: the month would report
+  -- created = 0 while standing short, and the customer counter would quietly under-deliver.
+  -- Relaxing 0047 therefore requires putting pricing_model_version into the slug.
   with wanted as (
     select generate_series(1, p_count)::smallint as ordinal
   ),
@@ -109,6 +119,10 @@ begin
     where p.site_id = p_site_id
       and p.pricing_model_version = p_pricing_model_version
       and p.period_month = v_period
+      -- Only rows still sitting at 'draft'. Backfilling an event for a row that has already moved
+      -- on would append a 'slot_created' after its 'published' entry, and the ledger is
+      -- append-only, so a future import path could permanently corrupt the audit order.
+      and p.status = 'draft'
       and not exists (
         select 1
         from public.content_post_events e

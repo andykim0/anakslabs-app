@@ -161,8 +161,14 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
     if (query.periodMonths?.length) {
       request = request.in('period_month', [...query.periodMonths]);
     }
+    if (query.beforePeriodMonth) {
+      request = request.lt('period_month', query.beforePeriodMonth);
+    }
+    if (query.statuses?.length) {
+      request = request.in('status', [...query.statuses]);
+    }
     const { data, error } = await request
-      .order('period_month', { ascending: true })
+      .order('period_month', { ascending: query.order !== 'desc' })
       .order('ordinal', { ascending: true })
       .limit(normalizeContentQueueLimit(query.limit));
     if (error) throw new Error(`content slot list failed: ${error.message}`);

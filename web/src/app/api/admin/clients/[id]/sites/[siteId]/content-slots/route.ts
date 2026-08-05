@@ -14,6 +14,7 @@ import { getDataServices } from '@/lib/data';
 import { getContentQueueRepository } from '@/lib/admin/content-queue-repository';
 import { ContentQueueError } from '@/lib/admin/content-queue-core';
 import { contentQueueErrorResponse } from '@/app/api/admin/content-queue/_lib';
+import { getCurrentAdminActorId } from '@/lib/services/auth';
 import { siteFulfillmentPlan } from '@/lib/content-fulfillment/site-fulfillment';
 import { deliveredCountForPeriod } from '@/lib/content-fulfillment/delivery';
 
@@ -22,6 +23,10 @@ type Ctx = { params: Promise<{ id: string; siteId: string }> };
 export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
+  // The actor lands in append-only content_post_events and can never be corrected afterwards,
+  // so it must be the operator who actually pressed the button — not a constant.
+  const actorId = await getCurrentAdminActorId();
+  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
   const { id: clientId, siteId } = await params;
 
   const site = await getDataServices().sites.getById(siteId);
@@ -47,7 +52,7 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
       pricingModelVersion: plan.pricingModelVersion,
       periodMonth: plan.periodMonth,
       count: plan.committed,
-      actorId: 'admin',
+      actorId,
     });
   } catch (error) {
     if (error instanceof ContentQueueError) return contentQueueErrorResponse(error);

@@ -84,6 +84,15 @@ export interface ContentQueueSiteQuery {
   siteIds: readonly string[];
   /** Optional `YYYY-MM-01` filter. Omit to read a site's whole history. */
   periodMonths?: readonly string[];
+  /**
+   * Exclusive upper bound on `period_month` (`YYYY-MM-01`). Lets a caller ask for history
+   * without the current month, so the current month can be fetched exactly and never competes
+   * with old rows for the row budget.
+   */
+  beforePeriodMonth?: string;
+  statuses?: readonly ContentPostStatus[];
+  /** `period_month` direction; ordinal always ascends within a month. Defaults to ascending. */
+  order?: 'asc' | 'desc';
   limit?: number;
 }
 
@@ -145,8 +154,18 @@ export class ContentQueueError extends Error {
   }
 }
 
-export function normalizeContentQueueLimit(limit = 200): number {
-  return Number.isSafeInteger(limit) && limit > 0 && limit <= 500 ? limit : 200;
+export const CONTENT_QUEUE_DEFAULT_LIMIT = 200;
+export const CONTENT_QUEUE_MAX_LIMIT = 500;
+
+/**
+ * A caller asking for more than the ceiling wants as much as it can get, so it is clamped down
+ * to the ceiling. A caller passing a nonsensical limit (0, negative, fractional, NaN) has said
+ * nothing meaningful, so it falls back to the default. Collapsing the two — as this once did —
+ * silently turned "give me 1000" into "give me 200", which is the shape of a truncation bug.
+ */
+export function normalizeContentQueueLimit(limit = CONTENT_QUEUE_DEFAULT_LIMIT): number {
+  if (!Number.isSafeInteger(limit) || limit <= 0) return CONTENT_QUEUE_DEFAULT_LIMIT;
+  return Math.min(limit, CONTENT_QUEUE_MAX_LIMIT);
 }
 
 export function isAdminContentQueueStatus(

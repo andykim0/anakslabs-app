@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   isSamePeriodMonth,
   monthlySlotSlug,
+  periodMonthKey,
 } from '@/lib/content-fulfillment/delivery';
 import {
   ContentQueueError,
@@ -15,10 +16,23 @@ import {
   type ContentSlotProvisionResult,
 } from './content-queue-core';
 
+/** Mirrors the append-only content_post_events row 0059 writes when a slot is created. */
+export interface MockContentSlotEvent {
+  contentPostId: string;
+  clientId: string;
+  siteId: string;
+  eventType: 'slot_created';
+  toStatus: 'draft';
+  actorType: 'admin';
+  actorId: string;
+  createdAt: string;
+}
+
 export class MockContentQueueRepository implements ContentQueueRepository {
   private readonly items = new Map<string, AdminContentQueueItem>();
   private readonly rejectionReasons = new Map<string, string[]>();
   private readonly versionHistory = new Map<string, AdminContentQueueItem['currentVersion'][]>();
+  private readonly slotEvents: MockContentSlotEvent[] = [];
 
   constructor(seed: readonly AdminContentQueueItem[] = []) {
     for (const item of seed) {
@@ -51,12 +65,19 @@ export class MockContentQueueRepository implements ContentQueueRepository {
   async listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]> {
     const siteIds = new Set(query.siteIds);
     if (siteIds.size === 0) return [];
+    const statuses = query.statuses ? new Set<string>(query.statuses) : null;
+    const descending = query.order === 'desc';
     return [...this.items.values()]
       .filter((item) => siteIds.has(item.siteId))
       .filter((item) => !query.periodMonths
         || query.periodMonths.some((month) => isSamePeriodMonth(item.periodMonth, month)))
-      .sort((left, right) =>
-        left.periodMonth.localeCompare(right.periodMonth) || left.ordinal - right.ordinal)
+      .filter((item) => !query.beforePeriodMonth
+        || periodMonthKey(item.periodMonth) < periodMonthKey(query.beforePeriodMonth))
+      .filter((item) => !statuses || statuses.has(item.status))
+      .sort((left, right) => {
+        const byPeriod = left.periodMonth.localeCompare(right.periodMonth);
+        return (descending ? -byPeriod : byPeriod) || left.ordinal - right.ordinal;
+      })
       .slice(0, normalizeContentQueueLimit(query.limit))
       .map((item) => structuredClone(item));
   }
@@ -69,9 +90,24 @@ export class MockContentQueueRepository implements ContentQueueRepository {
       && item.pricingModelVersion === input.pricingModelVersion
       && isSamePeriodMonth(item.periodMonth, input.periodMonth));
     const takenOrdinals = new Set(existing.map((item) => item.ordinal));
+    // 0049 makes (site_id, slug) unique on top of the schedule identity. Postgres would reject a
+    // colliding insert outright, so the mock must refuse it too rather than quietly diverging.
+    const takenSlugs = new Set(
+      [...this.items.values()]
+        .filter((item) => item.siteId === input.siteId)
+        .map((item) => item.slug),
+    );
     let created = 0;
     for (let ordinal = 1; ordinal <= input.count; ordinal += 1) {
       if (takenOrdinals.has(ordinal)) continue;
+      const slug = monthlySlotSlug(input.periodMonth, ordinal);
+      if (takenSlugs.has(slug)) {
+        throw new ContentQueueError(
+          'CONTENT_POST_STATE_CONFLICT',
+          `A content post with slug ${slug} already exists for this site.`,
+        );
+      }
+      takenSlugs.add(slug);
       const now = new Date().toISOString();
       const id = randomUUID();
       this.items.set(id, {
@@ -81,7 +117,7 @@ export class MockContentQueueRepository implements ContentQueueRepository {
         pricingModelVersion: input.pricingModelVersion,
         periodMonth: input.periodMonth,
         ordinal,
-        slug: monthlySlotSlug(input.periodMonth, ordinal),
+        slug,
         status: 'draft',
         currentVersionId: null,
         currentVersion: null,
@@ -91,6 +127,16 @@ export class MockContentQueueRepository implements ContentQueueRepository {
         updatedAt: now,
       });
       this.versionHistory.set(id, []);
+      this.slotEvents.push({
+        contentPostId: id,
+        clientId: input.clientId,
+        siteId: input.siteId,
+        eventType: 'slot_created',
+        toStatus: 'draft',
+        actorType: 'admin',
+        actorId: input.actorId,
+        createdAt: now,
+      });
       created += 1;
     }
     return {
@@ -218,5 +264,10 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   rejectionHistory(id: string): readonly string[] {
     return [...(this.rejectionReasons.get(id) ?? [])];
+  }
+
+  /** Append-only, like the table it mirrors: read for audit assertions, never mutated. */
+  slotCreatedEvents(): readonly MockContentSlotEvent[] {
+    return this.slotEvents.map((event) => ({ ...event }));
   }
 }
