@@ -5,6 +5,7 @@ import { describe, test } from 'node:test';
 import MarketingPrivacyPage from '@/app/(marketing)/privacy/page';
 import {
   ANONYMOUS_SITE_EVENT_DISCLOSURE,
+  US_ANONYMOUS_TRACKING_ENABLED,
   US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE,
   US_TENANT_LEGAL_DOCUMENTS_ENABLED,
   US_TENANT_LEGAL_PLACEHOLDERS,
@@ -34,6 +35,7 @@ describe('US tenant legal publication boundary', () => {
     config.businessInfo = BUSINESS_INFO;
 
     assert.equal(US_TENANT_LEGAL_DOCUMENTS_ENABLED, false);
+    assert.equal(US_ANONYMOUS_TRACKING_ENABLED, false);
     assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.privacy.publishable, false);
     assert.equal(US_TENANT_LEGAL_PLACEHOLDERS.terms.publishable, false);
     assert.equal(businessInfoRequiredForPublish(config), false);

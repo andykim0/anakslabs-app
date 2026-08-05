@@ -17,6 +17,7 @@ import { resolvePublicContact } from '@/lib/seo/public-contact';
 import { PublicContactBar } from './PublicContactBar';
 import type { TenantNavigationItem } from './TenantHeader';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
+import { US_ANONYMOUS_TRACKING_ENABLED } from '@/lib/legal/templates';
 
 export function TenantPageContent({
   config,
@@ -62,11 +63,20 @@ export function TenantPageContent({
   const renderedConfig = projectAuthoritativePublicContact(config);
   const businessInfo = config.businessInfo ?? null;
   const publicContact = resolvePublicContact(renderedConfig);
-  // A legacy config without business information has no reachable tenant
-  // privacy page. Tracking therefore fails closed until the disclosure exists.
-  const analyticsRuntime = siteId && businessInfo
-    ? buildSiteBeaconRuntime({ siteId, endpoint: analyticsEndpoint ?? SITE_EVENT_INGEST_PATH })
-    : null;
+  // US measurement is a reviewed fleet release. The non-US legacy branch keeps
+  // its existing business-information disclosure boundary byte-for-byte.
+  const analyticsRuntime = config.meta.locale === 'en-US'
+    ? siteId && US_ANONYMOUS_TRACKING_ENABLED
+      ? buildSiteBeaconRuntime({
+          siteId,
+          endpoint: analyticsEndpoint ?? SITE_EVENT_INGEST_PATH,
+          locale: 'en-US',
+          bookingHref: config.connectors?.items.find((item) => item.id === 'booking')?.href,
+        })
+      : null
+    : siteId && businessInfo
+      ? buildSiteBeaconRuntime({ siteId, endpoint: analyticsEndpoint ?? SITE_EVENT_INGEST_PATH })
+      : null;
   return (
     <>
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}

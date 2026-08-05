@@ -31,6 +31,12 @@ export const US_TENANT_LEGAL_PLACEHOLDERS = Object.freeze({
 
 export const US_TENANT_LEGAL_DOCUMENTS_ENABLED = false as const;
 
+/**
+ * Fleet-wide release gate for anonymous US tenant measurement. Enabling it is a
+ * reviewed deployment event, not a runtime environment or per-site preference.
+ */
+export const US_ANONYMOUS_TRACKING_ENABLED = false as const;
+
 export const US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED_MESSAGE =
   'This site collects personal information through a form, so approved policy documents are required before publication.';
 
