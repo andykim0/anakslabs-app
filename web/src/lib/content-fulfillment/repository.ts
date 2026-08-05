@@ -6,7 +6,12 @@ import type {
   ContentPostRow,
   ContentPostVersionRow,
 } from './contracts';
-import { MockPublishedContentPostsRepository } from './repository-mock';
+import { getContentQueueRepository } from '@/lib/admin/content-queue-repository';
+import { getDataServices } from '@/lib/data';
+import {
+  MockPublishedContentPostsRepository,
+  publishedRowsFromQueueItems,
+} from './repository-mock';
 import type { PublishedContentPostsRepository } from './repository-core';
 import { projectPublishedRows } from './repository-core';
 import { filterPublicContentPostsForConfig } from './public-integrity';
@@ -120,10 +125,29 @@ type GlobalWithContentRepository = typeof globalThis & {
   [GLOBAL_KEY]?: PublishedContentPostsRepository;
 };
 
+/**
+ * In mock mode the published surface reads the same slots the operator approved, instead of an
+ * empty array that made the tenant blog 404 in every demo. The rows are adapted from the queue
+ * and then run through the ordinary public projection — the pointer, pipeline-version and
+ * policy gates all apply exactly as they do against Postgres.
+ */
+async function mockPublishedRows(siteId: string) {
+  const items = await getContentQueueRepository().listBySites({
+    siteIds: [siteId],
+    statuses: ['published'],
+    limit: 500,
+  });
+  const site = await getDataServices().sites.getById(siteId);
+  return {
+    ...publishedRowsFromQueueItems(items),
+    ...(site?.siteConfig ? { config: site.siteConfig } : {}),
+  };
+}
+
 export function getPublishedContentPostsRepository(): PublishedContentPostsRepository {
   const global = globalThis as GlobalWithContentRepository;
   global[GLOBAL_KEY] ??= isMockMode()
-    ? new MockPublishedContentPostsRepository()
+    ? new MockPublishedContentPostsRepository([], [], mockPublishedRows)
     : new SupabasePublishedContentPostsRepository();
   return global[GLOBAL_KEY];
 }

@@ -26,7 +26,8 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   // The actor lands in append-only content_post_events and can never be corrected afterwards,
   // so it must be the operator who actually pressed the button — not a constant.
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  // Same sentence requireAdminOr403 now returns, so one endpoint never answers in two languages.
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   const { id: clientId, siteId } = await params;
 
   const site = await getDataServices().sites.getById(siteId);

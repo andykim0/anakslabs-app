@@ -40,15 +40,20 @@ export async function getAuthedClient(): Promise<Client | null> {
   }
 }
 
+/**
+ * These three messages reach a customer's browser on a US-only product, so they are written in
+ * the language that product speaks. The KO legacy surfaces share these helpers and now receive
+ * English here too; the error `code` is what any caller branches on, and no code changes.
+ */
 export function unauthorized(): NextResponse {
-  return apiError(401, 'UNAUTHORIZED', '로그인이 필요합니다.');
+  return apiError(401, 'UNAUTHORIZED', 'Sign in to continue.');
 }
 
 /** 관리자가 아니면 403 응답 객체를 반환, 관리자면 null */
 export async function requireAdminOr403(): Promise<NextResponse | null> {
   const admin = await Promise.resolve(isAdmin()).catch(() => false);
   if (!admin) {
-    return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+    return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   }
   return null;
 }
@@ -64,5 +69,5 @@ export async function getOwnedSite(siteId: string, clientId: string): Promise<Si
 }
 
 export function siteNotFound(): NextResponse {
-  return apiError(404, 'SITE_NOT_FOUND', '사이트를 찾을 수 없습니다.');
+  return apiError(404, 'SITE_NOT_FOUND', 'Site not found.');
 }
