@@ -44,6 +44,8 @@ function queueItem(attempt: 1 | 2 | 'safe-catalog'): AdminContentQueueItem {
       },
       createdAt: '2026-08-05T00:00:00.000Z',
     },
+    publishedVersionId: null,
+    publishedAt: null,
     createdAt: '2026-08-05T00:00:00.000Z',
     updatedAt: '2026-08-05T00:00:00.000Z',
   };

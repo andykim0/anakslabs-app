@@ -15,6 +15,9 @@ import {
   type ContentGenerationClaim,
   type ContentPublishResult,
   type ContentQueueRepository,
+  type ContentQueueSiteQuery,
+  type ContentSlotProvisionInput,
+  type ContentSlotProvisionResult,
 } from './content-queue-core';
 import { MockContentQueueRepository } from './content-queue-repository-mock';
 
@@ -147,6 +150,52 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
       .in('status', [...ADMIN_CONTENT_QUEUE_STATUSES]);
     if (error) throw new Error(`content queue count failed: ${error.message}`);
     return count ?? 0;
+  }
+
+  async listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]> {
+    if (query.siteIds.length === 0) return [];
+    let request = getServiceRoleClient()
+      .from('content_posts')
+      .select(POST_COLUMNS)
+      .in('site_id', [...query.siteIds]);
+    if (query.periodMonths?.length) {
+      request = request.in('period_month', [...query.periodMonths]);
+    }
+    const { data, error } = await request
+      .order('period_month', { ascending: true })
+      .order('ordinal', { ascending: true })
+      .limit(normalizeContentQueueLimit(query.limit));
+    if (error) throw new Error(`content slot list failed: ${error.message}`);
+    return this.projectPosts((data ?? []) as unknown as AdminPostRow[]);
+  }
+
+  async provisionMonthlySlots(
+    input: ContentSlotProvisionInput,
+  ): Promise<ContentSlotProvisionResult> {
+    const { data, error } = await getServiceRoleClient().rpc('provision_content_post_slots', {
+      p_client_id: input.clientId,
+      p_site_id: input.siteId,
+      p_pricing_model_version: input.pricingModelVersion,
+      p_period_month: input.periodMonth,
+      p_count: input.count,
+      p_actor_id: input.actorId,
+    });
+    if (error) throw queueError(error, 'content slot provisioning');
+    const result = parseRpcObject(data, 'content slot provisioning');
+    const created = Number(result.created);
+    const existing = Number(result.existing);
+    if (!Number.isSafeInteger(created) || !Number.isSafeInteger(existing)) {
+      throw new Error('content slot provisioning returned an invalid result.');
+    }
+    return {
+      periodMonth: input.periodMonth,
+      created,
+      existing,
+      items: await this.listBySites({
+        siteIds: [input.siteId],
+        periodMonths: [input.periodMonth],
+      }),
+    };
   }
 
   async getById(id: string): Promise<AdminContentQueueItem | null> {

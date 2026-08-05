@@ -44,6 +44,9 @@ export interface AdminContentQueueItem {
   status: ContentPostStatus;
   currentVersionId: string | null;
   currentVersion: AdminContentQueueVersion | null;
+  /** Published pointer. Only ever set together, and only while status is published. */
+  publishedVersionId: string | null;
+  publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,9 +62,41 @@ export interface ContentPublishResult {
   duplicated: boolean;
 }
 
+export interface ContentSlotProvisionInput {
+  clientId: string;
+  siteId: string;
+  pricingModelVersion: string;
+  /** Calendar-month key, `YYYY-MM-01`, resolved in the site's own time zone. */
+  periodMonth: string;
+  /** Slots the contract owes for that month. Ordinals run 1..count. */
+  count: number;
+  actorId: string;
+}
+
+export interface ContentSlotProvisionResult {
+  periodMonth: string;
+  created: number;
+  existing: number;
+  items: AdminContentQueueItem[];
+}
+
+export interface ContentQueueSiteQuery {
+  siteIds: readonly string[];
+  /** Optional `YYYY-MM-01` filter. Omit to read a site's whole history. */
+  periodMonths?: readonly string[];
+  limit?: number;
+}
+
 export interface ContentQueueRepository {
   listNonterminal(limit?: number): Promise<AdminContentQueueItem[]>;
   countNonterminal(): Promise<number>;
+  /**
+   * Every status including published — the fulfillment counters and the customer view both need
+   * the delivered rows that the admin queue deliberately drops.
+   */
+  listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]>;
+  /** Idempotent: fills only the ordinals this site is still missing for the month. */
+  provisionMonthlySlots(input: ContentSlotProvisionInput): Promise<ContentSlotProvisionResult>;
   getById(id: string): Promise<AdminContentQueueItem | null>;
   claimGeneration(input: {
     id: string;
@@ -196,6 +231,8 @@ export function projectAdminContentItem(
     status: row.status,
     currentVersionId: row.current_version_id,
     currentVersion: version,
+    publishedVersionId: row.published_version_id,
+    publishedAt: row.published_at,
     createdAt: row.created_at ?? row.updated_at,
     updatedAt: row.updated_at,
   };

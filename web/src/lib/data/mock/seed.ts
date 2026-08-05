@@ -5,7 +5,9 @@
  *  - client id: DB는 auth.users uuid, mock은 세션 쿠키 계약값 'demo-premium' / 'demo-basic'
  *  - 화로담 site_config: seed.sql의 간이판 대신 완성도 높은 HWARODAM_SITE_CONFIG 사용
  *  - 원격 picsum 이미지 → 로컬 /mock 자산 (오프라인 데모 1급 시민)
- *  - demo-clinic(Summit Dental Studio, en-US 발행본) 1건은 mock 전용 — seed.sql에 대응 행이 없다.
+ *  - DEMO_CLINIC_ID(Summit Dental Studio, en-US 발행본) 1건은 mock 전용 — seed.sql에 대응 행이 없다.
+ *    실 DB의 client_id가 auth uuid이고 콘텐츠 원료 스냅샷 계약이 uuid를 요구하므로 이 데모
+ *    클라이언트만 uuid 형식을 쓴다 (레거시 KO 데모 두 건은 기존 문자열 id 유지).
  *    mock 로그인 "Demo: clinic owner"의 착지 사이트이며 결제·원장·편집요청은 갖지 않는다.
  *
  * 정합 검증 (seed.sql과 동일해야 하는 값):
@@ -16,6 +18,8 @@
  */
 import type { Client, CreditLedgerEntry, EditRequest, Payment, Site } from '@/lib/types/domain';
 import { QA_AUTOMATION_DEFAULTS } from '@/lib/credits/constants';
+import { PRICING_MODEL_VERSION } from '@/lib/pricing';
+import { minimalOperatorSurvey } from '@/lib/operator-model/site-generation';
 import { daysAgoIso, daysFromIso, type MockStore } from './store';
 import { normalizeSiteConfig } from '@/lib/types/site';
 import { ensureMotion } from '@/lib/motion/validate';
@@ -26,7 +30,7 @@ import { SUMMIT_DENTAL_SITE_CONFIG } from './summit-dental';
 export const DEMO_PREMIUM_ID = 'demo-premium';
 export const DEMO_BASIC_ID = 'demo-basic';
 /** 미국 치과 데모 고객 — mock 로그인 'premium'(Demo: clinic owner)이 이 워크스페이스로 들어온다. */
-export const DEMO_CLINIC_ID = 'demo-clinic';
+export const DEMO_CLINIC_ID = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 
 export const HWARODAM_SITE_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 export const MINTWASH_SITE_ID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
@@ -140,6 +144,10 @@ export function buildSeed(): MockStore {
         status: 'live',
         siteConfig: ensureMotion(normalizeSiteConfig(structuredClone(SUMMIT_DENTAL_SITE_CONFIG))),
         draftConfig: ensureMotion(normalizeSiteConfig(structuredClone(SUMMIT_DENTAL_SITE_CONFIG))),
+        // Operator-issued US clinic sites are stamped with the contract pair at creation
+        // (see /api/admin/clients/[id]/sites); without it the demo carries no monthly post count.
+        industryProfileId: 'clinic',
+        pricingModelVersion: PRICING_MODEL_VERSION,
         publishedAt: daysAgoIso(18),
         createdAt: daysAgoIso(24),
       },
@@ -358,6 +366,17 @@ export function buildSeed(): MockStore {
     editRequests,
     payments,
     paymentKeys,
+    // 실 DB의 sites.survey에 대응. 운영자 발급 사이트는 발급 시 이 설문을 저장하므로
+    // (buildOperatorMinimalSiteConfig), mock 데모도 같은 원료를 들고 있어야 콘텐츠 생성이 돈다.
+    surveys: new Map([[
+      SUMMIT_DENTAL_SITE_ID,
+      minimalOperatorSurvey({
+        businessName: 'Summit Dental Studio',
+        industry: 'Dental practice',
+        tone: 'calm and clinical',
+        colorPreference: 'clean blue',
+      }),
+    ]]),
     domainStates: new Map(),
     cfHostnameCount: 7, // 관리자 인프라 모니터 데모용
     exportBlobs: new Map(),

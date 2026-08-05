@@ -17,11 +17,13 @@ export const MOCK_SESSION_COOKIE = 'anaks_mock_session';
 
 /**
  * mock 로그인 역할 → mock client id 매핑.
- * premium('Demo: clinic owner')은 미국 치과 데모 워크스페이스(demo-clinic)로 들어간다 —
+ * premium('Demo: clinic owner')은 미국 치과 데모 워크스페이스로 들어간다 —
  * 화로담(demo-premium)은 KO 레거시 데모라 로그인 착지 대상이 아니다.
+ * 치과 데모 id는 uuid다: 콘텐츠 원료 스냅샷 계약이 client_id를 uuid로 요구하므로,
+ * 문자열 id를 쓰면 mock 모드에서 콘텐츠 생성 자체가 불가능해진다 (seed.ts DEMO_CLINIC_ID와 동일해야 함).
  */
 export const MOCK_CLIENT_IDS = {
-  premium: 'demo-clinic',
+  premium: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   basic: 'demo-basic',
   admin: 'admin',
 } as const;

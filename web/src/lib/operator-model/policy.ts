@@ -2,7 +2,13 @@ import type { Site } from '@/lib/types/domain';
 
 export const OPERATOR_PRODUCT_LOCALE = 'en-US' as const;
 
-export type CustomerWorkspaceItem = 'sites' | 'reports' | 'billing' | 'credits' | 'settings';
+export type CustomerWorkspaceItem =
+  | 'sites'
+  | 'blog'
+  | 'reports'
+  | 'billing'
+  | 'credits'
+  | 'settings';
 
 /** This US-only product passes en-US at its call sites; the locale parameter preserves shared policy contracts. */
 export function operatorManagedForLocale(locale: string | undefined): boolean {
@@ -20,9 +26,11 @@ export function onboardingAllowedForLocale(locale: string | undefined): boolean 
 export function customerWorkspaceItemsForLocale(
   locale: string | undefined,
 ): readonly CustomerWorkspaceItem[] {
+  // Array order is the navigation order. Blog is a delivered good in every locale, so it sits
+  // next to the site itself rather than behind the operator-managed gate.
   return operatorManagedForLocale(locale)
-    ? ['sites', 'reports', 'settings']
-    : ['sites', 'reports', 'billing', 'credits', 'settings'];
+    ? ['sites', 'blog', 'reports', 'settings']
+    : ['sites', 'blog', 'reports', 'billing', 'credits', 'settings'];
 }
 
 /** A provisioned account without a site is still a US account in this US-only fork. */

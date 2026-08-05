@@ -13,6 +13,7 @@ import type {
   Payment,
   QaAutomationRule,
   Site,
+  SurveyInput,
 } from '@/lib/types/domain';
 import type { FormSubmission, ScanResult, SiteEventAggregate } from '../types';
 import type {
@@ -58,6 +59,11 @@ export interface MockStore {
   manualPaymentEntries?: Map<string, ManualPaymentEntry>;
   /** [OPS2$] 계정·사이트 사후 연결 append-only 이력 (lazy, seed unchanged). */
   manualPaymentLinks?: ManualCollectionLink[];
+  /**
+   * siteId → 발급 시 서버가 저장한 설문. 실 DB의 sites.survey 열에 대응한다.
+   * 콘텐츠 파이프라인이 정직성 원료 스냅샷을 만들 때만 읽는다 (Site mapper에는 넣지 않는다).
+   */
+  surveys?: Map<string, SurveyInput>;
   /** siteId → 커스텀 도메인 검증 상태 */
   domainStates: Map<string, MockDomainState>;
   /** Cloudflare custom hostname 총수 (시드 7) */

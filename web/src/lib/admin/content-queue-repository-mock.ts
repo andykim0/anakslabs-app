@@ -1,10 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import {
+  isSamePeriodMonth,
+  monthlySlotSlug,
+} from '@/lib/content-fulfillment/delivery';
+import {
   ContentQueueError,
+  normalizeContentQueueLimit,
   type AdminContentQueueItem,
   type ContentGenerationClaim,
   type ContentPublishResult,
   type ContentQueueRepository,
+  type ContentQueueSiteQuery,
+  type ContentSlotProvisionInput,
+  type ContentSlotProvisionResult,
 } from './content-queue-core';
 
 export class MockContentQueueRepository implements ContentQueueRepository {
@@ -38,6 +46,62 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   async countNonterminal(): Promise<number> {
     return (await this.listNonterminal(500)).length;
+  }
+
+  async listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]> {
+    const siteIds = new Set(query.siteIds);
+    if (siteIds.size === 0) return [];
+    return [...this.items.values()]
+      .filter((item) => siteIds.has(item.siteId))
+      .filter((item) => !query.periodMonths
+        || query.periodMonths.some((month) => isSamePeriodMonth(item.periodMonth, month)))
+      .sort((left, right) =>
+        left.periodMonth.localeCompare(right.periodMonth) || left.ordinal - right.ordinal)
+      .slice(0, normalizeContentQueueLimit(query.limit))
+      .map((item) => structuredClone(item));
+  }
+
+  async provisionMonthlySlots(
+    input: ContentSlotProvisionInput,
+  ): Promise<ContentSlotProvisionResult> {
+    const existing = [...this.items.values()].filter((item) =>
+      item.siteId === input.siteId
+      && item.pricingModelVersion === input.pricingModelVersion
+      && isSamePeriodMonth(item.periodMonth, input.periodMonth));
+    const takenOrdinals = new Set(existing.map((item) => item.ordinal));
+    let created = 0;
+    for (let ordinal = 1; ordinal <= input.count; ordinal += 1) {
+      if (takenOrdinals.has(ordinal)) continue;
+      const now = new Date().toISOString();
+      const id = randomUUID();
+      this.items.set(id, {
+        id,
+        clientId: input.clientId,
+        siteId: input.siteId,
+        pricingModelVersion: input.pricingModelVersion,
+        periodMonth: input.periodMonth,
+        ordinal,
+        slug: monthlySlotSlug(input.periodMonth, ordinal),
+        status: 'draft',
+        currentVersionId: null,
+        currentVersion: null,
+        publishedVersionId: null,
+        publishedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+      this.versionHistory.set(id, []);
+      created += 1;
+    }
+    return {
+      periodMonth: input.periodMonth,
+      created,
+      existing: existing.length,
+      items: await this.listBySites({
+        siteIds: [input.siteId],
+        periodMonths: [input.periodMonth],
+      }),
+    };
   }
 
   async getById(id: string): Promise<AdminContentQueueItem | null> {
@@ -134,8 +198,13 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     ) {
       throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Approval state conflict.');
     }
+    const now = new Date().toISOString();
     item.status = 'published';
-    item.updatedAt = new Date().toISOString();
+    // 0049 requires the published pointer and timestamp to move with the status; leaving them
+    // null made every mock-published post fail the public projection's exact-pointer gate.
+    item.publishedVersionId = item.currentVersionId;
+    item.publishedAt = now;
+    item.updatedAt = now;
     return { item: structuredClone(item), siteDomain: null, duplicated: false };
   }
 

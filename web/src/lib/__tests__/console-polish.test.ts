@@ -63,6 +63,7 @@ const CONSOLE_SOURCES = [
   'src/components/admin/qa-queue.tsx',
   'src/components/admin/infra-monitor.tsx',
   'src/components/admin/manual-collection-panel.tsx',
+  'src/components/dashboard/blog-posts.tsx',
   'src/components/editor/fonts.ts',
 ];
 
