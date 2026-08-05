@@ -21,6 +21,11 @@ import {
 } from '@/lib/layout/section-layout-application';
 import { applyProceduralBackgroundDefaults } from '@/lib/abstract/application';
 import {
+  buildOperatorClinicNewbuildConfig,
+  type ClinicNewbuildInput,
+  type ClinicNewbuildResult,
+} from '@/lib/clinic-master/newbuild';
+import {
   applyOperatorConnectorInput,
   type OperatorConnectorInput,
 } from './connectors';
@@ -123,6 +128,36 @@ export function buildOperatorCrawlSiteConfig(
   return assertNoFirstPartyForm(enforceOperatorMedicalDraft(
     applyOperatorConnectorInput(generated, explicitConnectors),
   ));
+}
+
+export interface OperatorClinicNewbuildSiteInput extends ClinicNewbuildInput {
+  timezone?: UsSiteTimezone;
+}
+
+/**
+ * 신규 제작 경로. 레이아웃 조립은 전부 clinic-master/newbuild가 소유하고, 이 레이어는
+ * 호출 + 기존 정책 파이프(모션 → 의료광고 → 커넥터 → 폼 금지)만 담당한다.
+ */
+export async function buildOperatorClinicNewbuildSiteConfig(
+  input: OperatorClinicNewbuildSiteInput,
+  tier: Tier,
+  options: Parameters<typeof buildOperatorClinicNewbuildConfig>[1] = {},
+): Promise<{ config: SiteConfig; copySource: ClinicNewbuildResult['copySource'] }> {
+  const { timezone, ...declared } = input;
+  const built = await buildOperatorClinicNewbuildConfig(declared, options);
+  const generated = applyGeneratedMotion(
+    pinUsTenantLocaleForNewSite(built.config, timezone),
+    'booking_service',
+    tier,
+  );
+  const config = assertNoFirstPartyForm(enforceOperatorMedicalDraft(
+    applyOperatorConnectorInput(generated, {
+      ...(declared.phone ? { phone: declared.phone } : {}),
+      ...(declared.bookingUrl ? { bookingUrl: declared.bookingUrl } : {}),
+      ...(declared.address ? { address: declared.address } : {}),
+    }),
+  ));
+  return { config, copySource: built.copySource };
 }
 
 export function siteFormCount(config: SiteConfig): number {

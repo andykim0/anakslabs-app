@@ -5,15 +5,29 @@ import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { getDataServices } from '@/lib/data';
 import { getLatestCrawlArtifactBySeedUrl } from '@/lib/crawl/repository';
 import {
+  buildOperatorClinicNewbuildSiteConfig,
   buildOperatorCrawlSiteConfig,
   buildOperatorMinimalSiteConfig,
   siteFormCount,
 } from '@/lib/operator-model/site-generation';
+import { generateClinicNewbuildCopy } from '@/lib/ai/clinic-newbuild-copy';
+import {
+  ClinicNewbuildCopyPolicyError,
+  ClinicNewbuildInputError,
+} from '@/lib/clinic-master/newbuild';
+import {
+  CLINIC_DENTAL_SERVICE_IDS,
+  CLINIC_NEWBUILD_ACCENT_PRESETS,
+  CLINIC_NEWBUILD_MAX_SERVICES,
+  CLINIC_NEWBUILD_MIN_SERVICES,
+  CLINIC_NEWBUILD_SPECIALTIES,
+} from '@/lib/clinic-master/service-taxonomy';
 import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { accountHasSite } from '@/lib/billing/site-limit';
 import { businessPhoneHref } from '@/lib/analytics/trackable-actions';
 import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 import { US_SITE_TIMEZONES } from '@/lib/types/site';
+import { ensureDentalStockAssetRefs } from '@/lib/stock/registry';
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -42,6 +56,22 @@ const bodySchema = z.discriminatedUnion('mode', [
     bookingUrl: bookingUrlSchema.optional(),
     address: z.string().trim().min(1).max(300).optional(),
   }).strict(),
+  // 신규 제작 — 선언 입력만이 사이트 사실이 된다. 자유 서비스 입력은 없다.
+  z.object({
+    mode: z.literal('newbuild'),
+    businessName: z.string().trim().min(1).max(100),
+    specialty: z.enum(CLINIC_NEWBUILD_SPECIALTIES),
+    serviceIds: z.array(z.enum(CLINIC_DENTAL_SERVICE_IDS))
+      .min(CLINIC_NEWBUILD_MIN_SERVICES)
+      .max(CLINIC_NEWBUILD_MAX_SERVICES),
+    accentPreset: z.enum(CLINIC_NEWBUILD_ACCENT_PRESETS),
+    timezone: timezoneSchema.optional(),
+    phone: phoneSchema.optional(),
+    bookingUrl: bookingUrlSchema.optional(),
+    address: z.string().trim().min(1).max(300).optional(),
+    insurances: z.array(z.string().trim().min(1).max(80)).max(12).optional(),
+    hours: z.string().trim().min(1).max(300).optional(),
+  }).strict(),
 ]);
 
 export const POST = withApiHandler<Ctx>(async (request, { params }) => {
@@ -60,8 +90,42 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
 
   let config;
   let name;
-  let source: 'crawl' | 'minimal';
-  if (body.data.mode === 'crawl') {
+  let source: 'crawl' | 'minimal' | 'newbuild';
+  let copySource: string | undefined;
+  if (body.data.mode === 'newbuild') {
+    const input = body.data;
+    const declared = {
+      businessName: input.businessName,
+      specialty: input.specialty,
+      serviceIds: input.serviceIds,
+      accentPreset: input.accentPreset,
+      ...(input.timezone ? { timezone: input.timezone } : {}),
+      ...(input.phone ? { phone: input.phone } : {}),
+      ...(input.bookingUrl ? { bookingUrl: input.bookingUrl } : {}),
+      ...(input.address ? { address: input.address } : {}),
+      ...(input.insurances ? { insurances: input.insurances } : {}),
+      ...(input.hours ? { hours: input.hours } : {}),
+    };
+    try {
+      const built = await buildOperatorClinicNewbuildSiteConfig(
+        declared,
+        client.tier,
+        { generateCopy: generateClinicNewbuildCopy },
+      );
+      config = built.config;
+      copySource = built.copySource;
+    } catch (error) {
+      if (error instanceof ClinicNewbuildInputError) {
+        return apiError(422, error.code, error.message, { path: error.path });
+      }
+      if (error instanceof ClinicNewbuildCopyPolicyError) {
+        return apiError(422, error.code, error.message, error.details);
+      }
+      throw error;
+    }
+    name = declared.businessName.trim().slice(0, 100);
+    source = 'newbuild';
+  } else if (body.data.mode === 'crawl') {
     const artifact = await getLatestCrawlArtifactBySeedUrl(body.data.sourceUrl);
     if (!artifact || new Date(artifact.expiresAt) <= new Date()) {
       return apiError(
@@ -91,18 +155,24 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
       'Operator-issued US sites cannot include a first-party inquiry form.',
     );
   }
+  // Register the frozen licensed-stock asset before the atomic binding request.
+  await ensureDentalStockAssetRefs(config.assetRefs);
   const site = await sites.create({
     clientId,
     name,
     draftConfig: config,
     industryProfileId: 'clinic',
     pricingModelVersion: PRICING_MODEL_VERSION,
+    // A licensed-stock hero ships an asset manifest, and the data layer requires the
+    // matching atomic binding request (same contract the onboarding route uses).
+    ...(config.assetRefs?.length ? { assetRefsToBind: config.assetRefs } : {}),
   });
 
   return NextResponse.json({
     siteId: site.id,
     site,
     source,
+    ...(copySource ? { copySource } : {}),
     locale: config.meta.locale,
     timezone: config.meta.timezone,
     formCount,

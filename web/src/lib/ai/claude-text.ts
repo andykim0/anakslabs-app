@@ -11,7 +11,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { env } from '@/lib/env';
 
 /** 기본 모델. CLAUDE_MODEL 환경변수로 재정의 (예: claude-haiku-4-5 로 원가 절감) */
-const DEFAULT_MODEL = process.env.CLAUDE_MODEL ?? 'claude-opus-4-8';
+// An empty CLAUDE_MODEL (a placeholder line in .env) must fall back, not reach the API as ''.
+const DEFAULT_MODEL = process.env.CLAUDE_MODEL?.trim() || 'claude-opus-4-8';
 
 /** 절제된 카피 원칙(SPEC 부록 C) — 모든 호출 공통 시스템 프롬프트 */
 export const CLAUDE_COPYWRITER_SYSTEM =

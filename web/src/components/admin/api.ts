@@ -55,7 +55,9 @@ import type {
 } from '@/lib/us-demo/contracts';
 import type { UsDemoSourceDisposition } from '@/lib/us-demo/source-curation';
 import type { SiteConnector } from '@/lib/connectors/types';
-import type { UsSiteTimezone } from '@/lib/types/site';
+import type { ClinicAccentPreset, UsSiteTimezone } from '@/lib/types/site';
+import type { ClinicNewbuildSpecialty } from '@/lib/clinic-master/newbuild';
+import type { ClinicDentalServiceId } from '@/lib/clinic-master/service-taxonomy';
 
 // ---------- 응답 타입 (백엔드 구현 계약) ----------
 
@@ -192,7 +194,8 @@ export interface OperatorClientInviteResult {
 export interface OperatorSiteCreateResult {
   siteId: string;
   site: Site;
-  source: 'crawl' | 'minimal';
+  source: 'crawl' | 'minimal' | 'newbuild';
+  copySource?: 'generated' | 'neutral-template';
   locale: string;
   timezone: UsSiteTimezone;
   formCount: number;
@@ -637,6 +640,19 @@ export function createOperatorClientSite(
         phone?: string;
         bookingUrl?: string;
         address?: string;
+      }
+    | {
+        mode: 'newbuild';
+        businessName: string;
+        specialty: ClinicNewbuildSpecialty;
+        serviceIds: readonly ClinicDentalServiceId[];
+        accentPreset: ClinicAccentPreset;
+        timezone?: UsSiteTimezone;
+        phone?: string;
+        bookingUrl?: string;
+        address?: string;
+        insurances?: readonly string[];
+        hours?: string;
       },
 ): Promise<OperatorSiteCreateResult> {
   return fetchJson<OperatorSiteCreateResult>(

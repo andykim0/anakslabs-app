@@ -57,6 +57,8 @@ export const PREMIUM_DENTAL_WIREFRAME = Object.freeze([
   { role: 'location-faq', owner: 'site-config', sourcePolicy: 'omit-without-source' },
 ] as const);
 
+export type ClinicMasterWireframeRole = typeof PREMIUM_DENTAL_WIREFRAME[number]['role'];
+
 const DEMO_DISCLOSURES = Object.freeze({
   ratingAggregate:
     'Google rating and review count can appear here after practice verification. Review text is not republished.',
@@ -150,9 +152,16 @@ export function compilePremiumDentalMaster(input: {
   theme: SiteTheme;
   pin: ClinicMasterPin;
   experience?: ClinicMasterExperience;
+  /**
+   * Additive slot filter. Omission preserves the original preview/rebuild output bytes.
+   * Operator new-builds pass the `placeholder-demo` roles here so a paid live site never
+   * ships a sales preview note in place of data the practice has not supplied.
+   */
+  omitRoles?: readonly ClinicMasterWireframeRole[];
 }): Section[] {
   const { blocks, theme, pin } = input;
   const experience = input.experience ?? { mode: 'demo' };
+  const omitted = new Set<ClinicMasterWireframeRole>(input.omitRoles ?? []);
   const businessName = blocks.find((block) => block.kind === 'business_name');
   if (!businessName) throw new Error('PREMIUM_DENTAL_BUSINESS_NAME_REQUIRED');
   const introduction = blocks.find((block) => block.kind === 'introduction');
@@ -230,9 +239,13 @@ export function compilePremiumDentalMaster(input: {
       }));
     });
   }
-  const ratingAggregate = ratingAggregateSection({ theme, experience });
+  const ratingAggregate = omitted.has('rating-aggregate')
+    ? null
+    : ratingAggregateSection({ theme, experience });
   if (ratingAggregate) result.push(ratingAggregate);
-  if (experience.mode === 'preview-full') {
+  if (omitted.has('before-after')) {
+    // no-op: the new-build slot stays empty until the practice supplies consented cases.
+  } else if (experience.mode === 'preview-full') {
     if ((experience.beforeAfterImages?.length ?? 0) >= 2) {
       result.push(...buildClinicGallerySections({
         id: 'clinic-before-after-preview-full',

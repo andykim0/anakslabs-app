@@ -6,4 +6,5 @@ export * from './focus-recipe';
 export * from './layout-sections';
 export * from './live-contract';
 export * from './palette-routing';
+export * from './service-taxonomy';
 export * from './tokens';
