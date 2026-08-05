@@ -26,8 +26,12 @@ import type { SiteConfig } from '@/lib/types/site';
  */
 const SERVICE_ITEM_ID = /^clinic-service-newbuild-service-(.+)$/u;
 
-/** Slot identity written by `monthlySlotSlug` — the ordinal is the slot's, not the article's. */
-const SLOT_SLUG_ORDINAL = /-post-(\d{1,2})$/u;
+/**
+ * Slot identity written by `monthlySlotSlug` (`YYYY-MM-post-N`). Both parts come from the slot,
+ * not from the article: the month decides which images a month draws from, the ordinal decides
+ * which declared service it depicts.
+ */
+const SLOT_SLUG_IDENTITY = /^(\d{4}-\d{2})-post-(\d{1,2})$/u;
 
 const TAXONOMY_BY_ID = new Map<string, ClinicServiceTaxonomyEntry>(
   CLINIC_DENTAL_SERVICE_TAXONOMY.map((entry: ClinicServiceTaxonomyEntry) => [entry.id, entry]),
@@ -55,10 +59,20 @@ export function pinnedServiceStockCategories(config: SiteConfig): DentalStockCat
   return categories;
 }
 
-/** The slot number a post was provisioned into, or null for a slug that predates slot identity. */
-export function slotOrdinalFromSlug(slug: string): number | null {
-  const ordinal = Number(SLOT_SLUG_ORDINAL.exec(slug)?.[1]);
-  return Number.isSafeInteger(ordinal) && ordinal >= 1 ? ordinal : null;
+export interface SlotIdentity {
+  /** Calendar month key, `YYYY-MM`. */
+  period: string;
+  ordinal: number;
+}
+
+/** The slot a post was provisioned into, or null for a slug that predates slot identity. */
+export function slotIdentityFromSlug(slug: string): SlotIdentity | null {
+  const match = SLOT_SLUG_IDENTITY.exec(slug);
+  if (!match) return null;
+  const ordinal = Number(match[2]);
+  return Number.isSafeInteger(ordinal) && ordinal >= 1
+    ? { period: match[1], ordinal }
+    : null;
 }
 
 export interface PostCover {
@@ -67,8 +81,12 @@ export interface PostCover {
 }
 
 /**
- * Deterministic per-slot cover. The same site, pin and ordinal always resolve to the same image,
- * so a static export and the live page never disagree.
+ * Deterministic per-slot cover. The same site, pin, month and ordinal always resolve to the same
+ * image, so a static export and the live page never disagree.
+ *
+ * The month is part of the selection seed, not decoration: without it every August post and every
+ * September post in the same slot draw the identical photo, and a practice publishing eight posts
+ * a month would show the same eight pictures forever.
  *
  * Editing the pinned services does change existing covers. That is accepted: the replacement is
  * still one of the practice's own declared services, so no post ever shows work the clinic does
@@ -80,16 +98,18 @@ export function postCoverImage(input: {
   slug: string;
 }): PostCover | null {
   const categories = pinnedServiceStockCategories(input.config);
-  const ordinal = slotOrdinalFromSlug(input.slug);
-  if (categories.length === 0 || ordinal === null) return null;
+  const slot = slotIdentityFromSlug(input.slug);
+  if (categories.length === 0 || !slot) return null;
 
-  const category = categories[(ordinal - 1) % categories.length];
+  // Category rotation stays keyed on the ordinal alone: which service a slot depicts is a
+  // property of the slot, not of the month it falls in.
+  const category = categories[(slot.ordinal - 1) % categories.length];
   const asset = selectDentalStock({
     hospitalStableId: input.siteId,
     category,
     slot: 'atmosphere',
     accent: input.config.clinicMaster!.accentPreset,
-    selectionSalt: `content-post-${ordinal}`,
+    selectionSalt: `content-post-${slot.period}-${slot.ordinal}`,
   });
   return asset ? { url: asset.renditionUrl, category } : null;
 }

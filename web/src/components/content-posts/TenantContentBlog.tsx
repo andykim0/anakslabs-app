@@ -219,7 +219,11 @@ function PostDocument({
           borderBottom: `1px solid ${themeColor(config.theme, 'border')}33`,
         }}
       >
-        <div className="anaks-content-blog__inner" style={{ maxWidth: '68ch' }} data-m="reveal">
+        <div
+          className="anaks-content-blog__inner"
+          style={{ maxWidth: '68ch' }}
+          {...revealProps(motion)}
+        >
           <a
             href={listHref}
             style={{

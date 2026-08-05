@@ -601,3 +601,132 @@ describe('BLOG-DESIGN — exported covers point inside the bundle', () => {
     }
   });
 });
+
+describe('BLOG-DESIGN G1 — motion off means no markers on either surface', () => {
+  async function renderWithMotionOff(withPost: boolean) {
+    const repository = await provisionedSite(3);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+    const config = structuredClone(CONFIG);
+    config.motion = { ...(config.motion ?? {}), intensity: 'off' } as SiteConfig['motion'];
+    const { TenantContentBlog } = await withServerOnlyNeutralized(
+      () => import('@/components/content-posts/TenantContentBlog'),
+    );
+    return renderToStaticMarkup(createElement(TenantContentBlog, {
+      config,
+      siteId: SITE_ID,
+      posts,
+      post: withPost ? posts[0] : (undefined as never),
+    }));
+  }
+
+  test('the index emits no reveal marker and no runtime', async () => {
+    const html = await renderWithMotionOff(false);
+    const root = parse(html);
+    assert.equal(root.querySelectorAll('[data-m]').length, 0, 'index leaked a reveal marker');
+    assert.ok(!html.includes('IntersectionObserver'), 'index shipped the runtime anyway');
+  });
+
+  test('the article emits no reveal marker and no runtime', async () => {
+    // This surface is the one that leaked: its band carried a hardcoded marker that bypassed
+    // the gate, so a practice with motion off still got hidden content and a hydration mismatch.
+    const html = await renderWithMotionOff(true);
+    const root = parse(html);
+    assert.equal(root.querySelectorAll('[data-m]').length, 0, 'article leaked a reveal marker');
+    assert.ok(!html.includes('IntersectionObserver'), 'article shipped the runtime anyway');
+  });
+
+  test('with motion on, every marker carries the hydration opt-out', async () => {
+    const repository = await provisionedSite(2);
+    const rows = publishedRowsFromQueueItems(await publishedFor(repository));
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+      .listPublishedBySite(SITE_ID);
+    const { TenantContentBlog } = await withServerOnlyNeutralized(
+      () => import('@/components/content-posts/TenantContentBlog'),
+    );
+    for (const post of [undefined, posts[0]]) {
+      const html = renderToStaticMarkup(createElement(TenantContentBlog, {
+        config: CONFIG,
+        siteId: SITE_ID,
+        posts,
+        post: post as never,
+      }));
+      assert.ok(parse(html).querySelectorAll('[data-m]').length > 0, 'motion on reveals something');
+    }
+
+    // suppressHydrationWarning never survives into markup, so the guarantee is asserted at its
+    // single source: `data-m` may be written in exactly one place, and that place pairs it with
+    // the opt-out and the gate. A marker written directly on an element — which is how the
+    // article band leaked — makes this count 2.
+    const { readFileSync } = await import('node:fs');
+    const source = readFileSync(
+      `${process.cwd()}/src/components/content-posts/TenantContentBlog.tsx`,
+      'utf8',
+    );
+    assert.equal(
+      source.split('data-m').length - 1,
+      1,
+      'data-m may only be written once, inside revealProps',
+    );
+    assert.match(
+      source,
+      /function revealProps\(enabled: boolean\)[\s\S]{0,200}'data-m'[\s\S]{0,80}suppressHydrationWarning/u,
+    );
+  });
+});
+
+describe('BLOG-DESIGN G2 — a new month brings new covers', () => {
+  async function newbuild() {
+    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
+      () => import('@/lib/operator-model/site-generation'),
+    );
+    const built = await buildOperatorClinicNewbuildSiteConfig(
+      {
+        businessName: 'Ridgeline Dental',
+        specialty: 'general',
+        accentPreset: 'clinical-blue',
+        phone: '(303) 555-0142',
+        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
+      } as never,
+      'basic',
+      {} as never,
+    );
+    return built.config;
+  }
+
+  test('the same site, month and slot always resolve to the same image', async () => {
+    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
+    const first = await newbuild();
+    const second = await newbuild();
+    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
+      const slug = `2026-08-post-${ordinal}`;
+      assert.deepEqual(
+        postCoverImage({ config: first, siteId: SITE_ID, slug }),
+        postCoverImage({ config: second, siteId: SITE_ID, slug }),
+      );
+    }
+  });
+
+  test('a different month draws different images from the same categories', async () => {
+    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
+    const config = await newbuild();
+    let differing = 0;
+    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
+      const august = postCoverImage({ config, siteId: SITE_ID, slug: `2026-08-post-${ordinal}` })!;
+      const september = postCoverImage({ config, siteId: SITE_ID, slug: `2026-09-post-${ordinal}` })!;
+      assert.ok(august && september);
+      // The service a slot depicts is fixed by its ordinal; only the photo rotates.
+      assert.equal(
+        august.category,
+        september.category,
+        `slot ${ordinal} must keep depicting the same declared service`,
+      );
+      if (august.url !== september.url) differing += 1;
+    }
+    assert.ok(
+      differing >= 6,
+      `a new month must not reuse the same eight photos (only ${differing}/8 changed)`,
+    );
+  });
+});
