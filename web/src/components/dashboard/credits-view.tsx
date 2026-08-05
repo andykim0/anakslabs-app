@@ -95,7 +95,7 @@ function PackGrid() {
         );
       } else {
         // [T1] 실모드 — PG(토스) 연동 전이라 결제창이 없다. 죽은 안내 대신 준비 중 + 문의 유도.
-        toast('info', "Credit purchases are currently unavailable. Contact help@anakslabs.com if you need assistance.");
+        toast('info', "Credit purchases are currently unavailable. Contact contact@anakslabs.com if you need assistance.");
       }
     },
     onError: (err) => {

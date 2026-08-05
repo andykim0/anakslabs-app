@@ -55,7 +55,7 @@ function SuspendedBanner() {
         </p>
         <p className="mt-0.5 text-xs text-red-300/80">
           If your site operation subscription payment fails, your site will be suspended. grace period {SUSPENSION_GRACE_DAYS}within days
-          Service resumes after the payment method is renewed. Contact help@anakslabs.com for assistance.
+          Service resumes after the payment method is renewed. Contact contact@anakslabs.com for assistance.
         </p>
       </div>
     </div>

@@ -64,7 +64,7 @@ export const APPROVED_TLS_HTTP_FALLBACK_HOSTS = new Set([
 
 /** Identifiable, contactable crawler identity. Kept in one server-owned source. */
 export const ANAKS_LABS_CRAWLER_USER_AGENT =
-  'Mozilla/5.0 (compatible; AnaksLabsCrawler/1.0; +https://anakslabs.com/privacy; contact=help@anakslabs.com)';
+  'Mozilla/5.0 (compatible; AnaksLabsCrawler/1.0; +https://anakslabs.com/privacy; contact=contact@anakslabs.com)';
 
 export type CrawlImageRole = 'atmosphere' | 'figure' | 'unknown';
 export type CrawlConnectorKind =

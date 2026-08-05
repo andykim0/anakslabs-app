@@ -103,7 +103,7 @@ export function SettingsView({
           </div>
         </dl>
         <p className="mt-4 border-t border-neutral-800 pt-3 text-[11px] text-neutral-600">
-          Joined {formatDate(createdAt)} · To update account details, contact help@anakslabs.com.
+          Joined {formatDate(createdAt)} · To update account details, contact contact@anakslabs.com.
         </p>
       </Card>
 

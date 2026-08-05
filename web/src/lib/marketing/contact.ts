@@ -4,4 +4,4 @@
  * 가짜 URL은 넣지 않는다(§7 정직성). 실값 확보 시 이 파일만 교체.
  */
 export const COMPANY_NAME = 'Anaks Labs';
-export const COMPANY_EMAIL = 'help@anakslabs.com';
+export const COMPANY_EMAIL = 'contact@anakslabs.com';
