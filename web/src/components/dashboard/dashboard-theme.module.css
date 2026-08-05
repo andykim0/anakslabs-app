@@ -9,7 +9,7 @@
 .theme :global(.bg-neutral-950),
 .theme :global(.bg-neutral-950\/60),
 .theme :global(.bg-neutral-950\/90) {
-  background-color: #f8fbff;
+  background-color: #f6f7f9;
 }
 
 .theme :global(.bg-neutral-900),
@@ -24,17 +24,17 @@
 .theme :global(.bg-neutral-800\/60),
 .theme :global(.bg-neutral-800\/80),
 .theme :global(.bg-neutral-800) {
-  background-color: #edf4ff;
+  background-color: #eaeffe;
 }
 
 .theme :global(.text-neutral-50),
 .theme :global(.text-neutral-100),
 .theme :global(.text-neutral-950) {
-  color: #0b1736;
+  color: #141a3a;
 }
 
 .theme :global(.text-neutral-200) {
-  color: #26354d;
+  color: #232c52;
 }
 
 .theme :global(.text-neutral-300) {
@@ -42,26 +42,26 @@
 }
 
 .theme :global(.text-neutral-400) {
-  color: #5f6b7c;
+  color: #545c70;
 }
 
 .theme :global(.text-neutral-500) {
-  color: #667085;
+  color: #6a7286;
 }
 
 .theme :global(.text-neutral-600),
 .theme :global(.placeholder\:text-neutral-600)::placeholder {
-  color: #667085;
+  color: #6a7286;
 }
 
 .theme :global(.border-neutral-900),
 .theme :global(.border-neutral-800),
 .theme :global(.divide-neutral-800) > :not(:last-child) {
-  border-color: #dce4f0;
+  border-color: #dfe1e6;
 }
 
 .theme :global(.border-neutral-700) {
-  border-color: #cad5e5;
+  border-color: #d9dae0;
 }
 
 .theme :global(.border-neutral-600),
@@ -73,7 +73,7 @@
 .theme :global([class~='bg-[#151310]']),
 .theme :global([class~='bg-[#2a2117]']),
 .theme :global([class~='bg-[#2a2117]/60']) {
-  background-color: #edf4ff;
+  background-color: #eaeffe;
 }
 
 .theme :global([class~='bg-[#4a3a22]']) {
@@ -81,13 +81,13 @@
 }
 
 .theme :global([class~='bg-[#c8a96a]']) {
-  background-color: #174dda;
+  background-color: #2d63f0;
   color: #ffffff;
 }
 
 .theme :global([class~='text-[#c8a96a]']),
 .theme :global([class~='text-[#d9b878]']) {
-  color: #174dda;
+  color: #2d63f0;
 }
 
 .theme :global([class~='border-[#4a3a22]']) {
@@ -96,44 +96,44 @@
 
 .theme :global([class~='border-[#c8a96a]']),
 .theme :global([class~='focus:border-[#c8a96a]']):focus {
-  border-color: #174dda;
+  border-color: #2d63f0;
 }
 
 .theme :global([class~='accent-[#c8a96a]']) {
-  accent-color: #174dda;
+  accent-color: #2d63f0;
 }
 
 .theme :global([class~='hover:bg-[#d9bc82]']):hover,
 .theme :global([class~='hover:bg-[#c8a96a]']):hover {
-  background-color: #0f3db9;
+  background-color: #1e4bd1;
   color: #ffffff;
 }
 
 .theme :global([class~='hover:border-[#4a3a22]']):hover,
 .theme :global([class~='hover:border-[#6a5432]']):hover,
 .theme :global([class~='hover:border-[#c8a96a]']):hover {
-  border-color: #174dda;
+  border-color: #2d63f0;
 }
 
 .theme :global([class~='hover:text-[#c8a96a]']):hover {
-  color: #174dda;
+  color: #2d63f0;
 }
 
 .theme :global(.hover\:bg-neutral-800):hover,
 .theme :global(.hover\:bg-neutral-800\/60):hover {
-  background-color: #edf4ff;
+  background-color: #eaeffe;
 }
 
 .theme :global(.hover\:border-neutral-500):hover,
 .theme :global(.hover\:border-neutral-600):hover {
-  border-color: #174dda;
+  border-color: #2d63f0;
 }
 
 .theme :global(.hover\:text-neutral-50):hover,
 .theme :global(.hover\:text-neutral-100):hover,
 .theme :global(.hover\:text-neutral-200):hover,
 .theme :global(.hover\:text-neutral-300):hover {
-  color: #174dda;
+  color: #2d63f0;
 }
 
 /* Status colors keep their meaning, but use light surfaces that belong on this shell. */
@@ -165,19 +165,19 @@
 }
 
 .theme :global(.border-emerald-900) {
-  border-color: #a8e5d8;
+  border-color: #c4e3d2;
 }
 
 .theme :global(.bg-emerald-950\/30) {
-  background-color: #eafbf7;
+  background-color: #eef6f1;
 }
 
 .theme :global(.bg-emerald-600),
 .theme :global(.bg-emerald-700) {
-  background-color: #03a995;
+  background-color: #12916a;
 }
 
 .theme :global(.text-emerald-300),
 .theme :global(.text-emerald-400) {
-  color: #087d70;
+  color: #10714f;
 }

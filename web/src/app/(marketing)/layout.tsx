@@ -9,6 +9,10 @@ import {
   APP_ROOT_HTML_CLASS_NAME,
   APP_ROOT_METADATA,
 } from '@/app/root-layout-contract';
+import {
+  APP_BRAND_BODY_CLASS_NAME,
+  APP_BRAND_FONT_CLASS_NAME,
+} from '@/app/app-typography';
 import { MarketingHeader } from '@/components/marketing/MarketingHeader';
 import { MarketingFooter } from '@/components/marketing/MarketingFooter';
 import { MARKETING_TYPOGRAPHY_VARS } from '@/lib/design/typography-scale';
@@ -25,10 +29,10 @@ export const metadata: Metadata = {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={APP_ROOT_HTML_CLASS_NAME}>
-      <body suppressHydrationWarning className={APP_ROOT_BODY_CLASS_NAME}>
+    <html lang="en" className={`${APP_ROOT_HTML_CLASS_NAME} ${APP_BRAND_FONT_CLASS_NAME}`}>
+      <body suppressHydrationWarning className={`${APP_ROOT_BODY_CLASS_NAME} ${APP_BRAND_BODY_CLASS_NAME}`}>
         <div
-          className="anakslabs-marketing flex min-h-screen flex-col bg-[#F8FBFF] text-[#0B1736] antialiased"
+          className="anakslabs-marketing flex min-h-screen flex-col bg-[#F6F7F9] text-[#141A3A] antialiased"
           style={MARKETING_TYPOGRAPHY_VARS}
         >
           <MarketingHeader />

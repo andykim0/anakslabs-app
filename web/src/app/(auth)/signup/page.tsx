@@ -33,8 +33,8 @@ function GoogleIcon() {
 }
 
 const INPUT_CLASS =
-  'h-11 w-full rounded-lg border border-[#CAD5E5] bg-white px-3 text-sm text-[#0B1736] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#174DDA] focus:ring-1 focus:ring-[#174DDA]';
-const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#0B1736]';
+  'h-11 w-full rounded-lg border border-[#D9DAE0] bg-white px-3 text-sm text-[#141A3A] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#2D63F0] focus:ring-1 focus:ring-[#2D63F0]';
+const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#141A3A]';
 // 아임웹 관행과 동일한 강도: 영문+숫자+특수문자 조합 8-20자
 const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^\dA-Za-z\s]).{8,20}$/;
 
@@ -126,16 +126,16 @@ export default function SignupPage() {
 
   if (!selfSignupAllowed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FBFF] px-6 text-[#0B1736]">
-        <main className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white p-8 text-center shadow-[0_24px_80px_rgba(11,23,54,.11)]">
+      <div className="flex min-h-screen items-center justify-center bg-[#F6F7F9] px-6 text-[#141A3A]">
+        <main className="w-full max-w-md rounded-[28px] border border-[#DFE1E6] bg-white p-8 text-center shadow-[0_24px_80px_rgba(20,26,58,.11)]">
           <BrandLogo />
           <h1 className="mt-8 text-2xl font-semibold tracking-[-0.035em]">Accounts are issued by Anaks Labs</h1>
-          <p className="mt-3 text-sm leading-6 text-[#667085]">
+          <p className="mt-3 text-sm leading-6 text-[#6a7286]">
             Use the invitation from your account manager to access your clinic workspace.
           </p>
           <Link
             href="/login"
-            className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-[#174DDA] text-sm font-semibold text-white"
+            className="mt-8 flex h-12 w-full items-center justify-center rounded-xl bg-[#2D63F0] text-sm font-semibold text-white"
           >
             Sign in
           </Link>
@@ -145,14 +145,14 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F8FBFF] text-[#0B1736]">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#F6F7F9] text-[#141A3A]">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_8%,rgba(23,77,218,.12),transparent_31%),radial-gradient(circle_at_88%_82%,rgba(3,191,169,.11),transparent_30%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_8%,rgba(45,99,240,.12),transparent_31%),radial-gradient(circle_at_88%_82%,rgba(45,99,240,.11),transparent_30%)]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-24 -right-24 h-72 w-72 rounded-full border border-[#BFEDE8]/70 bg-[#E8FBF7]/45 blur-2xl"
+        className="pointer-events-none absolute top-24 -right-24 h-72 w-72 rounded-full border border-[#CBD8FB]/70 bg-[#EAEFFE]/45 blur-2xl"
       />
 
       <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center px-6 py-5">
@@ -162,17 +162,17 @@ export default function SignupPage() {
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-6 pb-24">
-        <div className="w-full max-w-md rounded-[28px] border border-[#DCE4F0] bg-white/92 p-6 shadow-[0_24px_80px_rgba(11,23,54,.11)] backdrop-blur-xl sm:p-8">
+        <div className="w-full max-w-md rounded-[28px] border border-[#DFE1E6] bg-white/92 p-6 shadow-[0_24px_80px_rgba(20,26,58,.11)] backdrop-blur-xl sm:p-8">
           {mock ? (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Create an account</h1>
-              <p className="mt-2 text-center text-sm text-[#667085]">
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#141A3A]">Create an account</h1>
+              <p className="mt-2 text-center text-sm text-[#6a7286]">
                 Mock mode does not require registration.
               </p>
               <div className="mt-8">
                 <Link
                   href="/login"
-                  className="flex h-12 w-full items-center justify-center rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7]"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-[#2D63F0] text-sm font-semibold text-white transition-colors hover:bg-[#1E4BD1]"
                 >
                   Return to sign in
                 </Link>
@@ -180,15 +180,15 @@ export default function SignupPage() {
             </>
           ) : confirmNotice ? (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Create an account</h1>
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#141A3A]">Create an account</h1>
               <div className="mt-8 space-y-4">
-                <div className="rounded-xl border border-[#BFEDE8] bg-[#E8FBF7] px-4 py-4 text-center">
-                  <p className="text-sm font-semibold text-[#087D70]">Verification email sent</p>
+                <div className="rounded-xl border border-[#C4E3D2] bg-[#EEF6F1] px-4 py-4 text-center">
+                  <p className="text-sm font-semibold text-[#10714F]">Verification email sent</p>
                   <p className="mt-1.5 text-xs leading-5 text-[#3D5A55]">{confirmNotice}</p>
                 </div>
                 <Link
                   href="/login"
-                  className="flex h-11 w-full items-center justify-center rounded-xl border border-[#DCE4F0] bg-white text-sm font-semibold text-[#0B1736] transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF]"
+                  className="flex h-11 w-full items-center justify-center rounded-xl border border-[#DFE1E6] bg-white text-sm font-semibold text-[#141A3A] transition-colors hover:border-[#8FB2FF] hover:bg-[#F6F7F9]"
                 >
                   Return to sign in
                 </Link>
@@ -196,7 +196,7 @@ export default function SignupPage() {
             </>
           ) : view === 'choose' ? (
             <>
-              <h1 className="text-center text-[22px] leading-snug font-semibold tracking-[-0.03em] text-[#0B1736]">
+              <h1 className="text-center text-[22px] leading-snug font-semibold tracking-[-0.03em] text-[#141A3A]">
                 Start your clinic website workspace
               </h1>
 
@@ -208,7 +208,7 @@ export default function SignupPage() {
                       setError(null);
                       setView('email');
                     }}
-                    className="flex h-12 w-full items-center justify-center rounded-xl border border-[#DCE4F0] bg-white text-sm font-semibold text-[#0B1736] transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF]"
+                    className="flex h-12 w-full items-center justify-center rounded-xl border border-[#DFE1E6] bg-white text-sm font-semibold text-[#141A3A] transition-colors hover:border-[#8FB2FF] hover:bg-[#F6F7F9]"
                   >
                     Sign up with email
                   </button>
@@ -216,9 +216,9 @@ export default function SignupPage() {
               </div>
 
               <div className="mt-6 flex items-center gap-3">
-                <span className="h-px flex-1 bg-[#DCE4F0]" />
+                <span className="h-px flex-1 bg-[#DFE1E6]" />
                 <span className="text-[11px] text-[#98A2B3]">or</span>
-                <span className="h-px flex-1 bg-[#DCE4F0]" />
+                <span className="h-px flex-1 bg-[#DFE1E6]" />
               </div>
 
               <div className="mt-5 flex items-center justify-center">
@@ -228,15 +228,15 @@ export default function SignupPage() {
                   disabled={oauthPending !== null}
                   aria-label="Sign up with Google"
                   title="Sign up with Google"
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DCE4F0] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F8FBFF] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[#DFE1E6] bg-white transition-colors hover:border-[#8FB2FF] hover:bg-[#F6F7F9] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {oauthPending === 'google' ? <Spinner className="text-[#0B1736]" /> : <GoogleIcon />}
+                  {oauthPending === 'google' ? <Spinner className="text-[#141A3A]" /> : <GoogleIcon />}
                 </button>
               </div>
             </>
           ) : (
             <>
-              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#0B1736]">Sign up with email</h1>
+              <h1 className="text-center text-2xl font-semibold tracking-[-0.035em] text-[#141A3A]">Sign up with email</h1>
 
               <form onSubmit={handleEmailSignup} className="mt-8 space-y-4">
                 <div>
@@ -314,32 +314,32 @@ export default function SignupPage() {
                   />
                 </div>
 
-                <div className="rounded-xl border border-[#DCE4F0] bg-[#F8FBFF] p-4">
+                <div className="rounded-xl border border-[#DFE1E6] bg-[#F6F7F9] p-4">
                   <label className="flex cursor-pointer items-center gap-2.5">
                     <input
                       type="checkbox"
                       checked={allAgreed}
                       onChange={(ev) => setAll(ev.target.checked)}
-                      className="h-4 w-4 accent-[#174DDA]"
+                      className="h-4 w-4 accent-[#2D63F0]"
                     />
-                    <span className="text-[13px] font-semibold text-[#0B1736]">Accept all</span>
+                    <span className="text-[13px] font-semibold text-[#141A3A]">Accept all</span>
                   </label>
-                  <div className="mt-3 space-y-2.5 border-t border-[#DCE4F0] pt-3">
+                  <div className="mt-3 space-y-2.5 border-t border-[#DFE1E6] pt-3">
                     <div className="flex items-center justify-between gap-2">
                       <label className="flex cursor-pointer items-center gap-2.5">
                         <input
                           type="checkbox"
                           checked={agree.terms}
                           onChange={(ev) => setAgree((a) => ({ ...a, terms: ev.target.checked }))}
-                          className="h-4 w-4 accent-[#174DDA]"
+                          className="h-4 w-4 accent-[#2D63F0]"
                         />
-                        <span className="text-[13px] text-[#0B1736]">Terms (required)</span>
+                        <span className="text-[13px] text-[#141A3A]">Terms (required)</span>
                       </label>
                       <a
                         href="/terms"
                         target="_blank"
                         rel="noreferrer"
-                        className="shrink-0 text-[12px] text-[#667085] underline underline-offset-2 hover:text-[#174DDA]"
+                        className="shrink-0 text-[12px] text-[#6a7286] underline underline-offset-2 hover:text-[#2D63F0]"
                       >
                         View
                       </a>
@@ -350,15 +350,15 @@ export default function SignupPage() {
                           type="checkbox"
                           checked={agree.privacy}
                           onChange={(ev) => setAgree((a) => ({ ...a, privacy: ev.target.checked }))}
-                          className="h-4 w-4 accent-[#174DDA]"
+                          className="h-4 w-4 accent-[#2D63F0]"
                         />
-                        <span className="text-[13px] text-[#0B1736]">Privacy Policy (required)</span>
+                        <span className="text-[13px] text-[#141A3A]">Privacy Policy (required)</span>
                       </label>
                       <a
                         href="/privacy"
                         target="_blank"
                         rel="noreferrer"
-                        className="shrink-0 text-[12px] text-[#667085] underline underline-offset-2 hover:text-[#174DDA]"
+                        className="shrink-0 text-[12px] text-[#6a7286] underline underline-offset-2 hover:text-[#2D63F0]"
                       >
                         View
                       </a>
@@ -368,9 +368,9 @@ export default function SignupPage() {
                         type="checkbox"
                         checked={agree.marketingEmail}
                         onChange={(ev) => setAgree((a) => ({ ...a, marketingEmail: ev.target.checked }))}
-                        className="h-4 w-4 accent-[#174DDA]"
+                        className="h-4 w-4 accent-[#2D63F0]"
                       />
-                      <span className="text-[13px] text-[#0B1736]">
+                      <span className="text-[13px] text-[#141A3A]">
                         Product updates by email <span className="text-[#98A2B3]">(optional)</span>
                       </span>
                     </label>
@@ -380,7 +380,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={pending}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#174DDA] text-sm font-semibold text-white transition-colors hover:bg-[#123FB7] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2D63F0] text-sm font-semibold text-white transition-colors hover:bg-[#1E4BD1] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {pending ? <Spinner className="text-white" /> : null}
                   Create account
@@ -393,7 +393,7 @@ export default function SignupPage() {
                   setError(null);
                   setView('choose');
                 }}
-                className="mt-4 w-full text-center text-[12px] text-[#667085] transition-colors hover:text-[#174DDA]"
+                className="mt-4 w-full text-center text-[12px] text-[#6a7286] transition-colors hover:text-[#2D63F0]"
               >
                 ← Choose another method
               </button>
@@ -407,9 +407,9 @@ export default function SignupPage() {
           ) : null}
 
           {!mock && !confirmNotice ? (
-            <p className="mt-8 text-center text-[13px] text-[#667085]">
+            <p className="mt-8 text-center text-[13px] text-[#6a7286]">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-[#174DDA] transition-colors hover:text-[#123FB7]">
+              <Link href="/login" className="font-semibold text-[#2D63F0] transition-colors hover:text-[#1E4BD1]">
                 Sign in
               </Link>
             </p>

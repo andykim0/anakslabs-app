@@ -52,7 +52,7 @@ export function DropMenu({
       {open ? (
         <div
           className={cn(
-            'absolute top-full z-[60] mt-1 max-h-72 w-44 overflow-y-auto rounded-lg border border-[#CAD5E5] bg-white p-1 shadow-2xl',
+            'absolute top-full z-[60] mt-1 max-h-72 w-44 overflow-y-auto rounded-lg border border-[#D9DAE0] bg-white p-1 shadow-2xl',
             align === 'left' ? 'left-0' : 'right-0',
             menuClassName,
           )}
@@ -65,9 +65,9 @@ export function DropMenu({
                 setOpen(false);
                 item.onSelect();
               }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-[#26354D] transition-colors hover:bg-[#E8EDF5]"
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs text-[#232C52] transition-colors hover:bg-[#E8EDF5]"
             >
-              {item.icon ? <span className="text-[#5F6B7C]">{item.icon}</span> : null}
+              {item.icon ? <span className="text-[#545C70]">{item.icon}</span> : null}
               {item.label}
             </button>
           ))}

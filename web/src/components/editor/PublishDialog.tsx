@@ -41,7 +41,7 @@ export function PublishDialog({
           </Button>
           <Link
             href={result ? `/dashboard/sites/${result.site.id}` : '/dashboard'}
-            className="inline-flex h-10 items-center rounded-lg border border-[#CAD5E5] bg-white px-4 text-sm text-[#26354D] transition-colors hover:border-[#AEBACC]"
+            className="inline-flex h-10 items-center rounded-lg border border-[#D9DAE0] bg-white px-4 text-sm text-[#232C52] transition-colors hover:border-[#AEBACC]"
           >
             Go to Site Management
           </Link>
@@ -50,7 +50,7 @@ export function PublishDialog({
               href={openHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#174DDA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#245FE5]"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2D63F0] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#2F6BFF]"
             >
               Open live site <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -59,12 +59,12 @@ export function PublishDialog({
       }
     >
       <div className="space-y-3">
-        <p className="flex items-center gap-2 text-[#26354D]">
-          <PartyPopper className="h-4 w-4 text-[#174DDA]" />
+        <p className="flex items-center gap-2 text-[#232C52]">
+          <PartyPopper className="h-4 w-4 text-[#2D63F0]" />
           Your draft has been uploaded to the live site.
         </p>
         {liveUrl ? (
-          <p className="rounded-lg border border-[#DCE4F0] bg-[#F8FBFF] px-3 py-2 font-mono text-xs text-[#174DDA]">
+          <p className="rounded-lg border border-[#DFE1E6] bg-[#F6F7F9] px-3 py-2 font-mono text-xs text-[#2D63F0]">
             {liveUrl}
           </p>
         ) : null}
@@ -77,11 +77,11 @@ export function PublishDialog({
           </div>
         ) : null}
         {result?.preflight.needsQa ? (
-          <p className="text-xs leading-5 text-[#667085]">
+          <p className="text-xs leading-5 text-[#6a7286]">
             Based on the automatic diagnosis results, it was marked for administrator QA confirmation. The site was published normally.
           </p>
         ) : null}
-        <p className="text-xs leading-5 text-[#667085]">
+        <p className="text-xs leading-5 text-[#6a7286]">
           Subdomains can be accessed immediately. You can connect your domain (custom domain) in the site settings of the dashboard.
           You can.
         </p>

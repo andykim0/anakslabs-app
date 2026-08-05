@@ -690,7 +690,7 @@ export function SiteDetail({
                 type="checkbox"
                 checked={bizConfirmed}
                 onChange={(e) => setBizConfirmed(e.target.checked)}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#174DDA]"
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[#2D63F0]"
               />
               <span className="text-xs leading-5 text-ob-ink">
                 I have verified that the above information is accurate. It is posted as a legal notation at the bottom of the published site.

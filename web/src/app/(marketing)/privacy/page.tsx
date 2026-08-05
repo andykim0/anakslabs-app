@@ -20,15 +20,15 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#17181C]">Privacy Notice</h1>
-      <p className="mkt-type-support mt-3 text-[#5C6068]">
+      <h1 className="mkt-type-page-title font-semibold tracking-tight text-[#141A3A]">Privacy Notice</h1>
+      <p className="mkt-type-support mt-3 text-[#545C70]">
         This is an interim product notice pending final legal review. Questions and data requests may be sent to{' '}
-        <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#174DDA] hover:underline">{COMPANY_EMAIL}</a>.
+        <a href={`mailto:${COMPANY_EMAIL}`} className="text-[#2D63F0] hover:underline">{COMPANY_EMAIL}</a>.
       </p>
-      <div className="mkt-type-body mt-10 space-y-8 text-[#5C6068]">
+      <div className="mkt-type-body mt-10 space-y-8 text-[#545C70]">
         {sections.map(([heading, body]) => (
           <section key={heading}>
-            <h2 className="mkt-type-card-title font-semibold text-[#17181C]">{heading}</h2>
+            <h2 className="mkt-type-card-title font-semibold text-[#141A3A]">{heading}</h2>
             <p className="mt-2">{body}</p>
           </section>
         ))}

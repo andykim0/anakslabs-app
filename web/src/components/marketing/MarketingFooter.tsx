@@ -10,7 +10,7 @@ const LINKS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-white/10 bg-[#101f2d] text-white">
+    <footer className="border-t border-white/10 bg-[#141a3a] text-white">
       <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div><BrandLogo inverse /><p className="mkt-type-body mt-5 max-w-sm text-white/55">Source-grounded websites for clinics, operated by Anaks Labs.</p></div>

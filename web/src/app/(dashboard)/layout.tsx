@@ -6,6 +6,10 @@ import {
   APP_ROOT_HTML_CLASS_NAME,
   APP_ROOT_METADATA,
 } from '@/app/root-layout-contract';
+import {
+  APP_BRAND_BODY_CLASS_NAME,
+  APP_BRAND_FONT_CLASS_NAME,
+} from '@/app/app-typography';
 import { getCurrentClient, isAdmin } from '@/lib/services/auth';
 import { Providers } from '@/components/dashboard/providers';
 import { DashboardShell } from '@/components/dashboard/shell';
@@ -24,8 +28,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const locale = customerLocaleFromSites(await getDataServices().sites.listByClient(client.id));
 
   return (
-    <html lang="en" className={APP_ROOT_HTML_CLASS_NAME}>
-      <body suppressHydrationWarning className={APP_ROOT_BODY_CLASS_NAME}>
+    <html lang="en" className={`${APP_ROOT_HTML_CLASS_NAME} ${APP_BRAND_FONT_CLASS_NAME}`}>
+      <body suppressHydrationWarning className={`${APP_ROOT_BODY_CLASS_NAME} ${APP_BRAND_BODY_CLASS_NAME}`}>
         <Providers>
           <DashboardShell
             clientName={client.name}

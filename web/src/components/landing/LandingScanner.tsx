@@ -80,12 +80,12 @@ function Gauge({ name, sub, score }: { name: string; sub: string; score: number 
   return (
     <div className="rounded-xl border border-[#E8E6E0] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="flex items-baseline justify-between">
-        <span className="mkt-type-card-title font-semibold text-[#17181C]">{name}</span>
+        <span className="mkt-type-card-title font-semibold text-[#141A3A]">{name}</span>
         <span className="text-2xl font-semibold tabular-nums" style={{ color }}>
           {score}
         </span>
       </div>
-      <p className="mkt-type-support mt-0.5 text-[#5C6068]">{sub}</p>
+      <p className="mkt-type-support mt-0.5 text-[#545C70]">{sub}</p>
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#EDEBE4]">
         <motion.div
           className="h-full rounded-full"
@@ -125,16 +125,16 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
             data-input-to-perfect={isInputToPerfect ? issue.code : undefined}
           >
             <div className="flex items-start gap-2">
-              <span className={isInputToPerfect ? 'text-[#087D70]' : SEVERITY_META[issue.severity].tone}>
+              <span className={isInputToPerfect ? 'text-[#10714F]' : SEVERITY_META[issue.severity].tone}>
                 {isInputToPerfect ? <Info className="h-3.5 w-3.5" /> : SEVERITY_META[issue.severity].icon}
               </span>
-              <span className="mkt-type-body font-medium text-[#17181C]">{guidance?.title ?? issue.label}</span>
+              <span className="mkt-type-body font-medium text-[#141A3A]">{guidance?.title ?? issue.label}</span>
               {isInputToPerfect ? (
-                <span className="mkt-type-support shrink-0 rounded-full bg-[#EAFBF7] px-2 py-0.5 text-[#087D70]">
+                <span className="mkt-type-support shrink-0 rounded-full bg-[#EEF6F1] px-2 py-0.5 text-[#10714F]">
                   Complete the input to reach full credit
                 </span>
               ) : null}
-              <span className="mkt-type-support ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 uppercase tracking-wider text-[#5C6068]">
+              <span className="mkt-type-support ml-auto shrink-0 rounded-full bg-[#F3F1EB] px-2 py-0.5 uppercase tracking-wider text-[#545C70]">
                 {issue.pillar}
               </span>
             </div>
@@ -142,7 +142,7 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
               {guidance?.action ?? issue.detail}
             </p>
             {guidance?.effect ? (
-              <p className="mkt-type-support mt-1 pl-5.5 text-[#087D70]">What changes: {guidance.effect}</p>
+              <p className="mkt-type-support mt-1 pl-5.5 text-[#10714F]">What changes: {guidance.effect}</p>
             ) : null}
             {guidance ? (
               <details className="mkt-type-support mt-2 pl-5.5 text-[#697386]">
@@ -168,7 +168,7 @@ function IssueList({ issues }: { issues: ScanIssue[] }) {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="mkt-type-control flex h-10 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-[#5C6068] transition-colors hover:text-[#17181C]"
+          className="mkt-type-control flex h-10 w-full items-center justify-center gap-1 border-t border-[#E8E6E0] text-[#545C70] transition-colors hover:text-[#141A3A]"
         >
           {open ? 'Show less' : `Show ${groups.length - 4} more items`}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -198,19 +198,19 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
     })),
   ];
   return (
-    <div className="mt-5 rounded-2xl border border-[#DCE4F0] bg-[#F8FAFD] p-4 sm:p-5">
-      <p className="mkt-type-card-title font-semibold text-[#17181C]">{comparisonHeadline(scan, comparisons)}</p>
-      <p className="mkt-type-support mt-1.5 text-[#5C6068]">
+    <div className="mt-5 rounded-2xl border border-[#DFE1E6] bg-[#F8FAFD] p-4 sm:p-5">
+      <p className="mkt-type-card-title font-semibold text-[#141A3A]">{comparisonHeadline(scan, comparisons)}</p>
+      <p className="mkt-type-support mt-1.5 text-[#545C70]">
         This compares structural signals only. It does not check or guarantee search ranking.
       </p>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[620px] border-separate border-spacing-0 text-left">
           <thead>
             <tr>
-              <th className="mkt-type-support border-b border-[#DCE4F0] p-3 text-[#5C6068]">Check</th>
+              <th className="mkt-type-support border-b border-[#DFE1E6] p-3 text-[#545C70]">Check</th>
               {sites.map((site) => (
-                <th key={site.url} className="border-b border-[#DCE4F0] p-3 align-bottom">
-                  <span className="mkt-type-body block font-semibold text-[#17181C]">{site.label}</span>
+                <th key={site.url} className="border-b border-[#DFE1E6] p-3 align-bottom">
+                  <span className="mkt-type-body block font-semibold text-[#141A3A]">{site.label}</span>
                   <span className="mkt-type-support block max-w-40 truncate font-normal text-[#697386]">
                     {new URL(site.url).hostname}
                   </span>
@@ -222,7 +222,7 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
             <tr>
               <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">Overall score</th>
               {sites.map((site) => (
-                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold tabular-nums text-[#17181C]">
+                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold tabular-nums text-[#141A3A]">
                   {site.scores.total} points · Grade {site.grade}
                 </td>
               ))}
@@ -230,7 +230,7 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
             <tr>
               <th className="mkt-type-support border-b border-[#E8EDF4] p-3 font-medium text-[#3F4856]">Root causes</th>
               {sites.map((site) => (
-                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold text-[#174DDA]">
+                <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3 font-semibold text-[#2D63F0]">
                   {site.actionableRootCauses} causes
                 </td>
               ))}
@@ -241,7 +241,7 @@ function ComparisonReport({ scan }: { scan: ScanResult }) {
                 {sites.map((site) => (
                   <td key={site.url} className="mkt-type-body border-b border-[#E8EDF4] p-3">
                     {site.signals[signal.key] ? (
-                      <span className="inline-flex items-center gap-1 font-semibold text-[#087D70]"><Check className="h-4 w-4" /> Present</span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-[#10714F]"><Check className="h-4 w-4" /> Present</span>
                     ) : (
                       <span className="text-[#7A5260]">Missing</span>
                     )}
@@ -271,21 +271,21 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mx-auto mt-14 max-w-3xl rounded-[28px] border border-[#DCE4F0] bg-white p-5 text-left shadow-[0_24px_70px_rgba(11,23,54,0.12)] sm:p-7"
+      className="mx-auto mt-14 max-w-3xl rounded-[28px] border border-[#DFE1E6] bg-white p-5 text-left shadow-[0_24px_70px_rgba(20,26,58,0.12)] sm:p-7"
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="mkt-type-support truncate font-mono text-[#5C6068]">{scan.url}</p>
-          <p className="mkt-type-body mt-1 text-[#5C6068]">
+          <p className="mkt-type-support truncate font-mono text-[#545C70]">{scan.url}</p>
+          <p className="mkt-type-body mt-1 text-[#545C70]">
             Overall <span className="text-3xl font-semibold tabular-nums" style={{ color: scoreColor(scan.scores.total) }}>{scan.scores.total}</span>
             <span className="text-[#696E76]">/100</span>
-            <span className="mkt-type-body ml-2 rounded-md border border-[#E8E6E0] px-2 py-0.5 font-semibold text-[#17181C]">
+            <span className="mkt-type-body ml-2 rounded-md border border-[#E8E6E0] px-2 py-0.5 font-semibold text-[#141A3A]">
               Grade {scan.grade}
             </span>
           </p>
         </div>
         {!shared ? (
-          <button type="button" onClick={() => void copyResultLink()} className="mkt-type-control inline-flex h-10 items-center gap-2 rounded-xl border border-[#CAD5E5] px-3 font-semibold text-[#334155] hover:border-[#174DDA] hover:text-[#174DDA]">
+          <button type="button" onClick={() => void copyResultLink()} className="mkt-type-control inline-flex h-10 items-center gap-2 rounded-xl border border-[#D9DAE0] px-3 font-semibold text-[#334155] hover:border-[#2D63F0] hover:text-[#2D63F0]">
             <Copy className="h-4 w-4" /> {copied ? 'Link copied' : 'Copy result link'}
           </button>
         ) : null}
@@ -313,9 +313,9 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
         </div>
       ) : null}
 
-      <aside className="mt-4 rounded-xl border border-[#DCE4F0] bg-[#F7F9FC] p-4 text-[#4F5867]" aria-label="Diagnostic scope">
+      <aside className="mt-4 rounded-xl border border-[#DFE1E6] bg-[#F7F9FC] p-4 text-[#4F5867]" aria-label="Diagnostic scope">
         <p className="mkt-type-support flex items-start gap-2">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#174DDA]" />
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2D63F0]" />
           <span><span className="font-semibold text-[#334155]">Diagnostic scope.</span> {HTML_BASIS_NOTICE}</span>
         </p>
       </aside>
@@ -323,21 +323,21 @@ export function ScanResultPanel({ scan, shared = false }: { scan: ScanResult; sh
       <ComparisonReport scan={scan} />
 
       {/* 효과 요약 — 실제 스캔 값 바인딩 */}
-      <div className="mt-5 rounded-2xl border border-[#CFEAE7] bg-[#EFFBF9] p-6">
-        <p className="mkt-type-body text-[#17181C]">
-          Current score: <span className="font-semibold text-[#174DDA]">{scan.scores.total}</span>.{' '}
+      <div className="mt-5 rounded-2xl border border-[#C4E3D2] bg-[#EEF6F1] p-6">
+        <p className="mkt-type-body text-[#141A3A]">
+          Current score: <span className="font-semibold text-[#2D63F0]">{scan.scores.total}</span>.{' '}
           {scan.scores.total < 60
             ? 'Patients and search systems may struggle to find the essential information.'
             : 'The basics are present, but some important information remains hard to find.'}{' '}
-          Anaks Labs addresses the <span className="font-semibold text-[#174DDA]">{issueCount} missing items</span> during production
+          Anaks Labs addresses the <span className="font-semibold text-[#2D63F0]">{issueCount} missing items</span> during production
           so the practice name, location, and services are readable by search engines and AI systems.
         </p>
-        <p className="mkt-type-body mt-3 font-semibold text-[#0B4351]">
+        <p className="mkt-type-body mt-3 font-semibold text-[#232C52]">
           Many tools stop at the diagnostic. Anaks Labs finds the gap, fixes the structure, and builds the site.
         </p>
         <Link
           href="/login"
-          className="mkt-type-control group mt-4 inline-flex h-12 items-center gap-2 rounded-xl bg-[#174DDA] px-6 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#123FB7] hover:shadow-[0_6px_20px_rgba(23,77,218,0.24)]"
+          className="mkt-type-control group mt-4 inline-flex h-12 items-center gap-2 rounded-xl bg-[#2D63F0] px-6 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#1E4BD1] hover:shadow-[0_6px_20px_rgba(45,99,240,0.24)]"
         >
           Rebuild this website
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -394,26 +394,26 @@ export function LandingScanner() {
     <section id="hero-scanner" className="mx-auto max-w-7xl scroll-mt-24 px-5 pt-14 pb-20 sm:px-8 md:pt-20 md:pb-28">
       <div data-scan-entry className="mx-auto max-w-3xl">
         <div data-film-scrim="hero" className="text-left">
-          <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/18 bg-[#07142F]/72 px-3 py-1.5 font-mono tracking-[0.14em] text-[#68E8D8] uppercase shadow-sm backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#03BFA9] shadow-[0_0_8px_rgba(3,191,169,.45)]" />
+          <p className="mkt-type-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/18 bg-[#141A3A]/72 px-3 py-1.5 font-mono tracking-[0.14em] text-[#8FB0FF] uppercase shadow-sm backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2D63F0] shadow-[0_0_8px_rgba(45,99,240,.45)]" />
             Free website diagnostic. No account required.
           </p>
-          <h1 className="mkt-type-hero max-w-2xl font-semibold tracking-[-0.065em] text-[#0B1736]">
+          <h1 className="mkt-type-hero max-w-2xl font-semibold tracking-[-0.065em] text-[#141A3A]">
             Can patients find
             <br />your practice
             <br />
-            <span className="bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03A995] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#2D63F0] via-[#4D7CFF] to-[#2F6BFF] bg-clip-text text-transparent">
               when they search?
             </span>
           </h1>
           <p data-scan-lead className="mkt-type-body mt-7 max-w-xl text-[#334155] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
             Enter a website address to see what patients, search engines, and AI systems cannot find.
           </p>
-          <p className="mkt-type-body mt-3 max-w-xl font-semibold text-[#0B4351] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
+          <p className="mkt-type-body mt-3 max-w-xl font-semibold text-[#232C52] [text-shadow:0_1px_12px_rgba(255,255,255,.96)]">
             Many tools stop at the diagnostic. Anaks Labs finds the gap, fixes the structure, and builds the site.
           </p>
 
-          <div className="mt-8 rounded-2xl border border-[#CAD5E5] bg-white/90 p-2 shadow-[0_18px_50px_rgba(11,23,54,0.1)] backdrop-blur-xl">
+          <div className="mt-8 rounded-2xl border border-[#D9DAE0] bg-white/90 p-2 shadow-[0_18px_50px_rgba(20,26,58,0.1)] backdrop-blur-xl">
             <label htmlFor="landing-scan-url" className="sr-only">Website address to scan</label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <div className="relative min-w-0 flex-1">
@@ -428,7 +428,7 @@ export function LandingScanner() {
                     if (e.key === 'Enter') void startScan();
                   }}
                   placeholder={rotatePh ? '' : PLACEHOLDERS[0]}
-                  className="mkt-type-control h-13 w-full rounded-xl border border-transparent bg-white px-4 text-[#0B1736] outline-none transition-shadow placeholder:text-[#667085] focus:ring-2 focus:ring-[#08AFC5]"
+                  className="mkt-type-control h-13 w-full rounded-xl border border-transparent bg-white px-4 text-[#141A3A] outline-none transition-shadow placeholder:text-[#6a7286] focus:ring-2 focus:ring-[#4D7CFF]"
                 />
                 {rotatePh ? (
                   <AnimatePresence mode="wait">
@@ -449,7 +449,7 @@ export function LandingScanner() {
                 type="button"
                 onClick={() => void startScan()}
                 disabled={scanning || !url.trim()}
-                className="mkt-type-control relative inline-flex h-13 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#174DDA] via-[#08AFC5] to-[#03BFA9] px-5 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_rgba(8,175,197,.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                className="mkt-type-control relative inline-flex h-13 shrink-0 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#2D63F0] via-[#4D7CFF] to-[#2D63F0] px-5 font-semibold text-white transition-all duration-200 hover:-translate-y-px hover:shadow-[0_10px_30px_rgba(45,99,240,.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 disabled:hover:shadow-none"
               >
                 {!reduce && !url && !scanning ? (
                   <motion.span
@@ -469,11 +469,11 @@ export function LandingScanner() {
               type="button"
               aria-expanded={compareOpen}
               onClick={() => setCompareOpen((value) => !value)}
-              className="mkt-type-control mt-2 inline-flex h-10 items-center gap-2 rounded-xl px-3 font-semibold text-[#334155] hover:bg-[#F2F6FC] hover:text-[#174DDA]"
+              className="mkt-type-control mt-2 inline-flex h-10 items-center gap-2 rounded-xl px-3 font-semibold text-[#334155] hover:bg-[#F2F6FC] hover:text-[#2D63F0]"
             >
               <GitCompareArrows className="h-4 w-4" /> Compare another site <span className="font-normal text-[#697386]">(optional)</span>
             </button>
-            <p className="mkt-type-support px-3 pb-1 text-[#5C6068]">
+            <p className="mkt-type-support px-3 pb-1 text-[#545C70]">
               The same checks compare structural signals only. Search ranking is neither measured nor guaranteed.
             </p>
             {compareOpen ? (
@@ -491,7 +491,7 @@ export function LandingScanner() {
                       value={competitorUrl}
                       onChange={(event) => setCompetitorUrls((items) => items.map((item, itemIndex) => itemIndex === index ? event.target.value : item))}
                       placeholder="Example: nearby-practice.com"
-                      className="mkt-type-control h-11 w-full rounded-xl border border-[#CAD5E5] bg-white px-3 text-[#0B1736] outline-none placeholder:text-[#747780] focus:ring-2 focus:ring-[#08AFC5]"
+                      className="mkt-type-control h-11 w-full rounded-xl border border-[#D9DAE0] bg-white px-3 text-[#141A3A] outline-none placeholder:text-[#747780] focus:ring-2 focus:ring-[#4D7CFF]"
                     />
                   </div>
                 ))}
@@ -501,7 +501,7 @@ export function LandingScanner() {
           <div className="mkt-type-support mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[#6C7788]">
             {['No account required', 'Search, questions, and AI visibility', 'Results kept for 30 days'].map((item) => (
               <span key={item} className="inline-flex items-center gap-1.5">
-                <Check className="h-3 w-3 text-[#03A995]" /> {item}
+                <Check className="h-3 w-3 text-[#2D63F0]" /> {item}
               </span>
             ))}
           </div>
@@ -514,12 +514,12 @@ export function LandingScanner() {
                 exit={{ opacity: 0, height: 0 }}
                 className="mt-6 overflow-hidden"
               >
-                <div className="rounded-xl border border-[#DCE4F0] bg-white/85 px-5 py-4 shadow-sm backdrop-blur">
-                  <motion.p key={msgIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mkt-type-support text-[#5F6B7C]">
+                <div className="rounded-xl border border-[#DFE1E6] bg-white/85 px-5 py-4 shadow-sm backdrop-blur">
+                  <motion.p key={msgIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mkt-type-support text-[#545C70]">
                     {SCAN_MESSAGES[msgIdx]}
                   </motion.p>
                   <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[#E4EAF2]">
-                    <motion.div className="h-full w-1/3 rounded-full bg-gradient-to-r from-[#174DDA] via-[#08B8E8] to-[#03D1B8]" animate={{ x: ['-100%', '300%'] }} transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }} />
+                    <motion.div className="h-full w-1/3 rounded-full bg-gradient-to-r from-[#2D63F0] via-[#4D7CFF] to-[#2F6BFF]" animate={{ x: ['-100%', '300%'] }} transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }} />
                   </div>
                 </div>
               </motion.div>

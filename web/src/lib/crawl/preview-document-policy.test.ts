@@ -102,6 +102,38 @@ describe('LANG-GUARD — preview document language and translation policy', () =
     assert.match(contract, /variable: '--font-geist-mono'/u);
     assert.match(contract, /h-full antialiased/u);
     assert.match(contract, /min-h-full flex flex-col/u);
+    // 브랜드 서체는 공유 계약이 아니다 — 앱 라우트 그룹에서만 얹는다.
+    assert.doesNotMatch(contract, /Space_Grotesk|anaks-sans/u);
+  });
+
+  test('브랜드 서체 Space Grotesk 는 앱 라우트 그룹에만 실리고 테넌트 문서로 새지 않는다', () => {
+    const typography = source('src/app/app-typography.ts');
+    assert.match(typography, /Space_Grotesk/u);
+    assert.match(typography, /variable: '--font-anaks-sans'/u);
+
+    const appRoots = [
+      'src/app/(marketing)/layout.tsx',
+      'src/app/(auth)/layout.tsx',
+      'src/app/(dashboard)/layout.tsx',
+      'src/app/(admin)/admin/layout.tsx',
+    ];
+    for (const path of appRoots) {
+      const layout = source(path);
+      assert.match(layout, /APP_BRAND_FONT_CLASS_NAME/u, path);
+      assert.match(layout, /APP_BRAND_BODY_CLASS_NAME/u, path);
+    }
+
+    // 고객 문서 루트는 브랜드 서체/서피스를 절대 import 하지 않는다.
+    for (const path of ['src/app/s/layout.tsx', 'src/app/preview/[token]/layout.tsx']) {
+      const layout = source(path);
+      assert.doesNotMatch(layout, /app-typography|APP_BRAND_/u, path);
+      assert.doesNotMatch(layout, /anakslabs-app/u, path);
+    }
+
+    // 공유 body 규칙은 그대로고, 앱 서피스는 별도 클래스로만 존재한다.
+    const globals = source('src/app/globals.css');
+    assert.match(globals, /body \{\n  background: var\(--background\);\n  color: var\(--foreground\);\n  font-family: Arial, Helvetica, sans-serif;\n\}/u);
+    assert.match(globals, /\.anakslabs-app \{/u);
   });
 
   test('preview is the only dynamic root and emits google notranslate through Metadata API', () => {

@@ -1,33 +1,51 @@
+import Image from 'next/image';
 import { PUBLIC_BRAND_NAMES } from '@/lib/brand/public-names';
 
-/** Anaks Labs product lockup. */
+/**
+ * Anaks Labs product lockup.
+ *
+ * The artwork is the marketing site's own raster identity, copied verbatim from
+ * `../website/assets` — there is no vector master, and anakslabs.com itself ships
+ * PNGs. `public/anakslabs-mark.png` is `icon-512.png`; `public/anakslabs-logo.png`
+ * is `logo-inline.png`.
+ */
+
+/** The AL monogram, on its own. */
 export function BrandMark({ className = 'h-9 w-9' }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 44 44"
+    <Image
+      src="/anakslabs-mark.png"
+      alt=""
       aria-hidden="true"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <linearGradient id="anaks-mark-gradient" x1="4" y1="4" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#174DDA" />
-          <stop offset="0.55" stopColor="#08B8E8" />
-          <stop offset="1" stopColor="#03D1B8" />
-        </linearGradient>
-      </defs>
-      <rect width="44" height="44" rx="12" fill="url(#anaks-mark-gradient)" />
-      <rect x="7.5" y="8" width="29" height="27" rx="6" stroke="white" strokeWidth="2.8" />
-      <path d="M8.5 15h27" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
-      <circle cx="13" cy="11.5" r="1.35" fill="white" />
-      <circle cx="18" cy="11.5" r="1.35" fill="white" />
-      <path d="m11.5 30 7-5.5 5.5 2.7 6.2-5.2 6-9" stroke="white" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="m31.8 13.5 5.1-1.4-.8 5.1" stroke="white" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="18.5" cy="24.5" r="2" fill="#0B1736" stroke="white" strokeWidth="1.4" />
-      <circle cx="24" cy="27.2" r="2" fill="#0B1736" stroke="white" strokeWidth="1.4" />
-      <circle cx="30.2" cy="22" r="2" fill="#0B1736" stroke="white" strokeWidth="1.4" />
-    </svg>
+      width={512}
+      height={512}
+      priority
+      className={`${className} object-contain`}
+    />
+  );
+}
+
+/**
+ * The marketing site's stacked lockup (mark over wordmark), rendered as-is.
+ * Kept for surfaces with vertical room; application chrome uses `BrandLogo`,
+ * whose horizontal arrangement stays legible at header heights.
+ */
+export function BrandLockup({
+  className = 'h-14',
+  inverse = false,
+}: {
+  className?: string;
+  inverse?: boolean;
+}) {
+  return (
+    <Image
+      src="/anakslabs-logo.png"
+      alt={PUBLIC_BRAND_NAMES.brandBilingual}
+      width={680}
+      height={431}
+      className={`${className} w-auto object-contain ${inverse ? 'brightness-0 invert' : ''}`}
+      data-brand-bilingual="lockup"
+    />
   );
 }
 
@@ -42,13 +60,15 @@ export function BrandLogo({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap ${className}`}
+      className={`inline-flex shrink-0 items-center gap-2 whitespace-nowrap ${className}`}
       aria-label={PUBLIC_BRAND_NAMES.brandBilingual}
       data-brand-bilingual="logo"
     >
-      <BrandMark className="h-8 w-8 shrink-0" />
+      <BrandMark className={`h-8 w-8 shrink-0 ${inverse ? 'brightness-0 invert' : ''}`} />
       {compact ? null : (
-        <span className={`flex shrink-0 items-baseline whitespace-nowrap font-semibold leading-none ${inverse ? 'text-white' : 'text-[#0B1736]'}`}>
+        <span
+          className={`flex shrink-0 items-baseline whitespace-nowrap font-semibold leading-none ${inverse ? 'text-white' : 'text-[#141A3A]'}`}
+        >
           <span
             data-brand-name="anaks-labs"
             className="shrink-0 whitespace-nowrap text-[17px] tracking-[-0.03em]"

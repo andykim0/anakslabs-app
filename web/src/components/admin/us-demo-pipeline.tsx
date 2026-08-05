@@ -187,27 +187,27 @@ export function UsDemoPipeline() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5" data-us-demo-pipeline>
-      <header className="rounded-2xl border border-[#DCE4F0] bg-white p-6 shadow-sm">
+      <header className="rounded-2xl border border-[#DFE1E6] bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between gap-5">
           <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-[#174DDA]">
+            <p className="text-xs font-semibold tracking-[0.16em] text-[#2D63F0]">
               US MEDICAL OUTREACH
             </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#0B1736]">
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#141A3A]">
               English Hospital Demonstration Assembly
             </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5F6B7C]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#545C70]">
               After collecting only the public English text, diagnosing the structure, and checking which blocks Andy will use,
               Create a private 14-day preview. Patient information, reviews, translations, and new efficacy statements are not included.
             </p>
           </div>
-          <div className="rounded-xl bg-[#EEF4FF] p-3 text-[#174DDA]">
+          <div className="rounded-xl bg-[#EEF4FF] p-3 text-[#2D63F0]">
             <Globe2 size={24} aria-hidden />
           </div>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <label className="block">
             <span className="text-sm font-semibold text-[#22304A]">Target hospital URL</span>
@@ -216,7 +216,7 @@ export function UsDemoPipeline() {
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="https://clinic.example.com"
-              className="mt-2 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2.5 text-sm outline-none ring-[#174DDA] focus:ring-2"
+              className="mt-2 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2.5 text-sm outline-none ring-[#2D63F0] focus:ring-2"
             />
           </label>
           <button
@@ -230,13 +230,13 @@ export function UsDemoPipeline() {
               ))
             }
             onClick={runCrawl}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#174DDA] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#2D63F0] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
           >
             {status === 'crawling' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
             Collect and Diagnose
           </button>
         </div>
-        <label className="mt-3 inline-flex items-center gap-2 text-xs text-[#667085]">
+        <label className="mt-3 inline-flex items-center gap-2 text-xs text-[#6a7286]">
           <input
             type="checkbox"
             checked={allowTlsHttpFallback}
@@ -301,7 +301,7 @@ export function UsDemoPipeline() {
                 className="mt-1 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
               />
             </label>
-            <p className="text-xs leading-5 text-[#667085] sm:col-span-2">
+            <p className="text-xs leading-5 text-[#6a7286] sm:col-span-2">
               The scope of consent is fixed to demo-by-email. robots·Once per second·Identifiable crawler UA remains the same.
             </p>
           </div>
@@ -316,29 +316,29 @@ export function UsDemoPipeline() {
       {detail && (
         <>
           <section className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <article className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
+            <article className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={18} className="text-emerald-600" aria-hidden />
-                <h2 className="font-bold text-[#0B1736]">Collect safety records</h2>
+                <h2 className="font-bold text-[#141A3A]">Collect safety records</h2>
               </div>
               <dl className="mt-4 grid gap-3 text-sm">
                 <div>
-                  <dt className="text-xs text-[#667085]">public pages read</dt>
+                  <dt className="text-xs text-[#6a7286]">public pages read</dt>
                   <dd className="mt-1 font-semibold">{detail.artifact.visitedUrls.length} items</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#667085]">Storage expiration</dt>
+                  <dt className="text-xs text-[#6a7286]">Storage expiration</dt>
                   <dd className="mt-1">{new Date(detail.artifact.expiresAt).toLocaleString('ko-KR')}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#667085]">English text sufficiency</dt>
+                  <dt className="text-xs text-[#6a7286]">English text sufficiency</dt>
                   <dd className="mt-1 font-semibold">
                     {detail.artifact.usDemo.englishSourceReady ? "Compilable" : "Lack of original text — production halted"}
                   </dd>
                 </div>
                 {detail.artifact.crawlCoverage ? (
                   <div>
-                    <dt className="text-xs text-[#667085]">Consent Crawl Coverage</dt>
+                    <dt className="text-xs text-[#6a7286]">Consent Crawl Coverage</dt>
                     <dd className="mt-1 font-semibold">
                       {detail.artifact.crawlCoverage.crawledPages}
                       {' / '}
@@ -347,7 +347,7 @@ export function UsDemoPipeline() {
                   </div>
                 ) : null}
               </dl>
-              <details className="mt-4 text-xs text-[#5F6B7C]">
+              <details className="mt-4 text-xs text-[#545C70]">
                 <summary className="cursor-pointer font-semibold">View visit URL</summary>
                 <ul className="mt-2 space-y-1 break-all">
                   {detail.artifact.visitedUrls.map((visitedUrl) => (
@@ -357,15 +357,15 @@ export function UsDemoPipeline() {
               </details>
             </article>
 
-            <article className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
+            <article className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-[#667085]">American Medical Outreach Diagnosis</p>
-                  <h2 className="mt-1 text-xl font-bold text-[#0B1736]">
+                  <p className="text-xs text-[#6a7286]">American Medical Outreach Diagnosis</p>
+                  <h2 className="mt-1 text-xl font-bold text-[#141A3A]">
                     {detail.artifact.usDemo.sourceVisibility.score} / 100
                   </h2>
                 </div>
-                <span className="text-xs text-[#667085]">
+                <span className="text-xs text-[#6a7286]">
                   Server HTML structure read by search and AI
                 </span>
               </div>
@@ -376,7 +376,7 @@ export function UsDemoPipeline() {
                   ];
                   return (
                     <div key={group} className="rounded-lg bg-[#F4F7FB] p-3">
-                      <p className="text-[11px] leading-4 text-[#667085]">{label}</p>
+                      <p className="text-[11px] leading-4 text-[#6a7286]">{label}</p>
                       <p className="mt-1 text-sm font-bold text-[#22304A]">
                         {score.earned}/{score.weight}
                       </p>
@@ -387,15 +387,15 @@ export function UsDemoPipeline() {
             </article>
           </section>
 
-          <section className="rounded-2xl border border-[#DCE4F0] bg-white p-5 shadow-sm">
+          <section className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="font-bold text-[#0B1736]">Public original text manual closure</h2>
-                <p className="mt-1 text-sm text-[#667085]">
+                <h2 className="font-bold text-[#141A3A]">Public original text manual closure</h2>
+                <p className="mt-1 text-sm text-[#6a7286]">
                   You can just select the original text and change the order. You cannot rewrite or translate sentences.
                 </p>
               </div>
-              <span className="rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#174DDA]">
+              <span className="rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#2D63F0]">
                 Select {includedIds.size} / {orderedBlocks.length}
               </span>
             </div>
@@ -419,7 +419,7 @@ export function UsDemoPipeline() {
                       <span className="text-xs font-bold text-[#22304A]">
                         {BLOCK_KIND_LABELS[block.kind]}
                       </span>
-                      <span className="rounded bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-[#667085]">
+                      <span className="rounded bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-[#6a7286]">
                         {block.disposition === 'allowed'
                           ? "available"
                           : block.disposition === 'review'
@@ -428,7 +428,7 @@ export function UsDemoPipeline() {
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-[#22304A]">{block.text}</p>
-                    <p className="mt-2 truncate text-[11px] text-[#667085]">
+                    <p className="mt-2 truncate text-[11px] text-[#6a7286]">
                       {block.sourceUrl} · SHA {block.originalSha256.slice(0, 12)}
                     </p>
                     {block.violations.map((violation) => (
@@ -463,7 +463,7 @@ export function UsDemoPipeline() {
 
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3 border-t border-[#E8EEF6] pt-4">
               <div className="space-y-2">
-                <p className="flex items-center gap-2 text-xs text-[#667085]">
+                <p className="flex items-center gap-2 text-xs text-[#6a7286]">
                   <LockKeyhole size={14} aria-hidden />
                   Both modes will be index blocked and will result in a 404 after 14 days.
                 </p>

@@ -33,8 +33,8 @@ function IconBtn({
         onClick(e);
       }}
       className={cn(
-        'flex h-6 w-6 items-center justify-center rounded text-[#667085] transition-colors disabled:opacity-30',
-        danger ? 'hover:bg-red-50 hover:text-red-700' : 'hover:bg-[#E8EDF5] hover:text-[#26354D]',
+        'flex h-6 w-6 items-center justify-center rounded text-[#6a7286] transition-colors disabled:opacity-30',
+        danger ? 'hover:bg-red-50 hover:text-red-700' : 'hover:bg-[#E8EDF5] hover:text-[#232C52]',
       )}
     >
       {children}
@@ -53,11 +53,11 @@ export function PageListPanel() {
   const navCount = pages.filter((p) => p.showInNav !== false).length;
 
   return (
-    <div className="border-b border-[#DCE4F0]">
+    <div className="border-b border-[#DFE1E6]">
       <div className="flex items-center gap-2 px-4 py-3">
-        <FileText className="h-3.5 w-3.5 text-[#667085]" />
+        <FileText className="h-3.5 w-3.5 text-[#6a7286]" />
         <span className="text-xs font-semibold text-[#344054]">page</span>
-        <span className="text-[11px] text-[#667085] tabular-nums">{pages.length}</span>
+        <span className="text-[11px] text-[#6a7286] tabular-nums">{pages.length}</span>
         <button
           type="button"
           title="Add page"
@@ -65,7 +65,7 @@ export function PageListPanel() {
             const id = store().addPage("new page");
             setRenaming(id);
           }}
-          className="ml-auto flex h-6 w-6 items-center justify-center rounded text-[#5F6B7C] transition-colors hover:bg-[#E8EDF5] hover:text-[#0B1736]"
+          className="ml-auto flex h-6 w-6 items-center justify-center rounded text-[#545C70] transition-colors hover:bg-[#E8EDF5] hover:text-[#141A3A]"
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
@@ -81,7 +81,7 @@ export function PageListPanel() {
                 onClick={() => store().selectPage(page.id)}
                 className={cn(
                   'group flex cursor-pointer items-center gap-1.5 rounded-lg border px-2 py-1.5 transition-colors',
-                  active ? 'border-[#9DB7EB] bg-[#EDF4FF]/60' : 'border-transparent hover:border-[#DCE4F0] hover:bg-white',
+                  active ? 'border-[#9DB7EB] bg-[#EAEFFE]/60' : 'border-transparent hover:border-[#DFE1E6] hover:bg-white',
                 )}
               >
                 <div className="min-w-0 flex-1">
@@ -98,7 +98,7 @@ export function PageListPanel() {
                         if (e.key === 'Enter') e.currentTarget.blur();
                         if (e.key === 'Escape') setRenaming(null);
                       }}
-                      className="w-full rounded border border-[#CAD5E5] bg-white px-1.5 py-0.5 text-xs text-[#0B1736] outline-none focus:border-[#174DDA]"
+                      className="w-full rounded border border-[#D9DAE0] bg-white px-1.5 py-0.5 text-xs text-[#141A3A] outline-none focus:border-[#2D63F0]"
                     />
                   ) : (
                     <div
@@ -106,12 +106,12 @@ export function PageListPanel() {
                         e.stopPropagation();
                         setRenaming(page.id);
                       }}
-                      className="truncate text-xs text-[#26354D]"
+                      className="truncate text-xs text-[#232C52]"
                     >
                       {page.title}
                     </div>
                   )}
-                  <div className="truncate text-[10px] text-[#667085]">{isHome ? "home · /" : `/${page.slug}`}</div>
+                  <div className="truncate text-[10px] text-[#6a7286]">{isHome ? "home · /" : `/${page.slug}`}</div>
                 </div>
                 <div className="flex shrink-0 items-center opacity-60 group-hover:opacity-100">
                   <IconBtn
@@ -144,9 +144,9 @@ export function PageListPanel() {
       {/* 선택 페이지 주소(slug) 편집 — 홈은 '/' 고정 */}
       {selected && selected.slug !== '' ? (
         <div className="px-3 pb-3">
-          <label className="mb-1 block text-[10px] text-[#667085]">Address (lowercase letters, numbers, hyphens)</label>
+          <label className="mb-1 block text-[10px] text-[#6a7286]">Address (lowercase letters, numbers, hyphens)</label>
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-[#667085]">/</span>
+            <span className="text-[11px] text-[#6a7286]">/</span>
             <input
               key={`${selected.id}-${selected.slug}`}
               defaultValue={slugEdit ?? selected.slug}
@@ -159,15 +159,15 @@ export function PageListPanel() {
                 if (e.key === 'Enter') e.currentTarget.blur();
               }}
               className={cn(
-                'h-7 flex-1 rounded border bg-white px-2 text-xs text-[#0B1736] outline-none focus:border-[#174DDA]',
+                'h-7 flex-1 rounded border bg-white px-2 text-xs text-[#141A3A] outline-none focus:border-[#2D63F0]',
                 slugEdit != null && slugEdit !== selected.slug && (!isValidPageSlug(slugEdit.trim().toLowerCase()) || slugEdit.trim() === '')
                   ? 'border-red-800'
-                  : 'border-[#CAD5E5]',
+                  : 'border-[#D9DAE0]',
               )}
             />
           </div>
           {navCount >= 2 ? null : (
-            <p className="mt-1 text-[10px] text-[#667085]">The navigation is automatically displayed when there are two or more displayed pages.</p>
+            <p className="mt-1 text-[10px] text-[#6a7286]">The navigation is automatically displayed when there are two or more displayed pages.</p>
           )}
         </div>
       ) : null}

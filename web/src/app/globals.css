@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * Shared document defaults. `body` below is loaded by the tenant (`app/s`) and
+ * share-preview roots as well as the application, so these two variables and the
+ * `body` rule are a cross-surface contract: changing them repaints customer
+ * documents. The Anaks Labs application surface is set per route group instead
+ * (see `app-typography.ts` and each group layout).
+ */
 :root {
   --background: #f8fbff;
   --foreground: #0b1736;
@@ -13,21 +20,22 @@
 }
 
 /*
- * Anaks Labs application theme tokens.
+ * Anaks Labs application theme tokens — the anakslabs.com identity
+ * (`../website/assets/site.css`): --bg #F6F7F9 · --ink #141A3A · --blue #2D63F0.
  * ob-* names remain as internal compatibility identifiers.
  */
 @theme {
-  --color-ob-bg: #f8fbff;
+  --color-ob-bg: #f6f7f9;
   --color-ob-surface: #ffffff;
-  --color-ob-ink: #0b1736;
-  --color-ob-muted: #5f6b7c;
-  --color-ob-border: #dce4f0;
-  --color-ob-accent: #174dda;
-  --color-ob-accent-strong: #123fb7;
-  --color-ob-accent-soft: #eef5ff;
-  --color-ob-cyan: #08afc5;
-  --color-ob-mint: #03bfa9;
-  --color-ob-success: #087d70;
+  --color-ob-ink: #141a3a;
+  --color-ob-muted: #545c70;
+  --color-ob-border: #dfe1e6;
+  --color-ob-accent: #2d63f0;
+  --color-ob-accent-strong: #1e4bd1;
+  --color-ob-accent-soft: #eaeffe;
+  --color-ob-cyan: #4d7cff;
+  --color-ob-mint: #2d63f0;
+  --color-ob-success: #10714f;
   --color-ob-danger: #b42318;
   --radius-ob: 0.75rem;
 }
@@ -36,6 +44,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * Anaks Labs application surface. Applied to <body> by the (auth), (dashboard),
+ * (admin) and (marketing) route groups only — never by the tenant or share-preview
+ * roots, which must keep rendering each customer's own theme fonts and colors.
+ * The stack mirrors `--sans` in ../website/assets/site.css.
+ */
+.anakslabs-app {
+  background: #f6f7f9;
+  color: #141a3a;
+  font-family: var(--font-anaks-sans), "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Apple SD Gothic Neo", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /*

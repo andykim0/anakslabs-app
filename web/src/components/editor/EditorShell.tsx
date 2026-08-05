@@ -153,7 +153,7 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#F8FBFF] text-[#0B1736]">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#F6F7F9] text-[#141A3A]">
       <Toolbar
         siteName={siteName}
         exitHref={exitHref}
@@ -167,8 +167,8 @@ export function EditorShell({ siteId, siteName, initialConfig, tier, aiEditAvail
         <CanvasStage />
 
         {/* 우측 패널: 디자인 / AI 탭 */}
-        <aside className="flex w-80 shrink-0 flex-col border-l border-[#DCE4F0] bg-[#F8FBFF]">
-          <div className="flex shrink-0 border-b border-[#DCE4F0] p-1.5">
+        <aside className="flex w-80 shrink-0 flex-col border-l border-[#DFE1E6] bg-[#F6F7F9]">
+          <div className="flex shrink-0 border-b border-[#DFE1E6] p-1.5">
             <TabButton active={tab === 'design'} onClick={() => selectTab('design')} icon={<Palette className="h-3.5 w-3.5" />}>
               design
             </TabButton>
@@ -226,7 +226,7 @@ function TabButton({
       onClick={onClick}
       className={cn(
         'flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md text-xs font-medium transition-colors',
-        active ? 'bg-[#E8EDF5] text-[#0B1736]' : 'text-[#5F6B7C] hover:text-[#26354D]',
+        active ? 'bg-[#E8EDF5] text-[#141A3A]' : 'text-[#545C70] hover:text-[#232C52]',
       )}
     >
       {icon}

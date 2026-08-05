@@ -19,19 +19,19 @@ export default function ClinicPage() {
     <article className="bg-white text-[#16202b]">
       <section className="px-5 py-24 sm:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <p className="mkt-type-eyebrow font-semibold uppercase tracking-[0.14em] text-[#1466a5]">For clinics</p>
+          <p className="mkt-type-eyebrow font-semibold uppercase tracking-[0.14em] text-[#2d63f0]">For clinics</p>
           <h1 className="mkt-type-page-title mt-5 max-w-4xl font-semibold tracking-[-0.055em]">A clinic website that starts with evidence, not filler.</h1>
-          <p className="mkt-type-body mt-6 max-w-2xl text-[#59636e]">Anaks Labs rebuilds verified clinic information into clear service pages, provider pathways, structured data, and measurable inquiry routes.</p>
-          <Link href="/login" className="mkt-type-control mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-[#1466a5] px-6 font-semibold text-white">Open your workspace <ArrowRight className="h-4 w-4" aria-hidden /></Link>
+          <p className="mkt-type-body mt-6 max-w-2xl text-[#545c70]">Anaks Labs rebuilds verified clinic information into clear service pages, provider pathways, structured data, and measurable inquiry routes.</p>
+          <Link href="/login" className="mkt-type-control mt-8 inline-flex h-12 items-center gap-2 rounded-md bg-[#2d63f0] px-6 font-semibold text-white">Open your workspace <ArrowRight className="h-4 w-4" aria-hidden /></Link>
         </div>
       </section>
       <section className="bg-[#f4f7fa] px-5 py-20 sm:px-8 md:py-28">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-3">
           {STEPS.map(([number, title, body]) => (
             <section key={number} className="border-t border-[#cad5df] pt-6">
-              <p className="mkt-type-eyebrow font-semibold text-[#1466a5]">{number}</p>
+              <p className="mkt-type-eyebrow font-semibold text-[#2d63f0]">{number}</p>
               <h2 className="mkt-type-card-title mt-5 font-semibold">{title}</h2>
-              <p className="mkt-type-body mt-3 text-[#59636e]">{body}</p>
+              <p className="mkt-type-body mt-3 text-[#545c70]">{body}</p>
             </section>
           ))}
         </div>

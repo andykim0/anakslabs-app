@@ -19,11 +19,11 @@ const DELIVERABLES = [
 
 export default function MarketingHome() {
   return (
-    <article className="bg-[#f7f9fb] text-[#13202c]">
-      <section className="relative overflow-hidden border-b border-[#dce4eb] bg-white px-5 py-24 sm:px-8 md:py-32">
+    <article className="bg-[#f7f9fb] text-[#141a3a]">
+      <section className="relative overflow-hidden border-b border-[#dfe1e6] bg-white px-5 py-24 sm:px-8 md:py-32">
         <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
           <div>
-            <p className="mkt-type-eyebrow font-semibold uppercase tracking-[0.14em] text-[#1466a5]">
+            <p className="mkt-type-eyebrow font-semibold uppercase tracking-[0.14em] text-[#2d63f0]">
               Clinic website operations
             </p>
             <h1 className="mkt-type-page-title mt-5 max-w-4xl font-semibold tracking-[-0.055em]">
@@ -33,15 +33,15 @@ export default function MarketingHome() {
               We preserve your verified services, provider details, locations, and policies, then rebuild the information into clear pages for patients and search systems. No invented claims and no empty template sections.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/login" className="mkt-type-control inline-flex h-12 items-center gap-2 rounded-md bg-[#1466a5] px-6 font-semibold text-white">
+              <Link href="/login" className="mkt-type-control inline-flex h-12 items-center gap-2 rounded-md bg-[#2d63f0] px-6 font-semibold text-white">
                 Open your workspace <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-              <Link href="/clinic" className="mkt-type-control inline-flex h-12 items-center rounded-md border border-[#b9c7d2] px-6 font-semibold text-[#243443]">
+              <Link href="/clinic" className="mkt-type-control inline-flex h-12 items-center rounded-md border border-[#d9dae0] px-6 font-semibold text-[#243443]">
                 See how it works
               </Link>
             </div>
           </div>
-          <div className="grid gap-4 border border-[#dce4eb] bg-[#f4f7fa] p-7 sm:grid-cols-2">
+          <div className="grid gap-4 border border-[#dfe1e6] bg-[#f4f7fa] p-7 sm:grid-cols-2">
             {[
               { icon: FileSearch, title: 'Source-grounded', body: 'Every factual block remains tied to its source.' },
               { icon: LayoutTemplate, title: 'Content-led', body: 'The pages and layouts follow the material you have.' },
@@ -49,7 +49,7 @@ export default function MarketingHome() {
               { icon: Check, title: 'Operational', body: 'Hosting, edits, reporting, and publishing stay in one system.' },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="border-t border-[#cbd6df] pt-5">
-                <Icon className="h-5 w-5 text-[#1466a5]" aria-hidden />
+                <Icon className="h-5 w-5 text-[#2d63f0]" aria-hidden />
                 <h2 className="mkt-type-card-title mt-4 font-semibold">{title}</h2>
                 <p className="mkt-type-support mt-2 text-[#65717c]">{body}</p>
               </div>

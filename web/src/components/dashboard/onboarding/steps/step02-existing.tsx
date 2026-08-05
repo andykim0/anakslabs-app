@@ -335,7 +335,7 @@ export function Step02Existing() {
                 type="checkbox"
                 checked={owned}
                 onChange={(e) => setOwned(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[#174DDA]"
+                className="mt-0.5 h-4 w-4 accent-[#2D63F0]"
               />
                       <span>I own or manage this page.</span>
             </label>

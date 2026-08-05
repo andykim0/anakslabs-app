@@ -48,7 +48,7 @@ function Trend({ metric }: { metric: ReportMetric }) {
     return <span className="text-[11px] text-[#8B9AB0]">No basis for comparison</span>;
   }
   if (metric.changePercent === 0) {
-    return <span className="text-[11px] text-[#667085]">Same as previous month</span>;
+    return <span className="text-[11px] text-[#6a7286]">Same as previous month</span>;
   }
   const increased = metric.changePercent > 0;
   const Icon = increased ? TrendingUp : TrendingDown;
@@ -56,7 +56,7 @@ function Trend({ metric }: { metric: ReportMetric }) {
     <span
       className={cn(
         'inline-flex items-center gap-0.5 text-[11px] font-medium',
-        increased ? 'text-[#087D70]' : 'text-[#B42318]',
+        increased ? 'text-[#10714F]' : 'text-[#B42318]',
       )}
     >
       <Icon className="h-3 w-3" aria-hidden="true" />
@@ -75,16 +75,16 @@ function MetricCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#DCE4F0] bg-[#F8FBFF] p-4">
-      <div className="flex items-center gap-2 text-xs font-medium text-[#5F6B7C]">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EDF4FF] text-[#174DDA]">
+    <div className="rounded-xl border border-[#DFE1E6] bg-[#F6F7F9] p-4">
+      <div className="flex items-center gap-2 text-xs font-medium text-[#545C70]">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EAEFFE] text-[#2D63F0]">
           {icon}
         </span>
         {label}
       </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-[#0B1736]">
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-[#141A3A]">
         {formatCount(metric.current)}
-        <span className="ml-1 text-xs font-normal text-[#667085]">events</span>
+        <span className="ml-1 text-xs font-normal text-[#6a7286]">events</span>
       </p>
       <div className="mt-1"><Trend metric={metric} /></div>
     </div>
@@ -111,23 +111,23 @@ function ReportCard({
   return (
     <article aria-labelledby={headingId}>
       <Card className="p-0 overflow-hidden">
-        <div className="border-b border-[#E8EEF6] bg-gradient-to-r from-[#F7FAFF] to-[#F0FCF9] px-5 py-4 sm:px-6">
+        <div className="border-b border-[#E8EEF6] bg-gradient-to-r from-[#F7F8FB] to-[#EFF3FE] px-5 py-4 sm:px-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 id={headingId} className="text-base font-semibold text-[#0B1736]">
+                <h2 id={headingId} className="text-base font-semibold text-[#141A3A]">
                   {siteName}
                 </h2>
                 <DeliveryBadge record={record} />
               </div>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#667085]">
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-[#6a7286]">
                 <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                 {monthLabel(record.periodMonth)} · generated {formatDate(record.createdAt)}
               </p>
             </div>
             <a
               href={`/dashboard/sites/${record.siteId}`}
-              className="inline-flex items-center gap-1 text-xs font-medium text-[#174DDA] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-[#2D63F0] hover:underline"
             >
               View site <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </a>
@@ -136,8 +136,8 @@ function ReportCard({
 
         <div className="space-y-6 px-5 py-5 sm:px-6">
           {!report.hasComparisonData ? (
-            <div className="rounded-xl border border-[#BBD0FA] bg-[#EDF4FF] px-4 py-3">
-              <p className="text-sm font-medium text-[#174DDA]">This is the first comparison period.</p>
+            <div className="rounded-xl border border-[#BBD0FA] bg-[#EAEFFE] px-4 py-3">
+              <p className="text-sm font-medium text-[#2D63F0]">This is the first comparison period.</p>
               <p className="mt-1 text-xs leading-5 text-[#475467]">
                 {report.hasCurrentData
                   ? "This month’s performance was calculated normally. Starting with the next report, we will show you a comparison from the previous month."
@@ -147,7 +147,7 @@ function ReportCard({
           ) : null}
 
           <section aria-labelledby={`${headingId}-metrics`}>
-            <h3 id={`${headingId}-metrics`} className="mb-3 text-sm font-semibold text-[#26354D]">
+            <h3 id={`${headingId}-metrics`} className="mb-3 text-sm font-semibold text-[#232C52]">
               Key activity
             </h3>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -177,7 +177,7 @@ function ReportCard({
               />
             </div>
             {connectorMetrics ? (
-              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#667085]">
+              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6a7286]">
                 <span>Chat clicks {formatCount(connectorMetrics.chatClicks.current)}</span>
                 <span>Form submissions {formatCount(report.metrics.formSubmissions.current)}</span>
                 <span>Booking clicks {formatCount(report.metrics.reservationClicks.current)}</span>
@@ -187,7 +187,7 @@ function ReportCard({
                 </span>
               </p>
             ) : (
-              <p className="mt-3 text-xs text-[#667085]">
+              <p className="mt-3 text-xs text-[#6a7286]">
                 Form submissions {formatCount(report.metrics.formSubmissions.current)}
               </p>
             )}
@@ -196,26 +196,26 @@ function ReportCard({
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(240px,.65fr)]">
             <section
               aria-labelledby={`${headingId}-sources`}
-              className="rounded-xl border border-[#DCE4F0] p-4"
+              className="rounded-xl border border-[#DFE1E6] p-4"
             >
-              <h3 id={`${headingId}-sources`} className="text-sm font-semibold text-[#26354D]">
+              <h3 id={`${headingId}-sources`} className="text-sm font-semibold text-[#232C52]">
                 Traffic sources
               </h3>
               {sourcesWithTraffic.length === 0 ? (
-                <p className="mt-3 text-xs text-[#667085]">No measured traffic sources yet.</p>
+                <p className="mt-3 text-xs text-[#6a7286]">No measured traffic sources yet.</p>
               ) : (
                 <dl className="mt-4 space-y-3">
                   {sourcesWithTraffic.map((source) => (
                     <div key={source.source}>
                       <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
                         <dt className="font-medium text-[#475467]">{source.label}</dt>
-                        <dd className="text-[#667085]">
+                        <dd className="text-[#6a7286]">
                           {formatCount(source.count)} · {source.sharePercent}%
                         </dd>
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full bg-[#E8EEF6]">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-[#174DDA] to-[#03A995]"
+                          className="h-full rounded-full bg-gradient-to-r from-[#2D63F0] to-[#4D7CFF]"
                           style={{ width: `${source.sharePercent}%` }}
                         />
                       </div>
@@ -227,9 +227,9 @@ function ReportCard({
 
             <section
               aria-labelledby={`${headingId}-insight`}
-              className="rounded-xl border border-[#A8E5D8] bg-[#F1FCF9] p-4"
+              className="rounded-xl border border-[#C4E3D2] bg-[#F2F9F5] p-4"
             >
-              <p className="text-[11px] font-semibold tracking-wide text-[#087D70]">MONTHLY NOTE</p>
+              <p className="text-[11px] font-semibold tracking-wide text-[#10714F]">MONTHLY NOTE</p>
               <h3 id={`${headingId}-insight`} className="mt-2 text-sm leading-6 font-semibold text-[#163D3A]">
                 {report.insight}
               </h3>
