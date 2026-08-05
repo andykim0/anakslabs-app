@@ -35,6 +35,7 @@ export interface DemoViewClientPayload {
   sessionId?: string;
   openedAt: string;
   localHour: number;
+  /** Visitor browser-reported context; unrelated to the server-owned SiteMeta.timezone. */
   timezone: string;
   activeSeconds: number;
   maxScrollPct: number;
@@ -58,6 +59,7 @@ export interface DemoViewStoredInput {
   hashKeyVersion: number;
   openedAt: string;
   localHour: number;
+  /** Visitor browser-reported context; unrelated to the server-owned SiteMeta.timezone. */
   timezone: string;
   activeSeconds: number;
   maxScrollPct: number;

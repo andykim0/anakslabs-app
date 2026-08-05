@@ -655,17 +655,39 @@ export type MotionScene =
   | BeforeAfterScrubScene
   | HorizontalStoryScene;
 
+/**
+ * US tenant civil-time contract. Keep this closed list explicit: Phoenix and Honolulu do not
+ * observe DST, and accepting arbitrary ICU-dependent IANA strings would make validation vary by
+ * runtime. A timezone is fixed when the site is issued; a future correction requires republishing
+ * the site and must not be exposed as an ordinary editor mutation.
+ */
+export const US_SITE_TIMEZONES = [
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Phoenix',
+  'America/Los_Angeles',
+  'America/Anchorage',
+  'Pacific/Honolulu',
+] as const;
+
+export type UsSiteTimezone = (typeof US_SITE_TIMEZONES)[number];
+
+export const DEFAULT_US_SITE_TIMEZONE: UsSiteTimezone = 'America/Los_Angeles';
+
 export interface SiteMeta {
   title: string;
   description?: string;
   ogImage?: string;
   /**
-   * US additive locale contract. Locale and jurisdiction are the complete server-owned
-   * classification; omitted means the existing legacy renderer contract.
+   * US additive locale contract. Locale, jurisdiction, and timezone are the complete server-owned
+   * regional classification; omission means the existing legacy renderer contract.
    * legacy rows are never backfilled so their JSON and HTML remain byte-identical.
    */
   locale?: 'en-US';
   jurisdiction?: 'US';
+  /** Server-owned creation-time timezone. Legacy/KR configs omit this field. */
+  timezone?: UsSiteTimezone;
   /**
    * [제품 확정] 생성 시점의 목적(SitePurposeId 값) — 서빙 시 JSON-LD @type을 목적으로 결정한다
    * (PURPOSE_SCHEMA_MAP). 계약이 데이터 모듈을 역참조하지 않도록 motion.presetId처럼 string으로 둔다.

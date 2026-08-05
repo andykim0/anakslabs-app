@@ -18,7 +18,11 @@ import {
   usTenantLegalDocumentsRequired,
   usTermsOfService,
 } from '@/lib/legal/templates';
-import { emptySiteConfig, type BusinessInfo } from '@/lib/types/site';
+import {
+  DEFAULT_US_SITE_TIMEZONE,
+  emptySiteConfig,
+  type BusinessInfo,
+} from '@/lib/types/site';
 import { checkPublish } from '@/lib/publish/preflight';
 
 const BUSINESS_INFO: BusinessInfo = {
@@ -48,24 +52,38 @@ describe('US tenant legal publication boundary', () => {
     assert.throws(() => usTermsOfService(config), UsTenantLegalDocumentsPendingError);
   });
 
-  test('new-site issuance pins en-US + US jurisdiction and repairs a stored half-pin without mutation', () => {
+  test('new-site issuance pins en-US + US jurisdiction + timezone and repairs a stored half-pin without mutation', () => {
     const legacy = emptySiteConfig('Stored legacy config');
     assert.equal(legacy.meta.locale, undefined);
     const issued = pinUsTenantLocaleForNewSite(legacy);
     assert.equal(legacy.meta.locale, undefined);
     assert.equal(issued.meta.locale, 'en-US');
     assert.equal(issued.meta.jurisdiction, 'US');
+    assert.equal(issued.meta.timezone, DEFAULT_US_SITE_TIMEZONE);
 
     const halfPinned = emptySiteConfig('Stored half-pin');
     halfPinned.meta.locale = 'en-US';
+    halfPinned.meta.jurisdiction = 'US';
     const repaired = pinUsTenantLocaleForNewSite(halfPinned);
     assert.notEqual(repaired, halfPinned);
-    assert.equal(halfPinned.meta.jurisdiction, undefined);
+    assert.equal(halfPinned.meta.timezone, undefined);
     assert.deepEqual(
-      { locale: repaired.meta.locale, jurisdiction: repaired.meta.jurisdiction },
-      { locale: 'en-US', jurisdiction: 'US' },
+      {
+        locale: repaired.meta.locale,
+        jurisdiction: repaired.meta.jurisdiction,
+        timezone: repaired.meta.timezone,
+      },
+      {
+        locale: 'en-US',
+        jurisdiction: 'US',
+        timezone: DEFAULT_US_SITE_TIMEZONE,
+      },
     );
     assert.equal(pinUsTenantLocaleForNewSite(repaired), repaired);
+
+    const newYork = pinUsTenantLocaleForNewSite(legacy, 'America/New_York');
+    assert.equal(newYork.meta.timezone, 'America/New_York');
+    assert.equal(pinUsTenantLocaleForNewSite(newYork), newYork);
     assert.doesNotThrow(() => assertUsTenantLegalDocumentsReady({
       ...issued,
       businessInfo: BUSINESS_INFO,

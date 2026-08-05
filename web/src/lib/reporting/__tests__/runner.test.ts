@@ -87,6 +87,46 @@ describe('RPT2 monthly report runner', () => {
     assert.equal(record.report.metrics.phoneClicks.current, 1);
   });
 
+  test('selects report periods per site and defaults an unpinned US row to Los Angeles', async () => {
+    const ctx = setup();
+    const usSite: typeof ctx.site = {
+      ...ctx.site,
+      id: 'us-timezone-site',
+      name: 'US timezone site',
+      siteConfig: {
+        ...ctx.site.siteConfig!,
+        meta: {
+          ...ctx.site.siteConfig!.meta,
+          locale: 'en-US',
+          jurisdiction: 'US',
+        },
+      },
+    };
+    getMockStore().sites.set(usSite.id, usSite);
+    const queries: string[] = [];
+    const result = await runMonthlyReportsCore({
+      ...ctx.dependencies,
+      listSites: async () => [ctx.site, usSite],
+      listSiteEvents: async (input) => {
+        queries.push(`${input.siteId}:${input.fromDate}:${input.toDate}`);
+        return [];
+      },
+    }, new Date('2026-08-01T00:15:00.000Z'));
+
+    assert.equal(result.periodMonth, '2026-07');
+    assert.deepEqual(queries.sort(), [
+      `${HWARODAM_SITE_ID}:2026-06-01:2026-07-01`,
+      `${HWARODAM_SITE_ID}:2026-07-01:2026-08-01`,
+      'us-timezone-site:2026-05-01:2026-06-01',
+      'us-timezone-site:2026-06-01:2026-07-01',
+    ].sort());
+    const records = await ctx.reports.listByClient({ clientId: DEMO_PREMIUM_ID });
+    assert.deepEqual(
+      records.map((record) => `${record.siteId}:${record.periodMonth}`).sort(),
+      [`${HWARODAM_SITE_ID}:2026-07`, 'us-timezone-site:2026-06'].sort(),
+    );
+  });
+
   test('inactive authoritative subscription generates no report or email', async () => {
     const ctx = setup({ active: false });
     const result = await runMonthlyReportsCore(ctx.dependencies, NOW);

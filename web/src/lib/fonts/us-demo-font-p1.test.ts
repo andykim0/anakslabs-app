@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { siteConfigSchema, siteThemeSchema } from '@/app/api/_lib/schemas';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
 import { DESIGN_DNA_IDS } from '@/lib/design/dna/types';
-import { emptySiteConfig } from '@/lib/types/site';
+import { emptySiteConfig, US_SITE_TIMEZONES } from '@/lib/types/site';
 import { initializeEditor, useEditorStore } from '@/stores/editor';
 import {
   applyLatinFontPairing,
@@ -133,8 +133,20 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
       title: 'Sample Clinic',
       locale: 'en-US',
       jurisdiction: 'US',
+      timezone: 'America/New_York',
     };
     assert.deepEqual(siteConfigSchema.parse(usConfig).meta, usConfig.meta);
+    for (const timezone of US_SITE_TIMEZONES) {
+      const parsed = siteConfigSchema.parse({
+        ...usConfig,
+        meta: { ...usConfig.meta, timezone },
+      });
+      assert.equal(parsed.meta.timezone, timezone);
+    }
+    assert.throws(() => siteConfigSchema.parse({
+      ...usConfig,
+      meta: { ...usConfig.meta, timezone: 'America/Toronto' },
+    }));
     const parsedFormerMarket = siteConfigSchema.parse({
       ...usConfig,
       meta: { ...usConfig.meta, market: 'US-CA' },

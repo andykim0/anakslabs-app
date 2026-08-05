@@ -1,8 +1,9 @@
 import type { Client, Site } from '@/lib/types/domain';
 import type { SiteEventAggregate as StoredSiteEventAggregate } from '@/lib/data/types';
+import { DEFAULT_US_SITE_TIMEZONE } from '@/lib/types/site';
 import { buildMonthlyReportEmail } from './email';
 import { buildMonthlyPerformanceReport } from './monthly-report';
-import { previousMonthRangesKst } from './period';
+import { previousMonthRangesInTimeZone, previousMonthRangesKst } from './period';
 import type {
   MonthlyReportRecord,
   MonthlyReportsRepository,
@@ -206,10 +207,10 @@ export async function runMonthlyReportsCore(
   now: Date = new Date(),
   options: MonthlyReportRunOptions = {},
 ): Promise<MonthlyReportRunSummary> {
-  const periods = previousMonthRangesKst(now);
+  const legacyPeriods = previousMonthRangesKst(now);
   const sites = await dependencies.listSites();
   const summary: MonthlyReportRunSummary = {
-    periodMonth: periods.report.month,
+    periodMonth: legacyPeriods.report.month,
     inspectedSites: sites.length,
     eligibleSites: 0,
     createdReports: 0,
@@ -248,6 +249,13 @@ export async function runMonthlyReportsCore(
         return;
       }
       summary.eligibleSites += 1;
+
+      const periods = site.siteConfig?.meta.locale === 'en-US'
+        ? previousMonthRangesInTimeZone(
+          site.siteConfig.meta.timezone ?? DEFAULT_US_SITE_TIMEZONE,
+          now,
+        )
+        : legacyPeriods;
 
       const [current, previous] = await Promise.all([
         dependencies.listSiteEvents({
