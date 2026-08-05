@@ -8,11 +8,13 @@ import {
   Globe2,
   LayoutDashboard,
   LogOut,
+  Menu,
   Newspaper,
   ReceiptText,
   Server,
   ShieldAlert,
   Users,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,11 +35,41 @@ const NAV_ITEMS = [
   { href: '/admin/infra', label: 'Infrastructure', icon: Server, exact: false },
 ] as const;
 
+/** 사이드바와 모바일 드로어가 공유하는 내비 링크 — NAV_ITEMS 선언은 한 곳뿐이다. */
+function AdminNavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  return (
+    <>
+      {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
+        const active = exact ? pathname === href : pathname.startsWith(href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            onClick={onNavigate}
+            aria-current={active ? 'page' : undefined}
+            className={clsx(
+              'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors',
+              active
+                ? 'bg-gradient-to-r from-[#EAEFFE] to-[#F2F5FE] font-semibold text-[#2D63F0] ring-1 ring-inset ring-[#CBD8FB]'
+                : 'text-[#545C70] hover:bg-[#F1F6FC] hover:text-[#141A3A]',
+            )}
+          >
+            <Icon size={15} aria-hidden />
+            {label}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
+
 /** 관리자 콘솔 셸 — Anaks Labs 라이트 앱 크롬. ADMIN 표기를 항상 노출한다. */
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
+  // 좁은 화면 드로어. 이동은 링크 onClick(closeMenu)이 직접 닫는다.
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -49,72 +81,89 @@ export function AdminShell({ children }: { children: ReactNode }) {
     window.location.href = '/login';
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
+  const sidebarContent = (
+    <>
+      <div className="flex flex-col items-start gap-2 px-4 py-4">
+        <Link
+          href="/admin"
+          aria-label="Administrator Dashboard Home"
+          onClick={closeMenu}
+          className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D63F0]"
+        >
+          <BrandLogo />
+        </Link>
+        <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
+          ADMIN
+        </span>
+      </div>
+
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 pt-1" aria-label="Administrator Menu">
+        <AdminNavLinks pathname={pathname} onNavigate={closeMenu} />
+      </nav>
+
+      <div className="border-t border-[#E8EEF6] px-2 py-3">
+        <button
+          type="button"
+          onClick={() => {
+            closeMenu();
+            setConfirmingLogout(true);
+          }}
+          disabled={loggingOut}
+          aria-busy={loggingOut}
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[#545C70] transition-colors hover:bg-[#F1F6FC] hover:text-[#141A3A] disabled:cursor-wait disabled:opacity-60"
+        >
+          <LogOut size={15} aria-hidden />
+          {loggingOut ? 'Logging out…' : 'Log out'}
+        </button>
+        <p className="mt-2 flex items-center gap-1.5 px-2.5 text-[11px] text-[#6a7286]">
+          <ShieldAlert size={12} aria-hidden />
+          Administrator-only console
+        </p>
+      </div>
+    </>
+  );
+
   return (
     <div className="flex min-h-screen w-full bg-[#F6F7F9] text-[#141A3A]">
-      <aside className="fixed inset-y-0 left-0 z-30 flex w-52 flex-col border-r border-[#DFE1E6] bg-white text-[#475467]">
-        <div className="flex flex-col items-start gap-2 px-4 py-4">
-          <Link
-            href="/admin"
-            aria-label="Administrator Dashboard Home"
-            className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D63F0]"
-          >
-            <BrandLogo />
-          </Link>
-          <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
-            ADMIN
-          </span>
-        </div>
-
-        <nav className="flex-1 space-y-0.5 px-2 pt-1" aria-label="Administrator Menu">
-          {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
-            const active = exact ? pathname === href : pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                className={clsx(
-                  'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors',
-                  active
-                    ? 'bg-gradient-to-r from-[#EAEFFE] to-[#F2F5FE] font-semibold text-[#2D63F0] ring-1 ring-inset ring-[#CBD8FB]'
-                    : 'text-[#545C70] hover:bg-[#F1F6FC] hover:text-[#141A3A]',
-                )}
-              >
-                <Icon size={15} aria-hidden />
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="border-t border-[#E8EEF6] px-2 py-3">
-          <button
-            type="button"
-            onClick={() => setConfirmingLogout(true)}
-            disabled={loggingOut}
-            aria-busy={loggingOut}
-            className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[#545C70] transition-colors hover:bg-[#F1F6FC] hover:text-[#141A3A] disabled:cursor-wait disabled:opacity-60"
-          >
-            <LogOut size={15} aria-hidden />
-            {loggingOut ? 'Logging out…' : 'Log out'}
-          </button>
-          <p className="mt-2 flex items-center gap-1.5 px-2.5 text-[11px] text-[#6a7286]">
-            <ShieldAlert size={12} aria-hidden />
-            Administrator-only console
-          </p>
-        </div>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-52 flex-col border-r border-[#DFE1E6] bg-white text-[#475467] md:flex">
+        {sidebarContent}
       </aside>
 
-      <div className="ml-52 flex min-h-screen w-full flex-col">
-        <header className="sticky top-0 z-20 flex h-11 items-center justify-between border-b border-[#DFE1E6] bg-white/90 px-5 backdrop-blur-xl">
-          <p className="text-xs font-medium text-[#6a7286]">
+      {menuOpen ? (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <button
+            type="button"
+            aria-label="Close administrator menu"
+            onClick={closeMenu}
+            className="absolute inset-0 h-full w-full bg-[#141A3A]/40"
+          />
+          <div className="absolute inset-y-0 left-0 flex w-60 max-w-[82vw] flex-col border-r border-[#DFE1E6] bg-white text-[#475467] shadow-xl">
+            {sidebarContent}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-52">
+        <header className="sticky top-0 z-20 flex h-11 items-center justify-between gap-3 border-b border-[#DFE1E6] bg-white/90 px-4 backdrop-blur-xl md:px-5">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open administrator menu"
+            aria-expanded={menuOpen}
+            className="-ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#545C70] transition-colors hover:bg-[#F1F6FC] hover:text-[#141A3A] md:hidden"
+          >
+            {menuOpen ? <X size={16} aria-hidden /> : <Menu size={16} aria-hidden />}
+          </button>
+          <p className="hidden truncate text-xs font-medium text-[#6a7286] sm:block">
             Internal operating systems — handle customer data with care
           </p>
-          <span className="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
+          <span className="ml-auto shrink-0 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
             ADMIN
           </span>
         </header>
-        <main className="w-full flex-1 px-5 py-5">{children}</main>
+        <main className="w-full min-w-0 flex-1 px-4 py-5 md:px-5">{children}</main>
       </div>
       <LogoutConfirmDialog
         open={confirmingLogout}

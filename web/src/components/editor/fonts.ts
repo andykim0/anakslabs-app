@@ -20,11 +20,11 @@ export interface FontOption {
 
 /** 첫 순위 패밀리별 한국어 표시명 (없으면 패밀리명 그대로) */
 const FAMILY_LABELS: Record<string, string> = {
-  Pretendard: "Fritendad (Modern Gothic)",
+  Pretendard: "Pretendard (modern sans)",
   'Playfair Display': "Playfair Display (classic serif)",
   'Cormorant Garamond': "Cormorant Garamond (luxury serif)",
-  'Song Myung': "Song Myeong (traditional Ming Dynasty)",
-  'Gowun Batang': "Fine background (soft tones)",
+  'Song Myung': "Song Myung (serif)",
+  'Gowun Batang': "Gowun Batang (soft serif)",
   'Bodoni Moda': "Bodoni Moda (high fashion serif)",
   'Abril Fatface': "Abril Fatface (retro display)",
   'Space Grotesk': "Space Grotesk (Tech Sans)",
@@ -34,12 +34,12 @@ const FAMILY_LABELS: Record<string, string> = {
   Lora: "Lora (wellness serif)",
   'IBM Plex Sans KR': "IBM Plex Sans KR (Trust Gothic)",
   'EB Garamond': "EB Garamond (Classic Garamond)",
-  Cinzel: "Cinzel (Dignity Capital)",
+  Cinzel: "Cinzel (roman capitals)",
   Syne: "Syne (avant-garde sans)",
   Caveat: "Caveat (handwriting)",
   'Barlow Condensed': "Barlow Condensed (Athletic Condensed)",
-  Hahmlet: "Hamlet (Editorial Myeongjo)",
-  'Gowun Dodum': "Goun Dotum (Text Gothic)",
+  Hahmlet: "Hahmlet (editorial serif)",
+  'Gowun Dodum': "Gowun Dodum (soft sans)",
   'Noto Serif KR': "Noto Serif KR (Myeongjo)",
   'Noto Sans KR': "Noto Sans KR (Gothic)",
 };

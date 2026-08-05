@@ -49,7 +49,7 @@ export function ClientsTable() {
     <>
       <PageHeader
         title="customer"
-        description={data ? `gun${formatNumber(data.length)}number of people` : undefined}
+        description={data ? `${formatNumber(data.length)} customers` : undefined}
         actions={
           <div className="flex items-center gap-2">
             <div className="relative">

@@ -22,10 +22,10 @@ import {
 import { FULFILLMENT_SLA_BUSINESS_DAYS } from '@/lib/fulfillment-sla';
 
 function elapsedLabel(hours: number): string {
-  if (hours < 24) return `${formatNumber(hours)}time lapse`;
+  if (hours < 24) return `${formatNumber(hours)}h elapsed`;
   const days = Math.floor(hours / 24);
   const remainder = hours % 24;
-  return remainder ? `${formatNumber(days)} days${formatNumber(remainder)}time lapse` : `${formatNumber(days)}days elapsed`;
+  return remainder ? `${formatNumber(days)}d ${formatNumber(remainder)}h elapsed` : `${formatNumber(days)}d elapsed`;
 }
 
 function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
@@ -50,7 +50,7 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
             <Badge tone={EDIT_STATUS_TONES[item.status]}>{EDIT_STATUS_LABELS[item.status]}</Badge>
             <Badge tone="blue">{EDIT_TYPE_LABELS[item.type]}</Badge>
-            {item.overdue ? <Badge tone="red">atmosphere {FULFILLMENT_SLA_BUSINESS_DAYS}over business days</Badge> : null}
+            {item.overdue ? <Badge tone="red">over {FULFILLMENT_SLA_BUSINESS_DAYS} business days</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">{item.clientName}</p>
         </div>
@@ -74,11 +74,11 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
           <span className="inline-flex items-center gap-1.5 text-slate-600">
             <WalletCards size={13} aria-hidden />
             {item.creditCharged
-              ? `Ledger Sequencing${formatNumber(item.netCreditCharge)}credits`
-              : "No sense of ledger order"}
+              ? `${formatNumber(item.netCreditCharge)} credits charged to the ledger`
+              : "Nothing charged to the ledger"}
           </span>
           <span className="text-[11px] text-slate-400">
-            Related Ledger {formatNumber(item.ledgerEntryCount)}line
+            {formatNumber(item.ledgerEntryCount)} related ledger entries
           </span>
           {item.isInitialRevision ? <Badge tone="green">Initial free fix</Badge> : null}
         </div>
@@ -134,7 +134,7 @@ export function EditQueue() {
     <>
       <PageHeader
         title="Modification Agency Queue"
-        description={query.data ? `Incomplete request${formatNumber(query.data.items.length)}It displays the oldest requests first.` : undefined}
+        description={query.data ? `${formatNumber(query.data.items.length)} open requests, oldest first.` : undefined}
         actions={
           <button
             type="button"
@@ -150,8 +150,8 @@ export function EditQueue() {
 
       {query.data?.integrity.missingCount ? (
         <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          source request {formatNumber(query.data.integrity.sourceCount)}Requests missing from queue{' '}
-          {formatNumber(query.data.integrity.missingCount)}There is something.
+          {formatNumber(query.data.integrity.missingCount)} of{' '}
+          {formatNumber(query.data.integrity.sourceCount)} source requests are missing from this queue.
         </p>
       ) : null}
 

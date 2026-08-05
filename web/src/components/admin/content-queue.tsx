@@ -84,7 +84,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="font-semibold text-slate-900">
-              {version?.title ?? `${item.periodMonth.slice(0, 7)}content${item.ordinal}`}
+              {version?.title ?? `${item.periodMonth.slice(0, 7)} post #${item.ordinal}`}
             </h2>
             <Badge tone={STATUS_TONES[item.status]}>{STATUS_LABELS[item.status]}</Badge>
             <Badge tone="blue">/{item.slug}</Badge>
@@ -262,7 +262,7 @@ export function ContentQueue() {
       />
       {query.data?.integrity.missingCount ? (
         <p role="alert" className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          Among the original posts, items are missing from the cue projection. {formatNumber(query.data.integrity.missingCount)}There is something.
+          {formatNumber(query.data.integrity.missingCount)} source posts are missing from this queue projection.
         </p>
       ) : null}
       {query.isPending ? (

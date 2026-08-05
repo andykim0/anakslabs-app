@@ -15,9 +15,13 @@ import { apiError } from './http';
  */
 export const MOCK_SESSION_COOKIE = 'anaks_mock_session';
 
-/** mock 로그인 역할 → mock client id 매핑 */
+/**
+ * mock 로그인 역할 → mock client id 매핑.
+ * premium('Demo: clinic owner')은 미국 치과 데모 워크스페이스(demo-clinic)로 들어간다 —
+ * 화로담(demo-premium)은 KO 레거시 데모라 로그인 착지 대상이 아니다.
+ */
 export const MOCK_CLIENT_IDS = {
-  premium: 'demo-premium',
+  premium: 'demo-clinic',
   basic: 'demo-basic',
   admin: 'admin',
 } as const;

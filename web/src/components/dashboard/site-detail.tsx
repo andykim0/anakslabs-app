@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   Download,
   ExternalLink,
   Globe,
@@ -217,7 +216,7 @@ function BackupCard({ site }: { site: Site }) {
       toast(
         warned ? 'info' : 'success',
         warned
-          ? `Backup creation complete — some asset warnings${result.warnings!.length}Gun (maintain original link)`
+          ? `Backup created — ${result.warnings!.length} asset warnings (original links kept)`
           : "Your backup is ready. Download it below.",
       );
     },
@@ -532,7 +531,7 @@ export function SiteDetail({
             description="The site has been deleted or you do not have access to it."
             action={
               <Link href="/dashboard" className="text-sm text-[#c8a96a] hover:underline">
-                Return to My Site List
+                Go to my site
               </Link>
             }
           />
@@ -557,13 +556,7 @@ export function SiteDetail({
 
   return (
     <div>
-      <Link
-        href="/dashboard"
-        className="mb-4 inline-flex items-center gap-1 text-xs text-neutral-500 transition-colors hover:text-neutral-300"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />my site
-      </Link>
-
+      {/* 사이트 목록이 없어졌으므로(클라이언트당 1개) 돌아갈 상위 목록도 없다 */}
       <PageHeader
         title={site.name}
         description={`generation${formatDate(site.createdAt)}${site.publishedAt ? `· Recently published${formatDateTime(site.publishedAt)}` : "· Before publication"}`}
