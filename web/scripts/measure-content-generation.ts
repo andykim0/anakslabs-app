@@ -17,7 +17,13 @@ const model = process.argv[2];
 const outputPath = resolve(
   process.argv[3] ?? `/private/tmp/content-generation/${model || 'missing-model'}.json`,
 );
-if (!model) throw new Error('Usage: measure-content-generation.ts <model> [output.json]');
+/** Metrics and article text are read by different people, so they get separate files. */
+const postsPath = resolve(
+  process.argv[4] ?? outputPath.replace(/\.json$/u, '-posts.json'),
+);
+if (!model) {
+  throw new Error('Usage: measure-content-generation.ts <model> [output.json] [posts.json]');
+}
 
 const snapshot: ContentSourceSnapshot = {
   version: 1,
@@ -261,9 +267,35 @@ const report = {
   results,
 };
 
+// The full article text, separated from the metrics so it can be read on its own.
+// `fallback: true` entries are the fixed safe-catalog checklist, not generated writing.
+const posts = {
+  measuredAt: report.measuredAt,
+  model,
+  note: 'Full generated article text. Entries with fallback true are the fixed safe-catalog post, not model output.',
+  articles: results.map((result) => ({
+    slug: result.slug,
+    topic: result.topic,
+    topicClass: result.topicClass,
+    attempt: result.attempt,
+    fallback: result.fallback,
+    blockCount: result.blockCount ?? null,
+    tableCount: result.tableCount ?? null,
+    post: result.post ?? null,
+  })),
+};
+
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-console.log(JSON.stringify({ completed: true, model, outputPath, summary: report.summary }));
+mkdirSync(dirname(postsPath), { recursive: true });
+writeFileSync(postsPath, `${JSON.stringify(posts, null, 2)}\n`, 'utf8');
+console.log(JSON.stringify({
+  completed: true,
+  model,
+  outputPath,
+  postsPath,
+  summary: report.summary,
+}));
 }
 
 void main().catch((error: unknown) => {
