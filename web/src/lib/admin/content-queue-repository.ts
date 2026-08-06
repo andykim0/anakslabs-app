@@ -19,6 +19,7 @@ import {
   type ContentSlotProvisionInput,
   type ContentSlotProvisionResult,
 } from './content-queue-core';
+import { CONTENT_REWORK_REFUSAL_MESSAGES } from './content-rework-policy';
 import { MockContentQueueRepository } from './content-queue-repository-mock';
 
 const POST_COLUMNS = [
@@ -33,8 +34,19 @@ const POST_COLUMNS = [
   'current_version_id',
   'published_version_id',
   'published_at',
+  'pending_version_id',
   'created_at',
   'updated_at',
+].join(',');
+
+/**
+ * The queue is every non-terminal row plus the published rows carrying a staged rework (0060).
+ * Additive by construction: the existing status list is untouched, and a published row without a
+ * staged version is as absent from the queue as it always was.
+ */
+const QUEUE_FILTER = [
+  `status.in.(${ADMIN_CONTENT_QUEUE_STATUSES.join(',')})`,
+  'and(status.eq.published,pending_version_id.not.is.null)',
 ].join(',');
 
 const VERSION_COLUMNS = [
@@ -58,6 +70,7 @@ type AdminPostRow = ContentPostRow & {
   pricing_model_version: string;
   period_month: string;
   ordinal: number;
+  pending_version_id: string | null;
   created_at: string;
 };
 
@@ -68,6 +81,20 @@ type AdminVersionRow = ContentPostVersionRow & {
 
 function queueError(error: { message: string; details?: string | null }, operation: string): Error {
   const detail = `${error.message} ${error.details ?? ''}`;
+  // Checked ahead of the generic families below: both rework refusals name a specific reason the
+  // operator can act on, and both would otherwise be flattened into "input is invalid".
+  if (/safe-catalog swap refused/u.test(detail)) {
+    return new ContentQueueError(
+      'CONTENT_POST_SAFE_CATALOG_REFUSED',
+      CONTENT_REWORK_REFUSAL_MESSAGES.safe_catalog,
+    );
+  }
+  if (/public projection precheck failed/u.test(detail)) {
+    return new ContentQueueError(
+      'CONTENT_POST_POLICY_BLOCKED',
+      CONTENT_REWORK_REFUSAL_MESSAGES.public_projection,
+    );
+  }
   if (/not found/u.test(detail)) {
     return new ContentQueueError('CONTENT_POST_NOT_FOUND', 'Content post not found.');
   }
@@ -122,12 +149,15 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
   }
 
   private async projectPosts(rows: readonly AdminPostRow[]): Promise<AdminContentQueueItem[]> {
-    const versionIds = rows.flatMap((row) =>
-      row.current_version_id ? [row.current_version_id] : []);
+    const versionIds = rows.flatMap((row) => [
+      ...(row.current_version_id ? [row.current_version_id] : []),
+      ...(row.pending_version_id ? [row.pending_version_id] : []),
+    ]);
     const versions = await this.versionsFor(versionIds);
     return rows.flatMap((row) => {
       const version = row.current_version_id ? versions.get(row.current_version_id) ?? null : null;
-      const item = projectAdminContentItem(row, version);
+      const pending = row.pending_version_id ? versions.get(row.pending_version_id) ?? null : null;
+      const item = projectAdminContentItem(row, version, pending);
       return item ? [item] : [];
     });
   }
@@ -136,7 +166,7 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
     const { data, error } = await getServiceRoleClient()
       .from('content_posts')
       .select(POST_COLUMNS)
-      .in('status', [...ADMIN_CONTENT_QUEUE_STATUSES])
+      .or(QUEUE_FILTER)
       .order('updated_at', { ascending: true })
       .limit(normalizeContentQueueLimit(limit));
     if (error) throw new Error(`content queue list failed: ${error.message}`);
@@ -147,7 +177,7 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
     const { count, error } = await getServiceRoleClient()
       .from('content_posts')
       .select('id', { count: 'exact', head: true })
-      .in('status', [...ADMIN_CONTENT_QUEUE_STATUSES]);
+      .or(QUEUE_FILTER);
     if (error) throw new Error(`content queue count failed: ${error.message}`);
     return count ?? 0;
   }
@@ -311,8 +341,14 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
       },
     );
     if (error) throw queueError(error, 'content post approval');
-    const result = parseRpcObject(data, 'content post approval');
-    const item = await this.getById(input.id);
+    return this.publishResult(input.id, parseRpcObject(data, 'content post approval'));
+  }
+
+  private async publishResult(
+    id: string,
+    result: Record<string, unknown>,
+  ): Promise<ContentPublishResult> {
+    const item = await this.getById(id);
     if (!item) throw new ContentQueueError('CONTENT_POST_NOT_FOUND', 'Content post not found.');
     const site = result.site;
     const siteDomain = site && typeof site === 'object' && !Array.isArray(site)
@@ -320,6 +356,57 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
       ? (site as Record<string, unknown>).domain as string
       : null;
     return { item, siteDomain, duplicated: result.duplicated === true };
+  }
+
+  async claimRework(input: { id: string; actorId: string }): Promise<AdminContentQueueItem> {
+    const { error } = await getServiceRoleClient().rpc('claim_content_post_rework', {
+      p_content_post_id: input.id,
+      p_actor_id: input.actorId,
+    });
+    if (error) throw queueError(error, 'content rework claim');
+    const item = await this.getById(input.id);
+    if (!item) throw new ContentQueueError('CONTENT_POST_NOT_FOUND', 'Content post not found.');
+    return item;
+  }
+
+  async storeReworkVersion(
+    input: Parameters<ContentQueueRepository['storeReworkVersion']>[0],
+  ): Promise<AdminContentQueueItem> {
+    const generated = input.generated;
+    const { error } = await getServiceRoleClient().rpc('store_content_post_rework_version', {
+      p_content_post_id: input.id,
+      p_actor_id: input.actorId,
+      p_title: generated.post.title,
+      p_summary: generated.post.summary,
+      p_tags: [...generated.post.tags],
+      p_document: generated.post.document,
+      p_source_snapshot: generated.sourceSnapshot,
+      p_source_snapshot_sha256: generated.sourceSnapshotSha256,
+      p_source_refs: [...generated.sourceRefs],
+      p_policy_versions: generated.policyVersions,
+      p_validation_evidence: generated.validationEvidence,
+      p_generation_metadata: generated.generationMetadata,
+    });
+    if (error) throw queueError(error, 'content rework version store');
+    const item = await this.getById(input.id);
+    if (!item) throw new ContentQueueError('CONTENT_POST_NOT_FOUND', 'Content post not found.');
+    return item;
+  }
+
+  async approveAndSwap(
+    input: Parameters<ContentQueueRepository['approveAndSwap']>[0],
+  ): Promise<ContentPublishResult> {
+    const { data, error } = await getServiceRoleClient().rpc('approve_and_swap_content_post', {
+      p_content_post_id: input.id,
+      p_expected_version_id: input.expectedVersionId,
+      p_actor_id: input.actorId,
+      p_source_snapshot_sha256: input.sourceSnapshotSha256,
+      p_honesty_policy_version: input.honestyPolicyVersion,
+      p_medical_policy_version: input.medicalPolicyVersion,
+      p_validated_document_sha256: input.validatedDocumentSha256,
+    });
+    if (error) throw queueError(error, 'content rework swap');
+    return this.publishResult(input.id, parseRpcObject(data, 'content rework swap'));
   }
 }
 

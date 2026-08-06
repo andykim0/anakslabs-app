@@ -47,8 +47,23 @@ export interface AdminContentQueueItem {
   /** Published pointer. Only ever set together, and only while status is published. */
   publishedVersionId: string | null;
   publishedAt: string | null;
+  /**
+   * Rework staged against an already-published post (0060). Deliberately a separate field rather
+   * than an overwrite of `currentVersion`: this projection is shared by the admin queue, the
+   * customer blog screen and the fulfillment counters, and `currentVersion` means one thing
+   * everywhere — the version `current_version_id` points at, which is the one the customer's site
+   * is serving right now. Loading a staged rework into it would count an unapproved post as
+   * delivered and show its title on the customer's dashboard before anyone approved it.
+   */
+  pendingVersionId: string | null;
+  pendingVersion: AdminContentQueueVersion | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** A published row whose replacement is staged and waiting for an operator decision. */
+export function hasStagedRework(item: AdminContentQueueItem): boolean {
+  return item.status === 'published' && item.pendingVersionId !== null;
 }
 
 export interface ContentGenerationClaim {
@@ -138,6 +153,24 @@ export interface ContentQueueRepository {
     medicalPolicyVersion: string;
     validatedDocumentSha256: string;
   }): Promise<ContentPublishResult>;
+  /** Opens a rework on a published post. The status and both serving pointers stay put. */
+  claimRework(input: { id: string; actorId: string }): Promise<AdminContentQueueItem>;
+  /** Stages a replacement version. The live post keeps serving its current version. */
+  storeReworkVersion(input: {
+    id: string;
+    actorId: string;
+    generated: GeneratedContentPostVersion;
+  }): Promise<AdminContentQueueItem>;
+  /** Moves both serving pointers onto the staged version in one step, or refuses. */
+  approveAndSwap(input: {
+    id: string;
+    expectedVersionId: string;
+    actorId: string;
+    sourceSnapshotSha256: string;
+    honestyPolicyVersion: string;
+    medicalPolicyVersion: string;
+    validatedDocumentSha256: string;
+  }): Promise<ContentPublishResult>;
 }
 
 export type ContentQueueErrorCode =
@@ -145,7 +178,9 @@ export type ContentQueueErrorCode =
   | 'CONTENT_POST_STATE_CONFLICT'
   | 'CONTENT_POST_SOURCE_CONFLICT'
   | 'CONTENT_POST_POLICY_BLOCKED'
-  | 'CONTENT_POST_INPUT_INVALID';
+  | 'CONTENT_POST_INPUT_INVALID'
+  /** A staged rework is the generator's own fallback copy; swapping it in republishes boilerplate. */
+  | 'CONTENT_POST_SAFE_CATALOG_REFUSED';
 
 export class ContentQueueError extends Error {
   constructor(readonly code: ContentQueueErrorCode, message: string) {
@@ -227,8 +262,11 @@ export function projectAdminContentItem(
     period_month?: string;
     ordinal?: number;
     created_at?: string;
+    /** 0060. Absent on callers that predate rework, which is the same thing as unstaged. */
+    pending_version_id?: string | null;
   },
   version: AdminContentQueueVersion | null,
+  pendingVersion: AdminContentQueueVersion | null = null,
 ): AdminContentQueueItem | null {
   if (
     !isContentPostStatus(row.status)
@@ -239,6 +277,10 @@ export function projectAdminContentItem(
     return null;
   }
   if (row.current_version_id && (!version || version.id !== row.current_version_id)) return null;
+  const pendingVersionId = row.pending_version_id ?? null;
+  // Same discipline as the current pointer: a row pointing at a version this projection could not
+  // load is dropped whole rather than shown with a pointer that resolves to nothing.
+  if (pendingVersionId && (!pendingVersion || pendingVersion.id !== pendingVersionId)) return null;
   return {
     id: row.id,
     clientId: row.client_id,
@@ -252,6 +294,8 @@ export function projectAdminContentItem(
     currentVersion: version,
     publishedVersionId: row.published_version_id,
     publishedAt: row.published_at,
+    pendingVersionId,
+    pendingVersion: pendingVersionId ? pendingVersion : null,
     createdAt: row.created_at ?? row.updated_at,
     updatedAt: row.updated_at,
   };
