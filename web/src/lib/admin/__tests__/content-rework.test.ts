@@ -276,6 +276,27 @@ describe('PUBLISHED-REWORK — a staged rework is invisible to the customer', ()
     );
   });
 
+  test('the public projection says nothing changed, because nothing did', async () => {
+    // Found live: staging used to bump `updated_at`, which the tenant page publishes as the
+    // article's schema.org dateModified. The article had not been modified — a draft had been
+    // written — so the page was making a false public statement, and search engines read it.
+    const { repository, fallback } = await monthWithFallbackSlot();
+    const before = (await servedPost(repository, fallback.slug))!;
+
+    await stageRework(repository, fallback.id);
+    const during = (await servedPost(repository, fallback.slug))!;
+    assert.deepEqual(
+      [during.title, during.summary, during.publishedAt, during.updatedAt, during.versionId],
+      [before.title, before.summary, before.publishedAt, before.updatedAt, before.versionId],
+      'a staged rework must not alter one field of what the public boundary serves',
+    );
+
+    const staged = (await repository.getById(fallback.id))!;
+    await swap(repository, staged);
+    const after = (await servedPost(repository, fallback.slug))!;
+    assert.notEqual(after.updatedAt, before.updatedAt, 'the swap is what earns a new timestamp');
+  });
+
   test('the delivered counter reads the served version, not the staged one', async () => {
     // The staged version is a real generation and the served one is the fallback. If the counter
     // ever read the staged version, this month would report the rework as delivered early.

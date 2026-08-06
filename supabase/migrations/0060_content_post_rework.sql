@@ -113,11 +113,8 @@ begin
       using errcode = '40001';
   end if;
 
-  update public.content_posts
-  set updated_at = now()
-  where id = v_post.id
-  returning * into v_post;
-
+  -- The row itself is not touched, `updated_at` included: it is published as the article's
+  -- dateModified, and at this moment nothing about the article has been modified.
   insert into public.content_post_events (
     content_post_id,
     content_post_version_id,
@@ -253,10 +250,11 @@ begin
   returning * into v_version;
 
   -- Only the staging pointer moves. current_version_id and published_version_id keep serving the
-  -- version the customer's site is showing right now.
+  -- version the customer's site is showing right now, and `updated_at` stays where it is because
+  -- the public projection publishes it as the article's dateModified — a staged draft has not
+  -- modified the article. The swap is what earns a new timestamp.
   update public.content_posts
-  set pending_version_id = v_version.id,
-      updated_at = now()
+  set pending_version_id = v_version.id
   where id = v_post.id
   returning * into v_post;
 

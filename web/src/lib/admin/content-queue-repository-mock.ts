@@ -290,8 +290,8 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     if (item.status !== 'published' || item.pendingVersionId !== null) {
       throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Rework state conflict.');
     }
+    // The row is untouched, `updatedAt` included — it is published as the article's dateModified.
     const now = new Date().toISOString();
-    item.updatedAt = now;
     this.slotEvents.push({
       contentPostId: item.id,
       clientId: item.clientId,
@@ -316,7 +316,8 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     const version = this.appendVersion(item, input.generated);
     item.pendingVersionId = version.id;
     item.pendingVersion = version;
-    item.updatedAt = new Date().toISOString();
+    // `updatedAt` is deliberately not bumped: the public projection carries it as the article's
+    // dateModified, and staging a draft has not modified the article.
     return structuredClone(item);
   }
 
