@@ -11,6 +11,6 @@ type Ctx = { params: Promise<{ id: string }> };
 export const GET = withApiHandler<Ctx>(async (_request, { params }) => {
   const { id } = await params;
   const scan = await getDataServices().scans.getById(id);
-  if (!scan || isScanExpired(scan.createdAt)) return apiError(404, 'SCAN_NOT_FOUND', '진단 결과를 찾을 수 없습니다.');
+  if (!scan || isScanExpired(scan.createdAt)) return apiError(404, 'SCAN_NOT_FOUND', 'Scan result not found.');
   return NextResponse.json({ scan });
 });

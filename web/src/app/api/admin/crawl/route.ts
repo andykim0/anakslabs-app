@@ -70,18 +70,18 @@ export const POST = withApiHandler(async (request) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 식별 정보를 확인할 수 없습니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'The administrator identity could not be resolved.');
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
   if (rateLimited(actorId)) {
-    return apiError(429, 'RATE_LIMITED', '지정 URL 수집 요청이 너무 잦습니다.');
+    return apiError(429, 'RATE_LIMITED', 'Too many collection requests for this URL.');
   }
   const origin = originFor(body.data.url);
-  if (!origin) return apiError(400, 'INVALID_URL', '올바른 URL을 입력해 주세요.');
+  if (!origin) return apiError(400, 'INVALID_URL', 'Enter a valid URL.');
   const globalStore = globalThis as GlobalWithCrawlGuard;
   const active = (globalStore[ACTIVE_KEY] ??= new Set());
   if (active.has(origin)) {
-    return apiError(409, 'CRAWL_ALREADY_RUNNING', '같은 사이트를 이미 수집하고 있습니다.');
+    return apiError(409, 'CRAWL_ALREADY_RUNNING', 'This site is already being collected.');
   }
   active.add(origin);
   try {
@@ -122,7 +122,7 @@ export const POST = withApiHandler(async (request) => {
       return apiError(error.code === 'RENDER_FAILED' ? 503 : 400, error.code, error.message);
     }
     if (error instanceof Error && error.message === 'US_MEDICAL_CONSENT_REQUIRED') {
-      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
+      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', 'A verifiable record of verbal consent is required.');
     }
     throw error;
   } finally {

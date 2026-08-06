@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import {
+  loginUrlForRequestedPath,
+  REQUESTED_PATH_HEADER,
+} from '@/lib/auth/requested-path';
 import type { ReactNode } from 'react';
 import '@/app/globals.css';
 import {
@@ -27,7 +32,9 @@ export const metadata: Metadata = {
 /** /admin 전체 가드 — 관리자가 아니면 로그인으로 보낸다. */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const admin = await isAdmin();
-  if (!admin) redirect('/login?next=/admin');
+  if (!admin) {
+    redirect(loginUrlForRequestedPath((await headers()).get(REQUESTED_PATH_HEADER), '/admin'));
+  }
 
   return (
     <html lang="en" className={`${APP_ROOT_HTML_CLASS_NAME} ${APP_BRAND_FONT_CLASS_NAME}`}>

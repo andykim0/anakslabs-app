@@ -74,8 +74,11 @@ describe('ADM-fix post-login redirect contract', () => {
     const adminLayout = read('src/app/(admin)/admin/layout.tsx');
     const dashboardLayout = read('src/app/(dashboard)/layout.tsx');
 
-    assert.match(adminLayout, /redirect\('\/login\?next=\/admin'\)/);
+    // Both guards now carry the requested path instead of naming their area root, so the
+    // destination is the page the visitor asked for. resolvePostLoginRedirect still decides
+    // whether that path may be followed.
+    assert.match(adminLayout, /loginUrlForRequestedPath\([\s\S]{0,120}'\/admin'/u);
     assert.match(dashboardLayout, /if \(await isAdmin\(\)\) redirect\('\/admin'\)/);
-    assert.match(dashboardLayout, /redirect\('\/login\?next=\/dashboard'\)/);
+    assert.match(dashboardLayout, /loginUrlForRequestedPath\([\s\S]{0,120}'\/dashboard'/u);
   });
 });

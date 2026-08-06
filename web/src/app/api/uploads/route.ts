@@ -49,7 +49,7 @@ export const POST = withApiHandler(async (request) => {
   try {
     form = await request.formData();
   } catch {
-    return apiError(400, 'INVALID_FORM', 'multipart/form-data 형식이 아닙니다.');
+    return apiError(400, 'INVALID_FORM', 'The request is not multipart/form-data.');
   }
 
   const forbiddenClaim = findForbiddenFormAssetClaim(form);
@@ -64,16 +64,16 @@ export const POST = withApiHandler(async (request) => {
 
   const file = form.get('file');
   if (!(file instanceof File)) {
-    return apiError(400, 'NO_FILE', '업로드할 파일(file)이 없습니다.');
+    return apiError(400, 'NO_FILE', 'No file was included in the upload.');
   }
 
   const mime = file.type;
   const ext = ALLOWED[mime];
   if (!ext) {
-    return apiError(400, 'UNSUPPORTED_TYPE', 'PNG·JPG·WEBP·SVG 이미지만 업로드할 수 있습니다.');
+    return apiError(400, 'UNSUPPORTED_TYPE', 'Only PNG, JPG, WEBP and SVG images can be uploaded.');
   }
   if (file.size > MAX_BYTES) {
-    return apiError(400, 'FILE_TOO_LARGE', '파일 크기는 5MB 이하여야 합니다.');
+    return apiError(400, 'FILE_TOO_LARGE', 'Files must be 5MB or smaller.');
   }
 
   const beforeAfterMode = formText(form, 'mode') === 'before-after';
@@ -83,20 +83,20 @@ export const POST = withApiHandler(async (request) => {
 
   if (beforeAfterMode) {
     if (mime === 'image/svg+xml') {
-      return apiError(400, 'BEFORE_AFTER_RASTER_ONLY', '전후 사진은 PNG·JPG·WEBP 이미지만 업로드할 수 있습니다.');
+      return apiError(400, 'BEFORE_AFTER_RASTER_ONLY', 'Before-and-after photos must be PNG, JPG or WEBP images.');
     }
     const caseId = formText(form, 'caseId');
     if (!caseId || caseId.length > 120) {
-      return apiError(400, 'CASE_ID_REQUIRED', '전후 사진을 묶을 caseId가 필요합니다.');
+      return apiError(400, 'CASE_ID_REQUIRED', 'A caseId is required to group before-and-after photos.');
     }
     const usageContextRaw = formText(form, 'usageContext');
     if (!(CUSTOMER_ASSET_CONTEXTS as readonly string[]).includes(usageContextRaw)) {
-      return apiError(400, 'INVALID_USAGE_CONTEXT', '업로드 사용 맥락이 올바르지 않습니다.');
+      return apiError(400, 'INVALID_USAGE_CONTEXT', 'The upload context is not valid.');
     }
     const siteId = formText(form, 'siteId') || null;
     const site = siteId ? await getOwnedSite(siteId, client.id) : null;
     if (siteId && !site) {
-      return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
+      return apiError(404, 'ASSET_SITE_NOT_FOUND', 'No site was found to attach this photo to.');
     }
     const storedConfig = site?.draftConfig ?? site?.siteConfig;
     const beforeAfterConfig = assetProvenanceConfig();
@@ -125,7 +125,7 @@ export const POST = withApiHandler(async (request) => {
         );
       }
       if (policy.code === 'BEFORE_AFTER_SITE_REQUIRED') {
-        return apiError(409, policy.code, '전후 사진은 업종이 확인된 현재 사이트에 연결한 뒤 업로드할 수 있습니다.');
+        return apiError(409, policy.code, 'Before-and-after photos can be uploaded once they are attached to a site with a confirmed industry.');
       }
       if (policy.code === 'BEFORE_AFTER_INDUSTRY_NOT_APPROVED') {
         return apiError(
@@ -136,15 +136,15 @@ export const POST = withApiHandler(async (request) => {
         );
       }
       if (policy.code === 'BEFORE_AFTER_CONTEXT_MISMATCH') {
-        return apiError(400, policy.code, '요청한 전후 사진 맥락이 사이트의 확인된 업종과 일치하지 않습니다.');
+        return apiError(400, policy.code, 'The requested before-and-after context does not match the confirmed industry for this site.');
       }
-      return apiError(400, policy.code, '전후 사진은 현재 뷰티·리모델링 사이트에서만 사용할 수 있습니다.');
+      return apiError(400, policy.code, 'Before-and-after photos are available only on beauty and remodeling sites.');
     }
     if (formText(form, 'rightsAttested') !== 'true') {
-      return apiError(400, 'RIGHTS_ATTESTATION_REQUIRED', '사진의 소유권 또는 사용 권리를 확인해 주세요.');
+      return apiError(400, 'RIGHTS_ATTESTATION_REQUIRED', 'Confirm that you own this photo or hold the right to use it.');
     }
     if (formText(form, 'sameCaseAttested') !== 'true') {
-      return apiError(400, 'SAME_CASE_ATTESTATION_REQUIRED', '같은 실제 고객·공간 case의 사진인지 확인해 주세요.');
+      return apiError(400, 'SAME_CASE_ATTESTATION_REQUIRED', 'Confirm these photos are from the same real customer or space.');
     }
     beforeAfterCaseId = caseId;
     beforeAfterContext = policy.usageContext;
@@ -157,7 +157,7 @@ export const POST = withApiHandler(async (request) => {
 
   if (beforeAfterMode) {
     if (!beforeAfterContext || !beforeAfterCaseId) {
-      return apiError(400, 'INVALID_PROVENANCE_FIELDS', '전후 사진 증빙 정보를 확인하지 못했습니다.');
+      return apiError(400, 'INVALID_PROVENANCE_FIELDS', 'The before-and-after attestation could not be confirmed.');
     }
     let dimensions: { width: number; height: number };
     try {
@@ -238,7 +238,7 @@ export const POST = withApiHandler(async (request) => {
   const siteId = provenance.write ? formText(form, 'siteId') || null : null;
   if (siteId) {
     const site = await getOwnedSite(siteId, client.id);
-    if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
+    if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', 'No site was found to attach this photo to.');
   }
 
   if (isMockMode()) {

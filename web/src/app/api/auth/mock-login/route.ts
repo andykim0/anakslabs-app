@@ -17,7 +17,7 @@ const bodySchema = z.object({
 
 export const POST = withApiHandler(async (request) => {
   if (!isMockMode()) {
-    return apiError(403, 'MOCK_ONLY', 'mock 모드에서만 사용할 수 있는 기능입니다.');
+    return apiError(403, 'MOCK_ONLY', 'This is available in mock mode only.');
   }
 
   const body = await parseBody(request, bodySchema);

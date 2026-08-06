@@ -14,10 +14,10 @@ export const POST = withApiHandler(async (request) => {
 
   const result = await retryMonthlyReport(body.data.reportId);
   if (result.status === 'not_found') {
-    return apiError(404, 'REPORT_NOT_FOUND', '리포트를 찾을 수 없습니다.');
+    return apiError(404, 'REPORT_NOT_FOUND', 'Report not found.');
   }
   if (result.status === 'ineligible') {
-    return apiError(409, 'SUBSCRIPTION_INACTIVE', '활성 사이트 운영 구독이 아닙니다.');
+    return apiError(409, 'SUBSCRIPTION_INACTIVE', 'This is not an active site subscription.');
   }
   if (result.status === 'not_retryable') {
     return apiError(

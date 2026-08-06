@@ -34,7 +34,7 @@ export const POST = withApiHandler(async (request) => {
   const operatorGate = operatorManagedOnboardingApiGate();
   if (operatorGate) return operatorGate;
   if (!limiter().allow(client.id)) {
-    return apiError(429, 'RATE_LIMITED', '입력이 빠르게 바뀌고 있어요. 잠시 뒤 다시 확인해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'The input is changing quickly. Check again in a moment.');
   }
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;

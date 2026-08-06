@@ -58,11 +58,11 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   try {
     json = JSON.parse(raw);
   } catch {
-    return jsonWithCors({ error: { code: 'INVALID_JSON', message: '올바른 JSON이 아닙니다.' } }, { status: 400 });
+    return jsonWithCors({ error: { code: 'INVALID_JSON', message: 'This is not valid JSON.' } }, { status: 400 });
   }
   const parsed = payloadSchema.safeParse(json);
   if (!parsed.success) {
-    const response = apiError(400, 'VALIDATION_ERROR', '허용된 집계 필드만 전송할 수 있습니다.');
+    const response = apiError(400, 'VALIDATION_ERROR', 'Only the permitted aggregate fields may be sent.');
     for (const [name, value] of Object.entries(CORS_HEADERS)) response.headers.set(name, value);
     return response;
   }
@@ -74,13 +74,13 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   const services = getDataServices();
   const site = await services.sites.getById(parsed.data.siteId);
   if (!canCollectSiteEvents(site)) {
-    const response = apiError(404, 'SITE_NOT_FOUND', '발행 사이트를 찾을 수 없습니다.');
+    const response = apiError(404, 'SITE_NOT_FOUND', 'Published site not found.');
     for (const [name, value] of Object.entries(CORS_HEADERS)) response.headers.set(name, value);
     return response;
   }
   // 존재·발행 여부를 통과한 opaque site ID만 limiter 메모리 키가 될 수 있다.
   if (!limiter.allow(parsed.data.siteId)) {
-    const response = apiError(429, 'RATE_LIMITED', '수집 요청이 너무 많습니다.');
+    const response = apiError(429, 'RATE_LIMITED', 'Too many collection requests.');
     for (const [name, value] of Object.entries(CORS_HEADERS)) response.headers.set(name, value);
     return response;
   }

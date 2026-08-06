@@ -85,12 +85,12 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const { siteId } = await params;
   const client = await getAuthedClient();
   if (!client) return unauthorized();
-  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'AI 영상 히어로는 AI 영상 홈페이지 승인이 필요합니다.');
+  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'An AI video hero requires AI video homepage approval.');
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
   const config = site.draftConfig ?? site.siteConfig;
-  if (!config) return apiError(409, 'NO_DRAFT', '초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
+  if (!config) return apiError(409, 'NO_DRAFT', 'There is no draft yet. Edit the site in the editor first.');
 
   const body = await parseBody(request, draftsBody);
   if (!body.ok) return body.res;
@@ -109,14 +109,14 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   }
 
   const ctx = heroVideoContext(config, { tone: body.data.tone, heroPhotoUrl: body.data.heroPhotoUrl });
-  if (!ctx) return apiError(409, 'NO_HERO_IMAGE', '히어로 배경 이미지가 없어 영상을 만들 수 없습니다.');
+  if (!ctx) return apiError(409, 'NO_HERO_IMAGE', 'There is no hero background image, so a video cannot be made.');
 
   // 사이트당 상한 사전 확인 (병렬 레이스 회피 위해 순차 생성)
   const { videoGen } = getDataServices();
   const cfg = videoGenConfig();
   const remaining = cfg.maxPerSite - (await videoGen.countBySite(siteId));
   if (remaining < count) {
-    return apiError(429, 'VIDEO_GEN_SITE_CAP', `이 사이트의 영상 생성 상한(${cfg.maxPerSite}회)에 도달했습니다. 에디터에서 크레딧으로 재생성할 수 있어요.`);
+    return apiError(429, 'VIDEO_GEN_SITE_CAP', `This site reached its video generation limit (${cfg.maxPerSite}). You can regenerate with credits in the editor.`);
   }
 
   const drafts: HeroVideoResult[] = [];
@@ -136,7 +136,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     }
   } catch (error) {
     if (isHeroSourceUnavailableError(error)) {
-      return apiError(409, HERO_SOURCE_UNAVAILABLE, '히어로 시작 이미지를 불러올 수 없어 영상 생성을 중단했습니다.');
+      return apiError(409, HERO_SOURCE_UNAVAILABLE, 'The hero starting image could not be loaded, so video generation stopped.');
     }
     throw error;
   }
@@ -148,12 +148,12 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
   const { siteId } = await params;
   const client = await getAuthedClient();
   if (!client) return unauthorized();
-  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'AI 영상 히어로는 AI 영상 홈페이지 승인이 필요합니다.');
+  if (!hasVideoAddon(client.tier)) return apiError(403, 'VIDEO_GEN_ADDON', 'An AI video hero requires AI video homepage approval.');
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
   const config = site.draftConfig ?? site.siteConfig;
-  if (!config) return apiError(409, 'NO_DRAFT', '초안이 없습니다.');
+  if (!config) return apiError(409, 'NO_DRAFT', 'There is no draft.');
 
   const body = await parseBody(request, applyBody);
   if (!body.ok) return body.res;
@@ -162,7 +162,7 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
   let trustedAssetRef: { assetId: string; url: string } | undefined;
   if (provenance.write) {
     if (!body.data.assetId) {
-      return apiError(422, 'ASSET_PROVENANCE_REQUIRED', '영상 자산의 서버 출처 기록을 확인할 수 없습니다. 시안을 다시 생성해 주세요.');
+      return apiError(422, 'ASSET_PROVENANCE_REQUIRED', 'The server provenance record for this video asset could not be confirmed. Generate the draft again.');
     }
     try {
       const [record] = await resolveOwnedAssetRecords({
@@ -178,10 +178,10 @@ export const PATCH = withApiHandler<Ctx>(async (request: NextRequest, { params }
         throw new Error('The selected video URL does not match its canonical registry record.');
       }
     } catch {
-      return apiError(422, 'ASSET_PROVENANCE_MISMATCH', '영상 자산의 소유권 또는 저장 주소가 일치하지 않습니다.');
+      return apiError(422, 'ASSET_PROVENANCE_MISMATCH', 'The ownership or storage address for this video asset does not match.');
     }
   } else if (body.data.assetId) {
-    return apiError(422, 'ASSET_PROVENANCE_DISABLED', '현재 자산 출처 기록 모드에서는 assetId를 적용할 수 없습니다.');
+    return apiError(422, 'ASSET_PROVENANCE_DISABLED', 'The current asset provenance mode does not accept an assetId.');
   }
 
   const next = applyHeroVideoToConfig(

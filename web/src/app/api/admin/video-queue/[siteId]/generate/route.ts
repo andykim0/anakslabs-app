@@ -46,33 +46,33 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     sites.getById(siteId),
     fulfillments.getBySite(siteId),
   ]);
-  if (!site) return apiError(404, 'SITE_NOT_FOUND', '사이트를 찾을 수 없습니다.');
+  if (!site) return apiError(404, 'SITE_NOT_FOUND', 'Site not found.');
   if (existing) {
-    return apiError(409, 'VIDEO_FULFILLMENT_COMPLETED', '이미 영상 이행이 완료된 사이트입니다.');
+    return apiError(409, 'VIDEO_FULFILLMENT_COMPLETED', 'Video fulfillment is already complete for this site.');
   }
   const client = await clients.getById(site.clientId);
-  if (!client) return apiError(409, 'CLIENT_NOT_FOUND', '사이트 소유 고객을 확인할 수 없습니다.');
+  if (!client) return apiError(409, 'CLIENT_NOT_FOUND', 'The client who owns this site could not be resolved.');
   const hasIncludedVideo = site.pricingModelVersion === PRICING_MODEL_VERSION;
   const generationTier = hasIncludedVideo ? 'premium' as const : client.tier;
 
   const state = siteVideoFulfillmentState({ site, client });
   if (!state.pending) {
-    return apiError(409, 'VIDEO_FULFILLMENT_NOT_PENDING', '승인할 영상 요청이 없습니다.');
+    return apiError(409, 'VIDEO_FULFILLMENT_NOT_PENDING', 'There is no video request to approve.');
   }
   if (state.blockedReason) {
-    return apiError(409, 'VIDEO_FULFILLMENT_BLOCKED', '히어로 원본과 자산 정책을 먼저 확인해 주세요.', {
+    return apiError(409, 'VIDEO_FULFILLMENT_BLOCKED', 'Check the hero source and the asset policy first.', {
       reason: state.blockedReason,
     });
   }
 
   assetProvenanceConfig();
   const context = heroVideoContext(state.config);
-  if (!context) return apiError(409, 'HERO_SOURCE_MISSING', '히어로 원본 이미지가 없습니다.');
+  if (!context) return apiError(409, 'HERO_SOURCE_MISSING', 'There is no hero source image.');
 
   // V6 베이직은 최종 승인 시점의 1회만 포함한다. 기존 사이트 6회/일일 20회 가드는 그대로 두고,
   // 현재 가격표로 발급된 사이트에만 더 엄격한 사이트 단위 단발 경계를 적용한다.
   if (hasIncludedVideo && await videoGen.countBySite(siteId) > 0) {
-    return apiError(409, 'INCLUDED_VIDEO_ALREADY_GENERATED', '이 사이트의 포함 영상은 이미 1회 생성됐습니다.');
+    return apiError(409, 'INCLUDED_VIDEO_ALREADY_GENERATED', 'The included video for this site has already been generated once.');
   }
 
   try {
@@ -87,7 +87,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       sourceOrigin: request.nextUrl.origin,
     });
     if (!generated.assetId) {
-      return apiError(503, 'VIDEO_ASSET_REGISTRATION_REQUIRED', '생성 영상의 서버 자산 등록을 확인할 수 없습니다.');
+      return apiError(503, 'VIDEO_ASSET_REGISTRATION_REQUIRED', 'The server asset registration for the generated video could not be confirmed.');
     }
     if (hasIncludedVideo && client.tier !== 'premium') {
       // 기존 렌더러는 premium tier를 영상 자산 entitlement로 해석한다.
@@ -104,7 +104,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     });
   } catch (error) {
     if (isHeroSourceUnavailableError(error)) {
-      return apiError(409, 'HERO_SOURCE_UNAVAILABLE', '히어로 원본을 불러올 수 없어 영상을 생성하지 않았습니다.');
+      return apiError(409, 'HERO_SOURCE_UNAVAILABLE', 'The hero source could not be loaded, so no video was generated.');
     }
     const response = guardResponse(error);
     if (response) return response;

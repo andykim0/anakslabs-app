@@ -37,7 +37,7 @@ export function contentQueueItemDto(item: AdminContentQueueItem) {
 export function contentQueueErrorResponse(error: ContentQueueError): NextResponse {
   switch (error.code) {
     case 'CONTENT_POST_NOT_FOUND':
-      return apiError(404, error.code, '콘텐츠 포스트를 찾을 수 없습니다.');
+      return apiError(404, error.code, 'Content post not found.');
     case 'CONTENT_POST_INPUT_INVALID':
       return apiError(400, error.code, error.message);
     case 'CONTENT_POST_SOURCE_CONFLICT':

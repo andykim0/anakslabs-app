@@ -20,7 +20,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const { entryId } = await params;
 
   const client = await getDataServices().clients.getById(body.data.clientId);
-  if (!client) return apiError(404, 'CLIENT_NOT_FOUND', '연결할 고객 계정을 찾을 수 없습니다.');
+  if (!client) return apiError(404, 'CLIENT_NOT_FOUND', 'No client account was found to link.');
 
   try {
     const result = await getManualCollectionsRepository().linkClient({
@@ -32,10 +32,10 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/CANCELLED|ALREADY_LINKED/i.test(message)) {
-      return apiError(409, 'MANUAL_COLLECTION_LINK_CONFLICT', '취소됐거나 이미 다른 계정에 연결된 기록입니다.');
+      return apiError(409, 'MANUAL_COLLECTION_LINK_CONFLICT', 'This record is cancelled or already linked to another account.');
     }
     if (/NOT_FOUND/i.test(message)) {
-      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', '수금 기록을 찾을 수 없습니다.');
+      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', 'Collection record not found.');
     }
     throw error;
   }

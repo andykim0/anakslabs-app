@@ -28,10 +28,10 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/NOT_FOUND|original receipt not found/i.test(message)) {
-      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', '반대 분개할 수금 기록을 찾을 수 없습니다.');
+      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', 'No collection record was found to reverse.');
     }
     if (/ALREADY_EXISTS|already has another reversal|REFERENCE_CONFLICT/i.test(message)) {
-      return apiError(409, 'MANUAL_REVERSAL_CONFLICT', '이미 반대 분개됐거나 참조번호가 충돌합니다.');
+      return apiError(409, 'MANUAL_REVERSAL_CONFLICT', 'This record is already reversed, or the reference number collides.');
     }
     if (/SUBSCRIPTION_NOT_LATEST|only the latest subscription renewal/i.test(message)) {
       return apiError(

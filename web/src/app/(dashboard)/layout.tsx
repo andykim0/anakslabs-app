@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import {
+  loginUrlForRequestedPath,
+  REQUESTED_PATH_HEADER,
+} from '@/lib/auth/requested-path';
 import '@/app/globals.css';
 import {
   APP_ROOT_BODY_CLASS_NAME,
@@ -23,7 +28,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const client = await getCurrentClient();
   if (!client) {
     if (await isAdmin()) redirect('/admin');
-    redirect('/login?next=/dashboard');
+    redirect(loginUrlForRequestedPath(
+      (await headers()).get(REQUESTED_PATH_HEADER),
+      '/dashboard',
+    ));
   }
   const locale = customerLocaleFromSites(await getDataServices().sites.listByClient(client.id));
 

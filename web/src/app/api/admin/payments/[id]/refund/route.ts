@@ -33,7 +33,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   const { payments } = getDataServices();
   const payment = await payments.getById(id);
   if (!payment) {
-    return apiError(404, 'PAYMENT_NOT_FOUND', '결제를 찾을 수 없습니다.');
+    return apiError(404, 'PAYMENT_NOT_FOUND', 'Payment not found.');
   }
   if (amount > payment.amount) {
     return apiError(

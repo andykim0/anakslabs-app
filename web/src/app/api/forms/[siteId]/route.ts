@@ -47,7 +47,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
 
   const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
   if (rateLimited(ip)) {
-    return apiError(429, 'RATE_LIMITED', '요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many requests. Try again in a moment.');
   }
 
   const body = await parseBody(request, bodySchema);
@@ -64,14 +64,14 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     if (v) payload[key] = v;
   }
   if (Object.keys(payload).length === 0) {
-    return apiError(400, 'EMPTY_FORM', '문의 내용을 입력해 주세요.');
+    return apiError(400, 'EMPTY_FORM', 'Enter your message.');
   }
 
   const { sites, formSubmissions } = getDataServices();
   const site = await sites.getById(siteId);
   // 발행본 있는 사이트만 — 존재 여부 노출 방지 겸 404
   if (!site || !site.siteConfig) {
-    return apiError(404, 'SITE_NOT_FOUND', '사이트를 찾을 수 없습니다.');
+    return apiError(404, 'SITE_NOT_FOUND', 'Site not found.');
   }
 
   await formSubmissions.create({ siteId: site.id, clientId: site.clientId, payload });

@@ -52,7 +52,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   if (!site) return siteNotFound();
 
   if (!site.draftConfig) {
-    return apiError(409, 'NO_DRAFT', '발행할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
+    return apiError(409, 'NO_DRAFT', 'There is no draft to publish. Edit the site in the editor first.');
   }
 
   // 업종 계약 가드는 결제 견적보다 먼저 같은 정책 소스로 fail-closed한다.

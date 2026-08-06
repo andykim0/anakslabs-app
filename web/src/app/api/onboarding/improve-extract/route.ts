@@ -43,7 +43,7 @@ export const POST = withApiHandler(async (request) => {
   const operatorGate = operatorManagedOnboardingApiGate();
   if (operatorGate) return operatorGate;
   if (rateLimited(client.id)) {
-    return apiError(429, 'RATE_LIMITED', '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many requests. Try again in a moment.');
   }
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
@@ -59,7 +59,7 @@ export const POST = withApiHandler(async (request) => {
     if (err instanceof ImportError) {
       return apiError(422, err.code, err.message);
     }
-    return apiError(422, 'FETCH_FAILED', '사이트를 가져오지 못했어요. 주소를 확인해 주세요.');
+    return apiError(422, 'FETCH_FAILED', 'The site could not be imported. Check the address.');
   }
 
   const extracted = parseHtml(html, finalUrl);

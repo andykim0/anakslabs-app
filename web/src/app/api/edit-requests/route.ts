@@ -63,7 +63,7 @@ function videoGuardResponse(error: unknown, creditCost: number): NextResponse | 
   const message = separator >= 0 ? raw.slice(separator + 1).trim() : raw;
 
   if (code === 'VIDEO_GEN_ADDON') {
-    return apiError(402, 'UPSELL_REQUIRED', 'AI 영상 재생성은 AI 영상 홈페이지가 적용된 사이트에서만 이용할 수 있습니다.', {
+    return apiError(402, 'UPSELL_REQUIRED', 'AI video regeneration is available only on sites using the AI video homepage.', {
       creditCost,
       options: [{ action: 'upgrade_premium', label: 'AI 영상 홈페이지 상담' }],
     });
@@ -76,7 +76,7 @@ function videoGuardResponse(error: unknown, creditCost: number): NextResponse | 
 
 export const POST = withApiHandler(async (request) => {
   if (!aiEditEnabled()) {
-    return apiError(404, 'AI_EDIT_DISABLED', 'AI 편집 요청은 현재 제공하지 않습니다.');
+    return apiError(404, 'AI_EDIT_DISABLED', 'AI edit requests are not available.');
   }
   const client = await getAuthedClient();
   if (!client) return unauthorized();
@@ -326,7 +326,7 @@ export const POST = withApiHandler(async (request) => {
 
 export const GET = withApiHandler(async (request) => {
   if (!aiEditEnabled()) {
-    return apiError(404, 'AI_EDIT_DISABLED', 'AI 편집 요청은 현재 제공하지 않습니다.');
+    return apiError(404, 'AI_EDIT_DISABLED', 'AI edit requests are not available.');
   }
   const client = await getAuthedClient();
   if (!client) return unauthorized();

@@ -36,14 +36,14 @@ export const GET = withApiHandler(async (request) => {
 
   const siteId = request.nextUrl.searchParams.get('siteId');
   if (!siteId) {
-    return apiError(400, 'VALIDATION_ERROR', 'siteId 쿼리 파라미터가 필요합니다.');
+    return apiError(400, 'VALIDATION_ERROR', 'A siteId query parameter is required.');
   }
 
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
 
   if (site.domainType !== 'custom') {
-    return apiError(404, 'NO_CUSTOM_DOMAIN', '이 사이트에 연결 중인 커스텀 도메인이 없습니다.');
+    return apiError(404, 'NO_CUSTOM_DOMAIN', 'This site has no custom domain in progress.');
   }
 
   const status = await getDataServices().domains.checkStatus(siteId);

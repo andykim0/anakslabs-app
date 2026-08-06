@@ -14,7 +14,7 @@ import { isCronAuthorized } from '../_lib/auth';
 
 const handler = withApiHandler(async (request) => {
   if (!isCronAuthorized(request)) {
-    return apiError(401, 'UNAUTHORIZED', '크론 인증에 실패했습니다.');
+    return apiError(401, 'UNAUTHORIZED', 'Cron authentication failed.');
   }
 
   const expired = await getDataServices().credits.expireDue();

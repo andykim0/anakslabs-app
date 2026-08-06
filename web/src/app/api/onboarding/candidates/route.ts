@@ -191,7 +191,7 @@ export const POST = withApiHandler(async (request) => {
   // Standard candidates are catalog projections only. This route has no switch
   // that can reopen Claude/Gemini before the first publish payment.
   if (rateLimited(client.id, 12)) {
-    return apiError(429, 'HERO_IMAGE_RATE_LIMITED', '히어로 이미지 요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'HERO_IMAGE_RATE_LIMITED', 'Too many hero image requests. Try again in a moment.');
   }
 
   const namedTemplates = templateGalleryEnabled() && !targetSiteId;

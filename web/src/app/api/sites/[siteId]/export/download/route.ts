@@ -22,13 +22,13 @@ export const GET = withApiHandler<Ctx>(async (_request, { params }) => {
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
   if ((site.exportStatus ?? 'none') !== 'ready' || !site.exportUrl) {
-    return apiError(404, 'EXPORT_NOT_READY', '준비된 백업이 없습니다. 먼저 백업을 생성해 주세요.');
+    return apiError(404, 'EXPORT_NOT_READY', 'No backup is ready. Create a backup first.');
   }
 
   if (isMockMode()) {
     const blob = getMockExportBlob(site.exportUrl);
     if (!blob) {
-      return apiError(404, 'EXPORT_EXPIRED', '백업 파일이 만료되었거나 없습니다. 다시 생성해 주세요.');
+      return apiError(404, 'EXPORT_EXPIRED', 'The backup file is missing or expired. Create it again.');
     }
     return new NextResponse(new Uint8Array(blob.buffer), {
       headers: {
