@@ -246,6 +246,79 @@ describe('CONTENT P3 immutable admin state machine', () => {
   });
 });
 
+describe('PUBLISHED-REWORK — an approval validates the version it is about', () => {
+  /** A live post with a replacement staged against it, the two carrying different source material. */
+  async function stagedItem(): Promise<AdminContentQueueItem> {
+    const repository = new MockContentQueueRepository([draftItem()]);
+    await repository.claimGeneration({ id: POST_ID, actorId: 'admin', regeneration: false });
+    const generated = await repository.storeGenerated({
+      id: POST_ID,
+      actorId: 'admin',
+      generated: generatedVersion(),
+    });
+    const validated = validateContentQueueItemForPublish({
+      item: generated,
+      currentSnapshot: sourceSnapshot(),
+      currentConfig: CONFIG,
+    });
+    const { item } = await repository.approveAndPublish({
+      id: POST_ID,
+      expectedVersionId: generated.currentVersionId!,
+      actorId: 'admin',
+      sourceSnapshotSha256: validated.sourceSnapshotSha256,
+      honestyPolicyVersion: validated.policyVersions.honesty,
+      medicalPolicyVersion: validated.policyVersions.medical,
+      validatedDocumentSha256: validated.validationEvidence.validatedDocumentSha256,
+    });
+    const staged = await repository.storeReworkVersion({
+      id: POST_ID,
+      actorId: 'admin',
+      generated: {
+        ...generatedVersion(),
+        // Generated from material that is no longer what the site holds.
+        sourceSnapshotSha256: 'c'.repeat(64),
+      },
+    });
+    assert.equal(staged.currentVersionId, item.currentVersionId, 'the served version is untouched');
+    return staged;
+  }
+
+  test('a swap revalidates the staged version, not the one still being served', async () => {
+    const item = await stagedItem();
+    // The served version still matches today's material, which is why it is still being served.
+    assert.ok(validateContentQueueItemForPublish({
+      item,
+      currentSnapshot: sourceSnapshot(),
+      currentConfig: CONFIG,
+    }));
+    // The staged one does not, and the swap has to be the thing that notices.
+    assert.throws(
+      () => validateContentQueueItemForPublish({
+        item,
+        currentSnapshot: sourceSnapshot(),
+        currentConfig: CONFIG,
+        reviewedVersion: item.pendingVersion,
+      }),
+      (error) => error instanceof ContentQueueError
+        && error.code === 'CONTENT_POST_SOURCE_CONFLICT',
+    );
+  });
+
+  test('a version the row does not point at is never validated', async () => {
+    const item = await stagedItem();
+    assert.throws(
+      () => validateContentQueueItemForPublish({
+        item,
+        currentSnapshot: sourceSnapshot(),
+        currentConfig: CONFIG,
+        reviewedVersion: { ...item.pendingVersion!, id: '44444444-4444-4444-8444-444444444444' },
+      }),
+      (error) => error instanceof ContentQueueError
+        && error.code === 'CONTENT_POST_STATE_CONFLICT',
+    );
+  });
+});
+
 describe('CONTENT P3 database and admin boundaries', () => {
   const migration = readFileSync(
     join(process.cwd(), '../supabase/migrations/0049_content_fulfillment.sql'),
