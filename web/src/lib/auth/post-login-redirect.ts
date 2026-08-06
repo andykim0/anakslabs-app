@@ -15,8 +15,10 @@ const DEFAULT_POST_LOGIN_PATH: Record<PostLoginRole, string> = {
  * 걸리므로, 안전성뿐 아니라 역할까지 일치하는 명시적 화이트리스트를 사용한다.
  */
 const ALLOWED_POST_LOGIN_ROOTS: Record<PostLoginRole, readonly string[]> = {
-  admin: ['/admin'],
-  client: ['/dashboard', '/onboarding'],
+  // '/welcome' belongs to both roles: an invited administrator sets a password there too, and
+  // allowing it for customers alone would send operators to /admin without one.
+  admin: ['/admin', '/welcome'],
+  client: ['/dashboard', '/onboarding', '/welcome'],
 };
 
 const INTERNAL_ORIGIN = 'https://auth-redirect.invalid';

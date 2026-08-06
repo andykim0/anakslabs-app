@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { ShieldCheck, Sparkles, UserCog } from 'lucide-react';
 import { env, isEmailLoginPublic, isMockMode } from '@/lib/env';
@@ -58,8 +58,23 @@ const INPUT_CLASS =
   'h-11 w-full rounded-lg border border-[#D9DAE0] bg-white px-3 text-sm text-[#141A3A] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#2D63F0] focus:ring-1 focus:ring-[#2D63F0]';
 const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#141A3A]';
 
-export default function LoginPage() {
+/**
+ * A one-time link that has expired or already been used lands back here. Saying so — and naming
+ * the way to get another one — is the difference between a dead end and a next step.
+ */
+const LINK_ERROR_COPY: Record<string, string> = {
+  invalid_invite:
+    'That invitation link has expired or was already used. Ask your Anaks Labs contact to send a new one.',
+  invalid_recovery:
+    'That reset link has expired or was already used. Request a new one with Forgot password below.',
+  invite_required:
+    'This account is not set up yet. Ask your Anaks Labs contact to send an invitation.',
+};
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const linkError = LINK_ERROR_COPY[searchParams.get('error') ?? ''] ?? null;
   const mock = isMockMode();
   const [pendingRole, setPendingRole] = useState<MockRole | null>(null);
   const [oauthPending, setOauthPending] = useState<'google' | null>(null);
@@ -68,6 +83,36 @@ export default function LoginPage() {
   const emailLoginOn = isEmailLoginPublic();
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailPending, setEmailPending] = useState(false);
+  const [forgotPending, setForgotPending] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  /**
+   * The reply is the same whether or not the address has an account, so this shows it verbatim
+   * rather than interpreting it — anything more specific would leak who has an account.
+   */
+  const handleForgotPassword = async () => {
+    setError(null);
+    setNotice(null);
+    if (!emailForm.email.trim()) {
+      setError('Enter your email address first, then choose Forgot password.');
+      return;
+    }
+    setForgotPending(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailForm.email.trim() }),
+      });
+      const data = (await res.json()) as { message?: string; error?: { message?: string } };
+      if (!res.ok) throw new Error(data?.error?.message ?? 'Could not send a reset link.');
+      setNotice(data.message ?? 'If that email has an account, a reset link is on its way.');
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not send a reset link.');
+    } finally {
+      setForgotPending(false);
+    }
+  };
 
   const requestedNext = () => new URLSearchParams(window.location.search).get('next');
 
@@ -210,6 +255,16 @@ export default function LoginPage() {
                       placeholder="••••••••"
                       className={INPUT_CLASS}
                     />
+                    <div className="mt-1.5 text-right">
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={forgotPending}
+                        className="text-xs font-medium text-[#2D63F0] transition-colors hover:text-[#1E4BD1] disabled:opacity-60"
+                      >
+                        {forgotPending ? 'Sending…' : 'Forgot password?'}
+                      </button>
+                    </div>
                   </div>
                   <button
                     type="submit"
@@ -243,6 +298,24 @@ export default function LoginPage() {
             </>
           )}
 
+          {notice ? (
+            <p
+              role="status"
+              className="mt-4 rounded-lg border border-[#BBD0FA] bg-[#EAEFFE] px-3 py-2 text-center text-xs leading-5 text-[#2D63F0]"
+            >
+              {notice}
+            </p>
+          ) : null}
+
+          {linkError && !error && !notice ? (
+            <p
+              role="status"
+              className="mt-4 rounded-lg border border-[#F2D59B] bg-[#FFF8E8] px-3 py-2 text-center text-xs leading-5 text-[#855700]"
+            >
+              {linkError}
+            </p>
+          ) : null}
+
           {error ? (
             <p className="mt-4 rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-center text-xs text-[#B42318]">
               {error}
@@ -264,5 +337,17 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+/**
+ * useSearchParams opts the subtree out of prerendering, so the boundary is required for this
+ * page to keep being built ahead of time.
+ */
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
   );
 }

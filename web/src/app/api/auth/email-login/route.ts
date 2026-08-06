@@ -1,15 +1,18 @@
 /**
- * [임시·테스트 전용] POST /api/auth/email-login — OAuth 우회 이메일 로그인.
+ * POST /api/auth/email-login — 이메일+비밀번호 로그인(정식 재진입 경로).
  * body: { email, password, mode: 'signin'|'signup' } → 세션 쿠키 세팅 → { ok, redirect }.
  *
- * ⚠️ 게이팅: 서버 ALLOW_EMAIL_LOGIN=1 일 때만 활성(아니면 404). 프로덕션 auth 모델
- *    (OAuth=가입)을 침범하지 않기 위한 임시 경로 — 카카오/구글 심사 대기 중 테스트용.
+ * 게이팅: 서버 ALLOW_EMAIL_LOGIN=1 일 때만 활성(아니면 404) — 임시 우회가 아니라 킬스위치다.
  * 세션 성립 후 completePostLogin(clients 보장 + 스캔 귀속)을 OAuth 콜백과 공유한다.
  */
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { isEmailLoginEnabled, isMockMode } from '@/lib/env';
 import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
+import {
+  PASSWORD_REQUIREMENT_MESSAGE,
+  passwordMeetsPolicy,
+} from '@/lib/auth/password-policy';
 import { apiError, parseBody, withApiHandler } from '../../_lib/http';
 import { createSupabaseRouteClient } from '../../_lib/supabase';
 import { completePostLogin } from '../../_lib/post-login';
@@ -54,12 +57,12 @@ const bodySchema = z
     if (value.mode !== 'signup') return;
     if (!value.name) ctx.addIssue({ code: 'custom', path: ['name'], message: 'Enter your name.' });
     if (!value.phone) ctx.addIssue({ code: 'custom', path: ['phone'], message: 'Enter your phone number.' });
-    // 가입 비밀번호는 영문+숫자+특수문자 8-20자(로그인은 기존 계정 호환 위해 min 6 유지)
-    if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^\dA-Za-z\s]).{8,20}$/u.test(value.password)) {
+    // 새 비밀번호 규칙은 한 곳에서만 정의한다(로그인은 기존 계정 호환 위해 min 6 유지).
+    if (!passwordMeetsPolicy(value.password)) {
       ctx.addIssue({
         code: 'custom',
         path: ['password'],
-        message: 'Use 8–20 characters with a letter, number, and special character.',
+        message: PASSWORD_REQUIREMENT_MESSAGE,
       });
     }
   });

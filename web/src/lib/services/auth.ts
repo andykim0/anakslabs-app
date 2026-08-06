@@ -63,6 +63,16 @@ function resolveProvider(provider: unknown): AuthProvider {
 // ---------- 공개 API (계약) ----------
 
 /** 현재 로그인한 고객. 미인증/관리자 세션이면 null */
+/**
+ * The authenticated user of any role, or null.
+ *
+ * getCurrentClient deliberately returns null for operators, so a surface that both roles reach —
+ * /welcome, where an invited administrator also sets a password — needs the session itself.
+ */
+export async function getCurrentAuthUser(): Promise<User | null> {
+  return getSupabaseUser();
+}
+
 export async function getCurrentClient(): Promise<Client | null> {
   if (isMockMode()) {
     const session = await readMockSession();
