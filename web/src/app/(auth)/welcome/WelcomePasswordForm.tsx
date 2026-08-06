@@ -2,11 +2,61 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 import { PASSWORD_REQUIREMENT_MESSAGE } from '@/lib/auth/password-policy';
 
 const INPUT_CLASS =
   'h-11 w-full rounded-lg border border-[#D9DAE0] bg-white px-3 text-sm text-[#141A3A] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#2D63F0] focus:ring-1 focus:ring-[#2D63F0]';
 const LABEL_CLASS = 'mb-1.5 block text-[13px] font-semibold text-[#141A3A]';
+
+/**
+ * A password field you can check before committing to it.
+ *
+ * Choosing a password you cannot see, twice, is where the confirm-mismatch error comes from. The
+ * toggle is `type="button"` so it never submits the form, and it starts hidden — revealing is the
+ * deliberate act, not the default.
+ */
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  hint?: string;
+}) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div>
+      <label htmlFor={id} className={LABEL_CLASS}>{label}</label>
+      <div className="relative">
+        <input
+          id={id}
+          type={revealed ? 'text' : 'password'}
+          required
+          autoComplete="new-password"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className={`${INPUT_CLASS} pr-11`}
+        />
+        <button
+          type="button"
+          onClick={() => setRevealed((current) => !current)}
+          aria-label={revealed ? 'Hide password' : 'Show password'}
+          aria-pressed={revealed}
+          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-[#6a7286] transition-colors hover:text-[#141A3A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2D63F0]"
+        >
+          {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
+      {hint ? <p className="mt-1.5 text-xs text-[#6a7286]">{hint}</p> : null}
+    </div>
+  );
+}
 
 export function WelcomePasswordForm({
   destination,
@@ -68,31 +118,19 @@ export function WelcomePasswordForm({
         ) : null}
 
         <form onSubmit={submit} className="mt-8 space-y-4">
-          <div>
-            <label htmlFor="welcome-password" className={LABEL_CLASS}>New password</label>
-            <input
-              id="welcome-password"
-              type="password"
-              required
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className={INPUT_CLASS}
-            />
-            <p className="mt-1.5 text-xs text-[#6a7286]">{PASSWORD_REQUIREMENT_MESSAGE}</p>
-          </div>
-          <div>
-            <label htmlFor="welcome-confirm" className={LABEL_CLASS}>Confirm password</label>
-            <input
-              id="welcome-confirm"
-              type="password"
-              required
-              autoComplete="new-password"
-              value={confirm}
-              onChange={(event) => setConfirm(event.target.value)}
-              className={INPUT_CLASS}
-            />
-          </div>
+          <PasswordField
+            id="welcome-password"
+            label="New password"
+            value={password}
+            onChange={setPassword}
+            hint={PASSWORD_REQUIREMENT_MESSAGE}
+          />
+          <PasswordField
+            id="welcome-confirm"
+            label="Confirm password"
+            value={confirm}
+            onChange={setConfirm}
+          />
           <button
             type="submit"
             disabled={pending}
