@@ -83,36 +83,6 @@ function LoginPageInner() {
   const emailLoginOn = isEmailLoginPublic();
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailPending, setEmailPending] = useState(false);
-  const [forgotPending, setForgotPending] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-
-  /**
-   * The reply is the same whether or not the address has an account, so this shows it verbatim
-   * rather than interpreting it — anything more specific would leak who has an account.
-   */
-  const handleForgotPassword = async () => {
-    setError(null);
-    setNotice(null);
-    if (!emailForm.email.trim()) {
-      setError('Enter your email address first, then choose Forgot password.');
-      return;
-    }
-    setForgotPending(true);
-    try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailForm.email.trim() }),
-      });
-      const data = (await res.json()) as { message?: string; error?: { message?: string } };
-      if (!res.ok) throw new Error(data?.error?.message ?? 'Could not send a reset link.');
-      setNotice(data.message ?? 'If that email has an account, a reset link is on its way.');
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not send a reset link.');
-    } finally {
-      setForgotPending(false);
-    }
-  };
 
   const requestedNext = () => new URLSearchParams(window.location.search).get('next');
 
@@ -256,14 +226,12 @@ function LoginPageInner() {
                       className={INPUT_CLASS}
                     />
                     <div className="mt-1.5 text-right">
-                      <button
-                        type="button"
-                        onClick={handleForgotPassword}
-                        disabled={forgotPending}
-                        className="text-xs font-medium text-[#2D63F0] transition-colors hover:text-[#1E4BD1] disabled:opacity-60"
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs font-medium text-[#2D63F0] transition-colors hover:text-[#1E4BD1]"
                       >
-                        {forgotPending ? 'Sending…' : 'Forgot password?'}
-                      </button>
+                        Forgot password?
+                      </Link>
                     </div>
                   </div>
                   <button
@@ -298,16 +266,8 @@ function LoginPageInner() {
             </>
           )}
 
-          {notice ? (
-            <p
-              role="status"
-              className="mt-4 rounded-lg border border-[#BBD0FA] bg-[#EAEFFE] px-3 py-2 text-center text-xs leading-5 text-[#2D63F0]"
-            >
-              {notice}
-            </p>
-          ) : null}
 
-          {linkError && !error && !notice ? (
+          {linkError && !error ? (
             <p
               role="status"
               className="mt-4 rounded-lg border border-[#F2D59B] bg-[#FFF8E8] px-3 py-2 text-center text-xs leading-5 text-[#855700]"

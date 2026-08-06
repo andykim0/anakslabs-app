@@ -19,6 +19,9 @@ type StubUser = { id: string; app_metadata: Record<string, unknown> };
 
 let verifiedUser: StubUser | null = null;
 let verifiedType: string | null = null;
+/** Whether the clients-row binding succeeds; false is the fail-closed branch. */
+let postLoginOk = true;
+let signedOut = false;
 
 async function runRoute(
   routePath: string,
@@ -27,6 +30,7 @@ async function runRoute(
 ): Promise<Response> {
   verifiedUser = user;
   verifiedType = null;
+  signedOut = false;
   const loader = Module as unknown as ModuleLoader;
   const original = loader._load;
   loader._load = function load(request, parent, isMain) {
@@ -41,13 +45,15 @@ async function runRoute(
                 ? { data: { user: verifiedUser }, error: null }
                 : { data: { user: null }, error: new Error('invalid') };
             },
-            signOut: async () => undefined,
+            signOut: async () => {
+              signedOut = true;
+            },
           },
         }),
       };
     }
     if (request === '@/app/api/_lib/post-login') {
-      return { completePostLogin: async () => true };
+      return { completePostLogin: async () => postLoginOk };
     }
     return original.call(this, request, parent, isMain);
   };
@@ -162,6 +168,46 @@ describe('A2 — a recovery link reaches the same screen', () => {
   });
 });
 
+describe('P4 — a verified link with no account behind it is closed out', () => {
+  test('confirm-recovery signs the session out and says the account is not set up', async () => {
+    postLoginOk = false;
+    try {
+      const response = await runRoute(
+        '@/app/api/auth/confirm-recovery/route',
+        `?token_hash=${TOKEN}&type=recovery`,
+        CLIENT,
+      );
+      // The OTP verified, so a session exists — leaving it in place would hand out a session for
+      // an account the operator never bound.
+      assert.equal(signedOut, true, 'the session must be torn down');
+      assert.equal(
+        response.headers.get('location'),
+        'https://app.anakslabs.com/login?error=invite_required',
+      );
+    } finally {
+      postLoginOk = true;
+    }
+  });
+
+  test('confirm-invite closes out the same way', async () => {
+    postLoginOk = false;
+    try {
+      const response = await runRoute(
+        '@/app/api/auth/confirm-invite/route',
+        `?token_hash=${TOKEN}&type=invite`,
+        CLIENT,
+      );
+      assert.equal(signedOut, true);
+      assert.equal(
+        response.headers.get('location'),
+        'https://app.anakslabs.com/login?error=invite_required',
+      );
+    } finally {
+      postLoginOk = true;
+    }
+  });
+});
+
 describe('A1 — after the password is saved, the role home is the destination', () => {
   test('the resolver returns each role home once /welcome is done', () => {
     assert.equal(resolvePostLoginRedirect(ADMIN), '/admin');
@@ -176,5 +222,66 @@ describe('A1 — after the password is saved, the role home is the destination',
     assert.equal(resolvePostLoginRedirect(CLIENT, '/admin'), '/dashboard');
     assert.equal(resolvePostLoginRedirect(ADMIN, '/dashboard'), '/admin');
     assert.equal(resolvePostLoginRedirect(CLIENT, 'https://evil.com'), '/dashboard');
+  });
+});
+
+describe('P3 — the route itself refuses a cross-origin password change', () => {
+  async function setPassword(headers: Record<string, string>): Promise<Response> {
+    const loader = Module as unknown as ModuleLoader;
+    const original = loader._load;
+    loader._load = function load(request, parent, isMain) {
+      if (request === 'server-only') return {};
+      if (request === '@/lib/env') {
+        // The switch is on and the database is configured; only the origin is in question here.
+        return { isEmailLoginEnabled: () => true, isMockMode: () => false };
+      }
+      if (request === '@/app/api/_lib/supabase') {
+        return {
+          createSupabaseRouteClient: async () => ({
+            auth: {
+              getUser: async () => ({ data: { user: CLIENT } }),
+              updateUser: async () => ({ error: null }),
+            },
+          }),
+        };
+      }
+      return original.call(this, request, parent, isMain);
+    };
+    try {
+      const route = await import('@/app/api/auth/set-password/route');
+      return await route.POST(
+        new NextRequest('https://app.anakslabs.com/api/auth/set-password', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', ...headers },
+          body: JSON.stringify({ password: 'Clinic1!pass' }),
+        }),
+        undefined as never,
+      );
+    } finally {
+      loader._load = original;
+    }
+  }
+
+  test('a request from our own page succeeds', async () => {
+    const response = await setPassword({
+      'sec-fetch-site': 'same-origin',
+      host: 'app.anakslabs.com',
+    });
+    assert.equal(response.status, 200);
+  });
+
+  test('a forged Origin is refused with 403', async () => {
+    const response = await setPassword({
+      origin: 'https://evil.com',
+      host: 'app.anakslabs.com',
+    });
+    assert.equal(response.status, 403);
+    const payload = await response.json() as { error?: { code?: string } };
+    assert.equal(payload.error?.code, 'FORBIDDEN');
+  });
+
+  test('a request with no origin signal at all is refused', async () => {
+    const response = await setPassword({ host: 'app.anakslabs.com' });
+    assert.equal(response.status, 403);
   });
 });

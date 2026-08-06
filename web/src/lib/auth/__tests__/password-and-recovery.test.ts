@@ -97,8 +97,59 @@ describe('A4 — an expired link explains itself and names the way back', () => 
   test('the login page offers the reset entry point', () => {
     const page = read('src/app/(auth)/login/page.tsx');
     assert.match(page, /Forgot password\?/u);
-    assert.match(page, /\/api\/auth\/forgot-password/u);
-    // The neutral reply is shown verbatim rather than interpreted.
-    assert.match(page, /setNotice\(data\.message/u);
+    // P1 moved the request itself to its own page; the login screen only points at it.
+    assert.match(page, /href="\/forgot-password"/u);
+    assert.doesNotMatch(page, /\/api\/auth\/forgot-password/u, 'the login page no longer posts');
+  });
+});
+
+describe('P1 — resetting a password has its own page', () => {
+  test('the dedicated page posts to the unchanged endpoint and shows the reply verbatim', () => {
+    const form = read('src/app/(auth)/forgot-password/ForgotPasswordForm.tsx');
+    assert.match(form, /\/api\/auth\/forgot-password/u, 'the existing endpoint is reused');
+    assert.match(form, /setNotice\(data\.message/u, 'the neutral reply is shown as-is');
+    assert.match(form, /id="forgot-email"/u, 'the page has its own email field');
+    assert.match(form, /Back to sign in/u, 'a way back exists');
+    const page = read('src/app/(auth)/forgot-password/page.tsx');
+    assert.match(page, /isEmailLoginEnabled\(\)/u, 'the page obeys the kill switch');
+  });
+
+  test('the login screen links out instead of reusing its own email field', () => {
+    const login = read('src/app/(auth)/login/page.tsx');
+    assert.match(login, /href="\/forgot-password"/u);
+    // The inline flow is gone: no handler, no pending state, and no prompt to type the
+    // address into the sign-in field first — that instruction was the UX complaint.
+    for (const residue of [
+      'handleForgotPassword',
+      'forgotPending',
+      'Enter your email address first',
+    ]) {
+      assert.equal(login.includes(residue), false, `${residue} must be gone from the login page`);
+    }
+  });
+});
+
+describe('P2 — /welcome obeys the same kill switch as its endpoints', () => {
+  test('the screen redirects to login when email sign-in is off', () => {
+    const page = read('src/app/(auth)/welcome/page.tsx');
+    assert.match(page, /if \(!isEmailLoginEnabled\(\)\) redirect\('\/login'\)/u);
+    // It must be the first gate: no session read or form should happen behind a closed switch.
+    const gateAt = page.indexOf('isEmailLoginEnabled()');
+    const sessionAt = page.indexOf('getCurrentAuthUser()');
+    assert.ok(gateAt > 0 && gateAt < sessionAt, 'the switch is checked before the session');
+  });
+});
+
+describe('P5 — the password can be checked before it is committed', () => {
+  test('both fields carry a reveal toggle that cannot submit the form', () => {
+    const form = read('src/app/(auth)/welcome/WelcomePasswordForm.tsx');
+    assert.match(form, /type=\{revealed \? 'text' : 'password'\}/u, 'the type follows the toggle');
+    assert.match(form, /setRevealed\(\(current\) => !current\)/u);
+    assert.match(form, /type="button"/u, 'the toggle must never submit the form');
+    assert.match(form, /aria-label=\{revealed \? 'Hide password' : 'Show password'\}/u);
+    assert.match(form, /useState\(false\)/u, 'hidden is the default');
+    // Applied to every password input on the screen, not just the first.
+    assert.equal(form.split('<PasswordField').length - 1, 2, 'new password and confirm');
+    assert.doesNotMatch(form, /<input[^>]*type="password"/u, 'no raw password input remains');
   });
 });

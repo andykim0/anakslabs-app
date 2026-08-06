@@ -11,6 +11,7 @@ import { isEmailLoginEnabled, isMockMode } from '@/lib/env';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { createSupabaseRouteClient } from '@/app/api/_lib/supabase';
 import { newPasswordSchema } from '@/lib/auth/password-policy';
+import { isSameOriginRequest } from '@/lib/auth/same-origin';
 import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
 
 const bodySchema = z.object({ password: newPasswordSchema }).strict();
@@ -19,6 +20,12 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   if (!isEmailLoginEnabled()) {
     return apiError(404, 'NOT_FOUND', 'The requested resource was not found.');
   }
+  // Ahead of every environment-specific answer: a request from a foreign origin is refused on
+  // that basis alone, and it should not learn which mode this deployment is running in either.
+  if (!isSameOriginRequest(request.headers)) {
+    return apiError(403, 'FORBIDDEN', 'This request must come from the Anaks Labs app.');
+  }
+
   // Mock mode has no password store and must not pretend to: a fake success here would report a
   // password was set when nothing anywhere could ever check it.
   if (isMockMode()) {
