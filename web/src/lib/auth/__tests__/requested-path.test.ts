@@ -60,6 +60,22 @@ describe('H2 — the login link keeps the destination', () => {
   });
 });
 
+describe('H2 — a client cannot choose its own requested path', () => {
+  test('the proxy overwrites the header rather than trusting an inbound one', () => {
+    const proxy = readFileSync(`${process.cwd()}/src/proxy.ts`, 'utf8');
+    const fn = proxy.slice(
+      proxy.indexOf('function appRequestPassthrough'),
+      proxy.indexOf('function appRequestPassthrough') + 400,
+    );
+    // `set` replaces any inbound value; `append` or a presence check would let a caller
+    // choose its own destination. The forwarded headers must also be a copy of the request's.
+    assert.match(fn, /new Headers\(request\.headers\)/u);
+    assert.match(fn, /headers\.set\(\s*REQUESTED_PATH_HEADER/u);
+    assert.doesNotMatch(fn, /headers\.append|\.has\(\s*REQUESTED_PATH_HEADER/u);
+    assert.match(fn, /request\.nextUrl\.pathname/u, 'the value comes from the URL, not input');
+  });
+});
+
 describe('H2 — the existing resolver still refuses a hostile next', () => {
   test('external, protocol-relative and cross-role targets fall back', () => {
     for (const hostile of [
