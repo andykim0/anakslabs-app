@@ -376,11 +376,16 @@ export interface AdminEditQueueResponse {
   integrity: AdminFulfillmentQueueIntegrity;
 }
 
+/**
+ * `published` belongs here because of rework: a delivered post re-enters the queue while a
+ * replacement is staged against it, and leaves again the moment the swap lands.
+ */
 export type AdminContentQueueStatus =
   | 'draft'
   | 'generating'
   | 'pending_approval'
-  | 'rejected';
+  | 'rejected'
+  | 'published';
 
 export interface AdminContentQueueVersion {
   id: string;
@@ -404,7 +409,11 @@ export interface AdminContentQueueItem {
   slug: string;
   status: AdminContentQueueStatus;
   currentVersionId: string | null;
+  /** What the customer's site is serving right now. */
   currentVersion: AdminContentQueueVersion | null;
+  /** A rework waiting for a decision. Approving it replaces the version above. */
+  pendingVersionId: string | null;
+  pendingVersion: AdminContentQueueVersion | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -865,6 +874,31 @@ export function approveAdminContent(
         approvalConfirmed: true,
         ...(safeCatalogOverrideConfirmed ? { safeCatalogOverrideConfirmed: true } : {}),
       }),
+    },
+  );
+}
+
+/** Generates a replacement for a live post and stages it. The post stays on the air throughout. */
+export function reworkAdminContent(
+  id: string,
+  topic: string,
+): Promise<{ ok: true; item: AdminContentQueueItem }> {
+  return fetchJson<{ ok: true; item: AdminContentQueueItem }>(
+    `/api/admin/content-queue/${encodeURIComponent(id)}/rework`,
+    { method: 'POST', body: JSON.stringify({ topic }) },
+  );
+}
+
+/** Swaps the staged rework into the live pointers. */
+export function approveSwapAdminContent(
+  id: string,
+  expectedVersionId: string,
+): Promise<{ ok: true; duplicated: boolean }> {
+  return fetchJson<{ ok: true; duplicated: boolean }>(
+    `/api/admin/content-queue/${encodeURIComponent(id)}/approve-swap`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ expectedVersionId, approvalConfirmed: true }),
     },
   );
 }
