@@ -1,3 +1,11 @@
+/**
+ * GET /api/auth/confirm-recovery — the landing point for a password reset email.
+ *
+ * Mirrors confirm-invite because the shape is the same: a one-time token hash is exchanged for a
+ * session, and the customer is sent to /welcome to choose a password. It deliberately does not
+ * reuse /api/auth/callback — that route exchanges an OAuth `code` and would reject a recovery
+ * link with `missing_code`.
+ */
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { createSupabaseRouteClient } from '@/app/api/_lib/supabase';
@@ -7,13 +15,13 @@ import { resolvePostLoginRedirect } from '@/lib/auth/post-login-redirect';
 
 const querySchema = z.object({
   token_hash: z.string().min(20).max(1_000),
-  type: z.literal('invite'),
+  type: z.literal('recovery'),
 }).strict();
 
 export const GET = withApiHandler(async (request: NextRequest) => {
   const parsed = querySchema.safeParse(Object.fromEntries(request.nextUrl.searchParams));
   if (!parsed.success) {
-    return NextResponse.redirect(new URL('/login?error=invalid_invite', request.nextUrl.origin));
+    return NextResponse.redirect(new URL('/login?error=invalid_recovery', request.nextUrl.origin));
   }
   const supabase = await createSupabaseRouteClient();
   const verified = await supabase.auth.verifyOtp({
@@ -21,12 +29,8 @@ export const GET = withApiHandler(async (request: NextRequest) => {
     type: parsed.data.type,
   });
   if (verified.error || !verified.data.user) {
-    return NextResponse.redirect(new URL('/login?error=invalid_invite', request.nextUrl.origin));
+    return NextResponse.redirect(new URL('/login?error=invalid_recovery', request.nextUrl.origin));
   }
-  // An invited account has no password yet, so both roles land on /welcome to set one; the role
-  // home comes after that, from the same resolver. Asking for it through resolvePostLoginRedirect
-  // rather than naming it keeps one decision point — and it is allow-listed for both roles, so an
-  // invited administrator is not quietly bounced to /admin without a password.
   const destination = resolvePostLoginRedirect(verified.data.user, '/welcome');
   const response = NextResponse.redirect(new URL(destination, request.nextUrl.origin));
   if (!(await completePostLogin(request, response, verified.data.user))) {
