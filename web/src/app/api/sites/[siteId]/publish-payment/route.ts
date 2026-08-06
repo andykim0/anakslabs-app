@@ -40,7 +40,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
   if (!site.draftConfig) {
-    return apiError(409, 'NO_DRAFT', '결제할 발행 초안이 없습니다.');
+    return apiError(409, 'NO_DRAFT', 'There is no publish draft to pay for.');
   }
   const industryPolicy = industryPublishPolicy(site);
   if (industryPolicy.status === 'gated' || industryPolicy.status === 'unavailable') {
@@ -53,7 +53,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
   if (!quoteMatchesSite(body.data.quoteId, { clientId: client.id, siteId, pricing })) {
-    return apiError(409, 'PUBLISH_QUOTE_STALE', '발행 견적이 달라졌습니다. 다시 확인해 주세요.');
+    return apiError(409, 'PUBLISH_QUOTE_STALE', 'The publish quote changed. Review it again.');
   }
 
   const subscription = await resolveSiteSubscription(client.id);

@@ -17,13 +17,13 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
 
   const { id } = await params;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   try {
     await completeEditFulfillment({ editRequestId: id, actorType: 'admin', actorId });
   } catch (error) {
     if (error instanceof AdminEditQueueError) {
       const status = error.code === 'ADMIN_EDIT_REQUEST_NOT_FOUND' ? 404 : 409;
-      return apiError(status, error.code, '발행본 반영까지 완료할 수 없어 요청 상태를 유지했습니다.');
+      return apiError(status, error.code, 'The change could not be carried through to the published version, so the request state was kept.');
     }
     throw error;
   }

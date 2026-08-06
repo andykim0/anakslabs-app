@@ -20,13 +20,13 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/NOT_FOUND|original receipt not found/i.test(message)) {
-      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', '취소할 수금 기록을 찾을 수 없습니다.');
+      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', 'No collection record was found to cancel.');
     }
     if (/ALREADY_EXISTS|already has another reversal|REFERENCE_CONFLICT/i.test(message)) {
-      return apiError(409, 'MANUAL_COLLECTION_ALREADY_CANCELLED', '이미 취소된 수금 기록입니다.');
+      return apiError(409, 'MANUAL_COLLECTION_ALREADY_CANCELLED', 'This collection record is already cancelled.');
     }
     if (/SUBSCRIPTION_NOT_LATEST|only the latest subscription renewal/i.test(message)) {
-      return apiError(409, 'MANUAL_SUBSCRIPTION_REVERSAL_ORDER_REQUIRED', '구독 수금은 가장 최근 기록부터 취소해 주세요.');
+      return apiError(409, 'MANUAL_SUBSCRIPTION_REVERSAL_ORDER_REQUIRED', 'Cancel subscription collections starting from the most recent record.');
     }
     throw error;
   }

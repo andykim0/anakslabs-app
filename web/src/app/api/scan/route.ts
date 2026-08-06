@@ -52,7 +52,7 @@ async function scanOne(normalized: string) {
 export const POST = withApiHandler(async (request: NextRequest) => {
   const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
   if (rateLimited(ip)) {
-    return apiError(429, 'RATE_LIMITED', '진단 요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many scan requests. Try again in a moment.');
   }
 
   const body = await parseBody(request, bodySchema);
@@ -65,7 +65,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
   try {
     const normalizedUrls = [body.data.url, ...(body.data.competitorUrls ?? [])].map(normalizeScanUrl);
     if (new Set(normalizedUrls).size !== normalizedUrls.length) {
-      return apiError(400, 'DUPLICATE_SCAN_URL', '같은 홈페이지 주소는 한 번만 입력해 주세요.');
+      return apiError(400, 'DUPLICATE_SCAN_URL', 'Enter each website address only once.');
     }
     const [primary, ...comparisons] = await Promise.all(normalizedUrls.map(scanOne));
     core = { ...primary, comparisons: comparisons.map(toComparisonResult) };

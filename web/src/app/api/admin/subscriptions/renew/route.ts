@@ -20,7 +20,7 @@ export const POST = withApiHandler(async (request) => {
   if (!body.ok) return body.res;
 
   const client = await getDataServices().clients.getById(body.data.clientId);
-  if (!client) return apiError(404, 'CLIENT_NOT_FOUND', '고객을 찾을 수 없습니다.');
+  if (!client) return apiError(404, 'CLIENT_NOT_FOUND', 'Client not found.');
 
   const result = await renewSiteSubscriptionManually(body.data);
   return NextResponse.json({

@@ -68,7 +68,7 @@ export const POST = withApiHandler(async (request) => {
   // Invalid rollout dependencies fail before rate mutation or external work.
   const provenance = assetProvenanceConfig();
   if (rateLimited(client.id)) {
-    return apiError(429, 'RATE_LIMITED', '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many requests. Try again in a moment.');
   }
 
   const rawBody: unknown = await request.clone().json().catch(() => null);
@@ -90,7 +90,7 @@ export const POST = withApiHandler(async (request) => {
     const siteId = provenance.write ? body.data.siteId ?? null : null;
     if (siteId) {
       const site = await getOwnedSite(siteId, client.id);
-      if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', '사진을 연결할 사이트를 찾을 수 없습니다.');
+      if (!site) return apiError(404, 'ASSET_SITE_NOT_FOUND', 'No site was found to attach this photo to.');
     }
 
     const images = (

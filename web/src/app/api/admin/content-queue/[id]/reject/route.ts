@@ -19,7 +19,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   const { id } = await params;
   try {
     const result = await rejectAdminContentPost({

@@ -9,7 +9,7 @@ import { creditsEnabled } from '@/lib/product/flags';
 
 export const GET = withApiHandler(async () => {
   if (!creditsEnabled()) {
-    return apiError(404, 'CREDITS_DISABLED', '크레딧 기능은 현재 제공하지 않습니다.');
+    return apiError(404, 'CREDITS_DISABLED', 'Credits are not available.');
   }
   const client = await getAuthedClient();
   if (!client) return unauthorized();

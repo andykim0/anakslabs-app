@@ -21,7 +21,7 @@ const bodySchema = z.object({
 
 export const POST = withApiHandler(async (request) => {
   if (!creditsEnabled()) {
-    return apiError(404, 'CREDITS_DISABLED', '크레딧 충전은 현재 제공하지 않습니다.');
+    return apiError(404, 'CREDITS_DISABLED', 'Credit top-up is not available.');
   }
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
@@ -33,7 +33,7 @@ export const POST = withApiHandler(async (request) => {
   const { clients, credits } = getDataServices();
   const client = await clients.getById(clientId);
   if (!client) {
-    return apiError(404, 'CLIENT_NOT_FOUND', '고객을 찾을 수 없습니다.');
+    return apiError(404, 'CLIENT_NOT_FOUND', 'Client not found.');
   }
 
   if (amount > 0) {

@@ -23,14 +23,14 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
 
   const { id } = await params;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   const body = await parseBody(request, bodySchema);
   if (!body.ok) return body.res;
 
   const { editRequests, credits } = getDataServices();
   const editRequest = await editRequests.getById(id);
   if (!editRequest) {
-    return apiError(404, 'EDIT_REQUEST_NOT_FOUND', '편집 요청을 찾을 수 없습니다.');
+    return apiError(404, 'EDIT_REQUEST_NOT_FOUND', 'Edit request not found.');
   }
   if (editRequest.status === 'applied' || editRequest.status === 'rejected') {
     return apiError(

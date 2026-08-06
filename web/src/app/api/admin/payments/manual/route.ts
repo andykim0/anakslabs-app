@@ -31,18 +31,18 @@ export const POST = withApiHandler(async (request) => {
   const { clients, sites } = getDataServices();
   const client = body.data.clientId ? await clients.getById(body.data.clientId) : null;
   if (body.data.clientId && !client) {
-    return apiError(404, 'CLIENT_NOT_FOUND', '고객을 찾을 수 없습니다.');
+    return apiError(404, 'CLIENT_NOT_FOUND', 'Client not found.');
   }
   if (!body.data.clientId && (!body.data.customerName || !body.data.customerContact)) {
-    return apiError(400, 'CUSTOMER_REQUIRED', '기존 계정을 고르거나 고객 이름과 연락처 메모를 입력해 주세요.');
+    return apiError(400, 'CUSTOMER_REQUIRED', 'Choose an existing account, or enter the client name and contact note.');
   }
   if (body.data.clientId && (body.data.customerName || body.data.customerContact)) {
-    return apiError(400, 'CUSTOMER_AMBIGUOUS', '기존 계정과 직접 입력 고객을 동시에 기록할 수 없습니다.');
+    return apiError(400, 'CUSTOMER_AMBIGUOUS', 'Record either an existing account or a manually entered client, not both.');
   }
   if (body.data.siteId) {
     const site = await sites.getById(body.data.siteId);
     if (!client || !site || site.clientId !== client.id) {
-      return apiError(422, 'SITE_OWNERSHIP_MISMATCH', '선택한 사이트가 고객 소유가 아닙니다.');
+      return apiError(422, 'SITE_OWNERSHIP_MISMATCH', 'The selected site does not belong to this client.');
     }
   }
 
@@ -57,10 +57,10 @@ export const POST = withApiHandler(async (request) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/AMOUNT_MISMATCH|PRODUCT_INVALID|unknown credit pack/i.test(message)) {
-      return apiError(422, 'MANUAL_COLLECTION_AMOUNT_MISMATCH', '현재 가격표와 일치하는 금액만 기록할 수 있습니다.');
+      return apiError(422, 'MANUAL_COLLECTION_AMOUNT_MISMATCH', 'Only amounts matching the current price list can be recorded.');
     }
     if (/REFERENCE_CONFLICT|conflicts with existing evidence/i.test(message)) {
-      return apiError(409, 'MANUAL_COLLECTION_REFERENCE_CONFLICT', '이미 다른 수금에 사용된 참조번호입니다.');
+      return apiError(409, 'MANUAL_COLLECTION_REFERENCE_CONFLICT', 'This reference number is already used by another collection.');
     }
     throw error;
   }

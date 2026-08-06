@@ -71,29 +71,29 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   const statedSize = Number(request.headers.get('content-length') ?? 0);
   if (Number.isFinite(statedSize) && statedSize > DEMO_VIEW_MAX_BODY_BYTES) {
-    return apiError(413, 'PAYLOAD_TOO_LARGE', '열람 신호가 허용 크기를 넘었습니다.');
+    return apiError(413, 'PAYLOAD_TOO_LARGE', 'The view signal is larger than allowed.');
   }
   const raw = await request.text();
   if (new TextEncoder().encode(raw).byteLength > DEMO_VIEW_MAX_BODY_BYTES) {
-    return apiError(413, 'PAYLOAD_TOO_LARGE', '열람 신호가 허용 크기를 넘었습니다.');
+    return apiError(413, 'PAYLOAD_TOO_LARGE', 'The view signal is larger than allowed.');
   }
   let decoded: unknown;
   try {
     decoded = JSON.parse(raw);
   } catch {
-    return apiError(400, 'INVALID_JSON', '올바른 JSON이 아닙니다.');
+    return apiError(400, 'INVALID_JSON', 'This is not valid JSON.');
   }
   const parsed = payloadSchema.safeParse(decoded);
   if (!parsed.success) {
-    return apiError(400, 'VALIDATION_ERROR', '허용된 데모 열람 필드만 전송할 수 있습니다.');
+    return apiError(400, 'VALIDATION_ERROR', 'Only the permitted demo view fields may be sent.');
   }
 
   const preview = await getSharedSitePreviewById(parsed.data.previewId);
   if (!preview || !isUsMedicalPreview(preview)) {
-    return apiError(404, 'DEMO_NOT_FOUND', '데모를 찾을 수 없습니다.');
+    return apiError(404, 'DEMO_NOT_FOUND', 'Demo not found.');
   }
   if (!preview.siteConfig.pages.some((page) => page.slug === parsed.data.pageSlug)) {
-    return apiError(400, 'INVALID_PAGE_SLUG', '데모에 없는 페이지 주소입니다.');
+    return apiError(400, 'INVALID_PAGE_SLUG', 'That page address is not part of the demo.');
   }
 
   let identity: ReturnType<typeof hashDemoViewIdentity>;
@@ -106,11 +106,11 @@ export const POST = withApiHandler(async (request: NextRequest) => {
       userAgent: userAgent ?? '',
     });
   } catch {
-    return apiError(503, 'DEMO_TRACKING_UNAVAILABLE', '열람 측정 설정을 확인할 수 없습니다.');
+    return apiError(503, 'DEMO_TRACKING_UNAVAILABLE', 'The view measurement settings could not be resolved.');
   }
   if (isInternalDemoIpHash(identity.ipHash)) return accepted();
   if (!limiter.allow(`${parsed.data.previewId}:${identity.ipHash}`)) {
-    return apiError(429, 'RATE_LIMITED', '열람 신호가 너무 자주 전송되었습니다.');
+    return apiError(429, 'RATE_LIMITED', 'View signals are being sent too frequently.');
   }
 
   const stored = storedDemoViewInput({

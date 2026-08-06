@@ -20,7 +20,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   const { entryId } = await params;
 
   const site = await getDataServices().sites.getById(body.data.siteId);
-  if (!site) return apiError(404, 'SITE_NOT_FOUND', '연결할 사이트를 찾을 수 없습니다.');
+  if (!site) return apiError(404, 'SITE_NOT_FOUND', 'No site was found to link.');
 
   try {
     const result = await getManualCollectionsRepository().linkSite({
@@ -32,13 +32,13 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/OWNERSHIP_MISMATCH/i.test(message)) {
-      return apiError(422, 'SITE_OWNERSHIP_MISMATCH', '선택한 사이트가 연결 고객 소유가 아닙니다.');
+      return apiError(422, 'SITE_OWNERSHIP_MISMATCH', 'The selected site does not belong to the linked client.');
     }
     if (/CANCELLED|ALREADY_LINKED|CLIENT_REQUIRED/i.test(message)) {
-      return apiError(409, 'MANUAL_COLLECTION_LINK_CONFLICT', '계정을 먼저 연결하거나 기존 연결 상태를 확인해 주세요.');
+      return apiError(409, 'MANUAL_COLLECTION_LINK_CONFLICT', 'Link an account first, or check the existing link.');
     }
     if (/NOT_FOUND/i.test(message)) {
-      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', '수금 기록을 찾을 수 없습니다.');
+      return apiError(404, 'MANUAL_COLLECTION_NOT_FOUND', 'Collection record not found.');
     }
     throw error;
   }

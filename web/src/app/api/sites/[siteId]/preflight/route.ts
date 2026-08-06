@@ -41,7 +41,7 @@ export const POST = withApiHandler<Ctx>(async (_request: NextRequest, { params }
 
   const config = site.draftConfig ?? site.siteConfig;
   if (!config) {
-    return apiError(409, 'NO_DRAFT', '진단할 초안이 없습니다. 에디터에서 사이트를 먼저 편집해 주세요.');
+    return apiError(409, 'NO_DRAFT', 'There is no draft to scan. Edit the site in the editor first.');
   }
 
   if (usTenantLegalDocumentsRequired(config) && !US_TENANT_LEGAL_DOCUMENTS_ENABLED) {

@@ -45,7 +45,7 @@ export const POST = withApiHandler(async (request) => {
   void cfg.enabled;
   // (b) 클라이언트당 상한
   if (rateLimited(client.id, cfg.maxPerClient)) {
-    return apiError(429, 'RATE_LIMITED', '메뉴판 인식 요청이 너무 잦아요. 잠시 후 다시 시도하거나 직접 입력해 주세요.');
+    return apiError(429, 'RATE_LIMITED', 'Too many menu-scan requests. Try again in a moment, or enter the items yourself.');
   }
 
   const body = await parseBody(request, bodySchema);

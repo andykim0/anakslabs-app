@@ -32,11 +32,11 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const { siteId } = await params;
   const services = getDataServices();
   const site = await services.sites.getById(siteId);
-  if (!site) return apiError(404, 'SITE_NOT_FOUND', '사이트를 찾을 수 없습니다.');
+  if (!site) return apiError(404, 'SITE_NOT_FOUND', 'Site not found.');
 
   const input = body.data;
   if (input.status === 'completed' && (!input.accountLabel || !input.naverVerification)) {
-    return apiError(400, 'REGISTRATION_EVIDENCE_REQUIRED', '완료 처리에는 네이버 등록 계정과 소유확인 값이 필요합니다.');
+    return apiError(400, 'REGISTRATION_EVIDENCE_REQUIRED', 'Completing this requires the Naver registration account and the ownership verification value.');
   }
 
   const records = await listSearchRegistrations();
@@ -46,7 +46,7 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const accountUsage = summarizeRegistrationAccounts(records)
     .find((usage) => usage.accountLabel === input.accountLabel);
   if (changesCompletedAccount && (accountUsage?.registeredCount ?? 0) >= NAVER_ACCOUNT_SITE_LIMIT) {
-    return apiError(409, 'NAVER_ACCOUNT_FULL', '이 운영 계정은 100곳에 도달했습니다. 다음 계정을 선택해 주세요.');
+    return apiError(409, 'NAVER_ACCOUNT_FULL', 'This operating account has reached 100 sites. Select the next account.');
   }
 
   await services.sites.setSearchVerification(siteId, {

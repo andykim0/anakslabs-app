@@ -71,20 +71,20 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     sites.getById(siteId),
     repository.getBySite(siteId),
   ]);
-  if (!site) return apiError(404, 'SITE_NOT_FOUND', '사이트를 찾을 수 없습니다.');
+  if (!site) return apiError(404, 'SITE_NOT_FOUND', 'Site not found.');
   const client = await clients.getById(site.clientId);
-  if (!client) return apiError(409, 'CLIENT_NOT_FOUND', '사이트 소유 고객을 확인할 수 없습니다.');
+  if (!client) return apiError(409, 'CLIENT_NOT_FOUND', 'The client who owns this site could not be resolved.');
 
   if (existing) {
     if (existing.videoAssetId !== body.data.videoAssetId) {
-      return apiError(409, 'VIDEO_FULFILLMENT_CONFLICT', '이 사이트는 다른 영상 자산으로 이행 완료되었습니다.');
+      return apiError(409, 'VIDEO_FULFILLMENT_CONFLICT', 'This site was already fulfilled with a different video asset.');
     }
     return NextResponse.json({ ok: true, duplicated: true });
   }
 
   const state = siteVideoFulfillmentState({ site, client });
   if (!state.pending) {
-    return apiError(409, 'VIDEO_FULFILLMENT_NOT_PENDING', '애드온 권한·명시적 요청·미이행 상태를 모두 확인할 수 없습니다.');
+    return apiError(409, 'VIDEO_FULFILLMENT_NOT_PENDING', 'The add-on entitlement, the explicit request, and the unfulfilled state could not all be confirmed.');
   }
   if (state.blockedReason) {
     return blockedFulfillmentResponse(state.blockedReason);
@@ -98,7 +98,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
       siteId,
     });
   } catch {
-    return apiError(422, 'VIDEO_ASSET_PROVENANCE_MISMATCH', '영상 자산의 소유·사이트 귀속 기록을 확인할 수 없습니다.');
+    return apiError(422, 'VIDEO_ASSET_PROVENANCE_MISMATCH', 'The ownership and site binding records for this video asset could not be confirmed.');
   }
   if (
     !videoRecord
@@ -107,11 +107,11 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     || !videoRecord.storageBucket
     || !videoRecord.storageKey
   ) {
-    return apiError(422, 'VIDEO_ASSET_PROVENANCE_INVALID', '서버가 등록한 AI 영상 자산만 이행에 사용할 수 있습니다.');
+    return apiError(422, 'VIDEO_ASSET_PROVENANCE_INVALID', 'Only server-registered AI video assets can be used for fulfillment.');
   }
 
   const posterUrl = heroPoster(state.config);
-  if (!posterUrl) return apiError(409, 'HERO_SOURCE_MISSING', '히어로 poster 원본을 확인할 수 없습니다.');
+  if (!posterUrl) return apiError(409, 'HERO_SOURCE_MISSING', 'The hero poster source could not be confirmed.');
   const trustedAssetRef = toAssetRef(videoRecord);
 
   const applyAndAuthorize = async (config: SiteConfig | null) => {
@@ -149,7 +149,7 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
     ]);
   } catch (error) {
     if (error instanceof Error && error.message === 'VIDEO_FULFILLMENT_POLICY_REJECTED') {
-      return apiError(422, 'VIDEO_FULFILLMENT_POLICY_REJECTED', '현재 자산 정책에서 이 영상의 배정을 승인할 수 없습니다.');
+      return apiError(422, 'VIDEO_FULFILLMENT_POLICY_REJECTED', 'The current asset policy does not allow assigning this video.');
     }
     throw error;
   }
@@ -235,13 +235,13 @@ export const POST = withApiHandler<Ctx>(async (request: NextRequest, { params })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/CONFIG_CHANGED|changed concurrently|40001/i.test(message)) {
-      return apiError(409, 'VIDEO_FULFILLMENT_CONFIG_CHANGED', '고객의 최근 편집이 탐지됐습니다. 큐를 새로고침한 뒤 다시 적용해 주세요.');
+      return apiError(409, 'VIDEO_FULFILLMENT_CONFIG_CHANGED', 'The client edited this site recently. Refresh the queue and apply again.');
     }
     if (/RETRY_CONFLICT|conflicts with completed history|23505/i.test(message)) {
-      return apiError(409, 'VIDEO_FULFILLMENT_CONFLICT', '이 사이트의 이행 이력과 요청한 자산이 다릅니다.');
+      return apiError(409, 'VIDEO_FULFILLMENT_CONFLICT', 'The requested asset does not match the fulfillment history for this site.');
     }
     if (/PROVENANCE|asset provenance|42501/i.test(message)) {
-      return apiError(422, 'VIDEO_ASSET_PROVENANCE_MISMATCH', '영상 자산의 서버 출처 기록을 재확인해 주세요.');
+      return apiError(422, 'VIDEO_ASSET_PROVENANCE_MISMATCH', 'Re-check the server provenance record for this video asset.');
     }
     throw error;
   }

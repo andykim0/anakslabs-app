@@ -9,6 +9,7 @@
  * 보안: x-forwarded-host는 신뢰하지 않는다 — `headers.get('host')`만 사용.
  */
 import { NextResponse, type NextRequest } from 'next/server';
+import { REQUESTED_PATH_HEADER } from '@/lib/auth/requested-path';
 import { createServerClient } from '@supabase/ssr';
 import {
   APP_ENTRY_SUBDOMAIN,
@@ -125,6 +126,20 @@ function routeAllowedForLocale(route: OperatorHiddenRoute, locale: string): bool
     : customerWorkspaceItemsForLocale(locale).includes(route);
 }
 
+/**
+ * Auth stays in the layouts; this only tells them where the visitor was going, since a Server
+ * Component cannot read its own pathname and both layouts were sending everyone to the root of
+ * their area instead of the page they asked for.
+ */
+function appRequestPassthrough(request: NextRequest): NextResponse {
+  const headers = new Headers(request.headers);
+  headers.set(
+    REQUESTED_PATH_HEADER,
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
+  return NextResponse.next({ request: { headers } });
+}
+
 /** Resolve hidden customer surfaces before the dashboard layout starts a 200 stream. */
 async function guardOperatorHiddenRoute(
   request: NextRequest,
@@ -193,7 +208,7 @@ export function proxy(request: NextRequest) {
     if (siteId) return guardDashboardSite(request, siteId);
     const hiddenRoute = operatorHiddenRoute(request.nextUrl.pathname);
     if (hiddenRoute) return guardOperatorHiddenRoute(request, hiddenRoute);
-    return NextResponse.next();
+    return appRequestPassthrough(request);
   }
 
   // 로컬 데모: hwarodam.localhost → hwarodam.ROOT_DOMAIN 테넌트로 취급

@@ -65,11 +65,11 @@ export const POST = withApiHandler(async (
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 식별 정보를 확인할 수 없습니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'The administrator identity could not be resolved.');
   const { artifactId } = await context.params;
   const artifactRecord = await getCrawlArtifact(artifactId);
   if (!artifactRecord || new Date(artifactRecord.expiresAt) <= new Date()) {
-    return apiError(404, 'CRAWL_ARTIFACT_NOT_FOUND', '수집 자료가 없거나 보관 기간이 끝났습니다.');
+    return apiError(404, 'CRAWL_ARTIFACT_NOT_FOUND', 'The collected material is missing or past its retention window.');
   }
   const body = await parseBody(request, createSchema);
   if (!body.ok) return body.res;
@@ -116,7 +116,7 @@ export const POST = withApiHandler(async (
   } else if (body.data.previewKind === 'us-medical-consented') {
     const evidence = artifactRecord.artifact.consentEvidence;
     if (!evidence) {
-      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
+      return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', 'A verifiable record of verbal consent is required.');
     }
     try {
       const consent = await requireUsMedicalDemoConsent({
@@ -138,7 +138,7 @@ export const POST = withApiHandler(async (
         return apiError(422, error.code, error.message);
       }
       if (error instanceof Error && error.message === 'US_MEDICAL_CONSENT_REQUIRED') {
-        return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', '검증 가능한 구두 동의 레코드가 필요합니다.');
+        return apiError(409, 'US_MEDICAL_CONSENT_REQUIRED', 'A verifiable record of verbal consent is required.');
       }
       throw error;
     }

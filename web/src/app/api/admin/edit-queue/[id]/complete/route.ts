@@ -12,12 +12,12 @@ const completionBody = z.object({ siteAppliedConfirmed: z.literal(true) }).stric
 
 function errorResponse(error: AdminEditQueueError): NextResponse {
   if (error.code === 'ADMIN_EDIT_REQUEST_NOT_FOUND') {
-    return apiError(404, error.code, '수정 요청을 찾을 수 없습니다.');
+    return apiError(404, error.code, 'Edit request not found.');
   }
   if (error.code === 'ADMIN_EDIT_REQUEST_INPUT_INVALID') {
-    return apiError(400, error.code, '수정 요청 ID가 올바르지 않습니다.');
+    return apiError(400, error.code, 'The edit request ID is not valid.');
   }
-  return apiError(409, error.code, '이미 반려됐거나 현재 상태에서는 완료할 수 없는 요청입니다.');
+  return apiError(409, error.code, 'This request was rejected, or its current state does not allow completion.');
 }
 
 export const POST = withApiHandler<Ctx>(async (request, { params }) => {
@@ -29,7 +29,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
 
   const { id } = await params;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 권한이 필요합니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'Administrator access is required.');
   try {
     const result = await completeEditFulfillment({ editRequestId: id, actorType: 'admin', actorId });
     return NextResponse.json({ ok: true, duplicated: result.duplicated });

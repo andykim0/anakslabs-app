@@ -31,7 +31,7 @@ export async function parseBody<S extends z.ZodType>(
   } catch {
     return {
       ok: false,
-      res: apiError(400, 'INVALID_JSON', '요청 본문이 올바른 JSON 형식이 아닙니다.'),
+      res: apiError(400, 'INVALID_JSON', 'The request body is not valid JSON.'),
     };
   }
   const parsed = schema.safeParse(raw);
@@ -43,7 +43,7 @@ export async function parseBody<S extends z.ZodType>(
       .join(' / ');
     return {
       ok: false,
-      res: apiError(400, 'VALIDATION_ERROR', `입력값이 올바르지 않습니다. (${detail})`),
+      res: apiError(400, 'VALIDATION_ERROR', `Check the submitted values. (${detail})`),
     };
   }
   return { ok: true, data: parsed.data };
@@ -61,7 +61,7 @@ export function withApiHandler<Ctx = unknown>(
       return await handler(request, context);
     } catch (err) {
       console.error('[api] unhandled error:', err);
-      return apiError(500, 'INTERNAL_ERROR', '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      return apiError(500, 'INTERNAL_ERROR', 'Something went wrong on our end. Try again in a moment.');
     }
   };
 }

@@ -21,7 +21,7 @@ export const GET = withApiHandler<Ctx>(async (_request, { params }) => {
 
   const client = await clients.getById(id);
   if (!client) {
-    return apiError(404, 'CLIENT_NOT_FOUND', '고객을 찾을 수 없습니다.');
+    return apiError(404, 'CLIENT_NOT_FOUND', 'Client not found.');
   }
 
   const [balance, siteList, ledger, paymentList] = await Promise.all([
@@ -65,7 +65,7 @@ export const PATCH = withApiHandler<Ctx>(async (request, { params }) => {
   const { clients } = getDataServices();
   const client = await clients.getById(id);
   if (!client) {
-    return apiError(404, 'CLIENT_NOT_FOUND', '고객을 찾을 수 없습니다.');
+    return apiError(404, 'CLIENT_NOT_FOUND', 'Client not found.');
   }
 
   if (body.data.tier !== undefined && body.data.tier !== client.tier) {

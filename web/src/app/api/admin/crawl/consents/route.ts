@@ -13,7 +13,7 @@ export const POST = withApiHandler(async (request) => {
   const forbidden = await requireAdminOr403();
   if (forbidden) return forbidden;
   const actorId = await getCurrentAdminActorId();
-  if (!actorId) return apiError(403, 'FORBIDDEN', '관리자 식별 정보를 확인할 수 없습니다.');
+  if (!actorId) return apiError(403, 'FORBIDDEN', 'The administrator identity could not be resolved.');
   const body = await parseBody(request, usMedicalDemoConsentInputSchema);
   if (!body.ok) return body.res;
   const consent = await createUsMedicalDemoConsent({

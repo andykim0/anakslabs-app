@@ -22,7 +22,7 @@ describe('W4 — 히어로 영상 적용 방벽', () => {
     assert.ok(addon < owned && addon < parse && addon < save, '애드온 가드가 PATCH 부수효과보다 뒤에 있다');
     assert.match(
       patch,
-      /apiError\(403, 'VIDEO_GEN_ADDON', 'AI 영상 히어로는 AI 영상 홈페이지 승인이 필요합니다\.'/,
+      /apiError\(403, 'VIDEO_GEN_ADDON', 'An AI video hero requires AI video homepage approval\.'/,
     );
   });
 

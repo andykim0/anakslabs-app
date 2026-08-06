@@ -16,7 +16,7 @@ export const GET = withApiHandler(async (
   const { artifactId } = await context.params;
   const record = await getCrawlArtifact(artifactId);
   if (!record || new Date(record.expiresAt) <= new Date()) {
-    return apiError(404, 'CRAWL_ARTIFACT_NOT_FOUND', '수집 자료가 없거나 보관 기간이 끝났습니다.');
+    return apiError(404, 'CRAWL_ARTIFACT_NOT_FOUND', 'The collected material is missing or past its retention window.');
   }
   const usDemo = record.artifact.scanProfileId === US_MEDICAL_OUTREACH_PROFILE_ID
     ? buildUsDemoCurationProjection(record.artifact)

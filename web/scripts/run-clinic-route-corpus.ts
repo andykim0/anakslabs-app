@@ -57,6 +57,40 @@ interface CorpusExclusion {
   reason: string;
 }
 
+/**
+ * Sites whose stored capture is not the site at all, so the compiler has nothing to compile.
+ *
+ * These live here rather than in the corpus manifest because the corpus directory is a frozen
+ * asset — its tree SHA is a release gate — and this is a measurement decision, not a change to
+ * what was captured. Each one was confirmed by reading the stored DOM: an HTTP 403 body, not a
+ * clinic page. The compiler refusing to build a site from a firewall error page is the honesty
+ * gate working, so counting them as failures understates a denominator that can never be met.
+ * The next corpus batch should re-crawl them from an unblocked address.
+ */
+const RUNNER_SITE_EXCLUSIONS: readonly CorpusExclusion[] = [
+  {
+    scope: 'site',
+    siteId: '004-kr-www.saekimps.co.kr-cf6b552d85',
+    sourceUrl: 'https://saekimps.co.kr/',
+    reasonCode: 'waf_blocked_capture',
+    reason: 'WAF-blocked capture (NinjaFirewall 403): the stored DOM is a 403 body, not the site.',
+  },
+  {
+    scope: 'site',
+    siteId: '022-kr-www.marbleps.com-b92b2db9b5',
+    sourceUrl: 'https://marbleps.com/',
+    reasonCode: 'waf_blocked_capture',
+    reason: 'WAF-blocked capture (NinjaFirewall 403): the stored DOM is a 403 body, not the site.',
+  },
+  {
+    scope: 'site',
+    siteId: '029-kr-www.lamar180.com-db5edff5a9',
+    sourceUrl: 'https://www.lamar180.com/',
+    reasonCode: 'unrelated_domain_redirect',
+    reason: '403 + domain redirected to unrelated site (www.petit-party.com); no longer this clinic.',
+  },
+];
+
 interface CorpusManifest {
   generatedAt: string;
   targetCount: number;
@@ -351,7 +385,7 @@ async function main(): Promise<void> {
   const manifest = JSON.parse(
     await readFile(path.join(CORPUS_ROOT, 'manifest.json'), 'utf8'),
   ) as CorpusManifest;
-  const siteExclusions = new Set(manifest.excluded
+  const siteExclusions = new Set([...manifest.excluded, ...RUNNER_SITE_EXCLUSIONS]
     .filter((entry) => entry.scope === 'site')
     .map((entry) => entry.siteId));
   const pageExclusionsBySite = new Map<string, Set<string>>();
@@ -426,6 +460,14 @@ async function main(): Promise<void> {
       corpusGeneratedAt: manifest.generatedAt,
       measuredAt: new Date().toISOString(),
       issuance: false,
+      // The denominator counts sites whose capture is actually the site. Anything excluded here
+      // is named with its reason so the number is auditable rather than just smaller.
+      runnerExclusions: RUNNER_SITE_EXCLUSIONS.map((entry) => ({
+        siteId: entry.siteId,
+        reasonCode: entry.reasonCode,
+        reason: entry.reason,
+      })),
+      manifestSiteExclusionCount: manifest.excluded.filter((e) => e.scope === 'site').length,
       eligibleSiteCount: sites.length,
       sites,
     }, null, 2),

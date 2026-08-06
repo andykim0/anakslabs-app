@@ -34,7 +34,7 @@ export const POST = withApiHandler<Ctx>(async (_request, { params }) => {
   const site = await getOwnedSite(siteId, client.id);
   if (!site) return siteNotFound();
   if (!site.siteConfig) {
-    return apiError(400, 'PUBLISH_REQUIRED', '발행본이 있는 사이트만 백업할 수 있습니다. 먼저 발행해 주세요.');
+    return apiError(400, 'PUBLISH_REQUIRED', 'Only a site with a published version can be backed up. Publish it first.');
   }
 
   let result;
