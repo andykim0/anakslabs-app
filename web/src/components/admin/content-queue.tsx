@@ -16,10 +16,12 @@ import {
 import { useState } from 'react';
 import {
   approveAdminContent,
+  approveSwapAdminContent,
   generateAdminContent,
   getAdminContentQueue,
   provisionAdminContentSlots,
   rejectAdminContent,
+  reworkAdminContent,
   type AdminContentFulfillmentSite,
   type AdminContentQueueItem,
   type AdminContentQueueStatus,
@@ -40,6 +42,7 @@ const STATUS_LABELS: Record<AdminContentQueueStatus, string> = {
   generating: "Creating",
   pending_approval: "Waiting for approval",
   rejected: "Rejected",
+  published: "Live on the site",
 };
 
 const STATUS_TONES: Record<AdminContentQueueStatus, BadgeTone> = {
@@ -47,6 +50,7 @@ const STATUS_TONES: Record<AdminContentQueueStatus, BadgeTone> = {
   generating: 'blue',
   pending_approval: 'amber',
   rejected: 'red',
+  published: 'green',
 };
 
 const DEFAULT_TOPIC = "Criteria for customers to check before making a decision";
@@ -149,10 +153,24 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
     ),
     onSuccess: refresh,
   });
-  const mutationError = generation.error ?? rejection.error ?? approval.error;
-  const busy = generation.isPending || rejection.isPending || approval.isPending;
+  const rework = useMutation({
+    mutationFn: () => reworkAdminContent(item.id, topic),
+    onSuccess: refresh,
+  });
+  const swap = useMutation({
+    mutationFn: () => approveSwapAdminContent(item.id, item.pendingVersionId!),
+    onSuccess: refresh,
+  });
+  const mutationError = generation.error ?? rejection.error ?? approval.error
+    ?? rework.error ?? swap.error;
+  const busy = generation.isPending || rejection.isPending || approval.isPending
+    || rework.isPending || swap.isPending;
   const version = item.currentVersion;
   const isSafeCatalog = version?.generationMetadata.attempt === 'safe-catalog';
+  // A published row only reaches this queue while a replacement is staged against it.
+  const live = item.status === 'published';
+  const staged = live ? item.pendingVersion : null;
+  const stagedIsSafeCatalog = staged?.generationMetadata.attempt === 'safe-catalog';
 
   return (
     <Card className="p-4">
@@ -190,6 +208,81 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             <p role="alert" className="mt-2 text-xs font-medium text-amber-700">
               This draft is the safe-catalog fallback and is blocked from approval by default.
             </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {staged ? (
+        <div className="mt-3 rounded-md border border-sky-200 bg-sky-50 p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="blue">Staged replacement</Badge>
+            <p className="text-sm font-semibold text-slate-900">{staged.title}</p>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-slate-700">{staged.summary}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {staged.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+          </div>
+          <p className="mt-2 text-[11px] text-slate-500">
+            The post above is still live. Approving replaces it at the same address; nothing the
+            customer sees changes until then.
+          </p>
+          {stagedIsSafeCatalog ? (
+            <p role="alert" className="mt-2 text-xs font-medium text-amber-700">
+              This replacement is the safe-catalog fallback and cannot be swapped in — it is the
+              boilerplate the rework exists to remove. Generate another version.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {live ? (
+        <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">rework topic</span>
+              <input
+                value={topic}
+                onChange={(event) => setTopic(event.target.value)}
+                maxLength={240}
+                className="h-9 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-slate-500"
+                placeholder="This post topic"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => rework.mutate()}
+              disabled={busy || topic.trim().length < 2}
+              className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              {rework.isPending
+                ? <Loader2 size={13} className="animate-spin" aria-hidden />
+                : <RotateCcw size={13} aria-hidden />}
+              {staged ? "Generate another replacement" : "Rework this post"}
+            </button>
+          </div>
+          {staged ? (
+            <div className="flex flex-col items-end gap-2">
+              <label className="flex items-center gap-2 text-xs text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={approvalConfirmed}
+                  onChange={(event) => setApprovalConfirmed(event.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                I personally checked the text, tables, and sources.
+              </label>
+              <button
+                type="button"
+                onClick={() => swap.mutate()}
+                disabled={busy || !approvalConfirmed || stagedIsSafeCatalog}
+                className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-md bg-emerald-700 px-3 text-xs font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+              >
+                {swap.isPending
+                  ? <Loader2 size={13} className="animate-spin" aria-hidden />
+                  : <CheckCircle2 size={13} aria-hidden />}
+                Replace the live post
+              </button>
+            </div>
           ) : null}
         </div>
       ) : null}

@@ -50,16 +50,29 @@ export function contentQueueValidationEvidence(
   return evidence.data;
 }
 
-export function storedContentQueueSourceSnapshot(
+/**
+ * The version an approval is about. Defaults to the one the site is serving; a rework swap passes
+ * the staged version instead (0060). Either way it must be a version the row itself points at —
+ * an approval never validates a version that is not on one of the two pointers.
+ */
+function versionUnderReview(
   item: AdminContentQueueItem,
-): ContentSourceSnapshot {
-  const version = item.currentVersion;
-  if (!version || item.currentVersionId !== version.id) {
+  version: AdminContentQueueVersion | null,
+): AdminContentQueueVersion {
+  if (!version || (version.id !== item.currentVersionId && version.id !== item.pendingVersionId)) {
     throw new ContentQueueError(
       'CONTENT_POST_STATE_CONFLICT',
-      'The current immutable content version is missing.',
+      'The immutable content version under review is missing.',
     );
   }
+  return version;
+}
+
+export function storedContentQueueSourceSnapshot(
+  item: AdminContentQueueItem,
+  reviewed: AdminContentQueueVersion | null = item.currentVersion,
+): ContentSourceSnapshot {
+  const version = versionUnderReview(item, reviewed);
   const storedSnapshot = contentSourceSnapshotSchema.safeParse(version.sourceSnapshot);
   if (!storedSnapshot.success) {
     throw new ContentQueueError(
@@ -70,14 +83,11 @@ export function storedContentQueueSourceSnapshot(
   return storedSnapshot.data;
 }
 
-function generatedPostFromQueueItem(item: AdminContentQueueItem): GeneratedContentPost {
-  const version = item.currentVersion;
-  if (!version || item.currentVersionId !== version.id) {
-    throw new ContentQueueError(
-      'CONTENT_POST_STATE_CONFLICT',
-      'The current immutable content version is missing.',
-    );
-  }
+function generatedPostFromQueueItem(
+  item: AdminContentQueueItem,
+  reviewed: AdminContentQueueVersion | null,
+): GeneratedContentPost {
+  const version = versionUnderReview(item, reviewed);
   const evidence = contentQueueValidationEvidence(version);
   return generatedContentPostSchema.parse({
     slug: item.slug,
@@ -99,15 +109,14 @@ export function validateContentQueueItemForPublish(input: {
   currentSnapshot: ContentSourceSnapshot;
   currentConfig: SiteConfig;
   clinicFlagValue?: string;
+  /** Defaults to the served version; a rework swap validates the staged one instead. */
+  reviewedVersion?: AdminContentQueueVersion | null;
 }): GeneratedContentPostVersion {
-  const version = input.item.currentVersion;
-  const storedSnapshot = storedContentQueueSourceSnapshot(input.item);
-  if (!version) {
-    throw new ContentQueueError(
-      'CONTENT_POST_STATE_CONFLICT',
-      'The current immutable content version is missing.',
-    );
-  }
+  const version = versionUnderReview(
+    input.item,
+    input.reviewedVersion === undefined ? input.item.currentVersion : input.reviewedVersion,
+  );
+  const storedSnapshot = storedContentQueueSourceSnapshot(input.item, version);
   const currentSnapshotSha256 = contentSha256(input.currentSnapshot);
   if (
     currentSnapshotSha256 !== version.sourceSnapshotSha256
@@ -122,7 +131,7 @@ export function validateContentQueueItemForPublish(input: {
   let validated: GeneratedContentPostVersion;
   try {
     validated = validateContentPostForPending({
-      post: generatedPostFromQueueItem(input.item),
+      post: generatedPostFromQueueItem(input.item, version),
       snapshot: input.currentSnapshot,
       config: input.currentConfig,
       ...(input.clinicFlagValue !== undefined

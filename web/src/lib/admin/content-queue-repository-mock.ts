@@ -8,6 +8,7 @@ import {
   ContentQueueError,
   normalizeContentQueueLimit,
   type AdminContentQueueItem,
+  type AdminContentQueueVersion,
   type ContentGenerationClaim,
   type ContentPublishResult,
   type ContentQueueRepository,
@@ -15,14 +16,22 @@ import {
   type ContentSlotProvisionInput,
   type ContentSlotProvisionResult,
 } from './content-queue-core';
+import {
+  CONTENT_REWORK_REFUSAL_MESSAGES,
+  contentReworkSwapRefusal,
+} from './content-rework-policy';
 
-/** Mirrors the append-only content_post_events row 0059 writes when a slot is created. */
+/**
+ * Mirrors the append-only content_post_events rows 0059 and 0060 write. The rework verbs record
+ * from_status = to_status = 'published' for the same reason the migration does: nothing moved.
+ */
 export interface MockContentSlotEvent {
   contentPostId: string;
   clientId: string;
   siteId: string;
-  eventType: 'slot_created';
-  toStatus: 'draft';
+  eventType: 'slot_created' | 'rework_claimed' | 'rework_published';
+  fromStatus?: 'published';
+  toStatus: 'draft' | 'published';
   actorType: 'admin';
   actorId: string;
   createdAt: string;
@@ -52,7 +61,8 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   async listNonterminal(limit = 200): Promise<AdminContentQueueItem[]> {
     return [...this.items.values()]
-      .filter((item) => item.status !== 'published')
+      // Additive, like the SQL filter: published rows enter the queue only while one is staged.
+      .filter((item) => item.status !== 'published' || item.pendingVersionId !== null)
       .sort((left, right) => left.updatedAt.localeCompare(right.updatedAt))
       .slice(0, limit)
       .map((item) => structuredClone(item));
@@ -124,6 +134,8 @@ export class MockContentQueueRepository implements ContentQueueRepository {
         currentVersion: null,
         publishedVersionId: null,
         publishedAt: null,
+        pendingVersionId: null,
+        pendingVersion: null,
         createdAt: now,
         updatedAt: now,
       });
@@ -184,32 +196,48 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     }
   }
 
+  /**
+   * Appends an immutable version to the post's ledger and hands it back. Numbering follows the
+   * SQL — `max(version_number) + 1` over everything this post has ever produced — so a rework
+   * staged beside a live version cannot reuse a number the published one already holds.
+   */
+  private appendVersion(
+    item: AdminContentQueueItem,
+    generated: Parameters<ContentQueueRepository['storeGenerated']>[0]['generated'],
+  ): AdminContentQueueVersion {
+    const history = this.versionHistory.get(item.id) ?? [];
+    const versionNumber = history.reduce(
+      (highest, version) => Math.max(highest, version?.versionNumber ?? 0),
+      0,
+    ) + 1;
+    const version: AdminContentQueueVersion = {
+      id: randomUUID(),
+      versionNumber,
+      title: generated.post.title,
+      summary: generated.post.summary,
+      tags: [...generated.post.tags],
+      document: structuredClone(generated.post.document),
+      sourceSnapshot: structuredClone(generated.sourceSnapshot),
+      sourceSnapshotSha256: generated.sourceSnapshotSha256,
+      sourceRefs: [...generated.sourceRefs],
+      policyVersions: structuredClone(generated.policyVersions),
+      validationEvidence: structuredClone(generated.validationEvidence) as unknown as Record<string, unknown>,
+      generationMetadata: structuredClone(generated.generationMetadata) as unknown as Record<string, unknown>,
+      createdAt: new Date().toISOString(),
+    };
+    history.push(structuredClone(version));
+    this.versionHistory.set(item.id, history);
+    return version;
+  }
+
   async storeGenerated(input: Parameters<ContentQueueRepository['storeGenerated']>[0]) {
     const item = this.required(input.id);
     if (item.status !== 'generating') {
       throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Generation state conflict.');
     }
-    const versionId = randomUUID();
-    const versionNumber = (item.currentVersion?.versionNumber ?? 0) + 1;
-    item.currentVersionId = versionId;
-    item.currentVersion = {
-      id: versionId,
-      versionNumber,
-      title: input.generated.post.title,
-      summary: input.generated.post.summary,
-      tags: [...input.generated.post.tags],
-      document: structuredClone(input.generated.post.document),
-      sourceSnapshot: structuredClone(input.generated.sourceSnapshot),
-      sourceSnapshotSha256: input.generated.sourceSnapshotSha256,
-      sourceRefs: [...input.generated.sourceRefs],
-      policyVersions: structuredClone(input.generated.policyVersions),
-      validationEvidence: structuredClone(input.generated.validationEvidence) as unknown as Record<string, unknown>,
-      generationMetadata: structuredClone(input.generated.generationMetadata) as unknown as Record<string, unknown>,
-      createdAt: new Date().toISOString(),
-    };
-    const history = this.versionHistory.get(item.id) ?? [];
-    history.push(structuredClone(item.currentVersion));
-    this.versionHistory.set(item.id, history);
+    const version = this.appendVersion(item, input.generated);
+    item.currentVersionId = version.id;
+    item.currentVersion = version;
     item.status = 'pending_approval';
     item.updatedAt = new Date().toISOString();
     return structuredClone(item);
@@ -255,6 +283,102 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     return { item: structuredClone(item), siteDomain: null, duplicated: false };
   }
 
+  async claimRework(input: { id: string; actorId: string }): Promise<AdminContentQueueItem> {
+    const item = this.required(input.id);
+    // Same two conditions 0060 checks, in the same order: a rework opens on a live post, and only
+    // when nothing is staged against it yet.
+    if (item.status !== 'published' || item.pendingVersionId !== null) {
+      throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Rework state conflict.');
+    }
+    // The row is untouched, `updatedAt` included — it is published as the article's dateModified.
+    const now = new Date().toISOString();
+    this.slotEvents.push({
+      contentPostId: item.id,
+      clientId: item.clientId,
+      siteId: item.siteId,
+      eventType: 'rework_claimed',
+      fromStatus: 'published',
+      toStatus: 'published',
+      actorType: 'admin',
+      actorId: input.actorId,
+      createdAt: now,
+    });
+    return structuredClone(item);
+  }
+
+  async storeReworkVersion(input: Parameters<ContentQueueRepository['storeReworkVersion']>[0]) {
+    const item = this.required(input.id);
+    if (item.status !== 'published') {
+      throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Rework state conflict.');
+    }
+    // Overwriting an existing staged version is how a refused swap is recovered from: the
+    // operator generates again and stages the result. Nothing about what is being served moves.
+    const version = this.appendVersion(item, input.generated);
+    item.pendingVersionId = version.id;
+    item.pendingVersion = version;
+    // `updatedAt` is deliberately not bumped: the public projection carries it as the article's
+    // dateModified, and staging a draft has not modified the article.
+    return structuredClone(item);
+  }
+
+  async approveAndSwap(
+    input: Parameters<ContentQueueRepository['approveAndSwap']>[0],
+  ): Promise<ContentPublishResult> {
+    const item = this.required(input.id);
+    if (
+      item.status === 'published'
+      && item.pendingVersionId === null
+      && item.publishedVersionId === input.expectedVersionId
+      && item.currentVersionId === input.expectedVersionId
+    ) {
+      return { item: structuredClone(item), siteDomain: null, duplicated: true };
+    }
+    if (
+      item.status !== 'published'
+      || item.pendingVersionId !== input.expectedVersionId
+      || !item.pendingVersion
+      || item.pendingVersion.sourceSnapshotSha256 !== input.sourceSnapshotSha256
+    ) {
+      throw new ContentQueueError('CONTENT_POST_STATE_CONFLICT', 'Rework swap state conflict.');
+    }
+    const refusal = contentReworkSwapRefusal(item.pendingVersion);
+    if (refusal === 'safe_catalog') {
+      throw new ContentQueueError(
+        'CONTENT_POST_SAFE_CATALOG_REFUSED',
+        CONTENT_REWORK_REFUSAL_MESSAGES.safe_catalog,
+      );
+    }
+    if (refusal === 'public_projection') {
+      throw new ContentQueueError(
+        'CONTENT_POST_POLICY_BLOCKED',
+        CONTENT_REWORK_REFUSAL_MESSAGES.public_projection,
+      );
+    }
+    // Both pointers and the staging slot move together with no await between them, which is this
+    // store's version of the migration's single update statement: no reader can observe a row
+    // that is half swapped.
+    const now = new Date().toISOString();
+    item.currentVersionId = item.pendingVersionId;
+    item.currentVersion = item.pendingVersion;
+    item.publishedVersionId = item.pendingVersionId;
+    item.publishedAt = now;
+    item.pendingVersionId = null;
+    item.pendingVersion = null;
+    item.updatedAt = now;
+    this.slotEvents.push({
+      contentPostId: item.id,
+      clientId: item.clientId,
+      siteId: item.siteId,
+      eventType: 'rework_published',
+      fromStatus: 'published',
+      toStatus: 'published',
+      actorType: 'admin',
+      actorId: input.actorId,
+      createdAt: now,
+    });
+    return { item: structuredClone(item), siteDomain: null, duplicated: false };
+  }
+
   versionCount(id: string): number {
     return this.versionHistory.get(id)?.length ?? 0;
   }
@@ -269,6 +393,13 @@ export class MockContentQueueRepository implements ContentQueueRepository {
 
   /** Append-only, like the table it mirrors: read for audit assertions, never mutated. */
   slotCreatedEvents(): readonly MockContentSlotEvent[] {
+    return this.slotEvents
+      .filter((event) => event.eventType === 'slot_created')
+      .map((event) => ({ ...event }));
+  }
+
+  /** The whole ledger, including the rework verbs 0060 adds. */
+  events(): readonly MockContentSlotEvent[] {
     return this.slotEvents.map((event) => ({ ...event }));
   }
 }
