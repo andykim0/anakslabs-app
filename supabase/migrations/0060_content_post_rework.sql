@@ -412,6 +412,17 @@ begin
   -- is looking at a 404 on a URL that was serving a moment ago. Mirrors
   -- projectPublishedContentPost (lib/content-fulfillment/contracts.ts) for everything SQL can
   -- state: the tag list it parses, and the integrity block the pipeline-version gate demands.
+  --
+  -- What it deliberately does NOT check is the inside of `document`. The column constraint only
+  -- says the blocks array exists and is 1..100 long; whether every block satisfies
+  -- `contentPostDocumentSchema` — block types, source references on table cells, row/column
+  -- arity — is guaranteed by exactly one thing: the application generator that produced the
+  -- version (generateVersionForItem → validateContentPostForPending). A document that never went
+  -- through it can be stored here and will swap in, and the tenant page will then drop the post
+  -- whole on the next read. So: do not add an operations script, backfill, or import path that
+  -- calls store_content_post_rework_version (or store_content_post_generated) directly with
+  -- service_role and a hand-built document. If one is ever needed, the document schema has to
+  -- move into the database first, or that path has to run the same validator before it writes.
   if jsonb_typeof(v_version.tags) <> 'array'
      or jsonb_array_length(v_version.tags) > 12 then
     raise exception 'content rework public projection precheck failed'
