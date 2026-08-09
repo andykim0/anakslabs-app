@@ -27,6 +27,7 @@ export interface ScanProfileContract {
     'seo_viewport',
     'seo_speed_slow',
     'seo_speed_very_slow',
+    'seo_heading_is_image',
   ];
   /** Korea-only rules are intentionally outside this lens, not removed from the base scanner. */
   excludedRuleCodes: readonly [
