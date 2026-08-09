@@ -17,8 +17,11 @@ import { getAuthedClient } from '@/app/api/_lib/guards';
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
-const MINUTE_LIMIT = 3;
-const DAY_LIMIT = 20;
+// 공개 진단 도구(/check/)가 이 라우트를 쓰므로 분 3회는 좁다 — 자기 사이트를 고쳐가며
+// 다시 재보는 것이 정상 사용이고, 그때마다 막히면 도구가 쓸모없어진다. 분 5회는 그 왕복을
+// 허용하되 스크립트 반복 호출은 여전히 걸린다. 일 50회는 IP 하나 뒤의 사무실 전체를 상정한 값.
+const MINUTE_LIMIT = 5;
+const DAY_LIMIT = 50;
 
 const RL_KEY = '__anaksScanRateLimit__' as const;
 type GlobalWithRl = typeof globalThis & { [RL_KEY]?: Map<string, number[]> };

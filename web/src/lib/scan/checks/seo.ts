@@ -227,6 +227,29 @@ export const SEO_RULES: ScanRule[] = [
     failed: (ctx) => ctx.root.querySelectorAll('h1').length !== 1,
   },
   {
+    // 정의는 website/tools/measure-specimen.py 의 headings_as_image 와 동일하게 둔다 —
+    // 사이트가 인용하는 감사 수치가 그 정의로 산출됐으므로 다른 기준을 쓰면 진단 결과와
+    // 마케팅 문구가 어긋난다. 텍스트가 비어 있고 img 를 품은 heading 만 센다.
+    code: 'seo_heading_is_image',
+    pillar: 'seo',
+    ownership: 'system',
+    severity: 'critical',
+    // 0 = 채점 계약 밖. SCAN_SCORE_CAPACITY 는 룰 가중치의 합이라는 불변식이 있어
+    // 0 이 아닌 값을 주면 capacity 가 261 -> 273 으로 움직이고, 그러면 이미 고객에게
+    // 나간 점수의 의미가 소급해 달라진다. 이 룰은 /check/ 의 최상단 증거이지 감점
+    // 항목이 아니므로 보고만 하고 점수에는 관여하지 않는다.
+    weight: 0,
+    label: 'A heading exists only inside an image',
+    detail: 'The heading has no text of its own — the words are pixels in an image, so a search engine or assistant receives an empty heading where that sentence should be, and cannot quote it.',
+    rootCause: 'heading-as-image',
+    failed: (ctx) => {
+      const headings = ctx.root.querySelectorAll('h1, h2, h3');
+      return headings.some(
+        (h) => h.text.replace(/\s+/g, '') === '' && h.querySelectorAll('img').length > 0,
+      );
+    },
+  },
+  {
     code: 'seo_canonical',
     pillar: 'seo',
     ownership: 'system',
