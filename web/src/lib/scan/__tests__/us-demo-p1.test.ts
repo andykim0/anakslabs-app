@@ -97,10 +97,20 @@ const PUBLISH_HYPOTHESIS_HTML = `
   </body>
 </html>`;
 
-function baseRuleContractHash(): string {
+const ALL_RULES = [...SEO_RULES, ...AEO_RULES, ...GEO_RULES];
+
+/**
+ * 채점에 관여하는 룰(weight > 0)만 계약으로 고정한다.
+ *
+ * 전에는 weight 0 인 보고 전용 룰까지 같은 해시에 섞여 있었다. 그러면 증거 항목을
+ * 하나 늘릴 때마다 "점수 산식이 바뀌었다"는 가드가 울리는데, 실제로는 아무 점수도
+ * 바뀌지 않는다. 그렇게 매번 무의미하게 울리는 가드는 다음 사람이 근거를 보지 않고
+ * 기대값만 갱신하게 만들고, 그 순간 진짜 채점 변경도 함께 통과한다.
+ */
+function scoringRuleContractHash(): string {
   return createHash('sha256')
     .update(JSON.stringify(
-      [...SEO_RULES, ...AEO_RULES, ...GEO_RULES].map((rule) => ({
+      ALL_RULES.filter((rule) => rule.weight > 0).map((rule) => ({
         code: rule.code,
         pillar: rule.pillar,
         weight: rule.weight,
@@ -145,9 +155,19 @@ describe('US-DEMO P1 — 별도 US 의료 진단 렌즈', () => {
   });
 
   test('기존 SEO/AEO/GEO 규칙·가중치 계약과 점수 산식은 바뀌지 않는다', () => {
+    // 값이 한 번 바뀐 것은 채점이 바뀌어서가 아니라 해시가 덮는 집합을 좁혔기
+    // 때문이다(전체 룰 -> weight > 0 인 룰). 채점이 그대로라는 근거는 이 파일 안에
+    // 있다: capacity 는 여전히 seo 261 이고 buildScores 기대값도 그대로다. 이 값은
+    // 이제 채점 룰이 실제로 바뀔 때만 움직인다.
     assert.equal(
-      baseRuleContractHash(),
-      '848f238b74fdedda644632d15c3995d9342a56d6e648b3e180dd4e8199b84e0b',
+      scoringRuleContractHash(),
+      '1bb35da86f9bb0992c7a96613a5aa8467a4f4cbdc0f0e5ffdab1340dce27e399',
+    );
+    // 보고 전용 룰은 해시가 아니라 목록으로 둔다 — 늘어나도 채점 계약이 아니므로
+    // 위 해시는 움직이지 않아야 하고, 여기서 무엇이 늘었는지는 눈으로 읽힌다.
+    assert.deepEqual(
+      ALL_RULES.filter((rule) => rule.weight === 0).map((rule) => rule.code),
+      ['seo_client_rendered_content', 'seo_heading_is_image'],
     );
     assert.deepEqual(
       buildScores({ seo: 42, aeo: 60, geo: 45 }),
