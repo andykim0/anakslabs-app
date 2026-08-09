@@ -57,6 +57,7 @@ export const SCAN_GUIDANCE: Record<string, ScanGuidance> = {
   seo_title_length: G('The title needs editing', 'Lead with the main topic and remove unnecessary repetition.', 'The title is less likely to be heavily shortened in results.', 'editor:meta'),
   seo_meta_description: G('The search description is empty', 'Summarize this page and its value in one or two specific sentences.', 'Search engines receive a more relevant description candidate.', 'editor:meta'),
   seo_h1: G('The primary heading structure needs attention', 'Give the page one clear H1.', 'Search engines can identify the page’s main topic.', 'editor:content'),
+  seo_heading_is_image: G('A heading exists only inside an image', 'Set the heading as real text and keep the image beside it, or as its background.', 'The sentence arrives as words a search engine can read and quote, instead of as an empty heading.', 'editor:content'),
   seo_canonical: G('The canonical URL is missing', AUTO, 'Duplicate URLs can point to one primary address.', 'system'),
   seo_canonical_invalid: G('The canonical URL does not match this page', AUTO, 'Signals will not be merged into another host or fragment by mistake.', 'system'),
   seo_og: G('The sharing preview is incomplete', 'Add the page title, description, and representative image.', 'Shared links have accurate context.', 'editor:images'),

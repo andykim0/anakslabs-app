@@ -47,6 +47,10 @@ export const US_MEDICAL_OUTREACH_PROFILE = Object.freeze({
     'seo_viewport',
     'seo_speed_slow',
     'seo_speed_very_slow',
+    // 진단 도구(/check/)의 최상단 증거 항목이지만 채점에서는 뺀다. 감점 항목으로
+    // 넣으면 이미 고객에게 나간 점수의 의미가 소급해 달라진다 — capacity·산식·기존
+    // 점수는 그대로 두고, 이 룰은 보고만 한다. weight 정의는 남겨두되 쓰이지 않는다.
+    'seo_heading_is_image',
   ],
   excludedRuleCodes: [
     'seo_naver_yeti_blocked',

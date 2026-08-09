@@ -124,11 +124,16 @@ describe('US-DEMO P1 — 별도 US 의료 진단 렌즈', () => {
       Object.values(US_MEDICAL_OUTREACH_GROUP_WEIGHTS).reduce((sum, value) => sum + value, 0),
       100,
     );
+    // seo_heading_is_image 는 채점 계약 밖이다: weight 0 이라 SCAN_SCORE_CAPACITY
+    // (룰 가중치의 합 = seo 261) 를 움직이지 않고, baseline 에 있으므로 점수에도
+    // 관여하지 않는다. 산식·capacity·기존 점수 전부 불변이며, 이 룰은 /check/ 의
+    // 증거 항목으로만 보고된다.
     assert.deepEqual(US_MEDICAL_OUTREACH_PROFILE.technicalBaselineRuleCodes, [
       'seo_https',
       'seo_viewport',
       'seo_speed_slow',
       'seo_speed_very_slow',
+      'seo_heading_is_image',
     ]);
     assert.deepEqual(US_MEDICAL_OUTREACH_PROFILE.excludedRuleCodes, [
       'seo_naver_yeti_blocked',
@@ -142,7 +147,7 @@ describe('US-DEMO P1 — 별도 US 의료 진단 렌즈', () => {
   test('기존 SEO/AEO/GEO 규칙·가중치 계약과 점수 산식은 바뀌지 않는다', () => {
     assert.equal(
       baseRuleContractHash(),
-      '4aa772192dbc11e17a27bcebfd18bd8b52c4a55dfd52037116fec79233b11467',
+      '848f238b74fdedda644632d15c3995d9342a56d6e648b3e180dd4e8199b84e0b',
     );
     assert.deepEqual(
       buildScores({ seo: 42, aeo: 60, geo: 45 }),
