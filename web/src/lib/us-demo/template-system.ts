@@ -152,3 +152,41 @@ export function assignClinicTemplate(
     designatedByDoc: 'T8',
   };
 }
+
+/**
+ * Derive the assignment inputs from what the crawl actually shows, so the decision is recorded on
+ * every compile rather than living only in a unit test. §7-2 order: specialty, then R/S, then the
+ * visual family.
+ */
+export function clinicTemplateDecisionFromSource(input: {
+  pageUrls: readonly string[];
+  serviceTexts: readonly string[];
+  trustSectionCount: number;
+  gallerySectionCount: number;
+}): ClinicTemplateAssignment & { input: ClinicTemplateAssignmentInput } {
+  const paths = input.pageUrls.map((url) => {
+    try {
+      return new URL(url).pathname.toLocaleLowerCase('en-US');
+    } catch {
+      return '';
+    }
+  });
+  // A network prints a location index and per-branch pages; a single practice does not.
+  const locationPages = paths.filter((path) => /\/[a-z-]*locations?[a-z-]*(?:\/|$)/u.test(path));
+  const services = input.serviceTexts.join(' ').toLocaleLowerCase('en-US');
+  const procedureFamilies = [
+    /\bimplant/u, /\borthodont|braces|invisalign|aligner/u, /\bcosmetic|veneer|whitening/u,
+    /\bperiodont|gum\b/u, /\bendodont|root canal/u, /\boral surgery|extraction/u,
+    /\bpediatric|children/u, /\brestorative|crown|bridge|denture|filling/u,
+  ].filter((pattern) => pattern.test(services)).length;
+  const assignmentInput: ClinicTemplateAssignmentInput = {
+    specialty: 'dental',
+    market: 'US',
+    trustSectionCount: input.trustSectionCount,
+    multiLocation: locationPages.length >= 2,
+    // One family across the whole service list is a single-procedure practice.
+    singleProcedureFocus: procedureFamilies === 1,
+    galleryHeavy: input.gallerySectionCount >= 1,
+  };
+  return { ...assignClinicTemplate(assignmentInput), input: assignmentInput };
+}

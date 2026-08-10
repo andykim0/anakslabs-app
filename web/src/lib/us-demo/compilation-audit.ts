@@ -5,7 +5,12 @@ import type {
   UsDemoRenderMode,
   UsMedicalDemoCompilation,
 } from './contracts';
-import { clinicPhotoGate, prospectPublicSourceImages } from './source-images';
+import { clinicPhotoGate, prospectBrandLogo, prospectPublicSourceImages } from './source-images';
+import { buildClinicPalette, type ClinicPalette } from './clinic-palette';
+import {
+  clinicTemplateDecisionFromSource,
+  type ClinicTemplateAssignment,
+} from './template-system';
 
 export const US_MEDICAL_COMPILATION_AUDIT_VERSION = 1;
 
@@ -56,6 +61,13 @@ export interface UsMedicalCompilationAudit {
     characterCount: number;
     stockHero: boolean;
   }[];
+  /**
+   * TEMPLATE-SYSTEM §7-2. Recorded on every compile so the decision is inspectable per artifact,
+   * including when the doc designates a template that is not built yet.
+   */
+  template: ClinicTemplateAssignment & { multiLocation: boolean; singleProcedureFocus: boolean };
+  /** §2. Includes whether the specialty fallback was used and which refinement ran (§7-6). */
+  palette: ClinicPalette;
 }
 
 function pageCharacterCount(page: SitePage): number {
@@ -111,6 +123,26 @@ export function buildUsMedicalCompilationAudit(input: {
           reason: gate.reason,
         }];
   });
+  const sectionTypes = config.pages.flatMap((page) => page.sections.map((s) => s.type));
+  const decision = clinicTemplateDecisionFromSource({
+    pageUrls: artifact.pages.map((page) => page.url),
+    serviceTexts: manifest.blocks
+      .filter((block) => block.kind === 'service')
+      .map((block) => block.text),
+    trustSectionCount: sectionTypes.filter((type) => type === 'testimonials').length,
+    gallerySectionCount: sectionTypes.filter((type) => type === 'gallery').length,
+  });
+  /**
+   * The crawl records a four-value accent preset, not the source colours §2-2 asks for, so the
+   * extractor has no candidate to read and lands on the specialty fallback. Recording it here
+   * makes that visible per artifact instead of leaving it to be rediscovered.
+   */
+  const brandLogo = prospectBrandLogo(artifact);
+  const palette = buildClinicPalette({
+    candidates: [],
+    specialty: 'dental',
+    imageDense: Boolean(brandLogo) || projected.length >= 20,
+  });
   return {
     version: US_MEDICAL_COMPILATION_AUDIT_VERSION,
     renderMode,
@@ -152,5 +184,13 @@ export function buildUsMedicalCompilationAudit(input: {
       characterCount: pageCharacterCount(page),
       stockHero: heroIsStock(page),
     })),
+    template: {
+      templateId: decision.templateId,
+      reason: decision.reason,
+      designatedByDoc: decision.designatedByDoc,
+      multiLocation: decision.input.multiLocation,
+      singleProcedureFocus: decision.input.singleProcedureFocus,
+    },
+    palette,
   };
 }

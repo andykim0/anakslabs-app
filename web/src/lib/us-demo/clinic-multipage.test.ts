@@ -1219,6 +1219,26 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     assert.ok(compiled.config.publicContact?.phone);
   });
 
+  test('템플릿 배정과 팔레트가 감사 기록에 실제로 실린다', () => {
+    const artifact = fixtureArtifact();
+    const compilation = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const audit = buildUsMedicalCompilationAudit({
+      artifact,
+      compilation,
+      renderMode: 'preview-full',
+      config: compilation.config,
+    });
+    // Wiring, not just definition: the decision has to survive a compile.
+    assert.ok(audit.template, 'the template decision must be recorded on every compile');
+    assert.ok(audit.template.designatedByDoc.startsWith('T'));
+    assert.equal(Object.keys(audit.palette.slots).length, 7);
+    assert.ok(Object.values(audit.palette.slots).every((v) => /^#[0-9A-F]{6}$/u.test(v)));
+    // The crawl carries an accent preset, not source colours, so the fallback is the honest
+    // outcome and must be flagged rather than passed off as extraction.
+    assert.equal(audit.palette.meta.fallbackUsed, true);
+    assert.equal(audit.palette.meta.origin, 'specialty-fallback');
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
