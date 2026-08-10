@@ -440,7 +440,14 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
       add('price_or_financing', item.price, 'structured.contentItems.price', index);
     });
   }
-  if (FAQ_PATH_RE.test(url.pathname)) {
+  /**
+   * A heading that ends in a question mark, with a body under it, is a FAQ wherever it sits. The
+   * path was standing in for that signal and reading it wrong: one clinic kept its two questions
+   * on /orthodontics/, which matches neither the FAQ nor the service path, so the demo compiled
+   * with no FAQ section while the source had one. Service pages keep their own branch above, so
+   * this runs only where nothing has claimed the page yet.
+   */
+  if (FAQ_PATH_RE.test(url.pathname) || !SERVICE_PATH_RE.test(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.endsWith('?') && pair.heading.length <= 240)
       .slice(0, 12)

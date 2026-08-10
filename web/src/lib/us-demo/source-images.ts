@@ -12,6 +12,13 @@ import {
 
 const JUNK_IMAGE_RE =
   /\b(?:logo|icon|favicon|sprite|pixel|tracking|spacer|loader|captcha|badge|social|payment|powered[-_ ]by)\b/iu;
+/**
+ * Assets a plugin ships, never photographs a practice took. The accessibility widget on one
+ * crawl contributed seven hundred national flag icons: no declared dimensions, so the size floor
+ * never fired, and two-letter alt text ("en", "de") that matches no word in JUNK_IMAGE_RE.
+ */
+const PLUGIN_ASSET_PATH_RE =
+  /\/(?:wp-content\/plugins|wp-includes|wp-content\/mu-plugins)\//iu;
 const BEFORE_AFTER_RE =
   /\bbefore\s*(?:and|&|-)?\s*after\b|\bsmile[-_ ]gallery\b|\bcase[-_ ]results?\b/iu;
 const PATIENT_RESULT_RE =
@@ -92,6 +99,7 @@ function imageIsUseful(page: CrawlPageArtifact, candidate: CrawlImageCandidate):
   const insuranceLogo = candidateIsInsuranceLogo(page, candidate);
   const context = `${parsed.pathname} ${candidate.alt}`;
   if (JUNK_IMAGE_RE.test(context) && !insuranceLogo) return false;
+  if (PLUGIN_ASSET_PATH_RE.test(parsed.pathname) && !insuranceLogo) return false;
   if (/\.(?:gif|ico)(?:$|\?)/iu.test(parsed.pathname)) return false;
   if (/\.svg(?:$|\?)/iu.test(parsed.pathname) && !insuranceLogo) return false;
   const width = candidate.declaredWidth;

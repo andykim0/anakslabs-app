@@ -942,6 +942,66 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     );
   });
 
+  test('플러그인이 배포한 에셋은 치수가 없어도 사진 슬롯에 들어오지 않는다', () => {
+    const artifact = fixtureArtifact();
+    const home = artifact.pages[0];
+    // The accessibility widget shape: no declared dimensions, two-letter alt, plugin path.
+    home.images = [
+      ...home.images,
+      ...['english', 'german', 'spanish', 'french'].map((language) => ({
+        url: `https://clinic.example/wp-content/plugins/accessibility-onetap/assets/images/${language}.png`,
+        alt: language.slice(0, 2),
+        role: 'unknown' as const,
+      })),
+    ];
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const serialized = JSON.stringify(compiled.config);
+    assert.doesNotMatch(serialized, /wp-content\/plugins/u);
+    assert.equal(
+      compiled.sourceManifest.images?.some((image) => image.url.includes('/plugins/')),
+      false,
+    );
+    // A real photograph without declared dimensions still qualifies.
+    assert.match(serialized, /practice-lobby\.jpg/u);
+  });
+
+  test('물음표 heading은 URL 경로와 무관하게 FAQ 원문으로 추출된다', () => {
+    const artifact = fixtureArtifact();
+    // A practice that keeps its questions on a treatment page, not under /faq/.
+    const ortho = artifact.pages.find((entry) => entry.url.endsWith('/services/orthodontics'))!;
+    const offPath = page({
+      url: 'https://clinic.example/orthodontics-info',
+      title: 'Orthodontics',
+      headings: [
+        'Why choose our orthodontic care?',
+        'When should my child first see an orthodontist?',
+        'How long does treatment take?',
+      ],
+      text: [
+        'Why choose our orthodontic care? The team plans each case with imaging taken in the practice.',
+        'When should my child first see an orthodontist? A first visit around age seven lets the team watch growth.',
+        'How long does treatment take? Most plans run twelve to twenty-four months depending on the case.',
+      ].join(' '),
+    });
+    artifact.pages = [...artifact.pages, offPath];
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const questions = blocks.filter((block) => block.kind === 'faq_question');
+    const answers = blocks.filter((block) => block.kind === 'faq_answer');
+    assert.equal(questions.length, 3, 'all three questions extract from a non-FAQ path');
+    assert.equal(answers.length, 3);
+    assert.ok(questions.every((block) => block.sourceUrl === offPath.url));
+    // The service-path branch still owns its own page, so nothing is double-claimed.
+    assert.equal(
+      blocks.filter((block) => block.sourceUrl === ortho.url && block.kind === 'faq_question').length,
+      0,
+    );
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const faq = compiled.config.pages
+      .flatMap((entry) => entry.sections)
+      .find((section) => section.type === 'faq');
+    assert.ok(faq, 'three question/answer pairs render a FAQ section');
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
