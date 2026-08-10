@@ -145,6 +145,7 @@ interface SharedSitePreviewRow {
   created_at: string;
   expires_at: string;
   revoked_at: string | null;
+  compilation_audit: unknown;
 }
 
 function previewRowToRecord(row: SharedSitePreviewRow): SharedSitePreviewRecord {
@@ -160,6 +161,7 @@ function previewRowToRecord(row: SharedSitePreviewRow): SharedSitePreviewRecord 
     createdAt: row.created_at,
     expiresAt: row.expires_at,
     revokedAt: row.revoked_at,
+    compilationAudit: row.compilation_audit ?? null,
   };
 }
 
@@ -169,6 +171,7 @@ export async function createSharedSitePreview(input: {
   token: string;
   siteConfig: SiteConfig;
   renderMode?: SharedSitePreviewRecord['renderMode'];
+  compilationAudit?: unknown;
   createdBy: string;
   now?: Date;
 }): Promise<SharedSitePreviewRecord> {
@@ -193,6 +196,9 @@ export async function createSharedSitePreview(input: {
       createdAt: createdAt.toISOString(),
       expiresAt: expiresAt.toISOString(),
       revokedAt: null,
+      compilationAudit: input.compilationAudit === undefined
+        ? null
+        : structuredClone(input.compilationAudit),
     };
     mockPreviews().set(tokenHash, record);
     return structuredClone(record);
@@ -208,6 +214,9 @@ export async function createSharedSitePreview(input: {
       notice_version: IMPORT_PREVIEW_NOTICE_VERSION,
       created_by: input.createdBy,
       expires_at: expiresAt.toISOString(),
+      ...(input.compilationAudit === undefined
+        ? {}
+        : { compilation_audit: input.compilationAudit }),
     })
     .select('*')
     .single();

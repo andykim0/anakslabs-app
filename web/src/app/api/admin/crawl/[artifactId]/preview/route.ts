@@ -84,6 +84,7 @@ export const POST = withApiHandler(async (
       }
     | undefined;
   let emailEvidenceLine: string | undefined;
+  let compilationAudit: unknown;
   if (body.data.previewKind === 'us-medical-outreach') {
     try {
       const prepared = prepareUsMedicalPreview({
@@ -93,6 +94,7 @@ export const POST = withApiHandler(async (
       });
       config = prepared.config;
       sourceReport = prepared.sourceReport;
+      compilationAudit = prepared.audit;
     } catch (error) {
       if (error instanceof UsDemoCompileError) {
         return apiError(
@@ -132,6 +134,7 @@ export const POST = withApiHandler(async (
         excludedBlocks: compiled.audit.excludedBlockCount,
         policyExcludedBlocks: compiled.medicalAdPolicyExcluded.length,
       };
+      compilationAudit = compiled.audit;
       emailEvidenceLine = consentedDemoEmailEvidenceLine(consent);
     } catch (error) {
       if (error instanceof ConsentedClinicCompileError) {
@@ -157,6 +160,7 @@ export const POST = withApiHandler(async (
       : body.data.previewKind === 'us-medical-consented'
         ? 'outreach-safe'
       : 'standard',
+    ...(compilationAudit === undefined ? {} : { compilationAudit }),
     createdBy: actorId,
   });
   return NextResponse.json({

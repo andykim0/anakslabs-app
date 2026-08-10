@@ -277,4 +277,9 @@ export interface SharedSitePreviewRecord {
   createdAt: string;
   expiresAt: string;
   revokedAt: string | null;
+  /**
+   * What the compiler knew when this preview was built. Null for import previews, which have no
+   * compiler audit, and for previews written before the column existed.
+   */
+  compilationAudit: unknown;
 }

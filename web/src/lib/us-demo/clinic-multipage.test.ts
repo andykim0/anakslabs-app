@@ -12,6 +12,7 @@ import {
   clinicFeatureGroups,
 } from '@/lib/clinic-master/layout-sections';
 import { compileUsMedicalDemo } from './source-compiler';
+import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import {
   clinicMaximumConsecutiveProseSections,
   clinicSectionHasPlaceholder,
@@ -777,6 +778,64 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
         `${candidate.slug} absorbed ${images.length} images`,
       );
     }
+  });
+
+  test('감사 객체는 블록을 한 개도 안 낸 크롤 페이지와 이미지 게이트 거부를 이름으로 남긴다', () => {
+    const artifact = fixtureArtifact();
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const audit = buildUsMedicalCompilationAudit({
+      artifact,
+      compilation: compiled,
+      renderMode: 'preview-full',
+      config: compiled.config,
+    });
+    assert.equal(audit.version, 1);
+    assert.equal(audit.renderMode, 'preview-full');
+    assert.equal(audit.source.crawledPageCount, artifact.pages.length);
+    assert.equal(
+      audit.source.contributingPageCount + audit.source.barrenPageUrls.length,
+      audit.source.crawledPageCount,
+    );
+    // The before/after page is withheld as patient content, so it contributes nothing.
+    assert.ok(audit.source.barrenPageUrls.includes('https://clinic.example/before-after'));
+    assert.equal(audit.source.totalBlocks, compiled.sourceManifest.blocks.length);
+    assert.ok((audit.source.blocksByKind.service ?? 0) > 0);
+    assert.ok(audit.source.blocksBySourceUrl.every((entry) => entry.blocks > 0));
+    // The funnel narrows monotonically, and the logo the crawl saw is gone by projection.
+    assert.ok(audit.images.crawledCount > audit.images.projectedCount);
+    assert.ok(audit.images.projectedCount >= audit.images.eligibleCount);
+    assert.ok(audit.images.eligibleCount >= audit.images.usedCount);
+    assert.ok(audit.images.rejected.every((entry) => entry.reason.length > 0));
+    assert.deepEqual(
+      audit.pages.map((entry) => entry.slug),
+      compiled.config.pages.map((entry) => entry.slug),
+    );
+    assert.ok(audit.pages.every((entry) => entry.sectionCount > 0));
+
+    // A crawl whose subpages repeat one business name and carry no headings the extractor reads
+    // contributes nothing past the cross-page dedupe. That is the shape behind a three-page demo.
+    const thin = fixtureArtifact();
+    thin.pages = thin.pages.map((candidate, index) => (
+      index === 0
+        ? candidate
+        : {
+            ...candidate,
+            title: 'Wilshire Dental Arts',
+            headings: [],
+            text: '',
+          }
+    ));
+    const thinCompiled = compileUsMedicalDemo(thin, { renderMode: 'preview-full' });
+    const thinAudit = buildUsMedicalCompilationAudit({
+      artifact: thin,
+      compilation: thinCompiled,
+      renderMode: 'preview-full',
+      config: thinCompiled.config,
+    });
+    assert.ok(
+      thinAudit.source.barrenPageUrls.length > audit.source.barrenPageUrls.length,
+      'a starved crawl must be visible in the audit',
+    );
   });
 
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {

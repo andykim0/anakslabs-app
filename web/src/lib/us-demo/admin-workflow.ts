@@ -3,6 +3,10 @@ import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import type { SiteConfig } from '@/lib/types/site';
 import type { UsDemoManualFinish, UsDemoRenderMode } from './contracts';
 import { compileUsMedicalDemo } from './source-compiler';
+import {
+  buildUsMedicalCompilationAudit,
+  type UsMedicalCompilationAudit,
+} from './compilation-audit';
 import { sourceAiVisibilitySummary } from './structure-diff';
 
 export interface PreparedUsMedicalPreview {
@@ -14,6 +18,8 @@ export interface PreparedUsMedicalPreview {
     usedBlocks: number;
     excludedBlocks: number;
   };
+  /** The full record behind sourceReport's counters, persisted with the preview. */
+  audit: UsMedicalCompilationAudit;
 }
 
 /**
@@ -32,8 +38,9 @@ export function prepareUsMedicalPreview(input: {
     manualFinish: input.manualFinish,
     renderMode,
   });
+  const config = siteConfigSchema.parse(compiled.config);
   return {
-    config: siteConfigSchema.parse(compiled.config),
+    config,
     renderMode,
     sourceReport: {
       origin: compiled.sourceManifest.origin,
@@ -41,5 +48,11 @@ export function prepareUsMedicalPreview(input: {
       usedBlocks: compiled.sourceManifest.usedBlockIds.length,
       excludedBlocks: compiled.sourceManifest.excluded.length,
     },
+    audit: buildUsMedicalCompilationAudit({
+      artifact: input.artifact,
+      compilation: compiled,
+      renderMode,
+      config,
+    }),
   };
 }
