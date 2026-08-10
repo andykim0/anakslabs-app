@@ -104,11 +104,32 @@ export function TenantHeader({
   };
 
   return (
+    <>
+      {/*
+       * These rules exist because the header does, so they ship with it rather than with every
+       * site. A published tenant has no chrome above the header and both offsets stay zero; the
+       * preview surface reports the height of its own sticky notice, so the header stops below it
+       * instead of behind it. Anchor targets clear both, otherwise a jump lands under the header.
+       */}
+      <style>{`
+.anaks-site { --anaks-chrome-offset: 0px; --anaks-header-offset: 0px; }
+.anaks-site [data-anchor] {
+  scroll-margin-top: calc(var(--anaks-chrome-offset) + var(--anaks-header-offset) + 12px);
+}
+.anaks-tenant-header a:focus-visible,
+.anaks-tenant-header summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+`}</style>
     <header
       className="anaks-tenant-header"
       style={{
         position: 'sticky',
-        top: 0,
+        // Zero on a published site; the preview surface reports the height of its own sticky
+        // notice so the header stops below it instead of scrolling underneath it.
+        top: 'var(--anaks-chrome-offset, 0px)',
         zIndex: 50,
         backgroundColor: themeColor(theme, 'surfaceSubtle'),
         borderBottom: theme.tokens
@@ -226,5 +247,6 @@ export function TenantHeader({
         </details>
       </div>
     </header>
+    </>
   );
 }

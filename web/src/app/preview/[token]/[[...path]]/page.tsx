@@ -140,6 +140,27 @@ export default async function SharedImportPreviewPage({
           </span>
         </div>
       </aside>
+      {/*
+        The notice above is sticky, so the site header would otherwise stop behind it and read as
+        not sticking at all. Its height changes with viewport width and how far the source URL
+        wraps, so it is measured rather than assumed; the CSS falls back to zero without this.
+      */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){var n=document.querySelector('aside[role="status"]');if(!n)return;`
+            + `var s=function(){var c=n.offsetHeight+'px';`
+            + `var h=document.querySelector('.anaks-tenant-header');`
+            + `var ho=(h?h.offsetHeight:0)+'px';`
+            // Set on the root: the header renders outside .anaks-site, so a property scoped to
+            // the site element never reaches it and the header falls back to top:0.
+            + `var r=document.documentElement.style;`
+            + `r.setProperty('--anaks-chrome-offset',c);`
+            + `r.setProperty('--anaks-header-offset',ho);};`
+            + `s();addEventListener('resize',s);`
+            + `if(window.ResizeObserver){var o=new ResizeObserver(s);o.observe(n);`
+            + `var h2=document.querySelector('.anaks-tenant-header');if(h2)o.observe(h2);}})();`,
+        }}
+      />
       <div {...(!previewFull && isUsMedicalDemo ? { 'data-private-preview-inert': '1' } : {})}>
         {isUsMedicalDemo && !previewFull ? (
           <style>{`

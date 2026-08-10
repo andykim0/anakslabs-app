@@ -84,3 +84,37 @@ describe('T1-4 앵커·CTA 전수 배선', () => {
     assert.ok(cta!.href.startsWith('#') || cta!.href.includes('#'), `href=${cta!.href}`);
   });
 });
+
+describe('T1-4 sticky 헤더와 앵커 오프셋', () => {
+  const cfg = buildSiteConfigFromSurvey(surveyFor('booking_service', '미용실'), candidate, opts);
+  const html = renderToStaticMarkup(createElement(TenantHeader, { config: cfg, currentSlug: '' }));
+
+  test('헤더는 위쪽 chrome 높이만큼 내려서 sticky 한다', () => {
+    assert.match(html, /position:\s*sticky/iu);
+    // top:0 would park the header underneath the preview notice, which also sticks at 0.
+    assert.match(html, /top:\s*var\(--anaks-chrome-offset,\s*0px\)/iu);
+    assert.doesNotMatch(html, /top:\s*0(px)?[;"]/iu);
+  });
+
+  test('배경·경계·z-index가 있어 스크롤 콘텐츠가 비쳐 보이지 않는다', () => {
+    assert.match(html, /background-color:/iu);
+    assert.match(html, /border-bottom:/iu);
+    assert.match(html, /z-index:\s*50/iu);
+  });
+
+  test('앵커 대상은 chrome+헤더 높이만큼 scroll-margin 을 갖는다', () => {
+    assert.match(html, /\[data-anchor\]/u);
+    assert.match(
+      html,
+      /scroll-margin-top:\s*calc\(var\(--anaks-chrome-offset\)\s*\+\s*var\(--anaks-header-offset\)/iu,
+    );
+    // Both default to zero so a published site with no chrome above it is unaffected.
+    assert.match(html, /--anaks-chrome-offset:\s*0px/iu);
+    assert.match(html, /--anaks-header-offset:\s*0px/iu);
+  });
+
+  test('키보드 포커스가 헤더 링크에서 보인다', () => {
+    assert.match(html, /a:focus-visible/u);
+    assert.match(html, /outline:\s*2px solid/iu);
+  });
+});
