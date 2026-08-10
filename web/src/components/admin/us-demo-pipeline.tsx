@@ -22,6 +22,7 @@ import {
   type AdminUsDemoPreviewResponse,
   type AdminUsDemoSourceBlock,
 } from './api';
+import { normalizeUrlInput } from '@/lib/url-input';
 
 const GROUP_LABELS = {
   entity: "Hospital information link",
@@ -92,6 +93,12 @@ export function UsDemoPipeline() {
     .filter((block): block is AdminUsDemoSourceBlock => Boolean(block));
 
   async function runCrawl() {
+    const target = normalizeUrlInput(url);
+    if (!target.ok) {
+      setError(target.reason);
+      return;
+    }
+    setUrl(target.url);
     setStatus('crawling');
     setError(null);
     setPreview(null);
@@ -106,13 +113,13 @@ export function UsDemoPipeline() {
               notes: consentNotes,
             });
             return crawlUsMedicalConsentedDemo({
-              url,
+              url: target.url,
               consentId: recorded.consent.id,
               prospectId,
               allowTlsHttpFallback,
             });
           })()
-        : await crawlUsMedicalDemo(url, allowTlsHttpFallback);
+        : await crawlUsMedicalDemo(target.url, allowTlsHttpFallback);
       const artifact = await getUsMedicalDemoArtifact(crawled.artifact.id);
       const sourceBlocks = artifact.artifact.usDemo.blocks;
       setDetail(artifact);
@@ -212,10 +219,11 @@ export function UsDemoPipeline() {
           <label className="block">
             <span className="text-sm font-semibold text-[#22304A]">Target hospital URL</span>
             <input
-              type="url"
+              type="text"
+              inputMode="url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://clinic.example.com"
+              placeholder="clinic.example.com"
               className="mt-2 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2.5 text-sm outline-none ring-[#2D63F0] focus:ring-2"
             />
           </label>
