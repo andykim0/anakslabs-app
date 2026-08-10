@@ -9,6 +9,7 @@ import {
   isBlockedIpv6,
   assertUrlAllowed,
   extractFromUrl,
+  normalizeTelHref,
   ImportError,
   parseHtml,
   type LookupFn,
@@ -156,4 +157,18 @@ describe('extractFromUrl (fetch/lookup 주입)', () => {
       (e) => (e as ImportError).code === 'TOO_MANY_REDIRECTS',
     );
   });
+});
+
+test('tel: href 의 퍼센트 인코딩을 풀어서 전화번호로 쓴다', () => {
+  // 클레임 카드에 `+1%20773-…` 이 그대로 찍히던 결함. href 는 URI 라 공백이
+  // %20 으로 적히는데, 스킴만 떼고 디코딩하지 않으면 이스케이프가 화면에 남는다.
+  assert.equal(normalizeTelHref('tel:+1%20773-555-0123'), '+1 773-555-0123');
+  assert.equal(normalizeTelHref('TEL:%2B1%20312%20555%200198'), '+1 312 555 0198');
+  // 이미 디코딩된 값은 그대로 통과한다(기존 저장 데이터 정규화 경로).
+  assert.equal(normalizeTelHref('tel:+1 773-555-0123'), '+1 773-555-0123');
+  // 깨진 이스케이프는 던지지 않고 원문으로 폴백한다 — 전화번호 하나로 import 를
+  // 실패시키지 않는다.
+  assert.equal(normalizeTelHref('tel:+1%ZZ773'), '+1%ZZ773');
+  assert.equal(normalizeTelHref(undefined), undefined);
+  assert.equal(normalizeTelHref('tel:'), undefined);
 });

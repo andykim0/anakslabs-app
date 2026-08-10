@@ -9,6 +9,28 @@
 import { parse } from 'node-html-parser';
 import { parseMenuItems } from '@/lib/data/content-parse';
 
+
+/**
+ * Read a phone number out of a `tel:` href.
+ *
+ * The href is a URI, so a space in the number is written `%20` and anything
+ * else may be escaped too. Stripping the scheme without decoding puts the
+ * escape sequence on screen — a claim card showed `+1%20773-…` for exactly
+ * this reason. Decoding is wrapped because a malformed escape throws, and a
+ * phone number is never worth failing an import over: fall back to the raw
+ * text, which is what was displayed before and is no worse.
+ */
+export function normalizeTelHref(href: string | null | undefined): string | undefined {
+  if (!href) return undefined;
+  const raw = href.replace(/^tel:/i, '').trim();
+  if (!raw) return undefined;
+  try {
+    return decodeURIComponent(raw).replace(/\s+/g, ' ').trim() || undefined;
+  } catch {
+    return raw;
+  }
+}
+
 export interface StructuredImportFacts {
   businessName?: string;
   description?: string;
@@ -222,7 +244,7 @@ function structuredFacts(input: {
     return typeof value === 'string' && value.trim() ? value.trim() : undefined;
   };
   const phone = stringField('telephone')
-    ?? input.root.querySelector('a[href^="tel:"]')?.getAttribute('href')?.replace(/^tel:/i, '').trim()
+    ?? normalizeTelHref(input.root.querySelector('a[href^="tel:"]')?.getAttribute('href'))
     ?? shortVisibleBlock(input.root, /(?:\uC804\uD654|\uBB38\uC758|\uC5F0\uB77D\uCC98)\s*[:\uFF1A]/u)?.replace(/^.*?(?:\uC804\uD654|\uBB38\uC758|\uC5F0\uB77D\uCC98)\s*[:\uFF1A]\s*/u, '').trim();
   const address = schemaAddress(business?.address)
     ?? input.root.querySelector('address')?.text.replace(/\s+/g, ' ').trim()
