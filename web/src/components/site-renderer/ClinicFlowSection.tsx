@@ -1002,8 +1002,14 @@ export function ClinicFlowSection({
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
   const variantMotionSignature = clinicVariantMotionSignature(section.id);
+  /**
+   * The reveal these attributes drive is locale-neutral: runtime.ts styles
+   * [data-m="reveal"] for any .anaks-site, and only the extra translate distance is scoped to
+   * [data-ko-clinic]. Gating the attributes on ko-KR therefore left every US clinic demo with
+   * the motion stylesheet and the runtime shipped but nothing marked to reveal — the page
+   * carried zero data-m attributes and nothing could move.
+   */
   const legacyKoMotion = !variantMotionSignature
-    && locale === 'ko-KR'
     && Boolean(motionPlan)
     && motionPlan?.intensity !== 'off';
   const variantSectionAttributes = variantMotionSignature

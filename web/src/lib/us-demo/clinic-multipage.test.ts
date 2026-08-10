@@ -1154,6 +1154,33 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     }
   });
 
+  test('en-US 클리닉 데모도 리빌 대상을 실제 마크업에 찍는다', () => {
+    const compiled = compileUsMedicalDemo(fixtureArtifact(), { renderMode: 'preview-full' });
+    const render = (animate: boolean) => renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: true,
+      animate,
+    } as never));
+    // Count attributes in markup only: the stylesheet and the RSC payload both mention these
+    // selectors as text, which is what made an earlier measurement read as "runtime missing".
+    const markup = (html: string) => html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gu, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gu, '');
+
+    assert.equal((markup(render(false)).match(/data-m="reveal"/gu) ?? []).length, 0);
+
+    const moving = render(true);
+    const revealTargets = (markup(moving).match(/data-m="reveal"/gu) ?? []).length;
+    assert.ok(
+      revealTargets > 0,
+      'an animated US clinic demo must mark elements to reveal, not just ship the stylesheet',
+    );
+    assert.equal((markup(moving).match(/data-m-delay=/gu) ?? []).length, revealTargets);
+    assert.match(moving, /IntersectionObserver/u);
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
