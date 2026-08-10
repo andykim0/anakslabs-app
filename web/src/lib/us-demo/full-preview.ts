@@ -95,6 +95,26 @@ const PROCEDURE_GALLERY_MAXIMUM = 12;
  */
 export const PROCEDURE_BODY_IMAGE_BUDGET = 16;
 
+/** Below this a page looks bare, so repetition is accepted rather than an empty body. */
+const PROCEDURE_BODY_IMAGE_MINIMUM = 2;
+
+/**
+ * Share the practice's photographs across the subpages instead of giving each the full budget.
+ * A clinic with thirty usable photos and eight treatment pages cannot fill sixteen slots on every
+ * one of them; taking the budget literally put a single portrait on eight of nine pages.
+ */
+export function procedureBodyImageBudget(
+  eligibleImageCount: number,
+  procedurePageCount: number,
+): number {
+  if (procedurePageCount <= 0) return PROCEDURE_BODY_IMAGE_BUDGET;
+  const share = Math.floor(eligibleImageCount / procedurePageCount);
+  return Math.min(
+    PROCEDURE_BODY_IMAGE_BUDGET,
+    Math.max(PROCEDURE_BODY_IMAGE_MINIMUM, share),
+  );
+}
+
 const CATEGORY_META = Object.freeze({
   implant: { slug: 'implants', navLabel: 'Implants', stock: 'implant' },
   orthodontic: { slug: 'orthodontics', navLabel: 'Orthodontics', stock: 'orthodontic' },
@@ -1036,6 +1056,10 @@ export function compileUsMedicalFullPreview(input: {
     planned,
     slug: procedureSlug(planned, usedProcedureSlugs),
   }));
+  const bodyImageBudget = procedureBodyImageBudget(
+    photoSlotPool.length,
+    procedurePlan.pages.length,
+  );
   const procedureHrefBySourceUrl = new Map(
     plannedPages.flatMap(({ planned, slug }) => (
       planned.sourceUrl ? [[planned.sourceUrl, `/${slug}`] as const] : []
@@ -1252,7 +1276,7 @@ export function compileUsMedicalFullPreview(input: {
     const bodyImages = rotateSourceOrder(
       categoryImages.body.filter((image) => image.source.id !== heroImage?.source.id),
       pageIndex,
-    ).slice(0, PROCEDURE_BODY_IMAGE_BUDGET);
+    ).slice(0, bodyImageBudget);
     const detail = procedureContentSections({
       id: `clinic-procedure-${category}-details`,
       name: displayTitle,

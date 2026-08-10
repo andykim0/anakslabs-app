@@ -23,6 +23,7 @@ import {
   outreachSafeExperienceFromArtifact,
   planProcedurePages,
   PROCEDURE_BODY_IMAGE_BUDGET,
+  procedureBodyImageBudget,
   previewFullExperienceFromArtifact,
 } from './full-preview';
 import {
@@ -672,7 +673,9 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
         `${heading} ${bodies[index]}`
       )).join(' '),
     ].join(' ');
-    implant.images = Array.from({ length: 10 }, (_, index) => ({
+    // The media-rich variants below need a pool the practice can actually afford across its
+    // procedure pages, since the per-page budget is a share of the eligible photographs.
+    implant.images = Array.from({ length: 24 }, (_, index) => ({
       url: `https://cdn.clinic.example/implant-${index + 1}.jpg`,
       alt: `Implant treatment room ${index + 1}`,
       role: 'figure' as const,
@@ -1000,6 +1003,78 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       .flatMap((entry) => entry.sections)
       .find((section) => section.type === 'faq');
     assert.ok(faq, 'three question/answer pairs render a FAQ section');
+  });
+
+  test('URL에 service가 없어도 시술 페이지는 추출되어 개별 페이지로 갈라진다', () => {
+    const artifact = fixtureArtifact();
+    // The shape dental360 uses: treatment pages named after the treatment, not "services".
+    const treatments = [
+      ['general-dentistry', 'General Dentistry'],
+      ['cosmetic-dentistry', 'Cosmetic Dentistry'],
+      ['oral-surgery', 'Oral Surgery'],
+      ['pediatric-dentistry', 'Pediatric Dentistry'],
+    ] as const;
+    for (const [slug, title] of treatments) {
+      const headings = [`${title} care`, `${title} planning`, `${title} aftercare`];
+      artifact.pages.push(page({
+        url: `https://clinic.example/${slug}`,
+        title,
+        headings,
+        text: headings
+          .map((heading) => `${heading} The practice describes how it plans and delivers this care in the office.`)
+          .join(' '),
+        images: [{
+          url: `https://cdn.clinic.example/${slug}-room.jpg`,
+          alt: `${title} room`,
+          role: 'figure',
+          declaredWidth: 1200,
+          declaredHeight: 800,
+        }],
+      }));
+    }
+    // Pages that exist on every clinic site and describe no treatment stay out.
+    artifact.pages.push(page({
+      url: 'https://clinic.example/career',
+      title: 'Career',
+      headings: ['Open positions', 'Benefits we offer'],
+      text: 'Open positions The practice hires hygienists. Benefits we offer Paid time off and training.',
+    }));
+
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const contributing = new Set(blocks.map((block) => block.sourceUrl));
+    for (const [slug] of treatments) {
+      assert.ok(
+        contributing.has(`https://clinic.example/${slug}`),
+        `${slug} contributed no source block`,
+      );
+    }
+    // /career still yields its title as a business-name candidate; what it must not yield is copy.
+    assert.deepEqual(
+      blocks
+        .filter((block) => block.sourceUrl === 'https://clinic.example/career')
+        .map((block) => block.kind)
+        .filter((kind) => kind !== 'business_name'),
+      [],
+    );
+
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    assert.ok(
+      compiled.config.pages.length >= 8 && compiled.config.pages.length <= 15,
+      `expected 8-15 pages, got ${compiled.config.pages.length}`,
+    );
+    // Every treatment page keeps its own slug rather than collapsing into /services.
+    const slugs = new Set(compiled.config.pages.map((entry) => entry.slug));
+    for (const [slug] of treatments) {
+      assert.ok(slugs.has(slug), `${slug} did not earn its own page`);
+    }
+  });
+
+  test('시술 페이지가 늘면 페이지당 사진 예산은 풀을 나눠 갖는다', () => {
+    assert.equal(procedureBodyImageBudget(29, 7), 4);
+    assert.equal(procedureBodyImageBudget(100, 2), PROCEDURE_BODY_IMAGE_BUDGET);
+    // Never starve a page completely, even when the practice has very few photographs.
+    assert.equal(procedureBodyImageBudget(3, 9), 2);
+    assert.equal(procedureBodyImageBudget(0, 0), PROCEDURE_BODY_IMAGE_BUDGET);
   });
 
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {

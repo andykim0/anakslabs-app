@@ -19,6 +19,25 @@ const PORTAL_OR_BOOKING_RE =
   /(?:patientportal|patient-portal|portal|book|booking|appointment-request|schedule-online)/iu;
 const PROVIDER_PATH_RE = /\/(?:about|doctor|doctors|provider|providers|team|our-team)(?:\/|$)/iu;
 const SERVICE_PATH_RE = /\/(?:service|services|treatment|treatments|procedure|procedures)(?:\/|$)/iu;
+/**
+ * Most practices never put the word "service" in a treatment page's URL. This clinic files its
+ * six treatment pages under /general-dentistry/, /oral-surgery/, /orthodontics/ and the like, so
+ * a path gate spelled only as "service" read every one of them as having nothing to say and the
+ * demo compiled from a single page.
+ *
+ * "dentist" alone is deliberately absent: it appears in location slugs such as
+ * /locations/irving-park-family-dentist/, which lists an address rather than describing care.
+ */
+const TREATMENT_PATH_RE =
+  /(?:^|[/-])(?:dentistry|orthodontics?|endodontics?|periodontics?|prosthodontics?|implants?|veneers?|crowns?|bridges?|dentures?|whitening|invisalign|braces|aligners?|extractions?|root-canal|surgery|sedation|cosmetic|restorative|preventive|pediatric|emergency-dental|wisdom-teeth|smile-makeover|gum-(?:care|disease|treatment)|teeth-cleaning|dental-(?:care|exam|cleaning))(?:[/-]|$)/iu;
+/** Pages that exist on every clinic site and never describe a treatment. */
+const NON_TREATMENT_PATH_RE =
+  /\/(?:locations?|career|careers|jobs|blog|news|press|privacy|privacy-policy|terms|sitemap|search|cart|account|login|gallery)(?:\/|$)/iu;
+
+function pathOffersTreatmentContent(pathname: string): boolean {
+  if (NON_TREATMENT_PATH_RE.test(pathname)) return false;
+  return SERVICE_PATH_RE.test(pathname) || TREATMENT_PATH_RE.test(pathname);
+}
 const INSURANCE_PATH_RE = /\/(?:insurance|accepted-insurance)(?:\/|$)/iu;
 const FINANCING_PATH_RE =
   /\/(?:payment|payments|financing|financial|fees|pricing|membership)(?:\/|$)/iu;
@@ -391,7 +410,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
       page.structured.description ? 'structured.description' : 'description',
     );
   }
-  if (SERVICE_PATH_RE.test(url.pathname)) {
+  if (pathOffersTreatmentContent(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.length <= 120)
       .slice(0, 12)
@@ -458,7 +477,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
    * with no FAQ section while the source had one. Service pages keep their own branch above, so
    * this runs only where nothing has claimed the page yet.
    */
-  if (FAQ_PATH_RE.test(url.pathname) || !SERVICE_PATH_RE.test(url.pathname)) {
+  if (FAQ_PATH_RE.test(url.pathname) || !pathOffersTreatmentContent(url.pathname)) {
     sourceHeadingBodyPairs(page)
       .filter((pair) => pair.heading.endsWith('?') && pair.heading.length <= 240)
       .slice(0, 12)
