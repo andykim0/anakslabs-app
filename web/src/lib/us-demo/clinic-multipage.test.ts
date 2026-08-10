@@ -1106,6 +1106,54 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     );
   });
 
+  test('데모 스타일은 앱 빌드가 아니라 렌더가 함께 내보내는 CSS로 완결된다', () => {
+    const compiled = compileUsMedicalDemo(fixtureArtifact(), { renderMode: 'preview-full' });
+    const html = renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: true,
+      animate: true,
+    } as never));
+    const css = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gu)]
+      .map((match) => match[1])
+      .join('\n');
+    assert.ok(css.length > 0, 'the render must ship its own stylesheet');
+
+    /**
+     * A stored demo is compiled once and rendered for months. If its markup ever styles itself
+     * with Tailwind utilities, the CSS lives in the app bundle, is emitted only for classes the
+     * build happened to scan, and a stored config can lose its design without being touched.
+     * Every class the demo emits must therefore be defined in the CSS emitted alongside it.
+     */
+    const classes = new Set(
+      [...html.matchAll(/\sclass="([^"]*)"/gu)]
+        .flatMap((match) => match[1].split(/\s+/u))
+        .filter(Boolean),
+    );
+    for (const className of classes) {
+      assert.ok(
+        css.includes(`.${className}`),
+        `.${className} is used by the demo but not defined in the CSS shipped with it`,
+      );
+    }
+
+    // The layout hooks the markup leans on must resolve in that same stylesheet.
+    // clinic-flow-control is a bare wrapper around a self-styled control and carries no rule.
+    const wrappersWithoutRules = new Set(['clinic-flow-control']);
+    const layoutHooks = new Set(
+      [...html.matchAll(/\sdata-(clinic-flow-[a-z0-9-]+)=/gu)].map((match) => match[1]),
+    );
+    assert.ok(layoutHooks.size > 0);
+    for (const hook of layoutHooks) {
+      if (wrappersWithoutRules.has(hook)) continue;
+      assert.ok(
+        css.includes(`[data-${hook}`),
+        `[data-${hook}] positions the demo but has no rule in the CSS shipped with it`,
+      );
+    }
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
