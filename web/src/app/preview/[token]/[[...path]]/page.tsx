@@ -54,6 +54,14 @@ export default async function SharedImportPreviewPage({
     : null;
   if (isUsMedicalDemo && !artifact) notFound();
   const previewFull = isUsMedicalDemo && preview.renderMode === 'preview-full';
+  /**
+   * The reveal runtime is the renderer's, not the preview's: it ships MOTION_CSS, the
+   * IntersectionObserver pass and the reduced-motion guard whenever a page is animated. Both US
+   * demo modes were passing animate={false}, so every demo we have sent went out with no motion
+   * at all. Animation is presentation, not interaction, so the outreach surface keeps its inert
+   * pointer contract while the page still reveals as it scrolls.
+   */
+  const usMedicalMotion = isUsMedicalDemo;
   const internalQa = isUsMedicalDemo
     ? isDemoQaCookieValue((await cookies()).get(DEMO_VIEW_QA_COOKIE)?.value)
     : false;
@@ -147,7 +155,7 @@ export default async function SharedImportPreviewPage({
             config={preview.siteConfig}
             pageSlug={pageSlug}
             interactive
-            animate={false}
+            animate={usMedicalMotion}
             hrefForSlug={hrefForSlug}
             clinicExperience={clinicExperience}
           />
@@ -156,7 +164,7 @@ export default async function SharedImportPreviewPage({
             config={preview.siteConfig}
             pageSlug={pageSlug}
             interactive={false}
-            animate={koClinicMotion}
+            animate={koClinicMotion || usMedicalMotion}
             hrefForSlug={hrefForSlug}
             clinicExperience={clinicExperience}
           />

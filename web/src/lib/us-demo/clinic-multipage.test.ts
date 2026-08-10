@@ -1077,6 +1077,35 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     assert.equal(procedureBodyImageBudget(0, 0), PROCEDURE_BODY_IMAGE_BUDGET);
   });
 
+  test('US 데모는 리빌 런타임과 reduced-motion 가드를 함께 내보낸다', () => {
+    const compiled = compileUsMedicalDemo(fixtureArtifact(), { renderMode: 'preview-full' });
+    const render = (animate: boolean) => renderToStaticMarkup(createElement(SiteRenderer, {
+      config: compiled.config,
+      pageSlug: '',
+      mode: 'desktop',
+      interactive: animate,
+      animate,
+    } as never));
+
+    // The demo shipped with animate={false} on both preview modes, so no demo ever moved.
+    const still = render(false);
+    assert.doesNotMatch(still, /@keyframes/u);
+    assert.doesNotMatch(still, /IntersectionObserver/u);
+
+    const moving = render(true);
+    assert.match(moving, /@keyframes/u, 'reveal keyframes must ship with an animated demo');
+    assert.match(moving, /IntersectionObserver/u, 'the reveal runtime must ship');
+    assert.match(
+      moving,
+      /prefers-reduced-motion/u,
+      'motion must be gated on the reduced-motion query',
+    );
+    assert.ok(
+      (moving.match(/m-hide/gu) ?? []).length > 0,
+      'elements must start hidden for the reveal pass to have something to reveal',
+    );
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
