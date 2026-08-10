@@ -16,7 +16,10 @@ import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import {
   clinicMaximumConsecutiveProseSections,
   clinicSectionHasPlaceholder,
+  MAX_CHARACTERS_PER_PAGE,
+  MAX_PROCEDURE_PAGES,
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
+  MIN_CHARACTERS_FOR_INDIVIDUAL_PAGE,
   outreachSafeExperienceFromArtifact,
   planProcedurePages,
   PROCEDURE_BODY_IMAGE_BUDGET,
@@ -480,8 +483,8 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     );
   });
 
-  test('source page 3-block 임계값과 parent→category→Home 병합이 결정적이다', () => {
-    assert.equal(MIN_BLOCKS_FOR_INDIVIDUAL_PAGE, 3);
+  test('2-block·장문 임계값과 parent→category→Home 병합이 결정적이고 자식은 덤프가 아니라 카드다', () => {
+    assert.equal(MIN_BLOCKS_FOR_INDIVIDUAL_PAGE, 2);
     const blocks = [
       sourceBlock({
         id: 'parent-title',
@@ -495,46 +498,147 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
         text: 'Dental implants',
         sourceUrl: 'https://clinic.example/services',
       }),
-      sourceBlock({
-        id: 'child-title',
-        kind: 'business_name',
-        text: 'Full Arch',
-        sourceUrl: 'https://clinic.example/services/full-arch',
-      }),
+      // One block only, so it merges up into /services rather than earning a page.
       sourceBlock({
         id: 'child-service',
         kind: 'service',
         text: 'Full-arch implant care',
         sourceUrl: 'https://clinic.example/services/full-arch',
       }),
-      sourceBlock({
-        id: 'cosmetic-title',
-        kind: 'business_name',
-        text: 'Veneers',
-        sourceUrl: 'https://clinic.example/veneers',
-      }),
+      // One block with no crawled parent and no category peer: it reaches Home.
       sourceBlock({
         id: 'cosmetic-service',
         kind: 'service',
         text: 'Porcelain veneers',
         sourceUrl: 'https://clinic.example/veneers',
       }),
+      // One block again, but long enough to stand as its own page.
+      sourceBlock({
+        id: 'ortho-service',
+        kind: 'service',
+        text: `Orthodontic treatment. ${'The practice explains aligner wear and review visits. '.repeat(40)}`,
+        sourceUrl: 'https://clinic.example/orthodontics',
+      }),
     ];
     const first = planProcedurePages(blocks);
     const second = planProcedurePages(blocks);
     assert.deepEqual(second, first);
-    assert.equal(first.pages.length, 1);
-    assert.equal(first.pages[0].sourceUrl, 'https://clinic.example/services');
-    assert.deepEqual(
-      first.pages[0].blocks
-        .filter((block) => block.kind === 'service')
-        .map((block) => block.text),
-      ['Dental implants', 'Full-arch implant care'],
+
+    const implant = first.pages.find(
+      (entry) => entry.sourceUrl === 'https://clinic.example/services',
     );
+    assert.ok(implant);
+    // The child rides along as a card; its text stays out of the parent's own blocks.
+    assert.deepEqual(
+      implant.blocks.filter((block) => block.kind === 'service').map((block) => block.text),
+      ['Dental implants'],
+    );
+    assert.deepEqual(
+      implant.mergedChildren.map((child) => child.sourceUrl),
+      ['https://clinic.example/services/full-arch'],
+    );
+    assert.deepEqual(
+      implant.mergedChildren[0].blocks.map((block) => block.text),
+      ['Full-arch implant care'],
+    );
+
+    const ortho = first.pages.find(
+      (entry) => entry.sourceUrl === 'https://clinic.example/orthodontics',
+    );
+    assert.ok(ortho, 'one long block earns a page on its own');
+    assert.ok(
+      ortho.blocks.reduce((total, block) => total + block.text.length, 0)
+        >= MIN_CHARACTERS_FOR_INDIVIDUAL_PAGE,
+    );
+
     assert.deepEqual(
       first.homeBlocks.filter((block) => block.kind === 'service').map((block) => block.text),
       ['Porcelain veneers'],
     );
+  });
+
+  test('20페이지급 크롤은 시술 페이지 상한을 거쳐 8~15 페이지로 떨어지고 잉여는 카드로 남는다', () => {
+    const blocks = Array.from({ length: 18 }, (_, index) => index).flatMap((index) => {
+      const slug = `topic-${String(index).padStart(2, '0')}`;
+      const sourceUrl = `https://clinic.example/services/${slug}`;
+      return [
+        sourceBlock({
+          id: `${slug}-name`,
+          kind: 'business_name',
+          text: `Clinic ${slug}`,
+          sourceUrl,
+        }),
+        sourceBlock({
+          id: `${slug}-service`,
+          kind: 'service',
+          text: `Treatment ${slug}`,
+          sourceUrl,
+        }),
+        sourceBlock({
+          id: `${slug}-detail`,
+          kind: 'service_detail',
+          text: `The practice describes ${slug} and the visits it takes. `.repeat(index + 1),
+          sourceUrl,
+        }),
+      ];
+    });
+    const plan = planProcedurePages(blocks);
+    assert.deepEqual(planProcedurePages(blocks), plan);
+    assert.equal(plan.pages.length, MAX_PROCEDURE_PAGES);
+    // Nothing vanishes: every source URL is either a page or a card on one.
+    const placed = new Set([
+      ...plan.pages.flatMap((page) => [...page.sourceUrls]),
+      ...plan.pages.flatMap((page) => page.mergedChildren.map((child) => child.sourceUrl)),
+      ...plan.homeBlocks.map((block) => block.sourceUrl),
+    ]);
+    for (const block of blocks) {
+      assert.ok(placed.has(block.sourceUrl), `${block.sourceUrl} was dropped`);
+    }
+    // The pages that survive are the substantial ones.
+    const keptCharacters = plan.pages.map((page) => (
+      page.blocks.reduce((total, block) => total + block.text.length, 0)
+    ));
+    const cardCharacters = plan.pages.flatMap((page) => page.mergedChildren).map((child) => (
+      child.blocks.reduce((total, block) => total + block.text.length, 0)
+    ));
+    assert.ok(cardCharacters.length > 0);
+    assert.ok(Math.min(...keptCharacters) >= Math.max(...cardCharacters));
+  });
+
+  test('페이지 본문 상한은 유닛 단위로 끊어 원문을 잘라내지 않는다', () => {
+    const artifact = fixtureArtifact();
+    const implant = artifact.pages.find((entry) => entry.url.endsWith('/services/implants'))!;
+    const paragraph = `${'Implant placement is planned around the bone available at the site. '.repeat(12)}`;
+    implant.headings = Array.from({ length: 30 }, (_, index) => `Implant topic ${index + 1}`);
+    implant.text = implant.headings.map((heading) => `${heading} ${paragraph}`).join(' ');
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    for (const entry of compiled.config.pages) {
+      const characters = entry.sections
+        .flatMap((section) => section.elements)
+        .reduce((total, element) => (
+          element.kind === 'text' ? total + element.text.length : total
+        ), 0);
+      assert.ok(
+        characters <= MAX_CHARACTERS_PER_PAGE * 1.5,
+        `${entry.slug || 'home'} rendered ${characters} characters`,
+      );
+    }
+    // Every rendered service string is still a verbatim source block.
+    const sourceTexts = new Set(
+      prospectPublicSourceBlocks(artifact).map((block) => block.text),
+    );
+    const rendered = compiled.config.pages
+      .flatMap((entry) => entry.sections)
+      .flatMap((section) => section.elements)
+      .flatMap((element) => (
+        element.kind === 'text' && /^source-(?:procedure-service|pps)/u.test(element.id)
+          ? [element.text]
+          : []
+      ));
+    assert.ok(rendered.length > 0);
+    for (const text of rendered) {
+      assert.ok(sourceTexts.has(text), `rendered text was not a source block: ${text.slice(0, 60)}`);
+    }
   });
 
   test('본문 유닛은 feature/gallery/FAQ/CTA resolver로 3밴드 배치되고 목차 덤프를 만들지 않는다', () => {

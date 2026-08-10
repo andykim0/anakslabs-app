@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import {
   isValidPageSlug,
   type CanvasElement,
+  type ClinicMasterPin,
   type Section,
   type SiteConfig,
   type SitePage,
@@ -63,7 +64,27 @@ const CATEGORY_ORDER = [
   'preventive-general',
 ] as const satisfies readonly ClinicProcedureCategory[];
 
-export const MIN_BLOCKS_FOR_INDIVIDUAL_PAGE = 3;
+export const MIN_BLOCKS_FOR_INDIVIDUAL_PAGE = 2;
+
+/**
+ * A crawl page can carry one long article under a single heading. Block count alone reads that as
+ * thin and merges it away, so substantial prose earns a page on its own.
+ */
+export const MIN_CHARACTERS_FOR_INDIVIDUAL_PAGE = 1_500;
+
+/** Above this a page stops adding source units. Verbatim text is never cut mid-string. */
+export const MAX_CHARACTERS_PER_PAGE = 8_000;
+
+/** A merged child is summarised, so only a body this short rides along with its title. */
+const MERGED_CHILD_SUMMARY_MAXIMUM = 240;
+
+/**
+ * Home, About and Contact sit outside this count, so a full crawl lands in the eight-to-fifteen
+ * page range. The block threshold alone does not bound it: a thin crawl page still carries a
+ * title, a service and a detail, which clears any small threshold, so a twenty-page site would
+ * otherwise compile to twenty pages of a paragraph each.
+ */
+export const MAX_PROCEDURE_PAGES = 10;
 
 /** Matches the home practice gallery so one subpage cannot absorb the whole photo pool. */
 const PROCEDURE_GALLERY_MAXIMUM = 12;
@@ -107,11 +128,18 @@ function procedureCategory(text: string): ClinicProcedureCategory {
   return 'preventive-general';
 }
 
+export interface PlannedMergedChild {
+  sourceUrl: string;
+  blocks: ProspectPublicSourceBlock[];
+}
+
 interface PlannedProcedurePage {
   category: ClinicProcedureCategory;
   blocks: ProspectPublicSourceBlock[];
   sourceUrls: Set<string>;
   sourceUrl?: string;
+  /** Thin descendants folded in here. They render as cards, never as body copy. */
+  mergedChildren: PlannedMergedChild[];
 }
 
 function sourceUrlParent(raw: string): string | undefined {
@@ -139,9 +167,59 @@ function nearestSourceParent(
   return undefined;
 }
 
+function blockCharacters(blocks: readonly ProspectPublicSourceBlock[]): number {
+  return blocks.reduce((total, block) => total + block.text.length, 0);
+}
+
 /**
- * A crawl page earns an individual demo page only with three source blocks. Thin pages merge into
- * their nearest crawled URL parent, then a factual service category, and finally Home.
+ * Keep the most substantial pages and fold the rest into whichever kept page already owns them —
+ * their nearest kept URL ancestor, else a kept page of the same service category, else Home. A
+ * demoted page becomes a card, so its heading and a short summary survive; nothing is discarded
+ * silently and nothing is dumped as body copy.
+ */
+function capProcedurePages(
+  pages: readonly PlannedProcedurePage[],
+  homeBlocks: ProspectPublicSourceBlock[],
+): PlannedProcedurePage[] {
+  if (pages.length <= MAX_PROCEDURE_PAGES) return [...pages];
+  const ranked = [...pages].sort((left, right) => (
+    blockCharacters(right.blocks) - blockCharacters(left.blocks)
+    || right.blocks.length - left.blocks.length
+    || (left.sourceUrl ?? '').localeCompare(right.sourceUrl ?? '')
+  ));
+  const kept = ranked.slice(0, MAX_PROCEDURE_PAGES);
+  const keptUrls = new Set(
+    kept.flatMap((page) => (page.sourceUrl ? [page.sourceUrl] : [])),
+  );
+  const keptByUrl = new Map(
+    kept.flatMap((page) => (page.sourceUrl ? [[page.sourceUrl, page] as const] : [])),
+  );
+  for (const demoted of ranked.slice(MAX_PROCEDURE_PAGES)) {
+    const ancestor = demoted.sourceUrl
+      ? nearestSourceParent(demoted.sourceUrl, keptUrls)
+      : undefined;
+    const host = (ancestor ? keptByUrl.get(ancestor) : undefined)
+      ?? kept.find((page) => page.category === demoted.category);
+    if (!host) {
+      homeBlocks.push(...demoted.blocks);
+      continue;
+    }
+    host.mergedChildren.push(
+      {
+        sourceUrl: demoted.sourceUrl ?? [...demoted.sourceUrls][0],
+        blocks: demoted.blocks,
+      },
+      ...demoted.mergedChildren,
+    );
+    demoted.sourceUrls.forEach((url) => host.sourceUrls.add(url));
+  }
+  return kept;
+}
+
+/**
+ * A crawl page earns an individual demo page with two source blocks, or with enough prose under
+ * however few headings it happens to use. Thin pages merge into their nearest crawled URL parent
+ * as summarised children, then a factual service category, and finally Home.
  */
 export function planProcedurePages(
   blocks: readonly ProspectPublicSourceBlock[],
@@ -166,6 +244,7 @@ export function planProcedurePages(
     blocks: ProspectPublicSourceBlock[];
     sourceUrls: Set<string>;
     sourceBlockCount: number;
+    mergedChildren: PlannedMergedChild[];
   }>();
   const categoryBuckets = new Map<ClinicProcedureCategory, {
     blocks: ProspectPublicSourceBlock[];
@@ -197,6 +276,7 @@ export function planProcedurePages(
       blocks: [...(allByUrl.get(sourceUrl) ?? serviceBlocks)],
       sourceUrls: new Set([sourceUrl]),
       sourceBlockCount: allByUrl.get(sourceUrl)?.length ?? serviceBlocks.length,
+      mergedChildren: [],
     });
   }
   const urlsByDepth = [...servicesByUrl.keys()].sort((left, right) => (
@@ -206,19 +286,25 @@ export function planProcedurePages(
   ));
   for (const sourceUrl of urlsByDepth) {
     const bucket = aggregates.get(sourceUrl)!;
-    if (bucket.sourceBlockCount >= MIN_BLOCKS_FOR_INDIVIDUAL_PAGE) {
+    if (
+      bucket.sourceBlockCount >= MIN_BLOCKS_FOR_INDIVIDUAL_PAGE
+      || blockCharacters(bucket.blocks) >= MIN_CHARACTERS_FOR_INDIVIDUAL_PAGE
+    ) {
       pages.push({
         category: procedureCategory(bucket.blocks.map((block) => block.text).join(' ')),
         blocks: bucket.blocks,
         sourceUrls: bucket.sourceUrls,
         sourceUrl,
+        mergedChildren: bucket.mergedChildren,
       });
       continue;
     }
     const parent = nearestSourceParent(sourceUrl, knownServiceUrls);
     if (parent) {
       const parentBucket = aggregates.get(parent)!;
-      parentBucket.blocks.push(...bucket.blocks);
+      // The child's own text stays out of the parent's body; only a card is carried up.
+      parentBucket.mergedChildren.push({ sourceUrl, blocks: bucket.blocks });
+      parentBucket.mergedChildren.push(...bucket.mergedChildren);
       bucket.sourceUrls.forEach((url) => parentBucket.sourceUrls.add(url));
       parentBucket.sourceBlockCount += bucket.sourceBlockCount;
       continue;
@@ -233,22 +319,27 @@ export function planProcedurePages(
   for (const category of CATEGORY_ORDER) {
     const bucket = categoryBuckets.get(category);
     if (!bucket) continue;
-    if (bucket.sourceBlockCount >= MIN_BLOCKS_FOR_INDIVIDUAL_PAGE) {
+    if (
+      bucket.sourceBlockCount >= MIN_BLOCKS_FOR_INDIVIDUAL_PAGE
+      || blockCharacters(bucket.blocks) >= MIN_CHARACTERS_FOR_INDIVIDUAL_PAGE
+    ) {
       pages.push({
         category,
         blocks: bucket.blocks,
         sourceUrls: bucket.sourceUrls,
+        mergedChildren: [],
       });
     } else {
       homeBlocks.push(...bucket.blocks);
     }
   }
-  pages.sort((left, right) => (
+  const kept = capProcedurePages(pages, homeBlocks);
+  kept.sort((left, right) => (
     CATEGORY_ORDER.indexOf(left.category) - CATEGORY_ORDER.indexOf(right.category)
     || (left.sourceUrl ?? '').localeCompare(right.sourceUrl ?? '')
     || left.blocks[0].id.localeCompare(right.blocks[0].id)
   ));
-  return { pages, homeBlocks };
+  return { pages: kept, homeBlocks };
 }
 
 function procedureSlug(
@@ -561,6 +652,17 @@ function procedureContentSections(input: {
     else if (BENEFIT_RE.test(context)) buckets.benefits.push(unit);
     else buckets.overview.push(unit);
   }
+  // Hold the page to a readable length by dropping whole units past the budget. Cutting inside a
+  // unit would leave a rendered string that no longer matches the source block it cites.
+  let remaining = MAX_CHARACTERS_PER_PAGE;
+  for (const key of ['overview', 'process', 'benefits', 'long'] as const) {
+    buckets[key] = buckets[key].filter((unit) => {
+      const cost = unit.title.text.length + (unit.body?.text.length ?? 0);
+      if (cost > remaining) return false;
+      remaining -= cost;
+      return true;
+    });
+  }
   const usedImageIds = new Set<string>();
   const imageByUnit = new Map<string, ProjectedUsDemoSourceImage>();
   [...buckets.overview, ...buckets.benefits].forEach((unit, index) => {
@@ -667,6 +769,50 @@ function procedureContentSections(input: {
     }
   }
   return { sections, usedImageIds };
+}
+
+/**
+ * One card per thin descendant folded into this page: its heading, a body only when the source
+ * already offers a short one, and a link when that descendant also earned a page of its own.
+ * Nothing is truncated, so every rendered string still matches the block it cites.
+ */
+function mergedChildSections(input: {
+  id: string;
+  children: readonly PlannedMergedChild[];
+  theme: SiteTheme;
+  hrefBySourceUrl: ReadonlyMap<string, string>;
+  focus: ClinicMasterPin['focus'];
+}): Section[] {
+  const units = input.children.flatMap((child) => {
+    const services = orderClinicServices(
+      child.blocks.filter((block) => block.kind === 'service'),
+      input.focus,
+    );
+    const title = services.find((block) => block.text.length <= 72) ?? services[0];
+    if (!title) return [];
+    const body = child.blocks
+      .filter((block) => (
+        block.kind === 'service_detail'
+        && block.text.length <= MERGED_CHILD_SUMMARY_MAXIMUM
+      ))
+      .sort((left, right) => right.text.length - left.text.length)[0];
+    const href = input.hrefBySourceUrl.get(child.sourceUrl);
+    return [{
+      id: `clinic-merged-child-${title.id}`,
+      title,
+      ...(body ? { body } : {}),
+      ...(href ? { href } : {}),
+    }];
+  });
+  if (units.length === 0) return [];
+  return buildClinicFeatureSections({
+    id: input.id,
+    name: 'Also offered here',
+    units,
+    theme: input.theme,
+    candidates: ['features.three-column-cards', 'features.icon-grid'],
+    titleSourceIdPrefix: 'procedure-service',
+  });
 }
 
 function firstHomeImage(
@@ -890,6 +1036,11 @@ export function compileUsMedicalFullPreview(input: {
     planned,
     slug: procedureSlug(planned, usedProcedureSlugs),
   }));
+  const procedureHrefBySourceUrl = new Map(
+    plannedPages.flatMap(({ planned, slug }) => (
+      planned.sourceUrl ? [[planned.sourceUrl, `/${slug}`] as const] : []
+    )),
+  );
   const masterSections = compilePremiumDentalMaster({
     blocks,
     theme,
@@ -1121,6 +1272,13 @@ export function compileUsMedicalFullPreview(input: {
       surface: true,
       candidates: ['gallery.uniform-grid'],
     });
+    const mergedCards = mergedChildSections({
+      id: `clinic-procedure-${category}-merged`,
+      children: planned.mergedChildren,
+      theme,
+      hrefBySourceUrl: procedureHrefBySourceUrl,
+      focus: pin.focus,
+    });
     for (const id of detail.usedImageIds) committedImageIds.add(id);
     for (const image of galleryImages) committedImageIds.add(image.source.id);
     if (heroImage) committedImageIds.add(heroImage.source.id);
@@ -1152,6 +1310,7 @@ export function compileUsMedicalFullPreview(input: {
           requestedId: 'hero.split-left',
         }),
         ...detail.sections,
+        ...mergedCards,
         ...gallery,
       ],
     });
