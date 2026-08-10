@@ -65,6 +65,15 @@ const CATEGORY_ORDER = [
 
 export const MIN_BLOCKS_FOR_INDIVIDUAL_PAGE = 3;
 
+/** Matches the home practice gallery so one subpage cannot absorb the whole photo pool. */
+const PROCEDURE_GALLERY_MAXIMUM = 12;
+
+/**
+ * Body budget for one procedure page, split between the feature units and the trailing gallery.
+ * Without it a fallback pool of every eligible practice photo lands on the first subpage.
+ */
+export const PROCEDURE_BODY_IMAGE_BUDGET = 16;
+
 const CATEGORY_META = Object.freeze({
   implant: { slug: 'implants', navLabel: 'Implants', stock: 'implant' },
   orthodontic: { slug: 'orthodontics', navLabel: 'Orthodontics', stock: 'orthodontic' },
@@ -959,6 +968,46 @@ export function compileUsMedicalFullPreview(input: {
     surface: true,
     candidates: ['gallery.uniform-grid'],
   });
+  const homeGalleryImageIds = new Set(
+    gallerySections
+      .flatMap((candidate) => candidate.elements)
+      .flatMap((element) => (element.kind === 'image' ? [element.src] : []))
+      .flatMap((src) => {
+        const match = photoSlotPool.find((image) => image.source.url === src);
+        return match ? [match.source.id] : [];
+      }),
+  );
+  /**
+   * Topic matching reads filenames and alt text, which most practices never write in treatment
+   * terms, so a thin match is the normal case rather than a signal that the practice has no usable
+   * photography. The hero still prefers a topic match, but the body falls back to the rest of the
+   * eligible pool — least-committed first — so a subpage keeps the practice's own photographs
+   * instead of dropping to a single stock hero.
+   */
+  const committedImageIds = new Set([
+    ...reservedImages,
+    ...homeServiceImageIds,
+    ...homeGalleryImageIds,
+  ]);
+  const topicPhotoPool = (topic: ClinicImagePageTopic): {
+    hero: ProjectedUsDemoSourceImage[];
+    body: ProjectedUsDemoSourceImage[];
+  } => {
+    const matched = clinicPhotoPoolForTopic(projectedImages, topic);
+    const matchedIds = new Set(matched.map((image) => image.source.id));
+    const rest = photoSlotPool.filter((image) => (
+      !matchedIds.has(image.source.id) && !sourceImageIsInsuranceLogo(image)
+    ));
+    const broadened = [
+      ...matched,
+      ...rest.filter((image) => !committedImageIds.has(image.source.id)),
+      ...rest.filter((image) => committedImageIds.has(image.source.id)),
+    ];
+    return {
+      hero: matched.length > 0 ? matched : broadened,
+      body: broadened,
+    };
+  };
   const insuranceLogos = projectedImages.filter(sourceImageIsInsuranceLogo);
   const homeInsuranceStrip = insuranceStripSection({
     id: 'clinic-accepted-insurance',
@@ -1047,12 +1096,12 @@ export function compileUsMedicalFullPreview(input: {
     const displayTitle = categoryServices.find((block) => block.text.length <= 60)?.text
       ?? meta.navLabel;
     const pageTopic = procedureImageTopic(planned, slug);
-    const categoryImages = clinicPhotoPoolForTopic(projectedImages, pageTopic);
-    const heroImage = allocateHeroImage(categoryImages);
+    const categoryImages = topicPhotoPool(pageTopic);
+    const heroImage = allocateHeroImage(categoryImages.hero);
     const bodyImages = rotateSourceOrder(
-      categoryImages.filter((image) => image.source.id !== heroImage?.source.id),
+      categoryImages.body.filter((image) => image.source.id !== heroImage?.source.id),
       pageIndex,
-    );
+    ).slice(0, PROCEDURE_BODY_IMAGE_BUDGET);
     const detail = procedureContentSections({
       id: `clinic-procedure-${category}-details`,
       name: displayTitle,
@@ -1061,9 +1110,9 @@ export function compileUsMedicalFullPreview(input: {
       theme,
       bookingUrl: '#clinic-sticky-booking',
     });
-    const galleryImages = bodyImages.filter(
-      (image) => !detail.usedImageIds.has(image.source.id),
-    );
+    const galleryImages = bodyImages
+      .filter((image) => !detail.usedImageIds.has(image.source.id))
+      .slice(0, PROCEDURE_GALLERY_MAXIMUM);
     const gallery = buildClinicGallerySections({
       id: `clinic-procedure-${category}-gallery`,
       name: `${meta.navLabel} Gallery`,
@@ -1072,6 +1121,9 @@ export function compileUsMedicalFullPreview(input: {
       surface: true,
       candidates: ['gallery.uniform-grid'],
     });
+    for (const id of detail.usedImageIds) committedImageIds.add(id);
+    for (const image of galleryImages) committedImageIds.add(image.source.id);
+    if (heroImage) committedImageIds.add(heroImage.source.id);
     pages.push({
       id: `clinic-procedure-${category}-${createHash('sha256')
         .update(planned.sourceUrl ?? [...sourceUrls].join('|'), 'utf8')
@@ -1150,10 +1202,13 @@ export function compileUsMedicalFullPreview(input: {
         ))
         .map((block) => block.sourceUrl),
     );
-    const contactCandidates = clinicPhotoPoolForTopic(projectedImages, 'contact').filter(
+    const contactTopicPool = topicPhotoPool('contact');
+    const contactOnPage = contactTopicPool.hero.filter(
       (image) => contactPageUrls.size === 0 || contactPageUrls.has(image.page.url),
     );
-    const contactImage = allocateHeroImage(contactCandidates);
+    const contactImage = allocateHeroImage(
+      contactOnPage.length > 0 ? contactOnPage : contactTopicPool.body,
+    );
     const contactInsuranceStrip = insuranceStripSection({
       id: 'clinic-accepted-insurance',
       images: insuranceLogos,

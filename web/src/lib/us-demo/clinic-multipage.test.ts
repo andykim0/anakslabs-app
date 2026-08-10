@@ -18,6 +18,7 @@ import {
   MIN_BLOCKS_FOR_INDIVIDUAL_PAGE,
   outreachSafeExperienceFromArtifact,
   planProcedurePages,
+  PROCEDURE_BODY_IMAGE_BUDGET,
   previewFullExperienceFromArtifact,
 } from './full-preview';
 import {
@@ -736,6 +737,46 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       );
     }
     assert.equal(compiled.config.motion, undefined);
+  });
+
+  test('주제어와 안 맞는 사진뿐이어도 시술 페이지는 스톡 hero 한 장이 아니라 실사진 본문을 받는다', () => {
+    const artifact = fixtureArtifact();
+    // Real practices name photos after the room, not the treatment, so topic matching finds
+    // nothing on the procedure page while the site still has usable photography.
+    let renamed = 0;
+    for (const candidate of artifact.pages) {
+      candidate.images = candidate.images.map((image) => {
+        if (!/implant|orthodontic|cosmetic|preventive/u.test(image.url)) return image;
+        renamed += 1;
+        return {
+          ...image,
+          url: image.url.replace(/[^/]+\.jpg$/u, `dsc-00${40 + renamed}.jpg`),
+          alt: 'Our practice',
+        };
+      });
+    }
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    const procedurePages = compiled.config.pages.filter(
+      (candidate) => candidate.id.startsWith('clinic-procedure-'),
+    );
+    assert.ok(procedurePages.length > 0);
+    for (const candidate of procedurePages) {
+      const images = candidate.sections
+        .flatMap((section) => section.elements)
+        .filter((element) => element.kind === 'image');
+      assert.ok(
+        images.length > 0,
+        `${candidate.slug} kept no body imagery`,
+      );
+      assert.ok(
+        images.every((element) => !element.src.startsWith('/stock/')),
+        `${candidate.slug} filled its body with stock`,
+      );
+      assert.ok(
+        images.length <= PROCEDURE_BODY_IMAGE_BUDGET + 1,
+        `${candidate.slug} absorbed ${images.length} images`,
+      );
+    }
   });
 
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
