@@ -38,6 +38,7 @@ import {
   clinicPhotoGate,
   clinicPhotoPoolForTopic,
   clinicPhotoSlotPool,
+  prospectBrandLogo,
   prospectPublicSourceImages,
   sourceImageIsBeforeAfter,
   sourceImageIsInsuranceLogo,
@@ -1254,6 +1255,25 @@ export function compileUsMedicalFullPreview(input: {
     ...(homeFaq ? [homeFaq] : []),
     homeCta,
   ];
+  /**
+   * TenantHeader renders the practice's mark by looking for this element id anywhere in the
+   * config, and only the consented compiler was emitting it, so every outreach demo carried the
+   * business name as plain text. Placed on the home hero, matching that compiler.
+   */
+  const brandLogo = prospectBrandLogo(artifact, businessName.text);
+  if (brandLogo) {
+    const hero = homeSections.find((candidate) => candidate.type === 'hero');
+    hero?.elements.push({
+      id: `clinic-route-brand-logo-${createHash('sha256').update(brandLogo.src, 'utf8').digest('hex').slice(0, 16)}`,
+      kind: 'image',
+      src: brandLogo.src,
+      alt: brandLogo.alt,
+      frame: { x: 0, y: 0, w: 1, h: 1 },
+      z: 0,
+      style: { objectFit: 'contain', shadow: false },
+      entrance: { effect: 'none' },
+    });
+  }
   const pages: SitePage[] = [{
     id: 'clinic-home-v2',
     title: 'Home',

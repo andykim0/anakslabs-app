@@ -268,3 +268,49 @@ export function clinicPhotoPoolForTopic(
   };
   return eligible.filter((image) => matcher[topic].test(matchingContext(image)));
 }
+
+const BRAND_LOGO_HINT_RE = /(?:^|[-_/])logo(?:[-_.]|$)|\blogo\b/iu;
+/** Third-party marks a site displays: badges, payers, review platforms. Not the practice's own. */
+const FOREIGN_LOGO_RE =
+  /\b(?:google|yelp|facebook|instagram|twitter|review|insurance|payer|delta|cigna|aetna|metlife|humana|carecredit|visa|mastercard|paypal|powered)\b/iu;
+/** A greyscale or inverted duplicate belongs to a footer, so the primary mark is preferred. */
+const SECONDARY_LOGO_RE = /(?:gray|grey|scale|white|light|dark|invert|footer|mono)/iu;
+
+export interface ProspectBrandLogo {
+  src: string;
+  alt: string;
+  sourcePageUrl: string;
+}
+
+/**
+ * The practice's own mark, taken from the crawled images.
+ *
+ * It cannot come from the photo pool: clinicPhotoGate discards anything matching "logo" as junk,
+ * which is right for a photo slot and wrong for the header. The crawl artifact carries no
+ * og:image and no favicon, so those two fallbacks are unavailable until the crawler records
+ * them — the images array is the whole search space today.
+ */
+export function prospectBrandLogo(
+  artifact: CrawlArtifactPayload,
+  businessName?: string,
+): ProspectBrandLogo | undefined {
+  const home = artifact.pages.find((page) => new URL(page.url).pathname === '/')
+    ?? artifact.pages[0];
+  if (!home) return undefined;
+  const named = businessName?.trim().toLocaleLowerCase('en-US');
+  const candidates = home.images
+    .filter((image) => isSafeMediaSrc(image.url))
+    .filter((image) => BRAND_LOGO_HINT_RE.test(`${image.url} ${image.alt}`))
+    .filter((image) => !FOREIGN_LOGO_RE.test(`${image.url} ${image.alt}`));
+  if (candidates.length === 0) return undefined;
+  const ranked = [...candidates].sort((left, right) => {
+    const altMatch = (image: typeof left) => (
+      named && image.alt.toLocaleLowerCase('en-US').includes(named) ? 0 : 1
+    );
+    return altMatch(left) - altMatch(right)
+      || Number(SECONDARY_LOGO_RE.test(left.url)) - Number(SECONDARY_LOGO_RE.test(right.url))
+      || left.url.localeCompare(right.url);
+  });
+  const chosen = ranked[0];
+  return { src: chosen.url, alt: chosen.alt || businessName || '', sourcePageUrl: home.url };
+}

@@ -825,7 +825,22 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     assert.match(serialized, /dr-jane-park\.jpg/u);
     assert.match(serialized, /before-01\.jpg/u);
     assert.match(serialized, /after-01\.jpg/u);
-    assert.doesNotMatch(serialized, /logo\.png/u);
+    // The logo has exactly one home now — the header's brand slot. It must still be absent from
+    // every photo and gallery slot, and absent from the source-image manifest.
+    const logoElements = compiled.config.pages
+      .flatMap((entry) => entry.sections)
+      .flatMap((section) => section.elements)
+      .filter((element) => element.kind === 'image' && element.src.endsWith('/logo.png'));
+    assert.equal(logoElements.length, 1);
+    assert.ok(logoElements[0].id.startsWith('clinic-route-brand-logo-'));
+    assert.equal(
+      compiled.config.pages
+        .flatMap((entry) => entry.sections)
+        .filter((section) => section.type === 'gallery')
+        .flatMap((section) => section.elements)
+        .some((element) => element.kind === 'image' && element.src.endsWith('/logo.png')),
+      false,
+    );
     assert.ok(compiled.sourceManifest.images);
     assert.ok(compiled.sourceManifest.usedImageIds);
     assert.equal(

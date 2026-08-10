@@ -27,10 +27,12 @@ function stateLabel(state: AiSignalState | 'measured'): string {
 function ScoreCard({
   title,
   summary,
+  asLaunched,
   hypothesis = false,
 }: {
   title: string;
   summary: UsDemoStructureComparison['source'];
+  asLaunched: UsDemoStructureComparison['asLaunched']['source'];
   hypothesis?: boolean;
 }) {
   return (
@@ -49,11 +51,37 @@ function ScoreCard({
           </p>
           <h3 className="mt-1 text-xl font-black text-slate-950">{title}</h3>
         </div>
-        <p className="shrink-0 text-3xl font-black tabular-nums text-slate-950">
-          {summary.score}
-          <span className="ml-1 text-sm font-semibold text-slate-500">/ 100</span>
+        <p className="shrink-0 text-right">
+          <span className="block text-3xl font-black tabular-nums text-slate-950">
+            {asLaunched.score}
+            <span className="ml-1 text-sm font-semibold text-slate-500">/ 100</span>
+          </span>
+          <span className="mt-1 block text-[11px] font-semibold text-slate-500">
+            as launched · {summary.score} as hosted now
+          </span>
         </p>
       </div>
+      {(asLaunched.deferredToLaunch.length > 0 || asLaunched.inapplicablePillars.length > 0) && (
+        <ul className="mb-5 space-y-1 text-[11px] leading-5 text-slate-500">
+          {asLaunched.deferredToLaunch.length > 0 && (
+            <li>
+              <strong className="font-semibold text-slate-600">Resolved at launch:</strong>
+              {' '}
+              {asLaunched.deferredToLaunch.length} search-access checks a private preview cannot
+              pass — indexing and crawler permissions come with the live domain.
+            </li>
+          )}
+          {asLaunched.inapplicablePillars.map((pillar) => (
+            <li key={pillar.group}>
+              <strong className="font-semibold text-slate-600">Not applicable:</strong>
+              {' '}
+              {pillar.group} — this page is neither an article nor a claim page, so its
+              {' '}
+              {pillar.weight} points are excluded from both columns rather than lost.
+            </li>
+          ))}
+        </ul>
+      )}
       <dl className="space-y-3">
         {GROUPS.map((group) => {
           const result = summary.groups[group];
@@ -112,14 +140,20 @@ export function AiStructureDiff({
         <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
           The left column reflects the public server-rendered HTML captured at crawl time. The
           right column is a publication hypothesis that structures the same public source text.
-          “Not verified” does not mean absent; items without statistics or citations are marked
-          “Not applicable” and receive no score credit.
+          “Not verified” does not mean absent. The headline score is scored as launched: checks a
+          private preview cannot pass, and pillars that do not apply to this kind of page, are
+          named below each column and excluded from both sides rather than charged to one.
         </p>
         <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          <ScoreCard title="Original structure" summary={comparison.source} />
+          <ScoreCard
+            title="Original structure"
+            summary={comparison.source}
+            asLaunched={comparison.asLaunched.source}
+          />
           <ScoreCard
             title="Restructured hypothesis"
             summary={comparison.publishHypothesis}
+            asLaunched={comparison.asLaunched.publishHypothesis}
             hypothesis
           />
         </div>
