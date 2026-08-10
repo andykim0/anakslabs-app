@@ -10,6 +10,7 @@ import {
 } from '@/lib/clinic-engine/pipeline';
 import { US_MEDICAL_OUTREACH_PROFILE } from '@/lib/clinic-engine/profiles';
 import { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
+import { sourceTextIsSiteChrome } from './source-noise';
 export { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
 
 const PATIENT_CONTENT_RE =
@@ -325,6 +326,13 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
   });
 }
 
+const CHROME_EXEMPT_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
+  'business_name',
+  'phone',
+  'address',
+  'opening_hours',
+]);
+
 function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (!safePage(page)) return [];
   const blocks: ProspectPublicSourceBlock[] = [];
@@ -336,6 +344,9 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   ) => {
     const text = clean(raw);
     if (!text || PATIENT_CONTENT_RE.test(text)) return;
+    // Contact fields are exempt: hours and addresses share vocabulary with footer chrome and are
+    // extracted from structured data, not from the page-text sweep that picks chrome up.
+    if (!CHROME_EXEMPT_KINDS.has(kind) && sourceTextIsSiteChrome(text)) return;
     blocks.push(sourceBlock({ kind, text, sourceUrl: page.url, field, ordinal }));
   };
   add('business_name', page.structured.businessName ?? page.title, 'structured.businessName');

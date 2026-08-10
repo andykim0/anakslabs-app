@@ -9,6 +9,7 @@ import type { Section, SiteConfig } from '@/lib/types/site';
 import { allSections, findPage, homePage } from '@/lib/types/site';
 import type { LivePurposeId } from '@/lib/types/domain';
 import { resolvePublicContact } from './public-contact';
+import { isPublishableProcedureName } from '@/lib/us-demo/source-noise';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -409,7 +410,7 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     const procedureNames = allSourceTexts(
       currentPage.sections,
       'procedure-service-',
-    );
+    ).filter(isPublishableProcedureName);
     const procedureRefs = procedureNames.map((procedureName, index) => {
       const procedureId = `${currentUrl}#procedure-${index + 1}`;
       nodes.push({
