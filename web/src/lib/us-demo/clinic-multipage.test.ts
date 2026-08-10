@@ -1181,6 +1181,29 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     assert.match(moving, /IntersectionObserver/u);
   });
 
+  test('크롤 본문에만 있는 주소·영업시간도 NAP 블록으로 올라온다', () => {
+    const artifact = fixtureArtifact();
+    const home = artifact.pages[0];
+    // The shape that broke this: a site that prints NAP as footer text and exposes no
+    // structured address at all. Twenty crawled pages, zero structured.address.
+    home.structured = { ...home.structured, address: undefined, openingHours: undefined };
+    home.text = `${home.text} Visit us at 3435 W. Irving Park Rd, Chicago, IL 60618. `
+      + 'Open Monday - Friday 9:00 - 6:00, Saturday closed.';
+
+    const blocks = prospectPublicSourceBlocks(artifact);
+    const address = blocks.find((block) => block.kind === 'address');
+    const hours = blocks.find((block) => block.kind === 'opening_hours');
+    assert.ok(address, 'an address printed only in page text must still be extracted');
+    assert.match(address.text, /Irving Park Rd/u);
+    assert.equal(address.sourceLocation.field, 'text.address');
+    assert.ok(hours, 'opening hours printed only in page text must still be extracted');
+
+    const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
+    // The visible NAP and the LocalBusiness detail both read from this projection.
+    assert.ok(compiled.config.publicContact?.address);
+    assert.ok(compiled.config.publicContact?.phone);
+  });
+
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {
     const artifact = fixtureArtifact();
     const compiled = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });

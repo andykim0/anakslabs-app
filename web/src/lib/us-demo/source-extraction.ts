@@ -370,8 +370,26 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   };
   add('business_name', page.structured.businessName ?? page.title, 'structured.businessName');
   add('phone', page.structured.phone, 'structured.phone');
-  add('address', page.structured.address, 'structured.address');
-  add('opening_hours', page.structured.openingHours, 'structured.openingHours');
+  /**
+   * Structured extraction misses address and hours on sites that print them as ordinary footer
+   * text — one twenty-page crawl produced structured.address on zero pages while every page
+   * carried "3435 W. Irving Park Rd, Chicago, IL 60618" in its text. Without these the demo has
+   * no visible NAP and no LocalBusiness detail, and scores below the site it rebuilt.
+   *
+   * The patterns are the ones this file already uses to find the operational boundary, so a
+   * match is the same shape the compiler elsewhere treats as an address or an hours line, and
+   * the text stays verbatim.
+   */
+  add(
+    'address',
+    page.structured.address ?? ADDRESS_TOKEN_RE.exec(page.text ?? '')?.[0],
+    page.structured.address ? 'structured.address' : 'text.address',
+  );
+  add(
+    'opening_hours',
+    page.structured.openingHours ?? OPENING_HOURS_TOKEN_RE.exec(page.text ?? '')?.[0],
+    page.structured.openingHours ? 'structured.openingHours' : 'text.opening-hours',
+  );
 
   const url = new URL(page.url);
   if (url.pathname === '/' || PROVIDER_PATH_RE.test(url.pathname)) {

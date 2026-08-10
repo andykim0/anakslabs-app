@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
+import { asLaunchedScore } from '@/lib/us-demo/structure-diff';
 import { parse } from 'node-html-parser';
 import { AEO_RULES } from '@/lib/scan/checks/aeo';
 import { GEO_RULES } from '@/lib/scan/checks/geo';
@@ -205,5 +206,56 @@ describe('SE$ S1 점수 보정과 루트 원인', () => {
         },
       },
     );
+  });
+});
+
+describe('as-launched comparison scoring', () => {
+  test('프리뷰 호스팅 룰과 해당없는 필라를 분모에서 뺀다', () => {
+    const summary = {
+      groups: {
+        entity: { weight: 35, earned: 35, applicableSignals: 1, detectedSignals: 1, state: 'measured' },
+        structuredSchema: { weight: 25, earned: 25, applicableSignals: 1, detectedSignals: 1, state: 'measured' },
+        evidence: { weight: 20, earned: 0, applicableSignals: 0, detectedSignals: 0, state: 'not_applicable' },
+        answerExtraction: { weight: 15, earned: 15, applicableSignals: 1, detectedSignals: 1, state: 'measured' },
+        access: { weight: 5, earned: 0, applicableSignals: 1, detectedSignals: 0, state: 'measured' },
+      },
+      signals: [
+        { id: 'entity.a', group: 'entity', state: 'detected' },
+        { id: 'schema.a', group: 'structuredSchema', state: 'detected' },
+        { id: 'evidence.a', group: 'evidence', state: 'not_applicable' },
+        { id: 'answer.a', group: 'answerExtraction', state: 'detected' },
+        // Fails only because the preview host says noindex.
+        { id: 'access.indexable', group: 'access', state: 'unconfirmed', ruleCode: 'seo_noindex' },
+      ],
+    } as never;
+    const result = asLaunchedScore(summary);
+    // evidence carries no applicable signal and access carries only a deferred one, so both
+    // leave the denominator; the rest is a clean sweep.
+    assert.equal(result.score, 100);
+    assert.deepEqual(result.inapplicablePillars.map((p) => p.group).sort(), ['access', 'evidence']);
+    assert.deepEqual(result.deferredToLaunch, ['access.indexable']);
+  });
+
+  test('실제 구조 실패는 계속 감점된다', () => {
+    const summary = {
+      groups: {
+        entity: { weight: 35, earned: 0, applicableSignals: 2, detectedSignals: 0, state: 'measured' },
+        structuredSchema: { weight: 25, earned: 25, applicableSignals: 1, detectedSignals: 1, state: 'measured' },
+        evidence: { weight: 20, earned: 0, applicableSignals: 0, detectedSignals: 0, state: 'not_applicable' },
+        answerExtraction: { weight: 15, earned: 0, applicableSignals: 1, detectedSignals: 0, state: 'measured' },
+        access: { weight: 5, earned: 5, applicableSignals: 1, detectedSignals: 1, state: 'measured' },
+      },
+      signals: [
+        { id: 'entity.a', group: 'entity', state: 'unconfirmed', ruleCode: 'aeo_local_business_details' },
+        { id: 'entity.b', group: 'entity', state: 'unconfirmed' },
+        { id: 'schema.a', group: 'structuredSchema', state: 'detected' },
+        { id: 'evidence.a', group: 'evidence', state: 'not_applicable' },
+        { id: 'answer.a', group: 'answerExtraction', state: 'unconfirmed', ruleCode: 'aeo_heading_order' },
+        { id: 'access.indexable', group: 'access', state: 'detected' },
+      ],
+    } as never;
+    const result = asLaunchedScore(summary);
+    assert.ok(result.score < 50, `structural failures must still cost: got ${result.score}`);
+    assert.deepEqual(result.deferredToLaunch, []);
   });
 });

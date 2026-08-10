@@ -25,7 +25,73 @@ export interface UsDemoStructureComparison {
   framing: typeof AI_VISIBILITY_SERVER_HTML_LABEL;
   source: AiVisibilitySummary;
   publishHypothesis: AiVisibilitySummary;
+  /** Both sides scored as they would be once launched. Additive; raw scores are unchanged. */
+  asLaunched: { source: AsLaunchedScore; publishHypothesis: AsLaunchedScore };
 }
+
+/**
+ * Properties a preview host has and a launched site does not. The demo is served noindexed, with
+ * crawlers turned away and no canonical of its own, because it is a private draft — scoring it on
+ * those is scoring the hosting, not the rebuild the customer is being shown.
+ *
+ * They are deferred, not hidden: the comparison reports them so the surface can label them as
+ * resolved at launch. The scanner keeps failing them, which is correct for a real site.
+ */
+export const AS_LAUNCHED_DEFERRED_RULE_CODES: readonly string[] = Object.freeze([
+  'seo_noindex',
+  'seo_googlebot_blocked',
+  'seo_bingbot_blocked',
+  'geo_oai_search_blocked',
+  'geo_perplexity_blocked',
+  'geo_snippet_restricted',
+  'seo_canonical',
+  'seo_canonical_invalid',
+]);
+
+export interface AsLaunchedScore {
+  /** Percentage over the pillars that apply, with preview-hosting rules deferred. */
+  score: number;
+  /** Pillars carrying no applicable signal, with the weight each removes from the total. */
+  inapplicablePillars: { group: string; weight: number }[];
+  /** Signals held back because the preview host, not the rebuild, fails them. */
+  deferredToLaunch: string[];
+}
+
+/**
+ * A pillar with no applicable signal earns zero while its weight stays in the denominator, so a
+ * clinic page — where evidence cannot apply, as it is neither an article nor a claim page — is
+ * charged twenty points neither side can win. Renormalising over the pillars that apply is the
+ * same arithmetic each pillar already uses internally.
+ */
+export function asLaunchedScore(summary: AiVisibilitySummary): AsLaunchedScore {
+  const deferred = summary.signals.filter(
+    (signal) => signal.ruleCode && AS_LAUNCHED_DEFERRED_RULE_CODES.includes(signal.ruleCode),
+  );
+  const deferredIds = new Set(deferred.map((signal) => signal.id));
+  const inapplicablePillars: { group: string; weight: number }[] = [];
+  let earned = 0;
+  let weight = 0;
+  for (const [group, pillar] of Object.entries(summary.groups)) {
+    const applicable = summary.signals.filter((signal) => (
+      signal.group === group
+      && signal.state !== 'not_applicable'
+      && !deferredIds.has(signal.id)
+    ));
+    if (applicable.length === 0) {
+      inapplicablePillars.push({ group, weight: pillar.weight });
+      continue;
+    }
+    const detected = applicable.filter((signal) => signal.state === 'detected').length;
+    earned += (detected / applicable.length) * pillar.weight;
+    weight += pillar.weight;
+  }
+  return {
+    score: weight === 0 ? 0 : Math.round((earned / weight) * 100),
+    inapplicablePillars,
+    deferredToLaunch: deferred.map((signal) => signal.id),
+  };
+}
+
 
 const PROCEDURE_SOURCE_RE = Object.freeze({
   implant: /\bimplant|all[- ]on[- ](?:4|6)|full[- ]arch/iu,
@@ -122,5 +188,9 @@ export function compareUsDemoStructure(input: {
     framing: AI_VISIBILITY_SERVER_HTML_LABEL,
     source,
     publishHypothesis,
+    asLaunched: {
+      source: asLaunchedScore(source),
+      publishHypothesis: asLaunchedScore(publishHypothesis),
+    },
   };
 }
