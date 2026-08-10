@@ -30,6 +30,7 @@ import {
   type OverlayRemovalEvidence,
   type OverlayUiChromeEvidence,
 } from './overlay-ui-chrome';
+import { stripShortcodes } from '@/lib/import/extract';
 
 const CONTENT_BLOCK_TAGS = new Set([
   'H1',
@@ -156,7 +157,11 @@ function sha256(value: string): string {
 }
 
 export function normalizeRobustClinicText(value: string): string {
-  return value
+  // Shortcodes come out here too. This path reads the rendered DOM, and an
+  // unrendered [wp_form …] is a text node in it exactly as on the import path
+  // — then the consented compile *requires* every block to be placed, so
+  // anything left here is guaranteed to reach the page.
+  return stripShortcodes(value)
     .replace(/\u00a0/gu, ' ')
     .replace(/[ \t\f\v]+/gu, ' ')
     .replace(/ *\n */gu, '\n')

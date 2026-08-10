@@ -20,6 +20,44 @@ import { parseMenuItems } from '@/lib/data/content-parse';
  * phone number is never worth failing an import over: fall back to the raw
  * text, which is what was displayed before and is no worse.
  */
+
+/**
+ * Remove WordPress-style shortcodes from extracted text.
+ *
+ * `[wp_form id="8296"]` reached a published demo because nothing on any
+ * extraction path touches square brackets. The shortcode is a plain text node
+ * whenever the plugin did not render — a crawl of a page behind a form
+ * plugin, a cached page, a 403 — so it survives every filter aimed at markup.
+ *
+ * Stripping every `[...]` would eat footnote markers and measurements, which
+ * appear in real clinic copy ("[1]", "10 [mm]"). Two narrower rules instead:
+ *
+ *   - a known plugin prefix, with or without attributes
+ *   - any tag-like opener: a lowercase name, then whitespace, then attributes
+ *
+ * `[1]` has no name, `[10mm]` has no whitespace, and neither is a known
+ * prefix, so both survive. A shortcode with no attributes and no known prefix
+ * (`[gallery]`) is deliberately left alone — it reads as a word in brackets,
+ * and guessing costs more than it saves.
+ */
+const SHORTCODE_PREFIXES = [
+  'wp_form', 'wpforms', 'contact-form-7', 'contact_form', 'gravityform', 'gravityforms',
+  'et_pb_[a-z_]*', 'vc_[a-z_]*', 'fusion_[a-z_]*', 'elementor-template',
+  'caption', 'gallery', 'embed', 'audio', 'playlist', 'ninja_form', 'ninja_forms',
+  'formidable', 'wpcf7', 'rev_slider', 'metaslider', 'su_[a-z_]*',
+];
+
+const SHORTCODE_RE = new RegExp(
+  '\\[/?(?:' + SHORTCODE_PREFIXES.join('|') + ')(?:[^\\]]*)\\]'      // known plugin, attrs optional
+  + '|\\[/?[a-z][a-z0-9_-]*\\s+[^\\]]*\\]',                        // name + space + attributes
+  'giu',
+);
+
+export function stripShortcodes(value: string): string {
+  if (!value || value.indexOf('[') < 0) return value;
+  return value.replace(SHORTCODE_RE, ' ').replace(/[ \t]{2,}/gu, ' ').trim();
+}
+
 export function normalizeTelHref(href: string | null | undefined): string | undefined {
   if (!href) return undefined;
   const raw = href.replace(/^tel:/i, '').trim();
@@ -303,7 +341,7 @@ export function parseHtml(html: string, finalUrl: string): ExtractResult {
   // 가시 텍스트: 스크립트·스타일·노스크립트·템플릿 제거 후
   const clone = parse(root.toString());
   for (const el of clone.querySelectorAll('script, style, noscript, template')) el.remove();
-  const text = clone.text.replace(/\s+/g, ' ').trim().slice(0, 8000);
+  const text = stripShortcodes(clone.text.replace(/\s+/g, ' ').trim()).slice(0, 8000);
 
   // 이미지: og:image 우선 + <img src> 절대경로화, 아이콘·트래커·svg 제외, 최대 12
   const abs = (src: string): string | null => {

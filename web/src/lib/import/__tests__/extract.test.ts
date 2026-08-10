@@ -10,6 +10,7 @@ import {
   assertUrlAllowed,
   extractFromUrl,
   normalizeTelHref,
+  stripShortcodes,
   ImportError,
   parseHtml,
   type LookupFn,
@@ -171,4 +172,22 @@ test('tel: href 의 퍼센트 인코딩을 풀어서 전화번호로 쓴다', ()
   assert.equal(normalizeTelHref('tel:+1%ZZ773'), '+1%ZZ773');
   assert.equal(normalizeTelHref(undefined), undefined);
   assert.equal(normalizeTelHref('tel:'), undefined);
+});
+
+test('워드프레스 숏코드는 지우고 각주·치수 대괄호는 남긴다', () => {
+  // 발행된 데모 본문에 `[wp_form id="8296"]` 이 그대로 찍힌 결함. 플러그인이
+  // 렌더되지 않으면 숏코드는 평범한 텍스트 노드라 마크업 필터를 전부 통과한다.
+  assert.equal(stripShortcodes('Book here [wp_form id="8296"] today'), 'Book here today');
+  assert.equal(stripShortcodes('[contact-form-7 id="12" title="Contact"]'), '');
+  assert.equal(stripShortcodes('[et_pb_section admin_label="x"]A[/et_pb_section]'), 'A');
+  assert.equal(stripShortcodes('[vc_row][vc_column]B[/vc_column][/vc_row]'), 'B');
+  assert.equal(stripShortcodes('[caption id="a" align="left"]Dr Lee[/caption]'), 'Dr Lee');
+
+  // 실제 진료 카피에 나오는 대괄호는 살아남아야 한다 — 이름이 없거나(각주),
+  // 공백이 없거나(치수), 알려진 플러그인이 아니면 건드리지 않는다.
+  assert.equal(stripShortcodes('Implant success 98% [1]'), 'Implant success 98% [1]');
+  assert.equal(stripShortcodes('A 10 [mm] post'), 'A 10 [mm] post');
+  assert.equal(stripShortcodes('See figure [A-3]'), 'See figure [A-3]');
+  assert.equal(stripShortcodes('no brackets at all'), 'no brackets at all');
+  assert.equal(stripShortcodes(''), '');
 });
