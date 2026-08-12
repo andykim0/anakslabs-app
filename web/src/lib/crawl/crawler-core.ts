@@ -800,7 +800,17 @@ async function crawlSite(
     skippedUrls.push(item);
   };
   const visited = new Set<string>();
+  /**
+   * The budget is checked between pages, never mid-request: a page is either collected whole or
+   * not started. Stopping here leaves a shorter artifact; letting the route time out leaves none.
+   */
+  const crawlStartedAt = now().getTime();
+  let stoppedByBudget = false;
   while (queue.length > 0 && pages.length < pageLimit) {
+    if (now().getTime() - crawlStartedAt >= DESIGNATED_CRAWL_POLICY.wallClockBudgetMs) {
+      stoppedByBudget = true;
+      break;
+    }
     const next = queue.shift()!;
     if (visited.has(next)) continue;
     const nextUrl = new URL(next);
@@ -1028,7 +1038,11 @@ async function crawlSite(
           },
         }
       : {}),
-    stoppedReason: pages.length >= pageLimit ? 'page_limit' : 'queue_exhausted',
+    stoppedReason: stoppedByBudget
+      ? 'time_budget'
+      : pages.length >= pageLimit
+        ? 'page_limit'
+        : 'queue_exhausted',
   };
 }
 

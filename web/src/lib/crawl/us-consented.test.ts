@@ -136,12 +136,18 @@ describe('US-CONSENTED — verbal consent, full-transfer crawl, and completeness
     );
   });
 
-  test('the mock flow gates before fetch, exceeds 20 pages, and records rendered image metadata', () => {
+  test('the mock flow gates before fetch, exceeds the old 20-page cap, and records rendered image metadata', () => {
     const result = mockHarness();
     assert.equal(result.missingConsentFetched, false);
     assert.equal(result.missingConsentError, 'US_MEDICAL_CONSENT_REQUIRED');
-    assert.equal(DESIGNATED_CRAWL_POLICY.maxPages, 20);
-    assert.equal(CONSENTED_CRAWL_POLICY.maxPages, 100);
+    /**
+     * Consent no longer expands volume: the designated crawl reaches the same hundred pages, and
+     * both are held by the same wall-clock budget. What consent still buys is the rendered-page
+     * requirement and the audited policy id — not a bigger number.
+     */
+    assert.equal(DESIGNATED_CRAWL_POLICY.maxPages, 100);
+    assert.equal(CONSENTED_CRAWL_POLICY.maxPages, DESIGNATED_CRAWL_POLICY.maxPages);
+    assert.equal(CONSENTED_CRAWL_POLICY.id, 'us-medical-consented-v1');
     assert.equal(CONSENTED_CRAWL_POLICY.minRequestIntervalMs, 1_000);
     assert.equal(result.pageCount, 22);
     assert.equal(result.crawlCoverage.crawledPages, 22);

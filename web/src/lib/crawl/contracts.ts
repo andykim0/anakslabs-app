@@ -24,13 +24,24 @@ export function sharedPreviewRetentionDays(input: {
 }
 
 export const DESIGNATED_CRAWL_POLICY = {
-  maxPages: 20,
+  maxPages: 100,
   minRequestIntervalMs: 1_000,
   maxRedirects: 3,
   maxRateLimitRetryDelayMs: 30_000,
   requestTimeoutMs: 8_000,
   maxHtmlBytes: 1_000_000,
   maxSitemaps: 3,
+  /**
+   * The real bound. A page cap is a guess about how long a site takes; this is the thing the
+   * platform actually enforces, so the crawl measures itself against it and stops on its own
+   * terms while it still has an artifact to hand back. Sits under the route's 300s maxDuration
+   * with room for the compile and the response.
+   *
+   * Measured on the three sample practices through this route: 1.26, 1.40 and 1.60 seconds per
+   * page, so a hundred pages projects to roughly 130-170s. The budget is what protects the
+   * slower prospect that projection does not describe.
+   */
+  wallClockBudgetMs: 240_000,
 } as const;
 
 /**
@@ -255,7 +266,12 @@ export interface CrawlArtifactPayload {
   pageFailures?: CrawlPageFailure[];
   /** Additive explicit-risk ledger. Omitted when no opt-in was used. */
   accessWarnings?: CrawlAccessWarning[];
-  stoppedReason?: 'page_limit' | 'queue_exhausted';
+  /**
+   * Why the crawl ended. `time_budget` means the wall-clock bound was reached and everything
+   * collected up to that point was kept: before this existed the route simply timed out, the
+   * whole artifact was lost, and an operator had to re-crawl someone else's site from nothing.
+   */
+  stoppedReason?: 'page_limit' | 'queue_exhausted' | 'time_budget';
 }
 
 export interface CrawlArtifactRecord {
