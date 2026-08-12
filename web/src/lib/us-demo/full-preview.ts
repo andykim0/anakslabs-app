@@ -36,6 +36,7 @@ import type {
   UsDemoRenderMode,
 } from './contracts';
 import {
+  clinicImageDimensions,
   clinicPhotoGate,
   eligibleForClinicHero,
   clinicPhotoPoolForTopic,
@@ -1012,7 +1013,13 @@ export function compileUsMedicalFullPreview(input: {
   const photoSlotPool = clinicPhotoSlotPool(projectedImages);
   const heroUseCounts = new Map<string, number>();
   let previousHeroImageId: string | undefined;
-  const heroDecisions: { pageSlug: string; imageUrl?: string; tieBreak: ClinicHeroDecision['tieBreak']; candidateCount: number }[] = [];
+  const heroDecisions: {
+    pageSlug: string;
+    imageUrl?: string;
+    dimensionSource?: ClinicHeroDecision['dimensionSource'];
+    tieBreak: ClinicHeroDecision['tieBreak'];
+    candidateCount: number;
+  }[] = [];
   let lastHeroTieBreak: ClinicHeroDecision['tieBreak'] = 'no-candidate';
   let lastHeroCandidateCount = 0;
   /** Called right after each hero allocation, while the tie-break that produced it is still known. */
@@ -1023,17 +1030,24 @@ export function compileUsMedicalFullPreview(input: {
     heroDecisions.push({
       pageSlug,
       ...(image ? { imageUrl: image.source.url } : {}),
+      ...(image ? { dimensionSource: clinicImageDimensions(image).source } : {}),
       tieBreak: lastHeroTieBreak,
       candidateCount: lastHeroCandidateCount,
     });
   };
-  /** Known pixels only. §D4 ranks on area, and absent metadata must never outrank a measurement. */
+  /**
+   * Measured pixels only, and deliberately not the filename suffix. The two questions take
+   * different evidence: for eligibility a publisher's own `-150x150` label is enough to know the
+   * asset is a thumbnail, but for ranking two large images against each other it mixes a label
+   * with a measurement. Admitting labels here reshuffled 18 of 33 heroes on the samples — mostly
+   * for the better on treatment pages, but it also replaced a practice's own lobby photograph
+   * with a stock one, which is not a trade this ticket authorised.
+   */
   const knownArea = (image: ProjectedUsDemoSourceImage): number => {
-    const width = image.candidate.renderedDimensions?.naturalWidth
-      ?? image.candidate.declaredWidth;
-    const height = image.candidate.renderedDimensions?.naturalHeight
-      ?? image.candidate.declaredHeight;
-    return width && height ? width * height : 0;
+    const dimensions = clinicImageDimensions(image);
+    return dimensions.source === 'metadata' && dimensions.width && dimensions.height
+      ? dimensions.width * dimensions.height
+      : 0;
   };
   const allocateHeroImage = (
     candidates: readonly ProjectedUsDemoSourceImage[],
@@ -1584,6 +1598,9 @@ export function compileUsMedicalFullPreview(input: {
       pageSlug: decision.pageSlug,
       outcome,
       ...(heroSrc ? { imageUrl: heroSrc } : {}),
+      ...(outcome === 'source' && decision.dimensionSource
+        ? { dimensionSource: decision.dimensionSource }
+        : {}),
       tieBreak: decision.tieBreak,
       candidateCount: decision.candidateCount,
     };

@@ -112,6 +112,11 @@ export interface ClinicHeroDecision {
     | 'pool-order'
     | 'only-candidate'
     | 'no-candidate';
+  /**
+   * Where the winner's dimensions came from. Most crawled images declare none, so `filename`
+   * records that the only measurement available was the size WordPress wrote into the name.
+   */
+  dimensionSource?: 'metadata' | 'filename' | 'unknown';
   /** Hero-eligible candidates left after the gate, the cap and the previous-hero dedup. */
   candidateCount: number;
 }

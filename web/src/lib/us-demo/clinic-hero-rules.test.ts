@@ -6,7 +6,11 @@ import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import { compileUsMedicalDemo } from './source-compiler';
 import {
+  clinicImageDimensions,
   eligibleForClinicHero,
+  heroImageIsTooSmall,
+  HERO_MINIMUM_HEIGHT,
+  HERO_MINIMUM_WIDTH,
   heroImageIsDecorative,
   heroImageIsProviderPortrait,
   prospectPublicSourceImages,
@@ -128,6 +132,52 @@ describe('D4 — the ranking records which stage decided', () => {
     // recorded for it, which is what keeps a provider portrait allowed there.
     for (const name of SAMPLES) {
       assert.equal(auditFor(name).heroDecisions.some((d) => d.pageSlug === 'about'), false);
+    }
+  });
+});
+
+describe('D1(c)-lite — the size floor, measured from the filename when nothing else says', () => {
+  test('워드프레스가 파일명에 적어둔 치수를 읽고, 출처를 남긴다', () => {
+    const images = SAMPLES.flatMap((name) => prospectPublicSourceImages(artifact(name)));
+    const tiny = images.find((i) => basename(i.source.url) === 'Untitled-2-150x150.png')!;
+    assert.deepEqual(clinicImageDimensions(tiny), { width: 150, height: 150, source: 'filename' });
+    const declared = images.find((i) => i.candidate.declaredWidth && i.candidate.declaredHeight)!;
+    assert.equal(clinicImageDimensions(declared).source, 'metadata');
+    // Nothing in the name and nothing declared stays unknown rather than being invented.
+    const bare = images.find((i) => clinicImageDimensions(i).source === 'unknown')!;
+    assert.equal(clinicImageDimensions(bare).width, undefined);
+  });
+
+  test('측정된 작은 이미지만 떨어지고, 치수를 모르는 이미지는 계속 후보다', () => {
+    const images = SAMPLES.flatMap((name) => prospectPublicSourceImages(artifact(name)));
+    const tiny = images.find((i) => basename(i.source.url) === 'Untitled-2-150x150.png')!;
+    assert.equal(heroImageIsTooSmall(tiny), true);
+    assert.equal(eligibleForClinicHero(tiny), false);
+    const unknown = images.filter((i) => clinicImageDimensions(i).source === 'unknown');
+    assert.ok(unknown.length > 0, 'the corpus must exercise the unknown-dimensions path');
+    assert.ok(unknown.every((i) => !heroImageIsTooSmall(i)));
+  });
+
+  test('어떤 히어로도 하한 아래로 내려가지 않는다', () => {
+    for (const name of SAMPLES) {
+      const byUrl = new Map(prospectPublicSourceImages(artifact(name)).map((i) => [i.source.url, i]));
+      for (const decision of auditFor(name).heroDecisions) {
+        const image = decision.imageUrl ? byUrl.get(decision.imageUrl) : undefined;
+        if (!image) continue;
+        const { width, height, source } = clinicImageDimensions(image);
+        assert.equal(decision.dimensionSource, source);
+        if (source === 'unknown') continue;
+        assert.ok(width! >= HERO_MINIMUM_WIDTH && height! >= HERO_MINIMUM_HEIGHT,
+          `${name}/${decision.pageSlug || 'home'} kept ${width}x${height}`);
+      }
+    }
+  });
+
+  test('150x150 로고는 어느 히어로도 차지하지 못한다', () => {
+    for (const name of SAMPLES) {
+      assert.ok(auditFor(name).heroDecisions.every(
+        (d) => !(d.imageUrl ?? '').includes('Untitled-2-150x150'),
+      ));
     }
   });
 });

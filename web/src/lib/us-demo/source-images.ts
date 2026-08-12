@@ -364,9 +364,59 @@ export function heroImageIsDecorative(image: ProjectedUsDemoSourceImage): boolea
 }
 
 /**
+ * WordPress writes the rendered size into the filename of every derivative it generates
+ * (-150x150, -1024x682, -770x500). The crawl carries no dimensions for most images — nothing
+ * declares them in the markup and no bytes are fetched — so for a WordPress practice this suffix
+ * is the only measurement available, and it is the publisher's own.
+ */
+const FILENAME_DIMENSIONS_RE = /(?:^|[^0-9])(\d{2,4})x(\d{2,4})(?:[^0-9]|$)/u;
+
+export type ClinicImageDimensionSource = 'metadata' | 'filename' | 'unknown';
+
+export interface ClinicImageDimensions {
+  width?: number;
+  height?: number;
+  source: ClinicImageDimensionSource;
+}
+
+/**
+ * One resolver for every question about how big an image is, so eligibility and ranking cannot
+ * disagree. Measured metadata wins; the filename is consulted only in its absence; neither is
+ * invented when both are silent.
+ */
+export function clinicImageDimensions(
+  image: ProjectedUsDemoSourceImage,
+): ClinicImageDimensions {
+  const width = image.candidate.renderedDimensions?.naturalWidth
+    ?? image.candidate.declaredWidth;
+  const height = image.candidate.renderedDimensions?.naturalHeight
+    ?? image.candidate.declaredHeight;
+  if (width && height) return { width, height, source: 'metadata' };
+  const named = FILENAME_DIMENSIONS_RE.exec(imageFilename(image));
+  if (named) return { width: Number(named[1]), height: Number(named[2]), source: 'filename' };
+  return { source: 'unknown' };
+}
+
+/** Below either floor the image is a thumbnail or an icon, whatever it depicts. */
+export const HERO_MINIMUM_WIDTH = 640;
+export const HERO_MINIMUM_HEIGHT = 400;
+
+/**
+ * Only a measured image can fail this. Absent dimensions stay eligible on purpose — treating
+ * silence as a failure would empty the pool of every practice whose markup declares nothing.
+ */
+export function heroImageIsTooSmall(image: ProjectedUsDemoSourceImage): boolean {
+  const { width, height, source } = clinicImageDimensions(image);
+  if (source === 'unknown' || !width || !height) return false;
+  return width < HERO_MINIMUM_WIDTH || height < HERO_MINIMUM_HEIGHT;
+}
+
+/**
  * A hero opens the page, so it carries the strictest test: no faces, no decorative furniture.
  * The About hero is deliberately outside this — a provider portrait is the correct answer there.
  */
 export function eligibleForClinicHero(image: ProjectedUsDemoSourceImage): boolean {
-  return !heroImageIsProviderPortrait(image) && !heroImageIsDecorative(image);
+  return !heroImageIsProviderPortrait(image)
+    && !heroImageIsDecorative(image)
+    && !heroImageIsTooSmall(image);
 }
