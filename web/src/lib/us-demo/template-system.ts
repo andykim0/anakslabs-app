@@ -1,4 +1,8 @@
-import type { ClinicSpecialty } from './clinic-palette';
+import { US_DEMO_CLINIC_SPECIALTY, type ClinicSpecialty } from './clinic-palette';
+import type {
+  ProspectPublicSourceBlock,
+  ProspectPublicSourceKind,
+} from './contracts';
 
 /**
  * TEMPLATE-SYSTEM §1-2 band tokens. Order within a plan follows the measured normalised position,
@@ -10,7 +14,9 @@ export type ClinicBlockToken =
   | 'videos' | 'gallery' | 'reviews' | 'beforeafter'
   | 'events' | 'insurance' | 'location' | 'faq' | 'booking';
 
-export type ClinicTemplateId = 'T5';
+export const CLINIC_TEMPLATE_IDS = ['T5'] as const;
+
+export type ClinicTemplateId = (typeof CLINIC_TEMPLATE_IDS)[number];
 
 export type ClinicMotionCharacter = 'minimal' | 'medium' | 'strong' | 'parallax';
 
@@ -154,15 +160,26 @@ export function assignClinicTemplate(
 }
 
 /**
+ * Two rows of three in the master's grid. Every crawled sample clears it by a wide margin, so it
+ * is a floor rather than a tuned threshold — it exists to keep a practice with three photographs
+ * out of the picture-led family, not to split this corpus.
+ */
+const GALLERY_HEAVY_MIN_PHOTOS = 6;
+
+/**
  * Derive the assignment inputs from what the crawl actually shows, so the decision is recorded on
  * every compile rather than living only in a unit test. §7-2 order: specialty, then R/S, then the
  * visual family.
+ *
+ * Every input is read from the source. An earlier version counted section types on the compiled
+ * config, which cannot decide anything: by the time those sections exist the layout has already
+ * been chosen, so the decision was describing its own output.
  */
 export function clinicTemplateDecisionFromSource(input: {
   pageUrls: readonly string[];
-  serviceTexts: readonly string[];
-  trustSectionCount: number;
-  gallerySectionCount: number;
+  blocks: readonly ProspectPublicSourceBlock[];
+  /** Source photographs that passed the photo gate — what a gallery band would have to fill. */
+  eligiblePhotoCount: number;
 }): ClinicTemplateAssignment & { input: ClinicTemplateAssignmentInput } {
   const paths = input.pageUrls.map((url) => {
     try {
@@ -171,22 +188,41 @@ export function clinicTemplateDecisionFromSource(input: {
       return '';
     }
   });
+  const hasKind = (...kinds: ProspectPublicSourceKind[]) => input.blocks.some(
+    (block) => kinds.includes(block.kind),
+  );
+  const hasPath = (pattern: RegExp) => paths.some((path) => pattern.test(path));
   // A network prints a location index and per-branch pages; a single practice does not.
   const locationPages = paths.filter((path) => /\/[a-z-]*locations?[a-z-]*(?:\/|$)/u.test(path));
-  const services = input.serviceTexts.join(' ').toLocaleLowerCase('en-US');
+  const services = input.blocks
+    .filter((block) => block.kind === 'service')
+    .map((block) => block.text)
+    .join(' ')
+    .toLocaleLowerCase('en-US');
   const procedureFamilies = [
     /\bimplant/u, /\borthodont|braces|invisalign|aligner/u, /\bcosmetic|veneer|whitening/u,
     /\bperiodont|gum\b/u, /\bendodont|root canal/u, /\boral surgery|extraction/u,
     /\bpediatric|children/u, /\brestorative|crown|bridge|denture|filling/u,
   ].filter((pattern) => pattern.test(services)).length;
+  /**
+   * §1-4 counts trust bands, and the source shows a band by carrying either its content or a page
+   * devoted to it. Three qualify: patient reviews, the people who provide the care, and what the
+   * practice accepts as payment.
+   */
+  const trustSectionCount = [
+    hasPath(/review|testimonial/u),
+    hasKind('provider_name', 'provider_credential', 'provider_bio')
+      || hasPath(/doctor|provider|meet-the|our-team|staff|physician/u),
+    hasKind('insurance', 'price_or_financing') || hasPath(/insurance|financing|payment/u),
+  ].filter(Boolean).length;
   const assignmentInput: ClinicTemplateAssignmentInput = {
-    specialty: 'dental',
+    specialty: US_DEMO_CLINIC_SPECIALTY,
     market: 'US',
-    trustSectionCount: input.trustSectionCount,
+    trustSectionCount,
     multiLocation: locationPages.length >= 2,
     // One family across the whole service list is a single-procedure practice.
     singleProcedureFocus: procedureFamilies === 1,
-    galleryHeavy: input.gallerySectionCount >= 1,
+    galleryHeavy: input.eligiblePhotoCount >= GALLERY_HEAVY_MIN_PHOTOS,
   };
   return { ...assignClinicTemplate(assignmentInput), input: assignmentInput };
 }

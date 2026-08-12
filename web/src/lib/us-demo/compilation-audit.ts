@@ -1,15 +1,16 @@
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
-import type { ClinicResolvedPalette, SiteConfig, SitePage } from '@/lib/types/site';
+import type {
+  ClinicMasterPin,
+  ClinicResolvedPalette,
+  SiteConfig,
+  SitePage,
+} from '@/lib/types/site';
 import type {
   ProspectPublicSourceKind,
   UsDemoRenderMode,
   UsMedicalDemoCompilation,
 } from './contracts';
 import { clinicPhotoGate, prospectPublicSourceImages } from './source-images';
-import {
-  clinicTemplateDecisionFromSource,
-  type ClinicTemplateAssignment,
-} from './template-system';
 
 export const US_MEDICAL_COMPILATION_AUDIT_VERSION = 1;
 
@@ -61,10 +62,11 @@ export interface UsMedicalCompilationAudit {
     stockHero: boolean;
   }[];
   /**
-   * TEMPLATE-SYSTEM §7-2. Recorded on every compile so the decision is inspectable per artifact,
-   * including when the doc designates a template that is not built yet.
+   * TEMPLATE-SYSTEM §7-2, read off the pin the compile wrote. Recorded on every compile so the
+   * decision is inspectable per artifact, including when the doc designates a template that is
+   * not built yet. Null for a config compiled before the pin carried one.
    */
-  template: ClinicTemplateAssignment & { multiLocation: boolean; singleProcedureFocus: boolean };
+  template: NonNullable<ClinicMasterPin['templateDecision']> | null;
   /**
    * §2, read off the pin the compile wrote — not recomputed. An audit that runs the extractor a
    * second time can only ever report a palette that agrees with the page by luck. Null for a
@@ -126,15 +128,6 @@ export function buildUsMedicalCompilationAudit(input: {
           reason: gate.reason,
         }];
   });
-  const sectionTypes = config.pages.flatMap((page) => page.sections.map((s) => s.type));
-  const decision = clinicTemplateDecisionFromSource({
-    pageUrls: artifact.pages.map((page) => page.url),
-    serviceTexts: manifest.blocks
-      .filter((block) => block.kind === 'service')
-      .map((block) => block.text),
-    trustSectionCount: sectionTypes.filter((type) => type === 'testimonials').length,
-    gallerySectionCount: sectionTypes.filter((type) => type === 'gallery').length,
-  });
   return {
     version: US_MEDICAL_COMPILATION_AUDIT_VERSION,
     renderMode,
@@ -176,13 +169,7 @@ export function buildUsMedicalCompilationAudit(input: {
       characterCount: pageCharacterCount(page),
       stockHero: heroIsStock(page),
     })),
-    template: {
-      templateId: decision.templateId,
-      reason: decision.reason,
-      designatedByDoc: decision.designatedByDoc,
-      multiLocation: decision.input.multiLocation,
-      singleProcedureFocus: decision.input.singleProcedureFocus,
-    },
+    template: config.clinicMaster?.templateDecision ?? null,
     palette: config.clinicMaster?.resolvedPalette ?? null,
   };
 }

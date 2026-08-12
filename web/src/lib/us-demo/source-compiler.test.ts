@@ -158,6 +158,16 @@ describe('US-DEMO P2 — source-only English compiler', () => {
         fallbackUsed: true,
         gateFailures: [],
       },
+      // §7-2 is recorded, never acted on: this fixture is a single-procedure practice with one
+      // trust pass, so the decision is T5 while the compile keeps premium-dental-v1.
+      templateDecision: {
+        version: 1,
+        templateId: 'T5',
+        designatedByDoc: 'T5',
+        reason: 'single-procedure focus with one trust pass — Mono Statement',
+        multiLocation: false,
+        singleProcedureFocus: true,
+      },
       stockManifestVersion: 1,
     });
     assert.match(first.config.clinicMaster?.paletteSource.sourceSha256 ?? '', /^[a-f0-9]{64}$/u);

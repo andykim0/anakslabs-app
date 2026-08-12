@@ -15,7 +15,12 @@ import {
 } from '@/lib/fonts';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { buildClinicPalette, US_DEMO_CLINIC_SPECIALTY } from './clinic-palette';
-import { clinicSourceIsImageDense } from './source-images';
+import {
+  clinicPhotoGate,
+  clinicSourceIsImageDense,
+  prospectPublicSourceImages,
+} from './source-images';
+import { clinicTemplateDecisionFromSource } from './template-system';
 import {
   runClinicEngine,
 } from '@/lib/clinic-engine/pipeline';
@@ -135,6 +140,17 @@ function clinicMasterPinForArtifact(
     specialty: US_DEMO_CLINIC_SPECIALTY,
     imageDense: clinicSourceIsImageDense(artifact),
   });
+  /**
+   * §7-2 is recorded, not acted on. Only T5 exists, so a null templateId means the doc points at
+   * a template we have not built; the compile keeps premium-dental-v1 and its section order
+   * rather than pretending the designated template is the one we shipped.
+   */
+  const template = clinicTemplateDecisionFromSource({
+    pageUrls: artifact.pages.map((page) => page.url),
+    blocks,
+    eligiblePhotoCount: prospectPublicSourceImages(artifact)
+      .filter((image) => clinicPhotoGate(image).eligibleForPhotoSlot).length,
+  });
   return {
     version: 1,
     masterId: 'premium-dental-v1',
@@ -156,6 +172,14 @@ function clinicMasterPinForArtifact(
       refinement: palette.meta.refinement,
       fallbackUsed: palette.meta.fallbackUsed,
       gateFailures: palette.meta.gateFailures,
+    },
+    templateDecision: {
+      version: 1,
+      templateId: template.templateId,
+      designatedByDoc: template.designatedByDoc,
+      reason: template.reason,
+      multiLocation: template.input.multiLocation,
+      singleProcedureFocus: template.input.singleProcedureFocus,
     },
     stockManifestVersion: 1,
   };

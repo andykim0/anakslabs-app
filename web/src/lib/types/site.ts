@@ -833,6 +833,18 @@ export interface ClinicMasterPin {
   };
   /** 부재 = 기존 발급분. 렌더는 accentPreset 경로로 픽셀까지 동일하다. */
   resolvedPalette?: ClinicResolvedPalette;
+  /**
+   * TEMPLATE-SYSTEM §7-2 결정. templateId=null 은 문서가 가리키는 템플릿을 아직 만들지 않았다는
+   * 정직한 표기이며, 이 경우 masterId·섹션 순서는 그대로다(T5로 강제하지 않는다).
+   */
+  templateDecision?: {
+    version: 1;
+    templateId: import('@/lib/us-demo/template-system').ClinicTemplateId | null;
+    designatedByDoc: string;
+    reason: string;
+    multiLocation: boolean;
+    singleProcedureFocus: boolean;
+  };
   stockManifestVersion: number;
 }
 

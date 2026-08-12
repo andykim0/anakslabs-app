@@ -28,6 +28,7 @@ import {
   CLINIC_PALETTE_SLOTS,
   type ClinicPaletteSlot,
 } from '@/lib/us-demo/clinic-palette';
+import { CLINIC_TEMPLATE_IDS } from '@/lib/us-demo/template-system';
 import {
   DESIGN_DNA_IDS,
   DNA_CHROMA_NAMES,
@@ -321,6 +322,15 @@ export const clinicMasterPinSchema = z.object({
     refinement: z.enum(CLINIC_PALETTE_REFINEMENTS),
     fallbackUsed: z.boolean(),
     gateFailures: z.array(z.string().max(200)).max(8),
+  }).strict().optional(),
+  /** §7-2. templateId null means the doc points at a template that is not built yet. */
+  templateDecision: z.object({
+    version: z.literal(1),
+    templateId: z.enum(CLINIC_TEMPLATE_IDS).nullable(),
+    designatedByDoc: z.string().min(1).max(20),
+    reason: z.string().min(1).max(200),
+    multiLocation: z.boolean(),
+    singleProcedureFocus: z.boolean(),
   }).strict().optional(),
   stockManifestVersion: z.number().int().min(1),
 }).strict();
