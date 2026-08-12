@@ -64,7 +64,7 @@ function invoice(
       object: {
         id: invoiceId,
         currency: 'usd',
-        subtotal: 99_000,
+        subtotal: 149_000,
         status: 'paid',
         billing_reason: reason,
         subscription: `sub_${USD_SITE_ID}`,
@@ -173,8 +173,8 @@ describe('USD mock webhook effects', () => {
         usdPayments.map((payment) => [payment.type, payment.amount, payment.creditsGranted]),
         [
           ['build_fee', 990, 0],
-          ['maintenance_subscription', 990, 0],
-          ['maintenance_subscription', 990, 0],
+          ['maintenance_subscription', 1_490, 0],
+          ['maintenance_subscription', 1_490, 0],
         ],
       );
       assert.equal(store.ledger.length, ledgerBefore);

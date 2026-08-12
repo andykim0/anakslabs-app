@@ -224,7 +224,7 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
       const policy = industryPublishPolicy(site);
       assert.equal(policy.status, 'available');
       if (policy.status === 'available') {
-        assert.equal(policy.pricing.amountUsd, 990);
+        assert.equal(policy.pricing.amountUsd, 1_490);
         assert.equal(policy.pricing.currency, 'USD');
         assert.equal(policy.pricing.industryProfileId, 'clinic');
       }

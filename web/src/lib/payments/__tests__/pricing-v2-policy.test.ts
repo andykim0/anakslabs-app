@@ -12,16 +12,16 @@ import {
 describe('US Enterprise payment boundary', () => {
   test('pins pricing, deliverables, and Stripe mock contract', () => {
     assert.equal(PRICING.build.setupUsd, 990);
-    assert.equal(PRICING.subscription.amountUsd, 990);
+    assert.equal(PRICING.subscription.amountUsd, 1_490);
     assert.equal(stripeCheckoutContract.currency, 'usd');
-    assert.equal(stripeCheckoutTotalCents(), 198_000);
+    assert.equal(stripeCheckoutTotalCents(), 248_000);
     assert.deepEqual(US_ENTERPRISE_PRICING.deliverables, [
       'monthly-report', 'blog-posts-8', 'inquiry-booking-tracking', 'hosting-selfedit',
     ]);
   });
 
   test('retires add-on and credit sales while retaining the monthly contract', () => {
-    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [990]);
+    assert.deepEqual(acceptedPaymentAmounts({ type: 'maintenance_subscription' }), [1_490]);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'premium_addon' }), []);
     assert.equal(paymentAmountSubject({ type: 'premium_addon' }), null);
     assert.deepEqual(acceptedPaymentAmounts({ type: 'credit_pack', credits: 10 }), []);

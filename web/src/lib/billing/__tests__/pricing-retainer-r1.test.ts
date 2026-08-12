@@ -9,13 +9,13 @@ import {
 } from '@/lib/pricing';
 
 describe('Anaks Labs US Enterprise billing backbone', () => {
-  test('pins the $990 setup and $990 monthly USD contract', () => {
+  test('pins the $990 setup and $1,490 monthly USD contract', () => {
     const quote = publishPaymentQuote({ clientId: 'client-r1', siteId: 'site-r1', mock: true });
     assert.equal(PRICING_MODEL_VERSION, 'enterprise-us-v6-2026-08');
     assert.equal(PRICING.build.setupUsd, 990);
-    assert.equal(PRICING.subscription.amountUsd, 990);
+    assert.equal(PRICING.subscription.amountUsd, 1_490);
     assert.equal(quote.setupAmount, 990);
-    assert.equal(quote.amount, 990);
+    assert.equal(quote.amount, 1_490);
     assert.equal(quote.currency, 'USD');
     assert.equal(quote.taxIncluded, false);
     assert.equal(quote.industryProfileId, 'clinic');
@@ -32,6 +32,6 @@ describe('Anaks Labs US Enterprise billing backbone', () => {
     assert.equal(JSON.stringify(publishPaymentQuote(input)), JSON.stringify(publishPaymentQuote(input)));
     assert.equal(needsPublishPayment({ publishedAt: null }, true), false);
     assert.equal(needsPublishPayment({ publishedAt: null }, false), true);
-    assert.equal(CURRENT_SUBSCRIPTION_PRICE.amountUsd, 990);
+    assert.equal(CURRENT_SUBSCRIPTION_PRICE.amountUsd, 1_490);
   });
 });

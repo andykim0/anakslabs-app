@@ -19,7 +19,7 @@ export default function TermsPage() {
       <div className="mkt-type-body mt-10 space-y-8 text-[#545C70]">
         <section>
           <h2 className="mkt-type-card-title font-semibold text-[#141A3A]">Enterprise service</h2>
-          <p className="mt-2">The current contract is $990 setup and $990 per month for one clinic website. It includes hosting and maintenance, self-service editing, monthly reporting, eight AEO/GEO blog posts per month, and PHI-free inquiry and booking action tracking.</p>
+          <p className="mt-2">The current contract is $990 setup and $1,490 per month for one clinic website. It includes hosting and maintenance, self-service editing, monthly reporting, eight AEO/GEO blog posts per month, and PHI-free inquiry and booking action tracking.</p>
         </section>
         <section>
           <h2 className="mkt-type-card-title font-semibold text-[#141A3A]">Customer content</h2>

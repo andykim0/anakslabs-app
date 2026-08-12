@@ -13,7 +13,7 @@ const LEGACY_VIDEO_HERO_ADDON_KRW = 200_000;
 export const US_ENTERPRISE_PRICING = {
   modelVersion: US_ENTERPRISE_PRICING_MODEL_VERSION,
   setupUsd: 990,
-  monthlyUsd: 990,
+  monthlyUsd: 1_490,
   availability: 'enterprise-only',
   deliverables: [
     'monthly-report',

@@ -316,16 +316,16 @@ describe('ADM4 admin revenue metrics', () => {
       }),
       payment('usd-monthly', {
         type: 'maintenance_subscription',
-        amount: 990,
+        amount: 1_490,
         currency: 'USD',
         creditsGranted: 0,
       }),
     ], NOW, { manualEntries: [manual], sites: [] });
 
-    assert.equal(result.byCurrency.USD.receipts.gross, 1_980);
-    assert.equal(result.byCurrency.USD.operatingRevenueNet, 1_980);
+    assert.equal(result.byCurrency.USD.receipts.gross, 2_480);
+    assert.equal(result.byCurrency.USD.operatingRevenueNet, 2_480);
     assert.equal(result.byCurrency.USD.segments.unclassifiedBuild.net, 990);
-    assert.equal(result.byCurrency.USD.segments.subscription.net, 990);
+    assert.equal(result.byCurrency.USD.segments.subscription.net, 1_490);
     assert.equal(result.byCurrency.USD.sources.manual.gross, 0);
 
     const krwExpected = LEGACY_PRICING.build.launch * 2;

@@ -77,4 +77,15 @@ describe('USD payment storage and no-credit SQL contracts', () => {
     assert.match(sql, /grant_subscription_month_credits/u);
     assert.match(sql, /to service_role/u);
   });
+
+  test('0063 corrects the recurring USD contract to $1,490 without rewriting payment history', () => {
+    const sql = migrationSource('0063_');
+    const renewal = sqlFunction(sql, 'handle_usd_industry_maintenance_payment');
+    assert.match(renewal, /p_amount\s*<>\s*1490::numeric/iu);
+    assert.match(renewal, /amount must equal 1490 whole USD/iu);
+    assert.doesNotMatch(renewal, /p_amount\s*<>\s*990::numeric/iu);
+    assert.match(renewal, /renew_site_subscription\s*\(/iu);
+    assert.match(renewal, /on\s+conflict\s*\(provider_payment_key\)\s+do\s+nothing/iu);
+    assert.doesNotMatch(renewal, /grant_subscription_month_credits|grant_credits/iu);
+  });
 });

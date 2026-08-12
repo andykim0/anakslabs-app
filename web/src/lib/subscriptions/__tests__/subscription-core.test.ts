@@ -417,8 +417,8 @@ describe('RPT$ mock renewal/credit parity', () => {
 });
 
 describe('RPT$ contract and SQL invariants', () => {
-  test('the new enterprise subscription is USD 990 monthly while credit sales and grants remain dormant', () => {
-    assert.equal(PRICING.subscription.amountUsd, 990);
+  test('the new enterprise subscription is USD 1,490 monthly while credit sales and grants remain dormant', () => {
+    assert.equal(PRICING.subscription.amountUsd, 1_490);
     assert.equal(PRICING.subscription.currency, 'USD');
     assert.equal(PRICING.subscription.periodMonths, 1);
     assert.equal(PRICING.subscription.automaticRenewal, true);
