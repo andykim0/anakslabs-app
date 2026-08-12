@@ -34,6 +34,13 @@ export type ClinicSpecialty =
   | 'ortho-surgery-pain'
   | 'eye-internal-general';
 
+/**
+ * The US outreach programme is dental only. §2's fallback and §7-2's assignment both need a
+ * specialty and both were writing the literal themselves; this is the one place it is decided,
+ * so widening the programme is a single edit rather than a hunt.
+ */
+export const US_DEMO_CLINIC_SPECIALTY: ClinicSpecialty = 'dental';
+
 /** §2-3. Recorded so the clinic can overturn the automatic choice. */
 export const CLINIC_PALETTE_REFINEMENTS = [
   'none',

@@ -106,6 +106,24 @@ export const CLINIC_RADIUS_TOKENS = Object.freeze({
  * 정규화된 clinicMaster pin을 완성된 렌더 테마로 확장한다.
  * 저장 pin에는 색·px·font-family 자유값이 없고 이 서버 카탈로그만 실제 값을 소유한다.
  */
+/**
+ * TEMPLATE-SYSTEM §2's seven slots onto SiteTheme's six channels. Pinned, because the renderer
+ * fills its CSS variables from these names and a slot that lands in the wrong channel is a bug
+ * nobody can see in a diff — only on the page.
+ */
+export function clinicPaletteToThemePalette(
+  resolved: NonNullable<ClinicMasterPin['resolvedPalette']>,
+): SiteTheme['palette'] {
+  return {
+    background: resolved.slots['--surface'],
+    surface: resolved.slots['--surface-2'],
+    text: resolved.slots['--ink'],
+    muted: resolved.slots['--ink-muted'],
+    primary: resolved.slots['--accent'],
+    accent: resolved.slots['--brand'],
+  };
+}
+
 export function resolveClinicMasterTheme(
   baseTheme: SiteTheme,
   pin: ClinicMasterPin,
@@ -119,14 +137,18 @@ export function resolveClinicMasterTheme(
       body: typography.bodyFamily,
       googleFonts: [],
     },
-    palette: {
-      background: CLINIC_NEUTRAL_TOKENS.background,
-      surface: CLINIC_NEUTRAL_TOKENS.surface,
-      text: CLINIC_NEUTRAL_TOKENS.text,
-      muted: CLINIC_NEUTRAL_TOKENS.muted,
-      primary: accent,
-      accent,
-    },
+    // A pin without a resolved palette is every existing issuance, KR included: it keeps the
+    // catalogue neutrals and the four-value accent preset, pixel for pixel.
+    palette: pin.resolvedPalette
+      ? clinicPaletteToThemePalette(pin.resolvedPalette)
+      : {
+          background: CLINIC_NEUTRAL_TOKENS.background,
+          surface: CLINIC_NEUTRAL_TOKENS.surface,
+          text: CLINIC_NEUTRAL_TOKENS.text,
+          muted: CLINIC_NEUTRAL_TOKENS.muted,
+          primary: accent,
+          accent,
+        },
     radius: CLINIC_RADIUS_TOKENS.md,
   };
 }
@@ -135,8 +157,11 @@ export function clinicMasterRenderTokens(pin: ClinicMasterPin) {
   const density = CLINIC_DENSITY_TOKENS[pin.density];
   const typography = CLINIC_TYPOGRAPHY_TOKENS[pin.typographyPreset];
   return {
-    accent: CLINIC_ACCENT_TOKENS[pin.accentPreset],
-    accentContrast: CLINIC_NEUTRAL_TOKENS.accentContrast,
+    // The sticky booking bar reads these and used to paint itself from the accent preset, which
+    // is how a demo could carry the practice's brand everywhere except its one call to action.
+    accent: pin.resolvedPalette?.slots['--brand'] ?? CLINIC_ACCENT_TOKENS[pin.accentPreset],
+    accentContrast: pin.resolvedPalette?.slots['--brand-ink']
+      ?? CLINIC_NEUTRAL_TOKENS.accentContrast,
     border: CLINIC_NEUTRAL_TOKENS.border,
     sectionPaddingBlockDesktop: `${density.sectionPaddingBlockDesktop}px`,
     sectionPaddingBlockMobile: `${density.sectionPaddingBlockMobile}px`,

@@ -806,6 +806,8 @@ export interface ClinicResolvedPalette {
   origin: import('@/lib/us-demo/clinic-palette').ClinicPaletteOrigin;
   refinement: import('@/lib/us-demo/clinic-palette').ClinicPaletteRefinement;
   fallbackUsed: boolean;
+  /** §2-5에서 추출색이 떨어뜨린 게이트. fallbackUsed=false인데 비어있지 않으면 구조된 것이다. */
+  gateFailures: string[];
 }
 
 /**

@@ -84,8 +84,9 @@ describe('§2 — 해석된 팔레트는 저장/발행 검증을 왕복한다', 
       '--ink-muted': '#5A6270',
     },
     origin: 'logo' as const,
-    refinement: 'saturate' as const,
+    refinement: 'darken-to-gate' as const,
     fallbackUsed: false,
+    gateFailures: ['brand/surface 4.5:1'],
   };
 
   test('7슬롯 전부와 출처·정제 기록이 그대로 통과한다', () => {

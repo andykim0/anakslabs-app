@@ -14,6 +14,8 @@ import {
   resolveFontPairingForLocale,
 } from '@/lib/fonts';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
+import { buildClinicPalette, US_DEMO_CLINIC_SPECIALTY } from './clinic-palette';
+import { clinicSourceIsImageDense } from './source-images';
 import {
   runClinicEngine,
 } from '@/lib/clinic-engine/pipeline';
@@ -118,24 +120,42 @@ function curateSourceBlocks(
   return { accepted, excluded };
 }
 
+/**
+ * The one place §2 runs. Everything downstream — the theme the renderer reads, the sticky booking
+ * bar, the compilation audit — reads the result off the pin instead of computing its own, because
+ * a second computation is a second answer and only one of them reaches the page.
+ */
 function clinicMasterPinForArtifact(
   artifact: CrawlArtifactPayload,
   blocks: readonly ProspectPublicSourceBlock[],
 ): ClinicMasterPin {
-  const palette = artifact.clinicPaletteProjection;
+  const projection = artifact.clinicPaletteProjection;
+  const palette = buildClinicPalette({
+    candidates: projection?.rawCandidates ?? [],
+    specialty: US_DEMO_CLINIC_SPECIALTY,
+    imageDense: clinicSourceIsImageDense(artifact),
+  });
   return {
     version: 1,
     masterId: 'premium-dental-v1',
-    accentPreset: palette?.accentPreset ?? 'clean-blue',
+    accentPreset: projection?.accentPreset ?? 'clean-blue',
     typographyPreset: 'clinic-editorial',
     density: 'airy',
     focus: resolveClinicFocus(blocks.filter((block) => block.kind === 'service')),
     demoPitchLocale: 'en',
     paletteSource: {
       version: 1,
-      kind: palette?.kind ?? 'neutral',
-      sourceSha256: palette?.sourceSha256
+      kind: projection?.kind ?? 'neutral',
+      sourceSha256: projection?.sourceSha256
         ?? createHash('sha256').update(artifact.finalOrigin, 'utf8').digest('hex'),
+    },
+    resolvedPalette: {
+      version: 1,
+      slots: palette.slots,
+      origin: palette.meta.origin,
+      refinement: palette.meta.refinement,
+      fallbackUsed: palette.meta.fallbackUsed,
+      gateFailures: palette.meta.gateFailures,
     },
     stockManifestVersion: 1,
   };

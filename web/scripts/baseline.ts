@@ -51,12 +51,17 @@ for (const name of samples) {
     blocksByKind: audit.source.blocksByKind,
     imageFunnel: { crawled: audit.images.crawledCount, projected: audit.images.projectedCount, eligible: audit.images.eligibleCount, used: audit.images.usedCount },
     template: audit.template,
-    paletteMeta: audit.palette.meta,
-    paletteSlots: audit.palette.slots,
+    paletteMeta: audit.palette && {
+      origin: audit.palette.origin,
+      fallbackUsed: audit.palette.fallbackUsed,
+      refinement: audit.palette.refinement,
+      gateFailures: audit.palette.gateFailures,
+    },
+    paletteSlots: audit.palette?.slots ?? null,
     asLaunched: pages,
   };
   const s = out[name] as any;
-  console.log(`${name.padEnd(11)} pages=${s.pageCount} nav=${s.navItems} contributing=${s.contributingPages} template=${s.template.designatedByDoc} palette=${s.paletteMeta.origin}`);
+  console.log(`${name.padEnd(11)} pages=${s.pageCount} nav=${s.navItems} contributing=${s.contributingPages} template=${s.template.designatedByDoc} palette=${s.paletteMeta?.origin ?? 'none'}`);
   console.log(`             as-launched demo: ${pages.map((p: any) => p.asLaunchedDemo).join(',')} | source: ${pages.map((p: any) => p.asLaunchedSource).join(',')}`);
 }
 writeFileSync(outFile, JSON.stringify(out, null, 1));

@@ -1231,12 +1231,14 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     // Wiring, not just definition: the decision has to survive a compile.
     assert.ok(audit.template, 'the template decision must be recorded on every compile');
     assert.ok(audit.template.designatedByDoc.startsWith('T'));
-    assert.equal(Object.keys(audit.palette.slots).length, 7);
-    assert.ok(Object.values(audit.palette.slots).every((v) => /^#[0-9A-F]{6}$/u.test(v)));
-    // The crawl carries an accent preset, not source colours, so the fallback is the honest
-    // outcome and must be flagged rather than passed off as extraction.
-    assert.equal(audit.palette.meta.fallbackUsed, true);
-    assert.equal(audit.palette.meta.origin, 'specialty-fallback');
+    // The audit reports the pin the compile wrote, so what it says is what the page renders.
+    assert.deepEqual(audit.palette, compilation.config.clinicMaster?.resolvedPalette);
+    assert.equal(Object.keys(audit.palette!.slots).length, 7);
+    assert.ok(Object.values(audit.palette!.slots).every((v) => /^#[0-9A-F]{6}$/u.test(v)));
+    // This fixture carries no source colours, so the fallback is the honest outcome and must be
+    // flagged rather than passed off as extraction.
+    assert.equal(audit.palette!.fallbackUsed, true);
+    assert.equal(audit.palette!.origin, 'specialty-fallback');
   });
 
   test('preview-full은 source-verbatim Call만 활성화하고 Book은 영문 disclosure와 함께 비활성이다', () => {

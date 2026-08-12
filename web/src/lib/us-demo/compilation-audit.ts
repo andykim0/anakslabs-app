@@ -1,16 +1,11 @@
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
-import type { SiteConfig, SitePage } from '@/lib/types/site';
+import type { ClinicResolvedPalette, SiteConfig, SitePage } from '@/lib/types/site';
 import type {
   ProspectPublicSourceKind,
   UsDemoRenderMode,
   UsMedicalDemoCompilation,
 } from './contracts';
-import {
-  clinicPhotoGate,
-  clinicSourceIsImageDense,
-  prospectPublicSourceImages,
-} from './source-images';
-import { buildClinicPalette, type ClinicPalette } from './clinic-palette';
+import { clinicPhotoGate, prospectPublicSourceImages } from './source-images';
 import {
   clinicTemplateDecisionFromSource,
   type ClinicTemplateAssignment,
@@ -70,8 +65,12 @@ export interface UsMedicalCompilationAudit {
    * including when the doc designates a template that is not built yet.
    */
   template: ClinicTemplateAssignment & { multiLocation: boolean; singleProcedureFocus: boolean };
-  /** §2. Includes whether the specialty fallback was used and which refinement ran (§7-6). */
-  palette: ClinicPalette;
+  /**
+   * §2, read off the pin the compile wrote — not recomputed. An audit that runs the extractor a
+   * second time can only ever report a palette that agrees with the page by luck. Null for a
+   * config compiled before the pin carried one.
+   */
+  palette: ClinicResolvedPalette | null;
 }
 
 function pageCharacterCount(page: SitePage): number {
@@ -136,12 +135,6 @@ export function buildUsMedicalCompilationAudit(input: {
     trustSectionCount: sectionTypes.filter((type) => type === 'testimonials').length,
     gallerySectionCount: sectionTypes.filter((type) => type === 'gallery').length,
   });
-  /** §2 palette, recorded per artifact so the extraction outcome is inspectable. */
-  const palette = buildClinicPalette({
-    candidates: artifact.clinicPaletteProjection?.rawCandidates ?? [],
-    specialty: 'dental',
-    imageDense: clinicSourceIsImageDense(artifact),
-  });
   return {
     version: US_MEDICAL_COMPILATION_AUDIT_VERSION,
     renderMode,
@@ -190,6 +183,6 @@ export function buildUsMedicalCompilationAudit(input: {
       multiLocation: decision.input.multiLocation,
       singleProcedureFocus: decision.input.singleProcedureFocus,
     },
-    palette,
+    palette: config.clinicMaster?.resolvedPalette ?? null,
   };
 }

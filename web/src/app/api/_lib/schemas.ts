@@ -320,6 +320,7 @@ export const clinicMasterPinSchema = z.object({
     origin: z.enum(CLINIC_PALETTE_ORIGINS),
     refinement: z.enum(CLINIC_PALETTE_REFINEMENTS),
     fallbackUsed: z.boolean(),
+    gateFailures: z.array(z.string().max(200)).max(8),
   }).strict().optional(),
   stockManifestVersion: z.number().int().min(1),
 }).strict();

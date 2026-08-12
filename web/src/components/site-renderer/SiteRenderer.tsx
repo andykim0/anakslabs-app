@@ -570,6 +570,12 @@ export function SiteRenderer({
     clinicStyle['--clinic-text'] = theme.palette.text;
     clinicStyle['--clinic-muted'] = theme.palette.muted;
     clinicStyle['--clinic-accent'] = theme.palette.accent;
+    /**
+     * §2's --brand-ink, and it is a constant rather than a plumbing shortcut: the §2-5 gate only
+     * admits a brand whose contrast against a white surface is 4.5:1 or better, which caps its
+     * luminance at 0.183, while black ink does not win until roughly 0.192. No colour can pass
+     * the gate and prefer black, and the darken-to-gate rescue only lowers luminance further.
+     */
     clinicStyle['--clinic-accent-contrast'] = '#FFFFFF';
     clinicStyle['--clinic-border'] = '#E3E8EE';
     clinicStyle['--clinic-radius-md'] = clinicTokens.radiusMd;

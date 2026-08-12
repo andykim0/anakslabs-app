@@ -141,6 +141,23 @@ describe('US-DEMO P2 — source-only English compiler', () => {
         kind: 'neutral',
         sourceSha256: first.config.clinicMaster?.paletteSource.sourceSha256,
       },
+      // This fixture carries no source colours, so §2 lands on the dental fallback and says so.
+      resolvedPalette: {
+        version: 1,
+        slots: {
+          '--brand': '#152D49',
+          '--brand-ink': '#FFFFFF',
+          '--accent': '#4253FF',
+          '--surface': '#FFFFFF',
+          '--surface-2': '#F2F2F2',
+          '--ink': '#111318',
+          '--ink-muted': '#5A6270',
+        },
+        origin: 'specialty-fallback',
+        refinement: 'none',
+        fallbackUsed: true,
+        gateFailures: [],
+      },
       stockManifestVersion: 1,
     });
     assert.match(first.config.clinicMaster?.paletteSource.sourceSha256 ?? '', /^[a-f0-9]{64}$/u);
