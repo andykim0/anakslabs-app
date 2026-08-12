@@ -30,12 +30,14 @@ import {
   type DentalStockCategory,
 } from '@/lib/clinic-master';
 import type {
+  ClinicHeroDecision,
   ProspectPublicSourceBlock,
   ProspectPublicSourceImage,
   UsDemoRenderMode,
 } from './contracts';
 import {
   clinicPhotoGate,
+  eligibleForClinicHero,
   clinicPhotoPoolForTopic,
   clinicPhotoSlotPool,
   prospectBrandLogo,
@@ -991,6 +993,8 @@ export interface FullPreviewCompilation {
   experience: Extract<ClinicMasterExperience, { mode: UsDemoRenderMode }>;
   sourceImages: readonly ProspectPublicSourceImage[];
   usedImageIds: readonly string[];
+  /** §D4, one per hero slot, resolved after the stock pass so the outcome is the final one. */
+  heroDecisions: readonly ClinicHeroDecision[];
 }
 
 export function compileUsMedicalFullPreview(input: {
@@ -1008,6 +1012,29 @@ export function compileUsMedicalFullPreview(input: {
   const photoSlotPool = clinicPhotoSlotPool(projectedImages);
   const heroUseCounts = new Map<string, number>();
   let previousHeroImageId: string | undefined;
+  const heroDecisions: { pageSlug: string; imageUrl?: string; tieBreak: ClinicHeroDecision['tieBreak']; candidateCount: number }[] = [];
+  let lastHeroTieBreak: ClinicHeroDecision['tieBreak'] = 'no-candidate';
+  let lastHeroCandidateCount = 0;
+  /** Called right after each hero allocation, while the tie-break that produced it is still known. */
+  const recordHeroDecision = (
+    pageSlug: string,
+    image: ProjectedUsDemoSourceImage | undefined,
+  ) => {
+    heroDecisions.push({
+      pageSlug,
+      ...(image ? { imageUrl: image.source.url } : {}),
+      tieBreak: lastHeroTieBreak,
+      candidateCount: lastHeroCandidateCount,
+    });
+  };
+  /** Known pixels only. §D4 ranks on area, and absent metadata must never outrank a measurement. */
+  const knownArea = (image: ProjectedUsDemoSourceImage): number => {
+    const width = image.candidate.renderedDimensions?.naturalWidth
+      ?? image.candidate.declaredWidth;
+    const height = image.candidate.renderedDimensions?.naturalHeight
+      ?? image.candidate.declaredHeight;
+    return width && height ? width * height : 0;
+  };
   const allocateHeroImage = (
     candidates: readonly ProjectedUsDemoSourceImage[],
   ): ProjectedUsDemoSourceImage | undefined => {
@@ -1015,11 +1042,36 @@ export function compileUsMedicalFullPreview(input: {
       candidate.source.id !== previousHeroImageId
       && (heroUseCounts.get(candidate.source.id) ?? 0) < 2
     ));
+    /**
+     * §D4. Atmosphere first, because a room reads as a place and a cropped object does not; then
+     * the largest image we have actual pixels for; then the pool's own order, which is stable.
+     */
+    const isAtmosphere = (image: ProjectedUsDemoSourceImage) => (
+      image.candidate.role === 'atmosphere' ? 0 : 1
+    );
     available.sort((left, right) => (
-      (heroUseCounts.get(left.source.id) ?? 0) - (heroUseCounts.get(right.source.id) ?? 0)
+      isAtmosphere(left) - isAtmosphere(right)
+      || knownArea(right) - knownArea(left)
       || photoSlotPool.indexOf(left) - photoSlotPool.indexOf(right)
     ));
     const selected = available[0];
+    const runnerUp = available[1];
+    /**
+     * Which comparison actually settled it. The same rule resolves at different stages on
+     * different sites — atmosphere counts across the three samples are 5, 16 and 2 — so without
+     * this the log would say "ranked" and tell us nothing about why.
+     */
+    const stage: ClinicHeroDecision['tieBreak'] = !selected
+      ? 'no-candidate'
+      : !runnerUp
+        ? 'only-candidate'
+        : isAtmosphere(selected) !== isAtmosphere(runnerUp)
+          ? 'atmosphere'
+          : knownArea(selected) !== knownArea(runnerUp)
+            ? 'known-area'
+            : 'pool-order';
+    lastHeroTieBreak = stage;
+    lastHeroCandidateCount = available.length;
     if (!selected) {
       previousHeroImageId = undefined;
       return undefined;
@@ -1040,13 +1092,15 @@ export function compileUsMedicalFullPreview(input: {
   const articleAuthor = blocks.find((block) => block.kind === 'provider_name');
   const articleDateModified = compilationDate(artifact);
   const introduction = blocks.find((block) => block.kind === 'introduction');
-  const homeCandidate = firstHomeImage(artifact, photoSlotPool);
+  const heroPool = photoSlotPool.filter(eligibleForClinicHero);
+  const homeCandidate = firstHomeImage(artifact, heroPool);
   const homeImage = allocateHeroImage(homeCandidate
     ? [
         homeCandidate,
-        ...photoSlotPool.filter((image) => image !== homeCandidate),
+        ...heroPool.filter((image) => image !== homeCandidate),
       ]
-    : photoSlotPool);
+    : heroPool);
+  recordHeroDecision('', homeImage);
   const services = blocks.filter((block) => block.kind === 'service');
   const procedurePlan = planProcedurePages(blocks);
   const procedureCategoryCounts = new Map(CATEGORY_ORDER.map((category) => [
@@ -1301,7 +1355,8 @@ export function compileUsMedicalFullPreview(input: {
     ))?.text ?? meta.navLabel;
     const pageTopic = procedureImageTopic(planned, slug);
     const categoryImages = topicPhotoPool(pageTopic);
-    const heroImage = allocateHeroImage(categoryImages.hero);
+    const heroImage = allocateHeroImage(categoryImages.hero.filter(eligibleForClinicHero));
+    recordHeroDecision(slug, heroImage);
     const bodyImages = rotateSourceOrder(
       categoryImages.body.filter((image) => image.source.id !== heroImage?.source.id),
       pageIndex,
@@ -1419,8 +1474,10 @@ export function compileUsMedicalFullPreview(input: {
       (image) => contactPageUrls.size === 0 || contactPageUrls.has(image.page.url),
     );
     const contactImage = allocateHeroImage(
-      contactOnPage.length > 0 ? contactOnPage : contactTopicPool.body,
+      (contactOnPage.length > 0 ? contactOnPage : contactTopicPool.body)
+        .filter(eligibleForClinicHero),
     );
+    recordHeroDecision('contact', contactImage);
     const contactInsuranceStrip = insuranceStripSection({
       id: 'clinic-accepted-insurance',
       images: insuranceLogos,
@@ -1508,11 +1565,35 @@ export function compileUsMedicalFullPreview(input: {
       return sourceId ? [sourceId] : [];
     }),
   ]));
+  /**
+   * §D3 precedence, read off the finished config rather than predicted: a source survivor if one
+   * was allocated, else whatever the stock pass put there, else nothing. Resolving it here is
+   * what keeps this log and the audit's heroIsStock telling the same story.
+   */
+  const resolvedHeroDecisions: ClinicHeroDecision[] = heroDecisions.map((decision) => {
+    const heroSrc = config.pages
+      .find((page) => page.slug === decision.pageSlug)
+      ?.sections.find((section) => section.type === 'hero')
+      ?.background.image?.src;
+    const outcome: ClinicHeroDecision['outcome'] = !heroSrc
+      ? 'none'
+      : heroSrc.startsWith('/stock/')
+        ? 'stock'
+        : 'source';
+    return {
+      pageSlug: decision.pageSlug,
+      outcome,
+      ...(heroSrc ? { imageUrl: heroSrc } : {}),
+      tieBreak: decision.tieBreak,
+      candidateCount: decision.candidateCount,
+    };
+  });
   return {
     config,
     experience,
     sourceImages: projectedImages.map((image) => image.source),
     usedImageIds: [...usedImageIds],
+    heroDecisions: resolvedHeroDecisions,
   };
 }
 

@@ -312,7 +312,12 @@ function compileUsMedicalDemoProfile(
       images: multipage.sourceImages,
       usedImageIds: multipage.usedImageIds,
     },
-    ...(renderMode === 'preview-full' ? { renderMode: 'preview-full' as const } : {}),
+    ...(renderMode === 'preview-full'
+      ? {
+          renderMode: 'preview-full' as const,
+          heroDecisions: multipage.heroDecisions,
+        }
+      : {}),
   };
 }
 

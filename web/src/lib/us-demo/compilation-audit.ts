@@ -6,6 +6,7 @@ import type {
   SitePage,
 } from '@/lib/types/site';
 import type {
+  ClinicHeroDecision,
   ProspectPublicSourceKind,
   UsDemoRenderMode,
   UsMedicalDemoCompilation,
@@ -73,6 +74,12 @@ export interface UsMedicalCompilationAudit {
    * config compiled before the pin carried one.
    */
   palette: ClinicResolvedPalette | null;
+  /**
+   * §D4. What won each hero slot and which comparison settled it, recorded at allocation time.
+   * `outcome` is resolved after the stock pass, so it agrees with pages[].stockHero by
+   * construction rather than by coincidence.
+   */
+  heroDecisions: readonly ClinicHeroDecision[];
 }
 
 function pageCharacterCount(page: SitePage): number {
@@ -171,5 +178,6 @@ export function buildUsMedicalCompilationAudit(input: {
     })),
     template: config.clinicMaster?.templateDecision ?? null,
     palette: config.clinicMaster?.resolvedPalette ?? null,
+    heroDecisions: compilation.heroDecisions ?? [],
   };
 }

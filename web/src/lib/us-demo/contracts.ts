@@ -96,11 +96,33 @@ export interface ProspectPublicSourceImage {
   originalSha256: string;
 }
 
+/**
+ * Ticket D4. One record per hero slot, so the ranking can be inspected per artifact instead of
+ * inferred from the rendered page. The same rule settles at different stages on different sites,
+ * which is the whole reason the stage is recorded rather than just the winner.
+ */
+export interface ClinicHeroDecision {
+  pageSlug: string;
+  /** What finally paints the hero: the practice's own photo, licensed stock, or nothing. */
+  outcome: 'source' | 'stock' | 'none';
+  imageUrl?: string;
+  tieBreak:
+    | 'atmosphere'
+    | 'known-area'
+    | 'pool-order'
+    | 'only-candidate'
+    | 'no-candidate';
+  /** Hero-eligible candidates left after the gate, the cap and the previous-hero dedup. */
+  candidateCount: number;
+}
+
 export interface UsMedicalDemoCompilation {
   config: SiteConfig;
   sourceManifest: UsDemoSourceManifest;
   /** Additive output marker; the default outreach-safe output omits it for byte compatibility. */
   renderMode?: 'preview-full';
+  /** Additive; present for the full preview, which is the only mode that allocates heroes. */
+  heroDecisions?: readonly ClinicHeroDecision[];
 }
 
 export const INSUFFICIENT_ENGLISH_SOURCE = 'INSUFFICIENT_ENGLISH_SOURCE' as const;
