@@ -38,8 +38,11 @@ import { extractVisibleText } from '@/lib/scan/document';
 import { socialLinkUrls, type SocialLinkObservation } from '@/lib/scan/social-links';
 import type { ProbedResource } from '@/lib/scan/fetch-target';
 import {
+  clinicPaletteRawCandidates,
+  mergeClinicPaletteRawCandidates,
   projectClinicPaletteFromHtml,
   type ClinicPaletteProjection,
+  type ClinicPaletteRawCandidate,
 } from '@/lib/clinic-master/palette-routing';
 import { projectConsentedClinicSourceBlocks } from '@/lib/clinic-engine/robust-source';
 import { registrableDomain } from './registrable-domain';
@@ -787,6 +790,7 @@ async function crawlSite(
   const pages: CrawlPageArtifact[] = [];
   const pageFailures: CrawlPageFailure[] = [];
   let clinicPaletteProjection: ClinicPaletteProjection | null = null;
+  const clinicPaletteCandidateBatches: ClinicPaletteRawCandidate[][] = [];
   const skippedUrls: CrawlSkippedUrl[] = [];
   const skippedKeys = new Set<string>();
   const addSkipped = (item: CrawlSkippedUrl) => {
@@ -917,6 +921,9 @@ async function crawlSite(
       ) {
         clinicPaletteProjection = candidate;
       }
+      // §2-2 evidence is collected from every page, not only the one whose projection won: a
+      // practice that keeps its logo mark on the contact page still owns that colour.
+      clinicPaletteCandidateBatches.push(clinicPaletteRawCandidates(html));
     }
     const projected = pageArtifact(html, fetched, imageMeasurements, includeCoverage);
     const root = parse(html);
@@ -980,6 +987,7 @@ async function crawlSite(
     throw new CrawlError('NOT_HTML', '수집 가능한 HTML 페이지를 찾지 못했습니다.');
   }
   const crawledUrls = new Set(pages.map((page) => page.url));
+  const siteWidePaletteCandidates = mergeClinicPaletteRawCandidates(clinicPaletteCandidateBatches);
   const discoveredUrls = [...queued];
   const uncrawledDestinations = discoveredUrls.filter((url) => !crawledUrls.has(url));
   return {
@@ -988,7 +996,16 @@ async function crawlSite(
     finalOrigin: origin,
     observedAt,
     ...(input.scanProfileId ? { scanProfileId: input.scanProfileId } : {}),
-    ...(clinicPaletteProjection ? { clinicPaletteProjection } : {}),
+    ...(clinicPaletteProjection
+      ? {
+          clinicPaletteProjection: {
+            ...clinicPaletteProjection,
+            ...(siteWidePaletteCandidates.length > 0
+              ? { rawCandidates: siteWidePaletteCandidates }
+              : {}),
+          },
+        }
+      : {}),
     tls,
     robots: {
       url: robotsFetch.finalUrl.toString(),

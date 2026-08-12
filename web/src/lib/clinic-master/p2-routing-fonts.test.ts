@@ -131,9 +131,11 @@ describe('CLINIC$ P2 — local fonts, palette routing, focus recipe', () => {
     assert.deepEqual(Object.keys(logoWins ?? {}).sort(), [
       'accentPreset',
       'kind',
+      'rawCandidates',
       'sourceSha256',
       'version',
     ]);
+    assert.deepEqual(logoWins?.rawCandidates, [{ origin: 'logo', hex: '#2F7A54' }]);
   });
 
   test('focus는 원문 근거 수로만 고정되고 동률·무근거는 balanced다', () => {

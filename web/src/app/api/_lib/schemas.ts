@@ -23,6 +23,12 @@ import {
 import { CONNECTOR_CATALOG } from '@/lib/connectors/catalog';
 import { isAcceptableUsBookingUrl } from '@/lib/connectors/validation';
 import {
+  CLINIC_PALETTE_ORIGINS,
+  CLINIC_PALETTE_REFINEMENTS,
+  CLINIC_PALETTE_SLOTS,
+  type ClinicPaletteSlot,
+} from '@/lib/us-demo/clinic-palette';
+import {
   DESIGN_DNA_IDS,
   DNA_CHROMA_NAMES,
   DNA_COLOR_STRATEGIES,
@@ -277,6 +283,9 @@ export const namedTemplateSelectionSchema = z.object({
   templateId: z.string().min(1).max(100),
 }).strict();
 
+/** 3자리/6자리 hex 모두 허용 — 팔레트가 원문 배경색을 그대로 통과시키는 경로가 있다. */
+const clinicPaletteHexSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/u);
+
 export const clinicMasterPinSchema = z.object({
   version: z.literal(1),
   masterId: z.literal('premium-dental-v1'),
@@ -299,6 +308,19 @@ export const clinicMasterPinSchema = z.object({
     kind: z.enum(['css', 'logo', 'neutral']),
     sourceSha256: z.string().regex(/^[a-f0-9]{64}$/u),
   }).strict(),
+  /**
+   * TEMPLATE-SYSTEM §2. The one place a clinic pin carries free hex, because the colour is the
+   * practice's own rather than a server catalogue entry. Optional so stored pins still parse.
+   */
+  resolvedPalette: z.object({
+    version: z.literal(1),
+    slots: z.object(Object.fromEntries(
+      CLINIC_PALETTE_SLOTS.map((slot) => [slot, clinicPaletteHexSchema]),
+    ) as Record<ClinicPaletteSlot, typeof clinicPaletteHexSchema>).strict(),
+    origin: z.enum(CLINIC_PALETTE_ORIGINS),
+    refinement: z.enum(CLINIC_PALETTE_REFINEMENTS),
+    fallbackUsed: z.boolean(),
+  }).strict().optional(),
   stockManifestVersion: z.number().int().min(1),
 }).strict();
 

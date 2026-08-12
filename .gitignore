@@ -10,3 +10,6 @@ web/public/hero.mp4
 web/public/hero.webm
 web/public/hero-poster.webp
 .vercel
+
+# esbuild bundle for scripts/baseline.ts — build artifact, rebuilt on demand
+web/scripts/_ph.mjs

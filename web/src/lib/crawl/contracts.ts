@@ -3,6 +3,7 @@ import type { DecayScoreResult } from '@/lib/scan/decay-contract';
 import type { ClinicAccentPreset, SiteConfig } from '@/lib/types/site';
 import type { AiVisibilitySummary } from '@/lib/scan/ai-visibility';
 import type { ScanProfileId } from '@/lib/scan/rules';
+import type { ClinicPaletteOrigin } from '@/lib/us-demo/clinic-palette';
 import type { UsDemoRenderMode } from '@/lib/us-demo/contracts';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
@@ -234,14 +235,17 @@ export interface CrawlArtifactPayload {
   /** Additive profile marker. Omission preserves the existing designated-crawl artifact bytes. */
   scanProfileId?: ScanProfileId;
   /**
-   * US medical crawl only. Computed while HTML is in memory; no raw CSS, logo bytes, or color
-   * list is retained.
+   * US medical crawl only. Computed while HTML is in memory; no raw CSS and no logo bytes are
+   * retained. The candidate hexes are kept because §2-2's extraction cannot run without them:
+   * a four-value accent preset is a routing decision, not the practice's colour.
    */
   clinicPaletteProjection?: {
     version: 1;
     kind: 'css' | 'logo';
     sourceSha256: string;
     accentPreset: ClinicAccentPreset;
+    /** §2-2 priority order, capped. Omitted by artifacts crawled before this field existed. */
+    rawCandidates?: ReadonlyArray<{ origin: ClinicPaletteOrigin; hex: string }>;
   };
   tls: CrawlTlsObservation;
   robots: CrawlRobotsObservation;

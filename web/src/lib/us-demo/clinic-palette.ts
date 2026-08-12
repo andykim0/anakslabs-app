@@ -17,13 +17,16 @@ export const CLINIC_PALETTE_SLOTS = [
 export type ClinicPaletteSlot = (typeof CLINIC_PALETTE_SLOTS)[number];
 
 /** §2-2, in priority order. The logo is first because it is the one colour a brand chose. */
-export type ClinicPaletteOrigin =
-  | 'logo'
-  | 'cta'
-  | 'link'
-  | 'heading'
-  | 'theme-color'
-  | 'specialty-fallback';
+export const CLINIC_PALETTE_ORIGINS = [
+  'logo',
+  'cta',
+  'link',
+  'heading',
+  'theme-color',
+  'specialty-fallback',
+] as const;
+
+export type ClinicPaletteOrigin = (typeof CLINIC_PALETTE_ORIGINS)[number];
 
 export type ClinicSpecialty =
   | 'dental'
@@ -32,13 +35,16 @@ export type ClinicSpecialty =
   | 'eye-internal-general';
 
 /** §2-3. Recorded so the clinic can overturn the automatic choice. */
-export type ClinicPaletteRefinement =
-  | 'none'
-  | 'saturate'
-  | 'electrify'
-  | 'deep-neutral'
-  | 'lighten-demote'
-  | 'ink-reassign';
+export const CLINIC_PALETTE_REFINEMENTS = [
+  'none',
+  'saturate',
+  'electrify',
+  'deep-neutral',
+  'lighten-demote',
+  'ink-reassign',
+] as const;
+
+export type ClinicPaletteRefinement = (typeof CLINIC_PALETTE_REFINEMENTS)[number];
 
 /** §2-4. Fallback use is recorded in meta, per §7-6. */
 export const CLINIC_PALETTE_FALLBACKS: Readonly<Record<ClinicSpecialty, {

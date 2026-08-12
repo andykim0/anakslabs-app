@@ -797,10 +797,24 @@ export type ClinicTypographyPreset =
   | 'clinic-neutral';
 
 /**
+ * TEMPLATE-SYSTEM §2 팔레트 — 클리닉 자기 사이트에서 뽑아 게이트를 통과한 7슬롯.
+ * 렌더러는 이 값을 읽기만 하고 다시 계산하지 않는다(계산 주체는 컴파일 한 곳).
+ */
+export interface ClinicResolvedPalette {
+  version: 1;
+  slots: Readonly<Record<import('@/lib/us-demo/clinic-palette').ClinicPaletteSlot, string>>;
+  origin: import('@/lib/us-demo/clinic-palette').ClinicPaletteOrigin;
+  refinement: import('@/lib/us-demo/clinic-palette').ClinicPaletteRefinement;
+  fallbackUsed: boolean;
+}
+
+/**
  * CLINIC 신규 발급분의 결정적 마스터 핀.
  *
- * 색·좌표·서체 이름 같은 자유값은 저장하지 않는다. 서버 카탈로그가 이 enum을
+ * 좌표·서체 이름 같은 자유값은 저장하지 않는다. 서버 카탈로그가 이 enum을
  * 실제 토큰으로 확장하며, 원본 팔레트 자산은 보관하지 않고 해시만 남긴다.
+ * 예외는 `resolvedPalette` 하나 — 그 색의 출처가 서버 카탈로그가 아니라 고객
+ * 사이트라서 enum으로 표현할 수 없다. 부재하면 accentPreset 카탈로그 경로 그대로다.
  */
 export interface ClinicMasterPin {
   version: 1;
@@ -815,6 +829,8 @@ export interface ClinicMasterPin {
     kind: 'css' | 'logo' | 'neutral';
     sourceSha256: string;
   };
+  /** 부재 = 기존 발급분. 렌더는 accentPreset 경로로 픽셀까지 동일하다. */
+  resolvedPalette?: ClinicResolvedPalette;
   stockManifestVersion: number;
 }
 
