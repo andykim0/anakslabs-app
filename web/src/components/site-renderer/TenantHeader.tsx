@@ -12,6 +12,8 @@ import type { SiteConfig, SitePage } from '@/lib/types/site';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 
 const NAV_MAX_INLINE = 6;
+/** Above this many treatment pages the bar stops being readable. */
+const NAV_GROUP_THRESHOLD = 3;
 
 export interface TenantNavigationItem {
   id: string;
@@ -60,8 +62,29 @@ export function TenantHeader({
   const linkFor = (slug: string) => (hrefForSlug ? hrefForSlug(slug) : slug === '' ? '/' : `/${slug}`);
   const labelOf = (p: SitePage | TenantNavigationItem) => p.navLabel ?? p.title;
 
-  const inline = navPages.slice(0, NAV_MAX_INLINE);
-  const overflow = navPages.slice(NAV_MAX_INLINE);
+  /**
+   * A rebuild of a real practice produces one page per treatment, and a flat bar of twelve is not
+   * navigation. Past three, treatments collapse under the services index they already belong to.
+   * The parent stays a real anchor: a toggle that only toggles is a dead end for anyone who
+   * expected the index page.
+   */
+  const procedurePages = navPages.filter((page) => (
+    'sections' in page && page.id.startsWith('clinic-procedure-')
+  ));
+  const servicesIndex = navPages.find((page) => page.slug === 'services');
+  const grouped = procedurePages.length > NAV_GROUP_THRESHOLD;
+  const groupedIds = new Set(
+    grouped
+      ? procedurePages.filter((page) => page !== servicesIndex).map((page) => page.id)
+      : [],
+  );
+  const topLevel = navPages.filter((page) => !groupedIds.has(page.id));
+  const groupItems = navPages.filter((page) => groupedIds.has(page.id));
+  const inline = topLevel.slice(0, NAV_MAX_INLINE);
+  const overflow = topLevel.slice(NAV_MAX_INLINE);
+  // Without a real index there is no page to send anyone to, so no parent anchor is invented;
+  // the disclosure stands on its own and says what it opens.
+  const groupHref = servicesIndex ? linkFor(servicesIndex.slug) : undefined;
 
   const linkStyle = (active: boolean) => ({
     fontSize: 14,
@@ -123,6 +146,23 @@ export function TenantHeader({
   border-radius: 4px;
 }
 `}</style>
+      {/*
+       * details/summary already gives a keyboard-operable disclosure with no JavaScript, and it
+       * is what Export and the static render ship. This adds only what the element lacks:
+       * aria-expanded mirroring its open state, Escape to close, and focus returning to the
+       * summary that opened it. Focus is never trapped — the menu is a disclosure, not a dialog,
+       * and trapping would strand anyone who opened it by accident.
+       */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){var g=document.querySelectorAll('[data-clinic-nav-group]');`
+            + `if(!g.length)return;g.forEach(function(d){var s=d.querySelector('summary');`
+            + `if(!s)return;s.setAttribute('aria-expanded',d.open?'true':'false');`
+            + `d.addEventListener('toggle',function(){s.setAttribute('aria-expanded',d.open?'true':'false');});`
+            + `d.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.open){`
+            + `d.open=false;s.focus();e.stopPropagation();}});});})();`,
+        }}
+      />
     <header
       className="anaks-tenant-header"
       style={{
@@ -203,8 +243,36 @@ export function TenantHeader({
               {labelOf(p)}
             </a>
           ))}
+          {grouped && groupItems.length > 0 && (
+            <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              {/* The index page keeps its own anchor; the button only opens the list. */}
+              {groupHref && (
+                <a href={groupHref} style={linkStyle(currentSlug === 'services')}>Services</a>
+              )}
+              <details data-clinic-nav-group style={{ position: 'relative' }}>
+                <summary
+                  aria-label="Show all treatments"
+                  style={{ ...summaryStyle, ...(groupHref ? { fontSize: 12 } : {}) }}
+                >
+                  {groupHref ? '▾' : 'Treatments ▾'}
+                </summary>
+                <div style={panelStyle}>
+                  {groupItems.map((p) => (
+                    <a
+                      key={p.id}
+                      href={linkFor(p.slug)}
+                      aria-current={p.slug === currentSlug ? 'page' : undefined}
+                      style={panelLinkStyle(p.slug === currentSlug)}
+                    >
+                      {labelOf(p)}
+                    </a>
+                  ))}
+                </div>
+              </details>
+            </span>
+          )}
           {overflow.length > 0 && (
-            <details style={{ position: 'relative' }}>
+            <details data-clinic-nav-group style={{ position: 'relative' }}>
               <summary style={summaryStyle}>
                 More ▾
               </summary>
@@ -233,7 +301,7 @@ export function TenantHeader({
             ☰
           </summary>
           <div style={panelStyle}>
-            {navPages.map((p) => (
+            {topLevel.map((p) => (
               <a
                 key={p.id}
                 href={linkFor(p.slug)}
@@ -243,6 +311,23 @@ export function TenantHeader({
                 {labelOf(p)}
               </a>
             ))}
+            {grouped && groupItems.length > 0 && (
+              <details data-clinic-nav-group>
+                <summary style={{ ...summaryStyle, padding: '9px 16px' }}>
+                  All treatments ▾
+                </summary>
+                {groupItems.map((p) => (
+                  <a
+                    key={p.id}
+                    href={linkFor(p.slug)}
+                    aria-current={p.slug === currentSlug ? 'page' : undefined}
+                    style={{ ...panelLinkStyle(p.slug === currentSlug), paddingLeft: 28 }}
+                  >
+                    {labelOf(p)}
+                  </a>
+                ))}
+              </details>
+            )}
           </div>
         </details>
       </div>

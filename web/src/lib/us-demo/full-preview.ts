@@ -46,6 +46,7 @@ import {
   type ClinicImagePageTopic,
   type ProjectedUsDemoSourceImage,
 } from './source-images';
+import { isUsableProcedurePageTitle } from './source-noise';
 import {
   prospectPublicSourceContentUnits,
   prospectPublicSourceOperationalStats,
@@ -1288,8 +1289,16 @@ export function compileUsMedicalFullPreview(input: {
       pin.focus,
     );
     const meta = CATEGORY_META[category];
-    const displayTitle = categoryServices.find((block) => block.text.length <= 60)?.text
-      ?? meta.navLabel;
+    /**
+     * A page title becomes a nav label, so it has to read like a treatment. The same gate that
+     * decides what may be published as a MedicalProcedure decides this: it rejects the list
+     * headings ("We Offer Different Services"), the sentences ("Why Periodontal Maintenance Is
+     * Essential"), and the symptoms ("Red, swollen, or tender gums") that were reaching the bar.
+     * Anything it turns down falls back to the category label, which always reads correctly.
+     */
+    const displayTitle = categoryServices.find((block) => (
+      isUsableProcedurePageTitle(block.text)
+    ))?.text ?? meta.navLabel;
     const pageTopic = procedureImageTopic(planned, slug);
     const categoryImages = topicPhotoPool(pageTopic);
     const heroImage = allocateHeroImage(categoryImages.hero);

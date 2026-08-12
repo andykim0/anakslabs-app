@@ -95,7 +95,7 @@ const SECTION_LABEL_RE =
  * "Our Comprehensive Oral Surgery Services Include" names the list, not a procedure. The phrase
  * can start anywhere in the heading, so it is matched separately from the anchored labels above.
  */
-const LIST_INTRODUCTION_RE =
+export const LIST_INTRODUCTION_RE =
   /\b(?:services?|treatments?|procedures?)\s+(?:we\s+)?(?:include|offered|available)\b|\binclude\s*:\s*$/iu;
 
 /**
@@ -113,6 +113,21 @@ const PROCEDURE_VOCABULARY_RE =
  * "Tap Hide Toolbar Back How long do you want to hide the toolbar" — which is the opposite of what
  * this product claims to do for a clinic.
  */
+/**
+ * A nav label has to name a treatment, not describe one. These are the shapes that reached the
+ * bar from real crawls: a possessive framing, a step or process heading, a stage in a workflow,
+ * and a sentence that starts with a verb.
+ */
+const TITLE_NOT_A_NAME_RE =
+  /^(?:our|the|why|how|what|when|a|an)\b|\b(?:process|step|steps|procedure\s+overview|overview|consultation|scan|essential|combines|includes|explained|guide|benefits?)\b|^[a-z]+(?:s|es|ed)\b/iu;
+
+/** A heading that introduces a list, or names the page's own section, is not a page title. */
+export function isUsableProcedurePageTitle(value: string): boolean {
+  const name = value.trim();
+  if (!isPublishableProcedureName(name)) return false;
+  return !TITLE_NOT_A_NAME_RE.test(name);
+}
+
 export function isPublishableProcedureName(value: string): boolean {
   const name = value.trim();
   if (name.length < 3 || name.length > PROCEDURE_NAME_MAXIMUM) return false;
