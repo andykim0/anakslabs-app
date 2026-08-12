@@ -171,6 +171,17 @@ export default async function SharedImportPreviewPage({
             }
           `}</style>
         ) : null}
+        {/*
+          KNOWN-ISSUE (2026-08-12, not chased): this page logs one React hydration warning —
+          "a tree hydrated but some attributes of the server rendered HTML didn't match the client
+          properties". Which attribute was not identified. It is not fatal and nothing is known to
+          be broken by it: the motion runtime starts and the reveal pass runs to completion with
+          the warning present (measured 10 of 10 targets hidden on load, 10 of 10 shown after
+          scroll). Recorded here so the next person who sees it in the console knows it predates
+          their change and does not explain a dead runtime — a preview that appears completely
+          inert is almost always being viewed on a dev host Next does not recognise, which stops
+          hydration outright rather than mismatching it (see allowedDevOrigins in next.config.ts).
+        */}
         {previewFull ? (
           <TenantPageContent
             config={preview.siteConfig}
