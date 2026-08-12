@@ -5,7 +5,11 @@ import type {
   UsDemoRenderMode,
   UsMedicalDemoCompilation,
 } from './contracts';
-import { clinicPhotoGate, prospectBrandLogo, prospectPublicSourceImages } from './source-images';
+import {
+  clinicPhotoGate,
+  clinicSourceIsImageDense,
+  prospectPublicSourceImages,
+} from './source-images';
 import { buildClinicPalette, type ClinicPalette } from './clinic-palette';
 import {
   clinicTemplateDecisionFromSource,
@@ -132,16 +136,11 @@ export function buildUsMedicalCompilationAudit(input: {
     trustSectionCount: sectionTypes.filter((type) => type === 'testimonials').length,
     gallerySectionCount: sectionTypes.filter((type) => type === 'gallery').length,
   });
-  /**
-   * The crawl records a four-value accent preset, not the source colours §2-2 asks for, so the
-   * extractor has no candidate to read and lands on the specialty fallback. Recording it here
-   * makes that visible per artifact instead of leaving it to be rediscovered.
-   */
-  const brandLogo = prospectBrandLogo(artifact);
+  /** §2 palette, recorded per artifact so the extraction outcome is inspectable. */
   const palette = buildClinicPalette({
-    candidates: [],
+    candidates: artifact.clinicPaletteProjection?.rawCandidates ?? [],
     specialty: 'dental',
-    imageDense: Boolean(brandLogo) || projected.length >= 20,
+    imageDense: clinicSourceIsImageDense(artifact),
   });
   return {
     version: US_MEDICAL_COMPILATION_AUDIT_VERSION,

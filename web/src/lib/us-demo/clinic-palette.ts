@@ -42,6 +42,8 @@ export const CLINIC_PALETTE_REFINEMENTS = [
   'deep-neutral',
   'lighten-demote',
   'ink-reassign',
+  /** §2-5 rescue: the practice's own hue and chroma, darkened until the gates pass. */
+  'darken-to-gate',
 ] as const;
 
 export type ClinicPaletteRefinement = (typeof CLINIC_PALETTE_REFINEMENTS)[number];
@@ -76,7 +78,10 @@ export interface ClinicPalette {
     origin: ClinicPaletteOrigin;
     fallbackUsed: boolean;
     refinement: ClinicPaletteRefinement;
-    /** §2-5 gates that failed on the extracted colour, forcing the fallback. */
+    /**
+     * §2-5 gates the extracted colour failed. Non-empty with fallbackUsed false means the
+     * darken-to-gate rescue cleared them without giving up the practice's hue.
+     */
     gateFailures: string[];
   };
 }
@@ -200,6 +205,16 @@ function surfaceStep(surface: string): string {
   return hslToHex({ ...hsl, l: hsl.l > 0.5 ? hsl.l - 0.05 : hsl.l + 0.05 });
 }
 
+/** §2-3 hands anything below this to --ink, so the rescue stops there rather than making mud. */
+const GATE_RESCUE_MIN_L = 0.12;
+const GATE_RESCUE_STEP_L = 0.01;
+
+export function brandInkFor(brand: string): string {
+  return contrastRatio('#FFFFFF', brand) >= contrastRatio('#111318', brand)
+    ? '#FFFFFF'
+    : '#111318';
+}
+
 /**
  * The palette a template is allowed to see. Every failure path lands on the specialty fallback
  * and says so in meta, because a demo that quietly invents a brand colour is worse than one that
@@ -212,28 +227,56 @@ export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
   const surface = relLuminance(rawSurface) >= 0.92 ? rawSurface : '#FFFFFF';
   const surface2 = surfaceStep(surface);
   const { ink, inkMuted } = inkFor(surface);
+  const accent = fallback.accent;
+
+  const gatesFor = (brand: string) => clinicPaletteGateFailures({
+    brand,
+    brandInk: brandInkFor(brand),
+    accent,
+    surface,
+    ink,
+  });
 
   const picked = input.candidates.find((candidate) => parseHex(candidate.hex));
   const refined = picked
     ? refineBrandColor(picked.hex, input.imageDense)
     : { hex: fallback.brand, refinement: 'none' as ClinicPaletteRefinement };
   const brand = refined.refinement === 'ink-reassign' ? fallback.brand : refined.hex;
-  const accent = fallback.accent;
-  const brandInk = contrastRatio('#FFFFFF', brand) >= contrastRatio('#111318', brand)
-    ? '#FFFFFF'
-    : '#111318';
 
-  const gateFailures = clinicPaletteGateFailures({ brand, brandInk, accent, surface, ink });
-  const useFallback = !picked || gateFailures.length > 0;
-  const finalBrand = useFallback ? fallback.brand : brand;
-  const finalBrandInk = contrastRatio('#FFFFFF', finalBrand) >= contrastRatio('#111318', finalBrand)
-    ? '#FFFFFF'
-    : '#111318';
+  let resolvedBrand = brand;
+  let refinement = refined.refinement;
+  const gateFailures = gatesFor(brand);
+  let rescued = false;
+  /**
+   * §2-5 says a gate failure returns to the fallback, but going straight there throws away the
+   * one thing the demo exists to carry. Almost every failure is the same failure — the colour is
+   * too light to sit on a white page — and that is a fixable property, not a disqualifying one.
+   * So walk the lightness down with hue and saturation held, which keeps both the practice's hue
+   * and §2-3's re-imagined chroma, and only fall back when no legible lightness exists.
+   *
+   * An achromatic source is excluded: there is no hue to preserve, and darkening it produces a
+   * grey that is a worse answer than admitting the specialty default was used.
+   */
+  const source = picked ? hexToHsl(brand) : null;
+  const sourceIsChromatic = (hexToHsl(picked?.hex ?? '')?.s ?? 0) >= 0.18;
+  if (source && sourceIsChromatic && gateFailures.length > 0 && refinement !== 'ink-reassign') {
+    for (let l = source.l; l >= GATE_RESCUE_MIN_L; l -= GATE_RESCUE_STEP_L) {
+      const attempt = hslToHex({ ...source, l });
+      if (gatesFor(attempt).length > 0) continue;
+      resolvedBrand = attempt;
+      refinement = 'darken-to-gate';
+      rescued = true;
+      break;
+    }
+  }
+
+  const useFallback = !picked || (gateFailures.length > 0 && !rescued);
+  const finalBrand = useFallback ? fallback.brand : resolvedBrand;
 
   return {
     slots: Object.freeze({
       '--brand': finalBrand,
-      '--brand-ink': finalBrandInk,
+      '--brand-ink': brandInkFor(finalBrand),
       '--accent': fallback.accent,
       '--surface': surface,
       '--surface-2': surface2,
@@ -243,7 +286,7 @@ export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
     meta: {
       origin: useFallback ? 'specialty-fallback' : picked!.origin,
       fallbackUsed: useFallback,
-      refinement: useFallback ? 'none' : refined.refinement,
+      refinement: useFallback ? 'none' : refinement,
       gateFailures,
     },
   };

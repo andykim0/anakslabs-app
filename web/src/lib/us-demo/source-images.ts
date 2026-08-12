@@ -314,3 +314,13 @@ export function prospectBrandLogo(
   const chosen = ranked[0];
   return { src: chosen.url, alt: chosen.alt || businessName || '', sourcePageUrl: home.url };
 }
+
+/**
+ * TEMPLATE-SYSTEM §2-3's tie-break, defined once. The compiler picks the palette and the audit
+ * reports it; when each decided image density for itself the two could disagree about which
+ * refinement ran, and the audit's answer was the one nobody could see in the rendered page.
+ */
+export function clinicSourceIsImageDense(artifact: CrawlArtifactPayload): boolean {
+  return Boolean(prospectBrandLogo(artifact))
+    || prospectPublicSourceImages(artifact).length >= 20;
+}
