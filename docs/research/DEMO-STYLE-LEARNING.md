@@ -1,4 +1,141 @@
-# DEMO-STYLE-LEARNING — 병원 사이트 79곳 디자인 언어 학습
+# DEMO-STYLE-LEARNING — 데모 템플릿 디자인 언어
+
+두 개의 장으로 구성된다. **1부는 2026년 프로덕션 학습**(우리가 배울 대상), **2부는 코퍼스 79곳 기준선**(고객의 현실, 대조군)이다. 1부가 목표선이고 2부가 하한선이다.
+
+
+---
+
+# 1부 · 2026년 프로덕션 학습 (배울 대상)
+
+## 1-0. 소스 16곳 — 근거 등급을 두 티어로 나눈다
+
+`WebSearch`가 세션 한도(200/200)에 걸려 검색이 불가능했으므로, **WebFetch로 갤러리·에이전시 포트폴리오를 직접 훑어** 수집했다. 근거의 성격이 다른 두 묶음이므로 **섞지 않고 티어로 나눠** 적는다.
+
+**티어 1 — 어워드 등재 날짜로 2026년이 확인된 곳 (11)**
+근거가 가장 강하다. 푸터 ⓒ2026은 근거로 쓰지 않았고 **등재 날짜가 찍힌 건만** 채택했다.
+
+**티어 2 — US 치과 실사이트, 전문 에이전시 현행 포트폴리오 등재 (5)**
+`wonderistagency.com/our-work/websites`(미국 치과 전문 에이전시)의 현행 포트폴리오다. **제작연도 표기가 없어 "2026년 제작" 근거로는 약하다.** 그럼에도 넣은 이유는 티어 1의 결함을 메우기 때문이다 — 티어 1은 헬스테크가 다수라 **실제 미국 치과 클리닉의 문법**을 담지 못한다.
+
+| 사이트 | 근거 | 분류 | BP수 | clamp | CSS변수 | 최대 디스플레이 | US신호 |
+|---|---|---|---|---|---|---|---|
+| `southcliffdentalgroup.com` | Awwwards Dental HM 2026-06-16 | dental | 4 | 2 | 147 | 70px | 0 |
+| `aventuradentalarts.com` | Awwwards Dental Developer+SOTD 2026-03-19 | dental | 2 | 0 | 35 | 153px | 23 |
+| `vibrant.noomoagency.com` | Awwwards Wellness Developer+SOTD 2026-02-20 | wellness | 10 | 0 | 132 | 128px | 0 |
+| `sleep-well-creatives.com` | Awwwards Wellness SOTD 2026-01-28 | wellness | 4 | 1 | 18 | 168px | 0 |
+| `bevel.health` | Awwwards Health HM 2026-05-11 | health | 3 | 47 | 172 | 64px | 0 |
+| `ravenhealth.com` | Awwwards Health 2026 등재 | health | 8 | 27 | 95 | 120px | 0 |
+| `mavehealth.com` | Awwwards Health 2026 등재 | health | 5 | 0 | 161 | 120px | 0 |
+| `cascaidhealth.com` | Awwwards Health 2026 등재 | health | 6 | 4 | 53 | 160px | 0 |
+| `tibicohealth.com` | Awwwards Health 2026 등재 | health | 9 | 19 | 150 | 48px | 0 |
+| `instituteofhealth.com` | Awwwards Health HM 2026-02-05 | health | 3 | 1 | 8 | 192px | 0 |
+| `photon.health` | Awwwards Health 2026 등재 | health | 5 | 0 | 106 | 68px | 0 |
+| `www.flashdental.net` | Wonderist Agency 포트폴리오 등재(제작연도 미표기) | dental-us | 6 | 0 | 7 | 192px | 10 |
+| `www.strahlerdentalpartners.com` | Wonderist Agency 포트폴리오 등재(제작연도 미표기) | dental-us | 4 | 0 | 234 | 160px | 5 |
+| `www.bespokedentistry.com` | Wonderist Agency 포트폴리오 등재(제작연도 미표기) | dental-us | 4 | 0 | 11 | 96px | 2 |
+| `www.seasidedentalsandiego.com` | Wonderist Agency 포트폴리오 등재(제작연도 미표기) | dental-us | 3 | 0 | 12 | 50px | 12 |
+| `www.dsnfperio.com` | Wonderist Agency 포트폴리오 등재(제작연도 미표기) | dental-us | 6 | 4 | 82 | 134px | 34 |
+
+*US신호 = 홈페이지에서 검출된 미국 주소(주+ZIP)·전화 형식 건수.*
+
+**US 판정**: 티어 2는 5곳 모두 미국 치과(휴스턴·샌디에이고·세인트어거스틴 등)로 확실하다. 티어 1은 `aventuradentalarts.com`(신호 23)만 확실하고 나머지는 홈에 주소를 두지 않는 헬스테크라 **"2026 프로덕션"은 확실하나 "US"는 미확정**이다.
+
+---
+
+## 1-1. 가장 큰 발견 — 44px 공백이 두 티어 모두에서 메워진다
+
+| | 코퍼스 79곳(2부) | 티어1 어워드(11) | 티어2 US치과(5) |
+|---|---|---|---|
+| 44px 이상 헤드라인 | **선언 0건** | **11/11 보유** | **5/5 보유** |
+| 최대 | — | 192px | 192px |
+| 중앙 | — | **82px** | **64px** |
+
+2부에서 "44px 이상 구간이 비어 있고 거기서 차별화가 난다"고 적은 것이 **두 티어 독립적으로 확인됐다.** 어워드 수상작만의 사치가 아니라 **미국 치과 실사이트도 이미 그 구간에 있다**는 뜻이라 근거가 훨씬 무겁다.
+
+**함의**: H1을 44px에 두면 코퍼스와 같은 세계에 남는다. **데스크톱 80~120px, 모바일 40~48px**이 현재의 자리다.
+
+## 1-2. 반응형 문법
+
+**브레이크포인트 — 두 티어가 다른 사다리를 쓴다.**
+- 티어1(어워드): 1024px(6), 768px(5), 767px(5), 1280px(4), 479px(4) — Tailwind 사다리(768·1024·1280)와 Webflow 사다리(479·767·991)가 공존
+- 티어2(US치과): 767px(5), 479px(4), 991px(4), 1280px(3), 1440px(1) — **5곳 전부 767px**, 사실상 Webflow/워드프레스 관습 단일
+
+공통분모는 **767~768px과 1024px**이다. 우리 템플릿은 **768 / 1024 / 1280 3단**이면 두 세계를 모두 만족한다.
+
+- **clamp() 채택은 갈린다** — 티어1 7/11(bevel 47회·raven 27회·tibico 19회), 티어2 1/5. **유동 타이포는 최신 쪽의 표식**이다.
+- **CSS 커스텀 프로퍼티** — 티어1 중앙 106개, 티어2 중앙 12개. 티어2가 훨씬 적다(7~234로 편차 극심). **토큰 시스템 유무가 두 세계를 가르는 두 번째 지표**다.
+- 컨테이너 쿼리는 16곳 통틀어 거의 없다. 2026년 프로덕션도 미디어 쿼리 중심이다.
+
+**모바일 내비** — 드로어/오프캔버스가 양 티어 모두 지배적(티어1 5곳·티어2 4곳). **스티키 하단 CTA는 16곳 중 1곳뿐**이다. 병원 사이트에 흔한 하단 고정 전화 버튼은 프리미엄 문법이 아니다.
+
+**터치 타깃** — 선언된 min-height는 40·42·44·45·50·56·64·80px. **44px 이상이 표준**, 주요 CTA는 56~80px.
+
+**이미지** — `<picture>` 아트디렉션은 드물고 `srcset`·Next.js 이미지 파이프라인이 주력이다. **모바일 전용 크롭보다 해상도 스위칭**이 관행이다.
+
+**모션** — 티어1은 {'prefers_reduced': 6, 'lenis': 5, 'io': 3, 'gsap': 3}로 Lenis 스무스 스크롤과 GSAP이 기본 장비이고 **prefers-reduced-motion 6곳**이 함께 간다. 티어2는 모션이 거의 없다(GSAP 1·reduced 2). **모션 유무가 두 세계를 가르는 세 번째 지표**다.
+
+## 1-3. 무엇이 "2026년 것"으로 보이게 하는가 — 네 지표
+
+1. **디스플레이 타이포 80px+** (코퍼스 0건 → 16/16)
+2. **CSS 변수 토큰 시스템** (티어1 중앙 106개)
+3. **모션 + reduced-motion 대응** (티어1 절반 이상)
+4. **자체 호스팅 그로테스크** — **구글폰트 사용은 16곳 중 2곳뿐**이다. Inter Tight · Plus Jakarta Sans · Archivo · Hanken Grotesk · Lay Grotesk · Figtree · Jost, 그리고 치과 쪽은 Adobe Typekit(brandon-grotesque · canada-type-gibson · aktiv-grotesk · ambroise-std). 세리프는 페어링의 악센트로만 쓰인다.
+
+그리고 **간격은 8의 배수**(8·16·24·32·40), 섹션 여백 64~112px, **라운드는 양극단**(완전 필 9999px/50% 또는 4~16px, 어중간한 20~30px이 드물다)이다.
+
+---
+
+## 1-4. 3안 검증 — 하나는 정정, 하나는 재정의
+
+### ✅ Warm Premium — 살아남았다. 양 티어에 근거가 있다
+티어1 `aventuradentalarts.com`(`#14151d`+`#eae8e8`) · `mavehealth.com`(`#201d1b`+`#fffef9`+`#c8a92d`), 티어2 **`bespokedentistry.com`(`#ddd5bb` 샌드+`#f8f3ea` 크림+`#1d364f`)** · `flashdental.net`(`#fedd7f` 버터+`#fffbf8`). **미국 치과 실사이트에서도 확인된다**는 점이 중요하다.
+
+### ✅ Editorial — 살아남되 정의를 좁힌다
+세리프는 16곳에서 **주류가 아니라 악센트**다. "세리프 중심"이 아니라 **"큰 그로테스크 + 세리프 한 겹"**으로 재정의한다. 사례: `aventuradentalarts.com`(InterTight+InstrumentSerif) · `bespokedentistry.com`(aktiv-grotesk+**cardo**) · `strahlerdentalpartners.com`(canada-type-gibson+**ambroise-std**).
+
+### ⚠️ Clinical — **앞선 판정을 정정한다**
+1부 초안에서 "2026 소스에 근거 0곳"이라고 적었으나 **티어2를 넣고 보니 틀렸다.** 미국 치과 실사이트에는 블루가 살아 있다 — `dsnfperio.com`(`#428bca`·`#1890d7` 전형적 클리니컬 블루), `strahlerdentalpartners.com`(`#152d49`~`#273d53` 딥네이비), `seasidedentalsandiego.com`(**`#4253ff` 일렉트릭 블루**).
+
+**정확한 판정은 이렇다.** 죽은 것은 블루가 아니라 **코퍼스식 탁한 중간 블루(`#2669af`대)**다. 2026년 문법에서 블루는 두 방향으로만 산다:
+- **딥네이비 뉴트럴** (`#152d49`) — 거의 무채처럼 쓰고 액센트는 따로
+- **일렉트릭 블루** (`#4253ff`) — 고채도 단일 액센트, 배경은 화이트
+
+Clinical을 유지하되 **이 두 방향 중 하나로 재정의**하는 것을 권한다. 앞서 제안한 `Mono Accent`는 폐기하지 않고 **일렉트릭 블루 변형으로 흡수**한다.
+
+---
+
+## 1-5. 정련된 3안 — 토큰 초안
+
+### 안 1 — **Warm Premium**
+- **팔레트**: 배경 `#FFFEF9`~`#F8F3EA` 크림 / 텍스트 `#201D1B` 웜 니어블랙 / 액센트 `#C8A92D`~`#817040` 골드브론즈 / 보조 `#1D364F` 딥네이비
+- **타이포**: 그로테스크 본문 16~18px / **H1 데스크톱 96px · 모바일 44px** / H2 48px / 세리프 한 겹 악센트
+- **간격** 8·16·24·32·48·64·96, 섹션 96~112px / **라운드 0 또는 999px** / **그림자 0**
+- **소스**: aventuradentalarts.com · bespokedentistry.com · mavehealth.com · flashdental.net
+
+### 안 2 — **Editorial**
+- **팔레트**: 배경 화이트 / 텍스트 `#111115` / 액센트 딥틸 1색 / 넓은 무채
+- **타이포**: **큰 그로테스크 + 세리프 한 겹**. H1 데스크톱 108px · 모바일 40px / 본문 17px · 행간 1.7 / 콘텐츠 폭 62~68ch
+- **간격** 8의 배수, 섹션 112px / 라운드 4~8px / **그림자 적극**
+- **소스**: aventuradentalarts.com · strahlerdentalpartners.com · sleep-well-creatives.com · instituteofhealth.com
+
+### 안 3 — **Electric Clinical** *(Clinical 재정의 + Mono Accent 흡수)*
+- **팔레트**: 배경 `#FAFAFA` / 텍스트 `#14151D` / **액센트 단 1색 고채도** `#4253FF` 일렉트릭 블루(또는 딥네이비 `#152D49` 변형) / 그레이 램프 4단
+- **타이포**: 기하 그로테스크 단일 패밀리. H1 데스크톱 80px · 모바일 40px / 본문 16px
+- **간격** 8의 배수 / **카드 라운드 24px(1.5rem)** / 그림자 절제
+- **모션**: Lenis + prefers-reduced-motion
+- **소스**: seasidedentalsandiego.com · bevel.health · photon.health · ravenhealth.com
+
+### 세 안 공통 반응형 규약
+- 브레이크포인트 **768 / 1024 / 1280** 3단. 그 이상 만들지 않는다.
+- 헤드라인은 **clamp() 유동**, 본문은 고정. 예 `clamp(2.5rem, 6vw, 6.75rem)`
+- 터치 타깃 최소 **44px**, 주요 CTA 56px
+- 모바일 내비는 **드로어**. 스티키 하단 CTA는 쓰지 않는다.
+- **CSS 커스텀 프로퍼티로 토큰 정의** — 이것 자체가 최신 여부를 가르는 지표다.
+- 폰트는 **자체 호스팅**. 구글폰트 링크는 16곳 중 2곳뿐이다.
+
+---
+
+# 2부 · 기준선 — 병원 사이트 79곳 (대조군)
 
 현 데모 템플릿의 시각 수준이 "인라인 스타일 기본기"에 머문다는 판정에 따라, 코퍼스 `corpus-2026-08/sites/`(병원 79곳)에서 디자인 언어를 추출해 템플릿 디자인 시스템의 근거를 만든다. **분석·설계 문서까지이며 구현은 하지 않는다.**
 
