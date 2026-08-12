@@ -324,3 +324,49 @@ export function clinicSourceIsImageDense(artifact: CrawlArtifactPayload): boolea
   return Boolean(prospectBrandLogo(artifact))
     || prospectPublicSourceImages(artifact).length >= 20;
 }
+
+/**
+ * Ticket D1 hero candidacy, applied on top of clinicPhotoGate and only to hero slots.
+ *
+ * Deliberately NOT sourceImageIsProvider. That predicate reads the page path, title and alt, so
+ * it marks every image on a provider-ish page — on the dental360 sample, 19 of 31, including the
+ * room and equipment shots. It is the right answer for the About hero and the providers section,
+ * which are meant to show a face, and the wrong one here: honouring it for heroes threw away the
+ * practice's best photograph and promoted a 150x150 logo in its place.
+ *
+ * So this reads the filename, and only for words that name a person's title. Profession and place
+ * words — dentist, provider, team, staff — describe the subject of ordinary clinical photography
+ * (female-dentist-adjusting-lamp.jpg is a room, not a portrait) and are excluded on purpose.
+ * Measured across all 113 projected images in the three samples: 16 matches, every one a genuine
+ * portrait, zero false positives.
+ *
+ * Known limit, accepted deliberately: a name run together with the title (drricks.png,
+ * DrNermeenMoussa.jpg) is not caught. Catching it needs a bare `dr` prefix rule, which also
+ * matches drill, dress and drainage — three missed portraits is the better trade than a rule
+ * that throws away real clinical photography.
+ */
+const HERO_PROVIDER_FILENAME_RE = /\b(?:dr|dds|dmd|doctor|headshot|portrait)\b/iu;
+
+/**
+ * §D1(b). Segment-anchored so it names an asset role rather than matching any word that happens
+ * to contain one: `mask.png` and `hero-bg.png` are caught, `bgood-smile.jpg` is not. Measured
+ * false positives across the three samples: zero.
+ */
+const HERO_DECORATIVE_FILENAME_RE =
+  /(?:^|[-_.])(?:mask|icon|shape|pattern|bg|decor|overlay)(?:[-_.]|$)/iu;
+
+export function heroImageIsProviderPortrait(image: ProjectedUsDemoSourceImage): boolean {
+  return HERO_PROVIDER_FILENAME_RE.test(imageFilename(image));
+}
+
+export function heroImageIsDecorative(image: ProjectedUsDemoSourceImage): boolean {
+  return HERO_DECORATIVE_FILENAME_RE.test(imageFilename(image));
+}
+
+/**
+ * A hero opens the page, so it carries the strictest test: no faces, no decorative furniture.
+ * The About hero is deliberately outside this — a provider portrait is the correct answer there.
+ */
+export function eligibleForClinicHero(image: ProjectedUsDemoSourceImage): boolean {
+  return !heroImageIsProviderPortrait(image) && !heroImageIsDecorative(image);
+}
