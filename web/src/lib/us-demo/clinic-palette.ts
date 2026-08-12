@@ -16,7 +16,21 @@ export const CLINIC_PALETTE_SLOTS = [
 
 export type ClinicPaletteSlot = (typeof CLINIC_PALETTE_SLOTS)[number];
 
-/** §2-2, in priority order. The logo is first because it is the one colour a brand chose. */
+/**
+ * §2-2, in priority order. The logo is first because it is the one colour a brand chose.
+ *
+ * There is deliberately no origin for a colour declared inline on a decorative element, and the
+ * reason is measured rather than assumed. A site can put every chromatic value it owns into
+ * translucent gradient stops on wrapper divs, where the colour is a 20%-opacity glow rather than
+ * a fill the practice ever shows at full strength. iddentalimplant.com on 2026-08-12: no <style>
+ * block on any of its twenty pages, and 248 of 248 chromatic inline occurrences were gradient
+ * stops with a maximum alpha of 0.20. Reading those as a brand would report a colour the practice
+ * never uses, so a site like that legitimately resolves to the specialty fallback and says so.
+ *
+ * Note this is also why an accent preset can look better informed than it is: the preset routing
+ * flattens alpha away, so it will happily route such a glow to a clean preset. That is not extra
+ * signal, it is the same weak signal accepted without asking.
+ */
 export const CLINIC_PALETTE_ORIGINS = [
   'logo',
   'cta',
@@ -244,41 +258,66 @@ export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
     ink,
   });
 
-  const picked = input.candidates.find((candidate) => parseHex(candidate.hex));
-  const refined = picked
-    ? refineBrandColor(picked.hex, input.imageDense)
-    : { hex: fallback.brand, refinement: 'none' as ClinicPaletteRefinement };
-  const brand = refined.refinement === 'ink-reassign' ? fallback.brand : refined.hex;
-
-  let resolvedBrand = brand;
-  let refinement = refined.refinement;
-  const gateFailures = gatesFor(brand);
-  let rescued = false;
   /**
-   * §2-5 says a gate failure returns to the fallback, but going straight there throws away the
-   * one thing the demo exists to carry. Almost every failure is the same failure — the colour is
-   * too light to sit on a white page — and that is a fixable property, not a disqualifying one.
-   * So walk the lightness down with hue and saturation held, which keeps both the practice's hue
-   * and §2-3's re-imagined chroma, and only fall back when no legible lightness exists.
-   *
-   * An achromatic source is excluded: there is no hue to preserve, and darkening it produces a
-   * grey that is a worse answer than admitting the specialty default was used.
+   * One candidate's whole journey: §2-3's refinement, then §2-5's gates, then the rescue.
+   * `adoptable` is false when this colour cannot be the brand — either no legible lightness
+   * exists, or §2-3 sent it to --ink and took the brand from the fallback, which is not this
+   * candidate surviving.
    */
-  const source = picked ? hexToHsl(brand) : null;
-  const sourceIsChromatic = (hexToHsl(picked?.hex ?? '')?.s ?? 0) >= 0.18;
-  if (source && sourceIsChromatic && gateFailures.length > 0 && refinement !== 'ink-reassign') {
-    for (let l = source.l; l >= GATE_RESCUE_MIN_L; l -= GATE_RESCUE_STEP_L) {
-      const attempt = hslToHex({ ...source, l });
-      if (gatesFor(attempt).length > 0) continue;
-      resolvedBrand = attempt;
-      refinement = 'darken-to-gate';
-      rescued = true;
+  const resolveCandidate = (candidate: { origin: ClinicPaletteOrigin; hex: string }) => {
+    const refined = refineBrandColor(candidate.hex, input.imageDense);
+    if (refined.refinement === 'ink-reassign') {
+      return { candidate, brand: fallback.brand, refinement: refined.refinement, gateFailures: [], adoptable: false };
+    }
+    const gateFailures = gatesFor(refined.hex);
+    if (gateFailures.length === 0) {
+      return { candidate, brand: refined.hex, refinement: refined.refinement, gateFailures, adoptable: true };
+    }
+    /**
+     * §2-5 says a gate failure returns to the fallback, but going straight there throws away the
+     * one thing the demo exists to carry. Almost every failure is the same failure — the colour
+     * is too light to sit on a white page — and that is a fixable property, not a disqualifying
+     * one. So walk the lightness down with hue and saturation held, which keeps both the
+     * practice's hue and §2-3's re-imagined chroma, and give up only when no legible lightness
+     * exists.
+     *
+     * An achromatic source is excluded: there is no hue to preserve, and darkening it produces a
+     * grey that is a worse answer than admitting the specialty default was used.
+     */
+    const source = hexToHsl(refined.hex);
+    const chromatic = (hexToHsl(candidate.hex)?.s ?? 0) >= 0.18;
+    if (source && chromatic) {
+      for (let l = source.l; l >= GATE_RESCUE_MIN_L; l -= GATE_RESCUE_STEP_L) {
+        const attempt = hslToHex({ ...source, l });
+        if (gatesFor(attempt).length > 0) continue;
+        return { candidate, brand: attempt, refinement: 'darken-to-gate' as const, gateFailures, adoptable: true };
+      }
+    }
+    return { candidate, brand: fallback.brand, refinement: refined.refinement, gateFailures, adoptable: false };
+  };
+
+  /**
+   * §2-2 hands over a priority-ordered list, so exhaust it before giving up. A practice whose
+   * logo colour happens to be unusable still owns the colour on its buttons, and answering with
+   * the specialty default while a perfectly good second candidate sat unread is a worse demo
+   * than the one the source could support.
+   */
+  let adopted: ReturnType<typeof resolveCandidate> | null = null;
+  let firstAttempt: ReturnType<typeof resolveCandidate> | null = null;
+  for (const candidate of input.candidates) {
+    if (!parseHex(candidate.hex)) continue;
+    const attempt = resolveCandidate(candidate);
+    firstAttempt ??= attempt;
+    if (attempt.adoptable) {
+      adopted = attempt;
       break;
     }
   }
 
-  const useFallback = !picked || (gateFailures.length > 0 && !rescued);
-  const finalBrand = useFallback ? fallback.brand : resolvedBrand;
+  const finalBrand = adopted ? adopted.brand : fallback.brand;
+  // The highest-priority candidate's failures are the ones an operator would ask about, so they
+  // stay on the record even when a later candidate was the one adopted.
+  const reportedFailures = (adopted ?? firstAttempt)?.gateFailures ?? [];
 
   return {
     slots: Object.freeze({
@@ -291,10 +330,10 @@ export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
       '--ink-muted': inkMuted,
     }),
     meta: {
-      origin: useFallback ? 'specialty-fallback' : picked!.origin,
-      fallbackUsed: useFallback,
-      refinement: useFallback ? 'none' : refinement,
-      gateFailures,
+      origin: adopted ? adopted.candidate.origin : 'specialty-fallback',
+      fallbackUsed: !adopted,
+      refinement: adopted ? adopted.refinement : 'none',
+      gateFailures: reportedFailures,
     },
   };
 }

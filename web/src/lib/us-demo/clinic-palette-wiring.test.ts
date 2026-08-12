@@ -149,3 +149,34 @@ describe('§2-1 — --brand-ink 는 게이트를 통과한 브랜드에서 언�
     assert.ok(passed > 0, 'the sweep must actually exercise gate-passing brands');
   });
 });
+
+describe('§2 — 후보 폴스루가 기존 3건의 해석 결과를 바꾸지 않는다', () => {
+  /**
+   * Pinned to the values measured before candidate fall-through landed. All three practices
+   * resolve on their first candidate, so exhausting the list must be a no-op for them; this is
+   * the assertion that says so rather than trusting that it is.
+   */
+  const EXPECTED = {
+    dental360: { brand: '#003EDA', origin: 'cta', refinement: 'darken-to-gate', fallbackUsed: false },
+    cameods: { brand: '#3C2029', origin: 'cta', refinement: 'deep-neutral', fallbackUsed: false },
+    iddental: { brand: '#152D49', origin: 'specialty-fallback', refinement: 'none', fallbackUsed: true },
+  } as const;
+
+  for (const [name, expected] of Object.entries(EXPECTED)) {
+    test(`${name} 의 7슬롯과 메타가 그대로다`, () => {
+      const resolved = compiled(name).config.clinicMaster!.resolvedPalette!;
+      assert.deepEqual(resolved.slots, {
+        '--brand': expected.brand,
+        '--brand-ink': '#FFFFFF',
+        '--accent': '#4253FF',
+        '--surface': '#FFFFFF',
+        '--surface-2': '#F2F2F2',
+        '--ink': '#111318',
+        '--ink-muted': '#5A6270',
+      });
+      assert.equal(resolved.origin, expected.origin);
+      assert.equal(resolved.refinement, expected.refinement);
+      assert.equal(resolved.fallbackUsed, expected.fallbackUsed);
+    });
+  }
+});

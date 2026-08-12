@@ -144,3 +144,59 @@ describe('TEMPLATE-SYSTEM §2 — 실제 크롤 3건의 추출 수율', () => {
     assert.equal(new Set(brands).size, brands.length);
   });
 });
+
+describe('TEMPLATE-SYSTEM §2-2 — 후보 목록은 소진될 때까지 내려간다', () => {
+  const build = (candidates: { origin: 'logo' | 'cta' | 'link'; hex: string }[]) => buildClinicPalette({
+    candidates,
+    specialty: 'dental',
+    imageDense: false,
+  });
+
+  test('1순위가 못 쓰는 색이면 2순위를 쓴다 — 폴백은 목록을 다 쓴 뒤에만 나온다', () => {
+    // #FBFBFB is achromatic and near-white: it fails the brand/surface gate and the rescue
+    // refuses it, so before this it took the whole palette down to the specialty default.
+    const only = build([{ origin: 'logo', hex: '#FBFBFB' }]);
+    assert.equal(only.meta.fallbackUsed, true);
+
+    const withSecond = build([
+      { origin: 'logo', hex: '#FBFBFB' },
+      { origin: 'cta', hex: '#2F7A54' },
+    ]);
+    assert.equal(withSecond.meta.fallbackUsed, false);
+    assert.equal(withSecond.meta.origin, 'cta');
+    assert.equal(withSecond.slots['--brand'], build([{ origin: 'cta', hex: '#2F7A54' }]).slots['--brand']);
+    // The first candidate's failure stays on the record even though a later one was adopted.
+    assert.deepEqual(withSecond.meta.gateFailures, only.meta.gateFailures);
+  });
+
+  test('1순위가 통과하면 뒤는 쳐다보지 않는다', () => {
+    const first = build([
+      { origin: 'logo', hex: '#2F7A54' },
+      { origin: 'cta', hex: '#C21F3A' },
+    ]);
+    assert.equal(first.meta.origin, 'logo');
+    assert.deepEqual(first.slots, build([{ origin: 'logo', hex: '#2F7A54' }]).slots);
+  });
+
+  test('전부 못 쓰면 진료과 폴백으로 내려가고 그렇게 말한다', () => {
+    const exhausted = build([
+      { origin: 'logo', hex: '#FBFBFB' },
+      { origin: 'cta', hex: '#FDFDFD' },
+      { origin: 'link', hex: '#FEFEFE' },
+    ]);
+    assert.equal(exhausted.meta.fallbackUsed, true);
+    assert.equal(exhausted.meta.origin, 'specialty-fallback');
+    assert.equal(exhausted.slots['--brand'], CLINIC_PALETTE_FALLBACKS.dental.brand);
+  });
+
+  test('§2-3이 ink로 넘긴 후보는 브랜드를 차지하지 않고 다음으로 넘어간다', () => {
+    // l < 0.12 means §2-3 assigns it to --ink and takes --brand from the fallback. That is not
+    // this candidate surviving, so it must not block a usable one behind it.
+    const afterInk = build([
+      { origin: 'logo', hex: '#080A0C' },
+      { origin: 'cta', hex: '#2F7A54' },
+    ]);
+    assert.equal(afterInk.meta.fallbackUsed, false);
+    assert.equal(afterInk.meta.origin, 'cta');
+  });
+});
