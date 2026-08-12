@@ -6,19 +6,30 @@
  *   node_modules/.bin/esbuild src/lib/us-demo/publish-hypothesis.ts --bundle --platform=node \
  *     --format=esm --conditions=default \
  *     --alias:server-only=./scripts/_empty-server-only.ts --outfile=scripts/_ph.mjs
+ *
+ * Usage: tsx scripts/baseline.ts [--dir <artifact dir>] [--prefix <basename prefix>] [--out <file>]
+ * Defaults read the committed fixtures so a run is reproducible from a clean checkout.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { compileUsMedicalDemo } from '@/lib/us-demo/source-compiler';
 import { buildUsMedicalCompilationAudit } from '@/lib/us-demo/compilation-audit';
 import { buildUsDemoStructureComparisons } from './_ph.mjs';
 
-const TMP = '/Users/axxykim/.claude/jobs/b468d129/tmp';
+function arg(flag: string, fallback: string): string {
+  const index = process.argv.indexOf(flag);
+  return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
+}
+
+const dir = resolve(arg('--dir', 'scripts/fixtures/us-demo-artifacts'));
+const prefix = arg('--prefix', 'base');
+const outFile = resolve(arg('--out', `${dir}/BASELINE.json`));
 const samples = ['dental360', 'cameods', 'iddental'] as const;
 const out: Record<string, unknown> = {};
 
 for (const name of samples) {
-  const artifact = JSON.parse(readFileSync(`${TMP}/base-${name}.json`, 'utf8')) as CrawlArtifactPayload;
+  const artifact = JSON.parse(readFileSync(`${dir}/${prefix}-${name}.json`, 'utf8')) as CrawlArtifactPayload;
   const compilation = compileUsMedicalDemo(artifact, { renderMode: 'preview-full' });
   const config = compilation.config;
   const audit = buildUsMedicalCompilationAudit({ artifact, compilation, renderMode: 'preview-full', config });
@@ -48,5 +59,5 @@ for (const name of samples) {
   console.log(`${name.padEnd(11)} pages=${s.pageCount} nav=${s.navItems} contributing=${s.contributingPages} template=${s.template.designatedByDoc} palette=${s.paletteMeta.origin}`);
   console.log(`             as-launched demo: ${pages.map((p: any) => p.asLaunchedDemo).join(',')} | source: ${pages.map((p: any) => p.asLaunchedSource).join(',')}`);
 }
-writeFileSync(`${TMP}/BASELINE.json`, JSON.stringify(out, null, 1));
-console.log('\nwritten:', `${TMP}/BASELINE.json`);
+writeFileSync(outFile, JSON.stringify(out, null, 1));
+console.log('\nwritten:', outFile);

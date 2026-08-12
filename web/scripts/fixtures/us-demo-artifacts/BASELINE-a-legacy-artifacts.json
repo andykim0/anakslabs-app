@@ -1,0 +1,529 @@
+{
+ "dental360": {
+  "pageCount": 9,
+  "slugs": [
+   "home",
+   "oral-surgery",
+   "services",
+   "cosmetic-dentistry",
+   "orthodontics",
+   "pediatric-dentistry",
+   "restorative-dentistry",
+   "general-dentistry",
+   "contact"
+  ],
+  "navItems": 9,
+  "sectionsPerPage": [
+   6,
+   5,
+   4,
+   3,
+   3,
+   3,
+   5,
+   3,
+   2
+  ],
+  "imagesPerPage": [
+   18,
+   5,
+   5,
+   5,
+   5,
+   5,
+   4,
+   5,
+   1
+  ],
+  "charsPerPage": [
+   1827,
+   766,
+   880,
+   759,
+   1297,
+   786,
+   815,
+   602,
+   234
+  ],
+  "contributingPages": "14/20",
+  "blocksByKind": {
+   "business_name": 1,
+   "phone": 1,
+   "address": 8,
+   "opening_hours": 1,
+   "service": 66,
+   "service_detail": 22,
+   "faq_question": 1
+  },
+  "imageFunnel": {
+   "crawled": 79,
+   "projected": 31,
+   "eligible": 29,
+   "used": 29
+  },
+  "template": {
+   "templateId": null,
+   "reason": "multi-location US network — T7 Multi-unit, not yet implemented",
+   "designatedByDoc": "T7",
+   "multiLocation": true,
+   "singleProcedureFocus": false
+  },
+  "paletteMeta": {
+   "origin": "specialty-fallback",
+   "fallbackUsed": true,
+   "refinement": "none",
+   "gateFailures": []
+  },
+  "paletteSlots": {
+   "--brand": "#152D49",
+   "--brand-ink": "#FFFFFF",
+   "--accent": "#4253FF",
+   "--surface": "#FFFFFF",
+   "--surface-2": "#F2F2F2",
+   "--ink": "#111318",
+   "--ink-muted": "#5A6270"
+  },
+  "asLaunched": [
+   {
+    "slug": "home",
+    "rawSource": 61,
+    "rawDemo": 80,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "oral-surgery",
+    "rawSource": 61,
+    "rawDemo": 80,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "services",
+    "rawSource": 60,
+    "rawDemo": 80,
+    "asLaunchedSource": 59,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "cosmetic-dentistry",
+    "rawSource": 65,
+    "rawDemo": 80,
+    "asLaunchedSource": 65,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "orthodontics",
+    "rawSource": 61,
+    "rawDemo": 80,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "pediatric-dentistry",
+    "rawSource": 65,
+    "rawDemo": 80,
+    "asLaunchedSource": 65,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "restorative-dentistry",
+    "rawSource": 61,
+    "rawDemo": 80,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "general-dentistry",
+    "rawSource": 61,
+    "rawDemo": 80,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "contact",
+    "rawSource": 68,
+    "rawDemo": 80,
+    "asLaunchedSource": 68,
+    "asLaunchedDemo": 100
+   }
+  ]
+ },
+ "cameods": {
+  "pageCount": 12,
+  "slugs": [
+   "home",
+   "periodontics",
+   "dental-implants",
+   "periodontal-gum-disease",
+   "periodontal-maintenance",
+   "regenerative-procedures",
+   "tissue-graft",
+   "internal-bleaching",
+   "endodontic-treatment",
+   "lanap-periodontal-treatment",
+   "scaling-and-root-planing",
+   "contact"
+  ],
+  "navItems": 12,
+  "sectionsPerPage": [
+   5,
+   5,
+   6,
+   5,
+   5,
+   5,
+   6,
+   5,
+   5,
+   5,
+   6,
+   3
+  ],
+  "imagesPerPage": [
+   13,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   3,
+   4,
+   1
+  ],
+  "charsPerPage": [
+   8729,
+   2056,
+   2187,
+   3140,
+   2112,
+   3335,
+   3767,
+   1493,
+   1925,
+   1486,
+   3370,
+   3803
+  ],
+  "contributingPages": "14/20",
+  "blocksByKind": {
+   "business_name": 1,
+   "phone": 1,
+   "address": 1,
+   "opening_hours": 1,
+   "introduction": 1,
+   "faq_question": 29,
+   "service": 71,
+   "service_detail": 50,
+   "faq_answer": 21
+  },
+  "imageFunnel": {
+   "crawled": 36,
+   "projected": 36,
+   "eligible": 36,
+   "used": 32
+  },
+  "template": {
+   "templateId": null,
+   "reason": "multi-location US network — T7 Multi-unit, not yet implemented",
+   "designatedByDoc": "T7",
+   "multiLocation": true,
+   "singleProcedureFocus": false
+  },
+  "paletteMeta": {
+   "origin": "specialty-fallback",
+   "fallbackUsed": true,
+   "refinement": "none",
+   "gateFailures": []
+  },
+  "paletteSlots": {
+   "--brand": "#152D49",
+   "--brand-ink": "#FFFFFF",
+   "--accent": "#4253FF",
+   "--surface": "#FFFFFF",
+   "--surface-2": "#F2F2F2",
+   "--ink": "#111318",
+   "--ink-muted": "#5A6270"
+  },
+  "asLaunched": [
+   {
+    "slug": "home",
+    "rawSource": 73,
+    "rawDemo": 80,
+    "asLaunchedSource": 73,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "periodontics",
+    "rawSource": 79,
+    "rawDemo": 73,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "dental-implants",
+    "rawSource": 79,
+    "rawDemo": 73,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "periodontal-gum-disease",
+    "rawSource": 78,
+    "rawDemo": 73,
+    "asLaunchedSource": 78,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "periodontal-maintenance",
+    "rawSource": 79,
+    "rawDemo": 73,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "regenerative-procedures",
+    "rawSource": 78,
+    "rawDemo": 73,
+    "asLaunchedSource": 78,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "tissue-graft",
+    "rawSource": 76,
+    "rawDemo": 73,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "internal-bleaching",
+    "rawSource": 76,
+    "rawDemo": 73,
+    "asLaunchedSource": 76,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "endodontic-treatment",
+    "rawSource": 79,
+    "rawDemo": 73,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "lanap-periodontal-treatment",
+    "rawSource": 79,
+    "rawDemo": 69,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 69
+   },
+   {
+    "slug": "scaling-and-root-planing",
+    "rawSource": 79,
+    "rawDemo": 73,
+    "asLaunchedSource": 79,
+    "asLaunchedDemo": 91
+   },
+   {
+    "slug": "contact",
+    "rawSource": 78,
+    "rawDemo": 80,
+    "asLaunchedSource": 78,
+    "asLaunchedDemo": 100
+   }
+  ]
+ },
+ "iddental": {
+  "pageCount": 12,
+  "slugs": [
+   "home",
+   "all-on-4",
+   "all-on-6",
+   "full-mouth",
+   "multiple-tooth",
+   "single-tooth",
+   "braces",
+   "invisalign",
+   "cosmetic-dentistry",
+   "porcelain-veneers",
+   "endodontics",
+   "contact"
+  ],
+  "navItems": 12,
+  "sectionsPerPage": [
+   8,
+   6,
+   6,
+   5,
+   6,
+   6,
+   6,
+   5,
+   6,
+   6,
+   4,
+   4
+  ],
+  "imagesPerPage": [
+   37,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   11
+  ],
+  "charsPerPage": [
+   4441,
+   3135,
+   2853,
+   2237,
+   2433,
+   3917,
+   3773,
+   3079,
+   3024,
+   3366,
+   3104,
+   4641
+  ],
+  "contributingPages": "19/20",
+  "blocksByKind": {
+   "business_name": 12,
+   "phone": 1,
+   "address": 1,
+   "opening_hours": 2,
+   "introduction": 1,
+   "provider_credential": 1,
+   "provider_bio": 1,
+   "provider_name": 1,
+   "service": 190,
+   "service_detail": 323,
+   "faq_question": 16,
+   "faq_answer": 13,
+   "cta": 2
+  },
+  "imageFunnel": {
+   "crawled": 47,
+   "projected": 46,
+   "eligible": 18,
+   "used": 36
+  },
+  "template": {
+   "templateId": null,
+   "reason": "US dental with a gallery — T6 Photo Immersive, not yet implemented",
+   "designatedByDoc": "T6",
+   "multiLocation": false,
+   "singleProcedureFocus": false
+  },
+  "paletteMeta": {
+   "origin": "specialty-fallback",
+   "fallbackUsed": true,
+   "refinement": "none",
+   "gateFailures": []
+  },
+  "paletteSlots": {
+   "--brand": "#152D49",
+   "--brand-ink": "#FFFFFF",
+   "--accent": "#4253FF",
+   "--surface": "#FFFFFF",
+   "--surface-2": "#F2F2F2",
+   "--ink": "#111318",
+   "--ink-muted": "#5A6270"
+  },
+  "asLaunched": [
+   {
+    "slug": "home",
+    "rawSource": 62,
+    "rawDemo": 80,
+    "asLaunchedSource": 62,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "all-on-4",
+    "rawSource": 43,
+    "rawDemo": 100,
+    "asLaunchedSource": 43,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "all-on-6",
+    "rawSource": 43,
+    "rawDemo": 100,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "full-mouth",
+    "rawSource": 43,
+    "rawDemo": 100,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "multiple-tooth",
+    "rawSource": 43,
+    "rawDemo": 93,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 93
+   },
+   {
+    "slug": "single-tooth",
+    "rawSource": 43,
+    "rawDemo": 100,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "braces",
+    "rawSource": 43,
+    "rawDemo": 93,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 93
+   },
+   {
+    "slug": "invisalign",
+    "rawSource": 46,
+    "rawDemo": 93,
+    "asLaunchedSource": 57,
+    "asLaunchedDemo": 93
+   },
+   {
+    "slug": "cosmetic-dentistry",
+    "rawSource": 43,
+    "rawDemo": 100,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 100
+   },
+   {
+    "slug": "porcelain-veneers",
+    "rawSource": 43,
+    "rawDemo": 93,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 93
+   },
+   {
+    "slug": "endodontics",
+    "rawSource": 43,
+    "rawDemo": 93,
+    "asLaunchedSource": 53,
+    "asLaunchedDemo": 93
+   },
+   {
+    "slug": "contact",
+    "rawSource": 62,
+    "rawDemo": 80,
+    "asLaunchedSource": 62,
+    "asLaunchedDemo": 100
+   }
+  ]
+ }
+}
