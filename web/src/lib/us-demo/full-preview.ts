@@ -36,6 +36,7 @@ import type {
   UsDemoRenderMode,
 } from './contracts';
 import {
+  clinicHeroLayoutDecision,
   clinicImageDimensions,
   clinicPhotoGate,
   eligibleForClinicHero,
@@ -1150,6 +1151,7 @@ export function compileUsMedicalFullPreview(input: {
           theme,
           image: sourceLayoutImage(homeImage.source),
           requestedId: 'hero.split-left',
+          clinicHeroLayout: clinicHeroLayoutDecision(homeImage),
         })
       : candidate
   ));
@@ -1430,6 +1432,7 @@ export function compileUsMedicalFullPreview(input: {
           theme,
           image: sourceLayoutImage(heroImage?.source),
           requestedId: 'hero.split-left',
+          ...(heroImage ? { clinicHeroLayout: clinicHeroLayoutDecision(heroImage) } : {}),
         }),
         ...detail.sections,
         ...mergedCards,
@@ -1462,6 +1465,7 @@ export function compileUsMedicalFullPreview(input: {
           theme,
           image: sourceLayoutImage(providerImage?.source),
           requestedId: 'hero.split-left',
+          ...(providerImage ? { clinicHeroLayout: clinicHeroLayoutDecision(providerImage) } : {}),
         }),
         ...providerSections,
       ],
@@ -1509,6 +1513,7 @@ export function compileUsMedicalFullPreview(input: {
           theme,
           image: sourceLayoutImage(contactImage?.source),
           requestedId: 'hero.split-left',
+          ...(contactImage ? { clinicHeroLayout: clinicHeroLayoutDecision(contactImage) } : {}),
         }),
         ...(contactInsuranceStrip ? [contactInsuranceStrip] : []),
         ...contactSections,

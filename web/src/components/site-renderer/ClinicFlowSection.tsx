@@ -6,6 +6,7 @@ import type {
   TextElement,
 } from '@/lib/types/site';
 import { fontRoleForTextElement } from '@/lib/fonts/resources';
+import { ClinicHeroLayoutSection } from './ClinicHeroLayout';
 import {
   resolveSectionSurfaceTone,
   resolveThemePaint,
@@ -867,7 +868,7 @@ function FlowItem({
                   key={element.id}
                   element={element}
                   theme={theme}
-                  isFirst={isFirst}
+                  isFirst={Boolean(isFirst)}
                   interactive={interactive}
                   siteId={siteId}
                   hrefForPageSlug={hrefForPageSlug}
@@ -882,7 +883,7 @@ function FlowItem({
                   key={element.id}
                   element={element}
                   theme={theme}
-                  isFirst={isFirst}
+                  isFirst={Boolean(isFirst)}
                   interactive={interactive}
                   siteId={siteId}
                   hrefForPageSlug={hrefForPageSlug}
@@ -897,7 +898,7 @@ function FlowItem({
               key={element.id}
               element={element}
               theme={theme}
-              isFirst={isFirst}
+              isFirst={Boolean(isFirst)}
               interactive={interactive}
               siteId={siteId}
               hrefForPageSlug={hrefForPageSlug}
@@ -911,7 +912,7 @@ function FlowItem({
           key={element.id}
           element={element}
           theme={theme}
-          isFirst={isFirst}
+          isFirst={Boolean(isFirst)}
           interactive={interactive}
           siteId={siteId}
           hrefForPageSlug={hrefForPageSlug}
@@ -1078,6 +1079,119 @@ export function ClinicFlowSection({
     const sourceHeading = contentText[0]?.text.trim();
     const remainingText = sourceHeading === heading ? contentText.slice(1) : contentText;
     const heroId = section.heroLayout?.resolvedId ?? 'hero.source-flow';
+    const heroCopy = (
+      <div
+        data-clinic-flow-hero-copy
+        {...(locale === 'ko-KR'
+          ? {
+              'data-clinic-ko-hero-copy': '',
+              ...(articleAuthor || articleDate
+                ? { 'data-clinic-article-hero-copy': '' }
+                : {}),
+            }
+          : {})}
+      >
+        <p
+          data-clinic-hero-kicker
+          data-font-role="body"
+          data-clinic-tracking-role="eyebrow"
+          style={{
+            letterSpacing: resolveTypographyTracking({
+              fontSizePx: 14,
+              uppercase: true,
+              role: 'eyebrow',
+            }),
+          }}
+        >
+          {section.name}{' '}
+        </p>
+        <h1
+          data-font-role="heading"
+          data-clinic-typography-tier="display"
+          data-clinic-tracking-role="display"
+          {...(compactKoDisplay ? { 'data-clinic-ko-long-token': '' } : {})}
+          style={{
+            letterSpacing: resolveTypographyTracking({
+              fontSizePx: 88,
+              uppercase: false,
+              role: 'display',
+            }),
+          }}
+        >
+          {koHeadingBreakOpportunities(heading)}{' '}
+        </h1>
+        {remainingText.map((element) => (
+          <p
+            key={element.id}
+            style={textStyle(element, theme)}
+            {...fontRole(element, theme)}
+          >
+            {element.text}{' '}
+          </p>
+        ))}
+        {articleAuthor || articleDate ? (
+          <div data-clinic-article-evidence>
+            {articleAuthor ? (
+              <p data-clinic-article-byline>
+                {articleAuthorLabel?.text ?? 'By'}{' '}
+                <span itemProp="author">{articleAuthor.text}</span>
+              </p>
+            ) : null}
+            {articleDate ? (
+              <p data-clinic-article-date>
+                <time dateTime={articleDateTime}>
+                  {articleDateLabel?.text ?? 'Last updated'}{' '}
+                  {articleDate.text}
+                </time>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        <span
+          aria-disabled="true"
+          data-clinic-hero-cta
+          data-font-role="body"
+          data-clinic-tracking-role="button"
+          style={{
+            letterSpacing: resolveTypographyTracking({
+              fontSizePx: 16,
+              uppercase: false,
+              role: 'button',
+            }),
+          }}
+        >
+          Book Appointment
+        </span>
+      </div>
+    );
+
+    /**
+     * [D2] Gate on the stored field's presence only — never re-derive the mode here. Previews are
+     * force-dynamic and re-render with the latest code, so a config compiled before this existed
+     * (the outreach link already in a clinic's inbox) must keep taking the legacy path below.
+     */
+    if (section.clinicHeroLayout) {
+      return (
+        <ClinicHeroLayoutSection
+          section={section}
+          decision={section.clinicHeroLayout}
+          heading={heading}
+          isFirst={Boolean(isFirst)}
+          surfaceStyle={surface?.style}
+          sectionAttributes={{
+            ...(surface
+              ? {
+                  'data-section-surface-tone': surface.paint.resolvedTone,
+                  'data-section-surface-enhanced': surface.paint.enhanced ? 'true' : 'false',
+                }
+              : {}),
+            ...(variantSectionAttributes as Record<string, string>),
+          }}
+        >
+          {heroCopy}
+        </ClinicHeroLayoutSection>
+      );
+    }
     return (
       <section
         id={section.id}
@@ -1133,89 +1247,7 @@ export function ClinicFlowSection({
               {...(variantMotionSignature === 'cinematic' ? { 'data-m': 'kenburns' } : {})}
             />
           ) : null}
-          <div
-            data-clinic-flow-hero-copy
-            {...(locale === 'ko-KR'
-              ? {
-                  'data-clinic-ko-hero-copy': '',
-                  ...(articleAuthor || articleDate
-                    ? { 'data-clinic-article-hero-copy': '' }
-                    : {}),
-                }
-              : {})}
-          >
-            <p
-              data-clinic-hero-kicker
-              data-font-role="body"
-              data-clinic-tracking-role="eyebrow"
-              style={{
-                letterSpacing: resolveTypographyTracking({
-                  fontSizePx: 14,
-                  uppercase: true,
-                  role: 'eyebrow',
-                }),
-              }}
-            >
-              {section.name}{' '}
-            </p>
-            <h1
-              data-font-role="heading"
-              data-clinic-typography-tier="display"
-              data-clinic-tracking-role="display"
-              {...(compactKoDisplay ? { 'data-clinic-ko-long-token': '' } : {})}
-              style={{
-                letterSpacing: resolveTypographyTracking({
-                  fontSizePx: 88,
-                  uppercase: false,
-                  role: 'display',
-                }),
-              }}
-            >
-              {koHeadingBreakOpportunities(heading)}{' '}
-            </h1>
-            {remainingText.map((element) => (
-              <p
-                key={element.id}
-                style={textStyle(element, theme)}
-                {...fontRole(element, theme)}
-              >
-                {element.text}{' '}
-              </p>
-            ))}
-            {articleAuthor || articleDate ? (
-              <div data-clinic-article-evidence>
-                {articleAuthor ? (
-                  <p data-clinic-article-byline>
-                    {articleAuthorLabel?.text ?? 'By'}{' '}
-                    <span itemProp="author">{articleAuthor.text}</span>
-                  </p>
-                ) : null}
-                {articleDate ? (
-                  <p data-clinic-article-date>
-                    <time dateTime={articleDateTime}>
-                      {articleDateLabel?.text ?? 'Last updated'}{' '}
-                      {articleDate.text}
-                    </time>
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-            <span
-              aria-disabled="true"
-              data-clinic-hero-cta
-              data-font-role="body"
-              data-clinic-tracking-role="button"
-              style={{
-                letterSpacing: resolveTypographyTracking({
-                  fontSizePx: 16,
-                  uppercase: false,
-                  role: 'button',
-                }),
-              }}
-            >
-              Book Appointment
-            </span>
-          </div>
+          {heroCopy}
         </div>
       </section>
     );
@@ -1459,7 +1491,7 @@ export function ClinicFlowSection({
                 return element ? [element] : [];
               })}
               theme={theme}
-              isFirst={isFirst}
+              isFirst={Boolean(isFirst)}
               interactive={interactive}
               siteId={siteId}
               hrefForPageSlug={hrefForPageSlug}

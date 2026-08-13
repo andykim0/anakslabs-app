@@ -38,6 +38,7 @@ import { motionSceneMayOwnLcp } from '@/lib/export/motion-scene-assets';
 import { SiteRuntimeBootstrap } from './SiteRuntimeBootstrap';
 import { ConnectorPanel } from './ConnectorPanel';
 import { ClinicStickyBooking } from './ClinicStickyBooking';
+import { CLINIC_HERO_LAYOUT_CSS } from './ClinicHeroLayout';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 import { themeColor } from '@/lib/design/site-theme-tokens';
@@ -515,6 +516,11 @@ export function SiteRenderer({
     (continuousCanvas ? CONTINUOUS_CANVAS_CSS : '') +
     (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
     (config.clinicMaster ? CLINIC_MASTER_CSS + CLINIC_FLOW_CSS : '') +
+    /**
+     * [D2] Gated on the same stored field as the DOM path, and for the same reason: a config
+     * compiled before this existed must render byte-identically, and stylesheet bytes count.
+     */
+    (sections.some((section) => section.clinicHeroLayout) ? CLINIC_HERO_LAYOUT_CSS : '') +
     (config.clinicMaster && clinicLocale === 'ko-KR' ? KO_CLINIC_FLOW_MEASURE_CSS : '') +
     scopeCustomCss(theme.customCss) + (motionCssNeeded ? MOTION_CSS : '');
 

@@ -709,6 +709,12 @@ const sectionSchema = z.object({
   sectionLayout: sectionLayoutProjectionSchema.optional(),
   surfaceTone: z.enum(['base', 'tint', 'brand', 'dark']).optional(),
   proceduralBackground: proceduralBackgroundSpecSchema.optional(),
+  /** [D2] Presence of this field is what switches the renderer; absence is the legacy path. */
+  clinicHeroLayout: z.object({
+    version: z.literal(1),
+    mode: z.enum(['split', 'fullbleed-panel']),
+    reason: z.string().min(1).max(200),
+  }).strict().optional(),
   hidden: z.boolean().optional(),
 }).superRefine((section, ctx) => {
   if (section.layout === 'scrollytelling' && !section.acts) {

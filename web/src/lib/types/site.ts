@@ -425,7 +425,21 @@ export interface Section {
    * 패밀리·시드와 SIG 안전지대 참조만 보존한다.
    */
   proceduralBackground?: ProceduralBackgroundSpec;
+  /**
+   * [D2] en-US 클리닉 히어로의 컴파일 시점 레이아웃 결정. 렌더러는 이 필드의 **존재만** 보고
+   * 새 DOM 경로로 분기하며, 절대 다시 계산하지 않는다. 부재하면 기존 풀블리드+그라디언트 경로가
+   * 픽셀까지 그대로다 — 이미 발송된 아웃리치 링크가 최신 코드로 재렌더돼도 바뀌지 않아야 한다.
+   */
+  clinicHeroLayout?: ClinicHeroLayoutDecision;
   hidden?: boolean;
+}
+
+/** [D2] 두 모드뿐이고, 어느 쪽도 텍스트를 워시된 사진 위에 올리지 않는다. */
+export interface ClinicHeroLayoutDecision {
+  version: 1;
+  mode: 'split' | 'fullbleed-panel';
+  /** 왜 이 모드인지 — 운영자가 결정을 따져볼 수 있게 남긴다. */
+  reason: string;
 }
 
 /**

@@ -1,4 +1,5 @@
 import type {
+  ClinicHeroLayoutDecision,
   ButtonElement,
   CanvasElement,
   ImageElement,
@@ -89,6 +90,11 @@ export function buildClinicHeroSection(input: {
   /** KO contract-import opt-in. Other clinic masters retain their byte-stable 0.78 pin. */
   enforceHeroContrast?: boolean;
   requestedId?: HeroLayoutVariantId;
+  /**
+   * [D2] Present only on the en-US demo compile. Its presence is the renderer's entire switch, so
+   * it also turns off the scrim data this hero will never use.
+   */
+  clinicHeroLayout?: ClinicHeroLayoutDecision;
 }): Section {
   const title = sourceText(input.title, 'hero-title', input.theme, 'lead');
   const lead = input.lead
@@ -112,11 +118,22 @@ export function buildClinicHeroSection(input: {
     section.background.image = {
       src: input.image.src,
       overlayColor: input.theme.palette.background,
-      // The legacy clinic contract remains 0.78. KO contract import explicitly opts into
-      // generation-time evidence and a fail-closed stronger scrim when raw AA is unknown.
-      overlayOpacity: input.enforceHeroContrast
-        ? (rawContrast >= 4.5 ? 0.78 : 0.94)
-        : 0.78,
+      /**
+       * The legacy clinic contract remains 0.78. KO contract import explicitly opts into
+       * generation-time evidence and a fail-closed stronger scrim when raw AA is unknown.
+       *
+       * [D2] A hero carrying a layout decision omits it entirely. Neither new mode washes its
+       * photograph, and on the en-US path this number was never read anyway — only the ko-KR
+       * renderer turns it into --clinic-hero-overlay-opacity. Emitting it there is load-bearing;
+       * emitting it here was dead data that read like a scrim nobody could find.
+       */
+      ...(input.clinicHeroLayout
+        ? {}
+        : {
+            overlayOpacity: input.enforceHeroContrast
+              ? (rawContrast >= 4.5 ? 0.78 : 0.94)
+              : 0.78,
+          }),
     };
   }
   const resolved = resolveHeroLayoutVariant({
@@ -131,6 +148,12 @@ export function buildClinicHeroSection(input: {
       atmosphericBackdrop: Boolean(input.image),
     },
   });
+  /**
+   * [D2] Unrelated to clinicHeroLayout above. This projection is consumed by SectionCanvas, which
+   * clinic pages never reach, so on a clinic hero its resolvedId is inert and describes no
+   * geometry that renders. It stays because an existing contract test pins it and the flow
+   * renderer reads it for a data attribute; the new hero path ignores it entirely.
+   */
   section.heroLayout = resolved.projection;
   const heroTextZoneElement: CanvasElement | undefined = input.image?.heroTextZone
     ? (() => {
@@ -197,6 +220,7 @@ export function buildClinicHeroSection(input: {
     ...(heroTextZoneElement ? [heroTextZoneElement] : []),
   ];
   section.height = resolved.height;
+  if (input.clinicHeroLayout) section.clinicHeroLayout = input.clinicHeroLayout;
   return section;
 }
 

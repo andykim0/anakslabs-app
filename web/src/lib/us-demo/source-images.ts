@@ -420,3 +420,38 @@ export function eligibleForClinicHero(image: ProjectedUsDemoSourceImage): boolea
     && !heroImageIsDecorative(image)
     && !heroImageIsTooSmall(image);
 }
+
+/**
+ * [D2] A full-bleed photograph is only honest at a size the practice actually has. Below this the
+ * browser upscales and the hero looks like a stretched thumbnail, so the split layout — which
+ * shows the photo at its own size in a column — is the better answer, not the consolation one.
+ *
+ * The number is deliberately high: measured across the three samples, 4 of 113 projected images
+ * qualify. A file named `-1024x682` is a WordPress derivative and there may well be a larger
+ * original, but we have not fetched its bytes and will not pretend to have measured what we have
+ * not seen. The suffix is read as the size of the file we would render, never stripped to infer
+ * a bigger one.
+ */
+export const CLINIC_HERO_FULLBLEED_MIN_WIDTH = 1400;
+
+/**
+ * [D2] The layout decision for one hero, made at compile time and stored on the section. Neither
+ * mode places text over a washed photograph.
+ */
+export function clinicHeroLayoutDecision(
+  image: ProjectedUsDemoSourceImage,
+): { version: 1; mode: 'split' | 'fullbleed-panel'; reason: string } {
+  const { width, height, source } = clinicImageDimensions(image);
+  if (source === 'unknown' || !width || !height) {
+    return { version: 1, mode: 'split', reason: 'no measured dimensions' };
+  }
+  const measured = `${width}x${height} from ${source}`;
+  if (width >= CLINIC_HERO_FULLBLEED_MIN_WIDTH && width > height) {
+    return { version: 1, mode: 'fullbleed-panel', reason: `landscape ${measured}` };
+  }
+  return {
+    version: 1,
+    mode: 'split',
+    reason: width <= height ? `portrait ${measured}` : `landscape but under ${CLINIC_HERO_FULLBLEED_MIN_WIDTH}px, ${measured}`,
+  };
+}

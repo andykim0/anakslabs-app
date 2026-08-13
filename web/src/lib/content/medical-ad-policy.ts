@@ -709,6 +709,8 @@ export const MEDICAL_COPY_FIELD_COVERAGE = {
     sectionLayout: 'ignore',
     surfaceTone: 'ignore',
     proceduralBackground: 'ignore',
+    // [D2] Engine-authored layout rationale, never patient-facing copy.
+    clinicHeroLayout: 'ignore',
     hidden: 'ignore',
   }),
   act: defineFieldCoverage<ScrollytellingAct>()({
