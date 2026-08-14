@@ -1,5 +1,7 @@
 'use client';
 
+import { US_MEDICAL_PREVIEW_RETENTION_DAYS } from '@/lib/crawl/contracts';
+
 import {
   ArrowDown,
   ArrowUp,
@@ -205,7 +207,7 @@ export function UsDemoPipeline() {
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#545C70]">
               After collecting only the public English text, diagnosing the structure, and checking which blocks Andy will use,
-              Create a private 14-day preview. Patient information, reviews, translations, and new efficacy statements are not included.
+              Create a private {US_MEDICAL_PREVIEW_RETENTION_DAYS}-day preview. Patient information, reviews, translations, and new efficacy statements are not included.
             </p>
           </div>
           <div className="rounded-xl bg-[#EEF4FF] p-3 text-[#2D63F0]">
@@ -473,7 +475,7 @@ export function UsDemoPipeline() {
               <div className="space-y-2">
                 <p className="flex items-center gap-2 text-xs text-[#6a7286]">
                   <LockKeyhole size={14} aria-hidden />
-                  Both modes will be index blocked and will result in a 404 after 14 days.
+                  Both modes will be index blocked and will result in a 404 after {US_MEDICAL_PREVIEW_RETENTION_DAYS} days.
                 </p>
                 <label className="block text-xs font-semibold text-[#22304A]">
                   render mode

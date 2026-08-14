@@ -7,7 +7,17 @@ import type { ClinicPaletteOrigin } from '@/lib/us-demo/clinic-palette';
 import type { UsDemoRenderMode } from '@/lib/us-demo/contracts';
 
 export const CRAWL_ARTIFACT_SCHEMA_VERSION = 1 as const;
-export const CRAWL_ARTIFACT_RETENTION_DAYS = 30;
+/**
+ * Must outlive every preview lifetime below, and the ordering is the whole point.
+ *
+ * shared_site_previews.crawl_artifact_id is ON DELETE CASCADE (migration 0046), and the retention
+ * purge deletes expired artifacts as well as expired previews. So an artifact that expires before
+ * the preview it owns takes a live preview with it: at 30 days against a 45-day US demo, an
+ * outreach link we told a clinic was good for forty-five days stopped resolving on day thirty,
+ * with nothing in its own record to explain why. One day of slack keeps the artifact from
+ * expiring in the same cron tick as the preview.
+ */
+export const CRAWL_ARTIFACT_RETENTION_DAYS = 46;
 export const SHARED_PREVIEW_RETENTION_DAYS = 14;
 export const US_MEDICAL_PREVIEW_RETENTION_DAYS = 45;
 

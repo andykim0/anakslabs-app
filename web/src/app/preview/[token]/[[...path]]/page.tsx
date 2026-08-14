@@ -3,6 +3,9 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { TenantPageContent } from '@/components/site-renderer/TenantPageContent';
 import {
+  US_MEDICAL_PREVIEW_RETENTION_DAYS,
+} from '@/lib/crawl/contracts';
+import {
   IMPORT_PREVIEW_BEARER_WARNING,
   IMPORT_PREVIEW_NOTICE,
   isPreviewBearerToken,
@@ -125,7 +128,7 @@ export default async function SharedImportPreviewPage({
             {isUsMedicalDemo
               ? previewFull
                 ? 'This internal evaluation preview restructures the practice’s public English source text and public images across multiple pages. Search indexing and publication are disabled.'
-                : 'This 45-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.'
+                : `This ${US_MEDICAL_PREVIEW_RETENTION_DAYS}-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.`
               : IMPORT_PREVIEW_NOTICE}
           </span>
           <span className="text-xs text-[#545C70]">
