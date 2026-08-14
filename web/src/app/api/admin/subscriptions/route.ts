@@ -39,7 +39,7 @@ export const GET = withApiHandler(async () => {
   }
   const reportBySite = new Map(reports.map((report) => [report.siteId, report] as const));
 
-  const items = listing.items.map(({ state, active }) => {
+  const items = listing.items.map(({ state, active, lastRenewedAt }) => {
     const client = clientById.get(state.clientId);
     const reportRows = (sitesByClient.get(state.clientId) ?? [])
       .filter(publishedReportSite)
@@ -56,6 +56,19 @@ export const GET = withApiHandler(async () => {
           sentAt: report?.sentAt ?? null,
         };
       });
+    /**
+     * A customer who asked to stop and was charged again afterwards. Derived rather than stored:
+     * the cancel route cannot durably record a Stripe failure without a new column, and this
+     * catches the outcome regardless of the cause — the call failing, the key being absent at the
+     * time, or nobody having made the call at all. It clears itself once the billing actually
+     * stops, because no further renewal appears.
+     */
+    const cancelRequestedAt = client?.cancelRequestedAt ?? null;
+    const chargedAfterCancelRequest = Boolean(
+      cancelRequestedAt
+      && lastRenewedAt
+      && Date.parse(lastRenewedAt) > Date.parse(cancelRequestedAt),
+    );
     return {
       clientId: state.clientId,
       clientName: client?.name ?? '(알 수 없음)',
@@ -64,6 +77,9 @@ export const GET = withApiHandler(async () => {
       active,
       currentPeriodEnd: state.currentPeriodEnd,
       updatedAt: state.updatedAt,
+      cancelRequestedAt,
+      stripeSubscriptionId: state.stripeSubscriptionId ?? null,
+      chargedAfterCancelRequest,
       reports: reportRows,
     };
   });
@@ -75,6 +91,8 @@ export const GET = withApiHandler(async () => {
     reportPeriodMonth,
     summary: {
       active: activeCount,
+      // Operators scan the summary first; a nonzero count here is money leaving wrongly.
+      chargedAfterCancelRequest: items.filter((item) => item.chargedAfterCancelRequest).length,
       pastDue: listing.items.filter((item) => item.state.status === 'past_due').length,
       suspended: listing.items.filter((item) => item.state.status === 'suspended').length,
       cancelled: listing.items.filter((item) => item.state.status === 'cancelled').length,

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test, { describe } from 'node:test';
 import { REFUND_POLICY } from '@/lib/credits/constants';
-import { isSiteSubscriptionActiveAt } from '../core';
+import { buildAdminSiteSubscriptionListing, isSiteSubscriptionActiveAt } from '../core';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
@@ -79,5 +79,63 @@ describe('subscription cancellation — the customer keeps what they paid for', 
     assert.match(sweep, /status !== 'active'/u);
     // An expired period without a request is a lapse, not a cancellation.
     assert.match(sweep, /continue/u);
+  });
+});
+
+describe('cancellation — an operator can see a billing stop that did not take', () => {
+  const state = (over: Partial<{ clientId: string; currentPeriodEnd: string }> = {}) => ({
+    clientId: over.clientId ?? 'c1',
+    status: 'active' as const,
+    currentPeriodEnd: over.currentPeriodEnd ?? '2026-10-01T00:00:00.000Z',
+    updatedAt: '2026-08-01T00:00:00.000Z',
+  });
+
+  test('취소 요청 뒤의 갱신을 최신 갱신일로 노출한다 — 그것이 감지 근거다', () => {
+    const listing = buildAdminSiteSubscriptionListing({
+      states: [state()],
+      renewals: [
+        { clientId: 'c1', periodStart: '2026-07-01T00:00:00.000Z', reversedAt: null },
+        { clientId: 'c1', periodStart: '2026-09-01T00:00:00.000Z', reversedAt: null },
+      ],
+      at: new Date('2026-09-15T00:00:00.000Z'),
+    });
+    const item = listing.items[0];
+    assert.equal(item.firstRenewedAt, '2026-07-01T00:00:00.000Z');
+    assert.equal(item.lastRenewedAt, '2026-09-01T00:00:00.000Z');
+    // The comparison the admin route makes: a renewal dated after the request is a wrong charge.
+    const cancelRequestedAt = '2026-08-10T00:00:00.000Z';
+    assert.equal(Date.parse(item.lastRenewedAt!) > Date.parse(cancelRequestedAt), true);
+  });
+
+  test('취소 전 갱신만 있으면 깃발은 서지 않는다 — 정상 해지는 조용해야 한다', () => {
+    const listing = buildAdminSiteSubscriptionListing({
+      states: [state()],
+      renewals: [{ clientId: 'c1', periodStart: '2026-07-01T00:00:00.000Z', reversedAt: null }],
+      at: new Date('2026-09-15T00:00:00.000Z'),
+    });
+    const cancelRequestedAt = '2026-08-10T00:00:00.000Z';
+    assert.equal(
+      Date.parse(listing.items[0].lastRenewedAt!) > Date.parse(cancelRequestedAt),
+      false,
+    );
+  });
+
+  test('되돌린 갱신은 청구로 치지 않는다', () => {
+    const listing = buildAdminSiteSubscriptionListing({
+      states: [state()],
+      renewals: [
+        { clientId: 'c1', periodStart: '2026-09-01T00:00:00.000Z', reversedAt: '2026-09-02T00:00:00.000Z' },
+      ],
+      at: new Date('2026-09-15T00:00:00.000Z'),
+    });
+    assert.equal(listing.items[0].lastRenewedAt, null);
+  });
+
+  test('운영자 화면이 그 상태를 실제로 그린다', () => {
+    const route = source('src/app/api/admin/subscriptions/route.ts');
+    assert.match(route, /chargedAfterCancelRequest/u);
+    const board = source('src/components/admin/subscriptions-board.tsx');
+    assert.match(board, /Charged after cancelling/u);
+    assert.match(board, /Cancels at period end/u);
   });
 });

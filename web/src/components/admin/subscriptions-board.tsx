@@ -104,6 +104,11 @@ function SubscriptionCard({ item }: { item: AdminSubscriptionItem }) {
             <h2 className="text-sm font-semibold text-slate-900">{item.clientName}</h2>
             <Badge tone={state.tone}>{state.label}</Badge>
             {!item.active && item.status === 'active' ? <Badge tone="red">Period expires</Badge> : null}
+            {item.chargedAfterCancelRequest
+              ? <Badge tone="red">Charged after cancelling</Badge>
+              : item.cancelRequestedAt
+                ? <Badge tone="amber">Cancels at period end</Badge>
+                : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">{item.clientEmail}</p>
         </div>
@@ -156,6 +161,13 @@ export function SubscriptionsBoard() {
             <StatCard label="Monthly Subscription Revenue (MRR)" value={`$${formatNumber(query.data.summary.mrrUsd)}`} icon={CircleDollarSign} />
             <StatCard label="New this month" value={`${formatNumber(query.data.summary.newThisMonth)} records`} sub="First renewal criteria" icon={CheckCircle2} />
             <StatCard label="Simple cancellation this month" value={`${formatNumber(query.data.summary.cancelledThisMonth)} records`} sub="canceled conversion criteria" icon={AlertTriangle} tone={query.data.summary.cancelledThisMonth ? 'danger' : 'neutral'} />
+            <StatCard
+              label="Charged after cancelling"
+              value={`${formatNumber(query.data.summary.chargedAfterCancelRequest)} records`}
+              sub="Billing stop did not take"
+              icon={AlertTriangle}
+              tone={query.data.summary.chargedAfterCancelRequest ? 'danger' : 'neutral'}
+            />
             <StatCard label="Report failed/not sent" value={`${formatNumber(query.data.summary.reportFailed)} / ${formatNumber(query.data.summary.reportMissing)}`} sub={`receipt${formatNumber(query.data.summary.reportAccepted)} records`} icon={Clock3} />
           </div>
 

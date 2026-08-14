@@ -44,6 +44,12 @@ export interface AdminSiteSubscriptionItem {
   active: boolean;
   /** Earliest non-reversed renewal period start; null means the evidence is insufficient. */
   firstRenewedAt: string | null;
+  /**
+   * Latest non-reversed renewal period start. Compared against the client's cancellation request,
+   * this is how an operator learns that a customer who asked to stop is still being charged —
+   * a renewal dated after the request means the billing stop did not take.
+   */
+  lastRenewedAt: string | null;
 }
 
 export interface AdminSubscriptionMonthSummary {
@@ -134,6 +140,7 @@ export function buildAdminSiteSubscriptionListing(input: {
   }
   const bounds = currentKstMonthBounds(at);
   const firstRenewalByClient = new Map<string, string>();
+  const lastRenewalByClient = new Map<string, string>();
 
   for (const renewal of input.renewals) {
     if (renewal.reversedAt !== null) continue;
@@ -146,6 +153,10 @@ export function buildAdminSiteSubscriptionListing(input: {
     if (!existing || periodStartMs < Date.parse(existing)) {
       firstRenewalByClient.set(clientId, renewal.periodStart);
     }
+    const latest = lastRenewalByClient.get(clientId);
+    if (!latest || periodStartMs > Date.parse(latest)) {
+      lastRenewalByClient.set(clientId, renewal.periodStart);
+    }
   }
 
   const items = input.states
@@ -153,6 +164,7 @@ export function buildAdminSiteSubscriptionListing(input: {
       state: { ...state },
       active: isSiteSubscriptionActiveAt(state, at),
       firstRenewedAt: firstRenewalByClient.get(state.clientId) ?? null,
+      lastRenewedAt: lastRenewalByClient.get(state.clientId) ?? null,
     }))
     .sort(
       (left, right) =>

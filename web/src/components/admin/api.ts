@@ -329,6 +329,10 @@ export interface AdminSubscriptionItem {
   active: boolean;
   currentPeriodEnd: string;
   updatedAt: string;
+  cancelRequestedAt: string | null;
+  stripeSubscriptionId: string | null;
+  /** Charged again after asking to cancel — the billing stop did not take. */
+  chargedAfterCancelRequest: boolean;
   reports: AdminSubscriptionReportItem[];
 }
 
@@ -346,6 +350,7 @@ export interface AdminSubscriptionsResponse {
     reportAccepted: number;
     reportFailed: number;
     reportMissing: number;
+    chargedAfterCancelRequest: number;
   };
   items: AdminSubscriptionItem[];
 }
