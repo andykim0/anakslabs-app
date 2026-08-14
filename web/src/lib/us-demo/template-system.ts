@@ -192,8 +192,33 @@ export function clinicTemplateDecisionFromSource(input: {
     (block) => kinds.includes(block.kind),
   );
   const hasPath = (pattern: RegExp) => paths.some((path) => pattern.test(path));
-  // A network prints a location index and per-branch pages; a single practice does not.
-  const locationPages = paths.filter((path) => /\/[a-z-]*locations?[a-z-]*(?:\/|$)/u.test(path));
+  /**
+   * A network has more than one address. That is the whole claim, so count addresses.
+   *
+   * The previous rule counted URLs matching /locations/ and called two a network, which read
+   * cameods — a single practice with a locations index and one satellite page — as a multi-site
+   * group. Measured across the samples: dental360 has eight address blocks against seven location
+   * URLs and genuinely operates in Chicago, Waukesha, Dyer and Mundelein; cameods has one address
+   * against two location URLs; iddental has one address and no location URL at all. Only the
+   * address count separates them.
+   *
+   * Addresses are normalised before counting because one practice writes its own address several
+   * ways — "3435 W. Irving Park Rd, Chicago, IL" and "3435 W Irving Park Rd Chicago, IL" are the
+   * same door, and counting punctuation would rebuild the false positive we just removed.
+   */
+  const normalizedAddress = (text: string) => text
+    .toLocaleLowerCase('en-US')
+    .replace(/[^a-z0-9]+/gu, ' ')
+    .trim();
+  const distinctAddresses = new Set(
+    input.blocks
+      .filter((block) => block.kind === 'address')
+      .map((block) => normalizedAddress(block.text))
+      .filter((text) => text.length > 0),
+  );
+  // The /locations/ URL signal is still in the crawl and is deliberately NOT consulted here: it
+  // is what produced the false positive above, and a signal that cannot change the answer is not
+  // a signal worth carrying in the decision.
   const services = input.blocks
     .filter((block) => block.kind === 'service')
     .map((block) => block.text)
@@ -219,7 +244,7 @@ export function clinicTemplateDecisionFromSource(input: {
     specialty: US_DEMO_CLINIC_SPECIALTY,
     market: 'US',
     trustSectionCount,
-    multiLocation: locationPages.length >= 2,
+    multiLocation: distinctAddresses.size >= 2,
     // One family across the whole service list is a single-procedure practice.
     singleProcedureFocus: procedureFamilies === 1,
     galleryHeavy: input.eligiblePhotoCount >= GALLERY_HEAVY_MIN_PHOTOS,

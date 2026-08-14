@@ -35,13 +35,15 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
         },
       },
       {
+        // One practice with a locations index and one satellite page. The old URL-count rule read
+        // that as a network; it has one address, so it is not one.
         name: 'cameods',
         decision: {
           version: 1,
           templateId: null,
-          designatedByDoc: 'T7',
-          reason: 'multi-location US network — T7 Multi-unit, not yet implemented',
-          multiLocation: true,
+          designatedByDoc: 'T6',
+          reason: 'US dental with a gallery — T6 Photo Immersive, not yet implemented',
+          multiLocation: false,
           singleProcedureFocus: false,
         },
       },
@@ -83,28 +85,70 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
   });
 
   test('결정 입력은 전부 원문에서 나온다 — 섹션 타입은 쓰지 않는다', () => {
-    // A network prints location pages; the same practice without them is not a network, and no
-    // compiled section had to exist for either answer.
     const blocks = prospectPublicSourceBlocks(artifact('dental360'));
-    const network = clinicTemplateDecisionFromSource({
-      pageUrls: ['https://x.test/locations/', 'https://x.test/locations/north/'],
-      blocks,
+    const address = (text: string) => ({
+      ...blocks.find((b) => b.kind === 'address')!,
+      text,
+    });
+
+    /**
+     * A network is a practice with more than one address. Location URLs are not the discriminator
+     * and this pins that: the same two /locations/ URLs decide nothing on their own, and one
+     * address with those URLs is a single practice — which is exactly the cameods case the old
+     * URL-count rule got wrong.
+     */
+    const locationUrls = ['https://x.test/locations/', 'https://x.test/locations/north/'];
+    const oneAddress = clinicTemplateDecisionFromSource({
+      pageUrls: locationUrls,
+      blocks: [...blocks.filter((b) => b.kind !== 'address'), address('910 W Van Buren St, Chicago IL')],
       eligiblePhotoCount: 30,
     });
-    const single = clinicTemplateDecisionFromSource({
+    assert.equal(oneAddress.input.multiLocation, false);
+
+    const twoAddresses = clinicTemplateDecisionFromSource({
+      pageUrls: locationUrls,
+      blocks: [
+        ...blocks.filter((b) => b.kind !== 'address'),
+        address('910 W Van Buren St, Chicago IL'),
+        address('444 W Sunset Dr, Waukesha WI'),
+      ],
+      eligiblePhotoCount: 30,
+    });
+    assert.equal(twoAddresses.input.multiLocation, true);
+    assert.equal(twoAddresses.designatedByDoc, 'T7');
+
+    // And no URL at all cannot hide a real network: the addresses still decide.
+    const noUrls = clinicTemplateDecisionFromSource({
       pageUrls: ['https://x.test/', 'https://x.test/services/'],
-      blocks,
+      blocks: [
+        ...blocks.filter((b) => b.kind !== 'address'),
+        address('910 W Van Buren St, Chicago IL'),
+        address('444 W Sunset Dr, Waukesha WI'),
+      ],
       eligiblePhotoCount: 30,
     });
-    assert.equal(network.input.multiLocation, true);
-    assert.equal(network.designatedByDoc, 'T7');
-    assert.equal(single.input.multiLocation, false);
-    assert.equal(single.designatedByDoc, 'T6');
+    assert.equal(noUrls.input.multiLocation, true);
+
+    // One door written three ways is still one door — punctuation must not rebuild the false
+    // positive that counting URLs produced.
+    const punctuationVariants = clinicTemplateDecisionFromSource({
+      pageUrls: locationUrls,
+      blocks: [
+        ...blocks.filter((b) => b.kind !== 'address'),
+        address('3435 W. Irving Park Rd, Chicago, IL 60618'),
+        address('3435 W Irving Park Rd Chicago, IL 60618'),
+        address('3435 w irving park rd  chicago il 60618'),
+      ],
+      eligiblePhotoCount: 30,
+    });
+    assert.equal(punctuationVariants.input.multiLocation, false);
 
     // Trust bands come from source evidence, and two of them make it an R practice.
+    // Single address on purpose: dental360's own blocks carry eight, which would correctly make
+    // this a network and settle the decision at T7 before the R/S axis is ever consulted.
     const repeated = clinicTemplateDecisionFromSource({
       pageUrls: ['https://x.test/reviews/', 'https://x.test/meet-the-doctors/'],
-      blocks,
+      blocks: [...blocks.filter((b) => b.kind !== 'address'), address('910 W Van Buren St, Chicago IL')],
       eligiblePhotoCount: 0,
     });
     assert.equal(repeated.input.trustSectionCount, 2);
