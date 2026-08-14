@@ -208,14 +208,24 @@ async function repositoryFixture() {
   site.assetPolicyVersion = 2;
   site.exportStatus = 'ready';
   site.exportUrl = 'exports/stale.zip';
-  site.exportRequestedAt = '2026-07-16T00:00:00.000Z';
+  /**
+   * Every instant below is derived from the fixture's own createdAt, which is itself relative to
+   * the current date. Pinning them to literal dates made this test pass only while the wall clock
+   * sat before them: the subject here is the ordering rule (a request may not postdate its
+   * completion), and real time drifting past 2026-07-17 flipped that ordering and failed three
+   * cases with VIDEO_FULFILLMENT_TIMESTAMP_INVALID. Do not re-pin these to literal dates.
+   */
+  const anchorMs = Date.parse(site.createdAt);
+  const HOUR_MS = 3_600_000;
+  const at = (offsetHours: number) => new Date(anchorMs + offsetHours * HOUR_MS).toISOString();
+  site.exportRequestedAt = at(-1);
   site.draftConfig = structuredClone(config);
   site.siteConfig = structuredClone(config);
 
   const registry = createMemoryAssetRegistry({
     ownsSite: async ({ siteId, clientId }) => siteId === site.id && clientId === client.id,
     idFactory: () => '11111111-1111-4111-8111-111111111111',
-    now: () => '2026-07-15T00:00:00.000Z',
+    now: () => at(-2),
   });
   const asset = await registry.register({
     origin: 'ai_generated',
@@ -249,7 +259,7 @@ async function repositoryFixture() {
     input,
     repository: new MockHeroVideoFulfillmentRepository(
       store,
-      () => '2026-07-17T00:00:00.000Z',
+      () => at(1),
       registry,
     ),
   };
@@ -294,7 +304,8 @@ describe('ADM1 video fulfillment repository parity', () => {
     });
     const repository = new MockHeroVideoFulfillmentRepository(
       untrusted.store,
-      () => '2026-07-17T00:00:00.000Z',
+      // Anchored to the fixture, never a literal date — see the note in the helper above.
+      () => new Date(Date.parse(untrusted.site.createdAt) + 3_600_000).toISOString(),
       otherRegistry,
     );
     await assert.rejects(repository.complete(untrusted.input), /ASSET_PROVENANCE_MISMATCH/);
@@ -335,7 +346,8 @@ describe('ADM1 video fulfillment repository parity', () => {
     };
     const repository = new MockHeroVideoFulfillmentRepository(
       fixture.store,
-      () => '2026-07-17T00:00:00.000Z',
+      // Anchored to the fixture, never a literal date — see the note in the helper above.
+      () => new Date(Date.parse(fixture.site.createdAt) + 3_600_000).toISOString(),
       registry,
     );
     await assert.rejects(repository.complete(input), /ASSET_PROVENANCE_MISMATCH/);
