@@ -145,11 +145,13 @@ function clinicMasterPinForArtifact(
    * a template we have not built; the compile keeps premium-dental-v1 and its section order
    * rather than pretending the designated template is the one we shipped.
    */
+  const projectedPhotos = prospectPublicSourceImages(artifact);
   const template = clinicTemplateDecisionFromSource({
     pageUrls: artifact.pages.map((page) => page.url),
     blocks,
-    eligiblePhotoCount: prospectPublicSourceImages(artifact)
+    eligiblePhotoCount: projectedPhotos
       .filter((image) => clinicPhotoGate(image).eligibleForPhotoSlot).length,
+    projectedPhotoCount: projectedPhotos.length,
   });
   return {
     version: 1,

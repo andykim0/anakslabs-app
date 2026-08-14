@@ -36,24 +36,27 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
       },
       {
         // One practice with a locations index and one satellite page. The old URL-count rule read
-        // that as a network; it has one address, so it is not one.
+        // that as a network; it has one address, so it is not one. Its pool is entirely usable
+        // photography, so this is the fixture that actually renders an implemented template.
         name: 'cameods',
         decision: {
           version: 1,
-          templateId: null,
+          templateId: 'T6',
           designatedByDoc: 'T6',
-          reason: 'US dental with a gallery — T6 Photo Immersive, not yet implemented',
+          reason: 'US dental with a gallery — T6 Photo Immersive, 36 usable photographs at 100% of the pool',
           multiLocation: false,
           singleProcedureFocus: false,
         },
       },
       {
+        // Designated T6 and declined by the image gate: 18 of 46 images are usable photographs,
+        // so a repeated gallery would be filled with rejects. Declining is the honest demotion.
         name: 'iddental',
         decision: {
           version: 1,
           templateId: null,
           designatedByDoc: 'T6',
-          reason: 'US dental with a gallery — T6 Photo Immersive, not yet implemented',
+          reason: 'US dental with a gallery — T6 Photo Immersive declined: 39% of the images are usable photographs, under the 60% a photo-led template needs',
           multiLocation: false,
           singleProcedureFocus: false,
         },
@@ -64,7 +67,8 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
   test('구현되지 않은 템플릿을 가리켜도 마스터와 섹션 순서는 그대로다', () => {
     for (const name of SAMPLES) {
       const config = compileUsMedicalDemo(artifact(name), { renderMode: 'preview-full' }).config;
-      assert.equal(config.clinicMaster?.templateDecision?.templateId, null);
+      // Whether or not a template resolved, the master and its section order are untouched:
+      // T6 is a media treatment, not a different page.
       assert.equal(config.clinicMaster?.masterId, 'premium-dental-v1');
       assert.equal(config.namedTemplate?.templateId, 'premium-dental-v1');
       assert.ok(config.pages.every((page) => page.sections[0]?.type === 'hero'));

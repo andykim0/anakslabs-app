@@ -14,7 +14,7 @@ export type ClinicBlockToken =
   | 'videos' | 'gallery' | 'reviews' | 'beforeafter'
   | 'events' | 'insurance' | 'location' | 'faq' | 'booking';
 
-export const CLINIC_TEMPLATE_IDS = ['T5'] as const;
+export const CLINIC_TEMPLATE_IDS = ['T5', 'T6'] as const;
 
 export type ClinicTemplateId = (typeof CLINIC_TEMPLATE_IDS)[number];
 
@@ -67,9 +67,79 @@ export const CLINIC_TEMPLATE_T5: ClinicTemplate = Object.freeze({
   h1MaxPx: 160,
 });
 
+/**
+ * §3 T6 — the one template the canon lets parallax into, and the only one whose plan repeats
+ * gallery. Its subject is the room: a practice whose strength is the place it works in.
+ *
+ * paletteTolerance is 'narrow' verbatim from the canon, and it is a real constraint rather than a
+ * label: a bright extracted brand dies on a photograph, so brand colour belongs to the sections
+ * outside the pictures and text over a picture stays white.
+ */
+export const CLINIC_TEMPLATE_T6: ClinicTemplate = Object.freeze({
+  id: 'T6',
+  name: 'Photo Immersive',
+  typeGroup: 'S',
+  // §3 T6 — gallery twice, at the measured normalised position 0.57. Reproduced on three sites.
+  plan: ['hero', 'about', 'gallery', 'services', 'gallery', 'reviews', 'faq', 'booking'] as const,
+  minBlocks: 8,
+  maxBlocks: 10,
+  motion: {
+    character: 'parallax' as const,
+    durationMs: 600,
+    shiftPx: 16,
+    staggerMs: 90,
+    // §5-4: parallax speed <= 70 and at most one pin per page. T6 is the only template allowed it.
+    scrubOrPin: true,
+  },
+  paletteTolerance: 'narrow',
+  h1MinPx: 88,
+  h1MaxPx: 88,
+});
+
 export const CLINIC_TEMPLATES: Readonly<Record<ClinicTemplateId, ClinicTemplate>> = Object.freeze({
   T5: CLINIC_TEMPLATE_T5,
+  T6: CLINIC_TEMPLATE_T6,
 });
+
+/**
+ * §7-6: "T6 requires the image quality gate; demote on failure." Photo Immersive is a template
+ * made of photographs, so a practice whose pictures are mostly logos and icons would get a
+ * gallery band full of rejects — worse than the master it already had.
+ *
+ * Two conditions, because the two failure modes are different. Absolute count covers a site with
+ * good photographs but too few to fill a repeated gallery; the ratio covers a site with plenty of
+ * images of which few are photographs. Measured eligible-to-projected across the samples:
+ * cameods 36/36 (100%), dental360 29/31 (94%), iddental 18/46 (39%) — so the 60% line separates
+ * them with wide margin on both sides rather than being tuned to a boundary case.
+ */
+export const T6_MINIMUM_ELIGIBLE_PHOTOS = 12;
+export const T6_MINIMUM_ELIGIBLE_RATIO = 0.6;
+
+export function t6ImageGate(input: {
+  eligiblePhotoCount: number;
+  projectedPhotoCount: number;
+}): { passes: boolean; reason: string } {
+  const ratio = input.projectedPhotoCount === 0
+    ? 0
+    : input.eligiblePhotoCount / input.projectedPhotoCount;
+  const percent = Math.round(ratio * 100);
+  if (input.eligiblePhotoCount < T6_MINIMUM_ELIGIBLE_PHOTOS) {
+    return {
+      passes: false,
+      reason: `only ${input.eligiblePhotoCount} usable photographs, fewer than the ${T6_MINIMUM_ELIGIBLE_PHOTOS} a repeated gallery needs`,
+    };
+  }
+  if (ratio < T6_MINIMUM_ELIGIBLE_RATIO) {
+    return {
+      passes: false,
+      reason: `${percent}% of the images are usable photographs, under the ${Math.round(T6_MINIMUM_ELIGIBLE_RATIO * 100)}% a photo-led template needs`,
+    };
+  }
+  return {
+    passes: true,
+    reason: `${input.eligiblePhotoCount} usable photographs at ${percent}% of the pool`,
+  };
+}
 
 /** §5-4 motion tokens, verbatim. Templates read these; they do not invent durations. */
 export const CLINIC_MOTION_TOKENS = Object.freeze({
@@ -96,6 +166,8 @@ export interface ClinicTemplateAssignmentInput {
   /** §3 T5: a practice built around one procedure. */
   singleProcedureFocus: boolean;
   galleryHeavy: boolean;
+  /** §7-6 T6 image quality gate. Absent means the caller could not measure the pool. */
+  imageGate?: { passes: boolean; reason: string };
 }
 
 export interface ClinicTemplateAssignment {
@@ -132,11 +204,25 @@ export function assignClinicTemplate(
     };
   }
   if (input.specialty === 'dental' && input.galleryHeavy) {
-    return {
-      templateId: null,
-      reason: 'US dental with a gallery — T6 Photo Immersive, not yet implemented',
-      designatedByDoc: 'T6',
-    };
+    /**
+     * T6 is designated by the source; whether it is *used* is decided by the pictures. On failure
+     * the canon says demote to T1/T2, and neither exists — so rather than invent one, the compile
+     * keeps premium-dental-v1 and records why, which is the honest version of a demotion.
+     */
+    const gate = input.imageGate;
+    return gate?.passes
+      ? {
+          templateId: 'T6',
+          reason: `US dental with a gallery — T6 Photo Immersive, ${gate.reason}`,
+          designatedByDoc: 'T6',
+        }
+      : {
+          templateId: null,
+          reason: gate
+            ? `US dental with a gallery — T6 Photo Immersive declined: ${gate.reason}`
+            : 'US dental with a gallery — T6 Photo Immersive, not yet implemented',
+          designatedByDoc: 'T6',
+        };
   }
   if (input.specialty === 'ortho-surgery-pain') {
     return {
@@ -180,6 +266,8 @@ export function clinicTemplateDecisionFromSource(input: {
   blocks: readonly ProspectPublicSourceBlock[];
   /** Source photographs that passed the photo gate — what a gallery band would have to fill. */
   eligiblePhotoCount: number;
+  /** Everything the image projection kept, before the photo gate. Denominator for §7-6's ratio. */
+  projectedPhotoCount?: number;
 }): ClinicTemplateAssignment & { input: ClinicTemplateAssignmentInput } {
   const paths = input.pageUrls.map((url) => {
     try {
@@ -248,6 +336,10 @@ export function clinicTemplateDecisionFromSource(input: {
     // One family across the whole service list is a single-procedure practice.
     singleProcedureFocus: procedureFamilies === 1,
     galleryHeavy: input.eligiblePhotoCount >= GALLERY_HEAVY_MIN_PHOTOS,
+    imageGate: t6ImageGate({
+      eligiblePhotoCount: input.eligiblePhotoCount,
+      projectedPhotoCount: input.projectedPhotoCount ?? input.eligiblePhotoCount,
+    }),
   };
   return { ...assignClinicTemplate(assignmentInput), input: assignmentInput };
 }
