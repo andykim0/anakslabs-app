@@ -1136,6 +1136,11 @@ export function compileUsMedicalFullPreview(input: {
       planned.sourceUrl ? [[planned.sourceUrl, `/${slug}`] as const] : []
     )),
   );
+  /**
+   * §3 T6 is a media treatment: the practice's rooms carry the page. It reads the decision the
+   * pin already stored rather than re-deciding, so the template that renders is the one recorded.
+   */
+  const photoImmersive = pin.templateDecision?.templateId === 'T6';
   const masterSections = compilePremiumDentalMaster({
     blocks,
     theme,
@@ -1209,7 +1214,9 @@ export function compileUsMedicalFullPreview(input: {
         && !homeServiceImageIds.has(image.source.id)
         && !sourceImageIsInsuranceLogo(image)
       ))
-      .slice(0, 12)
+      // T6 shows the gallery twice, so it needs enough distinct photographs for two bands
+      // rather than the same twelve shown again.
+      .slice(0, photoImmersive ? 24 : 12)
       .map(layoutImage),
     theme,
     surface: true,
@@ -1310,7 +1317,31 @@ export function compileUsMedicalFullPreview(input: {
   const homeLocation = masterSections.find(
     (candidate) => candidate.id === 'us-demo-contact',
   );
-  const homeSections = [
+  /**
+   * §3 T6's plan puts gallery at the measured normalised position 0.57 and repeats it — the one
+   * template whose plan does — and that repetition is reproduced on three of the corpus sites.
+   * So a photo-immersive practice gets a band before its services and another after; every other
+   * section keeps its position, because the template is a media treatment and not a reordering.
+   */
+  const homeSections = photoImmersive
+    ? [
+        ...(homeHero ? [homeHero] : []),
+        ...(providerTeaser ? [providerTeaser] : []),
+        ...gallerySections.slice(0, 1),
+        ...homeServiceSections,
+        ...gallerySections.slice(1, 2),
+        ...(ratingAggregate ? [ratingAggregate] : []),
+        ...beforeAfter.slice(0, 1),
+        ...(homeInsuranceStrip
+          ? [homeInsuranceStrip]
+          : insurancePricing
+            ? [insurancePricing]
+            : []),
+        ...(homeLocation ? [homeLocation] : []),
+        ...(homeFaq ? [homeFaq] : []),
+        homeCta,
+      ]
+    : [
     ...(homeHero ? [homeHero] : []),
     ...homeServiceSections,
     ...(providerTeaser ? [providerTeaser] : []),
@@ -1325,7 +1356,7 @@ export function compileUsMedicalFullPreview(input: {
     ...(homeLocation ? [homeLocation] : []),
     ...(homeFaq ? [homeFaq] : []),
     homeCta,
-  ];
+      ];
   /**
    * TenantHeader renders the practice's mark by looking for this element id anywhere in the
    * config, and only the consented compiler was emitting it, so every outreach demo carried the

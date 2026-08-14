@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test, { describe } from 'node:test';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
+import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import { compileUsMedicalDemo } from './source-compiler';
 import { clinicTemplateDecisionFromSource } from './template-system';
@@ -157,5 +158,71 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
     });
     assert.equal(repeated.input.trustSectionCount, 2);
     assert.equal(repeated.designatedByDoc, 'T2');
+  });
+});
+
+describe('T6 — the media treatment, and the two stored decisions together', () => {
+  const config = (name: string) => compileUsMedicalDemo(
+    artifact(name),
+    { renderMode: 'preview-full' },
+  ).config;
+
+  test('T6 홈은 서비스 앞뒤로 갤러리를 두 번 두고, 나머지 섹션 순서는 건드리지 않는다', () => {
+    const cameods = config('cameods');
+    assert.equal(cameods.clinicMaster?.templateDecision?.templateId, 'T6');
+    const home = cameods.pages.find((page) => page.slug === '')!;
+    const types = home.sections.map((section) => section.type);
+    // §3 T6: gallery at 0.57 and repeated — a band before the services and another after.
+    assert.deepEqual(types, ['hero', 'gallery', 'features', 'gallery', 'contact', 'cta']);
+    const galleries = home.sections.filter((section) => section.type === 'gallery');
+    assert.equal(galleries.length, 2);
+    // Two bands must be two sets of photographs, not the same twelve shown twice.
+    const first = new Set(galleries[0].elements.filter((e) => e.kind === 'image').map((e) => e.id));
+    const second = galleries[1].elements.filter((e) => e.kind === 'image').map((e) => e.id);
+    assert.ok(second.length > 0);
+    assert.equal(second.some((id) => first.has(id)), false, 'the second band repeats the first');
+  });
+
+  test('T6 가 아닌 곳의 홈 구성은 그대로다', () => {
+    for (const name of ['dental360', 'iddental']) {
+      const cfg = config(name);
+      assert.notEqual(cfg.clinicMaster?.templateDecision?.templateId, 'T6');
+      const types = cfg.pages.find((page) => page.slug === '')!.sections.map((s) => s.type);
+      // services still lead, exactly as before T6 existed
+      assert.equal(types[0], 'hero');
+      assert.equal(types[1], 'features');
+    }
+  });
+
+  test('결정 두 개는 함께 간다 — 템플릿만 있고 레이아웃이 없는 히어로는 불가능하다', () => {
+    for (const name of ['dental360', 'cameods', 'iddental']) {
+      const cfg = config(name);
+      const hasTemplate = Boolean(cfg.clinicMaster?.templateDecision);
+      assert.equal(hasTemplate, true, `${name} must record a template decision`);
+      for (const page of cfg.pages) {
+        const hero = page.sections.find((section) => section.type === 'hero');
+        if (!hero?.background.image) continue;
+        // A hero that carries a photograph carries the layout decision for it. The combination
+        // "template recorded, layout missing" would leave the renderer branching on a mode that
+        // was never decided, so it must be unreachable.
+        const isStock = hero.background.image.src.startsWith('/stock/');
+        assert.equal(
+          Boolean(hero.clinicHeroLayout),
+          !isStock,
+          `${name}/${page.slug || 'home'} — source hero without a layout decision`,
+        );
+      }
+    }
+  });
+
+  test('저장 왕복에서도 두 결정이 함께 살아남는다', () => {
+    const cfg = config('cameods');
+    const parsed = siteConfigSchema.parse(cfg);
+    assert.equal(parsed.clinicMaster?.templateDecision?.templateId, 'T6');
+    const hero = parsed.pages.find((page) => page.slug === '')!
+      .sections.find((section) => section.type === 'hero')!;
+    assert.ok(hero.clinicHeroLayout, 'the hero layout decision must survive the storage boundary');
+    assert.deepEqual(hero.clinicHeroLayout, cfg.pages.find((p) => p.slug === '')!
+      .sections.find((s) => s.type === 'hero')!.clinicHeroLayout);
   });
 });
