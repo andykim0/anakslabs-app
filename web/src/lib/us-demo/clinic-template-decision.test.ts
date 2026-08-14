@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import test, { describe } from 'node:test';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
+import { clinicHeroLayoutDecision, prospectPublicSourceImages } from './source-images';
 import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import { compileUsMedicalDemo } from './source-compiler';
 import { clinicTemplateDecisionFromSource } from './template-system';
@@ -210,6 +211,33 @@ describe('T6 — the media treatment, and the two stored decisions together', ()
           Boolean(hero.clinicHeroLayout),
           !isStock,
           `${name}/${page.slug || 'home'} — source hero without a layout decision`,
+        );
+      }
+    }
+  });
+
+  test('레이아웃 결정은 실제로 거기 있는 사진을 가리킨다 — 이월된 값이 아니다', () => {
+    /**
+     * The compile order is template -> composition -> photo allocation -> layout decision, and the
+     * failure mode it exists to prevent is silent: a layout carried over from an earlier winner
+     * describes a photograph that is no longer in the hero. So recompute from the image actually
+     * sitting in background.image and require the stored decision to match it exactly.
+     */
+    for (const name of ['dental360', 'cameods', 'iddental']) {
+      const cfg = config(name);
+      const byUrl = new Map(
+        prospectPublicSourceImages(artifact(name)).map((image) => [image.source.url, image]),
+      );
+      for (const page of cfg.pages) {
+        const hero = page.sections.find((section) => section.type === 'hero');
+        const stored = hero?.clinicHeroLayout;
+        if (!stored) continue;
+        const image = byUrl.get(hero!.background.image!.src);
+        assert.ok(image, `${name}/${page.slug || 'home'} hero photo is not a source image`);
+        assert.deepEqual(
+          stored,
+          clinicHeroLayoutDecision(image!),
+          `${name}/${page.slug || 'home'} layout does not describe the photo that is there`,
         );
       }
     }
