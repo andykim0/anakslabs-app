@@ -125,3 +125,34 @@ export function stripeInvoiceSubscriptionId(invoice: Stripe.Invoice): string | n
   }).parent;
   return stripeSubscriptionId(parent?.subscription_details?.subscription);
 }
+
+/**
+ * Stop the recurring charge at the end of the period the customer has already paid for.
+ *
+ * NOT an immediate cancel, and that is a policy decision rather than a convenience. REFUND_POLICY
+ * (credits/constants.ts) is the BUILD FEE policy — it governs the one-time setup, not the monthly
+ * subscription, and no pro-rata or refund mechanism for the monthly exists anywhere in this
+ * codebase. Cancelling immediately would therefore take back service the customer has paid for
+ * with no route to return the money. Do not "simplify" this to subscriptions.cancel().
+ *
+ * Idempotent by construction: setting cancel_at_period_end on a subscription that already carries
+ * it is the same state, not a second act, so a double-click or a retried request is harmless.
+ */
+export async function cancelStripeSubscriptionAtPeriodEnd(
+  subscriptionId: string,
+): Promise<{ cancelAtPeriodEnd: boolean; currentPeriodEnd: string | null }> {
+  const trimmed = subscriptionId.trim();
+  if (!trimmed) {
+    throw new StripeConfigurationError('A Stripe subscription id is required to cancel.');
+  }
+  const updated = await client().subscriptions.update(trimmed, {
+    cancel_at_period_end: true,
+  });
+  const periodEnd = (updated as unknown as { current_period_end?: number }).current_period_end;
+  return {
+    cancelAtPeriodEnd: updated.cancel_at_period_end === true,
+    currentPeriodEnd: typeof periodEnd === 'number'
+      ? new Date(periodEnd * 1000).toISOString()
+      : null,
+  };
+}

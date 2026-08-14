@@ -3,6 +3,7 @@ import { grantMonthlySubscriptionCredits } from '@/lib/subscriptions/service';
 import { runMonthlyReports } from '@/lib/reporting/runner';
 import { purgeExpiredReportingData } from '@/lib/reporting/retention-service';
 import { purgeExpiredCrawlerRecords } from '@/lib/crawl/repository';
+import { finaliseEndedCancellations } from '@/lib/subscriptions/cancellation';
 import { isCronAuthorized } from '../_lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -15,17 +16,20 @@ async function run(request: NextRequest) {
 
   // Jobs are isolated: report/email, credits, and retention failures must not
   // suppress one another's durable work.
-  const [reports, credits, retention, crawlerRetention] = await Promise.allSettled([
+  const [reports, credits, retention, crawlerRetention, cancellations] = await Promise.allSettled([
     runMonthlyReports(),
     grantMonthlySubscriptionCredits(),
     purgeExpiredReportingData(),
     purgeExpiredCrawlerRecords(),
+    // Bookkeeping only — a cancelled customer is already locked out by currentPeriodEnd.
+    finaliseEndedCancellations(),
   ]);
   const ok = (
     reports.status === 'fulfilled'
     && credits.status === 'fulfilled'
     && retention.status === 'fulfilled'
     && crawlerRetention.status === 'fulfilled'
+    && cancellations.status === 'fulfilled'
   );
   return NextResponse.json(
     {
@@ -42,6 +46,9 @@ async function run(request: NextRequest) {
       crawlerRetention: crawlerRetention.status === 'fulfilled'
         ? crawlerRetention.value
         : { error: 'CRAWLER_RETENTION_FAILED' },
+      cancellations: cancellations.status === 'fulfilled'
+        ? cancellations.value
+        : { error: 'CANCELLATION_SWEEP_FAILED' },
     },
     { status: ok ? 200 : 500 },
   );
