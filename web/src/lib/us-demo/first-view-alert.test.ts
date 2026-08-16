@@ -6,7 +6,10 @@ import test, { describe } from 'node:test';
 import { NextRequest } from 'next/server';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import type { SiteConfig } from '@/lib/types/site';
-import type { DemoViewClientPayload } from './view-tracking-contract';
+import {
+  DEMO_FIRST_VIEW_SIGNAL_LABEL,
+  type DemoViewClientPayload,
+} from './view-tracking-contract';
 import { prepareUsMedicalPreview } from './admin-workflow';
 
 const HOOK = 'https://alerts.example.invalid/demo';
@@ -136,6 +139,44 @@ describe('US-DEMO — the first open of a demo link produces a signal', () => {
     const dispatch = handler.indexOf('dispatchUnledgeredFirstDemoViewAlert(');
     assert.ok(guard > 0 && dispatch > guard, 'the ledger check gates the interim dispatch');
     assert.match(handler, /&&\s*!ledgerEmitsFirstView/u);
+  });
+
+  test('0064 opens the signal kind and emits first_view once per visitor', () => {
+    const migration = readFileSync(
+      resolve(process.cwd(), '../supabase/migrations/0064_demo_first_view_alert.sql'),
+      'utf8',
+    );
+    assert.match(
+      migration,
+      /signal_kind in \('strong_reinterest_48h', 'procedure_entry', 'first_view'\)/u,
+    );
+    // The webhook text a Korean operator reads must not drift between the RPC and the route.
+    assert.ok(migration.includes(`'${DEMO_FIRST_VIEW_SIGNAL_LABEL}'`));
+    // Only one session per visitor ever gets visit_count 1, and the row is unique per session.
+    assert.match(migration, /if not v_existing_session and v_visit_count = 1 then/u);
+    const block = migration.slice(migration.indexOf("'first_view',"));
+    assert.match(
+      block.slice(0, block.indexOf('end if;')),
+      /on conflict \(preview_id, visitor_id, session_id, signal_kind\) do nothing/u,
+    );
+  });
+
+  test('0064 is 0054 with the first_view block added and nothing removed', () => {
+    const fnOf = (file: string) => {
+      const sql = readFileSync(resolve(process.cwd(), `../supabase/migrations/${file}`), 'utf8');
+      return sql.slice(sql.indexOf('create or replace function')).split('\n');
+    };
+    const before = fnOf('0054_remove_us_preview_market_gate.sql');
+    const after = fnOf('0064_demo_first_view_alert.sql');
+    let cursor = 0;
+    for (const line of after) {
+      if (line === before[cursor]) cursor += 1;
+    }
+    assert.equal(
+      cursor,
+      before.length,
+      'the shipped record_demo_view must survive verbatim inside 0064',
+    );
   });
 
   test('the unledgered path writes no delivery record, and says so', async () => {
