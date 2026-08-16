@@ -19,6 +19,11 @@ export type DemoReferrerClass = (typeof DEMO_REFERRER_CLASSES)[number];
 export const DEMO_VIEW_SIGNAL_KINDS = [
   'strong_reinterest_48h',
   'procedure_entry',
+  /**
+   * The prospect opened the link for the first time. Emitted from the route today and from the
+   * ledger once the pending migration is applied — see the dispatch in /api/demo-track.
+   */
+  'first_view',
 ] as const;
 export type DemoViewSignalKind = (typeof DEMO_VIEW_SIGNAL_KINDS)[number];
 
@@ -87,10 +92,13 @@ export const DEMO_REINTEREST_SIGNAL_LABEL =
 export const DEMO_PROCEDURE_ENTRY_SIGNAL_LABEL =
   '시술 페이지에서 세션이 시작된 진입 신호입니다. 관심이나 예약 의도를 확정하지 않습니다.';
 
+export const DEMO_FIRST_VIEW_SIGNAL_LABEL =
+  '보낸 데모 링크를 처음 열어 봤습니다. 열람만 확인할 뿐 관심이나 구매 의사를 확정하지 않습니다.';
+
 export function demoViewSignalLabel(signalKind: DemoViewSignalKind): string {
-  return signalKind === 'procedure_entry'
-    ? DEMO_PROCEDURE_ENTRY_SIGNAL_LABEL
-    : DEMO_REINTEREST_SIGNAL_LABEL;
+  if (signalKind === 'procedure_entry') return DEMO_PROCEDURE_ENTRY_SIGNAL_LABEL;
+  if (signalKind === 'first_view') return DEMO_FIRST_VIEW_SIGNAL_LABEL;
+  return DEMO_REINTEREST_SIGNAL_LABEL;
 }
 
 function finiteInteger(value: number, min: number, max: number): number {

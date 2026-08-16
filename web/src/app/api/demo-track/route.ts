@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { apiError, withApiHandler } from '@/app/api/_lib/http';
 import { isLikelyBotUserAgent, createSiteRateLimiter } from '@/lib/analytics/site-event-ingest';
 import { getSharedSitePreviewById } from '@/lib/crawl/repository';
-import { dispatchDemoViewAlert } from '@/lib/us-demo/view-alerts';
+import {
+  dispatchDemoViewAlert,
+  dispatchUnledgeredFirstDemoViewAlert,
+} from '@/lib/us-demo/view-alerts';
 import {
   DEMO_REFERRER_CLASSES,
   DEMO_VIEW_MAX_BODY_BYTES,
@@ -25,6 +28,20 @@ import {
 export const runtime = 'nodejs';
 
 const limiter = createSiteRateLimiter({ limit: 240, windowMs: 60_000 });
+
+/**
+ * Dedup for the interim first-view alert, which has no ledger row to dedup against.
+ *
+ * A first visit is not one request. The tracker posts at +1s, every 20s after that, once more on
+ * hide, and remounts on every page the prospect opens — all with visitCount 1. Dispatching on
+ * `visitCount === 1` alone would alert every twenty seconds for the whole visit, which is not a
+ * signal, it is noise that gets the channel muted.
+ *
+ * One dispatch per visitor-session per process per day. Per PROCESS is the honest limit: nothing
+ * here is shared between instances, so a scaled deployment can repeat a first view a small number
+ * of times. The migration replaces this with a unique row and the repetition goes away.
+ */
+const firstViewOnce = createSiteRateLimiter({ limit: 1, windowMs: 24 * 60 * 60_000 });
 const pageSlugSchema = z.string().max(40).regex(/^(?:|[a-z0-9]+(?:-[a-z0-9]+)*)$/u);
 
 const payloadSchema = z.object({
@@ -119,6 +136,20 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     request,
   });
   const result = await recordDemoView(stored);
+
+  // Skipped the moment the ledger starts emitting first_view itself, so the two can never both fire.
+  const ledgerEmitsFirstView = result.alerts.some((alert) => alert.signalKind === 'first_view');
+  if (
+    result.recorded
+    && result.visitCount === 1
+    && !ledgerEmitsFirstView
+    && firstViewOnce.allow(`${preview.id}:${stored.visitorId}:${stored.sessionId}`)
+  ) {
+    await dispatchUnledgeredFirstDemoViewAlert({
+      previewId: preview.id,
+      pageSlug: parsed.data.pageSlug,
+    }).catch(() => undefined);
+  }
 
   await Promise.all(result.alerts.map((alert) => dispatchDemoViewAlert({
     ...alert,

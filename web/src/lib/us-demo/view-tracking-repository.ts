@@ -2,6 +2,7 @@ import 'server-only';
 
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { isMockMode } from '@/lib/env';
+import { DEMO_VIEW_SIGNAL_KINDS } from './view-tracking-contract';
 import type {
   DemoViewRecordResult,
   DemoViewSignalKind,
@@ -135,7 +136,8 @@ export async function recordDemoView(
         const signalKind = alert.signalKind;
         if (
           typeof alert.alertId !== 'string'
-          || (signalKind !== 'strong_reinterest_48h' && signalKind !== 'procedure_entry')
+          || typeof signalKind !== 'string'
+          || !(DEMO_VIEW_SIGNAL_KINDS as readonly string[]).includes(signalKind)
         ) {
           return [];
         }
