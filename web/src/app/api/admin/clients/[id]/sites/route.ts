@@ -3,9 +3,13 @@ import { z } from 'zod';
 import { requireAdminOr403 } from '@/app/api/_lib/guards';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
 import { getDataServices } from '@/lib/data';
-import { getLatestCrawlArtifactBySeedUrl } from '@/lib/crawl/repository';
+import {
+  getLatestCrawlArtifactBySeedUrl,
+  getSharedSitePreviewById,
+} from '@/lib/crawl/repository';
 import {
   buildOperatorClinicNewbuildSiteConfig,
+  buildOperatorApprovedPreviewSiteConfig,
   buildOperatorCrawlSiteConfig,
   buildOperatorMinimalSiteConfig,
   siteFormCount,
@@ -41,6 +45,17 @@ const bodySchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('crawl'),
     sourceUrl: z.string().url().refine((url) => /^https?:\/\//u.test(url), 'Use an http(s) URL.'),
+    timezone: timezoneSchema.optional(),
+    phone: phoneSchema.optional(),
+    bookingUrl: bookingUrlSchema.optional(),
+  }).strict(),
+  /**
+   * The only mode that ships what a customer approved rather than compiling a second site.
+   * Prefer it whenever a preview exists; 'crawl' recompiles and cannot promise the same bytes.
+   */
+  z.object({
+    mode: z.literal('approved-preview'),
+    previewId: z.string().uuid(),
     timezone: timezoneSchema.optional(),
     phone: phoneSchema.optional(),
     bookingUrl: bookingUrlSchema.optional(),
@@ -125,6 +140,23 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     }
     name = declared.businessName.trim().slice(0, 100);
     source = 'newbuild';
+  } else if (body.data.mode === 'approved-preview') {
+    const preview = await getSharedSitePreviewById(body.data.previewId);
+    if (!preview || preview.revokedAt || new Date(preview.expiresAt) <= new Date()) {
+      return apiError(
+        404,
+        'APPROVED_PREVIEW_NOT_FOUND',
+        'That preview is missing, revoked or past its expiry, so there is no approved site to ship.',
+      );
+    }
+    config = buildOperatorApprovedPreviewSiteConfig(
+      preview.siteConfig,
+      client.tier,
+      body.data,
+    );
+    name = preview.siteConfig.meta.title?.trim().slice(0, 100)
+      || new URL(preview.sourceUrl).hostname;
+    source = 'crawl';
   } else if (body.data.mode === 'crawl') {
     const artifact = await getLatestCrawlArtifactBySeedUrl(body.data.sourceUrl);
     if (!artifact || new Date(artifact.expiresAt) <= new Date()) {

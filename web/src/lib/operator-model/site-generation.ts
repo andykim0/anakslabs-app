@@ -168,3 +168,41 @@ export function siteFormCount(config: SiteConfig): number {
     0,
   ), 0);
 }
+
+/**
+ * The approved artefact, delivered.
+ *
+ * Everything else in this module compiles a site. This does not: it takes the exact SiteConfig
+ * the customer looked at and said yes to, and applies only the policy pipe on top. That is the
+ * whole point. Two compilers agreeing is a promise; the same object is a fact.
+ *
+ * It exists because they did not agree. Measured on the three sample artifacts, the preview
+ * compiler and the operator's crawl compiler produced different products — 12 curated pages
+ * against 19 with hash-suffixed slugs, six section types against two, the practice's extracted
+ * brand against a stock preset, and none of the palette, template or hero-layout decisions
+ * surviving at all. A customer approved one site and would have received another.
+ *
+ * The transforms below are the ONLY differences permitted between what was approved and what
+ * ships, and a test asserts that list. If a transform ever materially changes what the customer
+ * saw, it belongs in this comment as a named exception or it does not belong here:
+ *   1. pinUsTenantLocaleForNewSite — stamps locale/timezone; no visible copy or layout change
+ *   2. applyGeneratedMotion        — attaches the motion plan for the tier
+ *   3. applyOperatorConnectorInput — binds the operator's phone and booking URL
+ *   4. enforceOperatorMedicalDraft — the medical-ad screen, which may refuse outright
+ *   5. assertNoFirstPartyForm      — refuses a config that would collect personal data
+ */
+export function buildOperatorApprovedPreviewSiteConfig(
+  approved: SiteConfig,
+  tier: Tier,
+  connectorInput: OperatorCrawlSiteInput = {},
+): SiteConfig {
+  const { timezone, ...explicitConnectors } = connectorInput;
+  const generated = applyGeneratedMotion(
+    pinUsTenantLocaleForNewSite(approved, timezone),
+    'booking_service',
+    tier,
+  );
+  return assertNoFirstPartyForm(enforceOperatorMedicalDraft(
+    applyOperatorConnectorInput(generated, explicitConnectors),
+  ));
+}
