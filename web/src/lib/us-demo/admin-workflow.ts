@@ -10,6 +10,24 @@ import {
 import { sourceAiVisibilitySummary } from './structure-diff';
 import { enforceGeneratedMedicalConfig } from '@/lib/content/medical-ad-enforcement';
 
+export interface UsMedicalDeliveryBlocker {
+  ruleId: string;
+  severity: 'block' | 'warn';
+  /**
+   * Why the rule fired, which decides whether anyone can act on it.
+   *
+   * - `claim`: a specific phrase triggered the rule. The screen already replaced it; if one still
+   *   appears here it names the sentence to look at.
+   * - `omission`: the copy is missing a statement the rule requires. Nothing can be swapped to fix
+   *   an absence — the only "fix" is writing a risk sentence the practice never wrote, onto a
+   *   medical page, which is exactly the class of content we do not invent. Needs a human.
+   * - `classification`: the config's industry metadata disagrees with itself. A regeneration bug,
+   *   not a copy problem.
+   */
+  nature: 'claim' | 'omission' | 'classification';
+  detail: string;
+}
+
 export interface PreparedUsMedicalPreview {
   config: SiteConfig;
   /**
@@ -17,6 +35,12 @@ export interface PreparedUsMedicalPreview {
    * sending the link, rather than when the customer has already said yes. Never enforced here.
    */
   deliverable: boolean;
+  /**
+   * Empty when `deliverable`. Otherwise the rules that survived the screen, so the operator reading
+   * "not deliverable" also reads why — an unexplained refusal just gets overridden by whoever is
+   * in a hurry.
+   */
+  deliveryBlockers: readonly UsMedicalDeliveryBlocker[];
   renderMode: UsDemoRenderMode;
   sourceReport: {
     origin: 'prospect_public_source';
@@ -26,6 +50,29 @@ export interface PreparedUsMedicalPreview {
   };
   /** The full record behind sourceReport's counters, persisted with the preview. */
   audit: UsMedicalCompilationAudit;
+}
+
+function deliveryBlockersOf(
+  result: ReturnType<typeof enforceGeneratedMedicalConfig>['result'],
+): readonly UsMedicalDeliveryBlocker[] {
+  return result.violations.map((violation) => {
+    if (violation.kind === 'classification') {
+      return {
+        ruleId: violation.code,
+        severity: violation.severity,
+        nature: 'classification' as const,
+        detail: violation.message,
+      };
+    }
+    return {
+      ruleId: violation.ruleId,
+      severity: violation.severity,
+      // The screen reports a missing required statement against a synthetic `$structural.` path
+      // because there is no sentence to point at. That absence is the whole distinction.
+      nature: violation.path.startsWith('$structural.') ? ('omission' as const) : ('claim' as const),
+      detail: violation.matchedText,
+    };
+  });
 }
 
 /**
@@ -65,6 +112,7 @@ export function prepareUsMedicalPreview(input: {
   return {
     config,
     deliverable: screened.result.ok,
+    deliveryBlockers: deliveryBlockersOf(screened.result),
     renderMode,
     sourceReport: {
       origin: compiled.sourceManifest.origin,

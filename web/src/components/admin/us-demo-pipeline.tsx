@@ -3,6 +3,7 @@
 import { US_MEDICAL_PREVIEW_RETENTION_DAYS } from '@/lib/crawl/contracts';
 
 import {
+  AlertTriangle,
   ArrowDown,
   ArrowUp,
   CheckCircle2,
@@ -25,6 +26,12 @@ import {
   type AdminUsDemoSourceBlock,
 } from './api';
 import { normalizeUrlInput } from '@/lib/url-input';
+
+const BLOCKER_NATURE_LABELS = {
+  claim: 'a claim in the copy',
+  omission: 'a required statement that is missing',
+  classification: 'a classification mismatch',
+} as const;
 
 const GROUP_LABELS = {
   entity: "Hospital information link",
@@ -86,6 +93,9 @@ export function UsDemoPipeline() {
   const [consentedAt, setConsentedAt] = useState('');
   const [consentNotes, setConsentNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Only ever false for US medical previews, which are the ones that get sent to a prospect.
+  const previewUndeliverable = preview?.deliverable === false;
 
   const blocksById = new Map(
     detail?.artifact.usDemo.blocks.map((block) => [block.id, block]) ?? [],
@@ -510,7 +520,44 @@ export function UsDemoPipeline() {
       )}
 
       {preview && (
-        <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+        <section
+          className={
+            previewUndeliverable
+              ? 'rounded-2xl border border-amber-300 bg-amber-50 p-5'
+              : 'rounded-2xl border border-emerald-200 bg-emerald-50 p-5'
+          }
+        >
+          {previewUndeliverable ? (
+            /**
+             * Shown here, on the panel that carries the link, because the only thing this warning
+             * can accomplish is stopping a send. An operator who has already emailed the prospect
+             * cannot act on it.
+             */
+            <div className="mb-4 rounded-xl border border-amber-400 bg-white/70 p-4">
+              <p className="flex items-center gap-2 font-bold text-amber-900">
+                <AlertTriangle size={18} aria-hidden />
+                This preview is not deliverable as a paid site
+              </p>
+              <p className="mt-2 text-sm text-amber-900">
+                The prospect can open it, but the US medical advertising screen would refuse this
+                page at build time. Sending it offers something we cannot currently produce.
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-amber-900">
+                {(preview.deliveryBlockers ?? []).map((blocker) => (
+                  <li key={`${blocker.ruleId}:${blocker.detail}`}>
+                    <code className="font-semibold">{blocker.ruleId}</code>
+                    {' — '}
+                    {BLOCKER_NATURE_LABELS[blocker.nature]}
+                    {': '}
+                    {blocker.detail}
+                    {blocker.nature === 'omission' ? (
+                      <> Nothing in the copy can be rewritten to fix an absence, so this needs a decision, not an edit.</>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="flex items-center gap-2 font-bold text-emerald-900">

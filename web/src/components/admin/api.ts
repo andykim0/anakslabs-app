@@ -517,6 +517,17 @@ export interface AdminUsDemoPreviewResponse {
     url: string;
     expiresAt: string;
     warning: string;
+    /**
+     * Whether this exact page could be delivered as a paid site. Present for US medical previews
+     * only. False means the prospect can be shown something we cannot build for them.
+     */
+    deliverable?: boolean;
+    deliveryBlockers?: Array<{
+      ruleId: string;
+      severity: 'block' | 'warn';
+      nature: 'claim' | 'omission' | 'classification';
+      detail: string;
+    }>;
     sourceReport: {
       origin: 'prospect_public_source' | 'prospect_consented_source';
       totalBlocks: number;

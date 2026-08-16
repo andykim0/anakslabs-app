@@ -18,7 +18,10 @@ import {
   INSUFFICIENT_ENGLISH_SOURCE,
   UsDemoCompileError,
 } from '@/lib/us-demo/contracts';
-import { prepareUsMedicalPreview } from '@/lib/us-demo/admin-workflow';
+import {
+  prepareUsMedicalPreview,
+  type UsMedicalDeliveryBlocker,
+} from '@/lib/us-demo/admin-workflow';
 import {
   compileUsMedicalConsentedArtifact,
   ConsentedClinicCompileError,
@@ -86,6 +89,7 @@ export const POST = withApiHandler(async (
   let emailEvidenceLine: string | undefined;
   let compilationAudit: unknown;
   let deliverable: boolean | undefined;
+  let deliveryBlockers: readonly UsMedicalDeliveryBlocker[] | undefined;
   if (body.data.previewKind === 'us-medical-outreach') {
     try {
       const prepared = prepareUsMedicalPreview({
@@ -96,8 +100,13 @@ export const POST = withApiHandler(async (
       config = prepared.config;
       sourceReport = prepared.sourceReport;
       // Carried on the audit so the admin surface can warn before this link is sent to a prospect.
-      compilationAudit = { ...prepared.audit, deliverable: prepared.deliverable };
+      compilationAudit = {
+        ...prepared.audit,
+        deliverable: prepared.deliverable,
+        deliveryBlockers: prepared.deliveryBlockers,
+      };
       deliverable = prepared.deliverable;
+      deliveryBlockers = prepared.deliveryBlockers;
     } catch (error) {
       if (error instanceof UsDemoCompileError) {
         return apiError(
@@ -173,6 +182,7 @@ export const POST = withApiHandler(async (
       expiresAt: preview.expiresAt,
       warning: IMPORT_PREVIEW_BEARER_WARNING,
       ...(deliverable === undefined ? {} : { deliverable }),
+      ...(deliveryBlockers?.length ? { deliveryBlockers } : {}),
       ...(sourceReport ? { sourceReport } : {}),
       ...(emailEvidenceLine ? { emailEvidenceLine } : {}),
     },
