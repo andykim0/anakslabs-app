@@ -165,8 +165,28 @@ export function compilePremiumDentalMaster(input: {
   const businessName = blocks.find((block) => block.kind === 'business_name');
   if (!businessName) throw new Error('PREMIUM_DENTAL_BUSINESS_NAME_REQUIRED');
   const introduction = blocks.find((block) => block.kind === 'introduction');
+  /**
+   * One entry per distinct service name.
+   *
+   * Source blocks used to be text-unique across the whole site, so this list was incidentally
+   * deduped by the extractor. Blocks are now page-scoped, because a practice that repeats section
+   * headings across its treatment pages was losing every body underneath them — but that means a
+   * heading like "Recovery and follow-up" now arrives once per treatment page, and a services list
+   * reading "Recovery and follow-up" three times is not a services list. The dedupe it relied on
+   * moves here, where it is about this list rather than about the whole corpus.
+   */
+  const seenServiceText = new Set<string>();
   const services = orderClinicServices(
-    blocks.filter((block) => block.kind === 'service'),
+    blocks.filter((block) => {
+      if (block.kind !== 'service') return false;
+      // Deduped in page order, before ordering and the cap, because that is the order the global
+      // extractor key used to impose. Doing it after ordering would pick a different eight and
+      // change which services a live preview lists.
+      const key = block.text.toLocaleLowerCase('en-US');
+      if (seenServiceText.has(key)) return false;
+      seenServiceText.add(key);
+      return true;
+    }),
     pin.focus,
   ).slice(0, 8);
   const allServices = blocks.filter((block) => block.kind === 'service');

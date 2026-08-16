@@ -520,6 +520,26 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   return blocks;
 }
 
+/**
+ * Kinds whose identical text on two different pages is two different things.
+ *
+ * A practice that gives every treatment page the same section headings — "Recovery and follow-up",
+ * "Who it suits" — is writing good pages. Deduping those globally kept the heading only on
+ * whichever page happened to be processed first and orphaned every body underneath it on the
+ * others: a `service_detail` whose `service` title no longer exists at its ordinal is claimed by no
+ * content unit, so nothing renders it. Measured on the orthopedic practice: five of six treatment
+ * pages lost their headings, orphaning 15 blocks and 5,006 characters, including every material-
+ * risk sentence the practice published — which the medical screen then reported as an omission.
+ *
+ * Everything else keeps the global key on purpose. Business name, phone, address, hours and the
+ * introduction sit in the header and footer of every page, and the global key is the only reason a
+ * twenty-page crawl yields one of each instead of twenty.
+ */
+const PAGE_SCOPED_DEDUPE_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
+  'service',
+  'service_detail',
+]);
+
 function extractProspectPublicSourceBlocks(
   artifact: CrawlArtifactPayload,
 ): ProspectPublicSourceBlock[] {
@@ -527,6 +547,14 @@ function extractProspectPublicSourceBlocks(
   return artifact.pages.flatMap(pageBlocks).filter((block) => {
     const sourceLocal = block.kind === 'cta'
       || block.sourceLocation.field.startsWith('text.list-item.');
+    if (!sourceLocal && PAGE_SCOPED_DEDUPE_KINDS.has(block.kind)) {
+      // Page-scoped, deliberately not ordinal-scoped: the same heading twice on one page is still
+      // one heading, so within-page repetition collapses exactly as it did before.
+      const scoped = `${block.kind}:${block.sourceUrl}:${block.text.toLocaleLowerCase('en-US')}`;
+      if (seen.has(scoped)) return false;
+      seen.add(scoped);
+      return true;
+    }
     const key = sourceLocal
       ? [
           block.kind,

@@ -28,45 +28,70 @@ const dental = (name: string) => JSON.parse(
 const RISK = /\b(?:side effect|risk|warning|limitation|individual results?|results? vary)\b/iu;
 
 describe('the engine on verticals it has never seen', () => {
-  test('DEFECT: a practice that publishes a risk statement is still judged to have omitted one', () => {
+  /**
+   * FIXED. This was a characterization test recording that a practice publishing a material-risk
+   * sentence on every treatment page was still reported as omitting one, because the global dedupe
+   * key deleted the repeated headings and orphaned the bodies beneath them. It now asserts the
+   * opposite, and is the regression guard for that fix.
+   */
+  test('a practice that publishes a risk statement is judged on it', () => {
     const ortho = artifact('northbank-ortho');
     const sourcePages = ortho.pages.filter((page) => RISK.test(page.text ?? ''));
     const blocks = prospectPublicSourceBlocks(ortho).filter((block) => RISK.test(block.text));
     const prepared = prepareUsMedicalPreview({ artifact: ortho, renderMode: 'preview-full' });
 
-    // The practice published it, and the extractor read it.
     assert.ok(sourcePages.length >= 6, `risk statement on ${sourcePages.length} source pages`);
     assert.ok(blocks.length >= 4, `${blocks.length} extracted blocks carry it`);
-    // The compiler then dropped every one of them, and the screen judged the result.
-    assert.equal(RISK.test(JSON.stringify(prepared.config)), false);
+    assert.equal(RISK.test(JSON.stringify(prepared.config)), true);
+    assert.equal(prepared.deliverable, true);
+    assert.deepEqual(prepared.deliveryBlockers, []);
+  });
+
+  test('a practice that publishes no risk statement is still reported honestly', () => {
+    // dental360 carries risk vocabulary on 1 of 20 source pages and no extracted block holds it,
+    // so its omission is real. The fix must not turn a true verdict into a false one.
+    const prepared = prepareUsMedicalPreview({
+      artifact: dental('dental360'),
+      renderMode: 'preview-full',
+    });
     assert.equal(prepared.deliverable, false);
     assert.equal(prepared.deliveryBlockers[0]?.ruleId, 'medical-side-effect-disclosure');
     assert.equal(prepared.deliveryBlockers[0]?.nature, 'omission');
-    // So "omission" is a statement about our compiled page, not about the practice's website.
   });
 
-  test('DEFECT: most captured clinical prose never reaches the compiled page, dental included', () => {
-    for (const [label, payload] of [
-      ['cameods', dental('cameods')],
-      ['iddental', dental('iddental')],
-      ['dental360', dental('dental360')],
-      ['ortho', artifact('northbank-ortho')],
-      ['derm', artifact('larkfield-derm')],
+  /**
+   * The remaining shortfall is at EXTRACTION, not placement: prose on pages the path gate does not
+   * read as treatment content never becomes a block at all. Placement of what IS captured is high.
+   * Recorded so the two stages are never conflated again — they were in my first report.
+   */
+  test('what the extractor captures now reaches the page; the loss that remains is upstream', () => {
+    for (const [label, payload, minPlacedOfCaptured] of [
+      ['cameods', dental('cameods'), 0.75],
+      ['iddental', dental('iddental'), 0.6],
+      ['dental360', dental('dental360'), 0.75],
+      ['ortho', artifact('northbank-ortho'), 0.9],
+      ['derm', artifact('larkfield-derm'), 0.9],
     ] as const) {
       const raw = JSON.stringify(
         prepareUsMedicalPreview({ artifact: payload, renderMode: 'preview-full' }).config,
       );
-      let bodies = 0;
+      const blockText = prospectPublicSourceBlocks(payload).map((block) => block.text).join(' || ');
+      let captured = 0;
       let placed = 0;
       for (const page of payload.pages) {
         for (const pair of sourceHeadingBodyPairs(page)) {
           if (!pair.body) continue;
-          bodies += 1;
-          if (raw.includes(pair.body.slice(0, 60).replace(/"/gu, ''))) placed += 1;
+          const probe = pair.body.slice(0, 60);
+          if (!blockText.includes(probe)) continue;
+          captured += 1;
+          if (raw.includes(probe.replace(/"/gu, ''))) placed += 1;
         }
       }
-      const rate = placed / bodies;
-      assert.ok(rate < 0.5, `${label}: ${(rate * 100).toFixed(1)}% of captured bodies placed`);
+      const rate = placed / captured;
+      assert.ok(
+        rate >= minPlacedOfCaptured,
+        `${label}: only ${(rate * 100).toFixed(1)}% of captured bodies placed`,
+      );
     }
   });
 
