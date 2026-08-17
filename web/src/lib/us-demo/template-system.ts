@@ -1,4 +1,4 @@
-import { US_DEMO_CLINIC_SPECIALTY, type ClinicSpecialty } from './clinic-palette';
+import type { ClinicSpecialty } from './clinic-palette';
 import type {
   ProspectPublicSourceBlock,
   ProspectPublicSourceKind,
@@ -262,6 +262,8 @@ const GALLERY_HEAVY_MIN_PHOTOS = 6;
  * been chosen, so the decision was describing its own output.
  */
 export function clinicTemplateDecisionFromSource(input: {
+  /** §7-2 reads specialty first, so it is an input rather than a module constant. */
+  specialty: ClinicSpecialty;
   pageUrls: readonly string[];
   blocks: readonly ProspectPublicSourceBlock[];
   /** Source photographs that passed the photo gate — what a gallery band would have to fill. */
@@ -329,7 +331,7 @@ export function clinicTemplateDecisionFromSource(input: {
     hasKind('insurance', 'price_or_financing') || hasPath(/insurance|financing|payment/u),
   ].filter(Boolean).length;
   const assignmentInput: ClinicTemplateAssignmentInput = {
-    specialty: US_DEMO_CLINIC_SPECIALTY,
+    specialty: input.specialty,
     market: 'US',
     trustSectionCount,
     multiLocation: distinctAddresses.size >= 2,

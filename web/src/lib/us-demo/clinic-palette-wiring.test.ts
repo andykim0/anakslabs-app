@@ -15,7 +15,7 @@ import { buildUsMedicalCompilationAudit } from './compilation-audit';
 import {
   buildClinicPalette,
   CLINIC_PALETTE_FALLBACKS,
-  US_DEMO_CLINIC_SPECIALTY,
+  US_DEMO_FALLBACK_CLINIC_SPECIALTY,
 } from './clinic-palette';
 import { compileUsMedicalDemo } from './source-compiler';
 
@@ -134,7 +134,7 @@ describe('§2-1 — --brand-ink 는 게이트를 통과한 브랜드에서 언�
           const hex = `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
           const palette = buildClinicPalette({
             candidates: [{ origin: 'logo', hex }],
-            specialty: US_DEMO_CLINIC_SPECIALTY,
+            specialty: US_DEMO_FALLBACK_CLINIC_SPECIALTY,
             imageDense: false,
           });
           assert.equal(

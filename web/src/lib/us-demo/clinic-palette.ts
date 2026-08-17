@@ -42,18 +42,25 @@ export const CLINIC_PALETTE_ORIGINS = [
 
 export type ClinicPaletteOrigin = (typeof CLINIC_PALETTE_ORIGINS)[number];
 
-export type ClinicSpecialty =
-  | 'dental'
-  | 'derm-plastic-aesthetic'
-  | 'ortho-surgery-pain'
-  | 'eye-internal-general';
+export const CLINIC_SPECIALTIES = [
+  'dental',
+  'derm-plastic-aesthetic',
+  'ortho-surgery-pain',
+  'eye-internal-general',
+] as const;
+
+export type ClinicSpecialty = (typeof CLINIC_SPECIALTIES)[number];
 
 /**
- * The US outreach programme is dental only. §2's fallback and §7-2's assignment both need a
- * specialty and both were writing the literal themselves; this is the one place it is decided,
- * so widening the programme is a single edit rather than a hunt.
+ * What an absent `clinicMaster.specialty` means, and nothing more.
+ *
+ * This used to be `US_DEMO_CLINIC_SPECIALTY`, a module-level literal that every consumer read
+ * directly, which made the whole programme dental by construction. Specialty is now resolved once
+ * per compile and stored on the pin, so the only remaining job of a constant is to say what the
+ * pins issued before that field existed already meant. Consumers take a parameter; nothing reads
+ * this to decide a live compile.
  */
-export const US_DEMO_CLINIC_SPECIALTY: ClinicSpecialty = 'dental';
+export const US_DEMO_FALLBACK_CLINIC_SPECIALTY: ClinicSpecialty = 'dental';
 
 /** §2-3. Recorded so the clinic can overturn the automatic choice. */
 export const CLINIC_PALETTE_REFINEMENTS = [

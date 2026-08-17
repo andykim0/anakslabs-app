@@ -14,7 +14,12 @@ import {
   resolveFontPairingForLocale,
 } from '@/lib/fonts';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
-import { buildClinicPalette, US_DEMO_CLINIC_SPECIALTY } from './clinic-palette';
+import {
+  buildClinicPalette,
+  US_DEMO_FALLBACK_CLINIC_SPECIALTY,
+  type ClinicSpecialty,
+} from './clinic-palette';
+import { resolveClinicSpecialty } from './specialty';
 import {
   clinicPhotoGate,
   clinicSourceIsImageDense,
@@ -133,11 +138,12 @@ function curateSourceBlocks(
 function clinicMasterPinForArtifact(
   artifact: CrawlArtifactPayload,
   blocks: readonly ProspectPublicSourceBlock[],
+  specialty: ClinicSpecialty,
 ): ClinicMasterPin {
   const projection = artifact.clinicPaletteProjection;
   const palette = buildClinicPalette({
     candidates: projection?.rawCandidates ?? [],
-    specialty: US_DEMO_CLINIC_SPECIALTY,
+    specialty,
     imageDense: clinicSourceIsImageDense(artifact),
   });
   /**
@@ -147,6 +153,7 @@ function clinicMasterPinForArtifact(
    */
   const projectedPhotos = prospectPublicSourceImages(artifact);
   const template = clinicTemplateDecisionFromSource({
+    specialty,
     pageUrls: artifact.pages.map((page) => page.url),
     blocks,
     eligiblePhotoCount: projectedPhotos
@@ -156,6 +163,12 @@ function clinicMasterPinForArtifact(
   return {
     version: 1,
     masterId: 'premium-dental-v1',
+    /**
+     * Written only when it is not dental. Absence already meant dental for every pin issued before
+     * this field existed, so saying it again for a dental practice would change the stored bytes of
+     * a config whose output must not move — and would mean nothing that absence does not.
+     */
+    ...(specialty === US_DEMO_FALLBACK_CLINIC_SPECIALTY ? {} : { specialty }),
     accentPreset: projection?.accentPreset ?? 'clean-blue',
     typographyPreset: 'clinic-editorial',
     density: 'airy',
@@ -198,6 +211,7 @@ function compileUsMedicalDemoProfile(
   options: {
     manualFinish?: UsDemoManualFinish;
     renderMode?: UsDemoRenderMode;
+    specialty?: ClinicSpecialty;
   } = {},
 ): UsMedicalDemoCompilation {
   const curated = curateSourceBlocks(sourceBlocks, options.manualFinish);
@@ -218,7 +232,21 @@ function compileUsMedicalDemoProfile(
     US_DEMO_DNA_ID,
     US_DEMO_HUE_SEED,
   ));
-  const clinicMaster = clinicMasterPinForArtifact(artifact, curated.accepted);
+  /**
+   * Resolved once, here, and then only read. Every specialty-dependent decision below — the
+   * palette fallback, §7-2's template assignment, the page taxonomy, the stock pool, the
+   * structured-data type — takes this value rather than classifying the practice again.
+   */
+  const specialtyResolution = resolveClinicSpecialty({
+    artifact,
+    blocks: curated.accepted,
+    ...(options.specialty ? { override: options.specialty } : {}),
+  });
+  const clinicMaster = clinicMasterPinForArtifact(
+    artifact,
+    curated.accepted,
+    specialtyResolution.specialty,
+  );
   const clinicTheme = resolveClinicMasterTheme(baseTheme, clinicMaster);
   const fontSelection = resolveFontPairingForLocale({
     locale: 'en-US',
@@ -328,6 +356,8 @@ export function compileUsMedicalDemo(
   options: {
     manualFinish?: UsDemoManualFinish;
     renderMode?: UsDemoRenderMode;
+    /** Operator override. Omitted means the source vocabulary decides. */
+    specialty?: ClinicSpecialty;
   } = {},
 ): UsMedicalDemoCompilation {
   return runClinicEngine({

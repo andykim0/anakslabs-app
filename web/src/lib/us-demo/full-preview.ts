@@ -27,7 +27,6 @@ import {
   type ClinicLayoutImage,
   type ClinicMasterExperience,
   type ClinicSourcePhoneProjection,
-  type DentalStockCategory,
 } from '@/lib/clinic-master';
 import type {
   ClinicHeroDecision,
@@ -40,6 +39,7 @@ import {
   clinicImageDimensions,
   clinicPhotoGate,
   eligibleForClinicHero,
+  clinicPhotoPoolForPattern,
   clinicPhotoPoolForTopic,
   clinicPhotoSlotPool,
   prospectBrandLogo,
@@ -52,23 +52,25 @@ import {
 } from './source-images';
 import { isUsableProcedurePageTitle } from './source-noise';
 import {
+  clinicProcedureCategoryDef,
+  clinicProcedureCategoryFor,
+  clinicProcedureTaxonomy,
+  type ClinicProcedureTaxonomy,
+} from './procedure-taxonomy';
+import { US_DEMO_FALLBACK_CLINIC_SPECIALTY } from './clinic-palette';
+import { clinicStockLibraryFor } from './clinic-stock';
+import {
   prospectPublicSourceContentUnits,
   prospectPublicSourceOperationalStats,
   type ProspectPublicSourceContentUnit,
 } from './source-extraction';
 
-export type ClinicProcedureCategory =
-  | 'implant'
-  | 'orthodontic'
-  | 'cosmetic-restorative'
-  | 'preventive-general';
-
-const CATEGORY_ORDER = [
-  'implant',
-  'orthodontic',
-  'cosmetic-restorative',
-  'preventive-general',
-] as const satisfies readonly ClinicProcedureCategory[];
+/**
+ * A category id from the specialty's taxonomy (`procedure-taxonomy.ts`), no longer a dental union.
+ * The set of legal values depends on the specialty, so it cannot be a type — the taxonomy is the
+ * authority and `clinicProcedureCategoryDef` throws on an id it does not own.
+ */
+export type ClinicProcedureCategory = string;
 
 export const MIN_BLOCKS_FOR_INDIVIDUAL_PAGE = 2;
 
@@ -121,38 +123,12 @@ export function procedureBodyImageBudget(
   );
 }
 
-const CATEGORY_META = Object.freeze({
-  implant: { slug: 'implants', navLabel: 'Implants', stock: 'implant' },
-  orthodontic: { slug: 'orthodontics', navLabel: 'Orthodontics', stock: 'orthodontic' },
-  'cosmetic-restorative': {
-    slug: 'cosmetic-restorative',
-    navLabel: 'Cosmetic & Restorative',
-    stock: 'cosmetic-restorative',
-  },
-  'preventive-general': {
-    slug: 'preventive-dentistry',
-    navLabel: 'Preventive Dentistry',
-    stock: 'preventive-general',
-  },
-} as const satisfies Record<ClinicProcedureCategory, {
-  slug: string;
-  navLabel: string;
-  stock: DentalStockCategory;
-}>);
-
-const IMPLANT_RE =
-  /\b(?:dental\s+)?implants?\b|\ball[- ]on[- ](?:4|6)\b|\bfull[- ]arch\b/iu;
-const ORTHODONTIC_RE =
-  /\borthodont(?:ic|ics|ist)?\b|\bbraces\b|\binvisalign\b|\bclear aligners?\b/iu;
-const COSMETIC_RE =
-  /\bcosmetic\b|\bveneers?\b|\bwhitening\b|\brestorative\b|\bcrowns?\b|\bbridges?\b|\bdentures?\b/iu;
-
-function procedureCategory(text: string): ClinicProcedureCategory {
-  if (IMPLANT_RE.test(text)) return 'implant';
-  if (ORTHODONTIC_RE.test(text)) return 'orthodontic';
-  if (COSMETIC_RE.test(text)) return 'cosmetic-restorative';
-  return 'preventive-general';
-}
+/**
+ * The dental table that used to live here — CATEGORY_META, the three ordered regexes and
+ * procedureCategory() — is now the `dental` entry of `procedure-taxonomy.ts`, unchanged. This file
+ * reads whichever entry the compiled pin's specialty names.
+ */
+const DENTAL_PROCEDURE_TAXONOMY = clinicProcedureTaxonomy('dental');
 
 export interface PlannedMergedChild {
   sourceUrl: string;
@@ -249,10 +225,14 @@ function capProcedurePages(
  */
 export function planProcedurePages(
   blocks: readonly ProspectPublicSourceBlock[],
+  /** Defaults to dental, so the existing callers and their recorded output are unchanged. */
+  taxonomy: ClinicProcedureTaxonomy = DENTAL_PROCEDURE_TAXONOMY,
 ): {
   pages: PlannedProcedurePage[];
   homeBlocks: ProspectPublicSourceBlock[];
 } {
+  const categoryOrder = taxonomy.categories.map((category) => category.id);
+  const procedureCategory = (text: string) => clinicProcedureCategoryFor(taxonomy, text);
   const allByUrl = new Map<string, ProspectPublicSourceBlock[]>();
   for (const block of blocks) {
     const current = allByUrl.get(block.sourceUrl) ?? [];
@@ -342,7 +322,7 @@ export function planProcedurePages(
       bucket.sourceBlockCount,
     );
   }
-  for (const category of CATEGORY_ORDER) {
+  for (const category of categoryOrder) {
     const bucket = categoryBuckets.get(category);
     if (!bucket) continue;
     if (
@@ -361,7 +341,7 @@ export function planProcedurePages(
   }
   const kept = capProcedurePages(pages, homeBlocks);
   kept.sort((left, right) => (
-    CATEGORY_ORDER.indexOf(left.category) - CATEGORY_ORDER.indexOf(right.category)
+    categoryOrder.indexOf(left.category) - categoryOrder.indexOf(right.category)
     || (left.sourceUrl ?? '').localeCompare(right.sourceUrl ?? '')
     || left.blocks[0].id.localeCompare(right.blocks[0].id)
   ));
@@ -371,8 +351,9 @@ export function planProcedurePages(
 function procedureSlug(
   plan: PlannedProcedurePage,
   used: Set<string>,
+  taxonomy: ClinicProcedureTaxonomy,
 ): string {
-  const fallback = CATEGORY_META[plan.category].slug;
+  const fallback = clinicProcedureCategoryDef(taxonomy, plan.category).slug;
   const sourceSegment = plan.sourceUrl
     ? new URL(plan.sourceUrl).pathname.split('/').filter(Boolean).at(-1)
     : undefined;
@@ -866,7 +847,15 @@ function firstHomeImage(
 function procedureImageTopic(
   plan: PlannedProcedurePage,
   slug: string,
-): ClinicImagePageTopic {
+  taxonomy: ClinicProcedureTaxonomy,
+): ClinicImagePageTopic | RegExp {
+  /**
+   * Non-dental categories carry their own alt-text pattern, because the checks below are dental
+   * vocabulary. Dental categories declare no pattern, so dental falls through to exactly the
+   * sequence it always used.
+   */
+  const declared = clinicProcedureCategoryDef(taxonomy, plan.category).photoMatch;
+  if (declared) return declared;
   const routeContext = [
     slug,
     plan.sourceUrl ?? '',
@@ -1010,6 +999,13 @@ export function compileUsMedicalFullPreview(input: {
   const theme = baseConfig.theme;
   const pin = baseConfig.clinicMaster;
   if (!pin) throw new Error('CLINIC_MASTER_PIN_REQUIRED');
+  /**
+   * Read off the pin the compile has already decided, not classified again from the source. Absent
+   * means dental, which is what every pin issued before the field existed meant.
+   */
+  const specialty = pin.specialty ?? US_DEMO_FALLBACK_CLINIC_SPECIALTY;
+  const taxonomy = clinicProcedureTaxonomy(specialty);
+  const stockLibrary = clinicStockLibraryFor(specialty);
   const projectedImages = prospectPublicSourceImages(artifact);
   const photoSlotPool = clinicPhotoSlotPool(projectedImages);
   const heroUseCounts = new Map<string, number>();
@@ -1117,15 +1113,15 @@ export function compileUsMedicalFullPreview(input: {
     : heroPool);
   recordHeroDecision('', homeImage);
   const services = blocks.filter((block) => block.kind === 'service');
-  const procedurePlan = planProcedurePages(blocks);
-  const procedureCategoryCounts = new Map(CATEGORY_ORDER.map((category) => [
-    category,
-    procedurePlan.pages.filter((page) => page.category === category).length,
+  const procedurePlan = planProcedurePages(blocks, taxonomy);
+  const procedureCategoryCounts = new Map(taxonomy.categories.map((category) => [
+    category.id,
+    procedurePlan.pages.filter((page) => page.category === category.id).length,
   ]));
   const usedProcedureSlugs = new Set<string>(['', 'about', 'contact']);
   const plannedPages = procedurePlan.pages.map((planned) => ({
     planned,
-    slug: procedureSlug(planned, usedProcedureSlugs),
+    slug: procedureSlug(planned, usedProcedureSlugs, taxonomy),
   }));
   const bodyImageBudget = procedureBodyImageBudget(
     photoSlotPool.length,
@@ -1182,8 +1178,11 @@ export function compileUsMedicalFullPreview(input: {
     const body = planned.blocks.find((block) => (
       block.kind === 'service_detail' && block.sourceUrl === title.sourceUrl
     ));
-    const topic = procedureImageTopic(planned, slug);
-    const image = clinicPhotoPoolForTopic(projectedImages, topic).find((candidate) => (
+    const topic = procedureImageTopic(planned, slug, taxonomy);
+    const pool = topic instanceof RegExp
+      ? clinicPhotoPoolForPattern(projectedImages, topic)
+      : clinicPhotoPoolForTopic(projectedImages, topic);
+    const image = pool.find((candidate) => (
       !homeServiceImageIds.has(candidate.source.id)
       && candidate.source.id !== homeImage?.source.id
     ));
@@ -1243,11 +1242,13 @@ export function compileUsMedicalFullPreview(input: {
     ...homeServiceImageIds,
     ...homeGalleryImageIds,
   ]);
-  const topicPhotoPool = (topic: ClinicImagePageTopic): {
+  const topicPhotoPool = (topic: ClinicImagePageTopic | RegExp): {
     hero: ProjectedUsDemoSourceImage[];
     body: ProjectedUsDemoSourceImage[];
   } => {
-    const matched = clinicPhotoPoolForTopic(projectedImages, topic);
+    const matched = topic instanceof RegExp
+      ? clinicPhotoPoolForPattern(projectedImages, topic)
+      : clinicPhotoPoolForTopic(projectedImages, topic);
     const matchedIds = new Set(matched.map((image) => image.source.id));
     const rest = photoSlotPool.filter((image) => (
       !matchedIds.has(image.source.id) && !sourceImageIsInsuranceLogo(image)
@@ -1389,7 +1390,7 @@ export function compileUsMedicalFullPreview(input: {
       pageSourceBlocks.filter((block) => block.kind === 'service'),
       pin.focus,
     );
-    const meta = CATEGORY_META[category];
+    const meta = clinicProcedureCategoryDef(taxonomy, category);
     /**
      * A page title becomes a nav label, so it has to read like a treatment. The same gate that
      * decides what may be published as a MedicalProcedure decides this: it rejects the list
@@ -1400,7 +1401,7 @@ export function compileUsMedicalFullPreview(input: {
     const displayTitle = categoryServices.find((block) => (
       isUsableProcedurePageTitle(block.text)
     ))?.text ?? meta.navLabel;
-    const pageTopic = procedureImageTopic(planned, slug);
+    const pageTopic = procedureImageTopic(planned, slug, taxonomy);
     const categoryImages = topicPhotoPool(pageTopic);
     const heroImage = allocateHeroImage(categoryImages.hero.filter(eligibleForClinicHero));
     recordHeroDecision(slug, heroImage);
@@ -1564,16 +1565,25 @@ export function compileUsMedicalFullPreview(input: {
       previousStockHeroAssetId = undefined;
       continue;
     }
-    const procedure = CATEGORY_ORDER.find((category) => (
-      page.id.startsWith(`clinic-procedure-${category}-`)
+    const procedure = taxonomy.categories.find((category) => (
+      page.id.startsWith(`clinic-procedure-${category.id}-`)
     ));
     const category = procedure
-      ? CATEGORY_META[procedure].stock
+      ? procedure.stock
       : page.id === 'clinic-home-v2'
         ? dentalStockCategoryForSource(pin.focus, services.map((block) => block.text).join(' '))
         : 'bright-interior';
+    /**
+     * No licensed pool for this specialty, or none for this category within it. The page keeps the
+     * practice's own photography, or no hero image, rather than borrowing another specialty's.
+     */
+    if (!stockLibrary || !category) {
+      previousStockHeroAssetId = undefined;
+      continue;
+    }
     config = applyDentalStockToClinicMaster(config, {
       hospitalStableId,
+      manifest: stockLibrary,
       category,
       slot: 'hero',
       pageSlug: page.slug,

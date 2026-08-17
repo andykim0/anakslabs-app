@@ -26,6 +26,7 @@ import {
   CLINIC_PALETTE_ORIGINS,
   CLINIC_PALETTE_REFINEMENTS,
   CLINIC_PALETTE_SLOTS,
+  CLINIC_SPECIALTIES,
   type ClinicPaletteSlot,
 } from '@/lib/us-demo/clinic-palette';
 import { CLINIC_TEMPLATE_IDS } from '@/lib/us-demo/template-system';
@@ -290,6 +291,8 @@ const clinicPaletteHexSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]
 export const clinicMasterPinSchema = z.object({
   version: z.literal(1),
   masterId: z.literal('premium-dental-v1'),
+  /** 컴파일이 저장한 진료과. 부재 = dental(이 필드 이전 발급분, 그리고 dental 신규 발급분). */
+  specialty: z.enum(CLINIC_SPECIALTIES).optional(),
   accentPreset: z.enum([
     'clean-blue',
     'clean-teal',

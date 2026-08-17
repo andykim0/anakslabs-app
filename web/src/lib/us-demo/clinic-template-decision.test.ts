@@ -105,6 +105,7 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
      */
     const locationUrls = ['https://x.test/locations/', 'https://x.test/locations/north/'];
     const oneAddress = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
       pageUrls: locationUrls,
       blocks: [...blocks.filter((b) => b.kind !== 'address'), address('910 W Van Buren St, Chicago IL')],
       eligiblePhotoCount: 30,
@@ -112,6 +113,7 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
     assert.equal(oneAddress.input.multiLocation, false);
 
     const twoAddresses = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
       pageUrls: locationUrls,
       blocks: [
         ...blocks.filter((b) => b.kind !== 'address'),
@@ -125,6 +127,7 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
 
     // And no URL at all cannot hide a real network: the addresses still decide.
     const noUrls = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
       pageUrls: ['https://x.test/', 'https://x.test/services/'],
       blocks: [
         ...blocks.filter((b) => b.kind !== 'address'),
@@ -138,6 +141,7 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
     // One door written three ways is still one door — punctuation must not rebuild the false
     // positive that counting URLs produced.
     const punctuationVariants = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
       pageUrls: locationUrls,
       blocks: [
         ...blocks.filter((b) => b.kind !== 'address'),
@@ -153,6 +157,7 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
     // Single address on purpose: dental360's own blocks carry eight, which would correctly make
     // this a network and settle the decision at T7 before the R/S axis is ever consulted.
     const repeated = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
       pageUrls: ['https://x.test/reviews/', 'https://x.test/meet-the-doctors/'],
       blocks: [...blocks.filter((b) => b.kind !== 'address'), address('910 W Van Buren St, Chicago IL')],
       eligiblePhotoCount: 0,

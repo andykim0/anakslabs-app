@@ -10,6 +10,10 @@ import { allSections, findPage, homePage } from '@/lib/types/site';
 import type { LivePurposeId } from '@/lib/types/domain';
 import { resolvePublicContact } from './public-contact';
 import { isPublishableProcedureName } from '@/lib/us-demo/source-noise';
+import {
+  US_DEMO_FALLBACK_CLINIC_SPECIALTY,
+  type ClinicSpecialty,
+} from '@/lib/us-demo/clinic-palette';
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -192,6 +196,55 @@ function clinicMasterV2(config: SiteConfig): boolean {
   );
 }
 
+/**
+ * schema.org identity per specialty, verified against the live vocabulary (2026-08-17) rather than
+ * assumed. Every term below is a real MedicalBusiness subtype or a real MedicalSpecialty member:
+ *
+ * - `Dentist` — MedicalBusiness subtype. schema.org/Dentist. Dental's existing value, unchanged.
+ * - `Dermatology` — MedicalBusiness subtype AND a MedicalSpecialty enumeration member; schema.org
+ *   defines it in both roles, so it serves as the type and the specialty value.
+ * - `Physician` — MedicalBusiness subtype. Used for orthopaedics and for the eye/internal/general
+ *   bucket because **schema.org has no `Orthopedic`, `Ophthalmology` or `InternalMedicine` type**;
+ *   inventing one would emit a term no consumer resolves.
+ * - `Musculoskeletal` — MedicalSpecialty member. The vocabulary's actual name for the orthopaedic
+ *   domain, since `Orthopedic` is not a member either.
+ * - `PrimaryCare` — MedicalSpecialty member, for the eye/internal/general bucket.
+ *
+ * `medicalSpecialty` is a property of MedicalOrganization, which MedicalClinic inherits, so it is
+ * legal on this node. Dental deliberately does not emit it: `Dentistry` is a valid member and
+ * adding it would be an improvement, but it would also change the structured data of every dental
+ * demo already sent, which this change is not permitted to do. Left as a separate decision.
+ */
+const CLINIC_SPECIALTY_SCHEMA: Readonly<Record<ClinicSpecialty, {
+  orgType: readonly string[];
+  medicalSpecialty?: string;
+}>> = Object.freeze({
+  dental: { orgType: ['Dentist', 'MedicalClinic', 'LocalBusiness'] },
+  'derm-plastic-aesthetic': {
+    orgType: ['Dermatology', 'MedicalClinic', 'LocalBusiness'],
+    medicalSpecialty: 'Dermatology',
+  },
+  'ortho-surgery-pain': {
+    orgType: ['Physician', 'MedicalClinic', 'LocalBusiness'],
+    medicalSpecialty: 'Musculoskeletal',
+  },
+  'eye-internal-general': {
+    orgType: ['Physician', 'MedicalClinic', 'LocalBusiness'],
+    medicalSpecialty: 'PrimaryCare',
+  },
+});
+
+/**
+ * Reads the specialty the compile stored on the pin. It never inspects the copy: this runs inside a
+ * force-dynamic preview render, so classifying here could disagree with what the compile decided
+ * and tell a search engine something the page itself does not say.
+ */
+function clinicSpecialtySchema(config: SiteConfig) {
+  return CLINIC_SPECIALTY_SCHEMA[
+    config.clinicMaster?.specialty ?? US_DEMO_FALLBACK_CLINIC_SPECIALTY
+  ];
+}
+
 function firstSourceText(
   section: Section | undefined,
   idFragment?: string,
@@ -243,8 +296,9 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
   const spec = schemaSpecFor(config.meta.purposeId);
   const hasMenu = allSections(config).some((section) => section.type === 'menu');
   const isClinicMasterV2 = clinicMasterV2(config);
-  const orgType = isClinicMasterV2
-    ? ['Dentist', 'MedicalClinic', 'LocalBusiness']
+  const specialtySchema = isClinicMasterV2 ? clinicSpecialtySchema(config) : undefined;
+  const orgType = specialtySchema
+    ? specialtySchema.orgType
     : organizationTypeFor(config, spec, hasMenu);
   const region = config.meta.region?.trim();
   const isUsEnglish = config.meta.locale === 'en-US'
@@ -257,6 +311,10 @@ export function buildJsonLd(config: SiteConfig, siteUrl: string, pageSlug = ''):
     name,
     url: baseUrl,
   };
+  // Only ever present for a non-dental specialty; see CLINIC_SPECIALTY_SCHEMA.
+  if (specialtySchema?.medicalSpecialty) {
+    identity.medicalSpecialty = specialtySchema.medicalSpecialty;
+  }
   if (config.meta.description) identity.description = config.meta.description;
   if (imageUrl) identity.image = imageUrl;
   const sameAs = officialChannelUrls(config);

@@ -18,6 +18,7 @@ import {
   INSUFFICIENT_ENGLISH_SOURCE,
   UsDemoCompileError,
 } from '@/lib/us-demo/contracts';
+import { CLINIC_SPECIALTIES } from '@/lib/us-demo/clinic-palette';
 import {
   prepareUsMedicalPreview,
   type UsMedicalDeliveryBlocker,
@@ -50,6 +51,11 @@ const createSchema = z.object({
   ]).default('company_brand'),
   industry: z.string().trim().min(1).max(100).default('인테리어 디자인'),
   businessName: z.string().trim().min(1).max(100).optional(),
+  /**
+   * us-medical-outreach only. Omitted means the practice's own vocabulary decides; supplying it
+   * is an operator overruling that, which is recorded on the compiled pin either way.
+   */
+  specialty: z.enum(CLINIC_SPECIALTIES).optional(),
   manualFinish: z.object({
     includeBlockIds: z.array(z.string().min(1).max(100)).max(100).optional(),
     orderedBlockIds: z.array(z.string().min(1).max(100)).max(100).optional(),
@@ -96,6 +102,7 @@ export const POST = withApiHandler(async (
         artifact: artifactRecord.artifact,
         manualFinish: body.data.manualFinish,
         renderMode: body.data.renderMode,
+        ...(body.data.specialty ? { specialty: body.data.specialty } : {}),
       });
       config = prepared.config;
       sourceReport = prepared.sourceReport;

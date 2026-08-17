@@ -9,6 +9,7 @@ import {
 } from './compilation-audit';
 import { sourceAiVisibilitySummary } from './structure-diff';
 import { enforceGeneratedMedicalConfig } from '@/lib/content/medical-ad-enforcement';
+import type { ClinicSpecialty } from './clinic-palette';
 
 export interface UsMedicalDeliveryBlocker {
   ruleId: string;
@@ -84,12 +85,18 @@ export function prepareUsMedicalPreview(input: {
   artifact: CrawlArtifactPayload;
   manualFinish?: UsDemoManualFinish;
   renderMode?: UsDemoRenderMode;
+  /**
+   * Operator override for the specialty. Omitted means the practice's own vocabulary decides
+   * (`resolveClinicSpecialty`); either way the answer is stored on the pin and read from there.
+   */
+  specialty?: ClinicSpecialty;
 }): PreparedUsMedicalPreview {
   const renderMode = input.renderMode ?? 'outreach-safe';
   sourceAiVisibilitySummary(input.artifact);
   const compiled = compileUsMedicalDemo(input.artifact, {
     manualFinish: input.manualFinish,
     renderMode,
+    ...(input.specialty ? { specialty: input.specialty } : {}),
   });
   /**
    * The medical-ad screen runs HERE, at issuance, not at delivery.
