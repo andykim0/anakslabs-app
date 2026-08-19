@@ -55,6 +55,29 @@ describe('an operator learns a preview is undeliverable before sending it', () =
     assert.match(sendPanel, /BLOCKER_NATURE_LABELS\[blocker\.nature\]/u);
   });
 
+  test('a non-blocking advisory reaches the same panel as the link', () => {
+    // The source compiler already strips credential copy upstream, so these three carry none.
+    // What is asserted here is the surface: the field exists on every prepared preview and the
+    // panel that carries the URL is where it renders — an advisory that only reached an audit
+    // page would be an advisory nobody reads before sending.
+    for (const name of ['cameods', 'iddental', 'dental360']) {
+      assert.deepEqual(prepare(name).deliveryAdvisories, [], name);
+    }
+
+    const start = PIPELINE.indexOf('{preview && (');
+    const panel = PIPELINE.slice(start);
+    const sendPanel = panel.slice(0, panel.indexOf('</section>'));
+    assert.match(sendPanel, /preview\.deliveryAdvisories/u);
+    assert.match(sendPanel, /\{advisory\.ruleId\}/u);
+    assert.match(sendPanel, /\{advisory\.detail\}/u);
+    // Advisories are not a failure mode. The undeliverable branch must be closed before the
+    // advisory block opens, or a deliverable preview would silently drop its advisories.
+    const undeliverableAt = sendPanel.indexOf('previewUndeliverable ? (');
+    const advisoryAt = sendPanel.indexOf('preview.deliveryAdvisories?.length');
+    assert.ok(undeliverableAt > 0 && advisoryAt > undeliverableAt);
+    assert.match(sendPanel.slice(undeliverableAt, advisoryAt), /\) : null\}/u);
+  });
+
   test('previewing an undeliverable page is still permitted', () => {
     const prepared = prepare('dental360');
     // Recorded, never enforced: the config still compiles and still renders.

@@ -28,6 +28,16 @@ export interface UsMedicalDeliveryBlocker {
   detail: string;
 }
 
+/**
+ * A rule that matched but does not gate delivery — today only credential claims. It travels with
+ * the blockers because it belongs in the same operator glance: the practice is the party attesting
+ * to the credential, so what the operator needs is to know the sentence is there, not permission.
+ */
+export interface UsMedicalDeliveryAdvisory {
+  ruleId: string;
+  detail: string;
+}
+
 export interface PreparedUsMedicalPreview {
   config: SiteConfig;
   /**
@@ -41,6 +51,11 @@ export interface PreparedUsMedicalPreview {
    * in a hurry.
    */
   deliveryBlockers: readonly UsMedicalDeliveryBlocker[];
+  /**
+   * Present whether or not the preview is deliverable — an advisory never makes it undeliverable,
+   * so it must not be reported only in the failure path.
+   */
+  deliveryAdvisories: readonly UsMedicalDeliveryAdvisory[];
   renderMode: UsDemoRenderMode;
   sourceReport: {
     origin: 'prospect_public_source';
@@ -73,6 +88,15 @@ function deliveryBlockersOf(
       detail: violation.matchedText,
     };
   });
+}
+
+function deliveryAdvisoriesOf(
+  result: ReturnType<typeof enforceGeneratedMedicalConfig>['result'],
+): readonly UsMedicalDeliveryAdvisory[] {
+  return result.advisories.map((advisory) => ({
+    ruleId: advisory.ruleId,
+    detail: advisory.matchedText,
+  }));
 }
 
 /**
@@ -113,6 +137,7 @@ export function prepareUsMedicalPreview(input: {
     config,
     deliverable: screened.result.ok,
     deliveryBlockers: deliveryBlockersOf(screened.result),
+    deliveryAdvisories: deliveryAdvisoriesOf(screened.result),
     renderMode,
     sourceReport: {
       origin: compiled.sourceManifest.origin,

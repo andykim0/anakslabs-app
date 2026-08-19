@@ -20,6 +20,7 @@ import {
 } from '@/lib/us-demo/contracts';
 import {
   prepareUsMedicalPreview,
+  type UsMedicalDeliveryAdvisory,
   type UsMedicalDeliveryBlocker,
 } from '@/lib/us-demo/admin-workflow';
 import {
@@ -90,6 +91,7 @@ export const POST = withApiHandler(async (
   let compilationAudit: unknown;
   let deliverable: boolean | undefined;
   let deliveryBlockers: readonly UsMedicalDeliveryBlocker[] | undefined;
+  let deliveryAdvisories: readonly UsMedicalDeliveryAdvisory[] | undefined;
   if (body.data.previewKind === 'us-medical-outreach') {
     try {
       const prepared = prepareUsMedicalPreview({
@@ -104,9 +106,11 @@ export const POST = withApiHandler(async (
         ...prepared.audit,
         deliverable: prepared.deliverable,
         deliveryBlockers: prepared.deliveryBlockers,
+        deliveryAdvisories: prepared.deliveryAdvisories,
       };
       deliverable = prepared.deliverable;
       deliveryBlockers = prepared.deliveryBlockers;
+      deliveryAdvisories = prepared.deliveryAdvisories;
     } catch (error) {
       if (error instanceof UsDemoCompileError) {
         return apiError(
@@ -183,6 +187,7 @@ export const POST = withApiHandler(async (
       warning: IMPORT_PREVIEW_BEARER_WARNING,
       ...(deliverable === undefined ? {} : { deliverable }),
       ...(deliveryBlockers?.length ? { deliveryBlockers } : {}),
+      ...(deliveryAdvisories?.length ? { deliveryAdvisories } : {}),
       ...(sourceReport ? { sourceReport } : {}),
       ...(emailEvidenceLine ? { emailEvidenceLine } : {}),
     },

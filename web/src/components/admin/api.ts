@@ -528,6 +528,14 @@ export interface AdminUsDemoPreviewResponse {
       nature: 'claim' | 'omission' | 'classification';
       detail: string;
     }>;
+    /**
+     * Rules that matched without gating delivery — the practice's own factual claims, which it
+     * attests to under the terms of service. Present independently of `deliverable`.
+     */
+    deliveryAdvisories?: Array<{
+      ruleId: string;
+      detail: string;
+    }>;
     sourceReport: {
       origin: 'prospect_public_source' | 'prospect_consented_source';
       totalBlocks: number;

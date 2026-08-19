@@ -21,6 +21,14 @@ import type {
   VideoElement,
 } from '@/lib/types/site';
 
+/**
+ * The stamp is pinned by `z.literal(MEDICAL_AD_POLICY_VERSION)` in
+ * `app/api/_lib/schemas.ts` (siteMeta.medicalAdPolicyVersion) and duplicated by hand as
+ * `CLINIC_REQUIRED_MEDICAL_AD_POLICY_VERSION` in `lib/pricing.ts`. Bumping it therefore fails zod
+ * on every already-stored config carrying the old stamp — published sites and issued previews —
+ * so rule ids may be added, split, or narrowed inside an unchanged version. The version tracks the
+ * policy contract those stored configs were validated against, not the rule table's edit history.
+ */
 export const MEDICAL_AD_POLICY_VERSION = 'us-medical-ad-2026-08-v1' as const;
 
 export const MEDICAL_AD_AUTHORITY_SOURCES = Object.freeze({
@@ -99,6 +107,12 @@ export interface MedicalAdRule {
     | 'side-effect-omission';
   severity: MedicalAdSeverity;
   enabled: boolean;
+  /**
+   * An advisory rule still matches and is still reported, but never as a violation: it is recorded
+   * on `advisories` and no publish, delivery, or sanitization path consults it. `severity` is not
+   * read for advisory rules.
+   */
+  advisory?: true;
   usDisposition: 'valid' | 'modified' | 'inactive-review-required';
   statuteRefs: readonly MedicalStatuteRef[];
   matchers: readonly MedicalAdMatcher[];
@@ -117,9 +131,27 @@ export const MEDICAL_AD_RULES = [
     usDisposition: 'modified',
     statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
+      { kind: 'regex', source: '\\b(?:best|number\\s+one|top[- ]rated)\\b' },
+      // Normalization strips punctuation, so "#1 clinic" reaches this matcher as "1 clinic".
+      { kind: 'regex', source: '\\b1\\s+(?:clinic|practice|provider)\\b' },
+      /**
+       * "leading" is only a superiority claim when it leads back to the practice. Epidemiological
+       * usage ("plaque is the leading cause of tooth decay") is a factual statement about a
+       * disease, not about who provides care, so the token requires a self-referential noun.
+       */
       {
         kind: 'regex',
-        source: '\\b(?:best|number\\s+one|top[- ]rated|leading|only\\s+(?:clinic|practice|provider)|1\\s+(?:clinic|practice|provider))\\b',
+        source: '\\bleading\\b(?:\\s+\\w+){0,3}\\s+(?:clinics?|practices?|providers?|dentists?|doctors?|centers?|teams?)\\b',
+      },
+      /**
+       * "only" is a superiority claim when it asserts exclusive capability ("the only clinic that
+       * can reverse gum disease") and a checkable operating fact when it asserts availability
+       * ("the only clinic in Fullerton open on Saturdays"). The capability complement is what
+       * needs substantiation, so the match requires one.
+       */
+      {
+        kind: 'regex',
+        source: '\\bonly\\s+(?:clinics?|practices?|providers?|dentists?|doctors?|centers?|teams?)\\b(?:\\s+\\w+){0,6}?\\s+(?:that\\s+can|who\\s+can|to\\s+offer|offering)\\b',
       },
     ],
     safeReplacementHint: 'Use verifiable services, provider details, and operating facts instead.',
@@ -135,7 +167,16 @@ export const MEDICAL_AD_RULES = [
     matchers: [
       {
         kind: 'regex',
-        source: '\\b(?:100\\s*%|guarante(?:e|ed|es)|cure(?:d|s)?|completely\\s+safe|absolutely\\s+safe|no\\s+side\\s+effects?|pain[- ]free|permanent\\s+results?)\\b',
+        source: '\\b(?:100\\s*%|guarante(?:e|ed|es)|completely\\s+safe|absolutely\\s+safe|no\\s+side\\s+effects?|pain[- ]free|permanent\\s+results?)\\b',
+      },
+      /**
+       * A disclaimer is the opposite of the promise this rule exists to catch: "there is no cure
+       * for periodontal disease" tells a patient the truth about a chronic condition. Only an
+       * asserted cure is screened, so negated and disclaiming uses pass.
+       */
+      {
+        kind: 'regex',
+        source: '(?<!\\b(?:no|not|cannot|never|without)\\s(?:a\\s|any\\s)?)\\bcure(?:d|s)?\\b',
       },
     ],
     safeReplacementHint: 'Describe the procedure without guaranteeing safety, efficacy, or outcome.',
@@ -228,7 +269,37 @@ export const MEDICAL_AD_RULES = [
     rationale: 'Objective health-benefit and evidence-level claims require adequate substantiation.',
   },
   {
-    id: 'medical-qualification-endorsement',
+    /**
+     * A credential is a verifiable factual assertion — a board certification either exists in a
+     * registry or it does not — and under the terms of service the clinic is the party responsible
+     * for its accuracy. This screen cannot verify it against any registry, so it must not block on
+     * it: refusing to publish "our board-certified periodontist has practiced here for 18 years"
+     * suppresses a true statement the practice is entitled to make. It stays detected and recorded
+     * on `advisories` so the human-review flow, when it exists, has the list to check.
+     */
+    id: 'medical-credential-claim',
+    category: 'qualification-endorsement',
+    severity: 'warn',
+    enabled: true,
+    advisory: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Endorsement Guides'],
+    matchers: [
+      {
+        kind: 'regex',
+        source: '\\b(?:board[- ]certified|certified\\s+specialist|accredited|fellowship[- ]trained)\\b',
+      },
+    ],
+    safeReplacementHint: 'Confirm the credential and its issuing body before publication; the practice attests to its accuracy.',
+    rationale: 'A credential is a verifiable factual claim the advertiser must be able to substantiate.',
+  },
+  {
+    /**
+     * Unlike a credential, these are unattributed superiority signals: no registry says who is
+     * "award-winning" or which experts did the recommending, and the FTC Endorsement Guides put
+     * the burden of the missing attribution on the advertiser. They keep blocking.
+     */
+    id: 'medical-endorsement-puffery',
     category: 'qualification-endorsement',
     severity: 'warn',
     enabled: true,
@@ -237,11 +308,11 @@ export const MEDICAL_AD_RULES = [
     matchers: [
       {
         kind: 'regex',
-        source: '\\b(?:board[- ]certified|certified\\s+specialist|award[- ]winning|accredited|fellowship[- ]trained|expert[- ]recommended)\\b',
+        source: '\\b(?:award[- ]winning|expert[- ]recommended)\\b',
       },
     ],
-    safeReplacementHint: 'Publish the exact credential only after its source and any material connection are verified.',
-    rationale: 'Credentials and expert endorsements must be accurate and appropriately supported.',
+    safeReplacementHint: 'Name the award or the recommending expert, or drop the claim.',
+    rationale: 'An unattributed endorsement or award claim must be accurate and appropriately supported.',
   },
   {
     id: 'medical-article-format',
@@ -283,9 +354,30 @@ export interface MedicalSiteAdViolation extends MedicalAdViolation {
   sourceKind: MedicalCopySourceKind;
 }
 
+/**
+ * A matched advisory rule. It carries no severity because it never gates anything — it is a note
+ * for a reviewer, deliberately kept out of `violations` so no caller can block on it by accident.
+ */
+export interface MedicalAdAdvisory {
+  ruleId: string;
+  category: MedicalAdRule['category'];
+  matchedText: string;
+  statuteRefs: readonly MedicalStatuteRef[];
+  safeReplacementHint: string;
+  rationale: string;
+}
+
+export interface MedicalSiteAdAdvisory extends MedicalAdAdvisory {
+  path: string;
+  scope: MedicalCopyScope;
+  sourceKind: MedicalCopySourceKind;
+}
+
 export interface MedicalAdScreenResult {
   policyVersion: typeof MEDICAL_AD_POLICY_VERSION;
   violations: readonly MedicalAdViolation[];
+  /** Detected, reported, and never blocking. See `MedicalAdRule.advisory`. */
+  advisories: readonly MedicalAdAdvisory[];
 }
 
 const ZERO_WIDTH = /[\u200B-\u200D\u2060\uFEFF]/gu;
@@ -314,11 +406,17 @@ export function screenMedicalCopy(
   context: { scope?: MedicalCopyScope } = {},
 ): MedicalAdScreenResult {
   const normalized = normalizeMedicalCopy(text);
-  if (!normalized) return { policyVersion: MEDICAL_AD_POLICY_VERSION, violations: [] };
+  if (!normalized) {
+    return { policyVersion: MEDICAL_AD_POLICY_VERSION, violations: [], advisories: [] };
+  }
   const scope = context.scope ?? 'body';
   const violations: MedicalAdViolation[] = [];
+  const advisories: MedicalAdAdvisory[] = [];
 
-  for (const rule of MEDICAL_AD_RULES) {
+  // Widened to the declared rule type so optional fields (`advisory`, `scopes`) are readable
+  // without every rule literal having to restate them.
+  const rules: readonly MedicalAdRule[] = MEDICAL_AD_RULES;
+  for (const rule of rules) {
     if (!rule.enabled) continue;
     if (!ruleAppliesToScope(rule, scope)) continue;
     let matchedText = '';
@@ -331,6 +429,17 @@ export function screenMedicalCopy(
       }
     }
     if (!matchedText) continue;
+    if (rule.advisory) {
+      advisories.push({
+        ruleId: rule.id,
+        category: rule.category,
+        matchedText,
+        statuteRefs: rule.statuteRefs,
+        safeReplacementHint: rule.safeReplacementHint,
+        rationale: rule.rationale,
+      });
+      continue;
+    }
     violations.push({
       ruleId: rule.id,
       category: rule.category,
@@ -342,7 +451,7 @@ export function screenMedicalCopy(
     });
   }
 
-  return { policyVersion: MEDICAL_AD_POLICY_VERSION, violations };
+  return { policyVersion: MEDICAL_AD_POLICY_VERSION, violations, advisories };
 }
 
 function assertNever(value: never): never {

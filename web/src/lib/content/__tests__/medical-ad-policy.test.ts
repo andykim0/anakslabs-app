@@ -42,8 +42,18 @@ const FORBIDDEN_SEEDS = [
   ['More effective than other providers', 'medical-comparison'],
   ['A breakthrough treatment', 'medical-unassessed-technology'],
   ['Clinically proven technology', 'medical-unassessed-technology'],
-  ['Board-certified provider', 'medical-qualification-endorsement'],
-  ['Award-winning specialist', 'medical-qualification-endorsement'],
+  ['Award-winning specialist', 'medical-endorsement-puffery'],
+] as const;
+
+/**
+ * Still detected, never a violation: the practice attests to the credential, so it is recorded for
+ * review rather than screened out. Kept as a seed list so a rule that stops matching fails here.
+ */
+const ADVISORY_SEEDS = [
+  ['Board-certified provider', 'medical-credential-claim'],
+  ['A certified specialist on staff', 'medical-credential-claim'],
+  ['An accredited practice', 'medical-credential-claim'],
+  ['A fellowship-trained surgeon', 'medical-credential-claim'],
 ] as const;
 
 const SAFE_SUBJECTS = [
@@ -350,6 +360,17 @@ describe('MEDLAW R1 — 법조문과 정밀도', () => {
     }
   });
 
+  test(`자격 advisory 씨앗 ${ADVISORY_SEEDS.length}건은 검출되되 위반이 아니다`, () => {
+    for (const [copy, expectedRule] of ADVISORY_SEEDS) {
+      const result = screenMedicalCopy(copy);
+      assert.deepEqual(result.violations, [], copy);
+      assert.ok(
+        result.advisories.some((advisory) => advisory.ruleId === expectedRule),
+        `${copy}: ${expectedRule}\n${JSON.stringify(result.advisories, null, 2)}`,
+      );
+    }
+  });
+
   test(`안전 의료 문장 ${SAFE_MEDICAL_COPY.length}건 false positive 0`, () => {
     assert.ok(SAFE_MEDICAL_COPY.length >= 100);
     for (const copy of SAFE_MEDICAL_COPY) {
@@ -368,7 +389,7 @@ describe('MEDLAW R1 — 법조문과 정밀도', () => {
   });
 
   test('warn은 block과 구분돼 향후 사람 검토 seam이 triage할 수 있다', () => {
-    const warning = screenMedicalCopy('A board-certified provider offers care.').violations;
+    const warning = screenMedicalCopy('An award-winning provider offers care.').violations;
     assert.equal(warning.length, 1);
     assert.equal(warning[0].severity, 'warn');
     const blocker = screenMedicalCopy('We guarantee a cure.').violations;

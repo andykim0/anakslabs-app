@@ -1,5 +1,9 @@
 import type { SurveyInput } from '@/lib/types/domain';
-import type { MedicalCopyScope, MedicalSiteAdViolation } from './medical-ad-policy';
+import type {
+  MedicalCopyScope,
+  MedicalSiteAdAdvisory,
+  MedicalSiteAdViolation,
+} from './medical-ad-policy';
 import {
   collectMedicalPublicCopy,
   MEDICAL_AD_POLICY_VERSION,
@@ -42,6 +46,11 @@ export interface MedicalSitePolicyResult {
   violations: readonly MedicalSitePolicyViolation[];
   blockViolations: readonly MedicalSitePolicyViolation[];
   warnViolations: readonly MedicalCopyPolicyViolation[];
+  /**
+   * Matched advisory rules. Never part of `violations`, so `ok` ignores them and no publish,
+   * delivery, or sanitization path can gate on one. Carried so a reviewer can still see them.
+   */
+  advisories: readonly MedicalSiteAdAdvisory[];
   ok: boolean;
 }
 
@@ -116,6 +125,7 @@ export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyRe
       violations: [],
       blockViolations: [],
       warnViolations: [],
+      advisories: [],
       ok: true,
     };
   }
@@ -137,6 +147,7 @@ export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyRe
   }
 
   const copies = collectMedicalPublicCopy(config);
+  const advisories: MedicalSiteAdAdvisory[] = [];
   const seen = new Set<string>();
   for (const copy of copies) {
     const result = screenMedicalCopy(copy.text, { scope: copy.scope });
@@ -146,6 +157,18 @@ export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyRe
       if (seen.has(key)) continue;
       seen.add(key);
       violations.push(copyViolation(copy.path, copy.scope, copy.sourceKind, violation));
+    }
+    for (const advisory of result.advisories) {
+      // 같은 dedup 규약: 파생 출력이 같은 문장을 다시 실어도 한 번만 보고한다.
+      const key = `${advisory.ruleId}\u0000${normalizeMedicalCopy(copy.text)}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      advisories.push({
+        path: copy.path,
+        scope: copy.scope,
+        sourceKind: copy.sourceKind,
+        ...advisory,
+      });
     }
   }
   const structural = structuralSideEffectViolation(copies);
@@ -165,6 +188,7 @@ export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyRe
     violations,
     blockViolations,
     warnViolations,
+    advisories,
     ok: violations.length === 0,
   };
 }

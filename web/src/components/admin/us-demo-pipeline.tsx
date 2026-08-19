@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ExternalLink,
   Globe2,
+  Info,
   LoaderCircle,
   LockKeyhole,
   ShieldCheck,
@@ -553,6 +554,33 @@ export function UsDemoPipeline() {
                     {blocker.nature === 'omission' ? (
                       <> Nothing in the copy can be rewritten to fix an absence, so this needs a decision, not an edit.</>
                     ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {preview.deliveryAdvisories?.length ? (
+            /**
+             * Same panel as the link, for the same reason as the blocker list: this is something
+             * to check before sending, not afterwards. It is worded as a check rather than a
+             * refusal because the sentence is the practice's own factual claim and the screen has
+             * no registry to verify it against — it does not stop the send.
+             */
+            <div className="mb-4 rounded-xl border border-slate-300 bg-white/70 p-4">
+              <p className="flex items-center gap-2 font-bold text-slate-900">
+                <Info size={18} aria-hidden />
+                Credential claims to confirm with the practice
+              </p>
+              <p className="mt-2 text-sm text-slate-700">
+                These are deliverable. The practice is the party attesting to them, so confirm the
+                claim is current before the page goes out.
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-slate-700">
+                {preview.deliveryAdvisories.map((advisory) => (
+                  <li key={`${advisory.ruleId}:${advisory.detail}`}>
+                    <code className="font-semibold">{advisory.ruleId}</code>
+                    {' — '}
+                    {advisory.detail}
                   </li>
                 ))}
               </ul>
