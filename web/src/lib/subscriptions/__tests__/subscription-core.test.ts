@@ -302,7 +302,9 @@ describe('RPT$ mock renewal/credit parity', () => {
     payment.refundAmount = payment.amount - 1;
 
     assert.deepEqual(getMockSiteSubscription(DEMO_BASIC_ID), stateBefore);
-    assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID).active, true);
+    // Resolve at the instant the payment was made, as every other case in this suite does.
+    // Without it the assertion reads the wall clock and fails once that period lapses.
+    assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID, at).active, true);
     assert.equal(
       (await credits.getBalance(DEMO_BASIC_ID)).balance,
       before.balance + LEGACY_SUBSCRIPTION_GRANT,
@@ -331,7 +333,8 @@ describe('RPT$ mock renewal/credit parity', () => {
     await applyMockFullMaintenanceRefund(first);
 
     assert.equal(getMockSiteSubscription(DEMO_BASIC_ID)?.currentPeriodEnd, laterEnd);
-    assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID).active, true);
+    // Same wall-clock dependency as above; this one has simply not lapsed yet.
+    assert.equal(resolveMockSiteSubscription(DEMO_BASIC_ID, at).active, true);
     assert.equal(
       (await credits.getBalance(DEMO_BASIC_ID)).balance,
       balanceBefore.balance + LEGACY_SUBSCRIPTION_GRANT,
