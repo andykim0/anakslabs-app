@@ -179,7 +179,14 @@ describe('T6 — the media treatment, and the two stored decisions together', ()
     const home = cameods.pages.find((page) => page.slug === '')!;
     const types = home.sections.map((section) => section.type);
     // §3 T6: gallery at 0.57 and repeated — a band before the services and another after.
-    assert.deepEqual(types, ['hero', 'gallery', 'features', 'gallery', 'contact', 'cta']);
+    /**
+     * `faq` is here because the ingestion guard stopped deleting cameods' credential and
+     * causal-"leading" blocks: five blocks were released, three of them placed, and that pushed
+     * cameods over the FAQ content threshold. The template system is reacting to more source
+     * content, which is what it is supposed to do — this is not the gallery rule changing. The
+     * gallery assertions below are the part this test exists to protect, and they are unmoved.
+     */
+    assert.deepEqual(types, ['hero', 'gallery', 'features', 'gallery', 'contact', 'faq', 'cta']);
     const galleries = home.sections.filter((section) => section.type === 'gallery');
     assert.equal(galleries.length, 2);
     // Two bands must be two sets of photographs, not the same twelve shown twice.

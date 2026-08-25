@@ -273,8 +273,18 @@ describe('US-DEMO P2 — source-only English compiler', () => {
 
     const review = screenUsMedicalDemoCopy('Our success rate is reported as 92%.');
     assert.ok(review.violations.every((violation) => violation.severity === 'review'));
+    /**
+     * Credentials split in two. `board-certified` is a checkable registry fact the practice is
+     * responsible for, so it enters the demo and is advised on downstream; `Harvard-trained` is an
+     * unattributed prestige signal and still blocks. In a sentence carrying both, the block is
+     * attributed to Harvard alone — see us-medical-ad-guard.test.ts for the single-term boundary.
+     */
     const credential = screenUsMedicalDemoCopy('Our Harvard-trained board-certified team.');
-    assert.ok(credential.violations.every((violation) => violation.severity === 'block'));
+    assert.deepEqual(
+      credential.violations.map((violation) => [violation.category, violation.matchedText]),
+      [['unverified-credential', 'Harvard-trained']],
+    );
+    assert.equal(screenUsMedicalDemoCopy('Our board-certified team.').ok, true);
     assert.equal(screenUsMedicalDemoCopy('Call today to request an appointment.').ok, true);
   });
 
@@ -285,17 +295,32 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     assert.doesNotMatch(JSON.stringify(compiled.config), /best clinic|100% cure/iu);
     assert.ok(compiled.sourceManifest.excluded.some((item) => item.reason === 'policy-block'));
 
+    /**
+     * A checkable credential is no longer an ingestion-time exclusion: it compiles into the demo
+     * and the downstream screen raises an advisory the operator reads before sending. What still
+     * cannot be resurrected by approval is the unattributed prestige claim.
+     */
     const credentialArtifact = englishArtifact('Board-certified preventive care');
     const credential = compileUsMedicalDemo(credentialArtifact);
-    const credentialExclusion = credential.sourceManifest.excluded.find(
+    assert.equal(
+      credential.sourceManifest.excluded.some(
+        (item) => item.violations?.some((v) => v.category === 'unverified-credential'),
+      ),
+      false,
+    );
+    assert.match(JSON.stringify(credential.config), /board-certified/iu);
+
+    const prestigeArtifact = englishArtifact('Harvard-trained preventive care');
+    const prestige = compileUsMedicalDemo(prestigeArtifact);
+    const prestigeExclusion = prestige.sourceManifest.excluded.find(
       (item) => item.violations?.some((violation) => violation.category === 'unverified-credential'),
     );
-    assert.ok(credentialExclusion);
-    assert.doesNotMatch(JSON.stringify(credential.config), /board-certified/iu);
-    const credentialApproved = compileUsMedicalDemo(credentialArtifact, {
-      manualFinish: { approvedReviewBlockIds: [credentialExclusion.blockId] },
+    assert.ok(prestigeExclusion);
+    assert.doesNotMatch(JSON.stringify(prestige.config), /Harvard/iu);
+    const prestigeApproved = compileUsMedicalDemo(prestigeArtifact, {
+      manualFinish: { approvedReviewBlockIds: [prestigeExclusion.blockId] },
     });
-    assert.doesNotMatch(JSON.stringify(credentialApproved.config), /board-certified/iu);
+    assert.doesNotMatch(JSON.stringify(prestigeApproved.config), /Harvard/iu);
 
     const reviewArtifact = englishArtifact('Clinically proven preventive care');
     const first = compileUsMedicalDemo(reviewArtifact);

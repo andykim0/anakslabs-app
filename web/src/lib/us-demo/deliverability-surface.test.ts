@@ -56,11 +56,24 @@ describe('an operator learns a preview is undeliverable before sending it', () =
   });
 
   test('a non-blocking advisory reaches the same panel as the link', () => {
-    // The source compiler already strips credential copy upstream, so these three carry none.
-    // What is asserted here is the surface: the field exists on every prepared preview and the
-    // panel that carries the URL is where it renders — an advisory that only reached an audit
-    // page would be an advisory nobody reads before sending.
-    for (const name of ['cameods', 'iddental', 'dental360']) {
+    /**
+     * The ingestion guard used to delete credential copy before it could reach a demo, so this
+     * assertion read `[]` for all three and proved nothing about the advisory path. The guard now
+     * releases the four checkable credential terms (board-certified, certified specialist,
+     * accredited, fellowship-trained) and the downstream screen records them as advisories.
+     *
+     * Measured over these fixtures: cameods publishes one such sentence ("Our board-certified
+     * endodontists at Cameo Dental Specialists are ready to help you find relief..."), and it is
+     * the only one — dental360's credential copy never becomes a source block, and iddental has
+     * no occurrence of any of the four terms at all. So cameods carries exactly one advisory and
+     * the other two legitimately stay empty. All three still assert the same thing: whatever the
+     * screen found travels on `deliveryAdvisories` to the panel holding the URL.
+     */
+    assert.deepEqual(
+      prepare('cameods').deliveryAdvisories,
+      [{ ruleId: 'medical-credential-claim', detail: 'board certified' }],
+    );
+    for (const name of ['iddental', 'dental360']) {
       assert.deepEqual(prepare(name).deliveryAdvisories, [], name);
     }
 
