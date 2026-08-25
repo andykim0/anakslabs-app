@@ -9,13 +9,32 @@ import {
 /**
  * THE GATE ON WIDENING THE ENGINE PAST DENTAL.
  *
- * `scripts/fixtures/clinic-golden/dental-golden.json` was captured on pristine main, before
- * specialty was a parameter. Every dental fixture must still compile to exactly those bytes:
+ * `scripts/fixtures/clinic-golden/dental-golden.json` pins every dental fixture to exact bytes:
  * the whole SiteConfig, the JSON-LD of every page, the delivery verdict and the source counters.
  *
  * A failure here is not a flaky snapshot. It means a dental practice we have already sent a link
- * to would now receive a different site, which is the one outcome the specialty work was not
- * allowed to cause. Do not regenerate the golden to make this pass — diagnose the reported path.
+ * to would now receive a different site. Do not regenerate the golden to make this pass —
+ * diagnose the reported path.
+ *
+ * ARITHMETIC, NOT JUDGEMENT. Regeneration is legitimate only when the movement was enumerated
+ * against a written expectation BEFORE the regen, and matched it exactly. "The diff looked
+ * reasonable" is not the standard: state which fixtures and render modes may move and why, then
+ * verify that every other entry keeps its sha256 byte for byte. Any entry that moves outside the
+ * stated set — or a stated mover that does not move — is a stop, not a smaller diff to accept.
+ *
+ * CAPTURE 1 — pristine main, before specialty was a parameter. The baseline this file was built
+ * to defend.
+ *
+ * CAPTURE 2 — the ingestion-guard narrowing (US_MEDICAL_DEMO_AD_RULES). The guard had been
+ * hard-dropping source blocks for terms the downstream policy treats as legitimate, so the demo
+ * sent to a clinic was missing that clinic's own sentences. Stated expectation before regen:
+ * cameods only, both render modes; dental360 and iddental byte-identical, same sha256. Found
+ * exactly that. cameods released 5 blocks (1 board-certified bio, 4 causal "leading to"), of
+ * which 3 placed: usedBlocks 147 -> 150, excludedBlocks 10 -> 5, and the extra content crossed
+ * the FAQ threshold so the home page gained an `faq` section. Legitimate because the movement is
+ * copy the practice itself published being restored to its own demo, and because the two
+ * fixtures with no occurrence of any affected term did not move by a single byte — which is the
+ * evidence that the change is scoped to what it claimed to touch.
  */
 describe('dental output is byte-identical across the specialty parameterisation', () => {
   const golden = readDentalGolden();
