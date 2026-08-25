@@ -20,7 +20,7 @@ export const US_MEDICAL_DEMO_AD_RULES = Object.freeze([
     category: 'absolute-outcome',
     severity: 'block',
     pattern:
-      /\b(?:100\s*%|guarante(?:e|ed|es)|cure(?:d|s)?|completely safe|absolutely safe|no side effects?)\b/iu,
+      /\b(?:100\s*%|guarante(?:e|ed|es)|completely safe|absolutely safe|no side effects?)\b|(?<!\b(?:no|not|cannot|never|without)\s(?:a\s|any\s)?)\bcure(?:d|s)?\b/iu,
     rationale: 'Absolute outcome and safety guarantees are not reproduced in a demo.',
   },
   {
@@ -34,14 +34,14 @@ export const US_MEDICAL_DEMO_AD_RULES = Object.freeze([
     category: 'comparative-superiority',
     severity: 'block',
     pattern:
-      /\b(?:best|#\s*1|number\s+one|top[- ]rated|leading|better than|most advanced|only clinic)\b/iu,
+      /\b(?:best|#\s*1|number\s+one|top[- ]rated|better than|most advanced)\b|\bleading\b(?:\s+\w+){0,3}\s+(?:clinics?|practices?|providers?|dentists?|doctors?|centers?|teams?|surgeons?|specialists?|periodontists?|endodontists?|orthodontists?|dermatologists?)\b|\bonly\s+(?:clinics?|practices?|providers?|dentists?|doctors?|centers?|teams?)\b(?:\s+\w+){0,6}?\s+(?:that\s+can|who\s+can|to\s+offer|offering)\b/iu,
     rationale: 'Comparative superiority and superlative claims are not reproduced in a demo.',
   },
   {
     category: 'unverified-credential',
     severity: 'block',
     pattern:
-      /\b(?:board[- ]certified|certified specialist|award[- ]winning|accredited|fellowship[- ]trained|harvard(?:[- ]trained| university| medical school)?)\b/iu,
+      /\b(?:award[- ]winning|harvard(?:[- ]trained| university| medical school)?)\b/iu,
     rationale: 'Credentials, accreditation, and education claims require separate verification.',
   },
 ] as const satisfies readonly UsMedicalAdRule[]);
