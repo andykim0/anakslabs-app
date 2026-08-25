@@ -95,19 +95,88 @@ describe('the engine on verticals it has never seen', () => {
     }
   });
 
-  test('DEFECT: a dermatology practice is compiled, labelled and published as a dentist', () => {
+  /**
+   * FIXED. This recorded that a dermatology practice was compiled, labelled and published as a
+   * dentist: nav labels reading "Preventive Dentistry" and a JSON-LD identity of `Dentist`. On main
+   * its six treatment pages were labelled Cosmetic & Restorative and Preventive Dentistry ×5.
+   *
+   * Specialty is now resolved once per compile and stored on `clinicMaster.specialty`, and the page
+   * taxonomy and structured-data type are keyed off it. This is the regression guard.
+   */
+  test('a dermatology practice is compiled, labelled and published as a dermatology practice', () => {
     const prepared = prepareUsMedicalPreview({
       artifact: artifact('larkfield-derm'),
       renderMode: 'preview-full',
     });
-    assert.equal(prepared.config.clinicMaster?.masterId, 'premium-dental-v1');
+    assert.equal(prepared.config.clinicMaster?.specialty, 'derm-plastic-aesthetic');
     const navLabels = prepared.config.pages.map((page) => page.navLabel ?? page.title);
-    assert.ok(
-      navLabels.includes('Preventive Dentistry'),
-      `dermatology nav labels: ${JSON.stringify(navLabels)}`,
+    assert.equal(
+      navLabels.some((label) => /dentistry|implants|orthodontics/iu.test(label)),
+      false,
+      `dermatology nav labels still carry dental words: ${JSON.stringify(navLabels)}`,
     );
-    const jsonLd = JSON.stringify(buildJsonLd(prepared.config, 'https://example.invalid'));
-    assert.match(jsonLd, /"Dentist"/u);
+    const identity = (buildJsonLd(prepared.config, 'https://example.invalid') as Array<
+      Record<string, unknown>
+    >).find((node) => String(node['@id'] ?? '').endsWith('#identity'));
+    assert.deepEqual(identity?.['@type'], ['Dermatology', 'MedicalClinic', 'LocalBusiness']);
+    assert.equal(identity?.medicalSpecialty, 'Dermatology');
+  });
+
+  test('an orthopedic practice is too, and takes the schema.org type that actually exists', () => {
+    const prepared = prepareUsMedicalPreview({
+      artifact: artifact('northbank-ortho'),
+      renderMode: 'preview-full',
+    });
+    assert.equal(prepared.config.clinicMaster?.specialty, 'ortho-surgery-pain');
+    const navLabels = prepared.config.pages.map((page) => page.navLabel ?? page.title);
+    assert.equal(
+      navLabels.some((label) => /dentistry|implants|orthodontics/iu.test(label)),
+      false,
+      `orthopedic nav labels still carry dental words: ${JSON.stringify(navLabels)}`,
+    );
+    const identity = (buildJsonLd(prepared.config, 'https://example.invalid') as Array<
+      Record<string, unknown>
+    >).find((node) => String(node['@id'] ?? '').endsWith('#identity'));
+    /**
+     * schema.org has no `Orthopedic` type and no `Orthopedic` MedicalSpecialty member (checked
+     * 2026-08-17). `Physician` is the real MedicalBusiness subtype and `Musculoskeletal` the real
+     * specialty member, so those are what it emits rather than a term nothing resolves.
+     */
+    assert.deepEqual(identity?.['@type'], ['Physician', 'MedicalClinic', 'LocalBusiness']);
+    assert.equal(identity?.medicalSpecialty, 'Musculoskeletal');
+  });
+
+  /**
+   * DEFECT, still open and deliberately not fixed here: `PROCEDURE_VOCABULARY_RE` in source-noise
+   * is dental vocabulary, and it gates both the nav label a treatment page gets and whether that
+   * treatment may be published as a schema.org MedicalProcedure. So an orthopedic practice's own
+   * page names — "ACL Reconstruction", "Rotator Cuff Repair" — are withheld, the labels collapse
+   * onto the category name, and the structured data loses the procedures entirely.
+   *
+   * Measured unchanged across the specialty work (same numbers on main): the three dental
+   * practices publish 27, 43 and 76 MedicalProcedure nodes; ortho publishes 0 and derm publishes 1.
+   *
+   * The gate fails closed on purpose — a wrongly published name tells search engines a practice
+   * performs something it does not — so widening it is its own scoped task, not a side effect.
+   */
+  test('DEFECT: the procedure-name gate is dental vocabulary, so non-dental loses its labels', () => {
+    const counts = new Map<string, { distinctLabels: number; pages: number }>();
+    for (const [label, payload] of [
+      ['ortho', artifact('northbank-ortho')],
+      ['derm', artifact('larkfield-derm')],
+    ] as const) {
+      const prepared = prepareUsMedicalPreview({ artifact: payload, renderMode: 'preview-full' });
+      const treatment = prepared.config.pages.filter(
+        (page) => !['', 'about', 'contact'].includes(page.slug),
+      );
+      counts.set(label, {
+        pages: treatment.length,
+        distinctLabels: new Set(treatment.map((page) => page.navLabel ?? page.title)).size,
+      });
+    }
+    // Six treatment pages each, sharing three and four distinct labels respectively.
+    assert.deepEqual(counts.get('ortho'), { pages: 6, distinctLabels: 3 });
+    assert.deepEqual(counts.get('derm'), { pages: 6, distinctLabels: 4 });
   });
 
   test('T7 finally fires, on a two-address orthopedic practice, and changes nothing', () => {

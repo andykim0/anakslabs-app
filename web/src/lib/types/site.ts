@@ -835,6 +835,15 @@ export interface ClinicResolvedPalette {
 export interface ClinicMasterPin {
   version: 1;
   masterId: 'premium-dental-v1';
+  /**
+   * 이 진료과 결정은 컴파일이 한 번만 내리고 저장한다. 렌더러(JSON-LD @type 등)는 이 값을 읽기만
+   * 하며 원문에서 다시 분류하지 않는다 — 프리뷰는 force-dynamic이라 재분류는 컴파일과 다른 답을
+   * 낼 수 있고, 그러면 프리뷰가 보여준 진료과와 구조화 데이터가 갈린다.
+   *
+   * 부재 = 'dental'. 이 필드가 생기기 전 발급분이 이미 뜻하던 값이며, dental은 지금도 이 키를
+   * 쓰지 않는다(= 기존 출력 바이트 그대로).
+   */
+  specialty?: import('@/lib/us-demo/clinic-palette').ClinicSpecialty;
   accentPreset: ClinicAccentPreset;
   typographyPreset: ClinicTypographyPreset;
   density: 'airy' | 'balanced';

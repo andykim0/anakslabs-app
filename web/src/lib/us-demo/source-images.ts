@@ -269,6 +269,19 @@ export function clinicPhotoPoolForTopic(
   return eligible.filter((image) => matcher[topic].test(matchingContext(image)));
 }
 
+/**
+ * The same pool and the same matching context as `clinicPhotoPoolForTopic`, with the pattern given
+ * rather than looked up. The topic table above is dental vocabulary — "aligner", "root canal",
+ * "toothache" — so a specialty whose procedures it cannot name supplies its own pattern from the
+ * procedure taxonomy instead of being routed to whichever dental topic is least wrong.
+ */
+export function clinicPhotoPoolForPattern(
+  images: readonly ProjectedUsDemoSourceImage[],
+  pattern: RegExp,
+): ProjectedUsDemoSourceImage[] {
+  return clinicPhotoSlotPool(images).filter((image) => pattern.test(matchingContext(image)));
+}
+
 const BRAND_LOGO_HINT_RE = /(?:^|[-_/])logo(?:[-_.]|$)|\blogo\b/iu;
 /** Third-party marks a site displays: badges, payers, review platforms. Not the practice's own. */
 const FOREIGN_LOGO_RE =
