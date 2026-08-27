@@ -512,6 +512,47 @@ ${S} .anaks-btn:hover {
 }
 [data-marquee-utility-phone] { font-weight: 700; }
 
+/* ---- header: never transparent, colour-confident from the first pixel --- */
+/*
+  The board's header is a plum bar under the brand strip, and it is only reachable because the
+  round-3 punchlist made the US demo header render the practice's NAME as text rather than its
+  logo file. A logo image would have fought this: the marks are a prospect's own PNGs whose ink we
+  deliberately never fetch, so three of the five that exist are white-on-transparent, undecodable,
+  or barely legible — and none of them could be recoloured for a dark bar. Text can.
+
+  Selectors are on the header element itself, which carries the language attribute and its own
+  copy of the variables, because this component renders outside .anaks-site.
+*/
+.anaks-tenant-header[data-clinic-design-language="marquee"] {
+  background-color: var(--mq-ink) !important;
+  color: #fff;
+  border-bottom: var(--mq-rule) solid var(--mq-brand) !important;
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif !important;
+}
+.anaks-tenant-header[data-clinic-design-language="marquee"] a,
+.anaks-tenant-header[data-clinic-design-language="marquee"] summary {
+  color: #fff !important;
+}
+/* The wordmark takes the display face; everything else stays DM Sans. */
+.anaks-tenant-header[data-clinic-design-language="marquee"] > div > a:first-child {
+  font-family: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -.03em;
+}
+.anaks-tenant-header[data-clinic-design-language="marquee"] nav a {
+  border-bottom: 3px solid transparent;
+  padding-bottom: 6px;
+  transition: border-color .2s var(--mq-ease);
+}
+.anaks-tenant-header[data-clinic-design-language="marquee"] nav a:hover,
+.anaks-tenant-header[data-clinic-design-language="marquee"] nav a[aria-current] {
+  border-bottom-color: var(--mq-brand);
+}
+.anaks-tenant-header[data-clinic-design-language="marquee"] :focus-visible {
+  outline: 3px solid var(--mq-brand) !important;
+  outline-offset: 3px;
+}
+
 /* ---- booking bar: MARQUEE skin of the common component ----------------- */
 ${S} [data-clinic-sticky-booking],
 [data-clinic-design-language="marquee"] [data-clinic-sticky-booking] {

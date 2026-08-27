@@ -10,6 +10,7 @@
  */
 import type { SiteConfig, SitePage } from '@/lib/types/site';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
+import { marqueeIsActive, marqueeRootStyle } from './ClinicMarquee';
 
 /** Link slots the 1200px bar seats before it stops being a bar. */
 const NAV_MAX_INLINE = 6;
@@ -228,7 +229,18 @@ export function TenantHeader({
       />
     <header
       className="anaks-tenant-header"
+      {...(marqueeIsActive(config)
+        ? { 'data-clinic-design-language': 'marquee' as const }
+        : {})}
       style={{
+        /**
+         * MARQUEE's variables are set on the .anaks-site root, and this header renders outside it
+         * — the same reason the utility strip carries its own. Absent the stored field this
+         * spreads nothing and every byte below is untouched, which the rendered-HTML gate proves.
+         */
+        ...(marqueeIsActive(config) && config.clinicMaster
+          ? marqueeRootStyle(config.clinicMaster)
+          : {}),
         position: 'sticky',
         // Zero on a published site; the preview surface reports the height of its own sticky
         // notice so the header stops below it instead of scrolling underneath it.
