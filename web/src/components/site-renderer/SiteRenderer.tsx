@@ -40,6 +40,11 @@ import { ConnectorPanel } from './ConnectorPanel';
 import { ClinicStickyBooking } from './ClinicStickyBooking';
 import { CLINIC_HERO_LAYOUT_CSS } from './ClinicHeroLayout';
 import { clinicMasterRenderTokens } from '@/lib/clinic-master/tokens';
+import {
+  CLINIC_MARQUEE_CSS,
+  marqueeIsActive,
+  marqueeRootStyle,
+} from './ClinicMarquee';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
@@ -517,6 +522,11 @@ export function SiteRenderer({
     (siteCinematic && progressRail === 'none' ? NO_PROGRESS_RAIL_CSS : '') +
     (config.clinicMaster ? CLINIC_MASTER_CSS + CLINIC_FLOW_CSS : '') +
     /**
+     * The third constant. Gated on the stored `designLanguage`, so a pin without it emits exactly
+     * the two constants it always did — down to the byte.
+     */
+    (marqueeIsActive(config) ? CLINIC_MARQUEE_CSS : '') +
+    /**
      * [D2] Gated on the same stored field as the DOM path, and for the same reason: a config
      * compiled before this existed must render byte-identically, and stylesheet bytes count.
      */
@@ -585,6 +595,17 @@ export function SiteRenderer({
     clinicStyle['--clinic-accent-contrast'] = '#FFFFFF';
     clinicStyle['--clinic-border'] = '#E3E8EE';
     clinicStyle['--clinic-radius-md'] = clinicTokens.radiusMd;
+    /**
+     * MARQUEE overrules the constant above it. That constant's justification is the default §2-5
+     * gate — a brand admitted only at 4.5:1 on white caps its luminance below the point where
+     * black ink would win — and MARQUEE replaces that gate outright, so the reasoning does not
+     * carry. On-brand text here comes from the ink partner the compile stored.
+     */
+    if (marqueeIsActive(config)) {
+      clinicStyle['--clinic-accent-contrast'] = config.clinicMaster.resolvedPalette
+        ?.slots['--brand-ink'] ?? clinicStyle['--clinic-accent-contrast'];
+      Object.assign(clinicStyle, marqueeRootStyle(config.clinicMaster));
+    }
   }
   if (motionCssNeeded) {
     const f = intensityFactors(plan?.intensity ?? config.motion?.intensity ?? 'normal');
@@ -641,6 +662,13 @@ export function SiteRenderer({
           'data-clinic-typography': config.clinicMaster.typographyPreset,
           'data-clinic-density': config.clinicMaster.density,
           ...(clinicLocale === 'ko-KR' ? { 'data-ko-clinic': '1' } : {}),
+          /**
+           * The one hook every MARQUEE rule is scoped to. Absent on a default-language pin, which
+           * is what keeps the whole stylesheet unreachable rather than merely unused.
+           */
+          ...(config.clinicMaster.designLanguage
+            ? { 'data-clinic-design-language': config.clinicMaster.designLanguage }
+            : {}),
         } : {})}
         {...(siteCinematic ? { 'data-site-cinematic': '1' } : {})}
         {...(continuousCanvas ? { 'data-continuous-canvas-root': '1' } : {})}
@@ -675,12 +703,12 @@ export function SiteRenderer({
                     >
                       {showDesktop && (
                         <div className={desktopProjectionClassName}>
-                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+                          <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                         </div>
                       )}
                       {showMobile && (
                         <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+                          <SectionStack section={section} theme={theme} isFirst={mode === 'mobile' && sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                         </div>
                       )}
                     </div>
@@ -722,7 +750,7 @@ export function SiteRenderer({
                       plan={plan}
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
-                      clinicFlow={Boolean(config.clinicMaster)}
+                      clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
@@ -741,7 +769,7 @@ export function SiteRenderer({
                       plan={plan}
                       siteId={siteId}
                       proceduralHero={usesProceduralHero(section)}
-                      clinicFlow={Boolean(config.clinicMaster)}
+                      clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
@@ -767,12 +795,12 @@ export function SiteRenderer({
                 <SiteCinematicChapter key={section.id} index={index + 1} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
                   {showDesktop && (
                     <div className={desktopProjectionClassName}>
-                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+                      <SectionCanvas section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                     </div>
                   )}
                   {showMobile && (
                     <div className={mode === 'auto' ? 'xl:hidden' : undefined}>
-                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+                      <SectionStack section={section} theme={theme} isFirst={false} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                     </div>
                   )}
                 </SiteCinematicChapter>
@@ -793,12 +821,12 @@ export function SiteRenderer({
               <SiteCinematicSequence continuous={continuousCanvas} chapterCount={ordinarySections.length} progressRail={progressRail}>
                 {ordinarySections.map((section, index) => (
                   <SiteCinematicChapter key={section.id} index={index} sectionType={section.type} continuous={continuousCanvas} progressRail={progressRail}>
-                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+                    <SectionCanvas section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} proceduralHero={usesProceduralHero(section)} integratedTypography={section.type === 'hero'} continuousFlow={continuousCanvas} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
                   </SiteCinematicChapter>
                 ))}
               </SiteCinematicSequence>
             ) : ordinarySections.map((section) => (
-              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
+              <SectionCanvas key={section.id} section={section} theme={theme} isFirst={sections[0]?.id === section.id} interactive={interactive} plan={plan} siteId={siteId} clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage} clinicPageHeading={clinicPageHeading} hrefForPageSlug={hrefForPageSlug} clinicLocale={clinicLocale} runtimeDelivery={runtimeDelivery} />
             ))}
           </div>
         )}
@@ -818,7 +846,7 @@ export function SiteRenderer({
                       proceduralHero={usesProceduralHero(section)}
                       integratedTypography={section.type === 'hero'}
                       continuousFlow={continuousCanvas}
-                      clinicFlow={Boolean(config.clinicMaster)}
+                      clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage}
                       clinicPageHeading={clinicPageHeading}
                       hrefForPageSlug={hrefForPageSlug}
                       clinicLocale={clinicLocale}
@@ -836,7 +864,7 @@ export function SiteRenderer({
                 interactive={interactive}
                 plan={plan}
                 siteId={siteId}
-                clinicFlow={Boolean(config.clinicMaster)}
+                clinicFlow={Boolean(config.clinicMaster)} clinicDesignLanguage={config.clinicMaster?.designLanguage}
                 clinicPageHeading={clinicPageHeading}
                 hrefForPageSlug={hrefForPageSlug}
                 clinicLocale={clinicLocale}

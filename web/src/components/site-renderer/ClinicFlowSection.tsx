@@ -1,6 +1,7 @@
 import { Fragment, type CSSProperties, type ReactNode } from 'react';
 import type {
   CanvasElement,
+  ClinicDesignLanguage,
   Section,
   SiteTheme,
   TextElement,
@@ -932,7 +933,17 @@ export function resolveBalancedClinicCardColumns(itemCount: number): number {
   return maximumColumns;
 }
 
-type ClinicVariantMotionSignature = 'static' | 'calm-fade' | 'rise-stagger' | 'cinematic';
+/**
+ * `marquee-spring` is the fifth, and unlike the other four it is not parsed out of a section id:
+ * the clinic-engine variant path names its signature in the id, while a design language IS the
+ * signature for every section it draws. So it is resolved from the stored field instead.
+ */
+type ClinicVariantMotionSignature =
+  | 'static'
+  | 'calm-fade'
+  | 'rise-stagger'
+  | 'cinematic'
+  | 'marquee-spring';
 
 function clinicVariantMotionSignature(sectionId: string): ClinicVariantMotionSignature | undefined {
   const match = /-clinic-variant-motion-(static|calm-fade|rise-stagger|cinematic)$/u.exec(sectionId);
@@ -953,12 +964,23 @@ function clinicRevealAttributes(input: {
         ? 80
         : input.signature === 'rise-stagger'
           ? 160
-          : 220;
+          : input.signature === 'marquee-spring'
+            ? 140
+            : 220;
     const staggerStep = input.signature === 'calm-fade'
       ? 40
       : input.signature === 'rise-stagger'
         ? 60
-        : 80;
+        : input.signature === 'marquee-spring'
+          ? 70
+          : 80;
+    /**
+     * CONFORMANCE DEVIATION, deliberate and kept. The board staggers uncapped; the engine bounds
+     * the index at 5, so a MARQUEE row of nine items runs 0..350ms and then holds at 350ms rather
+     * than walking out to 560ms. The cap wins: it is the engine's existing guarantee that a long
+     * grid cannot leave its last card invisible for most of a second, and it applies to all five
+     * signatures rather than being special-cased away for this one.
+     */
     const delay = baseDelay + Math.min(input.itemIndex ?? 0, 5) * staggerStep;
     return {
       'data-m': 'reveal',
@@ -988,6 +1010,7 @@ export function ClinicFlowSection({
   locale = 'en-US',
   motionPlan,
   runtimeDelivery = 'client',
+  designLanguage,
 }: {
   section: Section;
   theme: SiteTheme;
@@ -999,10 +1022,17 @@ export function ClinicFlowSection({
   locale?: 'en-US' | 'ko-KR';
   motionPlan?: MotionPlan;
   runtimeDelivery?: 'inline' | 'client';
+  /** Read from the stored pin by the caller. Absent = the default language, unchanged. */
+  designLanguage?: ClinicDesignLanguage;
 }) {
   const projection = section.sectionLayout;
   const surface = clinicSurface(section, theme);
-  const variantMotionSignature = clinicVariantMotionSignature(section.id);
+  /**
+   * A section id naming a variant signature still wins — that path is the clinic-engine's and it
+   * is explicit. Otherwise a design language supplies its own.
+   */
+  const variantMotionSignature = clinicVariantMotionSignature(section.id)
+    ?? (designLanguage === 'marquee' ? ('marquee-spring' as const) : undefined);
   /**
    * The reveal these attributes drive is locale-neutral: runtime.ts styles
    * [data-m="reveal"] for any .anaks-site, and only the extra translate distance is scoped to

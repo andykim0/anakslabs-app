@@ -9,7 +9,7 @@
  * 표준 섹션 구조에서, marquee(흐름 띠)·scroll-scrub(pin)은 별도 렌더 분기.
  */
 import type { CSSProperties } from 'react';
-import type { Section, SiteTheme } from '@/lib/types/site';
+import type { ClinicDesignLanguage, Section, SiteTheme } from '@/lib/types/site';
 import { safeMediaSrc } from '@/lib/safe-url';
 import { cqw } from './scale';
 import { ElementContent } from './ElementContent';
@@ -59,6 +59,15 @@ interface SectionCanvasProps {
   continuousFlow?: boolean;
   /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
   clinicFlow?: boolean;
+  /**
+   * A PARALLEL prop rather than a widening of `clinicFlow`. `clinicFlow` answers "is this the
+   * clinic renderer", which is still exactly the right question at every one of its call sites;
+   * the language is a second, independent fact about the same section. Folding them into one
+   * union would make every existing call site read as though it were choosing a language.
+   *
+   * Absent on every non-MARQUEE path, including every KR one — see marquee-invariants.test.ts.
+   */
+  clinicDesignLanguage?: ClinicDesignLanguage;
   /** Visible page-level heading for clinic flow hero. */
   clinicPageHeading?: string;
   /** Route-aware page link mapping for preview and static export. */
@@ -109,6 +118,7 @@ export function SectionCanvas(props: SectionCanvasProps) {
         locale={props.clinicLocale}
         motionPlan={plan}
         runtimeDelivery={props.runtimeDelivery}
+        designLanguage={props.clinicDesignLanguage}
       />
     );
   }

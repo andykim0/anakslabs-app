@@ -7,6 +7,7 @@
  */
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { TenantHeader } from './TenantHeader';
+import { MarqueeUtilityStrip } from './ClinicMarquee';
 import { SemanticOutline } from './SemanticOutline';
 import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
@@ -79,6 +80,13 @@ export function TenantPageContent({
       : null;
   return (
     <>
+      {/*
+        MARQUEE's header is two elements, not one: a brand-coloured utility strip above the sticky
+        bar. They are siblings rather than one component because the strip is a document-flow band
+        that scrolls away while the bar sticks — folding them together would make the bar's own
+        stickiness a property of the strip. Renders null on every other language.
+      */}
+      <MarqueeUtilityStrip config={renderedConfig} />
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}
       <TenantHeader
         config={renderedConfig}

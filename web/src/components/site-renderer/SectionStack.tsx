@@ -5,7 +5,7 @@
  * 순수 장식용 shape(rect/ellipse)는 스택에서 의미가 없어 제외 — line은 구분선으로 유지.
  */
 import type { CSSProperties } from 'react';
-import type { CanvasElement, Section, SiteTheme } from '@/lib/types/site';
+import type { CanvasElement, ClinicDesignLanguage, Section, SiteTheme } from '@/lib/types/site';
 import { ElementContent } from './ElementContent';
 import { stackOrder } from './stack-order';
 import { resolveScrim } from '@/lib/design/scrim';
@@ -52,6 +52,15 @@ interface SectionStackProps {
   continuousFlow?: boolean;
   /** premium-dental-v1 only: catalog semantics rendered as intrinsic document flow. */
   clinicFlow?: boolean;
+  /**
+   * A PARALLEL prop rather than a widening of `clinicFlow`. `clinicFlow` answers "is this the
+   * clinic renderer", which is still exactly the right question at every one of its call sites;
+   * the language is a second, independent fact about the same section. Folding them into one
+   * union would make every existing call site read as though it were choosing a language.
+   *
+   * Absent on every non-MARQUEE path, including every KR one — see marquee-invariants.test.ts.
+   */
+  clinicDesignLanguage?: ClinicDesignLanguage;
   /** Visible page-level heading for clinic flow hero. */
   clinicPageHeading?: string;
   /** Route-aware page link mapping for preview and static export. */
@@ -415,6 +424,7 @@ export function SectionStack({
   integratedTypography = false,
   continuousFlow = false,
   clinicFlow = false,
+  clinicDesignLanguage,
   clinicPageHeading,
   hrefForPageSlug,
   clinicLocale,
@@ -436,6 +446,7 @@ export function SectionStack({
         locale={clinicLocale}
         motionPlan={plan}
         runtimeDelivery={runtimeDelivery}
+        designLanguage={clinicDesignLanguage}
       />
     );
   }
