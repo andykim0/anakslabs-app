@@ -56,12 +56,18 @@ export const CLINIC_HERO_LAYOUT_CSS = `
 }
 
 @media (max-width: 900px) {
-  /* split stacks: the photograph reads first, then the copy, and neither covers the other. */
+  /*
+   * split stacks, and the copy reads first. The photograph used to be pulled above it with
+   * order:-1, which spent 40vh of a 390x844 phone before the practice's name appeared: the whole
+   * first viewport was a picture, and the H1, the opening line and the booking CTA were all below
+   * the fold. Source order is already plate-then-photo, so the reorder is simply dropped; the
+   * photo keeps its bounded height so it cannot take the screen back on the way down.
+   */
   [data-clinic-hero-mode="split"] [data-clinic-hero-split] {
     grid-template-columns: 1fr;
     min-height: 0;
   }
-  [data-clinic-hero-mode="split"] [data-clinic-hero-photo] { order: -1; height: 40vh; }
+  [data-clinic-hero-mode="split"] [data-clinic-hero-photo] { height: 40vh; }
   [data-clinic-hero-mode="split"] [data-clinic-hero-plate] {
     width: 100%; justify-self: stretch;
   }

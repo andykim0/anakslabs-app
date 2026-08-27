@@ -206,8 +206,12 @@ describe('CLINIC$ P1 — spec-locked master contract', () => {
       "<div {...(!previewFull && isUsMedicalDemo ? { 'data-private-preview-inert': '1' } : {})}>",
     );
     const rendererIndex = previewSource.indexOf('<TenantPageContent', inertIndex);
+    // Was '{structure && (previewFull || pageSlug === \'\')'. The audit panel is operator
+    // material and no longer renders on the outreach surface at all, so the gate is previewFull
+    // alone. What this test defends is unchanged: the panel stays after the SiteConfig render,
+    // outside the input the publish hypothesis is built from.
     const diffIndex = previewSource.indexOf(
-      '{structure && (previewFull || pageSlug === \'\')',
+      '{structure && previewFull',
       rendererIndex,
     );
     assert.ok(inertIndex >= 0);

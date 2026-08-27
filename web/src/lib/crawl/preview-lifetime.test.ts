@@ -58,7 +58,10 @@ describe('preview lifetime — the retention purge cannot orphan a live preview'
     assert.match(admin, /404 after \{US_MEDICAL_PREVIEW_RETENTION_DAYS\} days/u);
     assert.doesNotMatch(admin, /14-day preview|after 14 days/u);
     const previewPage = source('src/app/preview/[token]/[[...path]]/page.tsx');
-    assert.match(previewPage, /\$\{US_MEDICAL_PREVIEW_RETENTION_DAYS\}-day private demo/u);
-    assert.doesNotMatch(previewPage, /45-day private demo/u);
+    // Was: assert.match(previewPage, /\$\{US_MEDICAL_PREVIEW_RETENTION_DAYS\}-day private demo/u).
+    // That sentence is gone — the retention window is operator material and the outreach notice
+    // is now one line (P1). The rule this test exists for is stronger without it: no day count
+    // reaches this page by hand, whether or not a sentence is there to carry one.
+    assert.doesNotMatch(previewPage, /\d+-day/u);
   });
 });
