@@ -653,7 +653,22 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       ));
     assert.ok(rendered.length > 0);
     for (const text of rendered) {
-      assert.ok(sourceTexts.has(text), `rendered text was not a source block: ${text.slice(0, 60)}`);
+      if (sourceTexts.has(text)) continue;
+      /**
+       * The one sanctioned departure from verbatim, and it is bounded on both sides.
+       * `clinicCardBody` (full-preview.ts) may shorten a TREATMENT-CARD body so a row of cards is
+       * a row of comparable things rather than one essay beside one clause. What it may produce
+       * is only ever a prefix of the block it cites, ending on that block's own sentence
+       * boundary — so every rendered word is still the practice's, in their order, and no claim
+       * is left trailing. Anything else that differs from its source block is still a defect.
+       */
+      const source = [...sourceTexts].find((candidate) => candidate.startsWith(text));
+      assert.ok(source, `rendered text was not a source block: ${text.slice(0, 60)}`);
+      assert.match(
+        text,
+        /[.!?]$/u,
+        `a shortened card body did not end on a sentence: …${text.slice(-60)}`,
+      );
     }
   });
 

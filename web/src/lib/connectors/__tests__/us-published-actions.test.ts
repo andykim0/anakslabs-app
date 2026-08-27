@@ -257,9 +257,19 @@ describe('US-CONNECTORS D4 — published actions are provider-neutral and source
       lang: 'en-US',
     });
     assertPublishedActions(staticWithoutActions, []);
+    /**
+     * A whole-document byte pin: any change to the rendered clinic page moves it, which is the
+     * point — it is what makes an accidental change to a published surface impossible to miss.
+     *
+     * Moved once, deliberately, by the round-3 punchlist: CLINIC_FLOW_CSS gained the gallery crop
+     * anchor and the licensed-imagery caption rules, CLINIC_HERO_LAYOUT_CSS gained the mobile
+     * hero band, and the header stopped drawing a prospect's logo file. No action href, no
+     * source string and no element structure in this fixture changed — the assertions above and
+     * below this line are what verify that, and all of them still hold unedited.
+     */
     assert.equal(
       createHash('sha256').update(inlineWithoutActions).digest('hex'),
-      '8ed6518f3193211e07175adb7e1163a3bd9fc6c9342beba372b5ccd0f893e497',
+      '3d416b99d1ef5d528511874906b67110b72dc0cedab12418310bc2a6c8bd5cea',
     );
   });
 });

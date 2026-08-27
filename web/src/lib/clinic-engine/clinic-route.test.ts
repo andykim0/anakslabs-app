@@ -522,7 +522,21 @@ describe('CLINIC-ROUTE — frozen arbitrary-site clinic adapter', () => {
       currentSlug: '',
       additionalItems: [{ id: 'contact', slug: 'contact', title: 'Contact' }],
     }));
-    assert.match(header, /clinic\.example\/assets\/logo\.png/u);
+    /**
+     * The header shows the practice's NAME, not its logo file, on every US clinic demo surface.
+     *
+     * The selection above is unchanged and still asserted: the compiler still finds the practice's
+     * own mark and still rejects the accreditation badge, the payer logo and the tracking pixel.
+     * What changed is that the header no longer draws it. A prospect's mark is a URL on their
+     * site whose bytes we never fetch by design (source-images.ts), so its ink is unknown when
+     * the header is built. Measured offline across all seven crawled corpora, three of the five
+     * marks that exist fail: two below 3:1 against the #F2F2F2 header — one of them, Brentwood's,
+     * at 1.12:1, i.e. invisible — and one that Chrome loads to naturalWidth 0, so its header was
+     * drawing a broken image. No filename or alt token separates the failures from the passes.
+     * See the comment on `brandLogo` in TenantHeader.tsx for the table.
+     */
+    assert.doesNotMatch(header, /clinic\.example\/assets\/logo\.png/u);
+    assert.doesNotMatch(header, /<img/u);
     assert.match(header, /Source clinic/u);
   });
 

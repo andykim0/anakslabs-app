@@ -20,6 +20,14 @@ import {
 import type { MotionPlan } from '@/lib/motion/apply';
 import { ElementContent } from './ElementContent';
 
+/**
+ * The element id `applyDentalStockToClinicMaster` gives its licensed-imagery disclosure. Matched
+ * by id rather than by text so no sentence a practice actually wrote can be removed from its own
+ * page, and duplicated as a literal rather than imported so the renderer bundle does not pull in
+ * DENTAL_STOCK_MANIFEST. `p3-clinic-master.test.ts` pins the producing id.
+ */
+export const CLINIC_STOCK_DISCLOSURE_ELEMENT_ID = 'clinic-dental-stock-disclosure';
+
 export const CLINIC_FLOW_CSS = `
 [data-clinic-flow-section] {
   position: relative;
@@ -378,6 +386,73 @@ export const CLINIC_FLOW_CSS = `
   [data-clinic-flow-hero-copy] {
     padding-block: 5rem 6rem;
   }
+}
+`
+/**
+ * GALLERY CROP ANCHOR — on the renderer that actually draws the clinic galleries.
+ *
+ * A tile is 4:3 landscape ([data-clinic-flow-media]) and the photograph fills it with
+ * object-fit: cover, which without an anchor takes the middle horizontal slice. Practice
+ * photography is mostly standing and seated portraits with the face in the upper quarter, so the
+ * middle slice is a torso: on the issued round-3 preview all 24 of Ora's gallery tiles computed
+ * 50% 50% and 15 of them cut heads.
+ *
+ * The same anchor was written once before, in SectionLayoutProjectionRenderer, against
+ * [data-section-type="gallery"] [data-section-layout-item] img. That is a real path — a
+ * survey-built site's gallery still renders through it — but it is NOT the path a clinic demo
+ * takes: SectionCanvas and SectionStack both branch on clinicFlow BEFORE they look at
+ * section.sectionLayout, so every clinic gallery is this component's DOM, which carries neither
+ * of those two attributes. The rule shipped and never fired. clinic-gallery-crop.test.ts now
+ * measures the anchor on real issued markup, so a repeat of that miss fails in the suite rather
+ * than in a prospect's inbox.
+ *
+ * 25% rather than 0%: the anchor also serves the landscape photographs in the same grid, whose
+ * subject is near the middle. A quarter is above centre far enough to bring faces into frame and
+ * close enough to centre that a landscape shot loses nothing that matters.
+ *
+ * SCOPE. ClinicFlowSection renders the KR tenant clinics too — same component, same selectors —
+ * so an unscoped rule would silently re-crop every published KR gallery. SiteRenderer sets
+ * data-ko-clinic for, and only for, clinicLocale === 'ko-KR', so excluding it leaves KR byte for
+ * byte as it was and admits exactly the en-US clinic demo this was measured on.
+ *
+ * Appended rather than written inline because the CSS in this file ships to the browser: a
+ * comment inside the template literal is served to every visitor.
+ */
++ `
+.anaks-site[data-clinic-master]:not([data-ko-clinic]) [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] > img {
+  object-position: 50% 25%;
+}
+`
+/**
+ * OPERATOR SOURCING NOTE — a caption, never body copy.
+ *
+ * CLINIC_STOCK_DISCLOSURE ("Licensed sample imagery · replaced with your practice photography")
+ * is a compile-side constant in clinic-master/dental-stock.ts. It is OUR statement about where WE
+ * got the picture, and it arrives in the hero as an ordinary text element — which this component
+ * turned into a paragraph in the copy block, so it read as a sentence the practice had written
+ * about itself, immediately under their own opening line, on every stock-hero inner page.
+ * Measured on Ora's issued service pages, where it was visible hero body copy.
+ *
+ * It is lifted out of the copy in the hero branch and set here instead: small, muted, anchored to
+ * the bottom of the picture it describes. The legacy hero nests its copy inside
+ * data-clinic-flow-hero-media, which is position:relative, so the caption is absolutely placed
+ * there rather than added as a flow row that would push the practice's own name down.
+ */
++ `
+[data-clinic-stock-disclosure] {
+  margin: 0;
+  padding: .5rem clamp(1.5rem, 4vw, 4rem);
+  color: var(--clinic-section-muted,var(--clinic-muted));
+  font-size: .75rem;
+  line-height: 1.4;
+}
+[data-clinic-flow-hero-media] > [data-clinic-stock-disclosure-anchored] {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  width: min(calc(100% - 3rem), var(--clinic-container-max));
+  margin-inline: auto;
+  padding-inline: 0;
 }
 `;
 
@@ -1089,12 +1164,29 @@ export function ClinicFlowSection({
     const articleDateTime = articleDate?.id.match(
       /-article-date-iso-(\d{4}-\d{2}-\d{2})/u,
     )?.[1] ?? articleDate?.text;
+    /**
+     * The operator's licensed-imagery disclosure is not the practice's copy.
+     *
+     * `applyDentalStockToClinicMaster` appends it to the hero as an ordinary text element, and
+     * every text element in this hero becomes a <p> in the copy block — so the sentence
+     * "Licensed sample imagery · replaced with your practice photography", which is OUR note
+     * about where WE got the picture, shipped as visible body copy in the practice's own voice,
+     * directly under their opening line, on every stock-hero inner page.
+     *
+     * Matched on the compiler-owned element id rather than the text so nothing a practice happens
+     * to write can be silently removed from its own page. It is lifted out here and handed to the
+     * layout as a caption on the photograph.
+     */
+    const imageDisclosure = text.find(
+      (element) => element.id.endsWith(CLINIC_STOCK_DISCLOSURE_ELEMENT_ID),
+    );
     const contentText = text.filter(
       (element) => (
         element.id !== articleAuthor?.id
         && element.id !== articleAuthorLabel?.id
         && element.id !== articleDate?.id
         && element.id !== articleDateLabel?.id
+        && element.id !== imageDisclosure?.id
       ),
     );
     const heading = (
@@ -1207,6 +1299,7 @@ export function ClinicFlowSection({
           decision={section.clinicHeroLayout}
           heading={heading}
           isFirst={Boolean(isFirst)}
+          {...(imageDisclosure ? { imageDisclosure: imageDisclosure.text } : {})}
           surfaceStyle={surface?.style}
           sectionAttributes={{
             ...(surface
@@ -1278,6 +1371,11 @@ export function ClinicFlowSection({
             />
           ) : null}
           {heroCopy}
+          {imageDisclosure ? (
+            <p data-clinic-stock-disclosure data-clinic-stock-disclosure-anchored>
+              {imageDisclosure.text}
+            </p>
+          ) : null}
         </div>
       </section>
     );

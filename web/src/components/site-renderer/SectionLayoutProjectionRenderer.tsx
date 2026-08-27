@@ -24,28 +24,25 @@ import { cqw } from './scale';
 import { ProceduralBackground } from './ProceduralBackground';
 
 /**
- * GALLERY CROP ANCHOR.
+ * GALLERY CROP ANCHOR — for the CANVAS gallery, which is the only gallery this file draws.
  *
  * A uniform-grid tile is 4:3 landscape (`ratio` in the gallery resolver) and the media fills it
- * with `object-fit: cover`, which without an anchor takes the middle horizontal slice. Practice
- * photography is mostly standing and seated portraits, where the face sits in the upper quarter,
- * so the middle slice is a torso: 10 of the 12 tiles in Ora's second gallery band rendered
- * headless.
+ * with `object-fit: cover`, which without an anchor takes the middle horizontal slice. Where the
+ * subject is a standing or seated portrait the middle slice is a torso, so the window is moved a
+ * quarter up: above centre far enough to bring faces into frame, close enough to centre that a
+ * landscape shot loses nothing that matters.
  *
- * Two ways to fix it, and only one of them is decidable. Excluding tall portraits from the grid
- * needs to know the shape of the source, and `renderedDimensions` is absent for every pooled
- * image across all seven corpora while the filename carries a size for only a handful — so for
- * most tiles "is this a portrait" has no answer, and a rule that fires only when it happens to
- * know would leave the majority of the headless tiles headless. Moving the crop window up needs
- * to know nothing, so it applies to all of them.
+ * WHAT THIS RULE DOES NOT COVER, stated because it was got wrong once. It was written believing
+ * it governed the clinic demo galleries; it does not. SectionCanvas and SectionStack both branch
+ * on `clinicFlow` BEFORE `section.sectionLayout`, so a clinic-master site never reaches this
+ * component and its galleries carry neither `data-section-type="gallery"` nor
+ * `data-section-layout-item`. Fifteen of Ora's twenty-four issued tiles were still computing
+ * 50% 50% with this rule shipped. The clinic anchor lives in ClinicFlowSection's CLINIC_FLOW_CSS
+ * and is measured on real issued markup by `clinic-gallery-crop.test.ts`.
  *
- * 25% rather than 0%: the anchor has to serve the landscape photographs in the same grid, whose
- * subject is near the middle, and true head-and-shoulders headshots, where the face IS at the top
- * and a 0% anchor would cut foreheads. A quarter is above centre far enough to bring faces into
- * frame and close enough to centre that a landscape shot loses nothing that matters.
- *
- * Scoped to gallery sections by `data-section-type`, so hero and feature media — sized and
- * chosen by different rules — keep the centred crop they were composed against.
+ * The rule is kept rather than deleted because this path is not dead: a survey-built site
+ * (`lib/content/site-plan.ts` -> `section-layout-application.ts`) still compiles `gallery`
+ * sections into a `sectionLayout` projection with no clinicMaster, and those render here.
  */
 const SECTION_LAYOUT_CSS = `
 [data-section-layout-stage]{container-type:inline-size;position:relative;overflow:hidden}

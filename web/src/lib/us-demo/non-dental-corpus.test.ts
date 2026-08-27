@@ -147,20 +147,30 @@ describe('the engine on verticals it has never seen', () => {
   });
 
   /**
-   * DEFECT, still open and deliberately not fixed here: `PROCEDURE_VOCABULARY_RE` in source-noise
-   * is dental vocabulary, and it gates both the nav label a treatment page gets and whether that
-   * treatment may be published as a schema.org MedicalProcedure. So an orthopedic practice's own
-   * page names — "ACL Reconstruction", "Rotator Cuff Repair" — are withheld, the labels collapse
-   * onto the category name, and the structured data loses the procedures entirely.
+   * DEFECT, HALF CLOSED — read both halves before changing either.
    *
-   * Measured unchanged across the specialty work (same numbers on main): the three dental
-   * practices publish 27, 43 and 76 MedicalProcedure nodes; ortho publishes 0 and derm publishes 1.
+   * `PROCEDURE_VOCABULARY_RE` in source-noise is dental vocabulary and it gates two things at
+   * once: the nav label a treatment page gets, and whether that treatment may be published as a
+   * schema.org MedicalProcedure. So an orthopedic practice's own page names — "ACL
+   * Reconstruction", "Rotator Cuff Repair" — were withheld from BOTH, the six treatment pages
+   * collapsed onto three shared category labels, and the structured data lost the procedures.
    *
-   * The gate fails closed on purpose — a wrongly published name tells search engines a practice
-   * performs something it does not — so widening it is its own scoped task, not a side effect.
+   * STILL OPEN, and deliberately not fixed here: the schema.org half. The gate fails closed on
+   * purpose — a wrongly published procedure name tells search engines a practice performs
+   * something it does not — so widening the vocabulary is its own scoped task. Measured unchanged:
+   * the three dental practices publish 27, 43 and 76 MedicalProcedure nodes; ortho publishes 0
+   * and derm publishes 1.
+   *
+   * CLOSED: the nav half. `resolveClinicNavLabels` (full-preview.ts) no longer depends on the
+   * procedure-name gate at all — when a category holds more than one page it derives the label
+   * from that page's own title and, failing that, from its own URL slug, both of which are the
+   * practice's words and neither of which the dental vocabulary can withhold. All six ortho and
+   * all six derm pages now carry a distinct label. Nothing about what may be PUBLISHED as a
+   * procedure moved; this is a display label on a nav bar.
    */
-  test('DEFECT: the procedure-name gate is dental vocabulary, so non-dental loses its labels', () => {
+  test('the nav half of the procedure-name gate is closed: every treatment page is distinct', () => {
     const counts = new Map<string, { distinctLabels: number; pages: number }>();
+    const labels = new Map<string, string[]>();
     for (const [label, payload] of [
       ['ortho', artifact('northbank-ortho')],
       ['derm', artifact('larkfield-derm')],
@@ -173,10 +183,36 @@ describe('the engine on verticals it has never seen', () => {
         pages: treatment.length,
         distinctLabels: new Set(treatment.map((page) => page.navLabel ?? page.title)).size,
       });
+      labels.set(label, treatment.map((page) => page.navLabel ?? page.title));
     }
-    // Six treatment pages each, sharing three and four distinct labels respectively.
-    assert.deepEqual(counts.get('ortho'), { pages: 6, distinctLabels: 3 });
-    assert.deepEqual(counts.get('derm'), { pages: 6, distinctLabels: 4 });
+    assert.deepEqual(counts.get('ortho'), { pages: 6, distinctLabels: 6 });
+    assert.deepEqual(counts.get('derm'), { pages: 6, distinctLabels: 6 });
+    // Named rather than only counted, so a regression says which page lost its own words.
+    assert.deepEqual(labels.get('ortho'), [
+      'Joint Replacement',
+      'Sports Medicine',
+      'Hand and Wrist Surgery',
+      'Joint Injections',
+      'Rotator Cuff Repair',
+      'Sports Injury Care',
+    ]);
+    assert.deepEqual(labels.get('derm'), [
+      'Skin Cancer & Mohs',
+      'Skin Cancer Screening',
+      'Cosmetic Injectables',
+      'Cosmetic Dermatology',
+      'Medical Dermatology',
+      'Eczema And Psoriasis',
+    ]);
+    // The page titles themselves — the SEO surface — are untouched by the nav rule.
+    const derm = prepareUsMedicalPreview({
+      artifact: artifact('larkfield-derm'),
+      renderMode: 'preview-full',
+    });
+    assert.equal(
+      derm.config.pages.find((page) => page.slug === 'eczema-and-psoriasis')?.title,
+      'Medical Dermatology',
+    );
   });
 
   test('T7 finally fires, on a two-address orthopedic practice, and changes nothing', () => {

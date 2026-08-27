@@ -77,6 +77,65 @@ export const CLINIC_HERO_LAYOUT_CSS = `
   [data-clinic-hero-mode="fullbleed-panel"] [data-clinic-hero-fullbleed] {
     min-height: clamp(26rem, 60vh, 34rem);
   }
+
+}
+`
+/**
+ * The licensed-imagery caption sits at the foot of the photograph column. Its base type lives in
+ * CLINIC_FLOW_CSS, which every clinic page emits; only this placement belongs to this file.
+ */
++ `
+[data-clinic-hero-mode] [data-clinic-hero-photo] { display: grid; align-content: end; }
+[data-clinic-hero-mode] [data-clinic-hero-photo] [data-clinic-stock-disclosure] {
+  position: relative;
+  z-index: 1;
+  padding-inline: 1rem;
+  padding-block: .5rem;
+  background: color-mix(in srgb, var(--clinic-background, #FFFFFF) 88%, transparent);
+}
+`
+/**
+ * ONE BAND ABOVE THE FIRST WORD, not three.
+ *
+ * Measured on the issued 390-wide preview before this rule: the header ended at 132 and the
+ * kicker began at 316 — 184px of empty white, which is not one deliberate gap but three paddings
+ * stacked, none of which knows about the others:
+ *
+ *   64px  the clinic mobile section rhythm, `.anaks-site[data-clinic-master] section[data-section-type]`
+ *         in SiteRenderer's CLINIC_MASTER_CSS. It carries `!important` and matches EVERY clinic
+ *         section, so `[data-clinic-flow-section^="hero."] { padding-block: 0 }` — which does win
+ *         on desktop — loses to it on a phone and the hero silently gets a body section's rhythm.
+ *         This was read off the live page with CSSOM rather than reasoned about: the first
+ *         explanation written here blamed ordinary specificity and was wrong, and the rule that
+ *         followed from it did not fire.
+ *   40px  [data-clinic-hero-plate]'s own block padding.
+ *   80px  [data-clinic-flow-hero-copy]'s padding-block, which exists for the LEGACY hero, where
+ *         the copy sits directly on the photograph and needs its own inset. Inside a plate that
+ *         already has padding it is doubled inset for no reason.
+ *
+ * The plate is the element that carries the background, so the plate owns the band: 72px, once.
+ * The section keeps none and the inner copy keeps none.
+ *
+ * The first rule below therefore has to match `!important` with `!important`, at the same
+ * specificity as the rhythm rule it is answering (0,2,1 — one class, one attribute, one type) and
+ * later in source order, which it is: SiteRenderer emits CLINIC_MASTER_CSS before this file's CSS.
+ * Anything weaker is silently ignored, which is exactly what happened the first time.
+ *
+ * 72 rather than 40 or 96: 40 crowds the practice's name against a sticky header, 96 gives most
+ * of the saving back. 72 is the 64px the section rhythm already uses at this breakpoint plus the
+ * half-step that clears the header edge, and it lifts everything below it by 112px — which is
+ * what puts Enamel's booking CTA (bottom 891 on an 844-tall screen) back inside the fold rather
+ * than one scroll under it.
+ *
+ * Scoped to [data-clinic-hero-mode], the en-US D2 hero. The legacy hero the KR clinics render
+ * carries no such attribute and keeps its bytes. Desktop (>900px) is untouched: every rule here
+ * is inside the same breakpoint at which this layout already stacks.
+ */
++ `
+@media (max-width: 900px) {
+  .anaks-site[data-clinic-master] section[data-clinic-hero-mode] { padding-block: 0 !important; }
+  [data-clinic-hero-mode] [data-clinic-hero-plate] { padding-block: 72px; }
+  [data-clinic-hero-mode] [data-clinic-flow-hero-copy] { padding-block: 0; }
 }
 `;
 
@@ -87,6 +146,7 @@ export function ClinicHeroLayoutSection({
   isFirst,
   surfaceStyle,
   sectionAttributes,
+  imageDisclosure,
   children,
 }: {
   section: Section;
@@ -95,6 +155,8 @@ export function ClinicHeroLayoutSection({
   isFirst: boolean;
   surfaceStyle?: CSSProperties;
   sectionAttributes?: Record<string, string>;
+  /** Operator sourcing note for the hero picture. A caption on the image, never body copy. */
+  imageDisclosure?: string;
   children: ReactNode;
 }) {
   const image = section.background.image;
@@ -110,6 +172,9 @@ export function ClinicHeroLayoutSection({
         fetchPriority={isFirst ? 'high' : undefined}
         decoding="async"
       />
+      {imageDisclosure ? (
+        <p data-clinic-stock-disclosure>{imageDisclosure}</p>
+      ) : null}
     </div>
   ) : null;
 
