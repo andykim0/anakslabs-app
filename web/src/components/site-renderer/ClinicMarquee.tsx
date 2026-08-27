@@ -69,8 +69,20 @@ export function MarqueeUtilityStrip({
   const phone = contact?.phone?.trim();
   const address = contact?.address?.trim();
   if (!phone && !address) return null;
+  /**
+   * The variables are carried on the element itself, not inherited.
+   *
+   * SiteRenderer sets the --mq-* custom properties on the .anaks-site root, and this strip is a
+   * sibling of TenantHeader — outside that root entirely. So every var() reference in its rules
+   * resolved to nothing and the strip rendered as white with the UA's serif default: the one
+   * component whose whole job is to be the brand colour from the first pixel was the one component
+   * with no brand colour. Caught in the 1440 utility-strip capture.
+   */
   return (
-    <div data-marquee-utility-strip>
+    <div
+      data-marquee-utility-strip
+      style={marqueeRootStyle(config.clinicMaster!) as CSSProperties}
+    >
       <div data-marquee-utility-inner>
         {address ? <span data-marquee-utility-place>{address}</span> : null}
         {phone ? <b data-marquee-utility-phone>{phone}</b> : null}
@@ -340,7 +352,12 @@ ${S} .anaks-btn:hover {
 [data-marquee-utility-strip] {
   background: var(--mq-brand);
   color: var(--mq-brand-ink);
-  font-family: var(--clinic-control-family);
+  /*
+    The literal stack, not var(--clinic-control-family): that variable is also set on the
+    .anaks-site root this element sits outside of, so it resolved to nothing and the strip rendered
+    in the UA serif. The language's text face is fixed anyway — naming it here is honest.
+  */
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 500;
   font-size: 13.5px;
   line-height: 1;
