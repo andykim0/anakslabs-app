@@ -33,6 +33,36 @@ const COMPOSED_LAYOUT_RE =
   /(?:^|[-_/])(?:og[-_ ]?card|social[-_ ]?card|treatment[-_ ]?plan|implant[-_ ]?diagram)(?:[-_.]|$)|\b(?:infographic|diagram poster|treatment plan graphic)\b/iu;
 const CREDENTIAL_IMAGE_RE =
   /(?:^|[-_/])(?:degree|diploma|credential|certificate|desk[-_ ]?consult)(?:[-_.]|$)|\b(?:harvard|herman ostrow|school of dentistry|doctor of dental surgery|board[- ]certified)\b/iu;
+/**
+ * A mark an association, academy or accrediting body issues to its members.
+ *
+ * A practice displays these to prove membership, which is a legitimate thing for it to do and a
+ * ruinous thing for a gallery to show: they are flat vector marks, so a photo grid renders them as
+ * six white squares between the photographs. They cannot be caught by the junk rule, because the
+ * words "logo" and "badge" appear in neither the filename nor the alt of any of the six Ora tiles
+ * — the practice captions them with the body's full name ("ADA American Dental Association").
+ * That full name is the signal, so it is what this reads.
+ *
+ * Deliberately NOT keyed on size or aspect: `renderedDimensions` is absent for every one of the
+ * 781 pooled images across the seven corpora, so nothing measurable distinguishes a badge from a
+ * photograph. The vocabulary is the only evidence the crawl actually carries.
+ */
+const ASSOCIATION_MARK_RE =
+  /\b(?:alumni|association|academy|society|college|board|accredit\w*|member(?:ship)?|award|certified|fellow(?:ship)?|institute|federation|council|seal)\b/iu;
+
+/**
+ * An initialism standing alone as the entire alt text. A practice writing "CDA" or "AAO" is
+ * captioning a badge; a photograph's alt is a sentence. Anchored and upper-case-only so that
+ * ordinary captions cannot reach it — "TVs In Treatment Room" and "Ana" both contain lower case
+ * and are not matched — and length-guarded so the empty alt (19 of 19 Enamel images) never is.
+ *
+ * Required to START with a letter, which is not decoration. Brentwood numbers the case
+ * photographs on its before-and-after page 1.png through 10.png and captions them "1" … "10";
+ * a digits-only rule reads "10" as a mark and throws a real photograph away. An initialism
+ * begins with a letter and a bare number is a caption, so that is where the line goes.
+ */
+const ACRONYM_ALT_RE = /^[A-Z][A-Z0-9&.\- ]{1,5}$/u;
+
 const BUSINESS_NAME_POISON_RE =
   /\bid dental implant(?:\s*(?:&|and)\s*cosmetic)? center\b|\bimplant center\b|\bid dental\b|\bkoreatown\b|\blos angeles\b|,?\s*\bca\b/giu;
 
@@ -166,6 +196,28 @@ export function sourceImageIsProvider(image: ProjectedUsDemoSourceImage): boolea
 
 export function sourceImageIsInsuranceLogo(image: ProjectedUsDemoSourceImage): boolean {
   return candidateIsInsuranceLogo(image.page, image.candidate);
+}
+
+/**
+ * The membership-mark counterpart of `sourceImageIsInsuranceLogo`, and applied the same way: at
+ * the gallery assembly points, NOT inside `clinicPhotoGate`.
+ *
+ * Putting it in the gate was tried first and measured, because the gate is where it philosophically
+ * belongs — a badge is not a photograph in any slot. It costs too much. The gate feeds one ordered
+ * pool that every downstream section indexes into, so removing two dental360 badges reshuffled the
+ * allocation and dental360's compiled output fell from 43 images to 36: one badge gone and SIX real
+ * photographs gone with it, dropped out of procedure detail sections that had been showing them.
+ * Trading six of a practice's own photographs for two badges is a worse demo, so the narrow
+ * application is the correct one until that allocator is understood.
+ *
+ * Known and deliberately not fixed here: dental360 still carries `ABO-3.png` in a procedure detail
+ * section, which this scoping cannot reach. That is a real defect, recorded rather than papered
+ * over, and it wants the allocation bug diagnosed rather than a filter widened on top of it.
+ */
+export function sourceImageIsAssociationMark(image: ProjectedUsDemoSourceImage): boolean {
+  const alt = image.candidate.alt.trim();
+  if (ASSOCIATION_MARK_RE.test(`${image.source.url} ${alt}`)) return true;
+  return alt.length > 0 && ACRONYM_ALT_RE.test(alt);
 }
 
 function imageFilename(image: ProjectedUsDemoSourceImage): string {
@@ -314,7 +366,19 @@ export function prospectBrandLogo(
   const candidates = home.images
     .filter((image) => isSafeMediaSrc(image.url))
     .filter((image) => BRAND_LOGO_HINT_RE.test(`${image.url} ${image.alt}`))
-    .filter((image) => !FOREIGN_LOGO_RE.test(`${image.url} ${image.alt}`));
+    /**
+     * A membership mark is a foreign mark. Ora's header was showing `logo-aaid.jpg`, alt
+     * "American Academy of Implant Dentistry Member" — the practice's own
+     * `ora-logo-big-footer.png` sat unread two candidates away, because the payer-and-platform
+     * vocabulary above names no accrediting body. The gallery rule's vocabulary is reused rather
+     * than restated so the two answers cannot drift apart.
+     *
+     * Only the vocabulary is shared, not the bare-acronym rule: a practice may legitimately
+     * caption its own wordmark with its initials, so that test stays where the evidence for it
+     * was measured.
+     */
+    .filter((image) => !FOREIGN_LOGO_RE.test(`${image.url} ${image.alt}`))
+    .filter((image) => !ASSOCIATION_MARK_RE.test(`${image.url} ${image.alt}`));
   if (candidates.length === 0) return undefined;
   const ranked = [...candidates].sort((left, right) => {
     const altMatch = (image: typeof left) => (

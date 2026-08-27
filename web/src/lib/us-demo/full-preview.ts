@@ -45,6 +45,7 @@ import {
   prospectBrandLogo,
   prospectPublicSourceImages,
   sourceImageIsBeforeAfter,
+  sourceImageIsAssociationMark,
   sourceImageIsInsuranceLogo,
   sourceImageIsProvider,
   type ClinicImagePageTopic,
@@ -1212,6 +1213,7 @@ export function compileUsMedicalFullPreview(input: {
         !reservedImages.has(image.source.id)
         && !homeServiceImageIds.has(image.source.id)
         && !sourceImageIsInsuranceLogo(image)
+        && !sourceImageIsAssociationMark(image)
       ))
       // T6 shows the gallery twice, so it needs enough distinct photographs for two bands
       // rather than the same twelve shown again.
@@ -1220,6 +1222,17 @@ export function compileUsMedicalFullPreview(input: {
     theme,
     surface: true,
     candidates: ['gallery.uniform-grid'],
+    /**
+     * The 24-photograph pool splits into two twelve-tile bands, and both were titled "Practice
+     * Gallery" — the same heading twice on one page, which reads as a duplicated section rather
+     * than a continuation.
+     *
+     * They are not two galleries about two subjects; they are one ordered pool that did not fit
+     * in one band, and nothing in the source says what the second half is ABOUT. So the second
+     * heading says what is true of it — that it is more of the same — instead of inventing a
+     * subject ("Our Team", "Facilities") the compiler cannot actually verify.
+     */
+    groupName: (groupIndex) => (groupIndex === 0 ? 'Practice Gallery' : 'More From Our Practice'),
   });
   const homeGalleryImageIds = new Set(
     gallerySections
@@ -1419,6 +1432,7 @@ export function compileUsMedicalFullPreview(input: {
     });
     const galleryImages = bodyImages
       .filter((image) => !detail.usedImageIds.has(image.source.id))
+      .filter((image) => !sourceImageIsAssociationMark(image))
       .slice(0, PROCEDURE_GALLERY_MAXIMUM);
     const gallery = buildClinicGallerySections({
       id: `clinic-procedure-${category}-gallery`,

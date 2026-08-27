@@ -345,6 +345,64 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
   });
 }
 
+/** Title separators a practice actually uses between the SEO phrase and its name. */
+const TITLE_SEGMENT_SPLIT_RE = /\s+[|–—·•-]\s+|\s*\|\s*/u;
+
+function displayNameKey(value: string): string {
+  return value.toLocaleLowerCase('en-US').replace(/[^a-z0-9]+/gu, '');
+}
+
+/**
+ * The registrable label of a host: `www.oradentistry.com` -> `oradentistry`.
+ *
+ * Deliberately naive about multi-label suffixes — `example.co.uk` answers "co". That is wrong and
+ * harmless: a wrong label matches no title segment, so the caller keeps the structured name. A
+ * real public-suffix list is not worth a dependency for a comparison whose only failure mode is
+ * declining to act.
+ */
+function registrableDomainLabel(pageUrl: string): string | undefined {
+  let host: string;
+  try {
+    host = new URL(pageUrl).hostname;
+  } catch {
+    return undefined;
+  }
+  const labels = host.replace(/^www\./iu, '').split('.').filter(Boolean);
+  return labels.length >= 2 ? labels[labels.length - 2].toLocaleLowerCase('en-US') : undefined;
+}
+
+/**
+ * The name a practice would put on its own door.
+ *
+ * §2-2's chain — JSON-LD name, then og:site_name, then <title> — is right for six of the seven
+ * corpora and cannot be right for the seventh, because Ora's own JSON-LD says
+ * "Elk Grove CA Dentist" on 100 of 100 pages. That is an SEO phrase the practice published about
+ * itself, so no amount of preferring structured data over markup will recover "Ora Dentistry".
+ *
+ * The evidence that does exist is the domain. A practice that owns oradentistry.com and prints
+ * "Ora Dentistry" as a segment of its own <title> has told us its name twice, in two independent
+ * places, and the agreement between them is what makes it safe to overrule a structured field.
+ * Equality of the alphanumeric-normalised forms is required, not containment: "ID Dental Implant
+ * Center" against iddentalimplant.com is a near-miss that containment would wrongly rewrite, and
+ * equality correctly declines.
+ *
+ * This is why the fix lives here and not in `lib/import/extract.ts`, which owns the crawl-time
+ * chain: every artifact already on disk has its structured.businessName baked in, so a crawl-time
+ * rule would leave all seven corpora and all three golden fixtures exactly as wrong as they were.
+ */
+export function clinicDisplayName(page: CrawlPageArtifact): string | undefined {
+  const structured = page.structured.businessName ?? page.title;
+  const label = registrableDomainLabel(page.url);
+  if (!label || !page.title) return structured;
+  if (structured && displayNameKey(structured) === label) return structured;
+  const segment = page.title
+    .split(TITLE_SEGMENT_SPLIT_RE)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .find((part) => displayNameKey(part) === label);
+  return segment ?? structured;
+}
+
 const CHROME_EXEMPT_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
   'business_name',
   'phone',
@@ -400,7 +458,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
     if (!CHROME_EXEMPT_KINDS.has(kind) && sourceTextIsSiteChrome(text)) return;
     blocks.push(sourceBlock({ kind, text, sourceUrl: page.url, field, ordinal }));
   };
-  add('business_name', page.structured.businessName ?? page.title, 'structured.businessName');
+  add('business_name', clinicDisplayName(page), 'structured.businessName');
   add('phone', page.structured.phone, 'structured.phone');
   /**
    * Structured extraction misses address and hours on sites that print them as ordinary footer

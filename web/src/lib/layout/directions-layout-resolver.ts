@@ -151,7 +151,13 @@ function compileBand({
     ...content.intro,
     x: zone.x,
     y: zone.y,
-    width: zone.w * (band === 'mobile' ? 1 : 0.68),
+    /**
+     * The cards below span the whole text zone; the heading above them was capped at 0.68 of it,
+     * so a 1440 band carried a title frame 861.7 wide and stopped 405px short of where its own
+     * content ends. Nothing in the recipe asked for that inset — `flow-full` is already the full
+     * -width zone — so the cap was narrowing a band the layout had deliberately widened.
+     */
+    width: zone.w,
   }) : { bottom: zone.y, fontSizes: {} };
   Object.assign(fontSizes, intro.fontSizes);
   const start = intro.bottom + (content.intro ? spacing.elementGap * 2 : 0);

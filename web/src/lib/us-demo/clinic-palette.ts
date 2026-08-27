@@ -169,6 +169,30 @@ export function hslToHex({ h, s, l }: { h: number; s: number; l: number }): stri
 }
 
 /**
+ * §2-3. Below this, an image-dense source is electrified rather than deepened.
+ *
+ * deep-neutral drives every colour it touches to s 0.30 / l 0.18. That is a good answer for a
+ * source with chroma to spare — deepening a vivid pink to #3C2029 keeps a recognisable wine — and
+ * a bad one for a muted mid-tone, where it produces a near-black slate that is indistinguishable
+ * from --ink and erases the one colour the demo exists to carry. Ora's #508CBA and Brentwood's
+ * #346B9F both landed on the same anonymous navy that way.
+ *
+ * So the tie-break is not "is the source picture-heavy" alone but "does the source carry enough
+ * chroma that deepening preserves its identity". Below the threshold the colour needs lifting,
+ * not crushing.
+ *
+ * MEASURED, and the reason this number and not another. Across the seven corpora, eight raw
+ * candidates reach this branch and they are bimodal, not spread: 0.425, 0.429, 0.434, 0.507 |
+ * 0.600, 0.600, 0.695. 0.55 is the midpoint of that empty span. Disclosed confound, because it
+ * would be dishonest to present the split as cleaner than it is: in THIS corpus saturation and
+ * hue co-vary — every low value is a blue or violet, every high value is a pink. Saturation is
+ * keyed on rather than hue because a hue band would hard-code "blue is clinical" and would demote
+ * a practice whose brand is legitimately green or gold, which is a rule about our taste rather
+ * than about the source.
+ */
+const DEEP_NEUTRAL_MINIMUM_SATURATION = 0.55;
+
+/**
  * §2-3. Hue is preserved and only saturation and lightness are re-imagined: the corpus's largest
  * family was a muted mid blue, and shipping that back leaves the demo in the same world as the
  * site it replaces.
@@ -187,7 +211,7 @@ export function refineBrandColor(
     return { hex: hslToHex({ ...hsl, s: 0.55 }), refinement: 'saturate' };
   }
   if (hsl.s < 0.75 && hsl.l >= 0.25 && hsl.l <= 0.55) {
-    return imageDense
+    return imageDense && hsl.s >= DEEP_NEUTRAL_MINIMUM_SATURATION
       ? { hex: hslToHex({ ...hsl, s: 0.30, l: 0.18 }), refinement: 'deep-neutral' }
       : { hex: hslToHex({ ...hsl, s: 0.90, l: 0.55 }), refinement: 'electrify' };
   }

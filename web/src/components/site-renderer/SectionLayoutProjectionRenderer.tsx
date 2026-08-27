@@ -23,10 +23,35 @@ import { ElementContent } from './ElementContent';
 import { cqw } from './scale';
 import { ProceduralBackground } from './ProceduralBackground';
 
+/**
+ * GALLERY CROP ANCHOR.
+ *
+ * A uniform-grid tile is 4:3 landscape (`ratio` in the gallery resolver) and the media fills it
+ * with `object-fit: cover`, which without an anchor takes the middle horizontal slice. Practice
+ * photography is mostly standing and seated portraits, where the face sits in the upper quarter,
+ * so the middle slice is a torso: 10 of the 12 tiles in Ora's second gallery band rendered
+ * headless.
+ *
+ * Two ways to fix it, and only one of them is decidable. Excluding tall portraits from the grid
+ * needs to know the shape of the source, and `renderedDimensions` is absent for every pooled
+ * image across all seven corpora while the filename carries a size for only a handful — so for
+ * most tiles "is this a portrait" has no answer, and a rule that fires only when it happens to
+ * know would leave the majority of the headless tiles headless. Moving the crop window up needs
+ * to know nothing, so it applies to all of them.
+ *
+ * 25% rather than 0%: the anchor has to serve the landscape photographs in the same grid, whose
+ * subject is near the middle, and true head-and-shoulders headshots, where the face IS at the top
+ * and a 0% anchor would cut foreheads. A quarter is above centre far enough to bring faces into
+ * frame and close enough to centre that a landscape shot loses nothing that matters.
+ *
+ * Scoped to gallery sections by `data-section-type`, so hero and feature media — sized and
+ * chosen by different rules — keep the centred crop they were composed against.
+ */
 const SECTION_LAYOUT_CSS = `
 [data-section-layout-stage]{container-type:inline-size;position:relative;overflow:hidden}
 [data-section-layout-frame]{position:absolute;left:var(--section-layout-x);top:var(--section-layout-y);width:var(--section-layout-w);height:var(--section-layout-h);min-width:0;max-width:100%}
 [data-section-layout-stage][data-layout-carousel-enhanced] [data-section-layout-frame]{left:var(--section-layout-enhanced-x);top:var(--section-layout-enhanced-y);width:var(--section-layout-enhanced-w);height:var(--section-layout-enhanced-h)}
+[data-section-type="gallery"] [data-section-layout-item] img{object-position:50% 25%}
 [data-section-layout-controls]{display:none;position:absolute;right:var(--section-layout-control-inline);bottom:var(--section-layout-control-block);z-index:8;gap:.5rem}
 [data-section-layout-stage][data-layout-carousel-enhanced] [data-section-layout-controls]{display:flex}
 [data-section-layout-stage][data-layout-carousel-enhanced] [data-section-layout-item]:not([data-layout-active]){display:none}
