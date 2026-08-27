@@ -53,13 +53,67 @@ export function TenantHeader({
 
   const theme = config.theme;
   const siteName = tenantBrandName(config);
-  const brandLogo = config.pages
-    .flatMap((page) => page.sections)
-    .flatMap((section) => section.elements)
-    .find((element) => (
-      element.kind === 'image'
-      && element.id.startsWith('clinic-route-brand-logo-')
-    ));
+  /**
+   * THE US DEMO HEADER SHOWS THE PRACTICE'S NAME, NOT ITS LOGO FILE.
+   *
+   * A prospect's own wordmark is the right thing to show and the wrong thing to guarantee. The
+   * mark is a URL on their site: we never fetch its bytes (source-images.ts:446,508 — deliberate,
+   * a demo must not hot-link-load a prospect's assets at compile time), so at the moment the
+   * header is built its ink is unknown. Brentwood's header shipped blank because
+   * Logo-Original-Smile-300x97.png is a white wordmark on transparent, sitting on a #F2F2F2 bar.
+   *
+   * MEASURED, once, offline, across all seven corpora, precisely so this rule is not a guess.
+   * Mean ink luminance of the chosen mark against the #F2F2F2 header surface:
+   *
+   *   cameods          no mark found      (already text)
+   *   enameldentistry  no mark found      (already text)
+   *   iddental         0.054   9.04:1     legible
+   *   apaaesthetic     0.009  15.80:1     legible
+   *   oradentistry     0.305   2.64:1     below 3:1
+   *   originalsmile    1.000   1.12:1     invisible
+   *   dental360        —       —          logo-web.png does not decode: sharp refuses it and
+   *                                       Chrome loads it to naturalWidth 0, so the header was
+   *                                       drawing a broken image, not a mark
+   *
+   * THREE of the five marks that exist fail, and NOTHING in the filename or alt separates them
+   * from the two that pass: the invisible one (Brentwood) carries no hint at all, while the
+   * marginal one (Ora) is `ora-logo-big-footer.png`, whose "footer" token is the hint
+   * SECONDARY_LOGO_RE uses to DE-prioritise a mark. A filename rule would have to demote the one
+   * that renders and keep the one that does not.
+   *
+   * A neutral chip was the other candidate and fails on the same undecidability: Brentwood's
+   * white ink needs a dark chip, iddental's and apa's near-black ink needs a light one, and
+   * picking per-practice needs exactly the luminance we cannot have. One chip colour cannot serve
+   * both, so it would trade one blank header for two.
+   *
+   * The name is decidable for 7 of 7, and it is the practice's actual name since the name repair
+   * (`tenantBrandName`). So the demo header renders it alone.
+   *
+   * WHAT THIS COSTS, said plainly: iddental and apa have marks that render well, and they lose
+   * them. That is the trade — two headers that were fine become plain, so that three that were
+   * blank, broken or barely there become readable. The alternative buys those two back only by
+   * keeping a coin flip on every practice we have not measured, which is every practice that is
+   * not one of these seven.
+   *
+   * SCOPE is both US clinic surfaces, because both build a header from a prospect's crawled mark
+   * and neither can see it: `compileUsMedicalFullPreview` and clinic-engine's
+   * `compileRobustClinicArtifact` under US_MEDICAL_OUTREACH_PROFILE, which is what the
+   * locale/jurisdiction pair identifies. A ko-KR clinic-route header sets neither and is
+   * untouched, as are all non-clinic tenant sites.
+   *
+   * The logo element itself stays in the SiteConfig untouched — same selection rule, same
+   * `assetRefs`, same audit — so nothing downstream loses sight of which mark the practice uses.
+   */
+  const isUsMedicalDemo = config.meta.locale === 'en-US' && config.meta.jurisdiction === 'US';
+  const brandLogo = isUsMedicalDemo
+    ? undefined
+    : config.pages
+      .flatMap((page) => page.sections)
+      .flatMap((section) => section.elements)
+      .find((element) => (
+        element.kind === 'image'
+        && element.id.startsWith('clinic-route-brand-logo-')
+      ));
   const linkFor = (slug: string) => (hrefForSlug ? hrefForSlug(slug) : slug === '' ? '/' : `/${slug}`);
   const labelOf = (p: SitePage | TenantNavigationItem) => p.navLabel ?? p.title;
 

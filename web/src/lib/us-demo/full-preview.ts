@@ -88,6 +88,316 @@ export const MAX_CHARACTERS_PER_PAGE = 8_000;
 const MERGED_CHILD_SUMMARY_MAXIMUM = 240;
 
 /**
+ * TREATMENT-CARD BODY BAND.
+ *
+ * Three cards in a row are read as a comparison, so their bodies have to be the same KIND of
+ * thing. Measured on the issued round-3 previews, they were not: Ora's ten services cards ran
+ * 39 / 566 / 572 / 667 / 679 / 686 / 715 / 725 / 970 / 1416 characters and Brentwood's ran
+ * 37 / 37 / 370 / 534 / 884 / 935 / 938 / 987 / 993 / 1111. One card was a nine-line essay, its
+ * neighbour a single clause, and a third was not prose at all — Enamel's first card carried
+ * "Preventive Dental Care Pediatric Dentistry Oral Cancer Screenings Periodontal Care TMJ/TMD
+ * Treatment Sleep Apnea Treatment", which is verbatim source (kind `service_detail`, confirmed in
+ * the artifact — not a join defect) and is a menu, not a sentence about a treatment.
+ *
+ * 320 characters is the band, which is two to three ordinary sentences of clinical copy. It is
+ * not a round number chosen for looking tidy: across the three golden fixtures the bodies that
+ * already read as a card sit at 107-252, so 320 keeps every one of them untouched and only
+ * reaches the ones that were never card copy.
+ *
+ * A long body is cut at the last SENTENCE boundary inside the band, never mid-sentence and never
+ * with an ellipsis: a medical claim that trails off is a different claim. When there is no
+ * sentence boundary to cut at — one 900-character sentence, or a keyword run with no punctuation
+ * at all — the body is dropped and the card keeps its title and its link. Nothing is invented to
+ * fill it, and a card that was already a stub stays a stub.
+ *
+ * ORDERING, verified rather than assumed: this runs inside `compileUsMedicalDemo`, and
+ * `prepareUsMedicalPreview` (us-demo/admin-workflow.ts) calls `compileUsMedicalDemo` and only
+ * then `enforceGeneratedMedicalConfig`. So every string here is already at its final length
+ * before the medical-ad screen reads it, and no text can be cut after being screened or shipped
+ * without having been screened.
+ *
+ * SCOPE: the treatment cards — the home services grid and the merged-child grid. FAQ answers and
+ * prose-article bodies are deliberately outside it; an answer to "how long does surgery take" is
+ * supposed to be longer than a card.
+ */
+const CARD_BODY_TARGET = 320;
+
+/**
+ * The cut lands on the sentence boundary NEAREST the target, not the last one before it, and may
+ * overshoot to this ceiling. Measured reason: Northbank's longest card is 332 characters and ends
+ * two sentences, the second of which starts at 82. Cutting at the last boundary at or under 320
+ * threw away 250 characters to save 12, leaving a one-clause card next to five full ones — the
+ * imbalance this rule exists to remove, caused by the rule itself. Reaching forward the 12
+ * characters keeps whole sentences and keeps the row even.
+ */
+const CARD_BODY_CEILING = 400;
+
+/** Below this a "sentence boundary" is a decimal point or an abbreviation, not a sentence. */
+const CARD_BODY_SENTENCE_MINIMUM = 40;
+
+/* ------------------------------------------------------------------ nav display labels ----- */
+
+/**
+ * NAV LABELS ARE NOT PAGE TITLES.
+ *
+ * A treatment page's `title` is a source heading, written to be found by a search engine, and it
+ * keeps that job: it is the <title>, the H1 and the JSON-LD name, and nothing here touches it.
+ * The nav is a different surface with a different constraint — a bar of a dozen items, read
+ * sideways, where every character past roughly two words is noise. Feeding it the SEO title gave
+ * the issued round-3 previews a header reading "Dental Implants in Elk Grove, CA",
+ * "Wisdom teeth removal at The Grove", "BASIC CARE FOR PARTIAL DENTURES", and — on Brentwood —
+ * "Cosmetic & Restorative" twice in the same dropdown, which is a nav that cannot be used at all.
+ *
+ * The label is the first candidate that is free, in this order. Each rung exists because the one
+ * above it can be absent or already taken, and the last rung always exists, so no page can end up
+ * without an entry:
+ *
+ *   1. the title with its geo qualifier stripped and ALL-CAPS normalised, if it fits the cap
+ *   2. the page's own slug, title-cased, if it fits the cap        (the practice's own URL words)
+ *   3. that stripped title plus the qualifier that was removed     (restores the distinguisher)
+ *   4. the slug again, allowed up to the longer qualified cap
+ *   5. the category label from the taxonomy                        (short, always reads correctly)
+ *   6. the stripped title cut at a word boundary
+ *   7. the untouched title
+ *
+ * Rung 5 is deliberately BELOW the page's own words rather than above them. It is safe in the
+ * sense that it always reads like a treatment, but it describes the CATEGORY, not the page: an
+ * earlier ordering that preferred it labelled Ora's "Emergency Dentistry in Sacramento" page
+ * "Cosmetic & Restorative" and its "Emergency Dental Treatments We Offer" page "Implants", which
+ * is a worse failure than the long titles this exists to fix — a nav that is short and wrong.
+ *
+ * Collisions are compared case-insensitively, because a reader cannot see the difference between
+ * "Scaling and Root Planing" and "Scaling And Root Planing". Untouched labels are claimed in a
+ * first pass so a derived label can never be handed a string a page outside this rule is using.
+ */
+const NAV_LABEL_MAXIMUM = 28;
+
+/** One rung is allowed to be longer, because its entire job is to tell two pages apart. */
+const NAV_QUALIFIED_MAXIMUM = 38;
+
+const NAV_RESERVED_LABELS = new Set(['home', 'about', 'contact', 'services']);
+
+const US_STATE_CODE_RE = /^(?:A[LKZR]|C[AOT]|DE|FL|GA|HI|I[DLNA]|K[SY]|LA|M[EDAINSOT]|N[EVHJMYCD]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[TA]|W[AVIY]|DC)$/u;
+
+const NAV_TRAILING_FUNCTION_WORD_RE =
+  /\s+(?:a|an|and|as|at|by|for|from|in|of|on|or|the|to|with|your|our)$/iu;
+
+const NAV_SMALL_WORDS = new Set([
+  'a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with',
+]);
+
+/**
+ * The city and neighbourhood names this practice itself publishes, read off its own address
+ * blocks. Nothing is stripped on the strength of a gazetteer we do not have; the evidence that
+ * "Elk Grove" is a place is that the practice prints "Elk Grove, CA 95758" as its address.
+ *
+ * One, two and three word tails are all kept because an address is not reliably comma-separated:
+ * "128 South Brook Drive Leander, TX 78641" puts the street and the locality in one run.
+ */
+function clinicNavLocalities(addresses: readonly string[]): string[] {
+  const localities = new Set<string>();
+  for (const address of addresses) {
+    const match = /([A-Za-z][A-Za-z.'’\- ]{1,30}?),?\s+([A-Z]{2})\s+\d{5}/u.exec(address);
+    if (!match || !US_STATE_CODE_RE.test(match[2])) continue;
+    const tail = match[1].trim().replace(/^.*,\s*/u, '').trim();
+    const words = tail.split(/\s+/u);
+    for (let take = 1; take <= Math.min(3, words.length); take += 1) {
+      const candidate = words.slice(words.length - take).join(' ');
+      if (candidate.length >= 3) localities.add(candidate.toLocaleLowerCase('en-US'));
+    }
+  }
+  return [...localities];
+}
+
+/** ALL-CAPS is a source stylesheet decision, not a name. Title Case, small words left small. */
+function normaliseAllCaps(value: string): string {
+  if (/[a-z]/u.test(value)) return value;
+  if ((value.match(/[A-Za-z]/gu) ?? []).length < 2) return value;
+  const words = value.toLocaleLowerCase('en-US').split(/\s+/u);
+  return words
+    .map((word, index) => (
+      index > 0 && index < words.length - 1 && NAV_SMALL_WORDS.has(word)
+        ? word
+        : word.replace(/^[a-z]/u, (character) => character.toLocaleUpperCase('en-US'))
+    ))
+    .join(' ');
+}
+
+interface ClinicNavGeoStrip {
+  label: string;
+  qualifier?: string;
+}
+
+/**
+ * Remove a trailing location qualifier, but only when there is evidence the tail IS a location.
+ * Four kinds of evidence, any one of which is enough:
+ *   (a) it ends in ", <ST>" — a US state code after a comma is not a treatment
+ *   (b) it ends in a locality this practice publishes in its own address
+ *   (c) the preposition is "at" — "X at <somewhere>" in a treatment title names a place
+ *   (d) the same tail recurs as a geo tail on another of this practice's pages
+ * Without one of them the title is left exactly as written; guessing costs a treatment name.
+ */
+function stripClinicNavGeoTail(
+  title: string,
+  localities: readonly string[],
+  repeatedTails: ReadonlySet<string>,
+): ClinicNavGeoStrip {
+  const match = /^(.*?)(\s+(?:in|at|near)\s+([^.!?]{2,40}?))[\s.,]*$/u.exec(title);
+  if (!match) return { label: title.trim() };
+  const head = match[1].trim();
+  if (head.length < 6) return { label: title.trim() };
+  const preposition = /\s+(in|at|near)\s+/u.exec(match[2])?.[1] ?? 'in';
+  const tail = match[3].trim().replace(/[\s.,]+$/u, '');
+  const normalised = tail.toLocaleLowerCase('en-US');
+  const isLocation = /,\s*[A-Z]{2}$/u.test(tail)
+    || localities.some((locality) => normalised.endsWith(locality))
+    || preposition === 'at'
+    || repeatedTails.has(normalised);
+  if (!isLocation) return { label: title.trim() };
+  return { label: head.replace(/[\s,]+$/u, ''), qualifier: tail };
+}
+
+/** Cut at a word boundary, then drop any function word the cut left dangling. No ellipsis. */
+function navWordCut(value: string, maximum: number): string {
+  if (value.length <= maximum) return value;
+  const window = value.slice(0, maximum + 1);
+  const space = window.lastIndexOf(' ');
+  let cut = space > 0 ? window.slice(0, space) : value.slice(0, maximum);
+  while (NAV_TRAILING_FUNCTION_WORD_RE.test(cut)) {
+    cut = cut.replace(NAV_TRAILING_FUNCTION_WORD_RE, '');
+  }
+  return cut.replace(/[\s,;:·-]+$/u, '');
+}
+
+function navLabelFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map((word) => word.replace(/^[a-z]/u, (character) => character.toLocaleUpperCase('en-US')))
+    .join(' ');
+}
+
+export interface ClinicNavLabelInput {
+  /** Page id, used only to key the answer back onto the page. */
+  id: string;
+  slug: string;
+  title: string;
+  /** The label the page ships today; also what an untouched page claims. */
+  navLabel: string;
+  /** The taxonomy label for this page's category, or undefined for a non-procedure page. */
+  categoryLabel?: string;
+  /** False for Home/Contact and for a category with a single page — those are left alone. */
+  derives: boolean;
+}
+
+/** Page id -> nav label. Only pages with `derives` appear; everything else keeps what it had. */
+export function resolveClinicNavLabels(
+  pages: readonly ClinicNavLabelInput[],
+  addresses: readonly string[],
+): Map<string, string> {
+  const localities = clinicNavLocalities(addresses);
+  const tailCounts = new Map<string, number>();
+  for (const page of pages) {
+    const match = /\s+(?:in|at|near)\s+([^.!?]{2,40}?)[\s.,]*$/u.exec(page.title);
+    if (!match) continue;
+    const key = match[1].trim().replace(/[\s.,]+$/u, '').toLocaleLowerCase('en-US');
+    tailCounts.set(key, (tailCounts.get(key) ?? 0) + 1);
+  }
+  const repeatedTails = new Set(
+    [...tailCounts].filter(([, count]) => count >= 2).map(([key]) => key),
+  );
+
+  const taken = new Set<string>(NAV_RESERVED_LABELS);
+  const claim = (value: string) => {
+    taken.add(value.toLocaleLowerCase('en-US'));
+    return value;
+  };
+  const free = (value: string | undefined): value is string => (
+    Boolean(value) && !taken.has(value!.toLocaleLowerCase('en-US'))
+  );
+  for (const page of pages) if (!page.derives) claim(page.navLabel);
+
+  const resolved = new Map<string, string>();
+  for (const page of pages) {
+    if (!page.derives) continue;
+    const stripped = stripClinicNavGeoTail(page.title, localities, repeatedTails);
+    const derived = normaliseAllCaps(stripped.label).replace(/\s+/gu, ' ').trim();
+    const slugLabel = navLabelFromSlug(page.slug);
+    const slugUsable = !NAV_RESERVED_LABELS.has(slugLabel.toLocaleLowerCase('en-US'));
+    const qualified = stripped.qualifier ? `${derived} · ${stripped.qualifier}` : undefined;
+    const candidates: Array<string | undefined> = [
+      derived.length > 0 && derived.length <= NAV_LABEL_MAXIMUM ? derived : undefined,
+      slugUsable && slugLabel.length <= NAV_LABEL_MAXIMUM ? slugLabel : undefined,
+      qualified && qualified.length <= NAV_QUALIFIED_MAXIMUM ? qualified : undefined,
+      slugUsable && slugLabel.length <= NAV_QUALIFIED_MAXIMUM ? slugLabel : undefined,
+      page.categoryLabel,
+      derived.length > NAV_LABEL_MAXIMUM ? navWordCut(derived, NAV_LABEL_MAXIMUM) : undefined,
+      page.title,
+    ];
+    resolved.set(page.id, claim(candidates.find(free) ?? page.title));
+  }
+  return resolved;
+}
+
+/**
+ * A run of Title-Case service names is a menu the practice printed, not body copy. It reaches the
+ * card because `service_detail` is a kind, not a judgement about shape.
+ *
+ * The three conditions together, because none of them alone is safe: no sentence-ending
+ * punctuation anywhere (a menu has none), at least six words (a two-word fragment is a stub, not
+ * a menu), and at least sixty per cent of the words that carry meaning starting with a capital
+ * (which is what makes it a list of proper treatment names rather than a sentence). Function
+ * words of three letters or fewer are not counted either way — "and", "of", "to" are lower case
+ * in a menu and in a sentence alike, so counting them would only dilute the signal.
+ *
+ * It is NOT rendered as a delimited list, which was the other option. Splitting
+ * "Preventive Dental Care Pediatric Dentistry Oral Cancer Screenings" back into its items needs a
+ * delimiter, and the source string has none — every split is a guess that either joins two
+ * treatments or cuts one in half, and printing a wrong list of what a practice offers on their
+ * own medical page is worse than printing none.
+ */
+function isKeywordBlob(text: string): boolean {
+  if (/[.!?]/u.test(text)) return false;
+  const words = text.split(/\s+/u).filter(Boolean);
+  if (words.length < 6) return false;
+  const carrying = words.filter((word) => word.replace(/[^A-Za-z]/gu, '').length > 3);
+  if (carrying.length < 4) return false;
+  const capitalised = carrying.filter((word) => /^[^A-Za-z]*[A-Z]/u.test(word)).length;
+  return capitalised / carrying.length >= 0.6;
+}
+
+/** The sentence end nearest `CARD_BODY_TARGET` and at or under the ceiling, or -1 if there is none. */
+function nearestSentenceEnd(text: string): number {
+  const window = text.slice(0, CARD_BODY_CEILING);
+  let best = -1;
+  for (const match of window.matchAll(/[.!?](?=\s|$)/gu)) {
+    const index = (match.index ?? 0) + 1;
+    // "Dr." / "St." / "U.S." end a token, not a sentence.
+    if (/(?:^|\s)(?:[A-Z][a-z]{0,2}|[A-Z](?:\.[A-Z])*)\.$/u.test(window.slice(0, index))) continue;
+    if (index < CARD_BODY_SENTENCE_MINIMUM) continue;
+    if (best < 0 || Math.abs(index - CARD_BODY_TARGET) < Math.abs(best - CARD_BODY_TARGET)) {
+      best = index;
+    }
+  }
+  return best;
+}
+
+/**
+ * The card body a source block may become: itself when it already reads as one, a shorter run of
+ * its own whole sentences when it does not, and nothing at all when it was never prose.
+ */
+function clinicCardBody<T extends { text: string }>(block: T | undefined): T | undefined {
+  if (!block) return undefined;
+  const text = block.text.trim();
+  if (text.length === 0) return undefined;
+  if (isKeywordBlob(text)) return undefined;
+  if (text.length <= CARD_BODY_TARGET) return block;
+  const end = nearestSentenceEnd(text);
+  if (end < 0) return undefined;
+  if (end >= text.length) return block;
+  return { ...block, text: text.slice(0, end) };
+}
+
+/**
  * Home, About and Contact sit outside this count, so a full crawl lands in the eight-to-fifteen
  * page range. The block threshold alone does not bound it: a thin crawl page still carries a
  * title, a service and a detail, which clears any small threshold, so a twenty-page site would
@@ -798,12 +1108,12 @@ function mergedChildSections(input: {
     );
     const title = services.find((block) => block.text.length <= 72) ?? services[0];
     if (!title) return [];
-    const body = child.blocks
+    const body = clinicCardBody(child.blocks
       .filter((block) => (
         block.kind === 'service_detail'
         && block.text.length <= MERGED_CHILD_SUMMARY_MAXIMUM
       ))
-      .sort((left, right) => right.text.length - left.text.length)[0];
+      .sort((left, right) => right.text.length - left.text.length)[0]);
     const href = input.hrefBySourceUrl.get(child.sourceUrl);
     return [{
       id: `clinic-merged-child-${title.id}`,
@@ -1176,9 +1486,9 @@ export function compileUsMedicalFullPreview(input: {
       block.kind === 'service' && block.text.length <= 72
     )) ?? orderedServices[0];
     if (!title) return [];
-    const body = planned.blocks.find((block) => (
+    const body = clinicCardBody(planned.blocks.find((block) => (
       block.kind === 'service_detail' && block.sourceUrl === title.sourceUrl
-    ));
+    )));
     const topic = procedureImageTopic(planned, slug, taxonomy);
     const pool = topic instanceof RegExp
       ? clinicPhotoPoolForPattern(projectedImages, topic)
@@ -1458,6 +1768,11 @@ export function compileUsMedicalFullPreview(input: {
         .digest('hex')
         .slice(0, 8)}`,
       title: displayTitle,
+      /**
+       * Placeholder for the multi-page branch — `resolveClinicNavLabels` rewrites it below, once
+       * the whole page set exists, because a label cannot be checked for collision against pages
+       * that have not been built yet. A single-page category keeps the category label untouched.
+       */
       navLabel: (procedureCategoryCounts.get(category) ?? 0) > 1
         ? displayTitle
         : meta.navLabel,
@@ -1565,6 +1880,33 @@ export function compileUsMedicalFullPreview(input: {
         ...contactSections,
       ],
     });
+  }
+
+  /**
+   * The nav's display labels, decided once the whole page set exists. `page.title` is untouched —
+   * only the label the header prints changes, and only for the multi-page-category branch that
+   * was putting SEO titles in the bar.
+   */
+  const navLabels = resolveClinicNavLabels(
+    pages.map((page) => {
+      const categoryDef = taxonomy.categories.find((candidate) => (
+        page.id.startsWith(`clinic-procedure-${candidate.id}-`)
+      ));
+      return {
+        id: page.id,
+        slug: page.slug,
+        title: page.title,
+        navLabel: page.navLabel ?? page.title,
+        ...(categoryDef ? { categoryLabel: categoryDef.navLabel } : {}),
+        derives: Boolean(categoryDef)
+          && (procedureCategoryCounts.get(categoryDef!.id) ?? 0) > 1,
+      };
+    }),
+    blocks.filter((block) => block.kind === 'address').map((block) => block.text),
+  );
+  for (const page of pages) {
+    const label = navLabels.get(page.id);
+    if (label) page.navLabel = label;
   }
 
   let config: SiteConfig = {
