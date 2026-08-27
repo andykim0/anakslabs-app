@@ -208,6 +208,75 @@
         "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-SemiBold.ttf",
         "sha256": "a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1"
       }
+    },
+    {
+      "id": "bricolage-grotesque-700:latin-core",
+      "faceId": "bricolage-grotesque-700",
+      "chunkId": "latin-core",
+      "family": "Bricolage Grotesque",
+      "weight": 700,
+      "style": "normal",
+      "path": "/fonts/latin/bricolage-grotesque-700-latin-core.woff2",
+      "bytes": 24396,
+      "sha256": "3e9d27beb6b749fdd64f45de347c222c4e9de584c68cc451abe1e2dbbad0464d",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "bricolage-grotesque-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/bricolagegrotesque/BricolageGrotesque%5Bopsz,wdth,wght%5D.ttf",
+        "sha256": "413e7357809ddd12fd80a96a8a396de0e401638d4acd3cb3e37532f0472ac682",
+        "variationAxes": {
+          "opsz": 48,
+          "wdth": 100,
+          "wght": 700
+        }
+      }
+    },
+    {
+      "id": "bricolage-grotesque-800:latin-core",
+      "faceId": "bricolage-grotesque-800",
+      "chunkId": "latin-core",
+      "family": "Bricolage Grotesque",
+      "weight": 800,
+      "style": "normal",
+      "path": "/fonts/latin/bricolage-grotesque-800-latin-core.woff2",
+      "bytes": 24032,
+      "sha256": "6d03f92f63fd22d778c0119799ee3a5fb00e016b1b2a9b87a0172013d595bc21",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "bricolage-grotesque-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/bricolagegrotesque/BricolageGrotesque%5Bopsz,wdth,wght%5D.ttf",
+        "sha256": "413e7357809ddd12fd80a96a8a396de0e401638d4acd3cb3e37532f0472ac682",
+        "variationAxes": {
+          "opsz": 48,
+          "wdth": 100,
+          "wght": 800
+        }
+      }
+    },
+    {
+      "id": "dm-sans-400-700:latin-core",
+      "faceId": "dm-sans-400-700",
+      "chunkId": "latin-core",
+      "family": "DM Sans",
+      "weight": "400 700",
+      "style": "normal",
+      "path": "/fonts/latin/dm-sans-400-700-latin-core.woff2",
+      "bytes": 24016,
+      "sha256": "47ff982c0bfaa9228d497d6533d768291618718f943cc8a48b8b53d6b4ce00c5",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "dm-sans-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/dmsans/DMSans%5Bopsz,wght%5D.ttf",
+        "sha256": "8cd08d97e89c24d0aa92edd2f0f4c8ee6195eee9b7c9f154865a58b02f0c1c0d",
+        "variationAxes": {
+          "opsz": 14,
+          "wght": {
+            "min": 400,
+            "max": 700,
+            "default": 400
+          }
+        }
+      }
     }
   ],
   "licenseNotices": [
@@ -232,6 +301,18 @@
     {
       "name": "Public Sans",
       "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/publicsans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Bricolage Grotesque",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/bricolagegrotesque",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "DM Sans",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/dmsans",
       "licenseId": "OFL-1.1",
       "noticePath": "/fonts/latin/FONT-LICENSES.md"
     },

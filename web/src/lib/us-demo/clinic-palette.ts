@@ -1,4 +1,10 @@
 import { contrastRatio, relLuminance } from '@/lib/design/quality-standards';
+import type { ClinicDesignLanguage } from '@/lib/types/site';
+import {
+  MARQUEE_TOKENS,
+  marqueeBrandGateFailures,
+  marqueeInkFor,
+} from './design-language';
 
 /**
  * TEMPLATE-SYSTEM §2 — the seven slots a template may reference. Nothing else is a colour, and
@@ -93,6 +99,13 @@ export interface ClinicPaletteInput {
   /** body background. Forced to white below L 0.92 per §2-2. */
   surface?: string;
   specialty: ClinicSpecialty;
+  /**
+   * Absent = the default language, and every line below runs exactly as it always has. A language
+   * here re-keys which slots come from the practice and which are the language's own, because the
+   * default gate encodes an assumption a colour-confident language does not share: that the brand
+   * has to be legible as TEXT on the page. See `design-language.ts`.
+   */
+  designLanguage?: ClinicDesignLanguage;
   /**
    * §2-3 tie-break. A picture-heavy source takes the deep neutral, because high chroma fights
    * photography; a type-led source takes the electric treatment.
@@ -272,7 +285,66 @@ export function brandInkFor(brand: string): string {
  * and says so in meta, because a demo that quietly invents a brand colour is worse than one that
  * admits it used a default.
  */
+/**
+ * MARQUEE's seven slots.
+ *
+ * Written as its own function rather than as conditionals threaded through the default builder,
+ * for the same reason the radius tokens get a parallel function: a branch inside the default path
+ * is a branch that can be taken by accident, and this path must be unreachable without a stored
+ * `designLanguage`. Nothing here calls `refineBrandColor` — MARQUEE's whole premise is that the
+ * practice's colour arrives at full strength, so re-imagining its chroma would be re-deciding the
+ * one thing the language exists to carry.
+ *
+ * FROM THE PRACTICE: `--brand` (the surface: the CTA band, the utility strip, the header rule, the
+ * block behind the hero plate) and `--brand-ink`, its legible partner drawn from the language's
+ * own two inks.
+ *
+ * FROM THE LANGUAGE: everything else — `--ink` plum, `--ink-muted`, `--accent` violet, `--surface`
+ * white, `--surface-2` lilac. A MARQUEE demo of any practice is recognisably the same language.
+ */
+function buildMarqueePalette(input: ClinicPaletteInput): ClinicPalette {
+  const gatesFor = (brand: string) => marqueeBrandGateFailures(brand);
+  let adopted: { origin: ClinicPaletteOrigin; hex: string } | null = null;
+  let reportedFailures: string[] = [];
+  for (const candidate of input.candidates) {
+    if (!parseHex(candidate.hex)) continue;
+    const failures = gatesFor(candidate.hex);
+    if (reportedFailures.length === 0) reportedFailures = failures;
+    if (failures.length === 0) {
+      adopted = candidate;
+      reportedFailures = [];
+      break;
+    }
+  }
+  /**
+   * The honest failure. No darkening rescue runs here: walking an unusable colour down its own
+   * lightness is what produces #BF590D, where the language's ink stops passing and white starts —
+   * the exact inversion of the rule this language is built on. If the practice cannot supply a
+   * surface the language can write on, the language supplies its own and says so.
+   */
+  const brand = adopted ? adopted.hex.toUpperCase() : MARQUEE_TOKENS.defaultBrand;
+  const brandInk = marqueeInkFor(brand) ?? MARQUEE_TOKENS.ink;
+  return {
+    slots: Object.freeze({
+      '--brand': brand,
+      '--brand-ink': brandInk,
+      '--accent': MARQUEE_TOKENS.accent,
+      '--surface': MARQUEE_TOKENS.surface,
+      '--surface-2': MARQUEE_TOKENS.lilacTint,
+      '--ink': MARQUEE_TOKENS.ink,
+      '--ink-muted': MARQUEE_TOKENS.inkSoft,
+    }),
+    meta: {
+      origin: adopted ? adopted.origin : 'specialty-fallback',
+      fallbackUsed: !adopted,
+      refinement: 'none',
+      gateFailures: reportedFailures,
+    },
+  };
+}
+
 export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
+  if (input.designLanguage === 'marquee') return buildMarqueePalette(input);
   const fallback = CLINIC_PALETTE_FALLBACKS[input.specialty];
   const rawSurface = input.surface && parseHex(input.surface) ? input.surface : '#FFFFFF';
   // §2-2: anything darker than 0.92 is not a page background we keep.

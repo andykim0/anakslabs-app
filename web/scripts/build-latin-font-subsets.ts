@@ -41,7 +41,7 @@ interface FaceSpec {
   id: string;
   source: SourceSpec;
   family: string;
-  weight: 400 | 500 | 600 | 700 | '400 600';
+  weight: 400 | 500 | 600 | 700 | 800 | '400 600' | '400 700';
   variationAxes?: Readonly<Record<
     string,
     number | { min: number; max: number; default: number }
@@ -85,6 +85,23 @@ const SOURCES = {
     'PublicSans%5Bwght%5D.ttf',
     'd75a7dc1a27eb9e336d5b33f55489d2ecb5621bf694d5c43b2415bce2ca830a8',
   ),
+  /**
+   * MARQUEE. Bricolage ships three axes (opsz, wdth, wght); every one of them is instanced to a
+   * single value below, because an un-pinned axis is a second answer the determinism check would
+   * catch only by luck.
+   */
+  bricolage: GOOGLE_SOURCE(
+    'bricolage-grotesque-google-fonts',
+    'bricolagegrotesque',
+    'BricolageGrotesque%5Bopsz,wdth,wght%5D.ttf',
+    '413e7357809ddd12fd80a96a8a396de0e401638d4acd3cb3e37532f0472ac682',
+  ),
+  dmSans: GOOGLE_SOURCE(
+    'dm-sans-google-fonts',
+    'dmsans',
+    'DMSans%5Bopsz,wght%5D.ttf',
+    '8cd08d97e89c24d0aa92edd2f0f4c8ee6195eee9b7c9f154865a58b02f0c1c0d',
+  ),
   ibmRegular: {
     id: 'ibm-plex-sans-official-400',
     url: `https://raw.githubusercontent.com/IBM/plex/${IBM_PLEX_COMMIT}/IBM-Plex-Sans/fonts/complete/ttf/IBMPlexSans-Regular.ttf`,
@@ -121,6 +138,34 @@ const FACES: readonly FaceSpec[] = [
   { id: 'ibm-plex-sans-400', source: SOURCES.ibmRegular, family: 'IBM Plex Sans', weight: 400 },
   { id: 'ibm-plex-sans-500', source: SOURCES.ibmMedium, family: 'IBM Plex Sans', weight: 500 },
   { id: 'ibm-plex-sans-600', source: SOURCES.ibmSemiBold, family: 'IBM Plex Sans', weight: 600 },
+  /**
+   * MARQUEE's two families in three faces. opsz is pinned at 48 for both Bricolage instances —
+   * the language sets its display between 32px and 74px and a single optical size across both
+   * weights is what keeps a section head and a hero headline the same typeface. DM Sans stays one
+   * variable face over 400..700 so 400, 500 and 700 are all real instances rather than synthesised
+   * ones, which is how the pairing fits two families in three faces.
+   */
+  {
+    id: 'bricolage-grotesque-700',
+    source: SOURCES.bricolage,
+    family: 'Bricolage Grotesque',
+    weight: 700,
+    variationAxes: { opsz: 48, wdth: 100, wght: 700 },
+  },
+  {
+    id: 'bricolage-grotesque-800',
+    source: SOURCES.bricolage,
+    family: 'Bricolage Grotesque',
+    weight: 800,
+    variationAxes: { opsz: 48, wdth: 100, wght: 800 },
+  },
+  {
+    id: 'dm-sans-400-700',
+    source: SOURCES.dmSans,
+    family: 'DM Sans',
+    weight: '400 700',
+    variationAxes: { opsz: 14, wght: { min: 400, max: 700, default: 400 } },
+  },
 ] as const;
 
 function sha256(bytes: Uint8Array): string {
@@ -235,6 +280,8 @@ async function main() {
     ['Hanken Grotesk', 'hankengrotesk'],
     ['Albert Sans', 'albertsans'],
     ['Public Sans', 'publicsans'],
+    ['Bricolage Grotesque', 'bricolagegrotesque'],
+    ['DM Sans', 'dmsans'],
   ].map(([name, directory]) => ({
     name,
     sourceUrl: `https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl/${directory}`,
@@ -285,7 +332,7 @@ async function main() {
 These checked-in WOFF2 files are deterministic Latin subsets of checksum-pinned official sources.
 No runtime request is made to Google Fonts, IBM, or another font CDN.
 
-- Schibsted Grotesk, Hanken Grotesk, Albert Sans, and Public Sans — SIL Open Font License 1.1; pinned source: https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl
+- Schibsted Grotesk, Hanken Grotesk, Albert Sans, Public Sans, Bricolage Grotesque, and DM Sans — SIL Open Font License 1.1; pinned source: https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl
 - IBM Plex Sans — SIL Open Font License 1.1; pinned source and license: https://github.com/IBM/plex/tree/${IBM_PLEX_COMMIT}
 
 The original family names are retained to identify and load the licensed fonts.

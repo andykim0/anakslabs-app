@@ -29,6 +29,7 @@ import {
   CLINIC_SPECIALTIES,
   type ClinicPaletteSlot,
 } from '@/lib/us-demo/clinic-palette';
+import { CLINIC_DESIGN_LANGUAGES } from '@/lib/us-demo/design-language';
 import { CLINIC_TEMPLATE_IDS } from '@/lib/us-demo/template-system';
 import {
   DESIGN_DNA_IDS,
@@ -259,6 +260,7 @@ export const siteThemeSchema = z.object({
         'clinic-editorial',
         'clinic-geometric',
         'clinic-neutral',
+        'clinic-marquee',
       ]),
     }).strict(),
   ]).optional(),
@@ -293,6 +295,11 @@ export const clinicMasterPinSchema = z.object({
   masterId: z.literal('premium-dental-v1'),
   /** 컴파일이 저장한 진료과. 부재 = dental(이 필드 이전 발급분, 그리고 dental 신규 발급분). */
   specialty: z.enum(CLINIC_SPECIALTIES).optional(),
+  /**
+   * 컴파일이 저장한 디자인 언어. 부재 = 기본 언어(이 필드 이전 발급분, 그리고 기본 언어 신규 발급분).
+   * 이 스키마는 .strict()라 키가 없으면 핀 자체가 거부되므로, 필드와 함께 반드시 여기에 산다.
+   */
+  designLanguage: z.enum(CLINIC_DESIGN_LANGUAGES).optional(),
   accentPreset: z.enum([
     'clean-blue',
     'clean-teal',
@@ -303,6 +310,7 @@ export const clinicMasterPinSchema = z.object({
     'clinic-editorial',
     'clinic-geometric',
     'clinic-neutral',
+    'clinic-marquee',
   ]),
   density: z.enum(['airy', 'balanced']),
   focus: z.enum(['implant', 'orthodontic', 'balanced']),

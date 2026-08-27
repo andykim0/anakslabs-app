@@ -533,9 +533,15 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
       fileSha('public/fonts/korean/font-assets.json'),
       '8dd5b55790a829f426fdddd1e2a3d5f516725bf32674069a28064a508409e38d',
     );
+    /**
+     * Moved once, additively, for MARQUEE's three faces. Stated before the regen and matched
+     * exactly: 81 insertions, 0 deletions, and every pre-existing WOFF2 byte-identical. The
+     * Korean manifest SHA above did NOT move, which is the evidence the change stayed in the
+     * Latin lane it claimed to touch.
+     */
     assert.equal(
       fileSha('public/fonts/latin/font-assets.json'),
-      '9fd1e6ca1957cc54ce4e91e5772ea7dba8d528c6ff8290d8e5090f923331a47e',
+      '952b5e1be34e8a2c46bfb076d366ea1f96475c7f0156ce7890bdd9d5433db6aa',
     );
     assert.equal(
       fileSha('src/lib/clinic-master/dental-stock-manifest.generated.ts'),

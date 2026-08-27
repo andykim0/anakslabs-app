@@ -3,7 +3,7 @@ import {
   expandTokens,
   tokenSetToSiteTheme,
 } from '@/lib/design/dna';
-import type { ClinicMasterPin, SiteConfig } from '@/lib/types/site';
+import type { ClinicDesignLanguage, ClinicMasterPin, SiteConfig } from '@/lib/types/site';
 import {
   compilePremiumDentalMaster,
   resolveClinicFocus,
@@ -139,12 +139,14 @@ function clinicMasterPinForArtifact(
   artifact: CrawlArtifactPayload,
   blocks: readonly ProspectPublicSourceBlock[],
   specialty: ClinicSpecialty,
+  designLanguage?: ClinicDesignLanguage,
 ): ClinicMasterPin {
   const projection = artifact.clinicPaletteProjection;
   const palette = buildClinicPalette({
     candidates: projection?.rawCandidates ?? [],
     specialty,
     imageDense: clinicSourceIsImageDense(artifact),
+    ...(designLanguage ? { designLanguage } : {}),
   });
   /**
    * §7-2 is recorded, not acted on. Only T5 exists, so a null templateId means the doc points at
@@ -169,8 +171,17 @@ function clinicMasterPinForArtifact(
      * a config whose output must not move — and would mean nothing that absence does not.
      */
     ...(specialty === US_DEMO_FALLBACK_CLINIC_SPECIALTY ? {} : { specialty }),
+    /**
+     * Same contract, same reason: absence is the default language, so a default-language compile
+     * writes nothing and its stored bytes do not move.
+     */
+    ...(designLanguage ? { designLanguage } : {}),
     accentPreset: projection?.accentPreset ?? 'clean-blue',
-    typographyPreset: 'clinic-editorial',
+    /**
+     * The language decides the typography, because that is what a design language IS — the pairing
+     * is not a separate axis an operator tunes on top of it.
+     */
+    typographyPreset: designLanguage === 'marquee' ? 'clinic-marquee' : 'clinic-editorial',
     density: 'airy',
     focus: resolveClinicFocus(blocks.filter((block) => block.kind === 'service')),
     demoPitchLocale: 'en',
@@ -212,6 +223,7 @@ function compileUsMedicalDemoProfile(
     manualFinish?: UsDemoManualFinish;
     renderMode?: UsDemoRenderMode;
     specialty?: ClinicSpecialty;
+    designLanguage?: ClinicDesignLanguage;
   } = {},
 ): UsMedicalDemoCompilation {
   const curated = curateSourceBlocks(sourceBlocks, options.manualFinish);
@@ -246,6 +258,7 @@ function compileUsMedicalDemoProfile(
     artifact,
     curated.accepted,
     specialtyResolution.specialty,
+    options.designLanguage,
   );
   const clinicTheme = resolveClinicMasterTheme(baseTheme, clinicMaster);
   const fontSelection = resolveFontPairingForLocale({
@@ -358,6 +371,12 @@ export function compileUsMedicalDemo(
     renderMode?: UsDemoRenderMode;
     /** Operator override. Omitted means the source vocabulary decides. */
     specialty?: ClinicSpecialty;
+    /**
+     * Wave 1 is operator-only: omitted means the default design language, and nothing measures the
+     * source to pick one. When it is supplied the compile — not the renderer — makes the palette
+     * and typography decisions it implies, and stores the answer on the pin.
+     */
+    designLanguage?: ClinicDesignLanguage;
   } = {},
 ): UsMedicalDemoCompilation {
   return runClinicEngine({

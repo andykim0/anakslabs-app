@@ -4,10 +4,10 @@ export interface ClinicLatinFontPreset {
   heading: string;
   body: string;
   control: string;
-  headingWeight: 600;
-  displayWeight: 600 | 700;
+  headingWeight: 600 | 700;
+  displayWeight: 600 | 700 | 800;
   bodyWeight: 400;
-  controlWeight: 500 | 600;
+  controlWeight: 500 | 600 | 700;
   faceIds: readonly string[];
   familyCount: 1 | 2;
 }
@@ -61,5 +61,26 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
       'ibm-plex-sans-600',
     ],
     familyCount: 1,
+  },
+  /**
+   * MARQUEE. Bricolage Grotesque is the differentiator — wide and slightly quirky, friendly at
+   * 74px without reading as Poppins — and DM Sans keeps everything under it geometric and calm.
+   * DM Sans is one variable face over 400..700, so 400, 500 and 700 are all real instances; that
+   * is how a two-family pairing fits in three faces.
+   */
+  'clinic-marquee': {
+    heading: "'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif",
+    body: "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+    control: "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+    headingWeight: 700,
+    displayWeight: 800,
+    bodyWeight: 400,
+    controlWeight: 700,
+    faceIds: [
+      'bricolage-grotesque-700',
+      'bricolage-grotesque-800',
+      'dm-sans-400-700',
+    ],
+    familyCount: 2,
   },
 } as const satisfies Readonly<Record<ClinicTypographyPreset, ClinicLatinFontPreset>>);

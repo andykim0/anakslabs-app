@@ -808,7 +808,18 @@ export type ClinicAccentPreset =
 export type ClinicTypographyPreset =
   | 'clinic-editorial'
   | 'clinic-geometric'
-  | 'clinic-neutral';
+  | 'clinic-neutral'
+  /** MARQUEE 전용 — Bricolage Grotesque 700/800 + DM Sans. designLanguage 없이는 발급되지 않는다. */
+  | 'clinic-marquee';
+
+/**
+ * 렌더 디자인 언어. 부재 = 이 필드가 생기기 전부터 엔진이 그려 온 그 언어이며,
+ * 저장 바이트·출력 바이트 모두 그대로다(specialty 선례와 동일).
+ *
+ * 이 값은 **컴파일의 입력**이다. 팔레트 게이트와 typography 선택이 컴파일에서 이 값을 보고
+ * 갈라지며, 렌더러는 저장된 필드만 읽고 원문에서 다시 유도하지 않는다.
+ */
+export type ClinicDesignLanguage = 'marquee';
 
 /**
  * TEMPLATE-SYSTEM §2 팔레트 — 클리닉 자기 사이트에서 뽑아 게이트를 통과한 7슬롯.
@@ -844,6 +855,14 @@ export interface ClinicMasterPin {
    * 쓰지 않는다(= 기존 출력 바이트 그대로).
    */
   specialty?: import('@/lib/us-demo/clinic-palette').ClinicSpecialty;
+  /**
+   * 이 발급분이 그려질 디자인 언어. specialty와 같은 규약으로 산다 — 컴파일이 한 번 정하고
+   * 저장하며, 렌더러는 읽기만 한다.
+   *
+   * 부재 = 현재 기본 언어. 이 필드가 생기기 전 모든 발급분이 이미 뜻하던 값이라, 기본 언어는
+   * 지금도 이 키를 쓰지 않는다(= 기존 저장·출력 바이트 그대로).
+   */
+  designLanguage?: ClinicDesignLanguage;
   accentPreset: ClinicAccentPreset;
   typographyPreset: ClinicTypographyPreset;
   density: 'airy' | 'balanced';

@@ -19,6 +19,7 @@ import {
   UsDemoCompileError,
 } from '@/lib/us-demo/contracts';
 import { CLINIC_SPECIALTIES } from '@/lib/us-demo/clinic-palette';
+import { CLINIC_DESIGN_LANGUAGES } from '@/lib/us-demo/design-language';
 import {
   prepareUsMedicalPreview,
   type UsMedicalDeliveryAdvisory,
@@ -57,6 +58,12 @@ const createSchema = z.object({
    * is an operator overruling that, which is recorded on the compiled pin either way.
    */
   specialty: z.enum(CLINIC_SPECIALTIES).optional(),
+  /**
+   * us-medical-outreach only. Wave 1 is operator override ONLY — omitted means the default design
+   * language and no measurement runs to pick one. The value is an input to the compile, and the
+   * compile records it on the pin.
+   */
+  designLanguage: z.enum(CLINIC_DESIGN_LANGUAGES).optional(),
   manualFinish: z.object({
     includeBlockIds: z.array(z.string().min(1).max(100)).max(100).optional(),
     orderedBlockIds: z.array(z.string().min(1).max(100)).max(100).optional(),
@@ -105,6 +112,7 @@ export const POST = withApiHandler(async (
         manualFinish: body.data.manualFinish,
         renderMode: body.data.renderMode,
         ...(body.data.specialty ? { specialty: body.data.specialty } : {}),
+        ...(body.data.designLanguage ? { designLanguage: body.data.designLanguage } : {}),
       });
       config = prepared.config;
       sourceReport = prepared.sourceReport;

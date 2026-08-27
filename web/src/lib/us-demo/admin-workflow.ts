@@ -1,6 +1,6 @@
 import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
-import type { SiteConfig } from '@/lib/types/site';
+import type { ClinicDesignLanguage, SiteConfig } from '@/lib/types/site';
 import type { UsDemoManualFinish, UsDemoRenderMode } from './contracts';
 import { compileUsMedicalDemo } from './source-compiler';
 import {
@@ -114,6 +114,13 @@ export function prepareUsMedicalPreview(input: {
    * (`resolveClinicSpecialty`); either way the answer is stored on the pin and read from there.
    */
   specialty?: ClinicSpecialty;
+  /**
+   * Operator override for the design language. Wave 1 has no auto-selection: omitted means the
+   * default language and nothing measures the source to choose one. Supplied, it is an input to
+   * the compile — the palette gate and the typography pairing both branch on it — and the answer
+   * is stored on the pin and read from there.
+   */
+  designLanguage?: ClinicDesignLanguage;
 }): PreparedUsMedicalPreview {
   const renderMode = input.renderMode ?? 'outreach-safe';
   sourceAiVisibilitySummary(input.artifact);
@@ -121,6 +128,7 @@ export function prepareUsMedicalPreview(input: {
     manualFinish: input.manualFinish,
     renderMode,
     ...(input.specialty ? { specialty: input.specialty } : {}),
+    ...(input.designLanguage ? { designLanguage: input.designLanguage } : {}),
   });
   /**
    * The medical-ad screen runs HERE, at issuance, not at delivery.

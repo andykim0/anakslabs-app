@@ -56,6 +56,17 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
     familyCount: 1,
     faceCount: 3,
   },
+  'clinic-marquee': {
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].displayWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-marquee'].controlWeight,
+    familyCount: 2,
+    faceCount: 3,
+  },
 } as const satisfies Record<ClinicTypographyPreset, {
   headingFamily: string;
   headingWeight: number;
@@ -67,6 +78,54 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
   familyCount: 1 | 2;
   faceCount: 3 | 4;
 }>);
+
+/**
+ * MARQUEE's geometry, as a PARALLEL table rather than conditional keys on `CLINIC_RADIUS_TOKENS`.
+ *
+ * `CLINIC_RADIUS_TOKENS` is documented as not being a pin axis and `clinicMasterRenderTokens`
+ * returns `as const`; a language-conditional key on either would make the default path's shape
+ * depend on a field the default path does not have. MARQUEE's radii are not a scaling of the
+ * default 0/2/4/6 either — they are a different vocabulary (full pills, 22px cards, deliberately
+ * asymmetric gallery tiles) with 2px borders where the default has hairlines. So: its own table.
+ */
+export const CLINIC_MARQUEE_RADIUS_TOKENS = Object.freeze({
+  /** Buttons, chips, location pills, kickers. */
+  pill: 999,
+  card: 22,
+  panel: 30,
+  plate: 30,
+  bookingBar: 20,
+  mark: 10,
+  /** The gallery's hand-placed corners — one 8px notch per tile so the grid is not templated. */
+  tileFeature: '30px',
+  tileA: '30px 30px 8px 30px',
+  tileB: '30px 30px 30px 8px',
+  tileC: '8px 30px 30px 30px',
+  tileD: '30px 8px 30px 30px',
+  /** Every MARQUEE border is 2px. The language has no hairlines. */
+  borderWidth: 2,
+  /** The header's stuck-state bottom rule. */
+  ruleWidth: 4,
+} as const);
+
+export function clinicMarqueeRenderTokens() {
+  const radius = CLINIC_MARQUEE_RADIUS_TOKENS;
+  return {
+    radiusPill: `${radius.pill}px`,
+    radiusCard: `${radius.card}px`,
+    radiusPanel: `${radius.panel}px`,
+    radiusPlate: `${radius.plate}px`,
+    radiusBookingBar: `${radius.bookingBar}px`,
+    radiusMark: `${radius.mark}px`,
+    tileFeature: radius.tileFeature,
+    tileA: radius.tileA,
+    tileB: radius.tileB,
+    tileC: radius.tileC,
+    tileD: radius.tileD,
+    borderWidth: `${radius.borderWidth}px`,
+    ruleWidth: `${radius.ruleWidth}px`,
+  } as const;
+}
 
 export const CLINIC_DENSITY_TOKENS = Object.freeze({
   airy: {

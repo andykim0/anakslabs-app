@@ -181,7 +181,15 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     const manifest = latinFontManifest();
     assert.equal(manifest.status, 'production-ready');
     assert.equal(manifest.assetVersion, 1);
-    assert.equal(manifest.assets.length, 9);
+    /**
+     * 9 -> 12, and the arithmetic before the number: MARQUEE adds exactly three faces
+     * (bricolage-grotesque-700, bricolage-grotesque-800, dm-sans-400-700). The manifest diff that
+     * produced this is 81 insertions and 0 deletions, and all nine pre-existing WOFF2 files are
+     * byte-identical — the subset build is deterministic, so re-running it moved no existing asset.
+     * The budgets below are UNCHANGED: MARQUEE fits inside them at 2 families / 3 faces / 72,444 B
+     * rather than being let through by raising a ceiling.
+     */
+    assert.equal(manifest.assets.length, 12);
     assert.deepEqual(manifest.budgets, LATIN_FONT_PERFORMANCE_BUDGETS);
     assert.deepEqual(LATIN_FONT_PERFORMANCE_BUDGETS, {
       firstScreenTargetBytes: 122880,
