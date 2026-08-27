@@ -300,11 +300,28 @@ export function clinicTemplateDecisionFromSource(input: {
     .toLocaleLowerCase('en-US')
     .replace(/[^a-z0-9]+/gu, ' ')
     .trim();
-  const distinctAddresses = new Set(
+  const normalized = new Set(
     input.blocks
       .filter((block) => block.kind === 'address')
       .map((block) => normalizedAddress(block.text))
       .filter((text) => text.length > 0),
+  );
+  /**
+   * One door, written twice, with something glued to the front of one of them. A neighbouring
+   * phone number or review count landing in front of the street number produced
+   * "1000 2733 elk grove blvd suite 180 elk grove ca 95758" beside the practice's own
+   * "2733 elk grove blvd suite 180 elk grove ca 95758", and the second entry read a single
+   * dentist as a two-site group.
+   *
+   * The containment rule is exactly this and no wider: when one normalised address ends with
+   * another — same street, suite, city, state and ZIP, on a whole-token boundary — the longer one
+   * is the shorter one with a prefix on it, so it is the same address. Two genuinely different
+   * locations never end in each other's street-city-state-ZIP tail, so a real network is untouched.
+   */
+  const distinctAddresses = new Set(
+    [...normalized].filter((address) => ![...normalized].some(
+      (other) => other !== address && address.endsWith(` ${other}`),
+    )),
   );
   // The /locations/ URL signal is still in the crawl and is deliberately NOT consulted here: it
   // is what produced the false positive above, and a signal that cannot change the answer is not

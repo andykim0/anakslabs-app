@@ -352,6 +352,38 @@ const CHROME_EXEMPT_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
   'opening_hours',
 ]);
 
+/**
+ * Page text is DOM nodes joined by a single space, so a phone node sitting next to an address node
+ * becomes one run of characters. Ora Dentistry's header prints
+ *
+ *   "Phone: (916) 975-1000 2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758"
+ *
+ * and ADDRESS_TOKEN_RE's leading street number matched the phone's last four digits — every page
+ * but /contact-us/ yielded "1000 2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758". The demo
+ * then printed that mangled address on its contact page and, because the practice's own contact
+ * page carried the clean form, counted two distinct addresses and read one dentist as a chain.
+ *
+ * A street number is not the tail of a phone number. So a match that begins inside a phone token
+ * is discarded and the search resumes after that phone — the address itself is untouched.
+ */
+function addressFromPageText(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  const phones = new RegExp(PHONE_TOKEN_RE.source, 'gu');
+  const spans: Array<{ start: number; end: number }> = [];
+  for (let hit = phones.exec(text); hit; hit = phones.exec(text)) {
+    spans.push({ start: hit.index, end: hit.index + hit[0].length });
+  }
+  for (let from = 0; from <= text.length;) {
+    const match = ADDRESS_TOKEN_RE.exec(text.slice(from));
+    if (!match) return undefined;
+    const start = from + match.index;
+    const phone = spans.find((span) => span.start <= start && start < span.end);
+    if (!phone) return match[0];
+    from = phone.end;
+  }
+  return undefined;
+}
+
 function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (!safePage(page)) return [];
   const blocks: ProspectPublicSourceBlock[] = [];
@@ -382,7 +414,7 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
    */
   add(
     'address',
-    page.structured.address ?? ADDRESS_TOKEN_RE.exec(page.text ?? '')?.[0],
+    page.structured.address ?? addressFromPageText(page.text),
     page.structured.address ? 'structured.address' : 'text.address',
   );
   add(

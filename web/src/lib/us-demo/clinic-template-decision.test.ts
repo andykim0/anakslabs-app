@@ -153,6 +153,38 @@ describe('TEMPLATE-SYSTEM §7-2 — the decision is recorded, from source', () =
     });
     assert.equal(punctuationVariants.input.multiLocation, false);
 
+    /**
+     * The same door with something glued to the front of it is still one door. Ora Dentistry's
+     * header printed its phone immediately before its address, so a stray "1000" led one copy of
+     * the address and normalisation kept both — a single dentist counted as a two-site group.
+     * Containment is the rule and its whole width: one normalised address ends with the other.
+     */
+    const gluedPrefix = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
+      pageUrls: locationUrls,
+      blocks: [
+        ...blocks.filter((b) => b.kind !== 'address'),
+        address('1000 2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'),
+        address('2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'),
+      ],
+      eligiblePhotoCount: 30,
+    });
+    assert.equal(gluedPrefix.input.multiLocation, false);
+
+    // And containment is not a licence to merge neighbours: same street and city, different
+    // number, is two doors. Neither ends with the other.
+    const twoDoorsOneStreet = clinicTemplateDecisionFromSource({
+      specialty: 'dental',
+      pageUrls: locationUrls,
+      blocks: [
+        ...blocks.filter((b) => b.kind !== 'address'),
+        address('2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'),
+        address('2755 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'),
+      ],
+      eligiblePhotoCount: 30,
+    });
+    assert.equal(twoDoorsOneStreet.input.multiLocation, true);
+
     // Trust bands come from source evidence, and two of them make it an R practice.
     // Single address on purpose: dental360's own blocks carry eight, which would correctly make
     // this a network and settle the decision at T7 before the R/S axis is ever consulted.

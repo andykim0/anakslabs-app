@@ -11,7 +11,7 @@ import {
   UsDemoCompileError,
 } from './contracts';
 import { compileUsMedicalDemo } from './source-compiler';
-import { sourceBlockHashIsValid } from './source-extraction';
+import { prospectPublicSourceBlocks, sourceBlockHashIsValid } from './source-extraction';
 import { screenUsMedicalDemoCopy } from './us-medical-ad-guard';
 
 function page(input: Partial<CrawlPageArtifact> & Pick<CrawlPageArtifact, 'url'>): CrawlPageArtifact {
@@ -409,5 +409,46 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       if (previous === undefined) delete process.env.LATIN_FONT_PAIRINGS_ENABLED;
       else process.env.LATIN_FONT_PAIRINGS_ENABLED = previous;
     }
+  });
+});
+
+/**
+ * Page text is DOM nodes joined by a space, so an adjacent phone node runs straight into the
+ * address node. Ora Dentistry's header reads "Phone: (916) 975-1000 2733 Elk Grove Blvd, ..." and
+ * the address sweep took the phone's last four digits for a street number on every page but
+ * /contact-us/ — a mangled address on the rendered contact page, and a phantom second address that
+ * pushed a single-dentist practice into the multi-location branch.
+ */
+describe('주소 추출 — 번지수는 전화번호의 꼬리가 아니다', () => {
+  const withHeader = (text: string) => artifact([
+    page({
+      url: 'https://clinic.example/',
+      title: 'Elk Grove Family Dentistry',
+      text,
+    }),
+  ]);
+  const addresses = (text: string) => prospectPublicSourceBlocks(withHeader(text))
+    .filter((block) => block.kind === 'address')
+    .map((block) => block.text);
+
+  test('주소 앞에 붙은 전화번호가 번지수로 읽히지 않는다', () => {
+    assert.deepEqual(
+      addresses(
+        'Phone: (916) 975-1000 2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'
+        + ' Monday - Thursday 7:00am - 5:00pm',
+      ),
+      ['2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'],
+    );
+  });
+
+  test('앞에 전화번호가 없으면 주소는 그대로다', () => {
+    assert.deepEqual(
+      addresses('Contact us 2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'),
+      ['2733 Elk Grove Blvd, Suite 180 Elk Grove, CA 95758'],
+    );
+  });
+
+  test('후보가 전화번호 안에만 있으면 주소는 없다', () => {
+    assert.deepEqual(addresses('Call us at (916) 975-1000 today.'), []);
   });
 });
