@@ -12,6 +12,15 @@ import { clinicMarqueeRenderTokens } from '@/lib/clinic-master/tokens';
  * MARQUEE off them is that no KR path stamps the field. The selector makes that structural rather
  * than merely true — see `marquee-invariants.test.ts`.
  */
+/**
+ * The board's inline stroke under a display keyword, as a percent-encoded SVG used for masking.
+ * Hand-drawn rather than a rule: the whole point of the mark is that it does not look ruled.
+ */
+const MARQUEE_UNDERLINE_MASK =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14'"
+  + " preserveAspectRatio='none'%3E%3Cpath d='M3 9.5C38 3.2 74 11.4 112 6.1 145 1.6 172 8.4 197 4.6'"
+  + " fill='none' stroke='%23000' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E\")";
+
 export function marqueeIsActive(config: SiteConfig): boolean {
   return config.clinicMaster?.designLanguage === 'marquee';
 }
@@ -38,6 +47,12 @@ export function marqueeRootStyle(pin: ClinicMasterPin): Record<string, string> {
     '--mq-on-plum-link': MARQUEE_TOKENS.onPlumLink,
     '--mq-spring': MARQUEE_TOKENS.spring,
     '--mq-ease': MARQUEE_TOKENS.ease,
+    /**
+     * The underline mark, as a MASK rather than a coloured asset. Baking a fill into the SVG would
+     * freeze one practice's colour into the language; masking lets the stroke be painted with
+     * whatever --mq-brand the compile adopted, which is the point of the mark.
+     */
+    '--mq-underline': MARQUEE_UNDERLINE_MASK,
     '--mq-r-pill': radius.radiusPill,
     '--mq-r-card': radius.radiusCard,
     '--mq-r-panel': radius.radiusPanel,
@@ -121,12 +136,41 @@ ${S} [data-clinic-flow-section] {
 ${S} [data-clinic-flow-section]:nth-of-type(even) {
   background: var(--mq-lilac-tint);
 }
+/*
+  !important on a SECTION background, and the reason is the same inline-wins trap the buttons hit.
+  Measured on the served DOM: every flow section carries its surface inline —
+  <section data-section-type="cta" data-section-surface-tone="brand"
+           style="background-color:oklch(0.9500 0.0400 296.54);...">
+  so an author rule for the band never applied and the board's one full-bleed brand moment
+  rendered lilac. The section also publishes --clinic-section-* variables that its descendants
+  read, so those are re-pointed too rather than fighting each child individually.
+*/
 ${S} [data-section-type="cta"] {
-  background: var(--mq-brand);
-  color: var(--mq-brand-ink);
+  background-color: var(--mq-brand) !important;
+  color: var(--mq-brand-ink) !important;
+  --clinic-section-text: var(--mq-brand-ink);
+  --clinic-section-muted: var(--mq-brand-ink);
+  --clinic-section-accent: var(--mq-ink);
 }
-${S} [data-section-type="cta"] :is([data-clinic-flow-heading],[data-clinic-flow-intro],[data-clinic-flow-copy]) {
-  color: var(--mq-brand-ink);
+/*
+  A CTA band has no cards. The band reuses the generic flow-item wrapper, so the card treatment
+  landed on it and put a white 22px panel around the single action, floating on the brand surface.
+*/
+${S} [data-section-type="cta"] [data-clinic-flow-item] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+${S} [data-section-type="cta"] [data-clinic-flow-item]:hover {
+  transform: none;
+  box-shadow: none;
+}
+${S} [data-section-type="cta"] [data-clinic-flow-item-copy] {
+  padding: 0;
+}
+${S} [data-section-type="cta"] :is(h1,h2,h3,p,[data-clinic-flow-heading],[data-clinic-flow-intro],[data-clinic-flow-copy],[data-clinic-flow-item-heading]) {
+  color: var(--mq-brand-ink) !important;
 }
 
 /* ---- type -------------------------------------------------------------- */
@@ -278,9 +322,102 @@ ${S} [data-clinic-flow-item]:nth-child(4n+4) [data-clinic-flow-media] { border-r
 ${S} [data-clinic-flow-item] [data-clinic-flow-media] { border-radius: 0; border: 0; }
 
 /* ---- hero: lilac surface, plated art over a solid brand block ---------- */
+/* Same inline surface, same remedy: the hero ships background-color:#FFFFFF inline. */
 ${S} [data-section-type="hero"] {
-  background: var(--mq-lilac);
+  background-color: var(--mq-lilac) !important;
 }
+
+/*
+  The hero copy plate paints --clinic-background over the band. That is right for a language whose
+  hero is white; here it cut a white column out of the lilac field. It is a stylesheet rule rather
+  than an inline style, so scoping alone wins — no !important needed.
+*/
+${S} [data-clinic-hero-mode] [data-clinic-hero-plate] {
+  background: transparent;
+}
+
+/*
+  The hero's call to action is NOT .anaks-btn. The served DOM renders it as
+  <span data-clinic-hero-cta="true" aria-disabled="true">, so every button rule in this sheet
+  missed it and it kept the engine's square default. It gets the board's button spec directly.
+*/
+${S} [data-clinic-hero-cta] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  padding: 0 30px;
+  border-radius: var(--mq-r-pill);
+  background-color: var(--mq-brand);
+  color: var(--mq-brand-ink) !important;
+  box-shadow: 0 5px 0 var(--mq-ink);
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  transition: transform .16s var(--mq-spring), box-shadow .16s var(--mq-ease);
+}
+${S} [data-clinic-hero-cta]:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 var(--mq-ink);
+}
+
+/*
+  THE UNDERLINE MARK. A stroke in the practice's own colour under the display heading, drawn as a
+  mask so the colour stays the extracted brand rather than being baked into the asset. The board
+  puts it under one keyword; the compile does not mark a keyword, so inventing one would mean
+  touching content. It underlines the head of the heading instead — declared, not silently
+  approximated.
+*/
+${S} [data-clinic-typography-tier="display"]::after {
+  content: "";
+  display: block;
+  width: min(46%, 9em);
+  height: .17em;
+  margin-top: .12em;
+  background-color: var(--mq-brand);
+  -webkit-mask-image: var(--mq-underline);
+  mask-image: var(--mq-underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/*
+  GALLERY. The board sizes its rows so every tile lands on the language's 3:2 landscape ratio
+  (a 285px column at the 1200px container is a 190px row); aspect-ratio expresses the same rhythm
+  without pinning a pixel height that only holds at one container width. Tiles are bare and
+  hand-placed — 2px ink borders, one 8px notch per corner pattern — not cards, so the card
+  treatment is undone here rather than never applied.
+*/
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-items] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  padding: 0;
+}
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item]:hover {
+  transform: none;
+  box-shadow: none;
+}
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item-copy] {
+  padding: 12px 0 0;
+}
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] {
+  aspect-ratio: 3 / 2;
+  border: var(--mq-border) solid var(--mq-ink) !important;
+  background: var(--mq-ink);
+  border-radius: var(--mq-tile-a) !important;
+}
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item]:nth-child(4n+2) [data-clinic-flow-media] { border-radius: var(--mq-tile-b) !important; }
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item]:nth-child(4n+3) [data-clinic-flow-media] { border-radius: var(--mq-tile-c) !important; }
+${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item]:nth-child(4n+4) [data-clinic-flow-media] { border-radius: var(--mq-tile-d) !important; }
 ${S} [data-clinic-flow-hero-media] {
   position: relative;
   border-radius: var(--mq-r-panel);
@@ -437,6 +574,9 @@ ${S} [data-clinic-motion-signature="marquee-spring"] [data-clinic-variant-reveal
     transform: translateY(16px) scale(.98);
   }
   ${S} [data-clinic-flow-items] { grid-template-columns: 1fr; }
+  ${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-items] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   ${S} [data-clinic-flow-heading] { max-width: none; }
   [data-marquee-utility-inner] { justify-content: flex-start; }
 }
